@@ -1,4 +1,4 @@
-const EVENT_TYPES = new Set(['app_open', 'active_time', 'question_attempt', 'exercise_result', 'section_use', 'support_use']);
+const EVENT_TYPES = new Set(['app_open', 'active_time', 'question_answered', 'question_attempt', 'exercise_result', 'section_use', 'support_use']);
 const MODES = new Set(['practice', 'exam']);
 const APP_KEYS = new Set(['paraphrasing', 'reading', 'essay_writing', 'listening']);
 const OUTCOMES = new Set(['correct', 'try_again']);
