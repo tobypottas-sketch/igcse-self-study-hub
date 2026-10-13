@@ -37,7 +37,7 @@ export function renderActivityOverview(root, profile, classes, model, state = {}
         <label>Period<select data-action="activity-period">${option('7d','Last 7 days',period)}${option('30d','Last 30 days',period)}${option('all','All time',period)}</select></label>
       </div>
       <div class="activity-table-wrap card-panel">
-        ${(model.rows || []).length ? `<table class="activity-table"><thead><tr><th>Student</th><th>Last active</th><th>Active time</th><th>Attempts</th><th>Accuracy</th><th>Apps</th><th>Main weakness</th></tr></thead><tbody>${rows}</tbody></table>` : '<p class="empty-state">No Self-Study activity recorded for this period.</p>'}
+        ${(model.rows || []).length ? `<table class="activity-table"><thead><tr><th>Student</th><th>Last active</th><th>Active time</th><th>Questions attempted</th><th>First-attempt accuracy</th><th>Apps</th><th>Main weakness</th></tr></thead><tbody>${rows}</tbody></table>` : '<p class="empty-state">No Self-Study activity recorded for this period.</p>'}
       </div>
     </section>`;
 }
@@ -76,7 +76,7 @@ function renderRecentActivityItem(item, index) {
 export function renderStudentActivity(root, profile, studentModel, state = {}) {
   const period = state.period || studentModel.period || '7d';
   const appCards = (studentModel.apps || []).map(app => `
-    <div class="metric-card"><strong>${escapeHtml(app.appLabel)}</strong><span>${escapeHtml(app.activeTime)}</span><span>${escapeHtml(app.attempts)} attempts</span><span>${escapeHtml(app.accuracy)} accuracy</span><small>${escapeHtml((app.skills || []).join(', ') || 'No comparable skills')}</small></div>`).join('');
+    <div class="metric-card"><strong>${escapeHtml(app.appLabel)}</strong><span>${escapeHtml(app.activeTime)}</span><span>${escapeHtml(app.attempts)} questions attempted</span><span>${escapeHtml(app.accuracy)} first-attempt accuracy</span><small>${escapeHtml((app.skills || []).join(', ') || 'No comparable skills')}</small></div>`).join('');
   const skillRows = (studentModel.skills || []).map(skill => `<tr><td>${escapeHtml(skill.skill)}</td><td>${escapeHtml(skill.attempts)}</td><td>${escapeHtml(skill.correct)}</td><td>${escapeHtml(skill.accuracy)}</td></tr>`).join('');
   const recentItems = studentModel.recent || [];
   const timeline = recentItems.map(renderRecentActivityItem).join('');
@@ -94,12 +94,12 @@ export function renderStudentActivity(root, profile, studentModel, state = {}) {
       <div class="metric-grid">
         <div class="metric-card"><span>Last active</span><strong>${escapeHtml(studentModel.lastActive)}</strong></div>
         <div class="metric-card"><span>Active time</span><strong>${escapeHtml(studentModel.activeTime)}</strong></div>
-        <div class="metric-card"><span>Attempts</span><strong>${escapeHtml(studentModel.attempts)}</strong></div>
-        <div class="metric-card"><span>Valid accuracy</span><strong>${escapeHtml(studentModel.accuracy)}</strong></div>
+        <div class="metric-card"><span>Questions attempted</span><strong>${escapeHtml(studentModel.attempts)}</strong></div>
+        <div class="metric-card"><span>First-attempt accuracy</span><strong>${escapeHtml(studentModel.accuracy)}</strong></div>
         <div class="metric-card"><span>Apps used</span><strong>${escapeHtml((studentModel.appsUsed || []).join(', ') || '—')}</strong></div>
       </div>
       <section class="card-panel"><h2>App breakdown</h2><div class="metric-grid">${appCards || '<p class="empty-state">No app activity in this period.</p>'}</div></section>
-      <section class="card-panel"><h2>Skill breakdown</h2>${skillRows ? `<table class="activity-table"><thead><tr><th>Skill</th><th>Attempts</th><th>Correct</th><th>Accuracy</th></tr></thead><tbody>${skillRows}</tbody></table>` : '<p class="empty-state">No comparable question attempts.</p>'}</section>
+      <section class="card-panel"><h2>Skill breakdown</h2>${skillRows ? `<table class="activity-table"><thead><tr><th>Skill</th><th>Questions attempted</th><th>Correct first time</th><th>First-attempt accuracy</th></tr></thead><tbody>${skillRows}</tbody></table>` : '<p class="empty-state">No comparable question attempts.</p>'}</section>
       ${exerciseRows ? `<section class="card-panel"><h2>Exercise results</h2><table class="activity-table"><thead><tr><th>App</th><th>Skill</th><th>Score</th><th>When</th></tr></thead><tbody>${exerciseRows}</tbody></table></section>` : ''}
       <section class="card-panel recent-activity-card"><div class="recent-activity-heading"><h2>Recent activity</h2>${recentToggle}</div>${timeline ? `<ul class="activity-timeline">${timeline}</ul>` : '<p class="empty-state">No recent activity.</p>'}</section>
     </section>`;
