@@ -5,7 +5,8 @@ export function buildHomeModel(profile, apps) {
     displayName: profile.display_name,
     role: profile.role,
     apps: apps.filter(app => app.enabled),
-    showAdminControls: profile.role === 'admin'
+    showAdminControls: profile.role === 'admin',
+    showActivity: profile.role === 'admin' || profile.role === 'teacher'
   };
 }
 
@@ -16,22 +17,20 @@ export function renderHome(root, profile, apps) {
       <span class="app-card__title">${escapeHtml(app.display_name)}</span>
       <span class="app-card__meta">Open practice</span>
     </a>`).join('');
+  const actions = [
+    model.showActivity ? '<button class="button" data-action="activity">Activity</button>' : '',
+    model.showAdminControls ? '<button class="button" data-action="admin">Manage accounts</button>' : ''
+  ].filter(Boolean).join('');
 
   root.innerHTML = `
     <section class="shell">
       <header class="topbar">
-        <div>
-          <p class="eyebrow">iGCSE Self-Study</p>
-          <h1>Welcome, ${escapeHtml(model.displayName)}</h1>
-        </div>
+        <div><p class="eyebrow">iGCSE Self-Study</p><h1>Welcome, ${escapeHtml(model.displayName)}</h1></div>
         <button class="button button--ghost" data-action="logout">Log out</button>
       </header>
       <div class="section-heading">
-        <div>
-          <h2>Choose a study app</h2>
-          <p>Your activity will be linked to your account.</p>
-        </div>
-        ${model.showAdminControls ? '<button class="button" data-action="admin">Manage accounts</button>' : ''}
+        <div><h2>Choose a study app</h2><p>Your activity will be linked to your account.</p></div>
+        <div class="button-row">${actions}</div>
       </div>
       <div class="app-grid">${cards}</div>
     </section>`;
