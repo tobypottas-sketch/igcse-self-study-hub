@@ -13,7 +13,7 @@ import { renderLogin } from './views/login.js';
 import { renderChangePassword } from './views/change-password.js';
 import { renderHome } from './views/home.js';
 import { renderAdminAccounts, canAccessAdmin } from './views/admin.js';
-import { renderActivityOverview, renderStudentActivity } from './views/activity.js';
+import { renderActivityOverview, renderStudentActivity } from './views/activity.js?v=20261013-2108';
 import { buildClassActivityModel, buildStudentActivityModel, periodToSince } from './views/activity-model.js';
 import { escapeHtml } from './views/html.js';
 
