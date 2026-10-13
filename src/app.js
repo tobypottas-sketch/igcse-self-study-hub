@@ -6,10 +6,13 @@ import {
   loadStudentActivitySummary,
   loadStudentRecentActivity
 } from './api.js';
+import { createStudentAccount } from './admin/accounts.js';
+import { createClass } from './admin/classes.js';
 import { getSupabaseClient } from './supabase.js';
 import { renderLogin } from './views/login.js';
 import { renderChangePassword } from './views/change-password.js';
 import { renderHome } from './views/home.js';
+import { renderAdminAccounts, canAccessAdmin } from './views/admin.js';
 import { renderActivityOverview, renderStudentActivity } from './views/activity.js';
 import { buildClassActivityModel, buildStudentActivityModel, periodToSince } from './views/activity-model.js';
 import { escapeHtml } from './views/html.js';
@@ -79,6 +82,16 @@ export async function bootApp(clientOverride = null) {
     renderError(root, currentState.error instanceof Error ? currentState.error.message : 'Unable to load your account.');
   };
 
+  const renderAdminState = async (feedback = {}) => {
+    if (!canAccessAdmin(currentState.profile)) return renderHome(root, currentState.profile, currentState.apps);
+    try {
+      const classes = await loadActivityClasses(client);
+      renderAdminAccounts(root, currentState.profile, classes, feedback);
+    } catch {
+      renderAdminAccounts(root, currentState.profile, [], { message: 'Unable to load classes right now.', tone: 'error' });
+    }
+  };
+
   const renderActivityOverviewState = async () => {
     const profile = currentState.profile || activityState.profile;
     try {
@@ -93,6 +106,33 @@ export async function bootApp(clientOverride = null) {
   root.addEventListener('submit', async (event) => {
     const form = event.target;
     const kind = form?.dataset?.form;
+
+    if (kind === 'admin-create-class' || kind === 'admin-create-student') {
+      event.preventDefault();
+      if (!canAccessAdmin(currentState.profile)) return renderHome(root, currentState.profile, currentState.apps);
+      const data = new FormData(form);
+      try {
+        if (kind === 'admin-create-class') {
+          await createClass(client, String(data.get('className') ?? '').trim());
+          await renderAdminState({ message: 'Class created.', tone: 'success' });
+        } else {
+          await createStudentAccount(client, {
+            displayName: String(data.get('displayName') ?? '').trim(),
+            email: String(data.get('email') ?? '').trim(),
+            temporaryPassword: String(data.get('temporaryPassword') ?? ''),
+            classId: String(data.get('classId') ?? '')
+          });
+          await renderAdminState({ message: 'Student account created.', tone: 'success' });
+        }
+      } catch {
+        await renderAdminState({
+          message: kind === 'admin-create-class' ? 'Unable to create class.' : 'Unable to create student account.',
+          tone: 'error'
+        });
+      }
+      return;
+    }
+
     if (kind !== 'login' && kind !== 'change-password') return;
     event.preventDefault();
     const data = new FormData(form);
@@ -119,6 +159,8 @@ export async function bootApp(clientOverride = null) {
     const action = target?.dataset?.action;
     if (action === 'logout') { await client.auth.signOut(); await renderCurrentState(); }
     else if (action === 'retry') { await renderCurrentState(); }
+    else if (action === 'admin') { await renderAdminState(); }
+    else if (action === 'admin-home') { renderHome(root, currentState.profile, currentState.apps); }
     else if (action === 'activity') {
       if (!canAccessActivity(currentState.profile)) return renderHome(root, currentState.profile, currentState.apps);
       activityState = { classId:'', period:'7d', classes:[], profile:currentState.profile };
