@@ -17,7 +17,7 @@ This is the first teacher analytics surface for the Self-Study system. It exists
 - Original Paraphrasing and Reading production apps remain untouched.
 - Listening and Essay Writing are not instrumented as part of this work.
 - No raw student-written answers, prompts or passage text are displayed or stored by this dashboard.
-- The dashboard reads the existing Self-Study `activity_events` data only.
+- The dashboard uses the existing Self-Study `activity_events` data together with existing profile/class/membership data; it does not create a second analytics datastore.
 - Student accounts must never receive access to teacher analytics.
 
 ## Roles and access
@@ -28,9 +28,11 @@ Can access Activity and view all classes and all students in the Self-Study proj
 
 ### Teacher
 
-Can access Activity but only for classes currently assigned to that teacher through `teacher_classes`.
+Can access Activity for classes assigned to that teacher through `teacher_classes`.
 
-Teachers may see the full historical Self-Study activity of students currently in one of their authorised classes, consistent with the previously approved class-history model.
+For students currently enrolled in one of those classes, the teacher may see the student’s full historical Self-Study activity, consistent with the previously approved class-history model.
+
+For a student who has transferred out of an assigned class, the old class teacher may retain access only to activity associated with the period when that student belonged to the old class. The old class teacher must not see new activity created after transfer unless another current authorisation permits it.
 
 ### Student
 
@@ -68,9 +70,11 @@ Admin may choose any active class or an `All classes` view.
 
 Teacher may choose only assigned classes. No `All classes` option is needed for teachers in v1 unless the teacher is assigned to multiple classes; if included, it must aggregate only those authorised classes.
 
+The standard class overview lists current students in the selected class. Historical transferred students do not need to appear in the default current-class table in v1.
+
 ### Student table
 
-One row per student in the selected class.
+One row per current student in the selected class.
 
 Columns:
 
@@ -86,11 +90,11 @@ Columns:
 
 #### Last active
 
-Timestamp of the student’s most recent `activity_events` row within the selected period. If no activity exists, show `No activity`.
+Timestamp of the student’s most recent authorised `activity_events` row within the selected period. If no activity exists, show `No activity`.
 
 #### Active time
 
-Sum of `active_seconds` from `active_time` events within the selected period.
+Sum of `active_seconds` from authorised `active_time` events within the selected period.
 
 Display as a teacher-friendly duration such as `18 min` or `1 h 12 min`.
 
@@ -98,13 +102,13 @@ This is an estimate of engaged app time, not surveillance-grade elapsed time. Th
 
 #### Attempts
 
-Count of `question_attempt` events within the selected period.
+Count of authorised `question_attempt` events within the selected period.
 
 Exercise-level score events are not counted as question attempts.
 
 #### Accuracy
 
-Calculated only from events with a valid numeric correct/incorrect interpretation, primarily `question_attempt` rows with `score` and `max_score`.
+Calculated only from authorised events with a valid numeric correct/incorrect interpretation, primarily `question_attempt` rows with `score` and `max_score`.
 
 For v1:
 
@@ -142,7 +146,7 @@ Examples of readable skill names:
 
 ## Student drill-down
 
-Clicking a student row opens that student’s Activity detail view.
+Clicking a current student row opens that student’s Activity detail view.
 
 Header:
 
@@ -161,7 +165,7 @@ Header:
 
 ### App breakdown
 
-One compact section per app with data in the period.
+One compact section per app with authorised data in the period.
 
 For each app:
 
@@ -187,7 +191,7 @@ Reading Exercise 3 grouped note results may be shown separately as exercise resu
 
 ### Recent activity timeline
 
-Newest first, limited to a practical number of events in v1 (for example 30–50).
+Newest first, limited to a practical number of authorised events in v1 (for example 30–50).
 
 Human-readable entries such as:
 
@@ -208,7 +212,7 @@ Do not display:
 
 The browser should not perform unrestricted raw-table aggregation logic across all activity rows.
 
-Preferred design: create dedicated database read functions/views for teacher analytics that return only the fields required by the dashboard and inherit the existing role/class permission model.
+Preferred design: create dedicated database read functions/views for teacher analytics that return only the fields required by the dashboard and enforce the existing role/class/membership permission model.
 
 The implementation may use security-invoker views or carefully designed Postgres functions, but must preserve RLS expectations and avoid bypassing class permissions.
 
@@ -225,7 +229,7 @@ Input:
 - optional class id
 - period start timestamp or period key
 
-Output per student:
+Output per current student:
 
 - student id
 - display name
@@ -251,6 +255,8 @@ Output:
 - app-level aggregates
 - skill-level aggregates
 
+For current students, authorised current-class teachers may receive full history. If support for former students is exposed later, returned history must be clipped to periods/events that the requesting teacher is authorised to view.
+
 ### Student recent activity query
 
 Input:
@@ -259,18 +265,21 @@ Input:
 - period start timestamp or period key
 - sensible result limit
 
-Output only privacy-safe event fields required for readable timeline rendering.
+Output only privacy-safe event fields required for readable timeline rendering and only for events the caller is authorised to view.
 
 ## Permissions and transfer behaviour
 
 The backend must enforce:
 
-- admin can read all students
-- teacher can read students currently in assigned classes
+- admin can read all student analytics
+- teacher can read current students in assigned classes
+- current-class teacher may read full historical activity for those current students
+- former/old class teacher must not read post-transfer activity solely because the student used to belong to that class
+- if historical former-student access is provided, it is limited to events associated with the old authorised membership/class period
 - student cannot call teacher analytics successfully
-- teacher cannot read a student outside their authorised current classes
+- teacher cannot read an unrelated class/student
 
-When a student moves class, the new class teacher may see that student’s earlier Self-Study history. The old class teacher must not see activity created after the student leaves unless another current authorisation permits it.
+The event’s class snapshot plus student membership history must be used where necessary to enforce the transfer boundary safely.
 
 ## UI style
 
@@ -310,6 +319,9 @@ Verify:
 
 - admin receives all authorised class/student analytics
 - teacher receives only assigned-class analytics
+- current-class teacher can see full permitted history of a current student
+- old class teacher cannot see post-transfer activity after the student leaves
+- historical former-student access, if implemented, is limited to pre-transfer/old-class authorised events
 - teacher cannot request another class/student
 - student receives no teacher analytics
 
@@ -348,6 +360,7 @@ Verify:
 - CSV download
 - parent-facing analytics
 - targets/grades
+- a dedicated former-students/history browser
 - Listening analytics before Listening is instrumented
 - Essay Writing analytics before Essay Writing is instrumented
 - storing essay or free-response content
@@ -357,7 +370,7 @@ Verify:
 The feature is complete when:
 
 1. An admin can open Activity from the Hub and see real Paraphrasing/Reading evidence.
-2. A teacher can do the same only for authorised classes.
+2. A teacher can do the same only within the approved class/history permission boundaries.
 3. A student cannot access teacher analytics.
 4. Class overview metrics are meaningful and avoid misleading combined scores.
 5. Student drill-down clearly shows app, skill and recent activity evidence.
