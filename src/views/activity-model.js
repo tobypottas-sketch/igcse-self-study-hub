@@ -1,4 +1,4 @@
-const APP_LABELS = { paraphrasing: 'Paraphrasing', reading: 'Reading' };
+const APP_LABELS = { paraphrasing: 'Paraphrasing', reading: 'Reading', listening: 'Listening' };
 const SKILL_LABELS = {
   phrase_match: 'Phrase matching',
   sentence_match: 'Sentence matching',
@@ -11,7 +11,12 @@ const SKILL_LABELS = {
   notes: 'Note completion',
   'note completion': 'Note completion',
   mcq: 'Multiple choice',
-  'multiple choice': 'Multiple choice'
+  'multiple choice': 'Multiple choice',
+  listening_short_extracts: 'Short extracts',
+  listening_dialogues: 'Dialogues',
+  listening_long_talk: 'Long talk',
+  listening_speaker_matching: 'Speaker matching',
+  listening_interview: 'Interview'
 };
 
 export function periodToSince(period, now = new Date()) {
