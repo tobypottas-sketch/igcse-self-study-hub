@@ -169,6 +169,12 @@ export async function bootApp(clientOverride = null) {
       renderHome(root, currentState.profile, currentState.apps);
     } else if (action === 'activity-retry' || action === 'activity-back') {
       await renderActivityOverviewState();
+    } else if (action === 'activity-toggle-more') {
+      const card = target.closest?.('.recent-activity-card');
+      if (!card) return;
+      const expanded = card.classList.toggle('is-expanded');
+      target.textContent = expanded ? 'Show less' : 'Show more';
+      target.setAttribute('aria-expanded', expanded ? 'true' : 'false');
     } else if (action === 'activity-student') {
       if (!canAccessActivity(currentState.profile)) return renderHome(root, currentState.profile, currentState.apps);
       const studentId = target.dataset.studentId;
