@@ -75,7 +75,7 @@ function wrapAfter(win, functionName, after) {
 }
 
 function instrumentChecks(win) {
-  if (win.__selfStudyParaphrasingInstrumented) return;
+  if (win.__selfStudyParaphrasingInstrumented) return false;
   win.__selfStudyParaphrasingInstrumented = true;
 
   wrapAfter(win, 'checkStarterChoice', ([prefix, idx, _optIdx, btn]) => {
@@ -169,6 +169,8 @@ function instrumentChecks(win) {
       metadata: { word_count: parsed.wordCount, question_type: 'ex4' }
     });
   });
+
+  return true;
 }
 
 function markInteraction() {
@@ -218,9 +220,29 @@ function showFailure(message) {
   status.textContent = message;
 }
 
+function attachToLoadedFrame(frame) {
+  try {
+    const win = frame.contentWindow;
+    if (!win || win.location.origin !== window.location.origin) throw new Error('Practice app origin mismatch.');
+    const newlyInstrumented = instrumentChecks(win);
+    if (!newlyInstrumented) return;
+    markInteraction();
+    track({ event_type: 'app_open', mode: currentMode(win) });
+    startActiveTime(win);
+  } catch (error) {
+    showFailure('Paraphrasing opened, but activity tracking could not attach.');
+    console.warn(error);
+  }
+}
+
 async function initialise() {
   const frame = document.getElementById(FRAME_ID);
   if (!frame) return;
+
+  const onFrameLoad = () => {
+    if (enabled) attachToLoadedFrame(frame);
+  };
+  frame.addEventListener('load', onFrameLoad);
 
   try {
     client = await getSupabaseClient();
@@ -242,25 +264,16 @@ async function initialise() {
     }
 
     enabled = true;
+
+    try {
+      if (frame.contentDocument?.readyState === 'complete') attachToLoadedFrame(frame);
+    } catch {
+      // If the frame is still navigating, its load event will attach tracking.
+    }
   } catch (error) {
     showFailure('The Self-Study tracking service is unavailable. Return to the Hub and try again.');
     console.warn(error);
-    return;
   }
-
-  frame.addEventListener('load', () => {
-    try {
-      const win = frame.contentWindow;
-      if (!win || win.location.origin !== window.location.origin) throw new Error('Practice app origin mismatch.');
-      instrumentChecks(win);
-      markInteraction();
-      track({ event_type: 'app_open', mode: currentMode(win) });
-      startActiveTime(win);
-    } catch (error) {
-      showFailure('Paraphrasing opened, but activity tracking could not attach.');
-      console.warn(error);
-    }
-  }, { once: true });
 }
 
 void initialise();
