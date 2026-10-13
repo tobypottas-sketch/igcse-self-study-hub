@@ -25,9 +25,10 @@ test('admin screen renders class and student forms with escaped class labels', (
   assert.match(root.innerHTML, /data-action="admin-home"/);
 });
 
-test('admin screen shows friendly success feedback without echoing passwords', () => {
+test('admin screen shows friendly success feedback without echoing a password value', () => {
   const root = { innerHTML: '' };
   renderAdminAccounts(root, { role: 'admin' }, [], { message: 'Student account created.', tone: 'success' });
   assert.match(root.innerHTML, /Student account created\./);
-  assert.doesNotMatch(root.innerHTML, /temporaryPassword/);
+  assert.doesNotMatch(root.innerHTML, /value="[^\"]+"[^>]*type="password"/i);
+  assert.doesNotMatch(root.innerHTML, /type="password"[^>]*value="[^\"]+"/i);
 });
