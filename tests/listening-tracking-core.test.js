@@ -20,9 +20,9 @@ test('practice listening attempts carry scored outcome without answer content', 
   assert.equal(event.metadata.attempt_number, 2);
 });
 
-test('exam pre-submit attempt deliberately omits correctness', () => {
+test('exam pre-submit answer is completion evidence without correctness', () => {
   const event = buildTrackingEvent(buildListeningAttempt({ sectionId:'ex4', questionNumber:17, mode:'exam', attemptNumber:1 }));
-  assert.equal(event.event_type, 'question_attempt');
+  assert.equal(event.event_type, 'question_answered');
   assert.equal(event.mode, 'exam');
   assert.equal(event.score, undefined);
   assert.equal(event.max_score, undefined);
@@ -30,9 +30,9 @@ test('exam pre-submit attempt deliberately omits correctness', () => {
   assert.equal(event.metadata.outcome, undefined);
 });
 
-test('exam reconciliation uses exercise_result rather than a second attempt', () => {
+test('exam reconciliation becomes the single scored question attempt', () => {
   const event = buildTrackingEvent(buildListeningExamResult({ sectionId:'ex4', questionNumber:17, correct:true }));
-  assert.equal(event.event_type, 'exercise_result');
+  assert.equal(event.event_type, 'question_attempt');
   assert.equal(event.score, 1);
   assert.equal(event.max_score, 1);
   assert.equal(event.strong, true);
