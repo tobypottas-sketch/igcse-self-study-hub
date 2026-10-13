@@ -18,9 +18,10 @@ function questionActivityId(sectionId, questionNumber) {
 
 export function buildListeningAttempt({ sectionId, questionNumber, mode='practice', attemptNumber=1, correct }) {
   const info = sectionInfo(sectionId);
+  const hasResult = typeof correct === 'boolean';
   const payload = {
     app_key:'listening',
-    event_type:'question_attempt',
+    event_type:mode === 'exam' && !hasResult ? 'question_answered' : 'question_attempt',
     activity_id:questionActivityId(sectionId, questionNumber),
     skill:info.label,
     set_id:sectionId,
@@ -32,7 +33,7 @@ export function buildListeningAttempt({ sectionId, questionNumber, mode='practic
     }
   };
 
-  if (typeof correct === 'boolean') {
+  if (hasResult) {
     payload.strong = correct;
     payload.score = correct ? 1 : 0;
     payload.max_score = 1;
@@ -45,7 +46,7 @@ export function buildListeningExamResult({ sectionId, questionNumber, correct })
   const info = sectionInfo(sectionId);
   return {
     app_key:'listening',
-    event_type:'exercise_result',
+    event_type:'question_attempt',
     activity_id:`${questionActivityId(sectionId, questionNumber)}:final`,
     skill:info.label,
     set_id:sectionId,
