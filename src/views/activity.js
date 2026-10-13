@@ -44,19 +44,28 @@ export function renderActivityOverview(root, profile, classes, model, state = {}
 
 function renderRecentActivityItem(item, index) {
   const extraClass = index >= RECENT_VISIBLE_LIMIT ? ' activity-timeline__item--extra' : '';
-  const minorClass = item.event_type === 'active_time' || item.event_type === 'app_open' ? ' activity-timeline__item--minor' : '';
+  const isMinor = ['active_time','app_open','section_use','support_use','question_answered'].includes(item.event_type);
+  const minorClass = isMinor ? ' activity-timeline__item--minor' : '';
   let body = '';
 
   if (item.event_type === 'question_attempt') {
     const skill = item.skillLabel || item.skill || 'Question';
     const detail = item.outcome === 'correct' ? 'Correct' : 'Try again';
     body = `${escapeHtml(skill)} · ${escapeHtml(detail)}`;
+  } else if (item.event_type === 'question_answered') {
+    const skill = item.skillLabel && item.skillLabel !== 'Not enough data' ? item.skillLabel : 'Question';
+    body = `${escapeHtml(skill)} · Answer recorded`;
   } else if (item.event_type === 'exercise_result') {
     const skill = item.skillLabel || item.skill || 'Exercise';
     const detail = item.score != null && item.max_score != null ? `${item.score}/${item.max_score}` : 'Exercise result';
     body = `${escapeHtml(skill)} · ${escapeHtml(detail)}`;
   } else if (item.event_type === 'active_time') {
     body = `Active study · ${escapeHtml(formatActiveTime(item.active_seconds))}`;
+  } else if (item.event_type === 'section_use') {
+    const skill = item.skillLabel && item.skillLabel !== 'Not enough data' ? item.skillLabel : 'Listening section';
+    body = `${escapeHtml(skill)} · Section opened`;
+  } else if (item.event_type === 'support_use') {
+    body = 'Transcript support used';
   } else {
     body = 'Opened app';
   }
