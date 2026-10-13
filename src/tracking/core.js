@@ -1,5 +1,6 @@
 const EVENT_TYPES = new Set(['app_open', 'active_time', 'question_attempt', 'exercise_result']);
 const MODES = new Set(['practice', 'exam']);
+const APP_KEYS = new Set(['paraphrasing', 'reading', 'essay_writing', 'listening']);
 const OUTCOMES = new Set(['correct', 'try_again']);
 const QUESTION_TYPES = new Set([
   'phrase_match',
@@ -9,7 +10,11 @@ const QUESTION_TYPES = new Set([
   'ex1',
   'ex2',
   'ex3',
-  'ex4'
+  'ex4',
+  'short_answers',
+  'matching',
+  'notes',
+  'mcq'
 ]);
 
 function cleanLabel(value, maxLength) {
@@ -42,8 +47,11 @@ export function buildTrackingEvent(input = {}) {
   if (!EVENT_TYPES.has(input.event_type)) throw new Error('Invalid tracking event type.');
   if (input.mode != null && !MODES.has(input.mode)) throw new Error('Invalid tracking mode.');
 
+  const appKey = input.app_key == null ? 'paraphrasing' : String(input.app_key);
+  if (!APP_KEYS.has(appKey)) throw new Error('Invalid app key.');
+
   const event = {
-    app_key: 'paraphrasing',
+    app_key: appKey,
     event_type: input.event_type,
     metadata: sanitizeMetadata(input.metadata)
   };
