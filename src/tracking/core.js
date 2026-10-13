@@ -1,4 +1,4 @@
-const EVENT_TYPES = new Set(['app_open', 'active_time', 'question_attempt', 'exercise_result']);
+const EVENT_TYPES = new Set(['app_open', 'active_time', 'question_attempt', 'exercise_result', 'section_use', 'support_use']);
 const MODES = new Set(['practice', 'exam']);
 const APP_KEYS = new Set(['paraphrasing', 'reading', 'essay_writing', 'listening']);
 const OUTCOMES = new Set(['correct', 'try_again']);
@@ -14,8 +14,16 @@ const QUESTION_TYPES = new Set([
   'short_answers',
   'matching',
   'notes',
-  'mcq'
+  'mcq',
+  'listening_short_extracts',
+  'listening_dialogues',
+  'listening_long_talk',
+  'listening_speaker_matching',
+  'listening_interview'
 ]);
+const SECTION_IDS = new Set(['ex1', 'ex2', 'ex3', 'ex4', 'ex5']);
+const SUPPORT_TYPES = new Set(['transcript']);
+const RESULT_TYPES = new Set(['exam_reconciliation']);
 
 function cleanLabel(value, maxLength) {
   if (value == null || value === '') return undefined;
@@ -40,6 +48,9 @@ function sanitizeMetadata(input) {
   if (source.overlap_count != null) output.overlap_count = cleanInteger(source.overlap_count, 0, 1000, 'overlap count');
   if (OUTCOMES.has(source.outcome)) output.outcome = source.outcome;
   if (QUESTION_TYPES.has(source.question_type)) output.question_type = source.question_type;
+  if (SECTION_IDS.has(source.section_id)) output.section_id = source.section_id;
+  if (SUPPORT_TYPES.has(source.support_type)) output.support_type = source.support_type;
+  if (RESULT_TYPES.has(source.result_type)) output.result_type = source.result_type;
   return output;
 }
 
