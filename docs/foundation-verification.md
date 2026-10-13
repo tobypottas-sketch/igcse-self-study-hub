@@ -15,15 +15,18 @@ Date: 2026-10-13
 - First-login routing forces password change before the app launcher.
 - Unapproved authenticated users without an active Self-Study profile are rejected.
 - Student-facing dynamic HTML is escaped and non-HTTPS app launch URLs are rejected.
+- First admin Auth user and matching active admin profile exist for `samuel.pottas@nkcswx.cn`.
+- First admin is flagged to change password on first Hub login.
+- Public Auth sign-up is disabled at project level; email/password login remains enabled.
+- Remote repository `tobypottas-sketch/igcse-self-study-hub` exists and the foundation is uploaded on `feat/self-study-foundation`.
 - Local automated test suite passes.
 - Supabase security advisor reports no security findings.
 
-## Intentionally Outstanding Before Pilot
+## Outstanding Before Pilot
 
-1. Bootstrap the first admin account. This is security-sensitive and requires the owner's explicit choice of admin email and temporary password flow.
-2. Disable public Auth sign-up at the hosted Supabase project configuration level. The Hub exposes no sign-up UI and users without approved profiles cannot enter, but project-level signup must still be disabled before a real student pilot.
-3. Create and push the remote `tobypottas-sketch/igcse-self-study-hub` GitHub repository. Current implementation is isolated in the local feature branch only.
-4. Run a real browser journey against the hosted Hub after the remote repo/deployment and first admin exist.
+1. Merge the reviewed foundation branch to `main`.
+2. Enable GitHub Pages for the Hub and run a real browser login journey against the hosted URL.
+3. Confirm the first-admin temporary-password -> forced-password-change -> Hub-home journey end to end.
 
 ## Isolation Boundary
 
