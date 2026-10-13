@@ -13,4 +13,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test tests/listening-tracking-core.test.js tests/listening-engagement.test.js tests/listening-wrapper-shell.test.js tests/listening-instrumentation.test.js tests/listening-dashboard.test.js tests/listening-launch-registry.test.js
+      - run: npm test
+      - run: node --check src/tracking/listening-core.js
+      - run: node --check src/tracking/listening-engagement.js
+      - run: node --check src/tracking/listening-wrapper.js
