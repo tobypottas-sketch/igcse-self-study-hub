@@ -4,7 +4,7 @@ import { renderStudentActivity } from '../src/views/activity.js';
 
 function root(){ return { innerHTML:'' }; }
 
-test('student drill-down renders summary, app, skill and safe timeline', () => {
+test('student drill-down renders first-attempt summary, app, skill and safe timeline', () => {
   const node=root();
   renderStudentActivity(node,{role:'teacher'},{
     displayName:'<Ada>',className:'10A',period:'7d',lastActive:'Today',activeTime:'3 min',attempts:3,accuracy:'67%',appsUsed:['Reading'],
@@ -18,7 +18,9 @@ test('student drill-down renders summary, app, skill and safe timeline', () => {
   },{period:'7d'});
   assert.match(node.innerHTML,/&lt;Ada&gt;/);
   assert.match(node.innerHTML,/Back to class overview/);
-  assert.match(node.innerHTML,/Valid accuracy/);
+  assert.match(node.innerHTML,/Questions attempted/);
+  assert.match(node.innerHTML,/First-attempt accuracy/);
+  assert.match(node.innerHTML,/Correct first time/);
   assert.match(node.innerHTML,/App breakdown/);
   assert.match(node.innerHTML,/Skill breakdown/);
   assert.match(node.innerHTML,/Recent activity/);
