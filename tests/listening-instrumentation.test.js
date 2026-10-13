@@ -16,20 +16,21 @@ test('practice answers expose correctness but not selected option', () => {
   assert.doesNotMatch(JSON.stringify(event), /"B"|choice/);
 });
 
-test('exam answers before submission omit correctness', () => {
+test('exam answers before submission are unscored completion evidence', () => {
   const state = { mode:'exam', examSubmitted:false, answers:{ 17:{ choice:'C', correct:true, attempts:1 } } };
   const event = buildAnswerEventFromState({ state, sectionId:'ex4', questionNumber:17, attemptNumber:1 });
+  assert.equal(event.event_type, 'question_answered');
   assert.equal(event.mode, 'exam');
   assert.equal(event.score, undefined);
   assert.equal(event.metadata.outcome, undefined);
   assert.doesNotMatch(JSON.stringify(event), /"C"|choice/);
 });
 
-test('exam reconciliation returns result events rather than question attempts', () => {
+test('exam reconciliation returns the single scored question attempts', () => {
   const state = { mode:'exam', examSubmitted:true, answers:{ 17:{ choice:'A', correct:true }, 18:{ choice:'B', correct:false } } };
   const events = buildExamReconciliationEvents(state, new Map([[17,'ex4'],[18,'ex4']]));
   assert.equal(events.length, 2);
-  assert.ok(events.every(event => event.event_type === 'exercise_result'));
+  assert.ok(events.every(event => event.event_type === 'question_attempt'));
   assert.deepEqual(events.map(event => event.score), [1,0]);
   assert.doesNotMatch(JSON.stringify(events), /choice|"A"|"B"/);
 });
