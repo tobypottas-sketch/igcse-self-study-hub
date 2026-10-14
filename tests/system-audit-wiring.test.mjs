@@ -27,13 +27,14 @@ test('Listening Exam question_answered events are gated once per question per at
 });
 
 test('Paraphrasing Exam correctness comes from app records rather than hidden CSS feedback',()=>{
-  assert.match(paraphrasing,/currentMode\(win\)\s*===\s*['"]exam['"]/);
-  assert.match(paraphrasing,/latestRecord\(win/);
+  assert.match(paraphrasing,/const\s+mode\s*=\s*currentMode\(win\)/);
+  assert.match(paraphrasing,/mode\s*===\s*['"]exam['"][\s\S]*latestRecord\(win/);
   assert.match(paraphrasing,/record\?\.strong/);
 });
 
 test('Essay wrapper does not count blocked Exam navigation or failed saves as section use',()=>{
   assert.match(essay,/activeTab/);
-  assert.match(essay,/saveDraftName/);
+  assert.match(essay,/saveResult\s*!==\s*true/);
   assert.match(essay,/studyMode/);
+  assert.doesNotMatch(essay,/saveDraftName[\s\S]{0,120}\.value/);
 });
