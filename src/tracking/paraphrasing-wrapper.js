@@ -15,6 +15,7 @@ let enabled = false;
 let lastInteractionAt = Date.now();
 let activeSeconds = 0;
 let timer = null;
+let profile = null;
 
 async function send(payload) {
   if (!enabled || !client) return;
@@ -59,13 +60,19 @@ function latestRecord(win, skill) {
   return null;
 }
 
+function recordCount(win) {
+  try { return win.getState?.()?.records?.length || 0; } catch { return 0; }
+}
+
 function wrapAfter(win, functionName, after) {
   const original = win[functionName];
   if (typeof original !== 'function') return false;
   win[functionName] = function wrappedSelfStudyFunction(...args) {
+    const beforeCount = recordCount(win);
     const result = original.apply(this, args);
+    const afterCount = recordCount(win);
     try {
-      after(args);
+      after(args, { beforeCount, afterCount });
     } catch (error) {
       console.warn(`Self-Study tracking hook failed for ${functionName}:`, error);
     }
@@ -78,15 +85,18 @@ function instrumentChecks(win) {
   if (win.__selfStudyParaphrasingInstrumented) return false;
   win.__selfStudyParaphrasingInstrumented = true;
 
-  wrapAfter(win, 'checkStarterChoice', ([prefix, idx, _optIdx, btn]) => {
+  wrapAfter(win, 'checkStarterChoice', ([prefix, idx, _optIdx, btn], counts) => {
     const skill = prefix === 'pm' ? 'phrase_match' : 'sentence_match';
-    const strong = Boolean(btn?.classList?.contains('correct'));
+    const mode = currentMode(win);
+    if (mode === 'exam' && counts.afterCount <= counts.beforeCount) return;
+    const record = mode === 'exam' ? latestRecord(win, skill) : null;
+    const strong = mode === 'exam' ? Boolean(record?.strong) : Boolean(btn?.classList?.contains('correct'));
     track({
       event_type: 'question_attempt',
       activity_id: `starter:${skill}:${idx}`,
       skill,
       set_id: 'starter',
-      mode: currentMode(win),
+      mode,
       strong,
       score: strong ? 1 : 0,
       max_score: 1,
@@ -94,8 +104,10 @@ function instrumentChecks(win) {
     });
   });
 
-  wrapAfter(win, 'checkStarterWrite', ([prefix, idx]) => {
+  wrapAfter(win, 'checkStarterWrite', ([prefix, idx], counts) => {
     const skill = prefix === 'ws' ? 'synonym_write' : 'paraphrase_write';
+    const mode = currentMode(win);
+    if (mode === 'exam' && counts.afterCount <= counts.beforeCount) return;
     const record = latestRecord(win, skill);
     const input = win.document.getElementById(`${prefix}_${idx}`);
     const attemptNumber = Number(input?.dataset?.attempts || 1);
@@ -117,9 +129,12 @@ function instrumentChecks(win) {
     });
   });
 
-  wrapAfter(win, 'checkSetChoice', ([setIndex, exerciseType, idx, _optIdx, btn]) => {
+  wrapAfter(win, 'checkSetChoice', ([setIndex, exerciseType, idx, _optIdx, btn], counts) => {
     const skill = exerciseType === 'ex1' ? 'ex1' : 'ex2';
-    const strong = Boolean(btn?.classList?.contains('correct'));
+    const mode = currentMode(win);
+    if (mode === 'exam' && counts.afterCount <= counts.beforeCount) return;
+    const record = mode === 'exam' ? latestRecord(win, skill) : null;
+    const strong = mode === 'exam' ? Boolean(record?.strong) : Boolean(btn?.classList?.contains('correct'));
     track({
       event_type: 'question_attempt',
       activity_id: `set${setIndex + 1}:${skill}:${idx}`,
@@ -133,11 +148,18 @@ function instrumentChecks(win) {
     });
   });
 
-  wrapAfter(win, 'checkExercise3', ([setIndex]) => {
+  wrapAfter(win, 'checkExercise3', ([setIndex], counts) => {
     const setId = `set${setIndex + 1}`;
+    const mode = currentMode(win);
+    const record = latestRecord(win, 'ex3');
+    if (mode === 'exam') {
+      if (counts.afterCount <= counts.beforeCount) return;
+      const strong = Boolean(record?.strong);
+      track({ event_type:'exercise_result', activity_id:`${setId}:ex3`, skill:'ex3', set_id:setId, mode, strong, score:strong?1:0, max_score:1, metadata:{question_type:'ex3'} });
+      return;
+    }
     const feedback = win.document.getElementById(`${setId}_ex3_feedback`)?.textContent || '';
     const parsed = parseExercise3Feedback(feedback);
-    const record = latestRecord(win, 'ex3');
     if (!parsed) return;
     track({
       event_type: 'exercise_result',
@@ -152,11 +174,18 @@ function instrumentChecks(win) {
     });
   });
 
-  wrapAfter(win, 'checkExercise4', ([setIndex]) => {
+  wrapAfter(win, 'checkExercise4', ([setIndex], counts) => {
     const setId = `set${setIndex + 1}`;
+    const mode = currentMode(win);
+    const record = latestRecord(win, 'ex4');
+    if (mode === 'exam') {
+      if (counts.afterCount <= counts.beforeCount) return;
+      const strong = Boolean(record?.strong);
+      track({ event_type:'exercise_result', activity_id:`${setId}:ex4`, skill:'ex4', set_id:setId, mode, strong, score:strong?1:0, max_score:1, metadata:{question_type:'ex4'} });
+      return;
+    }
     const feedback = win.document.getElementById(`${setId}_ex4_feedback`)?.textContent || '';
     const parsed = parseExercise4Feedback(feedback);
-    const record = latestRecord(win, 'ex4');
     if (!parsed) return;
     track({
       event_type: 'exercise_result',
@@ -171,6 +200,11 @@ function instrumentChecks(win) {
   });
 
   return true;
+}
+
+function sendHubContext(win) {
+  if (!profile) return;
+  win.postMessage({ type:'self-study-hub-context', storageNamespace:`user-${profile.id}` }, window.location.origin);
 }
 
 function markInteraction() {
@@ -224,6 +258,7 @@ function attachToLoadedFrame(frame) {
   try {
     const win = frame.contentWindow;
     if (!win || win.location.origin !== window.location.origin) throw new Error('Practice app origin mismatch.');
+    sendHubContext(win);
     const newlyInstrumented = instrumentChecks(win);
     if (!newlyInstrumented) return;
     markInteraction();
@@ -252,17 +287,18 @@ async function initialise() {
       return;
     }
 
-    const { data: profile, error: profileError } = await client
+    const { data: profileData, error: profileError } = await client
       .from('profiles')
       .select('id, active')
       .eq('id', userData.user.id)
       .single();
 
-    if (profileError || !profile?.active) {
+    if (profileError || !profileData?.active) {
       window.location.replace('./');
       return;
     }
 
+    profile = profileData;
     enabled = true;
 
     try {

@@ -18,6 +18,7 @@ let lastInteractionAt = Date.now();
 let activeSeconds = 0;
 let timer = null;
 let trackedWindow = null;
+let profile = null;
 const attempts = new Map();
 const lastNotesScores = new Map();
 const examAnswered = new Set();
@@ -211,6 +212,26 @@ function instrumentChecks(win) {
   return true;
 }
 
+function sendHubContext(win) {
+  if (!profile) return;
+  win.postMessage({
+    type: 'self-study-hub-context',
+    storageNamespace: `user-${profile.id}`,
+    staffAccess: profile.role === 'teacher' || profile.role === 'admin'
+  }, window.location.origin);
+}
+
+function seedReadingExamTracking(win) {
+  const paper = activePaper(win);
+  const st = state(win);
+  if (!paper || st?.studyMode !== 'exam' || st?.examSubmitted) return;
+  for (const questionId of Object.keys(st.answers || {})) {
+    if (findReadingQuestion(paper, questionId) && hasAnswer(st.answers[questionId])) {
+      examAnswered.add(`${paper.id}:${questionId}`);
+    }
+  }
+}
+
 function markInteraction() {
   lastInteractionAt = Date.now();
 }
@@ -264,9 +285,11 @@ function attachToLoadedFrame(frame) {
   try {
     const win = frame.contentWindow;
     if (!win || win.location.origin !== window.location.origin) throw new Error('Practice app origin mismatch.');
+    sendHubContext(win);
     const newlyInstrumented = instrumentChecks(win);
     if (!newlyInstrumented) return;
     trackedWindow = win;
+    window.setTimeout(() => seedReadingExamTracking(win), 0);
     markInteraction();
     track({ app_key: 'reading', event_type: 'app_open', mode: studyMode(win) });
     startActiveTime(win);
@@ -292,17 +315,18 @@ async function initialise() {
       return;
     }
 
-    const { data: profile, error: profileError } = await client
+    const { data: profileData, error: profileError } = await client
       .from('profiles')
-      .select('id, active')
+      .select('id, role, active')
       .eq('id', userData.user.id)
       .single();
 
-    if (profileError || !profile?.active) {
+    if (profileError || !profileData?.active) {
       window.location.replace('./');
       return;
     }
 
+    profile = profileData;
     enabled = true;
 
     try {
