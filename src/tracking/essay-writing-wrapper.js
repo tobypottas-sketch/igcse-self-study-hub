@@ -50,9 +50,13 @@ function wrapAfter(win, functionName, after) {
   const original = win[functionName];
   if (typeof original !== 'function') return false;
   win[functionName] = function wrappedSelfStudyEssayFunction(...args) {
+    const context = {
+      activeTab: win.document.querySelector('.tab-btn.active')?.dataset?.tab || '',
+      studyMode: typeof win.isPracticeMode === 'function' && !win.isPracticeMode() ? 'exam' : 'practice'
+    };
     const result = original.apply(this, args);
     try {
-      after(args);
+      after(args, context, result);
     } catch (error) {
       console.warn(`Self-Study Essay hook failed for ${functionName}:`, error);
     }
@@ -68,7 +72,8 @@ function instrumentEssay(win) {
   const visitedStages = new Set();
   wrapAfter(win, 'switchTab', ([tab]) => {
     const stage = String(tab || '').trim();
-    if (!stage || visitedStages.has(stage)) return;
+    const activeTab = win.document.querySelector('.tab-btn.active')?.dataset?.tab || '';
+    if (!stage || activeTab !== stage || visitedStages.has(stage)) return;
     visitedStages.add(stage);
     track({
       event_type: 'section_use',
@@ -78,7 +83,8 @@ function instrumentEssay(win) {
     });
   });
 
-  wrapAfter(win, 'saveDraft', () => {
+  wrapAfter(win, 'saveDraft', (_args, context, saveResult) => {
+    if (context.studyMode === 'exam' || saveResult !== true) return;
     track({
       event_type: 'section_use',
       activity_id: 'draft_saved',

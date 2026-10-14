@@ -19,9 +19,11 @@ let currentSectionId = 'ex1';
 let lastInteractionAt = Date.now();
 let activeSeconds = 0;
 let timer = null;
+let profile = null;
 const attempts = new Map();
 const questionSections = new Map();
 const reconciledQuestions = new Set();
+const examAnswered = new Set();
 const sectionGate = createOncePerKeyGate();
 const supportGate = createOncePerKeyGate();
 
@@ -74,6 +76,11 @@ export function buildExamReconciliationEvents(state, sectionMap) {
   return events;
 }
 
+export function shouldResetExamTrackingAfterReset(state, result) {
+  if (result === false) return false;
+  return Object.keys(state?.answers || {}).length === 0;
+}
+
 async function send(payload) {
   if (!enabled || !client) return;
   let event;
@@ -102,6 +109,32 @@ function getListeningState(win) {
   } catch {
     return null;
   }
+}
+
+function sectionForQuestion(questionNumber) {
+  const n = Number(questionNumber);
+  if (n >= 1 && n <= 8) return 'ex1';
+  if (n <= 18) return 'ex2';
+  if (n <= 26) return 'ex3';
+  if (n <= 32) return 'ex4';
+  if (n <= 40) return 'ex5';
+  return null;
+}
+
+function seedListeningTracking(win) {
+  for (let n=1; n<=40; n+=1) {
+    const sectionId=sectionForQuestion(n);
+    if (sectionId) questionSections.set(n, sectionId);
+  }
+  const st=getListeningState(win);
+  if (st?.mode === 'exam' && !st?.examSubmitted) {
+    for (const rawQuestion of Object.keys(st.answers || {})) examAnswered.add(Number(rawQuestion));
+  }
+}
+
+function resetExamTracking() {
+  examAnswered.clear();
+  reconciledQuestions.clear();
 }
 
 function nextAttempt(questionNumber) {
@@ -142,6 +175,10 @@ function instrumentFunctions(win) {
     questionSections.set(n, currentSectionId);
     const state = getListeningState(win);
     if (!state) return;
+    if (state.mode === 'exam' && !state.examSubmitted) {
+      if (examAnswered.has(n)) return;
+      examAnswered.add(n);
+    }
     track(buildAnswerEventFromState({
       state,
       sectionId:currentSectionId,
@@ -164,12 +201,22 @@ function instrumentFunctions(win) {
   });
 
   const finishWrapped = safeWrapAfter(win, 'finishExam', () => reconcileExam(win));
+  safeWrapAfter(win, 'setMode', (_args, result) => { if (result !== false) resetExamTracking(); });
+  safeWrapAfter(win, 'resetAllAnswers', (_args, result) => {
+    const state = getListeningState(win);
+    if (shouldResetExamTrackingAfterReset(state, result)) resetExamTracking();
+  });
 
   if (!answerWrapped || !sectionWrapped || !transcriptWrapped || !finishWrapped) {
     win.__selfStudyListeningInstrumented = false;
     throw new Error('Listening functions were not found.');
   }
   return true;
+}
+
+function sendHubContext(win) {
+  if (!profile) return;
+  win.postMessage({ type:'self-study-hub-context', storageNamespace:`user-${profile.id}` }, window.location.origin);
 }
 
 function markInteraction() {
@@ -250,8 +297,10 @@ function attachToLoadedFrame(frame) {
   try {
     const win = frame.contentWindow;
     if (!win || win.location.origin !== window.location.origin) throw new Error('Practice app origin mismatch.');
+    sendHubContext(win);
     const newlyInstrumented = instrumentFunctions(win);
     if (!newlyInstrumented) return;
+    window.setTimeout(() => seedListeningTracking(win), 0);
     markInteraction();
     track({ app_key:'listening', event_type:'app_open', mode:currentMode(win) });
     trackSection(currentSectionId, currentMode(win));
@@ -278,17 +327,18 @@ async function initialise() {
       return;
     }
 
-    const { data:profile, error:profileError } = await client
+    const { data:profileData, error:profileError } = await client
       .from('profiles')
       .select('id, active')
       .eq('id', userData.user.id)
       .single();
 
-    if (profileError || !profile?.active) {
+    if (profileError || !profileData?.active) {
       window.location.replace('./');
       return;
     }
 
+    profile = profileData;
     enabled = true;
     try {
       if (frame.contentDocument?.readyState === 'complete') attachToLoadedFrame(frame);

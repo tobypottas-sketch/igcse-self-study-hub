@@ -18,6 +18,7 @@ let lastInteractionAt = Date.now();
 let activeSeconds = 0;
 let timer = null;
 let trackedWindow = null;
+let profile = null;
 const attempts = new Map();
 const lastNotesScores = new Map();
 const examAnswered = new Set();
@@ -93,6 +94,26 @@ function currentAnswer(win, questionId) {
 function hasAnswer(value) {
   if (Array.isArray(value)) return value.some(item => String(item || '').trim());
   return Boolean(String(value || '').trim());
+}
+
+function paperHasAnyAnswer(win) {
+  const paper = activePaper(win);
+  const st = state(win);
+  if (!paper || !st?.answers) return false;
+  for (const exercise of paper.exercises || []) {
+    if (exercise.type === 'notes') {
+      for (const section of exercise.noteSections || []) {
+        for (const question of section.bullets || []) {
+          if (hasAnswer(st.answers[question.id])) return true;
+        }
+      }
+      continue;
+    }
+    for (const question of exercise.questions || []) {
+      if (hasAnswer(st.answers[question.id])) return true;
+    }
+  }
+  return false;
 }
 
 function trackNotesSnapshot(win, paper, exerciseIndex, mode = 'practice', resultType) {
@@ -191,6 +212,17 @@ function resetExamTracking(win) {
   }
 }
 
+function seedReadingExamTracking(win) {
+  const paper = activePaper(win);
+  const st = state(win);
+  if (!paper || st?.studyMode !== 'exam' || st?.examSubmitted) return;
+  for (const questionId of Object.keys(st.answers || {})) {
+    if (findReadingQuestion(paper, questionId) && hasAnswer(st.answers[questionId])) {
+      examAnswered.add(`${paper.id}:${questionId}`);
+    }
+  }
+}
+
 function instrumentChecks(win) {
   if (win.__selfStudyReadingInstrumented) return false;
   win.__selfStudyReadingInstrumented = true;
@@ -198,8 +230,9 @@ function instrumentChecks(win) {
   const normal = wrapAfter(win, 'saveAnswer', ([questionId]) => trackAnswer(win, questionId));
   const triple = wrapAfter(win, 'saveTripleAnswer', ([questionId]) => trackAnswer(win, questionId));
   const submitted = wrapAfter(win, 'submitExam', () => trackExamSubmission(win));
-  wrapAfter(win, 'startNewExamAttempt', () => resetExamTracking(win));
-  wrapAfter(win, 'setStudyMode', () => resetExamTracking(win));
+  wrapAfter(win, 'startNewExamAttempt', () => { if (!paperHasAnyAnswer(win)) resetExamTracking(win); });
+  wrapAfter(win, 'setStudyMode', () => { if (!paperHasAnyAnswer(win)) resetExamTracking(win); });
+  wrapAfter(win, 'loadSelectedPaper', () => seedReadingExamTracking(win));
 
   if (!normal && !triple) {
     win.__selfStudyReadingInstrumented = false;
@@ -209,6 +242,15 @@ function instrumentChecks(win) {
     console.warn('Self-Study could not attach Reading exam submission tracking.');
   }
   return true;
+}
+
+function sendHubContext(win) {
+  if (!profile) return;
+  win.postMessage({
+    type: 'self-study-hub-context',
+    storageNamespace: `user-${profile.id}`,
+    staffAccess: profile.role === 'teacher' || profile.role === 'admin'
+  }, window.location.origin);
 }
 
 function markInteraction() {
@@ -264,9 +306,11 @@ function attachToLoadedFrame(frame) {
   try {
     const win = frame.contentWindow;
     if (!win || win.location.origin !== window.location.origin) throw new Error('Practice app origin mismatch.');
+    sendHubContext(win);
     const newlyInstrumented = instrumentChecks(win);
     if (!newlyInstrumented) return;
     trackedWindow = win;
+    window.setTimeout(() => seedReadingExamTracking(win), 0);
     markInteraction();
     track({ app_key: 'reading', event_type: 'app_open', mode: studyMode(win) });
     startActiveTime(win);
@@ -292,17 +336,18 @@ async function initialise() {
       return;
     }
 
-    const { data: profile, error: profileError } = await client
+    const { data: profileData, error: profileError } = await client
       .from('profiles')
-      .select('id, active')
+      .select('id, role, active')
       .eq('id', userData.user.id)
       .single();
 
-    if (profileError || !profile?.active) {
+    if (profileError || !profileData?.active) {
       window.location.replace('./');
       return;
     }
 
+    profile = profileData;
     enabled = true;
 
     try {
