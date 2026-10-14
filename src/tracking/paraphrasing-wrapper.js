@@ -15,6 +15,7 @@ let enabled = false;
 let lastInteractionAt = Date.now();
 let activeSeconds = 0;
 let timer = null;
+let trackedWindow = null;
 let profile = null;
 
 async function send(payload) {
@@ -211,29 +212,30 @@ function markInteraction() {
   lastInteractionAt = Date.now();
 }
 
-function flushActiveTime(win) {
+function flushActiveTime() {
   if (!enabled || activeSeconds <= 0) return;
   const seconds = Math.min(600, activeSeconds);
   activeSeconds = 0;
   track({
     event_type: 'active_time',
     active_seconds: seconds,
-    mode: currentMode(win)
+    mode: trackedWindow ? currentMode(trackedWindow) : undefined
   });
 }
 
 function startActiveTime(win) {
-  if (timer) return;
+  trackedWindow = win;
   const doc = win.document;
   ['pointerdown', 'keydown', 'input', 'touchstart'].forEach(type => {
     doc.addEventListener(type, markInteraction, { passive: true });
   });
+  if (timer) return;
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') markInteraction();
-    else flushActiveTime(win);
+    else flushActiveTime();
   });
-  window.addEventListener('pagehide', () => flushActiveTime(win));
+  window.addEventListener('pagehide', flushActiveTime);
 
   timer = window.setInterval(() => {
     if (shouldCountActiveTime({
@@ -242,7 +244,7 @@ function startActiveTime(win) {
       now: Date.now()
     })) {
       activeSeconds += TICK_SECONDS;
-      if (activeSeconds >= FLUSH_SECONDS) flushActiveTime(win);
+      if (activeSeconds >= FLUSH_SECONDS) flushActiveTime();
     }
   }, TICK_SECONDS * 1000);
 }
@@ -258,6 +260,7 @@ function attachToLoadedFrame(frame) {
   try {
     const win = frame.contentWindow;
     if (!win || win.location.origin !== window.location.origin) throw new Error('Practice app origin mismatch.');
+    trackedWindow = win;
     sendHubContext(win);
     const newlyInstrumented = instrumentChecks(win);
     if (!newlyInstrumented) return;
