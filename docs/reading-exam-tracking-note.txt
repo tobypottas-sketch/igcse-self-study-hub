@@ -1,1 +1,0 @@
-Reading tracking semantics: Practice saves scored question attempts. Exam answer changes are unscored until Submit Paper. Exam submission reconciles one scored final attempt per answered ordinary question; note completion remains grouped numeric scoring because answers may be accepted in any order.
