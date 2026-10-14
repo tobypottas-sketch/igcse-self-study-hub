@@ -212,6 +212,17 @@ function resetExamTracking(win) {
   }
 }
 
+function seedReadingExamTracking(win) {
+  const paper = activePaper(win);
+  const st = state(win);
+  if (!paper || st?.studyMode !== 'exam' || st?.examSubmitted) return;
+  for (const questionId of Object.keys(st.answers || {})) {
+    if (findReadingQuestion(paper, questionId) && hasAnswer(st.answers[questionId])) {
+      examAnswered.add(`${paper.id}:${questionId}`);
+    }
+  }
+}
+
 function instrumentChecks(win) {
   if (win.__selfStudyReadingInstrumented) return false;
   win.__selfStudyReadingInstrumented = true;
@@ -221,6 +232,7 @@ function instrumentChecks(win) {
   const submitted = wrapAfter(win, 'submitExam', () => trackExamSubmission(win));
   wrapAfter(win, 'startNewExamAttempt', () => { if (!paperHasAnyAnswer(win)) resetExamTracking(win); });
   wrapAfter(win, 'setStudyMode', () => { if (!paperHasAnyAnswer(win)) resetExamTracking(win); });
+  wrapAfter(win, 'loadSelectedPaper', () => seedReadingExamTracking(win));
 
   if (!normal && !triple) {
     win.__selfStudyReadingInstrumented = false;
@@ -239,17 +251,6 @@ function sendHubContext(win) {
     storageNamespace: `user-${profile.id}`,
     staffAccess: profile.role === 'teacher' || profile.role === 'admin'
   }, window.location.origin);
-}
-
-function seedReadingExamTracking(win) {
-  const paper = activePaper(win);
-  const st = state(win);
-  if (!paper || st?.studyMode !== 'exam' || st?.examSubmitted) return;
-  for (const questionId of Object.keys(st.answers || {})) {
-    if (findReadingQuestion(paper, questionId) && hasAnswer(st.answers[questionId])) {
-      examAnswered.add(`${paper.id}:${questionId}`);
-    }
-  }
 }
 
 function markInteraction() {
