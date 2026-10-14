@@ -11,6 +11,11 @@ test('Reading free-text tracking is debounced instead of counting each keystroke
   assert.match(reading, /short_answers|notes/, 'expected text-like Reading exercise types to be identified');
 });
 
+test('Reading new Exam attempts reset their tracked attempt counters', () => {
+  assert.match(reading, /attempts\.keys\(\)/, 'resetExamTracking should inspect attempt counters');
+  assert.match(reading, /attempts\.delete\(key\)/, 'resetExamTracking should clear prior Exam attempt counters');
+});
+
 test('Essay tracking records Practice or Exam mode on all major event paths', () => {
   assert.match(essay, /let trackedWindow\s*=\s*null/, 'expected tracked Essay iframe window');
   assert.match(essay, /function currentEssayMode\s*\(/, 'expected a shared Essay mode helper');
