@@ -271,11 +271,11 @@ function flushActiveTime() {
 
 function startActiveTime(win) {
   trackedWindow = win;
-  if (timer) return;
   const doc = win.document;
   ['pointerdown', 'keydown', 'input', 'touchstart'].forEach(type => {
     doc.addEventListener(type, markInteraction, { passive: true });
   });
+  if (timer) return;
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') markInteraction();
