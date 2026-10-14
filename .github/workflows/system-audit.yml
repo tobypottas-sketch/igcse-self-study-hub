@@ -13,6 +13,7 @@ jobs:
         with:
           node-version: 22
       - run: node .github/scripts/apply-system-audit-wiring.mjs
+      - run: node .github/scripts/fix-system-audit-wiring.mjs
       - run: node --test tests/*.test.mjs
       - name: Commit generated wiring fixes
         run: |
