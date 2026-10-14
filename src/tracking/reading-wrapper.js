@@ -96,6 +96,26 @@ function hasAnswer(value) {
   return Boolean(String(value || '').trim());
 }
 
+function paperHasAnyAnswer(win) {
+  const paper = activePaper(win);
+  const st = state(win);
+  if (!paper || !st?.answers) return false;
+  for (const exercise of paper.exercises || []) {
+    if (exercise.type === 'notes') {
+      for (const section of exercise.noteSections || []) {
+        for (const question of section.bullets || []) {
+          if (hasAnswer(st.answers[question.id])) return true;
+        }
+      }
+      continue;
+    }
+    for (const question of exercise.questions || []) {
+      if (hasAnswer(st.answers[question.id])) return true;
+    }
+  }
+  return false;
+}
+
 function trackNotesSnapshot(win, paper, exerciseIndex, mode = 'practice', resultType) {
   const exercise = paper?.exercises?.[exerciseIndex];
   if (!exercise || exercise.type !== 'notes' || typeof win.scoreGroupedItemsAnyOrder !== 'function') return;
@@ -199,8 +219,8 @@ function instrumentChecks(win) {
   const normal = wrapAfter(win, 'saveAnswer', ([questionId]) => trackAnswer(win, questionId));
   const triple = wrapAfter(win, 'saveTripleAnswer', ([questionId]) => trackAnswer(win, questionId));
   const submitted = wrapAfter(win, 'submitExam', () => trackExamSubmission(win));
-  wrapAfter(win, 'startNewExamAttempt', () => resetExamTracking(win));
-  wrapAfter(win, 'setStudyMode', () => resetExamTracking(win));
+  wrapAfter(win, 'startNewExamAttempt', () => { if (!paperHasAnyAnswer(win)) resetExamTracking(win); });
+  wrapAfter(win, 'setStudyMode', () => { if (!paperHasAnyAnswer(win)) resetExamTracking(win); });
 
   if (!normal && !triple) {
     win.__selfStudyReadingInstrumented = false;
