@@ -11,6 +11,7 @@ import {
 const FRAME_ID = 'practiceFrame';
 const TICK_SECONDS = 30;
 const FLUSH_SECONDS = 60;
+const READING_TEXT_INPUT_DEBOUNCE_MS = 700;
 
 let client = null;
 let enabled = false;
@@ -23,6 +24,7 @@ const attempts = new Map();
 const lastNotesScores = new Map();
 const examAnswered = new Set();
 const reconciledExamPapers = new Set();
+const pendingAnswerTimers = new Map();
 
 async function send(payload) {
   if (!enabled || !client) return;
@@ -170,6 +172,22 @@ function trackExamAnswer(win, paper, questionId) {
   }));
 }
 
+function clearPendingReadingAnswers(win) {
+  for (const timer of pendingAnswerTimers.values()) win.clearTimeout(timer);
+  pendingAnswerTimers.clear();
+}
+
+function queueReadingAnswerTracking(win, questionId) {
+  const key = String(questionId);
+  const existing = pendingAnswerTimers.get(key);
+  if (existing) win.clearTimeout(existing);
+  const timer = win.setTimeout(() => {
+    pendingAnswerTimers.delete(key);
+    trackAnswer(win, questionId);
+  }, READING_TEXT_INPUT_DEBOUNCE_MS);
+  pendingAnswerTimers.set(key, timer);
+}
+
 function trackAnswer(win, questionId) {
   const paper = activePaper(win);
   if (!paper) return;
@@ -210,6 +228,9 @@ function resetExamTracking(win) {
   for (const key of [...examAnswered]) {
     if (key.startsWith(`${paper.id}:`)) examAnswered.delete(key);
   }
+  for (const key of [...attempts.keys()]) {
+    if (String(key).startsWith(`exam:${paper.id}:`)) attempts.delete(key);
+  }
 }
 
 function seedReadingExamTracking(win) {
@@ -227,12 +248,20 @@ function instrumentChecks(win) {
   if (win.__selfStudyReadingInstrumented) return false;
   win.__selfStudyReadingInstrumented = true;
 
-  const normal = wrapAfter(win, 'saveAnswer', ([questionId]) => trackAnswer(win, questionId));
+  const normal = wrapAfter(win, 'saveAnswer', ([questionId]) => {
+    const paper = activePaper(win);
+    const context = paper ? findReadingQuestion(paper, questionId) : null;
+    if (context && (context.exercise.type === 'short_answers' || context.exercise.type === 'notes')) {
+      queueReadingAnswerTracking(win, questionId);
+      return;
+    }
+    trackAnswer(win, questionId);
+  });
   const triple = wrapAfter(win, 'saveTripleAnswer', ([questionId]) => trackAnswer(win, questionId));
   const submitted = wrapAfter(win, 'submitExam', () => trackExamSubmission(win));
-  wrapAfter(win, 'startNewExamAttempt', () => { if (!paperHasAnyAnswer(win)) resetExamTracking(win); });
-  wrapAfter(win, 'setStudyMode', () => { if (!paperHasAnyAnswer(win)) resetExamTracking(win); });
-  wrapAfter(win, 'loadSelectedPaper', () => seedReadingExamTracking(win));
+  wrapAfter(win, 'startNewExamAttempt', () => { clearPendingReadingAnswers(win); if (!paperHasAnyAnswer(win)) resetExamTracking(win); });
+  wrapAfter(win, 'setStudyMode', () => { clearPendingReadingAnswers(win); if (!paperHasAnyAnswer(win)) resetExamTracking(win); });
+  wrapAfter(win, 'loadSelectedPaper', () => { clearPendingReadingAnswers(win); seedReadingExamTracking(win); });
 
   if (!normal && !triple) {
     win.__selfStudyReadingInstrumented = false;

@@ -11,6 +11,7 @@ let enabled = false;
 let lastInteractionAt = Date.now();
 let activeSeconds = 0;
 let timer = null;
+let trackedWindow = null;
 let profile = null;
 let controlledTask = null;
 
@@ -46,13 +47,21 @@ function safeWordCount(win) {
   return Number.isInteger(number) && number >= 0 ? Math.min(number, 1000) : 0;
 }
 
+function currentEssayMode(win) {
+  try {
+    return typeof win?.isPracticeMode === 'function' && !win.isPracticeMode() ? 'exam' : 'practice';
+  } catch {
+    return 'practice';
+  }
+}
+
 function wrapAfter(win, functionName, after) {
   const original = win[functionName];
   if (typeof original !== 'function') return false;
   win[functionName] = function wrappedSelfStudyEssayFunction(...args) {
     const context = {
       activeTab: win.document.querySelector('.tab-btn.active')?.dataset?.tab || '',
-      studyMode: typeof win.isPracticeMode === 'function' && !win.isPracticeMode() ? 'exam' : 'practice'
+      studyMode: currentEssayMode(win)
     };
     const result = original.apply(this, args);
     try {
@@ -79,6 +88,7 @@ function instrumentEssay(win) {
       event_type: 'section_use',
       activity_id: `stage:${stage}`,
       skill: `essay_${stage}`,
+      mode: currentEssayMode(win),
       metadata: { word_count: safeWordCount(win) }
     });
   });
@@ -89,6 +99,7 @@ function instrumentEssay(win) {
       event_type: 'section_use',
       activity_id: 'draft_saved',
       skill: 'essay_draft_management',
+      mode: context.studyMode,
       metadata: { word_count: safeWordCount(win) }
     });
   });
@@ -221,10 +232,11 @@ function flushActiveTime() {
   if (!enabled || activeSeconds <= 0) return;
   const seconds = Math.min(600, activeSeconds);
   activeSeconds = 0;
-  track({ event_type: 'active_time', active_seconds: seconds });
+  track({ event_type: 'active_time', active_seconds: seconds, mode: trackedWindow ? currentEssayMode(trackedWindow) : 'practice' });
 }
 
 function startActiveTime(win) {
+  trackedWindow = win;
   ['pointerdown', 'keydown', 'input', 'touchstart'].forEach(type => {
     win.document.addEventListener(type, markInteraction, { passive: true });
   });
@@ -263,8 +275,8 @@ function attachToLoadedFrame(frame) {
     const newlyInstrumented = instrumentEssay(win);
     if (!newlyInstrumented) return;
     markInteraction();
-    track({ event_type: 'app_open' });
-    track({ event_type: 'section_use', activity_id: 'stage:task', skill: 'essay_task', metadata: { word_count: safeWordCount(win) } });
+    track({ event_type: 'app_open', mode: currentEssayMode(win) });
+    track({ event_type: 'section_use', activity_id: 'stage:task', skill: 'essay_task', mode: currentEssayMode(win), metadata: { word_count: safeWordCount(win) } });
     startActiveTime(win);
   } catch (error) {
     showFailure('Essay Writing opened, but activity tracking could not attach.');
