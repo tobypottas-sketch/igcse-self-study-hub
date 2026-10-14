@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { shouldResetExamTrackingAfterReset } from '../src/tracking/listening-wrapper.js';
 
 const reading = fs.readFileSync('src/tracking/reading-wrapper.js','utf8');
 const listening = fs.readFileSync('src/tracking/listening-wrapper.js','utf8');
@@ -28,7 +29,10 @@ test('Listening Exam question_answered events are gated once per question per at
 
 test('Listening cancelled mode/reset actions do not clear Exam dedupe state',()=>{
   assert.match(listening,/safeWrapAfter\(win,\s*['"]setMode['"][\s\S]*result\s*!==\s*false[\s\S]*resetExamTracking/);
-  assert.match(listening,/safeWrapAfter\(win,\s*['"]resetAllAnswers['"][\s\S]*result\s*!==\s*false[\s\S]*resetExamTracking/);
+  assert.match(listening,/safeWrapAfter\(win,\s*['"]resetAllAnswers['"][\s\S]*shouldResetExamTrackingAfterReset/);
+  assert.equal(shouldResetExamTrackingAfterReset({ answers:{ 1:{ value:'A' } } }, undefined), false);
+  assert.equal(shouldResetExamTrackingAfterReset({ answers:{} }, undefined), true);
+  assert.equal(shouldResetExamTrackingAfterReset({ answers:{} }, false), false);
 });
 
 test('Paraphrasing Exam correctness comes from app records rather than hidden CSS feedback',()=>{
