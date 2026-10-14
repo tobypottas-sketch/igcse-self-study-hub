@@ -26,6 +26,10 @@ test('Reading cancelled mode/new-attempt actions do not clear Exam dedupe state'
   assert.match(reading,/wrapAfter\(win,\s*['"]setStudyMode['"][\s\S]*!paperHasAnyAnswer\(win\)[\s\S]*resetExamTracking/);
 });
 
+test('Reading reseeds saved Exam answers after switching papers',()=>{
+  assert.match(reading,/wrapAfter\(win,\s*['"]loadSelectedPaper['"][\s\S]*seedReadingExamTracking\(win\)/);
+});
+
 test('Listening Exam question_answered events are gated once per question per attempt',()=>{
   assert.match(listening,/examAnswered/);
   assert.match(listening,/examAnswered\.has\(/);
