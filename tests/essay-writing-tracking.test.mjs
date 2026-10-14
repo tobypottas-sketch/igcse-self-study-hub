@@ -10,11 +10,13 @@ test('Essay wrapper exists and launches the GitHub Pages app', () => {
   assert.match(html, /src\/tracking\/essay-writing-wrapper\.js/);
 });
 
-test('Essay wrapper grants teacher tools only to staff roles', () => {
+test('Essay wrapper sends staff capability only for authenticated staff roles', () => {
   const js = read('src/tracking/essay-writing-wrapper.js');
   assert.match(js, /select\('id, role, active'\)/);
-  assert.match(js, /role === 'teacher' \|\| profile\.role === 'admin'/);
-  assert.match(js, /setHubStaffAccess/);
+  assert.match(js, /role === 'teacher' \|\| profile\?\.role === 'admin'/);
+  assert.match(js, /type: 'essay-hub-context'/);
+  assert.match(js, /staffAccess: isStaffProfile\(\)/);
+  assert.doesNotMatch(js, /setHubStaffAccess/);
 });
 
 test('Essay tracking never reads or sends student free text', () => {
