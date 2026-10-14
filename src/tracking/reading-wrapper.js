@@ -3,6 +3,8 @@ import { buildTrackingEvent, shouldCountActiveTime } from './core.js';
 import {
   findReadingQuestion,
   buildReadingAttempt,
+  buildReadingExamAnswer,
+  buildReadingExamFinalAttempt,
   buildReadingNotesResult
 } from './reading-core.js';
 
@@ -15,8 +17,11 @@ let enabled = false;
 let lastInteractionAt = Date.now();
 let activeSeconds = 0;
 let timer = null;
+let trackedWindow = null;
 const attempts = new Map();
 const lastNotesScores = new Map();
+const examAnswered = new Set();
+const reconciledExamPapers = new Set();
 
 async function send(payload) {
   if (!enabled || !client) return;
@@ -46,6 +51,22 @@ function nextAttempt(questionId) {
   return next;
 }
 
+function state(win) {
+  try {
+    return typeof win.getState === 'function' ? win.getState() : null;
+  } catch {
+    return null;
+  }
+}
+
+function studyMode(win) {
+  return state(win)?.studyMode === 'exam' ? 'exam' : 'practice';
+}
+
+function examSubmitted(win) {
+  return Boolean(state(win)?.examSubmitted);
+}
+
 function wrapAfter(win, functionName, after) {
   const original = win[functionName];
   if (typeof original !== 'function') return false;
@@ -66,40 +87,38 @@ function activePaper(win) {
 }
 
 function currentAnswer(win, questionId) {
-  try {
-    const state = typeof win.getState === 'function' ? win.getState() : null;
-    return state?.answers?.[questionId];
-  } catch {
-    return undefined;
-  }
+  return state(win)?.answers?.[questionId];
 }
 
-function trackNotesSnapshot(win, paper, exerciseIndex) {
+function hasAnswer(value) {
+  if (Array.isArray(value)) return value.some(item => String(item || '').trim());
+  return Boolean(String(value || '').trim());
+}
+
+function trackNotesSnapshot(win, paper, exerciseIndex, mode = 'practice', resultType) {
   const exercise = paper?.exercises?.[exerciseIndex];
   if (!exercise || exercise.type !== 'notes' || typeof win.scoreGroupedItemsAnyOrder !== 'function') return;
 
   let score = 0;
   let maxScore = 0;
+  let answered = false;
   for (const section of exercise.noteSections || []) {
     const bullets = section.bullets || [];
     maxScore += bullets.length;
+    if (bullets.some(question => hasAnswer(currentAnswer(win, question.id)))) answered = true;
     score += Math.min(win.scoreGroupedItemsAnyOrder(bullets), bullets.length);
   }
+  if (!answered) return;
 
-  const key = `${paper.id}:${exerciseIndex}`;
+  const key = `${mode}:${paper.id}:${exerciseIndex}`;
   const signature = `${score}/${maxScore}`;
-  if (lastNotesScores.get(key) === signature) return;
+  if (!resultType && lastNotesScores.get(key) === signature) return;
   lastNotesScores.set(key, signature);
 
-  track(buildReadingNotesResult({ paper, exerciseIndex, score, maxScore }));
+  track(buildReadingNotesResult({ paper, exerciseIndex, score, maxScore, mode, resultType }));
 }
 
-function trackAnswer(win, questionId) {
-  const paper = activePaper(win);
-  if (!paper) return;
-  const context = findReadingQuestion(paper, questionId);
-  if (!context) return;
-
+function trackPracticeAnswer(win, paper, questionId, context) {
   const given = currentAnswer(win, questionId);
   let correct = false;
   if (context.exercise.type !== 'notes' && typeof win.isCorrect === 'function') {
@@ -118,15 +137,76 @@ function trackAnswer(win, questionId) {
   }
 }
 
+function trackExamAnswer(win, paper, questionId) {
+  if (examSubmitted(win)) return;
+  const key = `${paper.id}:${questionId}`;
+  if (examAnswered.has(key)) return;
+  examAnswered.add(key);
+  track(buildReadingExamAnswer({
+    paper,
+    questionId,
+    attemptNumber: nextAttempt(`exam:${key}`)
+  }));
+}
+
+function trackAnswer(win, questionId) {
+  const paper = activePaper(win);
+  if (!paper) return;
+  const context = findReadingQuestion(paper, questionId);
+  if (!context) return;
+
+  if (studyMode(win) === 'exam') {
+    trackExamAnswer(win, paper, questionId);
+    return;
+  }
+  trackPracticeAnswer(win, paper, questionId, context);
+}
+
+function trackExamSubmission(win) {
+  const paper = activePaper(win);
+  if (!paper || studyMode(win) !== 'exam' || !examSubmitted(win)) return;
+  if (reconciledExamPapers.has(paper.id)) return;
+  reconciledExamPapers.add(paper.id);
+
+  paper.exercises.forEach((exercise, exerciseIndex) => {
+    if (exercise.type === 'notes') {
+      trackNotesSnapshot(win, paper, exerciseIndex, 'exam', 'exam_reconciliation');
+      return;
+    }
+    for (const question of exercise.questions || []) {
+      const given = currentAnswer(win, question.id);
+      if (!hasAnswer(given)) continue;
+      const correct = typeof win.isCorrect === 'function' && Boolean(win.isCorrect(question, given));
+      track(buildReadingExamFinalAttempt({ paper, questionId: question.id, correct }));
+    }
+  });
+}
+
+function resetExamTracking(win) {
+  const paper = activePaper(win);
+  if (!paper) return;
+  reconciledExamPapers.delete(paper.id);
+  for (const key of [...examAnswered]) {
+    if (key.startsWith(`${paper.id}:`)) examAnswered.delete(key);
+  }
+}
+
 function instrumentChecks(win) {
   if (win.__selfStudyReadingInstrumented) return false;
   win.__selfStudyReadingInstrumented = true;
 
   const normal = wrapAfter(win, 'saveAnswer', ([questionId]) => trackAnswer(win, questionId));
   const triple = wrapAfter(win, 'saveTripleAnswer', ([questionId]) => trackAnswer(win, questionId));
+  const submitted = wrapAfter(win, 'submitExam', () => trackExamSubmission(win));
+  wrapAfter(win, 'startNewExamAttempt', () => resetExamTracking(win));
+  wrapAfter(win, 'setStudyMode', () => resetExamTracking(win));
+
   if (!normal && !triple) {
     win.__selfStudyReadingInstrumented = false;
     throw new Error('Reading answer functions were not found.');
+  }
+  if (typeof win.submitExam === 'function' && !submitted) {
+    console.warn('Self-Study could not attach Reading exam submission tracking.');
   }
   return true;
 }
@@ -143,11 +223,12 @@ function flushActiveTime() {
     app_key: 'reading',
     event_type: 'active_time',
     active_seconds: seconds,
-    mode: 'practice'
+    mode: trackedWindow ? studyMode(trackedWindow) : 'practice'
   });
 }
 
 function startActiveTime(win) {
+  trackedWindow = win;
   if (timer) return;
   const doc = win.document;
   ['pointerdown', 'keydown', 'input', 'touchstart'].forEach(type => {
@@ -185,8 +266,9 @@ function attachToLoadedFrame(frame) {
     if (!win || win.location.origin !== window.location.origin) throw new Error('Practice app origin mismatch.');
     const newlyInstrumented = instrumentChecks(win);
     if (!newlyInstrumented) return;
+    trackedWindow = win;
     markInteraction();
-    track({ app_key: 'reading', event_type: 'app_open', mode: 'practice' });
+    track({ app_key: 'reading', event_type: 'app_open', mode: studyMode(win) });
     startActiveTime(win);
   } catch (error) {
     showFailure('Reading opened, but activity tracking could not attach.');
