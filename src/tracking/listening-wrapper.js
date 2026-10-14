@@ -76,6 +76,11 @@ export function buildExamReconciliationEvents(state, sectionMap) {
   return events;
 }
 
+export function shouldResetExamTrackingAfterReset(state, result) {
+  if (result === false) return false;
+  return Object.keys(state?.answers || {}).length === 0;
+}
+
 async function send(payload) {
   if (!enabled || !client) return;
   let event;
@@ -197,7 +202,10 @@ function instrumentFunctions(win) {
 
   const finishWrapped = safeWrapAfter(win, 'finishExam', () => reconcileExam(win));
   safeWrapAfter(win, 'setMode', (_args, result) => { if (result !== false) resetExamTracking(); });
-  safeWrapAfter(win, 'resetAllAnswers', (_args, result) => { if (result !== false) resetExamTracking(); });
+  safeWrapAfter(win, 'resetAllAnswers', (_args, result) => {
+    const state = getListeningState(win);
+    if (shouldResetExamTrackingAfterReset(state, result)) resetExamTracking();
+  });
 
   if (!answerWrapped || !sectionWrapped || !transcriptWrapped || !finishWrapped) {
     win.__selfStudyListeningInstrumented = false;
