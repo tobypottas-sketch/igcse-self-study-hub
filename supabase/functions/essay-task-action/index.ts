@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
-import { validateTaskAction } from './validation.js';
+import { validateTaskAction, validateSettingsHash } from './validation.js';
 
 function firstNamedKey(raw: string | undefined): string {
   if (!raw) throw new Error('Missing Supabase key configuration.');
@@ -50,12 +50,19 @@ Deno.serve(async (req: Request) => {
         .insert({
           created_by: callerData.user.id,
           study_mode: input.studyMode,
-          settings: input.settings
+          settings: { settingsHash: input.settingsHash }
         })
         .select('id, study_mode, settings')
         .single();
       if (error) return Response.json({ error: error.message }, { status: 400 });
-      return Response.json({ ok: true, task: { id: data.id, studyMode: data.study_mode, settings: data.settings } });
+      return Response.json({
+        ok: true,
+        task: {
+          id: data.id,
+          studyMode: data.study_mode,
+          settingsHash: validateSettingsHash(data.settings?.settingsHash)
+        }
+      });
     }
 
     const { data, error } = await adminClient
@@ -68,7 +75,14 @@ Deno.serve(async (req: Request) => {
       return Response.json({ error: 'Controlled Essay task has expired' }, { status: 410 });
     }
 
-    return Response.json({ ok: true, task: { id: data.id, studyMode: data.study_mode, settings: data.settings } });
+    return Response.json({
+      ok: true,
+      task: {
+        id: data.id,
+        studyMode: data.study_mode,
+        settingsHash: validateSettingsHash(data.settings?.settingsHash)
+      }
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unexpected error';
     return Response.json({ error: message }, { status: 400 });

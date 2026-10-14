@@ -115,6 +115,40 @@ function controlledTaskIdFromUrl() {
   }
 }
 
+function encodeControlledSettings(settings) {
+  const json = JSON.stringify(settings && typeof settings === 'object' ? settings : {});
+  const bytes = new TextEncoder().encode(json);
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function decodeControlledSettings(hash) {
+  const encoded = String(hash || '').replace(/^#/, '');
+  if (!encoded || !/^[A-Za-z0-9_-]+$/.test(encoded)) throw new Error('Controlled Essay task content is missing or invalid.');
+  const padded = encoded.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - encoded.length % 4) % 4);
+  let binary;
+  try {
+    binary = atob(padded);
+  } catch {
+    throw new Error('Controlled Essay task content is invalid.');
+  }
+  const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+  let value;
+  try {
+    value = JSON.parse(new TextDecoder().decode(bytes));
+  } catch {
+    throw new Error('Controlled Essay task content is invalid.');
+  }
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Controlled Essay task content is invalid.');
+  return value;
+}
+
+async function hashControlledPayload(encodedSettings) {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(encodedSettings || '')));
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
 async function fetchControlledTask(taskId) {
   if (!taskId) return null;
   const { data, error } = await client.functions.invoke('essay-task-action', {
@@ -124,11 +158,20 @@ async function fetchControlledTask(taskId) {
   return data.task;
 }
 
-function buildControlledTaskUrl(taskId) {
+async function hydrateControlledTask(task) {
+  const encodedSettings = String(window.location.hash || '').replace(/^#/, '');
+  const settings = decodeControlledSettings(window.location.hash);
+  const settingsHash = await hashControlledPayload(encodedSettings);
+  if (settingsHash !== task.settingsHash) throw new Error('Controlled Essay task link has been altered.');
+  return { id: task.id, studyMode: task.studyMode, settings };
+}
+
+function buildControlledTaskUrl(taskId, encodedSettings) {
   const url = new URL('./essay-writing.html', window.location.href);
   url.search = '';
   url.hash = '';
   url.searchParams.set('ctask', taskId);
+  url.hash = encodedSettings;
   return url.toString();
 }
 
@@ -148,17 +191,19 @@ async function handleChildMessage(frame, event) {
   }
 
   try {
+    const encodedSettings = encodeControlledSettings(data.settings);
+    const settingsHash = await hashControlledPayload(encodedSettings);
     const { data: result, error } = await client.functions.invoke('essay-task-action', {
       body: {
         action: 'create',
         studyMode: data.studyMode === 'practice' ? 'practice' : 'exam',
-        settings: data.settings
+        settingsHash
       }
     });
     if (error || !result?.task?.id) throw new Error(result?.error || error?.message || 'Controlled task could not be created.');
     frame.contentWindow?.postMessage({
       type: 'essay-controlled-task-created',
-      url: buildControlledTaskUrl(result.task.id)
+      url: buildControlledTaskUrl(result.task.id, encodedSettings)
     }, window.location.origin);
   } catch (error) {
     frame.contentWindow?.postMessage({
@@ -180,10 +225,10 @@ function flushActiveTime() {
 }
 
 function startActiveTime(win) {
-  if (timer) return;
   ['pointerdown', 'keydown', 'input', 'touchstart'].forEach(type => {
     win.document.addEventListener(type, markInteraction, { passive: true });
   });
+  if (timer) return;
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') markInteraction();
@@ -265,7 +310,8 @@ async function initialise() {
     }
     if (taskId) {
       try {
-        controlledTask = await fetchControlledTask(taskId);
+        const task = await fetchControlledTask(taskId);
+        controlledTask = await hydrateControlledTask(task);
       } catch (error) {
         showFailure(error instanceof Error ? error.message : 'Controlled Essay task could not be loaded.');
         return;
