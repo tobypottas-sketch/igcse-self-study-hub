@@ -9,7 +9,7 @@ test('Essay wrapper sends authenticated user context to the child frame', () => 
   assert.doesNotMatch(js, /setHubStaffAccess/);
   assert.doesNotMatch(js, /setHubStorageNamespace/);
   assert.match(js, /storageNamespace:\s*`user-\$\{profile\.id\}`/);
-  assert.match(js, /staffAccess:\s*isStaff/);
+  assert.match(js, /staffAccess:\s*isStaffProfile\(\)/);
   assert.match(js, /type:\s*['"]essay-hub-context['"]/);
   assert.match(js, /postMessage\([\s\S]*window\.location\.origin/);
 });
@@ -28,7 +28,9 @@ test('Essay wrapper accepts controlled-task creation only from its iframe and st
   assert.match(js, /event\.source\s*!==\s*frame\.contentWindow/);
   assert.match(js, /event\.origin\s*!==\s*window\.location\.origin/);
   assert.match(js, /essay-create-controlled-task/);
-  assert.match(js, /role\s*===\s*['"]teacher['"]\s*\|\|\s*profile\.role\s*===\s*['"]admin['"]/);
+  assert.match(js, /function\s+isStaffProfile\s*\(/);
+  assert.match(js, /return role === 'teacher' \|\| profile\?\.role === 'admin'/);
+  assert.match(js, /if \(!isStaffProfile\(\)\)/);
   assert.match(js, /action:\s*['"]create['"]/);
   assert.match(js, /essay-controlled-task-created/);
 });
@@ -53,8 +55,8 @@ test('Essay controlled-task table is private from browser roles', () => {
 test('Essay task Edge Function validates safe teacher-created settings only', () => {
   const index = read('supabase/functions/essay-task-action/index.ts');
   const validation = read('supabase/functions/essay-task-action/validation.js');
-  assert.match(index, /verify/i);
-  assert.match(index, /profiles/);
+  assert.match(index, /callerClient\.auth\.getUser\(\)/);
+  assert.match(index, /from\('profiles'\)/);
   assert.match(index, /callerProfile\.role !== 'teacher'.*callerProfile\.role !== 'admin'/s);
   assert.match(index, /from\('essay_tasks'\)/);
   assert.match(validation, /essayQuestion/);
