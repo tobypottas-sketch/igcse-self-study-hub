@@ -196,8 +196,8 @@ function instrumentFunctions(win) {
   });
 
   const finishWrapped = safeWrapAfter(win, 'finishExam', () => reconcileExam(win));
-  safeWrapAfter(win, 'setMode', () => resetExamTracking());
-  safeWrapAfter(win, 'resetAllAnswers', () => resetExamTracking());
+  safeWrapAfter(win, 'setMode', (_args, result) => { if (result !== false) resetExamTracking(); });
+  safeWrapAfter(win, 'resetAllAnswers', (_args, result) => { if (result !== false) resetExamTracking(); });
 
   if (!answerWrapped || !sectionWrapped || !transcriptWrapped || !finishWrapped) {
     win.__selfStudyListeningInstrumented = false;
