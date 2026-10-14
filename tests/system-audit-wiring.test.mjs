@@ -26,6 +26,11 @@ test('Listening Exam question_answered events are gated once per question per at
   assert.match(listening,/resetExamTracking/);
 });
 
+test('Listening cancelled mode/reset actions do not clear Exam dedupe state',()=>{
+  assert.match(listening,/safeWrapAfter\(win,\s*['"]setMode['"][\s\S]*result\s*!==\s*false[\s\S]*resetExamTracking/);
+  assert.match(listening,/safeWrapAfter\(win,\s*['"]resetAllAnswers['"][\s\S]*result\s*!==\s*false[\s\S]*resetExamTracking/);
+});
+
 test('Paraphrasing Exam correctness comes from app records rather than hidden CSS feedback',()=>{
   assert.match(paraphrasing,/const\s+mode\s*=\s*currentMode\(win\)/);
   assert.match(paraphrasing,/mode\s*===\s*['"]exam['"][\s\S]*latestRecord\(win/);
