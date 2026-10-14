@@ -20,6 +20,12 @@ test('Reading wrapper sends staff capability only from authenticated profile rol
   assert.match(reading,/staffAccess/);
 });
 
+test('Reading cancelled mode/new-attempt actions do not clear Exam dedupe state',()=>{
+  assert.match(reading,/function\s+paperHasAnyAnswer\s*\(/);
+  assert.match(reading,/wrapAfter\(win,\s*['"]startNewExamAttempt['"][\s\S]*!paperHasAnyAnswer\(win\)[\s\S]*resetExamTracking/);
+  assert.match(reading,/wrapAfter\(win,\s*['"]setStudyMode['"][\s\S]*!paperHasAnyAnswer\(win\)[\s\S]*resetExamTracking/);
+});
+
 test('Listening Exam question_answered events are gated once per question per attempt',()=>{
   assert.match(listening,/examAnswered/);
   assert.match(listening,/examAnswered\.has\(/);
