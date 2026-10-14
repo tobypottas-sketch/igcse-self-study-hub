@@ -202,7 +202,10 @@ function instrumentFunctions(win) {
   });
 
   const finishWrapped = safeWrapAfter(win, 'finishExam', () => reconcileExam(win));
-  safeWrapAfter(win, 'setMode', (_args, result) => { if (result !== false) resetExamTracking(); });
+  safeWrapAfter(win, 'setMode', (_args, result) => {
+    const state = getListeningState(win);
+    if (shouldResetExamTrackingAfterReset(state, result)) resetExamTracking();
+  });
   safeWrapAfter(win, 'resetAllAnswers', (_args, result) => {
     const state = getListeningState(win);
     if (shouldResetExamTrackingAfterReset(state, result)) resetExamTracking();
