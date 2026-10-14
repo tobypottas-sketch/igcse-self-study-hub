@@ -19,6 +19,7 @@ let currentSectionId = 'ex1';
 let lastInteractionAt = Date.now();
 let activeSeconds = 0;
 let timer = null;
+let trackedWindow = null;
 let profile = null;
 const attempts = new Map();
 const questionSections = new Map();
@@ -227,8 +228,8 @@ function currentMode(win) {
   return getListeningState(win)?.mode === 'exam' ? 'exam' : 'practice';
 }
 
-function flushActiveTime(win) {
-  if (!enabled || activeSeconds <= 0) return;
+function flushActiveTime(win = trackedWindow) {
+  if (!enabled || activeSeconds <= 0 || !win) return;
   const seconds = capListeningFlush(activeSeconds);
   activeSeconds = 0;
   if (seconds <= 0) return;
@@ -242,7 +243,7 @@ function flushActiveTime(win) {
 }
 
 function startActiveTime(win) {
-  if (timer) return;
+  trackedWindow = win;
   const doc = win.document;
   ['pointerdown', 'keydown', 'input', 'touchstart'].forEach(type => {
     doc.addEventListener(type, markInteraction, { passive:true });
@@ -259,15 +260,20 @@ function startActiveTime(win) {
     audio.addEventListener('ended', () => flushActiveTime(win));
   }
 
+  if (timer) return;
+
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') markInteraction();
-    else flushActiveTime(win);
+    else flushActiveTime();
   });
-  window.addEventListener('pagehide', () => flushActiveTime(win));
+  window.addEventListener('pagehide', () => flushActiveTime());
 
   timer = window.setInterval(() => {
+    const activeWin = trackedWindow;
+    const activeDoc = activeWin?.document;
+    if (!activeWin || !activeDoc) return;
     const now = Date.now();
-    const media = doc.getElementById('mainAudio');
+    const media = activeDoc.getElementById('mainAudio');
     const audioPlaying = Boolean(media && !media.paused && !media.ended);
     const recentlyInteractive = shouldCountActiveTime({
       visible:true,
@@ -281,7 +287,7 @@ function startActiveTime(win) {
       recentlyInteractive
     })) {
       activeSeconds += TICK_SECONDS;
-      if (activeSeconds >= FLUSH_SECONDS) flushActiveTime(win);
+      if (activeSeconds >= FLUSH_SECONDS) flushActiveTime(activeWin);
     }
   }, TICK_SECONDS * 1000);
 }
@@ -297,6 +303,8 @@ function attachToLoadedFrame(frame) {
   try {
     const win = frame.contentWindow;
     if (!win || win.location.origin !== window.location.origin) throw new Error('Practice app origin mismatch.');
+    currentSectionId = 'ex1';
+    trackedWindow = win;
     sendHubContext(win);
     const newlyInstrumented = instrumentFunctions(win);
     if (!newlyInstrumented) return;
