@@ -57,3 +57,32 @@ test('Essay wrapper does not count blocked Exam navigation or failed saves as se
   assert.match(essay,/studyMode/);
   assert.doesNotMatch(essay,/saveDraftName[\s\S]{0,120}\.value/);
 });
+
+test('all wrappers rebind iframe interaction listeners after an iframe reload',()=>{
+  for (const [name, source] of [['Reading',reading],['Listening',listening],['Paraphrasing',paraphrasing],['Essay',essay]]) {
+    const start = source.indexOf('function startActiveTime');
+    assert.notEqual(start, -1, `${name} startActiveTime missing`);
+    const body = source.slice(start, start + 2200);
+    const listener = body.indexOf("addEventListener(type, markInteraction");
+    const timerGuard = body.indexOf('if (timer) return');
+    assert.notEqual(listener, -1, `${name} iframe interaction listener missing`);
+    assert.notEqual(timerGuard, -1, `${name} timer guard missing`);
+    assert.ok(listener < timerGuard, `${name} returns before rebinding listeners on a reloaded iframe`);
+  }
+});
+
+test('Listening resets wrapper section state to ex1 when a fresh iframe document attaches',()=>{
+  assert.match(listening,/function\s+attachToLoadedFrame\s*\([\s\S]*currentSectionId\s*=\s*['"]ex1['"]/);
+});
+
+test('Listening active-time timer reads the current iframe document instead of a stale captured document',()=>{
+  assert.match(listening,/let\s+trackedWindow\s*=\s*null/);
+  assert.match(listening,/trackedWindow\s*=\s*win/);
+  assert.match(listening,/const\s+activeWin\s*=\s*trackedWindow/);
+});
+
+test('Paraphrasing active-time flush reads mode from the current iframe after reload',()=>{
+  assert.match(paraphrasing,/let\s+trackedWindow\s*=\s*null/);
+  assert.match(paraphrasing,/trackedWindow\s*=\s*win/);
+  assert.match(paraphrasing,/mode:\s*trackedWindow\s*\?\s*currentMode\(trackedWindow\)/);
+});
