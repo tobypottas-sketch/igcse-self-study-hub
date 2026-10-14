@@ -81,3 +81,5 @@ test('wrapper reads Reading studyMode and reconciles on submitExam', () => {
   assert.match(source, /examSubmitted/);
   assert.match(source, /mode:\s*studyMode\(/);
 });
+
+// This suite intentionally describes the new mode-aware tracking contract before implementation.
