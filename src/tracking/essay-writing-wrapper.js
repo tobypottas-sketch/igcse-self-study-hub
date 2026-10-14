@@ -4,6 +4,7 @@ import { buildTrackingEvent, shouldCountActiveTime } from './core.js';
 const FRAME_ID = 'practiceFrame';
 const TICK_SECONDS = 30;
 const FLUSH_SECONDS = 60;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 let client = null;
 let enabled = false;
@@ -11,6 +12,7 @@ let lastInteractionAt = Date.now();
 let activeSeconds = 0;
 let timer = null;
 let profile = null;
+let controlledTask = null;
 
 async function send(payload) {
   if (!enabled || !client) return;
@@ -32,6 +34,11 @@ async function send(payload) {
 
 function track(payload) {
   void send(payload);
+}
+
+function isStaffProfile() {
+  const role = profile?.role;
+  return role === 'teacher' || profile?.role === 'admin';
 }
 
 function safeWordCount(win) {
@@ -80,11 +87,79 @@ function instrumentEssay(win) {
     });
   });
 
-  const role = profile?.role;
-  const isStaff = role === 'teacher' || profile.role === 'admin';
-  if (typeof win.setHubStaffAccess === 'function') win.setHubStaffAccess(isStaff);
-
   return true;
+}
+
+function sendHubContext(win) {
+  if (!profile) return;
+  win.postMessage({
+    type: 'essay-hub-context',
+    storageNamespace: `user-${profile.id}`,
+    staffAccess: isStaffProfile(),
+    controlledTask
+  }, window.location.origin);
+}
+
+function controlledTaskIdFromUrl() {
+  try {
+    const value = new URLSearchParams(window.location.search).get('ctask') || '';
+    return UUID_RE.test(value) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchControlledTask(taskId) {
+  if (!taskId) return null;
+  const { data, error } = await client.functions.invoke('essay-task-action', {
+    body: { action: 'fetch', taskId }
+  });
+  if (error || !data?.task) throw new Error(data?.error || error?.message || 'Controlled Essay task could not be loaded.');
+  return data.task;
+}
+
+function buildControlledTaskUrl(taskId) {
+  const url = new URL('./essay-writing.html', window.location.href);
+  url.search = '';
+  url.hash = '';
+  url.searchParams.set('ctask', taskId);
+  return url.toString();
+}
+
+async function handleChildMessage(frame, event) {
+  if (!enabled || !profile || !client) return;
+  if (event.source !== frame.contentWindow) return;
+  if (event.origin !== window.location.origin) return;
+  const data = event.data;
+  if (!data || data.type !== 'essay-create-controlled-task') return;
+
+  if (!isStaffProfile()) {
+    frame.contentWindow?.postMessage({
+      type: 'essay-controlled-task-error',
+      message: 'Teacher or admin access is required.'
+    }, window.location.origin);
+    return;
+  }
+
+  try {
+    const { data: result, error } = await client.functions.invoke('essay-task-action', {
+      body: {
+        action: 'create',
+        studyMode: data.studyMode === 'practice' ? 'practice' : 'exam',
+        settings: data.settings
+      }
+    });
+    if (error || !result?.task?.id) throw new Error(result?.error || error?.message || 'Controlled task could not be created.');
+    frame.contentWindow?.postMessage({
+      type: 'essay-controlled-task-created',
+      url: buildControlledTaskUrl(result.task.id)
+    }, window.location.origin);
+  } catch (error) {
+    frame.contentWindow?.postMessage({
+      type: 'essay-controlled-task-error',
+      message: error instanceof Error ? error.message : 'Controlled task could not be created.'
+    }, window.location.origin);
+  }
 }
 
 function markInteraction() {
@@ -133,6 +208,7 @@ function attachToLoadedFrame(frame) {
   try {
     const win = frame.contentWindow;
     if (!win || win.location.origin !== window.location.origin) throw new Error('Essay app origin mismatch.');
+    sendHubContext(win);
     const newlyInstrumented = instrumentEssay(win);
     if (!newlyInstrumented) return;
     markInteraction();
@@ -151,6 +227,9 @@ async function initialise() {
 
   frame.addEventListener('load', () => {
     if (enabled) attachToLoadedFrame(frame);
+  });
+  window.addEventListener('message', event => {
+    void handleChildMessage(frame, event);
   });
 
   try {
@@ -173,6 +252,20 @@ async function initialise() {
     }
 
     profile = profileData;
+    const taskId = controlledTaskIdFromUrl();
+    if (new URLSearchParams(window.location.search).has('ctask') && !taskId) {
+      showFailure('This controlled Essay task link is invalid.');
+      return;
+    }
+    if (taskId) {
+      try {
+        controlledTask = await fetchControlledTask(taskId);
+      } catch (error) {
+        showFailure(error instanceof Error ? error.message : 'Controlled Essay task could not be loaded.');
+        return;
+      }
+    }
+
     enabled = true;
 
     try {
