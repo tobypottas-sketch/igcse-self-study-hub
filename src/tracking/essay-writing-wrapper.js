@@ -180,10 +180,10 @@ function flushActiveTime() {
 }
 
 function startActiveTime(win) {
-  if (timer) return;
   ['pointerdown', 'keydown', 'input', 'touchstart'].forEach(type => {
     win.document.addEventListener(type, markInteraction, { passive: true });
   });
+  if (timer) return;
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') markInteraction();
