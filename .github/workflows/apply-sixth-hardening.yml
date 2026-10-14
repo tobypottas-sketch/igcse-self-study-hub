@@ -1,0 +1,146 @@
+name: Apply Sixth Hardening
+on:
+  push:
+    branches: [fix/sixth-hardening-audit-20261015]
+    paths: [.github/audit6-trigger]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/sixth-hardening-audit-20261015
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Patch Hub tracking
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p=Path('src/tracking/reading-wrapper.js')
+          s=p.read_text()
+          s=s.replace("const FLUSH_SECONDS = 60;\n", "const FLUSH_SECONDS = 60;\nconst READING_TEXT_INPUT_DEBOUNCE_MS = 700;\n", 1)
+          s=s.replace("const reconciledExamPapers = new Set();\n", "const reconciledExamPapers = new Set();\nconst pendingAnswerTimers = new Map();\n", 1)
+          marker="function trackAnswer(win, questionId) {"
+          helper="""function clearPendingReadingAnswers(win) {
+  for (const timer of pendingAnswerTimers.values()) win.clearTimeout(timer);
+  pendingAnswerTimers.clear();
+}
+
+function queueReadingAnswerTracking(win, questionId) {
+  const key = String(questionId);
+  const existing = pendingAnswerTimers.get(key);
+  if (existing) win.clearTimeout(existing);
+  const timer = win.setTimeout(() => {
+    pendingAnswerTimers.delete(key);
+    trackAnswer(win, questionId);
+  }, READING_TEXT_INPUT_DEBOUNCE_MS);
+  pendingAnswerTimers.set(key, timer);
+}
+
+function trackAnswer(win, questionId) {"""
+          if marker not in s: raise SystemExit('Reading trackAnswer anchor missing')
+          s=s.replace(marker,helper,1)
+          old="const normal = wrapAfter(win, 'saveAnswer', ([questionId]) => trackAnswer(win, questionId));"
+          new="""const normal = wrapAfter(win, 'saveAnswer', ([questionId]) => {
+    const paper = activePaper(win);
+    const context = paper ? findReadingQuestion(paper, questionId) : null;
+    if (context && (context.exercise.type === 'short_answers' || context.exercise.type === 'notes')) {
+      queueReadingAnswerTracking(win, questionId);
+      return;
+    }
+    trackAnswer(win, questionId);
+  });"""
+          if old not in s: raise SystemExit('Reading saveAnswer hook anchor missing')
+          s=s.replace(old,new,1)
+          old_reset="""function resetExamTracking(win) {
+  const paper = activePaper(win);
+  if (!paper) return;
+  reconciledExamPapers.delete(paper.id);
+  for (const key of [...examAnswered]) {
+    if (key.startsWith(`${paper.id}:`)) examAnswered.delete(key);
+  }
+}
+"""
+          new_reset="""function resetExamTracking(win) {
+  const paper = activePaper(win);
+  if (!paper) return;
+  reconciledExamPapers.delete(paper.id);
+  for (const key of [...examAnswered]) {
+    if (key.startsWith(`${paper.id}:`)) examAnswered.delete(key);
+  }
+  for (const key of [...attempts.keys()]) {
+    if (String(key).startsWith(`exam:${paper.id}:`)) attempts.delete(key);
+  }
+}
+"""
+          if old_reset not in s: raise SystemExit('Reading resetExamTracking anchor missing')
+          s=s.replace(old_reset,new_reset,1)
+          replacements={
+            "wrapAfter(win, 'startNewExamAttempt', () => { if (!paperHasAnyAnswer(win)) resetExamTracking(win); });":"wrapAfter(win, 'startNewExamAttempt', () => { clearPendingReadingAnswers(win); if (!paperHasAnyAnswer(win)) resetExamTracking(win); });",
+            "wrapAfter(win, 'setStudyMode', () => { if (!paperHasAnyAnswer(win)) resetExamTracking(win); });":"wrapAfter(win, 'setStudyMode', () => { clearPendingReadingAnswers(win); if (!paperHasAnyAnswer(win)) resetExamTracking(win); });",
+            "wrapAfter(win, 'loadSelectedPaper', () => seedReadingExamTracking(win));":"wrapAfter(win, 'loadSelectedPaper', () => { clearPendingReadingAnswers(win); seedReadingExamTracking(win); });"
+          }
+          for old,new in replacements.items():
+            if old not in s: raise SystemExit('Reading reset hook anchor missing: '+old)
+            s=s.replace(old,new,1)
+          p.write_text(s)
+
+          p=Path('src/tracking/essay-writing-wrapper.js')
+          s=p.read_text()
+          old="let timer = null;\nlet profile = null;"
+          new="let timer = null;\nlet trackedWindow = null;\nlet profile = null;"
+          if old not in s: raise SystemExit('Essay trackedWindow anchor missing')
+          s=s.replace(old,new,1)
+          marker="function wrapAfter(win, functionName, after) {"
+          helper="""function currentEssayMode(win) {
+  try {
+    return typeof win?.isPracticeMode === 'function' && !win.isPracticeMode() ? 'exam' : 'practice';
+  } catch {
+    return 'practice';
+  }
+}
+
+function wrapAfter(win, functionName, after) {"""
+          if marker not in s: raise SystemExit('Essay wrapAfter anchor missing')
+          s=s.replace(marker,helper,1)
+          old="studyMode: typeof win.isPracticeMode === 'function' && !win.isPracticeMode() ? 'exam' : 'practice'"
+          if old not in s: raise SystemExit('Essay context mode anchor missing')
+          s=s.replace(old,"studyMode: currentEssayMode(win)",1)
+          old="skill: `essay_${stage}`,\n      metadata: { word_count: safeWordCount(win) }"
+          new="skill: `essay_${stage}`,\n      mode: currentEssayMode(win),\n      metadata: { word_count: safeWordCount(win) }"
+          if old not in s: raise SystemExit('Essay section mode anchor missing')
+          s=s.replace(old,new,1)
+          old="skill: 'essay_draft_management',\n      metadata: { word_count: safeWordCount(win) }"
+          new="skill: 'essay_draft_management',\n      mode: context.studyMode,\n      metadata: { word_count: safeWordCount(win) }"
+          if old not in s: raise SystemExit('Essay draft mode anchor missing')
+          s=s.replace(old,new,1)
+          old="track({ event_type: 'active_time', active_seconds: seconds });"
+          new="track({ event_type: 'active_time', active_seconds: seconds, mode: trackedWindow ? currentEssayMode(trackedWindow) : 'practice' });"
+          if old not in s: raise SystemExit('Essay active time anchor missing')
+          s=s.replace(old,new,1)
+          old="function startActiveTime(win) {\n  ['pointerdown', 'keydown', 'input', 'touchstart'].forEach(type => {"
+          new="function startActiveTime(win) {\n  trackedWindow = win;\n  ['pointerdown', 'keydown', 'input', 'touchstart'].forEach(type => {"
+          if old not in s: raise SystemExit('Essay startActiveTime anchor missing')
+          s=s.replace(old,new,1)
+          old="track({ event_type: 'app_open' });"
+          new="track({ event_type: 'app_open', mode: currentEssayMode(win) });"
+          if old not in s: raise SystemExit('Essay app_open anchor missing')
+          s=s.replace(old,new,1)
+          old="track({ event_type: 'section_use', activity_id: 'stage:task', skill: 'essay_task', metadata: { word_count: safeWordCount(win) } });"
+          new="track({ event_type: 'section_use', activity_id: 'stage:task', skill: 'essay_task', mode: currentEssayMode(win), metadata: { word_count: safeWordCount(win) } });"
+          if old not in s: raise SystemExit('Essay initial section anchor missing')
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+      - run: node --test tests/*.test.js tests/*.test.mjs
+      - name: Commit patch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/tracking/reading-wrapper.js src/tracking/essay-writing-wrapper.js
+          git diff --cached --quiet || git commit -m "fix: harden sixth-audit Hub tracking"
+          git push
