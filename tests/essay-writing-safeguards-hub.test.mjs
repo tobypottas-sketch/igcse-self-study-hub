@@ -52,19 +52,36 @@ test('Essay controlled-task table is private from browser roles', () => {
   assert.match(sql, /settings jsonb not null/i);
 });
 
-test('Essay task Edge Function validates safe teacher-created settings only', () => {
+test('Controlled Essay content stays in the URL fragment and never goes to Supabase', () => {
+  const wrapper = read('src/tracking/essay-writing-wrapper.js');
   const index = read('supabase/functions/essay-task-action/index.ts');
   const validation = read('supabase/functions/essay-task-action/validation.js');
+
+  assert.match(wrapper, /function\s+encodeControlledSettings\s*\(/);
+  assert.match(wrapper, /function\s+decodeControlledSettings\s*\(/);
+  assert.match(wrapper, /function\s+hashControlledPayload\s*\(/);
+  assert.match(wrapper, /url\.hash\s*=\s*encodedSettings/);
+  assert.match(wrapper, /settingsHash/);
+  assert.doesNotMatch(wrapper, /body:\s*\{[\s\S]{0,180}action:\s*['"]create['"][\s\S]{0,180}settings:\s*data\.settings/);
+
   assert.match(index, /callerClient\.auth\.getUser\(\)/);
   assert.match(index, /from\('profiles'\)/);
   assert.match(index, /callerProfile\.role !== 'teacher'.*callerProfile\.role !== 'admin'/s);
-  assert.match(index, /from\('essay_tasks'\)/);
-  assert.match(validation, /essayQuestion/);
-  assert.match(validation, /wordMin/);
-  assert.match(validation, /wordMax/);
-  assert.match(validation, /showScaffolds/);
-  assert.match(validation, /showLabels/);
-  for (const forbidden of ['draftIntro','draftArg1','draftArg2','draftConc','planQ1','teacherNotes','studentText','essayText']) {
-    assert.equal(validation.includes(forbidden), false, `controlled-task validation must not accept ${forbidden}`);
+  assert.match(index, /settings:\s*\{\s*settingsHash:\s*input\.settingsHash\s*\}/);
+  assert.doesNotMatch(index, /settings:\s*input\.settings/);
+  assert.match(index, /settingsHash:\s*data\.settings\?\.settingsHash/);
+
+  assert.match(validation, /HASH_RE/);
+  assert.match(validation, /settingsHash/);
+  for (const forbidden of ['essayQuestion','audience','promptIdeas','successCriteria','opinionPhrases','linkingPhrases','draftIntro','draftArg1','draftArg2','draftConc','planQ1','teacherNotes','studentText','essayText']) {
+    assert.equal(validation.includes(forbidden), false, `Edge validation must not accept remote content field ${forbidden}`);
   }
+});
+
+test('Controlled Essay settings are verified against the remote fingerprint before use', () => {
+  const wrapper = read('src/tracking/essay-writing-wrapper.js');
+  assert.match(wrapper, /decodeControlledSettings\(window\.location\.hash\)/);
+  assert.match(wrapper, /hashControlledPayload\(encodedSettings\)/);
+  assert.match(wrapper, /settingsHash\s*!==\s*task\.settingsHash/);
+  assert.match(wrapper, /throw new Error\(['"]Controlled Essay task link has been altered/);
 });
