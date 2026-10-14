@@ -69,7 +69,7 @@ test('Controlled Essay content stays in the URL fragment and never goes to Supab
   assert.match(index, /callerProfile\.role !== 'teacher'.*callerProfile\.role !== 'admin'/s);
   assert.match(index, /settings:\s*\{\s*settingsHash:\s*input\.settingsHash\s*\}/);
   assert.doesNotMatch(index, /settings:\s*input\.settings/);
-  assert.match(index, /settingsHash:\s*data\.settings\?\.settingsHash/);
+  assert.match(index, /settingsHash:\s*validateSettingsHash\(data\.settings\?\.settingsHash\)/);
 
   assert.match(validation, /HASH_RE/);
   assert.match(validation, /settingsHash/);
