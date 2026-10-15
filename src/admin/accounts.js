@@ -5,11 +5,30 @@ async function invokeProvision(client, body) {
 }
 
 export async function createStudentAccount(client, input) {
-  return invokeProvision(client, { role: 'student', ...input });
+  return invokeProvision(client, {
+    action: 'provision',
+    role: 'student',
+    email: input.email,
+    displayName: input.displayName,
+    classId: input.classId
+  });
 }
 
 export async function createTeacherAccount(client, input) {
-  return invokeProvision(client, { role: 'teacher', ...input });
+  return invokeProvision(client, {
+    action: 'provision',
+    role: 'teacher',
+    email: input.email,
+    displayName: input.displayName
+  });
+}
+
+export async function resetAccountPassword(client, userId) {
+  return invokeProvision(client, { action: 'reset_password', userId });
+}
+
+export async function setAccountActive(client, userId, active) {
+  return invokeProvision(client, { action: 'set_active', userId, active });
 }
 
 export function normalizeAdminAccounts(profiles = [], memberships = [], classes = [], teacherClasses = []) {
