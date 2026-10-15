@@ -3,6 +3,7 @@ import { loadApps } from './api.js';
 import { getSupabaseClient } from './supabase.js';
 import { createStudentAccount, createTeacherAccount, loadAdminAccounts, resetAccountPassword, setAccountActive } from './admin/accounts.js';
 import { createClass, assignTeacherToClass, unassignTeacherFromClass, transferStudent, loadAdminClasses } from './admin/classes.js';
+import { parseStudentCsv, validateStudentImport, bulkProvisionStudents } from './admin/import.js';
 import { renderLogin } from './views/login.js';
 import { renderChangePassword } from './views/change-password.js';
 import { renderHome } from './views/home.js';
@@ -17,15 +18,13 @@ export function routeForProfile(profile) {
 
 export async function loadAppState(client) {
   const { data, error } = await client.auth.getUser();
-  if (error || !data?.user) return { view: 'login' };
+  if (error || !data?.user) return { view:'login' };
   try {
     const profile = await getCurrentProfile(client);
-    if (profile.must_change_password) return { view: 'change-password', profile };
+    if (profile.must_change_password) return { view:'change-password', profile };
     const apps = await loadApps(client);
-    return { view: 'home', profile, apps };
-  } catch (error) {
-    return { view: 'error', error };
-  }
+    return { view:'home', profile, apps };
+  } catch (error) { return { view:'error', error }; }
 }
 
 function renderError(root, message) {
@@ -37,12 +36,11 @@ export async function bootApp(clientOverride = null) {
   const root = document.getElementById('app');
   if (!root) return;
   root.innerHTML = '<div class="loading">Loading Self-Study Hub…</div>';
-
   let client;
   try { client = clientOverride ?? await getSupabaseClient(); }
   catch { renderError(root, 'The Self-Study service is unavailable right now.'); return; }
 
-  let currentState = { view: 'login' };
+  let currentState = { view:'login' };
 
   const renderCurrentState = async () => {
     currentState = await loadAppState(client);
@@ -64,15 +62,12 @@ export async function bootApp(clientOverride = null) {
     }
   };
 
-  const setFormBusy = (form, busy) => {
-    const button = form?.querySelector?.('button[type="submit"]');
-    if (button) button.disabled = busy;
-  };
+  const setFormBusy = (form, busy) => { const button = form?.querySelector?.('button[type="submit"]'); if (button) button.disabled = busy; };
 
   root.addEventListener('submit', async (event) => {
     const form = event.target;
     const kind = form?.dataset?.form;
-    const supported = ['login','change-password','admin-create-student','admin-create-teacher','admin-create-class','admin-assign-teacher','admin-transfer-student'];
+    const supported = ['login','change-password','admin-create-student','admin-create-teacher','admin-create-class','admin-assign-teacher','admin-transfer-student','admin-preview-import'];
     if (!supported.includes(kind)) return;
     event.preventDefault();
     const data = new FormData(form);
@@ -82,11 +77,9 @@ export async function bootApp(clientOverride = null) {
       catch (error) { renderLogin(root, error instanceof Error ? error.message : 'Unable to sign in.'); }
       return;
     }
-
     if (kind === 'change-password') {
       const password = String(data.get('password') ?? '');
-      const confirm = String(data.get('confirmPassword') ?? '');
-      if (password !== confirm) { renderChangePassword(root, currentState.profile, 'The two passwords do not match.'); return; }
+      if (password !== String(data.get('confirmPassword') ?? '')) { renderChangePassword(root, currentState.profile, 'The two passwords do not match.'); return; }
       try { await changePassword(client, password); await renderCurrentState(); }
       catch (error) { renderChangePassword(root, currentState.profile, error instanceof Error ? error.message : 'Unable to change password.'); }
       return;
@@ -97,9 +90,7 @@ export async function bootApp(clientOverride = null) {
       if (kind === 'admin-create-student' || kind === 'admin-create-teacher') {
         const displayName = String(data.get('displayName') ?? '').trim();
         const email = String(data.get('email') ?? '').trim();
-        const result = kind === 'admin-create-student'
-          ? await createStudentAccount(client, { displayName, email, classId:String(data.get('classId') ?? '') })
-          : await createTeacherAccount(client, { displayName, email });
+        const result = kind === 'admin-create-student' ? await createStudentAccount(client, { displayName, email, classId:String(data.get('classId') ?? '') }) : await createTeacherAccount(client, { displayName, email });
         await renderAdminSection('accounts', { credential:{ displayName, email, temporaryPassword:result.temporaryPassword }, notice:`${kind === 'admin-create-student' ? 'Student' : 'Teacher'} account created.` });
       } else if (kind === 'admin-create-class') {
         await createClass(client, String(data.get('className') ?? '').trim());
@@ -114,9 +105,17 @@ export async function bootApp(clientOverride = null) {
         if (account?.currentClassId === newClassId) throw new Error('Student is already in that class.');
         await transferStudent(client, studentId, newClassId);
         await renderAdminSection('classes', { notice:'Student moved. Previous class membership was retained in history.', credential:null });
+      } else if (kind === 'admin-preview-import') {
+        const classId = String(data.get('classId') ?? '');
+        const file = data.get('csvFile');
+        if (!file || typeof file.text !== 'function') throw new Error('Choose a CSV file.');
+        const rows = parseStudentCsv(await file.text());
+        const existingEmails = new Set((currentState.accounts ?? []).map(item => String(item.email ?? '').toLowerCase()));
+        const validation = validateStudentImport(rows, existingEmails);
+        await renderAdminSection('import', { importPreview:{ classId, fileName:String(file.name ?? 'students.csv'), ...validation }, bulkResult:null, notice:validation.errors.length ? 'Fix the validation errors before creating accounts.' : 'CSV validated. Review the students, then create the accounts.' });
       }
     } catch (error) {
-      const section = kind.startsWith('admin-create-class') || kind.startsWith('admin-assign') || kind.startsWith('admin-transfer') ? 'classes' : 'accounts';
+      const section = kind === 'admin-preview-import' ? 'import' : (kind.includes('class') || kind.includes('assign') || kind.includes('transfer')) ? 'classes' : 'accounts';
       await renderAdminSection(section, { notice:error instanceof Error ? error.message : 'Admin action failed.' });
     } finally { setFormBusy(form, false); }
   });
@@ -126,11 +125,11 @@ export async function bootApp(clientOverride = null) {
     const action = target?.dataset?.action;
     if (action === 'logout') { await client.auth.signOut(); await renderCurrentState(); }
     else if (action === 'retry') await renderCurrentState();
-    else if (action === 'admin') await renderAdminSection('accounts', { credential:null, notice:'' });
+    else if (action === 'admin') await renderAdminSection('accounts', { credential:null, notice:'', importPreview:null, bulkResult:null });
     else if (action === 'admin-back') await renderCurrentState();
     else if (action?.startsWith?.('admin-section-')) {
       const section = action.slice('admin-section-'.length);
-      if (['accounts','classes','import'].includes(section)) await renderAdminSection(section, { credential:null, notice:'' });
+      if (['accounts','classes','import'].includes(section)) await renderAdminSection(section, { credential:null, notice:'', importPreview:null, bulkResult:null });
     } else if (action === 'admin-reset-password') {
       const userId = target?.dataset?.userId;
       if (!userId) return;
@@ -143,18 +142,42 @@ export async function bootApp(clientOverride = null) {
       const userId = target?.dataset?.userId;
       const active = target?.dataset?.nextActive === 'true';
       if (!userId) return;
-      const verb = active ? 'reactivate' : 'deactivate';
-      if (typeof globalThis.confirm === 'function' && !globalThis.confirm(`${verb[0].toUpperCase()}${verb.slice(1)} this account?`)) return;
+      if (typeof globalThis.confirm === 'function' && !globalThis.confirm(`${active ? 'Reactivate' : 'Deactivate'} this account?`)) return;
       try { await setAccountActive(client, userId, active); await renderAdminSection('accounts', { credential:null, notice:`Account ${active ? 'reactivated' : 'deactivated'}.` }); }
       catch (error) { await renderAdminSection('accounts', { notice:error instanceof Error ? error.message : 'Unable to update account.' }); }
     } else if (action === 'admin-unassign-teacher') {
       if (typeof globalThis.confirm === 'function' && !globalThis.confirm('Remove this teacher from the class?')) return;
+      try { await unassignTeacherFromClass(client, target.dataset.teacherId, target.dataset.classId); await renderAdminSection('classes', { notice:'Teacher removed from class.', credential:null }); }
+      catch (error) { await renderAdminSection('classes', { notice:error instanceof Error ? error.message : 'Unable to remove teacher.' }); }
+    } else if (action === 'admin-run-import') {
+      const preview = currentState.importPreview;
+      if (!preview || preview.errors?.length || !preview.validRows?.length || preview.classId !== target.dataset.classId) return;
       try {
-        await unassignTeacherFromClass(client, target.dataset.teacherId, target.dataset.classId);
-        await renderAdminSection('classes', { notice:'Teacher removed from class.', credential:null });
-      } catch (error) { await renderAdminSection('classes', { notice:error instanceof Error ? error.message : 'Unable to remove teacher.' }); }
+        const result = await bulkProvisionStudents(client, preview.classId, preview.validRows);
+        await renderAdminSection('import', { importPreview:null, bulkResult:result, notice:`${result.created?.length ?? 0} student account${result.created?.length === 1 ? '' : 's'} created${result.failed?.length ? `; ${result.failed.length} failed.` : '.'}` });
+      } catch (error) { await renderAdminSection('import', { notice:error instanceof Error ? error.message : 'Bulk import failed.' }); }
+    } else if (action === 'admin-copy-credentials') {
+      const created = currentState.bulkResult?.created ?? [];
+      const text = created.map(row => `${row.displayName}\t${row.email}\t${row.temporaryPassword}`).join('\n');
+      if (text && globalThis.navigator?.clipboard?.writeText) await globalThis.navigator.clipboard.writeText(text);
+    } else if (action === 'admin-print-credentials') {
+      if (typeof globalThis.print === 'function') globalThis.print();
     }
   });
+
+  const applyAccountFilters = () => {
+    const search = String(root.querySelector?.('[data-admin-filter="account-search"]')?.value ?? '').trim().toLowerCase();
+    const role = root.querySelector?.('[data-admin-filter="account-role"]')?.value ?? 'all';
+    const status = root.querySelector?.('[data-admin-filter="account-status"]')?.value ?? 'all';
+    for (const row of root.querySelectorAll?.('.admin-table tbody tr[data-account-role]') ?? []) {
+      const text = String(row.textContent ?? '').toLowerCase();
+      const roleOk = role === 'all' || row.dataset.accountRole === role;
+      const statusOk = status === 'all' || (status === 'active') === (row.dataset.accountActive === 'true');
+      row.hidden = !(roleOk && statusOk && (!search || text.includes(search)));
+    }
+  };
+  root.addEventListener('input', event => { if (event.target?.dataset?.adminFilter) applyAccountFilters(); });
+  root.addEventListener('change', event => { if (event.target?.dataset?.adminFilter) applyAccountFilters(); });
 
   await renderCurrentState();
 }
