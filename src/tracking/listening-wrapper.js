@@ -134,6 +134,7 @@ function seedListeningTracking(win) {
 }
 
 function resetExamTracking() {
+  attempts.clear();
   examAnswered.clear();
   reconciledQuestions.clear();
 }
@@ -146,7 +147,7 @@ function nextAttempt(questionNumber) {
 }
 
 function trackSection(sectionId, mode='practice') {
-  if (!sectionGate(`section:${sectionId}`)) return;
+  if (!sectionGate(`section:${mode}:${sectionId}`)) return;
   track(buildListeningSectionEvent({ sectionId, mode }));
 }
 
