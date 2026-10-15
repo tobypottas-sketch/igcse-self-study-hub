@@ -43,6 +43,20 @@ test('deactivate and delete account update cached UI without a blocking full adm
   assert.match(deleteBranch, /renderCachedAdminSection\('accounts'/);
 });
 
+test('stale background admin refreshes cannot overwrite newer destructive-action state', () => {
+  assert.match(appSource, /let adminRefreshGeneration = 0/);
+  assert.match(appSource, /const refreshGeneration = \+\+adminRefreshGeneration/);
+  assert.match(appSource, /if \(refreshGeneration !== adminRefreshGeneration\) return/);
+  assert.match(appSource, /const invalidateAdminBackgroundRefreshes = \(\) => \{ adminRefreshGeneration \+= 1; \}/);
+
+  const deactivateBranch = branchBetween(appSource, "action === 'admin-set-active'", "action === 'admin-delete-account'");
+  assert.match(deactivateBranch, /invalidateAdminBackgroundRefreshes\(\)/);
+  const deleteAccountBranch = branchBetween(appSource, "action === 'admin-delete-account'", "action === 'admin-unassign-teacher'");
+  assert.match(deleteAccountBranch, /invalidateAdminBackgroundRefreshes\(\)/);
+  const deleteClassBranch = branchBetween(appSource, "action === 'admin-delete-class'", "action === 'admin-run-import'");
+  assert.match(deleteClassBranch, /invalidateAdminBackgroundRefreshes\(\)/);
+});
+
 test('class deletion updates cached UI without a blocking full admin reload', () => {
   const deleteClassBranch = branchBetween(appSource, "action === 'admin-delete-class'", "action === 'admin-run-import'");
   assert.doesNotMatch(deleteClassBranch, /renderAdminSection\('classes',[\s\S]*?true\)/);
