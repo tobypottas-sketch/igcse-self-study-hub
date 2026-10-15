@@ -78,6 +78,16 @@ Deno.serve(async (req: Request) => {
       return Response.json({ ok: true });
     }
 
+    if (input.action === 'unassign_teacher') {
+      const { error } = await adminClient
+        .from('teacher_classes')
+        .delete()
+        .eq('teacher_id', input.teacherId)
+        .eq('class_id', input.classId);
+      if (error) return Response.json({ error: error.message }, { status: 400 });
+      return Response.json({ ok: true });
+    }
+
     const { data, error } = await adminClient.rpc('admin_transfer_student', {
       p_student: input.studentId,
       p_new_class: input.newClassId,
