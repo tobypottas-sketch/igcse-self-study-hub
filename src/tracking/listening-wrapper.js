@@ -30,11 +30,17 @@ const supportGate = createOncePerKeyGate();
 
 export function createOncePerKeyGate() {
   const seen = new Set();
-  return key => {
+  const gate = key => {
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   };
+  gate.clearPrefix = prefix => {
+    for (const key of [...seen]) {
+      if (String(key).startsWith(prefix)) seen.delete(key);
+    }
+  };
+  return gate;
 }
 
 export function safeWrapAfter(target, functionName, after, warn = console.warn) {
@@ -137,6 +143,7 @@ function resetExamTracking() {
   attempts.clear();
   examAnswered.clear();
   reconciledQuestions.clear();
+  sectionGate.clearPrefix('section:exam:');
 }
 
 function nextAttempt(questionNumber) {
