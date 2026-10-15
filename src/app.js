@@ -63,6 +63,12 @@ export async function bootApp(clientOverride = null) {
   };
 
   const setFormBusy = (form, busy) => { const button = form?.querySelector?.('button[type="submit"]'); if (button) button.disabled = busy; };
+  const runButtonAction = async (target, task) => {
+    if (!target || target.disabled) return;
+    target.disabled = true;
+    try { await task(); }
+    finally { if (target.isConnected) target.disabled = false; }
+  };
 
   root.addEventListener('submit', async (event) => {
     const form = event.target;
@@ -112,7 +118,7 @@ export async function bootApp(clientOverride = null) {
         const rows = parseStudentCsv(await file.text());
         const existingEmails = new Set((currentState.accounts ?? []).map(item => String(item.email ?? '').toLowerCase()));
         const validation = validateStudentImport(rows, existingEmails);
-        await renderAdminSection('import', { importPreview:{ classId, fileName:String(file.name ?? 'students.csv'), ...validation }, bulkResult:null, notice:validation.errors.length ? 'Fix the validation errors before creating accounts.' : 'CSV validated. Review the students, then create the accounts.' });
+        await renderAdminSection('import', { importPreview:{ classId, fileName:String(file.name ?? 'students.csv'), ...validation }, bulkResult:null, lastImportClassId:null, notice:validation.errors.length ? 'Fix the validation errors before creating accounts.' : 'CSV validated. Review the students, then create the accounts.' });
       }
     } catch (error) {
       const section = kind === 'admin-preview-import' ? 'import' : (kind.includes('class') || kind.includes('assign') || kind.includes('transfer')) ? 'classes' : 'accounts';
@@ -125,37 +131,58 @@ export async function bootApp(clientOverride = null) {
     const action = target?.dataset?.action;
     if (action === 'logout') { await client.auth.signOut(); await renderCurrentState(); }
     else if (action === 'retry') await renderCurrentState();
-    else if (action === 'admin') await renderAdminSection('accounts', { credential:null, notice:'', importPreview:null, bulkResult:null });
+    else if (action === 'admin') await renderAdminSection('accounts', { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     else if (action === 'admin-back') await renderCurrentState();
     else if (action?.startsWith?.('admin-section-')) {
       const section = action.slice('admin-section-'.length);
-      if (['accounts','classes','import'].includes(section)) await renderAdminSection(section, { credential:null, notice:'', importPreview:null, bulkResult:null });
+      if (['accounts','classes','import'].includes(section)) await renderAdminSection(section, { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     } else if (action === 'admin-reset-password') {
       const userId = target?.dataset?.userId;
-      if (!userId) return;
+      if (!userId || target.disabled) return;
       if (typeof globalThis.confirm === 'function' && !globalThis.confirm('Reset this account password? The old password will stop working.')) return;
-      try {
-        const result = await resetAccountPassword(client, userId);
-        await renderAdminSection('accounts', { credential:{ displayName:target.dataset.userName ?? 'Account', email:target.dataset.userEmail ?? '', temporaryPassword:result.temporaryPassword }, notice:'Password reset. Save the one-time credential now.' });
-      } catch (error) { await renderAdminSection('accounts', { notice:error instanceof Error ? error.message : 'Unable to reset password.' }); }
+      await runButtonAction(target, async () => {
+        try {
+          const result = await resetAccountPassword(client, userId);
+          await renderAdminSection('accounts', { credential:{ displayName:target.dataset.userName ?? 'Account', email:target.dataset.userEmail ?? '', temporaryPassword:result.temporaryPassword }, notice:'Password reset. Save the one-time credential now.' });
+        } catch (error) { await renderAdminSection('accounts', { notice:error instanceof Error ? error.message : 'Unable to reset password.' }); }
+      });
     } else if (action === 'admin-set-active') {
       const userId = target?.dataset?.userId;
       const active = target?.dataset?.nextActive === 'true';
-      if (!userId) return;
+      if (!userId || target.disabled) return;
       if (typeof globalThis.confirm === 'function' && !globalThis.confirm(`${active ? 'Reactivate' : 'Deactivate'} this account?`)) return;
-      try { await setAccountActive(client, userId, active); await renderAdminSection('accounts', { credential:null, notice:`Account ${active ? 'reactivated' : 'deactivated'}.` }); }
-      catch (error) { await renderAdminSection('accounts', { notice:error instanceof Error ? error.message : 'Unable to update account.' }); }
+      await runButtonAction(target, async () => {
+        try { await setAccountActive(client, userId, active); await renderAdminSection('accounts', { credential:null, notice:`Account ${active ? 'reactivated' : 'deactivated'}.` }); }
+        catch (error) { await renderAdminSection('accounts', { notice:error instanceof Error ? error.message : 'Unable to update account.' }); }
+      });
     } else if (action === 'admin-unassign-teacher') {
+      if (target.disabled) return;
       if (typeof globalThis.confirm === 'function' && !globalThis.confirm('Remove this teacher from the class?')) return;
-      try { await unassignTeacherFromClass(client, target.dataset.teacherId, target.dataset.classId); await renderAdminSection('classes', { notice:'Teacher removed from class.', credential:null }); }
-      catch (error) { await renderAdminSection('classes', { notice:error instanceof Error ? error.message : 'Unable to remove teacher.' }); }
+      await runButtonAction(target, async () => {
+        try { await unassignTeacherFromClass(client, target.dataset.teacherId, target.dataset.classId); await renderAdminSection('classes', { notice:'Teacher removed from class.', credential:null }); }
+        catch (error) { await renderAdminSection('classes', { notice:error instanceof Error ? error.message : 'Unable to remove teacher.' }); }
+      });
     } else if (action === 'admin-run-import') {
       const preview = currentState.importPreview;
-      if (!preview || preview.errors?.length || !preview.validRows?.length || preview.classId !== target.dataset.classId) return;
-      try {
-        const result = await bulkProvisionStudents(client, preview.classId, preview.validRows);
-        await renderAdminSection('import', { importPreview:null, bulkResult:result, notice:`${result.created?.length ?? 0} student account${result.created?.length === 1 ? '' : 's'} created${result.failed?.length ? `; ${result.failed.length} failed.` : '.'}` });
-      } catch (error) { await renderAdminSection('import', { notice:error instanceof Error ? error.message : 'Bulk import failed.' }); }
+      if (target.disabled || !preview || preview.errors?.length || !preview.validRows?.length || preview.classId !== target.dataset.classId) return;
+      await runButtonAction(target, async () => {
+        try {
+          const result = await bulkProvisionStudents(client, preview.classId, preview.validRows);
+          await renderAdminSection('import', { importPreview:null, bulkResult:result, lastImportClassId:preview.classId, notice:`${result.created?.length ?? 0} student account${result.created?.length === 1 ? '' : 's'} created${result.failed?.length ? `; ${result.failed.length} failed.` : '.'}` });
+        } catch (error) { await renderAdminSection('import', { notice:error instanceof Error ? error.message : 'Bulk import failed.' }); }
+      });
+    } else if (action === 'admin-retry-failed') {
+      const classId = currentState.lastImportClassId;
+      const failedRows = currentState.bulkResult?.failed ?? [];
+      if (target.disabled || !classId || classId !== target.dataset.classId || !failedRows.length) return;
+      await runButtonAction(target, async () => {
+        try {
+          const priorCreated = currentState.bulkResult?.created ?? [];
+          const result = await bulkProvisionStudents(client, classId, failedRows.map(row => ({ displayName:row.displayName, email:row.email })));
+          const bulkResult = { created:[...priorCreated, ...(result.created ?? [])], failed:result.failed ?? [] };
+          await renderAdminSection('import', { importPreview:null, bulkResult, lastImportClassId:classId, notice:`Retry created ${result.created?.length ?? 0} account${result.created?.length === 1 ? '' : 's'}${result.failed?.length ? `; ${result.failed.length} still failed.` : '.'}` });
+        } catch (error) { await renderAdminSection('import', { notice:error instanceof Error ? error.message : 'Retry failed.' }); }
+      });
     } else if (action === 'admin-copy-credentials') {
       const created = currentState.bulkResult?.created ?? [];
       const text = created.map(row => `${row.displayName}\t${row.email}\t${row.temporaryPassword}`).join('\n');
