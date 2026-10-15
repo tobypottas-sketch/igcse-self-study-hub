@@ -90,8 +90,7 @@ Deno.serve(async (req: Request) => {
 
       const frequencies = new Map<string, number>();
       for (const row of input.rows) frequencies.set(row.email, (frequencies.get(row.email) ?? 0) + 1);
-      const emails = [...new Set(input.rows.map(row => row.email))];
-      const { data:existing, error:existingError } = await adminClient.from('profiles').select('school_email').in('school_email', emails);
+      const { data:existing, error:existingError } = await adminClient.from('profiles').select('school_email');
       if (existingError) return Response.json({ error:existingError.message }, { status:400 });
       const existingEmails = new Set((existing ?? []).map(item => String(item.school_email).toLowerCase()));
       const created = [];
@@ -109,6 +108,11 @@ Deno.serve(async (req: Request) => {
         else created.push({ userId:result.userId, displayName:row.displayName, email:row.email, temporaryPassword });
       }
       return Response.json({ ok:failed.length === 0, created, failed });
+    }
+
+    if (input.action === 'provision' && input.role === 'student') {
+      const { data:targetClass, error:classError } = await adminClient.from('classes').select('id, active').eq('id', input.classId).single();
+      if (classError || !targetClass?.active) return Response.json({ error:'Class is not active' }, { status:400 });
     }
 
     const temporaryPassword = generateTemporaryPassword();
