@@ -12,7 +12,7 @@ export function validateClassAction(value) {
     if (!className || className.length > 120) throw new Error('Class name is required.');
     return { action, className };
   }
-  if (action === 'assign_teacher') {
+  if (action === 'assign_teacher' || action === 'unassign_teacher') {
     return { action, teacherId: requireUuid(value?.teacherId, 'Teacher ID'), classId: requireUuid(value?.classId, 'Class ID') };
   }
   if (action === 'transfer_student') {
