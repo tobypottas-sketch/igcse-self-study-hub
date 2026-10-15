@@ -1,6 +1,6 @@
 import { escapeHtml, safeHttpsUrl } from './html.js';
 
-const EH_SCHOOLS_LOGO = 'https://raw.githubusercontent.com/tobypottas-sketch/evidence-hub-schools-showcase/main/01_FRONTEND/images/evidence-hub-schools-logo-approved.webp';
+const EH_SCHOOLS_LOGO = './assets/evidence-hub-schools-logo.webp';
 
 export function buildHomeModel(profile, apps) {
   return {
