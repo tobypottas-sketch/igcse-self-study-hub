@@ -4,6 +4,7 @@ import { getSupabaseClient } from './supabase.js';
 import { renderLogin } from './views/login.js';
 import { renderChangePassword } from './views/change-password.js';
 import { renderHome } from './views/home.js';
+import { renderAdmin } from './views/admin.js';
 import { escapeHtml } from './views/html.js';
 
 export function routeForProfile(profile) {
@@ -62,8 +63,18 @@ export async function bootApp(clientOverride = null) {
       renderHome(root, currentState.profile, currentState.apps);
       return;
     }
+    if (currentState.view === 'admin') {
+      renderAdmin(root, currentState);
+      return;
+    }
 
     renderError(root, currentState.error instanceof Error ? currentState.error.message : 'Unable to load your account.');
+  };
+
+  const renderAdminSection = (section = 'accounts') => {
+    if (currentState?.profile?.role !== 'admin' || currentState.profile.active === false) return;
+    currentState = { ...currentState, view: 'admin', section };
+    renderAdmin(root, currentState);
   };
 
   root.addEventListener('submit', async (event) => {
@@ -106,6 +117,13 @@ export async function bootApp(clientOverride = null) {
       await renderCurrentState();
     } else if (action === 'retry') {
       await renderCurrentState();
+    } else if (action === 'admin') {
+      renderAdminSection('accounts');
+    } else if (action === 'admin-back') {
+      await renderCurrentState();
+    } else if (action?.startsWith?.('admin-section-')) {
+      const section = action.slice('admin-section-'.length);
+      if (['accounts', 'classes', 'import'].includes(section)) renderAdminSection(section);
     }
   });
 
