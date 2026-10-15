@@ -44,6 +44,7 @@ export async function bootApp(clientOverride = null) {
   let currentState = { view:'login' };
   let cachedHomeState = null;
   let adminLoadPromise = null;
+  let adminRefreshGeneration = 0;
 
   const preloadAdminData = (force = false) => {
     if (force) adminLoadPromise = null;
@@ -54,9 +55,13 @@ export async function bootApp(clientOverride = null) {
     return adminLoadPromise;
   };
 
+  const invalidateAdminBackgroundRefreshes = () => { adminRefreshGeneration += 1; };
+
   const refreshAdminCacheInBackground = () => {
+    const refreshGeneration = ++adminRefreshGeneration;
     preloadAdminData(true)
       .then(({ accounts, classes }) => {
+        if (refreshGeneration !== adminRefreshGeneration) return;
         if (currentState.view === 'admin') currentState = { ...currentState, accounts, classes };
       })
       .catch(() => {});
@@ -188,6 +193,7 @@ export async function bootApp(clientOverride = null) {
       const active = target?.dataset?.nextActive === 'true';
       if (!userId || target.disabled) return;
       if (typeof globalThis.confirm === 'function' && !globalThis.confirm(`${active ? 'Reactivate' : 'Deactivate'} this account?`)) return;
+      invalidateAdminBackgroundRefreshes();
       const previousAccounts = currentState.accounts ?? [];
       currentState = { ...currentState, accounts:previousAccounts.map(item => item.id === userId ? { ...item, active } : item) };
       renderCachedAdminSection('accounts', { credential:null, notice:`${active ? 'Reactivating' : 'Deactivating'} account…` });
@@ -206,6 +212,7 @@ export async function bootApp(clientOverride = null) {
       const roleLabel = account.role === 'teacher' ? 'teacher' : 'student';
       const prompt = `Permanently delete ${account.displayName}? This removes the ${roleLabel} login and personal account details. Historical analytics are kept only as anonymised records.`;
       if (typeof globalThis.confirm === 'function' && !globalThis.confirm(prompt)) return;
+      invalidateAdminBackgroundRefreshes();
       const previousAccounts = currentState.accounts ?? [];
       const previousClasses = currentState.classes ?? [];
       currentState = {
@@ -238,6 +245,7 @@ export async function bootApp(clientOverride = null) {
       const className = target?.dataset?.className || 'this class';
       if (!classId || target.disabled) return;
       if (typeof globalThis.confirm === 'function' && !globalThis.confirm(`Delete ${className}? Current student memberships will end, teacher assignments will be removed, and historical activity will be kept.`)) return;
+      invalidateAdminBackgroundRefreshes();
       const previousClasses = currentState.classes ?? [];
       const previousAccounts = currentState.accounts ?? [];
       currentState = {
