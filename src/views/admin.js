@@ -42,18 +42,19 @@ function renderImportPreview(preview) {
   return `<section class="admin-card admin-import-preview"><p class="eyebrow">Validated preview</p><h2>${escapeHtml(preview.fileName || 'CSV')}</h2><p>${valid.length} valid row${valid.length === 1 ? '' : 's'} · ${errors.length} error${errors.length === 1 ? '' : 's'}</p>${errorRows}${run}</section>`;
 }
 
-function renderBulkResult(result) {
+function renderBulkResult(result, lastImportClassId) {
   if (!result) return '';
   const created = result.created ?? [];
   const failed = result.failed ?? [];
   const credentials = created.length ? `<div class="admin-credential-sheet" data-credential-sheet><div class="admin-list-header"><div><p class="eyebrow">One-time credential sheet</p><h2>Save or print before leaving</h2></div><div class="admin-actions"><button class="button admin-button" data-action="admin-copy-credentials">Copy all</button><button class="button admin-button" data-action="admin-print-credentials">Print</button></div></div><table class="admin-table"><thead><tr><th>Student</th><th>Email</th><th>Temporary password</th></tr></thead><tbody>${created.map(row => `<tr><td>${escapeHtml(row.displayName)}</td><td>${escapeHtml(row.email)}</td><td><code>${escapeHtml(row.temporaryPassword)}</code></td></tr>`).join('')}</tbody></table><p class="muted">These passwords are shown from this one-time response only and are not stored in plaintext.</p></div>` : '<p>No accounts were created.</p>';
-  const failures = failed.length ? `<div class="admin-import-errors"><h3>Failed rows</h3><ul>${failed.map(row => `<li>${escapeHtml(row.displayName || row.email || 'Row')}: ${escapeHtml(row.reason)}</li>`).join('')}</ul></div>` : '';
+  const retry = failed.length && lastImportClassId ? `<button class="button admin-button" data-action="admin-retry-failed" data-class-id="${escapeHtml(lastImportClassId)}">Retry failed rows</button>` : '';
+  const failures = failed.length ? `<div class="admin-import-errors"><div class="admin-list-header"><div><h3>Failed rows</h3><p class="muted">Fix the cause where needed, then retry only these rows.</p></div>${retry}</div><ul>${failed.map(row => `<li>${escapeHtml(row.displayName || row.email || 'Row')}: ${escapeHtml(row.reason)}</li>`).join('')}</ul></div>` : '';
   return `<section class="admin-card admin-bulk-result">${credentials}${failures}</section>`;
 }
 
 function renderImport(model) {
   const classOptions = (model.classes ?? []).filter(c => c.active !== false).map(c => option(c.id, c.className)).join('');
-  return `${notice(model)}${renderBulkResult(model.bulkResult)}<form class="admin-card form-stack admin-import-form" data-form="admin-preview-import"><div><p class="eyebrow">Bulk onboarding</p><h2>Import a class from CSV</h2><p class="muted">Choose the destination class once. The CSV only needs Student name and School email columns.</p></div><label>Destination class<select name="classId" required><option value="">Choose a class</option>${classOptions}</select></label><label>CSV file<input name="csvFile" type="file" accept=".csv,text/csv" required></label><button class="button button--primary" type="submit">Validate CSV</button></form>${renderImportPreview(model.importPreview)}`;
+  return `${notice(model)}${renderBulkResult(model.bulkResult, model.lastImportClassId)}<form class="admin-card form-stack admin-import-form" data-form="admin-preview-import"><div><p class="eyebrow">Bulk onboarding</p><h2>Import a class from CSV</h2><p class="muted">Choose the destination class once. The CSV only needs Student name and School email columns.</p></div><label>Destination class<select name="classId" required><option value="">Choose a class</option>${classOptions}</select></label><label>CSV file<input name="csvFile" type="file" accept=".csv,text/csv" required></label><button class="button button--primary" type="submit">Validate CSV</button></form>${renderImportPreview(model.importPreview)}`;
 }
 
 export function renderAdmin(root, model) {
