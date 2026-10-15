@@ -1,6 +1,7 @@
 import { escapeHtml, safeHttpsUrl } from './html.js';
 
 const EH_SCHOOLS_LOGO = './assets/evidence-hub-schools-logo.webp';
+const CAMBRIDGE_ENGLISH_LOGO = './assets/cambridge-assessment-english.webp';
 
 export function buildHomeModel(profile, apps) {
   return {
@@ -45,7 +46,15 @@ export function renderHome(root, profile, apps) {
           <button class="button button--ghost home-logout" data-action="logout">Log out</button>
         </div>
         <div class="home-hero__content">
-          <p class="eyebrow eyebrow--hero">iGCSE Self-Study Hub</p>
+          <div class="home-hero__kicker">
+            <p class="eyebrow eyebrow--hero">iGCSE Self-Study Hub</p>
+            <div class="course-identity" aria-label="Cambridge IGCSE English as a Second Language course 0511">
+              <img src="${CAMBRIDGE_ENGLISH_LOGO}" alt="Cambridge Assessment English" width="118" style="display:block;width:118px;max-width:28vw;height:auto;padding:3px 7px;background:#fff;">
+              <span class="course-identity__board">Cambridge IGCSE</span>
+              <span class="course-identity__subject">English as a Second Language</span>
+              <span class="course-code">0511</span>
+            </div>
+          </div>
           <h1>Welcome, ${escapeHtml(model.displayName)}</h1>
           <p class="home-hero__lead">Choose a skill and continue your independent practice.</p>
           <div class="home-hero__note">
@@ -60,7 +69,7 @@ export function renderHome(root, profile, apps) {
           <div>
             <p class="eyebrow">Your study tools</p>
             <h2 id="study-tools-title">Choose a study app</h2>
-            <p>Focused practice for the core skills you need in Cambridge iGCSE English.</p>
+            <p>Focused practice for Cambridge IGCSE English as a Second Language (0511).</p>
           </div>
           ${model.showAdminControls ? '<button class="button" data-action="admin">Manage accounts</button>' : ''}
         </div>

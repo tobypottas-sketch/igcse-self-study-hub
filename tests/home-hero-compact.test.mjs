@@ -18,7 +18,7 @@ test('desktop home hero stays compact so study tools appear sooner', () => {
 
   assert.match(hero, /min-height:\s*230px/);
   assert.match(hero, /padding:\s*20px 28px 24px/);
-  assert.match(content, /padding:\s*28px 4px 6px/);
+  assert.match(content, /padding:\s*24px 4px 6px/);
   assert.match(heading, /font-size:\s*clamp\(2\.35rem,\s*4\.6vw,\s*3\.5rem\)/);
   assert.match(lead, /margin:\s*12px 0 0/);
   assert.match(note, /margin-top:\s*14px/);
