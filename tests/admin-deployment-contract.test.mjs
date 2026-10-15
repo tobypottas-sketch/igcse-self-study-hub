@@ -24,3 +24,19 @@ test('browser admin code never contains Supabase secret-key configuration', asyn
   ]);
   assert.doesNotMatch(`${app}\n${accounts}\n${classes}\n${importer}`, /SUPABASE_SECRET_KEYS|service_role/i);
 });
+
+test('admin Edge Functions answer browser CORS preflight and include CORS headers on responses', async () => {
+  const [accounts, classes] = await Promise.all([
+    readFile(new URL('../supabase/functions/admin-provision-user/index.ts', import.meta.url), 'utf8'),
+    readFile(new URL('../supabase/functions/admin-class-action/index.ts', import.meta.url), 'utf8')
+  ]);
+  for (const source of [accounts, classes]) {
+    assert.match(source, /Access-Control-Allow-Origin/);
+    assert.match(source, /Access-Control-Allow-Headers/);
+    assert.match(source, /authorization/i);
+    assert.match(source, /x-client-info/i);
+    assert.match(source, /apikey/i);
+    assert.match(source, /content-type/i);
+    assert.match(source, /req\.method === 'OPTIONS'/);
+  }
+});
