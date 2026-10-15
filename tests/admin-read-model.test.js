@@ -22,6 +22,15 @@ test('inactive accounts remain visible and unassigned teacher normalizes cleanly
   assert.deepEqual(rows[0].assignedClasses, []);
 });
 
+test('admin profiles are excluded from the student and teacher directory', () => {
+  const profiles = [
+    { id:'a1', display_name:'Admin', school_email:'admin@x', role:'admin', active:true },
+    { id:'s1', display_name:'Student', school_email:'student@x', role:'student', active:true }
+  ];
+  const rows = normalizeAdminAccounts(profiles, [], [], []);
+  assert.deepEqual(rows.map(row => row.role), ['student']);
+});
+
 test('many-to-many teacher assignment appears in class rows', () => {
   const classes = [{ id:'c1', class_name:'Class 1', active:true }, { id:'c2', class_name:'Class 2', active:true }];
   const profiles = [
