@@ -29,6 +29,7 @@ export function validateAdminProvisionRequest(value) {
   const action = value?.action ?? 'provision';
   if (action === 'provision') return { action, ...validateProvisionInput(value) };
   if (action === 'reset_password') return { action, userId: requireUuid(value?.userId, 'user ID') };
+  if (action === 'delete_account') return { action, userId: requireUuid(value?.userId, 'user ID') };
   if (action === 'set_active') {
     const userId = requireUuid(value?.userId, 'user ID');
     if (typeof value?.active !== 'boolean') throw new Error('Active state must be a boolean.');

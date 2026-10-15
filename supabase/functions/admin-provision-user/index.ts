@@ -65,6 +65,29 @@ Deno.serve(async (req: Request) => {
 
     const input = validateAdminProvisionRequest(await req.json());
 
+    if (input.action === 'delete_account') {
+      if (callerData.user.id === input.userId) return jsonResponse({ error:'You cannot delete your own admin account.' }, { status:400 });
+      const { data:target, error:targetError } = await adminClient.from('profiles').select('id, role').eq('id', input.userId).single();
+      if (targetError || !target) return jsonResponse({ error:'Account not found' }, { status:404 });
+      if (target.role !== 'student' && target.role !== 'teacher') return jsonResponse({ error:'Only student and teacher accounts can be deleted here.' }, { status:400 });
+
+      if (target.role === 'student') {
+        const { error:membershipError } = await adminClient
+          .from('student_class_memberships')
+          .update({ ended_at:new Date().toISOString(), changed_by:callerData.user.id })
+          .eq('student_id', input.userId)
+          .is('ended_at', null);
+        if (membershipError) return jsonResponse({ error:membershipError.message }, { status:400 });
+      } else {
+        const { error:teacherError } = await adminClient.from('teacher_classes').delete().eq('teacher_id', input.userId);
+        if (teacherError) return jsonResponse({ error:teacherError.message }, { status:400 });
+      }
+
+      const { error:deleteError } = await adminClient.auth.admin.deleteUser(input.userId);
+      if (deleteError) return jsonResponse({ error:deleteError.message }, { status:400 });
+      return jsonResponse({ ok:true, userId:input.userId, role:target.role });
+    }
+
     if (input.action === 'reset_password') {
       const temporaryPassword = generateTemporaryPassword();
       const { error:flagError } = await adminClient.from('profiles').update({ must_change_password:true }).eq('id', input.userId);
