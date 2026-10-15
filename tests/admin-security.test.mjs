@@ -41,6 +41,19 @@ test('admin Edge Functions independently enforce active admin authorization', as
   }
 });
 
+test('student provisioning checks the target class is active on the server', async () => {
+  const accountsFn = await readFile(new URL('../supabase/functions/admin-provision-user/index.ts', import.meta.url), 'utf8');
+  assert.match(accountsFn, /input\.action === 'provision' && input\.role === 'student'/);
+  assert.match(accountsFn, /Class is not active/);
+});
+
+test('bulk existing-email detection normalizes stored profile emails case-insensitively', async () => {
+  const accountsFn = await readFile(new URL('../supabase/functions/admin-provision-user/index.ts', import.meta.url), 'utf8');
+  assert.match(accountsFn, /select\('school_email'\)/);
+  assert.match(accountsFn, /String\(item\.school_email\)\.toLowerCase\(\)/);
+  assert.doesNotMatch(accountsFn, /\.in\('school_email', emails\)/);
+});
+
 test('bulk import sends identity rows, not uploaded file contents or learning work fields', async () => {
   const importer = await readFile(new URL('../src/admin/import.js', import.meta.url), 'utf8');
   assert.match(importer, /displayName/);
