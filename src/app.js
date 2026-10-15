@@ -1,6 +1,8 @@
 import { signIn, changePassword, getCurrentProfile } from './auth.js';
 import { loadApps } from './api.js';
 import { getSupabaseClient } from './supabase.js';
+import { createStudentAccount, createTeacherAccount, loadAdminAccounts, resetAccountPassword, setAccountActive } from './admin/accounts.js';
+import { loadAdminClasses } from './admin/classes.js';
 import { renderLogin } from './views/login.js';
 import { renderChangePassword } from './views/change-password.js';
 import { renderHome } from './views/home.js';
@@ -63,24 +65,40 @@ export async function bootApp(clientOverride = null) {
       renderHome(root, currentState.profile, currentState.apps);
       return;
     }
-    if (currentState.view === 'admin') {
-      renderAdmin(root, currentState);
-      return;
-    }
 
     renderError(root, currentState.error instanceof Error ? currentState.error.message : 'Unable to load your account.');
   };
 
-  const renderAdminSection = (section = 'accounts') => {
+  const renderAdminSection = async (section = 'accounts', extras = {}) => {
     if (currentState?.profile?.role !== 'admin' || currentState.profile.active === false) return;
-    currentState = { ...currentState, view: 'admin', section };
-    renderAdmin(root, currentState);
+    try {
+      const [accounts, classes] = await Promise.all([loadAdminAccounts(client), loadAdminClasses(client)]);
+      currentState = { ...currentState, ...extras, view: 'admin', section, accounts, classes };
+      renderAdmin(root, currentState);
+    } catch (error) {
+      currentState = {
+        ...currentState,
+        ...extras,
+        view: 'admin',
+        section,
+        accounts: currentState.accounts ?? [],
+        classes: currentState.classes ?? [],
+        notice: error instanceof Error ? error.message : 'Unable to load admin data.'
+      };
+      renderAdmin(root, currentState);
+    }
+  };
+
+  const setFormBusy = (form, busy) => {
+    const button = form?.querySelector?.('button[type="submit"]');
+    if (button) button.disabled = busy;
   };
 
   root.addEventListener('submit', async (event) => {
     const form = event.target;
     const kind = form?.dataset?.form;
-    if (kind !== 'login' && kind !== 'change-password') return;
+    const supported = ['login', 'change-password', 'admin-create-student', 'admin-create-teacher'];
+    if (!supported.includes(kind)) return;
     event.preventDefault();
     const data = new FormData(form);
 
@@ -94,18 +112,38 @@ export async function bootApp(clientOverride = null) {
       return;
     }
 
-    const password = String(data.get('password') ?? '');
-    const confirm = String(data.get('confirmPassword') ?? '');
-    if (password !== confirm) {
-      renderChangePassword(root, currentState.profile, 'The two passwords do not match.');
+    if (kind === 'change-password') {
+      const password = String(data.get('password') ?? '');
+      const confirm = String(data.get('confirmPassword') ?? '');
+      if (password !== confirm) {
+        renderChangePassword(root, currentState.profile, 'The two passwords do not match.');
+        return;
+      }
+
+      try {
+        await changePassword(client, password);
+        await renderCurrentState();
+      } catch (error) {
+        renderChangePassword(root, currentState.profile, error instanceof Error ? error.message : 'Unable to change password.');
+      }
       return;
     }
 
+    setFormBusy(form, true);
+    const displayName = String(data.get('displayName') ?? '').trim();
+    const email = String(data.get('email') ?? '').trim();
     try {
-      await changePassword(client, password);
-      await renderCurrentState();
+      const result = kind === 'admin-create-student'
+        ? await createStudentAccount(client, { displayName, email, classId: String(data.get('classId') ?? '') })
+        : await createTeacherAccount(client, { displayName, email });
+      await renderAdminSection('accounts', {
+        credential: { displayName, email, temporaryPassword: result.temporaryPassword },
+        notice: `${kind === 'admin-create-student' ? 'Student' : 'Teacher'} account created.`
+      });
     } catch (error) {
-      renderChangePassword(root, currentState.profile, error instanceof Error ? error.message : 'Unable to change password.');
+      await renderAdminSection('accounts', { notice: error instanceof Error ? error.message : 'Unable to create account.' });
+    } finally {
+      setFormBusy(form, false);
     }
   });
 
@@ -118,12 +156,41 @@ export async function bootApp(clientOverride = null) {
     } else if (action === 'retry') {
       await renderCurrentState();
     } else if (action === 'admin') {
-      renderAdminSection('accounts');
+      await renderAdminSection('accounts', { credential: null, notice: '' });
     } else if (action === 'admin-back') {
       await renderCurrentState();
     } else if (action?.startsWith?.('admin-section-')) {
       const section = action.slice('admin-section-'.length);
-      if (['accounts', 'classes', 'import'].includes(section)) renderAdminSection(section);
+      if (['accounts', 'classes', 'import'].includes(section)) await renderAdminSection(section, { credential: null, notice: '' });
+    } else if (action === 'admin-reset-password') {
+      const userId = target?.dataset?.userId;
+      if (!userId) return;
+      if (typeof globalThis.confirm === 'function' && !globalThis.confirm('Reset this account password? The old password will stop working.')) return;
+      try {
+        const result = await resetAccountPassword(client, userId);
+        await renderAdminSection('accounts', {
+          credential: {
+            displayName: target.dataset.userName ?? 'Account',
+            email: target.dataset.userEmail ?? '',
+            temporaryPassword: result.temporaryPassword
+          },
+          notice: 'Password reset. Save the one-time credential now.'
+        });
+      } catch (error) {
+        await renderAdminSection('accounts', { notice: error instanceof Error ? error.message : 'Unable to reset password.' });
+      }
+    } else if (action === 'admin-set-active') {
+      const userId = target?.dataset?.userId;
+      const active = target?.dataset?.nextActive === 'true';
+      if (!userId) return;
+      const verb = active ? 'reactivate' : 'deactivate';
+      if (typeof globalThis.confirm === 'function' && !globalThis.confirm(`${verb[0].toUpperCase()}${verb.slice(1)} this account?`)) return;
+      try {
+        await setAccountActive(client, userId, active);
+        await renderAdminSection('accounts', { credential: null, notice: `Account ${active ? 'reactivated' : 'deactivated'}.` });
+      } catch (error) {
+        await renderAdminSection('accounts', { notice: error instanceof Error ? error.message : 'Unable to update account.' });
+      }
     }
   });
 
