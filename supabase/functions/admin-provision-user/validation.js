@@ -1,5 +1,11 @@
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+function requireUuid(value, label) {
+  const text = String(value ?? '');
+  if (!UUID_RE.test(text)) throw new Error(`A valid ${label} is required.`);
+  return text;
+}
+
 export function validateProvisionInput(value) {
   const role = value?.role;
   if (role !== 'student' && role !== 'teacher') throw new Error('Role must be student or teacher.');
@@ -10,16 +16,32 @@ export function validateProvisionInput(value) {
   const displayName = String(value?.displayName ?? '').trim();
   if (!displayName || displayName.length > 120) throw new Error('Display name is required.');
 
-  const temporaryPassword = String(value?.temporaryPassword ?? '');
-  if (temporaryPassword.length < 10) throw new Error('Temporary password must be at least 10 characters.');
-
   let classId = value?.classId ?? null;
   if (role === 'student') {
-    if (!UUID_RE.test(String(classId ?? ''))) throw new Error('A valid class ID is required for student accounts.');
-    classId = String(classId);
+    classId = requireUuid(classId, 'class ID for student accounts');
   } else {
     classId = null;
   }
 
-  return { role, email, displayName, temporaryPassword, classId };
+  return { role, email, displayName, classId };
+}
+
+export function validateAdminProvisionRequest(value) {
+  const action = value?.action ?? 'provision';
+
+  if (action === 'provision') {
+    return { action, ...validateProvisionInput(value) };
+  }
+
+  if (action === 'reset_password') {
+    return { action, userId: requireUuid(value?.userId, 'user ID') };
+  }
+
+  if (action === 'set_active') {
+    const userId = requireUuid(value?.userId, 'user ID');
+    if (typeof value?.active !== 'boolean') throw new Error('Active state must be a boolean.');
+    return { action, userId, active: value.active };
+  }
+
+  throw new Error('Unsupported admin account action.');
 }
