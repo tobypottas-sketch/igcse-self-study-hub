@@ -62,6 +62,12 @@ export async function bootApp(clientOverride = null) {
     }
   };
 
+  const renderCachedAdminSection = (section = 'accounts', extras = {}) => {
+    if (currentState?.profile?.role !== 'admin' || currentState.profile.active === false) return;
+    currentState = { ...currentState, ...extras, view:'admin', section };
+    renderAdmin(root, currentState);
+  };
+
   const setFormBusy = (form, busy) => { const button = form?.querySelector?.('button[type="submit"]'); if (button) button.disabled = busy; };
   const runButtonAction = async (target, task) => {
     if (!target || target.disabled) return;
@@ -118,11 +124,12 @@ export async function bootApp(clientOverride = null) {
         const rows = parseStudentCsv(await file.text());
         const existingEmails = new Set((currentState.accounts ?? []).map(item => String(item.email ?? '').toLowerCase()));
         const validation = validateStudentImport(rows, existingEmails);
-        await renderAdminSection('import', { importPreview:{ classId, fileName:String(file.name ?? 'students.csv'), ...validation }, bulkResult:null, lastImportClassId:null, notice:validation.errors.length ? 'Fix the validation errors before creating accounts.' : 'CSV validated. Review the students, then create the accounts.' });
+        renderCachedAdminSection('import', { importPreview:{ classId, fileName:String(file.name ?? 'students.csv'), ...validation }, bulkResult:null, lastImportClassId:null, notice:validation.errors.length ? 'Fix the validation errors before creating accounts.' : 'CSV validated. Review the students, then create the accounts.' });
       }
     } catch (error) {
       const section = kind === 'admin-preview-import' ? 'import' : (kind.includes('class') || kind.includes('assign') || kind.includes('transfer')) ? 'classes' : 'accounts';
-      await renderAdminSection(section, { notice:error instanceof Error ? error.message : 'Admin action failed.' });
+      if (kind === 'admin-preview-import') renderCachedAdminSection(section, { notice:error instanceof Error ? error.message : 'Admin action failed.' });
+      else await renderAdminSection(section, { notice:error instanceof Error ? error.message : 'Admin action failed.' });
     } finally { setFormBusy(form, false); }
   });
 
@@ -135,7 +142,7 @@ export async function bootApp(clientOverride = null) {
     else if (action === 'admin-back') await renderCurrentState();
     else if (action?.startsWith?.('admin-section-')) {
       const section = action.slice('admin-section-'.length);
-      if (['accounts','classes','import'].includes(section)) await renderAdminSection(section, { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
+      if (['accounts','classes','import'].includes(section)) renderCachedAdminSection(section, { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     } else if (action === 'admin-reset-password') {
       const userId = target?.dataset?.userId;
       if (!userId || target.disabled) return;
