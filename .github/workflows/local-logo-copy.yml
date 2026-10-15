@@ -11,15 +11,18 @@ permissions:
 jobs:
   copy-logo:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
       - name: Copy approved Evidence Hub Schools logo into Hub
         run: |
           set -e
           mkdir -p assets
-          curl -L --fail --silent --show-error \
-            https://raw.githubusercontent.com/tobypottas-sketch/evidence-hub-schools-showcase/main/01_FRONTEND/images/evidence-hub-schools-logo-approved.webp \
-            -o assets/evidence-hub-schools-logo.webp
+          gh api \
+            -H "Accept: application/vnd.github.raw+json" \
+            /repos/tobypottas-sketch/evidence-hub-schools-showcase/contents/01_FRONTEND/images/evidence-hub-schools-logo-approved.webp?ref=main \
+            > assets/evidence-hub-schools-logo.webp
           python - <<'PY'
           from pathlib import Path
           p = Path('src/views/home.js')
