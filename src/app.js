@@ -2,7 +2,7 @@ import { signIn, changePassword, getCurrentProfile } from './auth.js';
 import { loadApps } from './api.js';
 import { getSupabaseClient } from './supabase.js';
 import { createStudentAccount, createTeacherAccount, loadAdminAccounts, resetAccountPassword, setAccountActive } from './admin/accounts.js';
-import { createClass, assignTeacherToClass, unassignTeacherFromClass, transferStudent, loadAdminClasses } from './admin/classes.js';
+import { createClass, assignTeacherToClass, unassignTeacherFromClass, transferStudent, retireClass, loadAdminClasses } from './admin/classes.js';
 import { parseStudentCsv, validateStudentImport, bulkProvisionStudents } from './admin/import.js';
 import { renderLogin } from './views/login.js';
 import { renderChangePassword } from './views/change-password.js';
@@ -190,6 +190,15 @@ export async function bootApp(clientOverride = null) {
       await runButtonAction(target, async () => {
         try { await unassignTeacherFromClass(client, target.dataset.teacherId, target.dataset.classId); await renderAdminSection('classes', { notice:'Teacher removed from class.', credential:null }, true); }
         catch (error) { await renderAdminSection('classes', { notice:error instanceof Error ? error.message : 'Unable to remove teacher.' }); }
+      });
+    } else if (action === 'admin-delete-class') {
+      const classId = target?.dataset?.classId;
+      const className = target?.dataset?.className || 'this class';
+      if (!classId || target.disabled) return;
+      if (typeof globalThis.confirm === 'function' && !globalThis.confirm(`Delete ${className}? Current student memberships will end, teacher assignments will be removed, and historical activity will be kept.`)) return;
+      await runButtonAction(target, async () => {
+        try { await retireClass(client, classId); await renderAdminSection('classes', { notice:'Class deleted.', credential:null }, true); }
+        catch (error) { await renderAdminSection('classes', { notice:error instanceof Error ? error.message : 'Unable to delete class.' }); }
       });
     } else if (action === 'admin-run-import') {
       const preview = currentState.importPreview;

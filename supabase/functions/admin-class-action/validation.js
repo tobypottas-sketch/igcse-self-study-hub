@@ -18,5 +18,8 @@ export function validateClassAction(value) {
   if (action === 'transfer_student') {
     return { action, studentId: requireUuid(value?.studentId, 'Student ID'), newClassId: requireUuid(value?.newClassId, 'Class ID') };
   }
+  if (action === 'retire_class') {
+    return { action, classId: requireUuid(value?.classId, 'Class ID') };
+  }
   throw new Error('Unsupported class action.');
 }

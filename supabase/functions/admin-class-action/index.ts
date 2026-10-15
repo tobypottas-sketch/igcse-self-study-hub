@@ -101,6 +101,37 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ ok: true });
     }
 
+    if (input.action === 'retire_class') {
+      const now = new Date().toISOString();
+      const { data: targetClass, error: classError } = await adminClient
+        .from('classes')
+        .select('id, active')
+        .eq('id', input.classId)
+        .single();
+      if (classError || !targetClass) return jsonResponse({ error: 'Class not found' }, { status: 404 });
+      if (!targetClass.active) return jsonResponse({ ok: true, alreadyInactive: true });
+
+      const { error: membershipError } = await adminClient
+        .from('student_class_memberships')
+        .update({ ended_at: now, changed_by: callerData.user.id })
+        .eq('class_id', input.classId)
+        .is('ended_at', null);
+      if (membershipError) return jsonResponse({ error: membershipError.message }, { status: 400 });
+
+      const { error: teacherError } = await adminClient
+        .from('teacher_classes')
+        .delete()
+        .eq('class_id', input.classId);
+      if (teacherError) return jsonResponse({ error: teacherError.message }, { status: 400 });
+
+      const { error: retireError } = await adminClient
+        .from('classes')
+        .update({ active: false })
+        .eq('id', input.classId);
+      if (retireError) return jsonResponse({ error: retireError.message }, { status: 400 });
+      return jsonResponse({ ok: true });
+    }
+
     const { data, error } = await adminClient.rpc('admin_transfer_student', {
       p_student: input.studentId,
       p_new_class: input.newClassId,
