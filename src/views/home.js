@@ -40,7 +40,7 @@ export function renderHome(root, profile, apps) {
       <header class="home-hero">
         <div class="home-hero__topbar">
           <div class="home-brand">
-            <img class="home-brand__logo" src="${EH_SCHOOLS_LOGO}" alt="Evidence Hub Schools">
+            <img class="home-brand__logo" src="${EH_SCHOOLS_LOGO}" alt="Evidence Hub Schools" width="230" style="display:block;max-width:min(52vw,230px);height:auto;">
           </div>
           <button class="button button--ghost home-logout" data-action="logout">Log out</button>
         </div>
