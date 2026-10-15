@@ -41,19 +41,36 @@ export async function bootApp(clientOverride = null) {
   catch { renderError(root, 'The Self-Study service is unavailable right now.'); return; }
 
   let currentState = { view:'login' };
+  let cachedHomeState = null;
+  let adminLoadPromise = null;
+
+  const preloadAdminData = (force = false) => {
+    if (force) adminLoadPromise = null;
+    if (!adminLoadPromise) {
+      adminLoadPromise = Promise.all([loadAdminAccounts(client), loadAdminClasses(client)])
+        .then(([accounts, classes]) => ({ accounts, classes }))
+        .catch(error => { adminLoadPromise = null; throw error; });
+    }
+    return adminLoadPromise;
+  };
 
   const renderCurrentState = async () => {
     currentState = await loadAppState(client);
-    if (currentState.view === 'login') { renderLogin(root); return; }
+    if (currentState.view === 'login') { cachedHomeState = null; adminLoadPromise = null; renderLogin(root); return; }
     if (currentState.view === 'change-password') { renderChangePassword(root, currentState.profile); return; }
-    if (currentState.view === 'home') { renderHome(root, currentState.profile, currentState.apps); return; }
+    if (currentState.view === 'home') {
+      cachedHomeState = { ...currentState };
+      renderHome(root, currentState.profile, currentState.apps);
+      if (currentState.profile?.role === 'admin' && currentState.profile.active !== false) preloadAdminData().catch(() => {});
+      return;
+    }
     renderError(root, currentState.error instanceof Error ? currentState.error.message : 'Unable to load your account.');
   };
 
-  const renderAdminSection = async (section = 'accounts', extras = {}) => {
+  const renderAdminSection = async (section = 'accounts', extras = {}, refresh = false) => {
     if (currentState?.profile?.role !== 'admin' || currentState.profile.active === false) return;
     try {
-      const [accounts, classes] = await Promise.all([loadAdminAccounts(client), loadAdminClasses(client)]);
+      const { accounts, classes } = await preloadAdminData(refresh);
       currentState = { ...currentState, ...extras, view:'admin', section, accounts, classes };
       renderAdmin(root, currentState);
     } catch (error) {
@@ -103,20 +120,20 @@ export async function bootApp(clientOverride = null) {
         const displayName = String(data.get('displayName') ?? '').trim();
         const email = String(data.get('email') ?? '').trim();
         const result = kind === 'admin-create-student' ? await createStudentAccount(client, { displayName, email, classId:String(data.get('classId') ?? '') }) : await createTeacherAccount(client, { displayName, email });
-        await renderAdminSection('accounts', { credential:{ displayName, email, temporaryPassword:result.temporaryPassword }, notice:`${kind === 'admin-create-student' ? 'Student' : 'Teacher'} account created.` });
+        await renderAdminSection('accounts', { credential:{ displayName, email, temporaryPassword:result.temporaryPassword }, notice:`${kind === 'admin-create-student' ? 'Student' : 'Teacher'} account created.` }, true);
       } else if (kind === 'admin-create-class') {
         await createClass(client, String(data.get('className') ?? '').trim());
-        await renderAdminSection('classes', { notice:'Class created.', credential:null });
+        await renderAdminSection('classes', { notice:'Class created.', credential:null }, true);
       } else if (kind === 'admin-assign-teacher') {
         await assignTeacherToClass(client, String(data.get('teacherId') ?? ''), String(data.get('classId') ?? ''));
-        await renderAdminSection('classes', { notice:'Teacher assigned.', credential:null });
+        await renderAdminSection('classes', { notice:'Teacher assigned.', credential:null }, true);
       } else if (kind === 'admin-transfer-student') {
         const studentId = String(data.get('studentId') ?? '');
         const newClassId = String(data.get('newClassId') ?? '');
         const account = (currentState.accounts ?? []).find(item => item.id === studentId);
         if (account?.currentClassId === newClassId) throw new Error('Student is already in that class.');
         await transferStudent(client, studentId, newClassId);
-        await renderAdminSection('classes', { notice:'Student moved. Previous class membership was retained in history.', credential:null });
+        await renderAdminSection('classes', { notice:'Student moved. Previous class membership was retained in history.', credential:null }, true);
       } else if (kind === 'admin-preview-import') {
         const classId = String(data.get('classId') ?? '');
         const file = data.get('csvFile');
@@ -136,10 +153,15 @@ export async function bootApp(clientOverride = null) {
   root.addEventListener('click', async (event) => {
     const target = event.target?.closest?.('[data-action]') ?? event.target;
     const action = target?.dataset?.action;
-    if (action === 'logout') { await client.auth.signOut(); await renderCurrentState(); }
+    if (action === 'logout') { await client.auth.signOut(); cachedHomeState = null; adminLoadPromise = null; await renderCurrentState(); }
     else if (action === 'retry') await renderCurrentState();
     else if (action === 'admin') await renderAdminSection('accounts', { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
-    else if (action === 'admin-back') await renderCurrentState();
+    else if (action === 'admin-back') {
+      if (cachedHomeState) {
+        currentState = { ...cachedHomeState };
+        renderHome(root, currentState.profile, currentState.apps);
+      } else await renderCurrentState();
+    }
     else if (action?.startsWith?.('admin-section-')) {
       const section = action.slice('admin-section-'.length);
       if (['accounts','classes','import'].includes(section)) renderCachedAdminSection(section, { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
@@ -150,7 +172,7 @@ export async function bootApp(clientOverride = null) {
       await runButtonAction(target, async () => {
         try {
           const result = await resetAccountPassword(client, userId);
-          await renderAdminSection('accounts', { credential:{ displayName:target.dataset.userName ?? 'Account', email:target.dataset.userEmail ?? '', temporaryPassword:result.temporaryPassword }, notice:'Password reset. Save the one-time credential now.' });
+          await renderAdminSection('accounts', { credential:{ displayName:target.dataset.userName ?? 'Account', email:target.dataset.userEmail ?? '', temporaryPassword:result.temporaryPassword }, notice:'Password reset. Save the one-time credential now.' }, true);
         } catch (error) { await renderAdminSection('accounts', { notice:error instanceof Error ? error.message : 'Unable to reset password.' }); }
       });
     } else if (action === 'admin-set-active') {
@@ -159,14 +181,14 @@ export async function bootApp(clientOverride = null) {
       if (!userId || target.disabled) return;
       if (typeof globalThis.confirm === 'function' && !globalThis.confirm(`${active ? 'Reactivate' : 'Deactivate'} this account?`)) return;
       await runButtonAction(target, async () => {
-        try { await setAccountActive(client, userId, active); await renderAdminSection('accounts', { credential:null, notice:`Account ${active ? 'reactivated' : 'deactivated'}.` }); }
+        try { await setAccountActive(client, userId, active); await renderAdminSection('accounts', { credential:null, notice:`Account ${active ? 'reactivated' : 'deactivated'}.` }, true); }
         catch (error) { await renderAdminSection('accounts', { notice:error instanceof Error ? error.message : 'Unable to update account.' }); }
       });
     } else if (action === 'admin-unassign-teacher') {
       if (target.disabled) return;
       if (typeof globalThis.confirm === 'function' && !globalThis.confirm('Remove this teacher from the class?')) return;
       await runButtonAction(target, async () => {
-        try { await unassignTeacherFromClass(client, target.dataset.teacherId, target.dataset.classId); await renderAdminSection('classes', { notice:'Teacher removed from class.', credential:null }); }
+        try { await unassignTeacherFromClass(client, target.dataset.teacherId, target.dataset.classId); await renderAdminSection('classes', { notice:'Teacher removed from class.', credential:null }, true); }
         catch (error) { await renderAdminSection('classes', { notice:error instanceof Error ? error.message : 'Unable to remove teacher.' }); }
       });
     } else if (action === 'admin-run-import') {
@@ -175,7 +197,7 @@ export async function bootApp(clientOverride = null) {
       await runButtonAction(target, async () => {
         try {
           const result = await bulkProvisionStudents(client, preview.classId, preview.validRows);
-          await renderAdminSection('import', { importPreview:null, bulkResult:result, lastImportClassId:preview.classId, notice:`${result.created?.length ?? 0} student account${result.created?.length === 1 ? '' : 's'} created${result.failed?.length ? `; ${result.failed.length} failed.` : '.'}` });
+          await renderAdminSection('import', { importPreview:null, bulkResult:result, lastImportClassId:preview.classId, notice:`${result.created?.length ?? 0} student account${result.created?.length === 1 ? '' : 's'} created${result.failed?.length ? `; ${result.failed.length} failed.` : '.'}` }, true);
         } catch (error) { await renderAdminSection('import', { notice:error instanceof Error ? error.message : 'Bulk import failed.' }); }
       });
     } else if (action === 'admin-retry-failed') {
@@ -187,7 +209,7 @@ export async function bootApp(clientOverride = null) {
           const priorCreated = currentState.bulkResult?.created ?? [];
           const result = await bulkProvisionStudents(client, classId, failedRows.map(row => ({ displayName:row.displayName, email:row.email })));
           const bulkResult = { created:[...priorCreated, ...(result.created ?? [])], failed:result.failed ?? [] };
-          await renderAdminSection('import', { importPreview:null, bulkResult, lastImportClassId:classId, notice:`Retry created ${result.created?.length ?? 0} account${result.created?.length === 1 ? '' : 's'}${result.failed?.length ? `; ${result.failed.length} still failed.` : '.'}` });
+          await renderAdminSection('import', { importPreview:null, bulkResult, lastImportClassId:classId, notice:`Retry created ${result.created?.length ?? 0} account${result.created?.length === 1 ? '' : 's'}${result.failed?.length ? `; ${result.failed.length} still failed.` : '.'}` }, true);
         } catch (error) { await renderAdminSection('import', { notice:error instanceof Error ? error.message : 'Retry failed.' }); }
       });
     } else if (action === 'admin-copy-credentials') {
