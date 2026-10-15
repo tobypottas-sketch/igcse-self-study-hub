@@ -1,8 +1,9 @@
 import { signIn, changePassword, getCurrentProfile } from './auth.js';
 import { loadApps } from './api.js';
 import { getSupabaseClient } from './supabase.js';
-import { createStudentAccount, createTeacherAccount, loadAdminAccounts, resetAccountPassword, setAccountActive } from './admin/accounts.js';
-import { createClass, assignTeacherToClass, unassignTeacherFromClass, transferStudent, retireClass, loadAdminClasses } from './admin/classes.js';
+import { createStudentAccount, createTeacherAccount, resetAccountPassword, setAccountActive, deleteAccount } from './admin/accounts.js';
+import { createClass, assignTeacherToClass, unassignTeacherFromClass, transferStudent, retireClass } from './admin/classes.js';
+import { loadAdminData } from './admin/data.js';
 import { parseStudentCsv, validateStudentImport, bulkProvisionStudents } from './admin/import.js';
 import { renderLogin } from './views/login.js';
 import { renderChangePassword } from './views/change-password.js';
@@ -47,11 +48,18 @@ export async function bootApp(clientOverride = null) {
   const preloadAdminData = (force = false) => {
     if (force) adminLoadPromise = null;
     if (!adminLoadPromise) {
-      adminLoadPromise = Promise.all([loadAdminAccounts(client), loadAdminClasses(client)])
-        .then(([accounts, classes]) => ({ accounts, classes }))
+      adminLoadPromise = loadAdminData(client)
         .catch(error => { adminLoadPromise = null; throw error; });
     }
     return adminLoadPromise;
+  };
+
+  const refreshAdminCacheInBackground = () => {
+    preloadAdminData(true)
+      .then(({ accounts, classes }) => {
+        if (currentState.view === 'admin') currentState = { ...currentState, accounts, classes };
+      })
+      .catch(() => {});
   };
 
   const renderCurrentState = async () => {
@@ -180,10 +188,44 @@ export async function bootApp(clientOverride = null) {
       const active = target?.dataset?.nextActive === 'true';
       if (!userId || target.disabled) return;
       if (typeof globalThis.confirm === 'function' && !globalThis.confirm(`${active ? 'Reactivate' : 'Deactivate'} this account?`)) return;
-      await runButtonAction(target, async () => {
-        try { await setAccountActive(client, userId, active); await renderAdminSection('accounts', { credential:null, notice:`Account ${active ? 'reactivated' : 'deactivated'}.` }, true); }
-        catch (error) { await renderAdminSection('accounts', { notice:error instanceof Error ? error.message : 'Unable to update account.' }); }
-      });
+      const previousAccounts = currentState.accounts ?? [];
+      currentState = { ...currentState, accounts:previousAccounts.map(item => item.id === userId ? { ...item, active } : item) };
+      renderCachedAdminSection('accounts', { credential:null, notice:`${active ? 'Reactivating' : 'Deactivating'} account…` });
+      try {
+        await setAccountActive(client, userId, active);
+        renderCachedAdminSection('accounts', { credential:null, notice:`Account ${active ? 'reactivated' : 'deactivated'}.` });
+        refreshAdminCacheInBackground();
+      } catch (error) {
+        currentState = { ...currentState, accounts:previousAccounts };
+        renderCachedAdminSection('accounts', { notice:error instanceof Error ? error.message : 'Unable to update account.' });
+      }
+    } else if (action === 'admin-delete-account') {
+      const userId = target?.dataset?.userId;
+      const account = (currentState.accounts ?? []).find(item => item.id === userId);
+      if (!userId || !account || target.disabled) return;
+      const roleLabel = account.role === 'teacher' ? 'teacher' : 'student';
+      const prompt = `Permanently delete ${account.displayName}? This removes the ${roleLabel} login and personal account details. Historical analytics are kept only as anonymised records.`;
+      if (typeof globalThis.confirm === 'function' && !globalThis.confirm(prompt)) return;
+      const previousAccounts = currentState.accounts ?? [];
+      const previousClasses = currentState.classes ?? [];
+      currentState = {
+        ...currentState,
+        accounts: previousAccounts.filter(item => item.id !== userId),
+        classes: previousClasses.map(item => ({
+          ...item,
+          students:(item.students ?? []).filter(student => student.id !== userId),
+          teachers:(item.teachers ?? []).filter(teacher => teacher.id !== userId)
+        }))
+      };
+      renderCachedAdminSection('accounts', { credential:null, notice:`Deleting ${roleLabel}…` });
+      try {
+        await deleteAccount(client, userId);
+        renderCachedAdminSection('accounts', { credential:null, notice:`${roleLabel === 'teacher' ? 'Teacher' : 'Student'} deleted permanently. Historical analytics were retained anonymously.` });
+        refreshAdminCacheInBackground();
+      } catch (error) {
+        currentState = { ...currentState, accounts:previousAccounts, classes:previousClasses };
+        renderCachedAdminSection('accounts', { notice:error instanceof Error ? error.message : `Unable to delete ${roleLabel}.` });
+      }
     } else if (action === 'admin-unassign-teacher') {
       if (target.disabled) return;
       if (typeof globalThis.confirm === 'function' && !globalThis.confirm('Remove this teacher from the class?')) return;
@@ -196,10 +238,26 @@ export async function bootApp(clientOverride = null) {
       const className = target?.dataset?.className || 'this class';
       if (!classId || target.disabled) return;
       if (typeof globalThis.confirm === 'function' && !globalThis.confirm(`Delete ${className}? Current student memberships will end, teacher assignments will be removed, and historical activity will be kept.`)) return;
-      await runButtonAction(target, async () => {
-        try { await retireClass(client, classId); await renderAdminSection('classes', { notice:'Class deleted.', credential:null }, true); }
-        catch (error) { await renderAdminSection('classes', { notice:error instanceof Error ? error.message : 'Unable to delete class.' }); }
-      });
+      const previousClasses = currentState.classes ?? [];
+      const previousAccounts = currentState.accounts ?? [];
+      currentState = {
+        ...currentState,
+        classes: previousClasses.filter(item => item.id !== classId),
+        accounts: previousAccounts.map(item => {
+          if (item.role === 'student' && item.currentClassId === classId) return { ...item, currentClassId:null, currentClass:'' };
+          if (item.role === 'teacher') return { ...item, assignedClasses:(item.assignedClasses ?? []).filter(link => link.id !== classId) };
+          return item;
+        })
+      };
+      renderCachedAdminSection('classes', { notice:'Deleting class…', credential:null });
+      try {
+        await retireClass(client, classId);
+        renderCachedAdminSection('classes', { notice:'Class deleted.', credential:null });
+        refreshAdminCacheInBackground();
+      } catch (error) {
+        currentState = { ...currentState, classes:previousClasses, accounts:previousAccounts };
+        renderCachedAdminSection('classes', { notice:error instanceof Error ? error.message : 'Unable to delete class.' });
+      }
     } else if (action === 'admin-run-import') {
       const preview = currentState.importPreview;
       if (target.disabled || !preview || preview.errors?.length || !preview.validRows?.length || preview.classId !== target.dataset.classId) return;
