@@ -12,7 +12,9 @@ test('home escapes profile and app labels and rejects unsafe launch URLs', () =>
     { display_name: '<img src=x onerror=alert(1)>', role: 'student' },
     [{ app_key: 'reading" onclick="alert(1)', display_name: '<script>alert(1)</script>', launch_url: 'javascript:alert(1)', enabled: true }]
   );
-  assert.doesNotMatch(target.innerHTML, /<script>|<img|href="javascript:|data-app="reading" onclick=/i);
+  assert.doesNotMatch(target.innerHTML, /<script>|<img src=x onerror|href="javascript:|data-app="reading" onclick=/i);
+  assert.match(target.innerHTML, /class="home-brand__logo"/);
+  assert.match(target.innerHTML, /alt="Evidence Hub Schools"/);
   assert.match(target.innerHTML, /&lt;script&gt;/);
   assert.match(target.innerHTML, /href="#"/);
 });
