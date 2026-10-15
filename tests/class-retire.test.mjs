@@ -33,20 +33,22 @@ test('classes view exposes a delete action for active classes', () => {
   assert.match(root.innerHTML, />Delete class</);
 });
 
-test('server retire action preserves history while removing active relationships', async () => {
+test('server retire action delegates history-preserving cleanup to one atomic RPC', async () => {
   const source = await readFile(new URL('../supabase/functions/admin-class-action/index.ts', import.meta.url), 'utf8');
+  const migration = await readFile(new URL('../supabase/migrations/20261015140000_safe_account_deletion.sql', import.meta.url), 'utf8');
   assert.match(source, /input\.action === 'retire_class'/);
-  assert.match(source, /student_class_memberships/);
-  assert.match(source, /ended_at/);
-  assert.match(source, /teacher_classes/);
-  assert.match(source, /\.update\(\{ active: false \}\)/);
-  assert.doesNotMatch(source, /from\('student_class_memberships'\)\s*\.delete\(\)/);
+  assert.match(source, /rpc\('admin_retire_class'/);
+  assert.match(migration, /update public\.student_class_memberships[\s\S]*ended_at = now\(\)/i);
+  assert.match(migration, /delete from public\.teacher_classes/i);
+  assert.match(migration, /update public\.classes[\s\S]*active = false/i);
+  assert.doesNotMatch(migration, /delete from public\.student_class_memberships/i);
 });
 
-test('app confirms and refreshes after class deletion', async () => {
+test('app confirms and updates after class deletion', async () => {
   const source = await readFile(new URL('../src/app.js', import.meta.url), 'utf8');
   assert.match(source, /admin-delete-class/);
   assert.match(source, /Delete .*class/i);
   assert.match(source, /retireClass/);
   assert.match(source, /Class deleted\./);
+  assert.match(source, /renderCachedAdminSection\('classes'/);
 });
