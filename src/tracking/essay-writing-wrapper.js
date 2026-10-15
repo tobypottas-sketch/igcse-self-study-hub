@@ -82,8 +82,9 @@ function instrumentEssay(win) {
   wrapAfter(win, 'switchTab', ([tab]) => {
     const stage = String(tab || '').trim();
     const activeTab = win.document.querySelector('.tab-btn.active')?.dataset?.tab || '';
-    if (!stage || activeTab !== stage || visitedStages.has(stage)) return;
-    visitedStages.add(stage);
+    const visitKey = `${currentEssayMode(win)}:${stage}`;
+    if (!stage || activeTab !== stage || visitedStages.has(visitKey)) return;
+    visitedStages.add(visitKey);
     track({
       event_type: 'section_use',
       activity_id: `stage:${stage}`,
