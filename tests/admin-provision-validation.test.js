@@ -8,10 +8,7 @@ const classId = '22222222-2222-4222-8222-222222222222';
 
 function fakeClient(response = { data: { ok:true, temporaryPassword:'OneTime123!' }, error:null }) {
   const calls = [];
-  return {
-    calls,
-    functions: { invoke: async (name, options) => { calls.push([name, options]); return response; } }
-  };
+  return { calls, functions: { invoke: async (name, options) => { calls.push([name, options]); return response; } } };
 }
 
 test('manual student provisioning no longer requires a browser-supplied password', () => {
@@ -40,4 +37,16 @@ test('active state action accepts only boolean active values', async () => {
   const client = fakeClient({ data:{ ok:true }, error:null });
   await setAccountActive(client, userId, false);
   assert.deepEqual(client.calls[0][1].body, { action:'set_active', userId, active:false });
+});
+
+test('bulk provision validates class and normalizes every row server-side', () => {
+  const out = validateAdminProvisionRequest({ action:'bulk_provision_students', classId, rows:[{ displayName:' Student A ', email:' A@school.edu ' }] });
+  assert.deepEqual(out, { action:'bulk_provision_students', classId, rows:[{ displayName:'Student A', email:'a@school.edu' }] });
+  assert.throws(() => validateAdminProvisionRequest({ action:'bulk_provision_students', classId:'bad', rows:[{ displayName:'A', email:'a@school.edu' }] }), /class/i);
+  assert.throws(() => validateAdminProvisionRequest({ action:'bulk_provision_students', classId, rows:[] }), /row/i);
+});
+
+test('bulk provision caps a launch batch at 100 rows', () => {
+  const rows = Array.from({ length:101 }, (_, i) => ({ displayName:`Student ${i}`, email:`s${i}@school.edu` }));
+  assert.throws(() => validateAdminProvisionRequest({ action:'bulk_provision_students', classId, rows }), /100/i);
 });
