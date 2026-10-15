@@ -31,6 +31,10 @@ export async function setAccountActive(client, userId, active) {
   return invokeProvision(client, { action: 'set_active', userId, active });
 }
 
+export async function deleteAccount(client, userId) {
+  return invokeProvision(client, { action: 'delete_account', userId });
+}
+
 export function normalizeAdminAccounts(profiles = [], memberships = [], classes = [], teacherClasses = []) {
   const classNames = new Map(classes.map(item => [item.id, item.class_name]));
   const activeMembership = new Map(
