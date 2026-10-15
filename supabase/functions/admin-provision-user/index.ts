@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
-import { validateProvisionInput } from './validation.js';
+import { validateAdminProvisionRequest } from './validation.js';
 
 function firstNamedKey(raw: string | undefined): string {
   if (!raw) throw new Error('Missing Supabase key configuration.');
@@ -7,6 +7,30 @@ function firstNamedKey(raw: string | undefined): string {
   const value = parsed.default ?? Object.values(parsed)[0];
   if (typeof value !== 'string' || !value) throw new Error('Invalid Supabase key configuration.');
   return value;
+}
+
+function randomChar(alphabet: string): string {
+  const bytes = new Uint32Array(1);
+  crypto.getRandomValues(bytes);
+  return alphabet[bytes[0] % alphabet.length];
+}
+
+function generateTemporaryPassword(): string {
+  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lower = 'abcdefghijkmnopqrstuvwxyz';
+  const digits = '23456789';
+  const symbols = '!@#$%*-_';
+  const all = `${upper}${lower}${digits}${symbols}`;
+  const chars = [randomChar(upper), randomChar(lower), randomChar(digits), randomChar(symbols)];
+  while (chars.length < 16) chars.push(randomChar(all));
+
+  for (let i = chars.length - 1; i > 0; i -= 1) {
+    const bytes = new Uint32Array(1);
+    crypto.getRandomValues(bytes);
+    const j = bytes[0] % (i + 1);
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  return chars.join('');
 }
 
 Deno.serve(async (req: Request) => {
@@ -40,10 +64,38 @@ Deno.serve(async (req: Request) => {
       return Response.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    const input = validateProvisionInput(await req.json());
+    const input = validateAdminProvisionRequest(await req.json());
+
+    if (input.action === 'reset_password') {
+      const temporaryPassword = generateTemporaryPassword();
+      const { error: authError } = await adminClient.auth.admin.updateUserById(input.userId, { password: temporaryPassword });
+      if (authError) return Response.json({ error: authError.message }, { status: 400 });
+
+      const { error: flagError } = await adminClient
+        .from('profiles')
+        .update({ must_change_password: true })
+        .eq('id', input.userId);
+      if (flagError) return Response.json({ error: flagError.message }, { status: 400 });
+      return Response.json({ ok: true, userId: input.userId, temporaryPassword });
+    }
+
+    if (input.action === 'set_active') {
+      const { data: profile, error: updateError } = await adminClient
+        .from('profiles')
+        .update({ active: input.active })
+        .eq('id', input.userId)
+        .select('id, active')
+        .single();
+      if (updateError || !profile) {
+        return Response.json({ error: updateError?.message ?? 'Account not found' }, { status: 400 });
+      }
+      return Response.json({ ok: true, userId: profile.id, active: profile.active });
+    }
+
+    const temporaryPassword = generateTemporaryPassword();
     const { data: created, error: createError } = await adminClient.auth.admin.createUser({
       email: input.email,
-      password: input.temporaryPassword,
+      password: temporaryPassword,
       email_confirm: true,
       app_metadata: { role: input.role }
     });
@@ -76,7 +128,7 @@ Deno.serve(async (req: Request) => {
       return Response.json({ error: 'Account setup failed; no account was retained.' }, { status: 500 });
     }
 
-    return Response.json({ ok: true, userId, role: input.role });
+    return Response.json({ ok: true, userId, role: input.role, temporaryPassword });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unexpected error';
     return Response.json({ error: message }, { status: 400 });
