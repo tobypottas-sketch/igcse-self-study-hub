@@ -43,19 +43,21 @@ export function normalizeAdminAccounts(profiles = [], memberships = [], classes 
     assignedByTeacher.set(link.teacher_id, list);
   }
 
-  return profiles.map(profile => {
-    const classId = activeMembership.get(profile.id) ?? null;
-    return {
-      id: profile.id,
-      displayName: profile.display_name,
-      email: profile.school_email,
-      role: profile.role,
-      active: profile.active !== false,
-      currentClassId: classId,
-      currentClass: classId ? (classNames.get(classId) ?? '') : '',
-      assignedClasses: assignedByTeacher.get(profile.id) ?? []
-    };
-  });
+  return profiles
+    .filter(profile => profile.role === 'student' || profile.role === 'teacher')
+    .map(profile => {
+      const classId = activeMembership.get(profile.id) ?? null;
+      return {
+        id: profile.id,
+        displayName: profile.display_name,
+        email: profile.school_email,
+        role: profile.role,
+        active: profile.active !== false,
+        currentClassId: classId,
+        currentClass: classId ? (classNames.get(classId) ?? '') : '',
+        assignedClasses: assignedByTeacher.get(profile.id) ?? []
+      };
+    });
 }
 
 export async function loadAdminAccounts(client) {
