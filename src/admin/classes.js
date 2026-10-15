@@ -12,6 +12,10 @@ export async function assignTeacherToClass(client, teacherId, classId) {
   return invokeClassAction(client, { action: 'assign_teacher', teacherId, classId });
 }
 
+export async function unassignTeacherFromClass(client, teacherId, classId) {
+  return invokeClassAction(client, { action: 'unassign_teacher', teacherId, classId });
+}
+
 export async function transferStudent(client, studentId, newClassId) {
   return invokeClassAction(client, { action: 'transfer_student', studentId, newClassId });
 }
