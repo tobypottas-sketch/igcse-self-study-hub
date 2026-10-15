@@ -54,3 +54,24 @@ test('accounts section shows a one-time credential without persisting it into na
   assert.match(target.innerHTML, /one-time/i);
   assert.doesNotMatch(target.innerHTML, /data-action="admin-back"[^>]*OneTime123!/);
 });
+
+test('classes section renders create, assign, unassign and student transfer controls', () => {
+  const target = root();
+  renderAdmin(target, {
+    profile:{ display_name:'Admin', role:'admin' },
+    section:'classes',
+    accounts:[
+      { id:'t1', displayName:'Teacher One', email:'t@x', role:'teacher', active:true, assignedClasses:[] },
+      { id:'s1', displayName:'Student One', email:'s@x', role:'student', active:true, currentClass:'G9 ESL', currentClassId:'c1', assignedClasses:[] }
+    ],
+    classes:[
+      { id:'c1', className:'G9 <img src=x onerror=1>', active:true, students:[{id:'s1', displayName:'Student One', email:'s@x'}], teachers:[{id:'t1', displayName:'Teacher One', email:'t@x'}] },
+      { id:'c2', className:'G10 ESL', active:true, students:[], teachers:[] }
+    ]
+  });
+  assert.match(target.innerHTML, /data-form="admin-create-class"/);
+  assert.match(target.innerHTML, /data-form="admin-assign-teacher"/);
+  assert.match(target.innerHTML, /data-action="admin-unassign-teacher"/);
+  assert.match(target.innerHTML, /data-form="admin-transfer-student"/);
+  assert.doesNotMatch(target.innerHTML, /<img src=x onerror=1>/);
+});
