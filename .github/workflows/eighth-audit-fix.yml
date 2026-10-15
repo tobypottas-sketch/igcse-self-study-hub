@@ -1,0 +1,27 @@
+name: Eighth Audit Fix
+on:
+  push:
+    branches: [audit/eighth-hardening-20261015]
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/eighth-hardening-20261015
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/eighth-audit-fix.mjs
+      - run: npm test
+      - name: Commit patch
+        run: |
+          if git diff --quiet -- src/tracking/listening-wrapper.js src/tracking/essay-writing-wrapper.js; then exit 0; fi
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/tracking/listening-wrapper.js src/tracking/essay-writing-wrapper.js
+          git commit -m "Audit #8: fix fresh Exam and cross-mode tracking"
+          git push origin HEAD:audit/eighth-hardening-20261015
