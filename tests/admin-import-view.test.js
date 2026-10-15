@@ -23,14 +23,15 @@ test('validated preview shows all errors and only enables provisioning when clea
   assert.doesNotMatch(target.innerHTML, /data-action="admin-run-import"/);
 });
 
-test('bulk result renders one-time credential sheet with copy and print controls', () => {
+test('bulk result renders one-time credential sheet with copy, print and failed-row retry controls', () => {
   const target = root();
   renderAdmin(target, {
-    profile:{display_name:'Admin', role:'admin'}, section:'import', classes:[], accounts:[],
-    bulkResult:{ created:[{userId:'u1', displayName:'Student One', email:'s@x', temporaryPassword:'Secret123!'}], failed:[{displayName:'Two', email:'two@x', reason:'Email already exists.'}] }
+    profile:{display_name:'Admin', role:'admin'}, section:'import', classes:[], accounts:[], lastImportClassId:'c1',
+    bulkResult:{ created:[{userId:'u1', displayName:'Student One', email:'s@x', temporaryPassword:'Secret123!'}], failed:[{displayName:'Two', email:'two@x', reason:'Temporary server error.'}] }
   });
   assert.match(target.innerHTML, /Secret123!/);
   assert.match(target.innerHTML, /data-action="admin-copy-credentials"/);
   assert.match(target.innerHTML, /data-action="admin-print-credentials"/);
-  assert.match(target.innerHTML, /Email already exists/);
+  assert.match(target.innerHTML, /data-action="admin-retry-failed"/);
+  assert.match(target.innerHTML, /Temporary server error/);
 });
