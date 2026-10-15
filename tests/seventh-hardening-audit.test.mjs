@@ -11,3 +11,11 @@ test('Listening fresh Exam attempts reset per-question tracked attempt counters'
   const resetBlock = listening.slice(resetStart, resetEnd);
   assert.match(resetBlock, /attempts\.(?:clear|delete)\s*\(/, 'fresh Exam reset should clear prior Listening attempt counters');
 });
+
+test('Listening section-use dedupe keeps Practice and Exam visits distinct', () => {
+  assert.match(
+    listening,
+    /sectionGate\(`section:\$\{mode\}:\$\{sectionId\}`\)/,
+    'section tracking should dedupe separately for Practice and Exam mode'
+  );
+});
