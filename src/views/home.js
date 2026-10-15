@@ -1,5 +1,7 @@
 import { escapeHtml, safeHttpsUrl } from './html.js';
 
+const EH_SCHOOLS_LOGO = 'https://raw.githubusercontent.com/tobypottas-sketch/evidence-hub-schools-showcase/main/01_FRONTEND/images/evidence-hub-schools-logo-approved.webp';
+
 export function buildHomeModel(profile, apps) {
   return {
     displayName: profile.display_name,
@@ -38,8 +40,7 @@ export function renderHome(root, profile, apps) {
       <header class="home-hero">
         <div class="home-hero__topbar">
           <div class="home-brand">
-            <span class="home-brand__mark" aria-hidden="true">i</span>
-            <span>iGCSE Self-Study Hub</span>
+            <img class="home-brand__logo" src="${EH_SCHOOLS_LOGO}" alt="Evidence Hub Schools" width="230" style="display:block;max-width:min(52vw,230px);height:auto;">
           </div>
           <button class="button button--ghost home-logout" data-action="logout">Log out</button>
         </div>
