@@ -20,6 +20,10 @@ export async function transferStudent(client, studentId, newClassId) {
   return invokeClassAction(client, { action: 'transfer_student', studentId, newClassId });
 }
 
+export async function retireClass(client, classId) {
+  return invokeClassAction(client, { action: 'retire_class', classId });
+}
+
 export function normalizeAdminClasses(classes = [], profiles = [], memberships = [], teacherClasses = []) {
   const profilesById = new Map(profiles.map(profile => [profile.id, profile]));
   const activeMemberships = memberships.filter(item => item.ended_at == null);
