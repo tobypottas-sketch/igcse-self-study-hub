@@ -70,9 +70,12 @@ $$;
 alter table public.activity_events
   drop constraint if exists activity_events_metadata_privacy_check;
 
+-- NOT VALID deliberately preserves immutable historical analytics that predate
+-- the strict allowlist, while PostgreSQL still enforces the check for every
+-- new or subsequently updated row.
 alter table public.activity_events
   add constraint activity_events_metadata_privacy_check
-  check (private.activity_metadata_is_safe(metadata));
+  check (private.activity_metadata_is_safe(metadata)) not valid;
 
 alter table public.activity_events
   drop constraint if exists activity_events_event_type_known_check;
