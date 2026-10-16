@@ -1,7 +1,7 @@
 name: System Audit
 on:
   push:
-    branches: [main, fix/system-audit-20261014, fix/third-hardening-audit-20261014]
+    branches: [main, fix/system-audit-20261014, fix/third-hardening-audit-20261014, audit/ninth-hardening-20261016]
 jobs:
   test:
     runs-on: ubuntu-latest
