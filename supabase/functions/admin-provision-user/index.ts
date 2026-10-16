@@ -79,6 +79,12 @@ Deno.serve(async (req: Request) => {
           .is('ended_at', null);
         if (membershipError) return jsonResponse({ error:membershipError.message }, { status:400 });
       } else {
+        const { error:taskError } = await adminClient
+          .from('essay_tasks')
+          .update({ active:false })
+          .eq('created_by', input.userId);
+        if (taskError) return jsonResponse({ error:taskError.message }, { status:400 });
+
         const { error:teacherError } = await adminClient.from('teacher_classes').delete().eq('teacher_id', input.userId);
         if (teacherError) return jsonResponse({ error:teacherError.message }, { status:400 });
       }
