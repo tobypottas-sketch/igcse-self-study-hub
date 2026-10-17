@@ -11,45 +11,24 @@ export async function loadVocabularyDashboard(client, options = {}) {
     client.from('vocabulary_global_mastery').select('vocabulary_id, status, review_due_at, recent_error_pattern, strand_evidence'),
     client.from('vocabulary_unit_mastery').select('occurrence_id, status, recent_error_pattern, contextual_evidence')
   ]);
-  return {
-    occurrences,
-    global:assertNoError(globalResult, 'Unable to load vocabulary mastery.'),
-    unit:assertNoError(unitResult, 'Unable to load unit mastery.')
-  };
+  return { occurrences, global:assertNoError(globalResult, 'Unable to load vocabulary mastery.'), unit:assertNoError(unitResult, 'Unable to load unit mastery.') };
 }
 
 export async function loadVocabularyUnit(client, unitNumber) {
-  const occurrencesResult = await client
-    .from('vocabulary_unit_occurrences')
-    .select('occurrence_id, vocabulary_id, unit_number, unit_title, set_number, position_in_unit, sense_id, status')
-    .eq('unit_number', unitNumber)
-    .eq('status', 'live')
-    .eq('active', true)
-    .order('position_in_unit');
+  const occurrencesResult = await client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number, unit_title, set_number, position_in_unit, sense_id, status').eq('unit_number', unitNumber).eq('status', 'live').eq('active', true).order('position_in_unit');
   const occurrences = assertNoError(occurrencesResult, 'Unable to load vocabulary unit.');
   const vocabularyIds = [...new Set(occurrences.map(row => row.vocabulary_id))];
   const occurrenceIds = occurrences.map(row => row.occurrence_id);
-
   const [itemsResult, contextsResult, activitiesResult] = await Promise.all([
     client.from('vocabulary_items').select('vocabulary_id, term, part_of_speech, core_meaning, senses, word_family, collocations, status').in('vocabulary_id', vocabularyIds).eq('status', 'live'),
     client.from('vocabulary_contexts').select('context_id, vocabulary_id, occurrence_id, sense_id, context_type, prompt_text, target_rewrite, accepted_answers, misconception_category, status').in('occurrence_id', occurrenceIds).eq('status', 'live'),
     client.from('vocabulary_unit_activities').select('activity_content_id, unit_number, content_type, activity_data, status').eq('unit_number', unitNumber).eq('status', 'live')
   ]);
-  return {
-    occurrences,
-    items:assertNoError(itemsResult, 'Unable to load vocabulary items.'),
-    contexts:assertNoError(contextsResult, 'Unable to load vocabulary contexts.'),
-    activities:assertNoError(activitiesResult, 'Unable to load vocabulary activities.')
-  };
+  return { occurrences, items:assertNoError(itemsResult, 'Unable to load vocabulary items.'), contexts:assertNoError(contextsResult, 'Unable to load vocabulary contexts.'), activities:assertNoError(activitiesResult, 'Unable to load vocabulary activities.') };
 }
 
 export async function loadStudentMastery(client, unitNumber) {
-  const occurrencesResult = await client
-    .from('vocabulary_unit_occurrences')
-    .select('occurrence_id, vocabulary_id')
-    .eq('unit_number', unitNumber)
-    .eq('status', 'live')
-    .eq('active', true);
+  const occurrencesResult = await client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id').eq('unit_number', unitNumber).eq('status', 'live').eq('active', true);
   const occurrences = assertNoError(occurrencesResult, 'Unable to load vocabulary unit.');
   const vocabularyIds = [...new Set(occurrences.map(row => row.vocabulary_id))];
   const occurrenceIds = occurrences.map(row => row.occurrence_id);
@@ -57,10 +36,7 @@ export async function loadStudentMastery(client, unitNumber) {
     client.from('vocabulary_global_mastery').select('*').in('vocabulary_id', vocabularyIds),
     client.from('vocabulary_unit_mastery').select('*').in('occurrence_id', occurrenceIds)
   ]);
-  return {
-    global:assertNoError(globalResult, 'Unable to load vocabulary mastery.'),
-    unit:assertNoError(unitResult, 'Unable to load unit mastery.')
-  };
+  return { global:assertNoError(globalResult, 'Unable to load vocabulary mastery.'), unit:assertNoError(unitResult, 'Unable to load unit mastery.') };
 }
 
 export async function submitVocabularyAttempt(client, input = {}) {
@@ -69,6 +45,7 @@ export async function submitVocabularyAttempt(client, input = {}) {
     occurrenceId:input.occurrenceId,
     contextId:input.contextId ?? null,
     activityContentId:input.activityContentId ?? null,
+    activityVariantId:input.activityVariantId ?? null,
     contentSource,
     primaryEvidenceTargetId:input.primaryEvidenceTargetId ?? null,
     questionType:input.questionType,
