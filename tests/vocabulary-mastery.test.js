@@ -11,6 +11,8 @@ function fresh(overrides = {}) {
     strandEvidence:{ meaning:0, recognition:0, context:0, paraphrasing:0, production:0 },
     successfulProductions:0,
     productionContextIds:[],
+    productionActivityTypes:[],
+    unscaffoldedProductions:0,
     recentErrorCount:0,
     reviewStage:0,
     reviewFailureCount:0,
@@ -42,17 +44,58 @@ test('easier evidence cannot leak upward into production', async () => {
   assert.equal(context.strandEvidence.production, 0);
 });
 
-test('secure requires multi-strand evidence including context or paraphrasing', async () => {
+test('secure requires at least three strands including context or paraphrasing', async () => {
   const { deriveStatus } = await engine();
   assert.equal(deriveStatus(fresh({ strandEvidence:{ meaning:6, recognition:6, context:0, paraphrasing:0, production:0 } })), 'building');
+  assert.equal(deriveStatus(fresh({ strandEvidence:{ meaning:6, recognition:0, context:4, paraphrasing:0, production:0 } })), 'building');
   assert.equal(deriveStatus(fresh({ strandEvidence:{ meaning:6, recognition:6, context:4, paraphrasing:0, production:0 } })), 'secure');
 });
 
-test('mastered requires secure plus two successful productions in different contexts', async () => {
+test('mastered requires context paraphrasing two diverse productive demonstrations and an unscaffolded production', async () => {
   const { deriveStatus } = await engine();
-  const secureBase = fresh({ strandEvidence:{ meaning:8, recognition:7, context:5, paraphrasing:6, production:6 }, successfulProductions:2 });
-  assert.equal(deriveStatus({ ...secureBase, productionContextIds:['ctx-a'] }), 'secure');
-  assert.equal(deriveStatus({ ...secureBase, productionContextIds:['ctx-a','ctx-b'] }), 'mastered');
+  const base = fresh({
+    strandEvidence:{ meaning:8, recognition:7, context:5, paraphrasing:6, production:6 },
+    successfulProductions:2,
+    productionContextIds:['ctx-a','ctx-b'],
+    productionActivityTypes:['rewrite_phrase'],
+    unscaffoldedProductions:1,
+    recentErrorCount:0
+  });
+  assert.equal(deriveStatus(base), 'mastered');
+  assert.equal(deriveStatus({ ...base, strandEvidence:{ ...base.strandEvidence, context:0 } }), 'secure');
+  assert.equal(deriveStatus({ ...base, strandEvidence:{ ...base.strandEvidence, paraphrasing:0 } }), 'secure');
+  assert.equal(deriveStatus({ ...base, productionContextIds:['ctx-a'], productionActivityTypes:['rewrite_phrase'] }), 'secure');
+  assert.equal(deriveStatus({ ...base, unscaffoldedProductions:0 }), 'secure');
+  assert.equal(deriveStatus({ ...base, recentErrorCount:1 }), 'secure');
+});
+
+test('different productive activity types can provide diversity even in the same curated context', async () => {
+  const { deriveStatus } = await engine();
+  const mastery = fresh({
+    strandEvidence:{ meaning:8, recognition:7, context:5, paraphrasing:6, production:6 },
+    successfulProductions:2,
+    productionContextIds:['ctx-a'],
+    productionActivityTypes:['build_paraphrase','rewrite_phrase'],
+    unscaffoldedProductions:1
+  });
+  assert.equal(deriveStatus(mastery), 'mastered');
+});
+
+test('applyEvidence records productive activity diversity and only counts unscaffolded production when support is none', async () => {
+  const { applyEvidence } = await engine();
+  const first = applyEvidence(fresh(), {
+    strands:['paraphrasing','production'], correct:true, evidenceStrength:'strong', supportLevel:'light', productive:true,
+    firstAttempt:false, retryUsed:true, contextId:'ctx-a', activityType:'build_paraphrase'
+  }, new Date());
+  assert.deepEqual(first.productionActivityTypes, ['build_paraphrase']);
+  assert.equal(first.unscaffoldedProductions, 0);
+
+  const second = applyEvidence(first, {
+    strands:['paraphrasing','production'], correct:true, evidenceStrength:'very_strong', supportLevel:'none', productive:true,
+    firstAttempt:true, contextId:'ctx-b', activityType:'rewrite_phrase'
+  }, new Date());
+  assert.deepEqual(second.productionActivityTypes.sort(), ['build_paraphrase','rewrite_phrase']);
+  assert.equal(second.unscaffoldedProductions, 1);
 });
 
 test('supported retry is positive but weaker than first-attempt success', async () => {
