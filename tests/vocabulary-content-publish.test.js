@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import releasedUnit1 from '../content/vocabulary/releases/unit-01.js';
 
 async function publisher() {
   return import('../scripts/publish-vocabulary-content.mjs');
@@ -55,6 +56,17 @@ test('publisher deduplicates global items but keeps separate unit occurrences', 
   assert.equal(batch.items.length, 50);
   assert.equal(batch.occurrences.length, 100);
   assert.equal(batch.contexts.length, 300);
+});
+
+test('released Unit 1 is a strict live batch with 50 targets and 150 contexts', async () => {
+  const { buildPublicationBatch } = await publisher();
+  const batch = buildPublicationBatch([releasedUnit1]);
+  assert.equal(releasedUnit1.status, 'live');
+  assert.equal(batch.items.length, 50);
+  assert.equal(batch.occurrences.length, 50);
+  assert.equal(batch.contexts.length, 150);
+  assert.equal(batch.items.every(row => row.status === 'live'), true);
+  assert.equal(batch.occurrences.every(row => row.status === 'live'), true);
 });
 
 test('publisher output contains curated content tables only', async () => {
