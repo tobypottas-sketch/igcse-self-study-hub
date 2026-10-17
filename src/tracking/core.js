@@ -50,7 +50,11 @@ const SECTION_IDS = new Set(['ex1', 'ex2', 'ex3', 'ex4', 'ex5']);
 const SUPPORT_TYPES = new Set(['transcript']);
 const RESULT_TYPES = new Set(['exam_reconciliation']);
 const VOCAB_STRANDS = new Set(['meaning', 'recognition', 'context', 'paraphrasing', 'production']);
-const VOCAB_MISCONCEPTIONS = new Set(['related_but_inaccurate', 'wrong_form', 'meaning_confusion', 'retrieval_failure', 'context_mismatch']);
+const VOCAB_MISCONCEPTIONS = new Set([
+  'related_but_inaccurate','wrong_form','meaning_confusion','retrieval_failure','context_mismatch',
+  'quantity_change','degree_change','time_change','cause_effect_change','contrast_change','added_information',
+  'omitted_information','unnatural_collocation','too_vague','register_mismatch'
+]);
 const VOCAB_SKILL_FAMILIES = new Set(['meaning', 'context', 'question_text', 'phrase_paraphrasing', 'idea_paraphrasing', 'writing_vocabulary', 'communication_repair']);
 const VOCAB_EVIDENCE_STRENGTHS = new Set(['light', 'medium', 'strong', 'very_strong']);
 const VOCAB_SUPPORT_LEVELS = new Set(['none', 'light', 'major']);
