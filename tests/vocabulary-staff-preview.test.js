@@ -12,6 +12,11 @@ test('teacher analytics exposes a student activity preview route', () => {
   assert.match(root.innerHTML, /Preview student activities/i);
 });
 
+test('teacher class chooser also exposes student activity preview', () => {
+  const source = fs.readFileSync(new URL('../src/vocabulary/teacher-app.js', import.meta.url), 'utf8');
+  assert.match(source, /Choose a class[\s\S]*vocabulary\.html\?preview=1/);
+});
+
 test('student app sends preview attempts and suppresses evidence tracking for staff preview', () => {
   const source = fs.readFileSync(new URL('../src/vocabulary/app.js', import.meta.url), 'utf8');
   assert.match(source, /preview:\s*state\.preview/);
