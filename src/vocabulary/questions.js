@@ -5,6 +5,8 @@ export const QUESTION_TYPES = Object.freeze([
 
 const CHOICE_TYPES = new Set(['meaning_match','paraphrase_match','identify_inaccurate_paraphrase']);
 const EASY = ['meaning_match','paraphrase_match','context_inference','identify_inaccurate_paraphrase'];
+const CONTEXTUAL = ['context_inference','question_text_bridge','context_gap_fill'];
+const PRODUCTIVE = ['replace_phrase','produce_paraphrase','use_target'];
 const HARD = ['replace_phrase','produce_paraphrase','use_target','question_text_bridge','mini_mixed_check'];
 const INFERRED_BY_CONTEXT = Object.freeze({
   meaning_context:['meaning_match','context_inference','identify_inaccurate_paraphrase'],
@@ -20,8 +22,22 @@ function due(mastery, now) {
   return new Date(mastery.reviewDueAt).getTime() <= new Date(now ?? Date.now()).getTime();
 }
 
+function evidenceValue(mastery, strand) {
+  const value = Number(mastery?.strandEvidence?.[strand] ?? 0);
+  return Number.isFinite(value) ? value : 0;
+}
+
 function candidateTypes(mastery, now) {
   if (mastery?.status === 'secure' || mastery?.status === 'mastered' || due(mastery, now)) return HARD;
+
+  const meaning = evidenceValue(mastery, 'meaning');
+  const recognition = evidenceValue(mastery, 'recognition');
+  const context = evidenceValue(mastery, 'context');
+  const paraphrasing = evidenceValue(mastery, 'paraphrasing');
+  const production = evidenceValue(mastery, 'production');
+
+  if ((context > 0 || paraphrasing > 0) && production <= 0) return PRODUCTIVE;
+  if ((meaning > 0 || recognition > 0) && context <= 0) return CONTEXTUAL;
   return EASY;
 }
 
