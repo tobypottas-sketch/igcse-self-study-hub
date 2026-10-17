@@ -38,15 +38,15 @@ test('wrong-answer feedback stays supportive and recovery-oriented', () => {
   const message = supportiveFeedback({ correct:false, misconceptionCategory:'related_but_inaccurate', term:'significant' });
   assert.doesNotMatch(message, /failed|wrong!|bad/i);
   assert.match(message, /another look|try/i);
-  assert.match(supportiveFeedback({ correct:true, recovery:true, term:'significant' }), /recovered|got it/i);
+  assert.match(supportiveFeedback({ correct:true, recovery:true, term:'significant' }), /recovery|recovered|you got/i);
 });
 
 test('session summary emphasizes learning movement rather than a giant score', () => {
   const target = root();
   renderSessionSummary(target, { durationMinutes:10, summary:{ practised:17, strengthened:6, secure:2, mastered:2, needsAnotherLook:3 } });
   assert.match(target.innerHTML, /10-minute session complete/);
-  assert.match(target.innerHTML, /17 words practised/);
-  assert.match(target.innerHTML, /6 strengthened/);
-  assert.match(target.innerHTML, /2 mastered/);
+  assert.match(target.innerHTML, /<strong>17<\/strong><span>words practised<\/span>/);
+  assert.match(target.innerHTML, /<strong>6<\/strong><span>strengthened<\/span>/);
+  assert.match(target.innerHTML, /<strong>2<\/strong><span>mastered<\/span>/);
   assert.doesNotMatch(target.innerHTML, /score/i);
 });
