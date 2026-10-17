@@ -7,6 +7,7 @@ function queryResult(data) {
   return {
     select() { return this; },
     eq() { return this; },
+    in() { return this; },
     order() { return this; },
     then(resolve) { return Promise.resolve({ data, error:null }).then(resolve); }
   };
