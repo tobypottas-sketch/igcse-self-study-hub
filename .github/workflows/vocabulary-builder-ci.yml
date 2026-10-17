@@ -10,5 +10,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm test
+      - name: Run tests with concise failure tail
+        shell: bash
+        run: |
+          set +e
+          npm test > /tmp/vocab-test.log 2>&1
+          status=$?
+          if [ "$status" -ne 0 ]; then
+            tail -n 120 /tmp/vocab-test.log
+            exit "$status"
+          fi
+          tail -n 25 /tmp/vocab-test.log
       - run: node scripts/validate-vocabulary-content.mjs
