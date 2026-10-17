@@ -3,6 +3,14 @@ export const QUESTION_TYPES = Object.freeze([
   'replace_phrase','produce_paraphrase','use_target','identify_inaccurate_paraphrase','mini_mixed_check'
 ]);
 
+export const PRACTICE_FOCUS_TYPES = Object.freeze({
+  adaptive:QUESTION_TYPES,
+  definitions:['meaning_match','identify_inaccurate_paraphrase','context_inference'],
+  context:['context_inference','context_gap_fill','question_text_bridge','mini_mixed_check'],
+  paraphrasing:['paraphrase_match','replace_phrase','question_text_bridge','produce_paraphrase'],
+  recall:['context_gap_fill','replace_phrase','produce_paraphrase','use_target']
+});
+
 const CHOICE_TYPES = new Set(['meaning_match','paraphrase_match','identify_inaccurate_paraphrase']);
 const EASY = ['meaning_match','paraphrase_match','context_inference','identify_inaccurate_paraphrase'];
 const CONTEXTUAL = ['context_inference','question_text_bridge','context_gap_fill'];
@@ -27,7 +35,7 @@ function evidenceValue(mastery, strand) {
   return Number.isFinite(value) ? value : 0;
 }
 
-function candidateTypes(mastery, now) {
+function adaptiveCandidateTypes(mastery, now) {
   if (mastery?.status === 'secure' || mastery?.status === 'mastered' || due(mastery, now)) return HARD;
 
   const meaning = evidenceValue(mastery, 'meaning');
@@ -39,6 +47,11 @@ function candidateTypes(mastery, now) {
   if ((context > 0 || paraphrasing > 0) && production <= 0) return PRODUCTIVE;
   if ((meaning > 0 || recognition > 0) && context <= 0) return CONTEXTUAL;
   return EASY;
+}
+
+function candidateTypes(mastery, now, practiceFocus) {
+  if (practiceFocus && practiceFocus !== 'adaptive') return PRACTICE_FOCUS_TYPES[practiceFocus] ?? PRACTICE_FOCUS_TYPES.adaptive;
+  return adaptiveCandidateTypes(mastery, now);
 }
 
 function contextSupports(context, type) {
@@ -142,9 +155,9 @@ function promptFor(type, context, item) {
   }
 }
 
-export function buildQuestion({ occurrence, item, contexts = [], mastery = {}, usedContextIds = [], previousQuestionType = null, recycle = false, forceQuestionType = null, now = new Date() } = {}) {
+export function buildQuestion({ occurrence, item, contexts = [], mastery = {}, usedContextIds = [], previousQuestionType = null, recentQuestionTypes = [], practiceFocus = 'adaptive', recycle = false, forceQuestionType = null, now = new Date() } = {}) {
   if (!occurrence || !item) throw new Error('Vocabulary occurrence and item are required.');
-  const allowed = forceQuestionType ? [forceQuestionType] : candidateTypes(mastery, now);
+  const allowed = forceQuestionType ? [forceQuestionType] : candidateTypes(mastery, now, practiceFocus);
   if (forceQuestionType && !QUESTION_TYPES.includes(forceQuestionType)) throw new Error('Invalid vocabulary question type.');
 
   const used = new Set(usedContextIds);
@@ -155,6 +168,13 @@ export function buildQuestion({ occurrence, item, contexts = [], mastery = {}, u
 
   const unused = pairs.filter(pair => !used.has(pair.context.contextId));
   if (unused.length) pairs = unused;
+
+  const recent = new Set(Array.isArray(recentQuestionTypes) ? recentQuestionTypes.filter(Boolean) : []);
+  if (recent.size) {
+    const freshType = pairs.filter(pair => !recent.has(pair.type));
+    if (freshType.length) pairs = freshType;
+  }
+
   if (recycle || previousQuestionType) {
     const differentType = pairs.filter(pair => pair.type !== previousQuestionType);
     if (differentType.length) pairs = differentType;
