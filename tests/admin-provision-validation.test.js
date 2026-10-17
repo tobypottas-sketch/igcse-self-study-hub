@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateAdminProvisionRequest } from '../supabase/functions/admin-provision-user/validation.js';
+import { safeAuthAccountError, validateAdminProvisionRequest } from '../supabase/functions/admin-provision-user/validation.js';
 import { createStudentAccount, resetAccountPassword, setAccountActive } from '../src/admin/accounts.js';
 
 const userId = '11111111-1111-4111-8111-111111111111';
@@ -49,4 +49,15 @@ test('bulk provision validates class and normalizes every row server-side', () =
 test('bulk provision caps a launch batch at 100 rows', () => {
   const rows = Array.from({ length:101 }, (_, i) => ({ displayName:`Student ${i}`, email:`s${i}@school.edu` }));
   assert.throws(() => validateAdminProvisionRequest({ action:'bulk_provision_students', classId, rows }), /100/i);
+});
+
+test('duplicate auth emails become a safe useful account message', () => {
+  assert.equal(
+    safeAuthAccountError({ code:'email_exists', message:'A user with this email address has already been registered' }),
+    'An account with this email already exists.'
+  );
+  assert.equal(
+    safeAuthAccountError({ message:'A user with this email address has already been registered' }),
+    'An account with this email already exists.'
+  );
 });
