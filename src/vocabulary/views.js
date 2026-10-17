@@ -1,5 +1,7 @@
 import { escapeHtml } from '../views/html.js';
 
+const RETRIEVAL_TYPES = new Set(['replace_phrase','produce_paraphrase','use_target','context_gap_fill']);
+
 function statusOf(row) { return row?.status ?? 'new'; }
 function dueAt(row) { return row?.review_due_at ?? row?.reviewDueAt ?? null; }
 function errorPattern(row) { return row?.recent_error_pattern ?? row?.recentErrorPattern ?? null; }
@@ -59,7 +61,8 @@ function renderAnswerControl(question, feedback, retry) {
 
 export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question, term, sessionLabel, feedback = null, retry = false } = {}) {
   const feedbackHtml = feedback ? `<div class="vocab-feedback ${feedback.correct ? 'is-positive' : 'is-supportive'}"><strong>${escapeHtml(feedback.message)}</strong>${feedback.detail ? `<p>${escapeHtml(feedback.detail)}</p>` : ''}</div>` : '';
-  root.innerHTML = `<main class="vocab-shell vocab-shell--session"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card"><p class="vocab-kicker">${escapeHtml(question?.type?.replaceAll('_',' ') ?? 'Practice')}</p><div class="vocab-target-pill">${escapeHtml(term ?? '')}</div><h1>${escapeHtml(question?.prompt ?? '')}</h1>${feedbackHtml}<form data-form="vocabulary-answer" class="vocab-answer-form">${renderAnswerControl(question, feedback, retry)}</form></section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
+  const targetPill = RETRIEVAL_TYPES.has(question?.type) ? '<div class="vocab-target-pill">Recall &amp; use</div>' : `<div class="vocab-target-pill">${escapeHtml(term ?? '')}</div>`;
+  root.innerHTML = `<main class="vocab-shell vocab-shell--session"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card"><p class="vocab-kicker">${escapeHtml(question?.type?.replaceAll('_',' ') ?? 'Practice')}</p>${targetPill}<h1>${escapeHtml(question?.prompt ?? '')}</h1>${feedbackHtml}<form data-form="vocabulary-answer" class="vocab-answer-form">${renderAnswerControl(question, feedback, retry)}</form></section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
 }
 
 export function supportiveFeedback({ correct, misconceptionCategory, recovery, term } = {}) {
