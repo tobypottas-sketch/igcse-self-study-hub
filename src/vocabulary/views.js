@@ -48,9 +48,18 @@ export function renderVocabularyWords(root, { unitNumber, unitTitle, words = [] 
   root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="back-unit">← Unit ${escapeHtml(unitNumber)}</button><span>Vocabulary detail</span></header><section class="vocab-unit-hero"><p class="vocab-kicker">Unit ${escapeHtml(unitNumber)}</p><h1>All 50 words</h1><p>${escapeHtml(unitTitle)}</p><p class="vocab-detail-note">Your states update as you practise. Strand labels stay qualitative so the focus remains on what to do next.</p></section><section class="vocab-word-list">${rows}</section></main>`;
 }
 
+function renderAnswerControl(question, feedback, retry) {
+  if (feedback?.correct) return '<button type="button" class="vocab-button vocab-button--primary" data-action="next-question">Continue</button>';
+  if (question?.responseMode === 'choice') {
+    const options = (question.options ?? []).map(option => `<button type="button" class="vocab-choice" data-choice-answer="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join('');
+    return `<fieldset class="vocab-choice-fieldset"><legend>${retry ? 'Try it again' : 'Choose your answer'}</legend><div class="vocab-choice-grid">${options}</div></fieldset>`;
+  }
+  return `<label>${retry ? 'Try it again' : 'Your answer'}<input name="answer" required autocomplete="off" maxlength="500"></label><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Try again' : 'Check answer'}</button>`;
+}
+
 export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question, term, sessionLabel, feedback = null, retry = false } = {}) {
   const feedbackHtml = feedback ? `<div class="vocab-feedback ${feedback.correct ? 'is-positive' : 'is-supportive'}"><strong>${escapeHtml(feedback.message)}</strong>${feedback.detail ? `<p>${escapeHtml(feedback.detail)}</p>` : ''}</div>` : '';
-  root.innerHTML = `<main class="vocab-shell vocab-shell--session"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card"><p class="vocab-kicker">${escapeHtml(question?.type?.replaceAll('_',' ') ?? 'Practice')}</p><div class="vocab-target-pill">${escapeHtml(term ?? '')}</div><h1>${escapeHtml(question?.prompt ?? '')}</h1>${feedbackHtml}<form data-form="vocabulary-answer" class="vocab-answer-form"><label>${retry ? 'Try it again' : 'Your answer'}<input name="answer" required autocomplete="off" maxlength="500" ${feedback?.correct ? 'disabled' : ''}></label>${feedback?.correct ? '<button type="button" class="vocab-button vocab-button--primary" data-action="next-question">Continue</button>' : `<button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Try again' : 'Check answer'}</button>`}</form></section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
+  root.innerHTML = `<main class="vocab-shell vocab-shell--session"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card"><p class="vocab-kicker">${escapeHtml(question?.type?.replaceAll('_',' ') ?? 'Practice')}</p><div class="vocab-target-pill">${escapeHtml(term ?? '')}</div><h1>${escapeHtml(question?.prompt ?? '')}</h1>${feedbackHtml}<form data-form="vocabulary-answer" class="vocab-answer-form">${renderAnswerControl(question, feedback, retry)}</form></section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
 }
 
 export function supportiveFeedback({ correct, misconceptionCategory, recovery, term } = {}) {
