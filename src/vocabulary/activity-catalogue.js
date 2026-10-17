@@ -15,7 +15,9 @@ export const ACTIVITY_TYPES = Object.freeze([
   { id:'which_situation_fits', label:'Which Situation Fits?', practiceModes:['learn','context'], responseMode:'choice', minimumStage:'new', strands:['meaning','context'], evidenceStrength:'medium', productive:false, skillFamily:'meaning' },
   { id:'meaning_in_context', label:'Meaning in Context', practiceModes:['context','learn'], responseMode:'choice', minimumStage:'building', strands:['context','meaning'], evidenceStrength:'medium', productive:false, skillFamily:'context' },
   { id:'correct_usage', label:'Correct Usage', practiceModes:['learn','context','writing'], responseMode:'choice', minimumStage:'building', strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'context' },
-  { id:'collocation_builder', label:'Collocation Builder', practiceModes:['learn','writing'], responseMode:'tiles', minimumStage:'building', strands:['recognition','production'], evidenceStrength:'strong', productive:true, skillFamily:'writing_vocabulary' },
+  // Retired from live use: legacy tile task only shuffles collocations[0] (every tile is part of the answer, no curated
+  // distractors). Kept so historical attempts still resolve; rebuild as curated collocation_set before re-enabling.
+  { id:'collocation_builder', label:'Collocation Builder', practiceModes:['learn','writing'], responseMode:'tiles', minimumStage:'building', strands:['recognition','production'], evidenceStrength:'strong', productive:true, skillFamily:'writing_vocabulary', retired:true },
   { id:'word_family_switch', label:'Word Family Switch', practiceModes:['learn','writing'], responseMode:'text', minimumStage:'building', strands:['production'], evidenceStrength:'strong', productive:true, skillFamily:'writing_vocabulary' },
   { id:'question_text_bridge', label:'Question ↔ Text Bridge', practiceModes:['question_text','context'], responseMode:'choice', minimumStage:'building', strands:['context','paraphrasing'], evidenceStrength:'medium', productive:false, skillFamily:'question_text' },
   { id:'find_evidence', label:'Find the Evidence', practiceModes:['question_text','context'], responseMode:'evidence', minimumStage:'building', strands:['context'], evidenceStrength:'medium', productive:false, skillFamily:'question_text' },
@@ -37,15 +39,20 @@ export function activityDefinition(id) {
   return ACTIVITY_BY_ID.get(String(id ?? '')) ?? null;
 }
 
+export function isActivityLive(id) {
+  const definition = ACTIVITY_BY_ID.get(String(id ?? ''));
+  return Boolean(definition) && definition.retired !== true;
+}
+
 export function activitiesForMode(modeId) {
   const mode = String(modeId ?? '');
   if (!PRACTICE_MODES.some(candidate => candidate.id === mode)) return [];
-  if (mode === 'adaptive') return [...ACTIVITY_TYPES];
-  return ACTIVITY_TYPES.filter(activity => activity.practiceModes.includes(mode));
+  if (mode === 'adaptive') return ACTIVITY_TYPES.filter(activity => isActivityLive(activity.id));
+  return ACTIVITY_TYPES.filter(activity => isActivityLive(activity.id) && activity.practiceModes.includes(mode));
 }
 
 export function activitiesForStage(stage) {
   const threshold = STAGE_ORDER[String(stage ?? '')];
   if (threshold == null) return [];
-  return ACTIVITY_TYPES.filter(activity => STAGE_ORDER[activity.minimumStage] <= threshold);
+  return ACTIVITY_TYPES.filter(activity => isActivityLive(activity.id) && STAGE_ORDER[activity.minimumStage] <= threshold);
 }
