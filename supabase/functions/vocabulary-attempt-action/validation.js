@@ -7,6 +7,8 @@ const QUESTION_TYPES = new Set([
   'find_evidence','phrase_match','build_paraphrase','complete_paraphrase','rewrite_phrase','same_idea',
   'spot_meaning_change','build_same_idea','rewrite_idea','improve_vocabulary','explain_another_way'
 ]);
+// Retired activity types may still exist in stored history but must not create new evidence.
+const RETIRED_QUESTION_TYPES = new Set(['collocation_builder']);
 const STRANDS = new Set(['meaning','recognition','context','paraphrasing','production']);
 const MISCONCEPTIONS = new Set([
   'related_but_inaccurate','wrong_form','meaning_confusion','retrieval_failure','context_mismatch',
@@ -44,6 +46,7 @@ export function validateVocabularyAttempt(value = {}) {
   const rawAnswer = String(value.rawAnswer ?? '');
   if (!rawAnswer.trim() || rawAnswer.length > 500) throw new Error('Answer must contain 1–500 characters.');
   if (!QUESTION_TYPES.has(value.questionType)) throw new Error('Question type is invalid.');
+  if (RETIRED_QUESTION_TYPES.has(value.questionType)) throw new Error('Question type is no longer available.');
   const contextId = optionalId(value.contextId, 'Context ID');
   const activityContentId = optionalId(value.activityContentId, 'Activity content ID');
   const activityVariantId = optionalVariant(value.activityVariantId);
