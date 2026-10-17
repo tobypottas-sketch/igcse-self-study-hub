@@ -59,3 +59,11 @@ test('Question ↔ Text Bridge is marked against the curated paraphrased questio
   assert.match(attemptSource, /selected\?\.evidenceSpans/);
   assert.match(attemptSource, /questionTextMarking\(data,\s*activityVariantId,\s*questionType\)/);
 });
+
+test('sentence-choice context activities are marked server-side against the clicked curated sentence, not a short context synonym', () => {
+  assert.match(attemptSource, /prompt_text/);
+  assert.match(attemptSource, /which_situation_fits/);
+  assert.match(attemptSource, /correct_usage/);
+  assert.match(attemptSource, /context\.prompt_text/);
+  assert.match(attemptSource, /acceptedAnswers:[^\n]*sentence|sentence[^\n]*acceptedAnswers|sentenceAnswerTypes/s);
+});
