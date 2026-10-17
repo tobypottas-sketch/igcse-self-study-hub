@@ -6,6 +6,7 @@ export function promoteVocabularyUnit(unit, status = 'live') {
     status:'live',
     items:(unit.items ?? []).map(item => ({ ...item, status:'live' })),
     occurrences:(unit.occurrences ?? []).map(occurrence => ({ ...occurrence, status:'live' })),
-    contexts:(unit.contexts ?? []).map(context => ({ ...context, status:'live' }))
+    contexts:(unit.contexts ?? []).map(context => ({ ...context, status:'live' })),
+    activities:(unit.activities ?? []).map(activity => ({ ...activity, status:'live' }))
   };
 }
