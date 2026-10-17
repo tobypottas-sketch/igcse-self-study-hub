@@ -37,6 +37,7 @@ test('all Unit 1 meaning choices use four parallel short meanings without a long
     assert.ok(context.options.every(option => words(option) <= 8), `${vocabularyId} meaning_in_context: ${context.options.join(' | ')}`);
   }
 });
+
 test('all Unit 1 Which Situation Fits choices are four target-free full situations of comparable length', () => {
   for (const vocabularyId of freshTargets) {
     const { item } = target(vocabularyId);
@@ -48,6 +49,17 @@ test('all Unit 1 Which Situation Fits choices are four target-free full situatio
     assert.ok(Math.max(...counts) <= Math.min(...counts) * 2, `${vocabularyId}: unbalanced situations ${activity.options.join(' | ')}`);
   }
 });
+
+test('every Unit 1 phrase and idea bank owns three target-specific plausible distractors', () => {
+  for (const record of unit1.activities.filter(row => row.contentType === 'phrase_set')) {
+    assert.ok((record.activityData.commonMeaningDistortions ?? []).length >= 3, `${record.activityContentId} needs three phrase distortions`);
+  }
+  for (const record of unit1.activities.filter(row => row.contentType === 'idea_set')) {
+    assert.ok((record.activityData.distractors ?? []).length >= 3, `${record.activityContentId} needs three idea distractors`);
+    assert.ok(record.activityData.distractors.every(row => row?.text && row?.misconceptionCategory), `${record.activityContentId} needs diagnosed distractors`);
+  }
+});
+
 test('Unit 1 Same Idea activities always offer four sentence-level alternatives, not a 50/50 opposite pair', () => {
   const ideaTargets = unit1.activities.filter(row => row.contentType === 'idea_set').flatMap(row => row.activityData.linkedVocabularyIds ?? []);
   for (const vocabularyId of new Set(ideaTargets)) {
@@ -57,14 +69,17 @@ test('Unit 1 Same Idea activities always offer four sentence-level alternatives,
     assert.equal(activity.options.filter(option => activity.markingReference.acceptedAnswers.includes(option)).length, 1, vocabularyId);
   }
 });
+
 test('Unit 1 Phrase Match activities always offer four plausible phrase-level alternatives', () => {
   const phraseTargets = unit1.activities.filter(row => row.contentType === 'phrase_set').flatMap(row => row.activityData.linkedVocabularyIds ?? []);
   for (const vocabularyId of new Set(phraseTargets)) {
     const activity = build(vocabularyId, 'phrase_match', 'new', `${vocabularyId}:phrase-match`);
     assertFour(activity);
     assert.ok(activity.options.every(option => words(option) >= 2), `${vocabularyId}: ${activity.options.join(' | ')}`);
+    assertNoLengthGiveaway(activity);
   }
 });
+
 test('Question ↔ Text Bridge gives four comparable question choices and never copied source wording as the answer', () => {
   const activity = build('vocab_leisure', 'question_text_bridge', 'building', 'bridge-quality');
   assertNoLengthGiveaway(activity);
@@ -72,6 +87,7 @@ test('Question ↔ Text Bridge gives four comparable question choices and never 
   assert.deepEqual(activity.markingReference.acceptedAnswers, [activity.questionText]);
   assert.ok(!activity.sourceText.toLocaleLowerCase('en').includes(activity.questionText.toLocaleLowerCase('en')), 'correct bridge answer must not simply be copied from the source text');
 });
+
 test('Find Evidence gives four exact source-text choices rather than a two-option giveaway', () => {
   const activity = build('vocab_leisure', 'find_evidence', 'building', 'find-evidence-quality');
   const source = activity.sourceText.toLocaleLowerCase('en');
