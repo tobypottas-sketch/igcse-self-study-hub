@@ -73,7 +73,7 @@ test('later recovery adds positive evidence without erasing the original error s
   assert.equal(recovered.recoveryCount, 1);
 });
 
-test('deterministic marking accepts curated answers and keeps context-only answers scoped', async () => {
+test('deterministic marking uses exact production answers and keeps recognition-only equivalents scoped', async () => {
   const { markCuratedAnswer } = await engine();
   const item = { vocabularyId:'vocab_significant' };
   const sense = {
@@ -85,9 +85,10 @@ test('deterministic marking accepts curated answers and keeps context-only answe
   const contextA = { contextId:'ctx-a', acceptedAnswers:['significant'] };
   const contextB = { contextId:'ctx-b', acceptedAnswers:['significant'] };
 
-  assert.equal(markCuratedAnswer({ item, sense, context:contextA, questionType:'produce_paraphrase', rawAnswer:' Important! ' }).correct, true);
-  assert.equal(markCuratedAnswer({ item, sense, context:contextA, questionType:'produce_paraphrase', rawAnswer:'substantial' }).correct, true);
-  assert.equal(markCuratedAnswer({ item, sense, context:contextB, questionType:'produce_paraphrase', rawAnswer:'substantial' }).correct, false);
+  assert.equal(markCuratedAnswer({ item, sense, context:contextA, questionType:'produce_paraphrase', rawAnswer:' Significant! ' }).correct, true);
+  assert.equal(markCuratedAnswer({ item, sense, context:contextA, questionType:'produce_paraphrase', rawAnswer:'important' }).correct, false);
+  assert.equal(markCuratedAnswer({ item, sense, context:contextA, questionType:'meaning_match', rawAnswer:'substantial' }).correct, true);
+  assert.equal(markCuratedAnswer({ item, sense, context:contextB, questionType:'meaning_match', rawAnswer:'substantial' }).correct, false);
 
   const marked = markCuratedAnswer({ item, sense, context:contextA, questionType:'produce_paraphrase', rawAnswer:'FAMOUS' });
   assert.equal(marked.correct, false);
