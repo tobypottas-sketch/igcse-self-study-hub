@@ -3,6 +3,19 @@ function assertNoError(result, message) {
   return result?.data ?? [];
 }
 
+export async function loadVocabularyDashboard(client) {
+  const [occurrencesResult, globalResult, unitResult] = await Promise.all([
+    client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number, unit_title, set_number, position_in_unit, status').eq('status','live').eq('active',true).order('unit_number').order('position_in_unit'),
+    client.from('vocabulary_global_mastery').select('vocabulary_id, status, review_due_at, recent_error_pattern, strand_evidence'),
+    client.from('vocabulary_unit_mastery').select('occurrence_id, status, recent_error_pattern, contextual_evidence')
+  ]);
+  return {
+    occurrences:assertNoError(occurrencesResult, 'Unable to load vocabulary units.'),
+    global:assertNoError(globalResult, 'Unable to load vocabulary mastery.'),
+    unit:assertNoError(unitResult, 'Unable to load unit mastery.')
+  };
+}
+
 export async function loadVocabularyUnit(client, unitNumber) {
   const occurrencesResult = await client
     .from('vocabulary_unit_occurrences')
