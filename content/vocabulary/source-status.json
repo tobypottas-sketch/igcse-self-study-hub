@@ -3,7 +3,7 @@
   "expectedTargetsPerUnit": 50,
   "units": [
     {"unitNumber":1,"unitTitle":"Sports and Free Time","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]},
-    {"unitNumber":2,"unitTitle":"Entertainment","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]},
+    {"unitNumber":2,"unitTitle":"Digital Life","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]},
     {"unitNumber":3,"unitTitle":"Food","sourceCount":45,"distinctCount":44,"status":"blocked","issues":["Source contains only 45 numbered entries.","inexpensive appears at positions 11 and 27.","Six additional distinct approved targets are required to reach 50 distinct items."]},
     {"unitNumber":4,"unitTitle":"Transport","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]},
     {"unitNumber":5,"unitTitle":"Holidays","sourceCount":49,"distinctCount":49,"status":"blocked","issues":["Source contains only 49 numbered entries.","One additional distinct approved target is required."]},
