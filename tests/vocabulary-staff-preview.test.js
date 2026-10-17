@@ -25,6 +25,6 @@ test('student app sends preview attempts and suppresses evidence tracking for st
 
 test('vocabulary router lets staff choose preview mode instead of forcing analytics', () => {
   const source = fs.readFileSync(new URL('../src/vocabulary/router.js', import.meta.url), 'utf8');
-  assert.match(source, /preview=1|searchParams\.get\(['"]preview['"]\)/);
+  assert.match(source, /URLSearchParams[\s\S]*\.get\(['"]preview['"]\)/);
   assert.match(source, /profile\.role === ['"]teacher['"]|profile\.role === ['"]admin['"]/);
 });
