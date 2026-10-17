@@ -14,6 +14,7 @@ const PROPAGATION = Object.freeze({
   production:['production','paraphrasing','recognition','meaning']
 });
 const REVIEW_DAYS = [4, 10, 24, 45, 70, 100];
+const EXACT_CONTEXT_TYPES = new Set(['replace_phrase','produce_paraphrase','use_target','context_gap_fill']);
 
 function asDate(value) {
   const date = value instanceof Date ? value : new Date(value);
@@ -127,11 +128,20 @@ export function normalizeVocabularyAnswer(value) {
 export function markCuratedAnswer({ item = {}, sense = {}, context = {}, questionType, rawAnswer }) {
   const normalizedAnswer = normalizeVocabularyAnswer(rawAnswer);
   const accepted = new Set();
-  for (const answer of Array.isArray(context.acceptedAnswers) ? context.acceptedAnswers : []) accepted.add(normalizeVocabularyAnswer(answer));
-  for (const answer of Array.isArray(sense.acceptedParaphrases) ? sense.acceptedParaphrases : []) accepted.add(normalizeVocabularyAnswer(answer));
-  for (const scoped of Array.isArray(sense.contextDependentParaphrases) ? sense.contextDependentParaphrases : []) {
-    if (scoped?.contextId !== context.contextId) continue;
-    for (const answer of Array.isArray(scoped.answers) ? scoped.answers : []) accepted.add(normalizeVocabularyAnswer(answer));
+  const exactContextOnly = EXACT_CONTEXT_TYPES.has(questionType);
+
+  for (const answer of Array.isArray(context.acceptedAnswers) ? context.acceptedAnswers : []) {
+    accepted.add(normalizeVocabularyAnswer(answer));
+  }
+
+  if (!exactContextOnly) {
+    for (const answer of Array.isArray(sense.acceptedParaphrases) ? sense.acceptedParaphrases : []) {
+      accepted.add(normalizeVocabularyAnswer(answer));
+    }
+    for (const scoped of Array.isArray(sense.contextDependentParaphrases) ? sense.contextDependentParaphrases : []) {
+      if (scoped?.contextId !== context.contextId) continue;
+      for (const answer of Array.isArray(scoped.answers) ? scoped.answers : []) accepted.add(normalizeVocabularyAnswer(answer));
+    }
   }
   accepted.delete('');
 
