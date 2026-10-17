@@ -5,6 +5,14 @@ export const QUESTION_TYPES = Object.freeze([
 
 const EASY = ['meaning_match','paraphrase_match','context_inference','identify_inaccurate_paraphrase'];
 const HARD = ['replace_phrase','produce_paraphrase','use_target','question_text_bridge','mini_mixed_check'];
+const INFERRED_BY_CONTEXT = Object.freeze({
+  meaning_context:['meaning_match','context_inference','identify_inaccurate_paraphrase'],
+  paraphrase_context:['paraphrase_match','question_text_bridge','replace_phrase'],
+  production_context:['context_gap_fill','produce_paraphrase','use_target'],
+  reading_bridge:['question_text_bridge','context_inference','mini_mixed_check'],
+  gap_fill:['context_gap_fill','use_target'],
+  mixed_check:['mini_mixed_check','context_inference','produce_paraphrase']
+});
 
 function due(mastery, now) {
   if (!mastery?.reviewDueAt) return false;
@@ -17,7 +25,7 @@ function candidateTypes(mastery, now) {
 }
 
 function contextSupports(context, type) {
-  const activities = Array.isArray(context?.activityTypes) ? context.activityTypes : QUESTION_TYPES;
+  const activities = Array.isArray(context?.activityTypes) ? context.activityTypes : (INFERRED_BY_CONTEXT[context?.type] ?? QUESTION_TYPES);
   return activities.includes(type);
 }
 
@@ -28,14 +36,8 @@ export function buildQuestion({ occurrence, item, contexts = [], mastery = {}, u
 
   const used = new Set(usedContextIds);
   let pairs = [];
-  for (const type of allowed) {
-    for (const context of contexts) {
-      if (contextSupports(context, type)) pairs.push({ type, context });
-    }
-  }
-  if (!pairs.length) {
-    for (const type of QUESTION_TYPES) for (const context of contexts) if (contextSupports(context, type)) pairs.push({ type, context });
-  }
+  for (const type of allowed) for (const context of contexts) if (contextSupports(context, type)) pairs.push({ type, context });
+  if (!pairs.length) for (const type of QUESTION_TYPES) for (const context of contexts) if (contextSupports(context, type)) pairs.push({ type, context });
   if (!pairs.length) throw new Error('No curated context can support this question.');
 
   const unused = pairs.filter(pair => !used.has(pair.context.contextId));
@@ -49,7 +51,7 @@ export function buildQuestion({ occurrence, item, contexts = [], mastery = {}, u
   return {
     questionId:`${occurrence.occurrenceId}:${chosen.context.contextId}:${chosen.type}`,
     type:chosen.type,
-    strand:['produce_paraphrase','use_target','replace_phrase'].includes(chosen.type) ? 'production' : (chosen.type === 'context_inference' || chosen.type === 'question_text_bridge' ? 'context' : 'recognition'),
+    strand:['produce_paraphrase','use_target','replace_phrase'].includes(chosen.type) ? 'production' : (['context_inference','question_text_bridge','context_gap_fill','mini_mixed_check'].includes(chosen.type) ? 'context' : (chosen.type === 'paraphrase_match' ? 'paraphrasing' : chosen.type === 'meaning_match' ? 'meaning' : 'recognition')),
     vocabularyId:item.vocabularyId,
     occurrenceId:occurrence.occurrenceId,
     contextId:chosen.context.contextId,
