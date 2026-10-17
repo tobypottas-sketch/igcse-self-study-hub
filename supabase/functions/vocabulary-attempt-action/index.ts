@@ -95,18 +95,22 @@ function phraseMarking(data: any, questionType: string) {
 function ideaMarking(data: any) {
   return { acceptedAnswers:strings(data?.accurateParaphrases), distractors:Array.isArray(data?.distractors) ? data.distractors : [] };
 }
-function questionTextMarking(data: any, activityVariantId: string | null) {
+function questionTextMarking(data: any, activityVariantId: string | null, questionType: string) {
   const questions = Array.isArray(data?.questions) ? data.questions : [];
   if (!activityVariantId) throw new Error('Question ↔ Text activity variant is required.');
   const index = Number(activityVariantId.slice(1));
   if (!Number.isInteger(index) || index < 0 || index >= questions.length) throw new Error('Question ↔ Text activity variant is invalid.');
-  return { acceptedAnswers:strings(questions[index]?.evidenceSpans), distractors:[] };
+  const selected = questions[index];
+  if (questionType === 'question_text_bridge') {
+    return { acceptedAnswers:[String(selected?.question ?? '').trim()].filter(Boolean), distractors:[] };
+  }
+  return { acceptedAnswers:strings(selected?.evidenceSpans), distractors:[] };
 }
 function unitActivityMarking(activity: any, questionType: string, activityVariantId: string | null) {
   const data = activity?.activity_data && typeof activity.activity_data === 'object' ? activity.activity_data : {};
   if (activity.content_type === 'phrase_set') return phraseMarking(data, questionType);
   if (activity.content_type === 'idea_set') return ideaMarking(data);
-  if (activity.content_type === 'question_text') return questionTextMarking(data, activityVariantId);
+  if (activity.content_type === 'question_text') return questionTextMarking(data, activityVariantId, questionType);
   if (activity.content_type === 'writing_set') return { acceptedAnswers:strings(data.acceptedAnswers), distractors:[] };
   throw new Error('Unsupported vocabulary unit activity content type.');
 }
