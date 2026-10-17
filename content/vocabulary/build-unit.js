@@ -28,6 +28,28 @@ function context({ contextId, vocabularyId, occurrenceId, senseId, type, text: c
   };
 }
 
+function buildableActivity(activity) {
+  if (activity?.contentType !== 'phrase_set') return activity;
+  const data = activity.activityData && typeof activity.activityData === 'object' ? activity.activityData : {};
+  const chunks = array(data.chunks).map(text).filter(Boolean);
+  if (chunks.length >= 2) return activity;
+
+  const originalPhrase = text(data.originalPhrase);
+  const equivalentPhrase = text(data.equivalentPhrase);
+  const sourceChunks = originalPhrase.split(/\s+/).map(text).filter(Boolean);
+  if (sourceChunks.length < 2 || !equivalentPhrase) return activity;
+
+  return {
+    ...activity,
+    activityData:{
+      ...data,
+      originalPhrase:equivalentPhrase,
+      equivalentPhrase:originalPhrase,
+      chunks:sourceChunks
+    }
+  };
+}
+
 export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', source = '', entries = [], activities = [] } = {}) {
   const title = text(unitTitle);
   const unit = {
@@ -38,7 +60,7 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
     items:[],
     occurrences:[],
     contexts:[],
-    activities:[...array(activities)]
+    activities:array(activities).map(buildableActivity)
   };
 
   entries.forEach((entry, index) => {
