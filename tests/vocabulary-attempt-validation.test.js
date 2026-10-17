@@ -24,6 +24,39 @@ test('attempt validator accepts only the bounded mastery-critical request shape'
   assert.throws(() => validateVocabularyAttempt({ ...valid, questionType:'hangman' }), /question/i);
 });
 
+test('attempt validator accepts redesigned activity evidence without accepting arbitrary fields', () => {
+  const result = validateVocabularyAttempt({
+    occurrenceId:'u1_46_significant',
+    activityContentId:'u1_idea_significant',
+    questionType:'rewrite_idea',
+    rawAnswer:'The programme produced an important improvement in results.',
+    strands:['paraphrasing','production'],
+    evidenceStrength:'very_strong',
+    supportLevel:'light',
+    productive:true,
+    repeatedGuess:false,
+    firstAttempt:false,
+    retryUsed:true,
+    arbitrary:'nope'
+  });
+  assert.equal(result.activityContentId, 'u1_idea_significant');
+  assert.equal(result.contextId, null);
+  assert.deepEqual(result.strands, ['paraphrasing','production']);
+  assert.equal(result.evidenceStrength, 'very_strong');
+  assert.equal(result.supportLevel, 'light');
+  assert.equal(result.productive, true);
+  assert.equal(result.repeatedGuess, false);
+  assert.equal('arbitrary' in result, false);
+});
+
+test('redesigned attempt validation rejects bad support strength strands and missing content IDs', () => {
+  const base = { occurrenceId:'u1_46_significant', activityContentId:'u1_idea_significant', questionType:'rewrite_idea', rawAnswer:'answer' };
+  assert.throws(() => validateVocabularyAttempt({ ...base, supportLevel:'endless' }), /support/i);
+  assert.throws(() => validateVocabularyAttempt({ ...base, evidenceStrength:'huge' }), /evidence/i);
+  assert.throws(() => validateVocabularyAttempt({ ...base, strands:['paraphrasing','secret'] }), /strand/i);
+  assert.throws(() => validateVocabularyAttempt({ ...base, contextId:null, activityContentId:null }), /context|activity/i);
+});
+
 test('stored attempt metadata never contains raw or normalized answer text', () => {
   const metadata = buildStoredAttemptMetadata({
     unitNumber:1,
@@ -51,4 +84,28 @@ test('stored attempt metadata never contains raw or normalized answer text', () 
     occurrence_id:'u1_46_significant'
   });
   assert.equal(JSON.stringify(metadata).includes('DO NOT STORE'), false);
+});
+
+test('stored redesigned metadata keeps only categorical evidence and semantic diagnosis', () => {
+  const metadata = buildStoredAttemptMetadata({
+    unitNumber:1,
+    strand:'paraphrasing',
+    questionType:'spot_meaning_change',
+    firstAttempt:false,
+    retryUsed:true,
+    recoveredLater:false,
+    correct:false,
+    misconceptionCategory:'quantity_change',
+    vocabularyId:'vocab_tournament',
+    occurrenceId:'u1_18_tournament',
+    evidenceStrength:'strong',
+    supportLevel:'light',
+    rawAnswer:'PRIVATE',
+    prompt:'PRIVATE'
+  });
+  assert.equal(metadata.question_type, 'spot_meaning_change');
+  assert.equal(metadata.evidence_strength, 'strong');
+  assert.equal(metadata.support_level, 'light');
+  assert.equal(metadata.misconception, 'quantity_change');
+  assert.equal(JSON.stringify(metadata).includes('PRIVATE'), false);
 });
