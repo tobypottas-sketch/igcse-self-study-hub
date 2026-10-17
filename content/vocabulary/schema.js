@@ -66,7 +66,7 @@ function validateContext(context, strict) {
 
 export function validateUnit(unit = {}) {
   const errors = [];
-  const strict = unit.status === 'live';
+  const strict = unit.status === 'approved' || unit.status === 'live';
   const items = array(unit.items);
   const occurrences = array(unit.occurrences);
   const contexts = array(unit.contexts);
@@ -78,14 +78,20 @@ export function validateUnit(unit = {}) {
   errorIf(errors, unit.status != null && !STATUSES.has(unit.status), 'Unit status is invalid.');
 
   if (strict) {
-    errorIf(errors, occurrences.length !== 50, 'A live unit must contain exactly 50 occurrences.');
+    errorIf(errors, occurrences.length !== 50, 'An approved/live unit must contain exactly 50 occurrences.');
     const occurrenceIds = new Set(occurrences.map(item => item.occurrenceId));
-    errorIf(errors, occurrenceIds.size !== occurrences.length, 'A live unit must have distinct occurrence IDs.');
+    errorIf(errors, occurrenceIds.size !== occurrences.length, 'An approved/live unit must have distinct occurrence IDs.');
     const vocabularyIds = occurrences.map(item => item.vocabularyId);
-    errorIf(errors, new Set(vocabularyIds).size !== vocabularyIds.length, 'A live unit must contain 50 distinct vocabulary targets.');
+    errorIf(errors, new Set(vocabularyIds).size !== vocabularyIds.length, 'An approved/live unit must contain 50 distinct vocabulary targets.');
     for (let setNumber = 1; setNumber <= 5; setNumber += 1) {
       const expected = occurrences.filter(occurrence => occurrence.setNumber === setNumber);
       errorIf(errors, expected.length !== 10, `Set ${setNumber} must contain exactly ten targets.`);
+    }
+    for (const item of items) {
+      errorIf(errors, !['approved','live'].includes(item.status), `${text(item.term) || text(item.vocabularyId) || 'Item'} must be approved before the unit can be approved/live.`);
+    }
+    for (const occurrence of occurrences) {
+      errorIf(errors, !['approved','live'].includes(occurrence.status), `${text(occurrence.occurrenceId) || 'Occurrence'} must be approved before the unit can be approved/live.`);
     }
   }
 
