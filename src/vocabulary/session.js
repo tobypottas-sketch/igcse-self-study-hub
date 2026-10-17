@@ -32,9 +32,9 @@ export function isSessionComplete(session, now = new Date()) {
   return session.targetIds.length > 0 && session.targetIds.every(id => session.completedTargetIds.includes(id));
 }
 
-export function completeAttempt(session, { targetId, evidence = {}, strengthened = false, movedToSecure = false, mastered = false, needsAnotherLook = false } = {}) {
+export function completeAttempt(session, { targetId, evidence = {}, completeTarget = true, strengthened = false, movedToSecure = false, mastered = false, needsAnotherLook = false } = {}) {
   if (!targetId) throw new Error('Target ID is required.');
-  const completedTargetIds = session.completedTargetIds.includes(targetId) ? [...session.completedTargetIds] : [...session.completedTargetIds, targetId];
+  const completedTargetIds = completeTarget && !session.completedTargetIds.includes(targetId) ? [...session.completedTargetIds, targetId] : [...session.completedTargetIds];
   return {
     ...session,
     completedTargetIds,
@@ -42,7 +42,7 @@ export function completeAttempt(session, { targetId, evidence = {}, strengthened
     activeQuestion:null,
     phase:'question',
     summary:{
-      practised:session.summary.practised + 1,
+      practised:session.summary.practised + (completeTarget ? 1 : 0),
       strengthened:session.summary.strengthened + (strengthened ? 1 : 0),
       secure:session.summary.secure + (movedToSecure ? 1 : 0),
       mastered:session.summary.mastered + (mastered ? 1 : 0),
