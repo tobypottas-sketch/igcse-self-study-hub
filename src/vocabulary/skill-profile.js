@@ -31,7 +31,7 @@ const TYPE_SKILLS = Object.freeze({
 const STRENGTH_WEIGHT = Object.freeze({ light:1, medium:2, strong:3, very_strong:4 });
 const SUPPORT_WEIGHT = Object.freeze({ none:1, light:.6, major:.25 });
 const MISCONCEPTIONS = Object.freeze({
-  quantity_change:'Changes quantities while paraphrasing',
+  quantity_change:'Changes quantity while paraphrasing',
   degree_change:'Changes degree or certainty',
   time_change:'Changes the time relationship',
   cause_effect_change:'Changes the cause/effect relationship',
