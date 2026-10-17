@@ -24,6 +24,18 @@ test('adaptive priority follows recent errors, production gaps, higher-strand ga
   assert.deepEqual(result.map(row => row.vocabularyId), ['wrong','prod','para','new','review','secure']);
 });
 
+test('focused practice prioritises the weakness relevant to the chosen skill family', () => {
+  const occurrences = [occurrence(1,'contextWeak'), occurrence(2,'productionWeak')];
+  const global = {
+    contextWeak:mastery('building',{ strandEvidence:{ meaning:4, recognition:4, context:0, paraphrasing:4, production:4 } }),
+    productionWeak:mastery('building',{ strandEvidence:{ meaning:4, recognition:4, context:4, paraphrasing:4, production:0 } })
+  };
+  const contextFirst = selectPriorityTargets({ occurrences, masteryByVocabularyId:global, practiceMode:'context', limit:2 });
+  assert.equal(contextFirst[0].vocabularyId, 'contextWeak');
+  const writingFirst = selectPriorityTargets({ occurrences, masteryByVocabularyId:global, practiceMode:'writing', limit:2 });
+  assert.equal(writingFirst[0].vocabularyId, 'productionWeak');
+});
+
 test('global mastery does not grant contextual mastery in a new unit occurrence', () => {
   const now = new Date('2026-10-17T00:00:00Z');
   const occurrences = [occurrence(1,'shared'), occurrence(2,'ordinary')];
