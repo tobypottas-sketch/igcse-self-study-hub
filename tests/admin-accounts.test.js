@@ -27,7 +27,17 @@ test('createTeacherAccount calls protected provision function with teacher role'
   assert.deepEqual(client.calls[0], ['admin-provision-user', { body: { action: 'provision', role: 'teacher', email: 't@school.edu', displayName: 'Teacher One' } }]);
 });
 
-test('provisioning surfaces server errors', async () => {
+test('provisioning surfaces ordinary client errors', async () => {
   const client = fakeClient({ data: null, error: new Error('Forbidden') });
   await assert.rejects(() => createTeacherAccount(client, { email: 't@school.edu', displayName: 'Teacher' }), /Forbidden/);
+});
+
+test('provisioning surfaces Edge Function JSON errors instead of the generic non-2xx message', async () => {
+  const error = new Error('Edge Function returned a non-2xx status code');
+  error.context = { json: async () => ({ error: 'An account with this email already exists.' }) };
+  const client = fakeClient({ data: null, error });
+  await assert.rejects(
+    () => createTeacherAccount(client, { email: 't@school.edu', displayName: 'Teacher' }),
+    /An account with this email already exists\./
+  );
 });

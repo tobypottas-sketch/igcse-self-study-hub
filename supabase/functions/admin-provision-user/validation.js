@@ -15,6 +15,15 @@ function validateIdentity(value) {
   return { email, displayName };
 }
 
+export function safeAuthAccountError(error) {
+  const code = String(error?.code ?? '').toLowerCase();
+  const message = String(error?.message ?? '');
+  if (code === 'email_exists' || /email address has already been registered/i.test(message)) {
+    return 'An account with this email already exists.';
+  }
+  return message || 'Unable to create account.';
+}
+
 export function validateProvisionInput(value) {
   const role = value?.role;
   if (role !== 'student' && role !== 'teacher') throw new Error('Role must be student or teacher.');
