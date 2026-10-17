@@ -9,7 +9,7 @@ const raw = {
   items:[{ vocabulary_id:'v1', term:'significant' }],
   occurrences:[{ occurrence_id:'u7v1', vocabulary_id:'v1', unit_number:7, unit_title:'Interviews' }],
   mastery:[{ student_id:'s1', vocabulary_id:'v1', status:'building', strand_evidence:{ production:0 }, recent_error_pattern:'retrieval_failure', updated_at:'2026-10-16T10:00:00Z' }],
-  activity:[{ user_id:'s1', occurred_at:'2026-10-16T10:00:00Z', event_type:'question_attempt', metadata:{ strand:'production' }]
+  activity:[{ user_id:'s1', occurred_at:'2026-10-16T10:00:00Z', event_type:'question_attempt', metadata:{ strand:'production' } }]
 };
 
 test('teacher data normalization keeps classes separate and maps only authorized rows supplied by RLS', () => {
