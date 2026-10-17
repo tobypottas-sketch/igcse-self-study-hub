@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildCuratedUnit } from '../content/vocabulary/build-unit.js';
+import { promoteVocabularyUnit } from '../content/vocabulary/promote-unit.js';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import { validateUnit } from '../content/vocabulary/schema.js';
 
@@ -28,11 +29,35 @@ test('compact authoring expands to the canonical approved unit shape', () => {
   assert.equal(unit.items.length, 50);
   assert.equal(unit.occurrences.length, 50);
   assert.equal(unit.contexts.length, 150);
+  assert.deepEqual(unit.activities, []);
   assert.equal(unit.occurrences.filter(row => row.setNumber === 1).length, 10);
   assert.equal(unit.occurrences.filter(row => row.setNumber === 5).length, 10);
   assert.equal(unit.items[0].status, 'approved');
   assert.equal(unit.occurrences[0].contextIds.length, 3);
   assert.equal(validateUnit(unit).ok, true);
+});
+
+test('compact authoring preserves curated unit-level activity records', () => {
+  const activities = [{
+    activityContentId:'u1_phrase_01', unitNumber:1, contentType:'phrase_set', status:'approved',
+    activityData:{ originalPhrase:'free time', equivalentPhrase:'leisure time', acceptedVariants:['spare time'], chunks:['leisure','time'], commonMeaningDistortions:['working time'], linkedVocabularyIds:['vocab_term_1'], primaryEvidenceTargetId:'vocab_term_1' }
+  }];
+  const unit = buildCuratedUnit({
+    unitNumber:1, unitTitle:'Sports and Free Time', status:'approved', source:'source.docx',
+    entries:Array.from({ length:50 }, (_, index) => entry(index + 1)), activities
+  });
+  assert.deepEqual(unit.activities, activities);
+});
+
+test('promotion moves curated unit activities to live alongside items contexts and occurrences', () => {
+  const unit = buildCuratedUnit({
+    unitNumber:1, unitTitle:'Sports and Free Time', status:'approved', source:'source.docx',
+    entries:Array.from({ length:50 }, (_, index) => entry(index + 1)),
+    activities:[{ activityContentId:'u1_phrase_01', unitNumber:1, contentType:'phrase_set', status:'approved', activityData:{} }]
+  });
+  const live = promoteVocabularyUnit(unit);
+  assert.equal(live.status, 'live');
+  assert.equal(live.activities[0].status, 'live');
 });
 
 test('authoring keeps multi-word terms as one vocabulary target', () => {
