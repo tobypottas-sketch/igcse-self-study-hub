@@ -4,11 +4,11 @@ import { trackVocabularyEvent } from './tracking.js';
 import { selectPriorityTargets } from './selector.js';
 import { buildQuestion } from './questions.js';
 import { completeAttempt, createSession, expireSession, isSessionComplete } from './session.js';
-import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, supportiveFeedback } from './views.js';
+import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
 
 const root = document.getElementById('vocabularyApp');
 const state = {
-  client:null, profile:null, dashboard:null, units:[], currentUnitNumber:null, content:null,
+  client:null, profile:null, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
   globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null,
   usedContexts:new Map(), previousTypes:new Map(), recoveryNeeded:new Set(), clock:null,
   activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null
@@ -50,6 +50,7 @@ function buildUnits(dashboard) {
 async function showHome() {
   clearClock();
   state.currentUnitNumber = null;
+  state.currentUnitTitle = null;
   state.dashboard = await loadVocabularyDashboard(state.client);
   state.units = buildUnits(state.dashboard);
   renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units });
@@ -67,8 +68,39 @@ async function openUnit(unitNumber) {
   state.globalMastery = mapBy(masteryRaw.global, 'vocabulary_id', mastery);
   state.unitMastery = mapBy(masteryRaw.unit, 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
   const progress = buildUnitProgress({ occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
-  const unitTitle = occurrences[0]?.unitTitle ?? state.units.find(unit => unit.unitNumber === unitNumber)?.unitTitle ?? `Unit ${unitNumber}`;
-  renderVocabularyUnit(root, { unitNumber, unitTitle, progress });
+  state.currentUnitTitle = occurrences[0]?.unitTitle ?? state.units.find(unit => unit.unitNumber === unitNumber)?.unitTitle ?? `Unit ${unitNumber}`;
+  renderVocabularyUnit(root, { unitNumber, unitTitle:state.currentUnitTitle, progress });
+}
+
+function strandLabel(value, status) {
+  const score = Number(value ?? 0);
+  if (status === 'mastered' && score >= 3) return 'Secure';
+  if (score >= 6) return 'Secure';
+  if (score >= 3) return 'Developing';
+  return 'Keep practising';
+}
+
+function showAllWords() {
+  if (!state.content || !state.currentUnitNumber) return;
+  const words = state.content.occurrences
+    .slice()
+    .sort((a,b) => a.positionInUnit - b.positionInUnit)
+    .map(occ => {
+      const target = state.content.itemsById[occ.vocabularyId];
+      const global = state.globalMastery[occ.vocabularyId] ?? { status:'new', strandEvidence:{} };
+      return {
+        term:target?.term ?? occ.vocabularyId,
+        status:global.status ?? 'new',
+        strands:{
+          meaning:strandLabel(global.strandEvidence?.meaning, global.status),
+          recognition:strandLabel(global.strandEvidence?.recognition, global.status),
+          context:strandLabel(global.strandEvidence?.context, global.status),
+          paraphrasing:strandLabel(global.strandEvidence?.paraphrasing, global.status),
+          production:strandLabel(global.strandEvidence?.production, global.status)
+        }
+      };
+    });
+  renderVocabularyWords(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, words });
 }
 
 function rankedTargets(limit) {
@@ -234,6 +266,7 @@ root?.addEventListener('click', event => {
   if (!action) return;
   if (action === 'open-unit') openUnit(Number(target.dataset.unit)).catch(error => renderVocabularyError(root, error.message));
   else if (action === 'back-units') showHome().catch(error => renderVocabularyError(root, error.message));
+  else if (action === 'view-all-words') showAllWords();
   else if (action === 'start-adaptive') { try { startSession('adaptive'); } catch (error) { renderVocabularyError(root, error.message); } }
   else if (action === 'start-timed') { try { startSession('timed', Number(target.dataset.minutes)); } catch (error) { renderVocabularyError(root, error.message); } }
   else if (action === 'next-question') nextQuestion();
