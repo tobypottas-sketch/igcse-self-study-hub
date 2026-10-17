@@ -1,10 +1,11 @@
 import { escapeHtml } from '../views/html.js';
 import { buildClassInsights, buildProblemDrilldown, buildStudentProfile } from './analytics.js';
+import { buildTeamsTargetList, buildVocabularyInterventionDraft, createLearningIntervention } from './interventions.js';
 import { loadVocabularyTeacherData } from './teacher-data.js';
 import { renderTeacherOverview, renderProblemArea, renderStudentVocabularyProfile } from './teacher-views.js';
 import { renderVocabularyError } from './views.js';
 
-const teacherState = { root:null, client:null, profile:null, data:null, currentClass:null, currentDrilldown:null, currentStudent:null };
+const teacherState = { root:null, client:null, profile:null, data:null, currentClass:null, currentDrilldown:null, currentStudent:null, currentInsights:null };
 
 function renderClassChooser() {
   const classes = teacherState.data?.classes ?? [];
@@ -22,11 +23,13 @@ function openClass(classId) {
   teacherState.currentClass = classData;
   teacherState.currentDrilldown = null;
   teacherState.currentStudent = null;
-  renderTeacherOverview(teacherState.root, { className:classData.className, insights:classInsights(classData) });
+  teacherState.currentInsights = classInsights(classData);
+  renderTeacherOverview(teacherState.root, { className:classData.className, insights:teacherState.currentInsights });
 }
 
 function openProblem(strand) {
   if (!teacherState.currentClass) return;
+  teacherState.currentStudent = null;
   teacherState.currentDrilldown = buildProblemDrilldown({
     students:teacherState.currentClass.students,
     targets:teacherState.currentClass.targets,
@@ -40,6 +43,7 @@ function openStudent(studentId) {
   if (!teacherState.currentClass) return;
   const student = teacherState.currentClass.students.find(row => row.id === studentId);
   if (!student) return;
+  teacherState.currentDrilldown = null;
   teacherState.currentStudent = buildStudentProfile({
     student,
     targets:teacherState.currentClass.targets,
@@ -56,15 +60,75 @@ function targetRowsForTeams() {
   const mastery = focus?.strand ? classData.mastery.filter(row => Number(row.strandEvidence?.[focus.strand] ?? 0) < 3) : classData.mastery.filter(row => row.status === 'building' || row.recentErrorPattern);
   const studentById = new Map(classData.students.map(row => [row.id,row.displayName]));
   const targetById = new Map(classData.targets.map(row => [row.vocabularyId,row.term]));
-  return mastery.map(row => ({ student:studentById.get(row.studentId) ?? row.studentId, term:targetById.get(row.vocabularyId) ?? row.vocabularyId, strand:focus?.strand ?? 'mixed', failureType:row.recentErrorPattern ?? '' }));
+  return mastery.map(row => ({ student:studentById.get(row.studentId) ?? row.studentId, term:targetById.get(row.vocabularyId) ?? row.vocabularyId, strand:focus?.strand ?? teacherState.currentStudent?.developmentArea ?? teacherState.currentInsights?.mainWeakness?.strand ?? 'mixed', failureType:row.recentErrorPattern ?? '' }));
 }
 
 async function copyTeamsTargets() {
-  const rows = targetRowsForTeams();
-  const lines = ['Student\tTarget word/phrase\tWeak strand\tFailure type', ...rows.map(row => `${row.student}\t${row.term}\t${row.strand}\t${row.failureType}`)];
-  if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(lines.join('\n'));
+  const text = buildTeamsTargetList(targetRowsForTeams());
+  const rows = text.split('\n').slice(1);
+  if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
   const button = teacherState.root.querySelector?.('[data-action="teacher-teams-targets"]');
   if (button) button.textContent = rows.length ? 'Teams target list copied' : 'No target list yet';
+}
+
+function recommendationContext() {
+  if (!teacherState.currentClass) return null;
+  if (teacherState.currentStudent) {
+    return {
+      studentId:teacherState.currentStudent.studentId,
+      strand:teacherState.currentStudent.developmentArea,
+      vocabularyIds:(teacherState.currentStudent.persistentTargets ?? []).map(row => row.vocabularyId)
+    };
+  }
+  if (teacherState.currentDrilldown) {
+    return {
+      affectedStudents:teacherState.currentDrilldown.affectedStudents,
+      strand:teacherState.currentDrilldown.strand,
+      vocabularyIds:teacherState.currentDrilldown.words.map(row => row.vocabularyId)
+    };
+  }
+  const insights = teacherState.currentInsights ?? classInsights(teacherState.currentClass);
+  return {
+    affectedStudents:insights.studentsNeedingAttention,
+    strand:insights.mainWeakness?.strand ?? null,
+    vocabularyIds:insights.difficultWords.slice(0,10).map(row => row.vocabularyId)
+  };
+}
+
+function showRecommendationChooser() {
+  const current = recommendationContext();
+  const existing = teacherState.root.querySelector?.('[data-recommendation-chooser]');
+  if (existing) existing.remove();
+  const actions = teacherState.root.querySelector?.('.vocab-teacher-actions');
+  if (!actions) return;
+  if (!current || (!current.studentId && !(current.affectedStudents ?? []).length)) {
+    actions.insertAdjacentHTML('afterend','<p class="vocab-empty-small" data-recommendation-chooser>No students currently have a persistent learning signal to target.</p>');
+    return;
+  }
+  actions.insertAdjacentHTML('afterend', `<section class="vocab-recommendation-chooser" data-recommendation-chooser><div><p class="vocab-kicker">Recommend practice</p><h3>Choose session type</h3><p>Same target students and learning focus; only the stopping point changes.</p></div><div class="vocab-time-grid"><button class="vocab-button vocab-button--primary" data-action="teacher-create-recommendation" data-duration="adaptive">Adaptive</button>${[5,10,15,20].map(minutes => `<button class="vocab-button" data-action="teacher-create-recommendation" data-duration="${minutes}">${minutes} min</button>`).join('')}</div></section>`);
+}
+
+async function createRecommendation(target) {
+  const context = recommendationContext();
+  if (!context) return;
+  const duration = target.dataset.duration;
+  const draft = buildVocabularyInterventionDraft({
+    ...context,
+    durationMinutes:duration === 'adaptive' ? null : Number(duration)
+  });
+  target.disabled = true;
+  const original = target.textContent;
+  target.textContent = 'Saving…';
+  try {
+    await createLearningIntervention(teacherState.client, draft);
+    const chooser = teacherState.root.querySelector?.('[data-recommendation-chooser]');
+    if (chooser) chooser.innerHTML = '<strong>Practice recommended.</strong><p class="muted">The intervention is now trackable through the shared Hub/Evidence Hub workflow.</p>';
+  } catch (error) {
+    target.disabled = false;
+    target.textContent = original;
+    const chooser = teacherState.root.querySelector?.('[data-recommendation-chooser]');
+    if (chooser) chooser.insertAdjacentHTML('beforeend', `<p class="notice">${escapeHtml(error instanceof Error ? error.message : 'Unable to recommend practice.')}</p>`);
+  }
 }
 
 function handleClick(event) {
@@ -76,10 +140,8 @@ function handleClick(event) {
   else if (action === 'teacher-open-student') openStudent(target.dataset.studentId);
   else if (action === 'teacher-back-overview') teacherState.currentClass ? openClass(teacherState.currentClass.id) : renderClassChooser();
   else if (action === 'teacher-teams-targets') void copyTeamsTargets().catch(() => {});
-  else if (action === 'teacher-recommend-practice') {
-    const button = target;
-    button.textContent = 'Choose targets in intervention workflow';
-  }
+  else if (action === 'teacher-recommend-practice') showRecommendationChooser();
+  else if (action === 'teacher-create-recommendation') void createRecommendation(target);
 }
 
 export async function initialiseVocabularyTeacher({ root, client, profile }) {
