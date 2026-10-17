@@ -3,6 +3,10 @@ import { escapeHtml } from '../views/html.js';
 function statusOf(row) { return row?.status ?? 'new'; }
 function dueAt(row) { return row?.review_due_at ?? row?.reviewDueAt ?? null; }
 function errorPattern(row) { return row?.recent_error_pattern ?? row?.recentErrorPattern ?? null; }
+function titleCase(value) {
+  const text = String(value ?? '').replaceAll('_',' ');
+  return text ? text[0].toUpperCase() + text.slice(1) : '';
+}
 
 export function buildUnitProgress({ occurrences = [], unitMastery = {}, globalMastery = {}, now = new Date() } = {}) {
   let mastered = 0;
@@ -34,6 +38,14 @@ export function renderVocabularyHome(root, { displayName = '', units = [] } = {}
 export function renderVocabularyUnit(root, { unitNumber, unitTitle, progress } = {}) {
   const p = progress ?? { mastered:0, total:50, needsAnotherLook:0, reviewDue:0 };
   root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="back-units">← All units</button><span>Unit ${escapeHtml(unitNumber)}</span></header><section class="vocab-unit-hero"><p class="vocab-kicker">Unit ${escapeHtml(unitNumber)}</p><h1>${escapeHtml(unitTitle)}</h1><div class="vocab-progress-row"><strong>${escapeHtml(p.mastered)} / ${escapeHtml(p.total)} mastered</strong><span>${escapeHtml(p.needsAnotherLook)} need another look</span><span>${escapeHtml(p.reviewDue)} ready for review</span></div></section><section class="vocab-route-grid"><article class="vocab-route-card vocab-route-card--primary"><p class="vocab-kicker">Recommended</p><h2>Adaptive Session</h2><p>10 priority words. Mixed practice. No timer.</p><button class="vocab-button vocab-button--primary" data-action="start-adaptive">Start Adaptive Session</button></article><article class="vocab-route-card"><p class="vocab-kicker">Your choice</p><h2>Timed Practice</h2><p>Same adaptive practice, with a gentle stopping point.</p><div class="vocab-time-grid">${[5,10,15,20].map(minutes => `<button class="vocab-button" data-action="start-timed" data-minutes="${minutes}">${minutes} min</button>`).join('')}</div></article></section><button class="vocab-link" data-action="view-all-words">View all 50 words</button></main>`;
+}
+
+export function renderVocabularyWords(root, { unitNumber, unitTitle, words = [] } = {}) {
+  const rows = words.map(word => {
+    const strands = Object.entries(word.strands ?? {}).map(([strand,value]) => `<span class="vocab-word-strand"><small>${escapeHtml(titleCase(strand))}</small><strong>${escapeHtml(value)}</strong></span>`).join('');
+    return `<article class="vocab-word-row"><div class="vocab-word-row__head"><div><strong>${escapeHtml(word.term)}</strong><span class="vocab-state-pill" data-state="${escapeHtml(word.status)}">${escapeHtml(titleCase(word.status))}</span></div></div><div class="vocab-word-strands">${strands}</div></article>`;
+  }).join('') || '<p class="vocab-empty">No live words are available in this unit yet.</p>';
+  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="back-unit">← Unit ${escapeHtml(unitNumber)}</button><span>Vocabulary detail</span></header><section class="vocab-unit-hero"><p class="vocab-kicker">Unit ${escapeHtml(unitNumber)}</p><h1>All 50 words</h1><p>${escapeHtml(unitTitle)}</p><p class="vocab-detail-note">Your states update as you practise. Strand labels stay qualitative so the focus remains on what to do next.</p></section><section class="vocab-word-list">${rows}</section></main>`;
 }
 
 export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question, term, sessionLabel, feedback = null, retry = false } = {}) {
