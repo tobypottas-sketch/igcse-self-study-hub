@@ -52,3 +52,10 @@ test('attempt function validates unit activity target relationship before master
   const rpcIndex = attemptSource.indexOf(".rpc('apply_vocabulary_mastery_state'");
   assert.ok(previewIndex >= 0 && rpcIndex > previewIndex);
 });
+
+test('Question ↔ Text Bridge is marked against the curated paraphrased question while Find Evidence stays tied to source evidence', () => {
+  assert.match(attemptSource, /function questionTextMarking\([^)]*questionType[^)]*\)/);
+  assert.match(attemptSource, /questionType\s*===\s*['"]question_text_bridge['"][\s\S]{0,500}selected\?\.question/);
+  assert.match(attemptSource, /selected\?\.evidenceSpans/);
+  assert.match(attemptSource, /questionTextMarking\(data,\s*activityVariantId,\s*questionType\)/);
+});
