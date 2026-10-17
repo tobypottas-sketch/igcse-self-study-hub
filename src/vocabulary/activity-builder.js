@@ -5,6 +5,7 @@ const STAGE_ORDER = Object.freeze({ new:0, building:1, secure:2, mastered:3 });
 function text(value) { return String(value ?? '').trim(); }
 function array(value) { return Array.isArray(value) ? value : []; }
 function object(value) { return value && typeof value === 'object' && !Array.isArray(value) ? value : {}; }
+function words(value) { return text(value).split(/\s+/).filter(Boolean).length; }
 function uniqueText(values) {
   const seen = new Set();
   const output = [];
@@ -31,6 +32,10 @@ function stableShuffle(values, seed) {
     [output[index], output[swapIndex]] = [output[swapIndex], output[index]];
   }
   return output;
+}
+function rankedByLength(values, reference, seed) {
+  const targetWords = words(reference);
+  return stableShuffle(uniqueText(values), seed).sort((a,b) => Math.abs(words(a) - targetWords) - Math.abs(words(b) - targetWords));
 }
 function senseFor(item, occurrence) { return array(item?.senses).find(sense => sense?.senseId === occurrence?.senseId) ?? array(item?.senses)[0] ?? {}; }
 function stageOf(mastery) {
@@ -67,6 +72,51 @@ function chooseContext(contexts, preferredTypes, usedContentIds, seed) {
 function meaningChoices(item, sense, accepted = []) {
   return { correct:uniqueText([...accepted, sense?.meaning, ...array(sense?.acceptedParaphrases)]), wrong:uniqueText(array(sense?.misleadingDistractors)) };
 }
+function unitMeaningDistractors(args, correct) {
+  const currentPos = text(args.item?.partOfSpeech).toLocaleLowerCase('en');
+  const samePos = [];
+  const others = [];
+  for (const candidate of array(args.unitItems)) {
+    if (!candidate || candidate.vocabularyId === args.item.vocabularyId) continue;
+    const bucket = text(candidate.partOfSpeech).toLocaleLowerCase('en') === currentPos ? samePos : others;
+    for (const sense of array(candidate.senses)) bucket.push(...array(sense?.acceptedParaphrases));
+    if (words(candidate.coreMeaning) <= 8) bucket.push(candidate.coreMeaning);
+  }
+  const fallback = array(senseFor(args.item, args.occurrence).misleadingDistractors);
+  return rankedByLength([...samePos, ...others, ...fallback].filter(value => text(value).toLocaleLowerCase('en') !== text(correct).toLocaleLowerCase('en')), correct, `${args.seed}:meaning-pool`);
+}
+function occurrenceOwner(args, context) {
+  const occurrence = array(args.unitOccurrences).find(row => row.occurrenceId === context?.occurrenceId);
+  if (!occurrence) return null;
+  return array(args.unitItems).find(row => row.vocabularyId === occurrence.vocabularyId) ?? null;
+}
+function unitSituationDistractors(args, correct) {
+  const term = text(args.item.term).toLocaleLowerCase('en');
+  const currentPos = text(args.item.partOfSpeech).toLocaleLowerCase('en');
+  const samePos = [];
+  const others = [];
+  for (const context of array(args.unitContexts)) {
+    if (!['paraphrase_context','production_context'].includes(context?.type)) continue;
+    if (context.occurrenceId === args.occurrence.occurrenceId) continue;
+    const candidate = text(context.text);
+    const lower = candidate.toLocaleLowerCase('en');
+    if (!candidate || words(candidate) < 6 || lower.includes(term) || lower === text(correct).toLocaleLowerCase('en')) continue;
+    const owner = occurrenceOwner(args, context);
+    const bucket = owner && text(owner.partOfSpeech).toLocaleLowerCase('en') === currentPos ? samePos : others;
+    bucket.push(candidate);
+  }
+  return rankedByLength([...samePos, ...others], correct, `${args.seed}:situation-pool`);
+}
+function sourceFragments(sourceText) {
+  const source = text(sourceText);
+  const fragments = [];
+  for (const sentence of source.split(/[.!?]+/).map(text).filter(Boolean)) {
+    fragments.push(sentence);
+    fragments.push(...sentence.split(/[,;:]/).map(text));
+    fragments.push(...sentence.split(/\s+(?:but|and|although|because|so that|instead)\s+/i).map(text));
+  }
+  return uniqueText(fragments).filter(fragment => words(fragment) >= 3 && source.toLocaleLowerCase('en').includes(fragment.toLocaleLowerCase('en')));
+}
 function baseActivity({ definition, occurrence, contentId, prompt, markingReference = {}, extra = {} }) {
   return {
     activityId:`${occurrence?.occurrenceId ?? 'unit'}:${contentId}:${definition.id}`,
@@ -83,28 +133,34 @@ function meaningMatch(args, definition) {
   const context = chooseContext(contexts, ['meaning_context'], args.usedContentIds, seed);
   const answers = meaningChoices(item, sense, context.acceptedAnswers);
   const correct = text(context.acceptedAnswers?.[0] ?? sense.acceptedParaphrases?.[0] ?? sense.meaning ?? item.coreMeaning);
-  const options = stableShuffle(uniqueText([correct, ...answers.wrong]).slice(0,4), `${seed}:meaning-options`);
+  const unitDistractors = unitMeaningDistractors(args, correct);
+  const wrong = unitDistractors.length >= 3 ? unitDistractors.slice(0,3) : rankedByLength([...unitDistractors, ...answers.wrong], correct, `${seed}:meaning-fallback`).slice(0,3);
+  if (wrong.length < 3) throw new Error('Meaning Match requires three comparable curated distractors.');
+  const options = stableShuffle([correct, ...wrong], `${seed}:meaning-options`);
   return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`What does “${text(item.term)}” mean in this context?\n${text(context.text)}`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId } });
 }
 function whichSituationFits(args, definition) {
   const { item, occurrence, contexts, unitActivities, seed } = args;
-  const context = chooseContext(contexts, ['paraphrase_context'], args.usedContentIds, seed);
+  const context = chooseContext(contexts, ['paraphrase_context','production_context'], args.usedContentIds, seed);
   const term = text(item.term).toLocaleLowerCase('en');
   const correct = text(context.text);
   if (!correct || correct.toLocaleLowerCase('en').includes(term)) throw new Error('Which Situation Fits requires a target-free curated situation.');
 
-  const alternatives = [];
-  for (const activity of array(unitActivities)) {
-    if (activity?.contentType !== 'idea_set') continue;
-    const data = object(activity.activityData);
-    alternatives.push(...array(data.accurateParaphrases));
-    alternatives.push(...array(data.distractors).map(row => row?.text));
+  let wrong = unitSituationDistractors(args, correct).slice(0,3);
+  if (wrong.length < 3) {
+    const alternatives = [];
+    for (const activity of array(unitActivities)) {
+      if (activity?.contentType !== 'idea_set') continue;
+      const data = object(activity.activityData);
+      alternatives.push(...array(data.accurateParaphrases));
+      alternatives.push(...array(data.distractors).map(row => row?.text));
+    }
+    const fallback = rankedByLength(alternatives.filter(candidate => {
+      const lower = text(candidate).toLocaleLowerCase('en');
+      return lower !== correct.toLocaleLowerCase('en') && !lower.includes(term) && words(candidate) >= 6;
+    }), correct, `${seed}:situations:fallback`);
+    wrong = uniqueText([...wrong, ...fallback]).slice(0,3);
   }
-  const sentenceAlternatives = uniqueText(alternatives).filter(candidate => {
-    const lower = candidate.toLocaleLowerCase('en');
-    return lower !== correct.toLocaleLowerCase('en') && !lower.includes(term) && candidate.split(/\s+/).length >= 5;
-  });
-  const wrong = stableShuffle(sentenceAlternatives, `${seed}:situations:wrong`).slice(0,3);
   if (wrong.length < 3) throw new Error('Which Situation Fits requires three full-sentence curated distractors.');
   const options = stableShuffle([correct, ...wrong], `${seed}:situations`);
   return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`Which situation best shows the meaning of “${text(item.term)}”?`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId } });
@@ -114,7 +170,10 @@ function meaningInContext(args, definition) {
   const sense = senseFor(item, occurrence);
   const context = chooseContext(contexts, ['meaning_context','paraphrase_context'], args.usedContentIds, seed);
   const correct = text(context.acceptedAnswers?.[0] ?? sense.acceptedParaphrases?.[0] ?? sense.meaning);
-  const options = stableShuffle(uniqueText([correct, ...array(sense.misleadingDistractors)]).slice(0,4), `${seed}:meaning-context`);
+  const unitDistractors = unitMeaningDistractors(args, correct);
+  const wrong = unitDistractors.length >= 3 ? unitDistractors.slice(0,3) : rankedByLength([...unitDistractors, ...array(sense.misleadingDistractors)], correct, `${seed}:meaning-context-fallback`).slice(0,3);
+  if (wrong.length < 3) throw new Error('Meaning in Context requires three comparable curated distractors.');
+  const options = stableShuffle([correct, ...wrong], `${seed}:meaning-context`);
   return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`In this sentence, which meaning best fits “${text(item.term)}”?\n${text(context.text)}`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId } });
 }
 function correctUsage(args, definition) {
@@ -153,10 +212,18 @@ function questionTextActivity(args, definition, findEvidence = false) {
   if (!evidenceAnswers.length) throw new Error('Question ↔ Text content has no curated evidence span.');
 
   if (findEvidence) {
-    const evidenceOptions = stableShuffle(uniqueText([
-      ...evidenceAnswers,
-      ...questions.filter((_,index) => index !== selected.index).flatMap(candidate => array(candidate.evidenceSpans))
-    ]), `${args.seed}:${record.activityContentId}:evidence`);
+    const correct = evidenceAnswers[0];
+    const rawCandidates = uniqueText([
+      ...questions.filter((_,index) => index !== selected.index).flatMap(candidate => array(candidate.evidenceSpans)),
+      ...sourceFragments(data.sourceText)
+    ]).filter(candidate => {
+      const lower = candidate.toLocaleLowerCase('en');
+      const answer = correct.toLocaleLowerCase('en');
+      return lower !== answer && !lower.includes(answer) && !answer.includes(lower);
+    });
+    const distractors = rankedByLength(rawCandidates, correct, `${args.seed}:${record.activityContentId}:evidence-pool`).slice(0,3);
+    if (distractors.length < 3) throw new Error('Find Evidence requires four exact source-text choices.');
+    const evidenceOptions = stableShuffle([correct, ...distractors], `${args.seed}:${record.activityContentId}:evidence`);
     return baseActivity({
       definition, occurrence:args.occurrence, contentId:record.activityContentId,
       prompt:`${text(question.question)} Select the exact evidence from the text.`,
@@ -166,12 +233,19 @@ function questionTextActivity(args, definition, findEvidence = false) {
   }
 
   const correctQuestion = text(question.question);
-  const questionPool = [];
+  const questionWord = correctQuestion.split(/\s+/)[0]?.toLocaleLowerCase('en') ?? '';
+  const sameQuestionWord = [];
+  const otherQuestions = [];
   for (const activity of array(args.unitActivities)) {
     if (activity?.contentType !== 'question_text') continue;
-    for (const candidate of array(object(activity.activityData).questions)) questionPool.push(candidate?.question);
+    for (const candidate of array(object(activity.activityData).questions)) {
+      const candidateText = text(candidate?.question);
+      if (!candidateText || candidateText === correctQuestion) continue;
+      const firstWord = candidateText.split(/\s+/)[0]?.toLocaleLowerCase('en') ?? '';
+      (firstWord === questionWord ? sameQuestionWord : otherQuestions).push(candidateText);
+    }
   }
-  const distractors = stableShuffle(uniqueText(questionPool).filter(candidate => candidate !== correctQuestion), `${args.seed}:${record.activityContentId}:question-options`).slice(0,3);
+  const distractors = rankedByLength([...sameQuestionWord, ...otherQuestions], correctQuestion, `${args.seed}:${record.activityContentId}:question-options`).slice(0,3);
   if (distractors.length < 3) throw new Error('Question ↔ Text Bridge requires four curated question options.');
   const options = stableShuffle([correctQuestion, ...distractors], `${args.seed}:${record.activityContentId}:bridge`);
   return baseActivity({
@@ -186,7 +260,17 @@ function phraseMatch(args, definition) {
   const record = phraseRecord(args), data = object(record.activityData);
   const correct = text(data.equivalentPhrase);
   const acceptedAnswers = uniqueText([correct, ...array(data.acceptedVariants)]);
-  const options = stableShuffle(uniqueText([correct, ...array(data.commonMeaningDistortions)]).slice(0,4), `${args.seed}:${record.activityContentId}:phrase-match`);
+  const ownWrong = uniqueText(array(data.commonMeaningDistortions));
+  const pooledWrong = [];
+  if (ownWrong.length < 3) {
+    for (const activity of array(args.unitActivities)) {
+      if (activity?.contentType !== 'phrase_set' || activity.activityContentId === record.activityContentId) continue;
+      pooledWrong.push(...array(object(activity.activityData).commonMeaningDistortions));
+    }
+  }
+  const wrong = rankedByLength([...ownWrong, ...pooledWrong].filter(candidate => !acceptedAnswers.includes(text(candidate))), correct, `${args.seed}:${record.activityContentId}:phrase-distractors`).slice(0,3);
+  if (wrong.length < 3) throw new Error('Phrase Match requires three phrase-level distractors.');
+  const options = stableShuffle([correct, ...wrong], `${args.seed}:${record.activityContentId}:phrase-match`);
   return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which phrase keeps the meaning of “${text(data.originalPhrase)}”?`, markingReference:{ acceptedAnswers }, extra:{ options, sourcePhrase:text(data.originalPhrase) } });
 }
 function buildParaphrase(args, definition) {
@@ -210,8 +294,19 @@ function ideaRecord(args) { return chooseUnitActivity(args.unitActivities, 'idea
 function sameIdea(args, definition) {
   const record = ideaRecord(args), data = object(record.activityData);
   const acceptedAnswers = uniqueText(array(data.accurateParaphrases));
-  const options = stableShuffle(uniqueText([...acceptedAnswers, ...array(data.distractors).map(row => text(row?.text))]).slice(0,4), `${args.seed}:${record.activityContentId}:same-idea`);
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which sentence expresses the same idea as this?\n${text(data.originalIdea)}`, markingReference:{ acceptedAnswers, meaningInvariants:array(data.meaningInvariants), distractors:array(data.distractors) }, extra:{ options, sourceIdea:text(data.originalIdea) } });
+  const ownWrong = array(data.distractors).map(row => text(row?.text)).filter(Boolean);
+  const pooledWrong = [];
+  if (ownWrong.length < 3) {
+    for (const activity of array(args.unitActivities)) {
+      if (activity?.contentType !== 'idea_set' || activity.activityContentId === record.activityContentId) continue;
+      pooledWrong.push(...array(object(activity.activityData).distractors).map(row => row?.text));
+    }
+  }
+  const reference = acceptedAnswers[0] ?? text(data.originalIdea);
+  const wrong = rankedByLength([...ownWrong, ...pooledWrong].filter(candidate => !acceptedAnswers.includes(text(candidate))), reference, `${args.seed}:${record.activityContentId}:idea-distractors`).slice(0,3);
+  if (wrong.length < 3) throw new Error('Same Idea requires three sentence-level meaning distractors.');
+  const options = stableShuffle([reference, ...wrong], `${args.seed}:${record.activityContentId}:same-idea`);
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which sentence expresses the same idea as this?\n${text(data.originalIdea)}`, markingReference:{ acceptedAnswers:[reference], meaningInvariants:array(data.meaningInvariants), distractors:array(data.distractors) }, extra:{ options, sourceIdea:text(data.originalIdea) } });
 }
 function spotMeaningChange(args, definition) {
   const record = ideaRecord(args), data = object(record.activityData);
@@ -256,12 +351,12 @@ const BUILDERS = Object.freeze({
   explain_another_way:explainAnotherWay
 });
 
-export function buildActivity({ activityType, occurrence, item, contexts = [], unitActivities = [], mastery = {}, readinessStage = null, usedContentIds = [], seed = '' } = {}) {
+export function buildActivity({ activityType, occurrence, item, contexts = [], unitActivities = [], unitItems = [], unitContexts = [], unitOccurrences = [], mastery = {}, readinessStage = null, usedContentIds = [], seed = '' } = {}) {
   if (!occurrence || !item) throw new Error('Vocabulary occurrence and item are required.');
   const definition = activityDefinition(activityType);
   if (!definition) throw new Error('Invalid 0511 vocabulary activity type.');
   assertReady(definition, mastery, readinessStage);
   const builder = BUILDERS[definition.id];
   if (!builder) throw new Error(`No builder exists for ${definition.id}.`);
-  return builder({ activityType, occurrence, item, contexts, unitActivities, mastery, usedContentIds, seed }, definition);
+  return builder({ activityType, occurrence, item, contexts, unitActivities, unitItems, unitContexts, unitOccurrences, mastery, usedContentIds, seed }, definition);
 }
