@@ -28,7 +28,7 @@ function context({ contextId, vocabularyId, occurrenceId, senseId, type, text: c
   };
 }
 
-export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', source = '', entries = [] } = {}) {
+export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', source = '', entries = [], activities = [] } = {}) {
   const title = text(unitTitle);
   const unit = {
     unitNumber:Number(unitNumber),
@@ -37,7 +37,8 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
     source:text(source),
     items:[],
     occurrences:[],
-    contexts:[]
+    contexts:[],
+    activities:[...array(activities)]
   };
 
   entries.forEach((entry, index) => {
