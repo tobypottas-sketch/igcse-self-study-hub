@@ -14,6 +14,7 @@ const MISCONCEPTIONS = new Set([
 ]);
 const EVIDENCE_STRENGTHS = new Set(['light','medium','strong','very_strong']);
 const SUPPORT_LEVELS = new Set(['none','light','major']);
+const CONTENT_SOURCES = new Set(['context','unit_activity']);
 
 function id(value, label) {
   const text = String(value ?? '').trim();
@@ -40,13 +41,18 @@ export function validateVocabularyAttempt(value = {}) {
   if (!QUESTION_TYPES.has(value.questionType)) throw new Error('Question type is invalid.');
   const contextId = optionalId(value.contextId, 'Context ID');
   const activityContentId = optionalId(value.activityContentId, 'Activity content ID');
-  if (!contextId && !activityContentId) throw new Error('Context ID or activity content ID is required.');
+  const inferredSource = value.contentSource ?? (activityContentId ? 'unit_activity' : 'context');
+  if (!CONTENT_SOURCES.has(inferredSource)) throw new Error('Content source is invalid.');
+  if (inferredSource === 'context' && !contextId) throw new Error('Context ID is required for context content.');
+  if (inferredSource === 'unit_activity' && !activityContentId) throw new Error('Activity content ID is required for unit activity content.');
   if (value.evidenceStrength != null && !EVIDENCE_STRENGTHS.has(value.evidenceStrength)) throw new Error('Evidence strength is invalid.');
   if (value.supportLevel != null && !SUPPORT_LEVELS.has(value.supportLevel)) throw new Error('Support level is invalid.');
   return {
     occurrenceId:id(value.occurrenceId, 'Occurrence ID'),
     contextId,
     activityContentId,
+    contentSource:inferredSource,
+    primaryEvidenceTargetId:optionalId(value.primaryEvidenceTargetId, 'Primary evidence target ID'),
     questionType:value.questionType,
     rawAnswer,
     strands:validateStrands(value.strands),
