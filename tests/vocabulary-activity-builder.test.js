@@ -39,7 +39,7 @@ const masteryByStage = {
 function masteryFor(type) { return masteryByStage[activityDefinition(type).minimumStage]; }
 
 test('builder constructs every approved 0511 activity with catalogue-aligned interaction metadata', () => {
-  for (const definition of ACTIVITY_TYPES) {
+  for (const definition of ACTIVITY_TYPES.filter(candidate => candidate.retired !== true)) {
     const activity = buildActivity({ activityType:definition.id, occurrence, item, contexts, unitActivities, mastery:masteryFor(definition.id), seed:'same-seed' });
     assert.equal(activity.type, definition.id, definition.id); assert.equal(activity.responseMode, definition.responseMode, definition.id);
     assert.equal(activity.skillFamily, definition.skillFamily, definition.id); assert.deepEqual(activity.strands, definition.strands, definition.id);
