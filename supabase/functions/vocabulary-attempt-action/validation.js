@@ -1,4 +1,5 @@
 const ID_RE = /^[a-z0-9_:-]{1,160}$/i;
+const VARIANT_RE = /^q\d{1,3}$/;
 const QUESTION_TYPES = new Set([
   'meaning_match','paraphrase_match','context_inference','question_text_bridge','context_gap_fill',
   'replace_phrase','produce_paraphrase','use_target','identify_inaccurate_paraphrase','mini_mixed_check',
@@ -21,12 +22,16 @@ function id(value, label) {
   if (!ID_RE.test(text)) throw new Error(`${label} is invalid.`);
   return text;
 }
-
 function optionalId(value, label) {
   if (value == null || value === '') return null;
   return id(value, label);
 }
-
+function optionalVariant(value) {
+  if (value == null || value === '') return null;
+  const variant = String(value).trim();
+  if (!VARIANT_RE.test(variant)) throw new Error('Activity variant ID is invalid.');
+  return variant;
+}
 function validateStrands(value) {
   if (value == null) return [];
   if (!Array.isArray(value) || value.length === 0) throw new Error('Vocabulary strands are invalid.');
@@ -41,30 +46,22 @@ export function validateVocabularyAttempt(value = {}) {
   if (!QUESTION_TYPES.has(value.questionType)) throw new Error('Question type is invalid.');
   const contextId = optionalId(value.contextId, 'Context ID');
   const activityContentId = optionalId(value.activityContentId, 'Activity content ID');
+  const activityVariantId = optionalVariant(value.activityVariantId);
   const inferredSource = value.contentSource ?? (activityContentId ? 'unit_activity' : 'context');
   if (!CONTENT_SOURCES.has(inferredSource)) throw new Error('Content source is invalid.');
   if (inferredSource === 'context' && !contextId) throw new Error('Context ID is required for context content.');
   if (inferredSource === 'unit_activity' && !activityContentId) throw new Error('Activity content ID is required for unit activity content.');
+  if (activityVariantId && inferredSource !== 'unit_activity') throw new Error('Activity variant ID requires unit activity content.');
   if (value.evidenceStrength != null && !EVIDENCE_STRENGTHS.has(value.evidenceStrength)) throw new Error('Evidence strength is invalid.');
   if (value.supportLevel != null && !SUPPORT_LEVELS.has(value.supportLevel)) throw new Error('Support level is invalid.');
   return {
-    occurrenceId:id(value.occurrenceId, 'Occurrence ID'),
-    contextId,
-    activityContentId,
-    contentSource:inferredSource,
-    primaryEvidenceTargetId:optionalId(value.primaryEvidenceTargetId, 'Primary evidence target ID'),
-    questionType:value.questionType,
-    rawAnswer,
-    strands:validateStrands(value.strands),
-    evidenceStrength:value.evidenceStrength ?? null,
-    supportLevel:value.supportLevel ?? null,
-    productive:value.productive === true,
-    repeatedGuess:value.repeatedGuess === true,
-    firstAttempt:value.firstAttempt !== false,
-    retryUsed:value.retryUsed === true,
-    recoveredLater:value.recoveredLater === true,
-    review:value.review === true,
-    preview:value.preview === true
+    occurrenceId:id(value.occurrenceId, 'Occurrence ID'), contextId, activityContentId, activityVariantId,
+    contentSource:inferredSource, primaryEvidenceTargetId:optionalId(value.primaryEvidenceTargetId, 'Primary evidence target ID'),
+    questionType:value.questionType, rawAnswer, strands:validateStrands(value.strands),
+    evidenceStrength:value.evidenceStrength ?? null, supportLevel:value.supportLevel ?? null,
+    productive:value.productive === true, repeatedGuess:value.repeatedGuess === true,
+    firstAttempt:value.firstAttempt !== false, retryUsed:value.retryUsed === true,
+    recoveredLater:value.recoveredLater === true, review:value.review === true, preview:value.preview === true
   };
 }
 
@@ -80,15 +77,10 @@ export function strandForQuestionType(questionType) {
 export function buildStoredAttemptMetadata(value = {}) {
   const strand = STRANDS.has(value.strand) ? value.strand : strandForQuestionType(value.questionType);
   const output = {
-    unit_number:Number(value.unitNumber),
-    strand,
-    question_type:value.questionType,
-    attempt_number:value.firstAttempt === false ? 2 : 1,
-    outcome:value.correct ? 'correct' : 'try_again',
-    retry_used:value.retryUsed === true,
-    recovery:value.recoveredLater === true,
-    target_id:id(value.vocabularyId, 'Vocabulary ID'),
-    occurrence_id:id(value.occurrenceId, 'Occurrence ID')
+    unit_number:Number(value.unitNumber), strand, question_type:value.questionType,
+    attempt_number:value.firstAttempt === false ? 2 : 1, outcome:value.correct ? 'correct' : 'try_again',
+    retry_used:value.retryUsed === true, recovery:value.recoveredLater === true,
+    target_id:id(value.vocabularyId, 'Vocabulary ID'), occurrence_id:id(value.occurrenceId, 'Occurrence ID')
   };
   if (MISCONCEPTIONS.has(value.misconceptionCategory)) output.misconception = value.misconceptionCategory;
   if (EVIDENCE_STRENGTHS.has(value.evidenceStrength)) output.evidence_strength = value.evidenceStrength;
