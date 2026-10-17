@@ -39,6 +39,8 @@ function normalizedMastery(input = {}) {
     strandEvidence,
     successfulProductions: Math.max(0, Number(input.successfulProductions ?? 0)),
     productionContextIds: [...new Set(Array.isArray(input.productionContextIds) ? input.productionContextIds.filter(Boolean) : [])],
+    productionActivityTypes: [...new Set(Array.isArray(input.productionActivityTypes) ? input.productionActivityTypes.filter(Boolean) : [])],
+    unscaffoldedProductions: Math.max(0, Number(input.unscaffoldedProductions ?? 0)),
     recentErrorCount: Math.max(0, Number(input.recentErrorCount ?? 0)),
     recoveryCount: Math.max(0, Number(input.recoveryCount ?? 0)),
     reviewStage: Math.max(0, Number(input.reviewStage ?? 0)),
@@ -74,18 +76,29 @@ export function deriveStatus(input = {}) {
   const evidence = mastery.strandEvidence;
   const secureStrands = STRANDS.filter(strand => evidence[strand] >= MASTERY_THRESHOLDS.secure);
   const hasHigherEvidence = evidence.context >= MASTERY_THRESHOLDS.secure || evidence.paraphrasing >= MASTERY_THRESHOLDS.secure;
-  const isSecure = secureStrands.length >= 2 && hasHigherEvidence;
+  const isSecure = secureStrands.length >= 3 && hasHigherEvidence;
 
   if (!isSecure) {
     return STRANDS.some(strand => evidence[strand] >= MASTERY_THRESHOLDS.building) ? 'building' : 'new';
   }
 
-  const distinctProductionContexts = new Set(mastery.productionContextIds).size;
+  const hasContext = evidence.context >= MASTERY_THRESHOLDS.secure;
+  const hasParaphrasing = evidence.paraphrasing >= MASTERY_THRESHOLDS.secure;
+  const contextDiversity = new Set(mastery.productionContextIds).size >= MASTERY_THRESHOLDS.masteredProductions;
+  const activityDiversity = new Set(mastery.productionActivityTypes).size >= MASTERY_THRESHOLDS.masteredProductions;
+  const hasIndependentProduction = mastery.unscaffoldedProductions >= 1;
+  const canRemainMasteredAfterOneReviewMiss = mastery.status === 'mastered' && mastery.reviewFailureCount > 0 && mastery.reviewFailureCount < MASTERY_THRESHOLDS.reviewFailuresForDemotion;
+  const noContradictoryError = mastery.recentErrorCount === 0 || canRemainMasteredAfterOneReviewMiss;
   const canRemainMastered = mastery.reviewFailureCount < MASTERY_THRESHOLDS.reviewFailuresForDemotion;
+
   if (
     canRemainMastered &&
+    noContradictoryError &&
+    hasContext &&
+    hasParaphrasing &&
     mastery.successfulProductions >= MASTERY_THRESHOLDS.masteredProductions &&
-    distinctProductionContexts >= MASTERY_THRESHOLDS.masteredProductions
+    (contextDiversity || activityDiversity) &&
+    hasIndependentProduction
   ) return 'mastered';
 
   return 'secure';
@@ -114,6 +127,7 @@ export function applyEvidence(input = {}, evidence = {}, now = new Date()) {
     ...mastery,
     strandEvidence:{ ...mastery.strandEvidence },
     productionContextIds:[...mastery.productionContextIds],
+    productionActivityTypes:[...mastery.productionActivityTypes],
     lastSeenAt:occurredAt
   };
 
@@ -127,11 +141,15 @@ export function applyEvidence(input = {}, evidence = {}, now = new Date()) {
       for (const strand of strengthened) next.strandEvidence[strand] += weight;
 
       const productive = evidence.productive === true || sourceStrands.includes('production');
-      const independentEnough = evidence.supportLevel !== 'major' && evidence.repeatedGuess !== true;
+      const supportLevel = evidence.supportLevel ?? ((evidence.retryUsed || evidence.firstAttempt === false) ? 'light' : 'none');
+      const independentEnough = supportLevel !== 'major' && evidence.repeatedGuess !== true;
       if (productive && independentEnough) {
         next.successfulProductions += 1;
         const productionId = evidence.contextId ?? evidence.activityContentId ?? null;
         if (productionId && !next.productionContextIds.includes(productionId)) next.productionContextIds.push(productionId);
+        const activityType = evidence.activityType ?? evidence.questionType ?? null;
+        if (activityType && !next.productionActivityTypes.includes(activityType)) next.productionActivityTypes.push(activityType);
+        if (supportLevel === 'none') next.unscaffoldedProductions += 1;
       }
 
       if (evidence.recoveredLater) next.recoveryCount += 1;
