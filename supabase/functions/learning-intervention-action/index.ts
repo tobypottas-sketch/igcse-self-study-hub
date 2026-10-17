@@ -29,6 +29,18 @@ async function teacherCanAccessClass(adminClient:any, teacherId:string, classId:
   return Boolean(data);
 }
 
+async function studentIsClassTargeted(adminClient:any, studentId:string, targets:any[]) {
+  const classIds = (targets ?? []).map((target:any) => target.class_id).filter(Boolean);
+  if (!classIds.length) return false;
+  const { data } = await adminClient
+    .from('student_class_memberships')
+    .select('class_id')
+    .eq('student_id',studentId)
+    .is('ended_at',null)
+    .in('class_id',classIds);
+  return Boolean(data?.length);
+}
+
 async function authorizeTargets(adminClient:any, callerId:string, role:string, input:any) {
   if (role === 'admin') return;
   if (role !== 'teacher') throw new Error('Teacher or admin access required.');
@@ -93,7 +105,9 @@ Deno.serve(async (req:Request) => {
         if (target.class_id && await teacherCanAccessClass(adminClient,callerData.user.id,target.class_id)) { staffAccess = true; break; }
       }
     }
-    const studentTargeted = (targets ?? []).some((target:any) => target.student_id === callerData.user.id);
+    const directStudentTargeted = (targets ?? []).some((target:any) => target.student_id === callerData.user.id);
+    const classStudentTargeted = await studentIsClassTargeted(adminClient,callerData.user.id,targets ?? []);
+    const studentTargeted = directStudentTargeted || classStudentTargeted;
 
     if (input.action === 'status') {
       if (!staffAccess && !studentTargeted) return json({ error:'Intervention access denied' },403);
