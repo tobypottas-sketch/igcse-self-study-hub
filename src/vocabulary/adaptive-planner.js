@@ -1,6 +1,15 @@
 import { activityDefinition, activitiesForMode } from './activity-catalogue.js';
 
 const STAGE_ORDER = Object.freeze({ new:0, building:1, secure:2, mastered:3 });
+const MODE_ENTRY_STAGE = Object.freeze({
+  learn:'new',
+  context:'new',
+  question_text:'building',
+  phrase_paraphrase:'new',
+  idea_paraphrase:'building',
+  writing:'building',
+  adaptive:'new'
+});
 
 const ADAPTIVE_LADDERS = Object.freeze({
   new:['meaning_match','which_situation_fits','phrase_match'],
@@ -36,6 +45,13 @@ function stageOf(mastery = {}) {
   return STAGE_ORDER[status] == null ? 'new' : status;
 }
 
+function effectiveStage(practiceMode, mastery) {
+  const actual = stageOf(mastery);
+  if (practiceMode === 'adaptive') return actual;
+  const baseline = MODE_ENTRY_STAGE[practiceMode] ?? 'new';
+  return STAGE_ORDER[actual] >= STAGE_ORDER[baseline] ? actual : baseline;
+}
+
 function score(mastery, strand) {
   const value = Number(mastery?.strandEvidence?.[strand] ?? 0);
   return Number.isFinite(value) ? value : 0;
@@ -58,10 +74,7 @@ function allowedForMode(practiceMode) {
 function filterCandidates(candidates, { practiceMode, stage, available, excluded = new Set() }) {
   const modeAllowed = allowedForMode(practiceMode);
   return candidates.filter(type =>
-    modeAllowed.has(type) &&
-    stageEligible(type, stage) &&
-    (!available || available.has(type)) &&
-    !excluded.has(type)
+    modeAllowed.has(type) && stageEligible(type, stage) && (!available || available.has(type)) && !excluded.has(type)
   );
 }
 
@@ -70,33 +83,21 @@ function adaptiveCandidates(mastery, reviewDue) {
   if (reviewDue && stage === 'mastered') return [...ADAPTIVE_LADDERS.mastered];
   if (stage === 'new') return [...ADAPTIVE_LADDERS.new];
   if (stage === 'building') {
-    if (score(mastery,'context') < 3) {
-      return ['which_situation_fits','meaning_in_context','correct_usage','question_text_bridge','find_evidence','phrase_match','build_paraphrase','same_idea'];
-    }
-    if (score(mastery,'paraphrasing') < 3) {
-      return ['phrase_match','build_paraphrase','complete_paraphrase','question_text_bridge','same_idea','spot_meaning_change'];
-    }
+    if (score(mastery,'context') < 3) return ['which_situation_fits','meaning_in_context','correct_usage','question_text_bridge','find_evidence','phrase_match','build_paraphrase','same_idea'];
+    if (score(mastery,'paraphrasing') < 3) return ['phrase_match','build_paraphrase','complete_paraphrase','question_text_bridge','same_idea','spot_meaning_change'];
     return [...ADAPTIVE_LADDERS.building];
   }
   return [...ADAPTIVE_LADDERS[stage]];
 }
 
 function focusedCandidates(practiceMode, stage) {
-  const activities = activitiesForMode(practiceMode)
-    .filter(activity => STAGE_ORDER[activity.minimumStage] <= STAGE_ORDER[stage]);
+  const activities = activitiesForMode(practiceMode).filter(activity => STAGE_ORDER[activity.minimumStage] <= STAGE_ORDER[stage]);
   const strengthOrder = Object.freeze({ light:0, medium:1, strong:2, very_strong:3 });
-  return activities
-    .slice()
-    .sort((a,b) => strengthOrder[a.evidenceStrength] - strengthOrder[b.evidenceStrength])
-    .map(activity => activity.id);
+  return activities.slice().sort((a,b) => strengthOrder[a.evidenceStrength] - strengthOrder[b.evidenceStrength]).map(activity => activity.id);
 }
 
-function progressionCandidates({ practiceMode, mastery, recentActivities, reviewDue }) {
-  const stage = stageOf(mastery);
-  const base = practiceMode === 'adaptive'
-    ? adaptiveCandidates(mastery, reviewDue)
-    : focusedCandidates(practiceMode, stage);
-
+function progressionCandidates({ practiceMode, mastery, recentActivities, reviewDue, stage }) {
+  const base = practiceMode === 'adaptive' ? adaptiveCandidates(mastery, reviewDue) : focusedCandidates(practiceMode, stage);
   const last = recentActivities.at(-1);
   if (!last?.correct) return base;
   const index = base.indexOf(last.type);
@@ -104,15 +105,9 @@ function progressionCandidates({ practiceMode, mastery, recentActivities, review
   return base.filter(type => type !== last.type).concat(last.type ? [last.type] : []);
 }
 
-export function planNextActivity({
-  practiceMode = 'adaptive',
-  mastery = {},
-  recentActivities = [],
-  supportState = null,
-  reviewDue = false,
-  availableContent = []
-} = {}) {
-  const stage = stageOf(mastery);
+export function planNextActivity({ practiceMode = 'adaptive', mastery = {}, recentActivities = [], supportState = null, reviewDue = false, availableContent = [] } = {}) {
+  const actualStage = stageOf(mastery);
+  const stage = effectiveStage(practiceMode, mastery);
   const available = availableSet(availableContent);
   const recent = Array.isArray(recentActivities) ? recentActivities : [];
   const last = recent.at(-1) ?? null;
@@ -122,32 +117,24 @@ export function planNextActivity({
   const avoidContentIds = [...new Set(recent.map(activity => activity?.contentId).filter(Boolean))];
 
   let candidates;
-  if (struggling && last?.type && SUPPORT_FALLBACKS[last.type]) {
-    candidates = [...SUPPORT_FALLBACKS[last.type]];
-  } else {
-    candidates = progressionCandidates({ practiceMode, mastery, recentActivities:recent, reviewDue });
-  }
+  if (struggling && last?.type && SUPPORT_FALLBACKS[last.type]) candidates = [...SUPPORT_FALLBACKS[last.type]];
+  else candidates = progressionCandidates({ practiceMode, mastery, recentActivities:recent, reviewDue, stage });
 
   let filtered = filterCandidates(candidates, { practiceMode, stage, available, excluded });
   if (!filtered.length) {
-    const fallback = practiceMode === 'adaptive'
-      ? activitiesForMode('adaptive').map(activity => activity.id)
-      : activitiesForMode(practiceMode).map(activity => activity.id);
+    const fallback = practiceMode === 'adaptive' ? activitiesForMode('adaptive').map(activity => activity.id) : activitiesForMode(practiceMode).map(activity => activity.id);
     filtered = filterCandidates(fallback, { practiceMode, stage, available, excluded });
   }
   if (!filtered.length && excluded.size) {
-    const fallback = practiceMode === 'adaptive'
-      ? activitiesForMode('adaptive').map(activity => activity.id)
-      : activitiesForMode(practiceMode).map(activity => activity.id);
+    const fallback = practiceMode === 'adaptive' ? activitiesForMode('adaptive').map(activity => activity.id) : activitiesForMode(practiceMode).map(activity => activity.id);
     filtered = filterCandidates(fallback, { practiceMode, stage, available, excluded:new Set() });
   }
   if (!filtered.length) throw new Error('No suitable curated activity is available for this practice state.');
 
   return {
-    activityType:filtered[0],
-    avoidContentIds,
-    practiceMode,
-    stage,
+    activityType:filtered[0], avoidContentIds, practiceMode,
+    stage:actualStage,
+    readinessStage:stage,
     supportDirection:struggling ? 'more_support' : (last?.correct ? 'raise_demand' : 'hold')
   };
 }
