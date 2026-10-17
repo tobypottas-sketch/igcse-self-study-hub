@@ -5,10 +5,11 @@ import { selectPriorityTargets } from './selector.js';
 import { buildQuestion } from './questions.js';
 import { completeAttempt, createSession, expireSession, isSessionComplete } from './session.js';
 import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
+import { applyEvidence } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
 const root = document.getElementById('vocabularyApp');
 const state = {
-  client:null, profile:null, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
+  client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
   globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null,
   usedContexts:new Map(), previousTypes:new Map(), recoveryNeeded:new Set(), clock:null,
   activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null
@@ -30,7 +31,23 @@ function mastery(row) {
     successfulProductions:row?.successful_productions ?? 0, productionContextIds:row?.production_context_ids ?? []
   };
 }
+function freshMastery() {
+  return { status:'new', strandEvidence:{ meaning:0, recognition:0, context:0, paraphrasing:0, production:0 }, recentErrorCount:0, recentErrorPattern:null, reviewDueAt:null, successfulProductions:0, productionContextIds:[], recoveryCount:0, reviewStage:0, reviewFailureCount:0 };
+}
 function mapBy(rows, key, transform = value => value) { return Object.fromEntries(rows.map(row => [row[key], transform(row)])); }
+
+function decoratePreview() {
+  if (!state.preview || !root) return;
+  const shell = root.querySelector?.('.vocab-shell');
+  if (!shell || shell.querySelector?.('[data-staff-preview-banner]')) return;
+  const topbar = shell.querySelector?.('.vocab-topbar');
+  const banner = document.createElement('aside');
+  banner.className = 'vocab-preview-banner';
+  banner.dataset.staffPreviewBanner = 'true';
+  banner.innerHTML = '<div><strong>STAFF PREVIEW</strong><span>Results are not recorded and will not affect student analytics.</span></div><a class="vocab-button" href="./vocabulary.html">Back to teacher analytics</a>';
+  if (topbar?.after) topbar.after(banner);
+  else shell.prepend(banner);
+}
 
 function buildUnits(dashboard) {
   const grouped = new Map();
@@ -51,14 +68,17 @@ async function showHome() {
   clearClock();
   state.currentUnitNumber = null;
   state.currentUnitTitle = null;
-  state.dashboard = await loadVocabularyDashboard(state.client);
+  state.dashboard = await loadVocabularyDashboard(state.client, { preview:state.preview });
   state.units = buildUnits(state.dashboard);
   renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units });
+  decoratePreview();
 }
 
 async function openUnit(unitNumber) {
   clearClock();
-  const [contentRaw, masteryRaw] = await Promise.all([loadVocabularyUnit(state.client, unitNumber), loadStudentMastery(state.client, unitNumber)]);
+  const contentPromise = loadVocabularyUnit(state.client, unitNumber);
+  const masteryPromise = state.preview ? Promise.resolve({ global:[], unit:[] }) : loadStudentMastery(state.client, unitNumber);
+  const [contentRaw, masteryRaw] = await Promise.all([contentPromise, masteryPromise]);
   const occurrences = contentRaw.occurrences.map(occurrence);
   const items = contentRaw.items.map(item);
   const contexts = contentRaw.contexts.map(context);
@@ -70,6 +90,7 @@ async function openUnit(unitNumber) {
   const progress = buildUnitProgress({ occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
   state.currentUnitTitle = occurrences[0]?.unitTitle ?? state.units.find(unit => unit.unitNumber === unitNumber)?.unitTitle ?? `Unit ${unitNumber}`;
   renderVocabularyUnit(root, { unitNumber, unitTitle:state.currentUnitTitle, progress });
+  decoratePreview();
 }
 
 function strandLabel(value, status) {
@@ -101,6 +122,7 @@ function showAllWords() {
       };
     });
   renderVocabularyWords(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, words });
+  decoratePreview();
 }
 
 function rankedTargets(limit) {
@@ -117,7 +139,7 @@ function startSession(mode, durationMinutes = null) {
   state.previousTypes = new Map();
   state.recoveryNeeded = new Set();
   if (mode === 'timed') startClock();
-  void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`session:${mode}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber } }).catch(() => {});
+  if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`session:${mode}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber } }).catch(() => {});
   nextQuestion();
 }
 
@@ -156,7 +178,7 @@ function nextQuestion() {
   const used = state.usedContexts.get(target.occurrenceId) ?? [];
   const previousType = state.previousTypes.get(target.occurrenceId) ?? null;
   const recovery = state.recoveryNeeded.has(target.occurrenceId);
-  const question = buildQuestion({ occurrence:target, item:targetItem, contexts:targetContexts, mastery:state.globalMastery[target.vocabularyId] ?? { status:'new', strandEvidence:{} }, usedContextIds:used, previousQuestionType:previousType, recycle:recovery, now:new Date() });
+  const question = buildQuestion({ occurrence:target, item:targetItem, contexts:targetContexts, mastery:state.globalMastery[target.vocabularyId] ?? freshMastery(), usedContextIds:used, previousQuestionType:previousType, recycle:recovery, now:new Date() });
   state.usedContexts.set(target.occurrenceId, [...used, question.contextId]);
   state.previousTypes.set(target.occurrenceId, question.type);
   state.current = { target, item:targetItem, question, recovery, retry:false };
@@ -174,6 +196,7 @@ function renderCurrentQuestion(feedback = null) {
     feedback,
     retry:state.current.retry
   });
+  decoratePreview();
 }
 
 async function handleAnswer(form, providedAnswer = null) {
@@ -190,12 +213,36 @@ async function handleAnswer(form, providedAnswer = null) {
     firstAttempt:!current.retry,
     retryUsed:current.retry,
     recoveredLater:current.recovery,
-    review:Boolean(state.globalMastery[current.target.vocabularyId]?.reviewDueAt && new Date(state.globalMastery[current.target.vocabularyId].reviewDueAt).getTime() <= Date.now())
+    review:Boolean(state.globalMastery[current.target.vocabularyId]?.reviewDueAt && new Date(state.globalMastery[current.target.vocabularyId].reviewDueAt).getTime() <= Date.now()),
+    preview:state.preview
   });
-  const previousGlobalStatus = state.globalMastery[current.target.vocabularyId]?.status ?? 'new';
-  state.globalMastery[current.target.vocabularyId] = { ...state.globalMastery[current.target.vocabularyId], status:result.globalStatus, reviewDueAt:result.reviewDueAt, recentErrorCount:result.correct ? 0 : 1 };
-  state.unitMastery[current.target.occurrenceId] = { ...state.unitMastery[current.target.occurrenceId], status:result.unitStatus, recentErrorPattern:result.correct ? null : (result.misconceptionCategory ?? 'retrieval_failure') };
-  const message = supportiveFeedback({ correct:result.correct, misconceptionCategory:result.misconceptionCategory, recovery:result.recovery, term:current.item.term });
+  const previousGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery();
+  const previousGlobalStatus = previousGlobal.status ?? 'new';
+  let nextGlobalStatus = result.globalStatus;
+  let nextUnitStatus = result.unitStatus;
+  let recoverySucceeded = result.recovery;
+
+  if (state.preview) {
+    const nextGlobal = applyEvidence(previousGlobal, {
+      strand:result.strand,
+      correct:result.correct,
+      firstAttempt:!current.retry,
+      retryUsed:current.retry,
+      recoveredLater:current.recovery,
+      contextId:current.question.contextId,
+      questionType:current.question.type,
+      review:false
+    }, new Date());
+    state.globalMastery[current.target.vocabularyId] = nextGlobal;
+    state.unitMastery[current.target.occurrenceId] = { status:nextGlobal.status, recentErrorPattern:result.correct ? null : (result.misconceptionCategory ?? 'retrieval_failure'), contextualEvidence:{ strandEvidence:nextGlobal.strandEvidence } };
+    nextGlobalStatus = nextGlobal.status;
+    nextUnitStatus = nextGlobal.status;
+    recoverySucceeded = current.recovery && result.correct;
+  } else {
+    state.globalMastery[current.target.vocabularyId] = { ...previousGlobal, status:result.globalStatus, reviewDueAt:result.reviewDueAt, recentErrorCount:result.correct ? 0 : 1 };
+    state.unitMastery[current.target.occurrenceId] = { ...state.unitMastery[current.target.occurrenceId], status:result.unitStatus, recentErrorPattern:result.correct ? null : (result.misconceptionCategory ?? 'retrieval_failure') };
+  }
+  const message = supportiveFeedback({ correct:result.correct, misconceptionCategory:result.misconceptionCategory, recovery:recoverySucceeded, term:current.item.term });
 
   if (!result.correct && !current.retry && !current.recovery) {
     current.retry = true;
@@ -212,13 +259,14 @@ async function handleAnswer(form, providedAnswer = null) {
   const completeTarget = !needsRecovery;
   state.session = completeAttempt(state.session, {
     targetId:current.target.occurrenceId,
-    evidence:{ correct:result.correct, recovery:result.recovery },
+    evidence:{ correct:result.correct, recovery:recoverySucceeded },
     completeTarget,
     strengthened:result.correct,
-    movedToSecure:previousGlobalStatus !== 'secure' && result.globalStatus === 'secure',
-    mastered:previousGlobalStatus !== 'mastered' && result.globalStatus === 'mastered',
+    movedToSecure:previousGlobalStatus !== 'secure' && nextGlobalStatus === 'secure',
+    mastered:previousGlobalStatus !== 'mastered' && nextGlobalStatus === 'mastered',
     needsAnotherLook:completeTarget && !result.correct
   });
+  void nextUnitStatus;
   renderCurrentQuestion({ correct:result.correct, message });
   if (!result.correct) {
     const formAfter = root.querySelector?.('[data-form="vocabulary-answer"]');
@@ -232,11 +280,12 @@ function finishSession() {
   clearClock();
   const finished = state.session;
   state.current = null;
-  void trackVocabularyEvent(state.client, {
+  if (!state.preview) void trackVocabularyEvent(state.client, {
     event_type:'exercise_result', activity_id:`session_complete:${finished.mode}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${finished.unitNumber}`,
     score:finished.summary.strengthened, max_score:Math.max(1, finished.summary.practised), metadata:{ unit_number:finished.unitNumber }
   }).catch(() => {});
   renderSessionSummary(root, { durationMinutes:finished.durationMinutes, summary:finished.summary });
+  decoratePreview();
 }
 
 function startActiveTime() {
@@ -246,7 +295,7 @@ function startActiveTime() {
     state.activeSeconds += 30;
     if (state.activeSeconds >= 60) {
       const seconds = state.activeSeconds; state.activeSeconds = 0;
-      void trackVocabularyEvent(state.client, { event_type:'active_time', active_seconds:seconds, mode:'practice' }).catch(() => {});
+      if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'active_time', active_seconds:seconds, mode:'practice' }).catch(() => {});
     }
   }, 30000);
 }
@@ -289,10 +338,13 @@ async function initialise() {
     const { data:userData, error:userError } = await state.client.auth.getUser();
     if (userError || !userData?.user) { window.location.replace('./'); return; }
     const { data:profile, error:profileError } = await state.client.from('profiles').select('id, role, display_name, active').eq('id', userData.user.id).single();
-    if (profileError || !profile?.active || profile.role !== 'student') { window.location.replace('./'); return; }
+    const previewRequested = new URLSearchParams(window.location.search).get('preview') === '1';
+    const staff = profile?.role === 'teacher' || profile?.role === 'admin';
+    if (profileError || !profile?.active || (profile.role !== 'student' && !(staff && previewRequested))) { window.location.replace('./'); return; }
     state.profile = profile;
-    await trackVocabularyEvent(state.client, { event_type:'app_open', mode:'practice' }).catch(() => {});
-    startActiveTime();
+    state.preview = staff && previewRequested;
+    if (!state.preview) await trackVocabularyEvent(state.client, { event_type:'app_open', mode:'practice' }).catch(() => {});
+    if (!state.preview) startActiveTime();
     await showHome();
   } catch (error) {
     renderVocabularyError(root, error instanceof Error ? error.message : 'Vocabulary practice is unavailable right now.');
