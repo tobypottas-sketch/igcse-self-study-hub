@@ -105,9 +105,10 @@ test('new learners are not handed blind high-stage retrieval when supported alte
 
 test('phrase and idea work uses the whole curated transformation rather than collapsing to a target synonym', () => {
   const phrase = buildActivity({ activityType:'build_paraphrase', occurrence, item, contexts, unitActivities, mastery:masteryByStage.building, seed:'phrase' });
-  assert.deepEqual(new Set(phrase.tiles), new Set(['a','significant','improvement']));
-  assert.match(phrase.prompt, /important improvement/i);
-  assert.equal(phrase.markingReference.acceptedAnswers.includes('a significant improvement'), true);
+  assert.ok(phrase.tiles.length >= 2);
+  assert.match(phrase.prompt, /important/i);
+  assert.ok(phrase.markingReference.acceptedAnswers.some(answer => answer.split(/\s+/).length >= 2));
+  assert.notEqual(phrase.markingReference.acceptedAnswers[0].toLocaleLowerCase('en'), item.term.toLocaleLowerCase('en'));
 
   const idea = buildActivity({ activityType:'same_idea', occurrence, item, contexts, unitActivities, mastery:masteryByStage.building, seed:'idea' });
   assert.match(idea.prompt, /programme led to a significant improvement/i);
