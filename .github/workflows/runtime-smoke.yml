@@ -1,7 +1,7 @@
 name: Runtime Smoke
 on:
   push:
-    branches: [main]
+    branches: [main, feat/self-service-password-recovery-20261017]
 jobs:
   browser-smoke:
     runs-on: ubuntu-latest
