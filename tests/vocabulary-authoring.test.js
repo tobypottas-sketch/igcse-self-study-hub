@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildCuratedUnit } from '../content/vocabulary/build-unit.js';
+import unit1 from '../content/vocabulary/units/unit-01.js';
 import { validateUnit } from '../content/vocabulary/schema.js';
 
 function entry(index) {
@@ -41,4 +42,26 @@ test('authoring keeps multi-word terms as one vocabulary target', () => {
   assert.equal(unit.items[0].term, 'goal-oriented');
   assert.equal(unit.items[0].vocabularyId, 'vocab_goal_oriented');
   assert.equal(unit.occurrences[0].occurrenceId, 'u1_01_goal_oriented');
+});
+
+test('authored Unit 1 is complete, source-aligned, and strict-validator clean', () => {
+  assert.equal(unit1.status, 'approved');
+  assert.equal(unit1.source, '0511_UNIT_1.docx');
+  assert.equal(unit1.items.length, 50);
+  assert.equal(unit1.contexts.length, 150);
+  assert.deepEqual(unit1.items.map(item => item.term), [
+    'leisure','preference','avoid','afford','deny','permit','arrange','urge','recommend','demand',
+    'threaten','resent','regret','unfamiliar','racquet','opponent','intense','tournament','determined','discipline',
+    'goal-oriented','achievement','elite','overwhelming','generation','challenge','solution','pastime','feat','regardless',
+    'monetary','estimated','struggle','minimum','championship','competitor','relatively','patience','atmosphere','incredible',
+    'criteria','historic','selection','produce','craftspeople','significant','expansion','reputation','reasonable','antiques'
+  ]);
+  const result = validateUnit(unit1);
+  assert.equal(result.ok, true, result.errors.join('\n'));
+});
+
+test('every authored Unit 1 replacement source occurs in its curated sentence', () => {
+  for (const context of unit1.contexts.filter(row => row.targetRewrite)) {
+    assert.match(context.text.toLocaleLowerCase('en'), new RegExp(context.targetRewrite.toLocaleLowerCase('en').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
 });
