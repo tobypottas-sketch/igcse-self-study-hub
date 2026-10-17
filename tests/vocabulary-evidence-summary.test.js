@@ -10,7 +10,10 @@ const mastery = [
 test('EH-facing vocabulary summary is interpreted, provenance-backed, and free of raw answers', () => {
   const summary = buildVocabularyEvidenceSummary({
     studentId:'s1', mastery,
-    activity:[{ id:'event-1', occurredAt:'2026-10-16T10:00:00Z', metadata:{ strand:'production', answer_text:'MUST NOT PASS' } }],
+    activity:[
+      { id:'event-1', occurredAt:'2026-10-16T10:00:00Z', metadata:{ question_type:'rewrite_idea', outcome:'try_again', evidence_strength:'very_strong', support_level:'none', misconception:'quantity_change', answer_text:'MUST NOT PASS', prompt:'PRIVATE PROMPT' } },
+      { id:'event-2', occurredAt:'2026-10-16T10:05:00Z', metadata:{ question_type:'question_text_bridge', outcome:'correct', evidence_strength:'medium', support_level:'none' } }
+    ],
     evidenceWindowStart:'2026-10-03T00:00:00Z', evidenceWindowEnd:'2026-10-17T00:00:00Z'
   });
   assert.equal(summary.learningArea, 'vocabulary_paraphrase');
@@ -18,7 +21,11 @@ test('EH-facing vocabulary summary is interpreted, provenance-backed, and free o
   assert.ok(['needs_attention','developing','secure','strong'].includes(summary.status));
   assert.equal(summary.developmentArea, 'production');
   assert.ok(summary.provenance.length >= 2);
+  assert.ok(summary.skillProfile);
+  assert.equal(summary.skillProfile.skills.idea_paraphrasing.status, 'Needs attention');
+  assert.ok(summary.misconceptionPatterns.some(row => row.code === 'quantity_change'));
   assert.equal(JSON.stringify(summary).includes('MUST NOT PASS'), false);
+  assert.equal(JSON.stringify(summary).includes('PRIVATE PROMPT'), false);
 });
 
 test('intervention outcome compares before and after evidence without pretending completion means improvement', () => {
