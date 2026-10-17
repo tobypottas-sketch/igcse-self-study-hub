@@ -28,6 +28,47 @@ test('tracking payload never includes free-text answers', () => {
   assert.deepEqual(event.metadata, { attempt_number: 2, outcome: 'correct' });
 });
 
+test('vocabulary tracking accepts only structured categorical metadata', () => {
+  const event = buildTrackingEvent({
+    app_key: 'vocabulary_paraphrase',
+    event_type: 'question_attempt',
+    activity_id: 'unit7:target42:production',
+    skill: 'production',
+    mode: 'practice',
+    strong: false,
+    metadata: {
+      unit_number: 7,
+      strand: 'production',
+      question_type: 'produce_paraphrase',
+      attempt_number: 2,
+      outcome: 'try_again',
+      retry_used: true,
+      recovery: false,
+      misconception: 'related_but_inaccurate',
+      target_id: 'vocab_significant',
+      occurrence_id: 'u7_significant',
+      answer_text: 'DO NOT STORE ME',
+      typed_answer: 'DO NOT STORE ME EITHER',
+      prompt: 'DO NOT STORE PROMPTS',
+      arbitrary_field: 'NOPE'
+    }
+  });
+
+  assert.equal(event.app_key, 'vocabulary_paraphrase');
+  assert.deepEqual(event.metadata, {
+    attempt_number: 2,
+    outcome: 'try_again',
+    question_type: 'produce_paraphrase',
+    unit_number: 7,
+    strand: 'production',
+    retry_used: true,
+    recovery: false,
+    misconception: 'related_but_inaccurate',
+    target_id: 'vocab_significant',
+    occurrence_id: 'u7_significant'
+  });
+});
+
 test('active time only counts while visible and recently active', () => {
   const now = 1_000_000;
   assert.equal(shouldCountActiveTime({ visible: true, lastInteractionAt: now - 30_000, now }), true);
