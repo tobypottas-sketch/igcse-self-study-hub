@@ -109,14 +109,19 @@ export function buildVocabularySkillProfile(events = []) {
 
 export function summarizeMisconceptions(events = []) {
   const counts = new Map();
+  let index = 0;
   for (const event of Array.isArray(events) ? events : []) {
     const code = metadata(event).misconception;
     if (!MISCONCEPTIONS[code]) continue;
-    counts.set(code, (counts.get(code) ?? 0) + 1);
+    const current = counts.get(code);
+    if (current) current.count += 1;
+    else counts.set(code, { count:1, firstIndex:index });
+    index += 1;
   }
   return [...counts.entries()]
-    .map(([code,count]) => ({ code, label:MISCONCEPTIONS[code], count }))
-    .sort((a,b) => b.count - a.count || a.code.localeCompare(b.code));
+    .map(([code,row]) => ({ code, label:MISCONCEPTIONS[code], count:row.count, firstIndex:row.firstIndex }))
+    .sort((a,b) => b.count - a.count || a.firstIndex - b.firstIndex)
+    .map(({ firstIndex, ...row }) => row);
 }
 
 export function skillLabel(skillId) {
