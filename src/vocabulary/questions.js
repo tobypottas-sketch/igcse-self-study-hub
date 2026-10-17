@@ -81,11 +81,18 @@ function choicesFor(item, occurrence, context, type) {
   for (const scoped of Array.isArray(sense.contextDependentParaphrases) ? sense.contextDependentParaphrases : []) {
     if (scoped?.contextId === context?.contextId) accepted.push(...(Array.isArray(scoped.answers) ? scoped.answers : []));
   }
-  const distractors = Array.isArray(sense.misleadingDistractors) ? sense.misleadingDistractors : [];
-  const pool = type === 'identify_inaccurate_paraphrase'
-    ? uniqueText([...accepted.slice(0, 2), ...distractors.slice(0, 2)])
-    : uniqueText([...accepted.slice(0, 2), ...distractors.slice(0, 2)]);
-  return rotate(pool.slice(0, 4), `${occurrence?.occurrenceId}:${context?.contextId}:${type}`);
+  const acceptedUnique = uniqueText(accepted);
+  const distractors = uniqueText(Array.isArray(sense.misleadingDistractors) ? sense.misleadingDistractors : []);
+  const seed = `${occurrence?.occurrenceId}:${context?.contextId}:${type}`;
+
+  if (type === 'identify_inaccurate_paraphrase') {
+    const bad = distractors[0];
+    const valid = acceptedUnique.slice(0, 3);
+    return rotate(uniqueText([bad, ...valid]).slice(0, 4), seed);
+  }
+
+  const correct = acceptedUnique[0];
+  return rotate(uniqueText([correct, ...distractors.slice(0, 3)]).slice(0, 4), seed);
 }
 
 export function buildQuestion({ occurrence, item, contexts = [], mastery = {}, usedContextIds = [], previousQuestionType = null, recycle = false, forceQuestionType = null, now = new Date() } = {}) {
