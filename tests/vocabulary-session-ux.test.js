@@ -59,7 +59,8 @@ test('correct feedback explains the learning instead of saying a word is getting
 
 test('answer feedback is calculated locally before server persistence', () => {
   const appSource = fs.readFileSync(new URL('../src/vocabulary/app.js', import.meta.url), 'utf8');
-  assert.match(appSource, /markVocabularyAttemptLocally/);
-  assert.doesNotMatch(appSource, /const result\s*=\s*await submitVocabularyAttempt/);
-  assert.match(appSource, /void\s+persistVocabularyAttempt|void\s+submitVocabularyAttempt/);
+  assert.match(appSource, /function\s+handleAnswer\s*\(/);
+  assert.doesNotMatch(appSource, /async\s+function\s+handleAnswer\s*\(/);
+  assert.match(appSource, /const result\s*=\s*markVocabularyAttemptLocally\(/);
+  assert.match(appSource, /if\s*\(!state\.preview\)\s+void\s+persistVocabularyAttempt\(/);
 });
