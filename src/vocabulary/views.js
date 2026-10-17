@@ -1,6 +1,11 @@
 import { escapeHtml } from '../views/html.js';
 import { PRACTICE_MODES, activityDefinition } from './activity-catalogue.js';
 
+const HIDE_TARGET_TYPES = new Set([
+  'replace_phrase','produce_paraphrase','use_target','context_gap_fill',
+  'complete_paraphrase','rewrite_phrase','rewrite_idea','improve_vocabulary','explain_another_way','word_family_switch'
+]);
+
 function statusOf(row) { return row?.status ?? 'new'; }
 function dueAt(row) { return row?.review_due_at ?? row?.reviewDueAt ?? null; }
 function errorPattern(row) { return row?.recent_error_pattern ?? row?.recentErrorPattern ?? null; }
@@ -95,7 +100,7 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
   const definition = activityDefinition(question?.type);
   const questionLabel = definition?.label ?? titleCase(question?.type ?? 'Practice');
   const sourceText = question?.sourceText ? `<aside class="vocab-source-text"><span>Source text</span><p>${escapeHtml(question.sourceText)}</p></aside>` : '';
-  const targetPill = term ? `<div class="vocab-target-pill">${escapeHtml(term)}</div>` : '';
+  const targetPill = term && !HIDE_TARGET_TYPES.has(question?.type) ? `<div class="vocab-target-pill">${escapeHtml(term)}</div>` : '';
   root.innerHTML = `<main class="vocab-shell vocab-shell--session"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card"><div class="vocab-question-meta"><p class="vocab-kicker">${escapeHtml(questionLabel)}</p><span>${escapeHtml(definition?.skillFamily ? titleCase(definition.skillFamily) : '')}</span></div>${targetPill}${sourceText}<h1>${escapeHtml(question?.prompt ?? '')}</h1>${feedbackHtml}${supportHtml}<form data-form="vocabulary-answer" class="vocab-answer-form">${renderAnswerControl(question, feedback, retry, support)}</form></section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
 }
 
