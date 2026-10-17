@@ -12,3 +12,18 @@ jobs:
           node-version: 22
       - run: npm test
       - run: node scripts/validate-vocabulary-content.mjs
+      - name: Verify Unit 1 publish export scope
+        shell: bash
+        run: |
+          node scripts/export-vocabulary-sql.mjs content/vocabulary/releases/unit-01.js > /tmp/unit-01.sql
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const sql = fs.readFileSync('/tmp/unit-01.sql','utf8').toLowerCase();
+          const inserts = [...sql.matchAll(/insert into public\.([a-z0-9_]+)/g)].map(match => match[1]);
+          const allowed = new Set(['vocabulary_items','vocabulary_unit_occurrences','vocabulary_contexts','vocabulary_unit_activities']);
+          const unexpected = [...new Set(inserts.filter(name => !allowed.has(name)))];
+          if (!inserts.length || unexpected.length) throw new Error(`Unexpected publish tables: ${unexpected.join(', ') || 'no inserts found'}`);
+          if (/\b(delete|truncate|drop|alter)\b/.test(sql)) throw new Error('Export contains destructive DDL/DML.');
+          if (!inserts.includes('vocabulary_unit_activities')) throw new Error('Unit 1 activity bank is missing from export.');
+          console.log('Unit 1 export touches only curated vocabulary content tables:', [...new Set(inserts)].join(', '));
+          NODE
