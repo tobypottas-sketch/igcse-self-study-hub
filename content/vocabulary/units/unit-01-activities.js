@@ -7,21 +7,21 @@ function phrase(id, originalPhrase, equivalentPhrase, linkedVocabularyIds, { acc
     activityData:{
       originalPhrase, equivalentPhrase, acceptedVariants,
       chunks:chunks ?? equivalentPhrase.split(/\s+/),
-      commonMeaningDistortions:distortions.length ? distortions : [`not ${equivalentPhrase}`],
+      commonMeaningDistortions:distortions,
       linkedVocabularyIds,
       primaryEvidenceTargetId:linkedVocabularyIds.length === 1 ? linkedVocabularyIds[0] : undefined
     }
   };
 }
 
-function idea(id, originalIdea, accurateParaphrase, invariantType, invariantValue, distractorText, misconceptionCategory, linkedVocabularyIds = []) {
+function idea(id, originalIdea, accurateParaphrase, invariantType, invariantValue, distractors, linkedVocabularyIds = []) {
   return {
     activityContentId:`u1_idea_${id}`, unitNumber, contentType:'idea_set', status,
     activityData:{
       originalIdea,
       accurateParaphrases:[accurateParaphrase],
       meaningInvariants:[{ type:invariantType, value:invariantValue }],
-      distractors:[{ text:distractorText, misconceptionCategory }],
+      distractors,
       linkedVocabularyIds
     }
   };
@@ -45,33 +45,81 @@ function writing(id, taskType, prompt, sourceText, acceptedAnswers, linkedVocabu
 }
 
 const phraseSets = [
-  phrase('leisure_time','time when you are not working or studying','leisure time',['vocab_leisure'],{ acceptedVariants:['free time','spare time'], distortions:['working time','training time'] }),
-  phrase('cannot_afford','do not have enough money to pay for','cannot afford',['vocab_afford'],{ acceptedVariants:['are unable to afford'], chunks:['cannot','afford'], distortions:['do not want to buy','can borrow'] }),
-  phrase('urge_students','strongly encourage students to','urge students to',['vocab_urge'],{ acceptedVariants:['press students to'], chunks:['urge','students','to'], distortions:['allow students to','force students to'] }),
-  phrase('demand_time','require a great deal of time','demand a great deal of time',['vocab_demand'],{ acceptedVariants:['need a great deal of time'], chunks:['demand','a great deal of','time'], distortions:['save a great deal of time','use no time'] }),
-  phrase('threaten_place','put her place in the team at risk','threaten her place in the team',['vocab_threaten'],{ chunks:['threaten','her place','in the team'], distortions:['guarantee her place in the team'] }),
-  phrase('determined_finish','strongly motivated to finish','determined to finish',['vocab_determined'],{ acceptedVariants:['resolved to finish'], chunks:['determined','to finish'], distortions:['uncertain about finishing','forced to finish'] }),
-  phrase('goal_oriented','focused on achieving clear aims','goal-oriented',['vocab_goal_oriented'],{ acceptedVariants:['focused on goals'], chunks:['goal-oriented'], distortions:['easily distracted','without a plan'] }),
-  phrase('major_achievement','an important accomplishment','a major achievement',['vocab_achievement'],{ acceptedVariants:['a significant achievement'], chunks:['a','major','achievement'], distortions:['an unsuccessful attempt','an ordinary routine'] }),
-  phrase('elite_athletes','top-level athletes','elite athletes',['vocab_elite'],{ acceptedVariants:['highest-level athletes'], chunks:['elite','athletes'], distortions:['beginner athletes','average spectators'] }),
-  phrase('serious_challenge','a difficult task that tests ability','a serious challenge',['vocab_challenge'],{ acceptedVariants:['a major challenge'], chunks:['a','serious','challenge'], distortions:['an easy routine','a reward'] }),
-  phrase('regardless_rain','despite the light rain','regardless of the light rain',['vocab_regardless'],{ acceptedVariants:['in spite of the light rain'], chunks:['regardless','of','the light rain'], distortions:['because of the light rain','only if it rains'] }),
-  phrase('minimum_three','at least three sessions','a minimum of three sessions',['vocab_minimum'],{ acceptedVariants:['no fewer than three sessions'], chunks:['a minimum','of three','sessions'], distortions:['no more than three sessions','exactly three sessions only'] })
+  phrase('leisure_time','time when you are not working or studying','leisure time',['vocab_leisure'],{ acceptedVariants:['free time','spare time'], distortions:['scheduled working time','compulsory study time','organised training time'] }),
+  phrase('cannot_afford','do not have enough money to pay for','cannot afford',['vocab_afford'],{ acceptedVariants:['are unable to afford'], chunks:['cannot','afford'], distortions:['choose not to pay for','borrow money to buy','have enough money for'] }),
+  phrase('urge_students','strongly encourage students to','urge students to',['vocab_urge'],{ acceptedVariants:['press students to'], chunks:['urge','students','to'], distortions:['allow students to','force students to','prevent students from'] }),
+  phrase('demand_time','require a great deal of time','demand a great deal of time',['vocab_demand'],{ acceptedVariants:['need a great deal of time'], chunks:['demand','a great deal of','time'], distortions:['save a great deal of time','use almost no time','reduce the amount of time'] }),
+  phrase('threaten_place','put her place in the team at risk','threaten her place in the team',['vocab_threaten'],{ chunks:['threaten','her place','in the team'], distortions:['guarantee her place in the team','secure her place in the team','leave her place in the team unchanged'] }),
+  phrase('determined_finish','strongly motivated to finish','determined to finish',['vocab_determined'],{ acceptedVariants:['resolved to finish'], chunks:['determined','to finish'], distortions:['uncertain about finishing','forced to finish','unwilling to finish'] }),
+  phrase('goal_oriented','focused on achieving clear aims','goal-oriented',['vocab_goal_oriented'],{ acceptedVariants:['focused on goals'], chunks:['focused','on','goals'], distortions:['easily distracted from goals','working without clear aims','focused only on distractions'] }),
+  phrase('major_achievement','an important accomplishment','a major achievement',['vocab_achievement'],{ acceptedVariants:['a significant achievement'], chunks:['a','major','achievement'], distortions:['an unsuccessful attempt','an ordinary routine','a minor setback'] }),
+  phrase('elite_athletes','top-level athletes','elite athletes',['vocab_elite'],{ acceptedVariants:['highest-level athletes'], chunks:['elite','athletes'], distortions:['beginner athletes','recreational athletes','average spectators'] }),
+  phrase('serious_challenge','a difficult task that tests ability','a serious challenge',['vocab_challenge'],{ acceptedVariants:['a major challenge'], chunks:['a','serious','challenge'], distortions:['a simple routine','an easy task','a guaranteed reward'] }),
+  phrase('regardless_rain','despite the light rain','regardless of the light rain',['vocab_regardless'],{ acceptedVariants:['in spite of the light rain'], chunks:['regardless','of','the light rain'], distortions:['because of the light rain','only if it rains','as a result of the light rain'] }),
+  phrase('minimum_three','at least three sessions','a minimum of three sessions',['vocab_minimum'],{ acceptedVariants:['no fewer than three sessions'], chunks:['a minimum','of three','sessions'], distortions:['no more than three sessions','exactly three sessions only','fewer than three sessions'] })
 ];
 
 const ideaSets = [
-  idea('preference','Mina has a preference for individual sports rather than team games.','Mina likes individual sports more than team games.','comparison','individual sports preferred to team games','Mina likes team games more than individual sports.','meaning_confusion',['vocab_preference']),
-  idea('deny','The athlete denied using any banned substance.','The athlete said it was not true that he had used a banned substance.','polarity','claim is rejected','The athlete admitted that he had used a banned substance.','meaning_confusion',['vocab_deny']),
-  idea('permit','The club does not permit spectators to enter the training area.','Spectators are not allowed to go into the training area.','polarity','permission is refused','Spectators may enter the training area whenever they want.','meaning_confusion',['vocab_permit']),
-  idea('intense','The final ten minutes of the match were intense.','The last ten minutes of the match were extremely demanding.','degree','very strong or demanding','The whole match was fairly relaxed.','degree_change',['vocab_intense']),
-  idea('tournament','Teams from eight schools entered the regional tournament.','Eight schools sent teams to take part in the regional competition.','quantity','eight schools','Teams from every school in the region entered the tournament.','quantity_change',['vocab_tournament']),
-  idea('discipline','Daily training requires discipline as well as ability.','Training every day needs self-control in addition to ability.','addition','self-control and ability are both required','Ability alone is enough for daily training.','omitted_information',['vocab_discipline']),
-  idea('overwhelming','The support from the crowd was overwhelming during the final.','During the final, the crowd gave support that was extremely powerful.','degree','support is extremely strong','The crowd gave a small amount of support during the final.','degree_change',['vocab_overwhelming']),
-  idea('generation','A new generation of players is entering the professional game.','A younger age group of players is beginning to compete professionally.','time_group','younger age group','Only one new player is entering the professional game.','quantity_change',['vocab_generation']),
-  idea('solution','The club found a solution to the shortage of training space.','The club found a way to deal with not having enough training space.','cause_effect','solution addresses shortage','The shortage of training space was caused by the club’s solution.','cause_effect_change',['vocab_solution']),
-  idea('pastime','Cycling began as a pastime before it became her profession.','She first cycled as a hobby and later made it her career.','time','hobby came before profession','Cycling became her profession before she tried it as a hobby.','time_change',['vocab_pastime']),
-  idea('estimated','The estimated cost of the new sports centre is five million dollars.','The sports centre is expected to cost about five million dollars.','certainty','figure is approximate','The sports centre definitely cost exactly five million dollars.','degree_change',['vocab_estimated']),
-  idea('relatively','The new sports centre is relatively small compared with the old stadium.','Compared with the old stadium, the new sports centre is fairly small.','comparison','size is judged relative to old stadium','The new sports centre is extremely small in every possible comparison.','degree_change',['vocab_relatively'])
+  idea('preference','Mina has a preference for individual sports rather than team games.','Mina likes individual sports more than team games.','comparison','individual sports preferred to team games',[
+    { text:'Mina likes team games more than individual sports.', misconceptionCategory:'meaning_confusion' },
+    { text:'Mina likes individual sports and team games equally.', misconceptionCategory:'degree_change' },
+    { text:'Mina only takes part in team games and avoids individual sports.', misconceptionCategory:'added_information' }
+  ],['vocab_preference']),
+  idea('deny','The athlete denied using any banned substance.','The athlete said it was not true that he had used a banned substance.','polarity','claim is rejected',[
+    { text:'The athlete admitted that he had used a banned substance.', misconceptionCategory:'meaning_confusion' },
+    { text:'The athlete refused to comment on whether he had used a banned substance.', misconceptionCategory:'omitted_information' },
+    { text:'The athlete confirmed the claim that he had used a banned substance.', misconceptionCategory:'meaning_confusion' }
+  ],['vocab_deny']),
+  idea('permit','The club does not permit spectators to enter the training area.','Spectators are not allowed to go into the training area.','polarity','permission is refused',[
+    { text:'Spectators are allowed to enter the training area whenever they want.', misconceptionCategory:'meaning_confusion' },
+    { text:'Only the coaches are forbidden from entering the training area.', misconceptionCategory:'meaning_confusion' },
+    { text:'Spectators are required to enter the training area before practice.', misconceptionCategory:'meaning_confusion' }
+  ],['vocab_permit']),
+  idea('intense','The final ten minutes of the match were intense.','The last ten minutes of the match were extremely demanding.','degree','very strong or demanding',[
+    { text:'The final ten minutes of the match were calm and relaxed.', misconceptionCategory:'degree_change' },
+    { text:'Only the first ten minutes of the match were extremely demanding.', misconceptionCategory:'time_change' },
+    { text:'The final ten minutes of the match were only slightly demanding.', misconceptionCategory:'degree_change' }
+  ],['vocab_intense']),
+  idea('tournament','Teams from eight schools entered the regional tournament.','Eight schools sent teams to take part in the regional competition.','quantity','eight schools',[
+    { text:'Teams from every school in the region entered the tournament.', misconceptionCategory:'quantity_change' },
+    { text:'Eight individual students entered one regional match.', misconceptionCategory:'meaning_confusion' },
+    { text:'Eight schools watched the regional competition but did not enter teams.', misconceptionCategory:'meaning_confusion' }
+  ],['vocab_tournament']),
+  idea('discipline','Daily training requires discipline as well as ability.','Training every day needs self-control in addition to ability.','addition','self-control and ability are both required',[
+    { text:'Ability alone is enough for someone who trains every day.', misconceptionCategory:'omitted_information' },
+    { text:'Self-control is needed for daily training, but ability is unnecessary.', misconceptionCategory:'omitted_information' },
+    { text:'Occasional training requires ability but no consistent self-control.', misconceptionCategory:'time_change' }
+  ],['vocab_discipline']),
+  idea('overwhelming','The support from the crowd was overwhelming during the final.','During the final, the crowd gave support that was extremely powerful.','degree','support is extremely strong',[
+    { text:'The crowd gave only a small amount of support during the final.', misconceptionCategory:'degree_change' },
+    { text:'The crowd support during the final was noticeable but easy to manage.', misconceptionCategory:'degree_change' },
+    { text:'The crowd gave extremely powerful support before the final but not during it.', misconceptionCategory:'time_change' }
+  ],['vocab_overwhelming']),
+  idea('generation','A new generation of players is entering the professional game.','A younger age group of players is beginning to compete professionally.','time_group','younger age group',[
+    { text:'Only one new player is entering the professional game.', misconceptionCategory:'quantity_change' },
+    { text:'An older age group of players is beginning to compete professionally.', misconceptionCategory:'meaning_confusion' },
+    { text:'A younger age group of players is leaving professional competition.', misconceptionCategory:'meaning_confusion' }
+  ],['vocab_generation']),
+  idea('solution','The club found a solution to the shortage of training space.','The club found a way to deal with not having enough training space.','cause_effect','solution addresses shortage',[
+    { text:'The shortage of training space was caused by the club’s solution.', misconceptionCategory:'cause_effect_change' },
+    { text:'The club decided to ignore the shortage of training space.', misconceptionCategory:'omitted_information' },
+    { text:'The club made the shortage of training space more difficult to solve.', misconceptionCategory:'cause_effect_change' }
+  ],['vocab_solution']),
+  idea('pastime','Cycling began as a pastime before it became her profession.','She first cycled as a hobby and later made it her career.','time','hobby came before profession',[
+    { text:'Cycling became her profession before she tried it as a hobby.', misconceptionCategory:'time_change' },
+    { text:'Cycling was always her profession and was never a hobby.', misconceptionCategory:'omitted_information' },
+    { text:'Cycling remained only a hobby and never became her career.', misconceptionCategory:'omitted_information' }
+  ],['vocab_pastime']),
+  idea('estimated','The estimated cost of the new sports centre is five million dollars.','The sports centre is expected to cost about five million dollars.','certainty','figure is approximate',[
+    { text:'The sports centre definitely costs exactly five million dollars.', misconceptionCategory:'degree_change' },
+    { text:'The sports centre has already cost exactly five million dollars.', misconceptionCategory:'time_change' },
+    { text:'No one has made any approximate calculation of the sports centre’s cost.', misconceptionCategory:'meaning_confusion' }
+  ],['vocab_estimated']),
+  idea('relatively','The new sports centre is relatively small compared with the old stadium.','Compared with the old stadium, the new sports centre is fairly small.','comparison','size is judged relative to old stadium',[
+    { text:'The new sports centre is extremely small in every possible comparison.', misconceptionCategory:'degree_change' },
+    { text:'The new sports centre and the old stadium are exactly the same size.', misconceptionCategory:'meaning_confusion' },
+    { text:'Compared with the new sports centre, the old stadium is fairly small.', misconceptionCategory:'meaning_confusion' }
+  ],['vocab_relatively'])
 ];
 
 const questionTextSets = [
