@@ -2,6 +2,13 @@ import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 import { applyEvidence, markCuratedAnswer } from '../_shared/vocabulary-engine.js';
 import { buildStoredAttemptMetadata, strandForQuestionType, validateVocabularyAttempt } from './validation.js';
 
+const CORS = {
+  'Access-Control-Allow-Origin':'*',
+  'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods':'POST, OPTIONS'
+};
+const json = (body: unknown, status = 200) => Response.json(body, { status, headers:CORS });
+
 function firstNamedKey(raw: string | undefined): string {
   if (!raw) throw new Error('Missing Supabase key configuration.');
   const parsed = JSON.parse(raw);
@@ -44,10 +51,11 @@ function errorPattern(marked: any) {
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method !== 'POST') return Response.json({ error:'Method not allowed' }, { status:405 });
+  if (req.method === 'OPTIONS') return new Response(null, { status:204, headers:CORS });
+  if (req.method !== 'POST') return json({ error:'Method not allowed' }, 405);
   try {
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) return Response.json({ error:'Authentication required' }, { status:401 });
+    if (!authHeader) return json({ error:'Authentication required' }, 401);
     const url = Deno.env.get('SUPABASE_URL');
     if (!url) throw new Error('Missing SUPABASE_URL.');
     const publishableKey = firstNamedKey(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS'));
@@ -58,16 +66,16 @@ Deno.serve(async (req: Request) => {
       auth:{ persistSession:false, autoRefreshToken:false }
     });
     const { data:callerData, error:callerError } = await callerClient.auth.getUser();
-    if (callerError || !callerData.user) return Response.json({ error:'Invalid session' }, { status:401 });
+    if (callerError || !callerData.user) return json({ error:'Invalid session' }, 401);
 
     const adminClient = createClient(url, secretKey, { auth:{ persistSession:false, autoRefreshToken:false } });
     const { data:profile, error:profileError } = await adminClient.from('profiles').select('role, active').eq('id', callerData.user.id).single();
-    if (profileError || !profile?.active) return Response.json({ error:'Active account required' }, { status:403 });
+    if (profileError || !profile?.active) return json({ error:'Active account required' }, 403);
 
     const input = validateVocabularyAttempt(await req.json());
     const staff = profile.role === 'teacher' || profile.role === 'admin';
-    if (input.preview && !staff) return Response.json({ error:'Teacher or admin preview required' }, { status:403 });
-    if (!input.preview && profile.role !== 'student') return Response.json({ error:'Student account required for mastery updates' }, { status:403 });
+    if (input.preview && !staff) return json({ error:'Teacher or admin preview required' }, 403);
+    if (!input.preview && profile.role !== 'student') return json({ error:'Student account required for mastery updates' }, 403);
 
     const { data:occurrence, error:occurrenceError } = await adminClient
       .from('vocabulary_unit_occurrences')
@@ -76,18 +84,18 @@ Deno.serve(async (req: Request) => {
       .eq('status', 'live')
       .eq('active', true)
       .single();
-    if (occurrenceError || !occurrence) return Response.json({ error:'Live vocabulary target not found' }, { status:404 });
+    if (occurrenceError || !occurrence) return json({ error:'Live vocabulary target not found' }, 404);
 
     const [{ data:item, error:itemError }, { data:context, error:contextError }] = await Promise.all([
       adminClient.from('vocabulary_items').select('vocabulary_id, senses, status').eq('vocabulary_id', occurrence.vocabulary_id).eq('status','live').single(),
       adminClient.from('vocabulary_contexts').select('context_id, occurrence_id, sense_id, accepted_answers, misconception_category, status').eq('context_id', input.contextId).eq('status','live').single()
     ]);
-    if (itemError || !item) return Response.json({ error:'Vocabulary content not found' }, { status:404 });
+    if (itemError || !item) return json({ error:'Vocabulary content not found' }, 404);
     if (contextError || !context || context.occurrence_id !== occurrence.occurrence_id || context.sense_id !== occurrence.sense_id) {
-      return Response.json({ error:'Vocabulary context does not match target' }, { status:400 });
+      return json({ error:'Vocabulary context does not match target' }, 400);
     }
     const sense = Array.isArray(item.senses) ? item.senses.find((candidate: any) => candidate?.senseId === occurrence.sense_id) : null;
-    if (!sense) return Response.json({ error:'Vocabulary sense not found' }, { status:400 });
+    if (!sense) return json({ error:'Vocabulary sense not found' }, 400);
 
     const marked = markCuratedAnswer({
       item:{ vocabularyId:item.vocabulary_id },
@@ -109,7 +117,7 @@ Deno.serve(async (req: Request) => {
     };
 
     if (input.preview) {
-      return Response.json({ ok:true, preview:true, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory, strand });
+      return json({ ok:true, preview:true, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory, strand });
     }
 
     const [{ data:globalRow }, { data:unitRow }] = await Promise.all([
@@ -120,39 +128,32 @@ Deno.serve(async (req: Request) => {
     const nextGlobal = applyEvidence(globalMasteryFromRow(globalRow), evidence, now);
     const nextUnit = applyEvidence(unitMasteryFromRow(unitRow), { ...evidence, review:false }, now);
     const recentErrorPattern = errorPattern(marked);
+    const unitContextualEvidence = {
+      strandEvidence:nextUnit.strandEvidence,
+      successfulProductions:nextUnit.successfulProductions,
+      productionContextIds:nextUnit.productionContextIds,
+      recentErrorCount:nextUnit.recentErrorCount,
+      recoveryCount:nextUnit.recoveryCount
+    };
 
-    const { error:globalWriteError } = await adminClient.from('vocabulary_global_mastery').upsert({
-      student_id:callerData.user.id,
-      vocabulary_id:occurrence.vocabulary_id,
-      status:nextGlobal.status,
-      strand_evidence:nextGlobal.strandEvidence,
-      successful_productions:nextGlobal.successfulProductions,
-      production_context_ids:nextGlobal.productionContextIds,
-      review_stage:nextGlobal.reviewStage,
-      review_due_at:nextGlobal.reviewDueAt,
-      review_failure_count:nextGlobal.reviewFailureCount,
-      recent_error_pattern:recentErrorPattern,
-      last_seen_at:now.toISOString(),
-      updated_at:now.toISOString()
-    }, { onConflict:'student_id,vocabulary_id' });
-    if (globalWriteError) throw new Error('Unable to update global vocabulary mastery.');
-
-    const { error:unitWriteError } = await adminClient.from('vocabulary_unit_mastery').upsert({
-      student_id:callerData.user.id,
-      occurrence_id:occurrence.occurrence_id,
-      status:nextUnit.status,
-      contextual_evidence:{
-        strandEvidence:nextUnit.strandEvidence,
-        successfulProductions:nextUnit.successfulProductions,
-        productionContextIds:nextUnit.productionContextIds,
-        recentErrorCount:nextUnit.recentErrorCount,
-        recoveryCount:nextUnit.recoveryCount
-      },
-      recent_error_pattern:recentErrorPattern,
-      last_seen_at:now.toISOString(),
-      updated_at:now.toISOString()
-    }, { onConflict:'student_id,occurrence_id' });
-    if (unitWriteError) throw new Error('Unable to update unit vocabulary mastery.');
+    const { error:masteryWriteError } = await adminClient.rpc('apply_vocabulary_mastery_state', {
+      p_student_id:callerData.user.id,
+      p_vocabulary_id:occurrence.vocabulary_id,
+      p_occurrence_id:occurrence.occurrence_id,
+      p_global_status:nextGlobal.status,
+      p_global_strand_evidence:nextGlobal.strandEvidence,
+      p_successful_productions:nextGlobal.successfulProductions,
+      p_production_context_ids:nextGlobal.productionContextIds,
+      p_review_stage:nextGlobal.reviewStage,
+      p_review_due_at:nextGlobal.reviewDueAt,
+      p_review_failure_count:nextGlobal.reviewFailureCount,
+      p_global_error_pattern:recentErrorPattern,
+      p_unit_status:nextUnit.status,
+      p_unit_contextual_evidence:unitContextualEvidence,
+      p_unit_error_pattern:recentErrorPattern,
+      p_seen_at:now.toISOString()
+    });
+    if (masteryWriteError) throw new Error('Unable to update vocabulary mastery.');
 
     const metadata = buildStoredAttemptMetadata({
       unitNumber:occurrence.unit_number,
@@ -166,7 +167,7 @@ Deno.serve(async (req: Request) => {
       vocabularyId:occurrence.vocabulary_id,
       occurrenceId:occurrence.occurrence_id
     });
-    await callerClient.from('activity_events').insert({
+    const { error:activityError } = await callerClient.from('activity_events').insert({
       app_key:'vocabulary_paraphrase',
       event_type:'question_attempt',
       activity_id:`${occurrence.occurrence_id}:${context.context_id}:${input.questionType}`,
@@ -178,8 +179,9 @@ Deno.serve(async (req: Request) => {
       max_score:1,
       metadata
     });
+    if (activityError) console.warn('Vocabulary activity event write failed after mastery update.');
 
-    return Response.json({
+    return json({
       ok:true,
       correct:marked.correct,
       misconceptionCategory:marked.misconceptionCategory,
@@ -190,6 +192,6 @@ Deno.serve(async (req: Request) => {
       recovery:input.recoveredLater && marked.correct
     });
   } catch (error) {
-    return Response.json({ error:error instanceof Error ? error.message : 'Unexpected error' }, { status:400 });
+    return json({ error:error instanceof Error ? error.message : 'Unexpected error' }, 400);
   }
 });
