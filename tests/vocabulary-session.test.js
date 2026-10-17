@@ -7,11 +7,20 @@ const NOW = new Date('2026-10-17T00:00:00Z');
 test('adaptive sessions are fixed-target untimed sessions', () => {
   const session = createSession({ unitNumber:7, mode:'adaptive', targetIds:Array.from({ length:10 },(_,i)=>`v${i+1}`), now:NOW });
   assert.equal(session.mode, 'adaptive');
+  assert.equal(session.practiceMode, 'adaptive');
   assert.equal(session.durationMinutes, null);
   assert.equal(session.targetIds.length, 10);
   assert.equal(isSessionComplete(session, NOW), false);
   const finished = { ...session, completedTargetIds:[...session.targetIds] };
   assert.equal(isSessionComplete(finished, NOW), true);
+});
+
+test('sessions preserve the chosen 0511 practice mode independently of timed or untimed delivery', () => {
+  const untimed = createSession({ unitNumber:1, mode:'adaptive', practiceMode:'phrase_paraphrase', targetIds:['v1'], now:NOW });
+  assert.equal(untimed.practiceMode, 'phrase_paraphrase');
+  const timed = createSession({ unitNumber:1, mode:'timed', practiceMode:'question_text', durationMinutes:10, now:NOW });
+  assert.equal(timed.practiceMode, 'question_text');
+  assert.throws(() => createSession({ unitNumber:1, mode:'adaptive', practiceMode:'hangman', targetIds:['v1'], now:NOW }), /practice mode/i);
 });
 
 test('timed sessions accept only 5 10 15 or 20 minutes', () => {
