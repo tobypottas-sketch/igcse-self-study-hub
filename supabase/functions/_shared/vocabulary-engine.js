@@ -135,9 +135,14 @@ export function markCuratedAnswer({ item = {}, sense = {}, context = {}, questio
   }
   accepted.delete('');
 
-  const correct = accepted.has(normalizedAnswer);
-  const distractors = new Set((Array.isArray(sense.misleadingDistractors) ? sense.misleadingDistractors : []).map(normalizeVocabularyAnswer));
-  const misconceptionCategory = correct ? null : (distractors.has(normalizedAnswer) ? 'related_but_inaccurate' : null);
+  const distractors = new Set((Array.isArray(sense.misleadingDistractors) ? sense.misleadingDistractors : []).map(normalizeVocabularyAnswer).filter(Boolean));
+  const identifyingInaccurate = questionType === 'identify_inaccurate_paraphrase';
+  const correct = identifyingInaccurate ? distractors.has(normalizedAnswer) : accepted.has(normalizedAnswer);
+  let misconceptionCategory = null;
+  if (!correct) {
+    if (identifyingInaccurate && accepted.has(normalizedAnswer)) misconceptionCategory = 'meaning_confusion';
+    else if (!identifyingInaccurate && distractors.has(normalizedAnswer)) misconceptionCategory = 'related_but_inaccurate';
+  }
   const strand = ['produce_paraphrase','use_target','replace_phrase'].includes(questionType) ? 'production' : 'recognition';
 
   return {
