@@ -35,7 +35,7 @@ test('question builder adds activity-specific instructions around clean curated 
   assert.match(inaccurate.prompt, /does NOT match/i);
 
   const replacement = buildQuestion({ occurrence, item, contexts, mastery:{ status:'secure', strandEvidence:{} }, forceQuestionType:'replace_phrase' });
-  assert.match(replacement.prompt, /Replace “important”/i);
+  assert.match(replacement.prompt, /closest meaning to “important”/i);
   assert.match(replacement.prompt, /The change had an important impact/);
 
   const gap = buildQuestion({ occurrence, item, contexts, mastery:{ status:'secure', strandEvidence:{} }, forceQuestionType:'context_gap_fill' });
