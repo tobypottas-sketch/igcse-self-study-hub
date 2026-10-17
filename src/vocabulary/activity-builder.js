@@ -88,14 +88,26 @@ function meaningMatch(args, definition) {
 }
 function whichSituationFits(args, definition) {
   const { item, occurrence, contexts, unitActivities, seed } = args;
-  const context = chooseContext(contexts, ['meaning_context'], args.usedContentIds, seed);
-  let alternatives = [];
-  const relatedPhrase = array(unitActivities).find(activity => activity.contentType === 'phrase_set' && linkedToTarget(activity, item.vocabularyId));
-  if (relatedPhrase) alternatives = array(relatedPhrase.activityData?.commonMeaningDistortions);
-  alternatives = uniqueText([...alternatives, ...array(senseFor(item, occurrence).misleadingDistractors)]);
+  const context = chooseContext(contexts, ['paraphrase_context'], args.usedContentIds, seed);
+  const term = text(item.term).toLocaleLowerCase('en');
   const correct = text(context.text);
-  const options = stableShuffle(uniqueText([correct, ...alternatives]).slice(0,4), `${seed}:situations`);
-  return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`Which option best shows the meaning of “${text(item.term)}”?`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId } });
+  if (!correct || correct.toLocaleLowerCase('en').includes(term)) throw new Error('Which Situation Fits requires a target-free curated situation.');
+
+  const alternatives = [];
+  for (const activity of array(unitActivities)) {
+    if (activity?.contentType !== 'idea_set') continue;
+    const data = object(activity.activityData);
+    alternatives.push(...array(data.accurateParaphrases));
+    alternatives.push(...array(data.distractors).map(row => row?.text));
+  }
+  const sentenceAlternatives = uniqueText(alternatives).filter(candidate => {
+    const lower = candidate.toLocaleLowerCase('en');
+    return lower !== correct.toLocaleLowerCase('en') && !lower.includes(term) && candidate.split(/\s+/).length >= 5;
+  });
+  const wrong = stableShuffle(sentenceAlternatives, `${seed}:situations:wrong`).slice(0,3);
+  if (wrong.length < 3) throw new Error('Which Situation Fits requires three full-sentence curated distractors.');
+  const options = stableShuffle([correct, ...wrong], `${seed}:situations`);
+  return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`Which situation best shows the meaning of “${text(item.term)}”?`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId } });
 }
 function meaningInContext(args, definition) {
   const { item, occurrence, contexts, seed } = args;
@@ -137,13 +149,36 @@ function questionTextActivity(args, definition, findEvidence = false) {
   const indexed = questions.map((question,index) => ({ question, index }));
   const selected = stableShuffle(indexed, `${args.seed}:${record.activityContentId}:question`)[0];
   const question = selected.question;
-  const acceptedAnswers = uniqueText(array(question.evidenceSpans));
-  const evidenceOptions = stableShuffle(uniqueText([...acceptedAnswers, ...questions.filter((_,index) => index !== selected.index).flatMap(candidate => array(candidate.evidenceSpans))]), `${args.seed}:${record.activityContentId}:evidence`);
+  const evidenceAnswers = uniqueText(array(question.evidenceSpans));
+  if (!evidenceAnswers.length) throw new Error('Question ↔ Text content has no curated evidence span.');
+
+  if (findEvidence) {
+    const evidenceOptions = stableShuffle(uniqueText([
+      ...evidenceAnswers,
+      ...questions.filter((_,index) => index !== selected.index).flatMap(candidate => array(candidate.evidenceSpans))
+    ]), `${args.seed}:${record.activityContentId}:evidence`);
+    return baseActivity({
+      definition, occurrence:args.occurrence, contentId:record.activityContentId,
+      prompt:`${text(question.question)} Select the exact evidence from the text.`,
+      markingReference:{ acceptedAnswers:evidenceAnswers, paraphraseLinks:array(question.paraphraseLinks) },
+      extra:{ activityVariantId:`q${selected.index}`, sourceText:text(data.sourceText), questionText:text(question.question), evidenceOptions }
+    });
+  }
+
+  const correctQuestion = text(question.question);
+  const questionPool = [];
+  for (const activity of array(args.unitActivities)) {
+    if (activity?.contentType !== 'question_text') continue;
+    for (const candidate of array(object(activity.activityData).questions)) questionPool.push(candidate?.question);
+  }
+  const distractors = stableShuffle(uniqueText(questionPool).filter(candidate => candidate !== correctQuestion), `${args.seed}:${record.activityContentId}:question-options`).slice(0,3);
+  if (distractors.length < 3) throw new Error('Question ↔ Text Bridge requires four curated question options.');
+  const options = stableShuffle([correctQuestion, ...distractors], `${args.seed}:${record.activityContentId}:bridge`);
   return baseActivity({
     definition, occurrence:args.occurrence, contentId:record.activityContentId,
-    prompt:findEvidence ? `${text(question.question)} Select the exact evidence from the text.` : `Which source wording answers this question? ${text(question.question)}`,
-    markingReference:{ acceptedAnswers, paraphraseLinks:array(question.paraphraseLinks) },
-    extra:{ activityVariantId:`q${selected.index}`, sourceText:text(data.sourceText), questionText:text(question.question), ...(findEvidence ? { evidenceOptions } : { options:evidenceOptions }) }
+    prompt:`Which question is asking about the same idea as this source wording?\n“${evidenceAnswers[0]}”`,
+    markingReference:{ acceptedAnswers:[correctQuestion], paraphraseLinks:array(question.paraphraseLinks) },
+    extra:{ activityVariantId:`q${selected.index}`, sourceText:text(data.sourceText), questionText:correctQuestion, options }
   });
 }
 function phraseRecord(args) { return chooseUnitActivity(args.unitActivities, 'phrase_set', args.item.vocabularyId, args.usedContentIds, args.seed); }
