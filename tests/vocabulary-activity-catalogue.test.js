@@ -70,13 +70,13 @@ test('every activity declares a complete deterministic learning contract', () =>
   }
 });
 
-test('each focused mode returns only activities belonging to that mode and adaptive can use all 18', () => {
+test('each focused mode returns only activities belonging to that mode and adaptive can use every live activity', () => {
   for (const mode of EXPECTED_MODES.filter(mode => mode !== 'adaptive')) {
     const activities = activitiesForMode(mode);
     assert.ok(activities.length > 0, mode);
     assert.ok(activities.every(activity => activity.practiceModes.includes(mode)), mode);
   }
-  assert.deepEqual(activitiesForMode('adaptive').map(activity => activity.id), EXPECTED_ACTIVITIES);
+  assert.deepEqual(activitiesForMode('adaptive').map(activity => activity.id), EXPECTED_ACTIVITIES.filter(id => id !== 'collocation_builder'));
 });
 
 test('stage filtering respects minimum readiness while keeping supported work available', () => {

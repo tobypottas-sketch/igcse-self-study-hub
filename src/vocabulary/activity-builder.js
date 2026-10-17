@@ -1,4 +1,4 @@
-import { activityDefinition } from './activity-catalogue.js';
+import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 
 const STAGE_ORDER = Object.freeze({ new:0, building:1, secure:2, mastered:3 });
 
@@ -355,6 +355,7 @@ export function buildActivity({ activityType, occurrence, item, contexts = [], u
   if (!occurrence || !item) throw new Error('Vocabulary occurrence and item are required.');
   const definition = activityDefinition(activityType);
   if (!definition) throw new Error('Invalid 0511 vocabulary activity type.');
+  if (!isActivityLive(definition.id)) throw new Error(`${definition.label} is temporarily unavailable.`);
   assertReady(definition, mastery, readinessStage);
   const builder = BUILDERS[definition.id];
   if (!builder) throw new Error(`No builder exists for ${definition.id}.`);

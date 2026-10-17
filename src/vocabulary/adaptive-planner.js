@@ -1,4 +1,4 @@
-import { activityDefinition, activitiesForMode } from './activity-catalogue.js';
+import { activityDefinition, activitiesForMode, isActivityLive } from './activity-catalogue.js';
 
 const STAGE_ORDER = Object.freeze({ new:0, building:1, secure:2, mastered:3 });
 const MODE_ENTRY_STAGE = Object.freeze({
@@ -64,7 +64,7 @@ function availableSet(availableContent) {
 
 function stageEligible(type, stage) {
   const definition = activityDefinition(type);
-  return Boolean(definition) && STAGE_ORDER[definition.minimumStage] <= STAGE_ORDER[stage];
+  return Boolean(definition) && isActivityLive(type) && STAGE_ORDER[definition.minimumStage] <= STAGE_ORDER[stage];
 }
 
 function allowedForMode(practiceMode) {
