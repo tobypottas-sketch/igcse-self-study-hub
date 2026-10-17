@@ -135,12 +135,13 @@ Do not show students a wall of percentages for individual skill strands.
 
 ## 7. Mastery strands
 
-Each vocabulary target gathers evidence across four core strands:
+Each vocabulary target gathers evidence across five distinct strands:
 
-1. **Meaning / Recognition** — student understands or identifies the target meaning.
-2. **Context** — student understands the word or phrase in natural 0511-style context.
-3. **Paraphrasing** — student recognises or produces an equivalent expression while preserving meaning.
-4. **Production** — student retrieves or uses the target/equivalent independently.
+1. **Meaning** — student understands what the target means.
+2. **Recognition** — student identifies the target or a valid equivalent when encountered.
+3. **Context** — student understands the word or phrase in natural 0511-style context.
+4. **Paraphrasing** — student recognises or produces an equivalent expression while preserving meaning.
+5. **Production** — student retrieves or uses the target/equivalent independently.
 
 Production is required for full mastery.
 
@@ -157,7 +158,8 @@ Examples:
 - successful production may strengthen Production, Paraphrase, Recognition, and Meaning;
 - successful paraphrasing may strengthen Paraphrase, Recognition, and Meaning;
 - contextual understanding may strengthen Context and Meaning;
-- recognition does not strengthen Production.
+- recognition may strengthen Recognition and Meaning;
+- meaning recognition does not strengthen Production.
 
 This prevents students from repeatedly proving easier skills after they have already demonstrated harder ones.
 
@@ -266,6 +268,8 @@ The engine records `error -> feedback -> later successful recovery` as meaningfu
 
 Repeated wrong answers lower confidence and raise future practice priority.
 
+The system must not persist the student's free-text answer merely to support this loop. It may persist structured outcome metadata such as incorrect/correct, retry used, recovery achieved, misconception category, and target ID.
+
 ## 15. Mixed-session rules
 
 Main mastery sessions are always mixed.
@@ -329,10 +333,12 @@ Recommended fields include:
 - global status
 - confidence/evidence by strand
 - successful production count
-- last successful production context
+- last successful production context identifier
 - review due state/date
-- recent error pattern
+- recent error pattern category
 - last seen timestamp
+
+Do not persist the student's free-text production response.
 
 ### 16.4 Student unit mastery
 
@@ -341,9 +347,11 @@ Recommended fields include:
 - student ID
 - unit occurrence ID
 - unit-specific status
-- contextual evidence
+- contextual evidence summary
 - latest unit interaction
-- recent error pattern
+- recent error pattern category
+
+Do not persist free-text student answers.
 
 ## 17. Multi-sense handling
 
@@ -514,7 +522,7 @@ Failure-type examples:
 - understands in context but cannot retrieve;
 - produces the wrong grammatical form.
 
-Raw attempts sit behind a `View evidence` action rather than dominating the page.
+Raw outcome events sit behind a `View evidence` action rather than dominating the page. The evidence view must not reveal stored free-text student answers because those answers are not persisted.
 
 ## 27. Individual student view
 
@@ -600,8 +608,10 @@ A teacher-facing `Teams Target List` may contain:
 - target words/phrases;
 - affected students;
 - weak mastery strand;
-- common incorrect answers or misconception type;
+- predefined misconception/error category or relevant curated distractors;
 - suggested focus.
+
+It must not require storing or exporting the student's original free-text answer.
 
 Teams is an external follow-up surface, not the primary evidence store.
 
@@ -615,19 +625,22 @@ The evidence architecture has three layers.
 
 ### 31.1 Raw learning activity — learning area owns detail
 
-Each app records detailed activity required for adaptation and mastery.
+Each app records structured activity metadata required for adaptation and mastery.
 
 Examples may include:
 
 - activity type;
-- target/skill;
-- unit/set/context;
-- correct/incorrect;
-- supported retry;
-- recovery;
+- target/skill identifier;
+- unit/set/context identifier;
+- correct/incorrect outcome;
+- supported retry used;
+- recovery achieved;
 - score/max where meaningful;
 - active time;
-- specialist metadata.
+- predefined misconception/error category;
+- specialist non-content metadata.
+
+The shared event stream must not persist student essays, free-text answers, notes, teacher notes, teacher prompts, or other prohibited learning content.
 
 ### 31.2 Learning interpretation — each app owns expertise
 
@@ -707,9 +720,11 @@ GitHub must never contain real student essays, answers, notes, teacher notes, te
 
 ### 35.2 Supabase / learning storage
 
-Private student performance and learning evidence belong in the authenticated data layer under strict authorization and RLS.
+Private student performance and learning evidence belong in the authenticated data layer under strict authorization and RLS, but only as permitted structured metadata.
 
-Students may access only their own evidence.
+Student free-text answers, essays, notes, teacher notes, and teacher prompts must not be persisted remotely.
+
+Students may access only their own permitted evidence metadata.
 Teachers may access only authorized students/classes.
 Admins follow the existing admin authorization model.
 
@@ -717,7 +732,9 @@ Stable IDs, not display names, are the integration keys across systems.
 
 ### 35.3 Evidence Hub
 
-Evidence Hub should normally receive interpreted evidence summaries and intervention outcomes rather than unnecessary raw student answer payloads.
+Evidence Hub should normally receive interpreted evidence summaries and intervention outcomes rather than unnecessary raw event payloads.
+
+Evidence Hub must not receive prohibited student free-text answers or other prohibited learning content.
 
 Conclusions must retain provenance so they can be traced to the source learning area and evidence window.
 
@@ -727,7 +744,7 @@ The feature should reuse existing Hub authentication, profile/class membership, 
 
 Do not create a second independent identity system, second class model, or parallel teacher analytics silo.
 
-The vocabulary content/mastery subsystem may require specialist tables because its domain model is richer than generic `activity_events`, but those tables must integrate with the shared user/class/app architecture.
+The vocabulary content/mastery subsystem may require specialist tables because its domain model is richer than generic `activity_events`, but those tables must integrate with the shared user/class/app architecture and obey the same privacy/RLS boundaries.
 
 ## 37. Out of scope for initial implementation
 
@@ -754,5 +771,5 @@ The design is successful when:
 - teachers can recommend or assign targeted Hub practice and generate Teams target lists;
 - evidence produced by Vocabulary fits the same scalable Hub -> Evidence Hub architecture as every other learning area;
 - future learning areas can join without redesigning the evidence ecosystem;
-- private student evidence remains outside GitHub and properly access-controlled;
+- prohibited student free-text content is never persisted to GitHub, Supabase, or Evidence Hub;
 - curated content remains deterministic, reviewable and quality-controlled.
