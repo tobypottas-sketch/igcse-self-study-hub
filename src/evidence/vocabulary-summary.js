@@ -1,4 +1,5 @@
 import { buildEvidenceSummary } from './contracts.js';
+import { buildVocabularySkillProfile } from '../vocabulary/skill-profile.js';
 
 const STRANDS = ['meaning','recognition','context','paraphrasing','production'];
 const STATUS_ORDER = ['needs_attention','developing','secure','strong'];
@@ -15,9 +16,7 @@ function statusFromRows(rows) {
   if (attention / rows.length >= .35) return 'needs_attention';
   return 'developing';
 }
-function strandScores(rows) {
-  return Object.fromEntries(STRANDS.map(strand => [strand, Number(avg(rows.map(row => score(row,strand))).toFixed(2))]));
-}
+function strandScores(rows) { return Object.fromEntries(STRANDS.map(strand => [strand, Number(avg(rows.map(row => score(row,strand))).toFixed(2))])); }
 function weakest(scores) { return STRANDS.slice().sort((a,b) => scores[a] - scores[b])[0] ?? null; }
 function strongest(scores) { return STRANDS.slice().sort((a,b) => scores[b] - scores[a])[0] ?? null; }
 function signalStrength(count) { return count >= 20 ? 'strong' : count >= 6 ? 'moderate' : 'weak'; }
@@ -33,6 +32,7 @@ export function buildVocabularyEvidenceSummary({ studentId, mastery = [], activi
   const status = statusFromRows(mastery);
   const recentSecure = mastery.filter(row => ['secure','mastered'].includes(row.status)).length;
   const trend = mastery.length < 2 ? 'insufficient_evidence' : recentSecure ? 'improving' : 'stable';
+  const skillProfile = buildVocabularySkillProfile(activity);
   return {
     ...buildEvidenceSummary({
       learningArea:'vocabulary_paraphrase', studentId, status, trend,
@@ -46,7 +46,11 @@ export function buildVocabularyEvidenceSummary({ studentId, mastery = [], activi
     persistentTargetIds:persistentTargets,
     strandScores:scores,
     evidenceCount:mastery.length + activity.length,
-    engagement:activity.length ? 'active' : 'no_recent_activity'
+    engagement:activity.length ? 'active' : 'no_recent_activity',
+    skillProfile,
+    strongestSkill:skillProfile.strongestSkill,
+    developmentSkill:skillProfile.developmentSkill,
+    misconceptionPatterns:skillProfile.misconceptions
   };
 }
 
