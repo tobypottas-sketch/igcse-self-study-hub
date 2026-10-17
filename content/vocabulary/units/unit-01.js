@@ -1,4 +1,5 @@
 import { buildCuratedUnit } from '../build-unit.js';
+import unit1Activities from './unit-01-activities.js';
 
 const e = (term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence, paraphraseSource, paraphraseSentence, productionSource, productionSentence, extras = {}) => ({
   term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence,
@@ -65,5 +66,6 @@ export default buildCuratedUnit({
   unitTitle:'Sports and Free Time',
   status:'approved',
   source:'0511_UNIT_1.docx',
-  entries
+  entries,
+  activities:unit1Activities
 });
