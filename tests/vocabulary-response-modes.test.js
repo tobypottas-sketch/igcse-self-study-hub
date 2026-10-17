@@ -34,6 +34,25 @@ test('recognition-family questions are choice-response tasks with curated option
   }
 });
 
+test('ordinary choice questions expose exactly one marked-correct option', () => {
+  const sense = item.senses[0];
+  for (const type of ['meaning_match','paraphrase_match']) {
+    const question = buildQuestion({ occurrence, item, contexts, mastery:{ status:'building', strandEvidence:{} }, forceQuestionType:type });
+    const context = contexts.find(candidate => candidate.contextId === question.contextId);
+    const correctOptions = question.options.filter(rawAnswer => markCuratedAnswer({ item, sense, context, questionType:type, rawAnswer }).correct);
+    assert.equal(correctOptions.length, 1, `${type} should contain exactly one correct option`);
+  }
+});
+
+test('identify-inaccurate questions expose exactly one marked-bad option', () => {
+  const sense = item.senses[0];
+  const type = 'identify_inaccurate_paraphrase';
+  const question = buildQuestion({ occurrence, item, contexts, mastery:{ status:'building', strandEvidence:{} }, forceQuestionType:type });
+  const context = contexts.find(candidate => candidate.contextId === question.contextId);
+  const correctOptions = question.options.filter(rawAnswer => markCuratedAnswer({ item, sense, context, questionType:type, rawAnswer }).correct);
+  assert.equal(correctOptions.length, 1);
+});
+
 test('production and transfer questions remain typed-response tasks', () => {
   for (const type of ['replace_phrase','produce_paraphrase','use_target','context_gap_fill']) {
     const question = buildQuestion({ occurrence, item, contexts, mastery:{ status:'secure', strandEvidence:{} }, forceQuestionType:type });
