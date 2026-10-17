@@ -3,6 +3,7 @@ export const QUESTION_TYPES = Object.freeze([
   'replace_phrase','produce_paraphrase','use_target','identify_inaccurate_paraphrase','mini_mixed_check'
 ]);
 
+const CHOICE_TYPES = new Set(['meaning_match','paraphrase_match','identify_inaccurate_paraphrase']);
 const EASY = ['meaning_match','paraphrase_match','context_inference','identify_inaccurate_paraphrase'];
 const HARD = ['replace_phrase','produce_paraphrase','use_target','question_text_bridge','mini_mixed_check'];
 const INFERRED_BY_CONTEXT = Object.freeze({
@@ -29,6 +30,48 @@ function contextSupports(context, type) {
   return activities.includes(type);
 }
 
+function senseFor(item, occurrence) {
+  return Array.isArray(item?.senses) ? item.senses.find(sense => sense?.senseId === occurrence?.senseId) : null;
+}
+
+function uniqueText(values) {
+  const seen = new Set();
+  const output = [];
+  for (const value of values) {
+    const text = String(value ?? '').trim();
+    const key = text.toLocaleLowerCase('en');
+    if (!text || seen.has(key)) continue;
+    seen.add(key);
+    output.push(text);
+  }
+  return output;
+}
+
+function rotate(values, seed) {
+  if (values.length < 2) return values;
+  let hash = 0;
+  for (const char of String(seed ?? '')) hash = ((hash * 31) + char.charCodeAt(0)) >>> 0;
+  const offset = hash % values.length;
+  return [...values.slice(offset), ...values.slice(0, offset)];
+}
+
+function choicesFor(item, occurrence, context, type) {
+  if (!CHOICE_TYPES.has(type)) return [];
+  const sense = senseFor(item, occurrence) ?? {};
+  const accepted = [
+    ...(Array.isArray(context?.acceptedAnswers) ? context.acceptedAnswers : []),
+    ...(Array.isArray(sense.acceptedParaphrases) ? sense.acceptedParaphrases : [])
+  ];
+  for (const scoped of Array.isArray(sense.contextDependentParaphrases) ? sense.contextDependentParaphrases : []) {
+    if (scoped?.contextId === context?.contextId) accepted.push(...(Array.isArray(scoped.answers) ? scoped.answers : []));
+  }
+  const distractors = Array.isArray(sense.misleadingDistractors) ? sense.misleadingDistractors : [];
+  const pool = type === 'identify_inaccurate_paraphrase'
+    ? uniqueText([...accepted.slice(0, 2), ...distractors.slice(0, 2)])
+    : uniqueText([...accepted.slice(0, 2), ...distractors.slice(0, 2)]);
+  return rotate(pool.slice(0, 4), `${occurrence?.occurrenceId}:${context?.contextId}:${type}`);
+}
+
 export function buildQuestion({ occurrence, item, contexts = [], mastery = {}, usedContextIds = [], previousQuestionType = null, recycle = false, forceQuestionType = null, now = new Date() } = {}) {
   if (!occurrence || !item) throw new Error('Vocabulary occurrence and item are required.');
   const allowed = forceQuestionType ? [forceQuestionType] : candidateTypes(mastery, now);
@@ -48,10 +91,13 @@ export function buildQuestion({ occurrence, item, contexts = [], mastery = {}, u
   }
 
   const chosen = pairs[0];
+  const responseMode = CHOICE_TYPES.has(chosen.type) ? 'choice' : 'text';
   return {
     questionId:`${occurrence.occurrenceId}:${chosen.context.contextId}:${chosen.type}`,
     type:chosen.type,
     strand:['produce_paraphrase','use_target','replace_phrase'].includes(chosen.type) ? 'production' : (['context_inference','question_text_bridge','context_gap_fill','mini_mixed_check'].includes(chosen.type) ? 'context' : (chosen.type === 'paraphrase_match' ? 'paraphrasing' : chosen.type === 'meaning_match' ? 'meaning' : 'recognition')),
+    responseMode,
+    options:responseMode === 'choice' ? choicesFor(item, occurrence, chosen.context, chosen.type) : [],
     vocabularyId:item.vocabularyId,
     occurrenceId:occurrence.occurrenceId,
     contextId:chosen.context.contextId,
