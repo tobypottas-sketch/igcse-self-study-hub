@@ -1,6 +1,6 @@
 const EVENT_TYPES = new Set(['app_open', 'active_time', 'question_answered', 'question_attempt', 'exercise_result', 'section_use', 'support_use']);
 const MODES = new Set(['practice', 'exam']);
-const APP_KEYS = new Set(['paraphrasing', 'reading', 'essay_writing', 'listening']);
+const APP_KEYS = new Set(['paraphrasing', 'reading', 'essay_writing', 'listening', 'vocabulary_paraphrase']);
 const OUTCOMES = new Set(['correct', 'try_again']);
 const QUESTION_TYPES = new Set([
   'phrase_match',
@@ -19,11 +19,23 @@ const QUESTION_TYPES = new Set([
   'listening_dialogues',
   'listening_long_talk',
   'listening_speaker_matching',
-  'listening_interview'
+  'listening_interview',
+  'meaning_match',
+  'paraphrase_match',
+  'context_inference',
+  'question_text_bridge',
+  'context_gap_fill',
+  'replace_phrase',
+  'produce_paraphrase',
+  'use_target',
+  'identify_inaccurate_paraphrase',
+  'mini_mixed_check'
 ]);
 const SECTION_IDS = new Set(['ex1', 'ex2', 'ex3', 'ex4', 'ex5']);
 const SUPPORT_TYPES = new Set(['transcript']);
 const RESULT_TYPES = new Set(['exam_reconciliation']);
+const VOCAB_STRANDS = new Set(['meaning', 'recognition', 'context', 'paraphrasing', 'production']);
+const VOCAB_MISCONCEPTIONS = new Set(['related_but_inaccurate', 'wrong_form', 'meaning_confusion', 'retrieval_failure', 'context_mismatch']);
 
 function cleanLabel(value, maxLength) {
   if (value == null || value === '') return undefined;
@@ -51,6 +63,16 @@ function sanitizeMetadata(input) {
   if (SECTION_IDS.has(source.section_id)) output.section_id = source.section_id;
   if (SUPPORT_TYPES.has(source.support_type)) output.support_type = source.support_type;
   if (RESULT_TYPES.has(source.result_type)) output.result_type = source.result_type;
+
+  if (source.unit_number != null) output.unit_number = cleanInteger(source.unit_number, 1, 20, 'unit number');
+  if (VOCAB_STRANDS.has(source.strand)) output.strand = source.strand;
+  if (typeof source.retry_used === 'boolean') output.retry_used = source.retry_used;
+  if (typeof source.recovery === 'boolean') output.recovery = source.recovery;
+  if (VOCAB_MISCONCEPTIONS.has(source.misconception)) output.misconception = source.misconception;
+  const targetId = cleanLabel(source.target_id, 120);
+  const occurrenceId = cleanLabel(source.occurrence_id, 120);
+  if (targetId) output.target_id = targetId;
+  if (occurrenceId) output.occurrence_id = occurrenceId;
   return output;
 }
 
