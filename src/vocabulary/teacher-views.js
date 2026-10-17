@@ -1,8 +1,11 @@
 import { escapeHtml } from '../views/html.js';
 
 function label(value) { return String(value ?? '').replaceAll('_',' '); }
+function previewButton() {
+  return '<a class="vocab-button" href="./vocabulary.html?preview=1">Preview student activities</a>';
+}
 function actionButtons() {
-  return `<div class="vocab-teacher-actions"><button class="vocab-button vocab-button--primary" data-action="teacher-recommend-practice">Recommend Hub Practice</button><button class="vocab-button" data-action="teacher-teams-targets">Create Teams Target List</button></div>`;
+  return `<div class="vocab-teacher-actions"><button class="vocab-button vocab-button--primary" data-action="teacher-recommend-practice">Recommend Hub Practice</button><button class="vocab-button" data-action="teacher-teams-targets">Create Teams Target List</button>${previewButton()}</div>`;
 }
 
 export function renderTeacherOverview(root, { className = '', insights } = {}) {
@@ -18,7 +21,7 @@ export function renderProblemArea(root, { className = '', drilldown } = {}) {
   const people = data.affectedStudents.map(row => `<li>${escapeHtml(row.displayName)}</li>`).join('') || '<li>No students currently affected.</li>';
   const words = data.words.map(row => `<li><strong>${escapeHtml(row.term)}</strong><span>${escapeHtml(row.affectedCount)} students</span></li>`).join('') || '<li>No repeated word pattern.</li>';
   const failures = data.failureTypes.map(row => `<li><strong>${escapeHtml(label(row.type))}</strong><span>${escapeHtml(row.count)}</span></li>`).join('') || '<li>No repeated failure type.</li>';
-  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="teacher-back-overview">← ${escapeHtml(className || 'Class overview')}</button><span>Problem area</span></header><section class="vocab-teacher-hero"><p class="vocab-kicker">Problem area</p><h1>${escapeHtml(label(data.strand || 'Vocabulary'))}</h1><p>See what is going wrong, who is affected and the most useful next action.</p></section><section class="vocab-teacher-grid"><article class="vocab-teacher-panel"><h2>Affected students</h2><ul>${people}</ul></article><article class="vocab-teacher-panel"><h2>Target words</h2><ul class="vocab-priority-list">${words}</ul></article><article class="vocab-teacher-panel"><h2>Failure pattern</h2><ul class="vocab-priority-list">${failures}</ul></article></section><div class="vocab-teacher-actions"><button class="vocab-button vocab-button--primary" data-action="teacher-recommend-practice">Recommend practice</button><button class="vocab-button" data-action="teacher-teams-targets">Create Teams Target List</button><button class="vocab-button" data-action="teacher-view-evidence">View evidence</button></div></main>`;
+  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="teacher-back-overview">← ${escapeHtml(className || 'Class overview')}</button><span>Problem area</span></header><section class="vocab-teacher-hero"><p class="vocab-kicker">Problem area</p><h1>${escapeHtml(label(data.strand || 'Vocabulary'))}</h1><p>See what is going wrong, who is affected and the most useful next action.</p></section><section class="vocab-teacher-grid"><article class="vocab-teacher-panel"><h2>Affected students</h2><ul>${people}</ul></article><article class="vocab-teacher-panel"><h2>Target words</h2><ul class="vocab-priority-list">${words}</ul></article><article class="vocab-teacher-panel"><h2>Failure pattern</h2><ul class="vocab-priority-list">${failures}</ul></article></section><div class="vocab-teacher-actions"><button class="vocab-button vocab-button--primary" data-action="teacher-recommend-practice">Recommend practice</button><button class="vocab-button" data-action="teacher-teams-targets">Create Teams Target List</button><button class="vocab-button" data-action="teacher-view-evidence">View evidence</button>${previewButton()}</div></main>`;
 }
 
 export function renderStudentVocabularyProfile(root, { className = '', profile } = {}) {

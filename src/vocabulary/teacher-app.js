@@ -10,7 +10,7 @@ const teacherState = { root:null, client:null, profile:null, data:null, currentC
 function renderClassChooser() {
   const classes = teacherState.data?.classes ?? [];
   const cards = classes.map(row => `<button class="vocab-unit-card" data-action="teacher-open-class" data-class-id="${escapeHtml(row.id)}"><span class="vocab-unit-card__number">Class</span><strong>${escapeHtml(row.className)}</strong><span>${escapeHtml(row.students.length)} students</span><small>Open analytics →</small></button>`).join('') || '<p class="vocab-empty">No classes are currently available to this account.</p>';
-  teacherState.root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Teacher analytics</span></header><section class="vocab-teacher-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase</p><h1>Choose a class</h1><p>Open the class that needs your attention.</p></section><section class="vocab-unit-grid">${cards}</section></main>`;
+  teacherState.root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Teacher analytics</span></header><section class="vocab-teacher-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase</p><h1>Choose a class</h1><p>Open the class that needs your attention.</p><div class="vocab-teacher-actions"><a class="vocab-button" href="./vocabulary.html?preview=1">Preview student activities</a></div></section><section class="vocab-unit-grid">${cards}</section></main>`;
 }
 
 function classInsights(classData) {
