@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
-import { validateAdminProvisionRequest } from './validation.js';
+import { safeAuthAccountError, validateAdminProvisionRequest } from './validation.js';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -111,7 +111,7 @@ Deno.serve(async (req: Request) => {
 
     const provisionOne = async (row: { displayName:string; email:string }, classId: string | null, role: 'student' | 'teacher', password: string) => {
       const { data:created, error:createError } = await adminClient.auth.admin.createUser({ email:row.email, password, email_confirm:true, app_metadata:{ role } });
-      if (createError || !created.user) return { error:createError?.message ?? 'Unable to create account' };
+      if (createError || !created.user) return { error:safeAuthAccountError(createError) };
       const userId = created.user.id;
       const { error:insertProfileError } = await adminClient.from('profiles').insert({ id:userId, role, display_name:row.displayName, school_email:row.email, active:true, must_change_password:true });
       let membershipError = null;
