@@ -1,0 +1,26 @@
+{
+  "course": "Cambridge IGCSE English as a Second Language 0511",
+  "expectedTargetsPerUnit": 50,
+  "units": [
+    {"unitNumber":1,"unitTitle":"Sports and Free Time","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]},
+    {"unitNumber":2,"unitTitle":"Entertainment","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]},
+    {"unitNumber":3,"unitTitle":"Food","sourceCount":45,"distinctCount":44,"status":"blocked","issues":["Source contains only 45 numbered entries.","inexpensive appears at positions 11 and 27.","Six additional distinct approved targets are required to reach 50 distinct items."]},
+    {"unitNumber":4,"unitTitle":"Transport","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]},
+    {"unitNumber":5,"unitTitle":"Holidays","sourceCount":49,"distinctCount":49,"status":"blocked","issues":["Source contains only 49 numbered entries.","One additional distinct approved target is required."]},
+    {"unitNumber":6,"unitTitle":"Learning and Study Skills","sourceCount":50,"distinctCount":46,"status":"blocked","issues":["confidence repeats at positions 2 and 37.","revise repeats at positions 17 and 41.","equivalent repeats at positions 5 and 43.","overload repeats at positions 6 and 49.","Four replacement targets are required to reach 50 distinct items."]},
+    {"unitNumber":7,"unitTitle":"Interviews","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]},
+    {"unitNumber":8,"unitTitle":"Work","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]},
+    {"unitNumber":9,"unitTitle":"Communication","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]},
+    {"unitNumber":10,"unitTitle":"Education","sourceCount":48,"distinctCount":48,"status":"blocked","issues":["Source contains only 48 numbered entries.","Two additional distinct approved targets are required."]},
+    {"unitNumber":11,"unitTitle":"Human Achievements","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]},
+    {"unitNumber":12,"unitTitle":"Organisations and Volunteers","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]},
+    {"unitNumber":13,"unitTitle":"Success and Fame","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]},
+    {"unitNumber":14,"unitTitle":"Medical Care","sourceCount":46,"distinctCount":46,"status":"blocked","issues":["Source contains only 46 numbered entries.","Four additional distinct approved targets are required."]},
+    {"unitNumber":15,"unitTitle":"Healthy Lifestyles","sourceCount":50,"distinctCount":49,"status":"blocked","issues":["fatigue appears at positions 8 and 26.","One replacement target is required to reach 50 distinct items."]},
+    {"unitNumber":16,"unitTitle":"Animal Life","sourceCount":47,"distinctCount":47,"status":"blocked","issues":["Source contains only 47 numbered entries.","Three additional distinct approved targets are required."]},
+    {"unitNumber":17,"unitTitle":"The Environment","sourceCount":50,"distinctCount":43,"status":"blocked","issues":["transmission appears three times (12, 20, 30).","emissions repeats at 21 and 42.","prosperity repeats at 22 and 43.","restricted repeats at 23 and 35.","affect repeats at 24 and 36.","vulnerable repeats at 32 and 41.","Seven replacement targets are required to reach 50 distinct items."]},
+    {"unitNumber":18,"unitTitle":"Feeding the World","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]},
+    {"unitNumber":19,"unitTitle":"Lifestyles","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]},
+    {"unitNumber":20,"unitTitle":"Technology and the Future","sourceCount":50,"distinctCount":50,"status":"source_ready","issues":[]}
+  ]
+}
