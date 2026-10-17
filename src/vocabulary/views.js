@@ -1,6 +1,25 @@
 import { escapeHtml } from '../views/html.js';
 
 const RETRIEVAL_TYPES = new Set(['replace_phrase','produce_paraphrase','use_target','context_gap_fill']);
+const PRACTICE_FOCUSES = Object.freeze([
+  { id:'adaptive', label:'Adaptive Mix', description:'A balanced mix that changes as you improve.' },
+  { id:'definitions', label:'Definitions', description:'Match words to meanings and distinguish close definitions.' },
+  { id:'context', label:'In Context', description:'Work out meaning and choose words from sentences and short texts.' },
+  { id:'paraphrasing', label:'Paraphrasing', description:'Practise synonyms, equivalents and question-to-text wording.' },
+  { id:'recall', label:'Recall & Use', description:'Retrieve the word yourself and use it accurately.' }
+]);
+const QUESTION_LABELS = Object.freeze({
+  meaning_match:'Definition match',
+  paraphrase_match:'Paraphrase match',
+  context_inference:'Meaning in context',
+  question_text_bridge:'Question ↔ text',
+  context_gap_fill:'Context gap fill',
+  replace_phrase:'Replace the phrase',
+  produce_paraphrase:'Produce a paraphrase',
+  use_target:'Recall & use',
+  identify_inaccurate_paraphrase:'Spot the bad paraphrase',
+  mini_mixed_check:'Mini mixed check'
+});
 
 function statusOf(row) { return row?.status ?? 'new'; }
 function dueAt(row) { return row?.review_due_at ?? row?.reviewDueAt ?? null; }
@@ -9,6 +28,7 @@ function titleCase(value) {
   const text = String(value ?? '').replaceAll('_',' ');
   return text ? text[0].toUpperCase() + text.slice(1) : '';
 }
+function focusDefinition(id) { return PRACTICE_FOCUSES.find(focus => focus.id === id) ?? PRACTICE_FOCUSES[0]; }
 
 export function buildUnitProgress({ occurrences = [], unitMastery = {}, globalMastery = {}, now = new Date() } = {}) {
   let mastered = 0;
@@ -37,9 +57,15 @@ export function renderVocabularyHome(root, { displayName = '', units = [] } = {}
   root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Cambridge IGCSE ESL 0511</span></header><section class="vocab-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase Builder</p><h1>Choose a unit</h1><p>${displayName ? `Hi ${escapeHtml(displayName)}. ` : ''}Pick what you want to practise. We’ll choose the words that will help you most inside that unit.</p></section><section class="vocab-unit-grid">${cards}</section></main>`;
 }
 
-export function renderVocabularyUnit(root, { unitNumber, unitTitle, progress } = {}) {
+export function renderVocabularyUnit(root, { unitNumber, unitTitle, progress, practiceFocus = 'adaptive' } = {}) {
   const p = progress ?? { mastered:0, total:50, needsAnotherLook:0, reviewDue:0 };
-  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="back-units">← All units</button><span>Unit ${escapeHtml(unitNumber)}</span></header><section class="vocab-unit-hero"><p class="vocab-kicker">Unit ${escapeHtml(unitNumber)}</p><h1>${escapeHtml(unitTitle)}</h1><div class="vocab-progress-row"><strong>${escapeHtml(p.mastered)} / ${escapeHtml(p.total)} mastered</strong><span>${escapeHtml(p.needsAnotherLook)} need another look</span><span>${escapeHtml(p.reviewDue)} ready for review</span></div></section><section class="vocab-route-grid"><article class="vocab-route-card vocab-route-card--primary"><p class="vocab-kicker">Recommended</p><h2>Adaptive Session</h2><p>10 priority words. Mixed practice. No timer.</p><button class="vocab-button vocab-button--primary" data-action="start-adaptive">Start Adaptive Session</button></article><article class="vocab-route-card"><p class="vocab-kicker">Your choice</p><h2>Timed Practice</h2><p>Same adaptive practice, with a gentle stopping point.</p><div class="vocab-time-grid">${[5,10,15,20].map(minutes => `<button class="vocab-button" data-action="start-timed" data-minutes="${minutes}">${minutes} min</button>`).join('')}</div></article></section><button class="vocab-link" data-action="view-all-words">View all 50 words</button></main>`;
+  const selected = focusDefinition(practiceFocus);
+  const focusButtons = PRACTICE_FOCUSES.map(focus => `
+    <button type="button" class="vocab-focus-card${focus.id === selected.id ? ' is-selected' : ''}" data-action="set-practice-focus" data-practice-focus="${focus.id}" aria-pressed="${focus.id === selected.id ? 'true' : 'false'}">
+      <strong>${escapeHtml(focus.label)}</strong><span>${escapeHtml(focus.description)}</span>
+    </button>`).join('');
+  const startLabel = selected.id === 'adaptive' ? 'Start Adaptive Session' : `Start ${selected.label} Session`;
+  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="back-units">← All units</button><span>Unit ${escapeHtml(unitNumber)}</span></header><section class="vocab-unit-hero"><p class="vocab-kicker">Unit ${escapeHtml(unitNumber)}</p><h1>${escapeHtml(unitTitle)}</h1><div class="vocab-progress-row"><strong>${escapeHtml(p.mastered)} / ${escapeHtml(p.total)} mastered</strong><span>${escapeHtml(p.needsAnotherLook)} need another look</span><span>${escapeHtml(p.reviewDue)} ready for review</span></div></section><section class="vocab-practice-picker"><div class="vocab-practice-picker__head"><p class="vocab-kicker">Choose what to practise</p><h2>${escapeHtml(selected.label)}</h2><p>${escapeHtml(selected.description)}</p></div><div class="vocab-focus-grid">${focusButtons}</div></section><section class="vocab-route-grid"><article class="vocab-route-card vocab-route-card--primary"><p class="vocab-kicker">10-word session</p><h2>${escapeHtml(selected.label)}</h2><p>Ten priority words with difficulty adjusted inside this practice area.</p><button class="vocab-button vocab-button--primary" data-action="start-adaptive">${escapeHtml(startLabel)}</button></article><article class="vocab-route-card"><p class="vocab-kicker">Timed practice</p><h2>${escapeHtml(selected.label)}</h2><p>Keep the same practice focus and choose how long you want to train.</p><div class="vocab-time-grid">${[5,10,15,20].map(minutes => `<button class="vocab-button" data-action="start-timed" data-minutes="${minutes}">${minutes} min</button>`).join('')}</div></article></section><button class="vocab-link" data-action="view-all-words">View all 50 words</button></main>`;
 }
 
 export function renderVocabularyWords(root, { unitNumber, unitTitle, words = [] } = {}) {
@@ -62,15 +88,22 @@ function renderAnswerControl(question, feedback, retry) {
 export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question, term, sessionLabel, feedback = null, retry = false } = {}) {
   const feedbackHtml = feedback ? `<div class="vocab-feedback ${feedback.correct ? 'is-positive' : 'is-supportive'}"><strong>${escapeHtml(feedback.message)}</strong>${feedback.detail ? `<p>${escapeHtml(feedback.detail)}</p>` : ''}</div>` : '';
   const targetPill = RETRIEVAL_TYPES.has(question?.type) ? '<div class="vocab-target-pill">Recall &amp; use</div>' : `<div class="vocab-target-pill">${escapeHtml(term ?? '')}</div>`;
-  root.innerHTML = `<main class="vocab-shell vocab-shell--session"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card"><p class="vocab-kicker">${escapeHtml(question?.type?.replaceAll('_',' ') ?? 'Practice')}</p>${targetPill}<h1>${escapeHtml(question?.prompt ?? '')}</h1>${feedbackHtml}<form data-form="vocabulary-answer" class="vocab-answer-form">${renderAnswerControl(question, feedback, retry)}</form></section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
+  const questionLabel = QUESTION_LABELS[question?.type] ?? 'Practice';
+  root.innerHTML = `<main class="vocab-shell vocab-shell--session"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card"><p class="vocab-kicker">${escapeHtml(questionLabel)}</p>${targetPill}<h1>${escapeHtml(question?.prompt ?? '')}</h1>${feedbackHtml}<form data-form="vocabulary-answer" class="vocab-answer-form">${renderAnswerControl(question, feedback, retry)}</form></section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
 }
 
-export function supportiveFeedback({ correct, misconceptionCategory, recovery, term } = {}) {
-  if (correct && recovery) return `Nice recovery — you got ${term || 'that one'}.`;
-  if (correct) return `Nice work — ${term || 'that word'} is getting stronger.`;
-  if (misconceptionCategory === 'related_but_inaccurate') return 'Close idea. Have another look at the exact meaning and try again.';
-  if (misconceptionCategory === 'wrong_form') return 'You have the right idea. Check the word form and try again.';
-  return 'Have another look at the context, then try it again.';
+export function supportiveFeedback({ correct, misconceptionCategory, recovery, term, meaning, questionType } = {}) {
+  const word = term ? `“${term}”` : 'that word';
+  const clearMeaning = String(meaning ?? '').trim();
+  if (correct && recovery) return 'Good recovery — that answer works here.';
+  if (correct && questionType === 'meaning_match' && clearMeaning) return `Correct — ${word} means ${clearMeaning} here.`;
+  if (correct && questionType === 'paraphrase_match') return `Correct — that paraphrase keeps the meaning of ${word}.`;
+  if (correct && ['replace_phrase','produce_paraphrase','use_target','context_gap_fill','question_text_bridge','mini_mixed_check'].includes(questionType)) return `Correct — ${word} fits this context.`;
+  if (correct) return 'Correct — that meaning fits the context.';
+  if (misconceptionCategory === 'related_but_inaccurate') return 'Close — the meaning is related, but it is not precise enough here. Try again.';
+  if (misconceptionCategory === 'wrong_form') return 'Right idea — check the word form and try again.';
+  if (clearMeaning) return `Not quite. Here, ${word} means ${clearMeaning}. Try again.`;
+  return 'Not quite. Read the context again and try once more.';
 }
 
 export function renderSessionSummary(root, { durationMinutes = null, summary = {} } = {}) {
