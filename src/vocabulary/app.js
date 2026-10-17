@@ -2,7 +2,9 @@ import { getSupabaseClient } from '../supabase.js';
 import { loadVocabularyDashboard, loadVocabularyUnit, loadStudentMastery, submitVocabularyAttempt } from './data.js';
 import { trackVocabularyEvent } from './tracking.js';
 import { selectPriorityTargets } from './selector.js';
-import { buildQuestion } from './questions.js';
+import { buildActivity } from './activity-builder.js';
+import { planNextActivity } from './adaptive-planner.js';
+import { buildSupportStep } from './scaffolding.js';
 import { completeAttempt, createSession, expireSession, isSessionComplete } from './session.js';
 import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
 import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
@@ -10,9 +12,9 @@ import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shar
 const root = document.getElementById('vocabularyApp');
 const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
-  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:'adaptive', recentQuestionTypes:[],
-  usedContexts:new Map(), previousTypes:new Map(), recoveryNeeded:new Set(), clock:null,
-  activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null, persistenceChain:Promise.resolve()
+  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:'adaptive', recentActivities:new Map(),
+  recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null,
+  persistenceChain:Promise.resolve()
 };
 
 function occurrence(row) {
@@ -24,15 +26,24 @@ function item(row) {
 function context(row) {
   return { contextId:row.context_id, vocabularyId:row.vocabulary_id, occurrenceId:row.occurrence_id, senseId:row.sense_id, type:row.context_type, text:row.prompt_text, targetRewrite:row.target_rewrite, acceptedAnswers:row.accepted_answers ?? [], misconceptionCategory:row.misconception_category };
 }
+function unitActivity(row) {
+  return { activityContentId:row.activity_content_id, unitNumber:row.unit_number, contentType:row.content_type, activityData:row.activity_data ?? {}, status:row.status };
+}
 function mastery(row) {
   return {
     status:row?.status ?? 'new', strandEvidence:row?.strand_evidence ?? {}, recentErrorCount:row?.recent_error_pattern ? 1 : 0,
     recentErrorPattern:row?.recent_error_pattern ?? null, reviewDueAt:row?.review_due_at ?? null,
-    successfulProductions:row?.successful_productions ?? 0, productionContextIds:row?.production_context_ids ?? []
+    successfulProductions:row?.successful_productions ?? 0, productionContextIds:row?.production_context_ids ?? [],
+    productionActivityTypes:row?.production_activity_types ?? [], unscaffoldedProductions:row?.unscaffolded_productions ?? 0,
+    recoveryCount:0, reviewStage:row?.review_stage ?? 0, reviewFailureCount:row?.review_failure_count ?? 0
   };
 }
 function freshMastery() {
-  return { status:'new', strandEvidence:{ meaning:0, recognition:0, context:0, paraphrasing:0, production:0 }, recentErrorCount:0, recentErrorPattern:null, reviewDueAt:null, successfulProductions:0, productionContextIds:[], recoveryCount:0, reviewStage:0, reviewFailureCount:0 };
+  return {
+    status:'new', strandEvidence:{ meaning:0, recognition:0, context:0, paraphrasing:0, production:0 }, recentErrorCount:0,
+    recentErrorPattern:null, reviewDueAt:null, successfulProductions:0, productionContextIds:[], productionActivityTypes:[],
+    unscaffoldedProductions:0, recoveryCount:0, reviewStage:0, reviewFailureCount:0
+  };
 }
 function mapBy(rows, key, transform = value => value) { return Object.fromEntries(rows.map(row => [row[key], transform(row)])); }
 
@@ -69,8 +80,7 @@ function buildUnits(dashboard) {
     grouped.get(row.unit_number).occurrences.push(row);
   }
   return [...grouped.values()].sort((a,b) => a.unitNumber - b.unitNumber).map(group => ({
-    unitNumber:group.unitNumber,
-    unitTitle:group.unitTitle,
+    unitNumber:group.unitNumber, unitTitle:group.unitTitle,
     ...buildUnitProgress({ occurrences:group.occurrences, unitMastery:unit, globalMastery:global })
   }));
 }
@@ -100,8 +110,9 @@ async function openUnit(unitNumber) {
   const occurrences = contentRaw.occurrences.map(occurrence);
   const items = contentRaw.items.map(item);
   const contexts = contentRaw.contexts.map(context);
+  const activities = (contentRaw.activities ?? []).map(unitActivity);
   state.currentUnitNumber = unitNumber;
-  state.content = { occurrences, items, contexts, itemsById:mapBy(items,'vocabularyId'), contextsByOccurrence:{} };
+  state.content = { occurrences, items, contexts, activities, itemsById:mapBy(items,'vocabularyId'), contextsByOccurrence:{}, activitiesById:mapBy(activities,'activityContentId') };
   for (const ctx of contexts) (state.content.contextsByOccurrence[ctx.occurrenceId] ??= []).push(ctx);
   state.globalMastery = mapBy(masteryRaw.global, 'vocabulary_id', mastery);
   state.unitMastery = mapBy(masteryRaw.unit, 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
@@ -120,24 +131,18 @@ function strandLabel(value, status) {
 
 function showAllWords() {
   if (!state.content || !state.currentUnitNumber) return;
-  const words = state.content.occurrences
-    .slice()
-    .sort((a,b) => a.positionInUnit - b.positionInUnit)
-    .map(occ => {
-      const target = state.content.itemsById[occ.vocabularyId];
-      const global = state.globalMastery[occ.vocabularyId] ?? { status:'new', strandEvidence:{} };
-      return {
-        term:target?.term ?? occ.vocabularyId,
-        status:global.status ?? 'new',
-        strands:{
-          meaning:strandLabel(global.strandEvidence?.meaning, global.status),
-          recognition:strandLabel(global.strandEvidence?.recognition, global.status),
-          context:strandLabel(global.strandEvidence?.context, global.status),
-          paraphrasing:strandLabel(global.strandEvidence?.paraphrasing, global.status),
-          production:strandLabel(global.strandEvidence?.production, global.status)
-        }
-      };
-    });
+  const words = state.content.occurrences.slice().sort((a,b) => a.positionInUnit - b.positionInUnit).map(occ => {
+    const target = state.content.itemsById[occ.vocabularyId];
+    const global = state.globalMastery[occ.vocabularyId] ?? { status:'new', strandEvidence:{} };
+    return {
+      term:target?.term ?? occ.vocabularyId, status:global.status ?? 'new',
+      strands:{
+        meaning:strandLabel(global.strandEvidence?.meaning, global.status), recognition:strandLabel(global.strandEvidence?.recognition, global.status),
+        context:strandLabel(global.strandEvidence?.context, global.status), paraphrasing:strandLabel(global.strandEvidence?.paraphrasing, global.status),
+        production:strandLabel(global.strandEvidence?.production, global.status)
+      }
+    };
+  });
   renderVocabularyWords(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, words });
   decoratePreview();
 }
@@ -149,22 +154,22 @@ function rankedTargets(limit) {
 function startSession(mode, durationMinutes = null) {
   const selected = rankedTargets(mode === 'adaptive' ? 10 : Math.max(10, state.content.occurrences.length));
   if (!selected.length) throw new Error('This unit has no live vocabulary targets yet.');
-  state.session = createSession({ unitNumber:state.currentUnitNumber, mode, durationMinutes, targetIds:selected.map(row => row.occurrenceId), now:new Date() });
-  state.session.practiceFocus = state.practiceFocus;
+  state.session = createSession({ unitNumber:state.currentUnitNumber, mode, durationMinutes, targetIds:selected.map(row => row.occurrenceId), practiceMode:state.practiceFocus, now:new Date() });
   state.queue = [...selected];
   state.current = null;
-  state.usedContexts = new Map();
-  state.previousTypes = new Map();
-  state.recentQuestionTypes = [];
+  state.recentActivities = new Map();
   state.recoveryNeeded = new Set();
   if (mode === 'timed') startClock();
-  if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`session:${mode}:${state.practiceFocus}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, practice_focus:state.practiceFocus } }).catch(() => {});
+  if (!state.preview) void trackVocabularyEvent(state.client, {
+    event_type:'section_use', activity_id:`session:${mode}:${state.practiceFocus}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`,
+    metadata:{ unit_number:state.currentUnitNumber, practice_focus:state.practiceFocus }
+  }).catch(() => {});
   nextQuestion();
 }
 
 function remainingLabel() {
   if (!state.session) return '';
-  if (state.session.mode === 'adaptive') return `${state.session.completedTargetIds.length} / ${state.session.targetIds.length} words`;
+  if (state.session.mode === 'adaptive') return `${state.session.completedAttempts.length} / ${state.session.targetIds.length} activities`;
   const ms = Math.max(0, new Date(state.session.expiresAt).getTime() - Date.now());
   const seconds = Math.ceil(ms / 1000);
   const minutes = Math.floor(seconds / 60);
@@ -181,78 +186,150 @@ function startClock() {
 }
 function clearClock() { if (state.clock) { window.clearInterval(state.clock); state.clock = null; } }
 
+function linkedActivities(target) {
+  return state.content.activities.filter(activity => {
+    const linked = Array.isArray(activity.activityData?.linkedVocabularyIds) ? activity.activityData.linkedVocabularyIds : [];
+    return linked.includes(target.vocabularyId);
+  });
+}
+
+function availableActivityTypes(target, targetItem, targetContexts) {
+  const available = new Set();
+  if (targetContexts.length) {
+    available.add('meaning_match'); available.add('which_situation_fits'); available.add('meaning_in_context'); available.add('correct_usage');
+  }
+  if (Array.isArray(targetItem?.collocations) && targetItem.collocations.length) available.add('collocation_builder');
+  const linked = linkedActivities(target);
+  if ((Array.isArray(targetItem?.wordFamily) && targetItem.wordFamily.length) || linked.some(row => row.contentType === 'writing_set' && row.activityData?.taskType === 'word_family')) available.add('word_family_switch');
+  if (linked.some(row => row.contentType === 'phrase_set')) {
+    ['phrase_match','build_paraphrase','complete_paraphrase','rewrite_phrase','explain_another_way'].forEach(type => available.add(type));
+  }
+  if (linked.some(row => row.contentType === 'idea_set')) {
+    ['same_idea','spot_meaning_change','build_same_idea','rewrite_idea','explain_another_way'].forEach(type => available.add(type));
+  }
+  if (linked.some(row => row.contentType === 'question_text')) {
+    available.add('question_text_bridge'); available.add('find_evidence');
+  }
+  if (linked.some(row => row.contentType === 'writing_set')) available.add('improve_vocabulary');
+  return [...available];
+}
+
+function buildNextForTarget(target) {
+  const targetItem = state.content.itemsById[target.vocabularyId];
+  if (!targetItem) throw new Error('Vocabulary item is missing.');
+  const targetContexts = state.content.contextsByOccurrence[target.occurrenceId] ?? [];
+  const masteryState = state.globalMastery[target.vocabularyId] ?? freshMastery();
+  const recent = state.recentActivities.get(target.occurrenceId) ?? [];
+  const recovery = state.recoveryNeeded.has(target.occurrenceId);
+  const availableContent = availableActivityTypes(target, targetItem, targetContexts);
+  const reviewDue = Boolean(masteryState.reviewDueAt && new Date(masteryState.reviewDueAt).getTime() <= Date.now());
+  const plan = planNextActivity({
+    practiceMode:state.session.practiceMode ?? state.practiceFocus,
+    target, mastery:masteryState, recentActivities:recent,
+    supportState:{ recycle:recovery, struggling:recovery }, reviewDue, availableContent
+  });
+  const question = buildActivity({
+    activityType:plan.activityType, occurrence:target, item:targetItem, contexts:targetContexts,
+    unitActivities:state.content.activities, mastery:masteryState, usedContentIds:plan.avoidContentIds,
+    seed:`${target.occurrenceId}:${state.session.completedAttempts.length}:${plan.activityType}`
+  });
+  const contextRecord = targetContexts.find(ctx => ctx.contextId === question.contentId) ?? null;
+  const activityRecord = state.content.activitiesById[question.contentId] ?? null;
+  const primaryEvidenceTargetId = activityRecord?.activityData?.primaryEvidenceTargetId ?? null;
+  return { target, item:targetItem, context:contextRecord, activityRecord, question, recovery, retry:false, support:null, initialError:false, primaryEvidenceTargetId };
+}
+
 function nextQuestion() {
   if (!state.session) return;
   if (isSessionComplete(state.session, new Date())) { finishSession(); return; }
   if (!state.queue.length) {
-    if (state.session.mode === 'timed') state.queue = rankedTargets(Math.min(10, state.content.occurrences.length));
+    if (state.session.mode === 'timed') state.queue = rankedTargets(Math.min(20, state.content.occurrences.length));
     else { finishSession(); return; }
   }
-  let target = state.queue.shift();
-  while (target && state.session.mode === 'adaptive' && state.session.completedTargetIds.includes(target.occurrenceId)) target = state.queue.shift();
-  if (!target) { if (state.session.mode === 'timed') { state.queue = rankedTargets(10); target = state.queue.shift(); } else { finishSession(); return; } }
 
-  const targetItem = state.content.itemsById[target.vocabularyId];
-  const targetContexts = state.content.contextsByOccurrence[target.occurrenceId] ?? [];
-  const used = state.usedContexts.get(target.occurrenceId) ?? [];
-  const previousType = state.previousTypes.get(target.occurrenceId) ?? null;
-  const recovery = state.recoveryNeeded.has(target.occurrenceId);
-  const question = buildQuestion({ occurrence:target, item:targetItem, contexts:targetContexts, mastery:state.globalMastery[target.vocabularyId] ?? freshMastery(), usedContextIds:used, previousQuestionType:previousType, recentQuestionTypes:state.recentQuestionTypes, practiceFocus:state.session.practiceFocus ?? state.practiceFocus, recycle:recovery, now:new Date() });
-  state.usedContexts.set(target.occurrenceId, [...used, question.contextId]);
-  state.previousTypes.set(target.occurrenceId, question.type);
-  state.recentQuestionTypes = [...state.recentQuestionTypes, question.type].slice(-2);
-  const questionContext = targetContexts.find(ctx => ctx.contextId === question.contextId) ?? null;
-  state.current = { target, item:targetItem, context:questionContext, question, recovery, retry:false };
+  let current = null;
+  let guard = state.queue.length;
+  while (!current && guard > 0) {
+    const target = state.queue.shift();
+    guard -= 1;
+    if (!target) break;
+    if (state.session.mode === 'adaptive' && state.session.completedTargetIds.includes(target.occurrenceId) && !state.recoveryNeeded.has(target.occurrenceId)) continue;
+    try { current = buildNextForTarget(target); }
+    catch { state.queue.push(target); }
+  }
+  if (!current) {
+    if (state.session.mode === 'timed') { finishSession(); return; }
+    throw new Error('No suitable curated activity is available for this practice mode yet.');
+  }
+  state.current = current;
   renderCurrentQuestion();
 }
 
 function renderCurrentQuestion(feedback = null) {
   if (!state.current) return;
   renderVocabularyQuestion(root, {
-    unitNumber:state.currentUnitNumber,
-    unitTitle:state.current.target.unitTitle,
-    question:state.current.question,
-    term:state.current.item.term,
-    sessionLabel:remainingLabel(),
-    feedback,
-    retry:state.current.retry
+    unitNumber:state.currentUnitNumber, unitTitle:state.current.target.unitTitle, question:state.current.question,
+    term:state.current.item.term, sessionLabel:remainingLabel(), feedback, retry:state.current.retry, support:state.current.support
   });
   decoratePreview();
 }
 
 function markVocabularyAttemptLocally(current, rawAnswer) {
   const sense = Array.isArray(current.item?.senses) ? current.item.senses.find(candidate => candidate?.senseId === current.target.senseId) : null;
-  if (!sense || !current.context) throw new Error('This vocabulary question is missing its marking data.');
-  const marked = markCuratedAnswer({
-    item:{ vocabularyId:current.item.vocabularyId },
-    sense,
-    context:{ contextId:current.context.contextId, acceptedAnswers:current.context.acceptedAnswers ?? [] },
-    questionType:current.question.type,
-    rawAnswer
-  });
-  return { ...marked, strand:current.question.strand };
+  if (!sense) throw new Error('This vocabulary question is missing its marking data.');
+  const reference = current.question.markingReference ?? {};
+  const markingContext = {
+    contextId:current.context?.contextId ?? current.question.contentId,
+    activityContentId:current.activityRecord?.activityContentId ?? null,
+    acceptedAnswers:reference.acceptedAnswers ?? [], distractors:reference.distractors ?? []
+  };
+  const marked = markCuratedAnswer({ item:{ vocabularyId:current.item.vocabularyId }, sense, context:markingContext, questionType:current.question.type, rawAnswer });
+  return { ...marked, strand:current.question.strands?.[0], strands:current.question.strands ?? marked.evidence?.strands ?? [] };
+}
+
+function updatesTargetMastery(current) {
+  if (current.context) return true;
+  return Boolean(current.primaryEvidenceTargetId && current.primaryEvidenceTargetId === current.target.vocabularyId);
+}
+
+function evidenceFor(current, result, flags) {
+  return {
+    strand:result.strand, strands:current.question.strands, correct:result.correct,
+    evidenceStrength:current.question.evidenceStrength, supportLevel:flags.supportLevel, productive:current.question.productive,
+    repeatedGuess:false, firstAttempt:flags.firstAttempt, retryUsed:flags.retryUsed, recoveredLater:flags.recoveredLater,
+    contextId:current.context?.contextId ?? null, activityContentId:current.activityRecord?.activityContentId ?? null,
+    questionType:current.question.type, activityType:current.question.type, review:state.preview ? false : flags.review
+  };
 }
 
 function persistVocabularyAttempt(current, rawAnswer, flags, localResult) {
+  const contentSource = current.activityRecord ? 'unit_activity' : 'context';
   const payload = {
-    occurrenceId:current.target.occurrenceId,
-    contextId:current.question.contextId,
-    questionType:current.question.type,
-    rawAnswer,
-    firstAttempt:flags.firstAttempt,
-    retryUsed:flags.retryUsed,
-    recoveredLater:flags.recoveredLater,
-    review:flags.review,
-    preview:false
+    occurrenceId:current.target.occurrenceId, contextId:current.context?.contextId ?? null,
+    activityContentId:current.activityRecord?.activityContentId ?? null, contentSource,
+    primaryEvidenceTargetId:current.primaryEvidenceTargetId,
+    questionType:current.question.type, rawAnswer,
+    strands:current.question.strands, evidenceStrength:current.question.evidenceStrength,
+    supportLevel:flags.supportLevel, productive:current.question.productive, repeatedGuess:false,
+    firstAttempt:flags.firstAttempt, retryUsed:flags.retryUsed, recoveredLater:flags.recoveredLater,
+    review:flags.review, preview:false
   };
   state.persistenceChain = state.persistenceChain.then(async () => {
     const result = await submitVocabularyAttempt(state.client, payload);
     if (result.correct !== localResult.correct) throw new Error('Vocabulary marking mismatch. Please reload before continuing.');
-    const currentGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery();
-    state.globalMastery[current.target.vocabularyId] = { ...currentGlobal, status:result.globalStatus, reviewDueAt:result.reviewDueAt, recentErrorCount:result.correct ? 0 : Math.max(1, currentGlobal.recentErrorCount ?? 0) };
-    state.unitMastery[current.target.occurrenceId] = { ...state.unitMastery[current.target.occurrenceId], status:result.unitStatus, recentErrorPattern:result.correct ? null : (result.misconceptionCategory ?? 'retrieval_failure') };
+    if (result.globalStatus) {
+      const currentGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery();
+      state.globalMastery[current.target.vocabularyId] = { ...currentGlobal, status:result.globalStatus, reviewDueAt:result.reviewDueAt, recentErrorCount:result.correct ? 0 : Math.max(1, currentGlobal.recentErrorCount ?? 0) };
+    }
+    if (result.unitStatus) state.unitMastery[current.target.occurrenceId] = { ...state.unitMastery[current.target.occurrenceId], status:result.unitStatus, recentErrorPattern:result.correct ? null : (result.misconceptionCategory ?? 'retrieval_failure') };
   }).catch(error => { showSyncWarning(error); });
   return state.persistenceChain;
+}
+
+function recordRecentActivity(current, result) {
+  const recent = state.recentActivities.get(current.target.occurrenceId) ?? [];
+  const entry = { type:current.question.type, contentId:current.question.contentId, correct:result.correct };
+  state.recentActivities.set(current.target.occurrenceId, [...recent, entry].slice(-5));
 }
 
 function handleAnswer(form, providedAnswer = null) {
@@ -264,60 +341,52 @@ function handleAnswer(form, providedAnswer = null) {
   const previousGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery();
   const previousGlobalStatus = previousGlobal.status ?? 'new';
   const review = Boolean(previousGlobal.reviewDueAt && new Date(previousGlobal.reviewDueAt).getTime() <= Date.now());
-  const flags = { firstAttempt:!current.retry, retryUsed:current.retry, recoveredLater:current.recovery, review };
+  const flags = {
+    firstAttempt:!current.retry, retryUsed:current.retry, recoveredLater:current.recovery, review,
+    supportLevel:current.retry ? (current.support?.supportLevel ?? 'light') : 'none'
+  };
   const result = markVocabularyAttemptLocally(current, rawAnswer);
-  const nextGlobal = applyEvidence(previousGlobal, {
-    strand:result.strand,
-    correct:result.correct,
-    firstAttempt:flags.firstAttempt,
-    retryUsed:flags.retryUsed,
-    recoveredLater:flags.recoveredLater,
-    contextId:current.question.contextId,
-    questionType:current.question.type,
-    review:state.preview ? false : review
-  }, new Date());
-  state.globalMastery[current.target.vocabularyId] = nextGlobal;
-  state.unitMastery[current.target.occurrenceId] = { status:nextGlobal.status, recentErrorPattern:result.correct ? null : (result.misconceptionCategory ?? 'retrieval_failure'), contextualEvidence:{ strandEvidence:nextGlobal.strandEvidence } };
+  const shouldUpdate = updatesTargetMastery(current);
+  const nextGlobal = shouldUpdate ? applyEvidence(previousGlobal, evidenceFor(current, result, flags), new Date()) : previousGlobal;
+  if (shouldUpdate) {
+    state.globalMastery[current.target.vocabularyId] = nextGlobal;
+    state.unitMastery[current.target.occurrenceId] = { status:nextGlobal.status, recentErrorPattern:result.correct ? null : (result.misconceptionCategory ?? 'retrieval_failure'), contextualEvidence:{ strandEvidence:nextGlobal.strandEvidence } };
+  }
   const recoverySucceeded = current.recovery && result.correct;
-
   if (!state.preview) void persistVocabularyAttempt(current, rawAnswer, flags, result);
 
   const message = supportiveFeedback({
-    correct:result.correct,
-    misconceptionCategory:result.misconceptionCategory,
-    recovery:recoverySucceeded,
-    term:current.item.term,
-    meaning:current.item.coreMeaning,
-    questionType:current.question.type
+    correct:result.correct, misconceptionCategory:result.misconceptionCategory, recovery:recoverySucceeded,
+    term:current.item.term, meaning:current.item.coreMeaning, questionType:current.question.type
   });
 
-  if (!result.correct && !current.retry && !current.recovery) {
+  if (!result.correct && !current.retry) {
+    current.initialError = true;
     current.retry = true;
+    current.support = buildSupportStep(current.question, { correct:false, misconceptionCategory:result.misconceptionCategory, attemptNumber:1 });
     renderCurrentQuestion({ correct:false, message });
     return;
   }
 
-  const needsRecovery = current.retry && !current.recovery;
-  if (needsRecovery) {
+  recordRecentActivity(current, result);
+  const hadError = current.initialError || !result.correct;
+  if (hadError && !current.recovery) {
     state.recoveryNeeded.add(current.target.occurrenceId);
     state.queue.push(current.target);
+  } else if (current.recovery) {
+    state.recoveryNeeded.delete(current.target.occurrenceId);
   }
-  if (current.recovery) state.recoveryNeeded.delete(current.target.occurrenceId);
-  const completeTarget = !needsRecovery;
+  const completeTarget = current.recovery || !hadError;
   state.session = completeAttempt(state.session, {
     targetId:current.target.occurrenceId,
-    evidence:{ correct:result.correct, recovery:recoverySucceeded },
-    completeTarget,
-    strengthened:result.correct,
-    movedToSecure:previousGlobalStatus !== 'secure' && nextGlobal.status === 'secure',
-    mastered:previousGlobalStatus !== 'mastered' && nextGlobal.status === 'mastered',
+    evidence:{ correct:result.correct, recovery:recoverySucceeded, activityType:current.question.type },
+    completeTarget, strengthened:result.correct,
+    movedToSecure:shouldUpdate && previousGlobalStatus !== 'secure' && nextGlobal.status === 'secure',
+    mastered:shouldUpdate && previousGlobalStatus !== 'mastered' && nextGlobal.status === 'mastered',
     needsAnotherLook:completeTarget && !result.correct
   });
+  current.support = !result.correct ? buildSupportStep(current.question, { correct:false, misconceptionCategory:result.misconceptionCategory, attemptNumber:2 }) : null;
   renderCurrentQuestion({ correct:result.correct, message });
-  if (!result.correct) {
-    const formAfter = root.querySelector?.('[data-form="vocabulary-answer"]');
-    if (formAfter) formAfter.innerHTML = '<button type="button" class="vocab-button vocab-button--primary" data-action="next-question">Continue</button>';
-  }
 }
 
 function finishSession() {
@@ -327,10 +396,10 @@ function finishSession() {
   const finished = state.session;
   state.current = null;
   if (!state.preview) void trackVocabularyEvent(state.client, {
-    event_type:'exercise_result', activity_id:`session_complete:${finished.mode}:${finished.practiceFocus ?? 'adaptive'}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${finished.unitNumber}`,
-    score:finished.summary.strengthened, max_score:Math.max(1, finished.summary.practised), metadata:{ unit_number:finished.unitNumber, practice_focus:finished.practiceFocus ?? 'adaptive' }
+    event_type:'exercise_result', activity_id:`session_complete:${finished.mode}:${finished.practiceMode ?? 'adaptive'}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${finished.unitNumber}`,
+    score:finished.summary.strengthened, max_score:Math.max(1, finished.summary.practised), metadata:{ unit_number:finished.unitNumber, practice_focus:finished.practiceMode ?? 'adaptive' }
   }).catch(() => {});
-  renderSessionSummary(root, { durationMinutes:finished.durationMinutes, summary:finished.summary });
+  renderSessionSummary(root, { durationMinutes:finished.durationMinutes, summary:finished.summary, practiceMode:finished.practiceMode ?? 'adaptive' });
   decoratePreview();
 }
 
@@ -355,11 +424,26 @@ root?.addEventListener('submit', event => {
 });
 
 root?.addEventListener('click', event => {
-  const choice = event.target?.closest?.('[data-choice-answer]');
+  const choice = event.target?.closest?.('[data-choice-answer], [data-evidence-answer]');
   if (choice) {
     const form = choice.closest?.('[data-form="vocabulary-answer"]');
-    try { handleAnswer(form, choice.dataset.choiceAnswer); }
+    const answer = choice.dataset.choiceAnswer ?? choice.dataset.evidenceAnswer;
+    try { handleAnswer(form, answer); }
     catch (error) { renderVocabularyError(root, error instanceof Error ? error.message : 'Unable to check that answer.'); }
+    return;
+  }
+  const tile = event.target?.closest?.('[data-tile-answer]');
+  if (tile) {
+    const form = tile.closest?.('[data-form="vocabulary-answer"]');
+    const input = form?.querySelector?.('input[name="answer"]');
+    const build = form?.querySelector?.('[data-tile-build]');
+    if (!input || tile.disabled) return;
+    const parts = String(input.value ?? '').trim().split(/\s+/).filter(Boolean);
+    parts.push(tile.dataset.tileAnswer);
+    input.value = parts.join(' ');
+    tile.disabled = true;
+    tile.classList.add('is-used');
+    if (build) build.textContent = parts.join(' ');
     return;
   }
   const target = event.target?.closest?.('[data-action]');
