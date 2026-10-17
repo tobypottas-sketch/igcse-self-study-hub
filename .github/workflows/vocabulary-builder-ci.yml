@@ -1,7 +1,7 @@
 name: Vocabulary Builder CI
 on:
   push:
-    branches: [design/vocabulary-paraphrase-builder]
+    branches: [design/vocabulary-paraphrase-builder, design/0511-vocabulary-activity-redesign-20261017]
 jobs:
   test:
     runs-on: ubuntu-latest
