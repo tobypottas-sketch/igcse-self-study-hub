@@ -29,13 +29,32 @@ const QUESTION_TYPES = new Set([
   'produce_paraphrase',
   'use_target',
   'identify_inaccurate_paraphrase',
-  'mini_mixed_check'
+  'mini_mixed_check',
+  'which_situation_fits',
+  'meaning_in_context',
+  'correct_usage',
+  'collocation_builder',
+  'word_family_switch',
+  'find_evidence',
+  'build_paraphrase',
+  'complete_paraphrase',
+  'rewrite_phrase',
+  'same_idea',
+  'spot_meaning_change',
+  'build_same_idea',
+  'rewrite_idea',
+  'improve_vocabulary',
+  'explain_another_way'
 ]);
 const SECTION_IDS = new Set(['ex1', 'ex2', 'ex3', 'ex4', 'ex5']);
 const SUPPORT_TYPES = new Set(['transcript']);
 const RESULT_TYPES = new Set(['exam_reconciliation']);
 const VOCAB_STRANDS = new Set(['meaning', 'recognition', 'context', 'paraphrasing', 'production']);
 const VOCAB_MISCONCEPTIONS = new Set(['related_but_inaccurate', 'wrong_form', 'meaning_confusion', 'retrieval_failure', 'context_mismatch']);
+const VOCAB_SKILL_FAMILIES = new Set(['meaning', 'context', 'question_text', 'phrase_paraphrasing', 'idea_paraphrasing', 'writing_vocabulary', 'communication_repair']);
+const VOCAB_EVIDENCE_STRENGTHS = new Set(['light', 'medium', 'strong', 'very_strong']);
+const VOCAB_SUPPORT_LEVELS = new Set(['none', 'light', 'major']);
+const VOCAB_PRACTICE_FOCUSES = new Set(['learn', 'context', 'question_text', 'phrase_paraphrase', 'idea_paraphrase', 'writing', 'adaptive']);
 
 function cleanLabel(value, maxLength) {
   if (value == null || value === '') return undefined;
@@ -69,6 +88,10 @@ function sanitizeMetadata(input) {
   if (typeof source.retry_used === 'boolean') output.retry_used = source.retry_used;
   if (typeof source.recovery === 'boolean') output.recovery = source.recovery;
   if (VOCAB_MISCONCEPTIONS.has(source.misconception)) output.misconception = source.misconception;
+  if (VOCAB_SKILL_FAMILIES.has(source.skill_family)) output.skill_family = source.skill_family;
+  if (VOCAB_EVIDENCE_STRENGTHS.has(source.evidence_strength)) output.evidence_strength = source.evidence_strength;
+  if (VOCAB_SUPPORT_LEVELS.has(source.support_level)) output.support_level = source.support_level;
+  if (VOCAB_PRACTICE_FOCUSES.has(source.practice_focus)) output.practice_focus = source.practice_focus;
   const targetId = cleanLabel(source.target_id, 120);
   const occurrenceId = cleanLabel(source.occurrence_id, 120);
   if (targetId) output.target_id = targetId;
