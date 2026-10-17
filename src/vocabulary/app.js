@@ -5,14 +5,14 @@ import { selectPriorityTargets } from './selector.js';
 import { buildQuestion } from './questions.js';
 import { completeAttempt, createSession, expireSession, isSessionComplete } from './session.js';
 import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
-import { applyEvidence } from '../../supabase/functions/_shared/vocabulary-engine.js';
+import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
 const root = document.getElementById('vocabularyApp');
 const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
-  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null,
+  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:'adaptive', recentQuestionTypes:[],
   usedContexts:new Map(), previousTypes:new Map(), recoveryNeeded:new Set(), clock:null,
-  activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null
+  activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null, persistenceChain:Promise.resolve()
 };
 
 function occurrence(row) {
@@ -49,6 +49,17 @@ function decoratePreview() {
   else shell.prepend(banner);
 }
 
+function showSyncWarning(error) {
+  console.error('Vocabulary progress sync failed', error);
+  const shell = root?.querySelector?.('.vocab-shell');
+  if (!shell || shell.querySelector?.('[data-vocab-sync-warning]')) return;
+  const warning = document.createElement('aside');
+  warning.className = 'vocab-sync-warning';
+  warning.dataset.vocabSyncWarning = 'true';
+  warning.textContent = 'Your answer was checked, but progress could not be saved. Check your connection before continuing.';
+  shell.prepend(warning);
+}
+
 function buildUnits(dashboard) {
   const grouped = new Map();
   const global = mapBy(dashboard.global, 'vocabulary_id');
@@ -74,6 +85,13 @@ async function showHome() {
   decoratePreview();
 }
 
+function renderCurrentUnit() {
+  if (!state.content || !state.currentUnitNumber) return;
+  const progress = buildUnitProgress({ occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
+  renderVocabularyUnit(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, progress, practiceFocus:state.practiceFocus });
+  decoratePreview();
+}
+
 async function openUnit(unitNumber) {
   clearClock();
   const contentPromise = loadVocabularyUnit(state.client, unitNumber);
@@ -87,10 +105,9 @@ async function openUnit(unitNumber) {
   for (const ctx of contexts) (state.content.contextsByOccurrence[ctx.occurrenceId] ??= []).push(ctx);
   state.globalMastery = mapBy(masteryRaw.global, 'vocabulary_id', mastery);
   state.unitMastery = mapBy(masteryRaw.unit, 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
-  const progress = buildUnitProgress({ occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
   state.currentUnitTitle = occurrences[0]?.unitTitle ?? state.units.find(unit => unit.unitNumber === unitNumber)?.unitTitle ?? `Unit ${unitNumber}`;
-  renderVocabularyUnit(root, { unitNumber, unitTitle:state.currentUnitTitle, progress });
-  decoratePreview();
+  state.practiceFocus = 'adaptive';
+  renderCurrentUnit();
 }
 
 function strandLabel(value, status) {
@@ -133,13 +150,15 @@ function startSession(mode, durationMinutes = null) {
   const selected = rankedTargets(mode === 'adaptive' ? 10 : Math.max(10, state.content.occurrences.length));
   if (!selected.length) throw new Error('This unit has no live vocabulary targets yet.');
   state.session = createSession({ unitNumber:state.currentUnitNumber, mode, durationMinutes, targetIds:selected.map(row => row.occurrenceId), now:new Date() });
+  state.session.practiceFocus = state.practiceFocus;
   state.queue = [...selected];
   state.current = null;
   state.usedContexts = new Map();
   state.previousTypes = new Map();
+  state.recentQuestionTypes = [];
   state.recoveryNeeded = new Set();
   if (mode === 'timed') startClock();
-  if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`session:${mode}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber } }).catch(() => {});
+  if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`session:${mode}:${state.practiceFocus}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, practice_focus:state.practiceFocus } }).catch(() => {});
   nextQuestion();
 }
 
@@ -178,10 +197,12 @@ function nextQuestion() {
   const used = state.usedContexts.get(target.occurrenceId) ?? [];
   const previousType = state.previousTypes.get(target.occurrenceId) ?? null;
   const recovery = state.recoveryNeeded.has(target.occurrenceId);
-  const question = buildQuestion({ occurrence:target, item:targetItem, contexts:targetContexts, mastery:state.globalMastery[target.vocabularyId] ?? freshMastery(), usedContextIds:used, previousQuestionType:previousType, recycle:recovery, now:new Date() });
+  const question = buildQuestion({ occurrence:target, item:targetItem, contexts:targetContexts, mastery:state.globalMastery[target.vocabularyId] ?? freshMastery(), usedContextIds:used, previousQuestionType:previousType, recentQuestionTypes:state.recentQuestionTypes, practiceFocus:state.session.practiceFocus ?? state.practiceFocus, recycle:recovery, now:new Date() });
   state.usedContexts.set(target.occurrenceId, [...used, question.contextId]);
   state.previousTypes.set(target.occurrenceId, question.type);
-  state.current = { target, item:targetItem, question, recovery, retry:false };
+  state.recentQuestionTypes = [...state.recentQuestionTypes, question.type].slice(-2);
+  const questionContext = targetContexts.find(ctx => ctx.contextId === question.contextId) ?? null;
+  state.current = { target, item:targetItem, context:questionContext, question, recovery, retry:false };
   renderCurrentQuestion();
 }
 
@@ -199,50 +220,76 @@ function renderCurrentQuestion(feedback = null) {
   decoratePreview();
 }
 
-async function handleAnswer(form, providedAnswer = null) {
+function markVocabularyAttemptLocally(current, rawAnswer) {
+  const sense = Array.isArray(current.item?.senses) ? current.item.senses.find(candidate => candidate?.senseId === current.target.senseId) : null;
+  if (!sense || !current.context) throw new Error('This vocabulary question is missing its marking data.');
+  const marked = markCuratedAnswer({
+    item:{ vocabularyId:current.item.vocabularyId },
+    sense,
+    context:{ contextId:current.context.contextId, acceptedAnswers:current.context.acceptedAnswers ?? [] },
+    questionType:current.question.type,
+    rawAnswer
+  });
+  return { ...marked, strand:current.question.strand };
+}
+
+function persistVocabularyAttempt(current, rawAnswer, flags, localResult) {
+  const payload = {
+    occurrenceId:current.target.occurrenceId,
+    contextId:current.question.contextId,
+    questionType:current.question.type,
+    rawAnswer,
+    firstAttempt:flags.firstAttempt,
+    retryUsed:flags.retryUsed,
+    recoveredLater:flags.recoveredLater,
+    review:flags.review,
+    preview:false
+  };
+  state.persistenceChain = state.persistenceChain.then(async () => {
+    const result = await submitVocabularyAttempt(state.client, payload);
+    if (result.correct !== localResult.correct) throw new Error('Vocabulary marking mismatch. Please reload before continuing.');
+    const currentGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery();
+    state.globalMastery[current.target.vocabularyId] = { ...currentGlobal, status:result.globalStatus, reviewDueAt:result.reviewDueAt, recentErrorCount:result.correct ? 0 : Math.max(1, currentGlobal.recentErrorCount ?? 0) };
+    state.unitMastery[current.target.occurrenceId] = { ...state.unitMastery[current.target.occurrenceId], status:result.unitStatus, recentErrorPattern:result.correct ? null : (result.misconceptionCategory ?? 'retrieval_failure') };
+  }).catch(error => { showSyncWarning(error); });
+  return state.persistenceChain;
+}
+
+function handleAnswer(form, providedAnswer = null) {
   if (!state.current || !state.session) return;
   if (state.session.mode === 'timed' && isSessionComplete(state.session, new Date())) { finishSession(); return; }
   const input = form?.querySelector?.('input[name="answer"]');
   const rawAnswer = providedAnswer != null ? String(providedAnswer) : (input?.value ?? '');
   const current = state.current;
-  const result = await submitVocabularyAttempt(state.client, {
-    occurrenceId:current.target.occurrenceId,
-    contextId:current.question.contextId,
-    questionType:current.question.type,
-    rawAnswer,
-    firstAttempt:!current.retry,
-    retryUsed:current.retry,
-    recoveredLater:current.recovery,
-    review:Boolean(state.globalMastery[current.target.vocabularyId]?.reviewDueAt && new Date(state.globalMastery[current.target.vocabularyId].reviewDueAt).getTime() <= Date.now()),
-    preview:state.preview
-  });
   const previousGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery();
   const previousGlobalStatus = previousGlobal.status ?? 'new';
-  let nextGlobalStatus = result.globalStatus;
-  let nextUnitStatus = result.unitStatus;
-  let recoverySucceeded = result.recovery;
+  const review = Boolean(previousGlobal.reviewDueAt && new Date(previousGlobal.reviewDueAt).getTime() <= Date.now());
+  const flags = { firstAttempt:!current.retry, retryUsed:current.retry, recoveredLater:current.recovery, review };
+  const result = markVocabularyAttemptLocally(current, rawAnswer);
+  const nextGlobal = applyEvidence(previousGlobal, {
+    strand:result.strand,
+    correct:result.correct,
+    firstAttempt:flags.firstAttempt,
+    retryUsed:flags.retryUsed,
+    recoveredLater:flags.recoveredLater,
+    contextId:current.question.contextId,
+    questionType:current.question.type,
+    review:state.preview ? false : review
+  }, new Date());
+  state.globalMastery[current.target.vocabularyId] = nextGlobal;
+  state.unitMastery[current.target.occurrenceId] = { status:nextGlobal.status, recentErrorPattern:result.correct ? null : (result.misconceptionCategory ?? 'retrieval_failure'), contextualEvidence:{ strandEvidence:nextGlobal.strandEvidence } };
+  const recoverySucceeded = current.recovery && result.correct;
 
-  if (state.preview) {
-    const nextGlobal = applyEvidence(previousGlobal, {
-      strand:result.strand,
-      correct:result.correct,
-      firstAttempt:!current.retry,
-      retryUsed:current.retry,
-      recoveredLater:current.recovery,
-      contextId:current.question.contextId,
-      questionType:current.question.type,
-      review:false
-    }, new Date());
-    state.globalMastery[current.target.vocabularyId] = nextGlobal;
-    state.unitMastery[current.target.occurrenceId] = { status:nextGlobal.status, recentErrorPattern:result.correct ? null : (result.misconceptionCategory ?? 'retrieval_failure'), contextualEvidence:{ strandEvidence:nextGlobal.strandEvidence } };
-    nextGlobalStatus = nextGlobal.status;
-    nextUnitStatus = nextGlobal.status;
-    recoverySucceeded = current.recovery && result.correct;
-  } else {
-    state.globalMastery[current.target.vocabularyId] = { ...previousGlobal, status:result.globalStatus, reviewDueAt:result.reviewDueAt, recentErrorCount:result.correct ? 0 : 1 };
-    state.unitMastery[current.target.occurrenceId] = { ...state.unitMastery[current.target.occurrenceId], status:result.unitStatus, recentErrorPattern:result.correct ? null : (result.misconceptionCategory ?? 'retrieval_failure') };
-  }
-  const message = supportiveFeedback({ correct:result.correct, misconceptionCategory:result.misconceptionCategory, recovery:recoverySucceeded, term:current.item.term });
+  if (!state.preview) void persistVocabularyAttempt(current, rawAnswer, flags, result);
+
+  const message = supportiveFeedback({
+    correct:result.correct,
+    misconceptionCategory:result.misconceptionCategory,
+    recovery:recoverySucceeded,
+    term:current.item.term,
+    meaning:current.item.coreMeaning,
+    questionType:current.question.type
+  });
 
   if (!result.correct && !current.retry && !current.recovery) {
     current.retry = true;
@@ -262,11 +309,10 @@ async function handleAnswer(form, providedAnswer = null) {
     evidence:{ correct:result.correct, recovery:recoverySucceeded },
     completeTarget,
     strengthened:result.correct,
-    movedToSecure:previousGlobalStatus !== 'secure' && nextGlobalStatus === 'secure',
-    mastered:previousGlobalStatus !== 'mastered' && nextGlobalStatus === 'mastered',
+    movedToSecure:previousGlobalStatus !== 'secure' && nextGlobal.status === 'secure',
+    mastered:previousGlobalStatus !== 'mastered' && nextGlobal.status === 'mastered',
     needsAnotherLook:completeTarget && !result.correct
   });
-  void nextUnitStatus;
   renderCurrentQuestion({ correct:result.correct, message });
   if (!result.correct) {
     const formAfter = root.querySelector?.('[data-form="vocabulary-answer"]');
@@ -281,8 +327,8 @@ function finishSession() {
   const finished = state.session;
   state.current = null;
   if (!state.preview) void trackVocabularyEvent(state.client, {
-    event_type:'exercise_result', activity_id:`session_complete:${finished.mode}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${finished.unitNumber}`,
-    score:finished.summary.strengthened, max_score:Math.max(1, finished.summary.practised), metadata:{ unit_number:finished.unitNumber }
+    event_type:'exercise_result', activity_id:`session_complete:${finished.mode}:${finished.practiceFocus ?? 'adaptive'}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${finished.unitNumber}`,
+    score:finished.summary.strengthened, max_score:Math.max(1, finished.summary.practised), metadata:{ unit_number:finished.unitNumber, practice_focus:finished.practiceFocus ?? 'adaptive' }
   }).catch(() => {});
   renderSessionSummary(root, { durationMinutes:finished.durationMinutes, summary:finished.summary });
   decoratePreview();
@@ -304,19 +350,16 @@ root?.addEventListener('submit', event => {
   const form = event.target;
   if (form?.dataset?.form !== 'vocabulary-answer') return;
   event.preventDefault();
-  const button = form.querySelector('button[type="submit"]');
-  if (button) button.disabled = true;
-  handleAnswer(form).catch(error => renderVocabularyError(root, error instanceof Error ? error.message : 'Unable to check that answer.')).finally(() => { if (button?.isConnected) button.disabled = false; });
+  try { handleAnswer(form); }
+  catch (error) { renderVocabularyError(root, error instanceof Error ? error.message : 'Unable to check that answer.'); }
 });
 
 root?.addEventListener('click', event => {
   const choice = event.target?.closest?.('[data-choice-answer]');
   if (choice) {
     const form = choice.closest?.('[data-form="vocabulary-answer"]');
-    const buttons = form?.querySelectorAll?.('[data-choice-answer]') ?? [];
-    buttons.forEach(button => { button.disabled = true; });
-    void handleAnswer(form, choice.dataset.choiceAnswer)
-      .catch(error => renderVocabularyError(root, error instanceof Error ? error.message : 'Unable to check that answer.'));
+    try { handleAnswer(form, choice.dataset.choiceAnswer); }
+    catch (error) { renderVocabularyError(root, error instanceof Error ? error.message : 'Unable to check that answer.'); }
     return;
   }
   const target = event.target?.closest?.('[data-action]');
@@ -325,6 +368,7 @@ root?.addEventListener('click', event => {
   if (action === 'open-unit') openUnit(Number(target.dataset.unit)).catch(error => renderVocabularyError(root, error.message));
   else if (action === 'back-units') showHome().catch(error => renderVocabularyError(root, error.message));
   else if (action === 'view-all-words') showAllWords();
+  else if (action === 'set-practice-focus') { state.practiceFocus = target.dataset.practiceFocus || 'adaptive'; renderCurrentUnit(); }
   else if (action === 'start-adaptive') { try { startSession('adaptive'); } catch (error) { renderVocabularyError(root, error.message); } }
   else if (action === 'start-timed') { try { startSession('timed', Number(target.dataset.minutes)); } catch (error) { renderVocabularyError(root, error.message); } }
   else if (action === 'next-question') nextQuestion();
