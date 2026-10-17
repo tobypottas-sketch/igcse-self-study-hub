@@ -95,6 +95,53 @@ function choicesFor(item, occurrence, context, type) {
   return rotate(uniqueText([correct, ...distractors.slice(0, 3)]).slice(0, 4), seed);
 }
 
+function quote(value) {
+  return `“${String(value ?? '').trim()}”`;
+}
+
+function withContext(instruction, contextText) {
+  const text = String(contextText ?? '').trim();
+  return text ? `${instruction}\n${text}` : instruction;
+}
+
+function textWithGap(context) {
+  const text = String(context?.text ?? '').trim();
+  const target = String(context?.targetRewrite ?? '').trim();
+  if (!target) return text;
+  const index = text.toLocaleLowerCase('en').indexOf(target.toLocaleLowerCase('en'));
+  if (index < 0) return text;
+  return `${text.slice(0, index)}___${text.slice(index + target.length)}`;
+}
+
+function promptFor(type, context, item) {
+  const term = String(item?.term ?? '').trim();
+  const rewrite = String(context?.targetRewrite ?? '').trim();
+  switch (type) {
+    case 'meaning_match':
+      return withContext(`What does ${quote(term)} mean in this sentence?`, context?.text);
+    case 'identify_inaccurate_paraphrase':
+      return withContext(`Which option does NOT match the meaning of ${quote(term)} in this sentence?`, context?.text);
+    case 'context_inference':
+      return withContext(`Explain the meaning of ${quote(term)} in this context.`, context?.text);
+    case 'paraphrase_match':
+      return withContext(`Which option best replaces ${quote(rewrite || term)} without changing the meaning?`, context?.text);
+    case 'question_text_bridge':
+      return withContext(`Give the Unit vocabulary wording that matches ${quote(rewrite || term)} in this context.`, context?.text);
+    case 'replace_phrase':
+      return withContext(`Replace ${quote(rewrite || term)} with the target word or phrase without changing the meaning.`, context?.text);
+    case 'context_gap_fill':
+      return withContext('Complete the gap with the best target word or phrase.', textWithGap(context));
+    case 'produce_paraphrase':
+      return withContext(`Rewrite ${quote(rewrite || term)} using the target word or phrase.`, context?.text);
+    case 'use_target':
+      return withContext(`Rewrite the sentence using the target word or phrase in place of ${quote(rewrite || term)}.`, context?.text);
+    case 'mini_mixed_check':
+      return withContext('Use the context to give the best equivalent or target wording.', context?.text);
+    default:
+      return String(context?.text ?? '').trim();
+  }
+}
+
 export function buildQuestion({ occurrence, item, contexts = [], mastery = {}, usedContextIds = [], previousQuestionType = null, recycle = false, forceQuestionType = null, now = new Date() } = {}) {
   if (!occurrence || !item) throw new Error('Vocabulary occurrence and item are required.');
   const allowed = forceQuestionType ? [forceQuestionType] : candidateTypes(mastery, now);
@@ -124,6 +171,6 @@ export function buildQuestion({ occurrence, item, contexts = [], mastery = {}, u
     vocabularyId:item.vocabularyId,
     occurrenceId:occurrence.occurrenceId,
     contextId:chosen.context.contextId,
-    prompt:chosen.context.text
+    prompt:promptFor(chosen.type, chosen.context, item)
   };
 }
