@@ -28,7 +28,18 @@ function contextSql(row) {
   ].join(',')})`;
 }
 
-function chunkSql(unit, occurrenceChunk) {
+function activitySql(row) {
+  return `(${[
+    sqlText(row.activityContentId), Number(row.unitNumber), sqlText(row.contentType), sqlJson(row.activityData ?? {}), sqlText(row.status)
+  ].join(',')})`;
+}
+
+function activityInsertSql(activities) {
+  if (!activities.length) return '';
+  return `\n\ninsert into public.vocabulary_unit_activities\n(activity_content_id,unit_number,content_type,activity_data,status)\nvalues\n${activities.map(activitySql).join(',\n')}\non conflict (activity_content_id) do update set\n  unit_number=excluded.unit_number,\n  content_type=excluded.content_type,\n  activity_data=excluded.activity_data,\n  status=excluded.status,\n  updated_at=now();`;
+}
+
+function chunkSql(unit, occurrenceChunk, { includeActivities = false } = {}) {
   const occurrenceIds = new Set(occurrenceChunk.map(row => row.occurrenceId));
   const vocabularyIds = new Set(occurrenceChunk.map(row => row.vocabularyId));
   const items = unit.items.filter(row => vocabularyIds.has(row.vocabularyId));
@@ -78,7 +89,7 @@ on conflict (context_id) do update set
   accepted_answers=excluded.accepted_answers,
   misconception_category=excluded.misconception_category,
   status=excluded.status,
-  updated_at=now();
+  updated_at=now();${includeActivities ? activityInsertSql(unit.activities ?? []) : ''}
 commit;`;
 }
 
@@ -93,7 +104,7 @@ async function main() {
   for (let offset = 0; offset < unit.occurrences.length; offset += 10) {
     const number = Math.floor(offset / 10) + 1;
     console.log(`---BEGIN VOCAB SQL CHUNK ${number}---`);
-    console.log(chunkSql(unit, unit.occurrences.slice(offset, offset + 10)));
+    console.log(chunkSql(unit, unit.occurrences.slice(offset, offset + 10), { includeActivities:offset === 0 }));
     console.log(`---END VOCAB SQL CHUNK ${number}---`);
   }
 }
