@@ -1,4 +1,4 @@
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function requireUuid(value, label) {
@@ -13,6 +13,15 @@ function validateIdentity(value) {
   const displayName = String(value?.displayName ?? '').trim();
   if (!displayName || displayName.length > 120) throw new Error('Display name is required.');
   return { email, displayName };
+}
+
+export function safeAuthAccountError(error) {
+  const code = String(error?.code ?? '').toLowerCase();
+  const message = String(error?.message ?? '');
+  if (code === 'email_exists' || /email address has already been registered/i.test(message)) {
+    return 'An account with this email already exists.';
+  }
+  return message || 'Unable to create account.';
 }
 
 export function validateProvisionInput(value) {
