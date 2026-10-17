@@ -1,6 +1,17 @@
+async function functionError(error) {
+  const context = error?.context;
+  if (context && typeof context.json === 'function') {
+    try {
+      const payload = await context.json();
+      if (typeof payload?.error === 'string' && payload.error.trim()) return new Error(payload.error.trim());
+    } catch {}
+  }
+  return error instanceof Error ? error : new Error('Unable to complete the account action.');
+}
+
 async function invokeProvision(client, body) {
   const { data, error } = await client.functions.invoke('admin-provision-user', { body });
-  if (error) throw error;
+  if (error) throw await functionError(error);
   return data;
 }
 
