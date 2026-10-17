@@ -27,14 +27,16 @@ function openClass(classId) {
   renderTeacherOverview(teacherState.root, { className:classData.className, insights:teacherState.currentInsights });
 }
 
-function openProblem(strand) {
+function openProblem({ strand = null, skillId = null } = {}) {
   if (!teacherState.currentClass) return;
   teacherState.currentStudent = null;
   teacherState.currentDrilldown = buildProblemDrilldown({
     students:teacherState.currentClass.students,
     targets:teacherState.currentClass.targets,
     mastery:teacherState.currentClass.mastery,
-    strand
+    activity:teacherState.currentClass.activity,
+    strand,
+    skillId
   });
   renderProblemArea(teacherState.root, { className:teacherState.currentClass.className, drilldown:teacherState.currentDrilldown });
 }
@@ -60,7 +62,8 @@ function targetRowsForTeams() {
   const mastery = focus?.strand ? classData.mastery.filter(row => Number(row.strandEvidence?.[focus.strand] ?? 0) < 3) : classData.mastery.filter(row => row.status === 'building' || row.recentErrorPattern);
   const studentById = new Map(classData.students.map(row => [row.id,row.displayName]));
   const targetById = new Map(classData.targets.map(row => [row.vocabularyId,row.term]));
-  return mastery.map(row => ({ student:studentById.get(row.studentId) ?? row.studentId, term:targetById.get(row.vocabularyId) ?? row.vocabularyId, strand:focus?.strand ?? teacherState.currentStudent?.developmentArea ?? teacherState.currentInsights?.mainWeakness?.strand ?? 'mixed', failureType:row.recentErrorPattern ?? '' }));
+  const learningFocus = focus?.skillId ?? focus?.strand ?? teacherState.currentStudent?.developmentSkill ?? teacherState.currentStudent?.developmentArea ?? teacherState.currentInsights?.mainWeakness?.skillId ?? teacherState.currentInsights?.mainWeakness?.strand ?? 'mixed';
+  return mastery.map(row => ({ student:studentById.get(row.studentId) ?? row.studentId, term:targetById.get(row.vocabularyId) ?? row.vocabularyId, strand:learningFocus, failureType:row.recentErrorPattern ?? '' }));
 }
 
 async function copyTeamsTargets() {
@@ -76,21 +79,21 @@ function recommendationContext() {
   if (teacherState.currentStudent) {
     return {
       studentId:teacherState.currentStudent.studentId,
-      strand:teacherState.currentStudent.developmentArea,
+      strand:teacherState.currentStudent.developmentSkill ?? teacherState.currentStudent.developmentArea,
       vocabularyIds:(teacherState.currentStudent.persistentTargets ?? []).map(row => row.vocabularyId)
     };
   }
   if (teacherState.currentDrilldown) {
     return {
       affectedStudents:teacherState.currentDrilldown.affectedStudents,
-      strand:teacherState.currentDrilldown.strand,
+      strand:teacherState.currentDrilldown.skillId ?? teacherState.currentDrilldown.strand,
       vocabularyIds:teacherState.currentDrilldown.words.map(row => row.vocabularyId)
     };
   }
   const insights = teacherState.currentInsights ?? classInsights(teacherState.currentClass);
   return {
     affectedStudents:insights.studentsNeedingAttention,
-    strand:insights.mainWeakness?.strand ?? null,
+    strand:insights.mainWeakness?.skillId ?? insights.mainWeakness?.strand ?? null,
     vocabularyIds:insights.difficultWords.slice(0,10).map(row => row.vocabularyId)
   };
 }
@@ -112,10 +115,7 @@ async function createRecommendation(target) {
   const context = recommendationContext();
   if (!context) return;
   const duration = target.dataset.duration;
-  const draft = buildVocabularyInterventionDraft({
-    ...context,
-    durationMinutes:duration === 'adaptive' ? null : Number(duration)
-  });
+  const draft = buildVocabularyInterventionDraft({ ...context, durationMinutes:duration === 'adaptive' ? null : Number(duration) });
   target.disabled = true;
   const original = target.textContent;
   target.textContent = 'Saving…';
@@ -136,7 +136,7 @@ function handleClick(event) {
   const action = target?.dataset?.action;
   if (!action) return;
   if (action === 'teacher-open-class') openClass(target.dataset.classId);
-  else if (action === 'teacher-open-problem') openProblem(target.dataset.strand);
+  else if (action === 'teacher-open-problem') openProblem({ strand:target.dataset.strand ?? null, skillId:target.dataset.skillId ?? null });
   else if (action === 'teacher-open-student') openStudent(target.dataset.studentId);
   else if (action === 'teacher-back-overview') teacherState.currentClass ? openClass(teacherState.currentClass.id) : renderClassChooser();
   else if (action === 'teacher-teams-targets') void copyTeamsTargets().catch(() => {});

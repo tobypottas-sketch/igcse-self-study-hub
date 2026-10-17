@@ -1,5 +1,6 @@
 const STATUSES = new Set(['draft', 'reviewed', 'approved', 'live']);
 const CONTEXT_TYPES = new Set(['meaning_context', 'paraphrase_context', 'production_context', 'reading_bridge', 'gap_fill', 'mixed_check']);
+const UNIT_ACTIVITY_TYPES = new Set(['phrase_set', 'idea_set', 'question_text', 'writing_set']);
 
 function text(value) {
   return String(value ?? '').trim();
@@ -9,8 +10,16 @@ function array(value) {
   return Array.isArray(value) ? value : [];
 }
 
+function object(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
 function errorIf(errors, condition, message) {
   if (condition) errors.push(message);
+}
+
+function nonEmptyTextArray(value) {
+  return array(value).map(text).filter(Boolean);
 }
 
 export function validateVocabularyItem(item = {}, { strict = true } = {}) {
@@ -58,10 +67,85 @@ function validateContext(context, strict) {
   if (strict) {
     errorIf(errors, !text(context?.text), `Context ${text(context?.contextId)} needs text.`);
     if (context?.type === 'production_context') {
-      errorIf(errors, array(context?.acceptedAnswers).map(text).filter(Boolean).length === 0, `Production context ${text(context?.contextId)} needs an accepted answer.`);
+      errorIf(errors, nonEmptyTextArray(context?.acceptedAnswers).length === 0, `Production context ${text(context?.contextId)} needs an accepted answer.`);
     }
   }
   return errors;
+}
+
+function validatePhraseSet(data, label, errors) {
+  errorIf(errors, !text(data.originalPhrase), `${label} needs an original phrase.`);
+  errorIf(errors, !text(data.equivalentPhrase), `${label} needs an equivalent phrase.`);
+  errorIf(errors, !Array.isArray(data.acceptedVariants), `${label} accepted variants must be an array.`);
+  errorIf(errors, nonEmptyTextArray(data.chunks).length < 2, `${label} needs at least two curated build chunks.`);
+  errorIf(errors, nonEmptyTextArray(data.commonMeaningDistortions).length === 0, `${label} needs at least one common meaning distortion.`);
+}
+
+function validateIdeaSet(data, label, errors) {
+  errorIf(errors, !text(data.originalIdea), `${label} needs an original idea.`);
+  errorIf(errors, nonEmptyTextArray(data.accurateParaphrases).length === 0, `${label} needs at least one accurate paraphrase.`);
+  errorIf(errors, array(data.meaningInvariants).length === 0, `${label} needs at least one meaning invariant.`);
+  for (const invariant of array(data.meaningInvariants)) {
+    errorIf(errors, !text(invariant?.type), `${label} has a meaning invariant without a type.`);
+    errorIf(errors, invariant?.value == null || !text(invariant.value), `${label} has a meaning invariant without a value.`);
+  }
+  errorIf(errors, array(data.distractors).length === 0, `${label} needs at least one meaning-change distractor.`);
+  for (const distractor of array(data.distractors)) {
+    errorIf(errors, !text(distractor?.text), `${label} has a distractor without text.`);
+    errorIf(errors, !text(distractor?.misconceptionCategory), `${label} has a distractor without a misconception category.`);
+  }
+}
+
+function validateQuestionText(data, label, errors) {
+  errorIf(errors, !text(data.sourceText), `${label} needs source text.`);
+  errorIf(errors, array(data.questions).length === 0, `${label} needs at least one question.`);
+  for (const question of array(data.questions)) {
+    errorIf(errors, !text(question?.question), `${label} has a question without text.`);
+    errorIf(errors, nonEmptyTextArray(question?.evidenceSpans).length === 0, `${label} question needs at least one evidence span.`);
+    errorIf(errors, array(question?.paraphraseLinks).length === 0, `${label} question needs at least one paraphrase link.`);
+    for (const link of array(question?.paraphraseLinks)) {
+      errorIf(errors, !text(link?.questionText) || !text(link?.sourceText), `${label} has an incomplete paraphrase link.`);
+    }
+  }
+}
+
+function validateWritingSet(data, label, errors) {
+  errorIf(errors, !text(data.taskType), `${label} needs a writing task type.`);
+  errorIf(errors, !text(data.prompt), `${label} needs a writing prompt.`);
+  errorIf(errors, !text(data.sourceText), `${label} needs writing source text.`);
+  errorIf(errors, nonEmptyTextArray(data.acceptedAnswers).length === 0, `${label} needs at least one accepted answer.`);
+}
+
+export function validateUnitActivity(activity = {}, { strict = true, unitNumber = null, itemIds = new Set() } = {}) {
+  const errors = [];
+  const label = `Activity ${text(activity.activityContentId) || '(unnamed)'}`;
+  const contentType = text(activity.contentType);
+  const data = object(activity.activityData);
+  errorIf(errors, !text(activity.activityContentId), 'Activity content ID is required.');
+  errorIf(errors, !Number.isInteger(activity.unitNumber) || activity.unitNumber < 1 || activity.unitNumber > 20, `${label} has an invalid unit number.`);
+  if (unitNumber != null) errorIf(errors, activity.unitNumber !== unitNumber, `${label} has the wrong unit number.`);
+  errorIf(errors, !UNIT_ACTIVITY_TYPES.has(contentType), `${label} has an invalid content type.`);
+  errorIf(errors, activity.status != null && !STATUSES.has(activity.status), `${label} has an invalid status.`);
+  if (strict) errorIf(errors, !['approved','live'].includes(activity.status), `${label} must be approved before use in an approved/live unit.`);
+
+  const linked = nonEmptyTextArray(data.linkedVocabularyIds);
+  errorIf(errors, data.linkedVocabularyIds != null && !Array.isArray(data.linkedVocabularyIds), `${label} linked vocabulary IDs must be an array.`);
+  errorIf(errors, new Set(linked).size !== linked.length, `${label} has duplicate linked vocabulary IDs.`);
+  for (const vocabularyId of linked) errorIf(errors, itemIds.size > 0 && !itemIds.has(vocabularyId), `${label} references unknown linked vocabulary ${vocabularyId}.`);
+  const primary = text(data.primaryEvidenceTargetId);
+  if (data.primaryEvidenceTargetId != null) {
+    errorIf(errors, !primary, `${label} has an invalid primary evidence target.`);
+    errorIf(errors, primary && itemIds.size > 0 && !itemIds.has(primary), `${label} primary evidence target is not a vocabulary item in this unit.`);
+    errorIf(errors, primary && !linked.includes(primary), `${label} primary evidence target must also be a linked vocabulary ID.`);
+  }
+
+  if (strict) {
+    if (contentType === 'phrase_set') validatePhraseSet(data, label, errors);
+    if (contentType === 'idea_set') validateIdeaSet(data, label, errors);
+    if (contentType === 'question_text') validateQuestionText(data, label, errors);
+    if (contentType === 'writing_set') validateWritingSet(data, label, errors);
+  }
+  return { ok: errors.length === 0, errors };
 }
 
 export function validateUnit(unit = {}) {
@@ -70,6 +154,7 @@ export function validateUnit(unit = {}) {
   const items = array(unit.items);
   const occurrences = array(unit.occurrences);
   const contexts = array(unit.contexts);
+  const activities = array(unit.activities);
   const itemsById = new Map(items.map(item => [item.vocabularyId, item]));
   const contextsById = new Map(contexts.map(context => [context.contextId, context]));
 
@@ -123,15 +208,21 @@ export function validateUnit(unit = {}) {
       const productionContexts = contextIds.map(id => contextsById.get(id)).filter(context => context?.type === 'production_context');
       errorIf(errors, productionContexts.length === 0, `${label} needs production marking material.`);
       for (const context of productionContexts) {
-        errorIf(errors, array(context.acceptedAnswers).map(text).filter(Boolean).length === 0, `Production context ${context.contextId} needs an accepted answer.`);
+        errorIf(errors, nonEmptyTextArray(context.acceptedAnswers).length === 0, `Production context ${context.contextId} needs an accepted answer.`);
       }
     }
   }
 
   for (const context of contexts) errors.push(...validateContext(context, strict));
 
+  const activityIds = activities.map(activity => text(activity?.activityContentId)).filter(Boolean);
+  errorIf(errors, new Set(activityIds).size !== activityIds.length, 'Unit activities must have distinct activity content IDs.');
+  const itemIds = new Set(items.map(item => item.vocabularyId));
+  for (const activity of activities) errors.push(...validateUnitActivity(activity, { strict, unitNumber:unit.unitNumber, itemIds }).errors);
+
   return { ok: errors.length === 0, errors };
 }
 
 export const VOCABULARY_CONTENT_STATUSES = Object.freeze([...STATUSES]);
 export const VOCABULARY_CONTEXT_TYPES = Object.freeze([...CONTEXT_TYPES]);
+export const VOCABULARY_UNIT_ACTIVITY_TYPES = Object.freeze([...UNIT_ACTIVITY_TYPES]);

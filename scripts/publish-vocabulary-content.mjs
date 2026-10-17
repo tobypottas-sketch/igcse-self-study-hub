@@ -2,12 +2,13 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { validateUnit } from '../content/vocabulary/schema.js';
 
-export const CONTENT_TABLES = Object.freeze(['vocabulary_items', 'vocabulary_unit_occurrences', 'vocabulary_contexts']);
+export const CONTENT_TABLES = Object.freeze(['vocabulary_items', 'vocabulary_unit_occurrences', 'vocabulary_contexts', 'vocabulary_unit_activities']);
 
 export function buildPublicationBatch(units = []) {
   const itemMap = new Map();
   const occurrences = [];
   const contexts = [];
+  const activities = [];
 
   for (const unit of units) {
     if (unit?.status !== 'live') throw new Error(`Only live units may be published (Unit ${unit?.unitNumber ?? '?'}).`);
@@ -18,9 +19,10 @@ export function buildPublicationBatch(units = []) {
     }
     occurrences.push(...(unit.occurrences ?? []));
     contexts.push(...(unit.contexts ?? []));
+    activities.push(...(unit.activities ?? []));
   }
 
-  return { items:[...itemMap.values()], occurrences, contexts };
+  return { items:[...itemMap.values()], occurrences, contexts, activities };
 }
 
 function dbItem(item) {
@@ -61,7 +63,17 @@ function dbContext(context) {
     target_rewrite:context.targetRewrite ?? null,
     accepted_answers:context.acceptedAnswers ?? [],
     misconception_category:context.misconceptionCategory ?? null,
-    status:'live'
+    status:context.status ?? 'live'
+  };
+}
+
+function dbActivity(activity) {
+  return {
+    activity_content_id:activity.activityContentId,
+    unit_number:activity.unitNumber,
+    content_type:activity.contentType,
+    activity_data:activity.activityData ?? {},
+    status:activity.status
   };
 }
 
@@ -87,6 +99,7 @@ export async function publishBatch(batch, env = process.env) {
   await upsertRows(url, key, 'vocabulary_items', batch.items.map(dbItem), 'vocabulary_id');
   await upsertRows(url, key, 'vocabulary_unit_occurrences', batch.occurrences.map(dbOccurrence), 'occurrence_id');
   await upsertRows(url, key, 'vocabulary_contexts', batch.contexts.map(dbContext), 'context_id');
+  await upsertRows(url, key, 'vocabulary_unit_activities', (batch.activities ?? []).map(dbActivity), 'activity_content_id');
 }
 
 async function loadUnitModule(filePath) {
@@ -106,7 +119,7 @@ async function main() {
   for (const filePath of paths) units.push(await loadUnitModule(filePath));
   const batch = buildPublicationBatch(units);
   await publishBatch(batch);
-  console.log(`Published ${batch.items.length} vocabulary items, ${batch.occurrences.length} occurrences and ${batch.contexts.length} contexts.`);
+  console.log(`Published ${batch.items.length} vocabulary items, ${batch.occurrences.length} occurrences, ${batch.contexts.length} contexts and ${batch.activities.length} unit activities.`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

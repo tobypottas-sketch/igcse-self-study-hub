@@ -3,6 +3,31 @@ function assertNoError(result, message) {
   return result?.data ?? [];
 }
 
+const SAFE_ACTIVITY_METADATA = new Set([
+  'unit_number','strand','question_type','attempt_number','outcome','retry_used','recovery',
+  'misconception','evidence_strength','support_level','target_id','occurrence_id','practice_focus','skill_family'
+]);
+
+function safeActivityMetadata(value) {
+  const source = value && typeof value === 'object' ? value : {};
+  const output = {};
+  for (const key of SAFE_ACTIVITY_METADATA) {
+    const item = source[key];
+    if (item == null) continue;
+    if (['retry_used','recovery'].includes(key)) {
+      if (typeof item === 'boolean') output[key] = item;
+      continue;
+    }
+    if (key === 'unit_number' || key === 'attempt_number') {
+      const number = Number(item);
+      if (Number.isInteger(number)) output[key] = number;
+      continue;
+    }
+    if (typeof item === 'string' && item.length <= 160) output[key] = item;
+  }
+  return output;
+}
+
 export function normalizeTeacherVocabularyData(raw = {}) {
   const profiles = raw.profiles ?? [];
   const memberships = (raw.memberships ?? []).filter(row => row.ended_at == null);
@@ -10,7 +35,7 @@ export function normalizeTeacherVocabularyData(raw = {}) {
   const items = (raw.items ?? []).map(row => ({ vocabularyId:row.vocabulary_id, term:row.term }));
   const occurrences = (raw.occurrences ?? []).map(row => ({ occurrenceId:row.occurrence_id, vocabularyId:row.vocabulary_id, unitNumber:row.unit_number, unitTitle:row.unit_title }));
   const mastery = (raw.mastery ?? []).map(row => ({ studentId:row.student_id, vocabularyId:row.vocabulary_id, status:row.status, strandEvidence:row.strand_evidence ?? {}, recentErrorPattern:row.recent_error_pattern ?? null, updatedAt:row.updated_at ?? null }));
-  const activity = (raw.activity ?? []).map(row => ({ studentId:row.user_id, occurredAt:row.occurred_at, eventType:row.event_type, metadata:row.metadata ?? {} }));
+  const activity = (raw.activity ?? []).map(row => ({ studentId:row.user_id, occurredAt:row.occurred_at, eventType:row.event_type, metadata:safeActivityMetadata(row.metadata) }));
   const profileById = new Map(profiles.filter(row => row.role === 'student').map(row => [row.id, { id:row.id, displayName:row.display_name }]));
 
   const classes = classesRaw.map(classRow => {

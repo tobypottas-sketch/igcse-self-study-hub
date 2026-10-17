@@ -18,13 +18,35 @@ function priorityFor(occurrence, globalMastery, unitMastery, now) {
   return 100;
 }
 
-export function selectPriorityTargets({ occurrences = [], masteryByVocabularyId = {}, unitMastery = {}, now = new Date(), limit = 10 } = {}) {
+function focusStrands(practiceMode) {
+  if (practiceMode === 'learn') return ['meaning','recognition'];
+  if (practiceMode === 'context') return ['context'];
+  if (practiceMode === 'question_text') return ['context','paraphrasing'];
+  if (practiceMode === 'phrase_paraphrase' || practiceMode === 'idea_paraphrase') return ['paraphrasing'];
+  if (practiceMode === 'writing') return ['production'];
+  return [];
+}
+
+function focusBonus(mastery, practiceMode) {
+  const strands = focusStrands(practiceMode);
+  if (!strands.length) return 0;
+  const weakest = Math.min(...strands.map(strand => evidence(mastery, strand)));
+  if (weakest < 1) return 300;
+  if (weakest < 3) return 200;
+  if (weakest < 5) return 100;
+  return 0;
+}
+
+export function selectPriorityTargets({ occurrences = [], masteryByVocabularyId = {}, unitMastery = {}, now = new Date(), limit = 10, practiceMode = 'adaptive' } = {}) {
   const safeLimit = Number.isInteger(limit) && limit > 0 ? limit : 10;
   return occurrences
-    .map(occurrence => ({
-      ...occurrence,
-      priority:priorityFor(occurrence, masteryByVocabularyId[occurrence.vocabularyId], unitMastery[occurrence.occurrenceId], now)
-    }))
+    .map(occurrence => {
+      const global = masteryByVocabularyId[occurrence.vocabularyId];
+      return {
+        ...occurrence,
+        priority:priorityFor(occurrence, global, unitMastery[occurrence.occurrenceId], now) + focusBonus(global, practiceMode)
+      };
+    })
     .sort((a,b) => b.priority - a.priority || (a.positionInUnit ?? 0) - (b.positionInUnit ?? 0))
     .slice(0, safeLimit);
 }

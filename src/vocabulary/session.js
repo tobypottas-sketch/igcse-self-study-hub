@@ -1,4 +1,5 @@
 const TIMED_DURATIONS = new Set([5,10,15,20]);
+const PRACTICE_MODES = new Set(['learn','context','question_text','phrase_paraphrase','idea_paraphrase','writing','adaptive']);
 
 function date(value) {
   const result = value instanceof Date ? value : new Date(value);
@@ -6,14 +7,16 @@ function date(value) {
   return result;
 }
 
-export function createSession({ unitNumber, mode = 'adaptive', durationMinutes = null, targetIds = [], now = new Date() } = {}) {
+export function createSession({ unitNumber, mode = 'adaptive', practiceMode = 'adaptive', durationMinutes = null, targetIds = [], now = new Date() } = {}) {
   if (!Number.isInteger(unitNumber) || unitNumber < 1 || unitNumber > 20) throw new Error('Invalid unit number.');
   if (!['adaptive','timed'].includes(mode)) throw new Error('Invalid session mode.');
+  if (!PRACTICE_MODES.has(practiceMode)) throw new Error('Invalid vocabulary practice mode.');
   if (mode === 'timed' && !TIMED_DURATIONS.has(durationMinutes)) throw new Error('Timed session duration must be 5, 10, 15 or 20 minutes.');
   const startedAt = date(now).toISOString();
   return {
     unitNumber,
     mode,
+    practiceMode,
     durationMinutes:mode === 'timed' ? durationMinutes : null,
     startedAt,
     expiresAt:mode === 'timed' ? new Date(date(now).getTime() + durationMinutes * 60 * 1000).toISOString() : null,

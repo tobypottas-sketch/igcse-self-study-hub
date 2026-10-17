@@ -17,10 +17,20 @@ test('teacher class chooser also exposes student activity preview', () => {
   assert.match(source, /Choose a class[\s\S]*vocabulary\.html\?preview=1/);
 });
 
-test('student app sends preview attempts and suppresses evidence tracking for staff preview', () => {
+test('staff preview uses the real activity flow but suppresses persistence and evidence tracking', () => {
   const source = fs.readFileSync(new URL('../src/vocabulary/app.js', import.meta.url), 'utf8');
-  assert.match(source, /preview:\s*state\.preview/);
-  assert.match(source, /if \(!state\.preview\).*trackVocabularyEvent/s);
+  assert.match(source, /buildActivity\(/);
+  assert.match(source, /planNextActivity\(/);
+  assert.match(source, /if\s*\(!state\.preview\)\s+void\s+persistVocabularyAttempt\(/);
+  assert.match(source, /if\s*\(!state\.preview\).*trackVocabularyEvent/s);
+});
+
+test('staff preview UI includes all four interaction primitives through the shared question renderer', () => {
+  const source = fs.readFileSync(new URL('../src/vocabulary/views.js', import.meta.url), 'utf8');
+  assert.match(source, /data-choice-answer/);
+  assert.match(source, /data-tile-answer/);
+  assert.match(source, /data-evidence-answer/);
+  assert.match(source, /name="answer"/);
 });
 
 test('vocabulary router lets staff choose preview mode instead of forcing analytics', () => {

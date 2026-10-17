@@ -66,7 +66,49 @@ function makeLiveUnit() {
       { contextId:`ctx_${position}_3`, vocabularyId, occurrenceId:occurrences.at(-1).occurrenceId, senseId:`word_${position}_1`, type:'production_context', text:`Production context ${position}`, acceptedAnswers:[`word ${position}`] }
     );
   }
-  return { unitNumber:1, unitTitle:'Sports and Free Time', status:'live', items, occurrences, contexts };
+  return { unitNumber:1, unitTitle:'Sports and Free Time', status:'live', items, occurrences, contexts, activities:[] };
+}
+
+function validUnitActivities() {
+  return [
+    {
+      activityContentId:'u1_phrase_free_time', unitNumber:1, contentType:'phrase_set', status:'live',
+      activityData:{
+        originalPhrase:'free time', equivalentPhrase:'leisure time', acceptedVariants:['spare time'],
+        chunks:['leisure','time'], commonMeaningDistortions:['working time'],
+        linkedVocabularyIds:['vocab_word_1'], primaryEvidenceTargetId:'vocab_word_1'
+      }
+    },
+    {
+      activityContentId:'u1_idea_some_students', unitNumber:1, contentType:'idea_set', status:'live',
+      activityData:{
+        originalIdea:'Some students exercise after school.',
+        accurateParaphrases:['A number of students do exercise after lessons.'],
+        meaningInvariants:[{ type:'quantity', value:'some' }],
+        distractors:[{ text:'All students exercise after school.', misconceptionCategory:'quantity_change' }],
+        chunks:['A number of students','do exercise','after lessons'], linkedVocabularyIds:['vocab_word_2']
+      }
+    },
+    {
+      activityContentId:'u1_qt_cost', unitNumber:1, contentType:'question_text', status:'live',
+      activityData:{
+        sourceText:'The club cancelled the trip because it was too expensive.',
+        questions:[{
+          question:'Why did the club cancel the trip?',
+          evidenceSpans:['because it was too expensive'],
+          paraphraseLinks:[{ questionText:'Why', sourceText:'because' }]
+        }], linkedVocabularyIds:['vocab_word_3']
+      }
+    },
+    {
+      activityContentId:'u1_writing_repeat', unitNumber:1, contentType:'writing_set', status:'live',
+      activityData:{
+        taskType:'improve_vocabulary', prompt:'Replace the repeated weak phrase with a more precise option.',
+        sourceText:'The event was very good and the atmosphere was very good.',
+        acceptedAnswers:['excellent'], linkedVocabularyIds:['vocab_word_4'], primaryEvidenceTargetId:'vocab_word_4'
+      }
+    }
+  ];
 }
 
 test('live units require exactly 50 distinct targets in five sets of ten', async () => {
@@ -125,4 +167,52 @@ test('same global vocabulary item may appear in another unit without becoming a 
   unit.occurrences[0] = makeOccurrence(1, shared.vocabularyId, { occurrenceId:'u1_01_achievement', senseId:'achievement_1', contextIds:['ach_1','ach_2','ach_3'] });
   unit.contexts = unit.contexts.filter(context => !context.contextId.startsWith('ctx_1_')).concat(makeContexts('vocab_achievement','u1_01_achievement').map((context,index) => ({ ...context, contextId:`ach_${index + 1}`, senseId:'achievement_1' })));
   assert.equal(validateUnit(unit).ok, true);
+});
+
+test('unit activity validator accepts deterministic phrase idea question-text and writing records', async () => {
+  const { validateUnit } = await schema();
+  const unit = makeLiveUnit();
+  unit.activities = validUnitActivities();
+  const result = validateUnit(unit);
+  assert.equal(result.ok, true, result.errors.join('\n'));
+});
+
+test('phrase and idea activity records require enough curated material to generate fair tasks', async () => {
+  const { validateUnit } = await schema();
+  const unit = makeLiveUnit();
+  unit.activities = validUnitActivities();
+  unit.activities[0].activityData.equivalentPhrase = '';
+  unit.activities[1].activityData.meaningInvariants = [];
+  unit.activities[1].activityData.distractors = [];
+  const result = validateUnit(unit);
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.some(error => /equivalent phrase/i.test(error)));
+  assert.ok(result.errors.some(error => /meaning invariant/i.test(error)));
+  assert.ok(result.errors.some(error => /distractor/i.test(error)));
+});
+
+test('question-text and writing activity records require deterministic evidence and accepted material', async () => {
+  const { validateUnit } = await schema();
+  const unit = makeLiveUnit();
+  unit.activities = validUnitActivities();
+  unit.activities[2].activityData.questions[0].evidenceSpans = [];
+  unit.activities[3].activityData.acceptedAnswers = [];
+  const result = validateUnit(unit);
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.some(error => /evidence span/i.test(error)));
+  assert.ok(result.errors.some(error => /accepted answer/i.test(error)));
+});
+
+test('unit activities reject duplicate IDs unknown linked targets and invalid primary evidence targets', async () => {
+  const { validateUnit } = await schema();
+  const unit = makeLiveUnit();
+  unit.activities = validUnitActivities();
+  unit.activities.push(structuredClone(unit.activities[0]));
+  unit.activities[1].activityData.linkedVocabularyIds = ['vocab_missing'];
+  unit.activities[3].activityData.primaryEvidenceTargetId = 'vocab_word_9';
+  const result = validateUnit(unit);
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.some(error => /distinct activity content id|duplicate/i.test(error)));
+  assert.ok(result.errors.some(error => /unknown linked vocabulary/i.test(error)));
+  assert.ok(result.errors.some(error => /primary evidence target/i.test(error)));
 });

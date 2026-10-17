@@ -14,7 +14,15 @@ const PROPAGATION = Object.freeze({
   production:['production','paraphrasing','recognition','meaning']
 });
 const REVIEW_DAYS = [4, 10, 24, 45, 70, 100];
-const EXACT_CONTEXT_TYPES = new Set(['replace_phrase','produce_paraphrase','use_target','context_gap_fill']);
+const EXACT_CONTEXT_TYPES = new Set([
+  'replace_phrase','produce_paraphrase','use_target','context_gap_fill',
+  'build_paraphrase','complete_paraphrase','rewrite_phrase','build_same_idea','rewrite_idea',
+  'improve_vocabulary','explain_another_way','collocation_builder','word_family_switch',
+  'same_idea','spot_meaning_change','find_evidence','which_situation_fits','correct_usage'
+]);
+const INACCURATE_SELECTION_TYPES = new Set(['identify_inaccurate_paraphrase','spot_meaning_change']);
+const EVIDENCE_STRENGTH = Object.freeze({ light:1, medium:2, strong:3, very_strong:4 });
+const SUPPORT_MULTIPLIER = Object.freeze({ none:1, light:0.5, major:0.25 });
 
 function asDate(value) {
   const date = value instanceof Date ? value : new Date(value);
@@ -31,6 +39,8 @@ function normalizedMastery(input = {}) {
     strandEvidence,
     successfulProductions: Math.max(0, Number(input.successfulProductions ?? 0)),
     productionContextIds: [...new Set(Array.isArray(input.productionContextIds) ? input.productionContextIds.filter(Boolean) : [])],
+    productionActivityTypes: [...new Set(Array.isArray(input.productionActivityTypes) ? input.productionActivityTypes.filter(Boolean) : [])],
+    unscaffoldedProductions: Math.max(0, Number(input.unscaffoldedProductions ?? 0)),
     recentErrorCount: Math.max(0, Number(input.recentErrorCount ?? 0)),
     recoveryCount: Math.max(0, Number(input.recoveryCount ?? 0)),
     reviewStage: Math.max(0, Number(input.reviewStage ?? 0)),
@@ -39,7 +49,23 @@ function normalizedMastery(input = {}) {
   };
 }
 
+function evidenceStrands(evidence = {}) {
+  const candidates = Array.isArray(evidence.strands) && evidence.strands.length ? evidence.strands : [evidence.strand];
+  const strands = [...new Set(candidates.filter(Boolean))];
+  if (!strands.length || strands.some(strand => !STRANDS.includes(strand))) throw new Error('Invalid vocabulary evidence strand.');
+  return strands;
+}
+
 function successWeight(evidence) {
+  if (evidence.repeatedGuess === true) return 0;
+  if (evidence.evidenceStrength != null) {
+    const base = EVIDENCE_STRENGTH[evidence.evidenceStrength];
+    if (!base) throw new Error('Invalid vocabulary evidence strength.');
+    const inferredSupport = evidence.supportLevel ?? ((evidence.retryUsed || evidence.firstAttempt === false) ? 'light' : 'none');
+    const multiplier = SUPPORT_MULTIPLIER[inferredSupport];
+    if (multiplier == null) throw new Error('Invalid vocabulary support level.');
+    return base * multiplier;
+  }
   if (evidence.retryUsed || evidence.firstAttempt === false) return 1;
   if (evidence.recoveredLater) return 2;
   return 3;
@@ -50,18 +76,29 @@ export function deriveStatus(input = {}) {
   const evidence = mastery.strandEvidence;
   const secureStrands = STRANDS.filter(strand => evidence[strand] >= MASTERY_THRESHOLDS.secure);
   const hasHigherEvidence = evidence.context >= MASTERY_THRESHOLDS.secure || evidence.paraphrasing >= MASTERY_THRESHOLDS.secure;
-  const isSecure = secureStrands.length >= 2 && hasHigherEvidence;
+  const isSecure = secureStrands.length >= 3 && hasHigherEvidence;
 
   if (!isSecure) {
     return STRANDS.some(strand => evidence[strand] >= MASTERY_THRESHOLDS.building) ? 'building' : 'new';
   }
 
-  const distinctProductionContexts = new Set(mastery.productionContextIds).size;
+  const hasContext = evidence.context >= MASTERY_THRESHOLDS.secure;
+  const hasParaphrasing = evidence.paraphrasing >= MASTERY_THRESHOLDS.secure;
+  const contextDiversity = new Set(mastery.productionContextIds).size >= MASTERY_THRESHOLDS.masteredProductions;
+  const activityDiversity = new Set(mastery.productionActivityTypes).size >= MASTERY_THRESHOLDS.masteredProductions;
+  const hasIndependentProduction = mastery.unscaffoldedProductions >= 1;
+  const canRemainMasteredAfterOneReviewMiss = mastery.status === 'mastered' && mastery.reviewFailureCount > 0 && mastery.reviewFailureCount < MASTERY_THRESHOLDS.reviewFailuresForDemotion;
+  const noContradictoryError = mastery.recentErrorCount === 0 || canRemainMasteredAfterOneReviewMiss;
   const canRemainMastered = mastery.reviewFailureCount < MASTERY_THRESHOLDS.reviewFailuresForDemotion;
+
   if (
     canRemainMastered &&
+    noContradictoryError &&
+    hasContext &&
+    hasParaphrasing &&
     mastery.successfulProductions >= MASTERY_THRESHOLDS.masteredProductions &&
-    distinctProductionContexts >= MASTERY_THRESHOLDS.masteredProductions
+    (contextDiversity || activityDiversity) &&
+    hasIndependentProduction
   ) return 'mastered';
 
   return 'secure';
@@ -84,27 +121,43 @@ export function isReviewDue(input = {}, now = new Date()) {
 
 export function applyEvidence(input = {}, evidence = {}, now = new Date()) {
   const mastery = normalizedMastery(input);
-  if (!STRANDS.includes(evidence.strand)) throw new Error('Invalid vocabulary evidence strand.');
+  const sourceStrands = evidenceStrands(evidence);
   const occurredAt = asDate(now).toISOString();
   const next = {
     ...mastery,
     strandEvidence:{ ...mastery.strandEvidence },
     productionContextIds:[...mastery.productionContextIds],
+    productionActivityTypes:[...mastery.productionActivityTypes],
     lastSeenAt:occurredAt
   };
 
   if (evidence.correct) {
     const weight = successWeight(evidence);
-    for (const strand of PROPAGATION[evidence.strand]) next.strandEvidence[strand] += weight;
-    if (evidence.strand === 'production') {
-      next.successfulProductions += 1;
-      if (evidence.contextId && !next.productionContextIds.includes(evidence.contextId)) next.productionContextIds.push(evidence.contextId);
-    }
-    if (evidence.recoveredLater) next.recoveryCount += 1;
-    else next.recentErrorCount = Math.max(0, next.recentErrorCount - 1);
-    if (evidence.review) {
-      next.reviewFailureCount = 0;
-      next.reviewStage += 1;
+    if (weight > 0) {
+      const strengthened = new Set();
+      for (const sourceStrand of sourceStrands) {
+        for (const strand of PROPAGATION[sourceStrand]) strengthened.add(strand);
+      }
+      for (const strand of strengthened) next.strandEvidence[strand] += weight;
+
+      const productive = evidence.productive === true || sourceStrands.includes('production');
+      const supportLevel = evidence.supportLevel ?? ((evidence.retryUsed || evidence.firstAttempt === false) ? 'light' : 'none');
+      const independentEnough = supportLevel !== 'major' && evidence.repeatedGuess !== true;
+      if (productive && independentEnough) {
+        next.successfulProductions += 1;
+        const productionId = evidence.contextId ?? evidence.activityContentId ?? null;
+        if (productionId && !next.productionContextIds.includes(productionId)) next.productionContextIds.push(productionId);
+        const activityType = evidence.activityType ?? evidence.questionType ?? null;
+        if (activityType && !next.productionActivityTypes.includes(activityType)) next.productionActivityTypes.push(activityType);
+        if (supportLevel === 'none') next.unscaffoldedProductions += 1;
+      }
+
+      if (evidence.recoveredLater) next.recoveryCount += 1;
+      else next.recentErrorCount = Math.max(0, next.recentErrorCount - 1);
+      if (evidence.review) {
+        next.reviewFailureCount = 0;
+        next.reviewStage += 1;
+      }
     }
   } else {
     next.recentErrorCount += 1;
@@ -123,6 +176,24 @@ export function normalizeVocabularyAnswer(value) {
     .toLocaleLowerCase('en')
     .replace(/[.!?,;:]+$/u, '')
     .replace(/\s+/g, ' ');
+}
+
+function semanticDistractorMap(context = {}) {
+  const map = new Map();
+  for (const distractor of Array.isArray(context.distractors) ? context.distractors : []) {
+    const normalized = normalizeVocabularyAnswer(distractor?.text);
+    if (normalized) map.set(normalized, distractor?.misconceptionCategory ?? 'meaning_confusion');
+  }
+  return map;
+}
+
+function defaultStrandsForQuestionType(questionType) {
+  if (['produce_paraphrase','use_target','replace_phrase','rewrite_phrase','rewrite_idea','improve_vocabulary','explain_another_way','word_family_switch'].includes(questionType)) return ['production'];
+  if (['build_paraphrase','complete_paraphrase','build_same_idea'].includes(questionType)) return ['paraphrasing','production'];
+  if (['same_idea','spot_meaning_change','phrase_match'].includes(questionType)) return ['paraphrasing'];
+  if (['context_inference','question_text_bridge','context_gap_fill','mini_mixed_check','find_evidence','meaning_in_context','correct_usage','which_situation_fits'].includes(questionType)) return ['context'];
+  if (questionType === 'meaning_match') return ['meaning'];
+  return ['recognition'];
 }
 
 export function markCuratedAnswer({ item = {}, sense = {}, context = {}, questionType, rawAnswer }) {
@@ -145,25 +216,33 @@ export function markCuratedAnswer({ item = {}, sense = {}, context = {}, questio
   }
   accepted.delete('');
 
-  const distractors = new Set((Array.isArray(sense.misleadingDistractors) ? sense.misleadingDistractors : []).map(normalizeVocabularyAnswer).filter(Boolean));
-  const identifyingInaccurate = questionType === 'identify_inaccurate_paraphrase';
-  const correct = identifyingInaccurate ? distractors.has(normalizedAnswer) : accepted.has(normalizedAnswer);
-  let misconceptionCategory = null;
-  if (!correct) {
-    if (identifyingInaccurate && accepted.has(normalizedAnswer)) misconceptionCategory = 'meaning_confusion';
-    else if (!identifyingInaccurate && distractors.has(normalizedAnswer)) misconceptionCategory = 'related_but_inaccurate';
-  }
-  const strand = ['produce_paraphrase','use_target','replace_phrase'].includes(questionType) ? 'production' : 'recognition';
+  const legacyDistractors = new Set((Array.isArray(sense.misleadingDistractors) ? sense.misleadingDistractors : []).map(normalizeVocabularyAnswer).filter(Boolean));
+  const semanticDistractors = semanticDistractorMap(context);
+  const identifyingInaccurate = INACCURATE_SELECTION_TYPES.has(questionType);
+  const semanticCategory = semanticDistractors.get(normalizedAnswer) ?? null;
+  const isDistractor = semanticCategory != null || legacyDistractors.has(normalizedAnswer);
+  const correct = identifyingInaccurate ? isDistractor : accepted.has(normalizedAnswer);
 
+  let misconceptionCategory = null;
+  if (semanticCategory) misconceptionCategory = semanticCategory;
+  else if (!correct) {
+    if (identifyingInaccurate && accepted.has(normalizedAnswer)) misconceptionCategory = 'meaning_confusion';
+    else if (!identifyingInaccurate && legacyDistractors.has(normalizedAnswer)) misconceptionCategory = 'related_but_inaccurate';
+  }
+
+  const strands = defaultStrandsForQuestionType(questionType);
   return {
     correct,
     normalizedAnswer,
     misconceptionCategory,
     evidence:{
-      strand,
+      strand:strands[0],
+      strands,
       correct,
       contextId:context.contextId ?? null,
+      activityContentId:context.activityContentId ?? null,
       questionType:questionType ?? null,
+      activityType:questionType ?? null,
       misconceptionCategory
     }
   };

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { buildQuestion } from '../src/vocabulary/questions.js';
-import { renderVocabularyUnit, supportiveFeedback } from '../src/vocabulary/views.js';
+import { renderVocabularyQuestion, renderVocabularyUnit, supportiveFeedback } from '../src/vocabulary/views.js';
 
 const item = {
   vocabularyId:'vocab_leisure',
@@ -24,31 +24,42 @@ const newMastery = { status:'new', strandEvidence:{ meaning:0, recognition:0, co
 
 function root() { return { innerHTML:'' }; }
 
-test('unit page lets students choose adaptive, definitions, context, paraphrasing, or recall practice', () => {
+test('unit page exposes all seven Cambridge 0511 practice modes', () => {
   const target = root();
   renderVocabularyUnit(target, { unitNumber:1, unitTitle:'Sports and Free Time', progress:{ mastered:0,total:50,needsAnotherLook:0,reviewDue:0 }, practiceFocus:'adaptive' });
-  for (const label of ['Adaptive Mix','Definitions','In Context','Paraphrasing','Recall & Use']) assert.match(target.innerHTML, new RegExp(label.replace('&','&amp;'), 'i'));
-  for (const focus of ['adaptive','definitions','context','paraphrasing','recall']) assert.match(target.innerHTML, new RegExp(`data-practice-focus="${focus}"`));
+  const modes = [
+    ['learn','Learn the Vocabulary'],
+    ['context','Understand in Context'],
+    ['question_text','Question ↔ Text'],
+    ['phrase_paraphrase','Phrase Paraphrasing'],
+    ['idea_paraphrase','Idea Paraphrasing'],
+    ['writing','Writing Vocabulary'],
+    ['adaptive','Adaptive 0511 Mix']
+  ];
+  for (const [id,label] of modes) {
+    assert.match(target.innerHTML, new RegExp(label.replace('&','&amp;'), 'i'));
+    assert.match(target.innerHTML, new RegExp(`data-practice-focus="${id}"`));
+  }
   for (const minutes of [5,10,15,20]) assert.match(target.innerHTML, new RegExp(`>${minutes} min<`));
+});
+
+test('question renderer supports choice, tiles, evidence selection and short text', () => {
+  const cases = [
+    [{ type:'same_idea', responseMode:'choice', prompt:'Choose', options:['A','B'] }, /data-choice-answer=/],
+    [{ type:'build_paraphrase', responseMode:'tiles', prompt:'Build', tiles:['take','part','in'] }, /data-tile-answer=/],
+    [{ type:'find_evidence', responseMode:'evidence', prompt:'Find', sourceText:'The event was delayed because of rain.', evidenceOptions:['because of rain','the event'] }, /data-evidence-answer=/],
+    [{ type:'rewrite_phrase', responseMode:'text', prompt:'Rewrite' }, /name="answer"/]
+  ];
+  for (const [question, expected] of cases) {
+    const target = root();
+    renderVocabularyQuestion(target, { unitNumber:1, unitTitle:'Sports and Free Time', question, term:'leisure', sessionLabel:'2 / 10 activities' });
+    assert.match(target.innerHTML, expected);
+  }
 });
 
 test('adaptive mix avoids repeating a recently used activity type across different words', () => {
   const question = buildQuestion({ occurrence, item, contexts, mastery:newMastery, recentQuestionTypes:['meaning_match'] });
   assert.notEqual(question.type, 'meaning_match');
-});
-
-test('focused practice constrains activities to the chosen vocabulary skill area', () => {
-  const definitions = buildQuestion({ occurrence, item, contexts, mastery:newMastery, practiceFocus:'definitions' });
-  assert.ok(['meaning_match','identify_inaccurate_paraphrase','context_inference'].includes(definitions.type));
-
-  const inContext = buildQuestion({ occurrence, item, contexts, mastery:newMastery, practiceFocus:'context' });
-  assert.ok(['context_inference','context_gap_fill','question_text_bridge','mini_mixed_check'].includes(inContext.type));
-
-  const paraphrasing = buildQuestion({ occurrence, item, contexts, mastery:newMastery, practiceFocus:'paraphrasing' });
-  assert.ok(['paraphrase_match','replace_phrase','question_text_bridge','produce_paraphrase'].includes(paraphrasing.type));
-
-  const recall = buildQuestion({ occurrence, item, contexts, mastery:newMastery, practiceFocus:'recall' });
-  assert.ok(['context_gap_fill','replace_phrase','produce_paraphrase','use_target'].includes(recall.type));
 });
 
 test('correct feedback explains the learning instead of saying a word is getting stronger', () => {

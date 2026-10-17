@@ -13,6 +13,8 @@ function mastered(overrides = {}) {
     strandEvidence:{ meaning:8, recognition:8, context:6, paraphrasing:7, production:7 },
     successfulProductions:2,
     productionContextIds:['ctx-a','ctx-b'],
+    productionActivityTypes:['rewrite_phrase'],
+    unscaffoldedProductions:1,
     recentErrorCount:0,
     reviewStage:0,
     reviewFailureCount:0,

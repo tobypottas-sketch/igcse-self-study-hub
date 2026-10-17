@@ -2,10 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-const migrationPath = new URL('../supabase/migrations/20261017051500_vocabulary_builder_foundation.sql', import.meta.url);
+const foundationPath = new URL('../supabase/migrations/20261017051500_vocabulary_builder_foundation.sql', import.meta.url);
+const unitActivitiesPath = new URL('../supabase/migrations/20261017095000_vocabulary_unit_activities.sql', import.meta.url);
 
 function source() {
-  return fs.readFileSync(migrationPath, 'utf8');
+  return fs.readFileSync(foundationPath, 'utf8');
+}
+
+function activitySource() {
+  return fs.readFileSync(unitActivitiesPath, 'utf8');
 }
 
 const publicTables = [
@@ -22,6 +27,25 @@ test('vocabulary foundation enables RLS on every new public table', () => {
   const sql = source();
   for (const table of publicTables) {
     assert.match(sql, new RegExp(`alter table public\\.${table} enable row level security`, 'i'));
+  }
+});
+
+test('unit activity content table has RLS and staff can preview non-live curated content', () => {
+  const sql = activitySource();
+  assert.match(sql, /create table public\.vocabulary_unit_activities/i);
+  assert.match(sql, /alter table public\.vocabulary_unit_activities enable row level security/i);
+  assert.match(sql, /create policy vocabulary_unit_activities_select/i);
+  assert.match(sql, /status\s*=\s*'live'/i);
+  assert.match(sql, /private\.current_role\(\).*teacher/is);
+  assert.match(sql, /private\.current_role\(\).*admin/is);
+});
+
+test('unit activity table stores curated content only and has no student identity or answer columns', () => {
+  const sql = activitySource().toLowerCase();
+  assert.match(sql, /activity_content_id text primary key/);
+  assert.match(sql, /activity_data jsonb not null/);
+  for (const forbidden of ['student_id','answer_text','typed_answer','student_answer','free_text_answer']) {
+    assert.equal(sql.includes(forbidden), false, `forbidden unit activity token: ${forbidden}`);
   }
 });
 
