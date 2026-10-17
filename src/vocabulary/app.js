@@ -176,11 +176,11 @@ function renderCurrentQuestion(feedback = null) {
   });
 }
 
-async function handleAnswer(form) {
+async function handleAnswer(form, providedAnswer = null) {
   if (!state.current || !state.session) return;
   if (state.session.mode === 'timed' && isSessionComplete(state.session, new Date())) { finishSession(); return; }
-  const input = form.querySelector('input[name="answer"]');
-  const rawAnswer = input?.value ?? '';
+  const input = form?.querySelector?.('input[name="answer"]');
+  const rawAnswer = providedAnswer != null ? String(providedAnswer) : (input?.value ?? '');
   const current = state.current;
   const result = await submitVocabularyAttempt(state.client, {
     occurrenceId:current.target.occurrenceId,
@@ -261,6 +261,15 @@ root?.addEventListener('submit', event => {
 });
 
 root?.addEventListener('click', event => {
+  const choice = event.target?.closest?.('[data-choice-answer]');
+  if (choice) {
+    const form = choice.closest?.('[data-form="vocabulary-answer"]');
+    const buttons = form?.querySelectorAll?.('[data-choice-answer]') ?? [];
+    buttons.forEach(button => { button.disabled = true; });
+    void handleAnswer(form, choice.dataset.choiceAnswer)
+      .catch(error => renderVocabularyError(root, error instanceof Error ? error.message : 'Unable to check that answer.'));
+    return;
+  }
   const target = event.target?.closest?.('[data-action]');
   const action = target?.dataset?.action;
   if (!action) return;
