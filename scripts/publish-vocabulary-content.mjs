@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { validateUnit } from '../content/vocabulary/schema.js';
 
@@ -88,15 +89,21 @@ export async function publishBatch(batch, env = process.env) {
   await upsertRows(url, key, 'vocabulary_contexts', batch.contexts.map(dbContext), 'context_id');
 }
 
+async function loadUnitModule(filePath) {
+  const fileUrl = pathToFileURL(filePath).href;
+  if (path.extname(filePath).toLowerCase() === '.json') {
+    const module = await import(fileUrl, { with:{ type:'json' } });
+    return module.default;
+  }
+  const module = await import(fileUrl);
+  return module.default;
+}
+
 async function main() {
   const paths = process.argv.slice(2);
-  if (!paths.length) throw new Error('Pass one or more live unit JSON module paths to publish.');
+  if (!paths.length) throw new Error('Pass one or more live unit module paths to publish.');
   const units = [];
-  for (const path of paths) {
-    const fileUrl = pathToFileURL(path).href;
-    const module = await import(fileUrl, { with: { type: 'json' } });
-    units.push(module.default);
-  }
+  for (const filePath of paths) units.push(await loadUnitModule(filePath));
   const batch = buildPublicationBatch(units);
   await publishBatch(batch);
   console.log(`Published ${batch.items.length} vocabulary items, ${batch.occurrences.length} occurrences and ${batch.contexts.length} contexts.`);
