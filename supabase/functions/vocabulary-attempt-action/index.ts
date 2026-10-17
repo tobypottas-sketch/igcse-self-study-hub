@@ -29,6 +29,7 @@ const ACTIVITY_EVIDENCE: Record<string, { strands:string[]; evidenceStrength:str
   improve_vocabulary:{ strands:['production'], evidenceStrength:'very_strong', productive:true },
   explain_another_way:{ strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true }
 };
+const sentenceAnswerTypes = new Set(['which_situation_fits','correct_usage']);
 
 function firstNamedKey(raw: string | undefined): string {
   if (!raw) throw new Error('Missing Supabase key configuration.');
@@ -101,9 +102,7 @@ function questionTextMarking(data: any, activityVariantId: string | null, questi
   const index = Number(activityVariantId.slice(1));
   if (!Number.isInteger(index) || index < 0 || index >= questions.length) throw new Error('Question ↔ Text activity variant is invalid.');
   const selected = questions[index];
-  if (questionType === 'question_text_bridge') {
-    return { acceptedAnswers:[String(selected?.question ?? '').trim()].filter(Boolean), distractors:[] };
-  }
+  if (questionType === 'question_text_bridge') return { acceptedAnswers:[String(selected?.question ?? '').trim()].filter(Boolean), distractors:[] };
   return { acceptedAnswers:strings(selected?.evidenceSpans), distractors:[] };
 }
 function unitActivityMarking(activity: any, questionType: string, activityVariantId: string | null) {
@@ -165,9 +164,10 @@ Deno.serve(async (req: Request) => {
       markingContext = { contextId:activity.activity_content_id, activityContentId:activity.activity_content_id, ...marking };
       evidenceContentId = activity.activity_content_id;
     } else {
-      const { data:context, error:contextError } = await adminClient.from('vocabulary_contexts').select('context_id, occurrence_id, sense_id, accepted_answers, misconception_category, status').eq('context_id', input.contextId).eq('status','live').single();
+      const { data:context, error:contextError } = await adminClient.from('vocabulary_contexts').select('context_id, occurrence_id, sense_id, prompt_text, accepted_answers, misconception_category, status').eq('context_id', input.contextId).eq('status','live').single();
       if (contextError || !context || context.occurrence_id !== occurrence.occurrence_id || context.sense_id !== occurrence.sense_id) return json({ error:'Vocabulary context does not match target' }, 400);
-      markingContext = { contextId:context.context_id, acceptedAnswers:context.accepted_answers ?? [] };
+      const acceptedAnswers = sentenceAnswerTypes.has(input.questionType) ? [String(context.prompt_text ?? '').trim()].filter(Boolean) : (context.accepted_answers ?? []);
+      markingContext = { contextId:context.context_id, acceptedAnswers };
       evidenceContentId = context.context_id;
     }
 
