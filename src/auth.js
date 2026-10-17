@@ -4,6 +4,11 @@ export async function signIn(client, email, password) {
   return data;
 }
 
+export async function requestPasswordReset(client, email, redirectTo) {
+  const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo });
+  if (error) throw new Error('Unable to send a password reset email right now. Please try again.');
+}
+
 export async function getCurrentProfile(client) {
   const { data: userData, error: userError } = await client.auth.getUser();
   if (userError || !userData?.user) throw new Error('You are not signed in.');
@@ -32,4 +37,8 @@ export async function changePassword(client, newPassword) {
     .update({ must_change_password: false })
     .eq('id', userData.user.id);
   if (profileError) throw new Error('Password changed, but setup is not complete. Please sign in again.');
+}
+
+export async function updateRecoveredPassword(client, newPassword) {
+  return changePassword(client, newPassword);
 }
