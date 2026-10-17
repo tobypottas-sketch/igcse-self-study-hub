@@ -48,6 +48,7 @@ test('choice-response view renders selectable options and no free-text input', (
   renderVocabularyQuestion(target, { unitNumber:1, unitTitle:'Sports and Free Time', question, term:item.term, sessionLabel:'1 / 10 words' });
   assert.match(target.innerHTML, /data-choice-answer=/);
   assert.doesNotMatch(target.innerHTML, /name="answer"/);
+  assert.match(target.innerHTML, />significant</);
 });
 
 test('typed-response view keeps the answer input', () => {
@@ -56,6 +57,15 @@ test('typed-response view keeps the answer input', () => {
   renderVocabularyQuestion(target, { unitNumber:1, unitTitle:'Sports and Free Time', question, term:item.term });
   assert.match(target.innerHTML, /name="answer"/);
   assert.doesNotMatch(target.innerHTML, /data-choice-answer=/);
+});
+
+test('retrieval and production questions do not reveal the target word before answering', () => {
+  for (const type of ['replace_phrase','produce_paraphrase','use_target','context_gap_fill']) {
+    const target = root();
+    const question = buildQuestion({ occurrence, item, contexts, mastery:{ status:'secure', strandEvidence:{} }, forceQuestionType:type });
+    renderVocabularyQuestion(target, { unitNumber:1, unitTitle:'Sports and Free Time', question, term:item.term });
+    assert.doesNotMatch(target.innerHTML, /class="vocab-target-pill">significant</);
+  }
 });
 
 test('identify-inaccurate marking rewards a curated distractor and rejects a valid paraphrase', () => {
@@ -69,5 +79,5 @@ test('ordinary recognition marking still rewards accepted meaning and rejects di
   const sense = item.senses[0];
   const context = contexts[0];
   assert.equal(markCuratedAnswer({ item, sense, context, questionType:'meaning_match', rawAnswer:'important' }).correct, true);
-  assert.equal(markCuratedAnswer({ item, sense, context, questionType:'meaning_match', rawAnswer:'famous' }).correct, false);
+  assert.equal(markCuratedAnswer({ item, sense, context:contexts[0], questionType:'meaning_match', rawAnswer:'famous' }).correct, false);
 });
