@@ -124,19 +124,19 @@ function promptFor(type, context, item) {
     case 'context_inference':
       return withContext(`Explain the meaning of ${quote(term)} in this context.`, context?.text);
     case 'paraphrase_match':
-      return withContext(`Which option best replaces ${quote(rewrite || term)} without changing the meaning?`, context?.text);
+      return withContext(`Which target word has the closest meaning to ${quote(rewrite || term)} in this context?`, context?.text);
     case 'question_text_bridge':
-      return withContext(`Give the Unit vocabulary wording that matches ${quote(rewrite || term)} in this context.`, context?.text);
+      return withContext(`Type the Unit vocabulary word or phrase that matches ${quote(rewrite || term)} in this context.`, context?.text);
     case 'replace_phrase':
-      return withContext(`Replace ${quote(rewrite || term)} with the target word or phrase without changing the meaning.`, context?.text);
+      return withContext(`Type the target word or phrase with the closest meaning to ${quote(rewrite || term)} here.`, context?.text);
     case 'context_gap_fill':
-      return withContext('Complete the gap with the best target word or phrase.', textWithGap(context));
+      return withContext('Complete the gap with the target word or phrase that fits the sentence.', textWithGap(context));
     case 'produce_paraphrase':
-      return withContext(`Rewrite ${quote(rewrite || term)} using the target word or phrase.`, context?.text);
+      return withContext(`Recall the target word or phrase that matches ${quote(rewrite || term)} in this context.`, context?.text);
     case 'use_target':
-      return withContext(`Rewrite the sentence using the target word or phrase in place of ${quote(rewrite || term)}.`, context?.text);
+      return withContext(`Type the target word or phrase that could replace ${quote(rewrite || term)} in this context.`, context?.text);
     case 'mini_mixed_check':
-      return withContext('Use the context to give the best equivalent or target wording.', context?.text);
+      return withContext('Use the context to give the best Unit vocabulary equivalent.', context?.text);
     default:
       return String(context?.text ?? '').trim();
   }
