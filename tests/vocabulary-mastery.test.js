@@ -73,6 +73,48 @@ test('later recovery adds positive evidence without erasing the original error s
   assert.equal(recovered.recoveryCount, 1);
 });
 
+test('new multi-strand evidence uses graded strength and support rather than treating every success equally', async () => {
+  const { applyEvidence } = await engine();
+  const full = applyEvidence(fresh(), {
+    strands:['paraphrasing','production'], correct:true, evidenceStrength:'very_strong', supportLevel:'none', productive:true,
+    firstAttempt:true, contextId:'idea-a', activityType:'rewrite_idea'
+  }, new Date());
+  const lightSupport = applyEvidence(fresh(), {
+    strands:['paraphrasing','production'], correct:true, evidenceStrength:'very_strong', supportLevel:'light', productive:true,
+    firstAttempt:false, retryUsed:true, contextId:'idea-a', activityType:'rewrite_idea'
+  }, new Date());
+  const majorSupport = applyEvidence(fresh(), {
+    strands:['paraphrasing','production'], correct:true, evidenceStrength:'very_strong', supportLevel:'major', productive:true,
+    firstAttempt:false, retryUsed:true, contextId:'idea-a', activityType:'rewrite_idea'
+  }, new Date());
+
+  assert.ok(full.strandEvidence.production > lightSupport.strandEvidence.production);
+  assert.ok(lightSupport.strandEvidence.production > majorSupport.strandEvidence.production);
+  assert.ok(majorSupport.strandEvidence.production > 0);
+  assert.ok(full.strandEvidence.paraphrasing > 0);
+});
+
+test('repeated guessing earns no positive mastery evidence', async () => {
+  const { applyEvidence } = await engine();
+  const result = applyEvidence(fresh(), {
+    strands:['meaning'], correct:true, evidenceStrength:'light', supportLevel:'major', repeatedGuess:true,
+    firstAttempt:false, retryUsed:true, contextId:'ctx-a', activityType:'meaning_match'
+  }, new Date());
+  assert.equal(result.strandEvidence.meaning, 0);
+  assert.equal(result.status, 'new');
+});
+
+test('major-supported productive recovery is learning evidence but not an independent production proof', async () => {
+  const { applyEvidence } = await engine();
+  const result = applyEvidence(fresh(), {
+    strands:['paraphrasing','production'], correct:true, evidenceStrength:'strong', supportLevel:'major', productive:true,
+    firstAttempt:false, retryUsed:true, contextId:'ctx-supported', activityType:'rewrite_phrase'
+  }, new Date());
+  assert.ok(result.strandEvidence.production > 0);
+  assert.equal(result.successfulProductions, 0);
+  assert.deepEqual(result.productionContextIds, []);
+});
+
 test('deterministic marking uses exact production answers and keeps recognition-only equivalents scoped', async () => {
   const { markCuratedAnswer } = await engine();
   const item = { vocabularyId:'vocab_significant' };
@@ -94,4 +136,38 @@ test('deterministic marking uses exact production answers and keeps recognition-
   assert.equal(marked.correct, false);
   assert.equal(marked.misconceptionCategory, 'related_but_inaccurate');
   assert.equal('rawAnswer' in marked.evidence, false);
+});
+
+test('semantic marking preserves curated misconception categories for whole-idea distortions', async () => {
+  const { markCuratedAnswer } = await engine();
+  const marked = markCuratedAnswer({
+    item:{ vocabularyId:'vocab_tournament' },
+    sense:{ acceptedParaphrases:[], contextDependentParaphrases:[], misleadingDistractors:[] },
+    context:{
+      contextId:'u1_idea_quantity',
+      acceptedAnswers:['Eight schools sent teams to take part in the regional competition.'],
+      distractors:[{ text:'All schools in the region sent teams.', misconceptionCategory:'quantity_change' }]
+    },
+    questionType:'same_idea',
+    rawAnswer:'All schools in the region sent teams.'
+  });
+  assert.equal(marked.correct, false);
+  assert.equal(marked.misconceptionCategory, 'quantity_change');
+});
+
+test('spot-meaning-change rewards the curated distorted rewrite and keeps its diagnosis', async () => {
+  const { markCuratedAnswer } = await engine();
+  const marked = markCuratedAnswer({
+    item:{ vocabularyId:'vocab_estimated' },
+    sense:{ acceptedParaphrases:[], contextDependentParaphrases:[], misleadingDistractors:[] },
+    context:{
+      contextId:'u1_idea_estimated',
+      acceptedAnswers:['The centre is expected to cost about five million dollars.'],
+      distractors:[{ text:'The centre definitely cost exactly five million dollars.', misconceptionCategory:'degree_change' }]
+    },
+    questionType:'spot_meaning_change',
+    rawAnswer:'The centre definitely cost exactly five million dollars.'
+  });
+  assert.equal(marked.correct, true);
+  assert.equal(marked.misconceptionCategory, 'degree_change');
 });
