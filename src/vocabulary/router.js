@@ -11,7 +11,13 @@ async function routeVocabulary() {
     if (userError || !userData?.user) { window.location.replace('./'); return; }
     const { data:profile, error:profileError } = await client.from('profiles').select('id, role, display_name, active').eq('id', userData.user.id).single();
     if (profileError || !profile?.active) { window.location.replace('./'); return; }
-    if (profile.role === 'teacher' || profile.role === 'admin') {
+    const previewRequested = new URLSearchParams(window.location.search).get('preview') === '1';
+    const staff = profile.role === 'teacher' || profile.role === 'admin';
+    if (staff && previewRequested) {
+      await import('./app.js');
+      return;
+    }
+    if (staff) {
       const { initialiseVocabularyTeacher } = await import('./teacher-app.js');
       await initialiseVocabularyTeacher({ root, client, profile });
       return;
