@@ -159,6 +159,11 @@ function recordRecentActivity(current, result) { const recent = state.recentActi
 function handleAnswer(form, providedAnswer = null) {
   if (!state.current || !state.session) return; if (state.session.mode === 'timed' && isSessionComplete(state.session, new Date())) { finishSession(); return; }
   const input = form?.querySelector?.('input[name="answer"]'); const rawAnswer = providedAnswer != null ? String(providedAnswer) : (input?.value ?? ''); const current = state.current; if (current.answered) return;
+  if (current.question.responseMode === 'tiles' && !form?.querySelector?.('[data-tile-answer].is-used')) {
+    const build = form?.querySelector?.('[data-tile-build]');
+    if (build) build.textContent = 'Choose at least one tile before checking.';
+    return;
+  }
   const previousGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery(); const previousGlobalStatus = previousGlobal.status ?? 'new'; const review = Boolean(previousGlobal.reviewDueAt && new Date(previousGlobal.reviewDueAt).getTime() <= Date.now());
   const flags = { firstAttempt:!current.retry, retryUsed:current.retry, recoveredLater:current.recovery, review, supportLevel:current.retry ? (current.support?.supportLevel ?? 'light') : 'none' };
   const result = markVocabularyAttemptLocally(current, rawAnswer); const shouldUpdate = updatesTargetMastery(current); const nextGlobal = shouldUpdate ? applyEvidence(previousGlobal, evidenceFor(current, result, flags), new Date()) : previousGlobal;
