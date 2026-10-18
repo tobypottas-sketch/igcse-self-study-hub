@@ -30,7 +30,7 @@ export function availableActivityTypesForTarget({ content, target, item, context
   if (linked.some(row => row.contentType === 'idea_set')) ['same_idea','build_same_idea','rewrite_idea','explain_another_way'].forEach(type => available.add(type));
   if (linked.some(row => row.contentType === 'idea_set' && isSpotMeaningChangeReady(row.activityData))) available.add('spot_meaning_change');
   if (linked.some(row => row.contentType === 'question_text')) { available.add('question_text_bridge'); available.add('find_evidence'); }
-  if (linked.some(row => row.contentType === 'writing_set')) available.add('improve_vocabulary');
+  if (linked.some(row => row.contentType === 'writing_set' && row.activityData?.taskType === 'improve_vocabulary')) available.add('improve_vocabulary');
   return [...available];
 }
 
