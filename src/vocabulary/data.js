@@ -4,7 +4,7 @@ function assertNoError(result, message) {
 }
 
 export async function loadVocabularyDashboard(client, options = {}) {
-  const occurrencesResult = await client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number, unit_title, set_number, position_in_unit, status').eq('status','live').eq('active',true).order('unit_number').order('position_in_unit');
+  const occurrencesResult = await client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number, unit_title, set_number, position_in_unit, sense_id, status').eq('status','live').eq('active',true).order('unit_number').order('position_in_unit');
   const occurrences = assertNoError(occurrencesResult, 'Unable to load vocabulary units.');
   if (options.preview === true) return { occurrences, global:[], unit:[] };
   const [globalResult, unitResult] = await Promise.all([
@@ -14,9 +14,12 @@ export async function loadVocabularyDashboard(client, options = {}) {
   return { occurrences, global:assertNoError(globalResult, 'Unable to load vocabulary mastery.'), unit:assertNoError(unitResult, 'Unable to load unit mastery.') };
 }
 
-export async function loadVocabularyUnit(client, unitNumber) {
-  const occurrencesResult = await client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number, unit_title, set_number, position_in_unit, sense_id, status').eq('unit_number', unitNumber).eq('status', 'live').eq('active', true).order('position_in_unit');
-  const occurrences = assertNoError(occurrencesResult, 'Unable to load vocabulary unit.');
+export async function loadVocabularyUnit(client, unitNumber, options = {}) {
+  const preloaded = Array.isArray(options.occurrences) ? options.occurrences.filter(row => Number(row.unit_number) === Number(unitNumber)) : null;
+  const occurrences = preloaded ?? assertNoError(
+    await client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number, unit_title, set_number, position_in_unit, sense_id, status').eq('unit_number', unitNumber).eq('status', 'live').eq('active', true).order('position_in_unit'),
+    'Unable to load vocabulary unit.'
+  );
   const vocabularyIds = [...new Set(occurrences.map(row => row.vocabulary_id))];
   const occurrenceIds = occurrences.map(row => row.occurrence_id);
   const [itemsResult, contextsResult, activitiesResult] = await Promise.all([
@@ -27,9 +30,12 @@ export async function loadVocabularyUnit(client, unitNumber) {
   return { occurrences, items:assertNoError(itemsResult, 'Unable to load vocabulary items.'), contexts:assertNoError(contextsResult, 'Unable to load vocabulary contexts.'), activities:assertNoError(activitiesResult, 'Unable to load vocabulary activities.') };
 }
 
-export async function loadStudentMastery(client, unitNumber) {
-  const occurrencesResult = await client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id').eq('unit_number', unitNumber).eq('status', 'live').eq('active', true);
-  const occurrences = assertNoError(occurrencesResult, 'Unable to load vocabulary unit.');
+export async function loadStudentMastery(client, unitNumber, options = {}) {
+  const preloaded = Array.isArray(options.occurrences) ? options.occurrences.filter(row => Number(row.unit_number) === Number(unitNumber)) : null;
+  const occurrences = preloaded ?? assertNoError(
+    await client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id').eq('unit_number', unitNumber).eq('status', 'live').eq('active', true),
+    'Unable to load vocabulary unit.'
+  );
   const vocabularyIds = [...new Set(occurrences.map(row => row.vocabulary_id))];
   const occurrenceIds = occurrences.map(row => row.occurrence_id);
   const [globalResult, unitResult] = await Promise.all([
