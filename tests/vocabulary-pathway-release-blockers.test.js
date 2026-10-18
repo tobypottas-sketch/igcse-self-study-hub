@@ -5,6 +5,7 @@ import unit1 from '../content/vocabulary/units/unit-01.js';
 import { planPathwayQuestion } from '../src/vocabulary/pathway-planner.js';
 import { activityDefinition } from '../src/vocabulary/activity-catalogue.js';
 import { PATHWAY_ACTIVITY_MAP } from '../supabase/functions/_shared/vocabulary-pathway-contract.js';
+import { applyPathwayAttempt, freshPathwayProgress } from '../supabase/functions/_shared/vocabulary-pathway-progress.js';
 
 function contentForPlanner(unit) {
   const content = {
@@ -56,11 +57,24 @@ test('Precision & Use Mastery never borrows a non-precision skill', () => {
   }
 });
 
-test('item-backed pathway diversity is never derived from the attempt id', () => {
-  const source = fs.readFileSync(new URL('../supabase/functions/vocabulary-attempt-action/index.ts', import.meta.url),'utf8');
-  assert.doesNotMatch(
-    source,
-    /questionIdentity\s*=\s*input\.contentSource\s*===\s*['"]item['"]\s*\?\s*attemptId/,
-    'repeating the same item question with a new attempt id must not count as new content diversity'
-  );
+test('repeating the same item-backed question with new attempt ids does not satisfy content diversity', () => {
+  const baseAttempt = {
+    stageId:'recognise',
+    servedStageId:'recognise',
+    correct:true,
+    firstAttempt:true,
+    retryUsed:false,
+    supportLevel:'none',
+    activityType:'definition_to_word',
+    operation:'meaning_recognition',
+    promptKey:'item:vocab-001:sense-1:definition_to_word'
+  };
+
+  let progress = freshPathwayProgress();
+  progress = applyPathwayAttempt(progress, { ...baseAttempt, contentId:'11111111-1111-4111-8111-111111111111' });
+  progress = applyPathwayAttempt(progress, { ...baseAttempt, contentId:'22222222-2222-4222-8222-222222222222' });
+
+  assert.equal(progress.stages.recognise.cleanSuccesses,2);
+  assert.equal(progress.stages.recognise.contentIds.length,1, 'attempt ids must collapse to one stable item-question identity');
+  assert.equal(progress.stages.recognise.completed,false, 'the same item question repeated twice must not complete the rung');
 });
