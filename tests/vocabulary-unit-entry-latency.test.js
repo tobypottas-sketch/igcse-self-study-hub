@@ -16,17 +16,18 @@ test('opening a unit renders the unit shell before waiting for remote content', 
   assert.ok(awaitContent > immediateRender, 'remote content must load after the visible unit transition');
 });
 
-test('unit opens with no practice card selected', () => {
+test('unit opens immediately with the six pathways visible but disabled until content is ready', () => {
   const host = root();
   renderVocabularyUnit(host, {
     unitNumber:1,
     unitTitle:'Sports and Free Time',
     progress:{ mastered:0, total:50, needsAnotherLook:0, reviewDue:0 },
-    practiceFocus:null,
+    pathwayStates:{},
     contentReady:false
   });
-  assert.doesNotMatch(host.innerHTML, /vocab-focus-card is-selected/);
-  assert.doesNotMatch(host.innerHTML, /aria-pressed="true"/);
-  assert.match(host.innerHTML, />Choose a skill<\/h2>/);
-  assert.match(host.innerHTML, /data-action="start-adaptive"[^>]*disabled/);
+  assert.match(host.innerHTML, />Choose a vocabulary pathway<\/h2>/);
+  assert.equal((host.innerHTML.match(/data-action="open-pathway"/g) ?? []).length, 6);
+  assert.equal((host.innerHTML.match(/data-action="open-pathway"[^>]*disabled/g) ?? []).length, 6);
+  assert.match(host.innerHTML, /data-action="start-mixed-review"[^>]*disabled/);
+  assert.doesNotMatch(host.innerHTML, /data-action="set-practice-focus"/);
 });
