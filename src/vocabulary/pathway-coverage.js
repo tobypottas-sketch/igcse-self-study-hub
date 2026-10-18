@@ -1,5 +1,5 @@
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES, activityTypesForPathwayStage } from './pathway-model.js';
-import { eligibleTargetsForPathwayStage } from './pathway-planner.js';
+import { rawEligibleTargetsForPathwayStage } from './pathway-planner.js';
 
 function array(value) { return Array.isArray(value) ? value : []; }
 
@@ -27,7 +27,7 @@ export function buildPathwayCoverage({ content, masteryByVocabularyId = {} } = {
     let cohort = new Set(occurrences.map(row => String(row.occurrenceId ?? row.occurrence_id)));
     const stageCounts = {};
     for (const stage of PATHWAY_STAGES) {
-      const eligible = eligibleTargetsForPathwayStage({
+      const eligible = rawEligibleTargetsForPathwayStage({
         pathwayId:pathway.id,
         stageId:stage.id,
         content,
