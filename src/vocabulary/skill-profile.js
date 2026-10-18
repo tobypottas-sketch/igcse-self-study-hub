@@ -16,7 +16,7 @@ const TYPE_SKILLS = Object.freeze({
   find_evidence:['question_text'],
   phrase_match:['phrase_paraphrasing'],
   build_paraphrase:['phrase_paraphrasing'],
-  complete_paraphrase:['phrase_paraphrasing','lexical_production'],
+  complete_paraphrase:['phrase_paraphrasing'],
   rewrite_phrase:['phrase_paraphrasing','lexical_production'],
   same_idea:['idea_paraphrasing'],
   spot_meaning_change:['idea_paraphrasing'],
@@ -29,10 +29,10 @@ const TYPE_SKILLS = Object.freeze({
 });
 
 const STRENGTH_WEIGHT = Object.freeze({ light:1, medium:2, strong:3, very_strong:4 });
-// Tile assembly is scaffolded. Attempts stored before the evidence contract changed carry 'strong'; interpret them as at most
-// 'medium' when reading so the profile never shows tile clicks as independent strong evidence. Stored events are not modified.
-const SCAFFOLDED_TILE_TYPES = Object.freeze(new Set(['build_paraphrase','build_same_idea']));
-function effectiveStrength(questionType, strength) { return SCAFFOLDED_TILE_TYPES.has(questionType) && STRENGTH_WEIGHT[strength] > STRENGTH_WEIGHT.medium ? 'medium' : strength; }
+// Scaffolded paraphrase assembly/completion was historically stored as 'strong'. Interpret those rows as at most
+// 'medium' when reading so teacher profiles never show scaffolded work as independent strong evidence. Stored events are not modified.
+const SCAFFOLDED_PARAPHRASE_TYPES = Object.freeze(new Set(['build_paraphrase','complete_paraphrase','build_same_idea']));
+function effectiveStrength(questionType, strength) { return SCAFFOLDED_PARAPHRASE_TYPES.has(questionType) && STRENGTH_WEIGHT[strength] > STRENGTH_WEIGHT.medium ? 'medium' : strength; }
 const SUPPORT_WEIGHT = Object.freeze({ none:1, light:.6, major:.25 });
 const MISCONCEPTIONS = Object.freeze({
   quantity_change:'Changes quantity while paraphrasing',
