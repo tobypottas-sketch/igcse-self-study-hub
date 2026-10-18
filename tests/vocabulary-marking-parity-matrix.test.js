@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import { ACTIVITY_TYPES, activityDefinition } from '../src/vocabulary/activity-catalogue.js';
-import { buildActivity } from '../src/vocabulary/activity-builder.js';
+import { buildActivity } from '../src/vocabulary/activity-factory.js';
 import { markCuratedAnswer, spotMeaningChangeMarking } from '../supabase/functions/_shared/vocabulary-engine.js';
 
 const LIVE_TYPES = ACTIVITY_TYPES.filter(row => row.retired !== true).map(row => row.id);
@@ -29,12 +29,21 @@ function strings(value) {
 }
 
 function authoritativeMarking(question) {
+  if (question.contentSource === 'item') {
+    return {
+      contextId:question.contentId,
+      activityContentId:null,
+      acceptedAnswers:strings(question.markingReference?.acceptedAnswers),
+      distractors:[]
+    };
+  }
+
   const context = unit1.contexts.find(row => row.contextId === question.contentId);
   if (context) {
     return {
       contextId:context.contextId,
       activityContentId:null,
-      acceptedAnswers:SENTENCE_CONTEXT_TYPES.has(question.type) ? [String(context.text ?? '').trim()].filter(Boolean) : strings(context.acceptedAnswers),
+      acceptedAnswers:SENTENCE_CONTEXT_TYPES.has(question.type) ? [String(context.text ?? '').trim()].filter(Boolean) : strings(question.markingReference?.acceptedAnswers).length ? strings(question.markingReference.acceptedAnswers) : strings(context.acceptedAnswers),
       distractors:[]
     };
   }
