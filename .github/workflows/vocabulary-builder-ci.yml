@@ -10,7 +10,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm test
+      - name: Run npm test
+        shell: bash
+        run: |
+          set +e
+          npm test > vocabulary-test-output.txt 2>&1
+          code=$?
+          cat vocabulary-test-output.txt
+          exit $code
+      - name: Upload vocabulary test failure output
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vocabulary-test-output
+          path: vocabulary-test-output.txt
+          retention-days: 1
       - run: node scripts/validate-vocabulary-content.mjs
       - name: Verify Unit 1 publish export scope
         shell: bash
