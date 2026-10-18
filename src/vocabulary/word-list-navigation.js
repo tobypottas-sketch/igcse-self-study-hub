@@ -5,6 +5,10 @@ function initialLetter(value) {
   return match?.[0] ?? null;
 }
 
+export function sortVocabularyWords(words = []) {
+  return [...words].sort((a,b) => String(a?.term ?? '').localeCompare(String(b?.term ?? ''), 'en', { sensitivity:'base' }));
+}
+
 export function buildAlphabetModel(terms = []) {
   const available = new Set(terms.map(initialLetter).filter(Boolean));
   return ALPHABET.map(letter => ({
@@ -38,8 +42,15 @@ function enhanceWordsView(root, win) {
   const list = root?.querySelector?.('.vocab-word-list');
   if (!list || list.dataset.azEnhanced === 'true') return;
 
-  const rows = [...list.querySelectorAll?.('.vocab-word-row') ?? []];
-  const terms = rows.map(row => row.querySelector?.('.vocab-dictionary-entry__term')?.textContent ?? '');
+  const sourceRows = [...list.querySelectorAll?.('.vocab-word-row') ?? []];
+  const orderedRows = sortVocabularyWords(sourceRows.map(row => ({
+    row,
+    term:row.querySelector?.('.vocab-dictionary-entry__term')?.textContent ?? ''
+  })));
+  orderedRows.forEach(item => list.append(item.row));
+
+  const rows = orderedRows.map(item => item.row);
+  const terms = orderedRows.map(item => item.term);
   if (!terms.length) return;
 
   list.dataset.azEnhanced = 'true';
