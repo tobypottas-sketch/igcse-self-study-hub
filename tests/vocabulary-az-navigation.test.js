@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { buildAlphabetModel } from '../src/vocabulary/word-list-navigation.js';
+import { buildAlphabetModel, sortVocabularyWords } from '../src/vocabulary/word-list-navigation.js';
 
 test('alphabet model always spans A-Z and marks only present starting letters active', () => {
   const model = buildAlphabetModel(['avoid','leisure','opponent']);
@@ -9,6 +9,20 @@ test('alphabet model always spans A-Z and marks only present starting letters ac
   assert.deepEqual(model.filter(item => item.available).map(item => item.letter), ['A','L','O']);
   assert.equal(model.find(item => item.letter === 'B')?.available, false);
   assert.equal(model.find(item => item.letter === 'L')?.targetId, 'vocab-letter-l');
+});
+
+test('dictionary word list is sorted A-Z for predictable alphabet navigation without mutating source order', () => {
+  const source = [
+    { term:'leisure', id:'l' },
+    { term:'preference', id:'p' },
+    { term:'avoid', id:'a2' },
+    { term:'afford', id:'a1' },
+    { term:'struggle', id:'s' },
+    { term:'estimate', id:'e' }
+  ];
+  const sorted = sortVocabularyWords(source);
+  assert.deepEqual(sorted.map(word => word.term), ['afford','avoid','estimate','leisure','preference','struggle']);
+  assert.deepEqual(source.map(word => word.term), ['leisure','preference','avoid','afford','struggle','estimate']);
 });
 
 test('word-list navigation enhancer anchors first matching word and drives back-to-top visibility from scroll', () => {
