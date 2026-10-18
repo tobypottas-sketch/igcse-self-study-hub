@@ -1,4 +1,5 @@
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
+import { isSpotMeaningChangeReady, spotMeaningChangeDistractorIndexes, spotMeaningChangeMarking, spotMeaningChangeSameMeaningRewrites } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
 const STAGE_ORDER = Object.freeze({ new:0, building:1, secure:2, mastered:3 });
 
@@ -309,11 +310,16 @@ function sameIdea(args, definition) {
   return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which sentence expresses the same idea as this?\n${text(data.originalIdea)}`, markingReference:{ acceptedAnswers:[reference], meaningInvariants:array(data.meaningInvariants), distractors:array(data.distractors) }, extra:{ options, sourceIdea:text(data.originalIdea) } });
 }
 function spotMeaningChange(args, definition) {
-  const record = ideaRecord(args), data = object(record.activityData);
-  const inaccurate = array(data.distractors).map(row => text(row?.text)).filter(Boolean);
-  const accurate = uniqueText(array(data.accurateParaphrases));
-  const options = stableShuffle(uniqueText([...accurate, ...inaccurate]).slice(0,4), `${args.seed}:${record.activityContentId}:meaning-change`);
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which rewrite changes the meaning of this idea?\n${text(data.originalIdea)}`, markingReference:{ acceptedAnswers:inaccurate, meaningInvariants:array(data.meaningInvariants), distractors:array(data.distractors) }, extra:{ options, sourceIdea:text(data.originalIdea) } });
+  const ready = array(args.unitActivities).filter(activity => activity?.contentType === 'idea_set' && isSpotMeaningChangeReady(activity.activityData));
+  if (!ready.length) throw new Error('Spot the Meaning Change requires three curated same-meaning rewrites and one curated meaning-change distractor.');
+  const record = chooseUnitActivity(ready, 'idea_set', args.item.vocabularyId, args.usedContentIds, args.seed), data = object(record.activityData);
+  const seedKey = `${args.seed}:${record.activityContentId}:meaning-change`;
+  const [distractorIndex] = stableShuffle(spotMeaningChangeDistractorIndexes(data), `${seedKey}:distractor`);
+  const activityVariantId = `q${distractorIndex}`;
+  const marking = spotMeaningChangeMarking(data, activityVariantId);
+  const sameMeaning = stableShuffle(spotMeaningChangeSameMeaningRewrites(data), `${seedKey}:same-meaning`).slice(0, 3);
+  const options = stableShuffle([marking.acceptedAnswers[0], ...sameMeaning], seedKey);
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which rewrite changes the meaning of this idea?\n${text(data.originalIdea)}`, markingReference:{ ...marking, meaningInvariants:array(data.meaningInvariants) }, extra:{ options, activityVariantId, sourceIdea:text(data.originalIdea) } });
 }
 function buildSameIdea(args, definition) {
   const record = ideaRecord(args), data = object(record.activityData);
