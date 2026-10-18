@@ -93,7 +93,7 @@ function materialForTarget(content, target) {
 }
 
 function buildCandidate({ content, target, mastery, item, contexts, plan, usedContentIds, seed }) {
-  return buildActivity({
+  const question = buildActivity({
     activityType:plan.activityType,
     occurrence:target,
     item,
@@ -107,6 +107,7 @@ function buildCandidate({ content, target, mastery, item, contexts, plan, usedCo
     usedContentIds:array(usedContentIds),
     seed
   });
+  return { ...question, pathwayId:plan.pathwayId, pathwayStage:plan.learnerStage };
 }
 
 export function planPathwayQuestion({
