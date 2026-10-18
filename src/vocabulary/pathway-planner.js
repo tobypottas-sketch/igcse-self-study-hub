@@ -1,6 +1,7 @@
 import { buildActivity } from './activity-factory.js';
 import { PATHWAY_STAGES, activityTypesForPathwayStage, pathwayDefinition } from './pathway-model.js';
 import { availableActivityTypesForTarget } from './session-targets.js';
+import { PATHWAY_ACTIVITY_TYPES } from './pathway-activity-builder.js';
 
 const STAGE_IDS = Object.freeze(PATHWAY_STAGES.map(stage => stage.id));
 const READINESS_BY_STAGE = Object.freeze({
@@ -38,6 +39,12 @@ function mappedChoices(pathwayId, stageId, availableActivityTypes) {
 }
 function readinessForStage(stageId) {
   return READINESS_BY_STAGE[stageId] ?? 'building';
+}
+function targetCanTryActivity(type, availableForTarget) {
+  // Dedicated fixed-pathway builders own their exact quality/linkage prerequisites and
+  // fail closed themselves. Legacy/shared activities must still be advertised by the
+  // common target-availability contract so unlinked unit material can never leak in.
+  return PATHWAY_ACTIVITY_TYPES.has(type) || availableForTarget.has(type);
 }
 
 export function selectPathwayStageActivity({
@@ -118,7 +125,7 @@ export function planPathwayQuestion({
   const readinessStage = readinessForStage(servedStage);
   const { item, contexts } = materialForTarget(content,target);
   const availableForTarget = new Set(availableActivityTypesForTarget({ content, target, item, contexts }));
-  let choices = activityTypesForPathwayStage(pathwayId,servedStage).filter(type => availableForTarget.has(type));
+  let choices = activityTypesForPathwayStage(pathwayId,servedStage).filter(type => targetCanTryActivity(type,availableForTarget));
   const recent = new Set(array(recentActivities));
   const fresh = choices.filter(type => !recent.has(type));
   if (fresh.length) choices = fresh;
