@@ -85,8 +85,15 @@ function precisionMaterial(args) {
   const record=linkedWriting(args,'improve_vocabulary'), data=object(record.activityData), accepted=uniqueText(array(data.acceptedAnswers));
   if (!accepted.length) throw new Error('Precision activity requires a curated answer.');
   const acceptedKeys=new Set(accepted.map(v=>v.toLocaleLowerCase('en')));
-  const distractors=uniqueText([...(array(data.distractors)),...(array(data.alternatives)),...(array(data.commonMistakes)),...(array(data.weakAlternatives))]).filter(v=>!acceptedKeys.has(v.toLocaleLowerCase('en')));
-  if (distractors.length<3) throw new Error('Precision activity requires three curated close alternatives.');
+  const sense=senseFor(args.item,args.occurrence);
+  const samePos=array(args.unitItems)
+    .filter(candidate=>candidate?.vocabularyId!==args.item?.vocabularyId && text(candidate?.partOfSpeech).toLocaleLowerCase('en')===text(args.item?.partOfSpeech).toLocaleLowerCase('en'))
+    .map(candidate=>candidate?.term);
+  const distractors=uniqueText([
+    ...array(data.distractors),...array(data.alternatives),...array(data.commonMistakes),...array(data.weakAlternatives),
+    ...array(sense?.misleadingDistractors),...samePos
+  ]).filter(v=>!acceptedKeys.has(v.toLocaleLowerCase('en')));
+  if (distractors.length<3) throw new Error('Precision activity requires three curated or unit-grounded close alternatives.');
   return {record,data,accepted,distractors};
 }
 function precisionChoice(args, definition) {
