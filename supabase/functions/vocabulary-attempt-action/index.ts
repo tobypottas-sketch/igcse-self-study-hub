@@ -227,9 +227,10 @@ Deno.serve(async (req: Request) => {
       evidenceStrength:contract.evidenceStrength, supportLevel,
       vocabularyId:occurrence.vocabulary_id, occurrenceId:occurrence.occurrence_id
     });
+    const attemptId = input.attemptId ?? crypto.randomUUID();
     const commitPayload: Record<string, unknown> = {
       student_id:callerData.user.id,
-      attempt_id:input.attemptId,
+      attempt_id:attemptId,
       update_mastery:shouldUpdateTargetMastery,
       seen_at:now.toISOString(),
       app_key:'vocabulary_paraphrase',
