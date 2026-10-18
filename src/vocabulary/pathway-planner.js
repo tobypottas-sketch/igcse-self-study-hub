@@ -2,6 +2,7 @@ import { buildActivity } from './activity-factory.js';
 import { PATHWAY_STAGES, activityTypesForPathwayStage, pathwayDefinition } from './pathway-model.js';
 import { availableActivityTypesForTarget } from './session-targets.js';
 import { PATHWAY_ACTIVITY_TYPES } from './pathway-activity-builder.js';
+import { registeredPathwayCoverage } from './pathway-coverage-store.js';
 
 const STAGE_IDS = Object.freeze(PATHWAY_STAGES.map(stage => stage.id));
 const READINESS_BY_STAGE = Object.freeze({
@@ -45,6 +46,9 @@ function targetCanTryActivity(type, availableForTarget) {
   // fail closed themselves. Legacy/shared activities must still be advertised by the
   // common target-availability contract so unlinked unit material can never leak in.
   return PATHWAY_ACTIVITY_TYPES.has(type) || availableForTarget.has(type);
+}
+function unitNumberFor(content, target = null) {
+  return target?.unitNumber ?? target?.unit_number ?? content?.occurrences?.[0]?.unitNumber ?? content?.occurrences?.[0]?.unit_number ?? null;
 }
 
 export function selectPathwayStageActivity({
@@ -153,7 +157,7 @@ export function planPathwayQuestion({
   throw lastError ?? new Error('No suitable curated activity is available for this pathway stage.');
 }
 
-export function eligibleTargetsForPathwayStage({
+export function rawEligibleTargetsForPathwayStage({
   pathwayId,
   stageId,
   content,
@@ -177,4 +181,14 @@ export function eligibleTargetsForPathwayStage({
     }
   }
   return eligible;
+}
+
+export function eligibleTargetsForPathwayStage(options = {}) {
+  const eligible = rawEligibleTargetsForPathwayStage(options);
+  const pathwayId = options?.pathwayId;
+  const coverage = registeredPathwayCoverage(unitNumberFor(options?.content, eligible[0] ?? options?.content?.occurrences?.[0]))?.[pathwayId] ?? null;
+  if (!coverage) return eligible;
+  if (coverage.available === false) return [];
+  const allowed = new Set(array(coverage.occurrenceIds).map(String));
+  return eligible.filter(target => allowed.has(String(target?.occurrenceId ?? target?.occurrence_id)));
 }
