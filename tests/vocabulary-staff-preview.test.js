@@ -17,12 +17,15 @@ test('teacher class chooser also exposes student activity preview', () => {
   assert.match(source, /Choose a class[\s\S]*vocabulary\.html\?preview=1/);
 });
 
-test('staff preview uses the real activity flow but suppresses persistence and evidence tracking', () => {
-  const source = fs.readFileSync(new URL('../src/vocabulary/app.js', import.meta.url), 'utf8');
-  assert.match(source, /buildActivity\(/);
-  assert.match(source, /planNextActivity\(/);
-  assert.match(source, /if\s*\(!state\.preview\)\s+void\s+persistVocabularyAttempt\(/);
-  assert.match(source, /if\s*\(!state\.preview\).*trackVocabularyEvent/s);
+test('staff preview uses the real shared activity flow but suppresses persistence and evidence tracking', () => {
+  const app = fs.readFileSync(new URL('../src/vocabulary/app.js', import.meta.url), 'utf8');
+  const sessionTargets = fs.readFileSync(new URL('../src/vocabulary/session-targets.js', import.meta.url), 'utf8');
+  assert.match(app, /buildTargetPracticeQuestion\(/);
+  assert.match(sessionTargets, /planNextActivity\(/);
+  assert.match(sessionTargets, /buildActivity\(/);
+  assert.equal((sessionTargets.match(/buildActivity\(/g) ?? []).length, 1, 'shared generation has one builder call site');
+  assert.match(app, /if\s*\(!state\.preview\)\s+void\s+persistVocabularyAttempt\(/);
+  assert.match(app, /if\s*\(!state\.preview\).*trackVocabularyEvent/s);
 });
 
 test('staff preview UI includes all four interaction primitives through the shared question renderer', () => {
