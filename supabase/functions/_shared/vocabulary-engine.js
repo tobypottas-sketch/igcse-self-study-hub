@@ -189,9 +189,8 @@ function semanticDistractorMap(context = {}) {
 
 function defaultStrandsForQuestionType(questionType) {
   if (['produce_paraphrase','use_target','replace_phrase','rewrite_phrase','rewrite_idea','improve_vocabulary','explain_another_way','word_family_switch'].includes(questionType)) return ['production'];
-  if (questionType === 'complete_paraphrase') return ['paraphrasing','production'];
-  // Tile assembly (build_*) is scaffolded paraphrasing evidence, never production.
-  if (['same_idea','spot_meaning_change','phrase_match','build_paraphrase','build_same_idea'].includes(questionType)) return ['paraphrasing'];
+  // Scaffolded paraphrase completion/assembly is paraphrasing evidence, never independent production.
+  if (['same_idea','spot_meaning_change','phrase_match','build_paraphrase','complete_paraphrase','build_same_idea'].includes(questionType)) return ['paraphrasing'];
   if (['context_inference','question_text_bridge','context_gap_fill','mini_mixed_check','find_evidence','meaning_in_context','correct_usage','which_situation_fits'].includes(questionType)) return ['context'];
   if (questionType === 'meaning_match') return ['meaning'];
   return ['recognition'];
