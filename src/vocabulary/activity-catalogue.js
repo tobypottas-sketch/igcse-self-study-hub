@@ -21,7 +21,9 @@ export const ACTIVITY_TYPES = Object.freeze([
   // Retired from live use: legacy tile task only shuffles collocations[0] (every tile is part of the answer, no curated
   // distractors). Kept so historical attempts still resolve; rebuild as curated collocation_set before re-enabling.
   { id:'collocation_builder', label:'Collocation Builder', practiceModes:['learn','writing'], responseMode:'tiles', minimumStage:'building', strands:['recognition','production'], evidenceStrength:'strong', productive:true, skillFamily:'writing_vocabulary', retired:true },
-  { id:'word_family_switch', label:'Word Family Switch', practiceModes:['learn','writing'], responseMode:'text', minimumStage:'building', strands:['production'], evidenceStrength:'strong', productive:true, skillFamily:'writing_vocabulary' },
+  // Controlled word-form completion is useful writing evidence, but the sentence frame determines almost the whole answer.
+  // It therefore strengthens contextual/recognition control without counting as independent lexical production.
+  { id:'word_family_switch', label:'Word Family Switch', practiceModes:['learn','writing'], responseMode:'text', minimumStage:'building', strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'writing_vocabulary' },
   { id:'question_text_bridge', label:'Question ↔ Text Bridge', practiceModes:['question_text','context'], responseMode:'choice', minimumStage:'building', strands:['context','paraphrasing'], evidenceStrength:'medium', productive:false, skillFamily:'question_text' },
   { id:'find_evidence', label:'Find the Evidence', practiceModes:['question_text','context'], responseMode:'evidence', minimumStage:'building', strands:['context'], evidenceStrength:'medium', productive:false, skillFamily:'question_text' },
   { id:'phrase_match', label:'Phrase Match', practiceModes:['phrase_paraphrase','learn'], responseMode:'choice', minimumStage:'new', strands:['paraphrasing'], evidenceStrength:'light', productive:false, skillFamily:'phrase_paraphrasing' },
@@ -34,7 +36,9 @@ export const ACTIVITY_TYPES = Object.freeze([
   { id:'spot_meaning_change', label:'Spot the Meaning Change', practiceModes:['idea_paraphrase','question_text'], responseMode:'choice', minimumStage:'building', strands:['paraphrasing','context'], evidenceStrength:'medium', productive:false, skillFamily:'idea_paraphrasing' },
   { id:'build_same_idea', label:'Build the Same Idea', practiceModes:['idea_paraphrase'], responseMode:'tiles', minimumStage:'secure', strands:['paraphrasing'], evidenceStrength:'medium', productive:false, skillFamily:'idea_paraphrasing' },
   { id:'rewrite_idea', label:'Rewrite the Idea', practiceModes:['idea_paraphrase'], responseMode:'text', minimumStage:'secure', strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true, skillFamily:'idea_paraphrasing' },
-  { id:'improve_vocabulary', label:'Improve the Vocabulary', practiceModes:['writing'], responseMode:'text', minimumStage:'secure', strands:['production'], evidenceStrength:'very_strong', productive:true, skillFamily:'writing_vocabulary' },
+  // Current Unit 1 tasks are constrained replacements/completions. They are valuable controlled writing practice, not
+  // independent production, so they must not satisfy Mastered production gates.
+  { id:'improve_vocabulary', label:'Improve the Vocabulary', practiceModes:['writing'], responseMode:'text', minimumStage:'secure', strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'writing_vocabulary' },
   { id:'explain_another_way', label:'Explain It Another Way', practiceModes:['writing','idea_paraphrase'], responseMode:'text', minimumStage:'mastered', strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true, skillFamily:'communication_repair' }
 ]);
 
