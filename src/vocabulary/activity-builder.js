@@ -311,6 +311,10 @@ function ideaRecord(args) { return chooseUnitActivity(args.unitActivities, 'idea
 function sameIdea(args, definition) {
   const record = ideaRecord(args), data = object(record.activityData);
   const acceptedAnswers = uniqueText(array(data.accurateParaphrases));
+  const indexedAnswers = acceptedAnswers.map((value,index) => ({ value, index }));
+  const selected = stableShuffle(indexedAnswers, `${args.seed}:${record.activityContentId}:same-idea-answer`)[0];
+  const reference = selected?.value ?? text(data.originalIdea);
+  const activityVariantId = `q${selected?.index ?? 0}`;
   const ownWrong = array(data.distractors).map(row => text(row?.text)).filter(Boolean);
   const pooledWrong = [];
   if (ownWrong.length < 3) {
@@ -319,11 +323,10 @@ function sameIdea(args, definition) {
       pooledWrong.push(...array(object(activity.activityData).distractors).map(row => row?.text));
     }
   }
-  const reference = acceptedAnswers[0] ?? text(data.originalIdea);
   const wrong = rankedByLength([...ownWrong, ...pooledWrong].filter(candidate => !acceptedAnswers.includes(text(candidate))), reference, `${args.seed}:${record.activityContentId}:idea-distractors`).slice(0,3);
   if (wrong.length < 3) throw new Error('Same Idea requires three sentence-level meaning distractors.');
   const options = stableShuffle([reference, ...wrong], `${args.seed}:${record.activityContentId}:same-idea`);
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which sentence expresses the same idea as this?\n${text(data.originalIdea)}`, markingReference:{ acceptedAnswers:[reference], meaningInvariants:array(data.meaningInvariants), distractors:array(data.distractors) }, extra:{ options, sourceIdea:text(data.originalIdea) } });
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which sentence expresses the same idea as this?\n${text(data.originalIdea)}`, markingReference:{ acceptedAnswers:[reference], meaningInvariants:array(data.meaningInvariants), distractors:array(data.distractors) }, extra:{ options, activityVariantId, sourceIdea:text(data.originalIdea) } });
 }
 function spotMeaningChange(args, definition) {
   const ready = array(args.unitActivities).filter(activity => activity?.contentType === 'idea_set' && isSpotMeaningChangeReady(activity.activityData));
