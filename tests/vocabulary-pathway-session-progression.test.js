@@ -21,7 +21,7 @@ test('unit pathway stage follows the persistent journey, not the weakest individ
   ];
   const unitMastery = {
     'u1-a':{ contextualEvidence:{ pathwayProgress:{ meaning:{ stages:{ recognise:{ completed:false } } } } } },
-    'u1-b':{ contextualEvidence:{ pathwayProgress:{ meaning:{ completedStages:['recognise'], stages:{ recognise:{ completed:true }, match:{ completed:false } } } } } }
+    'u1-b':{ contextualEvidence:{ pathwayProgress:{ meaning:{ completedStages:['recognise'], stages:{ recognise:{ completed:true }, match:{ completed:false } } } } }
   };
   const states = buildUnitPathwayStates({
     occurrences,
@@ -70,4 +70,42 @@ test('server attempt action updates persistent pathway journey from authoritativ
   assert.match(source,/vocabulary_unit_pathway_journey/);
   assert.match(source,/applyPathwayJourneyAttempt/);
   assert.match(source,/stage_clean_successes/);
+});
+
+test('journey advances only after a 10-question window with at least 8 clean successes', async () => {
+  const url = new URL('../supabase/functions/_shared/vocabulary-pathway-journey.js', import.meta.url);
+  assert.equal(fs.existsSync(url), true, 'pathway journey module should exist');
+  const { freshPathwayJourney, applyPathwayJourneyAttempt } = await import(url);
+  let journey = freshPathwayJourney();
+  for (let i = 0; i < 9; i += 1) journey = applyPathwayJourneyAttempt(journey, { stageId:'recognise', servedStageId:'recognise', firstAttempt:true, correct:i < 8, supportLevel:'none' });
+  assert.equal(journey.currentStage,'recognise');
+  assert.equal(journey.stageAttempts,9);
+  journey = applyPathwayJourneyAttempt(journey, { stageId:'recognise', servedStageId:'recognise', firstAttempt:true, correct:false, supportLevel:'none' });
+  assert.equal(journey.currentStage,'match');
+  assert.deepEqual(journey.completedStages,['recognise']);
+  assert.equal(journey.stageAttempts,0);
+  assert.equal(journey.stageCleanSuccesses,0);
+});
+
+test('failed 10-question window resets without moving the pathway backwards or forwards', async () => {
+  const url = new URL('../supabase/functions/_shared/vocabulary-pathway-journey.js', import.meta.url);
+  assert.equal(fs.existsSync(url), true, 'pathway journey module should exist');
+  const { freshPathwayJourney, applyPathwayJourneyAttempt } = await import(url);
+  let journey = freshPathwayJourney({ currentStage:'apply', completedStages:['recognise','match'] });
+  for (let i = 0; i < 10; i += 1) journey = applyPathwayJourneyAttempt(journey, { stageId:'apply', servedStageId:'apply', firstAttempt:true, correct:i < 7, supportLevel:'none' });
+  assert.equal(journey.currentStage,'apply');
+  assert.deepEqual(journey.completedStages,['recognise','match']);
+  assert.equal(journey.stageAttempts,0);
+  assert.equal(journey.stageCleanSuccesses,0);
+});
+
+test('retry and lower-stage support do not consume a pathway journey question', async () => {
+  const url = new URL('../supabase/functions/_shared/vocabulary-pathway-journey.js', import.meta.url);
+  assert.equal(fs.existsSync(url), true, 'pathway journey module should exist');
+  const { freshPathwayJourney, applyPathwayJourneyAttempt } = await import(url);
+  let journey = freshPathwayJourney({ currentStage:'recall', completedStages:['recognise','match','apply'] });
+  journey = applyPathwayJourneyAttempt(journey, { stageId:'recall', servedStageId:'recall', firstAttempt:false, retryUsed:true, correct:true, supportLevel:'light' });
+  journey = applyPathwayJourneyAttempt(journey, { stageId:'recall', servedStageId:'apply', firstAttempt:true, correct:true, supportLevel:'none' });
+  assert.equal(journey.stageAttempts,0);
+  assert.equal(journey.stageCleanSuccesses,0);
 });
