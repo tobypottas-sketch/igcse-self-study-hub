@@ -14,7 +14,8 @@ function narrowOptions(values, accepted) {
   const curated = array(values).map(text).filter(Boolean);
   const acceptedInOptions = accepted.find(answer => curated.includes(answer)) ?? accepted[0] ?? null;
   const other = chooseOther(curated, accepted);
-  return [acceptedInOptions, other].filter(Boolean);
+  const selected = new Set([acceptedInOptions, other].filter(Boolean));
+  return curated.filter(option => selected.has(option));
 }
 
 function partialTextClue(answer) {
