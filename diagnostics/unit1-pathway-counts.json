@@ -1,0 +1,50 @@
+{
+  "meaning": {
+    "recognise": 50,
+    "match": 48,
+    "apply": 50,
+    "recall": 50,
+    "mastery": 50,
+    "allStages": 48
+  },
+  "context": {
+    "recognise": 48,
+    "match": 48,
+    "apply": 48,
+    "recall": 50,
+    "mastery": 50,
+    "allStages": 48
+  },
+  "word_families": {
+    "recognise": 10,
+    "match": 10,
+    "apply": 10,
+    "recall": 10,
+    "mastery": 10,
+    "allStages": 10
+  },
+  "paraphrasing": {
+    "recognise": 50,
+    "match": 50,
+    "apply": 50,
+    "recall": 50,
+    "mastery": 0,
+    "allStages": 0
+  },
+  "precision_use": {
+    "recognise": 3,
+    "match": 3,
+    "apply": 0,
+    "recall": 0,
+    "mastery": 0,
+    "allStages": 0
+  },
+  "spelling_recall": {
+    "recognise": 50,
+    "match": 50,
+    "apply": 50,
+    "recall": 50,
+    "mastery": 50,
+    "allStages": 50
+  }
+}
