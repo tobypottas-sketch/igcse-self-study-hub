@@ -38,7 +38,7 @@ const UNIT_ACTIVITY_QUESTION_TYPES = Object.freeze({
   question_text:new Set(['question_text_bridge','find_evidence']),
   writing_set:new Set(['word_family_switch','word_family_choice','word_family_match','improve_vocabulary','precision_choice','precision_match'])
 });
-const RETRIEVAL_CONTEXT_TYPES = ['gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence','context_sentence_match','spell_in_context'];
+const RETRIEVAL_CONTEXT_TYPES = ['gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence','context_sentence_match','spell_in_context','spelling_choice'];
 const CONTEXT_QUESTION_TYPES = Object.freeze({
   meaning_context:new Set(['meaning_match','meaning_in_context']),
   paraphrase_context:new Set(['meaning_in_context','which_situation_fits',...RETRIEVAL_CONTEXT_TYPES]),
