@@ -65,12 +65,14 @@ test('dashboard occurrence payload includes sense_id so opening a unit can reuse
   assert.match(dashboard[0], /select\(['"][^'"]*sense_id/);
 });
 
-test('openUnit passes dashboard occurrences into both unit loaders', () => {
+test('openUnit reuses dashboard occurrences and already-loaded mastery instead of refetching either', () => {
   const source = fs.readFileSync(new URL('../src/vocabulary/app.js', import.meta.url), 'utf8');
   const helper = source.match(/async function openUnit\(unitNumber\) \{([\s\S]*?)\n\}/);
   assert.ok(helper);
   assert.match(helper[1], /state\.dashboard\?\.occurrences/);
   assert.match(helper[1], /const loadOptions = preloadedOccurrences\.length \? \{ occurrences:preloadedOccurrences \} : \{\}/);
   assert.match(helper[1], /loadVocabularyUnit\(state\.client, unitNumber, loadOptions\)/);
-  assert.match(helper[1], /loadStudentMastery\(state\.client, unitNumber, loadOptions\)/);
+  assert.match(helper[1], /state\.dashboard\.global\.filter/);
+  assert.match(helper[1], /state\.dashboard\.unit\.filter/);
+  assert.match(helper[1], /Promise\.resolve\(dashboardMastery\)/);
 });
