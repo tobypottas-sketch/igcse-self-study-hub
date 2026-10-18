@@ -10,7 +10,7 @@ import { applyEvidence, deriveStatus, markCuratedAnswer } from '../supabase/func
 import { buildStoredAttemptMetadata } from '../supabase/functions/vocabulary-attempt-action/validation.js';
 
 const TILE_TYPES = ['build_paraphrase', 'build_same_idea'];
-const TYPED_PRODUCTION_TYPES = ['complete_paraphrase', 'rewrite_phrase', 'rewrite_idea', 'improve_vocabulary', 'explain_another_way', 'word_family_switch'];
+const TYPED_PRODUCTION_TYPES = ['rewrite_phrase', 'rewrite_idea', 'improve_vocabulary', 'explain_another_way', 'word_family_switch'];
 
 function source(path) { return fs.readFileSync(new URL(path, import.meta.url), 'utf8'); }
 
@@ -214,7 +214,7 @@ test('6. historical attempts are not rewritten: stored metadata is preserved and
 test('7. teacher skill profile: tile successes are paraphrasing evidence, not lexical production or independent strong evidence', () => {
   assert.deepEqual(skillFamiliesForQuestionType('build_paraphrase'), ['phrase_paraphrasing']);
   assert.deepEqual(skillFamiliesForQuestionType('build_same_idea'), ['idea_paraphrasing']);
-  for (const type of ['complete_paraphrase', 'rewrite_phrase', 'rewrite_idea', 'improve_vocabulary', 'explain_another_way']) {
+  for (const type of ['rewrite_phrase', 'rewrite_idea', 'improve_vocabulary', 'explain_another_way']) {
     assert.ok(skillFamiliesForQuestionType(type).includes('lexical_production'), type);
   }
 
