@@ -14,6 +14,12 @@ function titleCase(value) {
   return text ? text[0].toUpperCase() + text.slice(1) : '';
 }
 function focusDefinition(id) { return PRACTICE_MODES.find(focus => focus.id === id) ?? PRACTICE_MODES.find(focus => focus.id === 'adaptive') ?? PRACTICE_MODES[0]; }
+function displayPrompt(question) {
+  const prompt = String(question?.prompt ?? '').trim();
+  const source = String(question?.sourceText ?? '').trim();
+  if (!source || !prompt.endsWith(source)) return prompt;
+  return prompt.slice(0, -source.length).trim();
+}
 
 export function buildUnitProgress({ occurrences = [], unitMastery = {}, globalMastery = {}, now = new Date() } = {}) {
   let mastered = 0;
@@ -102,7 +108,7 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
   const questionLabel = definition?.label ?? titleCase(question?.type ?? 'Practice');
   const sourceText = question?.sourceText ? `<aside class="vocab-source-text"><span>Source text</span><p>${escapeHtml(question.sourceText)}</p></aside>` : '';
   const targetPill = term && !HIDE_TARGET_TYPES.has(question?.type) ? `<div class="vocab-target-pill">${escapeHtml(term)}</div>` : '';
-  root.innerHTML = `<main class="vocab-shell vocab-shell--session"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card"><div class="vocab-question-meta"><p class="vocab-kicker">${escapeHtml(questionLabel)}</p><span>${escapeHtml(definition?.skillFamily ? titleCase(definition.skillFamily) : '')}</span></div>${targetPill}${sourceText}<h1>${escapeHtml(question?.prompt ?? '')}</h1>${feedbackHtml}${supportHtml}<form data-form="vocabulary-answer" class="vocab-answer-form">${renderAnswerControl(question, feedback, retry, support)}</form></section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
+  root.innerHTML = `<main class="vocab-shell vocab-shell--session"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card"><div class="vocab-question-meta"><p class="vocab-kicker">${escapeHtml(questionLabel)}</p><span>${escapeHtml(definition?.skillFamily ? titleCase(definition.skillFamily) : '')}</span></div>${targetPill}${sourceText}<h1>${escapeHtml(displayPrompt(question))}</h1>${feedbackHtml}${supportHtml}<form data-form="vocabulary-answer" class="vocab-answer-form">${renderAnswerControl(question, feedback, retry, support)}</form></section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
 }
 
 export function supportiveFeedback({ correct, misconceptionCategory, recovery, term, meaning, questionType } = {}) {
