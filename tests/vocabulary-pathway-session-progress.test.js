@@ -35,7 +35,7 @@ test('fixed pathway sessions show pathway stage progress instead of per-word lea
 });
 
 test('pathway progress bar advances from teal to violet across five fixed stages', () => {
-  const css = fs.readFileSync(new URL('../vocabulary-foundational.css', import.meta.url), 'utf8');
+  const css = fs.readFileSync(new URL('../vocabulary-pathway-progress.css', import.meta.url), 'utf8');
   assert.match(css, /\.vocab-pathway-session-progress/);
   assert.match(css, /\.vocab-pathway-progress__fill/);
   assert.match(css, /linear-gradient\([^)]*#(?:[0-9a-fA-F]{6})[^)]*#(?:[0-9a-fA-F]{6})[^)]*\)/);
@@ -45,4 +45,9 @@ test('fixed pathway planner attaches pathway identity and learner stage to the r
   const source = fs.readFileSync(new URL('../src/vocabulary/pathway-planner.js', import.meta.url), 'utf8');
   assert.match(source, /pathwayId:plan\.pathwayId/);
   assert.match(source, /pathwayStage:plan\.learnerStage/);
+});
+
+test('student vocabulary page loads pathway progress styling after the base quiz styles', () => {
+  const html = fs.readFileSync(new URL('../vocabulary.html', import.meta.url), 'utf8');
+  assert.match(html, /vocabulary-foundational\.css[\s\S]*vocabulary-pathway-progress\.css/);
 });
