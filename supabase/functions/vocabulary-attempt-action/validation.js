@@ -1,4 +1,5 @@
 const ID_RE = /^[a-z0-9_:-]{1,160}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const VARIANT_RE = /^q\d{1,3}$/;
 const QUESTION_TYPES = new Set([
   'meaning_match','paraphrase_match','context_inference','question_text_bridge','context_gap_fill',
@@ -39,6 +40,12 @@ function id(value, label) {
   if (!ID_RE.test(text)) throw new Error(`${label} is invalid.`);
   return text;
 }
+function optionalUuid(value, label) {
+  if (value == null || value === '') return null;
+  const text = String(value).trim();
+  if (!UUID_RE.test(text)) throw new Error(`${label} is invalid.`);
+  return text.toLowerCase();
+}
 function optionalId(value, label) {
   if (value == null || value === '') return null;
   return id(value, label);
@@ -73,6 +80,7 @@ export function validateVocabularyAttempt(value = {}) {
   if (value.evidenceStrength != null && !EVIDENCE_STRENGTHS.has(value.evidenceStrength)) throw new Error('Evidence strength is invalid.');
   if (value.supportLevel != null && !SUPPORT_LEVELS.has(value.supportLevel)) throw new Error('Support level is invalid.');
   return {
+    attemptId:optionalUuid(value.attemptId, 'Attempt ID'),
     occurrenceId:id(value.occurrenceId, 'Occurrence ID'), contextId, activityContentId, activityVariantId,
     contentSource:inferredSource, primaryEvidenceTargetId:optionalId(value.primaryEvidenceTargetId, 'Primary evidence target ID'),
     questionType:value.questionType, rawAnswer, strands:validateStrands(value.strands),

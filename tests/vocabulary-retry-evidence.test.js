@@ -65,8 +65,8 @@ test('authoritative server preserves separate global and unit error patterns thr
   assert.match(server, /successClearsRecentError/);
   assert.match(server, /nextErrorPattern\(globalRow\?\.recent_error_pattern, marked, evidence\)/);
   assert.match(server, /nextErrorPattern\(unitRow\?\.recent_error_pattern, marked, evidence\)/);
-  assert.match(server, /p_global_error_pattern:globalRecentErrorPattern/);
-  assert.match(server, /p_unit_error_pattern:unitRecentErrorPattern/);
+  assert.match(server, /global_error_pattern:globalRecentErrorPattern/);
+  assert.match(server, /unit_error_pattern:unitRecentErrorPattern/);
   assert.match(server, /globalRecentErrorPattern, unitRecentErrorPattern/);
   assert.doesNotMatch(server, /const recentErrorPattern = errorPattern\(marked\)/);
 });
