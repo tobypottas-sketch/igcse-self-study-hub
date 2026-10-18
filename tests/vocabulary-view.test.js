@@ -25,13 +25,23 @@ test('vocabulary home invites unit choice without intimidating 1000-word totals'
   assert.doesNotMatch(target.innerHTML, /Weak|Failed/);
 });
 
-test('unit view exposes adaptive route and exactly 5 10 15 20 minute timed choices', () => {
+test('unit view opens neutral and exposes exactly 5 10 15 20 minute timed choices', () => {
   const target = root();
   renderVocabularyUnit(target, { unitNumber:7, unitTitle:'Interviews', progress:{ mastered:34, total:50, needsAnotherLook:8, reviewDue:5 } });
-  assert.match(target.innerHTML, /Start Adaptive Session/);
+  assert.match(target.innerHTML, /Choose a skill/);
+  assert.match(target.innerHTML, /Select a skill to start/);
+  assert.doesNotMatch(target.innerHTML, /vocab-focus-card is-selected/);
+  assert.doesNotMatch(target.innerHTML, /aria-pressed="true"/);
   for (const minutes of [5,10,15,20]) assert.match(target.innerHTML, new RegExp(`>${minutes} min<`));
   assert.equal((target.innerHTML.match(/data-minutes=/g) ?? []).length, 4);
   assert.match(target.innerHTML, /34 \/ 50 mastered/);
+});
+
+test('explicit Adaptive selection still exposes the adaptive session route', () => {
+  const target = root();
+  renderVocabularyUnit(target, { unitNumber:7, unitTitle:'Interviews', progress:{ mastered:34, total:50, needsAnotherLook:8, reviewDue:5 }, practiceFocus:'adaptive' });
+  assert.match(target.innerHTML, /vocab-focus-card is-selected[^>]*data-practice-focus="adaptive"[^>]*aria-pressed="true"/);
+  assert.match(target.innerHTML, /Start Adaptive Session/);
 });
 
 test('wrong-answer feedback stays supportive and recovery-oriented', () => {
