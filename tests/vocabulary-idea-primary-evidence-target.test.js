@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import unitActivities from '../content/vocabulary/units/unit-01-activities.js';
+import unit1 from '../content/vocabulary/units/unit-01.js';
 
-const ideaSets = unitActivities.filter(activity => activity.contentType === 'idea_set');
+const ideaSets = unit1.activities.filter(activity => activity.contentType === 'idea_set');
 
 test('single-target Unit 1 idea sets name their authoritative primary evidence target', () => {
   assert.ok(ideaSets.length > 0, 'Unit 1 should contain curated idea sets.');
