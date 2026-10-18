@@ -1,12 +1,14 @@
 import { escapeHtml } from '../views/html.js';
 import { PRACTICE_MODES, activityDefinition } from './activity-catalogue.js';
 import { deriveLearningStage } from './learning-stage.js';
+import { VOCABULARY_PATHWAYS, PATHWAY_STAGES } from './pathway-model.js';
 
 const LEARNING_STAGES = Object.freeze(['emerging','building','developing','secure','mastered']);
 const HIDE_TARGET_TYPES = new Set([
   'replace_phrase','produce_paraphrase','use_target','context_gap_fill',
   'complete_paraphrase','rewrite_phrase','rewrite_idea','improve_vocabulary','explain_another_way','word_family_switch',
-  'definition_to_word','drag_definition_word','gap_fill_bank','drag_word_sentence','type_missing_word','spell_word','choose_word_sentence','word_family_choice'
+  'definition_to_word','drag_definition_word','gap_fill_bank','drag_word_sentence','type_missing_word','spell_word','choose_word_sentence','word_family_choice',
+  'type_word_from_definition','context_sentence_match','word_family_match','precision_choice','precision_match','spelling_choice','spelling_cue_match','spelling_rebuild'
 ]);
 
 function statusOf(row) { return row?.status ?? 'new'; }
@@ -19,7 +21,6 @@ function titleCase(value) {
 function learningStageLabel(stage) { return titleCase(LEARNING_STAGES.includes(stage) ? stage : 'emerging'); }
 function learningStagePosition(stage) { const index = LEARNING_STAGES.indexOf(stage); return (index < 0 ? 0 : index) + 1; }
 function focusDefinition(id) { return PRACTICE_MODES.find(focus => focus.id === id) ?? PRACTICE_MODES.find(focus => focus.id === 'adaptive') ?? PRACTICE_MODES[0]; }
-function selectedFocus(id) { return PRACTICE_MODES.find(focus => focus.id === id) ?? null; }
 function questionSource(question) {
   const candidates = [
     ['sourceText','In context'],
@@ -83,25 +84,42 @@ export function renderVocabularyHome(root, { displayName = '', units = [] } = {}
       <span>${escapeHtml(unit.mastered ?? 0)} / ${escapeHtml(unit.total ?? 50)} mastered</span>
       <small>Open unit →</small>
     </button>`).join('') : '<p class="vocab-empty">Your vocabulary units are being prepared. Check back soon.</p>';
-  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Cambridge IGCSE ESL 0511</span></header><section class="vocab-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase Builder</p><h1>Choose a unit</h1><p>${displayName ? `Hi ${escapeHtml(displayName)}. ` : ''}Choose a unit, then choose the exact 0511 skill you want to train.</p></section><section class="vocab-unit-grid">${cards}</section></main>`;
+  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Cambridge IGCSE ESL 0511</span></header><section class="vocab-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase Builder</p><h1>Choose a unit</h1><p>${displayName ? `Hi ${escapeHtml(displayName)}. ` : ''}Choose a unit, then work upwards through each vocabulary pathway.</p></section><section class="vocab-unit-grid">${cards}</section></main>`;
 }
 
-export function renderVocabularyUnit(root, { unitNumber, unitTitle, progress, practiceFocus = null, contentReady = true } = {}) {
+function normalizedPathwayState(pathwayId, pathwayStates = {}) {
+  const state = pathwayStates?.[pathwayId] ?? {};
+  const currentStage = PATHWAY_STAGES.some(stage => stage.id === state.currentStage) ? state.currentStage : 'recognise';
+  const completedStages = new Set(Array.isArray(state.completedStages) ? state.completedStages : []);
+  const mastered = state.mastered === true || completedStages.has('mastery');
+  return { currentStage, completedStages, needsPractice:state.needsPractice === true, mastered };
+}
+function stageVisualState(stageId, state) {
+  if (state.completedStages.has(stageId)) return 'complete';
+  if (stageId === state.currentStage) return 'current';
+  const stageIndex = PATHWAY_STAGES.findIndex(stage => stage.id === stageId);
+  const currentIndex = PATHWAY_STAGES.findIndex(stage => stage.id === state.currentStage);
+  return stageIndex < currentIndex ? 'complete' : 'locked';
+}
+function renderPathwayCard(pathway, pathwayStates, ready) {
+  const state = normalizedPathwayState(pathway.id, pathwayStates);
+  const status = state.mastered ? 'mastered' : state.needsPractice ? 'needs-practice' : 'in-progress';
+  const statusLabel = state.mastered ? 'Mastered' : state.needsPractice ? 'Needs practice' : `Current: ${PATHWAY_STAGES.find(stage => stage.id === state.currentStage)?.label ?? 'Recognise'}`;
+  const stages = PATHWAY_STAGES.map(stage => {
+    const visualState = stageVisualState(stage.id,state);
+    const marker = visualState === 'complete' ? '✓' : visualState === 'current' ? '●' : '○';
+    return `<span class="vocab-pathway-stage" data-pathway-stage="${stage.id}" data-state="${visualState}"><i aria-hidden="true">${marker}</i><small>${escapeHtml(stage.label)}</small></span>`;
+  }).join('');
+  const disabled = ready ? '' : ' disabled aria-disabled="true"';
+  return `<button type="button" class="vocab-pathway-card" data-action="open-pathway" data-pathway="${pathway.id}" data-pathway-status="${status}"${disabled}><span class="vocab-pathway-card__head"><strong>${escapeHtml(pathway.label)}</strong><small>${escapeHtml(statusLabel)}</small></span><span class="vocab-pathway-ladder" aria-label="${escapeHtml(pathway.label)} progression">${stages}</span><span class="vocab-pathway-card__cta">${state.mastered ? 'Review pathway' : 'Continue pathway'} →</span></button>`;
+}
+
+export function renderVocabularyUnit(root, { unitNumber, unitTitle, progress, pathwayStates = {}, contentReady = true } = {}) {
   const p = progress ?? { mastered:0, total:50, needsAnotherLook:0, reviewDue:0, stages:{} };
-  const selected = selectedFocus(practiceFocus);
   const ready = contentReady !== false;
-  const focusButtons = PRACTICE_MODES.map(focus => `
-    <button type="button" class="vocab-focus-card${focus.id === selected?.id ? ' is-selected' : ''}" data-action="set-practice-focus" data-practice-focus="${focus.id}" aria-pressed="${focus.id === selected?.id ? 'true' : 'false'}">
-      <strong>${escapeHtml(focus.label)}</strong><span>${escapeHtml(focus.description)}</span>
-    </button>`).join('');
-  const pickerTitle = selected?.label ?? 'Choose a skill';
-  const pickerDescription = selected?.description ?? 'Select the area you want to practise. Nothing is selected yet.';
-  const startLabel = !ready ? 'Loading activities…' : selected ? (selected.id === 'adaptive' ? 'Start Adaptive Session' : `Start ${selected.label}`) : 'Select a skill to start';
-  const startDisabled = !ready || !selected;
-  const routeTitle = selected?.label ?? 'Choose a skill above';
-  const disabledAttr = startDisabled ? ' disabled aria-disabled="true"' : '';
-  const timedDisabled = ready ? '' : ' disabled aria-disabled="true"';
-  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="back-units">← All units</button><span>Unit ${escapeHtml(unitNumber)}</span></header><section class="vocab-unit-hero"><p class="vocab-kicker">Unit ${escapeHtml(unitNumber)}</p><h1>${escapeHtml(unitTitle)}</h1><div class="vocab-progress-row"><strong>${escapeHtml(p.mastered)} / ${escapeHtml(p.total)} mastered</strong><span>${escapeHtml(p.needsAnotherLook)} need another look</span><span>${escapeHtml(p.reviewDue)} ready for review</span></div>${renderLearningProgress(p.stages)}</section><section class="vocab-practice-picker"><div class="vocab-practice-picker__head"><p class="vocab-kicker">Choose a 0511 skill</p><h2>${escapeHtml(pickerTitle)}</h2><p>${escapeHtml(pickerDescription)}</p></div><div class="vocab-focus-grid vocab-focus-grid--seven">${focusButtons}</div></section><section class="vocab-route-grid"><article class="vocab-route-card vocab-route-card--primary"><p class="vocab-kicker">10-activity session</p><h2>${escapeHtml(routeTitle)}</h2><p>Ten priority activities, with support and difficulty adjusted as you work.</p><button class="vocab-button vocab-button--primary" data-action="start-adaptive"${disabledAttr}>${escapeHtml(startLabel)}</button></article><article class="vocab-route-card vocab-route-card--mixed"><p class="vocab-kicker">Timed practice</p><h2>Mixed practice</h2><p>Mixes eligible activity styles as you work, while still respecting your current readiness and support needs.</p><div class="vocab-time-grid">${[5,10,15,20].map(minutes => `<button class="vocab-button" data-action="start-timed" data-minutes="${minutes}"${timedDisabled}>${minutes} min</button>`).join('')}</div></article></section><button class="vocab-link" data-action="view-all-words"${ready ? '' : ' disabled aria-disabled="true"'}>View all 50 words</button></main>`;
+  const pathwayCards = VOCABULARY_PATHWAYS.map(pathway => renderPathwayCard(pathway,pathwayStates,ready)).join('');
+  const mixedDisabled = ready ? '' : ' disabled aria-disabled="true"';
+  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="back-units">← All units</button><span>Unit ${escapeHtml(unitNumber)}</span></header><section class="vocab-unit-hero"><p class="vocab-kicker">Unit ${escapeHtml(unitNumber)}</p><h1>${escapeHtml(unitTitle)}</h1><div class="vocab-progress-row"><strong>${escapeHtml(p.mastered)} / ${escapeHtml(p.total)} overall mastered</strong><span>${escapeHtml(p.needsAnotherLook)} need another look</span><span>${escapeHtml(p.reviewDue)} ready for review</span></div>${renderLearningProgress(p.stages)}</section><section class="vocab-pathways"><div class="vocab-pathways__head"><p class="vocab-kicker">Build mastery step by step</p><h2>Choose a vocabulary pathway</h2><p>Work upwards through Recognise → Match → Apply → Recall → Mastery. Completed stages stay available for review.</p></div><div class="vocab-pathway-grid">${pathwayCards}</div></section><section class="vocab-route-grid vocab-route-grid--review"><article class="vocab-route-card vocab-route-card--mixed"><p class="vocab-kicker">Review only</p><h2>Mixed Practice</h2><p>Review activities you have already unlocked across the six pathways. Mixed Practice does not skip you ahead.</p><button class="vocab-button" data-action="start-mixed-review"${mixedDisabled}>Start Mixed Practice</button></article></section><button class="vocab-link" data-action="view-all-words"${ready ? '' : ' disabled aria-disabled="true"'}>View all 50 words</button></main>`;
 }
 
 export function renderVocabularyWords(root, { unitNumber, unitTitle, words = [] } = {}) {
