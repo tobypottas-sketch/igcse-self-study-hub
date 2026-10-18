@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { PATHWAY_ACTIVITY_MAP } from '../supabase/functions/_shared/vocabulary-pathway-contract.js';
 import { activityDefinition } from '../src/vocabulary/activity-catalogue.js';
 import { buildPathwayActivity } from '../src/vocabulary/pathway-activity-builder.js';
+import { renderVocabularyQuestion } from '../src/vocabulary/views.js';
 
 const item = {
   vocabularyId:'v1', term:'leisure', partOfSpeech:'noun', coreMeaning:'free time',
@@ -44,4 +45,20 @@ test('Spelling Mastery can move to a different curated context instead of repeat
   });
   assert.notEqual(second.contentId,first.contentId);
   assert.notEqual(second.sourceText,first.sourceText);
+});
+
+test('Spelling Mastery renderer never reveals the target word above the cue', () => {
+  const question = buildPathwayActivity({
+    activityType:'spell_in_context', occurrence, item, contexts, unitItems:[item], seed:'spell-mastery-render'
+  });
+  const root = { innerHTML:'' };
+  renderVocabularyQuestion(root, {
+    unitNumber:1,
+    unitTitle:'Sports and Free Time',
+    question,
+    term:'leisure',
+    sessionLabel:'Mastery'
+  });
+  assert.ok(!root.innerHTML.includes('<div class="vocab-target-pill">leisure</div>'));
+  assert.ok(root.innerHTML.includes('____'));
 });
