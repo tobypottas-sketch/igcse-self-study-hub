@@ -17,7 +17,7 @@ const occurrences = [
 ];
 const weakWordMastery = {
   'u1-a':{ contextualEvidence:{ pathwayProgress:{ meaning:{ stages:{ recognise:{ completed:false } } } } } },
-  'u1-b':{ contextualEvidence:{ pathwayProgress:{ meaning:{ completedStages:['recognise'], stages:{ recognise:{ completed:true }, match:{ completed:false } } } } } }
+  'u1-b':{ contextualEvidence:{ pathwayProgress:{ meaning:{ completedStages:['recognise'], stages:{ recognise:{ completed:true }, match:{ completed:false } } } } }
 };
 
 test('unit pathway stage follows the persistent journey, not the weakest individual word', () => {
@@ -56,6 +56,14 @@ test('question progress helper renders stage and set progress together', async (
   assert.match(html,/Recognise · Stage 1 of 5/);
   assert.match(html,/Question 1 of 10/);
   assert.match(html,/aria-valuenow="1"[^>]*aria-valuemax="10"/);
+});
+
+test('live vocabulary page loads the pathway question progress enhancer', () => {
+  const html = fs.readFileSync(new URL('../vocabulary.html', import.meta.url),'utf8');
+  assert.match(html,/src\/vocabulary\/pathway-question-progress\.js/);
+  const css = fs.readFileSync(new URL('../vocabulary-pathway-progress.css', import.meta.url),'utf8');
+  assert.match(css,/\.vocab-set-progress/);
+  assert.match(css,/--set-progress/);
 });
 
 test('client loads persistent unit pathway journey independently of per-word mastery', () => {
