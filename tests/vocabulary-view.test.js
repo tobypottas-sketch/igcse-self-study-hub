@@ -16,6 +16,26 @@ test('unit progress is unit-sized and qualitative rather than whole-course scori
   assert.equal('courseTotal' in progress, false);
 });
 
+test('unit progress aggregates the same five learning stages used by the progression engine', () => {
+  const occurrences = [
+    { occurrenceId:'u1_1', vocabularyId:'v1' },
+    { occurrenceId:'u1_2', vocabularyId:'v2' },
+    { occurrenceId:'u1_3', vocabularyId:'v3' },
+    { occurrenceId:'u1_4', vocabularyId:'v4' },
+    { occurrenceId:'u1_5', vocabularyId:'v5' }
+  ];
+  const unitMastery = {
+    u1_1:{ status:'new', strandEvidence:{} },
+    u1_2:{ status:'building', strandEvidence:{ meaning:2, recognition:1 } },
+    u1_3:{ status:'building', strandEvidence:{ meaning:3, context:3 } },
+    u1_4:{ status:'secure', strandEvidence:{ meaning:5, recognition:4, context:4 } },
+    u1_5:{ status:'mastered', strandEvidence:{ meaning:8, recognition:8, context:8, paraphrasing:8, production:8 } }
+  };
+  const progress = buildUnitProgress({ occurrences, unitMastery, globalMastery:{} });
+  assert.deepEqual(progress.stages, { emerging:1, building:1, developing:1, secure:1, mastered:1 });
+  assert.equal(progress.mastered, 1);
+});
+
 test('vocabulary home invites unit choice without intimidating 1000-word totals', () => {
   const target = root();
   renderVocabularyHome(target, { displayName:'Student', units:[{ unitNumber:1, unitTitle:'Sports and Free Time', mastered:12, total:50 }] });
