@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
+// Contract-first: production stage derivation is intentionally absent in this RED commit.
 async function stageModule() {
   try { return await import('../src/vocabulary/learning-stage.js'); }
   catch { return {}; }
