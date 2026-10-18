@@ -75,6 +75,16 @@ function promptIdentity(attempt = {}) {
   return attempt.promptKey ?? attempt.contextId ?? attempt.contentId ?? null;
 }
 
+function looksLikeAttemptUuid(value) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value ?? ''));
+}
+
+function contentIdentity(attempt = {}) {
+  const raw = attempt.contentId;
+  if (looksLikeAttemptUuid(raw)) return promptIdentity(attempt);
+  return raw ?? promptIdentity(attempt);
+}
+
 function recomputeDerived(stage) {
   return {
     ...stage,
@@ -122,7 +132,7 @@ export function applyPathwayAttempt(progress = freshPathwayProgress(), attempt =
 
   if (attempt.correct === true) {
     nextStage.successes += 1;
-    nextStage.contentIds = uniquePush(nextStage.contentIds, attempt.contentId);
+    nextStage.contentIds = uniquePush(nextStage.contentIds, contentIdentity(attempt));
     nextStage.contextIds = uniquePush(nextStage.contextIds, attempt.contextId);
     nextStage.promptKeys = uniquePush(nextStage.promptKeys, promptIdentity(attempt));
     nextStage.operationIds = uniquePush(nextStage.operationIds, attempt.operation ?? attempt.activityType);
