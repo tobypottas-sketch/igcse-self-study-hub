@@ -22,6 +22,12 @@ const WRITING_TASK_FOR_QUESTION = Object.freeze({
   word_family_switch:'word_family',
   improve_vocabulary:'improve_vocabulary'
 });
+const UNIT_ACTIVITY_QUESTION_TYPES = Object.freeze({
+  phrase_set:new Set(['phrase_match','build_paraphrase','complete_paraphrase','rewrite_phrase','explain_another_way']),
+  idea_set:new Set(['same_idea','spot_meaning_change','build_same_idea','rewrite_idea','explain_another_way']),
+  question_text:new Set(['question_text_bridge','find_evidence']),
+  writing_set:new Set(['word_family_switch','improve_vocabulary'])
+});
 
 function id(value, label) {
   const text = String(value ?? '').trim();
@@ -70,6 +76,12 @@ export function validateVocabularyAttempt(value = {}) {
     firstAttempt:value.firstAttempt !== false, retryUsed:value.retryUsed === true,
     recoveredLater:value.recoveredLater === true, review:value.review === true, preview:value.preview === true
   };
+}
+
+export function assertUnitActivityQuestionMatchesContentType(contentType, questionType) {
+  const allowed = UNIT_ACTIVITY_QUESTION_TYPES[String(contentType ?? '')];
+  if (!allowed?.has(String(questionType ?? ''))) throw new Error('Vocabulary unit activity content type does not match question type.');
+  return true;
 }
 
 export function assertWritingTaskMatchesQuestionType(taskType, questionType) {
