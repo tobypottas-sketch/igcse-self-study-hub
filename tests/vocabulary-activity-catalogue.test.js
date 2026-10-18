@@ -21,6 +21,7 @@ const EXPECTED_ACTIVITIES = [
   'drag_word_sentence',
   'type_missing_word',
   'spell_word',
+  'spell_in_context',
   'choose_word_sentence',
   'context_sentence_match',
   'word_family_choice',
@@ -125,6 +126,7 @@ test('stage filtering respects minimum readiness while keeping supported work av
   assert.ok(secure.includes('build_same_idea'));
 
   const mastered = activitiesForStage('mastered').map(activity => activity.id);
+  assert.ok(mastered.includes('spell_in_context'));
   assert.ok(mastered.includes('explain_another_way'));
 });
 
