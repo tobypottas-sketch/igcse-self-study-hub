@@ -66,6 +66,18 @@ function authoritativeMarking(question) {
       const marking = spotMeaningChangeMarking(data, question.activityVariantId);
       return { contextId:activity.activityContentId, activityContentId:activity.activityContentId, ...marking };
     }
+    if (question.type === 'same_idea') {
+      assert.match(String(question.activityVariantId ?? ''), /^q\d+$/, 'same_idea: authoritative variant missing');
+      const index = Number(String(question.activityVariantId).slice(1));
+      const accepted = strings(data.accurateParaphrases);
+      assert.ok(Number.isInteger(index) && index >= 0 && index < accepted.length, 'same_idea: authoritative variant invalid');
+      return {
+        contextId:activity.activityContentId,
+        activityContentId:activity.activityContentId,
+        acceptedAnswers:[accepted[index]],
+        distractors:Array.isArray(data.distractors) ? data.distractors : []
+      };
+    }
     return {
       contextId:activity.activityContentId,
       activityContentId:activity.activityContentId,
