@@ -1,12 +1,12 @@
 const STAGE_ORDER = Object.freeze({ new:0, building:1, secure:2, mastered:3 });
 
 export const PRACTICE_MODES = Object.freeze([
-  { id:'learn', label:'Learn the Vocabulary', description:'Build core meaning, usage, collocation and word-family control.' },
+  { id:'learn', label:'Learn the Vocabulary', description:'Build core meaning, context, paraphrase recognition and word-family control.' },
   { id:'context', label:'Understand in Context', description:'Work out precise meaning and usage from realistic sentences and short texts.' },
   { id:'question_text', label:'Question ↔ Text', description:'Connect differently worded questions with equivalent source-text evidence.' },
   { id:'phrase_paraphrase', label:'Phrase Paraphrasing', description:'Recognise, build and produce accurate equivalent phrases.' },
   { id:'idea_paraphrase', label:'Idea Paraphrasing', description:'Preserve the whole meaning while transforming clauses and sentences.' },
-  { id:'writing', label:'Writing Vocabulary', description:'Improve lexical range, precision, form, collocation and register.' },
+  { id:'writing', label:'Writing Vocabulary', description:'Strengthen lexical range, precision, word form and flexible expression.' },
   { id:'adaptive', label:'Adaptive 0511 Mix', description:'Mix the most useful next operations according to readiness and evidence.' }
 ]);
 

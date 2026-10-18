@@ -10,7 +10,7 @@ import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shar
 const root = document.getElementById('vocabularyApp');
 const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
-  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:'adaptive', recentActivities:new Map(),
+  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:'adaptive', recentActivities:new Map(), usedContentIds:new Map(),
   recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null,
   persistenceChain:Promise.resolve()
 };
@@ -95,7 +95,7 @@ function rankedTargets(limit) {
 function startSession(mode, durationMinutes = null) {
   const selected = rankedTargets(mode === 'adaptive' ? 10 : Math.max(10, state.content.occurrences.length)); if (!selected.length) throw new Error('No suitable curated activity is available for this practice mode yet.');
   state.session = createSession({ unitNumber:state.currentUnitNumber, mode, durationMinutes, targetIds:selected.map(row => row.occurrenceId), practiceMode:state.practiceFocus, now:new Date() });
-  state.queue = [...selected]; state.current = null; state.recentActivities = new Map(); state.recoveryNeeded = new Set(); if (mode === 'timed') startClock();
+  state.queue = [...selected]; state.current = null; state.recentActivities = new Map(); state.usedContentIds = new Map(); state.recoveryNeeded = new Set(); if (mode === 'timed') startClock();
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`session:${mode}:${state.practiceFocus}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, practice_focus:state.practiceFocus } }).catch(() => {});
   nextQuestion();
 }
@@ -105,6 +105,7 @@ function clearClock() { if (state.clock) { window.clearInterval(state.clock); st
 function buildNextForTarget(target) {
   const masteryState = state.globalMastery[target.vocabularyId] ?? freshMastery();
   const recent = state.recentActivities.get(target.occurrenceId) ?? []; const recovery = state.recoveryNeeded.has(target.occurrenceId);
+  const usedContentIds = state.usedContentIds.get(target.occurrenceId) ?? [];
   const reviewDue = Boolean(masteryState.reviewDueAt && new Date(masteryState.reviewDueAt).getTime() <= Date.now());
   const built = buildTargetPracticeQuestion({
     content:state.content,
@@ -114,10 +115,11 @@ function buildNextForTarget(target) {
     recentActivities:recent,
     supportState:{ recycle:recovery, struggling:recovery },
     reviewDue,
-    usedContentIds:[],
+    usedContentIds,
     seed:`${target.occurrenceId}:${state.session.completedAttempts.length}:practice`
   });
   const targetItem = built.item; const targetContexts = built.contexts; const question = built.question;
+  if (question.contentId) state.usedContentIds.set(target.occurrenceId, [...new Set([...usedContentIds, question.contentId])]);
   const contextRecord = targetContexts.find(ctx => ctx.contextId === question.contentId) ?? null; const activityRecord = state.content.activitiesById[question.contentId] ?? null;
   const primaryEvidenceTargetId = activityRecord?.activityData?.primaryEvidenceTargetId ?? null;
   return { target, item:targetItem, context:contextRecord, activityRecord, question, recovery, retry:false, support:null, initialError:false, primaryEvidenceTargetId };
