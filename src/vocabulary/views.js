@@ -7,7 +7,7 @@ const LEARNING_STAGES = Object.freeze(['emerging','building','developing','secur
 const HIDE_TARGET_TYPES = new Set([
   'replace_phrase','produce_paraphrase','use_target','context_gap_fill',
   'complete_paraphrase','rewrite_phrase','rewrite_idea','improve_vocabulary','explain_another_way','word_family_switch',
-  'definition_to_word','drag_definition_word','gap_fill_bank','drag_word_sentence','type_missing_word','spell_word','choose_word_sentence','word_family_choice',
+  'definition_to_word','drag_definition_word','gap_fill_bank','drag_word_sentence','type_missing_word','spell_word','spell_in_context','choose_word_sentence','word_family_choice',
   'type_word_from_definition','context_sentence_match','word_family_match','precision_choice','precision_match','spelling_choice','spelling_cue_match','spelling_rebuild'
 ]);
 
