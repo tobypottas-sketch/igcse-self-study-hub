@@ -80,10 +80,11 @@ function renderAnswerControl(question, feedback, retry, support) {
   }
   if (responseMode === 'tiles') {
     const fixed = support?.kind === 'partial_build' ? (support.fixedChunks ?? []) : [];
+    const fixedAnswer = fixed.join(' ');
     const source = support?.kind === 'partial_build' ? support.remainingTiles : question.tiles;
     const fixedHtml = fixed.length ? `<div class="vocab-build-answer"><span class="vocab-build-fixed">${fixed.map(escapeHtml).join(' ')}</span><span data-tile-build></span></div>` : '<div class="vocab-build-answer" data-tile-build aria-live="polite">Choose tiles to build your answer</div>';
     const tiles = (source ?? []).map(tile => `<button type="button" class="vocab-tile" data-tile-answer="${escapeHtml(tile)}">${escapeHtml(tile)}</button>`).join('');
-    return `${fixedHtml}<div class="vocab-tile-bank">${tiles}</div><input type="hidden" name="answer" value="${escapeHtml(fixed.join(' '))}"><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Check supported answer' : 'Check answer'}</button>`;
+    return `${fixedHtml}<div class="vocab-tile-bank">${tiles}</div><input type="hidden" name="answer" value="${escapeHtml(fixedAnswer)}"><div class="vocab-answer-actions"><button type="button" class="vocab-button" data-action="clear-tile-answer" data-fixed-answer="${escapeHtml(fixedAnswer)}">Clear answer</button><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Check supported answer' : 'Check answer'}</button></div>`;
   }
   if (responseMode === 'evidence') {
     const source = support?.kind === 'narrow_evidence' ? support.options : question.evidenceOptions;
