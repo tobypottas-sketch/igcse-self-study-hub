@@ -169,7 +169,7 @@ export async function submitVocabularyAttempt(client, input = {}) {
   if (error || !data?.ok) throw new Error(data?.error || error?.message || 'Unable to mark vocabulary attempt.');
 
   const unitNumber = occurrenceUnitNumbers.get(String(body.occurrenceId));
-  if (!body.preview && unitNumber != null && body.pathwayId && body.pathwayStage && body.servedPathwayStage) {
+  if (!body.preview && data.duplicate !== true && unitNumber != null && body.pathwayId && body.pathwayStage && body.servedPathwayStage) {
     applyRegisteredPathwayJourneyAttempt(unitNumber,body.pathwayId,{
       stageId:body.pathwayStage,
       servedStageId:body.servedPathwayStage,
