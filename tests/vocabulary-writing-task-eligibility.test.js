@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import { buildActivity } from '../src/vocabulary/activity-builder.js';
 import { availableActivityTypesForTarget } from '../src/vocabulary/session-targets.js';
+import { assertWritingTaskMatchesQuestionType } from '../supabase/functions/vocabulary-attempt-action/validation.js';
 
 function targetFor(vocabularyId) {
   const target = unit1.occurrences.find(row => row.vocabularyId === vocabularyId);
@@ -86,4 +87,12 @@ test('Word Family Switch remains limited to word_family writing records', () => 
   });
   assert.equal(question.contentId, 'u1_writing_word_family_compete');
   assert.equal(question.taskType, undefined, 'word-family builder need not expose taskType; content identity is authoritative');
+});
+
+test('authoritative server mapping rejects mismatched writing task/question pairs', () => {
+  assert.equal(assertWritingTaskMatchesQuestionType('improve_vocabulary', 'improve_vocabulary'), true);
+  assert.equal(assertWritingTaskMatchesQuestionType('word_family', 'word_family_switch'), true);
+  assert.throws(() => assertWritingTaskMatchesQuestionType('collocation', 'improve_vocabulary'), /does not match question type/);
+  assert.throws(() => assertWritingTaskMatchesQuestionType('word_family', 'improve_vocabulary'), /does not match question type/);
+  assert.throws(() => assertWritingTaskMatchesQuestionType('improve_vocabulary', 'word_family_switch'), /does not match question type/);
 });
