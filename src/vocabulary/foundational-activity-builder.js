@@ -1,0 +1,237 @@
+import { activityDefinition, isActivityLive } from './activity-catalogue.js';
+
+const STAGE_ORDER = Object.freeze({ new:0, building:1, secure:2, mastered:3 });
+export const FOUNDATIONAL_ACTIVITY_TYPES = Object.freeze(new Set([
+  'definition_to_word','word_definition_match','drag_word_definition','drag_definition_word',
+  'gap_fill_bank','drag_word_sentence','type_missing_word','spell_word','choose_word_sentence','word_family_choice'
+]));
+
+function text(value) { return String(value ?? '').trim(); }
+function array(value) { return Array.isArray(value) ? value : []; }
+function object(value) { return value && typeof value === 'object' && !Array.isArray(value) ? value : {}; }
+function uniqueText(values) {
+  const seen = new Set();
+  const output = [];
+  for (const value of values) {
+    const candidate = text(value);
+    const key = candidate.toLocaleLowerCase('en');
+    if (!candidate || seen.has(key)) continue;
+    seen.add(key); output.push(candidate);
+  }
+  return output;
+}
+function hashSeed(seed) {
+  let hash = 2166136261;
+  for (const char of String(seed ?? '')) { hash ^= char.charCodeAt(0); hash = Math.imul(hash, 16777619) >>> 0; }
+  return hash >>> 0;
+}
+function stableShuffle(values, seed) {
+  const output = [...values];
+  let state = hashSeed(seed) || 1;
+  for (let index = output.length - 1; index > 0; index -= 1) {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    const swapIndex = state % (index + 1);
+    [output[index], output[swapIndex]] = [output[swapIndex], output[index]];
+  }
+  return output;
+}
+function senseFor(item, occurrence = {}) {
+  return array(item?.senses).find(sense => sense?.senseId === occurrence?.senseId) ?? array(item?.senses)[0] ?? {};
+}
+function definitionFor(item, occurrence = {}) {
+  const sense = senseFor(item, occurrence);
+  return text(sense.meaning) || text(item?.coreMeaning) || text(array(sense.acceptedParaphrases)[0]);
+}
+function stageOf(mastery = {}) {
+  const status = text(mastery?.status).toLocaleLowerCase('en');
+  return STAGE_ORDER[status] == null ? 'new' : status;
+}
+function assertReady(definition, mastery, readinessStage = null) {
+  const actual = stageOf(mastery);
+  const stage = readinessStage && STAGE_ORDER[readinessStage] != null ? readinessStage : actual;
+  if (STAGE_ORDER[stage] < STAGE_ORDER[definition.minimumStage]) throw new Error(`Learner is not ready for ${definition.label}; use a supported ${actual} activity first.`);
+}
+function baseActivity({ definition, occurrence, contentId, contentSource, prompt, markingReference, extra = {} }) {
+  return {
+    activityId:`${occurrence?.occurrenceId ?? 'unit'}:${contentId}:${definition.id}`,
+    type:definition.id,
+    responseMode:definition.responseMode,
+    skillFamily:definition.skillFamily,
+    family:definition.family,
+    strands:[...definition.strands],
+    evidenceStrength:definition.evidenceStrength,
+    productive:definition.productive,
+    vocabularyId:occurrence?.vocabularyId ?? null,
+    occurrenceId:occurrence?.occurrenceId ?? null,
+    contentId,
+    contentSource,
+    prompt,
+    markingReference,
+    ...extra
+  };
+}
+function samePosCandidates(args) {
+  const targetPos = text(args.item?.partOfSpeech).toLocaleLowerCase('en');
+  return array(args.unitItems).filter(candidate => candidate?.vocabularyId !== args.item?.vocabularyId && text(candidate?.partOfSpeech).toLocaleLowerCase('en') === targetPos);
+}
+function plausibleTermDistractors(args, count = 3) {
+  const samePos = samePosCandidates(args).map(candidate => text(candidate.term)).filter(Boolean);
+  if (samePos.length < count) throw new Error(`Activity requires ${count} plausible same-part-of-speech alternatives.`);
+  return stableShuffle(uniqueText(samePos), `${args.seed}:term-distractors`).slice(0,count);
+}
+function definitionPairs(args, count = 4) {
+  const targetDefinition = definitionFor(args.item, args.occurrence);
+  if (!text(args.item?.term) || !targetDefinition) throw new Error('Matching requires a target word and curated definition.');
+  const candidates = samePosCandidates(args)
+    .map(candidate => ({
+      vocabularyId:candidate.vocabularyId,
+      term:text(candidate.term),
+      definition:definitionFor(candidate, {})
+    }))
+    .filter(pair => pair.term && pair.definition);
+  if (candidates.length < count - 1) throw new Error(`Matching requires at least ${count - 1} plausible unit alternatives.`);
+  const others = stableShuffle(candidates, `${args.seed}:pairs`).slice(0,count - 1);
+  return stableShuffle([
+    { vocabularyId:args.item.vocabularyId, term:text(args.item.term), definition:targetDefinition },
+    ...others
+  ], `${args.seed}:pair-order`);
+}
+function itemContentId(args) {
+  return `item:${args.item.vocabularyId}:${args.occurrence?.senseId ?? senseFor(args.item,args.occurrence)?.senseId ?? 'sense'}`;
+}
+function definitionToWord(args, definition) {
+  const targetDefinition = definitionFor(args.item, args.occurrence);
+  if (!targetDefinition || !text(args.item.term)) throw new Error('Definition → Word requires a curated definition and term.');
+  const options = stableShuffle([text(args.item.term), ...plausibleTermDistractors(args,3)], `${args.seed}:definition-word-options`);
+  return baseActivity({
+    definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item',
+    prompt:`Which word means “${targetDefinition}”?`,
+    markingReference:{ acceptedAnswers:[text(args.item.term)] },
+    extra:{ options, primaryEvidenceTargetId:args.item.vocabularyId }
+  });
+}
+function matchingActivity(args, definition) {
+  const pairs = definitionPairs(args,4);
+  const target = pairs.find(pair => pair.vocabularyId === args.item.vocabularyId);
+  const answer = definition.id === 'drag_definition_word' ? target.term : target.definition;
+  const prompt = definition.id === 'word_definition_match'
+    ? 'Match each word with its definition.'
+    : definition.id === 'drag_definition_word'
+      ? 'Drag each definition to the correct word.'
+      : 'Drag each word to the correct definition.';
+  return baseActivity({
+    definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt,
+    markingReference:{ acceptedAnswers:[answer] },
+    extra:{ pairs, primaryEvidenceTargetId:args.item.vocabularyId }
+  });
+}
+function replaceFirstIgnoreCase(source, needle, replacement) {
+  const lower = source.toLocaleLowerCase('en');
+  const target = needle.toLocaleLowerCase('en');
+  const index = lower.indexOf(target);
+  if (index < 0) return null;
+  return `${source.slice(0,index)}${replacement}${source.slice(index + needle.length)}`;
+}
+function blankableContext(args) {
+  const term = text(args.item.term).toLocaleLowerCase('en');
+  const candidates = array(args.contexts).filter(context => {
+    if (!['paraphrase_context','production_context'].includes(context?.type)) return false;
+    const rewrite = text(context.targetRewrite);
+    const source = text(context.text);
+    const accepted = array(context.acceptedAnswers).map(value => text(value).toLocaleLowerCase('en'));
+    return rewrite && source && source.toLocaleLowerCase('en').includes(rewrite.toLocaleLowerCase('en')) && accepted.includes(term);
+  });
+  if (!candidates.length) throw new Error('No curated context can form an accurate target-word blank for this activity.');
+  const context = stableShuffle(candidates, `${args.seed}:blank-context`)[0];
+  const sourceText = replaceFirstIgnoreCase(text(context.text), text(context.targetRewrite), '____');
+  if (!sourceText || !sourceText.includes('____')) throw new Error('Curated context could not form a valid blank.');
+  return { context, sourceText };
+}
+function retrievalChoices(args, count = 3) {
+  return plausibleTermDistractors(args,count);
+}
+function retrievalActivity(args, definition) {
+  const { context, sourceText } = blankableContext(args);
+  const accepted = text(args.item.term);
+  let prompt = 'Complete the sentence with the target word.';
+  const extra = { sourceText, contextId:context.contextId, primaryEvidenceTargetId:args.item.vocabularyId };
+  if (definition.id === 'gap_fill_bank') {
+    prompt = 'Choose the word that completes the sentence.';
+    extra.options = stableShuffle([accepted, ...retrievalChoices(args,3)], `${args.seed}:gap-bank`);
+    extra.wordBank = [...extra.options];
+  } else if (definition.id === 'drag_word_sentence') {
+    prompt = 'Drag the correct word into the gap.';
+    extra.draggables = stableShuffle([accepted, ...retrievalChoices(args,3)], `${args.seed}:drag-gap`);
+    extra.wordBank = [...extra.draggables];
+  } else if (definition.id === 'choose_word_sentence') {
+    prompt = 'Which word best completes this sentence?';
+    extra.options = stableShuffle([accepted, ...retrievalChoices(args,3)], `${args.seed}:sentence-choice`);
+  } else if (definition.id === 'type_missing_word') {
+    prompt = 'Type the word that completes this sentence.';
+  }
+  return baseActivity({
+    definition, occurrence:args.occurrence, contentId:context.contextId, contentSource:'context', prompt,
+    markingReference:{ acceptedAnswers:[accepted] }, extra
+  });
+}
+function spellingActivity(args, definition) {
+  const term = text(args.item.term);
+  const targetDefinition = definitionFor(args.item,args.occurrence);
+  if (!term || !targetDefinition) throw new Error('Spelling activity requires a target word and curated definition.');
+  const visible = Array.from(term).map((char,index) => /[A-Za-z]/.test(char) ? (index === 0 ? char : '_') : char).join(' ');
+  return baseActivity({
+    definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item',
+    prompt:`Type the word that means “${targetDefinition}”.`,
+    markingReference:{ acceptedAnswers:[term] },
+    extra:{ spellingPattern:visible, primaryEvidenceTargetId:args.item.vocabularyId }
+  });
+}
+function wordFamilyChoice(args, definition) {
+  const record = array(args.unitActivities).find(activity =>
+    activity?.contentType === 'writing_set' &&
+    activity?.activityData?.taskType === 'word_family' &&
+    array(activity.activityData?.linkedVocabularyIds).includes(args.item.vocabularyId)
+  );
+  if (!record) throw new Error('No curated word-family content is available for this target.');
+  const data = object(record.activityData);
+  const acceptedAnswers = uniqueText(array(data.acceptedAnswers));
+  if (!acceptedAnswers.length) throw new Error('No curated word-family answers are available for this target.');
+  const acceptedKeys = new Set(acceptedAnswers.map(value => value.toLocaleLowerCase('en')));
+  const pool = uniqueText([
+    ...array(args.item.wordFamily),
+    ...array(args.unitItems).flatMap(candidate => array(candidate?.wordFamily))
+  ]).filter(value => !acceptedKeys.has(value.toLocaleLowerCase('en')));
+  if (pool.length < 2) throw new Error('Word Family Choice requires at least two plausible word-family alternatives.');
+  const wrong = stableShuffle(pool, `${args.seed}:family-alternatives`).slice(0,3);
+  const options = stableShuffle([acceptedAnswers[0], ...wrong], `${args.seed}:family-options`);
+  return baseActivity({
+    definition, occurrence:args.occurrence, contentId:record.activityContentId, contentSource:'unit_activity',
+    prompt:text(data.prompt) || 'Choose the correct word-family form.',
+    markingReference:{ acceptedAnswers },
+    extra:{ options, sourceText:text(data.sourceText) || null, activityContentId:record.activityContentId, taskType:'word_family', primaryEvidenceTargetId:data.primaryEvidenceTargetId ?? args.item.vocabularyId }
+  });
+}
+
+const BUILDERS = Object.freeze({
+  definition_to_word:definitionToWord,
+  word_definition_match:matchingActivity,
+  drag_word_definition:matchingActivity,
+  drag_definition_word:matchingActivity,
+  gap_fill_bank:retrievalActivity,
+  drag_word_sentence:retrievalActivity,
+  type_missing_word:retrievalActivity,
+  spell_word:spellingActivity,
+  choose_word_sentence:retrievalActivity,
+  word_family_choice:wordFamilyChoice
+});
+
+export function buildFoundationalActivity({ activityType, occurrence, item, contexts = [], unitActivities = [], unitItems = [], unitContexts = [], unitOccurrences = [], mastery = {}, readinessStage = null, usedContentIds = [], seed = '' } = {}) {
+  if (!FOUNDATIONAL_ACTIVITY_TYPES.has(activityType)) throw new Error('Not a foundational vocabulary activity type.');
+  if (!occurrence || !item) throw new Error('Vocabulary occurrence and item are required.');
+  const definition = activityDefinition(activityType);
+  if (!definition || !isActivityLive(definition.id)) throw new Error('Foundational vocabulary activity is unavailable.');
+  assertReady(definition, mastery, readinessStage);
+  const builder = BUILDERS[definition.id];
+  if (!builder) throw new Error(`No foundational builder exists for ${definition.id}.`);
+  return builder({ activityType, occurrence, item, contexts, unitActivities, unitItems, unitContexts, unitOccurrences, mastery, usedContentIds, seed }, definition);
+}
