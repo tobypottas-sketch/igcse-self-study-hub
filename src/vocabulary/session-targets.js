@@ -10,10 +10,11 @@ function hashSeed(seed) {
   for (const char of String(seed ?? '')) { hash ^= char.charCodeAt(0); hash = Math.imul(hash, 16777619) >>> 0; }
   return hash >>> 0;
 }
-function stablePick(values, seed) {
-  const choices = array(values);
-  if (!choices.length) return null;
-  return choices[hashSeed(seed) % choices.length];
+function stableOrder(values, seed) {
+  const choices = [...array(values)];
+  if (choices.length < 2) return choices;
+  const offset = hashSeed(seed) % choices.length;
+  return [...choices.slice(offset), ...choices.slice(0, offset)];
 }
 
 function reviewIsDue(mastery, now = new Date()) {
@@ -21,6 +22,33 @@ function reviewIsDue(mastery, now = new Date()) {
   const due = new Date(mastery.reviewDueAt);
   const reference = now instanceof Date ? now : new Date(now);
   return !Number.isNaN(due.getTime()) && !Number.isNaN(reference.getTime()) && due.getTime() <= reference.getTime();
+}
+
+function targetMaterial(content, target) {
+  const item = content?.itemsById?.[target?.vocabularyId] ?? array(content?.items).find(row => row?.vocabularyId === target?.vocabularyId);
+  if (!item) throw new Error('Vocabulary item is missing.');
+  const contexts = content?.contextsByOccurrence?.[target?.occurrenceId] ?? array(content?.contexts).filter(row => row?.occurrenceId === target?.occurrenceId);
+  const availableContent = availableActivityTypesForTarget({ content, target, item, contexts });
+  return { item, contexts, availableContent };
+}
+
+function buildPlannedQuestion({ content, target, mastery, item, contexts, availableContent, plan, usedContentIds = [], seed = '' }) {
+  const avoidContentIds = [...new Set([...array(plan.avoidContentIds), ...array(usedContentIds)])];
+  const question = buildActivity({
+    activityType:plan.activityType,
+    occurrence:target,
+    item,
+    contexts,
+    unitActivities:array(content?.activities),
+    unitItems:array(content?.items),
+    unitContexts:array(content?.contexts),
+    unitOccurrences:array(content?.occurrences),
+    mastery,
+    readinessStage:plan.readinessStage,
+    usedContentIds:avoidContentIds,
+    seed
+  });
+  return { item, contexts, availableContent, plan, question };
 }
 
 export function linkedActivitiesForTarget(content, target) {
@@ -56,28 +84,10 @@ export function buildTargetPracticeQuestion({
   usedContentIds = [],
   seed = ''
 } = {}) {
-  const item = content?.itemsById?.[target?.vocabularyId] ?? array(content?.items).find(row => row?.vocabularyId === target?.vocabularyId);
-  if (!item) throw new Error('Vocabulary item is missing.');
-  const contexts = content?.contextsByOccurrence?.[target?.occurrenceId] ?? array(content?.contexts).filter(row => row?.occurrenceId === target?.occurrenceId);
-  const availableContent = availableActivityTypesForTarget({ content, target, item, contexts });
+  const { item, contexts, availableContent } = targetMaterial(content, target);
   const due = reviewDue == null ? reviewIsDue(mastery) : Boolean(reviewDue);
   const plan = planNextActivity({ practiceMode, target, mastery, recentActivities, supportState, reviewDue:due, availableContent });
-  const avoidContentIds = [...new Set([...array(plan.avoidContentIds), ...array(usedContentIds)])];
-  const question = buildActivity({
-    activityType:plan.activityType,
-    occurrence:target,
-    item,
-    contexts,
-    unitActivities:array(content?.activities),
-    unitItems:array(content?.items),
-    unitContexts:array(content?.contexts),
-    unitOccurrences:array(content?.occurrences),
-    mastery,
-    readinessStage:plan.readinessStage,
-    usedContentIds:avoidContentIds,
-    seed
-  });
-  return { item, contexts, availableContent, plan, question };
+  return buildPlannedQuestion({ content, target, mastery, item, contexts, availableContent, plan, usedContentIds, seed });
 }
 
 export function buildTimedMixedQuestion({
@@ -98,32 +108,24 @@ export function buildTimedMixedQuestion({
     });
   }
 
-  const item = content?.itemsById?.[target?.vocabularyId] ?? array(content?.items).find(row => row?.vocabularyId === target?.vocabularyId);
-  if (!item) throw new Error('Vocabulary item is missing.');
-  const contexts = content?.contextsByOccurrence?.[target?.occurrenceId] ?? array(content?.contexts).filter(row => row?.occurrenceId === target?.occurrenceId);
-  const availableContent = availableActivityTypesForTarget({ content, target, item, contexts });
+  const { item, contexts, availableContent } = targetMaterial(content, target);
   const stage = ['new','building','secure','mastered'].includes(mastery?.status) ? mastery.status : 'new';
   const stageEligible = new Set(activitiesForStage(stage).map(activity => activity.id));
   let choices = availableContent.filter(type => stageEligible.has(type));
   if (!choices.length) throw new Error('No suitable curated activity is available for this timed target.');
   if (previousActivityType && choices.length > 1) choices = choices.filter(type => type !== previousActivityType);
-  const activityType = stablePick(choices, `${seed}:${target?.occurrenceId ?? ''}:${stage}`);
-  const plan = { activityType, readinessStage:stage, supportLevel:'none', reason:'Timed mixed activity' };
-  const question = buildActivity({
-    activityType,
-    occurrence:target,
-    item,
-    contexts,
-    unitActivities:array(content?.activities),
-    unitItems:array(content?.items),
-    unitContexts:array(content?.contexts),
-    unitOccurrences:array(content?.occurrences),
-    mastery,
-    readinessStage:stage,
-    usedContentIds:array(usedContentIds),
-    seed
-  });
-  return { item, contexts, availableContent, plan, question };
+
+  const ordered = stableOrder(choices, `${seed}:${target?.occurrenceId ?? ''}:${stage}`);
+  let lastError = null;
+  for (const activityType of ordered) {
+    const plan = { activityType, readinessStage:stage, supportLevel:'none', reason:'Timed mixed activity' };
+    try {
+      return buildPlannedQuestion({ content, target, mastery, item, contexts, availableContent, plan, usedContentIds, seed });
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError ?? new Error('No suitable curated activity is available for this timed target.');
 }
 
 export function selectEligiblePriorityTargets({
