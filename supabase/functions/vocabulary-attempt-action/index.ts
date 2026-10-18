@@ -12,7 +12,17 @@ const MAX_MASTERY_COMMIT_ATTEMPTS = 3;
 
 const ACTIVITY_EVIDENCE: Record<string, { strands:string[]; evidenceStrength:string; productive:boolean }> = {
   meaning_match:{ strands:['meaning'], evidenceStrength:'light', productive:false },
+  definition_to_word:{ strands:['meaning','recognition'], evidenceStrength:'light', productive:false },
+  word_definition_match:{ strands:['meaning','recognition'], evidenceStrength:'light', productive:false },
+  drag_word_definition:{ strands:['meaning','recognition'], evidenceStrength:'light', productive:false },
+  drag_definition_word:{ strands:['meaning','recognition'], evidenceStrength:'light', productive:false },
   which_situation_fits:{ strands:['meaning','context'], evidenceStrength:'medium', productive:false },
+  gap_fill_bank:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
+  drag_word_sentence:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
+  type_missing_word:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
+  spell_word:{ strands:['recognition','meaning'], evidenceStrength:'medium', productive:false },
+  choose_word_sentence:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
+  word_family_choice:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
   meaning_in_context:{ strands:['context','meaning'], evidenceStrength:'medium', productive:false },
   correct_usage:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
   collocation_builder:{ strands:['recognition','production'], evidenceStrength:'strong', productive:true },
@@ -128,6 +138,17 @@ function unitActivityMarking(activity: any, questionType: string, activityVarian
   }
   throw new Error('Unsupported vocabulary unit activity content type.');
 }
+function itemMarking(item: any, sense: any, questionType: string) {
+  const term = String(item?.term ?? '').trim();
+  if (!term) throw new Error('Vocabulary term is missing.');
+  if (['definition_to_word','drag_definition_word','spell_word'].includes(questionType)) return { acceptedAnswers:[term], distractors:[] };
+  if (['word_definition_match','drag_word_definition'].includes(questionType)) {
+    const meanings = [String(sense?.meaning ?? '').trim(), String(item?.core_meaning ?? '').trim(), ...strings(sense?.acceptedParaphrases)].filter(Boolean);
+    if (!meanings.length) throw new Error('Vocabulary meaning is missing.');
+    return { acceptedAnswers:[...new Set(meanings)], distractors:[] };
+  }
+  throw new Error('Unsupported item-backed vocabulary question type.');
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { status:204, headers:CORS });
@@ -156,7 +177,7 @@ Deno.serve(async (req: Request) => {
     const { data:occurrence, error:occurrenceError } = await adminClient.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number, sense_id, status, active').eq('occurrence_id', input.occurrenceId).eq('status', 'live').eq('active', true).single();
     if (occurrenceError || !occurrence) return json({ error:'Live vocabulary target not found' }, 404);
 
-    const { data:item, error:itemError } = await adminClient.from('vocabulary_items').select('vocabulary_id, senses, word_family, collocations, status').eq('vocabulary_id', occurrence.vocabulary_id).eq('status','live').single();
+    const { data:item, error:itemError } = await adminClient.from('vocabulary_items').select('vocabulary_id, term, core_meaning, senses, word_family, collocations, status').eq('vocabulary_id', occurrence.vocabulary_id).eq('status','live').single();
     if (itemError || !item) return json({ error:'Vocabulary content not found' }, 404);
     const sense = Array.isArray(item.senses) ? item.senses.find((candidate: any) => candidate?.senseId === occurrence.sense_id) : null;
     if (!sense) return json({ error:'Vocabulary sense not found' }, 400);
@@ -178,13 +199,17 @@ Deno.serve(async (req: Request) => {
       const marking = unitActivityMarking(activity, input.questionType, input.activityVariantId);
       markingContext = { contextId:activity.activity_content_id, activityContentId:activity.activity_content_id, ...marking };
       evidenceContentId = activity.activity_content_id;
-    } else {
+    } else if (input.contentSource === 'context') {
       const { data:context, error:contextError } = await adminClient.from('vocabulary_contexts').select('context_id, occurrence_id, sense_id, context_type, prompt_text, accepted_answers, misconception_category, status').eq('context_id', input.contextId).eq('status','live').single();
       if (contextError || !context || context.occurrence_id !== occurrence.occurrence_id || context.sense_id !== occurrence.sense_id) return json({ error:'Vocabulary context does not match target' }, 400);
       assertContextQuestionMatchesContextType(context.context_type, input.questionType);
       const acceptedAnswers = sentenceAnswerTypes.has(input.questionType) ? [String(context.prompt_text ?? '').trim()].filter(Boolean) : (context.accepted_answers ?? []);
       markingContext = { contextId:context.context_id, acceptedAnswers };
       evidenceContentId = context.context_id;
+    } else {
+      const marking = itemMarking(item, sense, input.questionType);
+      markingContext = { ...marking };
+      evidenceContentId = `item:${item.vocabulary_id}:${occurrence.sense_id}`;
     }
 
     const marked = markCuratedAnswer({ item:{ vocabularyId:item.vocabulary_id }, sense, context:markingContext, questionType:input.questionType, rawAnswer:input.rawAnswer });
@@ -202,7 +227,7 @@ Deno.serve(async (req: Request) => {
 
     if (input.preview) return json({ ok:true, preview:true, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory, strand, strands:contract.strands, supportLevel });
 
-    const shouldUpdateTargetMastery = input.contentSource === 'context' || primaryEvidenceTargetId === occurrence.vocabulary_id;
+    const shouldUpdateTargetMastery = input.contentSource === 'item' || input.contentSource === 'context' || primaryEvidenceTargetId === occurrence.vocabulary_id;
     const now = new Date();
     const metadata = buildStoredAttemptMetadata({
       unitNumber:occurrence.unit_number, strand, questionType:input.questionType,
