@@ -38,3 +38,26 @@ test('Word Family Switch renders its source sentence once', () => {
 test('Improve the Vocabulary renders its source sentence once', () => {
   assertSourceShownOnce(buildFor('vocab_intense', 'improve_vocabulary', 'secure'));
 });
+
+test('legacy newline prompts render the question and context sentence as separate blocks', () => {
+  const root = { innerHTML:'' };
+  const question = {
+    type:'meaning_match',
+    responseMode:'choice',
+    options:['free time','salary','training','deadline'],
+    prompt:'What does “leisure” mean in this context?\nMany students use their leisure to play sport or meet friends.'
+  };
+
+  renderVocabularyQuestion(root, {
+    unitNumber:1,
+    unitTitle:'Sports and free time',
+    question,
+    term:'leisure',
+    sessionLabel:'1 / 10 activities'
+  });
+
+  assert.match(root.innerHTML, /<h1 class="vocab-question-prompt">What does “leisure” mean in this context\?<\/h1>/);
+  assert.match(root.innerHTML, /<aside class="vocab-question-context vocab-source-text">/);
+  assert.match(root.innerHTML, /<p>Many students use their leisure to play sport or meet friends\.<\/p>/);
+  assert.doesNotMatch(root.innerHTML, /<h1 class="vocab-question-prompt">[^<]*Many students use their leisure/);
+});

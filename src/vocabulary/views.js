@@ -21,6 +21,11 @@ function titleCase(value) {
 function learningStageLabel(stage) { return titleCase(LEARNING_STAGES.includes(stage) ? stage : 'emerging'); }
 function learningStagePosition(stage) { const index = LEARNING_STAGES.indexOf(stage); return (index < 0 ? 0 : index) + 1; }
 function focusDefinition(id) { return PRACTICE_MODES.find(focus => focus.id === id) ?? PRACTICE_MODES.find(focus => focus.id === 'adaptive') ?? PRACTICE_MODES[0]; }
+function embeddedPromptSource(question) {
+  const lines = String(question?.prompt ?? '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  if (lines.length < 2) return null;
+  return { text:lines.slice(1).join(' '), label:'In context', embedded:true };
+}
 function questionSource(question) {
   const candidates = [
     ['sourceText','In context'],
@@ -29,9 +34,9 @@ function questionSource(question) {
   ];
   for (const [key,label] of candidates) {
     const text = String(question?.[key] ?? '').trim();
-    if (text) return { text, label };
+    if (text) return { text, label, embedded:false };
   }
-  return null;
+  return embeddedPromptSource(question);
 }
 function normalizedDisplayText(value) {
   return String(value ?? '').toLocaleLowerCase('en').replace(/[“”‘’'"`]/g, '').replace(/\s+/g, ' ').trim();
@@ -39,6 +44,7 @@ function normalizedDisplayText(value) {
 function visibleQuestionSource(question) {
   const source = questionSource(question);
   if (!source) return null;
+  if (source.embedded) return source;
   const prompt = String(question?.prompt ?? '').trim();
   if (prompt.endsWith(source.text)) return source;
   const normalizedPrompt = normalizedDisplayText(prompt);
@@ -48,9 +54,11 @@ function visibleQuestionSource(question) {
 }
 function displayPrompt(question) {
   const prompt = String(question?.prompt ?? '').trim();
-  const source = questionSource(question)?.text ?? '';
-  if (!source || !prompt.endsWith(source)) return prompt;
-  return prompt.slice(0, -source.length).trim();
+  const source = questionSource(question);
+  if (!source) return prompt;
+  if (source.embedded) return prompt.split(/\r?\n/)[0].trim();
+  if (!prompt.endsWith(source.text)) return prompt;
+  return prompt.slice(0, -source.text.length).trim();
 }
 function renderLearningProgress(stages = {}) {
   const cells = LEARNING_STAGES.map(stage => `<span class="vocab-learning-progress__stage" data-stage="${stage}"><strong>${escapeHtml(stages?.[stage] ?? 0)}</strong><small>${escapeHtml(learningStageLabel(stage))}</small></span>`).join('');
