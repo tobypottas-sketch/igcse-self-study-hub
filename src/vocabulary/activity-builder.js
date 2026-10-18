@@ -81,9 +81,6 @@ function chooseContext(contexts, preferredTypes, usedContentIds, seed) {
   if (unused.length) candidates = unused;
   return stableShuffle(candidates, `${seed}:context:${preferredTypes.join(',')}`)[0];
 }
-function meaningChoices(item, sense, accepted = []) {
-  return { correct:uniqueText([...accepted, sense?.meaning, ...array(sense?.acceptedParaphrases)]), wrong:uniqueText(array(sense?.misleadingDistractors)) };
-}
 function unitMeaningDistractors(args, correct) {
   const currentPos = text(args.item?.partOfSpeech).toLocaleLowerCase('en');
   const samePos = [];
@@ -94,8 +91,16 @@ function unitMeaningDistractors(args, correct) {
     for (const sense of array(candidate.senses)) bucket.push(...array(sense?.acceptedParaphrases));
     if (words(candidate.coreMeaning) <= 8) bucket.push(candidate.coreMeaning);
   }
-  const fallback = array(senseFor(args.item, args.occurrence).misleadingDistractors);
-  return rankedByLength([...samePos, ...others, ...fallback].filter(value => text(value).toLocaleLowerCase('en') !== text(correct).toLocaleLowerCase('en')), correct, `${args.seed}:meaning-pool`);
+  const isWrong = value => text(value).toLocaleLowerCase('en') !== text(correct).toLocaleLowerCase('en');
+  const rankedSamePos = rankedByLength(samePos.filter(isWrong), correct, `${args.seed}:meaning-pool:same-pos`);
+  const rankedOthers = rankedByLength(others.filter(isWrong), correct, `${args.seed}:meaning-pool:other-pos`);
+  return uniqueText([...rankedSamePos, ...rankedOthers]);
+}
+function meaningDistractors(args, sense, correct, seed) {
+  const correctKey = text(correct).toLocaleLowerCase('en');
+  const curated = rankedByLength(array(sense?.misleadingDistractors).filter(value => text(value).toLocaleLowerCase('en') !== correctKey), correct, `${seed}:meaning-curated`);
+  const unitFallback = unitMeaningDistractors(args, correct);
+  return uniqueText([...curated, ...unitFallback]).slice(0,3);
 }
 function occurrenceOwner(args, context) {
   const occurrence = array(args.unitOccurrences).find(row => row.occurrenceId === context?.occurrenceId);
@@ -143,10 +148,8 @@ function meaningMatch(args, definition) {
   const { item, occurrence, contexts, seed } = args;
   const sense = senseFor(item, occurrence);
   const context = chooseContext(contexts, ['meaning_context'], args.usedContentIds, seed);
-  const answers = meaningChoices(item, sense, context.acceptedAnswers);
   const correct = text(context.acceptedAnswers?.[0] ?? sense.acceptedParaphrases?.[0] ?? sense.meaning ?? item.coreMeaning);
-  const unitDistractors = unitMeaningDistractors(args, correct);
-  const wrong = unitDistractors.length >= 3 ? unitDistractors.slice(0,3) : rankedByLength([...unitDistractors, ...answers.wrong], correct, `${seed}:meaning-fallback`).slice(0,3);
+  const wrong = meaningDistractors(args, sense, correct, seed);
   if (wrong.length < 3) throw new Error('Meaning Match requires three comparable curated distractors.');
   const options = stableShuffle([correct, ...wrong], `${seed}:meaning-options`);
   return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`What does “${text(item.term)}” mean in this context?\n${text(context.text)}`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId } });
@@ -187,8 +190,7 @@ function meaningInContext(args, definition) {
   const sense = senseFor(item, occurrence);
   const context = chooseContext(contexts, ['meaning_context','paraphrase_context'], args.usedContentIds, seed);
   const correct = text(context.acceptedAnswers?.[0] ?? sense.acceptedParaphrases?.[0] ?? sense.meaning);
-  const unitDistractors = unitMeaningDistractors(args, correct);
-  const wrong = unitDistractors.length >= 3 ? unitDistractors.slice(0,3) : rankedByLength([...unitDistractors, ...array(sense.misleadingDistractors)], correct, `${seed}:meaning-context-fallback`).slice(0,3);
+  const wrong = meaningDistractors(args, sense, correct, seed);
   if (wrong.length < 3) throw new Error('Meaning in Context requires three comparable curated distractors.');
   const options = stableShuffle([correct, ...wrong], `${seed}:meaning-context`);
   return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`In this sentence, which meaning best fits “${text(item.term)}”?\n${text(context.text)}`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId } });
