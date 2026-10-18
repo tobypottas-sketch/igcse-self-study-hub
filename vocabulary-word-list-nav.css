@@ -15,6 +15,7 @@ html{scroll-behavior:smooth}
   .vocab-az-nav a,.vocab-az-nav span{min-height:22px;font-size:.72rem}
   .vocab-az-nav a:hover,.vocab-az-nav a:focus-visible{transform:scale(1.08)}
   .vocab-word-list{padding-right:58px;box-sizing:border-box}
+  .vocab-back-to-top{right:82px}
 }
 
 @media(max-width:760px){
