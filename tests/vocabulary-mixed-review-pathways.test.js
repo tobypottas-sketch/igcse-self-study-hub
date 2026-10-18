@@ -2,11 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { unlockedReviewStages, planMixedReviewQuestion } from '../src/vocabulary/mixed-review.js';
 
+const items = [
+  { vocabularyId:'v1', term:'leisure', partOfSpeech:'noun', coreMeaning:'free time', senses:[{ senseId:'s1', meaning:'free time', misleadingDistractors:['salary','training','deadline'] }] },
+  { vocabularyId:'v2', term:'salary', partOfSpeech:'noun', coreMeaning:'money paid for work', senses:[{ senseId:'s2', meaning:'money paid for work' }] },
+  { vocabularyId:'v3', term:'training', partOfSpeech:'noun', coreMeaning:'practice to develop a skill', senses:[{ senseId:'s3', meaning:'practice to develop a skill' }] },
+  { vocabularyId:'v4', term:'deadline', partOfSpeech:'noun', coreMeaning:'latest time for completion', senses:[{ senseId:'s4', meaning:'latest time for completion' }] }
+];
 const content = {
   occurrences:[{ occurrenceId:'o1', vocabularyId:'v1', senseId:'s1' }],
-  items:[{ vocabularyId:'v1', term:'leisure', partOfSpeech:'noun', coreMeaning:'free time', senses:[{ senseId:'s1', meaning:'free time', misleadingDistractors:['salary','training','deadline'] }] }],
+  items,
   contexts:[], activities:[],
-  itemsById:{ v1:{ vocabularyId:'v1', term:'leisure', partOfSpeech:'noun', coreMeaning:'free time', senses:[{ senseId:'s1', meaning:'free time', misleadingDistractors:['salary','training','deadline'] }] } },
+  itemsById:Object.fromEntries(items.map(item => [item.vocabularyId,item])),
   contextsByOccurrence:{ o1:[] }
 };
 const target = content.occurrences[0];
