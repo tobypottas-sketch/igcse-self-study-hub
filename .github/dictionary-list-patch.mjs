@@ -1,24 +1,23 @@
 import fs from 'node:fs';
 
-function replaceOnce(source, before, after, label) {
-  if (!source.includes(before)) throw new Error(`Could not find ${label}`);
-  const replaced = source.replace(before, after);
-  if (replaced === source) throw new Error(`Failed to replace ${label}`);
-  return replaced;
+function replaceOnce(source, before, after, label, alreadyPresent) {
+  if (source.includes(before)) return source.replace(before, after);
+  if (alreadyPresent && source.includes(alreadyPresent)) return source;
+  throw new Error(`Could not find ${label}`);
 }
 
 const appPath = 'src/vocabulary/app.js';
 let app = fs.readFileSync(appPath, 'utf8');
 const appBefore = `    const target = state.content.itemsById[occ.vocabularyId]; const global = state.globalMastery[occ.vocabularyId] ?? freshMastery();\n    return { term:target?.term ?? occ.vocabularyId, status:global.status ?? 'new', learningStage:deriveLearningStage(global), mastery:global, pathways:buildWordPathwayStates({ occurrence:occ, unitMastery:state.unitMastery, globalMastery:state.globalMastery }), strands:{ meaning:strandLabel(global.strandEvidence?.meaning, global.status), recognition:strandLabel(global.strandEvidence?.recognition, global.status), context:strandLabel(global.strandEvidence?.context, global.status), paraphrasing:strandLabel(global.strandEvidence?.paraphrasing, global.status), production:strandLabel(global.strandEvidence?.production, global.status) } };`;
 const appAfter = `    const target = state.content.itemsById[occ.vocabularyId]; const global = state.globalMastery[occ.vocabularyId] ?? freshMastery();\n    const linkedContexts = state.content.contextsByOccurrence[occ.occurrenceId] ?? [];\n    const dictionaryContext = linkedContexts.find(ctx => ctx.type === 'meaning_context') ?? linkedContexts.find(ctx => ctx.type === 'production_context') ?? linkedContexts.find(ctx => ctx.type === 'paraphrase_context') ?? linkedContexts[0] ?? null;\n    return { term:target?.term ?? occ.vocabularyId, partOfSpeech:target?.partOfSpeech ?? '', definition:target?.coreMeaning ?? '', contextSentence:dictionaryContext?.text ?? '', status:global.status ?? 'new', learningStage:deriveLearningStage(global), mastery:global, pathways:buildWordPathwayStates({ occurrence:occ, unitMastery:state.unitMastery, globalMastery:state.globalMastery }), strands:{ meaning:strandLabel(global.strandEvidence?.meaning, global.status), recognition:strandLabel(global.strandEvidence?.recognition, global.status), context:strandLabel(global.strandEvidence?.context, global.status), paraphrasing:strandLabel(global.strandEvidence?.paraphrasing, global.status), production:strandLabel(global.strandEvidence?.production, global.status) } };`;
-app = replaceOnce(app, appBefore, appAfter, 'showAllWords dictionary metadata');
+app = replaceOnce(app, appBefore, appAfter, 'showAllWords dictionary metadata', 'partOfSpeech:target?.partOfSpeech');
 fs.writeFileSync(appPath, app);
 
 const viewsPath = 'src/vocabulary/views.js';
 let views = fs.readFileSync(viewsPath, 'utf8');
 const viewsBefore = `    return \`<article class="vocab-word-row"><div class="vocab-word-row__head"><div><strong>\${escapeHtml(word.term)}</strong><span class="vocab-state-pill" data-state="\${escapeHtml(stage)}">\${escapeHtml(learningStageLabel(stage))}</span></div></div><div class="vocab-word-pathways" aria-label="\${escapeHtml(word.term)} pathway progress">\${pathways}</div><details class="vocab-word-evidence"><summary>Overall evidence detail</summary><div class="vocab-word-strands">\${strands}</div></details></article>\`;`;
 const viewsAfter = `    const partOfSpeech = String(word.partOfSpeech ?? '').trim();\n    const definition = String(word.definition ?? '').trim();\n    const contextSentence = String(word.contextSentence ?? '').trim();\n    const posHtml = partOfSpeech ? \`<em class="vocab-dictionary-entry__pos">\${escapeHtml(partOfSpeech)}</em>\` : '';\n    const definitionHtml = definition ? \`<p class="vocab-dictionary-entry__definition">\${escapeHtml(definition)}</p>\` : '';\n    const contextHtml = contextSentence ? \`<div class="vocab-dictionary-entry__context"><span>In context</span><p>\${escapeHtml(contextSentence)}</p></div>\` : '';\n    const dictionaryEntry = \`<div class="vocab-dictionary-entry"><div class="vocab-dictionary-entry__heading"><strong class="vocab-dictionary-entry__term">\${escapeHtml(word.term)}</strong>\${posHtml}</div>\${definitionHtml}\${contextHtml}</div>\`;\n    return \`<article class="vocab-word-row"><div class="vocab-word-row__head">\${dictionaryEntry}<span class="vocab-state-pill" data-state="\${escapeHtml(stage)}">\${escapeHtml(learningStageLabel(stage))}</span></div><div class="vocab-word-pathways" aria-label="\${escapeHtml(word.term)} pathway progress">\${pathways}</div><details class="vocab-word-evidence"><summary>Overall evidence detail</summary><div class="vocab-word-strands">\${strands}</div></details></article>\`;`;
-views = replaceOnce(views, viewsBefore, viewsAfter, 'dictionary row renderer');
+views = replaceOnce(views, viewsBefore, viewsAfter, 'dictionary row renderer', 'vocab-dictionary-entry__term');
 fs.writeFileSync(viewsPath, views);
 
 const cssPath = 'vocabulary-extra.css';
