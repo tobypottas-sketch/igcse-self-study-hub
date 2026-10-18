@@ -102,6 +102,15 @@ export async function loadStudentMastery(client, unitNumber, options = {}) {
   return { global:assertNoError(globalResult, 'Unable to load vocabulary mastery.'), unit:assertNoError(unitResult, 'Unable to load unit mastery.') };
 }
 
+export async function loadPathwayJourney(client, unitNumber, options = {}) {
+  if (options.preview === true) return [];
+  const result = await client
+    .from('vocabulary_unit_pathway_journey')
+    .select('unit_number, pathway_id, current_stage, completed_stages, stage_attempts, stage_clean_successes, updated_at')
+    .eq('unit_number', unitNumber);
+  return assertNoError(result, 'Unable to load vocabulary pathway progress.');
+}
+
 export async function submitVocabularyAttempt(client, input = {}) {
   const contentSource = input.contentSource ?? (input.activityContentId ? 'unit_activity' : 'context');
   const body = {
