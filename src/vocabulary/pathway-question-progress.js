@@ -58,6 +58,7 @@ export function setupPathwayQuestionProgress(root = globalThis.document?.getElem
   const enhance = () => {
     const meta = root.querySelector?.('.vocab-question-meta__right');
     if (!meta || !active) return;
+    if (meta.querySelector?.('[data-pathway-session-progress]')) return;
     const { current,total } = setPosition(root);
     const html = renderPathwayQuestionProgress({ ...active,current,total });
     if (!html) return;
