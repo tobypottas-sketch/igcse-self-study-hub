@@ -1,10 +1,13 @@
-name: One-shot Unit 1 pathway cohort diagnostic
+name: Unit 1 pathway cohort diagnostic
 
 on:
   push:
     branches: [fix/fixed-vocabulary-pathways]
     paths:
       - '.github/workflows/unit1-pathway-cohort-diagnostic.yml'
+      - 'scripts/write-unit1-pathway-counts.mjs'
+      - 'content/vocabulary/units/unit-01.js'
+      - 'content/vocabulary/units/unit-01-activities.js'
 
 permissions:
   contents: write
@@ -21,10 +24,14 @@ jobs:
         with:
           node-version: 22
       - run: node scripts/write-unit1-pathway-counts.mjs
-      - name: Commit diagnostic counts
+      - name: Commit diagnostic report
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add diagnostics/unit1-pathway-counts.json
-          git commit -m "chore: record Unit 1 pathway cohort counts"
+          if git diff --cached --quiet; then
+            echo "Diagnostic report is unchanged."
+            exit 0
+          fi
+          git commit -m "chore: record Unit 1 pathway coverage report"
           git push origin HEAD:fix/fixed-vocabulary-pathways
