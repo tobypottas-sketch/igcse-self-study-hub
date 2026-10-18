@@ -39,6 +39,15 @@ function partialTextClue(answer) {
   return `${firstToken.slice(0,1)}…`;
 }
 
+function primaryMatchOptions(activity) {
+  const pairs = array(activity?.pairs);
+  const primaryId = activity?.primaryEvidenceTargetId;
+  const primary = pairs.find(pair => pair?.vocabularyId === primaryId) ?? pairs[0] ?? null;
+  if (!primary) return [];
+  if (activity?.type === 'drag_definition_word') return pairs.map(pair => text(pair?.term)).filter(Boolean);
+  return pairs.map(pair => text(pair?.definition)).filter(Boolean);
+}
+
 export function buildSupportStep(activity = {}, attemptResult = {}) {
   if (attemptResult.correct) return null;
   const misconceptionCategory = attemptResult.misconceptionCategory ?? null;
@@ -56,6 +65,28 @@ export function buildSupportStep(activity = {}, attemptResult = {}) {
       supportLevel:'light',
       kind:'narrow_choices',
       options:narrowOptions(activity.options, accepted),
+      misconceptionCategory
+    };
+  }
+
+  if (activity.responseMode === 'matching' || activity.responseMode === 'drag_match') {
+    return {
+      action:'retry',
+      recycle:false,
+      supportLevel:'light',
+      kind:'narrow_match',
+      options:narrowOptions(primaryMatchOptions(activity), accepted),
+      misconceptionCategory
+    };
+  }
+
+  if (activity.responseMode === 'drag_gap') {
+    return {
+      action:'retry',
+      recycle:false,
+      supportLevel:'light',
+      kind:'narrow_drag_gap',
+      options:narrowOptions(activity.draggables ?? activity.wordBank, accepted),
       misconceptionCategory
     };
   }
