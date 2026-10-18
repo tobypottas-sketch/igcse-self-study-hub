@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 import { applyEvidence, markCuratedAnswer, spotMeaningChangeMarking, successClearsRecentError } from '../_shared/vocabulary-engine.js';
-import { assertUnitActivityQuestionMatchesContentType, assertWritingTaskMatchesQuestionType, buildStoredAttemptMetadata, strandForQuestionType, validateVocabularyAttempt } from './validation.js';
+import { assertContextQuestionMatchesContextType, assertUnitActivityQuestionMatchesContentType, assertWritingTaskMatchesQuestionType, buildStoredAttemptMetadata, strandForQuestionType, validateVocabularyAttempt } from './validation.js';
 
 const CORS = {
   'Access-Control-Allow-Origin':'*',
@@ -172,8 +172,9 @@ Deno.serve(async (req: Request) => {
       markingContext = { contextId:activity.activity_content_id, activityContentId:activity.activity_content_id, ...marking };
       evidenceContentId = activity.activity_content_id;
     } else {
-      const { data:context, error:contextError } = await adminClient.from('vocabulary_contexts').select('context_id, occurrence_id, sense_id, prompt_text, accepted_answers, misconception_category, status').eq('context_id', input.contextId).eq('status','live').single();
+      const { data:context, error:contextError } = await adminClient.from('vocabulary_contexts').select('context_id, occurrence_id, sense_id, context_type, prompt_text, accepted_answers, misconception_category, status').eq('context_id', input.contextId).eq('status','live').single();
       if (contextError || !context || context.occurrence_id !== occurrence.occurrence_id || context.sense_id !== occurrence.sense_id) return json({ error:'Vocabulary context does not match target' }, 400);
+      assertContextQuestionMatchesContextType(context.context_type, input.questionType);
       const acceptedAnswers = sentenceAnswerTypes.has(input.questionType) ? [String(context.prompt_text ?? '').trim()].filter(Boolean) : (context.accepted_answers ?? []);
       markingContext = { contextId:context.context_id, acceptedAnswers };
       evidenceContentId = context.context_id;

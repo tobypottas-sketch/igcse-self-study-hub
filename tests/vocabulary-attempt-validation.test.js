@@ -72,6 +72,22 @@ test('unit activity content types reject forged question-type evidence contracts
   assert.throws(() => assertMatches('idea_set', 'meaning_match'), /content type|question type/i);
 });
 
+test('context types reject forged question-type evidence contracts', () => {
+  assert.equal(typeof attemptValidation.assertContextQuestionMatchesContextType, 'function');
+  const assertMatches = attemptValidation.assertContextQuestionMatchesContextType;
+
+  assert.doesNotThrow(() => assertMatches('meaning_context', 'meaning_match'));
+  assert.doesNotThrow(() => assertMatches('meaning_context', 'meaning_in_context'));
+  assert.doesNotThrow(() => assertMatches('paraphrase_context', 'meaning_in_context'));
+  assert.doesNotThrow(() => assertMatches('paraphrase_context', 'which_situation_fits'));
+  assert.doesNotThrow(() => assertMatches('production_context', 'which_situation_fits'));
+
+  assert.throws(() => assertMatches('meaning_context', 'rewrite_idea'), /context type|question type/i);
+  assert.throws(() => assertMatches('paraphrase_context', 'meaning_match'), /context type|question type/i);
+  assert.throws(() => assertMatches('production_context', 'meaning_in_context'), /context type|question type/i);
+  assert.throws(() => assertMatches('production_context', 'word_family_switch'), /context type|question type/i);
+});
+
 test('stored attempt metadata never contains raw or normalized answer text', () => {
   const metadata = buildStoredAttemptMetadata({
     unitNumber:1, strand:'production', questionType:'produce_paraphrase', firstAttempt:false, retryUsed:true,
