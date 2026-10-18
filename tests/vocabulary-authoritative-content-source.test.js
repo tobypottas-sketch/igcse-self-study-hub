@@ -32,7 +32,7 @@ function sourceKind(question) {
 }
 
 test('Word Family Switch fails closed when a target has word-family metadata but no curated writing task', () => {
-  const { target, item } = targetFor('vocab_preference');
+  const { target, item } = targetFor('vocab_avoid');
   assert.ok(item.wordFamily?.length > 0, 'control target should have word-family metadata');
   assert.equal(unit1.activities.some(row => row.contentType === 'writing_set' && row.activityData?.taskType === 'word_family' && row.activityData?.linkedVocabularyIds?.includes(item.vocabularyId)), false);
   assert.throws(() => buildActivity({
@@ -51,7 +51,7 @@ test('Word Family Switch fails closed when a target has word-family metadata but
 });
 
 test('eligibility never advertises generic word-family metadata as a live Word Family Switch', () => {
-  const { target, item } = targetFor('vocab_preference');
+  const { target, item } = targetFor('vocab_avoid');
   const available = availableActivityTypesForTarget({ content:content(), target, item, contexts:contextsFor(target) });
   assert.equal(available.includes('word_family_switch'), false);
 });
