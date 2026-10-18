@@ -42,7 +42,7 @@ export async function loadStudentMastery(client, unitNumber) {
 export async function submitVocabularyAttempt(client, input = {}) {
   const contentSource = input.contentSource ?? (input.activityContentId ? 'unit_activity' : 'context');
   const body = {
-    attemptId:input.attemptId,
+    attemptId:input.attemptId ?? crypto.randomUUID(),
     occurrenceId:input.occurrenceId,
     contextId:input.contextId ?? null,
     activityContentId:input.activityContentId ?? null,
