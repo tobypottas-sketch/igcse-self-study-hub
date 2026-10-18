@@ -25,13 +25,11 @@ function build(record, activityType, seed, extra = {}) {
   const { item, occurrence, contexts } = targetFor(record);
   return buildActivity({ activityType, occurrence, item, contexts, unitActivities:[record], unitItems:unit1.items, unitContexts:unit1.contexts, unitOccurrences:unit1.occurrences, mastery:{ status:'secure' }, readinessStage:'secure', seed, ...extra });
 }
-// Mirrors markVocabularyAttemptLocally() in src/vocabulary/app.js (used identically by student sessions and Staff Preview).
 function markLikeClient(question, sense, vocabularyId, rawAnswer) {
   const reference = question.markingReference ?? {};
   const context = { contextId:question.contentId, activityContentId:null, acceptedAnswers:reference.acceptedAnswers ?? [], distractors:reference.distractors ?? [] };
   return markCuratedAnswer({ item:{ vocabularyId }, sense, context, questionType:question.type, rawAnswer });
 }
-// Mirrors unitActivityMarking() + markCuratedAnswer() in supabase/functions/vocabulary-attempt-action/index.ts.
 function markLikeServer(record, activityVariantId, sense, vocabularyId, rawAnswer) {
   const marking = spotMeaningChangeMarking(record.activityData, activityVariantId);
   const context = { contextId:record.activityContentId, activityContentId:record.activityContentId, ...marking };
@@ -210,32 +208,30 @@ test('9. Staff Preview and the student flow share one marking contract', () => {
   assert.match(app, /activityVariantId:current\.question\.activityVariantId \?\? null/);
 });
 
-test('app only offers Spot the Meaning Change where the idea bank can support it', () => {
+test('session eligibility only offers Spot the Meaning Change where the idea bank can support it', () => {
   const app = source('../src/vocabulary/app.js');
-  assert.doesNotMatch(app, /\['same_idea','spot_meaning_change'/);
-  assert.match(app, /isSpotMeaningChangeReady\(row\.activityData\)\)\) available\.add\('spot_meaning_change'\)/);
+  const sessionTargets = source('../src/vocabulary/session-targets.js');
+  assert.match(app, /selectEligiblePriorityTargets\(/);
+  assert.doesNotMatch(sessionTargets, /\['same_idea','spot_meaning_change'/);
+  assert.match(sessionTargets, /isSpotMeaningChangeReady\(row\.activityData\)\)\) available\.add\('spot_meaning_change'\)/);
 });
 
 test('10. existing idea activities still work: same_idea, build_same_idea, rewrite_idea (and explain_another_way)', () => {
   for (const record of ideaRecords) {
     const { sense, item } = targetFor(record);
     const [reference] = record.activityData.accurateParaphrases;
-
     const same = build(record, 'same_idea', 'idea-regression');
     assert.equal(same.options.length, 4);
     assert.deepEqual(same.markingReference.acceptedAnswers, [reference]);
     assert.equal(same.options.filter(option => markLikeClient(same, sense, item.vocabularyId, option).correct).length, 1, `${record.activityContentId} same_idea`);
-
     const tiles = build(record, 'build_same_idea', 'idea-regression');
     assert.ok(tiles.tiles.length >= 2);
     assert.ok(tiles.markingReference.acceptedAnswers.includes(reference), 'first curated paraphrase is still an accepted build');
     assert.equal(markLikeClient(tiles, sense, item.vocabularyId, reference).correct, true);
-
     const rewrite = build(record, 'rewrite_idea', 'idea-regression');
     assert.deepEqual(rewrite.markingReference.acceptedAnswers, record.activityData.accurateParaphrases);
     for (const accurate of record.activityData.accurateParaphrases) assert.equal(markLikeClient(rewrite, sense, item.vocabularyId, accurate).correct, true, accurate);
     for (const row of record.activityData.distractors) assert.equal(markLikeClient(rewrite, sense, item.vocabularyId, row.text).correct, false, row.text);
-
     assert.ok(build(record, 'explain_another_way', 'idea-regression', { mastery:{ status:'mastered' }, readinessStage:'mastered' }).markingReference.acceptedAnswers.length >= 1);
   }
 });
