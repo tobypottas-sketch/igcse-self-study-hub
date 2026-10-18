@@ -17,12 +17,23 @@ function contextsFor(target) {
   return unit1.contexts.filter(row => row.occurrenceId === target.occurrenceId);
 }
 
-function content() {
+function content(overrides = {}) {
+  const activities = overrides.activities ?? unit1.activities;
   return {
     ...unit1,
+    ...overrides,
+    activities,
     itemsById:Object.fromEntries(unit1.items.map(row => [row.vocabularyId, row])),
     contextsByOccurrence:Object.fromEntries(unit1.occurrences.map(row => [row.occurrenceId, contextsFor(row)]))
   };
+}
+
+function withoutWordFamilyTasks(vocabularyId) {
+  return unit1.activities.filter(row => !(
+    row.contentType === 'writing_set'
+    && row.activityData?.taskType === 'word_family'
+    && row.activityData?.linkedVocabularyIds?.includes(vocabularyId)
+  ));
 }
 
 function sourceKind(question) {
@@ -37,14 +48,15 @@ function mastery(stage) {
 
 test('Word Family Switch fails closed when a target has word-family metadata but no curated writing task', () => {
   const { target, item } = targetFor('vocab_avoid');
+  const activities = withoutWordFamilyTasks(item.vocabularyId);
   assert.ok(item.wordFamily?.length > 0, 'control target should have word-family metadata');
-  assert.equal(unit1.activities.some(row => row.contentType === 'writing_set' && row.activityData?.taskType === 'word_family' && row.activityData?.linkedVocabularyIds?.includes(item.vocabularyId)), false);
+  assert.equal(activities.some(row => row.contentType === 'writing_set' && row.activityData?.taskType === 'word_family' && row.activityData?.linkedVocabularyIds?.includes(item.vocabularyId)), false);
   assert.throws(() => buildActivity({
     activityType:'word_family_switch',
     occurrence:target,
     item,
     contexts:contextsFor(target),
-    unitActivities:unit1.activities,
+    unitActivities:activities,
     unitItems:unit1.items,
     unitContexts:unit1.contexts,
     unitOccurrences:unit1.occurrences,
@@ -56,7 +68,8 @@ test('Word Family Switch fails closed when a target has word-family metadata but
 
 test('eligibility never advertises generic word-family metadata as a live Word Family Switch', () => {
   const { target, item } = targetFor('vocab_avoid');
-  const available = availableActivityTypesForTarget({ content:content(), target, item, contexts:contextsFor(target) });
+  const activities = withoutWordFamilyTasks(item.vocabularyId);
+  const available = availableActivityTypesForTarget({ content:content({ activities }), target, item, contexts:contextsFor(target) });
   assert.equal(available.includes('word_family_switch'), false);
 });
 
