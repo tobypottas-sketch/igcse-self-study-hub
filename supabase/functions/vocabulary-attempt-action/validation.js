@@ -69,9 +69,9 @@ export function validateVocabularyAttempt(value = {}) {
 }
 
 export function strandForQuestionType(questionType) {
-  if (['produce_paraphrase','use_target','replace_phrase','rewrite_phrase','rewrite_idea','improve_vocabulary','explain_another_way','word_family_switch','collocation_builder'].includes(questionType)) return 'production';
+  if (['produce_paraphrase','use_target','replace_phrase','rewrite_phrase','rewrite_idea','explain_another_way','collocation_builder'].includes(questionType)) return 'production';
   if (['build_paraphrase','complete_paraphrase','build_same_idea','same_idea','spot_meaning_change','phrase_match'].includes(questionType)) return 'paraphrasing';
-  if (['context_inference','question_text_bridge','context_gap_fill','mini_mixed_check','find_evidence','meaning_in_context','correct_usage','which_situation_fits'].includes(questionType)) return 'context';
+  if (['context_inference','question_text_bridge','context_gap_fill','mini_mixed_check','find_evidence','meaning_in_context','correct_usage','which_situation_fits','word_family_switch','improve_vocabulary'].includes(questionType)) return 'context';
   if (questionType === 'paraphrase_match') return 'paraphrasing';
   if (questionType === 'meaning_match') return 'meaning';
   return 'recognition';

@@ -23,16 +23,16 @@ const TYPE_SKILLS = Object.freeze({
   build_same_idea:['idea_paraphrasing'],
   rewrite_idea:['idea_paraphrasing','lexical_production'],
   collocation_builder:['writing_vocabulary','lexical_production'],
-  word_family_switch:['writing_vocabulary','lexical_production'],
-  improve_vocabulary:['writing_vocabulary','lexical_production'],
+  word_family_switch:['writing_vocabulary'],
+  improve_vocabulary:['writing_vocabulary'],
   explain_another_way:['idea_paraphrasing','lexical_production']
 });
 
 const STRENGTH_WEIGHT = Object.freeze({ light:1, medium:2, strong:3, very_strong:4 });
-// Scaffolded paraphrase assembly/completion was historically stored as 'strong'. Interpret those rows as at most
-// 'medium' when reading so teacher profiles never show scaffolded work as independent strong evidence. Stored events are not modified.
-const SCAFFOLDED_PARAPHRASE_TYPES = Object.freeze(new Set(['build_paraphrase','complete_paraphrase','build_same_idea']));
-function effectiveStrength(questionType, strength) { return SCAFFOLDED_PARAPHRASE_TYPES.has(questionType) && STRENGTH_WEIGHT[strength] > STRENGTH_WEIGHT.medium ? 'medium' : strength; }
+// Scaffolded activities were historically stored at strong/very-strong levels. Interpret those rows as at most medium
+// when reading so teacher profiles never show controlled work as independent strong evidence. Stored events are not modified.
+const SCAFFOLDED_TYPES = Object.freeze(new Set(['build_paraphrase','complete_paraphrase','build_same_idea','word_family_switch','improve_vocabulary']));
+function effectiveStrength(questionType, strength) { return SCAFFOLDED_TYPES.has(questionType) && STRENGTH_WEIGHT[strength] > STRENGTH_WEIGHT.medium ? 'medium' : strength; }
 const SUPPORT_WEIGHT = Object.freeze({ none:1, light:.6, major:.25 });
 const MISCONCEPTIONS = Object.freeze({
   quantity_change:'Changes quantity while paraphrasing',

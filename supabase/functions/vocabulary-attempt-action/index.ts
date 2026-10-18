@@ -15,7 +15,7 @@ const ACTIVITY_EVIDENCE: Record<string, { strands:string[]; evidenceStrength:str
   meaning_in_context:{ strands:['context','meaning'], evidenceStrength:'medium', productive:false },
   correct_usage:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
   collocation_builder:{ strands:['recognition','production'], evidenceStrength:'strong', productive:true },
-  word_family_switch:{ strands:['production'], evidenceStrength:'strong', productive:true },
+  word_family_switch:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
   question_text_bridge:{ strands:['context','paraphrasing'], evidenceStrength:'medium', productive:false },
   find_evidence:{ strands:['context'], evidenceStrength:'medium', productive:false },
   phrase_match:{ strands:['paraphrasing'], evidenceStrength:'light', productive:false },
@@ -26,7 +26,7 @@ const ACTIVITY_EVIDENCE: Record<string, { strands:string[]; evidenceStrength:str
   spot_meaning_change:{ strands:['paraphrasing','context'], evidenceStrength:'medium', productive:false },
   build_same_idea:{ strands:['paraphrasing'], evidenceStrength:'medium', productive:false },
   rewrite_idea:{ strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true },
-  improve_vocabulary:{ strands:['production'], evidenceStrength:'very_strong', productive:true },
+  improve_vocabulary:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
   explain_another_way:{ strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true }
 };
 const sentenceAnswerTypes = new Set(['which_situation_fits','correct_usage']);
