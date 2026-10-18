@@ -97,16 +97,19 @@ test('ten-activity completion gets a celebration but timed completion stays calm
   assert.doesNotMatch(timed.innerHTML, /vocab-celebration/);
 });
 
-test('timed route explains that activity styles are mixed rather than focus-locked', () => {
+test('Mixed Practice is explicitly review-only rather than a hidden replacement for pathway learning', () => {
   const host = root();
   renderVocabularyUnit(host, {
     unitNumber:1,
     unitTitle:'Sports and free time',
     progress:{ mastered:0, total:50, needsAnotherLook:0, reviewDue:0 },
-    practiceFocus:'meaning_context'
+    pathwayStates:{},
+    contentReady:true
   });
-  assert.match(host.innerHTML, /Mixed practice/);
-  assert.match(host.innerHTML, /mix(?:es|ed).*activity styles/i);
+  assert.match(host.innerHTML, /Mixed Practice/);
+  assert.match(host.innerHTML, /Review only/);
+  assert.match(host.innerHTML, /already unlocked across the six pathways/);
+  assert.match(host.innerHTML, /does not skip you ahead/);
   assert.doesNotMatch(host.innerHTML, /Stay in this skill area/i);
 });
 
