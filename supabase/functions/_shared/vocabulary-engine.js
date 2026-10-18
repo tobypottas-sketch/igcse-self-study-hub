@@ -10,7 +10,9 @@ const PROPAGATION = Object.freeze({
   meaning:['meaning'],
   recognition:['recognition','meaning'],
   context:['context','meaning'],
-  paraphrasing:['paraphrasing','recognition','meaning'],
+  // Paraphrasing demonstrates meaning transfer, but scaffolded paraphrase work must not
+  // manufacture a third independent strand simply through repetition.
+  paraphrasing:['paraphrasing','meaning'],
   production:['production','paraphrasing','recognition','meaning']
 });
 const REVIEW_DAYS = [4, 10, 24, 45, 70, 100];
@@ -260,44 +262,35 @@ export function markCuratedAnswer({ item = {}, sense = {}, context = {}, questio
   }
 
   if (!exactContextOnly) {
-    for (const answer of Array.isArray(sense.acceptedParaphrases) ? sense.acceptedParaphrases : []) {
-      accepted.add(normalizeVocabularyAnswer(answer));
-    }
+    for (const answer of Array.isArray(sense.acceptedParaphrases) ? sense.acceptedParaphrases : []) accepted.add(normalizeVocabularyAnswer(answer));
     for (const scoped of Array.isArray(sense.contextDependentParaphrases) ? sense.contextDependentParaphrases : []) {
-      if (scoped?.contextId !== context.contextId) continue;
-      for (const answer of Array.isArray(scoped.answers) ? scoped.answers : []) accepted.add(normalizeVocabularyAnswer(answer));
+      if (scoped?.contextId === context.contextId) {
+        for (const answer of Array.isArray(scoped.answers) ? scoped.answers : []) accepted.add(normalizeVocabularyAnswer(answer));
+      }
     }
   }
-  accepted.delete('');
 
-  const legacyDistractors = new Set((Array.isArray(sense.misleadingDistractors) ? sense.misleadingDistractors : []).map(normalizeVocabularyAnswer).filter(Boolean));
-  const semanticDistractors = semanticDistractorMap(context);
-  const identifyingInaccurate = INACCURATE_SELECTION_TYPES.has(questionType);
-  const semanticCategory = semanticDistractors.get(normalizedAnswer) ?? null;
-  const isDistractor = semanticCategory != null || (questionType !== 'spot_meaning_change' && legacyDistractors.has(normalizedAnswer));
-  const correct = identifyingInaccurate ? isDistractor : accepted.has(normalizedAnswer);
-
+  const distractors = semanticDistractorMap(context);
+  const matchesAccepted = accepted.has(normalizedAnswer);
+  const selectedInaccurate = INACCURATE_SELECTION_TYPES.has(questionType) && distractors.has(normalizedAnswer);
+  const correct = selectedInaccurate || matchesAccepted;
   let misconceptionCategory = null;
-  if (semanticCategory) misconceptionCategory = semanticCategory;
-  else if (!correct) {
-    if (identifyingInaccurate && accepted.has(normalizedAnswer)) misconceptionCategory = 'meaning_confusion';
-    else if (!identifyingInaccurate && legacyDistractors.has(normalizedAnswer)) misconceptionCategory = 'related_but_inaccurate';
-  }
-
-  const strands = defaultStrandsForQuestionType(questionType);
+  if (selectedInaccurate) misconceptionCategory = distractors.get(normalizedAnswer) ?? null;
+  else if (!correct) misconceptionCategory = distractors.get(normalizedAnswer) ?? (Array.isArray(sense.misleadingDistractors) && sense.misleadingDistractors.map(normalizeVocabularyAnswer).includes(normalizedAnswer) ? 'related_but_inaccurate' : 'retrieval_failure');
   return {
     correct,
-    normalizedAnswer,
     misconceptionCategory,
     evidence:{
-      strand:strands[0],
-      strands,
+      strand: defaultStrandsForQuestionType(questionType)[0],
+      strands: defaultStrandsForQuestionType(questionType),
       correct,
+      firstAttempt:true,
+      retryUsed:false,
+      repeatedGuess:false,
+      recoveredLater:false,
       contextId:context.contextId ?? null,
       activityContentId:context.activityContentId ?? null,
-      questionType:questionType ?? null,
-      activityType:questionType ?? null,
-      misconceptionCategory
+      questionType
     }
   };
 }
