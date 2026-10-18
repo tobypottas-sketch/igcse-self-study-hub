@@ -40,18 +40,8 @@ test('planner never selects Correct Usage, including when stale clients advertis
   }
 });
 
-test('direct Correct Usage generation is rejected instead of building mixed-format distractors', () => {
-  const buildable = unit1.items.filter(item => {
-    const args = targetArgs(item);
-    try {
-      buildActivity({ activityType:RETIRED, ...args, mastery:{ status:'building' }, readinessStage:'building', seed:'usage-audit' });
-      return true;
-    } catch {
-      return false;
-    }
-  });
-  assert.ok(buildable.length > 0, 'old implementation should have had live Correct Usage targets');
-  for (const item of buildable.slice(0, 10)) {
+test('direct Correct Usage generation is rejected before any mixed-format fallback can run', () => {
+  for (const item of unit1.items.slice(0, 10)) {
     assert.throws(
       () => buildActivity({ activityType:RETIRED, ...targetArgs(item), mastery:{ status:'building' }, readinessStage:'building', seed:'direct' }),
       /temporarily unavailable/,
