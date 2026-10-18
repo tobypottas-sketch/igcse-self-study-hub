@@ -12,7 +12,7 @@ const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
   globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:'adaptive', recentActivities:new Map(), usedContentIds:new Map(),
   recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null,
-  persistenceChain:Promise.resolve()
+  persistenceChain:Promise.resolve(), persistenceBlocked:false
 };
 
 function occurrence(row) { return { occurrenceId:row.occurrence_id, vocabularyId:row.vocabulary_id, unitNumber:row.unit_number, unitTitle:row.unit_title, setNumber:row.set_number, positionInUnit:row.position_in_unit, senseId:row.sense_id }; }
@@ -78,6 +78,7 @@ async function openUnit(unitNumber) {
   state.content = { occurrences, items, contexts, activities, itemsById:mapBy(items,'vocabularyId'), contextsByOccurrence:{}, activitiesById:mapBy(activities,'activityContentId') };
   for (const ctx of contexts) (state.content.contextsByOccurrence[ctx.occurrenceId] ??= []).push(ctx);
   state.globalMastery = mapBy(masteryRaw.global, 'vocabulary_id', mastery); state.unitMastery = mapBy(masteryRaw.unit, 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
+  state.persistenceBlocked = false;
   state.currentUnitTitle = occurrences[0]?.unitTitle ?? state.units.find(unit => unit.unitNumber === unitNumber)?.unitTitle ?? `Unit ${unitNumber}`; state.practiceFocus = 'adaptive'; renderCurrentUnit();
 }
 function strandLabel(value, status) { const score = Number(value ?? 0); if (status === 'mastered' && score >= 3) return 'Secure'; if (score >= 6) return 'Secure'; if (score >= 3) return 'Developing'; return 'Keep practising'; }
@@ -147,17 +148,29 @@ function persistVocabularyAttempt(current, rawAnswer, flags, localResult) {
   const contentSource = current.activityRecord ? 'unit_activity' : 'context';
   const payload = { occurrenceId:current.target.occurrenceId, contextId:current.context?.contextId ?? null, activityContentId:current.activityRecord?.activityContentId ?? null, activityVariantId:current.question.activityVariantId ?? null, contentSource, primaryEvidenceTargetId:current.primaryEvidenceTargetId, questionType:current.question.type, rawAnswer, strands:current.question.strands, evidenceStrength:current.question.evidenceStrength, supportLevel:flags.supportLevel, productive:current.question.productive, repeatedGuess:false, firstAttempt:flags.firstAttempt, retryUsed:flags.retryUsed, recoveredLater:flags.recoveredLater, review:flags.review, preview:false };
   state.persistenceChain = state.persistenceChain.then(async () => {
-    const result = await submitVocabularyAttempt(state.client, payload); if (result.correct !== localResult.correct) throw new Error('Vocabulary marking mismatch. Please reload before continuing.');
-    if (result.globalStatus) {
-      const currentGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery();
-      state.globalMastery[current.target.vocabularyId] = { ...currentGlobal, status:result.globalStatus, reviewDueAt:result.reviewDueAt, recentErrorCount:result.globalRecentErrorPattern ? 1 : 0, recentErrorPattern:result.globalRecentErrorPattern ?? null };
+    if (state.persistenceBlocked) return;
+    try {
+      const result = await submitVocabularyAttempt(state.client, payload); if (result.correct !== localResult.correct) throw new Error('Vocabulary marking mismatch. Please reload before continuing.');
+      if (result.globalStatus) {
+        const currentGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery();
+        state.globalMastery[current.target.vocabularyId] = { ...currentGlobal, status:result.globalStatus, reviewDueAt:result.reviewDueAt, recentErrorCount:result.globalRecentErrorPattern ? 1 : 0, recentErrorPattern:result.globalRecentErrorPattern ?? null };
+      }
+      if (result.unitStatus) state.unitMastery[current.target.occurrenceId] = { ...state.unitMastery[current.target.occurrenceId], status:result.unitStatus, recentErrorPattern:result.unitRecentErrorPattern ?? null };
+    } catch (error) {
+      state.persistenceBlocked = true;
+      showSyncWarning(error);
     }
-    if (result.unitStatus) state.unitMastery[current.target.occurrenceId] = { ...state.unitMastery[current.target.occurrenceId], status:result.unitStatus, recentErrorPattern:result.unitRecentErrorPattern ?? null };
-  }).catch(error => { showSyncWarning(error); }); return state.persistenceChain;
+  });
+  return state.persistenceChain;
 }
 async function returnToCurrentUnit() {
   await state.persistenceChain;
   await openUnit(state.currentUnitNumber);
+}
+async function advanceToNextQuestion() {
+  await state.persistenceChain;
+  if (state.persistenceBlocked) return;
+  nextQuestion();
 }
 function recordRecentActivity(current, result) { const recent = state.recentActivities.get(current.target.occurrenceId) ?? []; const entry = { type:current.question.type, contentId:current.question.contentId, correct:result.correct }; state.recentActivities.set(current.target.occurrenceId, [...recent, entry].slice(-5)); }
 function handleAnswer(form, providedAnswer = null) {
@@ -214,7 +227,7 @@ root?.addEventListener('click', event => {
     for (const tile of form.querySelectorAll?.('.vocab-tile') ?? []) { tile.disabled = false; tile.classList.remove('is-used'); }
     input.value = fixed; if (build) build.textContent = fixed ? '' : 'Choose tiles to build your answer';
   }
-  else if (action === 'next-question') nextQuestion(); else if (action === 'leave-session' || action === 'back-unit') returnToCurrentUnit().catch(error => renderVocabularyError(root, error.message));
+  else if (action === 'next-question') advanceToNextQuestion().catch(error => renderVocabularyError(root, error.message)); else if (action === 'leave-session' || action === 'back-unit') returnToCurrentUnit().catch(error => renderVocabularyError(root, error.message));
 });
 async function initialise() {
   if (!root) return;
