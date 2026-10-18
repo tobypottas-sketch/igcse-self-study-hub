@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
-import { applyEvidence, markCuratedAnswer, spotMeaningChangeMarking } from '../_shared/vocabulary-engine.js';
+import { applyEvidence, markCuratedAnswer, spotMeaningChangeMarking, successClearsRecentError } from '../_shared/vocabulary-engine.js';
 import { buildStoredAttemptMetadata, strandForQuestionType, validateVocabularyAttempt } from './validation.js';
 
 const CORS = {
@@ -72,7 +72,10 @@ function unitMasteryFromRow(row: any) {
   };
 }
 
-function errorPattern(marked: any) { return marked.correct ? null : (marked.misconceptionCategory ?? 'retrieval_failure'); }
+function nextErrorPattern(previousPattern: unknown, marked: any, evidence: any): string | null {
+  if (!marked.correct) return marked.misconceptionCategory ?? 'retrieval_failure';
+  return successClearsRecentError(evidence) ? null : (previousPattern ? String(previousPattern) : null);
+}
 function strings(value: unknown): string[] { return Array.isArray(value) ? value.map(item => String(item ?? '').trim()).filter(Boolean) : []; }
 function evidenceContract(questionType: string) {
   const designed = ACTIVITY_EVIDENCE[questionType];
@@ -190,7 +193,8 @@ Deno.serve(async (req: Request) => {
     const shouldUpdateTargetMastery = input.contentSource === 'context' || primaryEvidenceTargetId === occurrence.vocabulary_id;
     let nextGlobal: any = null;
     let nextUnit: any = null;
-    const recentErrorPattern = errorPattern(marked);
+    let globalRecentErrorPattern: string | null = null;
+    let unitRecentErrorPattern: string | null = null;
 
     if (shouldUpdateTargetMastery) {
       const [{ data:globalRow }, { data:unitRow }] = await Promise.all([
@@ -200,6 +204,8 @@ Deno.serve(async (req: Request) => {
       const now = new Date();
       nextGlobal = applyEvidence(globalMasteryFromRow(globalRow), evidence, now);
       nextUnit = applyEvidence(unitMasteryFromRow(unitRow), { ...evidence, review:false }, now);
+      globalRecentErrorPattern = nextErrorPattern(globalRow?.recent_error_pattern, marked, evidence);
+      unitRecentErrorPattern = nextErrorPattern(unitRow?.recent_error_pattern, marked, evidence);
       const unitContextualEvidence = {
         strandEvidence:nextUnit.strandEvidence, successfulProductions:nextUnit.successfulProductions,
         productionContextIds:nextUnit.productionContextIds, productionActivityTypes:nextUnit.productionActivityTypes,
@@ -212,9 +218,9 @@ Deno.serve(async (req: Request) => {
         p_successful_productions:nextGlobal.successfulProductions, p_production_context_ids:nextGlobal.productionContextIds,
         p_production_activity_types:nextGlobal.productionActivityTypes, p_unscaffolded_productions:nextGlobal.unscaffoldedProductions,
         p_review_stage:nextGlobal.reviewStage, p_review_due_at:nextGlobal.reviewDueAt,
-        p_review_failure_count:nextGlobal.reviewFailureCount, p_global_error_pattern:recentErrorPattern,
+        p_review_failure_count:nextGlobal.reviewFailureCount, p_global_error_pattern:globalRecentErrorPattern,
         p_unit_status:nextUnit.status, p_unit_contextual_evidence:unitContextualEvidence,
-        p_unit_error_pattern:recentErrorPattern, p_seen_at:now.toISOString()
+        p_unit_error_pattern:unitRecentErrorPattern, p_seen_at:now.toISOString()
       });
       if (masteryWriteError) throw new Error('Unable to update vocabulary mastery.');
     }
@@ -238,6 +244,7 @@ Deno.serve(async (req: Request) => {
       ok:true, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory,
       strand, strands:contract.strands, supportLevel, masteryUpdated:shouldUpdateTargetMastery,
       globalStatus:nextGlobal?.status ?? null, unitStatus:nextUnit?.status ?? null,
+      globalRecentErrorPattern, unitRecentErrorPattern,
       reviewDueAt:nextGlobal?.reviewDueAt ?? null, recovery:input.recoveredLater && marked.correct
     });
   } catch (error) {
