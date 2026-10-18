@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { freshPathwayProgress, applyPathwayAttempt } from '../src/vocabulary/pathway-progress.js';
+
+const edgeSource = fs.readFileSync(new URL('../supabase/functions/vocabulary-attempt-action/index.ts', import.meta.url),'utf8');
 
 function supportedRecovery(stageId, servedStageId, overrides = {}) {
   return {
@@ -46,4 +49,8 @@ test('same-stage light support may record learning but never counts as clean or 
   assert.equal(progress.stages.match.cleanSuccesses,0);
   assert.equal(progress.stages.match.cleanUnassistedSuccesses,0);
   assert.equal(progress.stages.match.completed,false);
+});
+
+test('authoritative Edge forwards the actually served support stage into pathway progression', () => {
+  assert.match(edgeSource,/applyPathwayAttempt\([\s\S]*?stageId:input\.pathwayStage,[\s\S]*?servedStageId:input\.servedPathwayStage,/);
 });
