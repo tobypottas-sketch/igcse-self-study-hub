@@ -1,5 +1,6 @@
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES, derivePathwayPlacement } from './pathway-model.js';
 import { pathwayMasteryNeedsReview } from './pathway-progress.js';
+import { registeredPathwayCoverage } from './pathway-coverage-store.js';
 
 const STAGE_IDS = PATHWAY_STAGES.map(stage => stage.id);
 const STAGE_INDEX = Object.freeze(Object.fromEntries(STAGE_IDS.map((id,index) => [id,index])));
@@ -52,6 +53,7 @@ function stagesBefore(stageId) {
   return STAGE_IDS.slice(0,index);
 }
 function occurrenceId(occurrence = {}) { return occurrence.occurrenceId ?? occurrence.occurrence_id; }
+function occurrenceUnitNumber(occurrence = {}) { return occurrence.unitNumber ?? occurrence.unit_number ?? null; }
 function wordPathwayState({ pathwayId, occurrence, unitMastery, globalMastery }) {
   const unit = unitRowFor(unitMastery, occurrenceId(occurrence));
   const global = globalRowFor(globalMastery, occurrence.vocabularyId ?? occurrence.vocabulary_id);
@@ -76,11 +78,13 @@ export function buildWordPathwayStates({ occurrence, unitMastery = {}, globalMas
   return Object.fromEntries(VOCABULARY_PATHWAYS.map(pathway => [pathway.id,wordPathwayState({ pathwayId:pathway.id, occurrence, unitMastery, globalMastery })]));
 }
 
-export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, globalMastery = {}, coverageByPathway = {} } = {}) {
+export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, globalMastery = {}, coverageByPathway = null } = {}) {
+  const registered = occurrences.length ? registeredPathwayCoverage(occurrenceUnitNumber(occurrences[0])) : null;
+  const effectiveCoverage = coverageByPathway ?? registered ?? {};
   const perOccurrence = occurrences.map(occurrence => ({ occurrence, states:buildWordPathwayStates({ occurrence, unitMastery, globalMastery }) }));
   const result = {};
   for (const pathway of VOCABULARY_PATHWAYS) {
-    const coverage = coverageByPathway?.[pathway.id] ?? null;
+    const coverage = effectiveCoverage?.[pathway.id] ?? null;
     const totalCount = Number.isFinite(Number(coverage?.totalOccurrences)) ? Number(coverage.totalOccurrences) : occurrences.length;
     const available = coverage?.available !== false;
     const allowedIds = coverage && Array.isArray(coverage.occurrenceIds) ? new Set(coverage.occurrenceIds.map(String)) : null;
