@@ -172,6 +172,14 @@ const writingSets = [
   writing('reasonable_fee','collocation','Choose the natural adjective to describe a fair, not excessive price.','Students said the membership fee was ____.',['reasonable'],['vocab_reasonable'],'vocab_reasonable'),
   writing('word_family_compete','word_family','Use the correct form from the compete word family.','Each ____ must register before the race begins.',['competitor'],['vocab_competitor'],'vocab_competitor'),
   writing('word_family_determine','word_family','Use the correct form from the determine word family.','Her ____ helped her continue training after the injury.',['determination'],['vocab_determined'],'vocab_determined'),
+  writing('word_family_prefer','word_family','Use the correct form from the preference word family.','Many students ____ individual sports to team games.',['prefer'],['vocab_preference'],'vocab_preference'),
+  writing('word_family_afford','word_family','Use the correct form from the afford word family.','The club reduced its fees to make membership more ____.',['affordable'],['vocab_afford'],'vocab_afford'),
+  writing('word_family_permit','word_family','Use the correct form from the permit word family.','Students need ____ to use the gym after school.',['permission'],['vocab_permit'],'vocab_permit'),
+  writing('word_family_arrange','word_family','Use the correct form from the arrange word family.','The transport ____ was confirmed before the tournament.',['arrangement'],['vocab_arrange'],'vocab_arrange'),
+  writing('word_family_recommend','word_family','Use the correct form from the recommend word family.','The coach made a ____ to add an extra recovery session.',['recommendation'],['vocab_recommend'],'vocab_recommend'),
+  writing('word_family_threaten','word_family','Use the correct form from the threaten word family.','The injury became a serious ____ to her place in the team.',['threat'],['vocab_threaten'],'vocab_threaten'),
+  writing('word_family_achieve','word_family','Use the correct form from the achievement word family.','She hopes to ____ her goal of qualifying for the national team.',['achieve'],['vocab_achievement'],'vocab_achievement'),
+  writing('word_family_challenge','word_family','Use the correct form from the challenge word family.','Training outdoors in winter can be especially ____.',['challenging'],['vocab_challenge'],'vocab_challenge'),
   writing('significant_precision','improve_vocabulary','Replace the vague word “big” with a more precise Unit 1 adjective.','The programme produced a big improvement in attendance.',['significant'],['vocab_significant'],'vocab_significant'),
   writing('reputation_collocation','collocation','Complete the natural phrase using the Unit 1 noun.','The academy has built a strong ____ for developing young athletes.',['reputation'],['vocab_reputation'],'vocab_reputation')
 ];
