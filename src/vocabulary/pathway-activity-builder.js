@@ -2,7 +2,7 @@ import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 
 export const PATHWAY_ACTIVITY_TYPES = Object.freeze(new Set([
   'type_word_from_definition','context_sentence_match','word_family_match',
-  'precision_choice','precision_match','spelling_choice','spelling_cue_match','spelling_rebuild'
+  'precision_choice','precision_match','spelling_choice','spelling_cue_match','spelling_rebuild','spell_in_context'
 ]));
 
 function text(value) { return String(value ?? '').trim(); }
@@ -49,10 +49,11 @@ function typeWordFromDefinition(args, definition) {
 }
 function blankableContext(args) {
   const term=text(args.item?.term).toLocaleLowerCase('en');
+  const used=new Set(array(args.usedContentIds).map(String));
   const candidates=array(args.contexts).filter(context=>{
     const source=text(context?.text), rewrite=text(context?.targetRewrite);
     const accepted=array(context?.acceptedAnswers).map(value=>text(value).toLocaleLowerCase('en'));
-    return ['paraphrase_context','production_context'].includes(context?.type) && source && rewrite && source.toLocaleLowerCase('en').includes(rewrite.toLocaleLowerCase('en')) && accepted.includes(term);
+    return !used.has(String(context?.contextId ?? '')) && ['paraphrase_context','production_context'].includes(context?.type) && source && rewrite && source.toLocaleLowerCase('en').includes(rewrite.toLocaleLowerCase('en')) && accepted.includes(term);
   });
   if (!candidates.length) throw new Error('No curated context is available for this pathway activity.');
   return shuffle(candidates,`${args.seed}:context`)[0];
@@ -135,6 +136,12 @@ function spellingRebuild(args, definition) {
   const letters=Array.from(term); const spaced=letters.join(' ');
   return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Rebuild the word meaning “${meaning}”.`,markingReference:{acceptedAnswers:[term,spaced]},extra:{tiles:shuffle(letters,`${args.seed}:spelling-tiles`),primaryEvidenceTargetId:args.item.vocabularyId}});
 }
+function spellInContext(args, definition) {
+  const context=blankableContext(args), term=text(args.item.term), rewrite=text(context.targetRewrite);
+  if (!term||!rewrite) throw new Error('Spelling Mastery requires a curated sentence cue.');
+  const source=text(context.text).replace(new RegExp(rewrite.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),'____');
+  return base({definition,occurrence:args.occurrence,contentId:context.contextId,contentSource:'context',prompt:'Complete the sentence by spelling the missing word.',markingReference:{acceptedAnswers:[term]},extra:{sourceText:source,contextId:context.contextId,primaryEvidenceTargetId:args.item.vocabularyId}});
+}
 
 const BUILDERS=Object.freeze({
   type_word_from_definition:typeWordFromDefinition,
@@ -144,7 +151,8 @@ const BUILDERS=Object.freeze({
   precision_match:precisionMatch,
   spelling_choice:spellingChoice,
   spelling_cue_match:spellingCueMatch,
-  spelling_rebuild:spellingRebuild
+  spelling_rebuild:spellingRebuild,
+  spell_in_context:spellInContext
 });
 
 export function buildPathwayActivity({activityType,occurrence,item,contexts=[],unitActivities=[],unitItems=[],unitContexts=[],unitOccurrences=[],mastery={},readinessStage=null,usedContentIds=[],seed=''}={}) {
