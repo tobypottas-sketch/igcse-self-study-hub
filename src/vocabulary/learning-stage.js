@@ -16,6 +16,17 @@ function evidenceValue(value) {
   const number = Number(value);
   return Number.isFinite(number) && number >= 0 ? number : 0;
 }
+function evidenceObject(mastery = {}) {
+  const candidates = [
+    mastery?.strandEvidence,
+    mastery?.strand_evidence,
+    mastery?.contextualEvidence?.strandEvidence,
+    mastery?.contextualEvidence?.strand_evidence,
+    mastery?.contextual_evidence?.strandEvidence,
+    mastery?.contextual_evidence?.strand_evidence
+  ];
+  return candidates.find(value => value && typeof value === 'object' && !Array.isArray(value)) ?? {};
+}
 
 export function learningStageDefinition(id) {
   return LEARNING_STAGE_BY_ID.get(String(id ?? '')) ?? LEARNING_STAGE_BY_ID.get('emerging');
@@ -27,9 +38,7 @@ export function deriveLearningStage(mastery = {}) {
   if (persisted === 'secure') return 'secure';
   if (persisted === 'mastered') return 'mastered';
 
-  const evidence = mastery?.strandEvidence && typeof mastery.strandEvidence === 'object' && !Array.isArray(mastery.strandEvidence)
-    ? mastery.strandEvidence
-    : {};
+  const evidence = evidenceObject(mastery);
   const strongStrands = STRANDS.filter(strand => evidenceValue(evidence[strand]) >= DEVELOPING_EVIDENCE_THRESHOLD);
   const hasHigherOrderEvidence = strongStrands.some(strand => HIGHER_ORDER_STRANDS.has(strand));
   return strongStrands.length >= 2 && hasHigherOrderEvidence ? 'developing' : 'building';
