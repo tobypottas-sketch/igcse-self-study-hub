@@ -5,7 +5,7 @@ import { buildSupportStep } from './scaffolding.js';
 import { completeAttempt, createSession, expireSession, isSessionComplete } from './session.js';
 import { buildTargetPracticeQuestion, buildTimedMixedQuestion, selectEligiblePriorityTargets } from './session-targets.js';
 import { planPathwayQuestion, eligibleTargetsForPathwayStage } from './pathway-planner.js';
-import { buildUnitPathwayStates } from './pathway-view-model.js';
+import { buildUnitPathwayStates, buildWordPathwayStates } from './pathway-view-model.js';
 import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
 import { deriveLearningStage } from './learning-stage.js';
 import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
@@ -114,7 +114,7 @@ function showAllWords() {
   if (!state.content || !state.currentUnitNumber) return;
   const words = state.content.occurrences.slice().sort((a,b) => a.positionInUnit - b.positionInUnit).map(occ => {
     const target = state.content.itemsById[occ.vocabularyId]; const global = state.globalMastery[occ.vocabularyId] ?? freshMastery();
-    return { term:target?.term ?? occ.vocabularyId, status:global.status ?? 'new', learningStage:deriveLearningStage(global), mastery:global, strands:{ meaning:strandLabel(global.strandEvidence?.meaning, global.status), recognition:strandLabel(global.strandEvidence?.recognition, global.status), context:strandLabel(global.strandEvidence?.context, global.status), paraphrasing:strandLabel(global.strandEvidence?.paraphrasing, global.status), production:strandLabel(global.strandEvidence?.production, global.status) } };
+    return { term:target?.term ?? occ.vocabularyId, status:global.status ?? 'new', learningStage:deriveLearningStage(global), mastery:global, pathways:buildWordPathwayStates({ occurrence:occ, unitMastery:state.unitMastery, globalMastery:state.globalMastery }), strands:{ meaning:strandLabel(global.strandEvidence?.meaning, global.status), recognition:strandLabel(global.strandEvidence?.recognition, global.status), context:strandLabel(global.strandEvidence?.context, global.status), paraphrasing:strandLabel(global.strandEvidence?.paraphrasing, global.status), production:strandLabel(global.strandEvidence?.production, global.status) } };
   });
   renderVocabularyWords(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, words }); decoratePreview();
 }
