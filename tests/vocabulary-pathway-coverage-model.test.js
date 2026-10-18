@@ -26,11 +26,11 @@ test('Unit 1 coverage excludes words that cannot traverse every declared rung', 
   assert.equal(coverage.meaning.totalOccurrences,content.occurrences.length);
 });
 
-test('an explicitly withheld required rung makes that pathway unavailable for the unit', () => {
+test('an explicitly withheld incomplete content bank makes that pathway unavailable for the unit', () => {
   const coverage = buildPathwayCoverage({ content });
   assert.equal(coverage.precision_use.available,false);
   assert.deepEqual(coverage.precision_use.occurrenceIds,[]);
-  assert.equal(coverage.precision_use.reason,'required_rung_withheld');
+  assert.equal(coverage.precision_use.reason,'content_bank_incomplete');
   assert.ok(coverage.precision_use.withheldStages.includes('mastery'));
 });
 
