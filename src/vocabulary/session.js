@@ -46,7 +46,7 @@ export function completeAttempt(session, { targetId, evidence = {}, completeTarg
     phase:'question',
     summary:{
       practised:session.summary.practised + (completeTarget ? 1 : 0),
-      strengthened:session.summary.strengthened + (strengthened ? 1 : 0),
+      strengthened:session.summary.strengthened + (completeTarget && strengthened ? 1 : 0),
       secure:session.summary.secure + (movedToSecure ? 1 : 0),
       mastered:session.summary.mastered + (mastered ? 1 : 0),
       needsAnotherLook:session.summary.needsAnotherLook + (needsAnotherLook ? 1 : 0)
