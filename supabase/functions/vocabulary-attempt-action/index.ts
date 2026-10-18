@@ -23,6 +23,7 @@ const ACTIVITY_EVIDENCE: Record<string, { strands:string[]; evidenceStrength:str
   drag_word_sentence:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
   type_missing_word:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
   spell_word:{ strands:['recognition','meaning'], evidenceStrength:'medium', productive:false },
+  spell_in_context:{ strands:['recognition','context'], evidenceStrength:'strong', productive:false },
   choose_word_sentence:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
   context_sentence_match:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
   word_family_choice:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
@@ -124,6 +125,7 @@ function pathwayOperation(questionType: string): string {
   if (['precision_choice','precision_match'].includes(questionType)) return 'precision_discrimination';
   if (['spelling_choice','spelling_cue_match'].includes(questionType)) return 'spelling_recognition';
   if (questionType === 'spelling_rebuild') return 'spelling_manipulation';
+  if (questionType === 'spell_in_context') return 'spelling_context_retrieval';
   if (['rewrite_phrase','rewrite_idea','explain_another_way'].includes(questionType)) return 'independent_production';
   return questionType;
 }
