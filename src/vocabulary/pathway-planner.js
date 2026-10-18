@@ -1,5 +1,6 @@
 import { buildActivity } from './activity-factory.js';
 import { PATHWAY_STAGES, activityTypesForPathwayStage, pathwayDefinition } from './pathway-model.js';
+import { availableActivityTypesForTarget } from './session-targets.js';
 
 const STAGE_IDS = Object.freeze(PATHWAY_STAGES.map(stage => stage.id));
 
@@ -104,7 +105,8 @@ export function planPathwayQuestion({
     : stageId;
   const supportLevel = servedStage === learnerStage ? 'none' : 'light';
   const { item, contexts } = materialForTarget(content,target);
-  let choices = activityTypesForPathwayStage(pathwayId,servedStage);
+  const availableForTarget = new Set(availableActivityTypesForTarget({ content, target, item, contexts }));
+  let choices = activityTypesForPathwayStage(pathwayId,servedStage).filter(type => availableForTarget.has(type));
   const recent = new Set(array(recentActivities));
   const fresh = choices.filter(type => !recent.has(type));
   if (fresh.length) choices = fresh;
