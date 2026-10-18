@@ -11,36 +11,81 @@ function stage(currentStage, completedStages = [], needsPractice = false) {
   return { currentStage, completedStages, needsPractice };
 }
 
-test('unit pathway state uses persisted pathway progress and takes the lowest current stage across words', () => {
+test('unit pathway state aggregates only the declared serviceable cohort', () => {
   const unitMastery = {
     o1:{ contextualEvidence:{ pathwayProgress:{ meaning:stage('recall',['recognise','match','apply']) } } },
-    o2:{ contextualEvidence:{ pathwayProgress:{ meaning:stage('apply',['recognise','match']) } } }
+    o2:{ contextualEvidence:{ pathwayProgress:{ meaning:stage('recognise',[]) } } }
   };
-  const result = buildUnitPathwayStates({ occurrences, unitMastery, globalMastery:{} });
-  assert.equal(result.meaning.currentStage, 'apply');
-  assert.deepEqual(result.meaning.completedStages, ['recognise','match']);
-  assert.equal(result.meaning.mastered, false);
+  const coverageByPathway = {
+    meaning:{ available:true, occurrenceIds:['o1'], totalOccurrences:2 }
+  };
+  const result = buildUnitPathwayStates({ occurrences, unitMastery, globalMastery:{}, coverageByPathway });
+  assert.equal(result.meaning.currentStage, 'recall');
+  assert.deepEqual(result.meaning.completedStages, ['recognise','match','apply']);
+  assert.equal(result.meaning.coverageCount,1);
+  assert.equal(result.meaning.totalCount,2);
+  assert.equal(result.meaning.available,true);
 });
 
-test('pathway is mastered only when every word has completed mastery', () => {
+test('unsupported words do not freeze a pathway but remain visible in its coverage count', () => {
+  const unitMastery = {
+    o1:{ contextualEvidence:{ pathwayProgress:{ context:stage('apply',['recognise','match']) } } },
+    o2:{ contextualEvidence:{ pathwayProgress:{ context:stage('recognise',[]) } } }
+  };
+  const result = buildUnitPathwayStates({
+    occurrences,
+    unitMastery,
+    globalMastery:{},
+    coverageByPathway:{ context:{ available:true, occurrenceIds:['o1'], totalOccurrences:2 } }
+  });
+  assert.equal(result.context.currentStage,'apply');
+  assert.deepEqual(result.context.completedStages,['recognise','match']);
+  assert.equal(result.context.coverageCount,1);
+  assert.equal(result.context.totalCount,2);
+});
+
+test('an intentionally withheld pathway is unavailable instead of presenting a live stuck ladder', () => {
+  const result = buildUnitPathwayStates({
+    occurrences,
+    unitMastery:{},
+    globalMastery:{},
+    coverageByPathway:{ precision_use:{ available:false, occurrenceIds:[], totalOccurrences:2, reason:'mastery_withheld' } }
+  });
+  assert.equal(result.precision_use.available,false);
+  assert.equal(result.precision_use.coverageCount,0);
+  assert.equal(result.precision_use.totalCount,2);
+  assert.equal(result.precision_use.unavailableReason,'mastery_withheld');
+});
+
+test('pathway is mastered only when every serviceable word has completed mastery', () => {
   const complete = ['recognise','match','apply','recall','mastery'];
   const unitMastery = {
     o1:{ contextualEvidence:{ pathwayProgress:{ spelling_recall:stage('mastery',complete) } } },
-    o2:{ contextualEvidence:{ pathwayProgress:{ spelling_recall:stage('mastery',complete) } } }
+    o2:{ contextualEvidence:{ pathwayProgress:{ spelling_recall:stage('recognise',[]) } } }
   };
-  const result = buildUnitPathwayStates({ occurrences, unitMastery, globalMastery:{} });
+  const result = buildUnitPathwayStates({
+    occurrences,
+    unitMastery,
+    globalMastery:{},
+    coverageByPathway:{ spelling_recall:{ available:true, occurrenceIds:['o1'], totalOccurrences:2 } }
+  });
   assert.equal(result.spelling_recall.mastered, true);
   assert.equal(result.spelling_recall.currentStage, 'mastery');
   assert.deepEqual(result.spelling_recall.completedStages, complete);
 });
 
-test('needs-practice propagates if any word in the pathway currently needs support', () => {
+test('needs-practice propagates only from serviceable words in the pathway', () => {
   const unitMastery = {
-    o1:{ contextualEvidence:{ pathwayProgress:{ context:stage('apply',['recognise','match'],true) } } },
-    o2:{ contextualEvidence:{ pathwayProgress:{ context:stage('apply',['recognise','match']) } } }
+    o1:{ contextualEvidence:{ pathwayProgress:{ context:stage('apply',['recognise','match']) } } },
+    o2:{ contextualEvidence:{ pathwayProgress:{ context:stage('recognise',[],true) } } }
   };
-  const result = buildUnitPathwayStates({ occurrences, unitMastery, globalMastery:{} });
-  assert.equal(result.context.needsPractice, true);
+  const result = buildUnitPathwayStates({
+    occurrences,
+    unitMastery,
+    globalMastery:{},
+    coverageByPathway:{ context:{ available:true, occurrenceIds:['o1'], totalOccurrences:2 } }
+  });
+  assert.equal(result.context.needsPractice, false);
 });
 
 test('legacy evidence places returning students conservatively without mutating history', () => {
@@ -65,5 +110,6 @@ test('all six pathway states are returned even with no evidence', () => {
     assert.equal(state.currentStage, 'recognise');
     assert.deepEqual(state.completedStages, []);
     assert.equal(state.mastered, false);
+    assert.equal(state.available,true);
   }
 });
