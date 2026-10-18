@@ -1,6 +1,7 @@
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES, derivePathwayPlacement } from './pathway-model.js';
 import { pathwayMasteryNeedsReview } from './pathway-progress.js';
 import { registeredPathwayCoverage } from './pathway-coverage-store.js';
+import { registeredPathwayJourney } from './pathway-journey-store.js';
 
 const STAGE_IDS = PATHWAY_STAGES.map(stage => stage.id);
 const STAGE_INDEX = Object.freeze(Object.fromEntries(STAGE_IDS.map((id,index) => [id,index])));
@@ -92,9 +93,11 @@ export function buildWordPathwayStates({ occurrence, unitMastery = {}, globalMas
   return Object.fromEntries(VOCABULARY_PATHWAYS.map(pathway => [pathway.id,wordPathwayState({ pathwayId:pathway.id, occurrence, unitMastery, globalMastery })]));
 }
 
-export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, globalMastery = {}, coverageByPathway = null, journeyByPathway = {} } = {}) {
-  const registered = occurrences.length ? registeredPathwayCoverage(occurrenceUnitNumber(occurrences[0])) : null;
+export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, globalMastery = {}, coverageByPathway = null, journeyByPathway = null } = {}) {
+  const unitNumber = occurrences.length ? occurrenceUnitNumber(occurrences[0]) : null;
+  const registered = unitNumber != null ? registeredPathwayCoverage(unitNumber) : null;
   const effectiveCoverage = coverageByPathway ?? registered ?? {};
+  const effectiveJourney = journeyByPathway ?? (unitNumber != null ? registeredPathwayJourney(unitNumber) : {}) ?? {};
   const perOccurrence = occurrences.map(occurrence => ({ occurrence, states:buildWordPathwayStates({ occurrence, unitMastery, globalMastery }) }));
   const result = {};
   for (const pathway of VOCABULARY_PATHWAYS) {
@@ -118,7 +121,7 @@ export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, glo
       continue;
     }
 
-    const journey = journeyState(journeyByPathway?.[pathway.id] ?? null);
+    const journey = journeyState(effectiveJourney?.[pathway.id] ?? null);
     result[pathway.id] = {
       currentStage:journey.currentStage,
       completedStages:journey.completedStages,
