@@ -73,6 +73,41 @@ function unitMasteryFromRow(row: any) {
   };
 }
 
+function globalMasterySnapshot(mastery: any, recentErrorPattern: string | null) {
+  if (!mastery) return null;
+  return {
+    status:mastery.status,
+    strandEvidence:mastery.strandEvidence,
+    recentErrorCount:recentErrorPattern ? 1 : 0,
+    recentErrorPattern,
+    reviewDueAt:mastery.reviewDueAt ?? null,
+    successfulProductions:mastery.successfulProductions,
+    productionContextIds:mastery.productionContextIds,
+    productionActivityTypes:mastery.productionActivityTypes,
+    unscaffoldedProductions:mastery.unscaffoldedProductions,
+    recoveryCount:mastery.recoveryCount,
+    reviewStage:mastery.reviewStage,
+    reviewFailureCount:mastery.reviewFailureCount
+  };
+}
+
+function unitMasterySnapshot(mastery: any, recentErrorPattern: string | null) {
+  if (!mastery) return null;
+  return {
+    status:mastery.status,
+    recentErrorPattern,
+    contextualEvidence:{
+      strandEvidence:mastery.strandEvidence,
+      successfulProductions:mastery.successfulProductions,
+      productionContextIds:mastery.productionContextIds,
+      productionActivityTypes:mastery.productionActivityTypes,
+      unscaffoldedProductions:mastery.unscaffoldedProductions,
+      recentErrorCount:mastery.recentErrorCount,
+      recoveryCount:mastery.recoveryCount
+    }
+  };
+}
+
 function nextErrorPattern(previousPattern: unknown, marked: any, evidence: any): string | null {
   if (!marked.correct) return marked.misconceptionCategory ?? 'retrieval_failure';
   return successClearsRecentError(evidence) ? null : (previousPattern ? String(previousPattern) : null);
@@ -285,19 +320,23 @@ Deno.serve(async (req: Request) => {
 
       if (commitResult.duplicate === true) {
         const [actualGlobalResult, actualUnitResult] = shouldUpdateTargetMastery ? await Promise.all([
-          adminClient.from('vocabulary_global_mastery').select('status, review_due_at, recent_error_pattern').eq('student_id', callerData.user.id).eq('vocabulary_id', occurrence.vocabulary_id).maybeSingle(),
-          adminClient.from('vocabulary_unit_mastery').select('status, recent_error_pattern').eq('student_id', callerData.user.id).eq('occurrence_id', occurrence.occurrence_id).maybeSingle()
+          adminClient.from('vocabulary_global_mastery').select('*').eq('student_id', callerData.user.id).eq('vocabulary_id', occurrence.vocabulary_id).maybeSingle(),
+          adminClient.from('vocabulary_unit_mastery').select('*').eq('student_id', callerData.user.id).eq('occurrence_id', occurrence.occurrence_id).maybeSingle()
         ]) : [{ data:null, error:null }, { data:null, error:null }];
         if (actualGlobalResult.error || actualUnitResult.error) throw new Error('Unable to read saved vocabulary mastery.');
-        const actualGlobal = actualGlobalResult.data;
-        const actualUnit = actualUnitResult.data;
+        const actualGlobalRow = actualGlobalResult.data;
+        const actualUnitRow = actualUnitResult.data;
+        const actualGlobalMastery = actualGlobalRow ? globalMasterySnapshot(globalMasteryFromRow(actualGlobalRow), actualGlobalRow.recent_error_pattern ?? null) : null;
+        const actualUnitMastery = actualUnitRow ? unitMasterySnapshot(unitMasteryFromRow(actualUnitRow), actualUnitRow.recent_error_pattern ?? null) : null;
         return json({
           ok:true, duplicate:true, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory,
           strand, strands:contract.strands, supportLevel, masteryUpdated:shouldUpdateTargetMastery,
-          globalStatus:actualGlobal?.status ?? null, unitStatus:actualUnit?.status ?? null,
-          globalRecentErrorPattern:actualGlobal?.recent_error_pattern ?? null,
-          unitRecentErrorPattern:actualUnit?.recent_error_pattern ?? null,
-          reviewDueAt:actualGlobal?.review_due_at ?? null, recovery:input.recoveredLater && marked.correct
+          globalStatus:actualGlobalMastery?.status ?? null, unitStatus:actualUnitMastery?.status ?? null,
+          globalRecentErrorPattern:actualGlobalMastery?.recentErrorPattern ?? null,
+          unitRecentErrorPattern:actualUnitMastery?.recentErrorPattern ?? null,
+          reviewDueAt:actualGlobalMastery?.reviewDueAt ?? null,
+          globalMastery:actualGlobalMastery, unitMastery:actualUnitMastery,
+          recovery:input.recoveredLater && marked.correct
         });
       }
 
@@ -306,12 +345,17 @@ Deno.serve(async (req: Request) => {
         continue;
       }
 
+      const authoritativeGlobalMastery = shouldUpdateTargetMastery ? globalMasterySnapshot(nextGlobal, globalRecentErrorPattern) : null;
+      const authoritativeUnitMastery = shouldUpdateTargetMastery ? unitMasterySnapshot(nextUnit, unitRecentErrorPattern) : null;
       return json({
         ok:true, duplicate:false, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory,
         strand, strands:contract.strands, supportLevel, masteryUpdated:shouldUpdateTargetMastery,
-        globalStatus:nextGlobal?.status ?? null, unitStatus:nextUnit?.status ?? null,
-        globalRecentErrorPattern, unitRecentErrorPattern,
-        reviewDueAt:nextGlobal?.reviewDueAt ?? null, recovery:input.recoveredLater && marked.correct
+        globalStatus:authoritativeGlobalMastery?.status ?? null, unitStatus:authoritativeUnitMastery?.status ?? null,
+        globalRecentErrorPattern:authoritativeGlobalMastery?.recentErrorPattern ?? null,
+        unitRecentErrorPattern:authoritativeUnitMastery?.recentErrorPattern ?? null,
+        reviewDueAt:authoritativeGlobalMastery?.reviewDueAt ?? null,
+        globalMastery:authoritativeGlobalMastery, unitMastery:authoritativeUnitMastery,
+        recovery:input.recoveredLater && marked.correct
       });
     }
 
