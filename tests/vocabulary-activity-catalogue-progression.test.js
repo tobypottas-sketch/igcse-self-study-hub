@@ -26,10 +26,11 @@ test('live activities declare one authoritative progression contract', () => {
   }
 });
 
-test('catalogue defines exactly the five approved activity families even before every family has a live task', () => {
+test('catalogue defines the five approved activity families with live foundational retrieval tasks', () => {
   assert.deepEqual(ACTIVITY_FAMILIES, FAMILIES);
   for (const family of FAMILIES) assert.ok(activitiesForFamily(family).every(activity => activity.family === family));
-  assert.deepEqual(activitiesForFamily('retrieval'), []);
+  const retrieval = activitiesForFamily('retrieval').map(activity => activity.id);
+  for (const id of ['gap_fill_bank','drag_word_sentence','type_missing_word','spell_word','choose_word_sentence','word_family_choice']) assert.ok(retrieval.includes(id), id);
 });
 
 test('learning-stage helpers include only activities whose earliest stage is reachable', () => {
