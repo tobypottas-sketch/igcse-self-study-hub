@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ACTIVITY_TYPES, activityDefinition } from '../src/vocabulary/activity-catalogue.js';
-import { buildActivity } from '../src/vocabulary/activity-builder.js';
+import { buildActivity } from '../src/vocabulary/activity-factory.js';
 
 const item = {
   vocabularyId:'vocab_significant', term:'significant', partOfSpeech:'adjective',
@@ -10,6 +10,12 @@ const item = {
   wordFamily:['significance','significantly'], collocations:['significant increase','significant difference','significant impact']
 };
 const occurrence = { occurrenceId:'u1_46_significant', vocabularyId:item.vocabularyId, unitNumber:1, unitTitle:'Sports and Free Time', senseId:'significant_1' };
+const unitItems = [
+  item,
+  { vocabularyId:'vocab_essential', term:'essential', partOfSpeech:'adjective', coreMeaning:'completely necessary', senses:[{ senseId:'essential_1', meaning:'completely necessary', acceptedParaphrases:['necessary'] }], wordFamily:['essentially'] },
+  { vocabularyId:'vocab_competitive', term:'competitive', partOfSpeech:'adjective', coreMeaning:'wanting to win', senses:[{ senseId:'competitive_1', meaning:'wanting to win', acceptedParaphrases:['keen to win'] }], wordFamily:['competition','competitively'] },
+  { vocabularyId:'vocab_overwhelming', term:'overwhelming', partOfSpeech:'adjective', coreMeaning:'very strong or difficult to manage', senses:[{ senseId:'overwhelming_1', meaning:'very strong or difficult to manage', acceptedParaphrases:['very powerful'] }], wordFamily:['overwhelm','overwhelmingly'] }
+];
 const contexts = [
   { contextId:'sig_meaning', vocabularyId:item.vocabularyId, occurrenceId:occurrence.occurrenceId, senseId:'significant_1', type:'meaning_context', text:'The programme led to a significant improvement in results.', acceptedAnswers:['important'] },
   { contextId:'sig_para', vocabularyId:item.vocabularyId, occurrenceId:occurrence.occurrenceId, senseId:'significant_1', type:'paraphrase_context', text:'The programme led to an important improvement in results.', targetRewrite:'important', acceptedAnswers:['significant'] },
@@ -38,10 +44,13 @@ const masteryByStage = {
   secure:{ status:'secure', strandEvidence:{ meaning:6, recognition:5, context:5, paraphrasing:5, production:2 } }, mastered:{ status:'mastered', strandEvidence:{ meaning:8, recognition:8, context:8, paraphrasing:8, production:8 } }
 };
 function masteryFor(type) { return masteryByStage[activityDefinition(type).minimumStage]; }
+function build(type, overrides = {}) {
+  return buildActivity({ activityType:type, occurrence, item, contexts, unitActivities, unitItems, unitContexts:contexts, unitOccurrences:[occurrence], mastery:masteryFor(type), seed:'same-seed', ...overrides });
+}
 
 test('builder constructs every approved 0511 activity with catalogue-aligned interaction metadata', () => {
   for (const definition of ACTIVITY_TYPES.filter(candidate => candidate.retired !== true)) {
-    const activity = buildActivity({ activityType:definition.id, occurrence, item, contexts, unitActivities, mastery:masteryFor(definition.id), seed:'same-seed' });
+    const activity = build(definition.id);
     assert.equal(activity.type, definition.id, definition.id); assert.equal(activity.responseMode, definition.responseMode, definition.id);
     assert.equal(activity.skillFamily, definition.skillFamily, definition.id); assert.deepEqual(activity.strands, definition.strands, definition.id);
     assert.equal(activity.evidenceStrength, definition.evidenceStrength, definition.id); assert.ok(activity.activityId, definition.id); assert.ok(activity.prompt, definition.id);
@@ -49,15 +58,15 @@ test('builder constructs every approved 0511 activity with catalogue-aligned int
   }
 });
 test('new learners are not handed blind high-stage retrieval when supported alternatives exist', () => {
-  assert.throws(() => buildActivity({ activityType:'rewrite_phrase', occurrence, item, contexts, unitActivities, mastery:masteryByStage.new, seed:'new-learner' }), /not ready|stage|supported/i);
-  const supported = buildActivity({ activityType:'meaning_match', occurrence, item, contexts, unitActivities, mastery:masteryByStage.new, seed:'new-learner' });
+  assert.throws(() => buildActivity({ activityType:'rewrite_phrase', occurrence, item, contexts, unitActivities, unitItems, mastery:masteryByStage.new, seed:'new-learner' }), /not ready|stage|supported/i);
+  const supported = buildActivity({ activityType:'meaning_match', occurrence, item, contexts, unitActivities, unitItems, mastery:masteryByStage.new, seed:'new-learner' });
   assert.equal(supported.responseMode, 'choice'); assert.ok(supported.options.length >= 2);
 });
 test('phrase and idea work uses the whole curated transformation rather than collapsing to a target synonym', () => {
-  const phrase = buildActivity({ activityType:'build_paraphrase', occurrence, item, contexts, unitActivities, mastery:masteryByStage.building, seed:'phrase' });
+  const phrase = build('build_paraphrase', { mastery:masteryByStage.building, seed:'phrase' });
   assert.ok(phrase.tiles.length >= 2); assert.match(phrase.prompt, /important/i); assert.ok(phrase.markingReference.acceptedAnswers.some(answer => answer.split(/\s+/).length >= 2));
   assert.notEqual(phrase.markingReference.acceptedAnswers[0].toLocaleLowerCase('en'), item.term.toLocaleLowerCase('en'));
-  const idea = buildActivity({ activityType:'same_idea', occurrence, item, contexts, unitActivities, mastery:masteryByStage.building, seed:'idea' });
+  const idea = build('same_idea', { mastery:masteryByStage.building, seed:'idea' });
   const ideaData = unitActivities[1].activityData;
   assert.match(idea.prompt, /programme led to a significant improvement/i);
   assert.equal(idea.markingReference.acceptedAnswers.length, 1);
@@ -69,20 +78,20 @@ test('phrase and idea work uses the whole curated transformation rather than col
   assert.ok(idea.markingReference.acceptedAnswers[0].split(/\s+/).length >= 6);
 });
 test('stable seed produces stable option and tile order', () => {
-  const args = { occurrence, item, contexts, unitActivities, mastery:masteryByStage.building, seed:'stable-seed' };
+  const args = { occurrence, item, contexts, unitActivities, unitItems, mastery:masteryByStage.building, seed:'stable-seed' };
   assert.deepEqual(buildActivity({ ...args, activityType:'same_idea' }).options, buildActivity({ ...args, activityType:'same_idea' }).options);
   assert.deepEqual(buildActivity({ ...args, activityType:'build_paraphrase' }).tiles, buildActivity({ ...args, activityType:'build_paraphrase' }).tiles);
 });
 test('used content IDs are avoided when another compatible curated record exists', () => {
-  const first = buildActivity({ activityType:'phrase_match', occurrence, item, contexts, unitActivities, mastery:masteryByStage.new, seed:'avoid-used' });
-  const second = buildActivity({ activityType:'phrase_match', occurrence, item, contexts, unitActivities, mastery:masteryByStage.new, usedContentIds:[first.contentId], seed:'avoid-used' });
+  const first = build('phrase_match', { mastery:masteryByStage.new, seed:'avoid-used' });
+  const second = build('phrase_match', { mastery:masteryByStage.new, usedContentIds:[first.contentId], seed:'avoid-used' });
   assert.notEqual(second.contentId, first.contentId);
 });
 test('Question ↔ Text activities expose one curated subquestion and a stable variant identifier', () => {
-  const bridge = buildActivity({ activityType:'question_text_bridge', occurrence, item, contexts, unitActivities, mastery:masteryByStage.building, seed:'qt' });
+  const bridge = build('question_text_bridge', { mastery:masteryByStage.building, seed:'qt' });
   assert.equal(bridge.sourceText, unitActivities[2].activityData.sourceText); assert.match(bridge.activityVariantId, /^q\d+$/); assert.equal(bridge.markingReference.acceptedAnswers.length, 1); assert.equal(bridge.options.length, 4);
   assert.ok(bridge.options.every(option => option.endsWith('?')));
-  const evidence = buildActivity({ activityType:'find_evidence', occurrence, item, contexts, unitActivities, mastery:masteryByStage.building, seed:'qt' });
+  const evidence = build('find_evidence', { mastery:masteryByStage.building, seed:'qt' });
   assert.equal(evidence.responseMode, 'evidence'); assert.match(evidence.activityVariantId, /^q\d+$/);
   const selectedIndex = Number(evidence.activityVariantId.slice(1)); const selectedAnswers = unitActivities[2].activityData.questions[selectedIndex].evidenceSpans;
   assert.deepEqual(evidence.markingReference.acceptedAnswers, selectedAnswers); assert.ok(evidence.evidenceOptions.includes(selectedAnswers[0]));
