@@ -18,12 +18,20 @@ const ACTIVITY_EVIDENCE: Record<string, { strands:string[]; evidenceStrength:str
   drag_word_definition:{ strands:['meaning','recognition'], evidenceStrength:'light', productive:false },
   drag_definition_word:{ strands:['meaning','recognition'], evidenceStrength:'light', productive:false },
   which_situation_fits:{ strands:['meaning','context'], evidenceStrength:'medium', productive:false },
+  type_word_from_definition:{ strands:['meaning','recognition'], evidenceStrength:'medium', productive:false },
   gap_fill_bank:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
   drag_word_sentence:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
   type_missing_word:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
   spell_word:{ strands:['recognition','meaning'], evidenceStrength:'medium', productive:false },
   choose_word_sentence:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
+  context_sentence_match:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
   word_family_choice:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
+  word_family_match:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
+  spelling_choice:{ strands:['recognition'], evidenceStrength:'light', productive:false },
+  spelling_cue_match:{ strands:['recognition','meaning'], evidenceStrength:'light', productive:false },
+  spelling_rebuild:{ strands:['recognition'], evidenceStrength:'medium', productive:false },
+  precision_choice:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
+  precision_match:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
   meaning_in_context:{ strands:['context','meaning'], evidenceStrength:'medium', productive:false },
   correct_usage:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
   collocation_builder:{ strands:['recognition','production'], evidenceStrength:'strong', productive:true },
@@ -107,9 +115,15 @@ function authoritativeSupport(input: any) {
 function pathwayOperation(questionType: string): string {
   if (['word_definition_match','drag_word_definition','drag_definition_word'].includes(questionType)) return 'semantic_match';
   if (['gap_fill_bank','drag_word_sentence'].includes(questionType)) return 'supported_context_gap';
+  if (questionType === 'context_sentence_match') return 'context_match';
   if (['definition_to_word','meaning_match'].includes(questionType)) return 'meaning_recognition';
+  if (questionType === 'type_word_from_definition') return 'meaning_retrieval';
   if (['phrase_match','same_idea'].includes(questionType)) return 'paraphrase_recognition';
   if (['build_paraphrase','build_same_idea'].includes(questionType)) return 'paraphrase_build';
+  if (['word_family_choice','word_family_match'].includes(questionType)) return 'word_family_discrimination';
+  if (['precision_choice','precision_match'].includes(questionType)) return 'precision_discrimination';
+  if (['spelling_choice','spelling_cue_match'].includes(questionType)) return 'spelling_recognition';
+  if (questionType === 'spelling_rebuild') return 'spelling_manipulation';
   if (['rewrite_phrase','rewrite_idea','explain_another_way'].includes(questionType)) return 'independent_production';
   return questionType;
 }
@@ -155,7 +169,8 @@ function unitActivityMarking(activity: any, questionType: string, activityVarian
 function itemMarking(item: any, sense: any, questionType: string) {
   const term = String(item?.term ?? '').trim();
   if (!term) throw new Error('Vocabulary term is missing.');
-  if (['definition_to_word','drag_definition_word','spell_word'].includes(questionType)) return { acceptedAnswers:[term], distractors:[] };
+  if (['definition_to_word','drag_definition_word','spell_word','type_word_from_definition','spelling_choice','spelling_cue_match'].includes(questionType)) return { acceptedAnswers:[term], distractors:[] };
+  if (questionType === 'spelling_rebuild') return { acceptedAnswers:[term, Array.from(term).join(' ')], distractors:[] };
   if (['word_definition_match','drag_word_definition'].includes(questionType)) {
     const meanings = [String(sense?.meaning ?? '').trim(), String(item?.core_meaning ?? '').trim(), ...strings(sense?.acceptedParaphrases)].filter(Boolean);
     if (!meanings.length) throw new Error('Vocabulary meaning is missing.');
