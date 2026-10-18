@@ -4,7 +4,8 @@ import { deriveLearningStage } from './learning-stage.js';
 
 const HIDE_TARGET_TYPES = new Set([
   'replace_phrase','produce_paraphrase','use_target','context_gap_fill',
-  'complete_paraphrase','rewrite_phrase','rewrite_idea','improve_vocabulary','explain_another_way','word_family_switch'
+  'complete_paraphrase','rewrite_phrase','rewrite_idea','improve_vocabulary','explain_another_way','word_family_switch',
+  'definition_to_word','drag_definition_word','gap_fill_bank','drag_word_sentence','type_missing_word','spell_word','choose_word_sentence','word_family_choice'
 ]);
 
 function statusOf(row) { return row?.status ?? 'new'; }
@@ -96,8 +97,24 @@ function supportMessage(support) {
   if (support.kind === 'partial_text' && support.clue) return `Hint: start with ${support.clue}`;
   if (support.kind === 'partial_build') return 'One part is fixed for you. Build the rest of the answer.';
   if (support.kind === 'narrow_evidence') return 'Look again at the text. The evidence has been narrowed down.';
+  if (support.kind === 'narrow_match' || support.kind === 'narrow_drag_gap') return 'Try again with two choices.';
   if (support.kind === 'narrow_choices') return '';
   return 'Use the extra support and try once more.';
+}
+
+function primaryPair(question) {
+  const pairs = Array.isArray(question?.pairs) ? question.pairs : [];
+  return pairs.find(pair => pair?.vocabularyId === question?.primaryEvidenceTargetId) ?? pairs[0] ?? null;
+}
+function matchOptions(question, support) {
+  if (support?.kind === 'narrow_match') return support.options ?? [];
+  const pairs = Array.isArray(question?.pairs) ? question.pairs : [];
+  return question?.type === 'drag_definition_word'
+    ? pairs.map(pair => pair?.term).filter(Boolean)
+    : pairs.map(pair => pair?.definition).filter(Boolean);
+}
+function renderSelectOptions(options) {
+  return `<option value="">Choose…</option>${(options ?? []).map(option => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`).join('')}`;
 }
 
 function renderAnswerControl(question, feedback, retry, support) {
@@ -107,6 +124,24 @@ function renderAnswerControl(question, feedback, retry, support) {
     const source = support?.kind === 'narrow_choices' ? support.options : question.options;
     const options = (source ?? []).map(option => `<button type="button" class="vocab-choice" data-choice-answer="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join('');
     return `<fieldset class="vocab-choice-fieldset${retry ? ' is-retry' : ''}"><legend>${retry ? 'Choose from these two' : 'Choose your answer'}</legend><div class="vocab-choice-grid">${options}</div></fieldset>`;
+  }
+  if (responseMode === 'matching' || responseMode === 'drag_match') {
+    const target = primaryPair(question);
+    const targetText = question?.type === 'drag_definition_word' ? target?.definition : target?.term;
+    const options = matchOptions(question, support);
+    const dragItems = responseMode === 'drag_match'
+      ? `<div class="vocab-drag-bank" aria-label="Draggable choices">${options.map(option => `<button type="button" class="vocab-drag-token" draggable="true" data-drag-value="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join('')}</div><div class="vocab-drop-zone" data-drop-target data-match-target="${escapeHtml(question?.primaryEvidenceTargetId ?? '')}" tabindex="0" aria-label="Drop your answer here">Drop answer here</div>`
+      : '';
+    const selectAttr = responseMode === 'drag_match' ? ' data-drag-fallback' : ' data-match-select';
+    return `<fieldset class="vocab-match-fieldset${retry ? ' is-retry' : ''}" data-match-target="${escapeHtml(question?.primaryEvidenceTargetId ?? '')}"><legend>${retry ? 'Try the match again' : 'Make the match'}</legend><p class="vocab-match-target">${escapeHtml(targetText ?? '')}</p>${dragItems}<label class="vocab-accessible-fallback">${responseMode === 'drag_match' ? 'Or choose an answer' : 'Choose the matching answer'}<select name="answer" required${selectAttr}>${renderSelectOptions(options)}</select></label><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Check supported answer' : 'Check answer'}</button></fieldset>`;
+  }
+  if (responseMode === 'drag_gap') {
+    const options = support?.kind === 'narrow_drag_gap' ? support.options : (question.draggables ?? question.wordBank ?? []);
+    const tokens = (options ?? []).map(option => `<button type="button" class="vocab-drag-token" draggable="true" data-drag-gap-value="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join('');
+    return `<fieldset class="vocab-drag-gap${retry ? ' is-retry' : ''}"><legend>${retry ? 'Try the gap again' : 'Complete the gap'}</legend><div class="vocab-drag-bank">${tokens}</div><div class="vocab-drop-zone" data-gap-drop tabindex="0" aria-label="Drop the missing word here">Drop word here</div><label class="vocab-accessible-fallback">Or choose the missing word<select name="answer" required data-drag-gap-fallback>${renderSelectOptions(options)}</select></label><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Check supported answer' : 'Check answer'}</button></fieldset>`;
+  }
+  if (responseMode === 'spelling') {
+    return `<div class="vocab-spelling-pattern" aria-label="Spelling clue">${escapeHtml(question?.spellingPattern ?? '')}</div><label>${retry ? 'Try the spelling again' : 'Type the word'}<input name="answer" required autocomplete="off" maxlength="120" spellcheck="false" aria-describedby="vocab-support-hint"></label><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Check supported answer' : 'Check answer'}</button>`;
   }
   if (responseMode === 'tiles') {
     const fixed = support?.kind === 'partial_build' ? (support.fixedChunks ?? []) : [];
