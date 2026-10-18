@@ -10,7 +10,7 @@ import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shar
 const root = document.getElementById('vocabularyApp');
 const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
-  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:'adaptive', recentActivities:new Map(), usedContentIds:new Map(),
+  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:null, recentActivities:new Map(), usedContentIds:new Map(),
   recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null, timedPreviousActivityType:null,
   persistenceChain:Promise.resolve(), persistenceBlocked:false, finishPending:false
 };
@@ -60,38 +60,51 @@ function buildUnits(dashboard) {
   return [...grouped.values()].sort((a,b) => a.unitNumber - b.unitNumber).map(group => ({ unitNumber:group.unitNumber, unitTitle:group.unitTitle, ...buildUnitProgress({ occurrences:group.occurrences, unitMastery:unit, globalMastery:global }) }));
 }
 async function showHome() {
-  clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null;
+  clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null; state.content = null; state.practiceFocus = null;
   state.dashboard = await loadVocabularyDashboard(state.client, { preview:state.preview }); state.units = buildUnits(state.dashboard);
   renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units }); decoratePreview();
 }
 function renderCurrentUnit() {
-  if (!state.content || !state.currentUnitNumber) return;
-  const progress = buildUnitProgress({ occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
-  renderVocabularyUnit(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, progress, practiceFocus:state.practiceFocus }); decoratePreview();
+  if (!state.currentUnitNumber) return;
+  const cachedOccurrences = (state.dashboard?.occurrences ?? []).filter(row => Number(row.unit_number) === Number(state.currentUnitNumber));
+  const occurrences = state.content?.occurrences ?? cachedOccurrences;
+  const summary = state.units.find(unit => Number(unit.unitNumber) === Number(state.currentUnitNumber));
+  const progress = occurrences.length
+    ? buildUnitProgress({ occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery })
+    : { mastered:summary?.mastered ?? 0, total:summary?.total ?? 50, needsAnotherLook:summary?.needsAnotherLook ?? 0, reviewDue:summary?.reviewDue ?? 0 };
+  renderVocabularyUnit(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, progress, practiceFocus:state.practiceFocus, contentReady:Boolean(state.content) }); decoratePreview();
 }
 async function openUnit(unitNumber) {
   clearClock();
   const preloadedOccurrences = (state.dashboard?.occurrences ?? []).filter(row => Number(row.unit_number) === Number(unitNumber));
   const loadOptions = preloadedOccurrences.length ? { occurrences:preloadedOccurrences } : {};
-  const contentPromise = loadVocabularyUnit(state.client, unitNumber, loadOptions);
   const occurrenceIds = new Set(preloadedOccurrences.map(row => row.occurrence_id));
   const vocabularyIds = new Set(preloadedOccurrences.map(row => row.vocabulary_id));
   const dashboardMastery = preloadedOccurrences.length && state.dashboard
     ? { global:state.dashboard.global.filter(row => vocabularyIds.has(row.vocabulary_id)), unit:state.dashboard.unit.filter(row => occurrenceIds.has(row.occurrence_id)) }
     : null;
+  state.currentUnitNumber = unitNumber;
+  state.currentUnitTitle = preloadedOccurrences[0]?.unit_title ?? state.units.find(unit => Number(unit.unitNumber) === Number(unitNumber))?.unitTitle ?? `Unit ${unitNumber}`;
+  state.content = null;
+  state.practiceFocus = null;
+  state.globalMastery = mapBy(dashboardMastery?.global ?? [], 'vocabulary_id', mastery);
+  state.unitMastery = mapBy(dashboardMastery?.unit ?? [], 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
+  state.persistenceBlocked = false; state.finishPending = false;
+  renderCurrentUnit();
+  const contentPromise = loadVocabularyUnit(state.client, unitNumber, loadOptions);
   const masteryPromise = state.preview
     ? Promise.resolve({ global:[], unit:[] })
     : dashboardMastery
       ? Promise.resolve(dashboardMastery)
       : loadStudentMastery(state.client, unitNumber, loadOptions);
   const [contentRaw, masteryRaw] = await Promise.all([contentPromise, masteryPromise]);
+  if (Number(state.currentUnitNumber) !== Number(unitNumber)) return;
   const occurrences = contentRaw.occurrences.map(occurrence); const items = contentRaw.items.map(item); const contexts = contentRaw.contexts.map(context); const activities = (contentRaw.activities ?? []).map(unitActivity);
-  state.currentUnitNumber = unitNumber;
   state.content = { occurrences, items, contexts, activities, itemsById:mapBy(items,'vocabularyId'), contextsByOccurrence:{}, activitiesById:mapBy(activities,'activityContentId') };
   for (const ctx of contexts) (state.content.contextsByOccurrence[ctx.occurrenceId] ??= []).push(ctx);
   state.globalMastery = mapBy(masteryRaw.global, 'vocabulary_id', mastery); state.unitMastery = mapBy(masteryRaw.unit, 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
-  state.persistenceBlocked = false; state.finishPending = false;
-  state.currentUnitTitle = occurrences[0]?.unitTitle ?? state.units.find(unit => unit.unitNumber === unitNumber)?.unitTitle ?? `Unit ${unitNumber}`; state.practiceFocus = 'adaptive'; renderCurrentUnit();
+  state.currentUnitTitle = occurrences[0]?.unitTitle ?? state.currentUnitTitle;
+  renderCurrentUnit();
 }
 function strandLabel(value, status) { const score = Number(value ?? 0); if (status === 'mastered' && score >= 3) return 'Secure'; if (score >= 6) return 'Secure'; if (score >= 3) return 'Developing'; return 'Keep practising'; }
 function showAllWords() {
@@ -106,7 +119,9 @@ function rankedTargets(limit, practiceMode = state.practiceFocus) {
   return selectEligiblePriorityTargets({ content:state.content, masteryByVocabularyId:state.globalMastery, unitMastery:state.unitMastery, practiceMode, now:new Date(), limit });
 }
 function startSession(mode, durationMinutes = null) {
+  if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   const timed = mode === 'timed';
+  if (!timed && !state.practiceFocus) throw new Error('Choose a 0511 skill before starting.');
   const selected = rankedTargets(timed ? Math.max(10, state.content.occurrences.length) : 10, timed ? 'adaptive' : state.practiceFocus); if (!selected.length) throw new Error('No suitable curated activity is available for this practice mode yet.');
   state.session = createSession({ unitNumber:state.currentUnitNumber, mode, durationMinutes, targetIds:selected.map(row => row.occurrenceId), practiceMode:timed ? 'adaptive' : state.practiceFocus, now:new Date() });
   state.queue = [...selected]; state.current = null; state.recentActivities = new Map(); state.usedContentIds = new Map(); state.recoveryNeeded = new Set(); state.timedPreviousActivityType = null; state.finishPending = false; if (timed) startClock();
@@ -244,7 +259,7 @@ root?.addEventListener('click', event => {
   const target = event.target?.closest?.('[data-action]'); const action = target?.dataset?.action; if (!action) return;
   if (action === 'open-unit') openUnit(Number(target.dataset.unit)).catch(error => renderVocabularyError(root, error.message));
   else if (action === 'back-units') showHome().catch(error => renderVocabularyError(root, error.message)); else if (action === 'view-all-words') showAllWords();
-  else if (action === 'set-practice-focus') { state.practiceFocus = target.dataset.practiceFocus || 'adaptive'; renderCurrentUnit(); }
+  else if (action === 'set-practice-focus') { state.practiceFocus = target.dataset.practiceFocus || null; renderCurrentUnit(); }
   else if (action === 'start-adaptive') { try { startSession('adaptive'); } catch (error) { renderVocabularyError(root, error.message); } }
   else if (action === 'start-timed') { try { startSession('timed', Number(target.dataset.minutes)); } catch (error) { renderVocabularyError(root, error.message); } }
   else if (action === 'clear-tile-answer') {
