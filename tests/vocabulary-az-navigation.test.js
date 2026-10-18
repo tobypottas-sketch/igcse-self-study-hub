@@ -37,8 +37,8 @@ test('A-Z navigation stays persistently vertical and comfortably spaced on deskt
 
 test('desktop Back to top clears the fixed A-Z rail while mobile keeps the compact edge position', () => {
   const css = fs.readFileSync(new URL('../vocabulary-word-list-nav.css', import.meta.url), 'utf8');
-  assert.match(css, /@media\(min-width:761px\)\{[^}]*[\s\S]*?\.vocab-back-to-top\{[^}]*right:82px/s);
-  assert.match(css, /@media\(max-width:760px\)\)\{[\s\S]*?\.vocab-back-to-top\{[^}]*right:14px/s);
+  assert.match(css, /@media\(min-width:761px\)\{[\s\S]*?\.vocab-back-to-top\{[^}]*right:82px/s);
+  assert.match(css, /@media\(max-width:760px\)\{[\s\S]*?\.vocab-back-to-top\{[^}]*right:14px/s);
 });
 
 test('vocabulary page loads the word-list navigation assets', () => {
