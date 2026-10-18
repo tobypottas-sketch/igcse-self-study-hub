@@ -11,7 +11,17 @@ import {
 
 const EXPECTED_ACTIVITIES = [
   'meaning_match',
+  'definition_to_word',
+  'word_definition_match',
+  'drag_word_definition',
+  'drag_definition_word',
   'which_situation_fits',
+  'gap_fill_bank',
+  'drag_word_sentence',
+  'type_missing_word',
+  'spell_word',
+  'choose_word_sentence',
+  'word_family_choice',
   'meaning_in_context',
   'correct_usage',
   'collocation_builder',
@@ -40,14 +50,14 @@ const EXPECTED_MODES = [
   'adaptive'
 ];
 
-const VALID_RESPONSE_MODES = new Set(['choice', 'tiles', 'evidence', 'text']);
+const VALID_RESPONSE_MODES = new Set(['choice', 'matching', 'drag_match', 'drag_gap', 'spelling', 'tiles', 'evidence', 'text']);
 const VALID_STAGES = new Set(['new', 'building', 'secure', 'mastered']);
 const VALID_STRENGTHS = new Set(['light', 'medium', 'strong', 'very_strong']);
 const VALID_STRANDS = new Set(['meaning', 'recognition', 'context', 'paraphrasing', 'production']);
 
-test('catalogue exposes exactly the 18 approved 0511 language operations', () => {
+test('catalogue exposes exactly the approved 0511 vocabulary learning operations', () => {
   assert.deepEqual(ACTIVITY_TYPES.map(activity => activity.id), EXPECTED_ACTIVITIES);
-  assert.equal(new Set(ACTIVITY_TYPES.map(activity => activity.id)).size, 18);
+  assert.equal(new Set(ACTIVITY_TYPES.map(activity => activity.id)).size, EXPECTED_ACTIVITIES.length);
 });
 
 test('catalogue exposes exactly the seven approved student practice modes', () => {
@@ -84,9 +94,19 @@ test('each focused mode returns only activities belonging to that mode and adapt
 test('stage filtering respects minimum readiness while keeping supported work available', () => {
   const fresh = activitiesForStage('new').map(activity => activity.id);
   assert.ok(fresh.includes('meaning_match'));
+  assert.ok(fresh.includes('definition_to_word'));
+  assert.ok(fresh.includes('word_definition_match'));
+  assert.ok(fresh.includes('drag_word_definition'));
+  assert.ok(fresh.includes('drag_definition_word'));
   assert.ok(fresh.includes('phrase_match'));
   assert.equal(fresh.includes('rewrite_idea'), false);
   assert.equal(fresh.includes('explain_another_way'), false);
+
+  const building = activitiesForStage('building').map(activity => activity.id);
+  assert.ok(building.includes('gap_fill_bank'));
+  assert.ok(building.includes('drag_word_sentence'));
+  assert.ok(building.includes('type_missing_word'));
+  assert.ok(building.includes('spell_word'));
 
   const secure = activitiesForStage('secure').map(activity => activity.id);
   assert.ok(secure.includes('rewrite_phrase'));
