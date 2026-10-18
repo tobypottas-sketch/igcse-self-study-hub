@@ -301,6 +301,7 @@ Deno.serve(async (req: Request) => {
             : `${evidenceContentId}:${input.questionType}:${input.activityVariantId ?? ''}`;
           nextPathwayProgress = applyPathwayAttempt(previousPathway, {
             stageId:input.pathwayStage,
+            servedStageId:input.servedPathwayStage,
             correct:marked.correct,
             firstAttempt:input.firstAttempt,
             retryUsed:input.retryUsed,
