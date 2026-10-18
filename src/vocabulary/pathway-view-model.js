@@ -51,8 +51,9 @@ function stagesBefore(stageId) {
   const index = STAGE_INDEX[stageId] ?? 0;
   return STAGE_IDS.slice(0,index);
 }
+function occurrenceId(occurrence = {}) { return occurrence.occurrenceId ?? occurrence.occurrence_id; }
 function wordPathwayState({ pathwayId, occurrence, unitMastery, globalMastery }) {
-  const unit = unitRowFor(unitMastery, occurrence.occurrenceId ?? occurrence.occurrence_id);
+  const unit = unitRowFor(unitMastery, occurrenceId(occurrence));
   const global = globalRowFor(globalMastery, occurrence.vocabularyId ?? occurrence.vocabulary_id);
   const persisted = persistedPathway(unit,pathwayId);
   if (persisted) {
@@ -75,15 +76,29 @@ export function buildWordPathwayStates({ occurrence, unitMastery = {}, globalMas
   return Object.fromEntries(VOCABULARY_PATHWAYS.map(pathway => [pathway.id,wordPathwayState({ pathwayId:pathway.id, occurrence, unitMastery, globalMastery })]));
 }
 
-export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, globalMastery = {} } = {}) {
-  const perWord = occurrences.map(occurrence => buildWordPathwayStates({ occurrence, unitMastery, globalMastery }));
+export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, globalMastery = {}, coverageByPathway = {} } = {}) {
+  const perOccurrence = occurrences.map(occurrence => ({ occurrence, states:buildWordPathwayStates({ occurrence, unitMastery, globalMastery }) }));
   const result = {};
   for (const pathway of VOCABULARY_PATHWAYS) {
-    const words = perWord.map(states => states[pathway.id]);
-    if (!words.length) {
-      result[pathway.id] = { currentStage:'recognise', completedStages:[], needsPractice:false, mastered:false };
+    const coverage = coverageByPathway?.[pathway.id] ?? null;
+    const totalCount = Number.isFinite(Number(coverage?.totalOccurrences)) ? Number(coverage.totalOccurrences) : occurrences.length;
+    const available = coverage?.available !== false;
+    const allowedIds = coverage && Array.isArray(coverage.occurrenceIds) ? new Set(coverage.occurrenceIds.map(String)) : null;
+    const serviceable = allowedIds
+      ? perOccurrence.filter(entry => allowedIds.has(String(occurrenceId(entry.occurrence))))
+      : perOccurrence;
+    const words = serviceable.map(entry => entry.states[pathway.id]);
+    const coverageCount = words.length;
+
+    if (!available || !words.length) {
+      result[pathway.id] = {
+        currentStage:'recognise', completedStages:[], needsPractice:false, mastered:false,
+        available:false, coverageCount, totalCount,
+        unavailableReason:coverage?.reason ?? (words.length ? null : 'no_serviceable_targets')
+      };
       continue;
     }
+
     const mastered = words.every(word => word.mastered);
     const lowestIndex = mastered ? STAGE_INDEX.mastery : Math.min(...words.map(word => STAGE_INDEX[word.currentStage] ?? 0));
     const currentStage = STAGE_IDS[lowestIndex] ?? 'recognise';
@@ -92,7 +107,11 @@ export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, glo
       currentStage,
       completedStages,
       needsPractice:words.some(word => word.needsPractice),
-      mastered
+      mastered,
+      available:true,
+      coverageCount,
+      totalCount,
+      unavailableReason:null
     };
   }
   return result;
