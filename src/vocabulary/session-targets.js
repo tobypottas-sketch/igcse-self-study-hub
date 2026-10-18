@@ -1,9 +1,20 @@
 import { planNextActivity } from './adaptive-planner.js';
 import { buildActivity } from './activity-builder.js';
+import { activitiesForStage } from './activity-catalogue.js';
 import { selectPriorityTargets } from './selector.js';
 import { isSpotMeaningChangeReady } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
 function array(value) { return Array.isArray(value) ? value : []; }
+function hashSeed(seed) {
+  let hash = 2166136261;
+  for (const char of String(seed ?? '')) { hash ^= char.charCodeAt(0); hash = Math.imul(hash, 16777619) >>> 0; }
+  return hash >>> 0;
+}
+function stablePick(values, seed) {
+  const choices = array(values);
+  if (!choices.length) return null;
+  return choices[hashSeed(seed) % choices.length];
+}
 
 function reviewIsDue(mastery, now = new Date()) {
   if (!mastery?.reviewDueAt) return false;
@@ -64,6 +75,52 @@ export function buildTargetPracticeQuestion({
     mastery,
     readinessStage:plan.readinessStage,
     usedContentIds:avoidContentIds,
+    seed
+  });
+  return { item, contexts, availableContent, plan, question };
+}
+
+export function buildTimedMixedQuestion({
+  content,
+  target,
+  mastery = {},
+  recentActivities = [],
+  supportState = null,
+  reviewDue = null,
+  usedContentIds = [],
+  previousActivityType = null,
+  seed = ''
+} = {}) {
+  if (supportState?.recycle || supportState?.struggling) {
+    return buildTargetPracticeQuestion({
+      content, target, mastery, practiceMode:'adaptive', recentActivities, supportState,
+      reviewDue, usedContentIds, seed
+    });
+  }
+
+  const item = content?.itemsById?.[target?.vocabularyId] ?? array(content?.items).find(row => row?.vocabularyId === target?.vocabularyId);
+  if (!item) throw new Error('Vocabulary item is missing.');
+  const contexts = content?.contextsByOccurrence?.[target?.occurrenceId] ?? array(content?.contexts).filter(row => row?.occurrenceId === target?.occurrenceId);
+  const availableContent = availableActivityTypesForTarget({ content, target, item, contexts });
+  const stage = ['new','building','secure','mastered'].includes(mastery?.status) ? mastery.status : 'new';
+  const stageEligible = new Set(activitiesForStage(stage).map(activity => activity.id));
+  let choices = availableContent.filter(type => stageEligible.has(type));
+  if (!choices.length) throw new Error('No suitable curated activity is available for this timed target.');
+  if (previousActivityType && choices.length > 1) choices = choices.filter(type => type !== previousActivityType);
+  const activityType = stablePick(choices, `${seed}:${target?.occurrenceId ?? ''}:${stage}`);
+  const plan = { activityType, readinessStage:stage, supportLevel:'none', reason:'Timed mixed activity' };
+  const question = buildActivity({
+    activityType,
+    occurrence:target,
+    item,
+    contexts,
+    unitActivities:array(content?.activities),
+    unitItems:array(content?.items),
+    unitContexts:array(content?.contexts),
+    unitOccurrences:array(content?.occurrences),
+    mastery,
+    readinessStage:stage,
+    usedContentIds:array(usedContentIds),
     seed
   });
   return { item, contexts, availableContent, plan, question };
