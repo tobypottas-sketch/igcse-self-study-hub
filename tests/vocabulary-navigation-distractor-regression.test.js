@@ -69,7 +69,8 @@ test('openUnit passes dashboard occurrences into both unit loaders', () => {
   const source = fs.readFileSync(new URL('../src/vocabulary/app.js', import.meta.url), 'utf8');
   const helper = source.match(/async function openUnit\(unitNumber\) \{([\s\S]*?)\n\}/);
   assert.ok(helper);
-  assert.match(helper[1], /state\.dashboard\.occurrences/);
-  assert.match(helper[1], /loadVocabularyUnit\(state\.client, unitNumber, \{ occurrences:/);
-  assert.match(helper[1], /loadStudentMastery\(state\.client, unitNumber, \{ occurrences:/);
+  assert.match(helper[1], /state\.dashboard\?\.occurrences/);
+  assert.match(helper[1], /const loadOptions = preloadedOccurrences\.length \? \{ occurrences:preloadedOccurrences \} : \{\}/);
+  assert.match(helper[1], /loadVocabularyUnit\(state\.client, unitNumber, loadOptions\)/);
+  assert.match(helper[1], /loadStudentMastery\(state\.client, unitNumber, loadOptions\)/);
 });
