@@ -28,6 +28,11 @@ const UNIT_ACTIVITY_QUESTION_TYPES = Object.freeze({
   question_text:new Set(['question_text_bridge','find_evidence']),
   writing_set:new Set(['word_family_switch','improve_vocabulary'])
 });
+const CONTEXT_QUESTION_TYPES = Object.freeze({
+  meaning_context:new Set(['meaning_match','meaning_in_context']),
+  paraphrase_context:new Set(['meaning_in_context','which_situation_fits']),
+  production_context:new Set(['which_situation_fits'])
+});
 
 function id(value, label) {
   const text = String(value ?? '').trim();
@@ -81,6 +86,12 @@ export function validateVocabularyAttempt(value = {}) {
 export function assertUnitActivityQuestionMatchesContentType(contentType, questionType) {
   const allowed = UNIT_ACTIVITY_QUESTION_TYPES[String(contentType ?? '')];
   if (!allowed?.has(String(questionType ?? ''))) throw new Error('Vocabulary unit activity content type does not match question type.');
+  return true;
+}
+
+export function assertContextQuestionMatchesContextType(contextType, questionType) {
+  const allowed = CONTEXT_QUESTION_TYPES[String(contextType ?? '')];
+  if (!allowed?.has(String(questionType ?? ''))) throw new Error('Vocabulary context type does not match question type.');
   return true;
 }
 
