@@ -46,9 +46,9 @@ test('fixed-pathway planner does not hard-code every rung to building readiness'
   assert.doesNotMatch(source, /readinessStage\s*:\s*['"]building['"]/);
 });
 
-test('Precision & Use Mastery maps only to a precision/writing-vocabulary skill', () => {
+test('Precision & Use Mastery never borrows a non-precision skill', () => {
   const masteryTypes = PATHWAY_ACTIVITY_MAP.precision_use.mastery;
-  assert.ok(masteryTypes.length > 0);
+  assert.ok(!masteryTypes.includes('explain_another_way'), 'communication-repair/paraphrase work must not count as Precision mastery');
   for (const type of masteryTypes) {
     const definition = activityDefinition(type);
     assert.ok(definition, `missing catalogue definition for ${type}`);
