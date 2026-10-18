@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  ACTIVITY_FAMILIES,
   ACTIVITY_TYPES,
   activitiesForFamily,
   activitiesForLearningStage,
@@ -25,10 +26,10 @@ test('live activities declare one authoritative progression contract', () => {
   }
 });
 
-test('catalogue exposes exactly the five approved activity families', () => {
-  const families = [...new Set(ACTIVITY_TYPES.filter(candidate => isActivityLive(candidate.id)).map(activity => activity.family))].sort();
-  assert.deepEqual(families, [...FAMILIES].sort());
+test('catalogue defines exactly the five approved activity families even before every family has a live task', () => {
+  assert.deepEqual(ACTIVITY_FAMILIES, FAMILIES);
   for (const family of FAMILIES) assert.ok(activitiesForFamily(family).every(activity => activity.family === family));
+  assert.deepEqual(activitiesForFamily('retrieval'), []);
 });
 
 test('learning-stage helpers include only activities whose earliest stage is reachable', () => {
