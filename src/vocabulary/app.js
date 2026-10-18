@@ -151,11 +151,13 @@ function persistVocabularyAttempt(current, rawAnswer, flags, localResult) {
     if (state.persistenceBlocked) return;
     try {
       const result = await submitVocabularyAttempt(state.client, payload); if (result.correct !== localResult.correct) throw new Error('Vocabulary marking mismatch. Please reload before continuing.');
-      if (result.globalStatus) {
+      if (result.globalMastery) state.globalMastery[current.target.vocabularyId] = result.globalMastery;
+      else if (result.globalStatus) {
         const currentGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery();
         state.globalMastery[current.target.vocabularyId] = { ...currentGlobal, status:result.globalStatus, reviewDueAt:result.reviewDueAt, recentErrorCount:result.globalRecentErrorPattern ? 1 : 0, recentErrorPattern:result.globalRecentErrorPattern ?? null };
       }
-      if (result.unitStatus) state.unitMastery[current.target.occurrenceId] = { ...state.unitMastery[current.target.occurrenceId], status:result.unitStatus, recentErrorPattern:result.unitRecentErrorPattern ?? null };
+      if (result.unitMastery) state.unitMastery[current.target.occurrenceId] = result.unitMastery;
+      else if (result.unitStatus) state.unitMastery[current.target.occurrenceId] = { ...state.unitMastery[current.target.occurrenceId], status:result.unitStatus, recentErrorPattern:result.unitRecentErrorPattern ?? null };
     } catch (error) {
       state.persistenceBlocked = true;
       showSyncWarning(error);
