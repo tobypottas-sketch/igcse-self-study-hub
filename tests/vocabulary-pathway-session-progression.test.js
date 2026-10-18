@@ -2,10 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { buildUnitPathwayStates } from '../src/vocabulary/pathway-view-model.js';
-import { renderVocabularyQuestion } from '../src/vocabulary/views.js';
 
 const PATHWAY_IDS = ['meaning','context','word_families','paraphrasing','precision_use','spelling_recall'];
-function root() { return { innerHTML:'' }; }
 function coverageFor(pathwayId, ids) {
   return Object.fromEntries(PATHWAY_IDS.map(id => [id, {
     available:id === pathwayId,
@@ -13,19 +11,19 @@ function coverageFor(pathwayId, ids) {
     totalOccurrences:ids.length
   }]));
 }
+const occurrences = [
+  { occurrenceId:'u1-a', vocabularyId:'a', unitNumber:1 },
+  { occurrenceId:'u1-b', vocabularyId:'b', unitNumber:1 }
+];
+const weakWordMastery = {
+  'u1-a':{ contextualEvidence:{ pathwayProgress:{ meaning:{ stages:{ recognise:{ completed:false } } } } } },
+  'u1-b':{ contextualEvidence:{ pathwayProgress:{ meaning:{ completedStages:['recognise'], stages:{ recognise:{ completed:true }, match:{ completed:false } } } } } }
+};
 
 test('unit pathway stage follows the persistent journey, not the weakest individual word', () => {
-  const occurrences = [
-    { occurrenceId:'u1-a', vocabularyId:'a', unitNumber:1 },
-    { occurrenceId:'u1-b', vocabularyId:'b', unitNumber:1 }
-  ];
-  const unitMastery = {
-    'u1-a':{ contextualEvidence:{ pathwayProgress:{ meaning:{ stages:{ recognise:{ completed:false } } } } } },
-    'u1-b':{ contextualEvidence:{ pathwayProgress:{ meaning:{ completedStages:['recognise'], stages:{ recognise:{ completed:true }, match:{ completed:false } } } } }
-  };
   const states = buildUnitPathwayStates({
     occurrences,
-    unitMastery,
+    unitMastery:weakWordMastery,
     globalMastery:{},
     coverageByPathway:coverageFor('meaning',['u1-a','u1-b']),
     journeyByPathway:{ meaning:{ currentStage:'match', completedStages:['recognise'], stageAttempts:0, stageCleanSuccesses:0 } }
@@ -34,42 +32,47 @@ test('unit pathway stage follows the persistent journey, not the weakest individ
   assert.deepEqual(states.meaning.completedStages,['recognise']);
 });
 
-test('pathway question shows both stage progress and question-set progress', () => {
-  const target = root();
-  renderVocabularyQuestion(target, {
-    unitNumber:1,
-    unitTitle:'Sports and Free Time',
-    question:{ type:'meaning_match', prompt:'What does leisure mean?', options:['free time','work'], responseMode:'choice' },
-    term:'leisure',
-    sessionLabel:'0 / 10 activities',
-    pathwayId:'meaning',
-    pathwayStage:'recognise',
-    setProgress:{ current:1, total:10 }
+test('registered unit journey is used by normal app calls that do not pass journey explicitly', async () => {
+  const url = new URL('../src/vocabulary/pathway-journey-store.js', import.meta.url);
+  assert.equal(fs.existsSync(url), true, 'pathway journey store should exist');
+  const { registerPathwayJourney, clearPathwayJourney } = await import(url);
+  registerPathwayJourney(1,[{ pathway_id:'meaning', current_stage:'apply', completed_stages:['recognise','match'], stage_attempts:0, stage_clean_successes:0 }]);
+  const states = buildUnitPathwayStates({
+    occurrences,
+    unitMastery:weakWordMastery,
+    globalMastery:{},
+    coverageByPathway:coverageFor('meaning',['u1-a','u1-b'])
   });
-  assert.match(target.innerHTML,/data-pathway-session-progress="meaning"/);
-  assert.match(target.innerHTML,/Recognise · Stage 1 of 5/);
-  assert.match(target.innerHTML,/Question 1 of 10/);
-  assert.match(target.innerHTML,/role="progressbar"[^>]*aria-valuenow="1"[^>]*aria-valuemax="10"/);
+  assert.equal(states.meaning.currentStage,'apply');
+  clearPathwayJourney(1);
 });
 
-test('app passes fixed pathway identity and 10-question progress into the question renderer', () => {
-  const source = fs.readFileSync(new URL('../src/vocabulary/app.js', import.meta.url),'utf8');
-  assert.match(source,/pathwayId\s*:\s*state\.pathwayId/);
-  assert.match(source,/pathwayStage\s*:\s*state\.pathwayStage/);
-  assert.match(source,/setProgress\s*:/);
+test('question progress helper renders stage and set progress together', async () => {
+  const url = new URL('../src/vocabulary/pathway-question-progress.js', import.meta.url);
+  assert.equal(fs.existsSync(url), true, 'pathway question progress helper should exist');
+  const { renderPathwayQuestionProgress } = await import(url);
+  const html = renderPathwayQuestionProgress({ pathwayId:'meaning', stageId:'recognise', current:1, total:10 });
+  assert.match(html,/Meaning/);
+  assert.match(html,/Recognise · Stage 1 of 5/);
+  assert.match(html,/Question 1 of 10/);
+  assert.match(html,/aria-valuenow="1"[^>]*aria-valuemax="10"/);
 });
 
 test('client loads persistent unit pathway journey independently of per-word mastery', () => {
   const source = fs.readFileSync(new URL('../src/vocabulary/data.js', import.meta.url),'utf8');
   assert.match(source,/loadPathwayJourney/);
   assert.match(source,/vocabulary_unit_pathway_journey/);
+  assert.match(source,/registerPathwayJourney/);
 });
 
-test('server attempt action updates persistent pathway journey from authoritative marking', () => {
-  const source = fs.readFileSync(new URL('../supabase/functions/vocabulary-attempt-action/index.ts', import.meta.url),'utf8');
-  assert.match(source,/vocabulary_unit_pathway_journey/);
-  assert.match(source,/applyPathwayJourneyAttempt/);
-  assert.match(source,/stage_clean_successes/);
+test('database trigger advances pathway journey from authoritative scored attempt events', () => {
+  const source = fs.readFileSync(new URL('../supabase/migrations/20261018140000_vocabulary_pathway_journey.sql', import.meta.url),'utf8');
+  assert.match(source,/activity_events/i);
+  assert.match(source,/create trigger/i);
+  assert.match(source,/NEW\.strong/i);
+  assert.match(source,/attempt_number/i);
+  assert.match(source,/served_pathway_stage/i);
+  assert.match(source,/stage_clean_successes/i);
 });
 
 test('journey advances only after a 10-question window with at least 8 clean successes', async () => {
@@ -89,7 +92,6 @@ test('journey advances only after a 10-question window with at least 8 clean suc
 
 test('failed 10-question window resets without moving the pathway backwards or forwards', async () => {
   const url = new URL('../supabase/functions/_shared/vocabulary-pathway-journey.js', import.meta.url);
-  assert.equal(fs.existsSync(url), true, 'pathway journey module should exist');
   const { freshPathwayJourney, applyPathwayJourneyAttempt } = await import(url);
   let journey = freshPathwayJourney({ currentStage:'apply', completedStages:['recognise','match'] });
   for (let i = 0; i < 10; i += 1) journey = applyPathwayJourneyAttempt(journey, { stageId:'apply', servedStageId:'apply', firstAttempt:true, correct:i < 7, supportLevel:'none' });
@@ -101,7 +103,6 @@ test('failed 10-question window resets without moving the pathway backwards or f
 
 test('retry and lower-stage support do not consume a pathway journey question', async () => {
   const url = new URL('../supabase/functions/_shared/vocabulary-pathway-journey.js', import.meta.url);
-  assert.equal(fs.existsSync(url), true, 'pathway journey module should exist');
   const { freshPathwayJourney, applyPathwayJourneyAttempt } = await import(url);
   let journey = freshPathwayJourney({ currentStage:'recall', completedStages:['recognise','match','apply'] });
   journey = applyPathwayJourneyAttempt(journey, { stageId:'recall', servedStageId:'recall', firstAttempt:false, retryUsed:true, correct:true, supportLevel:'light' });
