@@ -51,6 +51,21 @@ test('Explain Another Way credits phrase or idea paraphrasing according to its a
   assert.equal(idea.skills.lexical_production.evidenceCount, 1);
 });
 
+test('Explain Another Way can recover its authoritative source from server-built activity IDs', () => {
+  const phrase = buildVocabularySkillProfile([
+    { activity_id:'u1_46_significant:u1_phrase_leisure_time:explain_another_way', metadata:{ question_type:'explain_another_way', outcome:'correct', evidence_strength:'very_strong', support_level:'none' } }
+  ]);
+  assert.equal(phrase.skills.phrase_paraphrasing.evidenceCount, 1);
+  assert.equal(phrase.skills.idea_paraphrasing.evidenceCount, 0);
+
+  const unknown = buildVocabularySkillProfile([
+    { activity_id:'legacy:unknown:explain_another_way', metadata:{ question_type:'explain_another_way', outcome:'correct', evidence_strength:'very_strong', support_level:'none' } }
+  ]);
+  assert.equal(unknown.skills.phrase_paraphrasing.evidenceCount, 0);
+  assert.equal(unknown.skills.idea_paraphrasing.evidenceCount, 0);
+  assert.equal(unknown.skills.lexical_production.evidenceCount, 1);
+});
+
 test('misconception summary turns semantic categories into teacher-readable patterns', () => {
   const patterns = summarizeMisconceptions(events);
   assert.equal(patterns[0].code, 'quantity_change');
