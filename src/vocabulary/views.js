@@ -229,7 +229,17 @@ function renderAnswerControl(question, feedback, retry, support) {
   return `<label>${retry ? 'Try your answer again' : 'Your answer'}<input name="answer" required autocomplete="off" maxlength="500" aria-describedby="vocab-support-hint"></label><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Check supported answer' : 'Check answer'}</button>`;
 }
 
-export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question, term, sessionLabel, learningStage = null, feedback = null, retry = false, support = null } = {}) {
+function renderPathwaySessionProgress(pathwayId, pathwayStage) {
+  const pathway = VOCABULARY_PATHWAYS.find(candidate => candidate.id === pathwayId);
+  const stageIndex = PATHWAY_STAGES.findIndex(candidate => candidate.id === pathwayStage);
+  if (!pathway || stageIndex < 0) return '';
+  const position = stageIndex + 1;
+  const stageLabel = PATHWAY_STAGES[stageIndex].label;
+  const progress = position * 20;
+  return `<div class="vocab-pathway-session-progress" data-pathway-session-progress="${escapeHtml(pathway.id)}" data-pathway-stage="${escapeHtml(pathwayStage)}"><div class="vocab-pathway-session-progress__copy"><strong>${escapeHtml(pathway.label)}</strong><span>${escapeHtml(stageLabel)} · Stage ${position} of 5</span></div><div class="vocab-pathway-progress" role="progressbar" aria-label="${escapeHtml(pathway.label)} pathway progress: ${escapeHtml(stageLabel)}, stage ${position} of 5" aria-valuemin="1" aria-valuemax="5" aria-valuenow="${position}"><span class="vocab-pathway-progress__fill" style="--pathway-progress:${progress}%"></span></div></div>`;
+}
+
+export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question, term, sessionLabel, learningStage = null, pathwayId = null, pathwayStage = null, feedback = null, retry = false, support = null } = {}) {
   const feedbackHtml = feedback ? `<div class="vocab-feedback ${feedback.correct ? 'is-positive' : 'is-supportive'}"><strong>${escapeHtml(feedback.message)}</strong>${feedback.detail ? `<p>${escapeHtml(feedback.detail)}</p>` : ''}</div>` : '';
   const supportText = supportMessage(support);
   const supportHtml = supportText ? `<p id="vocab-support-hint" class="vocab-support-hint">${escapeHtml(supportText)}</p>` : '';
@@ -238,13 +248,17 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
   const source = visibleQuestionSource(question);
   const questionContext = source ? `<aside class="vocab-question-context vocab-source-text"><span>${escapeHtml(source.label)}</span><p>${escapeHtml(source.text)}</p></aside>` : '';
   const targetPill = term && !HIDE_TARGET_TYPES.has(question?.type) ? `<div class="vocab-target-pill">${escapeHtml(term)}</div>` : '';
+  const fixedPathwayId = pathwayId ?? question?.pathwayId ?? null;
+  const fixedPathwayStage = pathwayStage ?? question?.pathwayStage ?? null;
+  const pathwayProgress = renderPathwaySessionProgress(fixedPathwayId,fixedPathwayStage);
   const stage = learningStage ?? question?.learningStage ?? null;
-  const stageCue = LEARNING_STAGES.includes(stage) ? `<span class="vocab-learning-stage" data-stage="${escapeHtml(stage)}"><strong>${escapeHtml(learningStageLabel(stage))}</strong><small>${learningStagePosition(stage)} of 5</small></span>` : '';
+  const stageCue = !pathwayProgress && LEARNING_STAGES.includes(stage) ? `<span class="vocab-learning-stage" data-stage="${escapeHtml(stage)}"><strong>${escapeHtml(learningStageLabel(stage))}</strong><small>${learningStagePosition(stage)} of 5</small></span>` : '';
+  const skillCue = pathwayProgress || `<span>${escapeHtml(definition?.skillFamily ? titleCase(definition.skillFamily) : '')}</span>${stageCue}`;
   const answerForm = `<form data-form="vocabulary-answer" class="vocab-answer-form">${renderAnswerControl(question, feedback, retry, support)}</form>`;
   const responseArea = retry && !feedback?.correct
     ? `<section class="vocab-retry-stage">${feedbackHtml}${supportHtml}${answerForm}</section>`
     : `<section class="vocab-response-stage${feedback?.correct ? ' is-correct' : ''}">${feedbackHtml}${supportHtml}${answerForm}</section>`;
-  root.innerHTML = `<main class="vocab-shell vocab-shell--session"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card"><div class="vocab-question-meta"><p class="vocab-kicker">${escapeHtml(questionLabel)}</p><div class="vocab-question-meta__right"><span>${escapeHtml(definition?.skillFamily ? titleCase(definition.skillFamily) : '')}</span>${stageCue}</div></div>${targetPill}<h1 class="vocab-question-prompt">${escapeHtml(displayPrompt(question))}</h1>${questionContext}${responseArea}</section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
+  root.innerHTML = `<main class="vocab-shell vocab-shell--session"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card"><div class="vocab-question-meta"><p class="vocab-kicker">${escapeHtml(questionLabel)}</p><div class="vocab-question-meta__right">${skillCue}</div></div>${targetPill}<h1 class="vocab-question-prompt">${escapeHtml(displayPrompt(question))}</h1>${questionContext}${responseArea}</section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
 }
 
 export function supportiveFeedback({ correct, misconceptionCategory, recovery, term, meaning, questionType } = {}) {
