@@ -1,5 +1,5 @@
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES, derivePathwayPlacement } from './pathway-model.js';
-import { currentPathwayStage, pathwayMasteryNeedsReview } from './pathway-progress.js';
+import { pathwayMasteryNeedsReview } from './pathway-progress.js';
 
 const STAGE_IDS = PATHWAY_STAGES.map(stage => stage.id);
 const STAGE_INDEX = Object.freeze(Object.fromEntries(STAGE_IDS.map((id,index) => [id,index])));
@@ -8,15 +8,29 @@ function unitRowFor(unitMastery, occurrenceId) { return unitMastery?.[occurrence
 function globalRowFor(globalMastery, vocabularyId) { return globalMastery?.[vocabularyId] ?? {}; }
 function contextualEvidence(row = {}) { return row?.contextualEvidence ?? row?.contextual_evidence ?? {}; }
 function persistedPathway(row = {}, pathwayId) { return contextualEvidence(row)?.pathwayProgress?.[pathwayId] ?? contextualEvidence(row)?.pathway_progress?.[pathwayId] ?? null; }
-function completedFromPersisted(progress = {}) {
-  if (Array.isArray(progress?.completedStages)) return STAGE_IDS.filter(id => progress.completedStages.includes(id));
+function rawCompletedStages(progress = {}) {
+  if (Array.isArray(progress?.completedStages)) return new Set(progress.completedStages.filter(id => STAGE_INDEX[id] != null));
   const stages = progress?.stages ?? {};
-  return STAGE_IDS.filter(id => stages?.[id]?.completed === true);
+  return new Set(STAGE_IDS.filter(id => stages?.[id]?.completed === true));
 }
-function stageFromPersisted(progress = {}) {
+function contiguousCompletedStages(progress = {}) {
+  const completed = rawCompletedStages(progress);
+  const contiguous = [];
+  for (const stageId of STAGE_IDS) {
+    if (!completed.has(stageId)) break;
+    contiguous.push(stageId);
+  }
+  return contiguous;
+}
+function stageFromPersisted(progress = {}, completedStages = []) {
+  if (completedStages.length) {
+    if (completedStages.length >= STAGE_IDS.length) return 'mastery';
+    return STAGE_IDS[completedStages.length] ?? 'recognise';
+  }
+  const hasStageEvidence = Object.keys(progress?.stages ?? {}).length > 0 || Array.isArray(progress?.completedStages);
+  if (hasStageEvidence) return 'recognise';
   const explicit = progress?.currentStage ?? progress?.current_stage;
-  if (STAGE_INDEX[explicit] != null) return explicit;
-  return currentPathwayStage(progress);
+  return STAGE_INDEX[explicit] != null ? explicit : 'recognise';
 }
 function needsPracticeFromPersisted(progress = {}) {
   if (progress?.needsPractice === true || progress?.supportRequested === true || pathwayMasteryNeedsReview(progress)) return true;
@@ -42,12 +56,13 @@ function wordPathwayState({ pathwayId, occurrence, unitMastery, globalMastery })
   const global = globalRowFor(globalMastery, occurrence.vocabularyId ?? occurrence.vocabulary_id);
   const persisted = persistedPathway(unit,pathwayId);
   if (persisted) {
-    const currentStage = stageFromPersisted(persisted);
-    const completedStages = completedFromPersisted(persisted);
+    const completedStages = contiguousCompletedStages(persisted);
+    const currentStage = stageFromPersisted(persisted,completedStages);
+    const mastered = completedStages.length === STAGE_IDS.length;
     return {
       currentStage,
       completedStages,
-      mastered:completedStages.includes('mastery') || persisted?.stages?.mastery?.completed === true,
+      mastered,
       needsPractice:needsPracticeFromPersisted(persisted)
     };
   }
