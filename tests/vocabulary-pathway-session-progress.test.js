@@ -41,8 +41,8 @@ test('pathway progress bar advances from teal to violet across five fixed stages
   assert.match(css, /linear-gradient\([^)]*#(?:[0-9a-fA-F]{6})[^)]*#(?:[0-9a-fA-F]{6})[^)]*\)/);
 });
 
-test('app passes the fixed pathway identity and stage to the question renderer', () => {
-  const source = fs.readFileSync(new URL('../src/vocabulary/app.js', import.meta.url), 'utf8');
-  assert.match(source, /pathwayId:state\.pathwayId/);
-  assert.match(source, /pathwayStage:state\.pathwayStage/);
+test('fixed pathway planner attaches pathway identity and learner stage to the rendered question', () => {
+  const source = fs.readFileSync(new URL('../src/vocabulary/pathway-planner.js', import.meta.url), 'utf8');
+  assert.match(source, /pathwayId:plan\.pathwayId/);
+  assert.match(source, /pathwayStage:plan\.learnerStage/);
 });
