@@ -29,8 +29,18 @@ function context({ contextId, vocabularyId, occurrenceId, senseId, type, text: c
 }
 
 function buildableActivity(activity) {
+  const data = activity?.activityData && typeof activity.activityData === 'object' ? activity.activityData : {};
+  if (activity?.contentType === 'idea_set') {
+    const linkedVocabularyIds = array(data.linkedVocabularyIds).map(text).filter(Boolean);
+    if (linkedVocabularyIds.length === 1 && !text(data.primaryEvidenceTargetId)) {
+      return {
+        ...activity,
+        activityData:{ ...data, primaryEvidenceTargetId:linkedVocabularyIds[0] }
+      };
+    }
+    return activity;
+  }
   if (activity?.contentType !== 'phrase_set') return activity;
-  const data = activity.activityData && typeof activity.activityData === 'object' ? activity.activityData : {};
   const chunks = array(data.chunks).map(text).filter(Boolean);
   if (chunks.length >= 2) return activity;
 
