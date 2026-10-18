@@ -40,9 +40,9 @@ function id(value, label) {
   if (!ID_RE.test(text)) throw new Error(`${label} is invalid.`);
   return text;
 }
-function requiredUuid(value, label) {
-  const text = String(value ?? '').trim();
-  if (!text) throw new Error(`${label} is required.`);
+function optionalUuid(value, label) {
+  if (value == null || value === '') return null;
+  const text = String(value).trim();
   if (!UUID_RE.test(text)) throw new Error(`${label} is invalid.`);
   return text.toLowerCase();
 }
@@ -80,7 +80,7 @@ export function validateVocabularyAttempt(value = {}) {
   if (value.evidenceStrength != null && !EVIDENCE_STRENGTHS.has(value.evidenceStrength)) throw new Error('Evidence strength is invalid.');
   if (value.supportLevel != null && !SUPPORT_LEVELS.has(value.supportLevel)) throw new Error('Support level is invalid.');
   return {
-    attemptId:requiredUuid(value.attemptId, 'Attempt ID'),
+    attemptId:optionalUuid(value.attemptId, 'Attempt ID'),
     occurrenceId:id(value.occurrenceId, 'Occurrence ID'), contextId, activityContentId, activityVariantId,
     contentSource:inferredSource, primaryEvidenceTargetId:optionalId(value.primaryEvidenceTargetId, 'Primary evidence target ID'),
     questionType:value.questionType, rawAnswer, strands:validateStrands(value.strands),
