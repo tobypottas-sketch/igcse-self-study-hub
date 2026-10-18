@@ -262,35 +262,44 @@ export function markCuratedAnswer({ item = {}, sense = {}, context = {}, questio
   }
 
   if (!exactContextOnly) {
-    for (const answer of Array.isArray(sense.acceptedParaphrases) ? sense.acceptedParaphrases : []) accepted.add(normalizeVocabularyAnswer(answer));
+    for (const answer of Array.isArray(sense.acceptedParaphrases) ? sense.acceptedParaphrases : []) {
+      accepted.add(normalizeVocabularyAnswer(answer));
+    }
     for (const scoped of Array.isArray(sense.contextDependentParaphrases) ? sense.contextDependentParaphrases : []) {
-      if (scoped?.contextId === context.contextId) {
-        for (const answer of Array.isArray(scoped.answers) ? scoped.answers : []) accepted.add(normalizeVocabularyAnswer(answer));
-      }
+      if (scoped?.contextId !== context.contextId) continue;
+      for (const answer of Array.isArray(scoped.answers) ? scoped.answers : []) accepted.add(normalizeVocabularyAnswer(answer));
     }
   }
+  accepted.delete('');
 
-  const distractors = semanticDistractorMap(context);
-  const matchesAccepted = accepted.has(normalizedAnswer);
-  const selectedInaccurate = INACCURATE_SELECTION_TYPES.has(questionType) && distractors.has(normalizedAnswer);
-  const correct = selectedInaccurate || matchesAccepted;
+  const legacyDistractors = new Set((Array.isArray(sense.misleadingDistractors) ? sense.misleadingDistractors : []).map(normalizeVocabularyAnswer).filter(Boolean));
+  const semanticDistractors = semanticDistractorMap(context);
+  const identifyingInaccurate = INACCURATE_SELECTION_TYPES.has(questionType);
+  const semanticCategory = semanticDistractors.get(normalizedAnswer) ?? null;
+  const isDistractor = semanticCategory != null || (questionType !== 'spot_meaning_change' && legacyDistractors.has(normalizedAnswer));
+  const correct = identifyingInaccurate ? isDistractor : accepted.has(normalizedAnswer);
+
   let misconceptionCategory = null;
-  if (selectedInaccurate) misconceptionCategory = distractors.get(normalizedAnswer) ?? null;
-  else if (!correct) misconceptionCategory = distractors.get(normalizedAnswer) ?? (Array.isArray(sense.misleadingDistractors) && sense.misleadingDistractors.map(normalizeVocabularyAnswer).includes(normalizedAnswer) ? 'related_but_inaccurate' : 'retrieval_failure');
+  if (semanticCategory) misconceptionCategory = semanticCategory;
+  else if (!correct) {
+    if (identifyingInaccurate && accepted.has(normalizedAnswer)) misconceptionCategory = 'meaning_confusion';
+    else if (!identifyingInaccurate && legacyDistractors.has(normalizedAnswer)) misconceptionCategory = 'related_but_inaccurate';
+  }
+
+  const strands = defaultStrandsForQuestionType(questionType);
   return {
     correct,
+    normalizedAnswer,
     misconceptionCategory,
     evidence:{
-      strand: defaultStrandsForQuestionType(questionType)[0],
-      strands: defaultStrandsForQuestionType(questionType),
+      strand:strands[0],
+      strands,
       correct,
-      firstAttempt:true,
-      retryUsed:false,
-      repeatedGuess:false,
-      recoveredLater:false,
       contextId:context.contextId ?? null,
       activityContentId:context.activityContentId ?? null,
-      questionType
+      questionType:questionType ?? null,
+      activityType:questionType ?? null,
+      misconceptionCategory
     }
   };
 }
