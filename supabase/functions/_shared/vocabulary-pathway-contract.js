@@ -5,19 +5,19 @@ export const PATHWAY_ACTIVITY_MAP = Object.freeze({
     recognise:Object.freeze(['meaning_match','definition_to_word']),
     match:Object.freeze(['word_definition_match']),
     apply:Object.freeze(['drag_word_definition','drag_definition_word','which_situation_fits']),
-    recall:Object.freeze([]),
+    recall:Object.freeze(['type_word_from_definition']),
     mastery:Object.freeze(['meaning_in_context'])
   }),
   context:Object.freeze({
     recognise:Object.freeze(['choose_word_sentence']),
-    match:Object.freeze([]),
+    match:Object.freeze(['context_sentence_match']),
     apply:Object.freeze(['gap_fill_bank','drag_word_sentence']),
     recall:Object.freeze(['type_missing_word']),
-    mastery:Object.freeze(['meaning_in_context'])
+    mastery:Object.freeze(['type_missing_word'])
   }),
   word_families:Object.freeze({
     recognise:Object.freeze(['word_family_choice']),
-    match:Object.freeze([]),
+    match:Object.freeze(['word_family_match']),
     apply:Object.freeze(['word_family_choice']),
     recall:Object.freeze(['word_family_switch']),
     mastery:Object.freeze(['word_family_switch'])
@@ -30,16 +30,16 @@ export const PATHWAY_ACTIVITY_MAP = Object.freeze({
     mastery:Object.freeze(['rewrite_phrase','rewrite_idea','explain_another_way'])
   }),
   precision_use:Object.freeze({
-    recognise:Object.freeze(['meaning_in_context']),
-    match:Object.freeze([]),
+    recognise:Object.freeze(['precision_choice']),
+    match:Object.freeze(['precision_match']),
     apply:Object.freeze(['improve_vocabulary']),
     recall:Object.freeze(['improve_vocabulary']),
     mastery:Object.freeze(['explain_another_way'])
   }),
   spelling_recall:Object.freeze({
-    recognise:Object.freeze([]),
-    match:Object.freeze([]),
-    apply:Object.freeze([]),
+    recognise:Object.freeze(['spelling_choice']),
+    match:Object.freeze(['spelling_cue_match']),
+    apply:Object.freeze(['spelling_rebuild']),
     recall:Object.freeze(['spell_word']),
     mastery:Object.freeze(['spell_word'])
   })
