@@ -1,3 +1,5 @@
+import { PATHWAY_IDS, PATHWAY_STAGE_IDS, isPathwayQuestionAllowed, pathwayStageIndex } from '../_shared/vocabulary-pathway-contract.js';
+
 const ID_RE = /^[a-z0-9_:-]{1,160}$/i;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const VARIANT_RE = /^q\d{1,3}$/;
@@ -67,6 +69,32 @@ function validateStrands(value) {
   if (strands.some(strand => !STRANDS.has(strand))) throw new Error('Vocabulary strand is invalid.');
   return strands;
 }
+function optionalPathwayValue(value) {
+  if (value == null || value === '') return null;
+  return String(value).trim();
+}
+
+export function assertPathwayQuestionMatchesStage(pathwayId, stageId, questionType) {
+  if (!isPathwayQuestionAllowed(pathwayId,stageId,questionType)) throw new Error('Vocabulary question type does not match pathway stage.');
+  return true;
+}
+
+function validatePathwayCoordinates(value) {
+  const pathwayId = optionalPathwayValue(value.pathwayId);
+  const pathwayStage = optionalPathwayValue(value.pathwayStage);
+  const servedPathwayStage = optionalPathwayValue(value.servedPathwayStage);
+  const present = [pathwayId,pathwayStage,servedPathwayStage].filter(Boolean).length;
+  if (present === 0) return { pathwayId:null, pathwayStage:null, servedPathwayStage:null };
+  if (present !== 3) throw new Error('Pathway metadata is incomplete.');
+  if (!PATHWAY_IDS.includes(pathwayId)) throw new Error('Vocabulary pathway is invalid.');
+  if (!PATHWAY_STAGE_IDS.includes(pathwayStage) || !PATHWAY_STAGE_IDS.includes(servedPathwayStage)) throw new Error('Vocabulary pathway stage is invalid.');
+  const learnerIndex = pathwayStageIndex(pathwayStage);
+  const servedIndex = pathwayStageIndex(servedPathwayStage);
+  if (servedIndex !== learnerIndex && servedIndex !== learnerIndex - 1) throw new Error('Served pathway stage is invalid.');
+  if (servedIndex === learnerIndex - 1 && !(value.retryUsed === true || value.firstAttempt === false || ['light','major'].includes(value.supportLevel))) throw new Error('Served pathway stage requires support.');
+  assertPathwayQuestionMatchesStage(pathwayId,servedPathwayStage,value.questionType);
+  return { pathwayId, pathwayStage, servedPathwayStage };
+}
 
 export function validateVocabularyAttempt(value = {}) {
   const rawAnswer = String(value.rawAnswer ?? '');
@@ -87,6 +115,7 @@ export function validateVocabularyAttempt(value = {}) {
   if (activityVariantId && inferredSource !== 'unit_activity') throw new Error('Activity variant ID requires unit activity content.');
   if (value.evidenceStrength != null && !EVIDENCE_STRENGTHS.has(value.evidenceStrength)) throw new Error('Evidence strength is invalid.');
   if (value.supportLevel != null && !SUPPORT_LEVELS.has(value.supportLevel)) throw new Error('Support level is invalid.');
+  const pathway = validatePathwayCoordinates(value);
   return {
     attemptId:optionalUuid(value.attemptId, 'Attempt ID'),
     occurrenceId:id(value.occurrenceId, 'Occurrence ID'), contextId, activityContentId, activityVariantId,
@@ -95,7 +124,8 @@ export function validateVocabularyAttempt(value = {}) {
     evidenceStrength:value.evidenceStrength ?? null, supportLevel:value.supportLevel ?? null,
     productive:value.productive === true, repeatedGuess:value.repeatedGuess === true,
     firstAttempt:value.firstAttempt !== false, retryUsed:value.retryUsed === true,
-    recoveredLater:value.recoveredLater === true, review:value.review === true, preview:value.preview === true
+    recoveredLater:value.recoveredLater === true, review:value.review === true, preview:value.preview === true,
+    ...pathway
   };
 }
 
@@ -134,6 +164,11 @@ export function buildStoredAttemptMetadata(value = {}) {
     retry_used:value.retryUsed === true, recovery:value.recoveredLater === true,
     target_id:id(value.vocabularyId, 'Vocabulary ID'), occurrence_id:id(value.occurrenceId, 'Occurrence ID')
   };
+  if (value.pathwayId && value.pathwayStage && value.servedPathwayStage) {
+    output.pathway_id = String(value.pathwayId);
+    output.pathway_stage = String(value.pathwayStage);
+    output.served_pathway_stage = String(value.servedPathwayStage);
+  }
   if (MISCONCEPTIONS.has(value.misconceptionCategory)) output.misconception = value.misconceptionCategory;
   if (EVIDENCE_STRENGTHS.has(value.evidenceStrength)) output.evidence_strength = value.evidenceStrength;
   if (SUPPORT_LEVELS.has(value.supportLevel)) output.support_level = value.supportLevel;
