@@ -24,10 +24,13 @@ function describe(rows = []) {
     .map(row => ({ occurrenceId:occurrenceId(row), vocabularyId:vocabularyId(row), term:termForOccurrence(row) }))
     .sort((a,b) => String(a.term).localeCompare(String(b.term)));
 }
+function terms(rows = []) { return describe(rows).map(row => row.term); }
 
 const report = {};
+const summary = {};
 for (const pathway of VOCABULARY_PATHWAYS) {
   const stageReport = {};
+  const stageSummary = {};
   let cohort = new Set(content.occurrences.map(occurrenceId));
   let pathwayWithheld = false;
 
@@ -51,6 +54,12 @@ for (const pathway of VOCABULARY_PATHWAYS) {
       eligible:describe(eligible),
       missing:describe(missing)
     };
+    stageSummary[stage.id] = {
+      mappedTypes,
+      withheld,
+      buildableCount:eligible.length,
+      missingTerms:terms(missing)
+    };
 
     if (withheld) {
       pathwayWithheld = true;
@@ -71,7 +80,14 @@ for (const pathway of VOCABULARY_PATHWAYS) {
     allStages:describe(allStagesRows),
     stages:stageReport
   };
+  summary[pathway.id] = {
+    label:pathway.label,
+    allStagesCount:allStagesRows.length,
+    allStagesTerms:terms(allStagesRows),
+    stages:stageSummary
+  };
 }
 
 fs.mkdirSync('diagnostics',{recursive:true});
 fs.writeFileSync('diagnostics/unit1-pathway-counts.json',JSON.stringify(report,null,2)+'\n');
+fs.writeFileSync('diagnostics/unit1-pathway-summary.json',JSON.stringify(summary,null,2)+'\n');
