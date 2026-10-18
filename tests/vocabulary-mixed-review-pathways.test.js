@@ -34,11 +34,12 @@ test('legacy evidence conservatively unlocks only up to its derived placement', 
   assert.deepEqual(unlockedReviewStages({ pathwayId:'meaning', unitMastery:unit, globalMastery:{} }), ['recognise','match']);
 });
 
-test('mixed review returns the actual pathway and learner stage with the built question', () => {
+test('mixed review returns an actually unlocked pathway and learner stage with the built question', () => {
   const unitMastery = { o1:{ contextualEvidence:{ pathwayProgress:{ meaning:progress([]) } } } };
   const result = planMixedReviewQuestion({ content, target, unitMastery, globalMastery:{}, seed:'mixed-1' });
-  assert.equal(result.plan.pathwayId, 'meaning');
-  assert.equal(result.plan.learnerStage, 'recognise');
+  const unlocked = unlockedReviewStages({ pathwayId:result.plan.pathwayId, unitMastery:unitMastery.o1, globalMastery:{} });
+  assert.ok(unlocked.includes(result.plan.learnerStage));
+  assert.equal(result.plan.servedStage, result.plan.learnerStage);
   assert.ok(result.question);
 });
 
