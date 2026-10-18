@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import { buildActivity } from '../src/vocabulary/activity-builder.js';
+import { renderVocabularyQuestion } from '../src/vocabulary/views.js';
 
 function buildFor(vocabularyId, activityType, status) {
   const occurrence = unit1.occurrences.find(row => row.vocabularyId === vocabularyId);
@@ -24,17 +25,16 @@ function buildFor(vocabularyId, activityType, status) {
 
 function assertSourceShownOnce(question) {
   assert.ok(question.sourceText, 'question should expose sourceText for the dedicated source-text panel');
-  assert.equal(question.prompt.includes(question.sourceText), false, 'sourceText must not also be duplicated inside the prompt');
+  const root = { innerHTML:'' };
+  renderVocabularyQuestion(root, { unitNumber:1, unitTitle:'Sports and free time', question, term:'test', sessionLabel:'1 / 10 activities' });
+  const escaped = question.sourceText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  assert.equal((root.innerHTML.match(new RegExp(escaped, 'g')) ?? []).length, 1, 'source sentence should appear exactly once in the rendered question');
 }
 
-test('Word Family Switch keeps the source sentence out of the prompt', () => {
-  const question = buildFor('vocab_competitor', 'word_family_switch', 'building');
-  assertSourceShownOnce(question);
-  assert.equal(question.prompt, 'Use the correct form from the compete word family.');
+test('Word Family Switch renders its source sentence once', () => {
+  assertSourceShownOnce(buildFor('vocab_competitor', 'word_family_switch', 'building'));
 });
 
-test('Improve the Vocabulary keeps the source sentence out of the prompt', () => {
-  const question = buildFor('vocab_intense', 'improve_vocabulary', 'secure');
-  assertSourceShownOnce(question);
-  assert.equal(question.prompt, 'Replace the repeated general adjective with a more precise Unit 1 word.');
+test('Improve the Vocabulary renders its source sentence once', () => {
+  assertSourceShownOnce(buildFor('vocab_intense', 'improve_vocabulary', 'secure'));
 });
