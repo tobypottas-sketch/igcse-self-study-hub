@@ -1,10 +1,11 @@
 import { planNextActivity } from './adaptive-planner.js';
-import { buildActivity } from './activity-builder.js';
+import { buildActivity } from './activity-factory.js';
 import { activitiesForStage } from './activity-catalogue.js';
 import { selectPriorityTargets } from './selector.js';
 import { isSpotMeaningChangeReady } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
 function array(value) { return Array.isArray(value) ? value : []; }
+function text(value) { return String(value ?? '').trim(); }
 function hashSeed(seed) {
   let hash = 2166136261;
   for (const char of String(seed ?? '')) { hash ^= char.charCodeAt(0); hash = Math.imul(hash, 16777619) >>> 0; }
@@ -58,13 +59,55 @@ export function linkedActivitiesForTarget(content, target) {
   });
 }
 
+function hasDefinition(item, target) {
+  const sense = array(item?.senses).find(row => row?.senseId === target?.senseId) ?? array(item?.senses)[0];
+  return Boolean(text(sense?.meaning) || text(item?.coreMeaning) || text(array(sense?.acceptedParaphrases)[0]));
+}
+function samePosAlternatives(content, item) {
+  const pos = text(item?.partOfSpeech).toLocaleLowerCase('en');
+  return array(content?.items).filter(candidate =>
+    candidate?.vocabularyId !== item?.vocabularyId &&
+    text(candidate?.partOfSpeech).toLocaleLowerCase('en') === pos &&
+    text(candidate?.term) && hasDefinition(candidate,{})
+  );
+}
+function hasBlankableContext(contexts, item) {
+  const term = text(item?.term).toLocaleLowerCase('en');
+  return array(contexts).some(context => {
+    const rewrite = text(context?.targetRewrite);
+    const source = text(context?.text);
+    const accepted = array(context?.acceptedAnswers).map(value => text(value).toLocaleLowerCase('en'));
+    return ['paraphrase_context','production_context'].includes(context?.type) && rewrite && source.toLocaleLowerCase('en').includes(rewrite.toLocaleLowerCase('en')) && accepted.includes(term);
+  });
+}
+function hasWordFamilyChoice(content, item, linked) {
+  const writing = linked.find(row => row.contentType === 'writing_set' && row.activityData?.taskType === 'word_family' && array(row.activityData?.acceptedAnswers).some(text));
+  if (!writing) return false;
+  const accepted = new Set(array(writing.activityData.acceptedAnswers).map(value => text(value).toLocaleLowerCase('en')).filter(Boolean));
+  const alternatives = new Set([
+    ...array(item?.wordFamily),
+    ...array(content?.items).flatMap(candidate => array(candidate?.wordFamily))
+  ].map(value => text(value).toLocaleLowerCase('en')).filter(value => value && !accepted.has(value)));
+  return alternatives.size >= 2;
+}
+
 export function availableActivityTypesForTarget({ content, target, item, contexts = [] } = {}) {
   const available = new Set();
   const targetContexts = array(contexts);
   if (targetContexts.length) ['meaning_match','which_situation_fits','meaning_in_context'].forEach(type => available.add(type));
 
+  const samePos = samePosAlternatives(content,item);
+  if (text(item?.term) && hasDefinition(item,target)) {
+    available.add('spell_word');
+    if (samePos.length >= 3) ['definition_to_word','word_definition_match','drag_word_definition','drag_definition_word'].forEach(type => available.add(type));
+  }
+  if (samePos.length >= 3 && hasBlankableContext(targetContexts,item)) {
+    ['gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence'].forEach(type => available.add(type));
+  }
+
   const linked = linkedActivitiesForTarget(content, target);
   if (linked.some(row => row.contentType === 'writing_set' && row.activityData?.taskType === 'word_family')) available.add('word_family_switch');
+  if (hasWordFamilyChoice(content,item,linked)) available.add('word_family_choice');
   if (linked.some(row => row.contentType === 'phrase_set')) ['phrase_match','build_paraphrase','complete_paraphrase','rewrite_phrase','explain_another_way'].forEach(type => available.add(type));
   if (linked.some(row => row.contentType === 'idea_set')) ['same_idea','build_same_idea','rewrite_idea','explain_another_way'].forEach(type => available.add(type));
   if (linked.some(row => row.contentType === 'idea_set' && isSpotMeaningChangeReady(row.activityData))) available.add('spot_meaning_change');
