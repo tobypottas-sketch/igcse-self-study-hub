@@ -58,8 +58,15 @@ test('phrase and idea work uses the whole curated transformation rather than col
   assert.ok(phrase.tiles.length >= 2); assert.match(phrase.prompt, /important/i); assert.ok(phrase.markingReference.acceptedAnswers.some(answer => answer.split(/\s+/).length >= 2));
   assert.notEqual(phrase.markingReference.acceptedAnswers[0].toLocaleLowerCase('en'), item.term.toLocaleLowerCase('en'));
   const idea = buildActivity({ activityType:'same_idea', occurrence, item, contexts, unitActivities, mastery:masteryByStage.building, seed:'idea' });
-  assert.match(idea.prompt, /programme led to a significant improvement/i); assert.ok(idea.options.some(option => /important improvement/i.test(option))); assert.ok(idea.options.some(option => /tiny improvement/i.test(option)));
-  assert.equal(idea.markingReference.acceptedAnswers.some(answer => /important improvement/i.test(answer)), true);
+  const ideaData = unitActivities[1].activityData;
+  assert.match(idea.prompt, /programme led to a significant improvement/i);
+  assert.equal(idea.markingReference.acceptedAnswers.length, 1);
+  assert.match(idea.activityVariantId, /^q\d+$/);
+  const selectedIndex = Number(idea.activityVariantId.slice(1));
+  assert.equal(idea.markingReference.acceptedAnswers[0], ideaData.accurateParaphrases[selectedIndex]);
+  assert.ok(idea.options.includes(idea.markingReference.acceptedAnswers[0]));
+  assert.ok(idea.options.some(option => /tiny improvement/i.test(option)));
+  assert.ok(idea.markingReference.acceptedAnswers[0].split(/\s+/).length >= 6);
 });
 test('stable seed produces stable option and tile order', () => {
   const args = { occurrence, item, contexts, unitActivities, mastery:masteryByStage.building, seed:'stable-seed' };

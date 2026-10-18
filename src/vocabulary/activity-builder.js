@@ -272,6 +272,7 @@ function questionTextActivity(args, definition, findEvidence = false) {
   });
 }
 function phraseRecord(args) { return chooseUnitActivity(args.unitActivities, 'phrase_set', args.item.vocabularyId, args.usedContentIds, args.seed); }
+function phraseDistractors(data) { return uniqueText(array(data.commonMeaningDistortions)).map(value => ({ text:value, misconceptionCategory:'meaning_confusion' })); }
 function phraseMatch(args, definition) {
   const record = phraseRecord(args), data = object(record.activityData);
   const correct = text(data.equivalentPhrase);
@@ -287,13 +288,13 @@ function phraseMatch(args, definition) {
   const wrong = rankedByLength([...ownWrong, ...pooledWrong].filter(candidate => !acceptedAnswers.includes(text(candidate))), correct, `${args.seed}:${record.activityContentId}:phrase-distractors`).slice(0,3);
   if (wrong.length < 3) throw new Error('Phrase Match requires three phrase-level distractors.');
   const options = stableShuffle([correct, ...wrong], `${args.seed}:${record.activityContentId}:phrase-match`);
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which phrase keeps the meaning of “${text(data.originalPhrase)}”?`, markingReference:{ acceptedAnswers }, extra:{ options, sourcePhrase:text(data.originalPhrase) } });
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which phrase keeps the meaning of “${text(data.originalPhrase)}”?`, markingReference:{ acceptedAnswers, distractors:phraseDistractors(data) }, extra:{ options, sourcePhrase:text(data.originalPhrase) } });
 }
 function buildParaphrase(args, definition) {
   const record = phraseRecord(args), data = object(record.activityData);
   const acceptedAnswers = uniqueText([data.equivalentPhrase, ...array(data.acceptedVariants)]);
   const tiles = stableShuffle(array(data.chunks).map(text).filter(Boolean), `${args.seed}:${record.activityContentId}:tiles`);
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Build a paraphrase of “${text(data.originalPhrase)}”.`, markingReference:{ acceptedAnswers }, extra:{ tiles, sourcePhrase:text(data.originalPhrase) } });
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Build a paraphrase of “${text(data.originalPhrase)}”.`, markingReference:{ acceptedAnswers, distractors:phraseDistractors(data) }, extra:{ tiles, sourcePhrase:text(data.originalPhrase) } });
 }
 function completeParaphrase(args, definition) {
   const record = phraseRecord(args), data = object(record.activityData);
@@ -304,12 +305,16 @@ function completeParaphrase(args, definition) {
 }
 function rewritePhrase(args, definition) {
   const record = phraseRecord(args), data = object(record.activityData);
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Rewrite this phrase without changing its meaning: “${text(data.originalPhrase)}”`, markingReference:{ acceptedAnswers:uniqueText([data.equivalentPhrase, ...array(data.acceptedVariants)]) }, extra:{ sourcePhrase:text(data.originalPhrase) } });
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Rewrite this phrase without changing its meaning: “${text(data.originalPhrase)}”`, markingReference:{ acceptedAnswers:uniqueText([data.equivalentPhrase, ...array(data.acceptedVariants)]), distractors:phraseDistractors(data) }, extra:{ sourcePhrase:text(data.originalPhrase) } });
 }
 function ideaRecord(args) { return chooseUnitActivity(args.unitActivities, 'idea_set', args.item.vocabularyId, args.usedContentIds, args.seed); }
 function sameIdea(args, definition) {
   const record = ideaRecord(args), data = object(record.activityData);
   const acceptedAnswers = uniqueText(array(data.accurateParaphrases));
+  const indexedAnswers = acceptedAnswers.map((value,index) => ({ value, index }));
+  const selected = stableShuffle(indexedAnswers, `${args.seed}:${record.activityContentId}:same-idea-answer`)[0];
+  const reference = selected?.value ?? text(data.originalIdea);
+  const activityVariantId = `q${selected?.index ?? 0}`;
   const ownWrong = array(data.distractors).map(row => text(row?.text)).filter(Boolean);
   const pooledWrong = [];
   if (ownWrong.length < 3) {
@@ -318,11 +323,10 @@ function sameIdea(args, definition) {
       pooledWrong.push(...array(object(activity.activityData).distractors).map(row => row?.text));
     }
   }
-  const reference = acceptedAnswers[0] ?? text(data.originalIdea);
   const wrong = rankedByLength([...ownWrong, ...pooledWrong].filter(candidate => !acceptedAnswers.includes(text(candidate))), reference, `${args.seed}:${record.activityContentId}:idea-distractors`).slice(0,3);
   if (wrong.length < 3) throw new Error('Same Idea requires three sentence-level meaning distractors.');
   const options = stableShuffle([reference, ...wrong], `${args.seed}:${record.activityContentId}:same-idea`);
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which sentence expresses the same idea as this?\n${text(data.originalIdea)}`, markingReference:{ acceptedAnswers:[reference], meaningInvariants:array(data.meaningInvariants), distractors:array(data.distractors) }, extra:{ options, sourceIdea:text(data.originalIdea) } });
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which sentence expresses the same idea as this?\n${text(data.originalIdea)}`, markingReference:{ acceptedAnswers:[reference], meaningInvariants:array(data.meaningInvariants), distractors:array(data.distractors) }, extra:{ options, activityVariantId, sourceIdea:text(data.originalIdea) } });
 }
 function spotMeaningChange(args, definition) {
   const ready = array(args.unitActivities).filter(activity => activity?.contentType === 'idea_set' && isSpotMeaningChangeReady(activity.activityData));
@@ -343,7 +347,7 @@ function buildSameIdea(args, definition) {
   const curatedChunks = array(data.chunks).map(text).filter(Boolean);
   const chunks = curatedChunks.length >= 2 ? curatedChunks : target.split(/\s+/).filter(Boolean);
   const tiles = stableShuffle(chunks, `${args.seed}:${record.activityContentId}:idea-tiles`);
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Build a sentence that keeps the same meaning:\n${text(data.originalIdea)}`, markingReference:{ acceptedAnswers, meaningInvariants:array(data.meaningInvariants) }, extra:{ tiles, sourceIdea:text(data.originalIdea) } });
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Build a sentence that keeps the same meaning:\n${text(data.originalIdea)}`, markingReference:{ acceptedAnswers, meaningInvariants:array(data.meaningInvariants), distractors:array(data.distractors) }, extra:{ tiles, sourceIdea:text(data.originalIdea) } });
 }
 function rewriteIdea(args, definition) {
   const record = ideaRecord(args), data = object(record.activityData);
@@ -357,8 +361,8 @@ function explainAnotherWay(args, definition) {
   let record;
   try { record = phraseRecord(args); } catch { record = ideaRecord(args); }
   const data = object(record.activityData);
-  if (record.contentType === 'phrase_set') return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Explain this another way without using exactly the same wording: “${text(data.originalPhrase)}”`, markingReference:{ acceptedAnswers:uniqueText([data.equivalentPhrase, ...array(data.acceptedVariants)]) }, extra:{ sourcePhrase:text(data.originalPhrase) } });
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Explain this idea another way:\n${text(data.originalIdea)}`, markingReference:{ acceptedAnswers:uniqueText(array(data.accurateParaphrases)), meaningInvariants:array(data.meaningInvariants) }, extra:{ sourceIdea:text(data.originalIdea) } });
+  if (record.contentType === 'phrase_set') return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Explain this another way without using exactly the same wording: “${text(data.originalPhrase)}”`, markingReference:{ acceptedAnswers:uniqueText([data.equivalentPhrase, ...array(data.acceptedVariants)]), distractors:phraseDistractors(data) }, extra:{ sourcePhrase:text(data.originalPhrase) } });
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Explain this idea another way:\n${text(data.originalIdea)}`, markingReference:{ acceptedAnswers:uniqueText(array(data.accurateParaphrases)), meaningInvariants:array(data.meaningInvariants), distractors:array(data.distractors) }, extra:{ sourceIdea:text(data.originalIdea) } });
 }
 
 const BUILDERS = Object.freeze({
