@@ -7,7 +7,7 @@ import { planNextActivity } from './adaptive-planner.js';
 import { buildSupportStep } from './scaffolding.js';
 import { completeAttempt, createSession, expireSession, isSessionComplete } from './session.js';
 import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
-import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
+import { applyEvidence, isSpotMeaningChangeReady, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
 const root = document.getElementById('vocabularyApp');
 const state = {
@@ -110,7 +110,8 @@ function availableActivityTypes(target, targetItem, targetContexts) {
   const linked = linkedActivities(target);
   if ((Array.isArray(targetItem?.wordFamily) && targetItem.wordFamily.length) || linked.some(row => row.contentType === 'writing_set' && row.activityData?.taskType === 'word_family')) available.add('word_family_switch');
   if (linked.some(row => row.contentType === 'phrase_set')) ['phrase_match','build_paraphrase','complete_paraphrase','rewrite_phrase','explain_another_way'].forEach(type => available.add(type));
-  if (linked.some(row => row.contentType === 'idea_set')) ['same_idea','spot_meaning_change','build_same_idea','rewrite_idea','explain_another_way'].forEach(type => available.add(type));
+  if (linked.some(row => row.contentType === 'idea_set')) ['same_idea','build_same_idea','rewrite_idea','explain_another_way'].forEach(type => available.add(type));
+  if (linked.some(row => row.contentType === 'idea_set' && isSpotMeaningChangeReady(row.activityData))) available.add('spot_meaning_change');
   if (linked.some(row => row.contentType === 'question_text')) { available.add('question_text_bridge'); available.add('find_evidence'); }
   if (linked.some(row => row.contentType === 'writing_set')) available.add('improve_vocabulary');
   return [...available];

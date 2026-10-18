@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
-import { applyEvidence, markCuratedAnswer } from '../_shared/vocabulary-engine.js';
+import { applyEvidence, markCuratedAnswer, spotMeaningChangeMarking } from '../_shared/vocabulary-engine.js';
 import { buildStoredAttemptMetadata, strandForQuestionType, validateVocabularyAttempt } from './validation.js';
 
 const CORS = {
@@ -23,7 +23,7 @@ const ACTIVITY_EVIDENCE: Record<string, { strands:string[]; evidenceStrength:str
   complete_paraphrase:{ strands:['paraphrasing','production'], evidenceStrength:'strong', productive:true },
   rewrite_phrase:{ strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true },
   same_idea:{ strands:['paraphrasing'], evidenceStrength:'medium', productive:false },
-  spot_meaning_change:{ strands:['paraphrasing','context'], evidenceStrength:'strong', productive:false },
+  spot_meaning_change:{ strands:['paraphrasing','context'], evidenceStrength:'medium', productive:false },
   build_same_idea:{ strands:['paraphrasing','production'], evidenceStrength:'strong', productive:true },
   rewrite_idea:{ strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true },
   improve_vocabulary:{ strands:['production'], evidenceStrength:'very_strong', productive:true },
@@ -108,6 +108,7 @@ function questionTextMarking(data: any, activityVariantId: string | null, questi
 function unitActivityMarking(activity: any, questionType: string, activityVariantId: string | null) {
   const data = activity?.activity_data && typeof activity.activity_data === 'object' ? activity.activity_data : {};
   if (activity.content_type === 'phrase_set') return phraseMarking(data, questionType);
+  if (activity.content_type === 'idea_set' && questionType === 'spot_meaning_change') return spotMeaningChangeMarking(data, activityVariantId);
   if (activity.content_type === 'idea_set') return ideaMarking(data);
   if (activity.content_type === 'question_text') return questionTextMarking(data, activityVariantId, questionType);
   if (activity.content_type === 'writing_set') return { acceptedAnswers:strings(data.acceptedAnswers), distractors:[] };

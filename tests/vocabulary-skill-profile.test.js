@@ -43,6 +43,19 @@ test('misconception summary turns semantic categories into teacher-readable patt
   assert.match(patterns.find(row => row.code === 'unnatural_collocation').label, /collocation|word combination/i);
 });
 
+test('correct responses never count as misconceptions even when legacy metadata carries a misconception code', () => {
+  const patterns = summarizeMisconceptions([
+    { metadata:{ outcome:'correct', misconception:'degree_change' } },
+    { metadata:{ outcome:'try_again', misconception:'degree_change' } },
+    { metadata:{ outcome:'correct', misconception:'time_change' } },
+    { metadata:{ outcome:'try_again', misconception:'time_change' } }
+  ]);
+  assert.deepEqual(patterns, [
+    { code:'degree_change', label:'Changes degree or certainty', count:1 },
+    { code:'time_change', label:'Changes the time relationship', count:1 }
+  ]);
+});
+
 test('raw answers and prompts are ignored even if a malformed event contains them', () => {
   const profile = buildVocabularySkillProfile([{ metadata:{ question_type:'rewrite_idea', outcome:'correct', evidence_strength:'very_strong', support_level:'none', raw_answer:'PRIVATE', prompt:'PRIVATE' } }]);
   assert.equal(JSON.stringify(profile).includes('PRIVATE'), false);

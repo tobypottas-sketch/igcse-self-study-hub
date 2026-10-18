@@ -17,7 +17,7 @@ const contexts = [
 ];
 const unitActivities = [
   { activityContentId:'u1_phrase_significant', unitNumber:1, contentType:'phrase_set', status:'live', activityData:{ originalPhrase:'an important improvement', equivalentPhrase:'a significant improvement', acceptedVariants:['a notable improvement'], chunks:['a','significant','improvement'], commonMeaningDistortions:['a tiny improvement','an ordinary improvement','a temporary improvement'], linkedVocabularyIds:[item.vocabularyId], primaryEvidenceTargetId:item.vocabularyId } },
-  { activityContentId:'u1_idea_significant', unitNumber:1, contentType:'idea_set', status:'live', activityData:{ originalIdea:'The programme led to a significant improvement in results.', accurateParaphrases:['The programme produced an important improvement in results.'], meaningInvariants:[{ type:'degree', value:'important improvement' }], distractors:[
+  { activityContentId:'u1_idea_significant', unitNumber:1, contentType:'idea_set', status:'live', activityData:{ originalIdea:'The programme led to a significant improvement in results.', accurateParaphrases:['The programme produced an important improvement in results.','The programme brought about a notable improvement in results.','Results improved in an important way because of the programme.'], meaningInvariants:[{ type:'degree', value:'important improvement' }], distractors:[
     { text:'The programme produced only a tiny improvement in results.', misconceptionCategory:'degree_change' },
     { text:'The programme caused results to become noticeably worse.', misconceptionCategory:'meaning_confusion' },
     { text:'The programme had no clear effect on the final results.', misconceptionCategory:'omitted_information' }

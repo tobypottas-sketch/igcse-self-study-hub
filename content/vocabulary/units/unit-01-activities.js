@@ -19,7 +19,7 @@ function idea(id, originalIdea, accurateParaphrase, invariantType, invariantValu
     activityContentId:`u1_idea_${id}`, unitNumber, contentType:'idea_set', status,
     activityData:{
       originalIdea,
-      accurateParaphrases:[accurateParaphrase],
+      accurateParaphrases:Array.isArray(accurateParaphrase) ? accurateParaphrase : [accurateParaphrase],
       meaningInvariants:[{ type:invariantType, value:invariantValue }],
       distractors,
       linkedVocabularyIds
@@ -60,62 +60,62 @@ const phraseSets = [
 ];
 
 const ideaSets = [
-  idea('preference','Mina has a preference for individual sports rather than team games.','Mina likes individual sports more than team games.','comparison','individual sports preferred to team games',[
+  idea('preference','Mina has a preference for individual sports rather than team games.',['Mina likes individual sports more than team games.','Mina would rather play individual sports than team games.','Mina favours taking part in individual sports over team games.'],'comparison','individual sports preferred to team games',[
     { text:'Mina likes team games more than individual sports.', misconceptionCategory:'meaning_confusion' },
     { text:'Mina likes individual sports and team games equally.', misconceptionCategory:'degree_change' },
     { text:'Mina only takes part in team games and avoids individual sports.', misconceptionCategory:'added_information' }
   ],['vocab_preference']),
-  idea('deny','The athlete denied using any banned substance.','The athlete said it was not true that he had used a banned substance.','polarity','claim is rejected',[
+  idea('deny','The athlete denied using any banned substance.',['The athlete said it was not true that he had used a banned substance.','The athlete rejected the claim that he had used a banned substance.','The athlete stated that he had not used any banned substance.'],'polarity','claim is rejected',[
     { text:'The athlete admitted that he had used a banned substance.', misconceptionCategory:'meaning_confusion' },
     { text:'The athlete refused to comment on whether he had used a banned substance.', misconceptionCategory:'omitted_information' },
     { text:'The athlete confirmed the claim that he had used a banned substance.', misconceptionCategory:'meaning_confusion' }
   ],['vocab_deny']),
-  idea('permit','The club does not permit spectators to enter the training area.','Spectators are not allowed to go into the training area.','polarity','permission is refused',[
+  idea('permit','The club does not permit spectators to enter the training area.',['Spectators are not allowed to go into the training area.','The club does not let spectators into the training area.','Entry to the training area is not allowed for spectators.'],'polarity','permission is refused',[
     { text:'Spectators are allowed to enter the training area whenever they want.', misconceptionCategory:'meaning_confusion' },
     { text:'Only the coaches are forbidden from entering the training area.', misconceptionCategory:'meaning_confusion' },
     { text:'Spectators are required to enter the training area before practice.', misconceptionCategory:'meaning_confusion' }
   ],['vocab_permit']),
-  idea('intense','The final ten minutes of the match were intense.','The last ten minutes of the match were extremely demanding.','degree','very strong or demanding',[
+  idea('intense','The final ten minutes of the match were intense.',['The last ten minutes of the match were extremely demanding.','The match was extremely demanding in its final ten minutes.','The final ten minutes of the game were extremely demanding.'],'degree','very strong or demanding',[
     { text:'The final ten minutes of the match were calm and relaxed.', misconceptionCategory:'degree_change' },
     { text:'Only the first ten minutes of the match were extremely demanding.', misconceptionCategory:'time_change' },
     { text:'The final ten minutes of the match were only slightly demanding.', misconceptionCategory:'degree_change' }
   ],['vocab_intense']),
-  idea('tournament','Teams from eight schools entered the regional tournament.','Eight schools sent teams to take part in the regional competition.','quantity','eight schools',[
+  idea('tournament','Teams from eight schools entered the regional tournament.',['Eight schools sent teams to take part in the regional competition.','Eight schools put their teams into the regional competition.','The regional competition included teams from eight schools.'],'quantity','eight schools',[
     { text:'Teams from every school in the region entered the tournament.', misconceptionCategory:'quantity_change' },
     { text:'Eight individual students entered one regional match.', misconceptionCategory:'meaning_confusion' },
     { text:'Eight schools watched the regional competition but did not enter teams.', misconceptionCategory:'meaning_confusion' }
   ],['vocab_tournament']),
-  idea('discipline','Daily training requires discipline as well as ability.','Training every day needs self-control in addition to ability.','addition','self-control and ability are both required',[
+  idea('discipline','Daily training requires discipline as well as ability.',['Training every day needs self-control in addition to ability.','Both self-control and ability are needed for daily training.','Daily training depends on self-control as well as ability.'],'addition','self-control and ability are both required',[
     { text:'Ability alone is enough for someone who trains every day.', misconceptionCategory:'omitted_information' },
     { text:'Self-control is needed for daily training, but ability is unnecessary.', misconceptionCategory:'omitted_information' },
     { text:'Occasional training requires ability but no consistent self-control.', misconceptionCategory:'time_change' }
   ],['vocab_discipline']),
-  idea('overwhelming','The support from the crowd was overwhelming during the final.','During the final, the crowd gave support that was extremely powerful.','degree','support is extremely strong',[
+  idea('overwhelming','The support from the crowd was overwhelming during the final.',['During the final, the crowd gave support that was extremely powerful.','During the final, the support from the crowd was extremely strong.','The support the crowd gave during the final was extremely strong.'],'degree','support is extremely strong',[
     { text:'The crowd gave only a small amount of support during the final.', misconceptionCategory:'degree_change' },
     { text:'The crowd support during the final was noticeable but easy to manage.', misconceptionCategory:'degree_change' },
     { text:'The crowd gave extremely powerful support before the final but not during it.', misconceptionCategory:'time_change' }
   ],['vocab_overwhelming']),
-  idea('generation','A new generation of players is entering the professional game.','A younger age group of players is beginning to compete professionally.','time_group','younger age group',[
+  idea('generation','A new generation of players is entering the professional game.',['A younger age group of players is beginning to compete professionally.','A younger group of players is starting to play professionally.','Players from a younger age group are now joining the professional game.'],'time_group','younger age group',[
     { text:'Only one new player is entering the professional game.', misconceptionCategory:'quantity_change' },
     { text:'An older age group of players is beginning to compete professionally.', misconceptionCategory:'meaning_confusion' },
     { text:'A younger age group of players is leaving professional competition.', misconceptionCategory:'meaning_confusion' }
   ],['vocab_generation']),
-  idea('solution','The club found a solution to the shortage of training space.','The club found a way to deal with not having enough training space.','cause_effect','solution addresses shortage',[
+  idea('solution','The club found a solution to the shortage of training space.',['The club found a way to deal with not having enough training space.','The club worked out how to solve its shortage of training space.','The club found an answer to its lack of training space.'],'cause_effect','solution addresses shortage',[
     { text:'The shortage of training space was caused by the club’s solution.', misconceptionCategory:'cause_effect_change' },
     { text:'The club decided to ignore the shortage of training space.', misconceptionCategory:'omitted_information' },
     { text:'The club made the shortage of training space more difficult to solve.', misconceptionCategory:'cause_effect_change' }
   ],['vocab_solution']),
-  idea('pastime','Cycling began as a pastime before it became her profession.','She first cycled as a hobby and later made it her career.','time','hobby came before profession',[
+  idea('pastime','Cycling began as a pastime before it became her profession.',['She first cycled as a hobby and later made it her career.','Cycling started as a hobby for her and later became her job.','Before cycling became her career, it was something she did for fun.'],'time','hobby came before profession',[
     { text:'Cycling became her profession before she tried it as a hobby.', misconceptionCategory:'time_change' },
     { text:'Cycling was always her profession and was never a hobby.', misconceptionCategory:'omitted_information' },
     { text:'Cycling remained only a hobby and never became her career.', misconceptionCategory:'omitted_information' }
   ],['vocab_pastime']),
-  idea('estimated','The estimated cost of the new sports centre is five million dollars.','The sports centre is expected to cost about five million dollars.','certainty','figure is approximate',[
+  idea('estimated','The estimated cost of the new sports centre is five million dollars.',['The sports centre is expected to cost about five million dollars.','The cost of the new sports centre is approximately five million dollars.','The expected cost of the new sports centre is roughly five million dollars.'],'certainty','figure is approximate',[
     { text:'The sports centre definitely costs exactly five million dollars.', misconceptionCategory:'degree_change' },
     { text:'The sports centre has already cost exactly five million dollars.', misconceptionCategory:'time_change' },
     { text:'No one has made any approximate calculation of the sports centre’s cost.', misconceptionCategory:'meaning_confusion' }
   ],['vocab_estimated']),
-  idea('relatively','The new sports centre is relatively small compared with the old stadium.','Compared with the old stadium, the new sports centre is fairly small.','comparison','size is judged relative to old stadium',[
+  idea('relatively','The new sports centre is relatively small compared with the old stadium.',['Compared with the old stadium, the new sports centre is fairly small.','The new sports centre is comparatively small when set against the old stadium.','The new sports centre is fairly small in comparison with the old stadium.'],'comparison','size is judged relative to old stadium',[
     { text:'The new sports centre is extremely small in every possible comparison.', misconceptionCategory:'degree_change' },
     { text:'The new sports centre and the old stadium are exactly the same size.', misconceptionCategory:'meaning_confusion' },
     { text:'Compared with the new sports centre, the old stadium is fairly small.', misconceptionCategory:'meaning_confusion' }
