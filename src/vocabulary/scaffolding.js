@@ -18,6 +18,19 @@ function narrowOptions(values, accepted) {
   return curated.filter(option => selected.has(option));
 }
 
+function firstCorrectTile(tiles, accepted) {
+  for (const answer of accepted) {
+    const cleanAnswer = text(answer).toLocaleLowerCase('en');
+    if (!cleanAnswer) continue;
+    const prefixes = tiles.filter(tile => {
+      const cleanTile = text(tile).toLocaleLowerCase('en');
+      return cleanTile && (cleanAnswer === cleanTile || cleanAnswer.startsWith(`${cleanTile} `));
+    });
+    if (prefixes.length) return prefixes.sort((a,b) => text(b).length - text(a).length)[0];
+  }
+  return null;
+}
+
 function partialTextClue(answer) {
   const clean = text(answer);
   if (!clean) return '';
@@ -49,8 +62,7 @@ export function buildSupportStep(activity = {}, attemptResult = {}) {
 
   if (activity.responseMode === 'tiles') {
     const tiles = array(activity.tiles).map(text).filter(Boolean);
-    const firstAcceptedToken = text(accepted[0]).split(/\s+/)[0];
-    const fixed = tiles.includes(firstAcceptedToken) ? firstAcceptedToken : tiles[0];
+    const fixed = firstCorrectTile(tiles, accepted);
     const remaining = [...tiles];
     const index = remaining.indexOf(fixed);
     if (index >= 0) remaining.splice(index, 1);
