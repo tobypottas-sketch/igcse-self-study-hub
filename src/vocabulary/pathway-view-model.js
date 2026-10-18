@@ -30,7 +30,7 @@ function stageFromPersisted(progress = {}, completedStages = []) {
     if (completedStages.length >= STAGE_IDS.length) return 'mastery';
     return STAGE_IDS[completedStages.length] ?? 'recognise';
   }
-  const hasStageEvidence = Object.keys(progress?.stages ?? {}).length > 0 || Array.isArray(progress?.completedStages);
+  const hasStageEvidence = Object.keys(progress?.stages ?? {}).length > 0 || Array.isArray(progress?.completedStages) || Array.isArray(progress?.completed_stages);
   if (hasStageEvidence) return 'recognise';
   const explicit = progress?.currentStage ?? progress?.current_stage;
   return STAGE_INDEX[explicit] != null ? explicit : 'recognise';
@@ -75,7 +75,7 @@ function wordPathwayState({ pathwayId, occurrence, unitMastery, globalMastery })
   return { currentStage, completedStages:stagesBefore(currentStage), mastered:false, needsPractice:false };
 }
 function journeyState(row = null) {
-  if (!row) return { currentStage:'recognise', completedStages:[], mastered:false, stageAttempts:0, stageCleanSuccesses:0 };
+  if (!row) return null;
   const completedStages = contiguousCompletedStages(row);
   const explicit = row.currentStage ?? row.current_stage;
   const currentStage = STAGE_INDEX[explicit] != null ? explicit : (STAGE_IDS[completedStages.length] ?? 'mastery');
@@ -95,11 +95,13 @@ export function buildWordPathwayStates({ occurrence, unitMastery = {}, globalMas
 
 export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, globalMastery = {}, coverageByPathway = null, journeyByPathway = null } = {}) {
   const unitNumber = occurrences.length ? occurrenceUnitNumber(occurrences[0]) : null;
-  const registered = unitNumber != null ? registeredPathwayCoverage(unitNumber) : null;
-  const effectiveCoverage = coverageByPathway ?? registered ?? {};
-  const effectiveJourney = journeyByPathway ?? (unitNumber != null ? registeredPathwayJourney(unitNumber) : {}) ?? {};
+  const registeredCoverage = unitNumber != null ? registeredPathwayCoverage(unitNumber) : null;
+  const effectiveCoverage = coverageByPathway ?? registeredCoverage ?? {};
+  const registeredJourney = unitNumber != null ? registeredPathwayJourney(unitNumber) : null;
+  const effectiveJourney = journeyByPathway ?? registeredJourney ?? {};
   const perOccurrence = occurrences.map(occurrence => ({ occurrence, states:buildWordPathwayStates({ occurrence, unitMastery, globalMastery }) }));
   const result = {};
+
   for (const pathway of VOCABULARY_PATHWAYS) {
     const coverage = effectiveCoverage?.[pathway.id] ?? null;
     const totalCount = Number.isFinite(Number(coverage?.totalOccurrences)) ? Number(coverage.totalOccurrences) : occurrences.length;
@@ -122,18 +124,39 @@ export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, glo
     }
 
     const journey = journeyState(effectiveJourney?.[pathway.id] ?? null);
+    if (journey) {
+      result[pathway.id] = {
+        currentStage:journey.currentStage,
+        completedStages:journey.completedStages,
+        needsPractice:words.some(word => word.needsPractice),
+        mastered:journey.mastered,
+        available:true,
+        coverageCount,
+        totalCount,
+        unavailableReason:null,
+        stageAttempts:journey.stageAttempts,
+        stageCleanSuccesses:journey.stageCleanSuccesses
+      };
+      continue;
+    }
+
+    const mastered = words.every(word => word.mastered);
+    const lowestIndex = mastered ? STAGE_INDEX.mastery : Math.min(...words.map(word => STAGE_INDEX[word.currentStage] ?? 0));
+    const currentStage = STAGE_IDS[lowestIndex] ?? 'recognise';
+    const completedStages = mastered ? [...STAGE_IDS] : STAGE_IDS.filter((stageId,index) => index < lowestIndex && words.every(word => word.completedStages.includes(stageId)));
     result[pathway.id] = {
-      currentStage:journey.currentStage,
-      completedStages:journey.completedStages,
+      currentStage,
+      completedStages,
       needsPractice:words.some(word => word.needsPractice),
-      mastered:journey.mastered,
+      mastered,
       available:true,
       coverageCount,
       totalCount,
       unavailableReason:null,
-      stageAttempts:journey.stageAttempts,
-      stageCleanSuccesses:journey.stageCleanSuccesses
+      stageAttempts:0,
+      stageCleanSuccesses:0
     };
   }
+
   return result;
 }
