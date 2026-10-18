@@ -14,6 +14,7 @@ function titleCase(value) {
   return text ? text[0].toUpperCase() + text.slice(1) : '';
 }
 function focusDefinition(id) { return PRACTICE_MODES.find(focus => focus.id === id) ?? PRACTICE_MODES.find(focus => focus.id === 'adaptive') ?? PRACTICE_MODES[0]; }
+function selectedFocus(id) { return PRACTICE_MODES.find(focus => focus.id === id) ?? null; }
 function questionSource(question) {
   const candidates = [
     ['sourceText','In context'],
@@ -60,15 +61,22 @@ export function renderVocabularyHome(root, { displayName = '', units = [] } = {}
   root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Cambridge IGCSE ESL 0511</span></header><section class="vocab-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase Builder</p><h1>Choose a unit</h1><p>${displayName ? `Hi ${escapeHtml(displayName)}. ` : ''}Choose a unit, then choose the exact 0511 skill you want to train.</p></section><section class="vocab-unit-grid">${cards}</section></main>`;
 }
 
-export function renderVocabularyUnit(root, { unitNumber, unitTitle, progress, practiceFocus = 'adaptive' } = {}) {
+export function renderVocabularyUnit(root, { unitNumber, unitTitle, progress, practiceFocus = null, contentReady = true } = {}) {
   const p = progress ?? { mastered:0, total:50, needsAnotherLook:0, reviewDue:0 };
-  const selected = focusDefinition(practiceFocus);
+  const selected = selectedFocus(practiceFocus);
+  const ready = contentReady !== false;
   const focusButtons = PRACTICE_MODES.map(focus => `
-    <button type="button" class="vocab-focus-card${focus.id === selected.id ? ' is-selected' : ''}" data-action="set-practice-focus" data-practice-focus="${focus.id}" aria-pressed="${focus.id === selected.id ? 'true' : 'false'}">
+    <button type="button" class="vocab-focus-card${focus.id === selected?.id ? ' is-selected' : ''}" data-action="set-practice-focus" data-practice-focus="${focus.id}" aria-pressed="${focus.id === selected?.id ? 'true' : 'false'}">
       <strong>${escapeHtml(focus.label)}</strong><span>${escapeHtml(focus.description)}</span>
     </button>`).join('');
-  const startLabel = selected.id === 'adaptive' ? 'Start Adaptive Session' : `Start ${selected.label}`;
-  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="back-units">← All units</button><span>Unit ${escapeHtml(unitNumber)}</span></header><section class="vocab-unit-hero"><p class="vocab-kicker">Unit ${escapeHtml(unitNumber)}</p><h1>${escapeHtml(unitTitle)}</h1><div class="vocab-progress-row"><strong>${escapeHtml(p.mastered)} / ${escapeHtml(p.total)} mastered</strong><span>${escapeHtml(p.needsAnotherLook)} need another look</span><span>${escapeHtml(p.reviewDue)} ready for review</span></div></section><section class="vocab-practice-picker"><div class="vocab-practice-picker__head"><p class="vocab-kicker">Choose a 0511 skill</p><h2>${escapeHtml(selected.label)}</h2><p>${escapeHtml(selected.description)}</p></div><div class="vocab-focus-grid vocab-focus-grid--seven">${focusButtons}</div></section><section class="vocab-route-grid"><article class="vocab-route-card vocab-route-card--primary"><p class="vocab-kicker">10-activity session</p><h2>${escapeHtml(selected.label)}</h2><p>Ten priority activities, with support and difficulty adjusted as you work.</p><button class="vocab-button vocab-button--primary" data-action="start-adaptive">${escapeHtml(startLabel)}</button></article><article class="vocab-route-card vocab-route-card--mixed"><p class="vocab-kicker">Timed practice</p><h2>Mixed practice</h2><p>Mixes eligible activity styles as you work, while still respecting your current readiness and support needs.</p><div class="vocab-time-grid">${[5,10,15,20].map(minutes => `<button class="vocab-button" data-action="start-timed" data-minutes="${minutes}">${minutes} min</button>`).join('')}</div></article></section><button class="vocab-link" data-action="view-all-words">View all 50 words</button></main>`;
+  const pickerTitle = selected?.label ?? 'Choose a skill';
+  const pickerDescription = selected?.description ?? 'Select the area you want to practise. Nothing is selected yet.';
+  const startLabel = !ready ? 'Loading activities…' : selected ? (selected.id === 'adaptive' ? 'Start Adaptive Session' : `Start ${selected.label}`) : 'Select a skill to start';
+  const startDisabled = !ready || !selected;
+  const routeTitle = selected?.label ?? 'Choose a skill above';
+  const disabledAttr = startDisabled ? ' disabled aria-disabled="true"' : '';
+  const timedDisabled = ready ? '' : ' disabled aria-disabled="true"';
+  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="back-units">← All units</button><span>Unit ${escapeHtml(unitNumber)}</span></header><section class="vocab-unit-hero"><p class="vocab-kicker">Unit ${escapeHtml(unitNumber)}</p><h1>${escapeHtml(unitTitle)}</h1><div class="vocab-progress-row"><strong>${escapeHtml(p.mastered)} / ${escapeHtml(p.total)} mastered</strong><span>${escapeHtml(p.needsAnotherLook)} need another look</span><span>${escapeHtml(p.reviewDue)} ready for review</span></div></section><section class="vocab-practice-picker"><div class="vocab-practice-picker__head"><p class="vocab-kicker">Choose a 0511 skill</p><h2>${escapeHtml(pickerTitle)}</h2><p>${escapeHtml(pickerDescription)}</p></div><div class="vocab-focus-grid vocab-focus-grid--seven">${focusButtons}</div></section><section class="vocab-route-grid"><article class="vocab-route-card vocab-route-card--primary"><p class="vocab-kicker">10-activity session</p><h2>${escapeHtml(routeTitle)}</h2><p>Ten priority activities, with support and difficulty adjusted as you work.</p><button class="vocab-button vocab-button--primary" data-action="start-adaptive"${disabledAttr}>${escapeHtml(startLabel)}</button></article><article class="vocab-route-card vocab-route-card--mixed"><p class="vocab-kicker">Timed practice</p><h2>Mixed practice</h2><p>Mixes eligible activity styles as you work, while still respecting your current readiness and support needs.</p><div class="vocab-time-grid">${[5,10,15,20].map(minutes => `<button class="vocab-button" data-action="start-timed" data-minutes="${minutes}"${timedDisabled}>${minutes} min</button>`).join('')}</div></article></section><button class="vocab-link" data-action="view-all-words"${ready ? '' : ' disabled aria-disabled="true"'}>View all 50 words</button></main>`;
 }
 
 export function renderVocabularyWords(root, { unitNumber, unitTitle, words = [] } = {}) {
