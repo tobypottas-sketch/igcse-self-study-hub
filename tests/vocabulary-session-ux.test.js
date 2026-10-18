@@ -24,23 +24,20 @@ const newMastery = { status:'new', strandEvidence:{ meaning:0, recognition:0, co
 
 function root() { return { innerHTML:'' }; }
 
-test('unit page exposes all seven Cambridge 0511 practice modes', () => {
+test('unit page exposes six fixed mastery pathways and review-only Mixed Practice', () => {
   const target = root();
-  renderVocabularyUnit(target, { unitNumber:1, unitTitle:'Sports and Free Time', progress:{ mastered:0,total:50,needsAnotherLook:0,reviewDue:0 }, practiceFocus:'adaptive' });
-  const modes = [
-    ['learn','Learn the Vocabulary'],
-    ['context','Understand in Context'],
-    ['question_text','Question ↔ Text'],
-    ['phrase_paraphrase','Phrase Paraphrasing'],
-    ['idea_paraphrase','Idea Paraphrasing'],
-    ['writing','Writing Vocabulary'],
-    ['adaptive','Adaptive 0511 Mix']
-  ];
-  for (const [id,label] of modes) {
-    assert.match(target.innerHTML, new RegExp(label.replace('&','&amp;'), 'i'));
-    assert.match(target.innerHTML, new RegExp(`data-practice-focus="${id}"`));
+  renderVocabularyUnit(target, { unitNumber:1, unitTitle:'Sports and Free Time', progress:{ mastered:0,total:50,needsAnotherLook:0,reviewDue:0 }, pathwayStates:{} });
+  for (const label of ['Meaning','Context','Word Families','Paraphrasing','Precision &amp; Use','Spelling &amp; Recall']) {
+    assert.match(target.innerHTML, new RegExp(label));
   }
-  for (const minutes of [5,10,15,20]) assert.match(target.innerHTML, new RegExp(`>${minutes} min<`));
+  assert.equal((target.innerHTML.match(/data-action="open-pathway"/g) ?? []).length, 6);
+  for (const stage of ['recognise','match','apply','recall','mastery']) {
+    assert.equal((target.innerHTML.match(new RegExp(`data-pathway-stage="${stage}"`, 'g')) ?? []).length, 6);
+  }
+  assert.match(target.innerHTML, /data-action="start-mixed-review"/);
+  assert.match(target.innerHTML, /Review only/);
+  assert.doesNotMatch(target.innerHTML, /data-practice-focus=/);
+  assert.doesNotMatch(target.innerHTML, /data-minutes=/);
 });
 
 test('question renderer supports choice, tiles, evidence selection and short text', () => {
