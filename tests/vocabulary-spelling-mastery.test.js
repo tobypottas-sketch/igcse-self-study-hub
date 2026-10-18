@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PATHWAY_ACTIVITY_MAP } from '../supabase/functions/_shared/vocabulary-pathway-contract.js';
 import { activityDefinition } from '../src/vocabulary/activity-catalogue.js';
-import { buildPathwayActivity } from '../src/vocabulary/pathway-activity-builder.js';
+import { buildActivity } from '../src/vocabulary/activity-factory.js';
 import { renderVocabularyQuestion } from '../src/vocabulary/views.js';
 
 const item = {
@@ -15,6 +15,12 @@ const contexts = [
   { contextId:'c2', occurrenceId:'o1', vocabularyId:'v1', type:'paraphrase_context', text:'Reading is a popular leisure activity for students.', targetRewrite:'leisure', acceptedAnswers:['leisure'] }
 ];
 
+function build(overrides = {}) {
+  return buildActivity({
+    activityType:'spell_in_context', occurrence, item, contexts, unitItems:[item], seed:'spell-mastery', ...overrides
+  });
+}
+
 test('Spelling Recall and Mastery use different operations', () => {
   assert.deepEqual(PATHWAY_ACTIVITY_MAP.spelling_recall.recall,['spell_word']);
   assert.deepEqual(PATHWAY_ACTIVITY_MAP.spelling_recall.mastery,['spell_in_context']);
@@ -25,9 +31,7 @@ test('Spelling Recall and Mastery use different operations', () => {
 });
 
 test('Spelling Mastery uses a curated sentence cue and hides the target word', () => {
-  const question = buildPathwayActivity({
-    activityType:'spell_in_context', occurrence, item, contexts, unitItems:[item], seed:'spell-mastery-1'
-  });
+  const question = build({ seed:'spell-mastery-1' });
   assert.equal(question.contentSource,'context');
   assert.ok(['c1','c2'].includes(question.contextId));
   assert.match(question.prompt,/spell|complete|word/i);
@@ -37,20 +41,22 @@ test('Spelling Mastery uses a curated sentence cue and hides the target word', (
 });
 
 test('Spelling Mastery can move to a different curated context instead of repeating the same prompt', () => {
-  const first = buildPathwayActivity({
-    activityType:'spell_in_context', occurrence, item, contexts, unitItems:[item], seed:'spell-mastery-1'
-  });
-  const second = buildPathwayActivity({
-    activityType:'spell_in_context', occurrence, item, contexts, unitItems:[item], usedContentIds:[first.contentId], seed:'spell-mastery-2'
-  });
+  const first = build({ seed:'spell-mastery-1' });
+  const second = build({ usedContentIds:[first.contentId], seed:'spell-mastery-2' });
   assert.notEqual(second.contentId,first.contentId);
   assert.notEqual(second.sourceText,first.sourceText);
 });
 
+test('Spelling Mastery allows the third check to reuse a curated prompt only after distinct prompts are exhausted', () => {
+  const first = build({ seed:'spell-mastery-1' });
+  const second = build({ usedContentIds:[first.contentId], seed:'spell-mastery-2' });
+  const third = build({ usedContentIds:[first.contentId,second.contentId], seed:'spell-mastery-3' });
+  assert.ok([first.contentId,second.contentId].includes(third.contentId));
+  assert.equal(new Set([first.contentId,second.contentId]).size,2);
+});
+
 test('Spelling Mastery renderer never reveals the target word above the cue', () => {
-  const question = buildPathwayActivity({
-    activityType:'spell_in_context', occurrence, item, contexts, unitItems:[item], seed:'spell-mastery-render'
-  });
+  const question = build({ seed:'spell-mastery-render' });
   const root = { innerHTML:'' };
   renderVocabularyQuestion(root, {
     unitNumber:1,
