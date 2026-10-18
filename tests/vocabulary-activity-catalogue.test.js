@@ -16,12 +16,20 @@ const EXPECTED_ACTIVITIES = [
   'drag_word_definition',
   'drag_definition_word',
   'which_situation_fits',
+  'type_word_from_definition',
   'gap_fill_bank',
   'drag_word_sentence',
   'type_missing_word',
   'spell_word',
   'choose_word_sentence',
+  'context_sentence_match',
   'word_family_choice',
+  'word_family_match',
+  'spelling_choice',
+  'spelling_cue_match',
+  'spelling_rebuild',
+  'precision_choice',
+  'precision_match',
   'meaning_in_context',
   'correct_usage',
   'collocation_builder',
@@ -99,6 +107,8 @@ test('stage filtering respects minimum readiness while keeping supported work av
   assert.ok(fresh.includes('drag_word_definition'));
   assert.ok(fresh.includes('drag_definition_word'));
   assert.ok(fresh.includes('phrase_match'));
+  assert.ok(fresh.includes('spelling_choice'));
+  assert.ok(fresh.includes('spelling_cue_match'));
   assert.equal(fresh.includes('rewrite_idea'), false);
   assert.equal(fresh.includes('explain_another_way'), false);
 
@@ -107,6 +117,8 @@ test('stage filtering respects minimum readiness while keeping supported work av
   assert.ok(building.includes('drag_word_sentence'));
   assert.ok(building.includes('type_missing_word'));
   assert.ok(building.includes('spell_word'));
+  assert.ok(building.includes('type_word_from_definition'));
+  assert.ok(building.includes('spelling_rebuild'));
 
   const secure = activitiesForStage('secure').map(activity => activity.id);
   assert.ok(secure.includes('rewrite_phrase'));
