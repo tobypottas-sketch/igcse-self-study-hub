@@ -29,6 +29,19 @@ function questionSource(question) {
   }
   return null;
 }
+function normalizedDisplayText(value) {
+  return String(value ?? '').toLocaleLowerCase('en').replace(/[“”‘’'"`]/g, '').replace(/\s+/g, ' ').trim();
+}
+function visibleQuestionSource(question) {
+  const source = questionSource(question);
+  if (!source) return null;
+  const prompt = String(question?.prompt ?? '').trim();
+  if (prompt.endsWith(source.text)) return source;
+  const normalizedPrompt = normalizedDisplayText(prompt);
+  const normalizedSource = normalizedDisplayText(source.text);
+  if (normalizedSource && normalizedPrompt.includes(normalizedSource)) return null;
+  return source;
+}
 function displayPrompt(question) {
   const prompt = String(question?.prompt ?? '').trim();
   const source = questionSource(question)?.text ?? '';
@@ -165,7 +178,7 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
   const supportHtml = supportText ? `<p id="vocab-support-hint" class="vocab-support-hint">${escapeHtml(supportText)}</p>` : '';
   const definition = activityDefinition(question?.type);
   const questionLabel = definition?.label ?? titleCase(question?.type ?? 'Practice');
-  const source = questionSource(question);
+  const source = visibleQuestionSource(question);
   const questionContext = source ? `<aside class="vocab-question-context vocab-source-text"><span>${escapeHtml(source.label)}</span><p>${escapeHtml(source.text)}</p></aside>` : '';
   const targetPill = term && !HIDE_TARGET_TYPES.has(question?.type) ? `<div class="vocab-target-pill">${escapeHtml(term)}</div>` : '';
   const answerForm = `<form data-form="vocabulary-answer" class="vocab-answer-form">${renderAnswerControl(question, feedback, retry, support)}</form>`;
