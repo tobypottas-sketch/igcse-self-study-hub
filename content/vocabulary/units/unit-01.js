@@ -1,5 +1,6 @@
 import { buildCuratedUnit } from '../build-unit.js';
 import unit1Activities from './unit-01-activities.js';
+import unit1WordFamilySupplement from './unit-01-word-family-supplement.js';
 
 const e = (term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence, paraphraseSource, paraphraseSentence, productionSource, productionSentence, extras = {}) => ({
   term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence,
@@ -67,5 +68,5 @@ export default buildCuratedUnit({
   status:'approved',
   source:'0511_UNIT_1.docx',
   entries,
-  activities:unit1Activities
+  activities:[...unit1Activities, ...unit1WordFamilySupplement]
 });
