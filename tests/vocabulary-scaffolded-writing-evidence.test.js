@@ -54,12 +54,13 @@ test('real Unit 1 Word Family Switch is a constrained one-word completion', () =
   assert.ok(question.markingReference.acceptedAnswers.every(answer => String(answer).trim().split(/\s+/).length === 1));
 });
 
-test('real Unit 1 Improve the Vocabulary can be a constrained blank/replacement task', () => {
-  const record = unit1.activities.find(row => row.contentType === 'writing_set' && row.activityData.taskType === 'collocation');
+test('real Unit 1 Improve the Vocabulary is a constrained short replacement task', () => {
+  const record = unit1.activities.find(row => row.contentType === 'writing_set' && row.activityData.taskType === 'improve_vocabulary');
   assert.ok(record);
   const question = buildFromRecord('improve_vocabulary', record, 'secure');
   assert.equal(question.responseMode, 'text');
-  assert.match(question.sourceText, /____/);
+  assert.equal(question.taskType, 'improve_vocabulary');
+  assert.ok(question.sourceText.length > 0);
   assert.ok(question.markingReference.acceptedAnswers.every(answer => String(answer).trim().split(/\s+/).length <= 3));
 });
 

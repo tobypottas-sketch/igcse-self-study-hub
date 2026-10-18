@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 import { applyEvidence, markCuratedAnswer, spotMeaningChangeMarking, successClearsRecentError } from '../_shared/vocabulary-engine.js';
-import { buildStoredAttemptMetadata, strandForQuestionType, validateVocabularyAttempt } from './validation.js';
+import { assertWritingTaskMatchesQuestionType, buildStoredAttemptMetadata, strandForQuestionType, validateVocabularyAttempt } from './validation.js';
 
 const CORS = {
   'Access-Control-Allow-Origin':'*',
@@ -114,7 +114,10 @@ function unitActivityMarking(activity: any, questionType: string, activityVarian
   if (activity.content_type === 'idea_set' && questionType === 'spot_meaning_change') return spotMeaningChangeMarking(data, activityVariantId);
   if (activity.content_type === 'idea_set') return ideaMarking(data);
   if (activity.content_type === 'question_text') return questionTextMarking(data, activityVariantId, questionType);
-  if (activity.content_type === 'writing_set') return { acceptedAnswers:strings(data.acceptedAnswers), distractors:[] };
+  if (activity.content_type === 'writing_set') {
+    assertWritingTaskMatchesQuestionType(data.taskType, questionType);
+    return { acceptedAnswers:strings(data.acceptedAnswers), distractors:[] };
+  }
   throw new Error('Unsupported vocabulary unit activity content type.');
 }
 

@@ -18,6 +18,10 @@ const MISCONCEPTIONS = new Set([
 const EVIDENCE_STRENGTHS = new Set(['light','medium','strong','very_strong']);
 const SUPPORT_LEVELS = new Set(['none','light','major']);
 const CONTENT_SOURCES = new Set(['context','unit_activity']);
+const WRITING_TASK_FOR_QUESTION = Object.freeze({
+  word_family_switch:'word_family',
+  improve_vocabulary:'improve_vocabulary'
+});
 
 function id(value, label) {
   const text = String(value ?? '').trim();
@@ -66,6 +70,12 @@ export function validateVocabularyAttempt(value = {}) {
     firstAttempt:value.firstAttempt !== false, retryUsed:value.retryUsed === true,
     recoveredLater:value.recoveredLater === true, review:value.review === true, preview:value.preview === true
   };
+}
+
+export function assertWritingTaskMatchesQuestionType(taskType, questionType) {
+  const expected = WRITING_TASK_FOR_QUESTION[String(questionType ?? '')];
+  if (!expected || String(taskType ?? '') !== expected) throw new Error('Writing activity does not match question type.');
+  return true;
 }
 
 export function strandForQuestionType(questionType) {
