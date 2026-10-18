@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { renderVocabularyWords } from '../src/vocabulary/views.js';
 
+// Presentation-only contract: dictionary metadata must not replace pathway progress.
 function root() { return { innerHTML:'' }; }
 
 const pathways = {
