@@ -95,12 +95,13 @@ function recomputeDerived(stage) {
 
 function canComplete(stageId, stage, attempt = {}) {
   if (stage.completed) return true;
-  if (stageId === 'recognise' || stageId === 'match') return stage.cleanSuccesses >= 2 && stage.contentIds.length >= 2;
+  if (stageId === 'recognise') return stage.cleanSuccesses >= 2 && stage.contentIds.length >= 2;
+  if (stageId === 'match') return stage.cleanSuccesses >= 2;
   if (stageId === 'apply') {
     if (stage.cleanSuccesses < 2) return false;
-    return attempt.contextSensitive === true ? stage.contextIds.length >= 2 : stage.contentIds.length >= 2;
+    return attempt.contextSensitive === true ? stage.contextIds.length >= 2 : true;
   }
-  if (stageId === 'recall') return stage.cleanUnassistedSuccesses >= 2 && stage.contentIds.length >= 2;
+  if (stageId === 'recall') return stage.cleanUnassistedSuccesses >= 2;
   if (stageId === 'mastery') return stage.successes >= 3 && stage.cleanUnassistedSuccesses >= 2 && stage.promptKeys.length >= 2;
   return false;
 }
