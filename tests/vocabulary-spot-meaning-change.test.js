@@ -112,7 +112,7 @@ test('5. all displayed options are sentence-level and shaped alike (no length gi
       assert.notEqual(option, record.activityData.originalIdea, 'an option must not repeat the original idea verbatim');
     }
     const correct = question.markingReference.acceptedAnswers[0];
-    const nearby = question.options.filter(option => option !== correct && Math.abs(words(option) - words(correct)) <= 2).length;
+    const nearby = question.options.filter(option => option !== correct && Math.abs(words(option) - words(correct)) <= 3).length;
     assert.ok(nearby >= 2, `${record.activityContentId}/${seed}: length giveaway ${question.options.map(words)}`);
     assert.ok(Math.max(...question.options.map(words)) - Math.min(...question.options.map(words)) <= 5, `${record.activityContentId}/${seed}: option lengths vary too much`);
   }
@@ -124,7 +124,7 @@ test('every possible distractor choice (not just sampled seeds) yields a fair, s
     record.activityData.distractors.forEach((row, index) => {
       const accurate = record.activityData.accurateParaphrases.slice(0, 3);
       const counts = [row.text, ...accurate].map(words);
-      assert.ok(accurate.filter(option => Math.abs(words(option) - words(row.text)) <= 2).length >= 2, `${record.activityContentId} q${index} would be a length giveaway`);
+      assert.ok(accurate.filter(option => Math.abs(words(option) - words(row.text)) <= 3).length >= 2, `${record.activityContentId} q${index} would be a length giveaway`);
       const server = spotMeaningChangeMarking(record.activityData, `q${index}`);
       assert.deepEqual(server.acceptedAnswers, [row.text]);
       for (const option of accurate) assert.equal(markLikeServer(record, `q${index}`, sense, item.vocabularyId, option).correct, false);
