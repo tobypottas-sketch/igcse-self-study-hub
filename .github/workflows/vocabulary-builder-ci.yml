@@ -2,8 +2,6 @@ name: Vocabulary Builder CI
 on:
   push:
     branches: [main, design/vocabulary-paraphrase-builder, design/0511-vocabulary-activity-redesign-20261017, 'fix/**']
-permissions:
-  contents: write
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -12,9 +10,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Apply dictionary list implementation
-        if: startsWith(github.ref, 'refs/heads/fix/dictionary-word-list')
-        run: node .github/dictionary-list-patch.mjs
       - run: npm test
       - run: node scripts/validate-vocabulary-content.mjs
       - name: Verify Unit 1 publish export scope
@@ -32,16 +27,3 @@ jobs:
           if (!inserts.includes('vocabulary_unit_activities')) throw new Error('Unit 1 activity bank is missing from export.');
           console.log('Unit 1 export touches only curated vocabulary content tables:', [...new Set(inserts)].join(', '));
           NODE
-      - name: Commit generated dictionary implementation
-        if: startsWith(github.ref, 'refs/heads/fix/dictionary-word-list') && success()
-        shell: bash
-        run: |
-          if git diff --quiet -- src/vocabulary/app.js src/vocabulary/views.js vocabulary-extra.css; then
-            echo 'Dictionary implementation already committed.'
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/vocabulary/app.js src/vocabulary/views.js vocabulary-extra.css
-          git commit -m 'feat: apply dictionary list presentation'
-          git push origin HEAD:fix/dictionary-word-list
