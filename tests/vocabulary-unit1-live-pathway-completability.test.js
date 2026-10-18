@@ -77,7 +77,17 @@ function completeStage({ pathwayId, stageId, content, target, progress }) {
 
 const content = plannerContent(unit1);
 const coverage = buildPathwayCoverage({ content });
-const LIVE_PATHWAYS = ['meaning','context','spelling_recall'];
+const LIVE_PATHWAYS = ['meaning','context','word_families','spelling_recall'];
+
+test('Unit 1 Word Families serves every vocabulary item with a curated word family', () => {
+  const expected = unit1.occurrences
+    .filter(occurrence => (content.itemsById[occurrence.vocabularyId]?.wordFamily ?? []).length > 0)
+    .map(occurrence => occurrence.occurrenceId)
+    .sort();
+  assert.ok(expected.length > 0,'Unit 1 needs real word-family targets');
+  assert.equal(coverage.word_families.available,true,'Word Families must be live once the bank is complete');
+  assert.deepEqual([...coverage.word_families.occurrenceIds].sort(),expected);
+});
 
 test('every Unit 1 pathway declared live is genuinely completable to Mastery for every serviceable word', () => {
   for (const pathwayId of LIVE_PATHWAYS) {
@@ -98,7 +108,7 @@ test('every Unit 1 pathway declared live is genuinely completable to Mastery for
 });
 
 test('Unit 1 pathways withheld for incomplete banks are excluded from the completability gate', () => {
-  for (const pathwayId of ['word_families','paraphrasing','precision_use']) {
+  for (const pathwayId of ['paraphrasing','precision_use']) {
     assert.equal(coverage[pathwayId].available,false,pathwayId);
     assert.equal(coverage[pathwayId].reason,'content_bank_incomplete',pathwayId);
   }
