@@ -111,7 +111,9 @@ export function summarizeMisconceptions(events = []) {
   const counts = new Map();
   let index = 0;
   for (const event of Array.isArray(events) ? events : []) {
-    const code = metadata(event).misconception;
+    const meta = metadata(event);
+    if (meta.outcome === 'correct') continue;
+    const code = meta.misconception;
     if (!MISCONCEPTIONS[code]) continue;
     const current = counts.get(code);
     if (current) current.count += 1;
