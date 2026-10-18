@@ -66,7 +66,10 @@ export async function submitVocabularyAttempt(client, input = {}) {
     retryUsed:input.retryUsed === true,
     recoveredLater:input.recoveredLater === true,
     review:input.review === true,
-    preview:input.preview === true
+    preview:input.preview === true,
+    pathwayId:input.pathwayId ?? null,
+    pathwayStage:input.pathwayStage ?? null,
+    servedPathwayStage:input.servedPathwayStage ?? null
   };
   const { data, error } = await client.functions.invoke('vocabulary-attempt-action', { body });
   if (error || !data?.ok) throw new Error(data?.error || error?.message || 'Unable to mark vocabulary attempt.');
