@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateVocabularyAttempt, buildStoredAttemptMetadata } from '../supabase/functions/vocabulary-attempt-action/validation.js';
+import * as attemptValidation from '../supabase/functions/vocabulary-attempt-action/validation.js';
+
+const { validateVocabularyAttempt, buildStoredAttemptMetadata } = attemptValidation;
 
 const valid = {
   occurrenceId:'u1_46_significant', contextId:'sig_ctx_3', questionType:'produce_paraphrase', rawAnswer:'a significant change',
@@ -50,6 +52,24 @@ test('redesigned attempt validation rejects bad support strength strands and mis
   assert.throws(() => validateVocabularyAttempt({ ...base, evidenceStrength:'huge' }), /evidence/i);
   assert.throws(() => validateVocabularyAttempt({ ...base, strands:['paraphrasing','secret'] }), /strand/i);
   assert.throws(() => validateVocabularyAttempt({ ...base, contextId:null, activityContentId:null }), /context|activity/i);
+});
+
+test('unit activity content types reject forged question-type evidence contracts', () => {
+  assert.equal(typeof attemptValidation.assertUnitActivityQuestionMatchesContentType, 'function');
+  const assertMatches = attemptValidation.assertUnitActivityQuestionMatchesContentType;
+
+  assert.doesNotThrow(() => assertMatches('phrase_set', 'rewrite_phrase'));
+  assert.doesNotThrow(() => assertMatches('phrase_set', 'explain_another_way'));
+  assert.doesNotThrow(() => assertMatches('idea_set', 'rewrite_idea'));
+  assert.doesNotThrow(() => assertMatches('idea_set', 'spot_meaning_change'));
+  assert.doesNotThrow(() => assertMatches('question_text', 'find_evidence'));
+  assert.doesNotThrow(() => assertMatches('writing_set', 'word_family_switch'));
+
+  assert.throws(() => assertMatches('phrase_set', 'rewrite_idea'), /content type|question type/i);
+  assert.throws(() => assertMatches('idea_set', 'rewrite_phrase'), /content type|question type/i);
+  assert.throws(() => assertMatches('question_text', 'rewrite_idea'), /content type|question type/i);
+  assert.throws(() => assertMatches('writing_set', 'same_idea'), /content type|question type/i);
+  assert.throws(() => assertMatches('idea_set', 'meaning_match'), /content type|question type/i);
 });
 
 test('stored attempt metadata never contains raw or normalized answer text', () => {

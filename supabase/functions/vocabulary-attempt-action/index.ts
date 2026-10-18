@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 import { applyEvidence, markCuratedAnswer, spotMeaningChangeMarking, successClearsRecentError } from '../_shared/vocabulary-engine.js';
-import { assertWritingTaskMatchesQuestionType, buildStoredAttemptMetadata, strandForQuestionType, validateVocabularyAttempt } from './validation.js';
+import { assertUnitActivityQuestionMatchesContentType, assertWritingTaskMatchesQuestionType, buildStoredAttemptMetadata, strandForQuestionType, validateVocabularyAttempt } from './validation.js';
 
 const CORS = {
   'Access-Control-Allow-Origin':'*',
@@ -109,6 +109,7 @@ function questionTextMarking(data: any, activityVariantId: string | null, questi
   return { acceptedAnswers:strings(selected?.evidenceSpans), distractors:[] };
 }
 function unitActivityMarking(activity: any, questionType: string, activityVariantId: string | null) {
+  assertUnitActivityQuestionMatchesContentType(activity?.content_type, questionType);
   const data = activity?.activity_data && typeof activity.activity_data === 'object' ? activity.activity_data : {};
   if (activity.content_type === 'phrase_set') return phraseMarking(data, questionType);
   if (activity.content_type === 'idea_set' && questionType === 'spot_meaning_change') return spotMeaningChangeMarking(data, activityVariantId);
