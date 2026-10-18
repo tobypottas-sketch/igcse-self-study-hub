@@ -75,7 +75,7 @@ test('different productive activity types can provide diversity even in the same
     strandEvidence:{ meaning:8, recognition:7, context:5, paraphrasing:6, production:6 },
     successfulProductions:2,
     productionContextIds:['ctx-a'],
-    productionActivityTypes:['build_paraphrase','rewrite_phrase'],
+    productionActivityTypes:['complete_paraphrase','rewrite_phrase'],
     unscaffoldedProductions:1
   });
   assert.equal(deriveStatus(mastery), 'mastered');
@@ -85,16 +85,16 @@ test('applyEvidence records productive activity diversity and only counts unscaf
   const { applyEvidence } = await engine();
   const first = applyEvidence(fresh(), {
     strands:['paraphrasing','production'], correct:true, evidenceStrength:'strong', supportLevel:'light', productive:true,
-    firstAttempt:false, retryUsed:true, contextId:'ctx-a', activityType:'build_paraphrase'
+    firstAttempt:false, retryUsed:true, contextId:'ctx-a', activityType:'complete_paraphrase'
   }, new Date());
-  assert.deepEqual(first.productionActivityTypes, ['build_paraphrase']);
+  assert.deepEqual(first.productionActivityTypes, ['complete_paraphrase']);
   assert.equal(first.unscaffoldedProductions, 0);
 
   const second = applyEvidence(first, {
     strands:['paraphrasing','production'], correct:true, evidenceStrength:'very_strong', supportLevel:'none', productive:true,
     firstAttempt:true, contextId:'ctx-b', activityType:'rewrite_phrase'
   }, new Date());
-  assert.deepEqual(second.productionActivityTypes.sort(), ['build_paraphrase','rewrite_phrase']);
+  assert.deepEqual(second.productionActivityTypes.sort(), ['complete_paraphrase','rewrite_phrase']);
   assert.equal(second.unscaffoldedProductions, 1);
 });
 
