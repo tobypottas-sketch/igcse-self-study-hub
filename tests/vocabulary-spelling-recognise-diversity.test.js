@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildPathwayActivity } from '../src/vocabulary/pathway-activity-builder.js';
+import { buildActivity } from '../src/vocabulary/activity-factory.js';
 import { assertContextQuestionMatchesContextType } from '../supabase/functions/vocabulary-attempt-action/validation.js';
 
 const item = {
@@ -14,7 +14,7 @@ const contexts = [
 ];
 
 function build(overrides = {}) {
-  return buildPathwayActivity({
+  return buildActivity({
     activityType:'spelling_choice',
     occurrence,
     item,
