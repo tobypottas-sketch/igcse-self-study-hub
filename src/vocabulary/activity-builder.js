@@ -98,9 +98,13 @@ function unitMeaningDistractors(args, correct) {
 }
 function meaningDistractors(args, sense, correct, seed) {
   const correctKey = text(correct).toLocaleLowerCase('en');
+  const maxWordDelta = 2;
+  const closeToCorrect = value => Math.abs(words(value) - words(correct)) <= maxWordDelta;
   const curated = rankedByLength(array(sense?.misleadingDistractors).filter(value => text(value).toLocaleLowerCase('en') !== correctKey), correct, `${seed}:meaning-curated`);
   const unitFallback = unitMeaningDistractors(args, correct);
-  return uniqueText([...curated, ...unitFallback]).slice(0,3);
+  const balancedCurated = curated.filter(closeToCorrect);
+  const balancedFallback = unitFallback.filter(closeToCorrect);
+  return uniqueText([...balancedCurated, ...balancedFallback, ...curated, ...unitFallback]).slice(0,3);
 }
 function occurrenceOwner(args, context) {
   const occurrence = array(args.unitOccurrences).find(row => row.occurrenceId === context?.occurrenceId);
