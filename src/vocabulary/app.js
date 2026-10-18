@@ -198,6 +198,12 @@ root?.addEventListener('click', event => {
   else if (action === 'set-practice-focus') { state.practiceFocus = target.dataset.practiceFocus || 'adaptive'; renderCurrentUnit(); }
   else if (action === 'start-adaptive') { try { startSession('adaptive'); } catch (error) { renderVocabularyError(root, error.message); } }
   else if (action === 'start-timed') { try { startSession('timed', Number(target.dataset.minutes)); } catch (error) { renderVocabularyError(root, error.message); } }
+  else if (action === 'clear-tile-answer') {
+    const form = target.closest?.('[data-form="vocabulary-answer"]'); const input = form?.querySelector?.('input[name="answer"]'); const build = form?.querySelector?.('[data-tile-build]');
+    const fixed = String(target.dataset.fixedAnswer ?? '').trim(); if (!form || !input) return;
+    for (const tile of form.querySelectorAll?.('.vocab-tile') ?? []) { tile.disabled = false; tile.classList.remove('is-used'); }
+    input.value = fixed; if (build) build.textContent = fixed ? '' : 'Choose tiles to build your answer';
+  }
   else if (action === 'next-question') nextQuestion(); else if (action === 'leave-session' || action === 'back-unit') openUnit(state.currentUnitNumber).catch(error => renderVocabularyError(root, error.message));
 });
 async function initialise() {
