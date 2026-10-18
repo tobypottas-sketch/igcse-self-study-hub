@@ -153,10 +153,15 @@ function meaningMatch(args, definition) {
 }
 function whichSituationFits(args, definition) {
   const { item, occurrence, contexts, unitActivities, seed } = args;
-  const context = chooseContext(contexts, ['paraphrase_context','production_context'], args.usedContentIds, seed);
   const term = text(item.term).toLocaleLowerCase('en');
+  const targetFreeContexts = array(contexts).filter(context => {
+    if (!['paraphrase_context','production_context'].includes(context?.type)) return false;
+    const candidate = text(context?.text);
+    return candidate && !candidate.toLocaleLowerCase('en').includes(term);
+  });
+  if (!targetFreeContexts.length) throw new Error('Which Situation Fits requires a target-free curated situation.');
+  const context = chooseContext(targetFreeContexts, ['paraphrase_context','production_context'], args.usedContentIds, seed);
   const correct = text(context.text);
-  if (!correct || correct.toLocaleLowerCase('en').includes(term)) throw new Error('Which Situation Fits requires a target-free curated situation.');
 
   let wrong = unitSituationDistractors(args, correct).slice(0,3);
   if (wrong.length < 3) {
