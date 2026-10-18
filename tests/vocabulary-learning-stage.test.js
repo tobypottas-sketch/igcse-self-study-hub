@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-// Contract-first: production stage derivation is intentionally absent in this RED commit.
 async function stageModule() {
   try { return await import('../src/vocabulary/learning-stage.js'); }
   catch { return {}; }
@@ -33,6 +32,13 @@ test('building mastery becomes Developing only with broad higher-order evidence'
   assert.equal(deriveLearningStage(mastery('building', { recognition:3, paraphrasing:3 })), 'developing');
   assert.equal(deriveLearningStage(mastery('building', { meaning:3, recognition:3 })), 'building');
   assert.equal(deriveLearningStage(mastery('building', { context:3, paraphrasing:2 })), 'building');
+});
+
+test('persisted database and unit contextual evidence shapes derive the same Developing stage', async () => {
+  const { deriveLearningStage } = await stageModule();
+  assert.equal(deriveLearningStage({ status:'building', strand_evidence:{ meaning:3, context:3 } }), 'developing');
+  assert.equal(deriveLearningStage({ status:'building', contextual_evidence:{ strandEvidence:{ recognition:3, paraphrasing:3 } } }), 'developing');
+  assert.equal(deriveLearningStage({ status:'building', contextualEvidence:{ strandEvidence:{ meaning:3, context:3 } } }), 'developing');
 });
 
 test('secure and mastered persisted states map directly to the same visible stage', async () => {
