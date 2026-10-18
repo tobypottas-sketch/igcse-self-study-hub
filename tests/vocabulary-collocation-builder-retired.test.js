@@ -125,7 +125,8 @@ test('items that carry legacy collocations still build every other live activity
 });
 
 test('the live vocabulary catalogue stays coherent after retirements and every mode still has work', () => {
-  assert.equal(ACTIVITY_TYPES.length, 18, 'retired definitions are kept, not deleted');
+  assert.ok(activityDefinition('correct_usage')?.retired, 'retired correct_usage definition is retained');
+  assert.ok(activityDefinition(RETIRED)?.retired, 'retired collocation definition is retained');
   assert.ok(LIVE_IDS.length > 0);
   assert.deepEqual(activitiesForMode('adaptive').map(activity => activity.id), LIVE_IDS);
   for (const mode of MODES) assert.ok(activitiesForMode(mode).length > 0, mode);

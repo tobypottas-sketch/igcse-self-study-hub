@@ -10,15 +10,19 @@ const PROPAGATION = Object.freeze({
   meaning:['meaning'],
   recognition:['recognition','meaning'],
   context:['context','meaning'],
-  paraphrasing:['paraphrasing','recognition','meaning'],
+  // Paraphrasing demonstrates meaning transfer, but scaffolded paraphrase work must not
+  // manufacture a third independent strand simply through repetition.
+  paraphrasing:['paraphrasing','meaning'],
   production:['production','paraphrasing','recognition','meaning']
 });
 const REVIEW_DAYS = [4, 10, 24, 45, 70, 100];
 const EXACT_CONTEXT_TYPES = new Set([
   'replace_phrase','produce_paraphrase','use_target','context_gap_fill',
   'build_paraphrase','complete_paraphrase','rewrite_phrase','build_same_idea','rewrite_idea',
-  'improve_vocabulary','explain_another_way','collocation_builder','word_family_switch',
-  'same_idea','spot_meaning_change','find_evidence','which_situation_fits','correct_usage'
+  'improve_vocabulary','explain_another_way','collocation_builder','word_family_switch','word_family_choice',
+  'same_idea','spot_meaning_change','find_evidence','which_situation_fits','correct_usage',
+  'definition_to_word','drag_definition_word','spell_word',
+  'gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence'
 ]);
 const INACCURATE_SELECTION_TYPES = new Set(['identify_inaccurate_paraphrase','spot_meaning_change']);
 const EVIDENCE_STRENGTH = Object.freeze({ light:1, medium:2, strong:3, very_strong:4 });
@@ -192,7 +196,9 @@ function semanticDistractorMap(context = {}) {
 }
 
 function defaultStrandsForQuestionType(questionType) {
-  if (['improve_vocabulary','word_family_switch'].includes(questionType)) return ['context','recognition'];
+  if (['improve_vocabulary','word_family_switch','word_family_choice','gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence'].includes(questionType)) return ['context','recognition'];
+  if (['definition_to_word','word_definition_match','drag_word_definition','drag_definition_word'].includes(questionType)) return ['meaning','recognition'];
+  if (questionType === 'spell_word') return ['recognition','meaning'];
   if (['produce_paraphrase','use_target','replace_phrase','rewrite_phrase','rewrite_idea','explain_another_way'].includes(questionType)) return ['production'];
   // Scaffolded paraphrase completion/assembly is paraphrasing evidence, never independent production.
   if (['same_idea','spot_meaning_change','phrase_match','build_paraphrase','complete_paraphrase','build_same_idea'].includes(questionType)) return ['paraphrasing'];

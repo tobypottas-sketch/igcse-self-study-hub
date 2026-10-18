@@ -1,4 +1,7 @@
 const STAGE_ORDER = Object.freeze({ new:0, building:1, secure:2, mastered:3 });
+const LEARNING_STAGE_ORDER = Object.freeze({ emerging:0, building:1, developing:2, secure:3, mastered:4 });
+
+export const ACTIVITY_FAMILIES = Object.freeze(['recognition','retrieval','discrimination','manipulation','production']);
 
 export const PRACTICE_MODES = Object.freeze([
   { id:'learn', label:'Learn the Vocabulary', description:'Build core meaning, context, paraphrase recognition and word-family control.' },
@@ -11,35 +14,41 @@ export const PRACTICE_MODES = Object.freeze([
 ]);
 
 export const ACTIVITY_TYPES = Object.freeze([
-  { id:'meaning_match', label:'Meaning Match', practiceModes:['learn'], responseMode:'choice', minimumStage:'new', strands:['meaning'], evidenceStrength:'light', productive:false, skillFamily:'meaning' },
-  { id:'which_situation_fits', label:'Which Situation Fits?', practiceModes:['learn','context'], responseMode:'choice', minimumStage:'new', strands:['meaning','context'], evidenceStrength:'medium', productive:false, skillFamily:'meaning' },
-  { id:'meaning_in_context', label:'Meaning in Context', practiceModes:['context','learn'], responseMode:'choice', minimumStage:'building', strands:['context','meaning'], evidenceStrength:'medium', productive:false, skillFamily:'context' },
-  // Retired from live use: the old builder mixed a correct usage sentence with paraphrase-error sentences and bare
-  // meaning distractors, so students could answer from option form instead of judging usage. Keep the definition for
-  // historical attempts; rebuild against a curated usage_set before re-enabling.
-  { id:'correct_usage', label:'Correct Usage', practiceModes:['learn','context','writing'], responseMode:'choice', minimumStage:'building', strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'context', retired:true },
-  // Retired from live use: legacy tile task only shuffles collocations[0] (every tile is part of the answer, no curated
-  // distractors). Kept so historical attempts still resolve; rebuild as curated collocation_set before re-enabling.
-  { id:'collocation_builder', label:'Collocation Builder', practiceModes:['learn','writing'], responseMode:'tiles', minimumStage:'building', strands:['recognition','production'], evidenceStrength:'strong', productive:true, skillFamily:'writing_vocabulary', retired:true },
-  // Controlled word-form completion is useful writing evidence, but the sentence frame determines almost the whole answer.
-  // It therefore strengthens contextual/recognition control without counting as independent lexical production.
-  { id:'word_family_switch', label:'Word Family Switch', practiceModes:['learn','writing'], responseMode:'text', minimumStage:'building', strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'writing_vocabulary' },
-  { id:'question_text_bridge', label:'Question ↔ Text Bridge', practiceModes:['question_text','context'], responseMode:'choice', minimumStage:'building', strands:['context','paraphrasing'], evidenceStrength:'medium', productive:false, skillFamily:'question_text' },
-  { id:'find_evidence', label:'Find the Evidence', practiceModes:['question_text','context'], responseMode:'evidence', minimumStage:'building', strands:['context'], evidenceStrength:'medium', productive:false, skillFamily:'question_text' },
-  { id:'phrase_match', label:'Phrase Match', practiceModes:['phrase_paraphrase','learn'], responseMode:'choice', minimumStage:'new', strands:['paraphrasing'], evidenceStrength:'light', productive:false, skillFamily:'phrase_paraphrasing' },
-  // Curated assembly/completion is useful paraphrasing evidence, but scaffolded. It must never count as independent
-  // production (no `production` strand, productive:false). Keep identical to ACTIVITY_EVIDENCE in vocabulary-attempt-action/index.ts.
-  { id:'build_paraphrase', label:'Build the Paraphrase', practiceModes:['phrase_paraphrase'], responseMode:'tiles', minimumStage:'building', strands:['paraphrasing'], evidenceStrength:'medium', productive:false, skillFamily:'phrase_paraphrasing' },
-  { id:'complete_paraphrase', label:'Complete the Paraphrase', practiceModes:['phrase_paraphrase'], responseMode:'text', minimumStage:'building', strands:['paraphrasing'], evidenceStrength:'medium', productive:false, skillFamily:'phrase_paraphrasing' },
-  { id:'rewrite_phrase', label:'Rewrite the Phrase', practiceModes:['phrase_paraphrase'], responseMode:'text', minimumStage:'secure', strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true, skillFamily:'phrase_paraphrasing' },
-  { id:'same_idea', label:'Same Idea', practiceModes:['idea_paraphrase'], responseMode:'choice', minimumStage:'building', strands:['paraphrasing'], evidenceStrength:'medium', productive:false, skillFamily:'idea_paraphrasing' },
-  { id:'spot_meaning_change', label:'Spot the Meaning Change', practiceModes:['idea_paraphrase','question_text'], responseMode:'choice', minimumStage:'building', strands:['paraphrasing','context'], evidenceStrength:'medium', productive:false, skillFamily:'idea_paraphrasing' },
-  { id:'build_same_idea', label:'Build the Same Idea', practiceModes:['idea_paraphrase'], responseMode:'tiles', minimumStage:'secure', strands:['paraphrasing'], evidenceStrength:'medium', productive:false, skillFamily:'idea_paraphrasing' },
-  { id:'rewrite_idea', label:'Rewrite the Idea', practiceModes:['idea_paraphrase'], responseMode:'text', minimumStage:'secure', strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true, skillFamily:'idea_paraphrasing' },
-  // Current Unit 1 tasks are constrained replacements/completions. They are valuable controlled writing practice, not
-  // independent production, so they must not satisfy Mastered production gates.
-  { id:'improve_vocabulary', label:'Improve the Vocabulary', practiceModes:['writing'], responseMode:'text', minimumStage:'secure', strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'writing_vocabulary' },
-  { id:'explain_another_way', label:'Explain It Another Way', practiceModes:['writing','idea_paraphrase'], responseMode:'text', minimumStage:'mastered', strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true, skillFamily:'communication_repair' }
+  { id:'meaning_match', label:'Meaning Match', practiceModes:['learn'], responseMode:'choice', minimumStage:'new', family:'recognition', earliestStage:'emerging', preferredStages:['emerging','building'], supportSuitable:true, reviewSuitable:true, strands:['meaning'], evidenceStrength:'light', productive:false, skillFamily:'meaning' },
+  { id:'definition_to_word', label:'Definition → Word', practiceModes:['learn'], responseMode:'choice', minimumStage:'new', family:'recognition', earliestStage:'emerging', preferredStages:['emerging','building'], supportSuitable:true, reviewSuitable:true, strands:['meaning','recognition'], evidenceStrength:'light', productive:false, skillFamily:'meaning' },
+  { id:'word_definition_match', label:'Word ↔ Definition Match', practiceModes:['learn'], responseMode:'matching', minimumStage:'new', family:'recognition', earliestStage:'emerging', preferredStages:['emerging','building'], supportSuitable:true, reviewSuitable:true, strands:['meaning','recognition'], evidenceStrength:'light', productive:false, skillFamily:'meaning' },
+  { id:'drag_word_definition', label:'Drag Word to Definition', practiceModes:['learn'], responseMode:'drag_match', minimumStage:'new', family:'recognition', earliestStage:'emerging', preferredStages:['emerging','building'], supportSuitable:true, reviewSuitable:true, strands:['meaning','recognition'], evidenceStrength:'light', productive:false, skillFamily:'meaning' },
+  { id:'drag_definition_word', label:'Drag Definition to Word', practiceModes:['learn'], responseMode:'drag_match', minimumStage:'new', family:'recognition', earliestStage:'emerging', preferredStages:['emerging','building'], supportSuitable:true, reviewSuitable:true, strands:['meaning','recognition'], evidenceStrength:'light', productive:false, skillFamily:'meaning' },
+  { id:'which_situation_fits', label:'Which Situation Fits?', practiceModes:['learn','context'], responseMode:'choice', minimumStage:'new', family:'recognition', earliestStage:'emerging', preferredStages:['emerging','building'], supportSuitable:true, reviewSuitable:true, strands:['meaning','context'], evidenceStrength:'medium', productive:false, skillFamily:'meaning' },
+
+  { id:'gap_fill_bank', label:'Gap Fill — Word Bank', practiceModes:['learn','context'], responseMode:'choice', minimumStage:'building', family:'retrieval', earliestStage:'building', preferredStages:['building','developing'], supportSuitable:true, reviewSuitable:true, strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'context' },
+  { id:'drag_word_sentence', label:'Drag Word into Sentence', practiceModes:['learn','context'], responseMode:'drag_gap', minimumStage:'building', family:'retrieval', earliestStage:'building', preferredStages:['building','developing'], supportSuitable:true, reviewSuitable:true, strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'context' },
+  { id:'type_missing_word', label:'Type the Missing Word', practiceModes:['learn','context'], responseMode:'text', minimumStage:'building', family:'retrieval', earliestStage:'building', preferredStages:['building','developing'], supportSuitable:true, reviewSuitable:true, strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'context' },
+  { id:'spell_word', label:'Spell the Word', practiceModes:['learn'], responseMode:'spelling', minimumStage:'building', family:'retrieval', earliestStage:'building', preferredStages:['building','developing'], supportSuitable:true, reviewSuitable:true, strands:['recognition','meaning'], evidenceStrength:'medium', productive:false, skillFamily:'meaning' },
+  { id:'choose_word_sentence', label:'Choose the Word for the Sentence', practiceModes:['learn','context'], responseMode:'choice', minimumStage:'building', family:'retrieval', earliestStage:'building', preferredStages:['building','developing'], supportSuitable:true, reviewSuitable:true, strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'context' },
+  { id:'word_family_choice', label:'Word Family Choice', practiceModes:['learn','writing'], responseMode:'choice', minimumStage:'building', family:'retrieval', earliestStage:'building', preferredStages:['building','developing'], supportSuitable:true, reviewSuitable:true, strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'writing_vocabulary' },
+
+  { id:'meaning_in_context', label:'Meaning in Context', practiceModes:['context','learn'], responseMode:'choice', minimumStage:'building', family:'discrimination', earliestStage:'developing', preferredStages:['developing','secure'], supportSuitable:true, reviewSuitable:true, strands:['context','meaning'], evidenceStrength:'medium', productive:false, skillFamily:'context' },
+  // Retired from live use: kept only so historical attempts still resolve.
+  { id:'correct_usage', label:'Correct Usage', practiceModes:['learn','context','writing'], responseMode:'choice', minimumStage:'building', family:'discrimination', earliestStage:'developing', preferredStages:['developing'], supportSuitable:true, reviewSuitable:false, strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'context', retired:true },
+  // Retired from live use: legacy builder had no meaningful distractors.
+  { id:'collocation_builder', label:'Collocation Builder', practiceModes:['learn','writing'], responseMode:'tiles', minimumStage:'building', family:'manipulation', earliestStage:'secure', preferredStages:['secure'], supportSuitable:false, reviewSuitable:false, strands:['recognition','production'], evidenceStrength:'strong', productive:true, skillFamily:'writing_vocabulary', retired:true },
+  // Controlled word-form completion is manipulation evidence, not independent production.
+  { id:'word_family_switch', label:'Word Family Switch', practiceModes:['learn','writing'], responseMode:'text', minimumStage:'building', family:'manipulation', earliestStage:'secure', preferredStages:['secure','mastered'], supportSuitable:true, reviewSuitable:true, strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'writing_vocabulary' },
+  { id:'question_text_bridge', label:'Question ↔ Text Bridge', practiceModes:['question_text','context'], responseMode:'choice', minimumStage:'building', family:'discrimination', earliestStage:'developing', preferredStages:['developing','secure'], supportSuitable:true, reviewSuitable:true, strands:['context','paraphrasing'], evidenceStrength:'medium', productive:false, skillFamily:'question_text' },
+  { id:'find_evidence', label:'Find the Evidence', practiceModes:['question_text','context'], responseMode:'evidence', minimumStage:'building', family:'discrimination', earliestStage:'developing', preferredStages:['developing','secure'], supportSuitable:true, reviewSuitable:true, strands:['context'], evidenceStrength:'medium', productive:false, skillFamily:'question_text' },
+  { id:'phrase_match', label:'Phrase Match', practiceModes:['phrase_paraphrase','learn'], responseMode:'choice', minimumStage:'new', family:'discrimination', earliestStage:'developing', preferredStages:['developing'], supportSuitable:true, reviewSuitable:true, strands:['paraphrasing'], evidenceStrength:'light', productive:false, skillFamily:'phrase_paraphrasing' },
+  // Curated assembly/completion remains scaffolded paraphrasing evidence, never independent production.
+  { id:'build_paraphrase', label:'Build the Paraphrase', practiceModes:['phrase_paraphrase'], responseMode:'tiles', minimumStage:'building', family:'manipulation', earliestStage:'secure', preferredStages:['secure'], supportSuitable:true, reviewSuitable:true, strands:['paraphrasing'], evidenceStrength:'medium', productive:false, skillFamily:'phrase_paraphrasing' },
+  { id:'complete_paraphrase', label:'Complete the Paraphrase', practiceModes:['phrase_paraphrase'], responseMode:'text', minimumStage:'building', family:'manipulation', earliestStage:'secure', preferredStages:['secure'], supportSuitable:true, reviewSuitable:true, strands:['paraphrasing'], evidenceStrength:'medium', productive:false, skillFamily:'phrase_paraphrasing' },
+  { id:'rewrite_phrase', label:'Rewrite the Phrase', practiceModes:['phrase_paraphrase'], responseMode:'text', minimumStage:'secure', family:'production', earliestStage:'secure', preferredStages:['secure','mastered'], supportSuitable:false, reviewSuitable:true, strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true, skillFamily:'phrase_paraphrasing' },
+  { id:'same_idea', label:'Same Idea', practiceModes:['idea_paraphrase'], responseMode:'choice', minimumStage:'building', family:'discrimination', earliestStage:'developing', preferredStages:['developing','secure'], supportSuitable:true, reviewSuitable:true, strands:['paraphrasing'], evidenceStrength:'medium', productive:false, skillFamily:'idea_paraphrasing' },
+  { id:'spot_meaning_change', label:'Spot the Meaning Change', practiceModes:['idea_paraphrase','question_text'], responseMode:'choice', minimumStage:'building', family:'discrimination', earliestStage:'developing', preferredStages:['developing','secure'], supportSuitable:true, reviewSuitable:true, strands:['paraphrasing','context'], evidenceStrength:'medium', productive:false, skillFamily:'idea_paraphrasing' },
+  { id:'build_same_idea', label:'Build the Same Idea', practiceModes:['idea_paraphrase'], responseMode:'tiles', minimumStage:'secure', family:'manipulation', earliestStage:'secure', preferredStages:['secure'], supportSuitable:true, reviewSuitable:true, strands:['paraphrasing'], evidenceStrength:'medium', productive:false, skillFamily:'idea_paraphrasing' },
+  { id:'rewrite_idea', label:'Rewrite the Idea', practiceModes:['idea_paraphrase'], responseMode:'text', minimumStage:'secure', family:'production', earliestStage:'secure', preferredStages:['secure','mastered'], supportSuitable:false, reviewSuitable:true, strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true, skillFamily:'idea_paraphrasing' },
+  // Current tasks are constrained replacements/completions, so they remain manipulation rather than production.
+  { id:'improve_vocabulary', label:'Improve the Vocabulary', practiceModes:['writing'], responseMode:'text', minimumStage:'secure', family:'manipulation', earliestStage:'secure', preferredStages:['secure','mastered'], supportSuitable:true, reviewSuitable:true, strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'writing_vocabulary' },
+  { id:'explain_another_way', label:'Explain It Another Way', practiceModes:['writing','idea_paraphrase'], responseMode:'text', minimumStage:'mastered', family:'production', earliestStage:'mastered', preferredStages:['mastered'], supportSuitable:false, reviewSuitable:true, strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true, skillFamily:'communication_repair' }
 ]);
 
 const ACTIVITY_BY_ID = new Map(ACTIVITY_TYPES.map(activity => [activity.id, activity]));
@@ -60,6 +69,19 @@ export function activitiesForMode(modeId) {
   return ACTIVITY_TYPES.filter(activity => isActivityLive(activity.id) && activity.practiceModes.includes(mode));
 }
 
+export function activitiesForFamily(familyId) {
+  const family = String(familyId ?? '');
+  if (!ACTIVITY_FAMILIES.includes(family)) return [];
+  return ACTIVITY_TYPES.filter(activity => isActivityLive(activity.id) && activity.family === family);
+}
+
+export function activitiesForLearningStage(stageId) {
+  const threshold = LEARNING_STAGE_ORDER[String(stageId ?? '')];
+  if (threshold == null) return [];
+  return ACTIVITY_TYPES.filter(activity => isActivityLive(activity.id) && LEARNING_STAGE_ORDER[activity.earliestStage] <= threshold);
+}
+
+// Compatibility helper for legacy callers while planner/builders migrate to the five-stage progression.
 export function activitiesForStage(stage) {
   const threshold = STAGE_ORDER[String(stage ?? '')];
   if (threshold == null) return [];

@@ -5,6 +5,7 @@ import { buildSupportStep } from './scaffolding.js';
 import { completeAttempt, createSession, expireSession, isSessionComplete } from './session.js';
 import { buildTargetPracticeQuestion, buildTimedMixedQuestion, selectEligiblePriorityTargets } from './session-targets.js';
 import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
+import { deriveLearningStage } from './learning-stage.js';
 import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
 const root = document.getElementById('vocabularyApp');
@@ -71,7 +72,7 @@ function renderCurrentUnit() {
   const summary = state.units.find(unit => Number(unit.unitNumber) === Number(state.currentUnitNumber));
   const progress = occurrences.length
     ? buildUnitProgress({ occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery })
-    : { mastered:summary?.mastered ?? 0, total:summary?.total ?? 50, needsAnotherLook:summary?.needsAnotherLook ?? 0, reviewDue:summary?.reviewDue ?? 0 };
+    : { mastered:summary?.mastered ?? 0, total:summary?.total ?? 50, needsAnotherLook:summary?.needsAnotherLook ?? 0, reviewDue:summary?.reviewDue ?? 0, stages:summary?.stages ?? {} };
   renderVocabularyUnit(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, progress, practiceFocus:state.practiceFocus, contentReady:Boolean(state.content) }); decoratePreview();
 }
 async function openUnit(unitNumber) {
@@ -110,8 +111,8 @@ function strandLabel(value, status) { const score = Number(value ?? 0); if (stat
 function showAllWords() {
   if (!state.content || !state.currentUnitNumber) return;
   const words = state.content.occurrences.slice().sort((a,b) => a.positionInUnit - b.positionInUnit).map(occ => {
-    const target = state.content.itemsById[occ.vocabularyId]; const global = state.globalMastery[occ.vocabularyId] ?? { status:'new', strandEvidence:{} };
-    return { term:target?.term ?? occ.vocabularyId, status:global.status ?? 'new', strands:{ meaning:strandLabel(global.strandEvidence?.meaning, global.status), recognition:strandLabel(global.strandEvidence?.recognition, global.status), context:strandLabel(global.strandEvidence?.context, global.status), paraphrasing:strandLabel(global.strandEvidence?.paraphrasing, global.status), production:strandLabel(global.strandEvidence?.production, global.status) } };
+    const target = state.content.itemsById[occ.vocabularyId]; const global = state.globalMastery[occ.vocabularyId] ?? freshMastery();
+    return { term:target?.term ?? occ.vocabularyId, status:global.status ?? 'new', learningStage:deriveLearningStage(global), mastery:global, strands:{ meaning:strandLabel(global.strandEvidence?.meaning, global.status), recognition:strandLabel(global.strandEvidence?.recognition, global.status), context:strandLabel(global.strandEvidence?.context, global.status), paraphrasing:strandLabel(global.strandEvidence?.paraphrasing, global.status), production:strandLabel(global.strandEvidence?.production, global.status) } };
   });
   renderVocabularyWords(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, words }); decoratePreview();
 }
@@ -164,7 +165,7 @@ function nextQuestion() {
   if (!current) { if (state.session.mode === 'timed') { void finishSessionWhenSaved(); return; } throw new Error('No suitable curated activity is available for this practice mode yet.'); }
   state.current = current; renderCurrentQuestion();
 }
-function renderCurrentQuestion(feedback = null) { if (!state.current) return; renderVocabularyQuestion(root, { unitNumber:state.currentUnitNumber, unitTitle:state.current.target.unitTitle, question:state.current.question, term:state.current.item.term, sessionLabel:remainingLabel(), feedback, retry:state.current.retry, support:state.current.support }); decoratePreview(); }
+function renderCurrentQuestion(feedback = null) { if (!state.current) return; const currentMastery = state.globalMastery[state.current.target.vocabularyId] ?? freshMastery(); renderVocabularyQuestion(root, { unitNumber:state.currentUnitNumber, unitTitle:state.current.target.unitTitle, question:state.current.question, term:state.current.item.term, sessionLabel:remainingLabel(), learningStage:deriveLearningStage(currentMastery), feedback, retry:state.current.retry, support:state.current.support }); decoratePreview(); }
 function markVocabularyAttemptLocally(current, rawAnswer) {
   const sense = Array.isArray(current.item?.senses) ? current.item.senses.find(candidate => candidate?.senseId === current.target.senseId) : null; if (!sense) throw new Error('This vocabulary question is missing its marking data.');
   const reference = current.question.markingReference ?? {}; const markingContext = { contextId:current.context?.contextId ?? current.question.contentId, activityContentId:current.activityRecord?.activityContentId ?? null, acceptedAnswers:reference.acceptedAnswers ?? [], distractors:reference.distractors ?? [] };
@@ -207,7 +208,7 @@ async function advanceToNextQuestion() {
 function recordRecentActivity(current, result) { const recent = state.recentActivities.get(current.target.occurrenceId) ?? []; const entry = { type:current.question.type, contentId:current.question.contentId, correct:result.correct }; state.recentActivities.set(current.target.occurrenceId, [...recent, entry].slice(-5)); }
 function handleAnswer(form, providedAnswer = null) {
   if (!state.current || !state.session) return; if (state.session.mode === 'timed' && isSessionComplete(state.session, new Date())) { void finishSessionWhenSaved(); return; }
-  const input = form?.querySelector?.('input[name="answer"]'); const rawAnswer = providedAnswer != null ? String(providedAnswer) : (input?.value ?? ''); const current = state.current; if (current.answered) return;
+  const input = form?.querySelector?.('input[name="answer"], select[name="answer"]'); const rawAnswer = providedAnswer != null ? String(providedAnswer) : (input?.value ?? ''); const current = state.current; if (current.answered) return;
   if (current.question.responseMode === 'tiles' && !form?.querySelector?.('[data-tile-answer].is-used')) {
     const build = form?.querySelector?.('[data-tile-build]');
     if (build) build.textContent = 'Choose at least one tile before checking.';

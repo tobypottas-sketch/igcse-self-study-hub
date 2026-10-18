@@ -6,9 +6,10 @@ const QUESTION_TYPES = new Set([
   'replace_phrase','produce_paraphrase','use_target','identify_inaccurate_paraphrase','mini_mixed_check',
   'which_situation_fits','meaning_in_context','correct_usage','collocation_builder','word_family_switch',
   'find_evidence','phrase_match','build_paraphrase','complete_paraphrase','rewrite_phrase','same_idea',
-  'spot_meaning_change','build_same_idea','rewrite_idea','improve_vocabulary','explain_another_way'
+  'spot_meaning_change','build_same_idea','rewrite_idea','improve_vocabulary','explain_another_way',
+  'definition_to_word','word_definition_match','drag_word_definition','drag_definition_word',
+  'gap_fill_bank','drag_word_sentence','type_missing_word','spell_word','choose_word_sentence','word_family_choice'
 ]);
-// Retired activity types may still exist in stored history but must not create new evidence.
 const RETIRED_QUESTION_TYPES = new Set(['correct_usage','collocation_builder']);
 const STRANDS = new Set(['meaning','recognition','context','paraphrasing','production']);
 const MISCONCEPTIONS = new Set([
@@ -18,21 +19,24 @@ const MISCONCEPTIONS = new Set([
 ]);
 const EVIDENCE_STRENGTHS = new Set(['light','medium','strong','very_strong']);
 const SUPPORT_LEVELS = new Set(['none','light','major']);
-const CONTENT_SOURCES = new Set(['context','unit_activity']);
+const CONTENT_SOURCES = new Set(['context','unit_activity','item']);
+const ITEM_QUESTION_TYPES = new Set(['definition_to_word','word_definition_match','drag_word_definition','drag_definition_word','spell_word']);
 const WRITING_TASK_FOR_QUESTION = Object.freeze({
   word_family_switch:'word_family',
+  word_family_choice:'word_family',
   improve_vocabulary:'improve_vocabulary'
 });
 const UNIT_ACTIVITY_QUESTION_TYPES = Object.freeze({
   phrase_set:new Set(['phrase_match','build_paraphrase','complete_paraphrase','rewrite_phrase','explain_another_way']),
   idea_set:new Set(['same_idea','spot_meaning_change','build_same_idea','rewrite_idea','explain_another_way']),
   question_text:new Set(['question_text_bridge','find_evidence']),
-  writing_set:new Set(['word_family_switch','improve_vocabulary'])
+  writing_set:new Set(['word_family_switch','word_family_choice','improve_vocabulary'])
 });
+const RETRIEVAL_CONTEXT_TYPES = ['gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence'];
 const CONTEXT_QUESTION_TYPES = Object.freeze({
   meaning_context:new Set(['meaning_match','meaning_in_context']),
-  paraphrase_context:new Set(['meaning_in_context','which_situation_fits']),
-  production_context:new Set(['which_situation_fits'])
+  paraphrase_context:new Set(['meaning_in_context','which_situation_fits',...RETRIEVAL_CONTEXT_TYPES]),
+  production_context:new Set(['which_situation_fits',...RETRIEVAL_CONTEXT_TYPES])
 });
 
 function id(value, label) {
@@ -72,10 +76,14 @@ export function validateVocabularyAttempt(value = {}) {
   const contextId = optionalId(value.contextId, 'Context ID');
   const activityContentId = optionalId(value.activityContentId, 'Activity content ID');
   const activityVariantId = optionalVariant(value.activityVariantId);
-  const inferredSource = value.contentSource ?? (activityContentId ? 'unit_activity' : 'context');
+  const inferredSource = value.contentSource ?? (activityContentId ? 'unit_activity' : (contextId ? 'context' : (ITEM_QUESTION_TYPES.has(value.questionType) ? 'item' : 'context')));
   if (!CONTENT_SOURCES.has(inferredSource)) throw new Error('Content source is invalid.');
   if (inferredSource === 'context' && !contextId) throw new Error('Context ID is required for context content.');
   if (inferredSource === 'unit_activity' && !activityContentId) throw new Error('Activity content ID is required for unit activity content.');
+  if (inferredSource === 'item') {
+    if (!ITEM_QUESTION_TYPES.has(value.questionType)) throw new Error('Question type is invalid for item content.');
+    if (contextId || activityContentId) throw new Error('Item content cannot include context or activity content IDs.');
+  }
   if (activityVariantId && inferredSource !== 'unit_activity') throw new Error('Activity variant ID requires unit activity content.');
   if (value.evidenceStrength != null && !EVIDENCE_STRENGTHS.has(value.evidenceStrength)) throw new Error('Evidence strength is invalid.');
   if (value.supportLevel != null && !SUPPORT_LEVELS.has(value.supportLevel)) throw new Error('Support level is invalid.');
@@ -112,9 +120,9 @@ export function assertWritingTaskMatchesQuestionType(taskType, questionType) {
 export function strandForQuestionType(questionType) {
   if (['produce_paraphrase','use_target','replace_phrase','rewrite_phrase','rewrite_idea','explain_another_way','collocation_builder'].includes(questionType)) return 'production';
   if (['build_paraphrase','complete_paraphrase','build_same_idea','same_idea','spot_meaning_change','phrase_match'].includes(questionType)) return 'paraphrasing';
-  if (['context_inference','question_text_bridge','context_gap_fill','mini_mixed_check','find_evidence','meaning_in_context','correct_usage','which_situation_fits','word_family_switch','improve_vocabulary'].includes(questionType)) return 'context';
+  if (['context_inference','question_text_bridge','context_gap_fill','mini_mixed_check','find_evidence','meaning_in_context','correct_usage','which_situation_fits','word_family_switch','word_family_choice','improve_vocabulary','gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence'].includes(questionType)) return 'context';
   if (questionType === 'paraphrase_match') return 'paraphrasing';
-  if (questionType === 'meaning_match') return 'meaning';
+  if (['meaning_match','definition_to_word','word_definition_match','drag_word_definition','drag_definition_word'].includes(questionType)) return 'meaning';
   return 'recognition';
 }
 

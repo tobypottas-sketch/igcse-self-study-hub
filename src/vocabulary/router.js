@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '../supabase.js';
 import { renderVocabularyError } from './views.js';
+import './foundational-interactions.js';
 
 const root = document.getElementById('vocabularyApp');
 

@@ -1,4 +1,5 @@
 import { buildVocabularySkillProfile, skillFamiliesForQuestionType, skillLabel, summarizeMisconceptions } from './skill-profile.js';
+import { deriveLearningStage } from './learning-stage.js';
 
 const STRANDS = ['meaning','recognition','context','paraphrasing','production'];
 const ATTENTION_STATUSES = new Set(['building']);
@@ -89,7 +90,7 @@ export function buildClassInsights({ students = [], targets = [], mastery = [], 
     const time = new Date(row.updatedAt ?? row.updated_at ?? 0).getTime();
     return Number.isFinite(time) && nowMs - time <= RECENT_MS;
   });
-  const improvedCount = recentRows.filter(row => row.status === 'secure' || row.status === 'mastered').length;
+  const improvedCount = recentRows.filter(row => ['secure','mastered'].includes(deriveLearningStage(row))).length;
 
   return {
     studentsNeedingAttention,
@@ -141,7 +142,7 @@ export function buildStudentProfile({ student, targets = [], mastery = [], activ
     const values = mastery.map(row => number(row.strandEvidence?.[strand]));
     strands[strand] = qualitative(average(values), values.length > 0);
   }
-  const persistentTargets = mastery.filter(row => ATTENTION_STATUSES.has(row.status) || row.recentErrorPattern).map(row => ({ vocabularyId:row.vocabularyId, term:targetsById.get(row.vocabularyId)?.term ?? row.vocabularyId, status:row.status, errorPattern:row.recentErrorPattern ?? null }));
+  const persistentTargets = mastery.filter(row => ATTENTION_STATUSES.has(row.status) || row.recentErrorPattern).map(row => ({ vocabularyId:row.vocabularyId, term:targetsById.get(row.vocabularyId)?.term ?? row.vocabularyId, status:row.status, learningStage:deriveLearningStage(row), errorPattern:row.recentErrorPattern ?? null }));
   const lastPractice = activity.map(event => event.occurredAt ?? event.occurred_at).filter(Boolean).sort().at(-1) ?? null;
   const skillProfile = buildVocabularySkillProfile(activity);
   return {
