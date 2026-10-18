@@ -158,7 +158,7 @@ test('the server edge function really uses the shared single-answer contract for
   const server = source('../supabase/functions/vocabulary-attempt-action/index.ts');
   assert.match(server, /import \{[^}]*spotMeaningChangeMarking[^}]*\} from '\.\.\/_shared\/vocabulary-engine\.js'/);
   assert.match(server, /content_type === 'idea_set' && questionType === 'spot_meaning_change'\) return spotMeaningChangeMarking\(data, activityVariantId\)/);
-  assert.ok(server.indexOf("questionType === 'spot_meaning_change') return spotMeaningChangeMarking") < server.indexOf("content_type === 'idea_set') return ideaMarking(data)"), 'specific branch must precede the generic idea_set branch');
+  assert.ok(server.indexOf("questionType === 'spot_meaning_change') return spotMeaningChangeMarking") < server.indexOf("content_type === 'idea_set') return ideaMarking(data, questionType, activityVariantId)"), 'specific branch must precede the generic idea_set branch');
   assert.match(server, /spot_meaning_change:\{ strands:\['paraphrasing','context'\], evidenceStrength:'medium', productive:false \}/);
 });
 
@@ -222,7 +222,11 @@ test('10. existing idea activities still work: same_idea, build_same_idea, rewri
     const [reference] = record.activityData.accurateParaphrases;
     const same = build(record, 'same_idea', 'idea-regression');
     assert.equal(same.options.length, 4);
-    assert.deepEqual(same.markingReference.acceptedAnswers, [reference]);
+    assert.equal(same.markingReference.acceptedAnswers.length, 1);
+    assert.match(same.activityVariantId, /^q\d+$/);
+    const selectedIndex = Number(same.activityVariantId.slice(1));
+    assert.equal(same.markingReference.acceptedAnswers[0], record.activityData.accurateParaphrases[selectedIndex]);
+    assert.ok(same.options.includes(same.markingReference.acceptedAnswers[0]));
     assert.equal(same.options.filter(option => markLikeClient(same, sense, item.vocabularyId, option).correct).length, 1, `${record.activityContentId} same_idea`);
     const tiles = build(record, 'build_same_idea', 'idea-regression');
     assert.ok(tiles.tiles.length >= 2);
