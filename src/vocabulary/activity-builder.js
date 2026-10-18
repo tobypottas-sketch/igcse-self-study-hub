@@ -204,13 +204,12 @@ function collocationBuilder(args, definition) {
   return baseActivity({ definition, occurrence:args.occurrence, contentId:`collocation:${collocation}`, prompt:`Build a natural collocation with “${text(args.item.term)}”.`, markingReference:{ acceptedAnswers:[collocation] }, extra:{ tiles } });
 }
 function wordFamilySwitch(args, definition) {
-  const writing = array(args.unitActivities).find(activity => activity.contentType === 'writing_set' && linkedToTarget(activity, args.item.vocabularyId) && activity.activityData?.taskType === 'word_family');
-  const family = uniqueText(array(args.item.wordFamily));
-  if (!writing && family.length === 0) throw new Error('No curated word-family material is available for this target.');
-  const data = object(writing?.activityData);
-  const acceptedAnswers = uniqueText(array(data.acceptedAnswers).length ? data.acceptedAnswers : family);
-  const prompt = writing ? `${text(data.prompt)}\n${text(data.sourceText)}` : `Use the correct form from the “${text(args.item.term)}” word family.`;
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:writing?.activityContentId ?? `word-family:${args.item.vocabularyId}`, prompt, markingReference:{ acceptedAnswers }, extra:{ sourceText:text(data.sourceText) || null } });
+  const writing = array(args.unitActivities).find(activity => activity.contentType === 'writing_set' && array(activity.activityData?.linkedVocabularyIds).includes(args.item.vocabularyId) && activity.activityData?.taskType === 'word_family');
+  if (!writing) throw new Error('No curated word-family content is available for this target.');
+  const data = object(writing.activityData);
+  const acceptedAnswers = uniqueText(array(data.acceptedAnswers));
+  if (!acceptedAnswers.length) throw new Error('No curated word-family answers are available for this target.');
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:writing.activityContentId, prompt:`${text(data.prompt)}\n${text(data.sourceText)}`, markingReference:{ acceptedAnswers }, extra:{ sourceText:text(data.sourceText) || null } });
 }
 function questionTextActivity(args, definition, findEvidence = false) {
   const record = chooseUnitActivity(args.unitActivities, 'question_text', args.item.vocabularyId, args.usedContentIds, args.seed);
