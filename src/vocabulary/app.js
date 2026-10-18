@@ -3,7 +3,7 @@ import { loadVocabularyDashboard, loadVocabularyUnit, loadStudentMastery, submit
 import { trackVocabularyEvent } from './tracking.js';
 import { buildSupportStep } from './scaffolding.js';
 import { completeAttempt, createSession, expireSession, isSessionComplete } from './session.js';
-import { buildTargetPracticeQuestion, selectEligiblePriorityTargets } from './session-targets.js';
+import { buildTargetPracticeQuestion, buildTimedMixedQuestion, selectEligiblePriorityTargets } from './session-targets.js';
 import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
 import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
@@ -11,7 +11,7 @@ const root = document.getElementById('vocabularyApp');
 const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
   globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:'adaptive', recentActivities:new Map(), usedContentIds:new Map(),
-  recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null,
+  recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null, timedPreviousActivityType:null,
   persistenceChain:Promise.resolve(), persistenceBlocked:false, finishPending:false
 };
 
@@ -90,14 +90,15 @@ function showAllWords() {
   });
   renderVocabularyWords(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, words }); decoratePreview();
 }
-function rankedTargets(limit) {
-  return selectEligiblePriorityTargets({ content:state.content, masteryByVocabularyId:state.globalMastery, unitMastery:state.unitMastery, practiceMode:state.practiceFocus, now:new Date(), limit });
+function rankedTargets(limit, practiceMode = state.practiceFocus) {
+  return selectEligiblePriorityTargets({ content:state.content, masteryByVocabularyId:state.globalMastery, unitMastery:state.unitMastery, practiceMode, now:new Date(), limit });
 }
 function startSession(mode, durationMinutes = null) {
-  const selected = rankedTargets(mode === 'adaptive' ? 10 : Math.max(10, state.content.occurrences.length)); if (!selected.length) throw new Error('No suitable curated activity is available for this practice mode yet.');
-  state.session = createSession({ unitNumber:state.currentUnitNumber, mode, durationMinutes, targetIds:selected.map(row => row.occurrenceId), practiceMode:state.practiceFocus, now:new Date() });
-  state.queue = [...selected]; state.current = null; state.recentActivities = new Map(); state.usedContentIds = new Map(); state.recoveryNeeded = new Set(); state.finishPending = false; if (mode === 'timed') startClock();
-  if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`session:${mode}:${state.practiceFocus}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, practice_focus:state.practiceFocus } }).catch(() => {});
+  const timed = mode === 'timed';
+  const selected = rankedTargets(timed ? Math.max(10, state.content.occurrences.length) : 10, timed ? 'adaptive' : state.practiceFocus); if (!selected.length) throw new Error('No suitable curated activity is available for this practice mode yet.');
+  state.session = createSession({ unitNumber:state.currentUnitNumber, mode, durationMinutes, targetIds:selected.map(row => row.occurrenceId), practiceMode:timed ? 'adaptive' : state.practiceFocus, now:new Date() });
+  state.queue = [...selected]; state.current = null; state.recentActivities = new Map(); state.usedContentIds = new Map(); state.recoveryNeeded = new Set(); state.timedPreviousActivityType = null; state.finishPending = false; if (timed) startClock();
+  if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`session:${mode}:${state.session.practiceMode}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, practice_focus:state.session.practiceMode } }).catch(() => {});
   nextQuestion();
 }
 function remainingLabel() { if (!state.session) return ''; if (state.session.mode === 'adaptive') return `${state.session.completedAttempts.length} / ${state.session.targetIds.length} activities`; const ms = Math.max(0, new Date(state.session.expiresAt).getTime() - Date.now()); const seconds = Math.ceil(ms / 1000); const minutes = Math.floor(seconds / 60); return `${minutes}:${String(seconds % 60).padStart(2,'0')} remaining`; }
@@ -108,18 +109,21 @@ function buildNextForTarget(target) {
   const recent = state.recentActivities.get(target.occurrenceId) ?? []; const recovery = state.recoveryNeeded.has(target.occurrenceId);
   const usedContentIds = state.usedContentIds.get(target.occurrenceId) ?? [];
   const reviewDue = Boolean(masteryState.reviewDueAt && new Date(masteryState.reviewDueAt).getTime() <= Date.now());
-  const built = buildTargetPracticeQuestion({
+  const common = {
     content:state.content,
     target,
     mastery:masteryState,
-    practiceMode:state.session.practiceMode ?? state.practiceFocus,
     recentActivities:recent,
     supportState:{ recycle:recovery, struggling:recovery },
     reviewDue,
     usedContentIds,
-    seed:`${target.occurrenceId}:${state.session.completedAttempts.length}:practice`
-  });
+    seed:`${target.occurrenceId}:${state.session.completedAttempts.length}:${state.session.mode}`
+  };
+  const built = state.session.mode === 'timed'
+    ? buildTimedMixedQuestion({ ...common, previousActivityType:state.timedPreviousActivityType })
+    : buildTargetPracticeQuestion({ ...common, practiceMode:state.session.practiceMode ?? state.practiceFocus });
   const targetItem = built.item; const targetContexts = built.contexts; const question = built.question;
+  if (state.session.mode === 'timed') state.timedPreviousActivityType = question.type;
   if (question.contentId) state.usedContentIds.set(target.occurrenceId, [...new Set([...usedContentIds, question.contentId])]);
   const contextRecord = targetContexts.find(ctx => ctx.contextId === question.contentId) ?? null; const activityRecord = state.content.activitiesById[question.contentId] ?? null;
   const primaryEvidenceTargetId = activityRecord?.activityData?.primaryEvidenceTargetId ?? null;
@@ -127,7 +131,7 @@ function buildNextForTarget(target) {
 }
 function nextQuestion() {
   if (!state.session) return; if (isSessionComplete(state.session, new Date())) { void finishSessionWhenSaved(); return; }
-  if (!state.queue.length) { if (state.session.mode === 'timed') state.queue = rankedTargets(Math.min(20, state.content.occurrences.length)); else { finishSession(); return; } }
+  if (!state.queue.length) { if (state.session.mode === 'timed') state.queue = rankedTargets(Math.min(20, state.content.occurrences.length), 'adaptive'); else { finishSession(); return; } }
   let current = null; let guard = state.queue.length;
   while (!current && guard > 0) { const target = state.queue.shift(); guard -= 1; if (!target) break; if (state.session.mode === 'adaptive' && state.session.completedTargetIds.includes(target.occurrenceId) && !state.recoveryNeeded.has(target.occurrenceId)) continue; try { current = buildNextForTarget(target); } catch { state.queue.push(target); } }
   if (!current) { if (state.session.mode === 'timed') { void finishSessionWhenSaved(); return; } throw new Error('No suitable curated activity is available for this practice mode yet.'); }
