@@ -25,7 +25,7 @@ const TYPE_SKILLS = Object.freeze({
   collocation_builder:['writing_vocabulary','lexical_production'],
   word_family_switch:['writing_vocabulary'],
   improve_vocabulary:['writing_vocabulary'],
-  explain_another_way:['idea_paraphrasing','lexical_production']
+  explain_another_way:['lexical_production']
 });
 
 const STRENGTH_WEIGHT = Object.freeze({ light:1, medium:2, strong:3, very_strong:4 });
@@ -70,11 +70,30 @@ export function skillFamiliesForQuestionType(questionType) {
   return [...(TYPE_SKILLS[String(questionType ?? '')] ?? [])];
 }
 
+function explainAnotherWaySource(event, meta) {
+  const explicit = String(meta?.content_type ?? '').trim();
+  if (explicit === 'phrase_set' || explicit === 'idea_set') return explicit;
+  const activityId = String(event?.activity_id ?? event?.activityId ?? '');
+  if (/:u\d+_phrase_/i.test(activityId)) return 'phrase_set';
+  if (/:u\d+_idea_/i.test(activityId)) return 'idea_set';
+  return null;
+}
+
+function skillFamiliesForEvent(event, meta) {
+  const questionType = String(meta?.question_type ?? '');
+  if (questionType !== 'explain_another_way') return skillFamiliesForQuestionType(questionType);
+  const source = explainAnotherWaySource(event, meta);
+  if (source === 'phrase_set') return ['phrase_paraphrasing','lexical_production'];
+  if (source === 'idea_set') return ['idea_paraphrasing','lexical_production'];
+  // Question type alone cannot distinguish phrase from idea work. Keep only the unambiguous production credit.
+  return ['lexical_production'];
+}
+
 export function buildVocabularySkillProfile(events = []) {
   const accumulators = Object.fromEntries(Object.keys(SKILLS).map(key => [key, { evidenceCount:0, successWeight:0, errorWeight:0, evidenceScore:0, independentStrongCount:0 }]));
   for (const event of Array.isArray(events) ? events : []) {
     const meta = metadata(event);
-    const families = skillFamiliesForQuestionType(meta.question_type);
+    const families = skillFamiliesForEvent(event, meta);
     if (!families.length) continue;
     const strength = effectiveStrength(meta.question_type, safeStrength(meta.evidence_strength));
     const support = safeSupport(meta.support_level);
