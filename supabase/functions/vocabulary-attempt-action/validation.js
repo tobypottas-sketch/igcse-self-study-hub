@@ -12,7 +12,7 @@ const QUESTION_TYPES = new Set([
   'definition_to_word','word_definition_match','drag_word_definition','drag_definition_word',
   'gap_fill_bank','drag_word_sentence','type_missing_word','spell_word','choose_word_sentence','word_family_choice',
   'type_word_from_definition','context_sentence_match','word_family_match','precision_choice','precision_match',
-  'spelling_choice','spelling_cue_match','spelling_rebuild'
+  'spelling_choice','spelling_cue_match','spelling_rebuild','spell_in_context'
 ]);
 const RETIRED_QUESTION_TYPES = new Set(['correct_usage','collocation_builder']);
 const STRANDS = new Set(['meaning','recognition','context','paraphrasing','production']);
@@ -38,7 +38,7 @@ const UNIT_ACTIVITY_QUESTION_TYPES = Object.freeze({
   question_text:new Set(['question_text_bridge','find_evidence']),
   writing_set:new Set(['word_family_switch','word_family_choice','word_family_match','improve_vocabulary','precision_choice','precision_match'])
 });
-const RETRIEVAL_CONTEXT_TYPES = ['gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence','context_sentence_match'];
+const RETRIEVAL_CONTEXT_TYPES = ['gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence','context_sentence_match','spell_in_context'];
 const CONTEXT_QUESTION_TYPES = Object.freeze({
   meaning_context:new Set(['meaning_match','meaning_in_context']),
   paraphrase_context:new Set(['meaning_in_context','which_situation_fits',...RETRIEVAL_CONTEXT_TYPES]),
