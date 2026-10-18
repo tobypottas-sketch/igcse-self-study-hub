@@ -1,0 +1,30 @@
+name: One-shot Unit 1 pathway cohort diagnostic
+
+on:
+  push:
+    branches: [fix/fixed-vocabulary-pathways]
+    paths:
+      - '.github/workflows/unit1-pathway-cohort-diagnostic.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/fixed-vocabulary-pathways
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/write-unit1-pathway-counts.mjs
+      - name: Commit diagnostic counts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/unit1-pathway-counts.json
+          git commit -m "chore: record Unit 1 pathway cohort counts"
+          git push origin HEAD:fix/fixed-vocabulary-pathways
