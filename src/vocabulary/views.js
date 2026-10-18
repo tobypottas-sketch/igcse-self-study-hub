@@ -92,7 +92,18 @@ function normalizedPathwayState(pathwayId, pathwayStates = {}) {
   const currentStage = PATHWAY_STAGES.some(stage => stage.id === state.currentStage) ? state.currentStage : 'recognise';
   const completedStages = new Set(Array.isArray(state.completedStages) ? state.completedStages : []);
   const mastered = state.mastered === true || completedStages.has('mastery');
-  return { currentStage, completedStages, needsPractice:state.needsPractice === true, mastered };
+  const coverageCount = Number.isFinite(Number(state.coverageCount)) ? Number(state.coverageCount) : null;
+  const totalCount = Number.isFinite(Number(state.totalCount)) ? Number(state.totalCount) : null;
+  return {
+    currentStage,
+    completedStages,
+    needsPractice:state.needsPractice === true,
+    mastered,
+    available:state.available !== false,
+    coverageCount,
+    totalCount,
+    unavailableReason:state.unavailableReason ?? null
+  };
 }
 function stageVisualState(stageId, state) {
   if (state.completedStages.has(stageId)) return 'complete';
@@ -103,15 +114,20 @@ function stageVisualState(stageId, state) {
 }
 function renderPathwayCard(pathway, pathwayStates, ready) {
   const state = normalizedPathwayState(pathway.id, pathwayStates);
-  const status = state.mastered ? 'mastered' : state.needsPractice ? 'needs-practice' : 'in-progress';
-  const statusLabel = state.mastered ? 'Mastered' : state.needsPractice ? 'Needs practice' : `Current: ${PATHWAY_STAGES.find(stage => stage.id === state.currentStage)?.label ?? 'Recognise'}`;
+  const unavailable = !state.available;
+  const status = unavailable ? 'unavailable' : state.mastered ? 'mastered' : state.needsPractice ? 'needs-practice' : 'in-progress';
+  const statusLabel = unavailable ? 'Not yet available for this unit' : state.mastered ? 'Mastered' : state.needsPractice ? 'Needs practice' : `Current: ${PATHWAY_STAGES.find(stage => stage.id === state.currentStage)?.label ?? 'Recognise'}`;
   const stages = PATHWAY_STAGES.map(stage => {
-    const visualState = stageVisualState(stage.id,state);
+    const visualState = unavailable ? 'locked' : stageVisualState(stage.id,state);
     const marker = visualState === 'complete' ? '✓' : visualState === 'current' ? '●' : '○';
     return `<span class="vocab-pathway-stage" data-pathway-stage="${stage.id}" data-state="${visualState}"><i aria-hidden="true">${marker}</i><small>${escapeHtml(stage.label)}</small></span>`;
   }).join('');
-  const disabled = ready ? '' : ' disabled aria-disabled="true"';
-  return `<button type="button" class="vocab-pathway-card" data-action="open-pathway" data-pathway="${pathway.id}" data-pathway-status="${status}"${disabled}><span class="vocab-pathway-card__head"><strong>${escapeHtml(pathway.label)}</strong><small>${escapeHtml(statusLabel)}</small></span><span class="vocab-pathway-ladder" aria-label="${escapeHtml(pathway.label)} progression">${stages}</span><span class="vocab-pathway-card__cta">${state.mastered ? 'Review pathway' : 'Continue pathway'} →</span></button>`;
+  const coverage = !unavailable && state.coverageCount != null && state.totalCount != null && state.coverageCount < state.totalCount
+    ? `<span class="vocab-pathway-card__coverage">${escapeHtml(state.coverageCount)} of ${escapeHtml(state.totalCount)} words available</span>`
+    : '';
+  const disabled = ready && !unavailable ? '' : ' disabled aria-disabled="true"';
+  const cta = unavailable ? 'Not yet available for this unit' : `${state.mastered ? 'Review pathway' : 'Continue pathway'} →`;
+  return `<button type="button" class="vocab-pathway-card" data-action="open-pathway" data-pathway="${pathway.id}" data-pathway-status="${status}"${disabled}><span class="vocab-pathway-card__head"><strong>${escapeHtml(pathway.label)}</strong><small>${escapeHtml(statusLabel)}</small></span>${coverage}<span class="vocab-pathway-ladder" aria-label="${escapeHtml(pathway.label)} progression">${stages}</span><span class="vocab-pathway-card__cta">${escapeHtml(cta)}</span></button>`;
 }
 
 export function renderVocabularyUnit(root, { unitNumber, unitTitle, progress, pathwayStates = {}, contentReady = true } = {}) {
@@ -241,7 +257,7 @@ export function supportiveFeedback({ correct, misconceptionCategory, recovery, t
     added_information:'Not quite — that version adds information that was not in the original.',
     omitted_information:'Not quite — an important part of the original meaning has disappeared.',
     unnatural_collocation:'The idea is close, but that word combination is not natural English.',
-    too_vague:'The idea is related, but the wording is too vague to keep the meaning precisely.',
+    too_vague:'The idea is related, but the wording is too vague to keep the meaning precisely here.',
     register_mismatch:'The meaning is close, but the register does not fit this context.',
     related_but_inaccurate:'Close — the meaning is related, but it is not precise enough here.',
     wrong_form:'Right idea — check the word form.'
