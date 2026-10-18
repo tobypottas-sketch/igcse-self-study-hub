@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 import { applyEvidence, markCuratedAnswer, spotMeaningChangeMarking, successClearsRecentError } from '../_shared/vocabulary-engine.js';
+import { applyPathwayAttempt, freshPathwayProgress, currentPathwayStage } from '../_shared/vocabulary-pathway-progress.js';
 import { assertContextQuestionMatchesContextType, assertUnitActivityQuestionMatchesContentType, assertWritingTaskMatchesQuestionType, buildStoredAttemptMetadata, strandForQuestionType, validateVocabularyAttempt } from './validation.js';
 
 const CORS = {
@@ -66,8 +67,12 @@ function globalMasteryFromRow(row: any) {
   };
 }
 
+function unitDetail(row: any) {
+  return row?.contextual_evidence && typeof row.contextual_evidence === 'object' ? row.contextual_evidence : {};
+}
+
 function unitMasteryFromRow(row: any) {
-  const detail = row?.contextual_evidence && typeof row.contextual_evidence === 'object' ? row.contextual_evidence : {};
+  const detail = unitDetail(row);
   return {
     status:row?.status ?? 'new',
     strandEvidence:detail.strandEvidence ?? {},
@@ -98,6 +103,15 @@ function authoritativeSupport(input: any) {
   if (input.repeatedGuess) return 'major';
   if (input.retryUsed || input.firstAttempt === false) return input.supportLevel === 'major' ? 'major' : 'light';
   return 'none';
+}
+function pathwayOperation(questionType: string): string {
+  if (['word_definition_match','drag_word_definition','drag_definition_word'].includes(questionType)) return 'semantic_match';
+  if (['gap_fill_bank','drag_word_sentence'].includes(questionType)) return 'supported_context_gap';
+  if (['definition_to_word','meaning_match'].includes(questionType)) return 'meaning_recognition';
+  if (['phrase_match','same_idea'].includes(questionType)) return 'paraphrase_recognition';
+  if (['build_paraphrase','build_same_idea'].includes(questionType)) return 'paraphrase_build';
+  if (['rewrite_phrase','rewrite_idea','explain_another_way'].includes(questionType)) return 'independent_production';
+  return questionType;
 }
 function phraseMarking(data: any, questionType: string) {
   const variants = strings(data?.acceptedVariants);
@@ -229,17 +243,19 @@ Deno.serve(async (req: Request) => {
 
     const shouldUpdateTargetMastery = input.contentSource === 'item' || input.contentSource === 'context' || primaryEvidenceTargetId === occurrence.vocabulary_id;
     const now = new Date();
+    const attemptId = input.attemptId ?? crypto.randomUUID();
     const metadata = buildStoredAttemptMetadata({
       unitNumber:occurrence.unit_number, strand, questionType:input.questionType,
       firstAttempt:input.firstAttempt, retryUsed:input.retryUsed, recoveredLater:input.recoveredLater,
       correct:marked.correct, misconceptionCategory:marked.misconceptionCategory,
       evidenceStrength:contract.evidenceStrength, supportLevel,
-      vocabularyId:occurrence.vocabulary_id, occurrenceId:occurrence.occurrence_id
+      vocabularyId:occurrence.vocabulary_id, occurrenceId:occurrence.occurrence_id,
+      pathwayId:input.pathwayId, pathwayStage:input.pathwayStage, servedPathwayStage:input.servedPathwayStage
     });
-    const attemptId = input.attemptId ?? crypto.randomUUID();
 
     let nextGlobal: any = null;
     let nextUnit: any = null;
+    let nextPathwayProgress: any = null;
     let globalRecentErrorPattern: string | null = null;
     let unitRecentErrorPattern: string | null = null;
 
@@ -261,6 +277,27 @@ Deno.serve(async (req: Request) => {
         nextUnit = applyEvidence(unitMasteryFromRow(unitRow), { ...evidence, review:false }, now);
         globalRecentErrorPattern = nextErrorPattern(globalRow?.recent_error_pattern, marked, evidence);
         unitRecentErrorPattern = nextErrorPattern(unitRow?.recent_error_pattern, marked, evidence);
+        const previousDetail = unitDetail(unitRow);
+        const pathwayProgress = previousDetail.pathwayProgress && typeof previousDetail.pathwayProgress === 'object' ? previousDetail.pathwayProgress : {};
+        if (input.pathwayId) {
+          const previousPathway = pathwayProgress[input.pathwayId] ?? freshPathwayProgress();
+          const questionIdentity = input.contentSource === 'item'
+            ? attemptId
+            : `${evidenceContentId}:${input.questionType}:${input.activityVariantId ?? ''}`;
+          nextPathwayProgress = applyPathwayAttempt(previousPathway, {
+            stageId:input.pathwayStage,
+            correct:marked.correct,
+            firstAttempt:input.firstAttempt,
+            retryUsed:input.retryUsed,
+            supportLevel,
+            contentId:questionIdentity,
+            contextId:input.contentSource === 'context' ? evidenceContentId : null,
+            promptKey:`${evidenceContentId}:${input.activityVariantId ?? input.questionType}`,
+            activityType:input.questionType,
+            operation:pathwayOperation(input.questionType),
+            contextSensitive:input.pathwayId === 'context' && input.pathwayStage === 'apply'
+          });
+        }
         unitContextualEvidence = {
           strandEvidence:nextUnit.strandEvidence,
           successfulProductions:nextUnit.successfulProductions,
@@ -268,7 +305,8 @@ Deno.serve(async (req: Request) => {
           productionActivityTypes:nextUnit.productionActivityTypes,
           unscaffoldedProductions:nextUnit.unscaffoldedProductions,
           recentErrorCount:nextUnit.recentErrorCount,
-          recoveryCount:nextUnit.recoveryCount
+          recoveryCount:nextUnit.recoveryCount,
+          pathwayProgress:input.pathwayId ? { ...pathwayProgress, [input.pathwayId]:nextPathwayProgress } : pathwayProgress
         };
       }
 
@@ -317,18 +355,20 @@ Deno.serve(async (req: Request) => {
       if (commitResult.duplicate === true) {
         const [actualGlobalResult, actualUnitResult] = shouldUpdateTargetMastery ? await Promise.all([
           adminClient.from('vocabulary_global_mastery').select('status, review_due_at, recent_error_pattern').eq('student_id', callerData.user.id).eq('vocabulary_id', occurrence.vocabulary_id).maybeSingle(),
-          adminClient.from('vocabulary_unit_mastery').select('status, recent_error_pattern').eq('student_id', callerData.user.id).eq('occurrence_id', occurrence.occurrence_id).maybeSingle()
+          adminClient.from('vocabulary_unit_mastery').select('status, recent_error_pattern, contextual_evidence').eq('student_id', callerData.user.id).eq('occurrence_id', occurrence.occurrence_id).maybeSingle()
         ]) : [{ data:null, error:null }, { data:null, error:null }];
         if (actualGlobalResult.error || actualUnitResult.error) throw new Error('Unable to read saved vocabulary mastery.');
         const actualGlobal = actualGlobalResult.data;
         const actualUnit = actualUnitResult.data;
+        const actualPathway = input.pathwayId ? actualUnit?.contextual_evidence?.pathwayProgress?.[input.pathwayId] ?? null : null;
         return json({
           ok:true, duplicate:true, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory,
           strand, strands:contract.strands, supportLevel, masteryUpdated:shouldUpdateTargetMastery,
           globalStatus:actualGlobal?.status ?? null, unitStatus:actualUnit?.status ?? null,
           globalRecentErrorPattern:actualGlobal?.recent_error_pattern ?? null,
           unitRecentErrorPattern:actualUnit?.recent_error_pattern ?? null,
-          reviewDueAt:actualGlobal?.review_due_at ?? null, recovery:input.recoveredLater && marked.correct
+          reviewDueAt:actualGlobal?.review_due_at ?? null, recovery:input.recoveredLater && marked.correct,
+          pathwayId:input.pathwayId, pathwayProgress:actualPathway, pathwayStage:actualPathway ? currentPathwayStage(actualPathway) : null
         });
       }
 
@@ -342,7 +382,9 @@ Deno.serve(async (req: Request) => {
         strand, strands:contract.strands, supportLevel, masteryUpdated:shouldUpdateTargetMastery,
         globalStatus:nextGlobal?.status ?? null, unitStatus:nextUnit?.status ?? null,
         globalRecentErrorPattern, unitRecentErrorPattern,
-        reviewDueAt:nextGlobal?.reviewDueAt ?? null, recovery:input.recoveredLater && marked.correct
+        reviewDueAt:nextGlobal?.reviewDueAt ?? null, recovery:input.recoveredLater && marked.correct,
+        pathwayId:input.pathwayId, pathwayProgress:nextPathwayProgress,
+        pathwayStage:nextPathwayProgress ? currentPathwayStage(nextPathwayProgress) : null
       });
     }
 
