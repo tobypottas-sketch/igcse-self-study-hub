@@ -55,10 +55,16 @@ function wordPathwayState({ pathwayId, occurrence, unitMastery, globalMastery })
   return { currentStage, completedStages:stagesBefore(currentStage), mastered:false, needsPractice:false };
 }
 
+export function buildWordPathwayStates({ occurrence, unitMastery = {}, globalMastery = {} } = {}) {
+  if (!occurrence) return Object.fromEntries(VOCABULARY_PATHWAYS.map(pathway => [pathway.id,{ currentStage:'recognise', completedStages:[], needsPractice:false, mastered:false }]));
+  return Object.fromEntries(VOCABULARY_PATHWAYS.map(pathway => [pathway.id,wordPathwayState({ pathwayId:pathway.id, occurrence, unitMastery, globalMastery })]));
+}
+
 export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, globalMastery = {} } = {}) {
+  const perWord = occurrences.map(occurrence => buildWordPathwayStates({ occurrence, unitMastery, globalMastery }));
   const result = {};
   for (const pathway of VOCABULARY_PATHWAYS) {
-    const words = occurrences.map(occurrence => wordPathwayState({ pathwayId:pathway.id, occurrence, unitMastery, globalMastery }));
+    const words = perWord.map(states => states[pathway.id]);
     if (!words.length) {
       result[pathway.id] = { currentStage:'recognise', completedStages:[], needsPractice:false, mastered:false };
       continue;
