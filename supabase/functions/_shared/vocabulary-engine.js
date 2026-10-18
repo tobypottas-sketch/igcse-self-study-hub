@@ -196,6 +196,51 @@ function defaultStrandsForQuestionType(questionType) {
   return ['recognition'];
 }
 
+const SPOT_MEANING_CHANGE_SAME_MEANING_OPTIONS = 3;
+const SPOT_VARIANT_PATTERN = /^q(\d{1,3})$/;
+
+function spotSameMeaningRewrites(data = {}) {
+  const seen = new Set();
+  const output = [];
+  for (const value of Array.isArray(data?.accurateParaphrases) ? data.accurateParaphrases : []) {
+    const textValue = String(value ?? '').trim();
+    const key = normalizeVocabularyAnswer(textValue);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    output.push(textValue);
+  }
+  return output;
+}
+
+function spotUsableDistractorIndexes(data = {}) {
+  const sameMeaning = new Set(spotSameMeaningRewrites(data).map(normalizeVocabularyAnswer));
+  const rows = Array.isArray(data?.distractors) ? data.distractors : [];
+  const indexes = [];
+  rows.forEach((row, index) => {
+    const key = normalizeVocabularyAnswer(row?.text);
+    if (key && !sameMeaning.has(key)) indexes.push(index);
+  });
+  return indexes;
+}
+
+export function isSpotMeaningChangeReady(data = {}) {
+  return spotSameMeaningRewrites(data).length >= SPOT_MEANING_CHANGE_SAME_MEANING_OPTIONS && spotUsableDistractorIndexes(data).length > 0;
+}
+
+export function spotMeaningChangeSameMeaningRewrites(data = {}) { return spotSameMeaningRewrites(data); }
+export function spotMeaningChangeDistractorIndexes(data = {}) { return spotUsableDistractorIndexes(data); }
+
+export function spotMeaningChangeMarking(data = {}, activityVariantId = null) {
+  if (!isSpotMeaningChangeReady(data)) throw new Error('Spot the Meaning Change content is not ready.');
+  const match = SPOT_VARIANT_PATTERN.exec(String(activityVariantId ?? ''));
+  if (!match) throw new Error('Spot the Meaning Change activity variant is required.');
+  const index = Number(match[1]);
+  if (!spotUsableDistractorIndexes(data).includes(index)) throw new Error('Spot the Meaning Change activity variant is invalid.');
+  const row = data.distractors[index];
+  const answer = String(row.text).trim();
+  return { acceptedAnswers:[answer], distractors:[{ text:answer, misconceptionCategory:row?.misconceptionCategory ?? 'meaning_confusion' }] };
+}
+
 export function markCuratedAnswer({ item = {}, sense = {}, context = {}, questionType, rawAnswer }) {
   const normalizedAnswer = normalizeVocabularyAnswer(rawAnswer);
   const accepted = new Set();
@@ -220,7 +265,7 @@ export function markCuratedAnswer({ item = {}, sense = {}, context = {}, questio
   const semanticDistractors = semanticDistractorMap(context);
   const identifyingInaccurate = INACCURATE_SELECTION_TYPES.has(questionType);
   const semanticCategory = semanticDistractors.get(normalizedAnswer) ?? null;
-  const isDistractor = semanticCategory != null || legacyDistractors.has(normalizedAnswer);
+  const isDistractor = semanticCategory != null || (questionType !== 'spot_meaning_change' && legacyDistractors.has(normalizedAnswer));
   const correct = identifyingInaccurate ? isDistractor : accepted.has(normalizedAnswer);
 
   let misconceptionCategory = null;
