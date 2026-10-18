@@ -61,6 +61,17 @@ function chooseUnitActivity(unitActivities, contentType, vocabularyId, usedConte
   if (unused.length) candidates = unused;
   return stableShuffle(candidates, `${seed}:${contentType}:${vocabularyId}`)[0];
 }
+function chooseWritingActivity(unitActivities, taskType, vocabularyId, usedContentIds, seed) {
+  const used = new Set(array(usedContentIds));
+  let candidates = array(unitActivities).filter(activity => {
+    if (activity?.contentType !== 'writing_set' || activity?.activityData?.taskType !== taskType) return false;
+    return array(activity.activityData?.linkedVocabularyIds).includes(vocabularyId);
+  });
+  if (!candidates.length) throw new Error(`No curated ${taskType} content is available for this target.`);
+  const unused = candidates.filter(activity => !used.has(activity.activityContentId));
+  if (unused.length) candidates = unused;
+  return stableShuffle(candidates, `${seed}:writing_set:${taskType}:${vocabularyId}`)[0];
+}
 function chooseContext(contexts, preferredTypes, usedContentIds, seed) {
   const used = new Set(array(usedContentIds));
   let candidates = array(contexts).filter(context => preferredTypes.includes(context?.type));
@@ -335,7 +346,7 @@ function rewriteIdea(args, definition) {
   return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Rewrite this idea in your own words without changing its meaning:\n${text(data.originalIdea)}`, markingReference:{ acceptedAnswers:uniqueText(array(data.accurateParaphrases)), meaningInvariants:array(data.meaningInvariants), distractors:array(data.distractors) }, extra:{ sourceIdea:text(data.originalIdea) } });
 }
 function writingActivity(args, definition) {
-  const record = chooseUnitActivity(args.unitActivities, 'writing_set', args.item.vocabularyId, args.usedContentIds, args.seed), data = object(record.activityData);
+  const record = chooseWritingActivity(args.unitActivities, 'improve_vocabulary', args.item.vocabularyId, args.usedContentIds, args.seed), data = object(record.activityData);
   return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`${text(data.prompt)}\n${text(data.sourceText)}`, markingReference:{ acceptedAnswers:uniqueText(array(data.acceptedAnswers)) }, extra:{ sourceText:text(data.sourceText), taskType:text(data.taskType) } });
 }
 function explainAnotherWay(args, definition) {
