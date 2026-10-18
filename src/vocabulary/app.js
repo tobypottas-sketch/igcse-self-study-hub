@@ -74,7 +74,16 @@ async function openUnit(unitNumber) {
   const preloadedOccurrences = (state.dashboard?.occurrences ?? []).filter(row => Number(row.unit_number) === Number(unitNumber));
   const loadOptions = preloadedOccurrences.length ? { occurrences:preloadedOccurrences } : {};
   const contentPromise = loadVocabularyUnit(state.client, unitNumber, loadOptions);
-  const masteryPromise = state.preview ? Promise.resolve({ global:[], unit:[] }) : loadStudentMastery(state.client, unitNumber, loadOptions);
+  const occurrenceIds = new Set(preloadedOccurrences.map(row => row.occurrence_id));
+  const vocabularyIds = new Set(preloadedOccurrences.map(row => row.vocabulary_id));
+  const dashboardMastery = preloadedOccurrences.length && state.dashboard
+    ? { global:state.dashboard.global.filter(row => vocabularyIds.has(row.vocabulary_id)), unit:state.dashboard.unit.filter(row => occurrenceIds.has(row.occurrence_id)) }
+    : null;
+  const masteryPromise = state.preview
+    ? Promise.resolve({ global:[], unit:[] })
+    : dashboardMastery
+      ? Promise.resolve(dashboardMastery)
+      : loadStudentMastery(state.client, unitNumber, loadOptions);
   const [contentRaw, masteryRaw] = await Promise.all([contentPromise, masteryPromise]);
   const occurrences = contentRaw.occurrences.map(occurrence); const items = contentRaw.items.map(item); const contexts = contentRaw.contexts.map(context); const activities = (contentRaw.activities ?? []).map(unitActivity);
   state.currentUnitNumber = unitNumber;
