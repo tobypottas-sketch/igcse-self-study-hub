@@ -4,6 +4,8 @@ import { trackVocabularyEvent } from './tracking.js';
 import { buildSupportStep } from './scaffolding.js';
 import { completeAttempt, createSession, expireSession, isSessionComplete } from './session.js';
 import { buildTargetPracticeQuestion, buildTimedMixedQuestion, selectEligiblePriorityTargets } from './session-targets.js';
+import { planPathwayQuestion, eligibleTargetsForPathwayStage } from './pathway-planner.js';
+import { buildUnitPathwayStates, buildWordPathwayStates } from './pathway-view-model.js';
 import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
 import { deriveLearningStage } from './learning-stage.js';
 import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
@@ -11,8 +13,8 @@ import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shar
 const root = document.getElementById('vocabularyApp');
 const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
-  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:null, recentActivities:new Map(), usedContentIds:new Map(),
-  recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null, timedPreviousActivityType:null,
+  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:null, pathwayId:null, pathwayStage:null, mixedReview:false,
+  recentActivities:new Map(), usedContentIds:new Map(), recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null, timedPreviousActivityType:null,
   persistenceChain:Promise.resolve(), persistenceBlocked:false, finishPending:false
 };
 
@@ -61,7 +63,7 @@ function buildUnits(dashboard) {
   return [...grouped.values()].sort((a,b) => a.unitNumber - b.unitNumber).map(group => ({ unitNumber:group.unitNumber, unitTitle:group.unitTitle, ...buildUnitProgress({ occurrences:group.occurrences, unitMastery:unit, globalMastery:global }) }));
 }
 async function showHome() {
-  clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null; state.content = null; state.practiceFocus = null;
+  clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null; state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.mixedReview = false;
   state.dashboard = await loadVocabularyDashboard(state.client, { preview:state.preview }); state.units = buildUnits(state.dashboard);
   renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units }); decoratePreview();
 }
@@ -73,7 +75,8 @@ function renderCurrentUnit() {
   const progress = occurrences.length
     ? buildUnitProgress({ occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery })
     : { mastered:summary?.mastered ?? 0, total:summary?.total ?? 50, needsAnotherLook:summary?.needsAnotherLook ?? 0, reviewDue:summary?.reviewDue ?? 0, stages:summary?.stages ?? {} };
-  renderVocabularyUnit(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, progress, practiceFocus:state.practiceFocus, contentReady:Boolean(state.content) }); decoratePreview();
+  const pathwayStates = buildUnitPathwayStates({ occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
+  renderVocabularyUnit(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, progress, pathwayStates, contentReady:Boolean(state.content) }); decoratePreview();
 }
 async function openUnit(unitNumber) {
   clearClock();
@@ -86,8 +89,7 @@ async function openUnit(unitNumber) {
     : null;
   state.currentUnitNumber = unitNumber;
   state.currentUnitTitle = preloadedOccurrences[0]?.unit_title ?? state.units.find(unit => Number(unit.unitNumber) === Number(unitNumber))?.unitTitle ?? `Unit ${unitNumber}`;
-  state.content = null;
-  state.practiceFocus = null;
+  state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.mixedReview = false;
   state.globalMastery = mapBy(dashboardMastery?.global ?? [], 'vocabulary_id', mastery);
   state.unitMastery = mapBy(dashboardMastery?.unit ?? [], 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
   state.persistenceBlocked = false; state.finishPending = false;
@@ -112,12 +114,40 @@ function showAllWords() {
   if (!state.content || !state.currentUnitNumber) return;
   const words = state.content.occurrences.slice().sort((a,b) => a.positionInUnit - b.positionInUnit).map(occ => {
     const target = state.content.itemsById[occ.vocabularyId]; const global = state.globalMastery[occ.vocabularyId] ?? freshMastery();
-    return { term:target?.term ?? occ.vocabularyId, status:global.status ?? 'new', learningStage:deriveLearningStage(global), mastery:global, strands:{ meaning:strandLabel(global.strandEvidence?.meaning, global.status), recognition:strandLabel(global.strandEvidence?.recognition, global.status), context:strandLabel(global.strandEvidence?.context, global.status), paraphrasing:strandLabel(global.strandEvidence?.paraphrasing, global.status), production:strandLabel(global.strandEvidence?.production, global.status) } };
+    return { term:target?.term ?? occ.vocabularyId, status:global.status ?? 'new', learningStage:deriveLearningStage(global), mastery:global, pathways:buildWordPathwayStates({ occurrence:occ, unitMastery:state.unitMastery, globalMastery:state.globalMastery }), strands:{ meaning:strandLabel(global.strandEvidence?.meaning, global.status), recognition:strandLabel(global.strandEvidence?.recognition, global.status), context:strandLabel(global.strandEvidence?.context, global.status), paraphrasing:strandLabel(global.strandEvidence?.paraphrasing, global.status), production:strandLabel(global.strandEvidence?.production, global.status) } };
   });
   renderVocabularyWords(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, words }); decoratePreview();
 }
 function rankedTargets(limit, practiceMode = state.practiceFocus) {
   return selectEligiblePriorityTargets({ content:state.content, masteryByVocabularyId:state.globalMastery, unitMastery:state.unitMastery, practiceMode, now:new Date(), limit });
+}
+function resetSessionState() {
+  state.current = null; state.recentActivities = new Map(); state.usedContentIds = new Map(); state.recoveryNeeded = new Set(); state.timedPreviousActivityType = null; state.finishPending = false;
+}
+function startPathwaySession(pathwayId) {
+  if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
+  const pathwayStates = buildUnitPathwayStates({ occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
+  const stageId = pathwayStates?.[pathwayId]?.currentStage ?? 'recognise';
+  const eligible = eligibleTargetsForPathwayStage({ pathwayId, stageId, content:state.content, masteryByVocabularyId:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${pathwayId}:${stageId}` });
+  if (!eligible.length) throw new Error('No suitable curated activity is available for this pathway stage yet.');
+  const eligibleIds = new Set(eligible.map(target => target.occurrenceId));
+  const ranked = rankedTargets(Math.max(10,state.content.occurrences.length),'adaptive').filter(target => eligibleIds.has(target.occurrenceId));
+  const selected = [...ranked, ...eligible.filter(target => !ranked.some(row => row.occurrenceId === target.occurrenceId))].slice(0,10);
+  state.pathwayId = pathwayId; state.pathwayStage = stageId; state.practiceFocus = null; state.mixedReview = false;
+  state.session = createSession({ unitNumber:state.currentUnitNumber, mode:'adaptive', targetIds:selected.map(row => row.occurrenceId), practiceMode:'adaptive', now:new Date() });
+  state.queue = [...selected]; resetSessionState();
+  if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`pathway:${pathwayId}:${stageId}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, pathway_id:pathwayId, pathway_stage:stageId } }).catch(() => {});
+  nextQuestion();
+}
+function startMixedReview() {
+  if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
+  state.pathwayId = null; state.pathwayStage = null; state.mixedReview = true; state.practiceFocus = 'adaptive';
+  const selected = rankedTargets(10,'adaptive');
+  if (!selected.length) throw new Error('No unlocked vocabulary is ready for Mixed Practice yet.');
+  state.session = createSession({ unitNumber:state.currentUnitNumber, mode:'adaptive', targetIds:selected.map(row => row.occurrenceId), practiceMode:'adaptive', now:new Date() });
+  state.queue = [...selected]; resetSessionState();
+  if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:'session:mixed-review', skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, review_only:true } }).catch(() => {});
+  nextQuestion();
 }
 function startSession(mode, durationMinutes = null) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
@@ -125,7 +155,7 @@ function startSession(mode, durationMinutes = null) {
   if (!timed && !state.practiceFocus) throw new Error('Choose a 0511 skill before starting.');
   const selected = rankedTargets(timed ? Math.max(10, state.content.occurrences.length) : 10, timed ? 'adaptive' : state.practiceFocus); if (!selected.length) throw new Error('No suitable curated activity is available for this practice mode yet.');
   state.session = createSession({ unitNumber:state.currentUnitNumber, mode, durationMinutes, targetIds:selected.map(row => row.occurrenceId), practiceMode:timed ? 'adaptive' : state.practiceFocus, now:new Date() });
-  state.queue = [...selected]; state.current = null; state.recentActivities = new Map(); state.usedContentIds = new Map(); state.recoveryNeeded = new Set(); state.timedPreviousActivityType = null; state.finishPending = false; if (timed) startClock();
+  state.queue = [...selected]; resetSessionState(); if (timed) startClock();
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`session:${mode}:${state.session.practiceMode}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, practice_focus:state.session.practiceMode } }).catch(() => {});
   nextQuestion();
 }
@@ -147,15 +177,20 @@ function buildNextForTarget(target) {
     usedContentIds,
     seed:`${target.occurrenceId}:${state.session.completedAttempts.length}:${state.session.mode}`
   };
-  const built = state.session.mode === 'timed'
-    ? buildTimedMixedQuestion({ ...common, previousActivityType:state.timedPreviousActivityType })
-    : buildTargetPracticeQuestion({ ...common, practiceMode:state.session.practiceMode ?? state.practiceFocus });
+  let built;
+  if (state.pathwayId) {
+    built = planPathwayQuestion({ pathwayId:state.pathwayId, stageId:state.pathwayStage, content:state.content, target, mastery:masteryState, recentActivities:recent.map(entry => entry.type), usedContentIds, supportState:common.supportState, seed:common.seed });
+  } else {
+    built = state.session.mode === 'timed'
+      ? buildTimedMixedQuestion({ ...common, previousActivityType:state.timedPreviousActivityType })
+      : buildTargetPracticeQuestion({ ...common, practiceMode:state.session.practiceMode ?? state.practiceFocus });
+  }
   const targetItem = built.item; const targetContexts = built.contexts; const question = built.question;
   if (state.session.mode === 'timed') state.timedPreviousActivityType = question.type;
   if (question.contentId) state.usedContentIds.set(target.occurrenceId, [...new Set([...usedContentIds, question.contentId])]);
   const contextRecord = targetContexts.find(ctx => ctx.contextId === question.contentId) ?? null; const activityRecord = state.content.activitiesById[question.contentId] ?? null;
-  const primaryEvidenceTargetId = activityRecord?.activityData?.primaryEvidenceTargetId ?? null;
-  return { target, item:targetItem, context:contextRecord, activityRecord, question, recovery, retry:false, support:null, initialError:false, primaryEvidenceTargetId };
+  const primaryEvidenceTargetId = question.primaryEvidenceTargetId ?? activityRecord?.activityData?.primaryEvidenceTargetId ?? (question.contentSource === 'item' ? target.vocabularyId : null);
+  return { target, item:targetItem, context:contextRecord, activityRecord, question, pathwayPlan:built.plan ?? null, recovery, retry:false, support:null, initialError:false, primaryEvidenceTargetId };
 }
 function nextQuestion() {
   if (!state.session) return; if (isSessionComplete(state.session, new Date())) { void finishSessionWhenSaved(); return; }
@@ -177,8 +212,9 @@ function evidenceFor(current, result, flags) {
   return { strand:result.strand, strands:current.question.strands, correct:result.correct, evidenceStrength:current.question.evidenceStrength, supportLevel:flags.supportLevel, productive:current.question.productive, repeatedGuess:false, firstAttempt:flags.firstAttempt, retryUsed:flags.retryUsed, recoveredLater:flags.recoveredLater, contextId:current.context?.contextId ?? null, activityContentId:current.activityRecord?.activityContentId ?? null, questionType:current.question.type, activityType:current.question.type, review:state.preview ? false : flags.review };
 }
 function persistVocabularyAttempt(current, rawAnswer, flags, localResult) {
-  const contentSource = current.activityRecord ? 'unit_activity' : 'context';
-  const payload = { occurrenceId:current.target.occurrenceId, contextId:current.context?.contextId ?? null, activityContentId:current.activityRecord?.activityContentId ?? null, activityVariantId:current.question.activityVariantId ?? null, contentSource, primaryEvidenceTargetId:current.primaryEvidenceTargetId, questionType:current.question.type, rawAnswer, strands:current.question.strands, evidenceStrength:current.question.evidenceStrength, supportLevel:flags.supportLevel, productive:current.question.productive, repeatedGuess:false, firstAttempt:flags.firstAttempt, retryUsed:flags.retryUsed, recoveredLater:flags.recoveredLater, review:flags.review, preview:false };
+  const contentSource = current.activityRecord ? 'unit_activity' : current.context ? 'context' : 'item';
+  const pathwayFields = state.pathwayId ? { pathwayId:state.pathwayId, pathwayStage:state.pathwayStage, servedPathwayStage:current.pathwayPlan?.servedStage ?? state.pathwayStage } : {};
+  const payload = { occurrenceId:current.target.occurrenceId, contextId:current.context?.contextId ?? null, activityContentId:current.activityRecord?.activityContentId ?? null, activityVariantId:current.question.activityVariantId ?? null, contentSource, primaryEvidenceTargetId:current.primaryEvidenceTargetId, questionType:current.question.type, rawAnswer, strands:current.question.strands, evidenceStrength:current.question.evidenceStrength, supportLevel:flags.supportLevel, productive:current.question.productive, repeatedGuess:false, firstAttempt:flags.firstAttempt, retryUsed:flags.retryUsed, recoveredLater:flags.recoveredLater, review:flags.review, preview:false, ...pathwayFields };
   state.persistenceChain = state.persistenceChain.then(async () => {
     if (state.persistenceBlocked) return;
     try {
@@ -187,7 +223,13 @@ function persistVocabularyAttempt(current, rawAnswer, flags, localResult) {
         const currentGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery();
         state.globalMastery[current.target.vocabularyId] = { ...currentGlobal, status:result.globalStatus, reviewDueAt:result.reviewDueAt, recentErrorCount:result.globalRecentErrorPattern ? 1 : 0, recentErrorPattern:result.globalRecentErrorPattern ?? null };
       }
-      if (result.unitStatus) state.unitMastery[current.target.occurrenceId] = { ...state.unitMastery[current.target.occurrenceId], status:result.unitStatus, recentErrorPattern:result.unitRecentErrorPattern ?? null };
+      const previousUnit = state.unitMastery[current.target.occurrenceId] ?? { contextualEvidence:{} };
+      if (result.unitStatus) state.unitMastery[current.target.occurrenceId] = { ...previousUnit, status:result.unitStatus, recentErrorPattern:result.unitRecentErrorPattern ?? null };
+      if (result.pathwayProgress && result.pathwayId) {
+        const latestUnit = state.unitMastery[current.target.occurrenceId] ?? previousUnit;
+        const previousDetail = latestUnit.contextualEvidence ?? {};
+        state.unitMastery[current.target.occurrenceId] = { ...latestUnit, contextualEvidence:{ ...previousDetail, pathwayProgress:{ ...(previousDetail.pathwayProgress ?? {}), [result.pathwayId]:result.pathwayProgress } } };
+      }
     } catch (error) {
       state.persistenceBlocked = true;
       showSyncWarning(error);
@@ -198,6 +240,7 @@ function persistVocabularyAttempt(current, rawAnswer, flags, localResult) {
 async function returnToCurrentUnit() {
   await state.persistenceChain;
   if (state.persistenceBlocked) return;
+  state.pathwayId = null; state.pathwayStage = null; state.mixedReview = false; state.practiceFocus = null;
   renderCurrentUnit();
 }
 async function advanceToNextQuestion() {
@@ -221,7 +264,9 @@ function handleAnswer(form, providedAnswer = null) {
     const previousPattern = previousGlobal.recentErrorPattern ?? state.unitMastery[current.target.occurrenceId]?.recentErrorPattern ?? null;
     const nextErrorPattern = result.correct ? (nextGlobal.recentErrorCount > 0 ? previousPattern : null) : (result.misconceptionCategory ?? 'retrieval_failure');
     state.globalMastery[current.target.vocabularyId] = { ...nextGlobal, recentErrorPattern:nextErrorPattern };
-    state.unitMastery[current.target.occurrenceId] = { status:nextGlobal.status, recentErrorPattern:nextErrorPattern, contextualEvidence:{ strandEvidence:nextGlobal.strandEvidence } };
+    const previousUnit = state.unitMastery[current.target.occurrenceId] ?? { contextualEvidence:{} };
+    const previousDetail = previousUnit.contextualEvidence ?? {};
+    state.unitMastery[current.target.occurrenceId] = { ...previousUnit, status:nextGlobal.status, recentErrorPattern:nextErrorPattern, contextualEvidence:{ ...previousDetail, strandEvidence:nextGlobal.strandEvidence } };
   }
   const recoverySucceeded = current.recovery && result.correct; if (!state.preview) void persistVocabularyAttempt(current, rawAnswer, flags, result);
   const message = supportiveFeedback({ correct:result.correct, misconceptionCategory:result.misconceptionCategory, recovery:recoverySucceeded, term:current.item.term, meaning:current.item.coreMeaning, questionType:current.question.type });
@@ -235,7 +280,7 @@ function handleAnswer(form, providedAnswer = null) {
 }
 function finishSession() {
   if (!state.session) return; if (state.session.mode === 'timed') state.session = expireSession(state.session, new Date()); clearClock(); const finished = state.session; state.current = null;
-  if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'exercise_result', activity_id:`session_complete:${finished.mode}:${finished.practiceMode ?? 'adaptive'}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${finished.unitNumber}`, score:finished.summary.strengthened, max_score:Math.max(1, finished.summary.practised), metadata:{ unit_number:finished.unitNumber, practice_focus:finished.practiceMode ?? 'adaptive' } }).catch(() => {});
+  if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'exercise_result', activity_id:`session_complete:${finished.mode}:${state.pathwayId ?? (state.mixedReview ? 'mixed-review' : finished.practiceMode ?? 'adaptive')}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${finished.unitNumber}`, score:finished.summary.strengthened, max_score:Math.max(1, finished.summary.practised), metadata:{ unit_number:finished.unitNumber, pathway_id:state.pathwayId, pathway_stage:state.pathwayStage, review_only:state.mixedReview } }).catch(() => {});
   renderSessionSummary(root, { durationMinutes:finished.durationMinutes, summary:finished.summary, practiceMode:finished.practiceMode ?? 'adaptive' }); decoratePreview();
 }
 async function finishSessionWhenSaved() {
@@ -260,9 +305,8 @@ root?.addEventListener('click', event => {
   const target = event.target?.closest?.('[data-action]'); const action = target?.dataset?.action; if (!action) return;
   if (action === 'open-unit') openUnit(Number(target.dataset.unit)).catch(error => renderVocabularyError(root, error.message));
   else if (action === 'back-units') showHome().catch(error => renderVocabularyError(root, error.message)); else if (action === 'view-all-words') showAllWords();
-  else if (action === 'set-practice-focus') { state.practiceFocus = target.dataset.practiceFocus || null; renderCurrentUnit(); }
-  else if (action === 'start-adaptive') { try { startSession('adaptive'); } catch (error) { renderVocabularyError(root, error.message); } }
-  else if (action === 'start-timed') { try { startSession('timed', Number(target.dataset.minutes)); } catch (error) { renderVocabularyError(root, error.message); } }
+  else if (action === 'open-pathway') { try { startPathwaySession(target.dataset.pathway); } catch (error) { renderVocabularyError(root, error.message); } }
+  else if (action === 'start-mixed-review') { try { startMixedReview(); } catch (error) { renderVocabularyError(root, error.message); } }
   else if (action === 'clear-tile-answer') {
     const form = target.closest?.('[data-form="vocabulary-answer"]'); const input = form?.querySelector?.('input[name="answer"]'); const build = form?.querySelector?.('[data-tile-build]');
     const fixed = String(target.dataset.fixedAnswer ?? '').trim(); if (!form || !input) return;

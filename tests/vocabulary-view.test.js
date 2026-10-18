@@ -45,23 +45,29 @@ test('vocabulary home invites unit choice without intimidating 1000-word totals'
   assert.doesNotMatch(target.innerHTML, /Weak|Failed/);
 });
 
-test('unit view opens neutral and exposes exactly 5 10 15 20 minute timed choices', () => {
+test('unit view exposes the fixed six-pathway ladder and review-only Mixed Practice', () => {
   const target = root();
-  renderVocabularyUnit(target, { unitNumber:7, unitTitle:'Interviews', progress:{ mastered:34, total:50, needsAnotherLook:8, reviewDue:5 } });
-  assert.match(target.innerHTML, /Choose a skill/);
-  assert.match(target.innerHTML, /Select a skill to start/);
-  assert.doesNotMatch(target.innerHTML, /vocab-focus-card is-selected/);
-  assert.doesNotMatch(target.innerHTML, /aria-pressed="true"/);
-  for (const minutes of [5,10,15,20]) assert.match(target.innerHTML, new RegExp(`>${minutes} min<`));
-  assert.equal((target.innerHTML.match(/data-minutes=/g) ?? []).length, 4);
-  assert.match(target.innerHTML, /34 \/ 50 mastered/);
+  renderVocabularyUnit(target, { unitNumber:7, unitTitle:'Interviews', progress:{ mastered:34, total:50, needsAnotherLook:8, reviewDue:5 }, pathwayStates:{} });
+  assert.match(target.innerHTML, /Choose a vocabulary pathway/);
+  assert.equal((target.innerHTML.match(/data-action="open-pathway"/g) ?? []).length, 6);
+  assert.match(target.innerHTML, /Recognise/);
+  assert.match(target.innerHTML, /Match/);
+  assert.match(target.innerHTML, /Apply/);
+  assert.match(target.innerHTML, /Recall/);
+  assert.match(target.innerHTML, /Mastery/);
+  assert.match(target.innerHTML, /Mixed Practice/);
+  assert.match(target.innerHTML, /Review only/);
+  assert.match(target.innerHTML, /34 \/ 50 overall mastered/);
+  assert.doesNotMatch(target.innerHTML, /data-minutes=/);
+  assert.doesNotMatch(target.innerHTML, /\b\d{1,3}%\b/);
 });
 
-test('explicit Adaptive selection still exposes the adaptive session route', () => {
+test('old adaptive launcher is not student-facing on the unit page', () => {
   const target = root();
-  renderVocabularyUnit(target, { unitNumber:7, unitTitle:'Interviews', progress:{ mastered:34, total:50, needsAnotherLook:8, reviewDue:5 }, practiceFocus:'adaptive' });
-  assert.match(target.innerHTML, /vocab-focus-card is-selected[^>]*data-practice-focus="adaptive"[^>]*aria-pressed="true"/);
-  assert.match(target.innerHTML, /Start Adaptive Session/);
+  renderVocabularyUnit(target, { unitNumber:7, unitTitle:'Interviews', progress:{ mastered:34, total:50, needsAnotherLook:8, reviewDue:5 }, pathwayStates:{} });
+  assert.doesNotMatch(target.innerHTML, /data-practice-focus=/);
+  assert.doesNotMatch(target.innerHTML, /Start Adaptive Session/);
+  assert.match(target.innerHTML, /data-action="start-mixed-review"/);
 });
 
 test('wrong-answer feedback stays supportive and recovery-oriented', () => {

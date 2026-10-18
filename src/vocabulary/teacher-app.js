@@ -1,5 +1,5 @@
 import { escapeHtml } from '../views/html.js';
-import { buildClassInsights, buildProblemDrilldown, buildStudentProfile } from './analytics.js';
+import { buildClassInsights, buildPathwayAnalytics, buildProblemDrilldown, buildStudentProfile } from './analytics.js';
 import { buildTeamsTargetList, buildVocabularyInterventionDraft, createLearningIntervention } from './interventions.js';
 import { loadVocabularyTeacherData } from './teacher-data.js';
 import { renderTeacherOverview, renderProblemArea, renderStudentVocabularyProfile } from './teacher-views.js';
@@ -13,8 +13,20 @@ function renderClassChooser() {
   teacherState.root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Teacher analytics</span></header><section class="vocab-teacher-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase</p><h1>Choose a class</h1><p>Open the class that needs your attention.</p><div class="vocab-teacher-actions"><a class="vocab-button" href="./vocabulary.html?preview=1">Preview student activities</a></div></section><section class="vocab-unit-grid">${cards}</section></main>`;
 }
 
+function pathwayAnalytics(classData, students = classData.students) {
+  const studentIds = new Set(students.map(row => row.id));
+  return buildPathwayAnalytics({
+    students,
+    targets:classData.targets,
+    occurrences:classData.occurrences,
+    globalMastery:classData.mastery.filter(row => studentIds.has(row.studentId)),
+    unitMastery:(classData.unitMastery ?? []).filter(row => studentIds.has(row.studentId))
+  });
+}
+
 function classInsights(classData) {
-  return buildClassInsights({ students:classData.students, targets:classData.targets, mastery:classData.mastery, activity:classData.activity, now:new Date() });
+  const insights = buildClassInsights({ students:classData.students, targets:classData.targets, mastery:classData.mastery, activity:classData.activity, now:new Date() });
+  return { ...insights, pathwayAnalytics:pathwayAnalytics(classData) };
 }
 
 function openClass(classId) {
@@ -46,12 +58,14 @@ function openStudent(studentId) {
   const student = teacherState.currentClass.students.find(row => row.id === studentId);
   if (!student) return;
   teacherState.currentDrilldown = null;
-  teacherState.currentStudent = buildStudentProfile({
+  const profile = buildStudentProfile({
     student,
     targets:teacherState.currentClass.targets,
     mastery:teacherState.currentClass.mastery.filter(row => row.studentId === studentId),
     activity:teacherState.currentClass.activity.filter(row => row.studentId === studentId)
   });
+  const studentPathways = pathwayAnalytics(teacherState.currentClass,[student]).studentRows[0]?.pathways ?? {};
+  teacherState.currentStudent = { ...profile, pathways:studentPathways };
   renderStudentVocabularyProfile(teacherState.root, { className:teacherState.currentClass.className, profile:teacherState.currentStudent });
 }
 

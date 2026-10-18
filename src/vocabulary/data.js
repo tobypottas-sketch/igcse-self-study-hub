@@ -1,6 +1,58 @@
+import { buildPathwayCoverage } from './pathway-coverage.js';
+import { registerPathwayCoverage } from './pathway-coverage-store.js';
+
 function assertNoError(result, message) {
   if (result?.error) throw new Error(message);
   return result?.data ?? [];
+}
+
+function plannerContent({ occurrences = [], items = [], contexts = [], activities = [] } = {}) {
+  const normalizedOccurrences = occurrences.map(row => ({
+    occurrenceId:row.occurrence_id,
+    vocabularyId:row.vocabulary_id,
+    unitNumber:row.unit_number,
+    unitTitle:row.unit_title,
+    setNumber:row.set_number,
+    positionInUnit:row.position_in_unit,
+    senseId:row.sense_id
+  }));
+  const normalizedItems = items.map(row => ({
+    vocabularyId:row.vocabulary_id,
+    term:row.term,
+    partOfSpeech:row.part_of_speech,
+    coreMeaning:row.core_meaning,
+    senses:row.senses ?? [],
+    wordFamily:row.word_family ?? [],
+    collocations:row.collocations ?? []
+  }));
+  const normalizedContexts = contexts.map(row => ({
+    contextId:row.context_id,
+    vocabularyId:row.vocabulary_id,
+    occurrenceId:row.occurrence_id,
+    senseId:row.sense_id,
+    type:row.context_type,
+    text:row.prompt_text,
+    targetRewrite:row.target_rewrite,
+    acceptedAnswers:row.accepted_answers ?? [],
+    misconceptionCategory:row.misconception_category
+  }));
+  const normalizedActivities = activities.map(row => ({
+    activityContentId:row.activity_content_id,
+    unitNumber:row.unit_number,
+    contentType:row.content_type,
+    activityData:row.activity_data ?? {},
+    status:row.status
+  }));
+  const content = {
+    occurrences:normalizedOccurrences,
+    items:normalizedItems,
+    contexts:normalizedContexts,
+    activities:normalizedActivities,
+    itemsById:Object.fromEntries(normalizedItems.map(row => [row.vocabularyId,row])),
+    contextsByOccurrence:{}
+  };
+  for (const ctx of normalizedContexts) (content.contextsByOccurrence[ctx.occurrenceId] ??= []).push(ctx);
+  return content;
 }
 
 export async function loadVocabularyDashboard(client, options = {}) {
@@ -27,7 +79,12 @@ export async function loadVocabularyUnit(client, unitNumber, options = {}) {
     client.from('vocabulary_contexts').select('context_id, vocabulary_id, occurrence_id, sense_id, context_type, prompt_text, target_rewrite, accepted_answers, misconception_category, status').in('occurrence_id', occurrenceIds).eq('status', 'live'),
     client.from('vocabulary_unit_activities').select('activity_content_id, unit_number, content_type, activity_data, status').eq('unit_number', unitNumber).eq('status', 'live')
   ]);
-  return { occurrences, items:assertNoError(itemsResult, 'Unable to load vocabulary items.'), contexts:assertNoError(contextsResult, 'Unable to load vocabulary contexts.'), activities:assertNoError(activitiesResult, 'Unable to load vocabulary activities.') };
+  const items = assertNoError(itemsResult, 'Unable to load vocabulary items.');
+  const contexts = assertNoError(contextsResult, 'Unable to load vocabulary contexts.');
+  const activities = assertNoError(activitiesResult, 'Unable to load vocabulary activities.');
+  const coverage = buildPathwayCoverage({ content:plannerContent({ occurrences, items, contexts, activities }) });
+  registerPathwayCoverage(unitNumber, coverage);
+  return { occurrences, items, contexts, activities };
 }
 
 export async function loadStudentMastery(client, unitNumber, options = {}) {
@@ -66,7 +123,10 @@ export async function submitVocabularyAttempt(client, input = {}) {
     retryUsed:input.retryUsed === true,
     recoveredLater:input.recoveredLater === true,
     review:input.review === true,
-    preview:input.preview === true
+    preview:input.preview === true,
+    pathwayId:input.pathwayId ?? null,
+    pathwayStage:input.pathwayStage ?? null,
+    servedPathwayStage:input.servedPathwayStage ?? null
   };
   const { data, error } = await client.functions.invoke('vocabulary-attempt-action', { body });
   if (error || !data?.ok) throw new Error(data?.error || error?.message || 'Unable to mark vocabulary attempt.');

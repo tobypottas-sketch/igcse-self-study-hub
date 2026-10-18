@@ -1,3 +1,5 @@
+import { PATHWAY_ACTIVITY_MAP, PATHWAY_STAGE_IDS } from '../../supabase/functions/_shared/vocabulary-pathway-contract.js';
+
 const SKILLS = Object.freeze({
   meaning_context:{ label:'Meaning in context' },
   question_text:{ label:'Question ↔ Text' },
@@ -68,6 +70,17 @@ function statusFor(row) {
 
 export function skillFamiliesForQuestionType(questionType) {
   return [...(TYPE_SKILLS[String(questionType ?? '')] ?? [])];
+}
+
+export function pathwayCoordinatesForQuestionType(questionType) {
+  const type = String(questionType ?? '');
+  const coordinates = [];
+  for (const [pathwayId, stages] of Object.entries(PATHWAY_ACTIVITY_MAP)) {
+    for (const stageId of PATHWAY_STAGE_IDS) {
+      if (stages?.[stageId]?.includes(type)) coordinates.push({ pathwayId, stageId });
+    }
+  }
+  return coordinates;
 }
 
 function explainAnotherWaySource(event, meta) {

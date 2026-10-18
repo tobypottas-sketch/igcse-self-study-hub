@@ -5,7 +5,8 @@ function assertNoError(result, message) {
 
 const SAFE_ACTIVITY_METADATA = new Set([
   'unit_number','strand','question_type','attempt_number','outcome','retry_used','recovery',
-  'misconception','evidence_strength','support_level','target_id','occurrence_id','practice_focus','skill_family'
+  'misconception','evidence_strength','support_level','target_id','occurrence_id','practice_focus','skill_family',
+  'pathway_id','pathway_stage','served_pathway_stage'
 ]);
 
 function safeActivityMetadata(value) {
@@ -35,6 +36,7 @@ export function normalizeTeacherVocabularyData(raw = {}) {
   const items = (raw.items ?? []).map(row => ({ vocabularyId:row.vocabulary_id, term:row.term }));
   const occurrences = (raw.occurrences ?? []).map(row => ({ occurrenceId:row.occurrence_id, vocabularyId:row.vocabulary_id, unitNumber:row.unit_number, unitTitle:row.unit_title }));
   const mastery = (raw.mastery ?? []).map(row => ({ studentId:row.student_id, vocabularyId:row.vocabulary_id, status:row.status, strandEvidence:row.strand_evidence ?? {}, recentErrorPattern:row.recent_error_pattern ?? null, updatedAt:row.updated_at ?? null }));
+  const unitMastery = (raw.unitMastery ?? []).map(row => ({ studentId:row.student_id, occurrenceId:row.occurrence_id, status:row.status, recentErrorPattern:row.recent_error_pattern ?? null, contextualEvidence:row.contextual_evidence ?? {} }));
   const activity = (raw.activity ?? []).map(row => ({ studentId:row.user_id, occurredAt:row.occurred_at, eventType:row.event_type, metadata:safeActivityMetadata(row.metadata) }));
   const profileById = new Map(profiles.filter(row => row.role === 'student').map(row => [row.id, { id:row.id, displayName:row.display_name }]));
 
@@ -46,6 +48,7 @@ export function normalizeTeacherVocabularyData(raw = {}) {
       className:classRow.class_name,
       students:studentIds.map(id => profileById.get(id)),
       mastery:mastery.filter(row => allowed.has(row.studentId)),
+      unitMastery:unitMastery.filter(row => allowed.has(row.studentId)),
       activity:activity.filter(row => allowed.has(row.studentId)),
       targets:items,
       occurrences
@@ -55,13 +58,14 @@ export function normalizeTeacherVocabularyData(raw = {}) {
 }
 
 export async function loadVocabularyTeacherData(client) {
-  const [profilesResult, membershipsResult, classesResult, itemsResult, occurrencesResult, masteryResult, activityResult] = await Promise.all([
+  const [profilesResult, membershipsResult, classesResult, itemsResult, occurrencesResult, masteryResult, unitMasteryResult, activityResult] = await Promise.all([
     client.from('profiles').select('id, display_name, role').eq('role','student'),
     client.from('student_class_memberships').select('student_id, class_id, ended_at'),
     client.from('classes').select('id, class_name, active').eq('active',true),
     client.from('vocabulary_items').select('vocabulary_id, term').eq('status','live'),
     client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number, unit_title').eq('status','live').eq('active',true),
     client.from('vocabulary_global_mastery').select('student_id, vocabulary_id, status, strand_evidence, recent_error_pattern, updated_at'),
+    client.from('vocabulary_unit_mastery').select('student_id, occurrence_id, status, recent_error_pattern, contextual_evidence'),
     client.from('activity_events').select('user_id, occurred_at, event_type, metadata').eq('app_key','vocabulary_paraphrase').order('occurred_at',{ ascending:false }).limit(5000)
   ]);
   return normalizeTeacherVocabularyData({
@@ -71,6 +75,7 @@ export async function loadVocabularyTeacherData(client) {
     items:assertNoError(itemsResult,'Unable to load vocabulary items.'),
     occurrences:assertNoError(occurrencesResult,'Unable to load vocabulary occurrences.'),
     mastery:assertNoError(masteryResult,'Unable to load vocabulary mastery.'),
+    unitMastery:assertNoError(unitMasteryResult,'Unable to load vocabulary pathway progress.'),
     activity:assertNoError(activityResult,'Unable to load vocabulary activity.')
   });
 }

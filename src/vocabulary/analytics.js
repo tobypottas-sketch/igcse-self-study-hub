@@ -1,9 +1,12 @@
 import { buildVocabularySkillProfile, skillFamiliesForQuestionType, skillLabel, summarizeMisconceptions } from './skill-profile.js';
 import { deriveLearningStage } from './learning-stage.js';
+import { VOCABULARY_PATHWAYS, PATHWAY_STAGES } from './pathway-model.js';
+import { buildWordPathwayStates } from './pathway-view-model.js';
 
 const STRANDS = ['meaning','recognition','context','paraphrasing','production'];
 const ATTENTION_STATUSES = new Set(['building']);
 const RECENT_MS = 7 * 24 * 60 * 60 * 1000;
+const PATHWAY_STAGE_INDEX = Object.freeze(Object.fromEntries(PATHWAY_STAGES.map((stage,index) => [stage.id,index])));
 
 function number(value) { return Number.isFinite(Number(value)) ? Number(value) : 0; }
 function average(values) { return values.length ? values.reduce((sum,value) => sum + value, 0) / values.length : 0; }
@@ -48,6 +51,52 @@ function skillWeakness({ students, activity, classProfile }) {
     affectedCount:count,
     summary:`${count} student${count === 1 ? '' : 's'} need more support with ${skillLabel(skillId).toLocaleLowerCase('en')}.`
   };
+}
+function aggregatePathwayStates(states = []) {
+  if (!states.length) return { currentStage:'recognise', needsPractice:false, mastered:false, evidenceCount:0 };
+  const mastered = states.every(state => state?.mastered === true);
+  const currentStage = mastered
+    ? 'mastery'
+    : states.slice().sort((a,b) => (PATHWAY_STAGE_INDEX[a?.currentStage] ?? 0) - (PATHWAY_STAGE_INDEX[b?.currentStage] ?? 0))[0]?.currentStage ?? 'recognise';
+  return { currentStage, needsPractice:states.some(state => state?.needsPractice === true), mastered, evidenceCount:states.length };
+}
+function masteryMapsForStudent(studentId, globalMastery, unitMastery) {
+  return {
+    global:Object.fromEntries(globalMastery.filter(row => row.studentId === studentId).map(row => [row.vocabularyId,row])),
+    unit:Object.fromEntries(unitMastery.filter(row => row.studentId === studentId).map(row => [row.occurrenceId,row]))
+  };
+}
+
+export function buildPathwayAnalytics({ students = [], targets = [], occurrences = [], globalMastery = [], unitMastery = [] } = {}) {
+  const targetById = targetMap(targets);
+  const perStudent = new Map();
+  const studentRows = students.map(student => {
+    const maps = masteryMapsForStudent(student.id,globalMastery,unitMastery);
+    const wordStates = occurrences.map(occurrence => ({ occurrence, states:buildWordPathwayStates({ occurrence, unitMastery:maps.unit, globalMastery:maps.global }) }));
+    perStudent.set(student.id,wordStates);
+    const pathways = Object.fromEntries(VOCABULARY_PATHWAYS.map(pathway => [pathway.id,aggregatePathwayStates(wordStates.map(row => row.states[pathway.id]))]));
+    return { studentId:student.id, displayName:student.displayName ?? student.display_name ?? student.id, pathways };
+  });
+
+  const occurrencesByVocabulary = new Map();
+  for (const occurrence of occurrences) {
+    const vocabularyId = occurrence.vocabularyId ?? occurrence.vocabulary_id;
+    if (!occurrencesByVocabulary.has(vocabularyId)) occurrencesByVocabulary.set(vocabularyId,[]);
+    occurrencesByVocabulary.get(vocabularyId).push(occurrence);
+  }
+  const wordRows = targets.map(target => {
+    const vocabularyId = target.vocabularyId ?? target.vocabulary_id;
+    const relevantOccurrenceIds = new Set((occurrencesByVocabulary.get(vocabularyId) ?? []).map(row => row.occurrenceId ?? row.occurrence_id));
+    const states = [];
+    for (const student of students) {
+      for (const row of perStudent.get(student.id) ?? []) {
+        if (relevantOccurrenceIds.has(row.occurrence.occurrenceId ?? row.occurrence.occurrence_id)) states.push(row.states);
+      }
+    }
+    const pathways = Object.fromEntries(VOCABULARY_PATHWAYS.map(pathway => [pathway.id,aggregatePathwayStates(states.map(row => row[pathway.id]))]));
+    return { vocabularyId, term:targetById.get(vocabularyId)?.term ?? vocabularyId, pathways };
+  });
+  return { studentRows, wordRows };
 }
 
 export function buildClassInsights({ students = [], targets = [], mastery = [], activity = [], now = new Date() } = {}) {
