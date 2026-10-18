@@ -1,5 +1,6 @@
 import { escapeHtml } from '../views/html.js';
 import { PRACTICE_MODES, activityDefinition } from './activity-catalogue.js';
+import { deriveLearningStage } from './learning-stage.js';
 
 const HIDE_TARGET_TYPES = new Set([
   'replace_phrase','produce_paraphrase','use_target','context_gap_fill',
@@ -38,16 +39,19 @@ export function buildUnitProgress({ occurrences = [], unitMastery = {}, globalMa
   let mastered = 0;
   let needsAnotherLook = 0;
   let reviewDue = 0;
+  const stages = { emerging:0, building:0, developing:0, secure:0, mastered:0 };
   const nowMs = new Date(now).getTime();
   for (const occurrence of occurrences) {
     const unit = unitMastery[occurrence.occurrenceId ?? occurrence.occurrence_id];
     const global = globalMastery[occurrence.vocabularyId ?? occurrence.vocabulary_id];
-    if (statusOf(unit) === 'mastered') mastered += 1;
+    const stage = deriveLearningStage(unit ?? {});
+    stages[stage] += 1;
+    if (stage === 'mastered') mastered += 1;
     if (statusOf(unit) === 'building' || Boolean(errorPattern(unit))) needsAnotherLook += 1;
     const due = dueAt(global);
     if (due && new Date(due).getTime() <= nowMs) reviewDue += 1;
   }
-  return { total:occurrences.length, mastered, needsAnotherLook, reviewDue };
+  return { total:occurrences.length, mastered, needsAnotherLook, reviewDue, stages };
 }
 
 export function renderVocabularyHome(root, { displayName = '', units = [] } = {}) {
