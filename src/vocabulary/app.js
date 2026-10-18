@@ -155,6 +155,10 @@ function persistVocabularyAttempt(current, rawAnswer, flags, localResult) {
     if (result.unitStatus) state.unitMastery[current.target.occurrenceId] = { ...state.unitMastery[current.target.occurrenceId], status:result.unitStatus, recentErrorPattern:result.unitRecentErrorPattern ?? null };
   }).catch(error => { showSyncWarning(error); }); return state.persistenceChain;
 }
+async function returnToCurrentUnit() {
+  await state.persistenceChain;
+  await openUnit(state.currentUnitNumber);
+}
 function recordRecentActivity(current, result) { const recent = state.recentActivities.get(current.target.occurrenceId) ?? []; const entry = { type:current.question.type, contentId:current.question.contentId, correct:result.correct }; state.recentActivities.set(current.target.occurrenceId, [...recent, entry].slice(-5)); }
 function handleAnswer(form, providedAnswer = null) {
   if (!state.current || !state.session) return; if (state.session.mode === 'timed' && isSessionComplete(state.session, new Date())) { finishSession(); return; }
@@ -210,7 +214,7 @@ root?.addEventListener('click', event => {
     for (const tile of form.querySelectorAll?.('.vocab-tile') ?? []) { tile.disabled = false; tile.classList.remove('is-used'); }
     input.value = fixed; if (build) build.textContent = fixed ? '' : 'Choose tiles to build your answer';
   }
-  else if (action === 'next-question') nextQuestion(); else if (action === 'leave-session' || action === 'back-unit') openUnit(state.currentUnitNumber).catch(error => renderVocabularyError(root, error.message));
+  else if (action === 'next-question') nextQuestion(); else if (action === 'leave-session' || action === 'back-unit') returnToCurrentUnit().catch(error => renderVocabularyError(root, error.message));
 });
 async function initialise() {
   if (!root) return;
