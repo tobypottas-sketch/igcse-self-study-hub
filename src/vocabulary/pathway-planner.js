@@ -3,6 +3,13 @@ import { PATHWAY_STAGES, activityTypesForPathwayStage, pathwayDefinition } from 
 import { availableActivityTypesForTarget } from './session-targets.js';
 
 const STAGE_IDS = Object.freeze(PATHWAY_STAGES.map(stage => stage.id));
+const READINESS_BY_STAGE = Object.freeze({
+  recognise:'building',
+  match:'building',
+  apply:'secure',
+  recall:'secure',
+  mastery:'mastered'
+});
 
 function array(value) { return Array.isArray(value) ? value : []; }
 function hashSeed(seed) {
@@ -28,6 +35,9 @@ function mappedChoices(pathwayId, stageId, availableActivityTypes) {
   const allowed = activityTypesForPathwayStage(pathwayId,stageId);
   const available = new Set(array(availableActivityTypes));
   return allowed.filter(type => available.has(type));
+}
+function readinessForStage(stageId) {
+  return READINESS_BY_STAGE[stageId] ?? 'building';
 }
 
 export function selectPathwayStageActivity({
@@ -58,6 +68,7 @@ export function selectPathwayStageActivity({
     learnerStage:stageId,
     servedStage,
     activityType:ordered[0],
+    readinessStage:readinessForStage(servedStage),
     supportLevel,
     reason:servedStage === stageId ? 'Fixed pathway stage' : 'Temporary one-stage support'
   };
@@ -81,7 +92,7 @@ function buildCandidate({ content, target, mastery, item, contexts, plan, usedCo
     unitContexts:array(content?.contexts),
     unitOccurrences:array(content?.occurrences),
     mastery,
-    readinessStage:'building',
+    readinessStage:plan.readinessStage,
     usedContentIds:array(usedContentIds),
     seed
   });
@@ -104,6 +115,7 @@ export function planPathwayQuestion({
     ? (previousStage(stageId) ?? stageId)
     : stageId;
   const supportLevel = servedStage === learnerStage ? 'none' : 'light';
+  const readinessStage = readinessForStage(servedStage);
   const { item, contexts } = materialForTarget(content,target);
   const availableForTarget = new Set(availableActivityTypesForTarget({ content, target, item, contexts }));
   let choices = activityTypesForPathwayStage(pathwayId,servedStage).filter(type => availableForTarget.has(type));
@@ -120,6 +132,7 @@ export function planPathwayQuestion({
       learnerStage,
       servedStage,
       activityType,
+      readinessStage,
       supportLevel,
       reason:servedStage === learnerStage ? 'Fixed pathway stage' : 'Temporary one-stage support'
     };
