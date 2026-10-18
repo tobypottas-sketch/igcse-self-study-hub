@@ -61,11 +61,14 @@ export function isPathwayStageUnlocked(progress = {}, stageId) {
 }
 
 function isClean(attempt = {}) {
-  return attempt.correct === true && attempt.firstAttempt === true && attempt.retryUsed !== true;
+  return attempt.correct === true
+    && attempt.firstAttempt === true
+    && attempt.retryUsed !== true
+    && String(attempt.supportLevel ?? 'none') === 'none';
 }
 
 function isUnassisted(attempt = {}) {
-  return isClean(attempt) && String(attempt.supportLevel ?? 'none') === 'none';
+  return isClean(attempt);
 }
 
 function promptIdentity(attempt = {}) {
@@ -96,9 +99,26 @@ export function applyPathwayAttempt(progress = freshPathwayProgress(), attempt =
   const stageId = String(attempt.stageId ?? '');
   if (!STAGE_IDS.includes(stageId) || !isPathwayStageUnlocked(progress, stageId)) return progress;
 
+  const servedStageId = String(attempt.servedStageId ?? stageId);
+  const lowerStageSupport = servedStageId !== stageId;
   const current = progress?.stages?.[stageId] ?? stageState();
   let nextStage = { ...current };
   let supportRequested = Boolean(progress.supportRequested);
+
+  // A deliberately easier support question is recovery scaffolding, not proof of the harder learner stage.
+  // Success may clear Needs practice so the learner can return to the same current stage, but it earns no
+  // success/content/prompt/operation credit for that harder stage. A miss simply leaves support requested.
+  if (lowerStageSupport) {
+    if (attempt.correct === true && nextStage.needsPractice) {
+      nextStage.needsPractice = false;
+      supportRequested = false;
+    }
+    return {
+      ...progress,
+      stages:{ ...progress.stages, [stageId]:recomputeDerived(nextStage) },
+      supportRequested
+    };
+  }
 
   if (attempt.correct === true) {
     nextStage.successes += 1;
