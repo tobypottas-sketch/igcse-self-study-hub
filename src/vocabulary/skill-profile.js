@@ -15,12 +15,12 @@ const TYPE_SKILLS = Object.freeze({
   question_text_bridge:['question_text'],
   find_evidence:['question_text'],
   phrase_match:['phrase_paraphrasing'],
-  build_paraphrase:['phrase_paraphrasing','lexical_production'],
+  build_paraphrase:['phrase_paraphrasing'],
   complete_paraphrase:['phrase_paraphrasing','lexical_production'],
   rewrite_phrase:['phrase_paraphrasing','lexical_production'],
   same_idea:['idea_paraphrasing'],
   spot_meaning_change:['idea_paraphrasing'],
-  build_same_idea:['idea_paraphrasing','lexical_production'],
+  build_same_idea:['idea_paraphrasing'],
   rewrite_idea:['idea_paraphrasing','lexical_production'],
   collocation_builder:['writing_vocabulary','lexical_production'],
   word_family_switch:['writing_vocabulary','lexical_production'],
@@ -29,6 +29,10 @@ const TYPE_SKILLS = Object.freeze({
 });
 
 const STRENGTH_WEIGHT = Object.freeze({ light:1, medium:2, strong:3, very_strong:4 });
+// Tile assembly is scaffolded. Attempts stored before the evidence contract changed carry 'strong'; interpret them as at most
+// 'medium' when reading so the profile never shows tile clicks as independent strong evidence. Stored events are not modified.
+const SCAFFOLDED_TILE_TYPES = Object.freeze(new Set(['build_paraphrase','build_same_idea']));
+function effectiveStrength(questionType, strength) { return SCAFFOLDED_TILE_TYPES.has(questionType) && STRENGTH_WEIGHT[strength] > STRENGTH_WEIGHT.medium ? 'medium' : strength; }
 const SUPPORT_WEIGHT = Object.freeze({ none:1, light:.6, major:.25 });
 const MISCONCEPTIONS = Object.freeze({
   quantity_change:'Changes quantity while paraphrasing',
@@ -72,7 +76,7 @@ export function buildVocabularySkillProfile(events = []) {
     const meta = metadata(event);
     const families = skillFamiliesForQuestionType(meta.question_type);
     if (!families.length) continue;
-    const strength = safeStrength(meta.evidence_strength);
+    const strength = effectiveStrength(meta.question_type, safeStrength(meta.evidence_strength));
     const support = safeSupport(meta.support_level);
     const weight = STRENGTH_WEIGHT[strength] * SUPPORT_WEIGHT[support];
     const correct = meta.outcome === 'correct';
