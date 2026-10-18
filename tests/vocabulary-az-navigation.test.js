@@ -23,10 +23,11 @@ test('word-list navigation enhancer anchors first matching word and drives back-
   assert.match(source, /MutationObserver/);
 });
 
-test('A-Z navigation stays persistently vertical on desktop and horizontal-scrollable on narrow screens', () => {
+test('A-Z navigation stays persistently vertical and comfortably spaced on desktop', () => {
   const css = fs.readFileSync(new URL('../vocabulary-word-list-nav.css', import.meta.url), 'utf8');
   assert.match(css, /@media\(min-width:761px\)/);
-  assert.match(css, /\.vocab-az-nav\{[^}]*position:fixed[^}]*grid-template-columns:1fr[^}]*grid-template-rows:repeat\(26,/s);
+  assert.match(css, /\.vocab-az-nav\{[^}]*position:fixed[^}]*height:clamp\(680px,72vh,900px\)[^}]*grid-template-columns:1fr[^}]*grid-template-rows:repeat\(26,/s);
+  assert.match(css, /\.vocab-az-nav a,\.vocab-az-nav span\{[^}]*min-height:22px[^}]*font-size:\.72rem/s);
   assert.match(css, /@media\(max-width:760px\)/);
   assert.match(css, /grid-template-columns:repeat\(26,minmax\(36px,1fr\)\)/);
   assert.match(css, /overflow-x:\s*auto/);

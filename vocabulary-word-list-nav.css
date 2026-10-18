@@ -11,10 +11,10 @@ html{scroll-behavior:smooth}
 .vocab-back-to-top span{font-size:1rem;line-height:1}
 
 @media(min-width:761px){
-  .vocab-az-nav{position:fixed;right:14px;top:50%;z-index:42;width:40px;max-height:calc(100vh - 96px);box-sizing:border-box;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(26,minmax(14px,1fr));gap:1px;margin:0;padding:7px 5px;border:1px solid #d8e7eb;border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 10px 30px rgba(23,56,82,.12);transform:translateY(-50%);backdrop-filter:blur(8px)}
-  .vocab-az-nav a,.vocab-az-nav span{min-height:0;font-size:.68rem}
+  .vocab-az-nav{position:fixed;right:14px;top:50%;z-index:42;width:46px;height:clamp(680px,72vh,900px);max-height:calc(100vh - 64px);box-sizing:border-box;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(26,minmax(22px,1fr));gap:2px;margin:0;padding:12px 6px;border:1px solid #d8e7eb;border-radius:20px;background:rgba(255,255,255,.96);box-shadow:0 10px 30px rgba(23,56,82,.12);transform:translateY(-50%);backdrop-filter:blur(8px)}
+  .vocab-az-nav a,.vocab-az-nav span{min-height:22px;font-size:.72rem}
   .vocab-az-nav a:hover,.vocab-az-nav a:focus-visible{transform:scale(1.08)}
-  .vocab-word-list{padding-right:50px;box-sizing:border-box}
+  .vocab-word-list{padding-right:58px;box-sizing:border-box}
 }
 
 @media(max-width:760px){
