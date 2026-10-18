@@ -8,7 +8,7 @@ const QUESTION_TYPES = new Set([
   'spot_meaning_change','build_same_idea','rewrite_idea','improve_vocabulary','explain_another_way'
 ]);
 // Retired activity types may still exist in stored history but must not create new evidence.
-const RETIRED_QUESTION_TYPES = new Set(['collocation_builder']);
+const RETIRED_QUESTION_TYPES = new Set(['correct_usage','collocation_builder']);
 const STRANDS = new Set(['meaning','recognition','context','paraphrasing','production']);
 const MISCONCEPTIONS = new Set([
   'related_but_inaccurate','wrong_form','meaning_confusion','retrieval_failure','context_mismatch',

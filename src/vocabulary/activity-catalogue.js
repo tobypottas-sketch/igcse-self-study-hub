@@ -14,7 +14,10 @@ export const ACTIVITY_TYPES = Object.freeze([
   { id:'meaning_match', label:'Meaning Match', practiceModes:['learn'], responseMode:'choice', minimumStage:'new', strands:['meaning'], evidenceStrength:'light', productive:false, skillFamily:'meaning' },
   { id:'which_situation_fits', label:'Which Situation Fits?', practiceModes:['learn','context'], responseMode:'choice', minimumStage:'new', strands:['meaning','context'], evidenceStrength:'medium', productive:false, skillFamily:'meaning' },
   { id:'meaning_in_context', label:'Meaning in Context', practiceModes:['context','learn'], responseMode:'choice', minimumStage:'building', strands:['context','meaning'], evidenceStrength:'medium', productive:false, skillFamily:'context' },
-  { id:'correct_usage', label:'Correct Usage', practiceModes:['learn','context','writing'], responseMode:'choice', minimumStage:'building', strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'context' },
+  // Retired from live use: the old builder mixed a correct usage sentence with paraphrase-error sentences and bare
+  // meaning distractors, so students could answer from option form instead of judging usage. Keep the definition for
+  // historical attempts; rebuild against a curated usage_set before re-enabling.
+  { id:'correct_usage', label:'Correct Usage', practiceModes:['learn','context','writing'], responseMode:'choice', minimumStage:'building', strands:['context','recognition'], evidenceStrength:'medium', productive:false, skillFamily:'context', retired:true },
   // Retired from live use: legacy tile task only shuffles collocations[0] (every tile is part of the answer, no curated
   // distractors). Kept so historical attempts still resolve; rebuild as curated collocation_set before re-enabling.
   { id:'collocation_builder', label:'Collocation Builder', practiceModes:['learn','writing'], responseMode:'tiles', minimumStage:'building', strands:['recognition','production'], evidenceStrength:'strong', productive:true, skillFamily:'writing_vocabulary', retired:true },

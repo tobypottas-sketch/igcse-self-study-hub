@@ -5,7 +5,8 @@ import {
   PRACTICE_MODES,
   activityDefinition,
   activitiesForMode,
-  activitiesForStage
+  activitiesForStage,
+  isActivityLive
 } from '../src/vocabulary/activity-catalogue.js';
 
 const EXPECTED_ACTIVITIES = [
@@ -76,7 +77,8 @@ test('each focused mode returns only activities belonging to that mode and adapt
     assert.ok(activities.length > 0, mode);
     assert.ok(activities.every(activity => activity.practiceModes.includes(mode)), mode);
   }
-  assert.deepEqual(activitiesForMode('adaptive').map(activity => activity.id), EXPECTED_ACTIVITIES.filter(id => id !== 'collocation_builder'));
+  const liveIds = ACTIVITY_TYPES.filter(activity => isActivityLive(activity.id)).map(activity => activity.id);
+  assert.deepEqual(activitiesForMode('adaptive').map(activity => activity.id), liveIds);
 });
 
 test('stage filtering respects minimum readiness while keeping supported work available', () => {
