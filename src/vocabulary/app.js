@@ -71,7 +71,10 @@ function renderCurrentUnit() {
 }
 async function openUnit(unitNumber) {
   clearClock();
-  const contentPromise = loadVocabularyUnit(state.client, unitNumber); const masteryPromise = state.preview ? Promise.resolve({ global:[], unit:[] }) : loadStudentMastery(state.client, unitNumber);
+  const preloadedOccurrences = (state.dashboard?.occurrences ?? []).filter(row => Number(row.unit_number) === Number(unitNumber));
+  const loadOptions = preloadedOccurrences.length ? { occurrences:preloadedOccurrences } : {};
+  const contentPromise = loadVocabularyUnit(state.client, unitNumber, loadOptions);
+  const masteryPromise = state.preview ? Promise.resolve({ global:[], unit:[] }) : loadStudentMastery(state.client, unitNumber, loadOptions);
   const [contentRaw, masteryRaw] = await Promise.all([contentPromise, masteryPromise]);
   const occurrences = contentRaw.occurrences.map(occurrence); const items = contentRaw.items.map(item); const contexts = contentRaw.contexts.map(context); const activities = (contentRaw.activities ?? []).map(unitActivity);
   state.currentUnitNumber = unitNumber;
@@ -169,7 +172,8 @@ function persistVocabularyAttempt(current, rawAnswer, flags, localResult) {
 }
 async function returnToCurrentUnit() {
   await state.persistenceChain;
-  await openUnit(state.currentUnitNumber);
+  if (state.persistenceBlocked) return;
+  renderCurrentUnit();
 }
 async function advanceToNextQuestion() {
   await state.persistenceChain;
