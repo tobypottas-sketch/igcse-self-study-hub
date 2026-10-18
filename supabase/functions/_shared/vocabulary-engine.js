@@ -71,6 +71,10 @@ function successWeight(evidence) {
   return 3;
 }
 
+export function successClearsRecentError(evidence = {}) {
+  return evidence.correct === true && evidence.retryUsed !== true && evidence.firstAttempt !== false && evidence.recoveredLater !== true;
+}
+
 export function deriveStatus(input = {}) {
   const mastery = normalizedMastery(input);
   const evidence = mastery.strandEvidence;
@@ -153,7 +157,7 @@ export function applyEvidence(input = {}, evidence = {}, now = new Date()) {
       }
 
       if (evidence.recoveredLater) next.recoveryCount += 1;
-      else next.recentErrorCount = Math.max(0, next.recentErrorCount - 1);
+      else if (successClearsRecentError(evidence)) next.recentErrorCount = Math.max(0, next.recentErrorCount - 1);
       if (evidence.review) {
         next.reviewFailureCount = 0;
         next.reviewStage += 1;

@@ -146,8 +146,11 @@ function persistVocabularyAttempt(current, rawAnswer, flags, localResult) {
   const payload = { occurrenceId:current.target.occurrenceId, contextId:current.context?.contextId ?? null, activityContentId:current.activityRecord?.activityContentId ?? null, activityVariantId:current.question.activityVariantId ?? null, contentSource, primaryEvidenceTargetId:current.primaryEvidenceTargetId, questionType:current.question.type, rawAnswer, strands:current.question.strands, evidenceStrength:current.question.evidenceStrength, supportLevel:flags.supportLevel, productive:current.question.productive, repeatedGuess:false, firstAttempt:flags.firstAttempt, retryUsed:flags.retryUsed, recoveredLater:flags.recoveredLater, review:flags.review, preview:false };
   state.persistenceChain = state.persistenceChain.then(async () => {
     const result = await submitVocabularyAttempt(state.client, payload); if (result.correct !== localResult.correct) throw new Error('Vocabulary marking mismatch. Please reload before continuing.');
-    if (result.globalStatus) { const currentGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery(); state.globalMastery[current.target.vocabularyId] = { ...currentGlobal, status:result.globalStatus, reviewDueAt:result.reviewDueAt, recentErrorCount:result.correct ? 0 : Math.max(1, currentGlobal.recentErrorCount ?? 0) }; }
-    if (result.unitStatus) state.unitMastery[current.target.occurrenceId] = { ...state.unitMastery[current.target.occurrenceId], status:result.unitStatus, recentErrorPattern:result.correct ? null : (result.misconceptionCategory ?? 'retrieval_failure') };
+    if (result.globalStatus) {
+      const currentGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery();
+      state.globalMastery[current.target.vocabularyId] = { ...currentGlobal, status:result.globalStatus, reviewDueAt:result.reviewDueAt, recentErrorCount:result.globalRecentErrorPattern ? 1 : 0, recentErrorPattern:result.globalRecentErrorPattern ?? null };
+    }
+    if (result.unitStatus) state.unitMastery[current.target.occurrenceId] = { ...state.unitMastery[current.target.occurrenceId], status:result.unitStatus, recentErrorPattern:result.unitRecentErrorPattern ?? null };
   }).catch(error => { showSyncWarning(error); }); return state.persistenceChain;
 }
 function recordRecentActivity(current, result) { const recent = state.recentActivities.get(current.target.occurrenceId) ?? []; const entry = { type:current.question.type, contentId:current.question.contentId, correct:result.correct }; state.recentActivities.set(current.target.occurrenceId, [...recent, entry].slice(-5)); }
@@ -157,7 +160,12 @@ function handleAnswer(form, providedAnswer = null) {
   const previousGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery(); const previousGlobalStatus = previousGlobal.status ?? 'new'; const review = Boolean(previousGlobal.reviewDueAt && new Date(previousGlobal.reviewDueAt).getTime() <= Date.now());
   const flags = { firstAttempt:!current.retry, retryUsed:current.retry, recoveredLater:current.recovery, review, supportLevel:current.retry ? (current.support?.supportLevel ?? 'light') : 'none' };
   const result = markVocabularyAttemptLocally(current, rawAnswer); const shouldUpdate = updatesTargetMastery(current); const nextGlobal = shouldUpdate ? applyEvidence(previousGlobal, evidenceFor(current, result, flags), new Date()) : previousGlobal;
-  if (shouldUpdate) { state.globalMastery[current.target.vocabularyId] = nextGlobal; state.unitMastery[current.target.occurrenceId] = { status:nextGlobal.status, recentErrorPattern:result.correct ? null : (result.misconceptionCategory ?? 'retrieval_failure'), contextualEvidence:{ strandEvidence:nextGlobal.strandEvidence } }; }
+  if (shouldUpdate) {
+    const previousPattern = previousGlobal.recentErrorPattern ?? state.unitMastery[current.target.occurrenceId]?.recentErrorPattern ?? null;
+    const nextErrorPattern = result.correct ? (nextGlobal.recentErrorCount > 0 ? previousPattern : null) : (result.misconceptionCategory ?? 'retrieval_failure');
+    state.globalMastery[current.target.vocabularyId] = { ...nextGlobal, recentErrorPattern:nextErrorPattern };
+    state.unitMastery[current.target.occurrenceId] = { status:nextGlobal.status, recentErrorPattern:nextErrorPattern, contextualEvidence:{ strandEvidence:nextGlobal.strandEvidence } };
+  }
   const recoverySucceeded = current.recovery && result.correct; if (!state.preview) void persistVocabularyAttempt(current, rawAnswer, flags, result);
   const message = supportiveFeedback({ correct:result.correct, misconceptionCategory:result.misconceptionCategory, recovery:recoverySucceeded, term:current.item.term, meaning:current.item.coreMeaning, questionType:current.question.type });
   if (!result.correct && !current.retry) { current.initialError = true; current.retry = true; current.support = buildSupportStep(current.question, { correct:false, misconceptionCategory:result.misconceptionCategory, attemptNumber:1 }); renderCurrentQuestion({ correct:false, message }); return; }
