@@ -34,7 +34,7 @@ export const PATHWAY_ACTIVITY_MAP = Object.freeze({
     match:Object.freeze(['precision_match']),
     apply:Object.freeze(['improve_vocabulary']),
     recall:Object.freeze(['improve_vocabulary']),
-    mastery:Object.freeze(['explain_another_way'])
+    mastery:Object.freeze([])
   }),
   spelling_recall:Object.freeze({
     recognise:Object.freeze(['spelling_choice']),
