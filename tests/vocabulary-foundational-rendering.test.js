@@ -43,12 +43,12 @@ test('drag-match response has pointer affordances and a keyboard\/click fallback
   });
   assert.match(html, /draggable="true"/);
   assert.match(html, /data-drag-value=/);
-  assert.match(html, /data-drop-target=/);
+  assert.match(html, /data-drop-target(?:\s|>)/);
   assert.match(html, /<select[^>]*data-drag-fallback/);
   assert.doesNotMatch(html, /data-correct=/);
 });
 
-test('drag-gap response renders the sentence, draggable word bank and keyboard\/click fallback', () => {
+test('drag-gap response renders the sentence, draggable word bank and keyboard/click fallback', () => {
   const html = render({
     type:'drag_word_sentence', responseMode:'drag_gap', prompt:'Drag the correct word into the gap.',
     sourceText:'Students should stay ____ after school.', draggables:['active','effort','regular','compete'],
