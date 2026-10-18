@@ -14,9 +14,21 @@ function titleCase(value) {
   return text ? text[0].toUpperCase() + text.slice(1) : '';
 }
 function focusDefinition(id) { return PRACTICE_MODES.find(focus => focus.id === id) ?? PRACTICE_MODES.find(focus => focus.id === 'adaptive') ?? PRACTICE_MODES[0]; }
+function questionSource(question) {
+  const candidates = [
+    ['sourceText','In context'],
+    ['sourceIdea','Original idea'],
+    ['sourcePhrase','Original phrase']
+  ];
+  for (const [key,label] of candidates) {
+    const text = String(question?.[key] ?? '').trim();
+    if (text) return { text, label };
+  }
+  return null;
+}
 function displayPrompt(question) {
   const prompt = String(question?.prompt ?? '').trim();
-  const source = String(question?.sourceText ?? '').trim();
+  const source = questionSource(question)?.text ?? '';
   if (!source || !prompt.endsWith(source)) return prompt;
   return prompt.slice(0, -source.length).trim();
 }
@@ -72,7 +84,7 @@ function supportMessage(support) {
   if (support.kind === 'partial_text' && support.clue) return `Hint: start with ${support.clue}`;
   if (support.kind === 'partial_build') return 'One part is fixed for you. Build the rest of the answer.';
   if (support.kind === 'narrow_evidence') return 'Look again at the text. The evidence has been narrowed down.';
-  if (support.kind === 'narrow_choices') return 'Try again with two possibilities.';
+  if (support.kind === 'narrow_choices') return '';
   return 'Use the extra support and try once more.';
 }
 
@@ -106,12 +118,13 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
   const supportHtml = supportText ? `<p id="vocab-support-hint" class="vocab-support-hint">${escapeHtml(supportText)}</p>` : '';
   const definition = activityDefinition(question?.type);
   const questionLabel = definition?.label ?? titleCase(question?.type ?? 'Practice');
-  const questionContext = question?.sourceText ? `<aside class="vocab-question-context vocab-source-text"><span>In context</span><p>${escapeHtml(question.sourceText)}</p></aside>` : '';
+  const source = questionSource(question);
+  const questionContext = source ? `<aside class="vocab-question-context vocab-source-text"><span>${escapeHtml(source.label)}</span><p>${escapeHtml(source.text)}</p></aside>` : '';
   const targetPill = term && !HIDE_TARGET_TYPES.has(question?.type) ? `<div class="vocab-target-pill">${escapeHtml(term)}</div>` : '';
   const answerForm = `<form data-form="vocabulary-answer" class="vocab-answer-form">${renderAnswerControl(question, feedback, retry, support)}</form>`;
   const responseArea = retry && !feedback?.correct
-    ? `<section class="vocab-retry-stage"><div class="vocab-retry-stage__head"><span aria-hidden="true">↻</span><div><strong>Try again</strong><p>This one has been simplified so you can focus on the key distinction.</p></div></div>${feedbackHtml}${supportHtml}${answerForm}</section>`
-    : `${feedbackHtml}${supportHtml}${answerForm}`;
+    ? `<section class="vocab-retry-stage">${feedbackHtml}${supportHtml}${answerForm}</section>`
+    : `<section class="vocab-response-stage${feedback?.correct ? ' is-correct' : ''}">${feedbackHtml}${supportHtml}${answerForm}</section>`;
   root.innerHTML = `<main class="vocab-shell vocab-shell--session"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card"><div class="vocab-question-meta"><p class="vocab-kicker">${escapeHtml(questionLabel)}</p><span>${escapeHtml(definition?.skillFamily ? titleCase(definition.skillFamily) : '')}</span></div>${targetPill}<h1 class="vocab-question-prompt">${escapeHtml(displayPrompt(question))}</h1>${questionContext}${responseArea}</section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
 }
 

@@ -13,6 +13,14 @@ const meaningQuestion = {
   options:['free time','school work','money','competition']
 };
 
+const sameIdeaQuestion = {
+  type:'same_idea',
+  prompt:'Which sentence expresses the same idea as this?\nMina has a preference for individual sports rather than team games.',
+  sourceIdea:'Mina has a preference for individual sports rather than team games.',
+  responseMode:'choice',
+  options:['Mina prefers solo sports to team games.','Mina dislikes all team sports.','Mina only plays sport alone.','Mina prefers watching team games.']
+};
+
 test('question prompt is visually separated from its example/context and comes first', () => {
   const host = root();
   renderVocabularyQuestion(host, {
@@ -29,7 +37,22 @@ test('question prompt is visually separated from its example/context and comes f
   assert.ok(promptIndex >= 0 && contextIndex > promptIndex, 'prompt should appear before the context/example');
 });
 
-test('incorrect supported retry renders as a distinct spacious learning stage', () => {
+test('same-idea questions render the original idea as a separate reading beat instead of inside the heading', () => {
+  const host = root();
+  renderVocabularyQuestion(host, {
+    unitNumber:1,
+    unitTitle:'Sports and free time',
+    question:sameIdeaQuestion,
+    term:'preference',
+    sessionLabel:'1 / 10 activities'
+  });
+  const heading = host.innerHTML.match(/<h1 class="vocab-question-prompt">([\s\S]*?)<\/h1>/)?.[1] ?? '';
+  assert.match(heading, /Which sentence expresses the same idea as this\?/);
+  assert.doesNotMatch(heading, /Mina has a preference/);
+  assert.match(host.innerHTML, /<span>Original idea<\/span><p>Mina has a preference for individual sports rather than team games\.<\/p>/);
+});
+
+test('incorrect narrow-choice retry stays compact and does not repeat support instructions above the answers', () => {
   const host = root();
   renderVocabularyQuestion(host, {
     unitNumber:1,
@@ -42,9 +65,25 @@ test('incorrect supported retry renders as a distinct spacious learning stage', 
     support:{ action:'retry', kind:'narrow_choices', options:['free time','competition'] }
   });
   assert.match(host.innerHTML, /class="vocab-retry-stage"/);
-  assert.match(host.innerHTML, /class="vocab-retry-stage__head"/);
-  assert.match(host.innerHTML, />Try again</);
   assert.match(host.innerHTML, /vocab-choice-fieldset is-retry/);
+  assert.doesNotMatch(host.innerHTML, /This one has been simplified/);
+  assert.doesNotMatch(host.innerHTML, /Try again with two possibilities/);
+  assert.doesNotMatch(host.innerHTML, /vocab-retry-stage__head/);
+});
+
+test('correct feedback and Continue control live in a spaced response stage', () => {
+  const host = root();
+  renderVocabularyQuestion(host, {
+    unitNumber:1,
+    unitTitle:'Sports and free time',
+    question:sameIdeaQuestion,
+    term:'preference',
+    sessionLabel:'3 / 10 activities',
+    feedback:{ correct:true, message:'Correct — you tracked the whole idea accurately.' }
+  });
+  assert.match(host.innerHTML, /class="vocab-response-stage is-correct"/);
+  assert.match(host.innerHTML, /class="vocab-feedback is-positive"/);
+  assert.match(host.innerHTML, /data-action="next-question">Continue<\/button>/);
 });
 
 test('ten-activity completion gets a celebration but timed completion stays calm', () => {
@@ -71,12 +110,15 @@ test('timed route explains that activity styles are mixed rather than focus-lock
   assert.doesNotMatch(host.innerHTML, /Stay in this skill area/i);
 });
 
-test('quiz theme defines richer support, success and accent states with reduced-motion coverage', () => {
+test('quiz theme keeps response states spaced and long answer choices inside the card', () => {
   const css = fs.readFileSync(new URL('../vocabulary-refresh.css', import.meta.url), 'utf8');
   const html = fs.readFileSync(new URL('../vocabulary.html', import.meta.url), 'utf8');
-  for (const token of ['--violet','--success','--warning','vocab-retry-stage','vocab-celebration','vocab-question-context']) {
+  for (const token of ['--violet','--success','--warning','vocab-retry-stage','vocab-celebration','vocab-question-context','vocab-response-stage']) {
     assert.ok(css.includes(token), `expected refreshed quiz CSS to include ${token}`);
   }
+  assert.match(css, /\.vocab-response-stage\s*\{[\s\S]*?display:grid;[\s\S]*?gap:/);
+  assert.match(css, /\.vocab-choice-grid\s*\{[\s\S]*?minmax\(0,1fr\)/);
+  assert.match(css, /\.vocab-choice[^\{]*\{[\s\S]*?overflow-wrap:/);
   assert.match(css, /prefers-reduced-motion:reduce/);
   assert.match(html, /vocabulary-refresh\.css/);
 });
