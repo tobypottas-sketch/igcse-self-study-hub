@@ -1,0 +1,51 @@
+.vocab-pathway-session-progress{
+  width:clamp(250px,29vw,380px);
+  display:grid;
+  gap:7px;
+}
+.vocab-pathway-session-progress__copy{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:14px;
+  color:#667b88;
+  line-height:1.1;
+}
+.vocab-pathway-session-progress__copy strong{
+  color:#173c57;
+  font-size:.88rem;
+  font-weight:850;
+}
+.vocab-pathway-session-progress__copy span{
+  font-size:.74rem;
+  font-weight:800;
+  white-space:nowrap;
+}
+.vocab-pathway-progress{
+  position:relative;
+  height:10px;
+  overflow:hidden;
+  border:1px solid rgba(31,77,99,.10);
+  border-radius:999px;
+  background:#e8eff3;
+  box-shadow:inset 0 1px 2px rgba(21,53,70,.08);
+}
+.vocab-pathway-progress__fill{
+  display:block;
+  width:var(--pathway-progress,20%);
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#159b91 0%,#238fc1 48%,#526fd8 73%,#7865d8 100%);
+  box-shadow:0 0 10px rgba(82,111,216,.16);
+  transition:width .32s ease;
+}
+.vocab-pathway-session-progress[data-pathway-stage="mastery"] .vocab-pathway-progress__fill{
+  box-shadow:0 0 12px rgba(120,101,216,.28);
+}
+@media(max-width:700px){
+  .vocab-question-meta__right{width:100%}
+  .vocab-pathway-session-progress{width:100%;min-width:0}
+}
+@media(prefers-reduced-motion:reduce){
+  .vocab-pathway-progress__fill{transition:none}
+}
