@@ -72,11 +72,13 @@ test('timed route explains that activity styles are mixed rather than focus-lock
 });
 
 test('quiz theme defines richer support, success and accent states with reduced-motion coverage', () => {
-  const css = fs.readFileSync(new URL('../vocabulary.css', import.meta.url), 'utf8');
+  const css = fs.readFileSync(new URL('../vocabulary-refresh.css', import.meta.url), 'utf8');
+  const html = fs.readFileSync(new URL('../vocabulary.html', import.meta.url), 'utf8');
   for (const token of ['--violet','--success','--warning','vocab-retry-stage','vocab-celebration','vocab-question-context']) {
     assert.ok(css.includes(token), `expected refreshed quiz CSS to include ${token}`);
   }
   assert.match(css, /prefers-reduced-motion:reduce/);
+  assert.match(html, /vocabulary-refresh\.css/);
 });
 
 test('Vocabulary Builder CI also runs on main after merges', () => {
