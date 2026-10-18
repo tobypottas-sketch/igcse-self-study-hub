@@ -8,6 +8,7 @@ const CORS = {
   'Access-Control-Allow-Methods':'POST, OPTIONS'
 };
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers:CORS });
+const MAX_MASTERY_COMMIT_ATTEMPTS = 3;
 
 const ACTIVITY_EVIDENCE: Record<string, { strands:string[]; evidenceStrength:string; productive:boolean }> = {
   meaning_match:{ strands:['meaning'], evidenceStrength:'light', productive:false },
@@ -197,29 +198,6 @@ Deno.serve(async (req: Request) => {
 
     const shouldUpdateTargetMastery = input.contentSource === 'context' || primaryEvidenceTargetId === occurrence.vocabulary_id;
     const now = new Date();
-    let nextGlobal: any = null;
-    let nextUnit: any = null;
-    let globalRecentErrorPattern: string | null = null;
-    let unitRecentErrorPattern: string | null = null;
-    let unitContextualEvidence: any = null;
-
-    if (shouldUpdateTargetMastery) {
-      const [{ data:globalRow }, { data:unitRow }] = await Promise.all([
-        adminClient.from('vocabulary_global_mastery').select('*').eq('student_id', callerData.user.id).eq('vocabulary_id', occurrence.vocabulary_id).maybeSingle(),
-        adminClient.from('vocabulary_unit_mastery').select('*').eq('student_id', callerData.user.id).eq('occurrence_id', occurrence.occurrence_id).maybeSingle()
-      ]);
-      nextGlobal = applyEvidence(globalMasteryFromRow(globalRow), evidence, now);
-      nextUnit = applyEvidence(unitMasteryFromRow(unitRow), { ...evidence, review:false }, now);
-      globalRecentErrorPattern = nextErrorPattern(globalRow?.recent_error_pattern, marked, evidence);
-      unitRecentErrorPattern = nextErrorPattern(unitRow?.recent_error_pattern, marked, evidence);
-      unitContextualEvidence = {
-        strandEvidence:nextUnit.strandEvidence, successfulProductions:nextUnit.successfulProductions,
-        productionContextIds:nextUnit.productionContextIds, productionActivityTypes:nextUnit.productionActivityTypes,
-        unscaffoldedProductions:nextUnit.unscaffoldedProductions, recentErrorCount:nextUnit.recentErrorCount,
-        recoveryCount:nextUnit.recoveryCount
-      };
-    }
-
     const metadata = buildStoredAttemptMetadata({
       unitNumber:occurrence.unit_number, strand, questionType:input.questionType,
       firstAttempt:input.firstAttempt, retryUsed:input.retryUsed, recoveredLater:input.recoveredLater,
@@ -228,65 +206,116 @@ Deno.serve(async (req: Request) => {
       vocabularyId:occurrence.vocabulary_id, occurrenceId:occurrence.occurrence_id
     });
     const attemptId = input.attemptId ?? crypto.randomUUID();
-    const commitPayload: Record<string, unknown> = {
-      student_id:callerData.user.id,
-      attempt_id:attemptId,
-      update_mastery:shouldUpdateTargetMastery,
-      seen_at:now.toISOString(),
-      app_key:'vocabulary_paraphrase',
-      event_type:'question_attempt',
-      activity_id:`${occurrence.occurrence_id}:${evidenceContentId}:${input.questionType}${input.activityVariantId ? `:${input.activityVariantId}` : ''}`,
-      skill:strand,
-      set_id:`unit-${occurrence.unit_number}`,
-      mode:'practice',
-      strong:marked.correct && input.firstAttempt && supportLevel === 'none',
-      score:marked.correct ? 1 : 0,
-      max_score:1,
-      metadata
-    };
-    if (shouldUpdateTargetMastery) Object.assign(commitPayload, {
-      vocabulary_id:occurrence.vocabulary_id,
-      occurrence_id:occurrence.occurrence_id,
-      global_status:nextGlobal.status,
-      global_strand_evidence:nextGlobal.strandEvidence,
-      successful_productions:nextGlobal.successfulProductions,
-      production_context_ids:nextGlobal.productionContextIds,
-      production_activity_types:nextGlobal.productionActivityTypes,
-      unscaffolded_productions:nextGlobal.unscaffoldedProductions,
-      review_stage:nextGlobal.reviewStage,
-      review_due_at:nextGlobal.reviewDueAt,
-      review_failure_count:nextGlobal.reviewFailureCount,
-      global_error_pattern:globalRecentErrorPattern,
-      unit_status:nextUnit.status,
-      unit_contextual_evidence:unitContextualEvidence,
-      unit_error_pattern:unitRecentErrorPattern
-    });
 
-    const { data:commitResult, error:commitError } = await adminClient.rpc('commit_vocabulary_attempt', { p_payload:commitPayload });
-    if (commitError || !commitResult) throw new Error('Unable to save vocabulary attempt.');
+    let nextGlobal: any = null;
+    let nextUnit: any = null;
+    let globalRecentErrorPattern: string | null = null;
+    let unitRecentErrorPattern: string | null = null;
 
-    if (commitResult.duplicate === true) {
-      const [{ data:actualGlobal }, { data:actualUnit }] = shouldUpdateTargetMastery ? await Promise.all([
-        adminClient.from('vocabulary_global_mastery').select('status, review_due_at, recent_error_pattern').eq('student_id', callerData.user.id).eq('vocabulary_id', occurrence.vocabulary_id).maybeSingle(),
-        adminClient.from('vocabulary_unit_mastery').select('status, recent_error_pattern').eq('student_id', callerData.user.id).eq('occurrence_id', occurrence.occurrence_id).maybeSingle()
-      ]) : [{ data:null }, { data:null }];
+    for (let commitAttempt = 0; commitAttempt < MAX_MASTERY_COMMIT_ATTEMPTS; commitAttempt += 1) {
+      let globalRow: any = null;
+      let unitRow: any = null;
+      let unitContextualEvidence: any = null;
+
+      if (shouldUpdateTargetMastery) {
+        const [globalResult, unitResult] = await Promise.all([
+          adminClient.from('vocabulary_global_mastery').select('*').eq('student_id', callerData.user.id).eq('vocabulary_id', occurrence.vocabulary_id).maybeSingle(),
+          adminClient.from('vocabulary_unit_mastery').select('*').eq('student_id', callerData.user.id).eq('occurrence_id', occurrence.occurrence_id).maybeSingle()
+        ]);
+        if (globalResult.error || unitResult.error) throw new Error('Unable to read vocabulary mastery.');
+        globalRow = globalResult.data;
+        unitRow = unitResult.data;
+
+        nextGlobal = applyEvidence(globalMasteryFromRow(globalRow), evidence, now);
+        nextUnit = applyEvidence(unitMasteryFromRow(unitRow), { ...evidence, review:false }, now);
+        globalRecentErrorPattern = nextErrorPattern(globalRow?.recent_error_pattern, marked, evidence);
+        unitRecentErrorPattern = nextErrorPattern(unitRow?.recent_error_pattern, marked, evidence);
+        unitContextualEvidence = {
+          strandEvidence:nextUnit.strandEvidence,
+          successfulProductions:nextUnit.successfulProductions,
+          productionContextIds:nextUnit.productionContextIds,
+          productionActivityTypes:nextUnit.productionActivityTypes,
+          unscaffoldedProductions:nextUnit.unscaffoldedProductions,
+          recentErrorCount:nextUnit.recentErrorCount,
+          recoveryCount:nextUnit.recoveryCount
+        };
+      }
+
+      const commitPayload: Record<string, unknown> = {
+        student_id:callerData.user.id,
+        attempt_id:attemptId,
+        update_mastery:shouldUpdateTargetMastery,
+        seen_at:now.toISOString(),
+        app_key:'vocabulary_paraphrase',
+        event_type:'question_attempt',
+        activity_id:`${occurrence.occurrence_id}:${evidenceContentId}:${input.questionType}${input.activityVariantId ? `:${input.activityVariantId}` : ''}`,
+        skill:strand,
+        set_id:`unit-${occurrence.unit_number}`,
+        mode:'practice',
+        strong:marked.correct && input.firstAttempt && supportLevel === 'none',
+        score:marked.correct ? 1 : 0,
+        max_score:1,
+        metadata
+      };
+
+      if (shouldUpdateTargetMastery) Object.assign(commitPayload, {
+        vocabulary_id:occurrence.vocabulary_id,
+        occurrence_id:occurrence.occurrence_id,
+        expected_global_exists:Boolean(globalRow),
+        expected_unit_exists:Boolean(unitRow),
+        expected_global_updated_at:globalRow?.updated_at ?? null,
+        expected_unit_updated_at:unitRow?.updated_at ?? null,
+        global_status:nextGlobal.status,
+        global_strand_evidence:nextGlobal.strandEvidence,
+        successful_productions:nextGlobal.successfulProductions,
+        production_context_ids:nextGlobal.productionContextIds,
+        production_activity_types:nextGlobal.productionActivityTypes,
+        unscaffolded_productions:nextGlobal.unscaffoldedProductions,
+        review_stage:nextGlobal.reviewStage,
+        review_due_at:nextGlobal.reviewDueAt,
+        review_failure_count:nextGlobal.reviewFailureCount,
+        global_error_pattern:globalRecentErrorPattern,
+        unit_status:nextUnit.status,
+        unit_contextual_evidence:unitContextualEvidence,
+        unit_error_pattern:unitRecentErrorPattern
+      });
+
+      const { data:commitResult, error:commitError } = await adminClient.rpc('commit_vocabulary_attempt', { p_payload:commitPayload });
+      if (commitError || !commitResult) throw new Error('Unable to save vocabulary attempt.');
+
+      if (commitResult.duplicate === true) {
+        const [actualGlobalResult, actualUnitResult] = shouldUpdateTargetMastery ? await Promise.all([
+          adminClient.from('vocabulary_global_mastery').select('status, review_due_at, recent_error_pattern').eq('student_id', callerData.user.id).eq('vocabulary_id', occurrence.vocabulary_id).maybeSingle(),
+          adminClient.from('vocabulary_unit_mastery').select('status, recent_error_pattern').eq('student_id', callerData.user.id).eq('occurrence_id', occurrence.occurrence_id).maybeSingle()
+        ]) : [{ data:null, error:null }, { data:null, error:null }];
+        if (actualGlobalResult.error || actualUnitResult.error) throw new Error('Unable to read saved vocabulary mastery.');
+        const actualGlobal = actualGlobalResult.data;
+        const actualUnit = actualUnitResult.data;
+        return json({
+          ok:true, duplicate:true, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory,
+          strand, strands:contract.strands, supportLevel, masteryUpdated:shouldUpdateTargetMastery,
+          globalStatus:actualGlobal?.status ?? null, unitStatus:actualUnit?.status ?? null,
+          globalRecentErrorPattern:actualGlobal?.recent_error_pattern ?? null,
+          unitRecentErrorPattern:actualUnit?.recent_error_pattern ?? null,
+          reviewDueAt:actualGlobal?.review_due_at ?? null, recovery:input.recoveredLater && marked.correct
+        });
+      }
+
+      if (commitResult.conflict === true) {
+        if (commitAttempt + 1 >= MAX_MASTERY_COMMIT_ATTEMPTS) throw new Error('Vocabulary mastery changed while saving. Please retry.');
+        continue;
+      }
+
       return json({
-        ok:true, duplicate:true, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory,
+        ok:true, duplicate:false, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory,
         strand, strands:contract.strands, supportLevel, masteryUpdated:shouldUpdateTargetMastery,
-        globalStatus:actualGlobal?.status ?? null, unitStatus:actualUnit?.status ?? null,
-        globalRecentErrorPattern:actualGlobal?.recent_error_pattern ?? null,
-        unitRecentErrorPattern:actualUnit?.recent_error_pattern ?? null,
-        reviewDueAt:actualGlobal?.review_due_at ?? null, recovery:input.recoveredLater && marked.correct
+        globalStatus:nextGlobal?.status ?? null, unitStatus:nextUnit?.status ?? null,
+        globalRecentErrorPattern, unitRecentErrorPattern,
+        reviewDueAt:nextGlobal?.reviewDueAt ?? null, recovery:input.recoveredLater && marked.correct
       });
     }
 
-    return json({
-      ok:true, duplicate:false, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory,
-      strand, strands:contract.strands, supportLevel, masteryUpdated:shouldUpdateTargetMastery,
-      globalStatus:nextGlobal?.status ?? null, unitStatus:nextUnit?.status ?? null,
-      globalRecentErrorPattern, unitRecentErrorPattern,
-      reviewDueAt:nextGlobal?.reviewDueAt ?? null, recovery:input.recoveredLater && marked.correct
-    });
+    throw new Error('Unable to save vocabulary attempt after concurrent mastery changes.');
   } catch (error) {
     return json({ error:error instanceof Error ? error.message : 'Unexpected error' }, 400);
   }
