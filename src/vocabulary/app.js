@@ -12,7 +12,7 @@ const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
   globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:'adaptive', recentActivities:new Map(), usedContentIds:new Map(),
   recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null,
-  persistenceChain:Promise.resolve(), persistenceBlocked:false
+  persistenceChain:Promise.resolve(), persistenceBlocked:false, finishPending:false
 };
 
 function occurrence(row) { return { occurrenceId:row.occurrence_id, vocabularyId:row.vocabulary_id, unitNumber:row.unit_number, unitTitle:row.unit_title, setNumber:row.set_number, positionInUnit:row.position_in_unit, senseId:row.sense_id }; }
@@ -78,7 +78,7 @@ async function openUnit(unitNumber) {
   state.content = { occurrences, items, contexts, activities, itemsById:mapBy(items,'vocabularyId'), contextsByOccurrence:{}, activitiesById:mapBy(activities,'activityContentId') };
   for (const ctx of contexts) (state.content.contextsByOccurrence[ctx.occurrenceId] ??= []).push(ctx);
   state.globalMastery = mapBy(masteryRaw.global, 'vocabulary_id', mastery); state.unitMastery = mapBy(masteryRaw.unit, 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
-  state.persistenceBlocked = false;
+  state.persistenceBlocked = false; state.finishPending = false;
   state.currentUnitTitle = occurrences[0]?.unitTitle ?? state.units.find(unit => unit.unitNumber === unitNumber)?.unitTitle ?? `Unit ${unitNumber}`; state.practiceFocus = 'adaptive'; renderCurrentUnit();
 }
 function strandLabel(value, status) { const score = Number(value ?? 0); if (status === 'mastered' && score >= 3) return 'Secure'; if (score >= 6) return 'Secure'; if (score >= 3) return 'Developing'; return 'Keep practising'; }
@@ -96,12 +96,12 @@ function rankedTargets(limit) {
 function startSession(mode, durationMinutes = null) {
   const selected = rankedTargets(mode === 'adaptive' ? 10 : Math.max(10, state.content.occurrences.length)); if (!selected.length) throw new Error('No suitable curated activity is available for this practice mode yet.');
   state.session = createSession({ unitNumber:state.currentUnitNumber, mode, durationMinutes, targetIds:selected.map(row => row.occurrenceId), practiceMode:state.practiceFocus, now:new Date() });
-  state.queue = [...selected]; state.current = null; state.recentActivities = new Map(); state.usedContentIds = new Map(); state.recoveryNeeded = new Set(); if (mode === 'timed') startClock();
+  state.queue = [...selected]; state.current = null; state.recentActivities = new Map(); state.usedContentIds = new Map(); state.recoveryNeeded = new Set(); state.finishPending = false; if (mode === 'timed') startClock();
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`session:${mode}:${state.practiceFocus}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, practice_focus:state.practiceFocus } }).catch(() => {});
   nextQuestion();
 }
 function remainingLabel() { if (!state.session) return ''; if (state.session.mode === 'adaptive') return `${state.session.completedAttempts.length} / ${state.session.targetIds.length} activities`; const ms = Math.max(0, new Date(state.session.expiresAt).getTime() - Date.now()); const seconds = Math.ceil(ms / 1000); const minutes = Math.floor(seconds / 60); return `${minutes}:${String(seconds % 60).padStart(2,'0')} remaining`; }
-function startClock() { clearClock(); state.clock = window.setInterval(() => { const label = root.querySelector?.('.vocab-topbar span'); if (label) label.textContent = remainingLabel(); if (state.session && isSessionComplete(state.session, new Date())) finishSession(); }, 1000); }
+function startClock() { clearClock(); state.clock = window.setInterval(() => { const label = root.querySelector?.('.vocab-topbar span'); if (label) label.textContent = remainingLabel(); if (state.session && isSessionComplete(state.session, new Date())) void finishSessionWhenSaved(); }, 1000); }
 function clearClock() { if (state.clock) { window.clearInterval(state.clock); state.clock = null; } }
 function buildNextForTarget(target) {
   const masteryState = state.globalMastery[target.vocabularyId] ?? freshMastery();
@@ -126,11 +126,11 @@ function buildNextForTarget(target) {
   return { target, item:targetItem, context:contextRecord, activityRecord, question, recovery, retry:false, support:null, initialError:false, primaryEvidenceTargetId };
 }
 function nextQuestion() {
-  if (!state.session) return; if (isSessionComplete(state.session, new Date())) { finishSession(); return; }
+  if (!state.session) return; if (isSessionComplete(state.session, new Date())) { void finishSessionWhenSaved(); return; }
   if (!state.queue.length) { if (state.session.mode === 'timed') state.queue = rankedTargets(Math.min(20, state.content.occurrences.length)); else { finishSession(); return; } }
   let current = null; let guard = state.queue.length;
   while (!current && guard > 0) { const target = state.queue.shift(); guard -= 1; if (!target) break; if (state.session.mode === 'adaptive' && state.session.completedTargetIds.includes(target.occurrenceId) && !state.recoveryNeeded.has(target.occurrenceId)) continue; try { current = buildNextForTarget(target); } catch { state.queue.push(target); } }
-  if (!current) { if (state.session.mode === 'timed') { finishSession(); return; } throw new Error('No suitable curated activity is available for this practice mode yet.'); }
+  if (!current) { if (state.session.mode === 'timed') { void finishSessionWhenSaved(); return; } throw new Error('No suitable curated activity is available for this practice mode yet.'); }
   state.current = current; renderCurrentQuestion();
 }
 function renderCurrentQuestion(feedback = null) { if (!state.current) return; renderVocabularyQuestion(root, { unitNumber:state.currentUnitNumber, unitTitle:state.current.target.unitTitle, question:state.current.question, term:state.current.item.term, sessionLabel:remainingLabel(), feedback, retry:state.current.retry, support:state.current.support }); decoratePreview(); }
@@ -174,7 +174,7 @@ async function advanceToNextQuestion() {
 }
 function recordRecentActivity(current, result) { const recent = state.recentActivities.get(current.target.occurrenceId) ?? []; const entry = { type:current.question.type, contentId:current.question.contentId, correct:result.correct }; state.recentActivities.set(current.target.occurrenceId, [...recent, entry].slice(-5)); }
 function handleAnswer(form, providedAnswer = null) {
-  if (!state.current || !state.session) return; if (state.session.mode === 'timed' && isSessionComplete(state.session, new Date())) { finishSession(); return; }
+  if (!state.current || !state.session) return; if (state.session.mode === 'timed' && isSessionComplete(state.session, new Date())) { void finishSessionWhenSaved(); return; }
   const input = form?.querySelector?.('input[name="answer"]'); const rawAnswer = providedAnswer != null ? String(providedAnswer) : (input?.value ?? ''); const current = state.current; if (current.answered) return;
   if (current.question.responseMode === 'tiles' && !form?.querySelector?.('[data-tile-answer].is-used')) {
     const build = form?.querySelector?.('[data-tile-build]');
@@ -204,6 +204,15 @@ function finishSession() {
   if (!state.session) return; if (state.session.mode === 'timed') state.session = expireSession(state.session, new Date()); clearClock(); const finished = state.session; state.current = null;
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'exercise_result', activity_id:`session_complete:${finished.mode}:${finished.practiceMode ?? 'adaptive'}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${finished.unitNumber}`, score:finished.summary.strengthened, max_score:Math.max(1, finished.summary.practised), metadata:{ unit_number:finished.unitNumber, practice_focus:finished.practiceMode ?? 'adaptive' } }).catch(() => {});
   renderSessionSummary(root, { durationMinutes:finished.durationMinutes, summary:finished.summary, practiceMode:finished.practiceMode ?? 'adaptive' }); decoratePreview();
+}
+async function finishSessionWhenSaved() {
+  if (!state.session || state.finishPending) return;
+  state.finishPending = true;
+  clearClock();
+  await state.persistenceChain;
+  if (state.persistenceBlocked) { state.finishPending = false; return; }
+  finishSession();
+  state.finishPending = false;
 }
 function startActiveTime() {
   ['pointerdown','keydown','input','touchstart'].forEach(type => document.addEventListener(type, () => { state.lastInteractionAt = Date.now(); }, { passive:true }));
