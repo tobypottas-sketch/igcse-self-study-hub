@@ -45,7 +45,7 @@ test('collocation_builder is excluded from every student-facing practice mode, i
 });
 
 test('planner never selects collocation_builder in any mode, stage or support state, even if it is advertised as available', () => {
-  const advertisedEverything = ACTIVITY_TYPES.map(activity => activity.id); // simulates a stale/hidden availability signal
+  const advertisedEverything = ACTIVITY_TYPES.map(activity => activity.id);
   const lastTypes = [null, 'meaning_match', 'improve_vocabulary', 'word_family_switch', RETIRED];
   let plans = 0;
   for (const practiceMode of MODES) {
@@ -81,13 +81,14 @@ test('adaptive planner walks a long run of successes without ever reaching collo
 
 test('staff preview has no separate generation path: it shares the one planner → builder flow', () => {
   const app = source('../src/vocabulary/app.js');
-  assert.equal((app.match(/buildActivity\(/g) ?? []).length, 1, 'exactly one buildActivity call site');
-  assert.match(app, /activityType:plan\.activityType/);
-  assert.equal((app.match(/planNextActivity\(/g) ?? []).length, 1, 'exactly one planNextActivity call site');
+  const sessionTargets = source('../src/vocabulary/session-targets.js');
+  assert.match(app, /buildTargetPracticeQuestion\(/);
+  assert.equal((sessionTargets.match(/buildActivity\(/g) ?? []).length, 1, 'exactly one shared buildActivity call site');
+  assert.match(sessionTargets, /activityType:plan\.activityType/);
+  assert.equal((sessionTargets.match(/planNextActivity\(/g) ?? []).length, 1, 'exactly one shared planNextActivity call site');
   for (const file of ['teacher-app.js', 'teacher-views.js', 'router.js']) {
     assert.doesNotMatch(source(`../src/vocabulary/${file}`), /buildActivity\(|collocation_builder/, file);
   }
-  // Preview mode feeds the same planner, which is proven above never to return the retired type.
   assert.match(app, /state\.preview/);
 });
 
