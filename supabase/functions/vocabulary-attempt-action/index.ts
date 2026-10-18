@@ -196,38 +196,28 @@ Deno.serve(async (req: Request) => {
     if (input.preview) return json({ ok:true, preview:true, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory, strand, strands:contract.strands, supportLevel });
 
     const shouldUpdateTargetMastery = input.contentSource === 'context' || primaryEvidenceTargetId === occurrence.vocabulary_id;
+    const now = new Date();
     let nextGlobal: any = null;
     let nextUnit: any = null;
     let globalRecentErrorPattern: string | null = null;
     let unitRecentErrorPattern: string | null = null;
+    let unitContextualEvidence: any = null;
 
     if (shouldUpdateTargetMastery) {
       const [{ data:globalRow }, { data:unitRow }] = await Promise.all([
         adminClient.from('vocabulary_global_mastery').select('*').eq('student_id', callerData.user.id).eq('vocabulary_id', occurrence.vocabulary_id).maybeSingle(),
         adminClient.from('vocabulary_unit_mastery').select('*').eq('student_id', callerData.user.id).eq('occurrence_id', occurrence.occurrence_id).maybeSingle()
       ]);
-      const now = new Date();
       nextGlobal = applyEvidence(globalMasteryFromRow(globalRow), evidence, now);
       nextUnit = applyEvidence(unitMasteryFromRow(unitRow), { ...evidence, review:false }, now);
       globalRecentErrorPattern = nextErrorPattern(globalRow?.recent_error_pattern, marked, evidence);
       unitRecentErrorPattern = nextErrorPattern(unitRow?.recent_error_pattern, marked, evidence);
-      const unitContextualEvidence = {
+      unitContextualEvidence = {
         strandEvidence:nextUnit.strandEvidence, successfulProductions:nextUnit.successfulProductions,
         productionContextIds:nextUnit.productionContextIds, productionActivityTypes:nextUnit.productionActivityTypes,
         unscaffoldedProductions:nextUnit.unscaffoldedProductions, recentErrorCount:nextUnit.recentErrorCount,
         recoveryCount:nextUnit.recoveryCount
       };
-      const { error:masteryWriteError } = await adminClient.rpc('apply_vocabulary_mastery_state', {
-        p_student_id:callerData.user.id, p_vocabulary_id:occurrence.vocabulary_id, p_occurrence_id:occurrence.occurrence_id,
-        p_global_status:nextGlobal.status, p_global_strand_evidence:nextGlobal.strandEvidence,
-        p_successful_productions:nextGlobal.successfulProductions, p_production_context_ids:nextGlobal.productionContextIds,
-        p_production_activity_types:nextGlobal.productionActivityTypes, p_unscaffolded_productions:nextGlobal.unscaffoldedProductions,
-        p_review_stage:nextGlobal.reviewStage, p_review_due_at:nextGlobal.reviewDueAt,
-        p_review_failure_count:nextGlobal.reviewFailureCount, p_global_error_pattern:globalRecentErrorPattern,
-        p_unit_status:nextUnit.status, p_unit_contextual_evidence:unitContextualEvidence,
-        p_unit_error_pattern:unitRecentErrorPattern, p_seen_at:now.toISOString()
-      });
-      if (masteryWriteError) throw new Error('Unable to update vocabulary mastery.');
     }
 
     const metadata = buildStoredAttemptMetadata({
@@ -237,16 +227,60 @@ Deno.serve(async (req: Request) => {
       evidenceStrength:contract.evidenceStrength, supportLevel,
       vocabularyId:occurrence.vocabulary_id, occurrenceId:occurrence.occurrence_id
     });
-    const { error:activityEventError } = await callerClient.from('activity_events').insert({
-      app_key:'vocabulary_paraphrase', event_type:'question_attempt',
+    const commitPayload: Record<string, unknown> = {
+      student_id:callerData.user.id,
+      attempt_id:input.attemptId,
+      update_mastery:shouldUpdateTargetMastery,
+      seen_at:now.toISOString(),
+      app_key:'vocabulary_paraphrase',
+      event_type:'question_attempt',
       activity_id:`${occurrence.occurrence_id}:${evidenceContentId}:${input.questionType}${input.activityVariantId ? `:${input.activityVariantId}` : ''}`,
-      skill:strand, set_id:`unit-${occurrence.unit_number}`, mode:'practice',
-      strong:marked.correct && input.firstAttempt && supportLevel === 'none', score:marked.correct ? 1 : 0, max_score:1, metadata
+      skill:strand,
+      set_id:`unit-${occurrence.unit_number}`,
+      mode:'practice',
+      strong:marked.correct && input.firstAttempt && supportLevel === 'none',
+      score:marked.correct ? 1 : 0,
+      max_score:1,
+      metadata
+    };
+    if (shouldUpdateTargetMastery) Object.assign(commitPayload, {
+      vocabulary_id:occurrence.vocabulary_id,
+      occurrence_id:occurrence.occurrence_id,
+      global_status:nextGlobal.status,
+      global_strand_evidence:nextGlobal.strandEvidence,
+      successful_productions:nextGlobal.successfulProductions,
+      production_context_ids:nextGlobal.productionContextIds,
+      production_activity_types:nextGlobal.productionActivityTypes,
+      unscaffolded_productions:nextGlobal.unscaffoldedProductions,
+      review_stage:nextGlobal.reviewStage,
+      review_due_at:nextGlobal.reviewDueAt,
+      review_failure_count:nextGlobal.reviewFailureCount,
+      global_error_pattern:globalRecentErrorPattern,
+      unit_status:nextUnit.status,
+      unit_contextual_evidence:unitContextualEvidence,
+      unit_error_pattern:unitRecentErrorPattern
     });
-    if (activityEventError) console.warn('Vocabulary activity event write failed after attempt processing.');
+
+    const { data:commitResult, error:commitError } = await adminClient.rpc('commit_vocabulary_attempt', { p_payload:commitPayload });
+    if (commitError || !commitResult) throw new Error('Unable to save vocabulary attempt.');
+
+    if (commitResult.duplicate === true) {
+      const [{ data:actualGlobal }, { data:actualUnit }] = shouldUpdateTargetMastery ? await Promise.all([
+        adminClient.from('vocabulary_global_mastery').select('status, review_due_at, recent_error_pattern').eq('student_id', callerData.user.id).eq('vocabulary_id', occurrence.vocabulary_id).maybeSingle(),
+        adminClient.from('vocabulary_unit_mastery').select('status, recent_error_pattern').eq('student_id', callerData.user.id).eq('occurrence_id', occurrence.occurrence_id).maybeSingle()
+      ]) : [{ data:null }, { data:null }];
+      return json({
+        ok:true, duplicate:true, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory,
+        strand, strands:contract.strands, supportLevel, masteryUpdated:shouldUpdateTargetMastery,
+        globalStatus:actualGlobal?.status ?? null, unitStatus:actualUnit?.status ?? null,
+        globalRecentErrorPattern:actualGlobal?.recent_error_pattern ?? null,
+        unitRecentErrorPattern:actualUnit?.recent_error_pattern ?? null,
+        reviewDueAt:actualGlobal?.review_due_at ?? null, recovery:input.recoveredLater && marked.correct
+      });
+    }
 
     return json({
-      ok:true, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory,
+      ok:true, duplicate:false, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory,
       strand, strands:contract.strands, supportLevel, masteryUpdated:shouldUpdateTargetMastery,
       globalStatus:nextGlobal?.status ?? null, unitStatus:nextUnit?.status ?? null,
       globalRecentErrorPattern, unitRecentErrorPattern,
