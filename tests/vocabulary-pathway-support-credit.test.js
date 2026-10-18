@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { freshPathwayProgress, applyPathwayAttempt } from '../src/vocabulary/pathway-progress.js';
 
+// Release blocker: easier support must never manufacture evidence for the harder learner stage.
 const edgeSource = fs.readFileSync(new URL('../supabase/functions/vocabulary-attempt-action/index.ts', import.meta.url),'utf8');
 
 function supportedRecovery(stageId, servedStageId, overrides = {}) {
