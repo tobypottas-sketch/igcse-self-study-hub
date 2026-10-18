@@ -20,7 +20,7 @@ const ACTIVITY_EVIDENCE: Record<string, { strands:string[]; evidenceStrength:str
   find_evidence:{ strands:['context'], evidenceStrength:'medium', productive:false },
   phrase_match:{ strands:['paraphrasing'], evidenceStrength:'light', productive:false },
   build_paraphrase:{ strands:['paraphrasing'], evidenceStrength:'medium', productive:false },
-  complete_paraphrase:{ strands:['paraphrasing','production'], evidenceStrength:'strong', productive:true },
+  complete_paraphrase:{ strands:['paraphrasing'], evidenceStrength:'medium', productive:false },
   rewrite_phrase:{ strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true },
   same_idea:{ strands:['paraphrasing'], evidenceStrength:'medium', productive:false },
   spot_meaning_change:{ strands:['paraphrasing','context'], evidenceStrength:'medium', productive:false },
