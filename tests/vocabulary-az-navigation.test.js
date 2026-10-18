@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { renderVocabularyWords } from '../src/vocabulary/views.js';
 
+// RED contract for the approved full-width A-Z navigation and floating return control.
 function root() { return { innerHTML:'' }; }
 const pathways = Object.fromEntries(['meaning','context','word_families','paraphrasing','precision_use','spelling_recall'].map(id => [id,{ currentStage:'recognise' }]));
 
