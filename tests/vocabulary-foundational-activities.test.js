@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { activityDefinition } from '../src/vocabulary/activity-catalogue.js';
-import { buildActivity } from '../src/vocabulary/activity-builder.js';
+import { buildActivity } from '../src/vocabulary/activity-factory.js';
 
 const item = {
   vocabularyId:'vocab_significant', term:'significant', partOfSpeech:'adjective',
