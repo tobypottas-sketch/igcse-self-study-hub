@@ -103,6 +103,32 @@ test('legacy evidence places returning students conservatively without mutating 
   assert.equal(JSON.stringify({ unitMastery, globalMastery }), before);
 });
 
+test('stale unit journey cannot override word-level pathway evidence', () => {
+  const unitMastery = {
+    o1:{ contextualEvidence:{ pathwayProgress:{ meaning:stage('match',['recognise']) } } },
+    o2:{ contextualEvidence:{ pathwayProgress:{ meaning:stage('match',['recognise']) } } }
+  };
+  const result = buildUnitPathwayStates({
+    occurrences,
+    unitMastery,
+    globalMastery:{},
+    journeyByPathway:{ meaning:{ currentStage:'recognise', completedStages:[], stageAttempts:9, stageCleanSuccesses:9 } }
+  });
+  assert.equal(result.meaning.currentStage,'match');
+  assert.deepEqual(result.meaning.completedStages,['recognise']);
+});
+
+test('a progressed word keeps the next rung reachable while another word is untouched', () => {
+  const unitMastery = {
+    o1:{ contextualEvidence:{ pathwayProgress:{ meaning:stage('match',['recognise']) } } },
+    o2:{ contextualEvidence:{ pathwayProgress:{ meaning:stage('recognise',[]) } } }
+  };
+  const result = buildUnitPathwayStates({ occurrences, unitMastery, globalMastery:{} });
+  assert.equal(result.meaning.currentStage,'match');
+  assert.deepEqual(result.meaning.completedStages,['recognise']);
+  assert.equal(result.meaning.mastered,false);
+});
+
 test('all six pathway states are returned even with no evidence', () => {
   const result = buildUnitPathwayStates({ occurrences, unitMastery:{}, globalMastery:{} });
   assert.deepEqual(Object.keys(result), ['meaning','context','word_families','paraphrasing','precision_use','spelling_recall']);
