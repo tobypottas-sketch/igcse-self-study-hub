@@ -28,15 +28,19 @@ const ITEM_QUESTION_TYPES = new Set([
   'definition_to_word','word_definition_match','drag_word_definition','drag_definition_word','spell_word',
   'type_word_from_definition','spelling_choice','spelling_cue_match','spelling_rebuild'
 ]);
+const LANGUAGE_BANK_CONTEXT_QUESTION_TYPES = [
+  'gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence','context_sentence_match'
+];
 const WRITING_TASK_FOR_QUESTION = Object.freeze({
   word_family_switch:'word_family', word_family_choice:'word_family', word_family_match:'word_family',
-  improve_vocabulary:'improve_vocabulary', precision_choice:'improve_vocabulary', precision_match:'improve_vocabulary'
+  improve_vocabulary:'improve_vocabulary', precision_choice:'improve_vocabulary', precision_match:'improve_vocabulary',
+  ...Object.fromEntries(LANGUAGE_BANK_CONTEXT_QUESTION_TYPES.map(questionType => [questionType,'language_bank_context']))
 });
 const UNIT_ACTIVITY_QUESTION_TYPES = Object.freeze({
   phrase_set:new Set(['phrase_match','build_paraphrase','complete_paraphrase','rewrite_phrase','explain_another_way']),
   idea_set:new Set(['same_idea','spot_meaning_change','build_same_idea','rewrite_idea','explain_another_way']),
   question_text:new Set(['question_text_bridge','find_evidence']),
-  writing_set:new Set(['word_family_switch','word_family_choice','word_family_match','improve_vocabulary','precision_choice','precision_match'])
+  writing_set:new Set(['word_family_switch','word_family_choice','word_family_match','improve_vocabulary','precision_choice','precision_match',...LANGUAGE_BANK_CONTEXT_QUESTION_TYPES])
 });
 const RETRIEVAL_CONTEXT_TYPES = ['gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence','context_sentence_match','spell_in_context','spelling_choice'];
 const CONTEXT_QUESTION_TYPES = Object.freeze({
