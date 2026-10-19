@@ -12,6 +12,24 @@ function imageElement(art, className) {
   return img;
 }
 
+function preloadImage(src) {
+  return new Promise(resolve => {
+    const image = new Image();
+    image.onload = resolve;
+    image.onerror = resolve;
+    image.src = src;
+  });
+}
+
+function preloadStudyArtwork() {
+  const art = [
+    ...[1,2,3,4,5].map(unitArtwork),
+    ...['meaning','context','word_families','paraphrasing','precision_use','spelling_recall'].map(pathwayArtwork),
+    ...['completion','stage_advanced','mastered'].map(achievementArtwork)
+  ].filter(Boolean);
+  return Promise.allSettled(art.map(item => preloadImage(item.src)));
+}
+
 function decorateUnitCards(scope) {
   for (const card of scope.querySelectorAll?.('.vocab-unit-card[data-unit]') ?? []) {
     if (card.querySelector?.('[data-unit-art]')) continue;
@@ -98,6 +116,8 @@ export function enhanceStudyArtwork(scope = root) {
   decorateCompletion(scope);
   decorateMilestones(scope);
 }
+
+void preloadStudyArtwork();
 
 if (root) {
   enhanceStudyArtwork(root);
