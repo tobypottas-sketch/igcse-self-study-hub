@@ -41,13 +41,13 @@ test('achievement artwork assets exist and remain distinct', () => {
 test('artwork runtime decorates unit cards, unit hero, completion and real milestones', () => {
   const runtime = readFileSync(new URL('../src/vocabulary/study-art-runtime.js', import.meta.url),'utf8');
   assert.match(runtime,/\.vocab-unit-card\[data-unit\]/);
-  assert.match(runtime,/dataUnitArt/);
+  assert.match(runtime,/dataset\.unitArt/);
   assert.match(runtime,/\.vocab-unit-hero/);
-  assert.match(runtime,/dataUnitHeroArt/);
+  assert.match(runtime,/dataset\.unitHeroArt/);
   assert.match(runtime,/\[data-study-completion\]/);
-  assert.match(runtime,/dataStudyCompletionArt/);
+  assert.match(runtime,/dataset\.studyCompletionArt/);
   assert.match(runtime,/\[data-study-milestone\]/);
-  assert.match(runtime,/dataStudyMilestoneArt/);
+  assert.match(runtime,/dataset\.studyMilestoneArt/);
   assert.match(runtime,/MutationObserver/);
 });
 
