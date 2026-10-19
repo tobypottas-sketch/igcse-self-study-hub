@@ -23,7 +23,8 @@ test('Unit 1 exposes only pathway banks that are currently defensible end to end
   assert.equal(coverage.meaning.available,true);
   assert.equal(coverage.context.available,true);
   assert.equal(coverage.word_families.available,true);
-  assert.equal(coverage.word_families.occurrenceIds.length,25);
+  const wordFamilyEndToEndCount = Math.min(...Object.values(coverage.word_families.stageCounts));
+  assert.equal(coverage.word_families.occurrenceIds.length,wordFamilyEndToEndCount);
   assert.equal(coverage.spelling_recall.available,true);
 
   assert.equal(coverage.paraphrasing.available,false);
@@ -32,10 +33,10 @@ test('Unit 1 exposes only pathway banks that are currently defensible end to end
   assert.ok(['content_bank_incomplete','required_rung_withheld'].includes(coverage.precision_use.reason));
 });
 
-test('withholding an incomplete Unit 1 pathway does not erase its diagnostic buildable counts', () => {
+test('diagnostic buildable counts preserve the stricter Word Family Match cohort', () => {
   const coverage = buildPathwayCoverage({ content });
   assert.equal(coverage.word_families.stageCounts.recognise,25);
-  assert.equal(coverage.word_families.stageCounts.match,25);
+  assert.equal(coverage.word_families.stageCounts.match,8);
   assert.equal(coverage.word_families.stageCounts.apply,25);
   assert.equal(coverage.word_families.stageCounts.recall,25);
   assert.equal(coverage.word_families.stageCounts.mastery,25);
