@@ -93,7 +93,6 @@ async function openUnit(unitNumber) {
   state.globalMastery = mapBy(dashboardMastery?.global ?? [], 'vocabulary_id', mastery);
   state.unitMastery = mapBy(dashboardMastery?.unit ?? [], 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
   state.persistenceBlocked = false; state.finishPending = false;
-  renderCurrentUnit();
   const contentPromise = loadVocabularyUnit(state.client, unitNumber, loadOptions);
   const masteryPromise = state.preview
     ? Promise.resolve({ global:[], unit:[] })
