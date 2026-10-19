@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 
 const meaningCss = readFileSync(new URL('../vocabulary-meaning-canvas.css', import.meta.url),'utf8');
-const fidelityUrl = new URL('../vocabulary-question-fidelity.css', import.meta.url);
+const studyCss = readFileSync(new URL('../vocabulary-study-app.css', import.meta.url),'utf8');
 const html = readFileSync(new URL('../vocabulary.html', import.meta.url),'utf8');
 
 test('meaning recognise questions can grow naturally and never use the retired fixed 560px canvas', () => {
@@ -13,19 +13,16 @@ test('meaning recognise questions can grow naturally and never use the retired f
   assert.match(meaningCss,/max-height:\s*none/);
 });
 
-test('question fidelity layer is loaded after the existing study and pathway styles', () => {
-  assert.ok(existsSync(fidelityUrl),'vocabulary-question-fidelity.css should exist');
-  assert.match(html,/vocabulary-question-fidelity\.css/);
-  assert.ok(html.indexOf('vocabulary-question-fidelity.css') > html.indexOf('vocabulary-study-art.css'));
+test('question fidelity stays inside the approved study stylesheet surface', () => {
+  assert.doesNotMatch(html,/vocabulary-question-fidelity\.css/);
+  assert.match(html,/vocabulary-study-app\.css/);
 });
 
 test('study question layout uses a compact mockup-like composition', () => {
-  assert.ok(existsSync(fidelityUrl),'vocabulary-question-fidelity.css should exist');
-  const css = readFileSync(fidelityUrl,'utf8');
-  assert.match(css,/\.vocab-shell--session\{[^}]*width:min\(720px/i);
-  assert.match(css,/\.vocab-study-question-header\{[^}]*background:linear-gradient/i);
-  assert.match(css,/\.vocab-question-card\[data-study-question\]\{[^}]*padding:0 22px 24px/i);
-  assert.match(css,/\.vocab-choice-card\{[^}]*min-height:64px/i);
-  assert.match(css,/\.vocab-question-context\{[^}]*background:color-mix/i);
-  assert.match(css,/\.vocab-choice-grid\{[^}]*grid-template-columns:1fr/i);
+  assert.match(studyCss,/\.vocab-shell--session\{[^}]*width:min\(720px/i);
+  assert.match(studyCss,/\.vocab-study-question-header\{[^}]*background:linear-gradient/i);
+  assert.match(studyCss,/\.vocab-question-card\[data-study-question\]\{[^}]*padding:0 22px 24px/i);
+  assert.match(studyCss,/\.vocab-choice-card\{[^}]*min-height:64px/i);
+  assert.match(studyCss,/\.vocab-question-context\{[^}]*background:color-mix/i);
+  assert.match(studyCss,/\.vocab-choice-grid\{[^}]*grid-template-columns:1fr/i);
 });
