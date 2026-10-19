@@ -119,18 +119,41 @@ function samePosCandidates(args) {
   const targetPos = text(args.item?.partOfSpeech).toLocaleLowerCase('en');
   return array(args.unitItems).filter(candidate => candidate?.vocabularyId !== args.item?.vocabularyId && text(candidate?.partOfSpeech).toLocaleLowerCase('en') === targetPos);
 }
+function authoredDistractors(args) {
+  return uniqueText(array(senseFor(args.item,args.occurrence)?.misleadingDistractors));
+}
 function plausibleTermDistractors(args, count = 3) {
-  const samePos = samePosCandidates(args).map(candidate => text(candidate.term)).filter(Boolean);
-  if (samePos.length < count) throw new Error(`Activity requires ${count} plausible same-part-of-speech alternatives.`);
-  return stableShuffle(uniqueText(samePos), `${args.seed}:term-distractors`).slice(0,count);
+  const authored = authoredDistractors(args);
+  const fallback = samePosCandidates(args).map(candidate => text(candidate.term)).filter(Boolean);
+  const pool = uniqueText([...authored, ...fallback]);
+  if (pool.length < count) throw new Error(`Activity requires ${count} plausible same-part-of-speech alternatives.`);
+  if (authored.length >= count) return stableShuffle(authored, `${args.seed}:authored-term-distractors`).slice(0,count);
+  return stableShuffle(pool, `${args.seed}:term-distractors`).slice(0,count);
+}
+function semanticSurfaceDistractors(args, formKey) {
+  const authored = new Set(authoredDistractors(args).map(value => value.toLocaleLowerCase('en')));
+  return samePosCandidates(args)
+    .filter(candidate => authored.has(text(candidate.term).toLocaleLowerCase('en')))
+    .map(candidate => text(grammarFormsFor(candidate)[formKey]))
+    .filter(Boolean);
+}
+function targetFormNearMisses(args, accepted, formKey) {
+  if (!formKey || formKey === 'base') return [];
+  return formEntries(args.item,args.occurrence)
+    .filter(([key,value]) => key !== formKey && value.toLocaleLowerCase('en') !== text(accepted).toLocaleLowerCase('en'))
+    .map(([,value]) => value);
 }
 function surfaceDistractors(args, formKey, count = 3) {
   if (!formKey || formKey === 'base') return plausibleTermDistractors(args,count);
-  const options = samePosCandidates(args)
+  const accepted = text(grammarFormsFor(args.item,args.occurrence)[formKey]) || text(args.item?.term);
+  const nearMisses = stableShuffle(uniqueText(targetFormNearMisses(args,accepted,formKey)), `${args.seed}:${formKey}:near-misses`);
+  const semantic = stableShuffle(uniqueText(semanticSurfaceDistractors(args,formKey)), `${args.seed}:${formKey}:semantic`);
+  const sameFormFallback = stableShuffle(uniqueText(samePosCandidates(args)
     .map(candidate => text(grammarFormsFor(candidate)[formKey]))
-    .filter(Boolean);
-  if (uniqueText(options).length < count) throw new Error(`Activity requires ${count} plausible ${formKey} alternatives.`);
-  return stableShuffle(uniqueText(options), `${args.seed}:${formKey}-distractors`).slice(0,count);
+    .filter(Boolean)), `${args.seed}:${formKey}:fallback`);
+  const preferred = uniqueText([...nearMisses.slice(0,Math.min(2,count)), ...semantic, ...sameFormFallback, ...nearMisses]);
+  if (preferred.length < count) throw new Error(`Activity requires ${count} plausible ${formKey} alternatives.`);
+  return preferred.slice(0,count);
 }
 function definitionPairs(args, count = 4) {
   const targetDefinition = definitionFor(args.item, args.occurrence);
