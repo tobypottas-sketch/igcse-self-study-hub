@@ -32,6 +32,10 @@ const ICON_PATHS = Object.freeze({
 });
 
 const STAGE_ORDER = Object.freeze(['recognise','match','apply','recall','mastery']);
+function stageLabel(stageId) {
+  const text = String(stageId ?? '');
+  return text ? text[0].toUpperCase() + text.slice(1) : '';
+}
 
 export function pathwayIdentity(pathwayId) {
   return PATHWAY_IDENTITIES[pathwayId] ?? NEUTRAL_IDENTITY;
@@ -54,11 +58,19 @@ export function deriveStudyMilestone({ beforePathwayState, afterPathwayState, te
   const toStage = STAGE_ORDER.includes(afterPathwayState.currentStage) ? afterPathwayState.currentStage : null;
   if (!fromStage || !toStage) return null;
   if (!beforeMastered && afterMastered) {
-    return { kind:'mastered', pathwayId, term:String(term ?? ''), fromStage, toStage };
+    const identity = pathwayIdentity(pathwayId);
+    const cleanTerm = String(term ?? '').trim();
+    return {
+      kind:'mastered', pathwayId, term:cleanTerm, fromStage, toStage,
+      title:`${identity.label} mastered${cleanTerm ? ` · ${cleanTerm}` : ''}`
+    };
   }
   if (beforeMastered || afterMastered) return null;
   const fromIndex = STAGE_ORDER.indexOf(fromStage);
   const toIndex = STAGE_ORDER.indexOf(toStage);
   if (toIndex <= fromIndex) return null;
-  return { kind:'stage_advanced', pathwayId, term:String(term ?? ''), fromStage, toStage };
+  return {
+    kind:'stage_advanced', pathwayId, term:String(term ?? ''), fromStage, toStage,
+    title:`${stageLabel(fromStage)} complete · ${stageLabel(toStage)} unlocked`
+  };
 }
