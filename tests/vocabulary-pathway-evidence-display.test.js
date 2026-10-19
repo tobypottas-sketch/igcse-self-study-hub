@@ -36,8 +36,9 @@ test('unit pathway state exposes accumulated evidence for the current stage', ()
 });
 
 test('pathway cards render persistent current-stage evidence and an evidence meter', () => {
-  const views = readFileSync(new URL('../src/vocabulary/views.js', import.meta.url),'utf8');
-  assert.match(views,/vocab-pathway-card__evidence/);
-  assert.match(views,/stageEvidence/);
-  assert.match(views,/evidence progress/i);
+  const runtime = readFileSync(new URL('../src/vocabulary/study-art-runtime.js', import.meta.url),'utf8');
+  assert.match(runtime,/vocab-pathway-card__evidence/);
+  assert.match(runtime,/stageEvidence/);
+  assert.match(runtime,/evidence progress/i);
+  assert.match(runtime,/getLatestUnitPathwayStates/);
 });
