@@ -47,13 +47,13 @@ test('dictionary polish renders a five-rung rail from existing stage data only',
   assert.match(css, /\[data-stage="mastery"\]::after\{content:"● ● ● ● ◉"\}/);
 });
 
-test('dictionary polish uses restrained pathway accents and preserves context baseline alignment', () => {
+test('dictionary polish uses restrained pathway accents and centres the compact context content', () => {
   const css = fs.readFileSync(new URL('../vocabulary-dictionary-polish.css', import.meta.url), 'utf8');
 
   for (const pathway of ['meaning','context','word_families','paraphrasing','precision_use','spelling_recall']) {
     assert.match(css, new RegExp(`\\.vocab-word-pathway\\[data-word-pathway="${pathway}"\\]`));
   }
-  assert.match(css, /\.vocab-dictionary-entry__context\{[^}]*align-items:baseline/s);
+  assert.match(css, /\.vocab-dictionary-entry__context\{[^}]*align-items:center/s);
   assert.match(css, /\.vocab-dictionary-entry__context::before/);
   assert.match(css, /\.vocab-word-row__head>\.vocab-state-pill::before\{[^}]*content:"Overall progress ·"/s);
 
