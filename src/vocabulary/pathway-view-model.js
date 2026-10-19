@@ -4,6 +4,7 @@ import { registeredPathwayCoverage } from './pathway-coverage-store.js';
 
 const STAGE_IDS = PATHWAY_STAGES.map(stage => stage.id);
 const STAGE_INDEX = Object.freeze(Object.fromEntries(STAGE_IDS.map((id,index) => [id,index])));
+let latestUnitPathwayStates = {};
 
 function unitRowFor(unitMastery, occurrenceId) { return unitMastery?.[occurrenceId] ?? {}; }
 function globalRowFor(globalMastery, vocabularyId) { return globalMastery?.[vocabularyId] ?? {}; }
@@ -55,6 +56,57 @@ function stagesBefore(stageId) {
 }
 function occurrenceId(occurrence = {}) { return occurrence.occurrenceId ?? occurrence.occurrence_id; }
 function occurrenceUnitNumber(occurrence = {}) { return occurrence.unitNumber ?? occurrence.unit_number ?? null; }
+function number(value) { return Math.max(0,Number(value) || 0); }
+function listCount(value, fallback = 0) { return Array.isArray(value) ? new Set(value.map(String)).size : number(fallback); }
+function stageRecord(progress = {}, stageId) { return progress?.stages?.[stageId] ?? {}; }
+function wordEvidenceScore(stageId, stage = {}) {
+  const successes = number(stage.successes);
+  const clean = number(stage.cleanSuccesses ?? stage.clean_successes);
+  const cleanUnassisted = number(stage.cleanUnassistedSuccesses ?? stage.clean_unassisted_successes);
+  const prompts = listCount(stage.promptKeys ?? stage.prompt_keys, stage.distinctPromptCount ?? stage.distinct_prompt_count);
+  const content = listCount(stage.contentIds ?? stage.content_ids);
+  if (stage?.completed === true) return 1;
+  if (stageId === 'recognise') return Math.min(1,clean / 2,content / 2);
+  if (stageId === 'match') return Math.min(1,clean / 2);
+  if (stageId === 'apply') return Math.min(1,clean / 2);
+  if (stageId === 'recall') return Math.min(1,cleanUnassisted / 2);
+  if (stageId === 'mastery') return Math.min(1,successes / 3,cleanUnassisted / 2,prompts / 2);
+  return 0;
+}
+function aggregateStageEvidence(entries, pathwayId, stageId, unitMastery) {
+  const active = entries.filter(entry => entry.states?.[pathwayId]?.currentStage === stageId || (stageId === 'mastery' && entry.states?.[pathwayId]?.mastered === true));
+  const evidence = {
+    stageId,
+    activeWords:active.length,
+    attempts:0,
+    successes:0,
+    cleanSuccesses:0,
+    cleanUnassistedSuccesses:0,
+    failures:0,
+    distinctPrompts:0,
+    distinctContexts:0,
+    distinctContent:0,
+    progressPercent:0
+  };
+  let score = 0;
+  for (const entry of active) {
+    const progress = persistedPathway(unitRowFor(unitMastery,occurrenceId(entry.occurrence)),pathwayId);
+    const stage = stageRecord(progress,stageId);
+    const successes = number(stage.successes);
+    const failures = number(stage.failures);
+    evidence.attempts += successes + failures;
+    evidence.successes += successes;
+    evidence.cleanSuccesses += number(stage.cleanSuccesses ?? stage.clean_successes);
+    evidence.cleanUnassistedSuccesses += number(stage.cleanUnassistedSuccesses ?? stage.clean_unassisted_successes);
+    evidence.failures += failures;
+    evidence.distinctPrompts += listCount(stage.promptKeys ?? stage.prompt_keys,stage.distinctPromptCount ?? stage.distinct_prompt_count);
+    evidence.distinctContexts += listCount(stage.contextIds ?? stage.context_ids);
+    evidence.distinctContent += listCount(stage.contentIds ?? stage.content_ids);
+    score += wordEvidenceScore(stageId,stage);
+  }
+  evidence.progressPercent = evidence.activeWords ? Math.round((score / evidence.activeWords) * 100) : 0;
+  return evidence;
+}
 function wordPathwayState({ pathwayId, occurrence, unitMastery, globalMastery }) {
   const unit = unitRowFor(unitMastery, occurrenceId(occurrence));
   const global = globalRowFor(globalMastery, occurrence.vocabularyId ?? occurrence.vocabulary_id);
@@ -87,6 +139,8 @@ export function targetsForPathwayStage({ pathwayId, stageId, occurrences = [], u
   });
 }
 
+export function getLatestUnitPathwayStates() { return latestUnitPathwayStates; }
+
 export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, globalMastery = {}, coverageByPathway = null } = {}) {
   const unitNumber = occurrences.length ? occurrenceUnitNumber(occurrences[0]) : null;
   const registeredCoverage = unitNumber != null ? registeredPathwayCoverage(unitNumber) : null;
@@ -106,11 +160,12 @@ export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, glo
     const coverageCount = words.length;
 
     if (!available || !words.length) {
+      const stageEvidence = aggregateStageEvidence(serviceable,pathway.id,'recognise',unitMastery);
       result[pathway.id] = {
         currentStage:'recognise', completedStages:[], needsPractice:false, mastered:false,
         available:false, coverageCount, totalCount,
         unavailableReason:coverage?.reason ?? (words.length ? null : 'no_serviceable_targets'),
-        stageAttempts:0, stageCleanSuccesses:0
+        stageAttempts:stageEvidence.attempts, stageCleanSuccesses:stageEvidence.cleanSuccesses, stageEvidence
       };
       continue;
     }
@@ -122,6 +177,7 @@ export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, glo
       : Math.max(...actionableWords.map(word => STAGE_INDEX[word.currentStage] ?? 0));
     const currentStage = STAGE_IDS[highestIndex] ?? 'recognise';
     const completedStages = mastered ? [...STAGE_IDS] : stagesBefore(currentStage);
+    const stageEvidence = aggregateStageEvidence(serviceable,pathway.id,currentStage,unitMastery);
 
     result[pathway.id] = {
       currentStage,
@@ -132,10 +188,12 @@ export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, glo
       coverageCount,
       totalCount,
       unavailableReason:null,
-      stageAttempts:0,
-      stageCleanSuccesses:0
+      stageAttempts:stageEvidence.attempts,
+      stageCleanSuccesses:stageEvidence.cleanSuccesses,
+      stageEvidence
     };
   }
 
+  latestUnitPathwayStates = result;
   return result;
 }
