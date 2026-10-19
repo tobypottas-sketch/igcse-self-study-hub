@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { renderVocabularyWords } from '../src/vocabulary/views.js';
 
+// Presentation-only: the visual rung rail reads existing pathway stage hooks.
 function root() { return { innerHTML:'' }; }
 
 const pathways = {
