@@ -63,23 +63,27 @@ function surfaceFormInContext(context, item, occurrence = {}) {
   if (!source) return null;
 
   const rewrite = text(context?.targetRewrite);
-  if (rewrite && wholeWordIndex(source,rewrite) >= 0) {
-    const forms = formEntries(item,occurrence);
-    const matched = forms.find(([,value]) => value.toLocaleLowerCase('en') === rewrite.toLocaleLowerCase('en'));
-    const accepted = array(context?.acceptedAnswers).map(text).filter(Boolean);
-    const lemma = text(item?.term);
-    if (context?.type === 'gap_fill') return { surface:rewrite, formKey:matched?.[0] ?? null };
-    if (accepted.some(value => value.toLocaleLowerCase('en') === lemma.toLocaleLowerCase('en'))) {
-      return { surface:rewrite, formKey:matched?.[0] ?? (rewrite.toLocaleLowerCase('en') === lemma.toLocaleLowerCase('en') ? 'base' : null) };
-    }
+  const accepted = array(context?.acceptedAnswers).map(text).filter(Boolean);
+  const lemma = text(item?.term);
+  const forms = formEntries(item,occurrence);
+
+  if (context?.type === 'gap_fill' && rewrite && wholeWordIndex(source,rewrite) >= 0) {
+    const answer = accepted[0] || rewrite;
+    const matched = forms.find(([,value]) => value.toLocaleLowerCase('en') === answer.toLocaleLowerCase('en'));
+    return { surface:rewrite, answer, formKey:matched?.[0] ?? (answer.toLocaleLowerCase('en') === lemma.toLocaleLowerCase('en') ? 'base' : null) };
   }
 
   if (context?.type === 'meaning_context') {
-    for (const [formKey,value] of formEntries(item,occurrence)) {
-      if (wholeWordIndex(source,value) >= 0) return { surface:value, formKey };
+    for (const [formKey,value] of forms) {
+      if (wholeWordIndex(source,value) >= 0) return { surface:value, answer:value, formKey };
     }
-    const lemma = text(item?.term);
-    if (lemma && wholeWordIndex(source,lemma) >= 0) return { surface:lemma, formKey:'base' };
+    if (lemma && wholeWordIndex(source,lemma) >= 0) return { surface:lemma, answer:lemma, formKey:'base' };
+  }
+
+  if (rewrite && wholeWordIndex(source,rewrite) >= 0 && accepted.length) {
+    const answer = accepted[0];
+    const matched = forms.find(([,value]) => value.toLocaleLowerCase('en') === answer.toLocaleLowerCase('en'));
+    return { surface:rewrite, answer, formKey:matched?.[0] ?? (answer.toLocaleLowerCase('en') === lemma.toLocaleLowerCase('en') ? 'base' : null) };
   }
   return null;
 }
@@ -164,7 +168,7 @@ function blankableContext(args) {
   const candidates = array(args.contexts).flatMap(context => {
     if (!['meaning_context','paraphrase_context','production_context','gap_fill'].includes(context?.type)) return [];
     const target = surfaceFormInContext(context,args.item,args.occurrence);
-    if (!target?.surface) return [];
+    if (!target?.surface || !target?.answer) return [];
     const sourceText = replaceFirstIgnoreCase(text(context.text),target.surface,'____');
     return sourceText?.includes('____') ? [{ context, sourceText, ...target }] : [];
   });
@@ -173,8 +177,8 @@ function blankableContext(args) {
   return stableShuffle(unused.length ? unused : candidates, `${args.seed}:blank-context`)[0];
 }
 function retrievalActivity(args, definition) {
-  const { context, sourceText, surface, formKey } = blankableContext(args);
-  const accepted = surface;
+  const { context, sourceText, answer, formKey } = blankableContext(args);
+  const accepted = answer;
   let prompt = 'Complete the sentence with the target word.';
   const extra = { sourceText, contextId:context.contextId, primaryEvidenceTargetId:args.item.vocabularyId, answerForm:formKey ?? 'exact' };
   if (definition.id === 'gap_fill_bank') {
