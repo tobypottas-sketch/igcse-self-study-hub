@@ -77,7 +77,7 @@ function wordFamilyMatch(args, definition) {
   const acceptedKey=accepted[0].toLocaleLowerCase('en');
   const targetFamily=uniqueText(array(args.item.wordFamily));
   const alternatives=targetFamily.filter(v=>v.toLocaleLowerCase('en')!==acceptedKey);
-  if (alternatives.length<3) throw new Error('Word Family Match requires three competing forms from the same lexical family.');
+  if (alternatives.length<2) throw new Error('Word Family Match requires at least two competing forms from the same lexical family.');
   const options=shuffle([accepted[0],...shuffle(alternatives,`${args.seed}:family-wrong`).slice(0,3)],`${args.seed}:family-match`);
   const cue=text(data.sourceText)||text(data.prompt)||`Choose the correct form of “${text(args.item.term)}”.`;
   const pairs=options.map((option,index)=>({vocabularyId:index===0?args.item.vocabularyId:`alt-${index}`,term:index===0?cue:'',definition:option}));
