@@ -1,4 +1,4 @@
-import { achievementArtwork, unitArtwork } from './study-art.js';
+import { achievementArtwork, pathwayArtwork, unitArtwork } from './study-art.js';
 
 const root = document.getElementById('vocabularyApp');
 
@@ -24,6 +24,21 @@ function decorateUnitCards(scope) {
     const image = imageElement({ ...art, alt:'' }, 'vocab-unit-card__art-image');
     visual.append(image);
     card.append(visual);
+  }
+}
+
+function decoratePathwayCards(scope) {
+  for (const card of scope.querySelectorAll?.('.vocab-pathway-card[data-pathway]') ?? []) {
+    if (card.querySelector?.('[data-pathway-art]')) continue;
+    const art = pathwayArtwork(card.dataset.pathway);
+    if (!art) continue;
+    const visual = document.createElement('span');
+    visual.className = 'vocab-pathway-card__art';
+    visual.dataset.pathwayArt = String(card.dataset.pathway);
+    visual.setAttribute('aria-hidden','true');
+    visual.append(imageElement({ ...art, alt:'' }, 'vocab-pathway-card__art-image'));
+    card.append(visual);
+    card.classList.add('has-study-art');
   }
 }
 
@@ -78,6 +93,7 @@ function decorateMilestones(scope) {
 export function enhanceStudyArtwork(scope = root) {
   if (!scope) return;
   decorateUnitCards(scope);
+  decoratePathwayCards(scope);
   decorateUnitHero(scope);
   decorateCompletion(scope);
   decorateMilestones(scope);
