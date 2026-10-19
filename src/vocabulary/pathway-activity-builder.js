@@ -63,7 +63,7 @@ function contextSentenceMatch(args, definition) {
   const source=text(context.text).replace(new RegExp(text(context.targetRewrite).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),'____');
   const options=shuffle([term,...alternatives],`${args.seed}:context-match`);
   const pairs=options.map((option,index)=>({vocabularyId:index===0?args.item.vocabularyId:`alt-${index}`,term:index===0?source:'',definition:option}));
-  return base({definition,occurrence:args.occurrence,contentId:context.contextId,contentSource:'context',prompt:'Match the sentence to the word that completes it.',markingReference:{acceptedAnswers:[term]},extra:{pairs,sourceText:source,contextId:context.contextId,primaryEvidenceTargetId:args.item.vocabularyId}});
+  return base({definition,occurrence:args.occurrence,contentId:context.contextId,contentSource:'context',prompt:'Match the sentence to the word that completes it.',markingReference:{acceptedAnswers:[term]},extra:{pairs,sourceText:source,contextId:context.contextId,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:source,matchOptions:options,matchPresentation:'context_gap_to_word'}});
 }
 function linkedWriting(args, taskType) {
   const records=array(args.unitActivities).filter(activity=>activity?.contentType==='writing_set' && activity?.activityData?.taskType===taskType && array(activity.activityData?.linkedVocabularyIds).includes(args.item.vocabularyId));
@@ -74,13 +74,14 @@ function wordFamilyMatch(args, definition) {
   const record=linkedWriting(args,'word_family'), data=object(record.activityData);
   const accepted=uniqueText(array(data.acceptedAnswers));
   if (!accepted.length) throw new Error('Word Family Match requires a curated answer.');
-  const acceptedKeys=new Set(accepted.map(v=>v.toLocaleLowerCase('en')));
-  const alternatives=uniqueText([...array(args.item.wordFamily),...array(args.unitItems).flatMap(item=>array(item?.wordFamily))]).filter(v=>!acceptedKeys.has(v.toLocaleLowerCase('en')));
-  if (alternatives.length<2) throw new Error('Word Family Match requires plausible family-form alternatives.');
+  const acceptedKey=accepted[0].toLocaleLowerCase('en');
+  const targetFamily=uniqueText([args.item?.term,...array(args.item.wordFamily)]);
+  const alternatives=targetFamily.filter(v=>v.toLocaleLowerCase('en')!==acceptedKey);
+  if (alternatives.length<2) throw new Error('Word Family Match requires at least two competing forms from the same lexical family.');
   const options=shuffle([accepted[0],...shuffle(alternatives,`${args.seed}:family-wrong`).slice(0,3)],`${args.seed}:family-match`);
-  const cue=text(data.prompt)||`Match “${text(args.item.term)}” to the correct form.`;
+  const cue=text(data.sourceText)||text(data.prompt)||`Choose the correct form of “${text(args.item.term)}”.`;
   const pairs=options.map((option,index)=>({vocabularyId:index===0?args.item.vocabularyId:`alt-${index}`,term:index===0?cue:'',definition:option}));
-  return base({definition,occurrence:args.occurrence,contentId:record.activityContentId,contentSource:'unit_activity',prompt:'Match the word-family cue to the correct form.',markingReference:{acceptedAnswers:accepted},extra:{pairs,activityContentId:record.activityContentId,taskType:'word_family',primaryEvidenceTargetId:data.primaryEvidenceTargetId ?? args.item.vocabularyId}});
+  return base({definition,occurrence:args.occurrence,contentId:record.activityContentId,contentSource:'unit_activity',prompt:'Match the word-family cue to the correct form.',markingReference:{acceptedAnswers:accepted},extra:{pairs,sourceText:text(data.sourceText)||null,activityContentId:record.activityContentId,taskType:'word_family',primaryEvidenceTargetId:data.primaryEvidenceTargetId ?? args.item.vocabularyId,matchCue:cue,matchOptions:options,matchPresentation:'word_family_form'}});
 }
 function precisionMaterial(args) {
   const record=linkedWriting(args,'improve_vocabulary'), data=object(record.activityData), accepted=uniqueText(array(data.acceptedAnswers));
@@ -106,7 +107,7 @@ function precisionMatch(args, definition) {
   const {record,data,accepted,distractors}=precisionMaterial(args), cue=text(data.sourceText)||text(data.prompt);
   const options=shuffle([accepted[0],...distractors.slice(0,3)],`${args.seed}:precision-match`);
   const pairs=options.map((option,index)=>({vocabularyId:index===0?args.item.vocabularyId:`alt-${index}`,term:index===0?cue:'',definition:option}));
-  return base({definition,occurrence:args.occurrence,contentId:record.activityContentId,contentSource:'unit_activity',prompt:'Match the weak wording to the most precise replacement.',markingReference:{acceptedAnswers:accepted},extra:{pairs,sourceText:cue,activityContentId:record.activityContentId,taskType:'improve_vocabulary',primaryEvidenceTargetId:data.primaryEvidenceTargetId ?? args.item.vocabularyId}});
+  return base({definition,occurrence:args.occurrence,contentId:record.activityContentId,contentSource:'unit_activity',prompt:'Match the weak wording to the most precise replacement.',markingReference:{acceptedAnswers:accepted},extra:{pairs,sourceText:cue,activityContentId:record.activityContentId,taskType:'improve_vocabulary',primaryEvidenceTargetId:data.primaryEvidenceTargetId ?? args.item.vocabularyId,matchCue:cue,matchOptions:options,matchPresentation:'precision_replacement'}});
 }
 function spellingVariants(term) {
   const chars=Array.from(term); const variants=[];
@@ -128,7 +129,7 @@ function spellingCueMatch(args, definition) {
   if (!term||!meaning||wrong.length<3) throw new Error('Spelling Match requires three plausible alternatives.');
   const options=shuffle([term,...wrong],`${args.seed}:spelling-match`);
   const pairs=options.map((option,index)=>({vocabularyId:index===0?args.item.vocabularyId:`alt-${index}`,term:index===0?meaning:'',definition:option}));
-  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:'Match the meaning cue to the correctly spelled word.',markingReference:{acceptedAnswers:[term]},extra:{pairs,primaryEvidenceTargetId:args.item.vocabularyId}});
+  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:'Match the meaning cue to the correctly spelled word.',markingReference:{acceptedAnswers:[term]},extra:{pairs,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:meaning,matchOptions:options,matchPresentation:'spelling_visual_discrimination'}});
 }
 function spellingRebuild(args, definition) {
   const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence);

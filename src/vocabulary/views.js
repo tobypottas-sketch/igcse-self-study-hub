@@ -184,6 +184,7 @@ function primaryPair(question) {
 }
 function matchOptions(question, support) {
   if (support?.kind === 'narrow_match') return support.options ?? [];
+  if (Array.isArray(question?.matchOptions) && question.matchOptions.length) return question.matchOptions;
   const pairs = Array.isArray(question?.pairs) ? question.pairs : [];
   return question?.type === 'drag_definition_word'
     ? pairs.map(pair => pair?.term).filter(Boolean)
@@ -191,6 +192,11 @@ function matchOptions(question, support) {
 }
 function renderSelectOptions(options) {
   return `<option value="">Choose…</option>${(options ?? []).map(option => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`).join('')}`;
+}
+function renderMatchCards(question, retry, support) {
+  const options = matchOptions(question,support);
+  const cards = options.map(option => `<button type="button" class="vocab-match-card" data-match-card="${escapeHtml(option)}" aria-pressed="false">${escapeHtml(option)}</button>`).join('');
+  return `<fieldset class="vocab-match-card-fieldset${retry ? ' is-retry' : ''}"><legend>${retry ? 'Choose from these two' : 'Choose the match'}</legend><div class="vocab-match-cue">${escapeHtml(question?.matchCue ?? '')}</div><div class="vocab-match-card-grid">${cards}</div><input type="hidden" name="answer" value="" required><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Check supported answer' : 'Check answer'}</button></fieldset>`;
 }
 
 function renderAnswerControl(question, feedback, retry, support) {
@@ -202,7 +208,9 @@ function renderAnswerControl(question, feedback, retry, support) {
     return `<fieldset class="vocab-choice-fieldset${retry ? ' is-retry' : ''}"><legend>${retry ? 'Choose from these two' : 'Choose your answer'}</legend><div class="vocab-choice-grid">${options}</div></fieldset>`;
   }
   if (responseMode === 'matching' || responseMode === 'drag_match') {
-    const target = primaryPair(question);
+  const normalizedMatch = responseMode === 'matching' && String(question?.matchCue ?? '').trim() && Array.isArray(question?.matchOptions) && question.matchOptions.length;
+  if (normalizedMatch) return renderMatchCards(question,retry,support);
+  const target = primaryPair(question);
     const targetText = question?.type === 'drag_definition_word' ? target?.definition : target?.term;
     const options = matchOptions(question, support);
     const dragItems = responseMode === 'drag_match'
@@ -252,7 +260,9 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
   const definition = activityDefinition(question?.type);
   const questionLabel = definition?.label ?? titleCase(question?.type ?? 'Practice');
   const source = visibleQuestionSource(question);
-  const questionContext = source ? `<aside class="vocab-question-context vocab-source-text"><span>${escapeHtml(source.label)}</span><p>${escapeHtml(source.text)}</p></aside>` : '';
+  const matchCue = String(question?.matchCue ?? '').trim();
+  const sourceDuplicatesMatchCue = source && matchCue && normalizedDisplayText(source.text) === normalizedDisplayText(matchCue);
+  const questionContext = source && !sourceDuplicatesMatchCue ? `<aside class="vocab-question-context vocab-source-text"><span>${escapeHtml(source.label)}</span><p>${escapeHtml(source.text)}</p></aside>` : '';
   const targetPill = term && !HIDE_TARGET_TYPES.has(question?.type) ? `<div class="vocab-target-pill">${escapeHtml(term)}</div>` : '';
   const fixedPathwayId = pathwayId ?? question?.pathwayId ?? null;
   const fixedPathwayStage = pathwayStage ?? question?.pathwayStage ?? null;

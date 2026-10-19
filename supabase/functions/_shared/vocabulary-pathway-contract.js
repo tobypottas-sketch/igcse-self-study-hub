@@ -3,7 +3,7 @@ export const PATHWAY_STAGE_IDS = Object.freeze(['recognise','match','apply','rec
 export const PATHWAY_ACTIVITY_MAP = Object.freeze({
   meaning:Object.freeze({
     recognise:Object.freeze(['meaning_match','definition_to_word']),
-    match:Object.freeze(['word_definition_match']),
+    match:Object.freeze(['word_definition_match','definition_to_word']),
     apply:Object.freeze(['drag_word_definition','drag_definition_word','which_situation_fits']),
     recall:Object.freeze(['type_word_from_definition']),
     mastery:Object.freeze(['meaning_in_context'])
