@@ -60,7 +60,7 @@ test('reduced motion disables new transitions and animations', () => {
 
 test('keyboard focus, mobile layout, wrapping and overflow safeguards are explicit', () => {
   assert.match(css,/:focus-visible/);
-  assert.match(css,/@media\s*\(max-width:\s*620px\)/);
+  assert.match(css,/@media\s*\(max-width:\s*620px\s*\)/);
   assert.match(css,/min-width:\s*0/);
   assert.match(css,/overflow-wrap:\s*anywhere/);
   assert.match(css,/overflow-x:\s*clip/);
