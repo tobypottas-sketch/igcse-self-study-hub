@@ -35,9 +35,11 @@ function bankFor(vocabularyId) {
 }
 
 test('Context Match uses the reviewed leisure-time surface answer instead of bare leisure', () => {
+  const bank = bankFor('vocab_leisure');
   const args = argsFor('vocab_leisure', 'building', 'leisure-context-bank');
-  assert.ok(args.occurrence, 'leisure occurrence must be present');
-  assert.ok(args.item, 'leisure item must be present');
+  const usedContentIds = (bank.contexts ?? [])
+    .filter(context => context.id !== 'leisure_ctx_1')
+    .map(context => `language-bank:${context.id}`);
   const activity = buildPathwayActivity({
     activityType:'context_sentence_match',
     occurrence:args.occurrence,
@@ -49,10 +51,13 @@ test('Context Match uses the reviewed leisure-time surface answer instead of bar
     unitOccurrences:args.unitOccurrences,
     mastery:args.mastery,
     readinessStage:args.readinessStage,
+    usedContentIds,
     seed:args.seed
   });
+  assert.equal(activity.languageBankContextId, 'leisure_ctx_1');
   assert.deepEqual(activity.markingReference.acceptedAnswers, ['leisure time']);
-  assert.equal(activity.languageBankContextId != null, true);
+  assert.equal(activity.contentId, 'language-bank:leisure_ctx_1');
+  assert.ok(unit1.activities.some(record => record.activityContentId === activity.contentId), 'reviewed bank context must be published as authoritative unit content');
   assert.ok(activity.sourceText?.includes('____'));
 });
 
@@ -90,6 +95,7 @@ test('avoid Context choice uses its reviewed per-sentence distractors rather tha
   const permitted = new Set(['avoid', ...record.distractors.map(row => row.text)]);
   assert.equal(activity.options.length, 4);
   assert.ok(activity.options.every(option => permitted.has(option)), activity.options.join(' | '));
+  assert.ok(unit1.activities.some(candidate => candidate.activityContentId === activity.contentId), 'banked Context choice must resolve to published authoritative content');
 });
 
 test('avoid spelling recognition samples realistic authored errors instead of algorithmic mangling', () => {
