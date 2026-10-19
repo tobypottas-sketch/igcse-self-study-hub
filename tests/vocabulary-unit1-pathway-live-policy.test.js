@@ -23,6 +23,7 @@ test('Unit 1 exposes only pathway banks that are currently defensible end to end
   assert.equal(coverage.meaning.available,true);
   assert.equal(coverage.context.available,true);
   assert.equal(coverage.word_families.available,true);
+  // The end-to-end cohort is constrained by the strictest real rung, not an inflated unit-wide count.
   const wordFamilyEndToEndCount = Math.min(...Object.values(coverage.word_families.stageCounts));
   assert.equal(coverage.word_families.occurrenceIds.length,wordFamilyEndToEndCount);
   assert.equal(coverage.spelling_recall.available,true);
