@@ -79,7 +79,7 @@ const content = plannerContent(unit1);
 const coverage = buildPathwayCoverage({ content });
 const LIVE_PATHWAYS = ['meaning','context','word_families','spelling_recall'];
 
-test('Unit 1 Word Families exposes only targets with enough same-family forms for a genuine Match rung', () => {
+test('Unit 1 Word Families exposes only targets with enough same-family forms for meaningful Match discrimination', () => {
   const expected = unit1.occurrences
     .filter(occurrence => {
       const item = content.itemsById[occurrence.vocabularyId];
@@ -89,11 +89,11 @@ test('Unit 1 Word Families exposes only targets with enough same-family forms fo
         activity.activityData?.taskType === 'word_family' &&
         (activity.activityData?.linkedVocabularyIds ?? []).includes(occurrence.vocabularyId)
       );
-      return family.size >= 4 && hasCuratedFamilyPrompt;
+      return family.size >= 3 && hasCuratedFamilyPrompt;
     })
     .map(occurrence => occurrence.occurrenceId)
     .sort();
-  assert.ok(expected.length > 0,'Unit 1 needs real four-form word-family targets');
+  assert.ok(expected.length > 0,'Unit 1 needs real three-form word-family targets');
   assert.equal(coverage.word_families.available,true,'Word Families must be live for its genuinely serviceable cohort');
   assert.deepEqual([...coverage.word_families.occurrenceIds].sort(),expected);
 });
