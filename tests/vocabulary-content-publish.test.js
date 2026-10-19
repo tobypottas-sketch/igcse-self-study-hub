@@ -72,13 +72,13 @@ test('publisher carries curated unit activities as a fourth content collection',
   assert.equal(batch.activities[0].activityContentId, 'u1_phrase_01');
 });
 
-test('released Unit 1 is a strict live batch with 50 targets and 150 contexts', async () => {
+test('released Unit 1 is a strict live batch with 50 targets and curated grammar retrieval contexts', async () => {
   const { buildPublicationBatch } = await publisher();
   const batch = buildPublicationBatch([releasedUnit1]);
   assert.equal(releasedUnit1.status, 'live');
   assert.equal(batch.items.length, 50);
   assert.equal(batch.occurrences.length, 50);
-  assert.equal(batch.contexts.length, 150);
+  assert.equal(batch.contexts.length, 202);
   assert.equal(batch.items.every(row => row.status === 'live'), true);
   assert.equal(batch.occurrences.every(row => row.status === 'live'), true);
 });
