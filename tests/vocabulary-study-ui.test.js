@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { pathwayIdentity, renderStudyIcon } from '../src/vocabulary/study-ui.js';
+import { deriveStudyMilestone, pathwayIdentity, renderStudyIcon } from '../src/vocabulary/study-ui.js';
 
 const EXPECTED = {
   meaning: ['Meaning','Understand the definition','meaning','book'],
@@ -52,4 +52,48 @@ test('unknown icon IDs fail safely to the neutral spark icon', () => {
   const html = renderStudyIcon('does-not-exist');
   assert.match(html, /data-study-icon="spark"/);
   assert.match(html, /<svg\b/);
+});
+
+test('unchanged authoritative pathway state produces no milestone', () => {
+  assert.equal(deriveStudyMilestone({
+    beforePathwayState:{ currentStage:'match', completedStages:['recognise'], mastered:false },
+    afterPathwayState:{ currentStage:'match', completedStages:['recognise'], mastered:false },
+    term:'leisure', pathwayId:'meaning'
+  }), null);
+});
+
+test('genuine rung change produces one stage advancement milestone', () => {
+  assert.deepEqual(deriveStudyMilestone({
+    beforePathwayState:{ currentStage:'match', completedStages:['recognise'], mastered:false },
+    afterPathwayState:{ currentStage:'apply', completedStages:['recognise','match'], mastered:false },
+    term:'leisure', pathwayId:'meaning'
+  }), {
+    kind:'stage_advanced',
+    pathwayId:'meaning',
+    term:'leisure',
+    fromStage:'match',
+    toStage:'apply'
+  });
+});
+
+test('mastery milestone is reserved for false to true mastery', () => {
+  assert.deepEqual(deriveStudyMilestone({
+    beforePathwayState:{ currentStage:'mastery', completedStages:['recognise','match','apply','recall'], mastered:false },
+    afterPathwayState:{ currentStage:'mastery', completedStages:['recognise','match','apply','recall','mastery'], mastered:true },
+    term:'leisure', pathwayId:'meaning'
+  }), {
+    kind:'mastered',
+    pathwayId:'meaning',
+    term:'leisure',
+    fromStage:'mastery',
+    toStage:'mastery'
+  });
+});
+
+test('review of already mastered content never creates another milestone', () => {
+  assert.equal(deriveStudyMilestone({
+    beforePathwayState:{ currentStage:'mastery', completedStages:['recognise','match','apply','recall','mastery'], mastered:true, reviewDue:true },
+    afterPathwayState:{ currentStage:'mastery', completedStages:['recognise','match','apply','recall','mastery'], mastered:true, reviewDue:false },
+    term:'leisure', pathwayId:'meaning'
+  }), null);
 });
