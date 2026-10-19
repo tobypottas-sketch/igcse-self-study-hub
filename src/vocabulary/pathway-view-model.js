@@ -79,6 +79,14 @@ export function buildWordPathwayStates({ occurrence, unitMastery = {}, globalMas
   return Object.fromEntries(VOCABULARY_PATHWAYS.map(pathway => [pathway.id,wordPathwayState({ pathwayId:pathway.id, occurrence, unitMastery, globalMastery })]));
 }
 
+export function targetsForPathwayStage({ pathwayId, stageId, occurrences = [], unitMastery = {}, globalMastery = {} } = {}) {
+  if (!pathwayId || !STAGE_INDEX.hasOwnProperty(stageId)) return [];
+  return occurrences.filter(occurrence => {
+    const state = buildWordPathwayStates({ occurrence, unitMastery, globalMastery })?.[pathwayId];
+    return state?.currentStage === stageId && state?.mastered !== true;
+  });
+}
+
 export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, globalMastery = {}, coverageByPathway = null } = {}) {
   const unitNumber = occurrences.length ? occurrenceUnitNumber(occurrences[0]) : null;
   const registeredCoverage = unitNumber != null ? registeredPathwayCoverage(unitNumber) : null;
