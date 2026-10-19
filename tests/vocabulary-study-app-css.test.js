@@ -28,6 +28,30 @@ test('study app exposes all six pathway accents and common motion classes', () =
   }
 });
 
+test('answer option letters are rendered as separate visual key badges', () => {
+  assert.match(css,/\.vocab-choice-card\s*\{/);
+  assert.match(css,/\.vocab-choice-card__key\s*\{/);
+  assert.match(css,/border-radius:\s*50%/);
+  assert.match(css,/display:\s*inline-grid/);
+  assert.match(css,/gap:\s*14px/);
+});
+
+test('question screen has the mockup hierarchy rather than generic form styling', () => {
+  assert.match(css,/\.vocab-study-question-header\s*\{/);
+  assert.match(css,/\.vocab-study-question-header__path\s*\{/);
+  assert.match(css,/\.vocab-question-card\[data-study-question\]/);
+  assert.match(css,/\.vocab-choice-grid\s*\{/);
+  assert.match(css,/grid-template-columns:\s*repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(css,/\.vocab-question-session-progress\s*\{/);
+});
+
+test('completion and milestone screens have distinct visual structures', () => {
+  assert.match(css,/\.vocab-summary-card\[data-study-completion\]/);
+  assert.match(css,/\.vocab-summary-grid\s*\{/);
+  assert.match(css,/\[data-study-milestone="stage_advanced"\]/);
+  assert.match(css,/\[data-study-milestone="mastered"\]/);
+});
+
 test('reduced motion disables new transitions and animations', () => {
   assert.match(css,/@media\s*\(prefers-reduced-motion:\s*reduce\)/);
   assert.match(css,/animation-duration:\s*0\.01ms\s*!important/);
