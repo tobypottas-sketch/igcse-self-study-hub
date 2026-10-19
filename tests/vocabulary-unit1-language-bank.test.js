@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import unit1 from '../content/vocabulary/units/unit-01.js';
-import { buildActivity } from '../src/vocabulary/activity-builder.js';
+import { buildFoundationalActivity } from '../src/vocabulary/foundational-activity-builder.js';
+import { buildPathwayActivity } from '../src/vocabulary/pathway-activity-builder.js';
 import { languageBankForItem } from '../src/vocabulary/language-bank.js';
 
 function target(vocabularyId) {
@@ -13,10 +14,9 @@ function target(vocabularyId) {
   return { occurrence, item, contexts };
 }
 
-function build(vocabularyId, activityType, status = 'building', seed = 'language-bank-gate') {
+function argsFor(vocabularyId, status = 'building', seed = 'language-bank-gate') {
   const { occurrence, item, contexts } = target(vocabularyId);
-  return buildActivity({
-    activityType,
+  return {
     occurrence,
     item,
     contexts,
@@ -27,7 +27,7 @@ function build(vocabularyId, activityType, status = 'building', seed = 'language
     mastery:{ status },
     readinessStage:status,
     seed
-  });
+  };
 }
 
 function bankFor(vocabularyId) {
@@ -35,7 +35,7 @@ function bankFor(vocabularyId) {
 }
 
 test('Context Match uses the reviewed leisure-time surface answer instead of bare leisure', () => {
-  const activity = build('vocab_leisure', 'context_sentence_match', 'building', 'leisure-context-bank');
+  const activity = buildPathwayActivity({ activityType:'context_sentence_match', ...argsFor('vocab_leisure', 'building', 'leisure-context-bank') });
   assert.deepEqual(activity.markingReference.acceptedAnswers, ['leisure time']);
   assert.equal(activity.languageBankContextId != null, true);
   assert.ok(activity.sourceText?.includes('____'));
@@ -68,7 +68,7 @@ test('every avoid context owns three diagnosed distractors that fit that exact i
 test('avoid Context choice uses its reviewed per-sentence distractors rather than unrelated Unit 1 words', () => {
   const bank = bankFor('vocab_avoid');
   assert.ok(bank, 'avoid needs an authored language bank');
-  const activity = build('vocab_avoid', 'choose_word_sentence', 'building', 'avoid-context-bank');
+  const activity = buildFoundationalActivity({ activityType:'choose_word_sentence', ...argsFor('vocab_avoid', 'building', 'avoid-context-bank') });
   const record = (bank.contexts ?? []).find(context => context.id === activity.languageBankContextId);
   assert.ok(record, 'Context choice must identify the bank context it used');
   const permitted = new Set(['avoid', ...record.distractors.map(row => row.text)]);
@@ -79,7 +79,7 @@ test('avoid Context choice uses its reviewed per-sentence distractors rather tha
 test('avoid spelling recognition samples realistic authored errors instead of algorithmic mangling', () => {
   const bank = bankFor('vocab_avoid');
   assert.ok(bank, 'avoid needs an authored language bank');
-  const activity = build('vocab_avoid', 'spelling_choice', 'new', 'avoid-spelling-bank');
+  const activity = buildPathwayActivity({ activityType:'spelling_choice', ...argsFor('vocab_avoid', 'new', 'avoid-spelling-bank') });
   const permitted = new Set(['avoid', ...(bank.spellingErrors ?? [])]);
   assert.equal(activity.options.length, 4);
   assert.ok(activity.options.every(option => permitted.has(option)), activity.options.join(' | '));
