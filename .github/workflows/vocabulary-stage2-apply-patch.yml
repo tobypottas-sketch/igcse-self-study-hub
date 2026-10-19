@@ -1,0 +1,93 @@
+name: Vocabulary Stage 2 Apply Patch
+on:
+  push:
+    branches: ['fix/vocabulary-stage2-match-cards']
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: contains(github.event.head_commit.message, '[apply-stage2-match-patch]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/vocabulary-stage2-match-cards
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply Match Card renderer patch
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p=Path('src/vocabulary/views.js')
+          s=p.read_text()
+          old="""function matchOptions(question, support) {
+            if (support?.kind === 'narrow_match') return support.options ?? [];
+            const pairs = Array.isArray(question?.pairs) ? question.pairs : [];
+            return question?.type === 'drag_definition_word'
+              ? pairs.map(pair => pair?.term).filter(Boolean)
+              : pairs.map(pair => pair?.definition).filter(Boolean);
+          }
+          function renderSelectOptions(options) {
+            return `<option value=\"\">Choose…</option>${(options ?? []).map(option => `<option value=\"${escapeHtml(option)}\">${escapeHtml(option)}</option>`).join('')}`;
+          }
+          """
+          new="""function matchOptions(question, support) {
+            if (support?.kind === 'narrow_match') return support.options ?? [];
+            if (Array.isArray(question?.matchOptions) && question.matchOptions.length) return question.matchOptions;
+            const pairs = Array.isArray(question?.pairs) ? question.pairs : [];
+            return question?.type === 'drag_definition_word'
+              ? pairs.map(pair => pair?.term).filter(Boolean)
+              : pairs.map(pair => pair?.definition).filter(Boolean);
+          }
+          function renderSelectOptions(options) {
+            return `<option value=\"\">Choose…</option>${(options ?? []).map(option => `<option value=\"${escapeHtml(option)}\">${escapeHtml(option)}</option>`).join('')}`;
+          }
+          function renderMatchCards(question, retry, support) {
+            const options = matchOptions(question,support);
+            const cards = options.map(option => `<button type=\"button\" class=\"vocab-match-card\" data-match-card=\"${escapeHtml(option)}\" aria-pressed=\"false\">${escapeHtml(option)}</button>`).join('');
+            return `<fieldset class=\"vocab-match-card-fieldset${retry ? ' is-retry' : ''}\"><legend>${retry ? 'Choose from these two' : 'Choose the match'}</legend><div class=\"vocab-match-cue\">${escapeHtml(question?.matchCue ?? '')}</div><div class=\"vocab-match-card-grid\">${cards}</div><input type=\"hidden\" name=\"answer\" value=\"\" required><button class=\"vocab-button vocab-button--primary\" type=\"submit\">${retry ? 'Check supported answer' : 'Check answer'}</button></fieldset>`;
+          }
+          """
+          if old not in s: raise SystemExit('matchOptions block not found')
+          s=s.replace(old,new,1)
+          old2="""  if (responseMode === 'matching' || responseMode === 'drag_match') {
+            const target = primaryPair(question);"""
+          new2="""  if (responseMode === 'matching' || responseMode === 'drag_match') {
+            const normalizedMatch = responseMode === 'matching' && String(question?.matchCue ?? '').trim() && Array.isArray(question?.matchOptions) && question.matchOptions.length;
+            if (normalizedMatch) return renderMatchCards(question,retry,support);
+            const target = primaryPair(question);"""
+          if old2 not in s: raise SystemExit('matching renderer block not found')
+          s=s.replace(old2,new2,1)
+          old3="""  const source = visibleQuestionSource(question);
+            const questionContext = source ? `<aside class=\"vocab-question-context vocab-source-text\"><span>${escapeHtml(source.label)}</span><p>${escapeHtml(source.text)}</p></aside>` : '';"""
+          new3="""  const source = visibleQuestionSource(question);
+            const matchCue = String(question?.matchCue ?? '').trim();
+            const sourceDuplicatesMatchCue = source && matchCue && normalizedDisplayText(source.text) === normalizedDisplayText(matchCue);
+            const questionContext = source && !sourceDuplicatesMatchCue ? `<aside class=\"vocab-question-context vocab-source-text\"><span>${escapeHtml(source.label)}</span><p>${escapeHtml(source.text)}</p></aside>` : '';"""
+          if old3 not in s: raise SystemExit('question context block not found')
+          s=s.replace(old3,new3,1)
+          p.write_text(s)
+
+          html=Path('vocabulary.html')
+          hs=html.read_text()
+          anchor='  <link rel="stylesheet" href="vocabulary-foundational.css">\n'
+          if 'vocabulary-match-cards.css' not in hs:
+            if anchor not in hs: raise SystemExit('html css anchor missing')
+            hs=hs.replace(anchor,anchor+'  <link rel="stylesheet" href="vocabulary-match-cards.css">\n',1)
+          html.write_text(hs)
+
+          Path('vocabulary-match-cards.css').write_text('''.vocab-match-card-fieldset{border:0;padding:0;margin:0;display:grid;gap:16px;min-width:0}.vocab-match-card-fieldset legend{font-weight:800;margin-bottom:0}.vocab-match-cue{padding:16px 18px;border:1px solid rgba(61,114,217,.14);border-radius:16px;background:linear-gradient(135deg,rgba(61,114,217,.055),rgba(19,126,128,.045));color:var(--navy);font-size:1.05rem;font-weight:750;line-height:1.55;overflow-wrap:anywhere}.vocab-match-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0}.vocab-match-card{min-width:0;min-height:58px;padding:14px 16px;border:1px solid rgba(22,48,78,.16);border-radius:15px;background:#fff;color:var(--navy);font:inherit;font-weight:720;line-height:1.35;text-align:left;overflow-wrap:anywhere;cursor:pointer;transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease,background .14s ease}.vocab-match-card:hover{transform:translateY(-1px);border-color:rgba(19,126,128,.42);box-shadow:0 7px 18px rgba(23,56,82,.07)}.vocab-match-card:focus-visible{outline:3px solid rgba(61,114,217,.22);outline-offset:2px}.vocab-match-card.is-selected,.vocab-match-card[aria-pressed="true"]{border-color:var(--teal);background:rgba(19,126,128,.075);box-shadow:0 0 0 2px rgba(19,126,128,.08)}.vocab-match-card-fieldset.is-retry .vocab-match-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:620px){.vocab-match-card-grid,.vocab-match-card-fieldset.is-retry .vocab-match-card-grid{grid-template-columns:1fr}.vocab-match-card{min-height:52px}.vocab-match-cue{padding:14px 15px}}@media(prefers-reduced-motion:reduce){.vocab-match-card{transition:none!important;transform:none!important}}\n''')
+          PY
+      - name: Verify targeted renderer tests
+        run: node --test tests/vocabulary-stage2-match-card-rendering.test.js tests/vocabulary-stage2-match-card-contract.test.js tests/vocabulary-foundational-rendering.test.js
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/vocabulary/views.js vocabulary.html vocabulary-match-cards.css
+          git commit -m "feat: render fixed Stage 2 Match Cards"
+          git push origin HEAD:fix/vocabulary-stage2-match-cards
