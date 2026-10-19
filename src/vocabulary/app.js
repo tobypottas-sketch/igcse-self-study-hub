@@ -164,6 +164,13 @@ function startSession(mode, durationMinutes = null) {
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`session:${mode}:${state.session.practiceMode}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, practice_focus:state.session.practiceMode } }).catch(() => {});
   nextQuestion();
 }
+function continuePractice() {
+  if (state.pathwayId) { startPathwaySession(state.pathwayId); return; }
+  if (state.mixedReview) { startMixedReview(); return; }
+  if (state.session?.mode === 'timed') { startSession('timed', state.session.durationMinutes); return; }
+  if (state.practiceFocus) { startSession('adaptive'); return; }
+  throw new Error('No practice route is available to continue.');
+}
 function remainingLabel() { if (!state.session) return ''; if (state.session.mode === 'adaptive') return `${state.session.completedAttempts.length} / ${state.session.targetIds.length} activities`; const ms = Math.max(0, new Date(state.session.expiresAt).getTime() - Date.now()); const seconds = Math.ceil(ms / 1000); const minutes = Math.floor(seconds / 60); return `${minutes}:${String(seconds % 60).padStart(2,'0')} remaining`; }
 function startClock() { clearClock(); state.clock = window.setInterval(() => { const label = root.querySelector?.('.vocab-topbar span'); if (label) label.textContent = remainingLabel(); if (state.session && isSessionComplete(state.session, new Date())) void finishSessionWhenSaved(); }, 1000); }
 function clearClock() { if (state.clock) { window.clearInterval(state.clock); state.clock = null; } }
@@ -312,6 +319,7 @@ root?.addEventListener('click', event => {
   else if (action === 'back-units') showHome().catch(error => renderVocabularyError(root, error.message)); else if (action === 'view-all-words') showAllWords();
   else if (action === 'open-pathway') { try { startPathwaySession(target.dataset.pathway); } catch (error) { renderVocabularyError(root, error.message); } }
   else if (action === 'start-mixed-review') { try { startMixedReview(); } catch (error) { renderVocabularyError(root, error.message); } }
+  else if (action === 'continue-practice') { try { continuePractice(); } catch (error) { renderVocabularyError(root, error.message); } }
   else if (action === 'clear-tile-answer') {
     const form = target.closest?.('[data-form="vocabulary-answer"]'); const input = form?.querySelector?.('input[name="answer"]'); const build = form?.querySelector?.('[data-tile-build]');
     const fixed = String(target.dataset.fixedAnswer ?? '').trim(); if (!form || !input) return;
