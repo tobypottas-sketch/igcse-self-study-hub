@@ -14,6 +14,7 @@ const READINESS_BY_STAGE = Object.freeze({
 });
 
 function array(value) { return Array.isArray(value) ? value : []; }
+function text(value) { return String(value ?? '').trim(); }
 function hashSeed(seed) {
   let hash = 2166136261;
   for (const char of String(seed ?? '')) { hash ^= char.charCodeAt(0); hash = Math.imul(hash,16777619) >>> 0; }
@@ -42,9 +43,6 @@ function readinessForStage(stageId) {
   return READINESS_BY_STAGE[stageId] ?? 'building';
 }
 function targetCanTryActivity(type, availableForTarget) {
-  // Dedicated fixed-pathway builders own their exact quality/linkage prerequisites and
-  // fail closed themselves. Legacy/shared activities must still be advertised by the
-  // common target-availability contract so unlinked unit material can never leak in.
   return PATHWAY_ACTIVITY_TYPES.has(type) || availableForTarget.has(type);
 }
 function unitNumberFor(content, target = null) {
@@ -92,8 +90,27 @@ function materialForTarget(content, target) {
   return { item, contexts };
 }
 
+function normalizedStageTwoMatch(question, plan, item, target) {
+  if (plan?.servedStage !== 'match') return question;
+  if (text(question?.matchCue) && array(question?.matchOptions).length) return { ...question, responseMode:'matching' };
+  if (plan?.pathwayId === 'meaning' && question?.type === 'definition_to_word') {
+    const sense = array(item?.senses).find(row => row?.senseId === target?.senseId) ?? array(item?.senses)[0] ?? {};
+    const cue = text(sense?.meaning) || text(item?.coreMeaning) || text(array(sense?.acceptedParaphrases)[0]);
+    const options = array(question?.options).map(text).filter(Boolean);
+    if (!cue || options.length < 2) throw new Error('Definition → Word Match requires a definition and comparable word options.');
+    return { ...question, responseMode:'matching', matchCue:cue, matchOptions:options, matchPresentation:'meaning_definition_to_word' };
+  }
+  if (plan?.pathwayId === 'paraphrasing' && question?.type === 'phrase_match') {
+    const cue = text(question?.sourcePhrase) || text(question?.sourceIdea) || text(question?.prompt).match(/[“"]([^”"]+)[”"]/)?.[1] || '';
+    const options = array(question?.options).map(text).filter(Boolean);
+    if (!cue || options.length < 2) throw new Error('Paraphrasing Match requires a curated source phrase and candidate paraphrases.');
+    return { ...question, responseMode:'matching', matchCue:cue, matchOptions:options, matchPresentation:'paraphrase_equivalence' };
+  }
+  return question;
+}
+
 function buildCandidate({ content, target, mastery, item, contexts, plan, usedContentIds, seed }) {
-  const question = buildActivity({
+  const built = buildActivity({
     activityType:plan.activityType,
     occurrence:target,
     item,
@@ -107,6 +124,7 @@ function buildCandidate({ content, target, mastery, item, contexts, plan, usedCo
     usedContentIds:array(usedContentIds),
     seed
   });
+  const question = normalizedStageTwoMatch(built,plan,item,target);
   return { ...question, pathwayId:plan.pathwayId, pathwayStage:plan.learnerStage };
 }
 
