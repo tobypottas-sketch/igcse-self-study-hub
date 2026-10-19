@@ -14,7 +14,7 @@ const pathways = {
   spelling_recall:{ currentStage:'mastery', completedStages:['recognise','match','apply','recall'], mastered:true }
 };
 
-test('dictionary cards expose a compact five-rung visual for each pathway without changing pathway data', () => {
+test('dictionary cards retain authoritative pathway stage hooks for the five-rung visual', () => {
   const target = root();
   renderVocabularyWords(target, {
     unitNumber:1,
@@ -30,44 +30,36 @@ test('dictionary cards expose a compact five-rung visual for each pathway withou
     }]
   });
 
-  assert.match(target.innerHTML, /class="vocab-word-pathway__ladder"/);
-  assert.match(target.innerHTML, /data-rung="recognise"/);
-  assert.match(target.innerHTML, /data-rung="match"/);
-  assert.match(target.innerHTML, /data-rung="apply"/);
-  assert.match(target.innerHTML, /data-rung="recall"/);
-  assert.match(target.innerHTML, /data-rung="mastery"/);
-  assert.match(target.innerHTML, /data-marker-state="complete"/);
-  assert.match(target.innerHTML, /data-marker-state="current"/);
-  assert.match(target.innerHTML, /data-marker-state="locked"/);
+  assert.match(target.innerHTML, /data-word-pathway="meaning" data-stage="match"/);
+  assert.match(target.innerHTML, /data-word-pathway="context" data-stage="recognise"/);
+  assert.match(target.innerHTML, /data-word-pathway="word_families" data-stage="apply"/);
+  assert.match(target.innerHTML, /data-word-pathway="paraphrasing" data-stage="recall"/);
+  assert.match(target.innerHTML, /data-word-pathway="spelling_recall" data-stage="mastery"/);
 });
 
-test('dictionary card copy makes overall status and evidence controls clearer', () => {
-  const target = root();
-  renderVocabularyWords(target, {
-    unitNumber:1,
-    unitTitle:'Sports and Free Time',
-    words:[{
-      term:'urge', learningStage:'emerging', pathways, strands:{},
-      partOfSpeech:'verb', definition:'to strongly encourage someone to do something',
-      contextSentence:'Doctors urge teenagers to stay active for their health.'
-    }]
-  });
-
-  assert.match(target.innerHTML, /Overall progress/);
-  assert.match(target.innerHTML, /Emerging/);
-  assert.match(target.innerHTML, /<summary>View evidence<\/summary>/);
+test('dictionary polish renders a five-rung rail from existing stage data only', () => {
+  const css = fs.readFileSync(new URL('../vocabulary-dictionary-polish.css', import.meta.url), 'utf8');
+  assert.match(css, /\[data-stage="recognise"\]::after\{content:"◉ ○ ○ ○ ○"\}/);
+  assert.match(css, /\[data-stage="match"\]::after\{content:"● ◉ ○ ○ ○"\}/);
+  assert.match(css, /\[data-stage="apply"\]::after\{content:"● ● ◉ ○ ○"\}/);
+  assert.match(css, /\[data-stage="recall"\]::after\{content:"● ● ● ◉ ○"\}/);
+  assert.match(css, /\[data-stage="mastery"\]::after\{content:"● ● ● ● ◉"\}/);
 });
 
-test('dictionary polish uses restrained pathway accents and preserves baseline context alignment', () => {
-  const css = fs.readFileSync(new URL('../vocabulary-extra.css', import.meta.url), 'utf8');
+test('dictionary polish uses restrained pathway accents and preserves context baseline alignment', () => {
+  const css = fs.readFileSync(new URL('../vocabulary-dictionary-polish.css', import.meta.url), 'utf8');
 
   for (const pathway of ['meaning','context','word_families','paraphrasing','precision_use','spelling_recall']) {
     assert.match(css, new RegExp(`\\.vocab-word-pathway\\[data-word-pathway="${pathway}"\\]`));
   }
-  assert.match(css, /\.vocab-word-pathway__ladder/);
-  assert.match(css, /data-marker-state="current"/);
-  assert.match(css, /data-marker-state="complete"/);
   assert.match(css, /\.vocab-dictionary-entry__context\{[^}]*align-items:baseline/s);
   assert.match(css, /\.vocab-dictionary-entry__context::before/);
+  assert.match(css, /\.vocab-word-row__head>\.vocab-state-pill::before\{[^}]*content:"Overall progress ·"/s);
+  assert.match(css, /\.vocab-word-evidence summary::before\{[^}]*content:"View evidence"/s);
   assert.match(css, /\.vocab-word-evidence summary::after/);
+});
+
+test('vocabulary page loads dictionary polish after the existing vocabulary styles', () => {
+  const html = fs.readFileSync(new URL('../vocabulary.html', import.meta.url), 'utf8');
+  assert.match(html, /vocabulary-word-list-nav\.css[\s\S]*vocabulary-dictionary-polish\.css/);
 });
