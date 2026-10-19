@@ -6,6 +6,11 @@ function answerSelect(node) {
   return form?.querySelector?.('select[name="answer"]') ?? null;
 }
 
+function answerInput(node) {
+  const form = node?.closest?.('[data-form="vocabulary-answer"]');
+  return form?.querySelector?.('input[name="answer"]') ?? null;
+}
+
 function dropZone(node) {
   const form = node?.closest?.('[data-form="vocabulary-answer"]');
   return form?.querySelector?.('[data-drop-target], [data-gap-drop]') ?? null;
@@ -23,6 +28,20 @@ function setAnswer(node, value) {
     zone.textContent = next || 'Drop answer here';
     zone.classList.toggle('is-filled', Boolean(next));
   }
+}
+
+function selectMatchCard(card) {
+  const form = card?.closest?.('[data-form="vocabulary-answer"]');
+  const input = answerInput(card);
+  if (!form || !input) return;
+  const value = String(card.dataset.matchCard ?? '').trim();
+  input.value = value;
+  for (const candidate of form.querySelectorAll?.('[data-match-card]') ?? []) {
+    const selected = candidate === card;
+    candidate.classList.toggle('is-selected',selected);
+    candidate.setAttribute('aria-pressed',selected ? 'true' : 'false');
+  }
+  input.dispatchEvent(new Event('change',{ bubbles:true }));
 }
 
 root?.addEventListener('dragstart', event => {
@@ -65,6 +84,11 @@ root?.addEventListener('drop', event => {
 });
 
 root?.addEventListener('click', event => {
+  const card = event.target?.closest?.('[data-match-card]');
+  if (card) {
+    selectMatchCard(card);
+    return;
+  }
   const token = event.target?.closest?.('[data-drag-value], [data-drag-gap-value]');
   if (!token) return;
   const value = token.dataset.dragValue ?? token.dataset.dragGapValue ?? '';
