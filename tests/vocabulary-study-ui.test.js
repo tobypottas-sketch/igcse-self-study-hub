@@ -72,7 +72,8 @@ test('genuine rung change produces one stage advancement milestone', () => {
     pathwayId:'meaning',
     term:'leisure',
     fromStage:'match',
-    toStage:'apply'
+    toStage:'apply',
+    title:'Match complete · Apply unlocked'
   });
 });
 
@@ -86,7 +87,8 @@ test('mastery milestone is reserved for false to true mastery', () => {
     pathwayId:'meaning',
     term:'leisure',
     fromStage:'mastery',
-    toStage:'mastery'
+    toStage:'mastery',
+    title:'Meaning mastered · leisure'
   });
 });
 
