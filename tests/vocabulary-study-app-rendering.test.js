@@ -73,20 +73,18 @@ test('ordinary correct feedback is compact and does not pretend a milestone happ
 
 test('real stage advancement renders a compact unlocked-rung moment', () => {
   const target = root();
-  renderVocabularyQuestion(target,{unitNumber:1,unitTitle:'Sports and free time',term:'leisure',pathwayId:'meaning',pathwayStage:'match',sessionPosition:4,sessionTotal:10,feedback:{correct:true,message:'Correct!'},milestone:{kind:'stage_advanced',pathwayId:'meaning',term:'leisure',fromStage:'match',toStage:'apply'},question:{type:'word_definition_match',responseMode:'matching',prompt:'Choose the correct definition.',matchCue:'leisure',matchOptions:['free time','a crowd']}});
+  renderVocabularyQuestion(target,{unitNumber:1,unitTitle:'Sports and free time',term:'leisure',pathwayId:'meaning',pathwayStage:'match',sessionPosition:4,sessionTotal:10,feedback:{correct:true,message:'Correct!'},milestone:{kind:'stage_advanced',pathwayId:'meaning',term:'leisure',fromStage:'match',toStage:'apply',title:'Match complete · Apply unlocked'},question:{type:'word_definition_match',responseMode:'matching',prompt:'Choose the correct definition.',matchCue:'leisure',matchOptions:['free time','a crowd']}});
   assert.match(target.innerHTML,/data-study-milestone="stage_advanced"/);
-  assert.match(target.innerHTML,/Match complete/);
-  assert.match(target.innerHTML,/Apply unlocked/);
-  assert.match(target.innerHTML,/data-study-icon="check"/);
+  assert.match(target.innerHTML,/Match complete · Apply unlocked/);
+  assert.match(target.innerHTML,/study-milestone-card/);
 });
 
-test('real mastery renders the stronger trophy milestone and names the pathway', () => {
+test('real mastery renders a stronger named milestone', () => {
   const target = root();
-  renderVocabularyQuestion(target,{unitNumber:1,unitTitle:'Sports and free time',term:'leisure',pathwayId:'meaning',pathwayStage:'mastery',sessionPosition:10,sessionTotal:10,feedback:{correct:true,message:'Correct!'},milestone:{kind:'mastered',pathwayId:'meaning',term:'leisure',fromStage:'mastery',toStage:'mastery'},question:{type:'meaning_in_context',responseMode:'choice',prompt:'Choose the meaning.',options:['free time','money']}});
+  renderVocabularyQuestion(target,{unitNumber:1,unitTitle:'Sports and free time',term:'leisure',pathwayId:'meaning',pathwayStage:'mastery',sessionPosition:10,sessionTotal:10,feedback:{correct:true,message:'Correct!'},milestone:{kind:'mastered',pathwayId:'meaning',term:'leisure',fromStage:'mastery',toStage:'mastery',title:'Meaning mastered · leisure'},question:{type:'meaning_in_context',responseMode:'choice',prompt:'Choose the meaning.',options:['free time','money']}});
   assert.match(target.innerHTML,/data-study-milestone="mastered"/);
-  assert.match(target.innerHTML,/data-study-icon="trophy"/);
-  assert.match(target.innerHTML,/Meaning mastered/);
-  assert.match(target.innerHTML,/leisure/);
+  assert.match(target.innerHTML,/Meaning mastered · leisure/);
+  assert.match(target.innerHTML,/study-milestone-card/);
 });
 
 test('ten-question completion uses evidence-backed counts and clear actions', () => {
