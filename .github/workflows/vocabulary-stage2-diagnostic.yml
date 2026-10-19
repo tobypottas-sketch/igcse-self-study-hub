@@ -1,0 +1,24 @@
+name: Vocabulary Stage 2 Diagnostic
+on:
+  push:
+    branches: ['fix/vocabulary-stage2-match-cards']
+jobs:
+  targeted:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Stage 2 Match contract
+        run: node --test tests/vocabulary-stage2-match-card-contract.test.js
+      - name: Foundational rendering regressions
+        run: node --test tests/vocabulary-foundational-rendering.test.js
+      - name: Pathway activity coverage
+        run: node --test tests/vocabulary-pathway-activity-coverage.test.js
+      - name: Unit 1 pathway completability
+        run: node --test tests/vocabulary-unit1-live-pathway-completability.test.js
+      - name: Pedagogical quality
+        run: node --test tests/vocabulary-pedagogical-quality.test.js
+      - name: Marking parity
+        run: node --test tests/vocabulary-marking-parity-matrix.test.js
