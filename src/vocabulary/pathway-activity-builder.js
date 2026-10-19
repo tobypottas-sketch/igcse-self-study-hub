@@ -75,7 +75,7 @@ function wordFamilyMatch(args, definition) {
   const accepted=uniqueText(array(data.acceptedAnswers));
   if (!accepted.length) throw new Error('Word Family Match requires a curated answer.');
   const acceptedKey=accepted[0].toLocaleLowerCase('en');
-  const targetFamily=uniqueText(array(args.item.wordFamily));
+  const targetFamily=uniqueText([args.item?.term,...array(args.item.wordFamily)]);
   const alternatives=targetFamily.filter(v=>v.toLocaleLowerCase('en')!==acceptedKey);
   if (alternatives.length<2) throw new Error('Word Family Match requires at least two competing forms from the same lexical family.');
   const options=shuffle([accepted[0],...shuffle(alternatives,`${args.seed}:family-wrong`).slice(0,3)],`${args.seed}:family-match`);
