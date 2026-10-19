@@ -146,12 +146,12 @@ function targetFormNearMisses(args, accepted, formKey) {
 function surfaceDistractors(args, formKey, count = 3) {
   if (!formKey || formKey === 'base') return plausibleTermDistractors(args,count);
   const accepted = text(grammarFormsFor(args.item,args.occurrence)[formKey]) || text(args.item?.term);
-  const nearMisses = stableShuffle(uniqueText(targetFormNearMisses(args,accepted,formKey)), `${args.seed}:${formKey}:near-misses`);
   const semantic = stableShuffle(uniqueText(semanticSurfaceDistractors(args,formKey)), `${args.seed}:${formKey}:semantic`);
   const sameFormFallback = stableShuffle(uniqueText(samePosCandidates(args)
     .map(candidate => text(grammarFormsFor(candidate)[formKey]))
     .filter(Boolean)), `${args.seed}:${formKey}:fallback`);
-  const preferred = uniqueText([...nearMisses.slice(0,Math.min(2,count)), ...semantic, ...sameFormFallback, ...nearMisses]);
+  const nearMisses = stableShuffle(uniqueText(targetFormNearMisses(args,accepted,formKey)), `${args.seed}:${formKey}:near-misses`);
+  const preferred = uniqueText([...semantic, ...sameFormFallback, ...nearMisses]);
   if (preferred.length < count) throw new Error(`Activity requires ${count} plausible ${formKey} alternatives.`);
   return preferred.slice(0,count);
 }
