@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import { buildActivity } from '../src/vocabulary/activity-builder.js';
+import { languageBankForItem } from '../src/vocabulary/language-bank.js';
 
 function target(vocabularyId) {
   const occurrence = unit1.occurrences.find(row => row.vocabularyId === vocabularyId);
@@ -30,15 +31,14 @@ function build(vocabularyId, activityType, status = 'building', seed = 'language
 }
 
 function bankFor(vocabularyId) {
-  return target(vocabularyId).item.languageBank;
+  return languageBankForItem(target(vocabularyId).item);
 }
 
-test('Unit 1 no longer contains the malformed bare-leisure context', () => {
-  const { contexts } = target('vocab_leisure');
-  assert.ok(
-    contexts.every(context => !/use their leisure to play/i.test(String(context.text ?? ''))),
-    'leisure must not be inserted bare into a sentence that requires “leisure time”'
-  );
+test('Context Match uses the reviewed leisure-time surface answer instead of bare leisure', () => {
+  const activity = build('vocab_leisure', 'context_sentence_match', 'building', 'leisure-context-bank');
+  assert.deepEqual(activity.markingReference.acceptedAnswers, ['leisure time']);
+  assert.equal(activity.languageBankContextId != null, true);
+  assert.ok(activity.sourceText?.includes('____'));
 });
 
 test('avoid owns a deep authored language bank before random fallback is allowed', () => {
