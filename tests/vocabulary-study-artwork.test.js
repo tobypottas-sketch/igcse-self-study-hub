@@ -76,3 +76,17 @@ test('study artwork CSS contains dedicated composition and animation hooks', () 
   assert.match(css,/@keyframes\s+study-stage-sweep/);
   assert.match(css,/@media\s*\(prefers-reduced-motion:\s*reduce\)/);
 });
+
+test('pathway artwork is integrated into cards instead of reserving a fixed right-hand strip', () => {
+  const css = readFileSync(new URL('../vocabulary-study-art.css', import.meta.url),'utf8');
+  assert.doesNotMatch(css,/\.vocab-pathway-card\.has-study-art\{[^}]*padding-right:\s*132px/i);
+  assert.doesNotMatch(css,/\.vocab-pathway-card__art\{[^}]*top:\s*12px;[^}]*bottom:\s*12px;[^}]*width:\s*108px/i);
+  assert.match(css,/\.vocab-pathway-card__art\{[^}]*bottom:\s*-?\d+px/i);
+  assert.match(css,/mask-image:\s*linear-gradient/i);
+});
+
+test('sports unit artwork contains recognisable sports equipment motifs', () => {
+  const svg = readFileSync(new URL('../assets/vocabulary-study/sports-free-time.svg', import.meta.url),'utf8');
+  assert.match(svg,/data-sport="football"/);
+  assert.match(svg,/data-sport="racket"/);
+});
