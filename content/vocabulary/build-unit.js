@@ -18,7 +18,7 @@ function object(value) {
   return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
 }
 
-function context({ contextId, vocabularyId, occurrenceId, senseId, type, text: contextText, targetRewrite = null, acceptedAnswers, status }) {
+function context({ contextId, vocabularyId, occurrenceId, senseId, type, text: contextText, targetRewrite = null, acceptedAnswers, status, grammarPattern = null }) {
   return {
     contextId,
     vocabularyId,
@@ -27,6 +27,7 @@ function context({ contextId, vocabularyId, occurrenceId, senseId, type, text: c
     type,
     text:text(contextText),
     ...(targetRewrite ? { targetRewrite:text(targetRewrite) } : {}),
+    ...(grammarPattern ? { grammarPattern:text(grammarPattern) } : {}),
     acceptedAnswers:array(acceptedAnswers).map(text).filter(Boolean),
     status
   };
@@ -111,6 +112,7 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
         text:record?.text,
         targetRewrite:target,
         acceptedAnswers:[target],
+        grammarPattern:record?.grammarPattern,
         status
       });
     });
