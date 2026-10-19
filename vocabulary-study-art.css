@@ -4,12 +4,30 @@
 .vocab-unit-card__art-image{width:100%;height:100%;object-fit:cover;display:block}
 .vocab-unit-card:hover .vocab-unit-card__art{transform:translateX(3px) scale(1.035);filter:saturate(1.06)}
 
-.vocab-pathway-card.has-study-art{padding-right:132px!important;min-height:112px}
-.vocab-pathway-card__art{position:absolute;right:12px;top:12px;bottom:12px;width:108px;display:grid;place-items:center;border-radius:16px;overflow:hidden;pointer-events:none;opacity:.94;transition:transform var(--study-motion-state) var(--study-ease),filter var(--study-motion-state) var(--study-ease),opacity var(--study-motion-state) var(--study-ease)}
-.vocab-pathway-card__art::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.22),transparent 58%);pointer-events:none}
-.vocab-pathway-card__art-image{width:100%;height:100%;display:block;object-fit:cover}
-.vocab-pathway-card:hover .vocab-pathway-card__art{transform:translateY(-2px) scale(1.035);filter:saturate(1.08);opacity:1}
-.vocab-pathway-card:disabled .vocab-pathway-card__art{filter:grayscale(.45);opacity:.48}
+/* Pathway artwork now behaves like ambient card art, not a bolted-on right column. */
+.vocab-pathway-card.has-study-art{position:relative;overflow:hidden;padding-right:28px!important;min-height:118px}
+.vocab-pathway-card__art{position:absolute;right:-8px;bottom:-8px;top:auto;width:160px;height:120px;display:grid;place-items:center;border-radius:22px;overflow:hidden;pointer-events:none;opacity:.20;transition:transform var(--study-motion-state) var(--study-ease),filter var(--study-motion-state) var(--study-ease),opacity var(--study-motion-state) var(--study-ease);mask-image:linear-gradient(to left,rgba(0,0,0,1),rgba(0,0,0,.78) 45%,rgba(0,0,0,.12) 82%,transparent 100%);-webkit-mask-image:linear-gradient(to left,rgba(0,0,0,1),rgba(0,0,0,.78) 45%,rgba(0,0,0,.12) 82%,transparent 100%)}
+.vocab-pathway-card__art::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.18),transparent 60%);pointer-events:none}
+.vocab-pathway-card__art-image{width:100%;height:100%;display:block;object-fit:contain}
+.vocab-pathway-card:hover .vocab-pathway-card__art{transform:translateY(-2px) scale(1.02);filter:saturate(1.05);opacity:.28}
+.vocab-pathway-card:disabled .vocab-pathway-card__art{filter:grayscale(.35);opacity:.10}
+
+/* Calmer skill-card hierarchy. */
+.vocab-pathway-card__identity{gap:10px}
+.vocab-pathway-card__icon{width:40px!important;height:40px!important;border-radius:12px!important}
+.vocab-pathway-card__head{gap:1px!important}
+.vocab-pathway-card__head strong{letter-spacing:-.015em}
+.vocab-pathway-card__head small{font-size:.78rem!important;font-weight:600!important;color:#7b8d9d!important}
+.vocab-pathway-card__status{margin:8px 0 3px!important;font-size:.72rem!important;font-weight:800!important;opacity:.86}
+.vocab-pathway-card__coverage{display:inline-flex!important;align-items:center;width:max-content;max-width:100%;margin:6px 0 10px!important;padding:5px 10px!important;border:1px solid rgba(43,79,110,.10)!important;border-radius:999px!important;background:rgba(255,255,255,.58)!important;color:#6b7f90!important;font-size:.72rem!important;font-weight:700!important;line-height:1.2}
+.vocab-pathway-ladder{position:relative;z-index:1;gap:8px!important;padding:9px!important;border:1px solid rgba(43,79,110,.08)!important;border-radius:16px!important;background:rgba(255,255,255,.52)!important;box-shadow:none!important}
+.vocab-pathway-stage{min-height:70px!important;padding:8px 6px!important;border-radius:12px!important;background:rgba(255,255,255,.72)!important;border:1px solid rgba(43,79,110,.045)!important;box-shadow:none!important}
+.vocab-pathway-stage i{transform:scale(.90);opacity:.86}
+.vocab-pathway-stage small{font-size:.70rem!important;font-weight:700!important;color:#738493!important}
+.vocab-pathway-stage[data-state="current"]{background:color-mix(in srgb,var(--study-accent-soft) 74%,white)!important;border-color:color-mix(in srgb,var(--study-accent) 15%,white)!important;box-shadow:0 4px 12px color-mix(in srgb,var(--study-accent) 7%,transparent)!important}
+.vocab-pathway-stage[data-state="locked"]{opacity:.68}
+.vocab-pathway-card__cta{position:relative;z-index:1;margin-top:10px!important;font-size:.78rem!important;font-weight:800!important;opacity:.88}
+.vocab-pathway-card:disabled .vocab-pathway-card__status,.vocab-pathway-card:disabled .vocab-pathway-card__cta{opacity:.62}
 
 .vocab-unit-hero.has-study-art{position:relative;overflow:hidden;padding-right:min(31vw,310px)!important;min-height:180px}
 .vocab-unit-hero.has-study-art::after{content:"";position:absolute;right:-70px;top:-100px;width:330px;height:330px;border-radius:50%;background:radial-gradient(circle,rgba(71,170,210,.10),rgba(71,170,210,0) 68%);pointer-events:none}
@@ -38,15 +56,17 @@
   .vocab-unit-hero.has-study-art{padding-right:18px!important;padding-bottom:148px!important}
   .vocab-unit-hero__art{top:auto;right:50%;bottom:8px;transform:translateX(50%);width:210px;height:132px}
   .vocab-unit-hero__art-image{max-height:132px}
-  .vocab-pathway-card.has-study-art{padding-right:116px!important}
-  .vocab-pathway-card__art{width:92px}
+  .vocab-pathway-card.has-study-art{padding-right:20px!important}
+  .vocab-pathway-card__art{width:126px;height:96px;right:-10px;bottom:-10px}
 }
 
 @media (max-width:620px){
   .vocab-unit-card{padding-right:112px!important;min-height:104px}
   .vocab-unit-card__art{width:98px;right:6px;top:6px;bottom:6px;border-radius:15px}
-  .vocab-pathway-card.has-study-art{padding-right:92px!important;min-height:102px}
-  .vocab-pathway-card__art{width:72px;right:9px;top:9px;bottom:9px;border-radius:13px}
+  .vocab-pathway-card.has-study-art{padding-right:16px!important;min-height:108px}
+  .vocab-pathway-card__art{width:108px;height:84px;right:-14px;bottom:-12px}
+  .vocab-pathway-ladder{gap:5px!important;padding:7px!important}
+  .vocab-pathway-stage{min-height:62px!important;padding:7px 4px!important}
   .vocab-completion-art{width:176px;height:148px}
   .vocab-completion-art__image{width:148px;height:128px}
   .study-milestone-art__image{width:68px;height:60px}

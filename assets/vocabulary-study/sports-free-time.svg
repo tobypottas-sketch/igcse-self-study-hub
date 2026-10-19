@@ -1,6 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-labelledby="title desc">
-<title id="title">Sports and free time</title><desc id="desc">Modern study-app illustration of a student running outdoors.</desc>
-<defs><linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e7f7ff"/><stop offset="1" stop-color="#f8fbff"/></linearGradient><linearGradient id="hill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8ddbc7"/><stop offset="1" stop-color="#56b99d"/></linearGradient><linearGradient id="shirt" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2b9fe4"/><stop offset="1" stop-color="#1674c5"/></linearGradient></defs>
-<rect width="320" height="180" rx="28" fill="url(#sky)"/><circle cx="266" cy="34" r="22" fill="#fff3b8" opacity=".9"/><path d="M0 147c50-23 88-20 126-5 42 17 85 8 117-7 31-14 51-8 77 2v43H0z" fill="#d7f0e7"/><path d="M0 161c55-18 98-13 137 0 45 14 89 4 121-7 26-9 43-7 62 0v26H0z" fill="url(#hill)" opacity=".95"/><g opacity=".8"><circle cx="47" cy="66" r="18" fill="#fff"/><circle cx="70" cy="64" r="12" fill="#fff"/></g>
-<g transform="translate(122 26)"><circle cx="70" cy="19" r="13" fill="#f1b286"/><path d="M58 14c2-12 22-16 30-4-4 1-7 2-10 6-6-4-12-4-20-2z" fill="#163c59"/><path d="M63 33c10-6 24-2 29 8l7 29-19 6-8-25-18 20-15-11 24-27z" fill="url(#shirt)"/><path d="M52 62l18 11-13 34-18-8z" fill="#173b5a"/><path d="M86 69l17 3-6 40-18-1z" fill="#1c4a72"/><path d="M43 96l18 9-23 34-18-8z" fill="#f1b286"/><path d="M91 108l17 3 20 28-15 9-26-24z" fill="#f1b286"/><path d="M24 128l18 8-9 9-23-1z" fill="#153a5b"/><path d="M112 143l17-7 12 9-7 7h-23z" fill="#153a5b"/><path d="M82 45l26 10" stroke="#f1b286" stroke-width="8" stroke-linecap="round"/><circle cx="117" cy="58" r="8" fill="#ff7f50"/><path d="M111 52l12 12M123 52l-12 12" stroke="#fff" stroke-width="2"/></g><g transform="translate(25 111)"><ellipse cx="36" cy="27" rx="35" ry="10" fill="#b7d8ec" opacity=".45"/><circle cx="36" cy="18" r="16" fill="#fff" stroke="#2aa36b" stroke-width="4"/><path d="M36 2v32M20 18h32M25 7l22 22M47 7L25 29" stroke="#2aa36b" stroke-width="2" opacity=".55"/></g>
+<title id="title">Sports and free time</title>
+<desc id="desc">Modern flat illustration of a football, tennis racket and running shoe.</desc>
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e9f7ff"/><stop offset="1" stop-color="#f8fbff"/></linearGradient>
+  <linearGradient id="ground" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d9f2e8"/><stop offset="1" stop-color="#8bd5c2"/></linearGradient>
+  <linearGradient id="shoe" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2c9fe3"/><stop offset="1" stop-color="#1977c9"/></linearGradient>
+</defs>
+<rect width="320" height="180" rx="28" fill="url(#sky)"/>
+<circle cx="267" cy="34" r="22" fill="#fff0ad" opacity=".92"/>
+<circle cx="52" cy="52" r="22" fill="#fff" opacity=".72"/>
+<circle cx="76" cy="50" r="14" fill="#fff" opacity=".72"/>
+<path d="M0 145c45-17 82-16 122-4 41 13 81 11 116-3 32-13 54-10 82 0v42H0z" fill="url(#ground)"/>
+
+<g data-sport="racket" transform="translate(52 34) rotate(-16 56 64)">
+  <ellipse cx="62" cy="53" rx="34" ry="43" fill="#fff" stroke="#2aa36b" stroke-width="7"/>
+  <g stroke="#9fdcc2" stroke-width="2" opacity=".95">
+    <path d="M39 27l45 52M31 42l53 61M31 63l41 47M48 13l42 48M27 54l69 0M31 39l62 0M36 78l49 0"/>
+  </g>
+  <path d="M75 91l21 39" stroke="#173b5a" stroke-width="10" stroke-linecap="round"/>
+  <path d="M94 126l7 13" stroke="#ef7f35" stroke-width="12" stroke-linecap="round"/>
+</g>
+
+<g data-sport="football" transform="translate(126 43)">
+  <circle cx="54" cy="54" r="46" fill="#fff" stroke="#173b5a" stroke-width="5"/>
+  <path d="M54 32l17 12-7 20H44l-7-20 17-12z" fill="#173b5a"/>
+  <path d="M54 8v24M18 37l20 10M90 37L70 47M29 88l16-25M79 88L63 63M15 66l20 3M93 66l-20 3" stroke="#173b5a" stroke-width="4" stroke-linecap="round"/>
+  <path d="M22 21l16 2M86 21l-16 2M15 70l13 14M93 70L80 84" stroke="#173b5a" stroke-width="4" stroke-linecap="round"/>
+</g>
+
+<g data-sport="running" transform="translate(197 111)">
+  <path d="M7 15c16 0 24-4 35-12l17 15c10 9 18 11 34 12 8 0 14 7 14 15H6C1 45-2 41 1 36l6-21z" fill="url(#shoe)"/>
+  <path d="M29 17l29 0M36 10l29 16" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".9"/>
+  <path d="M7 45h100" stroke="#173b5a" stroke-width="5" stroke-linecap="round"/>
+</g>
+
+<circle cx="235" cy="72" r="8" fill="#ef7f35"/>
+<circle cx="250" cy="83" r="5" fill="#ed3f89"/>
 </svg>
