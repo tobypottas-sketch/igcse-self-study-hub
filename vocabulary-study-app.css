@@ -48,6 +48,7 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 @keyframes study-success{50%{transform:scale(1.012)}to{transform:none}}
 @keyframes study-error{25%{transform:translateX(-3px)}55%{transform:translateX(3px)}to{transform:none}}
 @keyframes study-milestone{from{opacity:.4;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes study-celebrate{0%{opacity:0;transform:scale(.9) rotate(-2deg)}55%{opacity:1;transform:scale(1.04) rotate(1deg)}100%{opacity:1;transform:none}}
 
 .vocab-unit-card,.vocab-pathway-card,.vocab-match-card,.vocab-choice-card{
   min-width:0;
@@ -66,12 +67,23 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 .study-feedback[data-study-feedback="retry"]{border-color:#f1c7d8;background:#fff4f8}
 
 .study-milestone-card{position:relative;overflow:hidden;border:1px solid color-mix(in srgb,var(--study-accent) 30%,var(--study-line));border-radius:var(--study-radius-lg);background:linear-gradient(150deg,var(--study-surface),var(--study-accent-soft));box-shadow:var(--study-shadow);min-width:0;overflow-wrap:anywhere}
+[data-study-milestone]{margin-top:18px;padding:15px 18px;border-radius:16px;display:flex;align-items:center;justify-content:center;text-align:center;letter-spacing:.01em}
+[data-study-milestone="stage_advanced"]{border-color:color-mix(in srgb,var(--study-accent) 45%,var(--study-line));background:linear-gradient(145deg,#fff,var(--study-accent-soft))}
+[data-study-milestone="stage_advanced"]::before{content:"✓";display:inline-grid;place-items:center;width:28px;height:28px;margin-right:10px;border-radius:50%;background:var(--study-accent);color:#fff;font-weight:800}
+[data-study-milestone="mastered"]{padding:19px 22px;border-color:color-mix(in srgb,var(--study-accent) 60%,#d8e3ec);background:radial-gradient(circle at 50% -40%,color-mix(in srgb,var(--study-accent) 20%,#fff),transparent 55%),linear-gradient(145deg,#fff,var(--study-accent-soft));box-shadow:0 16px 40px color-mix(in srgb,var(--study-accent) 14%,transparent);animation:study-celebrate var(--study-motion-celebrate) var(--study-ease) both}
+[data-study-milestone="mastered"]::before{content:"★";margin-right:10px;color:var(--study-accent);font-size:1.35rem;line-height:1}
+
+.vocab-celebration{display:flex;align-items:center;justify-content:center;gap:9px;min-height:64px;color:var(--study-accent);animation:study-celebrate var(--study-motion-celebrate) var(--study-ease) both}
+.vocab-celebration span{font-size:.85rem;opacity:.72}
+.vocab-summary-card[data-study-completion]{isolation:isolate}
+.vocab-summary-card[data-study-completion]::before{content:"";position:absolute;inset:-35% auto auto 50%;width:220px;height:220px;border-radius:50%;transform:translateX(-50%);background:radial-gradient(circle,color-mix(in srgb,var(--study-accent) 15%,transparent),transparent 68%);z-index:-1}
 
 @media (max-width:620px){
   .vocab-unit-grid,.vocab-pathway-grid,.vocab-route-grid,.vocab-word-pathways{grid-template-columns:1fr!important}
   .vocab-shell{padding-inline:max(14px,env(safe-area-inset-left));}
   .study-progress{width:100%}
   .vocab-unit-card,.vocab-pathway-card,.study-feedback,.study-milestone-card{width:100%;max-width:100%}
+  [data-study-milestone]{padding:14px 15px}
 }
 
 @media (prefers-reduced-motion:reduce){
