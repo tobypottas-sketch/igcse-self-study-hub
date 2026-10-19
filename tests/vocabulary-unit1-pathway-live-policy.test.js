@@ -34,13 +34,14 @@ test('Unit 1 exposes only pathway banks that are currently defensible end to end
   assert.ok(['content_bank_incomplete','required_rung_withheld'].includes(coverage.precision_use.reason));
 });
 
-test('diagnostic buildable counts preserve the stricter Word Family Match cohort', () => {
+test('diagnostic buildable counts preserve the curated 25-target Word Family cohort across every rung', () => {
   const coverage = buildPathwayCoverage({ content });
   assert.equal(coverage.word_families.stageCounts.recognise,25);
-  assert.equal(coverage.word_families.stageCounts.match,8);
+  assert.equal(coverage.word_families.stageCounts.match,25);
   assert.equal(coverage.word_families.stageCounts.apply,25);
   assert.equal(coverage.word_families.stageCounts.recall,25);
   assert.equal(coverage.word_families.stageCounts.mastery,25);
+  assert.equal(coverage.word_families.occurrenceIds.length,25);
   assert.equal(coverage.paraphrasing.stageCounts.recognise,24);
   assert.equal(coverage.paraphrasing.stageCounts.match,12);
   assert.equal(coverage.precision_use.stageCounts.recognise,3);
