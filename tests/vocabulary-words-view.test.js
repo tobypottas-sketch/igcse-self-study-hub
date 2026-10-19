@@ -9,7 +9,7 @@ const words = [
   { term:'proficiency', status:'building', strands:{ meaning:'Secure', recognition:'Secure', context:'Developing', paraphrasing:'Developing', production:'Keep practising' } }
 ];
 
-test('view-all words shows qualitative state and strand detail without raw percentages', () => {
+test('view-all words shows qualitative state and six pathways without the evidence disclosure', () => {
   const target = root();
   renderVocabularyWords(target, { unitNumber:7, unitTitle:'Interviews', words });
   assert.match(target.innerHTML, /All 50 words/i);
@@ -17,8 +17,10 @@ test('view-all words shows qualitative state and strand detail without raw perce
   assert.match(target.innerHTML, /Mastered/);
   assert.match(target.innerHTML, /proficiency/);
   assert.match(target.innerHTML, /Building/);
-  assert.match(target.innerHTML, /Production/);
-  assert.match(target.innerHTML, /Keep practising/);
+  assert.equal((target.innerHTML.match(/data-word-pathway=/g) ?? []).length, 12);
+  assert.doesNotMatch(target.innerHTML, /<details|<summary|vocab-word-evidence|Overall evidence detail|View evidence/);
+  assert.doesNotMatch(target.innerHTML, /Production|Keep practising/);
+  assert.equal(words[1].strands.production, 'Keep practising');
   assert.doesNotMatch(target.innerHTML, /%/);
   assert.doesNotMatch(target.innerHTML, /Weak|Failed/);
 });

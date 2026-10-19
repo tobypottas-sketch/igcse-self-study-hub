@@ -148,7 +148,6 @@ export function renderVocabularyUnit(root, { unitNumber, unitTitle, progress, pa
 
 export function renderVocabularyWords(root, { unitNumber, unitTitle, words = [] } = {}) {
   const rows = words.map(word => {
-    const strands = Object.entries(word.strands ?? {}).map(([strand,value]) => `<span class="vocab-word-strand"><small>${escapeHtml(titleCase(strand))}</small><strong>${escapeHtml(value)}</strong></span>`).join('');
     const stage = word.learningStage ?? deriveLearningStage(word.mastery ?? { status:word.status ?? 'new' });
     const pathways = VOCABULARY_PATHWAYS.map(pathway => {
       const state = word.pathways?.[pathway.id] ?? { currentStage:'recognise', needsPractice:false, mastered:false };
@@ -164,7 +163,7 @@ export function renderVocabularyWords(root, { unitNumber, unitTitle, words = [] 
     const definitionHtml = definition ? `<p class="vocab-dictionary-entry__definition">${escapeHtml(definition)}</p>` : '';
     const contextHtml = contextSentence ? `<div class="vocab-dictionary-entry__context"><span>In context</span><p>${escapeHtml(contextSentence)}</p></div>` : '';
     const dictionaryEntry = `<div class="vocab-dictionary-entry"><div class="vocab-dictionary-entry__heading"><strong class="vocab-dictionary-entry__term">${escapeHtml(word.term)}</strong>${posHtml}</div>${definitionHtml}${contextHtml}</div>`;
-    return `<article class="vocab-word-row"><div class="vocab-word-row__head">${dictionaryEntry}<span class="vocab-state-pill" data-state="${escapeHtml(stage)}">${escapeHtml(learningStageLabel(stage))}</span></div><div class="vocab-word-pathways" aria-label="${escapeHtml(word.term)} pathway progress">${pathways}</div><details class="vocab-word-evidence"><summary>Overall evidence detail</summary><div class="vocab-word-strands">${strands}</div></details></article>`;
+    return `<article class="vocab-word-row"><div class="vocab-word-row__head">${dictionaryEntry}<span class="vocab-state-pill" data-state="${escapeHtml(stage)}">${escapeHtml(learningStageLabel(stage))}</span></div><div class="vocab-word-pathways" aria-label="${escapeHtml(word.term)} pathway progress">${pathways}</div></article>`;
   }).join('') || '<p class="vocab-empty">No live words are available in this unit yet.</p>';
   root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="back-unit">← Unit ${escapeHtml(unitNumber)}</button><span>Vocabulary detail</span></header><section class="vocab-unit-hero"><p class="vocab-kicker">Unit ${escapeHtml(unitNumber)}</p><h1>All 50 words</h1><p>${escapeHtml(unitTitle)}</p><p class="vocab-detail-note">Each word progresses independently through six pathways: Recognise → Match → Apply → Recall → Mastery.</p></section><section class="vocab-word-list">${rows}</section></main>`;
 }

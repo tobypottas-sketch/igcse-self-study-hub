@@ -56,8 +56,7 @@ test('dictionary polish uses restrained pathway accents and preserves context ba
   assert.match(css, /\.vocab-dictionary-entry__context\{[^}]*align-items:baseline/s);
   assert.match(css, /\.vocab-dictionary-entry__context::before/);
   assert.match(css, /\.vocab-word-row__head>\.vocab-state-pill::before\{[^}]*content:"Overall progress ·"/s);
-  assert.match(css, /\.vocab-word-evidence summary::before\{[^}]*content:"View evidence"/s);
-  assert.match(css, /\.vocab-word-evidence summary::after/);
+
 });
 
 test('vocabulary page loads dictionary polish after the existing vocabulary styles', () => {
