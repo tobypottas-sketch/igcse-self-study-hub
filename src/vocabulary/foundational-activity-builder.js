@@ -1,4 +1,5 @@
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
+import { languageBankContextForItem } from './language-bank.js';
 
 const STAGE_ORDER = Object.freeze({ new:0, building:1, secure:2, mastered:3 });
 export const FOUNDATIONAL_ACTIVITY_TYPES = Object.freeze(new Set([
@@ -199,7 +200,39 @@ function blankableContext(args) {
   const unused = candidates.filter(candidate => !array(args.usedContentIds).includes(candidate.context.contextId));
   return stableShuffle(unused.length ? unused : candidates, `${args.seed}:blank-context`)[0];
 }
+function bankRetrievalActivity(args, definition) {
+  const record = languageBankContextForItem(args.item,args.usedContentIds,args.seed);
+  if (!record) return null;
+  const accepted = text(record.answer);
+  const wrong = array(record.distractors).map(row => text(row?.text)).filter(Boolean);
+  if (!accepted || wrong.length !== 3 || !text(record.text).includes('____')) throw new Error('Language-bank retrieval context is incomplete.');
+  const contentId = `language-bank:${record.id}`;
+  let prompt = 'Complete the sentence with the target word.';
+  const extra = {
+    sourceText:text(record.text),
+    languageBankContextId:record.id,
+    primaryEvidenceTargetId:args.item.vocabularyId,
+    answerForm:'reviewed_surface'
+  };
+  if (definition.id === 'gap_fill_bank') {
+    prompt = 'Choose the word that completes the sentence.';
+    extra.options = stableShuffle([accepted,...wrong], `${args.seed}:${record.id}:gap-bank`);
+    extra.wordBank = [...extra.options];
+  } else if (definition.id === 'drag_word_sentence') {
+    prompt = 'Drag the correct word into the gap.';
+    extra.draggables = stableShuffle([accepted,...wrong], `${args.seed}:${record.id}:drag-gap`);
+    extra.wordBank = [...extra.draggables];
+  } else if (definition.id === 'choose_word_sentence') {
+    prompt = 'Which word best completes this sentence?';
+    extra.options = stableShuffle([accepted,...wrong], `${args.seed}:${record.id}:sentence-choice`);
+  } else if (definition.id === 'type_missing_word') {
+    prompt = 'Type the word or phrase that completes this sentence.';
+  }
+  return baseActivity({ definition, occurrence:args.occurrence, contentId, contentSource:'language_bank', prompt, markingReference:{ acceptedAnswers:[accepted] }, extra });
+}
 function retrievalActivity(args, definition) {
+  const bankActivity = bankRetrievalActivity(args,definition);
+  if (bankActivity) return bankActivity;
   const { context, sourceText, answer, formKey } = blankableContext(args);
   const accepted = answer;
   let prompt = 'Complete the sentence with the target word.';
