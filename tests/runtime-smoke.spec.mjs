@@ -94,6 +94,7 @@ for (const width of [1280, 1024, 768, 641, 390, 320]) {
         verticalPadding:parseFloat(style.paddingTop),
         labelWeight:Number(getComputedStyle(label).fontWeight),
         headwordSize:parseFloat(getComputedStyle(entry.querySelector('.vocab-dictionary-entry__term')).fontSize),
+        sentenceWidth:sentence.clientWidth - parseFloat(sentenceStyle.paddingLeft) - parseFloat(sentenceStyle.paddingRight),
         sentenceSize:parseFloat(sentenceStyle.fontSize),
         definitionSize:parseFloat(getComputedStyle(entry.querySelector('.vocab-dictionary-entry__definition')).fontSize),
         labelSize:parseFloat(getComputedStyle(label).fontSize),
@@ -127,6 +128,7 @@ for (const width of [1280, 1024, 768, 641, 390, 320]) {
       expect(entry.quoteRight).toBeLessThanOrEqual(8);
       expect(entry.quoteLineHeight).toBeGreaterThanOrEqual(entry.quoteSize);
       if (width > 640) {
+        expect(entry.sentenceWidth).toBeGreaterThanOrEqual(240);
         expect(entry.columns).toBe(2);
         expect(entry.baselineDifference).toBeLessThan(1);
       } else {

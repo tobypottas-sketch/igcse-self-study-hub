@@ -165,6 +165,7 @@
 
 @media(max-width:900px){
   .vocab-word-row{padding:21px 20px 18px}
+  .vocab-word-row__head{grid-template-columns:1fr}
   .vocab-word-row__head>.vocab-state-pill{justify-self:start}
   .vocab-dictionary-entry__context{max-width:100%}
 }
