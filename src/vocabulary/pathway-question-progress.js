@@ -41,6 +41,30 @@ function setPosition(root) {
   return { current,total };
 }
 
+function syncSessionProgress(root) {
+  const progress = root?.querySelector?.('.vocab-question-session-progress');
+  if (!progress) return;
+  const sessionLabel = root.querySelector?.('.vocab-topbar span')?.textContent ?? '';
+  if (/remaining/i.test(sessionLabel)) {
+    progress.hidden = true;
+    return;
+  }
+  const match = sessionLabel.match(/(\d+)\s*\/\s*(\d+)\s*activities/i);
+  if (!match) return;
+  progress.hidden = false;
+  const { current,total } = setPosition(root);
+  const visible = progress.querySelector?.(':scope > span');
+  const visibleText = `${current} / ${total}`;
+  if (visible && visible.textContent !== visibleText) visible.textContent = visibleText;
+  const meter = progress.querySelector?.('.study-progress');
+  const bar = progress.querySelector?.('.study-progress__bar');
+  const percent = Math.round((current / total) * 100);
+  bar?.style?.setProperty?.('--study-progress',`${percent}%`);
+  meter?.setAttribute?.('aria-valuemax',String(total));
+  meter?.setAttribute?.('aria-valuenow',String(current));
+  meter?.setAttribute?.('aria-label',`Question ${current} of ${total}`);
+}
+
 export function setupPathwayQuestionProgress(root = globalThis.document?.getElementById?.('vocabularyApp')) {
   if (!root) return () => {};
   let active = null;
@@ -56,6 +80,7 @@ export function setupPathwayQuestionProgress(root = globalThis.document?.getElem
   root.addEventListener('click',capture,true);
 
   const enhance = () => {
+    syncSessionProgress(root);
     const meta = root.querySelector?.('.vocab-question-meta__right');
     if (!meta || !active) return;
     if (meta.querySelector?.('[data-pathway-session-progress]')) return;
