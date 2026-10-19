@@ -1,4 +1,5 @@
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
+import { languageBankContextForItem, languageBankForItem } from './language-bank.js';
 
 export const PATHWAY_ACTIVITY_TYPES = Object.freeze(new Set([
   'type_word_from_definition','context_sentence_match','word_family_match',
@@ -59,6 +60,16 @@ function blankableContext(args) {
   return shuffle(candidates,`${args.seed}:context`)[0];
 }
 function contextSentenceMatch(args, definition) {
+  const bankContext=languageBankContextForItem(args.item,args.usedContentIds,args.seed);
+  if (bankContext) {
+    const accepted=text(bankContext.answer);
+    const wrong=array(bankContext.distractors).map(row=>text(row?.text)).filter(Boolean);
+    if (!accepted||wrong.length!==3||!text(bankContext.text).includes('____')) throw new Error('Language-bank Context Match record is incomplete.');
+    const options=shuffle([accepted,...wrong],`${args.seed}:${bankContext.id}:context-match`);
+    const source=text(bankContext.text);
+    const pairs=options.map((option,index)=>({vocabularyId:option===accepted?args.item.vocabularyId:`alt-${index}`,term:option===accepted?source:'',definition:option}));
+    return base({definition,occurrence:args.occurrence,contentId:`language-bank:${bankContext.id}`,contentSource:'language_bank',prompt:'Match the sentence to the word or phrase that completes it.',markingReference:{acceptedAnswers:[accepted]},extra:{pairs,sourceText:source,languageBankContextId:bankContext.id,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:source,matchOptions:options,matchPresentation:'context_gap_to_word'}});
+  }
   const context=blankableContext(args), term=text(args.item.term), alternatives=samePosTerms(args,3);
   const source=text(context.text).replace(new RegExp(text(context.targetRewrite).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),'____');
   const options=shuffle([term,...alternatives],`${args.seed}:context-match`);
@@ -119,13 +130,19 @@ function spellingVariants(term) {
   variants.push(`${term}e`);
   return uniqueText(variants).filter(value=>value.toLocaleLowerCase('en')!==term.toLocaleLowerCase('en')).slice(0,3);
 }
+function reviewedSpellingErrors(args, count=3) {
+  const bank=languageBankForItem(args.item);
+  const authored=uniqueText(array(bank?.spellingErrors));
+  if (authored.length>=count) return shuffle(authored,`${args.seed}:authored-spelling-errors`).slice(0,count);
+  return spellingVariants(text(args.item.term));
+}
 function spellingChoice(args, definition) {
-  const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence), wrong=spellingVariants(term);
+  const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence), wrong=reviewedSpellingErrors(args,3);
   if (!term||!meaning||wrong.length<3) throw new Error('Spelling recognition requires three plausible spelling alternatives.');
   return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Which is the correct spelling of the word meaning “${meaning}”?`,markingReference:{acceptedAnswers:[term]},extra:{options:shuffle([term,...wrong],`${args.seed}:spelling-choice`),primaryEvidenceTargetId:args.item.vocabularyId}});
 }
 function spellingCueMatch(args, definition) {
-  const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence), wrong=spellingVariants(term);
+  const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence), wrong=reviewedSpellingErrors(args,3);
   if (!term||!meaning||wrong.length<3) throw new Error('Spelling Match requires three plausible alternatives.');
   const options=shuffle([term,...wrong],`${args.seed}:spelling-match`);
   const pairs=options.map((option,index)=>({vocabularyId:index===0?args.item.vocabularyId:`alt-${index}`,term:index===0?meaning:'',definition:option}));
