@@ -7,9 +7,10 @@ const app = readFileSync(new URL('../src/vocabulary/app.js', import.meta.url),'u
 const artRuntime = readFileSync(new URL('../src/vocabulary/study-art-runtime.js', import.meta.url),'utf8');
 
 test('unit navigation renders the unit only once after its content load completes', () => {
-  const match = app.match(/async function openUnit\(unitNumber\) \{([\s\S]*?)\n\}\nfunction strandLabel/);
-  assert.ok(match, 'openUnit implementation should be present');
-  const body = match[1];
+  const start = app.indexOf('async function openUnit(unitNumber) {');
+  const end = app.indexOf('function strandLabel', start);
+  assert.ok(start >= 0 && end > start, 'openUnit implementation should be present');
+  const body = app.slice(start, end);
   const renders = body.match(/renderCurrentUnit\(\);/g) ?? [];
   assert.equal(renders.length, 1, 'openUnit must not render a temporary unit and then rebuild it');
   assert.ok(body.indexOf('await Promise.all') < body.indexOf('renderCurrentUnit();'), 'the single unit render should happen after content/mastery resolve');
