@@ -1,29 +1,9 @@
 import { buildPathwayCoverage } from './pathway-coverage.js';
 import { registerPathwayCoverage } from './pathway-coverage-store.js';
-import { registerPathwayJourney, applyRegisteredPathwayJourneyAttempt } from './pathway-journey-store.js';
-
-const occurrenceUnitNumbers = new Map();
 
 function assertNoError(result, message) {
   if (result?.error) throw new Error(message);
   return result?.data ?? [];
-}
-function rememberOccurrenceUnits(occurrences = []) {
-  for (const row of occurrences) {
-    const occurrenceId = row?.occurrence_id ?? row?.occurrenceId;
-    const unitNumber = row?.unit_number ?? row?.unitNumber;
-    if (occurrenceId != null && unitNumber != null) occurrenceUnitNumbers.set(String(occurrenceId),Number(unitNumber));
-  }
-}
-function registerJourneyRows(rows = []) {
-  const grouped = new Map();
-  for (const row of rows) {
-    const unitNumber = Number(row?.unit_number ?? row?.unitNumber);
-    if (!Number.isFinite(unitNumber)) continue;
-    if (!grouped.has(unitNumber)) grouped.set(unitNumber,[]);
-    grouped.get(unitNumber).push(row);
-  }
-  for (const [unitNumber,unitRows] of grouped) registerPathwayJourney(unitNumber,unitRows);
 }
 
 function plannerContent({ occurrences = [], items = [], contexts = [], activities = [] } = {}) {
@@ -78,15 +58,11 @@ function plannerContent({ occurrences = [], items = [], contexts = [], activitie
 export async function loadVocabularyDashboard(client, options = {}) {
   const occurrencesResult = await client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number, unit_title, set_number, position_in_unit, sense_id, status').eq('status','live').eq('active',true).order('unit_number').order('position_in_unit');
   const occurrences = assertNoError(occurrencesResult, 'Unable to load vocabulary units.');
-  rememberOccurrenceUnits(occurrences);
   if (options.preview === true) return { occurrences, global:[], unit:[] };
-  const [globalResult, unitResult, journeyResult] = await Promise.all([
+  const [globalResult, unitResult] = await Promise.all([
     client.from('vocabulary_global_mastery').select('vocabulary_id, status, review_due_at, recent_error_pattern, strand_evidence'),
-    client.from('vocabulary_unit_mastery').select('occurrence_id, status, recent_error_pattern, contextual_evidence'),
-    client.from('vocabulary_unit_pathway_journey').select('unit_number, pathway_id, current_stage, completed_stages, stage_attempts, stage_clean_successes, updated_at')
+    client.from('vocabulary_unit_mastery').select('occurrence_id, status, recent_error_pattern, contextual_evidence')
   ]);
-  const journey = assertNoError(journeyResult, 'Unable to load vocabulary pathway progress.');
-  registerJourneyRows(journey);
   return { occurrences, global:assertNoError(globalResult, 'Unable to load vocabulary mastery.'), unit:assertNoError(unitResult, 'Unable to load unit mastery.') };
 }
 
@@ -96,7 +72,6 @@ export async function loadVocabularyUnit(client, unitNumber, options = {}) {
     await client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number, unit_title, set_number, position_in_unit, sense_id, status').eq('unit_number', unitNumber).eq('status', 'live').eq('active', true).order('position_in_unit'),
     'Unable to load vocabulary unit.'
   );
-  rememberOccurrenceUnits(occurrences);
   const vocabularyIds = [...new Set(occurrences.map(row => row.vocabulary_id))];
   const occurrenceIds = occurrences.map(row => row.occurrence_id);
   const [itemsResult, contextsResult, activitiesResult] = await Promise.all([
@@ -118,7 +93,6 @@ export async function loadStudentMastery(client, unitNumber, options = {}) {
     await client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number').eq('unit_number', unitNumber).eq('status', 'live').eq('active', true),
     'Unable to load vocabulary unit.'
   );
-  rememberOccurrenceUnits(occurrences);
   const vocabularyIds = [...new Set(occurrences.map(row => row.vocabulary_id))];
   const occurrenceIds = occurrences.map(row => row.occurrence_id);
   const [globalResult, unitResult] = await Promise.all([
@@ -126,17 +100,6 @@ export async function loadStudentMastery(client, unitNumber, options = {}) {
     client.from('vocabulary_unit_mastery').select('*').in('occurrence_id', occurrenceIds)
   ]);
   return { global:assertNoError(globalResult, 'Unable to load vocabulary mastery.'), unit:assertNoError(unitResult, 'Unable to load unit mastery.') };
-}
-
-export async function loadPathwayJourney(client, unitNumber, options = {}) {
-  if (options.preview === true) return [];
-  const result = await client
-    .from('vocabulary_unit_pathway_journey')
-    .select('unit_number, pathway_id, current_stage, completed_stages, stage_attempts, stage_clean_successes, updated_at')
-    .eq('unit_number', unitNumber);
-  const rows = assertNoError(result, 'Unable to load vocabulary pathway progress.');
-  registerPathwayJourney(unitNumber,rows);
-  return rows;
 }
 
 export async function submitVocabularyAttempt(client, input = {}) {
@@ -167,17 +130,5 @@ export async function submitVocabularyAttempt(client, input = {}) {
   };
   const { data, error } = await client.functions.invoke('vocabulary-attempt-action', { body });
   if (error || !data?.ok) throw new Error(data?.error || error?.message || 'Unable to mark vocabulary attempt.');
-
-  const unitNumber = occurrenceUnitNumbers.get(String(body.occurrenceId));
-  if (!body.preview && data.duplicate !== true && unitNumber != null && body.pathwayId && body.pathwayStage && body.servedPathwayStage) {
-    applyRegisteredPathwayJourneyAttempt(unitNumber,body.pathwayId,{
-      stageId:body.pathwayStage,
-      servedStageId:body.servedPathwayStage,
-      firstAttempt:body.firstAttempt,
-      retryUsed:body.retryUsed,
-      correct:data.correct === true,
-      supportLevel:data.supportLevel ?? body.supportLevel ?? 'none'
-    });
-  }
   return data;
 }
