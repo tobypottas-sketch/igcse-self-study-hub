@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildUnitPathwayStates } from '../src/vocabulary/pathway-view-model.js';
+import { buildUnitPathwayStates, targetsForPathwayStage } from '../src/vocabulary/pathway-view-model.js';
 
 const occurrences = [
   { occurrenceId:'o1', vocabularyId:'v1' },
@@ -99,7 +99,7 @@ test('legacy evidence places returning students conservatively without mutating 
   };
   const before = JSON.stringify({ unitMastery, globalMastery });
   const result = buildUnitPathwayStates({ occurrences, unitMastery, globalMastery });
-  assert.equal(result.meaning.currentStage, 'match');
+  assert.equal(result.meaning.currentStage, 'apply');
   assert.equal(JSON.stringify({ unitMastery, globalMastery }), before);
 });
 
@@ -127,6 +127,26 @@ test('a progressed word keeps the next rung reachable while another word is unto
   assert.equal(result.meaning.currentStage,'match');
   assert.deepEqual(result.meaning.completedStages,['recognise']);
   assert.equal(result.meaning.mastered,false);
+});
+
+test('fixed pathway target selection includes only words whose real stage matches the selected rung', () => {
+  const unitMastery = {
+    o1:{ contextualEvidence:{ pathwayProgress:{ meaning:stage('match',['recognise']) } } },
+    o2:{ contextualEvidence:{ pathwayProgress:{ meaning:stage('recognise',[]) } } }
+  };
+  const matchTargets = targetsForPathwayStage({ pathwayId:'meaning', stageId:'match', occurrences, unitMastery, globalMastery:{} });
+  const recogniseTargets = targetsForPathwayStage({ pathwayId:'meaning', stageId:'recognise', occurrences, unitMastery, globalMastery:{} });
+  assert.deepEqual(matchTargets.map(row => row.occurrenceId), ['o1']);
+  assert.deepEqual(recogniseTargets.map(row => row.occurrenceId), ['o2']);
+});
+
+test('completed Mastery words are not re-served as live ladder targets', () => {
+  const unitMastery = {
+    o1:{ contextualEvidence:{ pathwayProgress:{ meaning:stage('mastery',['recognise','match','apply','recall','mastery']) } } },
+    o2:{ contextualEvidence:{ pathwayProgress:{ meaning:stage('mastery',['recognise','match','apply','recall']) } } }
+  };
+  const targets = targetsForPathwayStage({ pathwayId:'meaning', stageId:'mastery', occurrences, unitMastery, globalMastery:{} });
+  assert.deepEqual(targets.map(row => row.occurrenceId), ['o2']);
 });
 
 test('all six pathway states are returned even with no evidence', () => {
