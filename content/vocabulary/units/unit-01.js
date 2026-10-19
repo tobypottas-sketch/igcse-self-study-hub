@@ -1,6 +1,7 @@
 import { buildCuratedUnit } from '../build-unit.js';
 import unit1Activities from './unit-01-activities.js';
 import unit1WordFamilySupplement from './unit-01-word-family-supplement.js';
+import unit1GrammarSupplement from './unit-01-grammar-supplement.js';
 
 const e = (term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence, paraphraseSource, paraphraseSentence, productionSource, productionSentence, extras = {}) => ({
   term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence,
@@ -62,11 +63,13 @@ const entries = [
   e('antiques','noun','old objects that are valuable or interesting because of their age',['valuable old objects','collectable old items'],['new equipment','souvenirs','documents'],'The market sells antiques alongside handmade sports memorabilia.','valuable old objects','The market sells valuable old objects alongside handmade sports memorabilia.','valuable old objects','Collectors travelled to the fair to buy valuable old objects.',{ collocations:['antique market','valuable antiques'] })
 ];
 
+const enrichedEntries = entries.map(entry => ({ ...entry, ...(unit1GrammarSupplement[entry.term] ?? {}) }));
+
 export default buildCuratedUnit({
   unitNumber:1,
   unitTitle:'Sports and Free Time',
   status:'approved',
   source:'0511_UNIT_1.docx',
-  entries,
+  entries:enrichedEntries,
   activities:[...unit1Activities, ...unit1WordFamilySupplement]
 });

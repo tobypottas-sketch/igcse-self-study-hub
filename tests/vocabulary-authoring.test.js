@@ -73,7 +73,7 @@ test('authored Unit 1 is complete, source-aligned, and strict-validator clean', 
   assert.equal(unit1.status, 'approved');
   assert.equal(unit1.source, '0511_UNIT_1.docx');
   assert.equal(unit1.items.length, 50);
-  assert.equal(unit1.contexts.length, 150);
+  assert.equal(unit1.contexts.length, 202);
   assert.deepEqual(unit1.items.map(item => item.term), [
     'leisure','preference','avoid','afford','deny','permit','arrange','urge','recommend','demand',
     'threaten','resent','regret','unfamiliar','racquet','opponent','intense','tournament','determined','discipline',

@@ -14,6 +14,10 @@ function array(value) {
   return Array.isArray(value) ? value : [];
 }
 
+function object(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
 function context({ contextId, vocabularyId, occurrenceId, senseId, type, text: contextText, targetRewrite = null, acceptedAnswers, status }) {
   return {
     contextId,
@@ -33,10 +37,7 @@ function buildableActivity(activity) {
   if (activity?.contentType === 'idea_set') {
     const linkedVocabularyIds = array(data.linkedVocabularyIds).map(text).filter(Boolean);
     if (linkedVocabularyIds.length === 1 && !text(data.primaryEvidenceTargetId)) {
-      return {
-        ...activity,
-        activityData:{ ...data, primaryEvidenceTargetId:linkedVocabularyIds[0] }
-      };
+      return { ...activity, activityData:{ ...data, primaryEvidenceTargetId:linkedVocabularyIds[0] } };
     }
     return activity;
   }
@@ -51,26 +52,15 @@ function buildableActivity(activity) {
 
   return {
     ...activity,
-    activityData:{
-      ...data,
-      originalPhrase:equivalentPhrase,
-      equivalentPhrase:originalPhrase,
-      chunks:sourceChunks
-    }
+    activityData:{ ...data, originalPhrase:equivalentPhrase, equivalentPhrase:originalPhrase, chunks:sourceChunks }
   };
 }
 
 export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', source = '', entries = [], activities = [] } = {}) {
   const title = text(unitTitle);
   const unit = {
-    unitNumber:Number(unitNumber),
-    unitTitle:title,
-    status,
-    source:text(source),
-    items:[],
-    occurrences:[],
-    contexts:[],
-    activities:array(activities).map(buildableActivity)
+    unitNumber:Number(unitNumber), unitTitle:title, status, source:text(source),
+    items:[], occurrences:[], contexts:[], activities:array(activities).map(buildableActivity)
   };
 
   entries.forEach((entry, index) => {
@@ -85,12 +75,17 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
     const productionId = `${occurrenceId}_production`;
     const paraphrases = array(entry.paraphrases).map(text).filter(Boolean);
     const distractors = array(entry.distractors).map(text).filter(Boolean);
+    const grammarForms = object(entry.grammarForms);
+    const grammarPatterns = array(entry.grammarPatterns).map(text).filter(Boolean);
+    const retrievalContexts = array(entry.retrievalContexts);
     const sense = {
       senseId,
       meaning:text(entry.meaning),
       acceptedParaphrases:paraphrases,
       contextDependentParaphrases:array(entry.contextDependentParaphrases),
       misleadingDistractors:distractors,
+      ...(Object.keys(grammarForms).length ? { grammarForms:{ ...grammarForms } } : {}),
+      ...(grammarPatterns.length ? { grammarPatterns } : {}),
       ...(entry.teacherNote ? { teacherNote:text(entry.teacherNote) } : {})
     };
 
@@ -105,6 +100,21 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
       status
     });
 
+    const extraContexts = retrievalContexts.map((record,retrievalIndex) => {
+      const target = text(record?.target);
+      return context({
+        contextId:`${occurrenceId}_gap_${slug(record?.id || String(retrievalIndex + 1))}`,
+        vocabularyId,
+        occurrenceId,
+        senseId,
+        type:'gap_fill',
+        text:record?.text,
+        targetRewrite:target,
+        acceptedAnswers:[target],
+        status
+      });
+    });
+
     unit.occurrences.push({
       occurrenceId,
       vocabularyId,
@@ -113,43 +123,15 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
       setNumber:Math.floor(index / 10) + 1,
       positionInUnit:position,
       senseId,
-      contextIds:[meaningId, paraphraseId, productionId],
+      contextIds:[meaningId, paraphraseId, productionId, ...extraContexts.map(record => record.contextId)],
       status
     });
 
     unit.contexts.push(
-      context({
-        contextId:meaningId,
-        vocabularyId,
-        occurrenceId,
-        senseId,
-        type:'meaning_context',
-        text:entry.meaningSentence,
-        acceptedAnswers:[paraphrases[0]],
-        status
-      }),
-      context({
-        contextId:paraphraseId,
-        vocabularyId,
-        occurrenceId,
-        senseId,
-        type:'paraphrase_context',
-        text:entry.paraphrase?.sentence,
-        targetRewrite:entry.paraphrase?.source,
-        acceptedAnswers:[term],
-        status
-      }),
-      context({
-        contextId:productionId,
-        vocabularyId,
-        occurrenceId,
-        senseId,
-        type:'production_context',
-        text:entry.production?.sentence,
-        targetRewrite:entry.production?.source,
-        acceptedAnswers:[term],
-        status
-      })
+      context({ contextId:meaningId, vocabularyId, occurrenceId, senseId, type:'meaning_context', text:entry.meaningSentence, acceptedAnswers:[paraphrases[0]], status }),
+      context({ contextId:paraphraseId, vocabularyId, occurrenceId, senseId, type:'paraphrase_context', text:entry.paraphrase?.sentence, targetRewrite:entry.paraphrase?.source, acceptedAnswers:[term], status }),
+      context({ contextId:productionId, vocabularyId, occurrenceId, senseId, type:'production_context', text:entry.production?.sentence, targetRewrite:entry.production?.source, acceptedAnswers:[term], status }),
+      ...extraContexts
     );
   });
 
