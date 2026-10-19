@@ -40,6 +40,8 @@ function partialTextClue(answer) {
 }
 
 function primaryMatchOptions(activity) {
+  const normalized = array(activity?.matchOptions).map(text).filter(Boolean);
+  if (normalized.length) return normalized;
   const pairs = array(activity?.pairs);
   const primaryId = activity?.primaryEvidenceTargetId;
   const primary = pairs.find(pair => pair?.vocabularyId === primaryId) ?? pairs[0] ?? null;
