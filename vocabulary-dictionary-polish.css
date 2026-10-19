@@ -8,6 +8,12 @@
   box-shadow:0 8px 24px rgba(24,62,82,.055);
 }
 
+/* Let the definition and example span past the heading's progress badge. */
+.vocab-word-row__head{row-gap:10px}
+.vocab-word-row__head>.vocab-dictionary-entry{display:contents}
+.vocab-dictionary-entry__definition,
+.vocab-dictionary-entry__context{grid-column:1/-1}
+
 .vocab-dictionary-entry__heading{
   gap:9px!important;
 }
@@ -40,12 +46,12 @@
 /* Preserve the PR #93 typographic baseline fix while making the example more editorial. */
 .vocab-dictionary-entry__context{
   position:relative;
-  grid-template-columns:minmax(118px,auto) minmax(0,1fr);
+  grid-template-columns:max-content minmax(0,1fr);
   align-items:baseline;
   gap:14px;
-  width:fit-content;
-  max-width:min(100%,80ch);
-  padding:22px 68px 22px 20px;
+  width:auto;
+  max-width:none;
+  padding:44px 20px 22px;
   overflow:hidden;
   border-color:#d7e8eb;
   border-left:3px solid #73bec3;
@@ -77,17 +83,17 @@
 .vocab-dictionary-entry__context p{
   position:relative;
   z-index:1;
-  padding:4px 10px;
   color:#15344c;
   font-size:1.16rem;
   font-weight:700;
   line-height:1.5;
   overflow-wrap:anywhere;
-  background:linear-gradient(90deg,rgba(115,190,195,.12),rgba(115,190,195,.015));
 }
 
 /* Give the legacy overall learning-stage badge some context without changing its data. */
 .vocab-word-row__head>.vocab-state-pill{
+  grid-column:2;
+  grid-row:1;
   display:inline-flex;
   align-items:center;
   gap:6px;
@@ -166,8 +172,7 @@
 @media(max-width:900px){
   .vocab-word-row{padding:21px 20px 18px}
   .vocab-word-row__head{grid-template-columns:1fr}
-  .vocab-word-row__head>.vocab-state-pill{justify-self:start}
-  .vocab-dictionary-entry__context{max-width:100%}
+  .vocab-word-row__head>.vocab-state-pill{grid-column:1;grid-row:auto;justify-self:start}
 }
 
 @media(max-width:640px){

@@ -34,13 +34,15 @@ for (const width of [1280, 1024, 768, 641, 390, 320]) {
       renderVocabularyWords(document.querySelector('#vocabularyApp'), {
         unitNumber:1, unitTitle:'Sports and Free Time',
         words:[
+          { term:'athletes', partOfSpeech:'noun', definition:'people who train and compete in sports', contextSentence:'Elite athletes usually train several times a week.' },
+          { term:'atmosphere', partOfSpeech:'noun', definition:'the feeling or mood of a place', contextSentence:'The crowd created an exciting atmosphere before the match.' },
           { term:'urge', partOfSpeech:'verb', definition:'to strongly encourage someone to do something', contextSentence:'Doctors urge teenagers to stay active for their health.' },
           { term:'leisure', partOfSpeech:'noun', definition:'free time when you are not working or studying', contextSentence:'Many students use their leisure to play sport or meet friends, while others prefer to relax at home after a long and demanding day at school.' }
         ]
       });
     });
-    await expect(page.locator('.vocab-word-row')).toHaveCount(2);
-    await expect(page.locator('.vocab-word-pathway')).toHaveCount(12);
+    await expect(page.locator('.vocab-word-row')).toHaveCount(4);
+    await expect(page.locator('.vocab-word-pathway')).toHaveCount(24);
     await expect(page.locator('.vocab-word-list details, .vocab-word-list summary')).toHaveCount(0);
 
     const layout = await page.locator('.vocab-dictionary-entry').evaluateAll(entries => entries.map(entry => {
@@ -85,7 +87,24 @@ for (const width of [1280, 1024, 768, 641, 390, 320]) {
         quoteInk.left < rect.right && quoteInk.right > rect.left &&
         quoteInk.top < rect.bottom && quoteInk.bottom > rect.top);
       const boxRect = box.getBoundingClientRect();
+      const pathwaysRect = entry.closest('.vocab-word-row').querySelector('.vocab-word-pathways').getBoundingClientRect();
+      const sentenceWidth = sentence.getBoundingClientRect().width;
+      const withoutQuote = document.createElement('style');
+      withoutQuote.textContent = '.vocab-dictionary-entry__context::before{display:none!important}';
+      document.head.append(withoutQuote);
+      const sentenceWidthWithoutQuote = sentence.getBoundingClientRect().width;
+      withoutQuote.remove();
+      const lineCount = new Set([...range.getClientRects()].map(rect => Math.round(rect.top))).size;
       return {
+        term:entry.querySelector('.vocab-dictionary-entry__term').textContent,
+        lineCount,
+        fullWidth:Math.abs(boxRect.left - pathwaysRect.left) < 1 && Math.abs(boxRect.right - pathwaysRect.right) < 1,
+        rightPadding:parseFloat(style.paddingRight),
+        sentenceRightPadding:parseFloat(sentenceStyle.paddingRight),
+        sentenceBackground:sentenceStyle.backgroundImage,
+        quotePosition:quote.position,
+        sentenceWidthWithoutQuote,
+        sentenceLayoutWidth:sentenceWidth,
         quoteContained:quoteInk.left >= boxRect.left + 4 && quoteInk.right <= boxRect.right - 4 &&
           quoteInk.top >= boxRect.top + 4 && quoteInk.bottom <= boxRect.bottom - 4,
         overlapsSentence,
@@ -108,6 +127,14 @@ for (const width of [1280, 1024, 768, 641, 390, 320]) {
       };
     }));
     for (const entry of layout) {
+      expect(entry.fullWidth).toBe(true);
+      expect(entry.rightPadding).toBeLessThanOrEqual(24);
+      expect(entry.sentenceRightPadding).toBe(0);
+      expect(entry.sentenceBackground).toBe('none');
+      expect(entry.quotePosition).toBe('absolute');
+      expect(entry.sentenceLayoutWidth).toBe(entry.sentenceWidthWithoutQuote);
+      if (width >= 1024 && ['athletes', 'atmosphere'].includes(entry.term)) expect(entry.lineCount).toBe(1);
+      if (width <= 390 && entry.term === 'leisure') expect(entry.lineCount).toBeGreaterThan(1);
       expect(entry.sentenceSize).toBeGreaterThanOrEqual(entry.definitionSize * 1.15);
       expect(entry.sentenceSize).toBeLessThan(entry.headwordSize);
       expect(entry.sentenceSize).toBeGreaterThan(entry.labelSize);
