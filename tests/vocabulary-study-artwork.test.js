@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { renderSessionSummary, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit } from '../src/vocabulary/views.js';
+import { renderSessionSummary } from '../src/vocabulary/views.js';
 import { unitArtwork, achievementArtwork } from '../src/vocabulary/study-art.js';
 
 function root(){ return { innerHTML:'' }; }
@@ -23,59 +23,56 @@ test('first five units have dedicated artwork assets', () => {
   }
 });
 
-test('unit cards and selected-unit hero render dedicated artwork', () => {
-  const home = root();
-  renderVocabularyHome(home,{units:[
-    {unitNumber:1,unitTitle:'Sports and free time',mastered:7,total:50},
-    {unitNumber:2,unitTitle:'Digital life',mastered:4,total:50}
-  ]});
-  assert.match(home.innerHTML,/data-unit-art="1"/);
-  assert.match(home.innerHTML,/assets\/vocabulary-study\/sports-free-time\.svg/);
-  assert.match(home.innerHTML,/data-unit-art="2"/);
-  assert.match(home.innerHTML,/assets\/vocabulary-study\/digital-life\.svg/);
-
-  const unit = root();
-  renderVocabularyUnit(unit,{unitNumber:3,unitTitle:'Travel and tourism',progress:{mastered:0,total:50,needsAnotherLook:0,reviewDue:0,stages:{}},pathwayStates:{},contentReady:true});
-  assert.match(unit.innerHTML,/data-unit-hero-art="3"/);
-  assert.match(unit.innerHTML,/assets\/vocabulary-study\/travel-tourism\.svg/);
-});
-
-test('completion screen uses dedicated trophy artwork and celebratory framing', () => {
-  const target = root();
-  renderSessionSummary(target,{pathwayId:'meaning',summary:{practised:10,strengthened:8,advanced:2,mastered:1,needsAnotherLook:2}});
-  assert.match(target.innerHTML,/data-study-completion-art/);
-  assert.match(target.innerHTML,/assets\/vocabulary-study\/achievement-trophy\.svg/);
-  assert.match(target.innerHTML,/Great work!/);
-  assert.match(target.innerHTML,/vocab-completion-rays/);
-  assert.ok(existsSync(new URL('../assets/vocabulary-study/achievement-trophy.svg', import.meta.url)));
-});
-
-test('stage advancement and mastery use distinct visual artwork', () => {
-  const stage = root();
-  renderVocabularyQuestion(stage,{unitNumber:1,unitTitle:'Sports and free time',pathwayId:'meaning',pathwayStage:'match',sessionPosition:4,sessionTotal:10,feedback:{correct:true,message:'Correct!'},milestone:{kind:'stage_advanced',title:'Match complete · Apply unlocked'},question:{type:'word_definition_match',responseMode:'matching',prompt:'Choose the correct definition.',matchCue:'leisure',matchOptions:['free time','a crowd']}});
-  assert.match(stage.innerHTML,/assets\/vocabulary-study\/achievement-stage\.svg/);
-  assert.match(stage.innerHTML,/data-study-milestone-art="stage_advanced"/);
-
-  const mastery = root();
-  renderVocabularyQuestion(mastery,{unitNumber:1,unitTitle:'Sports and free time',pathwayId:'meaning',pathwayStage:'mastery',sessionPosition:10,sessionTotal:10,feedback:{correct:true,message:'Correct!'},milestone:{kind:'mastered',title:'Meaning mastered · leisure'},question:{type:'meaning_in_context',responseMode:'choice',prompt:'Choose the meaning.',options:['free time','money']}});
-  assert.match(mastery.innerHTML,/assets\/vocabulary-study\/achievement-mastery\.svg/);
-  assert.match(mastery.innerHTML,/data-study-milestone-art="mastered"/);
-});
-
-test('achievement artwork helper maps only known celebration types', () => {
-  assert.equal(achievementArtwork('completion').src,'assets/vocabulary-study/achievement-trophy.svg');
-  assert.equal(achievementArtwork('stage_advanced').src,'assets/vocabulary-study/achievement-stage.svg');
-  assert.equal(achievementArtwork('mastered').src,'assets/vocabulary-study/achievement-mastery.svg');
+test('achievement artwork assets exist and remain distinct', () => {
+  const expected = {
+    completion:'achievement-trophy.svg',
+    stage_advanced:'achievement-stage.svg',
+    mastered:'achievement-mastery.svg'
+  };
+  for (const [kind,file] of Object.entries(expected)) {
+    const art = achievementArtwork(kind);
+    assert.equal(art.src,`assets/vocabulary-study/${file}`);
+    assert.ok(art.alt.length > 0);
+    assert.ok(existsSync(new URL(`../${art.src}`, import.meta.url)), `${file} should exist`);
+  }
   assert.equal(achievementArtwork('unknown'),null);
 });
 
+test('artwork runtime decorates unit cards, unit hero, completion and real milestones', () => {
+  const runtime = readFileSync(new URL('../src/vocabulary/study-art-runtime.js', import.meta.url),'utf8');
+  assert.match(runtime,/\.vocab-unit-card\[data-unit\]/);
+  assert.match(runtime,/dataUnitArt/);
+  assert.match(runtime,/\.vocab-unit-hero/);
+  assert.match(runtime,/dataUnitHeroArt/);
+  assert.match(runtime,/\[data-study-completion\]/);
+  assert.match(runtime,/dataStudyCompletionArt/);
+  assert.match(runtime,/\[data-study-milestone\]/);
+  assert.match(runtime,/dataStudyMilestoneArt/);
+  assert.match(runtime,/MutationObserver/);
+});
+
+test('vocabulary page loads artwork CSS and runtime after the core study app layer', () => {
+  const html = readFileSync(new URL('../vocabulary.html', import.meta.url),'utf8');
+  assert.match(html,/vocabulary-study-art\.css/);
+  assert.ok(html.indexOf('vocabulary-study-art.css') > html.indexOf('vocabulary-study-app.css'));
+  assert.match(html,/src\/vocabulary\/study-art-runtime\.js/);
+});
+
+test('ten-question completion still exposes the real completion hook for trophy enhancement', () => {
+  const target = root();
+  renderSessionSummary(target,{pathwayId:'meaning',summary:{practised:10,strengthened:8,advanced:2,mastered:1,needsAnotherLook:2}});
+  assert.match(target.innerHTML,/data-study-completion/);
+  assert.match(target.innerHTML,/Great work!/);
+  assert.match(target.innerHTML,/vocab-celebration/);
+});
+
 test('study artwork CSS contains dedicated composition and animation hooks', () => {
-  const css = readFileSync(new URL('../vocabulary-study-app.css', import.meta.url),'utf8');
+  const css = readFileSync(new URL('../vocabulary-study-art.css', import.meta.url),'utf8');
   for (const selector of ['.vocab-unit-card__art','.vocab-unit-hero__art','.vocab-completion-art','.vocab-completion-rays','.study-milestone-art']) {
     assert.match(css,new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
   }
   assert.match(css,/@keyframes\s+study-trophy-pop/);
   assert.match(css,/@keyframes\s+study-rays-in/);
   assert.match(css,/@keyframes\s+study-stage-sweep/);
-}
-);
+  assert.match(css,/@media\s*\(prefers-reduced-motion:\s*reduce\)/);
+});
