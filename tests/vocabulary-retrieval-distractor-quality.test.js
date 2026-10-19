@@ -77,11 +77,8 @@ const verbItems = [
   { vocabularyId:'vocab_arrange', term:'arrange', partOfSpeech:'verb', senses:[{ senseId:'arrange_1', meaning:'organise', grammarForms:{ base:'arrange', thirdPerson:'arranges', past:'arranged', pastParticiple:'arranged', ing:'arranging' } }] }
 ];
 
-test('inflected verb retrieval mixes grammar near-misses with an authored semantic distractor in the same form', () => {
+test('inflected verb retrieval prefers semantic distractors in the same grammatical form', () => {
   const activity = build({ item:denyTarget, context:denyContext, unitItems:verbItems });
-  const wrong = activity.options.filter(option => option !== 'denied');
-  const grammarNearMisses = wrong.filter(option => ['deny','denies','denying'].includes(option));
-  const semanticSameForm = wrong.filter(option => ['recommended','permitted','arranged'].includes(option));
-  assert.ok(grammarNearMisses.length >= 2, `expected at least two target-form near misses, got ${wrong.join(', ')}`);
-  assert.ok(semanticSameForm.length >= 1, `expected one authored semantic distractor in past form, got ${wrong.join(', ')}`);
+  assert.deepEqual(new Set(activity.options), new Set(['denied','recommended','permitted','arranged']));
+  assert.ok(!activity.options.some(option => ['deny','denies','denying'].includes(option)));
 });
