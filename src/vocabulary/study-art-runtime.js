@@ -1,6 +1,8 @@
 import { achievementArtwork, pathwayArtwork, unitArtwork } from './study-art.js';
+import { getLatestUnitPathwayStates } from './pathway-view-model.js';
 
 const root = document.getElementById('vocabularyApp');
+const STAGE_LABELS = Object.freeze({ recognise:'Recognise', match:'Match', apply:'Apply', recall:'Recall', mastery:'Mastery' });
 
 function imageElement(art, className) {
   const img = document.createElement('img');
@@ -24,6 +26,52 @@ function decorateUnitCards(scope) {
     const image = imageElement({ ...art, alt:'' }, 'vocab-unit-card__art-image');
     visual.append(image);
     card.append(visual);
+  }
+}
+
+function evidenceCopy(evidence) {
+  const attempts = Number(evidence?.attempts) || 0;
+  const clean = Number(evidence?.cleanSuccesses) || 0;
+  const prompts = Number(evidence?.distinctPrompts) || 0;
+  if (!attempts && !clean && !prompts) return 'No saved evidence yet';
+  const parts = [`${attempts} ${attempts === 1 ? 'attempt' : 'attempts'}`, `${clean} clean`];
+  if (prompts) parts.push(`${prompts} ${prompts === 1 ? 'prompt' : 'prompts'}`);
+  return parts.join(' · ');
+}
+
+function decoratePathwayEvidence(scope) {
+  const states = getLatestUnitPathwayStates();
+  for (const card of scope.querySelectorAll?.('.vocab-pathway-card[data-pathway]') ?? []) {
+    if (card.dataset.pathwayStatus === 'unavailable' || card.querySelector?.('[data-pathway-evidence]')) continue;
+    const state = states?.[card.dataset.pathway];
+    const evidence = state?.stageEvidence;
+    if (!evidence) continue;
+    const stageLabel = STAGE_LABELS[evidence.stageId] ?? 'Current stage';
+    const percent = Math.max(0,Math.min(100,Number(evidence.progressPercent) || 0));
+    const wrap = document.createElement('span');
+    wrap.className = 'vocab-pathway-card__evidence';
+    wrap.dataset.pathwayEvidence = evidence.stageId;
+    const copy = document.createElement('span');
+    copy.className = 'vocab-pathway-card__evidence-copy';
+    const title = document.createElement('strong');
+    title.textContent = `${stageLabel} evidence`;
+    const detail = document.createElement('small');
+    detail.textContent = evidenceCopy(evidence);
+    copy.append(title,detail);
+    const meter = document.createElement('span');
+    meter.className = 'vocab-pathway-card__evidence-meter';
+    meter.setAttribute('role','progressbar');
+    meter.setAttribute('aria-label',`${stageLabel} evidence progress`);
+    meter.setAttribute('aria-valuemin','0');
+    meter.setAttribute('aria-valuemax','100');
+    meter.setAttribute('aria-valuenow',String(percent));
+    const fill = document.createElement('span');
+    fill.className = 'vocab-pathway-card__evidence-fill';
+    fill.style.setProperty('--pathway-evidence',`${percent}%`);
+    meter.append(fill);
+    wrap.append(copy,meter);
+    const ladder = card.querySelector?.('.vocab-pathway-ladder');
+    if (ladder?.before) ladder.before(wrap); else card.append(wrap);
   }
 }
 
@@ -93,6 +141,7 @@ function decorateMilestones(scope) {
 export function enhanceStudyArtwork(scope = root) {
   if (!scope) return;
   decorateUnitCards(scope);
+  decoratePathwayEvidence(scope);
   decoratePathwayCards(scope);
   decorateUnitHero(scope);
   decorateCompletion(scope);
