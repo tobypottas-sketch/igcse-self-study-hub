@@ -35,7 +35,22 @@ function bankFor(vocabularyId) {
 }
 
 test('Context Match uses the reviewed leisure-time surface answer instead of bare leisure', () => {
-  const activity = buildPathwayActivity({ activityType:'context_sentence_match', ...argsFor('vocab_leisure', 'building', 'leisure-context-bank') });
+  const args = argsFor('vocab_leisure', 'building', 'leisure-context-bank');
+  assert.ok(args.occurrence, 'leisure occurrence must be present');
+  assert.ok(args.item, 'leisure item must be present');
+  const activity = buildPathwayActivity({
+    activityType:'context_sentence_match',
+    occurrence:args.occurrence,
+    item:args.item,
+    contexts:args.contexts,
+    unitActivities:args.unitActivities,
+    unitItems:args.unitItems,
+    unitContexts:args.unitContexts,
+    unitOccurrences:args.unitOccurrences,
+    mastery:args.mastery,
+    readinessStage:args.readinessStage,
+    seed:args.seed
+  });
   assert.deepEqual(activity.markingReference.acceptedAnswers, ['leisure time']);
   assert.equal(activity.languageBankContextId != null, true);
   assert.ok(activity.sourceText?.includes('____'));
@@ -68,7 +83,8 @@ test('every avoid context owns three diagnosed distractors that fit that exact i
 test('avoid Context choice uses its reviewed per-sentence distractors rather than unrelated Unit 1 words', () => {
   const bank = bankFor('vocab_avoid');
   assert.ok(bank, 'avoid needs an authored language bank');
-  const activity = buildFoundationalActivity({ activityType:'choose_word_sentence', ...argsFor('vocab_avoid', 'building', 'avoid-context-bank') });
+  const args = argsFor('vocab_avoid', 'building', 'avoid-context-bank');
+  const activity = buildFoundationalActivity({ activityType:'choose_word_sentence', ...args });
   const record = (bank.contexts ?? []).find(context => context.id === activity.languageBankContextId);
   assert.ok(record, 'Context choice must identify the bank context it used');
   const permitted = new Set(['avoid', ...record.distractors.map(row => row.text)]);
@@ -79,7 +95,8 @@ test('avoid Context choice uses its reviewed per-sentence distractors rather tha
 test('avoid spelling recognition samples realistic authored errors instead of algorithmic mangling', () => {
   const bank = bankFor('vocab_avoid');
   assert.ok(bank, 'avoid needs an authored language bank');
-  const activity = buildPathwayActivity({ activityType:'spelling_choice', ...argsFor('vocab_avoid', 'new', 'avoid-spelling-bank') });
+  const args = argsFor('vocab_avoid', 'new', 'avoid-spelling-bank');
+  const activity = buildPathwayActivity({ activityType:'spelling_choice', ...args });
   const permitted = new Set(['avoid', ...(bank.spellingErrors ?? [])]);
   assert.equal(activity.options.length, 4);
   assert.ok(activity.options.every(option => permitted.has(option)), activity.options.join(' | '));
