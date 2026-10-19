@@ -1,6 +1,91 @@
 const diagnosed = (text, reason) => ({ text, reason });
 
 export default Object.freeze({
+  leisure:{
+    definitionDistractors:[
+      'time spent doing paid work or employment',
+      'time reserved for lessons, homework, or study',
+      'time spent travelling from one place to another',
+      'a planned period of organised physical training',
+      'time required to finish a particular task',
+      'a break in activity caused by an unexpected delay'
+    ],
+    spellingErrors:['leisur','lesiure','leisuree','liesure','leasure','leisuer'],
+    contexts:[
+      {
+        id:'leisure_ctx_1',
+        text:'Many students use their ____ to play sport or meet friends.',
+        answer:'leisure time',
+        distractors:[
+          diagnosed('study time','Fits grammatically, but the sentence describes time used for recreation rather than study.'),
+          diagnosed('working hours','Fits grammatically, but the sentence describes time away from work.'),
+          diagnosed('lesson time','Fits grammatically, but the activities happen outside lessons.')
+        ]
+      },
+      {
+        id:'leisure_ctx_2',
+        text:'The council built new ____ facilities so residents could exercise and relax after work.',
+        answer:'leisure',
+        distractors:[
+          diagnosed('office','Can modify facilities, but offices are for work rather than recreation.'),
+          diagnosed('factory','Can modify facilities, but factories are workplaces rather than places for recreation.'),
+          diagnosed('school','Can modify facilities, but the sentence specifies facilities for residents to relax after work, not for lessons.')
+        ]
+      },
+      {
+        id:'leisure_ctx_3',
+        text:'Reading and gardening are popular ____ activities among retired people.',
+        answer:'leisure',
+        distractors:[
+          diagnosed('work','Fits before activities, but reading and gardening are described here as recreation.'),
+          diagnosed('school','Fits before activities, but the sentence refers to retired people and free-time pursuits.'),
+          diagnosed('medical','Fits before activities grammatically, but the examples are recreational rather than medical.')
+        ]
+      },
+      {
+        id:'leisure_ctx_4',
+        text:'The report examines how families spend their ____ at weekends.',
+        answer:'leisure time',
+        distractors:[
+          diagnosed('working hours','Fits grammatically, but weekends are being discussed as time away from work.'),
+          diagnosed('lesson time','Fits grammatically, but the sentence concerns family recreation rather than lessons.'),
+          diagnosed('office time','Fits grammatically, but the report is about time away from employment.')
+        ]
+      },
+      {
+        id:'leisure_ctx_5',
+        text:'The hotel has a ____ centre with a swimming pool and gym.',
+        answer:'leisure',
+        distractors:[
+          diagnosed('business','Can modify centre, but a pool and gym identify a recreation facility rather than a business centre.'),
+          diagnosed('conference','Can modify centre, but a conference centre is for meetings, not the facilities described.'),
+          diagnosed('medical','Can modify centre, but the sentence describes recreation facilities rather than treatment services.')
+        ]
+      },
+      {
+        id:'leisure_ctx_6',
+        text:'Cycling started as a ____ activity for her before becoming a full-time job.',
+        answer:'leisure',
+        distractors:[
+          diagnosed('professional','Fits grammatically, but contradicts the contrast with becoming a full-time job later.'),
+          diagnosed('paid','Fits grammatically, but contradicts the idea that it only later became a job.'),
+          diagnosed('business','Fits grammatically, but the sentence contrasts recreation with later employment.')
+        ]
+      }
+    ],
+    misuseSentences:[
+      diagnosed('She does leisure every weekend.','leisure is not normally used as a countable activity after do; name the activity or use a phrase such as leisure activity.'),
+      diagnosed('He has many leisures after work.','leisure is normally uncountable in this sense.'),
+      diagnosed('They leisure at the sports centre.','leisure is not normally used as a verb.'),
+      diagnosed('The club gives students a leisure.','leisure is not normally used as a singular countable noun meaning a period of free time.')
+    ],
+    patterns:['leisure time','leisure activity','leisure centre','leisure facilities'],
+    collocations:['spend leisure time','leisure activities','leisure facilities'],
+    contrasts:[
+      diagnosed('work','work is time or activity connected with duties or employment; leisure is time free from those duties.'),
+      diagnosed('free time','free time is the closest everyday paraphrase of leisure in this unit sense.')
+    ]
+  },
   avoid:{
     definitionDistractors:[
       'to stop something from happening before it begins',
