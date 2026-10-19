@@ -64,7 +64,7 @@ test('incorrect narrow-choice retry stays compact and does not repeat support in
     retry:true,
     support:{ action:'retry', kind:'narrow_choices', options:['free time','competition'] }
   });
-  assert.match(host.innerHTML, /class="vocab-retry-stage"/);
+  assert.match(host.innerHTML, /vocab-retry-stage/);
   assert.match(host.innerHTML, /vocab-choice-fieldset is-retry/);
   assert.doesNotMatch(host.innerHTML, /This one has been simplified/);
   assert.doesNotMatch(host.innerHTML, /Try again with two possibilities/);
@@ -82,14 +82,14 @@ test('correct feedback and Continue control live in a spaced response stage', ()
     feedback:{ correct:true, message:'Correct — you tracked the whole idea accurately.' }
   });
   assert.match(host.innerHTML, /class="vocab-response-stage is-correct"/);
-  assert.match(host.innerHTML, /class="vocab-feedback is-positive"/);
-  assert.match(host.innerHTML, /data-action="next-question">Continue<\/button>/);
+  assert.match(host.innerHTML, /vocab-feedback[^\"]*is-positive/);
+  assert.match(host.innerHTML, /data-action="next-question">Next question/);
 });
 
 test('ten-activity completion gets a celebration but timed completion stays calm', () => {
   const ten = root();
   renderSessionSummary(ten, { summary:{ practised:10, strengthened:8, secure:2, mastered:1, needsAnotherLook:2 } });
-  assert.match(ten.innerHTML, /class="vocab-celebration"/);
+  assert.match(ten.innerHTML, /vocab-celebration/);
   assert.match(ten.innerHTML, /aria-hidden="true"/);
 
   const timed = root();

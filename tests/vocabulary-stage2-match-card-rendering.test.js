@@ -42,7 +42,8 @@ test('narrowed Stage 2 retry renders two Match Cards rather than a dropdown', ()
   const html = render(normalized,{ action:'retry', kind:'narrow_match', options:['preference','preferably'] },true);
   assert.equal((html.match(/data-match-card=/g) ?? []).length,2);
   assert.doesNotMatch(html,/<select/);
-  assert.match(html,/Check supported answer/);
+  assert.match(html,/Try again/);
+  assert.match(html,/Try again with two choices/);
 });
 
 test('generic legacy matching without normalized Match Card fields retains its select fallback', () => {
