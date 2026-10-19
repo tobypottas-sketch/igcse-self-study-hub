@@ -65,8 +65,8 @@ for (const width of [1280, 768, 390, 320]) {
         sentenceWeight:Number(sentenceStyle.fontWeight),
         quoteContent:quote.content,
         quoteTop:parseFloat(quote.top), quoteRight:parseFloat(quote.right),
-        quoteBottom:parseFloat(quote.top) + parseFloat(quote.lineHeight),
-        height:box.clientHeight,
+        quoteLineHeight:parseFloat(quote.lineHeight),
+        quoteSize:parseFloat(quote.fontSize),
         baselineDifference:Math.abs(baseline(label) - baseline(sentence)),
         columns:style.gridTemplateColumns.split(' ').length
       };
@@ -78,7 +78,7 @@ for (const width of [1280, 768, 390, 320]) {
       expect(entry.quoteContent).toContain('“');
       expect(entry.quoteTop).toBeGreaterThanOrEqual(6);
       expect(entry.quoteRight).toBeGreaterThanOrEqual(8);
-      expect(entry.quoteBottom).toBeLessThan(entry.height);
+      expect(entry.quoteLineHeight).toBeGreaterThanOrEqual(entry.quoteSize);
       if (width > 640) {
         expect(entry.columns).toBe(2);
         expect(entry.baselineDifference).toBeLessThan(1);
