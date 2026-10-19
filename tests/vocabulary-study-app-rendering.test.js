@@ -71,6 +71,24 @@ test('ordinary correct feedback is compact and does not pretend a milestone happ
   assert.doesNotMatch(target.innerHTML,/data-study-milestone/);
 });
 
+test('real stage advancement renders a compact unlocked-rung moment', () => {
+  const target = root();
+  renderVocabularyQuestion(target,{unitNumber:1,unitTitle:'Sports and free time',term:'leisure',pathwayId:'meaning',pathwayStage:'match',sessionPosition:4,sessionTotal:10,feedback:{correct:true,message:'Correct!'},milestone:{kind:'stage_advanced',pathwayId:'meaning',term:'leisure',fromStage:'match',toStage:'apply'},question:{type:'word_definition_match',responseMode:'matching',prompt:'Choose the correct definition.',matchCue:'leisure',matchOptions:['free time','a crowd']}});
+  assert.match(target.innerHTML,/data-study-milestone="stage_advanced"/);
+  assert.match(target.innerHTML,/Match complete/);
+  assert.match(target.innerHTML,/Apply unlocked/);
+  assert.match(target.innerHTML,/data-study-icon="check"/);
+});
+
+test('real mastery renders the stronger trophy milestone and names the pathway', () => {
+  const target = root();
+  renderVocabularyQuestion(target,{unitNumber:1,unitTitle:'Sports and free time',term:'leisure',pathwayId:'meaning',pathwayStage:'mastery',sessionPosition:10,sessionTotal:10,feedback:{correct:true,message:'Correct!'},milestone:{kind:'mastered',pathwayId:'meaning',term:'leisure',fromStage:'mastery',toStage:'mastery'},question:{type:'meaning_in_context',responseMode:'choice',prompt:'Choose the meaning.',options:['free time','money']}});
+  assert.match(target.innerHTML,/data-study-milestone="mastered"/);
+  assert.match(target.innerHTML,/data-study-icon="trophy"/);
+  assert.match(target.innerHTML,/Meaning mastered/);
+  assert.match(target.innerHTML,/leisure/);
+});
+
 test('ten-question completion uses evidence-backed counts and clear actions', () => {
   const target = root();
   renderSessionSummary(target,{practiceMode:'adaptive',pathwayId:'meaning',summary:{practised:10,strengthened:7,advanced:2,mastered:1,needsAnotherLook:3}});
