@@ -1,0 +1,139 @@
+/* Meaning pathway · Stage 1 (Recognise)
+   Keep question-to-question geometry stable on desktop/tablet while
+   preserving natural mobile wrapping and preventing horizontal overflow. */
+
+.vocab-shell--session{
+  min-width:0;
+  overflow-x:clip;
+}
+
+.vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]){
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  overflow-x:hidden;
+}
+
+.vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-question-prompt{
+  max-width:100%;
+  min-width:0;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+
+.vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-question-context,
+.vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-response-stage,
+.vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-retry-stage,
+.vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-answer-form,
+.vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-choice-fieldset,
+.vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-choice-grid{
+  min-width:0;
+  max-width:100%;
+}
+
+.vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-response-stage{
+  margin-top:auto;
+}
+
+.vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-retry-stage{
+  margin-top:auto;
+}
+
+.vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-choice-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
+.vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-choice{
+  min-width:0;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+
+@media(min-width:801px){
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]){
+    height:560px;
+    min-height:560px;
+    max-height:560px;
+    padding-top:32px;
+    padding-bottom:32px;
+  }
+
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-question-meta{
+    margin-bottom:12px;
+  }
+
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-target-pill{
+    margin-bottom:10px;
+  }
+
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-question-prompt{
+    margin-top:6px;
+    font-size:clamp(1.65rem,3vw,2.35rem);
+    line-height:1.14;
+  }
+
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-question-context{
+    margin:14px 0 0;
+    padding:13px 17px;
+  }
+
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-response-stage{
+    gap:12px;
+  }
+
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-answer-form{
+    gap:12px;
+  }
+
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-choice-fieldset legend{
+    margin-bottom:8px;
+  }
+
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-choice-grid{
+    gap:10px;
+  }
+
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-choice{
+    min-height:58px;
+    padding:12px 15px;
+    line-height:1.32;
+  }
+}
+
+@media(min-width:521px) and (max-width:800px){
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]){
+    height:560px;
+    min-height:560px;
+    max-height:560px;
+    padding-top:26px;
+    padding-bottom:26px;
+  }
+
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-question-prompt{
+    font-size:clamp(1.55rem,4vw,2rem);
+    line-height:1.16;
+  }
+
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-choice-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+  }
+
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-choice{
+    min-height:58px;
+    padding:12px 14px;
+    line-height:1.3;
+  }
+}
+
+@media(max-width:520px){
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]){
+    height:auto;
+    min-height:0;
+    max-height:none;
+  }
+
+  .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-choice-grid{
+    grid-template-columns:1fr;
+  }
+}
