@@ -83,9 +83,6 @@ for (const width of [1280, 1024, 768, 641, 390, 320]) {
       probe.remove();
       const range = document.createRange();
       range.selectNodeContents(sentence);
-      const overlapsSentence = [...range.getClientRects()].some(rect =>
-        quoteInk.left < rect.right && quoteInk.right > rect.left &&
-        quoteInk.top < rect.bottom && quoteInk.bottom > rect.top);
       const boxRect = box.getBoundingClientRect();
       const pathwaysRect = entry.closest('.vocab-word-row').querySelector('.vocab-word-pathways').getBoundingClientRect();
       const sentenceWidth = sentence.getBoundingClientRect().width;
@@ -93,6 +90,7 @@ for (const width of [1280, 1024, 768, 641, 390, 320]) {
       withoutQuote.textContent = '.vocab-dictionary-entry__context::before{display:none!important}';
       document.head.append(withoutQuote);
       const sentenceWidthWithoutQuote = sentence.getBoundingClientRect().width;
+      const heightWithoutQuote = box.getBoundingClientRect().height;
       withoutQuote.remove();
       const lineCount = new Set([...range.getClientRects()].map(rect => Math.round(rect.top))).size;
       return {
@@ -107,10 +105,16 @@ for (const width of [1280, 1024, 768, 641, 390, 320]) {
         sentenceLayoutWidth:sentenceWidth,
         quoteContained:quoteInk.left >= boxRect.left + 4 && quoteInk.right <= boxRect.right - 4 &&
           quoteInk.top >= boxRect.top + 4 && quoteInk.bottom <= boxRect.bottom - 4,
-        overlapsSentence,
+        height:boxRect.height,
+        heightWithoutQuote,
+        verticalExcess:boxRect.height - sentence.getBoundingClientRect().height -
+          (innerWidth <= 640 ? label.getBoundingClientRect().height + parseFloat(style.rowGap) : 0),
+        insetDifference:Math.abs(
+          Math.min(label.getBoundingClientRect().top, sentence.getBoundingClientRect().top) - boxRect.top -
+          (boxRect.bottom - Math.max(label.getBoundingClientRect().bottom, sentence.getBoundingClientRect().bottom))),
         quoteAlpha:Number(quote.color.match(/[\d.]+/g).at(-1)),
         rowGap:parseFloat(getComputedStyle(entry.closest('.vocab-word-row')).rowGap),
-        verticalPadding:parseFloat(style.paddingTop),
+
         labelWeight:Number(getComputedStyle(label).fontWeight),
         headwordSize:parseFloat(getComputedStyle(entry.querySelector('.vocab-dictionary-entry__term')).fontSize),
         sentenceWidth:sentence.clientWidth - parseFloat(sentenceStyle.paddingLeft) - parseFloat(sentenceStyle.paddingRight),
@@ -122,7 +126,9 @@ for (const width of [1280, 1024, 768, 641, 390, 320]) {
         quoteTop:parseFloat(quote.top), quoteRight:parseFloat(quote.right),
         quoteLineHeight:parseFloat(quote.lineHeight),
         quoteSize:parseFloat(quote.fontSize),
-        baselineDifference:Math.abs(baseline(label) - baseline(sentence)),
+        centreDifference:Math.abs(
+          (label.getBoundingClientRect().top + label.getBoundingClientRect().bottom) / 2 -
+          (sentence.getBoundingClientRect().top + sentence.getBoundingClientRect().bottom) / 2),
         columns:style.gridTemplateColumns.split(' ').length
       };
     }));
@@ -141,11 +147,14 @@ for (const width of [1280, 1024, 768, 641, 390, 320]) {
       expect(entry.sentenceWeight).toBeGreaterThanOrEqual(650);
       expect(entry.labelSize).toBeLessThanOrEqual(10);
       expect(entry.labelWeight).toBeLessThanOrEqual(700);
-      expect(entry.verticalPadding).toBeGreaterThanOrEqual(20);
+      expect(entry.verticalExcess).toBeGreaterThanOrEqual(20);
+      expect(entry.verticalExcess).toBeLessThanOrEqual(28);
+      expect(entry.insetDifference).toBeLessThan(1);
+      expect(entry.height).toBe(entry.heightWithoutQuote);
+      if (width >= 1024 && entry.lineCount === 1) expect(entry.height).toBeLessThanOrEqual(56);
       expect(entry.rowGap).toBeGreaterThanOrEqual(10);
       expect(entry.rowGap).toBeLessThanOrEqual(14);
       expect(entry.quoteContained).toBe(true);
-      expect(entry.overlapsSentence).toBe(false);
       expect(entry.quoteAlpha).toBeLessThanOrEqual(.045);
       expect(entry.quoteSize).toBeGreaterThanOrEqual(88);
       expect(entry.quoteContent).toContain('“');
@@ -157,7 +166,7 @@ for (const width of [1280, 1024, 768, 641, 390, 320]) {
       if (width > 640) {
         expect(entry.sentenceWidth).toBeGreaterThanOrEqual(240);
         expect(entry.columns).toBe(2);
-        expect(entry.baselineDifference).toBeLessThan(1);
+        expect(entry.centreDifference).toBeLessThan(1);
       } else {
         expect(entry.columns).toBe(1);
       }
