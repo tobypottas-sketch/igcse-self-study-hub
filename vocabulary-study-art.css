@@ -317,6 +317,96 @@
   margin-top:8px;
 }
 
+/* Desktop sessions use the available width so the question card is shorter without losing readability. */
+@media(min-width:701px){
+  .vocab-shell--session{
+    width:min(880px,calc(100% - 32px));
+    padding:12px 0 28px;
+  }
+
+  .vocab-shell--session .vocab-topbar{
+    margin-bottom:8px;
+  }
+
+  .vocab-question-card[data-study-question]{
+    padding-bottom:20px;
+  }
+
+  .vocab-study-question-header{
+    min-height:58px;
+    margin-bottom:12px;
+    padding:10px 16px;
+  }
+
+  .vocab-question-card[data-study-question] .vocab-question-prompt{
+    margin:8px 0 6px;
+    font-size:clamp(1.28rem,1.8vw,1.58rem);
+  }
+
+  .vocab-question-context{
+    margin:10px 0 12px!important;
+    padding:10px 13px!important;
+  }
+
+  .vocab-choice-fieldset,.vocab-match-card-fieldset{
+    margin-top:11px!important;
+  }
+
+  .vocab-choice-grid,.vocab-match-card-grid{
+    gap:7px!important;
+  }
+
+  .vocab-choice-card{
+    min-height:56px;
+    padding:9px 13px!important;
+  }
+
+  .vocab-match-card{
+    min-height:54px!important;
+    padding:10px 14px!important;
+  }
+
+  .vocab-preview-banner{
+    gap:12px;
+    margin:6px 0 10px;
+    padding:8px 11px;
+    border-radius:12px;
+    box-shadow:none;
+  }
+
+  .vocab-preview-banner>div{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    min-width:0;
+  }
+
+  .vocab-preview-banner strong{
+    flex:0 0 auto;
+    font-size:.69rem;
+    letter-spacing:.1em;
+  }
+
+  .vocab-preview-banner span{
+    overflow:hidden;
+    font-size:.76rem;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+  }
+
+  .vocab-preview-banner .vocab-button{
+    min-height:32px;
+    padding:6px 10px;
+    border-radius:10px;
+    font-size:.74rem;
+  }
+}
+
+/* Re-rendering the next question must not fade the whole card out and back in. */
+.vocab-shell--session .vocab-question-card.study-enter{
+  animation:none;
+}
+
 @media(max-width:700px){
   .vocab-shell--session{
     width:min(100% - 16px,720px);
