@@ -83,7 +83,7 @@ test('Unit 1 Word Families exposes only targets with enough same-family forms fo
   const expected = unit1.occurrences
     .filter(occurrence => {
       const item = content.itemsById[occurrence.vocabularyId];
-      const family = new Set((item?.wordFamily ?? []).map(value => String(value).trim().toLowerCase()).filter(Boolean));
+      const family = new Set([item?.term,...(item?.wordFamily ?? [])].map(value => String(value ?? '').trim().toLowerCase()).filter(Boolean));
       const hasCuratedFamilyPrompt = unit1.activities.some(activity =>
         activity.contentType === 'writing_set' &&
         activity.activityData?.taskType === 'word_family' &&
