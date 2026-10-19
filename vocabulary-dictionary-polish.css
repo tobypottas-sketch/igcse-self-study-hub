@@ -2,7 +2,7 @@
 
 .vocab-word-row{
   position:relative;
-  gap:20px;
+  gap:12px;
   padding:24px 26px 20px;
   border-color:#d8e7ec;
   box-shadow:0 8px 24px rgba(24,62,82,.055);
@@ -45,7 +45,7 @@
   gap:14px;
   width:fit-content;
   max-width:min(100%,80ch);
-  padding:16px 20px;
+  padding:22px 68px 22px 20px;
   overflow:hidden;
   border-color:#d7e8eb;
   border-left:3px solid #73bec3;
@@ -56,11 +56,11 @@
 .vocab-dictionary-entry__context::before{
   content:"“";
   position:absolute;
-  right:14px;
-  top:8px;
-  color:rgba(53,151,158,.09);
+  right:6px;
+  top:0;
+  color:rgba(53,151,158,.035);
   font-family:Georgia,serif;
-  font-size:4.8rem;
+  font-size:6rem;
   font-weight:700;
   line-height:1;
   pointer-events:none;
@@ -69,16 +69,21 @@
 .vocab-dictionary-entry__context span{
   position:relative;
   z-index:1;
-  color:#537b83;
-  font-weight:800;
+  color:#6c818b;
+  font-size:.6rem;
+  font-weight:650;
 }
 
 .vocab-dictionary-entry__context p{
   position:relative;
   z-index:1;
-  color:#243f53;
-  font-size:1.02rem;
-  font-weight:500;
+  padding:4px 10px;
+  color:#15344c;
+  font-size:1.16rem;
+  font-weight:700;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+  background:linear-gradient(90deg,rgba(115,190,195,.12),rgba(115,190,195,.015));
 }
 
 /* Give the legacy overall learning-stage badge some context without changing its data. */
@@ -160,6 +165,7 @@
 
 @media(max-width:900px){
   .vocab-word-row{padding:21px 20px 18px}
+  .vocab-word-row__head{grid-template-columns:1fr}
   .vocab-word-row__head>.vocab-state-pill{justify-self:start}
   .vocab-dictionary-entry__context{max-width:100%}
 }
@@ -169,8 +175,9 @@
   .vocab-dictionary-entry__context{
     grid-template-columns:1fr;
     align-items:start;
-    gap:5px;
+    gap:22px;
     width:auto;
+    padding:22px 18px;
   }
   .vocab-word-row__head>.vocab-state-pill::before{content:"Overall ·"}
 }

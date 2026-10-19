@@ -24,7 +24,7 @@ test('forgot-password flow opens from the sign-in screen', async ({ page }) => {
 
 
 // Exercise the dictionary renderer with the real page stylesheet cascade, without sign-in.
-for (const width of [1280, 768, 390, 320]) {
+for (const width of [1280, 1024, 768, 641, 390, 320]) {
   test(`dictionary context remains prominent and contained at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height:900 });
     await page.route('**/src/vocabulary/router.js', route => route.fulfill({ body:'', contentType:'text/javascript' }));
@@ -58,7 +58,43 @@ for (const width of [1280, 768, 390, 320]) {
         marker.remove();
         return y;
       };
+      // Measure the actual quote ink, rather than the much larger font line box.
+      const probe = document.createElement('span');
+      Object.assign(probe.style, {
+        position:'absolute', top:quote.top, right:quote.right,
+        font:quote.font, lineHeight:quote.lineHeight, visibility:'hidden',
+        padding:'0', margin:'0', letterSpacing:quote.letterSpacing
+      });
+      probe.textContent = '“';
+      box.append(probe);
+      const quoteBaseline = baseline(probe);
+      const probeRect = probe.getBoundingClientRect();
+      const canvas = document.createElement('canvas').getContext('2d');
+      canvas.font = quote.font;
+      const ink = canvas.measureText('“');
+      const quoteInk = {
+        left:probeRect.left - ink.actualBoundingBoxLeft,
+        right:probeRect.left + ink.actualBoundingBoxRight,
+        top:quoteBaseline - ink.actualBoundingBoxAscent,
+        bottom:quoteBaseline + ink.actualBoundingBoxDescent
+      };
+      probe.remove();
+      const range = document.createRange();
+      range.selectNodeContents(sentence);
+      const overlapsSentence = [...range.getClientRects()].some(rect =>
+        quoteInk.left < rect.right && quoteInk.right > rect.left &&
+        quoteInk.top < rect.bottom && quoteInk.bottom > rect.top);
+      const boxRect = box.getBoundingClientRect();
       return {
+        quoteContained:quoteInk.left >= boxRect.left + 4 && quoteInk.right <= boxRect.right - 4 &&
+          quoteInk.top >= boxRect.top + 4 && quoteInk.bottom <= boxRect.bottom - 4,
+        overlapsSentence,
+        quoteAlpha:Number(quote.color.match(/[\d.]+/g).at(-1)),
+        rowGap:parseFloat(getComputedStyle(entry.closest('.vocab-word-row')).rowGap),
+        verticalPadding:parseFloat(style.paddingTop),
+        labelWeight:Number(getComputedStyle(label).fontWeight),
+        headwordSize:parseFloat(getComputedStyle(entry.querySelector('.vocab-dictionary-entry__term')).fontSize),
+        sentenceWidth:sentence.clientWidth - parseFloat(sentenceStyle.paddingLeft) - parseFloat(sentenceStyle.paddingRight),
         sentenceSize:parseFloat(sentenceStyle.fontSize),
         definitionSize:parseFloat(getComputedStyle(entry.querySelector('.vocab-dictionary-entry__definition')).fontSize),
         labelSize:parseFloat(getComputedStyle(label).fontSize),
@@ -72,14 +108,27 @@ for (const width of [1280, 768, 390, 320]) {
       };
     }));
     for (const entry of layout) {
-      expect(entry.sentenceSize).toBeGreaterThan(entry.definitionSize);
+      expect(entry.sentenceSize).toBeGreaterThanOrEqual(entry.definitionSize * 1.15);
+      expect(entry.sentenceSize).toBeLessThan(entry.headwordSize);
       expect(entry.sentenceSize).toBeGreaterThan(entry.labelSize);
-      expect(entry.sentenceWeight).toBeGreaterThanOrEqual(500);
+      expect(entry.sentenceWeight).toBeGreaterThanOrEqual(650);
+      expect(entry.labelSize).toBeLessThanOrEqual(10);
+      expect(entry.labelWeight).toBeLessThanOrEqual(700);
+      expect(entry.verticalPadding).toBeGreaterThanOrEqual(20);
+      expect(entry.rowGap).toBeGreaterThanOrEqual(10);
+      expect(entry.rowGap).toBeLessThanOrEqual(14);
+      expect(entry.quoteContained).toBe(true);
+      expect(entry.overlapsSentence).toBe(false);
+      expect(entry.quoteAlpha).toBeLessThanOrEqual(.045);
+      expect(entry.quoteSize).toBeGreaterThanOrEqual(88);
       expect(entry.quoteContent).toContain('“');
-      expect(entry.quoteTop).toBeGreaterThanOrEqual(6);
-      expect(entry.quoteRight).toBeGreaterThanOrEqual(8);
+      expect(entry.quoteTop).toBeGreaterThanOrEqual(0);
+      expect(entry.quoteTop).toBeLessThanOrEqual(4);
+      expect(entry.quoteRight).toBeGreaterThanOrEqual(4);
+      expect(entry.quoteRight).toBeLessThanOrEqual(8);
       expect(entry.quoteLineHeight).toBeGreaterThanOrEqual(entry.quoteSize);
       if (width > 640) {
+        expect(entry.sentenceWidth).toBeGreaterThanOrEqual(240);
         expect(entry.columns).toBe(2);
         expect(entry.baselineDifference).toBeLessThan(1);
       } else {
