@@ -31,6 +31,8 @@ const ICON_PATHS = Object.freeze({
   bulb:'<path d="M9 17h6M10 20h4"/><path d="M8 14a6 6 0 1 1 8 0c-1 .8-1.4 1.6-1.5 3h-5c-.1-1.4-.5-2.2-1.5-3z"/>'
 });
 
+const STAGE_ORDER = Object.freeze(['recognise','match','apply','recall','mastery']);
+
 export function pathwayIdentity(pathwayId) {
   return PATHWAY_IDENTITIES[pathwayId] ?? NEUTRAL_IDENTITY;
 }
@@ -42,4 +44,21 @@ export function renderStudyIcon(iconId, { label = '', className = '' } = {}) {
     ? `role="img" aria-label="${escapeHtml(label)}"`
     : 'aria-hidden="true"';
   return `<svg class="${escapeHtml(classes)}" data-study-icon="${escapeHtml(resolvedIcon)}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ${accessibility} focusable="false">${ICON_PATHS[resolvedIcon]}</svg>`;
+}
+
+export function deriveStudyMilestone({ beforePathwayState, afterPathwayState, term = '', pathwayId = '' } = {}) {
+  if (!beforePathwayState || !afterPathwayState || !pathwayId) return null;
+  const beforeMastered = Boolean(beforePathwayState.mastered);
+  const afterMastered = Boolean(afterPathwayState.mastered);
+  const fromStage = STAGE_ORDER.includes(beforePathwayState.currentStage) ? beforePathwayState.currentStage : null;
+  const toStage = STAGE_ORDER.includes(afterPathwayState.currentStage) ? afterPathwayState.currentStage : null;
+  if (!fromStage || !toStage) return null;
+  if (!beforeMastered && afterMastered) {
+    return { kind:'mastered', pathwayId, term:String(term ?? ''), fromStage, toStage };
+  }
+  if (beforeMastered || afterMastered) return null;
+  const fromIndex = STAGE_ORDER.indexOf(fromStage);
+  const toIndex = STAGE_ORDER.indexOf(toStage);
+  if (toIndex <= fromIndex) return null;
+  return { kind:'stage_advanced', pathwayId, term:String(term ?? ''), fromStage, toStage };
 }
