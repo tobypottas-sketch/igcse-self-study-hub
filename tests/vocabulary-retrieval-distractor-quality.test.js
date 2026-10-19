@@ -23,23 +23,23 @@ function build({ item, context, unitItems }) {
 }
 
 const nounTarget = {
-  vocabularyId:'vocab_leisure',
-  term:'leisure',
+  vocabularyId:'vocab_downtime_fixture',
+  term:'downtime',
   partOfSpeech:'noun',
   senses:[{
-    senseId:'leisure_1',
+    senseId:'downtime_fixture_1',
     meaning:'free time',
     misleadingDistractors:['salary','training','deadline']
   }]
 };
 
 const nounContext = {
-  contextId:'u1_leisure_meaning',
+  contextId:'u1_downtime_fixture_meaning',
   type:'meaning_context',
-  text:'Many students use their leisure to play sport or meet friends.'
+  text:'Many students use their downtime to play sport or meet friends.'
 };
 
-test('base-form retrieval prefers authored misleading distractors over random same-POS words', () => {
+test('base-form retrieval prefers authored misleading distractors over random same-POS words when no reviewed language bank exists', () => {
   const unitItems = [
     nounTarget,
     { vocabularyId:'vocab_opponent', term:'opponent', partOfSpeech:'noun', senses:[{ senseId:'opponent_1', meaning:'rival' }] },
@@ -47,7 +47,7 @@ test('base-form retrieval prefers authored misleading distractors over random sa
     { vocabularyId:'vocab_patience', term:'patience', partOfSpeech:'noun', senses:[{ senseId:'patience_1', meaning:'calm persistence' }] }
   ];
   const activity = build({ item:nounTarget, context:nounContext, unitItems });
-  assert.deepEqual(new Set(activity.options), new Set(['leisure','salary','training','deadline']));
+  assert.deepEqual(new Set(activity.options), new Set(['downtime','salary','training','deadline']));
 });
 
 const denyTarget = {

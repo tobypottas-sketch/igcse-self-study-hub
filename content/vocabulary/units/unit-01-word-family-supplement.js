@@ -1,3 +1,5 @@
+import unit1LanguageBank from './unit-01-language-bank.js';
+
 const unitNumber = 1;
 const status = 'approved';
 
@@ -17,6 +19,34 @@ function family(id, vocabularyId, prompt, sourceText, acceptedAnswer) {
     }
   };
 }
+
+function vocabularyIdFor(term) {
+  return `vocab_${String(term ?? '').trim().toLocaleLowerCase('en').replace(/[’']/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'')}`;
+}
+
+function languageBankContext(term, record) {
+  const vocabularyId = vocabularyIdFor(term);
+  return {
+    activityContentId:`language-bank:${record.id}`,
+    unitNumber,
+    contentType:'writing_set',
+    status,
+    activityData:{
+      taskType:'language_bank_context',
+      prompt:'Complete the sentence with the best word or phrase.',
+      sourceText:record.text,
+      acceptedAnswers:[record.answer],
+      distractors:Array.isArray(record.distractors) ? record.distractors : [],
+      linkedVocabularyIds:[vocabularyId],
+      primaryEvidenceTargetId:vocabularyId,
+      languageBankContextId:record.id
+    }
+  };
+}
+
+const languageBankContextActivities = Object.entries(unit1LanguageBank).flatMap(([term, bank]) =>
+  (Array.isArray(bank?.contexts) ? bank.contexts : []).map(record => languageBankContext(term, record))
+);
 
 export default [
   // Second prompts for targets already represented in the core Unit 1 activity bank.
@@ -75,5 +105,9 @@ export default [
   family('reputation_b','vocab_reputation','Use the correct form from the reputation word family.','The academy has a strong _____ for excellent coaching.','reputation'),
 
   family('reasonable_a','vocab_reasonable','Use the correct form from the reasonable word family.','The membership fee is _____ priced for students.','reasonably'),
-  family('reasonable_b','vocab_reasonable','Use the correct form from the reasonable word family.','The referee rejected the _____ complaint immediately.','unreasonable')
+  family('reasonable_b','vocab_reasonable','Use the correct form from the reasonable word family.','The referee rejected the _____ complaint immediately.','unreasonable'),
+
+  // Reviewed language-bank contexts publish through the existing unit-activity channel so
+  // browser and server share one authoritative record without adding database columns.
+  ...languageBankContextActivities
 ];

@@ -215,6 +215,7 @@ Deno.serve(async (req: Request) => {
 
     let markingContext: any;
     let evidenceContentId: string;
+    let contextualEvidenceId: string | null = null;
     let primaryEvidenceTargetId: string | null = occurrence.vocabulary_id;
 
     if (input.contentSource === 'unit_activity') {
@@ -230,6 +231,7 @@ Deno.serve(async (req: Request) => {
       const marking = unitActivityMarking(activity, input.questionType, input.activityVariantId);
       markingContext = { contextId:activity.activity_content_id, activityContentId:activity.activity_content_id, ...marking };
       evidenceContentId = activity.activity_content_id;
+      if (data.taskType === 'language_bank_context') contextualEvidenceId = activity.activity_content_id;
     } else if (input.contentSource === 'context') {
       const { data:context, error:contextError } = await adminClient.from('vocabulary_contexts').select('context_id, occurrence_id, sense_id, context_type, prompt_text, accepted_answers, misconception_category, status').eq('context_id', input.contextId).eq('status','live').single();
       if (contextError || !context || context.occurrence_id !== occurrence.occurrence_id || context.sense_id !== occurrence.sense_id) return json({ error:'Vocabulary context does not match target' }, 400);
@@ -237,6 +239,7 @@ Deno.serve(async (req: Request) => {
       const acceptedAnswers = sentenceAnswerTypes.has(input.questionType) ? [String(context.prompt_text ?? '').trim()].filter(Boolean) : (context.accepted_answers ?? []);
       markingContext = { contextId:context.context_id, acceptedAnswers };
       evidenceContentId = context.context_id;
+      contextualEvidenceId = context.context_id;
     } else {
       const marking = itemMarking(item, sense, input.questionType);
       markingContext = { ...marking };
@@ -251,7 +254,7 @@ Deno.serve(async (req: Request) => {
       strand, strands:contract.strands, evidenceStrength:contract.evidenceStrength, supportLevel,
       productive:contract.productive, repeatedGuess:input.repeatedGuess, correct:marked.correct,
       firstAttempt:input.firstAttempt, retryUsed:input.retryUsed, recoveredLater:input.recoveredLater,
-      contextId:input.contentSource === 'context' ? evidenceContentId : null,
+      contextId:contextualEvidenceId,
       activityContentId:input.contentSource === 'unit_activity' ? evidenceContentId : null,
       questionType:input.questionType, activityType:input.questionType, review:input.review
     };
@@ -309,7 +312,7 @@ Deno.serve(async (req: Request) => {
             retryUsed:input.retryUsed,
             supportLevel,
             contentId:questionIdentity,
-            contextId:input.contentSource === 'context' ? evidenceContentId : null,
+            contextId:contextualEvidenceId,
             promptKey:`${evidenceContentId}:${input.activityVariantId ?? input.questionType}`,
             activityType:input.questionType,
             operation:pathwayOperation(input.questionType),

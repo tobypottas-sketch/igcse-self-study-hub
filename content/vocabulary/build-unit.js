@@ -98,6 +98,7 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
       senses:[sense],
       wordFamily:array(entry.wordFamily).map(text).filter(Boolean),
       collocations:array(entry.collocations).map(text).filter(Boolean),
+      ...(Object.keys(object(entry.languageBank)).length ? { languageBank:object(entry.languageBank) } : {}),
       status
     });
 

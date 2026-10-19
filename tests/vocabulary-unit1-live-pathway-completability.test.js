@@ -34,6 +34,7 @@ function strongMastery() {
 
 function serverLikeAttempt(pathwayId, stageId, question) {
   const evidenceId = question.contentId;
+  const contextualEvidence = question.contentSource === 'context' || question.contentSource === 'language_bank';
   return {
     stageId,
     servedStageId:stageId,
@@ -42,7 +43,7 @@ function serverLikeAttempt(pathwayId, stageId, question) {
     retryUsed:false,
     supportLevel:'none',
     contentId:evidenceId,
-    contextId:question.contentSource === 'context' ? evidenceId : null,
+    contextId:contextualEvidence ? evidenceId : null,
     promptKey:`${evidenceId}:${question.activityVariantId ?? question.type}`,
     activityType:question.type,
     operation:question.type,
