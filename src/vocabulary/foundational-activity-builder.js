@@ -119,10 +119,17 @@ function matchingActivity(args, definition) {
     : definition.id === 'drag_definition_word'
       ? 'Drag each definition to the correct word.'
       : 'Drag each word to the correct definition.';
+  const matchExtra = definition.id === 'word_definition_match'
+    ? {
+        matchCue:target.term,
+        matchOptions:pairs.map(pair => pair.definition),
+        matchPresentation:'meaning_word_to_definition'
+      }
+    : {};
   return baseActivity({
     definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt,
     markingReference:{ acceptedAnswers:[answer] },
-    extra:{ pairs, primaryEvidenceTargetId:args.item.vocabularyId }
+    extra:{ pairs, primaryEvidenceTargetId:args.item.vocabularyId, ...matchExtra }
   });
 }
 function replaceFirstIgnoreCase(source, needle, replacement) {
