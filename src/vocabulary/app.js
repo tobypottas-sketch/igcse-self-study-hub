@@ -5,7 +5,7 @@ import { buildSupportStep } from './scaffolding.js';
 import { completeAttempt, createSession, expireSession, isSessionComplete } from './session.js';
 import { buildTargetPracticeQuestion, buildTimedMixedQuestion, selectEligiblePriorityTargets } from './session-targets.js';
 import { planPathwayQuestion, eligibleTargetsForPathwayStage } from './pathway-planner.js';
-import { buildUnitPathwayStates, buildWordPathwayStates } from './pathway-view-model.js';
+import { buildUnitPathwayStates, buildWordPathwayStates, targetsForPathwayStage } from './pathway-view-model.js';
 import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
 import { deriveLearningStage } from './learning-stage.js';
 import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
@@ -130,7 +130,10 @@ function startPathwaySession(pathwayId) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   const pathwayStates = buildUnitPathwayStates({ occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
   const stageId = pathwayStates?.[pathwayId]?.currentStage ?? 'recognise';
-  const eligible = eligibleTargetsForPathwayStage({ pathwayId, stageId, content:state.content, masteryByVocabularyId:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${pathwayId}:${stageId}` });
+  const stageTargets = targetsForPathwayStage({ pathwayId, stageId, occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
+  const stageTargetIds = new Set(stageTargets.map(target => target.occurrenceId));
+  const eligible = eligibleTargetsForPathwayStage({ pathwayId, stageId, content:state.content, masteryByVocabularyId:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${pathwayId}:${stageId}` })
+    .filter(target => stageTargetIds.has(target.occurrenceId));
   if (!eligible.length) throw new Error('No suitable curated activity is available for this pathway stage yet.');
   const eligibleIds = new Set(eligible.map(target => target.occurrenceId));
   const ranked = rankedTargets(Math.max(10,state.content.occurrences.length),'adaptive').filter(target => eligibleIds.has(target.occurrenceId));
