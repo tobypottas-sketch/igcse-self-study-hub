@@ -62,12 +62,17 @@ test('foundational catalogue types exist with the intended first-class response 
   }
 });
 
-test('definition and matching activities use plausible unit material and one primary evidence target', () => {
+test('definition and matching activities use plausible curated material and one primary evidence target', () => {
   const choice = build('definition_to_word');
   assert.equal(choice.contentSource, 'item');
   assert.ok(choice.options.includes('significant'));
   assert.equal(choice.options.length, 4);
-  assert.ok(choice.options.every(option => unitItems.some(candidate => candidate.term === option)));
+  const allowedChoiceOptions = new Set([
+    item.term,
+    ...item.senses[0].misleadingDistractors,
+    ...unitItems.filter(candidate => candidate.partOfSpeech === item.partOfSpeech).map(candidate => candidate.term)
+  ]);
+  assert.ok(choice.options.every(option => allowedChoiceOptions.has(option)));
 
   for (const type of ['word_definition_match','drag_word_definition','drag_definition_word']) {
     const activity = build(type);
@@ -109,7 +114,11 @@ test('word-family choice uses curated writing content and plausible family alter
 });
 
 test('foundational builders fail closed when quality prerequisites are missing', () => {
-  assert.throws(() => buildActivity({ activityType:'definition_to_word', occurrence, item, contexts, unitItems:[item], unitContexts:contexts, unitOccurrences:[occurrence], unitActivities, mastery:masteryNew }), /distractor|alternative|requires/i);
+  const itemWithoutDistractors = {
+    ...item,
+    senses:item.senses.map(sense => ({ ...sense, misleadingDistractors:[] }))
+  };
+  assert.throws(() => buildActivity({ activityType:'definition_to_word', occurrence, item:itemWithoutDistractors, contexts, unitItems:[itemWithoutDistractors], unitContexts:contexts, unitOccurrences:[occurrence], unitActivities, mastery:masteryNew }), /distractor|alternative|requires/i);
   assert.throws(() => buildActivity({ activityType:'gap_fill_bank', occurrence, item, contexts:[{ ...contexts[0], targetRewrite:'missing phrase' }], unitItems, unitContexts, unitOccurrences, unitActivities, mastery:masteryBuilding }), /blank|context|rewrite/i);
   assert.throws(() => buildActivity({ activityType:'word_family_choice', occurrence, item:{ ...item, wordFamily:[] }, contexts, unitItems:[{ ...item, wordFamily:[] }], unitContexts, unitOccurrences, unitActivities:[], mastery:masteryBuilding }), /word-family|word family|curated/i);
 });
