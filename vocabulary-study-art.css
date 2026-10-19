@@ -78,10 +78,13 @@
 
 /* Motion polish: keep the question canvas anchored and animate only local feedback. */
 :root{--study-motion-feedback:420ms;--study-motion-celebrate:2000ms;--study-motion-results:520ms}
-.vocab-question-card.study-enter:has(.study-feedback){animation:none!important}
 .study-feedback.study-success{animation:study-feedback-success var(--study-motion-feedback) var(--study-ease) both}
 .study-feedback.study-error{animation:study-feedback-retry var(--study-motion-feedback) var(--study-ease) both}
-.vocab-retry-stage.study-enter{animation:study-feedback-stage 360ms var(--study-ease) both}
+
+/* Stable navigation surfaces must never fade from near-transparent on rerender. */
+.vocab-unit-card.study-enter,.vocab-pathway-card.study-enter,.vocab-word-row.study-enter{animation:none!important}
+.vocab-question-card.study-enter{animation:none!important}
+.vocab-retry-stage.study-enter{animation:none!important}
 
 /* Hide the temporary icon celebration before the artwork decorator swaps in the trophy. */
 .vocab-celebration{visibility:hidden}
@@ -99,12 +102,11 @@
 
 @keyframes study-feedback-success{0%{opacity:.45;transform:translateY(4px) scale(.992)}55%{opacity:1;transform:translateY(0) scale(1.006)}100%{opacity:1;transform:none}}
 @keyframes study-feedback-retry{0%{opacity:.45;transform:translateY(4px)}100%{opacity:1;transform:none}}
-@keyframes study-feedback-stage{0%{opacity:.35;transform:translateY(5px)}100%{opacity:1;transform:none}}
 @keyframes study-summary-settle{0%{opacity:.55;transform:translateY(8px)}100%{opacity:1;transform:none}}
 @keyframes study-trophy-settle{0%{opacity:0;transform:translateY(18px) scale(.78) rotate(-3deg)}32%{opacity:1;transform:translateY(-5px) scale(1.055) rotate(.8deg)}52%{transform:translateY(1px) scale(.992) rotate(0)}72%{transform:translateY(-1px) scale(1.012)}100%{opacity:1;transform:none}}
 @keyframes study-rays-settle{0%{opacity:0;transform:scale(.62) rotate(-14deg)}42%{opacity:.66;transform:scale(1.06) rotate(5deg)}72%{opacity:.52;transform:scale(1.02) rotate(8deg)}100%{opacity:.42;transform:scale(1) rotate(10deg)}}
 @keyframes study-result-reveal{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:none}}
 
 @media (prefers-reduced-motion:reduce){
-  .vocab-question-card.study-enter:has(.study-feedback),.study-feedback.study-success,.study-feedback.study-error,.vocab-retry-stage.study-enter,.vocab-summary-card[data-study-completion],.vocab-completion-art__image,.vocab-completion-rays,.vocab-summary-grid>div{animation:none!important;transition:none!important;transform:none!important;opacity:1!important}
+  .vocab-question-card.study-enter,.study-feedback.study-success,.study-feedback.study-error,.vocab-retry-stage.study-enter,.vocab-summary-card[data-study-completion],.vocab-completion-art__image,.vocab-completion-rays,.vocab-summary-grid>div{animation:none!important;transition:none!important;transform:none!important;opacity:1!important}
 }
