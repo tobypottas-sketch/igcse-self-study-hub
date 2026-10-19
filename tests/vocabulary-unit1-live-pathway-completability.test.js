@@ -79,13 +79,22 @@ const content = plannerContent(unit1);
 const coverage = buildPathwayCoverage({ content });
 const LIVE_PATHWAYS = ['meaning','context','word_families','spelling_recall'];
 
-test('Unit 1 Word Families serves every vocabulary item with a curated word family', () => {
+test('Unit 1 Word Families exposes only targets with enough same-family forms for a genuine Match rung', () => {
   const expected = unit1.occurrences
-    .filter(occurrence => (content.itemsById[occurrence.vocabularyId]?.wordFamily ?? []).length > 0)
+    .filter(occurrence => {
+      const item = content.itemsById[occurrence.vocabularyId];
+      const family = new Set((item?.wordFamily ?? []).map(value => String(value).trim().toLowerCase()).filter(Boolean));
+      const hasCuratedFamilyPrompt = unit1.activities.some(activity =>
+        activity.contentType === 'writing_set' &&
+        activity.activityData?.taskType === 'word_family' &&
+        (activity.activityData?.linkedVocabularyIds ?? []).includes(occurrence.vocabularyId)
+      );
+      return family.size >= 4 && hasCuratedFamilyPrompt;
+    })
     .map(occurrence => occurrence.occurrenceId)
     .sort();
-  assert.ok(expected.length > 0,'Unit 1 needs real word-family targets');
-  assert.equal(coverage.word_families.available,true,'Word Families must be live once the bank is complete');
+  assert.ok(expected.length > 0,'Unit 1 needs real four-form word-family targets');
+  assert.equal(coverage.word_families.available,true,'Word Families must be live for its genuinely serviceable cohort');
   assert.deepEqual([...coverage.word_families.occurrenceIds].sort(),expected);
 });
 
