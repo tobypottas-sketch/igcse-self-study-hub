@@ -1,0 +1,300 @@
+name: Vocabulary Session Finish Implementation
+
+on:
+  push:
+    branches:
+      - feat/vocabulary-session-finish
+
+permissions:
+  contents: write
+
+jobs:
+  implement-and-test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/vocabulary-session-finish
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Apply approved session-finish implementation
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import re
+
+          # Controller integration: classify only from authoritative post-save pathway state.
+          app_path = Path('src/vocabulary/app.js')
+          app = app_path.read_text()
+          pathway_import = "import { buildUnitPathwayStates, buildWordPathwayStates, targetsForPathwayStage } from './pathway-view-model.js';\n"
+          finish_import = "import { buildSessionFinishModel } from './session-finish-model.js';\n"
+          if finish_import not in app:
+              app = app.replace(pathway_import, pathway_import + finish_import)
+
+          finish_block = '''function finishSession() {
+            if (!state.session) return;
+            if (state.session.mode === 'timed') state.session = expireSession(state.session, new Date());
+            clearClock();
+            const finished = state.session;
+            const postPathwayState = state.pathwayId && state.content
+              ? buildUnitPathwayStates({ occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery })?.[state.pathwayId] ?? null
+              : null;
+            const finishModel = state.pathwayId
+              ? buildSessionFinishModel({ summary:finished.summary, pathwayId:state.pathwayId, startStage:state.pathwayStage, postPathwayState, preview:state.preview, fixedMissionSize:10 })
+              : null;
+            state.current = null;
+            if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'exercise_result', activity_id:`session_complete:${finished.mode}:${state.pathwayId ?? (state.mixedReview ? 'mixed-review' : finished.practiceMode ?? 'adaptive')}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${finished.unitNumber}`, score:finished.summary.strengthened, max_score:Math.max(1, finished.summary.practised), metadata:{ unit_number:finished.unitNumber, pathway_id:state.pathwayId, pathway_stage:state.pathwayStage, review_only:state.mixedReview } }).catch(() => {});
+            renderSessionSummary(root, { durationMinutes:finished.durationMinutes, summary:finished.summary, practiceMode:finished.practiceMode ?? 'adaptive', pathwayId:state.pathwayId, finishModel });
+            decoratePreview();
+            root.querySelector?.('[data-session-finish-heading]')?.focus?.();
+          }
+          async function finishSessionWhenSaved() {'''
+          pattern = re.compile(r"function finishSession\(\) \{[\s\S]*?\n\}\nasync function finishSessionWhenSaved\(\) \{")
+          if not pattern.search(app):
+              raise SystemExit('finishSession block not found')
+          app = pattern.sub(finish_block, app, count=1)
+          app_path.write_text(app)
+
+          # Result renderer: one adaptive Mission Result Card plus the existing fallback for timed/mixed practice.
+          views_path = Path('src/vocabulary/views.js')
+          views = views_path.read_text()
+          replacement = r'''function renderFinishStars(stars) {
+            const count = Number(stars);
+            if (!Number.isFinite(count) || count <= 0) return '';
+            const glyphs = Array.from({ length:count },() => '<span aria-hidden="true">★</span>').join('');
+            return `<div class="vocab-finish-stars" aria-label="${count} out of 3 stars earned">${glyphs}</div>`;
+          }
+
+          function renderFinishLadder(model = {}) {
+            const completed = new Set(Array.isArray(model.completedStages) ? model.completedStages : []);
+            const activeStage = model.variant === 'stage-complete' ? model.nextStageId : model.stageId;
+            return PATHWAY_STAGES.map(stage => {
+              let state = 'locked';
+              if (model.variant === 'mastered' || completed.has(stage.id) || (model.variant === 'stage-complete' && stage.id === model.stageId)) state = 'complete';
+              else if (stage.id === activeStage) state = 'current';
+              const marker = state === 'complete' ? '✓' : state === 'current' ? '●' : '○';
+              return `<span class="vocab-finish-stage" data-state="${state}" data-stage="${escapeHtml(stage.id)}"><i aria-hidden="true">${marker}</i><small>${escapeHtml(stage.label)}</small></span>`;
+            }).join('');
+          }
+
+          export function renderSessionSummary(root, { durationMinutes = null, summary = {}, practiceMode = 'adaptive', nextPractice = null, pathwayId = null, finishModel = null } = {}) {
+            if (finishModel && pathwayId) {
+              const identity = pathwayIdentity(pathwayId);
+              const score = Number(finishModel.score ?? summary.strengthened ?? 0);
+              const denominator = Number(finishModel.denominator ?? summary.practised ?? 0);
+              const needsAnotherLook = Number(finishModel.needsAnotherLook ?? summary.needsAnotherLook ?? 0);
+              const stars = renderFinishStars(finishModel.stars);
+              const context = finishModel.pathwayLabel && finishModel.stageLabel
+                ? `<div class="vocab-finish-context"><strong>${escapeHtml(finishModel.pathwayLabel)} · ${escapeHtml(finishModel.stageLabel)}</strong><span>Stage ${escapeHtml(finishModel.stageNumber)} of ${PATHWAY_STAGES.length}</span></div>`
+                : '';
+              const unlock = finishModel.variant === 'stage-complete'
+                ? `<div class="vocab-finish-unlock"><span>${escapeHtml(finishModel.kicker)}</span><strong>${escapeHtml(String(finishModel.nextStageLabel ?? '').toUpperCase())} UNLOCKED</strong></div>`
+                : finishModel.variant === 'mastered'
+                  ? `<div class="vocab-finish-unlock vocab-finish-unlock--mastered"><strong>All five stages complete</strong></div>`
+                  : '';
+              const primary = finishModel.primaryAction
+                ? `<button class="vocab-button vocab-button--primary" data-action="continue-practice">${escapeHtml(finishModel.primaryAction.label)} ${renderStudyIcon('arrow')}</button>`
+                : '';
+              root.innerHTML = `<main class="vocab-shell vocab-shell--finish" data-study-accent="${escapeHtml(identity.accent)}"><article class="vocab-summary-card vocab-finish-card study-milestone-card" data-study-completion data-finish-variant="${escapeHtml(finishModel.variant)}" aria-label="${escapeHtml(finishModel.accessibleSummary ?? '')}"><div class="vocab-summary-identity">${renderStudyIcon(identity.icon,{className:'study-icon--xl'})}<p class="vocab-kicker">${escapeHtml(finishModel.variant === 'session' ? 'SESSION COMPLETE' : finishModel.kicker)}</p></div><h1 data-session-finish-heading tabindex="-1">${escapeHtml(finishModel.heading)}</h1>${stars}<div class="vocab-finish-score"><strong>${escapeHtml(score)} / ${escapeHtml(denominator)}</strong><span>correct</span></div><p class="vocab-finish-support">${escapeHtml(finishModel.supportCopy)}</p><div class="vocab-finish-evidence"><div><strong>${escapeHtml(score)}</strong><span>words strengthened</span></div><div><strong>${escapeHtml(needsAnotherLook)}</strong><span>need another look</span></div></div>${context}<div class="vocab-finish-ladder" aria-label="${escapeHtml(finishModel.pathwayLabel)} pathway stages">${renderFinishLadder(finishModel)}</div>${unlock}<div class="vocab-summary-actions vocab-finish-actions">${primary}<button class="vocab-button" data-action="back-unit">Finish for now</button></div></article></main>`;
+              return;
+            }
+
+            const selected = focusDefinition(practiceMode);
+            const identity = pathwayIdentity(pathwayId);
+            const practised = Number(summary.practised ?? 0);
+            const title = durationMinutes ? `${durationMinutes}-minute session complete` : `${selected.label} session complete`;
+            const next = nextPractice ? `<p class="vocab-next-practice"><strong>Next useful practice:</strong> ${escapeHtml(focusDefinition(nextPractice).label)}</p>` : '';
+            const mastered = Number(summary.mastered ?? 0);
+            const masteredCard = mastered > 0 ? `<div><strong>${escapeHtml(mastered)}</strong><span>mastered</span></div>` : '';
+            const celebration = !durationMinutes && practised >= 10 ? `<div class="vocab-celebration study-milestone" aria-hidden="true">${renderStudyIcon('trophy',{className:'study-icon--xl'})}<span>✦</span><span>●</span><span>✦</span></div>` : '';
+            root.innerHTML = `<main class="vocab-shell" data-study-accent="${escapeHtml(identity.accent)}"><section class="vocab-summary-card study-milestone-card" data-study-completion>${celebration}<div class="vocab-summary-identity">${renderStudyIcon(identity.icon,{className:'study-icon--xl'})}<p class="vocab-kicker">Progress made</p></div><h1>${practised >= 10 ? 'Great work!' : escapeHtml(title)}</h1><p class="vocab-summary-subtitle">${escapeHtml(title)}</p><div class="vocab-summary-grid"><div><strong>${escapeHtml(practised)}</strong><span>activities completed</span></div><div><strong>${escapeHtml(summary.strengthened ?? 0)}</strong><span>successful activities</span></div>${masteredCard}<div><strong>${escapeHtml(summary.secure ?? 0)}</strong><span>moved to Secure</span></div></div><p>${escapeHtml(summary.needsAnotherLook ?? 0)} still need another look. They will return in a different form.</p>${next}<div class="vocab-summary-actions"><button class="vocab-button vocab-button--primary" data-action="continue-practice">Continue practising ${renderStudyIcon('arrow')}</button><button class="vocab-button" data-action="back-unit">Back to unit</button></div></section></main>`;
+          }
+
+          export function renderVocabularyError'''
+          view_pattern = re.compile(r"export function renderSessionSummary\([\s\S]*?\n\}\n\nexport function renderVocabularyError")
+          if not view_pattern.search(views):
+              raise SystemExit('renderSessionSummary block not found')
+          views = view_pattern.sub(replacement, views, count=1)
+          views_path.write_text(views)
+
+          # Completion artwork follows the result variant while reusing existing assets.
+          art_path = Path('src/vocabulary/study-art-runtime.js')
+          art = art_path.read_text()
+          art_replacement = r'''function decorateCompletion(scope) {
+            for (const card of scope.querySelectorAll?.('[data-study-completion]') ?? []) {
+              if (card.querySelector?.('[data-study-completion-art]')) continue;
+              const variant = card.dataset.finishVariant ?? 'session';
+              const artKind = variant === 'mastered' ? 'mastered' : variant === 'stage-complete' ? 'stage_advanced' : 'completion';
+              const artwork = achievementArtwork(artKind);
+              if (!artwork) continue;
+              const wrap = document.createElement('div');
+              wrap.className = 'vocab-completion-art';
+              wrap.dataset.studyCompletionArt = artKind;
+              wrap.setAttribute('aria-hidden','true');
+              const rays = document.createElement('span');
+              rays.className = 'vocab-completion-rays';
+              rays.setAttribute('aria-hidden','true');
+              wrap.append(rays,imageElement({ ...artwork, alt:'' },'vocab-completion-art__image'));
+              const celebration = card.querySelector?.('.vocab-celebration');
+              if (celebration) celebration.replaceWith(wrap); else card.prepend(wrap);
+            }
+          }'''
+          art_pattern = re.compile(r"function decorateCompletion\(scope\) \{[\s\S]*?\n\}")
+          if not art_pattern.search(art):
+              raise SystemExit('decorateCompletion block not found')
+          art = art_pattern.sub(art_replacement, art, count=1)
+          art_path.write_text(art)
+
+          # Focused finish-card layout; leave question and pathway-card geometry untouched.
+          css_path = Path('vocabulary-study-app.css')
+          css = css_path.read_text()
+          marker = '/* Session finish mission result card */'
+          if marker not in css:
+              css += r'''
+
+          /* Session finish mission result card */
+          .vocab-shell--finish{display:grid;place-items:center;min-height:calc(100vh - 48px);padding-block:28px}
+          .vocab-finish-card{width:min(100%,720px);text-align:center;overflow:hidden}
+          .vocab-finish-card [data-session-finish-heading]:focus{outline:none}
+          .vocab-finish-stars{display:flex;justify-content:center;gap:8px;margin:8px 0 4px;font-size:1.7rem;line-height:1;color:color-mix(in srgb,var(--study-accent) 68%,#e8a72f)}
+          .vocab-finish-score{display:flex;align-items:baseline;justify-content:center;gap:8px;margin:12px 0 8px}
+          .vocab-finish-score strong{font-size:clamp(2rem,7vw,3.6rem);letter-spacing:-.045em;line-height:1}
+          .vocab-finish-score span{font-weight:800;color:var(--study-muted)}
+          .vocab-finish-support{max-width:520px;margin:0 auto 18px;color:var(--study-muted);font-weight:700}
+          .vocab-finish-evidence{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+          .vocab-finish-evidence>div{display:grid;gap:2px;padding:14px;border:1px solid color-mix(in srgb,var(--study-accent) 14%,#dce5ec);border-radius:16px;background:color-mix(in srgb,var(--study-accent-soft) 42%,white)}
+          .vocab-finish-evidence strong{font-size:1.55rem}.vocab-finish-evidence span{font-size:.82rem;font-weight:800;color:var(--study-muted)}
+          .vocab-finish-context{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:18px 0 10px;text-align:left}.vocab-finish-context span{font-size:.82rem;font-weight:800;color:var(--study-muted)}
+          .vocab-finish-ladder{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;min-width:0;margin:10px 0 18px}
+          .vocab-finish-stage{display:grid;place-items:center;gap:4px;min-width:0;padding:10px 4px;border-radius:13px;background:#f7f9fb;border:1px solid #e6edf2;color:var(--study-muted)}
+          .vocab-finish-stage i{font-style:normal;font-weight:900}.vocab-finish-stage small{max-width:100%;overflow-wrap:anywhere;font-weight:800}
+          .vocab-finish-stage[data-state="complete"]{background:color-mix(in srgb,var(--study-accent-soft) 60%,white);border-color:color-mix(in srgb,var(--study-accent) 20%,white);color:var(--study-ink)}
+          .vocab-finish-stage[data-state="current"]{background:color-mix(in srgb,var(--study-accent-soft) 78%,white);border-color:color-mix(in srgb,var(--study-accent) 34%,white);color:var(--study-ink);box-shadow:0 6px 18px color-mix(in srgb,var(--study-accent) 10%,transparent)}
+          .vocab-finish-unlock{display:grid;gap:4px;margin:4px 0 18px;padding:14px;border-radius:16px;background:color-mix(in srgb,var(--study-accent-soft) 68%,white);border:1px solid color-mix(in srgb,var(--study-accent) 22%,white)}
+          .vocab-finish-unlock span{font-size:.78rem;font-weight:800;color:var(--study-muted)}.vocab-finish-unlock strong{letter-spacing:.035em}.vocab-finish-unlock--mastered strong{font-size:1.05rem}
+          .vocab-finish-actions{display:flex;justify-content:center;gap:10px;margin-top:18px}.vocab-finish-actions .vocab-button{min-width:170px}
+          @media (max-width:620px){.vocab-shell--finish{display:block;padding-block:16px}.vocab-finish-card{width:100%}.vocab-finish-evidence{grid-template-columns:1fr}.vocab-finish-context{display:grid;text-align:center}.vocab-finish-ladder{gap:4px}.vocab-finish-stage{padding:8px 2px}.vocab-finish-stage small{font-size:.66rem}.vocab-finish-actions{display:grid}.vocab-finish-actions .vocab-button{width:100%;min-width:0}}
+          @media (prefers-reduced-motion:reduce){.vocab-finish-card,.vocab-finish-stars,.vocab-finish-stage,.vocab-finish-unlock{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+          '''
+          css_path.write_text(css)
+
+          # Short, restrained finish motion. Existing reduced-motion rules remain authoritative.
+          art_css_path = Path('vocabulary-study-art.css')
+          art_css = art_css_path.read_text()
+          art_css = art_css.replace(':root{--study-motion-feedback:420ms;--study-motion-celebrate:2000ms;--study-motion-results:520ms}', ':root{--study-motion-feedback:420ms;--study-motion-celebrate:720ms;--study-motion-results:520ms}')
+          motion_marker = '/* Session finish variant motion */'
+          if motion_marker not in art_css:
+              art_css += r'''
+
+          /* Session finish variant motion */
+          .vocab-summary-card[data-study-completion][data-finish-variant="session"] .vocab-completion-art__image{animation-duration:620ms}
+          .vocab-summary-card[data-study-completion][data-finish-variant="stage-complete"] .vocab-completion-art__image{animation-duration:820ms}
+          .vocab-summary-card[data-study-completion][data-finish-variant="mastered"] .vocab-completion-art__image{animation-duration:900ms}
+          .vocab-summary-card[data-study-completion][data-finish-variant="session"] .vocab-completion-rays{animation-duration:650ms}
+          .vocab-summary-card[data-study-completion][data-finish-variant="stage-complete"] .vocab-completion-rays{animation-duration:820ms}
+          .vocab-summary-card[data-study-completion][data-finish-variant="mastered"] .vocab-completion-rays{animation-duration:900ms}
+          .vocab-finish-evidence>div{opacity:0;animation:study-result-reveal var(--study-motion-results) var(--study-ease) forwards}
+          .vocab-finish-evidence>div:nth-child(1){animation-delay:110ms}.vocab-finish-evidence>div:nth-child(2){animation-delay:180ms}
+          @media (prefers-reduced-motion:reduce){.vocab-finish-evidence>div{animation:none!important;opacity:1!important}}
+          '''
+          art_css_path.write_text(art_css)
+
+          # Update the old motion expectation to the approved restrained envelope.
+          motion_test_path = Path('tests/vocabulary-motion-polish.test.js')
+          motion_test = motion_test_path.read_text()
+          motion_test = motion_test.replace("test('completion celebration lasts about two seconds and hides the pre-decoration placeholder', () => {\n  assert.match(css,/--study-motion-celebrate:2000ms/);", "test('completion celebration uses restrained session, stage and mastery motion and hides the placeholder', () => {\n  assert.match(css,/--study-motion-celebrate:720ms/);\n  assert.match(css,/data-finish-variant=\\\"session\\\"/);\n  assert.match(css,/data-finish-variant=\\\"stage-complete\\\"/);\n  assert.match(css,/data-finish-variant=\\\"mastered\\\"/);")
+          motion_test_path.write_text(motion_test)
+
+          Path('tests/vocabulary-session-finish-controller.test.js').write_text(r'''import test from 'node:test';
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs';
+
+          const app = fs.readFileSync(new URL('../src/vocabulary/app.js', import.meta.url),'utf8');
+          const finishSection = app.slice(app.indexOf('function finishSession()'),app.indexOf('function startActiveTime()'));
+
+          test('pathway finish is classified from authoritative post-save pathway state', () => {
+            assert.match(app,/buildSessionFinishModel/);
+            assert.match(finishSection,/buildUnitPathwayStates\(\{ occurrences:state\.content\.occurrences, unitMastery:state\.unitMastery, globalMastery:state\.globalMastery \}\)/);
+            assert.match(finishSection,/startStage:state\.pathwayStage/);
+            assert.match(finishSection,/postPathwayState/);
+            assert.match(finishSection,/preview:state\.preview/);
+            assert.doesNotMatch(finishSection,/strengthened\s*[>=<]+\s*\d+[\s\S]*stage-complete/);
+          });
+
+          test('finish waits for persistence before it can render authoritative progression', () => {
+            const waiting = finishSection.slice(finishSection.indexOf('async function finishSessionWhenSaved'));
+            assert.ok(waiting.indexOf('await state.persistenceChain') >= 0);
+            assert.ok(waiting.indexOf('await state.persistenceChain') < waiting.indexOf('finishSession();'));
+            assert.match(waiting,/if \(state\.persistenceBlocked\)/);
+          });
+
+          test('finish renderer receives pathway context and focus moves to the completion heading', () => {
+            assert.match(finishSection,/renderSessionSummary\(root, \{[^}]*pathwayId:state\.pathwayId, finishModel/s);
+            assert.match(finishSection,/\[data-session-finish-heading\]/);
+            assert.match(finishSection,/\.focus\?\.\(\)/);
+          });
+          ''')
+
+          Path('tests/vocabulary-session-finish-view.test.js').write_text(r'''import test from 'node:test';
+          import assert from 'node:assert/strict';
+          import { renderSessionSummary } from '../src/vocabulary/views.js';
+
+          function root() { return { innerHTML:'' }; }
+          function model(extra = {}) {
+            return {
+              variant:'session', score:8, denominator:10, stars:2, pathwayId:'meaning', pathwayLabel:'Meaning', stageId:'match', stageLabel:'Match', stageNumber:2,
+              nextStageId:null, nextStageLabel:null, heading:'Session complete', kicker:'SESSION COMPLETE', supportCopy:'Good work — keep building. Your progress is saved.',
+              primaryAction:{ id:'continue-practice', label:'Continue studying' }, showProgressSaved:true, completedStages:['recognise'], needsAnotherLook:2,
+              accessibleSummary:'Session complete. 8 out of 10 correct. 2 out of 3 stars earned. 8 words strengthened. 2 need another look. Match, stage 2 of 5.',
+              ...extra
+            };
+          }
+
+          test('standard result is a complete optional-stop mission with score, stars, evidence and both actions', () => {
+            const target = root(); renderSessionSummary(target,{ pathwayId:'meaning', summary:{practised:10,strengthened:8,needsAnotherLook:2}, finishModel:model() });
+            assert.match(target.innerHTML,/SESSION COMPLETE/i); assert.match(target.innerHTML,/8 \/ 10/); assert.match(target.innerHTML,/2 out of 3 stars earned/);
+            assert.match(target.innerHTML,/words strengthened/); assert.match(target.innerHTML,/need another look/); assert.match(target.innerHTML,/Continue studying/); assert.match(target.innerHTML,/Finish for now/);
+            assert.match(target.innerHTML,/data-session-finish-heading/); assert.match(target.innerHTML,/tabindex="-1"/);
+          });
+
+          test('low score omits empty-star UI and stays supportive', () => {
+            const target = root(); renderSessionSummary(target,{ pathwayId:'meaning', finishModel:model({score:4,stars:0,needsAnotherLook:6,supportCopy:'Good practice — a few words need another go.'}) });
+            assert.doesNotMatch(target.innerHTML,/vocab-finish-stars/); assert.match(target.innerHTML,/Good practice/); assert.doesNotMatch(target.innerHTML,/failed|failure/i);
+          });
+
+          test('stage clear shows the authoritative unlock but still offers Finish for now', () => {
+            const target = root(); renderSessionSummary(target,{ pathwayId:'meaning', finishModel:model({variant:'stage-complete',heading:'MATCH COMPLETE',kicker:'Stage 2 cleared',nextStageId:'apply',nextStageLabel:'Apply',completedStages:['recognise','match'],primaryAction:{id:'continue-practice',label:'Start Apply'},supportCopy:'You cleared this stage.'}) });
+            assert.match(target.innerHTML,/MATCH COMPLETE/); assert.match(target.innerHTML,/Stage 2 cleared/); assert.match(target.innerHTML,/APPLY UNLOCKED/); assert.match(target.innerHTML,/Start Apply/); assert.match(target.innerHTML,/Finish for now/);
+          });
+
+          test('mastery is a valid stopping point with no forced Continue action', () => {
+            const target = root(); renderSessionSummary(target,{ pathwayId:'meaning', finishModel:model({variant:'mastered',heading:'MEANING MASTERED',kicker:'PATHWAY COMPLETE',completedStages:['recognise','match','apply','recall','mastery'],primaryAction:null,supportCopy:'You completed all five stages.'}) });
+            assert.match(target.innerHTML,/MEANING MASTERED/); assert.match(target.innerHTML,/All five stages complete/); assert.doesNotMatch(target.innerHTML,/data-action="continue-practice"/); assert.match(target.innerHTML,/Finish for now/);
+          });
+
+          test('preview result never claims saved or unlocked progression', () => {
+            const target = root(); renderSessionSummary(target,{ pathwayId:'meaning', finishModel:model({supportCopy:'Preview only — no progress has been saved.',showProgressSaved:false}) });
+            assert.match(target.innerHTML,/Preview only/); assert.doesNotMatch(target.innerHTML,/Your progress is saved/); assert.doesNotMatch(target.innerHTML,/UNLOCKED|MASTERED/);
+          });
+          ''')
+          PY
+      - name: Focused session-finish tests
+        run: node --test tests/vocabulary-session-finish-model.test.js tests/vocabulary-session-finish-controller.test.js tests/vocabulary-session-finish-view.test.js tests/vocabulary-summary-continue.test.js tests/vocabulary-staff-preview.test.js tests/vocabulary-continue-history.test.js tests/vocabulary-motion-polish.test.js tests/vocabulary-study-app-css.test.js
+      - name: Full test suite
+        run: npm test
+      - name: Commit verified implementation
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/vocabulary/session-finish-model.js src/vocabulary/app.js src/vocabulary/views.js src/vocabulary/study-art-runtime.js vocabulary-study-app.css vocabulary-study-art.css tests/vocabulary-session-finish-controller.test.js tests/vocabulary-session-finish-view.test.js tests/vocabulary-motion-polish.test.js
+          if git diff --cached --quiet; then
+            echo 'No implementation changes to commit.'
+            exit 0
+          fi
+          git commit -m 'feat: add vocabulary mission finish experience'
+          git push origin HEAD:feat/vocabulary-session-finish
