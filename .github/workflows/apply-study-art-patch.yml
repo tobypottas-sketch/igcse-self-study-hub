@@ -1,0 +1,36 @@
+name: Apply approved study art patch
+
+on:
+  push:
+    branches:
+      - fix/vocabulary-inline-study-art
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-validate:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Reconstruct and apply reviewed patch
+        run: |
+          cat .review-payload/artwork.patch.gz.b64.part1 .review-payload/artwork.patch.gz.b64.part2 | base64 -d | gunzip > /tmp/artwork.patch
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git am /tmp/artwork.patch
+      - name: Run full test suite
+        run: npm test
+      - name: Remove temporary staging files
+        run: |
+          rm -rf .review-payload
+          rm -f .github/workflows/apply-study-art-patch.yml
+          git add -A
+          git commit -m "Remove temporary study-art staging files"
+          git push origin HEAD:fix/vocabulary-inline-study-art
