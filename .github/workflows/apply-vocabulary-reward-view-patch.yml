@@ -2,15 +2,13 @@ name: Apply vocabulary reward view patch
 
 on:
   push:
-    branches:
-      - fix/vocabulary-session-reward-loop
+    branches: [fix/vocabulary-session-reward-loop]
 
 permissions:
   contents: write
 
 jobs:
   patch:
-    if: github.event.head_commit.message == 'chore: run reward view patch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,8 +20,9 @@ jobs:
           node-version: 20
       - run: node scripts/apply-vocabulary-reward-view-patch.mjs
       - run: node --test tests/vocabulary-session-completion-view.test.js
-      - name: Commit patched view
+      - name: Commit patched view when changed
         run: |
+          if git diff --quiet -- src/vocabulary/views.js; then exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/vocabulary/views.js
