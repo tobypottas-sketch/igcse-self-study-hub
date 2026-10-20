@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { renderVocabularyQuestion } from '../src/vocabulary/views.js';
 
-test('training questions show a quiet Cambridge IGCSE ESL 0511 qualifier in the top bar', () => {
+test('training questions keep the session label and add a quiet Cambridge qualifier via presentation styling', async () => {
   const root = { innerHTML: '' };
 
   renderVocabularyQuestion(root, {
@@ -20,8 +21,14 @@ test('training questions show a quiet Cambridge IGCSE ESL 0511 qualifier in the 
     }
   });
 
-  assert.match(root.innerHTML, /vocab-topbar__qualifier/);
-  assert.match(root.innerHTML, /Cambridge IGCSE ESL 0511/);
+  assert.match(root.innerHTML, /vocab-shell--session/);
   assert.match(root.innerHTML, />Meaning</);
-  assert.doesNotMatch(root.innerHTML, /cambridge[^>]*(logo|crest)|<(img|svg)[^>]*cambridge/i);
+
+  const html = await readFile(new URL('../vocabulary.html', import.meta.url), 'utf8');
+  const brandingCss = await readFile(new URL('../vocabulary-branding.css', import.meta.url), 'utf8');
+
+  assert.match(html, /vocabulary-branding\.css/);
+  assert.match(brandingCss, /\.vocab-shell--session\s+\.vocab-topbar\s*>\s*span::before/);
+  assert.match(brandingCss, /content:\s*["']Cambridge IGCSE ESL 0511["']/);
+  assert.doesNotMatch(brandingCss, /logo|crest|background-image/i);
 });
