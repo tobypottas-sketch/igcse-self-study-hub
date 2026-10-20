@@ -1,4 +1,5 @@
 import { escapeHtml } from '../views/html.js';
+import { achievementArtSvg, pathwayArtSvg, unitArtSvg } from './study-art-svg.js';
 import { PRACTICE_MODES, activityDefinition } from './activity-catalogue.js';
 import { deriveLearningStage } from './learning-stage.js';
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES } from './pathway-model.js';
@@ -91,6 +92,31 @@ export function buildUnitProgress({ occurrences = [], unitMastery = {}, globalMa
   return { total:occurrences.length, mastered, needsAnotherLook, reviewDue, stages };
 }
 
+// Decorative artwork is rendered into the first HTML at a size the slot owns (see vocabulary-study-art.css),
+// so nothing is injected after paint and the artwork can never change layout.
+function unitArtSlot(unitNumber) {
+  const svg = unitArtSvg(unitNumber,'vocab-unit-card__art-image');
+  return svg ? `<span class="vocab-unit-card__art" data-unit-art="${escapeHtml(unitNumber)}" aria-hidden="true">${svg}</span>` : '';
+}
+function unitHeroArt(unitNumber) {
+  const svg = unitArtSvg(unitNumber,'vocab-unit-hero__art-image');
+  return svg ? `<figure class="vocab-unit-hero__art" data-unit-hero-art="${escapeHtml(unitNumber)}" aria-hidden="true">${svg}</figure>` : '';
+}
+function unitHeroClass(unitNumber) { return unitArtSvg(unitNumber) ? 'vocab-unit-hero has-study-art' : 'vocab-unit-hero'; }
+function pathwayArtSlot(pathwayId) {
+  const svg = pathwayArtSvg(pathwayId,'vocab-pathway-card__art-image');
+  return svg ? `<span class="vocab-pathway-card__art" data-pathway-art="${escapeHtml(pathwayId)}" aria-hidden="true">${svg}</span>` : '';
+}
+function milestoneArt(kind) {
+  const svg = achievementArtSvg(kind,'study-milestone-art__image');
+  return svg ? `<span class="study-milestone-art study-milestone-art--${escapeHtml(kind)}" data-study-milestone-art="${escapeHtml(kind)}" aria-hidden="true">${svg}</span>` : '';
+}
+function completionArt(kind, { rays = true } = {}) {
+  const svg = achievementArtSvg(kind,'vocab-completion-art__image');
+  const burst = rays ? '<span class="vocab-completion-rays" aria-hidden="true"></span>' : '';
+  return svg ? `<div class="vocab-completion-art" data-study-completion-art="${escapeHtml(kind)}" aria-hidden="true">${burst}${svg}</div>` : '';
+}
+
 export function renderVocabularyHome(root, { displayName = '', units = [] } = {}) {
   const cards = units.length ? units.map(unit => {
     const mastered = Number(unit.mastered ?? 0);
@@ -102,6 +128,7 @@ export function renderVocabularyHome(root, { displayName = '', units = [] } = {}
       <span class="vocab-unit-card__progress-copy">${escapeHtml(mastered)} / ${escapeHtml(total)} mastered</span>
       <span data-study-unit-progress>${renderStudyProgress(mastered,total,`Unit ${unit.unitNumber} mastery`)}</span>
       <small>Open unit ${renderStudyIcon('arrow',{className:'vocab-unit-card__arrow'})}</small>
+      ${unitArtSlot(unit.unitNumber)}
     </button>`;
   }).join('') : `<div class="vocab-empty study-milestone-card" data-study-empty>${renderStudyIcon('spark',{className:'study-icon--xl'})}<strong>Your vocabulary units are being prepared.</strong><p>Check back soon.</p></div>`;
   root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Cambridge IGCSE ESL 0511</span></header><section class="vocab-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase Builder</p><h1>Choose a unit</h1><p>${displayName ? `Hi ${escapeHtml(displayName)}. ` : ''}Choose a unit, then work upwards through each vocabulary pathway.</p></section><section class="vocab-unit-grid">${cards}</section></main>`;
@@ -147,8 +174,12 @@ function renderPathwayCard(pathway, pathwayStates, ready) {
     ? `<span class="vocab-pathway-card__coverage">${escapeHtml(state.coverageCount)} of ${escapeHtml(state.totalCount)} words available</span>`
     : '';
   const disabled = ready && !unavailable ? '' : ' disabled aria-disabled="true"';
+  // The evidence readout shell is part of the first render (the runtime only fills in saved numbers), so the
+  // reserved 60px row is never empty and nothing is inserted after paint.
+  const currentLabel = PATHWAY_STAGES.find(stage => stage.id === (state.currentStage ?? 'recognise'))?.label ?? 'Recognise';
+  const evidenceShell = unavailable ? '' : `<span class="vocab-pathway-card__evidence" data-pathway-evidence-shell="true"><span class="vocab-pathway-card__evidence-copy"><strong>${escapeHtml(currentLabel)} evidence</strong><small>No saved evidence yet</small></span><span class="vocab-pathway-card__evidence-meter" role="progressbar" aria-label="${escapeHtml(currentLabel)} evidence progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="vocab-pathway-card__evidence-fill" style="--pathway-evidence:0%"></span></span></span>`;
   const cta = unavailable ? 'Not yet available for this unit' : `${state.mastered ? 'Review pathway' : 'Continue pathway'} →`;
-  return `<button type="button" class="vocab-pathway-card study-enter" data-action="open-pathway" data-pathway="${pathway.id}" data-pathway-status="${status}" data-study-accent="${escapeHtml(identity.accent)}"${disabled}><span class="vocab-pathway-card__identity"><span class="vocab-pathway-card__icon">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}</span><span class="vocab-pathway-card__head"><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(identity.purpose)}</small></span></span><span class="vocab-pathway-card__status">${escapeHtml(statusLabel)}</span>${coverage}<span class="vocab-pathway-ladder" aria-label="${escapeHtml(pathway.label)} progression">${stages}</span><span class="vocab-pathway-card__cta">${escapeHtml(cta)}</span></button>`;
+  return `<button type="button" class="vocab-pathway-card has-study-art study-enter" data-action="open-pathway" data-pathway="${pathway.id}" data-pathway-status="${status}" data-study-accent="${escapeHtml(identity.accent)}"${disabled}><span class="vocab-pathway-card__identity"><span class="vocab-pathway-card__icon">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}</span><span class="vocab-pathway-card__head"><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(identity.purpose)}</small></span></span><span class="vocab-pathway-card__status">${escapeHtml(statusLabel)}</span>${coverage}${evidenceShell}<span class="vocab-pathway-ladder" aria-label="${escapeHtml(pathway.label)} progression">${stages}</span><span class="vocab-pathway-card__cta">${escapeHtml(cta)}</span>${pathwayArtSlot(pathway.id)}</button>`;
 }
 
 export function renderVocabularyUnit(root, { unitNumber, unitTitle, progress, pathwayStates = {}, contentReady = true } = {}) {
@@ -156,7 +187,7 @@ export function renderVocabularyUnit(root, { unitNumber, unitTitle, progress, pa
   const ready = contentReady !== false;
   const pathwayCards = VOCABULARY_PATHWAYS.map(pathway => renderPathwayCard(pathway,pathwayStates,ready)).join('');
   const mixedDisabled = ready ? '' : ' disabled aria-disabled="true"';
-  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="back-units">← All units</button><span>Unit ${escapeHtml(unitNumber)}</span></header><section class="vocab-unit-hero"><p class="vocab-kicker">Unit ${escapeHtml(unitNumber)}</p><h1>${escapeHtml(unitTitle)}</h1><div class="vocab-progress-row"><strong>${escapeHtml(p.mastered)} / ${escapeHtml(p.total)} overall mastered</strong><span>${escapeHtml(p.needsAnotherLook)} need another look</span><span>${escapeHtml(p.reviewDue)} ready for review</span></div>${renderStudyProgress(p.mastered,p.total,'Overall unit mastery')}${renderLearningProgress(p.stages)}</section><section class="vocab-pathways"><div class="vocab-pathways__head"><p class="vocab-kicker">Build mastery step by step</p><h2>Choose a vocabulary pathway</h2><p>Work upwards through Recognise → Match → Apply → Recall → Mastery. Completed stages stay available for review.</p></div><div class="vocab-pathway-grid">${pathwayCards}</div></section><section class="vocab-route-grid vocab-route-grid--review"><article class="vocab-route-card vocab-route-card--mixed"><p class="vocab-kicker">Review only</p><h2>Mixed Practice</h2><p>Review activities you have already unlocked across the six pathways. Mixed Practice does not skip you ahead.</p><button class="vocab-button" data-action="start-mixed-review"${mixedDisabled}>Start Mixed Practice</button></article></section><button class="vocab-link" data-action="view-all-words"${ready ? '' : ' disabled aria-disabled="true"'}>View all 50 words</button></main>`;
+  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="back-units">← All units</button><span>Unit ${escapeHtml(unitNumber)}</span></header><section class="${unitHeroClass(unitNumber)}"><p class="vocab-kicker">Unit ${escapeHtml(unitNumber)}</p><h1>${escapeHtml(unitTitle)}</h1><div class="vocab-progress-row"><strong>${escapeHtml(p.mastered)} / ${escapeHtml(p.total)} overall mastered</strong><span>${escapeHtml(p.needsAnotherLook)} need another look</span><span>${escapeHtml(p.reviewDue)} ready for review</span></div>${renderStudyProgress(p.mastered,p.total,'Overall unit mastery')}${renderLearningProgress(p.stages)}${unitHeroArt(unitNumber)}</section><section class="vocab-pathways"><div class="vocab-pathways__head"><p class="vocab-kicker">Build mastery step by step</p><h2>Choose a vocabulary pathway</h2><p>Work upwards through Recognise → Match → Apply → Recall → Mastery. Completed stages stay available for review.</p></div><div class="vocab-pathway-grid">${pathwayCards}</div></section><section class="vocab-route-grid vocab-route-grid--review"><article class="vocab-route-card vocab-route-card--mixed"><p class="vocab-kicker">Review only</p><h2>Mixed Practice</h2><p>Review activities you have already unlocked across the six pathways. Mixed Practice does not skip you ahead.</p><button class="vocab-button" data-action="start-mixed-review"${mixedDisabled}>Start Mixed Practice</button></article></section><button class="vocab-link" data-action="view-all-words"${ready ? '' : ' disabled aria-disabled="true"'}>View all 50 words</button></main>`;
 }
 
 export function renderVocabularyWords(root, { unitNumber, unitTitle, words = [] } = {}) {
@@ -180,7 +211,7 @@ export function renderVocabularyWords(root, { unitNumber, unitTitle, words = [] 
     const dictionaryEntry = `<div class="vocab-dictionary-entry"><div class="vocab-dictionary-entry__heading"><strong class="vocab-dictionary-entry__term">${escapeHtml(word.term)}</strong>${posHtml}</div>${definitionHtml}${contextHtml}</div>`;
     return `<article class="vocab-word-row study-enter"><div class="vocab-word-row__head">${dictionaryEntry}<span class="vocab-state-pill" data-state="${escapeHtml(stage)}">${stage === 'mastered' ? renderStudyIcon('check') : ''}${escapeHtml(learningStageLabel(stage))}</span></div><div class="vocab-word-pathways" aria-label="${escapeHtml(word.term)} pathway progress">${pathways}</div></article>`;
   }).join('') || `<div class="vocab-empty study-milestone-card" data-study-empty>${renderStudyIcon('spark',{className:'study-icon--xl'})}<strong>No live words are available in this unit yet.</strong></div>`;
-  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="back-unit">← Unit ${escapeHtml(unitNumber)}</button><span>Vocabulary detail</span></header><section class="vocab-unit-hero"><p class="vocab-kicker">Unit ${escapeHtml(unitNumber)}</p><h1>All 50 words</h1><p>${escapeHtml(unitTitle)}</p><p class="vocab-detail-note">Each word progresses independently through six pathways: Recognise → Match → Apply → Recall → Mastery.</p></section><section class="vocab-word-list">${rows}</section></main>`;
+  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="back-unit">← Unit ${escapeHtml(unitNumber)}</button><span>Vocabulary detail</span></header><section class="${unitHeroClass(unitNumber)}"><p class="vocab-kicker">Unit ${escapeHtml(unitNumber)}</p><h1>All 50 words</h1><p>${escapeHtml(unitTitle)}</p><p class="vocab-detail-note">Each word progresses independently through six pathways: Recognise → Match → Apply → Recall → Mastery.</p>${unitHeroArt(unitNumber)}</section><section class="vocab-word-list">${rows}</section></main>`;
 }
 
 function supportMessage(support) {
@@ -295,7 +326,7 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
   const responseArea = retry && !feedback?.correct
     ? `<section class="vocab-retry-stage study-enter">${feedbackHtml}${supportHtml}${answerForm}</section>`
     : `<section class="vocab-response-stage${feedback?.correct ? ' is-correct' : ''}">${feedbackHtml}${supportHtml}${answerForm}</section>`;
-  const milestoneHtml = milestone ? `<section class="study-milestone-card study-milestone" data-study-milestone="${escapeHtml(milestone.kind)}"><strong>${escapeHtml(milestone.title ?? '')}</strong></section>` : '';
+  const milestoneHtml = milestone ? `<section class="study-milestone-card study-milestone" data-study-milestone="${escapeHtml(milestone.kind)}">${milestoneArt(milestone.kind)}<strong>${escapeHtml(milestone.title ?? '')}</strong></section>` : '';
   root.innerHTML = `<main class="vocab-shell vocab-shell--session" data-study-accent="${escapeHtml(identity.accent)}"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card study-enter" data-study-question><div class="vocab-study-question-header"><div class="vocab-study-question-header__path">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}<div><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(PATHWAY_STAGES.find(item => item.id === fixedPathwayStage)?.label ?? questionLabel)}</small></div></div>${sessionProgress}</div><div class="vocab-question-meta"><p class="vocab-kicker">${escapeHtml(questionLabel)}</p><div class="vocab-question-meta__right">${skillCue}</div></div>${targetPill}<h1 class="vocab-question-prompt">${escapeHtml(displayPrompt(question))}</h1>${questionContext}${responseArea}${milestoneHtml}</section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
 }
 
@@ -364,7 +395,7 @@ export function renderSessionSummary(root, { durationMinutes = null, summary = {
     const primary = finishModel.primaryAction
       ? `<button class="vocab-button vocab-button--primary" data-action="continue-practice">${escapeHtml(finishModel.primaryAction.label)} ${renderStudyIcon('arrow')}</button>`
       : '';
-    root.innerHTML = `<main class="vocab-shell vocab-shell--finish" data-study-accent="${escapeHtml(identity.accent)}"><article class="vocab-summary-card vocab-finish-card study-milestone-card" data-study-completion data-finish-variant="${escapeHtml(finishModel.variant)}" aria-label="${escapeHtml(finishModel.accessibleSummary ?? '')}"><div class="vocab-summary-identity">${renderStudyIcon(identity.icon,{className:'study-icon--xl'})}<p class="vocab-kicker">${escapeHtml(finishModel.variant === 'session' ? 'SESSION COMPLETE' : finishModel.kicker)}</p></div><h1 data-session-finish-heading tabindex="-1">${escapeHtml(finishModel.heading)}</h1>${stars}<div class="vocab-finish-score"><strong>${escapeHtml(score)} / ${escapeHtml(denominator)}</strong><span>correct</span></div><p class="vocab-finish-support">${escapeHtml(finishModel.supportCopy)}</p><div class="vocab-finish-evidence"><div><strong>${escapeHtml(score)}</strong><span>words strengthened</span></div><div><strong>${escapeHtml(needsAnotherLook)}</strong><span>need another look</span></div></div>${context}<div class="vocab-finish-ladder" aria-label="${escapeHtml(finishModel.pathwayLabel)} pathway stages">${renderFinishLadder(finishModel)}</div>${unlock}<div class="vocab-summary-actions vocab-finish-actions">${primary}<button class="vocab-button" data-action="back-unit">Finish for now</button></div></article></main>`;
+    root.innerHTML = `<main class="vocab-shell vocab-shell--finish" data-study-accent="${escapeHtml(identity.accent)}"><article class="vocab-summary-card vocab-finish-card study-milestone-card" data-study-completion data-finish-variant="${escapeHtml(finishModel.variant)}" aria-label="${escapeHtml(finishModel.accessibleSummary ?? '')}">${completionArt(finishModel.variant === 'mastered' ? 'mastered' : finishModel.variant === 'stage-complete' ? 'stage_advanced' : 'completion')}<div class="vocab-summary-identity">${renderStudyIcon(identity.icon,{className:'study-icon--xl'})}<p class="vocab-kicker">${escapeHtml(finishModel.variant === 'session' ? 'SESSION COMPLETE' : finishModel.kicker)}</p></div><h1 data-session-finish-heading tabindex="-1">${escapeHtml(finishModel.heading)}</h1>${stars}<div class="vocab-finish-score"><strong>${escapeHtml(score)} / ${escapeHtml(denominator)}</strong><span>correct</span></div><p class="vocab-finish-support">${escapeHtml(finishModel.supportCopy)}</p><div class="vocab-finish-evidence"><div><strong>${escapeHtml(score)}</strong><span>words strengthened</span></div><div><strong>${escapeHtml(needsAnotherLook)}</strong><span>need another look</span></div></div>${context}<div class="vocab-finish-ladder" aria-label="${escapeHtml(finishModel.pathwayLabel)} pathway stages">${renderFinishLadder(finishModel)}</div>${unlock}<div class="vocab-summary-actions vocab-finish-actions">${primary}<button class="vocab-button" data-action="back-unit">Finish for now</button></div></article></main>`;
     return;
   }
 
@@ -375,7 +406,8 @@ export function renderSessionSummary(root, { durationMinutes = null, summary = {
   const next = nextPractice ? `<p class="vocab-next-practice"><strong>Next useful practice:</strong> ${escapeHtml(focusDefinition(nextPractice).label)}</p>` : '';
   const mastered = Number(summary.mastered ?? 0);
   const masteredCard = mastered > 0 ? `<div><strong>${escapeHtml(mastered)}</strong><span>mastered</span></div>` : '';
-  const celebration = !durationMinutes && practised >= 10 ? `<div class="vocab-celebration study-milestone" aria-hidden="true">${renderStudyIcon('trophy',{className:'study-icon--xl'})}<span>✦</span><span>●</span><span>✦</span></div>` : '';
+  // Same slot size for every summary; only the ten-activity (untimed) completion gets the celebratory rays.
+  const celebration = completionArt('completion', { rays:!durationMinutes && practised >= 10 });
   root.innerHTML = `<main class="vocab-shell" data-study-accent="${escapeHtml(identity.accent)}"><section class="vocab-summary-card study-milestone-card" data-study-completion>${celebration}<div class="vocab-summary-identity">${renderStudyIcon(identity.icon,{className:'study-icon--xl'})}<p class="vocab-kicker">Progress made</p></div><h1>${practised >= 10 ? 'Great work!' : escapeHtml(title)}</h1><p class="vocab-summary-subtitle">${escapeHtml(title)}</p><div class="vocab-summary-grid"><div><strong>${escapeHtml(practised)}</strong><span>activities completed</span></div><div><strong>${escapeHtml(summary.strengthened ?? 0)}</strong><span>successful activities</span></div>${masteredCard}<div><strong>${escapeHtml(summary.secure ?? 0)}</strong><span>moved to Secure</span></div></div><p>${escapeHtml(summary.needsAnotherLook ?? 0)} still need another look. They will return in a different form.</p>${next}<div class="vocab-summary-actions"><button class="vocab-button vocab-button--primary" data-action="continue-practice">Continue practising ${renderStudyIcon('arrow')}</button><button class="vocab-button" data-action="back-unit">Back to unit</button></div></section></main>`;
 }
 

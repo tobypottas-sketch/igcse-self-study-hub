@@ -1,54 +1,63 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { renderSessionSummary } from '../src/vocabulary/views.js';
-import { unitArtwork, achievementArtwork } from '../src/vocabulary/study-art.js';
+import { achievementArtSvg, pathwayArtSvg, unitArtSvg, STUDY_ART_KEYS, studyArtAlt } from '../src/vocabulary/study-art-svg.js';
 
 function root(){ return { innerHTML:'' }; }
 
-const expectedUnitArt = [
-  [1,'sports-free-time.svg'],
-  [2,'digital-life.svg'],
-  [3,'travel-tourism.svg'],
-  [4,'environment.svg'],
-  [5,'education.svg']
-];
+test('first five units have dedicated inline artwork', () => {
+  assert.deepEqual(STUDY_ART_KEYS.units, [1,2,3,4,5]);
+  const seen = new Set();
+  for (const unit of STUDY_ART_KEYS.units) {
+    const svg = unitArtSvg(unit);
+    assert.match(svg, /^<svg /);
+    assert.ok(studyArtAlt('unit', unit).length > 0);
+    seen.add(svg);
+  }
+  assert.equal(seen.size, 5, 'each unit has its own scene');
+  assert.equal(unitArtSvg(99), '');
+});
 
-test('first five units have dedicated artwork assets', () => {
-  for (const [unit, file] of expectedUnitArt) {
-    const art = unitArtwork(unit);
-    assert.equal(art.src, `assets/vocabulary-study/${file}`);
-    assert.ok(art.alt.length > 0);
-    assert.ok(existsSync(new URL(`../${art.src}`, import.meta.url)), `${file} should exist`);
+test('achievement artwork is distinct and unknown kinds render nothing', () => {
+  assert.deepEqual(STUDY_ART_KEYS.achievements, ['completion','stage_advanced','mastered']);
+  assert.equal(new Set(STUDY_ART_KEYS.achievements.map(kind => achievementArtSvg(kind))).size, 3);
+  assert.equal(achievementArtSvg('unknown'), '');
+});
+
+test('all six pathways have artwork in the same visual language', () => {
+  assert.deepEqual(STUDY_ART_KEYS.pathways, ['meaning','context','word_families','paraphrasing','precision_use','spelling_recall']);
+  for (const id of STUDY_ART_KEYS.pathways) {
+    const svg = pathwayArtSvg(id);
+    assert.match(svg, /viewBox="0 0 160 112"/, `${id}: shared canvas`);
+    assert.match(svg, /class="sa-i/, `${id}: shared outline style`);
+    assert.match(svg, /--sa-a:#/, `${id}: one accent hue`);
+  }
+  assert.equal(pathwayArtSvg('unknown'), '');
+});
+
+test('artwork is inline, decorative and lightweight (no image fetches, no remote hosts)', () => {
+  const all = [...STUDY_ART_KEYS.units.map(unitArtSvg), ...STUDY_ART_KEYS.pathways.map(pathwayArtSvg), ...STUDY_ART_KEYS.achievements.map(achievementArtSvg)];
+  assert.equal(all.length, 14);
+  for (const svg of all) {
+    assert.match(svg, /aria-hidden="true"/);
+    assert.match(svg, /focusable="false"/);
+    assert.doesNotMatch(svg, /<image|href=|url\(|https?:/i, 'no external or referenced resources');
+    assert.ok(svg.length < 1500, `art should stay tiny (${svg.length} bytes)`);
   }
 });
 
-test('achievement artwork assets exist and remain distinct', () => {
-  const expected = {
-    completion:'achievement-trophy.svg',
-    stage_advanced:'achievement-stage.svg',
-    mastered:'achievement-mastery.svg'
-  };
-  for (const [kind,file] of Object.entries(expected)) {
-    const art = achievementArtwork(kind);
-    assert.equal(art.src,`assets/vocabulary-study/${file}`);
-    assert.ok(art.alt.length > 0);
-    assert.ok(existsSync(new URL(`../${art.src}`, import.meta.url)), `${file} should exist`);
-  }
-  assert.equal(achievementArtwork('unknown'),null);
+test('the SVG never sizes itself: it fills whatever slot the container gives it', () => {
+  const svg = unitArtSvg(1);
+  assert.match(svg, /width="100%" height="100%"/);
+  assert.match(svg, /preserveAspectRatio="xMidYMid meet"/);
 });
 
-test('artwork runtime decorates unit cards, unit hero, completion and real milestones', () => {
+test('artwork is rendered by the views, not injected after paint', () => {
   const runtime = readFileSync(new URL('../src/vocabulary/study-art-runtime.js', import.meta.url),'utf8');
-  assert.match(runtime,/\.vocab-unit-card\[data-unit\]/);
-  assert.match(runtime,/dataset\.unitArt/);
-  assert.match(runtime,/\.vocab-unit-hero/);
-  assert.match(runtime,/dataset\.unitHeroArt/);
-  assert.match(runtime,/\[data-study-completion\]/);
-  assert.match(runtime,/dataset\.studyCompletionArt/);
-  assert.match(runtime,/\[data-study-milestone\]/);
-  assert.match(runtime,/dataset\.studyMilestoneArt/);
-  assert.match(runtime,/MutationObserver/);
+  assert.doesNotMatch(runtime, /createElement\('img'\)|\.src\s*=|new Image|document\.createElement\('figure'\)/);
+  assert.doesNotMatch(runtime, /study-art\.js|unitArtwork|pathwayArtwork|achievementArtwork/);
+  assert.match(runtime, /MutationObserver/, 'the evidence readout is still hydrated by the runtime');
 });
 
 test('vocabulary page loads artwork CSS and runtime after the core study app layer', () => {
@@ -58,17 +67,18 @@ test('vocabulary page loads artwork CSS and runtime after the core study app lay
   assert.match(html,/src\/vocabulary\/study-art-runtime\.js/);
 });
 
-test('ten-question completion still exposes the real completion hook for trophy enhancement', () => {
+test('ten-question completion renders its artwork slot in the first HTML', () => {
   const target = root();
   renderSessionSummary(target,{pathwayId:'meaning',summary:{practised:10,strengthened:8,advanced:2,mastered:1,needsAnotherLook:2}});
   assert.match(target.innerHTML,/data-study-completion/);
   assert.match(target.innerHTML,/Great work!/);
-  assert.match(target.innerHTML,/vocab-celebration/);
+  assert.match(target.innerHTML,/data-study-completion-art="completion"/);
+  assert.match(target.innerHTML,/<svg class="study-art__svg vocab-completion-art__image"/);
 });
 
 test('study artwork CSS contains dedicated composition and animation hooks', () => {
   const css = readFileSync(new URL('../vocabulary-study-art.css', import.meta.url),'utf8');
-  for (const selector of ['.vocab-unit-card__art','.vocab-unit-hero__art','.vocab-completion-art','.vocab-completion-rays','.study-milestone-art']) {
+  for (const selector of ['.vocab-unit-card__art','.vocab-unit-hero__art','.vocab-completion-art','.vocab-completion-rays','.study-milestone-art','.study-art__svg']) {
     assert.match(css,new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
   }
   assert.match(css,/@keyframes\s+study-trophy-pop/);
@@ -82,11 +92,12 @@ test('pathway artwork is integrated into cards instead of reserving a fixed righ
   assert.doesNotMatch(css,/\.vocab-pathway-card\.has-study-art\{[^}]*padding-right:\s*132px/i);
   assert.doesNotMatch(css,/\.vocab-pathway-card__art\{[^}]*top:\s*12px;[^}]*bottom:\s*12px;[^}]*width:\s*108px/i);
   assert.match(css,/\.vocab-pathway-card__art\{[^}]*bottom:\s*-?\d+px/i);
-  assert.match(css,/mask-image:\s*linear-gradient/i);
 });
 
-test('sports unit artwork contains recognisable sports equipment motifs', () => {
-  const svg = readFileSync(new URL('../assets/vocabulary-study/sports-free-time.svg', import.meta.url),'utf8');
-  assert.match(svg,/data-sport="football"/);
-  assert.match(svg,/data-sport="racket"/);
+test('every artwork slot owns explicit dimensions so the SVG can never size the layout', () => {
+  const css = readFileSync(new URL('../vocabulary-study-art.css', import.meta.url),'utf8');
+  assert.match(css, /\.study-milestone-art\{[^}]*width:\s*82px;[^}]*height:\s*72px/);
+  assert.match(css, /\.study-art__svg\{[^}]*width:100%;[^}]*height:100%/);
+  assert.doesNotMatch(css, /__image\{[^}]*\bwidth:\s*\d+px/, 'images fill their slot; they carry no pixel size of their own');
+  assert.doesNotMatch(css, /@keyframes[^{]*\{[^}]*(?:width|height|margin|padding|top|left)\s*:/, 'no layout-affecting animation');
 });
