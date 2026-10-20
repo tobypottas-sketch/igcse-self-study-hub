@@ -24,6 +24,11 @@ test('pathway evidence hydration does not retrigger the childList observer forev
   assert.doesNotMatch(runtime,/if\s*\(detail\)\s*detail\.textContent\s*=/);
 });
 
+test('study-art observer cannot observe mutations caused by its own decoration pass', () => {
+  assert.match(runtime,/observer\.disconnect\(\)/);
+  assert.match(runtime,/try\s*\{\s*enhanceStudyArtwork\(root\);\s*\}\s*finally\s*\{\s*observer\.observe\(root,\{\s*childList:true,\s*subtree:true\s*\}\);\s*\}/s);
+});
+
 test('pathway cards reserve a dedicated evidence row from first paint', () => {
   assert.match(css, /grid-template-areas:\s*"identity status"\s*"coverage coverage"\s*"evidence evidence"\s*"ladder ladder"\s*"cta cta"/s);
   assert.match(css, /grid-template-rows:\s*auto\s+auto\s+minmax\(60px,auto\)/s);
