@@ -200,11 +200,12 @@ function buildNextForTarget(target) {
     supportState:{ recycle:recovery, struggling:recovery },
     reviewDue,
     usedContentIds,
-    seed:`${target.occurrenceId}:${state.session.completedAttempts.length}:${state.session.mode}`
+    seed:`${target.occurrenceId}:${state.session.completedAttempts.length}:${state.session.mode}`,
+    optionNonce:state.session.optionNonce
   };
   let built;
   if (state.pathwayId) {
-    built = planPathwayQuestion({ pathwayId:state.pathwayId, stageId:state.pathwayStage, content:state.content, target, mastery:masteryState, recentActivities:recent.map(entry => entry.type), usedContentIds, supportState:common.supportState, seed:common.seed });
+    built = planPathwayQuestion({ pathwayId:state.pathwayId, stageId:state.pathwayStage, content:state.content, target, mastery:masteryState, recentActivities:recent.map(entry => entry.type), usedContentIds, supportState:common.supportState, seed:common.seed, optionNonce:common.optionNonce });
   } else {
     built = state.session.mode === 'timed'
       ? buildTimedMixedQuestion({ ...common, previousActivityType:state.timedPreviousActivityType })

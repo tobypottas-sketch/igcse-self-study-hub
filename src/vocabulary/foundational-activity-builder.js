@@ -1,3 +1,4 @@
+import { shuffleAnswerOptions } from './answer-option-shuffle.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 import { languageBankContextForItem } from './language-bank.js';
 
@@ -172,7 +173,8 @@ function itemContentId(args) {
 function definitionToWord(args, definition) {
   const targetDefinition = definitionFor(args.item, args.occurrence);
   if (!targetDefinition || !text(args.item.term)) throw new Error('Definition → Word requires a curated definition and term.');
-  const options = stableShuffle([text(args.item.term), ...plausibleTermDistractors(args,3)], `${args.seed}:definition-word-options`);
+  const orderOptions = args.matchingPresentation ? stableShuffle : shuffleAnswerOptions;
+  const options = orderOptions([text(args.item.term), ...plausibleTermDistractors(args,3)], `${args.seed}:definition-word-options`, args.optionNonce);
   return baseActivity({ definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt:`Which word means “${targetDefinition}”?`, markingReference:{ acceptedAnswers:[text(args.item.term)] }, extra:{ options, primaryEvidenceTargetId:args.item.vocabularyId } });
 }
 function matchingActivity(args, definition) {
@@ -216,7 +218,7 @@ function bankRetrievalActivity(args, definition) {
   };
   if (definition.id === 'gap_fill_bank') {
     prompt = 'Choose the word that completes the sentence.';
-    extra.options = stableShuffle([accepted,...wrong], `${args.seed}:${record.id}:gap-bank`);
+    extra.options = shuffleAnswerOptions([accepted,...wrong], `${args.seed}:${record.id}:gap-bank`, args.optionNonce);
     extra.wordBank = [...extra.options];
   } else if (definition.id === 'drag_word_sentence') {
     prompt = 'Drag the correct word into the gap.';
@@ -224,7 +226,7 @@ function bankRetrievalActivity(args, definition) {
     extra.wordBank = [...extra.draggables];
   } else if (definition.id === 'choose_word_sentence') {
     prompt = 'Which word best completes this sentence?';
-    extra.options = stableShuffle([accepted,...wrong], `${args.seed}:${record.id}:sentence-choice`);
+    extra.options = shuffleAnswerOptions([accepted,...wrong], `${args.seed}:${record.id}:sentence-choice`, args.optionNonce);
   } else if (definition.id === 'type_missing_word') {
     prompt = 'Type the word or phrase that completes this sentence.';
   }
@@ -239,7 +241,7 @@ function retrievalActivity(args, definition) {
   const extra = { sourceText, contextId:context.contextId, primaryEvidenceTargetId:args.item.vocabularyId, answerForm:formKey ?? 'exact' };
   if (definition.id === 'gap_fill_bank') {
     prompt = 'Choose the word that completes the sentence.';
-    extra.options = stableShuffle([accepted, ...surfaceDistractors(args,formKey,3)], `${args.seed}:gap-bank`);
+    extra.options = shuffleAnswerOptions([accepted, ...surfaceDistractors(args,formKey,3)], `${args.seed}:gap-bank`, args.optionNonce);
     extra.wordBank = [...extra.options];
   } else if (definition.id === 'drag_word_sentence') {
     prompt = 'Drag the correct word into the gap.';
@@ -247,7 +249,7 @@ function retrievalActivity(args, definition) {
     extra.wordBank = [...extra.draggables];
   } else if (definition.id === 'choose_word_sentence') {
     prompt = 'Which word best completes this sentence?';
-    extra.options = stableShuffle([accepted, ...surfaceDistractors(args,formKey,3)], `${args.seed}:sentence-choice`);
+    extra.options = shuffleAnswerOptions([accepted, ...surfaceDistractors(args,formKey,3)], `${args.seed}:sentence-choice`, args.optionNonce);
   } else if (definition.id === 'type_missing_word') {
     prompt = 'Type the word that completes this sentence.';
   }
@@ -270,13 +272,13 @@ function wordFamilyChoice(args, definition) {
   const pool = uniqueText([...array(args.item.wordFamily), ...array(args.unitItems).flatMap(candidate => array(candidate?.wordFamily))]).filter(value => !acceptedKeys.has(value.toLocaleLowerCase('en')));
   if (pool.length < 2) throw new Error('Word Family Choice requires at least two plausible word-family alternatives.');
   const wrong = stableShuffle(pool, `${args.seed}:family-alternatives`).slice(0,3);
-  const options = stableShuffle([acceptedAnswers[0], ...wrong], `${args.seed}:family-options`);
+  const options = shuffleAnswerOptions([acceptedAnswers[0], ...wrong], `${args.seed}:family-options`, args.optionNonce);
   return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, contentSource:'unit_activity', prompt:text(data.prompt) || 'Choose the correct word-family form.', markingReference:{ acceptedAnswers }, extra:{ options, sourceText:text(data.sourceText) || null, activityContentId:record.activityContentId, taskType:'word_family', primaryEvidenceTargetId:data.primaryEvidenceTargetId ?? args.item.vocabularyId } });
 }
 
 const BUILDERS = Object.freeze({ definition_to_word:definitionToWord, word_definition_match:matchingActivity, drag_word_definition:matchingActivity, drag_definition_word:matchingActivity, gap_fill_bank:retrievalActivity, drag_word_sentence:retrievalActivity, type_missing_word:retrievalActivity, spell_word:spellingActivity, choose_word_sentence:retrievalActivity, word_family_choice:wordFamilyChoice });
 
-export function buildFoundationalActivity({ activityType, occurrence, item, contexts = [], unitActivities = [], unitItems = [], unitContexts = [], unitOccurrences = [], mastery = {}, readinessStage = null, usedContentIds = [], seed = '' } = {}) {
+export function buildFoundationalActivity({ activityType, occurrence, item, contexts = [], unitActivities = [], unitItems = [], unitContexts = [], unitOccurrences = [], mastery = {}, readinessStage = null, usedContentIds = [], seed = '', optionNonce = '', matchingPresentation = false } = {}) {
   if (!FOUNDATIONAL_ACTIVITY_TYPES.has(activityType)) throw new Error('Not a foundational vocabulary activity type.');
   if (!occurrence || !item) throw new Error('Vocabulary occurrence and item are required.');
   const definition = activityDefinition(activityType);
@@ -284,5 +286,5 @@ export function buildFoundationalActivity({ activityType, occurrence, item, cont
   assertReady(definition, mastery, readinessStage);
   const builder = BUILDERS[definition.id];
   if (!builder) throw new Error(`No foundational builder exists for ${definition.id}.`);
-  return builder({ activityType, occurrence, item, contexts, unitActivities, unitItems, unitContexts, unitOccurrences, mastery, usedContentIds, seed }, definition);
+  return builder({ activityType, occurrence, item, contexts, unitActivities, unitItems, unitContexts, unitOccurrences, mastery, usedContentIds, seed, optionNonce, matchingPresentation }, definition);
 }

@@ -1,3 +1,4 @@
+import { shuffleAnswerOptions } from './answer-option-shuffle.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 
 function text(value) { return String(value ?? '').trim(); }
@@ -98,7 +99,7 @@ function base({ definition, occurrence, contentId, contentSource, prompt, accept
   };
 }
 
-export function buildSpellingChoiceActivity({ occurrence, item, contexts = [], usedContentIds = [], seed = '' } = {}) {
+export function buildSpellingChoiceActivity({ occurrence, item, contexts = [], usedContentIds = [], seed = '', optionNonce = '' } = {}) {
   if (!occurrence || !item) throw new Error('Vocabulary occurrence and item are required.');
   const definition = activityDefinition('spelling_choice');
   if (!definition || !isActivityLive(definition.id)) throw new Error('Spelling recognition is unavailable.');
@@ -106,7 +107,7 @@ export function buildSpellingChoiceActivity({ occurrence, item, contexts = [], u
   const meaning = definitionFor(item,occurrence);
   const wrong = spellingVariants(term);
   if (!term || !meaning || wrong.length < 3) throw new Error('Spelling recognition requires three plausible spelling alternatives.');
-  const options = shuffle([term,...wrong],`${seed}:spelling-choice-options`);
+  const options = shuffleAnswerOptions([term,...wrong],`${seed}:spelling-choice-options`,optionNonce);
   const stableItemId = itemContentId({item,occurrence});
   const used = new Set(array(usedContentIds).map(String));
 

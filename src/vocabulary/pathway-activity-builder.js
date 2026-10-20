@@ -1,3 +1,4 @@
+import { shuffleAnswerOptions } from './answer-option-shuffle.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 import { languageBankContextForItem, languageBankForItem } from './language-bank.js';
 
@@ -111,7 +112,7 @@ function precisionMaterial(args) {
 }
 function precisionChoice(args, definition) {
   const {record,data,accepted,distractors}=precisionMaterial(args);
-  const options=shuffle([accepted[0],...distractors.slice(0,3)],`${args.seed}:precision-choice`);
+  const options=shuffleAnswerOptions([accepted[0],...distractors.slice(0,3)],`${args.seed}:precision-choice`,args.optionNonce);
   return base({definition,occurrence:args.occurrence,contentId:record.activityContentId,contentSource:'unit_activity',prompt:text(data.prompt)||'Which word is the most precise choice?',markingReference:{acceptedAnswers:accepted},extra:{options,sourceText:text(data.sourceText),activityContentId:record.activityContentId,taskType:'improve_vocabulary',primaryEvidenceTargetId:data.primaryEvidenceTargetId ?? args.item.vocabularyId}});
 }
 function precisionMatch(args, definition) {
@@ -139,7 +140,7 @@ function reviewedSpellingErrors(args, count=3) {
 function spellingChoice(args, definition) {
   const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence), wrong=reviewedSpellingErrors(args,3);
   if (!term||!meaning||wrong.length<3) throw new Error('Spelling recognition requires three plausible spelling alternatives.');
-  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Which is the correct spelling of the word meaning “${meaning}”?`,markingReference:{acceptedAnswers:[term]},extra:{options:shuffle([term,...wrong],`${args.seed}:spelling-choice`),primaryEvidenceTargetId:args.item.vocabularyId}});
+  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Which is the correct spelling of the word meaning “${meaning}”?`,markingReference:{acceptedAnswers:[term]},extra:{options:shuffleAnswerOptions([term,...wrong],`${args.seed}:spelling-choice`,args.optionNonce),primaryEvidenceTargetId:args.item.vocabularyId}});
 }
 function spellingCueMatch(args, definition) {
   const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence), wrong=reviewedSpellingErrors(args,3);
@@ -173,12 +174,12 @@ const BUILDERS=Object.freeze({
   spell_in_context:spellInContext
 });
 
-export function buildPathwayActivity({activityType,occurrence,item,contexts=[],unitActivities=[],unitItems=[],unitContexts=[],unitOccurrences=[],mastery={},readinessStage=null,usedContentIds=[],seed=''}={}) {
+export function buildPathwayActivity({activityType,occurrence,item,contexts=[],unitActivities=[],unitItems=[],unitContexts=[],unitOccurrences=[],mastery={},readinessStage=null,usedContentIds=[],seed='',optionNonce=''}={}) {
   if (!PATHWAY_ACTIVITY_TYPES.has(activityType)) throw new Error('Not a fixed-pathway activity type.');
   if (!occurrence||!item) throw new Error('Vocabulary occurrence and item are required.');
   const definition=activityDefinition(activityType);
   if (!definition||!isActivityLive(definition.id)) throw new Error('Fixed-pathway activity is unavailable.');
   const builder=BUILDERS[definition.id];
   if (!builder) throw new Error(`No fixed-pathway builder exists for ${definition.id}.`);
-  return builder({activityType,occurrence,item,contexts,unitActivities,unitItems,unitContexts,unitOccurrences,mastery,readinessStage,usedContentIds,seed},definition);
+  return builder({activityType,occurrence,item,contexts,unitActivities,unitItems,unitContexts,unitOccurrences,mastery,readinessStage,usedContentIds,seed,optionNonce},definition);
 }

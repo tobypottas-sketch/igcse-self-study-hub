@@ -1,3 +1,4 @@
+import { shuffleAnswerOptions } from './answer-option-shuffle.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 import { isSpotMeaningChangeReady, spotMeaningChangeDistractorIndexes, spotMeaningChangeMarking, spotMeaningChangeSameMeaningRewrites } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
@@ -155,7 +156,7 @@ function meaningMatch(args, definition) {
   const correct = text(context.acceptedAnswers?.[0] ?? sense.acceptedParaphrases?.[0] ?? sense.meaning ?? item.coreMeaning);
   const wrong = meaningDistractors(args, sense, correct, seed);
   if (wrong.length < 3) throw new Error('Meaning Match requires three comparable curated distractors.');
-  const options = stableShuffle([correct, ...wrong], `${seed}:meaning-options`);
+  const options = shuffleAnswerOptions([correct, ...wrong], `${seed}:meaning-options`, args.optionNonce);
   return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`What does “${text(item.term)}” mean in this context?\n${text(context.text)}`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId } });
 }
 function whichSituationFits(args, definition) {
@@ -186,7 +187,7 @@ function whichSituationFits(args, definition) {
     wrong = uniqueText([...wrong, ...fallback]).slice(0,3);
   }
   if (wrong.length < 3) throw new Error('Which Situation Fits requires three full-sentence curated distractors.');
-  const options = stableShuffle([correct, ...wrong], `${seed}:situations`);
+  const options = shuffleAnswerOptions([correct, ...wrong], `${seed}:situations`, args.optionNonce);
   return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`Which situation best shows the meaning of “${text(item.term)}”?`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId } });
 }
 function meaningInContext(args, definition) {
@@ -196,7 +197,7 @@ function meaningInContext(args, definition) {
   const correct = text(context.acceptedAnswers?.[0] ?? sense.acceptedParaphrases?.[0] ?? sense.meaning);
   const wrong = meaningDistractors(args, sense, correct, seed);
   if (wrong.length < 3) throw new Error('Meaning in Context requires three comparable curated distractors.');
-  const options = stableShuffle([correct, ...wrong], `${seed}:meaning-context`);
+  const options = shuffleAnswerOptions([correct, ...wrong], `${seed}:meaning-context`, args.optionNonce);
   return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`In this sentence, which meaning best fits “${text(item.term)}”?\n${text(context.text)}`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId } });
 }
 function correctUsage(args, definition) {
@@ -269,7 +270,7 @@ function questionTextActivity(args, definition, findEvidence = false) {
   }
   const distractors = rankedByLength([...sameQuestionWord, ...otherQuestions], correctQuestion, `${args.seed}:${record.activityContentId}:question-options`).slice(0,3);
   if (distractors.length < 3) throw new Error('Question ↔ Text Bridge requires four curated question options.');
-  const options = stableShuffle([correctQuestion, ...distractors], `${args.seed}:${record.activityContentId}:bridge`);
+  const options = shuffleAnswerOptions([correctQuestion, ...distractors], `${args.seed}:${record.activityContentId}:bridge`, args.optionNonce);
   return baseActivity({
     definition, occurrence:args.occurrence, contentId:record.activityContentId,
     prompt:`Which question is asking about the same idea as this source wording?\n“${evidenceAnswers[0]}”`,
@@ -293,7 +294,8 @@ function phraseMatch(args, definition) {
   }
   const wrong = rankedByLength([...ownWrong, ...pooledWrong].filter(candidate => !acceptedAnswers.includes(text(candidate))), correct, `${args.seed}:${record.activityContentId}:phrase-distractors`).slice(0,3);
   if (wrong.length < 3) throw new Error('Phrase Match requires three phrase-level distractors.');
-  const options = stableShuffle([correct, ...wrong], `${args.seed}:${record.activityContentId}:phrase-match`);
+  const orderOptions = args.matchingPresentation ? stableShuffle : shuffleAnswerOptions;
+  const options = orderOptions([correct, ...wrong], `${args.seed}:${record.activityContentId}:phrase-match`, args.optionNonce);
   return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which phrase keeps the meaning of “${text(data.originalPhrase)}”?`, markingReference:{ acceptedAnswers, distractors:phraseDistractors(data) }, extra:{ options, sourcePhrase:text(data.originalPhrase) } });
 }
 function buildParaphrase(args, definition) {
@@ -331,7 +333,7 @@ function sameIdea(args, definition) {
   }
   const wrong = rankedByLength([...ownWrong, ...pooledWrong].filter(candidate => !acceptedAnswers.includes(text(candidate))), reference, `${args.seed}:${record.activityContentId}:idea-distractors`).slice(0,3);
   if (wrong.length < 3) throw new Error('Same Idea requires three sentence-level meaning distractors.');
-  const options = stableShuffle([reference, ...wrong], `${args.seed}:${record.activityContentId}:same-idea`);
+  const options = shuffleAnswerOptions([reference, ...wrong], `${args.seed}:${record.activityContentId}:same-idea`, args.optionNonce);
   return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which sentence expresses the same idea as this?\n${text(data.originalIdea)}`, markingReference:{ acceptedAnswers:[reference], meaningInvariants:array(data.meaningInvariants), distractors:array(data.distractors) }, extra:{ options, activityVariantId, sourceIdea:text(data.originalIdea) } });
 }
 function spotMeaningChange(args, definition) {
@@ -343,7 +345,7 @@ function spotMeaningChange(args, definition) {
   const activityVariantId = `q${distractorIndex}`;
   const marking = spotMeaningChangeMarking(data, activityVariantId);
   const sameMeaning = stableShuffle(spotMeaningChangeSameMeaningRewrites(data), `${seedKey}:same-meaning`).slice(0, 3);
-  const options = stableShuffle([marking.acceptedAnswers[0], ...sameMeaning], seedKey);
+  const options = shuffleAnswerOptions([marking.acceptedAnswers[0], ...sameMeaning], seedKey, args.optionNonce);
   return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which rewrite changes the meaning of this idea?\n${text(data.originalIdea)}`, markingReference:{ ...marking, meaningInvariants:array(data.meaningInvariants) }, extra:{ options, activityVariantId, sourceIdea:text(data.originalIdea) } });
 }
 function buildSameIdea(args, definition) {
@@ -382,7 +384,7 @@ const BUILDERS = Object.freeze({
   explain_another_way:explainAnotherWay
 });
 
-export function buildActivity({ activityType, occurrence, item, contexts = [], unitActivities = [], unitItems = [], unitContexts = [], unitOccurrences = [], mastery = {}, readinessStage = null, usedContentIds = [], seed = '' } = {}) {
+export function buildActivity({ activityType, occurrence, item, contexts = [], unitActivities = [], unitItems = [], unitContexts = [], unitOccurrences = [], mastery = {}, readinessStage = null, usedContentIds = [], seed = '', optionNonce = '', matchingPresentation = false } = {}) {
   if (!occurrence || !item) throw new Error('Vocabulary occurrence and item are required.');
   const definition = activityDefinition(activityType);
   if (!definition) throw new Error('Invalid 0511 vocabulary activity type.');
@@ -390,5 +392,5 @@ export function buildActivity({ activityType, occurrence, item, contexts = [], u
   assertReady(definition, mastery, readinessStage);
   const builder = BUILDERS[definition.id];
   if (!builder) throw new Error(`No builder exists for ${definition.id}.`);
-  return builder({ activityType, occurrence, item, contexts, unitActivities, unitItems, unitContexts, unitOccurrences, mastery, usedContentIds, seed }, definition);
+  return builder({ activityType, occurrence, item, contexts, unitActivities, unitItems, unitContexts, unitOccurrences, mastery, usedContentIds, seed, optionNonce, matchingPresentation }, definition);
 }
