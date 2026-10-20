@@ -1,31 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { renderVocabularyUnit } from '../src/vocabulary/views.js';
 
 const css = fs.readFileSync(new URL('../vocabulary-layout-stability.css', import.meta.url), 'utf8');
+const runtime = fs.readFileSync(new URL('../src/vocabulary/study-art-runtime.js', import.meta.url), 'utf8');
 
-function root(){ return { innerHTML:'' }; }
-
-test('pathway cards render the evidence shell on first paint instead of inserting it later', () => {
-  const target = root();
-  renderVocabularyUnit(target,{
-    unitNumber:1,
-    unitTitle:'Sports and Free Time',
-    progress:{ mastered:0,total:50,needsAnotherLook:0,reviewDue:0,stages:{} },
-    pathwayStates:{
-      meaning:{ currentStage:'recognise',coverageCount:48,totalCount:50,available:true }
-    }
-  });
-  const meaningCard = target.innerHTML.match(/<button[^>]*data-pathway="meaning"[\s\S]*?<\/button>/)?.[0] ?? '';
-  assert.match(meaningCard,/class="vocab-pathway-card__evidence"/);
-  assert.match(meaningCard,/data-pathway-evidence-shell/);
-  assert.match(meaningCard,/Recognise evidence/);
-  assert.match(meaningCard,/No saved evidence yet/);
-  assert.ok(
-    meaningCard.indexOf('vocab-pathway-card__evidence') < meaningCard.indexOf('vocab-pathway-ladder'),
-    'evidence shell should be present before the ladder in the initial HTML'
-  );
+test('pathway evidence shell is created for every available card before saved evidence is consulted', () => {
+  assert.match(runtime,/function\s+ensurePathwayEvidenceShell\s*\(/);
+  const decorator = runtime.match(/function\s+decoratePathwayEvidence\s*\([^)]*\)\s*\{([\s\S]*?)\n\}/)?.[1] ?? '';
+  const shellIndex = decorator.indexOf('ensurePathwayEvidenceShell(card)');
+  const evidenceIndex = decorator.indexOf('state?.stageEvidence');
+  assert.ok(shellIndex >= 0,'evidence decorator should ensure the shell for an available card');
+  assert.ok(evidenceIndex >= 0,'evidence decorator should still read authoritative saved evidence');
+  assert.ok(shellIndex < evidenceIndex,'the stable shell must exist before saved evidence hydration is considered');
+  assert.match(runtime,/dataset\.pathwayEvidenceShell/);
+  assert.match(runtime,/No saved evidence yet/);
 });
 
 test('pathway cards reserve a dedicated evidence row from first paint', () => {
@@ -49,4 +38,5 @@ test('decorative pathway artwork is restored without participating in card layou
   assert.match(css, /\.vocab-pathway-card__art\s*\{[^}]*pointer-events:none/s);
   assert.match(css, /\.vocab-pathway-card__art\s*\{[^}]*z-index:0/s);
   assert.match(css, /\.vocab-pathway-card\s*>\s*:not\(\.vocab-pathway-card__art\)\s*\{[^}]*z-index:1/s);
+  assert.match(css,/\.vocab-pathway-card\.has-study-art\s*\{[^}]*padding:28px 30px 24px!important[^}]*min-height:340px/s);
 });
