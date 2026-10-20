@@ -327,7 +327,40 @@ export function supportiveFeedback({ correct, misconceptionCategory, recovery, t
   return 'Not quite. Check the meaning carefully and try once more with support.';
 }
 
-export function renderSessionSummary(root, { durationMinutes = null, summary = {}, practiceMode = 'adaptive', nextPractice = null, pathwayId = null } = {}) {
+function renderFinishStars(finishModel) {
+  const stars = Number(finishModel?.stars);
+  if (!Number.isFinite(stars) || stars <= 0) return '';
+  return `<div class="vocab-finish-stars" aria-label="${escapeHtml(stars)} out of 3 stars earned"><span aria-hidden="true">${'★'.repeat(stars)}</span></div>`;
+}
+function renderFinishLadder(finishModel) {
+  const completed = new Set(Array.isArray(finishModel?.completedStages) ? finishModel.completedStages : []);
+  return `<div class="vocab-finish-ladder" aria-label="${escapeHtml(finishModel?.pathwayLabel ?? 'Pathway')} progression">${PATHWAY_STAGES.map(stage => {
+    const complete = finishModel?.variant === 'mastered' || completed.has(stage.id);
+    const current = !complete && stage.id === finishModel?.stageId;
+    const state = complete ? 'complete' : current ? 'current' : 'locked';
+    const marker = complete ? '✓' : current ? '●' : '○';
+    return `<span class="vocab-finish-stage" data-state="${state}" data-stage="${escapeHtml(stage.id)}"><i aria-hidden="true">${marker}</i><small>${escapeHtml(stage.label)}</small></span>`;
+  }).join('')}</div>`;
+}
+function renderPathwayFinish(root, finishModel, pathwayId) {
+  const identity = pathwayIdentity(pathwayId);
+  const stars = renderFinishStars(finishModel);
+  const score = `${escapeHtml(finishModel.score)} / ${escapeHtml(finishModel.denominator)} correct`;
+  const ladder = renderFinishLadder(finishModel);
+  const clearedStageNumber = finishModel.variant === 'stage-complete' ? Math.max(1,Number(finishModel.stageNumber ?? 1) - 1) : null;
+  const achievement = finishModel.variant === 'stage-complete'
+    ? `<div class="vocab-finish-unlock"><strong>Stage ${escapeHtml(clearedStageNumber)} cleared</strong><span>${escapeHtml(String(finishModel.nextStageLabel ?? '').toUpperCase())} UNLOCKED</span></div><p>You cleared Stage ${escapeHtml(clearedStageNumber)} of the ${escapeHtml(finishModel.pathwayLabel)} pathway.</p>`
+    : finishModel.variant === 'mastered'
+      ? `<p class="vocab-finish-mastery-copy">You completed all five stages of the ${escapeHtml(finishModel.pathwayLabel)} pathway.</p>`
+      : `<div class="vocab-finish-context"><strong>${escapeHtml(finishModel.pathwayLabel)} · ${escapeHtml(finishModel.stageLabel)}</strong><span>Stage ${escapeHtml(finishModel.stageNumber)} of 5</span></div>`;
+  const primary = finishModel.primaryAction
+    ? `<button class="vocab-button vocab-button--primary" data-action="${escapeHtml(finishModel.primaryAction.action)}">${escapeHtml(finishModel.primaryAction.label)} ${renderStudyIcon('arrow')}</button>`
+    : '';
+  root.innerHTML = `<main class="vocab-shell vocab-shell--finish" data-study-accent="${escapeHtml(identity.accent)}"><article class="vocab-summary-card vocab-finish-card study-milestone-card" data-study-completion data-finish-variant="${escapeHtml(finishModel.variant)}"><div class="vocab-celebration" aria-hidden="true">${renderStudyIcon('trophy',{className:'study-icon--xl'})}</div><div class="vocab-finish-identity">${renderStudyIcon(identity.icon,{className:'study-icon--xl'})}<p class="vocab-kicker">${escapeHtml(finishModel.kicker)}</p></div><h1 data-session-finish-heading tabindex="-1">${escapeHtml(finishModel.heading)}</h1>${stars}<p class="vocab-finish-score"><strong>${score}</strong></p><div class="vocab-finish-evidence"><div><strong>${escapeHtml(finishModel.score)}</strong><span>words strengthened</span></div><div><strong>${escapeHtml(finishModel.needsAnotherLook)}</strong><span>need another look</span></div></div>${achievement}${ladder}<p class="vocab-finish-support">${escapeHtml(finishModel.supportCopy)}</p><span class="vocab-finish-sr">${escapeHtml(finishModel.accessibleSummary)}</span><div class="vocab-summary-actions vocab-finish-actions">${primary}<button class="vocab-button" data-action="back-unit">Finish for now</button></div></article></main>`;
+}
+
+export function renderSessionSummary(root, { durationMinutes = null, summary = {}, practiceMode = 'adaptive', nextPractice = null, pathwayId = null, finishModel = null } = {}) {
+  if (finishModel && pathwayId) { renderPathwayFinish(root,finishModel,pathwayId); return; }
   const selected = focusDefinition(practiceMode);
   const identity = pathwayIdentity(pathwayId);
   const practised = Number(summary.practised ?? 0);
