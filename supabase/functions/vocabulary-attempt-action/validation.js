@@ -100,6 +100,21 @@ export function strandForQuestionType(questionType){
   return'recognition';
 }
 
+// The ONLY place the evidence support level is decided. `input` must be the output of validateVocabularyAttempt,
+// so a lower served stage has already been proven legitimate (it was declared AND the pathway allows it).
+//   - repeated guess                          -> major
+//   - same-question retry / not first attempt -> light (major only if declared major)
+//   - validated lower-stage support question  -> light (major only if declared major)
+//   - everything else, including an ordinary same-stage question that merely claims support -> none
+export function authoritativeSupportLevel(input={}){
+  if(input.repeatedGuess)return'major';
+  const declaredMajor=input.supportLevel==='major';
+  if(input.retryUsed||input.firstAttempt===false)return declaredMajor?'major':'light';
+  const lowerStageServed=Boolean(input.pathwayId&&input.pathwayStage&&input.servedPathwayStage&&input.servedPathwayStage!==input.pathwayStage);
+  if(lowerStageServed)return declaredMajor?'major':'light';
+  return'none';
+}
+
 export function buildStoredAttemptMetadata(value={}){
   const strand=STRANDS.has(value.strand)?value.strand:strandForQuestionType(value.questionType);
   const output={unit_number:Number(value.unitNumber),strand,question_type:value.questionType,attempt_number:value.firstAttempt===false?2:1,outcome:value.correct?'correct':'try_again',retry_used:value.retryUsed===true,recovery:value.recoveredLater===true,target_id:id(value.vocabularyId,'Vocabulary ID'),occurrence_id:id(value.occurrenceId,'Occurrence ID')};
