@@ -8,8 +8,8 @@ test('timed expiry waits for authoritative persistence before rendering a comple
   assert.match(app, /async function finishSessionWhenSaved\(\)/);
   const helper = app.match(/async function finishSessionWhenSaved\(\) \{([\s\S]*?)\n\}/);
   assert.ok(helper, 'guarded finish helper should exist');
-  assert.match(helper[1], /await state\.persistenceChain/);
-  assert.match(helper[1], /if \(state\.persistenceBlocked\) \{[^}]*return;/);
+  assert.match(helper[1], /await attempts\(\)\.settled\(\)/);
+  assert.match(helper[1], /if \(attempts\(\)\.blocked && !await attempts\(\)\.retry\(\)\) \{[^}]*return;/);
   assert.match(helper[1], /finishSession\(\)/);
 });
 

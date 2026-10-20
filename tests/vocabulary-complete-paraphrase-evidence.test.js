@@ -27,7 +27,7 @@ function evidence(type, contextId = 'ctx') {
   return { strand:contract.strands[0], strands:contract.strands, evidenceStrength:contract.evidenceStrength, supportLevel:'none', productive:contract.productive, repeatedGuess:false, correct:true, firstAttempt:true, retryUsed:false, recoveredLater:false, contextId, activityContentId:null, questionType:type, activityType:type, review:false };
 }
 
-test('Complete the Paraphrase only asks for the final curated chunk, with the rest supplied as a stem', () => {
+test('Complete the Paraphrase asks for the changed chunk, with the rest supplied as a stem', () => {
   const record = unit1.activities.find(row => row.contentType === 'phrase_set' && Array.isArray(row.activityData?.chunks) && row.activityData.chunks.length > 1);
   assert.ok(record, 'Unit 1 needs a phrase_set with multiple chunks');
   const vocabularyId = record.activityData.linkedVocabularyIds[0];
@@ -36,8 +36,8 @@ test('Complete the Paraphrase only asks for the final curated chunk, with the re
   const question = buildActivity({ activityType:'complete_paraphrase', occurrence, item, contexts:unit1.contexts.filter(row => row.occurrenceId === occurrence.occurrenceId), unitActivities:[record], unitItems:unit1.items, unitContexts:unit1.contexts, unitOccurrences:unit1.occurrences, mastery:{ status:'secure' }, readinessStage:'secure', seed:'complete-paraphrase-audit' });
   const chunks = record.activityData.chunks.map(value => String(value).trim()).filter(Boolean);
   assert.equal(question.responseMode, 'text');
-  assert.deepEqual(question.markingReference.acceptedAnswers, [chunks.at(-1)]);
-  assert.ok(question.prompt.includes(`${chunks.slice(0, -1).join(' ')} ___`));
+  assert.deepEqual(question.markingReference.acceptedAnswers, [chunks[0]], 'leisure time: the changed word is “leisure”, not the unchanged tail');
+  assert.ok(question.prompt.includes(`___ ${chunks.slice(1).join(' ')}`));
   assert.notEqual(question.markingReference.acceptedAnswers[0], record.activityData.equivalentPhrase, 'student is not independently producing the full paraphrase');
 });
 

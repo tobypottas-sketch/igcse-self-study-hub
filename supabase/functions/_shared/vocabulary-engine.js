@@ -22,6 +22,8 @@ const EXACT_CONTEXT_TYPES = new Set([
   'improve_vocabulary','explain_another_way','collocation_builder','word_family_switch','word_family_choice',
   'same_idea','spot_meaning_change','find_evidence','which_situation_fits','correct_usage',
   'definition_to_word','drag_definition_word','spell_word',
+  // Recall the Word tests recall of the target headword; a synonym is not the word.
+  'type_word_from_definition',
   'gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence'
 ]);
 const INACCURATE_SELECTION_TYPES = new Set(['identify_inaccurate_paraphrase','spot_meaning_change']);

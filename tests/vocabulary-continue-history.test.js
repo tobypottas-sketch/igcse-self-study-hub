@@ -12,6 +12,7 @@ import { freshPathwayProgress, applyPathwayAttempt } from '../src/vocabulary/pat
 import { deriveLearningStage } from '../src/vocabulary/learning-stage.js';
 import { buildSupportStep } from '../src/vocabulary/scaffolding.js';
 import { buildActivity } from '../src/vocabulary/activity-factory.js';
+import { createAttemptPersistence } from '../src/vocabulary/attempt-persistence.js';
 import { buildSessionFinishModel } from '../src/vocabulary/session-finish-model.js';
 
 // Execute the real controller without bootstrapping authentication or a browser.
@@ -29,7 +30,7 @@ for (const row of unit.contexts) (content.contextsByOccurrence[row.occurrenceId]
 function controller(stage = 'recognise', priorSuccess = false) {
   const state = {content,currentUnitNumber:1,currentUnitTitle:'Unit 1',preview:false,globalMastery:{},unitMastery:{},
     recentActivities:new Map(),usedContentIds:new Map(),recoveryNeeded:new Set(),queue:[],
-    persistenceChain:Promise.resolve(),persistenceBlocked:false,unitCache:new Map(),units:[]};
+    unitCache:new Map(),units:[]};
   const stages = ['recognise','match','apply','recall','mastery'];
   for (const target of content.occurrences) {
     const progress = freshPathwayProgress({completedStages:stages.slice(0,stages.indexOf(stage))});
@@ -38,7 +39,7 @@ function controller(stage = 'recognise', priorSuccess = false) {
     state.unitMastery[target.occurrenceId] = {status:'building',contextualEvidence:{pathwayProgress:{context:progress}}};
   }
   const saved = [];
-  const context = vm.createContext({state,crypto,Date,Map,Set,console,root:{},window:{clearInterval(){},setInterval(){return 1;}},
+  const context = vm.createContext({state,crypto,createAttemptPersistence,Date,Map,Set,console,root:{},window:{clearInterval(){},setInterval(){return 1;}},
     ...sessions,...targets,...pathways,...placement,...engine,deriveLearningStage,buildSupportStep,buildSessionFinishModel,
     renderVocabularyQuestion(){},renderSessionSummary(){},renderVocabularyUnit(){},supportiveFeedback(){return '';},
     trackVocabularyEvent:async () => {},
@@ -66,8 +67,8 @@ async function answer(harness, wrong = false) {
   const {state,run} = harness;
   const value = wrong ? '__wrong__' : state.current.question.markingReference.acceptedAnswers[0];
   run(`handleAnswer(null,${JSON.stringify(value)})`);
-  await state.persistenceChain;
-  assert.equal(state.persistenceBlocked,false);
+  await state.attempts.settled();
+  assert.equal(state.attempts.blocked,false);
 }
 async function ten(harness, mode = 'adaptive') {
   const questions = [];

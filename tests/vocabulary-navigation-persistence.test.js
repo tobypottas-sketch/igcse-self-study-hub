@@ -8,9 +8,9 @@ test('leaving a vocabulary session renders cached unit state independently of qu
   assert.match(app, /async function returnToCurrentUnit\(\)/);
   const helper = app.match(/async function returnToCurrentUnit\(\) \{([\s\S]*?)\n\}/);
   assert.ok(helper, 'return-to-unit helper should exist');
-  assert.doesNotMatch(helper[1], /await state\.persistenceChain/);
+  assert.doesNotMatch(helper[1], /await attempts\(\)\.settled\(\)/);
   assert.match(helper[1], /renderCurrentUnit\(\)/);
-  assert.doesNotMatch(helper[1], /if \(state\.persistenceBlocked\) return/);
+  assert.doesNotMatch(helper[1], /if \(attempts\(\)\.blocked\) return/);
   assert.equal(helper[1].includes('openUnit('), false, 'returning to an already-open unit must not refetch the whole unit');
   assert.match(app, /action === 'leave-session' \|\| action === 'back-unit'\) returnToCurrentUnit\(\)\.catch/);
 });

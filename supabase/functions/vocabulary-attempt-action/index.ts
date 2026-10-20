@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 import { applyEvidence, markCuratedAnswer, spotMeaningChangeMarking, successClearsRecentError } from '../_shared/vocabulary-engine.js';
+import { completeParaphraseBlank } from '../_shared/vocabulary-phrase-blank.js';
 import { applyPathwayAttempt, freshPathwayProgress, currentPathwayStage } from '../_shared/vocabulary-pathway-progress.js';
 import { assertContextQuestionMatchesContextType, assertUnitActivityQuestionMatchesContentType, assertWritingTaskMatchesQuestionType, buildStoredAttemptMetadata, strandForQuestionType, validateVocabularyAttempt } from './validation.js';
 
@@ -132,8 +133,9 @@ function pathwayOperation(questionType: string): string {
 function phraseMarking(data: any, questionType: string) {
   const variants = strings(data?.acceptedVariants);
   if (questionType === 'complete_paraphrase') {
-    const chunks = strings(data?.chunks);
-    return { acceptedAnswers:chunks.length ? [chunks[chunks.length - 1]] : [String(data?.equivalentPhrase ?? '')], distractors:[] };
+    // Same deterministic blank the client builder shows: the changed language, not the unchanged tail.
+    const blank = completeParaphraseBlank(data);
+    return { acceptedAnswers:blank ? [blank.answer] : [String(data?.equivalentPhrase ?? '')], distractors:[] };
   }
   return { acceptedAnswers:[String(data?.equivalentPhrase ?? ''), ...variants].filter(Boolean), distractors:strings(data?.commonMeaningDistortions).map(text => ({ text, misconceptionCategory:'meaning_confusion' })) };
 }

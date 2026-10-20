@@ -9,6 +9,7 @@ import { buildUnitPathwayStates, buildWordPathwayStates, targetsForPathwayStage 
 import { buildSessionFinishModel } from './session-finish-model.js';
 import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
 import { deriveLearningStage } from './learning-stage.js';
+import { createAttemptPersistence } from './attempt-persistence.js';
 import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
 const root = document.getElementById('vocabularyApp');
@@ -16,7 +17,7 @@ const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
   globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:null, pathwayId:null, pathwayStage:null, mixedReview:false,
   recentActivities:new Map(), usedContentIds:new Map(), recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null, timedPreviousActivityType:null,
-  persistenceChain:Promise.resolve(), persistenceBlocked:false, finishPending:false, unitCache:new Map()
+  finishPending:false, unitCache:new Map(), attempts:null
 };
 
 function occurrence(row) { return { occurrenceId:row.occurrence_id, vocabularyId:row.vocabulary_id, unitNumber:row.unit_number, unitTitle:row.unit_title, setNumber:row.set_number, positionInUnit:row.position_in_unit, senseId:row.sense_id }; }
@@ -55,8 +56,33 @@ function showSyncWarning(error) {
   console.error('Vocabulary progress sync failed', error);
   const shell = root?.querySelector?.('.vocab-shell');
   if (!shell || shell.querySelector?.('[data-vocab-sync-warning]')) return;
-  const warning = document.createElement('aside'); warning.className = 'vocab-sync-warning'; warning.dataset.vocabSyncWarning = 'true';
-  warning.textContent = 'Your answer was checked, but progress could not be saved. Check your connection before continuing.'; shell.prepend(warning);
+  const warning = document.createElement('aside'); warning.className = 'vocab-sync-warning'; warning.dataset.vocabSyncWarning = 'true'; warning.setAttribute('role', 'status');
+  warning.innerHTML = '<span>Your answer was checked, but progress could not be saved yet. Your place is kept.</span> <button type="button" class="vocab-link" data-action="retry-save">Try saving again</button>'; shell.prepend(warning);
+}
+function clearSyncWarning() { root?.querySelectorAll?.('[data-vocab-sync-warning]')?.forEach?.(node => node.remove()); }
+// Apply only what the server reports. Progression is never advanced client-side for an unsaved answer.
+function applyServerAttemptResult(entry, result) {
+  const { occurrenceId, vocabularyId } = entry.context;
+  if (result.globalStatus) {
+    const currentGlobal = state.globalMastery[vocabularyId] ?? freshMastery();
+    state.globalMastery[vocabularyId] = { ...currentGlobal, status:result.globalStatus, reviewDueAt:result.reviewDueAt, recentErrorCount:result.globalRecentErrorPattern ? 1 : 0, recentErrorPattern:result.globalRecentErrorPattern ?? null };
+  }
+  const previousUnit = state.unitMastery[occurrenceId] ?? { contextualEvidence:{} };
+  if (result.unitStatus) state.unitMastery[occurrenceId] = { ...previousUnit, status:result.unitStatus, recentErrorPattern:result.unitRecentErrorPattern ?? null };
+  if (result.pathwayProgress && result.pathwayId) {
+    const latestUnit = state.unitMastery[occurrenceId] ?? previousUnit;
+    const previousDetail = latestUnit.contextualEvidence ?? {};
+    state.unitMastery[occurrenceId] = { ...latestUnit, contextualEvidence:{ ...previousDetail, pathwayProgress:{ ...(previousDetail.pathwayProgress ?? {}), [result.pathwayId]:result.pathwayProgress } } };
+  }
+}
+function attempts() {
+  return state.attempts ??= createAttemptPersistence({
+    submit:payload => submitVocabularyAttempt(state.client, payload),
+    apply:applyServerAttemptResult,
+    onBlocked:showSyncWarning,
+    onRecovered:clearSyncWarning,
+    onMismatch:(entry, result) => console.warn('Vocabulary marking differed from the local check; the server result was kept.', { local:entry.localCorrect, server:result?.correct })
+  });
 }
 function buildUnits(dashboard) {
   const grouped = new Map(); const global = mapBy(dashboard.global, 'vocabulary_id'); const unit = mapBy(dashboard.unit, 'occurrence_id');
@@ -91,7 +117,7 @@ async function openUnit(unitNumber) {
     state.unitMastery = cached.unitMastery;
     state.finishPending = false;
     renderCurrentUnit();
-    if (state.persistenceBlocked) showSyncWarning(new Error('Vocabulary progress is still unsaved.'));
+    if (attempts().blocked) showSyncWarning(new Error('Vocabulary progress is still unsaved.'));
     return;
   }
   const preloadedOccurrences = (state.dashboard?.occurrences ?? []).filter(row => Number(row.unit_number) === Number(unitNumber));
@@ -106,6 +132,7 @@ async function openUnit(unitNumber) {
   state.globalMastery = mapBy(dashboardMastery?.global ?? [], 'vocabulary_id', mastery);
   state.unitMastery = mapBy(dashboardMastery?.unit ?? [], 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
   renderCurrentUnit();
+  if (attempts().blocked) await attempts().retry();
   const contentPromise = loadVocabularyUnit(state.client, unitNumber, loadOptions);
   const masteryPromise = state.preview
     ? Promise.resolve({ global:[], unit:[] })
@@ -114,7 +141,8 @@ async function openUnit(unitNumber) {
       : loadStudentMastery(state.client, unitNumber, loadOptions);
   const [contentRaw, masteryRaw] = await Promise.all([contentPromise, masteryPromise]);
   if (Number(state.currentUnitNumber) !== Number(unitNumber)) return;
-  state.persistenceBlocked = false; state.finishPending = false;
+  // Never reset the attempt queue here: an unsaved answer must survive opening or reloading a unit.
+  state.finishPending = false;
   const occurrences = contentRaw.occurrences.map(occurrence); const items = contentRaw.items.map(item); const contexts = contentRaw.contexts.map(context); const activities = (contentRaw.activities ?? []).map(unitActivity);
   state.content = { occurrences, items, contexts, activities, itemsById:mapBy(items,'vocabularyId'), contextsByOccurrence:{}, activitiesById:mapBy(activities,'activityContentId') };
   for (const ctx of contexts) (state.content.contextsByOccurrence[ctx.occurrenceId] ??= []).push(ctx);
@@ -122,6 +150,7 @@ async function openUnit(unitNumber) {
   state.currentUnitTitle = occurrences[0]?.unitTitle ?? state.currentUnitTitle;
   state.unitCache.set(unitNumber, { content:state.content, globalMastery:state.globalMastery, unitMastery:state.unitMastery, currentUnitTitle:state.currentUnitTitle });
   renderCurrentUnit();
+  if (attempts().blocked) showSyncWarning(new Error('Vocabulary progress is still unsaved.'));
 }
 function strandLabel(value, status) { const score = Number(value ?? 0); if (status === 'mastered' && score >= 3) return 'Secure'; if (score >= 6) return 'Secure'; if (score >= 3) return 'Developing'; return 'Keep practising'; }
 function showAllWords() {
@@ -230,7 +259,7 @@ function nextQuestion() {
   if (!state.queue.length) { if (state.session.mode === 'timed') state.queue = rankedTargets(Math.min(20, state.content.occurrences.length), 'adaptive'); else { finishSession(); return; } }
   let current = null; let guard = state.queue.length;
   while (!current && guard > 0) { const target = state.queue.shift(); guard -= 1; if (!target) break; if (state.session.mode === 'adaptive' && state.session.completedTargetIds.includes(target.occurrenceId) && !state.recoveryNeeded.has(target.occurrenceId)) continue; try { current = buildNextForTarget(target); } catch { state.queue.push(target); } }
-  if (!current) { if (state.session.mode === 'timed') { void finishSessionWhenSaved(); return; } throw new Error('No suitable curated activity is available for this practice mode yet.'); }
+  if (!current) { if (state.session.mode === 'timed') { void finishSessionWhenSaved(); return; } if (Number(state.session.summary?.practised) > 0 || state.session.completedTargetIds?.length) { void finishSessionWhenSaved(); return; } throw new Error('No suitable curated activity is available for this practice mode yet.'); }
   state.current = current; renderCurrentQuestion();
 }
 function renderCurrentQuestion(feedback = null) { if (!state.current) return; const currentMastery = state.globalMastery[state.current.target.vocabularyId] ?? freshMastery(); renderVocabularyQuestion(root, { unitNumber:state.currentUnitNumber, unitTitle:state.current.target.unitTitle, question:state.current.question, term:state.current.item.term, sessionLabel:remainingLabel(), learningStage:deriveLearningStage(currentMastery), feedback, retry:state.current.retry, support:state.current.support }); decoratePreview(); }
@@ -248,27 +277,7 @@ function persistVocabularyAttempt(current, rawAnswer, flags, localResult) {
   const contentSource = current.activityRecord ? 'unit_activity' : current.context ? 'context' : 'item';
   const pathwayFields = state.pathwayId ? { pathwayId:state.pathwayId, pathwayStage:state.pathwayStage, servedPathwayStage:current.pathwayPlan?.servedStage ?? state.pathwayStage } : {};
   const payload = { occurrenceId:current.target.occurrenceId, contextId:current.context?.contextId ?? null, activityContentId:current.activityRecord?.activityContentId ?? null, activityVariantId:current.question.activityVariantId ?? null, contentSource, primaryEvidenceTargetId:current.primaryEvidenceTargetId, questionType:current.question.type, rawAnswer, strands:current.question.strands, evidenceStrength:current.question.evidenceStrength, supportLevel:flags.supportLevel, productive:current.question.productive, repeatedGuess:false, firstAttempt:flags.firstAttempt, retryUsed:flags.retryUsed, recoveredLater:flags.recoveredLater, review:flags.review, preview:false, ...pathwayFields };
-  state.persistenceChain = state.persistenceChain.then(async () => {
-    if (state.persistenceBlocked) return;
-    try {
-      const result = await submitVocabularyAttempt(state.client, payload); if (result.correct !== localResult.correct) throw new Error('Vocabulary marking mismatch. Please reload before continuing.');
-      if (result.globalStatus) {
-        const currentGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery();
-        state.globalMastery[current.target.vocabularyId] = { ...currentGlobal, status:result.globalStatus, reviewDueAt:result.reviewDueAt, recentErrorCount:result.globalRecentErrorPattern ? 1 : 0, recentErrorPattern:result.globalRecentErrorPattern ?? null };
-      }
-      const previousUnit = state.unitMastery[current.target.occurrenceId] ?? { contextualEvidence:{} };
-      if (result.unitStatus) state.unitMastery[current.target.occurrenceId] = { ...previousUnit, status:result.unitStatus, recentErrorPattern:result.unitRecentErrorPattern ?? null };
-      if (result.pathwayProgress && result.pathwayId) {
-        const latestUnit = state.unitMastery[current.target.occurrenceId] ?? previousUnit;
-        const previousDetail = latestUnit.contextualEvidence ?? {};
-        state.unitMastery[current.target.occurrenceId] = { ...latestUnit, contextualEvidence:{ ...previousDetail, pathwayProgress:{ ...(previousDetail.pathwayProgress ?? {}), [result.pathwayId]:result.pathwayProgress } } };
-      }
-    } catch (error) {
-      state.persistenceBlocked = true;
-      showSyncWarning(error);
-    }
-  });
-  return state.persistenceChain;
+  return attempts().enqueue({ payload, localCorrect:localResult.correct, context:{ occurrenceId:current.target.occurrenceId, vocabularyId:current.target.vocabularyId } });
 }
 async function returnToCurrentUnit() {
   // Leaving is independent of saving; keep the queued attempt and its sync guard intact.
@@ -278,12 +287,13 @@ async function returnToCurrentUnit() {
   state.queue = [];
   state.pathwayId = null; state.pathwayStage = null; state.mixedReview = false; state.practiceFocus = null;
   renderCurrentUnit();
-  if (state.persistenceBlocked) showSyncWarning(new Error('Vocabulary progress is still unsaved.'));
+  if (attempts().blocked) showSyncWarning(new Error('Vocabulary progress is still unsaved.'));
 }
 async function advanceToNextQuestion() {
   const current = state.current;
-  await state.persistenceChain;
-  if (state.persistenceBlocked) return;
+  await attempts().settled();
+  // A blocked save is retried with the same attempt ids (idempotent) rather than leaving Next dead.
+  if (attempts().blocked && !await attempts().retry()) return;
   if (!current || state.current !== current) return;
   nextQuestion();
 }
@@ -339,8 +349,8 @@ async function finishSessionWhenSaved() {
   state.finishPending = true;
   const current = state.current;
   clearClock();
-  await state.persistenceChain;
-  if (state.persistenceBlocked) { state.finishPending = false; return; }
+  await attempts().settled();
+  if (attempts().blocked && !await attempts().retry()) { state.finishPending = false; return; }
   if (!current || state.current !== current) { state.finishPending = false; return; }
   finishSession();
   state.finishPending = false;
@@ -367,6 +377,7 @@ root?.addEventListener('click', event => {
     for (const tile of form.querySelectorAll?.('.vocab-tile') ?? []) { tile.disabled = false; tile.classList.remove('is-used'); }
     input.value = fixed; if (build) build.textContent = fixed ? '' : 'Choose tiles to build your answer';
   }
+  else if (action === 'retry-save') { attempts().retry().then(saved => { if (saved) clearSyncWarning(); }); }
   else if (action === 'next-question') advanceToNextQuestion().catch(error => renderVocabularyError(root, error.message)); else if (action === 'leave-session' || action === 'back-unit') returnToCurrentUnit().catch(error => renderVocabularyError(root, error.message));
 });
 async function initialise() {

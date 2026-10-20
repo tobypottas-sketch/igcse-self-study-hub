@@ -1,5 +1,7 @@
 import { shuffleAnswerOptions } from './answer-option-shuffle.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
+import { reframeInstructionAroundAnswer } from './answer-leak-guard.js';
+import { completeParaphraseBlank } from '../../supabase/functions/_shared/vocabulary-phrase-blank.js';
 import { isSpotMeaningChangeReady, spotMeaningChangeDistractorIndexes, spotMeaningChangeMarking, spotMeaningChangeSameMeaningRewrites } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
 const STAGE_ORDER = Object.freeze({ new:0, building:1, secure:2, mastered:3 });
@@ -231,12 +233,15 @@ function collocationBuilder(args, definition) {
   return baseActivity({ definition, occurrence:args.occurrence, contentId:`collocation:${collocation}`, prompt:`Build a natural collocation with “${text(args.item.term)}”.`, markingReference:{ acceptedAnswers:[collocation] }, extra:{ tiles } });
 }
 function wordFamilySwitch(args, definition) {
-  const writing = array(args.unitActivities).find(activity => activity.contentType === 'writing_set' && array(activity.activityData?.linkedVocabularyIds).includes(args.item.vocabularyId) && activity.activityData?.taskType === 'word_family');
-  if (!writing) throw new Error('No curated word-family content is available for this target.');
+  const hasRecord = array(args.unitActivities).some(activity => activity.contentType === 'writing_set' && array(activity.activityData?.linkedVocabularyIds).includes(args.item.vocabularyId) && activity.activityData?.taskType === 'word_family');
+  if (!hasRecord) throw new Error('No curated word-family content is available for this target.');
+  const writing = chooseWritingActivity(args.unitActivities, 'word_family', args.item.vocabularyId, args.usedContentIds, args.seed);
   const data = object(writing.activityData);
   const acceptedAnswers = uniqueText(array(data.acceptedAnswers));
   if (!acceptedAnswers.length) throw new Error('No curated word-family answers are available for this target.');
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:writing.activityContentId, prompt:`${text(data.prompt)}\n${text(data.sourceText)}`, markingReference:{ acceptedAnswers }, extra:{ sourceText:text(data.sourceText) || null } });
+  // When the instruction names the very word the student must type, restate it around another family member.
+  const instruction = reframeInstructionAroundAnswer(text(data.prompt), { answers:acceptedAnswers, alternatives:[...array(args.item?.wordFamily), args.item?.term] });
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:writing.activityContentId, prompt:`${instruction}\n${text(data.sourceText)}`, markingReference:{ acceptedAnswers }, extra:{ sourceText:text(data.sourceText) || null } });
 }
 function questionTextActivity(args, definition, findEvidence = false) {
   const record = chooseUnitActivity(args.unitActivities, 'question_text', args.item.vocabularyId, args.usedContentIds, args.seed, args.activityType);
@@ -321,10 +326,10 @@ function buildParaphrase(args, definition) {
 }
 function completeParaphrase(args, definition) {
   const record = phraseRecord(args), data = object(record.activityData);
-  const chunks = array(data.chunks).map(text).filter(Boolean);
-  const missing = chunks.at(-1) ?? text(data.equivalentPhrase);
-  const stem = chunks.length > 1 ? `${chunks.slice(0,-1).join(' ')} ___` : '___';
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Complete the paraphrase of “${text(data.originalPhrase)}”: ${stem}`, markingReference:{ acceptedAnswers:[missing] }, extra:{ sourcePhrase:text(data.originalPhrase) } });
+  // Blank the CHANGED language (require → demand), not an unchanged tail copied from the source phrase.
+  const blank = completeParaphraseBlank({ ...data, chunks:array(data.chunks).map(text).filter(Boolean) });
+  if (!blank) throw new Error('Complete the Paraphrase requires curated chunks.');
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Complete the paraphrase of “${text(data.originalPhrase)}”: ${blank.stem}`, markingReference:{ acceptedAnswers:[blank.answer] }, extra:{ sourcePhrase:text(data.originalPhrase) } });
 }
 function rewritePhrase(args, definition) {
   const record = phraseRecord(args), data = object(record.activityData);
