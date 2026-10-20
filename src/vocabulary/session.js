@@ -36,6 +36,15 @@ export function isSessionComplete(session, now = new Date()) {
   return session.targetIds.length > 0 && session.targetIds.every(id => session.completedTargetIds.includes(id));
 }
 
+// The single canonical mission-progress figure: how many of the mission's planned targets are complete.
+// This is the same set isSessionComplete() uses, so it can never exceed the total, and wrong answers,
+// supported retries and recovery questions (extra attempts) do not inflate it.
+export function missionProgress(session) {
+  const total = Array.isArray(session?.targetIds) ? session.targetIds.length : 0;
+  const done = total ? session.targetIds.filter(id => (session.completedTargetIds ?? []).includes(id)).length : 0;
+  return { done, total };
+}
+
 export function completeAttempt(session, { targetId, evidence = {}, completeTarget = true, strengthened = false, movedToSecure = false, mastered = false, needsAnotherLook = false } = {}) {
   if (!targetId) throw new Error('Target ID is required.');
   const completedTargetIds = completeTarget && !session.completedTargetIds.includes(targetId) ? [...session.completedTargetIds, targetId] : [...session.completedTargetIds];

@@ -2,7 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 import { applyEvidence, markCuratedAnswer, spotMeaningChangeMarking, successClearsRecentError } from '../_shared/vocabulary-engine.js';
 import { completeParaphraseBlank } from '../_shared/vocabulary-phrase-blank.js';
 import { applyPathwayAttempt, freshPathwayProgress, currentPathwayStage } from '../_shared/vocabulary-pathway-progress.js';
-import { assertContextQuestionMatchesContextType, assertUnitActivityQuestionMatchesContentType, assertWritingTaskMatchesQuestionType, buildStoredAttemptMetadata, strandForQuestionType, validateVocabularyAttempt } from './validation.js';
+import { authoritativeSupportLevel, assertContextQuestionMatchesContextType, assertUnitActivityQuestionMatchesContentType, assertWritingTaskMatchesQuestionType, buildStoredAttemptMetadata, strandForQuestionType, validateVocabularyAttempt } from './validation.js';
 
 const CORS = {
   'Access-Control-Allow-Origin':'*',
@@ -108,11 +108,6 @@ function evidenceContract(questionType: string) {
   if (designed) return designed;
   const strand = strandForQuestionType(questionType);
   return { strands:[strand], evidenceStrength:null, productive:strand === 'production' };
-}
-function authoritativeSupport(input: any) {
-  if (input.repeatedGuess) return 'major';
-  if (input.retryUsed || input.firstAttempt === false) return input.supportLevel === 'major' ? 'major' : 'light';
-  return 'none';
 }
 function pathwayOperation(questionType: string): string {
   if (['word_definition_match','drag_word_definition','drag_definition_word'].includes(questionType)) return 'semantic_match';
@@ -251,7 +246,7 @@ Deno.serve(async (req: Request) => {
     const marked = markCuratedAnswer({ item:{ vocabularyId:item.vocabulary_id }, sense, context:markingContext, questionType:input.questionType, rawAnswer:input.rawAnswer });
     const contract = evidenceContract(input.questionType);
     const strand = contract.strands[0] ?? strandForQuestionType(input.questionType);
-    const supportLevel = authoritativeSupport(input);
+    const supportLevel = authoritativeSupportLevel(input);
     const evidence = {
       strand, strands:contract.strands, evidenceStrength:contract.evidenceStrength, supportLevel,
       productive:contract.productive, repeatedGuess:input.repeatedGuess, correct:marked.correct,
