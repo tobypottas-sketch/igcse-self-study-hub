@@ -1,0 +1,36 @@
+/* Keep the Unit screen geometry stable while study artwork is attached asynchronously. */
+.vocab-pathway-card{
+  position:relative;
+  overflow:hidden;
+  padding-right:28px!important;
+  min-height:118px;
+}
+
+.vocab-unit-hero{
+  position:relative;
+  overflow:hidden;
+  padding-right:min(31vw,310px)!important;
+  min-height:180px;
+}
+
+/* A cold Unit open may hydrate the same card grid after content arrives. Do not replay card entrance motion. */
+.vocab-pathway-card.study-enter{
+  animation:none!important;
+}
+
+@media (max-width:760px){
+  .vocab-unit-hero{
+    padding-right:18px!important;
+    padding-bottom:148px!important;
+  }
+  .vocab-pathway-card{
+    padding-right:20px!important;
+  }
+}
+
+@media (max-width:620px){
+  .vocab-pathway-card{
+    padding-right:16px!important;
+    min-height:108px;
+  }
+}
