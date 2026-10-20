@@ -60,7 +60,7 @@ function blankableContext(args) {
   return shuffle(candidates,`${args.seed}:context`)[0];
 }
 function contextSentenceMatch(args, definition) {
-  const bankContext=languageBankContextForItem(args.item,args.usedContentIds,args.seed);
+  const bankContext=languageBankContextForItem(args.item,args.usedContentIds,args.seed,args.unitActivities ?? []);
   if (bankContext) {
     const accepted=text(bankContext.answer);
     const wrong=array(bankContext.distractors).map(row=>text(row?.text)).filter(Boolean);

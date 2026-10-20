@@ -5,12 +5,30 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - run: npm test
+      - name: Verify Vocabulary metadata against PostgreSQL constraints
+        env:
+          PGPASSWORD: postgres
+        run: |
+          node scripts/verify-vocabulary-metadata-contract.mjs > /tmp/vocabulary-metadata-contract.sql
+          psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f /tmp/vocabulary-metadata-contract.sql
       - run: node scripts/validate-vocabulary-content.mjs
       - name: Verify Unit 1 publish export scope
         shell: bash
