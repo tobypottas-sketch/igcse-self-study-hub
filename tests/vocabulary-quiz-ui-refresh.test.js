@@ -89,12 +89,13 @@ test('correct feedback and Continue control live in a spaced response stage', ()
 test('ten-activity completion gets a celebration but timed completion stays calm', () => {
   const ten = root();
   renderSessionSummary(ten, { summary:{ practised:10, strengthened:8, secure:2, mastered:1, needsAnotherLook:2 } });
-  assert.match(ten.innerHTML, /vocab-celebration/);
+  assert.match(ten.innerHTML, /vocab-completion-rays/);
   assert.match(ten.innerHTML, /aria-hidden="true"/);
 
   const timed = root();
   renderSessionSummary(timed, { durationMinutes:10, summary:{ practised:14, strengthened:10, secure:2, mastered:1, needsAnotherLook:3 } });
-  assert.doesNotMatch(timed.innerHTML, /vocab-celebration/);
+  assert.doesNotMatch(timed.innerHTML, /vocab-completion-rays/);
+  assert.match(timed.innerHTML, /data-study-completion-art/, 'the slot is still reserved so the card never changes size');
 });
 
 test('Mixed Practice is explicitly review-only rather than a hidden replacement for pathway learning', () => {

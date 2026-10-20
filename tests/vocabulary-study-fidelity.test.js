@@ -1,33 +1,22 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
-import { pathwayArtwork } from '../src/vocabulary/study-art.js';
-
-const expectedPathwayArt = {
-  meaning:'pathway-meaning.svg',
-  context:'pathway-context.svg',
-  word_families:'pathway-word-families.svg',
-  paraphrasing:'pathway-paraphrasing.svg',
-  precision_use:'pathway-precision.svg',
-  spelling_recall:'pathway-spelling.svg'
-};
+import { readFileSync } from 'node:fs';
+import { renderVocabularyUnit } from '../src/vocabulary/views.js';
+import { pathwayArtSvg, STUDY_ART_KEYS } from '../src/vocabulary/study-art-svg.js';
 
 test('all six pathways have dedicated mature study artwork', () => {
-  for (const [pathway,file] of Object.entries(expectedPathwayArt)) {
-    const art = pathwayArtwork(pathway);
-    assert.equal(art.src,`assets/vocabulary-study/${file}`);
-    assert.ok(art.alt.length > 0);
-    assert.ok(existsSync(new URL(`../${art.src}`, import.meta.url)), `${file} should exist`);
-  }
-  assert.equal(pathwayArtwork('unknown'),null);
+  for (const pathway of STUDY_ART_KEYS.pathways) assert.match(pathwayArtSvg(pathway), /^<svg /);
+  assert.equal(pathwayArtSvg('unknown'),'');
 });
 
-test('artwork runtime decorates pathway cards without replacing existing controls', () => {
-  const runtime = readFileSync(new URL('../src/vocabulary/study-art-runtime.js', import.meta.url),'utf8');
-  assert.match(runtime,/decoratePathwayCards/);
-  assert.match(runtime,/\.vocab-pathway-card\[data-pathway\]/);
-  assert.match(runtime,/dataset\.pathwayArt/);
-  assert.match(runtime,/vocab-pathway-card__art/);
+test('pathway cards render their artwork slot and evidence shell in the first HTML without replacing controls', () => {
+  const target = { innerHTML:'' };
+  renderVocabularyUnit(target,{ unitNumber:1, unitTitle:'Sports and Free Time', contentReady:true });
+  assert.equal((target.innerHTML.match(/class="vocab-pathway-card has-study-art/g) ?? []).length, 6);
+  for (const pathway of STUDY_ART_KEYS.pathways) assert.match(target.innerHTML, new RegExp(`data-pathway-art="${pathway}"`));
+  assert.equal((target.innerHTML.match(/data-action="open-pathway"/g) ?? []).length, 6, 'cards remain the single control');
+  assert.equal((target.innerHTML.match(/data-pathway-evidence-shell/g) ?? []).length, 6);
+  assert.doesNotMatch(target.innerHTML, /<img/);
 });
 
 test('final artwork CSS gives pathway illustrations a real composition layer', () => {

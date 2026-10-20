@@ -35,17 +35,17 @@
 .vocab-unit-hero__art-image{display:block;width:100%;height:100%;max-height:176px;object-fit:contain;filter:drop-shadow(0 12px 18px rgba(21,58,91,.11))}
 
 .vocab-completion-art{position:relative;width:210px;height:176px;margin:0 auto 2px;display:grid;place-items:center;isolation:isolate}
-.vocab-completion-art__image{position:relative;z-index:2;width:174px;height:150px;object-fit:contain;animation:study-trophy-pop var(--study-motion-celebrate) var(--study-ease) both;filter:drop-shadow(0 14px 18px rgba(21,58,91,.15))}
+.vocab-completion-art__image{position:relative;z-index:2;width:83%;height:85%;animation:study-trophy-pop var(--study-motion-celebrate) var(--study-ease) both;filter:drop-shadow(0 14px 18px rgba(21,58,91,.15))}
 .vocab-completion-rays{position:absolute;inset:2px;border-radius:50%;z-index:1;background:repeating-conic-gradient(from -7deg,color-mix(in srgb,var(--study-accent) 54%,#ffb52f) 0 3deg,transparent 3deg 14deg);mask:radial-gradient(circle,transparent 0 35%,#000 36% 68%,transparent 69%);opacity:.55;animation:study-rays-in 820ms var(--study-ease) both}
 .vocab-summary-card[data-study-completion] .vocab-summary-identity>.study-icon{display:none}
 .vocab-summary-card[data-study-completion] h1{margin-top:2px!important}
 
-.study-milestone-art{display:grid;place-items:center;flex:0 0 auto;margin-right:14px}
-.study-milestone-art__image{display:block;width:82px;height:72px;object-fit:contain;filter:drop-shadow(0 8px 12px rgba(21,58,91,.12))}
+.study-milestone-art{display:block;flex:0 0 82px;width:82px;height:72px;margin-right:14px}
+.study-milestone-art__image{display:block;width:100%;height:100%;filter:drop-shadow(0 8px 12px rgba(21,58,91,.12))}
 [data-study-milestone="stage_advanced"] .study-milestone-art__image{animation:study-stage-sweep var(--study-motion-stage) var(--study-ease) both}
 [data-study-milestone="mastered"]{min-height:126px;flex-wrap:wrap;gap:4px 0}
-[data-study-milestone="mastered"] .study-milestone-art{width:100%;margin:0 0 2px}
-[data-study-milestone="mastered"] .study-milestone-art__image{width:104px;height:92px;animation:study-trophy-pop var(--study-motion-celebrate) var(--study-ease) both}
+[data-study-milestone="mastered"] .study-milestone-art{flex-basis:auto;width:104px;height:92px;margin:0 auto 2px}
+[data-study-milestone="mastered"] .study-milestone-art__image{animation:study-trophy-pop var(--study-motion-celebrate) var(--study-ease) both}
 [data-study-milestone="stage_advanced"]::before,[data-study-milestone="mastered"]::before{display:none!important}
 
 @keyframes study-trophy-pop{0%{opacity:0;transform:translateY(14px) scale(.72) rotate(-4deg)}58%{opacity:1;transform:translateY(-4px) scale(1.07) rotate(1deg)}100%{opacity:1;transform:none}}
@@ -68,8 +68,7 @@
   .vocab-pathway-ladder{gap:5px!important;padding:7px!important}
   .vocab-pathway-stage{min-height:62px!important;padding:7px 4px!important}
   .vocab-completion-art{width:176px;height:148px}
-  .vocab-completion-art__image{width:148px;height:128px}
-  .study-milestone-art__image{width:68px;height:60px}
+  .study-milestone-art{flex-basis:68px;width:68px;height:60px}
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -120,3 +119,17 @@
 .vocab-finish-evidence>div{opacity:0;animation:study-result-reveal var(--study-motion-results) var(--study-ease) forwards}
 .vocab-finish-evidence>div:nth-child(1){animation-delay:110ms}.vocab-finish-evidence>div:nth-child(2){animation-delay:180ms}
 @media (prefers-reduced-motion:reduce){.vocab-finish-evidence>div{animation:none!important;opacity:1!important}}
+
+
+/* ── Inline study artwork (v2) ───────────────────────────────────────────────────────────────────
+   The slot (.vocab-unit-card__art, .vocab-pathway-card__art, …) owns width and height. The SVG only fills it,
+   so the artwork can never size, shift or reflow the card. */
+.study-art__svg{display:block;width:100%;height:100%;overflow:visible;--sa-ink:#173852;--sa-paper:#fff}
+.study-art__svg .sa-i{fill:none;stroke:var(--sa-ink);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.study-art__svg .sa-p,.study-art__svg .sa-i.sa-p{fill:var(--sa-paper)}
+.study-art__svg .sa-i.sa-a{fill:var(--sa-a)}
+.study-art__svg .sa-i.sa-t,.study-art__svg .sa-t{fill:color-mix(in srgb,var(--sa-a) 20%,#fff)}
+.study-art__svg .sa-a{fill:var(--sa-a)}
+.study-art__svg .sa-w{fill:#f2b84b}
+.study-art__svg .sa-txt{font:800 30px/1 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;fill:var(--sa-ink)}
+.study-art__svg .sa-txt--on{fill:#fff}
