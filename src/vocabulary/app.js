@@ -97,6 +97,9 @@ async function openUnit(unitNumber) {
   const contentPromise = loadVocabularyUnit(state.client, unitNumber, loadOptions);
   const masteryPromise = state.preview
     ? Promise.resolve({ global:[], unit:[] })
+    // A prior session may still be saving; dashboard mastery can predate that save.
+    : state.session
+      ? state.persistenceChain.then(() => loadStudentMastery(state.client, unitNumber, loadOptions))
     : dashboardMastery
       ? Promise.resolve(dashboardMastery)
       : loadStudentMastery(state.client, unitNumber, loadOptions);
