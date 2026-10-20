@@ -23,7 +23,7 @@ jobs:
       - name: Decode reviewed patches
         run: |
           base64 -d .review-payload/batch3-base.patch.gz.b64 | gzip -d > /tmp/batch3-base.patch
-          base64 -d .review-payload/batch3-final-revision.patch.gz.b64 | gzip -d > /tmp/batch3-revision.patch
+          base64 -d .review-payload/batch3-final-revision.patch.gz.b64 | xz -d > /tmp/batch3-revision.patch
       - name: Apply reviewed Batch 3 patches
         run: |
           git am /tmp/batch3-base.patch
