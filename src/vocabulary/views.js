@@ -137,7 +137,11 @@ function renderPathwayCard(pathway, pathwayStates, ready) {
   const state = normalizedPathwayState(pathway.id, pathwayStates);
   const unavailable = !state.available;
   const status = unavailable ? 'unavailable' : state.mastered ? 'mastered' : state.needsPractice ? 'needs-practice' : 'in-progress';
-  const statusLabel = unavailable ? 'Not yet available for this unit' : state.mastered ? 'Mastered' : state.needsPractice ? 'Needs practice' : `Current: ${PATHWAY_STAGES.find(stage => stage.id === state.currentStage)?.label ?? 'Recognise'}`;
+  const currentStageLabel = PATHWAY_STAGES.find(stage => stage.id === state.currentStage)?.label ?? 'Recognise';
+  const completedCount = state.mastered ? PATHWAY_STAGES.length : state.completedStages.size;
+  const statusLabel = unavailable ? 'Not yet available for this unit' : state.mastered ? 'Mastered ✓' : state.needsPractice ? `Needs practice · Next up: ${currentStageLabel}` : `Next up: ${currentStageLabel}`;
+  const stageCount = unavailable ? '' : `<span class="vocab-pathway-card__stage-count">${escapeHtml(completedCount)} of 5 stages complete</span>`;
+  const sessionGuide = unavailable || state.mastered ? '' : '<span class="vocab-pathway-card__session-guide">Complete short 10-question study sessions to build this skill.</span>';
   const stages = PATHWAY_STAGES.map(stage => {
     const visualState = unavailable ? 'locked' : stageVisualState(stage.id,state);
     const marker = visualState === 'complete' ? '✓' : visualState === 'current' ? '●' : '○';
@@ -147,8 +151,8 @@ function renderPathwayCard(pathway, pathwayStates, ready) {
     ? `<span class="vocab-pathway-card__coverage">${escapeHtml(state.coverageCount)} of ${escapeHtml(state.totalCount)} words available</span>`
     : '';
   const disabled = ready && !unavailable ? '' : ' disabled aria-disabled="true"';
-  const cta = unavailable ? 'Not yet available for this unit' : `${state.mastered ? 'Review pathway' : 'Continue pathway'} →`;
-  return `<button type="button" class="vocab-pathway-card study-enter" data-action="open-pathway" data-pathway="${pathway.id}" data-pathway-status="${status}" data-study-accent="${escapeHtml(identity.accent)}"${disabled}><span class="vocab-pathway-card__identity"><span class="vocab-pathway-card__icon">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}</span><span class="vocab-pathway-card__head"><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(identity.purpose)}</small></span></span><span class="vocab-pathway-card__status">${escapeHtml(statusLabel)}</span>${coverage}<span class="vocab-pathway-ladder" aria-label="${escapeHtml(pathway.label)} progression">${stages}</span><span class="vocab-pathway-card__cta">${escapeHtml(cta)}</span></button>`;
+  const cta = unavailable ? 'Not yet available for this unit' : state.mastered ? 'Review pathway →' : 'Start 10-question session →';
+  return `<button type="button" class="vocab-pathway-card study-enter" data-action="open-pathway" data-pathway="${pathway.id}" data-pathway-status="${status}" data-study-accent="${escapeHtml(identity.accent)}"${disabled}><span class="vocab-pathway-card__identity"><span class="vocab-pathway-card__icon">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}</span><span class="vocab-pathway-card__head"><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(identity.purpose)}</small></span></span><span class="vocab-pathway-card__status">${escapeHtml(statusLabel)}</span>${stageCount}${sessionGuide}${coverage}<span class="vocab-pathway-ladder" aria-label="${escapeHtml(pathway.label)} progression">${stages}</span><span class="vocab-pathway-card__cta">${escapeHtml(cta)}</span></button>`;
 }
 
 export function renderVocabularyUnit(root, { unitNumber, unitTitle, progress, pathwayStates = {}, contentReady = true } = {}) {
