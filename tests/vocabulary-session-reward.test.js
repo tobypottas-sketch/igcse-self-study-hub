@@ -44,3 +44,15 @@ test('two recovered mistakes reduce stars even when both are eventually correcte
   assert.equal(summary.correctedMistakes, 2);
   assert.equal(summary.stars, 2);
 });
+
+test('later recovery activity for the same target cannot erase its original first-attempt miss', () => {
+  const completedAttempts = [
+    { targetId:'retry-target', evidence:{ firstAttemptCorrect:false, correctedAfterRetry:true } },
+    { targetId:'retry-target', evidence:{ firstAttemptCorrect:true, correctedAfterRetry:false, recovery:true } },
+    ...Array.from({ length:9 }, (_, index) => ({ targetId:`ok${index}`, evidence:{ firstAttemptCorrect:true } }))
+  ];
+  const summary = buildSessionRewardSummary({ completedAttempts, sessionSummary:{ practised:10 }, totalQuestions:10 });
+  assert.equal(summary.firstAttemptCorrect, 9);
+  assert.equal(summary.correctedMistakes, 1);
+  assert.equal(summary.stars, 3);
+});
