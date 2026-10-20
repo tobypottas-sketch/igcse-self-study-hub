@@ -10,6 +10,25 @@ export function starCountFor(firstAttemptCorrect = 0) {
   return 0;
 }
 
+function sessionOutcomes(completedAttempts = []) {
+  const attempts = Array.isArray(completedAttempts) ? completedAttempts : [];
+  const byTarget = new Map();
+  let anonymousIndex = 0;
+  for (const attempt of attempts) {
+    const key = attempt?.targetId ?? `attempt:${anonymousIndex++}`;
+    const evidence = attempt?.evidence ?? {};
+    if (!byTarget.has(key)) {
+      byTarget.set(key, {
+        firstAttemptCorrect:evidence.firstAttemptCorrect === true,
+        correctedAfterRetry:evidence.correctedAfterRetry === true
+      });
+      continue;
+    }
+    if (evidence.correctedAfterRetry === true) byTarget.get(key).correctedAfterRetry = true;
+  }
+  return [...byTarget.values()];
+}
+
 export function buildSessionRewardSummary({
   completedAttempts = [],
   sessionSummary = {},
@@ -17,9 +36,9 @@ export function buildSessionRewardSummary({
   pathwayId = null,
   pathwayStage = null
 } = {}) {
-  const attempts = Array.isArray(completedAttempts) ? completedAttempts : [];
-  const firstAttemptCorrect = attempts.filter(attempt => attempt?.evidence?.firstAttemptCorrect === true).length;
-  const correctedMistakes = attempts.filter(attempt => attempt?.evidence?.correctedAfterRetry === true).length;
+  const outcomes = sessionOutcomes(completedAttempts);
+  const firstAttemptCorrect = outcomes.filter(outcome => outcome.firstAttemptCorrect).length;
+  const correctedMistakes = outcomes.filter(outcome => outcome.correctedAfterRetry).length;
 
   return {
     firstAttemptCorrect,
