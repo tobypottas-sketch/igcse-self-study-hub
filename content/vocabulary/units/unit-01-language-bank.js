@@ -1884,62 +1884,62 @@ export default Object.freeze({
     contexts:[
       {
         id:'elite_ctx_1',
-        text:'Only a tiny group of ____ runners, chosen from thousands of competitors, are invited to the national training camp.',
+        text:'The ____ squad is closed to all but the top one per cent of players in the country, chosen purely on results.',
         answer:'elite',
         distractors:[
-          diagnosed('local','Fits grammatically, but local runners are from one area, and the sentence says these few were chosen from thousands nationally.'),
-          diagnosed('junior','Fits grammatically, but junior means young, but the sentence is about the very highest level, not age.'),
-          diagnosed('keen','Fits grammatically, but keen means enthusiastic, which does not explain being chosen from thousands.')
+          diagnosed('open','Fits grammatically, but an open squad lets anyone join, but closed to all but the top one per cent says entry is limited.'),
+          diagnosed('social','Fits grammatically, but a social squad plays for fun, but closed to all but the top one per cent and chosen purely on results says it is for the best.'),
+          diagnosed('beginner','Fits grammatically, but a beginner squad is for new players, who cannot be among the top one per cent in the country.')
         ]
       },
       {
         id:'elite_ctx_2',
-        text:'Joining an ____ club means training with the best players in the country and competing at the highest level.',
+        text:'Entry to the ____ competition is restricted to the top ten ranked players in the country, so most club players never qualify.',
         answer:'elite',
         distractors:[
-          diagnosed('amateur','Fits grammatically, but an amateur club is for people who play for fun, but the sentence describes the best players at the highest level.'),
-          diagnosed('ordinary','Fits grammatically, but an ordinary club contradicts training with the best players in the country.'),
-          diagnosed('open','Fits grammatically, but an open club accepts anyone, but the sentence describes the highest level of competition.')
+          diagnosed('open','Fits grammatically, but an open competition lets anyone enter, but restricted to the top ten ranked players says entry is limited.'),
+          diagnosed('social','Fits grammatically, but a social competition is for fun, but restricted to the top ten ranked players says it is for the best.'),
+          diagnosed('recreational','Fits grammatically, but a recreational competition is for enjoyment, but restricted to the top ten ranked players says it is for the best.')
         ]
       },
       {
         id:'elite_ctx_3',
-        text:'At the Olympics, the world’s ____ athletes compete for the medals, and only the very best in each sport qualify.',
+        text:'Her coach said she had the ability to reach ____ level, which means competing against the best in the world.',
         answer:'elite',
         distractors:[
-          diagnosed('fit','Fits grammatically, but fit means healthy, but the sentence is about being among the very best in each sport.'),
-          diagnosed('local','Fits grammatically, but local means from one area, but the sentence says the world’s best qualify.'),
-          diagnosed('regular','Fits grammatically, but regular means usual, which contradicts only the very best qualify.')
+          diagnosed('national','Fits grammatically, but national level means competing against the best in one country, but the sentence says the best in the world.'),
+          diagnosed('regional','Fits grammatically, but regional level means competing against the best in one area, but the sentence says the best in the world.'),
+          diagnosed('club','Fits grammatically, but club level means competing against other members of a club, but the sentence says the best in the world.')
         ]
       },
       {
         id:'elite_ctx_4',
-        text:'Her coach said she had the ability to reach ____ level, which means competing against the best in the world.',
+        text:'Scholarships are offered only to ____ sports people, meaning those who rank in the top one per cent nationally.',
         answer:'elite',
         distractors:[
-          diagnosed('beginner','Fits grammatically, but beginner level is the lowest stage, which contradicts competing against the best in the world.'),
-          diagnosed('average','Fits grammatically, but average level is the middle, which contradicts competing against the best in the world.'),
-          diagnosed('local','Fits grammatically, but local level means competing in one area, but the sentence mentions the best in the world.')
+          diagnosed('average','Fits grammatically, but average sports people are in the middle of the range, but meaning those who rank in the top one per cent says the opposite.'),
+          diagnosed('casual','Fits grammatically, but casual sports people play for fun, but meaning those who rank in the top one per cent says the opposite.'),
+          diagnosed('ordinary','Fits grammatically, but ordinary sports people are not exceptional, but meaning those who rank in the top one per cent says the opposite.')
         ]
       },
       {
         id:'elite_ctx_5',
-        text:'Scholarships are offered to ____ sports people only, those who rank in the top one per cent nationally.',
+        text:'Although he trains hard, he is still not good enough for the ____ squad, which only takes the very best players in the country.',
         answer:'elite',
         distractors:[
-          diagnosed('casual','Fits grammatically, but casual means not serious, which contradicts the top one per cent nationally.'),
-          diagnosed('keen','Fits grammatically, but keen means enthusiastic, but the sentence is about ranking in the top one per cent.'),
-          diagnosed('young','Fits grammatically, but young refers to age, but the sentence is about ranking in the top one per cent.')
+          diagnosed('open','Fits grammatically, but an open squad takes anyone, but which only takes the very best players says the opposite.'),
+          diagnosed('social','Fits grammatically, but a social squad plays for fun, but which only takes the very best players says the opposite.'),
+          diagnosed('community','Fits grammatically, but a community squad is based on a local group, but which only takes the very best players in the country says the opposite.')
         ]
       },
       {
         id:'elite_ctx_6',
-        text:'Several ____ footballers were seen training together at the new academy, but most of the students there were still beginners.',
+        text:'Scouts say the ____ footballers they saw at the new academy are among the best fifty players of their age in the whole country.',
         answer:'elite',
         distractors:[
-          diagnosed('basic','Fits grammatically, but basic describes a low level of skill, but the sentence contrasts the footballers with the beginners.'),
-          diagnosed('local','Fits grammatically, but local refers to the area, but the sentence contrasts the footballers with the beginners by level.'),
-          diagnosed('curious','Fits grammatically, but curious means interested, which does not contrast with beginners by level.')
+          diagnosed('average','Fits grammatically, but average footballers are in the middle of the range, but among the best fifty in the whole country says the opposite.'),
+          diagnosed('ordinary','Fits grammatically, but ordinary footballers are not exceptional, but among the best fifty in the whole country says the opposite.'),
+          diagnosed('typical','Fits grammatically, but typical footballers are like most others, but among the best fifty in the whole country says the opposite.')
         ]
       }
     ],
@@ -1972,9 +1972,9 @@ export default Object.freeze({
         text:'The support from the home crowd was so ____ that the young players could hardly think or hear their coach.',
         answer:'overwhelming',
         distractors:[
-          diagnosed('overwhelmed','Fits grammatically, but overwhelmed describes how a person feels, but the sentence describes the support that caused the feeling.'),
-          diagnosed('overwhelmingly','Fits grammatically, but overwhelmingly is an adverb, but the missing word describes the noun support.'),
-          diagnosed('impressive','Fits grammatically, but impressive means admirable, which does not explain players being unable to think or hear.')
+          diagnosed('half-hearted','Fits grammatically, but half-hearted support lacks energy, which contradicts the players hardly being able to think or hear their coach.'),
+          diagnosed('gentle','Fits grammatically, but gentle support is soft and quiet, which contradicts the players hardly being able to think or hear their coach.'),
+          diagnosed('unobtrusive','Fits grammatically, but unobtrusive support is quiet and easy to ignore, which contradicts the players hardly being able to think or hear their coach.')
         ]
       },
       {
@@ -1982,49 +1982,49 @@ export default Object.freeze({
         text:'Voters gave the new mayor an ____ majority, with more than ninety per cent supporting her.',
         answer:'overwhelming',
         distractors:[
-          diagnosed('average','Fits grammatically, but an average majority is ordinary, which does not fit more than ninety per cent.'),
-          diagnosed('overwhelmed','Fits grammatically, but overwhelmed describes how a person feels, not a majority.'),
-          diagnosed('unconvincing','Fits grammatically, but unconvincing means not persuasive, which does not describe a result of more than ninety per cent.')
+          diagnosed('insignificant','Fits grammatically, but an insignificant majority is tiny, but more than ninety per cent supporting her shows a huge one.'),
+          diagnosed('unconvincing','Fits grammatically, but an unconvincing majority is too small to persuade, but more than ninety per cent supporting her shows a huge one.'),
+          diagnosed('inadequate','Fits grammatically, but an inadequate majority is too small, but more than ninety per cent supporting her shows a huge one.')
         ]
       },
       {
         id:'overwhelming_ctx_3',
-        text:'After weeks of training, he felt an ____ sense of relief when the race was over, and he cried at the finish line.',
+        text:'After weeks of training, he felt an ____ sense of relief when the race was over, so strong that he cried at the finish line.',
         answer:'overwhelming',
         distractors:[
-          diagnosed('ordinary','Fits grammatically, but ordinary contradicts crying at the finish line.'),
-          diagnosed('overwhelmed','Fits grammatically, but overwhelmed describes how a person feels, but the missing word describes the sense of relief itself.'),
-          diagnosed('disappointing','Fits grammatically, but disappointing means worse than hoped, which does not fit relief that made him cry.')
+          diagnosed('ordinary','Fits grammatically, but an ordinary sense of relief is not unusually strong, which contradicts so strong that he cried.'),
+          diagnosed('unnoticeable','Fits grammatically, but an unnoticeable sense of relief is too slight to be noticed, which contradicts so strong that he cried.'),
+          diagnosed('understated','Fits grammatically, but an understated sense of relief is kept low-key, which contradicts so strong that he cried.')
         ]
       },
       {
         id:'overwhelming_ctx_4',
-        text:'There was ____ evidence that the player had broken the rules: video, witnesses and his own messages.',
+        text:'There was ____ evidence that the player had broken the rules: the video, the witnesses and his own messages all agreed, and the committee had no doubt.',
         answer:'overwhelming',
         distractors:[
-          diagnosed('partial','Fits grammatically, but partial means incomplete, which contradicts video, witnesses and his own messages.'),
-          diagnosed('disappointing','Fits grammatically, but disappointing means worse than hoped, which does not describe the strength of the evidence.'),
-          diagnosed('overwhelmed','Fits grammatically, but overwhelmed describes how a person feels, not evidence.')
+          diagnosed('inconclusive','Fits grammatically, but inconclusive evidence leaves the matter in doubt, which contradicts the committee had no doubt.'),
+          diagnosed('conflicting','Fits grammatically, but conflicting evidence disagrees with itself, which contradicts the video, witnesses and messages all agreed.'),
+          diagnosed('insufficient','Fits grammatically, but insufficient evidence is not enough to decide, which contradicts the committee had no doubt.')
         ]
       },
       {
         id:'overwhelming_ctx_5',
-        text:'The amount of homework this week has been ____; many students have stopped trying to finish it all.',
+        text:'The amount of homework this week has been ____: it was so much that many students stopped trying to finish it all.',
         answer:'overwhelming',
         distractors:[
-          diagnosed('overwhelmed','Fits grammatically, but overwhelmed describes how people feel, but the homework itself is described.'),
-          diagnosed('manageable','Fits grammatically, but manageable contradicts many students have stopped trying.'),
-          diagnosed('unsatisfactory','Fits grammatically, but unsatisfactory means not good enough, but the sentence says the amount was too great to manage.')
+          diagnosed('manageable','Fits grammatically, but manageable means possible to cope with, but so much that many students stopped trying says the opposite.'),
+          diagnosed('reasonable','Fits grammatically, but reasonable means fair, but so much that many students stopped trying says the opposite.'),
+          diagnosed('unremarkable','Fits grammatically, but unremarkable means nothing special, but so much that many students stopped trying shows it was extreme.')
         ]
       },
       {
         id:'overwhelming_ctx_6',
-        text:'An ____ response from fans, with thousands of messages in a single day, surprised the club.',
+        text:'An ____ response from fans, with so many messages that the staff could not read or answer them all, surprised the club.',
         answer:'overwhelming',
         distractors:[
-          diagnosed('exciting','Fits grammatically, but exciting is possible, but it does not show the response was too great to deal with.'),
-          diagnosed('ordinary','Fits grammatically, but ordinary contradicts thousands of messages in a single day and the club being surprised.'),
-          diagnosed('unsatisfactory','Fits grammatically, but unsatisfactory means not good enough, which contradicts a response that surprised the club.')
+          diagnosed('underwhelming','Fits grammatically, but an underwhelming response is a disappointing one, which contradicts so many messages that the staff could not answer them all.'),
+          diagnosed('insufficient','Fits grammatically, but an insufficient response is not enough, which contradicts so many messages that the staff could not answer them all.'),
+          diagnosed('unenthusiastic','Fits grammatically, but an unenthusiastic response shows little interest, which contradicts so many messages that the staff could not answer them all.')
         ]
       }
     ],
@@ -2057,9 +2057,9 @@ export default Object.freeze({
         text:'People born in the nineties are often described as part of the same ____, because they grew up with similar technology.',
         answer:'generation',
         distractors:[
-          diagnosed('neighbourhood','Fits grammatically, but a neighbourhood is a group of people living in the same area, but born in the nineties describes people born in the same period.'),
-          diagnosed('population','Fits grammatically, but a population is all the people in a place, but born in the nineties describes people born in the same period.'),
-          diagnosed('society','Fits grammatically, but a society is a large group of people living together, but born in the nineties describes people born in the same period.')
+          diagnosed('family','Fits grammatically, but a family is made up of relatives, not people born in the same period.'),
+          diagnosed('neighbourhood','Fits grammatically, but a neighbourhood is a place where people live, not a group defined by when they were born.'),
+          diagnosed('school','Fits grammatically, but a school is a place of education, not a group defined by when they were born.')
         ]
       },
       {
@@ -2067,9 +2067,9 @@ export default Object.freeze({
         text:'A new ____ of players, all born after the year 2005, is replacing the champions who dominated the sport for years.',
         answer:'generation',
         distractors:[
-          diagnosed('organisation','Fits grammatically, but an organisation is a formal group with a purpose, but born after the year 2005 describes a group defined by birth years.'),
-          diagnosed('committee','Fits grammatically, but a committee is a group that makes decisions, not a group defined by birth years.'),
-          diagnosed('audience','Fits grammatically, but an audience watches an event, not a group defined by birth years.')
+          diagnosed('season','Fits grammatically, but a season is part of the year, not a group of players born after 2005.'),
+          diagnosed('century','Fits grammatically, but a century is one hundred years, not a group of players born after 2005.'),
+          diagnosed('month','Fits grammatically, but a month is a period of about thirty days, not a group of players born after 2005.')
         ]
       },
       {
@@ -2077,9 +2077,9 @@ export default Object.freeze({
         text:'Each ____ of people, born within a few years of each other, grows up with different music, technology and ideas about work.',
         answer:'generation',
         distractors:[
-          diagnosed('century','Fits grammatically, but a century is one hundred years, which is much longer than a few years of each other.'),
-          diagnosed('decade','Fits grammatically, but a decade is ten years, but a few years of each other describes people born around the same time, not a block of ten years.'),
-          diagnosed('population','Fits grammatically, but a population is all the people in a place, not a group born around the same time.')
+          diagnosed('century','Fits grammatically, but a century is one hundred years, not a few years, and it is a period of time rather than a group of people.'),
+          diagnosed('decade','Fits grammatically, but a decade is ten years, not a few years, and it is a period of time rather than a group of people.'),
+          diagnosed('season','Fits grammatically, but a season is part of a year, and it is a period of time rather than a group of people.')
         ]
       },
       {
@@ -2088,8 +2088,8 @@ export default Object.freeze({
         answer:'generation',
         distractors:[
           diagnosed('season','Fits grammatically, but a season is part of the year, and love of football is passed to people, not to a season.'),
-          diagnosed('neighbourhood','Fits grammatically, but a neighbourhood is a place where people live, but the sentence talks about passing love of football from parents to people who come after them.'),
-          diagnosed('century','Fits grammatically, but a century is a period of time, not a group of people.')
+          diagnosed('family','Fits grammatically, but a family includes the parents themselves, but the love of football is passed to the people who come after them.'),
+          diagnosed('neighbourhood','Fits grammatically, but a neighbourhood is a place where people live, not the group of people who come after the parents.')
         ]
       },
       {
@@ -2097,9 +2097,9 @@ export default Object.freeze({
         text:'Anyone whose birth falls within the same fifteen years belongs to one ____ and often shares similar views about money and work.',
         answer:'generation',
         distractors:[
+          diagnosed('decade','Fits grammatically, but a decade is ten years, not fifteen, and it is a period of time rather than a group of people.'),
           diagnosed('family','Fits grammatically, but a family is made up of relatives, not people born in the same years.'),
-          diagnosed('neighbourhood','Fits grammatically, but a neighbourhood is a place where people live, not a group defined by birth years.'),
-          diagnosed('community','Fits grammatically, but a community is a group in one place, not people born in the same years.')
+          diagnosed('neighbourhood','Fits grammatically, but a neighbourhood is a place where people live, not a group defined by birth years.')
         ]
       },
       {
@@ -2107,9 +2107,9 @@ export default Object.freeze({
         text:'The gap between grandparents and their grandchildren shows up in how each ____ spends its free time.',
         answer:'generation',
         distractors:[
-          diagnosed('family','Fits grammatically, but a family includes both grandparents and grandchildren, but the sentence contrasts the two age groups.'),
-          diagnosed('organisation','Fits grammatically, but an organisation is a formal group with a purpose, not an age group.'),
-          diagnosed('society','Fits grammatically, but a society is a whole population, but the sentence contrasts two age groups within it.')
+          diagnosed('neighbourhood','Fits grammatically, but a neighbourhood is a place, but the sentence contrasts two age groups.'),
+          diagnosed('century','Fits grammatically, but a century is one hundred years, and it does not spend free time.'),
+          diagnosed('team','Fits grammatically, but a team is a group that plays together, but the sentence contrasts grandparents with grandchildren.')
         ]
       }
     ],
@@ -2139,12 +2139,12 @@ export default Object.freeze({
     contexts:[
       {
         id:'challenge_ctx_1',
-        text:'The coach set the squad a ____: to run ten kilometres without stopping, to test their fitness.',
+        text:'The coach set the squad a ____: to run ten kilometres without stopping, to see who could push their limits.',
         answer:'challenge',
         distractors:[
-          diagnosed('rule','Fits grammatically, but a rule says what you must do, but to test their fitness describes a task that tests ability.'),
-          diagnosed('reward','Fits grammatically, but a reward is a prize, but to test their fitness describes a task that tests ability.'),
-          diagnosed('schedule','Fits grammatically, but a schedule is a plan of times, but to test their fitness describes a task that tests ability.')
+          diagnosed('schedule','Fits grammatically, but a schedule is a plan of times, but to see who could push their limits describes a difficult test.'),
+          diagnosed('reward','Fits grammatically, but a reward is a prize, but to see who could push their limits describes a difficult test.'),
+          diagnosed('deadline','Fits grammatically, but a deadline is a time limit, but to see who could push their limits describes a difficult test.')
         ]
       },
       {
@@ -2152,29 +2152,29 @@ export default Object.freeze({
         text:'Playing the champions away from home will be a serious ____ for our young team, but we are ready to try.',
         answer:'challenge',
         distractors:[
-          diagnosed('mistake','Fits grammatically, but a mistake is an error, which does not fit a team that is ready to try.'),
-          diagnosed('tradition','Fits grammatically, but a tradition is a long-standing custom, not a difficult test for the team.'),
-          diagnosed('victory','Fits grammatically, but a victory is a win, but the sentence says the team is only ready to try.')
+          diagnosed('setback','Fits grammatically, but a setback is a problem that has already happened, but will be and ready to try describe something still to come.'),
+          diagnosed('rival','Fits grammatically, but a rival is a person or team, not a difficulty a team is ready to try.'),
+          diagnosed('embarrassment','Fits grammatically, but an embarrassment is a feeling after something has gone wrong, but will be and we are ready to try describe something still to come.')
         ]
       },
       {
         id:'challenge_ctx_3',
-        text:'Learning an instrument as an adult is a ____ because it tests your patience and memory every day.',
+        text:'Adults learning an instrument face a real ____ in staying patient when progress feels slow.',
         answer:'challenge',
         distractors:[
-          diagnosed('habit','Fits grammatically, but a habit is something done automatically, but the sentence says it tests patience and memory.'),
-          diagnosed('success','Fits grammatically, but a success is a good result, but the sentence is about how hard the learning is.'),
-          diagnosed('punishment','Fits grammatically, but a punishment is a penalty, which does not describe learning an instrument that tests patience and memory.')
+          diagnosed('hobby','Fits grammatically, but a hobby is an activity chosen for pleasure, not a difficulty that adults face.'),
+          diagnosed('habit','Fits grammatically, but a habit is something done regularly, not a difficulty that adults face.'),
+          diagnosed('privilege','Fits grammatically, but a privilege is a special advantage, not a difficulty that adults face.')
         ]
       },
       {
         id:'challenge_ctx_4',
-        text:'Many people accept the ____ of running a marathon to raise money for charity, even though they have never run far.',
+        text:'Running a marathon for charity is a ____ for most people, because they have never run more than a few kilometres before.',
         answer:'challenge',
         distractors:[
-          diagnosed('cost','Fits grammatically, but a cost is a price, but the sentence is about taking on something difficult.'),
-          diagnosed('habit','Fits grammatically, but a habit is something done regularly, but they have never run far.'),
-          diagnosed('punishment','Fits grammatically, but a punishment is a penalty, which does not fit raising money for charity.')
+          diagnosed('routine','Fits grammatically, but a routine is a regular set of actions, which does not fit people who have never run more than a few kilometres.'),
+          diagnosed('custom','Fits grammatically, but a custom is a traditional way of behaving, which does not fit people who have never run more than a few kilometres.'),
+          diagnosed('ritual','Fits grammatically, but a ritual is a fixed ceremony, which does not fit people who have never run more than a few kilometres.')
         ]
       },
       {
@@ -2182,9 +2182,9 @@ export default Object.freeze({
         text:'Finding enough time for training while studying full-time is the biggest ____ for most athletes at university.',
         answer:'challenge',
         distractors:[
-          diagnosed('advantage','Fits grammatically, but an advantage is a benefit, which does not fit finding enough time being difficult.'),
-          diagnosed('excuse','Fits grammatically, but an excuse is a reason given for not doing something, but the sentence describes a real difficulty.'),
-          diagnosed('habit','Fits grammatically, but a habit is something done automatically, not something that is hard to find time for.')
+          diagnosed('expense','Fits grammatically, but an expense is a cost, but finding enough time is about difficulty, not money.'),
+          diagnosed('distraction','Fits grammatically, but a distraction takes attention away from something, but finding enough time is about how hard the whole situation is.'),
+          diagnosed('reason','Fits grammatically, but a reason explains why something happens, but the sentence describes the hardest thing they face.')
         ]
       },
       {
@@ -2192,9 +2192,9 @@ export default Object.freeze({
         text:'The new course is a ____ even for experienced players: every exercise tests a different skill.',
         answer:'challenge',
         distractors:[
-          diagnosed('tradition','Fits grammatically, but a tradition is a long-standing custom, but every exercise tests a different skill describes difficulty.'),
-          diagnosed('relief','Fits grammatically, but a relief is the end of a worry, which contradicts every exercise tests a different skill.'),
-          diagnosed('reward','Fits grammatically, but a reward is a prize, but every exercise tests a skill, which is about difficulty.')
+          diagnosed('formality','Fits grammatically, but a formality is a step that is easy and expected, but every exercise tests a different skill.'),
+          diagnosed('breeze','Fits grammatically, but a breeze is something very easy, but every exercise tests a different skill.'),
+          diagnosed('relief','Fits grammatically, but a relief is the end of a worry, but every exercise tests a different skill.')
         ]
       }
     ],
@@ -2224,12 +2224,12 @@ export default Object.freeze({
     contexts:[
       {
         id:'solution_ctx_1',
-        text:'The club finally found a ____ to the shortage of training space by sharing the school gym.',
+        text:'The club finally found a ____ that ended the shortage of training space: it shared the school gym.',
         answer:'solution',
         distractors:[
-          diagnosed('threat','Fits grammatically, but a threat is a danger, but by sharing the school gym describes dealing with the shortage.'),
-          diagnosed('reaction','Fits grammatically, but a reaction is how someone responds, but by sharing the school gym describes a way of dealing with the shortage.'),
-          diagnosed('introduction','Fits grammatically, but an introduction is a first presentation, not a way of dealing with a shortage.')
+          diagnosed('complaint','Fits grammatically, but a complaint is an expression of dissatisfaction, which does not end a shortage.'),
+          diagnosed('delay','Fits grammatically, but a delay is a late arrival, which does not end a shortage.'),
+          diagnosed('rumour','Fits grammatically, but a rumour is an unproved story, which does not end a shortage.')
         ]
       },
       {
@@ -2237,9 +2237,9 @@ export default Object.freeze({
         text:'One practical ____ to the noise problem is to move the matches to the afternoon.',
         answer:'solution',
         distractors:[
-          diagnosed('cause','Fits grammatically, but a cause is what creates the problem, but to move the matches describes a way of dealing with it.'),
-          diagnosed('danger','Fits grammatically, but a danger is a risk, but to move the matches describes a way of dealing with it.'),
-          diagnosed('reaction','Fits grammatically, but a reaction is how someone responds, but to move the matches describes a way of dealing with it.')
+          diagnosed('obstacle','Fits grammatically, but an obstacle makes a problem harder, but to move the matches describes a way of ending the noise.'),
+          diagnosed('threat','Fits grammatically, but a threat is a danger, but to move the matches describes a way of ending the noise.'),
+          diagnosed('cause','Fits grammatically, but a cause is what creates a problem, but to move the matches describes a way of ending the noise.')
         ]
       },
       {
@@ -2247,39 +2247,39 @@ export default Object.freeze({
         text:'There is no simple ____ to the problem of injuries among young athletes, but good coaching helps.',
         answer:'solution',
         distractors:[
-          diagnosed('reason','Fits grammatically, but a reason explains why something happens, but good coaching helps describes a way of dealing with it.'),
-          diagnosed('guarantee','Fits grammatically, but a guarantee is a promise, but good coaching helps describes a way of reducing the problem.'),
-          diagnosed('explanation','Fits grammatically, but an explanation says why something happens, but good coaching helps describes a way of dealing with it.')
+          diagnosed('definition','Fits grammatically, but a definition says what a word means, but good coaching helps describes a way of reducing the problem.'),
+          diagnosed('prediction','Fits grammatically, but a prediction says what will happen, but good coaching helps describes a way of reducing the problem.'),
+          diagnosed('excuse','Fits grammatically, but an excuse defends a failure, but good coaching helps describes a way of reducing the problem.')
         ]
       },
       {
         id:'solution_ctx_4',
-        text:'The mechanic said that the engine fault had no easy ____, and that the whole part would have to be replaced.',
+        text:'The mechanic said there was no easy ____ to the engine fault: the whole part would have to be replaced.',
         answer:'solution',
         distractors:[
-          diagnosed('cause','Fits grammatically, but a cause is what created the fault, but would have to be replaced describes a way of dealing with it.'),
-          diagnosed('warning','Fits grammatically, but a warning tells people about danger, but would have to be replaced describes a way of dealing with it.'),
-          diagnosed('price','Fits grammatically, but a price is a cost, but would have to be replaced describes a way of dealing with the fault.')
+          diagnosed('objection','Fits grammatically, but an objection is a complaint, but the whole part would have to be replaced describes a way of dealing with the fault.'),
+          diagnosed('warning','Fits grammatically, but a warning tells people about danger, but the whole part would have to be replaced describes a way of dealing with the fault.'),
+          diagnosed('threat','Fits grammatically, but a threat is a danger, but the whole part would have to be replaced describes a way of dealing with the fault.')
         ]
       },
       {
         id:'solution_ctx_5',
-        text:'Instead of giving advice, the teacher asked the students to work out the ____ to the puzzle themselves.',
+        text:'The puzzle was finally finished when the students found the ____ that explained all of the clues.',
         answer:'solution',
         distractors:[
-          diagnosed('question','Fits grammatically, but a question is what must be answered, but work out ... themselves describes finding the answer.'),
-          diagnosed('clue','Fits grammatically, but a clue is a hint, but work out ... themselves describes finding the final answer.'),
-          diagnosed('beginning','Fits grammatically, but a beginning is the start, but work out describes finding the answer.')
+          diagnosed('clue','Fits grammatically, but a clue is one of the pieces of information, but it cannot be the thing that explains all of the clues.'),
+          diagnosed('hint','Fits grammatically, but a hint is a small piece of help, but it cannot be the thing that explains all of the clues.'),
+          diagnosed('question','Fits grammatically, but a question is what must be answered, not the answer that explains all of the clues.')
         ]
       },
       {
         id:'solution_ctx_6',
-        text:'Sharing equipment turned out to be a cheap ____ when the club could not afford new balls.',
+        text:'Sharing equipment turned out to be a cheap ____ to the club\'s money problem, since no new balls had to be bought.',
         answer:'solution',
         distractors:[
-          diagnosed('trick','Fits grammatically, but a cheap trick is an unfair way of getting an advantage, which does not describe a way of dealing with the lack of money.'),
-          diagnosed('habit','Fits grammatically, but a habit is something done regularly, not a way of dealing with the lack of money.'),
-          diagnosed('rule','Fits grammatically, but a rule says what must be done, not a way of dealing with the lack of money.')
+          diagnosed('penalty','Fits grammatically, but a penalty is a punishment, which does not describe a way of ending a money problem.'),
+          diagnosed('symptom','Fits grammatically, but a symptom is a sign of a problem, not a way of ending it.'),
+          diagnosed('nuisance','Fits grammatically, but a nuisance is an annoyance, which does not describe a way of ending a money problem.')
         ]
       }
     ],
@@ -2312,9 +2312,9 @@ export default Object.freeze({
         text:'Collecting old coins is a popular ____ among retired people, who enjoy it in the afternoons.',
         answer:'pastime',
         distractors:[
-          diagnosed('profession','Fits grammatically, but a profession is a job, but retired people enjoy it in the afternoons describes something done for pleasure.'),
-          diagnosed('routine','Fits grammatically, but a routine is a regular set of tasks, but who enjoy it describes something done for pleasure.'),
-          diagnosed('subject','Fits grammatically, but a subject is something studied at school, but who enjoy it describes something done for pleasure.')
+          diagnosed('profession','Fits grammatically, but a profession is a job, but who enjoy it in the afternoons describes something done for pleasure.'),
+          diagnosed('duty','Fits grammatically, but a duty is something you must do, but who enjoy it describes something done for pleasure.'),
+          diagnosed('sport','Fits grammatically, but a sport is a physical competitive activity, but collecting coins is not.')
         ]
       },
       {
@@ -2322,9 +2322,9 @@ export default Object.freeze({
         text:'For many teenagers, playing video games is a favourite ____, not a way of earning money.',
         answer:'pastime',
         distractors:[
-          diagnosed('profession','Fits grammatically, but a profession is a job, which the sentence rules out with not a way of earning money.'),
+          diagnosed('job','Fits grammatically, but a job is work done for money, which the sentence rules out with not a way of earning money.'),
           diagnosed('subject','Fits grammatically, but a subject is something studied at school, not something done for enjoyment.'),
-          diagnosed('duty','Fits grammatically, but a duty is something you must do, but favourite describes something enjoyed.')
+          diagnosed('lesson','Fits grammatically, but a lesson is a period of teaching, not something done for enjoyment.')
         ]
       },
       {
@@ -2333,8 +2333,8 @@ export default Object.freeze({
         answer:'pastime',
         distractors:[
           diagnosed('business','Fits grammatically, but a business is run to earn money, but played on summer evenings for fun describes an activity enjoyed.'),
-          diagnosed('profession','Fits grammatically, but a profession is a job, but played on summer evenings for fun describes an activity enjoyed.'),
-          diagnosed('duty','Fits grammatically, but a duty is something you must do, but for fun describes an activity enjoyed.')
+          diagnosed('duty','Fits grammatically, but a duty is something you must do, but for fun describes an activity enjoyed.'),
+          diagnosed('profession','Fits grammatically, but a profession is a job, but for fun and before it became a professional sport rule it out.')
         ]
       },
       {
@@ -2352,19 +2352,19 @@ export default Object.freeze({
         text:'Not everyone sees fishing as an exciting ____, but millions of people enjoy it as a relaxing activity every week.',
         answer:'pastime',
         distractors:[
-          diagnosed('event','Fits grammatically, but an event happens once at a particular time, but every week shows something done regularly.'),
-          diagnosed('season','Fits grammatically, but a season is part of the year, not an activity people do every week.'),
-          diagnosed('lesson','Fits grammatically, but a lesson is a period of teaching, but relaxing activity describes something enjoyed.')
+          diagnosed('subject','Fits grammatically, but a subject is something studied at school, but millions of people enjoy it as a relaxing activity.'),
+          diagnosed('lesson','Fits grammatically, but a lesson is a period of teaching, but millions of people enjoy it as a relaxing activity.'),
+          diagnosed('season','Fits grammatically, but a season is part of the year, not an activity people do every week.')
         ]
       },
       {
         id:'pastime_ctx_6',
-        text:'Many parents want their children to find a healthy ____ that is not connected to screens.',
+        text:'Many parents want their children to find a ____ for their free time that is not connected to screens, such as painting or gardening.',
         answer:'pastime',
         distractors:[
-          diagnosed('diet','Fits grammatically, but a diet is what you eat, but not connected to screens describes an activity.'),
-          diagnosed('subject','Fits grammatically, but a subject is studied at school, but a healthy activity to enjoy is described.'),
-          diagnosed('career','Fits grammatically, but a career is a long-term job, but a healthy activity to enjoy is described.')
+          diagnosed('career','Fits grammatically, but a career is a long-term job, but for their free time says the activity is for enjoyment.'),
+          diagnosed('subject','Fits grammatically, but a subject is studied at school, but for their free time says the activity is for enjoyment.'),
+          diagnosed('profession','Fits grammatically, but a profession is a job, but for their free time says the activity is for enjoyment.')
         ]
       }
     ],
@@ -2390,66 +2390,66 @@ export default Object.freeze({
       'a result that nobody expected to happen',
       'a rule that changes how a game is played'
     ],
-    spellingErrors:['feet','fete','feit','feate','fiet','feeat'],
+    spellingErrors:['feet','feit','feate','fiet','feeat','featt'],
     contexts:[
       {
         id:'feat_ctx_1',
-        text:'Climbing Everest without extra oxygen was a remarkable ____ that few people have ever repeated.',
+        text:'After two years of daily training, she completed the mountain run in under an hour, a ____ that she had earned through practice rather than chance.',
         answer:'feat',
         distractors:[
-          diagnosed('fear','Fits grammatically, but fear is a feeling, not an achievement that few people repeat.'),
-          diagnosed('fate','Fits grammatically, but fate is what happens to someone, not an achievement that few people repeat.'),
-          diagnosed('fact','Fits grammatically, but a fact is something true, but remarkable and few people have ever repeated describes an achievement.')
+          diagnosed('fluke','Fits grammatically, but a fluke is an accident, which contradicts earned through practice rather than chance.'),
+          diagnosed('coincidence','Fits grammatically, but a coincidence happens by chance, which contradicts earned through practice rather than chance.'),
+          diagnosed('gift','Fits grammatically, but a gift is something given, which contradicts earned through practice.')
         ]
       },
       {
         id:'feat_ctx_2',
-        text:'Swimming the English Channel in under seven hours is an incredible ____ of strength and stamina.',
+        text:'Finishing the race with a broken ankle was a ____ that earned the runner a standing ovation from the whole stadium.',
         answer:'feat',
         distractors:[
-          diagnosed('fate','Fits grammatically, but fate is what happens to someone, but of strength and stamina describes an achievement.'),
-          diagnosed('fear','Fits grammatically, but fear is a feeling, but of strength and stamina describes an achievement.'),
-          diagnosed('feet','Fits grammatically, but feet are parts of the body, but of strength and stamina describes an achievement.')
+          diagnosed('flop','Fits grammatically, but a flop is a failure, which does not earn a standing ovation.'),
+          diagnosed('blunder','Fits grammatically, but a blunder is a serious mistake, which does not earn a standing ovation.'),
+          diagnosed('mistake','Fits grammatically, but a mistake is an error, which does not earn a standing ovation.')
         ]
       },
       {
         id:'feat_ctx_3',
-        text:'Building a bridge across the river in just six weeks was an engineering ____ that impressed everyone.',
+        text:'Walking a tightrope between two skyscrapers was a ____ that left the whole crowd speechless with admiration.',
         answer:'feat',
         distractors:[
-          diagnosed('fault','Fits grammatically, but a fault is a mistake, which contradicts impressed everyone.'),
-          diagnosed('failure','Fits grammatically, but a failure is a mistake or collapse, which contradicts impressed everyone.'),
-          diagnosed('fear','Fits grammatically, but fear is a feeling, not something done that impressed everyone.')
+          diagnosed('fear','Fits grammatically, but fear is a feeling the walker has, not something that leaves a crowd speechless with admiration.'),
+          diagnosed('threat','Fits grammatically, but a threat is a danger, which does not cause speechless admiration.'),
+          diagnosed('scandal','Fits grammatically, but a scandal causes shock and blame, not admiration.')
         ]
       },
       {
         id:'feat_ctx_4',
-        text:'It was no small ____ for a school with only two hundred pupils to win the national championship.',
+        text:'Reaching the summit in under five hours after only two months of training was a ____ that surprised even her coach.',
         answer:'feat',
         distractors:[
-          diagnosed('fault','Fits grammatically, but a fault is a mistake, which does not fit winning a national championship.'),
-          diagnosed('favour','Fits grammatically, but a favour is a kind act, but winning a national championship describes an achievement.'),
-          diagnosed('fee','Fits grammatically, but a fee is a payment, which does not fit winning a national championship.')
+          diagnosed('habit','Fits grammatically, but a habit is something done repeatedly, but reaching the summit once is a single achievement.'),
+          diagnosed('custom','Fits grammatically, but a custom is a traditional way of behaving, but reaching the summit once is a single achievement.'),
+          diagnosed('routine','Fits grammatically, but a routine is a regular set of actions, but reaching the summit once is a single achievement.')
         ]
       },
       {
         id:'feat_ctx_5',
-        text:'Landing a triple somersault on her first attempt was a ____ that earned the gymnast a standing ovation.',
+        text:'Fixing the damaged roof in a single weekend was a remarkable ____, and the volunteers did it all for free.',
         answer:'feat',
         distractors:[
-          diagnosed('fear','Fits grammatically, but fear is a feeling, but a standing ovation rewards something impressive that she did.'),
-          diagnosed('fault','Fits grammatically, but a fault is a mistake, which does not earn a standing ovation.'),
-          diagnosed('favour','Fits grammatically, but a favour is a kind act, but a standing ovation rewards something impressive that she did.')
+          diagnosed('fee','Fits grammatically, but a fee is a payment, which contradicts the volunteers did it all for free.'),
+          diagnosed('price','Fits grammatically, but a price is an amount paid, which contradicts the volunteers did it all for free.'),
+          diagnosed('charge','Fits grammatically, but a charge is an amount asked for payment, which contradicts the volunteers did it all for free.')
         ]
       },
       {
         id:'feat_ctx_6',
-        text:'Training for a marathon while working two jobs is quite a ____ of organisation.',
+        text:'Arranging a trip for three hundred students in one afternoon was quite a ____, and the teachers still talk about how smoothly it went.',
         answer:'feat',
         distractors:[
-          diagnosed('fact','Fits grammatically, but a fact is something true, but quite a ... of organisation describes an impressive achievement.'),
-          diagnosed('fee','Fits grammatically, but a fee is a payment, which does not fit quite a ... of organisation.'),
-          diagnosed('fault','Fits grammatically, but a fault is a mistake, which does not fit quite a ... of organisation.')
+          diagnosed('mess','Fits grammatically, but a mess is a badly handled situation, which contradicts how smoothly it went.'),
+          diagnosed('muddle','Fits grammatically, but a muddle is a confused situation, which contradicts how smoothly it went.'),
+          diagnosed('shambles','Fits grammatically, but a shambles is a disorganised failure, which contradicts how smoothly it went.')
         ]
       }
     ],
@@ -2489,41 +2489,41 @@ export default Object.freeze({
       },
       {
         id:'regardless_ctx_2',
-        text:'Every student must attend training, ____ of their ability or experience.',
+        text:'Every student must attend training, ____ of their ability or experience, so beginners and the best players train together.',
         answer:'regardless',
         distractors:[
-          diagnosed('because','Fits grammatically, but because of their ability would give a reason, whereas the sentence says ability does not matter.'),
+          diagnosed('because','Fits grammatically, but because of their ability would make ability the reason, but beginners and the best players train together shows it makes no difference.'),
           diagnosed('unaffected','Fits grammatically, but unaffected of is not used in this pattern; the standard phrase is regardless of.'),
-          diagnosed('out','Fits grammatically, but out of their ability does not fit the idea that ability does not matter.')
+          diagnosed('out','Fits grammatically, but out of their ability does not fit beginners and the best players training together.')
         ]
       },
       {
         id:'regardless_ctx_3',
-        text:'The coach decided to keep playing, ____ of the injury to his best striker.',
+        text:'Their best striker was injured, which was a good reason to stop, but the team carried on with the final ____ of the injury.',
         answer:'regardless',
         distractors:[
-          diagnosed('ahead','Fits grammatically, but ahead of the injury would mean before it happened, but the injury has already happened.'),
-          diagnosed('because','Fits grammatically, but because of the injury would give a reason for playing on, but the sentence suggests playing on in spite of the injury.'),
+          diagnosed('ahead','Fits grammatically, but ahead of the injury would mean before it happened, but the striker was already injured.'),
+          diagnosed('because','Fits grammatically, but because of the injury would make it the reason for carrying on, but the sentence calls it a good reason to stop.'),
           diagnosed('irrelevant','Fits grammatically, but irrelevant of is not used in this pattern; the standard phrase is regardless of.')
         ]
       },
       {
         id:'regardless_ctx_4',
-        text:'The doctor told him to rest, but he trained for the final ____.',
+        text:'The school offers a free place to every applicant, ____ of family income, so rich and poor families are treated the same.',
         answer:'regardless',
         distractors:[
-          diagnosed('afterwards','Fits grammatically, but afterwards means later, but but shows the contrast is with the doctor’s advice.'),
-          diagnosed('consequently','Fits grammatically, but consequently means as a result, which does not fit the contrast shown by but.'),
-          diagnosed('regularly','Fits grammatically, but regularly means often, which does not show that he ignored the doctor’s advice.')
+          diagnosed('because','Fits grammatically, but because of family income would make income the reason, but rich and poor families are treated the same.'),
+          diagnosed('instead','Fits grammatically, but instead of family income would mean income replaces something, but the sentence says rich and poor are treated the same.'),
+          diagnosed('out','Fits grammatically, but out of family income does not fit the idea that income does not matter.')
         ]
       },
       {
         id:'regardless_ctx_5',
-        text:'The prize money is the same for everyone, ____ of age, gender or nationality.',
+        text:'You must submit the report by Friday, ____ of whether you have finished the final section.',
         answer:'regardless',
         distractors:[
-          diagnosed('because','Fits grammatically, but because of age would give a reason, whereas the sentence says those things do not matter.'),
-          diagnosed('instead','Fits grammatically, but instead of age would mean age replaces something, whereas the sentence says those things do not matter.'),
+          diagnosed('because','Fits grammatically, but because of whether you have finished would give a reason, whereas the sentence says it does not matter.'),
+          diagnosed('instead','Fits grammatically, but instead of whether you have finished does not fit the idea that it does not matter.'),
           diagnosed('unaffected','Fits grammatically, but unaffected of is not used in this pattern; the standard phrase is regardless of.')
         ]
       },
@@ -2532,9 +2532,9 @@ export default Object.freeze({
         text:'He kept running, ____ of the pain in his knee and the cheers telling him to stop.',
         answer:'regardless',
         distractors:[
-          diagnosed('ahead','Fits grammatically, but ahead of the pain would mean before it, but he kept running through the pain.'),
-          diagnosed('in','Fits grammatically, but in of the pain is not a phrase.'),
-          diagnosed('unaffected','Fits grammatically, but unaffected of is not used in this pattern; the standard phrase is regardless of.')
+          diagnosed('because','Fits grammatically, but because of the pain would make it the reason to keep running, but the cheers telling him to stop show he ignored them.'),
+          diagnosed('in','Fits grammatically, but in of the pain is not a phrase; the standard phrase is regardless of.'),
+          diagnosed('instead','Fits grammatically, but instead of the pain does not fit the idea of ignoring pain and cheers.')
         ]
       }
     ],
@@ -2594,32 +2594,32 @@ export default Object.freeze({
       },
       {
         id:'monetary_ctx_4',
-        text:'Some prizes are ____, such as cash, while others, like medals and cups, have only sentimental value.',
+        text:'Some prizes are ____: winners receive £10,000 in cash to spend as they choose, while medals and cups have no exchangeable financial value.',
         answer:'monetary',
         distractors:[
-          diagnosed('mandatory','Fits grammatically, but mandatory means compulsory, which does not fit cash as an example.'),
-          diagnosed('monthly','Fits grammatically, but monthly means happening every month, which does not fit cash as an example.'),
-          diagnosed('material','Fits grammatically, but material would also describe medals and cups, which the sentence contrasts with cash.')
+          diagnosed('mandatory','Fits grammatically, but mandatory means compulsory, which does not describe £10,000 in cash.'),
+          diagnosed('ceremonial','Fits grammatically, but ceremonial prizes are given for show, but £10,000 to spend as winners choose has substantial financial value.'),
+          diagnosed('symbolic','Fits grammatically, but symbolic prizes only stand for something, but £10,000 to spend as winners choose has substantial financial value.')
         ]
       },
       {
         id:'monetary_ctx_5',
-        text:'The study found that happiness depends only partly on ____ gain: friends and health matter more.',
+        text:'The study found that happiness depends only partly on ____ gain, such as a higher salary or a lottery win; friends and health matter more.',
         answer:'monetary',
         distractors:[
-          diagnosed('momentary','Fits grammatically, but momentary means lasting a very short time, but the sentence contrasts the gain with friends and health.'),
-          diagnosed('moral','Fits grammatically, but moral gain would be about right and wrong, not the money contrasted with friends and health.'),
-          diagnosed('mental','Fits grammatically, but mental gain would be about the mind, not the money contrasted with friends and health.')
+          diagnosed('momentary','Fits grammatically, but momentary means lasting a very short time, which does not describe a higher salary or a lottery win.'),
+          diagnosed('moral','Fits grammatically, but moral relates to right and wrong, which does not describe a higher salary or a lottery win.'),
+          diagnosed('mental','Fits grammatically, but mental relates to the mind, which does not describe a higher salary or a lottery win.')
         ]
       },
       {
         id:'monetary_ctx_6',
-        text:'Because of the high ____ cost of the stadium, the council decided to share it with a neighbouring town.',
+        text:'The high ____ cost of the stadium, nearly two hundred million pounds, made the council decide to share it with a neighbouring town.',
         answer:'monetary',
         distractors:[
-          diagnosed('moral','Fits grammatically, but a moral cost is about right and wrong, but the council is dealing with a shortage of money.'),
-          diagnosed('mental','Fits grammatically, but a mental cost is about the mind, but the council is dealing with a shortage of money.'),
-          diagnosed('mandatory','Fits grammatically, but mandatory means compulsory, which does not describe a cost.')
+          diagnosed('moral','Fits grammatically, but moral relates to right and wrong, which does not describe a cost of nearly two hundred million pounds.'),
+          diagnosed('mental','Fits grammatically, but mental relates to the mind, which does not describe a cost of nearly two hundred million pounds.'),
+          diagnosed('mandatory','Fits grammatically, but mandatory means compulsory, which does not describe a cost of nearly two hundred million pounds.')
         ]
       }
     ],
@@ -2669,12 +2669,12 @@ export default Object.freeze({
       },
       {
         id:'estimated_ctx_3',
-        text:'According to the ____ number of visitors, about three thousand people attended each day, though the true figure is unknown.',
+        text:'The ____ figure of about three thousand visitors a day was published by officials, though nobody knew the true number.',
         answer:'estimated',
         distractors:[
-          diagnosed('exact','Fits grammatically, but exact contradicts the true figure is unknown.'),
-          diagnosed('recorded','Fits grammatically, but recorded means written down one by one, but the true figure is unknown shows it is approximate.'),
-          diagnosed('definitive','Fits grammatically, but definitive means final and certain, which contradicts the true figure is unknown.')
+          diagnosed('exact','Fits grammatically, but exact contradicts nobody knew the true number.'),
+          diagnosed('confirmed','Fits grammatically, but confirmed means proved to be true, which contradicts nobody knew the true number.'),
+          diagnosed('counted','Fits grammatically, but a counted figure comes from counting every visitor, which contradicts nobody knew the true number.')
         ]
       },
       {
@@ -2689,12 +2689,12 @@ export default Object.freeze({
       },
       {
         id:'estimated_ctx_5',
-        text:'Scientists use an ____ age for the fossil, because the exact date cannot be known.',
+        text:'Because the exact date cannot be known, scientists can only give ____ ages for the fossil.',
         answer:'estimated',
         distractors:[
           diagnosed('exact','Fits grammatically, but exact contradicts the exact date cannot be known.'),
-          diagnosed('undisputed','Fits grammatically, but undisputed means that nobody disagrees, which contradicts the exact date cannot be known.'),
-          diagnosed('accurate','Fits grammatically, but accurate contradicts the exact date cannot be known.')
+          diagnosed('precise','Fits grammatically, but precise means exact, which contradicts the exact date cannot be known.'),
+          diagnosed('pinpoint','Fits grammatically, but pinpoint means exact to a particular point, which contradicts the exact date cannot be known.')
         ]
       },
       {
