@@ -9,9 +9,16 @@ export function languageBankForItem(item = {}) {
   return term ? unit1LanguageBank[term] ?? null : null;
 }
 
-export function languageBankContextForItem(item = {}, usedContentIds = [], seed = '') {
+export function languageBankContextForItem(item = {}, usedContentIds = [], seed = '', unitActivities = null) {
   const bank = languageBankForItem(item);
-  const contexts = Array.isArray(bank?.contexts) ? bank.contexts : [];
+  const contexts = (Array.isArray(bank?.contexts) ? bank.contexts : []).filter(context =>
+    unitActivities === null || unitActivities.some(activity =>
+      activity?.activityContentId === `language-bank:${context.id}` &&
+      activity?.activityData?.taskType === 'language_bank_context' &&
+      activity.activityData.primaryEvidenceTargetId === item.vocabularyId &&
+      activity.activityData.sourceText === context.text &&
+      activity.activityData.acceptedAnswers?.includes(context.answer))
+  );
   if (!contexts.length) return null;
 
   const used = new Set((Array.isArray(usedContentIds) ? usedContentIds : []).map(String));

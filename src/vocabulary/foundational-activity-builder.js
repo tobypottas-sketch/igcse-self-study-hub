@@ -201,7 +201,7 @@ function blankableContext(args) {
   return stableShuffle(unused.length ? unused : candidates, `${args.seed}:blank-context`)[0];
 }
 function bankRetrievalActivity(args, definition) {
-  const record = languageBankContextForItem(args.item,args.usedContentIds,args.seed);
+  const record = languageBankContextForItem(args.item,args.usedContentIds,args.seed,args.unitActivities ?? []);
   if (!record) return null;
   const accepted = text(record.answer);
   const wrong = array(record.distractors).map(row => text(row?.text)).filter(Boolean);

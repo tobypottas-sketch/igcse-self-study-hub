@@ -224,3 +224,16 @@ test('student Next advances normally and supported retry still works', async ({ 
   await page.locator('[data-action="open-pathway"][data-pathway="meaning"]').click();
   await expect(page.locator('[data-form="vocabulary-answer"]')).toBeVisible();
 });
+
+test('student can submit and advance when language-bank activities have not been published', async ({ page }) => {
+  const { mockVocabularyStudent } = await import('./fixtures-vocabulary-student.mjs');
+  await mockVocabularyStudent(page, 'unpublished');
+  await page.locator('[data-choice-answer="leisure"]').click();
+  await expect(page.locator('.vocab-feedback')).toContainText('Correct');
+  await page.locator('[data-action="next-question"]').click();
+  await expect(page.locator('[data-choice-answer]')).not.toHaveCount(0);
+  expect(await page.evaluate(() => window.vocabularyAttempts[0].contentSource)).toBe('context');
+  await expect(page.locator('[data-vocab-sync-warning]')).toHaveCount(0);
+  await page.locator('[data-action="leave-session"]').click();
+  await expect(page.locator('.vocab-pathways')).toBeVisible();
+});

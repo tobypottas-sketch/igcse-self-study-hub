@@ -107,3 +107,15 @@ test('avoid spelling recognition samples realistic authored errors instead of al
   assert.equal(activity.options.length, 4);
   assert.ok(activity.options.every(option => permitted.has(option)), activity.options.join(' | '));
 });
+
+for (const activityType of ['choose_word_sentence','context_sentence_match','gap_fill_bank','drag_word_sentence','type_missing_word']) {
+  test(`${activityType} only serves a bank context when its authoritative activity is published`, () => {
+    const args = argsFor('vocab_leisure');
+    args.unitActivities = args.unitActivities.filter(row => !row.activityContentId.startsWith('language-bank:'));
+    const question = activityType === 'context_sentence_match'
+      ? buildPathwayActivity({ activityType, ...args })
+      : buildFoundationalActivity({ activityType, ...args });
+    assert.equal(question.contentSource, 'context');
+    assert.ok(args.contexts.some(context => context.contextId === question.contentId));
+  });
+}
