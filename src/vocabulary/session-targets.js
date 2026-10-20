@@ -33,7 +33,7 @@ function targetMaterial(content, target) {
   return { item, contexts, availableContent };
 }
 
-function buildPlannedQuestion({ content, target, mastery, item, contexts, availableContent, plan, usedContentIds = [], seed = '' }) {
+function buildPlannedQuestion({ content, target, mastery, item, contexts, availableContent, plan, usedContentIds = [], seed = '', optionNonce = '' }) {
   const avoidContentIds = [...new Set([...array(plan.avoidContentIds), ...array(usedContentIds)])];
   const question = buildActivity({
     activityType:plan.activityType,
@@ -47,7 +47,8 @@ function buildPlannedQuestion({ content, target, mastery, item, contexts, availa
     mastery,
     readinessStage:plan.readinessStage,
     usedContentIds:avoidContentIds,
-    seed
+    seed,
+    optionNonce
   });
   return { item, contexts, availableContent, plan, question };
 }
@@ -125,12 +126,13 @@ export function buildTargetPracticeQuestion({
   supportState = null,
   reviewDue = null,
   usedContentIds = [],
-  seed = ''
+  seed = '',
+  optionNonce = ''
 } = {}) {
   const { item, contexts, availableContent } = targetMaterial(content, target);
   const due = reviewDue == null ? reviewIsDue(mastery) : Boolean(reviewDue);
   const plan = planNextActivity({ practiceMode, target, mastery, recentActivities, supportState, reviewDue:due, availableContent });
-  return buildPlannedQuestion({ content, target, mastery, item, contexts, availableContent, plan, usedContentIds, seed });
+  return buildPlannedQuestion({ content, target, mastery, item, contexts, availableContent, plan, usedContentIds, seed, optionNonce });
 }
 
 export function buildTimedMixedQuestion({
@@ -142,12 +144,13 @@ export function buildTimedMixedQuestion({
   reviewDue = null,
   usedContentIds = [],
   previousActivityType = null,
-  seed = ''
+  seed = '',
+  optionNonce = ''
 } = {}) {
   if (supportState?.recycle || supportState?.struggling) {
     return buildTargetPracticeQuestion({
       content, target, mastery, practiceMode:'adaptive', recentActivities, supportState,
-      reviewDue, usedContentIds, seed
+      reviewDue, usedContentIds, seed, optionNonce
     });
   }
 
@@ -163,7 +166,7 @@ export function buildTimedMixedQuestion({
   for (const activityType of ordered) {
     const plan = { activityType, readinessStage:stage, supportLevel:'none', reason:'Timed mixed activity' };
     try {
-      return buildPlannedQuestion({ content, target, mastery, item, contexts, availableContent, plan, usedContentIds, seed });
+      return buildPlannedQuestion({ content, target, mastery, item, contexts, availableContent, plan, usedContentIds, seed, optionNonce });
     } catch (error) {
       lastError = error;
     }

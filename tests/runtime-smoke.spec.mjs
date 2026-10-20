@@ -237,3 +237,24 @@ test('student can submit and advance when language-bank activities have not been
   await page.locator('[data-action="leave-session"]').click();
   await expect(page.locator('.vocab-pathways')).toBeVisible();
 });
+
+test('new Vocabulary sessions vary answer order while preserving the same question', async ({ page }) => {
+  await page.addInitScript(() => {
+    let session = 0;
+    Object.defineProperty(crypto,'randomUUID',{ value:() => `00000000-0000-4000-8000-${String(++session).padStart(12,'0')}` });
+  });
+  const { mockVocabularyStudent } = await import('./fixtures-vocabulary-student.mjs');
+  await mockVocabularyStudent(page);
+  const orders = new Set(); let material;
+  for (let session = 0; session < 6; session++) {
+    const choices = await page.locator('[data-choice-answer]').evaluateAll(nodes => nodes.map(node => node.dataset.choiceAnswer));
+    const current = { prompt:await page.locator('.vocab-question-prompt').textContent(), context:await page.locator('.vocab-question-context').textContent(), options:[...choices].sort() };
+    if (material) expect(current).toEqual(material); else material = current;
+    orders.add(JSON.stringify(choices));
+    if (session < 5) {
+      await page.locator('[data-action="leave-session"]').click();
+      await page.locator('[data-action="open-pathway"][data-pathway="context"]').click();
+    }
+  }
+  expect(orders.size).toBeGreaterThan(1);
+});

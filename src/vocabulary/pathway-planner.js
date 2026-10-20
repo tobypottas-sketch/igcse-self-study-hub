@@ -109,7 +109,7 @@ function normalizedStageTwoMatch(question, plan, item, target) {
   return question;
 }
 
-function buildCandidate({ content, target, mastery, item, contexts, plan, usedContentIds, seed }) {
+function buildCandidate({ content, target, mastery, item, contexts, plan, usedContentIds, seed, optionNonce }) {
   const built = buildActivity({
     activityType:plan.activityType,
     occurrence:target,
@@ -122,7 +122,9 @@ function buildCandidate({ content, target, mastery, item, contexts, plan, usedCo
     mastery,
     readinessStage:plan.readinessStage,
     usedContentIds:array(usedContentIds),
-    seed
+    seed,
+    optionNonce,
+    matchingPresentation:plan.servedStage === 'match'
   });
   const question = normalizedStageTwoMatch(built,plan,item,target);
   return { ...question, pathwayId:plan.pathwayId, pathwayStage:plan.learnerStage };
@@ -137,7 +139,8 @@ export function planPathwayQuestion({
   recentActivities = [],
   usedContentIds = [],
   supportState = null,
-  seed = ''
+  seed = '',
+  optionNonce = ''
 } = {}) {
   validatePathwayStage(pathwayId,stageId);
   const learnerStage = stageId;
@@ -167,7 +170,7 @@ export function planPathwayQuestion({
       reason:servedStage === learnerStage ? 'Fixed pathway stage' : 'Temporary one-stage support'
     };
     try {
-      const question = buildCandidate({content,target,mastery,item,contexts,plan,usedContentIds,seed});
+      const question = buildCandidate({content,target,mastery,item,contexts,plan,usedContentIds,seed,optionNonce});
       return { item, contexts, plan, question };
     } catch (error) {
       lastError = error;

@@ -7,7 +7,7 @@ function date(value) {
   return result;
 }
 
-export function createSession({ unitNumber, mode = 'adaptive', practiceMode = 'adaptive', durationMinutes = null, targetIds = [], now = new Date() } = {}) {
+export function createSession({ unitNumber, mode = 'adaptive', practiceMode = 'adaptive', durationMinutes = null, targetIds = [], now = new Date(), optionNonce = crypto.randomUUID() } = {}) {
   if (!Number.isInteger(unitNumber) || unitNumber < 1 || unitNumber > 20) throw new Error('Invalid unit number.');
   if (!['adaptive','timed'].includes(mode)) throw new Error('Invalid session mode.');
   if (!PRACTICE_MODES.has(practiceMode)) throw new Error('Invalid vocabulary practice mode.');
@@ -15,6 +15,7 @@ export function createSession({ unitNumber, mode = 'adaptive', practiceMode = 'a
   const startedAt = date(now).toISOString();
   return {
     unitNumber,
+    optionNonce,
     mode,
     practiceMode,
     durationMinutes:mode === 'timed' ? durationMinutes : null,
