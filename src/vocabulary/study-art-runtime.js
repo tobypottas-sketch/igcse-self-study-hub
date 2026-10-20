@@ -183,6 +183,13 @@ export function enhanceStudyArtwork(scope = root) {
 
 if (root) {
   enhanceStudyArtwork(root);
-  const observer = new MutationObserver(() => enhanceStudyArtwork(root));
+  const observer = new MutationObserver(() => {
+    observer.disconnect();
+    try {
+      enhanceStudyArtwork(root);
+    } finally {
+      observer.observe(root,{ childList:true, subtree:true });
+    }
+  });
   observer.observe(root,{ childList:true, subtree:true });
 }
