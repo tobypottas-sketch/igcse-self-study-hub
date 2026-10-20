@@ -83,7 +83,7 @@ Continue is an optional next challenge, not a requirement for finishing the curr
 
 Stars are a display-only reward layer.
 
-Thresholds:
+For the standard 10-target pathway mission:
 
 - 9-10 correct: 3 stars
 - 7-8 correct: 2 stars
@@ -91,6 +91,8 @@ Thresholds:
 - 0-4 correct: no stars displayed
 
 For scores below 5, do not render hollow or grey empty stars. Replace the star row with supportive copy.
+
+If an unexpected coverage edge case produces a completed pathway session with fewer than 10 practised targets, the UI must show the truthful actual denominator and must not apply the 10-question star rubric. That edge case should not silently render `X / 10`.
 
 Stars must never:
 
@@ -106,18 +108,20 @@ Stars must never:
 
 The student-facing score is based on completed session targets, not raw answer submissions.
 
-For a standard 10-target adaptive session:
+For an adaptive pathway session:
 
 - denominator = `summary.practised`
 - correct numerator = `summary.strengthened`
 
 This preserves existing retry semantics: supported retries that have not yet completed a target do not inflate the score.
 
-Student-facing wording:
+For the normal 10-target mission, student-facing wording is:
 
 - `X / 10 correct`
 - `X words strengthened`
 - `Y need another look`
+
+If `summary.practised` is not 10, render `X / {summary.practised} correct` instead.
 
 `summary.needsAnotherLook` is used for the needs-another-look count.
 
@@ -133,7 +137,7 @@ The session needs transient before/after pathway context:
 
 - pathway ID
 - stage at session start
-- pathway state after saved attempts are reflected in the local authoritative view model
+- pathway state after saved attempts are reflected in the existing pathway view model
 - whether the current stage changed
 - whether the pathway became mastered
 
@@ -143,7 +147,7 @@ This transient comparison is presentation/controller state only. It must not cre
 
 Use when:
 
-- the 10-question session completed
+- the pathway mission completed
 - the pathway did not advance to a later stage
 - the pathway did not become mastered
 
@@ -151,16 +155,16 @@ Use when:
 
 Use when:
 
-- the session completed
-- the authoritative pathway stage after saving is later than the stage at session start
+- the mission completed
+- the authoritative post-save pathway stage is later than the stage at session start
 - the pathway is not fully mastered
 
 ### 6.3 Pathway mastered
 
 Use when:
 
-- the session completed
-- the authoritative pathway state after saving reports the pathway as mastered
+- the mission completed
+- the authoritative post-save pathway state reports the pathway as mastered
 
 ## 7. Standard session-complete state
 
@@ -195,7 +199,7 @@ If the stage has not cleared, Continue starts another fresh 10-question set in t
 
 ## 8. Low-score supportive state
 
-For 0-4 correct:
+For 0-4 correct in a normal 10-target mission:
 
 - keep `SESSION COMPLETE`
 - show the score
@@ -223,7 +227,7 @@ Example for Match -> Apply:
 
 - kicker/heading: `MATCH COMPLETE`
 - optional sparkle accent
-- stars according to session score
+- stars according to the 10-target session score
 - score: `9 / 10 correct`
 - evidence: `8 words strengthened`
 - evidence: `1 needs another look`
@@ -252,7 +256,7 @@ Recommended example:
 
 - heading: `MEANING MASTERED`
 - trophy/mastery artwork
-- stars according to session score
+- stars according to the 10-target session score
 - score
 - learning evidence
 - full completed ladder:
@@ -269,7 +273,7 @@ Primary action:
 
 - `Finish for now`
 
-A smaller `Back to Unit 1` action may be included if needed by the existing navigation pattern, but mastery must not automatically push the student into another pathway.
+Do not automatically push the student into another pathway after mastery.
 
 ## 11. Continue behaviour
 
@@ -320,11 +324,13 @@ Additional finish-screen rules:
 
 - never say `Your progress is saved.`
 - instead say `Preview only — no progress has been saved.`
-- if the simulated local result would advance a stage, say `Preview outcome: Match would be complete` and `Next stage would be Apply`
-- if the simulated local result would master a pathway, say `Preview outcome: Meaning would be mastered`
-- never present preview stage/mastery language as a real saved unlock
+- show session score, stars and learning-evidence counts as attempt feedback only
+- show the current pathway/stage context
+- do not claim a hypothetical stage unlock or pathway mastery unless an existing authoritative non-persisting progression result is available
+- do not add duplicate client-side progression logic merely to produce `would unlock` language
+- absent such an authoritative preview result, keep the preview outcome at session level only
 
-The visual celebration may still be shown because teachers need to preview the student experience.
+The visual session celebration may still be shown because teachers need to preview the student experience.
 
 ## 14. Copy system
 
@@ -500,7 +506,7 @@ Relevant current owners include:
 - `src/vocabulary/session.js`
   - session summary counts
 - `src/vocabulary/pathway-view-model.js`
-  - authoritative client-side representation of persisted pathway state
+  - existing representation of persisted pathway state
 - `vocabulary-study-app.css`
   - study-app completion/milestone styling and motion
 
@@ -515,11 +521,11 @@ At completion:
 1. wait for `state.persistenceChain`
 2. abort normal finish progression if persistence is blocked
 3. rebuild/read the latest pathway state from existing `unitMastery` / `globalMastery`
-4. compare starting stage with latest authoritative stage
+4. compare starting stage with latest authoritative post-save stage representation
 5. classify result as standard, stage-clear, or mastered
 6. pass a presentation model into the result renderer
 
-The snapshot must not override the latest pathway state.
+The snapshot must never override the latest pathway state.
 
 ## 22. Continue-history protection
 
@@ -549,16 +555,17 @@ Any shared visual improvement must be regression-tested across those modes.
 
 At minimum, future implementation tests must cover:
 
-- 9-10 -> 3 stars
-- 7-8 -> 2 stars
-- 5-6 -> 1 star
-- 0-4 -> no stars and supportive completion
+- 9-10 of 10 -> 3 stars
+- 7-8 of 10 -> 2 stars
+- 5-6 of 10 -> 1 star
+- 0-4 of 10 -> no stars and supportive completion
+- non-10 denominator renders truthfully and does not use the 10-question star rubric
 - score uses completed/strengthened targets rather than raw retry submissions
 - stage unchanged -> Continue stays in same stage
 - stage clear -> next-stage CTA uses authoritative next stage
 - pathway mastery -> mastery finish state, no forced next pathway
 - Finish for now returns to Unit view without creating new persistence
-- Staff Preview uses `would` language and never claims saved progress
+- Staff Preview never claims saved progress or invents hypothetical progression
 - result classification occurs only after persistence completes
 - persistence failure prevents a false saved stage-clear/mastery claim
 - Continue preserves recent-question history
