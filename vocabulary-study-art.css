@@ -77,7 +77,7 @@
 }
 
 /* Motion polish: keep the question canvas anchored and animate only local feedback. */
-:root{--study-motion-feedback:420ms;--study-motion-celebrate:2000ms;--study-motion-results:520ms}
+:root{--study-motion-feedback:420ms;--study-motion-celebrate:720ms;--study-motion-results:520ms}
 .vocab-question-card.study-enter:has(.study-feedback){animation:none!important}
 .study-feedback.study-success{animation:study-feedback-success var(--study-motion-feedback) var(--study-ease) both}
 .study-feedback.study-error{animation:study-feedback-retry var(--study-motion-feedback) var(--study-ease) both}
@@ -108,3 +108,15 @@
 @media (prefers-reduced-motion:reduce){
   .vocab-question-card.study-enter:has(.study-feedback),.study-feedback.study-success,.study-feedback.study-error,.vocab-retry-stage.study-enter,.vocab-summary-card[data-study-completion],.vocab-completion-art__image,.vocab-completion-rays,.vocab-summary-grid>div{animation:none!important;transition:none!important;transform:none!important;opacity:1!important}
 }
+
+
+/* Session finish variant motion */
+.vocab-summary-card[data-study-completion][data-finish-variant="session"] .vocab-completion-art__image{animation-duration:620ms}
+.vocab-summary-card[data-study-completion][data-finish-variant="stage-complete"] .vocab-completion-art__image{animation-duration:820ms}
+.vocab-summary-card[data-study-completion][data-finish-variant="mastered"] .vocab-completion-art__image{animation-duration:900ms}
+.vocab-summary-card[data-study-completion][data-finish-variant="session"] .vocab-completion-rays{animation-duration:650ms}
+.vocab-summary-card[data-study-completion][data-finish-variant="stage-complete"] .vocab-completion-rays{animation-duration:820ms}
+.vocab-summary-card[data-study-completion][data-finish-variant="mastered"] .vocab-completion-rays{animation-duration:900ms}
+.vocab-finish-evidence>div{opacity:0;animation:study-result-reveal var(--study-motion-results) var(--study-ease) forwards}
+.vocab-finish-evidence>div:nth-child(1){animation-delay:110ms}.vocab-finish-evidence>div:nth-child(2){animation-delay:180ms}
+@media (prefers-reduced-motion:reduce){.vocab-finish-evidence>div{animation:none!important;opacity:1!important}}

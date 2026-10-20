@@ -143,15 +143,18 @@ function decorateUnitHero(scope) {
 function decorateCompletion(scope) {
   for (const card of scope.querySelectorAll?.('[data-study-completion]') ?? []) {
     if (card.querySelector?.('[data-study-completion-art]')) continue;
-    const art = achievementArtwork('completion');
-    if (!art) continue;
+    const variant = card.dataset.finishVariant ?? 'session';
+    const artKind = variant === 'mastered' ? 'mastered' : variant === 'stage-complete' ? 'stage_advanced' : 'completion';
+    const artwork = achievementArtwork(artKind);
+    if (!artwork) continue;
     const wrap = document.createElement('div');
     wrap.className = 'vocab-completion-art';
-    wrap.dataset.studyCompletionArt = 'trophy';
+    wrap.dataset.studyCompletionArt = artKind;
+    wrap.setAttribute('aria-hidden','true');
     const rays = document.createElement('span');
     rays.className = 'vocab-completion-rays';
     rays.setAttribute('aria-hidden','true');
-    wrap.append(rays,imageElement(art,'vocab-completion-art__image'));
+    wrap.append(rays,imageElement({ ...artwork, alt:'' },'vocab-completion-art__image'));
     const celebration = card.querySelector?.('.vocab-celebration');
     if (celebration) celebration.replaceWith(wrap); else card.prepend(wrap);
   }
