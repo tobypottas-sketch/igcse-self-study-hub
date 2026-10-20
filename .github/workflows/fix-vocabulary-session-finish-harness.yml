@@ -45,3 +45,5 @@ jobs:
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'test: inject session finish model into continue harness'
           git push origin HEAD:feat/vocabulary-session-finish
+
+# Harness is now part of branch state; this edit intentionally retriggers verification.
