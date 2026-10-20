@@ -3,6 +3,7 @@ import { loadVocabularyDashboard, loadVocabularyUnit, loadStudentMastery, submit
 import { trackVocabularyEvent } from './tracking.js';
 import { buildSupportStep } from './scaffolding.js';
 import { completeAttempt, createSession, expireSession, isSessionComplete } from './session.js';
+import { buildSessionFinishModel } from './session-finish-model.js';
 import { buildTargetPracticeQuestion, buildTimedMixedQuestion, selectEligiblePriorityTargets } from './session-targets.js';
 import { planPathwayQuestion, eligibleTargetsForPathwayStage } from './pathway-planner.js';
 import { buildUnitPathwayStates, buildWordPathwayStates, targetsForPathwayStage } from './pathway-view-model.js';
@@ -317,9 +318,21 @@ function handleAnswer(form, providedAnswer = null) {
   current.support = !result.correct ? buildSupportStep(current.question, { correct:false, misconceptionCategory:result.misconceptionCategory, attemptNumber:2 }) : null; renderCurrentQuestion({ correct:result.correct, message });
 }
 function finishSession() {
-  if (!state.session) return; if (state.session.mode === 'timed') state.session = expireSession(state.session, new Date()); clearClock(); const finished = state.session; state.current = null;
+  if (!state.session) return;
+  if (state.session.mode === 'timed') state.session = expireSession(state.session, new Date());
+  clearClock();
+  const finished = state.session;
+  const postPathwayState = state.pathwayId && state.content
+    ? buildUnitPathwayStates({ occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery })?.[state.pathwayId] ?? null
+    : null;
+  const finishModel = state.pathwayId
+    ? buildSessionFinishModel({ summary:finished.summary, pathwayId:state.pathwayId, startStage:state.pathwayStage, postPathwayState, preview:state.preview, fixedMissionSize:10 })
+    : null;
+  state.current = null;
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'exercise_result', activity_id:`session_complete:${finished.mode}:${state.pathwayId ?? (state.mixedReview ? 'mixed-review' : finished.practiceMode ?? 'adaptive')}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${finished.unitNumber}`, score:finished.summary.strengthened, max_score:Math.max(1, finished.summary.practised), metadata:{ unit_number:finished.unitNumber, pathway_id:state.pathwayId, pathway_stage:state.pathwayStage, review_only:state.mixedReview } }).catch(() => {});
-  renderSessionSummary(root, { durationMinutes:finished.durationMinutes, summary:finished.summary, practiceMode:finished.practiceMode ?? 'adaptive' }); decoratePreview();
+  renderSessionSummary(root, { durationMinutes:finished.durationMinutes, summary:finished.summary, practiceMode:finished.practiceMode ?? 'adaptive', pathwayId:state.pathwayId, finishModel });
+  decoratePreview();
+  root?.querySelector?.('[data-session-finish-heading]')?.focus?.();
 }
 async function finishSessionWhenSaved() {
   if (!state.session || state.finishPending) return;
