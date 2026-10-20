@@ -12,11 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Rebuild approved patches
         run: |
-          cat .review-payload/runtime-01-* | base64 -d | gzip -d > /tmp/0001.patch
-          cat .review-payload/runtime-02-* | base64 -d | gzip -d > /tmp/0002.patch
-          cat .review-payload/runtime-03-* | base64 -d | gzip -d > /tmp/0003.patch
+          cat .review-payload/0001.patch.gz.b64.part* | base64 -d | gzip -d > /tmp/0001.patch
+          cat .review-payload/0002.patch.gz.b64.part* | base64 -d | gzip -d > /tmp/0002.patch
+          cat .review-payload/0003.patch.gz.b64.part* | base64 -d | gzip -d > /tmp/0003.patch
       - name: Apply approved patches
         run: |
           git apply /tmp/0001.patch
@@ -27,7 +29,7 @@ jobs:
       - name: Package changed files
         run: |
           mkdir -p runtime-result
-          git diff --name-only d14d6cf652dd4a5e3bd080ce0117fac288f9ca90 > runtime-result/changed-files.txt
+          git diff --name-only d14d6cf652dd4a5e3bd080ce0117fac288f9ca90 -- ':!.review-payload/**' ':!.github/workflows/validate-runtime-patches.yml' > runtime-result/changed-files.txt
           while IFS= read -r p; do mkdir -p "runtime-result/$(dirname "$p")"; cp "$p" "runtime-result/$p"; done < runtime-result/changed-files.txt
       - uses: actions/upload-artifact@v4
         with:
