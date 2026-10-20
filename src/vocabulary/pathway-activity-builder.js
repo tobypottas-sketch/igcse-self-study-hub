@@ -55,13 +55,21 @@ function blankableContext(args) {
   const candidates=array(args.contexts).filter(context=>{
     const source=text(context?.text), rewrite=text(context?.targetRewrite);
     const accepted=array(context?.acceptedAnswers).map(value=>text(value).toLocaleLowerCase('en'));
-    return !used.has(String(context?.contextId ?? '')) && ['paraphrase_context','production_context'].includes(context?.type) && source && rewrite && source.toLocaleLowerCase('en').includes(rewrite.toLocaleLowerCase('en')) && accepted.includes(term);
+    return ['paraphrase_context','production_context'].includes(context?.type) && source && rewrite && source.toLocaleLowerCase('en').includes(rewrite.toLocaleLowerCase('en')) && accepted.includes(term);
   });
   if (!candidates.length) throw new Error('No curated context is available for this pathway activity.');
-  return shuffle(candidates,`${args.seed}:context`)[0];
+  const unused=candidates.filter(context=>!used.has(String(context.contextId)));
+  return shuffle(unused.length?unused:candidates,`${args.seed}:context`)[0];
 }
 function contextSentenceMatch(args, definition) {
-  const bankContext=languageBankContextForItem(args.item,args.usedContentIds,args.seed,args.unitActivities ?? []);
+  let bankContext=languageBankContextForItem(args.item,args.usedContentIds,args.seed,args.unitActivities ?? []);
+  let legacyContext=null;
+  if (bankContext && array(args.usedContentIds).includes(`language-bank:${bankContext.id}`)) {
+    try {
+      const candidate=blankableContext(args);
+      if (!array(args.usedContentIds).includes(candidate.contextId)) { legacyContext=candidate; bankContext=null; }
+    } catch { /* A published bank prompt remains eligible if no legacy cue can be built. */ }
+  }
   if (bankContext) {
     const accepted=text(bankContext.answer);
     const wrong=array(bankContext.distractors).map(row=>text(row?.text)).filter(Boolean);
@@ -71,7 +79,7 @@ function contextSentenceMatch(args, definition) {
     const pairs=options.map((option,index)=>({vocabularyId:option===accepted?args.item.vocabularyId:`alt-${index}`,term:option===accepted?source:'',definition:option}));
     return base({definition,occurrence:args.occurrence,contentId:`language-bank:${bankContext.id}`,contentSource:'language_bank',prompt:'Match the sentence to the word or phrase that completes it.',markingReference:{acceptedAnswers:[accepted]},extra:{pairs,sourceText:source,languageBankContextId:bankContext.id,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:source,matchOptions:options,matchPresentation:'context_gap_to_word'}});
   }
-  const context=blankableContext(args), term=text(args.item.term), alternatives=samePosTerms(args,3);
+  const context=legacyContext ?? blankableContext(args), term=text(args.item.term), alternatives=samePosTerms(args,3);
   const source=text(context.text).replace(new RegExp(text(context.targetRewrite).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),'____');
   const options=shuffle([term,...alternatives],`${args.seed}:context-match`);
   const pairs=options.map((option,index)=>({vocabularyId:index===0?args.item.vocabularyId:`alt-${index}`,term:index===0?source:'',definition:option}));

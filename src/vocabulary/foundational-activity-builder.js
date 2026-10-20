@@ -234,8 +234,12 @@ function bankRetrievalActivity(args, definition) {
 }
 function retrievalActivity(args, definition) {
   const bankActivity = bankRetrievalActivity(args,definition);
-  if (bankActivity) return bankActivity;
-  const { context, sourceText, answer, formKey } = blankableContext(args);
+  if (bankActivity && !array(args.usedContentIds).includes(bankActivity.contentId)) return bankActivity;
+  let selected;
+  try { selected = blankableContext(args); }
+  catch (error) { if (bankActivity) return bankActivity; throw error; }
+  if (bankActivity && array(args.usedContentIds).includes(selected.context.contextId)) return bankActivity;
+  const { context, sourceText, answer, formKey } = selected;
   const accepted = answer;
   let prompt = 'Complete the sentence with the target word.';
   const extra = { sourceText, contextId:context.contextId, primaryEvidenceTargetId:args.item.vocabularyId, answerForm:formKey ?? 'exact' };

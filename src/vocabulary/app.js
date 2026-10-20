@@ -136,10 +136,12 @@ function showAllWords() {
 function rankedTargets(limit, practiceMode = state.practiceFocus) {
   return selectEligiblePriorityTargets({ content:state.content, masteryByVocabularyId:state.globalMastery, unitMastery:state.unitMastery, practiceMode, now:new Date(), limit });
 }
-function resetSessionState() {
-  state.current = null; state.recentActivities = new Map(); state.usedContentIds = new Map(); state.recoveryNeeded = new Set(); state.timedPreviousActivityType = null; state.finishPending = false;
+function resetSessionState(continueHistory = false) {
+  // Continue stays in the same unit; explicit activity starts get fresh selection history.
+  if (!continueHistory) { state.recentActivities = new Map(); state.usedContentIds = new Map(); }
+  state.current = null; state.recoveryNeeded = new Set(); state.timedPreviousActivityType = null; state.finishPending = false;
 }
-function startPathwaySession(pathwayId) {
+function startPathwaySession(pathwayId, continueHistory = false) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   const pathwayStates = buildUnitPathwayStates({ occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
   const stageId = pathwayStates?.[pathwayId]?.currentStage ?? 'recognise';
@@ -153,35 +155,35 @@ function startPathwaySession(pathwayId) {
   const selected = [...ranked, ...eligible.filter(target => !ranked.some(row => row.occurrenceId === target.occurrenceId))].slice(0,10);
   state.pathwayId = pathwayId; state.pathwayStage = stageId; state.practiceFocus = null; state.mixedReview = false;
   state.session = createSession({ unitNumber:state.currentUnitNumber, mode:'adaptive', targetIds:selected.map(row => row.occurrenceId), practiceMode:'adaptive', now:new Date() });
-  state.queue = [...selected]; resetSessionState();
+  state.queue = [...selected]; resetSessionState(continueHistory);
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`pathway:${pathwayId}:${stageId}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, pathway_id:pathwayId, pathway_stage:stageId } }).catch(() => {});
   nextQuestion();
 }
-function startMixedReview() {
+function startMixedReview(continueHistory = false) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   state.pathwayId = null; state.pathwayStage = null; state.mixedReview = true; state.practiceFocus = 'adaptive';
   const selected = rankedTargets(10,'adaptive');
   if (!selected.length) throw new Error('No unlocked vocabulary is ready for Mixed Practice yet.');
   state.session = createSession({ unitNumber:state.currentUnitNumber, mode:'adaptive', targetIds:selected.map(row => row.occurrenceId), practiceMode:'adaptive', now:new Date() });
-  state.queue = [...selected]; resetSessionState();
+  state.queue = [...selected]; resetSessionState(continueHistory);
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:'session:mixed-review', skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, review_only:true } }).catch(() => {});
   nextQuestion();
 }
-function startSession(mode, durationMinutes = null) {
+function startSession(mode, durationMinutes = null, continueHistory = false) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   const timed = mode === 'timed';
   if (!timed && !state.practiceFocus) throw new Error('Choose a 0511 skill before starting.');
   const selected = rankedTargets(timed ? Math.max(10, state.content.occurrences.length) : 10, timed ? 'adaptive' : state.practiceFocus); if (!selected.length) throw new Error('No suitable curated activity is available for this practice mode yet.');
   state.session = createSession({ unitNumber:state.currentUnitNumber, mode, durationMinutes, targetIds:selected.map(row => row.occurrenceId), practiceMode:timed ? 'adaptive' : state.practiceFocus, now:new Date() });
-  state.queue = [...selected]; resetSessionState(); if (timed) startClock();
+  state.queue = [...selected]; resetSessionState(continueHistory); if (timed) startClock();
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`session:${mode}:${state.session.practiceMode}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, practice_focus:state.session.practiceMode } }).catch(() => {});
   nextQuestion();
 }
 function continuePractice() {
-  if (state.pathwayId) { startPathwaySession(state.pathwayId); return; }
-  if (state.mixedReview) { startMixedReview(); return; }
-  if (state.session?.mode === 'timed') { startSession('timed', state.session.durationMinutes); return; }
-  if (state.practiceFocus) { startSession('adaptive'); return; }
+  if (state.pathwayId) { startPathwaySession(state.pathwayId, true); return; }
+  if (state.mixedReview) { startMixedReview(true); return; }
+  if (state.session?.mode === 'timed') { startSession('timed', state.session.durationMinutes, true); return; }
+  if (state.practiceFocus) { startSession('adaptive', null, true); return; }
   throw new Error('No practice route is available to continue.');
 }
 function remainingLabel() { if (!state.session) return ''; if (state.session.mode === 'adaptive') return `${state.session.completedAttempts.length} / ${state.session.targetIds.length} activities`; const ms = Math.max(0, new Date(state.session.expiresAt).getTime() - Date.now()); const seconds = Math.ceil(ms / 1000); const minutes = Math.floor(seconds / 60); return `${minutes}:${String(seconds % 60).padStart(2,'0')} remaining`; }
@@ -213,7 +215,11 @@ function buildNextForTarget(target) {
   }
   const targetItem = built.item; const targetContexts = built.contexts; const question = built.question;
   if (state.session.mode === 'timed') state.timedPreviousActivityType = question.type;
-  if (question.contentId) state.usedContentIds.set(target.occurrenceId, [...new Set([...usedContentIds, question.contentId])]);
+  if (question.contentId) {
+    // Keep record and operation-specific variant identities in the existing target history.
+    const variant = question.activityVariantId == null ? [] : [JSON.stringify([question.contentId, question.type, question.activityVariantId])];
+    state.usedContentIds.set(target.occurrenceId, [...new Set([...usedContentIds, question.contentId, ...variant])]);
+  }
   const contextRecord = targetContexts.find(ctx => ctx.contextId === question.contentId) ?? null; const activityRecord = state.content.activitiesById[question.contentId] ?? null;
   const primaryEvidenceTargetId = question.primaryEvidenceTargetId ?? activityRecord?.activityData?.primaryEvidenceTargetId ?? (question.contentSource === 'item' ? target.vocabularyId : null);
   return { target, item:targetItem, context:contextRecord, activityRecord, question, pathwayPlan:built.plan ?? null, recovery, retry:false, support:null, initialError:false, primaryEvidenceTargetId };
