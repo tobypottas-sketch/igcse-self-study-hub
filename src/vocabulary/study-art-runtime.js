@@ -96,8 +96,10 @@ function decoratePathwayEvidence(scope) {
     const detail = wrap.querySelector?.('.vocab-pathway-card__evidence-copy small');
     const meter = wrap.querySelector?.('.vocab-pathway-card__evidence-meter');
     const fill = wrap.querySelector?.('.vocab-pathway-card__evidence-fill');
-    if (title) title.textContent = `${stageLabel} evidence`;
-    if (detail) detail.textContent = evidenceCopy(evidence);
+    const nextTitle = `${stageLabel} evidence`;
+    const nextDetail = evidenceCopy(evidence);
+    if (title && title.textContent !== nextTitle) title.textContent = nextTitle;
+    if (detail && detail.textContent !== nextDetail) detail.textContent = nextDetail;
     if (meter) {
       meter.setAttribute('aria-label',`${stageLabel} evidence progress`);
       meter.setAttribute('aria-valuenow',String(percent));
