@@ -4,17 +4,24 @@ import fs from 'node:fs';
 
 const css = fs.readFileSync(new URL('../vocabulary-layout-stability.css', import.meta.url), 'utf8');
 const runtime = fs.readFileSync(new URL('../src/vocabulary/study-art-runtime.js', import.meta.url), 'utf8');
+const views = fs.readFileSync(new URL('../src/vocabulary/views.js', import.meta.url), 'utf8');
 
-test('pathway evidence shell is created for every available card before saved evidence is consulted', () => {
+test('pathway evidence shell is present in initial card markup before hydration', () => {
+  const renderer = views.match(/function\s+renderPathwayCard\s*\([^)]*\)\s*\{([\s\S]*?)\n\}/)?.[1] ?? '';
+  assert.match(renderer,/data-pathway-evidence-shell/);
+  assert.match(renderer,/vocab-pathway-card__evidence-copy/);
+  assert.match(renderer,/vocab-pathway-card__evidence-meter/);
+  assert.match(renderer,/No saved evidence yet/);
+});
+
+test('runtime keeps a fallback evidence-shell guard before saved evidence hydration', () => {
   assert.match(runtime,/function\s+ensurePathwayEvidenceShell\s*\(/);
   const decorator = runtime.match(/function\s+decoratePathwayEvidence\s*\([^)]*\)\s*\{([\s\S]*?)\n\}/)?.[1] ?? '';
   const shellIndex = decorator.indexOf('ensurePathwayEvidenceShell(card)');
   const evidenceIndex = decorator.indexOf('state?.stageEvidence');
-  assert.ok(shellIndex >= 0,'evidence decorator should ensure the shell for an available card');
+  assert.ok(shellIndex >= 0,'evidence decorator should ensure the shell for a legacy/stale card');
   assert.ok(evidenceIndex >= 0,'evidence decorator should still read authoritative saved evidence');
   assert.ok(shellIndex < evidenceIndex,'the stable shell must exist before saved evidence hydration is considered');
-  assert.match(runtime,/dataset\.pathwayEvidenceShell/);
-  assert.match(runtime,/No saved evidence yet/);
 });
 
 test('pathway evidence hydration does not retrigger the childList observer forever', () => {
@@ -44,11 +51,13 @@ test('pathway card header uses explicit regions with generous spacing', () => {
   assert.match(css, /\.vocab-pathway-card__cta\s*\{[^}]*grid-area:cta/s);
 });
 
-test('decorative pathway artwork is restored without participating in card layout', () => {
+test('decorative pathway artwork is visibly restored without participating in card layout', () => {
   assert.doesNotMatch(css, /\.vocab-pathway-card__art\s*\{[^}]*display:none!important/s);
   assert.match(css, /\.vocab-pathway-card__art\s*\{[^}]*position:absolute/s);
   assert.match(css, /\.vocab-pathway-card__art\s*\{[^}]*pointer-events:none/s);
-  assert.match(css, /\.vocab-pathway-card__art\s*\{[^}]*z-index:0/s);
-  assert.match(css, /\.vocab-pathway-card\s*>\s*:not\(\.vocab-pathway-card__art\)\s*\{[^}]*z-index:1/s);
+  assert.match(css, /\.vocab-pathway-card__art\s*\{[^}]*top:88px/s);
+  assert.match(css, /\.vocab-pathway-card__art\s*\{[^}]*opacity:\.34/s);
+  assert.doesNotMatch(css, /mask-image:/);
+  assert.match(css, /\.vocab-pathway-card\s*>\s*:not\(\.vocab-pathway-card__art\)\s*\{[^}]*z-index:2/s);
   assert.match(css,/\.vocab-pathway-card\.has-study-art\s*\{[^}]*padding:28px 30px 24px!important[^}]*min-height:340px/s);
 });
