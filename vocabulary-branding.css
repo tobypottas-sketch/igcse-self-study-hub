@@ -1,0 +1,39 @@
+.vocab-shell--session .vocab-topbar > span{
+  display:grid;
+  justify-items:end;
+  gap:4px;
+  line-height:1.15;
+}
+
+.vocab-shell--session .vocab-topbar > span::before,
+.vocab-unit-hero::before{
+  content:"Cambridge IGCSE ESL 0511";
+  display:inline-flex;
+  align-items:center;
+  width:max-content;
+  max-width:100%;
+  padding:6px 10px;
+  border:1px solid #c9dce3;
+  border-radius:999px;
+  background:rgba(255,255,255,.88);
+  color:var(--navy);
+  font-size:.8rem;
+  font-weight:900;
+  letter-spacing:.025em;
+  line-height:1;
+  opacity:1;
+  white-space:nowrap;
+  box-shadow:0 2px 8px rgba(23,56,82,.05);
+}
+
+.vocab-unit-hero::before{
+  margin:0 0 16px;
+}
+
+@media(max-width:520px){
+  .vocab-shell--session .vocab-topbar > span::before,
+  .vocab-unit-hero::before{
+    font-size:.72rem;
+    padding:5px 8px;
+  }
+}

@@ -39,39 +39,72 @@ function evidenceCopy(evidence) {
   return parts.join(' · ');
 }
 
+function currentStageLabel(card) {
+  const current = card.querySelector?.('.vocab-pathway-stage[data-state="current"] small');
+  const label = String(current?.textContent ?? '').trim();
+  return label || 'Recognise';
+}
+
+function ensurePathwayEvidenceShell(card) {
+  const existing = card.querySelector?.('[data-pathway-evidence-shell]');
+  if (existing) return existing;
+  const stageLabel = currentStageLabel(card);
+  const wrap = document.createElement('span');
+  wrap.className = 'vocab-pathway-card__evidence';
+  wrap.dataset.pathwayEvidenceShell = 'true';
+
+  const copy = document.createElement('span');
+  copy.className = 'vocab-pathway-card__evidence-copy';
+  const title = document.createElement('strong');
+  title.textContent = `${stageLabel} evidence`;
+  const detail = document.createElement('small');
+  detail.textContent = 'No saved evidence yet';
+  copy.append(title,detail);
+
+  const meter = document.createElement('span');
+  meter.className = 'vocab-pathway-card__evidence-meter';
+  meter.setAttribute('role','progressbar');
+  meter.setAttribute('aria-label',`${stageLabel} evidence progress`);
+  meter.setAttribute('aria-valuemin','0');
+  meter.setAttribute('aria-valuemax','100');
+  meter.setAttribute('aria-valuenow','0');
+  const fill = document.createElement('span');
+  fill.className = 'vocab-pathway-card__evidence-fill';
+  fill.style.setProperty('--pathway-evidence','0%');
+  meter.append(fill);
+  wrap.append(copy,meter);
+
+  const ladder = card.querySelector?.('.vocab-pathway-ladder');
+  if (ladder?.before) ladder.before(wrap); else card.append(wrap);
+  return wrap;
+}
+
 function decoratePathwayEvidence(scope) {
   const states = getLatestUnitPathwayStates();
   for (const card of scope.querySelectorAll?.('.vocab-pathway-card[data-pathway]') ?? []) {
-    if (card.dataset.pathwayStatus === 'unavailable' || card.querySelector?.('[data-pathway-evidence]')) continue;
+    if (card.dataset.pathwayStatus === 'unavailable') continue;
+    const wrap = ensurePathwayEvidenceShell(card);
     const state = states?.[card.dataset.pathway];
     const evidence = state?.stageEvidence;
     if (!evidence) continue;
-    const stageLabel = STAGE_LABELS[evidence.stageId] ?? 'Current stage';
+
+    const stageLabel = STAGE_LABELS[evidence.stageId] ?? currentStageLabel(card);
     const percent = Math.max(0,Math.min(100,Number(evidence.progressPercent) || 0));
-    const wrap = document.createElement('span');
-    wrap.className = 'vocab-pathway-card__evidence';
     wrap.dataset.pathwayEvidence = evidence.stageId;
-    const copy = document.createElement('span');
-    copy.className = 'vocab-pathway-card__evidence-copy';
-    const title = document.createElement('strong');
-    title.textContent = `${stageLabel} evidence`;
-    const detail = document.createElement('small');
-    detail.textContent = evidenceCopy(evidence);
-    copy.append(title,detail);
-    const meter = document.createElement('span');
-    meter.className = 'vocab-pathway-card__evidence-meter';
-    meter.setAttribute('role','progressbar');
-    meter.setAttribute('aria-label',`${stageLabel} evidence progress`);
-    meter.setAttribute('aria-valuemin','0');
-    meter.setAttribute('aria-valuemax','100');
-    meter.setAttribute('aria-valuenow',String(percent));
-    const fill = document.createElement('span');
-    fill.className = 'vocab-pathway-card__evidence-fill';
-    fill.style.setProperty('--pathway-evidence',`${percent}%`);
-    meter.append(fill);
-    wrap.append(copy,meter);
-    const ladder = card.querySelector?.('.vocab-pathway-ladder');
-    if (ladder?.before) ladder.before(wrap); else card.append(wrap);
+
+    const title = wrap.querySelector?.('.vocab-pathway-card__evidence-copy strong');
+    const detail = wrap.querySelector?.('.vocab-pathway-card__evidence-copy small');
+    const meter = wrap.querySelector?.('.vocab-pathway-card__evidence-meter');
+    const fill = wrap.querySelector?.('.vocab-pathway-card__evidence-fill');
+    const nextTitle = `${stageLabel} evidence`;
+    const nextDetail = evidenceCopy(evidence);
+    if (title && title.textContent !== nextTitle) title.textContent = nextTitle;
+    if (detail && detail.textContent !== nextDetail) detail.textContent = nextDetail;
+    if (meter) {
+      meter.setAttribute('aria-label',`${stageLabel} evidence progress`);
+      meter.setAttribute('aria-valuenow',String(percent));
+    }
+    fill?.style?.setProperty('--pathway-evidence',`${percent}%`);
   }
 }
 
@@ -150,6 +183,13 @@ export function enhanceStudyArtwork(scope = root) {
 
 if (root) {
   enhanceStudyArtwork(root);
-  const observer = new MutationObserver(() => enhanceStudyArtwork(root));
+  const observer = new MutationObserver(() => {
+    observer.disconnect();
+    try {
+      enhanceStudyArtwork(root);
+    } finally {
+      observer.observe(root,{ childList:true, subtree:true });
+    }
+  });
   observer.observe(root,{ childList:true, subtree:true });
 }
