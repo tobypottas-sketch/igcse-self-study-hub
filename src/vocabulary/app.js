@@ -92,7 +92,6 @@ async function openUnit(unitNumber) {
   state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.mixedReview = false;
   state.globalMastery = mapBy(dashboardMastery?.global ?? [], 'vocabulary_id', mastery);
   state.unitMastery = mapBy(dashboardMastery?.unit ?? [], 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
-  state.persistenceBlocked = false; state.finishPending = false;
   renderCurrentUnit();
   const contentPromise = loadVocabularyUnit(state.client, unitNumber, loadOptions);
   const masteryPromise = state.preview
@@ -105,6 +104,7 @@ async function openUnit(unitNumber) {
       : loadStudentMastery(state.client, unitNumber, loadOptions);
   const [contentRaw, masteryRaw] = await Promise.all([contentPromise, masteryPromise]);
   if (Number(state.currentUnitNumber) !== Number(unitNumber)) return;
+  state.persistenceBlocked = false; state.finishPending = false;
   const occurrences = contentRaw.occurrences.map(occurrence); const items = contentRaw.items.map(item); const contexts = contentRaw.contexts.map(context); const activities = (contentRaw.activities ?? []).map(unitActivity);
   state.content = { occurrences, items, contexts, activities, itemsById:mapBy(items,'vocabularyId'), contextsByOccurrence:{}, activitiesById:mapBy(activities,'activityContentId') };
   for (const ctx of contexts) (state.content.contextsByOccurrence[ctx.occurrenceId] ??= []).push(ctx);
