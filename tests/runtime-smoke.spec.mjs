@@ -174,3 +174,53 @@ for (const width of [1280, 1024, 768, 641, 390, 320]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 }
+
+// Use the real student controller through the router; replace only the Supabase boundary.
+for (const saveMode of ['success', 'failed', 'pending']) {
+  test(`student can leave after a correct answer with ${saveMode} persistence`, async ({ page }) => {
+    const { mockVocabularyStudent } = await import('./fixtures-vocabulary-student.mjs');
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await mockVocabularyStudent(page, saveMode);
+    await page.locator('[data-choice-answer="leisure"]').click();
+    await expect(page.locator('.vocab-feedback')).toContainText('Correct');
+    await expect(page.locator('[data-action="next-question"]')).toBeVisible();
+    if (saveMode === 'failed') await expect(page.locator('[data-vocab-sync-warning]')).toBeVisible();
+    const back = page.locator('[data-action="leave-session"]');
+    await expect(back).toHaveText('← Unit 1');
+    expect(await back.evaluate(button => {
+      const rect = button.getBoundingClientRect();
+      const hit = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
+      return !button.disabled && !button.closest('[inert], [aria-modal="true"]') &&
+        getComputedStyle(button).pointerEvents !== 'none' && (hit === button || button.contains(hit));
+    })).toBe(true);
+    if (saveMode === 'pending') await page.locator('[data-action="next-question"]').click();
+    await back.click();
+    await expect(page.locator('.vocab-pathways')).toBeVisible();
+    if (saveMode === 'pending') await page.evaluate(() => window.settleVocabularySave());
+    await expect(page.locator('.vocab-pathways')).toBeVisible();
+    expect(await page.evaluate(() => window.vocabularyAttempts.length)).toBe(1);
+    await page.locator('[data-action="back-units"]').click();
+    await expect(page.locator('[data-action="open-unit"][data-unit="1"]')).toBeVisible();
+    expect(errors).toEqual([]);
+  });
+}
+
+test('student Next advances normally and supported retry still works', async ({ page }) => {
+  const { mockVocabularyStudent } = await import('./fixtures-vocabulary-student.mjs');
+  await mockVocabularyStudent(page);
+  await page.locator('[data-choice-answer]').filter({ hasNotText:'leisure' }).first().click();
+  await expect(page.locator('.is-retry')).toBeVisible();
+  await page.locator('[data-choice-answer="leisure"]').click();
+  await expect(page.locator('.vocab-feedback')).toContainText('Correct');
+  await page.locator('[data-action="next-question"]').click();
+  await expect(page.locator('[data-choice-answer]')).not.toHaveCount(0);
+  const attempts = await page.evaluate(() => window.vocabularyAttempts);
+  expect(attempts).toHaveLength(2);
+  expect(attempts[0].firstAttempt).toBe(true);
+  expect(attempts[1].retryUsed).toBe(true);
+  await page.locator('[data-action="leave-session"]').click();
+  await expect(page.locator('.vocab-pathways')).toBeVisible();
+  await page.locator('[data-action="open-pathway"][data-pathway="meaning"]').click();
+  await expect(page.locator('[data-form="vocabulary-answer"]')).toBeVisible();
+});

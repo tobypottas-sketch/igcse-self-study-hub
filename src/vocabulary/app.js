@@ -250,14 +250,18 @@ function persistVocabularyAttempt(current, rawAnswer, flags, localResult) {
   return state.persistenceChain;
 }
 async function returnToCurrentUnit() {
-  await state.persistenceChain;
-  if (state.persistenceBlocked) return;
+  // Leaving is independent of saving; keep the queued attempt and its sync guard intact.
+  clearClock();
+  state.current = null;
   state.pathwayId = null; state.pathwayStage = null; state.mixedReview = false; state.practiceFocus = null;
   renderCurrentUnit();
+  if (state.persistenceBlocked) showSyncWarning(new Error('Vocabulary progress is still unsaved.'));
 }
 async function advanceToNextQuestion() {
+  const current = state.current;
   await state.persistenceChain;
   if (state.persistenceBlocked) return;
+  if (!current || state.current !== current) return;
   nextQuestion();
 }
 function recordRecentActivity(current, result) { const recent = state.recentActivities.get(current.target.occurrenceId) ?? []; const entry = { type:current.question.type, contentId:current.question.contentId, correct:result.correct }; state.recentActivities.set(current.target.occurrenceId, [...recent, entry].slice(-5)); }
@@ -298,9 +302,11 @@ function finishSession() {
 async function finishSessionWhenSaved() {
   if (!state.session || state.finishPending) return;
   state.finishPending = true;
+  const current = state.current;
   clearClock();
   await state.persistenceChain;
   if (state.persistenceBlocked) { state.finishPending = false; return; }
+  if (!current || state.current !== current) { state.finishPending = false; return; }
   finishSession();
   state.finishPending = false;
 }
