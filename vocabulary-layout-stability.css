@@ -1,9 +1,70 @@
-/* Keep the Unit screen geometry stable while study artwork is attached asynchronously. */
+/* Keep the Unit screen geometry stable while study artwork and evidence are attached asynchronously. */
 .vocab-pathway-card{
   position:relative;
   overflow:hidden;
-  padding-right:28px!important;
-  min-height:118px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-areas:
+    "identity status"
+    "coverage coverage"
+    "evidence evidence"
+    "ladder ladder"
+    "cta cta";
+  grid-template-rows:auto auto minmax(42px,auto) auto auto;
+  column-gap:20px;
+  row-gap:10px;
+  padding:22px 24px 18px!important;
+  min-height:270px;
+}
+
+.vocab-pathway-card__identity{
+  grid-area:identity;
+  display:flex;
+  align-items:flex-start;
+  gap:12px!important;
+  min-width:0;
+}
+
+.vocab-pathway-card__status{
+  grid-area:status;
+  justify-self:end;
+  align-self:start;
+  margin:3px 0 0!important;
+  padding:6px 10px;
+  border:1px solid color-mix(in srgb,var(--study-accent) 18%,white);
+  border-radius:999px;
+  background:color-mix(in srgb,var(--study-accent-soft) 82%,white);
+  color:var(--study-accent);
+  white-space:nowrap;
+}
+
+.vocab-pathway-card__coverage{
+  grid-area:coverage;
+  justify-self:start!important;
+  align-self:start;
+  margin:0!important;
+}
+
+/* Reserve this row from first paint so late evidence hydration cannot push the ladder or CTA down. */
+.vocab-pathway-card__evidence{
+  grid-area:evidence;
+  align-self:start;
+  width:100%!important;
+  max-width:none!important;
+  min-height:36px;
+  margin:0!important;
+}
+
+.vocab-pathway-ladder{
+  grid-area:ladder;
+  width:100%;
+  margin:0!important;
+}
+
+.vocab-pathway-card__cta{
+  grid-area:cta;
+  justify-self:end;
+  margin:0!important;
 }
 
 .vocab-unit-hero{
@@ -24,13 +85,27 @@
     padding-bottom:148px!important;
   }
   .vocab-pathway-card{
-    padding-right:20px!important;
+    padding:20px!important;
   }
 }
 
 @media (max-width:620px){
   .vocab-pathway-card{
-    padding-right:16px!important;
-    min-height:108px;
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:
+      "identity"
+      "status"
+      "coverage"
+      "evidence"
+      "ladder"
+      "cta";
+    grid-template-rows:auto auto auto minmax(56px,auto) auto auto;
+    row-gap:9px;
+    padding:17px!important;
+    min-height:0;
+  }
+  .vocab-pathway-card__status,
+  .vocab-pathway-card__cta{
+    justify-self:start;
   }
 }
