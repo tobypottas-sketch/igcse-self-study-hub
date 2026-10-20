@@ -2,7 +2,7 @@ import { getSupabaseClient } from '../supabase.js';
 import { loadVocabularyDashboard, loadVocabularyUnit, loadStudentMastery, submitVocabularyAttempt } from './data.js';
 import { trackVocabularyEvent } from './tracking.js';
 import { buildSupportStep } from './scaffolding.js';
-import { completeAttempt, createSession, expireSession, isSessionComplete } from './session.js';
+import { completeAttempt, createSession, expireSession, isSessionComplete, missionProgress } from './session.js';
 import { buildTargetPracticeQuestion, buildTimedMixedQuestion, selectEligiblePriorityTargets } from './session-targets.js';
 import { planPathwayQuestion, eligibleTargetsForPathwayStage } from './pathway-planner.js';
 import { buildUnitPathwayStates, buildWordPathwayStates, targetsForPathwayStage } from './pathway-view-model.js';
@@ -216,7 +216,7 @@ function continuePractice() {
   if (state.practiceFocus) { startSession('adaptive', null, true); return; }
   throw new Error('No practice route is available to continue.');
 }
-function remainingLabel() { if (!state.session) return ''; if (state.session.mode === 'adaptive') return `${state.session.completedAttempts.length} / ${state.session.targetIds.length} activities`; const ms = Math.max(0, new Date(state.session.expiresAt).getTime() - Date.now()); const seconds = Math.ceil(ms / 1000); const minutes = Math.floor(seconds / 60); return `${minutes}:${String(seconds % 60).padStart(2,'0')} remaining`; }
+function remainingLabel() { if (!state.session) return ''; if (state.session.mode === 'adaptive') { const { done, total } = missionProgress(state.session); return `${done} / ${total} activities`; } const ms = Math.max(0, new Date(state.session.expiresAt).getTime() - Date.now()); const seconds = Math.ceil(ms / 1000); const minutes = Math.floor(seconds / 60); return `${minutes}:${String(seconds % 60).padStart(2,'0')} remaining`; }
 function startClock() { clearClock(); state.clock = window.setInterval(() => { const label = root.querySelector?.('.vocab-topbar span'); if (label) label.textContent = remainingLabel(); if (state.session && isSessionComplete(state.session, new Date())) void finishSessionWhenSaved(); }, 1000); }
 function clearClock() { if (state.clock) { window.clearInterval(state.clock); state.clock = null; } }
 function buildNextForTarget(target) {
