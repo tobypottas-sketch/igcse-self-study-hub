@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { renderTeacherOverview } from '../src/vocabulary/teacher-views.js';
+import { buildSessionFinishModel } from '../src/vocabulary/session-finish-model.js';
+import { renderSessionSummary } from '../src/vocabulary/views.js';
 
 function fakeRoot() { return { innerHTML:'' }; }
 
@@ -34,6 +36,21 @@ test('staff preview UI includes all four interaction primitives through the shar
   assert.match(source, /data-tile-answer/);
   assert.match(source, /data-evidence-answer/);
   assert.match(source, /name="answer"/);
+});
+
+test('staff preview finish stays session-level even if supplied post-state is advanced', () => {
+  const finishModel = buildSessionFinishModel({
+    summary:{ practised:10, strengthened:10, needsAnotherLook:0 },
+    pathwayId:'meaning',
+    startStage:'match',
+    postPathwayState:{ currentStage:'mastery', mastered:true, completedStages:['recognise','match','apply','recall','mastery'] },
+    preview:true
+  });
+  assert.equal(finishModel.variant,'session');
+  const target = fakeRoot();
+  renderSessionSummary(target,{ summary:{ practised:10, strengthened:10, needsAnotherLook:0 }, pathwayId:'meaning', finishModel });
+  assert.match(target.innerHTML,/Preview only — no progress has been saved\./);
+  assert.doesNotMatch(target.innerHTML,/Your progress is saved|UNLOCKED|MEANING MASTERED/);
 });
 
 test('vocabulary router lets staff choose preview mode instead of forcing analytics', () => {
