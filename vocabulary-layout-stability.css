@@ -10,27 +10,46 @@
     "evidence evidence"
     "ladder ladder"
     "cta cta";
-  grid-template-rows:auto auto minmax(42px,auto) auto auto;
-  column-gap:20px;
-  row-gap:10px;
-  padding:22px 24px 18px!important;
-  min-height:270px;
+  grid-template-rows:auto auto minmax(60px,auto) auto auto;
+  column-gap:28px;
+  row-gap:16px;
+  padding:28px 30px 24px!important;
+  min-height:340px;
+}
+
+/* Decorative pathway art must never compete with live content. Identity is carried by the icon/accent. */
+.vocab-pathway-card__art{
+  display:none!important;
+}
+.vocab-pathway-card[data-study-accent]::after{
+  display:none!important;
 }
 
 .vocab-pathway-card__identity{
   grid-area:identity;
   display:flex;
-  align-items:flex-start;
-  gap:12px!important;
+  align-items:center;
+  gap:14px!important;
   min-width:0;
+}
+
+.vocab-pathway-card__head{
+  gap:4px!important;
+}
+.vocab-pathway-card__head strong{
+  line-height:1.15;
+}
+.vocab-pathway-card__head small{
+  width:max-content;
+  max-width:100%;
 }
 
 .vocab-pathway-card__status{
   grid-area:status;
   justify-self:end;
-  align-self:start;
-  margin:3px 0 0!important;
-  padding:6px 10px;
+  align-self:center;
+  margin:0!important;
+  padding:7px 12px;
   border:1px solid color-mix(in srgb,var(--study-accent) 18%,white);
   border-radius:999px;
   background:color-mix(in srgb,var(--study-accent-soft) 82%,white);
@@ -45,26 +64,44 @@
   margin:0!important;
 }
 
-/* Reserve this row from first paint so late evidence hydration cannot push the ladder or CTA down. */
+/* Reserve and visually separate evidence from the header so hydration never shifts later rows. */
 .vocab-pathway-card__evidence{
   grid-area:evidence;
   align-self:start;
   width:100%!important;
   max-width:none!important;
-  min-height:36px;
+  min-height:60px;
   margin:0!important;
+  padding:12px 14px;
+  border:1px solid rgba(43,79,110,.08);
+  border-radius:14px;
+  background:rgba(247,250,252,.82);
+}
+.vocab-pathway-card__evidence-copy strong{
+  font-size:.70rem!important;
+  letter-spacing:.055em!important;
+}
+.vocab-pathway-card__evidence-copy small{
+  font-size:.70rem!important;
+  font-weight:700!important;
 }
 
 .vocab-pathway-ladder{
   grid-area:ladder;
   width:100%;
-  margin:0!important;
+  margin:2px 0 0!important;
+  padding:12px!important;
+  gap:10px!important;
+}
+.vocab-pathway-stage{
+  min-height:78px!important;
+  padding:10px 7px!important;
 }
 
 .vocab-pathway-card__cta{
   grid-area:cta;
   justify-self:end;
-  margin:0!important;
+  margin:2px 0 0!important;
 }
 
 .vocab-unit-hero{
@@ -85,7 +122,8 @@
     padding-bottom:148px!important;
   }
   .vocab-pathway-card{
-    padding:20px!important;
+    padding:24px!important;
+    row-gap:14px;
   }
 }
 
@@ -99,13 +137,24 @@
       "evidence"
       "ladder"
       "cta";
-    grid-template-rows:auto auto auto minmax(56px,auto) auto auto;
-    row-gap:9px;
-    padding:17px!important;
+    grid-template-rows:auto auto auto minmax(68px,auto) auto auto;
+    row-gap:12px;
+    padding:20px!important;
     min-height:0;
   }
   .vocab-pathway-card__status,
   .vocab-pathway-card__cta{
     justify-self:start;
+  }
+  .vocab-pathway-card__evidence{
+    padding:11px 12px;
+  }
+  .vocab-pathway-ladder{
+    gap:7px!important;
+    padding:9px!important;
+  }
+  .vocab-pathway-stage{
+    min-height:68px!important;
+    padding:8px 5px!important;
   }
 }
