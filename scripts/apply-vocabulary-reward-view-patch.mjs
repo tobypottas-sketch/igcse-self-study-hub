@@ -2,6 +2,10 @@ import fs from 'node:fs';
 
 const path = 'src/vocabulary/views.js';
 const source = fs.readFileSync(path,'utf8');
+if (source.includes('data-study-completion="session_complete"')) {
+  console.log('Reward summary view already patched');
+  process.exit(0);
+}
 const pattern = /export function renderSessionSummary\(root,[\s\S]*?\n}\n/;
 if (!pattern.test(source)) throw new Error('renderSessionSummary owner not found; refusing to patch');
 
