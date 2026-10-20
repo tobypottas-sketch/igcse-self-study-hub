@@ -1,39 +1,102 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-labelledby="title desc">
 <title id="title">Sports and free time</title>
-<desc id="desc">Modern flat illustration of a football, tennis racket and running shoe.</desc>
+<desc id="desc">Polished illustration of a tennis racket, football and blue running shoe on a modern outdoor sports landscape.</desc>
 <defs>
-  <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e9f7ff"/><stop offset="1" stop-color="#f8fbff"/></linearGradient>
-  <linearGradient id="ground" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d9f2e8"/><stop offset="1" stop-color="#8bd5c2"/></linearGradient>
-  <linearGradient id="shoe" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2c9fe3"/><stop offset="1" stop-color="#1977c9"/></linearGradient>
+  <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+    <stop stop-color="#dff3ff"/>
+    <stop offset="1" stop-color="#f7fbff"/>
+  </linearGradient>
+  <linearGradient id="hill1" x1="0" y1="0" x2="1" y2="0">
+    <stop stop-color="#b8efe1"/>
+    <stop offset="1" stop-color="#83dfc6"/>
+  </linearGradient>
+  <linearGradient id="hill2" x1="0" y1="0" x2="1" y2="1">
+    <stop stop-color="#73d8c0"/>
+    <stop offset="1" stop-color="#45c3aa"/>
+  </linearGradient>
+  <linearGradient id="racket" x1="0" y1="0" x2="1" y2="1">
+    <stop stop-color="#16b88f"/>
+    <stop offset="1" stop-color="#087b75"/>
+  </linearGradient>
+  <linearGradient id="shoe" x1="0" y1="0" x2="1" y2="1">
+    <stop stop-color="#2ca7ff"/>
+    <stop offset=".58" stop-color="#0f75d8"/>
+    <stop offset="1" stop-color="#0757aa"/>
+  </linearGradient>
+  <linearGradient id="sole" x1="0" y1="0" x2="0" y2="1">
+    <stop stop-color="#ffffff"/>
+    <stop offset="1" stop-color="#dcecf8"/>
+  </linearGradient>
+  <radialGradient id="ballShade" cx="35%" cy="24%" r="78%">
+    <stop stop-color="#ffffff"/>
+    <stop offset=".72" stop-color="#f6fbff"/>
+    <stop offset="1" stop-color="#dceaf4"/>
+  </radialGradient>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="9" stdDeviation="8" flood-color="#173b5a" flood-opacity=".14"/>
+  </filter>
+  <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+    <feGaussianBlur stdDeviation="6"/>
+  </filter>
 </defs>
-<rect width="320" height="180" rx="28" fill="url(#sky)"/>
-<circle cx="267" cy="34" r="22" fill="#fff0ad" opacity=".92"/>
-<circle cx="52" cy="52" r="22" fill="#fff" opacity=".72"/>
-<circle cx="76" cy="50" r="14" fill="#fff" opacity=".72"/>
-<path d="M0 145c45-17 82-16 122-4 41 13 81 11 116-3 32-13 54-10 82 0v42H0z" fill="url(#ground)"/>
 
-<g data-sport="racket" transform="translate(52 34) rotate(-16 56 64)">
-  <ellipse cx="62" cy="53" rx="34" ry="43" fill="#fff" stroke="#2aa36b" stroke-width="7"/>
-  <g stroke="#9fdcc2" stroke-width="2" opacity=".95">
-    <path d="M39 27l45 52M31 42l53 61M31 63l41 47M48 13l42 48M27 54l69 0M31 39l62 0M36 78l49 0"/>
+<rect width="400" height="300" rx="30" fill="url(#sky)"/>
+
+<!-- soft sky forms -->
+<circle cx="332" cy="58" r="34" fill="#ffd86b" opacity=".92"/>
+<circle cx="293" cy="104" r="11" fill="#ff7d3a"/>
+<circle cx="350" cy="131" r="7" fill="#2a9df4"/>
+<path d="M236 64c58 0 102 36 129 94" fill="none" stroke="#bfe7fb" stroke-width="5" stroke-linecap="round" opacity=".8"/>
+<path d="M-18 135c40-49 97-55 142-5 25 28 56 34 86 15 54-34 103-37 151 6 21 19 40 27 57 26v123H-18z" fill="#ffffff" opacity=".72"/>
+
+<!-- layered ground -->
+<path d="M0 183c47-24 91-31 140-16 41 13 78 13 111-2 47-22 95-16 149 20v115H0z" fill="url(#hill1)"/>
+<path d="M0 224c49-20 96-17 142 2 44 18 88 18 135 1 43-16 84-13 123 7v66H0z" fill="url(#hill2)" opacity=".88"/>
+<path d="M0 258c67-20 119-18 172 2 54 21 112 18 228-7v47H0z" fill="#57cdb4" opacity=".62"/>
+
+<!-- soft object shadows -->
+<ellipse cx="196" cy="263" rx="74" ry="12" fill="#124c66" opacity=".12" filter="url(#softShadow)"/>
+<ellipse cx="302" cy="267" rx="83" ry="13" fill="#124c66" opacity=".13" filter="url(#softShadow)"/>
+<ellipse cx="83" cy="270" rx="45" ry="9" fill="#124c66" opacity=".10" filter="url(#softShadow)"/>
+
+<!-- tennis racket -->
+<g transform="translate(34 36) rotate(-12 90 108)" filter="url(#shadow)">
+  <ellipse cx="112" cy="86" rx="58" ry="74" fill="#f5fdff" stroke="url(#racket)" stroke-width="10"/>
+  <ellipse cx="112" cy="86" rx="49" ry="64" fill="#e8f8ff" stroke="#0b5964" stroke-width="2" opacity=".95"/>
+  <g stroke="#ffffff" stroke-width="2.4" opacity=".95">
+    <path d="M68 52l83 68M65 70l82 68M68 89l69 57M81 32l78 65M95 23l67 57"/>
+    <path d="M72 42l74 103M88 27l63 112M108 21l48 103M128 26l31 83" opacity=".72"/>
+    <path d="M62 66h96M61 86h101M66 107h89M76 128h67" opacity=".76"/>
   </g>
-  <path d="M75 91l21 39" stroke="#173b5a" stroke-width="10" stroke-linecap="round"/>
-  <path d="M94 126l7 13" stroke="#ef7f35" stroke-width="12" stroke-linecap="round"/>
+  <path d="M136 145l-40 86" stroke="#0d3d58" stroke-width="13" stroke-linecap="round"/>
+  <path d="M99 222l-14 30" stroke="#ff8a46" stroke-width="16" stroke-linecap="round"/>
+  <path d="M94 225l-11 24" stroke="#ef6b30" stroke-width="2" opacity=".55"/>
+  <path d="M100 219l-11 24" stroke="#ef6b30" stroke-width="2" opacity=".55"/>
 </g>
 
-<g data-sport="football" transform="translate(126 43)">
-  <circle cx="54" cy="54" r="46" fill="#fff" stroke="#173b5a" stroke-width="5"/>
-  <path d="M54 32l17 12-7 20H44l-7-20 17-12z" fill="#173b5a"/>
-  <path d="M54 8v24M18 37l20 10M90 37L70 47M29 88l16-25M79 88L63 63M15 66l20 3M93 66l-20 3" stroke="#173b5a" stroke-width="4" stroke-linecap="round"/>
-  <path d="M22 21l16 2M86 21l-16 2M15 70l13 14M93 70L80 84" stroke="#173b5a" stroke-width="4" stroke-linecap="round"/>
+<!-- football -->
+<g transform="translate(144 99)" filter="url(#shadow)">
+  <circle cx="84" cy="84" r="72" fill="url(#ballShade)" stroke="#123f64" stroke-width="4"/>
+  <path d="M84 50l26 19-10 31H68L58 69z" fill="#123f64"/>
+  <path d="M84 12v38M24 60l36 14M144 60l-36 14M40 137l31-39M128 137l-31-39M13 93l44 7M155 93l-44 7" stroke="#123f64" stroke-width="5" stroke-linecap="round"/>
+  <path d="M34 30l29 7M134 30l-29 7M22 121l26 27M146 121l-26 27" stroke="#123f64" stroke-width="5" stroke-linecap="round"/>
+  <path d="M61 18l-27 12M107 18l27 12M25 72L13 93M143 72l12 21M50 151l-10-14M118 151l10-14" stroke="#123f64" stroke-width="4" stroke-linecap="round" opacity=".92"/>
+  <path d="M39 47l19 22M129 47l-19 22M55 100l-15 37M113 100l15 37" stroke="#c4d7e4" stroke-width="3" opacity=".8"/>
 </g>
 
-<g data-sport="running" transform="translate(197 111)">
-  <path d="M7 15c16 0 24-4 35-12l17 15c10 9 18 11 34 12 8 0 14 7 14 15H6C1 45-2 41 1 36l6-21z" fill="url(#shoe)"/>
-  <path d="M29 17l29 0M36 10l29 16" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".9"/>
-  <path d="M7 45h100" stroke="#173b5a" stroke-width="5" stroke-linecap="round"/>
+<!-- running shoe -->
+<g transform="translate(220 183)" filter="url(#shadow)">
+  <path d="M10 30c17 0 31-6 49-23 7-7 16-7 22 0l18 21c11 13 27 19 55 20 18 1 31 12 34 29l-8 9H16C5 86-1 78 3 67z" fill="url(#shoe)"/>
+  <path d="M56 16c11 5 18 12 27 23 16 18 32 26 57 27 18 1 32 5 40 15" fill="none" stroke="#49b7ff" stroke-width="7" opacity=".55"/>
+  <path d="M18 86h162c9 0 15-5 16-12l2 10c1 10-6 16-17 16H20C10 100 4 95 4 88z" fill="url(#sole)"/>
+  <path d="M21 98h160" stroke="#0c3c61" stroke-width="5" stroke-linecap="round"/>
+  <path d="M53 31l56 21" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity=".94"/>
+  <path d="M62 18l23 9M55 28l28 10M48 39l31 10" stroke="#74c9ff" stroke-width="4" stroke-linecap="round"/>
+  <path d="M145 48c10 3 18 8 24 16" fill="none" stroke="#0b5aa5" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+  <path d="M44 10c8-9 19-13 28-7l10 8" fill="none" stroke="#0d4675" stroke-width="8" stroke-linecap="round"/>
 </g>
 
-<circle cx="235" cy="72" r="8" fill="#ef7f35"/>
-<circle cx="250" cy="83" r="5" fill="#ed3f89"/>
+<!-- small foreground accents -->
+<circle cx="278" cy="168" r="5" fill="#ff9a48"/>
+<circle cx="303" cy="156" r="4" fill="#2ca7ff"/>
 </svg>
