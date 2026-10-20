@@ -17,6 +17,13 @@ test('pathway evidence shell is created for every available card before saved ev
   assert.match(runtime,/No saved evidence yet/);
 });
 
+test('pathway evidence hydration does not retrigger the childList observer forever', () => {
+  assert.match(runtime,/if\s*\(title\s*&&\s*title\.textContent\s*!==\s*nextTitle\)\s*title\.textContent\s*=\s*nextTitle/);
+  assert.match(runtime,/if\s*\(detail\s*&&\s*detail\.textContent\s*!==\s*nextDetail\)\s*detail\.textContent\s*=\s*nextDetail/);
+  assert.doesNotMatch(runtime,/if\s*\(title\)\s*title\.textContent\s*=/);
+  assert.doesNotMatch(runtime,/if\s*\(detail\)\s*detail\.textContent\s*=/);
+});
+
 test('pathway cards reserve a dedicated evidence row from first paint', () => {
   assert.match(css, /grid-template-areas:\s*"identity status"\s*"coverage coverage"\s*"evidence evidence"\s*"ladder ladder"\s*"cta cta"/s);
   assert.match(css, /grid-template-rows:\s*auto\s+auto\s+minmax\(60px,auto\)/s);
