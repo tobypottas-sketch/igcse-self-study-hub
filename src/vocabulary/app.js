@@ -15,7 +15,7 @@ const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
   globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:null, pathwayId:null, pathwayStage:null, mixedReview:false,
   recentActivities:new Map(), usedContentIds:new Map(), recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null, timedPreviousActivityType:null,
-  persistenceChain:Promise.resolve(), persistenceBlocked:false, finishPending:false
+  persistenceChain:Promise.resolve(), persistenceBlocked:false, finishPending:false, unitCache:new Map()
 };
 
 function occurrence(row) { return { occurrenceId:row.occurrence_id, vocabularyId:row.vocabulary_id, unitNumber:row.unit_number, unitTitle:row.unit_title, setNumber:row.set_number, positionInUnit:row.position_in_unit, senseId:row.sense_id }; }
@@ -80,6 +80,19 @@ function renderCurrentUnit() {
 }
 async function openUnit(unitNumber) {
   clearClock();
+  const cached = state.unitCache.get(unitNumber);
+  state.currentUnitNumber = unitNumber;
+  state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.mixedReview = false;
+  if (cached) {
+    state.currentUnitTitle = cached.currentUnitTitle;
+    state.content = cached.content;
+    state.globalMastery = cached.globalMastery;
+    state.unitMastery = cached.unitMastery;
+    state.finishPending = false;
+    renderCurrentUnit();
+    if (state.persistenceBlocked) showSyncWarning(new Error('Vocabulary progress is still unsaved.'));
+    return;
+  }
   const preloadedOccurrences = (state.dashboard?.occurrences ?? []).filter(row => Number(row.unit_number) === Number(unitNumber));
   const loadOptions = preloadedOccurrences.length ? { occurrences:preloadedOccurrences } : {};
   const occurrenceIds = new Set(preloadedOccurrences.map(row => row.occurrence_id));
@@ -87,18 +100,14 @@ async function openUnit(unitNumber) {
   const dashboardMastery = preloadedOccurrences.length && state.dashboard
     ? { global:state.dashboard.global.filter(row => vocabularyIds.has(row.vocabulary_id)), unit:state.dashboard.unit.filter(row => occurrenceIds.has(row.occurrence_id)) }
     : null;
-  state.currentUnitNumber = unitNumber;
   state.currentUnitTitle = preloadedOccurrences[0]?.unit_title ?? state.units.find(unit => Number(unit.unitNumber) === Number(unitNumber))?.unitTitle ?? `Unit ${unitNumber}`;
-  state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.mixedReview = false;
+  state.content = null;
   state.globalMastery = mapBy(dashboardMastery?.global ?? [], 'vocabulary_id', mastery);
   state.unitMastery = mapBy(dashboardMastery?.unit ?? [], 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
   renderCurrentUnit();
   const contentPromise = loadVocabularyUnit(state.client, unitNumber, loadOptions);
   const masteryPromise = state.preview
     ? Promise.resolve({ global:[], unit:[] })
-    // A prior session may still be saving; dashboard mastery can predate that save.
-    : state.session
-      ? state.persistenceChain.then(() => loadStudentMastery(state.client, unitNumber, loadOptions))
     : dashboardMastery
       ? Promise.resolve(dashboardMastery)
       : loadStudentMastery(state.client, unitNumber, loadOptions);
@@ -110,6 +119,7 @@ async function openUnit(unitNumber) {
   for (const ctx of contexts) (state.content.contextsByOccurrence[ctx.occurrenceId] ??= []).push(ctx);
   state.globalMastery = mapBy(masteryRaw.global, 'vocabulary_id', mastery); state.unitMastery = mapBy(masteryRaw.unit, 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
   state.currentUnitTitle = occurrences[0]?.unitTitle ?? state.currentUnitTitle;
+  state.unitCache.set(unitNumber, { content:state.content, globalMastery:state.globalMastery, unitMastery:state.unitMastery, currentUnitTitle:state.currentUnitTitle });
   renderCurrentUnit();
 }
 function strandLabel(value, status) { const score = Number(value ?? 0); if (status === 'mastered' && score >= 3) return 'Secure'; if (score >= 6) return 'Secure'; if (score >= 3) return 'Developing'; return 'Keep practising'; }
@@ -256,6 +266,8 @@ async function returnToCurrentUnit() {
   // Leaving is independent of saving; keep the queued attempt and its sync guard intact.
   clearClock();
   state.current = null;
+  state.session = null;
+  state.queue = [];
   state.pathwayId = null; state.pathwayStage = null; state.mixedReview = false; state.practiceFocus = null;
   renderCurrentUnit();
   if (state.persistenceBlocked) showSyncWarning(new Error('Vocabulary progress is still unsaved.'));
