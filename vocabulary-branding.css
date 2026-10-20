@@ -1,0 +1,22 @@
+.vocab-shell--session .vocab-topbar > span{
+  display:grid;
+  justify-items:end;
+  gap:2px;
+  line-height:1.15;
+}
+
+.vocab-shell--session .vocab-topbar > span::before{
+  content:"Cambridge IGCSE ESL 0511";
+  font-size:.64rem;
+  font-weight:800;
+  letter-spacing:.035em;
+  color:var(--muted);
+  opacity:.72;
+  white-space:nowrap;
+}
+
+@media(max-width:520px){
+  .vocab-shell--session .vocab-topbar > span::before{
+    font-size:.58rem;
+  }
+}
