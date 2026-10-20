@@ -65,7 +65,7 @@ export function buildSessionFinishModel({
   const stars = starsFor(score,denominator,fixedMissionSize);
   const supportCopy = supportCopyFor({ score, denominator, preview });
   const completedStages = Array.isArray(postPathwayState?.completedStages) ? [...postPathwayState.completedStages] : [];
-  const starText = stars == null ? '' : stars === 0 ? ' No stars earned this time.' : ` ${stars} out of 3 stars earned.`;
+  const starText = stars == null || stars === 0 ? '' : ` ${stars} out of 3 stars earned.`;
   const stageText = variant === 'stage-complete'
     ? ` ${startingStageLabel} stage complete. ${nextStageLabel} unlocked.`
     : variant === 'mastered'
