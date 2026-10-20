@@ -5,8 +5,8 @@ import { buildActivity } from '../src/vocabulary/activity-factory.js';
 
 const item = {
   vocabularyId:'vocab_significant', term:'significant', partOfSpeech:'adjective',
-  coreMeaning:'important or large enough to be noticed or have an effect',
-  senses:[{ senseId:'significant_1', meaning:'important or large enough to be noticed or have an effect', acceptedParaphrases:['important','notable'], contextDependentParaphrases:[], misleadingDistractors:['famous','ordinary','tiny'] }],
+  coreMeaning:'of great weight or large enough to be noticed or have an effect',
+  senses:[{ senseId:'significant_1', meaning:'of great weight or large enough to be noticed or have an effect', acceptedParaphrases:['important','notable'], contextDependentParaphrases:[], misleadingDistractors:['famous','ordinary','tiny'] }],
   wordFamily:['significance','significantly'], collocations:['significant increase','significant difference','significant impact']
 };
 const occurrence = { occurrenceId:'u1_46_significant', vocabularyId:item.vocabularyId, unitNumber:1, unitTitle:'Sports and Free Time', senseId:'significant_1' };
@@ -22,7 +22,7 @@ const contexts = [
   { contextId:'sig_prod', vocabularyId:item.vocabularyId, occurrenceId:occurrence.occurrenceId, senseId:'significant_1', type:'production_context', text:'Regular exercise can have an important effect on mental wellbeing.', targetRewrite:'important', acceptedAnswers:['significant'] }
 ];
 const unitActivities = [
-  { activityContentId:'u1_phrase_significant', unitNumber:1, contentType:'phrase_set', status:'live', activityData:{ originalPhrase:'an important improvement', equivalentPhrase:'a significant improvement', acceptedVariants:['a notable improvement'], chunks:['a','significant','improvement'], commonMeaningDistortions:['a tiny improvement','an ordinary improvement','a temporary improvement'], linkedVocabularyIds:[item.vocabularyId], primaryEvidenceTargetId:item.vocabularyId } },
+  { activityContentId:'u1_phrase_significant', unitNumber:1, contentType:'phrase_set', status:'live', activityData:{ originalPhrase:'an important gain', equivalentPhrase:'a significant improvement', acceptedVariants:['a notable improvement'], chunks:['a','significant','improvement'], commonMeaningDistortions:['a tiny improvement','an ordinary improvement','a temporary improvement'], linkedVocabularyIds:[item.vocabularyId], primaryEvidenceTargetId:item.vocabularyId } },
   { activityContentId:'u1_idea_significant', unitNumber:1, contentType:'idea_set', status:'live', activityData:{ originalIdea:'The programme led to a significant improvement in results.', accurateParaphrases:['The programme produced an important improvement in results.','The programme brought about a notable improvement in results.','Results improved in an important way because of the programme.'], meaningInvariants:[{ type:'degree', value:'important improvement' }], distractors:[
     { text:'The programme produced only a tiny improvement in results.', misconceptionCategory:'degree_change' },
     { text:'The programme caused results to become noticeably worse.', misconceptionCategory:'meaning_confusion' },

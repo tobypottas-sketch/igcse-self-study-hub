@@ -16,9 +16,9 @@ test('pathway finish is classified from authoritative post-save pathway state', 
 
 test('finish waits for persistence before it can render authoritative progression', () => {
   const waiting = finishSection.slice(finishSection.indexOf('async function finishSessionWhenSaved'));
-  assert.ok(waiting.indexOf('await state.persistenceChain') >= 0);
-  assert.ok(waiting.indexOf('await state.persistenceChain') < waiting.indexOf('finishSession();'));
-  assert.match(waiting,/if \(state\.persistenceBlocked\)/);
+  assert.ok(waiting.indexOf('await attempts().settled()') >= 0);
+  assert.ok(waiting.indexOf('await attempts().settled()') < waiting.indexOf('finishSession();'));
+  assert.match(waiting,/if \(attempts\(\)\.blocked/);
 });
 
 test('finish renderer receives pathway context and focus moves to the completion heading', () => {

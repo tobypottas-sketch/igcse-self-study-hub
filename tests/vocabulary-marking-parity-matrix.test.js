@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import { ACTIVITY_TYPES, activityDefinition } from '../src/vocabulary/activity-catalogue.js';
 import { buildActivity } from '../src/vocabulary/activity-factory.js';
+import { completeParaphraseBlank } from '../supabase/functions/_shared/vocabulary-phrase-blank.js';
 import { markCuratedAnswer, spotMeaningChangeMarking } from '../supabase/functions/_shared/vocabulary-engine.js';
 
 const LIVE_TYPES = ACTIVITY_TYPES.filter(row => row.retired !== true).map(row => row.id);
@@ -54,11 +55,11 @@ function authoritativeMarking(question) {
 
   if (activity.contentType === 'phrase_set') {
     if (question.type === 'complete_paraphrase') {
-      const chunks = strings(data.chunks);
+      const blank = completeParaphraseBlank(data);
       return {
         contextId:activity.activityContentId,
         activityContentId:activity.activityContentId,
-        acceptedAnswers:chunks.length ? [chunks.at(-1)] : [String(data.equivalentPhrase ?? '')],
+        acceptedAnswers:blank ? [blank.answer] : [String(data.equivalentPhrase ?? '')],
         distractors:[]
       };
     }
