@@ -1,0 +1,207 @@
+/* Final pathway-card composition pass: calm hierarchy, stable first paint, no art/text collisions. */
+.vocab-pathway-card{
+  position:relative;
+  overflow:hidden;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-areas:
+    "identity status"
+    "coverage coverage"
+    "evidence evidence"
+    "ladder ladder"
+    "cta cta"!important;
+  grid-template-rows:auto auto minmax(52px,auto) auto auto!important;
+  column-gap:24px!important;
+  row-gap:14px!important;
+  padding:26px 28px 22px!important;
+  min-height:0!important;
+  border-radius:24px!important;
+  border:1px solid color-mix(in srgb,var(--study-accent) 17%,#dbe7ef)!important;
+  background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%)!important;
+  box-shadow:0 12px 30px rgba(31,63,89,.07)!important;
+}
+
+/* Pathway identity is already carried by the icon and accent. Ambient illustrations added noise and collided with live UI. */
+.vocab-pathway-card__art{display:none!important}
+
+.vocab-pathway-card__identity{
+  grid-area:identity!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:14px!important;
+  min-width:0!important;
+}
+.vocab-pathway-card__icon{
+  flex:0 0 auto!important;
+  width:50px!important;
+  height:50px!important;
+  border-radius:15px!important;
+}
+.vocab-pathway-card__head{
+  display:grid!important;
+  gap:4px!important;
+  min-width:0!important;
+  text-align:left!important;
+}
+.vocab-pathway-card__head strong{
+  font-size:1.32rem!important;
+  line-height:1.08!important;
+  letter-spacing:-.02em!important;
+  color:#173b5a!important;
+}
+.vocab-pathway-card__head small{
+  font-size:.83rem!important;
+  line-height:1.25!important;
+  font-weight:650!important;
+  color:#73879a!important;
+}
+
+.vocab-pathway-card__status{
+  grid-area:status!important;
+  justify-self:end!important;
+  align-self:center!important;
+  flex:0 0 auto!important;
+  margin:0!important;
+  padding:7px 12px!important;
+  border-radius:999px!important;
+  border:1px solid color-mix(in srgb,var(--study-accent) 22%,#ffffff)!important;
+  background:color-mix(in srgb,var(--study-accent-soft) 68%,#ffffff)!important;
+  color:var(--study-accent)!important;
+  font-size:.76rem!important;
+  line-height:1!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+  opacity:1!important;
+}
+
+.vocab-pathway-card__coverage{
+  grid-area:coverage!important;
+  justify-self:start!important;
+  margin:0!important;
+  padding:6px 11px!important;
+  border-radius:999px!important;
+  border:1px solid rgba(43,79,110,.11)!important;
+  background:#f8fbfd!important;
+  color:#647b8f!important;
+  font-size:.74rem!important;
+  font-weight:750!important;
+  line-height:1.15!important;
+}
+
+.vocab-pathway-card__evidence{
+  grid-area:evidence!important;
+  width:100%!important;
+  max-width:none!important;
+  min-height:52px!important;
+  margin:0!important;
+  display:grid!important;
+  grid-template-rows:auto 8px!important;
+  gap:9px!important;
+  align-content:start!important;
+}
+.vocab-pathway-card__evidence-copy{
+  display:flex!important;
+  justify-content:space-between!important;
+  align-items:center!important;
+  gap:18px!important;
+  min-width:0!important;
+}
+.vocab-pathway-card__evidence-copy strong{
+  font-size:.76rem!important;
+  line-height:1.1!important;
+  letter-spacing:.055em!important;
+  text-transform:uppercase!important;
+  color:#2a4c67!important;
+}
+.vocab-pathway-card__evidence-copy small{
+  font-size:.75rem!important;
+  line-height:1.15!important;
+  font-weight:650!important;
+  color:#718596!important;
+  text-align:right!important;
+}
+.vocab-pathway-card__evidence-meter{
+  width:100%!important;
+  height:8px!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+  background:#e6eff4!important;
+  box-shadow:inset 0 1px 2px rgba(23,59,90,.08)!important;
+}
+
+.vocab-pathway-ladder{
+  grid-area:ladder!important;
+  width:100%!important;
+  margin:0!important;
+  padding:10px!important;
+  gap:8px!important;
+  border-radius:18px!important;
+  border:1px solid rgba(43,79,110,.08)!important;
+  background:#f7fafc!important;
+  box-shadow:none!important;
+}
+.vocab-pathway-stage{
+  min-height:62px!important;
+  padding:8px 6px!important;
+  border-radius:13px!important;
+  box-shadow:none!important;
+}
+.vocab-pathway-stage small{
+  font-size:.70rem!important;
+  font-weight:730!important;
+}
+
+.vocab-pathway-card__cta{
+  grid-area:cta!important;
+  width:100%!important;
+  justify-self:stretch!important;
+  margin:0!important;
+  padding-top:14px!important;
+  border-top:1px solid rgba(43,79,110,.08)!important;
+  text-align:right!important;
+  font-size:.80rem!important;
+  line-height:1.1!important;
+  font-weight:800!important;
+  color:#315b78!important;
+  opacity:1!important;
+}
+
+.vocab-pathway-card:hover{
+  transform:translateY(-1px)!important;
+  box-shadow:0 16px 36px rgba(31,63,89,.10)!important;
+}
+
+@media (max-width:760px){
+  .vocab-pathway-card{
+    padding:22px!important;
+    row-gap:12px!important;
+  }
+}
+
+@media (max-width:620px){
+  .vocab-pathway-card{
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-areas:
+      "identity"
+      "status"
+      "coverage"
+      "evidence"
+      "ladder"
+      "cta"!important;
+    grid-template-rows:auto auto auto minmax(58px,auto) auto auto!important;
+    padding:18px!important;
+    row-gap:11px!important;
+  }
+  .vocab-pathway-card__status{
+    justify-self:start!important;
+  }
+  .vocab-pathway-card__evidence-copy{
+    align-items:flex-start!important;
+  }
+  .vocab-pathway-card__evidence-copy small{
+    max-width:52%!important;
+  }
+  .vocab-pathway-card__cta{
+    text-align:left!important;
+  }
+}
