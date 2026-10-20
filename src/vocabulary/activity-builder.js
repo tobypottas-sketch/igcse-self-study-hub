@@ -53,14 +53,29 @@ function linkedToTarget(activity, vocabularyId) {
   const linked = array(object(activity?.activityData).linkedVocabularyIds);
   return linked.length === 0 || linked.includes(vocabularyId);
 }
-function chooseUnitActivity(unitActivities, contentType, vocabularyId, usedContentIds, seed) {
+function chooseUnitActivity(unitActivities, contentType, vocabularyId, usedContentIds, seed, activityType = null) {
   const used = new Set(array(usedContentIds));
   let candidates = array(unitActivities).filter(activity => activity?.contentType === contentType && linkedToTarget(activity, vocabularyId));
   if (!candidates.length) candidates = array(unitActivities).filter(activity => activity?.contentType === contentType);
   if (!candidates.length) throw new Error(`No curated ${contentType} content is available for this activity.`);
   const unused = candidates.filter(activity => !used.has(activity.activityContentId));
   if (unused.length) candidates = unused;
+  else {
+    const fresh = candidates.filter(activity => {
+      const data = object(activity.activityData);
+      const indexes = ['question_text_bridge','find_evidence'].includes(activityType) ? array(data.questions).map((_,index) => index)
+        : activityType === 'same_idea' ? uniqueText(array(data.accurateParaphrases)).map((_,index) => index)
+        : activityType === 'spot_meaning_change' ? spotMeaningChangeDistractorIndexes(data) : [];
+      return indexes.some(index => !used.has(JSON.stringify([activity.activityContentId,activityType,`q${index}`])));
+    });
+    if (fresh.length) candidates = fresh;
+  }
   return stableShuffle(candidates, `${seed}:${contentType}:${vocabularyId}`)[0];
+}
+function freshVariants(values, args, contentId, variantId) {
+  const used = new Set(array(args.usedContentIds));
+  const unused = values.filter(value => !used.has(JSON.stringify([contentId, args.activityType, variantId(value)])));
+  return unused.length ? unused : values;
 }
 function chooseWritingActivity(unitActivities, taskType, vocabularyId, usedContentIds, seed) {
   const used = new Set(array(usedContentIds));
@@ -224,12 +239,12 @@ function wordFamilySwitch(args, definition) {
   return baseActivity({ definition, occurrence:args.occurrence, contentId:writing.activityContentId, prompt:`${text(data.prompt)}\n${text(data.sourceText)}`, markingReference:{ acceptedAnswers }, extra:{ sourceText:text(data.sourceText) || null } });
 }
 function questionTextActivity(args, definition, findEvidence = false) {
-  const record = chooseUnitActivity(args.unitActivities, 'question_text', args.item.vocabularyId, args.usedContentIds, args.seed);
+  const record = chooseUnitActivity(args.unitActivities, 'question_text', args.item.vocabularyId, args.usedContentIds, args.seed, args.activityType);
   const data = object(record.activityData);
   const questions = array(data.questions);
   if (!questions.length) throw new Error('Question ↔ Text content has no curated questions.');
   const indexed = questions.map((question,index) => ({ question, index }));
-  const selected = stableShuffle(indexed, `${args.seed}:${record.activityContentId}:question`)[0];
+  const selected = stableShuffle(freshVariants(indexed,args,record.activityContentId,row => `q${row.index}`), `${args.seed}:${record.activityContentId}:question`)[0];
   const question = selected.question;
   const evidenceAnswers = uniqueText(array(question.evidenceSpans));
   if (!evidenceAnswers.length) throw new Error('Question ↔ Text content has no curated evidence span.');
@@ -315,12 +330,12 @@ function rewritePhrase(args, definition) {
   const record = phraseRecord(args), data = object(record.activityData);
   return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Rewrite this phrase without changing its meaning: “${text(data.originalPhrase)}”`, markingReference:{ acceptedAnswers:uniqueText([data.equivalentPhrase, ...array(data.acceptedVariants)]), distractors:phraseDistractors(data) }, extra:{ sourcePhrase:text(data.originalPhrase) } });
 }
-function ideaRecord(args) { return chooseUnitActivity(args.unitActivities, 'idea_set', args.item.vocabularyId, args.usedContentIds, args.seed); }
+function ideaRecord(args) { return chooseUnitActivity(args.unitActivities, 'idea_set', args.item.vocabularyId, args.usedContentIds, args.seed, args.activityType); }
 function sameIdea(args, definition) {
   const record = ideaRecord(args), data = object(record.activityData);
   const acceptedAnswers = uniqueText(array(data.accurateParaphrases));
   const indexedAnswers = acceptedAnswers.map((value,index) => ({ value, index }));
-  const selected = stableShuffle(indexedAnswers, `${args.seed}:${record.activityContentId}:same-idea-answer`)[0];
+  const selected = stableShuffle(freshVariants(indexedAnswers,args,record.activityContentId,row => `q${row.index}`), `${args.seed}:${record.activityContentId}:same-idea-answer`)[0];
   const reference = selected?.value ?? text(data.originalIdea);
   const activityVariantId = `q${selected?.index ?? 0}`;
   const ownWrong = array(data.distractors).map(row => text(row?.text)).filter(Boolean);
@@ -339,9 +354,9 @@ function sameIdea(args, definition) {
 function spotMeaningChange(args, definition) {
   const ready = array(args.unitActivities).filter(activity => activity?.contentType === 'idea_set' && isSpotMeaningChangeReady(activity.activityData));
   if (!ready.length) throw new Error('Spot the Meaning Change requires three curated same-meaning rewrites and one curated meaning-change distractor.');
-  const record = chooseUnitActivity(ready, 'idea_set', args.item.vocabularyId, args.usedContentIds, args.seed), data = object(record.activityData);
+  const record = chooseUnitActivity(ready, 'idea_set', args.item.vocabularyId, args.usedContentIds, args.seed, args.activityType), data = object(record.activityData);
   const seedKey = `${args.seed}:${record.activityContentId}:meaning-change`;
-  const [distractorIndex] = stableShuffle(spotMeaningChangeDistractorIndexes(data), `${seedKey}:distractor`);
+  const [distractorIndex] = stableShuffle(freshVariants(spotMeaningChangeDistractorIndexes(data),args,record.activityContentId,index => `q${index}`), `${seedKey}:distractor`);
   const activityVariantId = `q${distractorIndex}`;
   const marking = spotMeaningChangeMarking(data, activityVariantId);
   const sameMeaning = stableShuffle(spotMeaningChangeSameMeaningRewrites(data), `${seedKey}:same-meaning`).slice(0, 3);

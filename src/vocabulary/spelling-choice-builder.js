@@ -67,15 +67,14 @@ function blankableContext({ item, contexts, usedContentIds = [], seed = '' }) {
     const source = text(context?.text);
     const rewrite = text(context?.targetRewrite);
     const accepted = array(context?.acceptedAnswers).map(value => text(value).toLocaleLowerCase('en'));
-    return !used.has(String(context?.contextId ?? ''))
-      && ['paraphrase_context','production_context'].includes(context?.type)
+    return ['paraphrase_context','production_context'].includes(context?.type)
       && source
       && rewrite
       && source.toLocaleLowerCase('en').includes(rewrite.toLocaleLowerCase('en'))
       && accepted.includes(term);
   });
-  if (!candidates.length) throw new Error('No unused curated sentence cue is available for Spelling Recognise.');
-  return shuffle(candidates,`${seed}:spelling-choice-context`)[0];
+  const unused = candidates.filter(context => !used.has(String(context.contextId)));
+  return shuffle(unused.length ? unused : candidates,`${seed}:spelling-choice-context`)[0] ?? null;
 }
 function base({ definition, occurrence, contentId, contentSource, prompt, acceptedAnswer, options, extra = {} }) {
   return {
@@ -111,7 +110,8 @@ export function buildSpellingChoiceActivity({ occurrence, item, contexts = [], u
   const stableItemId = itemContentId({item,occurrence});
   const used = new Set(array(usedContentIds).map(String));
 
-  if (!used.has(stableItemId)) {
+  const context = used.has(stableItemId) ? blankableContext({item,contexts,usedContentIds,seed}) : null;
+  if (!context) {
     return base({
       definition,
       occurrence,
@@ -123,7 +123,6 @@ export function buildSpellingChoiceActivity({ occurrence, item, contexts = [], u
     });
   }
 
-  const context = blankableContext({item,contexts,usedContentIds,seed});
   const sourceText = text(context.text).replace(new RegExp(escapeRegExp(text(context.targetRewrite)),'i'),'____');
   if (!sourceText.includes('____')) throw new Error('Curated spelling sentence could not form a valid blank.');
   return base({
