@@ -1870,5 +1870,855 @@ export default Object.freeze({
       diagnosed('success','success is the general result of doing well; an achievement is a specific thing you have done.'),
       diagnosed('attempt','an attempt is trying to do something; an achievement is something successfully done.')
     ]
+  },
+  elite:{
+    definitionDistractors:[
+      'belonging to the group with the most members',
+      'chosen by the public rather than by experts',
+      'famous mainly because of expensive equipment',
+      'only just good enough to be allowed to compete',
+      'very experienced but no longer competing',
+      'trained for a long time but never yet tested'
+    ],
+    spellingErrors:['elit','eilte','ellite','elete','elyte','elitte'],
+    contexts:[
+      {
+        id:'elite_ctx_1',
+        text:'Only a tiny group of ____ runners, chosen from thousands of competitors, are invited to the national training camp.',
+        answer:'elite',
+        distractors:[
+          diagnosed('local','Fits grammatically, but local runners are from one area, and the sentence says these few were chosen from thousands nationally.'),
+          diagnosed('junior','Fits grammatically, but junior means young, but the sentence is about the very highest level, not age.'),
+          diagnosed('keen','Fits grammatically, but keen means enthusiastic, which does not explain being chosen from thousands.')
+        ]
+      },
+      {
+        id:'elite_ctx_2',
+        text:'Joining an ____ club means training with the best players in the country and competing at the highest level.',
+        answer:'elite',
+        distractors:[
+          diagnosed('amateur','Fits grammatically, but an amateur club is for people who play for fun, but the sentence describes the best players at the highest level.'),
+          diagnosed('ordinary','Fits grammatically, but an ordinary club contradicts training with the best players in the country.'),
+          diagnosed('open','Fits grammatically, but an open club accepts anyone, but the sentence describes the highest level of competition.')
+        ]
+      },
+      {
+        id:'elite_ctx_3',
+        text:'At the Olympics, the world’s ____ athletes compete for the medals, and only the very best in each sport qualify.',
+        answer:'elite',
+        distractors:[
+          diagnosed('fit','Fits grammatically, but fit means healthy, but the sentence is about being among the very best in each sport.'),
+          diagnosed('local','Fits grammatically, but local means from one area, but the sentence says the world’s best qualify.'),
+          diagnosed('regular','Fits grammatically, but regular means usual, which contradicts only the very best qualify.')
+        ]
+      },
+      {
+        id:'elite_ctx_4',
+        text:'Her coach said she had the ability to reach ____ level, which means competing against the best in the world.',
+        answer:'elite',
+        distractors:[
+          diagnosed('beginner','Fits grammatically, but beginner level is the lowest stage, which contradicts competing against the best in the world.'),
+          diagnosed('average','Fits grammatically, but average level is the middle, which contradicts competing against the best in the world.'),
+          diagnosed('local','Fits grammatically, but local level means competing in one area, but the sentence mentions the best in the world.')
+        ]
+      },
+      {
+        id:'elite_ctx_5',
+        text:'Scholarships are offered to ____ sports people only, those who rank in the top one per cent nationally.',
+        answer:'elite',
+        distractors:[
+          diagnosed('casual','Fits grammatically, but casual means not serious, which contradicts the top one per cent nationally.'),
+          diagnosed('keen','Fits grammatically, but keen means enthusiastic, but the sentence is about ranking in the top one per cent.'),
+          diagnosed('young','Fits grammatically, but young refers to age, but the sentence is about ranking in the top one per cent.')
+        ]
+      },
+      {
+        id:'elite_ctx_6',
+        text:'Several ____ footballers were seen training together at the new academy, but most of the students there were still beginners.',
+        answer:'elite',
+        distractors:[
+          diagnosed('basic','Fits grammatically, but basic describes a low level of skill, but the sentence contrasts the footballers with the beginners.'),
+          diagnosed('local','Fits grammatically, but local refers to the area, but the sentence contrasts the footballers with the beginners by level.'),
+          diagnosed('curious','Fits grammatically, but curious means interested, which does not contrast with beginners by level.')
+        ]
+      }
+    ],
+    misuseSentences:[
+      diagnosed('She is an elite of the team.','elite is mainly an adjective before a noun; use she is one of the elite or an elite player.'),
+      diagnosed('He is elite at running a long time.','elite describes a level, not how long he runs; say he is an elite runner.'),
+      diagnosed('The elites athletes train every day.','elite as an adjective has no plural s; say the elite athletes.'),
+      diagnosed('They are the most elite team.','elite already means the highest level, so most is unnecessary.')
+    ],
+    patterns:['elite + noun','an elite level of + noun','the elite (of + noun)'],
+    collocations:['elite athlete','elite level','elite sport'],
+    contrasts:[
+      diagnosed('professional','professional means paid to do an activity; elite means among the very best, whether paid or not.'),
+      diagnosed('average','average is the opposite end of the scale: ordinary or in the middle.')
+    ]
+  },
+  overwhelming:{
+    definitionDistractors:[
+      'so small that it is almost impossible to notice',
+      'so common that people no longer pay attention to it',
+      'happening slowly over a very long period of time',
+      'difficult to understand because it is so complicated',
+      'more than is needed for a particular purpose',
+      'coming as a surprise to everyone who sees it'
+    ],
+    spellingErrors:['overwelming','overwhelmeng','overwhleming','overwhellming','overwhealming','overwhelning'],
+    contexts:[
+      {
+        id:'overwhelming_ctx_1',
+        text:'The support from the home crowd was so ____ that the young players could hardly think or hear their coach.',
+        answer:'overwhelming',
+        distractors:[
+          diagnosed('overwhelmed','Fits grammatically, but overwhelmed describes how a person feels, but the sentence describes the support that caused the feeling.'),
+          diagnosed('overwhelmingly','Fits grammatically, but overwhelmingly is an adverb, but the missing word describes the noun support.'),
+          diagnosed('impressive','Fits grammatically, but impressive means admirable, which does not explain players being unable to think or hear.')
+        ]
+      },
+      {
+        id:'overwhelming_ctx_2',
+        text:'Voters gave the new mayor an ____ majority, with more than ninety per cent supporting her.',
+        answer:'overwhelming',
+        distractors:[
+          diagnosed('average','Fits grammatically, but an average majority is ordinary, which does not fit more than ninety per cent.'),
+          diagnosed('overwhelmed','Fits grammatically, but overwhelmed describes how a person feels, not a majority.'),
+          diagnosed('unconvincing','Fits grammatically, but unconvincing means not persuasive, which does not describe a result of more than ninety per cent.')
+        ]
+      },
+      {
+        id:'overwhelming_ctx_3',
+        text:'After weeks of training, he felt an ____ sense of relief when the race was over, and he cried at the finish line.',
+        answer:'overwhelming',
+        distractors:[
+          diagnosed('ordinary','Fits grammatically, but ordinary contradicts crying at the finish line.'),
+          diagnosed('overwhelmed','Fits grammatically, but overwhelmed describes how a person feels, but the missing word describes the sense of relief itself.'),
+          diagnosed('disappointing','Fits grammatically, but disappointing means worse than hoped, which does not fit relief that made him cry.')
+        ]
+      },
+      {
+        id:'overwhelming_ctx_4',
+        text:'There was ____ evidence that the player had broken the rules: video, witnesses and his own messages.',
+        answer:'overwhelming',
+        distractors:[
+          diagnosed('partial','Fits grammatically, but partial means incomplete, which contradicts video, witnesses and his own messages.'),
+          diagnosed('disappointing','Fits grammatically, but disappointing means worse than hoped, which does not describe the strength of the evidence.'),
+          diagnosed('overwhelmed','Fits grammatically, but overwhelmed describes how a person feels, not evidence.')
+        ]
+      },
+      {
+        id:'overwhelming_ctx_5',
+        text:'The amount of homework this week has been ____; many students have stopped trying to finish it all.',
+        answer:'overwhelming',
+        distractors:[
+          diagnosed('overwhelmed','Fits grammatically, but overwhelmed describes how people feel, but the homework itself is described.'),
+          diagnosed('manageable','Fits grammatically, but manageable contradicts many students have stopped trying.'),
+          diagnosed('unsatisfactory','Fits grammatically, but unsatisfactory means not good enough, but the sentence says the amount was too great to manage.')
+        ]
+      },
+      {
+        id:'overwhelming_ctx_6',
+        text:'An ____ response from fans, with thousands of messages in a single day, surprised the club.',
+        answer:'overwhelming',
+        distractors:[
+          diagnosed('exciting','Fits grammatically, but exciting is possible, but it does not show the response was too great to deal with.'),
+          diagnosed('ordinary','Fits grammatically, but ordinary contradicts thousands of messages in a single day and the club being surprised.'),
+          diagnosed('unsatisfactory','Fits grammatically, but unsatisfactory means not good enough, which contradicts a response that surprised the club.')
+        ]
+      }
+    ],
+    misuseSentences:[
+      diagnosed('The crowd was overwhelming and I felt overwhelming.','overwhelming describes what causes the feeling; the person who feels it is overwhelmed.'),
+      diagnosed('They won overwhelming the match.','overwhelming is an adjective; the adverb is overwhelmingly, and it would go before the verb.'),
+      diagnosed('It was an overwhelm victory.','the adjective is overwhelming.'),
+      diagnosed('She was overwhelming by the attention.','she was overwhelmed by the attention.')
+    ],
+    patterns:['overwhelming + noun','be overwhelming','overwhelmingly + adjective'],
+    collocations:['overwhelming majority','overwhelming evidence','overwhelming support'],
+    contrasts:[
+      diagnosed('overwhelmed','overwhelmed describes the person affected; overwhelming describes the thing that causes the feeling.'),
+      diagnosed('huge','huge only means very large; overwhelming adds that it is too great to manage or resist.')
+    ]
+  },
+  generation:{
+    definitionDistractors:[
+      'a group of people who work for the same company',
+      'a period of one hundred years in history',
+      'a family that includes parents, children and grandparents',
+      'the group of people who live in the same town',
+      'a number of events that happen one after another',
+      'a team of young players chosen for a competition'
+    ],
+    spellingErrors:['genaration','generatoin','generasion','generetion','generaton','jeneration'],
+    contexts:[
+      {
+        id:'generation_ctx_1',
+        text:'People born in the nineties are often described as part of the same ____, because they grew up with similar technology.',
+        answer:'generation',
+        distractors:[
+          diagnosed('neighbourhood','Fits grammatically, but a neighbourhood is a group of people living in the same area, but born in the nineties describes people born in the same period.'),
+          diagnosed('population','Fits grammatically, but a population is all the people in a place, but born in the nineties describes people born in the same period.'),
+          diagnosed('society','Fits grammatically, but a society is a large group of people living together, but born in the nineties describes people born in the same period.')
+        ]
+      },
+      {
+        id:'generation_ctx_2',
+        text:'A new ____ of players, all born after the year 2005, is replacing the champions who dominated the sport for years.',
+        answer:'generation',
+        distractors:[
+          diagnosed('organisation','Fits grammatically, but an organisation is a formal group with a purpose, but born after the year 2005 describes a group defined by birth years.'),
+          diagnosed('committee','Fits grammatically, but a committee is a group that makes decisions, not a group defined by birth years.'),
+          diagnosed('audience','Fits grammatically, but an audience watches an event, not a group defined by birth years.')
+        ]
+      },
+      {
+        id:'generation_ctx_3',
+        text:'Each ____ of people, born within a few years of each other, grows up with different music, technology and ideas about work.',
+        answer:'generation',
+        distractors:[
+          diagnosed('century','Fits grammatically, but a century is one hundred years, which is much longer than a few years of each other.'),
+          diagnosed('decade','Fits grammatically, but a decade is ten years, but a few years of each other describes people born around the same time, not a block of ten years.'),
+          diagnosed('population','Fits grammatically, but a population is all the people in a place, not a group born around the same time.')
+        ]
+      },
+      {
+        id:'generation_ctx_4',
+        text:'Sports clubs hope that parents will pass their love of football to the next ____.',
+        answer:'generation',
+        distractors:[
+          diagnosed('season','Fits grammatically, but a season is part of the year, and love of football is passed to people, not to a season.'),
+          diagnosed('neighbourhood','Fits grammatically, but a neighbourhood is a place where people live, but the sentence talks about passing love of football from parents to people who come after them.'),
+          diagnosed('century','Fits grammatically, but a century is a period of time, not a group of people.')
+        ]
+      },
+      {
+        id:'generation_ctx_5',
+        text:'Anyone whose birth falls within the same fifteen years belongs to one ____ and often shares similar views about money and work.',
+        answer:'generation',
+        distractors:[
+          diagnosed('family','Fits grammatically, but a family is made up of relatives, not people born in the same years.'),
+          diagnosed('neighbourhood','Fits grammatically, but a neighbourhood is a place where people live, not a group defined by birth years.'),
+          diagnosed('community','Fits grammatically, but a community is a group in one place, not people born in the same years.')
+        ]
+      },
+      {
+        id:'generation_ctx_6',
+        text:'The gap between grandparents and their grandchildren shows up in how each ____ spends its free time.',
+        answer:'generation',
+        distractors:[
+          diagnosed('family','Fits grammatically, but a family includes both grandparents and grandchildren, but the sentence contrasts the two age groups.'),
+          diagnosed('organisation','Fits grammatically, but an organisation is a formal group with a purpose, not an age group.'),
+          diagnosed('society','Fits grammatically, but a society is a whole population, but the sentence contrasts two age groups within it.')
+        ]
+      }
+    ],
+    misuseSentences:[
+      diagnosed('Each generations has its own music.','after each use the singular generation.'),
+      diagnosed('Three generation of my family live here.','generation needs the plural s after three.'),
+      diagnosed('She is the generation of my brother.','generation names a group of people born around the same time, not one person.'),
+      diagnosed('A generation is a person who was born in 1990.','a generation is a whole group of people born around the same time, not one person.')
+    ],
+    patterns:['a generation of + noun','the older / younger generation','generation gap'],
+    collocations:['older generation','younger generation','new generation'],
+    contrasts:[
+      diagnosed('age group','an age group can cover any range of ages; a generation is people born and living at roughly the same time.'),
+      diagnosed('family','a family is related people; a generation can include people who are not related.')
+    ]
+  },
+  challenge:{
+    definitionDistractors:[
+      'a prize given to the winner of a competition',
+      'a mistake that cannot be corrected later',
+      'a rule that must be followed by everyone',
+      'a situation that makes life easier for people',
+      'a group of people who are chosen to represent a country',
+      'a skill that a person was born with'
+    ],
+    spellingErrors:['chalenge','challange','chalenje','chalange','challege','chalengge'],
+    contexts:[
+      {
+        id:'challenge_ctx_1',
+        text:'The coach set the squad a ____: to run ten kilometres without stopping, to test their fitness.',
+        answer:'challenge',
+        distractors:[
+          diagnosed('rule','Fits grammatically, but a rule says what you must do, but to test their fitness describes a task that tests ability.'),
+          diagnosed('reward','Fits grammatically, but a reward is a prize, but to test their fitness describes a task that tests ability.'),
+          diagnosed('schedule','Fits grammatically, but a schedule is a plan of times, but to test their fitness describes a task that tests ability.')
+        ]
+      },
+      {
+        id:'challenge_ctx_2',
+        text:'Playing the champions away from home will be a serious ____ for our young team, but we are ready to try.',
+        answer:'challenge',
+        distractors:[
+          diagnosed('mistake','Fits grammatically, but a mistake is an error, which does not fit a team that is ready to try.'),
+          diagnosed('tradition','Fits grammatically, but a tradition is a long-standing custom, not a difficult test for the team.'),
+          diagnosed('victory','Fits grammatically, but a victory is a win, but the sentence says the team is only ready to try.')
+        ]
+      },
+      {
+        id:'challenge_ctx_3',
+        text:'Learning an instrument as an adult is a ____ because it tests your patience and memory every day.',
+        answer:'challenge',
+        distractors:[
+          diagnosed('habit','Fits grammatically, but a habit is something done automatically, but the sentence says it tests patience and memory.'),
+          diagnosed('success','Fits grammatically, but a success is a good result, but the sentence is about how hard the learning is.'),
+          diagnosed('punishment','Fits grammatically, but a punishment is a penalty, which does not describe learning an instrument that tests patience and memory.')
+        ]
+      },
+      {
+        id:'challenge_ctx_4',
+        text:'Many people accept the ____ of running a marathon to raise money for charity, even though they have never run far.',
+        answer:'challenge',
+        distractors:[
+          diagnosed('cost','Fits grammatically, but a cost is a price, but the sentence is about taking on something difficult.'),
+          diagnosed('habit','Fits grammatically, but a habit is something done regularly, but they have never run far.'),
+          diagnosed('punishment','Fits grammatically, but a punishment is a penalty, which does not fit raising money for charity.')
+        ]
+      },
+      {
+        id:'challenge_ctx_5',
+        text:'Finding enough time for training while studying full-time is the biggest ____ for most athletes at university.',
+        answer:'challenge',
+        distractors:[
+          diagnosed('advantage','Fits grammatically, but an advantage is a benefit, which does not fit finding enough time being difficult.'),
+          diagnosed('excuse','Fits grammatically, but an excuse is a reason given for not doing something, but the sentence describes a real difficulty.'),
+          diagnosed('habit','Fits grammatically, but a habit is something done automatically, not something that is hard to find time for.')
+        ]
+      },
+      {
+        id:'challenge_ctx_6',
+        text:'The new course is a ____ even for experienced players: every exercise tests a different skill.',
+        answer:'challenge',
+        distractors:[
+          diagnosed('tradition','Fits grammatically, but a tradition is a long-standing custom, but every exercise tests a different skill describes difficulty.'),
+          diagnosed('relief','Fits grammatically, but a relief is the end of a worry, which contradicts every exercise tests a different skill.'),
+          diagnosed('reward','Fits grammatically, but a reward is a prize, but every exercise tests a skill, which is about difficulty.')
+        ]
+      }
+    ],
+    misuseSentences:[
+      diagnosed('It is a big challenge for I.','after for use the object pronoun me.'),
+      diagnosed('She challenges very much.','challenge as a verb needs an object, such as she challenges her teammates.'),
+      diagnosed('We accepted the challenge to win.','the pattern is accept the challenge of winning.'),
+      diagnosed('That is a challenging for me.','challenging is an adjective; use a challenge for me or that is challenging for me.')
+    ],
+    patterns:['face a challenge','rise to a challenge','a challenge for + person'],
+    collocations:['major challenge','face a challenge','meet the challenge'],
+    contrasts:[
+      diagnosed('problem','a problem is something wrong that needs fixing; a challenge is a difficult task that tests ability.'),
+      diagnosed('opportunity','an opportunity is a chance; a challenge is a difficulty that tests you.')
+    ]
+  },
+  solution:{
+    definitionDistractors:[
+      'the cause of a difficulty that someone is facing',
+      'a question that a teacher asks the whole class',
+      'the result of a competition after the last game',
+      'an opinion about how well a team has played',
+      'a rule that stops people from solving a problem',
+      'a reason that people give for their mistakes'
+    ],
+    spellingErrors:['solusion','solutoin','soloution','soluton','sollution','solucion'],
+    contexts:[
+      {
+        id:'solution_ctx_1',
+        text:'The club finally found a ____ to the shortage of training space by sharing the school gym.',
+        answer:'solution',
+        distractors:[
+          diagnosed('threat','Fits grammatically, but a threat is a danger, but by sharing the school gym describes dealing with the shortage.'),
+          diagnosed('reaction','Fits grammatically, but a reaction is how someone responds, but by sharing the school gym describes a way of dealing with the shortage.'),
+          diagnosed('introduction','Fits grammatically, but an introduction is a first presentation, not a way of dealing with a shortage.')
+        ]
+      },
+      {
+        id:'solution_ctx_2',
+        text:'One practical ____ to the noise problem is to move the matches to the afternoon.',
+        answer:'solution',
+        distractors:[
+          diagnosed('cause','Fits grammatically, but a cause is what creates the problem, but to move the matches describes a way of dealing with it.'),
+          diagnosed('danger','Fits grammatically, but a danger is a risk, but to move the matches describes a way of dealing with it.'),
+          diagnosed('reaction','Fits grammatically, but a reaction is how someone responds, but to move the matches describes a way of dealing with it.')
+        ]
+      },
+      {
+        id:'solution_ctx_3',
+        text:'There is no simple ____ to the problem of injuries among young athletes, but good coaching helps.',
+        answer:'solution',
+        distractors:[
+          diagnosed('reason','Fits grammatically, but a reason explains why something happens, but good coaching helps describes a way of dealing with it.'),
+          diagnosed('guarantee','Fits grammatically, but a guarantee is a promise, but good coaching helps describes a way of reducing the problem.'),
+          diagnosed('explanation','Fits grammatically, but an explanation says why something happens, but good coaching helps describes a way of dealing with it.')
+        ]
+      },
+      {
+        id:'solution_ctx_4',
+        text:'The mechanic said that the engine fault had no easy ____, and that the whole part would have to be replaced.',
+        answer:'solution',
+        distractors:[
+          diagnosed('cause','Fits grammatically, but a cause is what created the fault, but would have to be replaced describes a way of dealing with it.'),
+          diagnosed('warning','Fits grammatically, but a warning tells people about danger, but would have to be replaced describes a way of dealing with it.'),
+          diagnosed('price','Fits grammatically, but a price is a cost, but would have to be replaced describes a way of dealing with the fault.')
+        ]
+      },
+      {
+        id:'solution_ctx_5',
+        text:'Instead of giving advice, the teacher asked the students to work out the ____ to the puzzle themselves.',
+        answer:'solution',
+        distractors:[
+          diagnosed('question','Fits grammatically, but a question is what must be answered, but work out ... themselves describes finding the answer.'),
+          diagnosed('clue','Fits grammatically, but a clue is a hint, but work out ... themselves describes finding the final answer.'),
+          diagnosed('beginning','Fits grammatically, but a beginning is the start, but work out describes finding the answer.')
+        ]
+      },
+      {
+        id:'solution_ctx_6',
+        text:'Sharing equipment turned out to be a cheap ____ when the club could not afford new balls.',
+        answer:'solution',
+        distractors:[
+          diagnosed('trick','Fits grammatically, but a cheap trick is an unfair way of getting an advantage, which does not describe a way of dealing with the lack of money.'),
+          diagnosed('habit','Fits grammatically, but a habit is something done regularly, not a way of dealing with the lack of money.'),
+          diagnosed('rule','Fits grammatically, but a rule says what must be done, not a way of dealing with the lack of money.')
+        ]
+      }
+    ],
+    misuseSentences:[
+      diagnosed('The solution of the problem is difficult.','the usual pattern is solution to the problem.'),
+      diagnosed('I solution the puzzle.','solution is a noun; the verb is solve.'),
+      diagnosed('We found a solve.','solve is a verb; the noun is solution.'),
+      diagnosed('The problem has a many solution.','solution needs the plural solutions after many.')
+    ],
+    patterns:['a solution to + problem','find a solution','a solution for + noun'],
+    collocations:['find a solution','practical solution','simple solution'],
+    contrasts:[
+      diagnosed('problem','a problem is a difficulty; a solution is a way of dealing with it.'),
+      diagnosed('answer','answer is close in meaning, but a solution usually deals with a problem rather than a question.')
+    ]
+  },
+  pastime:{
+    definitionDistractors:[
+      'a job that someone does for money in the evening',
+      'an event that takes place once every year',
+      'a rule of a game that is not written down',
+      'a short break that people take during work',
+      'a skill that is learned at school or college',
+      'a regular chore that someone must do at home'
+    ],
+    spellingErrors:['pasttime','pastim','pastyme','passtime','pasetime','pastimme'],
+    contexts:[
+      {
+        id:'pastime_ctx_1',
+        text:'Collecting old coins is a popular ____ among retired people, who enjoy it in the afternoons.',
+        answer:'pastime',
+        distractors:[
+          diagnosed('profession','Fits grammatically, but a profession is a job, but retired people enjoy it in the afternoons describes something done for pleasure.'),
+          diagnosed('routine','Fits grammatically, but a routine is a regular set of tasks, but who enjoy it describes something done for pleasure.'),
+          diagnosed('subject','Fits grammatically, but a subject is something studied at school, but who enjoy it describes something done for pleasure.')
+        ]
+      },
+      {
+        id:'pastime_ctx_2',
+        text:'For many teenagers, playing video games is a favourite ____, not a way of earning money.',
+        answer:'pastime',
+        distractors:[
+          diagnosed('profession','Fits grammatically, but a profession is a job, which the sentence rules out with not a way of earning money.'),
+          diagnosed('subject','Fits grammatically, but a subject is something studied at school, not something done for enjoyment.'),
+          diagnosed('duty','Fits grammatically, but a duty is something you must do, but favourite describes something enjoyed.')
+        ]
+      },
+      {
+        id:'pastime_ctx_3',
+        text:'Cricket began as a village ____, played on summer evenings for fun, before it became a professional sport.',
+        answer:'pastime',
+        distractors:[
+          diagnosed('business','Fits grammatically, but a business is run to earn money, but played on summer evenings for fun describes an activity enjoyed.'),
+          diagnosed('profession','Fits grammatically, but a profession is a job, but played on summer evenings for fun describes an activity enjoyed.'),
+          diagnosed('duty','Fits grammatically, but a duty is something you must do, but for fun describes an activity enjoyed.')
+        ]
+      },
+      {
+        id:'pastime_ctx_4',
+        text:'Her favourite ____ is walking in the hills on Sunday mornings, when she has no homework.',
+        answer:'pastime',
+        distractors:[
+          diagnosed('subject','Fits grammatically, but a subject is something studied at school, but she has no homework shows this is free-time enjoyment.'),
+          diagnosed('lesson','Fits grammatically, but a lesson is a period of teaching, but she has no homework shows this is free-time enjoyment.'),
+          diagnosed('task','Fits grammatically, but a task is a piece of work, but she has no homework shows this is free-time enjoyment.')
+        ]
+      },
+      {
+        id:'pastime_ctx_5',
+        text:'Not everyone sees fishing as an exciting ____, but millions of people enjoy it as a relaxing activity every week.',
+        answer:'pastime',
+        distractors:[
+          diagnosed('event','Fits grammatically, but an event happens once at a particular time, but every week shows something done regularly.'),
+          diagnosed('season','Fits grammatically, but a season is part of the year, not an activity people do every week.'),
+          diagnosed('lesson','Fits grammatically, but a lesson is a period of teaching, but relaxing activity describes something enjoyed.')
+        ]
+      },
+      {
+        id:'pastime_ctx_6',
+        text:'Many parents want their children to find a healthy ____ that is not connected to screens.',
+        answer:'pastime',
+        distractors:[
+          diagnosed('diet','Fits grammatically, but a diet is what you eat, but not connected to screens describes an activity.'),
+          diagnosed('subject','Fits grammatically, but a subject is studied at school, but a healthy activity to enjoy is described.'),
+          diagnosed('career','Fits grammatically, but a career is a long-term job, but a healthy activity to enjoy is described.')
+        ]
+      }
+    ],
+    misuseSentences:[
+      diagnosed('Football is my pastime job.','a pastime is done for enjoyment in free time, not as a job.'),
+      diagnosed('I pastime on Sundays.','pastime is a noun, not a verb; say my pastime is... or I spend time on...'),
+      diagnosed('Reading is a pastimes.','pastime needs a singular article with a singular noun, so say a pastime.'),
+      diagnosed('His pastime is to work in the factory.','a pastime is done for enjoyment, not work.')
+    ],
+    patterns:['a favourite pastime','a popular pastime','enjoy a pastime'],
+    collocations:['popular pastime','favourite pastime','national pastime'],
+    contrasts:[
+      diagnosed('hobby','hobby is very close in meaning; pastime is slightly more formal and often describes something many people do.'),
+      diagnosed('chore','a chore is a task you have to do, whereas a pastime is something you do for enjoyment.')
+    ]
+  },
+  feat:{
+    definitionDistractors:[
+      'a mistake that has serious results',
+      'a strong feeling of worry about danger',
+      'a meeting of two people for the first time',
+      'the part of the body used for walking',
+      'a result that nobody expected to happen',
+      'a rule that changes how a game is played'
+    ],
+    spellingErrors:['feet','fete','feit','feate','fiet','feeat'],
+    contexts:[
+      {
+        id:'feat_ctx_1',
+        text:'Climbing Everest without extra oxygen was a remarkable ____ that few people have ever repeated.',
+        answer:'feat',
+        distractors:[
+          diagnosed('fear','Fits grammatically, but fear is a feeling, not an achievement that few people repeat.'),
+          diagnosed('fate','Fits grammatically, but fate is what happens to someone, not an achievement that few people repeat.'),
+          diagnosed('fact','Fits grammatically, but a fact is something true, but remarkable and few people have ever repeated describes an achievement.')
+        ]
+      },
+      {
+        id:'feat_ctx_2',
+        text:'Swimming the English Channel in under seven hours is an incredible ____ of strength and stamina.',
+        answer:'feat',
+        distractors:[
+          diagnosed('fate','Fits grammatically, but fate is what happens to someone, but of strength and stamina describes an achievement.'),
+          diagnosed('fear','Fits grammatically, but fear is a feeling, but of strength and stamina describes an achievement.'),
+          diagnosed('feet','Fits grammatically, but feet are parts of the body, but of strength and stamina describes an achievement.')
+        ]
+      },
+      {
+        id:'feat_ctx_3',
+        text:'Building a bridge across the river in just six weeks was an engineering ____ that impressed everyone.',
+        answer:'feat',
+        distractors:[
+          diagnosed('fault','Fits grammatically, but a fault is a mistake, which contradicts impressed everyone.'),
+          diagnosed('failure','Fits grammatically, but a failure is a mistake or collapse, which contradicts impressed everyone.'),
+          diagnosed('fear','Fits grammatically, but fear is a feeling, not something done that impressed everyone.')
+        ]
+      },
+      {
+        id:'feat_ctx_4',
+        text:'It was no small ____ for a school with only two hundred pupils to win the national championship.',
+        answer:'feat',
+        distractors:[
+          diagnosed('fault','Fits grammatically, but a fault is a mistake, which does not fit winning a national championship.'),
+          diagnosed('favour','Fits grammatically, but a favour is a kind act, but winning a national championship describes an achievement.'),
+          diagnosed('fee','Fits grammatically, but a fee is a payment, which does not fit winning a national championship.')
+        ]
+      },
+      {
+        id:'feat_ctx_5',
+        text:'Landing a triple somersault on her first attempt was a ____ that earned the gymnast a standing ovation.',
+        answer:'feat',
+        distractors:[
+          diagnosed('fear','Fits grammatically, but fear is a feeling, but a standing ovation rewards something impressive that she did.'),
+          diagnosed('fault','Fits grammatically, but a fault is a mistake, which does not earn a standing ovation.'),
+          diagnosed('favour','Fits grammatically, but a favour is a kind act, but a standing ovation rewards something impressive that she did.')
+        ]
+      },
+      {
+        id:'feat_ctx_6',
+        text:'Training for a marathon while working two jobs is quite a ____ of organisation.',
+        answer:'feat',
+        distractors:[
+          diagnosed('fact','Fits grammatically, but a fact is something true, but quite a ... of organisation describes an impressive achievement.'),
+          diagnosed('fee','Fits grammatically, but a fee is a payment, which does not fit quite a ... of organisation.'),
+          diagnosed('fault','Fits grammatically, but a fault is a mistake, which does not fit quite a ... of organisation.')
+        ]
+      }
+    ],
+    misuseSentences:[
+      diagnosed('He did a great feet in the final.','feet is the plural of foot; the word for a great achievement is feat.'),
+      diagnosed('She feat the record.','feat is a noun; the verb meaning to defeat is beat.'),
+      diagnosed('It was a feat of two hours.','a feat is an impressive achievement, not a length of time.'),
+      diagnosed('That is a feat what I did yesterday.','a feat names the achievement itself, so say that was a feat.')
+    ],
+    patterns:['a feat of + noun','no small feat','a remarkable feat'],
+    collocations:['remarkable feat','amazing feat','feat of strength'],
+    contrasts:[
+      diagnosed('achievement','achievement is the general word; feat suggests something particularly difficult or impressive.'),
+      diagnosed('feet','feet is the plural of foot and sounds the same as the first part of feat in many accents, but means parts of the body.')
+    ]
+  },
+  regardless:{
+    definitionDistractors:[
+      'after something else has already happened',
+      'instead of what was first planned',
+      'because of what has been said earlier',
+      'in spite of the fact that nobody agrees',
+      'according to the rules that were agreed',
+      'without telling anyone what has happened'
+    ],
+    spellingErrors:['regardles','regardlss','regaurdless','regardlass','regaredless','rigardless'],
+    contexts:[
+      {
+        id:'regardless_ctx_1',
+        text:'The match will take place ____ of the weather, so bring waterproof clothes just in case.',
+        answer:'regardless',
+        distractors:[
+          diagnosed('instead','Fits grammatically, but instead of the weather would mean the weather replaces the match, which does not fit bring waterproof clothes just in case.'),
+          diagnosed('because','Fits grammatically, but because of the weather would mean the weather causes the match, which does not fit bring waterproof clothes just in case.'),
+          diagnosed('irrelevant','Fits grammatically, but irrelevant of is not used in this pattern; the standard phrase is irrespective of or regardless of.')
+        ]
+      },
+      {
+        id:'regardless_ctx_2',
+        text:'Every student must attend training, ____ of their ability or experience.',
+        answer:'regardless',
+        distractors:[
+          diagnosed('because','Fits grammatically, but because of their ability would give a reason, whereas the sentence says ability does not matter.'),
+          diagnosed('unaffected','Fits grammatically, but unaffected of is not used in this pattern; the standard phrase is regardless of.'),
+          diagnosed('out','Fits grammatically, but out of their ability does not fit the idea that ability does not matter.')
+        ]
+      },
+      {
+        id:'regardless_ctx_3',
+        text:'The coach decided to keep playing, ____ of the injury to his best striker.',
+        answer:'regardless',
+        distractors:[
+          diagnosed('ahead','Fits grammatically, but ahead of the injury would mean before it happened, but the injury has already happened.'),
+          diagnosed('because','Fits grammatically, but because of the injury would give a reason for playing on, but the sentence suggests playing on in spite of the injury.'),
+          diagnosed('irrelevant','Fits grammatically, but irrelevant of is not used in this pattern; the standard phrase is regardless of.')
+        ]
+      },
+      {
+        id:'regardless_ctx_4',
+        text:'The doctor told him to rest, but he trained for the final ____.',
+        answer:'regardless',
+        distractors:[
+          diagnosed('afterwards','Fits grammatically, but afterwards means later, but but shows the contrast is with the doctor’s advice.'),
+          diagnosed('consequently','Fits grammatically, but consequently means as a result, which does not fit the contrast shown by but.'),
+          diagnosed('regularly','Fits grammatically, but regularly means often, which does not show that he ignored the doctor’s advice.')
+        ]
+      },
+      {
+        id:'regardless_ctx_5',
+        text:'The prize money is the same for everyone, ____ of age, gender or nationality.',
+        answer:'regardless',
+        distractors:[
+          diagnosed('because','Fits grammatically, but because of age would give a reason, whereas the sentence says those things do not matter.'),
+          diagnosed('instead','Fits grammatically, but instead of age would mean age replaces something, whereas the sentence says those things do not matter.'),
+          diagnosed('unaffected','Fits grammatically, but unaffected of is not used in this pattern; the standard phrase is regardless of.')
+        ]
+      },
+      {
+        id:'regardless_ctx_6',
+        text:'He kept running, ____ of the pain in his knee and the cheers telling him to stop.',
+        answer:'regardless',
+        distractors:[
+          diagnosed('ahead','Fits grammatically, but ahead of the pain would mean before it, but he kept running through the pain.'),
+          diagnosed('in','Fits grammatically, but in of the pain is not a phrase.'),
+          diagnosed('unaffected','Fits grammatically, but unaffected of is not used in this pattern; the standard phrase is regardless of.')
+        ]
+      }
+    ],
+    misuseSentences:[
+      diagnosed('Regardless the weather, we will play.','the phrase is regardless of the weather.'),
+      diagnosed('He is regardless of the rules.','regardless of describes ignoring something; say he acted regardless of the rules.'),
+      diagnosed('Regardless to the cost, we will go.','the phrase is regardless of the cost, not regardless to.'),
+      diagnosed('The regardless team won.','regardless is not used before a noun like an adjective.')
+    ],
+    patterns:['regardless of + noun','regardless of + wh- clause','... regardless (at the end)'],
+    collocations:['regardless of age','regardless of the weather','carry on regardless'],
+    contrasts:[
+      diagnosed('despite','despite is followed directly by a noun or -ing form and does not use of; regardless is followed by of.'),
+      diagnosed('nevertheless','nevertheless links two sentences or clauses; regardless of is followed by the thing that does not matter.')
+    ]
+  },
+  monetary:{
+    definitionDistractors:[
+      'related to the strength of a person’s body',
+      'related to the length of time that something takes',
+      'related to the rules of a competition',
+      'related to the feelings of a team',
+      'related to the difficulty of a task',
+      'related to the number of people who attend'
+    ],
+    spellingErrors:['monatary','monetery','monitary','monetory','monnetary','monitery'],
+    contexts:[
+      {
+        id:'monetary_ctx_1',
+        text:'The trophy has little ____ value, but it means a great deal to the winners.',
+        answer:'monetary',
+        distractors:[
+          diagnosed('momentary','Fits grammatically, but momentary means lasting a very short time, but value in this sentence is contrasted with what it means to the winners.'),
+          diagnosed('military','Fits grammatically, but military relates to armed forces, which does not fit value of a trophy.'),
+          diagnosed('monthly','Fits grammatically, but monthly means happening every month, which does not fit value of a trophy.')
+        ]
+      },
+      {
+        id:'monetary_ctx_2',
+        text:'Volunteers receive no ____ reward for helping at the tournament, only a free t-shirt.',
+        answer:'monetary',
+        distractors:[
+          diagnosed('mandatory','Fits grammatically, but mandatory means compulsory, which does not describe a reward.'),
+          diagnosed('momentary','Fits grammatically, but momentary means lasting a very short time, which does not describe the kind of reward.'),
+          diagnosed('material','Fits grammatically, but material would include a t-shirt, which the sentence says is the only thing they receive.')
+        ]
+      },
+      {
+        id:'monetary_ctx_3',
+        text:'The club offered ____ support, giving each student a small payment toward travel costs.',
+        answer:'monetary',
+        distractors:[
+          diagnosed('moral','Fits grammatically, but moral support is encouragement, but giving each student a small payment is financial.'),
+          diagnosed('military','Fits grammatically, but military relates to armed forces, which does not fit a small payment toward travel costs.'),
+          diagnosed('momentary','Fits grammatically, but momentary means lasting a very short time, which does not describe a payment.')
+        ]
+      },
+      {
+        id:'monetary_ctx_4',
+        text:'Some prizes are ____, such as cash, while others, like medals and cups, have only sentimental value.',
+        answer:'monetary',
+        distractors:[
+          diagnosed('mandatory','Fits grammatically, but mandatory means compulsory, which does not fit cash as an example.'),
+          diagnosed('monthly','Fits grammatically, but monthly means happening every month, which does not fit cash as an example.'),
+          diagnosed('material','Fits grammatically, but material would also describe medals and cups, which the sentence contrasts with cash.')
+        ]
+      },
+      {
+        id:'monetary_ctx_5',
+        text:'The study found that happiness depends only partly on ____ gain: friends and health matter more.',
+        answer:'monetary',
+        distractors:[
+          diagnosed('momentary','Fits grammatically, but momentary means lasting a very short time, but the sentence contrasts the gain with friends and health.'),
+          diagnosed('moral','Fits grammatically, but moral gain would be about right and wrong, not the money contrasted with friends and health.'),
+          diagnosed('mental','Fits grammatically, but mental gain would be about the mind, not the money contrasted with friends and health.')
+        ]
+      },
+      {
+        id:'monetary_ctx_6',
+        text:'Because of the high ____ cost of the stadium, the council decided to share it with a neighbouring town.',
+        answer:'monetary',
+        distractors:[
+          diagnosed('moral','Fits grammatically, but a moral cost is about right and wrong, but the council is dealing with a shortage of money.'),
+          diagnosed('mental','Fits grammatically, but a mental cost is about the mind, but the council is dealing with a shortage of money.'),
+          diagnosed('mandatory','Fits grammatically, but mandatory means compulsory, which does not describe a cost.')
+        ]
+      }
+    ],
+    misuseSentences:[
+      diagnosed('The monetary was too high.','monetary is an adjective and needs a noun, such as the monetary cost.'),
+      diagnosed('She received a monetary of fifty pounds.','monetary is an adjective; the noun is money.'),
+      diagnosed('He has a lot of monetary.','monetary is an adjective and needs a noun, such as monetary support.'),
+      diagnosed('It has a monetary meaning for me.','monetary means related to money; for personal meaning say sentimental value.')
+    ],
+    patterns:['monetary + noun','monetary value','monetary reward'],
+    collocations:['monetary value','monetary reward','monetary cost'],
+    contrasts:[
+      diagnosed('financial','financial is very close and slightly more common; monetary is often used with value, reward or policy.'),
+      diagnosed('sentimental','sentimental value comes from feelings, whereas monetary value comes from money.')
+    ]
+  },
+  estimated:{
+    definitionDistractors:[
+      'known exactly because it has been measured carefully',
+      'officially announced after the final result was checked',
+      'expected to happen at a time that is not yet decided',
+      'guessed by someone who has no information at all',
+      'measured by a machine instead of by a person',
+      'recorded after the event had finished'
+    ],
+    spellingErrors:['estamated','estimeted','estemated','estimatd','esstimated','estimmated'],
+    contexts:[
+      {
+        id:'estimated_ctx_1',
+        text:'The ____ crowd at the final was fifty thousand, though officials admitted that nobody had counted exactly.',
+        answer:'estimated',
+        distractors:[
+          diagnosed('exact','Fits grammatically, but exact contradicts nobody had counted exactly.'),
+          diagnosed('confirmed','Fits grammatically, but confirmed means checked and certain, which contradicts nobody had counted exactly.'),
+          diagnosed('registered','Fits grammatically, but registered would mean recorded one by one, which contradicts nobody had counted exactly.')
+        ]
+      },
+      {
+        id:'estimated_ctx_2',
+        text:'The ____ cost of the new stadium is two hundred million pounds, but the final bill may be higher.',
+        answer:'estimated',
+        distractors:[
+          diagnosed('exact','Fits grammatically, but exact contradicts the final bill may be higher.'),
+          diagnosed('actual','Fits grammatically, but actual means the real figure, but the final bill may be higher shows this figure is not final.'),
+          diagnosed('guaranteed','Fits grammatically, but guaranteed means promised, which contradicts the final bill may be higher.')
+        ]
+      },
+      {
+        id:'estimated_ctx_3',
+        text:'According to the ____ number of visitors, about three thousand people attended each day, though the true figure is unknown.',
+        answer:'estimated',
+        distractors:[
+          diagnosed('exact','Fits grammatically, but exact contradicts the true figure is unknown.'),
+          diagnosed('recorded','Fits grammatically, but recorded means written down one by one, but the true figure is unknown shows it is approximate.'),
+          diagnosed('definitive','Fits grammatically, but definitive means final and certain, which contradicts the true figure is unknown.')
+        ]
+      },
+      {
+        id:'estimated_ctx_4',
+        text:'The ____ distance of the race is ten kilometres, but the course has not yet been measured.',
+        answer:'estimated',
+        distractors:[
+          diagnosed('exact','Fits grammatically, but exact contradicts the course has not yet been measured.'),
+          diagnosed('measured','Fits grammatically, but measured contradicts the course has not yet been measured.'),
+          diagnosed('certified','Fits grammatically, but certified means officially checked and confirmed, which contradicts the course has not yet been measured.')
+        ]
+      },
+      {
+        id:'estimated_ctx_5',
+        text:'Scientists use an ____ age for the fossil, because the exact date cannot be known.',
+        answer:'estimated',
+        distractors:[
+          diagnosed('exact','Fits grammatically, but exact contradicts the exact date cannot be known.'),
+          diagnosed('undisputed','Fits grammatically, but undisputed means that nobody disagrees, which contradicts the exact date cannot be known.'),
+          diagnosed('accurate','Fits grammatically, but accurate contradicts the exact date cannot be known.')
+        ]
+      },
+      {
+        id:'estimated_ctx_6',
+        text:'Her ____ finishing time is two hours, but it depends on the weather on the day.',
+        answer:'estimated',
+        distractors:[
+          diagnosed('final','Fits grammatically, but final means no longer able to change, but it depends on the weather shows it can change.'),
+          diagnosed('confirmed','Fits grammatically, but confirmed means checked and certain, but it depends on the weather shows it is only a guess.'),
+          diagnosed('recorded','Fits grammatically, but recorded means already measured, but it depends on the weather shows it has not happened yet.')
+        ]
+      }
+    ],
+    misuseSentences:[
+      diagnosed('The estimated is fifty people.','estimated is an adjective and needs a noun, such as the estimated number.'),
+      diagnosed('We estimated the exactly cost.','estimate means calculate approximately, so it does not go with exactly.'),
+      diagnosed('The estimate number is high.','the adjective before a noun is estimated.'),
+      diagnosed('There was an estimated of fifty people.','estimated is an adjective; the noun is estimate.')
+    ],
+    patterns:['an estimated + noun','estimated at + number','an estimated + number of + noun'],
+    collocations:['estimated cost','estimated number','estimated time of arrival'],
+    contrasts:[
+      diagnosed('exact','exact is the opposite of estimated: known precisely.'),
+      diagnosed('expected','expected means thought likely to happen; estimated means calculated roughly.')
+    ]
   }
 });
