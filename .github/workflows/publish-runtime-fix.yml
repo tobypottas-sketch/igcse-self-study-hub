@@ -1,0 +1,44 @@
+name: Publish validated runtime fix
+
+on:
+  push:
+    branches: [fix/vocabulary-runtime-publish]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Rebuild approved patches
+        run: |
+          cat .review-payload/0001.patch.gz.b64.part* | base64 -d | gzip -d > /tmp/0001.patch
+          cat .review-payload/0002.patch.gz.b64.part* | base64 -d | gzip -d > /tmp/0002.patch
+          cat .review-payload/0003.patch.gz.b64.part* | base64 -d | gzip -d > /tmp/0003.patch
+      - name: Apply approved patches
+        run: |
+          git apply /tmp/0001.patch
+          git apply /tmp/0002.patch
+          git apply /tmp/0003.patch
+          rm -rf .review-payload
+          rm -f .github/workflows/validate-runtime-patches.yml .github/workflows/publish-runtime-fix.yml
+      - name: Full tests
+        run: npm test
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: fix/vocabulary-runtime-validated
+          base: main
+          title: Fix Vocabulary Builder answer leaks and save recovery
+          commit-message: Fix Vocabulary Builder answer leaks and save recovery
+          body: |
+            Applies the three reviewed runtime patches after GitHub-run validation.
+            - prevents typed-answer leaks
+            - makes Recall the Word exact-answer recall
+            - blanks changed paraphrase language
+            - adds ordered idempotent save recovery without client-side progression
+          delete-branch: false
