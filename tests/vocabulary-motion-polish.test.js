@@ -16,8 +16,11 @@ test('answer feedback uses calm local motion instead of a horizontal error shake
   assert.match(css,/@keyframes study-feedback-success\{[^}]*translateY\(4px\)/);
 });
 
-test('completion celebration lasts about two seconds and hides the pre-decoration placeholder', () => {
-  assert.match(css,/--study-motion-celebrate:2000ms/);
+test('completion celebration uses restrained session, stage and mastery motion and hides the placeholder', () => {
+  assert.match(css,/--study-motion-celebrate:720ms/);
+  assert.match(css,/data-finish-variant=\"session\"/);
+  assert.match(css,/data-finish-variant=\"stage-complete\"/);
+  assert.match(css,/data-finish-variant=\"mastered\"/);
   assert.match(css,/\.vocab-celebration\{visibility:hidden\}/);
   assert.match(css,/\.vocab-completion-art__image\{[^}]*animation:study-trophy-settle var\(--study-motion-celebrate\)/);
   assert.match(css,/\.vocab-summary-grid>div\{[^}]*animation:study-result-reveal/);

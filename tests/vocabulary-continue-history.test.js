@@ -12,6 +12,7 @@ import { freshPathwayProgress, applyPathwayAttempt } from '../src/vocabulary/pat
 import { deriveLearningStage } from '../src/vocabulary/learning-stage.js';
 import { buildSupportStep } from '../src/vocabulary/scaffolding.js';
 import { buildActivity } from '../src/vocabulary/activity-factory.js';
+import { buildSessionFinishModel } from '../src/vocabulary/session-finish-model.js';
 
 // Execute the real controller without bootstrapping authentication or a browser.
 // Only rendering, telemetry and the remote save boundary are replaced.
@@ -38,7 +39,7 @@ function controller(stage = 'recognise', priorSuccess = false) {
   }
   const saved = [];
   const context = vm.createContext({state,crypto,Date,Map,Set,console,root:{},window:{clearInterval(){},setInterval(){return 1;}},
-    ...sessions,...targets,...pathways,...placement,...engine,deriveLearningStage,buildSupportStep,
+    ...sessions,...targets,...pathways,...placement,...engine,deriveLearningStage,buildSupportStep,buildSessionFinishModel,
     renderVocabularyQuestion(){},renderSessionSummary(){},renderVocabularyUnit(){},supportiveFeedback(){return '';},
     trackVocabularyEvent:async () => {},
     submitVocabularyAttempt:async (_client,payload) => {
