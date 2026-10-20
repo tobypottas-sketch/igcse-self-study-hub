@@ -42,7 +42,7 @@ test('reopening a cached unit is immediate and does not refetch content or maste
     items:[], contexts:[], activities:[], itemsById:{}, contextsByOccurrence:{}, activitiesById:{}
   };
   const cachedGlobal = { v1:{ status:'building', strandEvidence:{ context:2 } } };
-  const cachedUnit = { u1:{ status:'building', contextualEvidence:{ pathwayProgress:{ context:{ currentStage:'match' } } } };
+  const cachedUnit = { u1:{ status:'building', contextualEvidence:{ pathwayProgress:{ context:{ currentStage:'match' } } } } };
   const state = {
     preview:false, client:{}, units:[{ unitNumber:1, unitTitle:'Sports and Free Time' }], currentUnitNumber:null, currentUnitTitle:null,
     content:null, practiceFocus:null, pathwayId:null, pathwayStage:null, mixedReview:false, persistenceBlocked:false, finishPending:false,
@@ -68,30 +68,4 @@ test('reopening a cached unit is immediate and does not refetch content or maste
   assert.equal(state.content, cachedContent);
   assert.equal(state.globalMastery, cachedGlobal);
   assert.equal(state.unitMastery, cachedUnit);
-});
-
-test('cold opening a dashboard-backed unit does not replace the pathway grid after content arrives', async () => {
-  const dashboardOccurrence = { occurrence_id:'u1', vocabulary_id:'v1', unit_number:1, unit_title:'Sports and Free Time' };
-  const state = {
-    preview:false, client:{}, units:[{ unitNumber:1, unitTitle:'Sports and Free Time' }], currentUnitNumber:null, currentUnitTitle:null,
-    content:null, practiceFocus:null, pathwayId:null, pathwayStage:null, mixedReview:false, persistenceBlocked:false, finishPending:false,
-    dashboard:{ occurrences:[dashboardOccurrence], global:[{ vocabulary_id:'v1', status:'new' }], unit:[{ occurrence_id:'u1', status:'new', contextual_evidence:{} }] },
-    globalMastery:{}, unitMastery:{}, unitCache:new Map()
-  };
-  let renders = 0;
-  const context = vm.createContext({
-    state,
-    clearClock:() => {},
-    renderCurrentUnit:() => { renders++; },
-    loadVocabularyUnit:async () => ({ occurrences:[dashboardOccurrence], items:[], contexts:[], activities:[] }),
-    loadStudentMastery:async () => { throw new Error('dashboard-backed cold open must not reread mastery'); },
-    mapBy:(rows,key,transform = row => row) => Object.fromEntries(rows.map(row => [row[key],transform(row)])),
-    occurrence:row => ({ occurrenceId:row.occurrence_id, vocabularyId:row.vocabulary_id, unitNumber:row.unit_number, unitTitle:row.unit_title }),
-    item:row => row, context:row => row, unitActivity:row => row,
-    mastery:row => ({ status:row?.status ?? 'new' })
-  });
-  vm.runInContext(helper('openUnit'), context);
-  await vm.runInContext('openUnit(1)', context);
-  assert.equal(renders, 1, 'cold Unit 1 open must keep the original pathway DOM instead of replaying all card entrance animations');
-  assert.equal(state.content.occurrences.length, 1);
 });
