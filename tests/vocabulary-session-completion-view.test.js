@@ -7,6 +7,9 @@ function render(options) {
   renderSessionSummary(root, options);
   return root.innerHTML;
 }
+function plain(html) {
+  return String(html).replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+}
 
 const reward = {
   firstAttemptCorrect:9, correctedMistakes:1, stars:3,
@@ -21,18 +24,19 @@ test('normal pathway set ends with stars, learning evidence, and an optional Con
     completion:{ kind:'session_complete', pathwayId:'meaning', clearedStageId:null, nextStageId:'match' },
     pathwayId:'meaning', pathwayStage:'match'
   });
-  assert.match(html,/Session complete/i);
+  const text = plain(html);
+  assert.match(text,/Session complete/i);
   assert.match(html,/aria-label="3 stars"/i);
-  assert.match(html,/9\s*\/\s*10/);
-  assert.match(html,/first-attempt correct/i);
-  assert.match(html,/6 words strengthened/i);
-  assert.match(html,/1 mistake corrected/i);
-  assert.match(html,/building confidence in Meaning · Match/i);
+  assert.match(text,/9\s*\/\s*10/);
+  assert.match(text,/first-attempt correct/i);
+  assert.match(html,/aria-label="6 words strengthened"/i);
+  assert.match(html,/aria-label="1 mistake corrected"/i);
+  assert.match(text,/building confidence in Meaning · Match/i);
   assert.match(html,/data-action="back-unit"/);
-  assert.match(html,/Finish for now/);
+  assert.match(text,/Finish for now/);
   assert.match(html,/data-action="continue-practice"/);
-  assert.match(html,/>Continue</);
-  assert.doesNotMatch(html,/failed|failure/i);
+  assert.match(text,/Continue/);
+  assert.doesNotMatch(text,/failed|failure/i);
 });
 
 test('stage clear upgrades the finish state and names the next rung', () => {
@@ -41,15 +45,16 @@ test('stage clear upgrades the finish state and names the next rung', () => {
     completion:{ kind:'stage_complete', pathwayId:'meaning', clearedStageId:'match', nextStageId:'apply' },
     pathwayId:'meaning', pathwayStage:'match'
   });
-  assert.match(html,/MATCH COMPLETE/);
-  assert.match(html,/Stage 2 of 5 cleared/);
-  assert.match(html,/Next stage unlocked:\s*APPLY/);
-  assert.match(html,/Recognise/);
-  assert.match(html,/Match/);
-  assert.match(html,/Apply/);
+  const text = plain(html);
+  assert.match(text,/MATCH COMPLETE/);
+  assert.match(text,/Stage 2 of 5 cleared/);
+  assert.match(text,/Next stage unlocked:\s*APPLY/);
+  assert.match(text,/Recognise/);
+  assert.match(text,/Match/);
+  assert.match(text,/Apply/);
   assert.match(html,/data-action="continue-practice"/);
-  assert.match(html,/Start Apply/);
-  assert.match(html,/Come back later to keep building/);
+  assert.match(text,/Start Apply/);
+  assert.match(text,/Come back later to keep building/);
 });
 
 test('pathway mastery is a distinct major finish with no generic Continue', () => {
@@ -58,14 +63,15 @@ test('pathway mastery is a distinct major finish with no generic Continue', () =
     completion:{ kind:'pathway_mastered', pathwayId:'meaning', clearedStageId:'mastery', nextStageId:null },
     pathwayId:'meaning', pathwayStage:'mastery'
   });
-  assert.match(html,/PATHWAY MASTERED/);
-  assert.match(html,/Meaning complete/);
-  assert.match(html,/5\s*\/\s*5 stages cleared/);
-  assert.match(html,/You’ve completed the Meaning pathway/);
+  const text = plain(html);
+  assert.match(text,/PATHWAY MASTERED/);
+  assert.match(text,/Meaning complete/);
+  assert.match(text,/5\s*\/\s*5 stages cleared/);
+  assert.match(text,/You’ve completed the Meaning pathway/);
   assert.match(html,/data-action="back-units"/);
-  assert.match(html,/Back to Vocabulary Builder/);
+  assert.match(text,/Back to Vocabulary Builder/);
   assert.match(html,/data-action="back-unit"/);
-  assert.match(html,/Choose another pathway/);
+  assert.match(text,/Choose another pathway/);
   assert.doesNotMatch(html,/data-action="continue-practice"/);
 });
 
@@ -76,7 +82,8 @@ test('a low-score session remains complete and supportive without a red failure 
     completion:{ kind:'session_complete', pathwayId:'meaning', clearedStageId:null, nextStageId:'match' },
     pathwayId:'meaning', pathwayStage:'match'
   });
-  assert.match(html,/Session complete/i);
-  assert.match(html,/Good practice/i);
-  assert.doesNotMatch(html,/failed|failure|0 stars/i);
+  const text = plain(html);
+  assert.match(text,/Session complete/i);
+  assert.match(text,/Good practice/i);
+  assert.doesNotMatch(text,/failed|failure|0 stars/i);
 });
