@@ -22,15 +22,15 @@ test('normal pathway set ends with stars, learning evidence, and an optional Con
     pathwayId:'meaning', pathwayStage:'match'
   });
   assert.match(html,/Session complete/i);
-  assert.match(html,/3 stars/i);
+  assert.match(html,/aria-label="3 stars"/i);
   assert.match(html,/9\s*\/\s*10/);
   assert.match(html,/first-attempt correct/i);
   assert.match(html,/6 words strengthened/i);
   assert.match(html,/1 mistake corrected/i);
   assert.match(html,/building confidence in Meaning · Match/i);
-  assert.match(html,/data-action="finish-for-now"/);
+  assert.match(html,/data-action="back-unit"/);
   assert.match(html,/Finish for now/);
-  assert.match(html,/data-action="continue-session"/);
+  assert.match(html,/data-action="continue-practice"/);
   assert.match(html,/>Continue</);
   assert.doesNotMatch(html,/failed|failure/i);
 });
@@ -47,7 +47,7 @@ test('stage clear upgrades the finish state and names the next rung', () => {
   assert.match(html,/Recognise/);
   assert.match(html,/Match/);
   assert.match(html,/Apply/);
-  assert.match(html,/data-action="continue-session"/);
+  assert.match(html,/data-action="continue-practice"/);
   assert.match(html,/Start Apply/);
   assert.match(html,/Come back later to keep building/);
 });
@@ -62,10 +62,11 @@ test('pathway mastery is a distinct major finish with no generic Continue', () =
   assert.match(html,/Meaning complete/);
   assert.match(html,/5\s*\/\s*5 stages cleared/);
   assert.match(html,/You’ve completed the Meaning pathway/);
-  assert.match(html,/data-action="finish-for-now"/);
+  assert.match(html,/data-action="back-units"/);
   assert.match(html,/Back to Vocabulary Builder/);
-  assert.match(html,/data-action="choose-another-pathway"/);
-  assert.doesNotMatch(html,/data-action="continue-session"/);
+  assert.match(html,/data-action="back-unit"/);
+  assert.match(html,/Choose another pathway/);
+  assert.doesNotMatch(html,/data-action="continue-practice"/);
 });
 
 test('a low-score session remains complete and supportive without a red failure message', () => {
