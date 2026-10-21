@@ -3,7 +3,7 @@ name: Apply approved pathway art fix
 on:
   push:
     branches:
-      - fix/pathway-art-evidence-lifecycle-merge-2
+      - main
 
 permissions:
   contents: write
