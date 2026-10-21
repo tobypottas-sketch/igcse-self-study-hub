@@ -218,3 +218,28 @@
     white-space:normal;
   }
 }
+
+/* Cold unit open: Home stays mounted while the unit loads. Only the clicked card is marked busy, with an
+   absolutely positioned indicator that takes no space (no reflow, no change in page height). */
+.vocab-unit-card[data-loading="true"]{
+  cursor:progress;
+}
+.vocab-unit-card[data-loading="true"]::after{
+  content:"";
+  position:absolute;
+  top:12px;
+  right:12px;
+  z-index:3;
+  width:16px;
+  height:16px;
+  box-sizing:border-box;
+  border:2px solid rgba(23,56,82,.18);
+  border-top-color:#137e80;
+  border-radius:50%;
+  pointer-events:none;
+  animation:vocab-unit-loading-spin 800ms linear infinite;
+}
+@keyframes vocab-unit-loading-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){
+  .vocab-unit-card[data-loading="true"]::after{animation:none}
+}
