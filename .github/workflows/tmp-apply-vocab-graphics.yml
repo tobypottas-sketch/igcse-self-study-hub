@@ -1,0 +1,227 @@
+name: Apply Vocabulary PNG Graphics
+
+on:
+  push:
+    branches: [fix/vocabulary-png-graphics-exact]
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    if: ${{ !contains(github.event.head_commit.message, '[graphics final]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fetch approved artwork
+        shell: bash
+        run: |
+          python -m pip install -q requests pillow
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urlparse, parse_qs, unquote
+          from PIL import Image
+          import requests, re, html, io
+
+          sources = {
+            'assets/vocabulary/units/unit-01.png':'https://www.canva.com/d/ZJlgbh4AURv3ozK',
+            'assets/vocabulary/pathways/meaning.png':'https://www.canva.com/d/ZQtK3k-ZcL8IB3q',
+            'assets/vocabulary/pathways/context.png':'https://www.canva.com/d/cPIV3pnZC_K-7sp',
+            'assets/vocabulary/pathways/word-families.png':'https://www.canva.com/d/I9yI8HUkt5VAkJx',
+            'assets/vocabulary/pathways/paraphrasing.png':'https://www.canva.com/d/coDUaX0VIEJ1rET',
+            'assets/vocabulary/pathways/precision-use.png':'https://www.canva.com/d/vxYX14WxjkRE2X0',
+            'assets/vocabulary/pathways/spelling-recall.png':'https://www.canva.com/d/FhV4lWCx8UdrUvp',
+          }
+
+          session = requests.Session()
+          session.headers.update({'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/155 Safari/537.36'})
+
+          def fetch_image(share):
+            r = session.get(share, timeout=30)
+            r.raise_for_status()
+            m = (re.search(r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)', r.text, re.I)
+                 or re.search(r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']', r.text, re.I))
+            if not m:
+              raise RuntimeError(f'No og:image for {share}')
+            image_url = html.unescape(m.group(1))
+            headers = {'Referer': share, 'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'}
+            b = session.get(image_url, headers=headers, timeout=30)
+            if b.status_code != 200:
+              fallback = parse_qs(urlparse(image_url).query).get('fallback', [None])[0]
+              if fallback:
+                b = session.get(unquote(fallback), headers=headers, timeout=30)
+            b.raise_for_status()
+            return Image.open(io.BytesIO(b.content)).convert('RGBA')
+
+          for dest, share in sources.items():
+            im = fetch_image(share)
+            if '/pathways/' in dest:
+              # Remove the white design-page background while preserving soft pale shadows.
+              px = im.load()
+              for y in range(im.height):
+                for x in range(im.width):
+                  rr, gg, bb, aa = px[x,y]
+                  if rr > 248 and gg > 248 and bb > 248:
+                    px[x,y] = (rr,gg,bb,0)
+              im = im.resize((1024,1024), Image.Resampling.LANCZOS)
+            else:
+              im = im.resize((1672,411), Image.Resampling.LANCZOS)
+            p = Path(dest)
+            p.parent.mkdir(parents=True, exist_ok=True)
+            im.save(p, optimize=True)
+            print(dest, im.size, p.stat().st_size)
+          PY
+
+      - name: Add PNG overlay infrastructure
+        shell: bash
+        run: |
+          cat > src/vocabulary/graphics-manifest.js <<'EOF'
+          export const VOCABULARY_GRAPHICS = Object.freeze({
+            units: Object.freeze({
+              '1': '../../assets/vocabulary/units/unit-01.png'
+            }),
+            pathways: Object.freeze({
+              meaning: '../../assets/vocabulary/pathways/meaning.png',
+              context: '../../assets/vocabulary/pathways/context.png',
+              word_families: '../../assets/vocabulary/pathways/word-families.png',
+              paraphrasing: '../../assets/vocabulary/pathways/paraphrasing.png',
+              precision_use: '../../assets/vocabulary/pathways/precision-use.png',
+              spelling_recall: '../../assets/vocabulary/pathways/spelling-recall.png'
+            })
+          });
+          EOF
+
+          cat > src/vocabulary/graphics-registry.js <<'EOF'
+          import { VOCABULARY_GRAPHICS } from './graphics-manifest.js';
+
+          const assetUrl = value => value ? new URL(value, import.meta.url).href : null;
+
+          export function unitGraphic(unitNumber) {
+            return assetUrl(VOCABULARY_GRAPHICS.units[String(unitNumber)]);
+          }
+
+          export function pathwayGraphic(pathwayId) {
+            return assetUrl(VOCABULARY_GRAPHICS.pathways[String(pathwayId)]);
+          }
+          EOF
+
+          cat > src/vocabulary/graphics-runtime.js <<'EOF'
+          import { unitGraphic, pathwayGraphic } from './graphics-registry.js';
+
+          function attach(container, src, kind) {
+            if (!container || !src || container.querySelector(':scope > .vocab-png-art')) return;
+            const image = new Image();
+            image.className = `vocab-png-art vocab-png-art--${kind}`;
+            image.alt = '';
+            image.setAttribute('aria-hidden', 'true');
+            image.decoding = 'async';
+            image.addEventListener('load', () => container.classList.add('has-vocab-png-art'), { once:true });
+            image.addEventListener('error', () => image.remove(), { once:true });
+            container.append(image);
+            image.src = src;
+          }
+
+          export function hydrateVocabularyGraphics(root = document) {
+            root.querySelectorAll('[data-unit-art]').forEach(el => attach(el, unitGraphic(el.dataset.unitArt), 'unit-card'));
+            root.querySelectorAll('[data-unit-hero-art]').forEach(el => attach(el, unitGraphic(el.dataset.unitHeroArt), 'unit-hero'));
+            root.querySelectorAll('[data-pathway-art]').forEach(el => attach(el, pathwayGraphic(el.dataset.pathwayArt), 'pathway'));
+          }
+          EOF
+
+          cat > src/vocabulary/graphics-boot.js <<'EOF'
+          import { hydrateVocabularyGraphics } from './graphics-runtime.js';
+
+          function boot() {
+            const root = document.querySelector('#vocabularyApp') ?? document.body;
+            hydrateVocabularyGraphics(root);
+            new MutationObserver(() => hydrateVocabularyGraphics(root)).observe(root, { childList:true, subtree:true });
+          }
+
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', boot, { once:true });
+          } else {
+            boot();
+          }
+          EOF
+
+          cat > vocabulary-graphics.css <<'EOF'
+          .vocab-unit-card__art,
+          .vocab-unit-hero__art,
+          .vocab-pathway-card__art { position: relative; overflow: hidden; }
+
+          .vocab-png-art {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            opacity: 0;
+            z-index: 2;
+            pointer-events: none;
+            transition: opacity .18s ease;
+          }
+
+          .has-vocab-png-art > .vocab-png-art { opacity: 1; }
+          .has-vocab-png-art > svg { opacity: 0; }
+          .vocab-png-art--pathway { object-fit: contain; object-position: center; }
+          .vocab-png-art--unit-card { object-fit: cover; object-position: center; }
+          .vocab-png-art--unit-hero { object-fit: cover; object-position: right center; }
+
+          @media (prefers-reduced-motion: reduce) {
+            .vocab-png-art { transition: none; }
+          }
+          EOF
+
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('vocabulary.html')
+          s = p.read_text()
+          if 'vocabulary-graphics.css' not in s:
+            s = s.replace('</head>', '  <link rel="stylesheet" href="./vocabulary-graphics.css">\n</head>')
+          if 'graphics-boot.js' not in s:
+            s = s.replace('</body>', '  <script type="module" src="./src/vocabulary/graphics-boot.js"></script>\n</body>')
+          p.write_text(s)
+          PY
+
+      - name: Verify graphics are really present
+        shell: bash
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          banner = Path('assets/vocabulary/units/unit-01.png')
+          assert banner.exists() and Image.open(banner).size == (1672,411)
+          for name in ['meaning','context','word-families','paraphrasing','precision-use','spelling-recall']:
+            p = Path(f'assets/vocabulary/pathways/{name}.png')
+            assert p.exists(), p
+            assert Image.open(p).size == (1024,1024), (name, Image.open(p).size)
+          html = Path('vocabulary.html').read_text()
+          assert 'vocabulary-graphics.css' in html
+          assert 'graphics-boot.js' in html
+          assert 'data-pathway-art' in Path('src/vocabulary/views.js').read_text()
+          assert 'data-unit-hero-art' in Path('src/vocabulary/views.js').read_text()
+          print('Seven PNGs + live wiring verified')
+          PY
+          git diff --check
+
+      - name: Run full tests
+        run: npm test
+
+      - name: Validate vocabulary content
+        run: node scripts/validate-vocabulary-content.mjs
+
+      - name: Commit clean result
+        shell: bash
+        run: |
+          rm -f .github/workflows/tmp-apply-vocab-graphics.yml
+          rm -f .github/workflows/tmp-final-vocab-graphics.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'fix: actually ship Vocabulary Builder PNG graphics [graphics final]'
+          git push origin HEAD:fix/vocabulary-png-graphics-exact
