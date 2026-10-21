@@ -50,7 +50,7 @@ function build(type, overrides = {}) {
 
 test('foundational catalogue types exist with the intended first-class response modes', () => {
   const expected = {
-    definition_to_word:'choice', word_definition_match:'matching', drag_word_definition:'drag_match', drag_definition_word:'drag_match',
+    definition_to_word:'choice', word_definition_match:'matching', drag_word_definition:'choice', drag_definition_word:'choice',
     gap_fill_bank:'choice', drag_word_sentence:'drag_gap', type_missing_word:'text', spell_word:'spelling',
     choose_word_sentence:'choice', word_family_choice:'choice'
   };
@@ -74,13 +74,23 @@ test('definition and matching activities use plausible curated material and one 
   ]);
   assert.ok(choice.options.every(option => allowedChoiceOptions.has(option)));
 
-  for (const type of ['word_definition_match','drag_word_definition','drag_definition_word']) {
+  const matchSet = build('word_definition_match');
+  assert.equal(matchSet.contentSource, 'item');
+  assert.equal(matchSet.primaryEvidenceTargetId, item.vocabularyId);
+  assert.ok(matchSet.pairs.length >= 3);
+  assert.ok(matchSet.pairs.some(pair => pair.vocabularyId === item.vocabularyId));
+  assert.equal(matchSet.markingReference.acceptedAnswers.length >= 1, true);
+  // Meaning → Apply is a situation task, not another pairing: a choice with a curated situation and one primary target.
+  for (const type of ['drag_word_definition','drag_definition_word']) {
     const activity = build(type);
+    assert.equal(activity.responseMode, 'choice', type);
     assert.equal(activity.contentSource, 'item', type);
     assert.equal(activity.primaryEvidenceTargetId, item.vocabularyId, type);
-    assert.ok(activity.pairs.length >= 3, type);
-    assert.equal(activity.markingReference.acceptedAnswers.length >= 1, true, type);
-    assert.ok(activity.pairs.some(pair => pair.vocabularyId === item.vocabularyId), type);
+    assert.equal(activity.pairs, undefined, `${type} no longer carries a pair set`);
+    assert.equal(activity.options.length, 4, type);
+    assert.ok(activity.options.includes(activity.markingReference.acceptedAnswers[0]), type);
+    assert.match(activity.prompt, /situation/i, type);
+    assert.equal(activity.prompt.split('\n').length, 2, `${type}: instruction line + the situation`);
   }
 });
 

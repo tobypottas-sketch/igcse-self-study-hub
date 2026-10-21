@@ -40,7 +40,7 @@ test('mastered, needs-practice and unavailable pathway states remain explicit an
 
 test('question header shows pathway identity, rung, session position and animated progress hook', () => {
   const target = root();
-  renderVocabularyQuestion(target,{unitNumber:1,unitTitle:'Sports and free time',term:'leisure',sessionLabel:'Meaning',pathwayId:'meaning',pathwayStage:'match',sessionPosition:3,sessionTotal:10,question:{type:'word_definition_match',responseMode:'matching',prompt:'Choose the correct definition.',matchCue:'leisure',matchOptions:['free time','a crowd','a problem']}});
+  renderVocabularyQuestion(target,{unitNumber:1,unitTitle:'Sports and free time',term:'leisure',sessionLabel:'Meaning',pathwayId:'meaning',pathwayStage:'match',sessionPosition:3,sessionTotal:10,question:{type:'definition_to_word',responseMode:'matching',prompt:'Choose the correct definition.',matchCue:'leisure',matchOptions:['free time','a crowd','a problem']}});
   assert.match(target.innerHTML,/data-study-question/);
   assert.match(target.innerHTML,/data-study-accent="meaning"/);
   assert.match(target.innerHTML,/data-study-icon="book"/);
@@ -55,7 +55,7 @@ test('question header shows pathway identity, rung, session position and animate
 
 test('retry remains card based and uses a calm guided support panel', () => {
   const target = root();
-  renderVocabularyQuestion(target,{unitNumber:1,unitTitle:'Sports and free time',pathwayId:'meaning',pathwayStage:'match',sessionPosition:3,sessionTotal:10,retry:true,feedback:{correct:false,message:'Not quite.'},support:{action:'retry',kind:'narrow_match',options:['free time','a problem']},question:{type:'word_definition_match',responseMode:'matching',prompt:'Choose the correct definition.',matchCue:'leisure',matchOptions:['free time','a crowd','a problem']}});
+  renderVocabularyQuestion(target,{unitNumber:1,unitTitle:'Sports and free time',pathwayId:'meaning',pathwayStage:'match',sessionPosition:3,sessionTotal:10,retry:true,feedback:{correct:false,message:'Not quite.'},support:{action:'retry',kind:'narrow_match',options:['free time','a problem']},question:{type:'definition_to_word',responseMode:'matching',prompt:'Choose the correct definition.',matchCue:'leisure',matchOptions:['free time','a crowd','a problem']}});
   assert.match(target.innerHTML,/data-study-feedback="retry"/);
   assert.match(target.innerHTML,/Try again with two choices/);
   assert.equal((target.innerHTML.match(/data-match-card=/g) ?? []).length,2);

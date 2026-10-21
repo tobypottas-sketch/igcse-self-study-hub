@@ -24,7 +24,16 @@ function builder(table) {
   } });
   return proxy;
 }
+const STAGES = ['recognise', 'match', 'apply', 'recall', 'mastery'];
+function fakeMastery(table) {
+  // Optional: place every word at a pathway stage (window.__fakeStage = { pathway, stage }).
+  const placement = window.__fakeStage; if (!placement) return null;
+  if (table === 'vocabulary_global_mastery') return items.map(i => ({ vocabulary_id:i.vocabulary_id, status:'building', strand_evidence:{ meaning:3, recognition:3, context:3, paraphrasing:3 } }));
+  if (table === 'vocabulary_unit_mastery') return occurrences.map(o => ({ occurrence_id:o.occurrence_id, status:'building', contextual_evidence:{ pathwayProgress:{ [placement.pathway]: freshPathwayProgress({ completedStages:STAGES.slice(0, STAGES.indexOf(placement.stage)) }) } } }));
+  return null;
+}
 function run(q) {
+  const mastery = fakeMastery(q.table); if (mastery) return { data:mastery, error:null };
   if (q.table === 'profiles') return { data:{ id:'u1', role:'student', display_name:'Sam', active:true }, error:null };
   return { data:TABLES[q.table] ?? [], error:null };
 }
@@ -156,15 +165,15 @@ window.__driver = {
 };
 `;
 
-export async function openMission({ root, width = 1280, pathway = 'meaning', server = {} }) {
+export async function openMission({ root, width = 1280, pathway = 'meaning', server = {}, stage = null, reducedMotion = false, height = 900 }) {
   const playwright = loadPlaywright(); const executablePath = await findChromium();
   if (!playwright || !executablePath) return null;
   const { server: http, origin } = await serve(root);
   const browser = await playwright.chromium.launch({ executablePath });
-  const page = await browser.newPage({ viewport:{ width, height:900 } });
+  const page = await browser.newPage({ viewport:{ width, height }, reducedMotion:reducedMotion ? 'reduce' : 'no-preference' });
   page.on('pageerror', error => { (page.__errors ??= []).push(error.message); });
   await installRoutes(page, root);
-  await page.addInitScript(() => { window.__tl = []; });
+  await page.addInitScript(placement => { window.__tl = []; if (placement) window.__fakeStage = placement; }, stage ? { pathway, stage } : null);
   await page.goto(`${origin}/vocabulary.html`, { waitUntil:'load' });
   await page.waitForSelector('.vocab-unit-card');
   await page.evaluate(DRIVER);

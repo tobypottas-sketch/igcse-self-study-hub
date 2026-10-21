@@ -25,27 +25,26 @@ const pairs = [
   { vocabularyId:'v_compete', term:'compete', definition:'try to win' }
 ];
 
-test('matching response renders an operable single-target answer with non-pointer controls', () => {
-  const html = render({
+test('Meaning Match without its set of pairs refuses to render a dropdown fallback', () => {
+  assert.throws(() => render({
     type:'word_definition_match', responseMode:'matching', prompt:'Match each word with its definition.',
     pairs, primaryEvidenceTargetId:'v_active', markingReference:{ acceptedAnswers:['doing things energetically'] }
-  });
-  assert.match(html, /data-match-target="v_active"/);
-  assert.match(html, /name="answer"/);
-  assert.match(html, /<select[^>]*data-match-select/);
-  assert.match(html, /type="submit"/);
+  }), /Meaning Match needs its set/);
 });
 
-test('drag-match response has pointer affordances and a keyboard\/click fallback without embedding correctness', () => {
-  const html = render({
-    type:'drag_word_definition', responseMode:'drag_match', prompt:'Drag each word to the correct definition.',
-    pairs, primaryEvidenceTargetId:'v_active', markingReference:{ acceptedAnswers:['doing things energetically'] }
-  });
-  assert.match(html, /draggable="true"/);
-  assert.match(html, /data-drag-value=/);
-  assert.match(html, /data-drop-target(?:\s|>)/);
-  assert.match(html, /<select[^>]*data-drag-fallback/);
-  assert.doesNotMatch(html, /data-correct=/);
+test('Meaning Apply situation tasks render as accessible choice cards: no chips, drop zone or dropdown', () => {
+  for (const [type, options, answer] of [
+    ['drag_definition_word', ['active','effort','regular','compete'], 'regular'],
+    ['drag_word_definition', pairs.map(pair => pair.definition), 'happening often']
+  ]) {
+    const html = render({
+      type, responseMode:'choice', prompt:'Which word best fits this situation?\nThe gym opens every Monday, Wednesday and Friday.',
+      options, primaryEvidenceTargetId:'v_regular', markingReference:{ acceptedAnswers:[answer] }
+    });
+    assert.equal((html.match(/data-choice-answer=/g) ?? []).length, 4, type);
+    assert.match(html, /The gym opens every Monday/, type);
+    assert.doesNotMatch(html, /<select|draggable|data-drag-|data-drop-target|vocab-drop-zone|vocab-drag-token|vocab-accessible-fallback|data-match-card|data-match-word|data-correct=/, type);
+  }
 });
 
 test('drag-gap response renders the sentence, draggable word bank and keyboard/click fallback', () => {

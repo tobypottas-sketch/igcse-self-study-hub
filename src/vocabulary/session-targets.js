@@ -1,5 +1,6 @@
 import { planNextActivity } from './adaptive-planner.js';
 import { buildActivity } from './activity-factory.js';
+import { hasApplicationSituation } from './apply-situation.js';
 import { activitiesForStage } from './activity-catalogue.js';
 import { selectPriorityTargets } from './selector.js';
 import { isSpotMeaningChangeReady } from '../../supabase/functions/_shared/vocabulary-engine.js';
@@ -100,7 +101,9 @@ export function availableActivityTypesForTarget({ content, target, item, context
   const samePos = samePosAlternatives(content,item);
   if (text(item?.term) && hasDefinition(item,target)) {
     available.add('spell_word');
-    if (samePos.length >= 3) ['definition_to_word','word_definition_match','drag_word_definition','drag_definition_word'].forEach(type => available.add(type));
+    if (samePos.length >= 3) ['definition_to_word','word_definition_match'].forEach(type => available.add(type));
+    // Meaning → Apply needs a curated situation that does not show the word.
+    if (samePos.length >= 3 && hasApplicationSituation(targetContexts,item,target)) ['drag_word_definition','drag_definition_word'].forEach(type => available.add(type));
   }
   if (samePos.length >= 3 && hasBlankableContext(targetContexts,item)) {
     ['gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence'].forEach(type => available.add(type));

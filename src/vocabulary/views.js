@@ -4,6 +4,7 @@ import { PRACTICE_MODES, activityDefinition } from './activity-catalogue.js';
 import { deriveLearningStage } from './learning-stage.js';
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES } from './pathway-model.js';
 import { pathwayIdentity, renderStudyIcon } from './study-ui.js';
+import { renderMatchSet } from './match-set-view.js';
 
 const LEARNING_STAGES = Object.freeze(['emerging','building','developing','secure','mastered']);
 const HIDE_TARGET_TYPES = new Set([
@@ -239,17 +240,10 @@ function supportMessage(support) {
   return 'Use the extra support and try once more.';
 }
 
-function primaryPair(question) {
-  const pairs = Array.isArray(question?.pairs) ? question.pairs : [];
-  return pairs.find(pair => pair?.vocabularyId === question?.primaryEvidenceTargetId) ?? pairs[0] ?? null;
-}
 function matchOptions(question, support) {
   if (support?.kind === 'narrow_match') return support.options ?? [];
   if (Array.isArray(question?.matchOptions) && question.matchOptions.length) return question.matchOptions;
-  const pairs = Array.isArray(question?.pairs) ? question.pairs : [];
-  return question?.type === 'drag_definition_word'
-    ? pairs.map(pair => pair?.term).filter(Boolean)
-    : pairs.map(pair => pair?.definition).filter(Boolean);
+  return [];
 }
 function renderSelectOptions(options) {
   return `<option value="">Choose…</option>${(options ?? []).map(option => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`).join('')}`;
@@ -260,7 +254,14 @@ function renderMatchCards(question, retry, support) {
   return `<fieldset class="vocab-match-card-fieldset${retry ? ' is-retry' : ''}"><legend>${retry ? 'Choose from these two' : 'Choose the match'}</legend><div class="vocab-match-cue">${escapeHtml(question?.matchCue ?? '')}</div><div class="vocab-match-card-grid">${cards}</div><input type="hidden" name="answer" required><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Try again' : 'Check answer'} ${renderStudyIcon('arrow')}</button></fieldset>`;
 }
 
-function renderAnswerControl(question, feedback, retry, support) {
+function renderAnswerControl(question, feedback, retry, support, matchView = null) {
+  // Meaning → Match: one visible set of pairs. Finished (all correct, or answers shown after the supported retry) keeps the
+  // set on screen, read-only, above Next. The set never renders a dropdown, a drop zone or chips.
+  if (matchView?.set) {
+    const done = Boolean(feedback?.correct) || support?.action === 'move_on';
+    const set = renderMatchSet(matchView.set, matchView.state, { retry, finished:Boolean(feedback?.correct), reveal:!feedback?.correct && support?.action === 'move_on' });
+    return done ? `${set}<button type="button" class="vocab-button vocab-button--primary" data-action="next-question">Next question ${renderStudyIcon('arrow')}</button>` : set;
+  }
   if (feedback?.correct || support?.action === 'move_on') return `<button type="button" class="vocab-button vocab-button--primary" data-action="next-question">Next question ${renderStudyIcon('arrow')}</button>`;
   const responseMode = question?.responseMode ?? 'text';
   if (responseMode === 'choice') {
@@ -268,17 +269,13 @@ function renderAnswerControl(question, feedback, retry, support) {
     const options = (source ?? []).map((option,index) => `<button type="button" class="vocab-choice vocab-choice-card" data-choice-answer="${escapeHtml(option)}"><span class="vocab-choice-card__key" aria-hidden="true">${String.fromCharCode(65 + index)}</span><span>${escapeHtml(option)}</span></button>`).join('');
     return `<fieldset class="vocab-choice-fieldset${retry ? ' is-retry' : ''}"><legend>${retry ? 'Choose from these two' : 'Choose your answer'}</legend><div class="vocab-choice-grid">${options}</div></fieldset>`;
   }
-  if (responseMode === 'matching' || responseMode === 'drag_match') {
-    const normalizedMatch = responseMode === 'matching' && String(question?.matchCue ?? '').trim() && Array.isArray(question?.matchOptions) && question.matchOptions.length;
+  if (responseMode === 'matching') {
+    // Meaning → Match is only ever the two-sided set above; it has no single-card fallback.
+    if (question?.type === 'word_definition_match') throw new Error('Meaning Match needs its set of curated pairs.');
+    // Other Stage 2 matches render Match Cards. There is no select, chip or drop-zone fallback for matching.
+    const normalizedMatch = String(question?.matchCue ?? '').trim() && Array.isArray(question?.matchOptions) && question.matchOptions.length;
     if (normalizedMatch) return renderMatchCards(question,retry,support);
-    const target = primaryPair(question);
-    const targetText = question?.type === 'drag_definition_word' ? target?.definition : target?.term;
-    const options = matchOptions(question, support);
-    const dragItems = responseMode === 'drag_match'
-      ? `<div class="vocab-drag-bank" aria-label="Draggable choices">${options.map(option => `<button type="button" class="vocab-drag-token" draggable="true" data-drag-value="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join('')}</div><div class="vocab-drop-zone" data-drop-target data-match-target="${escapeHtml(question?.primaryEvidenceTargetId ?? '')}" tabindex="0" aria-label="Drop your answer here">Drop answer here</div>`
-      : '';
-    const selectAttr = responseMode === 'drag_match' ? ' data-drag-fallback' : ' data-match-select';
-    return `<fieldset class="vocab-match-fieldset${retry ? ' is-retry' : ''}" data-match-target="${escapeHtml(question?.primaryEvidenceTargetId ?? '')}"><legend>${retry ? 'Try the match again' : 'Make the match'}</legend><p class="vocab-match-target">${escapeHtml(targetText ?? '')}</p>${dragItems}<label class="vocab-accessible-fallback">${responseMode === 'drag_match' ? 'Or choose an answer' : 'Choose the matching answer'}<select name="answer" required${selectAttr}>${renderSelectOptions(options)}</select></label><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Check supported answer' : 'Check answer'}</button></fieldset>`;
+    throw new Error('This matching activity is missing its match cue.');
   }
   if (responseMode === 'drag_gap') {
     const options = support?.kind === 'narrow_drag_gap' ? support.options : (question.draggables ?? question.wordBank ?? []);
@@ -315,13 +312,14 @@ function renderPathwaySessionProgress(pathwayId, pathwayStage) {
   return `<div class="vocab-pathway-session-progress" data-pathway-session-progress="${escapeHtml(pathway.id)}" data-pathway-stage="${escapeHtml(pathwayStage)}" data-study-accent="${escapeHtml(identity.accent)}"><div class="vocab-pathway-session-progress__copy"><span class="vocab-pathway-session-progress__identity">${renderStudyIcon(identity.icon)}<strong>${escapeHtml(pathway.label)}</strong></span><span>${escapeHtml(stageLabel)} · Stage ${position} of 5</span></div><div class="vocab-pathway-progress" role="progressbar" aria-label="${escapeHtml(pathway.label)} pathway progress: ${escapeHtml(stageLabel)}, stage ${position} of 5" aria-valuemin="1" aria-valuemax="5" aria-valuenow="${position}"><span class="vocab-pathway-progress__fill" style="--pathway-progress:${progress}%"></span></div></div>`;
 }
 
-export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question, term, sessionLabel, learningStage = null, pathwayId = null, pathwayStage = null, sessionPosition = null, sessionTotal = 10, feedback = null, retry = false, support = null, milestone = null } = {}) {
+export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question, term, sessionLabel, learningStage = null, pathwayId = null, pathwayStage = null, sessionPosition = null, sessionTotal = 10, feedback = null, retry = false, support = null, milestone = null, matchSet = null, matchState = null } = {}) {
+  const matchView = matchSet && matchState ? { set:matchSet, state:matchState } : null;
   const fixedPathwayId = pathwayId ?? question?.pathwayId ?? null;
   const fixedPathwayStage = pathwayStage ?? question?.pathwayStage ?? null;
   const identity = pathwayIdentity(fixedPathwayId);
   const feedbackState = feedback?.correct ? 'correct' : feedback ? 'retry' : null;
   const feedbackHtml = feedback ? `<div class="vocab-feedback study-feedback ${feedback.correct ? 'is-positive study-success' : 'is-supportive study-error'}" data-study-feedback="${feedbackState}">${renderStudyIcon(feedback.correct ? 'check' : 'spark',{className:'study-icon--lg'})}<div><strong>${escapeHtml(feedback.message)}</strong>${feedback.detail ? `<p>${escapeHtml(feedback.detail)}</p>` : ''}</div></div>` : '';
-  const supportText = supportMessage(support);
+  const supportText = matchView ? '' : supportMessage(support);
   const supportHtml = supportText ? `<div id="vocab-support-hint" class="vocab-support-hint study-feedback" data-study-support>${renderStudyIcon('bulb')}<span>${escapeHtml(supportText)}</span></div>` : '';
   const definition = activityDefinition(question?.type);
   const questionLabel = definition?.label ?? titleCase(question?.type ?? 'Practice');
@@ -329,7 +327,7 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
   const matchCue = String(question?.matchCue ?? '').trim();
   const sourceDuplicatesMatchCue = source && matchCue && normalizedDisplayText(source.text) === normalizedDisplayText(matchCue);
   const questionContext = source && !sourceDuplicatesMatchCue ? `<aside class="vocab-question-context vocab-source-text"><span>${escapeHtml(source.label)}</span><p>${escapeHtml(source.text)}</p></aside>` : '';
-  const targetPill = term && !HIDE_TARGET_TYPES.has(question?.type) ? `<div class="vocab-target-pill">${escapeHtml(term)}</div>` : '';
+  const targetPill = term && !matchView && !HIDE_TARGET_TYPES.has(question?.type) ? `<div class="vocab-target-pill">${escapeHtml(term)}</div>` : '';
   const pathwayProgress = renderPathwaySessionProgress(fixedPathwayId,fixedPathwayStage);
   const stage = learningStage ?? question?.learningStage ?? null;
   const stageCue = !pathwayProgress && LEARNING_STAGES.includes(stage) ? `<span class="vocab-learning-stage" data-stage="${escapeHtml(stage)}"><strong>${escapeHtml(learningStageLabel(stage))}</strong><small>${learningStagePosition(stage)} of 5</small></span>` : '';
@@ -337,12 +335,12 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
   const safeTotal = Math.max(1,Number(sessionTotal) || 10);
   const safePosition = Number.isFinite(Number(sessionPosition)) ? Math.max(1,Math.min(safeTotal,Number(sessionPosition))) : 1;
   const sessionProgress = `<div class="vocab-question-session-progress" data-study-session-progress data-study-accent="${escapeHtml(identity.accent)}"><span>${safePosition} / ${safeTotal}</span>${renderStudyProgress(safePosition,safeTotal,`Question ${safePosition} of ${safeTotal}`)}</div>`;
-  const answerForm = `<form data-form="vocabulary-answer" class="vocab-answer-form">${renderAnswerControl(question, feedback, retry, support)}</form>`;
+  const answerForm = `<form data-form="vocabulary-answer" class="vocab-answer-form">${renderAnswerControl(question, feedback, retry, support, matchView)}</form>`;
   const responseArea = retry && !feedback?.correct
     ? `<section class="vocab-retry-stage study-enter">${feedbackHtml}${supportHtml}${answerForm}</section>`
     : `<section class="vocab-response-stage${feedback?.correct ? ' is-correct' : ''}">${feedbackHtml}${supportHtml}${answerForm}</section>`;
   const milestoneHtml = milestone ? `<section class="study-milestone-card study-milestone" data-study-milestone="${escapeHtml(milestone.kind)}">${milestoneArt(milestone.kind)}<strong>${escapeHtml(milestone.title ?? '')}</strong></section>` : '';
-  root.innerHTML = `<main class="vocab-shell vocab-shell--session" data-study-accent="${escapeHtml(identity.accent)}"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card study-enter" data-study-question><div class="vocab-study-question-header"><div class="vocab-study-question-header__path">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}<div><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(PATHWAY_STAGES.find(item => item.id === fixedPathwayStage)?.label ?? questionLabel)}</small></div></div>${sessionProgress}</div><div class="vocab-question-meta"><p class="vocab-kicker">${escapeHtml(questionLabel)}</p><div class="vocab-question-meta__right">${skillCue}</div></div>${targetPill}<h1 class="vocab-question-prompt">${escapeHtml(displayPrompt(question))}</h1>${questionContext}${responseArea}${milestoneHtml}</section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
+  root.innerHTML = `<main class="vocab-shell vocab-shell--session" data-study-accent="${escapeHtml(identity.accent)}"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card study-enter" data-study-question><div class="vocab-study-question-header"><div class="vocab-study-question-header__path">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}<div><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(PATHWAY_STAGES.find(item => item.id === fixedPathwayStage)?.label ?? questionLabel)}</small></div></div>${sessionProgress}</div><div class="vocab-question-meta"><p class="vocab-kicker">${escapeHtml(questionLabel)}</p><div class="vocab-question-meta__right">${skillCue}</div></div>${targetPill}<h1 class="vocab-question-prompt">${escapeHtml(matchView ? 'Match each word with its definition.' : displayPrompt(question))}</h1>${questionContext}${responseArea}${milestoneHtml}</section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
 }
 
 export function supportiveFeedback({ correct, misconceptionCategory, recovery, term, meaning, questionType } = {}) {

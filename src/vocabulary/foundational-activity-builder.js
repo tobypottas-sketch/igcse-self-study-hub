@@ -1,6 +1,7 @@
 import { shuffleAnswerOptions } from './answer-option-shuffle.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 import { languageBankContextForItem } from './language-bank.js';
+import { applicationSituations } from './apply-situation.js';
 
 const STAGE_ORDER = Object.freeze({ new:0, building:1, secure:2, mastered:3 });
 export const FOUNDATIONAL_ACTIVITY_TYPES = Object.freeze(new Set([
@@ -177,13 +178,35 @@ function definitionToWord(args, definition) {
   const options = orderOptions([text(args.item.term), ...plausibleTermDistractors(args,3)], `${args.seed}:definition-word-options`, args.optionNonce);
   return baseActivity({ definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt:`Which word means “${targetDefinition}”?`, markingReference:{ acceptedAnswers:[text(args.item.term)] }, extra:{ options, primaryEvidenceTargetId:args.item.vocabularyId } });
 }
+// Meaning → Match: the curated pairs for one tap-to-match set (words left, shuffled definitions right). The persisted
+// answer stays the single answer for the primary target, so one set is one activity.
 function matchingActivity(args, definition) {
   const pairs = definitionPairs(args,4);
   const target = pairs.find(pair => pair.vocabularyId === args.item.vocabularyId);
-  const answer = definition.id === 'drag_definition_word' ? target.term : target.definition;
-  const prompt = definition.id === 'word_definition_match' ? 'Match each word with its definition.' : definition.id === 'drag_definition_word' ? 'Drag each definition to the correct word.' : 'Drag each word to the correct definition.';
-  const matchExtra = definition.id === 'word_definition_match' ? { matchCue:target.term, matchOptions:pairs.map(pair => pair.definition), matchPresentation:'meaning_word_to_definition' } : {};
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt, markingReference:{ acceptedAnswers:[answer] }, extra:{ pairs, primaryEvidenceTargetId:args.item.vocabularyId, ...matchExtra } });
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt:'Match each word with its definition.', markingReference:{ acceptedAnswers:[target.definition] }, extra:{ pairs, primaryEvidenceTargetId:args.item.vocabularyId, matchCue:target.term, matchOptions:pairs.map(pair => pair.definition), matchPresentation:'meaning_word_to_definition' } });
+}
+// Meaning → Apply (drag_word_definition, drag_definition_word). A short curated situation is shown and the student applies
+// the meaning to it. These are single-decision recognition tasks, like Which Situation Fits?: one question, one answer,
+// the same single-answer attempt as before. Neither shows a word ↔ definition pairing, a drop zone or a dropdown.
+function situationApplication(args, definition) {
+  const target = definitionPairs(args,4).find(pair => pair.vocabularyId === args.item.vocabularyId);
+  const situations = applicationSituations(args.contexts, args.item, args.occurrence);
+  if (!situations.length) throw new Error('Meaning Apply requires a curated situation that does not show the target word.');
+  const used = new Set(array(args.usedContentIds));
+  const fresh = situations.filter(context => !used.has(context.contextId));
+  const pool = fresh.length ? fresh : situations;
+  const preferred = pool.filter(context => context.type === pool[0].type);
+  const situation = text(stableShuffle(preferred, `${args.seed}:application-situation`)[0].text);
+  const toWord = definition.id === 'drag_definition_word';
+  const answer = toWord ? target.term : target.definition;
+  const wrong = toWord
+    ? plausibleTermDistractors(args,3)
+    : definitionPairs(args,4).filter(pair => pair.vocabularyId !== args.item.vocabularyId).map(pair => pair.definition).slice(0,3);
+  if (wrong.length < 3) throw new Error('Meaning Apply requires three plausible alternatives.');
+  const orderOptions = args.matchingPresentation ? stableShuffle : shuffleAnswerOptions;
+  const options = orderOptions([answer, ...wrong], `${args.seed}:application-options`, args.optionNonce);
+  const prompt = `${toWord ? 'Which word best fits this situation?' : 'Which meaning does this situation show?'}\n${situation}`;
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt, markingReference:{ acceptedAnswers:[answer] }, extra:{ options, primaryEvidenceTargetId:args.item.vocabularyId } });
 }
 function replaceFirstIgnoreCase(source, needle, replacement) {
   const index = wholeWordIndex(source,needle);
@@ -280,7 +303,7 @@ function wordFamilyChoice(args, definition) {
   return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, contentSource:'unit_activity', prompt:text(data.prompt) || 'Choose the correct word-family form.', markingReference:{ acceptedAnswers }, extra:{ options, sourceText:text(data.sourceText) || null, activityContentId:record.activityContentId, taskType:'word_family', primaryEvidenceTargetId:data.primaryEvidenceTargetId ?? args.item.vocabularyId } });
 }
 
-const BUILDERS = Object.freeze({ definition_to_word:definitionToWord, word_definition_match:matchingActivity, drag_word_definition:matchingActivity, drag_definition_word:matchingActivity, gap_fill_bank:retrievalActivity, drag_word_sentence:retrievalActivity, type_missing_word:retrievalActivity, spell_word:spellingActivity, choose_word_sentence:retrievalActivity, word_family_choice:wordFamilyChoice });
+const BUILDERS = Object.freeze({ definition_to_word:definitionToWord, word_definition_match:matchingActivity, drag_word_definition:situationApplication, drag_definition_word:situationApplication, gap_fill_bank:retrievalActivity, drag_word_sentence:retrievalActivity, type_missing_word:retrievalActivity, spell_word:spellingActivity, choose_word_sentence:retrievalActivity, word_family_choice:wordFamilyChoice });
 
 export function buildFoundationalActivity({ activityType, occurrence, item, contexts = [], unitActivities = [], unitItems = [], unitContexts = [], unitOccurrences = [], mastery = {}, readinessStage = null, usedContentIds = [], seed = '', optionNonce = '', matchingPresentation = false } = {}) {
   if (!FOUNDATIONAL_ACTIVITY_TYPES.has(activityType)) throw new Error('Not a foundational vocabulary activity type.');

@@ -10,6 +10,8 @@ import { buildSessionFinishModel } from './session-finish-model.js';
 import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
 import { deriveLearningStage } from './learning-stage.js';
 import { createAttemptPersistence } from './attempt-persistence.js';
+import { buildMatchSet, checkMatchSet, finishedMatchState, newMatchState, revealMatchSet, tapMatchItem } from './match-set.js';
+import { matchKeyTarget, renderMatchSet, repaintMatchSet } from './match-set-view.js';
 import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
 const root = document.getElementById('vocabularyApp');
@@ -277,7 +279,10 @@ function buildNextForTarget(target) {
   }
   const contextRecord = targetContexts.find(ctx => ctx.contextId === question.contentId) ?? null; const activityRecord = state.content.activitiesById[question.contentId] ?? null;
   const primaryEvidenceTargetId = question.primaryEvidenceTargetId ?? activityRecord?.activityData?.primaryEvidenceTargetId ?? (question.contentSource === 'item' ? target.vocabularyId : null);
-  return { target, item:targetItem, context:contextRecord, activityRecord, question, pathwayPlan:built.plan ?? null, recovery, retry:false, support:null, initialError:false, primaryEvidenceTargetId };
+  // Meaning → Match: one visible set of pairs is still ONE activity (one primary evidence target, one answer payload).
+  const matchSet = buildMatchSet({ ...question, primaryEvidenceTargetId });
+  if (question.type === 'word_definition_match' && !matchSet) throw new Error('Meaning Match needs at least three curated pairs.');
+  return { target, item:targetItem, context:contextRecord, activityRecord, question, pathwayPlan:built.plan ?? null, recovery, retry:false, support:null, initialError:false, primaryEvidenceTargetId, matchSet, matchState:matchSet ? newMatchState() : null };
 }
 function nextQuestion() {
   if (!state.session) return; if (isSessionComplete(state.session, new Date())) { void finishSessionWhenSaved(); return; }
@@ -287,7 +292,7 @@ function nextQuestion() {
   if (!current) { if (state.session.mode === 'timed') { void finishSessionWhenSaved(); return; } if (Number(state.session.summary?.practised) > 0 || state.session.completedTargetIds?.length) { void finishSessionWhenSaved(); return; } throw new Error('No suitable curated activity is available for this practice mode yet.'); }
   state.current = current; renderCurrentQuestion();
 }
-function renderCurrentQuestion(feedback = null) { if (!state.current) return; const currentMastery = state.globalMastery[state.current.target.vocabularyId] ?? freshMastery(); renderVocabularyQuestion(root, { unitNumber:state.currentUnitNumber, unitTitle:state.current.target.unitTitle, question:state.current.question, term:state.current.item.term, sessionLabel:remainingLabel(), learningStage:deriveLearningStage(currentMastery), feedback, retry:state.current.retry, support:state.current.support }); decoratePreview(); if (state.attempts?.blocked) renderSyncWarning(); }
+function renderCurrentQuestion(feedback = null) { if (!state.current) return; const currentMastery = state.globalMastery[state.current.target.vocabularyId] ?? freshMastery(); renderVocabularyQuestion(root, { unitNumber:state.currentUnitNumber, unitTitle:state.current.target.unitTitle, question:state.current.question, term:state.current.item.term, sessionLabel:remainingLabel(), learningStage:deriveLearningStage(currentMastery), feedback, retry:state.current.retry, support:state.current.support, matchSet:state.current.matchSet ?? null, matchState:state.current.matchState ?? null }); decoratePreview(); if (state.attempts?.blocked) renderSyncWarning(); }
 function markVocabularyAttemptLocally(current, rawAnswer) {
   const sense = Array.isArray(current.item?.senses) ? current.item.senses.find(candidate => candidate?.senseId === current.target.senseId) : null; if (!sense) throw new Error('This vocabulary question is missing its marking data.');
   const reference = current.question.markingReference ?? {}; const markingContext = { contextId:current.context?.contextId ?? current.question.contentId, activityContentId:current.activityRecord?.activityContentId ?? null, acceptedAnswers:reference.acceptedAnswers ?? [], distractors:reference.distractors ?? [] };
@@ -350,7 +355,18 @@ function runAfterSaves(start) {
 function recordRecentActivity(current, result) { const recent = state.recentActivities.get(current.target.occurrenceId) ?? []; const entry = { type:current.question.type, contentId:current.question.contentId, correct:result.correct }; state.recentActivities.set(current.target.occurrenceId, [...recent, entry].slice(-5)); }
 function handleAnswer(form, providedAnswer = null) {
   if (!state.current || !state.session) return; if (state.session.mode === 'timed' && isSessionComplete(state.session, new Date())) { void finishSessionWhenSaved(); return; }
-  const input = form?.querySelector?.('input[name="answer"], select[name="answer"]'); const rawAnswer = providedAnswer != null ? String(providedAnswer) : (input?.value ?? ''); const current = state.current; if (current.answered) return;
+  const input = form?.querySelector?.('input[name="answer"], select[name="answer"]'); const current = state.current; if (current.answered) return;
+  if (current.matchSet && providedAnswer == null) {
+    // Whole-set check. Nothing is marked until every word is paired. Correct pairs lock; wrong pairs reopen. The existing
+    // single-answer attempt is recorded only when it would be anyway: the primary pair was wrong (first attempt → supported
+    // retry → move on), or every pair is right. Primary right but other pairs wrong is formative: no attempt, no counters.
+    const checked = checkMatchSet(current.matchSet, current.matchState);
+    if (!checked.complete) { paintMatchSet(current, null, 'Pair every word with a definition, then check.'); return; }
+    current.matchState = checked.state;
+    if (checked.primaryCorrect && !checked.allCorrect) { paintMatchSet(current); return; }
+    providedAnswer = checked.rawAnswer;
+  }
+  const rawAnswer = providedAnswer != null ? String(providedAnswer) : (input?.value ?? '');
   if (current.question.responseMode === 'tiles' && !form?.querySelector?.('[data-tile-answer].is-used')) {
     const build = form?.querySelector?.('[data-tile-build]');
     if (build) build.textContent = 'Choose at least one tile before checking.';
@@ -377,7 +393,23 @@ function handleAnswer(form, providedAnswer = null) {
   if (hadError && !current.recovery) { state.recoveryNeeded.add(current.target.occurrenceId); state.queue.push(current.target); } else if (current.recovery) state.recoveryNeeded.delete(current.target.occurrenceId);
   const completeTarget = current.recovery || !hadError;
   state.session = completeAttempt(state.session, { targetId:current.target.occurrenceId, evidence:{ correct:result.correct, recovery:recoverySucceeded, activityType:current.question.type }, completeTarget, strengthened:result.correct, movedToSecure:shouldUpdate && previousGlobalStatus !== 'secure' && nextGlobal.status === 'secure', mastered:shouldUpdate && previousGlobalStatus !== 'mastered' && nextGlobal.status === 'mastered', needsAnotherLook:completeTarget && !result.correct });
-  current.support = !result.correct ? buildSupportStep(current.question, { correct:false, misconceptionCategory:result.misconceptionCategory, attemptNumber:2 }) : null; renderCurrentQuestion({ correct:result.correct, message });
+  current.support = !result.correct ? buildSupportStep(current.question, { correct:false, misconceptionCategory:result.misconceptionCategory, attemptNumber:2 }) : null;
+  if (current.matchSet) current.matchState = result.correct && Object.keys(current.matchState.settled).length === current.matchSet.words.length ? finishedMatchState(current.matchSet, current.matchState) : revealMatchSet(current.matchSet, current.matchState);
+  renderCurrentQuestion({ correct:result.correct, message });
+}
+// Meaning → Match interaction. Taps only change the pairing state and repaint the set in place (focus is kept), so a tap
+// never re-renders the question, never touches the attempt queue, and never changes session counters.
+function paintMatchSet(current, focusSelector = null, message = null) {
+  if (!current?.matchSet || !root) return;
+  repaintMatchSet(root, renderMatchSet(current.matchSet, current.matchState, { retry:current.retry }), focusSelector);
+  if (message) { const status = root.querySelector?.('[data-match-status]'); if (status) status.textContent = message; }
+}
+function handleMatchTap(node) {
+  const current = state.current;
+  if (!current?.matchSet || current.answered) return;
+  const side = node.dataset.matchWord ? 'word' : 'definition'; const id = node.dataset.matchWord ?? node.dataset.matchDefinition;
+  current.matchState = tapMatchItem(current.matchSet, current.matchState, side, id);
+  paintMatchSet(current, `[data-match-${side}="${id}"]`);
 }
 function finishSession() {
   if (!state.session) return;
@@ -430,7 +462,17 @@ function startActiveTime() {
   state.activeTimer = window.setInterval(() => { if (document.visibilityState !== 'visible' || Date.now() - state.lastInteractionAt > 120000) return; state.activeSeconds += 30; if (state.activeSeconds >= 60) { const seconds = state.activeSeconds; state.activeSeconds = 0; if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'active_time', active_seconds:seconds, mode:'practice' }).catch(() => {}); } }, 30000);
 }
 root?.addEventListener('submit', event => { const form = event.target; if (form?.dataset?.form !== 'vocabulary-answer') return; event.preventDefault(); try { handleAnswer(form); } catch (error) { renderVocabularyError(root, error instanceof Error ? error.message : 'Unable to check that answer.'); } });
+root?.addEventListener('keydown', event => {
+  const item = event.target?.closest?.('[data-match-word], [data-match-definition]'); const current = state.current;
+  if (!item || !current?.matchSet) return;
+  const target = matchKeyTarget(current.matchSet, item.dataset.matchWord ? 'word' : 'definition', item.dataset.matchWord ?? item.dataset.matchDefinition, event.key);
+  if (!target) return;
+  event.preventDefault();
+  root.querySelector?.(`[data-match-${target.side}="${target.id}"]`)?.focus?.();
+});
 root?.addEventListener('click', event => {
+  const matchItem = event.target?.closest?.('[data-match-word], [data-match-definition]');
+  if (matchItem) { handleMatchTap(matchItem); return; }
   const choice = event.target?.closest?.('[data-choice-answer], [data-evidence-answer]');
   if (choice) { const form = choice.closest?.('[data-form="vocabulary-answer"]'); const answer = choice.dataset.choiceAnswer ?? choice.dataset.evidenceAnswer; try { handleAnswer(form, answer); } catch (error) { renderVocabularyError(root, error instanceof Error ? error.message : 'Unable to check that answer.'); } return; }
   const tile = event.target?.closest?.('[data-tile-answer]');
