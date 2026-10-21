@@ -1,0 +1,80 @@
+name: Temporary Vocabulary Graphics Integration
+
+on:
+  push:
+    branches:
+      - stage/vocabulary-png-graphics
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    if: ${{ !contains(github.event.head_commit.message, '[graphics integrated]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Decode and verify package
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 -d .staging/final-int.b64 > /tmp/final-int.zip
+          echo '1c48db8762ad681e51797b1c2ed22585aff22931e4bd27f07357f14aa12247a1  /tmp/final-int.zip' | sha256sum -c -
+          mkdir -p /tmp/final-int
+          unzip -q /tmp/final-int.zip -d /tmp/final-int
+          test -f /tmp/final-int/patches/patch1.patch
+          test -f /tmp/final-int/patches/patch2.patch
+          test -f /tmp/final-int/assets/vocabulary/units/unit-01.png
+          test "$(find /tmp/final-int/assets/vocabulary/pathways -name '*.png' | wc -l)" -eq 6
+      - name: Apply Claude graphics patches
+        shell: bash
+        run: |
+          set -euo pipefail
+          git apply --check /tmp/final-int/patches/patch1.patch
+          git apply /tmp/final-int/patches/patch1.patch
+          mkdir -p assets/vocabulary/pathways assets/vocabulary/units
+          cp /tmp/final-int/assets/vocabulary/pathways/*.png assets/vocabulary/pathways/
+          cp /tmp/final-int/assets/vocabulary/units/unit-01.png assets/vocabulary/units/unit-01.png
+          git apply --check /tmp/final-int/patches/patch2.patch
+          git apply /tmp/final-int/patches/patch2.patch
+      - name: Verify PNGs
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import struct
+          def size(path):
+              data=Path(path).read_bytes()
+              assert data[:8] == b'\x89PNG\r\n\x1a\n', path
+              return struct.unpack('>II', data[16:24])
+          assert size('assets/vocabulary/units/unit-01.png') == (1672, 411)
+          for name in ['meaning','context','word-families','paraphrasing','precision-use','spelling-recall']:
+              assert size(f'assets/vocabulary/pathways/{name}.png') == (1024, 1024), name
+          print('All seven PNG dimensions verified.')
+          PY
+      - name: Run full test suite
+        run: npm test
+      - name: Validate Unit 1 vocabulary content
+        run: node scripts/validate-vocabulary-content.mjs
+      - name: Clean staging and verify diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .staging
+          rm -f .github/workflows/tmp-integrate-vocab-graphics.yml
+          git diff --check
+          git status --short
+      - name: Commit clean integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'feat: ship Vocabulary Builder PNG graphics [graphics integrated]'
+          git push origin HEAD:stage/vocabulary-png-graphics
