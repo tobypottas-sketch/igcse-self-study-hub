@@ -233,7 +233,15 @@ Deno.serve(async (req: Request) => {
       const { data:context, error:contextError } = await adminClient.from('vocabulary_contexts').select('context_id, occurrence_id, sense_id, context_type, prompt_text, accepted_answers, misconception_category, status').eq('context_id', input.contextId).eq('status','live').single();
       if (contextError || !context || context.occurrence_id !== occurrence.occurrence_id || context.sense_id !== occurrence.sense_id) return json({ error:'Vocabulary context does not match target' }, 400);
       assertContextQuestionMatchesContextType(context.context_type, input.questionType);
-      const acceptedAnswers = sentenceAnswerTypes.has(input.questionType) ? [String(context.prompt_text ?? '').trim()].filter(Boolean) : (context.accepted_answers ?? []);
+      let acceptedAnswers: string[];
+      if (input.questionType === 'meaning_in_context') {
+        const masteryContext = (Array.isArray(sense.masteryContexts) ? sense.masteryContexts : [])
+          .find((record: any) => String(record?.contextId ?? '') === context.context_id);
+        const designated = String(masteryContext?.meaning ?? '').trim();
+        acceptedAnswers = designated ? [designated] : [];
+      } else {
+        acceptedAnswers = sentenceAnswerTypes.has(input.questionType) ? [String(context.prompt_text ?? '').trim()].filter(Boolean) : (context.accepted_answers ?? []);
+      }
       markingContext = { contextId:context.context_id, acceptedAnswers };
       evidenceContentId = context.context_id;
       contextualEvidenceId = context.context_id;
