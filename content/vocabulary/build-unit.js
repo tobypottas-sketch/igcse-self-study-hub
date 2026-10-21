@@ -79,10 +79,16 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
     const grammarForms = object(entry.grammarForms);
     const grammarPatterns = array(entry.grammarPatterns).map(text).filter(Boolean);
     const retrievalContexts = array(entry.retrievalContexts);
+    const masteryContexts = array(entry.masteryContexts).slice(0,2).map((record,index) => ({
+      contextId:index === 0 ? meaningId : paraphraseId,
+      text:text(record?.text),
+      meaning:text(record?.meaning)
+    })).filter(record => record.text && record.meaning);
     const sense = {
       senseId,
       meaning:text(entry.meaning),
       acceptedParaphrases:paraphrases,
+      ...(masteryContexts.length ? { masteryContexts } : {}),
       contextDependentParaphrases:array(entry.contextDependentParaphrases),
       misleadingDistractors:distractors,
       ...(Object.keys(grammarForms).length ? { grammarForms:{ ...grammarForms } } : {}),

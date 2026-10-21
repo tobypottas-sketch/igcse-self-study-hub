@@ -2,6 +2,8 @@ import { buildCuratedUnit } from '../build-unit.js';
 import unit1Activities from './unit-01-activities.js';
 import unit1WordFamilySupplement from './unit-01-word-family-supplement.js';
 import unit1GrammarSupplement from './unit-01-grammar-supplement.js';
+import unit1LanguageBank from './unit-01-language-bank.js';
+import unit1MasterySupplement from './unit-01-mastery-supplement.js';
 
 const e = (term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence, paraphraseSource, paraphraseSentence, productionSource, productionSentence, extras = {}) => ({
   term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence,
@@ -63,7 +65,21 @@ const entries = [
   e('antiques','noun','old objects that are valuable or interesting because of their age',['valuable old objects','collectable old items'],['new equipment','souvenirs','documents'],'The market sells antiques alongside handmade sports memorabilia.','valuable old objects','The market sells valuable old objects alongside handmade sports memorabilia.','valuable old objects','Collectors travelled to the fair to buy valuable old objects.',{ collocations:['antique market','valuable antiques'] })
 ];
 
-const enrichedEntries = entries.map(entry => ({ ...entry, ...(unit1GrammarSupplement[entry.term] ?? {}) }));
+const enrichedEntries = entries.map(entry => {
+  const masteryMeanings = unit1MasterySupplement[entry.term] ?? [];
+  const languageContexts = unit1LanguageBank[entry.term]?.contexts ?? [];
+  const grammarContexts = unit1GrammarSupplement[entry.term]?.retrievalContexts ?? [];
+  const fallbackContexts = [
+    { text:entry.meaningSentence, answer:entry.term },
+    { text:String(entry.production?.sentence ?? '').replace(String(entry.production?.source ?? ''), entry.term), answer:entry.term }
+  ];
+  const masterySource = (languageContexts.length >= 2 ? languageContexts : grammarContexts.length >= 2 ? grammarContexts : fallbackContexts).slice(0,2);
+  const masteryContexts = masterySource.map((record,index) => ({
+    text:String(record?.text ?? '').replace('____', String(record?.answer ?? entry.term)),
+    meaning:String(masteryMeanings[index] ?? '').trim()
+  }));
+  return { ...entry, ...(unit1GrammarSupplement[entry.term] ?? {}), masteryContexts };
+});
 
 export default buildCuratedUnit({
   unitNumber:1,

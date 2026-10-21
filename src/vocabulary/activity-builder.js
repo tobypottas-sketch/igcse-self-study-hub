@@ -210,8 +210,13 @@ function whichSituationFits(args, definition) {
 function meaningInContext(args, definition) {
   const { item, occurrence, contexts, seed } = args;
   const sense = senseFor(item, occurrence);
-  const context = chooseContext(contexts, ['meaning_context','paraphrase_context'], args.usedContentIds, seed);
-  const correct = text(context.acceptedAnswers?.[0] ?? sense.acceptedParaphrases?.[0] ?? sense.meaning);
+  const liveContextIds = new Set(array(contexts).map(context => context?.contextId).filter(Boolean));
+  const candidates = array(sense.masteryContexts).filter(record => liveContextIds.has(record?.contextId) && text(record?.text) && text(record?.meaning));
+  if (!candidates.length) throw new Error('Meaning in Context requires curated Mastery contexts.');
+  const used = new Set(array(args.usedContentIds));
+  const unused = candidates.filter(record => !used.has(record.contextId));
+  const context = stableShuffle(unused.length ? unused : candidates, `${seed}:meaning-mastery`)[0];
+  const correct = text(context.meaning);
   const wrong = meaningDistractors(args, sense, correct, seed);
   if (wrong.length < 3) throw new Error('Meaning in Context requires three comparable curated distractors.');
   const options = shuffleAnswerOptions([correct, ...wrong], `${seed}:meaning-context`, args.optionNonce);

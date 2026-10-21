@@ -6,7 +6,10 @@ import { buildActivity } from '../src/vocabulary/activity-factory.js';
 const item = {
   vocabularyId:'vocab_significant', term:'significant', partOfSpeech:'adjective',
   coreMeaning:'of great weight or large enough to be noticed or have an effect',
-  senses:[{ senseId:'significant_1', meaning:'of great weight or large enough to be noticed or have an effect', acceptedParaphrases:['important','notable'], contextDependentParaphrases:[], misleadingDistractors:['famous','ordinary','tiny'] }],
+  senses:[{ senseId:'significant_1', meaning:'of great weight or large enough to be noticed or have an effect', acceptedParaphrases:['important','notable'], contextDependentParaphrases:[], misleadingDistractors:['famous','ordinary','tiny'], masteryContexts:[
+    { contextId:'sig_meaning', text:'The programme led to a significant improvement in results.', meaning:'important enough to affect results' },
+    { contextId:'sig_para', text:'The programme had an effect large enough to notice.', meaning:'meaningful enough to make a difference' }
+  ] }],
   wordFamily:['significance','significantly'], collocations:['significant increase','significant difference','significant impact']
 };
 const occurrence = { occurrenceId:'u1_46_significant', vocabularyId:item.vocabularyId, unitNumber:1, unitTitle:'Sports and Free Time', senseId:'significant_1' };

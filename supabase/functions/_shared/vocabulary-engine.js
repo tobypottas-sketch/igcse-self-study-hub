@@ -20,7 +20,7 @@ const EXACT_CONTEXT_TYPES = new Set([
   'replace_phrase','produce_paraphrase','use_target','context_gap_fill',
   'build_paraphrase','complete_paraphrase','rewrite_phrase','build_same_idea','rewrite_idea',
   'improve_vocabulary','explain_another_way','collocation_builder','word_family_switch','word_family_choice',
-  'same_idea','spot_meaning_change','find_evidence','which_situation_fits','correct_usage',
+  'same_idea','spot_meaning_change','find_evidence','which_situation_fits','correct_usage','meaning_in_context',
   'definition_to_word','drag_definition_word','spell_word',
   // Recall the Word tests recall of the target headword; a synonym is not the word.
   'type_word_from_definition',
@@ -259,8 +259,15 @@ export function markCuratedAnswer({ item = {}, sense = {}, context = {}, questio
   const accepted = new Set();
   const exactContextOnly = EXACT_CONTEXT_TYPES.has(questionType);
 
-  for (const answer of Array.isArray(context.acceptedAnswers) ? context.acceptedAnswers : []) {
-    accepted.add(normalizeVocabularyAnswer(answer));
+  if (questionType === 'meaning_in_context') {
+    const masteryContext = (Array.isArray(sense.masteryContexts) ? sense.masteryContexts : [])
+      .find(record => record?.contextId === context.contextId);
+    const designated = normalizeVocabularyAnswer(masteryContext?.meaning);
+    if (designated) accepted.add(designated);
+  } else {
+    for (const answer of Array.isArray(context.acceptedAnswers) ? context.acceptedAnswers : []) {
+      accepted.add(normalizeVocabularyAnswer(answer));
+    }
   }
 
   if (!exactContextOnly) {
