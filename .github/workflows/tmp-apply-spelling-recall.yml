@@ -1,0 +1,43 @@
+name: Apply Spelling Recall Patch
+
+on:
+  push:
+    branches:
+      - fix/spelling-recall-ux
+    paths:
+      - '.github/workflows/tmp-apply-spelling-recall.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/spelling-recall-ux
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Reconstruct and verify patch
+        run: |
+          cat tmp-spelling-patch/part-*.b64 | base64 -d > /tmp/spelling-recall.patch
+          echo 'fe518f7fc22141cdea2fe2fca3454d130d9dfa8a31c9329f30b3e3085f15e39a  /tmp/spelling-recall.patch' | sha256sum -c -
+      - name: Apply patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git am /tmp/spelling-recall.patch
+      - name: Run full tests
+        run: npm test
+      - name: Validate vocabulary content
+        run: node scripts/validate-vocabulary-content.mjs
+      - name: Remove temporary patch staging
+        run: |
+          rm -rf tmp-spelling-patch .github/workflows/tmp-apply-spelling-recall.yml
+          git add -A
+          git diff --cached --check
+          git commit -m 'chore: remove temporary Spelling Recall patch staging'
+          git push origin HEAD:fix/spelling-recall-ux
