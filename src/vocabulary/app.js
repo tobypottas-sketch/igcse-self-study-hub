@@ -368,6 +368,10 @@ function handleAnswer(form, providedAnswer = null) {
   }
   const rawAnswer = providedAnswer != null ? String(providedAnswer) : (input?.value ?? '');
   if (current.question.responseMode === 'tiles' && !form?.querySelector?.('[data-tile-answer].is-used')) {
+    // Spelling & Recall: validation only. Nothing is marked, saved or counted; the message sits in an alert region that the
+    // first tile selection empties again. Other tile activities keep their existing wording.
+    const notice = current.question.type === 'spelling_rebuild' ? form?.querySelector?.('[data-tile-validation]') : null;
+    if (notice) { notice.textContent = 'Choose at least one letter before checking your answer.'; return; }
     const build = form?.querySelector?.('[data-tile-build]');
     if (build) build.textContent = 'Choose at least one tile before checking.';
     return;
@@ -476,7 +480,7 @@ root?.addEventListener('click', event => {
   const choice = event.target?.closest?.('[data-choice-answer], [data-evidence-answer]');
   if (choice) { const form = choice.closest?.('[data-form="vocabulary-answer"]'); const answer = choice.dataset.choiceAnswer ?? choice.dataset.evidenceAnswer; try { handleAnswer(form, answer); } catch (error) { renderVocabularyError(root, error instanceof Error ? error.message : 'Unable to check that answer.'); } return; }
   const tile = event.target?.closest?.('[data-tile-answer]');
-  if (tile) { const form = tile.closest?.('[data-form="vocabulary-answer"]'); const input = form?.querySelector?.('input[name="answer"]'); const build = form?.querySelector?.('[data-tile-build]'); if (!input || tile.disabled) return; const parts = String(input.value ?? '').trim().split(/\s+/).filter(Boolean); parts.push(tile.dataset.tileAnswer); input.value = parts.join(' '); tile.disabled = true; tile.classList.add('is-used'); if (build) build.textContent = parts.join(' '); return; }
+  if (tile) { const form = tile.closest?.('[data-form="vocabulary-answer"]'); const input = form?.querySelector?.('input[name="answer"]'); const build = form?.querySelector?.('[data-tile-build]'); if (!input || tile.disabled) return; const parts = String(input.value ?? '').trim().split(/\s+/).filter(Boolean); parts.push(tile.dataset.tileAnswer); input.value = parts.join(' '); tile.disabled = true; tile.classList.add('is-used'); if (build) build.textContent = parts.join(' '); const notice = form.querySelector?.('[data-tile-validation]'); if (notice) notice.textContent = ''; return; }
   const target = event.target?.closest?.('[data-action]'); const action = target?.dataset?.action; if (!action) return;
   if (action === 'open-unit') openUnit(Number(target.dataset.unit)).catch(error => renderVocabularyError(root, error.message));
   else if (action === 'back-units') showHome().catch(error => renderVocabularyError(root, error.message)); else if (action === 'view-all-words') showAllWords();
