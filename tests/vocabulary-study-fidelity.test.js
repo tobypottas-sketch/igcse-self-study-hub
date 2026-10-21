@@ -15,7 +15,7 @@ test('pathway cards render their artwork slot and evidence shell in the first HT
   assert.equal((target.innerHTML.match(/class="vocab-pathway-card has-study-art/g) ?? []).length, 6);
   for (const pathway of STUDY_ART_KEYS.pathways) assert.match(target.innerHTML, new RegExp(`data-pathway-art="${pathway}"`));
   assert.equal((target.innerHTML.match(/data-action="open-pathway"/g) ?? []).length, 6, 'cards remain the single control');
-  assert.equal((target.innerHTML.match(/data-pathway-evidence-shell/g) ?? []).length, 6);
+  assert.equal((target.innerHTML.match(/vocab-pathway-card__evidence"/g) ?? []).length, 6);
   assert.doesNotMatch(target.innerHTML, /<img/);
 });
 
@@ -23,7 +23,7 @@ test('final artwork CSS gives pathway illustrations a real composition layer', (
   const css = readFileSync(new URL('../vocabulary-study-art.css', import.meta.url),'utf8');
   assert.match(css,/\.vocab-pathway-card__art/);
   assert.match(css,/\.vocab-pathway-card__art-image/);
-  assert.match(css,/\.vocab-pathway-card:hover \.vocab-pathway-card__art/);
+  assert.match(css,/\.vocab-pathway-card:not\(:disabled\):hover \.vocab-pathway-card__art/);
   assert.match(css,/@media\s*\(max-width:620px\)/);
   assert.match(css,/@media\s*\(prefers-reduced-motion:reduce\)/);
 });

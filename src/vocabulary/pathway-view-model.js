@@ -4,7 +4,6 @@ import { registeredPathwayCoverage } from './pathway-coverage-store.js';
 
 const STAGE_IDS = PATHWAY_STAGES.map(stage => stage.id);
 const STAGE_INDEX = Object.freeze(Object.fromEntries(STAGE_IDS.map((id,index) => [id,index])));
-let latestUnitPathwayStates = {};
 
 function unitRowFor(unitMastery, occurrenceId) { return unitMastery?.[occurrenceId] ?? {}; }
 function globalRowFor(globalMastery, vocabularyId) { return globalMastery?.[vocabularyId] ?? {}; }
@@ -139,8 +138,6 @@ export function targetsForPathwayStage({ pathwayId, stageId, occurrences = [], u
   });
 }
 
-export function getLatestUnitPathwayStates() { return latestUnitPathwayStates; }
-
 export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, globalMastery = {}, coverageByPathway = null } = {}) {
   const unitNumber = occurrences.length ? occurrenceUnitNumber(occurrences[0]) : null;
   const registeredCoverage = unitNumber != null ? registeredPathwayCoverage(unitNumber) : null;
@@ -194,6 +191,5 @@ export function buildUnitPathwayStates({ occurrences = [], unitMastery = {}, glo
     };
   }
 
-  latestUnitPathwayStates = result;
   return result;
 }

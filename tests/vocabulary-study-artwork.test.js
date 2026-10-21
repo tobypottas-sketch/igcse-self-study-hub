@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { renderSessionSummary } from '../src/vocabulary/views.js';
 import { achievementArtSvg, pathwayArtSvg, unitArtSvg, STUDY_ART_KEYS, studyArtAlt } from '../src/vocabulary/study-art-svg.js';
 
@@ -54,17 +54,15 @@ test('the SVG never sizes itself: it fills whatever slot the container gives it'
 });
 
 test('artwork is rendered by the views, not injected after paint', () => {
-  const runtime = readFileSync(new URL('../src/vocabulary/study-art-runtime.js', import.meta.url),'utf8');
-  assert.doesNotMatch(runtime, /createElement\('img'\)|\.src\s*=|new Image|document\.createElement\('figure'\)/);
-  assert.doesNotMatch(runtime, /study-art\.js|unitArtwork|pathwayArtwork|achievementArtwork/);
-  assert.match(runtime, /MutationObserver/, 'the evidence readout is still hydrated by the runtime');
+  assert.equal(existsSync(new URL('../src/vocabulary/study-art-runtime.js', import.meta.url)), false, 'the post-render runtime is gone');
+  assert.equal(existsSync(new URL('../src/vocabulary/study-art.js', import.meta.url)), false);
 });
 
-test('vocabulary page loads artwork CSS and runtime after the core study app layer', () => {
+test('vocabulary page loads artwork CSS after the core study app layer and no post-render script', () => {
   const html = readFileSync(new URL('../vocabulary.html', import.meta.url),'utf8');
   assert.match(html,/vocabulary-study-art\.css/);
   assert.ok(html.indexOf('vocabulary-study-art.css') > html.indexOf('vocabulary-study-app.css'));
-  assert.match(html,/src\/vocabulary\/study-art-runtime\.js/);
+  assert.doesNotMatch(html,/study-art-runtime/);
 });
 
 test('ten-question completion renders its artwork slot in the first HTML', () => {
@@ -91,7 +89,7 @@ test('pathway artwork is integrated into cards instead of reserving a fixed righ
   const css = readFileSync(new URL('../vocabulary-study-art.css', import.meta.url),'utf8');
   assert.doesNotMatch(css,/\.vocab-pathway-card\.has-study-art\{[^}]*padding-right:\s*132px/i);
   assert.doesNotMatch(css,/\.vocab-pathway-card__art\{[^}]*top:\s*12px;[^}]*bottom:\s*12px;[^}]*width:\s*108px/i);
-  assert.match(css,/\.vocab-pathway-card__art\{[^}]*bottom:\s*-?\d+px/i);
+  assert.match(css,/\.vocab-pathway-card__art\{[^}]*position:absolute/i);
 });
 
 test('every artwork slot owns explicit dimensions so the SVG can never size the layout', () => {
@@ -100,4 +98,15 @@ test('every artwork slot owns explicit dimensions so the SVG can never size the 
   assert.match(css, /\.study-art__svg\{[^}]*width:100%;[^}]*height:100%/);
   assert.doesNotMatch(css, /__image\{[^}]*\bwidth:\s*\d+px/, 'images fill their slot; they carry no pixel size of their own');
   assert.doesNotMatch(css, /@keyframes[^{]*\{[^}]*(?:width|height|margin|padding|top|left)\s*:/, 'no layout-affecting animation');
+});
+
+test('pathway artwork uses its card accent and has bold, filled silhouettes', () => {
+  const accents = { meaning:'#ed3f89', context:'#2d9ddd', word_families:'#2ba76a', paraphrasing:'#ef7f35', precision_use:'#eab326', spelling_recall:'#8658e8' };
+  for (const id of STUDY_ART_KEYS.pathways) {
+    const svg = pathwayArtSvg(id);
+    assert.ok(svg.includes(`--sa-a:${accents[id]}`), `${id} matches its card accent`);
+    assert.match(svg, /class="sa-i sa-a"|class="sa-a"/, `${id} has a solid accent-filled main shape`);
+  }
+  const css = readFileSync(new URL('../vocabulary-study-art.css', import.meta.url),'utf8');
+  assert.match(css, /\.sa-i\{[^}]*stroke-width:3/);
 });

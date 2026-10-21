@@ -3,16 +3,17 @@
   position:relative;
   overflow:hidden;
   display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-columns:minmax(0,1fr) 132px;
   grid-template-areas:
-    "identity status"
-    "coverage coverage"
+    "identity art"
+    "status art"
+    "coverage art"
     "evidence evidence"
     "ladder ladder"
     "cta cta";
-  grid-template-rows:auto auto 60px auto auto;
-  column-gap:28px;
-  row-gap:16px;
+  grid-template-rows:auto auto auto 60px auto auto;
+  column-gap:20px;
+  row-gap:14px;
   padding:28px 30px 24px!important;
   min-height:340px;
 }
@@ -24,29 +25,31 @@
 }
 
 /*
- * Ambient pathway artwork is visual only. It sits in the unused upper-right
- * breathing room, never owns grid width/height, and never changes geometry.
+ * Pathway artwork has its own grid area (top-right, beside the title block), so it never sits behind the evidence
+ * row. It is absolutely positioned: it takes no part in track sizing, and its width/height are set here, by
+ * the container, never by the SVG.
  */
 .vocab-pathway-card__art{
   position:absolute;
-  right:20px;
-  top:88px;
-  bottom:auto;
-  width:140px;
-  height:82px;
-  display:grid!important;
-  place-items:center;
+  grid-area:art;
+  top:0;
+  right:0;
+  width:128px;
+  height:92px;
+  display:block;
   z-index:1;
   overflow:visible;
   pointer-events:none;
-  opacity:.34;
-  border-radius:18px;
+  opacity:.66;
 }
 .vocab-pathway-card__art-image{
   display:block;
   width:100%;
   height:100%;
   object-fit:contain;
+}
+.vocab-pathway-card:disabled .vocab-pathway-card__art{
+  opacity:.36;
 }
 .vocab-pathway-card > :not(.vocab-pathway-card__art){
   position:relative;
@@ -77,8 +80,8 @@
 
 .vocab-pathway-card__status{
   grid-area:status;
-  justify-self:end;
-  align-self:center;
+  justify-self:start;
+  align-self:start;
   margin:0!important;
   padding:7px 12px;
   border:1px solid color-mix(in srgb,var(--study-accent) 18%,white);
@@ -167,25 +170,22 @@
     min-height:340px;
   }
   .vocab-pathway-card__art{
-    width:122px;
-    height:72px;
-    right:16px;
-    top:88px;
-    opacity:.30;
+    width:112px;
+    height:80px;
   }
 }
 
 @media (max-width:620px){
   .vocab-pathway-card,
   .vocab-pathway-card.has-study-art{
-    grid-template-columns:minmax(0,1fr);
+    grid-template-columns:minmax(0,1fr) 84px;
     grid-template-areas:
-      "identity"
-      "status"
-      "coverage"
-      "evidence"
-      "ladder"
-      "cta";
+      "identity art"
+      "status art"
+      "coverage art"
+      "evidence evidence"
+      "ladder ladder"
+      "cta cta";
     grid-template-rows:auto auto auto 68px auto auto;
     row-gap:12px;
     padding:20px!important;
@@ -210,10 +210,11 @@
     padding:8px 5px!important;
   }
   .vocab-pathway-card__art{
-    width:102px;
-    height:60px;
-    right:12px;
-    top:110px;
-    opacity:.26;
+    width:84px;
+    height:62px;
+  }
+  .vocab-pathway-card__head small{
+    width:auto;
+    white-space:normal;
   }
 }

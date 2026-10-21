@@ -1,3 +1,4 @@
+import { renderVocabularyUnit } from '../src/vocabulary/views.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -35,10 +36,17 @@ test('unit pathway state exposes accumulated evidence for the current stage', ()
   assert.equal(state.stageEvidence.progressPercent,75);
 });
 
-test('pathway cards render persistent current-stage evidence and an evidence meter', () => {
-  const runtime = readFileSync(new URL('../src/vocabulary/study-art-runtime.js', import.meta.url),'utf8');
-  assert.match(runtime,/vocab-pathway-card__evidence/);
-  assert.match(runtime,/stageEvidence/);
-  assert.match(runtime,/evidence progress/i);
-  assert.match(runtime,/getLatestUnitPathwayStates/);
+test('pathway cards render persistent current-stage evidence and an evidence meter in the first HTML', () => {
+  const target = { innerHTML:'' };
+  const evidence = { stageId:'match', attempts:12, cleanSuccesses:8, distinctPrompts:1, progressPercent:42 };
+  renderVocabularyUnit(target,{ unitNumber:1, unitTitle:'Sports', contentReady:true, pathwayStates:{
+    meaning:{ currentStage:'match', completedStages:['recognise'], stageEvidence:evidence },
+    context:{ currentStage:'recognise', completedStages:[], stageEvidence:{ stageId:'recognise', attempts:0, cleanSuccesses:0, distinctPrompts:0, progressPercent:0 } },
+    spelling_recall:{ available:false, stageEvidence:evidence }
+  } });
+  const html = target.innerHTML;
+  assert.match(html,/data-pathway="meaning"[\s\S]*?<strong>Match evidence<\/strong><small>12 attempts · 8 clean · 1 prompt<\/small>[\s\S]*?aria-valuenow="42"[\s\S]*?--pathway-evidence:42%/);
+  assert.match(html,/<strong>Recognise evidence<\/strong><small>No saved evidence yet<\/small>/);
+  assert.equal((html.match(/vocab-pathway-card__evidence"/g) ?? []).length, 5, 'every available pathway has its evidence row; the unavailable one has none');
+  assert.doesNotMatch(html,/data-pathway-evidence-shell/);
 });

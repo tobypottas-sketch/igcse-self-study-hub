@@ -149,8 +149,26 @@ function normalizedPathwayState(pathwayId, pathwayStates = {}) {
     available:state.available !== false,
     coverageCount,
     totalCount,
-    unavailableReason:state.unavailableReason ?? null
+    unavailableReason:state.unavailableReason ?? null,
+    stageEvidence:state.stageEvidence ?? null
   };
+}
+function pathwayEvidenceCopy(evidence) {
+  const attempts = Number(evidence?.attempts) || 0;
+  const clean = Number(evidence?.cleanSuccesses) || 0;
+  const prompts = Number(evidence?.distinctPrompts) || 0;
+  if (!attempts && !clean && !prompts) return 'No saved evidence yet';
+  const parts = [`${attempts} ${attempts === 1 ? 'attempt' : 'attempts'}`, `${clean} clean`];
+  if (prompts) parts.push(`${prompts} ${prompts === 1 ? 'prompt' : 'prompts'}`);
+  return parts.join(' · ');
+}
+// The evidence readout is rendered complete in the card's first HTML from the state the caller already holds.
+function pathwayEvidence(state) {
+  const evidence = state.stageEvidence;
+  const stageId = PATHWAY_STAGES.some(stage => stage.id === evidence?.stageId) ? evidence.stageId : state.currentStage;
+  const label = PATHWAY_STAGES.find(stage => stage.id === stageId)?.label ?? 'Recognise';
+  const percent = Math.max(0,Math.min(100,Math.round(Number(evidence?.progressPercent) || 0)));
+  return `<span class="vocab-pathway-card__evidence" data-pathway-evidence="${escapeHtml(stageId)}"><span class="vocab-pathway-card__evidence-copy"><strong>${escapeHtml(label)} evidence</strong><small>${escapeHtml(pathwayEvidenceCopy(evidence))}</small></span><span class="vocab-pathway-card__evidence-meter" role="progressbar" aria-label="${escapeHtml(label)} evidence progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}"><span class="vocab-pathway-card__evidence-fill" style="--pathway-evidence:${percent}%"></span></span></span>`;
 }
 function stageVisualState(stageId, state) {
   if (state.completedStages.has(stageId)) return 'complete';
@@ -174,10 +192,7 @@ function renderPathwayCard(pathway, pathwayStates, ready) {
     ? `<span class="vocab-pathway-card__coverage">${escapeHtml(state.coverageCount)} of ${escapeHtml(state.totalCount)} words available</span>`
     : '';
   const disabled = ready && !unavailable ? '' : ' disabled aria-disabled="true"';
-  // The evidence readout shell is part of the first render (the runtime only fills in saved numbers), so the
-  // reserved 60px row is never empty and nothing is inserted after paint.
-  const currentLabel = PATHWAY_STAGES.find(stage => stage.id === (state.currentStage ?? 'recognise'))?.label ?? 'Recognise';
-  const evidenceShell = unavailable ? '' : `<span class="vocab-pathway-card__evidence" data-pathway-evidence-shell="true"><span class="vocab-pathway-card__evidence-copy"><strong>${escapeHtml(currentLabel)} evidence</strong><small>No saved evidence yet</small></span><span class="vocab-pathway-card__evidence-meter" role="progressbar" aria-label="${escapeHtml(currentLabel)} evidence progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="vocab-pathway-card__evidence-fill" style="--pathway-evidence:0%"></span></span></span>`;
+  const evidenceShell = unavailable ? '' : pathwayEvidence(state);
   const cta = unavailable ? 'Not yet available for this unit' : `${state.mastered ? 'Review pathway' : 'Continue pathway'} →`;
   return `<button type="button" class="vocab-pathway-card has-study-art study-enter" data-action="open-pathway" data-pathway="${pathway.id}" data-pathway-status="${status}" data-study-accent="${escapeHtml(identity.accent)}"${disabled}><span class="vocab-pathway-card__identity"><span class="vocab-pathway-card__icon">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}</span><span class="vocab-pathway-card__head"><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(identity.purpose)}</small></span></span><span class="vocab-pathway-card__status">${escapeHtml(statusLabel)}</span>${coverage}${evidenceShell}<span class="vocab-pathway-ladder" aria-label="${escapeHtml(pathway.label)} progression">${stages}</span><span class="vocab-pathway-card__cta">${escapeHtml(cta)}</span>${pathwayArtSlot(pathway.id)}</button>`;
 }
