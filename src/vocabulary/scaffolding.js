@@ -1,3 +1,5 @@
+import { isSolvedOrder } from './tile-order.js';
+
 function text(value) { return String(value ?? '').trim(); }
 function array(value) { return Array.isArray(value) ? value : []; }
 
@@ -98,6 +100,15 @@ export function buildSupportStep(activity = {}, attemptResult = {}) {
     const remaining = [...tiles];
     const index = remaining.indexOf(fixed);
     if (index >= 0) remaining.splice(index, 1);
+    // Spelling & Recall only: the supported retry must not show the fixed letter followed by a remainder that already spells
+    // the word. Rotate deterministically until it does not; every other tile activity keeps its order exactly as before.
+    if (activity.type === 'spelling_rebuild' && fixed) {
+      const answer = accepted.find(value => !/\s/.test(value)) ?? accepted[0] ?? '';
+      for (let shift = 0; shift < remaining.length && isSolvedOrder([fixed, ...remaining], answer); shift += 1) {
+        remaining.push(remaining.shift());
+        if (remaining.length > 1 && new Set(remaining).size < 2) break;
+      }
+    }
     return {
       action:'retry',
       recycle:false,

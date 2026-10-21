@@ -1,4 +1,5 @@
 import { shuffleAnswerOptions } from './answer-option-shuffle.js';
+import { unsolvedTileOrder } from './tile-order.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 import { languageBankContextForItem, languageBankForItem } from './language-bank.js';
 
@@ -161,7 +162,7 @@ function spellingRebuild(args, definition) {
   const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence);
   if (!term||!meaning) throw new Error('Spelling rebuild requires a target word and meaning.');
   const letters=Array.from(term); const spaced=letters.join(' ');
-  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Rebuild the word meaning “${meaning}”.`,markingReference:{acceptedAnswers:[term,spaced]},extra:{tiles:shuffle(letters,`${args.seed}:spelling-tiles`),primaryEvidenceTargetId:args.item.vocabularyId}});
+  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Rebuild the word meaning “${meaning}”.`,markingReference:{acceptedAnswers:[term,spaced]},extra:{tiles:unsolvedTileOrder(letters,term,`${args.seed}:spelling-tiles`),primaryEvidenceTargetId:args.item.vocabularyId}});
 }
 function spellInContext(args, definition) {
   const context=blankableContext(args), term=text(args.item.term), rewrite=text(context.targetRewrite);
