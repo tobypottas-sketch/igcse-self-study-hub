@@ -1,0 +1,23 @@
+name: Temporary Canva source test
+on:
+  push:
+    branches: [fix/vocabulary-png-graphics]
+permissions:
+  contents: read
+jobs:
+  test-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download candidate full-resolution asset
+        shell: bash
+        run: |
+          set -euxo pipefail
+          URL='https://media.canva.com/v2/image-resize/format:PNG/height:1024/quality:100/uri:ifs%3A%2F%2FM%2Fcd43f4ef-18fe-4991-8964-7a743e8676f4/watermark:F/width:1024?csig=AAAAAAAAAAAAAAAAAAAAADFPZ0Mi3J6iMUOM2li9RlIsG3vY4JeBVK6yxITAyd83&exp=1792604190&osig=AAAAAAAAAAAAAAAAAAAAANLWrhHcMc_BiqldPMs4fvYJXkkVdlDCvrzuXLeEgeP0&signer=media-rpc&token=AAIAAU0AJGNkNDNmNGVmLTE4ZmUtNDk5MS04OTY0LTdhNzQzZTg2NzZmNAAAAAABoV-JNTARweXaP_lqWX0enkQuMo2cecNCNK7CW61g_YZSjAEipw&x-canva-quality=thumbnail'
+          curl -fL --retry 2 "$URL" -o /tmp/context.png
+          file /tmp/context.png
+          python - <<'PY'
+          from PIL import Image
+          im=Image.open('/tmp/context.png')
+          print('size=',im.size,'mode=',im.mode)
+          assert im.size == (1024,1024)
+          PY
