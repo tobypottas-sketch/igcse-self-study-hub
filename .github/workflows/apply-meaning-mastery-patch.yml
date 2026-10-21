@@ -25,8 +25,16 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Reconstruct approved replacement patch
         run: |
-          cat .merge-staging/mm/p00 .merge-staging/mm/p01 .merge-staging/mm/p02 .merge-staging/mm/p03 | base64 -d | gunzip > /tmp/meaning-mastery.patch
-          test -s /tmp/meaning-mastery.patch
+          head -c 12000 .merge-staging/mm/p01 > /tmp/p01
+          cat \
+            .merge-staging/mm/p00 \
+            /tmp/p01 \
+            .merge-staging/mm/p02 \
+            .merge-staging/mm/p03 \
+            .merge-staging/mm/tail0 \
+            .merge-staging/mm/tail1 \
+            | base64 -d | gunzip > /tmp/meaning-mastery.patch
+          echo "97f646da3e9785f0b9eb09072b3cd76818d6cf4e1d614f373c3b82b7cb398dca  /tmp/meaning-mastery.patch" | sha256sum -c -
           git am /tmp/meaning-mastery.patch
       - name: Run full test suite
         run: npm test
