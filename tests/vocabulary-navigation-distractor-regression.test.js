@@ -6,7 +6,7 @@ import { loadVocabularyUnit, loadStudentMastery } from '../src/vocabulary/data.j
 
 const permit = {
   vocabularyId:'vocab_permit', term:'permit', partOfSpeech:'verb', coreMeaning:'to allow something to happen',
-  senses:[{ senseId:'permit_1', meaning:'to allow something to happen', acceptedParaphrases:['allow','give permission for'], misleadingDistractors:['prevent','demand','resent'] }]
+  senses:[{ senseId:'permit_1', meaning:'to allow something to happen', acceptedParaphrases:['allow','give permission for'], misleadingDistractors:['prevent','demand','resent'], masteryContexts:[{ contextId:'permit_meaning', text:'The club does not permit spectators to enter the training area.', meaning:'make something allowed' }] }]
 };
 const occurrence = { occurrenceId:'u1_6_permit', vocabularyId:'vocab_permit', unitNumber:1, unitTitle:'Sports and Free Time', senseId:'permit_1' };
 const contexts = [{ contextId:'permit_meaning', vocabularyId:'vocab_permit', occurrenceId:'u1_6_permit', senseId:'permit_1', type:'meaning_context', text:'The club does not permit spectators to enter the training area.', acceptedAnswers:['allow'] }];
@@ -20,7 +20,8 @@ for (const activityType of ['meaning_match','meaning_in_context']) {
   test(`${activityType} prefers curated misconception distractors over unrelated unit synonyms`, () => {
     const mastery = activityType === 'meaning_match' ? { status:'new', strandEvidence:{} } : { status:'building', strandEvidence:{ meaning:3, context:2 } };
     const question = buildActivity({ activityType, occurrence, item:permit, contexts, unitItems:[permit, ...unrelated], mastery, seed:'permit-regression' });
-    assert.equal(question.options.includes('allow'), true);
+    const expectedCorrect = activityType === 'meaning_match' ? 'allow' : 'make something allowed';
+    assert.equal(question.options.includes(expectedCorrect), true);
     for (const distractor of ['prevent','demand','resent']) assert.equal(question.options.includes(distractor), true, `expected curated distractor ${distractor}`);
     for (const weak of ['contestant','financial','test']) assert.equal(question.options.includes(weak), false, `unrelated distractor ${weak} should not appear`);
   });

@@ -67,7 +67,13 @@ const entries = [
 
 const enrichedEntries = entries.map(entry => {
   const masteryMeanings = unit1MasterySupplement[entry.term] ?? [];
-  const masterySource = (unit1LanguageBank[entry.term]?.contexts ?? []).slice(0,2);
+  const languageContexts = unit1LanguageBank[entry.term]?.contexts ?? [];
+  const grammarContexts = unit1GrammarSupplement[entry.term]?.retrievalContexts ?? [];
+  const fallbackContexts = [
+    { text:entry.meaningSentence, answer:entry.term },
+    { text:String(entry.production?.sentence ?? '').replace(String(entry.production?.source ?? ''), entry.term), answer:entry.term }
+  ];
+  const masterySource = (languageContexts.length >= 2 ? languageContexts : grammarContexts.length >= 2 ? grammarContexts : fallbackContexts).slice(0,2);
   const masteryContexts = masterySource.map((record,index) => ({
     text:String(record?.text ?? '').replace('____', String(record?.answer ?? entry.term)),
     meaning:String(masteryMeanings[index] ?? '').trim()
