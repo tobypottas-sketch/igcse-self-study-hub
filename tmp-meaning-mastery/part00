@@ -1,0 +1,130 @@
+From 4a52003d970dcbd3c6a97a034452dfa654204417 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 21 Oct 2026 15:21:45 +0800
+Subject: [PATCH] =?UTF-8?q?Fix=20Meaning=20=E2=86=92=20Mastery:=20context-?=
+ =?UTF-8?q?to-meaning=20inference=20with=20meaning=20options?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+meaning_in_context asked "which meaning best fits X?" but, for half of builds
+(paraphrase_context rows), offered vocabulary headwords including the target.
+Guards only covered typed activities, so choice activities were exempt.
+
+- New semantic contract (src/vocabulary/meaning-context-contract.js) enforced in the
+  builder (fail closed, logged), the content validator and tests.
+- Shared marker: meaning_in_context accepts ONLY the meaning phrase designated for the
+  context row (sense.masteryContexts). Headword, synonyms and every legacy accepted
+  answer are wrong; no designation means nothing is correct. Other question types
+  that share the same rows are unchanged. Requires the Edge Function to be redeployed.
+- Unit 1: two curated inferential mastery contexts per target with definition-style
+  options, anchored on the meaning/paraphrase rows (additive accepted_answers),
+  plus a second, stricter human pass (22 variants reworded).
+- Tests, audit fixture and docs/vocabulary-meaning-in-context-audit.md.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JXQNUWEc5cc3mtFJ4Z7p5M
+---
+ content/vocabulary/build-unit.js              |   16 +-
+ .../units/unit-01-meaning-in-context.js       |  723 ++++++
+ content/vocabulary/units/unit-01.js           |   10 +-
+ docs/vocabulary-meaning-in-context-audit.md   |   94 +
+ scripts/publish-vocabulary-content.mjs        |    4 +-
+ scripts/validate-vocabulary-content.mjs       |   22 +-
+ src/vocabulary/activity-builder.js            |   47 +-
+ src/vocabulary/meaning-context-contract.js    |  174 ++
+ .../functions/_shared/vocabulary-engine.js    |   17 +-
+ .../vocabulary-meaning-in-context-audit.json  | 2131 +++++++++++++++++
+ tests/vocabulary-activity-builder.test.js     |    9 +-
+ tests/vocabulary-meaning-in-context.test.js   |  505 ++++
+ ...vocabulary-meaning-mastery-browser.test.js |  101 +
+ ...y-navigation-distractor-regression.test.js |    4 +-
+ tests/vocabulary-pedagogical-quality.test.js  |    2 +-
+ 15 files changed, 3838 insertions(+), 21 deletions(-)
+ create mode 100644 content/vocabulary/units/unit-01-meaning-in-context.js
+ create mode 100644 docs/vocabulary-meaning-in-context-audit.md
+ create mode 100644 src/vocabulary/meaning-context-contract.js
+ create mode 100644 tests/fixtures/vocabulary-meaning-in-context-audit.json
+ create mode 100644 tests/vocabulary-meaning-in-context.test.js
+ create mode 100644 tests/vocabulary-meaning-mastery-browser.test.js
+
+diff --git a/content/vocabulary/build-unit.js b/content/vocabulary/build-unit.js
+index 75722f2..a528e67 100644
+--- a/content/vocabulary/build-unit.js
++++ b/content/vocabulary/build-unit.js
+@@ -79,6 +79,13 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
+     const grammarForms = object(entry.grammarForms);
+     const grammarPatterns = array(entry.grammarPatterns).map(text).filter(Boolean);
+     const retrievalContexts = array(entry.retrievalContexts);
++    // Meaning → Mastery variants: variant 1 is anchored on the `_meaning` row, variant 2 on the `_paraphrase` row. Mastery needs two
++    // distinct prompts and the server derives the prompt identity from the context id, so each variant needs its own anchor row.
++    const masteryAnchors = [meaningId, paraphraseId];
++    const masteryContexts = array(entry.masteryContexts).slice(0, masteryAnchors.length)
++      .map((variant, index) => ({ contextId:masteryAnchors[index], sentence:text(variant?.sentence), focus:text(variant?.focus), meaning:text(variant?.meaning), distractors:array(variant?.distractors).map(text).filter(Boolean) }))
++      .filter(variant => variant.sentence && variant.meaning);
++    const masteryMeaningFor = contextId => masteryContexts.find(variant => variant.contextId === contextId)?.meaning;
+     const sense = {
+       senseId,
+       meaning:text(entry.meaning),
+@@ -87,7 +94,10 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
+       misleadingDistractors:distractors,
+       ...(Object.keys(grammarForms).length ? { grammarForms:{ ...grammarForms } } : {}),
+       ...(grammarPatterns.length ? { grammarPatterns } : {}),
+-      ...(entry.teacherNote ? { teacherNote:text(entry.teacherNote) } : {})
++      ...(entry.teacherNote ? { teacherNote:text(entry.teacherNote) } : {}),
++      // Meaning → Mastery content (a sentence that carries inferential evidence + four meaning options). It lives on the
++      // sense because the runtime reads items from the database and `senses` is the only free-form content column.
++      ...(masteryContexts.length ? { masteryContexts } : {})
+     };
+ 
+     unit.items.push({
+@@ -131,8 +141,8 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
+     });
+ 
+     unit.contexts.push(
+-      context({ contextId:meaningId, vocabularyId, occurrenceId, senseId, type:'meaning_context', text:entry.meaningSentence, acceptedAnswers:[paraphrases[0]], status }),
+-      context({ contextId:paraphraseId, vocabularyId, occurrenceId, senseId, type:'paraphrase_context', text:entry.paraphrase?.sentence, targetRewrite:entry.paraphrase?.source, acceptedAnswers:[term], status }),
++      context({ contextId:meaningId, vocabularyId, occurrenceId, senseId, type:'meaning_context', text:entry.meaningSentence, acceptedAnswers:[paraphrases[0], ...(masteryMeaningFor(meaningId) ? [masteryMeaningFor(meaningId)] : [])], status }),
++      context({ contextId:paraphraseId, vocabularyId, occurrenceId, senseId, type:'paraphrase_context', text:entry.paraphrase?.sentence, targetRewrite:entry.paraphrase?.source, acceptedAnswers:[term, ...(masteryMeaningFor(paraphraseId) ? [masteryMeaningFor(paraphraseId)] : [])], status }),
+       context({ contextId:productionId, vocabularyId, occurrenceId, senseId, type:'production_context', text:entry.production?.sentence, targetRewrite:entry.production?.source, acceptedAnswers:[term], status }),
+       ...extraContexts
+     );
+diff --git a/content/vocabulary/units/unit-01-meaning-in-context.js b/content/vocabulary/units/unit-01-meaning-in-context.js
+new file mode 100644
+index 0000000..3cb13f9
+--- /dev/null
++++ b/content/vocabulary/units/unit-01-meaning-in-context.js
+@@ -0,0 +1,723 @@
++// Meaning → Mastery (meaning_in_context) content for Unit 1.
++//
++// Every target has TWO variants (A is anchored on the occurrence's `_meaning` context row, B on its `_paraphrase` row). Two
++// variants are required because Mastery needs at least two distinct prompts (promptKeys are derived from the context id), and
++// each variant gets its own correct meaning phrase so the learner cannot pass the second one by recognising an option string.
++//
++// Each variant gives the student the target word inside a realistic sentence whose surrounding evidence (a consequence, a
++// contrast, a purpose) lets them infer the meaning, and four MEANING options: one correct definition-style phrase and
++// three plausible but wrong ones in the same grammatical shape. The sentence never contains a known synonym or a copy
++// of the definition (see src/vocabulary/meaning-context-contract.js, enforced by the builder, the validator and the tests).
++//
++//   sentence   the context shown to the student (contains `focus`)
++//   focus      the exact surface form of the target in the sentence
++//   meaning    the correct answer: a definition-style phrase
++//   distractors three wrong meanings: opposite / neighbouring / plausible misunderstanding
++//   clue       (audit note only, not published) the evidence that lets a learner infer the meaning
++const variantA = Object.freeze({
++  leisure:{
++    sentence:'After a stressful week of exams, Mei used her leisure time to lie on the beach, with no homework and nowhere she had to be.',
++    focus:'leisure',
++    meaning:'time when you can relax and do what you enjoy',
++    distractors:['time that you spend preparing for an important test', 'a long holiday that a school arranges for pupils', 'the effort you make to stay fit and healthy'],
++    clue:'contrast with exams; beach, no homework, nowhere she had to be'
++  },
++  preference:{
++    sentence:'The café offered tea, coffee and juice, but Aisha’s preference was always the same: a hot chocolate with no sugar.',
++    focus:'preference',
++    meaning:'the option you like better than the others',
++    distractors:['a rule that everyone must follow when ordering', 'the price you pay for a particular drink', 'a reason for refusing something you are offered'],
++    clue:'several options on offer; she always picks the same one'
++  },
++  avoid:{
++    sentence:'Because the pitch was fl
