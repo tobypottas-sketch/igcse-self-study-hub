@@ -1,0 +1,131 @@
+name: Temporary Real Vocabulary Graphics
+on:
+  push:
+    branches: [fix/vocabulary-png-graphics-real]
+permissions:
+  contents: write
+jobs:
+  integrate:
+    if: ${{ !contains(github.event.head_commit.message, '[graphics real]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fetch approved artwork
+        shell: bash
+        run: |
+          python -m pip install -q requests pillow
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import requests, io
+          sources = {
+            'assets/vocabulary/units/unit-01.png':'https://media.canva.com/v2/document-image/hash:-1003929277/height:221/id:DAHYpftBFLg/type:B/width:899?brand=BAEv36N9rYg&csig=AAAAAAAAAAAAAAAAAAAAAE_ruAUGenDYi36ghOn8Ys7Deo2RPoB0vtlrJ78K3OA3&disableexport=T&exp=1792599896&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2FtBFLg%2FDAHYpftBFLg%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHW27RK5IK%252F20261020%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20261020T191300Z%26X-Amz-Expires%3D77589%26X-Amz-Signature%3Dfe9964af8a5e0e7dd561bdff280fc9248b01741aa7895033e7e8c293cf57502d%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DWed%252C%252021%2520Oct%25202026%252016%253A46%253A09%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAGExiUD1dtF2lBv-1M8ZMQJofQ4TdzcknhLHqGftdf7Z&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=1',
+            'assets/vocabulary/pathways/meaning.png':'https://media.canva.com/v2/document-image/hash:1854500860/height:447/id:DAHYpQE_Gnc/type:B/width:447?brand=BAEv36N9rYg&csig=AAAAAAAAAAAAAAAAAAAAAMuS7PbqXGKLCArg4i1iwD1Ukg3VZ_iRZVWJT72pGKF0&disableexport=T&exp=1792598036&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2FE_Gnc%2FDAHYpQE_Gnc%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHW27RK5IK%252F20261021%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20261021T103933Z%26X-Amz-Expires%3D19936%26X-Amz-Signature%3D5c8e8f1aad52bdc48d854a79435e0192547efa6dc98828093cd9baf96dcc2bcc%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DWed%252C%252021%2520Oct%25202026%252016%253A11%253A49%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAMec7NFdq-doJR-3id0K2_BNQvdAprXZbH6tEe0ARjy1&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=1',
+            'assets/vocabulary/pathways/context.png':'https://media.canva.com/v2/document-image/hash:1109287418/height:447/id:DAHYpcdAWdE/type:B/width:447?brand=BAEv36N9rYg&csig=AAAAAAAAAAAAAAAAAAAAAJDdK0bgWaMMgUQuXVIznG8kBpMdf1bm1Q_YkZtMlvZm&disableexport=T&exp=1792599181&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2FdAWdE%2FDAHYpcdAWdE%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHW27RK5IK%252F20261021%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20261021T032609Z%26X-Amz-Expires%3D46673%26X-Amz-Signature%3D3b1a0000cb7eb8174257158b18a0da8d0a83269955e80899772597d1e5bd9747%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DWed%252C%252021%2520Oct%25202026%252016%253A24%253A02%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAALHVvzvSNJbqq3b_F4R9CXJhrrb08O5b-9qy3lCNwX6J&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=1',
+            'assets/vocabulary/pathways/word-families.png':'https://media.canva.com/v2/document-image/hash:70396043/height:447/id:DAHYpZgX3FE/type:B/width:447?brand=BAEv36N9rYg&csig=AAAAAAAAAAAAAAAAAAAAAB_fXNlgpHOo6K1R18CjoNyTAOU2t-XTHPtJ5_-f5cdV&disableexport=T&exp=1792598458&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2FgX3FE%2FDAHYpZgX3FE%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHW27RK5IK%252F20261021%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20261021T055008Z%26X-Amz-Expires%3D38717%26X-Amz-Signature%3D2dadf959573c3c049b83280f9a243bb046132f9d3a2e9764eeec05e10a2239a3%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DWed%252C%252021%2520Oct%25202026%252016%253A35%253A25%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAOQwKakwr2oow7Ux0vshmV2T-MUpbHwGico4HWkfIJcN&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=1',
+            'assets/vocabulary/pathways/paraphrasing.png':'https://media.canva.com/v2/document-image/hash:603325865/height:447/id:DAHYpUsIFpY/type:B/width:447?brand=BAEv36N9rYg&csig=AAAAAAAAAAAAAAAAAAAAAOw3DDp-v9KD4UBq-hNAvftX589V6MZWXPWdhg8OMxUw&disableexport=T&exp=1792599005&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2FsIFpY%2FDAHYpUsIFpY%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHW27RK5IK%252F20261021%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20261021T030427Z%26X-Amz-Expires%3D47383%26X-Amz-Signature%3D65775be4dd9f92a2c0d2549d98f6ded3a188cc877ecf9457e294f96eba74c303%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DWed%252C%252021%2520Oct%25202026%252016%253A14%253A10%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAFqjElKBjpZw--TCXGHRUGKw-BqmTnK3O9yh97q1DQ2o&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=1',
+            'assets/vocabulary/pathways/precision-use.png':'https://media.canva.com/v2/document-image/hash:-1113934649/height:447/id:DAHYpb911qA/type:B/width:447?brand=BAEv36N9rYg&csig=AAAAAAAAAAAAAAAAAAAAAM2wUeelQkMGv1CQYD2OrmZkIQWDOEBZNJKIdTB3COx0&disableexport=T&exp=1792598908&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F911qA%2FDAHYpb911qA%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHW27RK5IK%252F20261020%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20261020T171046Z%26X-Amz-Expires%3D84414%26X-Amz-Signature%3D035806ff0a940919acf0b506cec433bdf54d2eafa791f2bf9a4fae28fa4f47ae%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DWed%252C%252021%2520Oct%25202026%252016%253A37%253A40%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAM2OJkQ1XY4pFm-HeCxRe15JsuQSBYjS-SJoReSokbQB&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=1',
+            'assets/vocabulary/pathways/spelling-recall.png':'https://media.canva.com/v2/document-image/hash:-1320272705/height:447/id:DAHYpWFGI3M/type:B/width:447?brand=BAEv36N9rYg&csig=AAAAAAAAAAAAAAAAAAAAAFRb6zXv5n6tU9cdQml5AdrpJAI21lM9Z17vf-84pbOo&disableexport=T&exp=1792600630&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2FFGI3M%2FDAHYpWFGI3M%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHW27RK5IK%252F20261021%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20261021T142035Z%26X-Amz-Expires%3D7457%26X-Amz-Signature%3D4f2e308aadd53c21792d1d4120cbfc48a04cb58cd02d62bb48bab8e7bc6b6d13%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DWed%252C%252021%2520Oct%25202026%252016%253A24%253A52%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAJSdRe_cgHIDYABriy7-4qesB2-MoD1e3X7OA_D4L-X4&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=1'
+          }
+          session = requests.Session(); session.headers['User-Agent']='Mozilla/5.0'
+          for dest,url in sources.items():
+            r=session.get(url,timeout=30); r.raise_for_status()
+            im=Image.open(io.BytesIO(r.content)).convert('RGBA')
+            if '/pathways/' in dest:
+              px=im.load()
+              for y in range(im.height):
+                for x in range(im.width):
+                  rr,gg,bb,aa=px[x,y]
+                  if rr>246 and gg>246 and bb>246:
+                    px[x,y]=(rr,gg,bb,0)
+              im=im.resize((1024,1024),Image.Resampling.LANCZOS)
+            else:
+              im=im.resize((1672,411),Image.Resampling.LANCZOS)
+            p=Path(dest); p.parent.mkdir(parents=True,exist_ok=True); im.save(p,optimize=True)
+            print(dest, im.size)
+          PY
+      - name: Add graphics wiring
+        shell: bash
+        run: |
+          cat > src/vocabulary/graphics-manifest.js <<'EOF'
+          export const SHIPPED_PNG = Object.freeze([
+            'units/unit-01.png',
+            'pathways/meaning.png','pathways/context.png','pathways/word-families.png',
+            'pathways/paraphrasing.png','pathways/precision-use.png','pathways/spelling-recall.png'
+          ]);
+          EOF
+          cat > src/vocabulary/graphics-registry.js <<'EOF'
+          import { SHIPPED_PNG } from './graphics-manifest.js';
+          export const GRAPHICS_ROOT='assets/vocabulary';
+          export const PATHWAY_PNG=Object.freeze({meaning:'pathways/meaning.png',context:'pathways/context.png',word_families:'pathways/word-families.png',paraphrasing:'pathways/paraphrasing.png',precision_use:'pathways/precision-use.png',spelling_recall:'pathways/spelling-recall.png'});
+          export const unitPngName=n=>`units/unit-${String(Math.trunc(Number(n))).padStart(2,'0')}.png`;
+          const shipped=new Set(SHIPPED_PNG), failed=new Set();
+          export function reportGraphicFailure(src){failed.add(String(src));}
+          export function shippedGraphic(group,key){const file=group==='pathway'?PATHWAY_PNG[String(key)]:group==='unit'?unitPngName(key):null;if(!file||!shipped.has(file))return null;const src=`${GRAPHICS_ROOT}/${file}`;return failed.has(src)?null:{src,width:group==='unit'?1672:1024,height:group==='unit'?411:1024};}
+          EOF
+          cat > src/vocabulary/graphics-runtime.js <<'EOF'
+          import { reportGraphicFailure } from './graphics-registry.js';
+          function handle(root,event){const img=event.target;if(!(img instanceof HTMLImageElement)||!img.matches('[data-art-png]')||!root.contains(img))return;const slot=img.closest('[data-art-slot]');if(!slot)return;if(event.type==='load'){slot.classList.add('is-png-ready');return;}reportGraphicFailure(img.getAttribute('src'));img.remove();slot.classList.remove('has-png','is-png-ready');}
+          export function installGraphicsHandlers(root){if(!root)return;root.addEventListener('load',e=>handle(root,e),true);root.addEventListener('error',e=>handle(root,e),true);}
+          EOF
+          cat > src/vocabulary/graphics-boot.js <<'EOF'
+          import { installGraphicsHandlers } from './graphics-runtime.js';
+          installGraphicsHandlers(document.getElementById('vocabularyApp'));
+          EOF
+          cat > vocabulary-graphics.css <<'EOF'
+          .study-art__png{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity 220ms ease;pointer-events:none;user-select:none;-webkit-user-drag:none;max-width:none}
+          [data-art-slot].is-png-ready .study-art__png{opacity:1}
+          [data-art-slot].is-png-ready .study-art__svg{visibility:hidden}
+          .vocab-unit-card__art .study-art__png{object-fit:cover;object-position:62% 50%}
+          .vocab-unit-hero.has-png-art{padding-right:min(39vw,410px)!important}
+          .vocab-unit-hero.has-png-art .vocab-unit-hero__art{width:min(36vw,380px)}
+          .vocab-unit-hero__art .study-art__png{inset:auto 0;top:50%;transform:translateY(-50%);height:auto;max-height:100%;object-fit:cover;object-position:62% 50%;border-radius:20px;box-shadow:0 10px 24px rgba(21,58,91,.14)}
+          .vocab-pathway-card__art .study-art__png{object-fit:contain;object-position:center}
+          @media (prefers-reduced-motion:reduce){.study-art__png{transition:none}}
+          @media (max-width:760px){.vocab-unit-hero.has-png-art{padding-right:18px!important;padding-bottom:166px!important}.vocab-unit-hero.has-png-art .vocab-unit-hero__art{width:min(300px,calc(100% - 36px));height:150px}}
+          EOF
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('src/vocabulary/views.js'); s=p.read_text()
+          if "./graphics-registry.js" not in s:
+            s=s.replace("import { renderMatchSet } from './match-set-view.js';", "import { renderMatchSet } from './match-set-view.js';\nimport { shippedGraphic } from './graphics-registry.js';")
+          s=s.replace("function unitArtSlot(unitNumber) {\n  const svg = unitArtSvg(unitNumber,'vocab-unit-card__art-image');\n  return svg ? `<span class=\"vocab-unit-card__art\" data-unit-art=\"${escapeHtml(unitNumber)}\" aria-hidden=\"true\">${svg}</span>` : '';\n}", "function unitArtSlot(unitNumber) { const svg=unitArtSvg(unitNumber,'vocab-unit-card__art-image'); const png=shippedGraphic('unit',unitNumber); return svg ? `<span class=\"vocab-unit-card__art${png?' has-png':''}\" data-unit-art=\"${escapeHtml(unitNumber)}\" data-art-slot aria-hidden=\"true\">${svg}${png?`<img class=\"study-art__png\" data-art-png src=\"${png.src}\" width=\"${png.width}\" height=\"${png.height}\" alt=\"\" decoding=\"async\">`:''}</span>` : ''; }")
+          s=s.replace("function unitHeroArt(unitNumber) {\n  const svg = unitArtSvg(unitNumber,'vocab-unit-hero__art-image');\n  return svg ? `<figure class=\"vocab-unit-hero__art\" data-unit-hero-art=\"${escapeHtml(unitNumber)}\" aria-hidden=\"true\">${svg}</figure>` : '';\n}\nfunction unitHeroClass(unitNumber) { return unitArtSvg(unitNumber) ? 'vocab-unit-hero has-study-art' : 'vocab-unit-hero'; }\n", "function unitHeroArt(unitNumber) { const svg=unitArtSvg(unitNumber,'vocab-unit-hero__art-image'); const png=shippedGraphic('unit',unitNumber); return svg ? `<figure class=\"vocab-unit-hero__art${png?' has-png':''}\" data-unit-hero-art=\"${escapeHtml(unitNumber)}\" data-art-slot aria-hidden=\"true\">${svg}${png?`<img class=\"study-art__png\" data-art-png src=\"${png.src}\" width=\"${png.width}\" height=\"${png.height}\" alt=\"\" decoding=\"async\" loading=\"eager\">`:''}</figure>` : ''; }\nfunction unitHeroClass(unitNumber) { return unitArtSvg(unitNumber) ? `vocab-unit-hero has-study-art${shippedGraphic('unit',unitNumber)?' has-png-art':''}` : 'vocab-unit-hero'; }\n")
+          s=s.replace("function pathwayArtSlot(pathwayId) {\n  const svg = pathwayArtSvg(pathwayId,'vocab-pathway-card__art-image');\n  return svg ? `<span class=\"vocab-pathway-card__art\" data-pathway-art=\"${escapeHtml(pathwayId)}\" aria-hidden=\"true\">${svg}</span>` : '';\n}", "function pathwayArtSlot(pathwayId) { const svg=pathwayArtSvg(pathwayId,'vocab-pathway-card__art-image'); const png=shippedGraphic('pathway',pathwayId); return svg ? `<span class=\"vocab-pathway-card__art${png?' has-png':''}\" data-pathway-art=\"${escapeHtml(pathwayId)}\" data-art-slot aria-hidden=\"true\">${svg}${png?`<img class=\"study-art__png\" data-art-png src=\"${png.src}\" width=\"${png.width}\" height=\"${png.height}\" alt=\"\" decoding=\"async\">`:''}</span>` : ''; }")
+          p.write_text(s)
+          p=Path('vocabulary.html'); s=p.read_text()
+          if 'vocabulary-graphics.css' not in s:s=s.replace('</head>','  <link rel="stylesheet" href="vocabulary-graphics.css">\n</head>')
+          if 'graphics-boot.js' not in s:s=s.replace('<script type="module" src="src/vocabulary/router.js"></script>','<script type="module" src="src/vocabulary/graphics-boot.js"></script>\n  <script type="module" src="src/vocabulary/router.js"></script>')
+          p.write_text(s)
+          PY
+      - name: Verify assets and source
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          assert Image.open('assets/vocabulary/units/unit-01.png').size == (1672,411)
+          for n in ['meaning','context','word-families','paraphrasing','precision-use','spelling-recall']:
+            assert Image.open(f'assets/vocabulary/pathways/{n}.png').size == (1024,1024)
+          s=Path('vocabulary.html').read_text(); assert 'vocabulary-graphics.css' in s and 'graphics-boot.js' in s
+          v=Path('src/vocabulary/views.js').read_text(); assert 'study-art__png' in v and 'shippedGraphic' in v
+          print('real PNG graphics verified')
+          PY
+          git diff --check
+      - name: Run tests
+        run: npm test
+      - name: Validate Unit 1
+        run: node scripts/validate-vocabulary-content.mjs
+      - name: Commit clean result
+        shell: bash
+        run: |
+          rm -f .github/workflows/tmp-real-vocab-graphics.yml .github/workflows/tmp-final-vocab-graphics.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'feat: ship real Vocabulary Builder PNG graphics [graphics real]'
+          git push origin HEAD:fix/vocabulary-png-graphics-real
