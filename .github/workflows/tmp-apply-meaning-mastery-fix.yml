@@ -1,4 +1,4 @@
-name: Apply Meaning Mastery Fix
+name: Finalize Meaning Mastery Fix
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 jobs:
-  apply-and-verify:
+  finalize:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,25 +22,11 @@ jobs:
         with:
           node-version: 22
       - run: node scripts/tmp-apply-meaning-mastery-fix.mjs
-      - name: Run full tests
-        id: tests
-        continue-on-error: true
-        run: npm test > tmp-meaning-mastery-test.log 2>&1
-      - name: Upload test log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: meaning-mastery-test-log
-          path: tmp-meaning-mastery-test.log
-          retention-days: 1
-      - name: Enforce full test success
-        if: steps.tests.outcome != 'success'
-        run: exit 1
+      - run: npm test
       - run: node scripts/validate-vocabulary-content.mjs
-      - name: Remove temporary patch machinery
-        run: rm scripts/tmp-apply-meaning-mastery-fix.mjs .github/workflows/tmp-apply-meaning-mastery-fix.yml tmp-meaning-mastery-test.log
-      - name: Commit verified implementation
+      - name: Commit verified fix and remove temporary files
         run: |
+          rm -f scripts/tmp-apply-meaning-mastery-fix.mjs .github/workflows/tmp-apply-meaning-mastery-fix.yml tmp-meaning-mastery-test.log
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
