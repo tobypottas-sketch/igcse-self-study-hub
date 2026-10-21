@@ -25,6 +25,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Reconstruct approved replacement patch
         run: |
+          echo "50b9314e382c803cafbe7f3c702a6af751e9a761e0dacc62eb5ce4e1882c35bb  .merge-staging/mm/p00" | sha256sum -c -
+          echo "d9c95e14aef6ccdcc9b587da1966ac2c87c85edab4e72b77f40ceb5043ba2ee5  .merge-staging/mm/p01fix" | sha256sum -c -
+          echo "23b2fe3d369b2aba6932e62cd2460bd1d7a094e068ba37bb0e6f0a3013f10699  .merge-staging/mm/p02" | sha256sum -c -
+          echo "af858ee2fe61c62a5f4f925f6a8a4e469c29ed0aebbf2848b739f59dd7aa7021  .merge-staging/mm/p03" | sha256sum -c -
+          echo "4c0d29e47e28fc6d9325220fca56c0e94b8cb49ff16f317a42ff73a690e4e71b  .merge-staging/mm/tail0" | sha256sum -c -
+          echo "87f6b5c5fc17aa694b0cf29b34323f61b5f53686a1b8cbdf03a5b7ad079ff02e  .merge-staging/mm/tail1" | sha256sum -c -
           cat \
             .merge-staging/mm/p00 \
             .merge-staging/mm/p01fix \
