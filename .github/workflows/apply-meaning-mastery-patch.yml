@@ -1,0 +1,40 @@
+name: Apply Meaning Mastery Patch
+
+on:
+  push:
+    branches:
+      - fix/meaning-mastery-contract-merge-stage2
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: fix/meaning-mastery-contract-merge-stage2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Reconstruct approved replacement patch
+        run: |
+          cat .merge-staging/mm/p00 .merge-staging/mm/p01 .merge-staging/mm/p02 .merge-staging/mm/p03 | base64 -d | gunzip > /tmp/meaning-mastery.patch
+          test -s /tmp/meaning-mastery.patch
+          git am /tmp/meaning-mastery.patch
+      - name: Run full test suite
+        run: npm test
+      - name: Remove temporary staging and workflow
+        run: |
+          rm -rf .merge-staging/mm
+          rm -f .github/workflows/apply-meaning-mastery-patch.yml
+          git add -A
+          git commit -m "chore: remove temporary Meaning Mastery merge staging [meaning-mastery-applied]"
+      - name: Push final branch
+        run: git push origin HEAD:fix/meaning-mastery-contract-merge-stage2
