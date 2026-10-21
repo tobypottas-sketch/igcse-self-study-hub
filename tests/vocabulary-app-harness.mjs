@@ -20,7 +20,9 @@ const source = fs.readFileSync(new URL('../src/vocabulary/app.js',import.meta.ur
   .replace(/^const root = .*;\n/m,'')
   .replace(/^const state = \{[\s\S]*?^\};\n/m,'');
 
-export function harness({ pathwayId = 'word_families', stage = 'match', size = 2, validate = true } = {}) {
+// Optional latency controls: `submitDelay(payload, index)` returns ms to wait before the fake server answers (real timers),
+// `serverCorrect(payload, local)` overrides the server's marking, `deterministic` fixes randomUUID so two runs are comparable.
+export function harness({ pathwayId = 'word_families', stage = 'match', size = 2, validate = true, submitDelay = null, serverCorrect = null, deterministic = false, fail = null } = {}) {
   const chosen = ['afford', 'avoid']
     .map(term => unit.items.find(row => row.term === term)).filter(Boolean)
     .map(item => unit.occurrences.find(row => row.vocabularyId === item.vocabularyId));
@@ -33,21 +35,27 @@ export function harness({ pathwayId = 'word_families', stage = 'match', size = 2
     state.globalMastery[target.vocabularyId] = { status:'building', strandEvidence:{ meaning:3, recognition:3, context:3, paraphrasing:3 } };
     state.unitMastery[target.occurrenceId] = { status:'building', contextualEvidence:{ pathwayProgress:{ [pathwayId]:freshPathwayProgress({ completedStages:stages.slice(0, stages.indexOf(stage)) }) } } };
   }
-  const saved = []; const rejected = [];
-  const context = vm.createContext({ state, crypto, Date, Map, Set, console, root:{}, window:{ clearInterval() {}, setInterval() { return 1; } },
+  const saved = []; const rejected = []; const served = []; const summaries = []; const requests = []; let counter = 0;
+  const testCrypto = deterministic ? { randomUUID:() => `uuid-${++counter}` } : crypto;
+  const context = vm.createContext({ state, crypto:testCrypto, Date, Map, Set, console, root:{}, window:{ clearInterval() {}, setInterval() { return 1; } },
     createAttemptPersistence, ...sessions, ...targets, ...pathways, ...placement, ...engine, deriveLearningStage, buildSupportStep, buildSessionFinishModel,
-    renderVocabularyQuestion() {}, renderSessionSummary() {}, renderVocabularyUnit() {}, supportiveFeedback() { return ''; }, trackVocabularyEvent:async () => {},
+    renderVocabularyQuestion(_root, opts) { served.push({ target:state.current?.target?.occurrenceId, type:opts?.question?.type, contentId:opts?.question?.contentId, prompt:opts?.question?.prompt, options:opts?.question?.options ?? null, retry:Boolean(opts?.retry), feedback:Boolean(opts?.feedback), recovery:Boolean(state.current?.recovery) }); },
+    renderSessionSummary(_root, opts) { summaries.push(opts); }, renderVocabularyUnit() {}, supportiveFeedback() { return ''; }, trackVocabularyEvent:async () => {},
     submitVocabularyAttempt:async (_client, payload) => {
+      requests.push({ attemptId:payload.attemptId, at:Date.now() });
+      if (submitDelay) await new Promise(done => setTimeout(done, submitDelay(payload, requests.length)));
+      if (fail?.(payload, requests.length)) throw new Error('Failed to fetch');
       if (validate) { try { validateVocabularyAttempt(payload); } catch (error) { rejected.push({ payload, message:error.message }); throw new Error(error.message); } }
       saved.push(payload);
-      const correct = payload.rawAnswer !== '__wrong__';
+      const local = payload.rawAnswer !== '__wrong__';
+      const correct = serverCorrect ? serverCorrect(payload, local) : local;
       if (!payload.pathwayId) return { correct };
       const progress = state.unitMastery[payload.occurrenceId].contextualEvidence.pathwayProgress[payload.pathwayId];
       const id = payload.activityContentId ?? payload.contextId ?? payload.occurrenceId;
       return { correct, pathwayId:payload.pathwayId, pathwayProgress:applyPathwayAttempt(progress, { stageId:payload.pathwayStage, servedStageId:payload.servedPathwayStage, correct, firstAttempt:payload.firstAttempt, retryUsed:payload.retryUsed, supportLevel:payload.supportLevel, contentId:`${id}:${payload.questionType}`, contextId:payload.contextId ?? payload.activityContentId, promptKey:`${id}:${payload.questionType}`, activityType:payload.questionType, contextSensitive:false }) };
     } });
   vm.runInContext(source, context);
-  return { state, saved, rejected, run:code => vm.runInContext(code, context) };
+  return { state, saved, rejected, served, summaries, requests, run:code => vm.runInContext(code, context) };
 }
 export const correctAnswer = h => h.state.current.question.markingReference.acceptedAnswers[0];
 export async function settle(h) { await h.state.attempts?.settled(); }

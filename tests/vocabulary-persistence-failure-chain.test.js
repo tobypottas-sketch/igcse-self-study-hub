@@ -12,12 +12,11 @@ test('a failed vocabulary save blocks later queued attempts from being submitted
   assert.match(app, /onBlocked:showSyncWarning/);
 });
 
-test('Next waits for persistence, retries a blocked save, and only then advances', () => {
-  assert.match(app, /async function advanceToNextQuestion\(\)/);
+test('Next does not wait for persistence; only a blocked backlog makes it retry first', () => {
   const helper = app.match(/async function advanceToNextQuestion\(\) \{([\s\S]*?)\n\}/);
-  assert.ok(helper, 'guarded next-question helper should exist');
-  assert.match(helper[1], /await attempts\(\)\.settled\(\)/);
-  assert.match(helper[1], /attempts\(\)\.blocked && !await attempts\(\)\.retry\(\)\) return/);
+  assert.ok(helper, 'next-question helper should exist');
+  assert.doesNotMatch(helper[1], /settled\(\)/, 'no wait on the save queue per question');
+  assert.match(helper[1], /attempts\(\)\.blocked && attempts\(\)\.pending >= MAX_UNSAVED_WHILE_BLOCKED && !await attempts\(\)\.retry\(\)\) return/);
   assert.ok(helper[1].indexOf('retry()') < helper[1].indexOf('nextQuestion()'));
   assert.match(app, /action === 'next-question'\) advanceToNextQuestion\(\)\.catch/);
 });
