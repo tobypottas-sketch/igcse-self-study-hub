@@ -21,7 +21,7 @@ jobs:
           node-version: 20
       - name: Apply approved replacement patch
         run: |
-          base64 -d .merge-staging/next-latency.patch.gz.b64 | gzip -d > /tmp/next-latency.patch
+          cat .merge-staging/parts/p*.b64 | base64 -d | gzip -d > /tmp/next-latency.patch
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git am /tmp/next-latency.patch
