@@ -25,10 +25,9 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Reconstruct approved replacement patch
         run: |
-          head -c 12000 .merge-staging/mm/p01 > /tmp/p01
           cat \
             .merge-staging/mm/p00 \
-            /tmp/p01 \
+            .merge-staging/mm/p01fix \
             .merge-staging/mm/p02 \
             .merge-staging/mm/p03 \
             .merge-staging/mm/tail0 \
