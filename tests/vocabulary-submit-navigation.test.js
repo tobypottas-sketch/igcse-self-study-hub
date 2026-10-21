@@ -21,18 +21,24 @@ for (const blocked of [false, true]) {
   });
 }
 
-for (const action of ['advanceToNextQuestion', 'finishSessionWhenSaved']) {
+// finishSessionWhenSaved waits for the queue; advanceToNextQuestion only waits when a save is blocked behind a backlog.
+const pendingCases = {
+  advanceToNextQuestion:resolve => ({ blocked:true, pending:9, settled:() => Promise.resolve(), retry:() => new Promise(done => resolve.set(() => done(true))) }),
+  finishSessionWhenSaved:resolve => ({ blocked:false, pending:1, settled:() => new Promise(done => resolve.set(done)), retry:async () => true })
+};
+for (const action of Object.keys(pendingCases)) {
   test(`a pending ${action} cannot reopen the question after leaving`, async () => {
-    let resolveSave;
+    const release = { set(fn) { this.fn = fn; } };
     const state = { current:{ answered:true }, session:{ completedAttempts:[{ correct:true }] }, finishPending:false };
-    const savePromise = new Promise(resolve => { resolveSave = resolve; });
-    const attempts = () => ({ blocked:false, settled:() => savePromise, retry:async () => true });
+    const controller = pendingCases[action](release);
+    const attempts = () => controller;
     let unitRenders = 0, sessionRenders = 0;
-    const context = vm.createContext({ state, attempts, clearClock:() => {}, showSyncWarning:() => {}, renderCurrentUnit:() => { unitRenders++; }, nextQuestion:() => { sessionRenders++; }, finishSession:() => { sessionRenders++; } });
+    const context = vm.createContext({ state, attempts, clearClock:() => {}, showSyncWarning:() => {}, showFinishSaving:() => {}, root:{}, MAX_UNSAVED_WHILE_BLOCKED:3, renderCurrentUnit:() => { unitRenders++; }, nextQuestion:() => { sessionRenders++; }, finishSession:() => { sessionRenders++; } });
     vm.runInContext(`${helper('returnToCurrentUnit')}; ${helper(action)};`, context);
     const pending = vm.runInContext(`${action}()`, context);
+    await Promise.resolve();
     await vm.runInContext('returnToCurrentUnit()', context);
-    resolveSave();
+    release.fn();
     await pending;
     assert.equal(unitRenders, 1);
     assert.equal(sessionRenders, 0);

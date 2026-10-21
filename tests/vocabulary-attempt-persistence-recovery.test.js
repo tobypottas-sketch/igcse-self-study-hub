@@ -144,10 +144,10 @@ test('app.js persists through the recovery controller and not a latch that can n
   assert.doesNotMatch(app, /state\.persistenceChain\s*=\s*state\.persistenceChain\.then/);
 });
 
-test('Next retries a blocked save with the same attempt id instead of silently doing nothing', () => {
+test('Next never waits on the queue, but a blocked backlog is retried with the same attempt ids before advancing', () => {
   const helper = app.match(/async function advanceToNextQuestion\(\) \{([\s\S]*?)\n\}/);
   assert.ok(helper);
-  assert.match(helper[1], /attempts\(\)\.settled\(\)/);
+  assert.doesNotMatch(helper[1], /attempts\(\)\.settled\(\)/);
   assert.match(helper[1], /attempts\(\)\.retry\(\)/);
   assert.match(helper[1], /nextQuestion\(\)/);
 });
