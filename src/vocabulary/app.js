@@ -17,7 +17,7 @@ const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
   globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:null, pathwayId:null, pathwayStage:null, mixedReview:false,
   recentActivities:new Map(), usedContentIds:new Map(), recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null, timedPreviousActivityType:null,
-  finishPending:false, unitCache:new Map(), attempts:null
+  finishPending:false, unitCache:new Map(), attempts:null, unitRequest:0, loadingUnit:null
 };
 
 function occurrence(row) { return { occurrenceId:row.occurrence_id, vocabularyId:row.vocabulary_id, unitNumber:row.unit_number, unitTitle:row.unit_title, setNumber:row.set_number, positionInUnit:row.position_in_unit, senseId:row.sense_id }; }
@@ -90,6 +90,7 @@ function buildUnits(dashboard) {
   return [...grouped.values()].sort((a,b) => a.unitNumber - b.unitNumber).map(group => ({ unitNumber:group.unitNumber, unitTitle:group.unitTitle, ...buildUnitProgress({ occurrences:group.occurrences, unitMastery:unit, globalMastery:global }) }));
 }
 async function showHome() {
+  state.unitRequest += 1; state.loadingUnit = null;
   clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null; state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.mixedReview = false;
   state.dashboard = await loadVocabularyDashboard(state.client, { preview:state.preview }); state.units = buildUnits(state.dashboard);
   renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units }); decoratePreview();
@@ -105,12 +106,25 @@ function renderCurrentUnit() {
   const pathwayStates = buildUnitPathwayStates({ occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
   renderVocabularyUnit(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, progress, pathwayStates, contentReady:Boolean(state.content) }); decoratePreview();
 }
+// A cold unit open renders the unit screen exactly once, after its content and mastery have loaded. While it
+// loads, the Home screen stays mounted (no placeholder unit DOM, no second render) and only the clicked card is
+// marked busy. `state.unitRequest` is a request token: a load that is no longer the latest navigation never renders.
+function setUnitLoading(unitNumber, loading) {
+  const card = root?.querySelector?.(`.vocab-unit-card[data-unit="${unitNumber}"]`);
+  if (!card) return;
+  if (loading) { card.dataset.loading = 'true'; card.setAttribute('aria-busy', 'true'); }
+  else { delete card.dataset.loading; card.removeAttribute('aria-busy'); }
+}
 async function openUnit(unitNumber) {
+  if (state.loadingUnit === unitNumber) return;
   clearClock();
-  const cached = state.unitCache.get(unitNumber);
-  state.currentUnitNumber = unitNumber;
+  const request = state.unitRequest += 1;
+  if (state.loadingUnit != null) setUnitLoading(state.loadingUnit, false);
+  state.loadingUnit = null;
   state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.mixedReview = false;
+  const cached = state.unitCache.get(unitNumber);
   if (cached) {
+    state.currentUnitNumber = unitNumber;
     state.currentUnitTitle = cached.currentUnitTitle;
     state.content = cached.content;
     state.globalMastery = cached.globalMastery;
@@ -120,37 +134,44 @@ async function openUnit(unitNumber) {
     if (attempts().blocked) showSyncWarning(new Error('Vocabulary progress is still unsaved.'));
     return;
   }
-  const preloadedOccurrences = (state.dashboard?.occurrences ?? []).filter(row => Number(row.unit_number) === Number(unitNumber));
-  const loadOptions = preloadedOccurrences.length ? { occurrences:preloadedOccurrences } : {};
-  const occurrenceIds = new Set(preloadedOccurrences.map(row => row.occurrence_id));
-  const vocabularyIds = new Set(preloadedOccurrences.map(row => row.vocabulary_id));
-  const dashboardMastery = preloadedOccurrences.length && state.dashboard
-    ? { global:state.dashboard.global.filter(row => vocabularyIds.has(row.vocabulary_id)), unit:state.dashboard.unit.filter(row => occurrenceIds.has(row.occurrence_id)) }
-    : null;
-  state.currentUnitTitle = preloadedOccurrences[0]?.unit_title ?? state.units.find(unit => Number(unit.unitNumber) === Number(unitNumber))?.unitTitle ?? `Unit ${unitNumber}`;
-  state.content = null;
-  state.globalMastery = mapBy(dashboardMastery?.global ?? [], 'vocabulary_id', mastery);
-  state.unitMastery = mapBy(dashboardMastery?.unit ?? [], 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
-  renderCurrentUnit();
-  if (attempts().blocked) await attempts().retry();
-  const contentPromise = loadVocabularyUnit(state.client, unitNumber, loadOptions);
-  const masteryPromise = state.preview
-    ? Promise.resolve({ global:[], unit:[] })
-    : dashboardMastery
-      ? Promise.resolve(dashboardMastery)
-      : loadStudentMastery(state.client, unitNumber, loadOptions);
-  const [contentRaw, masteryRaw] = await Promise.all([contentPromise, masteryPromise]);
-  if (Number(state.currentUnitNumber) !== Number(unitNumber)) return;
-  // Never reset the attempt queue here: an unsaved answer must survive opening or reloading a unit.
-  state.finishPending = false;
-  const occurrences = contentRaw.occurrences.map(occurrence); const items = contentRaw.items.map(item); const contexts = contentRaw.contexts.map(context); const activities = (contentRaw.activities ?? []).map(unitActivity);
-  state.content = { occurrences, items, contexts, activities, itemsById:mapBy(items,'vocabularyId'), contextsByOccurrence:{}, activitiesById:mapBy(activities,'activityContentId') };
-  for (const ctx of contexts) (state.content.contextsByOccurrence[ctx.occurrenceId] ??= []).push(ctx);
-  state.globalMastery = mapBy(masteryRaw.global, 'vocabulary_id', mastery); state.unitMastery = mapBy(masteryRaw.unit, 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
-  state.currentUnitTitle = occurrences[0]?.unitTitle ?? state.currentUnitTitle;
-  state.unitCache.set(unitNumber, { content:state.content, globalMastery:state.globalMastery, unitMastery:state.unitMastery, currentUnitTitle:state.currentUnitTitle });
-  renderCurrentUnit();
-  if (attempts().blocked) showSyncWarning(new Error('Vocabulary progress is still unsaved.'));
+  state.loadingUnit = unitNumber;
+  setUnitLoading(unitNumber, true);
+  try {
+    const preloadedOccurrences = (state.dashboard?.occurrences ?? []).filter(row => Number(row.unit_number) === Number(unitNumber));
+    const loadOptions = preloadedOccurrences.length ? { occurrences:preloadedOccurrences } : {};
+    const occurrenceIds = new Set(preloadedOccurrences.map(row => row.occurrence_id));
+    const vocabularyIds = new Set(preloadedOccurrences.map(row => row.vocabulary_id));
+    const dashboardMastery = preloadedOccurrences.length && state.dashboard
+      ? { global:state.dashboard.global.filter(row => vocabularyIds.has(row.vocabulary_id)), unit:state.dashboard.unit.filter(row => occurrenceIds.has(row.occurrence_id)) }
+      : null;
+    if (attempts().blocked) await attempts().retry();
+    const contentPromise = loadVocabularyUnit(state.client, unitNumber, loadOptions);
+    const masteryPromise = state.preview
+      ? Promise.resolve({ global:[], unit:[] })
+      : dashboardMastery
+        ? Promise.resolve(dashboardMastery)
+        : loadStudentMastery(state.client, unitNumber, loadOptions);
+    const [contentRaw, masteryRaw] = await Promise.all([contentPromise, masteryPromise]);
+    if (request !== state.unitRequest) return;
+    // Never reset the attempt queue here: an unsaved answer must survive opening or reloading a unit.
+    state.finishPending = false;
+    const occurrences = contentRaw.occurrences.map(occurrence); const items = contentRaw.items.map(item); const contexts = contentRaw.contexts.map(context); const activities = (contentRaw.activities ?? []).map(unitActivity);
+    state.content = { occurrences, items, contexts, activities, itemsById:mapBy(items,'vocabularyId'), contextsByOccurrence:{}, activitiesById:mapBy(activities,'activityContentId') };
+    for (const ctx of contexts) (state.content.contextsByOccurrence[ctx.occurrenceId] ??= []).push(ctx);
+    state.globalMastery = mapBy(masteryRaw.global, 'vocabulary_id', mastery); state.unitMastery = mapBy(masteryRaw.unit, 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
+    state.currentUnitNumber = unitNumber;
+    state.currentUnitTitle = occurrences[0]?.unitTitle ?? preloadedOccurrences[0]?.unit_title ?? state.units.find(unit => Number(unit.unitNumber) === Number(unitNumber))?.unitTitle ?? `Unit ${unitNumber}`;
+    state.unitCache.set(unitNumber, { content:state.content, globalMastery:state.globalMastery, unitMastery:state.unitMastery, currentUnitTitle:state.currentUnitTitle });
+    state.loadingUnit = null;
+    renderCurrentUnit();
+    if (attempts().blocked) showSyncWarning(new Error('Vocabulary progress is still unsaved.'));
+  } catch (error) {
+    // A superseded request must not paint an error over the screen the student moved on to.
+    if (request === state.unitRequest) throw error;
+  } finally {
+    if (state.loadingUnit === unitNumber && request === state.unitRequest) state.loadingUnit = null;
+    setUnitLoading(unitNumber, false);
+  }
 }
 function strandLabel(value, status) { const score = Number(value ?? 0); if (status === 'mastered' && score >= 3) return 'Secure'; if (score >= 6) return 'Secure'; if (score >= 3) return 'Developing'; return 'Keep practising'; }
 function showAllWords() {

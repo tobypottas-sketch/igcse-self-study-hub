@@ -174,10 +174,10 @@ test('an unsaved attempt survives opening a unit while saving keeps failing, the
   let warnings = 0;
   const state = {
     preview:false, client:{}, units:[{ unitNumber:1, unitTitle:'U1' }], currentUnitNumber:null, content:null, finishPending:false,
-    dashboard:null, globalMastery:{}, unitMastery:{}, unitCache:new Map(), attempts:null
+    dashboard:null, globalMastery:{}, unitMastery:{}, unitCache:new Map(), attempts:null, unitRequest:0, loadingUnit:null
   };
   const context = vm.createContext({
-    state, createAttemptPersistence, console:{ error() {}, warn() {} },
+    state, root:{}, createAttemptPersistence, console:{ error() {}, warn() {} },
     submitVocabularyAttempt:async (_client, payload) => server.submit(payload),
     freshMastery:() => ({ status:'new' }),
     clearClock() {}, renderCurrentUnit() {}, clearSyncWarning() {},
@@ -188,7 +188,7 @@ test('an unsaved attempt survives opening a unit while saving keeps failing, the
     occurrence:row => row, item:row => row, context:row => row, unitActivity:row => row, mastery:row => row
   });
   // Real helpers from app.js. Speed up the controller's backoff for the test.
-  vm.runInContext(`${helper('attempts')}\n${helper('applyServerAttemptResult')}\n${helper('openUnit')}`, context);
+  vm.runInContext(`${helper('attempts')}\n${helper('applyServerAttemptResult')}\n${helper('setUnitLoading')}\n${helper('openUnit')}`, context);
   const controller = vm.runInContext('attempts()', context);
 
   // 1-2. answer queued; save fails; controller is blocked.
