@@ -46,18 +46,24 @@ test('narrowed Stage 2 retry renders two Match Cards rather than a dropdown', ()
   assert.match(html,/Try again with two choices/);
 });
 
-test('generic legacy matching without normalized Match Card fields retains its select fallback', () => {
-  const html = render({
+test('matching without a normalized cue has no select fallback: it refuses to render rather than showing the old dropdown', () => {
+  const question = {
+    type:'word_family_match', responseMode:'matching', prompt:'Match the word-family cue to the correct form.',
+    primaryEvidenceTargetId:'v_preference', markingReference:{ acceptedAnswers:['preference'] }
+  };
+  assert.throws(() => render(question), /missing its match cue/);
+});
+
+test('Meaning Match never falls back to a single card or a dropdown when its set of pairs is missing', () => {
+  assert.throws(() => render({
     type:'word_definition_match', responseMode:'matching', prompt:'Match each word with its definition.',
+    matchCue:'preference', matchOptions:['a greater liking for one option', 'a range to choose from'],
     pairs:[
       { vocabularyId:'v_preference', term:'preference', definition:'a greater liking for one option' },
       { vocabularyId:'v_selection', term:'selection', definition:'a range to choose from' }
     ],
-    primaryEvidenceTargetId:'v_preference',
-    markingReference:{ acceptedAnswers:['a greater liking for one option'] }
-  });
-  assert.match(html,/<select[^>]*data-match-select/);
-  assert.doesNotMatch(html,/vocab-match-card-grid/);
+    primaryEvidenceTargetId:'v_preference', markingReference:{ acceptedAnswers:['a greater liking for one option'] }
+  }), /Meaning Match needs its set/);
 });
 
 test('spelling Match makes all variants directly comparable at once', () => {

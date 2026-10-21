@@ -46,7 +46,6 @@ function primaryMatchOptions(activity) {
   const primaryId = activity?.primaryEvidenceTargetId;
   const primary = pairs.find(pair => pair?.vocabularyId === primaryId) ?? pairs[0] ?? null;
   if (!primary) return [];
-  if (activity?.type === 'drag_definition_word') return pairs.map(pair => text(pair?.term)).filter(Boolean);
   return pairs.map(pair => text(pair?.definition)).filter(Boolean);
 }
 
@@ -71,7 +70,7 @@ export function buildSupportStep(activity = {}, attemptResult = {}) {
     };
   }
 
-  if (activity.responseMode === 'matching' || activity.responseMode === 'drag_match') {
+  if (activity.responseMode === 'matching') {
     return {
       action:'retry',
       recycle:false,

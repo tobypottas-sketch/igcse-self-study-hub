@@ -13,7 +13,7 @@ function answerInput(node) {
 
 function dropZone(node) {
   const form = node?.closest?.('[data-form="vocabulary-answer"]');
-  return form?.querySelector?.('[data-drop-target], [data-gap-drop]') ?? null;
+  return form?.querySelector?.('[data-gap-drop]') ?? null;
 }
 
 function setAnswer(node, value) {
@@ -25,7 +25,7 @@ function setAnswer(node, value) {
   select.dispatchEvent(new Event('change', { bubbles:true }));
   const zone = dropZone(node);
   if (zone) {
-    zone.textContent = next || 'Drop answer here';
+    zone.textContent = next || 'Drop word here';
     zone.classList.toggle('is-filled', Boolean(next));
   }
 }
@@ -45,9 +45,9 @@ function selectMatchCard(card) {
 }
 
 root?.addEventListener('dragstart', event => {
-  const token = event.target?.closest?.('[data-drag-value], [data-drag-gap-value]');
+  const token = event.target?.closest?.('[data-drag-gap-value]');
   if (!token) return;
-  draggedValue = token.dataset.dragValue ?? token.dataset.dragGapValue ?? '';
+  draggedValue = token.dataset.dragGapValue ?? '';
   if (event.dataTransfer) {
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text/plain', draggedValue);
@@ -56,13 +56,13 @@ root?.addEventListener('dragstart', event => {
 });
 
 root?.addEventListener('dragend', event => {
-  const token = event.target?.closest?.('[data-drag-value], [data-drag-gap-value]');
+  const token = event.target?.closest?.('[data-drag-gap-value]');
   token?.classList?.remove('is-dragging');
   draggedValue = '';
 });
 
 root?.addEventListener('dragover', event => {
-  const zone = event.target?.closest?.('[data-drop-target], [data-gap-drop]');
+  const zone = event.target?.closest?.('[data-gap-drop]');
   if (!zone) return;
   event.preventDefault();
   zone.classList.add('is-active');
@@ -70,12 +70,12 @@ root?.addEventListener('dragover', event => {
 });
 
 root?.addEventListener('dragleave', event => {
-  const zone = event.target?.closest?.('[data-drop-target], [data-gap-drop]');
+  const zone = event.target?.closest?.('[data-gap-drop]');
   zone?.classList?.remove('is-active');
 });
 
 root?.addEventListener('drop', event => {
-  const zone = event.target?.closest?.('[data-drop-target], [data-gap-drop]');
+  const zone = event.target?.closest?.('[data-gap-drop]');
   if (!zone) return;
   event.preventDefault();
   zone.classList.remove('is-active');
@@ -89,17 +89,17 @@ root?.addEventListener('click', event => {
     selectMatchCard(card);
     return;
   }
-  const token = event.target?.closest?.('[data-drag-value], [data-drag-gap-value]');
+  const token = event.target?.closest?.('[data-drag-gap-value]');
   if (!token) return;
-  const value = token.dataset.dragValue ?? token.dataset.dragGapValue ?? '';
+  const value = token.dataset.dragGapValue ?? '';
   setAnswer(token, value);
 });
 
 root?.addEventListener('change', event => {
-  const select = event.target?.closest?.('[data-drag-fallback], [data-drag-gap-fallback]');
+  const select = event.target?.closest?.('[data-drag-gap-fallback]');
   if (!select) return;
   const zone = dropZone(select);
   if (!zone) return;
-  zone.textContent = select.value || 'Drop answer here';
+  zone.textContent = select.value || 'Drop word here';
   zone.classList.toggle('is-filled', Boolean(select.value));
 });

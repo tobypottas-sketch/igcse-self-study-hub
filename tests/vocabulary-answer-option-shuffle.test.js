@@ -113,7 +113,6 @@ test('old ten-question Meaning seed pattern no longer repeats D clustering acros
 test('matching presentations retain the original order independently of the session nonce', () => {
   const target = unit.occurrences[0];
   const expected = {
-    meaning:['training','salary','leisure','deadline'],
     paraphrasing:['leisure time','compulsory study time','scheduled working time','organised training time']
   };
   for (const [pathwayId, options] of Object.entries(expected)) {
@@ -125,4 +124,13 @@ test('matching presentations retain the original order independently of the sess
     assert.deepEqual(first.matchOptions,options);
     assert.deepEqual(first,second);
   }
+});
+
+test('Meaning → Match serves only the pair set, whose presentation is also independent of the session nonce', () => {
+  const args = {content,target:unit.occurrences[0],pathwayId:'meaning',stageId:'match',mastery:{status:'building'},recentActivities:['word_definition_match'],seed:'fixed'};
+  const first = planPathwayQuestion({...args,optionNonce:'first'}).question;
+  const second = planPathwayQuestion({...args,optionNonce:'second'}).question;
+  assert.equal(first.type,'word_definition_match');
+  assert.ok(first.pairs.length >= 3);
+  assert.deepEqual(first,second);
 });
