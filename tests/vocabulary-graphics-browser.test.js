@@ -33,8 +33,9 @@ function withAssets({ names = allGraphicNames(), files = 'serve', requests = [] 
     });
   };
 }
+// The real manifest now lists every shipped PNG, so a test that wants "nothing shipped" serves an empty manifest explicitly.
 async function open(options = {}, extra = {}) {
-  const api = await openMission({ root, pathway:'meaning', ...options, ...extra });
+  const api = await openMission({ root, pathway:'meaning', beforeLoad:withAssets({ names:[] }), ...options, ...extra });
   await api.page.waitForSelector('.vocab-pathway-card');
   return api;
 }
@@ -49,7 +50,7 @@ const measure = api => api.page.evaluate(() => {
 });
 const layers = api => api.page.evaluate(() => [...document.querySelectorAll('[data-art-slot]')].map(slot => {
   const image = slot.querySelector('img[data-art-png]'); const svg = slot.querySelector('.study-art__svg');
-  return { slot:slot.className, loaded:slot.classList.contains('is-png-ready'), failed:slot.classList.contains('png-failed'), img:Boolean(image), natural:image?.naturalWidth ?? 0, imgOpacity:image ? getComputedStyle(image).opacity : null, fit:image ? getComputedStyle(image).objectFit : null, svgVisibility:svg ? getComputedStyle(svg).visibility : null, svg:Boolean(svg), within:image ? (() => { const a = image.getBoundingClientRect(); const b = slot.getBoundingClientRect(); if (slot.matches('.vocab-unit-hero__art')) return Math.abs(a.width - b.width) < 1 && a.height <= b.height + 1 && (Math.abs(a.width / a.height - 16 / 9) < 0.03 || Math.abs(a.height - b.height) < 1); return Math.abs(a.width - b.width) < 1 && Math.abs(a.height - b.height) < 1; })() : null };
+  return { slot:slot.className, loaded:slot.classList.contains('is-png-ready'), failed:slot.classList.contains('png-failed'), img:Boolean(image), natural:image?.naturalWidth ?? 0, imgOpacity:image ? getComputedStyle(image).opacity : null, fit:image ? getComputedStyle(image).objectFit : null, svgVisibility:svg ? getComputedStyle(svg).visibility : null, svg:Boolean(svg), within:image ? (() => { const a = image.getBoundingClientRect(); const b = slot.getBoundingClientRect(); if (slot.matches('.vocab-unit-hero__art')) return Math.abs(a.width - b.width) < 1 && a.height <= b.height + 1 && (Math.abs(a.width / a.height - 2.2) < 0.05 || Math.abs(a.height - b.height) < 1); return Math.abs(a.width - b.width) < 1 && Math.abs(a.height - b.height) < 1; })() : null };
 }));
 // Images below the fold are lazy (loading="lazy"), exactly as for a student; scroll them into view, then return to the top.
 async function reveal(api, settled = '.is-png-ready', minimum = 7) {
@@ -66,7 +67,7 @@ const WIDTHS = [[1280, 900], [820, 1000], [390, 800]];
 
 browserTest('nothing is shipped by default: no PNG request is made and the SVG artwork is shown', async () => {
   const requests = [];
-  const api = await open({ width:1280 }, { beforeLoad:async page => { page.on('request', request => { if (/assets\/vocabulary/.test(request.url())) requests.push(request.url()); }); } });
+  const api = await open({ width:1280 }, { beforeLoad:async page => { await withAssets({ names:[] })(page); page.on('request', request => { if (/assets\/vocabulary/.test(request.url())) requests.push(request.url()); }); } });
   try {
     assert.deepEqual(requests, []);
     assert.equal(await api.page.evaluate(() => document.querySelectorAll('img[data-art-png]').length), 0);

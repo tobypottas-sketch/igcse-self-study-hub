@@ -7,4 +7,8 @@
 //   'units/unit-01.png'
 //   'pathways/meaning.png', 'pathways/context.png', 'pathways/word-families.png',
 //   'pathways/paraphrasing.png', 'pathways/precision-use.png', 'pathways/spelling-recall.png'
-export const SHIPPED_PNG = Object.freeze([]);
+export const SHIPPED_PNG = Object.freeze([
+  'units/unit-01.png',
+  'pathways/meaning.png', 'pathways/context.png', 'pathways/word-families.png',
+  'pathways/paraphrasing.png', 'pathways/precision-use.png', 'pathways/spelling-recall.png'
+]);
