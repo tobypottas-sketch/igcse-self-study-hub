@@ -6,10 +6,11 @@
 // has to run after first paint. The SVG never sizes itself: its slot (see vocabulary-study-art.css) owns the
 // width and height and the artwork simply fills it.
 
-const ART_VERSION = 2;
+const ART_VERSION = 3;
 
 const UNIT_ACCENT = Object.freeze({ 1:'#137e80', 2:'#2e73d6', 3:'#2a8fbd', 4:'#2f9a68', 5:'#6f5bd0' });
-const PATHWAY_ACCENT = Object.freeze({ meaning:'#137e80', context:'#2e73d6', word_families:'#2f9a68', paraphrasing:'#6f5bd0', precision_use:'#d9822b', spelling_recall:'#2a8fbd' });
+// Pathway artwork uses the same accent as its card (see [data-study-accent] in vocabulary-study-app.css).
+const PATHWAY_ACCENT = Object.freeze({ meaning:'#ed3f89', context:'#2d9ddd', word_families:'#2ba76a', paraphrasing:'#ef7f35', precision_use:'#eab326', spelling_recall:'#8658e8' });
 const ACHIEVEMENT_ACCENT = Object.freeze({ completion:'#137e80', stage_advanced:'#2e73d6', mastered:'#d9a21b' });
 
 // Shapes use four classes only: sa-i (ink outline), sa-a (accent fill), sa-t (accent tint fill), sa-w (warm highlight).
@@ -60,43 +61,46 @@ const UNIT = Object.freeze({
 
 const PATHWAY = Object.freeze({
   meaning:{ alt:'Open vocabulary book', box:WIDE, body:`
-    <path class="sa-i sa-p" d="M20 28c22-6 42-4 60 8 18-12 38-14 60-8v62c-22-6-42-4-60 8-18-12-38-14-60-8z"/>
-    <path class="sa-i" d="M80 36v62"/>
-    <path class="sa-t" d="M32 40c14-2 28 0 40 6v10c-12-6-26-8-40-6zM88 46c12-6 26-8 40-6v10c-14-2-28 0-40 6z"/>
-    <path class="sa-a" d="M34 66h30M34 78h22M96 66h30M96 78h22" stroke-width="5" stroke-linecap="round"/>
-    <circle class="sa-w" cx="132" cy="22" r="7"/>` },
+    <path class="sa-i sa-a" d="M10 38c24-8 48-6 70 8 22-14 46-16 70-8v60c-24-8-48-6-70 8-22-14-46-16-70-8z"/>
+    <path class="sa-i sa-p" d="M20 28c20-6 42-4 60 10 18-14 40-16 60-10v58c-20-6-42-4-60 10-18-14-40-16-60-10z"/>
+    <path class="sa-i" d="M80 38v58"/>
+    <rect class="sa-w" x="30" y="44" width="34" height="10" rx="4"/>
+    <path class="sa-ln" d="M30 66h34M30 78h24"/>
+    <path class="sa-ln sa-ln--a" d="M96 52h34M96 66h34M96 78h22"/>` },
   context:{ alt:'Speech bubble with a gap in the sentence', box:WIDE, body:`
-    <path class="sa-i sa-p" d="M22 18h116a10 10 0 0 1 10 10v44a10 10 0 0 1-10 10H70l-22 18V82H22a10 10 0 0 1-10-10V28a10 10 0 0 1 10-10z"/>
-    <path class="sa-t" d="M26 34h40M26 48h26M92 48h34M26 62h50"/>
-    <rect class="sa-a" x="58" y="42" width="30" height="12" rx="5"/>
-    <path class="sa-i" d="M26 34h40M26 62h50M92 48h34" stroke-width="5" stroke-linecap="round"/>
-    <circle class="sa-w" cx="136" cy="94" r="7"/>` },
-  word_families:{ alt:'Branching word family', box:WIDE, body:`
-    <path class="sa-i" d="M80 34v14M80 48H34v18M80 48v18M80 48h46v18"/>
-    <circle class="sa-a" cx="80" cy="22" r="14"/><circle class="sa-i" cx="80" cy="22" r="14"/>
-    <circle class="sa-t" cx="34" cy="78" r="13"/><circle class="sa-i" cx="34" cy="78" r="13"/>
-    <circle class="sa-t" cx="80" cy="78" r="13"/><circle class="sa-i" cx="80" cy="78" r="13"/>
-    <circle class="sa-t" cx="126" cy="78" r="13"/><circle class="sa-i" cx="126" cy="78" r="13"/>
-    <circle class="sa-w" cx="146" cy="22" r="7"/>` },
-  paraphrasing:{ alt:'Two bubbles exchanging the same idea', box:WIDE, body:`
-    <path class="sa-i sa-p" d="M16 18h66a8 8 0 0 1 8 8v26a8 8 0 0 1-8 8H44l-14 12V60H16a8 8 0 0 1-8-8V26a8 8 0 0 1 8-8z"/>
-    <path class="sa-a" d="M78 52h66a8 8 0 0 1 8 8v26a8 8 0 0 1-8 8h-14v12l-14-12H78a8 8 0 0 1-8-8V60a8 8 0 0 1 8-8z"/>
-    <path class="sa-i" d="M78 52h66a8 8 0 0 1 8 8v26a8 8 0 0 1-8 8h-14v12l-14-12H78a8 8 0 0 1-8-8V60a8 8 0 0 1 8-8z"/>
-    <path class="sa-i" d="M24 32h46M24 44h28" stroke-width="5" stroke-linecap="round"/>
-    <path d="M86 70h46M86 82h30" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none"/>
-    <circle class="sa-w" cx="140" cy="20" r="7"/>` },
-  precision_use:{ alt:'Target with an arrow in the centre', box:WIDE, body:`
-    <circle class="sa-t" cx="76" cy="58" r="44"/><circle class="sa-i" cx="76" cy="58" r="44"/>
-    <circle class="sa-p" cx="76" cy="58" r="30"/><circle class="sa-i" cx="76" cy="58" r="30"/>
-    <circle class="sa-a" cx="76" cy="58" r="15"/><circle class="sa-i" cx="76" cy="58" r="15"/>
-    <path class="sa-i" d="M76 58l40-40M108 14l2 12 12 2"/>
-    <circle class="sa-w" cx="140" cy="92" r="7"/>` },
-  spelling_recall:{ alt:'Letter tiles', box:WIDE, body:`
-    <g transform="rotate(-8 36 62)"><rect class="sa-i sa-p" x="14" y="38" width="42" height="48" rx="9"/><text x="35" y="72" text-anchor="middle" class="sa-txt">a</text></g>
-    <rect class="sa-a" x="58" y="30" width="44" height="52" rx="9"/><rect class="sa-i" x="58" y="30" width="44" height="52" rx="9"/><text x="80" y="66" text-anchor="middle" class="sa-txt sa-txt--on">b</text>
-    <g transform="rotate(8 124 62)"><rect class="sa-i sa-t" x="104" y="38" width="42" height="48" rx="9"/><text x="125" y="72" text-anchor="middle" class="sa-txt">c</text></g>
-    <path class="sa-i" d="M24 98h112" stroke-dasharray="2 8"/>
-    <circle class="sa-w" cx="140" cy="18" r="7"/>` }
+    <path class="sa-i sa-p" d="M20 14h120a10 10 0 0 1 10 10v50a10 10 0 0 1-10 10H78l-26 20V84H20A10 10 0 0 1 10 74V24A10 10 0 0 1 20 14z"/>
+    <path class="sa-ln" d="M24 34h46M24 62h28M104 62h30"/>
+    <path class="sa-ln" d="M24 48h30M100 34h34"/>
+    <rect class="sa-i sa-a" x="58" y="40" width="42" height="16" rx="7"/>
+    <path class="sa-ln sa-ln--w" d="M68 48h22"/>
+    <circle class="sa-w" cx="140" cy="96" r="8"/>` },
+  word_families:{ alt:'A root word branching into related word forms', box:WIDE, body:`
+    <path class="sa-i" d="M80 36v16M28 52h104M28 52v18M80 52v18M132 52v18"/>
+    <rect class="sa-i sa-a" x="48" y="8" width="64" height="28" rx="9"/>
+    <path class="sa-ln sa-ln--w" d="M62 22h36"/>
+    <rect class="sa-i sa-t" x="6" y="70" width="44" height="32" rx="9"/>
+    <rect class="sa-i sa-t" x="58" y="70" width="44" height="32" rx="9"/>
+    <rect class="sa-i sa-t" x="110" y="70" width="44" height="32" rx="9"/>
+    <path class="sa-ln sa-ln--a" d="M16 86h24M68 86h24M120 86h24"/>` },
+  paraphrasing:{ alt:'Two speech bubbles saying the same idea in different words', box:WIDE, body:`
+    <path class="sa-i sa-p" d="M12 10h74a9 9 0 0 1 9 9v32a9 9 0 0 1-9 9H44L26 74V60H12a9 9 0 0 1-9-9V19a9 9 0 0 1 9-9z"/>
+    <path class="sa-ln" d="M18 28h60M18 42h38"/>
+    <path class="sa-i sa-a" d="M74 52h74a9 9 0 0 1 9 9v32a9 9 0 0 1-9 9h-12v14l-18-14H74a9 9 0 0 1-9-9V61a9 9 0 0 1 9-9z"/>
+    <path class="sa-ln sa-ln--w" d="M80 70h60M80 84h38"/>
+    <circle class="sa-i sa-w" cx="80" cy="56" r="13"/>
+    <path class="sa-ln" d="M73 53h14M73 60h14" style="stroke-width:3.5"/>` },
+  precision_use:{ alt:'Target with an arrow in the bullseye', box:WIDE, body:`
+    <circle class="sa-i sa-a" cx="72" cy="58" r="46"/>
+    <circle class="sa-i sa-p" cx="72" cy="58" r="32"/>
+    <circle class="sa-i sa-a" cx="72" cy="58" r="19"/>
+    <circle class="sa-i" cx="72" cy="58" r="7" style="fill:var(--sa-ink)"/>
+    <path class="sa-ln" d="M72 58l46-46" style="stroke-width:4.5"/>
+    <path class="sa-i sa-p" d="M104 8l4 18 18 4 12-12-16-4-4-16z"/>` },
+  spelling_recall:{ alt:'Letter tiles spelling a word', box:WIDE, body:`
+    <g transform="rotate(-9 34 62)"><rect class="sa-i sa-p" x="10" y="32" width="46" height="54" rx="10"/><text x="33" y="70" text-anchor="middle" class="sa-txt">a</text></g>
+    <rect class="sa-i sa-a" x="56" y="22" width="48" height="58" rx="10"/><text x="80" y="62" text-anchor="middle" class="sa-txt sa-txt--on">b</text>
+    <g transform="rotate(9 126 62)"><rect class="sa-i sa-t" x="104" y="32" width="46" height="54" rx="10"/><text x="127" y="70" text-anchor="middle" class="sa-txt">c</text></g>
+    <path class="sa-ln sa-ln--a" d="M22 100h116" style="stroke-dasharray:1 12"/>` }
 });
 
 const ACHIEVEMENT = Object.freeze({

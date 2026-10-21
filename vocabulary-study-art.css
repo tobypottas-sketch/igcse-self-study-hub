@@ -6,11 +6,10 @@
 
 /* Pathway artwork now behaves like ambient card art, not a bolted-on right column. */
 .vocab-pathway-card.has-study-art{position:relative;overflow:hidden;padding-right:28px!important;min-height:118px}
-.vocab-pathway-card__art{position:absolute;right:-8px;bottom:-8px;top:auto;width:160px;height:120px;display:grid;place-items:center;border-radius:22px;overflow:hidden;pointer-events:none;opacity:.20;transition:transform var(--study-motion-state) var(--study-ease),filter var(--study-motion-state) var(--study-ease),opacity var(--study-motion-state) var(--study-ease);mask-image:linear-gradient(to left,rgba(0,0,0,1),rgba(0,0,0,.78) 45%,rgba(0,0,0,.12) 82%,transparent 100%);-webkit-mask-image:linear-gradient(to left,rgba(0,0,0,1),rgba(0,0,0,.78) 45%,rgba(0,0,0,.12) 82%,transparent 100%)}
-.vocab-pathway-card__art::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.18),transparent 60%);pointer-events:none}
+.vocab-pathway-card__art{position:absolute;pointer-events:none;transition:transform var(--study-motion-state) var(--study-ease),opacity var(--study-motion-state) var(--study-ease)}
 .vocab-pathway-card__art-image{width:100%;height:100%;display:block;object-fit:contain}
-.vocab-pathway-card:hover .vocab-pathway-card__art{transform:translateY(-2px) scale(1.02);filter:saturate(1.05);opacity:.28}
-.vocab-pathway-card:disabled .vocab-pathway-card__art{filter:grayscale(.35);opacity:.10}
+.vocab-pathway-card:not(:disabled):hover .vocab-pathway-card__art{transform:translateY(-2px);opacity:.8}
+.vocab-pathway-card:disabled .vocab-pathway-card__art{filter:saturate(.55)}
 
 /* Calmer skill-card hierarchy. */
 .vocab-pathway-card__identity{gap:10px}
@@ -57,14 +56,12 @@
   .vocab-unit-hero__art{top:auto;right:50%;bottom:8px;transform:translateX(50%);width:210px;height:132px}
   .vocab-unit-hero__art-image{max-height:132px}
   .vocab-pathway-card.has-study-art{padding-right:20px!important}
-  .vocab-pathway-card__art{width:126px;height:96px;right:-10px;bottom:-10px}
 }
 
 @media (max-width:620px){
   .vocab-unit-card{padding-right:112px!important;min-height:104px}
   .vocab-unit-card__art{width:98px;right:6px;top:6px;bottom:6px;border-radius:15px}
   .vocab-pathway-card.has-study-art{padding-right:16px!important;min-height:108px}
-  .vocab-pathway-card__art{width:108px;height:84px;right:-14px;bottom:-12px}
   .vocab-pathway-ladder{gap:5px!important;padding:7px!important}
   .vocab-pathway-stage{min-height:62px!important;padding:7px 4px!important}
   .vocab-completion-art{width:176px;height:148px}
@@ -125,10 +122,13 @@
    The slot (.vocab-unit-card__art, .vocab-pathway-card__art, …) owns width and height. The SVG only fills it,
    so the artwork can never size, shift or reflow the card. */
 .study-art__svg{display:block;width:100%;height:100%;overflow:visible;--sa-ink:#173852;--sa-paper:#fff}
-.study-art__svg .sa-i{fill:none;stroke:var(--sa-ink);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.study-art__svg .sa-i{fill:none;stroke:var(--sa-ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.study-art__svg .sa-ln{fill:none;stroke:var(--sa-ink);stroke-width:5;stroke-linecap:round}
+.study-art__svg .sa-ln--a{stroke:var(--sa-a)}
+.study-art__svg .sa-ln--w{stroke:#fff}
 .study-art__svg .sa-p,.study-art__svg .sa-i.sa-p{fill:var(--sa-paper)}
 .study-art__svg .sa-i.sa-a{fill:var(--sa-a)}
-.study-art__svg .sa-i.sa-t,.study-art__svg .sa-t{fill:color-mix(in srgb,var(--sa-a) 20%,#fff)}
+.study-art__svg .sa-i.sa-t,.study-art__svg .sa-t{fill:color-mix(in srgb,var(--sa-a) 30%,#fff)}
 .study-art__svg .sa-a{fill:var(--sa-a)}
 .study-art__svg .sa-w{fill:#f2b84b}
 .study-art__svg .sa-txt{font:800 30px/1 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;fill:var(--sa-ink)}
