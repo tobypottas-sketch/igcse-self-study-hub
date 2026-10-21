@@ -1,0 +1,71 @@
+ooded after the heavy rain, the coach told us to avoid the middle of the field and run along the edge.',
++    focus:'avoid',
++    meaning:'to keep away from something on purpose',
++    distractors:['to cross something as quickly as possible', 'to look after something that is damaged', 'to get ready for something difficult'],
++    clue:'flooded middle, so run along the edge instead'
++  },
++  afford:{
++    sentence:'The new boots were beautiful, but at three hundred dollars most players in the team could not afford them.',
++    focus:'afford',
++    meaning:'to have enough money to buy something',
++    distractors:['to want to buy something very much', 'to be allowed to use something', 'to be persuaded to choose something'],
++    clue:'high price; most players could not'
++  },
++  deny:{
++    sentence:'The sprinter’s lawyer said she would deny the accusation and offered the test results as proof that she had never cheated.',
++    focus:'deny',
++    meaning:'to say that something is not true',
++    distractors:['to admit that something is true', 'to refuse to give someone permission', 'to report a crime to the police'],
++    clue:'proof she never cheated; the accusation is answered, not accepted'
++  },
++  permit:{
++    sentence:'Spectators may watch from the bench, but the club does not permit anyone to walk onto the field while a match is being played.',
++    focus:'permit',
++    meaning:'to let someone do something',
++    distractors:['to tell someone to stop doing something', 'to warn someone about a danger', 'to help someone to do something'],
++    clue:'contrast: may watch from the bench, but not walk on during a match'
++  },
++  arrange:{
++    sentence:'The coach had to arrange transport for twenty players, so he phoned three bus companies and booked the cheapest one that was free on Saturday.',
++    focus:'arrange',
++    meaning:'to make plans for something to happen',
++    distractors:['to stop something that was already planned', 'to pay for something in advance', 'to check that something is safe'],
++    clue:'phoned, compared, booked; steps taken so that the trip can happen'
++  },
++  urge:{
++    sentence:'The doctor urged her patients to walk every day, repeating the message at each visit and warning that their health could get worse if they did not.',
++    focus:'urged',
++    meaning:'to try hard to persuade someone to do something',
++    distractors:['to promise someone that something will happen', 'to warn someone not to do something', 'to teach someone a new skill'],
++    clue:'repeated at each visit, with a warning of the consequence'
++  },
++  recommend:{
++    sentence:'Before the race, the trainer recommended that everyone spend ten minutes stretching, since it can reduce the chance of injury.',
++    focus:'recommended',
++    meaning:'to tell someone that something is a good idea',
++    distractors:['to order someone to do something immediately', 'to agree that something has already happened', 'to warn someone that something is dangerous'],
++    clue:'a benefit is given as the reason; no order and no threat'
++  },
++  demand:{
++    sentence:'Running a marathon will demand months of early mornings, careful eating and very little time for anything else.',
++    focus:'demand',
++    meaning:'to need a lot of time or effort',
++    distractors:['to allow someone plenty of free time', 'to make something easier for beginners', 'to reward someone for hard work'],
++    clue:'the list of sacrifices shows what the marathon takes from you'
++  },
++  threaten:{
++    sentence:'Heavy snow threatened the final, and by midday the organisers were worried that the match might have to be called off.',
++    focus:'threatened',
++    meaning:'to put something at risk of being spoiled',
++    distractors:['to protect something from being damaged', 'to make something more exciting for fans', 'to move something to a safer place'],
++    clue:'the organisers are worried the match may be cancelled'
++  },
++  resent:{
++    sentence:'The coach picked Tom’s friend for the starting line-up instead of Tom, who had trained harder all season, and Tom resented him for weeks, barely speaking to him.',
++    focus:'resented',
++    meaning:'to feel angry about something that seems unfair',
++    distractors:['to feel proud of something you have done', 'to feel nervous before something important', 'to feel sorry for someone who is hurt'],
++    clue:'passed over despite effort; weeks of barely speaking'
++  },
++  regret:{
++    sentence:'Years later, she st
