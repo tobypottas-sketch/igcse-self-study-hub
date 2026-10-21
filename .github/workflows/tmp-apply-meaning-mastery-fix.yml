@@ -22,21 +22,7 @@ jobs:
         with:
           node-version: 22
       - run: node scripts/tmp-apply-meaning-mastery-fix.mjs
-      - name: Run full tests
-        id: tests
-        continue-on-error: true
-        run: |
-          rm -f tmp-final-meaning-mastery-test.log
-          npm test > tmp-final-meaning-mastery-test.log 2>&1
-      - name: Capture failing output
-        if: ${{ steps.tests.outcome == 'failure' }}
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add tmp-final-meaning-mastery-test.log
-          git commit -m 'chore: capture nondeterministic Meaning Mastery failure'
-          git push origin HEAD:fix/meaning-mastery-reviewed-equivalent
-          exit 1
+      - run: npm test
       - run: node scripts/validate-vocabulary-content.mjs
       - name: Commit verified fix and remove temporary files
         run: |
