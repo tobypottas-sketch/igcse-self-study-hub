@@ -21,7 +21,7 @@ jobs:
           node-version: 20
       - name: Apply approved patch
         run: |
-          base64 -d .review-payload/pathway-art-fix.patch.gz.b64 | gzip -d > /tmp/pathway-art-fix.patch
+          cat .review-payload/chunk1.b64 .review-payload/chunk2.b64 .review-payload/chunk3.b64 .review-payload/chunk4.b64 | base64 -d | gzip -d > /tmp/pathway-art-fix.patch
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git am /tmp/pathway-art-fix.patch
@@ -29,6 +29,6 @@ jobs:
         run: npm test
       - name: Remove temporary staging files
         run: |
-          git rm .review-payload/pathway-art-fix.patch.gz.b64 .github/workflows/apply-pathway-art-fix.yml
+          git rm .review-payload/pathway-art-fix.patch.gz.b64 .review-payload/chunk1.b64 .review-payload/chunk2.b64 .review-payload/chunk3.b64 .review-payload/chunk4.b64 .github/workflows/apply-pathway-art-fix.yml
           git commit -m "Remove temporary pathway fix staging files"
           git push origin HEAD:fix/pathway-art-evidence-lifecycle-merge-2
