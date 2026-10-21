@@ -12,7 +12,7 @@ fs.writeFileSync('content/vocabulary/units/unit-01-mastery-supplement.js', `cons
   avoid:['keep clear of something unwanted','deliberately stay away from something'],
   afford:['have enough resources for a cost','be financially able to pay'],
   deny:['state that a claim is false','declare an accusation to be untrue'],
-  permit:['give approval for an action','make something officially allowed'],
+  permit:['make something allowed','officially allow something'],
   arrange:['make plans for something in advance','put necessary plans in place'],
   urge:['press someone strongly to act','push someone firmly toward action'],
   recommend:['present something as a suitable choice','advise choosing a particular option'],
@@ -90,12 +90,12 @@ replaceOnce(
 replaceOnce(
   'tests/vocabulary-navigation-distractor-regression.test.js',
   `  senses:[{ senseId:'permit_1', meaning:'to allow something to happen', acceptedParaphrases:['allow','give permission for'], misleadingDistractors:['prevent','demand','resent'] }]`,
-  `  senses:[{ senseId:'permit_1', meaning:'to allow something to happen', acceptedParaphrases:['allow','give permission for'], misleadingDistractors:['prevent','demand','resent'], masteryContexts:[{ contextId:'permit_meaning', text:'The club does not permit spectators to enter the training area.', meaning:'give official approval for an action' }] }]`
+  `  senses:[{ senseId:'permit_1', meaning:'to allow something to happen', acceptedParaphrases:['allow','give permission for'], misleadingDistractors:['prevent','demand','resent'], masteryContexts:[{ contextId:'permit_meaning', text:'The club does not permit spectators to enter the training area.', meaning:'make something allowed' }] }]`
 );
 replaceOnce(
   'tests/vocabulary-navigation-distractor-regression.test.js',
   `    assert.equal(question.options.includes('allow'), true);`,
-  `    const expectedCorrect = activityType === 'meaning_match' ? 'allow' : 'give official approval for an action';
+  `    const expectedCorrect = activityType === 'meaning_match' ? 'allow' : 'make something allowed';
     assert.equal(question.options.includes(expectedCorrect), true);`
 );
 
