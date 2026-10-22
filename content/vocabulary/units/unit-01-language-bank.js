@@ -102,9 +102,9 @@ export default Object.freeze({
         text:'Try to ____ eating a big meal just before you swim.',
         answer:'avoid',
         distractors:[
-          diagnosed('continue','Grammatically fits before -ing, but gives the opposite advice.'),
-          diagnosed('mind','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('deserve','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('hope','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('plan','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('decide','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -112,9 +112,9 @@ export default Object.freeze({
         text:'The new bypass helps commuters ____ the busiest roads.',
         answer:'avoid',
         distractors:[
-          diagnosed('describe','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('wash','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('measure','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('improve','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('widen','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('repair','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -132,9 +132,9 @@ export default Object.freeze({
         text:'She changed her route to ____ the roadworks near the stadium.',
         answer:'avoid',
         distractors:[
-          diagnosed('describe','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('admire','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('mend','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('admire','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('describe','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('advertise','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -187,9 +187,9 @@ export default Object.freeze({
         text:'The survey showed that most people have a strong ____ for fresh food over tinned food.',
         answer:'preference',
         distractors:[
-          diagnosed('appointment','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('deadline','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('dislike','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('suspicion','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('disagreement','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -197,9 +197,9 @@ export default Object.freeze({
         text:'When I booked the flight, the website asked whether I had a ____ for a window or an aisle seat.',
         answer:'preference',
         distractors:[
-          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('deadline','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('punishment','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('complaint','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('punishment','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('refund','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -207,9 +207,9 @@ export default Object.freeze({
         text:'List the three clubs in order of ____, starting with the one you would most like to join.',
         answer:'preference',
         distractors:[
-          diagnosed('temperature','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('weight','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('distance','Fits grammatically, but distance ranks how far away each club is, not how much you want to join it.')
+          diagnosed('size','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('cost','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('age','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -217,9 +217,9 @@ export default Object.freeze({
         text:'My brother has a ____ for science fiction, so I bought him a novel from that section.',
         answer:'preference',
         distractors:[
-          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('punishment','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('dislike','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('contempt','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('disagreement','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -227,9 +227,9 @@ export default Object.freeze({
         text:'Her ____ is for coursework rather than exams, because she says she works better without time pressure.',
         answer:'preference',
         distractors:[
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('appointment','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('dislike','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('complaint','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('disappointment','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -237,9 +237,9 @@ export default Object.freeze({
         text:'Which team you support is simply a matter of personal ____.',
         answer:'preference',
         distractors:[
-          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('ticket','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('income','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('safety','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('fitness','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       }
     ],
@@ -272,9 +272,9 @@ export default Object.freeze({
         text:'The club had to cancel the trip because it could no longer ____ the cost of the coach.',
         answer:'afford',
         distractors:[
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('state','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('advertise','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('announce','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -282,9 +282,9 @@ export default Object.freeze({
         text:'My parents would love a bigger house, but they simply cannot ____ one on a teacher’s salary.',
         answer:'afford',
         distractors:[
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('design','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('inspect','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('describe','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -292,9 +292,9 @@ export default Object.freeze({
         text:'Students who work every evening to pay their rent cannot ____ to spend long hours on revision.',
         answer:'afford',
         distractors:[
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('hope','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('threaten','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('deserve','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -302,9 +302,9 @@ export default Object.freeze({
         text:'The council lowered the entry fee so that more families could ____ the price of a day at the leisure centre.',
         answer:'afford',
         distractors:[
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('state','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('calculate','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('question','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -312,9 +312,9 @@ export default Object.freeze({
         text:'She took a second job because her salary was too low and she could not ____ to fall behind with the rent.',
         answer:'afford',
         distractors:[
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('hope','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('deserve','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('volunteer','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -322,9 +322,9 @@ export default Object.freeze({
         text:'A new phone is not something we can ____ right now, so we will wait until next year.',
         answer:'afford',
         distractors:[
-          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('check','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('describe','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('photograph','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       }
     ],
@@ -357,9 +357,9 @@ export default Object.freeze({
         text:'The company continues to ____ any responsibility for the accident, despite the evidence.',
         answer:'deny',
         distractors:[
-          diagnosed('accept','Fits grammatically, but accept means agree that it is responsible, which contradicts continues and despite the evidence.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('take','Fits grammatically, but take responsibility means accept the blame, which contradicts continues and despite the evidence.')
+          diagnosed('take','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('assume','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('admit','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -378,8 +378,8 @@ export default Object.freeze({
         answer:'deny',
         distractors:[
           diagnosed('confirm','Fits grammatically, but confirm means say it is true, but the statement says the rumour is false.'),
-          diagnosed('paint','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('back','Fits grammatically, but back means support, but the statement says the rumour is completely false.')
+          diagnosed('spread','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('post','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -388,8 +388,8 @@ export default Object.freeze({
         answer:'deny',
         distractors:[
           diagnosed('admit','Fits grammatically, but admit means agree it is true, but still continued shows she kept saying the opposite.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('confess','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('accept','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -397,9 +397,9 @@ export default Object.freeze({
         text:'Nobody can ____ that regular exercise improves mood; the evidence is very strong.',
         answer:'deny',
         distractors:[
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('show','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('announce','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('suggest','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -407,9 +407,9 @@ export default Object.freeze({
         text:'The suspect did not ____ being at the scene, but he insisted that he had not taken anything.',
         answer:'deny',
         distractors:[
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('risk','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('finish','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('imagine','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       }
     ],
@@ -442,9 +442,9 @@ export default Object.freeze({
         text:'Our flexible timetable will ____ you to study at your own pace.',
         answer:'permit',
         distractors:[
-          diagnosed('oblige','Fits grammatically, but oblige means force you, which contradicts flexible and at your own pace.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('force','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('require','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('pressure','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -452,9 +452,9 @@ export default Object.freeze({
         text:'The council will not ____ anyone to build on the old playing field, because it is protected land.',
         answer:'permit',
         distractors:[
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('force','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('require','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('oblige','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -463,8 +463,8 @@ export default Object.freeze({
         answer:'permit',
         distractors:[
           diagnosed('require','Fits grammatically, but require would mean students must bring phones, which contradicts leaving them outside.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('supply','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('charge','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -472,9 +472,9 @@ export default Object.freeze({
         text:'Would you ____ your children to stay out until midnight on a school night?',
         answer:'permit',
         distractors:[
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('force','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('teach','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('remind','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -482,9 +482,9 @@ export default Object.freeze({
         text:'A teacher cannot ____ students to copy each other’s answers in an assessment.',
         answer:'permit',
         distractors:[
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('suggest','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('explain','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('mention','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -492,9 +492,9 @@ export default Object.freeze({
         text:'The new software will ____ teachers to share lessons with parents from any device.',
         answer:'permit',
         distractors:[
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('suggest','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('explain','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('announce','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       }
     ],
@@ -527,9 +527,9 @@ export default Object.freeze({
         text:'Please ____ a time that suits everyone so that we can all meet on Saturday.',
         answer:'arrange',
         distractors:[
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('daydream','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('forget','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('avoid','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('miss','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -537,9 +537,9 @@ export default Object.freeze({
         text:'My uncle has offered to ____ transport to the airport for the whole team.',
         answer:'arrange',
         distractors:[
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('perspire','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('advertise','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('describe','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('review','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -547,9 +547,9 @@ export default Object.freeze({
         text:'We need to ____ a babysitter before we can go out on Friday evening.',
         answer:'arrange',
         distractors:[
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('stumble','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('describe','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('photograph','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('forget','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -557,9 +557,9 @@ export default Object.freeze({
         text:'The band’s manager plans to ____ a short tour of five cities in the spring.',
         answer:'arrange',
         distractors:[
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('tremble','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('forget','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('photograph','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('inspect','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -567,9 +567,9 @@ export default Object.freeze({
         text:'It takes a lot of time to ____ a school trip for two hundred students.',
         answer:'arrange',
         distractors:[
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('forget','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('repair','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('dismiss','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -577,9 +577,9 @@ export default Object.freeze({
         text:'She will ____ to meet us at the station at six, so please wait for her.',
         answer:'arrange',
         distractors:[
-          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('forget','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('refuse','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('pretend','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       }
     ],
@@ -612,8 +612,8 @@ export default Object.freeze({
         text:'Doctors strongly ____ patients to take up gentle exercise because the benefits are so large, though the choice is always theirs.',
         answer:'urge',
         distractors:[
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('order','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('force','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
           diagnosed('require','Fits grammatically, but require means make it necessary, but the choice is always theirs says it is not necessary.')
         ]
       },
@@ -622,9 +622,9 @@ export default Object.freeze({
         text:'Friends who live here ____ new students to try the local food, which is cheap, delicious and unlike anything most newcomers have tasted.',
         answer:'urge',
         distractors:[
-          diagnosed('warn','Fits grammatically, but warn means tell people about a danger, but cheap and delicious describes a benefit.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('order','Fits grammatically, but order means command, and friends have no authority to command new students.')
+          diagnosed('warn','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('force','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('command','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -632,9 +632,9 @@ export default Object.freeze({
         text:'Experts ____ schools to teach financial skills earlier, but they cannot make any school do it, and so far none has agreed.',
         answer:'urge',
         distractors:[
+          diagnosed('make','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
           diagnosed('force','Fits grammatically, but force contradicts they cannot make any school do it.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('oblige','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -642,9 +642,9 @@ export default Object.freeze({
         text:'The charity, which has no authority over ministers, continues to ____ the government to increase funding for youth sport, so far without success.',
         answer:'urge',
         distractors:[
-          diagnosed('force','Fits grammatically, but force contradicts has no authority over ministers.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('make','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('order','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('instruct','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -662,9 +662,9 @@ export default Object.freeze({
         text:'Her parents ____ her to apply for the scholarship, but she has not decided yet and they say the choice is hers.',
         answer:'urge',
         distractors:[
-          diagnosed('force','Fits grammatically, but force contradicts they say the choice is hers.'),
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('make','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('command','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('require','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       }
     ],
@@ -697,9 +697,9 @@ export default Object.freeze({
         text:'My dentist has just retired, so I am asking my colleagues to ____ someone they have been happy with.',
         answer:'recommend',
         distractors:[
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('hibernate','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('dismiss','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('forget','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('discourage','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -707,9 +707,9 @@ export default Object.freeze({
         text:'I would highly ____ the new science museum; my whole class thought it was brilliant.',
         answer:'recommend',
         distractors:[
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sleepwalk','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('criticise','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('avoid','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('doubt','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -717,9 +717,9 @@ export default Object.freeze({
         text:'The doctor will ____ that you rest for at least three days.',
         answer:'recommend',
         distractors:[
-          diagnosed('evaporate','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('doubt','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('deny','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('regret','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -727,9 +727,9 @@ export default Object.freeze({
         text:'Teachers often ____ reading a little every day as a way to build vocabulary.',
         answer:'recommend',
         distractors:[
-          diagnosed('hibernate','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('discourage','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('avoid','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('forbid','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -737,9 +737,9 @@ export default Object.freeze({
         text:'Whenever tourists ask where to eat, I ____ my cousin’s bakery because the cheese bread there is wonderful.',
         answer:'recommend',
         distractors:[
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('avoid','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('criticise','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('ignore','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -748,8 +748,8 @@ export default Object.freeze({
         answer:'recommend',
         distractors:[
           diagnosed('require','Fits grammatically, but require contradicts it is not compulsory.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('insist','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('demand','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       }
     ],
@@ -782,9 +782,9 @@ export default Object.freeze({
         text:'Marathon training can ____ patience, discipline and a great deal of time.',
         answer:'demand',
         distractors:[
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('ignore','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('avoid','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('replace','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -792,9 +792,9 @@ export default Object.freeze({
         text:'Learning two languages at once will ____ a lot of concentration.',
         answer:'demand',
         distractors:[
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('avoid','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('shorten','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('excuse','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -812,9 +812,9 @@ export default Object.freeze({
         text:'Elite sport tends to ____ early mornings and very long hours of training.',
         answer:'demand',
         distractors:[
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('replace','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('cancel','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('excuse','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -822,9 +822,9 @@ export default Object.freeze({
         text:'Becoming a good violinist can ____ years of daily practice and a great deal of patience.',
         answer:'demand',
         distractors:[
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('prevent','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('avoid','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('excuse','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -877,9 +877,9 @@ export default Object.freeze({
         text:'Poor funding may ____ the future of the community football club.',
         answer:'threaten',
         distractors:[
-          diagnosed('guarantee','Fits grammatically, but guarantee means make certain, which is the opposite of what poor funding does.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('secure','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('improve','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('support','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -887,9 +887,9 @@ export default Object.freeze({
         text:'The coach will ____ to drop any player who arrives late again.',
         answer:'threaten',
         distractors:[
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('perspire','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('suggest','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('mention','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('discuss','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -907,9 +907,9 @@ export default Object.freeze({
         text:'Dark storm clouds seemed to ____ the outdoor final, and officials began to talk about moving the match indoors.',
         answer:'threaten',
         distractors:[
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('welcome','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('decorate','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('support','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -917,9 +917,9 @@ export default Object.freeze({
         text:'Union leaders say the new rules could ____ the jobs of thousands of factory workers, and they want the government to think again.',
         answer:'threaten',
         distractors:[
-          diagnosed('reward','Fits grammatically, but reward means give something back for good work, but want the government to think again shows the unions see the rules as harmful.'),
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('protect','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('safeguard','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('reward','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       }
     ],
@@ -952,9 +952,9 @@ export default Object.freeze({
         text:'He began to ____ being left out of the team, even though he had trained hard all season.',
         answer:'resent',
         distractors:[
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('enjoy','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('welcome','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('appreciate','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -962,9 +962,9 @@ export default Object.freeze({
         text:'Many workers ____ being told to stay late without extra pay.',
         answer:'resent',
         distractors:[
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('welcome','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('appreciate','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('prefer','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -982,9 +982,9 @@ export default Object.freeze({
         text:'Last year the manager changed everyone’s shifts without warning, and many staff still ____ it.',
         answer:'resent',
         distractors:[
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('appreciate','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('praise','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('welcome','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -992,9 +992,9 @@ export default Object.freeze({
         text:'They ____ the extra homework, because they thought it was unfair to set it on a Friday.',
         answer:'resent',
         distractors:[
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('enjoy','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('praise','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('support','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1037,9 +1037,9 @@ export default Object.freeze({
         text:'He told me that he will always ____ his own decision to leave school so early and often wishes he had stayed.',
         answer:'regret',
         distractors:[
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('celebrate','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
           diagnosed('defend','Fits grammatically, but defend means argue in support of it, but wishes he had stayed shows he does not support the decision.'),
-          diagnosed('forget','Fits grammatically, but forget contradicts will always and often wishes he had stayed.')
+          diagnosed('welcome','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1047,9 +1047,9 @@ export default Object.freeze({
         text:'We ____ to tell you that your application has not been successful this year.',
         answer:'regret',
         distractors:[
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('refuse','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('forget','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('pretend','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1057,9 +1057,9 @@ export default Object.freeze({
         text:'She did not ____ her decision to change schools; she said she was much happier now.',
         answer:'regret',
         distractors:[
-          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('announce','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('forget','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('cancel','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1067,9 +1067,9 @@ export default Object.freeze({
         text:'Looking back, many retired athletes ____ not spending more time with their families.',
         answer:'regret',
         distractors:[
-          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('celebrate','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('welcome','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('enjoy','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1087,8 +1087,8 @@ export default Object.freeze({
         text:'He apologised for the mistake and said he would always ____ what he had said to his teammate.',
         answer:'regret',
         distractors:[
-          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('defend','Fits grammatically, but defend contradicts apologised.'),
+          diagnosed('repeat','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
           diagnosed('deny','Fits grammatically, but deny contradicts apologised.')
         ]
       }
@@ -1132,9 +1132,9 @@ export default Object.freeze({
         text:'Moving to another country means getting used to ____ food, customs and routines.',
         answer:'unfamiliar',
         distractors:[
-          diagnosed('annual','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('rectangular','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('abstract','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('familiar','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('ordinary','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('usual','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1152,9 +1152,9 @@ export default Object.freeze({
         text:'The route was ____ to us, so we kept stopping at every junction to check the map.',
         answer:'unfamiliar',
         distractors:[
-          diagnosed('annual','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('unlikely','Fits grammatically, but unlikely means probably not true, which does not fit a route they were walking.'),
-          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('familiar','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('obvious','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('straightforward','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1172,9 +1172,9 @@ export default Object.freeze({
         text:'The rules of cricket are completely ____ to anyone who has grown up outside the countries where it is played.',
         answer:'unfamiliar',
         distractors:[
-          diagnosed('unfair','Fits grammatically, but unfair means not just, but the cue is anyone who has grown up outside.'),
-          diagnosed('annual','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('obvious','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('clear','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('straightforward','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       }
     ],
@@ -1217,9 +1217,9 @@ export default Object.freeze({
         text:'In badminton, players hit the shuttlecock over the net with a light ____.',
         answer:'racquet',
         distractors:[
-          diagnosed('whistle','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('helmet','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('hockey stick','Fits grammatically, but a hockey stick is used to hit a ball along the ground, not a shuttlecock over a net.')
+          diagnosed('stick','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('club','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('hockey stick','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1303,8 +1303,8 @@ export default Object.freeze({
         answer:'opponent',
         distractors:[
           diagnosed('teammate','Fits grammatically, but a teammate is on the captain’s own side, but the video is of the other team’s goalkeeper.'),
-          diagnosed('stadium','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('scoreboard','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('referee','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('supporter','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1313,8 +1313,8 @@ export default Object.freeze({
         answer:'opponent',
         distractors:[
           diagnosed('teammate','Fits grammatically, but a teammate is on your side, so you would share your plan, not hide it.'),
-          diagnosed('ticket','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('whistle','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('partner','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('captain','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1324,7 +1324,7 @@ export default Object.freeze({
         distractors:[
           diagnosed('coach','Fits grammatically, but a coach advises from outside the game and does not make moves.'),
           diagnosed('judge','Fits grammatically, but a judge scores or rules on a game and does not make moves in it.'),
-          diagnosed('ticket','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('referee','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1332,9 +1332,9 @@ export default Object.freeze({
         text:'A good boxer respects every ____, even one who has lost his last five fights.',
         answer:'opponent',
         distractors:[
-          diagnosed('whistle','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('ticket','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('glove','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('fan','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('trainer','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('referee','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1377,9 +1377,9 @@ export default Object.freeze({
         text:'Players faced ____ pressure in the final minutes, with the score level and the whole crowd roaring.',
         answer:'intense',
         distractors:[
-          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('annual','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('edible','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('mild','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('light','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('slight','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1397,9 +1397,9 @@ export default Object.freeze({
         text:'She trained with ____ concentration, never once looking at the clock.',
         answer:'intense',
         distractors:[
-          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('annual','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('rectangular','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('weak','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('casual','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('partial','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1472,9 +1472,9 @@ export default Object.freeze({
         text:'He scored the winning goal in the semi-final of the ____, which his team went on to win.',
         answer:'tournament',
         distractors:[
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('season','Fits grammatically, but a season is a period of time, and a semi-final belongs to one event.'),
-          diagnosed('training camp','Fits grammatically, but a training camp is for preparing players, and the sentence describes a competition with a winner.')
+          diagnosed('camp','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('exhibition','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1502,9 +1502,9 @@ export default Object.freeze({
         text:'Players from twelve countries took part in the international ____ in Singapore.',
         answer:'tournament',
         distractors:[
-          diagnosed('whistle','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('ticket','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('lesson','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('exam','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('auction','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1512,9 +1512,9 @@ export default Object.freeze({
         text:'Our team lost its first match but still reached the final of the ____ by winning all its remaining games.',
         answer:'tournament',
         distractors:[
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('whistle','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('expedition','Fits grammatically, but an expedition is a journey, not a competition with a final.')
+          diagnosed('season','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('lesson','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('workshop','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       }
     ],
@@ -1549,7 +1549,7 @@ export default Object.freeze({
         distractors:[
           diagnosed('reluctant','Fits grammatically, but reluctant means unwilling, which contradicts refused to give up.'),
           diagnosed('embarrassed','Fits grammatically, but embarrassed to qualify would mean she felt awkward about succeeding, which does not fit refused to give up.'),
-          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('afraid','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1559,7 +1559,7 @@ export default Object.freeze({
         distractors:[
           diagnosed('unwilling','Fits grammatically, but unwilling to win contradicts the idea of fighting back despite being two goals behind.'),
           diagnosed('ashamed','Fits grammatically, but ashamed to win would mean they felt bad about winning, which does not fit despite being two goals behind.'),
-          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('uncomfortable','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1587,9 +1587,9 @@ export default Object.freeze({
         text:'Although the climb was dangerous, the team stayed ____ to reach the summit before dark.',
         answer:'determined',
         distractors:[
-          diagnosed('rectangular','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('annual','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('confused','Fits grammatically, but confused describes not understanding, which does not fit staying set on the summit.')
+          diagnosed('afraid','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('reluctant','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('ashamed','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1599,7 +1599,7 @@ export default Object.freeze({
         distractors:[
           diagnosed('careless','Fits grammatically, but careless contradicts never complained and the coach’s praise.'),
           diagnosed('indifferent','Fits grammatically, but indifferent means not caring, which contradicts the coach being impressed.'),
-          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('arrogant','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       }
     ],
@@ -1632,9 +1632,9 @@ export default Object.freeze({
         text:'Training at five every morning in winter takes real ____, because nobody forces you to keep to the routine.',
         answer:'discipline',
         distractors:[
-          diagnosed('temperature','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('weather','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('equipment','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('sponsorship','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('transport','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1643,8 +1643,8 @@ export default Object.freeze({
         answer:'discipline',
         distractors:[
           diagnosed('flexibility','Fits grammatically, but flexibility is the ability to change, which is the opposite of following a strict timetable.'),
-          diagnosed('weather','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('laziness','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('curiosity','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1652,9 +1652,9 @@ export default Object.freeze({
         text:'The coach praised the team’s ____ in following the training plan exactly, even when no one was watching.',
         answer:'discipline',
         distractors:[
-          diagnosed('refrigerator','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('creativity','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('flexibility','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('humour','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1662,9 +1662,9 @@ export default Object.freeze({
         text:'With a little ____, you can put aside a small amount of money each week even when you are tempted to spend it.',
         answer:'discipline',
         distractors:[
-          diagnosed('temperature','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('generosity','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('curiosity','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('laziness','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1672,9 +1672,9 @@ export default Object.freeze({
         text:'Learning a language requires ____: a short study session every day is better than one long session at the weekend.',
         answer:'discipline',
         distractors:[
-          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('talent','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('intelligence','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('equipment','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1682,9 +1682,9 @@ export default Object.freeze({
         text:'Soldiers and athletes need ____ to follow orders and keep to the rules when conditions are hard.',
         answer:'discipline',
         distractors:[
-          diagnosed('weather','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('ticket','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('imagination','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('humour','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('curiosity','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       }
     ],
@@ -1802,9 +1802,9 @@ export default Object.freeze({
         text:'Finishing the marathon in under four hours was a major ____ for someone who had only started running a year ago.',
         answer:'achievement',
         distractors:[
-          diagnosed('routine','Fits grammatically, but a routine is something done regularly, but finishing in under four hours was special.'),
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('disappointment','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('embarrassment','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('mistake','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1812,9 +1812,9 @@ export default Object.freeze({
         text:'The coach called her place on the national team the most difficult ____ of her career, because no one from the school had ever done it before.',
         answer:'achievement',
         distractors:[
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('refrigerator','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('defeat','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('injury','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('loss','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1832,9 +1832,9 @@ export default Object.freeze({
         text:'Her proudest ____ was teaching herself to swim at the age of forty.',
         answer:'achievement',
         distractors:[
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('temperature','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('mistake','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('regret','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('disappointment','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -1852,9 +1852,9 @@ export default Object.freeze({
         text:'Passing every exam with top grades was an ____ that his whole family was proud of.',
         answer:'achievement',
         distractors:[
-          diagnosed('umbrella','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('elbow','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('envelope','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('accident','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('error','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('obstacle','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       }
     ],
@@ -1907,9 +1907,9 @@ export default Object.freeze({
         text:'Her coach said she had the ability to reach ____ level, which means competing against the best in the world.',
         answer:'elite',
         distractors:[
-          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('regional','Fits grammatically, but regional level means competing against the best in one area, but the sentence says the best in the world.'),
-          diagnosed('club','Fits grammatically, but club level means competing against other members of a club, but the sentence says the best in the world.')
+          diagnosed('club','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('amateur','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('social','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -2077,9 +2077,9 @@ export default Object.freeze({
         text:'Each ____ of people, born within a few years of each other, grows up with different music, technology and ideas about work.',
         answer:'generation',
         distractors:[
-          diagnosed('century','Fits grammatically, but a century is one hundred years, not a few years, and it is a period of time rather than a group of people.'),
-          diagnosed('season','Fits grammatically, but a season is part of a year, and it is a period of time rather than a group of people.'),
-          diagnosed('refrigerator','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('family','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('community','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('neighbourhood','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -2088,8 +2088,8 @@ export default Object.freeze({
         answer:'generation',
         distractors:[
           diagnosed('season','Fits grammatically, but a season is part of the year, and love of football is passed to people, not to a season.'),
-          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('temperature','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('family','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('neighbourhood','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -2108,8 +2108,8 @@ export default Object.freeze({
         answer:'generation',
         distractors:[
           diagnosed('century','Fits grammatically, but a century is one hundred years, and it does not spend free time.'),
-          diagnosed('weather','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('temperature','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('decade','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('month','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       }
     ],
@@ -2143,8 +2143,8 @@ export default Object.freeze({
         answer:'challenge',
         distractors:[
           diagnosed('reward','Fits grammatically, but a reward is a prize, but to see who could push their limits describes a difficult test.'),
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('refrigerator','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('holiday','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('timetable','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -2152,9 +2152,9 @@ export default Object.freeze({
         text:'Playing the champions away from home will be a serious ____ for our young team, but we are ready to try.',
         answer:'challenge',
         distractors:[
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('temperature','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('advantage','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('relief','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('bonus','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -2182,9 +2182,9 @@ export default Object.freeze({
         text:'Finding enough time for training while studying full-time is the biggest ____ for most athletes at university.',
         answer:'challenge',
         distractors:[
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('weather','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('advantage','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('benefit','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('reward','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -2267,9 +2267,9 @@ export default Object.freeze({
         text:'The puzzle was finally finished when the students found the ____ that explained all of the clues.',
         answer:'solution',
         distractors:[
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('weather','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('hint','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('penalty','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('question','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -2314,7 +2314,7 @@ export default Object.freeze({
         distractors:[
           diagnosed('profession','Fits grammatically, but a profession is a job, but who enjoy it in the afternoons describes something done for pleasure.'),
           diagnosed('duty','Fits grammatically, but a duty is something you must do, but who enjoy it describes something done for pleasure.'),
-          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('sport','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -2483,7 +2483,7 @@ export default Object.freeze({
         answer:'regardless',
         distractors:[
           diagnosed('instead','Fits grammatically, but instead of the weather would mean the weather replaces the match, which does not fit bring waterproof clothes just in case.'),
-          diagnosed('behind','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('apart','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
           diagnosed('irrelevant','Fits grammatically, but irrelevant of is not used in this pattern; the standard phrase is irrespective of or regardless of.')
         ]
       },
@@ -2492,9 +2492,9 @@ export default Object.freeze({
         text:'Every student must attend training, ____ of their ability or experience, so beginners and the best players train together.',
         answer:'regardless',
         distractors:[
-          diagnosed('behind','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
-          diagnosed('unaffected','Fits grammatically, but unaffected of is not used in this pattern; the standard phrase is regardless of.'),
-          diagnosed('out','Fits grammatically, but out of their ability does not fit beginners and the best players training together.')
+          diagnosed('because','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('instead','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('nevertheless','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -2502,9 +2502,9 @@ export default Object.freeze({
         text:'Their best striker was injured, which was a good reason to stop, but the team carried on with the final ____ of the injury.',
         answer:'regardless',
         distractors:[
-          diagnosed('behind','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('because','Fits grammatically, but because of the injury would make it the reason for carrying on, but the sentence calls it a good reason to stop.'),
-          diagnosed('irrelevant','Fits grammatically, but irrelevant of is not used in this pattern; the standard phrase is regardless of.')
+          diagnosed('ahead','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
+          diagnosed('afterwards','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.')
         ]
       },
       {
@@ -2513,7 +2513,7 @@ export default Object.freeze({
         answer:'regardless',
         distractors:[
           diagnosed('because','Fits grammatically, but because of family income would make income the reason, but rich and poor families are treated the same.'),
-          diagnosed('behind','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('instead','This word does not give the meaning the sentence needs, so it cannot complete the sentence correctly.'),
           diagnosed('out','Fits grammatically, but out of family income does not fit the idea that income does not matter.')
         ]
       },
