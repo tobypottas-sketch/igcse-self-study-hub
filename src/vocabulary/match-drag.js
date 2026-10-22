@@ -5,6 +5,7 @@ const THRESHOLD = 6;
 const ITEM = '[data-match-word], [data-match-definition]';
 let drag = null;
 let suppressUntil = 0;
+let detachCurrent = null;
 
 const sideOf = node => (node.dataset.matchWord != null ? 'word' : 'definition');
 const idOf = node => node.dataset.matchWord ?? node.dataset.matchDefinition;
@@ -21,19 +22,14 @@ function clear() {
   drag.ghost?.remove();
   drag.source.classList.remove('is-dragging');
   drag.over?.classList.remove('is-drop-target');
-  try { drag.source.releasePointerCapture?.(drag.pointerId); } catch { /* already released */ }
   drag = null;
+  detachCurrent?.();
 }
 
 export function installMatchDrag(root, { canDrag, onPair }) {
-  root.addEventListener('pointerdown', event => {
-    const source = event.target?.closest?.(ITEM);
-    if (!source || source.disabled || !canDrag() || (event.pointerType === 'mouse' && event.button !== 0)) return;
-    clear();
-    drag = { source, pointerId: event.pointerId, x0: event.clientX, y0: event.clientY, moved: false, ghost: null, over: null, dx: 0, dy: 0 };
-    try { source.setPointerCapture?.(event.pointerId); } catch { /* capture is optional */ }
-  });
-  root.addEventListener('pointermove', event => {
+  // Move/up/cancel are listened for on `window` for the length of one drag (not on the card): they keep working if the card is
+  // repainted mid-drag and do not depend on pointer capture, which some browsers handle differently on <button> elements.
+  const move = event => {
     if (!drag || event.pointerId !== drag.pointerId) return;
     if (!drag.moved) {
       if (Math.hypot(event.clientX - drag.x0, event.clientY - drag.y0) < THRESHOLD) return;
@@ -52,8 +48,8 @@ export function installMatchDrag(root, { canDrag, onPair }) {
     drag.ghost.style.transform = `translate(${event.clientX - drag.dx}px,${event.clientY - drag.dy}px)`;
     const over = targetAt(event.clientX, event.clientY, drag.source);
     if (over !== drag.over) { drag.over?.classList.remove('is-drop-target'); over?.classList.add('is-drop-target'); drag.over = over; }
-  });
-  root.addEventListener('pointerup', event => {
+  };
+  const up = event => {
     if (!drag || event.pointerId !== drag.pointerId) return;
     const { source, moved } = drag;
     const target = moved ? targetAt(event.clientX, event.clientY, source) : null;
@@ -65,7 +61,20 @@ export function installMatchDrag(root, { canDrag, onPair }) {
       const defNode = sideOf(source) === 'definition' ? source : target;
       onPair(idOf(wordNode), idOf(defNode), sideOf(source), idOf(source));
     }
+  };
+  const cancel = () => clear();
+  const detach = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', cancel); };
+  detachCurrent = detach;
+  root.addEventListener('pointerdown', event => {
+    const source = event.target?.closest?.(ITEM);
+    if (!source || source.disabled || !canDrag() || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    clear();
+    drag = { source, pointerId: event.pointerId, x0: event.clientX, y0: event.clientY, moved: false, ghost: null, over: null, dx: 0, dy: 0 };
+    window.addEventListener('pointermove', move, { passive: false });
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', cancel);
   });
-  root.addEventListener('pointercancel', () => clear());
+  // Stops Safari/Firefox starting a text selection or their own drag from a card (which would cancel our pointer stream).
+  root.addEventListener('mousedown', event => { if (event.target?.closest?.(ITEM) && canDrag()) event.preventDefault(); });
   root.addEventListener('dragstart', event => { if (event.target?.closest?.(ITEM)) event.preventDefault(); });
 }
