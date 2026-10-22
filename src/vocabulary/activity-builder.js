@@ -1,4 +1,5 @@
 import { shuffleAnswerOptions } from './answer-option-shuffle.js';
+import { SITUATION_DISTRACTORS } from './situation-distractors.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 import { reframeInstructionAroundAnswer } from './answer-leak-guard.js';
 import { completeParaphraseBlank } from '../../supabase/functions/_shared/vocabulary-phrase-blank.js';
@@ -188,7 +189,8 @@ function whichSituationFits(args, definition) {
   const context = chooseContext(targetFreeContexts, ['paraphrase_context','production_context'], args.usedContentIds, seed);
   const correct = text(context.text);
 
-  let wrong = unitSituationDistractors(args, correct).slice(0,3);
+  const authored = stableShuffle(uniqueText(array(SITUATION_DISTRACTORS[term]).filter(candidate => text(candidate).toLocaleLowerCase('en') !== correct.toLocaleLowerCase('en'))), `${seed}:situations:authored`).slice(0,3);
+  let wrong = authored.length === 3 ? authored : unitSituationDistractors(args, correct).slice(0,3);
   if (wrong.length < 3) {
     const alternatives = [];
     for (const activity of array(unitActivities)) {
