@@ -1,4 +1,11 @@
 import { test, expect } from 'playwright/test';
+import fs from 'node:fs';
+
+// CI installs the real supabase-js from npm and serves it for the CDN import, so these checks never depend on a third-party CDN being reachable.
+const SUPABASE_BUNDLE = process.env.SUPABASE_JS_BUNDLE && fs.existsSync(process.env.SUPABASE_JS_BUNDLE) ? fs.readFileSync(process.env.SUPABASE_JS_BUNDLE,'utf8') : null;
+test.beforeEach(async ({ page }) => {
+  if (SUPABASE_BUNDLE) await page.route('**/cdn.jsdelivr.net/npm/@supabase/**', route => route.fulfill({ contentType:'application/javascript', body:SUPABASE_BUNDLE }));
+});
 
 test('Hub boots to the sign-in screen without browser errors', async ({ page }) => {
   const pageErrors = [];
@@ -199,7 +206,10 @@ for (const saveMode of ['success', 'failed', 'pending']) {
     await expect(page.locator('.vocab-pathways')).toBeVisible();
     if (saveMode === 'pending') await page.evaluate(() => window.settleVocabularySave());
     await expect(page.locator('.vocab-pathways')).toBeVisible();
-    expect(await page.evaluate(() => window.vocabularyAttempts.length)).toBe(1);
+    // A failed save is retried automatically (1 try + 2 retries). Every try must carry the SAME attempt id, so the server records one attempt.
+    const sent = await page.evaluate(() => window.vocabularyAttempts.map(entry => entry.attemptId));
+    expect(new Set(sent).size).toBe(1);
+    expect(sent.length).toBe(saveMode === 'failed' ? 3 : 1);
     await page.locator('[data-action="back-units"]').click();
     await expect(page.locator('[data-action="open-unit"][data-unit="1"]')).toBeVisible();
     expect(errors).toEqual([]);
