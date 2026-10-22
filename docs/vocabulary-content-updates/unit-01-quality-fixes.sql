@@ -20,8 +20,8 @@ on conflict (vocabulary_id) do update set
 insert into public.vocabulary_contexts
 (context_id,vocabulary_id,occurrence_id,sense_id,context_type,prompt_text,target_rewrite,accepted_answers,misconception_category,status)
 values
-('u1_11_threaten_paraphrase','vocab_threaten','u1_11_threaten','threaten_1','paraphrase_context','A serious injury put her place in the championship at risk.','put at risk','["threaten"]'::jsonb,null,'live'),
-('u1_11_threaten_production','vocab_threaten','u1_11_threaten','threaten_1','production_context','Poor funding could put the future of the community club at risk.','put at risk','["threaten"]'::jsonb,null,'live'),
+('u1_11_threaten_paraphrase','vocab_threaten','u1_11_threaten','threaten_1','paraphrase_context','A serious injury endangered her place in the championship.','endanger','["threaten"]'::jsonb,null,'live'),
+('u1_11_threaten_production','vocab_threaten','u1_11_threaten','threaten_1','production_context','Poor funding could endanger the future of the community club.','endanger','["threaten"]'::jsonb,null,'live'),
 ('u1_15_racquet_meaning','vocab_racquet','u1_15_racquet','racquet_1','meaning_context','She replaced the strings on her tennis racquet before the match.',null,'["bat with strings"]'::jsonb,null,'live'),
 ('u1_15_racquet_paraphrase','vocab_racquet','u1_15_racquet','racquet_1','paraphrase_context','She took her bat with strings to be repaired before the match.','bat with strings','["racquet"]'::jsonb,null,'live'),
 ('u1_15_racquet_production','vocab_racquet','u1_15_racquet','racquet_1','production_context','Players must bring a suitable bat with strings for badminton.','bat with strings','["racquet"]'::jsonb,null,'live')
