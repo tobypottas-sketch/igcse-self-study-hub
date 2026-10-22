@@ -1,10 +1,10 @@
-// DRAFT Unit 1 word-family expansion: 3 new items per word that already has a genuine word family (78 total).
-// status is 'draft' and this file is NOT imported by the unit yet. It is published only after teacher approval.
+// Unit 1 word-family expansion: 3 further Word Families items for each of the 25 words that have a genuine word family (75 total).
+// Approved by the teacher; imported by unit-01-word-family-supplement.js.
 const unitNumber = 1;
 function family(id, term, sourceText, acceptedAnswer) {
   const vocabularyId = `vocab_${term}`;
   return {
-    activityContentId:`u1_writing_word_family_${id}`, unitNumber, contentType:'writing_set', status:'draft',
+    activityContentId:`u1_writing_word_family_${id}`, unitNumber, contentType:'writing_set', status:'approved',
     activityData:{ taskType:'word_family', prompt:`Use the correct form from the ${term} word family.`, sourceText, acceptedAnswers:[acceptedAnswer], linkedVocabularyIds:[vocabularyId], primaryEvidenceTargetId:vocabularyId }
   };
 }
@@ -15,7 +15,7 @@ export default [
   family('preference_e','preference','Players can state a _____ for morning or evening training.','preference'),
   family('avoid_c','avoid','Most of these injuries are _____ if players stretch properly.','avoidable'),
   family('avoid_d','avoid','She tried to _____ the busy roads when she cycled to training.','avoid'),
-  family('avoid_e','avoid','Regular rest helps with the _____ of burnout during a long season.','avoidance'),
+  family('avoid_e','avoid','The delay was _____, because the storm closed the airport.','unavoidable'),
   family('afford_c','afford','Not every family can _____ new equipment every year.','afford'),
   family('afford_d','afford','Visiting the stadium by train is a cheap and _____ option.','affordable'),
   family('afford_e','afford','Ticket prices that high are _____ for many fans.','unaffordable'),
@@ -39,7 +39,7 @@ export default [
   family('resent_e','resent','There was growing _____ among the substitutes who rarely played.','resentment'),
   family('regret_c','regret','He felt _____ about shouting at his teammates.','regretful'),
   family('regret_d','regret','Many athletes _____ not stretching before a race.','regret'),
-  family('regret_e','regret','A _____ mistake by the goalkeeper cost the team the game.','regrettable'),
+  family('regret_e','regret','The final had to be cancelled, _____, because of the storm.','regrettably'),
   family('determined_c','determined','She was _____ to finish the race despite the heat.','determined'),
   family('determined_d','determined','Hard work and _____ took him from the bench to the first team.','determination'),
   family('determined_e','determined','Weather conditions will _____ which route the cyclists take.','determine'),
@@ -66,18 +66,18 @@ export default [
   family('patience_e','patience','Learning to swim takes time and _____.','patience'),
   family('incredible_c','incredible','The goal was an _____ strike from the halfway line.','incredible'),
   family('incredible_d','incredible','The mountain was _____ steep near the summit.','incredibly'),
-  family('incredible_e','incredible',"Viewers doubted the _____ of the athlete's claim.",'incredibility'),
+  family('incredible_e','incredible','It was _____ how quickly she recovered from the injury.','incredible'),
   family('selection_c','selection','The club is very _____ about who it accepts.','selective'),
   family('selection_d','selection','The shop offers a wide _____ of running shoes.','selection'),
   family('selection_e','selection','Players may _____ one activity from the list.','select'),
   family('produce_c','produce','Factories _____ thousands of footballs every week.','produce'),
-  family('produce_d','produce','The _____ of the new stadium took two years.','production'),
-  family('produce_e','produce','She is a major _____ of sports clothing.','producer'),
+  family('produce_d','produce','This new training shoe is our best-selling _____.','product'),
+  family('produce_e','produce','Short, focused sessions are often more _____ than long, tired ones.','productive'),
   family('significant_c','significant','There was a _____ improvement in her times this season.','significant'),
   family('significant_d','significant','Few people understood the _____ of the old trophy.','significance'),
   family('significant_e','significant','Her times are _____ better than last year.','significantly'),
   family('expansion_c','expansion','The club hopes to _____ its facilities next year.','expand'),
-  family('expansion_d','expansion','The _____ fields behind the school are ideal for cross-country running.','expansive'),
+  family('expansion_d','expansion','The _____ sports hall now has room for four courts.','expanded'),
   family('expansion_e','expansion','The _____ of the sports hall will include a new gym.','expansion'),
   family('reputation_c','reputation','Only buy equipment from a _____ supplier.','reputable'),
   family('reputation_d','reputation','The tournament was damaged by a _____ organiser who cheated players.','disreputable'),

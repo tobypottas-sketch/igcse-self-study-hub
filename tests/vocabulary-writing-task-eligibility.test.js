@@ -85,7 +85,7 @@ test('Word Family Switch remains limited to word_family writing records', () => 
     readinessStage:'building',
     seed:'word-family-control'
   });
-  assert.equal(question.contentId, 'u1_writing_word_family_compete');
+  assert.match(question.contentId, /^u1_writing_word_family_competitor?(_[a-e])?$|^u1_writing_word_family_compete$/, 'comes from a competitor word_family writing record');
   assert.equal(question.taskType, undefined, 'word-family builder need not expose taskType; content identity is authoritative');
 });
 
