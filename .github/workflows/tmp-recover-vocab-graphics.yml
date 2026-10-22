@@ -28,6 +28,9 @@ jobs:
           PACKAGE_COMMIT='23a684edc8726745cef91730b396cf6548358118'
           EXPECTED_SHA='1c48db8762ad681e51797b1c2ed22585aff22931e4bd27f07357f14aa12247a1'
 
+          if ! git cat-file -e "${PACKAGE_COMMIT}^{commit}" 2>/dev/null; then
+            git fetch --no-tags origin "${PACKAGE_COMMIT}"
+          fi
           git cat-file -e "${PACKAGE_COMMIT}^{commit}"
           git show "${PACKAGE_COMMIT}:.staging/final-int.b64" > /tmp/final-int.b64
           base64 -d /tmp/final-int.b64 > /tmp/final-int.zip
@@ -145,7 +148,6 @@ jobs:
           echo 'Final changed paths:'
           git status --short
 
-          # Safety gate: graphics integration must not touch learning/progression/server behaviour.
           forbidden='supabase/|pathway-progress|progression|attempt-action|persistence|scoring|mastery'
           if git status --short | awk '{print $2}' | grep -E "$forbidden"; then
             echo 'Forbidden non-graphics behaviour file changed.' >&2
