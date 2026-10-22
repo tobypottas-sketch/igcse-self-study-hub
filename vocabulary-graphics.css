@@ -19,6 +19,9 @@
 
 /* Pathway illustrations (square): contained in the existing corner slot at a consistent size. */
 .vocab-pathway-card__art .study-art__png{object-fit:contain;object-position:center}
+/* The PNG is a real illustration, so its corner slot is larger than the small SVG glyph's. The slot is absolutely positioned
+   (no grid track), so card height, ladder, evidence and CTA do not move; it is decided at render time (.has-png). */
+.vocab-pathway-card__art.has-png{width:176px;height:156px}
 .vocab-pathway-card__art.has-png.is-png-ready{opacity:.96}
 .vocab-pathway-card:not(:disabled):hover .vocab-pathway-card__art.has-png.is-png-ready{opacity:.86}
 .vocab-pathway-card:disabled .vocab-pathway-card__art.has-png.is-png-ready{opacity:.45;filter:saturate(.55)}
@@ -27,6 +30,7 @@
 
 /* Tablet: keep the SVG column exactly, so the text never reflows; the 16:9 picture simply shows at that width. */
 @media (max-width:1000px){
+  .vocab-pathway-card__art.has-png{width:150px;height:130px}
   .vocab-unit-hero.has-png-art{padding-right:min(31vw,310px)!important}
   .vocab-unit-hero.has-png-art .vocab-unit-hero__art{width:min(28vw,270px)}
 }
@@ -34,3 +38,4 @@
   .vocab-unit-hero.has-png-art{padding-right:18px!important;padding-bottom:166px!important}
   .vocab-unit-hero.has-png-art .vocab-unit-hero__art{width:min(300px,calc(100% - 36px));height:150px}
 }
+@media (max-width:620px){.vocab-pathway-card__art.has-png{width:104px;height:88px}}

@@ -94,7 +94,11 @@ for (const [width, height] of WIDTHS) {
       assert.equal(states.filter(state => state.fit === 'cover').length, 1, 'unit banner crops (cover)');
       assert.equal(states.filter(state => state.fit === 'contain').length, 6, 'pathway art is contained at a consistent size');
       const after = await geometry(api);
-      assert.deepEqual(after.cards, before.cards, 'adding the PNGs changes no pathway card, art slot, ladder, evidence or CTA geometry');
+      // The illustration slot is deliberately larger with a PNG (it is absolutely positioned, so it takes no grid space);
+      // everything else on the card (size, ladder, evidence, CTA) must be identical.
+      const withoutArt = cards => cards.map(({ art, ...rest }) => rest);
+      assert.deepEqual(withoutArt(after.cards), withoutArt(before.cards), 'adding the PNGs changes no pathway card, ladder, evidence or CTA geometry');
+      for (const [index, card] of after.cards.entries()) assert.ok(card.art[2] > before.cards[index].art[2] && card.art[2] <= 180, 'the PNG illustration slot is larger than the SVG glyph slot but stays modest');
       assert.ok(after.hero[3] - before.hero[3] <= 40, `the banner does not become dramatically taller (${before.hero[3]} → ${after.hero[3]})`);
       assert.ok(after.heroArt[0] + after.heroArt[2] <= after.hero[0] + after.hero[2], 'the banner art stays inside the banner');
       assert.equal(after.hScroll, false);
