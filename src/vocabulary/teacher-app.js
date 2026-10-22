@@ -1,6 +1,7 @@
 import { escapeHtml } from '../views/html.js';
 import { buildClassInsights, buildPathwayAnalytics, buildProblemDrilldown, buildStudentProfile } from './analytics.js';
 import { buildTeamsTargetList, buildVocabularyInterventionDraft, createLearningIntervention } from './interventions.js';
+import { buildMeritStatus, SKILLS_PER_MERIT } from './merits.js';
 import { loadVocabularyTeacherData } from './teacher-data.js';
 import { renderTeacherOverview, renderProblemArea, renderStudentVocabularyProfile } from './teacher-views.js';
 import { renderVocabularyError } from './views.js';
@@ -29,6 +30,33 @@ function classInsights(classData) {
   return { ...insights, pathwayAnalytics:pathwayAnalytics(classData) };
 }
 
+function classMerits(classData) {
+  if (classData.meritsAvailable === false) return { available:false, skillsPerMerit:SKILLS_PER_MERIT, rows:[] };
+  const rows = buildMeritStatus({ students:classData.students, occurrences:classData.occurrences, unitMastery:classData.unitMastery ?? [], globalMastery:classData.mastery, awards:classData.awards ?? [] });
+  return { available:true, skillsPerMerit:SKILLS_PER_MERIT, rows };
+}
+
+async function awardMerit(target) {
+  const classData = teacherState.currentClass;
+  const studentId = target.dataset.studentId;
+  const row = classMerits(classData).rows.find(item => item.studentId === studentId);
+  if (!row?.pendingNumbers.length) return;
+  target.disabled = true;
+  const original = target.textContent;
+  target.textContent = 'Saving…';
+  const records = row.pendingNumbers.map(meritNumber => ({ student_id:studentId, merit_number:meritNumber, awarded_by:teacherState.profile?.id }));
+  try {
+    const { error } = await teacherState.client.from('vocabulary_merit_awards').upsert(records, { onConflict:'student_id,merit_number', ignoreDuplicates:true });
+    if (error) throw new Error('Unable to save this merit. Please try again.');
+    classData.awards = [...(classData.awards ?? []), ...row.pendingNumbers.map(meritNumber => ({ studentId, meritNumber }))];
+    openClass(classData.id);
+  } catch (error) {
+    target.disabled = false;
+    target.textContent = original;
+    target.insertAdjacentHTML('afterend', `<small class="notice">${escapeHtml(error instanceof Error ? error.message : 'Unable to save this merit.')}</small>`);
+  }
+}
+
 function openClass(classId) {
   const classData = teacherState.data.classes.find(row => row.id === classId);
   if (!classData) return;
@@ -36,7 +64,7 @@ function openClass(classId) {
   teacherState.currentDrilldown = null;
   teacherState.currentStudent = null;
   teacherState.currentInsights = classInsights(classData);
-  renderTeacherOverview(teacherState.root, { className:classData.className, insights:teacherState.currentInsights });
+  renderTeacherOverview(teacherState.root, { className:classData.className, insights:teacherState.currentInsights, merits:classMerits(classData) });
 }
 
 function openProblem({ strand = null, skillId = null } = {}) {
@@ -153,6 +181,7 @@ function handleClick(event) {
   else if (action === 'teacher-open-problem') openProblem({ strand:target.dataset.strand ?? null, skillId:target.dataset.skillId ?? null });
   else if (action === 'teacher-open-student') openStudent(target.dataset.studentId);
   else if (action === 'teacher-back-overview') teacherState.currentClass ? openClass(teacherState.currentClass.id) : renderClassChooser();
+  else if (action === 'teacher-award-merit') void awardMerit(target);
   else if (action === 'teacher-teams-targets') void copyTeamsTargets().catch(() => {});
   else if (action === 'teacher-recommend-practice') showRecommendationChooser();
   else if (action === 'teacher-create-recommendation') void createRecommendation(target);
