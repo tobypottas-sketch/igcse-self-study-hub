@@ -47,13 +47,14 @@ test('Meaning Apply situation tasks render as accessible choice cards: no chips,
   }
 });
 
-test('gap-fill response is tap-to-fill: tappable words, no drop zone, no dropdown, no dragging, Check disabled until a word is chosen', () => {
+test('gap-fill response is drag-to-fill: word cards, a drop slot in the sentence, no dropdown, Check disabled until a word is dragged in', () => {
   const html = render({
     type:'drag_word_sentence', responseMode:'drag_gap', prompt:'Complete the sentence.',
     sourceText:'Students should stay ____ after school.', draggables:['active','effort','regular','compete'],
     markingReference:{ acceptedAnswers:['active'] }
   });
-  assert.match(html, /Students should stay ____ after school\./);
+  assert.match(html, /Students should stay <span class="vocab-gap-slot" data-gap-slot[^>]*>____<\/span> after school\./);
+  assert.match(html, /Drag a word into the gap/);
   assert.equal((html.match(/data-gap-choice=/g) ?? []).length, 4);
   assert.match(html, /<input type="hidden" name="answer" value="">/);
   assert.match(html, /data-gap-submit disabled/);

@@ -7,10 +7,22 @@
 @media(max-width:620px){.vocab-learning-progress{gap:3px;padding:5px}.vocab-learning-progress__stage{padding:7px 2px}.vocab-learning-progress__stage small{font-size:.62rem}.vocab-question-meta__right{gap:6px}.vocab-pathways{margin-top:22px}.vocab-pathway-card{grid-template-columns:1fr;padding:17px;gap:10px}.vocab-pathway-card__coverage{justify-self:start}.vocab-pathway-ladder{grid-column:1;padding:6px;gap:4px}.vocab-pathway-stage{min-height:52px;padding:6px 2px}.vocab-pathway-stage i{width:21px;height:21px}.vocab-pathway-stage small{font-size:.59rem}.vocab-pathway-card__cta{grid-column:1;justify-self:start;margin-top:2px}}
 @media (prefers-reduced-motion:reduce){.vocab-gap-chip,.vocab-pathway-card{transition:none!important;transform:none!important}}
 
-/* Tap-to-fill gap (Context -> Apply). Chips are real buttons: keyboard, touch and screen-reader friendly, no dragging. */
+/* Drag-to-fill gap (Context -> Apply). Word cards are real buttons (keyboard: Enter/Space) and can be dragged onto the blank with mouse, touch or pen. */
 .vocab-gap-bank{display:flex;flex-wrap:wrap;gap:10px}
 .vocab-gap-chip{border:1px solid rgba(20,74,90,.26);border-radius:999px;background:#fff;padding:11px 18px;min-height:44px;font:inherit;font-weight:750;color:#18374a;cursor:pointer;transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease,background .14s ease}
 .vocab-gap-chip:hover,.vocab-gap-chip:focus-visible{transform:translateY(-1px);box-shadow:0 6px 18px rgba(25,60,80,.08);border-color:rgba(20,74,90,.5)}
 .vocab-gap-chip.is-selected{border-color:#137e80;background:#e8f6f5;box-shadow:0 0 0 2px rgba(19,126,128,.14)}
 .vocab-gap-filled{display:inline-block;padding:0 8px;margin:0 2px;border-bottom:2px solid #137e80;border-radius:6px 6px 0 0;background:#e8f6f5;color:#0e5f61;font-weight:800}
 .vocab-drag-gap [data-gap-submit][disabled]{opacity:.5;cursor:not-allowed;filter:saturate(.6)}
+
+.vocab-gap-chip{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.vocab-gap-chip.is-dragging{opacity:.35;cursor:grabbing}
+.vocab-gap-ghost{position:fixed;left:0;top:0;z-index:1000;pointer-events:none;cursor:grabbing;box-shadow:0 14px 30px rgba(20,50,70,.28);border-color:#137e80;background:#e8f6f5;transition:none!important}
+.vocab-question-context p .vocab-gap-slot{display:inline-block;margin:0 2px;font-weight:700;font-size:inherit;letter-spacing:normal;text-transform:none}
+.vocab-gap-slot{display:inline-block;min-width:4.5em;padding:0 8px;margin:0 2px;text-align:center;border-bottom:2px dashed #137e80;border-radius:6px 6px 0 0;background:#f2fafa;color:#5f8f93;font-weight:700;transition:background .14s ease,box-shadow .14s ease}
+.vocab-question-context p .vocab-gap-slot.is-over,.vocab-gap-slot.is-over{background:#d7f0ee;box-shadow:0 0 0 3px rgba(19,126,128,.28);color:#0e5f61}
+.vocab-gap-slot.is-filled{border-bottom-style:solid;color:#0e5f61;font-weight:800}
+.vocab-gap-slot.is-nudge{animation:vocab-gap-nudge .5s ease}
+.vocab-gap-hint{margin:0;color:#4c6b78;font-size:.92rem}
+@keyframes vocab-gap-nudge{0%,100%{box-shadow:0 0 0 0 rgba(19,126,128,0)}40%{box-shadow:0 0 0 6px rgba(19,126,128,.35)}}
+@media (prefers-reduced-motion:reduce){.vocab-gap-slot.is-nudge{animation:none;box-shadow:0 0 0 3px rgba(19,126,128,.35)}}

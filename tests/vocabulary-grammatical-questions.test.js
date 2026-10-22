@@ -128,3 +128,14 @@ test('blank questions offer the reviewed distractors', () => {
     assert.deepEqual([...options].sort(), [answer, ...reviewed].sort(), `${question.type}: ${question.sourceText}`);
   }
 });
+
+test('a/an before a blank agrees with every option, so the article never gives the answer away', () => {
+  const vowel = word => /^[aeiou]/i.test(word) && !/^(uni|use|eu|one)/i.test(word);
+  for (const candidate of blankCandidates()) {
+    const article = candidate.sourceText.match(/\b(a|an)\s+____/i)?.[1]?.toLowerCase();
+    if (!article) continue;
+    for (const option of [candidate.answer, ...GAPFILL_DISTRACTORS[keyOf(candidate)]]) {
+      assert.equal(vowel(option) ? 'an' : 'a', article, `"${article} ${option}" is ungrammatical, so it signals the answer: ${keyOf(candidate)}`);
+    }
+  }
+});
