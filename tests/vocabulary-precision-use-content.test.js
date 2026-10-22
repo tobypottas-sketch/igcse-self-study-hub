@@ -25,3 +25,19 @@ test('Precision & Use items have a quoted vague wording, an answer, and three di
     }
   }
 });
+
+import { applyStageVariant } from '../src/vocabulary/stage-variants.js';
+import { isPathwayQuestionAllowed } from '../supabase/functions/_shared/vocabulary-pathway-contract.js';
+
+test('Precision & Use Mastery is allowed by the shared contract and each stage is presented differently', () => {
+  assert.equal(isPathwayQuestionAllowed('precision_use','mastery','improve_vocabulary'),true);
+  const question = { type:'improve_vocabulary', markingReference:{ acceptedAnswers:['relatively'] } };
+  const apply = applyStageVariant(question,{ pathwayId:'precision_use', servedStage:'apply' });
+  const recall = applyStageVariant(question,{ pathwayId:'precision_use', servedStage:'recall' });
+  const mastery = applyStageVariant(question,{ pathwayId:'precision_use', servedStage:'mastery' });
+  assert.match(apply.clue,/starts with “r”/);
+  assert.match(recall.clue,/10 letters/);
+  assert.equal(mastery.clue,undefined);
+  assert.equal(mastery.stageVariant,'mastery-no-clue');
+  for (const variant of [apply, recall, mastery]) assert.deepEqual(variant.markingReference,question.markingReference);
+});

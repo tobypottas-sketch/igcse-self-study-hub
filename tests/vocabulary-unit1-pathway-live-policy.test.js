@@ -30,8 +30,8 @@ test('Unit 1 exposes only pathway banks that are currently defensible end to end
 
   assert.equal(coverage.paraphrasing.available,false);
   assert.equal(coverage.paraphrasing.reason,'content_bank_incomplete');
-  assert.equal(coverage.precision_use.available,false);
-  assert.ok(['content_bank_incomplete','required_rung_withheld'].includes(coverage.precision_use.reason));
+  assert.equal(coverage.precision_use.available,true);
+  assert.equal(coverage.precision_use.occurrenceIds.length,50);
 });
 
 test('diagnostic buildable counts preserve the curated 25-target Word Family cohort across every rung', () => {

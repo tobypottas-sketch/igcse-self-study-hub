@@ -43,9 +43,8 @@ test('diagnostic: report Unit 1 buildable counts while distinguishing intentiona
   }
   console.log('UNIT1_PATHWAY_COUNTS', JSON.stringify(counts));
 
-  assert.equal(counts.precision_use.mastery.withheld,true,'Precision Mastery should be explicitly withheld until a genuine precision-production task exists');
-  assert.equal(counts.precision_use.allStages,0,'a pathway with a withheld required rung must not claim an end-to-end cohort');
-  for (const pathway of VOCABULARY_PATHWAYS.filter(row => row.id !== 'precision_use')) {
+  assert.equal(counts.precision_use.mastery.withheld,false,'Precision Mastery is live (typed precision production, no clue)');
+  for (const pathway of VOCABULARY_PATHWAYS) {
     assert.ok(counts[pathway.id].allStages > 0, `${pathway.id} needs at least one target buildable through every declared rung`);
   }
 });
