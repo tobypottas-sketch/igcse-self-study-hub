@@ -8,14 +8,17 @@
 [data-art-slot].is-png-ready .study-art__svg{visibility:hidden}
 
 /* Unit card (home): the banner fills the card's art tile and crops evenly, keeping the subject on the right. No stretching. */
-.vocab-unit-card__art .study-art__png{object-fit:cover;object-position:80% 50%}
+.vocab-unit-card__art .study-art__png{object-fit:cover;object-position:46% 50%}
+/* Square tile, centred in the card: the banner is panoramic, so a tall tile shows only one person. Square shows the tennis player and
+   the runner (the sport) instead of just the cyclist and the reader. Margin (not transform) centres it, so the hover effect still works. */
+.vocab-unit-card__art.has-png{top:50%;bottom:auto;height:132px;margin-top:-66px}
 
 /* Unit banner (wide landscape, shown ~2.2:1, anchored right). The art column is a little wider than the SVG's (decided at render time by .has-png-art), so
    a 16:9 picture shows in full instead of being cropped to a tall slot. The picture keeps its 16:9 shape, is centred in the
    column and is only ever cropped (cover), never stretched. The banner does not become taller; text keeps the left column. */
-.vocab-unit-hero.has-png-art{padding-right:min(39vw,410px)!important}
-.vocab-unit-hero.has-png-art .vocab-unit-hero__art{width:min(36vw,380px)}
-.vocab-unit-hero__art .study-art__png{inset:auto 0;top:50%;transform:translateY(-50%);height:auto;max-height:100%;aspect-ratio:2.2/1;object-fit:cover;object-position:85% 50%;border-radius:20px;box-shadow:0 10px 24px rgba(21,58,91,.14)}
+.vocab-unit-hero.has-png-art{padding-right:min(43vw,470px)!important}
+.vocab-unit-hero.has-png-art .vocab-unit-hero__art{width:min(40vw,440px)}
+.vocab-unit-hero__art .study-art__png{inset:auto 0;top:50%;transform:translateY(-50%);height:auto;max-height:100%;aspect-ratio:2.9/1;object-fit:cover;object-position:100% 50%;border-radius:20px;box-shadow:0 10px 24px rgba(21,58,91,.14)}
 
 /* Pathway illustrations (square): contained in the existing corner slot at a consistent size. */
 .vocab-pathway-card__art .study-art__png{object-fit:contain;object-position:center}
@@ -35,7 +38,8 @@
   .vocab-unit-hero.has-png-art .vocab-unit-hero__art{width:min(28vw,270px)}
 }
 @media (max-width:760px){
-  .vocab-unit-hero.has-png-art{padding-right:18px!important;padding-bottom:166px!important}
-  .vocab-unit-hero.has-png-art .vocab-unit-hero__art{width:min(300px,calc(100% - 36px));height:150px}
+  .vocab-unit-hero.has-png-art{padding-right:18px!important;padding-bottom:150px!important}
+  .vocab-unit-hero.has-png-art .vocab-unit-hero__art{width:min(340px,calc(100% - 36px));height:118px}
 }
 @media (max-width:620px){.vocab-pathway-card__art.has-png{width:104px;height:88px}}
+@media (max-width:760px){.vocab-unit-card__art.has-png{height:98px;margin-top:-49px}}
