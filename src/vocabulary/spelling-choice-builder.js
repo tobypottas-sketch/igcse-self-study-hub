@@ -1,6 +1,7 @@
 import { shuffleAnswerOptions } from './answer-option-shuffle.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 import { grammaticalBlankCandidates } from './foundational-activity-builder.js';
+import { pickSpellingErrors } from './spelling-errors.js';
 
 function text(value) { return String(value ?? '').trim(); }
 function array(value) { return Array.isArray(value) ? value : []; }
@@ -41,25 +42,6 @@ function definitionFor(item, occurrence = {}) {
 function itemContentId({ item, occurrence }) {
   return `item:${item.vocabularyId}:${occurrence?.senseId ?? senseFor(item,occurrence)?.senseId ?? 'sense'}`;
 }
-function spellingVariants(term) {
-  const chars = Array.from(term);
-  const variants = [];
-  if (chars.length > 1) {
-    const swap = [...chars];
-    [swap[chars.length - 2],swap[chars.length - 1]] = [swap[chars.length - 1],swap[chars.length - 2]];
-    variants.push(swap.join(''));
-  }
-  if (chars.length > 2) variants.push(chars.filter((_,index) => index !== Math.floor(chars.length / 2)).join(''));
-  if (chars.length) variants.push(`${chars[0]}${chars[0]}${chars.slice(1).join('')}`);
-  const vowelIndex = chars.findIndex(char => /[aeiou]/i.test(char));
-  if (vowelIndex >= 0) {
-    const changed = [...chars];
-    changed[vowelIndex] = changed[vowelIndex].toLowerCase() === 'e' ? 'a' : 'e';
-    variants.push(changed.join(''));
-  }
-  variants.push(`${term}e`);
-  return uniqueText(variants).filter(value => value.toLocaleLowerCase('en') !== term.toLocaleLowerCase('en')).slice(0,3);
-}
 function escapeRegExp(value) { return value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 function blankableContext({ item, occurrence, contexts, usedContentIds = [], seed = '' }) {
   const candidates = grammaticalBlankCandidates({ item, occurrence, contexts });
@@ -95,7 +77,7 @@ export function buildSpellingChoiceActivity({ occurrence, item, contexts = [], u
   if (!definition || !isActivityLive(definition.id)) throw new Error('Spelling recognition is unavailable.');
   const term = text(item.term);
   const meaning = definitionFor(item,occurrence);
-  const wrong = spellingVariants(term);
+  const wrong = pickSpellingErrors(item,term,3,seed);
   if (!term || !meaning || wrong.length < 3) throw new Error('Spelling recognition requires three plausible spelling alternatives.');
   const options = shuffleAnswerOptions([term,...wrong],`${seed}:spelling-choice-options`,optionNonce);
   const stableItemId = itemContentId({item,occurrence});
@@ -115,7 +97,7 @@ export function buildSpellingChoiceActivity({ occurrence, item, contexts = [], u
   }
 
   const { context, sourceText, surface } = picked;
-  const surfaceWrong = spellingVariants(surface);
+  const surfaceWrong = pickSpellingErrors(item,surface,3,seed);
   if (surfaceWrong.length < 3) throw new Error('Spelling recognition requires three plausible spelling alternatives.');
   return base({
     definition,

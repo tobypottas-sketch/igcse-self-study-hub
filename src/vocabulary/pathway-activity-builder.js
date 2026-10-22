@@ -3,6 +3,7 @@ import { unsolvedTileOrder } from './tile-order.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 import { grammaticalBlankCandidates, blankDistractors } from './foundational-activity-builder.js';
 import { languageBankContextForItem, languageBankForItem } from './language-bank.js';
+import { pickSpellingErrors } from './spelling-errors.js';
 
 export const PATHWAY_ACTIVITY_TYPES = Object.freeze(new Set([
   'type_word_from_definition','context_sentence_match','word_family_match',
@@ -127,21 +128,8 @@ function precisionMatch(args, definition) {
   const pairs=options.map((option,index)=>({vocabularyId:index===0?args.item.vocabularyId:`alt-${index}`,term:index===0?cue:'',definition:option}));
   return base({definition,occurrence:args.occurrence,contentId:record.activityContentId,contentSource:'unit_activity',prompt:'Match the weak wording to the most precise replacement.',markingReference:{acceptedAnswers:accepted},extra:{pairs,sourceText:cue,activityContentId:record.activityContentId,taskType:'improve_vocabulary',primaryEvidenceTargetId:data.primaryEvidenceTargetId ?? args.item.vocabularyId,matchCue:cue,matchOptions:options,matchPresentation:'precision_replacement'}});
 }
-function spellingVariants(term) {
-  const chars=Array.from(term); const variants=[];
-  if (chars.length>1) { const swap=[...chars]; [swap[chars.length-2],swap[chars.length-1]]=[swap[chars.length-1],swap[chars.length-2]]; variants.push(swap.join('')); }
-  if (chars.length>2) variants.push(chars.filter((_,i)=>i!==Math.floor(chars.length/2)).join(''));
-  if (chars.length) variants.push(`${chars[0]}${chars[0]}${chars.slice(1).join('')}`);
-  const vowelIndex=chars.findIndex(char=>/[aeiou]/i.test(char));
-  if (vowelIndex>=0) { const changed=[...chars]; changed[vowelIndex]=changed[vowelIndex].toLowerCase()==='e'?'a':'e'; variants.push(changed.join('')); }
-  variants.push(`${term}e`);
-  return uniqueText(variants).filter(value=>value.toLocaleLowerCase('en')!==term.toLocaleLowerCase('en')).slice(0,3);
-}
 function reviewedSpellingErrors(args, count=3) {
-  const bank=languageBankForItem(args.item);
-  const authored=uniqueText(array(bank?.spellingErrors));
-  if (authored.length>=count) return shuffle(authored,`${args.seed}:authored-spelling-errors`).slice(0,count);
-  return spellingVariants(text(args.item.term));
+  return pickSpellingErrors(args.item,text(args.item.term),count,args.seed);
 }
 function spellingChoice(args, definition) {
   const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence), wrong=reviewedSpellingErrors(args,3);
@@ -158,7 +146,7 @@ function spellingCueMatch(args, definition) {
 function spellingRebuild(args, definition) {
   const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence);
   if (!term||!meaning) throw new Error('Spelling rebuild requires a target word and meaning.');
-  const letters=Array.from(term); const spaced=letters.join(' ');
+  const letters=Array.from(term).filter(char=>!/\s/.test(char)); const spaced=Array.from(term).join(' ');
   return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Rebuild the word meaning “${meaning}”.`,markingReference:{acceptedAnswers:[term,spaced]},extra:{tiles:unsolvedTileOrder(letters,term,`${args.seed}:spelling-tiles`),primaryEvidenceTargetId:args.item.vocabularyId}});
 }
 function spellInContext(args, definition) {

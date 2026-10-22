@@ -1,5 +1,5 @@
 const unit1MasterySupplement = Object.freeze({
-  leisure:['time free for enjoyable activities','recreation time outside normal duties'],
+  'leisure time':['time free for enjoyable activities','recreation time outside normal duties'],
   preference:['favouring one option over another','a stronger choice between alternatives'],
   avoid:['keep clear of something unwanted','deliberately stay away from something'],
   afford:['have enough resources for a cost','be financially able to pay'],

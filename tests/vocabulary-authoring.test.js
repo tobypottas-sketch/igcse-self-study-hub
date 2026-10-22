@@ -75,7 +75,7 @@ test('authored Unit 1 is complete, source-aligned, and strict-validator clean', 
   assert.equal(unit1.items.length, 50);
   assert.equal(unit1.contexts.length, 342);
   assert.deepEqual(unit1.items.map(item => item.term), [
-    'leisure','preference','avoid','afford','deny','permit','arrange','urge','recommend','demand',
+    'leisure time','preference','avoid','afford','deny','permit','arrange','urge','recommend','demand',
     'threaten','resent','regret','unfamiliar','racquet','opponent','intense','tournament','determined','discipline',
     'goal-oriented','achievement','elite','overwhelming','generation','challenge','solution','pastime','feat','regardless',
     'monetary','estimated','struggle','minimum','championship','competitor','relatively','patience','atmosphere','incredible',

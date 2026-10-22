@@ -1,7 +1,7 @@
 const diagnosed = (text, reason) => ({ text, reason });
 
 export default Object.freeze({
-  leisure:{
+  'leisure time':{
     definitionDistractors:[
       'time spent doing paid work or employment',
       'time reserved for lessons, homework, or study',
@@ -10,7 +10,7 @@ export default Object.freeze({
       'time required to finish a particular task',
       'a break in activity caused by an unexpected delay'
     ],
-    spellingErrors:['leisur','lesiure','leisuree','liesure','leasure','leisuer'],
+    spellingErrors:['leisur time','lesiure time','liesure time','leasure time','leisuer time','lesure time'],
     contexts:[
       {
         id:'leisure_ctx_1',
@@ -24,22 +24,22 @@ export default Object.freeze({
       },
       {
         id:'leisure_ctx_2',
-        text:'The council built new ____ facilities so residents could exercise and relax after work.',
-        answer:'leisure',
+        text:'Longer working hours leave families with less ____ than they had ten years ago.',
+        answer:'leisure time',
         distractors:[
-          diagnosed('office','Can modify facilities, but offices are for work rather than recreation.'),
-          diagnosed('factory','Can modify facilities, but factories are workplaces rather than places for recreation.'),
-          diagnosed('kitchen','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('office space','Fits grammatically, but longer working hours reduce time for relaxing, not space.'),
+          diagnosed('travel costs','Fits grammatically, but the sentence is about time left after work.'),
+          diagnosed('free money','Fits grammatically, but the sentence is about time, not money.')
         ]
       },
       {
         id:'leisure_ctx_3',
-        text:'Reading and gardening are popular ____ activities among retired people.',
-        answer:'leisure',
+        text:'Reading and gardening are popular ways for retired people to spend their ____.',
+        answer:'leisure time',
         distractors:[
-          diagnosed('work','Fits before activities, but reading and gardening are described here as recreation.'),
-          diagnosed('school','Fits before activities, but the sentence refers to retired people and free-time pursuits.'),
-          diagnosed('medical','Fits before activities grammatically, but the examples are recreational rather than medical.')
+          diagnosed('working hours','Fits grammatically, but retired people no longer have working hours.'),
+          diagnosed('school days','Fits grammatically, but the sentence concerns retired people.'),
+          diagnosed('waiting time','Fits grammatically, but reading and gardening are chosen enjoyable activities, not time spent waiting.')
         ]
       },
       {
@@ -54,36 +54,36 @@ export default Object.freeze({
       },
       {
         id:'leisure_ctx_5',
-        text:'The hotel has a ____ centre with a swimming pool and gym.',
-        answer:'leisure',
+        text:'Guests at the hotel can spend their ____ at the pool, the gym or the tennis court.',
+        answer:'leisure time',
         distractors:[
-          diagnosed('business','Can modify centre, but a pool and gym identify a recreation facility rather than a business centre.'),
-          diagnosed('conference','Can modify centre, but a conference centre is for meetings, not the facilities described.'),
-          diagnosed('laundry','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
+          diagnosed('working time','Fits grammatically, but a pool, gym and tennis court are for recreation, not work.'),
+          diagnosed('meeting time','Fits grammatically, but the places named are for recreation rather than meetings.'),
+          diagnosed('study time','Fits grammatically, but the places named are for recreation rather than study.')
         ]
       },
       {
         id:'leisure_ctx_6',
-        text:'Cycling started as a ____ activity for her before becoming a full-time job.',
-        answer:'leisure',
+        text:'She cycled in her ____ for years before turning professional.',
+        answer:'leisure time',
         distractors:[
-          diagnosed('professional','Fits grammatically, but contradicts the contrast with becoming a full-time job later.'),
-          diagnosed('paid','Fits grammatically, but contradicts the idea that it only later became a job.'),
-          diagnosed('business','Fits grammatically, but the sentence contrasts recreation with later employment.')
+          diagnosed('working hours','Fits grammatically, but she was not yet a professional, so cycling was not her job.'),
+          diagnosed('training camp','Fits grammatically, but the sentence contrasts casual cycling with turning professional later.'),
+          diagnosed('exam period','Fits grammatically, but nothing in the sentence connects cycling to exams.')
         ]
       }
     ],
     misuseSentences:[
-      diagnosed('She does leisure every weekend.','leisure is not normally used as a countable activity after do; name the activity or use a phrase such as leisure activity.'),
-      diagnosed('He has many leisures after work.','leisure is normally uncountable in this sense.'),
-      diagnosed('They leisure at the sports centre.','leisure is not normally used as a verb.'),
-      diagnosed('The club gives students a leisure.','leisure is not normally used as a singular countable noun meaning a period of free time.')
+      diagnosed('She does leisure time every weekend.','leisure time is the free time itself, not an activity you do; name the activity you do in your leisure time.'),
+      diagnosed('He has many leisure times after work.','leisure time is normally uncountable, so it has no plural.'),
+      diagnosed('They leisure time at the sports centre.','leisure time is a noun phrase, not a verb; say they spend their leisure time at the sports centre.'),
+      diagnosed('The club gives students a leisure time.','leisure time is normally uncountable, so it is not used with a.')
     ],
-    patterns:['leisure time','leisure activity','leisure centre','leisure facilities'],
-    collocations:['spend leisure time','leisure activities','leisure facilities'],
+    patterns:['spend leisure time','leisure time activity','in your leisure time'],
+    collocations:['spend leisure time','leisure time activities','enjoy leisure time'],
     contrasts:[
-      diagnosed('work','work is time or activity connected with duties or employment; leisure is time free from those duties.'),
-      diagnosed('free time','free time is the closest everyday paraphrase of leisure in this unit sense.')
+      diagnosed('work','work is time or activity connected with duties or employment; leisure time is time free from those duties.'),
+      diagnosed('free time','free time is the closest everyday paraphrase of leisure time in this unit sense.')
     ]
   },
   avoid:{

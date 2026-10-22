@@ -29,7 +29,7 @@ browserTest('the served tiles are never in the solved order (real browser, repea
   for (let run = 0; run < 4; run += 1) {
     const api = await openRebuild();
     try {
-      const state = await api.page.evaluate(() => ({ tiles:[...document.querySelectorAll('[data-tile-answer]')].map(btn => btn.dataset.tileAnswer), answer:window.__currentQuestion.markingReference.acceptedAnswers[0], type:window.__currentQuestion.type }));
+      const state = await api.page.evaluate(() => ({ tiles:[...document.querySelectorAll('[data-tile-answer]')].map(btn => btn.dataset.tileAnswer), answer:window.__currentQuestion.markingReference.acceptedAnswers[0].replace(/\s+/g, ''), type:window.__currentQuestion.type }));
       assert.equal(state.type, 'spelling_rebuild');
       assert.notEqual(state.tiles.join(''), state.answer);
       assert.deepEqual([...state.tiles].sort(), Array.from(state.answer).sort());
@@ -67,7 +67,7 @@ browserTest('choosing the first tile clears the warning at once; a real answer i
     assert.equal((await validation(api)).text, MESSAGE);
     // dialogs must never be used
     let dialogs = 0; api.page.on('dialog', async dialog => { dialogs += 1; await dialog.dismiss(); });
-    const answer = await api.page.evaluate(() => window.__currentQuestion.markingReference.acceptedAnswers[0]);
+    const answer = await api.page.evaluate(() => window.__currentQuestion.markingReference.acceptedAnswers[0].replace(/\s+/g, ''));
     await api.page.evaluate(letter => { [...document.querySelectorAll('[data-tile-answer]:not(:disabled)')].find(btn => btn.dataset.tileAnswer === letter).click(); }, answer[0]);
     const cleared = await validation(api);
     assert.equal(cleared.text, ''); assert.equal(cleared.visible, false);
@@ -89,14 +89,14 @@ browserTest('choosing the first tile clears the warning at once; a real answer i
 browserTest('a wrong answer still gives the supported retry, and an empty check on the retry is also validation only', async () => {
   const api = await openRebuild();
   try {
-    const answer = await api.page.evaluate(() => window.__currentQuestion.markingReference.acceptedAnswers[0]);
+    const answer = await api.page.evaluate(() => window.__currentQuestion.markingReference.acceptedAnswers[0].replace(/\s+/g, ''));
     // build a deliberately wrong word from the same letters (rotate by one)
     const wrong = answer.slice(1) + answer[0];
     for (const letter of wrong) await api.page.evaluate(value => { [...document.querySelectorAll('[data-tile-answer]:not(:disabled)')].find(btn => btn.dataset.tileAnswer === value).click(); }, letter);
     await check(api);
     await api.page.waitForFunction(() => window.__net.length === 1, null, { timeout:5000 });
     await api.page.waitForSelector('[data-tile-answer]');
-    const retry = await api.page.evaluate(() => ({ tiles:[...document.querySelectorAll('[data-tile-answer]')].map(btn => btn.dataset.tileAnswer), fixed:document.querySelector('.vocab-build-fixed')?.textContent.replace(/\s+/g, '') ?? '', answer:window.__currentQuestion.markingReference.acceptedAnswers[0] }));
+    const retry = await api.page.evaluate(() => ({ tiles:[...document.querySelectorAll('[data-tile-answer]')].map(btn => btn.dataset.tileAnswer), fixed:document.querySelector('.vocab-build-fixed')?.textContent.replace(/\s+/g, '') ?? '', answer:window.__currentQuestion.markingReference.acceptedAnswers[0].replace(/\s+/g, '') }));
     assert.ok(retry.fixed.length >= 1, 'a supported partial build');
     assert.notEqual(retry.fixed + retry.tiles.join(''), retry.answer, 'the supported retry is not shown solved');
     const sent = (await counters(api)).net;

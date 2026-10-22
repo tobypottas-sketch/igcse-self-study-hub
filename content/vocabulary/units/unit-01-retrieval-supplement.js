@@ -4,7 +4,7 @@
 const s = (id, text, target) => ({ id, text, target, grammarPattern:'' });
 
 export default Object.freeze({
-  leisure:[s('x1','Many people spend their leisure at the swimming pool or in the park.','leisure'), s('x2','Longer working hours leave families with less leisure than they had ten years ago.','leisure')],
+  'leisure time':[s('x1','Many people spend their leisure time at the swimming pool or in the park.','leisure time'), s('x2','Longer working hours leave families with less leisure time than they had ten years ago.','leisure time')],
   preference:[s('x1','The coach asked each player to state a preference for playing in defence or attack.','preference'), s('x2','Most customers showed a clear preference for the cheaper trainers.','preference')],
   unfamiliar:[s('x1','The new player felt nervous in an unfamiliar stadium.','unfamiliar'), s('x2','Climbers should not try unfamiliar routes without a guide.','unfamiliar')],
   racquet:[s('x1','He bought a lighter racquet to improve his serve.','racquet'), s('x2','The player was warned for throwing her racquet onto the court.','racquet')],
