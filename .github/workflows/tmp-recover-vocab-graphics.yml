@@ -22,9 +22,9 @@ jobs:
           set -euo pipefail
           git fetch --no-tags origin recovery/vocabulary-png-package-source stage/vocabulary-png-graphics
           mkdir -p /tmp/recover
-          git show recovery/vocabulary-png-package-source:.staging/final-int.b64 > /tmp/recover/final-int.b64
+          git show origin/recovery/vocabulary-png-package-source:.staging/final-int.b64 > /tmp/recover/final-int.b64
           for n in 02 03 04 05; do
-            git show stage/vocabulary-png-graphics:.staging/archive-${n}.part > /tmp/recover/archive-${n}.part
+            git show origin/stage/vocabulary-png-graphics:.staging/archive-${n}.part > /tmp/recover/archive-${n}.part
           done
 
           python - <<'PY'
@@ -47,9 +47,7 @@ jobs:
           for n in ('02','03','04','05'):
               s = seqs[n]
               print(f'final.find({n})={f.find(s)} ; {n}.find(final)={s.find(f)}')
-              # longest prefix of part found as suffix/piece in final
               best = (0, -1, -1)
-              # seed with 32-char anchors every 1000 chars for useful exact overlap diagnostics
               for i in range(0, len(s)-31, 1000):
                   pos = f.find(s[i:i+32])
                   if pos >= 0:
@@ -60,9 +58,16 @@ jobs:
                       if x-a > best[0]: best=(x-a,a,b)
               print(f'best exact overlap final/{n}: length={best[0]} final_start={best[1]} part_start={best[2]}')
 
-          # Try likely reconstruction: first 10k chars from final as missing part01 + clean 02..05.
+          names=('02','03','04','05')
+          for a,b in zip(names,names[1:]):
+              left,right=seqs[a],seqs[b]
+              best=0
+              for k in range(1,min(len(left),len(right))+1):
+                  if left[-k:]==right[:k]: best=k
+              print(f'adjacent suffix/prefix overlap {a}->{b}: {best}')
+
           for prefix_len in [8000,9000,9996,10000,10004,12000,15000,20000]:
-              candidate = f[:prefix_len] + b''.join(seqs[n] for n in ('02','03','04','05'))
+              candidate = f[:prefix_len] + b''.join(seqs[n] for n in names)
               print(f'candidate prefix={prefix_len} b64len={len(candidate)} mod4={len(candidate)%4}')
           PY
           exit 1
