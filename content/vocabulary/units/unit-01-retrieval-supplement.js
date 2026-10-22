@@ -25,7 +25,7 @@ export default Object.freeze({
   regardless:[s('x1','The match will go ahead regardless of the weather.','regardless'), s('x2','Fans queued outside the stadium regardless of the rain.','regardless')],
   monetary:[s('x1','The club received a monetary donation from a local business.','monetary'), s('x2','Winning the race brought a monetary reward as well as a medal.','monetary')],
   estimated:[s('x1','The estimated attendance for the final is forty thousand people.','estimated'), s('x2','An estimated two million people watched the opening ceremony.','estimated')],
-  minimum:[s('x1','The minimum height for the ride is one metre.','minimum'), s('x2','You need a minimum of two hours’ practice each week to improve.','minimum')],
+  minimum:[s('x1','Children below the minimum height of one metre cannot go on the ride.','minimum'), s('x2','You need a minimum of two hours’ practice each week to improve.','minimum')],
   championship:[s('x1','The school team won the regional championship last year.','championship'), s('x2','Thousands of fans travelled to watch the world championship.','championship')],
   competitor:[s('x1','The fastest competitor in the heat qualified for the final.','competitor'), s('x2','Every competitor must wear a helmet during the cycling event.','competitor')],
   relatively:[s('x1','The ticket prices were relatively low for such a big event.','relatively'), s('x2','Rugby is relatively new in some countries.','relatively')],
@@ -36,9 +36,9 @@ export default Object.freeze({
   historic:[s('x1','The stadium hosted a historic match that people still talk about.','historic'), s('x2','Walking tours visit the historic centre of the city.','historic')],
   selection:[s('x1','The coach announced her selection for the starting team.','selection'), s('x2','The shop offers a good selection of running shoes.','selection')],
   craftspeople:[s('x1','Skilled craftspeople carve each bat by hand.','craftspeople'), s('x2','The festival invites craftspeople to sell their work.','craftspeople')],
-  significant:[s('x1','There was a significant drop in attendance after prices rose.','significant'), s('x2','Regular exercise has a significant effect on mood.','significant')],
+  significant:[s('x1','There was a significant drop in attendance after prices rose, with half the usual crowd staying away.','significant'), s('x2','Studies show that regular exercise has a significant effect on mood, so doctors recommend it.','significant')],
   expansion:[s('x1','The expansion of the sports hall means more classes can run at once.','expansion'), s('x2','Rapid expansion of the league brought in new teams.','expansion')],
   reputation:[s('x1','The club’s reputation for fair play attracts young players.','reputation'), s('x2','A poor reputation can make it hard to find sponsors.','reputation')],
-  reasonable:[s('x1','The gym membership is a reasonable price for students.','reasonable'), s('x2','It is reasonable to expect athletes to rest after a long race.','reasonable')],
+  reasonable:[s('x1','The gym membership is a reasonable price for students, who pay less than ten dollars a month.','reasonable'), s('x2','It is reasonable to expect athletes to rest after a long race, because tired bodies need time to recover.','reasonable')],
   antiques:[s('x1','Her grandfather collects antiques from different countries.','antiques'), s('x2','Visitors can buy antiques at the weekend fair.','antiques')]
 });

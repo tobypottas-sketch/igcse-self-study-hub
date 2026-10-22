@@ -147,7 +147,7 @@ const unit1GrammarSupplement = Object.freeze({
     grammarForms:{ base:'produce', thirdPerson:'produces', past:'produced', pastParticiple:'produced', ing:'producing' },
     grammarPatterns:['produce + noun','be produced + passive'],
     retrievalContexts:[
-      { id:'base_noun', text:'Local craftspeople produce equipment by hand for traditional sports.', target:'produce', grammarPattern:'produce + noun' },
+      { id:'base_noun', text:'Local craftspeople produce new bats from wood, one at a time.', target:'produce', grammarPattern:'produce + noun' },
       { id:'third_noun', text:'The workshop produces specialist equipment for local teams.', target:'produces', grammarPattern:'produce + noun' },
       { id:'past_noun', text:'The factory produced five hundred racquets last year.', target:'produced', grammarPattern:'produce + noun' },
       { id:'perfect_noun', text:'The company has produced protective equipment for more than twenty years.', target:'produced', grammarPattern:'produce + noun' },
