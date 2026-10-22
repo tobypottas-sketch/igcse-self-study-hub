@@ -217,6 +217,7 @@ function startPathwaySession(pathwayId, continueHistory = false) {
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`pathway:${pathwayId}:${stageId}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, pathway_id:pathwayId, pathway_stage:stageId } }).catch(() => {});
   nextQuestion();
 }
+function timerMinutes(button) { const minutes = Number(button?.dataset?.minutes); return Number.isFinite(minutes) && minutes > 0 ? minutes : null; }
 function startMixedReview(continueHistory = false, durationMinutes = null) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   state.pathwayId = null; state.pathwayStage = null; state.mixedReview = true; state.practiceFocus = 'adaptive';
@@ -489,7 +490,7 @@ root?.addEventListener('click', event => {
   if (action === 'open-unit') openUnit(Number(target.dataset.unit)).catch(error => renderVocabularyError(root, error.message));
   else if (action === 'back-units') showHome().catch(error => renderVocabularyError(root, error.message)); else if (action === 'view-all-words') showAllWords();
   else if (action === 'open-pathway') runAfterSaves(() => startPathwaySession(target.dataset.pathway));
-  else if (action === 'start-mixed-review') { const minutes = Number(target.dataset.minutes); runAfterSaves(() => startMixedReview(false, Number.isFinite(minutes) && minutes > 0 ? minutes : null)); }
+  else if (action === 'start-mixed-review') runAfterSaves(() => startMixedReview(false, timerMinutes(target)));
   else if (action === 'continue-practice') runAfterSaves(() => continuePractice());
   else if (action === 'clear-tile-answer') {
     const form = target.closest?.('[data-form="vocabulary-answer"]'); const input = form?.querySelector?.('input[name="answer"]'); const build = form?.querySelector?.('[data-tile-build]');
