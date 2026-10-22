@@ -20,8 +20,10 @@ function family(id, vocabularyId, prompt, sourceText, acceptedAnswer) {
   };
 }
 
+const ID_KEY_BY_TERM = { 'leisure time':'leisure' }; // display term reworded; the stable id keeps the original key
 function vocabularyIdFor(term) {
-  return `vocab_${String(term ?? '').trim().toLocaleLowerCase('en').replace(/[’']/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'')}`;
+  const keyed = ID_KEY_BY_TERM[String(term ?? '').trim().toLocaleLowerCase('en')] ?? term;
+  return `vocab_${String(keyed ?? '').trim().toLocaleLowerCase('en').replace(/[’']/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'')}`;
 }
 
 function languageBankContext(term, record) {

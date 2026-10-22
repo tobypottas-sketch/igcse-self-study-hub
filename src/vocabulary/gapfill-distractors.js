@@ -4,9 +4,9 @@
 // Key: the sentence with the target word blanked as "____", then " => " and the answer. Value: exactly three wrong options.
 // Teacher review: change a row here if a wrong option could ever fit; no database change is needed.
 export const GAPFILL_DISTRACTORS = Object.freeze({
-  "Many students use their ____ to play sport or meet friends. => leisure": ["homework","timetable","uniform"],
-  "Many people spend their ____ at the swimming pool or in the park. => leisure": ["homework","timetable","rent"],
-  "Longer working hours leave families with less ____ than they had ten years ago. => leisure": ["income","noise","crime"],
+  "Many students use their ____ to play sport or meet friends. => leisure time": ["homework","timetable","uniform"],
+  "Many people spend their ____ at the swimming pool or in the park. => leisure time": ["homework","timetable","rent"],
+  "Longer working hours leave families with less ____ than they had ten years ago. => leisure time": ["income","noise","crime"],
   "Her ____ is for individual sports rather than team games. => preference": ["dislike","complaint","argument"],
   "The coach asked each player to state a ____ for playing in defence or attack. => preference": ["complaint","penalty","refund"],
   "Most customers showed a clear ____ for the cheaper trainers. => preference": ["complaint","refund","discount"],

@@ -146,7 +146,7 @@ function spellingCueMatch(args, definition) {
 function spellingRebuild(args, definition) {
   const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence);
   if (!term||!meaning) throw new Error('Spelling rebuild requires a target word and meaning.');
-  const letters=Array.from(term); const spaced=letters.join(' ');
+  const letters=Array.from(term).filter(char=>!/\s/.test(char)); const spaced=Array.from(term).join(' ');
   return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Rebuild the word meaning “${meaning}”.`,markingReference:{acceptedAnswers:[term,spaced]},extra:{tiles:unsolvedTileOrder(letters,term,`${args.seed}:spelling-tiles`),primaryEvidenceTargetId:args.item.vocabularyId}});
 }
 function spellInContext(args, definition) {

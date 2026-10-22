@@ -41,7 +41,7 @@ test('contexts are well formed, sentence-specific and fully diagnosed', () => {
     const ids = new Set();
     const openings = new Set();
     for (const c of e.contexts) {
-      assert.ok(!ids.has(c.id) && c.id.startsWith(`${term}_ctx_`), `${term}: id ${c.id}`);
+      assert.ok(!ids.has(c.id) && (c.id.startsWith(`${term}_ctx_`) || c.id.startsWith(`${term.split(" ")[0]}_ctx_`)), `${term}: id ${c.id}`);
       ids.add(c.id);
       assert.equal(c.text.split('____').length, 2, `${c.id}: exactly one blank`);
       assert.ok(c.distractors.length >= 3, `${c.id}: three distractors`);
