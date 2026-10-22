@@ -340,6 +340,17 @@ function renderPathwaySessionProgress(pathwayId, pathwayStage) {
   return `<div class="vocab-pathway-session-progress" data-pathway-session-progress="${escapeHtml(pathway.id)}" data-pathway-stage="${escapeHtml(pathwayStage)}" data-study-accent="${escapeHtml(identity.accent)}"><div class="vocab-pathway-session-progress__copy"><span class="vocab-pathway-session-progress__identity">${renderStudyIcon(identity.icon)}<strong>${escapeHtml(pathway.label)}</strong></span><span>${escapeHtml(stageLabel)} · Stage ${position} of 5</span></div><div class="vocab-pathway-progress" role="progressbar" aria-label="${escapeHtml(pathway.label)} pathway progress: ${escapeHtml(stageLabel)}, stage ${position} of 5" aria-valuemin="1" aria-valuemax="5" aria-valuenow="${position}"><span class="vocab-pathway-progress__fill" style="--pathway-progress:${progress}%"></span></div></div>`;
 }
 
+const PARAPHRASE_TYPES = new Set(['phrase_match','build_paraphrase','complete_paraphrase','rewrite_phrase','rewrite_idea','improve_vocabulary','explain_another_way','same_idea','build_same_idea','spot_meaning_change']);
+const RECALL_TYPES = new Set(['type_missing_word','spell_word','spell_in_context','type_word_from_definition','spelling_rebuild']);
+export function questionLook(question) {
+  const type = String(question?.type ?? '');
+  if (/word_famil/.test(type)) return 'family';
+  if (PARAPHRASE_TYPES.has(type)) return 'paraphrase';
+  if (RECALL_TYPES.has(type) || question?.responseMode === 'spelling') return 'recall';
+  if (question?.responseMode === 'choice') return 'choose';
+  return 'other';
+}
+
 export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question, term, sessionLabel, learningStage = null, pathwayId = null, pathwayStage = null, sessionPosition = null, sessionTotal = 10, feedback = null, retry = false, support = null, milestone = null, matchSet = null, matchState = null } = {}) {
   const matchView = matchSet && matchState ? { set:matchSet, state:matchState } : null;
   const fixedPathwayId = pathwayId ?? question?.pathwayId ?? null;
@@ -371,7 +382,7 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
     ? `<section class="vocab-retry-stage study-enter">${feedbackHtml}${supportHtml}${answerForm}</section>`
     : `<section class="vocab-response-stage${feedback?.correct ? ' is-correct' : ''}">${feedbackHtml}${supportHtml}${answerForm}</section>`;
   const milestoneHtml = milestone ? `<section class="study-milestone-card study-milestone" data-study-milestone="${escapeHtml(milestone.kind)}">${milestoneArt(milestone.kind)}<strong>${escapeHtml(milestone.title ?? '')}</strong></section>` : '';
-  root.innerHTML = `<main class="vocab-shell vocab-shell--session" data-study-accent="${escapeHtml(identity.accent)}"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card study-enter" data-study-question><div class="vocab-study-question-header"><div class="vocab-study-question-header__path">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}<div><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(PATHWAY_STAGES.find(item => item.id === fixedPathwayStage)?.label ?? questionLabel)}</small></div></div>${sessionProgress}</div><div class="vocab-question-meta"><p class="vocab-kicker">${escapeHtml(questionLabel)}</p><div class="vocab-question-meta__right">${skillCue}</div></div>${targetPill}<h1 class="vocab-question-prompt">${escapeHtml(matchView ? 'Match each word with its definition.' : displayPrompt(question))}</h1>${questionContext}${responseArea}${milestoneHtml}</section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
+  root.innerHTML = `<main class="vocab-shell vocab-shell--session" data-study-accent="${escapeHtml(identity.accent)}"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card study-enter" data-study-question data-question-look="${questionLook(question)}"><div class="vocab-study-question-header"><div class="vocab-study-question-header__path">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}<div><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(PATHWAY_STAGES.find(item => item.id === fixedPathwayStage)?.label ?? questionLabel)}</small></div></div>${sessionProgress}</div><div class="vocab-question-meta"><p class="vocab-kicker">${escapeHtml(questionLabel)}</p><div class="vocab-question-meta__right">${skillCue}</div></div>${targetPill}<h1 class="vocab-question-prompt">${escapeHtml(matchView ? 'Match each word with its definition.' : displayPrompt(question))}</h1>${questionContext}${responseArea}${milestoneHtml}</section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
 }
 
 // Controlled variety for correct answers: the explanation stays exactly as before, only the short lead changes. `variant` is any
