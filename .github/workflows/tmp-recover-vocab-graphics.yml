@@ -31,7 +31,23 @@ jobs:
           git fetch --no-tags origin recovery/vocabulary-png-package-source
           git cat-file -e "${PACKAGE_COMMIT}^{commit}"
           git show "${PACKAGE_COMMIT}:.staging/final-int.b64" > /tmp/final-int.b64
-          base64 -d /tmp/final-int.b64 > /tmp/final-int.zip
+
+          python - <<'PY'
+          from pathlib import Path
+          import base64, re
+
+          src = Path('/tmp/final-int.b64').read_bytes()
+          cleaned = re.sub(rb'[^A-Za-z0-9+/=]', b'', src)
+          invalid = len(src) - len(cleaned)
+          print(f'Historical base64 bytes: {len(src)}; stripped non-base64 bytes: {invalid}')
+          Path('/tmp/final-int.clean.b64').write_bytes(cleaned)
+          try:
+              decoded = base64.b64decode(cleaned, validate=True)
+          except Exception as exc:
+              raise SystemExit(f'Base64 remains invalid after removing non-base64 bytes: {exc}')
+          Path('/tmp/final-int.zip').write_bytes(decoded)
+          print(f'Decoded package bytes: {len(decoded)}')
+          PY
 
           ACTUAL_SHA="$(sha256sum /tmp/final-int.zip | awk '{print $1}')"
           echo "Recovered package SHA-256: ${ACTUAL_SHA}"
