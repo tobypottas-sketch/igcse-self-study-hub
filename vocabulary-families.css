@@ -37,3 +37,5 @@
 @media (prefers-reduced-motion:reduce){
   .vocab-question-card[data-question-fresh] *,.vocab-question-card:has(.study-success) .vocab-study-question-header__path .study-icon{animation:none!important}
 }
+
+.vocab-clue{margin:8px 0 12px;padding:6px 12px;border-radius:var(--r-pill);width:fit-content;max-width:100%;background:var(--c-teal-soft);color:var(--c-ink-2);font-size:var(--fs-sm);font-weight:700}

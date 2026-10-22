@@ -1,3 +1,4 @@
+import { applyStageVariant } from './stage-variants.js';
 import { buildActivity } from './activity-factory.js';
 import { PATHWAY_STAGES, activityTypesForPathwayStage, pathwayDefinition } from './pathway-model.js';
 import { availableActivityTypesForTarget } from './session-targets.js';
@@ -126,7 +127,7 @@ function buildCandidate({ content, target, mastery, item, contexts, plan, usedCo
     optionNonce,
     matchingPresentation:plan.servedStage === 'match'
   });
-  const question = normalizedStageTwoMatch(built,plan,item,target);
+  const question = applyStageVariant(normalizedStageTwoMatch(built,plan,item,target),{ pathwayId:plan.pathwayId, servedStage:plan.servedStage, item });
   return { ...question, pathwayId:plan.pathwayId, pathwayStage:plan.learnerStage };
 }
 
