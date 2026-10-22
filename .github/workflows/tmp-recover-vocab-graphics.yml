@@ -1,0 +1,164 @@
+name: Recover Exact Vocabulary PNG Graphics
+
+on:
+  push:
+    branches:
+      - fix/vocabulary-png-graphics-recovery
+
+permissions:
+  contents: write
+
+jobs:
+  recover-integrate-verify:
+    if: ${{ !contains(github.event.head_commit.message, '[graphics recovered]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Recover exact historical Claude package
+        shell: bash
+        run: |
+          set -euo pipefail
+          PACKAGE_COMMIT='23a684edc8726745cef91730b396cf6548358118'
+          EXPECTED_SHA='1c48db8762ad681e51797b1c2ed22585aff22931e4bd27f07357f14aa12247a1'
+
+          git cat-file -e "${PACKAGE_COMMIT}^{commit}"
+          git show "${PACKAGE_COMMIT}:.staging/final-int.b64" > /tmp/final-int.b64
+          base64 -d /tmp/final-int.b64 > /tmp/final-int.zip
+
+          ACTUAL_SHA="$(sha256sum /tmp/final-int.zip | awk '{print $1}')"
+          echo "Recovered package SHA-256: ${ACTUAL_SHA}"
+          test "${ACTUAL_SHA}" = "${EXPECTED_SHA}"
+
+          rm -rf /tmp/final-int
+          mkdir -p /tmp/final-int
+          unzip -q /tmp/final-int.zip -d /tmp/final-int
+
+          test -f /tmp/final-int/patches/patch1.patch
+          test -f /tmp/final-int/patches/patch2.patch
+          test -f /tmp/final-int/assets/vocabulary/units/unit-01.png
+          test "$(find /tmp/final-int/assets/vocabulary/pathways -maxdepth 1 -name '*.png' | wc -l)" -eq 6
+
+      - name: Verify recovered PNG metadata before integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import struct
+
+          root = Path('/tmp/final-int/assets/vocabulary')
+          expected = {
+              root / 'units/unit-01.png': (1672, 411),
+              root / 'pathways/meaning.png': (1024, 1024),
+              root / 'pathways/context.png': (1024, 1024),
+              root / 'pathways/word-families.png': (1024, 1024),
+              root / 'pathways/paraphrasing.png': (1024, 1024),
+              root / 'pathways/precision-use.png': (1024, 1024),
+              root / 'pathways/spelling-recall.png': (1024, 1024),
+          }
+          for path, dims in expected.items():
+              data = path.read_bytes()
+              assert data[:8] == b'\x89PNG\r\n\x1a\n', path
+              size = struct.unpack('>II', data[16:24])
+              assert size == dims, (path, size, dims)
+              if '/pathways/' in str(path):
+                  color_type = data[25]
+                  has_alpha = color_type in (4, 6) or b'tRNS' in data
+                  assert has_alpha, f'{path} has no alpha/transparency channel'
+              print(path.relative_to(root), size)
+          PY
+
+      - name: Apply Claude graphics infrastructure and approved assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          git apply --check /tmp/final-int/patches/patch1.patch
+          git apply /tmp/final-int/patches/patch1.patch
+
+          mkdir -p assets/vocabulary/pathways assets/vocabulary/units
+          cp /tmp/final-int/assets/vocabulary/pathways/*.png assets/vocabulary/pathways/
+          cp /tmp/final-int/assets/vocabulary/units/unit-01.png assets/vocabulary/units/unit-01.png
+
+          git apply --check /tmp/final-int/patches/patch2.patch
+          git apply /tmp/final-int/patches/patch2.patch
+
+      - name: Verify required tree before tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            assets/vocabulary/units/unit-01.png
+            assets/vocabulary/pathways/meaning.png
+            assets/vocabulary/pathways/context.png
+            assets/vocabulary/pathways/word-families.png
+            assets/vocabulary/pathways/paraphrasing.png
+            assets/vocabulary/pathways/precision-use.png
+            assets/vocabulary/pathways/spelling-recall.png
+            src/vocabulary/graphics-manifest.js
+            src/vocabulary/graphics-registry.js
+            src/vocabulary/graphics-runtime.js
+            src/vocabulary/graphics-boot.js
+            vocabulary-graphics.css
+          )
+          for path in "${required[@]}"; do
+            test -f "$path" || { echo "Missing required file: $path" >&2; exit 1; }
+          done
+          grep -F 'vocabulary-graphics.css' vocabulary.html
+          grep -F 'graphics-boot.js' vocabulary.html
+          echo 'Required PNG assets and wiring are present before testing.'
+
+      - name: Run graphics-specific tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t graphics_tests < <(find test tests -type f \( -iname '*graphic*.test.js' -o -iname '*graphic*.test.mjs' \) 2>/dev/null | sort)
+          if [ "${#graphics_tests[@]}" -eq 0 ]; then
+            echo 'No graphics-specific test file found after applying Claude patch.' >&2
+            exit 1
+          fi
+          printf 'Graphics tests: %s\n' "${graphics_tests[@]}"
+          node --test "${graphics_tests[@]}"
+
+      - name: Run full test suite
+        run: npm test
+
+      - name: Validate Unit 1 vocabulary content
+        run: node scripts/validate-vocabulary-content.mjs
+
+      - name: Clean temporary workflows and verify final diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/tmp-final-vocab-graphics.yml
+          rm -f .github/workflows/tmp-recover-vocab-graphics.yml
+          rm -f .github/workflows/tmp-apply-vocab-graphics.yml
+          rm -rf .staging
+
+          git diff --check
+          echo 'Final changed paths:'
+          git status --short
+
+          # Safety gate: graphics integration must not touch learning/progression/server behaviour.
+          forbidden='supabase/|pathway-progress|progression|attempt-action|persistence|scoring|mastery'
+          if git status --short | awk '{print $2}' | grep -E "$forbidden"; then
+            echo 'Forbidden non-graphics behaviour file changed.' >&2
+            exit 1
+          fi
+
+      - name: Commit verified integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'feat: ship verified Vocabulary Builder PNG graphics [graphics recovered]'
+          git push origin HEAD:fix/vocabulary-png-graphics-recovery
