@@ -43,3 +43,9 @@ input:focus{box-shadow:none;border-color:var(--c-blue)}
 .vocab-pathway-stage i{color:var(--c-muted)}
 .vocab-pathway-stage[data-state="complete"] i{color:var(--c-success-ink)}
 .vocab-pathway-stage[data-state="current"] i{color:var(--c-teal-dark)}
+
+/* Unavailable pathways stay visible but quiet: one muted line, no pill, no duplicate footer message. */
+.vocab-pathway-card[data-pathway-status="unavailable"] .vocab-pathway-card__status{
+  background:none !important;border:0 !important;padding:0 !important;box-shadow:none !important;
+  color:var(--c-muted) !important;font-weight:600 !important;font-style:italic;
+}
