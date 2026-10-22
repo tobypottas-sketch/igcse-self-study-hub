@@ -288,9 +288,11 @@ function renderAnswerControl(question, feedback, retry, support, matchView = nul
     throw new Error('This matching activity is missing its match cue.');
   }
   if (responseMode === 'drag_gap') {
+    // Tap-to-fill: tap a word and it fills the gap in the sentence. No drop zone, no dropdown, no dragging. The answer is still one word
+    // in the hidden `answer` field, so marking, evidence and saving are exactly as before. Check stays disabled until a word is chosen.
     const options = support?.kind === 'narrow_drag_gap' ? support.options : (question.draggables ?? question.wordBank ?? []);
-    const tokens = (options ?? []).map(option => `<button type="button" class="vocab-drag-token" draggable="true" data-drag-gap-value="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join('');
-    return `<fieldset class="vocab-drag-gap${retry ? ' is-retry' : ''}"><legend>${retry ? 'Try the gap again' : 'Complete the gap'}</legend><div class="vocab-drag-bank">${tokens}</div><div class="vocab-drop-zone" data-gap-drop tabindex="0" aria-label="Drop the missing word here">Drop word here</div><label class="vocab-accessible-fallback">Or choose the missing word<select name="answer" required data-drag-gap-fallback>${renderSelectOptions(options)}</select></label><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Check supported answer' : 'Check answer'}</button></fieldset>`;
+    const chips = (options ?? []).map(option => `<button type="button" class="vocab-gap-chip" data-gap-choice="${escapeHtml(option)}" aria-pressed="false">${escapeHtml(option)}</button>`).join('');
+    return `<fieldset class="vocab-drag-gap${retry ? ' is-retry' : ''}" data-gap-fill><legend>${retry ? 'Try the gap again' : 'Tap the word that fits the gap'}</legend><div class="vocab-gap-bank">${chips}</div><input type="hidden" name="answer" value=""><button class="vocab-button vocab-button--primary" type="submit" data-gap-submit disabled aria-disabled="true">${retry ? 'Check supported answer' : 'Check answer'}</button></fieldset>`;
   }
   if (responseMode === 'spelling') {
     return `<div class="vocab-spelling-pattern" aria-label="Spelling clue">${escapeHtml(question?.spellingPattern ?? '')}</div><label>${retry ? 'Try the spelling again' : 'Type the word'}<input name="answer" required autocomplete="off" maxlength="120" spellcheck="false" aria-describedby="vocab-support-hint"></label><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Check supported answer' : 'Check answer'}</button>`;

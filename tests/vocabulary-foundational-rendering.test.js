@@ -47,17 +47,17 @@ test('Meaning Apply situation tasks render as accessible choice cards: no chips,
   }
 });
 
-test('drag-gap response renders the sentence, draggable word bank and keyboard/click fallback', () => {
+test('gap-fill response is tap-to-fill: tappable words, no drop zone, no dropdown, no dragging, Check disabled until a word is chosen', () => {
   const html = render({
-    type:'drag_word_sentence', responseMode:'drag_gap', prompt:'Drag the correct word into the gap.',
+    type:'drag_word_sentence', responseMode:'drag_gap', prompt:'Complete the sentence.',
     sourceText:'Students should stay ____ after school.', draggables:['active','effort','regular','compete'],
     markingReference:{ acceptedAnswers:['active'] }
   });
   assert.match(html, /Students should stay ____ after school\./);
-  assert.match(html, /data-drag-gap-value=/);
-  assert.match(html, /data-gap-drop/);
-  assert.match(html, /<select[^>]*data-drag-gap-fallback/);
-  assert.match(html, /name="answer"/);
+  assert.equal((html.match(/data-gap-choice=/g) ?? []).length, 4);
+  assert.match(html, /<input type="hidden" name="answer" value="">/);
+  assert.match(html, /data-gap-submit disabled/);
+  assert.doesNotMatch(html, /<select|draggable|data-drag-|data-gap-drop|vocab-drop-zone|vocab-drag-token|vocab-accessible-fallback|Drop word here/);
 });
 
 test('spelling response keeps a real text input and shows only the bounded pattern clue', () => {

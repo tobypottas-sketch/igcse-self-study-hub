@@ -1,33 +1,8 @@
 const root = document.getElementById('vocabularyApp');
-let draggedValue = '';
-
-function answerSelect(node) {
-  const form = node?.closest?.('[data-form="vocabulary-answer"]');
-  return form?.querySelector?.('select[name="answer"]') ?? null;
-}
 
 function answerInput(node) {
   const form = node?.closest?.('[data-form="vocabulary-answer"]');
   return form?.querySelector?.('input[name="answer"]') ?? null;
-}
-
-function dropZone(node) {
-  const form = node?.closest?.('[data-form="vocabulary-answer"]');
-  return form?.querySelector?.('[data-gap-drop]') ?? null;
-}
-
-function setAnswer(node, value) {
-  const select = answerSelect(node);
-  if (!select) return;
-  const next = String(value ?? '').trim();
-  if (![...select.options].some(option => option.value === next)) return;
-  select.value = next;
-  select.dispatchEvent(new Event('change', { bubbles:true }));
-  const zone = dropZone(node);
-  if (zone) {
-    zone.textContent = next || 'Drop word here';
-    zone.classList.toggle('is-filled', Boolean(next));
-  }
 }
 
 function selectMatchCard(card) {
@@ -44,44 +19,37 @@ function selectMatchCard(card) {
   input.dispatchEvent(new Event('change',{ bubbles:true }));
 }
 
-root?.addEventListener('dragstart', event => {
-  const token = event.target?.closest?.('[data-drag-gap-value]');
-  if (!token) return;
-  draggedValue = token.dataset.dragGapValue ?? '';
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = 'move';
-    event.dataTransfer.setData('text/plain', draggedValue);
+const GAP = /_{2,}/;
+
+// Tap-to-fill gap: the chosen word goes into the answer field and into the blank of the sentence shown above. Tapping another word swaps it.
+function fillGap(chip) {
+  const form = chip?.closest?.('[data-form="vocabulary-answer"]');
+  const input = answerInput(chip);
+  if (!form || !input) return;
+  const value = String(chip.dataset.gapChoice ?? '').trim();
+  if (!value) return;
+  input.value = value;
+  for (const candidate of form.querySelectorAll?.('[data-gap-choice]') ?? []) {
+    const selected = candidate === chip;
+    candidate.classList.toggle('is-selected',selected);
+    candidate.setAttribute('aria-pressed',selected ? 'true' : 'false');
   }
-  token.classList.add('is-dragging');
-});
-
-root?.addEventListener('dragend', event => {
-  const token = event.target?.closest?.('[data-drag-gap-value]');
-  token?.classList?.remove('is-dragging');
-  draggedValue = '';
-});
-
-root?.addEventListener('dragover', event => {
-  const zone = event.target?.closest?.('[data-gap-drop]');
-  if (!zone) return;
-  event.preventDefault();
-  zone.classList.add('is-active');
-  if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
-});
-
-root?.addEventListener('dragleave', event => {
-  const zone = event.target?.closest?.('[data-gap-drop]');
-  zone?.classList?.remove('is-active');
-});
-
-root?.addEventListener('drop', event => {
-  const zone = event.target?.closest?.('[data-gap-drop]');
-  if (!zone) return;
-  event.preventDefault();
-  zone.classList.remove('is-active');
-  const value = event.dataTransfer?.getData('text/plain') || draggedValue;
-  setAnswer(zone, value);
-});
+  const submit = form.querySelector?.('[data-gap-submit]');
+  if (submit) { submit.disabled = false; submit.removeAttribute('aria-disabled'); }
+  const sentence = form.querySelector?.('.vocab-source-text p') ?? form.closest?.('.vocab-question-card')?.querySelector?.('.vocab-source-text p');
+  if (!sentence) return;
+  if (sentence.dataset.gapOriginal === undefined) sentence.dataset.gapOriginal = sentence.textContent;
+  const original = sentence.dataset.gapOriginal;
+  const at = original.search(GAP);
+  if (at < 0) return;
+  const gap = original.match(GAP)[0];
+  sentence.textContent = '';
+  sentence.append(original.slice(0, at));
+  const filled = document.createElement('strong');
+  filled.className = 'vocab-gap-filled';
+  filled.textContent = value;
+  sentence.append(filled, original.slice(at + gap.length));
+}
 
 root?.addEventListener('click', event => {
   const card = event.target?.closest?.('[data-match-card]');
@@ -89,17 +57,6 @@ root?.addEventListener('click', event => {
     selectMatchCard(card);
     return;
   }
-  const token = event.target?.closest?.('[data-drag-gap-value]');
-  if (!token) return;
-  const value = token.dataset.dragGapValue ?? '';
-  setAnswer(token, value);
-});
-
-root?.addEventListener('change', event => {
-  const select = event.target?.closest?.('[data-drag-gap-fallback]');
-  if (!select) return;
-  const zone = dropZone(select);
-  if (!zone) return;
-  zone.textContent = select.value || 'Drop word here';
-  zone.classList.toggle('is-filled', Boolean(select.value));
+  const chip = event.target?.closest?.('[data-gap-choice]');
+  if (chip) fillGap(chip);
 });
