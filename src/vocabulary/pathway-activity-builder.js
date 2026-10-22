@@ -1,6 +1,7 @@
 import { shuffleAnswerOptions } from './answer-option-shuffle.js';
 import { unsolvedTileOrder } from './tile-order.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
+import { grammaticalBlankCandidates, surfaceDistractors } from './foundational-activity-builder.js';
 import { languageBankContextForItem, languageBankForItem } from './language-bank.js';
 
 export const PATHWAY_ACTIVITY_TYPES = Object.freeze(new Set([
@@ -51,15 +52,11 @@ function typeWordFromDefinition(args, definition) {
   return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Type the word that means “${meaning}”.`,markingReference:{acceptedAnswers:[term]},extra:{primaryEvidenceTargetId:args.item.vocabularyId}});
 }
 function blankableContext(args) {
-  const term=text(args.item?.term).toLocaleLowerCase('en');
   const used=new Set(array(args.usedContentIds).map(String));
-  const candidates=array(args.contexts).filter(context=>{
-    const source=text(context?.text), rewrite=text(context?.targetRewrite);
-    const accepted=array(context?.acceptedAnswers).map(value=>text(value).toLocaleLowerCase('en'));
-    return ['paraphrase_context','production_context'].includes(context?.type) && source && rewrite && source.toLocaleLowerCase('en').includes(rewrite.toLocaleLowerCase('en')) && accepted.includes(term);
-  });
+  const candidates=grammaticalBlankCandidates({ item:args.item, occurrence:args.occurrence, contexts:args.contexts })
+    .filter(candidate=>candidate.formKey || candidate.surface.toLocaleLowerCase('en')===text(args.item?.term).toLocaleLowerCase('en'));
   if (!candidates.length) throw new Error('No curated context is available for this pathway activity.');
-  const unused=candidates.filter(context=>!used.has(String(context.contextId)));
+  const unused=candidates.filter(candidate=>!used.has(String(candidate.context.contextId)));
   return shuffle(unused.length?unused:candidates,`${args.seed}:context`)[0];
 }
 function contextSentenceMatch(args, definition) {
@@ -68,7 +65,7 @@ function contextSentenceMatch(args, definition) {
   if (bankContext && array(args.usedContentIds).includes(`language-bank:${bankContext.id}`)) {
     try {
       const candidate=blankableContext(args);
-      if (!array(args.usedContentIds).includes(candidate.contextId)) { legacyContext=candidate; bankContext=null; }
+      if (!array(args.usedContentIds).includes(candidate.context.contextId)) { legacyContext=candidate; bankContext=null; }
     } catch { /* A published bank prompt remains eligible if no legacy cue can be built. */ }
   }
   if (bankContext) {
@@ -80,10 +77,10 @@ function contextSentenceMatch(args, definition) {
     const pairs=options.map((option,index)=>({vocabularyId:option===accepted?args.item.vocabularyId:`alt-${index}`,term:option===accepted?source:'',definition:option}));
     return base({definition,occurrence:args.occurrence,contentId:`language-bank:${bankContext.id}`,contentSource:'language_bank',prompt:'Match the sentence to the word or phrase that completes it.',markingReference:{acceptedAnswers:[accepted]},extra:{pairs,sourceText:source,languageBankContextId:bankContext.id,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:source,matchOptions:options,matchPresentation:'context_gap_to_word'}});
   }
-  const context=legacyContext ?? blankableContext(args), term=text(args.item.term), alternatives=samePosTerms(args,3);
-  const source=text(context.text).replace(new RegExp(text(context.targetRewrite).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),'____');
+  const picked=legacyContext ?? blankableContext(args), context=picked.context, term=picked.surface, alternatives=surfaceDistractors(args,picked.formKey,3);
+  const source=picked.sourceText;
   const options=shuffle([term,...alternatives],`${args.seed}:context-match`);
-  const pairs=options.map((option,index)=>({vocabularyId:index===0?args.item.vocabularyId:`alt-${index}`,term:index===0?source:'',definition:option}));
+  const pairs=options.map((option,index)=>({vocabularyId:option===term?args.item.vocabularyId:`alt-${index}`,term:option===term?source:'',definition:option}));
   return base({definition,occurrence:args.occurrence,contentId:context.contextId,contentSource:'context',prompt:'Match the sentence to the word that completes it.',markingReference:{acceptedAnswers:[term]},extra:{pairs,sourceText:source,contextId:context.contextId,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:source,matchOptions:options,matchPresentation:'context_gap_to_word'}});
 }
 function linkedWriting(args, taskType) {

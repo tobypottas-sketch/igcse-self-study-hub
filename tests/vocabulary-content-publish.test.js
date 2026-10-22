@@ -78,7 +78,7 @@ test('released Unit 1 is a strict live batch with 50 targets and curated grammar
   assert.equal(releasedUnit1.status, 'live');
   assert.equal(batch.items.length, 50);
   assert.equal(batch.occurrences.length, 50);
-  assert.equal(batch.contexts.length, 228);
+  assert.equal(batch.contexts.length, 342);
   assert.equal(batch.items.every(row => row.status === 'live'), true);
   assert.equal(batch.occurrences.every(row => row.status === 'live'), true);
 });

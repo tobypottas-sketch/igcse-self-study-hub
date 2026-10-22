@@ -1,4 +1,5 @@
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
+import { grammaticalBlankCandidates } from './foundational-activity-builder.js';
 
 function text(value) { return String(value ?? '').trim(); }
 function array(value) { return Array.isArray(value) ? value : []; }
@@ -19,36 +20,18 @@ function shuffle(values, seed) {
 }
 function escapeRegExp(value) { return value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 
-function validContexts({ item, contexts = [] }) {
-  const term = text(item?.term).toLocaleLowerCase('en');
-  return array(contexts).filter(context => {
-    const source = text(context?.text);
-    const rewrite = text(context?.targetRewrite);
-    const accepted = array(context?.acceptedAnswers).map(value => text(value).toLocaleLowerCase('en'));
-    return ['paraphrase_context','production_context'].includes(context?.type)
-      && source
-      && rewrite
-      && source.toLocaleLowerCase('en').includes(rewrite.toLocaleLowerCase('en'))
-      && accepted.includes(term);
-  });
-}
-
 export function buildSpellInContextActivity({ occurrence, item, contexts = [], usedContentIds = [], seed = '' } = {}) {
   if (!occurrence || !item) throw new Error('Vocabulary occurrence and item are required.');
   const definition = activityDefinition('spell_in_context');
   if (!definition || !isActivityLive(definition.id)) throw new Error('Spelling Mastery is unavailable.');
 
-  const candidates = validContexts({item,contexts});
+  const candidates = grammaticalBlankCandidates({ item, occurrence, contexts });
   if (!candidates.length) throw new Error('No curated context is available for Spelling Mastery.');
   const used = new Set(array(usedContentIds).map(String));
-  const unused = candidates.filter(context => !used.has(String(context.contextId ?? '')));
+  const unused = candidates.filter(candidate => !used.has(String(candidate.context.contextId ?? '')));
   const pool = unused.length ? unused : candidates;
-  const context = shuffle(pool,`${seed}:spell-in-context`)[0];
-
-  const term = text(item.term);
-  const rewrite = text(context.targetRewrite);
-  const sourceText = text(context.text).replace(new RegExp(escapeRegExp(rewrite),'i'),'____');
-  if (!term || !rewrite || !sourceText.includes('____')) throw new Error('Spelling Mastery requires a valid curated sentence cue.');
+  const { context, sourceText, surface } = shuffle(pool,`${seed}:spell-in-context`)[0];
+  if (!surface || !sourceText.includes('____')) throw new Error('Spelling Mastery requires a valid curated sentence cue.');
 
   return {
     activityId:`${occurrence.occurrenceId}:${context.contextId}:${definition.id}`,
@@ -64,7 +47,7 @@ export function buildSpellInContextActivity({ occurrence, item, contexts = [], u
     contentId:context.contextId,
     contentSource:'context',
     prompt:'Complete the sentence by spelling the missing word.',
-    markingReference:{ acceptedAnswers:[term] },
+    markingReference:{ acceptedAnswers:[surface] },
     sourceText,
     contextId:context.contextId,
     primaryEvidenceTargetId:item.vocabularyId

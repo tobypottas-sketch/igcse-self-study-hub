@@ -146,7 +146,7 @@ function targetFormNearMisses(args, accepted, formKey) {
     .filter(([key,value]) => key !== formKey && value.toLocaleLowerCase('en') !== text(accepted).toLocaleLowerCase('en'))
     .map(([,value]) => value);
 }
-function surfaceDistractors(args, formKey, count = 3) {
+export function surfaceDistractors(args, formKey, count = 3) {
   if (!formKey || formKey === 'base') return plausibleTermDistractors(args,count);
   const accepted = text(grammarFormsFor(args.item,args.occurrence)[formKey]) || text(args.item?.term);
   const semantic = stableShuffle(uniqueText(semanticSurfaceDistractors(args,formKey)), `${args.seed}:${formKey}:semantic`);
@@ -213,14 +213,24 @@ function replaceFirstIgnoreCase(source, needle, replacement) {
   if (index < 0) return null;
   return `${source.slice(0,index)}${replacement}${source.slice(index + needle.length)}`;
 }
-function blankableContext(args) {
-  const candidates = array(args.contexts).flatMap(context => {
-    if (!['meaning_context','paraphrase_context','production_context','gap_fill'].includes(context?.type)) return [];
-    const target = surfaceFormInContext(context,args.item,args.occurrence);
+// A blank may only be cut from a curated gap-fill sentence (written WITH the target word; its accepted answer is exactly the
+// word form the sentence uses: "recommends", "denied"…, and the server marks it against that same stored answer).
+// Paraphrase and production sentences are never blanked: they contain a synonym, so blanking them and answering with the
+// base word produces ungrammatical questions ("The trainer ____ stretching" → "recommend").
+export function grammaticalBlankCandidates({ item, occurrence = {}, contexts = [] } = {}) {
+  return array(contexts).flatMap(context => {
+    if (context?.type !== 'gap_fill') return [];
+    const target = surfaceFormInContext(context,item,occurrence);
     if (!target?.surface || !target?.answer) return [];
+    if (target.surface.toLocaleLowerCase('en') !== target.answer.toLocaleLowerCase('en')) return [];
     const sourceText = replaceFirstIgnoreCase(text(context.text),target.surface,'____');
-    return sourceText?.includes('____') ? [{ context, sourceText, ...target }] : [];
+    // A blank at the start of a sentence would force a capital letter on the answer and give it away among lower-case options.
+    return sourceText?.includes('____') && !sourceText.startsWith('____') ? [{ context, sourceText, ...target }] : [];
   });
+}
+function blankableContext(args) {
+  const candidates = grammaticalBlankCandidates({ item:args.item, occurrence:args.occurrence, contexts:args.contexts })
+    .filter(candidate => candidate.formKey || candidate.surface.toLocaleLowerCase('en') === text(args.item?.term).toLocaleLowerCase('en'));
   if (!candidates.length) throw new Error('No curated context can form an accurate target-word blank for this activity.');
   const unused = candidates.filter(candidate => !array(args.usedContentIds).includes(candidate.context.contextId));
   return stableShuffle(unused.length ? unused : candidates, `${args.seed}:blank-context`)[0];
@@ -296,7 +306,11 @@ function wordFamilyChoice(args, definition) {
   const acceptedAnswers = uniqueText(array(data.acceptedAnswers));
   if (!acceptedAnswers.length) throw new Error('No curated word-family answers are available for this target.');
   const acceptedKeys = new Set(acceptedAnswers.map(value => value.toLocaleLowerCase('en')));
-  const pool = uniqueText([...array(args.item.wordFamily), ...array(args.unitItems).flatMap(candidate => array(candidate?.wordFamily))]).filter(value => !acceptedKeys.has(value.toLocaleLowerCase('en')));
+  // The skill is choosing the right FORM of this word, so the alternatives are this word's own other forms
+  // ("prefer / preference / preferably"), never forms of unrelated words that can be rejected by part of speech alone.
+  const ownForms = uniqueText([text(args.item?.term), ...array(args.item.wordFamily)]).filter(value => !acceptedKeys.has(value.toLocaleLowerCase('en')));
+  const crossForms = uniqueText(array(args.unitItems).flatMap(candidate => array(candidate?.wordFamily))).filter(value => !acceptedKeys.has(value.toLocaleLowerCase('en')));
+  const pool = ownForms.length >= 2 ? ownForms : uniqueText([...ownForms, ...crossForms]);
   if (pool.length < 2) throw new Error('Word Family Choice requires at least two plausible word-family alternatives.');
   const wrong = stableShuffle(pool, `${args.seed}:family-alternatives`).slice(0,3);
   const options = shuffleAnswerOptions([acceptedAnswers[0], ...wrong], `${args.seed}:family-options`, args.optionNonce);

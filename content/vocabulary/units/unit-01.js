@@ -4,6 +4,7 @@ import unit1WordFamilySupplement from './unit-01-word-family-supplement.js';
 import unit1GrammarSupplement from './unit-01-grammar-supplement.js';
 import unit1LanguageBank from './unit-01-language-bank.js';
 import unit1MasterySupplement from './unit-01-mastery-supplement.js';
+import unit1RetrievalSupplement from './unit-01-retrieval-supplement.js';
 
 const e = (term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence, paraphraseSource, paraphraseSentence, productionSource, productionSentence, extras = {}) => ({
   term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence,
@@ -78,7 +79,7 @@ const enrichedEntries = entries.map(entry => {
     text:String(record?.text ?? '').replace('____', String(record?.answer ?? entry.term)),
     meaning:String(masteryMeanings[index] ?? '').trim()
   }));
-  return { ...entry, ...(unit1GrammarSupplement[entry.term] ?? {}), masteryContexts };
+  return { ...entry, ...(unit1GrammarSupplement[entry.term] ?? {}), ...(unit1RetrievalSupplement[entry.term] ? { extraRetrievalContexts:unit1RetrievalSupplement[entry.term] } : {}), masteryContexts };
 });
 
 export default buildCuratedUnit({

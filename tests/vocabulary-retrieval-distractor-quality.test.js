@@ -35,8 +35,10 @@ const nounTarget = {
 
 const nounContext = {
   contextId:'u1_downtime_fixture_meaning',
-  type:'meaning_context',
-  text:'Many students use their downtime to play sport or meet friends.'
+  type:'gap_fill',
+  text:'Many students use their downtime to play sport or meet friends.',
+  targetRewrite:'downtime',
+  acceptedAnswers:['downtime']
 };
 
 test('base-form retrieval prefers authored misleading distractors over random same-POS words when no reviewed language bank exists', () => {

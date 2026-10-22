@@ -46,7 +46,9 @@ const RETRIEVAL_CONTEXT_TYPES = ['gap_fill_bank','drag_word_sentence','type_miss
 const CONTEXT_QUESTION_TYPES = Object.freeze({
   meaning_context:new Set(['meaning_match','meaning_in_context']),
   paraphrase_context:new Set(['meaning_in_context','which_situation_fits',...RETRIEVAL_CONTEXT_TYPES]),
-  production_context:new Set(['which_situation_fits',...RETRIEVAL_CONTEXT_TYPES])
+  production_context:new Set(['which_situation_fits',...RETRIEVAL_CONTEXT_TYPES]),
+  // Curated gap-fill sentences are written with the exact target form and store that form as the accepted answer.
+  gap_fill:new Set(RETRIEVAL_CONTEXT_TYPES)
 });
 
 function id(value,label){const text=String(value??'').trim();if(!ID_RE.test(text))throw new Error(`${label} is invalid.`);return text;}

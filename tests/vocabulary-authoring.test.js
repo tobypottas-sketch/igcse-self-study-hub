@@ -28,12 +28,12 @@ test('compact authoring expands to the canonical approved unit shape', () => {
   });
   assert.equal(unit.items.length, 50);
   assert.equal(unit.occurrences.length, 50);
-  assert.equal(unit.contexts.length, 150);
+  assert.equal(unit.contexts.length, 200);
   assert.deepEqual(unit.activities, []);
   assert.equal(unit.occurrences.filter(row => row.setNumber === 1).length, 10);
   assert.equal(unit.occurrences.filter(row => row.setNumber === 5).length, 10);
   assert.equal(unit.items[0].status, 'approved');
-  assert.equal(unit.occurrences[0].contextIds.length, 3);
+  assert.equal(unit.occurrences[0].contextIds.length, 4); // meaning, paraphrase, production + one gap-fill derived from the meaning sentence
   assert.equal(validateUnit(unit).ok, true);
 });
 
@@ -73,7 +73,7 @@ test('authored Unit 1 is complete, source-aligned, and strict-validator clean', 
   assert.equal(unit1.status, 'approved');
   assert.equal(unit1.source, '0511_UNIT_1.docx');
   assert.equal(unit1.items.length, 50);
-  assert.equal(unit1.contexts.length, 228);
+  assert.equal(unit1.contexts.length, 342);
   assert.deepEqual(unit1.items.map(item => item.term), [
     'leisure','preference','avoid','afford','deny','permit','arrange','urge','recommend','demand',
     'threaten','resent','regret','unfamiliar','racquet','opponent','intense','tournament','determined','discipline',

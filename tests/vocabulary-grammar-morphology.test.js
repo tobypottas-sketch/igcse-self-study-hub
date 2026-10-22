@@ -59,16 +59,17 @@ test('retrieval uses the exact contextual past-tense answer and form-matched dis
   assert.ok(!question.options.includes('deny'));
 });
 
-test('retrieval can derive a third-person answer from a natural meaning context', () => {
+test('retrieval blanks the exact third-person form from a curated gap-fill sentence', () => {
   const question = buildFoundationalActivity({
     activityType:'gap_fill_bank',
     occurrence:occurrence(recommend),
     item:recommend,
     contexts:[{
-      contextId:'recommend_meaning',
-      type:'meaning_context',
+      contextId:'recommend_gap',
+      type:'gap_fill',
       text:'The trainer recommends stretching before intense exercise.',
-      acceptedAnswers:['suggests']
+      targetRewrite:'recommends',
+      acceptedAnswers:['recommends']
     }],
     unitItems,
     mastery:{ status:'building' },
@@ -81,6 +82,20 @@ test('retrieval can derive a third-person answer from a natural meaning context'
   assert.ok(question.options.includes('denies'));
   assert.ok(question.options.includes('demands'));
   assert.ok(question.options.includes('regrets'));
+});
+
+test('paraphrase and meaning sentences are never blanked, because their blank would not match the answer form', () => {
+  for (const type of ['paraphrase_context','meaning_context','production_context']) {
+    assert.throws(() => buildFoundationalActivity({
+      activityType:'gap_fill_bank',
+      occurrence:occurrence(recommend),
+      item:recommend,
+      contexts:[{ contextId:`recommend_${type}`, type, text:'The trainer suggests stretching before intense exercise.', targetRewrite:'suggests', acceptedAnswers:['recommend'] }],
+      unitItems,
+      mastery:{ status:'building' },
+      seed:'no-synonym-blank'
+    }), /No curated context can form an accurate target-word blank/, type);
+  }
 });
 
 test('non-verbs keep exact lemma retrieval behaviour', () => {

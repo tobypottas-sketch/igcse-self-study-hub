@@ -15,7 +15,7 @@ const unitItems = [
   { vocabularyId:'v_achievement', term:'achievement', partOfSpeech:'noun', coreMeaning:'something difficult completed successfully', senses:[{ meaning:'something difficult completed successfully' }], wordFamily:['achieve','achievement','achievable'] }
 ];
 const contexts = [{
-  contextId:'ctx-preference', type:'paraphrase_context',
+  contextId:'ctx-preference', type:'gap_fill',
   text:'Mina has a preference for individual sports rather than team games.',
   targetRewrite:'preference', acceptedAnswers:['preference']
 }];

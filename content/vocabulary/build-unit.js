@@ -57,6 +57,21 @@ function buildableActivity(activity) {
   };
 }
 
+// Entries without hand-written gap-fill records get one derived from the teacher-approved meaning sentence, so a blank is
+// only ever cut from a real sentence in which the target already appears (answer = the exact form used in that sentence).
+function deriveRetrievalContexts({ term, grammarForms = {}, meaningSentence }) {
+  const sentence = text(meaningSentence);
+  if (!sentence) return [];
+  const forms = [...new Set([...Object.values(object(grammarForms)).map(text), text(term)].filter(Boolean))]
+    .sort((a,b) => b.length - a.length);
+  for (const form of forms) {
+    const escaped = form.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    const match = new RegExp(`(^|[^A-Za-z])(${escaped})(?=$|[^A-Za-z])`,'i').exec(sentence);
+    if (match) return [{ id:'meaning_sentence', text:sentence, target:match[2], grammarPattern:'' }];
+  }
+  return [];
+}
+
 export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', source = '', entries = [], activities = [] } = {}) {
   const title = text(unitTitle);
   const unit = {
@@ -78,7 +93,11 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
     const distractors = array(entry.distractors).map(text).filter(Boolean);
     const grammarForms = object(entry.grammarForms);
     const grammarPatterns = array(entry.grammarPatterns).map(text).filter(Boolean);
-    const retrievalContexts = array(entry.retrievalContexts);
+    const handWritten = array(entry.retrievalContexts);
+    const retrievalContexts = [
+      ...(handWritten.length ? handWritten : deriveRetrievalContexts({ term, grammarForms, meaningSentence:entry.meaningSentence })),
+      ...array(entry.extraRetrievalContexts)
+    ];
     const masteryContexts = array(entry.masteryContexts).slice(0,2).map((record,index) => ({
       contextId:index === 0 ? meaningId : paraphraseId,
       text:text(record?.text),
