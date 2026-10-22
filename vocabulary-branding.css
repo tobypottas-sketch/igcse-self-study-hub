@@ -13,11 +13,11 @@
   width:max-content;
   max-width:100%;
   padding:6px 10px;
-  border:1px solid #c9dce3;
-  border-radius:999px;
+  border:1px solid var(--c-line);
+  border-radius:var(--r-pill);
   background:rgba(255,255,255,.88);
   color:var(--navy);
-  font-size:.8rem;
+  font-size:var(--fs-xs);
   font-weight:900;
   letter-spacing:.025em;
   line-height:1;
@@ -33,7 +33,7 @@
 @media(max-width:520px){
   .vocab-shell--session .vocab-topbar > span::before,
   .vocab-unit-hero::before{
-    font-size:.72rem;
+    font-size:var(--fs-xs);
     padding:5px 8px;
   }
 }

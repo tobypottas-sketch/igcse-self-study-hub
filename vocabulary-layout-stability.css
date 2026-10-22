@@ -85,7 +85,7 @@
   margin:0!important;
   padding:7px 12px;
   border:1px solid color-mix(in srgb,var(--study-accent) 18%,white);
-  border-radius:999px;
+  border-radius:var(--r-pill);
   background:color-mix(in srgb,var(--study-accent-soft) 82%,white);
   color:var(--study-accent);
   white-space:nowrap;
@@ -115,16 +115,16 @@
   margin:0!important;
   padding:10px 14px;
   border:1px solid rgba(43,79,110,.08);
-  border-radius:14px;
+  border-radius:var(--r-md);
   background:rgba(247,250,252,.92);
   overflow:hidden;
 }
 .vocab-pathway-card__evidence-copy strong{
-  font-size:.70rem!important;
+  font-size:var(--fs-xs)!important;
   letter-spacing:.055em!important;
 }
 .vocab-pathway-card__evidence-copy small{
-  font-size:.70rem!important;
+  font-size:var(--fs-xs)!important;
   font-weight:700!important;
 }
 
@@ -234,7 +234,7 @@
   height:16px;
   box-sizing:border-box;
   border:2px solid rgba(23,56,82,.18);
-  border-top-color:#137e80;
+  border-top-color:var(--c-teal);
   border-radius:50%;
   pointer-events:none;
   animation:vocab-unit-loading-spin 800ms linear infinite;
