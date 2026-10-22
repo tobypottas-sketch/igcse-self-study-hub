@@ -112,6 +112,18 @@ export function tapMatchItem(set, state, side, id) {
   return next;
 }
 
+// Drag-and-drop pairing: drop a word on a definition (or a definition on a word). Replaces any pairing either item already had.
+export function pairMatchItems(set, state, wordId, definitionId) {
+  if (!set || state.revealed || !known(set, 'word', wordId) || !known(set, 'definition', definitionId)) return state;
+  if (state.settled[wordId] || Object.values(state.settled).includes(definitionId)) return state;
+  const next = clone(state);
+  for (const word of Object.keys(next.pairs)) if (word === wordId || next.pairs[word] === definitionId) delete next.pairs[word];
+  next.pairs[wordId] = definitionId;
+  next.selected = null;
+  next.flash.paired = [wordId];
+  return next;
+}
+
 export function isMatchSetComplete(set, state) {
   return Boolean(set) && set.words.every(word => state.pairs[word.id] || state.settled[word.id]);
 }

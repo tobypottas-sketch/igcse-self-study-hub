@@ -4,7 +4,7 @@ import unit from '../content/vocabulary/releases/unit-01.js';
 import { harness } from './vocabulary-app-harness.mjs';
 import { buildActivity } from '../src/vocabulary/activity-factory.js';
 import { markCuratedAnswer } from '../supabase/functions/_shared/vocabulary-engine.js';
-import { buildMatchSet, checkMatchSet, finishedMatchState, isMatchSetComplete, matchSetPairs, newMatchState, revealMatchSet, tapMatchItem, usesMatchSet } from '../src/vocabulary/match-set.js';
+import { buildMatchSet, checkMatchSet, finishedMatchState, isMatchSetComplete, matchSetPairs, newMatchState, revealMatchSet, tapMatchItem, pairMatchItems, usesMatchSet } from '../src/vocabulary/match-set.js';
 import { matchKeyTarget, matchStatusText, renderMatchSet } from '../src/vocabulary/match-set-view.js';
 
 const sleep = ms => new Promise(done => setTimeout(done, ms));
@@ -528,4 +528,27 @@ test('a missed set is recovered by a fresh question and then counts exactly once
   assert.equal(h.summaries.length, 1);
   assert.equal(h.saved.length, 3, 'miss, retry, recovery — one attempt each, never one per pair');
   assert.equal(new Set(h.saved.map(row => row.attemptId)).size, 3);
+});
+
+test('pairMatchItems (drag and drop) pairs a word and definition, replaces earlier pairings, and ignores unknown or settled items', () => {
+  const set = buildMatchSet(realQuestion('word_definition_match'));
+  const [a, b] = set.words;
+  const defA = set.pairs ? set.pairs[a.id] : null;
+  const ids = set.definitions.map(row => row.id);
+  let state = pairMatchItems(set, newMatchState(set), a.id, ids[0]);
+  assert.equal(state.pairs[a.id], ids[0]);
+  assert.deepEqual(state.flash.paired, [a.id]);
+  // dropping a second word on the same definition steals it: one definition, one word
+  state = pairMatchItems(set, state, b.id, ids[0]);
+  assert.equal(state.pairs[b.id], ids[0]);
+  assert.equal(state.pairs[a.id], undefined);
+  // re-dropping the first word on another definition moves it
+  state = pairMatchItems(set, state, a.id, ids[1]);
+  assert.equal(state.pairs[a.id], ids[1]);
+  assert.equal(Object.keys(state.pairs).length, 2);
+  // unknown ids and settled pairs are ignored
+  assert.equal(pairMatchItems(set, state, 'nope', ids[2]), state);
+  const settled = { ...state, settled: { [a.id]: ids[1] }, pairs: {} };
+  assert.equal(pairMatchItems(set, settled, a.id, ids[2]), settled);
+  void defA;
 });
