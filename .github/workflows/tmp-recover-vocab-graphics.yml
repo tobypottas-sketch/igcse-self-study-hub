@@ -16,21 +16,53 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Scan retained git history for archive parts
+      - name: Analyze historical archive overlap
         shell: bash
         run: |
           set -euo pipefail
-          echo '=== commits touching archive-01.part ==='
-          git log --all --oneline -- .staging/archive-01.part || true
-          echo '=== objects named archive-01.part ==='
-          git rev-list --objects --all | grep -F '.staging/archive-01.part' || true
-          echo '=== commits touching all archive parts ==='
-          git log --all --name-status --format='COMMIT %H %s' -- .staging/archive-0*.part | grep -E '^(COMMIT|[AMD]\s)' || true
-          echo '=== any staging objects containing archive-01 ==='
-          git rev-list --objects --all | grep -E 'archive-01|final-int|patch[12]\.patch' || true
-          echo '=== retained staging files on PNG-related remote refs ==='
-          for ref in $(git for-each-ref --format='%(refname)' refs/remotes/origin | grep -E 'vocabulary-png|stage/vocabulary-png|recovery/vocabulary-png'); do
-            echo "REF $ref"
-            git ls-tree -r --name-only "$ref" .staging 2>/dev/null | sed 's/^/  /' || true
+          git fetch --no-tags origin recovery/vocabulary-png-package-source stage/vocabulary-png-graphics
+          mkdir -p /tmp/recover
+          git show recovery/vocabulary-png-package-source:.staging/final-int.b64 > /tmp/recover/final-int.b64
+          for n in 02 03 04 05; do
+            git show stage/vocabulary-png-graphics:.staging/archive-${n}.part > /tmp/recover/archive-${n}.part
           done
+
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path('/tmp/recover')
+          def clean(path):
+              raw = path.read_bytes()
+              return re.sub(rb'[^A-Za-z0-9+/=]', b'', raw)
+
+          seqs = {'final': clean(root/'final-int.b64')}
+          for n in ('02','03','04','05'):
+              seqs[n] = clean(root/f'archive-{n}.part')
+
+          for name, s in seqs.items():
+              print(f'{name}: clean={len(s)} first={s[:32].decode()} last={s[-32:].decode()}')
+
+          f = seqs['final']
+          for n in ('02','03','04','05'):
+              s = seqs[n]
+              print(f'final.find({n})={f.find(s)} ; {n}.find(final)={s.find(f)}')
+              # longest prefix of part found as suffix/piece in final
+              best = (0, -1, -1)
+              # seed with 32-char anchors every 1000 chars for useful exact overlap diagnostics
+              for i in range(0, len(s)-31, 1000):
+                  pos = f.find(s[i:i+32])
+                  if pos >= 0:
+                      a,b = pos,i
+                      while a>0 and b>0 and f[a-1]==s[b-1]: a-=1; b-=1
+                      x,y = pos+32,i+32
+                      while x<len(f) and y<len(s) and f[x]==s[y]: x+=1; y+=1
+                      if x-a > best[0]: best=(x-a,a,b)
+              print(f'best exact overlap final/{n}: length={best[0]} final_start={best[1]} part_start={best[2]}')
+
+          # Try likely reconstruction: first 10k chars from final as missing part01 + clean 02..05.
+          for prefix_len in [8000,9000,9996,10000,10004,12000,15000,20000]:
+              candidate = f[:prefix_len] + b''.join(seqs[n] for n in ('02','03','04','05'))
+              print(f'candidate prefix={prefix_len} b64len={len(candidate)} mod4={len(candidate)%4}')
+          PY
           exit 1
