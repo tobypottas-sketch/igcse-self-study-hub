@@ -19,7 +19,7 @@ Nothing else changes. Unlisted files cause no requests. A listed file that fails
 | `pathways/precision-use.png` | 1024×1024, transparent |
 | `pathways/spelling-recall.png` | 1024×1024, transparent |
 
-Layout notes: the unit hero shows the image at about 2.2:1 up to ~380px wide, anchored right; the home unit card crops it (cover) to ~132×104, so keep subjects centre/right and nothing critical at the edges. Pathway art is shown contained in ~128×92 (84×62 on small screens): centred subject with padding.
+Layout notes: the unit hero shows the image at about 2.2:1 up to ~380px wide, anchored right; the home unit card crops it (cover) to ~132×104, so keep subjects centre/right and nothing critical at the edges. Pathway art is shown contained in a ~176×156 corner slot (150×130 tablet, 104×88 phone): centred subject with padding.
 
 ## Shared art direction (prefix every prompt)
 High-quality modern editorial illustration for a premium secondary-school education app. Mature Grade 9–11 visual style. Clean composition, refined geometric forms, believable proportions, subtle depth, soft contemporary colours, crisp edges, restrained detail, professional and intelligent rather than childish. No text, no logos, no labels, no watermarks, no clip-art aesthetic, no exaggerated cartoon faces, no stock-photo look. Designed to remain visually clear when displayed at small-to-medium UI sizes.
