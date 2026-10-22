@@ -15,6 +15,7 @@ import { buildMatchSet, checkMatchSet, finishedMatchState, newMatchState, reveal
 import { installMatchDrag, matchDragJustEnded } from './match-drag.js';
 import { activityFamily } from './activity-families.js';
 import { MIN_SHORT_MISSION, familyTargets, loadLastChoice, pathwayPracticeOptions, saveLastChoice } from './pathway-choice.js';
+import { loadSeenContent, saveSeenContent } from './seen-content.js';
 import { playCompletionSequence } from './completion-sequence.js';
 import { matchKeyTarget, renderMatchSet, repaintMatchSet } from './match-set-view.js';
 import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
@@ -24,7 +25,7 @@ const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
   globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:null, pathwayId:null, pathwayStage:null, pathwayChoice:null, mixedReview:false,
   recentActivities:new Map(), usedContentIds:new Map(), recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null, timedPreviousActivityType:null,
-  finishPending:false, handoffPending:false, unitCache:new Map(), attempts:null, unitRequest:0, loadingUnit:null
+  userKey:null, finishPending:false, handoffPending:false, unitCache:new Map(), attempts:null, unitRequest:0, loadingUnit:null
 };
 
 function occurrence(row) { return { occurrenceId:row.occurrence_id, vocabularyId:row.vocabulary_id, unitNumber:row.unit_number, unitTitle:row.unit_title, setNumber:row.set_number, positionInUnit:row.position_in_unit, senseId:row.sense_id }; }
@@ -201,7 +202,7 @@ function rankedTargets(limit, practiceMode = state.practiceFocus) {
 function resetSessionState(continueHistory = false) {
   state.streak = 0;
   // Continue stays in the same unit; explicit activity starts get fresh selection history.
-  if (!continueHistory) { state.recentActivities = new Map(); state.usedContentIds = new Map(); }
+  if (!continueHistory) { state.recentActivities = new Map(); state.usedContentIds = loadSeenContent(state.userKey); }
   state.current = null; state.recoveryNeeded = new Set(); state.timedPreviousActivityType = null; state.finishPending = false;
 }
 function startPathwaySession(pathwayId, continueHistory = false, choice = null) {
@@ -312,6 +313,7 @@ function buildNextForTarget(target) {
     // Keep record and operation-specific variant identities in the existing target history.
     const variant = question.activityVariantId == null ? [] : [JSON.stringify([question.contentId, question.type, question.activityVariantId])];
     state.usedContentIds.set(target.occurrenceId, [...new Set([...usedContentIds, question.contentId, ...variant])]);
+    saveSeenContent(state.userKey, target.occurrenceId, [question.contentId, ...variant]);
   }
   const contextRecord = targetContexts.find(ctx => ctx.contextId === question.contentId) ?? null; const activityRecord = state.content.activitiesById[question.contentId] ?? null;
   const primaryEvidenceTargetId = question.primaryEvidenceTargetId ?? activityRecord?.activityData?.primaryEvidenceTargetId ?? (question.contentSource === 'item' ? target.vocabularyId : null);
@@ -560,7 +562,7 @@ root?.addEventListener('click', event => {
 async function initialise() {
   if (!root) return;
   try {
-    state.client = await getSupabaseClient(); const { data:userData, error:userError } = await state.client.auth.getUser(); if (userError || !userData?.user) { window.location.replace('./'); return; }
+    state.client = await getSupabaseClient(); const { data:userData, error:userError } = await state.client.auth.getUser(); if (userError || !userData?.user) { window.location.replace('./'); return; } state.userKey = userData.user.id;
     const { data:profile, error:profileError } = await state.client.from('profiles').select('id, role, display_name, active').eq('id', userData.user.id).single(); const previewRequested = new URLSearchParams(window.location.search).get('preview') === '1'; const staff = profile?.role === 'teacher' || profile?.role === 'admin';
     if (profileError || !profile?.active || (profile.role !== 'student' && !(staff && previewRequested))) { window.location.replace('./'); return; }
     window.addEventListener('beforeunload', event => { if (attempts().pending) { event.preventDefault(); event.returnValue = ''; } });
