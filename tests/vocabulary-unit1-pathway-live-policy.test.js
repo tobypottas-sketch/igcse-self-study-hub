@@ -44,5 +44,5 @@ test('diagnostic buildable counts preserve the curated 25-target Word Family coh
   assert.equal(coverage.word_families.occurrenceIds.length,25);
   assert.equal(coverage.paraphrasing.stageCounts.recognise,24);
   assert.equal(coverage.paraphrasing.stageCounts.match,12);
-  assert.equal(coverage.precision_use.stageCounts.recognise,3);
+  assert.equal(coverage.precision_use.stageCounts.recognise,50);
 });

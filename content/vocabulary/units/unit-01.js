@@ -1,6 +1,7 @@
 import { buildCuratedUnit } from '../build-unit.js';
 import unit1Activities from './unit-01-activities.js';
 import unit1WordFamilySupplement from './unit-01-word-family-supplement.js';
+import unit1PrecisionUse from './unit-01-precision-use.js';
 import unit1GrammarSupplement from './unit-01-grammar-supplement.js';
 import unit1LanguageBank from './unit-01-language-bank.js';
 import unit1MasterySupplement from './unit-01-mastery-supplement.js';
@@ -88,5 +89,5 @@ export default buildCuratedUnit({
   status:'approved',
   source:'0511_UNIT_1.docx',
   entries:enrichedEntries,
-  activities:[...unit1Activities, ...unit1WordFamilySupplement]
+  activities:[...unit1Activities, ...unit1WordFamilySupplement, ...unit1PrecisionUse]
 });

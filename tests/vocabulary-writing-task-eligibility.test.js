@@ -17,14 +17,19 @@ function contextsFor(target) {
   return unit1.contexts.filter(row => row.occurrenceId === target.occurrenceId);
 }
 
-function buildImprove(vocabularyId) {
+// Every Unit 1 word now has Precision & Use items, so the "fails closed" cases remove them for the word under test.
+function withoutImproveContent(vocabularyId) {
+  return unit1.activities.filter(row => !(row.activityData?.taskType === 'improve_vocabulary' && (row.activityData.linkedVocabularyIds ?? []).includes(vocabularyId)));
+}
+
+function buildImprove(vocabularyId, activities = unit1.activities) {
   const { target, item } = targetFor(vocabularyId);
   return buildActivity({
     activityType:'improve_vocabulary',
     occurrence:target,
     item,
     contexts:contextsFor(target),
-    unitActivities:unit1.activities,
+    unitActivities:activities,
     unitItems:unit1.items,
     unitContexts:unit1.contexts,
     unitOccurrences:unit1.occurrences,
@@ -42,7 +47,7 @@ test('Improve the Vocabulary only uses writing_set records curated for improve_v
 
 test('Improve the Vocabulary never borrows a collocation task from the same or another target', () => {
   assert.throws(
-    () => buildImprove('vocab_achievement'),
+    () => buildImprove('vocab_achievement', withoutImproveContent('vocab_achievement')),
     /No curated improve_vocabulary content is available for this target/,
     'achievement only has a collocation writing_set and must fail closed rather than relabel it'
   );
@@ -50,6 +55,7 @@ test('Improve the Vocabulary never borrows a collocation task from the same or a
 
 test('target eligibility advertises improve_vocabulary only for targets with a matching writing task type', () => {
   const content = { activities:unit1.activities };
+  const contentWithoutAchievementImprove = { activities:withoutImproveContent('vocab_achievement') };
 
   const intense = targetFor('vocab_intense');
   const intenseTypes = availableActivityTypesForTarget({
@@ -62,7 +68,7 @@ test('target eligibility advertises improve_vocabulary only for targets with a m
 
   const achievement = targetFor('vocab_achievement');
   const achievementTypes = availableActivityTypesForTarget({
-    content,
+    content:contentWithoutAchievementImprove,
     target:achievement.target,
     item:achievement.item,
     contexts:contextsFor(achievement.target)
