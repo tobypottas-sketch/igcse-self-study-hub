@@ -292,7 +292,7 @@ function renderAnswerControl(question, feedback, retry, support, matchView = nul
     // in the hidden `answer` field, so marking, evidence and saving are exactly as before. Check stays disabled until a word is chosen.
     const options = support?.kind === 'narrow_drag_gap' ? support.options : (question.draggables ?? question.wordBank ?? []);
     const chips = (options ?? []).map(option => `<button type="button" class="vocab-gap-chip" data-gap-choice="${escapeHtml(option)}" aria-pressed="false">${escapeHtml(option)}</button>`).join('');
-    return `<fieldset class="vocab-drag-gap${retry ? ' is-retry' : ''}" data-gap-fill><legend>${retry ? 'Try the gap again' : 'Tap the word that fits the gap'}</legend><div class="vocab-gap-bank">${chips}</div><input type="hidden" name="answer" value=""><button class="vocab-button vocab-button--primary" type="submit" data-gap-submit disabled aria-disabled="true">${retry ? 'Check supported answer' : 'Check answer'}</button></fieldset>`;
+    return `<fieldset class="vocab-drag-gap${retry ? ' is-retry' : ''}" data-gap-fill><legend>${retry ? 'Try the gap again' : 'Drag a word into the gap'}</legend><p class="vocab-gap-hint">Drag a word card onto the gap in the sentence. (Keyboard: focus a word and press Enter.)</p><div class="vocab-gap-bank">${chips}</div><input type="hidden" name="answer" value=""><button class="vocab-button vocab-button--primary" type="submit" data-gap-submit disabled aria-disabled="true">${retry ? 'Check supported answer' : 'Check answer'}</button></fieldset>`;
   }
   if (responseMode === 'spelling') {
     return `<div class="vocab-spelling-pattern" aria-label="Spelling clue">${escapeHtml(question?.spellingPattern ?? '')}</div><label>${retry ? 'Try the spelling again' : 'Type the word'}<input name="answer" required autocomplete="off" maxlength="120" spellcheck="false" aria-describedby="vocab-support-hint"></label><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Check supported answer' : 'Check answer'}</button>`;
@@ -338,7 +338,10 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
   const source = visibleQuestionSource(question);
   const matchCue = String(question?.matchCue ?? '').trim();
   const sourceDuplicatesMatchCue = source && matchCue && normalizedDisplayText(source.text) === normalizedDisplayText(matchCue);
-  const questionContext = source && !sourceDuplicatesMatchCue ? `<aside class="vocab-question-context vocab-source-text"><span>${escapeHtml(source.label)}</span><p>${escapeHtml(source.text)}</p></aside>` : '';
+  const sourceHtml = question?.responseMode === 'drag_gap' && source && /_{2,}/.test(source.text)
+    ? source.text.replace(/^([\s\S]*?)(_{2,})([\s\S]*)$/, (_, before, gap, after) => `${escapeHtml(before)}<span class="vocab-gap-slot" data-gap-slot aria-label="Gap in the sentence">${escapeHtml(gap)}</span>${escapeHtml(after)}`)
+    : (source ? escapeHtml(source.text) : '');
+  const questionContext = source && !sourceDuplicatesMatchCue ? `<aside class="vocab-question-context vocab-source-text"><span>${escapeHtml(source.label)}</span><p>${sourceHtml}</p></aside>` : '';
   const targetPill = term && !matchView && !HIDE_TARGET_TYPES.has(question?.type) ? `<div class="vocab-target-pill">${escapeHtml(term)}</div>` : '';
   const pathwayProgress = renderPathwaySessionProgress(fixedPathwayId,fixedPathwayStage);
   const stage = learningStage ?? question?.learningStage ?? null;

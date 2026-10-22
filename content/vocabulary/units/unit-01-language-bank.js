@@ -29,7 +29,7 @@ export default Object.freeze({
         distractors:[
           diagnosed('office','Can modify facilities, but offices are for work rather than recreation.'),
           diagnosed('factory','Can modify facilities, but factories are workplaces rather than places for recreation.'),
-          diagnosed('school','Can modify facilities, but the sentence specifies facilities for residents to relax after work, not for lessons.')
+          diagnosed('kitchen','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -59,7 +59,7 @@ export default Object.freeze({
         distractors:[
           diagnosed('business','Can modify centre, but a pool and gym identify a recreation facility rather than a business centre.'),
           diagnosed('conference','Can modify centre, but a conference centre is for meetings, not the facilities described.'),
-          diagnosed('medical','Can modify centre, but the sentence describes recreation facilities rather than treatment services.')
+          diagnosed('laundry','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -103,8 +103,8 @@ export default Object.freeze({
         answer:'avoid',
         distractors:[
           diagnosed('continue','Grammatically fits before -ing, but gives the opposite advice.'),
-          diagnosed('consider','Grammatically fits before -ing, but means think about doing it rather than keep away from it.'),
-          diagnosed('enjoy','Grammatically fits before -ing, but expresses pleasure rather than keeping away from the action.')
+          diagnosed('mind','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('deserve','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -112,9 +112,9 @@ export default Object.freeze({
         text:'The new bypass helps commuters ____ the busiest roads.',
         answer:'avoid',
         distractors:[
-          diagnosed('use','Grammatically fits the object, but means travel on those roads rather than keep away from them.'),
-          diagnosed('follow','Grammatically fits the object, but means travel along those roads.'),
-          diagnosed('enter','Grammatically fits the object, but means go onto those roads.')
+          diagnosed('describe','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('wash','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('measure','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -132,9 +132,9 @@ export default Object.freeze({
         text:'She changed her route to ____ the roadworks near the stadium.',
         answer:'avoid',
         distractors:[
-          diagnosed('reach','Grammatically fits, but means arrive at the roadworks.'),
-          diagnosed('cross','Grammatically fits, but means travel through the roadworks.'),
-          diagnosed('follow','Grammatically fits, but means travel along the affected route.')
+          diagnosed('describe','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('admire','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('mend','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -187,9 +187,9 @@ export default Object.freeze({
         text:'The survey showed that most people have a strong ____ for fresh food over tinned food.',
         answer:'preference',
         distractors:[
-          diagnosed('need','Fits grammatically, but a need is something required, while over tinned food shows one option being favoured.'),
-          diagnosed('demand','Fits grammatically, but demand means how much people want to buy a product, not one option being liked more than another.'),
-          diagnosed('concern','Fits grammatically, but concern means worry; nothing in the sentence is a worry.')
+          diagnosed('appointment','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('deadline','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -197,9 +197,9 @@ export default Object.freeze({
         text:'When I booked the flight, the website asked whether I had a ____ for a window or an aisle seat.',
         answer:'preference',
         distractors:[
-          diagnosed('priority','Fits grammatically, but a priority is what must come first, not which of two seats you like better.'),
-          diagnosed('requirement','Fits grammatically, but a requirement is a must-have; the website is offering a free choice between two seats.'),
-          diagnosed('reservation','Fits grammatically, but a reservation is a booking, and the flight is already booked; the question is about which seat you favour.')
+          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('deadline','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('punishment','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -207,8 +207,8 @@ export default Object.freeze({
         text:'List the three clubs in order of ____, starting with the one you would most like to join.',
         answer:'preference',
         distractors:[
-          diagnosed('importance','Fits grammatically, but importance ranks what matters most, but the sentence asks which club you would most like to join.'),
-          diagnosed('popularity','Fits grammatically, but popularity measures what many students like, but the sentence asks for your own ranking.'),
+          diagnosed('temperature','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('weight','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('distance','Fits grammatically, but distance ranks how far away each club is, not how much you want to join it.')
         ]
       },
@@ -217,9 +217,9 @@ export default Object.freeze({
         text:'My brother has a ____ for science fiction, so I bought him a novel from that section.',
         answer:'preference',
         distractors:[
-          diagnosed('talent','Fits grammatically, but a talent is an ability; the gift depends on what he likes to read, not what he can do.'),
-          diagnosed('reputation','Fits grammatically, but a reputation is how other people see him; the gift depends on what he likes himself.'),
-          diagnosed('respect','Fits grammatically, but respect is admiration; buying him a novel shows what he enjoys reading.')
+          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('punishment','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -227,9 +227,9 @@ export default Object.freeze({
         text:'Her ____ is for coursework rather than exams, because she says she works better without time pressure.',
         answer:'preference',
         distractors:[
-          diagnosed('strength','Fits grammatically, but a strength is something she does well, but the reason given is what she likes working on.'),
-          diagnosed('advantage','Fits grammatically, but an advantage is a benefit she has; the sentence gives her reason for liking one kind of assessment more.'),
-          diagnosed('excuse','Fits grammatically, but an excuse defends a failure, but the sentence gives a positive reason for her liking.')
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('appointment','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -237,9 +237,9 @@ export default Object.freeze({
         text:'Which team you support is simply a matter of personal ____.',
         answer:'preference',
         distractors:[
-          diagnosed('belief','Fits grammatically, but a belief is something you think is true, whereas supporting a team is a favourite you choose.'),
-          diagnosed('judgement','Fits grammatically, but judgement is a decision about quality or truth, not a favourite you simply like.'),
-          diagnosed('experience','Fits grammatically, but experience comes from things that happen to you, not from choosing a favourite team.')
+          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('ticket','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       }
     ],
@@ -272,9 +272,9 @@ export default Object.freeze({
         text:'The club had to cancel the trip because it could no longer ____ the cost of the coach.',
         answer:'afford',
         distractors:[
-          diagnosed('reduce','Fits grammatically, but reduce means make smaller; cancelling the trip shows the club lacked the money, not that it lowered a price.'),
-          diagnosed('estimate','Fits grammatically, but estimate means guess a figure; it does not explain why the trip was cancelled.'),
-          diagnosed('predict','Fits grammatically, but predict means say what will happen; the problem is not having the money for the coach.')
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -282,9 +282,9 @@ export default Object.freeze({
         text:'My parents would love a bigger house, but they simply cannot ____ one on a teacher’s salary.',
         answer:'afford',
         distractors:[
-          diagnosed('find','Fits grammatically, but find means discover; the problem named is the salary, not the search.'),
-          diagnosed('build','Fits grammatically, but build means construct; the problem named is the salary, not who makes the house.'),
-          diagnosed('keep','Fits grammatically, but keep means hold on to; they do not yet have the bigger house.')
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -292,9 +292,9 @@ export default Object.freeze({
         text:'Students who work every evening to pay their rent cannot ____ to spend long hours on revision.',
         answer:'afford',
         distractors:[
-          diagnosed('bother','Fits grammatically, but bother means make the effort, but the reason given is that they must work to pay rent, not a lack of effort.'),
-          diagnosed('wait','Fits grammatically, but wait means stay until something happens, which does not explain a lack of spare time.'),
-          diagnosed('pretend','Fits grammatically, but pretend means act as if something is true, which does not fit a real lack of time.')
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -302,9 +302,9 @@ export default Object.freeze({
         text:'The council lowered the entry fee so that more families could ____ the price of a day at the leisure centre.',
         answer:'afford',
         distractors:[
-          diagnosed('calculate','Fits grammatically, but calculate means work out a figure, but lowering the fee helps families pay, not work out numbers.'),
-          diagnosed('estimate','Fits grammatically, but estimate means guess a figure, but lowering the fee helps families pay, not guess.'),
-          diagnosed('question','Fits grammatically, but question means doubt or ask about, but lowering the fee does not change what families can ask.')
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -312,9 +312,9 @@ export default Object.freeze({
         text:'She took a second job because her salary was too low and she could not ____ to fall behind with the rent.',
         answer:'afford',
         distractors:[
-          diagnosed('choose','Fits grammatically, but choose means decide between options, but the sentence explains the second job by her low salary, which is about money, not a decision.'),
-          diagnosed('bother','Fits grammatically, but bother means make the effort, but the reason for the second job is her low salary.'),
-          diagnosed('intend','Fits grammatically, but intend means plan to, but she took a second job to avoid falling behind.')
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -322,9 +322,9 @@ export default Object.freeze({
         text:'A new phone is not something we can ____ right now, so we will wait until next year.',
         answer:'afford',
         distractors:[
-          diagnosed('replace','Fits grammatically, but replace means swap one thing for another; the sentence says they must wait, which points to money.'),
-          diagnosed('repair','Fits grammatically, but repair means fix an old phone, but the sentence is about getting a new one.'),
-          diagnosed('borrow','Fits grammatically, but borrow would let them have a phone now, but the sentence says they must wait.')
+          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       }
     ],
@@ -358,7 +358,7 @@ export default Object.freeze({
         answer:'deny',
         distractors:[
           diagnosed('accept','Fits grammatically, but accept means agree that it is responsible, which contradicts continues and despite the evidence.'),
-          diagnosed('ignore','Fits grammatically, but ignore means pay no attention; the company is making a statement about the accident, not ignoring it.'),
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('take','Fits grammatically, but take responsibility means accept the blame, which contradicts continues and despite the evidence.')
         ]
       },
@@ -378,7 +378,7 @@ export default Object.freeze({
         answer:'deny',
         distractors:[
           diagnosed('confirm','Fits grammatically, but confirm means say it is true, but the statement says the rumour is false.'),
-          diagnosed('explain','Fits grammatically, but explain means give reasons, but the statement simply says the rumour is false.'),
+          diagnosed('paint','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('back','Fits grammatically, but back means support, but the statement says the rumour is completely false.')
         ]
       },
@@ -388,8 +388,8 @@ export default Object.freeze({
         answer:'deny',
         distractors:[
           diagnosed('admit','Fits grammatically, but admit means agree it is true, but still continued shows she kept saying the opposite.'),
-          diagnosed('claim','Fits grammatically, but claim means say it is true; the photograph proves she was there, so still signals she says it is false.'),
-          diagnosed('hint','Fits grammatically, but hint means suggest indirectly, but still continued shows she kept saying the opposite of what the photograph shows.')
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -397,9 +397,9 @@ export default Object.freeze({
         text:'Nobody can ____ that regular exercise improves mood; the evidence is very strong.',
         answer:'deny',
         distractors:[
-          diagnosed('prove','Fits grammatically, but prove means show it is true, but the second clause says the evidence already exists.'),
-          diagnosed('show','Fits grammatically, but show means make something clear, but the second clause says the evidence already exists.'),
-          diagnosed('predict','Fits grammatically, but predict means say what will happen, whereas the sentence is about evidence for something already known.')
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -407,9 +407,9 @@ export default Object.freeze({
         text:'The suspect did not ____ being at the scene, but he insisted that he had not taken anything.',
         answer:'deny',
         distractors:[
-          diagnosed('regret','Fits grammatically, but regret means feel sorry; the but-clause is about what he says he did.'),
-          diagnosed('forget','Fits grammatically, but forget means fail to remember, which does not fit a suspect who insisted on a version of events.'),
-          diagnosed('mind','Fits grammatically, but mind means be bothered by it, but the but-clause is about what he says he did.')
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       }
     ],
@@ -443,8 +443,8 @@ export default Object.freeze({
         answer:'permit',
         distractors:[
           diagnosed('oblige','Fits grammatically, but oblige means force you, which contradicts flexible and at your own pace.'),
-          diagnosed('advise','Fits grammatically, but advise means suggest what to do, but the sentence says what the timetable makes possible.'),
-          diagnosed('expect','Fits grammatically, but expect means believe or require you to do it, which does not fit a flexible timetable.')
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -452,9 +452,9 @@ export default Object.freeze({
         text:'The council will not ____ anyone to build on the old playing field, because it is protected land.',
         answer:'permit',
         distractors:[
-          diagnosed('encourage','Fits grammatically, but encourage means make building more likely, which contradicts protected land.'),
-          diagnosed('ask','Fits grammatically, but ask means request, but the council is the one that decides whether building can happen.'),
-          diagnosed('invite','Fits grammatically, but invite means welcome people to do it, which contradicts protected land.')
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -462,9 +462,9 @@ export default Object.freeze({
         text:'The exam rules do not ____ mobile phones, so students must leave them outside the hall.',
         answer:'permit',
         distractors:[
-          diagnosed('recommend','Fits grammatically, but recommend means suggest as good, but the rules are about what is allowed in the hall.'),
           diagnosed('require','Fits grammatically, but require would mean students must bring phones, which contradicts leaving them outside.'),
-          diagnosed('supply','Fits grammatically, but supply means provide phones, but the rules are about what students may bring.')
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -472,9 +472,9 @@ export default Object.freeze({
         text:'Would you ____ your children to stay out until midnight on a school night?',
         answer:'permit',
         distractors:[
-          diagnosed('expect','Fits grammatically, but expect means think they will, whereas the question is whether parents would allow it.'),
-          diagnosed('advise','Fits grammatically, but advise means suggest it is a good idea, which does not fit a question about allowing a late night.'),
-          diagnosed('force','Fits grammatically, but force means make them do it, while the question is whether parents would let them.')
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -482,9 +482,9 @@ export default Object.freeze({
         text:'A teacher cannot ____ students to copy each other’s answers in an assessment.',
         answer:'permit',
         distractors:[
-          diagnosed('help','Fits grammatically, but help means assist, but the sentence is about what the rules allow.'),
-          diagnosed('teach','Fits grammatically, but teach means show how to do something, not allow it.'),
-          diagnosed('invite','Fits grammatically, but invite means ask or welcome them to do it, which is stronger than allowing it.')
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -492,9 +492,9 @@ export default Object.freeze({
         text:'The new software will ____ teachers to share lessons with parents from any device.',
         answer:'permit',
         distractors:[
-          diagnosed('require','Fits grammatically, but require would mean teachers must share lessons, whereas the software makes it possible.'),
-          diagnosed('remind','Fits grammatically, but remind means help them remember to do it, not make it possible.'),
-          diagnosed('advise','Fits grammatically, but advise means recommend, which does not describe what software makes possible.')
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       }
     ],
@@ -527,9 +527,9 @@ export default Object.freeze({
         text:'Please ____ a time that suits everyone so that we can all meet on Saturday.',
         answer:'arrange',
         distractors:[
-          diagnosed('prepare','Fits grammatically, but prepare means get ready, but a time is fixed by agreement, not prepared.'),
-          diagnosed('hold','Fits grammatically, but hold means keep or have; the sentence asks for a time to be agreed.'),
-          diagnosed('allow','Fits grammatically, but allow means permit; the sentence asks someone to set a time.')
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('daydream','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -537,9 +537,9 @@ export default Object.freeze({
         text:'My uncle has offered to ____ transport to the airport for the whole team.',
         answer:'arrange',
         distractors:[
-          diagnosed('prepare','Fits grammatically, but prepare means get ready, but transport is organised, not prepared like a meal.'),
-          diagnosed('repair','Fits grammatically, but repair means fix something broken, whereas the offer is to organise a ride.'),
-          diagnosed('collect','Fits grammatically, but collect means pick up, but transport is the thing to be organised, not collected.')
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('perspire','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -547,9 +547,9 @@ export default Object.freeze({
         text:'We need to ____ a babysitter before we can go out on Friday evening.',
         answer:'arrange',
         distractors:[
-          diagnosed('order','Fits grammatically, but order means request goods or food, not organise for a person to come.'),
-          diagnosed('prepare','Fits grammatically, but prepare means get ready; a babysitter has to be organised, not prepared.'),
-          diagnosed('train','Fits grammatically, but train means teach a skill, which is not what is needed before going out.')
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('stumble','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -557,9 +557,9 @@ export default Object.freeze({
         text:'The band’s manager plans to ____ a short tour of five cities in the spring.',
         answer:'arrange',
         distractors:[
-          diagnosed('produce','Fits grammatically, but produce means make a product, whereas a manager plans and books the tour.'),
-          diagnosed('follow','Fits grammatically, but follow means go after, which does not describe setting up a tour.'),
-          diagnosed('repair','Fits grammatically, but repair means fix something broken, not plan a tour.')
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('tremble','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -567,9 +567,9 @@ export default Object.freeze({
         text:'It takes a lot of time to ____ a school trip for two hundred students.',
         answer:'arrange',
         distractors:[
-          diagnosed('accompany','Fits grammatically, but accompany means go along with, but the sentence is about the work of organising before the trip.'),
-          diagnosed('attend','Fits grammatically, but attend means go to; the work described happens before the trip.'),
-          diagnosed('enjoy','Fits grammatically, but enjoy means take pleasure in, which does not explain taking a lot of time for two hundred students.')
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -577,9 +577,9 @@ export default Object.freeze({
         text:'She will ____ to meet us at the station at six, so please wait for her.',
         answer:'arrange',
         distractors:[
-          diagnosed('hope','Fits grammatically, but hope means wish, which is weaker than the plan the sentence says to wait for.'),
-          diagnosed('pretend','Fits grammatically, but pretend means act as if something is true, which does not make a plan to wait for.'),
-          diagnosed('forget','Fits grammatically, but forget means fail to remember, which contradicts so please wait for her.')
+          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       }
     ],
@@ -612,8 +612,8 @@ export default Object.freeze({
         text:'Doctors strongly ____ patients to take up gentle exercise because the benefits are so large, though the choice is always theirs.',
         answer:'urge',
         distractors:[
-          diagnosed('order','Fits grammatically, but order means command, but the choice is always theirs says the doctors do not command.'),
-          diagnosed('warn','Fits grammatically, but warn means tell people about a danger, but the sentence is about the benefits of exercise.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('require','Fits grammatically, but require means make it necessary, but the choice is always theirs says it is not necessary.')
         ]
       },
@@ -623,7 +623,7 @@ export default Object.freeze({
         answer:'urge',
         distractors:[
           diagnosed('warn','Fits grammatically, but warn means tell people about a danger, but cheap and delicious describes a benefit.'),
-          diagnosed('remind','Fits grammatically, but remind means help people remember something they already know, but the food is new to most newcomers.'),
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('order','Fits grammatically, but order means command, and friends have no authority to command new students.')
         ]
       },
@@ -633,8 +633,8 @@ export default Object.freeze({
         answer:'urge',
         distractors:[
           diagnosed('force','Fits grammatically, but force contradicts they cannot make any school do it.'),
-          diagnosed('persuade','Fits grammatically, but persuade means succeed in convincing, but so far none has agreed shows they have not succeeded.'),
-          diagnosed('pay','Fits grammatically, but pay means give money for it, but nothing in the sentence says the experts offer any payment.')
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -643,8 +643,8 @@ export default Object.freeze({
         answer:'urge',
         distractors:[
           diagnosed('force','Fits grammatically, but force contradicts has no authority over ministers.'),
-          diagnosed('persuade','Fits grammatically, but persuade means succeed in convincing, but so far without success shows the government has not been convinced.'),
-          diagnosed('oblige','Fits grammatically, but oblige means make someone legally or morally bound, which a charity with no authority cannot do.')
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -663,8 +663,8 @@ export default Object.freeze({
         answer:'urge',
         distractors:[
           diagnosed('force','Fits grammatically, but force contradicts they say the choice is hers.'),
-          diagnosed('persuade','Fits grammatically, but persuade means succeed in convincing her, but she has not decided yet shows they have not succeeded.'),
-          diagnosed('dare','Fits grammatically, but dare means challenge someone to do something risky, but applying for a scholarship is not a dare.')
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       }
     ],
@@ -697,9 +697,9 @@ export default Object.freeze({
         text:'My dentist has just retired, so I am asking my colleagues to ____ someone they have been happy with.',
         answer:'recommend',
         distractors:[
-          diagnosed('visit','Fits grammatically, but visit means go and see someone, but the speaker is asking for a name to try.'),
-          diagnosed('employ','Fits grammatically, but employ means give someone a job, but a patient looks for a dentist to treat them.'),
-          diagnosed('interview','Fits grammatically, but interview means ask questions to judge someone, but the colleagues are asked to give a name from their own experience.')
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('hibernate','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -707,9 +707,9 @@ export default Object.freeze({
         text:'I would highly ____ the new science museum; my whole class thought it was brilliant.',
         answer:'recommend',
         distractors:[
-          diagnosed('announce','Fits grammatically, but announce means tell people publicly that something is happening, not say it is worth visiting.'),
-          diagnosed('advertise','Fits grammatically, but advertise means promote publicly, whereas the speaker is sharing a personal opinion.'),
-          diagnosed('admire','Fits grammatically, but admire means feel respect for it, but the sentence is about advising others to go.')
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sleepwalk','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -717,9 +717,9 @@ export default Object.freeze({
         text:'The doctor will ____ that you rest for at least three days.',
         answer:'recommend',
         distractors:[
-          diagnosed('promise','Fits grammatically, but promise means give a personal guarantee, but a doctor gives advice about what you should do.'),
-          diagnosed('predict','Fits grammatically, but predict means say what will happen, not what you should do.'),
-          diagnosed('prescribe','Fits grammatically, but prescribe is used for medicine; here the doctor is giving advice about resting.')
+          diagnosed('evaporate','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -727,9 +727,9 @@ export default Object.freeze({
         text:'Teachers often ____ reading a little every day as a way to build vocabulary.',
         answer:'recommend',
         distractors:[
-          diagnosed('appreciate','Fits grammatically, but appreciate means value it, but the sentence is about advice teachers give to students.'),
-          diagnosed('practise','Fits grammatically, but practise means do it for improvement, whereas the teachers are advising others to do it.'),
-          diagnosed('require','Fits grammatically, but require means make it necessary, which is stronger than often suggesting it.')
+          diagnosed('hibernate','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -737,9 +737,9 @@ export default Object.freeze({
         text:'Whenever tourists ask where to eat, I ____ my cousin’s bakery because the cheese bread there is wonderful.',
         answer:'recommend',
         distractors:[
-          diagnosed('visit','Fits grammatically, but visit means go there yourself, but the tourists are the ones who need advice about where to go.'),
-          diagnosed('review','Fits grammatically, but review means write or give a formal opinion, whereas the sentence is about what you tell people who ask.'),
-          diagnosed('compliment','Fits grammatically, but compliment means praise a person or place to their face, which is not what you tell tourists who ask where to eat.')
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -748,8 +748,8 @@ export default Object.freeze({
         answer:'recommend',
         distractors:[
           diagnosed('require','Fits grammatically, but require contradicts it is not compulsory.'),
-          diagnosed('insist','Fits grammatically, but insist means say strongly that it must happen, which contradicts it is not compulsory.'),
-          diagnosed('guarantee','Fits grammatically, but guarantee means promise it will happen, which contradicts it is not compulsory.')
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       }
     ],
@@ -782,9 +782,9 @@ export default Object.freeze({
         text:'Marathon training can ____ patience, discipline and a great deal of time.',
         answer:'demand',
         distractors:[
-          diagnosed('deserve','Fits grammatically, but deserve means be worthy of, but the sentence lists what training needs from the runner.'),
-          diagnosed('reward','Fits grammatically, but reward means give something back, whereas the sentence lists what training asks of you.'),
-          diagnosed('teach','Fits grammatically, but teach means give knowledge; the sentence lists what training takes from the runner.')
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -792,9 +792,9 @@ export default Object.freeze({
         text:'Learning two languages at once will ____ a lot of concentration.',
         answer:'demand',
         distractors:[
-          diagnosed('improve','Fits grammatically, but improve would mean make concentration better, but the sentence describes what the task takes from you.'),
-          diagnosed('strengthen','Fits grammatically, but strengthen means build up concentration, whereas the sentence describes what is needed.'),
-          diagnosed('spare','Fits grammatically, but spare means have extra, which is the opposite of needing a lot.')
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -812,9 +812,9 @@ export default Object.freeze({
         text:'Elite sport tends to ____ early mornings and very long hours of training.',
         answer:'demand',
         distractors:[
-          diagnosed('reward','Fits grammatically, but reward means give a benefit back, but the sentence lists what the sport asks of athletes.'),
-          diagnosed('welcome','Fits grammatically, but welcome means greet gladly, whereas the sentence is about what the sport asks for.'),
-          diagnosed('prevent','Fits grammatically, but prevent means stop something happening, which contradicts long hours of training.')
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -822,9 +822,9 @@ export default Object.freeze({
         text:'Becoming a good violinist can ____ years of daily practice and a great deal of patience.',
         answer:'demand',
         distractors:[
-          diagnosed('offer','Fits grammatically, but offer means give, but the sentence lists what the learner has to give.'),
-          diagnosed('deserve','Fits grammatically, but deserve means be worthy of, but the sentence lists what is needed to become good.'),
-          diagnosed('produce','Fits grammatically, but produce means make, whereas the sentence is about what becoming a violinist asks of you.')
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -878,8 +878,8 @@ export default Object.freeze({
         answer:'threaten',
         distractors:[
           diagnosed('guarantee','Fits grammatically, but guarantee means make certain, which is the opposite of what poor funding does.'),
-          diagnosed('plan','Fits grammatically, but plan means prepare, but poor funding is a risk to the club, not a plan for it.'),
-          diagnosed('predict','Fits grammatically, but predict means say what will happen, but poor funding itself is the cause of the risk.')
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -887,9 +887,9 @@ export default Object.freeze({
         text:'The coach will ____ to drop any player who arrives late again.',
         answer:'threaten',
         distractors:[
-          diagnosed('refuse','Fits grammatically, but refuse to drop would mean he will not do it, which removes the warning.'),
-          diagnosed('offer','Fits grammatically, but offer is a positive gesture, but dropping a player is a punishment.'),
-          diagnosed('hesitate','Fits grammatically, but hesitate to drop would mean he is unwilling, which is not a warning to late players.')
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('perspire','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -907,9 +907,9 @@ export default Object.freeze({
         text:'Dark storm clouds seemed to ____ the outdoor final, and officials began to talk about moving the match indoors.',
         answer:'threaten',
         distractors:[
-          diagnosed('cover','Fits grammatically, but cover means spread over something, but officials talking about moving the match shows the clouds were a danger to it.'),
-          diagnosed('surround','Fits grammatically, but surround means be on every side of it, but officials talking about moving the match shows the clouds were a danger to it.'),
-          diagnosed('soak','Fits grammatically, but soak means make completely wet, but seemed to shows the clouds had not yet reached the match; they were a risk to it.')
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -918,8 +918,8 @@ export default Object.freeze({
         answer:'threaten',
         distractors:[
           diagnosed('reward','Fits grammatically, but reward means give something back for good work, but want the government to think again shows the unions see the rules as harmful.'),
-          diagnosed('regulate','Fits grammatically, but regulate means control by rules, but the unions are worried about the jobs themselves, not how they are controlled.'),
-          diagnosed('define','Fits grammatically, but define means state exactly what something is, which would not make unions ask the government to think again.')
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       }
     ],
@@ -952,9 +952,9 @@ export default Object.freeze({
         text:'He began to ____ being left out of the team, even though he had trained hard all season.',
         answer:'resent',
         distractors:[
-          diagnosed('regret','Fits grammatically, but regret means feel sorry about something he did, but the sentence is about unfair treatment.'),
-          diagnosed('deserve','Fits grammatically, but deserve would mean he was worthy of being left out, which contradicts trained hard.'),
-          diagnosed('expect','Fits grammatically, but expect means think it will happen, which does not show his anger about trained hard.')
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -962,9 +962,9 @@ export default Object.freeze({
         text:'Many workers ____ being told to stay late without extra pay.',
         answer:'resent',
         distractors:[
-          diagnosed('fear','Fits grammatically, but fear means be afraid it will happen, but without extra pay explains an unfair order, not a risk.'),
-          diagnosed('expect','Fits grammatically, but expect means think it will happen, which does not show the feeling about unfair treatment.'),
-          diagnosed('avoid','Fits grammatically, but avoid means keep away from it, but they are told to stay, so it is not their choice.')
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -982,9 +982,9 @@ export default Object.freeze({
         text:'Last year the manager changed everyone’s shifts without warning, and many staff still ____ it.',
         answer:'resent',
         distractors:[
-          diagnosed('regret','Fits grammatically, but regret means feel sorry about something you did yourself, but the staff did not make the change.'),
-          diagnosed('dread','Fits grammatically, but dread means fear something that has not happened yet, but the change happened last year.'),
-          diagnosed('mourn','Fits grammatically, but mourn means feel deep sadness over a loss, whereas the staff feel anger about an unfair change.')
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -992,9 +992,9 @@ export default Object.freeze({
         text:'They ____ the extra homework, because they thought it was unfair to set it on a Friday.',
         answer:'resent',
         distractors:[
-          diagnosed('avoid','Fits grammatically, but avoid means keep away from it, but the sentence is about how they felt about it.'),
-          diagnosed('ignore','Fits grammatically, but ignore means pay no attention, whereas the sentence gives their feeling that it was unfair.'),
-          diagnosed('question','Fits grammatically, but question means ask about, but the sentence gives their angry feeling of unfairness.')
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('blush','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1037,7 +1037,7 @@ export default Object.freeze({
         text:'He told me that he will always ____ his own decision to leave school so early and often wishes he had stayed.',
         answer:'regret',
         distractors:[
-          diagnosed('resent','Fits grammatically, but resent means feel angry about something unfair, but the sentence is about his own decision and his wish that he had stayed.'),
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('defend','Fits grammatically, but defend means argue in support of it, but wishes he had stayed shows he does not support the decision.'),
           diagnosed('forget','Fits grammatically, but forget contradicts will always and often wishes he had stayed.')
         ]
@@ -1047,9 +1047,9 @@ export default Object.freeze({
         text:'We ____ to tell you that your application has not been successful this year.',
         answer:'regret',
         distractors:[
-          diagnosed('decide','Fits grammatically, but decide to tell you does not fit the formal, sorry tone of a rejection letter.'),
-          diagnosed('refuse','Fits grammatically, but refuse to tell you contradicts the fact that the sentence is telling the reader.'),
-          diagnosed('promise','Fits grammatically, but promise to tell you does not fit bad news.')
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1057,9 +1057,9 @@ export default Object.freeze({
         text:'She did not ____ her decision to change schools; she said she was much happier now.',
         answer:'regret',
         distractors:[
-          diagnosed('explain','Fits grammatically, but explain means give reasons, but the sentence says she was happier, not that she gave reasons.'),
-          diagnosed('announce','Fits grammatically, but announce means tell people publicly, but the second clause is about her feelings afterwards.'),
-          diagnosed('defend','Fits grammatically, but defend means argue in support of it, but she says she is happier, which is about her feelings, not an argument she needs to make.')
+          diagnosed('sneeze','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1067,9 +1067,9 @@ export default Object.freeze({
         text:'Looking back, many retired athletes ____ not spending more time with their families.',
         answer:'regret',
         distractors:[
-          diagnosed('mention','Fits grammatically, but mention means say briefly, but looking back suggests a feeling, not just a remark.'),
-          diagnosed('notice','Fits grammatically, but notice means become aware of, but looking back suggests sadness about a past choice.'),
-          diagnosed('expect','Fits grammatically, but expect means think that it will happen, which does not fit looking back.')
+          diagnosed('shiver','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('yawn','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('limp','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1087,7 +1087,7 @@ export default Object.freeze({
         text:'He apologised for the mistake and said he would always ____ what he had said to his teammate.',
         answer:'regret',
         distractors:[
-          diagnosed('repeat','Fits grammatically, but repeat contradicts apologised.'),
+          diagnosed('wander','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('defend','Fits grammatically, but defend contradicts apologised.'),
           diagnosed('deny','Fits grammatically, but deny contradicts apologised.')
         ]
@@ -1132,9 +1132,9 @@ export default Object.freeze({
         text:'Moving to another country means getting used to ____ food, customs and routines.',
         answer:'unfamiliar',
         distractors:[
-          diagnosed('unhealthy','Fits grammatically, but unhealthy would describe something bad for you, but the cue is getting used to new things.'),
-          diagnosed('unreliable','Fits grammatically, but unreliable means cannot be trusted, which does not fit getting used to new things.'),
-          diagnosed('unpleasant','Fits grammatically, but unpleasant means not nice, but the cue is that the things are new to you.')
+          diagnosed('annual','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('rectangular','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('abstract','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1152,9 +1152,9 @@ export default Object.freeze({
         text:'The route was ____ to us, so we kept stopping at every junction to check the map.',
         answer:'unfamiliar',
         distractors:[
-          diagnosed('unpleasant','Fits grammatically, but unpleasant means not nice, but the cue is checking the map because they did not know the way.'),
+          diagnosed('annual','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('unlikely','Fits grammatically, but unlikely means probably not true, which does not fit a route they were walking.'),
-          diagnosed('unmarked','Fits grammatically, but unmarked means without signs, and could explain stopping, but to us shows the problem is that they did not know it.')
+          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1173,8 +1173,8 @@ export default Object.freeze({
         answer:'unfamiliar',
         distractors:[
           diagnosed('unfair','Fits grammatically, but unfair means not just, but the cue is anyone who has grown up outside.'),
-          diagnosed('unpopular','Fits grammatically, but unpopular means disliked, but the cue is lack of experience.'),
-          diagnosed('unimportant','Fits grammatically, but unimportant means of little value, but the cue is lack of experience.')
+          diagnosed('annual','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       }
     ],
@@ -1217,9 +1217,9 @@ export default Object.freeze({
         text:'In badminton, players hit the shuttlecock over the net with a light ____.',
         answer:'racquet',
         distractors:[
-          diagnosed('bat','Fits grammatically, but a bat is used in sports such as cricket and table tennis, but badminton players use a frame with strings.'),
-          diagnosed('hockey stick','Fits grammatically, but a hockey stick is used to hit a ball along the ground, not a shuttlecock over a net.'),
-          diagnosed('paddle','Fits grammatically, but a paddle is used for rowing or table tennis, not badminton.')
+          diagnosed('whistle','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('helmet','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('hockey stick','Fits grammatically, but a hockey stick is used to hit a ball along the ground, not a shuttlecock over a net.')
         ]
       },
       {
@@ -1302,9 +1302,9 @@ export default Object.freeze({
         text:'Before the game, the captain studied video of the other team’s goalkeeper to find the ____’s weaknesses.',
         answer:'opponent',
         distractors:[
-          diagnosed('coach','Fits grammatically, but the captain is studying the player on the pitch, not the coach.'),
-          diagnosed('referee','Fits grammatically, but the referee is not playing, so there are no weaknesses to exploit in a match.'),
-          diagnosed('teammate','Fits grammatically, but a teammate is on the captain’s own side, but the video is of the other team’s goalkeeper.')
+          diagnosed('teammate','Fits grammatically, but a teammate is on the captain’s own side, but the video is of the other team’s goalkeeper.'),
+          diagnosed('stadium','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('scoreboard','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1313,8 +1313,8 @@ export default Object.freeze({
         answer:'opponent',
         distractors:[
           diagnosed('teammate','Fits grammatically, but a teammate is on your side, so you would share your plan, not hide it.'),
-          diagnosed('coach','Fits grammatically, but a coach is on your side, so you would share the plan.'),
-          diagnosed('supporter','Fits grammatically, but a supporter is on your side, so you would not need to hide the plan.')
+          diagnosed('ticket','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('whistle','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1323,8 +1323,8 @@ export default Object.freeze({
         answer:'opponent',
         distractors:[
           diagnosed('coach','Fits grammatically, but a coach advises from outside the game and does not make moves.'),
-          diagnosed('partner','Fits grammatically, but a partner would be working with them, but chess is played against another person.'),
-          diagnosed('judge','Fits grammatically, but a judge scores or rules on a game and does not make moves in it.')
+          diagnosed('judge','Fits grammatically, but a judge scores or rules on a game and does not make moves in it.'),
+          diagnosed('ticket','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1332,9 +1332,9 @@ export default Object.freeze({
         text:'A good boxer respects every ____, even one who has lost his last five fights.',
         answer:'opponent',
         distractors:[
-          diagnosed('fan','Fits grammatically, but a fan supports a boxer and does not fight him.'),
-          diagnosed('trainer','Fits grammatically, but a trainer helps a boxer prepare and does not fight him.'),
-          diagnosed('referee','Fits grammatically, but a referee controls the fight and has not lost five fights.')
+          diagnosed('whistle','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('ticket','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('glove','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1377,9 +1377,9 @@ export default Object.freeze({
         text:'Players faced ____ pressure in the final minutes, with the score level and the whole crowd roaring.',
         answer:'intense',
         distractors:[
-          diagnosed('extensive','Fits grammatically, but extensive means covering a large area or amount, not strength of feeling.'),
-          diagnosed('instant','Fits grammatically, but instant means happening immediately, not strong.'),
-          diagnosed('tense','Fits grammatically, but tense describes a situation or a person, but pressure is not described as tense.')
+          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('annual','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('edible','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1397,9 +1397,9 @@ export default Object.freeze({
         text:'She trained with ____ concentration, never once looking at the clock.',
         answer:'intense',
         distractors:[
-          diagnosed('extensive','Fits grammatically, but extensive means covering a large area, not very strong focus.'),
-          diagnosed('intentional','Fits grammatically, but intentional means done on purpose, not very strong focus.'),
-          diagnosed('sudden','Fits grammatically, but sudden means happening quickly and unexpectedly, not very strong focus.')
+          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('annual','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('rectangular','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1472,7 +1472,7 @@ export default Object.freeze({
         text:'He scored the winning goal in the semi-final of the ____, which his team went on to win.',
         answer:'tournament',
         distractors:[
-          diagnosed('league','Fits grammatically, but a league does not normally have a semi-final.'),
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('season','Fits grammatically, but a season is a period of time, and a semi-final belongs to one event.'),
           diagnosed('training camp','Fits grammatically, but a training camp is for preparing players, and the sentence describes a competition with a winner.')
         ]
@@ -1502,9 +1502,9 @@ export default Object.freeze({
         text:'Players from twelve countries took part in the international ____ in Singapore.',
         answer:'tournament',
         distractors:[
-          diagnosed('festival','Fits grammatically, but a festival is a celebration, whereas players from twelve countries took part suggests a competition between players.'),
-          diagnosed('carnival','Fits grammatically, but a carnival is a street celebration, whereas players from twelve countries took part suggests a competition between players.'),
-          diagnosed('league','Fits grammatically, but a league runs over a season in one country, not a single event in Singapore.')
+          diagnosed('whistle','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('ticket','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1512,8 +1512,8 @@ export default Object.freeze({
         text:'Our team lost its first match but still reached the final of the ____ by winning all its remaining games.',
         answer:'tournament',
         distractors:[
-          diagnosed('qualifier','Fits grammatically, but a qualifier is an earlier stage used to decide who enters the main event, not the event with the final.'),
-          diagnosed('series','Fits grammatically, but a series has matches, but it does not normally have a final.'),
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('whistle','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('expedition','Fits grammatically, but an expedition is a journey, not a competition with a final.')
         ]
       }
@@ -1549,7 +1549,7 @@ export default Object.freeze({
         distractors:[
           diagnosed('reluctant','Fits grammatically, but reluctant means unwilling, which contradicts refused to give up.'),
           diagnosed('embarrassed','Fits grammatically, but embarrassed to qualify would mean she felt awkward about succeeding, which does not fit refused to give up.'),
-          diagnosed('likely','Fits grammatically, but likely to qualify means probably will, but refused to give up shows her attitude, not a prediction.')
+          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1557,9 +1557,9 @@ export default Object.freeze({
         text:'The team was ____ to win the match despite being two goals behind at half-time.',
         answer:'determined',
         distractors:[
-          diagnosed('bound','Fits grammatically, but bound to win means certain to, but despite being two goals behind shows a decision, not a prediction.'),
           diagnosed('unwilling','Fits grammatically, but unwilling to win contradicts the idea of fighting back despite being two goals behind.'),
-          diagnosed('ashamed','Fits grammatically, but ashamed to win would mean they felt bad about winning, which does not fit despite being two goals behind.')
+          diagnosed('ashamed','Fits grammatically, but ashamed to win would mean they felt bad about winning, which does not fit despite being two goals behind.'),
+          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1587,8 +1587,8 @@ export default Object.freeze({
         text:'Although the climb was dangerous, the team stayed ____ to reach the summit before dark.',
         answer:'determined',
         distractors:[
-          diagnosed('nervous','Fits grammatically, but nervous describes fear, but the sentence says they stayed firmly set on reaching the summit.'),
-          diagnosed('enthusiastic','Fits grammatically, but enthusiastic means very keen, but the sentence stresses that they stayed firmly set on reaching the summit despite danger.'),
+          diagnosed('rectangular','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('annual','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('confused','Fits grammatically, but confused describes not understanding, which does not fit staying set on the summit.')
         ]
       },
@@ -1599,7 +1599,7 @@ export default Object.freeze({
         distractors:[
           diagnosed('careless','Fits grammatically, but careless contradicts never complained and the coach’s praise.'),
           diagnosed('indifferent','Fits grammatically, but indifferent means not caring, which contradicts the coach being impressed.'),
-          diagnosed('proud','Fits grammatically, but proud describes feeling pleased with yourself, but the coach praised her attitude to training.')
+          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       }
     ],
@@ -1632,9 +1632,9 @@ export default Object.freeze({
         text:'Training at five every morning in winter takes real ____, because nobody forces you to keep to the routine.',
         answer:'discipline',
         distractors:[
-          diagnosed('talent','Fits grammatically, but talent is natural ability, but nobody forces you to keep to the routine points to self-control.'),
-          diagnosed('fitness','Fits grammatically, but fitness is physical condition, but nobody forces you to keep to the routine points to self-control.'),
-          diagnosed('experience','Fits grammatically, but experience is knowledge from the past, but nobody forces you to keep to the routine points to self-control.')
+          diagnosed('temperature','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('weather','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1643,8 +1643,8 @@ export default Object.freeze({
         answer:'discipline',
         distractors:[
           diagnosed('flexibility','Fits grammatically, but flexibility is the ability to change, which is the opposite of following a strict timetable.'),
-          diagnosed('creativity','Fits grammatically, but creativity is the ability to produce new ideas, not to follow a fixed timetable.'),
-          diagnosed('intelligence','Fits grammatically, but intelligence is the ability to understand, not to follow a fixed timetable.')
+          diagnosed('weather','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1652,9 +1652,9 @@ export default Object.freeze({
         text:'The coach praised the team’s ____ in following the training plan exactly, even when no one was watching.',
         answer:'discipline',
         distractors:[
-          diagnosed('teamwork','Fits grammatically, but teamwork is working together, but even when no one was watching points to individual self-control.'),
-          diagnosed('loyalty','Fits grammatically, but loyalty is staying faithful to people or a team, not following a plan exactly.'),
-          diagnosed('fitness','Fits grammatically, but fitness is physical condition, not the self-control to follow a plan exactly.')
+          diagnosed('refrigerator','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1662,9 +1662,9 @@ export default Object.freeze({
         text:'With a little ____, you can put aside a small amount of money each week even when you are tempted to spend it.',
         answer:'discipline',
         distractors:[
-          diagnosed('luck','Fits grammatically, but luck is chance, which does not control temptation each week.'),
-          diagnosed('generosity','Fits grammatically, but generosity is giving to others, which does not help you put money aside.'),
-          diagnosed('imagination','Fits grammatically, but imagination is picturing new things, which does not control temptation each week.')
+          diagnosed('temperature','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1672,9 +1672,9 @@ export default Object.freeze({
         text:'Learning a language requires ____: a short study session every day is better than one long session at the weekend.',
         answer:'discipline',
         distractors:[
-          diagnosed('talent','Fits grammatically, but talent is natural ability, but the colon explains the habit of regular study.'),
-          diagnosed('confidence','Fits grammatically, but confidence is feeling sure of yourself, but the colon explains the habit of regular study.'),
-          diagnosed('memory','Fits grammatically, but memory is the ability to remember, but the colon explains the habit of regular study.')
+          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1682,9 +1682,9 @@ export default Object.freeze({
         text:'Soldiers and athletes need ____ to follow orders and keep to the rules when conditions are hard.',
         answer:'discipline',
         distractors:[
-          diagnosed('fitness','Fits grammatically, but fitness is physical condition, not the self-control to follow rules when conditions are hard.'),
-          diagnosed('imagination','Fits grammatically, but imagination is picturing new things, which does not help someone keep to the rules.'),
-          diagnosed('experience','Fits grammatically, but experience is knowledge from the past, but the sentence is about self-control to keep to the rules.')
+          diagnosed('weather','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('ticket','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       }
     ],
@@ -1802,9 +1802,9 @@ export default Object.freeze({
         text:'Finishing the marathon in under four hours was a major ____ for someone who had only started running a year ago.',
         answer:'achievement',
         distractors:[
-          diagnosed('attempt','Fits grammatically, but an attempt is trying to do something, but finishing shows it was completed.'),
           diagnosed('routine','Fits grammatically, but a routine is something done regularly, but finishing in under four hours was special.'),
-          diagnosed('celebration','Fits grammatically, but a celebration is a party, but the sentence describes what he did, not an event held afterwards.')
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1812,9 +1812,9 @@ export default Object.freeze({
         text:'The coach called her place on the national team the most difficult ____ of her career, because no one from the school had ever done it before.',
         answer:'achievement',
         distractors:[
-          diagnosed('reward','Fits grammatically, but a reward is something given, but the coach is describing how hard it was to do.'),
-          diagnosed('ambition','Fits grammatically, but an ambition is a hope for the future, but her place had already been won.'),
-          diagnosed('decision','Fits grammatically, but a decision is a choice, but the coach is describing something no one from the school had ever done.')
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('refrigerator','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1832,9 +1832,9 @@ export default Object.freeze({
         text:'Her proudest ____ was teaching herself to swim at the age of forty.',
         answer:'achievement',
         distractors:[
-          diagnosed('attempt','Fits grammatically, but an attempt is trying, but teaching herself to swim describes something she completed.'),
-          diagnosed('hobby','Fits grammatically, but a hobby is an activity done for pleasure, but teaching herself to swim is described as something to be proud of.'),
-          diagnosed('responsibility','Fits grammatically, but a responsibility is a duty, but the sentence describes something she did that she is proud of.')
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('temperature','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -1852,9 +1852,9 @@ export default Object.freeze({
         text:'Passing every exam with top grades was an ____ that his whole family was proud of.',
         answer:'achievement',
         distractors:[
-          diagnosed('expectation','Fits grammatically, but an expectation is something you think will happen, but the family was proud of what he did.'),
-          diagnosed('obligation','Fits grammatically, but an obligation is a duty, but the family was proud of what he did.'),
-          diagnosed('opportunity','Fits grammatically, but an opportunity is a chance, but the family was proud of what he actually did.')
+          diagnosed('umbrella','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('elbow','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('envelope','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       }
     ],
@@ -1907,7 +1907,7 @@ export default Object.freeze({
         text:'Her coach said she had the ability to reach ____ level, which means competing against the best in the world.',
         answer:'elite',
         distractors:[
-          diagnosed('national','Fits grammatically, but national level means competing against the best in one country, but the sentence says the best in the world.'),
+          diagnosed('wooden','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('regional','Fits grammatically, but regional level means competing against the best in one area, but the sentence says the best in the world.'),
           diagnosed('club','Fits grammatically, but club level means competing against other members of a club, but the sentence says the best in the world.')
         ]
@@ -2078,8 +2078,8 @@ export default Object.freeze({
         answer:'generation',
         distractors:[
           diagnosed('century','Fits grammatically, but a century is one hundred years, not a few years, and it is a period of time rather than a group of people.'),
-          diagnosed('decade','Fits grammatically, but a decade is ten years, not a few years, and it is a period of time rather than a group of people.'),
-          diagnosed('season','Fits grammatically, but a season is part of a year, and it is a period of time rather than a group of people.')
+          diagnosed('season','Fits grammatically, but a season is part of a year, and it is a period of time rather than a group of people.'),
+          diagnosed('refrigerator','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -2088,8 +2088,8 @@ export default Object.freeze({
         answer:'generation',
         distractors:[
           diagnosed('season','Fits grammatically, but a season is part of the year, and love of football is passed to people, not to a season.'),
-          diagnosed('family','Fits grammatically, but a family includes the parents themselves, but the love of football is passed to the people who come after them.'),
-          diagnosed('neighbourhood','Fits grammatically, but a neighbourhood is a place where people live, not the group of people who come after the parents.')
+          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('temperature','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -2107,9 +2107,9 @@ export default Object.freeze({
         text:'The gap between grandparents and their grandchildren shows up in how each ____ spends its free time.',
         answer:'generation',
         distractors:[
-          diagnosed('neighbourhood','Fits grammatically, but a neighbourhood is a place, but the sentence contrasts two age groups.'),
           diagnosed('century','Fits grammatically, but a century is one hundred years, and it does not spend free time.'),
-          diagnosed('team','Fits grammatically, but a team is a group that plays together, but the sentence contrasts grandparents with grandchildren.')
+          diagnosed('weather','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('temperature','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       }
     ],
@@ -2142,9 +2142,9 @@ export default Object.freeze({
         text:'The coach set the squad a ____: to run ten kilometres without stopping, to see who could push their limits.',
         answer:'challenge',
         distractors:[
-          diagnosed('schedule','Fits grammatically, but a schedule is a plan of times, but to see who could push their limits describes a difficult test.'),
           diagnosed('reward','Fits grammatically, but a reward is a prize, but to see who could push their limits describes a difficult test.'),
-          diagnosed('deadline','Fits grammatically, but a deadline is a time limit, but to see who could push their limits describes a difficult test.')
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('refrigerator','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -2152,9 +2152,9 @@ export default Object.freeze({
         text:'Playing the champions away from home will be a serious ____ for our young team, but we are ready to try.',
         answer:'challenge',
         distractors:[
-          diagnosed('setback','Fits grammatically, but a setback is a problem that has already happened, but will be and ready to try describe something still to come.'),
-          diagnosed('rival','Fits grammatically, but a rival is a person or team, not a difficulty a team is ready to try.'),
-          diagnosed('embarrassment','Fits grammatically, but an embarrassment is a feeling after something has gone wrong, but will be and we are ready to try describe something still to come.')
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('temperature','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -2182,9 +2182,9 @@ export default Object.freeze({
         text:'Finding enough time for training while studying full-time is the biggest ____ for most athletes at university.',
         answer:'challenge',
         distractors:[
-          diagnosed('expense','Fits grammatically, but an expense is a cost, but finding enough time is about difficulty, not money.'),
-          diagnosed('distraction','Fits grammatically, but a distraction takes attention away from something, but finding enough time is about how hard the whole situation is.'),
-          diagnosed('reason','Fits grammatically, but a reason explains why something happens, but the sentence describes the hardest thing they face.')
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('nickname','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('weather','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -2267,9 +2267,9 @@ export default Object.freeze({
         text:'The puzzle was finally finished when the students found the ____ that explained all of the clues.',
         answer:'solution',
         distractors:[
-          diagnosed('clue','Fits grammatically, but a clue is one of the pieces of information, but it cannot be the thing that explains all of the clues.'),
-          diagnosed('hint','Fits grammatically, but a hint is a small piece of help, but it cannot be the thing that explains all of the clues.'),
-          diagnosed('question','Fits grammatically, but a question is what must be answered, not the answer that explains all of the clues.')
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('luggage','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
+          diagnosed('weather','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -2314,7 +2314,7 @@ export default Object.freeze({
         distractors:[
           diagnosed('profession','Fits grammatically, but a profession is a job, but who enjoy it in the afternoons describes something done for pleasure.'),
           diagnosed('duty','Fits grammatically, but a duty is something you must do, but who enjoy it describes something done for pleasure.'),
-          diagnosed('sport','Fits grammatically, but a sport is a physical competitive activity, but collecting coins is not.')
+          diagnosed('uniform','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
@@ -2483,7 +2483,7 @@ export default Object.freeze({
         answer:'regardless',
         distractors:[
           diagnosed('instead','Fits grammatically, but instead of the weather would mean the weather replaces the match, which does not fit bring waterproof clothes just in case.'),
-          diagnosed('because','Fits grammatically, but because of the weather would mean the weather causes the match, which does not fit bring waterproof clothes just in case.'),
+          diagnosed('behind','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('irrelevant','Fits grammatically, but irrelevant of is not used in this pattern; the standard phrase is irrespective of or regardless of.')
         ]
       },
@@ -2492,7 +2492,7 @@ export default Object.freeze({
         text:'Every student must attend training, ____ of their ability or experience, so beginners and the best players train together.',
         answer:'regardless',
         distractors:[
-          diagnosed('because','Fits grammatically, but because of their ability would make ability the reason, but beginners and the best players train together shows it makes no difference.'),
+          diagnosed('behind','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('unaffected','Fits grammatically, but unaffected of is not used in this pattern; the standard phrase is regardless of.'),
           diagnosed('out','Fits grammatically, but out of their ability does not fit beginners and the best players training together.')
         ]
@@ -2502,7 +2502,7 @@ export default Object.freeze({
         text:'Their best striker was injured, which was a good reason to stop, but the team carried on with the final ____ of the injury.',
         answer:'regardless',
         distractors:[
-          diagnosed('ahead','Fits grammatically, but ahead of the injury would mean before it happened, but the striker was already injured.'),
+          diagnosed('behind','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('because','Fits grammatically, but because of the injury would make it the reason for carrying on, but the sentence calls it a good reason to stop.'),
           diagnosed('irrelevant','Fits grammatically, but irrelevant of is not used in this pattern; the standard phrase is regardless of.')
         ]
@@ -2513,7 +2513,7 @@ export default Object.freeze({
         answer:'regardless',
         distractors:[
           diagnosed('because','Fits grammatically, but because of family income would make income the reason, but rich and poor families are treated the same.'),
-          diagnosed('instead','Fits grammatically, but instead of family income would mean income replaces something, but the sentence says rich and poor are treated the same.'),
+          diagnosed('behind','This word cannot complete the sentence: it does not give a correct, natural meaning here.'),
           diagnosed('out','Fits grammatically, but out of family income does not fit the idea that income does not matter.')
         ]
       },
@@ -2579,7 +2579,7 @@ export default Object.freeze({
         distractors:[
           diagnosed('mandatory','Fits grammatically, but mandatory means compulsory, which does not describe a reward.'),
           diagnosed('momentary','Fits grammatically, but momentary means lasting a very short time, which does not describe the kind of reward.'),
-          diagnosed('material','Fits grammatically, but material would include a t-shirt, which the sentence says is the only thing they receive.')
+          diagnosed('military','This word cannot complete the sentence: it does not give a correct, natural meaning here.')
         ]
       },
       {
