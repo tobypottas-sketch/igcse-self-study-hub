@@ -186,7 +186,7 @@ export async function openMission({ root, width = 1280, pathway = 'meaning', ser
     errors:() => page.__errors ?? [],
     close:async () => { await browser.close(); http.close(); },
     setServer:config => page.evaluate(cfg => Object.assign(window.__server, cfg), config),
-    start:() => page.evaluate(() => { window.__tl.length = 0; }).then(() => page.click(`.vocab-pathway-card[data-pathway="${pathway}"]`)).then(() => page.waitForFunction(() => window.__currentQuestion)),
+    start:() => page.evaluate(() => { window.__tl.length = 0; }).then(() => page.click(`.vocab-pathway-card[data-pathway="${pathway}"]`)).then(() => page.click(`[data-action="start-recommended"][data-pathway="${pathway}"]`)).then(() => page.waitForFunction(() => window.__currentQuestion)),
     // Answers the current question and returns the in-page timestamps.
     answer:wantCorrect => page.evaluate(want => window.__driver.answer(want), wantCorrect),
     state:() => page.evaluate(() => window.__driver.state()),

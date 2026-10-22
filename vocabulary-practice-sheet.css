@@ -1,0 +1,27 @@
+/* "How do you want to practise?" sheet: compact bottom sheet on phones, centred card on desktop. */
+.vocab-sheet-backdrop{position:fixed;inset:0;z-index:900;display:flex;align-items:flex-end;justify-content:center;background:rgba(18,40,58,.45);animation:vocab-sheet-fade 160ms ease-out}
+.vocab-sheet{width:min(100%,560px);max-height:min(88vh,720px);overflow:auto;background:var(--c-surface);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:20px 20px 24px;box-shadow:0 -12px 40px rgba(18,40,58,.28);border-top:4px solid var(--study-accent,var(--c-teal));animation:vocab-sheet-rise 240ms cubic-bezier(.2,.75,.25,1)}
+@media(min-width:700px){.vocab-sheet-backdrop{align-items:center}.vocab-sheet{border-radius:var(--r-xl);box-shadow:0 24px 60px rgba(18,40,58,.3)}}
+.vocab-sheet__head{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.vocab-sheet__head h2{margin:0;font-size:var(--fs-xl);line-height:1.2}
+.vocab-sheet__head .vocab-kicker{margin:0 0 2px}
+.vocab-sheet__icon{display:grid;place-items:center;flex:0 0 auto;width:48px;height:48px;border-radius:var(--r-md);background:var(--study-accent-soft,var(--c-teal-soft));color:var(--study-accent,var(--c-teal))}
+.vocab-sheet__close{margin-left:auto;display:grid;place-items:center;width:var(--tap-min);height:var(--tap-min);border:0;border-radius:var(--r-pill);background:var(--c-surface-soft);color:var(--c-ink);cursor:pointer}
+.vocab-sheet__or{margin:16px 2px 8px;font-size:var(--fs-sm);font-weight:800;color:var(--c-muted)}
+.vocab-sheet__list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.vocab-sheet-option{position:relative;display:flex;align-items:center;gap:12px;width:100%;min-height:var(--tap-min);padding:12px 14px;border:1.5px solid var(--c-line);border-radius:var(--r-md);background:var(--c-surface);color:var(--c-ink);text-align:left;cursor:pointer;transition:transform 150ms ease,border-color 150ms ease,box-shadow 150ms ease,background 150ms ease}
+.vocab-sheet-option:hover:not(:disabled){transform:translateY(-1px);border-color:var(--study-accent,var(--c-teal));box-shadow:0 6px 18px rgba(23,56,82,.1)}
+.vocab-sheet-option:active:not(:disabled){transform:scale(.985)}
+.vocab-sheet-option--recommended{border-color:var(--study-accent,var(--c-teal));background:var(--study-accent-soft,var(--c-teal-soft))}
+.vocab-sheet-option__text{display:grid;gap:2px;flex:1;min-width:0}
+.vocab-sheet-option__text strong{font-size:var(--fs-md)}
+.vocab-sheet-option__text small{font-size:var(--fs-sm);color:var(--c-muted);line-height:1.35}
+.vocab-sheet-option__note{font-size:var(--fs-xs);font-weight:800;color:var(--c-ink-2)}
+.vocab-sheet-option__last{flex:0 0 auto;padding:2px 8px;border-radius:var(--r-pill);background:var(--c-teal-soft);color:var(--c-teal-dark);font-size:var(--fs-xs);font-weight:800}
+.vocab-sheet-option__go{flex:0 0 auto;display:grid;place-items:center;color:var(--study-accent,var(--c-teal))}
+.vocab-sheet-option.is-last{border-color:var(--c-teal);box-shadow:inset 0 0 0 1px var(--c-teal)}
+.vocab-sheet-option.is-locked{cursor:not-allowed;background:var(--c-surface-soft);border-style:dashed}
+.vocab-sheet-option.is-locked .vocab-sheet-option__go{color:var(--c-muted)}
+@keyframes vocab-sheet-fade{from{opacity:0}to{opacity:1}}
+@keyframes vocab-sheet-rise{from{opacity:.6;transform:translateY(28px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.vocab-sheet-backdrop,.vocab-sheet{animation:none}.vocab-sheet-option{transition:none}.vocab-sheet-option:hover:not(:disabled){transform:none}}

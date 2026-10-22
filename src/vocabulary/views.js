@@ -208,6 +208,22 @@ function renderPathwayCard(pathway, pathwayStates, ready) {
   return `<button type="button" class="vocab-pathway-card has-study-art study-enter" data-action="open-pathway" data-pathway="${pathway.id}" data-pathway-status="${status}" data-study-accent="${escapeHtml(identity.accent)}"${disabled}><span class="vocab-pathway-card__identity"><span class="vocab-pathway-card__icon">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}</span><span class="vocab-pathway-card__head"><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(identity.purpose)}</small></span></span><span class="vocab-pathway-card__status">${escapeHtml(statusLabel)}</span>${coverage}${evidenceShell}<span class="vocab-pathway-ladder" aria-label="${escapeHtml(pathway.label)} progression">${stages}</span><span class="vocab-pathway-card__cta">${escapeHtml(cta)}</span>${pathwayArtSlot(pathway.id)}</button>`;
 }
 
+// "How do you want to practise?" sheet. `options` come from pathwayPracticeOptions(); locked ones stay visible with the reason, never hidden.
+export function renderPracticeSheet({ pathwayId, options = [], lastFamilyId = null } = {}) {
+  const identity = pathwayIdentity(pathwayId);
+  const lastUsable = options.find(option => option.family.id === lastFamilyId && option.status !== 'locked');
+  const items = options.map(option => {
+    const { family, status, hint } = option;
+    const locked = status === 'locked';
+    const isLast = lastUsable && lastUsable.family.id === family.id;
+    const note = hint ? `<span class="vocab-sheet-option__note">${escapeHtml(hint)}</span>` : '';
+    const last = isLast ? '<span class="vocab-sheet-option__last">Last time</span>' : '';
+    const marker = locked ? renderStudyIcon('lock',{ className:'study-icon' }) : renderStudyIcon('arrow',{ className:'study-icon' });
+    return `<li><button type="button" class="vocab-sheet-option${locked ? ' is-locked' : ''}${isLast ? ' is-last' : ''}" data-action="start-practice-choice" data-pathway="${escapeHtml(pathwayId)}" data-family="${escapeHtml(family.id)}"${locked ? ' disabled aria-disabled="true"' : ''}${isLast ? ' data-autofocus' : ''}><span class="vocab-sheet-option__text"><strong>${escapeHtml(family.label)}</strong><small>${escapeHtml(family.description)}</small>${note}</span>${last}<span class="vocab-sheet-option__go" aria-hidden="true">${marker}</span></button></li>`;
+  }).join('');
+  return `<div class="vocab-sheet-backdrop" data-practice-sheet-backdrop data-pathway="${escapeHtml(pathwayId)}"><section class="vocab-sheet" role="dialog" aria-modal="true" aria-labelledby="vocabSheetTitle" data-practice-sheet data-study-accent="${escapeHtml(identity.accent)}"><header class="vocab-sheet__head"><span class="vocab-sheet__icon">${renderStudyIcon(identity.icon,{ className:'study-icon--lg' })}</span><div><p class="vocab-kicker">${escapeHtml(identity.label)}</p><h2 id="vocabSheetTitle">How do you want to practise?</h2></div><button type="button" class="vocab-sheet__close" data-action="close-practice-sheet" aria-label="Close">${renderStudyIcon('close',{ className:'study-icon' })}</button></header><button type="button" class="vocab-sheet-option vocab-sheet-option--recommended" data-action="start-recommended" data-pathway="${escapeHtml(pathwayId)}"${lastUsable ? '' : ' data-autofocus'}><span class="vocab-sheet-option__text"><strong>Recommended</strong><small>Pick up where you are, with a balanced mix for this stage</small></span><span class="vocab-sheet-option__go" aria-hidden="true">${renderStudyIcon('arrow',{ className:'study-icon' })}</span></button><p class="vocab-sheet__or">Or choose one activity</p><ul class="vocab-sheet__list">${items}</ul></section></div>`;
+}
+
 export function renderVocabularyUnit(root, { unitNumber, unitTitle, progress, pathwayStates = {}, contentReady = true } = {}) {
   const p = progress ?? { mastered:0, total:50, needsAnotherLook:0, reviewDue:0, stages:{} };
   const ready = contentReady !== false;
@@ -330,7 +346,7 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
   const fixedPathwayStage = pathwayStage ?? question?.pathwayStage ?? null;
   const identity = pathwayIdentity(fixedPathwayId);
   const feedbackState = feedback?.correct ? 'correct' : feedback ? 'retry' : null;
-  const feedbackHtml = feedback ? `<div class="vocab-feedback study-feedback ${feedback.correct ? 'is-positive study-success' : 'is-supportive study-error'}" data-study-feedback="${feedbackState}">${renderStudyIcon(feedback.correct ? 'check' : 'spark',{className:'study-icon--lg'})}<div><strong>${escapeHtml(feedback.message)}</strong>${feedback.detail ? `<p>${escapeHtml(feedback.detail)}</p>` : ''}</div></div>` : '';
+  const feedbackHtml = feedback ? `<div class="vocab-feedback study-feedback ${feedback.correct ? 'is-positive study-success' : 'is-supportive study-error'}" data-study-feedback="${feedbackState}">${renderStudyIcon(feedback.correct ? 'check' : 'spark',{className:'study-icon--lg'})}<div><strong>${escapeHtml(feedback.message)}</strong>${feedback.momentum ? `<span class="study-momentum" data-study-momentum>${renderStudyIcon('spark')}${escapeHtml(feedback.momentum)}</span>` : ''}${feedback.detail ? `<p>${escapeHtml(feedback.detail)}</p>` : ''}</div></div>` : '';
   const supportText = matchView ? '' : supportMessage(support);
   const supportHtml = supportText ? `<div id="vocab-support-hint" class="vocab-support-hint study-feedback" data-study-support>${renderStudyIcon('bulb')}<span>${escapeHtml(supportText)}</span></div>` : '';
   const definition = activityDefinition(question?.type);
@@ -358,15 +374,19 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
   root.innerHTML = `<main class="vocab-shell vocab-shell--session" data-study-accent="${escapeHtml(identity.accent)}"><header class="vocab-topbar"><button class="vocab-back" data-action="leave-session">← Unit ${escapeHtml(unitNumber)}</button><span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card study-enter" data-study-question><div class="vocab-study-question-header"><div class="vocab-study-question-header__path">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}<div><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(PATHWAY_STAGES.find(item => item.id === fixedPathwayStage)?.label ?? questionLabel)}</small></div></div>${sessionProgress}</div><div class="vocab-question-meta"><p class="vocab-kicker">${escapeHtml(questionLabel)}</p><div class="vocab-question-meta__right">${skillCue}</div></div>${targetPill}<h1 class="vocab-question-prompt">${escapeHtml(matchView ? 'Match each word with its definition.' : displayPrompt(question))}</h1>${questionContext}${responseArea}${milestoneHtml}</section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
 }
 
-export function supportiveFeedback({ correct, misconceptionCategory, recovery, term, meaning, questionType } = {}) {
+// Controlled variety for correct answers: the explanation stays exactly as before, only the short lead changes. `variant` is any
+// integer (the app passes a per-question number); without it the lead is the plain "Correct".
+const CORRECT_LEADS = Object.freeze(['Correct','Nice work','Exactly','Strong choice','That’s it','Nailed it']);
+export function supportiveFeedback({ correct, misconceptionCategory, recovery, term, meaning, questionType, variant = null } = {}) {
+  const lead = correct && Number.isInteger(variant) ? CORRECT_LEADS[Math.abs(variant) % CORRECT_LEADS.length] : 'Correct';
   const word = term ? `“${term}”` : 'the language';
   const clearMeaning = String(meaning ?? '').trim();
   if (correct && recovery) return 'Good recovery — you kept the meaning accurately this time.';
-  if (correct && questionType === 'meaning_match' && clearMeaning) return `Correct — ${word} means ${clearMeaning} here.`;
-  if (correct && ['phrase_match','build_paraphrase','complete_paraphrase','rewrite_phrase'].includes(questionType)) return 'Correct — that version keeps the phrase meaning.';
-  if (correct && ['same_idea','build_same_idea','rewrite_idea','spot_meaning_change'].includes(questionType)) return 'Correct — you tracked the whole idea accurately.';
-  if (correct && ['question_text_bridge','find_evidence'].includes(questionType)) return 'Correct — that wording points to the same information in the text.';
-  if (correct) return 'Correct — that answer fits the meaning and context.';
+  if (correct && questionType === 'meaning_match' && clearMeaning) return `${lead} — ${word} means ${clearMeaning} here.`;
+  if (correct && ['phrase_match','build_paraphrase','complete_paraphrase','rewrite_phrase'].includes(questionType)) return `${lead} — that version keeps the phrase meaning.`;
+  if (correct && ['same_idea','build_same_idea','rewrite_idea','spot_meaning_change'].includes(questionType)) return `${lead} — you tracked the whole idea accurately.`;
+  if (correct && ['question_text_bridge','find_evidence'].includes(questionType)) return `${lead} — that wording points to the same information in the text.`;
+  if (correct) return `${lead} — that answer fits the meaning and context.`;
   const messages = {
     quantity_change:'Not quite — the quantity changed. Keep words such as some, many, most and all precise.',
     degree_change:'Not quite — the strength or certainty changed. Keep the original degree of meaning.',
@@ -423,7 +443,7 @@ export function renderSessionSummary(root, { durationMinutes = null, summary = {
     const primary = finishModel.primaryAction
       ? `<button class="vocab-button vocab-button--primary" data-action="continue-practice">${escapeHtml(finishModel.primaryAction.label)} ${renderStudyIcon('arrow')}</button>`
       : '';
-    root.innerHTML = `<main class="vocab-shell vocab-shell--finish" data-study-accent="${escapeHtml(identity.accent)}"><article class="vocab-summary-card vocab-finish-card study-milestone-card" data-study-completion data-finish-variant="${escapeHtml(finishModel.variant)}" aria-label="${escapeHtml(finishModel.accessibleSummary ?? '')}">${completionArt(finishModel.variant === 'mastered' ? 'mastered' : finishModel.variant === 'stage-complete' ? 'stage_advanced' : 'completion')}<div class="vocab-summary-identity">${renderStudyIcon(identity.icon,{className:'study-icon--xl'})}<p class="vocab-kicker">${escapeHtml(finishModel.variant === 'session' ? 'SESSION COMPLETE' : finishModel.kicker)}</p></div><h1 data-session-finish-heading tabindex="-1">${escapeHtml(finishModel.heading)}</h1>${stars}<div class="vocab-finish-score"><strong>${escapeHtml(score)} / ${escapeHtml(denominator)}</strong><span>correct</span></div><p class="vocab-finish-support">${escapeHtml(finishModel.supportCopy)}</p><div class="vocab-finish-evidence"><div><strong>${escapeHtml(score)}</strong><span>words strengthened</span></div><div><strong>${escapeHtml(needsAnotherLook)}</strong><span>need another look</span></div></div>${context}<div class="vocab-finish-ladder" aria-label="${escapeHtml(finishModel.pathwayLabel)} pathway stages">${renderFinishLadder(finishModel)}</div>${unlock}<div class="vocab-summary-actions vocab-finish-actions">${primary}<button class="vocab-button" data-action="back-unit">Finish for now</button></div></article></main>`;
+    root.innerHTML = `<main class="vocab-shell vocab-shell--finish" data-study-accent="${escapeHtml(identity.accent)}"><article class="vocab-summary-card vocab-finish-card study-milestone-card" data-study-completion data-finish-variant="${escapeHtml(finishModel.variant)}" aria-label="${escapeHtml(finishModel.accessibleSummary ?? '')}">${completionArt(finishModel.variant === 'mastered' ? 'mastered' : finishModel.variant === 'stage-complete' ? 'stage_advanced' : 'completion')}<div class="vocab-summary-identity">${renderStudyIcon(identity.icon,{className:'study-icon--xl'})}<p class="vocab-kicker">${escapeHtml(finishModel.variant === 'session' ? 'SESSION COMPLETE' : finishModel.kicker)}</p></div><h1 data-session-finish-heading tabindex="-1">${escapeHtml(finishModel.heading)}</h1>${stars}<div class="vocab-finish-score"><strong>${escapeHtml(score)} / ${escapeHtml(denominator)}</strong><span>correct</span></div><p class="vocab-finish-support">${escapeHtml(finishModel.supportCopy)}</p><div class="vocab-finish-evidence"><div><strong>${escapeHtml(score)}</strong><span>words strengthened</span></div><div><strong>${escapeHtml(needsAnotherLook)}</strong><span>need another look</span></div></div>${context}<div class="vocab-finish-ladder" aria-label="${escapeHtml(finishModel.pathwayLabel)} pathway stages">${renderFinishLadder(finishModel)}</div>${unlock}<div class="vocab-summary-actions vocab-finish-actions">${primary}${pathwayId ? `<button class="vocab-button" data-action="choose-practice" data-pathway="${escapeHtml(pathwayId)}">Try another activity</button>` : ''}<button class="vocab-button" data-action="back-unit">Finish for now</button></div></article></main>`;
     return;
   }
 

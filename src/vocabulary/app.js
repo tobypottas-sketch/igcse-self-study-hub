@@ -8,18 +8,20 @@ import { planMixedReviewQuestion } from './mixed-review.js';
 import { planPathwayQuestion, eligibleTargetsForPathwayStage } from './pathway-planner.js';
 import { buildUnitPathwayStates, buildWordPathwayStates, targetsForPathwayStage } from './pathway-view-model.js';
 import { buildSessionFinishModel } from './session-finish-model.js';
-import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
+import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderPracticeSheet, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
 import { deriveLearningStage } from './learning-stage.js';
 import { createAttemptPersistence } from './attempt-persistence.js';
 import { buildMatchSet, checkMatchSet, finishedMatchState, newMatchState, revealMatchSet, tapMatchItem, pairMatchItems } from './match-set.js';
 import { installMatchDrag, matchDragJustEnded } from './match-drag.js';
+import { activityFamily } from './activity-families.js';
+import { MIN_SHORT_MISSION, familyTargets, loadLastChoice, pathwayPracticeOptions, saveLastChoice } from './pathway-choice.js';
 import { matchKeyTarget, renderMatchSet, repaintMatchSet } from './match-set-view.js';
 import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
 const root = document.getElementById('vocabularyApp');
 const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
-  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:null, pathwayId:null, pathwayStage:null, mixedReview:false,
+  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:null, pathwayId:null, pathwayStage:null, pathwayChoice:null, mixedReview:false,
   recentActivities:new Map(), usedContentIds:new Map(), recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null, timedPreviousActivityType:null,
   finishPending:false, handoffPending:false, unitCache:new Map(), attempts:null, unitRequest:0, loadingUnit:null
 };
@@ -99,7 +101,7 @@ function buildUnits(dashboard) {
 }
 async function showHome() {
   state.unitRequest += 1; state.loadingUnit = null;
-  clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null; state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.mixedReview = false;
+  clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null; state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false;
   state.dashboard = await loadVocabularyDashboard(state.client, { preview:state.preview }); state.units = buildUnits(state.dashboard);
   renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units }); decoratePreview();
 }
@@ -129,7 +131,7 @@ async function openUnit(unitNumber) {
   const request = state.unitRequest += 1;
   if (state.loadingUnit != null) setUnitLoading(state.loadingUnit, false);
   state.loadingUnit = null;
-  state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.mixedReview = false;
+  state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false;
   const cached = state.unitCache.get(unitNumber);
   if (cached) {
     state.currentUnitNumber = unitNumber;
@@ -196,32 +198,59 @@ function rankedTargets(limit, practiceMode = state.practiceFocus) {
   return selectEligiblePriorityTargets({ content:state.content, masteryByVocabularyId:state.globalMastery, unitMastery:state.unitMastery, practiceMode, now:new Date(), limit });
 }
 function resetSessionState(continueHistory = false) {
+  state.streak = 0;
   // Continue stays in the same unit; explicit activity starts get fresh selection history.
   if (!continueHistory) { state.recentActivities = new Map(); state.usedContentIds = new Map(); }
   state.current = null; state.recoveryNeeded = new Set(); state.timedPreviousActivityType = null; state.finishPending = false;
 }
-function startPathwaySession(pathwayId, continueHistory = false) {
+function startPathwaySession(pathwayId, continueHistory = false, choice = null) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   const pathwayStates = buildUnitPathwayStates({ occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
   const stageId = pathwayStates?.[pathwayId]?.currentStage ?? 'recognise';
-  const stageTargets = targetsForPathwayStage({ pathwayId, stageId, occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
-  const stageTargetIds = new Set(stageTargets.map(target => target.occurrenceId));
-  const eligible = eligibleTargetsForPathwayStage({ pathwayId, stageId, content:state.content, masteryByVocabularyId:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${pathwayId}:${stageId}` })
-    .filter(target => stageTargetIds.has(target.occurrenceId));
-  if (!eligible.length) throw new Error('No suitable curated activity is available for this pathway stage yet.');
-  const eligibleIds = new Set(eligible.map(target => target.occurrenceId));
-  const ranked = rankedTargets(Math.max(10,state.content.occurrences.length),'adaptive').filter(target => eligibleIds.has(target.occurrenceId));
-  const selected = [...ranked, ...eligible.filter(target => !ranked.some(row => row.occurrenceId === target.occurrenceId))].slice(0,10);
-  state.pathwayId = pathwayId; state.pathwayStage = stageId; state.practiceFocus = null; state.mixedReview = false;
+  let selected; let pathwayChoice = null;
+  if (choice?.familyId) {
+    // Student-chosen activity: only words that have unlocked this family's stage, each recorded against its own real stage.
+    const family = activityFamily(pathwayId, choice.familyId);
+    if (!family) throw new Error('That activity is not available in this pathway.');
+    const found = familyTargets({ pathwayId, family, content:state.content, unitMastery:state.unitMastery, globalMastery:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${family.id}` });
+    if (found.length < MIN_SHORT_MISSION) throw new Error('Not enough words are ready for that activity yet. Try the recommended practice instead.');
+    const foundIds = new Set(found.map(row => row.target.occurrenceId));
+    const ranked = rankedTargets(Math.max(10,state.content.occurrences.length),'adaptive').filter(target => foundIds.has(target.occurrenceId));
+    selected = [...ranked, ...found.map(row => row.target).filter(target => !ranked.some(row => row.occurrenceId === target.occurrenceId))].slice(0,10);
+    pathwayChoice = { familyId:family.id, types:[...family.types], stageByOccurrence:new Map(found.map(row => [row.target.occurrenceId,row.stageId])) };
+  } else {
+    const stageTargets = targetsForPathwayStage({ pathwayId, stageId, occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
+    const stageTargetIds = new Set(stageTargets.map(target => target.occurrenceId));
+    const eligible = eligibleTargetsForPathwayStage({ pathwayId, stageId, content:state.content, masteryByVocabularyId:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${pathwayId}:${stageId}` })
+      .filter(target => stageTargetIds.has(target.occurrenceId));
+    if (!eligible.length) throw new Error('No suitable curated activity is available for this pathway stage yet.');
+    const eligibleIds = new Set(eligible.map(target => target.occurrenceId));
+    const ranked = rankedTargets(Math.max(10,state.content.occurrences.length),'adaptive').filter(target => eligibleIds.has(target.occurrenceId));
+    selected = [...ranked, ...eligible.filter(target => !ranked.some(row => row.occurrenceId === target.occurrenceId))].slice(0,10);
+  }
+  state.pathwayId = pathwayId; state.pathwayStage = stageId; state.pathwayChoice = pathwayChoice; state.practiceFocus = null; state.mixedReview = false;
   state.session = createSession({ unitNumber:state.currentUnitNumber, mode:'adaptive', targetIds:selected.map(row => row.occurrenceId), practiceMode:'adaptive', now:new Date() });
   state.queue = [...selected]; resetSessionState(continueHistory);
-  if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`pathway:${pathwayId}:${stageId}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, pathway_id:pathwayId, pathway_stage:stageId } }).catch(() => {});
+  if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`pathway:${pathwayId}:${stageId}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, pathway_id:pathwayId, pathway_stage:stageId, ...(pathwayChoice ? { practice_family:pathwayChoice.familyId } : {}) } }).catch(() => {});
   nextQuestion();
+}
+// Practice-type sheet: a short "How do you want to practise?" choice opened from a pathway card or the finish screen.
+function closePracticeSheet(returnFocus = true) {
+  const sheet = root?.querySelector?.('[data-practice-sheet-backdrop]'); if (!sheet) return;
+  const pathwayId = sheet.dataset.pathway; sheet.remove();
+  if (returnFocus) root.querySelector?.(`.vocab-pathway-card[data-pathway="${pathwayId}"]`)?.focus?.();
+}
+function openPracticeSheet(pathwayId) {
+  if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
+  closePracticeSheet(false);
+  const options = pathwayPracticeOptions({ pathwayId, content:state.content, unitMastery:state.unitMastery, globalMastery:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${pathwayId}` });
+  root.insertAdjacentHTML('beforeend', renderPracticeSheet({ pathwayId, options, lastFamilyId:loadLastChoice(pathwayId) }));
+  root.querySelector?.('[data-practice-sheet] [data-autofocus]')?.focus?.();
 }
 function timerMinutes(button) { const minutes = Number(button?.dataset?.minutes); return Number.isFinite(minutes) && minutes > 0 ? minutes : null; }
 function startMixedReview(continueHistory = false, durationMinutes = null) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
-  state.pathwayId = null; state.pathwayStage = null; state.mixedReview = true; state.practiceFocus = 'adaptive';
+  state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = true; state.practiceFocus = 'adaptive';
   const timed = Number.isFinite(Number(durationMinutes)) && Number(durationMinutes) > 0;
   const selected = rankedTargets(timed ? Math.max(10, state.content.occurrences.length) : 10,'adaptive');
   if (!selected.length) throw new Error('No unlocked vocabulary is ready for Mixed Practice yet.');
@@ -241,7 +270,7 @@ function startSession(mode, durationMinutes = null, continueHistory = false) {
   nextQuestion();
 }
 function continuePractice() {
-  if (state.pathwayId) { startPathwaySession(state.pathwayId, true); return; }
+  if (state.pathwayId) { startPathwaySession(state.pathwayId, true, state.pathwayChoice); return; }
   if (state.mixedReview) { startMixedReview(true, state.session?.mode === 'timed' ? state.session.durationMinutes : null); return; }
   if (state.session?.mode === 'timed') { startSession('timed', state.session.durationMinutes, true); return; }
   if (state.practiceFocus) { startSession('adaptive', null, true); return; }
@@ -270,7 +299,7 @@ function buildNextForTarget(target) {
   if (state.mixedReview) {
     built = planMixedReviewQuestion({ content:state.content, target, unitMastery:state.unitMastery, globalMastery:state.globalMastery, recentActivities:recent.map(entry => entry.type), usedContentIds, seed:common.seed });
   } else if (state.pathwayId) {
-    built = planPathwayQuestion({ pathwayId:state.pathwayId, stageId:state.pathwayStage, content:state.content, target, mastery:masteryState, recentActivities:recent.map(entry => entry.type), usedContentIds, supportState:common.supportState, seed:common.seed, optionNonce:common.optionNonce });
+    built = planPathwayQuestion({ pathwayId:state.pathwayId, stageId:state.pathwayChoice?.stageByOccurrence?.get(target.occurrenceId) ?? state.pathwayStage, allowedTypes:state.pathwayChoice?.types ?? null, content:state.content, target, mastery:masteryState, recentActivities:recent.map(entry => entry.type), usedContentIds, supportState:common.supportState, seed:common.seed, optionNonce:common.optionNonce });
   } else {
     built = state.session.mode === 'timed'
       ? buildTimedMixedQuestion({ ...common, previousActivityType:state.timedPreviousActivityType })
@@ -311,7 +340,7 @@ function evidenceFor(current, result, flags) {
 }
 function persistVocabularyAttempt(current, rawAnswer, flags, localResult) {
   const contentSource = current.activityRecord ? 'unit_activity' : current.context ? 'context' : 'item';
-  const pathwayFields = state.mixedReview && current.pathwayPlan ? { pathwayId:current.pathwayPlan.pathwayId, pathwayStage:current.pathwayPlan.learnerStage, servedPathwayStage:current.pathwayPlan.servedStage ?? current.pathwayPlan.learnerStage } : state.pathwayId ? { pathwayId:state.pathwayId, pathwayStage:state.pathwayStage, servedPathwayStage:current.pathwayPlan?.servedStage ?? state.pathwayStage } : {};
+  const pathwayFields = state.mixedReview && current.pathwayPlan ? { pathwayId:current.pathwayPlan.pathwayId, pathwayStage:current.pathwayPlan.learnerStage, servedPathwayStage:current.pathwayPlan.servedStage ?? current.pathwayPlan.learnerStage } : state.pathwayId ? { pathwayId:state.pathwayId, pathwayStage:current.pathwayPlan?.learnerStage ?? state.pathwayStage, servedPathwayStage:current.pathwayPlan?.servedStage ?? state.pathwayStage } : {};
   const payload = { occurrenceId:current.target.occurrenceId, contextId:current.context?.contextId ?? null, activityContentId:current.activityRecord?.activityContentId ?? null, activityVariantId:current.question.activityVariantId ?? null, contentSource, primaryEvidenceTargetId:current.primaryEvidenceTargetId, questionType:current.question.type, rawAnswer, strands:current.question.strands, evidenceStrength:current.question.evidenceStrength, supportLevel:flags.declaredSupportLevel ?? flags.supportLevel, productive:current.question.productive, repeatedGuess:false, firstAttempt:flags.firstAttempt, retryUsed:flags.retryUsed, recoveredLater:flags.recoveredLater, review:flags.review, preview:false, ...pathwayFields };
   return attempts().enqueue({ payload, localCorrect:localResult.correct, context:{ occurrenceId:current.target.occurrenceId, vocabularyId:current.target.vocabularyId } });
 }
@@ -321,7 +350,7 @@ async function returnToCurrentUnit() {
   state.current = null;
   state.session = null;
   state.queue = [];
-  state.pathwayId = null; state.pathwayStage = null; state.mixedReview = false; state.practiceFocus = null;
+  state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false; state.practiceFocus = null;
   renderCurrentUnit();
   if (attempts().blocked) showSyncWarning(new Error('Vocabulary progress is still unsaved.'));
 }
@@ -396,7 +425,7 @@ function handleAnswer(form, providedAnswer = null) {
     state.unitMastery[current.target.occurrenceId] = { ...previousUnit, status:nextGlobal.status, recentErrorPattern:nextErrorPattern, contextualEvidence:{ ...previousDetail, strandEvidence:nextGlobal.strandEvidence } };
   }
   const recoverySucceeded = current.recovery && result.correct; if (!state.preview) void persistVocabularyAttempt(current, rawAnswer, flags, result);
-  const message = supportiveFeedback({ correct:result.correct, misconceptionCategory:result.misconceptionCategory, recovery:recoverySucceeded, term:current.item.term, meaning:current.item.coreMeaning, questionType:current.question.type });
+  const message = supportiveFeedback({ correct:result.correct, misconceptionCategory:result.misconceptionCategory, recovery:recoverySucceeded, term:current.item.term, meaning:current.item.coreMeaning, questionType:current.question.type, variant:state.session.completedAttempts.length + [...String(current.target.occurrenceId)].reduce((sum, char) => sum + char.charCodeAt(0), 0) });
   if (!result.correct && !current.retry) { current.initialError = true; current.retry = true; current.support = buildSupportStep(current.question, { correct:false, misconceptionCategory:result.misconceptionCategory, attemptNumber:1 }); renderCurrentQuestion({ correct:false, message }); return; }
   current.answered = true;
   recordRecentActivity(current, result); const hadError = current.initialError || !result.correct;
@@ -405,7 +434,10 @@ function handleAnswer(form, providedAnswer = null) {
   state.session = completeAttempt(state.session, { targetId:current.target.occurrenceId, evidence:{ correct:result.correct, recovery:recoverySucceeded, activityType:current.question.type }, completeTarget, strengthened:result.correct, movedToSecure:shouldUpdate && previousGlobalStatus !== 'secure' && nextGlobal.status === 'secure', mastered:shouldUpdate && previousGlobalStatus !== 'mastered' && nextGlobal.status === 'mastered', needsAnotherLook:completeTarget && !result.correct });
   current.support = !result.correct ? buildSupportStep(current.question, { correct:false, misconceptionCategory:result.misconceptionCategory, attemptNumber:2 }) : null;
   if (current.matchSet) current.matchState = result.correct && Object.keys(current.matchState.settled).length === current.matchSet.words.length ? finishedMatchState(current.matchSet, current.matchState) : revealMatchSet(current.matchSet, current.matchState);
-  renderCurrentQuestion({ correct:result.correct, message });
+  state.streak = result.correct && !hadError ? (state.streak ?? 0) + 1 : 0;
+  const { done, total } = missionProgress(state.session);
+  const momentum = total >= 6 && done === Math.floor(total / 2) && completeTarget ? `Halfway — ${done} of ${total}` : state.streak >= 3 ? `${state.streak} in a row` : null;
+  renderCurrentQuestion({ correct:result.correct, message, momentum });
 }
 // Meaning → Match interaction. Taps only change the pairing state and repaint the set in place (focus is kept), so a tap
 // never re-renders the question, never touches the attempt queue, and never changes session counters.
@@ -487,7 +519,17 @@ root?.addEventListener('keydown', event => {
   event.preventDefault();
   root.querySelector?.(`[data-match-${target.side}="${target.id}"]`)?.focus?.();
 });
+root?.addEventListener('keydown', event => {
+  const sheet = root.querySelector?.('[data-practice-sheet]'); if (!sheet) return;
+  if (event.key === 'Escape') { event.preventDefault(); closePracticeSheet(); return; }
+  if (event.key !== 'Tab') return;
+  const focusable = [...sheet.querySelectorAll('button:not([disabled])')]; if (!focusable.length) return;
+  const first = focusable[0], last = focusable[focusable.length - 1], active = document.activeElement;
+  if (event.shiftKey && (active === first || !sheet.contains(active))) { event.preventDefault(); last.focus(); }
+  else if (!event.shiftKey && (active === last || !sheet.contains(active))) { event.preventDefault(); first.focus(); }
+});
 root?.addEventListener('click', event => {
+  if (event.target?.matches?.('[data-practice-sheet-backdrop]')) { closePracticeSheet(); return; }
   const matchItem = event.target?.closest?.('[data-match-word], [data-match-definition]');
   if (matchItem) { if (!matchDragJustEnded()) handleMatchTap(matchItem); return; }
   const choice = event.target?.closest?.('[data-choice-answer], [data-evidence-answer]');
@@ -497,7 +539,11 @@ root?.addEventListener('click', event => {
   const target = event.target?.closest?.('[data-action]'); const action = target?.dataset?.action; if (!action) return;
   if (action === 'open-unit') openUnit(Number(target.dataset.unit)).catch(error => renderVocabularyError(root, error.message));
   else if (action === 'back-units') showHome().catch(error => renderVocabularyError(root, error.message)); else if (action === 'view-all-words') showAllWords();
-  else if (action === 'open-pathway') runAfterSaves(() => startPathwaySession(target.dataset.pathway));
+  else if (action === 'open-pathway') { try { openPracticeSheet(target.dataset.pathway); } catch (error) { renderVocabularyError(root, error.message); } }
+  else if (action === 'start-recommended') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, null); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId)); }
+  else if (action === 'start-practice-choice') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, target.dataset.family); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId, false, { familyId:target.dataset.family })); }
+  else if (action === 'close-practice-sheet') closePracticeSheet();
+  else if (action === 'choose-practice') { const pathwayId = target.dataset.pathway; returnToCurrentUnit().then(() => openPracticeSheet(pathwayId)).catch(error => renderVocabularyError(root, error.message)); }
   else if (action === 'start-mixed-review') runAfterSaves(() => startMixedReview(false, timerMinutes(target)));
   else if (action === 'continue-practice') runAfterSaves(() => continuePractice());
   else if (action === 'clear-tile-answer') {

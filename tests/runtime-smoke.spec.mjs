@@ -232,6 +232,7 @@ test('student Next advances normally and supported retry still works', async ({ 
   await page.locator('[data-action="leave-session"]').click();
   await expect(page.locator('.vocab-pathways')).toBeVisible();
   await page.locator('[data-action="open-pathway"][data-pathway="meaning"]').click();
+  await page.locator('[data-action="start-recommended"][data-pathway="meaning"]').click();
   await expect(page.locator('[data-form="vocabulary-answer"]')).toBeVisible();
 });
 
@@ -264,6 +265,7 @@ test('new Vocabulary sessions vary answer order while preserving the same questi
     if (session < 5) {
       await page.locator('[data-action="leave-session"]').click();
       await page.locator('[data-action="open-pathway"][data-pathway="context"]').click();
+      await page.locator('[data-action="start-recommended"][data-pathway="context"]').click();
     }
   }
   expect(orders.size).toBeGreaterThan(1);

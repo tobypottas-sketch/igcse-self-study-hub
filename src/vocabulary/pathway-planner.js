@@ -140,7 +140,8 @@ export function planPathwayQuestion({
   usedContentIds = [],
   supportState = null,
   seed = '',
-  optionNonce = ''
+  optionNonce = '',
+  allowedTypes = null
 } = {}) {
   validatePathwayStage(pathwayId,stageId);
   const learnerStage = stageId;
@@ -152,6 +153,9 @@ export function planPathwayQuestion({
   const { item, contexts } = materialForTarget(content,target);
   const availableForTarget = new Set(availableActivityTypesForTarget({ content, target, item, contexts }));
   let choices = activityTypesForPathwayStage(pathwayId,servedStage).filter(type => targetCanTryActivity(type,availableForTarget));
+  // Student-chosen activity family: only those question types, never a substitute. (A temporary one-stage support step keeps its own
+  // existing choices, because that is recovery scaffolding rather than the student's chosen activity.)
+  if (Array.isArray(allowedTypes) && servedStage === learnerStage) choices = choices.filter(type => allowedTypes.includes(type));
   const recent = new Set(array(recentActivities));
   const fresh = choices.filter(type => !recent.has(type));
   if (fresh.length) choices = fresh;

@@ -14,7 +14,7 @@ test('session summary Continue practising action is wired to a controller handle
 test('Continue practising resumes the same practice context and retains selection history', () => {
   const handler = app.match(/function continuePractice\(\) \{[\s\S]*?\n\}/)[0];
   const cases = [
-    [{pathwayId:'context'},'pathway',['context',true]],
+    [{pathwayId:'context'},'pathway',['context',true,undefined]],
     [{mixedReview:true},'mixed',[true,null]],
     [{mixedReview:true,session:{mode:'timed',durationMinutes:10}},'mixed',[true,10]],
     [{session:{mode:'timed',durationMinutes:5}},'session',['timed',5,true]],
