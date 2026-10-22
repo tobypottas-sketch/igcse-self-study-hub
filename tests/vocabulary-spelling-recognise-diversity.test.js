@@ -9,8 +9,8 @@ const item = {
 };
 const occurrence = { occurrenceId:'o1', vocabularyId:'v1', senseId:'s1', unitNumber:1 };
 const contexts = [
-  { contextId:'c1', occurrenceId:'o1', vocabularyId:'v1', type:'production_context', text:'Many teenagers use their leisure to play sport.', targetRewrite:'leisure', acceptedAnswers:['leisure'] },
-  { contextId:'c2', occurrenceId:'o1', vocabularyId:'v1', type:'paraphrase_context', text:'Reading is a popular leisure activity for students.', targetRewrite:'leisure', acceptedAnswers:['leisure'] }
+  { contextId:'c1', occurrenceId:'o1', vocabularyId:'v1', type:'gap_fill', text:'Many teenagers use their leisure to play sport.', targetRewrite:'leisure', acceptedAnswers:['leisure'] },
+  { contextId:'c2', occurrenceId:'o1', vocabularyId:'v1', type:'gap_fill', text:'Reading is a popular leisure activity for students.', targetRewrite:'leisure', acceptedAnswers:['leisure'] }
 ];
 
 function build(overrides = {}) {

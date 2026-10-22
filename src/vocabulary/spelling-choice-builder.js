@@ -1,5 +1,6 @@
 import { shuffleAnswerOptions } from './answer-option-shuffle.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
+import { grammaticalBlankCandidates } from './foundational-activity-builder.js';
 
 function text(value) { return String(value ?? '').trim(); }
 function array(value) { return Array.isArray(value) ? value : []; }
@@ -60,20 +61,10 @@ function spellingVariants(term) {
   return uniqueText(variants).filter(value => value.toLocaleLowerCase('en') !== term.toLocaleLowerCase('en')).slice(0,3);
 }
 function escapeRegExp(value) { return value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
-function blankableContext({ item, contexts, usedContentIds = [], seed = '' }) {
-  const term = text(item?.term).toLocaleLowerCase('en');
+function blankableContext({ item, occurrence, contexts, usedContentIds = [], seed = '' }) {
+  const candidates = grammaticalBlankCandidates({ item, occurrence, contexts });
   const used = new Set(array(usedContentIds).map(String));
-  const candidates = array(contexts).filter(context => {
-    const source = text(context?.text);
-    const rewrite = text(context?.targetRewrite);
-    const accepted = array(context?.acceptedAnswers).map(value => text(value).toLocaleLowerCase('en'));
-    return ['paraphrase_context','production_context'].includes(context?.type)
-      && source
-      && rewrite
-      && source.toLocaleLowerCase('en').includes(rewrite.toLocaleLowerCase('en'))
-      && accepted.includes(term);
-  });
-  const unused = candidates.filter(context => !used.has(String(context.contextId)));
+  const unused = candidates.filter(candidate => !used.has(String(candidate.context.contextId)));
   return shuffle(unused.length ? unused : candidates,`${seed}:spelling-choice-context`)[0] ?? null;
 }
 function base({ definition, occurrence, contentId, contentSource, prompt, acceptedAnswer, options, extra = {} }) {
@@ -110,8 +101,8 @@ export function buildSpellingChoiceActivity({ occurrence, item, contexts = [], u
   const stableItemId = itemContentId({item,occurrence});
   const used = new Set(array(usedContentIds).map(String));
 
-  const context = used.has(stableItemId) ? blankableContext({item,contexts,usedContentIds,seed}) : null;
-  if (!context) {
+  const picked = used.has(stableItemId) ? blankableContext({item,occurrence,contexts,usedContentIds,seed}) : null;
+  if (!picked) {
     return base({
       definition,
       occurrence,
@@ -123,16 +114,17 @@ export function buildSpellingChoiceActivity({ occurrence, item, contexts = [], u
     });
   }
 
-  const sourceText = text(context.text).replace(new RegExp(escapeRegExp(text(context.targetRewrite)),'i'),'____');
-  if (!sourceText.includes('____')) throw new Error('Curated spelling sentence could not form a valid blank.');
+  const { context, sourceText, surface } = picked;
+  const surfaceWrong = spellingVariants(surface);
+  if (surfaceWrong.length < 3) throw new Error('Spelling recognition requires three plausible spelling alternatives.');
   return base({
     definition,
     occurrence,
     contentId:context.contextId,
     contentSource:'context',
     prompt:'Which spelling correctly completes this sentence?',
-    acceptedAnswer:term,
-    options,
+    acceptedAnswer:surface,
+    options:shuffleAnswerOptions([surface,...surfaceWrong],`${seed}:spelling-choice-options:${context.contextId}`,optionNonce),
     extra:{ sourceText, contextId:context.contextId }
   });
 }

@@ -22,6 +22,7 @@ const unitItems = [
 const contexts = [
   { contextId:'sig_meaning', vocabularyId:item.vocabularyId, occurrenceId:occurrence.occurrenceId, senseId:'significant_1', type:'meaning_context', text:'The programme led to a significant improvement in results.', acceptedAnswers:['important'] },
   { contextId:'sig_para', vocabularyId:item.vocabularyId, occurrenceId:occurrence.occurrenceId, senseId:'significant_1', type:'paraphrase_context', text:'The programme led to an important improvement in results.', targetRewrite:'important', acceptedAnswers:['significant'] },
+  { contextId:'sig_gap', vocabularyId:item.vocabularyId, occurrenceId:occurrence.occurrenceId, senseId:'significant_1', type:'gap_fill', text:'The new programme led to a significant improvement in results.', targetRewrite:'significant', acceptedAnswers:['significant'] },
   { contextId:'sig_prod', vocabularyId:item.vocabularyId, occurrenceId:occurrence.occurrenceId, senseId:'significant_1', type:'production_context', text:'Regular exercise can have an important effect on mental wellbeing.', targetRewrite:'important', acceptedAnswers:['significant'] }
 ];
 const unitActivities = [

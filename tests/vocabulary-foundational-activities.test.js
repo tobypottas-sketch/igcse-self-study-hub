@@ -19,6 +19,7 @@ const otherItems = [
 const unitItems = [item, ...otherItems];
 const contexts = [
   { contextId:'sig_para', occurrenceId:occurrence.occurrenceId, type:'paraphrase_context', text:'The programme led to an important improvement in results.', targetRewrite:'important', acceptedAnswers:['significant'] },
+  { contextId:'sig_gap', occurrenceId:occurrence.occurrenceId, vocabularyId:item.vocabularyId, senseId:'significant_1', type:'gap_fill', text:'The new programme led to a significant improvement in results.', targetRewrite:'significant', acceptedAnswers:['significant'] },
   { contextId:'sig_prod', occurrenceId:occurrence.occurrenceId, type:'production_context', text:'Regular exercise can have an important effect on mental wellbeing.', targetRewrite:'important', acceptedAnswers:['significant'] }
 ];
 const unitContexts = [
@@ -102,6 +103,7 @@ test('retrieval activities create a real blank from curated context instead of i
     assert.doesNotMatch(activity.sourceText, /important/u, type);
     assert.deepEqual(activity.markingReference.acceptedAnswers, ['significant'], type);
     assert.ok(activity.contextId, type);
+    assert.equal(activity.contextId, 'sig_gap', `${type} must blank a curated gap-fill sentence, never a paraphrase sentence`);
   }
 });
 
