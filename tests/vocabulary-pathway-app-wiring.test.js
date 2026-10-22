@@ -22,12 +22,12 @@ test('open-pathway starts a fixed pathway session and Mixed Practice is separate
 test('pathway questions use the fixed pathway planner rather than the adaptive pool', () => {
   assert.match(source, /planPathwayQuestion/);
   assert.match(source, /pathwayId:state\.pathwayId/);
-  assert.match(source, /stageId:state\.pathwayStage/);
+  assert.match(source, /stageId:state\.pathwayChoice\?\.stageByOccurrence\?\.get\(target\.occurrenceId\) \?\? state\.pathwayStage/);
 });
 
 test('submission records learner stage and actually served support stage', () => {
   assert.match(source, /pathwayId:state\.pathwayId/);
-  assert.match(source, /pathwayStage:state\.pathwayStage/);
+  assert.match(source, /pathwayStage:current\.pathwayPlan\?\.learnerStage \?\? state\.pathwayStage/);
   assert.match(source, /servedPathwayStage:current\.pathwayPlan\?\.servedStage/);
 });
 

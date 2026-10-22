@@ -91,7 +91,7 @@ for (const [name, handoff] of Object.entries(HANDOFFS)) {
 
 test('the click handlers for all three hand-offs go through runAfterSaves, and no other path starts a session', () => {
   const app = readFileSync(new URL('../src/vocabulary/app.js', import.meta.url), 'utf8');
-  for (const action of ['open-pathway', 'start-mixed-review', 'continue-practice']) assert.match(app, new RegExp(`action === '${action}'\\) runAfterSaves\\(`));
+  for (const action of ['start-recommended', 'start-practice-choice', 'start-mixed-review', 'continue-practice']) assert.match(app, new RegExp(`action === '${action}'\\)[^\\n]*runAfterSaves\\(`));
   const body = app.match(/function runAfterSaves\(start\) \{[\s\S]*?\n\}\n/)[0];
   assert.match(body, /await queue\.settled\(\)/);
   assert.match(body, /queue\.retry\(\)/);

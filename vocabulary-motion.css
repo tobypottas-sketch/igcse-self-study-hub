@@ -1,0 +1,5 @@
+/* In-mission momentum chip ("3 in a row", "Halfway — 5 of 10"): one short pop, then still. */
+.study-momentum{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:3px 10px;border-radius:var(--r-pill);background:var(--study-accent-soft,var(--c-teal-soft));color:var(--c-ink);font-size:var(--fs-xs);font-weight:800;animation:study-momentum-pop 420ms cubic-bezier(.2,.9,.25,1.2) both}
+.study-momentum .study-icon{width:14px;height:14px;color:var(--study-accent,var(--c-teal))}
+@keyframes study-momentum-pop{0%{opacity:0;transform:translateY(6px) scale(.85)}60%{opacity:1;transform:translateY(0) scale(1.06)}100%{transform:none}}
+@media(prefers-reduced-motion:reduce){.study-momentum{animation:none}}

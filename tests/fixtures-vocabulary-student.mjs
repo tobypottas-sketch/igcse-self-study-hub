@@ -48,4 +48,5 @@ export async function mockVocabularyStudent(page, saveMode = 'success') {
   await page.goto('http://127.0.0.1:4173/vocabulary.html');
   await page.locator('[data-action="open-unit"][data-unit="1"]').click();
   await page.locator('[data-action="open-pathway"][data-pathway="context"]').click();
+  await page.locator('[data-action="start-recommended"][data-pathway="context"]').click();
 }
