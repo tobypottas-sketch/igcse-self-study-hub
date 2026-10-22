@@ -46,7 +46,7 @@
 }
 
 /* Drag-and-drop pairing */
-.vocab-matchset__item{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.vocab-matchset__item{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;-webkit-touch-callout:none}
 .vocab-matchset__item.is-dragging{opacity:.45}
 .vocab-matchset__item.is-drop-target{border-color:var(--c-teal);background:var(--c-teal-soft);box-shadow:0 0 0 3px rgba(19,126,128,.28)}
 .vocab-match-ghost{position:fixed;left:0;top:0;z-index:1000;margin:0;pointer-events:none;cursor:grabbing;box-shadow:0 14px 30px rgba(20,50,70,.28);border:1px solid var(--c-teal);background:var(--c-teal-soft);transition:none!important}
