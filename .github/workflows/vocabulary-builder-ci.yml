@@ -41,7 +41,8 @@ jobs:
           const allowed = new Set(['vocabulary_items','vocabulary_unit_occurrences','vocabulary_contexts','vocabulary_unit_activities']);
           const unexpected = [...new Set(inserts.filter(name => !allowed.has(name)))];
           if (!inserts.length || unexpected.length) throw new Error(`Unexpected publish tables: ${unexpected.join(', ') || 'no inserts found'}`);
-          if (/\b(delete|truncate|drop|alter)\b/.test(sql)) throw new Error('Export contains destructive DDL/DML.');
+          // Match destructive SQL statements, not ordinary words inside learner-facing text (e.g. "drop any player").
+          if (/\b(delete\s+from|truncate\s+(table\s+)?[a-z_."]+|drop\s+(table|schema|column|index|view|function|policy|trigger|type|constraint)|alter\s+(table|schema|function|policy|type))\b/.test(sql)) throw new Error('Export contains destructive DDL/DML.');
           if (!inserts.includes('vocabulary_unit_activities')) throw new Error('Unit 1 activity bank is missing from export.');
           console.log('Unit 1 export touches only curated vocabulary content tables:', [...new Set(inserts)].join(', '));
           NODE
