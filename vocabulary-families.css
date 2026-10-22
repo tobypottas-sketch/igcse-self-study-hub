@@ -1,6 +1,6 @@
 /* Activity-family looks (presentation only). Each family gets its own accent shape so activities feel distinct. */
 [data-question-look="choose"] .vocab-choice-grid{gap:12px}
-[data-question-look="choose"] .vocab-question-card .vocab-choice-card,[data-question-look="choose"].vocab-question-card .vocab-choice-card{border-radius:var(--r-lg);border-width:2px;border-color:var(--c-teal-line)}
+[data-question-look="choose"].vocab-question-card .vocab-choice-card{border-radius:var(--r-lg);border-width:2px;border-color:var(--c-teal-line)}
 [data-question-look="choose"] .vocab-choice-card__key{background:var(--c-teal-soft);border-radius:var(--r-pill)}
 
 [data-question-look="recall"] .vocab-question-prompt{border-left:4px solid var(--study-accent,var(--c-teal));padding-left:14px}
@@ -9,9 +9,9 @@
 
 [data-question-look="family"] .vocab-question-context,[data-question-look="family"] .vocab-source-text{position:relative;border-left:4px solid var(--c-teal-line);border-radius:var(--r-md)}
 [data-question-look="family"] .vocab-choice-grid{position:relative;margin-left:14px;padding-left:22px;border-left:3px dotted var(--c-teal-line)}
-[data-question-look="family"] .vocab-question-card .vocab-choice-grid .vocab-choice-card{position:relative;overflow:visible!important;border:2px dashed var(--c-teal-line)!important;border-radius:var(--r-md)}
-[data-question-look="family"] .vocab-question-card .vocab-choice-grid .vocab-choice-card::before{content:"";position:absolute;left:-25px;top:50%;width:22px;border-top:3px dotted var(--c-teal-line)}
-[data-question-look="family"] .vocab-question-card .vocab-choice-grid .vocab-choice-card:hover,[data-question-look="family"] .vocab-question-card .vocab-choice-grid .vocab-choice-card:focus-visible{border-style:solid!important;border-color:var(--c-teal)!important}
+.vocab-question-card[data-question-look="family"] .vocab-choice-grid .vocab-choice-card{position:relative;overflow:visible!important;border:2px dashed var(--c-teal-line)!important;border-radius:var(--r-md)}
+.vocab-question-card[data-question-look="family"] .vocab-choice-grid .vocab-choice-card::before{content:"";position:absolute;left:-25px;top:50%;width:22px;border-top:3px dotted var(--c-teal-line)}
+.vocab-question-card[data-question-look="family"] .vocab-choice-grid .vocab-choice-card:hover,.vocab-question-card[data-question-look="family"] .vocab-choice-grid .vocab-choice-card:focus-visible{border-style:solid!important;border-color:var(--c-teal)!important}
 
 [data-question-look="paraphrase"] .vocab-source-text{border-left:4px solid var(--c-muted);background:var(--c-surface-soft)}
 [data-question-look="paraphrase"] .vocab-source-text>span::before{content:"Before · "}
@@ -22,3 +22,18 @@
 .vocab-retry-stage .vocab-answer-form{animation:vf-tilt 420ms cubic-bezier(.3,.7,.4,1) both}
 @keyframes vf-tilt{0%{transform:none}25%{transform:rotate(-.8deg) translateX(-3px)}55%{transform:rotate(.6deg) translateX(2px)}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.vocab-retry-stage .vocab-answer-form{animation:none!important}}
+
+/* Question transition: only when a genuinely new question appears (not on feedback/tile repaints). Light and quick. */
+.vocab-question-card[data-question-fresh] .vocab-question-prompt,
+.vocab-question-card[data-question-fresh] .vocab-question-context,
+.vocab-question-card[data-question-fresh] .vocab-response-stage{animation:vf-in 200ms ease-out both}
+.vocab-question-card[data-question-fresh] .vocab-question-context{animation-delay:40ms}
+.vocab-question-card[data-question-fresh] .vocab-response-stage{animation-delay:80ms}
+@keyframes vf-in{from{opacity:0;transform:translateY(6px)}}
+
+/* Pathway artwork reacts to a correct answer (header icon pops once). */
+.vocab-question-card:has(.study-success) .vocab-study-question-header__path .study-icon{animation:vf-art-pop 480ms cubic-bezier(.2,1.3,.4,1) both}
+@keyframes vf-art-pop{0%{transform:scale(1)}40%{transform:scale(1.28) rotate(-6deg)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .vocab-question-card[data-question-fresh] *,.vocab-question-card:has(.study-success) .vocab-study-question-header__path .study-icon{animation:none!important}
+}
