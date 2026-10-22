@@ -16,58 +16,57 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Analyze historical archive overlap
+      - name: Scan retained graphics payloads
         shell: bash
         run: |
           set -euo pipefail
-          git fetch --no-tags origin recovery/vocabulary-png-package-source stage/vocabulary-png-graphics
-          mkdir -p /tmp/recover
-          git show origin/recovery/vocabulary-png-package-source:.staging/final-int.b64 > /tmp/recover/final-int.b64
-          for n in 02 03 04 05; do
-            git show origin/stage/vocabulary-png-graphics:.staging/archive-${n}.part > /tmp/recover/archive-${n}.part
-          done
-
           python - <<'PY'
-          from pathlib import Path
-          import re
+          import base64, re, struct, subprocess
 
-          root = Path('/tmp/recover')
-          def clean(path):
-              raw = path.read_bytes()
-              return re.sub(rb'[^A-Za-z0-9+/=]', b'', raw)
+          rows = subprocess.check_output(['git','rev-list','--objects','--all'], text=True).splitlines()
+          seen=set()
+          for row in rows:
+              parts=row.split(' ',1)
+              if len(parts)!=2: continue
+              oid,path=parts
+              if oid in seen: continue
+              if not (path.endswith('.b64') or '/graphics-data/' in path or path.endswith('.part')): continue
+              seen.add(oid)
+              try:
+                  raw=subprocess.check_output(['git','cat-file','blob',oid])
+              except subprocess.CalledProcessError:
+                  continue
 
-          seqs = {'final': clean(root/'final-int.b64')}
-          for n in ('02','03','04','05'):
-              seqs[n] = clean(root/f'archive-{n}.part')
+              candidates=[]
+              # whole-file base64 after stripping transport noise
+              cleaned=re.sub(rb'[^A-Za-z0-9+/=]', b'', raw)
+              if len(cleaned)>=100:
+                  candidates.append(('whole-clean', cleaned))
+              # quoted/data URI base64 strings inside JS/text
+              for m in re.finditer(rb'(?:base64,)?([A-Za-z0-9+/]{100,}={0,2})', raw):
+                  candidates.append(('embedded', m.group(1)))
 
-          for name, s in seqs.items():
-              print(f'{name}: clean={len(s)} first={s[:32].decode()} last={s[-32:].decode()}')
-
-          f = seqs['final']
-          for n in ('02','03','04','05'):
-              s = seqs[n]
-              print(f'final.find({n})={f.find(s)} ; {n}.find(final)={s.find(f)}')
-              best = (0, -1, -1)
-              for i in range(0, len(s)-31, 1000):
-                  pos = f.find(s[i:i+32])
-                  if pos >= 0:
-                      a,b = pos,i
-                      while a>0 and b>0 and f[a-1]==s[b-1]: a-=1; b-=1
-                      x,y = pos+32,i+32
-                      while x<len(f) and y<len(s) and f[x]==s[y]: x+=1; y+=1
-                      if x-a > best[0]: best=(x-a,a,b)
-              print(f'best exact overlap final/{n}: length={best[0]} final_start={best[1]} part_start={best[2]}')
-
-          names=('02','03','04','05')
-          for a,b in zip(names,names[1:]):
-              left,right=seqs[a],seqs[b]
-              best=0
-              for k in range(1,min(len(left),len(right))+1):
-                  if left[-k:]==right[:k]: best=k
-              print(f'adjacent suffix/prefix overlap {a}->{b}: {best}')
-
-          for prefix_len in [8000,9000,9996,10000,10004,12000,15000,20000]:
-              candidate = f[:prefix_len] + b''.join(seqs[n] for n in names)
-              print(f'candidate prefix={prefix_len} b64len={len(candidate)} mod4={len(candidate)%4}')
+              found=[]
+              for kind,b64 in candidates:
+                  try:
+                      # avoid false padding failures on transport chunks
+                      data=base64.b64decode(b64 + b'='*((-len(b64))%4), validate=False)
+                  except Exception:
+                      continue
+                  sig=data.find(b'\x89PNG\r\n\x1a\n')
+                  if sig<0 or len(data)<sig+26: continue
+                  try:
+                      w,h=struct.unpack('>II', data[sig+16:sig+24])
+                  except Exception:
+                      continue
+                  complete=data.rfind(b'IEND')>=sig
+                  found.append((kind,w,h,len(data),sig,complete))
+              if found:
+                  uniq=[]
+                  for item in found:
+                      if item not in uniq: uniq.append(item)
+                  print(f'{oid} {path} raw={len(raw)} -> {uniq}')
           PY
+          echo '=== all historical staging/base64 paths ==='
+          git rev-list --objects --all | grep -E '(\.staging/|graphics-data/).*(\.b64|\.part|\.js)$' | sort -k2 || true
           exit 1
