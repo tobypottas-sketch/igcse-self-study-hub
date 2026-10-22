@@ -58,7 +58,8 @@ test('unit view exposes the fixed six-pathway ladder and review-only Mixed Pract
   assert.match(target.innerHTML, /Mixed Practice/);
   assert.match(target.innerHTML, /Review only/);
   assert.match(target.innerHTML, /34 \/ 50 overall mastered/);
-  assert.doesNotMatch(target.innerHTML, /data-minutes=/);
+  assert.equal((target.innerHTML.match(/data-action="start-mixed-review" data-minutes="(5|10|15|20)"/g) ?? []).length, 4, 'timed Mixed Practice offers 5/10/15/20 minutes');
+  assert.doesNotMatch(target.innerHTML, /start-timed/);
   assert.doesNotMatch(target.innerHTML, /\b\d{1,3}%\b/);
 });
 

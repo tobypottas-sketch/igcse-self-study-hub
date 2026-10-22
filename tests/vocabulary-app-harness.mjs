@@ -4,6 +4,7 @@ import unit from '../content/vocabulary/releases/unit-01.js';
 import * as sessions from '../src/vocabulary/session.js';
 import * as targets from '../src/vocabulary/session-targets.js';
 import * as pathways from '../src/vocabulary/pathway-planner.js';
+import * as mixedReview from '../src/vocabulary/mixed-review.js';
 import * as placement from '../src/vocabulary/pathway-view-model.js';
 import * as engine from '../supabase/functions/_shared/vocabulary-engine.js';
 import * as matchSetLogic from '../src/vocabulary/match-set.js';
@@ -40,7 +41,7 @@ export function harness({ pathwayId = 'word_families', stage = 'match', size = 2
   const saved = []; const rejected = []; const served = []; const summaries = []; const requests = []; let counter = 0;
   const testCrypto = deterministic ? { randomUUID:() => `uuid-${++counter}` } : crypto;
   const context = vm.createContext({ state, crypto:testCrypto, Date, Map, Set, console, root:{}, window:{ clearInterval() {}, setInterval() { return 1; } },
-    createAttemptPersistence, ...sessions, ...targets, ...pathways, ...placement, ...engine, ...matchSetLogic, ...matchSetView, deriveLearningStage, buildSupportStep, buildSessionFinishModel,
+    createAttemptPersistence, ...sessions, ...targets, ...pathways, ...mixedReview, ...placement, ...engine, ...matchSetLogic, ...matchSetView, deriveLearningStage, buildSupportStep, buildSessionFinishModel,
     renderVocabularyQuestion(_root, opts) { served.push({ target:state.current?.target?.occurrenceId, type:opts?.question?.type, contentId:opts?.question?.contentId, prompt:opts?.question?.prompt, options:opts?.question?.options ?? null, retry:Boolean(opts?.retry), feedback:Boolean(opts?.feedback), recovery:Boolean(state.current?.recovery) }); },
     renderSessionSummary(_root, opts) { summaries.push(opts); }, renderVocabularyUnit() {}, supportiveFeedback() { return ''; }, trackVocabularyEvent:async () => {},
     submitVocabularyAttempt:async (_client, payload) => {

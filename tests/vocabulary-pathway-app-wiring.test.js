@@ -39,3 +39,11 @@ test('authoritative server pathway progress is copied into unit mastery before n
   assert.match(source, /result\.pathwayProgress/);
   assert.match(source, /pathwayProgress:\s*\{/);
 });
+
+test('timed Mixed Practice is offered, review-only, and saves evidence to the source pathway', () => {
+  assert.match(source, /planMixedReviewQuestion/);
+  assert.match(source, /startMixedReview\(false, timerMinutes\(target\)/);
+  assert.match(source, /pathwayId:current\.pathwayPlan\.pathwayId, pathwayStage:current\.pathwayPlan\.learnerStage/);
+  const views = fs.readFileSync(new URL('../src/vocabulary/views.js', import.meta.url), 'utf8');
+  assert.match(views, /\[5,10,15,20\]\.map\(minutes => `<button[^`]*data-action="start-mixed-review" data-minutes="\$\{minutes\}"/);
+});

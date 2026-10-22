@@ -37,7 +37,8 @@ test('unit page exposes six fixed mastery pathways and review-only Mixed Practic
   assert.match(target.innerHTML, /data-action="start-mixed-review"/);
   assert.match(target.innerHTML, /Review only/);
   assert.doesNotMatch(target.innerHTML, /data-practice-focus=/);
-  assert.doesNotMatch(target.innerHTML, /data-minutes=/);
+  assert.equal((target.innerHTML.match(/data-action="start-mixed-review" data-minutes="(5|10|15|20)"/g) ?? []).length, 4, 'timed Mixed Practice offers 5/10/15/20 minutes');
+  assert.doesNotMatch(target.innerHTML, /start-timed/);
 });
 
 test('question renderer supports choice, tiles, evidence selection and short text', () => {
