@@ -81,3 +81,50 @@ test('word-family choice offers the word’s own other forms, not forms of unrel
     for (const option of question.options) assert.ok(own.has(norm(option)), `${item.term}: "${option}" is not a form of this word`);
   }
 });
+
+// Reviewed distractors: a wrong option must never also complete the blank.
+import { grammaticalBlankCandidates } from '../src/vocabulary/foundational-activity-builder.js';
+import { GAPFILL_DISTRACTORS } from '../src/vocabulary/gapfill-distractors.js';
+
+function blankCandidates() {
+  return unit.occurrences.flatMap(occurrence => {
+    const item = content.itemsById[occurrence.vocabularyId];
+    return grammaticalBlankCandidates({ item, occurrence, contexts:content.contextsByOccurrence[occurrence.occurrenceId] ?? [] })
+      .map(candidate => ({ ...candidate, term:item.term }));
+  });
+}
+const keyOf = candidate => `${candidate.sourceText} => ${candidate.answer}`;
+
+test('every blankable gap sentence has exactly three reviewed distractors, and no reviewed row is orphaned', () => {
+  const candidates = blankCandidates();
+  assert.ok(candidates.length >= 150, `only ${candidates.length} blankable sentences`);
+  const keys = new Set(candidates.map(keyOf));
+  for (const candidate of candidates) {
+    const row = GAPFILL_DISTRACTORS[keyOf(candidate)];
+    assert.ok(row, `no reviewed distractors for ${candidate.term}: ${keyOf(candidate)}`);
+    assert.equal(row.length, 3, keyOf(candidate));
+    assert.equal(new Set(row.map(norm)).size, 3, `duplicate distractors: ${keyOf(candidate)}`);
+    assert.ok(!row.some(value => norm(value) === norm(candidate.answer)), `a distractor equals the answer: ${keyOf(candidate)}`);
+    assert.ok(row.every(value => /^[a-z-]+$/.test(value)), `unexpected characters: ${keyOf(candidate)}`);
+  }
+  for (const key of Object.keys(GAPFILL_DISTRACTORS)) assert.ok(keys.has(key), `reviewed row matches no sentence: ${key}`);
+});
+
+test('a reviewed distractor never spells the answer of the same word in another form of the same sentence', () => {
+  for (const candidate of blankCandidates()) {
+    const forms = Object.values(content.itemsById[candidate.vocabularyId ?? candidate.context.vocabularyId]?.senses?.[0]?.grammarForms ?? {}).map(norm);
+    for (const value of GAPFILL_DISTRACTORS[keyOf(candidate)]) assert.ok(!forms.includes(norm(value)), `${value} is a form of the target word: ${keyOf(candidate)}`);
+  }
+});
+
+test('blank questions offer the reviewed distractors', () => {
+  const blanks = all.filter(row => row.question.contentSource === 'context' && String(row.question.sourceText ?? '').includes('____'));
+  assert.ok(blanks.length > 50);
+  for (const { question } of blanks) {
+    const answer = question.markingReference.acceptedAnswers[0];
+    const reviewed = GAPFILL_DISTRACTORS[`${question.sourceText} => ${answer}`];
+    const options = question.options ?? question.draggables ?? question.pairs?.map(pair => pair.definition);
+    if (!options) continue;
+    assert.deepEqual([...options].sort(), [answer, ...reviewed].sort(), `${question.type}: ${question.sourceText}`);
+  }
+});
