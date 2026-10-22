@@ -70,3 +70,14 @@ test('every Unit 1 word has enough curated gap-fill sentences to vary Context an
     assert.ok(count >= 3, `${occurrence.occurrenceId} has ${count} gap-fill sentences`);
   }
 });
+
+test('word-family choice offers the word’s own other forms, not forms of unrelated words', () => {
+  const wf = all.filter(row => row.question.type === 'word_family_choice');
+  assert.ok(wf.length > 0);
+  for (const { occurrence, question } of wf) {
+    const item = content.itemsById[occurrence.vocabularyId];
+    const own = new Set([item.term, ...item.wordFamily].map(norm));
+    if (own.size < 3) continue;
+    for (const option of question.options) assert.ok(own.has(norm(option)), `${item.term}: "${option}" is not a form of this word`);
+  }
+});

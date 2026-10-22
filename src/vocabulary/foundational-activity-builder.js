@@ -306,7 +306,11 @@ function wordFamilyChoice(args, definition) {
   const acceptedAnswers = uniqueText(array(data.acceptedAnswers));
   if (!acceptedAnswers.length) throw new Error('No curated word-family answers are available for this target.');
   const acceptedKeys = new Set(acceptedAnswers.map(value => value.toLocaleLowerCase('en')));
-  const pool = uniqueText([...array(args.item.wordFamily), ...array(args.unitItems).flatMap(candidate => array(candidate?.wordFamily))]).filter(value => !acceptedKeys.has(value.toLocaleLowerCase('en')));
+  // The skill is choosing the right FORM of this word, so the alternatives are this word's own other forms
+  // ("prefer / preference / preferably"), never forms of unrelated words that can be rejected by part of speech alone.
+  const ownForms = uniqueText([text(args.item?.term), ...array(args.item.wordFamily)]).filter(value => !acceptedKeys.has(value.toLocaleLowerCase('en')));
+  const crossForms = uniqueText(array(args.unitItems).flatMap(candidate => array(candidate?.wordFamily))).filter(value => !acceptedKeys.has(value.toLocaleLowerCase('en')));
+  const pool = ownForms.length >= 2 ? ownForms : uniqueText([...ownForms, ...crossForms]);
   if (pool.length < 2) throw new Error('Word Family Choice requires at least two plausible word-family alternatives.');
   const wrong = stableShuffle(pool, `${args.seed}:family-alternatives`).slice(0,3);
   const options = shuffleAnswerOptions([acceptedAnswers[0], ...wrong], `${args.seed}:family-options`, args.optionNonce);
