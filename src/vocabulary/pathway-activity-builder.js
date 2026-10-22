@@ -1,7 +1,7 @@
 import { shuffleAnswerOptions } from './answer-option-shuffle.js';
 import { unsolvedTileOrder } from './tile-order.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
-import { grammaticalBlankCandidates, surfaceDistractors } from './foundational-activity-builder.js';
+import { grammaticalBlankCandidates, blankDistractors } from './foundational-activity-builder.js';
 import { languageBankContextForItem, languageBankForItem } from './language-bank.js';
 
 export const PATHWAY_ACTIVITY_TYPES = Object.freeze(new Set([
@@ -77,7 +77,7 @@ function contextSentenceMatch(args, definition) {
     const pairs=options.map((option,index)=>({vocabularyId:option===accepted?args.item.vocabularyId:`alt-${index}`,term:option===accepted?source:'',definition:option}));
     return base({definition,occurrence:args.occurrence,contentId:`language-bank:${bankContext.id}`,contentSource:'language_bank',prompt:'Match the sentence to the word or phrase that completes it.',markingReference:{acceptedAnswers:[accepted]},extra:{pairs,sourceText:source,languageBankContextId:bankContext.id,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:source,matchOptions:options,matchPresentation:'context_gap_to_word'}});
   }
-  const picked=legacyContext ?? blankableContext(args), context=picked.context, term=picked.surface, alternatives=surfaceDistractors(args,picked.formKey,3);
+  const picked=legacyContext ?? blankableContext(args), context=picked.context, term=picked.surface, alternatives=blankDistractors(args,picked,3);
   const source=picked.sourceText;
   const options=shuffle([term,...alternatives],`${args.seed}:context-match`);
   const pairs=options.map((option,index)=>({vocabularyId:option===term?args.item.vocabularyId:`alt-${index}`,term:option===term?source:'',definition:option}));

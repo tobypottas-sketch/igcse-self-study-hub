@@ -2,6 +2,7 @@ import { shuffleAnswerOptions } from './answer-option-shuffle.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 import { languageBankContextForItem } from './language-bank.js';
 import { applicationSituations } from './apply-situation.js';
+import { reviewedGapDistractors } from './gapfill-distractors.js';
 
 const STAGE_ORDER = Object.freeze({ new:0, building:1, secure:2, mastered:3 });
 export const FOUNDATIONAL_ACTIVITY_TYPES = Object.freeze(new Set([
@@ -158,6 +159,14 @@ export function surfaceDistractors(args, formKey, count = 3) {
   if (preferred.length < count) throw new Error(`Activity requires ${count} plausible ${formKey} alternatives.`);
   return preferred.slice(0,count);
 }
+// Wrong options for a blanked curated sentence: the teacher-reviewed set (none can also fit the blank) when one exists,
+// otherwise same-form words from the unit.
+export function blankDistractors(args, picked, count = 3) {
+  const reviewed = reviewedGapDistractors(picked?.sourceText, picked?.answer);
+  const answerKey = text(picked?.answer).toLocaleLowerCase('en');
+  if (reviewed && reviewed.length === count && new Set(reviewed.map(value => value.toLocaleLowerCase('en'))).size === count && !reviewed.some(value => value.toLocaleLowerCase('en') === answerKey)) return reviewed;
+  return surfaceDistractors(args,picked?.formKey,count);
+}
 function definitionPairs(args, count = 4) {
   const targetDefinition = definitionFor(args.item, args.occurrence);
   if (!text(args.item?.term) || !targetDefinition) throw new Error('Matching requires a target word and curated definition.');
@@ -273,20 +282,21 @@ function retrievalActivity(args, definition) {
   catch (error) { if (bankActivity) return bankActivity; throw error; }
   if (bankActivity && array(args.usedContentIds).includes(selected.context.contextId)) return bankActivity;
   const { context, sourceText, answer, formKey } = selected;
+  const wrongOptions = () => blankDistractors(args,selected,3);
   const accepted = answer;
   let prompt = 'Complete the sentence with the target word.';
   const extra = { sourceText, contextId:context.contextId, primaryEvidenceTargetId:args.item.vocabularyId, answerForm:formKey ?? 'exact' };
   if (definition.id === 'gap_fill_bank') {
     prompt = 'Choose the word that completes the sentence.';
-    extra.options = shuffleAnswerOptions([accepted, ...surfaceDistractors(args,formKey,3)], `${args.seed}:gap-bank`, args.optionNonce);
+    extra.options = shuffleAnswerOptions([accepted, ...wrongOptions()], `${args.seed}:gap-bank`, args.optionNonce);
     extra.wordBank = [...extra.options];
   } else if (definition.id === 'drag_word_sentence') {
     prompt = 'Drag the correct word into the gap.';
-    extra.draggables = stableShuffle([accepted, ...surfaceDistractors(args,formKey,3)], `${args.seed}:drag-gap`);
+    extra.draggables = stableShuffle([accepted, ...wrongOptions()], `${args.seed}:drag-gap`);
     extra.wordBank = [...extra.draggables];
   } else if (definition.id === 'choose_word_sentence') {
     prompt = 'Which word best completes this sentence?';
-    extra.options = shuffleAnswerOptions([accepted, ...surfaceDistractors(args,formKey,3)], `${args.seed}:sentence-choice`, args.optionNonce);
+    extra.options = shuffleAnswerOptions([accepted, ...wrongOptions()], `${args.seed}:sentence-choice`, args.optionNonce);
   } else if (definition.id === 'type_missing_word') {
     prompt = 'Type the word that completes this sentence.';
   }

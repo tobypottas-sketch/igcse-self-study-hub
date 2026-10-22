@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { buildFoundationalActivity } from '../src/vocabulary/foundational-activity-builder.js';
 import { buildCuratedUnit } from '../content/vocabulary/build-unit.js';
 import { validateUnit } from '../content/vocabulary/schema.js';
+import { reviewedGapDistractors } from '../src/vocabulary/gapfill-distractors.js';
 
 function verbItem(vocabularyId, term, forms) {
   return {
@@ -53,9 +54,8 @@ test('retrieval uses the exact contextual past-tense answer and form-matched dis
   assert.equal(question.sourceText,'The athlete ____ that he had used a banned substance.');
   assert.deepEqual(question.markingReference.acceptedAnswers,['denied']);
   assert.ok(question.options.includes('denied'));
-  assert.ok(question.options.includes('recommended'));
-  assert.ok(question.options.includes('demanded'));
-  assert.ok(question.options.includes('regretted'));
+  // This sentence has teacher-reviewed wrong options (same form, none can also fit the blank).
+  assert.deepEqual([...question.options].sort(),['denied',...reviewedGapDistractors('The athlete ____ that he had used a banned substance.','denied')].sort());
   assert.ok(!question.options.includes('deny'));
 });
 
@@ -79,9 +79,7 @@ test('retrieval blanks the exact third-person form from a curated gap-fill sente
   assert.equal(question.sourceText,'The trainer ____ stretching before intense exercise.');
   assert.deepEqual(question.markingReference.acceptedAnswers,['recommends']);
   assert.ok(question.options.includes('recommends'));
-  assert.ok(question.options.includes('denies'));
-  assert.ok(question.options.includes('demands'));
-  assert.ok(question.options.includes('regrets'));
+  assert.deepEqual([...question.options].sort(),['recommends',...reviewedGapDistractors('The trainer ____ stretching before intense exercise.','recommends')].sort());
 });
 
 test('paraphrase and meaning sentences are never blanked, because their blank would not match the answer form', () => {
@@ -153,4 +151,19 @@ test('buildCuratedUnit carries grammar forms, grammar patterns and retrieval con
   assert.ok(extra.every(context => context.targetRewrite === 'denied'));
   assert.equal(unit.occurrences[0].contextIds.length,5);
   assert.equal(validateUnit(unit).ok,true);
+});
+
+test('a sentence without reviewed distractors falls back to same-form words from the unit', () => {
+  const question = buildFoundationalActivity({
+    activityType:'gap_fill_bank',
+    occurrence:occurrence(recommend),
+    item:recommend,
+    contexts:[{ contextId:'recommend_new', type:'gap_fill', text:'The doctor recommends a long rest after the match.', targetRewrite:'recommends', acceptedAnswers:['recommends'] }],
+    unitItems,
+    mastery:{ status:'building' },
+    seed:'fallback'
+  });
+  assert.equal(reviewedGapDistractors(question.sourceText,'recommends'),null);
+  assert.ok(question.options.includes('recommends'));
+  assert.ok(question.options.includes('denies'));
 });

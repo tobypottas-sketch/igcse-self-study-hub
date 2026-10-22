@@ -67,7 +67,7 @@ const denyTarget = {
 const denyContext = {
   contextId:'u1_deny_gap_past',
   type:'gap_fill',
-  text:'The athlete denied that he had used a banned substance.',
+  text:'The minister denied that the new rule had caused any delay.',
   targetRewrite:'denied',
   acceptedAnswers:['denied']
 };
