@@ -16,57 +16,112 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Scan retained graphics payloads
+      - name: Test historical 1024 PNG reconstruction
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
-          import base64, re, struct, subprocess
+          import base64, binascii, re, struct, subprocess, zlib
 
-          rows = subprocess.check_output(['git','rev-list','--objects','--all'], text=True).splitlines()
-          seen=set()
-          for row in rows:
-              parts=row.split(' ',1)
-              if len(parts)!=2: continue
-              oid,path=parts
-              if oid in seen: continue
-              if not (path.endswith('.b64') or '/graphics-data/' in path or path.endswith('.part')): continue
-              seen.add(oid)
+          def blob(path):
+              rows=subprocess.check_output(['git','rev-list','--objects','--all'], text=True).splitlines()
+              for row in rows:
+                  parts=row.split(' ',1)
+                  if len(parts)==2 and parts[1]==path:
+                      return subprocess.check_output(['git','cat-file','blob',parts[0]])
+              raise SystemExit(f'missing {path}')
+
+          def clean(raw):
+              return re.sub(rb'[^A-Za-z0-9+/=]', b'', raw)
+
+          def extract_base64_starting_png(raw):
+              # Prefer a long contiguous base64 run that decodes with the PNG signature.
+              runs=re.findall(rb'[A-Za-z0-9+/]{100,}={0,2}', raw)
+              for r in sorted(runs, key=len, reverse=True):
+                  try:
+                      d=base64.b64decode(r + b'='*((-len(r))%4), validate=False)
+                  except Exception:
+                      continue
+                  if d.startswith(b'\x89PNG\r\n\x1a\n'):
+                      return r
+              c=clean(raw)
+              d=base64.b64decode(c + b'='*((-len(c))%4), validate=False)
+              if d.startswith(b'\x89PNG\r\n\x1a\n'):
+                  return c
+              raise SystemExit('no PNG-starting base64 found')
+
+          def validate_png(data):
+              sig=b'\x89PNG\r\n\x1a\n'
+              if not data.startswith(sig): return False,'bad signature'
+              p=8; chunks=[]
               try:
-                  raw=subprocess.check_output(['git','cat-file','blob',oid])
-              except subprocess.CalledProcessError:
-                  continue
+                  while p+12<=len(data):
+                      n=struct.unpack('>I',data[p:p+4])[0]
+                      typ=data[p+4:p+8]
+                      end=p+12+n
+                      if end>len(data): return False,f'truncated {typ!r} at {p} need {end} have {len(data)}'
+                      payload=data[p+8:p+8+n]
+                      crc_stored=struct.unpack('>I',data[p+8+n:p+12+n])[0]
+                      crc_actual=binascii.crc32(typ+payload)&0xffffffff
+                      if crc_stored!=crc_actual: return False,f'CRC mismatch {typ!r} at {p}'
+                      chunks.append((typ,n))
+                      p=end
+                      if typ==b'IEND':
+                          if p!=len(data): return False,f'trailing {len(data)-p} bytes after IEND'
+                          return True,chunks
+              except Exception as exc:
+                  return False,str(exc)
+              return False,'no IEND'
 
-              candidates=[]
-              # whole-file base64 after stripping transport noise
-              cleaned=re.sub(rb'[^A-Za-z0-9+/=]', b'', raw)
-              if len(cleaned)>=100:
-                  candidates.append(('whole-clean', cleaned))
-              # quoted/data URI base64 strings inside JS/text
-              for m in re.finditer(rb'(?:base64,)?([A-Za-z0-9+/]{100,}={0,2})', raw):
-                  candidates.append(('embedded', m.group(1)))
+          p1=extract_base64_starting_png(blob('.staging/paraphrasing.b64'))
+          parts=[]
+          for n in ('02','03','04','05'):
+              parts.append(clean(blob(f'.staging/archive-{n}.part')))
 
-              found=[]
-              for kind,b64 in candidates:
-                  try:
-                      # avoid false padding failures on transport chunks
-                      data=base64.b64decode(b64 + b'='*((-len(b64))%4), validate=False)
-                  except Exception:
-                      continue
-                  sig=data.find(b'\x89PNG\r\n\x1a\n')
-                  if sig<0 or len(data)<sig+26: continue
-                  try:
-                      w,h=struct.unpack('>II', data[sig+16:sig+24])
-                  except Exception:
-                      continue
-                  complete=data.rfind(b'IEND')>=sig
-                  found.append((kind,w,h,len(data),sig,complete))
-              if found:
-                  uniq=[]
-                  for item in found:
-                      if item not in uniq: uniq.append(item)
-                  print(f'{oid} {path} raw={len(raw)} -> {uniq}')
+          print('paraphrasing first segment b64 length',len(p1),'mod4',len(p1)%4)
+          print('continuation lengths', [len(x) for x in parts])
+
+          # Test direct concatenation and small boundary corrections caused by textual transport noise.
+          # Search trims up to 32 chars from each boundary; require valid CRCs + IEND.
+          tested=0
+          for trim1 in range(0,33):
+              first=p1[:-trim1] if trim1 else p1
+              for trims in [(0,0,0,0)]:
+                  candidate=first+b''.join(parts)
+                  if len(candidate)%4: continue
+                  try: data=base64.b64decode(candidate,validate=True)
+                  except Exception: continue
+                  tested+=1
+                  ok,detail=validate_png(data)
+                  if ok:
+                      w,h=struct.unpack('>II',data[16:24])
+                      print('VALID direct reconstruction',w,h,'bytes',len(data),'trim1',trim1,'chunks',detail)
+                      raise SystemExit(0)
+
+          # If direct boundaries fail, brute-force tiny trims at each *text chunk* edge while maintaining b64 length.
+          seq=[p1]+parts
+          # trim suffix/prefix in pairs, up to 8 chars each boundary; practical corruption search only.
+          import itertools
+          for choices in itertools.product(range(0,9), repeat=8):
+              a=[]
+              for i,s in enumerate(seq):
+                  l=choices[2*i-1] if i>0 else 0
+                  r=choices[2*i] if i<4 else 0
+                  if l+r>=len(s): break
+                  a.append(s[l:len(s)-r if r else None])
+              if len(a)!=5: continue
+              candidate=b''.join(a)
+              if len(candidate)%4: continue
+              try: data=base64.b64decode(candidate,validate=True)
+              except Exception: continue
+              tested+=1
+              ok,detail=validate_png(data)
+              if ok:
+                  w,h=struct.unpack('>II',data[16:24])
+                  print('VALID boundary-adjusted reconstruction',w,h,'bytes',len(data),'choices',choices,'chunks',detail)
+                  raise SystemExit(0)
+              if tested>250000:
+                  break
+          print('No valid reconstruction found; candidates decoded/tested:',tested)
+          raise SystemExit(1)
           PY
-          echo '=== all historical staging/base64 paths ==='
-          git rev-list --objects --all | grep -E '(\.staging/|graphics-data/).*(\.b64|\.part|\.js)$' | sort -k2 || true
-          exit 1
