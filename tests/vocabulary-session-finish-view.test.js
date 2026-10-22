@@ -15,7 +15,7 @@ function model(extra = {}) {
 
 test('standard result is a complete optional-stop mission with score, stars, evidence and both actions', () => {
   const target = root(); renderSessionSummary(target,{ pathwayId:'meaning', summary:{practised:10,strengthened:8,needsAnotherLook:2}, finishModel:model() });
-  assert.match(target.innerHTML,/SESSION COMPLETE/i); assert.match(target.innerHTML,/8 \/ 10/); assert.match(target.innerHTML,/2 out of 3 stars earned/);
+  assert.match(target.innerHTML,/SESSION COMPLETE/i); assert.match(target.innerHTML,/>8<\/span> \/ 10/); assert.match(target.innerHTML,/2 out of 3 stars earned/);
   assert.match(target.innerHTML,/words strengthened/); assert.match(target.innerHTML,/need another look/); assert.match(target.innerHTML,/Continue studying/); assert.match(target.innerHTML,/Finish for now/);
   assert.match(target.innerHTML,/data-session-finish-heading/); assert.match(target.innerHTML,/tabindex="-1"/);
 });

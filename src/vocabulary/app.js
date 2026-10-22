@@ -15,6 +15,7 @@ import { buildMatchSet, checkMatchSet, finishedMatchState, newMatchState, reveal
 import { installMatchDrag, matchDragJustEnded } from './match-drag.js';
 import { activityFamily } from './activity-families.js';
 import { MIN_SHORT_MISSION, familyTargets, loadLastChoice, pathwayPracticeOptions, saveLastChoice } from './pathway-choice.js';
+import { playCompletionSequence } from './completion-sequence.js';
 import { matchKeyTarget, renderMatchSet, repaintMatchSet } from './match-set-view.js';
 import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
@@ -476,6 +477,7 @@ function finishSession() {
   renderSessionSummary(root, { durationMinutes:finished.durationMinutes, summary:finished.summary, practiceMode:finished.practiceMode ?? 'adaptive', pathwayId:state.pathwayId, finishModel });
   decoratePreview();
   root.querySelector?.('[data-session-finish-heading]')?.focus?.();
+  playCompletionSequence(root);
 }
 // The results screen reads server-applied pathway progression, so finishing is the one place that must wait for the
 // save queue. With nothing pending it finishes synchronously; otherwise the button shows a short "Saving progress…".
