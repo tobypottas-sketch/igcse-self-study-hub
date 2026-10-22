@@ -1,5 +1,6 @@
 import unit1LanguageBank from './unit-01-language-bank.js';
 import unit1WordFamilyExpansion from './unit-01-word-family-expansion.js';
+import unit1WordFamilyBatch2 from './unit-01-word-family-batch2.js';
 
 const unitNumber = 1;
 const status = 'approved';
@@ -112,6 +113,8 @@ export default [
 
   // Teacher-approved expansion: three more items for each of the 25 words with a genuine family.
   ...unit1WordFamilyExpansion,
+  // Teacher-approved batch 2: three items for each of 12 further words with a genuine family.
+  ...unit1WordFamilyBatch2,
 
   // Reviewed language-bank contexts publish through the existing unit-activity channel so
   // browser and server share one authoritative record without adding database columns.

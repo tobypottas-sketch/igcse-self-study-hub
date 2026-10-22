@@ -18,7 +18,7 @@ function distinctFamilyForms(item) {
 
 test('every curated Unit 1 Word Family target has enough genuine forms for Match and enough prompt depth to rotate', () => {
   const targets = unit1.items.filter(item => familyRecordsFor(item.vocabularyId).length > 0);
-  assert.equal(targets.length, 25, 'Unit 1 should expose the full curated 25-target Word Families cohort');
+  assert.equal(targets.length, 37, 'Unit 1 should expose the full curated 37-target Word Families cohort (25 + 12)');
 
   for (const item of targets) {
     const records = familyRecordsFor(item.vocabularyId);

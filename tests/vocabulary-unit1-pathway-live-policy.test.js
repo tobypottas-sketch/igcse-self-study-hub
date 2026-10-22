@@ -34,14 +34,14 @@ test('Unit 1 exposes only pathway banks that are currently defensible end to end
   assert.equal(coverage.precision_use.occurrenceIds.length,50);
 });
 
-test('diagnostic buildable counts preserve the curated 25-target Word Family cohort across every rung', () => {
+test('diagnostic buildable counts preserve the curated 37-target Word Family cohort across every rung', () => {
   const coverage = buildPathwayCoverage({ content });
-  assert.equal(coverage.word_families.stageCounts.recognise,25);
-  assert.equal(coverage.word_families.stageCounts.match,25);
-  assert.equal(coverage.word_families.stageCounts.apply,25);
-  assert.equal(coverage.word_families.stageCounts.recall,25);
-  assert.equal(coverage.word_families.stageCounts.mastery,25);
-  assert.equal(coverage.word_families.occurrenceIds.length,25);
+  assert.equal(coverage.word_families.stageCounts.recognise,37);
+  assert.equal(coverage.word_families.stageCounts.match,37);
+  assert.equal(coverage.word_families.stageCounts.apply,37);
+  assert.equal(coverage.word_families.stageCounts.recall,37);
+  assert.equal(coverage.word_families.stageCounts.mastery,37);
+  assert.equal(coverage.word_families.occurrenceIds.length,37);
   assert.equal(coverage.paraphrasing.stageCounts.recognise,24);
   assert.equal(coverage.paraphrasing.stageCounts.match,12);
   assert.equal(coverage.precision_use.stageCounts.recognise,50);
