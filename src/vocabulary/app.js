@@ -11,7 +11,8 @@ import { buildSessionFinishModel } from './session-finish-model.js';
 import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
 import { deriveLearningStage } from './learning-stage.js';
 import { createAttemptPersistence } from './attempt-persistence.js';
-import { buildMatchSet, checkMatchSet, finishedMatchState, newMatchState, revealMatchSet, tapMatchItem } from './match-set.js';
+import { buildMatchSet, checkMatchSet, finishedMatchState, newMatchState, revealMatchSet, tapMatchItem, pairMatchItems } from './match-set.js';
+import { installMatchDrag, matchDragJustEnded } from './match-drag.js';
 import { matchKeyTarget, renderMatchSet, repaintMatchSet } from './match-set-view.js';
 import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
@@ -420,6 +421,13 @@ function handleMatchTap(node) {
   current.matchState = tapMatchItem(current.matchSet, current.matchState, side, id);
   paintMatchSet(current, `[data-match-${side}="${id}"]`);
 }
+function handleMatchDrop(wordId, definitionId, side, id) {
+  const current = state.current;
+  if (!current?.matchSet || current.answered) return;
+  current.matchState = pairMatchItems(current.matchSet, current.matchState, wordId, definitionId);
+  paintMatchSet(current, `[data-match-${side}="${id}"]`);
+}
+if (root) installMatchDrag(root, { canDrag: () => Boolean(state.current?.matchSet && !state.current.answered), onPair: handleMatchDrop });
 function finishSession() {
   if (!state.session) return;
   if (state.session.mode === 'timed') state.session = expireSession(state.session, new Date());
@@ -481,7 +489,7 @@ root?.addEventListener('keydown', event => {
 });
 root?.addEventListener('click', event => {
   const matchItem = event.target?.closest?.('[data-match-word], [data-match-definition]');
-  if (matchItem) { handleMatchTap(matchItem); return; }
+  if (matchItem) { if (!matchDragJustEnded()) handleMatchTap(matchItem); return; }
   const choice = event.target?.closest?.('[data-choice-answer], [data-evidence-answer]');
   if (choice) { const form = choice.closest?.('[data-form="vocabulary-answer"]'); const answer = choice.dataset.choiceAnswer ?? choice.dataset.evidenceAnswer; try { handleAnswer(form, answer); } catch (error) { renderVocabularyError(root, error instanceof Error ? error.message : 'Unable to check that answer.'); } return; }
   const tile = event.target?.closest?.('[data-tile-answer]');

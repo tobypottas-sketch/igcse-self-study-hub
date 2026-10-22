@@ -29,7 +29,7 @@ export function matchStatusText(set, state, { finished = false, reveal = false }
     const side = state.selected.side === 'word' ? 'definition' : 'word';
     return `Selected. Now choose its ${side}.`;
   }
-  if (!paired) return 'Choose a word, then its definition.';
+  if (!paired) return 'Drag a word onto its definition.';
   if (remaining) return `${paired} of ${total} paired. ${remaining} to go.`;
   return `All ${total} paired. Check your answers.`;
 }
@@ -76,7 +76,7 @@ export function renderMatchSet(set, state, { retry = false, finished = false, re
   const words = set.words.map(word => itemMarkup(set, state, 'word', word, { finished, reveal })).join('');
   const definitions = set.definitions.map(definition => itemMarkup(set, state, 'definition', definition, { finished, reveal })).join('');
   const check = finished || reveal ? '' : `<button class="vocab-button vocab-button--primary vocab-matchset__check" type="submit" data-match-check aria-disabled="${complete ? 'false' : 'true'}">Check answers</button>`;
-  return `<fieldset class="vocab-matchset${retry ? ' is-retry' : ''}${finished || reveal ? ' is-finished' : ''}" data-match-set data-match-count="${set.words.length}"><legend class="vocab-sr-only">${legend}</legend>${finished || reveal ? '' : '<p class="vocab-matchset__hint">Tap a word, then tap its definition. Tap a pair again to change it. Nothing is marked until you check.</p>'}<div class="vocab-matchset__board"><div class="vocab-matchset__group vocab-matchset__group--words" role="group" aria-label="Words">${words}</div><div class="vocab-matchset__group vocab-matchset__group--definitions" role="group" aria-label="Definitions">${definitions}</div></div><p class="vocab-matchset__status" role="status" aria-live="polite" data-match-status>${escapeHtml(status)}</p><input type="hidden" name="answer" value="">${check}</fieldset>`;
+  return `<fieldset class="vocab-matchset${retry ? ' is-retry' : ''}${finished || reveal ? ' is-finished' : ''}" data-match-set data-match-count="${set.words.length}"><legend class="vocab-sr-only">${legend}</legend>${finished || reveal ? '' : '<p class="vocab-matchset__hint">Drag each word onto its definition. (You can also tap a word, then tap its definition.) Tap a pair again to change it. Nothing is marked until you check.</p>'}<div class="vocab-matchset__board"><div class="vocab-matchset__group vocab-matchset__group--words" role="group" aria-label="Words">${words}</div><div class="vocab-matchset__group vocab-matchset__group--definitions" role="group" aria-label="Definitions">${definitions}</div></div><p class="vocab-matchset__status" role="status" aria-live="polite" data-match-status>${escapeHtml(status)}</p><input type="hidden" name="answer" value="">${check}</fieldset>`;
 }
 
 // Replaces the set's markup in place (no full-question re-render) and keeps keyboard focus where the student was.

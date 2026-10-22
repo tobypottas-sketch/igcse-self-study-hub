@@ -370,3 +370,45 @@ browserTest('Apply (keyboard + reduced motion): answer cards are focusable butto
     assert.equal(reduced, true);
   } finally { await api.close(); }
 });
+
+async function dragBetween(api, fromSel, toSel, { drop = true } = {}) {
+  const page = api.page;
+  const a = await (await page.$(fromSel)).boundingBox();
+  const b = await (await page.$(toSel)).boundingBox();
+  await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(a.x + a.width / 2 + 20, a.y + a.height / 2 + 10, { steps: 3 });
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 8 });
+  return async () => { if (drop) await page.mouse.up(); };
+}
+
+browserTest('drag a word onto its definition pairs them; drag shows a ghost and a drop highlight; dropping elsewhere does nothing', async () => {
+  const api = await open();
+  try {
+    const ids = await evalIn(api, () => {
+      const pairs = window.__ms.pairs();
+      const w = t => window.__ms.wordButton(t).dataset.matchWord;
+      const d = t => window.__ms.defButton(t).dataset.matchDefinition;
+      return { w1: w(pairs[0].term), d1: d(pairs[0].definition), w2: w(pairs[1].term) };
+    });
+    const wordSel = `[data-match-word="${ids.w1}"]`, defSel = `[data-match-definition="${ids.d1}"]`, word2Sel = `[data-match-word="${ids.w2}"]`;
+    const ghosts = () => api.page.evaluate(() => document.querySelectorAll('.vocab-match-ghost').length);
+    // drop on empty space: nothing paired, ghost removed
+    const release1 = await dragBetween(api, wordSel, '[data-match-status]');
+    assert.equal(await ghosts(), 1, 'ghost follows the pointer');
+    await release1();
+    assert.equal(await ghosts(), 0);
+    assert.match(await statusText(api), /Drag a word onto its definition/);
+    // drag onto the definition: highlight while hovering, pair on drop
+    const release2 = await dragBetween(api, wordSel, defSel);
+    assert.ok((await classes(api, defSel)).includes('is-drop-target'), 'hovered definition is highlighted');
+    await release2();
+    assert.match(await statusText(api), /1 of \d+ paired/);
+    // dragging that definition onto a different word re-pairs (the old pair is replaced, not duplicated)
+    const release3 = await dragBetween(api, defSel, word2Sel);
+    await release3();
+    assert.match(await statusText(api), /1 of \d+ paired/);
+    const pairedWords = await evalIn(api, () => [...document.querySelectorAll('[data-match-word]')].filter(b => /pair|selected/i.test(b.className + b.getAttribute('aria-label'))).length);
+    assert.ok(pairedWords >= 1);
+  } finally { await api.close(); }
+});
