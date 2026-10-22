@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES, activityTypesForPathwayStage } from '../src/vocabulary/pathway-model.js';
 import { activityDefinition, isActivityLive } from '../src/vocabulary/activity-catalogue.js';
 
-const INTENTIONALLY_WITHHELD = new Set(['precision_use:mastery']);
+const INTENTIONALLY_WITHHELD = new Set(); // every rung of every pathway now has a live activity
 
 test('every declared live pathway stage has a valid live activity type, with incomplete rungs explicitly withheld', () => {
   for (const pathway of VOCABULARY_PATHWAYS) {
@@ -28,7 +28,7 @@ test('missing approved rungs use dedicated operations rather than disguising unr
   assert.ok(activityTypesForPathwayStage('context','match').includes('context_sentence_match'));
   assert.ok(activityTypesForPathwayStage('word_families','match').includes('word_family_match'));
   assert.ok(activityTypesForPathwayStage('precision_use','match').includes('precision_match'));
-  assert.deepEqual(activityTypesForPathwayStage('precision_use','mastery'),[],'Precision Mastery must fail closed until a real precision-production task exists');
+  assert.deepEqual(activityTypesForPathwayStage('precision_use','mastery'),['improve_vocabulary'],'Precision Mastery is typed precision production with no clue');
   assert.ok(activityTypesForPathwayStage('spelling_recall','recognise').includes('spelling_choice'));
   assert.ok(activityTypesForPathwayStage('spelling_recall','match').includes('spelling_cue_match'));
   assert.ok(activityTypesForPathwayStage('spelling_recall','apply').includes('spelling_rebuild'));

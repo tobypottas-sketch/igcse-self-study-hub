@@ -2,6 +2,7 @@
 // only how the same kind of question is *presented* differs, so each stage feels like a different task:
 //   Word Families  Recognise: choose a form   -> Apply: drag a form into the gap
 //                  Recall: type it, with the related forms shown as a clue -> Mastery: type it, no clue
+//   Precision & Use Apply: type the precise word, first letter and length shown -> Recall: length only -> Mastery: no clue
 //   Context        Recall: type it, with a first-letter clue                 -> Mastery: type it, no clue
 const array = value => Array.isArray(value) ? value : [];
 
@@ -31,6 +32,18 @@ export function applyStageVariant(question, { pathwayId, servedStage, item } = {
   if (pathwayId === 'context' && servedStage === 'recall' && type === 'type_missing_word') {
     const clue = typedClue(firstAnswer(question));
     return clue ? { ...question, clue, stageVariant:'recall-clue' } : question;
+  }
+  if (pathwayId === 'precision_use' && type === 'improve_vocabulary') {
+    const answer = firstAnswer(question);
+    if (servedStage === 'apply') {
+      const clue = typedClue(answer);
+      return clue ? { ...question, clue, stageVariant:'apply-clue' } : question;
+    }
+    if (servedStage === 'recall' && answer) {
+      const words = answer.split(/\s+/).filter(Boolean);
+      return { ...question, clue:words.length > 1 ? `Clue: ${words.length} words.` : `Clue: ${answer.length} letters.`, stageVariant:'recall-length' };
+    }
+    if (servedStage === 'mastery') return { ...question, stageVariant:'mastery-no-clue' };
   }
   if ((pathwayId === 'word_families' && servedStage === 'mastery' && type === 'word_family_switch') || (pathwayId === 'context' && servedStage === 'mastery' && type === 'type_missing_word')) {
     return { ...question, stageVariant:'mastery-no-clue' };

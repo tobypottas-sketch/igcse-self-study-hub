@@ -26,12 +26,15 @@ test('Unit 1 coverage excludes words that cannot traverse every declared rung', 
   assert.equal(coverage.meaning.totalOccurrences,content.occurrences.length);
 });
 
-test('an explicitly withheld incomplete content bank makes that pathway unavailable for the unit', () => {
+test('a pathway with a withheld rung is unavailable; Precision & Use is complete now that its Mastery rung is live', () => {
   const coverage = buildPathwayCoverage({ content });
-  assert.equal(coverage.precision_use.available,false);
-  assert.deepEqual(coverage.precision_use.occurrenceIds,[]);
-  assert.equal(coverage.precision_use.reason,'content_bank_incomplete');
-  assert.ok(coverage.precision_use.withheldStages.includes('mastery'));
+  assert.equal(coverage.precision_use.available,true);
+  assert.ok(coverage.precision_use.occurrenceIds.length > 0);
+  assert.deepEqual(coverage.precision_use.withheldStages ?? [],[]);
+  // The withholding rule itself still holds: removing the Mastery content makes the pathway unavailable again.
+  const stripped = { ...content, activities:content.activities.filter(row => row.activityData?.taskType !== 'improve_vocabulary') };
+  const withoutContent = buildPathwayCoverage({ content:stripped });
+  assert.equal(withoutContent.precision_use.available,false);
 });
 
 test('coverage is deterministic and never mutates content or mastery', () => {
