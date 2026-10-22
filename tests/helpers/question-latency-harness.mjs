@@ -165,7 +165,7 @@ window.__driver = {
 };
 `;
 
-export async function openMission({ root, width = 1280, pathway = 'meaning', server = {}, stage = null, reducedMotion = false, height = 900 }) {
+export async function openMission({ root, width = 1280, pathway = 'meaning', server = {}, stage = null, reducedMotion = false, height = 900, beforeLoad = null }) {
   const playwright = loadPlaywright(); const executablePath = await findChromium();
   if (!playwright || !executablePath) return null;
   const { server: http, origin } = await serve(root);
@@ -173,6 +173,7 @@ export async function openMission({ root, width = 1280, pathway = 'meaning', ser
   const page = await browser.newPage({ viewport:{ width, height }, reducedMotion:reducedMotion ? 'reduce' : 'no-preference' });
   page.on('pageerror', error => { (page.__errors ??= []).push(error.message); });
   await installRoutes(page, root);
+  if (beforeLoad) await beforeLoad(page);
   await page.addInitScript(placement => { window.__tl = []; if (placement) window.__fakeStage = placement; }, stage ? { pathway, stage } : null);
   await page.goto(`${origin}/vocabulary.html`, { waitUntil:'load' });
   await page.waitForSelector('.vocab-unit-card');

@@ -90,7 +90,11 @@ async function inPage({ mode }) {
   const frames = [];
   renderUnit(true);
   let mutations = 0;
-  const observer = new MutationObserver(records => { mutations += records.length; });
+  const observer = new MutationObserver(records => {
+    // The graphics layer marks a slot `is-png-ready` when its PNG decodes. That class flip is the one allowed edit: it changes
+    // opacity only, and the geometry frames below still prove no box moves.
+    mutations += records.filter(record => !(record.type === 'attributes' && record.attributeName === 'class' && record.target.matches?.('[data-art-slot]'))).length;
+  });
   observer.observe(root, { childList:true, subtree:true, characterData:true, attributes:true });
   frames.push(['1 immediately after render', snap()]);
   await Promise.resolve(); await Promise.resolve();

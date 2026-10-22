@@ -5,6 +5,7 @@ import { deriveLearningStage } from './learning-stage.js';
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES } from './pathway-model.js';
 import { pathwayIdentity, renderStudyIcon } from './study-ui.js';
 import { renderMatchSet } from './match-set-view.js';
+import { shippedGraphic } from './graphics-registry.js';
 
 const LEARNING_STAGES = Object.freeze(['emerging','building','developing','secure','mastered']);
 const HIDE_TARGET_TYPES = new Set([
@@ -95,18 +96,27 @@ export function buildUnitProgress({ occurrences = [], unitMastery = {}, globalMa
 
 // Decorative artwork is rendered into the first HTML at a size the slot owns (see vocabulary-study-art.css),
 // so nothing is injected after paint and the artwork can never change layout.
+// A shipped PNG is layered over the inline SVG (which stays as the placeholder and the fallback). The slot keeps its size,
+// so a PNG can never change layout; graphics-runtime.js reveals it only after it has loaded. Decorative: alt is empty.
+function pngLayer(group, key, eager = false) {
+  const asset = shippedGraphic(group, key);
+  return asset ? { has:true, html:`<img class="study-art__png" data-art-png src="${escapeHtml(asset.src)}" width="${asset.width}" height="${asset.height}" alt="" decoding="async" loading="${eager ? 'eager' : 'lazy'}" draggable="false">` } : { has:false, html:'' };
+}
+function artSlotAttrs(png) { return png.has ? ' data-art-slot' : ''; }
 function unitArtSlot(unitNumber) {
-  const svg = unitArtSvg(unitNumber,'vocab-unit-card__art-image');
-  return svg ? `<span class="vocab-unit-card__art" data-unit-art="${escapeHtml(unitNumber)}" aria-hidden="true">${svg}</span>` : '';
+  const svg = unitArtSvg(unitNumber,'vocab-unit-card__art-image'); const png = pngLayer('unit', unitNumber);
+  return svg ? `<span class="vocab-unit-card__art${png.has ? ' has-png' : ''}" data-unit-art="${escapeHtml(unitNumber)}"${artSlotAttrs(png)} aria-hidden="true">${svg}${png.html}</span>` : '';
 }
 function unitHeroArt(unitNumber) {
-  const svg = unitArtSvg(unitNumber,'vocab-unit-hero__art-image');
-  return svg ? `<figure class="vocab-unit-hero__art" data-unit-hero-art="${escapeHtml(unitNumber)}" aria-hidden="true">${svg}</figure>` : '';
+  const svg = unitArtSvg(unitNumber,'vocab-unit-hero__art-image'); const png = pngLayer('unit', unitNumber, true);
+  return svg ? `<figure class="vocab-unit-hero__art${png.has ? ' has-png' : ''}" data-unit-hero-art="${escapeHtml(unitNumber)}"${artSlotAttrs(png)} aria-hidden="true">${svg}${png.html}</figure>` : '';
 }
-function unitHeroClass(unitNumber) { return unitArtSvg(unitNumber) ? 'vocab-unit-hero has-study-art' : 'vocab-unit-hero'; }
+// has-png-art is decided at render time (from the manifest), never from load success, so the banner geometry is fixed from the
+// first paint and a PNG that loads late or fails cannot move anything.
+function unitHeroClass(unitNumber) { return unitArtSvg(unitNumber) ? `vocab-unit-hero has-study-art${shippedGraphic('unit', unitNumber) ? ' has-png-art' : ''}` : 'vocab-unit-hero'; }
 function pathwayArtSlot(pathwayId) {
-  const svg = pathwayArtSvg(pathwayId,'vocab-pathway-card__art-image');
-  return svg ? `<span class="vocab-pathway-card__art" data-pathway-art="${escapeHtml(pathwayId)}" aria-hidden="true">${svg}</span>` : '';
+  const svg = pathwayArtSvg(pathwayId,'vocab-pathway-card__art-image'); const png = pngLayer('pathway', pathwayId);
+  return svg ? `<span class="vocab-pathway-card__art${png.has ? ' has-png' : ''}" data-pathway-art="${escapeHtml(pathwayId)}"${artSlotAttrs(png)} aria-hidden="true">${svg}${png.html}</span>` : '';
 }
 function milestoneArt(kind) {
   const svg = achievementArtSvg(kind,'study-milestone-art__image');
