@@ -8,16 +8,16 @@
   align-items:baseline;
   justify-content:space-between;
   gap:14px;
-  color:#667b88;
+  color:var(--c-muted);
   line-height:1.1;
 }
 .vocab-pathway-session-progress__copy strong,.vocab-set-progress__copy strong{
-  color:#173c57;
-  font-size:.88rem;
+  color:var(--c-ink);
+  font-size:var(--fs-sm);
   font-weight:850;
 }
 .vocab-pathway-session-progress__copy span,.vocab-set-progress__copy span{
-  font-size:.74rem;
+  font-size:var(--fs-xs);
   font-weight:800;
   white-space:nowrap;
 }
@@ -25,15 +25,15 @@
   margin-top:3px;
 }
 .vocab-set-progress__copy strong{
-  color:#0f7f81;
+  color:var(--c-teal-dark);
 }
 .vocab-pathway-progress,.vocab-set-progress{
   position:relative;
   height:10px;
   overflow:hidden;
   border:1px solid rgba(31,77,99,.10);
-  border-radius:999px;
-  background:#e8eff3;
+  border-radius:var(--r-pill);
+  background:var(--c-surface-soft);
   box-shadow:inset 0 1px 2px rgba(21,53,70,.08);
 }
 .vocab-pathway-progress__fill,.vocab-set-progress__fill{
@@ -44,7 +44,7 @@
 }
 .vocab-pathway-progress__fill{
   width:var(--pathway-progress,20%);
-  background:linear-gradient(90deg,#159b91 0%,#238fc1 48%,#526fd8 73%,#7865d8 100%);
+  background:linear-gradient(90deg,#159b91 0%,#238fc1 48%,#526fd8 73%,var(--c-violet) 100%);
   box-shadow:0 0 10px rgba(82,111,216,.16);
 }
 .vocab-set-progress__fill{
@@ -72,16 +72,16 @@
   min-width:0;
 }
 .vocab-pathway-card__evidence-copy strong{
-  color:#24475f;
-  font-size:.74rem;
+  color:var(--c-ink-2);
+  font-size:var(--fs-xs);
   font-weight:900;
   letter-spacing:.04em;
   text-transform:uppercase;
 }
 .vocab-pathway-card__evidence-copy small{
   min-width:0;
-  color:#6c7f8c;
-  font-size:.72rem;
+  color:var(--c-muted);
+  font-size:var(--fs-xs);
   font-weight:750;
   overflow:hidden;
   text-overflow:ellipsis;
@@ -93,7 +93,7 @@
   height:7px;
   overflow:hidden;
   border:1px solid rgba(28,76,99,.09);
-  border-radius:999px;
+  border-radius:var(--r-pill);
   background:rgba(220,232,238,.82);
   box-shadow:inset 0 1px 2px rgba(21,53,70,.07);
 }
@@ -102,7 +102,7 @@
   width:var(--pathway-evidence,0%);
   height:100%;
   border-radius:inherit;
-  background:linear-gradient(90deg,#49b8b1 0%,#2f94c7 55%,#7068d9 100%);
+  background:linear-gradient(90deg,#49b8b1 0%,#2f94c7 55%,var(--c-violet) 100%);
   transition:width .38s ease;
 }
 @media(max-width:700px){

@@ -1,0 +1,45 @@
+/* Accessibility layer: loaded LAST so it wins over older rules.
+   Contrast >= 4.5:1 for text, 44px tap targets, one visible focus style. */
+
+/* Text that used to be faint */
+.vocab-pathway-card__status,
+.vocab-pathway-card__cta,
+.vocab-pathway-card__coverage{
+  opacity:1 !important;
+  color:color-mix(in srgb,var(--study-accent,var(--c-teal)) 40%,var(--c-ink));
+}
+.vocab-pathway-card:disabled,
+.vocab-pathway-card[aria-disabled="true"]{opacity:1}
+.vocab-pathway-card:disabled .vocab-pathway-card__status,
+.vocab-pathway-card:disabled .vocab-pathway-card__cta{opacity:1 !important;color:var(--c-muted)}
+.vocab-pathway-card:disabled h3,
+.vocab-pathway-card:disabled p{color:var(--c-muted)}
+.vocab-target-pill{color:var(--c-teal-dark)}
+.vocab-choice-card__key{color:var(--c-ink-2)}
+.vocab-pathway-progress__marker,
+.vocab-learning-progress__marker{color:var(--c-muted)}
+
+/* Tap targets */
+.vocab-back,
+.vocab-link{display:inline-flex;align-items:center;min-height:var(--tap-min);padding-block:0}
+
+/* One focus style everywhere, including text boxes */
+.vocab-shell :where(button,a,[tabindex],input,select,textarea):focus-visible,
+:where(button,a,[tabindex],input,select,textarea):focus-visible{
+  outline:var(--focus-ring);
+  outline-offset:3px;
+}
+.vocab-answer-form input,
+input{border-color:var(--c-control-border)}
+.vocab-answer-form input:focus,
+input:focus{box-shadow:none;border-color:var(--c-blue)}
+
+/* Smallest text anywhere is 12px */
+.vocab-shell :where(small,.vocab-kicker){font-size:max(var(--fs-xs),1em)}
+
+/* Higher-specificity fixes for question screens */
+.vocab-question-card[data-study-question] .vocab-target-pill{color:var(--c-teal-dark)}
+.vocab-choice-card .vocab-choice-card__key{color:var(--c-ink-2)}
+.vocab-pathway-stage i{color:var(--c-muted)}
+.vocab-pathway-stage[data-state="complete"] i{color:var(--c-success-ink)}
+.vocab-pathway-stage[data-state="current"] i{color:var(--c-teal-dark)}

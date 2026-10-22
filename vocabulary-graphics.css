@@ -19,7 +19,7 @@
    column and is only ever cropped (cover), never stretched. The banner does not become taller; text keeps the left column. */
 .vocab-unit-hero.has-png-art{padding-right:min(43vw,470px)!important}
 .vocab-unit-hero.has-png-art .vocab-unit-hero__art{width:min(40vw,440px)}
-.vocab-unit-hero__art .study-art__png{inset:auto 0;top:50%;transform:translateY(-50%);height:auto;max-height:100%;aspect-ratio:2.9/1;object-fit:cover;object-position:100% 50%;border-radius:20px;box-shadow:0 10px 24px rgba(21,58,91,.14)}
+.vocab-unit-hero__art .study-art__png{inset:auto 0;top:50%;transform:translateY(-50%);height:auto;max-height:100%;aspect-ratio:2.9/1;object-fit:cover;object-position:100% 50%;border-radius:var(--r-lg);box-shadow:0 10px 24px rgba(21,58,91,.14)}
 
 /* Pathway illustrations (square): contained in the existing corner slot at a consistent size. */
 .vocab-pathway-card__art .study-art__png{object-fit:contain;object-position:center}

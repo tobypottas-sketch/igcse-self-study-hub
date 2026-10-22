@@ -30,7 +30,7 @@ test('training questions keep the session label and add a clear Cambridge qualif
   assert.match(html, /vocabulary-branding\.css/);
   assert.match(brandingCss, /\.vocab-shell--session\s+\.vocab-topbar\s*>\s*span::before/);
   assert.match(brandingCss, /content:\s*["']Cambridge IGCSE ESL 0511["']/);
-  assert.match(brandingCss, /font-size:\s*\.8rem/);
+  assert.match(brandingCss, /font-size:\s*var\(--fs-xs\)/);
   assert.match(brandingCss, /opacity:\s*1/);
   assert.match(brandingCss, /border:\s*1px\s+solid/);
   assert.doesNotMatch(brandingCss, /logo|crest|background-image/i);
@@ -41,6 +41,6 @@ test('unit hero carries the same clear Cambridge qualifier treatment', async () 
 
   assert.match(brandingCss, /\.vocab-unit-hero::before/);
   assert.match(brandingCss, /content:\s*["']Cambridge IGCSE ESL 0511["']/);
-  assert.match(brandingCss, /font-size:\s*\.8rem/);
+  assert.match(brandingCss, /font-size:\s*var\(--fs-xs\)/);
   assert.match(brandingCss, /border-radius:/);
 });

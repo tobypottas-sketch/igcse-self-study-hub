@@ -1,5 +1,5 @@
 .vocab-unit-card{position:relative;overflow:hidden;padding-right:148px!important;min-height:116px}
-.vocab-unit-card__art{position:absolute;right:8px;top:8px;bottom:8px;width:132px;display:grid;place-items:center;border-radius:18px;overflow:hidden;pointer-events:none;opacity:.98;transition:transform var(--study-motion-state) var(--study-ease),filter var(--study-motion-state) var(--study-ease)}
+.vocab-unit-card__art{position:absolute;right:8px;top:8px;bottom:8px;width:132px;display:grid;place-items:center;border-radius:var(--r-lg);overflow:hidden;pointer-events:none;opacity:.98;transition:transform var(--study-motion-state) var(--study-ease),filter var(--study-motion-state) var(--study-ease)}
 .vocab-unit-card__art::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(255,255,255,.25),rgba(255,255,255,0));z-index:1;pointer-events:none}
 .vocab-unit-card__art-image{width:100%;height:100%;object-fit:cover;display:block}
 .vocab-unit-card:hover .vocab-unit-card__art{transform:translateX(3px) scale(1.035);filter:saturate(1.06)}
@@ -13,19 +13,19 @@
 
 /* Calmer skill-card hierarchy. */
 .vocab-pathway-card__identity{gap:10px}
-.vocab-pathway-card__icon{width:40px!important;height:40px!important;border-radius:12px!important}
+.vocab-pathway-card__icon{width:40px!important;height:40px!important;border-radius:var(--r-md)!important}
 .vocab-pathway-card__head{gap:1px!important}
 .vocab-pathway-card__head strong{letter-spacing:-.015em}
-.vocab-pathway-card__head small{font-size:.78rem!important;font-weight:600!important;color:#7b8d9d!important}
-.vocab-pathway-card__status{margin:8px 0 3px!important;font-size:.72rem!important;font-weight:800!important;opacity:.86}
-.vocab-pathway-card__coverage{display:inline-flex!important;align-items:center;width:max-content;max-width:100%;margin:6px 0 10px!important;padding:5px 10px!important;border:1px solid rgba(43,79,110,.10)!important;border-radius:999px!important;background:rgba(255,255,255,.58)!important;color:#6b7f90!important;font-size:.72rem!important;font-weight:700!important;line-height:1.2}
-.vocab-pathway-ladder{position:relative;z-index:1;gap:8px!important;padding:9px!important;border:1px solid rgba(43,79,110,.08)!important;border-radius:16px!important;background:rgba(255,255,255,.52)!important;box-shadow:none!important}
-.vocab-pathway-stage{min-height:70px!important;padding:8px 6px!important;border-radius:12px!important;background:rgba(255,255,255,.72)!important;border:1px solid rgba(43,79,110,.045)!important;box-shadow:none!important}
+.vocab-pathway-card__head small{font-size:var(--fs-xs)!important;font-weight:600!important;color:var(--c-muted)!important}
+.vocab-pathway-card__status{margin:8px 0 3px!important;font-size:var(--fs-xs)!important;font-weight:800!important;opacity:.86}
+.vocab-pathway-card__coverage{display:inline-flex!important;align-items:center;width:max-content;max-width:100%;margin:6px 0 10px!important;padding:5px 10px!important;border:1px solid rgba(43,79,110,.10)!important;border-radius:var(--r-pill)!important;background:rgba(255,255,255,.58)!important;color:var(--c-muted)!important;font-size:var(--fs-xs)!important;font-weight:700!important;line-height:1.2}
+.vocab-pathway-ladder{position:relative;z-index:1;gap:8px!important;padding:9px!important;border:1px solid rgba(43,79,110,.08)!important;border-radius:var(--r-md)!important;background:rgba(255,255,255,.52)!important;box-shadow:none!important}
+.vocab-pathway-stage{min-height:70px!important;padding:8px 6px!important;border-radius:var(--r-md)!important;background:rgba(255,255,255,.72)!important;border:1px solid rgba(43,79,110,.045)!important;box-shadow:none!important}
 .vocab-pathway-stage i{transform:scale(.90);opacity:.86}
-.vocab-pathway-stage small{font-size:.70rem!important;font-weight:700!important;color:#738493!important}
+.vocab-pathway-stage small{font-size:var(--fs-xs)!important;font-weight:700!important;color:var(--c-muted)!important}
 .vocab-pathway-stage[data-state="current"]{background:color-mix(in srgb,var(--study-accent-soft) 74%,white)!important;border-color:color-mix(in srgb,var(--study-accent) 15%,white)!important;box-shadow:0 4px 12px color-mix(in srgb,var(--study-accent) 7%,transparent)!important}
 .vocab-pathway-stage[data-state="locked"]{opacity:.68}
-.vocab-pathway-card__cta{position:relative;z-index:1;margin-top:10px!important;font-size:.78rem!important;font-weight:800!important;opacity:.88}
+.vocab-pathway-card__cta{position:relative;z-index:1;margin-top:10px!important;font-size:var(--fs-xs)!important;font-weight:800!important;opacity:.88}
 .vocab-pathway-card:disabled .vocab-pathway-card__status,.vocab-pathway-card:disabled .vocab-pathway-card__cta{opacity:.62}
 
 .vocab-unit-hero.has-study-art{position:relative;overflow:hidden;padding-right:min(31vw,310px)!important;min-height:180px}
@@ -60,7 +60,7 @@
 
 @media (max-width:620px){
   .vocab-unit-card{padding-right:112px!important;min-height:104px}
-  .vocab-unit-card__art{width:98px;right:6px;top:6px;bottom:6px;border-radius:15px}
+  .vocab-unit-card__art{width:98px;right:6px;top:6px;bottom:6px;border-radius:var(--r-md)}
   .vocab-pathway-card.has-study-art{padding-right:16px!important;min-height:108px}
   .vocab-pathway-ladder{gap:5px!important;padding:7px!important}
   .vocab-pathway-stage{min-height:62px!important;padding:7px 4px!important}
@@ -125,11 +125,11 @@
 .study-art__svg .sa-i{fill:none;stroke:var(--sa-ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
 .study-art__svg .sa-ln{fill:none;stroke:var(--sa-ink);stroke-width:5;stroke-linecap:round}
 .study-art__svg .sa-ln--a{stroke:var(--sa-a)}
-.study-art__svg .sa-ln--w{stroke:#fff}
+.study-art__svg .sa-ln--w{stroke:var(--c-surface)}
 .study-art__svg .sa-p,.study-art__svg .sa-i.sa-p{fill:var(--sa-paper)}
 .study-art__svg .sa-i.sa-a{fill:var(--sa-a)}
-.study-art__svg .sa-i.sa-t,.study-art__svg .sa-t{fill:color-mix(in srgb,var(--sa-a) 30%,#fff)}
+.study-art__svg .sa-i.sa-t,.study-art__svg .sa-t{fill:color-mix(in srgb,var(--sa-a) 30%,var(--c-surface))}
 .study-art__svg .sa-a{fill:var(--sa-a)}
 .study-art__svg .sa-w{fill:#f2b84b}
 .study-art__svg .sa-txt{font:800 30px/1 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;fill:var(--sa-ink)}
-.study-art__svg .sa-txt--on{fill:#fff}
+.study-art__svg .sa-txt--on{fill:var(--c-surface)}

@@ -4,7 +4,7 @@
   position:relative;
   gap:12px;
   padding:24px 26px 20px;
-  border-color:#d8e7ec;
+  border-color:var(--c-line);
   box-shadow:0 8px 24px rgba(24,62,82,.055);
 }
 
@@ -27,10 +27,10 @@
 
 .vocab-dictionary-entry__pos{
   padding:4px 9px;
-  background:#f1ecff;
-  color:#6650a4;
-  border-color:#d8ccf7;
-  font-size:.68rem;
+  background:var(--c-violet-soft);
+  color:var(--c-violet);
+  border-color:var(--c-violet-line);
+  font-size:var(--fs-xs);
   letter-spacing:.01em;
   box-shadow:none;
 }
@@ -38,8 +38,8 @@
 .vocab-dictionary-entry__definition{
   margin-top:1px;
   max-width:72ch;
-  color:#485f72;
-  font-size:.96rem;
+  color:var(--c-muted);
+  font-size:var(--fs-md);
   line-height:1.5;
 }
 
@@ -53,10 +53,10 @@
   max-width:none;
   padding:12px 20px;
   overflow:hidden;
-  border-color:#d7e8eb;
-  border-left:3px solid #73bec3;
-  border-radius:13px;
-  background:linear-gradient(135deg,#f4fbfb,#f8fbfd);
+  border-color:var(--c-line);
+  border-left:3px solid var(--c-teal-line);
+  border-radius:var(--r-md);
+  background:linear-gradient(135deg,var(--c-surface-soft),var(--c-bg));
 }
 
 .vocab-dictionary-entry__context::before{
@@ -75,16 +75,16 @@
 .vocab-dictionary-entry__context span{
   position:relative;
   z-index:1;
-  color:#6c818b;
-  font-size:.6rem;
+  color:var(--c-muted);
+  font-size:var(--fs-xs);
   font-weight:650;
 }
 
 .vocab-dictionary-entry__context p{
   position:relative;
   z-index:1;
-  color:#15344c;
-  font-size:1.16rem;
+  color:var(--c-ink);
+  font-size:var(--fs-lg);
   font-weight:700;
   line-height:1.5;
   overflow-wrap:anywhere;
@@ -98,17 +98,17 @@
   align-items:center;
   gap:6px;
   padding:7px 12px;
-  border:1px solid #dcecee;
-  background:#f2f9f9;
-  color:#187b80;
-  font-size:.76rem;
+  border:1px solid var(--c-line);
+  background:var(--c-surface-soft);
+  color:var(--c-teal-dark);
+  font-size:var(--fs-xs);
   box-shadow:none;
 }
 
 .vocab-word-row__head>.vocab-state-pill::before{
   content:"Overall progress ·";
-  color:#6c7f8c;
-  font-size:.62rem;
+  color:var(--c-muted);
+  font-size:var(--fs-xs);
   font-weight:800;
   letter-spacing:.015em;
   text-transform:none;
@@ -122,9 +122,9 @@
   gap:5px;
   padding:12px 12px 10px;
   overflow:hidden;
-  border-color:#dce8ec;
+  border-color:var(--c-teal-soft);
   border-top:3px solid var(--path-accent);
-  background:linear-gradient(180deg,#fff 0%,var(--path-soft) 100%);
+  background:linear-gradient(180deg,var(--c-surface) 0%,var(--path-soft) 100%);
   box-shadow:0 3px 10px rgba(35,69,87,.035);
 }
 
@@ -136,14 +136,14 @@
 .vocab-word-pathway[data-word-pathway="spelling_recall"]{--path-accent:#42936f;--path-soft:#f2faf6}
 
 .vocab-word-pathway small{
-  color:#657986;
-  font-size:.67rem;
+  color:var(--c-muted);
+  font-size:var(--fs-xs);
   letter-spacing:.01em;
 }
 
 .vocab-word-pathway strong{
-  color:#193c55;
-  font-size:.9rem;
+  color:var(--c-ink);
+  font-size:var(--fs-sm);
 }
 
 /* Five-rung mini rail. Existing data-stage is the single source of truth. */
@@ -151,7 +151,7 @@
   display:block;
   margin-top:3px;
   color:var(--path-accent);
-  font-size:.72rem;
+  font-size:var(--fs-xs);
   font-weight:900;
   letter-spacing:.16em;
   line-height:1;
@@ -165,8 +165,8 @@
 
 .vocab-word-pathway em{
   margin-top:1px;
-  color:#9a5a2e;
-  font-size:.62rem;
+  color:var(--c-warning-ink);
+  font-size:var(--fs-xs);
 }
 
 @media(max-width:900px){
@@ -176,7 +176,7 @@
 }
 
 @media(max-width:640px){
-  .vocab-dictionary-entry__term{font-size:1.4rem!important}
+  .vocab-dictionary-entry__term{font-size:var(--fs-xl)!important}
   .vocab-dictionary-entry__context{
     grid-template-columns:1fr;
     align-items:start;

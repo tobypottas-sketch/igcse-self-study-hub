@@ -1,26 +1,26 @@
 /* Meaning → Match: one matching set (words left, shuffled definitions right). Restrained, no dropdown, no drop zone. */
 .vocab-sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 .vocab-matchset{--ms-t1:#2e73d6;--ms-t2:#137e80;--ms-t3:#b8672a;--ms-t4:#7b57b8;--ms-t5:#c24b7e;border:0;padding:0;margin:0;display:grid;gap:14px;min-width:0}
-.vocab-matchset__hint{margin:0;color:var(--muted);font-size:.9rem;line-height:1.5}
+.vocab-matchset__hint{margin:0;color:var(--muted);font-size:var(--fs-sm);line-height:1.5}
 .vocab-matchset__board{display:grid;grid-template-columns:minmax(150px,.42fr) minmax(0,1fr);column-gap:clamp(16px,4vw,44px);row-gap:10px;min-width:0}
 .vocab-matchset__group{display:contents}
 .vocab-matchset__group--words>.vocab-matchset__item{grid-column:1}
 .vocab-matchset__group--definitions>.vocab-matchset__item{grid-column:2}
-.vocab-matchset__item{--tone:var(--line);position:relative;display:flex;align-items:center;gap:12px;min-width:0;min-height:60px;padding:12px 14px;border:1.5px solid rgba(22,48,78,.15);border-radius:15px;background:#fff;color:var(--navy);font:inherit;font-weight:700;line-height:1.4;text-align:left;cursor:pointer;overflow-wrap:anywhere;transition:border-color .15s ease,background-color .15s ease,box-shadow .15s ease,transform .15s ease}
-.vocab-matchset__item--word{font-size:1.04rem;font-weight:800}
+.vocab-matchset__item{--tone:var(--line);position:relative;display:flex;align-items:center;gap:12px;min-width:0;min-height:60px;padding:12px 14px;border:1.5px solid rgba(22,48,78,.15);border-radius:var(--r-md);background:var(--c-surface);color:var(--navy);font:inherit;font-weight:700;line-height:1.4;text-align:left;cursor:pointer;overflow-wrap:anywhere;transition:border-color .15s ease,background-color .15s ease,box-shadow .15s ease,transform .15s ease}
+.vocab-matchset__item--word{font-size:var(--fs-md);font-weight:800}
 .vocab-matchset__item:hover:not(:disabled){border-color:rgba(19,126,128,.45);box-shadow:0 6px 16px rgba(23,56,82,.07)}
 .vocab-matchset__item:focus-visible{outline:3px solid rgba(46,115,214,.32);outline-offset:2px}
-.vocab-matchset__item.is-selected{border-color:var(--navy);border-style:dashed;background:#f2f6f9;box-shadow:0 0 0 3px rgba(23,56,82,.12)}
+.vocab-matchset__item.is-selected{border-color:var(--navy);border-style:dashed;background:var(--c-surface-soft);box-shadow:0 0 0 3px rgba(23,56,82,.12)}
 .vocab-matchset__text{display:grid;gap:3px;min-width:0}
-.vocab-matchset__partner{font-size:.78rem;font-weight:800;color:var(--tone);letter-spacing:.01em}
-.vocab-matchset__badge{flex:none;display:inline-grid;place-items:center;width:24px;height:24px;border-radius:999px;border:1.5px solid var(--tone);color:var(--tone);background:#fff;font-size:.78rem;font-weight:900}
+.vocab-matchset__partner{font-size:var(--fs-xs);font-weight:800;color:var(--tone);letter-spacing:.01em}
+.vocab-matchset__badge{flex:none;display:inline-grid;place-items:center;width:24px;height:24px;border-radius:var(--r-pill);border:1.5px solid var(--tone);color:var(--tone);background:var(--c-surface);font-size:var(--fs-xs);font-weight:900}
 .vocab-matchset__badge--empty{border-color:transparent;background:rgba(22,48,78,.06)}
 .vocab-matchset__item.tone-1{--tone:var(--ms-t1)}.vocab-matchset__item.tone-2{--tone:var(--ms-t2)}.vocab-matchset__item.tone-3{--tone:var(--ms-t3)}.vocab-matchset__item.tone-4{--tone:var(--ms-t4)}.vocab-matchset__item.tone-5{--tone:var(--ms-t5)}
-.vocab-matchset__item.is-paired{border-color:var(--tone);background:color-mix(in srgb,var(--tone) 8%,#fff);box-shadow:inset 4px 0 0 var(--tone)}
-.vocab-matchset__item.is-settled{border-color:var(--tone);background:color-mix(in srgb,var(--tone) 12%,#fff);box-shadow:inset 4px 0 0 var(--tone);cursor:default;opacity:1;color:var(--navy)}
-.vocab-matchset__item.is-settled .vocab-matchset__badge{background:var(--tone);color:#fff}
+.vocab-matchset__item.is-paired{border-color:var(--tone);background:color-mix(in srgb,var(--tone) 8%,var(--c-surface));box-shadow:inset 4px 0 0 var(--tone)}
+.vocab-matchset__item.is-settled{border-color:var(--tone);background:color-mix(in srgb,var(--tone) 12%,var(--c-surface));box-shadow:inset 4px 0 0 var(--tone);cursor:default;opacity:1;color:var(--navy)}
+.vocab-matchset__item.is-settled .vocab-matchset__badge{background:var(--tone);color:var(--c-surface)}
 .vocab-matchset__item:disabled{cursor:default}
-.vocab-matchset__status{margin:0;min-height:1.5em;color:var(--navy);font-weight:750;font-size:.94rem}
+.vocab-matchset__status{margin:0;min-height:1.5em;color:var(--navy);font-weight:750;font-size:var(--fs-md)}
 .vocab-matchset__check{justify-self:start;min-width:160px}
 .vocab-matchset__check[aria-disabled="true"]{opacity:.5;cursor:not-allowed;filter:saturate(.6)}
 .vocab-matchset.is-finished .vocab-matchset__status{color:var(--teal)}

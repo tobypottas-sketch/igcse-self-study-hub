@@ -13,7 +13,7 @@ test('dictionary context row uses a fixed label column and shared typographic ba
 
 test('dictionary hierarchy gives word class and definition distinct editorial styling', () => {
   const css = fs.readFileSync(new URL('../vocabulary-extra.css', import.meta.url), 'utf8');
-  assert.match(css, /\.vocab-dictionary-entry__pos\{[^}]*background:#f4efff[^}]*color:#6650a4[^}]*border:1px solid #d9cff4/s);
-  assert.match(css, /\.vocab-dictionary-entry__definition\{[^}]*font-style:italic[^}]*color:#4b6074/s);
-  assert.match(css, /\.vocab-dictionary-entry__term\{[^}]*text-decoration-line:underline[^}]*text-decoration-color:#b7dfe2/s);
+  assert.match(css, /\.vocab-dictionary-entry__pos\{[^}]*background:var\(--c-violet-soft\)[^}]*color:var\(--c-violet\)[^}]*border:1px solid var\(--c-violet-line\)/s);
+  assert.match(css, /\.vocab-dictionary-entry__definition\{[^}]*font-style:italic[^}]*color:var\(--c-muted\)/s);
+  assert.match(css, /\.vocab-dictionary-entry__term\{[^}]*text-decoration-line:underline[^}]*text-decoration-color:var\(--c-teal-line\)/s);
 });

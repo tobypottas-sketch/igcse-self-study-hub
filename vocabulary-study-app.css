@@ -1,10 +1,10 @@
 :root{
-  --study-navy:#153a5b;
-  --study-ink:#17324d;
-  --study-muted:#64788d;
-  --study-surface:#ffffff;
-  --study-surface-soft:#f5f9fc;
-  --study-line:#dbe7f0;
+  --study-navy:var(--c-ink);
+  --study-ink:var(--c-ink);
+  --study-muted:var(--c-muted);
+  --study-surface:var(--c-surface);
+  --study-surface-soft:var(--c-surface-soft);
+  --study-line:var(--c-line);
   --study-radius-sm:12px;
   --study-radius:18px;
   --study-radius-lg:24px;
@@ -36,7 +36,7 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 [data-study-accent="spelling"]{--study-accent:#8658e8;--study-accent-soft:#f5f0ff}
 [data-study-accent="neutral"]{--study-accent:#60758a;--study-accent-soft:#f2f6f9}
 
-.study-progress{height:7px;border-radius:999px;background:#e5edf4;overflow:hidden;min-width:0}
+.study-progress{height:7px;border-radius:var(--r-pill);background:var(--c-teal-soft);overflow:hidden;min-width:0}
 .study-progress__bar{display:block;height:100%;width:var(--study-progress,0%);border-radius:inherit;background:var(--study-accent);transition:width var(--study-motion-state) var(--study-ease)}
 
 .study-enter{animation:study-enter var(--study-motion-question) var(--study-ease) both}
@@ -57,9 +57,9 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 .vocab-question-card[data-study-question]{
   position:relative;
   overflow:hidden;
-  border:1px solid #dce7ef;
-  border-radius:24px;
-  background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);
+  border:1px solid var(--c-line);
+  border-radius:var(--r-xl);
+  background:linear-gradient(180deg,var(--c-surface) 0%,var(--c-surface) 100%);
   box-shadow:0 18px 48px rgba(21,58,91,.11);
   padding:0 28px 28px;
 }
@@ -78,33 +78,33 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
   gap:20px;
   margin:0 -28px 24px;
   padding:18px 28px;
-  border-bottom:1px solid #e6edf3;
-  background:linear-gradient(135deg,color-mix(in srgb,var(--study-accent-soft) 80%,white),#fff 72%);
+  border-bottom:1px solid var(--c-teal-soft);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--study-accent-soft) 80%,white),var(--c-surface) 72%);
 }
 .vocab-study-question-header__path{display:flex;align-items:center;gap:12px;min-width:0}
 .vocab-study-question-header__path>.study-icon{
   width:40px;
   height:40px;
   padding:9px;
-  border-radius:12px;
+  border-radius:var(--r-md);
   color:var(--study-accent);
   background:color-mix(in srgb,var(--study-accent) 10%,white);
   border:1px solid color-mix(in srgb,var(--study-accent) 18%,white);
 }
 .vocab-study-question-header__path div{display:grid;gap:2px;min-width:0}
-.vocab-study-question-header__path strong{font-size:.98rem;color:var(--study-ink);letter-spacing:-.01em}
-.vocab-study-question-header__path small{font-size:.75rem;font-weight:700;color:var(--study-muted);text-transform:uppercase;letter-spacing:.08em}
+.vocab-study-question-header__path strong{font-size:var(--fs-md);color:var(--study-ink);letter-spacing:-.01em}
+.vocab-study-question-header__path small{font-size:var(--fs-xs);font-weight:700;color:var(--study-muted);text-transform:uppercase;letter-spacing:.08em}
 .vocab-question-session-progress{display:grid;grid-template-columns:auto minmax(110px,180px);align-items:center;gap:10px;min-width:160px}
-.vocab-question-session-progress>span{font-size:.8rem;font-weight:800;color:var(--study-muted);white-space:nowrap}
+.vocab-question-session-progress>span{font-size:var(--fs-xs);font-weight:800;color:var(--study-muted);white-space:nowrap}
 
 .vocab-question-meta{margin-top:2px}
-.vocab-question-card[data-study-question] .vocab-kicker{color:#547187;font-size:.72rem;letter-spacing:.11em}
+.vocab-question-card[data-study-question] .vocab-kicker{color:var(--c-muted);font-size:var(--fs-xs);letter-spacing:.11em}
 .vocab-question-card[data-study-question] .vocab-target-pill{
   display:inline-flex;
   margin:12px 0 4px;
   padding:5px 9px;
-  border-radius:999px;
-  font-size:.72rem;
+  border-radius:var(--r-pill);
+  font-size:var(--fs-xs);
   font-weight:800;
   letter-spacing:.06em;
   text-transform:uppercase;
@@ -113,9 +113,9 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
   border:1px solid color-mix(in srgb,var(--study-accent) 22%,white);
 }
 .vocab-question-card[data-study-question] .vocab-question-prompt{margin:14px 0 8px;font-size:clamp(1.42rem,2.4vw,2rem);line-height:1.2;color:var(--study-ink);letter-spacing:-.025em}
-.vocab-question-context{margin:18px 0 22px!important;border-radius:16px!important;border:1px solid #e2ebf2!important;background:#f6f9fc!important;padding:15px 17px!important}
-.vocab-question-context span{display:block;margin-bottom:6px;font-size:.7rem;font-weight:900;letter-spacing:.11em;text-transform:uppercase;color:#547187}
-.vocab-question-context p{margin:0!important;font-size:1rem!important;line-height:1.55!important;color:#23445f!important}
+.vocab-question-context{margin:18px 0 22px!important;border-radius:var(--r-md)!important;border:1px solid var(--c-teal-soft)!important;background:var(--c-surface-soft)!important;padding:15px 17px!important}
+.vocab-question-context span{display:block;margin-bottom:6px;font-size:var(--fs-xs);font-weight:900;letter-spacing:.11em;text-transform:uppercase;color:var(--c-muted)}
+.vocab-question-context p{margin:0!important;font-size:var(--fs-md)!important;line-height:1.55!important;color:var(--c-ink-2)!important}
 
 .vocab-unit-card,.vocab-pathway-card,.vocab-match-card,.vocab-choice-card{
   min-width:0;
@@ -126,7 +126,7 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 .vocab-unit-card:active,.vocab-pathway-card:not(:disabled):active,.vocab-match-card:active,.vocab-choice-card:active{transform:translateY(0) scale(.99)}
 
 .vocab-choice-fieldset,.vocab-match-card-fieldset{border:0!important;padding:0!important;margin:22px 0 0!important;min-width:0}
-.vocab-choice-fieldset>legend,.vocab-match-card-fieldset>legend{padding:0 0 12px;font-size:.82rem;font-weight:800;color:#587187}
+.vocab-choice-fieldset>legend,.vocab-match-card-fieldset>legend{padding:0 0 12px;font-size:var(--fs-sm);font-weight:800;color:var(--c-muted)}
 .vocab-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px!important}
 .vocab-choice-card{
   display:flex!important;
@@ -135,17 +135,17 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
   width:100%;
   min-height:76px;
   padding:15px 18px!important;
-  border:1.5px solid #d5e3ed!important;
-  border-radius:17px!important;
-  background:#fff!important;
+  border:1.5px solid var(--c-line)!important;
+  border-radius:var(--r-lg)!important;
+  background:var(--c-surface)!important;
   color:var(--study-ink)!important;
-  font-size:1rem!important;
+  font-size:var(--fs-md)!important;
   font-weight:700!important;
   line-height:1.35;
   text-align:left!important;
   box-shadow:0 3px 10px rgba(21,58,91,.035);
 }
-.vocab-choice-card:hover{border-color:color-mix(in srgb,var(--study-accent) 52%,#d5e3ed)!important;background:color-mix(in srgb,var(--study-accent-soft) 34%,white)!important}
+.vocab-choice-card:hover{border-color:color-mix(in srgb,var(--study-accent) 52%,var(--c-line))!important;background:color-mix(in srgb,var(--study-accent-soft) 34%,white)!important}
 .vocab-choice-card__key{
   display:inline-grid;
   place-items:center;
@@ -153,10 +153,10 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
   width:34px;
   height:34px;
   border-radius:50%;
-  background:#edf3f7;
-  border:1px solid #d9e5ed;
-  color:#4e6b80;
-  font-size:.76rem;
+  background:var(--c-tint);
+  border:1px solid var(--c-line);
+  color:var(--c-muted);
+  font-size:var(--fs-xs);
   font-weight:900;
   line-height:1;
 }
@@ -165,9 +165,9 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 .vocab-match-cue{
   margin:0 0 16px;
   padding:18px 20px!important;
-  border-radius:16px!important;
-  background:#f6f9fc!important;
-  border:1px solid #dfeaf2!important;
+  border-radius:var(--r-md)!important;
+  background:var(--c-surface-soft)!important;
+  border:1px solid var(--c-line)!important;
   color:var(--study-ink)!important;
   font-weight:800!important;
   line-height:1.45;
@@ -175,9 +175,9 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 .vocab-match-card-grid{gap:14px!important}
 .vocab-match-card{
   min-height:68px!important;
-  border:1.5px solid #d5e3ed!important;
-  border-radius:16px!important;
-  background:#fff!important;
+  border:1.5px solid var(--c-line)!important;
+  border-radius:var(--r-md)!important;
+  background:var(--c-surface)!important;
   color:var(--study-ink)!important;
   padding:15px 18px!important;
   font-weight:700!important;
@@ -187,30 +187,30 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 
 .vocab-response-stage,.vocab-retry-stage{margin-top:6px}
 .vocab-retry-stage{padding-top:2px}
-.study-feedback{display:flex;align-items:flex-start;gap:13px;border:1px solid var(--study-line);border-radius:17px;padding:15px 17px;background:var(--study-surface-soft);min-width:0;overflow-wrap:anywhere}
+.study-feedback{display:flex;align-items:flex-start;gap:13px;border:1px solid var(--study-line);border-radius:var(--r-lg);padding:15px 17px;background:var(--study-surface-soft);min-width:0;overflow-wrap:anywhere}
 .study-feedback>div{min-width:0}
 .study-feedback strong{display:block;margin-bottom:3px;color:var(--study-ink)}
-.study-feedback p{margin:0;color:#5c7183;line-height:1.45}
-.study-feedback[data-study-feedback="correct"]{border-color:#b9e7ce;background:#effaf4;color:#178553}
-.study-feedback[data-study-feedback="retry"]{border-color:#f1c7d8;background:#fff4f8;color:#d72f75}
-.vocab-support-hint.study-feedback{margin-top:10px;background:#f5f6ff;border-color:#e0e3f6;color:#536483}
-.vocab-answer-form>.vocab-button--primary,.vocab-match-card-fieldset>.vocab-button--primary{margin-top:18px!important;width:100%;min-height:48px;border-radius:12px!important;background:var(--study-accent)!important;border-color:var(--study-accent)!important;box-shadow:0 8px 18px color-mix(in srgb,var(--study-accent) 20%,transparent)!important}
+.study-feedback p{margin:0;color:var(--c-muted);line-height:1.45}
+.study-feedback[data-study-feedback="correct"]{border-color:var(--c-success-line);background:var(--c-success-soft);color:var(--c-success-ink)}
+.study-feedback[data-study-feedback="retry"]{border-color:var(--c-danger-line);background:var(--c-danger-soft);color:#d72f75}
+.vocab-support-hint.study-feedback{margin-top:10px;background:var(--c-surface-soft);border-color:var(--c-line);color:var(--c-muted)}
+.vocab-answer-form>.vocab-button--primary,.vocab-match-card-fieldset>.vocab-button--primary{margin-top:18px!important;width:100%;min-height:48px;border-radius:var(--r-md)!important;background:var(--study-accent)!important;border-color:var(--study-accent)!important;box-shadow:0 8px 18px color-mix(in srgb,var(--study-accent) 20%,transparent)!important}
 
 .vocab-pathway-card[data-study-accent]{position:relative;border-left:4px solid var(--study-accent);overflow:hidden}
 .vocab-pathway-card[data-study-accent]::after{content:"";position:absolute;right:-34px;top:-34px;width:92px;height:92px;border-radius:50%;background:var(--study-accent-soft);opacity:.8;pointer-events:none}
 .vocab-pathway-card__identity{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
-.vocab-pathway-card__icon{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;color:var(--study-accent);background:var(--study-accent-soft);border:1px solid color-mix(in srgb,var(--study-accent) 20%,white)}
+.vocab-pathway-card__icon{display:grid;place-items:center;width:44px;height:44px;border-radius:var(--r-md);color:var(--study-accent);background:var(--study-accent-soft);border:1px solid color-mix(in srgb,var(--study-accent) 20%,white)}
 .vocab-pathway-card__head{display:grid;gap:2px;text-align:left}
-.vocab-pathway-card__head small{color:#73879a;font-weight:600}
-.vocab-pathway-card__status{display:inline-flex;margin:10px 0 4px;font-size:.76rem;font-weight:800;color:var(--study-accent)}
+.vocab-pathway-card__head small{color:var(--c-muted);font-weight:600}
+.vocab-pathway-card__status{display:inline-flex;margin:10px 0 4px;font-size:var(--fs-xs);font-weight:800;color:var(--study-accent)}
 .vocab-pathway-card[data-study-accent] .vocab-pathway-stage[data-state="current"] i,
 .vocab-pathway-card[data-study-accent] .vocab-pathway-stage[data-state="complete"] i{color:var(--study-accent)}
 
 .study-milestone-card{position:relative;overflow:hidden;border:1px solid color-mix(in srgb,var(--study-accent) 30%,var(--study-line));border-radius:var(--study-radius-lg);background:linear-gradient(150deg,var(--study-surface),var(--study-accent-soft));box-shadow:var(--study-shadow);min-width:0;overflow-wrap:anywhere}
-[data-study-milestone]{margin-top:18px;padding:17px 18px;border-radius:16px;display:flex;align-items:center;justify-content:center;text-align:center;letter-spacing:.01em}
-[data-study-milestone="stage_advanced"]{border-color:color-mix(in srgb,var(--study-accent) 45%,var(--study-line));background:linear-gradient(145deg,#fff,var(--study-accent-soft))}
-[data-study-milestone="stage_advanced"]::before{content:"↑";display:inline-grid;place-items:center;width:31px;height:31px;margin-right:10px;border-radius:50%;background:var(--study-accent);color:#fff;font-weight:900}
-[data-study-milestone="mastered"]{padding:22px;border-color:color-mix(in srgb,var(--study-accent) 60%,#d8e3ec);background:radial-gradient(circle at 50% -40%,color-mix(in srgb,var(--study-accent) 20%,#fff),transparent 55%),linear-gradient(145deg,#fff,var(--study-accent-soft));box-shadow:0 16px 40px color-mix(in srgb,var(--study-accent) 14%,transparent);animation:study-celebrate var(--study-motion-celebrate) var(--study-ease) both}
+[data-study-milestone]{margin-top:18px;padding:17px 18px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;text-align:center;letter-spacing:.01em}
+[data-study-milestone="stage_advanced"]{border-color:color-mix(in srgb,var(--study-accent) 45%,var(--study-line));background:linear-gradient(145deg,var(--c-surface),var(--study-accent-soft))}
+[data-study-milestone="stage_advanced"]::before{content:"↑";display:inline-grid;place-items:center;width:31px;height:31px;margin-right:10px;border-radius:50%;background:var(--study-accent);color:var(--c-surface);font-weight:900}
+[data-study-milestone="mastered"]{padding:22px;border-color:color-mix(in srgb,var(--study-accent) 60%,var(--c-line));background:radial-gradient(circle at 50% -40%,color-mix(in srgb,var(--study-accent) 20%,var(--c-surface)),transparent 55%),linear-gradient(145deg,var(--c-surface),var(--study-accent-soft));box-shadow:0 16px 40px color-mix(in srgb,var(--study-accent) 14%,transparent);animation:study-celebrate var(--study-motion-celebrate) var(--study-ease) both}
 [data-study-milestone="mastered"]::before{content:"★";margin-right:10px;color:var(--study-accent);font-size:1.5rem;line-height:1}
 
 .vocab-summary-card[data-study-completion]{
@@ -220,24 +220,24 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
   padding:34px!important;
   text-align:center;
   overflow:hidden;
-  border-radius:26px!important;
-  border:1px solid color-mix(in srgb,var(--study-accent) 24%,#dce7ef)!important;
-  background:linear-gradient(160deg,#fff 0%,color-mix(in srgb,var(--study-accent-soft) 48%,white) 100%)!important;
+  border-radius:var(--r-xl)!important;
+  border:1px solid color-mix(in srgb,var(--study-accent) 24%,var(--c-line))!important;
+  background:linear-gradient(160deg,var(--c-surface) 0%,color-mix(in srgb,var(--study-accent-soft) 48%,white) 100%)!important;
   box-shadow:0 20px 50px rgba(21,58,91,.12)!important;
 }
 .vocab-summary-card[data-study-completion]::before{content:"";position:absolute;inset:-38% auto auto 50%;width:300px;height:300px;border-radius:50%;transform:translateX(-50%);background:radial-gradient(circle,color-mix(in srgb,var(--study-accent) 17%,transparent),transparent 68%);z-index:-1}
 .vocab-summary-identity{display:grid;justify-items:center;gap:7px;color:var(--study-accent)}
-.vocab-summary-identity>.study-icon{width:52px;height:52px;padding:12px;border-radius:16px;background:var(--study-accent-soft);border:1px solid color-mix(in srgb,var(--study-accent) 22%,white)}
+.vocab-summary-identity>.study-icon{width:52px;height:52px;padding:12px;border-radius:var(--r-md);background:var(--study-accent-soft);border:1px solid color-mix(in srgb,var(--study-accent) 22%,white)}
 .vocab-summary-card[data-study-completion] h1{margin:10px 0 4px;font-size:clamp(2rem,4vw,2.8rem);color:var(--study-ink);letter-spacing:-.035em}
 .vocab-summary-subtitle{margin:0 0 24px;color:var(--study-muted)}
 .vocab-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:22px 0}
-.vocab-summary-grid>div{padding:17px 12px;border-radius:16px;background:#fff;border:1px solid #e2ebf2;box-shadow:0 5px 14px rgba(21,58,91,.04)}
+.vocab-summary-grid>div{padding:17px 12px;border-radius:var(--r-md);background:var(--c-surface);border:1px solid var(--c-teal-soft);box-shadow:0 5px 14px rgba(21,58,91,.04)}
 .vocab-summary-grid strong{display:block;font-size:1.7rem;line-height:1;color:var(--study-accent);margin-bottom:6px}
-.vocab-summary-grid span{font-size:.76rem;font-weight:700;color:#6d8192}
+.vocab-summary-grid span{font-size:var(--fs-xs);font-weight:700;color:var(--c-muted)}
 .vocab-summary-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
 .vocab-celebration{position:relative;display:flex;align-items:center;justify-content:center;gap:12px;min-height:76px;color:var(--study-accent);animation:study-celebrate var(--study-motion-celebrate) var(--study-ease) both}
 .vocab-celebration>.study-icon{width:58px;height:58px;filter:drop-shadow(0 8px 14px color-mix(in srgb,var(--study-accent) 22%,transparent))}
-.vocab-celebration span{font-size:1rem;opacity:.72;animation:study-burst var(--study-motion-celebrate) var(--study-ease) both}
+.vocab-celebration span{font-size:var(--fs-md);opacity:.72;animation:study-burst var(--study-motion-celebrate) var(--study-ease) both}
 
 .vocab-word-pathway small{display:flex;align-items:center;gap:5px}
 .vocab-word-pathway strong{display:flex;align-items:center;gap:5px}
@@ -255,7 +255,7 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
   .vocab-shell{padding-inline:max(14px,env(safe-area-inset-left));}
   .study-progress{width:100%}
   .vocab-unit-card,.vocab-pathway-card,.study-feedback,.study-milestone-card{width:100%;max-width:100%}
-  .vocab-question-card[data-study-question]{padding:0 18px 20px;border-radius:19px}
+  .vocab-question-card[data-study-question]{padding:0 18px 20px;border-radius:var(--r-lg)}
   .vocab-study-question-header{margin:0 -18px 20px;padding:15px 18px}
   .vocab-choice-card{min-height:64px;padding:13px 14px!important}
   [data-study-milestone]{padding:14px 15px}
@@ -284,16 +284,16 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 .vocab-finish-score span{font-weight:800;color:var(--study-muted)}
 .vocab-finish-support{max-width:520px;margin:0 auto 18px;color:var(--study-muted);font-weight:700}
 .vocab-finish-evidence{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
-.vocab-finish-evidence>div{display:grid;gap:2px;padding:14px;border:1px solid color-mix(in srgb,var(--study-accent) 14%,#dce5ec);border-radius:16px;background:color-mix(in srgb,var(--study-accent-soft) 42%,white)}
-.vocab-finish-evidence strong{font-size:1.55rem}.vocab-finish-evidence span{font-size:.82rem;font-weight:800;color:var(--study-muted)}
-.vocab-finish-context{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:18px 0 10px;text-align:left}.vocab-finish-context span{font-size:.82rem;font-weight:800;color:var(--study-muted)}
+.vocab-finish-evidence>div{display:grid;gap:2px;padding:14px;border:1px solid color-mix(in srgb,var(--study-accent) 14%,var(--c-teal-soft));border-radius:var(--r-md);background:color-mix(in srgb,var(--study-accent-soft) 42%,white)}
+.vocab-finish-evidence strong{font-size:1.55rem}.vocab-finish-evidence span{font-size:var(--fs-sm);font-weight:800;color:var(--study-muted)}
+.vocab-finish-context{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:18px 0 10px;text-align:left}.vocab-finish-context span{font-size:var(--fs-sm);font-weight:800;color:var(--study-muted)}
 .vocab-finish-ladder{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;min-width:0;margin:10px 0 18px}
-.vocab-finish-stage{display:grid;place-items:center;gap:4px;min-width:0;padding:10px 4px;border-radius:13px;background:#f7f9fb;border:1px solid #e6edf2;color:var(--study-muted)}
+.vocab-finish-stage{display:grid;place-items:center;gap:4px;min-width:0;padding:10px 4px;border-radius:var(--r-md);background:var(--c-bg);border:1px solid var(--c-teal-soft);color:var(--study-muted)}
 .vocab-finish-stage i{font-style:normal;font-weight:900}.vocab-finish-stage small{max-width:100%;overflow-wrap:anywhere;font-weight:800}
 .vocab-finish-stage[data-state="complete"]{background:color-mix(in srgb,var(--study-accent-soft) 60%,white);border-color:color-mix(in srgb,var(--study-accent) 20%,white);color:var(--study-ink)}
 .vocab-finish-stage[data-state="current"]{background:color-mix(in srgb,var(--study-accent-soft) 78%,white);border-color:color-mix(in srgb,var(--study-accent) 34%,white);color:var(--study-ink);box-shadow:0 6px 18px color-mix(in srgb,var(--study-accent) 10%,transparent)}
-.vocab-finish-unlock{display:grid;gap:4px;margin:4px 0 18px;padding:14px;border-radius:16px;background:color-mix(in srgb,var(--study-accent-soft) 68%,white);border:1px solid color-mix(in srgb,var(--study-accent) 22%,white)}
-.vocab-finish-unlock span{font-size:.78rem;font-weight:800;color:var(--study-muted)}.vocab-finish-unlock strong{letter-spacing:.035em}.vocab-finish-unlock--mastered strong{font-size:1.05rem}
+.vocab-finish-unlock{display:grid;gap:4px;margin:4px 0 18px;padding:14px;border-radius:var(--r-md);background:color-mix(in srgb,var(--study-accent-soft) 68%,white);border:1px solid color-mix(in srgb,var(--study-accent) 22%,white)}
+.vocab-finish-unlock span{font-size:var(--fs-xs);font-weight:800;color:var(--study-muted)}.vocab-finish-unlock strong{letter-spacing:.035em}.vocab-finish-unlock--mastered strong{font-size:var(--fs-md)}
 .vocab-finish-actions{display:flex;justify-content:center;gap:10px;margin-top:18px}.vocab-finish-actions .vocab-button{min-width:170px}
-@media (max-width:620px){.vocab-shell--finish{display:block;padding-block:16px}.vocab-finish-card{width:100%}.vocab-finish-evidence{grid-template-columns:1fr}.vocab-finish-context{display:grid;text-align:center}.vocab-finish-ladder{gap:4px}.vocab-finish-stage{padding:8px 2px}.vocab-finish-stage small{font-size:.66rem}.vocab-finish-actions{display:grid}.vocab-finish-actions .vocab-button{width:100%;min-width:0}}
+@media (max-width:620px){.vocab-shell--finish{display:block;padding-block:16px}.vocab-finish-card{width:100%}.vocab-finish-evidence{grid-template-columns:1fr}.vocab-finish-context{display:grid;text-align:center}.vocab-finish-ladder{gap:4px}.vocab-finish-stage{padding:8px 2px}.vocab-finish-stage small{font-size:var(--fs-xs)}.vocab-finish-actions{display:grid}.vocab-finish-actions .vocab-button{width:100%;min-width:0}}
 @media (prefers-reduced-motion:reduce){.vocab-finish-card,.vocab-finish-stars,.vocab-finish-stage,.vocab-finish-unlock{animation-duration:.01ms!important;transition-duration:.01ms!important}}
