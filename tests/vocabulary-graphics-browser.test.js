@@ -120,6 +120,32 @@ browserTest('the Meaning card still starts its pathway with a PNG in place (CTA,
   } finally { await api.close(); }
 });
 
+browserTest('shipped PNGs never flash the old SVG art first: while the PNG is still loading the SVG is not painted', async () => {
+  const slowAssets = async page => {
+    await withAssets()(page);
+    await page.route('**/assets/vocabulary/**', async route => { await new Promise(done => setTimeout(done, 3000)); await route.fulfill({ contentType:'image/png', body:route.request().url().includes('/units/') ? UNIT_PNG : PATHWAY_PNG }); });
+  };
+  const api = await open({ width:1280, height:900 }, { beforeLoad:slowAssets });
+  try {
+    // sample every frame for ~900ms (the PNGs are still in flight): the SVG must never be visible, and nothing is ready yet
+    const seen = await api.page.evaluate(() => new Promise(resolve => {
+      const frames = []; const start = performance.now();
+      const tick = () => {
+        const slots = [...document.querySelectorAll('[data-art-slot]')];
+        frames.push({ slots:slots.length, visibleSvg:slots.filter(slot => { const svg = slot.querySelector('.study-art__svg'); return svg && getComputedStyle(svg).visibility !== 'hidden'; }).length, ready:slots.filter(slot => slot.classList.contains('is-png-ready')).length });
+        if (performance.now() - start < 900) requestAnimationFrame(tick); else resolve(frames);
+      };
+      tick();
+    }));
+    assert.ok(seen.length > 10);
+    assert.ok(seen.every(frame => frame.slots >= 7), 'every slot is marked as having a PNG from the first render');
+    assert.ok(seen.every(frame => frame.visibleSvg === 0), 'the old SVG art is never painted while the PNG loads');
+    assert.ok(seen.every(frame => frame.ready === 0), 'the PNGs were still loading during the sample');
+    await reveal(api);
+    assert.equal((await layers(api)).every(state => state.loaded && state.svgVisibility === 'hidden'), true);
+  } finally { await api.close(); }
+});
+
 browserTest('missing files: no broken-image icon, the SVG stays, layout is unchanged and the failure is not retried', async () => {
   for (const [width, height] of WIDTHS) {
     const baseline = await open({ width, height });

@@ -1,11 +1,12 @@
 /* PNG illustration layer (see src/vocabulary/graphics-registry.js).
    The slot (.vocab-unit-card__art, .vocab-unit-hero__art, .vocab-pathway-card__art) already owns its width and height. A PNG
    fills that slot exactly like the inline SVG does, so adding or removing a PNG can never move, resize or reflow anything.
-   Until it has loaded (.is-png-ready) the PNG is invisible and the SVG stays; a PNG that fails is removed by
-   graphics-runtime.js, so there is never a broken-image icon. */
+   When a PNG is shipped the slot is rendered as .has-png and the placeholder SVG is never painted (no old-art flash before the PNG
+   fades in). A PNG that fails to load is removed by graphics-runtime.js, which drops .has-png, so the SVG fallback then shows and
+   there is never a broken-image icon. */
 .study-art__png{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity 220ms ease;pointer-events:none;user-select:none;-webkit-user-drag:none;max-width:none}
 [data-art-slot].is-png-ready .study-art__png{opacity:1}
-[data-art-slot].is-png-ready .study-art__svg{visibility:hidden}
+[data-art-slot].has-png .study-art__svg{visibility:hidden}
 
 /* Unit card (home): the banner fills the card's art tile and crops evenly, keeping the subject on the right. No stretching. */
 .vocab-unit-card__art .study-art__png{object-fit:cover;object-position:46% 50%}
