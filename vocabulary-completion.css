@@ -1,0 +1,39 @@
+/* Completion sequence (presentation only). Final state is the default; motion applies only while data-completion-sequence="playing". */
+.vocab-finish-score{position:relative;display:grid;place-items:center;width:172px;height:172px;margin:12px auto 8px;gap:0}
+.vocab-finish-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.vocab-finish-ring circle{fill:none;stroke-width:8;stroke-linecap:round}
+.vocab-finish-ring__track{stroke:var(--c-teal-soft)}
+.vocab-finish-ring__fill{stroke:var(--study-accent,var(--c-teal));stroke-dasharray:var(--ring-circumference);stroke-dashoffset:var(--ring-offset)}
+.vocab-finish-score__text{display:grid;justify-items:center;gap:2px;text-align:center}
+.vocab-finish-score__text strong{font-size:clamp(1.5rem,5.5vw,2rem);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.vocab-finish-score__text strong span{color:inherit;font-weight:inherit}
+.vocab-finish-score__text>span{font-size:var(--fs-sm)}
+.vocab-completion-skip{position:absolute;top:10px;right:12px;min-height:var(--tap-min);padding:0 12px;border:0;background:none;color:var(--c-muted);font:inherit;font-size:var(--fs-sm);font-weight:700;cursor:pointer;text-decoration:underline}
+.vocab-completion-skip[hidden]{display:none}
+.vocab-finish-card{position:relative}
+
+[data-completion-sequence="playing"] .vocab-finish-ring__fill{animation:vc-ring 1000ms cubic-bezier(.22,.8,.3,1) 200ms backwards}
+[data-completion-sequence="playing"] .vocab-finish-ring__track{animation:vc-fade 300ms ease-out backwards}
+[data-completion-sequence="playing"] .vocab-finish-score__text{animation:vc-pop 420ms cubic-bezier(.2,1.2,.4,1) 350ms backwards}
+[data-completion-sequence="playing"] .vocab-finish-stars span{animation:vc-star 460ms cubic-bezier(.2,1.4,.4,1) backwards}
+[data-completion-sequence="playing"] .vocab-finish-stars span:nth-child(1){animation-delay:1000ms}
+[data-completion-sequence="playing"] .vocab-finish-stars span:nth-child(2){animation-delay:1200ms}
+[data-completion-sequence="playing"] .vocab-finish-stars span:nth-child(3){animation-delay:1400ms}
+[data-completion-sequence="playing"] .vocab-finish-evidence>div{animation:vc-rise 400ms ease-out 1300ms backwards}
+[data-completion-sequence="playing"] .vocab-finish-stage{animation:vc-rise 350ms ease-out backwards}
+[data-completion-sequence="playing"] .vocab-finish-stage:nth-child(1){animation-delay:1500ms}
+[data-completion-sequence="playing"] .vocab-finish-stage:nth-child(2){animation-delay:1620ms}
+[data-completion-sequence="playing"] .vocab-finish-stage:nth-child(3){animation-delay:1740ms}
+[data-completion-sequence="playing"] .vocab-finish-stage:nth-child(4){animation-delay:1860ms}
+[data-completion-sequence="playing"] .vocab-finish-stage:nth-child(5){animation-delay:1980ms}
+[data-completion-sequence="playing"] .vocab-finish-unlock{animation:vc-pop 450ms cubic-bezier(.2,1.2,.4,1) 1900ms backwards}
+[data-completion-sequence="playing"] .vocab-finish-actions{animation:vc-fade 400ms ease-out 2100ms backwards}
+@keyframes vc-ring{from{stroke-dashoffset:var(--ring-circumference)}}
+@keyframes vc-fade{from{opacity:0}}
+@keyframes vc-pop{from{opacity:0;transform:scale(.7)}}
+@keyframes vc-star{from{opacity:0;transform:scale(.2) rotate(-25deg)}60%{transform:scale(1.25) rotate(6deg)}}
+@keyframes vc-rise{from{opacity:0;transform:translateY(8px)}}
+@media (prefers-reduced-motion:reduce){
+  [data-completion-sequence] *{animation:none!important;transition:none!important}
+  .vocab-completion-skip{display:none!important}
+}
