@@ -1,4 +1,5 @@
 import unit1LanguageBank from './unit-01-language-bank.js';
+import unit1WordFamilyExpansion from './unit-01-word-family-expansion.js';
 
 const unitNumber = 1;
 const status = 'approved';
@@ -108,6 +109,9 @@ export default [
 
   family('reasonable_a','vocab_reasonable','Use the correct form from the reasonable word family.','The membership fee is _____ priced for students.','reasonably'),
   family('reasonable_b','vocab_reasonable','Use the correct form from the reasonable word family.','The referee rejected the _____ complaint immediately.','unreasonable'),
+
+  // Teacher-approved expansion: three more items for each of the 25 words with a genuine family.
+  ...unit1WordFamilyExpansion,
 
   // Reviewed language-bank contexts publish through the existing unit-activity channel so
   // browser and server share one authoritative record without adding database columns.
