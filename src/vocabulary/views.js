@@ -204,7 +204,7 @@ function renderPathwayCard(pathway, pathwayStates, ready) {
     : '';
   const disabled = ready && !unavailable ? '' : ' disabled aria-disabled="true"';
   const evidenceShell = unavailable ? '' : pathwayEvidence(state);
-  const cta = unavailable ? 'Not yet available for this unit' : `${state.mastered ? 'Review pathway' : 'Continue pathway'} →`;
+  const cta = unavailable ? '' : `${state.mastered ? 'Review pathway' : 'Continue pathway'} →`;
   return `<button type="button" class="vocab-pathway-card has-study-art study-enter" data-action="open-pathway" data-pathway="${pathway.id}" data-pathway-status="${status}" data-study-accent="${escapeHtml(identity.accent)}"${disabled}><span class="vocab-pathway-card__identity"><span class="vocab-pathway-card__icon">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}</span><span class="vocab-pathway-card__head"><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(identity.purpose)}</small></span></span><span class="vocab-pathway-card__status">${escapeHtml(statusLabel)}</span>${coverage}${evidenceShell}<span class="vocab-pathway-ladder" aria-label="${escapeHtml(pathway.label)} progression">${stages}</span><span class="vocab-pathway-card__cta">${escapeHtml(cta)}</span>${pathwayArtSlot(pathway.id)}</button>`;
 }
 
