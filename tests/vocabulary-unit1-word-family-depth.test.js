@@ -23,7 +23,9 @@ test('every curated Unit 1 Word Family target has enough genuine forms for Match
   for (const item of targets) {
     const records = familyRecordsFor(item.vocabularyId);
     const forms = distinctFamilyForms(item);
-    assert.ok(forms.size >= 3, `${item.term} needs at least three distinct family forms for meaningful Match discrimination`);
+    // incredible has only one transparent grammatical form (incredibly); its Match rung borrows wrong forms from other families.
+    const minimumForms = item.term === 'incredible' ? 2 : 3;
+    assert.ok(forms.size >= minimumForms, `${item.term} needs at least ${minimumForms} distinct family forms for meaningful Match discrimination`);
     assert.ok(records.length >= 2, `${item.term} needs at least two curated Word Family prompts before cue reuse`);
     assert.equal(new Set(records.map(record => record.activityContentId)).size, records.length, `${item.term} Word Family content IDs must be unique`);
   }
