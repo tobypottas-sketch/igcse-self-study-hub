@@ -297,3 +297,6 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 .vocab-finish-actions{display:flex;justify-content:center;gap:10px;margin-top:18px}.vocab-finish-actions .vocab-button{min-width:170px}
 @media (max-width:620px){.vocab-shell--finish{display:block;padding-block:16px}.vocab-finish-card{width:100%}.vocab-finish-evidence{grid-template-columns:1fr}.vocab-finish-context{display:grid;text-align:center}.vocab-finish-ladder{gap:4px}.vocab-finish-stage{padding:8px 2px}.vocab-finish-stage small{font-size:var(--fs-xs)}.vocab-finish-actions{display:grid}.vocab-finish-actions .vocab-button{width:100%;min-width:0}}
 @media (prefers-reduced-motion:reduce){.vocab-finish-card,.vocab-finish-stars,.vocab-finish-stage,.vocab-finish-unlock{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* Answer options never leave a single word alone on the last line: balance the lines (pretty is the fallback). */
+.vocab-choice-card>span:not(.vocab-choice-card__key),.vocab-match-card,.vocab-choice,.vocab-evidence-option{text-wrap:pretty;text-wrap:balance}
