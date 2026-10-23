@@ -442,7 +442,7 @@ function handleAnswer(form, providedAnswer = null) {
   state.streak = result.correct && !hadError ? (state.streak ?? 0) + 1 : 0;
   const { done, total } = missionProgress(state.session);
   const momentum = total >= 6 && done === Math.floor(total / 2) && completeTarget ? `Halfway — ${done} of ${total}` : state.streak >= 3 ? `${state.streak} in a row` : null;
-  renderCurrentQuestion({ correct:result.correct, message, momentum });
+  renderCurrentQuestion({ correct:result.correct, message, momentum, filledAnswer:result.correct ? String(rawAnswer ?? '').trim() : '' });
 }
 // Meaning → Match interaction. Taps only change the pairing state and repaint the set in place (focus is kept), so a tap
 // never re-renders the question, never touches the attempt queue, and never changes session counters.
