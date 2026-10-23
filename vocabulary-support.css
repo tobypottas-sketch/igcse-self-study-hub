@@ -77,3 +77,6 @@
   .vocab-support-card--bank .vocab-bank-media{aspect-ratio:16/8}
 }
 @media(max-width:800px){.vocab-mixed-media{aspect-ratio:16/7.5}}
+
+/* Unit hero: clear space between the stat pills and the overall progress line. */
+.vocab-unit-hero>.study-progress{margin-top:20px}
