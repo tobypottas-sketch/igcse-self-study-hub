@@ -48,8 +48,8 @@ test('publisher deduplicates global items but keeps separate unit occurrences', 
   const unit1 = minimalLiveUnit();
   const unit2 = structuredClone(unit1);
   unit2.unitNumber = 2;
-  unit2.unitTitle = 'Travel and Transport';
-  unit2.occurrences = unit2.occurrences.map((occ,index) => ({ ...occ, occurrenceId:`u2_${index + 1}`, unitNumber:2, unitTitle:'Travel and Transport' }));
+  unit2.unitTitle = 'Digital Life';
+  unit2.occurrences = unit2.occurrences.map((occ,index) => ({ ...occ, occurrenceId:`u2_${index + 1}`, unitNumber:2, unitTitle:'Digital Life' }));
   unit2.contexts = unit2.contexts.map((ctx,index) => ({ ...ctx, occurrenceId:`u2_${Math.floor(index / 3) + 1}`, contextId:`u2_${ctx.contextId}` }));
   unit2.occurrences = unit2.occurrences.map((occ,index) => ({ ...occ, contextIds:[`u2_c${index + 1}a`,`u2_c${index + 1}b`,`u2_c${index + 1}c`] }));
 
