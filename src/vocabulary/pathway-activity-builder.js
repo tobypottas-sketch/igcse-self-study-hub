@@ -30,6 +30,8 @@ function shuffle(values, seed) {
   for (let i=output.length-1;i>0;i-=1) { state=(Math.imul(state,1664525)+1013904223)>>>0; const j=state%(i+1); [output[i],output[j]]=[output[j],output[i]]; }
   return output;
 }
+// Presentation order only: seeded by the content seed AND the presentation nonce, never part of question identity or grading.
+function present(values, label, args) { return shuffleAnswerOptions(values,`${args.seed}:${label}`,args.optionNonce); }
 function senseFor(item, occurrence={}) { return array(item?.senses).find(s=>s?.senseId===occurrence?.senseId) ?? array(item?.senses)[0] ?? {}; }
 function definitionFor(item, occurrence={}) { const sense=senseFor(item,occurrence); return text(sense.meaning)||text(item?.coreMeaning)||text(array(sense.acceptedParaphrases)[0]); }
 function itemContentId(args) { return `item:${args.item.vocabularyId}:${args.occurrence?.senseId ?? senseFor(args.item,args.occurrence)?.senseId ?? 'sense'}`; }
@@ -80,14 +82,14 @@ function contextSentenceMatch(args, definition) {
     const accepted=text(bankContext.answer);
     const wrong=array(bankContext.distractors).map(row=>text(row?.text)).filter(Boolean);
     if (!accepted||wrong.length!==3||!text(bankContext.text).includes('____')) throw new Error('Language-bank Context Match record is incomplete.');
-    const options=shuffle([accepted,...wrong],`${args.seed}:${bankContext.id}:context-match`);
+    const options=present([accepted,...wrong],`${bankContext.id}:context-match`,args);
     const source=text(bankContext.text);
     const pairs=options.map((option,index)=>({vocabularyId:option===accepted?args.item.vocabularyId:`alt-${index}`,term:option===accepted?source:'',definition:option}));
     return base({definition,occurrence:args.occurrence,contentId:`language-bank:${bankContext.id}`,contentSource:'language_bank',prompt:'Match the sentence to the word or phrase that completes it.',markingReference:{acceptedAnswers:[accepted]},extra:{pairs,sourceText:source,languageBankContextId:bankContext.id,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:source,matchOptions:options,matchPresentation:'context_gap_to_word',distractorSource:DISTRACTOR_SOURCE.REVIEWED}});
   }
   const picked=legacyContext ?? blankableContext(args, args.requireReviewed===true), context=picked.context, term=picked.surface, gap=blankDistractorsDetailed(args,picked,3), alternatives=gap.options;
   const source=picked.sourceText;
-  const options=shuffle([term,...alternatives],`${args.seed}:context-match`);
+  const options=present([term,...alternatives],'context-match',args);
   const pairs=options.map((option,index)=>({vocabularyId:option===term?args.item.vocabularyId:`alt-${index}`,term:option===term?source:'',definition:option}));
   return base({definition,occurrence:args.occurrence,contentId:context.contextId,contentSource:'context',prompt:'Match the sentence to the word that completes it.',markingReference:{acceptedAnswers:[term]},extra:{pairs,sourceText:source,contextId:context.contextId,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:source,matchOptions:options,matchPresentation:'context_gap_to_word',distractorSource:gap.source}});
 }
@@ -113,7 +115,7 @@ function wordFamilyMatch(args, definition) {
     alternatives=[...ownAlternatives,...shuffle(cross,`${args.seed}:family-cross`).slice(0,2)];
     if (alternatives.length<2) throw new Error('Word Family Match requires at least two competing forms.');
   }
-  const options=shuffle([accepted[0],...shuffle(alternatives,`${args.seed}:family-wrong`).slice(0,3)],`${args.seed}:family-match`);
+  const options=present([accepted[0],...shuffle(alternatives,`${args.seed}:family-wrong`).slice(0,3)],'family-match',args);
   const cue=text(data.sourceText)||text(data.prompt)||`Choose the correct form of “${text(args.item.term)}”.`;
   const pairs=options.map((option,index)=>({vocabularyId:index===0?args.item.vocabularyId:`alt-${index}`,term:index===0?cue:'',definition:option}));
   return base({definition,occurrence:args.occurrence,contentId:record.activityContentId,contentSource:'unit_activity',prompt:'Match the word-family cue to the correct form.',markingReference:{acceptedAnswers:accepted},extra:{pairs,sourceText:text(data.sourceText)||null,activityContentId:record.activityContentId,taskType:'word_family',primaryEvidenceTargetId:data.primaryEvidenceTargetId ?? args.item.vocabularyId,matchCue:cue,matchOptions:options,matchPresentation:'word_family_form'}});
@@ -140,7 +142,7 @@ function precisionChoice(args, definition) {
 }
 function precisionMatch(args, definition) {
   const {record,data,accepted,distractors}=precisionMaterial(args), cue=text(data.sourceText)||text(data.prompt);
-  const options=shuffle([accepted[0],...distractors.slice(0,3)],`${args.seed}:precision-match`);
+  const options=present([accepted[0],...distractors.slice(0,3)],'precision-match',args);
   const pairs=options.map((option,index)=>({vocabularyId:index===0?args.item.vocabularyId:`alt-${index}`,term:index===0?cue:'',definition:option}));
   return base({definition,occurrence:args.occurrence,contentId:record.activityContentId,contentSource:'unit_activity',prompt:'Match the weak wording to the most precise replacement.',markingReference:{acceptedAnswers:accepted},extra:{pairs,sourceText:cue,activityContentId:record.activityContentId,taskType:'improve_vocabulary',primaryEvidenceTargetId:data.primaryEvidenceTargetId ?? args.item.vocabularyId,matchCue:cue,matchOptions:options,matchPresentation:'precision_replacement'}});
 }
@@ -155,15 +157,25 @@ function spellingChoice(args, definition) {
 function spellingCueMatch(args, definition) {
   const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence), spelled=spellingOptions(args,3), wrong=spelled.errors;
   if (!term||!meaning||wrong.length<3) throw new Error('Spelling Match requires three plausible alternatives.');
-  const options=shuffle([term,...wrong],`${args.seed}:spelling-match`);
+  const options=present([term,...wrong],'spelling-match',args);
   const pairs=options.map((option,index)=>({vocabularyId:index===0?args.item.vocabularyId:`alt-${index}`,term:index===0?meaning:'',definition:option}));
   return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:'Match the meaning cue to the correctly spelled word.',markingReference:{acceptedAnswers:[term]},extra:{pairs,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:meaning,matchOptions:options,matchPresentation:'spelling_visual_discrimination',distractorSource:spelled.source}});
+}
+// Tile order is presentation: nonce-driven, never the solved word, and (where the caller knows it) never the order the learner saw last time.
+function spellingTiles(letters, term, args) {
+  const avoid=new Set(array(args.avoidTileOrders).map(String));
+  let tiles=null;
+  for (let attempt=0; attempt<12; attempt+=1) {
+    tiles=unsolvedTileOrder(letters,term,`${args.seed}:spelling-tiles:${args.optionNonce}:${attempt}`);
+    if (!avoid.has(tiles.join(''))) return tiles;
+  }
+  return tiles;
 }
 function spellingRebuild(args, definition) {
   const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence);
   if (!term||!meaning) throw new Error('Spelling rebuild requires a target word and meaning.');
   const letters=Array.from(term).filter(char=>!/\s/.test(char)); const spaced=Array.from(term).join(' ');
-  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Rebuild the word meaning “${meaning}”.`,markingReference:{acceptedAnswers:[term,spaced]},extra:{tiles:unsolvedTileOrder(letters,term,`${args.seed}:spelling-tiles`),primaryEvidenceTargetId:args.item.vocabularyId}});
+  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Rebuild the word meaning “${meaning}”.`,markingReference:{acceptedAnswers:[term,spaced]},extra:{tiles:spellingTiles(letters,term,args),primaryEvidenceTargetId:args.item.vocabularyId}});
 }
 function spellInContext(args, definition) {
   const context=blankableContext(args), term=text(args.item.term), rewrite=text(context.targetRewrite);
@@ -184,12 +196,12 @@ const BUILDERS=Object.freeze({
   spell_in_context:spellInContext
 });
 
-export function buildPathwayActivity({activityType,occurrence,item,contexts=[],unitActivities=[],unitItems=[],unitContexts=[],unitOccurrences=[],mastery={},readinessStage=null,usedContentIds=[],seed='',optionNonce='',requireReviewed=false}={}) {
+export function buildPathwayActivity({activityType,occurrence,item,contexts=[],unitActivities=[],unitItems=[],unitContexts=[],unitOccurrences=[],mastery={},readinessStage=null,usedContentIds=[],seed='',optionNonce='',avoidTileOrders=[],requireReviewed=false}={}) {
   if (!PATHWAY_ACTIVITY_TYPES.has(activityType)) throw new Error('Not a fixed-pathway activity type.');
   if (!occurrence||!item) throw new Error('Vocabulary occurrence and item are required.');
   const definition=activityDefinition(activityType);
   if (!definition||!isActivityLive(definition.id)) throw new Error('Fixed-pathway activity is unavailable.');
   const builder=BUILDERS[definition.id];
   if (!builder) throw new Error(`No fixed-pathway builder exists for ${definition.id}.`);
-  return builder({activityType,occurrence,item,contexts,unitActivities,unitItems,unitContexts,unitOccurrences,mastery,readinessStage,usedContentIds,seed,optionNonce,requireReviewed},definition);
+  return builder({activityType,occurrence,item,contexts,unitActivities,unitItems,unitContexts,unitOccurrences,mastery,readinessStage,usedContentIds,seed,optionNonce,avoidTileOrders,requireReviewed},definition);
 }

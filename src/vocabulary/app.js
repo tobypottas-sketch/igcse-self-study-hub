@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '../supabase.js';
-import { loadVocabularyDashboard, loadMeritAwardCount, loadVocabularyMissions, loadVocabularyUnit, loadStudentMastery, recordVocabularyMission, submitVocabularyAttempt } from './data.js';
+import { loadVocabularyDashboard, loadMeritAwardCount, loadVocabularyMissions, loadVocabularyUnit, loadStudentMastery, recordVocabularyMission, startVocabularyMission, submitVocabularyAttempt } from './data.js';
 import { achievements as buildAchievements, bestAndAim, computeXp, describeEngagement, evaluateMission, levelFor, meritProgress, nextChallenge, progressSnapshot, weeklyGoal } from './engagement-model.js';
 import { markAchievementsSeen, newAchievements } from './achievements-seen.js';
 import { trackVocabularyEvent } from './tracking.js';
@@ -21,6 +21,9 @@ import { installMatchDrag, matchDragJustEnded } from './match-drag.js';
 import { activityFamily } from './activity-families.js';
 import { MIN_SHORT_MISSION, familyTargets, loadLastChoice, pathwayPracticeOptions, saveLastChoice } from './pathway-choice.js';
 import { loadSeenContent, saveSeenContent } from './seen-content.js';
+import { derivePresentationNonce, orderMissionTargets } from './mission-seed.js';
+import { clearMission, loadMission, markTargetComplete, saveMission, usedFromObject, usedToObject } from './mission-cache.js';
+import { acquireMission } from './mission-lifecycle.js';
 import { playCompletionSequence } from './completion-sequence.js';
 import { playCue, setSoundEnabled, soundEnabled } from './sound.js';
 import { matchKeyTarget, renderMatchSet, repaintMatchSet } from './match-set-view.js';
@@ -93,9 +96,23 @@ function applyServerAttemptResult(entry, result) {
     state.unitMastery[occurrenceId] = { ...latestUnit, contextualEvidence:{ ...previousDetail, pathwayProgress:{ ...(previousDetail.pathwayProgress ?? {}), [result.pathwayId]:result.pathwayProgress } } };
   }
 }
+// The server refuses attempts that name a mission it did not issue to this student or that is no longer open (another device started a new
+// one, the mission went stale, ...). The student's answer is still real evidence, so the SAME attempt id is re-sent as ordinary practice with no
+// mission fields: it is saved, the queue is not blocked, and it simply cannot count towards that mission.
+async function submitAttempt(payload) {
+  try { return await submitVocabularyAttempt(state.client, payload); }
+  catch (error) {
+    if (payload.missionId && (error?.code === 'mission_not_open' || error?.code === 'mission_not_issued')) {
+      state.missionLost = payload.missionId;
+      const { missionId, missionSize, missionKind, practiceFamily, ...ordinary } = payload;
+      return submitVocabularyAttempt(state.client, ordinary);
+    }
+    throw error;
+  }
+}
 function attempts() {
   return state.attempts ??= createAttemptPersistence({
-    submit:payload => submitVocabularyAttempt(state.client, payload),
+    submit:submitAttempt,
     apply:applyServerAttemptResult,
     onBlocked:showSyncWarning,
     onRecovered:clearSyncWarning,
@@ -261,7 +278,7 @@ function resetSessionState(continueHistory = false) {
   if (!continueHistory) { state.recentActivities = new Map(); state.usedContentIds = loadSeenContent(state.userKey); }
   state.current = null; state.recoveryNeeded = new Set(); state.timedPreviousActivityType = null; state.finishPending = false;
 }
-function startPathwaySession(pathwayId, continueHistory = false, choice = null) {
+function startPathwaySession(pathwayId, continueHistory = false, choice = null, forceNew = false) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   const pathwayStates = buildUnitPathwayStates({ occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
   // A locked pathway can never start a session, whatever asked for it.
@@ -288,10 +305,69 @@ function startPathwaySession(pathwayId, continueHistory = false, choice = null) 
     const ranked = rankedTargets(Math.max(10,state.content.occurrences.length),'adaptive').filter(target => eligibleIds.has(target.occurrenceId));
     selected = [...ranked, ...eligible.filter(target => !ranked.some(row => row.occurrenceId === target.occurrenceId))].slice(0,10);
   }
-  state.pathwayId = pathwayId; state.pathwayStage = stageId; state.pathwayChoice = pathwayChoice; state.practiceFocus = null; state.mixedReview = false;
-  state.session = createSession({ unitNumber:state.currentUnitNumber, mode:'adaptive', targetIds:selected.map(row => row.occurrenceId), practiceMode:'adaptive', now:new Date() }); state.session = withMissionId(state.session);
-  state.queue = [...selected]; resetSessionState(continueHistory);
+  return beginSession({ kind:'pathway', pathwayId, stageId, familyId:pathwayChoice?.familyId ?? null, selected, forceNew, continueHistory, mode:'adaptive', durationMinutes:null,
+    prepare:() => { state.pathwayId = pathwayId; state.pathwayStage = stageId; state.pathwayChoice = pathwayChoice; state.practiceFocus = null; state.mixedReview = false; },
+    announce:() => {
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`pathway:${pathwayId}:${stageId}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, pathway_id:pathwayId, pathway_stage:stageId, ...(pathwayChoice ? { practice_family:pathwayChoice.familyId } : {}) } }).catch(() => {});
+    } });
+}
+// Every mission-backed session starts here. The server issues (or resumes) the mission; the client only ever receives its id and seed.
+// A session that cannot have a server mission (preview, no connection object, fewer than ten targets, timed) keeps the legacy
+// seeding and sends no mission fields. A mission-eligible session whose RPC fails does NOT start and never makes a second mission:
+// the learner sees a plain "try again" message, or resumes the cached open mission with the same id.
+function beginSession(request) {
+  const { kind, pathwayId = null, stageId = null, familyId = null, selected, forceNew = false, mode } = request;
+  const eligible = !state.preview && mode === 'adaptive' && selected.length === 10 && typeof state.client?.rpc === 'function';
+  if (!eligible) return commitSession(request, null, null);
+  const slot = { unitNumber:state.currentUnitNumber, kind, pathwayId, stageId };
+  // A mission that has just finished is still open on the server until its settlement returns; starting the next one waits for that, so
+  // "Continue" can never resume the mission the student has only just completed.
+  return Promise.resolve(state.settling).then(() => acquireMission({ start:ask => startVocabularyMission(state.client, { unitNumber:ask.unitNumber, kind:ask.kind, pathwayId:ask.pathwayId, pathwayStage:ask.stageId, phase:'stage', forceNew:ask.forceNew }), userKey:state.userKey, slot, familyId, forceNew }))
+    .then(acquired => {
+      if (acquired.status !== 'ready') throw new Error('We could not start this mission just now. Check your connection and try again; nothing has been lost.');
+      // A cached mission whose ten targets are all finished was never settled (the page closed or the request failed). It is settled once
+      // here and then replaced, so a settlement that can never succeed cannot trap the student on a finished mission.
+      const cached = acquired.extras && acquired.extras.missionId === acquired.missionId ? acquired.extras : null;
+      if (cached && cached.targetIds.length === 10 && cached.targetIds.every(id => cached.completedTargetIds.includes(id))) {
+        return Promise.resolve(recordVocabularyMission(state.client, acquired.missionId)).catch(() => null).then(() => {
+          clearMission(state.userKey, slot);
+          return acquireMission({ start:ask => startVocabularyMission(state.client, { unitNumber:ask.unitNumber, kind:ask.kind, pathwayId:ask.pathwayId, pathwayStage:ask.stageId, phase:'stage', forceNew:ask.forceNew }), userKey:state.userKey, slot, familyId, forceNew:true });
+        }).then(next => {
+          if (next.status !== 'ready') throw new Error('We could not start this mission just now. Check your connection and try again; nothing has been lost.');
+          return commitSession(request, next, slot);
+        });
+      }
+      return commitSession(request, acquired, slot);
+    });
+}
+function commitSession({ familyId = null, selected, continueHistory = false, mode, durationMinutes, prepare, announce }, acquired, slot) {
+  prepare();
+  const resumed = acquired?.extras && acquired.extras.missionId === acquired.missionId ? acquired.extras : null;
+  let ordered = selected;
+  if (acquired) {
+    const byId = new Map([...selected, ...(state.content?.occurrences ?? [])].map(row => [row.occurrenceId, row]));
+    const ids = resumed ? resumed.targetIds : orderMissionTargets(selected.map(row => row.occurrenceId), acquired.missionSeed);
+    ordered = ids.map(id => byId.get(id)).filter(Boolean);
+    if (ordered.length !== ids.length) ordered = orderMissionTargets(selected.map(row => row.occurrenceId), acquired.missionSeed).map(id => byId.get(id));
+  }
+  const orderedIds = ordered.map(row => row.occurrenceId);
+  const nonceSeed = acquired?.missionSeed ?? null;
+  state.session = createSession({ unitNumber:state.currentUnitNumber, mode, durationMinutes, targetIds:orderedIds, practiceMode:'adaptive', now:new Date(), ...(nonceSeed ? { optionNonce:derivePresentationNonce({ missionSeed:nonceSeed, occurrenceId:'session', slot:0 }) } : {}) });
+  if (acquired) state.session = { ...state.session, missionId:acquired.missionId, missionSeed:acquired.missionSeed };
+  state.queue = [...ordered]; resetSessionState(continueHistory);
+  state.asks = new Map(); state.lastTiles = new Map(); state.missionLost = null; state.missionSlot = acquired ? slot : null;
+  if (acquired) {
+    if (resumed) {
+      state.usedContentIds = usedFromObject(resumed.usedAtStart);
+      state.asks = new Map(Object.entries(resumed.asks ?? {}).map(([id, count]) => [id, Number(count) || 0]));
+      const done = (resumed.completedTargetIds ?? []).filter(id => orderedIds.includes(id));
+      state.session = { ...state.session, completedTargetIds:done };
+      state.queue = state.queue.filter(row => !done.includes(row.occurrenceId));
+    } else {
+      saveMission(state.userKey, slot, { missionId:acquired.missionId, missionSeed:acquired.missionSeed, familyId, targetIds:orderedIds, completedTargetIds:[], usedAtStart:usedToObject(state.usedContentIds), asks:{} });
+    }
+  }
+  announce();
   nextQuestion();
 }
 // Practice-type sheet: a short "How do you want to practise?" choice opened from a pathway card or the finish screen.
@@ -310,16 +386,17 @@ function openPracticeSheet(pathwayId) {
   root.querySelector?.('[data-practice-sheet] [data-autofocus]')?.focus?.();
 }
 function timerMinutes(button) { const minutes = Number(button?.dataset?.minutes); return Number.isFinite(minutes) && minutes > 0 ? minutes : null; }
-function startMixedReview(continueHistory = false, durationMinutes = null) {
+function startMixedReview(continueHistory = false, durationMinutes = null, forceNew = false) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = true; state.practiceFocus = 'adaptive';
   const timed = Number.isFinite(Number(durationMinutes)) && Number(durationMinutes) > 0;
   const selected = liveMixedTargets(rankedTargets(timed ? Math.max(10, state.content.occurrences.length) : 10,'adaptive'));
   if (!selected.length) throw new Error('No unlocked vocabulary is ready for Mixed Practice yet.');
-  state.session = createSession({ unitNumber:state.currentUnitNumber, mode:timed ? 'timed' : 'adaptive', durationMinutes:timed ? Number(durationMinutes) : null, targetIds:selected.map(row => row.occurrenceId), practiceMode:'adaptive', now:new Date() }); state.session = withMissionId(state.session);
-  state.queue = [...selected]; resetSessionState(continueHistory); if (timed) startClock();
-  if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:'session:mixed-review', skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, review_only:true, timed_minutes:timed ? Number(durationMinutes) : null } }).catch(() => {});
-  nextQuestion();
+  const announce = () => {
+    if (timed) startClock();
+    if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:'session:mixed-review', skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, review_only:true, timed_minutes:timed ? Number(durationMinutes) : null } }).catch(() => {});
+  };
+  return beginSession({ kind:'mixed', selected, forceNew, continueHistory, mode:timed ? 'timed' : 'adaptive', durationMinutes:timed ? Number(durationMinutes) : null, prepare:() => {}, announce });
 }
 function startSession(mode, durationMinutes = null, continueHistory = false) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
@@ -332,8 +409,8 @@ function startSession(mode, durationMinutes = null, continueHistory = false) {
   nextQuestion();
 }
 function continuePractice() {
-  if (state.pathwayId) { startPathwaySession(state.pathwayId, true, state.pathwayChoice); return; }
-  if (state.mixedReview) { startMixedReview(true, state.session?.mode === 'timed' ? state.session.durationMinutes : null); return; }
+  if (state.pathwayId) return startPathwaySession(state.pathwayId, true, state.pathwayChoice);
+  if (state.mixedReview) return startMixedReview(true, state.session?.mode === 'timed' ? state.session.durationMinutes : null);
   if (state.session?.mode === 'timed') { startSession('timed', state.session.durationMinutes, true); return; }
   if (state.practiceFocus) { startSession('adaptive', null, true); return; }
   throw new Error('No practice route is available to continue.');
@@ -357,17 +434,25 @@ function buildNextForTarget(target) {
     seed:`${target.occurrenceId}:${state.session.completedAttempts.length}:${state.session.mode}`,
     optionNonce:state.session.optionNonce
   };
+  // Server-issued mission: content comes from H(missionSeed, occurrence, slot, activity type) and presentation from a separate nonce.
+  // slot = the target's place in the mission + 10 per earlier finished ask of it, so recovery re-asks differ and a resume repeats exactly.
+  const missionSeed = state.session.missionSeed ?? null;
+  const placed = state.session.targetIds.indexOf(target.occurrenceId);
+  const slot = Math.max(0, placed) + 10 * (state.asks?.get(target.occurrenceId) ?? 0);
+  const avoidTileOrders = state.lastTiles?.get(target.occurrenceId) ?? [];
+  if (missionSeed) common.optionNonce = derivePresentationNonce({ missionSeed, occurrenceId:target.occurrenceId, slot });
   let built;
   if (state.mixedReview) {
-    built = planMixedReviewQuestion({ content:state.content, target, unitMastery:state.unitMastery, globalMastery:state.globalMastery, recentActivities:recent.map(entry => entry.type), usedContentIds, seed:common.seed });
+    built = planMixedReviewQuestion({ content:state.content, target, unitMastery:state.unitMastery, globalMastery:state.globalMastery, recentActivities:recent.map(entry => entry.type), usedContentIds, seed:common.seed, missionSeed, slot, optionNonce:common.optionNonce, avoidTileOrders });
   } else if (state.pathwayId) {
-    built = planPathwayQuestion({ pathwayId:state.pathwayId, stageId:state.pathwayChoice?.stageByOccurrence?.get(target.occurrenceId) ?? state.pathwayStage, allowedTypes:state.pathwayChoice?.types ?? null, content:state.content, target, mastery:masteryState, recentActivities:recent.map(entry => entry.type), usedContentIds, supportState:common.supportState, seed:common.seed, optionNonce:common.optionNonce });
+    built = planPathwayQuestion({ pathwayId:state.pathwayId, stageId:state.pathwayChoice?.stageByOccurrence?.get(target.occurrenceId) ?? state.pathwayStage, allowedTypes:state.pathwayChoice?.types ?? null, content:state.content, target, mastery:masteryState, recentActivities:recent.map(entry => entry.type), usedContentIds, supportState:common.supportState, seed:common.seed, optionNonce:common.optionNonce, missionSeed, slot, avoidTileOrders });
   } else {
     built = state.session.mode === 'timed'
       ? buildTimedMixedQuestion({ ...common, previousActivityType:state.timedPreviousActivityType })
       : buildTargetPracticeQuestion({ ...common, practiceMode:state.session.practiceMode ?? state.practiceFocus });
   }
   const targetItem = built.item; const targetContexts = built.contexts; const question = built.question;
+  if (Array.isArray(question.tiles)) state.lastTiles?.set(target.occurrenceId, [...(state.lastTiles.get(target.occurrenceId) ?? []).slice(-3), question.tiles.join('')]);
   if (state.session.mode === 'timed') state.timedPreviousActivityType = question.type;
   if (question.contentId) {
     // Keep record and operation-specific variant identities in the existing target history.
@@ -403,21 +488,9 @@ function evidenceFor(current, result, flags) {
 }
 // A mission is an untimed ten-activity pathway or Mixed Practice session. Its id is created once per session and rides on every
 // attempt so the server can rebuild the mission from its own graded attempts; it never carries a score, streak or star count.
-function newMissionUuid() {
-  const source = globalThis.crypto;
-  if (typeof source?.getRandomValues !== 'function') return null;
-  const bytes = source.getRandomValues(new Uint8Array(16));
-  bytes[6] = (bytes[6] & 0x0f) | 0x40; bytes[8] = (bytes[8] & 0x3f) | 0x80;
-  const hex = [...bytes].map(byte => byte.toString(16).padStart(2,'0')).join('');
-  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
-}
-function withMissionId(session) {
-  const id = newMissionUuid();
-  return id && session?.mode === 'adaptive' && session.targetIds.length === 10 ? { ...session, missionId:id } : session;
-}
 function missionFields() {
   const id = state.session?.missionId;
-  if (!id || state.preview || state.session.mode !== 'adaptive' || state.session.targetIds.length !== 10) return {};
+  if (!id || state.missionLost === id || state.preview || state.session.mode !== 'adaptive' || state.session.targetIds.length !== 10) return {};
   if (state.mixedReview) return { missionId:id, missionSize:10, missionKind:'mixed', practiceFamily:'mixed' };
   if (state.pathwayId) return { missionId:id, missionSize:10, missionKind:'pathway', practiceFamily:state.pathwayChoice?.familyId ?? 'recommended' };
   return {};
@@ -457,7 +530,8 @@ async function advanceToNextQuestion() {
 // Otherwise: wait for the queue; if it ended blocked, try once more; if it is still not clear, do NOT start, keep the
 // learner where they are, show the sync warning with its retry control, and leave every queued attempt untouched.
 function runAfterSaves(start) {
-  const go = () => { try { start(); } catch (error) { renderVocabularyError(root, error instanceof Error ? error.message : 'Unable to start that activity.'); } };
+  const fail = error => renderVocabularyError(root, error instanceof Error ? error.message : 'Unable to start that activity.');
+  const go = () => { try { const started = start(); if (started && typeof started.then === 'function') started.catch(fail); } catch (error) { fail(error); } };
   const queue = attempts();
   if (!queue.pending && !queue.blocked) { go(); return; }
   if (state.handoffPending) return;                       // one hand-off at a time: a second click cannot start a second session
@@ -516,6 +590,10 @@ function handleAnswer(form, providedAnswer = null) {
   if (hadError && !current.recovery) { state.recoveryNeeded.add(current.target.occurrenceId); state.queue.push(current.target); } else if (current.recovery) state.recoveryNeeded.delete(current.target.occurrenceId);
   const completeTarget = current.recovery || !hadError;
   state.session = completeAttempt(state.session, { targetId:current.target.occurrenceId, evidence:{ correct:result.correct, recovery:recoverySucceeded, activityType:current.question.type }, completeTarget, strengthened:result.correct, movedToSecure:shouldUpdate && previousGlobalStatus !== 'secure' && nextGlobal.status === 'secure', mastered:shouldUpdate && previousGlobalStatus !== 'mastered' && nextGlobal.status === 'mastered', needsAnotherLook:completeTarget && !result.correct });
+  if (state.missionSlot && state.session.missionId) {
+    if (hadError && !current.recovery) { state.asks.set(current.target.occurrenceId, (state.asks.get(current.target.occurrenceId) ?? 0) + 1); const cached = loadMission(state.userKey, state.missionSlot); if (cached) saveMission(state.userKey, state.missionSlot, { ...cached, asks:Object.fromEntries(state.asks) }); }
+    if (completeTarget) markTargetComplete(state.userKey, state.missionSlot, current.target.occurrenceId);
+  }
   current.support = !result.correct ? buildSupportStep(current.question, { correct:false, misconceptionCategory:result.misconceptionCategory, attemptNumber:2 }) : null;
   if (current.matchSet) current.matchState = result.correct && Object.keys(current.matchState.settled).length === current.matchSet.words.length ? finishedMatchState(current.matchSet, current.matchState) : revealMatchSet(current.matchSet, current.matchState);
   state.streak = result.correct && !hadError ? (state.streak ?? 0) + 1 : 0;
@@ -563,10 +641,10 @@ function finishSession() {
     : null;
   state.current = null;
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'exercise_result', activity_id:`session_complete:${finished.mode}:${state.pathwayId ?? (state.mixedReview ? 'mixed-review' : finished.practiceMode ?? 'adaptive')}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${finished.unitNumber}`, score:finished.summary.strengthened, max_score:Math.max(1, finished.summary.practised), metadata:{ unit_number:finished.unitNumber, pathway_id:state.pathwayId, pathway_stage:state.pathwayStage, review_only:state.mixedReview } }).catch(() => {});
-  const missionId = !state.preview && (state.pathwayId || state.mixedReview) && finished.mode === 'adaptive' ? finished.missionId ?? null : null;
+  const missionId = !state.preview && (state.pathwayId || state.mixedReview) && finished.mode === 'adaptive' && state.missionLost !== finished.missionId ? finished.missionId ?? null : null;
   renderSessionSummary(root, { durationMinutes:finished.durationMinutes, summary:finished.summary, practiceMode:finished.practiceMode ?? 'adaptive', pathwayId:state.pathwayId, finishModel, engagementPending:Boolean(missionId) });
   decoratePreview();
-  if (missionId) void settleMission(missionId, { finishModel, postPathwayState });
+  if (missionId) state.settling = settleMission(missionId, { finishModel, postPathwayState }).catch(() => {}).finally(() => { state.settling = null; });
   root.querySelector?.('[data-session-finish-heading]')?.focus?.();
   playCompletionSequence(root);
   playCue('finish');
@@ -576,6 +654,7 @@ async function settleMission(missionId, { finishModel = null, postPathwayState =
   const slot = root?.querySelector?.('[data-engagement-slot]');
   if (!slot) return;
   const row = await recordVocabularyMission(state.client, missionId);
+  if (row && state.missionSlot) clearMission(state.userKey, state.missionSlot);
   if (!root?.contains?.(slot)) return;
   if (!row) { slot.remove(); return; }
   state.missions = [...(state.missions ?? []).filter(existing => existing.mission_id !== row.mission_id), row];

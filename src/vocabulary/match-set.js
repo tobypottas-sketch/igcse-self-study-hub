@@ -58,7 +58,7 @@ function shuffledDefinitionOrder(definitions, seed) {
 export function buildMatchSet(question) {
   if (!usesMatchSet(question)) return null;
   const pairs = matchSetPairs(question);
-  const seed = `${question?.activityId ?? question?.contentId ?? 'match'}:${question?.activityVariantId ?? ''}:${pairs.map(pair => pair.vocabularyId ?? pair.term).join('|')}`;
+  const seed = `${question?.activityId ?? question?.contentId ?? 'match'}:${question?.activityVariantId ?? ''}:${pairs.map(pair => pair.vocabularyId ?? pair.term).join('|')}:${question?.presentationNonce ?? ''}`;
   const order = shuffledDefinitionOrder(pairs.map(pair => pair.definition), seed);   // order[row] = index of the pair whose definition sits in that row
   const words = pairs.map((pair, index) => ({ id:`w${index + 1}`, text:pair.term, vocabularyId:pair.vocabularyId }));
   const definitions = order.map((pairIndex, row) => ({ id:`d${row + 1}`, text:pairs[pairIndex].definition }));

@@ -1,4 +1,5 @@
 import { applyStageVariant } from './stage-variants.js';
+import { deriveContentSeed } from './mission-seed.js';
 import { buildActivity } from './activity-factory.js';
 import { PATHWAY_STAGES, activityTypesForPathwayStage, pathwayDefinition } from './pathway-model.js';
 import { availableActivityTypesForTarget } from './session-targets.js';
@@ -112,7 +113,7 @@ function normalizedStageTwoMatch(question, plan, item, target) {
   return question;
 }
 
-function buildCandidate({ content, target, mastery, item, contexts, plan, usedContentIds, seed, optionNonce, requireReviewed = false }) {
+function buildCandidate({ content, target, mastery, item, contexts, plan, usedContentIds, seed, optionNonce, requireReviewed = false, avoidTileOrders = [] }) {
   const built = buildActivity({
     activityType:plan.activityType,
     occurrence:target,
@@ -127,11 +128,12 @@ function buildCandidate({ content, target, mastery, item, contexts, plan, usedCo
     usedContentIds:array(usedContentIds),
     seed,
     optionNonce,
+    avoidTileOrders,
     requireReviewed,
     matchingPresentation:plan.servedStage === 'match'
   });
   const question = applyStageVariant(normalizedStageTwoMatch(built,plan,item,target),{ pathwayId:plan.pathwayId, servedStage:plan.servedStage, item });
-  return { ...question, pathwayId:plan.pathwayId, pathwayStage:plan.learnerStage };
+  return { ...question, pathwayId:plan.pathwayId, pathwayStage:plan.learnerStage, presentationNonce:optionNonce || undefined };
 }
 
 export function planPathwayQuestion({
@@ -145,6 +147,11 @@ export function planPathwayQuestion({
   supportState = null,
   seed = '',
   optionNonce = '',
+  // Mission-scoped variation: when the server-issued missionSeed is supplied, content choices use H(missionSeed, occurrenceId, slot, activityType)
+  // instead of the mission-independent `seed`. It never changes which answer is correct. Presentation order uses optionNonce, kept separate.
+  missionSeed = null,
+  slot = 0,
+  avoidTileOrders = [],
   allowedTypes = null,
   // 'prefer' (the default): questions whose wrong options are teacher-reviewed are served first, and a question built from generated
   // options is used only when no reviewed one exists. 'require': reviewed options only. 'any': no preference.
@@ -166,12 +173,17 @@ export function planPathwayQuestion({
   const recent = new Set(array(recentActivities));
   const fresh = choices.filter(type => !recent.has(type));
   if (fresh.length) choices = fresh;
-  choices = stableOrder(choices,`${seed}:${pathwayId}:${stageId}:${servedStage}`);
+  const contentSeedFor = activityType => (missionSeed ? deriveContentSeed({ missionSeed, occurrenceId:target?.occurrenceId, slot, activityType }) : seed);
+  choices = stableOrder(choices,`${contentSeedFor('_order')}:${pathwayId}:${stageId}:${servedStage}`);
   if (!choices.length) throw new Error('No suitable curated activity is available for this pathway stage.');
 
   let lastError = null;
   const passes = reviewPolicy === 'any' ? [false] : reviewPolicy === 'require' ? [true] : [true,false];
+  const metBefore = new Set(array(usedContentIds).map(String));
   for (const requireReviewed of passes) {
+    // In a server-issued mission, a question type whose material this student has already met is passed over when another allowed type
+    // can still serve fresh material (the first such type, in the seeded order, wins; if none is fresh the first built one is kept).
+    let firstBuilt = null;
     for (const activityType of choices) {
       const plan = {
         pathwayId,
@@ -183,12 +195,15 @@ export function planPathwayQuestion({
         reason:servedStage === learnerStage ? 'Fixed pathway stage' : 'Temporary one-stage support'
       };
       try {
-        const question = buildCandidate({content,target,mastery,item,contexts,plan,usedContentIds,seed,optionNonce,requireReviewed});
-        return { item, contexts, plan, question };
+        const question = buildCandidate({content,target,mastery,item,contexts,plan,usedContentIds,seed:contentSeedFor(activityType),optionNonce,requireReviewed,avoidTileOrders});
+        const built = { item, contexts, plan, question };
+        if (!missionSeed || !question.contentId || !metBefore.has(String(question.contentId))) return built;
+        firstBuilt ??= built;
       } catch (error) {
         lastError = error;
       }
     }
+    if (firstBuilt) return firstBuilt;
   }
   throw lastError ?? new Error('No suitable curated activity is available for this pathway stage.');
 }

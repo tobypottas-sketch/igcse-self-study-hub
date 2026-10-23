@@ -245,13 +245,13 @@ function correctUsage(args, definition) {
   const linkedIdea = array(unitActivities).find(activity => activity.contentType === 'idea_set' && linkedToTarget(activity, item.vocabularyId));
   const distractors = linkedIdea ? array(linkedIdea.activityData?.distractors).map(row => row?.text) : [];
   const fallback = senseFor(item, occurrence).misleadingDistractors ?? [];
-  const options = stableShuffle(uniqueText([correctContext.text, ...distractors, ...fallback]).slice(0,4), `${seed}:usage`);
+  const options = shuffleAnswerOptions(uniqueText([correctContext.text, ...distractors, ...fallback]).slice(0,4), `${seed}:usage`, args.optionNonce);
   return baseActivity({ definition, occurrence, contentId:correctContext.contextId, prompt:`Which option uses “${text(item.term)}” accurately?`, markingReference:{ acceptedAnswers:[text(correctContext.text)] }, extra:{ options, contextId:correctContext.contextId } });
 }
 function collocationBuilder(args, definition) {
   const collocation = text(array(args.item.collocations)[0]);
   if (!collocation) throw new Error('No curated collocation is available for this target.');
-  const tiles = stableShuffle(collocation.split(/\s+/).filter(Boolean), `${args.seed}:collocation`);
+  const tiles = shuffleAnswerOptions(collocation.split(/\s+/).filter(Boolean), `${args.seed}:collocation`, args.optionNonce);
   return baseActivity({ definition, occurrence:args.occurrence, contentId:`collocation:${collocation}`, prompt:`Build a natural collocation with “${text(args.item.term)}”.`, markingReference:{ acceptedAnswers:[collocation] }, extra:{ tiles } });
 }
 function wordFamilySwitch(args, definition) {
@@ -288,7 +288,7 @@ function questionTextActivity(args, definition, findEvidence = false) {
     });
     const distractors = rankedByLength(rawCandidates, correct, `${args.seed}:${record.activityContentId}:evidence-pool`).slice(0,3);
     if (distractors.length < 3) throw new Error('Find Evidence requires four exact source-text choices.');
-    const evidenceOptions = stableShuffle([correct, ...distractors], `${args.seed}:${record.activityContentId}:evidence`);
+    const evidenceOptions = shuffleAnswerOptions([correct, ...distractors], `${args.seed}:${record.activityContentId}:evidence`, args.optionNonce);
     return baseActivity({
       definition, occurrence:args.occurrence, contentId:record.activityContentId,
       prompt:`${text(question.question)} Select the exact evidence from the text.`,
@@ -336,14 +336,14 @@ function phraseMatch(args, definition) {
   }
   const wrong = rankedByLength([...ownWrong, ...pooledWrong].filter(candidate => !acceptedAnswers.includes(text(candidate))), correct, `${args.seed}:${record.activityContentId}:phrase-distractors`).slice(0,3);
   if (wrong.length < 3) throw new Error('Phrase Match requires three phrase-level distractors.');
-  const orderOptions = args.matchingPresentation ? stableShuffle : shuffleAnswerOptions;
+  const orderOptions = args.matchingPresentation ? (values, seed, nonce) => stableShuffle(values, `${seed}:${nonce ?? ''}`) : shuffleAnswerOptions;
   const options = orderOptions([correct, ...wrong], `${args.seed}:${record.activityContentId}:phrase-match`, args.optionNonce);
   return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Which phrase keeps the meaning of “${text(data.originalPhrase)}”?`, markingReference:{ acceptedAnswers, distractors:phraseDistractors(data) }, extra:{ options, sourcePhrase:text(data.originalPhrase) } });
 }
 function buildParaphrase(args, definition) {
   const record = phraseRecord(args), data = object(record.activityData);
   const acceptedAnswers = uniqueText([data.equivalentPhrase, ...array(data.acceptedVariants)]);
-  const tiles = stableShuffle(array(data.chunks).map(text).filter(Boolean), `${args.seed}:${record.activityContentId}:tiles`);
+  const tiles = shuffleAnswerOptions(array(data.chunks).map(text).filter(Boolean), `${args.seed}:${record.activityContentId}:tiles`, args.optionNonce);
   return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Build a paraphrase of “${text(data.originalPhrase)}”.`, markingReference:{ acceptedAnswers, distractors:phraseDistractors(data) }, extra:{ tiles, sourcePhrase:text(data.originalPhrase) } });
 }
 function completeParaphrase(args, definition) {
@@ -396,7 +396,7 @@ function buildSameIdea(args, definition) {
   const target = acceptedAnswers[0];
   const curatedChunks = array(data.chunks).map(text).filter(Boolean);
   const chunks = curatedChunks.length >= 2 ? curatedChunks : target.split(/\s+/).filter(Boolean);
-  const tiles = stableShuffle(chunks, `${args.seed}:${record.activityContentId}:idea-tiles`);
+  const tiles = shuffleAnswerOptions(chunks, `${args.seed}:${record.activityContentId}:idea-tiles`, args.optionNonce);
   return baseActivity({ definition, occurrence:args.occurrence, contentId:record.activityContentId, prompt:`Build a sentence that keeps the same meaning:\n${text(data.originalIdea)}`, markingReference:{ acceptedAnswers, meaningInvariants:array(data.meaningInvariants), distractors:array(data.distractors) }, extra:{ tiles, sourceIdea:text(data.originalIdea) } });
 }
 function rewriteIdea(args, definition) {

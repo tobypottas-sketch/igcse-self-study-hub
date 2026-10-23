@@ -1,0 +1,2780 @@
+{
+  "thresholds": {
+    "MASTERY_THRESHOLDS": {
+      "building": 1,
+      "secure": 3,
+      "masteredProductions": 2,
+      "reviewFailuresForDemotion": 2
+    },
+    "reviewDays": [
+      4,
+      10,
+      24,
+      45,
+      70,
+      100,
+      100,
+      100
+    ],
+    "failureReviewDays": 4
+  },
+  "mastery": {
+    "clean_receptive_run": [
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 2,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-05T09:00:00.000Z"
+      },
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 4,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-10T09:00:00.000Z"
+      },
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 6,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-15T09:00:00.000Z"
+      },
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 8,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-20T09:00:00.000Z"
+      },
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 10,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-25T09:00:00.000Z"
+      }
+    ],
+    "early_failures_then_recovery": [
+      {
+        "status": "new",
+        "strandEvidence": {
+          "meaning": 0,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 1,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-05T09:00:00.000Z"
+      },
+      {
+        "status": "new",
+        "strandEvidence": {
+          "meaning": 0,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 2,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-10T09:00:00.000Z"
+      },
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 2,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 2,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-15T09:00:00.000Z"
+      },
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 4,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 1,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-20T09:00:00.000Z"
+      },
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 6,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-25T09:00:00.000Z"
+      }
+    ],
+    "assisted_successes": [
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 1,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-05T09:00:00.000Z"
+      },
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 2,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-10T09:00:00.000Z"
+      },
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 2.5,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-15T09:00:00.000Z"
+      },
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 4.5,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-20T09:00:00.000Z"
+      }
+    ],
+    "productive_with_distinct_contexts": [
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 2,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-05T09:00:00.000Z"
+      },
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 4,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-10T09:00:00.000Z"
+      },
+      {
+        "status": "secure",
+        "strandEvidence": {
+          "meaning": 7,
+          "recognition": 3,
+          "context": 0,
+          "paraphrasing": 3,
+          "production": 3
+        },
+        "successfulProductions": 1,
+        "productionContextIds": [
+          "ctx-0"
+        ],
+        "productionActivityTypes": [
+          "type_missing_word"
+        ],
+        "unscaffoldedProductions": 1,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-15T09:00:00.000Z"
+      },
+      {
+        "status": "secure",
+        "strandEvidence": {
+          "meaning": 10,
+          "recognition": 6,
+          "context": 0,
+          "paraphrasing": 6,
+          "production": 6
+        },
+        "successfulProductions": 2,
+        "productionContextIds": [
+          "ctx-0",
+          "ctx-1"
+        ],
+        "productionActivityTypes": [
+          "type_missing_word",
+          "type_word_from_definition"
+        ],
+        "unscaffoldedProductions": 2,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-20T09:00:00.000Z"
+      },
+      {
+        "status": "secure",
+        "strandEvidence": {
+          "meaning": 13,
+          "recognition": 9,
+          "context": 0,
+          "paraphrasing": 9,
+          "production": 9
+        },
+        "successfulProductions": 3,
+        "productionContextIds": [
+          "ctx-0",
+          "ctx-1",
+          "ctx-2"
+        ],
+        "productionActivityTypes": [
+          "type_missing_word",
+          "type_word_from_definition",
+          "gloss_in_context_type"
+        ],
+        "unscaffoldedProductions": 3,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-25T09:00:00.000Z"
+      },
+      {
+        "status": "secure",
+        "strandEvidence": {
+          "meaning": 16,
+          "recognition": 12,
+          "context": 0,
+          "paraphrasing": 12,
+          "production": 12
+        },
+        "successfulProductions": 4,
+        "productionContextIds": [
+          "ctx-0",
+          "ctx-1",
+          "ctx-2",
+          "ctx-3"
+        ],
+        "productionActivityTypes": [
+          "type_missing_word",
+          "type_word_from_definition",
+          "gloss_in_context_type"
+        ],
+        "unscaffoldedProductions": 4,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-30T09:00:00.000Z"
+      }
+    ],
+    "productive_same_context_repeated": [
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 2,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-05T09:00:00.000Z"
+      },
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 4,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-10T09:00:00.000Z"
+      },
+      {
+        "status": "secure",
+        "strandEvidence": {
+          "meaning": 7,
+          "recognition": 3,
+          "context": 0,
+          "paraphrasing": 3,
+          "production": 3
+        },
+        "successfulProductions": 1,
+        "productionContextIds": [
+          "ctx-0"
+        ],
+        "productionActivityTypes": [
+          "type_missing_word"
+        ],
+        "unscaffoldedProductions": 1,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-15T09:00:00.000Z"
+      },
+      {
+        "status": "secure",
+        "strandEvidence": {
+          "meaning": 10,
+          "recognition": 6,
+          "context": 0,
+          "paraphrasing": 6,
+          "production": 6
+        },
+        "successfulProductions": 2,
+        "productionContextIds": [
+          "ctx-0"
+        ],
+        "productionActivityTypes": [
+          "type_missing_word"
+        ],
+        "unscaffoldedProductions": 2,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-20T09:00:00.000Z"
+      },
+      {
+        "status": "secure",
+        "strandEvidence": {
+          "meaning": 13,
+          "recognition": 9,
+          "context": 0,
+          "paraphrasing": 9,
+          "production": 9
+        },
+        "successfulProductions": 3,
+        "productionContextIds": [
+          "ctx-0"
+        ],
+        "productionActivityTypes": [
+          "type_missing_word"
+        ],
+        "unscaffoldedProductions": 3,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-25T09:00:00.000Z"
+      },
+      {
+        "status": "secure",
+        "strandEvidence": {
+          "meaning": 16,
+          "recognition": 12,
+          "context": 0,
+          "paraphrasing": 12,
+          "production": 12
+        },
+        "successfulProductions": 4,
+        "productionContextIds": [
+          "ctx-0"
+        ],
+        "productionActivityTypes": [
+          "type_missing_word"
+        ],
+        "unscaffoldedProductions": 4,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-30T09:00:00.000Z"
+      }
+    ],
+    "repeated_guess": [
+      {
+        "status": "new",
+        "strandEvidence": {
+          "meaning": 0,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-05T09:00:00.000Z"
+      },
+      {
+        "status": "new",
+        "strandEvidence": {
+          "meaning": 0,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 1,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-10T09:00:00.000Z"
+      },
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 2,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-15T09:00:00.000Z"
+      }
+    ],
+    "two_review_failures": [
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 2,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-05T09:00:00.000Z"
+      },
+      {
+        "status": "building",
+        "strandEvidence": {
+          "meaning": 4,
+          "recognition": 0,
+          "context": 0,
+          "paraphrasing": 0,
+          "production": 0
+        },
+        "successfulProductions": 0,
+        "productionContextIds": [],
+        "productionActivityTypes": [],
+        "unscaffoldedProductions": 0,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-10T09:00:00.000Z"
+      },
+      {
+        "status": "secure",
+        "strandEvidence": {
+          "meaning": 7,
+          "recognition": 3,
+          "context": 0,
+          "paraphrasing": 3,
+          "production": 3
+        },
+        "successfulProductions": 1,
+        "productionContextIds": [
+          "ctx-0"
+        ],
+        "productionActivityTypes": [
+          "type_missing_word"
+        ],
+        "unscaffoldedProductions": 1,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-15T09:00:00.000Z"
+      },
+      {
+        "status": "secure",
+        "strandEvidence": {
+          "meaning": 10,
+          "recognition": 6,
+          "context": 0,
+          "paraphrasing": 6,
+          "production": 6
+        },
+        "successfulProductions": 2,
+        "productionContextIds": [
+          "ctx-0",
+          "ctx-1"
+        ],
+        "productionActivityTypes": [
+          "type_missing_word",
+          "type_word_from_definition"
+        ],
+        "unscaffoldedProductions": 2,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-20T09:00:00.000Z"
+      },
+      {
+        "status": "secure",
+        "strandEvidence": {
+          "meaning": 13,
+          "recognition": 9,
+          "context": 0,
+          "paraphrasing": 9,
+          "production": 9
+        },
+        "successfulProductions": 3,
+        "productionContextIds": [
+          "ctx-0",
+          "ctx-1",
+          "ctx-2"
+        ],
+        "productionActivityTypes": [
+          "type_missing_word",
+          "type_word_from_definition",
+          "gloss_in_context_type"
+        ],
+        "unscaffoldedProductions": 3,
+        "recentErrorCount": 0,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 0,
+        "reviewDueAt": null,
+        "lastSeenAt": "2026-01-25T09:00:00.000Z"
+      },
+      {
+        "status": "secure",
+        "strandEvidence": {
+          "meaning": 13,
+          "recognition": 9,
+          "context": 0,
+          "paraphrasing": 9,
+          "production": 9
+        },
+        "successfulProductions": 3,
+        "productionContextIds": [
+          "ctx-0",
+          "ctx-1",
+          "ctx-2"
+        ],
+        "productionActivityTypes": [
+          "type_missing_word",
+          "type_word_from_definition",
+          "gloss_in_context_type"
+        ],
+        "unscaffoldedProductions": 3,
+        "recentErrorCount": 1,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 1,
+        "reviewDueAt": "2026-02-03T09:00:00.000Z",
+        "lastSeenAt": "2026-01-30T09:00:00.000Z"
+      },
+      {
+        "status": "secure",
+        "strandEvidence": {
+          "meaning": 13,
+          "recognition": 9,
+          "context": 0,
+          "paraphrasing": 9,
+          "production": 9
+        },
+        "successfulProductions": 3,
+        "productionContextIds": [
+          "ctx-0",
+          "ctx-1",
+          "ctx-2"
+        ],
+        "productionActivityTypes": [
+          "type_missing_word",
+          "type_word_from_definition",
+          "gloss_in_context_type"
+        ],
+        "unscaffoldedProductions": 3,
+        "recentErrorCount": 2,
+        "recoveryCount": 0,
+        "reviewStage": 0,
+        "reviewFailureCount": 2,
+        "reviewDueAt": "2026-02-08T09:00:00.000Z",
+        "lastSeenAt": "2026-02-04T09:00:00.000Z"
+      }
+    ]
+  },
+  "pathway": {
+    "recognise_two_clean_two_content": {
+      "completed": {
+        "recognise": true,
+        "match": false,
+        "apply": false,
+        "recall": false,
+        "mastery": false
+      },
+      "current": "match",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 2,
+          "cleanSuccesses": 2,
+          "cleanUnassistedSuccesses": 2,
+          "failures": 0,
+          "contentIds": [
+            "recognise-content-0",
+            "recognise-content-1"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "recognise-content-0",
+            "recognise-content-1"
+          ],
+          "operationIds": [
+            "recognise-op-0",
+            "recognise-op-1"
+          ],
+          "distinctPromptCount": 2,
+          "distinctOperationCount": 2
+        },
+        "match": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "recognise_two_clean_same_content": {
+      "completed": {
+        "recognise": false,
+        "match": false,
+        "apply": false,
+        "recall": false,
+        "mastery": false
+      },
+      "current": "recognise",
+      "stages": {
+        "recognise": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 2,
+          "cleanSuccesses": 2,
+          "cleanUnassistedSuccesses": 2,
+          "failures": 0,
+          "contentIds": [
+            "same"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "same"
+          ],
+          "operationIds": [
+            "recognise-op-0",
+            "recognise-op-1"
+          ],
+          "distinctPromptCount": 1,
+          "distinctOperationCount": 2
+        },
+        "match": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "recognise_one_clean_only": {
+      "completed": {
+        "recognise": false,
+        "match": false,
+        "apply": false,
+        "recall": false,
+        "mastery": false
+      },
+      "current": "recognise",
+      "stages": {
+        "recognise": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 1,
+          "cleanSuccesses": 1,
+          "cleanUnassistedSuccesses": 1,
+          "failures": 0,
+          "contentIds": [
+            "recognise-content-0"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "recognise-content-0"
+          ],
+          "operationIds": [
+            "recognise-op-0"
+          ],
+          "distinctPromptCount": 1,
+          "distinctOperationCount": 1
+        },
+        "match": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "recognise_assisted": {
+      "completed": {
+        "recognise": false,
+        "match": false,
+        "apply": false,
+        "recall": false,
+        "mastery": false
+      },
+      "current": "recognise",
+      "stages": {
+        "recognise": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 3,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [
+            "recognise-content-0",
+            "recognise-content-1",
+            "recognise-content-2"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "recognise-content-0",
+            "recognise-content-1",
+            "recognise-content-2"
+          ],
+          "operationIds": [
+            "recognise-op-0",
+            "recognise-op-1"
+          ],
+          "distinctPromptCount": 3,
+          "distinctOperationCount": 2
+        },
+        "match": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "recognise_with_failure": {
+      "completed": {
+        "recognise": true,
+        "match": false,
+        "apply": false,
+        "recall": false,
+        "mastery": false
+      },
+      "current": "match",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 3,
+          "cleanSuccesses": 3,
+          "cleanUnassistedSuccesses": 3,
+          "failures": 1,
+          "contentIds": [
+            "recognise-content-0",
+            "r0",
+            "r1"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "recognise-content-0",
+            "r0",
+            "r1"
+          ],
+          "operationIds": [
+            "recognise-op-0",
+            "recognise-op-1"
+          ],
+          "distinctPromptCount": 3,
+          "distinctOperationCount": 2
+        },
+        "match": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    }
+  },
+  "stageThresholds": {
+    "match_one": {
+      "completed": {
+        "recognise": true,
+        "match": false,
+        "apply": false,
+        "recall": false,
+        "mastery": false
+      },
+      "current": "match",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 1,
+          "cleanSuccesses": 1,
+          "cleanUnassistedSuccesses": 1,
+          "failures": 0,
+          "contentIds": [
+            "match-content-0"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "match-content-0"
+          ],
+          "operationIds": [
+            "match-op-0"
+          ],
+          "distinctPromptCount": 1,
+          "distinctOperationCount": 1
+        },
+        "apply": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "match_two": {
+      "completed": {
+        "recognise": true,
+        "match": true,
+        "apply": false,
+        "recall": false,
+        "mastery": false
+      },
+      "current": "apply",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 2,
+          "cleanSuccesses": 2,
+          "cleanUnassistedSuccesses": 2,
+          "failures": 0,
+          "contentIds": [
+            "match-content-0",
+            "match-content-1"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "match-content-0",
+            "match-content-1"
+          ],
+          "operationIds": [
+            "match-op-0",
+            "match-op-1"
+          ],
+          "distinctPromptCount": 2,
+          "distinctOperationCount": 2
+        },
+        "apply": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "match_three": {
+      "completed": {
+        "recognise": true,
+        "match": true,
+        "apply": false,
+        "recall": false,
+        "mastery": false
+      },
+      "current": "apply",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 3,
+          "cleanSuccesses": 3,
+          "cleanUnassistedSuccesses": 3,
+          "failures": 0,
+          "contentIds": [
+            "match-content-0",
+            "match-content-1",
+            "match-content-2"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "match-content-0",
+            "match-content-1",
+            "match-content-2"
+          ],
+          "operationIds": [
+            "match-op-0",
+            "match-op-1"
+          ],
+          "distinctPromptCount": 3,
+          "distinctOperationCount": 2
+        },
+        "apply": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "match_four_ctx": {
+      "completed": {
+        "recognise": true,
+        "match": true,
+        "apply": false,
+        "recall": false,
+        "mastery": false
+      },
+      "current": "apply",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 4,
+          "cleanSuccesses": 4,
+          "cleanUnassistedSuccesses": 4,
+          "failures": 0,
+          "contentIds": [
+            "match-content-0",
+            "match-content-1",
+            "match-content-2",
+            "match-content-3"
+          ],
+          "contextIds": [
+            "ctx-0",
+            "ctx-1",
+            "ctx-2",
+            "ctx-3"
+          ],
+          "promptKeys": [
+            "ctx-0",
+            "ctx-1",
+            "ctx-2",
+            "ctx-3"
+          ],
+          "operationIds": [
+            "match-op-0",
+            "match-op-1"
+          ],
+          "distinctPromptCount": 4,
+          "distinctOperationCount": 2
+        },
+        "apply": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "apply_one": {
+      "completed": {
+        "recognise": true,
+        "match": true,
+        "apply": false,
+        "recall": false,
+        "mastery": false
+      },
+      "current": "apply",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 1,
+          "cleanSuccesses": 1,
+          "cleanUnassistedSuccesses": 1,
+          "failures": 0,
+          "contentIds": [
+            "apply-content-0"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "apply-content-0"
+          ],
+          "operationIds": [
+            "apply-op-0"
+          ],
+          "distinctPromptCount": 1,
+          "distinctOperationCount": 1
+        },
+        "recall": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "apply_two": {
+      "completed": {
+        "recognise": true,
+        "match": true,
+        "apply": true,
+        "recall": false,
+        "mastery": false
+      },
+      "current": "recall",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 2,
+          "cleanSuccesses": 2,
+          "cleanUnassistedSuccesses": 2,
+          "failures": 0,
+          "contentIds": [
+            "apply-content-0",
+            "apply-content-1"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "apply-content-0",
+            "apply-content-1"
+          ],
+          "operationIds": [
+            "apply-op-0",
+            "apply-op-1"
+          ],
+          "distinctPromptCount": 2,
+          "distinctOperationCount": 2
+        },
+        "recall": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "apply_three": {
+      "completed": {
+        "recognise": true,
+        "match": true,
+        "apply": true,
+        "recall": false,
+        "mastery": false
+      },
+      "current": "recall",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 3,
+          "cleanSuccesses": 3,
+          "cleanUnassistedSuccesses": 3,
+          "failures": 0,
+          "contentIds": [
+            "apply-content-0",
+            "apply-content-1",
+            "apply-content-2"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "apply-content-0",
+            "apply-content-1",
+            "apply-content-2"
+          ],
+          "operationIds": [
+            "apply-op-0",
+            "apply-op-1"
+          ],
+          "distinctPromptCount": 3,
+          "distinctOperationCount": 2
+        },
+        "recall": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "apply_four_ctx": {
+      "completed": {
+        "recognise": true,
+        "match": true,
+        "apply": true,
+        "recall": false,
+        "mastery": false
+      },
+      "current": "recall",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 4,
+          "cleanSuccesses": 4,
+          "cleanUnassistedSuccesses": 4,
+          "failures": 0,
+          "contentIds": [
+            "apply-content-0",
+            "apply-content-1",
+            "apply-content-2",
+            "apply-content-3"
+          ],
+          "contextIds": [
+            "ctx-0",
+            "ctx-1",
+            "ctx-2",
+            "ctx-3"
+          ],
+          "promptKeys": [
+            "ctx-0",
+            "ctx-1",
+            "ctx-2",
+            "ctx-3"
+          ],
+          "operationIds": [
+            "apply-op-0",
+            "apply-op-1"
+          ],
+          "distinctPromptCount": 4,
+          "distinctOperationCount": 2
+        },
+        "recall": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "recall_one": {
+      "completed": {
+        "recognise": true,
+        "match": true,
+        "apply": true,
+        "recall": false,
+        "mastery": false
+      },
+      "current": "recall",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 1,
+          "cleanSuccesses": 1,
+          "cleanUnassistedSuccesses": 1,
+          "failures": 0,
+          "contentIds": [
+            "recall-content-0"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "recall-content-0"
+          ],
+          "operationIds": [
+            "recall-op-0"
+          ],
+          "distinctPromptCount": 1,
+          "distinctOperationCount": 1
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "recall_two": {
+      "completed": {
+        "recognise": true,
+        "match": true,
+        "apply": true,
+        "recall": true,
+        "mastery": false
+      },
+      "current": "mastery",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 2,
+          "cleanSuccesses": 2,
+          "cleanUnassistedSuccesses": 2,
+          "failures": 0,
+          "contentIds": [
+            "recall-content-0",
+            "recall-content-1"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "recall-content-0",
+            "recall-content-1"
+          ],
+          "operationIds": [
+            "recall-op-0",
+            "recall-op-1"
+          ],
+          "distinctPromptCount": 2,
+          "distinctOperationCount": 2
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "recall_three": {
+      "completed": {
+        "recognise": true,
+        "match": true,
+        "apply": true,
+        "recall": true,
+        "mastery": false
+      },
+      "current": "mastery",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 3,
+          "cleanSuccesses": 3,
+          "cleanUnassistedSuccesses": 3,
+          "failures": 0,
+          "contentIds": [
+            "recall-content-0",
+            "recall-content-1",
+            "recall-content-2"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "recall-content-0",
+            "recall-content-1",
+            "recall-content-2"
+          ],
+          "operationIds": [
+            "recall-op-0",
+            "recall-op-1"
+          ],
+          "distinctPromptCount": 3,
+          "distinctOperationCount": 2
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "recall_four_ctx": {
+      "completed": {
+        "recognise": true,
+        "match": true,
+        "apply": true,
+        "recall": true,
+        "mastery": false
+      },
+      "current": "mastery",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 4,
+          "cleanSuccesses": 4,
+          "cleanUnassistedSuccesses": 4,
+          "failures": 0,
+          "contentIds": [
+            "recall-content-0",
+            "recall-content-1",
+            "recall-content-2",
+            "recall-content-3"
+          ],
+          "contextIds": [
+            "ctx-0",
+            "ctx-1",
+            "ctx-2",
+            "ctx-3"
+          ],
+          "promptKeys": [
+            "ctx-0",
+            "ctx-1",
+            "ctx-2",
+            "ctx-3"
+          ],
+          "operationIds": [
+            "recall-op-0",
+            "recall-op-1"
+          ],
+          "distinctPromptCount": 4,
+          "distinctOperationCount": 2
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        }
+      }
+    },
+    "mastery_one": {
+      "completed": {
+        "recognise": true,
+        "match": true,
+        "apply": true,
+        "recall": true,
+        "mastery": false
+      },
+      "current": "mastery",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 1,
+          "cleanSuccesses": 1,
+          "cleanUnassistedSuccesses": 1,
+          "failures": 0,
+          "contentIds": [
+            "mastery-content-0"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "mastery-content-0"
+          ],
+          "operationIds": [
+            "mastery-op-0"
+          ],
+          "distinctPromptCount": 1,
+          "distinctOperationCount": 1
+        }
+      }
+    },
+    "mastery_two": {
+      "completed": {
+        "recognise": true,
+        "match": true,
+        "apply": true,
+        "recall": true,
+        "mastery": false
+      },
+      "current": "mastery",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": false,
+          "needsPractice": false,
+          "successes": 2,
+          "cleanSuccesses": 2,
+          "cleanUnassistedSuccesses": 2,
+          "failures": 0,
+          "contentIds": [
+            "mastery-content-0",
+            "mastery-content-1"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "mastery-content-0",
+            "mastery-content-1"
+          ],
+          "operationIds": [
+            "mastery-op-0",
+            "mastery-op-1"
+          ],
+          "distinctPromptCount": 2,
+          "distinctOperationCount": 2
+        }
+      }
+    },
+    "mastery_three": {
+      "completed": {
+        "recognise": true,
+        "match": true,
+        "apply": true,
+        "recall": true,
+        "mastery": true
+      },
+      "current": "mastery",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 3,
+          "cleanSuccesses": 3,
+          "cleanUnassistedSuccesses": 3,
+          "failures": 0,
+          "contentIds": [
+            "mastery-content-0",
+            "mastery-content-1",
+            "mastery-content-2"
+          ],
+          "contextIds": [],
+          "promptKeys": [
+            "mastery-content-0",
+            "mastery-content-1",
+            "mastery-content-2"
+          ],
+          "operationIds": [
+            "mastery-op-0",
+            "mastery-op-1"
+          ],
+          "distinctPromptCount": 3,
+          "distinctOperationCount": 2
+        }
+      }
+    },
+    "mastery_four_ctx": {
+      "completed": {
+        "recognise": true,
+        "match": true,
+        "apply": true,
+        "recall": true,
+        "mastery": true
+      },
+      "current": "mastery",
+      "stages": {
+        "recognise": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "match": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "apply": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "recall": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 0,
+          "cleanSuccesses": 0,
+          "cleanUnassistedSuccesses": 0,
+          "failures": 0,
+          "contentIds": [],
+          "contextIds": [],
+          "promptKeys": [],
+          "operationIds": [],
+          "distinctPromptCount": 0,
+          "distinctOperationCount": 0
+        },
+        "mastery": {
+          "completed": true,
+          "needsPractice": false,
+          "successes": 4,
+          "cleanSuccesses": 4,
+          "cleanUnassistedSuccesses": 4,
+          "failures": 0,
+          "contentIds": [
+            "mastery-content-0",
+            "mastery-content-1",
+            "mastery-content-2",
+            "mastery-content-3"
+          ],
+          "contextIds": [
+            "ctx-0",
+            "ctx-1",
+            "ctx-2",
+            "ctx-3"
+          ],
+          "promptKeys": [
+            "ctx-0",
+            "ctx-1",
+            "ctx-2",
+            "ctx-3"
+          ],
+          "operationIds": [
+            "mastery-op-0",
+            "mastery-op-1"
+          ],
+          "distinctPromptCount": 4,
+          "distinctOperationCount": 2
+        }
+      }
+    }
+  }
+}

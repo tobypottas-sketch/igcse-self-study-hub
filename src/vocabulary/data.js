@@ -134,10 +134,21 @@ export async function submitVocabularyAttempt(client, input = {}) {
     preview:input.preview === true,
     pathwayId:input.pathwayId ?? null,
     pathwayStage:input.pathwayStage ?? null,
-    servedPathwayStage:input.servedPathwayStage ?? null
+    servedPathwayStage:input.servedPathwayStage ?? null,
+    // Mission fields ride on the attempt so the SERVER can rebuild the mission from its own graded attempts. They are validated as a group
+    // (all four or none) and, since the server issues mission identity, an id the server did not issue for this student is rejected.
+    ...(input.missionId ? { missionId:input.missionId, missionSize:input.missionSize ?? null, missionKind:input.missionKind ?? null, practiceFamily:input.practiceFamily ?? null } : {})
   };
   const { data, error } = await client.functions.invoke('vocabulary-attempt-action', { body });
-  if (error || !data?.ok) throw new Error(data?.error || error?.message || 'Unable to mark vocabulary attempt.');
+  if (error || !data?.ok) {
+    // A non-2xx reply surfaces as `error` with the Response in error.context; read the JSON body so the typed `code` survives.
+    let body = data;
+    if (!body && typeof error?.context?.json === 'function') { try { body = await error.context.json(); } catch { body = null; } }
+    const failure = new Error(body?.error || error?.message || 'Unable to mark vocabulary attempt.');
+    const code = body?.code ?? null;
+    if (code) failure.code = code;
+    throw failure;
+  }
   return data;
 }
 
@@ -170,4 +181,16 @@ export async function loadMeritAwardCount(client, options = {}) {
     const result = await client.from('vocabulary_merit_awards').select('merit_number');
     return result?.error ? null : (result?.data ?? []).length;
   } catch { return null; }
+}
+
+// Server-issued mission identity. The client NEVER invents a mission id or seed: it asks, and the server answers with the open mission for this
+// slot (resume: same id + same seed) or a fresh one (new, or after an explicit `forceNew`). Returns { missionId, missionSeed, resumed, startedAt }
+// or throws; callers must not paper over a failure by creating a second mission.
+export async function startVocabularyMission(client, { unitNumber, kind, pathwayId = null, pathwayStage = null, phase = 'stage', forceNew = false } = {}) {
+  if (typeof client?.rpc !== 'function') throw Object.assign(new Error('Mission service is unavailable.'), { code:'no_rpc' });
+  const result = await client.rpc('start_vocabulary_mission', { p_unit_number:unitNumber, p_mission_kind:kind, p_pathway_id:pathwayId, p_pathway_stage:pathwayStage, p_mission_phase:phase, p_new:forceNew === true });
+  if (result?.error || !result?.data) throw Object.assign(new Error(result?.error?.message || 'Unable to start the mission.'), { code:'rpc_error' });
+  const row = result.data;
+  if (typeof row.mission_id !== 'string' || typeof row.mission_seed !== 'string') throw Object.assign(new Error('The server returned an invalid mission.'), { code:'bad_mission' });
+  return { missionId:row.mission_id, missionSeed:row.mission_seed, resumed:row.resumed === true, startedAt:row.started_at ?? null };
 }

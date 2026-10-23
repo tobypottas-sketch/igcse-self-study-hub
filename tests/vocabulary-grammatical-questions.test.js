@@ -76,7 +76,9 @@ test('word-family choice offers the word’s own other forms, not forms of unrel
   assert.ok(wf.length > 0);
   for (const { occurrence, question } of wf) {
     const item = content.itemsById[occurrence.vocabularyId];
-    const own = new Set([item.term, ...item.wordFamily].map(norm));
+    // The authored accepted form counts as a form of the word even when the item's short family list omits it (e.g. avoid → unavoidable);
+    // every authored word-family record can now be served, not only the first.
+    const own = new Set([item.term, ...item.wordFamily, ...(question.markingReference?.acceptedAnswers ?? [])].map(norm));
     if (own.size < 3) continue;
     for (const option of question.options) assert.ok(own.has(norm(option)), `${item.term}: "${option}" is not a form of this word`);
   }
