@@ -275,7 +275,8 @@ Deno.serve(async (req: Request) => {
       correct:marked.correct, misconceptionCategory:marked.misconceptionCategory,
       evidenceStrength:contract.evidenceStrength, supportLevel,
       vocabularyId:occurrence.vocabulary_id, occurrenceId:occurrence.occurrence_id,
-      pathwayId:input.pathwayId, pathwayStage:input.pathwayStage, servedPathwayStage:input.servedPathwayStage
+      pathwayId:input.pathwayId, pathwayStage:input.pathwayStage, servedPathwayStage:input.servedPathwayStage,
+      missionId:input.missionId, missionSize:input.missionSize, missionKind:input.missionKind, practiceFamily:input.practiceFamily
     });
 
     let nextGlobal: any = null;

@@ -234,7 +234,7 @@ function startPathwaySession(pathwayId, continueHistory = false, choice = null) 
     selected = [...ranked, ...eligible.filter(target => !ranked.some(row => row.occurrenceId === target.occurrenceId))].slice(0,10);
   }
   state.pathwayId = pathwayId; state.pathwayStage = stageId; state.pathwayChoice = pathwayChoice; state.practiceFocus = null; state.mixedReview = false;
-  state.session = createSession({ unitNumber:state.currentUnitNumber, mode:'adaptive', targetIds:selected.map(row => row.occurrenceId), practiceMode:'adaptive', now:new Date() });
+  state.session = createSession({ unitNumber:state.currentUnitNumber, mode:'adaptive', targetIds:selected.map(row => row.occurrenceId), practiceMode:'adaptive', now:new Date() }); state.session = withMissionId(state.session);
   state.queue = [...selected]; resetSessionState(continueHistory);
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`pathway:${pathwayId}:${stageId}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, pathway_id:pathwayId, pathway_stage:stageId, ...(pathwayChoice ? { practice_family:pathwayChoice.familyId } : {}) } }).catch(() => {});
   nextQuestion();
@@ -259,7 +259,7 @@ function startMixedReview(continueHistory = false, durationMinutes = null) {
   const timed = Number.isFinite(Number(durationMinutes)) && Number(durationMinutes) > 0;
   const selected = rankedTargets(timed ? Math.max(10, state.content.occurrences.length) : 10,'adaptive');
   if (!selected.length) throw new Error('No unlocked vocabulary is ready for Mixed Practice yet.');
-  state.session = createSession({ unitNumber:state.currentUnitNumber, mode:timed ? 'timed' : 'adaptive', durationMinutes:timed ? Number(durationMinutes) : null, targetIds:selected.map(row => row.occurrenceId), practiceMode:'adaptive', now:new Date() });
+  state.session = createSession({ unitNumber:state.currentUnitNumber, mode:timed ? 'timed' : 'adaptive', durationMinutes:timed ? Number(durationMinutes) : null, targetIds:selected.map(row => row.occurrenceId), practiceMode:'adaptive', now:new Date() }); state.session = withMissionId(state.session);
   state.queue = [...selected]; resetSessionState(continueHistory); if (timed) startClock();
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:'session:mixed-review', skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, review_only:true, timed_minutes:timed ? Number(durationMinutes) : null } }).catch(() => {});
   nextQuestion();
@@ -344,10 +344,31 @@ function updatesTargetMastery(current) { if (current.context) return true; retur
 function evidenceFor(current, result, flags) {
   return { strand:result.strand, strands:current.question.strands, correct:result.correct, evidenceStrength:current.question.evidenceStrength, supportLevel:flags.supportLevel, productive:current.question.productive, repeatedGuess:false, firstAttempt:flags.firstAttempt, retryUsed:flags.retryUsed, recoveredLater:flags.recoveredLater, contextId:current.context?.contextId ?? null, activityContentId:current.activityRecord?.activityContentId ?? null, questionType:current.question.type, activityType:current.question.type, review:state.preview ? false : flags.review };
 }
+// A mission is an untimed ten-activity pathway or Mixed Practice session. Its id is created once per session and rides on every
+// attempt so the server can rebuild the mission from its own graded attempts; it never carries a score, streak or star count.
+function newMissionUuid() {
+  const source = globalThis.crypto;
+  if (typeof source?.getRandomValues !== 'function') return null;
+  const bytes = source.getRandomValues(new Uint8Array(16));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40; bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = [...bytes].map(byte => byte.toString(16).padStart(2,'0')).join('');
+  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+}
+function withMissionId(session) {
+  const id = newMissionUuid();
+  return id && session?.mode === 'adaptive' && session.targetIds.length === 10 ? { ...session, missionId:id } : session;
+}
+function missionFields() {
+  const id = state.session?.missionId;
+  if (!id || state.preview || state.session.mode !== 'adaptive' || state.session.targetIds.length !== 10) return {};
+  if (state.mixedReview) return { missionId:id, missionSize:10, missionKind:'mixed', practiceFamily:'mixed' };
+  if (state.pathwayId) return { missionId:id, missionSize:10, missionKind:'pathway', practiceFamily:state.pathwayChoice?.familyId ?? 'recommended' };
+  return {};
+}
 function persistVocabularyAttempt(current, rawAnswer, flags, localResult) {
   const contentSource = current.activityRecord ? 'unit_activity' : current.context ? 'context' : 'item';
   const pathwayFields = state.mixedReview && current.pathwayPlan ? { pathwayId:current.pathwayPlan.pathwayId, pathwayStage:current.pathwayPlan.learnerStage, servedPathwayStage:current.pathwayPlan.servedStage ?? current.pathwayPlan.learnerStage } : state.pathwayId ? { pathwayId:state.pathwayId, pathwayStage:current.pathwayPlan?.learnerStage ?? state.pathwayStage, servedPathwayStage:current.pathwayPlan?.servedStage ?? state.pathwayStage } : {};
-  const payload = { occurrenceId:current.target.occurrenceId, contextId:current.context?.contextId ?? null, activityContentId:current.activityRecord?.activityContentId ?? null, activityVariantId:current.question.activityVariantId ?? null, contentSource, primaryEvidenceTargetId:current.primaryEvidenceTargetId, questionType:current.question.type, rawAnswer, strands:current.question.strands, evidenceStrength:current.question.evidenceStrength, supportLevel:flags.declaredSupportLevel ?? flags.supportLevel, productive:current.question.productive, repeatedGuess:false, firstAttempt:flags.firstAttempt, retryUsed:flags.retryUsed, recoveredLater:flags.recoveredLater, review:flags.review, preview:false, ...pathwayFields };
+  const payload = { occurrenceId:current.target.occurrenceId, contextId:current.context?.contextId ?? null, activityContentId:current.activityRecord?.activityContentId ?? null, activityVariantId:current.question.activityVariantId ?? null, contentSource, primaryEvidenceTargetId:current.primaryEvidenceTargetId, questionType:current.question.type, rawAnswer, strands:current.question.strands, evidenceStrength:current.question.evidenceStrength, supportLevel:flags.declaredSupportLevel ?? flags.supportLevel, productive:current.question.productive, repeatedGuess:false, firstAttempt:flags.firstAttempt, retryUsed:flags.retryUsed, recoveredLater:flags.recoveredLater, review:flags.review, preview:false, ...pathwayFields, ...missionFields() };
   return attempts().enqueue({ payload, localCorrect:localResult.correct, context:{ occurrenceId:current.target.occurrenceId, vocabularyId:current.target.vocabularyId } });
 }
 async function returnToCurrentUnit() {
