@@ -128,6 +128,8 @@ function completionArt(kind, { rays = true } = {}) {
   return svg ? `<div class="vocab-completion-art" data-study-completion-art="${escapeHtml(kind)}" aria-hidden="true">${burst}${svg}</div>` : '';
 }
 
+const COURSEBOOK_REFERENCE = `<aside class="vocab-coursebook" aria-label="Coursebook reference"><img class="vocab-coursebook__cover" src="assets/coursebook/lucantoni-igcse-esl-6e-cover.webp" width="398" height="502" alt="Cambridge IGCSE English as a Second Language Sixth Edition coursebook cover" decoding="async"><div class="vocab-coursebook__text"><p class="vocab-coursebook__label">Coursebook reference</p><p class="vocab-coursebook__title">Cambridge IGCSE™ English as a Second Language</p><p class="vocab-coursebook__meta"><span class="vocab-coursebook__nb">Sixth edition</span><span class="vocab-coursebook__sep"> · </span><span class="vocab-coursebook__nb">Peter Lucantoni</span></p><p class="vocab-coursebook__isbn">ISBN <span>9781009031943</span></p></div></aside>`;
+
 export function renderVocabularyHome(root, { displayName = '', units = [] } = {}) {
   const cards = units.length ? units.map(unit => {
     const mastered = Number(unit.mastered ?? 0);
@@ -142,7 +144,7 @@ export function renderVocabularyHome(root, { displayName = '', units = [] } = {}
       ${unitArtSlot(unit.unitNumber)}
     </button>`;
   }).join('') : `<div class="vocab-empty study-milestone-card" data-study-empty>${renderStudyIcon('spark',{className:'study-icon--xl'})}<strong>Your vocabulary units are being prepared.</strong><p>Check back soon.</p></div>`;
-  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Cambridge IGCSE ESL 0511</span></header><section class="vocab-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase Builder</p><h1>Choose a unit</h1><p>${displayName ? `Hi ${escapeHtml(displayName)}. ` : ''}Choose a unit, then work upwards through each vocabulary pathway.</p></section><section class="vocab-unit-grid">${cards}</section></main>`;
+  root.innerHTML = `<main class="vocab-shell vocab-shell--home"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Cambridge IGCSE ESL 0511</span></header><section class="vocab-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase Builder</p><h1>Choose a unit</h1><p>${displayName ? `Hi ${escapeHtml(displayName)}. ` : ''}Choose a unit, then work upwards through each vocabulary pathway.</p></section><section class="vocab-unit-grid">${cards}</section>${COURSEBOOK_REFERENCE}</main>`;
 }
 
 function normalizedPathwayState(pathwayId, pathwayStates = {}) {
