@@ -1,10 +1,6 @@
-const UNIT_PATHWAY_OVERRIDES = Object.freeze({
-  1:Object.freeze({
-    paraphrasing:Object.freeze({ available:false, reason:'content_bank_incomplete' })
-  })
-});
+import { pathwayOverride } from '../../content/vocabulary/unit-registry.js';
 
+// A pathway withheld on purpose for one unit lives in the unit registry (content/vocabulary/unit-registry.js).
 export function pathwayLivePolicy(unitNumber, pathwayId) {
-  const unit = UNIT_PATHWAY_OVERRIDES[Number(unitNumber)] ?? null;
-  return unit?.[pathwayId] ?? null;
+  return pathwayOverride(unitNumber, pathwayId);
 }
