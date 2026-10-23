@@ -40,22 +40,22 @@ const entries = [
       ],
       retrievalContexts:[
         { id:'1', text:'We went to the cinema for an evening of entertainment.', target:'entertainment', grammarPattern:'' },
-        { id:'2', text:'Teenagers spend hours playing online games for entertainment.', target:'entertainment', grammarPattern:'' },
-        { id:'3', text:'The hotel provides live entertainment every Saturday evening.', target:'entertainment', grammarPattern:'' }
+        { id:'2', text:'Films, music and video games are all popular types of entertainment among teenagers.', target:'entertainment', grammarPattern:'' },
+        { id:'3', text:'The hotel provides live entertainment, such as bands and magicians, every Saturday evening.', target:'entertainment', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'entertainment', wrong:['furniture', 'luggage', 'traffic'] },
-        { id:'2', answer:'entertainment', wrong:['luggage', 'furniture', 'insurance'] },
-        { id:'3', answer:'entertainment', wrong:['transport', 'vocabulary', 'insurance'] }
+        { id:'1', answer:'entertainment', wrong:['exercise', 'shopping', 'study'] },
+        { id:'2', answer:'entertainment', wrong:['exercise', 'transport', 'shopping'] },
+        { id:'3', answer:'entertainment', wrong:['catering', 'accommodation', 'transport'] }
       ]
     }),
   e('access', 'noun',
     'the right or ability to use something or to reach a place',
-    ['a way of using', 'the ability to use'],
+    ['the ability or right to use', 'permission to use'],
     ['permission to leave', 'a payment for using something', 'a report on something'],
-    'Many students do not have reliable access to the internet at home.',
-    'a way of using', 'Many students do not have a reliable way of using the internet at home.',
-    'the ability to use', 'Library cards give pupils the ability to use thousands of books.',
+    'Many students do not have access to a computer at home.',
+    'the ability or right to use', 'Many students do not have the ability or right to use a computer at home.',
+    'the ability or right to use', 'Library cards give pupils the ability or right to use thousands of books.',
     {
       masteryContexts:[
         { text:'Only staff members have access to the server room.', meaning:'permission or the right to enter or use something' },
@@ -67,14 +67,14 @@ const entries = [
         'The library moved to a bigger building.'
       ],
       retrievalContexts:[
-        { id:'1', text:'Many families now have fast internet access at home.', target:'access', grammarPattern:'' },
+        { id:'1', text:'Many families still lack reliable access to the internet at home.', target:'access', grammarPattern:'' },
         { id:'2', text:'Students need a password to gain access to the online library.', target:'access', grammarPattern:'' },
         { id:'3', text:'Disabled visitors have easy access to all floors of the museum.', target:'access', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'access', wrong:['luggage', 'weather', 'furniture'] },
-        { id:'2', answer:'access', wrong:['weather', 'luggage', 'revenge'] },
-        { id:'3', answer:'access', wrong:['furniture', 'sympathy', 'insurance'] }
+        { id:'1', answer:'access', wrong:['speed', 'equipment', 'training'] },
+        { id:'2', answer:'access', wrong:['service', 'speed', 'equipment'] },
+        { id:'3', answer:'access', wrong:['service', 'equipment', 'speed'] }
       ]
     }),
   e('device', 'noun',
@@ -123,14 +123,14 @@ const entries = [
         'The museum displayed paintings from the nineteenth century.'
       ],
       retrievalContexts:[
-        { id:'1', text:'Many people now read the news on digital devices.', target:'digital', grammarPattern:'' },
+        { id:'1', text:'Many people now read the news on a digital screen rather than in a newspaper.', target:'digital', grammarPattern:'' },
         { id:'2', text:'Teachers can share digital resources with the whole class in seconds.', target:'digital', grammarPattern:'' },
         { id:'3', text:'We live in a digital age where information travels instantly.', target:'digital', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'digital', wrong:['hungry', 'generous', 'cheerful'] },
-        { id:'2', answer:'digital', wrong:['sleepy', 'polite', 'jealous'] },
-        { id:'3', answer:'digital', wrong:['hungry', 'polite', 'generous'] }
+        { id:'1', answer:'digital', wrong:['printed', 'traditional', 'handwritten'] },
+        { id:'2', answer:'digital', wrong:['printed', 'physical', 'handwritten'] },
+        { id:'3', answer:'digital', wrong:['printed', 'physical', 'traditional'] }
       ]
     }),
   e('streaming', 'noun',
@@ -151,14 +151,14 @@ const entries = [
         'The family recorded the football match on a video recorder.'
       ],
       retrievalContexts:[
-        { id:'1', text:'Many families cancelled cable television and chose streaming instead.', target:'streaming', grammarPattern:'' },
-        { id:'2', text:'Slow internet connections make streaming difficult in some villages.', target:'streaming', grammarPattern:'' },
-        { id:'3', text:'Music streaming is now more popular than buying CDs.', target:'streaming', grammarPattern:'' }
+        { id:'1', text:'Instead of saving films to a device first, many people prefer streaming, which plays them as they arrive.', target:'streaming', grammarPattern:'' },
+        { id:'2', text:'A constant connection is essential for streaming, because the video plays while it arrives.', target:'streaming', grammarPattern:'' },
+        { id:'3', text:'With music streaming, listeners can play any song instantly without owning a copy.', target:'streaming', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'streaming', wrong:['weather', 'gravity', 'punctuation'] },
-        { id:'2', answer:'streaming', wrong:['gravity', 'punctuation', 'umbrellas'] },
-        { id:'3', answer:'streaming', wrong:['weather', 'punctuation', 'umbrellas'] }
+        { id:'1', answer:'streaming', wrong:['recording', 'television', 'copying'] },
+        { id:'2', answer:'streaming', wrong:['recording', 'television', 'printing'] },
+        { id:'3', answer:'streaming', wrong:['downloading', 'recording', 'television'] }
       ]
     }),
   e('relevant', 'adjective',
@@ -180,13 +180,13 @@ const entries = [
       ],
       retrievalContexts:[
         { id:'1', text:'Only choose examples that are relevant to the question.', target:'relevant', grammarPattern:'' },
-        { id:'2', text:'The teacher highlighted the most relevant information in the article.', target:'relevant', grammarPattern:'' },
+        { id:'2', text:'The teacher highlighted the details that were relevant to the essay title.', target:'relevant', grammarPattern:'' },
         { id:'3', text:'Is this advice relevant to my situation?', target:'relevant', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'relevant', wrong:['grateful', 'curious', 'jealous'] },
-        { id:'2', answer:'relevant', wrong:['careless', 'sleepy', 'generous'] },
-        { id:'3', answer:'relevant', wrong:['loyal', 'curious', 'nervous'] }
+        { id:'1', answer:'relevant', wrong:['general', 'additional', 'recent'] },
+        { id:'2', answer:'relevant', wrong:['additional', 'recent', 'familiar'] },
+        { id:'3', answer:'relevant', wrong:['general', 'recent', 'familiar'] }
       ]
     }),
   e('educator', 'noun',
@@ -265,14 +265,14 @@ const entries = [
         'The library offered a free newsletter to anyone who wanted one.'
       ],
       retrievalContexts:[
-        { id:'1', text:'Teamwork is essential in a successful project.', target:'essential', grammarPattern:'' },
-        { id:'2', text:'Passwords are essential for keeping accounts safe.', target:'essential', grammarPattern:'' },
-        { id:'3', text:'It is essential to back up your files regularly.', target:'essential', grammarPattern:'' }
+        { id:'1', text:'A passport is not merely useful for foreign travel; it is essential.', target:'essential', grammarPattern:'' },
+        { id:'2', text:'Students who skip the safety briefing may not enter the laboratory, because the briefing is essential.', target:'essential', grammarPattern:'' },
+        { id:'3', text:'It is essential to back up your files, or you may lose all your work.', target:'essential', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'essential', wrong:['jealous', 'sleepy', 'hungry'] },
-        { id:'2', answer:'essential', wrong:['loyal', 'polite', 'sleepy'] },
-        { id:'3', answer:'essential', wrong:['curious', 'jealous', 'sleepy'] }
+        { id:'1', answer:'essential', wrong:['optional', 'convenient', 'popular'] },
+        { id:'2', answer:'essential', wrong:['optional', 'convenient', 'popular'] },
+        { id:'3', answer:'essential', wrong:['optional', 'convenient', 'pleasant'] }
       ]
     }),
   e('current affairs', 'noun',
@@ -298,9 +298,9 @@ const entries = [
         { id:'3', text:'A weekly quiz on current affairs tests what students know about the week’s headlines.', target:'current affairs', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'current affairs', wrong:['sports results', 'fashion trends', 'film reviews'] },
-        { id:'2', answer:'current affairs', wrong:['sports results', 'recipe ideas', 'fashion trends'] },
-        { id:'3', answer:'current affairs', wrong:['recipe ideas', 'fashion trends', 'local gardens'] }
+        { id:'1', answer:'current affairs', wrong:['historical events', 'fictional stories', 'personal diaries'] },
+        { id:'2', answer:'current affairs', wrong:['travel advice', 'cooking tips', 'film plots'] },
+        { id:'3', answer:'current affairs', wrong:['weather vocabulary', 'recipe ideas', 'book characters'] }
       ]
     }),
   eb('apparently', 'adverb'),
