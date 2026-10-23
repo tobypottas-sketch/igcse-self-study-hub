@@ -1,6 +1,7 @@
 import { getSupabaseClient } from '../supabase.js';
-import { loadVocabularyDashboard, loadVocabularyMissions, loadVocabularyUnit, loadStudentMastery, recordVocabularyMission, submitVocabularyAttempt } from './data.js';
-import { bestAndAim, describeEngagement, evaluateMission, nextChallenge } from './engagement-model.js';
+import { loadVocabularyDashboard, loadMeritAwardCount, loadVocabularyMissions, loadVocabularyUnit, loadStudentMastery, recordVocabularyMission, submitVocabularyAttempt } from './data.js';
+import { achievements as buildAchievements, bestAndAim, computeXp, describeEngagement, evaluateMission, levelFor, meritProgress, nextChallenge, progressSnapshot, weeklyGoal } from './engagement-model.js';
+import { markAchievementsSeen, newAchievements } from './achievements-seen.js';
 import { trackVocabularyEvent } from './tracking.js';
 import { buildSupportStep } from './scaffolding.js';
 import { streakMomentum } from './engagement-copy.js';
@@ -10,7 +11,7 @@ import { planMixedReviewQuestion } from './mixed-review.js';
 import { planPathwayQuestion, eligibleTargetsForPathwayStage } from './pathway-planner.js';
 import { buildUnitPathwayStates, buildWordPathwayStates, targetsForPathwayStage } from './pathway-view-model.js';
 import { buildSessionFinishModel } from './session-finish-model.js';
-import { buildUnitProgress, renderEngagementStrip, renderSessionSummary, renderVocabularyError, renderPracticeSheet, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
+import { buildUnitProgress, renderAchievementsSheet, renderEngagementStrip, renderSessionSummary, renderVocabularyError, renderPracticeSheet, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
 import { deriveLearningStage } from './learning-stage.js';
 import { createAttemptPersistence } from './attempt-persistence.js';
 import { buildMatchSet, checkMatchSet, finishedMatchState, newMatchState, revealMatchSet, tapMatchItem, pairMatchItems } from './match-set.js';
@@ -25,7 +26,7 @@ import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shar
 const root = document.getElementById('vocabularyApp');
 const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
-  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:null, pathwayId:null, pathwayStage:null, pathwayChoice:null, mixedReview:false, missions:[],
+  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:null, pathwayId:null, pathwayStage:null, pathwayChoice:null, mixedReview:false, missions:[], meritAwarded:null, engagementSnapshot:null,
   recentActivities:new Map(), usedContentIds:new Map(), recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null, timedPreviousActivityType:null,
   userKey:null, finishPending:false, handoffPending:false, unitCache:new Map(), attempts:null, unitRequest:0, loadingUnit:null
 };
@@ -103,12 +104,37 @@ function buildUnits(dashboard) {
   for (const row of dashboard.occurrences) { if (!grouped.has(row.unit_number)) grouped.set(row.unit_number, { unitNumber:row.unit_number, unitTitle:row.unit_title, occurrences:[] }); grouped.get(row.unit_number).occurrences.push(row); }
   return [...grouped.values()].sort((a,b) => a.unitNumber - b.unitNumber).map(group => ({ unitNumber:group.unitNumber, unitTitle:group.unitTitle, ...buildUnitProgress({ occurrences:group.occurrences, unitMastery:unit, globalMastery:global }) }));
 }
+// Level, weekly goal, merit progress and achievements, all derived from mission rows plus the pathway progress already loaded.
+function engagementData(missions = state.missions ?? []) {
+  const dashboard = state.dashboard;
+  const snapshot = dashboard ? progressSnapshot({ occurrences:dashboard.occurrences ?? [], unitMastery:mapBy(dashboard.unit ?? [], 'occurrence_id'), globalMastery:mapBy(dashboard.global ?? [], 'vocabulary_id') }) : null;
+  state.engagementSnapshot = snapshot;
+  return { snapshot, xp:computeXp({ missions, snapshot }), list:buildAchievements({ missions, snapshot }) };
+}
+function homeEngagement() {
+  if (state.preview || !state.dashboard) return null;
+  const { snapshot, xp, list } = engagementData();
+  return { level:xp, weekly:weeklyGoal(state.missions ?? []), merit:meritProgress(snapshot?.passedStages ?? 0, state.meritAwarded), achievementsUnlocked:list.filter(item => item.unlocked).length, achievementsTotal:list.length, newCount:newAchievements(list, state.userKey).length };
+}
+function openAchievements() {
+  if (root?.querySelector?.('[data-achievements-backdrop]')) return;
+  const { list } = engagementData();
+  state.achievementsReturn = root.querySelector?.('[data-action="open-achievements"]') ?? null;
+  root.insertAdjacentHTML('beforeend', renderAchievementsSheet(list));
+  markAchievementsSeen(list, state.userKey);
+  root.querySelector?.('[data-achievements-badge], .vocab-engage-home__new')?.remove?.();
+  root.querySelector?.('[data-achievements-sheet] [data-autofocus]')?.focus?.();
+}
+function closeAchievements() {
+  const sheet = root?.querySelector?.('[data-achievements-backdrop]'); if (!sheet) return;
+  sheet.remove(); state.achievementsReturn?.focus?.();
+}
 async function showHome() {
   state.unitRequest += 1; state.loadingUnit = null;
   clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null; state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false;
-  const [dashboard, missions] = await Promise.all([loadVocabularyDashboard(state.client, { preview:state.preview }), loadVocabularyMissions(state.client, { preview:state.preview })]);
-  state.dashboard = dashboard; state.missions = missions; state.units = buildUnits(state.dashboard);
-  renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units }); decoratePreview();
+  const [dashboard, missions, meritAwarded] = await Promise.all([loadVocabularyDashboard(state.client, { preview:state.preview }), loadVocabularyMissions(state.client, { preview:state.preview }), loadMeritAwardCount(state.client, { preview:state.preview })]);
+  state.dashboard = dashboard; state.missions = missions; state.meritAwarded = meritAwarded; state.units = buildUnits(state.dashboard);
+  renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units, engagement:homeEngagement() }); decoratePreview();
 }
 function renderCurrentUnit() {
   if (!state.currentUnitNumber) return;
@@ -521,7 +547,11 @@ async function settleMission(missionId, { finishModel = null, postPathwayState =
   state.missions = [...(state.missions ?? []).filter(existing => existing.mission_id !== row.mission_id), row];
   const evaluation = evaluateMission(state.missions, row.mission_id);
   const challenge = nextChallenge({ evaluation, stageId:postPathwayState?.currentStage ?? null, answersToClear:postPathwayState?.stageEvidence?.answersToClear ?? null, stageCleared:finishModel?.variant === 'stage-complete', mastered:finishModel?.variant === 'mastered' });
-  const info = describeEngagement(evaluation, challenge);
+  const before = engagementData(state.missions.filter(existing => existing.mission_id !== row.mission_id));
+  const after = engagementData(state.missions);
+  const unlocked = newAchievements(after.list, state.userKey);
+  markAchievementsSeen(after.list, state.userKey);
+  const info = describeEngagement(evaluation, challenge, { xpGained:Math.max(0, after.xp.total - before.xp.total), level:after.xp.level, levelUp:after.xp.level > before.xp.level, unlocked });
   if (!info) { slot.remove(); return; }
   slot.innerHTML = renderEngagementStrip(info);
   slot.dataset.engagement = 'ready'; slot.dataset.personalBest = String(info.isPersonalBest); slot.removeAttribute('aria-busy');
@@ -569,6 +599,7 @@ root?.addEventListener('keydown', event => {
   root.querySelector?.(`[data-match-${target.side}="${target.id}"]`)?.focus?.();
 });
 root?.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && root.querySelector?.('[data-achievements-backdrop]')) { event.preventDefault(); closeAchievements(); return; }
   const sheet = root.querySelector?.('[data-practice-sheet]'); if (!sheet) return;
   if (event.key === 'Escape') { event.preventDefault(); closePracticeSheet(); return; }
   if (event.key !== 'Tab') return;
@@ -592,6 +623,8 @@ root?.addEventListener('click', event => {
   else if (action === 'start-recommended') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, null); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId)); }
   else if (action === 'start-practice-choice') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, target.dataset.family); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId, false, { familyId:target.dataset.family })); }
   else if (action === 'close-practice-sheet') closePracticeSheet();
+  else if (action === 'open-achievements') openAchievements();
+  else if (action === 'close-achievements') closeAchievements();
   else if (action === 'choose-practice') { const pathwayId = target.dataset.pathway; returnToCurrentUnit().then(() => openPracticeSheet(pathwayId)).catch(error => renderVocabularyError(root, error.message)); }
   else if (action === 'start-mixed-review') runAfterSaves(() => startMixedReview(false, timerMinutes(target)));
   else if (action === 'continue-practice') runAfterSaves(() => continuePractice());

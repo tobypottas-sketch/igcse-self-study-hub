@@ -150,3 +150,12 @@ export async function recordVocabularyMission(client, missionId) {
     return result?.error ? null : (result?.data ?? null);
   } catch { return null; }
 }
+
+// How many merits the teacher has awarded this student (students can read their own rows). Optional and fail-safe.
+export async function loadMeritAwardCount(client, options = {}) {
+  if (options.preview === true || typeof client?.from !== 'function') return null;
+  try {
+    const result = await client.from('vocabulary_merit_awards').select('merit_number');
+    return result?.error ? null : (result?.data ?? []).length;
+  } catch { return null; }
+}

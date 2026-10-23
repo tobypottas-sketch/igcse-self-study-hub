@@ -131,7 +131,23 @@ function completionArt(kind, { rays = true } = {}) {
 
 const COURSEBOOK_REFERENCE = `<aside class="vocab-coursebook" aria-label="Coursebook reference"><img class="vocab-coursebook__cover" src="assets/coursebook/lucantoni-igcse-esl-6e-cover.webp" width="398" height="502" alt="Cambridge IGCSE English as a Second Language Sixth Edition coursebook cover" decoding="async"><div class="vocab-coursebook__text"><p class="vocab-coursebook__label">Coursebook reference</p><p class="vocab-coursebook__title">Cambridge IGCSE™ English as a Second Language</p><p class="vocab-coursebook__meta"><span class="vocab-coursebook__nb">Sixth edition</span><span class="vocab-coursebook__sep"> · </span><span class="vocab-coursebook__nb">Peter Lucantoni</span></p><p class="vocab-coursebook__isbn">ISBN <span>9781009031943</span></p></div></aside>`;
 
-export function renderVocabularyHome(root, { displayName = '', units = [] } = {}) {
+// Home strip: level and XP bar, then three small counts. Every number in a chip also exists as text.
+export function renderEngagementHome(info) {
+  if (!info) return '';
+  const { level, weekly, merit, achievementsUnlocked, achievementsTotal, newCount } = info;
+  const dots = Array.from({ length:weekly.goal }, (_, index) => `<span class="vocab-week-dot${index < weekly.done ? ' is-done' : ''}" aria-hidden="true"></span>`).join('');
+  const toNext = level.next == null ? 'Top level reached' : `${level.xp} / ${level.next} XP`;
+  const badge = newCount > 0 ? `<span class="vocab-engage-home__new">${escapeHtml(newCount)} new</span>` : '';
+  return `<section class="vocab-engage-home" data-engagement-home aria-label="Your progress"><div class="vocab-engage-home__level"><strong data-engagement-level>Level ${escapeHtml(level.level)}</strong><span class="vocab-engage-home__xp">${escapeHtml(toNext)}</span>${renderStudyProgress(level.progressPercent,100,`Progress to Level ${level.level + 1}`)}</div><div class="vocab-engage-home__counts"><p class="vocab-engage-home__count" data-weekly-goal><span class="vocab-week-dots">${dots}</span><span>${escapeHtml(weekly.label)}</span></p><p class="vocab-engage-home__count" data-merit-progress>${escapeHtml(merit.copy)}</p></div><button type="button" class="vocab-engage-home__achievements" data-action="open-achievements">${renderStudyIcon('trophy',{className:'study-icon'})}<span>Achievements ${escapeHtml(achievementsUnlocked)} / ${escapeHtml(achievementsTotal)}</span>${badge}</button></section>`;
+}
+
+export function renderAchievementsSheet(list = []) {
+  const tiles = list.map(item => `<li class="vocab-achievement${item.unlocked ? ' is-unlocked' : ' is-locked'}" data-achievement="${escapeHtml(item.id)}"><span class="vocab-achievement__icon">${renderStudyIcon(item.unlocked ? 'check' : 'lock',{className:'study-icon'})}</span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.rule)}</small><span class="vocab-sr-only">${item.unlocked ? 'Unlocked' : 'Locked'}</span></li>`).join('');
+  const unlocked = list.filter(item => item.unlocked).length;
+  return `<div class="vocab-sheet-backdrop" data-achievements-backdrop><section class="vocab-sheet vocab-sheet--achievements" role="dialog" aria-modal="true" aria-labelledby="vocabAchievementsTitle" data-achievements-sheet><header class="vocab-sheet__head"><span class="vocab-sheet__icon">${renderStudyIcon('trophy',{ className:'study-icon--lg' })}</span><div><p class="vocab-kicker">${escapeHtml(unlocked)} of ${escapeHtml(list.length)} unlocked</p><h2 id="vocabAchievementsTitle">Achievements</h2></div><button type="button" class="vocab-sheet__close" data-action="close-achievements" aria-label="Close" data-autofocus>${renderStudyIcon('close',{ className:'study-icon' })}</button></header><ul class="vocab-achievement-grid">${tiles}</ul></section></div>`;
+}
+
+export function renderVocabularyHome(root, { displayName = '', units = [], engagement = null } = {}) {
   const cards = units.length ? units.map(unit => {
     const mastered = Number(unit.mastered ?? 0);
     const total = Number(unit.total ?? 50);
@@ -145,7 +161,7 @@ export function renderVocabularyHome(root, { displayName = '', units = [] } = {}
       ${unitArtSlot(unit.unitNumber)}
     </button>`;
   }).join('') : `<div class="vocab-empty study-milestone-card" data-study-empty>${renderStudyIcon('spark',{className:'study-icon--xl'})}<strong>Your vocabulary units are being prepared.</strong><p>Check back soon.</p></div>`;
-  root.innerHTML = `<main class="vocab-shell vocab-shell--home"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Cambridge IGCSE ESL 0511</span></header><section class="vocab-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase Builder</p><h1>Choose a unit</h1><p>${displayName ? `Hi ${escapeHtml(displayName)}. ` : ''}Choose a unit, then work upwards through each vocabulary pathway.</p></section><section class="vocab-unit-grid">${cards}</section>${COURSEBOOK_REFERENCE}</main>`;
+  root.innerHTML = `<main class="vocab-shell vocab-shell--home"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Cambridge IGCSE ESL 0511</span></header><section class="vocab-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase Builder</p><h1>Choose a unit</h1><p>${displayName ? `Hi ${escapeHtml(displayName)}. ` : ''}Choose a unit, then work upwards through each vocabulary pathway.</p></section>${renderEngagementHome(engagement)}<section class="vocab-unit-grid">${cards}</section>${COURSEBOOK_REFERENCE}</main>`;
 }
 
 function normalizedPathwayState(pathwayId, pathwayStates = {}) {
@@ -494,8 +510,9 @@ export function renderEngagementSlot() {
 export function renderEngagementStrip(info) {
   if (!info) return '';
   const chips = info.chips.map(chip => `<li data-engagement-chip="${escapeHtml(chip.id)}">${escapeHtml(chip.label)}</li>`).join('');
+  const unlockedLine = info.unlockedLine ? `<p class="vocab-engagement__unlocked" data-achievement-unlocked>${renderStudyIcon('trophy',{className:'study-icon'})}<span>${escapeHtml(info.unlockedLine)}</span></p>` : '';
   const next = info.challenge ? `<p class="vocab-engagement__next" data-next-challenge="${escapeHtml(info.challenge.kind)}"><strong>Next challenge</strong><span>${escapeHtml(info.challenge.text)}</span></p>` : '';
-  return `<p class="vocab-engagement__headline">${info.isPersonalBest ? renderStudyIcon('spark',{className:'study-icon'}) : ''}<span>${escapeHtml(info.headline)}</span></p><ul class="vocab-engagement__chips">${chips}</ul>${next}<span class="vocab-sr-only" data-engagement-spoken>${escapeHtml(info.spoken)}</span>`;
+  return `<p class="vocab-engagement__headline">${info.isPersonalBest ? renderStudyIcon('spark',{className:'study-icon'}) : ''}<span>${escapeHtml(info.headline)}</span></p><ul class="vocab-engagement__chips">${chips}</ul>${unlockedLine}${next}<span class="vocab-sr-only" data-engagement-spoken>${escapeHtml(info.spoken)}</span>`;
 }
 
 export function renderSessionSummary(root, { durationMinutes = null, summary = {}, practiceMode = 'adaptive', nextPractice = null, pathwayId = null, finishModel = null, engagementPending = false } = {}) {
