@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '../supabase.js';
-import { loadVocabularyDashboard, loadVocabularyUnit, loadStudentMastery, submitVocabularyAttempt } from './data.js';
+import { loadVocabularyDashboard, loadVocabularyMissions, loadVocabularyUnit, loadStudentMastery, recordVocabularyMission, submitVocabularyAttempt } from './data.js';
+import { bestAndAim, describeEngagement, evaluateMission, nextChallenge } from './engagement-model.js';
 import { trackVocabularyEvent } from './tracking.js';
 import { buildSupportStep } from './scaffolding.js';
 import { streakMomentum } from './engagement-copy.js';
@@ -9,7 +10,7 @@ import { planMixedReviewQuestion } from './mixed-review.js';
 import { planPathwayQuestion, eligibleTargetsForPathwayStage } from './pathway-planner.js';
 import { buildUnitPathwayStates, buildWordPathwayStates, targetsForPathwayStage } from './pathway-view-model.js';
 import { buildSessionFinishModel } from './session-finish-model.js';
-import { buildUnitProgress, renderSessionSummary, renderVocabularyError, renderPracticeSheet, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
+import { buildUnitProgress, renderEngagementStrip, renderSessionSummary, renderVocabularyError, renderPracticeSheet, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
 import { deriveLearningStage } from './learning-stage.js';
 import { createAttemptPersistence } from './attempt-persistence.js';
 import { buildMatchSet, checkMatchSet, finishedMatchState, newMatchState, revealMatchSet, tapMatchItem, pairMatchItems } from './match-set.js';
@@ -24,7 +25,7 @@ import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shar
 const root = document.getElementById('vocabularyApp');
 const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
-  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:null, pathwayId:null, pathwayStage:null, pathwayChoice:null, mixedReview:false,
+  globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:null, pathwayId:null, pathwayStage:null, pathwayChoice:null, mixedReview:false, missions:[],
   recentActivities:new Map(), usedContentIds:new Map(), recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null, timedPreviousActivityType:null,
   userKey:null, finishPending:false, handoffPending:false, unitCache:new Map(), attempts:null, unitRequest:0, loadingUnit:null
 };
@@ -105,7 +106,8 @@ function buildUnits(dashboard) {
 async function showHome() {
   state.unitRequest += 1; state.loadingUnit = null;
   clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null; state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false;
-  state.dashboard = await loadVocabularyDashboard(state.client, { preview:state.preview }); state.units = buildUnits(state.dashboard);
+  const [dashboard, missions] = await Promise.all([loadVocabularyDashboard(state.client, { preview:state.preview }), loadVocabularyMissions(state.client, { preview:state.preview })]);
+  state.dashboard = dashboard; state.missions = missions; state.units = buildUnits(state.dashboard);
   renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units }); decoratePreview();
 }
 function renderCurrentUnit() {
@@ -249,7 +251,9 @@ function openPracticeSheet(pathwayId) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   closePracticeSheet(false);
   const options = pathwayPracticeOptions({ pathwayId, content:state.content, unitMastery:state.unitMastery, globalMastery:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${pathwayId}` });
-  root.insertAdjacentHTML('beforeend', renderPracticeSheet({ pathwayId, options, lastFamilyId:loadLastChoice(pathwayId) }));
+  const currentStage = buildUnitPathwayStates({ occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery })?.[pathwayId]?.currentStage ?? 'recognise';
+  const recommended = bestAndAim(state.missions ?? [], { kind:'pathway', pathwayId, stage:currentStage, family:'recommended' });
+  root.insertAdjacentHTML('beforeend', renderPracticeSheet({ pathwayId, options, lastFamilyId:loadLastChoice(pathwayId), bestAim:recommended.best ? recommended.copy : null }));
   root.querySelector?.('[data-practice-sheet] [data-autofocus]')?.focus?.();
 }
 function timerMinutes(button) { const minutes = Number(button?.dataset?.minutes); return Number.isFinite(minutes) && minutes > 0 ? minutes : null; }
@@ -500,10 +504,27 @@ function finishSession() {
     : null;
   state.current = null;
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'exercise_result', activity_id:`session_complete:${finished.mode}:${state.pathwayId ?? (state.mixedReview ? 'mixed-review' : finished.practiceMode ?? 'adaptive')}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${finished.unitNumber}`, score:finished.summary.strengthened, max_score:Math.max(1, finished.summary.practised), metadata:{ unit_number:finished.unitNumber, pathway_id:state.pathwayId, pathway_stage:state.pathwayStage, review_only:state.mixedReview } }).catch(() => {});
-  renderSessionSummary(root, { durationMinutes:finished.durationMinutes, summary:finished.summary, practiceMode:finished.practiceMode ?? 'adaptive', pathwayId:state.pathwayId, finishModel });
+  const missionId = !state.preview && (state.pathwayId || state.mixedReview) && finished.mode === 'adaptive' ? finished.missionId ?? null : null;
+  renderSessionSummary(root, { durationMinutes:finished.durationMinutes, summary:finished.summary, practiceMode:finished.practiceMode ?? 'adaptive', pathwayId:state.pathwayId, finishModel, engagementPending:Boolean(missionId) });
   decoratePreview();
+  if (missionId) void settleMission(missionId, { finishModel, postPathwayState });
   root.querySelector?.('[data-session-finish-heading]')?.focus?.();
   playCompletionSequence(root);
+}
+// The server rebuilds the finished mission from its own graded attempts and returns the facts; everything shown here is derived from those rows.
+async function settleMission(missionId, { finishModel = null, postPathwayState = null } = {}) {
+  const slot = root?.querySelector?.('[data-engagement-slot]');
+  if (!slot) return;
+  const row = await recordVocabularyMission(state.client, missionId);
+  if (!root?.contains?.(slot)) return;
+  if (!row) { slot.remove(); return; }
+  state.missions = [...(state.missions ?? []).filter(existing => existing.mission_id !== row.mission_id), row];
+  const evaluation = evaluateMission(state.missions, row.mission_id);
+  const challenge = nextChallenge({ evaluation, stageId:postPathwayState?.currentStage ?? null, answersToClear:postPathwayState?.stageEvidence?.answersToClear ?? null, stageCleared:finishModel?.variant === 'stage-complete', mastered:finishModel?.variant === 'mastered' });
+  const info = describeEngagement(evaluation, challenge);
+  if (!info) { slot.remove(); return; }
+  slot.innerHTML = renderEngagementStrip(info);
+  slot.dataset.engagement = 'ready'; slot.dataset.personalBest = String(info.isPersonalBest); slot.removeAttribute('aria-busy');
 }
 // The results screen reads server-applied pathway progression, so finishing is the one place that must wait for the
 // save queue. With nothing pending it finishes synchronously; otherwise the button shows a short "Saving progress…".

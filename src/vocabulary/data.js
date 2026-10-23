@@ -132,3 +132,21 @@ export async function submitVocabularyAttempt(client, input = {}) {
   if (error || !data?.ok) throw new Error(data?.error || error?.message || 'Unable to mark vocabulary attempt.');
   return data;
 }
+
+// Engagement data is optional: a missing table, a network blip or a preview session must never block practice.
+export async function loadVocabularyMissions(client, options = {}) {
+  if (options.preview === true || typeof client?.from !== 'function') return [];
+  try {
+    const result = await client.from('vocabulary_missions').select('mission_id, unit_number, mission_kind, pathway_id, pathway_stage, practice_family, mission_size, score, stars, best_streak, completed_at').order('completed_at', { ascending:true }).limit(1000);
+    return result?.error ? [] : (result?.data ?? []);
+  } catch { return []; }
+}
+
+// Asks the server to rebuild and record a finished mission. It sends the mission id only; the server derives everything else.
+export async function recordVocabularyMission(client, missionId) {
+  if (!missionId || typeof client?.rpc !== 'function') return null;
+  try {
+    const result = await client.rpc('record_vocabulary_mission', { p_mission_id:missionId });
+    return result?.error ? null : (result?.data ?? null);
+  } catch { return null; }
+}
