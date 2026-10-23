@@ -179,14 +179,14 @@ const entries = [
         'The article was too long for the class to finish.'
       ],
       retrievalContexts:[
-        { id:'1', text:'Only choose examples that are relevant to the question.', target:'relevant', grammarPattern:'' },
-        { id:'2', text:'The teacher highlighted the details that were relevant to the essay title.', target:'relevant', grammarPattern:'' },
-        { id:'3', text:'Is this advice relevant to my situation?', target:'relevant', grammarPattern:'' }
+        { id:'1', text:'Only choose relevant examples, meaning ones that connect directly to the question.', target:'relevant', grammarPattern:'' },
+        { id:'2', text:'The teacher highlighted the most relevant details in the article, the ones that answered the essay question.', target:'relevant', grammarPattern:'' },
+        { id:'3', text:'Is this relevant advice for my situation, or is it about a completely different problem?', target:'relevant', grammarPattern:'' }
       ],
       gapDistractors:[
         { id:'1', answer:'relevant', wrong:['general', 'additional', 'recent'] },
-        { id:'2', answer:'relevant', wrong:['additional', 'recent', 'familiar'] },
-        { id:'3', answer:'relevant', wrong:['general', 'recent', 'familiar'] }
+        { id:'2', answer:'relevant', wrong:['general', 'recent', 'additional'] },
+        { id:'3', answer:'relevant', wrong:['recent', 'familiar', 'additional'] }
       ]
     }),
   e('educator', 'noun',
@@ -267,12 +267,12 @@ const entries = [
       retrievalContexts:[
         { id:'1', text:'A passport is not merely useful for foreign travel; it is essential.', target:'essential', grammarPattern:'' },
         { id:'2', text:'Students who skip the safety briefing may not enter the laboratory, because the briefing is essential.', target:'essential', grammarPattern:'' },
-        { id:'3', text:'It is essential to back up your files, or you may lose all your work.', target:'essential', grammarPattern:'' }
+        { id:'3', text:'Because losing the files would stop the project completely, backing them up is essential.', target:'essential', grammarPattern:'' }
       ],
       gapDistractors:[
         { id:'1', answer:'essential', wrong:['optional', 'convenient', 'popular'] },
         { id:'2', answer:'essential', wrong:['optional', 'convenient', 'popular'] },
-        { id:'3', answer:'essential', wrong:['optional', 'convenient', 'pleasant'] }
+        { id:'3', answer:'essential', wrong:['optional', 'unnecessary', 'decorative'] }
       ]
     }),
   e('current affairs', 'noun',
