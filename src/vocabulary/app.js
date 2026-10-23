@@ -195,6 +195,8 @@ function showAllWords() {
     return { term:target?.term ?? occ.vocabularyId, partOfSpeech:target?.partOfSpeech ?? '', definition:target?.coreMeaning ?? '', contextSentence:dictionaryContext?.text ?? '', status:global.status ?? 'new', learningStage:deriveLearningStage(global), mastery:global, pathways:buildWordPathwayStates({ occurrence:occ, unitMastery:state.unitMastery, globalMastery:state.globalMastery }), strands:{ meaning:strandLabel(global.strandEvidence?.meaning, global.status), recognition:strandLabel(global.strandEvidence?.recognition, global.status), context:strandLabel(global.strandEvidence?.context, global.status), paraphrasing:strandLabel(global.strandEvidence?.paraphrasing, global.status), production:strandLabel(global.strandEvidence?.production, global.status) } };
   });
   renderVocabularyWords(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, words }); decoratePreview();
+  // The page was scrolled down on the unit screen: the dictionary always opens at its top (instant, overriding smooth scrolling).
+  if (typeof window !== 'undefined' && typeof window.scrollTo === 'function') window.scrollTo({ top:0, left:0, behavior:'instant' });
 }
 function rankedTargets(limit, practiceMode = state.practiceFocus) {
   return selectEligiblePriorityTargets({ content:state.content, masteryByVocabularyId:state.globalMastery, unitMastery:state.unitMastery, practiceMode, now:new Date(), limit });
