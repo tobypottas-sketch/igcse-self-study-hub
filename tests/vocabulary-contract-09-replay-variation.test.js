@@ -13,15 +13,21 @@ const MIN_DIFFERING = 5;
 const sorted = a => (a ? [...a].sort() : null);
 export const fingerprint = q => JSON.stringify([q.type, q.contentId, q.contextId, q.prompt, q.sourceText, sorted(q.options), sorted(q.matchOptions), q.matchCue, sorted(q.tiles), q.answers]);
 const presentation = q => JSON.stringify(q.options ?? q.matchOptions ?? q.tiles ?? null);
-const mission = (p, stages, nonce) => playMission(p, newLearner(p, stages), lcg(1), 1, { record: false, optionNonce: nonce });
+// `seed` = a server-issued mission seed (content + target order + presentation derive from it); without it only the legacy nonce applies.
+const mission = (p, stages, nonce, seed = null) => playMission(p, newLearner(p, stages), lcg(1), 1, { record: false, optionNonce: nonce, missionSeed: seed });
 
-// Capacity: how many distinct fingerprints can the content produce for one word at one stage across many mission seeds?
+// Capacity: how many distinct fingerprints can the content produce for one word at one stage, given mission seeds AND the app's
+// seen-content memory (a replay is served material the student has not met when any exists)?
 function capacity(pathwayId, stageId) {
   let thin = 0; let total = 0;
   for (const target of content.occurrences) {
-    const prints = new Set();
-    for (let s = 0; s < 6; s += 1) { try { prints.add(fingerprint(buildQuestion({ pathwayId, stageId, target, k: 0, seed: `cap:${target.occurrenceId}:${s}` }))); } catch { prints.clear(); break; } }
-    if (prints.size === 0) continue; total += 1; if (prints.size < 2) thin += 1;
+    const prints = new Set(); let built = true;
+    try {
+      const seen = new Set();
+      for (let s = 0; s < 4; s += 1) { const q = buildQuestion({ pathwayId, stageId, target, k: 0, missionSeed: `cap_${s}` }); prints.add(fingerprint(q)); if (q.contentId) seen.add(q.contentId); }
+      for (const contentId of [...seen]) for (let s = 0; s < 2; s += 1) prints.add(fingerprint(buildQuestion({ pathwayId, stageId, target, k: 0, missionSeed: `cap_m${s}`, used: [contentId] })));
+    } catch { built = false; }
+    if (!built || prints.size === 0) continue; total += 1; if (prints.size < 2) thin += 1;
   }
   return { thin, total };
 }
@@ -38,35 +44,36 @@ test('mission identity lifecycle: new gets a new seed, resume keeps it, abandon-
   assert.notEqual(c.missionSeed, b.missionSeed); assert.notEqual(c.missionId, b.missionId);
 });
 
-expectedFailure({ rule: 'Replay: immediate replay receives a fresh mission seed; resume reuses it; refresh-resume preserves mission identity',
-  today: 'the server now issues missionId + missionSeed (start_vocabulary_mission) but the app does not call it: createSession() has neither, optionNonce does not feed content selection, and the question seed is `${occurrenceId}:${index}:adaptive` (identical every mission)',
-  turnsGreenWhen: 'the app starts missions via start_vocabulary_mission, keeps missionId + missionSeed on the session (and in the persisted in-progress mission) and passes deriveContentSeed(...) into planPathwayQuestion' },
-'production createSession exposes a distinct missionSeed per new mission', () => {
-  const a = createSession({ unitNumber: 1 }); const b = createSession({ unitNumber: 1 });
-  assert.ok(a.missionSeed && a.missionId, 'no missionId/missionSeed on session');
-  assert.notEqual(a.missionSeed, b.missionSeed); assert.notEqual(a.missionId, b.missionId);
-});
-expectedFailure({ rule: 'Replay: target order varies between consecutive missions',
-  today: 'target order is priority-sorted then positionInUnit, with no seeded tie-break, so an unpassed replay selects the same ten words in the same order',
-  turnsGreenWhen: 'selection tie-breaks with a seeded shuffle keyed by missionSeed' },
-'consecutive fresh missions do not serve the same targets in the same order', () => {
-  const a = mission('meaning', [], 'A'); const b = mission('meaning', [], 'B');
+// The app side of this lifecycle (server RPC -> session identity -> cache -> resume) is exercised against the REAL app.js in
+// vocabulary-contract-14-mission-wiring.test.js.
+test('consecutive fresh missions (different server seeds) do not serve the same targets in the same order', () => {
+  const a = mission('meaning', [], 'A', 'ms_seed_A'); const b = mission('meaning', [], 'B', 'ms_seed_B');
   assert.notDeepEqual(a.selectedIds, b.selectedIds);
+});
+test('the SAME mission seed reproduces the same mission exactly (targets, order, questions, presentation)', () => {
+  const a = mission('meaning', [], 'A', 'ms_seed_A'); const b = mission('meaning', [], 'A', 'ms_seed_A');
+  assert.deepEqual(a.selectedIds, b.selectedIds); assert.deepEqual(a.questions, b.questions);
 });
 
 // ---------- per pathway/stage fingerprint variation ----------
 for (const pathwayId of LIVE_PATHWAYS) STAGES.forEach((stageId, si) => {
   const stages = STAGES.slice(0, si);
-  const a = mission(pathwayId, stages, 'A'); const b = mission(pathwayId, stages, 'B');
+  const a = mission(pathwayId, stages, 'A', 'ms_seed_A');
+  // The replay: same learner state, a NEW server mission seed, and the seen-content memory the app keeps between missions.
+  const replayer = newLearner(pathwayId, stages); for (const q of a.questions ?? []) if (q.contentId) replayer.used.set(q.occ, [q.contentId]);
+  const b = playMission(pathwayId, replayer, lcg(1), 1, { record: false, optionNonce: 'B', missionSeed: 'ms_seed_B' });
   if (!a.questions || !b.questions) return;
-  const differing = a.questions.filter((q, i) => b.questions[i] && fingerprint(q) !== fingerprint(b.questions[i])).length;
+  // Compared PER WORD, not per position: reordering the same ten words is not variation, so a word's question in mission B is compared
+  // with the question the same word had in mission A (a word absent from A counts as new material).
+  const before = new Map(a.questions.map(q => [q.occ, fingerprint(q)]));
+  const differing = b.questions.filter(q => before.get(q.occ) !== fingerprint(q)).length;
   const label = `${pathwayId}/${stageId}: at least ${MIN_DIFFERING}/10 question fingerprints differ from the previous mission`;
   if (differing >= MIN_DIFFERING) return test(label, () => assert.ok(differing >= MIN_DIFFERING));
   const cap = capacity(pathwayId, stageId);
   const insufficient = cap.total === 0 || cap.thin > cap.total / 2;
   expectedFailure(insufficient
-    ? { rule: 'Replay: >=5/10 fingerprints differ when content allows; otherwise report INSUFFICIENT VARIATION CAPACITY', today: `INSUFFICIENT VARIATION CAPACITY: ${cap.thin}/${cap.total} words yield only one distinct fingerprint across 6 mission seeds; ${differing}/10 differ`, turnsGreenWhen: 'More reviewed content variants (contexts, sentences, distractor sets) exist for this pathway/stage, then missionSeed rotation can satisfy 5/10' }
-    : { rule: 'Replay: >=5/10 fingerprints differ when content allows', today: `capacity exists (${cap.total - cap.thin}/${cap.total} words have >=2 variants) but only ${differing}/10 differ: the seed is not mission-scoped`, turnsGreenWhen: 'missionSeed feeds content_seed = H(missionSeed, occurrenceId, slot) so content variants rotate per mission' },
+    ? { rule: 'Replay: >=5/10 fingerprints differ when content allows; otherwise report INSUFFICIENT VARIATION CAPACITY', today: `INSUFFICIENT VARIATION CAPACITY: ${cap.thin}/${cap.total} words yield only one distinct fingerprint under every mission seed plus seen-content memory (served: ${[...new Set(a.questions.map(q => q.type))].join(', ')}); ${differing}/10 differ. Deficit: at least ${cap.thin} further reviewed cue(s) — one more per word — for this stage`, turnsGreenWhen: 'More reviewed content variants (contexts, sentences, distractor sets) exist for this pathway/stage, then missionSeed rotation can satisfy 5/10' }
+    : { rule: 'Replay: >=5/10 fingerprints differ when content allows', today: `capacity exists (${cap.total - cap.thin}/${cap.total} words have >=2 variants) but only ${differing}/10 differ`, turnsGreenWhen: 'missionSeed feeds content_seed = H(missionSeed, occurrenceId, slot) so content variants rotate per mission' },
   label, () => assert.ok(differing >= MIN_DIFFERING));
 });
 

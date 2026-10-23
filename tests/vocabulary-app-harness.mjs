@@ -15,6 +15,9 @@ import { buildSupportStep } from '../src/vocabulary/scaffolding.js';
 import { buildSessionFinishModel } from '../src/vocabulary/session-finish-model.js';
 import * as engagementCopy from '../src/vocabulary/engagement-copy.js';
 import * as engagementModel from '../src/vocabulary/engagement-model.js';
+import * as missionSeedLib from '../src/vocabulary/mission-seed.js';
+import * as missionCache from '../src/vocabulary/mission-cache.js';
+import { acquireMission } from '../src/vocabulary/mission-lifecycle.js';
 import { createAttemptPersistence } from '../src/vocabulary/attempt-persistence.js';
 import { validateVocabularyAttempt } from '../supabase/functions/vocabulary-attempt-action/validation.js';
 
@@ -27,14 +30,14 @@ const source = fs.readFileSync(new URL('../src/vocabulary/app.js',import.meta.ur
 
 // Optional latency controls: `submitDelay(payload, index)` returns ms to wait before the fake server answers (real timers),
 // `serverCorrect(payload, local)` overrides the server's marking, `deterministic` fixes randomUUID so two runs are comparable.
-export function harness({ pathwayId = 'word_families', stage = 'match', size = 2, validate = true, submitDelay = null, serverCorrect = null, deterministic = false, fail = null } = {}) {
+export function harness({ pathwayId = 'word_families', stage = 'match', size = 2, validate = true, submitDelay = null, serverCorrect = null, deterministic = false, fail = null, missionServer = null, rejectMissionAttempts = null, userKey = 'tester' } = {}) {
   const chosen = ['afford', 'avoid']
     .map(term => unit.items.find(row => row.term === term)).filter(Boolean)
     .map(item => unit.occurrences.find(row => row.vocabularyId === item.vocabularyId));
   const occurrences = [...chosen, ...unit.occurrences.filter(row => !chosen.includes(row))].slice(0, size);
   const content = { ...unit, occurrences, itemsById:Object.fromEntries(unit.items.map(row => [row.vocabularyId,row])), contextsByOccurrence:{}, activitiesById:Object.fromEntries(unit.activities.map(row => [row.activityContentId,row])) };
   for (const row of unit.contexts) (content.contextsByOccurrence[row.occurrenceId] ??= []).push(row);
-  const state = { content, currentUnitNumber:1, currentUnitTitle:'Unit 1', preview:false, globalMastery:{}, unitMastery:{}, recentActivities:new Map(), usedContentIds:new Map(), recoveryNeeded:new Set(), queue:[], unitCache:new Map(), units:[] };
+  const state = { content, currentUnitNumber:1, currentUnitTitle:'Unit 1', preview:false, globalMastery:{}, unitMastery:{}, recentActivities:new Map(), usedContentIds:new Map(), recoveryNeeded:new Set(), queue:[], unitCache:new Map(), units:[], userKey, ...(missionServer ? { client:{ rpc() {} } } : {}) };
   const stages = ['recognise','match','apply','recall','mastery'];
   for (const target of occurrences) {
     state.globalMastery[target.vocabularyId] = { status:'building', strandEvidence:{ meaning:3, recognition:3, context:3, paraphrasing:3 } };
@@ -43,11 +46,12 @@ export function harness({ pathwayId = 'word_families', stage = 'match', size = 2
   const saved = []; const rejected = []; const served = []; const summaries = []; const requests = []; let counter = 0;
   const testCrypto = deterministic ? { randomUUID:() => `uuid-${++counter}` } : crypto;
   const context = vm.createContext({ state, crypto:testCrypto, Date, Map, Set, console, root:{}, window:{ clearInterval() {}, setInterval() { return 1; } },
-    createAttemptPersistence, ...sessions, ...targets, ...pathways, ...mixedReview, ...placement, ...engine, ...matchSetLogic, ...matchSetView, ...engagementCopy, ...engagementModel, VOCABULARY_PATHWAYS:[], servedByAnyLivePathway:() => true, registeredPathwayCoverage:() => null, playCue:() => false, setSoundEnabled:value => value === true, soundEnabled:() => false, loadVocabularyMissions:async () => [], loadMeritAwardCount:async () => null, newAchievements:() => [], markAchievementsSeen() {}, renderAchievementsSheet:() => "", recordVocabularyMission:async () => null, renderEngagementStrip:() => "", installMatchDrag() {}, playCompletionSequence() {}, loadSeenContent:() => new Map(), saveSeenContent() {}, matchDragJustEnded:() => false, deriveLearningStage, buildSupportStep, buildSessionFinishModel,
+    createAttemptPersistence, acquireMission, startVocabularyMission:async (_client, args) => { if (!missionServer) throw new Error('no mission service in this harness'); return missionServer(args); }, derivePresentationNonce:missionSeedLib.derivePresentationNonce, orderMissionTargets:missionSeedLib.orderMissionTargets, ...missionCache, ...sessions, ...targets, ...pathways, ...mixedReview, ...placement, ...engine, ...matchSetLogic, ...matchSetView, ...engagementCopy, ...engagementModel, VOCABULARY_PATHWAYS:[], servedByAnyLivePathway:() => true, registeredPathwayCoverage:() => null, playCue:() => false, setSoundEnabled:value => value === true, soundEnabled:() => false, loadVocabularyMissions:async () => [], loadMeritAwardCount:async () => null, newAchievements:() => [], markAchievementsSeen() {}, renderAchievementsSheet:() => "", recordVocabularyMission:async () => null, renderEngagementStrip:() => "", installMatchDrag() {}, playCompletionSequence() {}, loadSeenContent:() => new Map(), saveSeenContent() {}, matchDragJustEnded:() => false, deriveLearningStage, buildSupportStep, buildSessionFinishModel,
     renderVocabularyQuestion(_root, opts) { served.push({ target:state.current?.target?.occurrenceId, type:opts?.question?.type, contentId:opts?.question?.contentId, prompt:opts?.question?.prompt, options:opts?.question?.options ?? null, retry:Boolean(opts?.retry), feedback:Boolean(opts?.feedback), recovery:Boolean(state.current?.recovery) }); },
     renderSessionSummary(_root, opts) { summaries.push(opts); }, renderVocabularyUnit() {}, supportiveFeedback() { return ''; }, trackVocabularyEvent:async () => {},
     submitVocabularyAttempt:async (_client, payload) => {
-      requests.push({ attemptId:payload.attemptId, at:Date.now() });
+      requests.push({ attemptId:payload.attemptId, at:Date.now(), missionId:payload.missionId ?? null });
+      if (rejectMissionAttempts && payload.missionId) throw Object.assign(new Error('The mission is closed.'), { code:rejectMissionAttempts });
       if (submitDelay) await new Promise(done => setTimeout(done, submitDelay(payload, requests.length)));
       if (fail?.(payload, requests.length)) throw new Error('Failed to fetch');
       if (validate) { try { validateVocabularyAttempt(payload); } catch (error) { rejected.push({ payload, message:error.message }); throw new Error(error.message); } }

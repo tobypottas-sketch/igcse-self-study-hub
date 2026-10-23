@@ -264,6 +264,18 @@ Deno.serve(async (req: Request) => {
       questionType:input.questionType, activityType:input.questionType, review:input.review
     };
 
+    // Mission identity is server-issued. An attempt that names a mission must name one this student was issued and that is still open;
+    // a forged, client-minted, other-student, closed or abandoned mission id is refused. Attempts with NO mission id (timed and other
+    // practice) are unaffected. Neither the mission seed nor anything else about the mission can influence marking.
+    if (input.missionId && !input.preview) {
+      const { data:start, error:startError } = await adminClient.from('vocabulary_mission_starts').select('mission_id, student_id, status, mission_kind, pathway_id').eq('mission_id', input.missionId).maybeSingle();
+      if (startError) throw new Error('Unable to verify the mission.');
+      if (!start || start.student_id !== callerData.user.id || start.mission_kind !== input.missionKind || (start.mission_kind === 'pathway' && start.pathway_id !== (input.pathwayId ?? null))) {
+        return json({ ok:false, error:'That mission was not issued to you.', code:'mission_not_issued' }, 403);
+      }
+      if (start.status !== 'open') return json({ ok:false, error:'That mission is closed.', code:'mission_not_open' }, 409);
+    }
+
     if (input.preview) return json({ ok:true, preview:true, correct:marked.correct, misconceptionCategory:marked.misconceptionCategory, strand, strands:contract.strands, supportLevel });
 
     const shouldUpdateTargetMastery = input.contentSource === 'item' || input.contentSource === 'context' || primaryEvidenceTargetId === occurrence.vocabulary_id;

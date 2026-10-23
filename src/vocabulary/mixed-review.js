@@ -1,3 +1,4 @@
+import { deriveContentSeed } from './mission-seed.js';
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES, derivePathwayPlacement } from './pathway-model.js';
 import { currentPathwayStage, isPathwayStageUnlocked } from './pathway-progress.js';
 import { planPathwayQuestion } from './pathway-planner.js';
@@ -37,8 +38,14 @@ export function planMixedReviewQuestion({
   globalMastery = {},
   recentActivities = [],
   usedContentIds = [],
-  seed = ''
+  seed = '',
+  missionSeed = null,
+  slot = 0,
+  optionNonce = '',
+  avoidTileOrders = []
 } = {}) {
+  // Mission-scoped variation (server-issued missionSeed): the pathway/stage rotation and the content choices all derive from it.
+  if (missionSeed) seed = deriveContentSeed({ missionSeed, occurrenceId:target?.occurrenceId ?? target?.occurrence_id, slot, activityType:'_mixed' });
   const unit = unitMastery?.[target?.occurrenceId] ?? unitMastery?.[target?.occurrence_id] ?? {};
   const global = globalMastery?.[target?.vocabularyId] ?? globalMastery?.[target?.vocabulary_id] ?? {};
   const pathways = rotate(VOCABULARY_PATHWAYS,`${seed}:pathways`);
@@ -60,7 +67,10 @@ export function planMixedReviewQuestion({
           recentActivities,
           usedContentIds,
           supportState:null,
-          seed:`${seed}:${pathway.id}:${stageId}`
+          seed:`${seed}:${pathway.id}:${stageId}`,
+          optionNonce,
+          avoidTileOrders,
+          ...(missionSeed ? { missionSeed, slot } : {})
         });
       } catch (error) {
         lastError = error;

@@ -17,8 +17,10 @@ function argsFor(occurrence, position = 0) {
     unitActivities:unit.activities, unitItems:unit.items, unitContexts:unit.contexts, unitOccurrences:unit.occurrences,
     mastery:{ status:'mastered' }, readinessStage:'mastered', seed:`${occurrence.occurrenceId}:${position}:adaptive` };
 }
+// Presentation (option order, the nonce that drives it) is never part of what the question IS.
 function unordered(question) {
-  return { ...question, options:[...(question.options ?? [])].sort(),
+  const { presentationNonce, ...rest } = question;
+  return { ...rest, options:[...(question.options ?? [])].sort(),
     ...(question.wordBank ? {wordBank:[...question.wordBank].sort()} : {}) };
 }
 
@@ -109,28 +111,35 @@ test('old ten-question Meaning seed pattern no longer repeats D clustering acros
   assert.ok(clustered < 35, `seven-or-more clustering in ${clustered}/${sessions} sessions`);
 });
 
-// These two builders also serve matching activities; retain their pre-change order.
-test('matching presentations retain the original order independently of the session nonce', () => {
-  const target = unit.occurrences[0];
-  const expected = {
-    paraphrasing:['leisure time','compulsory study time','scheduled working time','organised training time']
-  };
-  for (const [pathwayId, options] of Object.entries(expected)) {
+// Matching presentations are nonce-driven (a different mission shows the same set in a different order) and grading-neutral: the
+// SAME set of options, the same accepted answers and the same question identity, whatever order they are shown in.
+test('matching presentations: same set, nonce-driven order, identical grading', () => {
+  const target = unit.occurrences[0]; let served = 0;
+  for (const pathwayId of ['paraphrasing','context','precision_use','spelling_recall','word_families']) {
     const args = {content,target,pathwayId,stageId:'match',mastery:{status:'building'},recentActivities:['word_definition_match'],seed:'fixed'};
-    const first = planPathwayQuestion({...args,optionNonce:'first'}).question;
-    const second = planPathwayQuestion({...args,optionNonce:'second'}).question;
-    assert.equal(first.responseMode,'matching');
-    assert.deepEqual(first.options,options);
-    assert.deepEqual(first.matchOptions,options);
-    assert.deepEqual(first,second);
+    const orders = new Set(); let base = null;
+    for (let i = 0; i < 12; i++) {
+      let question; try { question = planPathwayQuestion({...args,optionNonce:`n${i}`}).question; } catch { break; }
+      if (question.responseMode !== 'matching') break;
+      const again = planPathwayQuestion({...args,optionNonce:`n${i}`}).question;
+      assert.deepEqual(question,again,'same nonce reproduces the same presentation');
+      const unorderedMatch = { ...unordered(question), matchOptions:[...(question.matchOptions ?? [])].sort(), pairs:undefined };
+      base ??= unorderedMatch;
+      assert.deepEqual(unorderedMatch,base,`${pathwayId}: nonce changed more than order`);
+      orders.add(JSON.stringify(question.matchOptions ?? question.options));
+    }
+    if (base) { served += 1; assert.ok(orders.size > 1,`${pathwayId}: matching order ignores the nonce`); }
   }
+  assert.ok(served >= 3,'at least three Match types were exercised');
 });
 
-test('Meaning → Match serves only the pair set, whose presentation is also independent of the session nonce', () => {
+test('Meaning → Match: the pair set is the same whatever the nonce, only its presentation order moves', () => {
   const args = {content,target:unit.occurrences[0],pathwayId:'meaning',stageId:'match',mastery:{status:'building'},recentActivities:['word_definition_match'],seed:'fixed'};
   const first = planPathwayQuestion({...args,optionNonce:'first'}).question;
   const second = planPathwayQuestion({...args,optionNonce:'second'}).question;
   assert.equal(first.type,'word_definition_match');
   assert.ok(first.pairs.length >= 3);
-  assert.deepEqual(first,second);
+  const key = question => JSON.stringify([...question.pairs].map(pair => JSON.stringify(pair)).sort());
+  assert.equal(key(first),key(second));
+  assert.deepEqual(first.markingReference,second.markingReference);
 });

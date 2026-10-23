@@ -192,7 +192,7 @@ function definitionPairs(args, count = 4) {
     .filter(pair => pair.term && pair.definition);
   if (candidates.length < count - 1) throw new Error(`Matching requires at least ${count - 1} plausible unit alternatives.`);
   const others = stableShuffle(candidates, `${args.seed}:pairs`).slice(0,count - 1);
-  return stableShuffle([{ vocabularyId:args.item.vocabularyId, term:text(args.item.term), definition:targetDefinition }, ...others], `${args.seed}:pair-order`);
+  return shuffleAnswerOptions([{ vocabularyId:args.item.vocabularyId, term:text(args.item.term), definition:targetDefinition }, ...others], `${args.seed}:pair-order`, args.optionNonce);
 }
 function itemContentId(args) {
   return `item:${args.item.vocabularyId}:${args.occurrence?.senseId ?? senseFor(args.item,args.occurrence)?.senseId ?? 'sense'}`;
@@ -200,7 +200,7 @@ function itemContentId(args) {
 function definitionToWord(args, definition) {
   const targetDefinition = definitionFor(args.item, args.occurrence);
   if (!targetDefinition || !text(args.item.term)) throw new Error('Definition → Word requires a curated definition and term.');
-  const orderOptions = args.matchingPresentation ? stableShuffle : shuffleAnswerOptions;
+  const orderOptions = args.matchingPresentation ? (values, seed, nonce) => stableShuffle(values, `${seed}:${nonce ?? ''}`) : shuffleAnswerOptions;
   const options = orderOptions([text(args.item.term), ...plausibleTermDistractors(args,3)], `${args.seed}:definition-word-options`, args.optionNonce);
   return baseActivity({ definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt:`Which word means “${targetDefinition}”?`, markingReference:{ acceptedAnswers:[text(args.item.term)] }, extra:{ options, primaryEvidenceTargetId:args.item.vocabularyId, distractorSource:authoredDistractors(args).length >= 3 ? DISTRACTOR_SOURCE.REVIEWED : DISTRACTOR_SOURCE.GENERATED_SAFE } });
 }
@@ -229,7 +229,7 @@ function situationApplication(args, definition) {
     ? plausibleTermDistractors(args,3)
     : definitionPairs(args,4).filter(pair => pair.vocabularyId !== args.item.vocabularyId).map(pair => pair.definition).slice(0,3);
   if (wrong.length < 3) throw new Error('Meaning Apply requires three plausible alternatives.');
-  const orderOptions = args.matchingPresentation ? stableShuffle : shuffleAnswerOptions;
+  const orderOptions = args.matchingPresentation ? (values, seed, nonce) => stableShuffle(values, `${seed}:${nonce ?? ''}`) : shuffleAnswerOptions;
   const options = orderOptions([answer, ...wrong], `${args.seed}:application-options`, args.optionNonce);
   const prompt = `${toWord ? 'Which word best fits this situation?' : 'Which meaning does this situation show?'}\n${situation}`;
   return baseActivity({ definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt, markingReference:{ acceptedAnswers:[answer] }, extra:{ options, primaryEvidenceTargetId:args.item.vocabularyId, distractorSource:DISTRACTOR_SOURCE.GENERATED_SAFE } });
@@ -288,7 +288,7 @@ function bankRetrievalActivity(args, definition) {
     extra.distractorSource = DISTRACTOR_SOURCE.REVIEWED;
   } else if (definition.id === 'drag_word_sentence') {
     prompt = 'Drag the correct word into the gap.';
-    extra.draggables = stableShuffle([accepted,...wrong], `${args.seed}:${record.id}:drag-gap`);
+    extra.draggables = shuffleAnswerOptions([accepted,...wrong], `${args.seed}:${record.id}:drag-gap`, args.optionNonce);
     extra.wordBank = [...extra.draggables];
     extra.distractorSource = DISTRACTOR_SOURCE.REVIEWED;
   } else if (definition.id === 'choose_word_sentence') {
@@ -321,7 +321,7 @@ function retrievalActivity(args, definition) {
     extra.distractorSource = optionSource;
   } else if (definition.id === 'drag_word_sentence') {
     prompt = 'Drag the correct word into the gap.';
-    extra.draggables = stableShuffle([accepted, ...wrongOptions()], `${args.seed}:drag-gap`);
+    extra.draggables = shuffleAnswerOptions([accepted, ...wrongOptions()], `${args.seed}:drag-gap`, args.optionNonce);
     extra.wordBank = [...extra.draggables];
     extra.distractorSource = optionSource;
   } else if (definition.id === 'choose_word_sentence') {
@@ -341,8 +341,11 @@ function spellingActivity(args, definition) {
   return baseActivity({ definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt:`Type the word that means “${targetDefinition}”.`, markingReference:{ acceptedAnswers:[term] }, extra:{ spellingPattern:visible, primaryEvidenceTargetId:args.item.vocabularyId } });
 }
 function wordFamilyChoice(args, definition) {
-  const record = array(args.unitActivities).find(activity => activity?.contentType === 'writing_set' && activity?.activityData?.taskType === 'word_family' && array(activity.activityData?.linkedVocabularyIds).includes(args.item.vocabularyId));
-  if (!record) throw new Error('No curated word-family content is available for this target.');
+  const records = array(args.unitActivities).filter(activity => activity?.contentType === 'writing_set' && activity?.activityData?.taskType === 'word_family' && array(activity.activityData?.linkedVocabularyIds).includes(args.item.vocabularyId));
+  if (!records.length) throw new Error('No curated word-family content is available for this target.');
+  // Which authored record is a seeded choice among the unused ones (the factory has already removed records this student has met),
+  // so a new mission can show a different one. Every record is for this word, so the evidence target does not change.
+  const record = stableShuffle(records, `${args.seed}:word-family-record`)[0];
   const data = object(record.activityData);
   const acceptedAnswers = uniqueText(array(data.acceptedAnswers));
   if (!acceptedAnswers.length) throw new Error('No curated word-family answers are available for this target.');

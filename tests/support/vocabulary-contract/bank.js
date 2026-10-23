@@ -6,8 +6,8 @@ export const LIVE_PATHWAYS = ['meaning', 'context', 'word_families', 'precision_
 export const STAGES = ['recognise', 'match', 'apply', 'recall', 'mastery'];
 export const SEEDS = [0, 1, 2];
 
-export function buildQuestion({ pathwayId, stageId, target, k = 0, nonce = `n${k}`, seed = null }) {
-  const built = planPathwayQuestion({ pathwayId, stageId, content, target, mastery: {}, seed: seed ?? `${target.occurrenceId}:${k}:adaptive`, optionNonce: nonce, reviewPolicy: 'prefer' });
+export function buildQuestion({ pathwayId, stageId, target, k = 0, nonce = `n${k}`, seed = null, missionSeed = null, used = [] }) {
+  const built = planPathwayQuestion({ pathwayId, stageId, content, target, mastery: {}, seed: seed ?? `${target.occurrenceId}:${k}:adaptive`, optionNonce: nonce, reviewPolicy: 'prefer', usedContentIds: used, ...(missionSeed ? { missionSeed, slot: k } : {}) });
   const q = built.question;
   return { pathwayId, stageId, k, occ: target.occurrenceId, term: content.itemsById[target.vocabularyId].term, type: q.type, responseMode: q.responseMode, contentId: q.contentId ?? null, contextId: q.contextId ?? null,
     prompt: q.prompt, sourceText: q.sourceText ?? null, options: q.options ?? null, matchCue: q.matchCue ?? null, matchOptions: q.matchOptions ?? null, pairs: q.pairs ?? null, tiles: q.tiles ?? null,

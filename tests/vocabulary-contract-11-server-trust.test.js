@@ -109,7 +109,34 @@ expectedFailure({ rule: 'Server-owned visible-stage advancement: one passed miss
   today: 'the server now records the mission outcome, but nothing applies it to a stored Set stage: src/vocabulary/stage-progression.js is pure and not wired, and the app still derives the visible stage from per-word evidence',
   turnsGreenWhen: 'a server-side Set state row (using the stage-progression rules) is advanced in the mission-recording transaction, keyed by mission_id' },
 'mission recording advances a server-held Set stage exactly once', () => assert.match(migration + identity, /set_stage|current_stage|advance_set/i));
-expectedFailure({ rule: 'Mission identity is server-authoritative: attempts and settlement must belong to a server-issued mission',
-  today: 'the client still mints its own mission ids (crypto.randomUUID), so the Edge Function and record_vocabulary_mission cannot yet require a row in vocabulary_mission_starts without breaking live practice',
-  turnsGreenWhen: 'the app starts missions through start_vocabulary_mission, then attempts and record_vocabulary_mission are changed to require an open start row owned by the caller' },
-'attempts and settlement require a server-issued mission', () => assert.match(edge + migration + identity, /vocabulary_mission_starts[\s\S]*(not exists|is null|raise exception 'Mission was not issued)/));
+
+// ---- server enforcement (migration 20261024140000 + the attempt Edge Function). Behaviour is exercised on local Postgres by tests/db/mission-enforcement.scenario.sql (12 checks). ----
+const enforcement = read('supabase/migrations/20261024140000_vocabulary_mission_enforcement.sql');
+test('attempts naming a mission must reference a server-issued, open mission owned by the caller (Edge Function)', () => {
+  assert.match(edge, /from\('vocabulary_mission_starts'\)/);
+  assert.match(edge, /mission_not_issued/); assert.match(edge, /mission_not_open/);
+  assert.match(edge, /start\.student_id !== callerData\.user\.id/);
+  assert.match(edge, /status !== 'open'/);
+});
+test('an attempt WITHOUT a mission id is unaffected by enforcement (ordinary practice keeps working)', () => {
+  assert.match(edge, /if \(input\.missionId && !input\.preview\)/);
+});
+test('settlement requires an open start row owned by the student; closed, abandoned, forged and other-student ids are refused', () => {
+  assert.match(enforcement, /raise exception 'Mission was not issued by the server'/);
+  assert.match(enforcement, /s\.mission_id = new\.mission_id and s\.student_id = new\.student_id and s\.status = 'open'/);
+  assert.match(enforcement, /new\.outcome := case when new\.score >= 8 then 'pass' when new\.score >= 6 then 'consolidate' else 'recovery' end/);
+});
+test('a mission untouched for 12 hours is replaced, never resumed (record_vocabulary_mission refuses missions that old)', () => {
+  assert.match(enforcement, /last_resumed_at < now\(\) - interval '12 hours'/);
+  assert.match(enforcement, /p_new := true/);
+});
+test('enforcement does not redefine record_vocabulary_mission or weaken any grant', () => {
+  assert.equal(/function public\.record_vocabulary_mission/.test(enforcement), false);
+  assert.equal(/grant (insert|update|delete)/i.test(enforcement), false);
+  assert.match(enforcement, /revoke all on function private\.vocabulary_mission_derive_outcome\(\) from public, anon, authenticated/);
+});
+test('the client no longer mints mission ids', () => {
+  const app = read('src/vocabulary/app.js');
+  assert.equal(/newMissionUuid|withMissionId|randomUUID\(\)[^\n]*mission/i.test(app), false);
+  assert.match(app, /startVocabularyMission\(state\.client/);
+});

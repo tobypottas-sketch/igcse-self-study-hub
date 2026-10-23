@@ -188,7 +188,7 @@ test('an unsaved attempt survives opening a unit while saving keeps failing, the
     occurrence:row => row, item:row => row, context:row => row, unitActivity:row => row, mastery:row => row
   });
   // Real helpers from app.js. Speed up the controller's backoff for the test.
-  vm.runInContext(`${helper('attempts')}\n${helper('applyServerAttemptResult')}\n${helper('setUnitLoading')}\n${helper('openUnit')}`, context);
+  vm.runInContext(`${helper('submitAttempt')}\n${helper('attempts')}\n${helper('applyServerAttemptResult')}\n${helper('setUnitLoading')}\n${helper('openUnit')}`, context);
   const controller = vm.runInContext('attempts()', context);
 
   // 1-2. answer queued; save fails; controller is blocked.
