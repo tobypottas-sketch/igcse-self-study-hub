@@ -68,3 +68,12 @@
 }
 @keyframes vocab-gold-shine{from{left:-60%}to{left:130%}}
 @media(prefers-reduced-motion:reduce){.vocab-gap-slot.is-correct-answer::after{animation:none;display:none}}
+
+/* Mixed Practice feature image: same banner treatment as the Vocabulary Bank; faces and the timer stay in frame. */
+.vocab-mixed-media{aspect-ratio:16/6}
+.vocab-mixed-media img{object-position:center 40%}
+@media(min-width:801px){
+  /* The Bank picture is a little taller so the two cards end level (Mixed Practice carries the timer buttons). */
+  .vocab-support-card--bank .vocab-bank-media{aspect-ratio:16/8}
+}
+@media(max-width:800px){.vocab-mixed-media{aspect-ratio:16/7.5}}
