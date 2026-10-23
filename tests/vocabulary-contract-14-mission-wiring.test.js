@@ -225,3 +225,62 @@ test('Continue practice returns the start promise (so a failed mission start is 
   assert.match(app, /return startPathwaySession\(state\.pathwayId, true, state\.pathwayChoice\)/);
   assert.match(app, /return startMixedReview\(true,/);
 });
+
+// ---- completion, settlement and refresh edge cases ----
+test('REFRESH AFTER COMPLETION, settlement never ran: the finished mission is settled once, then a FRESH mission starts (no trap)', async () => {
+  installStorage(); const server = fakeServer(); const recorded = [];
+  const a = harness(options(server)); await a.run("startPathwaySession('meaning')"); await answerAll(a, 10);
+  const finishedId = a.state.session.missionId;
+  const b = harness(options(server, { recordMission: id => { recorded.push(id); return null; } }));       // settlement keeps failing
+  await b.run("startPathwaySession('meaning')");
+  assert.deepEqual(recorded, [finishedId], 'settled exactly once on the way past');
+  assert.notEqual(b.state.session.missionId, finishedId); assert.equal(b.state.session.completedTargetIds.length, 0);
+  assert.equal(server.log.at(-1).forceNew, true);
+});
+test('REFRESH AFTER COMPLETION, settlement succeeded (start row closed): a fresh mission, the closed one is not resumed', async () => {
+  installStorage(); const server = fakeServer();
+  const a = harness(options(server)); await a.run("startPathwaySession('meaning')"); await answerAll(a, 10);
+  server.complete();
+  const b = harness(options(server)); await b.run("startPathwaySession('meaning')");
+  assert.notEqual(b.state.session.missionId, a.state.session.missionId); assert.equal(b.state.session.completedTargetIds.length, 0);
+});
+test('REFRESH on question 1 and on question 9 resumes the right question', async () => {
+  installStorage(); const server = fakeServer();
+  const a = harness(options(server)); await a.run("startPathwaySession('meaning')");
+  const q1 = a.state.current.target.occurrenceId;
+  const b = harness(options(server)); await b.run("startPathwaySession('meaning')");
+  assert.equal(b.state.current.target.occurrenceId, q1);
+  await answerAll(b, 9); await b.run('advanceToNextQuestion()'); const q10 = b.state.current.target.occurrenceId;
+  const c = harness(options(server)); await c.run("startPathwaySession('meaning')");
+  assert.equal(c.state.session.completedTargetIds.length, 9); assert.equal(c.state.current.target.occurrenceId, q10);
+});
+test('STORAGE CLEARED mid-mission: the server mission is replaced by a fresh one, never re-asked on top of itself', async () => {
+  const storage = installStorage(); const server = fakeServer();
+  const a = harness(options(server)); await a.run("startPathwaySession('meaning')"); await answerAll(a, 4);
+  storage.clear();
+  const b = harness(options(server)); await b.run("startPathwaySession('meaning')");
+  assert.notEqual(b.state.session.missionId, a.state.session.missionId); assert.equal(b.state.session.completedTargetIds.length, 0);
+});
+test('CORRUPT localStorage does not break starting a mission', async () => {
+  const storage = installStorage(); storage.set('vocab.mission.v1.tester', '{{{not json'); storage.set('vocab.seenContent.v1.tester', '[[');
+  const server = fakeServer(); const h = harness(options(server));
+  await h.run("startPathwaySession('meaning')"); assert.ok(h.state.session.missionId);
+});
+test('ACCOUNT SWITCH on one device: the second student gets their own mission and none of the first student\'s progress', async () => {
+  installStorage(); const server = fakeServer();
+  const a = harness(options(server, { userKey: 'student-a' })); await a.run("startPathwaySession('meaning')"); await answerAll(a, 5);
+  const b = harness(options(server, { userKey: 'student-b' })); await b.run("startPathwaySession('meaning')");
+  assert.equal(b.state.session.completedTargetIds.length, 0);
+});
+test('TWO TABS of one student resume the same server mission (same id and seed); the server stays authoritative', async () => {
+  installStorage(); const server = fakeServer();
+  const a = harness(options(server)); await a.run("startPathwaySession('meaning')");
+  const b = harness(options(server)); await b.run("startPathwaySession('meaning')");
+  assert.equal(a.state.session.missionId, b.state.session.missionId); assert.equal(server.minted(), 1);
+});
+test('the mission check in the Edge Function runs BEFORE any evidence is written (a refused attempt writes nothing, so the re-send cannot double-record)', () => {
+  const edge = readFileSync(new URL('../supabase/functions/vocabulary-attempt-action/index.ts', import.meta.url), 'utf8');
+  const check = edge.indexOf("from('vocabulary_mission_starts')");
+  assert.ok(check > 0);
+  for (const write of ['commit_vocabulary_attempt', ".insert(", ".upsert(", ".update(", ".rpc(", "commitPayload"]) { const at = edge.indexOf(write); if (at >= 0) assert.ok(at > check, `${write} appears before the mission check`); }
+});

@@ -325,6 +325,18 @@ function beginSession(request) {
   return Promise.resolve(state.settling).then(() => acquireMission({ start:ask => startVocabularyMission(state.client, { unitNumber:ask.unitNumber, kind:ask.kind, pathwayId:ask.pathwayId, pathwayStage:ask.stageId, phase:'stage', forceNew:ask.forceNew }), userKey:state.userKey, slot, familyId, forceNew }))
     .then(acquired => {
       if (acquired.status !== 'ready') throw new Error('We could not start this mission just now. Check your connection and try again; nothing has been lost.');
+      // A cached mission whose ten targets are all finished was never settled (the page closed or the request failed). It is settled once
+      // here and then replaced, so a settlement that can never succeed cannot trap the student on a finished mission.
+      const cached = acquired.extras && acquired.extras.missionId === acquired.missionId ? acquired.extras : null;
+      if (cached && cached.targetIds.length === 10 && cached.targetIds.every(id => cached.completedTargetIds.includes(id))) {
+        return Promise.resolve(recordVocabularyMission(state.client, acquired.missionId)).catch(() => null).then(() => {
+          clearMission(state.userKey, slot);
+          return acquireMission({ start:ask => startVocabularyMission(state.client, { unitNumber:ask.unitNumber, kind:ask.kind, pathwayId:ask.pathwayId, pathwayStage:ask.stageId, phase:'stage', forceNew:ask.forceNew }), userKey:state.userKey, slot, familyId, forceNew:true });
+        }).then(next => {
+          if (next.status !== 'ready') throw new Error('We could not start this mission just now. Check your connection and try again; nothing has been lost.');
+          return commitSession(request, next, slot);
+        });
+      }
       return commitSession(request, acquired, slot);
     });
 }

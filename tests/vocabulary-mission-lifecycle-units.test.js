@@ -80,3 +80,18 @@ test('presentation nonce and content seed are domain-separated', () => {
   assert.notEqual(derivePresentationNonce(args), deriveContentSeed({ ...args, activityType: 'meaning_match' }));
   assert.notEqual(derivePresentationNonce(args), derivePresentationNonce({ ...args, slot: 3 }));
 });
+
+test('lifecycle: a server-resumed mission with NO local progress record is replaced by a fresh one (no duplicate evidence)', async () => {
+  const calls = []; const start = async request => { calls.push(request.forceNew); return request.forceNew ? { missionId: 'fresh', missionSeed: 'seedF', resumed: false } : { missionId: 'old', missionSeed: 'seedO', resumed: true }; };
+  const r = await acquireMission({ start, userKey: 'u', slot, storage: store() });
+  assert.deepEqual(calls, [false, true]); assert.equal(r.missionId, 'fresh'); assert.equal(r.extras, null); assert.equal(r.replacedUntrackedMission, true);
+});
+test('lifecycle: the replacement request failing leaves nothing started', async () => {
+  const start = async request => { if (request.forceNew) throw new Error('offline'); return { missionId: 'old', missionSeed: 'seedO', resumed: true }; };
+  assert.equal((await acquireMission({ start, userKey: 'u', slot, storage: store() })).status, 'unavailable');
+});
+test('cache isolation: another student on the same device never sees this student\'s mission', () => {
+  const storage = store(); saveMission('student-a', slot, entry(), { storage });
+  assert.equal(loadMission('student-b', slot, { storage }), null);
+  assert.ok(loadMission('student-a', slot, { storage }));
+});
