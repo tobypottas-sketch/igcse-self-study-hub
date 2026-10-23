@@ -407,12 +407,12 @@ const entries = [
       retrievalContexts:[
         { id:'1', text:'Before choosing a university, make an informed decision based on all the facts.', target:'informed', grammarPattern:'' },
         { id:'2', text:'Only an informed voter understands the real effects of each policy.', target:'informed', grammarPattern:'' },
-        { id:'3', text:'The school promised to keep parents informed about every change to the timetable by sending weekly emails.', target:'informed', grammarPattern:'' }
+        { id:'3', text:'The school sends weekly emails specifically to keep parents informed about every timetable change.', target:'informed', grammarPattern:'' }
       ],
       gapDistractors:[
         { id:'1', answer:'informed', wrong:['emotional', 'sudden', 'hasty'] },
         { id:'2', answer:'informed', wrong:['angry', 'anxious', 'eager'] },
-        { id:'3', answer:'informed', wrong:['worried', 'upset', 'angry'] }
+        { id:'3', answer:'informed', wrong:['unaware', 'uncertain', 'confused'] }
       ]
     }),
   e('admit', 'verb',
@@ -433,14 +433,14 @@ const entries = [
         'The boy explained that the dog had eaten his homework.'
       ],
       retrievalContexts:[
-        { id:'1', text:'After hours of questioning, the suspect will finally admit that he stole the car.', target:'admit', grammarPattern:'' },
+        { id:'1', text:'After hours of questioning, the suspect finally had to admit that he had stolen the car.', target:'admit', grammarPattern:'' },
         { id:'2', text:'I must admit that I did not read the whole book before the discussion.', target:'admit', grammarPattern:'' },
-        { id:'3', text:'The manager must admit that the team has made serious mistakes with the schedule.', target:'admit', grammarPattern:'' }
+        { id:'3', text:'At the meeting, the manager had to admit that the team had made serious mistakes with the schedule.', target:'admit', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'admit', wrong:['forget', 'predict', 'wonder'] },
+        { id:'1', answer:'admit', wrong:['imagine', 'predict', 'notice'] },
         { id:'2', answer:'admit', wrong:['pretend', 'deny', 'hope'] },
-        { id:'3', answer:'admit', wrong:['predict', 'promise', 'wonder'] }
+        { id:'3', answer:'admit', wrong:['predict', 'promise', 'request'] }
       ]
     }),
   e('communicate', 'verb',
@@ -462,13 +462,13 @@ const entries = [
       ],
       retrievalContexts:[
         { id:'1', text:'Pilots use a special code to communicate clearly with air traffic control, so that every message is understood.', target:'communicate', grammarPattern:'' },
-        { id:'2', text:'Dolphins communicate with one another using clicks and whistles.', target:'communicate', grammarPattern:'' },
-        { id:'3', text:'Without a shared language, the two workers struggled to communicate even simple instructions to each other.', target:'communicate', grammarPattern:'' }
+        { id:'2', text:'Dolphins use clicks and whistles to communicate information to one another.', target:'communicate', grammarPattern:'' },
+        { id:'3', text:'Without a shared language, the two workers struggled to communicate clearly with each other about even simple instructions.', target:'communicate', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'communicate', wrong:['argue', 'compete', 'bargain'] },
-        { id:'2', answer:'communicate', wrong:['hunt', 'sleep', 'compete'] },
-        { id:'3', answer:'communicate', wrong:['argue', 'forget', 'borrow'] }
+        { id:'1', answer:'communicate', wrong:['behave', 'compete', 'bargain'] },
+        { id:'2', answer:'communicate', wrong:['hide', 'translate', 'invent'] },
+        { id:'3', answer:'communicate', wrong:['behave', 'smile', 'play'] }
       ]
     }),
   e('remotely', 'adverb',
