@@ -40,7 +40,7 @@
 
 /* Stage-unlock and pathway-mastered celebration: a CSS-only particle burst. Absolutely positioned and invisible at rest, so it can never shift layout. */
 .vocab-finish-unlock{position:relative}
-.vocab-finish-unlock .vocab-burst{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none;display:block}
+.vocab-finish-unlock .vocab-burst{position:absolute;left:50%;top:50%;width:0;height:0;display:block}
 .vocab-burst i{position:absolute;left:-4px;top:-4px;width:8px;height:8px;border-radius:50%;background:var(--study-accent,var(--c-teal));opacity:0}
 .vocab-burst i:nth-child(3n){background:#e8b923}
 .vocab-burst i:nth-child(3n+1){background:var(--c-violet,#7865d8)}

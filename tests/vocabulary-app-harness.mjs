@@ -13,6 +13,7 @@ import { freshPathwayProgress, applyPathwayAttempt } from '../src/vocabulary/pat
 import { deriveLearningStage } from '../src/vocabulary/learning-stage.js';
 import { buildSupportStep } from '../src/vocabulary/scaffolding.js';
 import { buildSessionFinishModel } from '../src/vocabulary/session-finish-model.js';
+import * as engagementCopy from '../src/vocabulary/engagement-copy.js';
 import { createAttemptPersistence } from '../src/vocabulary/attempt-persistence.js';
 import { validateVocabularyAttempt } from '../supabase/functions/vocabulary-attempt-action/validation.js';
 
@@ -41,7 +42,7 @@ export function harness({ pathwayId = 'word_families', stage = 'match', size = 2
   const saved = []; const rejected = []; const served = []; const summaries = []; const requests = []; let counter = 0;
   const testCrypto = deterministic ? { randomUUID:() => `uuid-${++counter}` } : crypto;
   const context = vm.createContext({ state, crypto:testCrypto, Date, Map, Set, console, root:{}, window:{ clearInterval() {}, setInterval() { return 1; } },
-    createAttemptPersistence, ...sessions, ...targets, ...pathways, ...mixedReview, ...placement, ...engine, ...matchSetLogic, ...matchSetView, installMatchDrag() {}, playCompletionSequence() {}, loadSeenContent:() => new Map(), saveSeenContent() {}, matchDragJustEnded:() => false, deriveLearningStage, buildSupportStep, buildSessionFinishModel,
+    createAttemptPersistence, ...sessions, ...targets, ...pathways, ...mixedReview, ...placement, ...engine, ...matchSetLogic, ...matchSetView, ...engagementCopy, installMatchDrag() {}, playCompletionSequence() {}, loadSeenContent:() => new Map(), saveSeenContent() {}, matchDragJustEnded:() => false, deriveLearningStage, buildSupportStep, buildSessionFinishModel,
     renderVocabularyQuestion(_root, opts) { served.push({ target:state.current?.target?.occurrenceId, type:opts?.question?.type, contentId:opts?.question?.contentId, prompt:opts?.question?.prompt, options:opts?.question?.options ?? null, retry:Boolean(opts?.retry), feedback:Boolean(opts?.feedback), recovery:Boolean(state.current?.recovery) }); },
     renderSessionSummary(_root, opts) { summaries.push(opts); }, renderVocabularyUnit() {}, supportiveFeedback() { return ''; }, trackVocabularyEvent:async () => {},
     submitVocabularyAttempt:async (_client, payload) => {
