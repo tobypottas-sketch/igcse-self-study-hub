@@ -21,7 +21,7 @@ function starsFor(score, denominator, fixedMissionSize) {
 
 function supportCopyFor({ score, denominator, preview, variant }) {
   if (preview) return 'Preview only — no progress has been saved.';
-  if (variant === 'mastered') return 'You completed all five stages.';
+  if (variant === 'mastered') return 'You completed all five stages. Mixed Practice tests this pathway against everything else.';
   if (variant === 'stage-complete') return 'You cleared this stage.';
 
   const ratio = denominator > 0 ? score / denominator : 0;
@@ -78,6 +78,8 @@ export function buildSessionFinishModel({
     kicker = 'PATHWAY COMPLETE';
     primaryAction = null;
   }
+  // Mastery stays a valid stopping point (no forced Continue), but it now points at a real next step.
+  const nextStep = variant === 'mastered' ? { id:'start-mixed-review', label:'Try Mixed Practice' } : null;
 
   const showProgressSaved = !preview;
   const supportCopy = supportCopyFor({ score, denominator, preview, variant });
@@ -87,7 +89,7 @@ export function buildSessionFinishModel({
   const stageResultText = variant === 'stage-complete'
     ? `${currentStageLabel} stage complete. ${nextStageLabel} unlocked.`
     : variant === 'mastered'
-      ? `${pathwayLabel} pathway mastered.`
+      ? `${pathwayLabel} pathway mastered. All five stages complete. Next step: Mixed Practice.`
       : currentStageLabel
         ? `${currentStageLabel}, stage ${stageNumber} of ${PATHWAY_STAGES.length}.`
         : '';
@@ -116,6 +118,8 @@ export function buildSessionFinishModel({
     kicker,
     supportCopy,
     primaryAction,
+    nextStep,
+    celebration:variant === 'session' ? null : variant === 'mastered' ? 'mastered' : 'stage',
     showProgressSaved,
     completedStages,
     needsAnotherLook,

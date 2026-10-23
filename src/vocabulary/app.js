@@ -2,6 +2,7 @@ import { getSupabaseClient } from '../supabase.js';
 import { loadVocabularyDashboard, loadVocabularyUnit, loadStudentMastery, submitVocabularyAttempt } from './data.js';
 import { trackVocabularyEvent } from './tracking.js';
 import { buildSupportStep } from './scaffolding.js';
+import { streakMomentum } from './engagement-copy.js';
 import { completeAttempt, createSession, expireSession, isSessionComplete, missionProgress } from './session.js';
 import { buildTargetPracticeQuestion, buildTimedMixedQuestion, selectEligiblePriorityTargets } from './session-targets.js';
 import { planMixedReviewQuestion } from './mixed-review.js';
@@ -332,7 +333,7 @@ function nextQuestion() {
   if (!current) { if (state.session.mode === 'timed') { void finishSessionWhenSaved(); return; } if (Number(state.session.summary?.practised) > 0 || state.session.completedTargetIds?.length) { void finishSessionWhenSaved(); return; } throw new Error('No suitable curated activity is available for this practice mode yet.'); }
   state.current = current; renderCurrentQuestion();
 }
-function renderCurrentQuestion(feedback = null) { if (!state.current) return; const currentMastery = state.globalMastery[state.current.target.vocabularyId] ?? freshMastery(); renderVocabularyQuestion(root, { unitNumber:state.currentUnitNumber, unitTitle:state.current.target.unitTitle, question:state.current.question, term:state.current.item.term, sessionLabel:remainingLabel(), learningStage:deriveLearningStage(currentMastery), feedback, retry:state.current.retry, support:state.current.support, matchSet:state.current.matchSet ?? null, matchState:state.current.matchState ?? null }); decoratePreview(); if (state.attempts?.blocked) renderSyncWarning(); }
+function renderCurrentQuestion(feedback = null) { if (!state.current) return; const currentMastery = state.globalMastery[state.current.target.vocabularyId] ?? freshMastery(); renderVocabularyQuestion(root, { unitNumber:state.currentUnitNumber, unitTitle:state.current.target.unitTitle, question:state.current.question, term:state.current.item.term, sessionLabel:remainingLabel(), learningStage:deriveLearningStage(currentMastery), feedback, retry:state.current.retry, support:state.current.support, matchSet:state.current.matchSet ?? null, matchState:state.current.matchState ?? null, streak:state.streak ?? 0, sessionScore:state.session?.summary?.strengthened ?? 0, missionSize:state.session?.mode === 'adaptive' ? missionProgress(state.session).total : null }); decoratePreview(); if (state.attempts?.blocked) renderSyncWarning(); }
 function markVocabularyAttemptLocally(current, rawAnswer) {
   const sense = Array.isArray(current.item?.senses) ? current.item.senses.find(candidate => candidate?.senseId === current.target.senseId) : null; if (!sense) throw new Error('This vocabulary question is missing its marking data.');
   const reference = current.question.markingReference ?? {}; const markingContext = { contextId:current.context?.contextId ?? current.question.contentId, activityContentId:current.activityRecord?.activityContentId ?? null, acceptedAnswers:reference.acceptedAnswers ?? [], distractors:reference.distractors ?? [] };
@@ -441,7 +442,7 @@ function handleAnswer(form, providedAnswer = null) {
   if (current.matchSet) current.matchState = result.correct && Object.keys(current.matchState.settled).length === current.matchSet.words.length ? finishedMatchState(current.matchSet, current.matchState) : revealMatchSet(current.matchSet, current.matchState);
   state.streak = result.correct && !hadError ? (state.streak ?? 0) + 1 : 0;
   const { done, total } = missionProgress(state.session);
-  const momentum = total >= 6 && done === Math.floor(total / 2) && completeTarget ? `Halfway — ${done} of ${total}` : state.streak >= 3 ? `${state.streak} in a row` : null;
+  const momentum = total >= 6 && done === Math.floor(total / 2) && completeTarget ? `Halfway — ${done} of ${total}` : streakMomentum(state.streak);
   renderCurrentQuestion({ correct:result.correct, message, momentum, filledAnswer:result.correct ? String(rawAnswer ?? '').trim() : '' });
 }
 // Meaning → Match interaction. Taps only change the pairing state and repaint the set in place (focus is kept), so a tap

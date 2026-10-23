@@ -37,3 +37,30 @@
   [data-completion-sequence] *{animation:none!important;transition:none!important}
   .vocab-completion-skip{display:none!important}
 }
+
+/* Stage-unlock and pathway-mastered celebration: a CSS-only particle burst. Absolutely positioned and invisible at rest, so it can never shift layout. */
+.vocab-finish-unlock{position:relative}
+.vocab-finish-unlock .vocab-burst{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none;display:block}
+.vocab-burst i{position:absolute;left:-4px;top:-4px;width:8px;height:8px;border-radius:50%;background:var(--study-accent,var(--c-teal));opacity:0}
+.vocab-burst i:nth-child(3n){background:#e8b923}
+.vocab-burst i:nth-child(3n+1){background:var(--c-violet,#7865d8)}
+.vocab-finish-unlock--mastered .vocab-burst i:nth-child(odd){width:10px;height:10px;left:-5px;top:-5px}
+[data-completion-sequence="playing"] .vocab-finish-unlock .vocab-burst i{animation:vc-burst 900ms cubic-bezier(.2,.7,.3,1) 1950ms backwards}
+[data-completion-sequence="playing"] .vocab-finish-unlock--stage strong,
+[data-completion-sequence="playing"] .vocab-finish-unlock--mastered strong{animation:vc-glow 900ms ease-out 1950ms backwards}
+@keyframes vc-burst{0%{opacity:1;transform:rotate(var(--a)) translateX(0) scale(1)}70%{opacity:1}100%{opacity:0;transform:rotate(var(--a)) translateX(var(--d)) scale(.4)}}
+@keyframes vc-glow{0%{text-shadow:0 0 0 transparent}40%{text-shadow:0 0 18px color-mix(in srgb,var(--study-accent,var(--c-teal)) 70%,transparent)}100%{text-shadow:0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.vocab-burst{display:none!important}}
+
+/* Live mission flair beside the question counter: streak chip (from 3 in a row) and three star pips (lit at 5 / 7 / 9 correct). Fixed-size slot, no height change. */
+.vocab-session-flair{display:inline-flex;align-items:center;gap:8px;min-height:20px;white-space:nowrap}
+.vocab-question-session-progress:has(.vocab-session-flair){grid-template-columns:auto minmax(80px,150px) auto}
+.vocab-question-session-progress>.vocab-session-flair{font-size:var(--fs-xs);color:inherit}
+.vocab-streak-chip{display:inline-flex;align-items:center;gap:4px;padding:1px 8px 1px 6px;border-radius:var(--r-pill);background:rgba(232,185,35,.2);color:#ffe27a;font-weight:900;font-size:var(--fs-xs)}
+.vocab-streak-chip .study-icon{width:12px;height:12px}
+.vocab-star-pips{display:inline-flex;gap:3px}
+.vocab-star-pip{width:13px;height:13px;background:rgba(255,255,255,.28);clip-path:polygon(50% 0,62% 36%,98% 38%,69% 60%,79% 95%,50% 74%,21% 95%,31% 60%,2% 38%,38% 36%)}
+.vocab-star-pip.is-lit{background:#f3c33c;animation:vc-pip 420ms cubic-bezier(.2,1.4,.4,1)}
+@keyframes vc-pip{from{transform:scale(.3)}60%{transform:scale(1.35)}}
+@media (prefers-reduced-motion:reduce){.vocab-star-pip.is-lit{animation:none}}
+@media (max-width:620px){.vocab-question-session-progress:has(.vocab-session-flair){grid-template-columns:auto 1fr auto}}
