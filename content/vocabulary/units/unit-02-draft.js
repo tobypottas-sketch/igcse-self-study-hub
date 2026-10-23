@@ -920,7 +920,7 @@ const entries = [
       ]
     }),
   e('commentary', 'noun',
-    'a spoken description of an event as it happens, or an explanation of what is happening',
+    'a spoken description of an event as it happens',
     ['live description', 'spoken report'],
     ['a list of match results', 'an advertisement during a break', 'a written summary of the rules'],
     'The commentary on the final was so exciting that fans stayed glued to their radios.',
@@ -929,7 +929,7 @@ const entries = [
     {
       masteryContexts:[
         { text:'The radio commentary of the race was full of excitement.', meaning:'a spoken description of an event as it happens' },
-        { text:'The article includes expert commentary on the new law.', meaning:'explanation or opinion about something' }
+        { text:'The football commentary was so lively that listeners felt they were at the stadium.', meaning:'a live spoken description of a match' }
       ],
       situationDistractors:[
         'The printed programme listed all the players and their numbers.',
@@ -938,7 +938,7 @@ const entries = [
       ],
       retrievalContexts:[
         { id:'1', text:'Fans who could not attend followed the commentary, which described every pass and shot as it happened.', target:'commentary', grammarPattern:'' },
-        { id:'2', text:'The sports journalist wrote a commentary explaining why the team had lost.', target:'commentary', grammarPattern:'' },
+        { id:'2', text:'On the radio, the presenter provided a running commentary, describing the match move by move.', target:'commentary', grammarPattern:'' },
         { id:'3', text:'During the quiet moments of the race, the commentary filled the silence with facts about the riders.', target:'commentary', grammarPattern:'' }
       ],
       gapDistractors:[
@@ -966,12 +966,12 @@ const entries = [
       ],
       retrievalContexts:[
         { id:'1', text:'Parents prefer educational games that help children learn spelling and maths.', target:'educational', grammarPattern:'' },
-        { id:'2', text:'Unlike a comedy show, a documentary about ancient tools is educational, because viewers learn something new.', target:'educational', grammarPattern:'' },
+        { id:'2', text:'A documentary that explains how ancient tools were used is educational because viewers learn something new.', target:'educational', grammarPattern:'' },
         { id:'3', text:'Good children’s television can be educational as well as entertaining, teaching viewers new facts.', target:'educational', grammarPattern:'' }
       ],
       gapDistractors:[
         { id:'1', answer:'educational', wrong:['pointless', 'harmful', 'useless'] },
-        { id:'2', answer:'educational', wrong:['pointless', 'humorous', 'tragic'] },
+        { id:'2', answer:'educational', wrong:['pointless', 'misleading', 'unrelated'] },
         { id:'3', answer:'educational', wrong:['pointless', 'misleading', 'boring'] }
       ]
     }),
@@ -985,7 +985,7 @@ const entries = [
     {
       masteryContexts:[
         { text:'Food is an important part of Italian culture.', meaning:'customs, beliefs and way of life' },
-        { text:'The school has a culture of respect.', meaning:'shared attitudes and ways of behaving in a group' }
+        { text:'Music and food are important parts of local culture.', meaning:'the customs and way of life of a group' }
       ],
       situationDistractors:[
         'The tourist took photographs of the mountains and the lake.',
@@ -1143,16 +1143,286 @@ const entries = [
         { id:'3', answer:'impressive', wrong:['average', 'weak', 'disappointing'] }
       ]
     }),
-  eb('determination', 'noun'),
-  eb('overcome', 'verb'),
-  eb('accessory', 'noun'),
-  eb('equipment', 'noun'),
-  eb('fixture', 'noun'),
-  eb('removable', 'adjective'),
-  eb('adjustable', 'adjective'),
-  eb('affordable', 'adjective'),
-  eb('external', 'adjective'),
-  eb('concentrate', 'verb'),
+  e('determination', 'noun',
+    'the strong will to keep trying to achieve something difficult without giving up',
+    ['strong will', 'perseverance'],
+    ['a feeling of nervousness', 'permission to continue', 'a talent for something'],
+    'Her determination to finish the marathon inspired everyone.',
+    'strong will', 'Her strong will to finish the marathon inspired everyone.',
+    'perseverance', 'Perseverance helped him pass the difficult exam.',
+    {
+      masteryContexts:[
+        { text:'With great determination, she trained every morning before school.', meaning:'a strong will not to give up' },
+        { text:'His determination to succeed impressed the coach.', meaning:'firm decision to achieve something despite difficulty' }
+      ],
+      situationDistractors:[
+        'He gave up the climb after twenty minutes because it was tiring.',
+        'She stopped practising the piano as soon as the piece became difficult.',
+        'The team left the pitch at half time and never returned.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Although she failed three times, her determination never weakened, and she tried again.', target:'determination', grammarPattern:'' },
+        { id:'2', text:'Success in sport takes talent, but also hard work and determination to keep going when things get difficult.', target:'determination', grammarPattern:'' },
+        { id:'3', text:'The climbers reached the summit through sheer determination, despite the freezing wind and exhaustion.', target:'determination', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'determination', wrong:['doubt', 'weakness', 'boredom'] },
+        { id:'2', answer:'determination', wrong:['laziness', 'weakness', 'doubt'] },
+        { id:'3', answer:'determination', wrong:['weakness', 'fear', 'laziness'] }
+      ]
+    }),
+  e('overcome', 'verb',
+    'to succeed in dealing with a problem or difficulty that is stopping you',
+    ['conquer', 'get past'],
+    ['create a problem', 'avoid thinking about', 'give in to'],
+    'She worked hard to overcome her fear of public speaking.',
+    'conquer', 'She worked hard to conquer her fear of public speaking.',
+    'get past', 'He found a way to get past his shyness.',
+    {
+      masteryContexts:[
+        { text:'Many athletes overcome serious injuries to return to competition.', meaning:'succeed in dealing with a difficulty' },
+        { text:'It took years to overcome the language barrier.', meaning:'get past a problem that stops progress' }
+      ],
+      situationDistractors:[
+        'He gave up learning the guitar when his fingers began to hurt.',
+        'She avoided speaking in class because she was shy.',
+        'The team withdrew from the competition after the first defeat.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'After months of practice, he managed to overcome his fear of heights, which no longer troubled him at all.', target:'overcome', grammarPattern:'' },
+        { id:'2', text:'It took the whole team to overcome the difficulties caused by the delayed delivery and finish on time.', target:'overcome', grammarPattern:'' },
+        { id:'3', text:'Learners must overcome many obstacles, such as lack of confidence, before they speak fluently.', target:'overcome', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'overcome', wrong:['hide', 'describe', 'admit'] },
+        { id:'2', answer:'overcome', wrong:['cause', 'create', 'increase'] },
+        { id:'3', answer:'overcome', wrong:['create', 'invent', 'admire'] }
+      ]
+    }),
+  e('accessory', 'noun',
+    'an extra item that is added to something or goes with it, such as a phone case or a scarf',
+    ['add-on', 'extra item'],
+    ['the main part of a machine', 'a spare part that has broken', 'a manual explaining how to use it'],
+    'A protective case is a useful accessory for a new tablet.',
+    'add-on', 'A protective case is a useful add-on for a new tablet.',
+    'extra item', 'A spare charger is an extra item worth carrying.',
+    {
+      masteryContexts:[
+        { text:'Headphones are a popular accessory for smartphone users.', meaning:'an extra item that goes with something' },
+        { text:'She wore a red scarf as her only accessory.', meaning:'an extra item that goes with clothes' }
+      ],
+      situationDistractors:[
+        'The factory built the main engine of the car by hand.',
+        'The shop repaired the broken screen of the phone.',
+        'The customer asked for a refund on the whole tablet.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The phone works perfectly without the matching case, which is only an accessory.', target:'accessory', grammarPattern:'' },
+        { id:'2', text:'A scarf or belt can be an accessory that completes an outfit.', target:'accessory', grammarPattern:'' },
+        { id:'3', text:'A tripod is an accessory for a camera, not part of the camera itself.', target:'accessory', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'accessory', wrong:['necessity', 'requirement', 'component'] },
+        { id:'2', answer:'accessory', wrong:['necessity', 'requirement', 'disaster'] },
+        { id:'3', answer:'accessory', wrong:['model', 'brand', 'version'] }
+      ]
+    }),
+  e('equipment', 'noun',
+    'the tools, machines or clothing needed for a particular job or activity',
+    ['gear', 'apparatus'],
+    ['rules for playing a game', 'a person who repairs machines', 'a room where tools are stored'],
+    'The school bought new equipment for the science laboratory.',
+    'apparatus', 'The school bought new apparatus for the science laboratory.',
+    'gear', 'Climbers must carry all their gear up the mountain.',
+    {
+      masteryContexts:[
+        { text:'Firefighters carry heavy equipment into burning buildings.', meaning:'tools and machines needed for a job' },
+        { text:'The gym has a lot of modern equipment.', meaning:'machines and tools for an activity' }
+      ],
+      situationDistractors:[
+        'The coach explained the rules before the match began.',
+        'The cleaner locked the storage room at six o’clock.',
+        'A technician repaired the broken lift in the hotel.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The science department needs new equipment, because the microscopes are all broken.', target:'equipment', grammarPattern:'' },
+        { id:'2', text:'Climbers must carry all their equipment up the mountain, including ropes, tents and cooking stoves.', target:'equipment', grammarPattern:'' },
+        { id:'3', text:'Divers check their equipment carefully before every dive, including masks, tanks and regulators.', target:'equipment', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'equipment', wrong:['advice', 'information', 'permission'] },
+        { id:'2', answer:'equipment', wrong:['advice', 'information', 'permission'] },
+        { id:'3', answer:'equipment', wrong:['homework', 'luck', 'courage'] }
+      ]
+    }),
+  e('fixture', 'noun',
+    'a fitting, such as a light or a sink, that is permanently fixed in a building',
+    ['fitting', 'permanent attachment'],
+    ['a piece of furniture that can be carried away', 'a short-term repair', 'a decoration for a party'],
+    'The lights and sinks are fixtures, so tenants must leave them when they move out.',
+    'fittings', 'The lights and sinks are fittings, so tenants must leave them when they move out.',
+    'fittings', 'The hotel replaced all the bathroom fittings last year.',
+    {
+      masteryContexts:[
+        { text:'The ceiling light is a fixture, so it stays when the family moves.', meaning:'something fixed permanently in a building' },
+        { text:'Modern bathrooms have fixtures such as a sink and a shower.', meaning:'fitted equipment in a building' }
+      ],
+      situationDistractors:[
+        'The tenants packed their sofa and took it to the new flat.',
+        'The family hung a poster on the wall for the weekend.',
+        'The removal van carried the dining table down the stairs.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The kitchen sink is a fixture, so the new owners will find it there when they move in.', target:'fixture', grammarPattern:'' },
+        { id:'2', text:'A ceiling light is a fixture because it is permanently attached to the building.', target:'fixture', grammarPattern:'' },
+        { id:'3', text:'Unlike a freestanding lamp, a wall light is a fixture, fastened permanently to the wall.', target:'fixture', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'fixture', wrong:['sofa', 'suitcase', 'painting'] },
+        { id:'2', answer:'fixture', wrong:['sofa', 'suitcase', 'painting'] },
+        { id:'3', answer:'fixture', wrong:['sofa', 'suitcase', 'painting'] }
+      ]
+    }),
+  e('removable', 'adjective',
+    'able to be taken off or taken out',
+    ['detachable', 'able to be taken off'],
+    ['impossible to clean', 'permanently fixed', 'very expensive'],
+    'The sofa has a removable cover that can be washed.',
+    'detachable', 'The sofa has a detachable cover that can be washed.',
+    'detachable', 'The torch has a detachable handle.',
+    {
+      masteryContexts:[
+        { text:'The keyboard has removable keys for easy cleaning.', meaning:'able to be taken off' },
+        { text:'The phone has a removable battery, so you can replace it yourself.', meaning:'able to be taken out' }
+      ],
+      situationDistractors:[
+        'The panel was glued tightly to the wall and would not move.',
+        'The screws held the shelf firmly in place.',
+        'The sticker was printed directly onto the plastic.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The bag has a removable strap, so you can carry it by hand or over your shoulder.', target:'removable', grammarPattern:'' },
+        { id:'2', text:'The cover is removable, which means you can take it off and wash it in the machine.', target:'removable', grammarPattern:'' },
+        { id:'3', text:'Because the memory card is removable, you can take it out and put it in another camera.', target:'removable', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'removable', wrong:['permanent', 'fixed', 'tight'] },
+        { id:'2', answer:'removable', wrong:['permanent', 'fixed', 'sewn'] },
+        { id:'3', answer:'removable', wrong:['permanent', 'fixed', 'built-in'] }
+      ]
+    }),
+  e('adjustable', 'adjective',
+    'able to be changed or moved to suit different needs',
+    ['able to be altered', 'changeable to fit'],
+    ['very expensive', 'easy to break', 'fixed in one position'],
+    'The strap is adjustable so that it fits all sizes.',
+    'able to be altered', 'The strap is able to be altered so that it fits all sizes.',
+    'able to be altered', 'The plan is able to be altered if the weather changes.',
+    {
+      masteryContexts:[
+        { text:'The bike has an adjustable seat for riders of different heights.', meaning:'able to be changed to fit' },
+        { text:'Use the adjustable strap to make the bag shorter or longer.', meaning:'able to be moved or changed' }
+      ],
+      situationDistractors:[
+        'The bolts held the seat in one fixed position.',
+        'The shoes came in only one size and could not be changed.',
+        'The shelf was fixed to the wall and could not be moved.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The desk is adjustable, so students of different heights can raise or lower it.', target:'adjustable', grammarPattern:'' },
+        { id:'2', text:'Because the strap is adjustable, it can be shortened or lengthened to fit anyone.', target:'adjustable', grammarPattern:'' },
+        { id:'3', text:'The seat on the bicycle is adjustable, so you can move it up or down.', target:'adjustable', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'adjustable', wrong:['fixed', 'permanent', 'heavy'] },
+        { id:'2', answer:'adjustable', wrong:['fixed', 'permanent', 'durable'] },
+        { id:'3', answer:'adjustable', wrong:['fixed', 'permanent', 'heavy'] }
+      ]
+    }),
+  e('affordable', 'adjective',
+    'not too expensive; cheap enough for most people to buy',
+    ['reasonably priced', 'not too expensive'],
+    ['extremely expensive', 'free of charge', 'impossible to buy'],
+    'The company produces affordable laptops for students on a small budget.',
+    'reasonably priced', 'The company produces reasonably priced laptops for students on a small budget.',
+    'reasonably priced', 'The café serves reasonably priced meals to students.',
+    {
+      masteryContexts:[
+        { text:'Affordable housing is a problem in many big cities.', meaning:'not too expensive for ordinary people' },
+        { text:'Tablets are now cheap enough to be affordable for most schools.', meaning:'low enough in price to buy' }
+      ],
+      situationDistractors:[
+        'The jeweller sold a diamond necklace for thousands of pounds.',
+        'The shop gave away free samples to every customer.',
+        'The sports car was too costly for most families.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Many families on low incomes cannot buy a laptop unless it is affordable.', target:'affordable', grammarPattern:'' },
+        { id:'2', text:'The airline introduced affordable tickets so that students on small budgets could travel.', target:'affordable', grammarPattern:'' },
+        { id:'3', text:'Free school meals and affordable bus fares help families who have little money.', target:'affordable', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'affordable', wrong:['luxurious', 'expensive', 'exclusive'] },
+        { id:'2', answer:'affordable', wrong:['luxury', 'expensive', 'exclusive'] },
+        { id:'3', answer:'affordable', wrong:['luxury', 'premium', 'exclusive'] }
+      ]
+    }),
+  e('external', 'adjective',
+    'outside something, or coming from outside it',
+    ['outer', 'on the outside'],
+    ['inside the building', 'very old', 'hidden underground'],
+    'The external walls of the building are painted white.',
+    'outer', 'The outer walls of the building are painted white.',
+    'outer', 'The outer layer of the fruit is thick.',
+    {
+      masteryContexts:[
+        { text:'The external examiner visited the school to mark the speaking tests.', meaning:'from outside the organisation' },
+        { text:'Connect an external hard drive to save extra files.', meaning:'separate from and outside the main device' }
+      ],
+      situationDistractors:[
+        'The pipes were hidden inside the walls of the building.',
+        'The teacher marked the tests herself.',
+        'The staff solved the problem without help from anyone else.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The external walls of the building are painted white, while the internal walls are cream.', target:'external', grammarPattern:'' },
+        { id:'2', text:'An external examiner, someone from outside the school, marks the final speaking test.', target:'external', grammarPattern:'' },
+        { id:'3', text:'You can plug an external drive into the laptop, a separate device outside the machine, to save extra files.', target:'external', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'external', wrong:['inner', 'central', 'hidden'] },
+        { id:'2', answer:'external', wrong:['internal', 'permanent', 'junior'] },
+        { id:'3', answer:'external', wrong:['internal', 'central', 'built-in'] }
+      ]
+    }),
+  e('concentrate', 'verb',
+    'to give all your attention to one thing',
+    ['focus', 'pay full attention'],
+    ['become very tired', 'speak very quietly', 'forget something quickly'],
+    'It is hard to concentrate when people are talking nearby.',
+    'focus', 'It is hard to focus when people are talking nearby.',
+    'focus', 'Try to focus on the question before you write.',
+    {
+      masteryContexts:[
+        { text:'I cannot concentrate with the television on.', meaning:'give full attention to one thing' },
+        { text:'Concentrate on the task in front of you.', meaning:'focus your attention' }
+      ],
+      situationDistractors:[
+        'He checked his phone every minute during the lesson.',
+        'She chatted to her friend while the teacher spoke.',
+        'The student looked out of the window and daydreamed.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'To concentrate fully on the exam, she switched off her phone and ignored every distraction.', target:'concentrate', grammarPattern:'' },
+        { id:'2', text:'Please concentrate on the road and keep your eyes off your phone.', target:'concentrate', grammarPattern:'' },
+        { id:'3', text:'Many students find it easier to concentrate on one task at a time instead of switching between several.', target:'concentrate', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'concentrate', wrong:['rely', 'insist', 'depend'] },
+        { id:'2', answer:'concentrate', wrong:['rely', 'insist', 'comment'] },
+        { id:'3', answer:'concentrate', wrong:['rely', 'insist', 'depend'] }
+      ]
+    }),
 ];
 
 export default buildCuratedUnit({
