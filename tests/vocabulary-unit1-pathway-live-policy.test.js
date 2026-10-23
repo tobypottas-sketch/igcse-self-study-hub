@@ -29,7 +29,7 @@ test('Unit 1 exposes only pathway banks that are currently defensible end to end
   assert.equal(coverage.spelling_recall.available,true);
 
   assert.equal(coverage.paraphrasing.available,false);
-  assert.equal(coverage.paraphrasing.reason,'content_bank_incomplete');
+  assert.equal(coverage.paraphrasing.reason,'diversity_below_minimum');
   assert.equal(coverage.precision_use.available,true);
   assert.equal(coverage.precision_use.occurrenceIds.length,50);
 });

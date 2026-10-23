@@ -22,3 +22,14 @@
 .vocab-unit-chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
 .vocab-unit-chip{border:1px solid var(--line);border-radius:var(--r-pill);background:var(--c-surface);color:var(--muted);font-weight:800;font-size:var(--fs-sm);padding:8px 14px;min-height:40px;cursor:pointer}
 .vocab-unit-chip.is-selected{border-color:var(--c-teal-line);background:var(--soft);color:var(--teal)}
+
+/* Unit readiness report (authoring view). */
+.vocab-readiness__summary { margin: 0 0 .75rem; }
+.vocab-readiness__table { display: grid; gap: .6rem; }
+.vocab-readiness__row { border: 1px solid var(--line, #d9dde3); border-radius: 10px; padding: .7rem .85rem; }
+.vocab-readiness__row header { display: flex; justify-content: space-between; gap: .5rem; align-items: baseline; }
+.vocab-readiness__row[data-live="false"] { background: color-mix(in srgb, var(--surface, #fff) 92%, #b45309 8%); }
+.vocab-readiness__state { font-weight: 700; font-size: .85rem; }
+.vocab-readiness__row p { margin: .25rem 0 .4rem; }
+.vocab-readiness__stages { display: flex; flex-wrap: wrap; gap: .35rem .9rem; list-style: none; margin: 0; padding: 0; font-size: .85rem; }
+.vocab-readiness__stages li[data-ok="false"] { color: #b45309; font-weight: 600; }

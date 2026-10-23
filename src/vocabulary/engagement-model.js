@@ -3,6 +3,7 @@
 import { STAR_THRESHOLDS } from './engagement-copy.js';
 import { buildUnitPathwayStates } from './pathway-view-model.js';
 import { VOCABULARY_PATHWAYS } from './pathway-model.js';
+import { registeredPathwayCoverage } from './pathway-coverage-store.js';
 import { SKILLS_PER_MERIT } from './merits.js';
 
 export const STREAK_MILESTONES = Object.freeze([3, 5, 8, 10]);
@@ -27,11 +28,12 @@ export function normaliseMission(raw = {}) {
   };
 }
 
-// A fair comparison bucket: pathway + stage + practice family/mode + mission size. Mixed Practice has its own bucket.
+// A fair comparison bucket: unit + pathway + stage + practice family/mode + mission size. Mixed Practice has its own bucket inside
+// each unit. Scores are never compared across units.
 export function bucketKey(mission) {
   const m = normaliseMission(mission);
-  if (m.kind === 'mixed') return `mixed|mixed|${m.size}`;
-  return `pathway|${m.pathwayId}|${m.stage}|${m.family}|${m.size}`;
+  if (m.kind === 'mixed') return `u${m.unitNumber}|mixed|mixed|${m.size}`;
+  return `u${m.unitNumber}|pathway|${m.pathwayId}|${m.stage}|${m.family}|${m.size}`;
 }
 
 function byTime(a, b) {
@@ -74,7 +76,7 @@ export function evaluateMission(rawRows = [], missionId) {
 
 // "Best / Aim" for a bucket the student is about to practise (or just practised).
 export function bestAndAim(rawRows = [], descriptor = {}) {
-  const key = bucketKey({ missionKind:descriptor.kind ?? 'pathway', pathwayId:descriptor.pathwayId, pathwayStage:descriptor.stage, practiceFamily:descriptor.family, missionSize:10 });
+  const key = bucketKey({ unitNumber:descriptor.unitNumber, missionKind:descriptor.kind ?? 'pathway', pathwayId:descriptor.pathwayId, pathwayStage:descriptor.stage, practiceFamily:descriptor.family, missionSize:10 });
   const rows = rawRows.map(normaliseMission).filter(row => bucketKey(row) === key);
   const best = rows.reduce((top, row) => (!top || better(row, top) ? row : top), null);
   if (!best) return { best:null, aim:7, copy:'Aim: 7 or more for 2 stars' };
@@ -143,6 +145,11 @@ export function levelFor(xp) {
 }
 
 // What the student has passed so far, from the same per-word pathway progress the unit screen shows.
+//
+// Unit completion has two tiers and is recalculated from the live pathway set every time; nothing is stored.
+//   releasedComplete: every pathway that is live is mastered, but some pathways are not live yet. Not Unit Mastery: no badge, no XP.
+//   unitMastered:     all six pathways are live AND mastered. Only this earns Unit Master and its XP bonus.
+// If another pathway goes live later, releasedComplete simply stops being true; no award ever has to be taken back.
 export function progressSnapshot({ occurrences = [], unitMastery = {}, globalMastery = {} } = {}) {
   const byUnit = new Map();
   for (const occurrence of occurrences) {
@@ -153,16 +160,30 @@ export function progressSnapshot({ occurrences = [], unitMastery = {}, globalMas
   }
   let passedStages = 0; let masteredPathwayCount = 0; let unitsMastered = 0;
   const masteredPathways = new Set();
-  for (const unitOccurrences of byUnit.values()) {
+  const units = {};
+  for (const [unit, unitOccurrences] of byUnit.entries()) {
     const states = buildUnitPathwayStates({ occurrences:unitOccurrences, unitMastery, globalMastery });
     const available = Object.entries(states).filter(([, state]) => state?.available !== false);
     for (const [id, state] of available) {
       passedStages += state?.completedStages?.length ?? 0;
       if (state?.mastered === true) { masteredPathwayCount += 1; masteredPathways.add(id); }
     }
-    if (available.length && available.every(([, state]) => state?.mastered === true)) unitsMastered += 1;
+    const total = VOCABULARY_PATHWAYS.length;
+    const allLiveMastered = available.length > 0 && available.every(([, state]) => state?.mastered === true);
+    // Until a unit's readiness has been evaluated we cannot know all six pathways are live, so it cannot count as fully released.
+    const fullyReleased = available.length === total && registeredPathwayCoverage(unit) != null;
+    const unitMastered = fullyReleased && allLiveMastered;
+    if (unitMastered) unitsMastered += 1;
+    units[unit] = {
+      livePathways:available.length,
+      totalPathways:total,
+      comingSoon:total - available.length,
+      masteredPathways:available.filter(([, state]) => state?.mastered === true).length,
+      releasedComplete:allLiveMastered && !fullyReleased,
+      unitMastered
+    };
   }
-  return { passedStages, masteredPathwayCount, masteredPathways, unitsMastered };
+  return { passedStages, masteredPathwayCount, masteredPathways, unitsMastered, units };
 }
 
 // Merit progress, always worded as progress toward the teacher-awarded merit.

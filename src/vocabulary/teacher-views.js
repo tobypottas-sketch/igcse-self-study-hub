@@ -6,7 +6,7 @@ import { habitsLastPractice } from './practice-habits.js';
 function label(value) { return String(value ?? '').replaceAll('_',' '); }
 function previewButton() { return '<a class="vocab-button" href="./vocabulary.html?preview=1">Preview student activities</a>'; }
 function actionButtons() {
-  return `<div class="vocab-teacher-actions"><button class="vocab-button vocab-button--primary" data-action="teacher-recommend-practice">Recommend Hub Practice</button><button class="vocab-button" data-action="teacher-teams-targets">Create Teams Target List</button>${previewButton()}</div>`;
+  return `<div class="vocab-teacher-actions"><button class="vocab-button vocab-button--primary" data-action="teacher-recommend-practice">Recommend Hub Practice</button><button class="vocab-button" data-action="teacher-teams-targets">Create Teams Target List</button><button class="vocab-button" data-action="teacher-open-readiness">Unit readiness</button>${previewButton()}</div>`;
 }
 function skillRows(profile) {
   const rows = Object.entries(profile?.skills ?? {}).filter(([,row]) => Number(row?.evidenceCount ?? 0) > 0);
@@ -25,6 +25,7 @@ function pathwayStageLabel(state = {}) {
 function pathwayCells(pathways = {}) {
   return VOCABULARY_PATHWAYS.map(pathway => {
     const state = pathways?.[pathway.id] ?? { currentStage:'recognise', mastered:false, needsPractice:false };
+    if (state.available === false) return `<span class="vocab-teacher-pathway" data-teacher-pathway="${escapeHtml(pathway.id)}" data-stage="locked" data-live="false"><small>${escapeHtml(pathway.label)}</small><strong>Not live</strong></span>`;
     return `<span class="vocab-teacher-pathway" data-teacher-pathway="${escapeHtml(pathway.id)}" data-stage="${escapeHtml(state.currentStage ?? 'recognise')}"><small>${escapeHtml(pathway.label)}</small><strong>${escapeHtml(pathwayStageLabel(state))}</strong>${state.needsPractice === true ? '<em>Needs practice</em>' : ''}</span>`;
   }).join('');
 }

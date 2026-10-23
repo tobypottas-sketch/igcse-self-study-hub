@@ -59,7 +59,7 @@ test('Mixed Practice compares only with other Mixed Practice', () => {
 });
 
 test('Best / Aim line for a bucket with and without history', () => {
-  const descriptor = { kind:'pathway', pathwayId:'meaning', stage:'recognise', family:'meaning:recognise' };
+  const descriptor = { unitNumber:1, kind:'pathway', pathwayId:'meaning', stage:'recognise', family:'meaning:recognise' };
   assert.equal(bestAndAim([], descriptor).copy, 'Aim: 7 or more for 2 stars');
   assert.equal(bestAndAim([row({ score:8 })], descriptor).copy, 'Best 8/10 · Aim: 9');
   assert.equal(bestAndAim([row({ score:10 })], descriptor).copy, 'Best 10/10 · Keep it perfect');

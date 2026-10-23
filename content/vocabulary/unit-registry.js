@@ -1,13 +1,14 @@
 // The one place that says which Vocabulary Builder units exist and what is special about each.
 //
 // It carries only what the database cannot: the planned title, the word count a unit must reach, and any pathway that is
-// deliberately withheld. It never makes content live: a unit appears for students only when its occurrences are live in
-// the database. Adding a unit's content means adding its unit file and release file, its artwork, and (only when
-// something is withheld) an entry under `pathwayOverrides` here. Nothing in the engine or the views changes.
+// deliberately held back. It never makes content live: a unit appears for students only when its occurrences are live in the
+// database, and a pathway is live only when it passes the readiness rules (content/vocabulary/pathway-readiness-rules.js).
+// `pathwayOverrides` is an editorial HOLD: it can keep a ready pathway hidden, never switch one on. Adding a unit's content
+// means adding its unit file and release file and its artwork. Nothing in the engine or the views changes.
 export const EXPECTED_WORDS_PER_UNIT = 50;
 
 const UNITS = {
-  1:{ title:'Sports and Free Time', pathwayOverrides:{ paraphrasing:{ available:false, reason:'content_bank_incomplete' } } },
+  1:{ title:'Sports and Free Time' },
   2:{ title:'Digital Life' },
   3:{ title:'Food' },
   4:{ title:'Transport' },

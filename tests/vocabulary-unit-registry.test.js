@@ -26,16 +26,11 @@ test('registry titles match the planned titles in source-status.json and the pub
   assert.equal(unit1.occurrences.length, unitConfig(1).expectedWords);
 });
 
-test('the Unit 1 Paraphrasing withholding moved into the registry without changing behaviour', () => {
-  assert.deepEqual(pathwayOverride(1, 'paraphrasing'), { available:false, reason:'content_bank_incomplete' });
-  assert.deepEqual(pathwayLivePolicy(1, 'paraphrasing'), { available:false, reason:'content_bank_incomplete' });
+test('no unit carries a manual lock: Unit 1 Paraphrasing is locked by readiness, and a registry hold can only withhold', () => {
   for (const pathway of VOCABULARY_PATHWAYS) {
-    if (pathway.id !== 'paraphrasing') assert.equal(pathwayLivePolicy(1, pathway.id), null, pathway.id);
+    assert.equal(pathwayLivePolicy(1, pathway.id), null, pathway.id);
     assert.equal(pathwayLivePolicy(2, pathway.id), null, `unit 2 ${pathway.id}`);
   }
-  const coverage = buildPathwayCoverage({ content:{ occurrences:[{ occurrenceId:'u1_01_x', unitNumber:1 }] } });
-  assert.equal(coverage.paraphrasing.available, false);
-  assert.equal(coverage.paraphrasing.reason, 'content_bank_incomplete');
 });
 
 test('registry entries cannot be edited at runtime', () => {

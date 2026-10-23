@@ -5,7 +5,7 @@ import { PATHWAY_STAGES } from './pathway-model.js';
 import { buildWordPathwayStates } from './pathway-view-model.js';
 import { planPathwayQuestion } from './pathway-planner.js';
 import { activityFamilies } from './activity-families.js';
-import { registeredPathwayCoverage } from './pathway-coverage-store.js';
+import { coverageServes } from './pathway-coverage-store.js';
 
 export const FULL_MISSION = 10;
 export const MIN_SHORT_MISSION = 4;
@@ -22,10 +22,7 @@ export function familyStageForWord(family, wordState) {
 
 function coverageAllows(content, pathwayId, target) {
   const unit = target?.unitNumber ?? target?.unit_number ?? content?.occurrences?.[0]?.unitNumber ?? content?.occurrences?.[0]?.unit_number ?? null;
-  const coverage = unit == null ? null : registeredPathwayCoverage(unit)?.[pathwayId] ?? null;
-  if (!coverage) return true;
-  if (coverage.available === false) return false;
-  return new Set((coverage.occurrenceIds ?? []).map(String)).has(String(target?.occurrenceId ?? target?.occurrence_id));
+  return coverageServes(unit, pathwayId, target?.occurrenceId ?? target?.occurrence_id);
 }
 
 // Words that can practise `family` now, each with the stage its attempts will be recorded against.
