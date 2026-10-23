@@ -1,7 +1,4 @@
-function assertNoError(result, message) {
-  if (result?.error) throw new Error(message);
-  return result?.data ?? [];
-}
+import { fetchAllRows, fetchAllRowsForIds } from './teacher-paging.js';
 
 const SAFE_ACTIVITY_METADATA = new Set([
   'unit_number','strand','question_type','attempt_number','outcome','retry_used','recovery',
@@ -41,7 +38,7 @@ export function normalizeTeacherVocabularyData(raw = {}) {
   const meritsAvailable = Array.isArray(raw.awards);
   const awards = (raw.awards ?? []).map(row => ({ studentId:row.student_id, meritNumber:Number(row.merit_number) }));
   const missionsAvailable = Array.isArray(raw.missions);
-  const missions = (raw.missions ?? []).map(row => ({ studentId:row.student_id, completedAt:row.completed_at, kind:row.mission_kind }));
+  const missions = (raw.missions ?? []).map(row => ({ studentId:row.student_id, completedAt:row.completed_at, kind:row.mission_kind, unitNumber:Number(row.unit_number) || null }));
   const profileById = new Map(profiles.filter(row => row.role === 'student').map(row => [row.id, { id:row.id, displayName:row.display_name }]));
 
   const classes = classesRaw.map(classRow => {
@@ -65,29 +62,32 @@ export function normalizeTeacherVocabularyData(raw = {}) {
   return { classes, targets:items, occurrences };
 }
 
-export async function loadVocabularyTeacherData(client) {
-  const [profilesResult, membershipsResult, classesResult, itemsResult, occurrencesResult, masteryResult, unitMasteryResult, activityResult, awardsResult, missionsResult] = await Promise.all([
-    client.from('profiles').select('id, display_name, role').eq('role','student'),
-    client.from('student_class_memberships').select('student_id, class_id, ended_at'),
-    client.from('classes').select('id, class_name, active').eq('active',true),
-    client.from('vocabulary_items').select('vocabulary_id, term').eq('status','live'),
-    client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number, unit_title').eq('status','live').eq('active',true),
-    client.from('vocabulary_global_mastery').select('student_id, vocabulary_id, status, strand_evidence, recent_error_pattern, updated_at'),
-    client.from('vocabulary_unit_mastery').select('student_id, occurrence_id, status, recent_error_pattern, contextual_evidence'),
-    client.from('activity_events').select('user_id, occurred_at, event_type, metadata').eq('app_key','vocabulary_paraphrase').order('occurred_at',{ ascending:false }).limit(5000),
-    client.from('vocabulary_merit_awards').select('student_id, merit_number'),
-    client.from('vocabulary_missions').select('student_id, completed_at, mission_kind').order('completed_at',{ ascending:false }).limit(5000)
+export const ACTIVITY_WINDOW_DAYS = 90;
+
+async function optional(work) {
+  try { return await work(); } catch { return null; }
+}
+
+// Everything is read in complete 1,000-row pages. Learning evidence (mastery) and engagement (missions, attempts) are read by
+// separate calls and stay separate in the result. Attempts are limited to a recent window and then read completely;
+// missions are tiny (one row each) and read in full.
+export async function loadVocabularyTeacherData(client, { now = new Date() } = {}) {
+  const [profiles, memberships, classes, items, occurrences] = await Promise.all([
+    fetchAllRows(() => client.from('profiles').select('id, display_name, role', { count:'exact' }).eq('role','student').order('id'), { label:'students' }),
+    fetchAllRows(() => client.from('student_class_memberships').select('student_id, class_id, ended_at', { count:'exact' }).order('student_id').order('class_id'), { label:'class memberships' }),
+    fetchAllRows(() => client.from('classes').select('id, class_name, active', { count:'exact' }).eq('active',true).order('id'), { label:'classes' }),
+    fetchAllRows(() => client.from('vocabulary_items').select('vocabulary_id, term', { count:'exact' }).eq('status','live').order('vocabulary_id'), { label:'vocabulary items' }),
+    fetchAllRows(() => client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number, unit_title', { count:'exact' }).eq('status','live').eq('active',true).order('occurrence_id'), { label:'vocabulary occurrences' })
   ]);
-  return normalizeTeacherVocabularyData({
-    profiles:assertNoError(profilesResult,'Unable to load students.'),
-    memberships:assertNoError(membershipsResult,'Unable to load memberships.'),
-    classes:assertNoError(classesResult,'Unable to load classes.'),
-    items:assertNoError(itemsResult,'Unable to load vocabulary items.'),
-    occurrences:assertNoError(occurrencesResult,'Unable to load vocabulary occurrences.'),
-    mastery:assertNoError(masteryResult,'Unable to load vocabulary mastery.'),
-    unitMastery:assertNoError(unitMasteryResult,'Unable to load vocabulary pathway progress.'),
-    activity:assertNoError(activityResult,'Unable to load vocabulary activity.'),
-    awards:awardsResult?.error ? null : (awardsResult?.data ?? []),
-    missions:missionsResult?.error ? null : (missionsResult?.data ?? [])
-  });
+  const studentIds = [...new Set(memberships.filter(row => row.ended_at == null).map(row => row.student_id))];
+  const since = new Date(new Date(now).getTime() - ACTIVITY_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
+
+  const [mastery, unitMastery, activity, awards, missions] = await Promise.all([
+    fetchAllRowsForIds(studentIds, ids => client.from('vocabulary_global_mastery').select('student_id, vocabulary_id, status, strand_evidence, recent_error_pattern, updated_at', { count:'exact' }).in('student_id', ids).order('student_id').order('vocabulary_id'), { label:'vocabulary mastery' }),
+    fetchAllRowsForIds(studentIds, ids => client.from('vocabulary_unit_mastery').select('student_id, occurrence_id, status, recent_error_pattern, contextual_evidence', { count:'exact' }).in('student_id', ids).order('student_id').order('occurrence_id'), { label:'vocabulary pathway progress' }),
+    fetchAllRowsForIds(studentIds, ids => client.from('activity_events').select('id, user_id, occurred_at, event_type, metadata', { count:'exact' }).eq('app_key','vocabulary_paraphrase').in('user_id', ids).gte('occurred_at', since).order('occurred_at',{ ascending:false }).order('id'), { label:'vocabulary activity' }),
+    optional(() => fetchAllRows(() => client.from('vocabulary_merit_awards').select('student_id, merit_number', { count:'exact' }).order('student_id').order('merit_number'), { label:'merit awards' })),
+    optional(() => fetchAllRowsForIds(studentIds, ids => client.from('vocabulary_missions').select('mission_id, student_id, completed_at, mission_kind, unit_number', { count:'exact' }).in('student_id', ids).order('completed_at',{ ascending:false }).order('mission_id'), { label:'vocabulary missions' }))
+  ]);
+  return normalizeTeacherVocabularyData({ profiles, memberships, classes, items, occurrences, mastery, unitMastery, activity, awards, missions });
 }

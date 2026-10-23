@@ -4,6 +4,7 @@ import { buildTeamsTargetList, buildVocabularyInterventionDraft, createLearningI
 import { buildPracticeHabits, buildStudentHabits } from './practice-habits.js';
 import { buildMeritStatus, SKILLS_PER_MERIT } from './merits.js';
 import { loadVocabularyTeacherData } from './teacher-data.js';
+import { selectedUnit, unitOccurrences } from './teacher-units.js';
 import { renderTeacherOverview, renderProblemArea, renderStudentVocabularyProfile } from './teacher-views.js';
 import { renderVocabularyError } from './views.js';
 
@@ -20,7 +21,7 @@ function pathwayAnalytics(classData, students = classData.students) {
   return buildPathwayAnalytics({
     students,
     targets:classData.targets,
-    occurrences:classData.occurrences,
+    occurrences:unitOccurrences(classData),
     globalMastery:classData.mastery.filter(row => studentIds.has(row.studentId)),
     unitMastery:(classData.unitMastery ?? []).filter(row => studentIds.has(row.studentId))
   });
@@ -70,7 +71,7 @@ function openClass(classId) {
   teacherState.currentDrilldown = null;
   teacherState.currentStudent = null;
   teacherState.currentInsights = classInsights(classData);
-  renderTeacherOverview(teacherState.root, { className:classData.className, insights:teacherState.currentInsights, merits:classMerits(classData), habits:classHabits(classData) });
+  renderTeacherOverview(teacherState.root, { className:classData.className, insights:teacherState.currentInsights, merits:classMerits(classData), habits:classHabits(classData), units:selectedUnit(classData) });
 }
 
 function openProblem({ strand = null, skillId = null } = {}) {
@@ -193,6 +194,7 @@ function handleClick(event) {
   else if (action === 'teacher-open-problem') openProblem({ strand:target.dataset.strand ?? null, skillId:target.dataset.skillId ?? null });
   else if (action === 'teacher-open-student') openStudent(target.dataset.studentId);
   else if (action === 'teacher-back-overview') teacherState.currentClass ? openClass(teacherState.currentClass.id) : renderClassChooser();
+  else if (action === 'teacher-select-unit') { if (teacherState.currentClass) { teacherState.currentClass.selectedUnit = target.dataset.unit === 'all' ? 'all' : Number(target.dataset.unit); openClass(teacherState.currentClass.id); } }
   else if (action === 'teacher-award-merit') void awardMerit(target);
   else if (action === 'teacher-teams-targets') void copyTeamsTargets().catch(() => {});
   else if (action === 'teacher-recommend-practice') showRecommendationChooser();

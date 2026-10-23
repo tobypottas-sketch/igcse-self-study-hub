@@ -18,3 +18,7 @@
 .vocab-habits-list .vocab-student-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;text-align:left;width:100%}
 .vocab-habits-list .vocab-student-row span{text-align:left;flex:1 1 auto}
 .vocab-habits-list .vocab-student-row small{text-align:right;flex:none;white-space:nowrap}
+/* Unit selector for the class pathway table. */
+.vocab-unit-chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+.vocab-unit-chip{border:1px solid var(--line);border-radius:var(--r-pill);background:var(--c-surface);color:var(--muted);font-weight:800;font-size:var(--fs-sm);padding:8px 14px;min-height:40px;cursor:pointer}
+.vocab-unit-chip.is-selected{border-color:var(--c-teal-line);background:var(--soft);color:var(--teal)}

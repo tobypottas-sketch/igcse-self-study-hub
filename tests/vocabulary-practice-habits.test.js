@@ -89,7 +89,7 @@ test('teacher data keeps only mission timing per class student and marks missing
   };
   const klass = normalizeTeacherVocabularyData(raw).classes[0];
   assert.equal(klass.missions.length, 1);
-  assert.deepEqual(Object.keys(klass.missions[0]).sort(), ['completedAt', 'kind', 'studentId']);
+  assert.deepEqual(Object.keys(klass.missions[0]).sort(), ['completedAt', 'kind', 'studentId', 'unitNumber']);
   assert.equal(klass.missionsAvailable, true);
   assert.equal(normalizeTeacherVocabularyData({ ...raw, missions:null }).classes[0].missionsAvailable, false);
 });
