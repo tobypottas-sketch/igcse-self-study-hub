@@ -583,16 +583,286 @@ const entries = [
         { id:'3', answer:'impression', wrong:['photograph', 'visit', 'map'] }
       ]
     }),
-  eb('remote control', 'noun'),
-  eb('feature', 'noun'),
-  eb('function', 'noun'),
-  eb('interactive', 'adjective'),
-  eb('widespread', 'adjective'),
-  eb('availability', 'noun'),
-  eb('high-performance', 'adjective'),
-  eb('stabilising', 'adjective'),
-  eb('multi-task', 'verb'),
-  eb('predictable', 'adjective'),
+  e('remote control', 'noun',
+    'a small handheld device used to operate a television or other machine from a distance',
+    ['controller', 'handheld device for controlling something'],
+    ['a switch fixed to a wall', 'a long cable between two machines', 'a person who manages a television programme'],
+    'Someone has lost the remote control again, so we cannot change the channel.',
+    'controller', 'Someone has lost the controller again, so we cannot change the channel.',
+    'controller', 'The child pressed a button on the controller and the toy car moved.',
+    {
+      masteryContexts:[
+        { text:'Pass me the remote control so I can turn the volume down.', meaning:'a handheld device for operating a machine from a distance' },
+        { text:'The drone has a remote control with two small joysticks.', meaning:'a device used to operate something from a distance' }
+      ],
+      situationDistractors:[
+        'Dad walked across the room and pressed the button on the television itself.',
+        'Mum searched the kitchen drawer for spare batteries.',
+        'The engineer plugged a long cable into the back of the machine.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'I cannot find the remote control, so I have to change the channel by hand.', target:'remote control', grammarPattern:'' },
+        { id:'2', text:'Press the red button on the remote control to switch the television off.', target:'remote control', grammarPattern:'' },
+        { id:'3', text:'The toy car is steered with a small remote control, so you can drive it from the other side of the room.', target:'remote control', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'remote control', wrong:['torch', 'newspaper', 'kettle'] },
+        { id:'2', answer:'remote control', wrong:['kettle', 'window', 'radiator'] },
+        { id:'3', answer:'remote control', wrong:['steering wheel', 'metal key', 'paintbrush'] }
+      ]
+    }),
+  e('feature', 'noun',
+    'an important or noticeable part or quality of something',
+    ['characteristic', 'quality'],
+    ['a mistake in a design', 'a person who tests products', 'the price of something'],
+    'The best feature of this phone is its long battery life.',
+    'quality', 'The best quality of this phone is its long battery life.',
+    'characteristic', 'A noticeable characteristic of the building is its glass roof.',
+    {
+      masteryContexts:[
+        { text:'Waterproofing is a useful feature of the new jacket.', meaning:'a useful part or quality of a product' },
+        { text:'The lake is the main feature of the park.', meaning:'a noticeable part of a place' }
+      ],
+      situationDistractors:[
+        'The shop sold the phone at half price during the sale.',
+        'A technician repaired the screen of the broken tablet.',
+        'The customer complained that the delivery arrived two days late.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The best feature of this laptop is its light weight and long battery life.', target:'feature', grammarPattern:'' },
+        { id:'2', text:'Touchscreens are now a standard feature of almost every new car.', target:'feature', grammarPattern:'' },
+        { id:'3', text:'One striking feature of the old town is the wall that still surrounds it.', target:'feature', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'feature', wrong:['owner', 'warranty', 'receipt'] },
+        { id:'2', answer:'feature', wrong:['price', 'owner', 'mistake'] },
+        { id:'3', answer:'feature', wrong:['owner', 'visitor', 'mistake'] }
+      ]
+    }),
+  e('function', 'noun',
+    'the purpose or job that something has; what it is designed to do',
+    ['purpose', 'job'],
+    ['the way something looks', 'the cost of making something', 'a danger to users'],
+    'The main function of the heart is to pump blood around the body.',
+    'purpose', 'The main purpose of the heart is to pump blood around the body.',
+    'job', 'The main job of a fuse is to protect the circuit.',
+    {
+      masteryContexts:[
+        { text:'What is the function of this switch?', meaning:'what it is for' },
+        { text:'The function of the committee is to advise the principal.', meaning:'the purpose or job of a group' }
+      ],
+      situationDistractors:[
+        'The designer chose bright colours to make the poster look attractive.',
+        'The company paid a lot to manufacture the new machine.',
+        'The user guide warned that the device could overheat.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The main function of a thermostat is to control the temperature of a room.', target:'function', grammarPattern:'' },
+        { id:'2', text:'Ask what each part is for, and you are asking about its function.', target:'function', grammarPattern:'' },
+        { id:'3', text:'The function of a fuse is to protect an electrical circuit from too much current.', target:'function', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'function', wrong:['colour', 'price', 'weight'] },
+        { id:'2', answer:'function', wrong:['colour', 'price', 'weight'] },
+        { id:'3', answer:'function', wrong:['colour', 'price', 'shape'] }
+      ]
+    }),
+  e('interactive', 'adjective',
+    'allowing users to take part and respond, rather than just watch or read',
+    ['hands-on', 'two-way'],
+    ['too complicated to use', 'available only to teachers', 'working without electricity'],
+    'The museum has interactive exhibits that children can touch and control.',
+    'hands-on', 'The museum has hands-on exhibits that children can touch and control.',
+    'two-way', 'The two-way lessons let students ask questions at any time.',
+    {
+      masteryContexts:[
+        { text:'The interactive whiteboard responds when students touch the screen.', meaning:'reacting to what the user does' },
+        { text:'Interactive lessons keep students more engaged than lectures.', meaning:'involving active participation' }
+      ],
+      situationDistractors:[
+        'The visitors walked past glass cases and read the label on each object.',
+        'The teacher talked for an hour while the students listened in silence.',
+        'The film played in the museum without anyone being able to change it.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Children learn quickly from interactive games that respond to every answer they give.', target:'interactive', grammarPattern:'' },
+        { id:'2', text:'Students enjoy interactive lessons that let them ask questions and join in, rather than just listen.', target:'interactive', grammarPattern:'' },
+        { id:'3', text:'The website is interactive, so users can vote, comment and see results change as they click.', target:'interactive', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'interactive', wrong:['passive', 'silent', 'printed'] },
+        { id:'2', answer:'interactive', wrong:['recorded', 'silent', 'printed'] },
+        { id:'3', answer:'interactive', wrong:['static', 'silent', 'printed'] }
+      ]
+    }),
+  e('widespread', 'adjective',
+    'found or happening in many places or among many people',
+    ['common', 'found everywhere'],
+    ['spread out over a large wall', 'very rare', 'dangerous and harmful'],
+    'Smartphone use is now widespread among teenagers.',
+    'common', 'Smartphone use is now common among teenagers.',
+    'common', 'Colds are common in winter.',
+    {
+      masteryContexts:[
+        { text:'There was widespread flooding after three days of rain.', meaning:'happening in many places' },
+        { text:'The idea has widespread support among parents.', meaning:'shared by many people' }
+      ],
+      situationDistractors:[
+        'Only one small village reported the unusual disease.',
+        'A rare bird was seen once in the north of the country.',
+        'The new rule applies to a single classroom.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Internet access is now widespread, even in small villages.', target:'widespread', grammarPattern:'' },
+        { id:'2', text:'The news caused widespread panic across the whole country.', target:'widespread', grammarPattern:'' },
+        { id:'3', text:'Support for the new law is widespread, with most people in every region in favour.', target:'widespread', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'widespread', wrong:['limited', 'occasional', 'private'] },
+        { id:'2', answer:'widespread', wrong:['limited', 'local', 'private'] },
+        { id:'3', answer:'widespread', wrong:['limited', 'rare', 'weak'] }
+      ]
+    }),
+  e('availability', 'noun',
+    'the fact that something can be obtained, used or reached',
+    ['supply', 'ease of obtaining'],
+    ['the quality of something', 'the price of something', 'the danger of something'],
+    'The availability of fast internet varies greatly between cities and villages.',
+    'supply', 'The supply of fast internet varies greatly between cities and villages.',
+    'supply', 'The supply of fresh water is limited on the island.',
+    {
+      masteryContexts:[
+        { text:'Check the availability of tickets before you travel.', meaning:'whether something can be obtained' },
+        { text:'The availability of cheap flights has increased tourism.', meaning:'how easy it is to get or use something' }
+      ],
+      situationDistractors:[
+        'The quality of the chocolate was praised by every customer.',
+        'The shop doubled the price of its umbrellas when it started to rain.',
+        'The manual explained how to use the device safely.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Doctors worry about the availability of medicine in poor areas, where there often is none to buy.', target:'availability', grammarPattern:'' },
+        { id:'2', text:'Online booking has improved the availability of tickets, since anyone can now buy them easily.', target:'availability', grammarPattern:'' },
+        { id:'3', text:'Please check the availability of the room, because it may already be taken for that date.', target:'availability', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'availability', wrong:['taste', 'colour', 'packaging'] },
+        { id:'2', answer:'availability', wrong:['design', 'colour', 'packaging'] },
+        { id:'3', answer:'availability', wrong:['colour', 'design', 'decoration'] }
+      ]
+    }),
+  e('high-performance', 'adjective',
+    'able to work at a very high standard or speed',
+    ['very powerful', 'top-quality'],
+    ['cheap and basic', 'very old', 'small and light'],
+    'Gamers often buy high-performance computers that can run complex programs smoothly.',
+    'very powerful', 'Gamers often buy very powerful computers that can run complex programs smoothly.',
+    'very powerful', 'The company builds very powerful engines for racing cars.',
+    {
+      masteryContexts:[
+        { text:'The team uses high-performance cameras to film the race.', meaning:'able to work at a very high standard' },
+        { text:'High-performance athletes train twice a day.', meaning:'achieving results at the highest level' }
+      ],
+      situationDistractors:[
+        'The old laptop froze whenever more than one program was open.',
+        'The shop sold simple calculators at a very low price.',
+        'The basic phone could only make calls and send texts.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Video editors need high-performance computers that can handle large files without slowing down.', target:'high-performance', grammarPattern:'' },
+        { id:'2', text:'The racing team designs high-performance engines to win at top speed.', target:'high-performance', grammarPattern:'' },
+        { id:'3', text:'Elite sport needs high-performance training and the best coaches.', target:'high-performance', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'high-performance', wrong:['low-power', 'out-of-date', 'basic'] },
+        { id:'2', answer:'high-performance', wrong:['low-power', 'fuel-saving', 'quiet'] },
+        { id:'3', answer:'high-performance', wrong:['low-cost', 'relaxed', 'occasional'] }
+      ]
+    }),
+  e('stabilising', 'adjective',
+    'making something steady and less likely to change suddenly or fall',
+    ['steadying', 'balancing'],
+    ['causing sudden changes', 'making something larger', 'making something cheaper'],
+    'The central bank introduced stabilising measures to stop prices rising sharply.',
+    'steadying', 'The central bank introduced steadying measures to stop prices rising sharply.',
+    'balancing', 'The pilot made small balancing adjustments to keep the plane level.',
+    {
+      masteryContexts:[
+        { text:'The calm teacher was a stabilising presence in the busy classroom.', meaning:'helping to keep things steady and calm' },
+        { text:'The stabilising fins keep the rocket flying straight.', meaning:'keeping something steady and balanced' }
+      ],
+      situationDistractors:[
+        'The sudden storm made the small boat rock violently from side to side.',
+        'The rumours caused panic and prices shot up.',
+        'The wobbly table collapsed when someone leaned on it.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The new captain had a stabilising effect, calming the team and ending the arguments.', target:'stabilising', grammarPattern:'' },
+        { id:'2', text:'Fins have a stabilising function: they keep the rocket flying in a straight line.', target:'stabilising', grammarPattern:'' },
+        { id:'3', text:'The government introduced stabilising measures to keep prices steady during the crisis.', target:'stabilising', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'stabilising', wrong:['disturbing', 'damaging', 'confusing'] },
+        { id:'2', answer:'stabilising', wrong:['accelerating', 'decorative', 'warning'] },
+        { id:'3', answer:'stabilising', wrong:['inflating', 'unsettling', 'expensive'] }
+      ]
+    }),
+  e('multi-task', 'verb',
+    'to do several jobs or activities at the same time',
+    ['do several things at once', 'do several jobs at once'],
+    ['focus on one job only', 'finish a job early', 'share a job with a colleague'],
+    'It is hard to multi-task when each job needs your full attention.',
+    'do several jobs at once', 'It is hard to do several jobs at once when each job needs your full attention.',
+    'do several jobs at once', 'She can do several jobs at once without losing focus.',
+    {
+      masteryContexts:[
+        { text:'Computers can multi-task by running many programs at once.', meaning:'do several things at the same time' },
+        { text:'I cannot multi-task, so I finish one job before starting the next.', meaning:'do several jobs at the same time' }
+      ],
+      situationDistractors:[
+        'She finished the report completely before she opened her email.',
+        'He gave his whole attention to the lesson and ignored his phone.',
+        'Two colleagues shared one big job, each doing half.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Many parents have to multi-task, cooking dinner while helping with homework and answering calls.', target:'multi-task', grammarPattern:'' },
+        { id:'2', text:'Students who multi-task while studying, such as checking messages every minute, often learn less.', target:'multi-task', grammarPattern:'' },
+        { id:'3', text:'Modern phones can multi-task, running music, maps and messages at the same time.', target:'multi-task', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'multi-task', wrong:['relax', 'rest', 'retire'] },
+        { id:'2', answer:'multi-task', wrong:['relax', 'rest', 'focus'] },
+        { id:'3', answer:'multi-task', wrong:['relax', 'shut down', 'upgrade'] }
+      ]
+    }),
+  e('predictable', 'adjective',
+    'happening or behaving in the way you expect; easy to know in advance',
+    ['easy to guess', 'expected'],
+    ['happening by accident', 'full of surprises', 'impossible to understand'],
+    'The plot of the film was predictable, so many viewers stopped watching.',
+    'easy to guess', 'The plot of the film was easy to guess, so many viewers stopped watching.',
+    'easy to guess', 'The winner of the quiz was easy to guess from the first round.',
+    {
+      masteryContexts:[
+        { text:'Her reaction was entirely predictable.', meaning:'exactly what people expected' },
+        { text:'The weather in the desert is predictable: hot and dry.', meaning:'easy to know in advance' }
+      ],
+      situationDistractors:[
+        'The result of the match surprised everyone in the stadium.',
+        'Nobody could guess which card the magician would choose.',
+        'The sudden announcement took the whole class by surprise.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'His reaction was entirely predictable; everyone knew exactly what he would say.', target:'predictable', grammarPattern:'' },
+        { id:'2', text:'Because the timetable is predictable, students always know what lesson comes next.', target:'predictable', grammarPattern:'' },
+        { id:'3', text:'The film was so predictable that I guessed the ending in the first ten minutes.', target:'predictable', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'predictable', wrong:['surprising', 'unexpected', 'sudden'] },
+        { id:'2', answer:'predictable', wrong:['confusing', 'changeable', 'random'] },
+        { id:'3', answer:'predictable', wrong:['original', 'surprising', 'unusual'] }
+      ]
+    }),
   eb('professional', 'adjective'),
   eb('regional', 'adjective'),
   eb('commentary', 'noun'),
