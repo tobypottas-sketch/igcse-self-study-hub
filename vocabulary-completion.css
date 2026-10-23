@@ -64,3 +64,18 @@
 @keyframes vc-pip{from{transform:scale(.3)}60%{transform:scale(1.35)}}
 @media (prefers-reduced-motion:reduce){.vocab-star-pip.is-lit{animation:none}}
 @media (max-width:620px){.vocab-question-session-progress:has(.vocab-session-flair){grid-template-columns:auto 1fr auto}}
+
+/* Server-confirmed mission result (personal best, mission count, best clean streak, next challenge). The slot keeps one fixed height from first paint. */
+.vocab-engagement{display:grid;align-content:center;gap:8px;height:136px;overflow:hidden;margin:0 0 16px;padding:14px 16px;border:1px solid color-mix(in srgb,var(--study-accent,var(--c-teal)) 18%,var(--c-teal-soft));border-radius:var(--r-md);background:color-mix(in srgb,var(--study-accent-soft,var(--c-teal-soft)) 45%,white);text-align:left;box-sizing:border-box}
+.vocab-engagement__headline{display:flex;align-items:center;gap:8px;margin:0;font-weight:900;font-size:var(--fs-md);color:var(--c-ink)}
+.vocab-engagement__headline .study-icon{width:18px;height:18px;flex:none;color:#b8860b}
+.vocab-engagement[data-engagement="pending"] .vocab-engagement__headline{color:var(--c-muted);font-weight:800;font-size:var(--fs-sm)}
+.vocab-engagement[data-personal-best="true"]{border-color:#e8b923;background:linear-gradient(135deg,#fff8dd,#fff3c4 55%,#fff8dd);box-shadow:0 0 0 1px rgba(232,185,35,.25)}
+.vocab-engagement__chips{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.vocab-engagement__chips li{padding:2px 10px;border-radius:var(--r-pill);background:rgba(255,255,255,.8);border:1px solid rgba(28,76,99,.12);font-size:var(--fs-xs);font-weight:800;color:var(--c-ink-2)}
+.vocab-engagement__next{display:flex;flex-wrap:wrap;gap:4px 8px;margin:0;font-size:var(--fs-sm);color:var(--c-ink-2)}
+.vocab-engagement__next strong{font-size:var(--fs-xs);letter-spacing:.05em;text-transform:uppercase;color:var(--c-muted)}
+.vocab-engagement__next span{font-weight:800}
+[data-completion-sequence="playing"] .vocab-engagement[data-personal-best="true"]{animation:vc-pop 450ms cubic-bezier(.2,1.2,.4,1) backwards}
+@media (max-width:620px){.vocab-engagement{height:168px}}
+@media (max-width:380px){.vocab-engagement{height:218px}}
