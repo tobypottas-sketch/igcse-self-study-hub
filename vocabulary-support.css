@@ -45,3 +45,10 @@
 .vocab-bank-media{margin:2px 0 4px;border-radius:var(--r-lg);overflow:hidden;aspect-ratio:16/5;background:var(--c-teal-soft);box-shadow:0 6px 18px rgba(23,56,82,.12)}
 .vocab-bank-media img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
 @media(max-width:800px){.vocab-bank-media{aspect-ratio:1200/446}}
+
+/* Dictionary page: the hero, top bar and word cards share one column. The fixed A-Z rail (desktop) gets its gutter from the
+   whole page instead of only the list, so the cards line up with the hero above them. */
+@media(min-width:761px){
+  .vocab-shell--words{width:min(1080px,calc(100% - 140px))}
+  .vocab-shell--words .vocab-word-list{padding-right:0}
+}
