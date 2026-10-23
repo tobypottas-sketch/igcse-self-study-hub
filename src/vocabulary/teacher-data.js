@@ -1,4 +1,5 @@
 import { fetchAllRows, fetchAllRowsForIds } from './teacher-paging.js';
+import { plannerContent } from './data.js';
 
 const SAFE_ACTIVITY_METADATA = new Set([
   'unit_number','strand','question_type','attempt_number','outcome','retry_used','recovery',
@@ -90,4 +91,18 @@ export async function loadVocabularyTeacherData(client, { now = new Date() } = {
     optional(() => fetchAllRowsForIds(studentIds, ids => client.from('vocabulary_missions').select('mission_id, student_id, completed_at, mission_kind, unit_number', { count:'exact' }).in('student_id', ids).order('completed_at',{ ascending:false }).order('mission_id'), { label:'vocabulary missions' }))
   ]);
   return normalizeTeacherVocabularyData({ profiles, memberships, classes, items, occurrences, mastery, unitMastery, activity, awards, missions });
+}
+
+// One unit's live content, read completely (paged, stable order) so the readiness evaluator sees exactly what a student sees.
+// Teachers can also read drafts, so every query keeps the same status = 'live' filter the student queries use.
+export async function loadUnitReadinessContent(client, unitNumber) {
+  const occurrences = await fetchAllRows(() => client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number, unit_title, set_number, position_in_unit, sense_id, status', { count:'exact' }).eq('unit_number', unitNumber).eq('status','live').eq('active',true).order('position_in_unit').order('occurrence_id'), { label:'unit occurrences' });
+  const vocabularyIds = [...new Set(occurrences.map(row => row.vocabulary_id))];
+  const occurrenceIds = occurrences.map(row => row.occurrence_id);
+  const [items, contexts, activities] = await Promise.all([
+    fetchAllRowsForIds(vocabularyIds, ids => client.from('vocabulary_items').select('vocabulary_id, term, part_of_speech, core_meaning, senses, word_family, collocations, status', { count:'exact' }).in('vocabulary_id', ids).eq('status','live').order('vocabulary_id'), { label:'unit items' }),
+    fetchAllRowsForIds(occurrenceIds, ids => client.from('vocabulary_contexts').select('context_id, vocabulary_id, occurrence_id, sense_id, context_type, prompt_text, target_rewrite, accepted_answers, misconception_category, status', { count:'exact' }).in('occurrence_id', ids).eq('status','live').order('context_id'), { label:'unit contexts' }),
+    fetchAllRows(() => client.from('vocabulary_unit_activities').select('activity_content_id, unit_number, content_type, activity_data, status', { count:'exact' }).eq('unit_number', unitNumber).eq('status','live').order('activity_content_id'), { label:'unit activities' })
+  ]);
+  return plannerContent({ occurrences, items, contexts, activities });
 }

@@ -1,12 +1,20 @@
 import { buildPathwayCoverage } from './pathway-coverage.js';
 import { registerPathwayCoverage } from './pathway-coverage-store.js';
+import { PAGE_SIZE, fetchAllRows } from './teacher-paging.js';
 
 function assertNoError(result, message) {
   if (result?.error) throw new Error(message);
   return result?.data ?? [];
 }
 
-function plannerContent({ occurrences = [], items = [], contexts = [], activities = [] } = {}) {
+// A single request returns at most the Data API's row cap. A result exactly that long may have been cut, so it is read again in
+// explicit ordered pages; anything shorter is complete as it stands. Readiness counts rows, so a silently cut list would mislead.
+async function completeRows(rows, makePagedQuery, label) {
+  if (rows.length < PAGE_SIZE) return rows;
+  return fetchAllRows(makePagedQuery, { label });
+}
+
+export function plannerContent({ occurrences = [], items = [], contexts = [], activities = [] } = {}) {
   const normalizedOccurrences = occurrences.map(row => ({
     occurrenceId:row.occurrence_id,
     vocabularyId:row.vocabulary_id,
@@ -79,9 +87,9 @@ export async function loadVocabularyUnit(client, unitNumber, options = {}) {
     client.from('vocabulary_contexts').select('context_id, vocabulary_id, occurrence_id, sense_id, context_type, prompt_text, target_rewrite, accepted_answers, misconception_category, status').in('occurrence_id', occurrenceIds).eq('status', 'live'),
     client.from('vocabulary_unit_activities').select('activity_content_id, unit_number, content_type, activity_data, status').eq('unit_number', unitNumber).eq('status', 'live')
   ]);
-  const items = assertNoError(itemsResult, 'Unable to load vocabulary items.');
-  const contexts = assertNoError(contextsResult, 'Unable to load vocabulary contexts.');
-  const activities = assertNoError(activitiesResult, 'Unable to load vocabulary activities.');
+  const items = await completeRows(assertNoError(itemsResult, 'Unable to load vocabulary items.'), () => client.from('vocabulary_items').select('vocabulary_id, term, part_of_speech, core_meaning, senses, word_family, collocations, status', { count:'exact' }).in('vocabulary_id', vocabularyIds).eq('status', 'live').order('vocabulary_id'), 'vocabulary items');
+  const contexts = await completeRows(assertNoError(contextsResult, 'Unable to load vocabulary contexts.'), () => client.from('vocabulary_contexts').select('context_id, vocabulary_id, occurrence_id, sense_id, context_type, prompt_text, target_rewrite, accepted_answers, misconception_category, status', { count:'exact' }).in('occurrence_id', occurrenceIds).eq('status', 'live').order('context_id'), 'vocabulary contexts');
+  const activities = await completeRows(assertNoError(activitiesResult, 'Unable to load vocabulary activities.'), () => client.from('vocabulary_unit_activities').select('activity_content_id, unit_number, content_type, activity_data, status', { count:'exact' }).eq('unit_number', unitNumber).eq('status', 'live').order('activity_content_id'), 'vocabulary activities');
   const coverage = buildPathwayCoverage({ content:plannerContent({ occurrences, items, contexts, activities }) });
   registerPathwayCoverage(unitNumber, coverage);
   return { occurrences, items, contexts, activities };
@@ -134,11 +142,15 @@ export async function submitVocabularyAttempt(client, input = {}) {
 }
 
 // Engagement data is optional: a missing table, a network blip or a preview session must never block practice.
+// Personal bests compare a mission with everything the student did before it, so the whole history is read: explicit 1,000-row
+// pages in a stable order with a count check, never one request that the Data API would silently cut at its row cap.
 export async function loadVocabularyMissions(client, options = {}) {
   if (options.preview === true || typeof client?.from !== 'function') return [];
   try {
-    const result = await client.from('vocabulary_missions').select('mission_id, unit_number, mission_kind, pathway_id, pathway_stage, practice_family, mission_size, score, stars, best_streak, completed_at').order('completed_at', { ascending:true }).limit(1000);
-    return result?.error ? [] : (result?.data ?? []);
+    return await fetchAllRows(
+      () => client.from('vocabulary_missions').select('mission_id, unit_number, mission_kind, pathway_id, pathway_stage, practice_family, mission_size, score, stars, best_streak, completed_at', { count:'exact' }).order('completed_at', { ascending:true }).order('mission_id', { ascending:true }),
+      { label:'missions' }
+    );
   } catch { return []; }
 }
 

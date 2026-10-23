@@ -23,7 +23,7 @@ test('withheld pathway is visibly unavailable and cannot be opened', () => {
   });
   const card = html.match(/<button[^>]*data-pathway="precision_use"[^>]*>.*?<\/button>/s)?.[0] ?? '';
   assert.ok(card.includes('disabled'));
-  assert.ok(card.includes('Not yet available for this unit'));
+  assert.ok(card.includes('Coming soon'));
   assert.ok(!card.includes('Continue pathway'));
 });
 

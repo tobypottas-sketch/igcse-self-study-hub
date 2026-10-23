@@ -1,6 +1,7 @@
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES, derivePathwayPlacement } from './pathway-model.js';
 import { currentPathwayStage, isPathwayStageUnlocked } from './pathway-progress.js';
 import { planPathwayQuestion } from './pathway-planner.js';
+import { coverageServes } from './pathway-coverage-store.js';
 
 const STAGE_IDS = PATHWAY_STAGES.map(stage => stage.id);
 const STAGE_INDEX = Object.freeze(Object.fromEntries(STAGE_IDS.map((id,index) => [id,index])));
@@ -42,7 +43,10 @@ export function planMixedReviewQuestion({
   const global = globalMastery?.[target?.vocabularyId] ?? globalMastery?.[target?.vocabulary_id] ?? {};
   const pathways = rotate(VOCABULARY_PATHWAYS,`${seed}:pathways`);
   let lastError = null;
+  const unitNumber = target?.unitNumber ?? target?.unit_number ?? null;
   for (const pathway of pathways) {
+    // Mixed Practice draws only from live pathways and only for words the pathway can carry. No silent fallback to a locked one.
+    if (!coverageServes(unitNumber, pathway.id, target?.occurrenceId ?? target?.occurrence_id)) continue;
     const stages = unlockedReviewStages({ pathwayId:pathway.id, unitMastery:unit, globalMastery:global });
     const higherFirst = [...stages].sort((a,b) => (STAGE_INDEX[b] ?? 0) - (STAGE_INDEX[a] ?? 0));
     for (const stageId of rotate(higherFirst,`${seed}:${pathway.id}`)) {

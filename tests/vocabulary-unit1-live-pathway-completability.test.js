@@ -121,7 +121,7 @@ test('every Unit 1 pathway declared live is genuinely completable to Mastery for
 test('Unit 1 pathways withheld for incomplete banks are excluded from the completability gate', () => {
   for (const pathwayId of ['paraphrasing']) {
     assert.equal(coverage[pathwayId].available,false,pathwayId);
-    assert.equal(coverage[pathwayId].reason,'content_bank_incomplete',pathwayId);
+    assert.equal(coverage[pathwayId].reason,'diversity_below_minimum',pathwayId);
   }
   assert.equal(coverage.precision_use.available,true,'Precision & Use is live now that every rung has content');
 });

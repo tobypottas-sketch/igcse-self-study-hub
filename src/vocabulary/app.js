@@ -10,6 +10,8 @@ import { buildTargetPracticeQuestion, buildTimedMixedQuestion, selectEligiblePri
 import { planMixedReviewQuestion } from './mixed-review.js';
 import { planPathwayQuestion, eligibleTargetsForPathwayStage } from './pathway-planner.js';
 import { buildUnitPathwayStates, buildWordPathwayStates, targetsForPathwayStage } from './pathway-view-model.js';
+import { VOCABULARY_PATHWAYS } from './pathway-model.js';
+import { registeredPathwayCoverage, servedByAnyLivePathway } from './pathway-coverage-store.js';
 import { buildSessionFinishModel } from './session-finish-model.js';
 import { buildUnitProgress, renderAchievementsSheet, renderEngagementStrip, renderSessionSummary, renderVocabularyError, renderPracticeSheet, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
 import { deriveLearningStage } from './learning-stage.js';
@@ -130,11 +132,26 @@ function closeAchievements() {
   const sheet = root?.querySelector?.('[data-achievements-backdrop]'); if (!sheet) return;
   sheet.remove(); state.achievementsReturn?.focus?.();
 }
+// Unit Mastery needs to know that all six pathways are live. Only a unit that already looks fully mastered needs its readiness
+// evaluated before the home screen computes rewards; every other unit cannot be fully mastered whatever its readiness is.
+async function evaluateUnitsThatLookMastered(dashboard) {
+  if (state.preview || !dashboard) return;
+  const unitMastery = mapBy(dashboard.unit ?? [], 'occurrence_id'); const globalMastery = mapBy(dashboard.global ?? [], 'vocabulary_id');
+  const byUnit = new Map();
+  for (const row of dashboard.occurrences ?? []) { if (!byUnit.has(row.unit_number)) byUnit.set(row.unit_number, []); byUnit.get(row.unit_number).push(row); }
+  for (const [unitNumber, rows] of byUnit.entries()) {
+    if (registeredPathwayCoverage(unitNumber)) continue;
+    const states = buildUnitPathwayStates({ occurrences:rows.map(row => ({ ...row, occurrenceId:row.occurrence_id, vocabularyId:row.vocabulary_id, unitNumber:row.unit_number })), unitMastery, globalMastery, coverageByPathway:{} });
+    if (!Object.values(states).every(pathwayState => pathwayState?.mastered === true)) continue;
+    try { await loadVocabularyUnit(state.client, unitNumber, { occurrences:dashboard.occurrences }); } catch { /* readiness unknown: Unit Mastery simply waits */ }
+  }
+}
 async function showHome() {
   state.unitRequest += 1; state.loadingUnit = null;
   clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null; state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false;
   const [dashboard, missions, meritAwarded] = await Promise.all([loadVocabularyDashboard(state.client, { preview:state.preview }), loadVocabularyMissions(state.client, { preview:state.preview }), loadMeritAwardCount(state.client, { preview:state.preview })]);
   state.dashboard = dashboard; state.missions = missions; state.meritAwarded = meritAwarded; state.units = buildUnits(state.dashboard);
+  await evaluateUnitsThatLookMastered(dashboard);
   renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units, engagement:homeEngagement(), soundOn:soundEnabled() }); decoratePreview();
 }
 function renderCurrentUnit() {
@@ -146,7 +163,9 @@ function renderCurrentUnit() {
     ? buildUnitProgress({ occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery })
     : { mastered:summary?.mastered ?? 0, total:summary?.total ?? 50, needsAnotherLook:summary?.needsAnotherLook ?? 0, reviewDue:summary?.reviewDue ?? 0, stages:summary?.stages ?? {} };
   const pathwayStates = buildUnitPathwayStates({ occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
-  renderVocabularyUnit(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, progress, pathwayStates, contentReady:Boolean(state.content) }); decoratePreview();
+  // Only meaningful once the unit's readiness is known (its content has loaded); until then no completion claim is made.
+  const completion = state.content ? progressSnapshot({ occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery }).units?.[state.currentUnitNumber] ?? null : null;
+  renderVocabularyUnit(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, progress, pathwayStates, contentReady:Boolean(state.content), completion }); decoratePreview();
 }
 // A cold unit open renders the unit screen exactly once, after its content and mastery have loaded. While it
 // loads, the Home screen stays mounted (no placeholder unit DOM, no second render) and only the clicked card is
@@ -228,6 +247,11 @@ function showAllWords() {
   // The page was scrolled down on the unit screen: the dictionary always opens at its top (instant, overriding smooth scrolling).
   if (typeof window !== 'undefined' && typeof window.scrollTo === 'function') window.scrollTo({ top:0, left:0, behavior:'instant' });
 }
+// Mixed Practice only uses words that at least one live pathway can carry; a locked pathway never contributes a word.
+function liveMixedTargets(targets) {
+  const ids = VOCABULARY_PATHWAYS.map(pathway => pathway.id);
+  return targets.filter(target => servedByAnyLivePathway(target.unitNumber ?? target.unit_number, target.occurrenceId, ids));
+}
 function rankedTargets(limit, practiceMode = state.practiceFocus) {
   return selectEligiblePriorityTargets({ content:state.content, masteryByVocabularyId:state.globalMastery, unitMastery:state.unitMastery, practiceMode, now:new Date(), limit });
 }
@@ -240,6 +264,8 @@ function resetSessionState(continueHistory = false) {
 function startPathwaySession(pathwayId, continueHistory = false, choice = null) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   const pathwayStates = buildUnitPathwayStates({ occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
+  // A locked pathway can never start a session, whatever asked for it.
+  if (pathwayStates?.[pathwayId]?.available === false) throw new Error('That pathway is coming soon for this unit.');
   const stageId = pathwayStates?.[pathwayId]?.currentStage ?? 'recognise';
   let selected; let pathwayChoice = null;
   if (choice?.familyId) {
@@ -279,7 +305,7 @@ function openPracticeSheet(pathwayId) {
   closePracticeSheet(false);
   const options = pathwayPracticeOptions({ pathwayId, content:state.content, unitMastery:state.unitMastery, globalMastery:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${pathwayId}` });
   const currentStage = buildUnitPathwayStates({ occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery })?.[pathwayId]?.currentStage ?? 'recognise';
-  const recommended = bestAndAim(state.missions ?? [], { kind:'pathway', pathwayId, stage:currentStage, family:'recommended' });
+  const recommended = bestAndAim(state.missions ?? [], { unitNumber:state.currentUnitNumber, kind:'pathway', pathwayId, stage:currentStage, family:'recommended' });
   root.insertAdjacentHTML('beforeend', renderPracticeSheet({ pathwayId, options, lastFamilyId:loadLastChoice(pathwayId), bestAim:recommended.best ? recommended.copy : null }));
   root.querySelector?.('[data-practice-sheet] [data-autofocus]')?.focus?.();
 }
@@ -288,7 +314,7 @@ function startMixedReview(continueHistory = false, durationMinutes = null) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = true; state.practiceFocus = 'adaptive';
   const timed = Number.isFinite(Number(durationMinutes)) && Number(durationMinutes) > 0;
-  const selected = rankedTargets(timed ? Math.max(10, state.content.occurrences.length) : 10,'adaptive');
+  const selected = liveMixedTargets(rankedTargets(timed ? Math.max(10, state.content.occurrences.length) : 10,'adaptive'));
   if (!selected.length) throw new Error('No unlocked vocabulary is ready for Mixed Practice yet.');
   state.session = createSession({ unitNumber:state.currentUnitNumber, mode:timed ? 'timed' : 'adaptive', durationMinutes:timed ? Number(durationMinutes) : null, targetIds:selected.map(row => row.occurrenceId), practiceMode:'adaptive', now:new Date() }); state.session = withMissionId(state.session);
   state.queue = [...selected]; resetSessionState(continueHistory); if (timed) startClock();
@@ -358,7 +384,7 @@ function buildNextForTarget(target) {
 }
 function nextQuestion() {
   if (!state.session) return; if (isSessionComplete(state.session, new Date())) { void finishSessionWhenSaved(); return; }
-  if (!state.queue.length) { if (state.session.mode === 'timed') state.queue = rankedTargets(Math.min(20, state.content.occurrences.length), 'adaptive'); else { void finishSessionWhenSaved(); return; } }
+  if (!state.queue.length) { if (state.session.mode === 'timed') { const refill = rankedTargets(Math.min(20, state.content.occurrences.length), 'adaptive'); state.queue = state.mixedReview ? liveMixedTargets(refill) : refill; } else { void finishSessionWhenSaved(); return; } }
   let current = null; let guard = state.queue.length;
   while (!current && guard > 0) { const target = state.queue.shift(); guard -= 1; if (!target) break; if (state.session.mode === 'adaptive' && state.session.completedTargetIds.includes(target.occurrenceId) && !state.recoveryNeeded.has(target.occurrenceId)) continue; try { current = buildNextForTarget(target); } catch { state.queue.push(target); } }
   if (!current) { if (state.session.mode === 'timed') { void finishSessionWhenSaved(); return; } if (Number(state.session.summary?.practised) > 0 || state.session.completedTargetIds?.length) { void finishSessionWhenSaved(); return; } throw new Error('No suitable curated activity is available for this practice mode yet.'); }

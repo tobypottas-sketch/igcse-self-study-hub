@@ -2,6 +2,7 @@ import { buildVocabularySkillProfile, skillFamiliesForQuestionType, skillLabel, 
 import { deriveLearningStage } from './learning-stage.js';
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES } from './pathway-model.js';
 import { buildWordPathwayStates } from './pathway-view-model.js';
+import { coverageServes } from './pathway-coverage-store.js';
 
 const STRANDS = ['meaning','recognition','context','paraphrasing','production'];
 const ATTENTION_STATUSES = new Set(['building']);
@@ -60,6 +61,13 @@ function aggregatePathwayStates(states = []) {
     : states.slice().sort((a,b) => (PATHWAY_STAGE_INDEX[a?.currentStage] ?? 0) - (PATHWAY_STAGE_INDEX[b?.currentStage] ?? 0))[0]?.currentStage ?? 'recognise';
   return { currentStage, needsPractice:states.some(state => state?.needsPractice === true), mastered, evidenceCount:states.length };
 }
+// Only words a live pathway serves count toward that pathway. A pathway that serves none of these words is not live for them: it is
+// reported as such (no stage, no progress) instead of looking like work nobody has started.
+function pathwayRowFor(pathwayId, wordStates) {
+  const serving = wordStates.filter(row => coverageServes(row.occurrence.unitNumber ?? row.occurrence.unit_number ?? null, pathwayId, row.occurrence.occurrenceId ?? row.occurrence.occurrence_id));
+  if (wordStates.length && !serving.length) return { currentStage:'recognise', needsPractice:false, mastered:false, evidenceCount:0, available:false };
+  return { ...aggregatePathwayStates(serving.map(row => row.states[pathwayId])), available:true };
+}
 function masteryMapsForStudent(studentId, globalMastery, unitMastery) {
   return {
     global:Object.fromEntries(globalMastery.filter(row => row.studentId === studentId).map(row => [row.vocabularyId,row])),
@@ -74,7 +82,7 @@ export function buildPathwayAnalytics({ students = [], targets = [], occurrences
     const maps = masteryMapsForStudent(student.id,globalMastery,unitMastery);
     const wordStates = occurrences.map(occurrence => ({ occurrence, states:buildWordPathwayStates({ occurrence, unitMastery:maps.unit, globalMastery:maps.global }) }));
     perStudent.set(student.id,wordStates);
-    const pathways = Object.fromEntries(VOCABULARY_PATHWAYS.map(pathway => [pathway.id,aggregatePathwayStates(wordStates.map(row => row.states[pathway.id]))]));
+    const pathways = Object.fromEntries(VOCABULARY_PATHWAYS.map(pathway => [pathway.id,pathwayRowFor(pathway.id,wordStates)]));
     return { studentId:student.id, displayName:student.displayName ?? student.display_name ?? student.id, pathways };
   });
 

@@ -35,7 +35,7 @@ test('mastered, needs-practice and unavailable pathway states remain explicit an
   assert.match(target.innerHTML,/data-pathway="meaning"[^>]*data-pathway-status="mastered"/);
   assert.match(target.innerHTML,/data-pathway="context"[^>]*data-pathway-status="needs-practice"/);
   assert.match(target.innerHTML,/data-pathway="paraphrasing"[^>]*data-pathway-status="unavailable"[^>]*disabled aria-disabled="true"/);
-  assert.match(target.innerHTML,/Not yet available for this unit/);
+  assert.match(target.innerHTML,/Coming soon/);
 });
 
 test('question header shows pathway identity, rung, session position and animated progress hook', () => {
