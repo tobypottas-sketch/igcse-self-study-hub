@@ -1189,12 +1189,12 @@ const entries = [
         'The team withdrew from the competition after the first defeat.'
       ],
       retrievalContexts:[
-        { id:'1', text:'After months of practice, he managed to overcome his fear of heights, which no longer troubled him at all.', target:'overcome', grammarPattern:'' },
+        { id:'1', text:'After months of practice, he managed to overcome his fear of heights, so it no longer stopped him from climbing.', target:'overcome', grammarPattern:'' },
         { id:'2', text:'It took the whole team to overcome the difficulties caused by the delayed delivery and finish on time.', target:'overcome', grammarPattern:'' },
         { id:'3', text:'Learners must overcome many obstacles, such as lack of confidence, before they speak fluently.', target:'overcome', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'overcome', wrong:['hide', 'describe', 'admit'] },
+        { id:'1', answer:'overcome', wrong:['increase', 'deepen', 'worsen'] },
         { id:'2', answer:'overcome', wrong:['cause', 'create', 'increase'] },
         { id:'3', answer:'overcome', wrong:['create', 'invent', 'admire'] }
       ]
@@ -1334,9 +1334,9 @@ const entries = [
         { id:'3', text:'The seat on the bicycle is adjustable, so you can move it up or down.', target:'adjustable', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'adjustable', wrong:['fixed', 'permanent', 'heavy'] },
+        { id:'1', answer:'adjustable', wrong:['fixed', 'permanent', 'immovable'] },
         { id:'2', answer:'adjustable', wrong:['fixed', 'permanent', 'durable'] },
-        { id:'3', answer:'adjustable', wrong:['fixed', 'permanent', 'heavy'] }
+        { id:'3', answer:'adjustable', wrong:['fixed', 'permanent', 'immovable'] }
       ]
     }),
   e('affordable', 'adjective',
@@ -1386,12 +1386,12 @@ const entries = [
       ],
       retrievalContexts:[
         { id:'1', text:'The external walls of the building are painted white, while the internal walls are cream.', target:'external', grammarPattern:'' },
-        { id:'2', text:'An external examiner, someone from outside the school, marks the final speaking test.', target:'external', grammarPattern:'' },
+        { id:'2', text:'The external examiner comes from outside the school to mark the final speaking test.', target:'external', grammarPattern:'' },
         { id:'3', text:'You can plug an external drive into the laptop, a separate device outside the machine, to save extra files.', target:'external', grammarPattern:'' }
       ],
       gapDistractors:[
         { id:'1', answer:'external', wrong:['inner', 'central', 'hidden'] },
-        { id:'2', answer:'external', wrong:['internal', 'permanent', 'junior'] },
+        { id:'2', answer:'external', wrong:['internal', 'school-based', 'in-house'] },
         { id:'3', answer:'external', wrong:['internal', 'central', 'built-in'] }
       ]
     }),
