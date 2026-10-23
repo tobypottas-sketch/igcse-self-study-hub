@@ -20,6 +20,7 @@ import { activityFamily } from './activity-families.js';
 import { MIN_SHORT_MISSION, familyTargets, loadLastChoice, pathwayPracticeOptions, saveLastChoice } from './pathway-choice.js';
 import { loadSeenContent, saveSeenContent } from './seen-content.js';
 import { playCompletionSequence } from './completion-sequence.js';
+import { playCue, setSoundEnabled, soundEnabled } from './sound.js';
 import { matchKeyTarget, renderMatchSet, repaintMatchSet } from './match-set-view.js';
 import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
@@ -134,7 +135,7 @@ async function showHome() {
   clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null; state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false;
   const [dashboard, missions, meritAwarded] = await Promise.all([loadVocabularyDashboard(state.client, { preview:state.preview }), loadVocabularyMissions(state.client, { preview:state.preview }), loadMeritAwardCount(state.client, { preview:state.preview })]);
   state.dashboard = dashboard; state.missions = missions; state.meritAwarded = meritAwarded; state.units = buildUnits(state.dashboard);
-  renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units, engagement:homeEngagement() }); decoratePreview();
+  renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units, engagement:homeEngagement(), soundOn:soundEnabled() }); decoratePreview();
 }
 function renderCurrentUnit() {
   if (!state.currentUnitNumber) return;
@@ -472,7 +473,7 @@ function handleAnswer(form, providedAnswer = null) {
   // supportLevel feeds evidence exactly as before. declaredSupportLevel is what the browser tells the server about the question it served: a lower-stage recovery question is temporary support, as the pathway planner declared.
   const retrySupport = current.retry ? (current.support?.supportLevel ?? 'light') : 'none';
   const flags = { firstAttempt:!current.retry, retryUsed:current.retry, recoveredLater:current.recovery, review, supportLevel:retrySupport, declaredSupportLevel:current.retry ? retrySupport : (current.pathwayPlan?.supportLevel ?? 'none') };
-  const result = markVocabularyAttemptLocally(current, rawAnswer); const shouldUpdate = updatesTargetMastery(current); const nextGlobal = shouldUpdate ? applyEvidence(previousGlobal, evidenceFor(current, result, flags), new Date()) : previousGlobal;
+  const result = markVocabularyAttemptLocally(current, rawAnswer); if (result.correct) playCue('correct'); const shouldUpdate = updatesTargetMastery(current); const nextGlobal = shouldUpdate ? applyEvidence(previousGlobal, evidenceFor(current, result, flags), new Date()) : previousGlobal;
   if (shouldUpdate) {
     const previousPattern = previousGlobal.recentErrorPattern ?? state.unitMastery[current.target.occurrenceId]?.recentErrorPattern ?? null;
     const nextErrorPattern = result.correct ? (nextGlobal.recentErrorCount > 0 ? previousPattern : null) : (result.misconceptionCategory ?? 'retrieval_failure');
@@ -517,6 +518,12 @@ function handleMatchDrop(wordId, definitionId, side, id) {
   paintMatchSet(current, `[data-match-${side}="${id}"]`);
 }
 if (root) installMatchDrag(root, { canDrag: () => Boolean(state.current?.matchSet && !state.current.answered), onPair: handleMatchDrop });
+function toggleSound(button) {
+  const on = setSoundEnabled(!soundEnabled());
+  button.setAttribute?.('aria-pressed', on ? 'true' : 'false');
+  button.textContent = `Sound: ${on ? 'on' : 'off'}`;
+  if (on) playCue('correct');
+}
 function finishSession() {
   if (!state.session) return;
   if (state.session.mode === 'timed') state.session = expireSession(state.session, new Date());
@@ -536,6 +543,7 @@ function finishSession() {
   if (missionId) void settleMission(missionId, { finishModel, postPathwayState });
   root.querySelector?.('[data-session-finish-heading]')?.focus?.();
   playCompletionSequence(root);
+  playCue('finish');
 }
 // The server rebuilds the finished mission from its own graded attempts and returns the facts; everything shown here is derived from those rows.
 async function settleMission(missionId, { finishModel = null, postPathwayState = null } = {}) {
@@ -624,6 +632,7 @@ root?.addEventListener('click', event => {
   else if (action === 'start-practice-choice') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, target.dataset.family); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId, false, { familyId:target.dataset.family })); }
   else if (action === 'close-practice-sheet') closePracticeSheet();
   else if (action === 'open-achievements') openAchievements();
+  else if (action === 'toggle-sound') toggleSound(target);
   else if (action === 'close-achievements') closeAchievements();
   else if (action === 'choose-practice') { const pathwayId = target.dataset.pathway; returnToCurrentUnit().then(() => openPracticeSheet(pathwayId)).catch(error => renderVocabularyError(root, error.message)); }
   else if (action === 'start-mixed-review') runAfterSaves(() => startMixedReview(false, timerMinutes(target)));

@@ -80,3 +80,6 @@
 
 /* Unit hero: clear space between the stat pills and the overall progress line. */
 .vocab-unit-hero>.study-progress{margin-top:20px}
+/* Sound toggle (engagement Phase 3): small, text-labelled, stays in the top bar so nothing shifts. */
+.vocab-sound-toggle{border:1px solid var(--line);border-radius:var(--r-pill);background:var(--c-surface);color:var(--muted);font-weight:800;font-size:var(--fs-xs);padding:6px 12px;min-height:32px;white-space:nowrap;flex:none;cursor:pointer}
+.vocab-sound-toggle[aria-pressed="true"]{border-color:var(--c-teal-line);background:var(--soft);color:var(--teal)}
