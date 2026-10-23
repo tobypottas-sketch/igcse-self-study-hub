@@ -1,6 +1,7 @@
 import { escapeHtml } from '../views/html.js';
 import { buildClassInsights, buildPathwayAnalytics, buildProblemDrilldown, buildStudentProfile } from './analytics.js';
 import { buildTeamsTargetList, buildVocabularyInterventionDraft, createLearningIntervention } from './interventions.js';
+import { buildPracticeHabits, buildStudentHabits } from './practice-habits.js';
 import { buildMeritStatus, SKILLS_PER_MERIT } from './merits.js';
 import { loadVocabularyTeacherData } from './teacher-data.js';
 import { renderTeacherOverview, renderProblemArea, renderStudentVocabularyProfile } from './teacher-views.js';
@@ -28,6 +29,11 @@ function pathwayAnalytics(classData, students = classData.students) {
 function classInsights(classData) {
   const insights = buildClassInsights({ students:classData.students, targets:classData.targets, mastery:classData.mastery, activity:classData.activity, now:new Date() });
   return { ...insights, pathwayAnalytics:pathwayAnalytics(classData) };
+}
+
+function classHabits(classData) {
+  if (classData.missionsAvailable === false) return { available:false };
+  return { available:true, ...buildPracticeHabits({ students:classData.students, missions:classData.missions ?? [], activity:classData.activity, now:new Date() }) };
 }
 
 function classMerits(classData) {
@@ -64,7 +70,7 @@ function openClass(classId) {
   teacherState.currentDrilldown = null;
   teacherState.currentStudent = null;
   teacherState.currentInsights = classInsights(classData);
-  renderTeacherOverview(teacherState.root, { className:classData.className, insights:teacherState.currentInsights, merits:classMerits(classData) });
+  renderTeacherOverview(teacherState.root, { className:classData.className, insights:teacherState.currentInsights, merits:classMerits(classData), habits:classHabits(classData) });
 }
 
 function openProblem({ strand = null, skillId = null } = {}) {
@@ -94,7 +100,13 @@ function openStudent(studentId) {
   });
   const studentPathways = pathwayAnalytics(teacherState.currentClass,[student]).studentRows[0]?.pathways ?? {};
   teacherState.currentStudent = { ...profile, pathways:studentPathways };
-  renderStudentVocabularyProfile(teacherState.root, { className:teacherState.currentClass.className, profile:teacherState.currentStudent });
+  const habit = teacherState.currentClass.missionsAvailable === false ? null : buildStudentHabits({
+    student,
+    missions:(teacherState.currentClass.missions ?? []).filter(row => row.studentId === studentId),
+    activity:teacherState.currentClass.activity.filter(row => row.studentId === studentId),
+    now:new Date()
+  });
+  renderStudentVocabularyProfile(teacherState.root, { className:teacherState.currentClass.className, profile:teacherState.currentStudent, habit });
 }
 
 function targetRowsForTeams() {

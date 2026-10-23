@@ -7,6 +7,7 @@ import { VOCABULARY_PATHWAYS, PATHWAY_STAGES } from './pathway-model.js';
 import { pathwayIdentity, renderStudyIcon } from './study-ui.js';
 import { renderMatchSet } from './match-set-view.js';
 import { shippedGraphic } from './graphics-registry.js';
+import { renderSoundToggle } from './sound.js';
 
 const LEARNING_STAGES = Object.freeze(['emerging','building','developing','secure','mastered']);
 const HIDE_TARGET_TYPES = new Set([
@@ -147,7 +148,7 @@ export function renderAchievementsSheet(list = []) {
   return `<div class="vocab-sheet-backdrop" data-achievements-backdrop><section class="vocab-sheet vocab-sheet--achievements" role="dialog" aria-modal="true" aria-labelledby="vocabAchievementsTitle" data-achievements-sheet><header class="vocab-sheet__head"><span class="vocab-sheet__icon">${renderStudyIcon('trophy',{ className:'study-icon--lg' })}</span><div><p class="vocab-kicker">${escapeHtml(unlocked)} of ${escapeHtml(list.length)} unlocked</p><h2 id="vocabAchievementsTitle">Achievements</h2></div><button type="button" class="vocab-sheet__close" data-action="close-achievements" aria-label="Close" data-autofocus>${renderStudyIcon('close',{ className:'study-icon' })}</button></header><ul class="vocab-achievement-grid">${tiles}</ul></section></div>`;
 }
 
-export function renderVocabularyHome(root, { displayName = '', units = [], engagement = null } = {}) {
+export function renderVocabularyHome(root, { displayName = '', units = [], engagement = null, soundOn = false } = {}) {
   const cards = units.length ? units.map(unit => {
     const mastered = Number(unit.mastered ?? 0);
     const total = Number(unit.total ?? 50);
@@ -161,7 +162,7 @@ export function renderVocabularyHome(root, { displayName = '', units = [], engag
       ${unitArtSlot(unit.unitNumber)}
     </button>`;
   }).join('') : `<div class="vocab-empty study-milestone-card" data-study-empty>${renderStudyIcon('spark',{className:'study-icon--xl'})}<strong>Your vocabulary units are being prepared.</strong><p>Check back soon.</p></div>`;
-  root.innerHTML = `<main class="vocab-shell vocab-shell--home"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Cambridge IGCSE ESL 0511</span></header><section class="vocab-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase Builder</p><h1>Choose a unit</h1><p>${displayName ? `Hi ${escapeHtml(displayName)}. ` : ''}Choose a unit, then work upwards through each vocabulary pathway.</p></section>${renderEngagementHome(engagement)}<section class="vocab-unit-grid">${cards}</section>${COURSEBOOK_REFERENCE}</main>`;
+  root.innerHTML = `<main class="vocab-shell vocab-shell--home"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Cambridge IGCSE ESL 0511</span>${renderSoundToggle(soundOn)}</header><section class="vocab-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase Builder</p><h1>Choose a unit</h1><p>${displayName ? `Hi ${escapeHtml(displayName)}. ` : ''}Choose a unit, then work upwards through each vocabulary pathway.</p></section>${renderEngagementHome(engagement)}<section class="vocab-unit-grid">${cards}</section>${COURSEBOOK_REFERENCE}</main>`;
 }
 
 function normalizedPathwayState(pathwayId, pathwayStates = {}) {
