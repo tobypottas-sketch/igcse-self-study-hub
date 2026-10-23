@@ -2,8 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import { LEXICAL_SPELLING_ERRORS } from '../content/vocabulary/lexical-spelling-errors.js';
-import { SITUATION_DISTRACTORS } from '../src/vocabulary/situation-distractors.js';
-import { GAPFILL_DISTRACTORS } from '../src/vocabulary/gapfill-distractors.js';
+import { buildCuratedUnit } from '../content/vocabulary/build-unit.js';
 import {
   DISTRACTOR_SOURCE, UnreviewedContentError, checkWrongOptions, gapDistractorIndex, situationDistractorRecord, reviewedSpellingErrors
 } from '../src/vocabulary/reviewed-content.js';
@@ -105,67 +104,48 @@ test('reviewed situations and gap options come from the unit data before the old
   assert.deepEqual(index.byContextId.get(first.context.contextId), custom);
 });
 
-test('reviewed spellings are lexical: one list per word, read from the word and shared by any unit', () => {
+test('reviewed spellings are lexical: one list per word, attached by every unit that contains the word', () => {
   const item = unitContent.items.find(row => row.term === 'avoid');
   assert.deepEqual(reviewedSpellingErrors(item), LEXICAL_SPELLING_ERRORS[item.vocabularyId]);
-  // the same word in another unit (no reviewed fields in its own data) still resolves to the single lexical list
-  const bare = withoutReviewedFields(item);
-  assert.deepEqual(reviewedSpellingErrors(bare), LEXICAL_SPELLING_ERRORS[item.vocabularyId]);
+  // a second unit containing the same word draws on the same single list when it is built
+  const entry = { term:'avoid', partOfSpeech:'verb', meaning:'to stay away from', paraphrases:['stay away from'], distractors:['join','encourage','permit'],
+    meaningSentence:'He avoids training outdoors.', paraphrase:{ source:'stays away from', sentence:'He stays away from training outdoors.' }, production:{ source:'stay away from', sentence:'Athletes stay away from unsafe areas.' } };
+  const otherUnit = buildCuratedUnit({ unitNumber:2, unitTitle:'Other', entries:[entry], lexicalSpelling:LEXICAL_SPELLING_ERRORS });
+  assert.deepEqual(reviewedSpellingErrors(otherUnit.items[0]), LEXICAL_SPELLING_ERRORS[item.vocabularyId]);
+  // a word with no reviewed list has none (generated plausible misspellings top it up and are tagged as such)
+  assert.deepEqual(reviewedSpellingErrors(withoutReviewedFields(item)), []);
   // unit data wins if a unit does carry its own list for the word
   const own = { ...item, senses:item.senses.map(sense => ({ ...sense, spellingErrors:['avoyd','avvoid','avoide'] })) };
   assert.deepEqual(reviewedSpellingErrors(own), ['avoyd','avvoid','avoide']);
   assert.equal(pickSpellingErrorsDetailed(item, 'avoid', 3, 's').source, DISTRACTOR_SOURCE.REVIEWED);
 });
 
-// ---- 2. Unit 1 compatibility fallback --------------------------------------------------------------------------------------
-test('before republish, Unit 1 words without the new fields fall back to the old tables and behave identically', () => {
-  const stripped = contentFrom({ items:unit1.items.map(withoutReviewedFields) });
-  for (const occurrence of unit1.occurrences) {
-    const item = stripped.itemsById[occurrence.vocabularyId];
-    const situation = situationDistractorRecord({ item, occurrence });
-    assert.equal(situation.source, 'compat');
-    assert.deepEqual(situation.values, SITUATION_DISTRACTORS[item.term.toLowerCase()]);
-    const contexts = stripped.contextsByOccurrence[occurrence.occurrenceId] ?? [];
-    const candidates = grammaticalBlankCandidates({ item, occurrence, contexts });
-    const gap = gapDistractorIndex({ item, occurrence, contexts, candidates });
-    assert.equal(gap.source, 'compat');
-    assert.deepEqual(gap.problems, []);
-    for (const candidate of candidates) {
-      assert.deepEqual(gap.byContextId.get(candidate.context.contextId), GAPFILL_DISTRACTORS[`${candidate.sourceText} => ${candidate.answer}`]);
-    }
-  }
-  const before = evaluateUnitReadiness({ content:stripped });
-  const after = evaluateUnitReadiness({ content:unitContent });
-  for (const id of Object.keys(after.pathways)) {
-    assert.deepEqual(before.pathways[id].stageCounts, after.pathways[id].stageCounts, id);
-    assert.equal(before.pathways[id].live, after.pathways[id].live, id);
-  }
-  // the questions a student sees are the same either way
-  const seeds = ['a','b','c'];
-  for (const [pathwayId, stageId] of [['meaning','apply'],['meaning','mastery'],['context','recognise'],['context','match'],['context','apply']]) {
-    for (const occurrence of unit1.occurrences.slice(0, 20)) {
-      for (const seed of seeds) {
-        const strip = question => { const { distractorSource, ...rest } = question; return rest; };
-        const one = planPathwayQuestion({ pathwayId, stageId, content:unitContent, target:occurrence, seed });
-        const two = planPathwayQuestion({ pathwayId, stageId, content:stripped, target:occurrence, seed });
-        assert.deepEqual(strip(one.question), strip(two.question), `${pathwayId}/${stageId}/${occurrence.occurrenceId}/${seed}`);
-      }
+// ---- 2 & 3. no bundled fallback remains ----------------------------------------------------------------------------------------
+test('the engine holds no reviewed content of its own: a word published without it has none, in any unit', () => {
+  for (const unitNumber of [1, 2]) {
+    const content = contentFrom({
+      items:unit1.items.map(withoutReviewedFields),
+      occurrences:unit1.occurrences.map(occurrence => ({ ...occurrence, unitNumber })),
+      activities:unit1.activities.filter(notBank)
+    });
+    for (const occurrence of content.occurrences) {
+      const item = content.itemsById[occurrence.vocabularyId];
+      assert.equal(situationDistractorRecord({ item, occurrence }).status, 'absent', `${item.term} (unit ${unitNumber})`);
+      const contexts = content.contextsByOccurrence[occurrence.occurrenceId] ?? [];
+      const candidates = grammaticalBlankCandidates({ item, occurrence, contexts });
+      const gap = gapDistractorIndex({ item, occurrence, contexts, candidates });
+      assert.equal(gap.present, false);
+      assert.equal(gap.byContextId.size, 0);
     }
   }
 });
 
-// ---- 3. the fallback cannot leak into another unit ---------------------------------------------------------------------------
-test('the Unit 1 fallback cannot reach another unit, even for a word with the same text', () => {
-  const content = unitTwoWithoutReviewedData();
-  for (const occurrence of content.occurrences) {
-    const item = content.itemsById[occurrence.vocabularyId];
-    assert.equal(situationDistractorRecord({ item, occurrence }).status, 'absent', item.term);
-    const contexts = content.contextsByOccurrence[occurrence.occurrenceId] ?? [];
-    const candidates = grammaticalBlankCandidates({ item, occurrence, contexts });
-    const gap = gapDistractorIndex({ item, occurrence, contexts, candidates });
-    assert.equal(gap.present, false, item.term);
-    assert.equal(gap.byContextId.size, 0);
-  }
+test('Unit 1 published with its reviewed data behaves exactly as before the migration', () => {
+  const readiness = evaluateUnitReadiness({ content:unitContent });
+  assert.equal(Object.values(readiness.pathways).filter(row => row.live).length, 5);
+  const recognise = planPathwayQuestion({ pathwayId:'context', stageId:'recognise', content:unitContent, target:unit1.occurrences[5], seed:'pin' }).question;
+  assert.equal(recognise.distractorSource, DISTRACTOR_SOURCE.REVIEWED);
+  for (const row of Object.values(readiness.pathways)) assert.equal(Object.values(row.stageReview).reduce((total, stage) => total + stage.unreviewed, 0), 0);
 });
 
 // ---- 4 & 5. strict readiness vs lenient ----------------------------------------------------------------------------------------
@@ -183,9 +163,9 @@ test('generated semantic fallback does not count toward strict readiness; safe s
   assert.equal(readiness.pathways.meaning.live, false);
   assert.equal(readiness.pathways.context.live, false);
   assert.equal(readiness.pathways.meaning.reason, 'stage_below_minimum');
-  // lenient content is unaffected: spelling is still fully ready using generated plausible misspellings
-  assert.deepEqual(stageCounts(readiness, 'spelling_recall'), { recognise:50, match:50, apply:50, recall:50, mastery:50 });
-  assert.equal(readiness.pathways.spelling_recall.live, true);
+  // lenient content still counts: spelling uses generated plausible misspellings where the generator can make three, so every
+  // spelling stage that needs no wrong spellings is fully ready, and the choice stages are ready for the words it can cover.
+  assert.deepEqual(stageCounts(readiness, 'spelling_recall'), { recognise:42, match:42, apply:50, recall:50, mastery:50 });
   // the teacher can see why
   const report = buildReadinessReport({ readiness, publishedWords:50 });
   const contextRow = report.rows.find(row => row.pathwayId === 'context');
@@ -339,4 +319,15 @@ test('the Unit 1 republish SQL carries exactly the reviewed fields the build pro
   }
   assert.equal(statements, 50);
   assert.ok(!/\bdelete\b|\bdrop\b|\btruncate\b/i.test(sql.replace(/\$sx\$.*?\$sx\$/g, '')));
+});
+
+test('applying the republish SQL to the pre-migration published data reproduces the current unit data exactly', () => {
+  const sql = fs.readFileSync(new URL('../docs/vocabulary-content-updates/unit-01-reviewed-content-in-unit-data.sql', import.meta.url), 'utf8');
+  const published = unit1.items.map(withoutReviewedFields); // what the database held before the republish
+  for (const item of published) {
+    const line = sql.split('\n').find(row => row.includes(`where vocabulary_id='${item.vocabularyId}'`));
+    const merged = JSON.parse(line.match(/\|\| \$sx\$(.*)\$sx\$::jsonb/)[1]);
+    item.senses = [{ ...item.senses[0], ...merged }, ...item.senses.slice(1)]; // senses->0 || fields
+  }
+  assert.deepEqual(published, unit1.items);
 });

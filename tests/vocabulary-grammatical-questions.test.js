@@ -84,7 +84,6 @@ test('word-family choice offers the word’s own other forms, not forms of unrel
 
 // Reviewed distractors: a wrong option must never also complete the blank.
 import { grammaticalBlankCandidates } from '../src/vocabulary/foundational-activity-builder.js';
-import { GAPFILL_DISTRACTORS } from '../src/vocabulary/gapfill-distractors.js';
 
 function blankCandidates() {
   return unit.occurrences.flatMap(occurrence => {
@@ -94,6 +93,13 @@ function blankCandidates() {
   });
 }
 const keyOf = candidate => `${candidate.sourceText} => ${candidate.answer}`;
+// The reviewed rows as the unit publishes them (on each word's sense, keyed by context id), indexed by sentence for these checks.
+const GAPFILL_DISTRACTORS = {};
+for (const candidate of blankCandidates()) {
+  const item = content.itemsById[candidate.context.vocabularyId];
+  const row = item.senses[0].gapDistractors?.find(entry => entry.contextId === candidate.context.contextId);
+  if (row) GAPFILL_DISTRACTORS[keyOf(candidate)] = row.wrong;
+}
 
 test('every blankable gap sentence has exactly three reviewed distractors, and no reviewed row is orphaned', () => {
   const candidates = blankCandidates();
@@ -107,7 +113,8 @@ test('every blankable gap sentence has exactly three reviewed distractors, and n
     assert.ok(!row.some(value => norm(value) === norm(candidate.answer)), `a distractor equals the answer: ${keyOf(candidate)}`);
     assert.ok(row.every(value => /^[a-z-]+$/.test(value)), `unexpected characters: ${keyOf(candidate)}`);
   }
-  for (const key of Object.keys(GAPFILL_DISTRACTORS)) assert.ok(keys.has(key), `reviewed row matches no sentence: ${key}`);
+  const contextIds = new Set(candidates.map(candidate => candidate.context.contextId));
+  for (const item of unit.items) for (const row of item.senses[0].gapDistractors ?? []) assert.ok(contextIds.has(row.contextId), `reviewed row matches no sentence: ${row.contextId}`);
 });
 
 test('a reviewed distractor never spells the answer of the same word in another form of the same sentence', () => {

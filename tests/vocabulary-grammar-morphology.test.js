@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { buildFoundationalActivity } from '../src/vocabulary/foundational-activity-builder.js';
 import { buildCuratedUnit } from '../content/vocabulary/build-unit.js';
 import { validateUnit } from '../content/vocabulary/schema.js';
-import { reviewedGapDistractors } from '../src/vocabulary/gapfill-distractors.js';
 
 function verbItem(vocabularyId, term, forms) {
   return {
@@ -30,6 +29,13 @@ const demand = verbItem('vocab_demand','demand',{ base:'demand', thirdPerson:'de
 const regret = verbItem('vocab_regret','regret',{ base:'regret', thirdPerson:'regrets', past:'regretted', pastParticiple:'regretted', ing:'regretting' });
 const unitItems = [deny,recommend,demand,regret];
 
+// A word carrying reviewed gap-fill options in its own sense data, the way a published unit does.
+function withReviewed(item, rows) {
+  return { ...item, senses:[{ ...item.senses[0], gapDistractors:rows }] };
+}
+const reviewedDeny = withReviewed(deny, [{ contextId:'deny_past', answer:'denied', wrong:['borrowed','inspected','photographed'] }]);
+const reviewedRecommend = withReviewed(recommend, [{ contextId:'recommend_gap', answer:'recommends', wrong:['borrows','inspects','photographs'] }]);
+
 function occurrence(item) {
   return { occurrenceId:`u1_${item.term}`, unitNumber:1, vocabularyId:item.vocabularyId, senseId:`${item.term}_1` };
 }
@@ -38,7 +44,7 @@ test('retrieval uses the exact contextual past-tense answer and form-matched dis
   const question = buildFoundationalActivity({
     activityType:'choose_word_sentence',
     occurrence:occurrence(deny),
-    item:deny,
+    item:reviewedDeny,
     contexts:[{
       contextId:'deny_past',
       type:'gap_fill',
@@ -55,7 +61,7 @@ test('retrieval uses the exact contextual past-tense answer and form-matched dis
   assert.deepEqual(question.markingReference.acceptedAnswers,['denied']);
   assert.ok(question.options.includes('denied'));
   // This sentence has teacher-reviewed wrong options (same form, none can also fit the blank).
-  assert.deepEqual([...question.options].sort(),['denied',...reviewedGapDistractors('The athlete ____ that he had used a banned substance.','denied')].sort());
+  assert.deepEqual([...question.options].sort(),['denied','borrowed','inspected','photographed'].sort());
   assert.ok(!question.options.includes('deny'));
 });
 
@@ -63,7 +69,7 @@ test('retrieval blanks the exact third-person form from a curated gap-fill sente
   const question = buildFoundationalActivity({
     activityType:'gap_fill_bank',
     occurrence:occurrence(recommend),
-    item:recommend,
+    item:reviewedRecommend,
     contexts:[{
       contextId:'recommend_gap',
       type:'gap_fill',
@@ -79,7 +85,7 @@ test('retrieval blanks the exact third-person form from a curated gap-fill sente
   assert.equal(question.sourceText,'The trainer ____ stretching before intense exercise.');
   assert.deepEqual(question.markingReference.acceptedAnswers,['recommends']);
   assert.ok(question.options.includes('recommends'));
-  assert.deepEqual([...question.options].sort(),['recommends',...reviewedGapDistractors('The trainer ____ stretching before intense exercise.','recommends')].sort());
+  assert.deepEqual([...question.options].sort(),['recommends','borrows','inspects','photographs'].sort());
 });
 
 test('paraphrase and meaning sentences are never blanked, because their blank would not match the answer form', () => {
@@ -163,7 +169,7 @@ test('a sentence without reviewed distractors falls back to same-form words from
     mastery:{ status:'building' },
     seed:'fallback'
   });
-  assert.equal(reviewedGapDistractors(question.sourceText,'recommends'),null);
+  assert.equal(question.distractorSource,'generated_semantic');
   assert.ok(question.options.includes('recommends'));
   assert.ok(question.options.includes('denies'));
 });

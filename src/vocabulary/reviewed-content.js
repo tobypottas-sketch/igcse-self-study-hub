@@ -6,12 +6,8 @@
 //   sense.gapDistractors        [{ contextId, answer, wrong:[...] }] keyed by the stable id of the blanked sentence
 //   sense.spellingErrors        reviewed misspellings (lexical: the same list serves every unit that contains the word)
 //
-// TEMPORARY COMPATIBILITY (removed in the follow-up PR once Unit 1 is republished): a Unit 1 word whose published data does not
-// carry the new fields yet falls back to the old engine tables. The fallback is gated on the occurrence being in Unit 1, so it can
-// never reach another unit, even for a word with the same text.
-import { SITUATION_DISTRACTORS } from './situation-distractors.js';
-import { GAPFILL_DISTRACTORS } from './gapfill-distractors.js';
-import { LEXICAL_SPELLING_ERRORS } from '../../content/vocabulary/lexical-spelling-errors.js';
+// Nothing is read from tables bundled with the engine: a word with no reviewed data simply has none, and strict question types
+// refuse to count it.
 
 export const DISTRACTOR_SOURCE = Object.freeze({
   REVIEWED:'reviewed',
@@ -32,12 +28,6 @@ const MINIMUM_WRONG = 3;
 function array(value) { return Array.isArray(value) ? value : []; }
 function text(value) { return String(value ?? '').trim(); }
 function lower(value) { return text(value).toLocaleLowerCase('en'); }
-
-function unitNumberOf(occurrence = {}) {
-  return Number(occurrence?.unitNumber ?? occurrence?.unit_number ?? 0);
-}
-// Compatibility is for the published Unit 1 only.
-function isUnitOne(occurrence) { return unitNumberOf(occurrence) === 1; }
 
 export function senseOf(item = {}, occurrence = {}) {
   const senses = array(item?.senses);
@@ -71,15 +61,10 @@ export function checkWrongOptions(raw, { answer = '', term = '', forbidTerm = fa
 // status: 'absent' (nothing authored), 'valid', or 'malformed' (authored but not trustworthy).
 export function situationDistractorRecord({ item, occurrence } = {}) {
   const sense = senseOf(item, occurrence);
-  let raw = sense?.situationDistractors;
-  let source = 'unit';
-  if (raw === undefined && isUnitOne(occurrence)) {
-    raw = SITUATION_DISTRACTORS[lower(item?.term)];
-    source = 'compat';
-  }
+  const raw = sense?.situationDistractors;
   if (raw === undefined || raw === null) return { status:'absent', source:null, values:[], problems:[] };
   const { values, problems } = checkWrongOptions(raw, { term:item?.term, forbidTerm:true });
-  return { status:problems.length ? 'malformed' : 'valid', source, values, problems };
+  return { status:problems.length ? 'malformed' : 'valid', source:'unit', values, problems };
 }
 
 // ---- Gap-fill ------------------------------------------------------------------------------------------------------------
@@ -87,17 +72,8 @@ export function situationDistractorRecord({ item, occurrence } = {}) {
 // whether it has a well-formed reviewed row; every row that is malformed or points at nothing is listed in `problems`.
 export function gapDistractorIndex({ item, occurrence, contexts = [], candidates = [] } = {}) {
   const sense = senseOf(item, occurrence);
-  let rows = sense?.gapDistractors;
-  let source = 'unit';
-  if (rows === undefined && isUnitOne(occurrence)) {
-    source = 'compat';
-    rows = candidates
-      .map(candidate => {
-        const wrong = GAPFILL_DISTRACTORS[`${candidate.sourceText} => ${candidate.answer}`];
-        return wrong ? { contextId:candidate.context?.contextId, answer:candidate.answer, wrong } : null;
-      })
-      .filter(Boolean);
-  }
+  const rows = sense?.gapDistractors;
+  const source = 'unit';
   const byContextId = new Map();
   const problems = [];
   if (rows === undefined || rows === null) return { source:null, byContextId, problems, present:false };
@@ -129,10 +105,8 @@ export function curatedMeaningOptions(sense, correct) {
 }
 
 // ---- Spelling (lexical) ---------------------------------------------------------------------------------------------------
-// Reviewed misspellings belong to the word, not to a unit. They are read from the word's published data; until Unit 1 is
-// republished the lexical list shipped with the engine fills in.
+// Reviewed misspellings belong to the word, not to a unit. They are read from the word's published data.
 export function reviewedSpellingErrors(item = {}) {
-  const fromData = [...array(item?.spellingErrors), ...array(item?.senses).flatMap(sense => array(sense?.spellingErrors))];
-  const source = fromData.length ? fromData : array(LEXICAL_SPELLING_ERRORS[item?.vocabularyId]);
+  const source = [...array(item?.spellingErrors), ...array(item?.senses).flatMap(sense => array(sense?.spellingErrors))];
   return checkWrongOptions(source, { answer:item?.term, minimum:0 }).values;
 }
