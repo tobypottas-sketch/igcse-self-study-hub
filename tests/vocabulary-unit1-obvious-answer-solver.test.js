@@ -5,7 +5,9 @@ import unit1 from '../content/vocabulary/units/unit-01.js';
 import { buildFoundationalActivity } from '../src/vocabulary/foundational-activity-builder.js';
 import { buildPathwayActivity } from '../src/vocabulary/pathway-activity-builder.js';
 
-const entries = Object.entries(bank);
+import { LEXICAL_SPELLING_ERRORS } from '../content/vocabulary/lexical-spelling-errors.js';
+const idByTerm = Object.fromEntries(unit1.items.map(item => [item.term, item.vocabularyId]));
+const entries = Object.entries(bank).map(([term, entry]) => [term, { ...entry, spellingErrors:LEXICAL_SPELLING_ERRORS[idByTerm[term]] ?? [] }]);
 const words = s => String(s).toLowerCase().match(/[a-z’']+/g) ?? [];
 const stop = new Set(['the','a','an','to','of','and','in','on','for','that','it','is','was','be','are','she','he','they','we','i','you','her','his','their','our','my','at','by','with','but','so','as','not','can','will','could','would','may','this','from']);
 const content = s => words(s).filter(w => !stop.has(w));

@@ -10,7 +10,6 @@ export default Object.freeze({
       'time required to finish a particular task',
       'a break in activity caused by an unexpected delay'
     ],
-    spellingErrors:['leisur time','lesiure time','liesure time','leasure time','leisuer time','lesure time'],
     contexts:[
       {
         id:'leisure_ctx_1',
@@ -95,7 +94,6 @@ export default Object.freeze({
       'to get away from a place where you are in danger',
       'to leave something out when you are doing a task'
     ],
-    spellingErrors:['aviod','avoyd','avoide','avoied','avode','avoidd'],
     contexts:[
       {
         id:'avoid_ctx_1',
@@ -180,7 +178,6 @@ export default Object.freeze({
       'the order in which a group chooses its options',
       'a complaint about the options you were offered'
     ],
-    spellingErrors:['preferance','prefrence','prefference','preferrence','prefernce','preferense'],
     contexts:[
       {
         id:'preference_ctx_1',
@@ -265,7 +262,6 @@ export default Object.freeze({
       'to pay less money than something normally costs',
       'to save money slowly for something you want'
     ],
-    spellingErrors:['aford','affored','afforde','afferd','afoord','affoard'],
     contexts:[
       {
         id:'afford_ctx_1',
@@ -350,7 +346,6 @@ export default Object.freeze({
       'to say sorry for something you did',
       'to pretend not to see something'
     ],
-    spellingErrors:['denie','deney','dany','denay','deni','denny'],
     contexts:[
       {
         id:'deny_ctx_1',
@@ -435,7 +430,6 @@ export default Object.freeze({
       'to wait for something to happen',
       'to warn that something will happen'
     ],
-    spellingErrors:['pemit','permet','permitt','premit','permmit','permiet'],
     contexts:[
       {
         id:'permit_ctx_1',
@@ -520,7 +514,6 @@ export default Object.freeze({
       'to wait for something to be organised',
       'to invite people to join something'
     ],
-    spellingErrors:['arange','arrenge','arrnage','arrage','arrang','arrangge'],
     contexts:[
       {
         id:'arrange_ctx_1',
@@ -605,7 +598,6 @@ export default Object.freeze({
       'to give someone permission to do something',
       'to remind someone that they have done something'
     ],
-    spellingErrors:['urdge','uerge','urege','urgue','urgge','ugre'],
     contexts:[
       {
         id:'urge_ctx_1',
@@ -690,7 +682,6 @@ export default Object.freeze({
       'to ask politely for something to be done',
       'to say that something is true without proof'
     ],
-    spellingErrors:['recomend','reccomend','recommed','recomand','recommand','reccommend'],
     contexts:[
       {
         id:'recommend_ctx_1',
@@ -775,7 +766,6 @@ export default Object.freeze({
       'to offer extra effort, skill, or help to others',
       'to waste a lot of time, attention, or resources'
     ],
-    spellingErrors:['demend','damand','demmand','deamnd','demant','demund'],
     contexts:[
       {
         id:'demand_ctx_1',
@@ -860,7 +850,6 @@ export default Object.freeze({
       'to help someone or something recover from harm or loss',
       'to check whether someone or something is in danger'
     ],
-    spellingErrors:['threten','thretan','threatan','thretten','threaton','theaten'],
     contexts:[
       {
         id:'threaten_ctx_1',
@@ -945,7 +934,6 @@ export default Object.freeze({
       'to feel tired of something you have done often',
       'to feel grateful for something that someone gave you'
     ],
-    spellingErrors:['resant','resint','resnet','ressent','resentt','resentd'],
     contexts:[
       {
         id:'resent_ctx_1',
@@ -1030,7 +1018,6 @@ export default Object.freeze({
       'to feel sad because you have lost something',
       'to feel embarrassed about something in public'
     ],
-    spellingErrors:['regrett','regert','regrat','regreat','reggret','rigret'],
     contexts:[
       {
         id:'regret_ctx_1',
@@ -1115,7 +1102,6 @@ export default Object.freeze({
       'not safe to use without some training',
       'not often found in the place where you live'
     ],
-    spellingErrors:['unfamilar','unfamiliare','unfimiliar','unfamilliar','unfammiliar','unfamiler'],
     contexts:[
       {
         id:'unfamiliar_ctx_1',
@@ -1200,7 +1186,6 @@ export default Object.freeze({
       'a frame with a handle used to catch and throw a ball',
       'a padded glove used to protect the hand when playing'
     ],
-    spellingErrors:['racquit','racqet','raquet','racqeut','racquett','rackquet'],
     contexts:[
       {
         id:'racquet_ctx_1',
@@ -1285,7 +1270,6 @@ export default Object.freeze({
       'a person who provides money for a team',
       'a person who has played in many matches'
     ],
-    spellingErrors:['oponent','opponant','oppenent','opponet','opponnent','oppnent'],
     contexts:[
       {
         id:'opponent_ctx_1',
@@ -1370,7 +1354,6 @@ export default Object.freeze({
       'repeated many times until it feels like a habit',
       'happening in secret so that few people know'
     ],
-    spellingErrors:['intence','intens','intese','intesne','intsense','entense'],
     contexts:[
       {
         id:'intense_ctx_1',
@@ -1455,7 +1438,6 @@ export default Object.freeze({
       'a prize given to the winner of a match',
       'a group of players who train together'
     ],
-    spellingErrors:['tornament','tournement','tourment','tournamnet','toornament','tournamant'],
     contexts:[
       {
         id:'tournament_ctx_1',
@@ -1540,7 +1522,6 @@ export default Object.freeze({
       'angry because you have not got what you wanted',
       'quick to decide what to do without thinking much'
     ],
-    spellingErrors:['determind','determaned','detirmined','determinned','determiend','detirmend'],
     contexts:[
       {
         id:'determined_ctx_1',
@@ -1625,7 +1606,6 @@ export default Object.freeze({
       'the habit of always saying thank you to others',
       'the ability to stay calm when you are losing'
     ],
-    spellingErrors:['disipline','discipine','dicipline','discapline','disciplin','discipleine'],
     contexts:[
       {
         id:'discipline_ctx_1',
@@ -1710,7 +1690,6 @@ export default Object.freeze({
       'skilled at keeping a team calm in a match',
       'happy to work with other people in a team'
     ],
-    spellingErrors:['goal-orriented','goal oriented','goaloriented','goal-orianted','goal-orientted','gole-oriented'],
     contexts:[
       {
         id:'goal-oriented_ctx_1',
@@ -1795,7 +1774,6 @@ export default Object.freeze({
       'the routine tasks that someone does every day',
       'the plan that is made before a big match'
     ],
-    spellingErrors:['acheivement','achievment','achievemant','acheivment','achivement','achievemnet'],
     contexts:[
       {
         id:'achievement_ctx_1',
@@ -1880,7 +1858,6 @@ export default Object.freeze({
       'very experienced but no longer competing',
       'trained for a long time but never yet tested'
     ],
-    spellingErrors:['elit','eilte','ellite','elete','elyte','elitte'],
     contexts:[
       {
         id:'elite_ctx_1',
@@ -1965,7 +1942,6 @@ export default Object.freeze({
       'more than is needed for a particular purpose',
       'coming as a surprise to everyone who sees it'
     ],
-    spellingErrors:['overwelming','overwhelmeng','overwhleming','overwhellming','overwhealming','overwhelning'],
     contexts:[
       {
         id:'overwhelming_ctx_1',
@@ -2050,7 +2026,6 @@ export default Object.freeze({
       'a number of events that happen one after another',
       'a team of young players chosen for a competition'
     ],
-    spellingErrors:['genaration','generatoin','generasion','generetion','generaton','jeneration'],
     contexts:[
       {
         id:'generation_ctx_1',
@@ -2135,7 +2110,6 @@ export default Object.freeze({
       'a group of people who are chosen to represent a country',
       'a skill that a person was born with'
     ],
-    spellingErrors:['chalenge','challange','chalenje','chalange','challege','chalengge'],
     contexts:[
       {
         id:'challenge_ctx_1',
@@ -2220,7 +2194,6 @@ export default Object.freeze({
       'a rule that stops people from solving a problem',
       'a reason that people give for their mistakes'
     ],
-    spellingErrors:['solusion','solutoin','soloution','soluton','sollution','solucion'],
     contexts:[
       {
         id:'solution_ctx_1',
@@ -2305,7 +2278,6 @@ export default Object.freeze({
       'a skill that is learned at school or college',
       'a regular chore that someone must do at home'
     ],
-    spellingErrors:['pasttime','pastim','pastyme','passtime','pasetime','pastimme'],
     contexts:[
       {
         id:'pastime_ctx_1',
@@ -2390,7 +2362,6 @@ export default Object.freeze({
       'a result that nobody expected to happen',
       'a rule that changes how a game is played'
     ],
-    spellingErrors:['feet','feit','feate','fiet','feeat','featt'],
     contexts:[
       {
         id:'feat_ctx_1',
@@ -2475,7 +2446,6 @@ export default Object.freeze({
       'according to the rules that were agreed',
       'without telling anyone what has happened'
     ],
-    spellingErrors:['regardles','regardlss','regaurdless','regardlass','regaredless','rigardless'],
     contexts:[
       {
         id:'regardless_ctx_1',
@@ -2560,7 +2530,6 @@ export default Object.freeze({
       'related to the difficulty of a task',
       'related to the number of people who attend'
     ],
-    spellingErrors:['monatary','monetery','monitary','monetory','monnetary','monitery'],
     contexts:[
       {
         id:'monetary_ctx_1',
@@ -2645,7 +2614,6 @@ export default Object.freeze({
       'measured by a machine instead of by a person',
       'recorded after the event had finished'
     ],
-    spellingErrors:['estamated','estimeted','estemated','estimatd','esstimated','estimmated'],
     contexts:[
       {
         id:'estimated_ctx_1',

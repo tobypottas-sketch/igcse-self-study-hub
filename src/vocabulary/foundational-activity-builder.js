@@ -2,7 +2,7 @@ import { shuffleAnswerOptions } from './answer-option-shuffle.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 import { languageBankContextForItem } from './language-bank.js';
 import { applicationSituations } from './apply-situation.js';
-import { reviewedGapDistractors } from './gapfill-distractors.js';
+import { DISTRACTOR_SOURCE, UnreviewedContentError, gapDistractorIndex } from './reviewed-content.js';
 
 const STAGE_ORDER = Object.freeze({ new:0, building:1, secure:2, mastered:3 });
 export const FOUNDATIONAL_ACTIVITY_TYPES = Object.freeze(new Set([
@@ -159,13 +159,30 @@ export function surfaceDistractors(args, formKey, count = 3) {
   if (preferred.length < count) throw new Error(`Activity requires ${count} plausible ${formKey} alternatives.`);
   return preferred.slice(0,count);
 }
-// Wrong options for a blanked curated sentence: the teacher-reviewed set (none can also fit the blank) when one exists,
-// otherwise same-form words from the unit.
+// Wrong options for a blanked curated sentence, with their provenance. The teacher-reviewed row for that sentence (none of its
+// options can also fit the blank) is used when it is well formed; otherwise same-form words from the unit are generated, which are
+// NOT reviewed and could in principle also fit. With `requireReviewed` the generated route is refused, and so is a word with any
+// malformed reviewed row, so the question never rests on options nobody checked.
+export function reviewedGapIndex(args) {
+  const candidates = grammaticalBlankCandidates({ item:args.item, occurrence:args.occurrence, contexts:args.contexts });
+  return gapDistractorIndex({ item:args.item, occurrence:args.occurrence, contexts:args.contexts, candidates });
+}
+export function blankDistractorsDetailed(args, picked, count = 3) {
+  const index = reviewedGapIndex(args);
+  const contextId = String(picked?.context?.contextId ?? '');
+  const row = index.byContextId.get(contextId);
+  if (args.requireReviewed) {
+    if (index.problems.length) throw new UnreviewedContentError('gap-fill', index.problems.map(row => `${row.contextId ?? 'row'}: ${row.problem}`).join(' | '));
+    if (!row) throw new UnreviewedContentError('gap-fill', `no reviewed options for ${contextId}`);
+  }
+  if (row) {
+    const options = row.length === count ? [...row] : stableShuffle(row, `${args.seed}:gap-reviewed`).slice(0,count);
+    return { options, source:DISTRACTOR_SOURCE.REVIEWED };
+  }
+  return { options:surfaceDistractors(args,picked?.formKey,count), source:DISTRACTOR_SOURCE.GENERATED_SEMANTIC };
+}
 export function blankDistractors(args, picked, count = 3) {
-  const reviewed = reviewedGapDistractors(picked?.sourceText, picked?.answer);
-  const answerKey = text(picked?.answer).toLocaleLowerCase('en');
-  if (reviewed && reviewed.length === count && new Set(reviewed.map(value => value.toLocaleLowerCase('en'))).size === count && !reviewed.some(value => value.toLocaleLowerCase('en') === answerKey)) return reviewed;
-  return surfaceDistractors(args,picked?.formKey,count);
+  return blankDistractorsDetailed(args,picked,count).options;
 }
 function definitionPairs(args, count = 4) {
   const targetDefinition = definitionFor(args.item, args.occurrence);
@@ -185,7 +202,7 @@ function definitionToWord(args, definition) {
   if (!targetDefinition || !text(args.item.term)) throw new Error('Definition → Word requires a curated definition and term.');
   const orderOptions = args.matchingPresentation ? stableShuffle : shuffleAnswerOptions;
   const options = orderOptions([text(args.item.term), ...plausibleTermDistractors(args,3)], `${args.seed}:definition-word-options`, args.optionNonce);
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt:`Which word means “${targetDefinition}”?`, markingReference:{ acceptedAnswers:[text(args.item.term)] }, extra:{ options, primaryEvidenceTargetId:args.item.vocabularyId } });
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt:`Which word means “${targetDefinition}”?`, markingReference:{ acceptedAnswers:[text(args.item.term)] }, extra:{ options, primaryEvidenceTargetId:args.item.vocabularyId, distractorSource:authoredDistractors(args).length >= 3 ? DISTRACTOR_SOURCE.REVIEWED : DISTRACTOR_SOURCE.GENERATED_SAFE } });
 }
 // Meaning → Match: the curated pairs for one tap-to-match set (words left, shuffled definitions right). The persisted
 // answer stays the single answer for the primary target, so one set is one activity.
@@ -215,7 +232,7 @@ function situationApplication(args, definition) {
   const orderOptions = args.matchingPresentation ? stableShuffle : shuffleAnswerOptions;
   const options = orderOptions([answer, ...wrong], `${args.seed}:application-options`, args.optionNonce);
   const prompt = `${toWord ? 'Which word best fits this situation?' : 'Which meaning does this situation show?'}\n${situation}`;
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt, markingReference:{ acceptedAnswers:[answer] }, extra:{ options, primaryEvidenceTargetId:args.item.vocabularyId } });
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt, markingReference:{ acceptedAnswers:[answer] }, extra:{ options, primaryEvidenceTargetId:args.item.vocabularyId, distractorSource:DISTRACTOR_SOURCE.GENERATED_SAFE } });
 }
 function replaceFirstIgnoreCase(source, needle, replacement) {
   const index = wholeWordIndex(source,needle);
@@ -237,10 +254,16 @@ export function grammaticalBlankCandidates({ item, occurrence = {}, contexts = [
     return sourceText?.includes('____') && !sourceText.startsWith('____') ? [{ context, sourceText, ...target }] : [];
   });
 }
-function blankableContext(args) {
-  const candidates = grammaticalBlankCandidates({ item:args.item, occurrence:args.occurrence, contexts:args.contexts })
+function blankableContext(args, needsReviewedOptions = false) {
+  let candidates = grammaticalBlankCandidates({ item:args.item, occurrence:args.occurrence, contexts:args.contexts })
     .filter(candidate => candidate.formKey || candidate.surface.toLocaleLowerCase('en') === text(args.item?.term).toLocaleLowerCase('en'));
   if (!candidates.length) throw new Error('No curated context can form an accurate target-word blank for this activity.');
+  if (needsReviewedOptions) {
+    const index = reviewedGapIndex(args);
+    if (index.problems.length) throw new UnreviewedContentError('gap-fill', index.problems.map(row => `${row.contextId ?? 'row'}: ${row.problem}`).join(' | '));
+    candidates = candidates.filter(candidate => index.byContextId.has(String(candidate.context.contextId)));
+    if (!candidates.length) throw new UnreviewedContentError('gap-fill', 'no blankable sentence has reviewed options');
+  }
   const unused = candidates.filter(candidate => !array(args.usedContentIds).includes(candidate.context.contextId));
   return stableShuffle(unused.length ? unused : candidates, `${args.seed}:blank-context`)[0];
 }
@@ -262,13 +285,16 @@ function bankRetrievalActivity(args, definition) {
     prompt = 'Choose the word that completes the sentence.';
     extra.options = shuffleAnswerOptions([accepted,...wrong], `${args.seed}:${record.id}:gap-bank`, args.optionNonce);
     extra.wordBank = [...extra.options];
+    extra.distractorSource = DISTRACTOR_SOURCE.REVIEWED;
   } else if (definition.id === 'drag_word_sentence') {
     prompt = 'Drag the correct word into the gap.';
     extra.draggables = stableShuffle([accepted,...wrong], `${args.seed}:${record.id}:drag-gap`);
     extra.wordBank = [...extra.draggables];
+    extra.distractorSource = DISTRACTOR_SOURCE.REVIEWED;
   } else if (definition.id === 'choose_word_sentence') {
     prompt = 'Which word best completes this sentence?';
     extra.options = shuffleAnswerOptions([accepted,...wrong], `${args.seed}:${record.id}:sentence-choice`, args.optionNonce);
+    extra.distractorSource = DISTRACTOR_SOURCE.REVIEWED;
   } else if (definition.id === 'type_missing_word') {
     prompt = 'Type the word or phrase that completes this sentence.';
   }
@@ -278,11 +304,13 @@ function retrievalActivity(args, definition) {
   const bankActivity = bankRetrievalActivity(args,definition);
   if (bankActivity && !array(args.usedContentIds).includes(bankActivity.contentId)) return bankActivity;
   let selected;
-  try { selected = blankableContext(args); }
+  const needsOptions = definition.id !== 'type_missing_word';
+  try { selected = blankableContext(args, args.requireReviewed === true && needsOptions); }
   catch (error) { if (bankActivity) return bankActivity; throw error; }
   if (bankActivity && array(args.usedContentIds).includes(selected.context.contextId)) return bankActivity;
   const { context, sourceText, answer, formKey } = selected;
-  const wrongOptions = () => blankDistractors(args,selected,3);
+  let optionSource = null;
+  const wrongOptions = () => { const picked = blankDistractorsDetailed(args,selected,3); optionSource = picked.source; return picked.options; };
   const accepted = answer;
   let prompt = 'Complete the sentence with the target word.';
   const extra = { sourceText, contextId:context.contextId, primaryEvidenceTargetId:args.item.vocabularyId, answerForm:formKey ?? 'exact' };
@@ -290,13 +318,16 @@ function retrievalActivity(args, definition) {
     prompt = 'Choose the word that completes the sentence.';
     extra.options = shuffleAnswerOptions([accepted, ...wrongOptions()], `${args.seed}:gap-bank`, args.optionNonce);
     extra.wordBank = [...extra.options];
+    extra.distractorSource = optionSource;
   } else if (definition.id === 'drag_word_sentence') {
     prompt = 'Drag the correct word into the gap.';
     extra.draggables = stableShuffle([accepted, ...wrongOptions()], `${args.seed}:drag-gap`);
     extra.wordBank = [...extra.draggables];
+    extra.distractorSource = optionSource;
   } else if (definition.id === 'choose_word_sentence') {
     prompt = 'Which word best completes this sentence?';
     extra.options = shuffleAnswerOptions([accepted, ...wrongOptions()], `${args.seed}:sentence-choice`, args.optionNonce);
+    extra.distractorSource = optionSource;
   } else if (definition.id === 'type_missing_word') {
     prompt = 'Type the word that completes this sentence.';
   }
@@ -329,7 +360,7 @@ function wordFamilyChoice(args, definition) {
 
 const BUILDERS = Object.freeze({ definition_to_word:definitionToWord, word_definition_match:matchingActivity, drag_word_definition:situationApplication, drag_definition_word:situationApplication, gap_fill_bank:retrievalActivity, drag_word_sentence:retrievalActivity, type_missing_word:retrievalActivity, spell_word:spellingActivity, choose_word_sentence:retrievalActivity, word_family_choice:wordFamilyChoice });
 
-export function buildFoundationalActivity({ activityType, occurrence, item, contexts = [], unitActivities = [], unitItems = [], unitContexts = [], unitOccurrences = [], mastery = {}, readinessStage = null, usedContentIds = [], seed = '', optionNonce = '', matchingPresentation = false } = {}) {
+export function buildFoundationalActivity({ activityType, occurrence, item, contexts = [], unitActivities = [], unitItems = [], unitContexts = [], unitOccurrences = [], mastery = {}, readinessStage = null, usedContentIds = [], seed = '', optionNonce = '', matchingPresentation = false, requireReviewed = false } = {}) {
   if (!FOUNDATIONAL_ACTIVITY_TYPES.has(activityType)) throw new Error('Not a foundational vocabulary activity type.');
   if (!occurrence || !item) throw new Error('Vocabulary occurrence and item are required.');
   const definition = activityDefinition(activityType);
@@ -337,5 +368,5 @@ export function buildFoundationalActivity({ activityType, occurrence, item, cont
   assertReady(definition, mastery, readinessStage);
   const builder = BUILDERS[definition.id];
   if (!builder) throw new Error(`No foundational builder exists for ${definition.id}.`);
-  return builder({ activityType, occurrence, item, contexts, unitActivities, unitItems, unitContexts, unitOccurrences, mastery, usedContentIds, seed, optionNonce, matchingPresentation }, definition);
+  return builder({ activityType, occurrence, item, contexts, unitActivities, unitItems, unitContexts, unitOccurrences, mastery, usedContentIds, seed, optionNonce, matchingPresentation, requireReviewed }, definition);
 }

@@ -32,3 +32,16 @@ export function stageMinimum(pathwayId, stageId, expectedWords) {
   if (rule.stageMinimum?.[stageId] != null) return rule.stageMinimum[stageId];
   return Math.max(MISSION_FLOOR, Math.ceil(rule.share * Number(expectedWords || 0)));
 }
+
+// Question types whose wrong options are a judgement call: a generated option can also be a defensible answer. For these, only
+// teacher-reviewed (or authored) options make a word ready; generated ones are refused. Match / Recognise questions whose wrong
+// options are same-part-of-speech words, and spelling (where a wrong spelling cannot be right), stay lenient; the teacher report
+// shows how much of that content is reviewed.
+export const STRICT_REVIEW_QUESTION_TYPES = Object.freeze([
+  'which_situation_fits',  // Meaning Apply
+  'meaning_in_context',    // Meaning Mastery
+  'choose_word_sentence',  // Context Recognise
+  'context_sentence_match',// Context Match
+  'gap_fill_bank',         // Context Apply
+  'drag_word_sentence'     // Context Apply
+]);

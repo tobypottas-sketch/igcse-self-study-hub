@@ -1,7 +1,7 @@
 import { shuffleAnswerOptions } from './answer-option-shuffle.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 import { grammaticalBlankCandidates } from './foundational-activity-builder.js';
-import { pickSpellingErrors } from './spelling-errors.js';
+import { pickSpellingErrorsDetailed } from './spelling-errors.js';
 
 function text(value) { return String(value ?? '').trim(); }
 function array(value) { return Array.isArray(value) ? value : []; }
@@ -77,7 +77,8 @@ export function buildSpellingChoiceActivity({ occurrence, item, contexts = [], u
   if (!definition || !isActivityLive(definition.id)) throw new Error('Spelling recognition is unavailable.');
   const term = text(item.term);
   const meaning = definitionFor(item,occurrence);
-  const wrong = pickSpellingErrors(item,term,3,seed);
+  const spelled = pickSpellingErrorsDetailed(item,term,3,seed);
+  const wrong = spelled.errors;
   if (!term || !meaning || wrong.length < 3) throw new Error('Spelling recognition requires three plausible spelling alternatives.');
   const options = shuffleAnswerOptions([term,...wrong],`${seed}:spelling-choice-options`,optionNonce);
   const stableItemId = itemContentId({item,occurrence});
@@ -92,12 +93,14 @@ export function buildSpellingChoiceActivity({ occurrence, item, contexts = [], u
       contentSource:'item',
       prompt:`Which is the correct spelling of the word meaning “${meaning}”?`,
       acceptedAnswer:term,
-      options
+      options,
+      extra:{ distractorSource:spelled.source }
     });
   }
 
   const { context, sourceText, surface } = picked;
-  const surfaceWrong = pickSpellingErrors(item,surface,3,seed);
+  const surfaceSpelled = pickSpellingErrorsDetailed(item,surface,3,seed);
+  const surfaceWrong = surfaceSpelled.errors;
   if (surfaceWrong.length < 3) throw new Error('Spelling recognition requires three plausible spelling alternatives.');
   return base({
     definition,
@@ -107,6 +110,6 @@ export function buildSpellingChoiceActivity({ occurrence, item, contexts = [], u
     prompt:'Which spelling correctly completes this sentence?',
     acceptedAnswer:surface,
     options:shuffleAnswerOptions([surface,...surfaceWrong],`${seed}:spelling-choice-options:${context.contextId}`,optionNonce),
-    extra:{ sourceText, contextId:context.contextId }
+    extra:{ sourceText, contextId:context.contextId, distractorSource:surfaceSpelled.source }
   });
 }

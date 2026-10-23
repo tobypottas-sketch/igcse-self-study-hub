@@ -6,6 +6,8 @@ import unit1GrammarSupplement from './unit-01-grammar-supplement.js';
 import unit1LanguageBank from './unit-01-language-bank.js';
 import unit1MasterySupplement from './unit-01-mastery-supplement.js';
 import unit1RetrievalSupplement from './unit-01-retrieval-supplement.js';
+import { unit1SituationDistractors, unit1GapDistractors } from './unit-01-reviewed-distractors.js';
+import { LEXICAL_SPELLING_ERRORS } from '../lexical-spelling-errors.js';
 
 const e = (term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence, paraphraseSource, paraphraseSentence, productionSource, productionSentence, extras = {}) => ({
   term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence,
@@ -80,7 +82,7 @@ const enrichedEntries = entries.map(entry => {
     text:String(record?.text ?? '').replace('____', String(record?.answer ?? entry.term)),
     meaning:String(masteryMeanings[index] ?? '').trim()
   }));
-  return { ...entry, ...(unit1GrammarSupplement[entry.term] ?? {}), ...(unit1RetrievalSupplement[entry.term] ? { extraRetrievalContexts:unit1RetrievalSupplement[entry.term] } : {}), masteryContexts };
+  return { ...entry, ...(unit1SituationDistractors[entry.term] ? { situationDistractors:unit1SituationDistractors[entry.term] } : {}), ...(unit1GapDistractors[entry.term] ? { gapDistractors:unit1GapDistractors[entry.term] } : {}), ...(unit1GrammarSupplement[entry.term] ?? {}), ...(unit1RetrievalSupplement[entry.term] ? { extraRetrievalContexts:unit1RetrievalSupplement[entry.term] } : {}), masteryContexts };
 });
 
 export default buildCuratedUnit({
@@ -89,5 +91,6 @@ export default buildCuratedUnit({
   status:'approved',
   source:'0511_UNIT_1.docx',
   entries:enrichedEntries,
+  lexicalSpelling:LEXICAL_SPELLING_ERRORS,
   activities:[...unit1Activities, ...unit1WordFamilySupplement, ...unit1PrecisionUse]
 });
