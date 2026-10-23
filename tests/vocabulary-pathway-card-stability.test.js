@@ -4,8 +4,8 @@ import fs from 'node:fs';
 
 const css = fs.readFileSync(new URL('../vocabulary-layout-stability.css', import.meta.url), 'utf8');
 test('the evidence row is a fixed-height track, whatever text it holds', () => {
-  assert.match(css, /grid-template-rows:\s*auto\s+auto\s+auto\s+60px\s+auto\s+auto/s);
-  assert.match(css, /\.vocab-pathway-card__evidence\s*\{[^}]*grid-area:evidence[^}]*box-sizing:border-box[^}]*height:60px[^}]*min-height:60px[^}]*max-height:60px/s);
+  assert.match(css, /grid-template-rows:\s*auto\s+auto\s+auto\s+80px\s+auto\s+auto/s);
+  assert.match(css, /\.vocab-pathway-card__evidence\s*\{[^}]*grid-area:evidence[^}]*box-sizing:border-box[^}]*height:80px[^}]*min-height:80px[^}]*max-height:80px/s);
 });
 
 test('pathway card header uses explicit regions with generous spacing', () => {

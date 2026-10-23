@@ -72,6 +72,20 @@ function wordEvidenceScore(stageId, stage = {}) {
   if (stageId === 'mastery') return Math.min(1,successes / 3,cleanUnassisted / 2,prompts / 2);
   return 0;
 }
+// Clean answers a word still needs before this stage counts as cleared. Mirrors the thresholds wordEvidenceScore already uses.
+function wordAnswersToClear(stageId, stage = {}) {
+  if (stage?.completed === true) return 0;
+  const successes = number(stage.successes);
+  const clean = number(stage.cleanSuccesses ?? stage.clean_successes);
+  const cleanUnassisted = number(stage.cleanUnassistedSuccesses ?? stage.clean_unassisted_successes);
+  const prompts = listCount(stage.promptKeys ?? stage.prompt_keys, stage.distinctPromptCount ?? stage.distinct_prompt_count);
+  const content = listCount(stage.contentIds ?? stage.content_ids);
+  if (stageId === 'recognise') return Math.max(0,2 - clean,2 - content);
+  if (stageId === 'match' || stageId === 'apply') return Math.max(0,2 - clean);
+  if (stageId === 'recall') return Math.max(0,2 - cleanUnassisted);
+  if (stageId === 'mastery') return Math.max(0,3 - successes,2 - cleanUnassisted,2 - prompts);
+  return 0;
+}
 function aggregateStageEvidence(entries, pathwayId, stageId, unitMastery) {
   const active = entries.filter(entry => entry.states?.[pathwayId]?.currentStage === stageId || (stageId === 'mastery' && entry.states?.[pathwayId]?.mastered === true));
   const evidence = {
@@ -85,6 +99,7 @@ function aggregateStageEvidence(entries, pathwayId, stageId, unitMastery) {
     distinctPrompts:0,
     distinctContexts:0,
     distinctContent:0,
+    answersToClear:0,
     progressPercent:0
   };
   let score = 0;
@@ -102,6 +117,7 @@ function aggregateStageEvidence(entries, pathwayId, stageId, unitMastery) {
     evidence.distinctContexts += listCount(stage.contextIds ?? stage.context_ids);
     evidence.distinctContent += listCount(stage.contentIds ?? stage.content_ids);
     score += wordEvidenceScore(stageId,stage);
+    evidence.answersToClear += wordAnswersToClear(stageId,stage);
   }
   evidence.progressPercent = evidence.activeWords ? Math.round((score / evidence.activeWords) * 100) : 0;
   return evidence;

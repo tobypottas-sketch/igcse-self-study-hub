@@ -13,6 +13,7 @@ import { deriveLearningStage } from '../src/vocabulary/learning-stage.js';
 import { buildSupportStep } from '../src/vocabulary/scaffolding.js';
 import * as matchSetLogic from '../src/vocabulary/match-set.js';
 import * as matchSetView from '../src/vocabulary/match-set-view.js';
+import * as engagementCopy from '../src/vocabulary/engagement-copy.js';
 import { buildActivity } from '../src/vocabulary/activity-factory.js';
 import { createAttemptPersistence } from '../src/vocabulary/attempt-persistence.js';
 import { buildSessionFinishModel } from '../src/vocabulary/session-finish-model.js';
@@ -42,7 +43,7 @@ function controller(stage = 'recognise', priorSuccess = false) {
   }
   const saved = [];
   const context = vm.createContext({state,crypto,createAttemptPersistence,Date,Map,Set,console,root:{},window:{clearInterval(){},setInterval(){return 1;}},
-    ...sessions,...targets,...pathways,...placement,...engine,...matchSetLogic,...matchSetView, installMatchDrag() {}, playCompletionSequence() {}, loadSeenContent:() => new Map(), saveSeenContent() {}, _unused() {}, playCompletionSequence() {}, matchDragJustEnded:() => false,deriveLearningStage,buildSupportStep,buildSessionFinishModel,
+    ...sessions,...targets,...pathways,...placement,...engine,...matchSetLogic,...matchSetView,...engagementCopy, installMatchDrag() {}, playCompletionSequence() {}, loadSeenContent:() => new Map(), saveSeenContent() {}, _unused() {}, playCompletionSequence() {}, matchDragJustEnded:() => false,deriveLearningStage,buildSupportStep,buildSessionFinishModel,
     renderVocabularyQuestion(){},renderSessionSummary(){},renderVocabularyUnit(){},supportiveFeedback(){return '';},
     trackVocabularyEvent:async () => {},
     submitVocabularyAttempt:async (_client,payload) => {
