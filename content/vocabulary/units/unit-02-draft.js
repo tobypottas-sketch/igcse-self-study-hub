@@ -770,12 +770,12 @@ const entries = [
       ],
       retrievalContexts:[
         { id:'1', text:'Video editors need high-performance computers that can handle large files without slowing down.', target:'high-performance', grammarPattern:'' },
-        { id:'2', text:'The racing team designs high-performance engines to win at top speed.', target:'high-performance', grammarPattern:'' },
+        { id:'2', text:'To win races at top speed, the team needs high-performance engines rather than basic engines built only for everyday driving.', target:'high-performance', grammarPattern:'' },
         { id:'3', text:'Elite sport needs high-performance training and the best coaches.', target:'high-performance', grammarPattern:'' }
       ],
       gapDistractors:[
         { id:'1', answer:'high-performance', wrong:['low-power', 'out-of-date', 'basic'] },
-        { id:'2', answer:'high-performance', wrong:['low-power', 'fuel-saving', 'quiet'] },
+        { id:'2', answer:'high-performance', wrong:['low-power', 'basic', 'underpowered'] },
         { id:'3', answer:'high-performance', wrong:['low-cost', 'relaxed', 'occasional'] }
       ]
     }),
@@ -799,12 +799,12 @@ const entries = [
       retrievalContexts:[
         { id:'1', text:'The new captain had a stabilising effect, calming the team and ending the arguments.', target:'stabilising', grammarPattern:'' },
         { id:'2', text:'Fins have a stabilising function: they keep the rocket flying in a straight line.', target:'stabilising', grammarPattern:'' },
-        { id:'3', text:'The government introduced stabilising measures to keep prices steady during the crisis.', target:'stabilising', grammarPattern:'' }
+        { id:'3', text:'The government introduced stabilising measures specifically to keep prices steady during the crisis.', target:'stabilising', grammarPattern:'' }
       ],
       gapDistractors:[
         { id:'1', answer:'stabilising', wrong:['disturbing', 'damaging', 'confusing'] },
         { id:'2', answer:'stabilising', wrong:['accelerating', 'decorative', 'warning'] },
-        { id:'3', answer:'stabilising', wrong:['inflating', 'unsettling', 'expensive'] }
+        { id:'3', answer:'stabilising', wrong:['destabilising', 'inflationary', 'disruptive'] }
       ]
     }),
   e('multi-task', 'verb',
@@ -863,16 +863,286 @@ const entries = [
         { id:'3', answer:'predictable', wrong:['original', 'surprising', 'unusual'] }
       ]
     }),
-  eb('professional', 'adjective'),
-  eb('regional', 'adjective'),
-  eb('commentary', 'noun'),
-  eb('educational', 'adjective'),
-  eb('culture', 'noun'),
-  eb('genuine', 'adjective'),
-  eb('amusing', 'adjective'),
-  eb('competitive', 'adjective'),
-  eb('critical', 'adjective'),
-  eb('impressive', 'adjective'),
+  e('professional', 'adjective',
+    'showing the skill and high standards expected of someone who is trained for a job',
+    ['skilled', 'expert'],
+    ['badly prepared and careless', 'done only for fun', 'free of charge'],
+    'The team delivered a professional presentation with clear slides and no mistakes.',
+    'skilled', 'The team delivered a skilled presentation with clear slides and no mistakes.',
+    'expert', 'She gave expert advice on healthy eating.',
+    {
+      masteryContexts:[
+        { text:'He gave a professional performance, even though he was nervous.', meaning:'showing the skill and high standards expected' },
+        { text:'You should get professional advice before making a big decision.', meaning:'from a trained expert' }
+      ],
+      situationDistractors:[
+        'The beginner nervously played his first song at the school concert.',
+        'A volunteer painted the fence on Saturday morning just for fun.',
+        'The mechanic forgot his tools and arrived two hours late.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'You should ask a professional photographer rather than a friend with a phone to take wedding photos.', target:'professional', grammarPattern:'' },
+        { id:'2', text:'The club hired a professional coach, a trained expert who had worked with national teams.', target:'professional', grammarPattern:'' },
+        { id:'3', text:'Her professional manner, calm, polite and well prepared, impressed the interviewers.', target:'professional', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'professional', wrong:['amateur', 'casual', 'inexperienced'] },
+        { id:'2', answer:'professional', wrong:['beginner', 'amateur', 'inexperienced'] },
+        { id:'3', answer:'professional', wrong:['casual', 'careless', 'nervous'] }
+      ]
+    }),
+  e('regional', 'adjective',
+    'relating to a particular area of a country or of the world',
+    ['local', 'of one area'],
+    ['worldwide and international', 'very old and traditional', 'prepared at home'],
+    'The restaurant specialises in regional dishes from the north of the country.',
+    'local', 'The restaurant specialises in local dishes from the north of the country.',
+    'local', 'Local newspapers cover news from small towns.',
+    {
+      masteryContexts:[
+        { text:'Regional accents vary across the country.', meaning:'belonging to a particular part of a country' },
+        { text:'The regional manager visits each shop in the south-west.', meaning:'responsible for one area' }
+      ],
+      situationDistractors:[
+        'The international airline flew passengers between twenty countries.',
+        'The national government announced a rule for the entire country.',
+        'A world-famous chef opened restaurants on every continent.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'People from different parts of the country often have different regional accents.', target:'regional', grammarPattern:'' },
+        { id:'2', text:'The newspaper covers regional news, such as events in the north-west, rather than national stories.', target:'regional', grammarPattern:'' },
+        { id:'3', text:'Each shop is run by a regional manager responsible only for the south-east of the country.', target:'regional', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'regional', wrong:['national', 'international', 'global'] },
+        { id:'2', answer:'regional', wrong:['international', 'global', 'worldwide'] },
+        { id:'3', answer:'regional', wrong:['national', 'global', 'international'] }
+      ]
+    }),
+  e('commentary', 'noun',
+    'a spoken description of an event as it happens, or an explanation of what is happening',
+    ['live description', 'spoken report'],
+    ['a list of match results', 'an advertisement during a break', 'a written summary of the rules'],
+    'The commentary on the final was so exciting that fans stayed glued to their radios.',
+    'live description', 'The live description of the final was so exciting that fans stayed glued to their radios.',
+    'live description', 'The live description of the concert was broadcast on local radio.',
+    {
+      masteryContexts:[
+        { text:'The radio commentary of the race was full of excitement.', meaning:'a spoken description of an event as it happens' },
+        { text:'The article includes expert commentary on the new law.', meaning:'explanation or opinion about something' }
+      ],
+      situationDistractors:[
+        'The printed programme listed all the players and their numbers.',
+        'The scoreboard showed the final result of the match.',
+        'The referee blew the whistle and stopped play.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Fans who could not attend followed the commentary, which described every pass and shot as it happened.', target:'commentary', grammarPattern:'' },
+        { id:'2', text:'The sports journalist wrote a commentary explaining why the team had lost.', target:'commentary', grammarPattern:'' },
+        { id:'3', text:'During the quiet moments of the race, the commentary filled the silence with facts about the riders.', target:'commentary', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'commentary', wrong:['scoreboard', 'schedule', 'advertisement'] },
+        { id:'2', answer:'commentary', wrong:['timetable', 'receipt', 'menu'] },
+        { id:'3', answer:'commentary', wrong:['scoreboard', 'weather', 'traffic'] }
+      ]
+    }),
+  e('educational', 'adjective',
+    'giving knowledge or teaching useful things',
+    ['teaching', 'instructive'],
+    ['only for entertainment', 'extremely expensive', 'related to money'],
+    'The museum runs educational programmes for school groups.',
+    'teaching', 'The museum runs teaching programmes for school groups.',
+    'teaching', 'The charity sends teaching materials to rural schools.',
+    {
+      masteryContexts:[
+        { text:'The documentary was both entertaining and educational.', meaning:'teaching useful things' },
+        { text:'Educational apps help young children learn letters and numbers.', meaning:'designed to help people learn' }
+      ],
+      situationDistractors:[
+        'The family played a board game purely for amusement on Sunday evening.',
+        'The comedian told jokes for two hours at the theatre.',
+        'The shop sold toys that had no instructions or learning purpose.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Parents prefer educational games that help children learn spelling and maths.', target:'educational', grammarPattern:'' },
+        { id:'2', text:'Unlike a comedy show, a documentary about ancient tools is educational, because viewers learn something new.', target:'educational', grammarPattern:'' },
+        { id:'3', text:'Good children’s television can be educational as well as entertaining, teaching viewers new facts.', target:'educational', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'educational', wrong:['pointless', 'harmful', 'useless'] },
+        { id:'2', answer:'educational', wrong:['pointless', 'humorous', 'tragic'] },
+        { id:'3', answer:'educational', wrong:['pointless', 'misleading', 'boring'] }
+      ]
+    }),
+  e('culture', 'noun',
+    'the customs, beliefs and way of life of a particular group of people',
+    ['way of life', 'customs and traditions'],
+    ['the natural scenery of a place', 'the system of government of a country', 'the money used in a country'],
+    'Visiting a new country is a good way to learn about its culture.',
+    'way of life', 'Visiting a new country is a good way to learn about its way of life.',
+    'customs and traditions', 'The festival celebrates the customs and traditions of the region.',
+    {
+      masteryContexts:[
+        { text:'Food is an important part of Italian culture.', meaning:'customs, beliefs and way of life' },
+        { text:'The school has a culture of respect.', meaning:'shared attitudes and ways of behaving in a group' }
+      ],
+      situationDistractors:[
+        'The tourist took photographs of the mountains and the lake.',
+        'The government changed the tax rules for small businesses.',
+        'The traveller exchanged his money at the airport.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Learning a language helps you understand another culture.', target:'culture', grammarPattern:'' },
+        { id:'2', text:'Greetings, festivals and food are all part of a country’s culture.', target:'culture', grammarPattern:'' },
+        { id:'3', text:'In Japanese culture, it is polite to bow when you meet someone.', target:'culture', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'culture', wrong:['climate', 'weather', 'landscape'] },
+        { id:'2', answer:'culture', wrong:['climate', 'landscape', 'population'] },
+        { id:'3', answer:'culture', wrong:['geography', 'weather', 'landscape'] }
+      ]
+    }),
+  e('genuine', 'adjective',
+    'real and not false, fake or pretended',
+    ['real', 'authentic'],
+    ['very expensive', 'old and damaged', 'copied from another source'],
+    'Is this a genuine designer bag, or a cheap copy?',
+    'real', 'Is this a real designer bag, or a cheap copy?',
+    'authentic', 'The museum displays an authentic Roman coin.',
+    {
+      masteryContexts:[
+        { text:'She showed genuine concern when I was ill.', meaning:'sincere, not pretended' },
+        { text:'The ring is made of genuine gold.', meaning:'real, not imitation' }
+      ],
+      situationDistractors:[
+        'The shop sold a cheap copy of a famous painting as a souvenir.',
+        'He pretended to be interested while checking his phone.',
+        'The label said the leather was imitation.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The seller proved that the painting was genuine by showing the artist’s signature and records.', target:'genuine', grammarPattern:'' },
+        { id:'2', text:'Her smile was genuine, not polite or forced.', target:'genuine', grammarPattern:'' },
+        { id:'3', text:'Check that the ticket is genuine, because there are many fakes online.', target:'genuine', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'genuine', wrong:['fake', 'forged', 'imitation'] },
+        { id:'2', answer:'genuine', wrong:['pretended', 'false', 'artificial'] },
+        { id:'3', answer:'genuine', wrong:['fake', 'counterfeit', 'forged'] }
+      ]
+    }),
+  e('amusing', 'adjective',
+    'funny and entertaining; making you smile or laugh',
+    ['funny', 'humorous'],
+    ['sad and serious', 'difficult to understand', 'very frightening'],
+    'We found the cartoon so amusing that we watched it twice.',
+    'funny', 'We found the cartoon so funny that we watched it twice.',
+    'funny', 'She told a funny story about her first day at school.',
+    {
+      masteryContexts:[
+        { text:'My grandfather told an amusing story about his school days.', meaning:'funny and entertaining' },
+        { text:'I found the film mildly amusing, but not hilarious.', meaning:'making you smile a little' }
+      ],
+      situationDistractors:[
+        'The audience sat in silence during the sad scene.',
+        'The teacher explained a difficult maths problem on the board.',
+        'The film showed a frightening storm at sea.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The comedian told several amusing stories that made the audience laugh.', target:'amusing', grammarPattern:'' },
+        { id:'2', text:'It was an amusing sight: a puppy trying to climb the stairs and rolling back down.', target:'amusing', grammarPattern:'' },
+        { id:'3', text:'The cartoon is amusing for children, who giggle at the silly characters.', target:'amusing', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'amusing', wrong:['tragic', 'serious', 'frightening'] },
+        { id:'2', answer:'amusing', wrong:['tragic', 'serious', 'shocking'] },
+        { id:'3', answer:'amusing', wrong:['tragic', 'boring', 'frightening'] }
+      ]
+    }),
+  e('competitive', 'adjective',
+    'wanting very much to win or to be more successful than others',
+    ['eager to win', 'driven to beat others'],
+    ['friendly and relaxed', 'unwilling to take part', 'not very good at sport'],
+    'She is very competitive and hates losing even a friendly game.',
+    'eager to win', 'She is very eager to win and hates losing even a friendly game.',
+    'eager to win', 'Players eager to win train harder than anyone else.',
+    {
+      masteryContexts:[
+        { text:'He is a highly competitive swimmer who trains every day.', meaning:'determined to win' },
+        { text:'It is a competitive industry, with many companies fighting for customers.', meaning:'involving strong competition' }
+      ],
+      situationDistractors:[
+        'The two friends played cards for fun and did not keep score.',
+        'She shared her sandwiches with the other team after the match.',
+        'He gave up the race because he did not care about winning.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'My brother is so competitive that he cannot stand losing even a simple card game.', target:'competitive', grammarPattern:'' },
+        { id:'2', text:'The job market is very competitive, with hundreds of applicants for every position.', target:'competitive', grammarPattern:'' },
+        { id:'3', text:'Because the school is highly competitive, students work extremely hard to be top of the class.', target:'competitive', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'competitive', wrong:['relaxed', 'generous', 'careless'] },
+        { id:'2', answer:'competitive', wrong:['quiet', 'relaxed', 'secure'] },
+        { id:'3', answer:'competitive', wrong:['relaxed', 'casual', 'generous'] }
+      ]
+    }),
+  e('critical', 'adjective',
+    'expressing disapproval of someone or something, or pointing out their faults',
+    ['disapproving', 'fault-finding'],
+    ['full of praise', 'too tired to notice', 'unable to decide'],
+    'Reviewers were critical of the film’s slow start.',
+    'disapproving', 'Reviewers were disapproving of the film’s slow start.',
+    'disapproving', 'Her father gave a disapproving look at the untidy room.',
+    {
+      masteryContexts:[
+        { text:'Parents were critical of the new homework policy.', meaning:'expressing disapproval of' },
+        { text:'She is too critical of her own work.', meaning:'quick to find faults' }
+      ],
+      situationDistractors:[
+        'The judges praised every performance and gave full marks.',
+        'The teacher congratulated the class on its excellent results.',
+        'Reviewers called the film brilliant and moving.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Several newspapers were critical of the decision to cut school funding, arguing that it was a terrible mistake.', target:'critical', grammarPattern:'' },
+        { id:'2', text:'Her critical comments, pointing out every small mistake in my essay, left me feeling discouraged.', target:'critical', grammarPattern:'' },
+        { id:'3', text:'He is a very critical person who complains about everything and never says anything good.', target:'critical', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'critical', wrong:['supportive', 'proud', 'approving'] },
+        { id:'2', answer:'critical', wrong:['supportive', 'encouraging', 'kind'] },
+        { id:'3', answer:'critical', wrong:['cheerful', 'grateful', 'easy-going'] }
+      ]
+    }),
+  e('impressive', 'adjective',
+    'causing admiration because of great skill, size or quality',
+    ['remarkable', 'admirable'],
+    ['disappointing and weak', 'ordinary and average', 'slightly unusual'],
+    'Her exam results were so impressive that the school put them on its website.',
+    'remarkable', 'Her exam results were so remarkable that the school put them on its website.',
+    'admirable', 'He showed admirable patience with the younger children.',
+    {
+      masteryContexts:[
+        { text:'The view from the tower is truly impressive.', meaning:'causing admiration' },
+        { text:'He gave an impressive speech without using any notes.', meaning:'showing great skill' }
+      ],
+      situationDistractors:[
+        'The team lost every match and finished at the bottom of the league.',
+        'The presentation was short and covered only basic facts.',
+        'The painting looked similar to many others in the shop.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Her speech was so impressive that the whole audience stood up and applauded.', target:'impressive', grammarPattern:'' },
+        { id:'2', text:'The new stadium is huge and impressive, with a roof that opens in minutes.', target:'impressive', grammarPattern:'' },
+        { id:'3', text:'He gave an impressive performance, winning every round without making a single mistake.', target:'impressive', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'impressive', wrong:['disappointing', 'ordinary', 'boring'] },
+        { id:'2', answer:'impressive', wrong:['ordinary', 'boring', 'disappointing'] },
+        { id:'3', answer:'impressive', wrong:['average', 'weak', 'disappointing'] }
+      ]
+    }),
   eb('determination', 'noun'),
   eb('overcome', 'verb'),
   eb('accessory', 'noun'),
