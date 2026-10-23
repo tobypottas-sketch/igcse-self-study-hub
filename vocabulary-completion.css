@@ -66,7 +66,7 @@
 @media (max-width:620px){.vocab-question-session-progress:has(.vocab-session-flair){grid-template-columns:auto 1fr auto}}
 
 /* Server-confirmed mission result (personal best, mission count, best clean streak, next challenge). The slot keeps one fixed height from first paint. */
-.vocab-engagement{display:grid;align-content:center;gap:8px;height:136px;overflow:hidden;margin:0 0 16px;padding:14px 16px;border:1px solid color-mix(in srgb,var(--study-accent,var(--c-teal)) 18%,var(--c-teal-soft));border-radius:var(--r-md);background:color-mix(in srgb,var(--study-accent-soft,var(--c-teal-soft)) 45%,white);text-align:left;box-sizing:border-box}
+.vocab-engagement{display:grid;align-content:center;gap:8px;height:184px;overflow:hidden;margin:0 0 16px;padding:14px 16px;border:1px solid color-mix(in srgb,var(--study-accent,var(--c-teal)) 18%,var(--c-teal-soft));border-radius:var(--r-md);background:color-mix(in srgb,var(--study-accent-soft,var(--c-teal-soft)) 45%,white);text-align:left;box-sizing:border-box}
 .vocab-engagement__headline{display:flex;align-items:center;gap:8px;margin:0;font-weight:900;font-size:var(--fs-md);color:var(--c-ink)}
 .vocab-engagement__headline .study-icon{width:18px;height:18px;flex:none;color:#b8860b}
 .vocab-engagement[data-engagement="pending"] .vocab-engagement__headline{color:var(--c-muted);font-weight:800;font-size:var(--fs-sm)}
@@ -77,5 +77,37 @@
 .vocab-engagement__next strong{font-size:var(--fs-xs);letter-spacing:.05em;text-transform:uppercase;color:var(--c-muted)}
 .vocab-engagement__next span{font-weight:800}
 [data-completion-sequence="playing"] .vocab-engagement[data-personal-best="true"]{animation:vc-pop 450ms cubic-bezier(.2,1.2,.4,1) backwards}
-@media (max-width:620px){.vocab-engagement{height:168px}}
-@media (max-width:380px){.vocab-engagement{height:218px}}
+@media (max-width:620px){.vocab-engagement{height:240px}}
+@media (max-width:380px){.vocab-engagement{height:314px}}
+.vocab-engagement__unlocked{display:flex;align-items:center;gap:6px;margin:0;font-size:var(--fs-sm);font-weight:800;color:var(--c-ink)}
+.vocab-engagement__unlocked .study-icon{width:16px;height:16px;flex:none;color:#b8860b}
+
+/* Home strip: level and XP, then weekly goal, merit progress and the achievements button. */
+.vocab-engage-home{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"level btn" "counts btn";align-items:center;gap:10px 20px;margin:0 0 18px;padding:14px 18px;border:1px solid color-mix(in srgb,var(--c-teal) 16%,var(--c-teal-soft));border-radius:var(--r-md);background:linear-gradient(135deg,#f4fbfb,#f6f4ff)}
+.vocab-engage-home__level{grid-area:level;display:grid;grid-template-columns:auto 1fr;align-items:baseline;gap:2px 12px}
+.vocab-engage-home__level strong{font-size:var(--fs-lg);font-weight:900;color:var(--c-ink)}
+.vocab-engage-home__xp{justify-self:end;font-size:var(--fs-sm);font-weight:800;color:var(--c-muted);font-variant-numeric:tabular-nums}
+.vocab-engage-home__level .study-progress{grid-column:1/-1;height:8px}
+.vocab-engage-home__counts{grid-area:counts;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px}
+.vocab-engage-home__count{display:flex;align-items:center;gap:8px;margin:0;font-size:var(--fs-sm);font-weight:800;color:var(--c-ink-2)}
+.vocab-week-dots{display:inline-flex;gap:4px}
+.vocab-week-dot{width:10px;height:10px;border-radius:50%;border:2px solid #b9cdd6;box-sizing:border-box}
+.vocab-week-dot.is-done{background:#e8b923;border-color:#e8b923}
+.vocab-engage-home__achievements{display:inline-flex;align-items:center;gap:8px;grid-area:btn;align-self:center;min-height:var(--tap-min);padding:0 14px;border:1px solid rgba(28,76,99,.16);border-radius:var(--r-pill);background:#fff;font:inherit;font-size:var(--fs-sm);font-weight:900;color:var(--c-ink);cursor:pointer}
+.vocab-engage-home__achievements .study-icon{width:18px;height:18px;color:#b8860b}
+.vocab-engage-home__new{padding:1px 8px;border-radius:var(--r-pill);background:#e8b923;color:#3a2c00;font-size:var(--fs-xs)}
+@media (max-width:760px){.vocab-engage-home{grid-template-columns:minmax(0,1fr);grid-template-areas:"level" "counts" "btn"}.vocab-engage-home__achievements{width:100%;justify-content:center}}
+
+/* Achievements sheet: compact tiles (4 columns desktop, 3 phone). Locked and unlocked differ by icon and written text, not colour alone. */
+.vocab-sheet--achievements{width:min(720px,calc(100% - 24px));max-height:calc(100dvh - 24px);overflow:auto}
+.vocab-achievement-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0 0;padding:0;list-style:none}
+.vocab-achievement{display:grid;align-content:start;justify-items:center;gap:3px;padding:10px 6px;border:1px solid rgba(28,76,99,.12);border-radius:var(--r-md);text-align:center;background:#fff}
+.vocab-achievement strong{font-size:var(--fs-sm);line-height:1.15;overflow-wrap:anywhere}
+.vocab-achievement small{font-size:11px;line-height:1.2;color:var(--c-muted);overflow-wrap:anywhere}
+.vocab-achievement__icon{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#eef3f6;color:#5d7686}
+.vocab-achievement__icon .study-icon{width:16px;height:16px}
+.vocab-achievement.is-unlocked{border-color:#e8b923;background:linear-gradient(135deg,#fff8dd,#fff)}
+.vocab-achievement.is-unlocked .vocab-achievement__icon{background:#e8b923;color:#3a2c00}
+.vocab-achievement.is-locked{opacity:.78}
+@media (max-width:620px){.vocab-achievement-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.vocab-achievement{padding:8px 4px}.vocab-achievement small{font-size:10px}}
+@media (max-height:640px){.vocab-sheet--achievements{padding:12px 12px 14px}.vocab-sheet--achievements .vocab-sheet__head{gap:8px}.vocab-sheet--achievements .vocab-sheet__icon{width:36px;height:36px}.vocab-achievement{padding:5px 3px;gap:1px}.vocab-achievement__icon{width:20px;height:20px}.vocab-achievement__icon .study-icon{width:12px;height:12px}.vocab-achievement-grid{margin-top:8px;gap:4px}}

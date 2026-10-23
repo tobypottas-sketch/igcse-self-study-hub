@@ -102,3 +102,80 @@ test('the app records a mission only through the id, only for finished non-previ
   assert.match(data, /rpc\('record_vocabulary_mission', \{ p_mission_id:missionId \}\)/);
   assert.match(data, /Engagement data is optional/);
 });
+
+import { achievements, computeXp, levelFor, meritProgress, weeklyGoal, XP_RULES } from '../src/vocabulary/engagement-model.js';
+const PATHWAYS = ['meaning', 'context', 'word_families', 'paraphrasing', 'precision_use', 'spelling_recall'];
+function at(day, hour = 10, minute = 0) { return new Date(2026, 9, day, hour, minute).toISOString(); }
+function mission(overrides = {}) { return row({ completed_at:at(5), ...overrides }); }
+
+test('levels are plain Level N from the approved thresholds', () => {
+  assert.equal(levelFor(0).level, 1);
+  assert.equal(levelFor(99).level, 1);
+  assert.equal(levelFor(100).level, 2);
+  assert.equal(levelFor(2699).level, 9);
+  assert.deepEqual([levelFor(2700).level, levelFor(99999).level, levelFor(2700).next], [10, 10, null]);
+  const mid = levelFor(175);
+  assert.deepEqual([mid.level, mid.toNext, mid.progressPercent], [2, 75, 50]);
+});
+
+test('merit progress is worded as progress toward the teacher-awarded merit', () => {
+  assert.equal(meritProgress(4).copy, '6 more passed stages toward your next teacher-awarded merit');
+  assert.equal(meritProgress(9).copy, '1 more passed stage toward your next teacher-awarded merit');
+  assert.equal(meritProgress(10).toNext, 10);
+  assert.doesNotMatch(meritProgress(3).copy, /earn(ed)? a merit|you earned|awarded you/i);
+});
+
+test('weekly goal counts missions Monday to Sunday and is fixed at 4', () => {
+  const rows = [mission({ completed_at:at(19) }), mission({ completed_at:at(20) }), mission({ completed_at:at(21, 23, 59) }), mission({ completed_at:at(22, 0, 1) }), mission({ completed_at:at(18) })];
+  const goal = weeklyGoal(rows, new Date(2026, 9, 23, 9));
+  assert.deepEqual([goal.done, goal.goal, goal.met], [4, 4, true]);
+  assert.equal(weeklyGoal(rows, new Date(2026, 9, 26, 9)).done, 0);
+  assert.equal(weeklyGoal(rows, new Date(2026, 9, 18, 12)).done, 1);
+  assert.equal(goal.weeksMet, 1);
+});
+
+test('mission XP is 10 / 15 / 20 by score and capped at 80 a day, with half XP from the third repeat of a stage', () => {
+  const day = [10, 11, 12, 13, 14].map((minute, index) => mission({ score:9, completed_at:at(6, 9, minute), pathway_stage:['recognise', 'match', 'apply', 'recall', 'mastery'][index] }));
+  const capped = computeXp({ missions:day });
+  assert.equal(capped.parts.missions, 80);
+  assert.equal(computeXp({ missions:[mission({ score:9 })] }).parts.missions, 20);
+  assert.equal(computeXp({ missions:[mission({ score:7 })] }).parts.missions, 15);
+  assert.equal(computeXp({ missions:[mission({ score:3 })] }).parts.missions, 10);
+  const repeats = [1, 2, 3].map(minute => mission({ score:9, completed_at:at(7, 9, minute) }));
+  assert.equal(computeXp({ missions:repeats }).parts.missions, 20 + 20 + 10);
+});
+
+test('personal bests, achievements and progress add the approved bonuses', () => {
+  const rows = [mission({ score:6, best_streak:3, completed_at:at(5, 9, 1) }), mission({ score:8, best_streak:5, completed_at:at(5, 9, 2) })];
+  const snapshot = { passedStages:3, masteredPathwayCount:1, masteredPathways:new Set(['meaning']), unitsMastered:0 };
+  const xp = computeXp({ missions:rows, snapshot });
+  assert.equal(xp.parts.personalBests, XP_RULES.personalBest);
+  assert.equal(xp.parts.stageClears, 3 * XP_RULES.stageClear);
+  assert.equal(xp.parts.pathwayMasteries, XP_RULES.pathwayMastery);
+  const unlocked = achievements({ missions:rows, snapshot }).filter(item => item.unlocked).map(item => item.id);
+  assert.deepEqual(unlocked.sort(), ['first_steps', 'hot_streak', 'meaning_maker'].sort());
+  assert.equal(xp.parts.achievements, 3 * XP_RULES.achievement);
+});
+
+test('there are exactly 14 achievements, Personal Best is not one, and none carry unlock dates', () => {
+  const list = achievements({ missions:[], snapshot:null });
+  assert.equal(list.length, 14);
+  assert.equal(new Set(list.map(item => item.id)).size, 14);
+  assert.ok(list.some(item => item.id === 'comeback'));
+  assert.ok(!list.some(item => /personal best/i.test(item.name)));
+  assert.ok(list.every(item => !('unlockedAt' in item) && !('date' in item)));
+  assert.equal(list.filter(item => item.unlocked).length, 0);
+});
+
+test('Comeback needs a perfect score after a slip; Perfect Ten needs ten clean answers in a row; All-Rounder needs every pathway', () => {
+  const comeback = achievements({ missions:[mission({ score:10, best_streak:7 })] });
+  assert.equal(comeback.find(item => item.id === 'comeback').unlocked, true);
+  assert.equal(comeback.find(item => item.id === 'perfect_ten').unlocked, false);
+  const flawless = achievements({ missions:[mission({ score:10, best_streak:10 })] });
+  assert.equal(flawless.find(item => item.id === 'perfect_ten').unlocked, true);
+  assert.equal(flawless.find(item => item.id === 'comeback').unlocked, false);
+  const five = PATHWAYS.slice(0, 5).map((pathway, index) => mission({ pathway_id:pathway, completed_at:at(5, 9, index) }));
+  assert.equal(achievements({ missions:five }).find(item => item.id === 'all_rounder').unlocked, false);
+  const six = PATHWAYS.map((pathway, index) => mission({ pathway_id:pathway, completed_at:at(5, 9, index) }));
+  assert.equal(achievements({ missions:six }).find(item => item.id === 'all_rounder').unlocked, true);
+});
