@@ -47,7 +47,7 @@ test('nothing is requested for an asset that has not been shipped (the SVG artwo
     assert.equal(shippedGraphic('unit', 1), null);
     for (const id of PATHWAY_IDS) assert.equal(shippedGraphic('pathway', id), null);
     const home = html(target => renderVocabularyHome(target, { displayName:'A', units:[{ unitNumber:1, unitTitle:'Sports and Free Time', mastered:0, total:50 }] }));
-    assert.doesNotMatch(home, /<img|\.png/);
+    assert.doesNotMatch(home.replace(/<aside class="vocab-coursebook"[\s\S]*?<\/aside>/, ''), /<img|\.png/); // the coursebook cover is the only image allowed
     assert.match(home, /<svg /);
   });
 });

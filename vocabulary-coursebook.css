@@ -1,0 +1,33 @@
+/* Coursebook reference card on the Vocabulary Builder home screen only. */
+.vocab-shell--home{display:grid;grid-template-columns:minmax(0,1fr) 270px;column-gap:18px;align-items:stretch}
+.vocab-shell--home>.vocab-topbar,.vocab-shell--home>.vocab-unit-grid{grid-column:1/-1}
+.vocab-shell--home>.vocab-hero{grid-column:1;grid-row:2;margin:0}
+.vocab-shell--home>.vocab-coursebook{grid-column:2;grid-row:2}
+.vocab-shell--home>.vocab-unit-grid{grid-row:3}
+.vocab-coursebook{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--c-line);border-radius:var(--r-xl);background:var(--c-surface);box-shadow:0 10px 30px rgba(23,56,82,.07);color:var(--c-ink)}
+.vocab-coursebook__cover{flex:none;width:84px;height:auto;aspect-ratio:398/502;border-radius:4px;box-shadow:0 6px 16px rgba(23,56,82,.22)}
+.vocab-coursebook__text p{margin:0}
+.vocab-coursebook__label{font-size:var(--fs-xs);font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--c-teal);margin-bottom:4px!important}
+.vocab-coursebook__title{font-size:var(--fs-sm);font-weight:850;line-height:1.3;margin-bottom:4px!important}
+.vocab-coursebook__meta{font-size:var(--fs-sm);color:var(--c-muted);line-height:1.35;margin-bottom:6px!important}
+.vocab-coursebook__isbn{font-size:var(--fs-xs);color:var(--c-muted);user-select:text}
+.vocab-coursebook__isbn span{font-weight:800;color:var(--c-ink);letter-spacing:.02em}
+@media(max-width:800px){
+  .vocab-shell--home{grid-template-columns:minmax(0,1fr)}
+  .vocab-shell--home>.vocab-hero,.vocab-shell--home>.vocab-coursebook,.vocab-shell--home>.vocab-unit-grid{grid-column:1}
+  .vocab-shell--home>.vocab-hero{grid-row:2}
+  .vocab-shell--home>.vocab-unit-grid{grid-row:3}
+  .vocab-shell--home>.vocab-coursebook{grid-row:4;margin-top:20px;padding:12px 14px}
+  .vocab-coursebook__cover{width:56px}
+  .vocab-coursebook__nb{display:inline}
+  .vocab-coursebook__sep{display:inline}
+  .vocab-coursebook__nb{display:inline}
+  .vocab-coursebook__sep{display:inline}
+  .vocab-coursebook__nb{display:inline}
+  .vocab-coursebook__sep{display:inline}
+  .vocab-coursebook__nb{display:inline}
+  .vocab-coursebook__sep{display:inline}
+}
+.vocab-coursebook__nb{display:block;white-space:nowrap}
+.vocab-coursebook__sep{display:none}
+.vocab-coursebook__title,.vocab-coursebook__meta{text-wrap:balance}
