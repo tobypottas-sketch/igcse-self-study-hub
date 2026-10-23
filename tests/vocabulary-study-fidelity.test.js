@@ -17,7 +17,9 @@ test('pathway cards render their artwork slot and evidence shell in the first HT
   assert.equal((target.innerHTML.match(/data-action="open-pathway"/g) ?? []).length, 6, 'cards remain the single control');
   assert.equal((target.innerHTML.match(/vocab-pathway-card__evidence"/g) ?? []).length, 6);
   // The only images are the decorative PNG layers of the graphics system (src from graphics-manifest.js); nothing else.
-  assert.doesNotMatch(target.innerHTML.replace(/<img class="study-art__png" data-art-png [^>]*alt=""[^>]*>/g, ''), /<img/);
+  // The Vocabulary Bank feature image (one <figure class="vocab-bank-media">) is the single other allowed image.
+  assert.equal((target.innerHTML.match(/<figure class="vocab-bank-media"><img [^>]*alt="[^"]+"[^>]*><\/figure>/g) ?? []).length, 1);
+  assert.doesNotMatch(target.innerHTML.replace(/<img class="study-art__png" data-art-png [^>]*alt=""[^>]*>/g, '').replace(/<figure class="vocab-bank-media">[\s\S]*?<\/figure>/, ''), /<img/);
 });
 
 test('final artwork CSS gives pathway illustrations a real composition layer', () => {

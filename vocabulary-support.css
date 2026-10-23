@@ -1,0 +1,47 @@
+/* "Extra Practice & Reference": Mixed Practice (action) + Vocabulary Bank (reference) on the unit screen. */
+.vocab-support{display:block;margin:34px 0 0}
+.vocab-support__head{margin-bottom:14px}
+.vocab-support__head h2{margin:0;font-size:clamp(1.3rem,2.4vw,1.65rem);letter-spacing:-.02em}
+.vocab-support__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
+.vocab-support-card{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px;padding:22px;border:1px solid var(--c-line);border-radius:var(--r-xl);background:var(--c-surface);box-shadow:0 10px 30px rgba(23,56,82,.07)}
+.vocab-support-card h3{margin:0;font-size:var(--fs-xl);letter-spacing:-.02em;line-height:1.15}
+.vocab-support-card .vocab-kicker{margin:0 0 4px}
+.vocab-support-card__top{display:flex;align-items:center;gap:14px}
+.vocab-support-card__icon{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:16px}
+.vocab-support-card__copy{margin:0;color:var(--c-muted);line-height:1.5}
+.vocab-support-card__sub{margin:auto 0 -2px;padding-top:6px;font-size:var(--fs-xs);font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--c-muted)}
+.vocab-support-card .vocab-button{min-height:var(--tap-min,44px)}
+/* Mixed Practice = violet, action */
+.vocab-support-card--mixed{border-color:var(--c-violet-line);background:linear-gradient(150deg,var(--c-surface) 55%,var(--c-violet-soft))}
+.vocab-support-card--mixed::after{display:none}
+.vocab-support-card--mixed .vocab-support-card__icon{background:var(--c-violet-soft);color:var(--c-violet);border:1px solid var(--c-violet-line)}
+.vocab-support-card--mixed .vocab-kicker{color:var(--c-violet)}
+.vocab-support-card--mixed .vocab-button--primary{background:linear-gradient(135deg,var(--c-violet),#7a6bde);color:#fff;border-color:transparent}
+.vocab-support-card--mixed .vocab-time-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.vocab-support-card--mixed .vocab-time-grid .vocab-button{padding-inline:6px;border-color:var(--c-violet-line);color:var(--c-violet);background:var(--c-surface)}
+/* Vocabulary Bank = teal, reference */
+.vocab-support-card--bank{border-color:var(--c-teal-line);background:linear-gradient(150deg,var(--c-surface) 55%,var(--c-teal-soft))}
+.vocab-support-card--bank .vocab-support-card__icon{background:var(--c-teal-soft);color:var(--c-teal);border:1px solid var(--c-teal-line)}
+.vocab-support-card--bank .vocab-kicker{color:var(--c-teal)}
+.vocab-bank-stack{position:relative;height:54px;margin:2px 0 4px}
+.vocab-bank-stack span{position:absolute;left:0;right:0;height:34px;border:1px solid var(--c-teal-line);border-radius:12px;background:var(--c-surface);box-shadow:0 4px 10px rgba(23,56,82,.06)}
+.vocab-bank-stack span::before{content:"";position:absolute;left:14px;top:11px;width:38%;height:6px;border-radius:3px;background:var(--c-teal-line)}
+.vocab-bank-stack span::after{content:"";position:absolute;left:14px;top:21px;width:58%;height:5px;border-radius:3px;background:var(--c-line)}
+.vocab-bank-stack span:nth-child(1){top:0;left:18px;right:18px;opacity:.55}
+.vocab-bank-stack span:nth-child(2){top:10px;left:9px;right:9px;opacity:.8}
+.vocab-bank-stack span:nth-child(3){top:20px}
+.vocab-button--bank{margin-top:auto;gap:8px;background:var(--c-teal);color:#fff;border-color:transparent}
+.vocab-button--bank .study-icon{width:18px;height:18px}
+.vocab-button--bank:disabled{opacity:.55;cursor:default}
+.vocab-support-card .vocab-button:focus-visible{outline:3px solid var(--c-blue);outline-offset:2px}
+@media(max-width:800px){
+  .vocab-support{margin-top:26px}
+  .vocab-support__grid{grid-template-columns:minmax(0,1fr)}
+  .vocab-support-card{padding:18px}
+  .vocab-support-card__icon{width:46px;height:46px}
+  .vocab-bank-stack{height:46px}
+}
+/* Feature image slot (16:7 banner, cropped to the centre; never taller than ~170px on phones). */
+.vocab-bank-media{margin:2px 0 4px;border-radius:var(--r-lg);overflow:hidden;aspect-ratio:16/5;background:var(--c-teal-soft);box-shadow:0 6px 18px rgba(23,56,82,.12)}
+.vocab-bank-media img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+@media(max-width:800px){.vocab-bank-media{aspect-ratio:1200/446}}
