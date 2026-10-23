@@ -303,16 +303,286 @@ const entries = [
         { id:'3', answer:'current affairs', wrong:['weather vocabulary', 'recipe ideas', 'book characters'] }
       ]
     }),
-  eb('apparently', 'adverb'),
-  eb('supposedly', 'adverb'),
-  eb('celebrity', 'noun'),
-  eb('informed', 'adjective'),
-  eb('admit', 'verb'),
-  eb('communicate', 'verb'),
-  eb('remotely', 'adverb'),
-  eb('transform', 'verb'),
-  eb('percentage', 'noun'),
-  eb('impression', 'noun'),
+  e('apparently', 'adverb',
+    'according to what seems to be true or what people say, although it has not been confirmed',
+    ['seemingly', 'as it appears'],
+    ['obviously, with no doubt at all', 'after a long time', 'in a very careful way'],
+    'The concert has apparently been cancelled because of the weather.',
+    'seemingly', 'The concert has seemingly been cancelled because of the weather.',
+    'seemingly', 'The seemingly simple task took three hours.',
+    {
+      masteryContexts:[
+        { text:'The singer has apparently left the band, but nobody has confirmed it.', meaning:'according to what people say, not confirmed' },
+        { text:'The apparently empty room was full of sleeping cats.', meaning:'seeming to be true from the outside' }
+      ],
+      situationDistractors:[
+        'The reporter checked three official records and confirmed the date.',
+        'A scientist proved the idea with a clear experiment.',
+        'A witness described exactly what she had seen with her own eyes.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The match has apparently been postponed, though the club has not confirmed this yet.', target:'apparently', grammarPattern:'' },
+        { id:'2', text:'I have not seen the results myself, but apparently the whole class passed.', target:'apparently', grammarPattern:'' },
+        { id:'3', text:'Nobody has checked the story, but apparently the old bridge collapsed overnight.', target:'apparently', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'apparently', wrong:['definitely', 'officially', 'certainly'] },
+        { id:'2', answer:'apparently', wrong:['personally', 'proudly', 'secretly'] },
+        { id:'3', answer:'apparently', wrong:['certainly', 'officially', 'definitely'] }
+      ]
+    }),
+  e('supposedly', 'adverb',
+    'according to what many people believe or say, although it may not be true',
+    ['allegedly', 'reportedly'],
+    ['definitely and proven', 'on purpose', 'as quickly as possible'],
+    'The restaurant is supposedly the best in town, but I was disappointed.',
+    'reportedly', 'The restaurant is reportedly the best in town, but I was disappointed.',
+    'allegedly', 'The man allegedly broke the window, but he denies it.',
+    {
+      masteryContexts:[
+        { text:'The film is supposedly based on a true story, but many details are invented.', meaning:'said to be true, but doubted' },
+        { text:'He is supposedly a great cook, though I have never tasted his food.', meaning:'according to what people claim' }
+      ],
+      situationDistractors:[
+        'The inspector tested the machine and proved that it worked perfectly.',
+        'She saw the accident with her own eyes and described it to the police.',
+        'The brochure listed the exact opening times of the museum.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The medicine is supposedly a cure for colds, although doctors say there is no evidence for this.', target:'supposedly', grammarPattern:'' },
+        { id:'2', text:'The old house is supposedly haunted, although nobody has ever seen a ghost there.', target:'supposedly', grammarPattern:'' },
+        { id:'3', text:'She was supposedly at home that night, but several neighbours say they did not see her.', target:'supposedly', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'supposedly', wrong:['clearly', 'certainly', 'definitely'] },
+        { id:'2', answer:'supposedly', wrong:['obviously', 'undoubtedly', 'certainly'] },
+        { id:'3', answer:'supposedly', wrong:['definitely', 'clearly', 'undoubtedly'] }
+      ]
+    }),
+  e('celebrity', 'noun',
+    'a famous person, especially in entertainment or sport',
+    ['famous person', 'star'],
+    ['a public party', 'a person who works behind the scenes', 'a prize for winning'],
+    'Many young people dream of becoming a celebrity.',
+    'star', 'Many young people dream of becoming a star.',
+    'famous person', 'A famous person visited the school and signed autographs.',
+    {
+      masteryContexts:[
+        { text:'The celebrity was surrounded by photographers outside the hotel.', meaning:'a famous person' },
+        { text:'Several celebrities supported the charity campaign.', meaning:'well-known people from entertainment or sport' }
+      ],
+      situationDistractors:[
+        'A baker who is well liked by everyone on her street opened a second shop.',
+        'An engineer won a national award that few people ever heard about.',
+        'The headteacher gave a speech to the parents in the school hall.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Fans waited for hours outside the theatre to see the celebrity arrive.', target:'celebrity', grammarPattern:'' },
+        { id:'2', text:'Every magazine in the shop had a photograph of the same celebrity on the cover.', target:'celebrity', grammarPattern:'' },
+        { id:'3', text:'The charity hopes a celebrity will promote the campaign to millions of followers.', target:'celebrity', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'celebrity', wrong:['neighbour', 'accountant', 'plumber'] },
+        { id:'2', answer:'celebrity', wrong:['neighbour', 'plumber', 'librarian'] },
+        { id:'3', answer:'celebrity', wrong:['librarian', 'neighbour', 'dentist'] }
+      ]
+    }),
+  e('informed', 'adjective',
+    'having or showing knowledge about a subject or situation',
+    ['knowledgeable', 'aware'],
+    ['told off for bad behaviour', 'given a prize', 'confused and worried'],
+    'Voters need to be informed before they make their decision.',
+    'knowledgeable', 'Voters need to be knowledgeable before they make their decision.',
+    'knowledgeable', 'A knowledgeable guide explained the history of the castle.',
+    {
+      masteryContexts:[
+        { text:'She made an informed decision after reading all the reports.', meaning:'based on knowledge and the facts' },
+        { text:'Keep your parents informed about where you are.', meaning:'told about what is happening' }
+      ],
+      situationDistractors:[
+        'The student guessed the answer without reading the question.',
+        'He chose a phone because it was the cheapest one in the shop.',
+        'The committee voted quickly without reading the report.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Before choosing a university, make an informed decision based on all the facts.', target:'informed', grammarPattern:'' },
+        { id:'2', text:'Only an informed voter understands the real effects of each policy.', target:'informed', grammarPattern:'' },
+        { id:'3', text:'The school promised to keep parents informed about every change to the timetable by sending weekly emails.', target:'informed', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'informed', wrong:['emotional', 'sudden', 'hasty'] },
+        { id:'2', answer:'informed', wrong:['angry', 'anxious', 'eager'] },
+        { id:'3', answer:'informed', wrong:['worried', 'upset', 'angry'] }
+      ]
+    }),
+  e('admit', 'verb',
+    'to agree, often unwillingly, that something is true',
+    ['confess', 'accept that it is true'],
+    ['deny that it happened', 'forget completely', 'announce proudly'],
+    'He finally admitted that he had copied the answers.',
+    'confessed', 'He finally confessed that he had copied the answers.',
+    'confessed', 'She confessed that she had broken the window.',
+    {
+      masteryContexts:[
+        { text:'I admit that I made a mistake.', meaning:'agree that something is true, often unwillingly' },
+        { text:'The company admitted responsibility for the delay.', meaning:'accepted that it was at fault' }
+      ],
+      situationDistractors:[
+        'He insisted that he had never been near the shop.',
+        'She refused to say who had taken the money.',
+        'The boy explained that the dog had eaten his homework.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'After hours of questioning, the suspect will finally admit that he stole the car.', target:'admit', grammarPattern:'' },
+        { id:'2', text:'I must admit that I did not read the whole book before the discussion.', target:'admit', grammarPattern:'' },
+        { id:'3', text:'The manager must admit that the team has made serious mistakes with the schedule.', target:'admit', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'admit', wrong:['forget', 'predict', 'wonder'] },
+        { id:'2', answer:'admit', wrong:['pretend', 'deny', 'hope'] },
+        { id:'3', answer:'admit', wrong:['predict', 'promise', 'wonder'] }
+      ]
+    }),
+  e('communicate', 'verb',
+    'to share information, ideas or feelings with other people',
+    ['share information', 'exchange ideas'],
+    ['hide information from others', 'travel to another country', 'argue loudly'],
+    'Teenagers now communicate with their friends mostly through messaging apps.',
+    'stay in touch', 'Teenagers now stay in touch with their friends mostly through messaging apps.',
+    'stay in touch', 'We stay in touch with our cousins abroad by video call.',
+    {
+      masteryContexts:[
+        { text:'Good leaders communicate their plans clearly.', meaning:'share information or ideas so others understand' },
+        { text:'Dolphins communicate using clicks and whistles.', meaning:'exchange information using signals' }
+      ],
+      situationDistractors:[
+        'She kept her plans secret from the rest of the team.',
+        'The two friends sat in silence on the bus, each reading a book.',
+        'He travelled to another city to start a new job.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Pilots use a special code to communicate clearly with air traffic control, so that every message is understood.', target:'communicate', grammarPattern:'' },
+        { id:'2', text:'Dolphins communicate with one another using clicks and whistles.', target:'communicate', grammarPattern:'' },
+        { id:'3', text:'Without a shared language, the two workers struggled to communicate even simple instructions to each other.', target:'communicate', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'communicate', wrong:['argue', 'compete', 'bargain'] },
+        { id:'2', answer:'communicate', wrong:['hunt', 'sleep', 'compete'] },
+        { id:'3', answer:'communicate', wrong:['argue', 'forget', 'borrow'] }
+      ]
+    }),
+  e('remotely', 'adverb',
+    'from a distance, without being physically present, usually by using technology',
+    ['from a distance', 'without being there'],
+    ['very quickly and efficiently', 'in an unfriendly way', 'almost never'],
+    'Many employees now work remotely three days a week.',
+    'away from the office', 'Many employees now work away from the office three days a week.',
+    'away from the office', 'The team can fix the problem away from the office using a secure link.',
+    {
+      masteryContexts:[
+        { text:'The engineer fixed the fault remotely without visiting the factory.', meaning:'from a distance using technology' },
+        { text:'Students can attend the lecture remotely by video link.', meaning:'without being physically present' }
+      ],
+      situationDistractors:[
+        'The technician drove to the office and repaired the server by hand.',
+        'All the staff met in the same room to discuss the plan.',
+        'The doctor examined the patient in the clinic.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The doctor cannot visit the village, so she advises patients remotely by video call.', target:'remotely', grammarPattern:'' },
+        { id:'2', text:'During the storm, most employees worked remotely instead of travelling to the office.', target:'remotely', grammarPattern:'' },
+        { id:'3', text:'The drone can be controlled remotely from a base many kilometres away.', target:'remotely', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'remotely', wrong:['personally', 'locally', 'physically'] },
+        { id:'2', answer:'remotely', wrong:['locally', 'physically', 'personally'] },
+        { id:'3', answer:'remotely', wrong:['personally', 'physically', 'locally'] }
+      ]
+    }),
+  e('transform', 'verb',
+    'to change something completely, especially so that it becomes better or very different',
+    ['change completely', 'turn into something new'],
+    ['move slowly from one place to another', 'repair slightly', 'copy exactly'],
+    'Technology has transformed the way people shop.',
+    'completely changed', 'Technology has completely changed the way people shop.',
+    'completely changed', 'The new library has completely changed the neighbourhood.',
+    {
+      masteryContexts:[
+        { text:'The new park will transform the empty land into a green space.', meaning:'change completely into something different' },
+        { text:'Smartphones have transformed communication.', meaning:'changed in a big and important way' }
+      ],
+      situationDistractors:[
+        'The owner repainted one wall and left the rest of the shop the same.',
+        'The company moved its offices to a building across the road.',
+        'A small crack in the road was filled with tar.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Within ten years, the internet will completely transform the way people shop and work.', target:'transform', grammarPattern:'' },
+        { id:'2', text:'A single great teacher can transform a student’s whole attitude to learning.', target:'transform', grammarPattern:'' },
+        { id:'3', text:'Smartphones continue to transform the way young people communicate.', target:'transform', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'transform', wrong:['describe', 'delay', 'repeat'] },
+        { id:'2', answer:'transform', wrong:['describe', 'measure', 'copy'] },
+        { id:'3', answer:'transform', wrong:['ignore', 'delay', 'repeat'] }
+      ]
+    }),
+  e('percentage', 'noun',
+    'an amount expressed as a part of every hundred',
+    ['proportion', 'part of a hundred'],
+    ['the total cost of something', 'the speed of a change', 'the average of two numbers'],
+    'A high percentage of students use their phones for homework.',
+    'proportion', 'A high proportion of students use their phones for homework.',
+    'proportion', 'A large proportion of the class passed the test.',
+    {
+      masteryContexts:[
+        { text:'What percentage of the class walks to school?', meaning:'what part out of every hundred' },
+        { text:'A small percentage of the profit goes to charity.', meaning:'a part of the whole, given as a number out of 100' }
+      ],
+      situationDistractors:[
+        'The teacher counted the total number of books on the shelf.',
+        'The class measured how fast each toy car rolled down the ramp.',
+        'The shop owner added the cost of all the items together.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Only a small percentage of the audience left before the end.', target:'percentage', grammarPattern:'' },
+        { id:'2', text:'A high percentage of teenagers now own a smartphone.', target:'percentage', grammarPattern:'' },
+        { id:'3', text:'Shops usually add a percentage to the price to make a profit.', target:'percentage', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'percentage', wrong:['speed', 'weight', 'height'] },
+        { id:'2', answer:'percentage', wrong:['speed', 'weight', 'distance'] },
+        { id:'3', answer:'percentage', wrong:['speed', 'distance', 'weight'] }
+      ]
+    }),
+  e('impression', 'noun',
+    'the idea or feeling you have about someone or something after seeing or meeting them',
+    ['first opinion', 'general feeling'],
+    ['a final decision', 'a written report', 'a strong disagreement'],
+    'My first impression of the school was very positive.',
+    'opinion', 'My first opinion of the school was very positive.',
+    'opinion', 'Her opinion of the city changed after a week.',
+    {
+      masteryContexts:[
+        { text:'The politician made a strong impression on the audience.', meaning:'caused people to think well of him' },
+        { text:'I had the impression that nobody was listening.', meaning:'a feeling or belief about what is true' }
+      ],
+      situationDistractors:[
+        'He made a final decision after weighing all the evidence for several days.',
+        'The reporter wrote a long report about the school budget.',
+        'The two neighbours argued loudly about a fence.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Interviewers form an impression of a candidate within the first few minutes.', target:'impression', grammarPattern:'' },
+        { id:'2', text:'She wanted to make a good impression on her new colleagues.', target:'impression', grammarPattern:'' },
+        { id:'3', text:'My first impression of the town was that it was friendly and quiet.', target:'impression', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'impression', wrong:['report', 'plan', 'contract'] },
+        { id:'2', answer:'impression', wrong:['excuse', 'plan', 'copy'] },
+        { id:'3', answer:'impression', wrong:['photograph', 'visit', 'map'] }
+      ]
+    }),
   eb('remote control', 'noun'),
   eb('feature', 'noun'),
   eb('function', 'noun'),

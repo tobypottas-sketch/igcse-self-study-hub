@@ -52,4 +52,5 @@ export const LEXICAL_SPELLING_ERRORS = Object.freeze({
   "vocab_reputation":["repution","reputaton","reputasion","repetation","reputashun","reputtation"], // reputation
   "vocab_reasonable":["reasonible","resonable","reasonnable","reasonabal","reasenable","reasonble"], // reasonable
   "vocab_antiques":["antikes","antiqes","antiqus","anteques","antiquies","antikeys"], // antiques
+  "vocab_admit":["admitt","admet","ammit","admmit","adimit","admite"], // admit (Unit 2)
 });
