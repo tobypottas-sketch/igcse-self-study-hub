@@ -16,9 +16,14 @@ export function servedAtAllStages(idsByStage = {}, stageOrder = ['recognise', 'm
   return [...lists[0]].filter(id => lists.every(list => list.has(id)));
 }
 
-// Interpretation (to confirm): Word Families Mastery needs one stem plus at least two other genuine forms, because the
-// Mastery item has 2-3 gaps that each need a different form. Incomplete families stop at Recall (Locked Decision 6).
-export const MIN_OTHER_FORMS_FOR_FAMILY_MASTERY = 2;
-export function familyCompleteForMastery(wordFamily = []) {
-  return new Set((Array.isArray(wordFamily) ? wordFamily : []).map(s => String(s).trim().toLowerCase()).filter(Boolean)).size >= MIN_OTHER_FORMS_FOR_FAMILY_MASTERY;
+// LOCKED complete-family rule (Word Families Mastery eligibility). A family form is `{ form, partOfSpeech, authentic, authoredContext }`.
+// Eligible when, counting only forms that are authentic AND have authored example/context support, the target is one of them and
+// there are at least 3 such forms (including the target) across at least 2 distinct parts of speech.
+// NOT required: noun + verb + adjective + adverb. Rare or unnatural forms must simply not be listed as authentic.
+export const MIN_FAMILY_FORMS = 3;
+export const MIN_FAMILY_PARTS_OF_SPEECH = 2;
+export function familyCompleteForMastery(forms = [], targetForm = null) {
+  const usable = (Array.isArray(forms) ? forms : []).filter(f => f && typeof f === 'object' && String(f.form ?? '').trim() && String(f.partOfSpeech ?? '').trim() && f.authentic === true && f.authoredContext === true);
+  if (targetForm != null && !usable.some(f => String(f.form).toLowerCase() === String(targetForm).toLowerCase())) return false;
+  return new Set(usable.map(f => String(f.form).toLowerCase())).size >= MIN_FAMILY_FORMS && new Set(usable.map(f => String(f.partOfSpeech).toLowerCase())).size >= MIN_FAMILY_PARTS_OF_SPEECH;
 }

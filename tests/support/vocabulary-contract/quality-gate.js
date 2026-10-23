@@ -7,6 +7,10 @@ const content = s => words(s).filter(w => w.length >= 4 && !STOP.has(w));
 const wc = s => String(s ?? '').trim().split(/\s+/).filter(Boolean).length;
 // Spelling and word-family tasks test form, so grammar/shape differences between options are the skill, not a leak.
 const FORM_IS_THE_SKILL = new Set(['spelling_choice', 'spelling_cue_match', 'word_family_choice', 'word_family_match']);
+// LOCKED Match-specific rule: set-level matching does NOT use the strict MCQ word-count rule. Instead no option may be more than about
+// twice the word count of the shortest (one word of slack for tiny labels), so one giant option never sits among tiny ones.
+export const MATCH_TYPES = new Set(['word_definition_match', 'context_sentence_match', 'word_family_match', 'precision_match', 'spelling_cue_match']);
+export const MATCH_RATIO = 2; export const MATCH_SLACK_WORDS = 1;
 const STRICT_REVIEWED = new Set(['which_situation_fits', 'meaning_in_context', 'choose_word_sentence', 'context_sentence_match', 'gap_fill_bank', 'drag_word_sentence']);
 
 export function optionSetOf(q) {
@@ -27,9 +31,13 @@ export function assessQuestionQuality(q) {
   if (new Set(options.map(lc)).size !== options.length) violations.push('DUPLICATE_OPTION');
   if (key.length !== 1) violations.push('NOT_EXACTLY_ONE_ANSWER');
   if (correct != null) {
-    if (wc(correct) >= 3 && wrong.filter(o => wc(o) >= 2).length < 2) violations.push('PHRASE_AMONG_WORDS');
     const counts = options.map(wc);
-    if (Math.max(...counts) >= 3 && Math.max(...counts) - Math.min(...counts) > 2) violations.push('WORD_COUNT_SPREAD');
+    if (MATCH_TYPES.has(q.type)) {
+      if (Math.max(...counts) > MATCH_RATIO * Math.min(...counts) + MATCH_SLACK_WORDS) violations.push('MATCH_WORD_RATIO');
+    } else {
+      if (wc(correct) >= 3 && wrong.filter(o => wc(o) >= 2).length < 2) violations.push('PHRASE_AMONG_WORDS');
+      if (Math.max(...counts) >= 3 && Math.max(...counts) - Math.min(...counts) > 2) violations.push('WORD_COUNT_SPREAD');
+    }
     if (!FORM_IS_THE_SKILL.has(q.type)) {
       const gap = /\b(a|an)\s+_{2,}/i.exec(q.sourceText ?? '');
       if (gap) {

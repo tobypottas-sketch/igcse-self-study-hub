@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { confidenceFrom } from './support/vocabulary-contract/reference-evidence.js';
-import { applyMission, newSetState, MISSION_SIZE } from './support/vocabulary-contract/reference-progression.js';
+import { applyMissionResult as applyMission, newSetState, MISSION_SIZE } from '../src/vocabulary/stage-progression.js';
 import { STAGE_CONTRACT, PATHWAY_ORDER, STAGE_ORDER } from './support/vocabulary-contract/stage-contract-manifest.js';
 import { hook, hookLocation } from './support/vocabulary-contract/production-hooks.js';
 import { expectedFailure, unresolvedDecision } from './support/vocabulary-contract/xfail.js';
@@ -41,8 +41,8 @@ unresolvedDecision({
 }, 'sampling / flag criteria for Paraphrasing review');
 unresolvedDecision({
   rule: 'Hidden confidence thresholds (what makes a word "secure") — the numbers in reference-evidence.js are placeholders',
-  openQuestion: 'How many non-provisional productive successes, over how many days/contexts, create secure confidence in the new model?',
-  needed: 'A locked hidden-confidence model; until then only the rule "provisional alone is never secure; corroboration upgrades" is tested'
+  openQuestion: 'LOCKED: do not invent or recalibrate thresholds; preserve the current evidence thresholds exactly (the evidence golden is authoritative). Still open: how a provisional flag changes what "secure" means once corroboration is stored.',
+  needed: 'The later job that stores the provisional flag; until then only "provisional alone is never secure; corroboration upgrades" is tested and reference-evidence.js numbers stay placeholders'
 }, 'secure-confidence thresholds');
 
 const mastery = PATHWAY_ACTIVITY_MAP.paraphrasing.mastery;

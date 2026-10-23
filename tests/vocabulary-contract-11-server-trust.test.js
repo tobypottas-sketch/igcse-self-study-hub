@@ -66,16 +66,50 @@ test('students cannot write activity_events directly (the Edge Function service 
   assert.match(foundation, /before insert on public\.activity_events/);
 });
 
-// ---- not yet true ----
-expectedFailure({ rule: 'Server, not client, decides pass/fail (8/10 pass, 6-7 Consolidate, <=5 Recovery)',
-  today: 'record_vocabulary_mission stores score and stars (stars thresholds 9/7/5) but no pass/consolidate/recovery outcome; the 8/10 line exists nowhere on the server',
-  turnsGreenWhen: 'the mission function (or a successor) writes an outcome column from the locked 8/6 thresholds' },
-'record_vocabulary_mission derives a pass / consolidate / recovery outcome', () => assert.match(migration, /consolidate/i));
+// ---- mission identity and server-derived outcome (migration 20261024120000) ----
+const identity = read('supabase/migrations/20261024120000_vocabulary_mission_identity.sql');
+test('the mission seed never reaches grading: the Edge Function does not read it', () => {
+  assert.equal(/mission_?seed|missionSeed|content_?seed/i.test(edge), false);
+  assert.equal(/mission_?seed|missionSeed/i.test(readFileSync(new URL('../supabase/functions/_shared/vocabulary-engine.js', import.meta.url), 'utf8')), false);
+});
+test('missionId and missionSeed are minted by the database (column defaults), never supplied by the caller', () => {
+  assert.match(identity, /mission_id uuid primary key default gen_random_uuid\(\)/);
+  assert.match(identity, /mission_seed text not null default gen_random_uuid\(\)::text/);
+  const signature = /function public\.start_vocabulary_mission\(([\s\S]*?)\)\s*returns/.exec(identity)?.[1] ?? '';
+  assert.ok(signature); assert.equal(/seed|mission_id|score|outcome|stage_passed/i.test(signature.replace(/p_pathway_stage|p_mission_phase/g, '')), false, `start signature accepts: ${signature}`);
+  assert.match(identity, /values \(v_student, p_unit_number/); // the owner is always auth.uid(), never a parameter
+});
+test('students cannot write mission starts or missions directly; only the definer RPCs and triggers do', () => {
+  assert.match(identity, /revoke all on public\.vocabulary_mission_starts from anon, authenticated;\s*grant select on public\.vocabulary_mission_starts to authenticated;/);
+  assert.match(identity, /revoke all on function public\.start_vocabulary_mission\([^)]*\) from public, anon;/);
+  assert.equal(/grant (insert|update|delete)[^;]*vocabulary_mission/i.test(identity), false);
+});
+test('lifecycle: resume returns the same row, NEW abandons the open one and mints another, one open mission per slot', () => {
+  assert.match(identity, /if found and not coalesce\(p_new, false\) then[\s\S]*v_resumed := true;/);
+  assert.match(identity, /set status = 'abandoned', ended_at = now\(\)/);
+  assert.match(identity, /create unique index if not exists vocabulary_mission_starts_one_open_idx[\s\S]*where status = 'open'/);
+  assert.match(identity, /pg_advisory_xact_lock/);
+});
+test('settlement closes the start row, so the next start is a new mission', () => {
+  assert.match(identity, /after insert on public\.vocabulary_missions[\s\S]*vocabulary_mission_close_start/);
+  assert.match(identity, /set status = 'completed'/);
+});
+test('LOCKED: the database derives pass / consolidate / recovery (8 / 6) from the server-derived score and discards any supplied value', () => {
+  assert.match(identity, /new\.outcome := case when new\.score >= 8 then 'pass' when new\.score >= 6 then 'consolidate' else 'recovery' end/);
+  assert.match(identity, /before insert on public\.vocabulary_missions/);
+  assert.match(identity, /check \(outcome is null or outcome in \('pass','consolidate','recovery'\)\)/);
+});
+test('the existing record_vocabulary_mission body and its anti-tamper rules are untouched by this migration', () => {
+  assert.equal(/function public\.record_vocabulary_mission/.test(identity), false);
+  assert.match(migration, /function public\.record_vocabulary_mission\(p_mission_id uuid\)/);
+});
+
+// ---- not yet true (blocked on wiring the app) ----
 expectedFailure({ rule: 'Server-owned visible-stage advancement: one passed mission advances once; replay of a passed stage does not double-advance',
-  today: 'visible stage is derived on the client from per-word pathwayProgress (Math.max over words); no server table records which stage a learner has advanced to',
-  turnsGreenWhen: 'a server-side Set/stage state row is advanced inside the mission-recording transaction, keyed by mission_id' },
-'mission recording advances a server-held Set stage exactly once', () => assert.match(migration, /advance|set_stage|current_stage/i));
-expectedFailure({ rule: 'Mission seed is server-issued so a client cannot choose easier content',
-  today: 'there is no mission seed at all; the question seed is client-derived from occurrence id and index',
-  turnsGreenWhen: 'start-mission issues missionId + missionSeed server-side and attempts must quote that missionId' },
-'mission_seed is stored on a server mission row', () => assert.match(migration, /mission_seed/));
+  today: 'the server now records the mission outcome, but nothing applies it to a stored Set stage: src/vocabulary/stage-progression.js is pure and not wired, and the app still derives the visible stage from per-word evidence',
+  turnsGreenWhen: 'a server-side Set state row (using the stage-progression rules) is advanced in the mission-recording transaction, keyed by mission_id' },
+'mission recording advances a server-held Set stage exactly once', () => assert.match(migration + identity, /set_stage|current_stage|advance_set/i));
+expectedFailure({ rule: 'Mission identity is server-authoritative: attempts and settlement must belong to a server-issued mission',
+  today: 'the client still mints its own mission ids (crypto.randomUUID), so the Edge Function and record_vocabulary_mission cannot yet require a row in vocabulary_mission_starts without breaking live practice',
+  turnsGreenWhen: 'the app starts missions through start_vocabulary_mission, then attempts and record_vocabulary_mission are changed to require an open start row owned by the caller' },
+'attempts and settlement require a server-issued mission', () => assert.match(edge + migration + identity, /vocabulary_mission_starts[\s\S]*(not exists|is null|raise exception 'Mission was not issued)/));

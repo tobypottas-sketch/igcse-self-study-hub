@@ -39,8 +39,8 @@ test('mission identity lifecycle: new gets a new seed, resume keeps it, abandon-
 });
 
 expectedFailure({ rule: 'Replay: immediate replay receives a fresh mission seed; resume reuses it; refresh-resume preserves mission identity',
-  today: 'createSession() has no missionId or missionSeed; the only per-session value is optionNonce, which does not feed content selection, and the question seed is `${occurrenceId}:${index}:adaptive` (identical every mission)',
-  turnsGreenWhen: 'createSession mints missionId + missionSeed, persists them with the in-progress mission and passes missionSeed into planPathwayQuestion' },
+  today: 'the server now issues missionId + missionSeed (start_vocabulary_mission) but the app does not call it: createSession() has neither, optionNonce does not feed content selection, and the question seed is `${occurrenceId}:${index}:adaptive` (identical every mission)',
+  turnsGreenWhen: 'the app starts missions via start_vocabulary_mission, keeps missionId + missionSeed on the session (and in the persisted in-progress mission) and passes deriveContentSeed(...) into planPathwayQuestion' },
 'production createSession exposes a distinct missionSeed per new mission', () => {
   const a = createSession({ unitNumber: 1 }); const b = createSession({ unitNumber: 1 });
   assert.ok(a.missionSeed && a.missionId, 'no missionId/missionSeed on session');

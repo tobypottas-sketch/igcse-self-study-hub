@@ -45,10 +45,26 @@ test('reference: a word enters a pathway Set only if serviceable at all five sta
   assert.deepEqual(servedAtAllStages(stages), ids(10).slice(1));
   assert.deepEqual(servedAtAllStages({ ...stages, mastery: [] }), []);
 });
-test('reference: Word Families Mastery excludes incomplete genuine families', () => {
-  assert.equal(familyCompleteForMastery(['avoidance', 'avoidable']), true);
-  assert.equal(familyCompleteForMastery(['prefer']), false);
+const F = (form, partOfSpeech, extra = {}) => ({ form, partOfSpeech, authentic: true, authoredContext: true, ...extra });
+test('LOCKED family rule: 3+ authentic, authored forms including the target across 2+ parts of speech', () => {
+  assert.equal(familyCompleteForMastery([F('prefer', 'verb'), F('preference', 'noun'), F('preferable', 'adjective')], 'preference'), true);
+  assert.equal(familyCompleteForMastery([F('avoid', 'verb'), F('avoidance', 'noun'), F('avoidable', 'adjective')], 'avoid'), true);
+  assert.equal(familyCompleteForMastery([F('affordable', 'adjective'), F('afford', 'verb'), F('unaffordable', 'adjective')], 'afford'), true);
+});
+test('LOCKED family rule: noun + verb + adjective + adverb is NOT required (verb + noun + adjective suffices; so does two parts of speech)', () => {
+  assert.equal(familyCompleteForMastery([F('decide', 'verb'), F('decision', 'noun'), F('decisive', 'adjective')]), true);
+  assert.equal(familyCompleteForMastery([F('create', 'verb'), F('creation', 'noun'), F('creator', 'noun')]), true);
+});
+test('LOCKED family rule: fewer than 3 forms, a single part of speech, or a missing target is NOT complete', () => {
+  assert.equal(familyCompleteForMastery([F('prefer', 'verb'), F('preference', 'noun')]), false);
+  assert.equal(familyCompleteForMastery([F('avoidable', 'adjective'), F('unavoidable', 'adjective'), F('inevitable', 'adjective')]), false);
+  assert.equal(familyCompleteForMastery([F('prefer', 'verb'), F('preference', 'noun'), F('preferable', 'adjective')], 'preferential'), false);
   assert.equal(familyCompleteForMastery([]), false);
+});
+test('LOCKED family rule: forms that are not authentic, or lack authored context, do not count (no rare or invented forms)', () => {
+  assert.equal(familyCompleteForMastery([F('avoid', 'verb'), F('avoidance', 'noun'), F('avoidability', 'noun', { authentic: false })]), false);
+  assert.equal(familyCompleteForMastery([F('avoid', 'verb'), F('avoidance', 'noun'), F('avoidable', 'adjective', { authoredContext: false })]), false);
+  assert.equal(familyCompleteForMastery(['avoid', 'avoidance', 'avoidable']), false, 'a bare string list carries no part of speech or authoring evidence');
 });
 
 // ---------- Unit 1 as it is today ----------
@@ -65,18 +81,17 @@ test('unit 1: complete Sets derived from today\'s served words obey the rule for
   }
 });
 
-const incompleteFamilyServed = (() => {
-  const wf = readiness.pathways.word_families;
-  const byOcc = Object.fromEntries(unit1.occurrences.map(o => [o.occurrenceId, o]));
-  const byItem = Object.fromEntries(unit1.items.map(i => [i.vocabularyId, i]));
-  return (wf.servedOccurrenceIds ?? []).filter(id => !familyCompleteForMastery(byItem[byOcc[id].vocabularyId]?.wordFamily ?? []));
-})();
+const byOcc = Object.fromEntries(unit1.occurrences.map(o => [o.occurrenceId, o]));
+const byItem = Object.fromEntries(unit1.items.map(i => [i.vocabularyId, i]));
+const wfServed = readiness.pathways.word_families.servedOccurrenceIds ?? [];
+const structured = wfServed.filter(id => (byItem[byOcc[id].vocabularyId]?.wordFamily ?? []).some(f => f && typeof f === 'object'));
+const withTwoOtherForms = wfServed.filter(id => (byItem[byOcc[id].vocabularyId]?.wordFamily ?? []).length >= 2).length;
 
 expectedFailure({
-  rule: 'Word Families Mastery excludes incomplete genuine families (Locked Decision 6)',
-  today: `Unit 1 readiness serves ${incompleteFamilyServed.length} Word Families word(s) whose recorded family has fewer than 2 other forms through Mastery: ${incompleteFamilyServed.join(', ') || 'none'}`,
-  turnsGreenWhen: 'Readiness computes Word Families Mastery eligibility from family completeness, so such words stop at Recall'
-}, 'unit 1: Word Families serves no word without a complete family at Mastery', () => assert.deepEqual(incompleteFamilyServed, []));
+  rule: 'Word Families Mastery eligibility is decided by the locked complete-family rule (3+ authentic, authored forms across 2+ parts of speech)',
+  today: `Unit 1 records wordFamily as a bare string list: ${structured.length} of ${wfServed.length} served Word Families words carry part of speech or authored-context linkage per form, so the locked rule cannot be evaluated for any of them (${withTwoOtherForms} would only pass a naive two-other-forms count)`,
+  turnsGreenWhen: 'Unit data records each family form as { form, partOfSpeech, authentic, authoredContext } (content authoring, a later job) and readiness gates Word Families Mastery on familyCompleteForMastery'
+}, 'unit 1: Word Families Mastery eligibility can be evaluated from the data model', () => assert.equal(structured.length, wfServed.length));
 
 expectedFailure({
   rule: 'Readiness exposes complete Sets per pathway and the held-back remainder (Locked Decisions 1-2)',

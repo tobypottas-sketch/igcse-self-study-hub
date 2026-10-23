@@ -27,6 +27,10 @@ const CASES = [
   ['short word: rise/rose is never a slip', { expected: 'rise', forms: [], lexicon: ['rose'], typed: 'rose' }, 'wrong_lexical', false, true, false],
   ['short word: an unlisted one-edit change of a short word is not accepted', { expected: 'deny', forms: [], lexicon: [], typed: 'denu' }, 'wrong_lexical', false, false, false],
   ['explicit forms beat edit distance: admits for admit', { expected: 'admit', forms: ['admits', 'admitted', 'admitting'], lexicon: [], typed: 'admits' }, 'wrong_inflection', false, true, false],
+  ['LOCKED example: admitted → exact', { expected: 'admitted', forms: ['admit', 'admits', 'admitting', 'admitted'], lexicon: [], typed: 'admitted' }, 'exact', true, true, true],
+  ['LOCKED example: admit for admitted → wrong inflection', { expected: 'admitted', forms: ['admit', 'admits', 'admitting', 'admitted'], lexicon: [], typed: 'admit' }, 'wrong_inflection', false, true, false],
+  ['LOCKED example: admited (one edit) → spelling slip', { expected: 'admitted', forms: ['admit', 'admits', 'admitting', 'admitted'], lexicon: [], typed: 'admited' }, 'spelling_slip', true, false, true],
+  ['LOCKED example: a different word → wrong lexical', { expected: 'admitted', forms: ['admit', 'admits', 'admitting', 'admitted'], lexicon: [], typed: 'refused' }, 'wrong_lexical', false, false, false],
   ['Spelling pathway: exact counts', { ...AVOID, typed: 'avoided', pathwayId: 'spelling_recall' }, 'exact', true, true, true],
   ['Spelling pathway: a slip is incorrect', { ...AVOID, typed: 'avoidd', pathwayId: 'spelling_recall' }, 'spelling_slip', false, false, false],
   ['Spelling pathway: wrong inflection is incorrect', { ...AVOID, typed: 'avoid', pathwayId: 'spelling_recall' }, 'wrong_inflection', false, true, false]
@@ -48,6 +52,11 @@ test('edit distance counts a transposition as one edit and rejects two-letter ch
 test('wrong inflection keeps the lexical match so evidence can tell a form error from a wrong word', () => {
   assert.equal(classifyTypedAnswer({ ...AVOID, typed: 'avoid' }).lexicalMatch, true);
   assert.equal(classifyTypedAnswer({ ...AVOID, typed: 'permit' }).lexicalMatch, false);
+});
+test('LOCKED ORDER: morphology is checked before edit distance (a form that is also one edit away is an inflection, never a slip)', () => {
+  const r = classifyTypedAnswer({ expected: 'admit', typed: 'admits', forms: ['admits'], lexicon: [] });
+  assert.equal(r.class, 'wrong_inflection');
+  assert.equal(classifyTypedAnswer({ expected: 'admitted', typed: 'admitted', forms: ['admitted'] }).class, 'exact');
 });
 test('documented hazard: WITHOUT an explicit forms list a one-edit inflection reads as a slip, so forms must be supplied', () => {
   assert.equal(classifyTypedAnswer({ expected: 'admit', typed: 'admits', forms: [], lexicon: [] }).class, 'spelling_slip');

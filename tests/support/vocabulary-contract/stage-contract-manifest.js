@@ -18,15 +18,15 @@ const NEW = (mode, extra = {}) => T(mode, { status: 'new', ...extra });
 export const ACTIVITY_REGISTRY = Object.freeze({
   // Meaning
   definition_to_word: T('select'), meaning_match: T('select', { status: 'redesign' }),
-  match_set: NEW('set_discrimination'), drag_word_definition: T('set_discrimination', { status: 'moved' }), drag_definition_word: T('set_discrimination', { status: 'moved' }),
+  word_definition_match: T('set_discrimination'), drag_word_definition: T('set_discrimination', { status: 'moved' }), drag_definition_word: T('set_discrimination', { status: 'moved' }),
   which_situation_fits: T('supported_context', { status: 'redesign' }), meaning_in_context: T('supported_context', { status: 'moved' }),
   type_word_from_definition: T('typed_cued'), gloss_in_context_type: NEW('typed_transfer'),
   // Context
-  choose_word_sentence: T('select'), context_match_set: NEW('set_discrimination'),
+  choose_word_sentence: T('select'), context_sentence_match: T('set_discrimination', { status: 'redesign' }),
   gap_fill_bank: T('supported_context'), drag_word_sentence: T('supported_context'),
   type_missing_word: T('typed_cued'), type_in_passage: NEW('typed_transfer', { multiPart: true }),
   // Word Families
-  word_family_identify: NEW('select'), family_sort: NEW('set_discrimination'), word_family_choice: T('supported_context', { status: 'moved' }),
+  word_family_identify: NEW('select'), word_family_match: T('set_discrimination', { status: 'redesign' }), word_family_choice: T('supported_context', { status: 'moved' }),
   word_family_switch: T('typed_cued'), family_multi_form: NEW('typed_transfer', { multiPart: true }),
   // Paraphrasing
   same_idea: T('select'), phrase_match: T('set_discrimination', { status: 'redesign' }),
@@ -40,16 +40,16 @@ export const ACTIVITY_REGISTRY = Object.freeze({
   spell_word: T('typed_cued'), spell_in_context: T('typed_transfer')
 });
 
-// Production names that already implement a contract type. Meaning Match (word_definition_match) is an existing 4-pair
-// set-matching activity (src/vocabulary/match-set.js), so it satisfies the contract's `match_set`.
-export const LEGACY_ALIASES = Object.freeze({ word_definition_match: 'match_set' });
+// Production names that already implement a contract type. (Intentionally empty: see the locked naming decision below.)
+// Locked naming decision: stable internal IDs are kept (word_definition_match, context_sentence_match, word_family_match); no aliases are needed.
+export const LEGACY_ALIASES = Object.freeze({});
 export const contractName = type => LEGACY_ALIASES[type] ?? type;
 
 // The locked ladder (STAGE_CONTRACT.md, "LOCKED STAGE CONTRACT").
 const LADDER = Object.freeze({
-  meaning: { recognise: ['definition_to_word', 'meaning_match'], match: ['match_set', 'drag_word_definition', 'drag_definition_word'], apply: ['which_situation_fits', 'meaning_in_context'], recall: ['type_word_from_definition'], mastery: ['gloss_in_context_type'] },
-  context: { recognise: ['choose_word_sentence'], match: ['context_match_set'], apply: ['gap_fill_bank', 'drag_word_sentence'], recall: ['type_missing_word'], mastery: ['type_in_passage'] },
-  word_families: { recognise: ['word_family_identify'], match: ['family_sort'], apply: ['word_family_choice'], recall: ['word_family_switch'], mastery: ['family_multi_form'] },
+  meaning: { recognise: ['definition_to_word', 'meaning_match'], match: ['word_definition_match', 'drag_word_definition', 'drag_definition_word'], apply: ['which_situation_fits', 'meaning_in_context'], recall: ['type_word_from_definition'], mastery: ['gloss_in_context_type'] },
+  context: { recognise: ['choose_word_sentence'], match: ['context_sentence_match'], apply: ['gap_fill_bank', 'drag_word_sentence'], recall: ['type_missing_word'], mastery: ['type_in_passage'] },
+  word_families: { recognise: ['word_family_identify'], match: ['word_family_match'], apply: ['word_family_choice'], recall: ['word_family_switch'], mastery: ['family_multi_form'] },
   paraphrasing: { recognise: ['same_idea'], match: ['phrase_match'], apply: ['build_paraphrase', 'build_same_idea'], recall: ['complete_paraphrase'], mastery: ['rewrite_phrase', 'rewrite_idea'] },
   precision_use: { recognise: ['precision_choice'], match: ['precision_match'], apply: ['improve_vocabulary'], recall: ['precision_type_cued'], mastery: ['upgrade_passage'] },
   spelling_recall: { recognise: ['spelling_choice'], match: ['spot_the_error'], apply: ['spelling_rebuild'], recall: ['spell_word'], mastery: ['spell_in_context'] }

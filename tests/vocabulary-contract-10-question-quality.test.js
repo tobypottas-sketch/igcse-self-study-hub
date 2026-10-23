@@ -33,6 +33,16 @@ test('gate: verb-form giveaway (the only -ed form among base forms) is rejected'
 test('gate: generated fallback distractors are rejected on strict reviewed types', () => {
   assert.ok(assessQuestionQuality(fixture('meaning_in_context', 'favouring one option over another', ['allowing someone to do something', 'something that must be done', 'what happens after an action'], { distractorSource: 'generated_semantic' })).violations.includes('GENERATED_FALLBACK'));
 });
+test('LOCKED: Match sets use the Match rule (<= ~2x the shortest option), not the strict MCQ word-count spread', () => {
+  const m = (opts, type = 'word_definition_match') => ({ type, prompt: 'Match.', matchCue: 'leisure time', matchOptions: opts, options: null, answers: [opts[0]], distractorSource: 'reviewed' });
+  const natural = m(['time when you can relax and enjoy activities', 'a person or team you compete against', 'a range of things available to choose from', 'an answer to a problem or a difficulty']);
+  assert.equal(assessQuestionQuality(natural).ok, true, assessQuestionQuality(natural).violations.join());
+  const giant = m(['time off', 'rival', 'choice', 'the particular period of free time that a person has after finishing all of their daily work or study']);
+  assert.ok(assessQuestionQuality(giant).violations.includes('MATCH_WORD_RATIO'));
+  assert.equal(assessQuestionQuality(giant).violations.includes('WORD_COUNT_SPREAD'), false);
+  // the same four options as a standard MCQ keep the tighter gate
+  assert.ok(assessQuestionQuality({ ...giant, type: 'definition_to_word' }).violations.includes('WORD_COUNT_SPREAD'));
+});
 test('gate: spelling and word-family items are exempt from grammar-shape rules (form is the skill)', () => {
   assert.equal(assessQuestionQuality(fixture('spelling_choice', 'admitted', ['admited', 'admitt', 'ammited'], { prompt: 'Which is spelled correctly?', distractorSource: 'reviewed' })).ok, true);
 });
