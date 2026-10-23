@@ -370,6 +370,13 @@ function isFreshQuestion(question, term) {
   return fresh;
 }
 
+// After a correct check the learner's word stays in the sentence, highlighted in gold (so the gap never springs back to empty).
+function gapSlotHtml(gap, feedback) {
+  const answer = feedback?.correct ? String(feedback.filledAnswer ?? '').trim() : '';
+  if (!answer) return `<span class="vocab-gap-slot" data-gap-slot aria-label="Gap in the sentence">${escapeHtml(gap)}</span>`;
+  return `<span class="vocab-gap-slot is-filled vocab-gap-filled is-correct-answer" data-gap-slot data-gap-correct aria-label="Correct answer: ${escapeHtml(answer)}">${escapeHtml(answer)}</span>`;
+}
+
 export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question, term, sessionLabel, learningStage = null, pathwayId = null, pathwayStage = null, sessionPosition = null, sessionTotal = 10, feedback = null, retry = false, support = null, milestone = null, matchSet = null, matchState = null } = {}) {
   const matchView = matchSet && matchState ? { set:matchSet, state:matchState } : null;
   const fixedPathwayId = pathwayId ?? question?.pathwayId ?? null;
@@ -385,7 +392,7 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
   const matchCue = String(question?.matchCue ?? '').trim();
   const sourceDuplicatesMatchCue = source && matchCue && normalizedDisplayText(source.text) === normalizedDisplayText(matchCue);
   const sourceHtml = question?.responseMode === 'drag_gap' && source && /_{2,}/.test(source.text)
-    ? source.text.replace(/^([\s\S]*?)(_{2,})([\s\S]*)$/, (_, before, gap, after) => `${escapeHtml(before)}<span class="vocab-gap-slot" data-gap-slot aria-label="Gap in the sentence">${escapeHtml(gap)}</span>${escapeHtml(after)}`)
+    ? source.text.replace(/^([\s\S]*?)(_{2,})([\s\S]*)$/, (_, before, gap, after) => `${escapeHtml(before)}${gapSlotHtml(gap, feedback)}${escapeHtml(after)}`)
     : (source ? escapeHtml(source.text) : '');
   const questionContext = source && !sourceDuplicatesMatchCue ? `<aside class="vocab-question-context vocab-source-text"><span>${escapeHtml(source.label)}</span><p>${sourceHtml}</p></aside>` : '';
   const targetPill = term && !matchView && !HIDE_TARGET_TYPES.has(question?.type) ? `<div class="vocab-target-pill">${escapeHtml(term)}</div>` : '';
