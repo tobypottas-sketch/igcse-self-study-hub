@@ -31,7 +31,7 @@ const regret = verbItem('vocab_regret','regret',{ base:'regret', thirdPerson:'re
 const unitItems = [deny,recommend,demand,regret];
 
 function occurrence(item) {
-  return { occurrenceId:`u1_${item.term}`, vocabularyId:item.vocabularyId, senseId:`${item.term}_1` };
+  return { occurrenceId:`u1_${item.term}`, unitNumber:1, vocabularyId:item.vocabularyId, senseId:`${item.term}_1` };
 }
 
 test('retrieval uses the exact contextual past-tense answer and form-matched distractors', () => {

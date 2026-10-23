@@ -4,7 +4,9 @@
 // It never judges content by counting rows. A word counts for a stage only when the real question builder produces a question
 // for it, so a stage can never be "ready" on records the engine could not actually use.
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES, activityTypesForPathwayStage } from './pathway-model.js';
-import { rawEligibleTargetsForPathwayStage } from './pathway-planner.js';
+import { evaluateTargetForPathwayStage } from './pathway-planner.js';
+import { grammaticalBlankCandidates } from './foundational-activity-builder.js';
+import { gapDistractorIndex, situationDistractorRecord } from './reviewed-content.js';
 import { linkedActivitiesForTarget } from './session-targets.js';
 import { pathwayLivePolicy } from './pathway-live-policy.js';
 import { READINESS_RULES, stageMinimum } from '../../content/vocabulary/pathway-readiness-rules.js';
@@ -12,6 +14,28 @@ import { unitConfig } from '../../content/vocabulary/unit-registry.js';
 
 function array(value) { return Array.isArray(value) ? value : []; }
 function idOf(row) { return String(row.occurrenceId ?? row.occurrence_id); }
+function contextsFor(content, occurrence) {
+  return content?.contextsByOccurrence?.[occurrence?.occurrenceId] ?? array(content?.contexts).filter(row => row?.occurrenceId === occurrence?.occurrenceId);
+}
+// How much of the unit's judgement-call content (gap-fill options, wrong situations) is reviewed and well formed. Teacher-facing only.
+function authoringSummary(content) {
+  const summary = { gapSentences:0, gapSentencesReviewed:0, gapMalformed:0, situationWordsReviewed:0, situationWordsMalformed:0, words:0 };
+  for (const occurrence of array(content?.occurrences)) {
+    const item = content?.itemsById?.[occurrence.vocabularyId] ?? array(content?.items).find(row => row?.vocabularyId === occurrence.vocabularyId);
+    if (!item) continue;
+    summary.words += 1;
+    const contexts = contextsFor(content, occurrence);
+    const candidates = grammaticalBlankCandidates({ item, occurrence, contexts });
+    const index = gapDistractorIndex({ item, occurrence, contexts, candidates });
+    summary.gapSentences += candidates.length;
+    summary.gapSentencesReviewed += candidates.filter(candidate => index.byContextId.has(String(candidate.context.contextId))).length;
+    summary.gapMalformed += index.problems.length;
+    const situation = situationDistractorRecord({ item, occurrence });
+    if (situation.status === 'valid') summary.situationWordsReviewed += 1;
+    if (situation.status === 'malformed') summary.situationWordsMalformed += 1;
+  }
+  return summary;
+}
 function unitNumberFor(content = {}) {
   const first = array(content?.occurrences)[0] ?? {};
   return first.unitNumber ?? first.unit_number ?? null;
@@ -23,17 +47,32 @@ export function evaluateUnitReadiness({ content, masteryByVocabularyId = {}, exp
   const unitNumber = unitNumberFor(content);
   const expected = Number(expectedWords ?? unitConfig(unitNumber)?.expectedWords ?? occurrences.length);
   const pathways = {};
+  const authoring = authoringSummary(content);
 
   for (const pathway of VOCABULARY_PATHWAYS) {
-    const stageCounts = {}; const stageMinimums = {}; const withheldStages = []; const missing = [];
+    const stageCounts = {}; const stageMinimums = {}; const stageReview = {}; const withheldStages = []; const missing = [];
     let served = new Set(occurrences.map(idOf));
 
     for (const stage of PATHWAY_STAGES) {
       const withheld = activityTypesForPathwayStage(pathway.id, stage.id).length === 0;
       if (withheld) withheldStages.push(stage.id);
-      const eligible = withheld ? [] : rawEligibleTargetsForPathwayStage({
-        pathwayId:pathway.id, stageId:stage.id, content, masteryByVocabularyId, seed:`coverage:${pathway.id}:${stage.id}`
-      });
+      const eligible = []; const review = { reviewed:0, generatedSafe:0, generatedSemantic:0, other:0, unreviewed:0 };
+      if (!withheld) {
+        for (const occurrence of occurrences) {
+          const outcome = evaluateTargetForPathwayStage({
+            pathwayId:pathway.id, stageId:stage.id, content, target:occurrence,
+            mastery:masteryByVocabularyId[occurrence?.vocabularyId] ?? {}, seed:`coverage:${pathway.id}:${stage.id}:${occurrence?.occurrenceId ?? ''}`
+          });
+          if (outcome.eligible) {
+            eligible.push(occurrence);
+            if (outcome.source === 'reviewed') review.reviewed += 1;
+            else if (outcome.source === 'generated_safe') review.generatedSafe += 1;
+            else if (outcome.source === 'generated_semantic') review.generatedSemantic += 1;
+            else review.other += 1;
+          } else if (outcome.buildable) review.unreviewed += 1;
+        }
+      }
+      stageReview[stage.id] = review;
       const ids = new Set(eligible.map(idOf));
       stageCounts[stage.id] = ids.size;
       stageMinimums[stage.id] = stageMinimum(pathway.id, stage.id, expected);
@@ -41,7 +80,7 @@ export function evaluateUnitReadiness({ content, masteryByVocabularyId = {}, exp
       // part-way, and a pathway counts as mastered only when every served word is.
       served = withheld ? new Set() : new Set([...served].filter(id => ids.has(id)));
       if (ids.size < stageMinimums[stage.id]) {
-        missing.push({ kind:'stage', stage:stage.id, label:`${STAGE_LABEL[stage.id]} stage`, have:ids.size, need:stageMinimums[stage.id] });
+        missing.push({ kind:'stage', stage:stage.id, label:`${STAGE_LABEL[stage.id]} stage`, have:ids.size, need:stageMinimums[stage.id], unreviewed:review.unreviewed });
       }
     }
 
@@ -73,6 +112,7 @@ export function evaluateUnitReadiness({ content, masteryByVocabularyId = {}, exp
       held,
       stageCounts,
       stageMinimums,
+      stageReview,
       supportedStages:PATHWAY_STAGES.map(stage => stage.id).filter(id => stageCounts[id] >= stageMinimums[id]),
       servedOccurrenceIds:live ? servedIds : [],
       servedCount:servedIds.length,
@@ -82,5 +122,5 @@ export function evaluateUnitReadiness({ content, masteryByVocabularyId = {}, exp
     };
   }
 
-  return { unitNumber, expectedWords:expected, pathways };
+  return { unitNumber, expectedWords:expected, pathways, authoring };
 }

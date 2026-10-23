@@ -1,9 +1,10 @@
 import { shuffleAnswerOptions } from './answer-option-shuffle.js';
 import { unsolvedTileOrder } from './tile-order.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
-import { grammaticalBlankCandidates, blankDistractors } from './foundational-activity-builder.js';
-import { languageBankContextForItem, languageBankForItem } from './language-bank.js';
-import { pickSpellingErrors } from './spelling-errors.js';
+import { grammaticalBlankCandidates, blankDistractorsDetailed, reviewedGapIndex } from './foundational-activity-builder.js';
+import { languageBankContextForItem } from './language-bank.js';
+import { DISTRACTOR_SOURCE, UnreviewedContentError } from './reviewed-content.js';
+import { pickSpellingErrorsDetailed } from './spelling-errors.js';
 
 export const PATHWAY_ACTIVITY_TYPES = Object.freeze(new Set([
   'type_word_from_definition','context_sentence_match','word_family_match',
@@ -52,11 +53,17 @@ function typeWordFromDefinition(args, definition) {
   if (!meaning||!term) throw new Error('Meaning Recall requires a curated definition and target word.');
   return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Type the word that means “${meaning}”.`,markingReference:{acceptedAnswers:[term]},extra:{primaryEvidenceTargetId:args.item.vocabularyId}});
 }
-function blankableContext(args) {
+function blankableContext(args, needsReviewedOptions=false) {
   const used=new Set(array(args.usedContentIds).map(String));
-  const candidates=grammaticalBlankCandidates({ item:args.item, occurrence:args.occurrence, contexts:args.contexts })
+  let candidates=grammaticalBlankCandidates({ item:args.item, occurrence:args.occurrence, contexts:args.contexts })
     .filter(candidate=>candidate.formKey || candidate.surface.toLocaleLowerCase('en')===text(args.item?.term).toLocaleLowerCase('en'));
   if (!candidates.length) throw new Error('No curated context is available for this pathway activity.');
+  if (needsReviewedOptions) {
+    const index=reviewedGapIndex(args);
+    if (index.problems.length) throw new UnreviewedContentError('gap-fill', index.problems.map(row=>`${row.contextId ?? 'row'}: ${row.problem}`).join(' | '));
+    candidates=candidates.filter(candidate=>index.byContextId.has(String(candidate.context.contextId)));
+    if (!candidates.length) throw new UnreviewedContentError('gap-fill','no blankable sentence has reviewed options');
+  }
   const unused=candidates.filter(candidate=>!used.has(String(candidate.context.contextId)));
   return shuffle(unused.length?unused:candidates,`${args.seed}:context`)[0];
 }
@@ -65,7 +72,7 @@ function contextSentenceMatch(args, definition) {
   let legacyContext=null;
   if (bankContext && array(args.usedContentIds).includes(`language-bank:${bankContext.id}`)) {
     try {
-      const candidate=blankableContext(args);
+      const candidate=blankableContext(args, args.requireReviewed===true);
       if (!array(args.usedContentIds).includes(candidate.context.contextId)) { legacyContext=candidate; bankContext=null; }
     } catch { /* A published bank prompt remains eligible if no legacy cue can be built. */ }
   }
@@ -76,13 +83,13 @@ function contextSentenceMatch(args, definition) {
     const options=shuffle([accepted,...wrong],`${args.seed}:${bankContext.id}:context-match`);
     const source=text(bankContext.text);
     const pairs=options.map((option,index)=>({vocabularyId:option===accepted?args.item.vocabularyId:`alt-${index}`,term:option===accepted?source:'',definition:option}));
-    return base({definition,occurrence:args.occurrence,contentId:`language-bank:${bankContext.id}`,contentSource:'language_bank',prompt:'Match the sentence to the word or phrase that completes it.',markingReference:{acceptedAnswers:[accepted]},extra:{pairs,sourceText:source,languageBankContextId:bankContext.id,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:source,matchOptions:options,matchPresentation:'context_gap_to_word'}});
+    return base({definition,occurrence:args.occurrence,contentId:`language-bank:${bankContext.id}`,contentSource:'language_bank',prompt:'Match the sentence to the word or phrase that completes it.',markingReference:{acceptedAnswers:[accepted]},extra:{pairs,sourceText:source,languageBankContextId:bankContext.id,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:source,matchOptions:options,matchPresentation:'context_gap_to_word',distractorSource:DISTRACTOR_SOURCE.REVIEWED}});
   }
-  const picked=legacyContext ?? blankableContext(args), context=picked.context, term=picked.surface, alternatives=blankDistractors(args,picked,3);
+  const picked=legacyContext ?? blankableContext(args, args.requireReviewed===true), context=picked.context, term=picked.surface, gap=blankDistractorsDetailed(args,picked,3), alternatives=gap.options;
   const source=picked.sourceText;
   const options=shuffle([term,...alternatives],`${args.seed}:context-match`);
   const pairs=options.map((option,index)=>({vocabularyId:option===term?args.item.vocabularyId:`alt-${index}`,term:option===term?source:'',definition:option}));
-  return base({definition,occurrence:args.occurrence,contentId:context.contextId,contentSource:'context',prompt:'Match the sentence to the word that completes it.',markingReference:{acceptedAnswers:[term]},extra:{pairs,sourceText:source,contextId:context.contextId,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:source,matchOptions:options,matchPresentation:'context_gap_to_word'}});
+  return base({definition,occurrence:args.occurrence,contentId:context.contextId,contentSource:'context',prompt:'Match the sentence to the word that completes it.',markingReference:{acceptedAnswers:[term]},extra:{pairs,sourceText:source,contextId:context.contextId,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:source,matchOptions:options,matchPresentation:'context_gap_to_word',distractorSource:gap.source}});
 }
 function linkedWriting(args, taskType) {
   const records=array(args.unitActivities).filter(activity=>activity?.contentType==='writing_set' && activity?.activityData?.taskType===taskType && array(activity.activityData?.linkedVocabularyIds).includes(args.item.vocabularyId));
@@ -137,20 +144,20 @@ function precisionMatch(args, definition) {
   const pairs=options.map((option,index)=>({vocabularyId:index===0?args.item.vocabularyId:`alt-${index}`,term:index===0?cue:'',definition:option}));
   return base({definition,occurrence:args.occurrence,contentId:record.activityContentId,contentSource:'unit_activity',prompt:'Match the weak wording to the most precise replacement.',markingReference:{acceptedAnswers:accepted},extra:{pairs,sourceText:cue,activityContentId:record.activityContentId,taskType:'improve_vocabulary',primaryEvidenceTargetId:data.primaryEvidenceTargetId ?? args.item.vocabularyId,matchCue:cue,matchOptions:options,matchPresentation:'precision_replacement'}});
 }
-function reviewedSpellingErrors(args, count=3) {
-  return pickSpellingErrors(args.item,text(args.item.term),count,args.seed);
+function spellingOptions(args, count=3) {
+  return pickSpellingErrorsDetailed(args.item,text(args.item.term),count,args.seed);
 }
 function spellingChoice(args, definition) {
-  const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence), wrong=reviewedSpellingErrors(args,3);
+  const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence), spelled=spellingOptions(args,3), wrong=spelled.errors;
   if (!term||!meaning||wrong.length<3) throw new Error('Spelling recognition requires three plausible spelling alternatives.');
-  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Which is the correct spelling of the word meaning “${meaning}”?`,markingReference:{acceptedAnswers:[term]},extra:{options:shuffleAnswerOptions([term,...wrong],`${args.seed}:spelling-choice`,args.optionNonce),primaryEvidenceTargetId:args.item.vocabularyId}});
+  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Which is the correct spelling of the word meaning “${meaning}”?`,markingReference:{acceptedAnswers:[term]},extra:{options:shuffleAnswerOptions([term,...wrong],`${args.seed}:spelling-choice`,args.optionNonce),primaryEvidenceTargetId:args.item.vocabularyId,distractorSource:spelled.source}});
 }
 function spellingCueMatch(args, definition) {
-  const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence), wrong=reviewedSpellingErrors(args,3);
+  const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence), spelled=spellingOptions(args,3), wrong=spelled.errors;
   if (!term||!meaning||wrong.length<3) throw new Error('Spelling Match requires three plausible alternatives.');
   const options=shuffle([term,...wrong],`${args.seed}:spelling-match`);
   const pairs=options.map((option,index)=>({vocabularyId:index===0?args.item.vocabularyId:`alt-${index}`,term:index===0?meaning:'',definition:option}));
-  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:'Match the meaning cue to the correctly spelled word.',markingReference:{acceptedAnswers:[term]},extra:{pairs,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:meaning,matchOptions:options,matchPresentation:'spelling_visual_discrimination'}});
+  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:'Match the meaning cue to the correctly spelled word.',markingReference:{acceptedAnswers:[term]},extra:{pairs,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:meaning,matchOptions:options,matchPresentation:'spelling_visual_discrimination',distractorSource:spelled.source}});
 }
 function spellingRebuild(args, definition) {
   const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence);
@@ -177,12 +184,12 @@ const BUILDERS=Object.freeze({
   spell_in_context:spellInContext
 });
 
-export function buildPathwayActivity({activityType,occurrence,item,contexts=[],unitActivities=[],unitItems=[],unitContexts=[],unitOccurrences=[],mastery={},readinessStage=null,usedContentIds=[],seed='',optionNonce=''}={}) {
+export function buildPathwayActivity({activityType,occurrence,item,contexts=[],unitActivities=[],unitItems=[],unitContexts=[],unitOccurrences=[],mastery={},readinessStage=null,usedContentIds=[],seed='',optionNonce='',requireReviewed=false}={}) {
   if (!PATHWAY_ACTIVITY_TYPES.has(activityType)) throw new Error('Not a fixed-pathway activity type.');
   if (!occurrence||!item) throw new Error('Vocabulary occurrence and item are required.');
   const definition=activityDefinition(activityType);
   if (!definition||!isActivityLive(definition.id)) throw new Error('Fixed-pathway activity is unavailable.');
   const builder=BUILDERS[definition.id];
   if (!builder) throw new Error(`No fixed-pathway builder exists for ${definition.id}.`);
-  return builder({activityType,occurrence,item,contexts,unitActivities,unitItems,unitContexts,unitOccurrences,mastery,readinessStage,usedContentIds,seed,optionNonce},definition);
+  return builder({activityType,occurrence,item,contexts,unitActivities,unitItems,unitContexts,unitOccurrences,mastery,readinessStage,usedContentIds,seed,optionNonce,requireReviewed},definition);
 }

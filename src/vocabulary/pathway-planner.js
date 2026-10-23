@@ -4,6 +4,8 @@ import { PATHWAY_STAGES, activityTypesForPathwayStage, pathwayDefinition } from 
 import { availableActivityTypesForTarget } from './session-targets.js';
 import { PATHWAY_ACTIVITY_TYPES } from './pathway-activity-builder.js';
 import { registeredPathwayCoverage } from './pathway-coverage-store.js';
+import { UnreviewedContentError } from './reviewed-content.js';
+import { STRICT_REVIEW_QUESTION_TYPES } from '../../content/vocabulary/pathway-readiness-rules.js';
 
 const STAGE_IDS = Object.freeze(PATHWAY_STAGES.map(stage => stage.id));
 const READINESS_BY_STAGE = Object.freeze({
@@ -110,7 +112,7 @@ function normalizedStageTwoMatch(question, plan, item, target) {
   return question;
 }
 
-function buildCandidate({ content, target, mastery, item, contexts, plan, usedContentIds, seed, optionNonce }) {
+function buildCandidate({ content, target, mastery, item, contexts, plan, usedContentIds, seed, optionNonce, requireReviewed = false }) {
   const built = buildActivity({
     activityType:plan.activityType,
     occurrence:target,
@@ -125,6 +127,7 @@ function buildCandidate({ content, target, mastery, item, contexts, plan, usedCo
     usedContentIds:array(usedContentIds),
     seed,
     optionNonce,
+    requireReviewed,
     matchingPresentation:plan.servedStage === 'match'
   });
   const question = applyStageVariant(normalizedStageTwoMatch(built,plan,item,target),{ pathwayId:plan.pathwayId, servedStage:plan.servedStage, item });
@@ -142,7 +145,10 @@ export function planPathwayQuestion({
   supportState = null,
   seed = '',
   optionNonce = '',
-  allowedTypes = null
+  allowedTypes = null,
+  // 'prefer' (the default): questions whose wrong options are teacher-reviewed are served first, and a question built from generated
+  // options is used only when no reviewed one exists. 'require': reviewed options only. 'any': no preference.
+  reviewPolicy = 'prefer'
 } = {}) {
   validatePathwayStage(pathwayId,stageId);
   const learnerStage = stageId;
@@ -164,24 +170,56 @@ export function planPathwayQuestion({
   if (!choices.length) throw new Error('No suitable curated activity is available for this pathway stage.');
 
   let lastError = null;
-  for (const activityType of choices) {
-    const plan = {
-      pathwayId,
-      learnerStage,
-      servedStage,
-      activityType,
-      readinessStage,
-      supportLevel,
-      reason:servedStage === learnerStage ? 'Fixed pathway stage' : 'Temporary one-stage support'
-    };
-    try {
-      const question = buildCandidate({content,target,mastery,item,contexts,plan,usedContentIds,seed,optionNonce});
-      return { item, contexts, plan, question };
-    } catch (error) {
-      lastError = error;
+  const passes = reviewPolicy === 'any' ? [false] : reviewPolicy === 'require' ? [true] : [true,false];
+  for (const requireReviewed of passes) {
+    for (const activityType of choices) {
+      const plan = {
+        pathwayId,
+        learnerStage,
+        servedStage,
+        activityType,
+        readinessStage,
+        supportLevel,
+        reason:servedStage === learnerStage ? 'Fixed pathway stage' : 'Temporary one-stage support'
+      };
+      try {
+        const question = buildCandidate({content,target,mastery,item,contexts,plan,usedContentIds,seed,optionNonce,requireReviewed});
+        return { item, contexts, plan, question };
+      } catch (error) {
+        lastError = error;
+      }
     }
   }
   throw lastError ?? new Error('No suitable curated activity is available for this pathway stage.');
+}
+
+// One word, one pathway stage: can the real builder produce a question, and does every question type of the stage that rests on a
+// distractor judgement (see STRICT_REVIEW_QUESTION_TYPES) have reviewed, well-formed options? A question that technically builds
+// from generated options may still have a second defensible answer, so it does not make the word ready for a strict stage.
+export function evaluateTargetForPathwayStage({ pathwayId, stageId, content, target, mastery = {}, seed = '' } = {}) {
+  validatePathwayStage(pathwayId,stageId);
+  const result = { buildable:false, eligible:false, source:null, strictFailures:[] };
+  try {
+    const built = planPathwayQuestion({ pathwayId, stageId, content, target, mastery, seed, reviewPolicy:'prefer' });
+    result.buildable = true;
+    result.source = built.question?.distractorSource ?? null;
+  } catch {
+    return result;
+  }
+  const { item, contexts } = materialForTarget(content,target);
+  const availableForTarget = new Set(availableActivityTypesForTarget({ content, target, item, contexts }));
+  const strictTypes = activityTypesForPathwayStage(pathwayId,stageId)
+    .filter(type => STRICT_REVIEW_QUESTION_TYPES.includes(type) && targetCanTryActivity(type,availableForTarget));
+  for (const activityType of strictTypes) {
+    const plan = { pathwayId, learnerStage:stageId, servedStage:stageId, activityType, readinessStage:readinessForStage(stageId), supportLevel:'none', reason:'Fixed pathway stage' };
+    try {
+      buildCandidate({ content, target, mastery, item, contexts, plan, usedContentIds:[], seed:`${seed}:strict:${activityType}`, optionNonce:'', requireReviewed:true });
+    } catch (error) {
+      if (error instanceof UnreviewedContentError) result.strictFailures.push({ type:activityType, kind:error.kind, detail:error.message });
+    }
+  }
+  result.eligible = result.strictFailures.length === 0;
+  return result;
 }
 
 export function rawEligibleTargetsForPathwayStage({

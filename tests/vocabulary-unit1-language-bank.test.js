@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import { buildFoundationalActivity } from '../src/vocabulary/foundational-activity-builder.js';
 import { buildPathwayActivity } from '../src/vocabulary/pathway-activity-builder.js';
-import { languageBankForItem } from '../src/vocabulary/language-bank.js';
+import authoredBank from '../content/vocabulary/units/unit-01-language-bank.js';
+import { LEXICAL_SPELLING_ERRORS } from '../content/vocabulary/lexical-spelling-errors.js';
 
 function target(vocabularyId) {
   const occurrence = unit1.occurrences.find(row => row.vocabularyId === vocabularyId);
@@ -31,7 +32,9 @@ function argsFor(vocabularyId, status = 'building', seed = 'language-bank-gate')
 }
 
 function bankFor(vocabularyId) {
-  return languageBankForItem(target(vocabularyId).item);
+  const { item } = target(vocabularyId);
+  const authored = authoredBank[item.term];
+  return authored ? { ...authored, spellingErrors:LEXICAL_SPELLING_ERRORS[vocabularyId] ?? [] } : null;
 }
 
 test('Context Match uses the reviewed leisure-time surface answer instead of bare leisure', () => {

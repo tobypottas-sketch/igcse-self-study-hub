@@ -1,5 +1,5 @@
 import { shuffleAnswerOptions } from './answer-option-shuffle.js';
-import { SITUATION_DISTRACTORS } from './situation-distractors.js';
+import { DISTRACTOR_SOURCE, UnreviewedContentError, curatedMeaningOptions, situationDistractorRecord } from './reviewed-content.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 import { reframeInstructionAroundAnswer } from './answer-leak-guard.js';
 import { completeParaphraseBlank } from '../../supabase/functions/_shared/vocabulary-phrase-blank.js';
@@ -115,15 +115,21 @@ function unitMeaningDistractors(args, correct) {
   const rankedOthers = rankedByLength(others.filter(isWrong), correct, `${args.seed}:meaning-pool:other-pos`);
   return uniqueText([...rankedSamePos, ...rankedOthers]);
 }
-function meaningDistractors(args, sense, correct, seed) {
+// With `reviewedOnly` the options come only from the sense's authored wrong meanings, never from other words' definitions.
+function meaningDistractors(args, sense, correct, seed, reviewedOnly = false) {
   const correctKey = text(correct).toLocaleLowerCase('en');
   const maxWordDelta = 2;
   const closeToCorrect = value => Math.abs(words(value) - words(correct)) <= maxWordDelta;
   const curated = rankedByLength(array(sense?.misleadingDistractors).filter(value => text(value).toLocaleLowerCase('en') !== correctKey), correct, `${seed}:meaning-curated`);
-  const unitFallback = unitMeaningDistractors(args, correct);
+  const unitFallback = reviewedOnly ? [] : unitMeaningDistractors(args, correct);
   const balancedCurated = curated.filter(closeToCorrect);
   const balancedFallback = unitFallback.filter(closeToCorrect);
   return uniqueText([...balancedCurated, ...balancedFallback, ...curated, ...unitFallback]).slice(0,3);
+}
+// Where a Meaning question's wrong options came from: every one authored for the sense, or topped up from other words.
+function meaningOptionSource(sense, correct, wrong, fallbackSource) {
+  const curated = new Set(curatedMeaningOptions(sense, correct).map(value => value.toLocaleLowerCase('en')));
+  return wrong.length >= 3 && wrong.every(value => curated.has(text(value).toLocaleLowerCase('en'))) ? DISTRACTOR_SOURCE.REVIEWED : fallbackSource;
 }
 function occurrenceOwner(args, context) {
   const occurrence = array(args.unitOccurrences).find(row => row.occurrenceId === context?.occurrenceId);
@@ -175,7 +181,7 @@ function meaningMatch(args, definition) {
   const wrong = meaningDistractors(args, sense, correct, seed);
   if (wrong.length < 3) throw new Error('Meaning Match requires three comparable curated distractors.');
   const options = shuffleAnswerOptions([correct, ...wrong], `${seed}:meaning-options`, args.optionNonce);
-  return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`What does “${text(item.term)}” mean in this context?\n${text(context.text)}`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId } });
+  return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`What does “${text(item.term)}” mean in this context?\n${text(context.text)}`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId, distractorSource:meaningOptionSource(sense, correct, wrong, DISTRACTOR_SOURCE.GENERATED_SAFE) } });
 }
 function whichSituationFits(args, definition) {
   const { item, occurrence, contexts, unitActivities, seed } = args;
@@ -189,7 +195,14 @@ function whichSituationFits(args, definition) {
   const context = chooseContext(targetFreeContexts, ['paraphrase_context','production_context'], args.usedContentIds, seed);
   const correct = text(context.text);
 
-  const authored = stableShuffle(uniqueText(array(SITUATION_DISTRACTORS[term]).filter(candidate => text(candidate).toLocaleLowerCase('en') !== correct.toLocaleLowerCase('en'))), `${seed}:situations:authored`).slice(0,3);
+  const record = situationDistractorRecord({ item, occurrence });
+  if (args.requireReviewed === true && record.status !== 'valid') {
+    throw new UnreviewedContentError('situation', record.status === 'absent' ? 'no reviewed wrong situations' : record.problems.join('; '));
+  }
+  const authored = record.status === 'valid'
+    ? stableShuffle(uniqueText(record.values.filter(candidate => text(candidate).toLocaleLowerCase('en') !== correct.toLocaleLowerCase('en'))), `${seed}:situations:authored`).slice(0,3)
+    : [];
+  if (args.requireReviewed === true && authored.length < 3) throw new UnreviewedContentError('situation', 'fewer than three reviewed wrong situations remain');
   let wrong = authored.length === 3 ? authored : unitSituationDistractors(args, correct).slice(0,3);
   if (wrong.length < 3) {
     const alternatives = [];
@@ -207,7 +220,7 @@ function whichSituationFits(args, definition) {
   }
   if (wrong.length < 3) throw new Error('Which Situation Fits requires three full-sentence curated distractors.');
   const options = shuffleAnswerOptions([correct, ...wrong], `${seed}:situations`, args.optionNonce);
-  return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`Which situation best shows the meaning of “${text(item.term)}”?`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId } });
+  return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`Which situation best shows the meaning of “${text(item.term)}”?`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId, distractorSource:authored.length === 3 ? DISTRACTOR_SOURCE.REVIEWED : DISTRACTOR_SOURCE.GENERATED_SEMANTIC } });
 }
 function meaningInContext(args, definition) {
   const { item, occurrence, contexts, seed } = args;
@@ -219,10 +232,12 @@ function meaningInContext(args, definition) {
   const unused = candidates.filter(record => !used.has(record.contextId));
   const context = stableShuffle(unused.length ? unused : candidates, `${seed}:meaning-mastery`)[0];
   const correct = text(context.meaning);
-  const wrong = meaningDistractors(args, sense, correct, seed);
+  const strict = args.requireReviewed === true;
+  if (strict && curatedMeaningOptions(sense, correct).length < 3) throw new UnreviewedContentError('meaning', 'fewer than three authored wrong meanings');
+  const wrong = meaningDistractors(args, sense, correct, seed, strict);
   if (wrong.length < 3) throw new Error('Meaning in Context requires three comparable curated distractors.');
   const options = shuffleAnswerOptions([correct, ...wrong], `${seed}:meaning-context`, args.optionNonce);
-  return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`In this sentence, which meaning best fits “${text(item.term)}”?\n${text(context.text)}`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId } });
+  return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`In this sentence, which meaning best fits “${text(item.term)}”?\n${text(context.text)}`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId, distractorSource:meaningOptionSource(sense, correct, wrong, DISTRACTOR_SOURCE.GENERATED_SEMANTIC) } });
 }
 function correctUsage(args, definition) {
   const { item, occurrence, contexts, unitActivities, seed } = args;
@@ -411,7 +426,7 @@ const BUILDERS = Object.freeze({
   explain_another_way:explainAnotherWay
 });
 
-export function buildActivity({ activityType, occurrence, item, contexts = [], unitActivities = [], unitItems = [], unitContexts = [], unitOccurrences = [], mastery = {}, readinessStage = null, usedContentIds = [], seed = '', optionNonce = '', matchingPresentation = false } = {}) {
+export function buildActivity({ activityType, occurrence, item, contexts = [], unitActivities = [], unitItems = [], unitContexts = [], unitOccurrences = [], mastery = {}, readinessStage = null, usedContentIds = [], seed = '', optionNonce = '', matchingPresentation = false, requireReviewed = false } = {}) {
   if (!occurrence || !item) throw new Error('Vocabulary occurrence and item are required.');
   const definition = activityDefinition(activityType);
   if (!definition) throw new Error('Invalid 0511 vocabulary activity type.');
@@ -419,5 +434,5 @@ export function buildActivity({ activityType, occurrence, item, contexts = [], u
   assertReady(definition, mastery, readinessStage);
   const builder = BUILDERS[definition.id];
   if (!builder) throw new Error(`No builder exists for ${definition.id}.`);
-  return builder({ activityType, occurrence, item, contexts, unitActivities, unitItems, unitContexts, unitOccurrences, mastery, usedContentIds, seed, optionNonce, matchingPresentation }, definition);
+  return builder({ activityType, occurrence, item, contexts, unitActivities, unitItems, unitContexts, unitOccurrences, mastery, usedContentIds, seed, optionNonce, matchingPresentation, requireReviewed }, definition);
 }

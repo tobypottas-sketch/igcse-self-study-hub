@@ -72,7 +72,19 @@ function deriveRetrievalContexts({ term, grammarForms = {}, meaningSentence }) {
   return [];
 }
 
-export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', source = '', entries = [], activities = [] } = {}) {
+// Reviewed gap-fill options are authored per entry as { id, answer, wrong } where id is the id of one of the entry's gap sentences.
+// They are published on the sense keyed by the sentence's stable context id, and an id that matches no sentence is an authoring error.
+function reviewedGapRows(entry, occurrenceId, gapContextIds) {
+  return array(entry.gapDistractors).map(row => {
+    const contextId = `${occurrenceId}_gap_${slug(row?.id)}`;
+    if (!gapContextIds.has(contextId)) throw new Error(`${entry.term}: reviewed gap distractors reference "${row?.id}", which is not one of its gap-fill sentences.`);
+    return { contextId, answer:text(row?.answer), wrong:array(row?.wrong).map(text) };
+  });
+}
+
+// `lexicalSpelling` maps vocabularyId -> reviewed misspellings. Spelling belongs to the lexical item, so every unit that contains
+// the word draws on the same list instead of keeping its own copy.
+export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', source = '', entries = [], activities = [], lexicalSpelling = {} } = {}) {
   const title = text(unitTitle);
   const unit = {
     unitNumber:Number(unitNumber), unitTitle:title, status, source:text(source),
@@ -103,11 +115,18 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
       text:text(record?.text),
       meaning:text(record?.meaning)
     })).filter(record => record.text && record.meaning);
+    const gapContextIds = new Set(retrievalContexts.map((record,retrievalIndex) => `${occurrenceId}_gap_${slug(record?.id || String(retrievalIndex + 1))}`));
+    const gapRows = reviewedGapRows(entry, occurrenceId, gapContextIds);
+    const situationDistractors = array(entry.situationDistractors).map(text);
+    const spellingErrors = array(object(lexicalSpelling)[vocabularyId]).map(text).filter(Boolean);
     const sense = {
       senseId,
       meaning:text(entry.meaning),
       acceptedParaphrases:paraphrases,
       ...(masteryContexts.length ? { masteryContexts } : {}),
+      ...(situationDistractors.length ? { situationDistractors } : {}),
+      ...(gapRows.length ? { gapDistractors:gapRows } : {}),
+      ...(spellingErrors.length ? { spellingErrors } : {}),
       contextDependentParaphrases:array(entry.contextDependentParaphrases),
       misleadingDistractors:distractors,
       ...(Object.keys(grammarForms).length ? { grammarForms:{ ...grammarForms } } : {}),
