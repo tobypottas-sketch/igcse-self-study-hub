@@ -56,6 +56,22 @@ function optionalUuid(value,label){if(value==null||value==='')return null;const 
 function optionalId(value,label){if(value==null||value==='')return null;return id(value,label);}
 function optionalVariant(value){if(value==null||value==='')return null;const variant=String(value).trim();if(!VARIANT_RE.test(variant))throw new Error('Activity variant ID is invalid.');return variant;}
 function validateStrands(value){if(value==null)return[];if(!Array.isArray(value)||value.length===0)throw new Error('Vocabulary strands are invalid.');const strands=[...new Set(value.map(item=>String(item??'').trim()))];if(strands.some(strand=>!STRANDS.has(strand)))throw new Error('Vocabulary strand is invalid.');return strands;}
+const MISSION_KINDS=new Set(['pathway','mixed']);
+const MISSION_FAMILY_RE=/^[a-z0-9_:]{1,40}$/;
+// A mission is the ten-activity session an attempt belongs to. All four fields travel together or not at all.
+function validateMission(value){
+  const present=[value.missionId,value.missionSize,value.missionKind,value.practiceFamily].filter(item=>item!=null&&item!=='').length;
+  if(present===0)return{missionId:null,missionSize:null,missionKind:null,practiceFamily:null};
+  if(present!==4)throw new Error('Vocabulary mission fields must be supplied together.');
+  const missionId=optionalUuid(value.missionId,'Mission ID');
+  if(Number(value.missionSize)!==10)throw new Error('Vocabulary mission size is invalid.');
+  if(!MISSION_KINDS.has(value.missionKind))throw new Error('Vocabulary mission kind is invalid.');
+  const practiceFamily=String(value.practiceFamily).trim();
+  if(!MISSION_FAMILY_RE.test(practiceFamily))throw new Error('Vocabulary practice family is invalid.');
+  if(value.missionKind==='mixed'&&practiceFamily!=='mixed')throw new Error('Vocabulary practice family is invalid.');
+  if(value.missionKind==='pathway'&&practiceFamily==='mixed')throw new Error('Vocabulary practice family is invalid.');
+  return{missionId,missionSize:10,missionKind:value.missionKind,practiceFamily};
+}
 function optionalPathwayValue(value){if(value==null||value==='')return null;return String(value).trim();}
 
 export function assertPathwayQuestionMatchesStage(pathwayId,stageId,questionType){if(!isPathwayQuestionAllowed(pathwayId,stageId,questionType))throw new Error('Vocabulary question type does not match pathway stage.');return true;}
@@ -87,7 +103,7 @@ export function validateVocabularyAttempt(value={}){
   if(value.evidenceStrength!=null&&!EVIDENCE_STRENGTHS.has(value.evidenceStrength))throw new Error('Evidence strength is invalid.');
   if(value.supportLevel!=null&&!SUPPORT_LEVELS.has(value.supportLevel))throw new Error('Support level is invalid.');
   const pathway=validatePathwayCoordinates(value);
-  return{attemptId:optionalUuid(value.attemptId,'Attempt ID'),occurrenceId:id(value.occurrenceId,'Occurrence ID'),contextId,activityContentId,activityVariantId,contentSource:inferredSource,primaryEvidenceTargetId:optionalId(value.primaryEvidenceTargetId,'Primary evidence target ID'),questionType:value.questionType,rawAnswer,strands:validateStrands(value.strands),evidenceStrength:value.evidenceStrength??null,supportLevel:value.supportLevel??null,productive:value.productive===true,repeatedGuess:value.repeatedGuess===true,firstAttempt:value.firstAttempt!==false,retryUsed:value.retryUsed===true,recoveredLater:value.recoveredLater===true,review:value.review===true,preview:value.preview===true,...pathway};
+  return{attemptId:optionalUuid(value.attemptId,'Attempt ID'),occurrenceId:id(value.occurrenceId,'Occurrence ID'),contextId,activityContentId,activityVariantId,contentSource:inferredSource,primaryEvidenceTargetId:optionalId(value.primaryEvidenceTargetId,'Primary evidence target ID'),questionType:value.questionType,rawAnswer,strands:validateStrands(value.strands),evidenceStrength:value.evidenceStrength??null,supportLevel:value.supportLevel??null,productive:value.productive===true,repeatedGuess:value.repeatedGuess===true,firstAttempt:value.firstAttempt!==false,retryUsed:value.retryUsed===true,recoveredLater:value.recoveredLater===true,review:value.review===true,preview:value.preview===true,...pathway,...validateMission(value)};
 }
 
 export function assertUnitActivityQuestionMatchesContentType(contentType,questionType){const allowed=UNIT_ACTIVITY_QUESTION_TYPES[String(contentType??'')];if(!allowed?.has(String(questionType??'')))throw new Error('Vocabulary unit activity content type does not match question type.');return true;}
@@ -121,6 +137,7 @@ export function buildStoredAttemptMetadata(value={}){
   const strand=STRANDS.has(value.strand)?value.strand:strandForQuestionType(value.questionType);
   const output={unit_number:Number(value.unitNumber),strand,question_type:value.questionType,attempt_number:value.firstAttempt===false?2:1,outcome:value.correct?'correct':'try_again',retry_used:value.retryUsed===true,recovery:value.recoveredLater===true,target_id:id(value.vocabularyId,'Vocabulary ID'),occurrence_id:id(value.occurrenceId,'Occurrence ID')};
   if(value.pathwayId&&value.pathwayStage&&value.servedPathwayStage){output.pathway_id=String(value.pathwayId);output.pathway_stage=String(value.pathwayStage);output.served_pathway_stage=String(value.servedPathwayStage);}
+  if(value.missionId&&value.missionSize&&value.missionKind&&value.practiceFamily){output.mission_id=String(value.missionId);output.mission_size=Number(value.missionSize);output.mission_kind=String(value.missionKind);output.practice_family=String(value.practiceFamily);}
   if(MISCONCEPTIONS.has(value.misconceptionCategory))output.misconception=value.misconceptionCategory;
   if(EVIDENCE_STRENGTHS.has(value.evidenceStrength))output.evidence_strength=value.evidenceStrength;
   if(SUPPORT_LEVELS.has(value.supportLevel))output.support_level=value.supportLevel;
