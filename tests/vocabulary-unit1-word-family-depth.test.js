@@ -18,12 +18,14 @@ function distinctFamilyForms(item) {
 
 test('every curated Unit 1 Word Family target has enough genuine forms for Match and enough prompt depth to rotate', () => {
   const targets = unit1.items.filter(item => familyRecordsFor(item.vocabularyId).length > 0);
-  assert.equal(targets.length, 25, 'Unit 1 should expose the full curated 25-target Word Families cohort');
+  assert.equal(targets.length, 37, 'Unit 1 should expose the full curated 37-target Word Families cohort (25 + 12)');
 
   for (const item of targets) {
     const records = familyRecordsFor(item.vocabularyId);
     const forms = distinctFamilyForms(item);
-    assert.ok(forms.size >= 3, `${item.term} needs at least three distinct family forms for meaningful Match discrimination`);
+    // incredible has only one transparent grammatical form (incredibly); its Match rung borrows wrong forms from other families.
+    const minimumForms = item.term === 'incredible' ? 2 : 3;
+    assert.ok(forms.size >= minimumForms, `${item.term} needs at least ${minimumForms} distinct family forms for meaningful Match discrimination`);
     assert.ok(records.length >= 2, `${item.term} needs at least two curated Word Family prompts before cue reuse`);
     assert.equal(new Set(records.map(record => record.activityContentId)).size, records.length, `${item.term} Word Family content IDs must be unique`);
   }

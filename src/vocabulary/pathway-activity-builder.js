@@ -95,8 +95,17 @@ function wordFamilyMatch(args, definition) {
   if (!accepted.length) throw new Error('Word Family Match requires a curated answer.');
   const acceptedKey=accepted[0].toLocaleLowerCase('en');
   const targetFamily=uniqueText([args.item?.term,...array(args.item.wordFamily)]);
-  const alternatives=targetFamily.filter(v=>v.toLocaleLowerCase('en')!==acceptedKey);
-  if (alternatives.length<2) throw new Error('Word Family Match requires at least two competing forms from the same lexical family.');
+  const ownAlternatives=targetFamily.filter(v=>v.toLocaleLowerCase('en')!==acceptedKey);
+  if (!ownAlternatives.length) throw new Error('Word Family Match requires at least one competing form from the same lexical family.');
+  // A word with very few genuine forms (e.g. incredible / incredibly) borrows wrong forms from other Unit 1 families
+  // rather than listing unnatural or different-meaning forms in its own family.
+  let alternatives=ownAlternatives;
+  if (alternatives.length<2) {
+    const taken=new Set([acceptedKey,...targetFamily.map(v=>v.toLocaleLowerCase('en'))]);
+    const cross=uniqueText(array(args.unitItems).filter(candidate=>candidate?.vocabularyId!==args.item?.vocabularyId).flatMap(candidate=>array(candidate?.wordFamily))).filter(v=>!taken.has(v.toLocaleLowerCase('en')));
+    alternatives=[...ownAlternatives,...shuffle(cross,`${args.seed}:family-cross`).slice(0,2)];
+    if (alternatives.length<2) throw new Error('Word Family Match requires at least two competing forms.');
+  }
   const options=shuffle([accepted[0],...shuffle(alternatives,`${args.seed}:family-wrong`).slice(0,3)],`${args.seed}:family-match`);
   const cue=text(data.sourceText)||text(data.prompt)||`Choose the correct form of “${text(args.item.term)}”.`;
   const pairs=options.map((option,index)=>({vocabularyId:index===0?args.item.vocabularyId:`alt-${index}`,term:index===0?cue:'',definition:option}));

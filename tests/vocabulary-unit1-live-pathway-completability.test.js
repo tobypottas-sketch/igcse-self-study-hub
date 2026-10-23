@@ -90,7 +90,8 @@ test('Unit 1 Word Families exposes only targets with enough same-family forms fo
         activity.activityData?.taskType === 'word_family' &&
         (activity.activityData?.linkedVocabularyIds ?? []).includes(occurrence.vocabularyId)
       );
-      return family.size >= 3 && hasCuratedFamilyPrompt;
+      // incredible has one transparent form (incredibly); its Match rung borrows wrong forms from other families.
+      return (family.size >= 3 || item?.term === 'incredible') && hasCuratedFamilyPrompt;
     })
     .map(occurrence => occurrence.occurrenceId)
     .sort();
