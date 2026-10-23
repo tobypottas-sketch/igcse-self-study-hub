@@ -226,12 +226,12 @@ export function renderPracticeSheet({ pathwayId, options = [], lastFamilyId = nu
   return `<div class="vocab-sheet-backdrop" data-practice-sheet-backdrop data-pathway="${escapeHtml(pathwayId)}"><section class="vocab-sheet" role="dialog" aria-modal="true" aria-labelledby="vocabSheetTitle" data-practice-sheet data-study-accent="${escapeHtml(identity.accent)}"><header class="vocab-sheet__head"><span class="vocab-sheet__icon">${renderStudyIcon(identity.icon,{ className:'study-icon--lg' })}</span><div><p class="vocab-kicker">${escapeHtml(identity.label)}</p><h2 id="vocabSheetTitle">How do you want to practise?</h2></div><button type="button" class="vocab-sheet__close" data-action="close-practice-sheet" aria-label="Close">${renderStudyIcon('close',{ className:'study-icon' })}</button></header><button type="button" class="vocab-sheet-option vocab-sheet-option--recommended" data-action="start-recommended" data-pathway="${escapeHtml(pathwayId)}"${lastUsable ? '' : ' data-autofocus'}><span class="vocab-sheet-option__text"><strong>Recommended</strong><small>Pick up where you are, with a balanced mix for this stage</small></span><span class="vocab-sheet-option__go" aria-hidden="true">${renderStudyIcon('arrow',{ className:'study-icon' })}</span></button><p class="vocab-sheet__or">Or choose one activity</p><ul class="vocab-sheet__list">${items}</ul></section></div>`;
 }
 
-// Feature image for the Vocabulary Bank card. Set to the PNG path once the artwork ships (assets/support/vocabulary-bank.png);
-// until then the card shows a lightweight CSS word-card stack so there is never a broken image.
-const VOCABULARY_BANK_IMAGE = null;
+// Feature image for the Vocabulary Bank card (assets/support/vocabulary-bank.png);
+// set it to null to fall back to a lightweight CSS word-card stack.
+const VOCABULARY_BANK_IMAGE = 'assets/support/vocabulary-bank.png';
 function vocabularyBankMedia() {
   return VOCABULARY_BANK_IMAGE
-    ? `<figure class="vocab-bank-media"><img src="${escapeHtml(VOCABULARY_BANK_IMAGE)}" width="1200" height="525" alt="A student studying vocabulary with notes and word cards" loading="lazy" decoding="async"></figure>`
+    ? `<figure class="vocab-bank-media"><img src="${escapeHtml(VOCABULARY_BANK_IMAGE)}" width="1200" height="446" alt="A student studying vocabulary from books and notes at a sunny library desk" loading="lazy" decoding="async"></figure>`
     : '<div class="vocab-bank-stack" aria-hidden="true"><span></span><span></span><span></span></div>';
 }
 

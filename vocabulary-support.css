@@ -42,6 +42,6 @@
   .vocab-bank-stack{height:46px}
 }
 /* Feature image slot (16:7 banner, cropped to the centre; never taller than ~170px on phones). */
-.vocab-bank-media{margin:2px 0 4px;border-radius:var(--r-lg);overflow:hidden;aspect-ratio:16/6;background:var(--c-teal-soft);box-shadow:0 6px 18px rgba(23,56,82,.12)}
+.vocab-bank-media{margin:2px 0 4px;border-radius:var(--r-lg);overflow:hidden;aspect-ratio:16/5;background:var(--c-teal-soft);box-shadow:0 6px 18px rgba(23,56,82,.12)}
 .vocab-bank-media img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
-@media(max-width:800px){.vocab-bank-media{aspect-ratio:16/6.5;max-height:170px}}
+@media(max-width:800px){.vocab-bank-media{aspect-ratio:1200/446}}
