@@ -50,13 +50,14 @@ export function evaluateUnitReadiness({ content, masteryByVocabularyId = {}, exp
   const authoring = authoringSummary(content);
 
   for (const pathway of VOCABULARY_PATHWAYS) {
-    const stageCounts = {}; const stageMinimums = {}; const stageReview = {}; const withheldStages = []; const missing = [];
+    const stageCounts = {}; const stageMinimums = {}; const stageReview = {}; const stageFailures = {}; const withheldStages = []; const missing = [];
     let served = new Set(occurrences.map(idOf));
 
     for (const stage of PATHWAY_STAGES) {
       const withheld = activityTypesForPathwayStage(pathway.id, stage.id).length === 0;
       if (withheld) withheldStages.push(stage.id);
       const eligible = []; const review = { reviewed:0, generatedSafe:0, generatedSemantic:0, other:0, unreviewed:0 };
+      const failures = [];
       if (!withheld) {
         for (const occurrence of occurrences) {
           const outcome = evaluateTargetForPathwayStage({
@@ -69,10 +70,14 @@ export function evaluateUnitReadiness({ content, masteryByVocabularyId = {}, exp
             else if (outcome.source === 'generated_safe') review.generatedSafe += 1;
             else if (outcome.source === 'generated_semantic') review.generatedSemantic += 1;
             else review.other += 1;
-          } else if (outcome.buildable) review.unreviewed += 1;
+          } else {
+            if (outcome.buildable) review.unreviewed += 1;
+            failures.push({ occurrenceId:idOf(occurrence), vocabularyId:occurrence.vocabularyId, buildable:outcome.buildable, kind:outcome.strictFailures[0]?.kind ?? null, reason:outcome.strictFailures[0]?.detail ?? outcome.reason ?? 'No question could be built.' });
+          }
         }
       }
       stageReview[stage.id] = review;
+      stageFailures[stage.id] = failures;
       const ids = new Set(eligible.map(idOf));
       stageCounts[stage.id] = ids.size;
       stageMinimums[stage.id] = stageMinimum(pathway.id, stage.id, expected);
@@ -113,6 +118,7 @@ export function evaluateUnitReadiness({ content, masteryByVocabularyId = {}, exp
       stageCounts,
       stageMinimums,
       stageReview,
+      stageFailures,
       supportedStages:PATHWAY_STAGES.map(stage => stage.id).filter(id => stageCounts[id] >= stageMinimums[id]),
       servedOccurrenceIds:live ? servedIds : [],
       servedCount:servedIds.length,

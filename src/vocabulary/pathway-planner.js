@@ -198,12 +198,13 @@ export function planPathwayQuestion({
 // from generated options may still have a second defensible answer, so it does not make the word ready for a strict stage.
 export function evaluateTargetForPathwayStage({ pathwayId, stageId, content, target, mastery = {}, seed = '' } = {}) {
   validatePathwayStage(pathwayId,stageId);
-  const result = { buildable:false, eligible:false, source:null, strictFailures:[] };
+  const result = { buildable:false, eligible:false, source:null, strictFailures:[], reason:null };
   try {
     const built = planPathwayQuestion({ pathwayId, stageId, content, target, mastery, seed, reviewPolicy:'prefer' });
     result.buildable = true;
     result.source = built.question?.distractorSource ?? null;
-  } catch {
+  } catch (error) {
+    result.reason = error?.message ?? 'No question could be built.';
     return result;
   }
   const { item, contexts } = materialForTarget(content,target);
