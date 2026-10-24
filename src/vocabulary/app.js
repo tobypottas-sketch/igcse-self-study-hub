@@ -156,6 +156,10 @@ function homeEngagement() {
   const { snapshot, xp, list } = engagementData();
   return { level:xp, weekly:weeklyGoal(state.missions ?? []), merit:meritProgress(snapshot?.passedStages ?? 0, state.meritAwarded), achievementsUnlocked:list.filter(item => item.unlocked).length, achievementsTotal:list.length, newCount:newAchievements(list, state.userKey).length };
 }
+function renderHomeFromState() {
+  renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units, engagement:homeEngagement(), soundOn:soundEnabled() });
+  decoratePreview();
+}
 function openAchievements() {
   if (root?.querySelector?.('[data-achievements-backdrop]')) return;
   const { list } = engagementData();
@@ -183,13 +187,16 @@ async function evaluateUnitsThatLookMastered(dashboard) {
     try { await loadVocabularyUnit(state.client, unitNumber, { occurrences:dashboard.occurrences }); } catch { /* readiness unknown: Unit Mastery simply waits */ }
   }
 }
-async function showHome() {
-  state.unitRequest += 1; state.loadingUnit = null;
+async function showHome({ cachedFirst = false } = {}) {
+  const request = state.unitRequest += 1; state.loadingUnit = null;
   clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null; state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false; state.setStep = null;
+  if (cachedFirst && state.dashboard && state.units.length) renderHomeFromState();
   const [dashboard, missions, meritAwarded] = await Promise.all([loadVocabularyDashboard(state.client, { preview:state.preview }), loadVocabularyMissions(state.client, { preview:state.preview }), loadMeritAwardCount(state.client, { preview:state.preview })]);
+  if (request !== state.unitRequest) return;
   state.dashboard = dashboard; state.missions = missions; state.meritAwarded = meritAwarded; state.units = buildUnits(state.dashboard);
   await evaluateUnitsThatLookMastered(dashboard);
-  renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units, engagement:homeEngagement(), soundOn:soundEnabled() }); decoratePreview();
+  if (request !== state.unitRequest) return;
+  renderHomeFromState();
 }
 function renderCurrentUnit() {
   if (!state.currentUnitNumber) return;
@@ -886,7 +893,7 @@ root?.addEventListener('click', event => {
   if (tile) { const form = tile.closest?.('[data-form="vocabulary-answer"]'); const input = form?.querySelector?.('input[name="answer"]'); const build = form?.querySelector?.('[data-tile-build]'); if (!input || tile.disabled) return; if (build?.dataset?.missingTemplate) { const template = JSON.parse(build.dataset.missingTemplate); const filled = JSON.parse(build.dataset.filled || '[]'); if (filled.length >= template.filter(letter => letter == null).length) return; filled.push(tile.dataset.tileAnswer); build.dataset.filled = JSON.stringify(filled); let next = 0; const word = template.map(letter => letter ?? filled[next++] ?? null); input.value = word.every(letter => letter != null) ? word.join(' ') : ''; build.textContent = word.map(letter => letter ?? '_').join(' '); tile.disabled = true; tile.classList.add('is-used'); const notice = form.querySelector?.('[data-tile-validation]'); if (notice) notice.textContent = ''; return; } const parts = String(input.value ?? '').trim().split(/\s+/).filter(Boolean); parts.push(tile.dataset.tileAnswer); input.value = parts.join(' '); tile.disabled = true; tile.classList.add('is-used'); if (build) build.textContent = parts.join(' '); const notice = form.querySelector?.('[data-tile-validation]'); if (notice) notice.textContent = ''; return; }
   const target = event.target?.closest?.('[data-action]'); const action = target?.dataset?.action; if (!action) return;
   if (action === 'open-unit') openUnit(Number(target.dataset.unit)).catch(error => renderVocabularyError(root, error.message));
-  else if (action === 'back-units') showHome().catch(error => renderVocabularyError(root, error.message)); else if (action === 'view-all-words') showAllWords();
+  else if (action === 'back-units') showHome({ cachedFirst:true }).catch(error => renderVocabularyError(root, error.message)); else if (action === 'view-all-words') showAllWords();
   else if (action === 'open-pathway') { try { openPracticeSheet(target.dataset.pathway); } catch (error) { renderVocabularyError(root, error.message); } }
   else if (action === 'start-recommended') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, null); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId)); }
   else if (action === 'start-practice-choice') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, target.dataset.family); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId, false, { familyId:target.dataset.family })); }
