@@ -2,7 +2,7 @@
 // has already loaded, returns the marking or null. The Edge Function only wires rows in and out, so this is what the tests exercise.
 // Every derivation here is the SAME function the browser builder used to create the question (vocabulary-typed-forms.js,
 // vocabulary-word-family.js): the answer is never taken from the client.
-import { glossBlank, passagePair, improveRecordsFor } from './vocabulary-typed-forms.js';
+import { glossBlank, masteryPassageList, improveRecordsFor } from './vocabulary-typed-forms.js';
 import { evaluateFamilyEligibility, familyMaskFromVariant, familySlotsForMask, FAMILY_STATUS } from './vocabulary-word-family.js';
 
 function text(value) { return String(value ?? '').trim(); }
@@ -16,12 +16,13 @@ export function glossInContextMarking({ item, sense, contextRow }) {
   return blank ? { acceptedAnswers: [blank.answer], distractors: [] } : null;
 }
 
-// Context Mastery: `siblingRows` are the occurrence's live gap_fill context rows.
-export function typeInPassageMarking({ item, sense, contextRow, siblingRows }) {
-  const pair = passagePair(siblingRows ?? [], { term: item?.term }, sense, text(contextRow?.context_id ?? contextRow?.contextId));
-  if (!pair) return null;
-  const answers = pair.map(row => row.answer);
-  return { acceptedAnswers: answers, slotAnswers: answers.map(answer => [answer]), distractors: [] };
+// Context Mastery (Job 9): the attempt names the passage's context row; the passage and its single answer come from the sense's
+// masteryPassages, the SAME derivation the browser builder used. Marking is a single slot.
+export function typeInPassageMarking({ item, sense, contextRow }) {
+  const contextId = text(contextRow?.context_id ?? contextRow?.contextId);
+  const passage = masteryPassageList({ term: item?.term }, sense).find(row => row.contextId === contextId);
+  if (!passage) return null;
+  return { acceptedAnswers: [passage.answer], slotAnswers: [[passage.answer]], distractors: [] };
 }
 
 // Precision Mastery: `activityRows` are the unit's live writing_set rows ({ activity_content_id, activity_data }); the pair is the

@@ -318,6 +318,13 @@ export function markCuratedAnswer({ item = {}, sense = {}, context = {}, questio
   accepted.delete('');
 
   const legacyDistractors = new Set((Array.isArray(sense.misleadingDistractors) ? sense.misleadingDistractors : []).map(normalizeVocabularyAnswer).filter(Boolean));
+  // Job 9: the wrong meanings authored for this very Mastery sentence are recognised wrong answers too (misconception classification only;
+  // they never change what is marked correct).
+  if (questionType === 'meaning_in_context') {
+    const own = (Array.isArray(sense.masteryContexts) ? sense.masteryContexts : []).find(record => record?.contextId === context.contextId);
+    for (const wrong of Array.isArray(own?.wrongMeanings) ? own.wrongMeanings : []) { const key = normalizeVocabularyAnswer(wrong); if (key) legacyDistractors.add(key); }
+  }
+  for (const wrong of Array.isArray(sense.wrongParaphrases) ? sense.wrongParaphrases : []) { const key = normalizeVocabularyAnswer(wrong); if (key) legacyDistractors.add(key); }
   const semanticDistractors = semanticDistractorMap(context);
   const identifyingInaccurate = INACCURATE_SELECTION_TYPES.has(questionType);
   const semanticCategory = semanticDistractors.get(normalizedAnswer) ?? null;

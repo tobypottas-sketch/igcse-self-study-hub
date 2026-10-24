@@ -5,7 +5,7 @@ import { grammaticalBlankCandidates, blankDistractorsDetailed, reviewedGapIndex 
 import { languageBankContextForItem } from './language-bank.js';
 import { DISTRACTOR_SOURCE, UnreviewedContentError, reviewedSpellingErrors } from './reviewed-content.js';
 import { pickSpellingErrorsDetailed } from './spelling-errors.js';
-import { glossBlank, passagePair, blankableGapContexts, improveGapSentence, improveRecordsFor, weakPhraseOf, encodeSlotAnswer } from '../../supabase/functions/_shared/vocabulary-typed-forms.js';
+import { glossBlank, masteryPassageList, improveGapSentence, improveRecordsFor, weakPhraseOf, encodeSlotAnswer } from '../../supabase/functions/_shared/vocabulary-typed-forms.js';
 import { evaluateFamilyEligibility, eligibleSlotForms, familyMasks, familySlotsForMask, familyVariantId, FAMILY_STATUS } from '../../supabase/functions/_shared/vocabulary-word-family.js';
 
 export const PATHWAY_ACTIVITY_TYPES = Object.freeze(new Set([
@@ -221,17 +221,17 @@ function glossInContextType(args, definition) {
   return base({definition,occurrence:args.occurrence,contentId:pick.contextId,contentSource:'context',prompt:`Type the word or phrase that completes the sentence and means “${pick.gloss}”.`,markingReference:{acceptedAnswers:[pick.answer]},extra:{sourceText:pick.sourceText,contextId:pick.contextId,gloss:pick.gloss,primaryEvidenceTargetId:args.item.vocabularyId,answerForm:'surface_form'}});
 }
 
-// Context · Mastery. Two authored gap sentences for the same target, completed together. No bank, no letters, no options. Each gap
-// needs the form its own sentence requires, so grammar in context matters. The pair is a pure function of the first context id.
+// Context · Mastery. One authored short passage with a single gap for the target word or form. No bank, no letters, no options: the
+// surrounding discourse must show which word and which form fit. A word needs two passages (Mastery completes on two DISTINCT prompts).
+// The passage is chosen by seed from the unused ones; browser and Edge Function derive it from the same sense.masteryPassages.
 function typeInPassage(args, definition) {
   const sense=senseFor(args.item,args.occurrence), used=new Set(array(args.usedContentIds).map(String));
-  const list=blankableGapContexts(args.contexts,args.item,sense);
-  if (list.length<2) throw new Error('Context Mastery needs two curated gap sentences for this word.');
+  const live=new Set(array(args.contexts).map(context=>String(context?.contextId ?? '')));
+  const list=masteryPassageList(args.item,sense).filter(row=>live.has(row.contextId));
+  if (list.length<2) throw new Error('Context Mastery needs two authored passages for this word.');
   const unused=list.filter(row=>!used.has(row.contextId));
-  const first=shuffle(unused.length?unused:list,`${args.seed}:passage-first`)[0];
-  const pair=passagePair(args.contexts,args.item,sense,first.contextId);
-  const answers=pair.map(row=>row.answer);
-  return base({definition,occurrence:args.occurrence,contentId:pair[0].contextId,contentSource:'context',prompt:'Complete each sentence with the word or phrase that fits. Each gap may need a different form.',markingReference:{acceptedAnswers:answers,slotAnswers:answers.map(answer=>[answer])},extra:{sourceText:pair.map(row=>row.sourceText).join(' '),contextId:pair[0].contextId,slots:pair.map((row,index)=>({label:`Gap ${index+1}`,sourceText:row.sourceText})),primaryEvidenceTargetId:args.item.vocabularyId,answerForm:'surface_form'}});
+  const pick=shuffle(unused.length?unused:list,`${args.seed}:passage-pick`)[0];
+  return base({definition,occurrence:args.occurrence,contentId:pick.contextId,contentSource:'context',prompt:'Read the passage and type the vocabulary word or phrase that fits the gap. Check which form the sentence needs.',markingReference:{acceptedAnswers:[pick.answer],slotAnswers:[[pick.answer]]},extra:{sourceText:pick.sourceText,contextId:pick.contextId,slots:[{label:'Gap',sourceText:pick.sourceText}],primaryEvidenceTargetId:args.item.vocabularyId,answerForm:'surface_form'}});
 }
 
 // Word Families · Recognise. Which word belongs to the same family as the target? Built only from the stored family strings.
@@ -321,7 +321,16 @@ function spotTheError(args, definition) {
   // Correct words of the same word count: other Unit 1 headwords, their authored collocations and stored family forms (never this word's own).
   const pool=uniqueText(array(args.unitItems).filter(c=>c?.vocabularyId!==args.item.vocabularyId).flatMap(c=>[c?.term,...array(c?.collocations),...array(c?.wordFamily)])).filter(v=>v.split(/\s+/).length===wordCount&&!familyOwn.has(v.toLocaleLowerCase('en')));
   const near=pool.filter(v=>Math.abs(v.length-wrong.length)<=2);
-  const others=shuffle(near.length>=3?near:pool,`${args.seed}:spot-others`).slice(0,3);
+  const ordered=shuffle(near.length>=3?near:pool,`${args.seed}:spot-others`);
+  const others=ordered.slice(0,3);
+  // Keep the misspelled card from being the only word with its ending (-s, -ing, -ed or none): one correct word must share it.
+  const ending=v=>/ing$/i.test(v)?'ing':/ed$/i.test(v)?'ed':/[^s]s$/i.test(v)?'s':'base';
+  if (others.length===3&&!others.some(v=>ending(v)===ending(wrong))) {
+    // Last resort for a plural-looking misspelling: the regular plural of another single-word noun headword (always a correct spelling).
+    const plurals=wordCount===1?uniqueText(array(args.unitItems).filter(c=>c?.vocabularyId!==args.item.vocabularyId&&text(c?.partOfSpeech).toLocaleLowerCase('en')==='noun'&&/^[a-z]+$/i.test(text(c?.term))&&!/(s|x|z|ch|sh|y|o|a)$/i.test(text(c?.term))).map(c=>`${text(c.term)}s`)):[];
+    const match=ordered.slice(3).find(v=>ending(v)===ending(wrong))??shuffle([...pool,...plurals],`${args.seed}:spot-ending`).find(v=>!others.includes(v)&&ending(v)===ending(wrong)&&Math.abs(v.length-wrong.length)<=4);
+    if (match) others[2]=match;
+  }
   if (others.length<3) throw new Error('Spot the Error needs three other correctly spelled words.');
   const options=present([wrong,...others],'spot-error',args), cue='Three of these spellings are correct. Which one has a spelling mistake?';
   const pairs=options.map((option,index)=>({vocabularyId:option===wrong?args.item.vocabularyId:`alt-${index}`,term:option===wrong?cue:'',definition:option}));

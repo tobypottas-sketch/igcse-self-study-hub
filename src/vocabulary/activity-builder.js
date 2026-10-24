@@ -120,6 +120,9 @@ function meaningDistractors(args, sense, correct, seed, reviewedOnly = false) {
   const correctKey = text(correct).toLocaleLowerCase('en');
   const maxWordDelta = 2;
   const closeToCorrect = value => Math.abs(words(value) - words(correct)) <= maxWordDelta;
+  // Job 9: authored wrong meanings for Meaning Match (sense.wrongParaphrases) are used in preference to the wrong-TERM list.
+  const authoredMeanings = array(sense?.wrongParaphrases).filter(value => text(value).toLocaleLowerCase('en') !== correctKey);
+  if (authoredMeanings.length >= 3) return stableShuffle(uniqueText(authoredMeanings), `${seed}:meaning-authored`).slice(0,3);
   const curated = rankedByLength(array(sense?.misleadingDistractors).filter(value => text(value).toLocaleLowerCase('en') !== correctKey), correct, `${seed}:meaning-curated`);
   const unitFallback = reviewedOnly ? [] : unitMeaningDistractors(args, correct);
   const balancedCurated = curated.filter(closeToCorrect);
@@ -128,7 +131,7 @@ function meaningDistractors(args, sense, correct, seed, reviewedOnly = false) {
 }
 // Where a Meaning question's wrong options came from: every one authored for the sense, or topped up from other words.
 function meaningOptionSource(sense, correct, wrong, fallbackSource) {
-  const curated = new Set(curatedMeaningOptions(sense, correct).map(value => value.toLocaleLowerCase('en')));
+  const curated = new Set([...curatedMeaningOptions(sense, correct), ...array(sense?.wrongParaphrases)].map(value => text(value).toLocaleLowerCase('en')));
   return wrong.length >= 3 && wrong.every(value => curated.has(text(value).toLocaleLowerCase('en'))) ? DISTRACTOR_SOURCE.REVIEWED : fallbackSource;
 }
 function occurrenceOwner(args, context) {
@@ -183,6 +186,22 @@ function meaningMatch(args, definition) {
   const options = shuffleAnswerOptions([correct, ...wrong], `${seed}:meaning-options`, args.optionNonce);
   return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`What does “${text(item.term)}” mean in this context?\n${text(context.text)}`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId, distractorSource:meaningOptionSource(sense, correct, wrong, DISTRACTOR_SOURCE.GENERATED_SAFE) } });
 }
+// Authored wrong options whose word count is within two of the correct one come first (the shuffle order is kept inside each group), so a
+// correct situation is never picked out by being clearly longer or shorter than every wrong one.
+function comparableFirst(values, correct, seed = '') {
+  const target = words(correct);
+  const near = values.filter(value => Math.abs(words(value) - target) <= 2);
+  const rest = near.length >= 3 ? near : [...near, ...values.filter(value => !near.includes(value))];
+  // Triples whose options (with the correct one) stay within two words of each other, the quality gate's word-count spread rule; the seed picks one.
+  const triples = [];
+  for (let a = 0; a < rest.length; a++) for (let b = a + 1; b < rest.length; b++) for (let c = b + 1; c < rest.length; c++) {
+    const counts = [target, words(rest[a]), words(rest[b]), words(rest[c])];
+    if (Math.max(...counts) - Math.min(...counts) <= 2) triples.push([a, b, c]);
+  }
+  if (!triples.length) return rest;
+  const [a, b, c] = stableShuffle(triples, `${seed}:situation-triple`)[0];
+  return [rest[a], rest[b], rest[c], ...rest.filter((_, index) => ![a, b, c].includes(index))];
+}
 function whichSituationFits(args, definition) {
   const { item, occurrence, contexts, unitActivities, seed } = args;
   const term = text(item.term).toLocaleLowerCase('en');
@@ -200,7 +219,7 @@ function whichSituationFits(args, definition) {
     throw new UnreviewedContentError('situation', record.status === 'absent' ? 'no reviewed wrong situations' : record.problems.join('; '));
   }
   const authored = record.status === 'valid'
-    ? stableShuffle(uniqueText(record.values.filter(candidate => text(candidate).toLocaleLowerCase('en') !== correct.toLocaleLowerCase('en'))), `${seed}:situations:authored`).slice(0,3)
+    ? comparableFirst(stableShuffle(uniqueText(record.values.filter(candidate => text(candidate).toLocaleLowerCase('en') !== correct.toLocaleLowerCase('en'))), `${seed}:situations:authored`), correct, seed).slice(0,3)
     : [];
   if (args.requireReviewed === true && authored.length < 3) throw new UnreviewedContentError('situation', 'fewer than three reviewed wrong situations remain');
   let wrong = authored.length === 3 ? authored : unitSituationDistractors(args, correct).slice(0,3);
@@ -233,6 +252,14 @@ function meaningInContext(args, definition) {
   const context = stableShuffle(unused.length ? unused : candidates, `${seed}:meaning-mastery`)[0];
   const correct = text(context.meaning);
   const strict = args.requireReviewed === true;
+  // Job 9: the wrong meanings are authored PER sentence, beside this sentence's own gloss (grammar, length and register matched), so
+  // nothing about the option shapes shows which one is right. Words without authored wrong meanings fall back to the sense-level list.
+  const authoredWrong = uniqueText(array(context.wrongMeanings)).filter(value => value.toLocaleLowerCase('en') !== correct.toLocaleLowerCase('en'));
+  if (authoredWrong.length >= 3) {
+    const wrong = stableShuffle(authoredWrong, `${seed}:meaning-context:wrong`).slice(0,3);
+    const options = shuffleAnswerOptions([correct, ...wrong], `${seed}:meaning-context`, args.optionNonce);
+    return baseActivity({ definition, occurrence, contentId:context.contextId, prompt:`In this sentence, which meaning best fits “${text(item.term)}”?\n${text(context.text)}`, markingReference:{ acceptedAnswers:[correct] }, extra:{ options, contextId:context.contextId, distractorSource:DISTRACTOR_SOURCE.REVIEWED } });
+  }
   if (strict && curatedMeaningOptions(sense, correct).length < 3) throw new UnreviewedContentError('meaning', 'fewer than three authored wrong meanings');
   const wrong = meaningDistractors(args, sense, correct, seed, strict);
   if (wrong.length < 3) throw new Error('Meaning in Context requires three comparable curated distractors.');

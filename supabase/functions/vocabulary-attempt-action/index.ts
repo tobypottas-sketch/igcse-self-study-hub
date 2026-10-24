@@ -264,10 +264,8 @@ Deno.serve(async (req: Request) => {
         if (!marking) return json({ error:'Vocabulary mastery sentence is not available for this activity' }, 400);
         acceptedAnswers = marking.acceptedAnswers;
       } else if (input.questionType === 'type_in_passage') {
-        const { data:siblings, error:siblingError } = await adminClient.from('vocabulary_contexts').select('context_id, context_type, prompt_text').eq('occurrence_id', occurrence.occurrence_id).eq('sense_id', occurrence.sense_id).eq('context_type', 'gap_fill').eq('status', 'live');
-        if (siblingError) throw new Error('Unable to read vocabulary contexts.');
-        const marking = typeInPassageMarking({ item, sense, contextRow:context, siblingRows:siblings ?? [] });
-        if (!marking) return json({ error:'Two curated gap sentences are required for this activity' }, 400);
+        const marking = typeInPassageMarking({ item, sense, contextRow:context });
+        if (!marking) return json({ error:'The curated passage for this activity is not available' }, 400);
         acceptedAnswers = marking.acceptedAnswers;
         slotAnswers = marking.slotAnswers;
       } else if (input.questionType === 'meaning_in_context') {

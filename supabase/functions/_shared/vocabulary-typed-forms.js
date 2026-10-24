@@ -108,6 +108,25 @@ export function passagePair(contexts, item, sense, firstContextId) {
   return [list[index], list[(index + 1) % list.length]];
 }
 
+// ---- Context Mastery (Job 9): one authored short passage with ONE gap ----
+// sense.masteryPassages = [{ passageId, contextId, text:'... ____ ...', answer }]. The gap is the only place the target (or any explicit
+// form of it) appears; the answer is one explicit surface form of the word; the gap never starts a sentence (a capital would show it).
+// `contextId` names a live gap_fill context row of the same occurrence, which is what the attempt record points at.
+export function passageBlank({ item, sense, passage } = {}) {
+  const body = text(passage?.text), answer = text(passage?.answer), contextId = text(passage?.contextId);
+  if (!body || !answer || !contextId) return null;
+  if ((body.match(/_{2,}/g) ?? []).length !== 1) return null;
+  const forms = explicitSurfaceForms(item, sense);
+  if (!forms.some(form => form.toLocaleLowerCase('en') === answer.toLocaleLowerCase('en'))) return null;
+  const rest = body.replace(/_{2,}/, ' ');
+  for (const form of forms) if (wholeWordMatches(rest, form).length) return null;
+  if (/(^|[.!?]["'”’)]*\s+)_{2,}/.test(body)) return null;
+  return { contextId, passageId: text(passage?.passageId), sourceText: body, answer };
+}
+export function masteryPassageList(item, sense = {}) {
+  return array(sense?.masteryPassages).map(passage => passageBlank({ item, sense, passage })).filter(Boolean).sort((a, b) => a.contextId.localeCompare(b.contextId));
+}
+
 // ---- Precision & Use: the weak wording named in an improve_vocabulary prompt, when it really sits in the sentence ----
 export function weakPhraseOf(data = {}) {
   const match = /[\u201c"]([^\u201d"]+)[\u201d"]/.exec(text(data.prompt));

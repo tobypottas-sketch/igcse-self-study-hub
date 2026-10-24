@@ -14,14 +14,17 @@ export function buildQuestion({ pathwayId, stageId, target, k = 0, nonce = `n${k
     answers: q.markingReference?.acceptedAnswers ?? [], distractorSource: q.distractorSource ?? null };
 }
 
-let cache = null;
-export function bank() {
-  if (cache) return cache;
+const caches = new Map();
+// `seeds` widens the sample (Job 9 leakage analysis uses 12 variants per target so a heuristic's rate is not sampling noise).
+export function bank(seeds = SEEDS) {
+  const key = seeds.join(',');
+  if (caches.has(key)) return caches.get(key);
   const questions = []; const unservable = [];
-  for (const pathwayId of LIVE_PATHWAYS) for (const stageId of STAGES) for (const target of content.occurrences) for (const k of SEEDS) {
+  for (const pathwayId of LIVE_PATHWAYS) for (const stageId of STAGES) for (const target of content.occurrences) for (const k of seeds) {
     try { questions.push(buildQuestion({ pathwayId, stageId, target, k })); } catch (error) { unservable.push({ pathwayId, stageId, occ: target.occurrenceId, k, reason: error.message }); }
   }
-  cache = { questions, unservable };
-  return cache;
+  const built = { questions, unservable };
+  caches.set(key, built);
+  return built;
 }
 export { content };

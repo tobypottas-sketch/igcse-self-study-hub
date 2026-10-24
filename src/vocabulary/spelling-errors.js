@@ -39,6 +39,23 @@ export function ruleBasedSpellingErrors(word) {
   return [...new Set(out)].filter(v => v[0] === w[0] && !/(.)\1\1/.test(v) && v.length >= Math.max(3, w.length - 2));
 }
 
+// A misspelling that drops or adds a letter changes the word's length, so the correct spelling could be picked (or ruled out) by being the
+// longest or shortest card. Same-length errors (a swapped or wrong letter) carry no length information, so they are used first; when a word's
+// reviewed list is short of them, the remaining wrong options are chosen so that longer and shorter errors balance each other out.
+function lengthBalanced(shuffled, correct, count, seed) {
+  const same = shuffled.filter(value => value.length === correct.length);
+  const longer = shuffled.filter(value => value.length > correct.length);
+  const shorter = shuffled.filter(value => value.length < correct.length);
+  const picked = same.slice(0, count);
+  let preferLonger = (picked.length + String(seed).length) % 2 === 0;
+  while (picked.length < count && (longer.length || shorter.length)) {
+    const from = (preferLonger && longer.length) || !shorter.length ? longer : shorter;
+    picked.push(from.shift());
+    preferLonger = !preferLonger;
+  }
+  return stable(picked, `${seed}:order`).slice(0, count);
+}
+
 // Wrong spellings for a word, plus where they came from: 'reviewed' when the word's own reviewed list supplies all of them,
 // otherwise 'generated_safe' (plausible misspellings produced by rule; spelling is the one place generated options are allowed).
 export function pickSpellingErrorsDetailed(item, surface, count = 3, seed = '') {
@@ -54,7 +71,7 @@ export function pickSpellingErrorsDetailed(item, surface, count = 3, seed = '') 
   pool = pool.filter(value => value.toLocaleLowerCase('en') !== lower);
   const reviewedCount = new Set(pool).size;
   if (pool.length < count) pool = [...pool, ...ruleBasedSpellingErrors(target).filter(value => !pool.includes(value))];
-  const errors = stable([...new Set(pool)], `${seed}:${lower}:spelling-errors`).slice(0, count);
+  const errors = lengthBalanced(stable([...new Set(pool)], `${seed}:${lower}:spelling-errors`), lower, count, `${seed}:${lower}:spelling-length`);
   return { errors, source:reviewedCount >= count ? DISTRACTOR_SOURCE.REVIEWED : DISTRACTOR_SOURCE.GENERATED_SAFE };
 }
 
