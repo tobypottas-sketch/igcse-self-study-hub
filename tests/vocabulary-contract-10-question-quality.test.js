@@ -92,14 +92,12 @@ for (const term of ['preference', 'avoid']) {
     `production Meaning Mastery for "${term}" passes the quality gate`, () => { assert.ok(q, 'not built'); assert.equal(assessQuestionQuality(q).ok, true, assessQuestionQuality(q).violations.join()); });
 }
 
-expectedFailure({
-  rule: 'A production quality gate exists and builders fail closed',
-  today: `no module exports ${hookLocation('assessQuestionQuality')}; builders (meaningDistractors) fall back to whatever distractors exist`,
-  turnsGreenWhen: `${hookLocation('assessQuestionQuality')} is implemented, rejects the preference/avoid fixtures and is called by the builders`
-}, 'production assessQuestionQuality rejects preference and avoid', async () => {
+test('production assessQuestionQuality exists, rejects preference and avoid, accepts a balanced set, and the planner prefers clean candidates', async () => {
   const fn = await hook('assessQuestionQuality');
   assert.equal(typeof fn, 'function', 'assessQuestionQuality is not exported');
   assert.equal(fn(PREFERENCE).ok, false); assert.equal(fn(AVOID).ok, false); assert.equal(fn(BALANCED).ok, true);
+  const planner = (await import('node:fs')).readFileSync(new URL('../src/vocabulary/pathway-planner.js', import.meta.url), 'utf8');
+  assert.match(planner, /assessBuiltQuestion/); assert.match(planner, /buildCandidateGated/);
 });
 test('bank: no generated question has a blank meaning or empty option', () => {
   for (const q of questions) { const o = optionSetOf(q); if (o) for (const x of o) assert.ok(String(x ?? '').trim().length > 0, `${q.type} ${q.occ}`); for (const a of q.answers) assert.ok(String(a ?? '').trim().length > 0, `${q.type} ${q.occ}: blank answer`); }

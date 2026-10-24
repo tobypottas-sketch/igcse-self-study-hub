@@ -275,3 +275,105 @@ test('degraded: stale or unexpected Set rows on the client never beat the server
   assert.equal(h.state.pathwayStage, 'recognise', 'the server-issued stage wins');
   assert.equal(h.state.session.targetIds.length, 10);
 });
+
+// ---------------------------------------------------------------- Parts 11-12: held-back words and membership drift scenarios
+import { computePathwaySets } from '../src/vocabulary/pathway-sets.js';
+import { membershipRows } from '../scripts/generate-set-membership-sql.mjs';
+const ids = n => Array.from({ length: n }, (_, i) => `u1_${String(i + 1).padStart(2, '0')}`);
+const asServerRows = (pathwayId, sets) => sets.sets.flatMap((members, s) => members.map((occurrence_id, p) => ({ pathway_id: pathwayId, set_number: s + 1, position: p + 1, occurrence_id })));
+const statusOf = (pathwayId, clientSets, serverRows) => clientSets.sets.map((members, s) => compareSetMembership({ pathwayId, setNumber: s + 1, clientMembers: members, serverRows }).status);
+
+test('held back: the remainder is counted, never padded, never in a Set, never in a mission', () => {
+  const sets = computePathwaySets(ids(47), { pathwayId: 'meaning' });
+  assert.equal(sets.setCount, 4); assert.equal(sets.heldBackCount, 7); assert.equal(sets.heldBack.length, 7);
+  const inSets = new Set(sets.sets.flat());
+  assert.ok(sets.heldBack.every(id => !inSets.has(id)), 'a held-back word is in no Set');
+  assert.equal(inSets.size, 40, 'no padding and no duplicates');
+  assert.deepEqual([...sets.heldBack], ids(47).slice(40), 'held back words are the tail, in authored order');
+});
+test('held back: Unit 1 seeded membership holds exactly the whole Sets (meaning 40, context 40, word families 30, precision 50, spelling 50)', () => {
+  const rows = membershipRows(); const seeded = {};
+  for (const r of rows) (seeded[r.pathway] ??= new Set()).add(r.occurrenceId);
+  assert.deepEqual(Object.fromEntries(Object.entries(seeded).map(([k, v]) => [k, v.size])), { meaning: 40, context: 40, word_families: 30, precision_use: 50, spelling_recall: 50 });
+});
+test('new authored words: appended words form the next Set deterministically and leave Sets 1..n untouched', () => {
+  const before = computePathwaySets(ids(47), { pathwayId: 'meaning' });
+  const after = computePathwaySets(ids(50), { pathwayId: 'meaning' });
+  assert.equal(after.setCount, 5); assert.equal(after.heldBackCount, 0);
+  assert.deepEqual(after.sets.slice(0, 4), before.sets, 'existing membership is not reshuffled');
+  assert.deepEqual(computePathwaySets(ids(50), { pathwayId: 'meaning' }).sets, after.sets, 'deterministic');
+  // until the membership migration is applied the server has no Set 5: the drift guard refuses to start it rather than playing a mission that cannot count
+  const status = statusOf('meaning', after, asServerRows('meaning', before));
+  assert.deepEqual(status, ['match', 'match', 'match', 'match', 'mismatch']);
+});
+test('drift: a word inserted mid-list shifts later Sets - the guard flags exactly the shifted Sets, never advances against them', () => {
+  const server = asServerRows('meaning', computePathwaySets(ids(40), { pathwayId: 'meaning' }));
+  const inserted = [...ids(40).slice(0, 15), 'u1_new', ...ids(40).slice(15)];
+  const client = computePathwaySets(inserted, { pathwayId: 'meaning' });
+  assert.deepEqual(statusOf('meaning', client, server), ['match', 'mismatch', 'mismatch', 'mismatch']);
+});
+test('drift: a removed, re-id\'d or newly ineligible word is a mismatch for its Set only', () => {
+  const server = asServerRows('meaning', computePathwaySets(ids(40), { pathwayId: 'meaning' }));
+  const removed = computePathwaySets(ids(40).filter(id => id !== 'u1_25'), { pathwayId: 'meaning' });        // eligibility dropped a word
+  assert.equal(statusOf('meaning', removed, server)[0], 'match'); assert.equal(statusOf('meaning', removed, server)[1], 'match');
+  assert.equal(statusOf('meaning', removed, server)[2], 'mismatch');
+  const renamed = computePathwaySets(ids(40).map(id => (id === 'u1_03' ? 'u1_03b' : id)), { pathwayId: 'meaning' });
+  assert.deepEqual(statusOf('meaning', renamed, server), ['mismatch', 'match', 'match', 'match']);
+  const reordered = computePathwaySets([...ids(40).slice(0, 10).reverse(), ...ids(40).slice(10)], { pathwayId: 'meaning' });
+  assert.deepEqual(statusOf('meaning', reordered, server), ['match', 'match', 'match', 'match'], 'order inside a Set is not membership');
+});
+
+// ---------------------------------------------------------------- Part 13: evidence integrity under lifecycle retries
+test('evidence: a dropped save is re-sent with the SAME attemptId (no double count), later answers keep their own ids', async () => {
+  const h = fresh({ fail: (payload, n) => n === 1 });
+  await start(h);
+  const q = h.state.current;
+  h.run(`handleAnswer(null,${JSON.stringify(q.question.markingReference.acceptedAnswers[0])})`);
+  await h.state.attempts.settled().catch(() => {});
+  await h.state.attempts.retry();
+  const ids = h.requests.map(r => r.attemptId);
+  assert.ok(ids.length >= 2, 'the failed save was retried');
+  assert.equal(ids[0], ids[1], 'the retry reuses the attemptId');
+  assert.equal(h.saved.filter(p => p.attemptId === ids[0]).length <= 1, true, 'stored once');
+});
+test('evidence: a wrong first answer and its retry are two distinct attempts; only the first is a first attempt', async () => {
+  const h = fresh();
+  await start(h);
+  const q = h.state.current;
+  h.run('handleAnswer(null,"__wrong__")'); await h.state.attempts.settled();
+  assert.equal(h.state.current.retry, true);
+  h.run(`handleAnswer(null,${JSON.stringify(q.question.markingReference.acceptedAnswers[0])})`); await h.state.attempts.settled();
+  const mine = h.saved.filter(p => p.occurrenceId === q.target.occurrenceId);
+  assert.equal(mine.length, 2); assert.notEqual(mine[0].attemptId, mine[1].attemptId);
+  assert.deepEqual(mine.map(p => p.firstAttempt), [true, false]);
+});
+test('evidence: attempts of a rejected or forged mission are still real attempts, but they never move a Set', async () => {
+  const h = fresh();
+  await start(h);
+  const missionId = h.state.session.missionId;
+  await play(h, { miss: [...h.state.session.targetIds].slice(0, 3) });         // 7/10 -> Consolidate, evidence recorded for all ten
+  assert.ok(h.saved.length >= 10, 'every legitimate attempt is stored');
+  const stageAfter = row(h);
+  const replayed = h.server.record(missionId, h.saved);
+  assert.equal(replayed.duplicate, true);
+  assert.equal(JSON.stringify(row(h)), JSON.stringify(stageAfter), 'replaying the mission leaves the Set exactly as it was');
+});
+
+// ---------------------------------------------------------------- Part 3 (cont.): the response is lost AFTER the server settled
+test('settlement succeeded but the response was lost: the next start re-settles, the server reports a duplicate, the Set advanced exactly once', async () => {
+  const userKey = `j7-lostresp-${students += 1}`;
+  const server = createSetServer({ rows: [dbRow({ pathwayId: PATHWAY, stage: 'recognise' })], membersFor: (p, n) => (n === 1 ? fresh().state.content.occurrences.map(o => o.occurrenceId) : null) });
+  const a = harness({ pathwayId: PATHWAY, size: 10, setServer: server, userKey });
+  await start(a);
+  const missionId = a.state.session.missionId;
+  const realRecord = server.record.bind(server); let first = true;
+  server.record = (id, attempts) => { const out = realRecord(id, attempts); if (first) { first = false; throw new Error('response lost'); } return out; };
+  await play(a);
+  assert.equal(server.row(PATHWAY, 1).stage, 'match', 'the server did settle');
+  const b = harness({ pathwayId: PATHWAY, size: 10, setServer: server, userKey });         // page reload on the completion screen
+  await start(b);
+  assert.equal(server.row(PATHWAY, 1).stage, 'match', 'still exactly one stage');
+  assert.equal(server.row(PATHWAY, 1).applied_mission_ids.filter(id => id === missionId).length, 1);
+  assert.equal(b.state.pathwayStage, 'match', 'the new mission is the NEXT stage, not the finished one again');
+  assert.notEqual(b.state.session.missionId, missionId);
+});

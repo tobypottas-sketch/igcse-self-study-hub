@@ -184,6 +184,10 @@ export function normalizeVocabularyAnswer(value) {
     .normalize('NFKC')
     .trim()
     .toLocaleLowerCase('en')
+    // The same character typed differently is not a different answer: every Unicode hyphen/dash (autocorrect, paste, smart punctuation)
+    // reads as the plain hyphen and curly apostrophes as the plain apostrophe. A space is NOT a hyphen ("goal oriented" stays wrong).
+    .replace(/[\u2010-\u2015\u2212]/gu, '-')
+    .replace(/[\u2018\u2019\u02bc]/gu, "'")
     .replace(/[.!?,;:]+$/u, '')
     .replace(/\s+/g, ' ');
 }
