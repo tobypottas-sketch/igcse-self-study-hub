@@ -25,6 +25,12 @@ function builder(table) {
   return proxy;
 }
 const STAGES = ['recognise', 'match', 'apply', 'recall', 'mastery'];
+function fakeSets(table) {
+  // Server-held Set progression for the browser tests: Set 1 of the placed pathway sits at the placed stage (default: Set 1 at Recognise).
+  if (table !== 'vocabulary_pathway_sets') return null;
+  const placement = window.__fakeStage; if (!placement) return [];
+  return [{ pathway_id:placement.pathway, unit_number:1, set_number:1, stage:placement.stage, phase:'stage', status:'active', completed_stages:STAGES.slice(0, STAGES.indexOf(placement.stage)), weak_target_ids:[], advanced_with_support:[], support_flags:[], applied_mission_ids:[], history:[] }];
+}
 function fakeMastery(table) {
   // Optional: place every word at a pathway stage (window.__fakeStage = { pathway, stage }).
   const placement = window.__fakeStage; if (!placement) return null;
@@ -33,6 +39,7 @@ function fakeMastery(table) {
   return null;
 }
 function run(q) {
+  const sets = fakeSets(q.table); if (sets) return { data:sets, error:null };
   const mastery = fakeMastery(q.table); if (mastery) return { data:mastery, error:null };
   if (q.table === 'profiles') return { data:{ id:'u1', role:'student', display_name:'Sam', active:true }, error:null };
   return { data:TABLES[q.table] ?? [], error:null };

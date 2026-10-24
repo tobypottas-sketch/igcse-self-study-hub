@@ -186,11 +186,28 @@ export async function loadMeritAwardCount(client, options = {}) {
 // Server-issued mission identity. The client NEVER invents a mission id or seed: it asks, and the server answers with the open mission for this
 // slot (resume: same id + same seed) or a fresh one (new, or after an explicit `forceNew`). Returns { missionId, missionSeed, resumed, startedAt }
 // or throws; callers must not paper over a failure by creating a second mission.
-export async function startVocabularyMission(client, { unitNumber, kind, pathwayId = null, pathwayStage = null, phase = 'stage', forceNew = false } = {}) {
+export async function startVocabularyMission(client, { unitNumber, kind, pathwayId = null, pathwayStage = null, phase = 'stage', forceNew = false, setProgression = false, setNumber = null } = {}) {
   if (typeof client?.rpc !== 'function') throw Object.assign(new Error('Mission service is unavailable.'), { code:'no_rpc' });
-  const result = await client.rpc('start_vocabulary_mission', { p_unit_number:unitNumber, p_mission_kind:kind, p_pathway_id:pathwayId, p_pathway_stage:pathwayStage, p_mission_phase:phase, p_new:forceNew === true });
-  if (result?.error || !result?.data) throw Object.assign(new Error(result?.error?.message || 'Unable to start the mission.'), { code:'rpc_error' });
+  const args = { p_unit_number:unitNumber, p_mission_kind:kind, p_pathway_id:pathwayId, p_pathway_stage:pathwayStage, p_mission_phase:phase, p_new:forceNew === true };
+  // A Set mission: the SERVER decides the Set, stage and phase; whatever stage/phase/Set number is sent is only a hint it may ignore.
+  if (setProgression === true) { args.p_set_progression = true; args.p_set_number = setNumber; }
+  const result = await client.rpc('start_vocabulary_mission', args);
+  if (result?.error || !result?.data) throw Object.assign(new Error(result?.error?.message || 'Unable to start the mission.'), { code:'rpc_error', serverMessage:result?.error?.message ?? null });
   const row = result.data;
   if (typeof row.mission_id !== 'string' || typeof row.mission_seed !== 'string') throw Object.assign(new Error('The server returned an invalid mission.'), { code:'bad_mission' });
-  return { missionId:row.mission_id, missionSeed:row.mission_seed, resumed:row.resumed === true, startedAt:row.started_at ?? null };
+  return {
+    missionId:row.mission_id, missionSeed:row.mission_seed, resumed:row.resumed === true, startedAt:row.started_at ?? null,
+    // What the server says this mission IS (authoritative for Set missions).
+    pathwayStage:row.pathway_stage ?? null, setNumber:row.set_number ?? null, setPhase:row.set_phase ?? null,
+    weakTargetIds:Array.isArray(row.weak_target_ids) ? row.weak_target_ids.map(String) : []
+  };
+}
+
+// The student's own server-held Set progression for one unit (public.vocabulary_pathway_sets, read-only for students).
+// A failure is NOT hidden: the visible journey must come from the server, so the caller shows an error rather than guessing a stage.
+export async function loadPathwaySets(client, unitNumber, options = {}) {
+  if (options.preview === true || typeof client?.from !== 'function') return [];
+  const result = await client.from('vocabulary_pathway_sets').select('pathway_id, unit_number, set_number, stage, phase, status, completed_stages, weak_target_ids, advanced_with_support, support_flags').eq('unit_number', unitNumber).order('pathway_id').order('set_number');
+  if (result?.error) throw new Error('Unable to load your pathway progress. Check your connection and try again.');
+  return result?.data ?? [];
 }

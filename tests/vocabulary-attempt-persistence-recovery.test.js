@@ -179,7 +179,7 @@ test('an unsaved attempt survives opening a unit while saving keeps failing, the
   const context = vm.createContext({
     state, root:{}, createAttemptPersistence, console:{ error() {}, warn() {} },
     submitVocabularyAttempt:async (_client, payload) => server.submit(payload),
-    freshMastery:() => ({ status:'new' }),
+    freshMastery:() => ({ status:'new' }), loadPathwaySets:async () => [], refreshSetRows:async () => {},
     clearClock() {}, renderCurrentUnit() {}, clearSyncWarning() {},
     showSyncWarning() { warnings += 1; },
     loadVocabularyUnit:async () => ({ occurrences:[], items:[], contexts:[], activities:[] }),

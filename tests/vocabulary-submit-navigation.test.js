@@ -63,7 +63,7 @@ test('reopening a cached unit is immediate and does not refetch content or maste
   const context = vm.createContext({
     state,
     attempts:() => ({ blocked:false, retry:async () => true }),
-    clearClock:() => {},
+    clearClock:() => {}, refreshSetRows:async () => {}, loadPathwaySets:async () => [],
     renderCurrentUnit:() => { renders++; },
     loadVocabularyUnit:async () => { contentReads++; throw new Error('cached reopen must not reload content'); },
     loadStudentMastery:async () => { masteryReads++; throw new Error('cached reopen must not reload mastery'); },

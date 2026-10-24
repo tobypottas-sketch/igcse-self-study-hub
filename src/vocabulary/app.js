@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '../supabase.js';
-import { loadVocabularyDashboard, loadMeritAwardCount, loadVocabularyMissions, loadVocabularyUnit, loadStudentMastery, recordVocabularyMission, startVocabularyMission, submitVocabularyAttempt } from './data.js';
+import { loadVocabularyDashboard, loadMeritAwardCount, loadVocabularyMissions, loadVocabularyUnit, loadStudentMastery, loadPathwaySets, recordVocabularyMission, startVocabularyMission, submitVocabularyAttempt } from './data.js';
 import { achievements as buildAchievements, bestAndAim, computeXp, describeEngagement, evaluateMission, levelFor, meritProgress, nextChallenge, progressSnapshot, weeklyGoal } from './engagement-model.js';
 import { markAchievementsSeen, newAchievements } from './achievements-seen.js';
 import { trackVocabularyEvent } from './tracking.js';
@@ -8,8 +8,11 @@ import { streakMomentum } from './engagement-copy.js';
 import { completeAttempt, createSession, expireSession, isSessionComplete, missionProgress } from './session.js';
 import { buildTargetPracticeQuestion, buildTimedMixedQuestion, selectEligiblePriorityTargets } from './session-targets.js';
 import { planMixedReviewQuestion } from './mixed-review.js';
-import { planPathwayQuestion, eligibleTargetsForPathwayStage } from './pathway-planner.js';
-import { buildUnitPathwayStates, buildWordPathwayStates, targetsForPathwayStage } from './pathway-view-model.js';
+import { planPathwayQuestion } from './pathway-planner.js';
+import { buildUnitPathwayStates } from './pathway-view-model.js';
+import { setsFromCoverage } from './pathway-sets.js';
+import { activeSetStep, buildSetPathwayStates, buildWordSetStates, describeNext, groupSetRows, missionTargetIds, projectSettlement } from './set-progress.js';
+import { MISSION_SIZE } from './stage-progression.js';
 import { VOCABULARY_PATHWAYS } from './pathway-model.js';
 import { registeredPathwayCoverage, servedByAnyLivePathway } from './pathway-coverage-store.js';
 import { buildSessionFinishModel } from './session-finish-model.js';
@@ -34,7 +37,7 @@ const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
   globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:null, pathwayId:null, pathwayStage:null, pathwayChoice:null, mixedReview:false, missions:[], meritAwarded:null, engagementSnapshot:null,
   recentActivities:new Map(), usedContentIds:new Map(), recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null, timedPreviousActivityType:null,
-  userKey:null, finishPending:false, handoffPending:false, unitCache:new Map(), attempts:null, unitRequest:0, loadingUnit:null
+  setRows:[], setStep:null, missionCorrect:new Set(), userKey:null, finishPending:false, handoffPending:false, unitCache:new Map(), attempts:null, unitRequest:0, loadingUnit:null
 };
 
 function occurrence(row) { return { occurrenceId:row.occurrence_id, vocabularyId:row.vocabulary_id, unitNumber:row.unit_number, unitTitle:row.unit_title, setNumber:row.set_number, positionInUnit:row.position_in_unit, senseId:row.sense_id }; }
@@ -58,6 +61,23 @@ function freshMastery() {
   };
 }
 function mapBy(rows, key, transform = value => value) { return Object.fromEntries(rows.map(row => [row[key], transform(row)])); }
+// ---- Server-held Sets-of-10 progression -------------------------------------------------------------------------------------------
+// The VISIBLE journey (which Set, which stage, which kind of mission comes next) is read from public.vocabulary_pathway_sets and nowhere
+// else. Per-word evidence (globalMastery / unitMastery) keeps being updated and recorded exactly as before, but never picks a stage.
+function unitCoverage() { return registeredPathwayCoverage(state.currentUnitNumber) ?? {}; }
+function setPathwayStates(occurrences = state.content?.occurrences ?? []) { return buildSetPathwayStates({ occurrences, coverageByPathway:unitCoverage(), setRows:state.setRows }); }
+function pathwaySets(pathwayId) {
+  const authored = (state.content?.occurrences ?? []).map(row => row.occurrenceId);
+  return setsFromCoverage(pathwayId, unitCoverage()[pathwayId] ?? { available:true, occurrenceIds:authored }, authored);
+}
+function pathwayStep(pathwayId) { return activeSetStep({ sets:pathwaySets(pathwayId), rowsForPathway:groupSetRows(state.setRows)[pathwayId] ?? {} }); }
+function occurrencesByIds(ids) { const byId = new Map((state.content?.occurrences ?? []).map(row => [row.occurrenceId, row])); return ids.map(id => byId.get(id)).filter(Boolean); }
+async function refreshSetRows() {
+  if (state.preview || !state.currentUnitNumber) return;
+  state.setRows = await loadPathwaySets(state.client, state.currentUnitNumber);
+  const cached = state.unitCache.get(state.currentUnitNumber); if (cached) cached.setRows = state.setRows;
+}
+function wordSetStatesFor(pathwayId) { return buildWordSetStates({ occurrences:state.content?.occurrences ?? [], coverageByPathway:unitCoverage(), setRows:state.setRows })[pathwayId] ?? {}; }
 
 function decoratePreview() {
   if (!state.preview || !root) return;
@@ -165,7 +185,7 @@ async function evaluateUnitsThatLookMastered(dashboard) {
 }
 async function showHome() {
   state.unitRequest += 1; state.loadingUnit = null;
-  clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null; state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false;
+  clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null; state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false; state.setStep = null;
   const [dashboard, missions, meritAwarded] = await Promise.all([loadVocabularyDashboard(state.client, { preview:state.preview }), loadVocabularyMissions(state.client, { preview:state.preview }), loadMeritAwardCount(state.client, { preview:state.preview })]);
   state.dashboard = dashboard; state.missions = missions; state.meritAwarded = meritAwarded; state.units = buildUnits(state.dashboard);
   await evaluateUnitsThatLookMastered(dashboard);
@@ -179,7 +199,7 @@ function renderCurrentUnit() {
   const progress = occurrences.length
     ? buildUnitProgress({ occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery })
     : { mastered:summary?.mastered ?? 0, total:summary?.total ?? 50, needsAnotherLook:summary?.needsAnotherLook ?? 0, reviewDue:summary?.reviewDue ?? 0, stages:summary?.stages ?? {} };
-  const pathwayStates = buildUnitPathwayStates({ occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
+  const pathwayStates = setPathwayStates(occurrences);
   // Only meaningful once the unit's readiness is known (its content has loaded); until then no completion claim is made.
   const completion = state.content ? progressSnapshot({ occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery }).units?.[state.currentUnitNumber] ?? null : null;
   renderVocabularyUnit(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, progress, pathwayStates, contentReady:Boolean(state.content), completion }); decoratePreview();
@@ -199,7 +219,7 @@ async function openUnit(unitNumber) {
   const request = state.unitRequest += 1;
   if (state.loadingUnit != null) setUnitLoading(state.loadingUnit, false);
   state.loadingUnit = null;
-  state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false;
+  state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false; state.setStep = null;
   const cached = state.unitCache.get(unitNumber);
   if (cached) {
     state.currentUnitNumber = unitNumber;
@@ -207,8 +227,14 @@ async function openUnit(unitNumber) {
     state.content = cached.content;
     state.globalMastery = cached.globalMastery;
     state.unitMastery = cached.unitMastery;
+    state.setRows = cached.setRows ?? [];
     state.finishPending = false;
     renderCurrentUnit();
+    // A cached unit paints at once from the Set progression this browser last read; the server's current state replaces it as soon as it arrives.
+    const shown = JSON.stringify(state.setRows);
+    refreshSetRows().then(() => {
+      if (request === state.unitRequest && state.currentUnitNumber === unitNumber && !state.session && JSON.stringify(state.setRows) !== shown) renderCurrentUnit();
+    }).catch(() => { /* keep the last server rows this browser read; the next start re-reads them */ });
     if (attempts().blocked) showSyncWarning(new Error('Vocabulary progress is still unsaved.'));
     return;
   }
@@ -229,7 +255,8 @@ async function openUnit(unitNumber) {
       : dashboardMastery
         ? Promise.resolve(dashboardMastery)
         : loadStudentMastery(state.client, unitNumber, loadOptions);
-    const [contentRaw, masteryRaw] = await Promise.all([contentPromise, masteryPromise]);
+    const [contentRaw, masteryRaw, setRowsRaw] = await Promise.all([contentPromise, masteryPromise, loadPathwaySets(state.client, unitNumber, { preview:state.preview })]);
+    state.setRows = setRowsRaw;
     if (request !== state.unitRequest) return;
     // Never reset the attempt queue here: an unsaved answer must survive opening or reloading a unit.
     state.finishPending = false;
@@ -239,7 +266,7 @@ async function openUnit(unitNumber) {
     state.globalMastery = mapBy(masteryRaw.global, 'vocabulary_id', mastery); state.unitMastery = mapBy(masteryRaw.unit, 'occurrence_id', row => ({ status:row.status, recentErrorPattern:row.recent_error_pattern, contextualEvidence:row.contextual_evidence ?? {} }));
     state.currentUnitNumber = unitNumber;
     state.currentUnitTitle = occurrences[0]?.unitTitle ?? preloadedOccurrences[0]?.unit_title ?? state.units.find(unit => Number(unit.unitNumber) === Number(unitNumber))?.unitTitle ?? `Unit ${unitNumber}`;
-    state.unitCache.set(unitNumber, { content:state.content, globalMastery:state.globalMastery, unitMastery:state.unitMastery, currentUnitTitle:state.currentUnitTitle });
+    state.unitCache.set(unitNumber, { content:state.content, globalMastery:state.globalMastery, unitMastery:state.unitMastery, currentUnitTitle:state.currentUnitTitle, setRows:state.setRows });
     state.loadingUnit = null;
     renderCurrentUnit();
     if (attempts().blocked) showSyncWarning(new Error('Vocabulary progress is still unsaved.'));
@@ -254,11 +281,12 @@ async function openUnit(unitNumber) {
 function strandLabel(value, status) { const score = Number(value ?? 0); if (status === 'mastered' && score >= 3) return 'Secure'; if (score >= 6) return 'Secure'; if (score >= 3) return 'Developing'; return 'Keep practising'; }
 function showAllWords() {
   if (!state.content || !state.currentUnitNumber) return;
+  const setWordStates = buildWordSetStates({ occurrences:state.content.occurrences, coverageByPathway:unitCoverage(), setRows:state.setRows });
   const words = state.content.occurrences.slice().sort((a,b) => a.positionInUnit - b.positionInUnit).map(occ => {
     const target = state.content.itemsById[occ.vocabularyId]; const global = state.globalMastery[occ.vocabularyId] ?? freshMastery();
     const linkedContexts = state.content.contextsByOccurrence[occ.occurrenceId] ?? [];
     const dictionaryContext = linkedContexts.find(ctx => ctx.type === 'meaning_context') ?? linkedContexts.find(ctx => ctx.type === 'production_context') ?? linkedContexts.find(ctx => ctx.type === 'paraphrase_context') ?? linkedContexts[0] ?? null;
-    return { term:target?.term ?? occ.vocabularyId, partOfSpeech:target?.partOfSpeech ?? '', definition:target?.coreMeaning ?? '', contextSentence:dictionaryContext?.text ?? '', status:global.status ?? 'new', learningStage:deriveLearningStage(global), mastery:global, pathways:buildWordPathwayStates({ occurrence:occ, unitMastery:state.unitMastery, globalMastery:state.globalMastery }), strands:{ meaning:strandLabel(global.strandEvidence?.meaning, global.status), recognition:strandLabel(global.strandEvidence?.recognition, global.status), context:strandLabel(global.strandEvidence?.context, global.status), paraphrasing:strandLabel(global.strandEvidence?.paraphrasing, global.status), production:strandLabel(global.strandEvidence?.production, global.status) } };
+    return { term:target?.term ?? occ.vocabularyId, partOfSpeech:target?.partOfSpeech ?? '', definition:target?.coreMeaning ?? '', contextSentence:dictionaryContext?.text ?? '', status:global.status ?? 'new', learningStage:deriveLearningStage(global), mastery:global, pathways:Object.fromEntries(VOCABULARY_PATHWAYS.map(pathway => [pathway.id, setWordStates[pathway.id]?.[occ.occurrenceId] ?? { currentStage:'recognise', needsPractice:false, mastered:false }])), strands:{ meaning:strandLabel(global.strandEvidence?.meaning, global.status), recognition:strandLabel(global.strandEvidence?.recognition, global.status), context:strandLabel(global.strandEvidence?.context, global.status), paraphrasing:strandLabel(global.strandEvidence?.paraphrasing, global.status), production:strandLabel(global.strandEvidence?.production, global.status) } };
   });
   renderVocabularyWords(root, { unitNumber:state.currentUnitNumber, unitTitle:state.currentUnitTitle, words }); decoratePreview();
   // The page was scrolled down on the unit screen: the dictionary always opens at its top (instant, overriding smooth scrolling).
@@ -278,96 +306,134 @@ function resetSessionState(continueHistory = false) {
   if (!continueHistory) { state.recentActivities = new Map(); state.usedContentIds = loadSeenContent(state.userKey); }
   state.current = null; state.recoveryNeeded = new Set(); state.timedPreviousActivityType = null; state.finishPending = false;
 }
-function startPathwaySession(pathwayId, continueHistory = false, choice = null, forceNew = false) {
+// A pathway session. The server owns the journey: it says which Set, which stage and which kind of mission (stage / Consolidate /
+// Recovery / fresh) comes next, and the browser reads that, asks the server to start exactly that mission, and builds its ten questions.
+// The student-chosen activity ("How do you want to practise?") is FREE practice: it is recorded as evidence but never moves a Set.
+async function startPathwaySession(pathwayId, continueHistory = false, choice = null, forceNew = false) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
-  const pathwayStates = buildUnitPathwayStates({ occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
-  // A locked pathway can never start a session, whatever asked for it.
-  if (pathwayStates?.[pathwayId]?.available === false) throw new Error('That pathway is coming soon for this unit.');
-  const stageId = pathwayStates?.[pathwayId]?.currentStage ?? 'recognise';
+  // A mission that has just finished is settled on the server before the next step is read, so Continue can never start the old step again.
+  await state.settling;
+  if (!state.preview) await refreshSetRows();
+  // A locked pathway (no Sets) can never start a session, whatever asked for it.
+  const step = pathwayStep(pathwayId);
+  if (!step.available) throw new Error('That pathway is coming soon for this unit.');
   let selected; let pathwayChoice = null;
   if (choice?.familyId) {
-    // Student-chosen activity: only words that have unlocked this family's stage, each recorded against its own real stage.
+    // Student-chosen activity: only words the Set progression has already unlocked for this family's stage, each recorded against its own stage.
     const family = activityFamily(pathwayId, choice.familyId);
     if (!family) throw new Error('That activity is not available in this pathway.');
-    const found = familyTargets({ pathwayId, family, content:state.content, unitMastery:state.unitMastery, globalMastery:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${family.id}` });
+    const wordStates = wordSetStatesFor(pathwayId);
+    const found = familyTargets({ pathwayId, family, content:state.content, unitMastery:state.unitMastery, globalMastery:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${family.id}`, wordStateFor:target => wordStates[target.occurrenceId] ?? null });
     if (found.length < MIN_SHORT_MISSION) throw new Error('Not enough words are ready for that activity yet. Try the recommended practice instead.');
     const foundIds = new Set(found.map(row => row.target.occurrenceId));
     const ranked = rankedTargets(Math.max(10,state.content.occurrences.length),'adaptive').filter(target => foundIds.has(target.occurrenceId));
     selected = [...ranked, ...found.map(row => row.target).filter(target => !ranked.some(row => row.occurrenceId === target.occurrenceId))].slice(0,10);
     pathwayChoice = { familyId:family.id, types:[...family.types], stageByOccurrence:new Map(found.map(row => [row.target.occurrenceId,row.stageId])) };
-  } else {
-    const stageTargets = targetsForPathwayStage({ pathwayId, stageId, occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery });
-    const stageTargetIds = new Set(stageTargets.map(target => target.occurrenceId));
-    const eligible = eligibleTargetsForPathwayStage({ pathwayId, stageId, content:state.content, masteryByVocabularyId:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${pathwayId}:${stageId}` })
-      .filter(target => stageTargetIds.has(target.occurrenceId));
-    if (!eligible.length) throw new Error('No suitable curated activity is available for this pathway stage yet.');
-    const eligibleIds = new Set(eligible.map(target => target.occurrenceId));
-    const ranked = rankedTargets(Math.max(10,state.content.occurrences.length),'adaptive').filter(target => eligibleIds.has(target.occurrenceId));
-    selected = [...ranked, ...eligible.filter(target => !ranked.some(row => row.occurrenceId === target.occurrenceId))].slice(0,10);
+    return beginSession(pathwayRequest({ pathwayId, stageId:step.stage, pathwayChoice, selected, setStep:null, forceNew, continueHistory }));
   }
-  return beginSession({ kind:'pathway', pathwayId, stageId, familyId:pathwayChoice?.familyId ?? null, selected, forceNew, continueHistory, mode:'adaptive', durationMinutes:null,
-    prepare:() => { state.pathwayId = pathwayId; state.pathwayStage = stageId; state.pathwayChoice = pathwayChoice; state.practiceFocus = null; state.mixedReview = false; },
-    announce:() => {
-  if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`pathway:${pathwayId}:${stageId}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, pathway_id:pathwayId, pathway_stage:stageId, ...(pathwayChoice ? { practice_family:pathwayChoice.familyId } : {}) } }).catch(() => {});
-    } });
+  if (step.firstPassComplete) throw new Error('Every Set in this pathway is in Maintain. Mixed Practice keeps them sharp.');
+  // A Set is exactly ten words, so a normal mission is exactly those ten: no tail, no padding, no duplicates.
+  selected = occurrencesByIds(missionTargetIds({ step }));
+  if (selected.length !== MISSION_SIZE) throw new Error('No suitable curated activity is available for this pathway stage yet.');
+  return beginSession(pathwayRequest({ pathwayId, stageId:step.stage, pathwayChoice:null, selected, setStep:step, forceNew, continueHistory }));
+}
+function pathwayRequest({ pathwayId, stageId, pathwayChoice, selected, setStep, forceNew, continueHistory }) {
+  return {
+    kind:'pathway', pathwayId, stageId, familyId:pathwayChoice?.familyId ?? null, selected, setStep, forceNew, continueHistory, mode:'adaptive', durationMinutes:null,
+    keepOrder:setStep?.missionKind === 'consolidate' || setStep?.missionKind === 'recovery',          // follow-ups ask the words the student missed first
+    prepare:req => { state.pathwayId = pathwayId; state.pathwayStage = req.stageId; state.pathwayChoice = pathwayChoice; state.practiceFocus = null; state.mixedReview = false; state.setStep = req.setStep ?? null; },
+    announce:req => {
+  if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'section_use', activity_id:`pathway:${pathwayId}:${req.stageId}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${state.currentUnitNumber}`, metadata:{ unit_number:state.currentUnitNumber, pathway_id:pathwayId, pathway_stage:req.stageId, ...(pathwayChoice ? { practice_family:pathwayChoice.familyId } : {}) } }).catch(() => {});
+    } };
+}
+// The server's Set / stage / phase for a mission is authoritative. When it differs from what this browser last read (another tab or device
+// moved the Set, or an unsettled mission was settled just now), the mission is rebuilt for the server's step instead of the stale one.
+function reconcileWithServer(request, acquired) {
+  const info = acquired?.server;
+  const step = request.setStep;
+  if (!step || !info || info.setNumber == null) return request;
+  if (info.setNumber === step.setNumber && info.pathwayStage === step.stage && info.setPhase === step.phase) return request;
+  const sets = pathwaySets(request.pathwayId);
+  const members = sets.sets[info.setNumber - 1];
+  if (!members || !info.pathwayStage) throw new Error('Your progress changed somewhere else. Open the pathway again to carry on.');
+  const next = { ...step, setNumber:info.setNumber, stage:info.pathwayStage, phase:info.setPhase, missionKind:info.setPhase === 'consolidate' ? 'consolidate' : info.setPhase === 'recovery' ? 'recovery' : 'stage', members, weakTargetIds:info.weakTargetIds ?? [], askNextSet:null, completedStages:step.completedStages };
+  const selected = occurrencesByIds(missionTargetIds({ step:next }));
+  if (selected.length !== MISSION_SIZE) throw new Error('Your progress changed somewhere else. Open the pathway again to carry on.');
+  return { ...request, stageId:info.pathwayStage, setStep:next, selected, keepOrder:next.missionKind !== 'stage' };
+}
+function missionSlotFor(request) {
+  const step = request.setStep;
+  return { unitNumber:state.currentUnitNumber, kind:request.kind, pathwayId:request.pathwayId ?? null, stageId:request.stageId ?? null, ...(step ? { setNumber:step.setNumber, phase:step.phase } : {}) };
 }
 // Every mission-backed session starts here. The server issues (or resumes) the mission; the client only ever receives its id and seed.
 // A session that cannot have a server mission (preview, no connection object, fewer than ten targets, timed) keeps the legacy
 // seeding and sends no mission fields. A mission-eligible session whose RPC fails does NOT start and never makes a second mission:
 // the learner sees a plain "try again" message, or resumes the cached open mission with the same id.
 function beginSession(request) {
-  const { kind, pathwayId = null, stageId = null, familyId = null, selected, forceNew = false, mode } = request;
+  const { kind, familyId = null, selected, forceNew = false, mode } = request;
   const eligible = !state.preview && mode === 'adaptive' && selected.length === 10 && typeof state.client?.rpc === 'function';
   if (!eligible) return commitSession(request, null, null);
-  const slot = { unitNumber:state.currentUnitNumber, kind, pathwayId, stageId };
+  const slot = missionSlotFor(request);
+  const startMission = ask => startVocabularyMission(state.client, { unitNumber:ask.unitNumber, kind:ask.kind, pathwayId:ask.pathwayId, pathwayStage:ask.stageId, phase:'stage', forceNew:ask.forceNew, ...(request.setStep ? { setProgression:true, setNumber:request.setStep.askNextSet ?? null } : {}) });
+  const unavailable = acquired => {
+    const message = String(acquired?.error?.serverMessage ?? '');
+    if (/No further Set/i.test(message)) return new Error('Every Set in this pathway is in Maintain. Mixed Practice keeps them sharp.');
+    return new Error('We could not start this mission just now. Check your connection and try again; nothing has been lost.');
+  };
+  const finish = (acquired, req, atSlot) => commitSession(req, acquired, atSlot);
   // A mission that has just finished is still open on the server until its settlement returns; starting the next one waits for that, so
   // "Continue" can never resume the mission the student has only just completed.
-  return Promise.resolve(state.settling).then(() => acquireMission({ start:ask => startVocabularyMission(state.client, { unitNumber:ask.unitNumber, kind:ask.kind, pathwayId:ask.pathwayId, pathwayStage:ask.stageId, phase:'stage', forceNew:ask.forceNew }), userKey:state.userKey, slot, familyId, forceNew }))
+  return Promise.resolve(state.settling).then(() => acquireMission({ start:startMission, userKey:state.userKey, slot, familyId, forceNew }))
     .then(acquired => {
-      if (acquired.status !== 'ready') throw new Error('We could not start this mission just now. Check your connection and try again; nothing has been lost.');
+      if (acquired.status !== 'ready') throw unavailable(acquired);
       // A cached mission whose ten targets are all finished was never settled (the page closed or the request failed). It is settled once
       // here and then replaced, so a settlement that can never succeed cannot trap the student on a finished mission.
       const cached = acquired.extras && acquired.extras.missionId === acquired.missionId ? acquired.extras : null;
       if (cached && cached.targetIds.length === 10 && cached.targetIds.every(id => cached.completedTargetIds.includes(id))) {
         return Promise.resolve(recordVocabularyMission(state.client, acquired.missionId)).catch(() => null).then(() => {
           clearMission(state.userKey, slot);
-          return acquireMission({ start:ask => startVocabularyMission(state.client, { unitNumber:ask.unitNumber, kind:ask.kind, pathwayId:ask.pathwayId, pathwayStage:ask.stageId, phase:'stage', forceNew:ask.forceNew }), userKey:state.userKey, slot, familyId, forceNew:true });
+          return Promise.resolve(request.setStep ? refreshSetRows().catch(() => {}) : null).then(() => acquireMission({ start:startMission, userKey:state.userKey, slot, familyId, forceNew:true }));
         }).then(next => {
-          if (next.status !== 'ready') throw new Error('We could not start this mission just now. Check your connection and try again; nothing has been lost.');
-          return commitSession(request, next, slot);
+          if (next.status !== 'ready') throw unavailable(next);
+          const req = reconcileWithServer(request, next);
+          return finish(next, req, missionSlotFor(req));
         });
       }
-      return commitSession(request, acquired, slot);
+      const req = reconcileWithServer(request, acquired);
+      return finish(acquired, req, req === request ? slot : missionSlotFor(req));
     });
 }
-function commitSession({ familyId = null, selected, continueHistory = false, mode, durationMinutes, prepare, announce }, acquired, slot) {
-  prepare();
+function commitSession(request, acquired, slot) {
+  const { familyId = null, selected, continueHistory = false, mode, durationMinutes, prepare, announce, keepOrder = false } = request;
+  prepare(request);
   const resumed = acquired?.extras && acquired.extras.missionId === acquired.missionId ? acquired.extras : null;
   let ordered = selected;
   if (acquired) {
     const byId = new Map([...selected, ...(state.content?.occurrences ?? [])].map(row => [row.occurrenceId, row]));
-    const ids = resumed ? resumed.targetIds : orderMissionTargets(selected.map(row => row.occurrenceId), acquired.missionSeed);
+    const seeded = () => orderMissionTargets(selected.map(row => row.occurrenceId), acquired.missionSeed);
+    const ids = resumed ? resumed.targetIds : keepOrder ? selected.map(row => row.occurrenceId) : seeded();
     ordered = ids.map(id => byId.get(id)).filter(Boolean);
-    if (ordered.length !== ids.length) ordered = orderMissionTargets(selected.map(row => row.occurrenceId), acquired.missionSeed).map(id => byId.get(id));
+    if (ordered.length !== ids.length) ordered = (keepOrder ? selected.map(row => row.occurrenceId) : seeded()).map(id => byId.get(id));
   }
   const orderedIds = ordered.map(row => row.occurrenceId);
   const nonceSeed = acquired?.missionSeed ?? null;
   state.session = createSession({ unitNumber:state.currentUnitNumber, mode, durationMinutes, targetIds:orderedIds, practiceMode:'adaptive', now:new Date(), ...(nonceSeed ? { optionNonce:derivePresentationNonce({ missionSeed:nonceSeed, occurrenceId:'session', slot:0 }) } : {}) });
   if (acquired) state.session = { ...state.session, missionId:acquired.missionId, missionSeed:acquired.missionSeed };
   state.queue = [...ordered]; resetSessionState(continueHistory);
-  state.asks = new Map(); state.lastTiles = new Map(); state.missionLost = null; state.missionSlot = acquired ? slot : null;
+  state.asks = new Map(); state.lastTiles = new Map(); state.missionLost = null; state.missionSlot = acquired ? slot : null; state.missionCorrect = new Set();
   if (acquired) {
     if (resumed) {
       state.usedContentIds = usedFromObject(resumed.usedAtStart);
       state.asks = new Map(Object.entries(resumed.asks ?? {}).map(([id, count]) => [id, Number(count) || 0]));
+      state.missionCorrect = new Set((resumed.correctTargetIds ?? []).filter(id => orderedIds.includes(id)));
       const done = (resumed.completedTargetIds ?? []).filter(id => orderedIds.includes(id));
       state.session = { ...state.session, completedTargetIds:done };
       state.queue = state.queue.filter(row => !done.includes(row.occurrenceId));
     } else {
-      saveMission(state.userKey, slot, { missionId:acquired.missionId, missionSeed:acquired.missionSeed, familyId, targetIds:orderedIds, completedTargetIds:[], usedAtStart:usedToObject(state.usedContentIds), asks:{} });
+      saveMission(state.userKey, slot, { missionId:acquired.missionId, missionSeed:acquired.missionSeed, familyId, targetIds:orderedIds, completedTargetIds:[], correctTargetIds:[], usedAtStart:usedToObject(state.usedContentIds), asks:{} });
     }
   }
-  announce();
+  announce(request);
   nextQuestion();
 }
 // Practice-type sheet: a short "How do you want to practise?" choice opened from a pathway card or the finish screen.
@@ -379,8 +445,9 @@ function closePracticeSheet(returnFocus = true) {
 function openPracticeSheet(pathwayId) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   closePracticeSheet(false);
-  const options = pathwayPracticeOptions({ pathwayId, content:state.content, unitMastery:state.unitMastery, globalMastery:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${pathwayId}` });
-  const currentStage = buildUnitPathwayStates({ occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery })?.[pathwayId]?.currentStage ?? 'recognise';
+  const wordStates = wordSetStatesFor(pathwayId);
+  const options = pathwayPracticeOptions({ pathwayId, content:state.content, unitMastery:state.unitMastery, globalMastery:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${pathwayId}`, wordStateFor:target => wordStates[target.occurrenceId] ?? null });
+  const currentStage = pathwayStep(pathwayId).stage ?? 'recognise';
   const recommended = bestAndAim(state.missions ?? [], { unitNumber:state.currentUnitNumber, kind:'pathway', pathwayId, stage:currentStage, family:'recommended' });
   root.insertAdjacentHTML('beforeend', renderPracticeSheet({ pathwayId, options, lastFamilyId:loadLastChoice(pathwayId), bestAim:recommended.best ? recommended.copy : null }));
   root.querySelector?.('[data-practice-sheet] [data-autofocus]')?.focus?.();
@@ -388,7 +455,7 @@ function openPracticeSheet(pathwayId) {
 function timerMinutes(button) { const minutes = Number(button?.dataset?.minutes); return Number.isFinite(minutes) && minutes > 0 ? minutes : null; }
 function startMixedReview(continueHistory = false, durationMinutes = null, forceNew = false) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
-  state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = true; state.practiceFocus = 'adaptive';
+  state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = true; state.practiceFocus = 'adaptive'; state.setStep = null;
   const timed = Number.isFinite(Number(durationMinutes)) && Number(durationMinutes) > 0;
   const selected = liveMixedTargets(rankedTargets(timed ? Math.max(10, state.content.occurrences.length) : 10,'adaptive'));
   if (!selected.length) throw new Error('No unlocked vocabulary is ready for Mixed Practice yet.');
@@ -422,13 +489,15 @@ function buildNextForTarget(target) {
   const masteryState = state.globalMastery[target.vocabularyId] ?? freshMastery();
   const recent = state.recentActivities.get(target.occurrenceId) ?? []; const recovery = state.recoveryNeeded.has(target.occurrenceId);
   const usedContentIds = state.usedContentIds.get(target.occurrenceId) ?? [];
+  // A Recovery mission rebuilds the words the student missed with the planner's existing temporary one-stage support (Locked: scaffolded, same stage).
+  const recoveryMissionWord = state.setStep?.missionKind === 'recovery' && (state.setStep.weakTargetIds ?? []).includes(target.occurrenceId);
   const reviewDue = Boolean(masteryState.reviewDueAt && new Date(masteryState.reviewDueAt).getTime() <= Date.now());
   const common = {
     content:state.content,
     target,
     mastery:masteryState,
     recentActivities:recent,
-    supportState:{ recycle:recovery, struggling:recovery },
+    supportState:{ recycle:recovery || recoveryMissionWord, struggling:recovery || recoveryMissionWord },
     reviewDue,
     usedContentIds,
     seed:`${target.occurrenceId}:${state.session.completedAttempts.length}:${state.session.mode}`,
@@ -507,7 +576,7 @@ async function returnToCurrentUnit() {
   state.current = null;
   state.session = null;
   state.queue = [];
-  state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false; state.practiceFocus = null;
+  state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false; state.setStep = null; state.practiceFocus = null;
   renderCurrentUnit();
   if (attempts().blocked) showSyncWarning(new Error('Vocabulary progress is still unsaved.'));
 }
@@ -589,10 +658,11 @@ function handleAnswer(form, providedAnswer = null) {
   recordRecentActivity(current, result); const hadError = current.initialError || !result.correct;
   if (hadError && !current.recovery) { state.recoveryNeeded.add(current.target.occurrenceId); state.queue.push(current.target); } else if (current.recovery) state.recoveryNeeded.delete(current.target.occurrenceId);
   const completeTarget = current.recovery || !hadError;
+  if (completeTarget && result.correct) state.missionCorrect.add(current.target.occurrenceId);   // the server scores a mission by the targets that finished correct
   state.session = completeAttempt(state.session, { targetId:current.target.occurrenceId, evidence:{ correct:result.correct, recovery:recoverySucceeded, activityType:current.question.type }, completeTarget, strengthened:result.correct, movedToSecure:shouldUpdate && previousGlobalStatus !== 'secure' && nextGlobal.status === 'secure', mastered:shouldUpdate && previousGlobalStatus !== 'mastered' && nextGlobal.status === 'mastered', needsAnotherLook:completeTarget && !result.correct });
   if (state.missionSlot && state.session.missionId) {
     if (hadError && !current.recovery) { state.asks.set(current.target.occurrenceId, (state.asks.get(current.target.occurrenceId) ?? 0) + 1); const cached = loadMission(state.userKey, state.missionSlot); if (cached) saveMission(state.userKey, state.missionSlot, { ...cached, asks:Object.fromEntries(state.asks) }); }
-    if (completeTarget) markTargetComplete(state.userKey, state.missionSlot, current.target.occurrenceId);
+    if (completeTarget) markTargetComplete(state.userKey, state.missionSlot, current.target.occurrenceId, { correct:result.correct });
   }
   current.support = !result.correct ? buildSupportStep(current.question, { correct:false, misconceptionCategory:result.misconceptionCategory, attemptNumber:2 }) : null;
   if (current.matchSet) current.matchState = result.correct && Object.keys(current.matchState.settled).length === current.matchSet.words.length ? finishedMatchState(current.matchSet, current.matchState) : revealMatchSet(current.matchSet, current.matchState);
@@ -628,38 +698,69 @@ function toggleSound(button) {
   button.textContent = `Sound: ${on ? 'on' : 'off'}`;
   if (on) playCue('correct');
 }
+// What the completion screen shows. For a mission that belongs to a Set the numbers are the ones the SERVER will derive (targets that
+// finished correct) and the next step is the pure progression applied to the Set's server-held state; hidden word evidence is not read.
+function setFinishContext(finished) {
+  const step = state.setStep;
+  if (!step || !state.pathwayId) return null;
+  const missed = step.members.filter(id => !state.missionCorrect.has(id));
+  const score = step.members.length - missed.length;
+  const credited = !state.preview && finished.mode === 'adaptive' && Boolean(finished.missionId) && state.missionLost !== finished.missionId;
+  const projection = credited ? projectSettlement({ step, missionId:finished.missionId, score, missedTargetIds:missed }) : null;
+  return { step, score, missed, projection };
+}
+function finishModelForSet(context, finished, projection = context.projection) {
+  const { step, score } = context;
+  return buildSessionFinishModel({ summary:finished.summary, pathwayId:state.pathwayId, startStage:step.stage, preview:state.preview, fixedMissionSize:10,
+    setInfo:{ setNumber:step.setNumber, setCount:step.setCount, score, completedStages:step.completedStages, next:describeNext({ step, projection }) } });
+}
 function finishSession() {
   if (!state.session) return;
   if (state.session.mode === 'timed') state.session = expireSession(state.session, new Date());
   clearClock();
   const finished = state.session;
-  const postPathwayState = state.pathwayId && state.content
-    ? buildUnitPathwayStates({ occurrences:state.content.occurrences, unitMastery:state.unitMastery, globalMastery:state.globalMastery })?.[state.pathwayId] ?? null
-    : null;
+  const setContext = setFinishContext(finished);
+  // Free practice (a chosen activity) never moves a Set, so its screen makes no stage claim at all.
   const finishModel = state.pathwayId
-    ? buildSessionFinishModel({ summary:finished.summary, pathwayId:state.pathwayId, startStage:state.pathwayStage, postPathwayState, preview:state.preview, fixedMissionSize:10 })
+    ? (setContext
+      ? finishModelForSet(setContext, finished)
+      : buildSessionFinishModel({ summary:finished.summary, pathwayId:state.pathwayId, startStage:state.pathwayStage, preview:state.preview, fixedMissionSize:10, setInfo:{ setNumber:null, setCount:null, score:null, completedStages:[], next:null } }))
     : null;
   state.current = null;
   if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'exercise_result', activity_id:`session_complete:${finished.mode}:${state.pathwayId ?? (state.mixedReview ? 'mixed-review' : finished.practiceMode ?? 'adaptive')}`, skill:'vocabulary_mastery', mode:'practice', set_id:`unit-${finished.unitNumber}`, score:finished.summary.strengthened, max_score:Math.max(1, finished.summary.practised), metadata:{ unit_number:finished.unitNumber, pathway_id:state.pathwayId, pathway_stage:state.pathwayStage, review_only:state.mixedReview } }).catch(() => {});
   const missionId = !state.preview && (state.pathwayId || state.mixedReview) && finished.mode === 'adaptive' && state.missionLost !== finished.missionId ? finished.missionId ?? null : null;
-  renderSessionSummary(root, { durationMinutes:finished.durationMinutes, summary:finished.summary, practiceMode:finished.practiceMode ?? 'adaptive', pathwayId:state.pathwayId, finishModel, engagementPending:Boolean(missionId) });
+  const summaryArgs = { durationMinutes:finished.durationMinutes, summary:finished.summary, practiceMode:finished.practiceMode ?? 'adaptive', pathwayId:state.pathwayId, engagementPending:Boolean(missionId) };
+  renderSessionSummary(root, { ...summaryArgs, finishModel });
   decoratePreview();
-  if (missionId) state.settling = settleMission(missionId, { finishModel, postPathwayState }).catch(() => {}).finally(() => { state.settling = null; });
+  if (missionId) state.settling = settleMission(missionId, { finishModel, setContext, finished, summaryArgs }).catch(() => {}).finally(() => { state.settling = null; });
   root.querySelector?.('[data-session-finish-heading]')?.focus?.();
   playCompletionSequence(root);
   playCue('finish');
 }
 // The server rebuilds the finished mission from its own graded attempts and returns the facts; everything shown here is derived from those rows.
-async function settleMission(missionId, { finishModel = null, postPathwayState = null } = {}) {
-  const slot = root?.querySelector?.('[data-engagement-slot]');
-  if (!slot) return;
+async function settleMission(missionId, { finishModel = null, setContext = null, finished = null, summaryArgs = null } = {}) {
+  // Settlement never depends on the screen: the Set must advance even if the results screen has been left or has no engagement slot.
+  let slot = root?.querySelector?.('[data-engagement-slot]') ?? null;
   const row = await recordVocabularyMission(state.client, missionId);
   if (row && state.missionSlot) clearMission(state.userKey, state.missionSlot);
-  if (!root?.contains?.(slot)) return;
+  // The server has now applied (or refused) the mission to the Set. Read the authoritative state; if it disagrees with the projection the
+  // screen was painted from, the screen is repainted from the server's state before anything else is added to it.
+  let shownModel = finishModel;
+  if (row && setContext) {
+    try { await refreshSetRows(); } catch { /* the next start re-reads the server state */ }
+    const settled = serverSetProjection(setContext);
+    if (settled && !sameProjection(settled, setContext.projection) && slot && root?.contains?.(slot)) {
+      shownModel = finishModelForSet(setContext, finished, settled);
+      renderSessionSummary(root, { ...summaryArgs, finishModel:shownModel });
+      slot = root.querySelector?.('[data-engagement-slot]');
+      root.querySelector?.('[data-session-finish-heading]')?.focus?.();
+    }
+  }
+  if (!slot || !root?.contains?.(slot)) return;
   if (!row) { slot.remove(); return; }
   state.missions = [...(state.missions ?? []).filter(existing => existing.mission_id !== row.mission_id), row];
   const evaluation = evaluateMission(state.missions, row.mission_id);
-  const challenge = nextChallenge({ evaluation, stageId:postPathwayState?.currentStage ?? null, answersToClear:postPathwayState?.stageEvidence?.answersToClear ?? null, stageCleared:finishModel?.variant === 'stage-complete', mastered:finishModel?.variant === 'mastered' });
+  const challenge = nextChallenge({ evaluation, stageId:shownModel?.nextStageId ?? shownModel?.stageId ?? null, answersToClear:null, stageCleared:shownModel?.variant === 'stage-complete' || shownModel?.variant === 'set-complete', mastered:shownModel?.variant === 'mastered' });
   const before = engagementData(state.missions.filter(existing => existing.mission_id !== row.mission_id));
   const after = engagementData(state.missions);
   const unlocked = newAchievements(after.list, state.userKey);
@@ -669,6 +770,14 @@ async function settleMission(missionId, { finishModel = null, postPathwayState =
   slot.innerHTML = renderEngagementStrip(info);
   slot.dataset.engagement = 'ready'; slot.dataset.personalBest = String(info.isPersonalBest); slot.removeAttribute('aria-busy');
 }
+// The Set the mission was played in, as the server now holds it, in the same shape projectSettlement() returns.
+function serverSetProjection(context) {
+  const row = groupSetRows(state.setRows)[state.pathwayId]?.[context.step.setNumber];
+  if (!row) return null;
+  const maintain = row.status === 'maintain';
+  return { stage:row.stage, phase:row.phase, maintain, advanced:maintain || row.stage !== context.step.stage, advancedWithSupport:(row.advancedWithSupport ?? []).length > (context.step.advancedWithSupportCount ?? 0) };
+}
+function sameProjection(a, b) { return Boolean(a && b) && a.stage === b.stage && a.phase === b.phase && a.maintain === b.maintain; }
 // The results screen reads server-applied pathway progression, so finishing is the one place that must wait for the
 // save queue. With nothing pending it finishes synchronously; otherwise the button shows a short "Saving progress…".
 function showFinishSaving(saving) {

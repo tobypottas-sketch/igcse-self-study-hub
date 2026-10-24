@@ -121,9 +121,11 @@ test('normal client progression no longer reads or mirrors the retired unit jour
 
 test('pathway launch intersects planner coverage with real word-stage eligibility', () => {
   const source = fs.readFileSync(new URL('../src/vocabulary/app.js', import.meta.url),'utf8');
-  assert.match(source,/targetsForPathwayStage/);
-  assert.match(source,/stageTargetIds/);
-  assert.match(source,/\.filter\(target => stageTargetIds\.has\(target\.occurrenceId\)\)/);
+  // Job 6: a launch is exactly the active Set's ten members (planner coverage decides the Sets), never a per-word stage filter.
+  assert.match(source,/activeSetStep/);
+  assert.match(source,/missionTargetIds\(\{ step \}\)/);
+  assert.match(source,/selected\.length !== MISSION_SIZE/);
+  assert.doesNotMatch(source,/targetsForPathwayStage|stageTargetIds/);
 });
 
 test('retirement migration disables the old activity-event journey trigger without deleting evidence', () => {

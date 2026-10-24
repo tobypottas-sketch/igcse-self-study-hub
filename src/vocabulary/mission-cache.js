@@ -4,8 +4,8 @@
 export const MISSION_CACHE_MAX_AGE_MS = 12 * 60 * 60 * 1000;   // same horizon as the server (stale missions are abandoned after 12 hours)
 const KEY = userKey => `vocab.mission.v1.${String(userKey || 'anon')}`;
 
-export function slotKey({ unitNumber, kind, pathwayId = null, stageId = null } = {}) {
-  return [unitNumber, kind, pathwayId ?? '', stageId ?? ''].join('|');
+export function slotKey({ unitNumber, kind, pathwayId = null, stageId = null, setNumber = null, phase = null } = {}) {
+  return [unitNumber, kind, pathwayId ?? '', stageId ?? '', setNumber ?? '', phase ?? ''].join('|');
 }
 function readAll(userKey, storage) {
   try { const raw = JSON.parse(storage?.getItem(KEY(userKey)) || '{}'); return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {}; } catch { return {}; }
@@ -22,7 +22,7 @@ export function saveMission(userKey, slot, entry, { storage = globalThis.localSt
   try {
     const all = readAll(userKey, storage);
     for (const [key, value] of Object.entries(all)) if (!valid(value) || now - value.savedAt > MISSION_CACHE_MAX_AGE_MS) delete all[key];
-    all[slotKey(slot)] = { missionId:entry.missionId, missionSeed:entry.missionSeed, familyId:entry.familyId ?? null, targetIds:[...entry.targetIds], completedTargetIds:[...(entry.completedTargetIds ?? [])], usedAtStart:entry.usedAtStart ?? {}, asks:entry.asks ?? {}, savedAt:now };
+    all[slotKey(slot)] = { missionId:entry.missionId, missionSeed:entry.missionSeed, familyId:entry.familyId ?? null, targetIds:[...entry.targetIds], completedTargetIds:[...(entry.completedTargetIds ?? [])], correctTargetIds:[...(entry.correctTargetIds ?? [])], usedAtStart:entry.usedAtStart ?? {}, asks:entry.asks ?? {}, savedAt:now };
     storage?.setItem(KEY(userKey), JSON.stringify(all));
     return true;
   } catch { return false; }
@@ -31,10 +31,12 @@ export function clearMission(userKey, slot, { storage = globalThis.localStorage 
   try { const all = readAll(userKey, storage); delete all[slotKey(slot)]; storage?.setItem(KEY(userKey), JSON.stringify(all)); } catch { /* storage unavailable */ }
 }
 // Records that a target of the open mission is finished (so a resume does not ask it again).
-export function markTargetComplete(userKey, slot, occurrenceId, { storage = globalThis.localStorage, now = Date.now() } = {}) {
+// `correct` = the target finished with a correct answer (the same rule the server uses to score the mission).
+export function markTargetComplete(userKey, slot, occurrenceId, { storage = globalThis.localStorage, now = Date.now(), correct = false } = {}) {
   const entry = loadMission(userKey, slot, { storage, now });
   if (!entry || entry.completedTargetIds.includes(occurrenceId)) return false;
-  return saveMission(userKey, slot, { ...entry, completedTargetIds:[...entry.completedTargetIds, occurrenceId] }, { storage, now });
+  const correctTargetIds = correct ? [...new Set([...(entry.correctTargetIds ?? []), occurrenceId])] : (entry.correctTargetIds ?? []);
+  return saveMission(userKey, slot, { ...entry, completedTargetIds:[...entry.completedTargetIds, occurrenceId], correctTargetIds }, { storage, now });
 }
 export const usedToObject = map => Object.fromEntries([...(map ?? new Map())].map(([id, list]) => [id, [...list]]));
 export const usedFromObject = object => new Map(Object.entries(object && typeof object === 'object' ? object : {}).map(([id, list]) => [id, Array.isArray(list) ? list.filter(x => typeof x === 'string') : []]));

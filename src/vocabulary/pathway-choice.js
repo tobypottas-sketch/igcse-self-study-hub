@@ -14,6 +14,7 @@ const idx = stageId => STAGE_IDS.indexOf(stageId);
 
 // The family's stage for this word: the highest stage of the family the word has unlocked, or null when none is unlocked yet.
 export function familyStageForWord(family, wordState) {
+  if (wordState?.locked === true) return null;                       // a word in a Set the student has not reached is not unlocked
   const wordIndex = wordState?.mastered ? STAGE_IDS.length - 1 : idx(wordState?.currentStage ?? 'recognise');
   let chosen = null;
   for (const stageId of family.stageIds) if (idx(stageId) <= wordIndex) chosen = stageId;
@@ -26,11 +27,12 @@ function coverageAllows(content, pathwayId, target) {
 }
 
 // Words that can practise `family` now, each with the stage its attempts will be recorded against.
-export function familyTargets({ pathwayId, family, content, unitMastery = {}, globalMastery = {}, seed = '' } = {}) {
+// `wordStateFor(target)` (optional) supplies the word's visible state from server-held Set progression; without it the legacy per-word state is used.
+export function familyTargets({ pathwayId, family, content, unitMastery = {}, globalMastery = {}, seed = '', wordStateFor = null } = {}) {
   const found = [];
   for (const target of content?.occurrences ?? []) {
     if (!coverageAllows(content, pathwayId, target)) continue;
-    const word = buildWordPathwayStates({ occurrence: target, unitMastery, globalMastery })?.[pathwayId];
+    const word = wordStateFor ? wordStateFor(target) : buildWordPathwayStates({ occurrence: target, unitMastery, globalMastery })?.[pathwayId];
     const stageId = familyStageForWord(family, word);
     if (!stageId) continue;
     try {
@@ -45,14 +47,14 @@ export function familyTargets({ pathwayId, family, content, unitMastery = {}, gl
 }
 
 // Picker rows for a pathway: every family, with how many words can play it and a plain-language status.
-export function pathwayPracticeOptions({ pathwayId, content, unitMastery, globalMastery, seed = '' } = {}) {
+export function pathwayPracticeOptions({ pathwayId, content, unitMastery, globalMastery, seed = '', wordStateFor = null } = {}) {
   return activityFamilies(pathwayId).map(family => {
-    const targets = familyTargets({ pathwayId, family, content, unitMastery, globalMastery, seed });
+    const targets = familyTargets({ pathwayId, family, content, unitMastery, globalMastery, seed, wordStateFor });
     const count = targets.length;
     const status = count >= FULL_MISSION ? 'ready' : count >= MIN_SHORT_MISSION ? 'short' : 'locked';
     const firstStage = family.stageIds[0];
     const locked = status === 'locked';
-    const anyUnlocked = (content?.occurrences ?? []).some(target => familyStageForWord(family, buildWordPathwayStates({ occurrence: target, unitMastery, globalMastery })?.[pathwayId]));
+    const anyUnlocked = (content?.occurrences ?? []).some(target => familyStageForWord(family, wordStateFor ? wordStateFor(target) : buildWordPathwayStates({ occurrence: target, unitMastery, globalMastery })?.[pathwayId]));
     const before = idx(firstStage) > 0 ? stageLabel(STAGE_IDS[idx(firstStage) - 1]) : null;
     const hint = !locked ? (status === 'short' ? `Short set: ${count} words` : null)
       : anyUnlocked ? 'Not enough words for this yet' : `Unlocks after you clear ${before ?? 'earlier stages'}`;

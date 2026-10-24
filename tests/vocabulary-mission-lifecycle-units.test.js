@@ -12,7 +12,7 @@ const server = row => async request => ({ ...row, resumed: false, seen: request 
 
 test('cache round-trips ids and counters only', () => {
   const storage = store(); assert.ok(saveMission('u', slot, entry(), { storage, now: 1000 }));
-  assert.deepEqual(Object.keys(loadMission('u', slot, { storage, now: 1500 })).sort(), ['asks', 'completedTargetIds', 'familyId', 'missionId', 'missionSeed', 'savedAt', 'targetIds', 'usedAtStart']);
+  assert.deepEqual(Object.keys(loadMission('u', slot, { storage, now: 1500 })).sort(), ['asks', 'completedTargetIds', 'correctTargetIds', 'familyId', 'missionId', 'missionSeed', 'savedAt', 'targetIds', 'usedAtStart']);
   assert.equal(JSON.stringify([...storage.raw.values()]).includes('rawAnswer'), false);
 });
 test('cache entries expire with the server stale horizon and are per-user and per-slot', () => {

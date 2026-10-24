@@ -36,7 +36,7 @@ test('the numerator is exactly the set isSessionComplete uses, and handles empty
 
 test('live label for a 2-activity mission: clean, wrong + supported retry, then recovery never exceeds the total', async () => {
   const h = harness({ pathwayId:'word_families', stage:'match', size:2 });
-  h.run("startPathwaySession('word_families')");
+  await h.run("startPathwaySession('word_families')");
   const labels = [parse(h.run('remainingLabel()'))];
   const seen = () => labels.push(parse(h.run('remainingLabel()')));
   h.run('handleAnswer(null,"__wrong__")'); seen();                       // wrong
@@ -57,7 +57,7 @@ test('live label for a 2-activity mission: clean, wrong + supported retry, then 
 
 test('a 10-question mission still shows a sensible, monotone x / 10', async () => {
   const h = harness({ pathwayId:'context', stage:'recognise', size:10 });
-  h.run("startPathwaySession('context')");
+  await h.run("startPathwaySession('context')");
   const shown = []; let wrongOnce = 0;
   for (let step = 0; step < 40 && h.state.current; step += 1) {
     const { done, total } = parse(h.run('remainingLabel()'));

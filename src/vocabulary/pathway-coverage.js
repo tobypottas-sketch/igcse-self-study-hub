@@ -12,6 +12,8 @@ export function coverageFromReadiness(pathways = {}) {
       withheldStages:row.withheldStages,
       stageCounts:row.stageCounts,
       reason:row.reason,
+      setCount:row.playableSetCount ?? 0,
+      heldBackOccurrenceIds:row.heldBackOccurrenceIds ?? [],
       readiness:row
     };
   }

@@ -18,6 +18,12 @@ import * as engagementModel from '../src/vocabulary/engagement-model.js';
 import { buildActivity } from '../src/vocabulary/activity-factory.js';
 import { createAttemptPersistence } from '../src/vocabulary/attempt-persistence.js';
 import { buildSessionFinishModel } from '../src/vocabulary/session-finish-model.js';
+import * as setProgress from '../src/vocabulary/set-progress.js';
+import { setsFromCoverage } from '../src/vocabulary/pathway-sets.js';
+import { dbRow, createSetServer } from './support/set-server.js';
+import * as missionSeedLib from '../src/vocabulary/mission-seed.js';
+import * as missionCache from '../src/vocabulary/mission-cache.js';
+import { acquireMission } from '../src/vocabulary/mission-lifecycle.js';
 
 // Execute the real controller without bootstrapping authentication or a browser.
 // Only rendering, telemetry and the remote save boundary are replaced.
@@ -34,7 +40,8 @@ for (const row of unit.contexts) (content.contextsByOccurrence[row.occurrenceId]
 function controller(stage = 'recognise', priorSuccess = false) {
   const state = {content,currentUnitNumber:1,currentUnitTitle:'Unit 1',preview:false,globalMastery:{},unitMastery:{},
     recentActivities:new Map(),usedContentIds:new Map(),recoveryNeeded:new Set(),queue:[],
-    unitCache:new Map(),units:[]};
+    unitCache:new Map(),units:[],setRows:[],setStep:null,missionCorrect:new Set(),client:{rpc(){}}};
+  const server = createSetServer({rows:[dbRow({pathwayId:'context',setNumber:1,stage})]});
   const stages = ['recognise','match','apply','recall','mastery'];
   for (const target of content.occurrences) {
     const progress = freshPathwayProgress({completedStages:stages.slice(0,stages.indexOf(stage))});
@@ -43,8 +50,8 @@ function controller(stage = 'recognise', priorSuccess = false) {
     state.unitMastery[target.occurrenceId] = {status:'building',contextualEvidence:{pathwayProgress:{context:progress}}};
   }
   const saved = [];
-  const context = vm.createContext({state,crypto,createAttemptPersistence,Date,Map,Set,console,root:{},window:{clearInterval(){},setInterval(){return 1;}},
-    ...sessions,...targets,...pathways,...placement,...engine,...matchSetLogic,...matchSetView,...engagementCopy, ...engagementModel, VOCABULARY_PATHWAYS:[], servedByAnyLivePathway:() => true, registeredPathwayCoverage:() => null, playCue:() => false, setSoundEnabled:value => value === true, soundEnabled:() => false, loadVocabularyMissions:async () => [], loadMeritAwardCount:async () => null, newAchievements:() => [], markAchievementsSeen() {}, renderAchievementsSheet:() => "", recordVocabularyMission:async () => null, renderEngagementStrip:() => "", installMatchDrag() {}, playCompletionSequence() {}, loadSeenContent:() => new Map(), saveSeenContent() {}, _unused() {}, playCompletionSequence() {}, matchDragJustEnded:() => false,deriveLearningStage,buildSupportStep,buildSessionFinishModel,
+  const context = vm.createContext({state,crypto,loadPathwaySets:async () => server.rows(),acquireMission,startVocabularyMission:async (_c,args) => server.start(args),derivePresentationNonce:missionSeedLib.derivePresentationNonce,orderMissionTargets:missionSeedLib.orderMissionTargets,...missionCache,MISSION_SIZE:10,setsFromCoverage,...setProgress,createAttemptPersistence,Date,Map,Set,console,root:{},window:{clearInterval(){},setInterval(){return 1;}},
+    ...sessions,...targets,...pathways,...placement,...engine,...matchSetLogic,...matchSetView,...engagementCopy, ...engagementModel, VOCABULARY_PATHWAYS:[], servedByAnyLivePathway:() => true, registeredPathwayCoverage:() => null, playCue:() => false, setSoundEnabled:value => value === true, soundEnabled:() => false, loadVocabularyMissions:async () => [], loadMeritAwardCount:async () => null, newAchievements:() => [], markAchievementsSeen() {}, renderAchievementsSheet:() => "", recordVocabularyMission:async (_c,missionId) => server.record(missionId,saved), renderEngagementStrip:() => "", installMatchDrag() {}, playCompletionSequence() {}, loadSeenContent:() => new Map(), saveSeenContent() {}, _unused() {}, playCompletionSequence() {}, matchDragJustEnded:() => false,deriveLearningStage,buildSupportStep,buildSessionFinishModel,
     renderVocabularyQuestion(){},renderSessionSummary(){},renderVocabularyUnit(){},supportiveFeedback(){return '';},
     trackVocabularyEvent:async () => {},
     submitVocabularyAttempt:async (_client,payload) => {
@@ -62,7 +69,7 @@ function controller(stage = 'recognise', priorSuccess = false) {
       })};
     }});
   vm.runInContext(source,context);
-  return {state,saved,run:code => vm.runInContext(code,context)};
+  return {state,saved,server,run:code => vm.runInContext(code,context)};
 }
 function identity(question) {
   return JSON.stringify([question.occurrenceId,question.type,question.contentId,question.activityVariantId,question.prompt,question.sourceText,question.matchCue]);
@@ -89,12 +96,12 @@ async function ten(harness, mode = 'adaptive') {
 }
 const overlaps = (a,b) => b.filter(q => new Set(a.map(identity)).has(identity(q))).length;
 
-for (const [stage,prior,nextStage] of [['recognise',false,'recognise'],['recall',true,'mastery']]) {
+for (const [stage,prior,nextStage] of [['recognise',false,'match'],['recall',true,'mastery']]) {
   test(`Context Set 1 → Continue → Set 2 avoids exact repetition (${stage} → ${nextStage})`, async () => {
     const h = controller(stage,prior);
-    h.run("startPathwaySession('context')");
+    await h.run("startPathwaySession('context')");
     const first = await ten(h);
-    h.run('continuePractice()');
+    await h.run('continuePractice()');
     assert.equal(h.state.pathwayStage,nextStage);
     assert.equal(h.state.session.completedAttempts.length,0);
     assert.equal(h.state.session.completedTargetIds.length,0);
@@ -111,7 +118,7 @@ test('timed Continue retains served content while resetting its timer and attemp
   h.run("startSession('timed',5)");
   const first = await ten(h,'timed');
   const history = new Map([...h.state.usedContentIds].map(([id,values]) => [id,[...values]]));
-  h.run('continuePractice()');
+  await h.run('continuePractice()');
   assert.equal(h.state.session.mode,'timed');
   assert.equal(h.state.session.durationMinutes,5);
   assert.equal(h.state.session.completedAttempts.length,0);
@@ -125,16 +132,18 @@ test('timed Continue retains served content while resetting its timer and attemp
 
 test('explicitly reopening an activity starts fresh; Continue keeps history scoped to its targets', async () => {
   const h = controller();
-  h.run("startPathwaySession('context')");
+  await h.run("startPathwaySession('context')");
   const first = await ten(h);
-  h.run("startPathwaySession('context')");
-  assert.equal(identity(h.state.current.question),identity(first[0]));
+  await h.run("startPathwaySession('context')");
+  // The server settled the first mission, so reopening starts the authoritative next stage (Match), not Recognise again — with fresh history.
+  assert.equal(h.state.pathwayStage,'match');
+  assert.notEqual(identity(h.state.current.question),identity(first[0]));
   assert.equal(h.state.usedContentIds.size,1);
   assert.equal(h.state.recentActivities.size,0);
 });
 
 test('retry keeps the same question and recovery uses fresh content without completing its target early', async () => {
-  const h = controller(); h.run("startPathwaySession('context')");
+  const h = controller(); await h.run("startPathwaySession('context')");
   const original = h.state.current.question, id = original.occurrenceId;
   await answer(h,true);
   assert.equal(h.state.current.question,original);
@@ -144,7 +153,7 @@ test('retry keeps the same question and recovery uses fresh content without comp
   assert.equal(h.state.session.completedTargetIds.includes(id),false);
   assert.equal(h.state.recoveryNeeded.has(id),true);
   assert.equal(h.state.recentActivities.get(id).length,1);
-  h.state.queue = [content.occurrences[0]];
+  h.state.queue = [content.occurrences.find(row => row.occurrenceId === id)];
   await h.run('advanceToNextQuestion()');
   assert.equal(h.state.current.recovery,true);
   assert.notEqual(h.state.current.question.contentId,original.contentId);

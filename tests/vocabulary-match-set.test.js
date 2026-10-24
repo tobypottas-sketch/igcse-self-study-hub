@@ -251,11 +251,11 @@ function serverMark(payload) {
     ? [item.term] : [...new Set([sense.meaning, item.coreMeaning, ...(sense.acceptedParaphrases ?? [])].map(value => String(value ?? '').trim()).filter(Boolean))];
   return markCuratedAnswer({ item:{ vocabularyId:item.vocabularyId }, sense, context:{ acceptedAnswers }, questionType:payload.questionType, rawAnswer:payload.rawAnswer }).correct;
 }
-function play(options = {}) {
+async function play(options = {}) {
   // The planner picks one of two Match-stage activities at random; keep starting until the matching set is served.
   for (let attempt = 0; attempt < 40; attempt += 1) {
     const h = harness({ pathwayId:'meaning', stage:'match', size:3, deterministic:true, serverCorrect:payload => serverMark(payload), ...options });
-    h.run("startPathwaySession('meaning')");
+    await h.run("startPathwaySession('meaning')");
     if (h.state.current?.matchSet) return h;
   }
   throw new Error('The matching set was never served');
@@ -272,7 +272,7 @@ const check = h => h.run('handleAnswer(null)');
 const practised = h => h.state.session.summary.practised;
 
 test('the Match stage serves the matching set, and its answer payload is the existing single-answer attempt', async () => {
-  const h = play();
+  const h = await play();
   const current = cur(h);
   assert.equal(current.question.type, 'word_definition_match');
   assert.ok(current.matchSet && current.matchState);
@@ -290,7 +290,7 @@ test('the Match stage serves the matching set, and its answer payload is the exi
 });
 
 test('mission counting: one set is one counted activity, however many pairs it holds or how often it is rechecked', async () => {
-  const h = play({ size:3 });
+  const h = await play({ size:3 });
   const before = practised(h);
   const first = cur(h);
   // 1) Check with the primary pair wrong → first attempt wrong, supported retry, nothing counted yet
@@ -314,7 +314,7 @@ test('mission counting: one set is one counted activity, however many pairs it h
 });
 
 test('a clean set is one attempt and counts once; the whole mission never inflates', async () => {
-  const h = play({ size:3 });
+  const h = await play({ size:3 });
   let activities = 0; let sets = 0;
   for (let guard = 0; guard < 12 && h.state.current && !h.summaries.length; guard += 1) {
     const current = cur(h);
@@ -334,7 +334,7 @@ test('a clean set is one attempt and counts once; the whole mission never inflat
 });
 
 test('primary pair right but another pair wrong is formative: no attempt, no counters, then the set completes as a first-attempt success', async () => {
-  const h = play({ size:3 });
+  const h = await play({ size:3 });
   const current = cur(h); const { matchSet } = current;
   const others = matchSet.words.filter(word => word.id !== matchSet.primaryWordId);
   pairAllInApp(h, [others[0].id, others[1].id]);          // two non-primary words swapped
@@ -355,7 +355,7 @@ test('primary pair right but another pair wrong is formative: no attempt, no cou
 });
 
 test('Check before every word is paired does nothing: no attempt, no counters, set kept', async () => {
-  const h = play({ size:3 });
+  const h = await play({ size:3 });
   const current = cur(h);
   tap(h, 'word', current.matchSet.words[0].id); tap(h, 'definition', current.matchSet.key[current.matchSet.words[0].id]);
   check(h);
@@ -364,7 +364,7 @@ test('Check before every word is paired does nothing: no attempt, no counters, s
 });
 
 test('a second miss on the primary pair shows the answers and moves on; the target is recycled once', async () => {
-  const h = play({ size:3 });
+  const h = await play({ size:3 });
   const current = cur(h); const { matchSet } = current;
   const other = matchSet.words.find(word => word.id !== matchSet.primaryWordId).id;
   pairAllInApp(h, [matchSet.primaryWordId, other]); check(h);
@@ -382,7 +382,7 @@ test('a second miss on the primary pair shows the answers and moves on; the targ
 });
 
 test('persistence semantics hold for a set: a failed save retries with the same attempt id, once', async () => {
-  const h = play({ size:3, fail:(_payload, index) => index <= 1 });
+  const h = await play({ size:3, fail:(_payload, index) => index <= 1 });
   pairAllInApp(h); check(h);
   await h.state.attempts.settled();
   assert.equal(h.requests.length, 2);
@@ -393,11 +393,14 @@ test('persistence semantics hold for a set: a failed save retries with the same 
 
 // ── Meaning → Apply is a different task: a contextual situation, never the word/definition set ─────────
 // The deterministic harness serves a fixed Apply activity per session size; try sizes until the wanted type appears.
-const playApply = (wanted, options = {}) => {
+const playApply = async (wanted, options = {}) => {
+  // The first word of the Set is the first served, so try each word as the first until the wanted type appears.
   for (const size of options.size ? [options.size] : [2, 3, 4, 5, 6, 7, 8]) {
-    const h = harness({ pathwayId:'meaning', stage:'apply', deterministic:true, serverCorrect:payload => serverMark(payload), ...options, size });
-    h.run("startPathwaySession('meaning')");
-    if (wanted.includes(cur(h).question.type)) return h;
+    for (const first of unit.items.slice(0, 12).map(row => row.term)) {
+      const h = harness({ pathwayId:'meaning', stage:'apply', deterministic:true, serverCorrect:payload => serverMark(payload), ...options, size, terms:[first] });
+      await h.run("startPathwaySession('meaning')");
+      if (wanted.includes(cur(h).question.type)) return h;
+    }
   }
   return null;
 };
@@ -448,7 +451,7 @@ test('Apply: the server marks the situation answer with the existing rules (word
 test('Apply (browser-free app run): no set, no drop zone, no dropdown; one decision is one attempt and one counted activity', async () => {
   const served = [];
   for (const type of [...APPLY_DRAG_TYPES, 'which_situation_fits']) {
-    const h = playApply([type]);
+    const h = await playApply([type]);
     if (!h) continue;
     served.push(type);
     const current = cur(h);
@@ -470,7 +473,7 @@ test('Apply (browser-free app run): no set, no drop zone, no dropdown; one decis
 });
 
 test('Apply retry/recovery: a miss gives a supported retry, the target comes back once, and the activity counts exactly once', async () => {
-  const h = playApply(APPLY_DRAG_TYPES, { size:2 });
+  const h = await playApply(APPLY_DRAG_TYPES, { size:2 });
   const first = cur(h);
   const answer = first.question.markingReference.acceptedAnswers[0];
   const wrong = first.question.options.find(option => option !== answer);
@@ -500,7 +503,7 @@ test('Apply retry/recovery: a miss gives a supported retry, the target comes bac
 });
 
 test('Apply persistence: a failed save retries with the same attempt id, once', async () => {
-  const h = playApply(APPLY_DRAG_TYPES, { size:2, fail:(_payload, index) => index <= 1 });
+  const h = await playApply(APPLY_DRAG_TYPES, { size:2, fail:(_payload, index) => index <= 1 });
   await answerNow(h, cur(h).question.markingReference.acceptedAnswers[0]);
   await h.state.attempts.settled();
   assert.equal(h.requests.length, 2);
@@ -510,7 +513,7 @@ test('Apply persistence: a failed save retries with the same attempt id, once', 
 });
 
 test('a missed set is recovered by a fresh question and then counts exactly once (mission total unchanged)', async () => {
-  const h = play({ size:1 });
+  const h = await play({ size:1 });
   const first = cur(h); const { matchSet } = first;
   const other = matchSet.words.find(word => word.id !== matchSet.primaryWordId).id;
   pairAllInApp(h, [matchSet.primaryWordId, other]); check(h);            // first attempt wrong

@@ -19,7 +19,7 @@ export async function acquireMission({ start, userKey, slot, familyId = null, fo
     return { status:'unavailable', error:error instanceof Error ? error : new Error(String(error)) };
   }
   if (cached && cached.missionId === server.missionId && !newRequested) {
-    return { status:'ready', source:'server', resumed:server.resumed === true, missionId:server.missionId, missionSeed:server.missionSeed, extras:cached };
+    return { status:'ready', source:'server', resumed:server.resumed === true, missionId:server.missionId, missionSeed:server.missionSeed, extras:cached, server };
   }
   if (cached) clearMission(userKey, slot, { storage });       // server wins: the cached mission is not the server's open one
   // The server resumed an open mission this browser has no progress record for (storage cleared, another device or tab). Without that record
@@ -27,7 +27,7 @@ export async function acquireMission({ start, userKey, slot, familyId = null, fo
   if (server.resumed === true && !newRequested) {
     try { server = await start({ ...slot, forceNew:true }); }
     catch (error) { return { status:'unavailable', error:error instanceof Error ? error : new Error(String(error)) }; }
-    return { status:'ready', source:'server', resumed:false, missionId:server.missionId, missionSeed:server.missionSeed, extras:null, discardedCache:Boolean(cached), replacedUntrackedMission:true };
+    return { status:'ready', source:'server', resumed:false, missionId:server.missionId, missionSeed:server.missionSeed, extras:null, discardedCache:Boolean(cached), replacedUntrackedMission:true, server };
   }
-  return { status:'ready', source:'server', resumed:false, missionId:server.missionId, missionSeed:server.missionSeed, extras:null, discardedCache:Boolean(cached) };
+  return { status:'ready', source:'server', resumed:false, missionId:server.missionId, missionSeed:server.missionSeed, extras:null, discardedCache:Boolean(cached), server };
 }
