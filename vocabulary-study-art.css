@@ -113,9 +113,6 @@
 .vocab-summary-card[data-study-completion][data-finish-variant="session"] .vocab-completion-rays{animation-duration:650ms}
 .vocab-summary-card[data-study-completion][data-finish-variant="stage-complete"] .vocab-completion-rays{animation-duration:820ms}
 .vocab-summary-card[data-study-completion][data-finish-variant="mastered"] .vocab-completion-rays{animation-duration:900ms}
-.vocab-finish-evidence>div{opacity:0;animation:study-result-reveal var(--study-motion-results) var(--study-ease) forwards}
-.vocab-finish-evidence>div:nth-child(1){animation-delay:110ms}.vocab-finish-evidence>div:nth-child(2){animation-delay:180ms}
-@media (prefers-reduced-motion:reduce){.vocab-finish-evidence>div{animation:none!important;opacity:1!important}}
 
 
 /* ── Inline study artwork (v2) ───────────────────────────────────────────────────────────────────

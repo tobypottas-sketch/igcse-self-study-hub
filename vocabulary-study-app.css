@@ -274,30 +274,8 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 }
 
 
-/* Session finish mission result card */
-.vocab-shell--finish{display:grid;place-items:center;min-height:calc(100vh - 48px);padding-block:28px}
-.vocab-finish-card{width:min(100%,720px);text-align:center;overflow:hidden}
-.vocab-finish-card [data-session-finish-heading]:focus{outline:none}
-.vocab-finish-stars{display:flex;justify-content:center;gap:8px;margin:8px 0 4px;font-size:1.7rem;line-height:1;color:color-mix(in srgb,var(--study-accent) 68%,#e8a72f)}
-.vocab-finish-score{display:flex;align-items:baseline;justify-content:center;gap:8px;margin:12px 0 8px}
-.vocab-finish-score strong{font-size:clamp(2rem,7vw,3.6rem);letter-spacing:-.045em;line-height:1}
-.vocab-finish-score span{font-weight:800;color:var(--study-muted)}
-.vocab-finish-support{max-width:520px;margin:0 auto 18px;color:var(--study-muted);font-weight:700}
-.vocab-finish-evidence{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
-.vocab-finish-evidence>div{display:grid;gap:2px;padding:14px;border:1px solid color-mix(in srgb,var(--study-accent) 14%,var(--c-teal-soft));border-radius:var(--r-md);background:color-mix(in srgb,var(--study-accent-soft) 42%,white)}
-.vocab-finish-evidence strong{font-size:1.55rem}.vocab-finish-evidence span{font-size:var(--fs-sm);font-weight:800;color:var(--study-muted)}
-.vocab-finish-context{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:18px 0 10px;text-align:left}.vocab-finish-context span{font-size:var(--fs-sm);font-weight:800;color:var(--study-muted)}
-.vocab-finish-next{margin:0 0 10px;text-align:left;font-size:var(--fs-sm);font-weight:900;color:var(--study-ink,inherit)}.vocab-pathway-card__set{display:block;font-weight:900}
-.vocab-finish-ladder{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;min-width:0;margin:10px 0 18px}
-.vocab-finish-stage{display:grid;place-items:center;gap:4px;min-width:0;padding:10px 4px;border-radius:var(--r-md);background:var(--c-bg);border:1px solid var(--c-teal-soft);color:var(--study-muted)}
-.vocab-finish-stage i{font-style:normal;font-weight:900}.vocab-finish-stage small{max-width:100%;overflow-wrap:anywhere;font-weight:800}
-.vocab-finish-stage[data-state="complete"]{background:color-mix(in srgb,var(--study-accent-soft) 60%,white);border-color:color-mix(in srgb,var(--study-accent) 20%,white);color:var(--study-ink)}
-.vocab-finish-stage[data-state="current"]{background:color-mix(in srgb,var(--study-accent-soft) 78%,white);border-color:color-mix(in srgb,var(--study-accent) 34%,white);color:var(--study-ink);box-shadow:0 6px 18px color-mix(in srgb,var(--study-accent) 10%,transparent)}
-.vocab-finish-unlock{display:grid;gap:4px;margin:4px 0 18px;padding:14px;border-radius:var(--r-md);background:color-mix(in srgb,var(--study-accent-soft) 68%,white);border:1px solid color-mix(in srgb,var(--study-accent) 22%,white)}
-.vocab-finish-unlock span{font-size:var(--fs-xs);font-weight:800;color:var(--study-muted)}.vocab-finish-unlock strong{letter-spacing:.035em}.vocab-finish-unlock--mastered strong{font-size:var(--fs-md)}
-.vocab-finish-actions{display:flex;justify-content:center;gap:10px;margin-top:18px}.vocab-finish-actions .vocab-button{min-width:170px}
-@media (max-width:620px){.vocab-shell--finish{display:block;padding-block:16px}.vocab-finish-card{width:100%}.vocab-finish-evidence{grid-template-columns:1fr}.vocab-finish-context{display:grid;text-align:center}.vocab-finish-ladder{gap:4px}.vocab-finish-stage{padding:8px 2px}.vocab-finish-stage small{font-size:var(--fs-xs)}.vocab-finish-actions{display:grid}.vocab-finish-actions .vocab-button{width:100%;min-width:0}}
-@media (prefers-reduced-motion:reduce){.vocab-finish-card,.vocab-finish-stars,.vocab-finish-stage,.vocab-finish-unlock{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+/* The session-finish card is styled only in vocabulary-completion.css (single style owner). */
+.vocab-pathway-card__set{display:block;font-weight:900}
 
 /* Answer options never leave a single word alone on the last line: balance the lines (pretty is the fallback). */
 .vocab-choice-card>span:not(.vocab-choice-card__key),.vocab-match-card,.vocab-choice,.vocab-evidence-option{text-wrap:pretty;text-wrap:balance}
