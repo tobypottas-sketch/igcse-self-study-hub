@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '../supabase.js';
-import { loadVocabularyDashboard, loadMeritAwardCount, loadVocabularyMissions, loadVocabularyUnit, loadStudentMastery, loadPathwaySets, recordVocabularyMission, startVocabularyMission, submitVocabularyAttempt } from './data.js';
+import { loadVocabularyDashboard, loadMeritAwardCount, loadVocabularyMissions, loadVocabularyUnit, loadStudentMastery, loadPathwaySets, loadSetMembers, recordVocabularyMission, startVocabularyMission, submitVocabularyAttempt } from './data.js';
 import { achievements as buildAchievements, bestAndAim, computeXp, describeEngagement, evaluateMission, levelFor, meritProgress, nextChallenge, progressSnapshot, weeklyGoal } from './engagement-model.js';
 import { markAchievementsSeen, newAchievements } from './achievements-seen.js';
 import { trackVocabularyEvent } from './tracking.js';
@@ -10,7 +10,7 @@ import { buildTargetPracticeQuestion, buildTimedMixedQuestion, selectEligiblePri
 import { planMixedReviewQuestion } from './mixed-review.js';
 import { planPathwayQuestion } from './pathway-planner.js';
 import { buildUnitPathwayStates } from './pathway-view-model.js';
-import { setsFromCoverage } from './pathway-sets.js';
+import { setsFromCoverage, compareSetMembership, MEMBERSHIP } from './pathway-sets.js';
 import { activeSetStep, buildSetPathwayStates, buildWordSetStates, describeNext, groupSetRows, missionTargetIds, projectSettlement } from './set-progress.js';
 import { MISSION_SIZE } from './stage-progression.js';
 import { VOCABULARY_PATHWAYS } from './pathway-model.js';
@@ -37,7 +37,7 @@ const state = {
   client:null, profile:null, preview:false, dashboard:null, units:[], currentUnitNumber:null, currentUnitTitle:null, content:null,
   globalMastery:{}, unitMastery:{}, session:null, queue:[], current:null, practiceFocus:null, pathwayId:null, pathwayStage:null, pathwayChoice:null, mixedReview:false, missions:[], meritAwarded:null, engagementSnapshot:null,
   recentActivities:new Map(), usedContentIds:new Map(), recoveryNeeded:new Set(), clock:null, activeSeconds:0, lastInteractionAt:Date.now(), activeTimer:null, timedPreviousActivityType:null,
-  setRows:[], setStep:null, missionCorrect:new Set(), userKey:null, finishPending:false, handoffPending:false, unitCache:new Map(), attempts:null, unitRequest:0, loadingUnit:null
+  setRows:[], setStep:null, missionCorrect:new Set(), userKey:null, finishPending:false, handoffPending:false, unitCache:new Map(), setMemberCache:new Map(), attempts:null, unitRequest:0, loadingUnit:null
 };
 
 function occurrence(row) { return { occurrenceId:row.occurrence_id, vocabularyId:row.vocabulary_id, unitNumber:row.unit_number, unitTitle:row.unit_title, setNumber:row.set_number, positionInUnit:row.position_in_unit, senseId:row.sense_id }; }
@@ -332,6 +332,15 @@ async function startPathwaySession(pathwayId, continueHistory = false, choice = 
     return beginSession(pathwayRequest({ pathwayId, stageId:step.stage, pathwayChoice, selected, setStep:null, forceNew, continueHistory }));
   }
   if (step.firstPassComplete) throw new Error('Every Set in this pathway is in Maintain. Mixed Practice keeps them sharp.');
+  // Fail safe on membership drift: never start a mission the server would not count for this Set.
+  if (!state.preview) {
+    if (!state.setMemberCache.has(state.currentUnitNumber)) state.setMemberCache.set(state.currentUnitNumber, await loadSetMembers(state.client, state.currentUnitNumber));
+    const drift = compareSetMembership({ pathwayId, setNumber:step.setNumber, clientMembers:step.members, serverRows:state.setMemberCache.get(state.currentUnitNumber) });
+    if (drift.status === MEMBERSHIP.MISMATCH) {
+      state.setMemberCache.delete(state.currentUnitNumber);
+      throw new Error('This Set is being updated and cannot be started right now. Your progress is safe. Please tell your teacher.');
+    }
+  }
   // A Set is exactly ten words, so a normal mission is exactly those ten: no tail, no padding, no duplicates.
   selected = occurrencesByIds(missionTargetIds({ step }));
   if (selected.length !== MISSION_SIZE) throw new Error('No suitable curated activity is available for this pathway stage yet.');
@@ -389,6 +398,19 @@ function beginSession(request) {
       // A cached mission whose ten targets are all finished was never settled (the page closed or the request failed). It is settled once
       // here and then replaced, so a settlement that can never succeed cannot trap the student on a finished mission.
       const cached = acquired.extras && acquired.extras.missionId === acquired.missionId ? acquired.extras : null;
+      // Version drift: an open mission cached by an older release holds ten words that are no longer this Set's ten (the Set's membership
+      // changed in between). Resuming it would play a mission the server cannot count, so it is replaced by a mission for the current Set.
+      if (cached && request.setStep && request.setStep.missionKind === 'stage' && !request.forceNew && !request.familyId) {
+        const wanted = new Set(selected.map(row => row.occurrenceId));
+        if (cached.targetIds.length !== wanted.size || !cached.targetIds.every(id => wanted.has(id))) {
+          clearMission(state.userKey, slot);
+          return acquireMission({ start:startMission, userKey:state.userKey, slot, familyId, forceNew:true }).then(next => {
+            if (next.status !== 'ready') throw unavailable(next);
+            const req = reconcileWithServer(request, next);
+            return finish(next, req, missionSlotFor(req));
+          });
+        }
+      }
       if (cached && cached.targetIds.length === 10 && cached.targetIds.every(id => cached.completedTargetIds.includes(id))) {
         return Promise.resolve(recordVocabularyMission(state.client, acquired.missionId)).catch(() => null).then(() => {
           clearMission(state.userKey, slot);

@@ -6,6 +6,7 @@ import { availableActivityTypesForTarget } from './session-targets.js';
 import { PATHWAY_ACTIVITY_TYPES } from './pathway-activity-builder.js';
 import { registeredPathwayCoverage } from './pathway-coverage-store.js';
 import { UnreviewedContentError } from './reviewed-content.js';
+import { assessBuiltQuestion } from './question-quality-gate.js';
 import { STRICT_REVIEW_QUESTION_TYPES } from '../../content/vocabulary/pathway-readiness-rules.js';
 
 const STAGE_IDS = Object.freeze(PATHWAY_STAGES.map(stage => stage.id));
@@ -136,6 +137,28 @@ function buildCandidate({ content, target, mastery, item, contexts, plan, usedCo
   return { ...question, pathwayId:plan.pathwayId, pathwayStage:plan.learnerStage, presentationNonce:optionNonce || undefined };
 }
 
+// Quality-preferring build: the first candidate that passes the question-quality gate wins. Attempt 0 is the ordinary seed so a clean
+// question is unchanged; later attempts re-roll content and option order deterministically. If none passes, the FIRST built question is
+// served (never strand a Set member) and `qualityGate` records the residual violations so readiness reporting can surface the gap.
+export const QUALITY_REGENERATIONS = 11;
+function buildCandidateGated(args) {
+  let first = null;
+  let firstViolations = [];
+  for (let attempt = 0; attempt <= QUALITY_REGENERATIONS; attempt += 1) {
+    let question;
+    try {
+      question = buildCandidate(attempt === 0 ? args : { ...args, seed:`${args.seed}:q-regen:${attempt}`, optionNonce:`${args.optionNonce ?? ''}:q${attempt}` });
+    } catch (error) {
+      if (attempt === 0) throw error;
+      continue;
+    }
+    const verdict = assessBuiltQuestion(question);
+    if (verdict.ok) return attempt === 0 ? question : { ...question, qualityGate:{ ok:true, attempt } };
+    if (!first) { first = question; firstViolations = verdict.violations; }
+  }
+  return { ...first, qualityGate:{ ok:false, violations:firstViolations } };
+}
+
 export function planPathwayQuestion({
   pathwayId,
   stageId,
@@ -195,7 +218,7 @@ export function planPathwayQuestion({
         reason:servedStage === learnerStage ? 'Fixed pathway stage' : 'Temporary one-stage support'
       };
       try {
-        const question = buildCandidate({content,target,mastery,item,contexts,plan,usedContentIds,seed:contentSeedFor(activityType),optionNonce,requireReviewed,avoidTileOrders});
+        const question = buildCandidateGated({content,target,mastery,item,contexts,plan,usedContentIds,seed:contentSeedFor(activityType),optionNonce,requireReviewed,avoidTileOrders});
         const built = { item, contexts, plan, question };
         if (!missionSeed || !question.contentId || !metBefore.has(String(question.contentId))) return built;
         firstBuilt ??= built;

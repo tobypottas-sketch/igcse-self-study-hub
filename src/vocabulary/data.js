@@ -211,3 +211,15 @@ export async function loadPathwaySets(client, unitNumber, options = {}) {
   if (result?.error) throw new Error('Unable to load your pathway progress. Check your connection and try again.');
   return result?.data ?? [];
 }
+
+// The server-held Set membership for one unit (public.vocabulary_set_members, read-only for students). It is the authority for whether a
+// Set mission can count, so the client compares its own Sets with it before starting one. A read failure returns null ("unknown"): the
+// server still enforces membership, so practice is not blocked by an unreadable table.
+export async function loadSetMembers(client, unitNumber, options = {}) {
+  if (options.preview === true || typeof client?.from !== 'function') return null;
+  try {
+    const result = await client.from('vocabulary_set_members').select('pathway_id, set_number, position, occurrence_id').eq('unit_number', unitNumber);
+    if (result?.error || !Array.isArray(result?.data)) return null;
+    return result.data;
+  } catch { return null; }
+}
