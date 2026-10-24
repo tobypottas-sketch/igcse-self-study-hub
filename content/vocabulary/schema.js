@@ -49,6 +49,7 @@ export function validateVocabularyItem(item = {}, { strict = true } = {}) {
           errorIf(errors, !['noun','verb','adjective','adverb'].includes(row?.partOfSpeech), `${label} needs partOfSpeech noun, verb, adjective or adverb (authored, never inferred).`);
           errorIf(errors, typeof row?.pedagogicallyUseful !== 'boolean', `${label} needs pedagogicallyUseful true or false.`);
           errorIf(errors, !text(row?.example) || !new RegExp(`(^|[^A-Za-z])${text(row?.form).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}(?=$|[^A-Za-z])`, 'i').test(text(row?.example)), `${label} needs an example sentence that contains the form.`);
+          if (row?.altExample != null) errorIf(errors, !text(row.altExample) || text(row.altExample) === text(row.example) || (text(row.altExample).match(new RegExp(`(^|[^A-Za-z])${text(row?.form).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}(?=$|[^A-Za-z])`, 'gi')) ?? []).length !== 1, `${label} altExample must be a different sentence that contains the form exactly once.`);
         }
       }
     }

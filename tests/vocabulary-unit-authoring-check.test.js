@@ -13,14 +13,13 @@ const strip = item => ({ ...item, senses:item.senses.map(sense => Object.fromEnt
 const bare = { ...unit1, items:unit1.items.map(strip), activities:unit1.activities.filter(a => a.activityData?.taskType !== 'language_bank_context') };
 const pathway = (report, id) => report.pathways.find(row => row.pathwayId === id);
 
-test('Unit 1 passes the authoring check: structure valid, four pathways live, Word Families short of authored families, Paraphrasing short of idea and phrase records', () => {
+test('Unit 1 passes the authoring check: structure valid, five pathways live (Word Families authored in Job 9), Paraphrasing short of idea and phrase records', () => {
   const report = checkUnitAuthoring(unit1);
   assert.equal(report.publishable, true);
-  assert.deepEqual(report.pathways.filter(row => row.live).map(row => row.pathwayId), ['meaning','context','precision_use','spelling_recall']);
+  assert.deepEqual(report.pathways.filter(row => row.live).map(row => row.pathwayId), ['meaning','context','word_families','precision_use','spelling_recall']);
   const families = pathway(report, 'word_families');
-  assert.equal(families.live, false);
-  assert.equal(families.stages.find(stage => stage.stage === 'mastery').shortBy, 20, 'Word Families Mastery needs 20 authored complete families (none are authored yet)');
-  assert.equal(families.atLeastMoreWords, 20);
+  assert.equal(families.live, true);
+  assert.equal(families.stages.find(stage => stage.stage === 'mastery').shortBy, 0, 'Word Families Mastery has 29 authored complete families, above the 20 needed');
   const paraphrasing = pathway(report, 'paraphrasing');
   assert.equal(paraphrasing.live, false);
   assert.deepEqual(paraphrasing.diversity.map(entry => [entry.have, entry.need, entry.shortBy]), [[0, 10, 10], [0, 10, 10]]);

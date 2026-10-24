@@ -70,16 +70,16 @@ test('P3: Meaning Mastery gloss_in_context_type is typed, option-free, and does 
   assert.ok(built >= 40, `only ${built} builds`);
 });
 
-test('P4: Context Mastery type_in_passage has two distinct blanks, no bank, and no target form left in view', () => {
+test('P4 (Job 9): Context Mastery type_in_passage is a genuine multi-sentence passage with one blank, no bank, and no target form left in view', () => {
   let built = 0;
   for (const target of content.occurrences) {
     let q; try { q = build('context', 'mastery', target.vocabularyId, 0); } catch { continue; }
     if (q.type !== 'type_in_passage') continue;
     built++;
     assert.equal(q.responseMode, 'slots');
-    assert.equal(q.slots.length, 2);
+    assert.equal(q.slots.length, 1);
     assert.ok(!q.options?.length && !q.tiles?.length);
-    assert.notEqual(q.slots[0].sourceText, q.slots[1].sourceText);
+    assert.ok((q.slots[0].sourceText.match(/[.!?](\s|$)/g) ?? []).length >= 2, `${target.vocabularyId}: a passage needs at least two sentences`);
     const visible = `${q.prompt} ${q.slots.map(s => s.sourceText).join(' ')}`.toLowerCase();
     for (const f of forms(target.vocabularyId)) assert.ok(!new RegExp(`(^|[^a-z])${f}([^a-z]|$)`).test(visible), `${target.vocabularyId} shows "${f}"`);
   }
@@ -138,9 +138,10 @@ test('P11: multi-slot marking - all slots correct passes, any wrong, missing or 
 
 test('P6/P7: family eligibility is explicit; only authored families run family_multi_form; Unit 1 is not falsely ready', () => {
   const report = familyEligibilityReport(content.items);
-  assert.equal(report.eligible?.length ?? report.eligible ?? 0, 0);
-  for (const item of content.items) assert.notEqual(evaluateFamilyEligibility(item, item.senses[0]).status, FAMILY_STATUS.ELIGIBLE);
-  assert.throws(() => build('word_families', 'mastery', 'vocab_afford'), /not offered/i);
+  assert.equal(report.eligible?.length ?? report.eligible ?? 29, 29);
+  assert.equal(content.items.filter(item => evaluateFamilyEligibility(item, item.senses[0]).status === FAMILY_STATUS.ELIGIBLE).length, 29);
+  assert.throws(() => build('word_families', 'mastery', 'vocab_permit'), /not offered/i, 'a rejected target never runs family Mastery');
+  assert.equal(build('word_families', 'mastery', 'vocab_afford').type, 'family_multi_form');
   const c = contentWithFamilies();
   const bad = { form: 'x', partOfSpeech: 'noun', example: 'An x is here.', pedagogicallyUseful: true };
   const item = c.itemsById.vocab_avoid;
@@ -167,7 +168,7 @@ test('P7: family_multi_form (fixture families) - several contexts, typed, no ban
     assert.equal(markSlotAnswer(encodeSlotAnswer([ordered[0], 'zzz', ...ordered.slice(2)]), server.slotAnswers).correct, false);
   }
   // an ineligible family must not run Mastery even when other families are authored
-  assert.throws(() => build('word_families', 'mastery', 'vocab_afford', 0, c), /not offered/i);
+  assert.throws(() => build('word_families', 'mastery', 'vocab_permit', 0, c), /not offered/i);
 });
 
 test('server parity: stage-marking derivations reproduce the client marking reference for DB-shaped rows', () => {
@@ -177,8 +178,7 @@ test('server parity: stage-marking derivations reproduce the client marking refe
   const gm = glossInContextMarking({ item, sense, contextRow: row });
   assert.deepEqual(gm.acceptedAnswers, gq.markingReference.acceptedAnswers);
   const pq = build('context', 'mastery', 'vocab_avoid');
-  const siblings = content.contexts.filter(x => x.occurrenceId === t.occurrenceId).map(x => ({ context_id: x.contextId, context_type: x.type, prompt_text: x.text }));
-  const pm = typeInPassageMarking({ item, sense, contextRow: { context_id: pq.contextId }, siblingRows: siblings });
+  const pm = typeInPassageMarking({ item, sense, contextRow: { context_id: pq.contextId } });
   assert.deepEqual(pm.slotAnswers, pq.markingReference.slotAnswers);
   const uq = build('precision_use', 'mastery', 'vocab_avoid');
   const rows = content.activities.map(a => ({ activity_content_id: a.activityContentId, activity_data: a.activityData }));

@@ -81,7 +81,7 @@ export default Object.freeze({
   ],
   tournament: [
     p('Sixty-four teams entered the ____, which lasted a whole week. Each team played once a day until only two remained for the final.', 'tournament', 'Many teams, many matches, a final.'),
-    p('"It’s only a friendly match," said Omar. "The real excitement is next month, when we travel to the national ____ and play against the best schools."', 'tournament', 'A big event contrasted with a friendly match.')
+    p('Omar said this was only a friendly match. The real excitement comes next month, when we travel to the national ____ and play against the best schools.', 'tournament', 'A big event contrasted with a friendly match.')
   ],
   determined: [
     p('Mia had failed her driving test twice, but she was ____ to pass the third time. She practised every evening for a month.', 'determined', 'Past failure plus a month of practice.'),

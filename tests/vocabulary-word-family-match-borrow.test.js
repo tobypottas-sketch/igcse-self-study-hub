@@ -3,9 +3,8 @@ import assert from 'node:assert/strict';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import { buildPathwayActivity } from '../src/vocabulary/pathway-activity-builder.js';
 
-test('incredible has a clean family and Word Family Match borrows wrong forms from other families', () => {
-  const item = unit1.items.find(row => row.term === 'incredible');
-  assert.deepEqual(item.wordFamily, ['incredibly']);
+test('a one-form family (incredible → incredibly; not served in Unit 1, a Job 7 review decision) still borrows wrong forms from other families', () => {
+  const item = { ...unit1.items.find(row => row.term === 'incredible'), wordFamily:['incredibly'] };
   const occurrence = unit1.occurrences.find(row => row.vocabularyId === item.vocabularyId);
   for (let n = 0; n < 12; n += 1) {
     const q = buildPathwayActivity({

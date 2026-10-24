@@ -11,6 +11,7 @@ import unit1MeaningMatch from './unit-01-meaning-match.js';
 import unit1MeaningMastery from './unit-01-meaning-mastery.js';
 import unit1ContextPassages from './unit-01-context-passages.js';
 import { unit1WordFamilies, unit1WordFamilyRejected } from './unit-01-word-families.js';
+import { unit1WordFamilyAlternates } from './unit-01-word-family-alternates.js';
 import { unit1SituationDistractors, unit1GapDistractors } from './unit-01-reviewed-distractors.js';
 import { LEXICAL_SPELLING_ERRORS } from '../lexical-spelling-errors.js';
 
@@ -83,7 +84,7 @@ function familyFields(entry) {
   if (!family) return unit1WordFamilyRejected[entry.term] ? { wordFamily:[] } : {};
   const lower = value => String(value).toLocaleLowerCase('en');
   return {
-    wordFamilyForms:family.forms.map(row => ({ form:row.form, partOfSpeech:row.partOfSpeech, example:row.example, pedagogicallyUseful:true, ...(row.note ? { note:row.note } : {}) })),
+    wordFamilyForms:family.forms.map(row => ({ form:row.form, partOfSpeech:row.partOfSpeech, example:row.example, pedagogicallyUseful:true, ...(unit1WordFamilyAlternates[entry.term]?.[row.form] ? { altExample:unit1WordFamilyAlternates[entry.term][row.form] } : {}), ...(row.note ? { note:row.note } : {}) })),
     wordFamily:family.forms.map(row => row.form).filter(form => lower(form) !== lower(entry.term))
   };
 }

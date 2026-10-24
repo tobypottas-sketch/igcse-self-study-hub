@@ -132,6 +132,7 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
     })).filter(record => record.text && record.answer && record.contextId);
     const wordFamilyForms = array(entry.wordFamilyForms).map(row => ({
       form:text(row?.form), partOfSpeech:text(row?.partOfSpeech), example:text(row?.example), pedagogicallyUseful:row?.pedagogicallyUseful === true,
+      ...(text(row?.altExample) ? { altExample:text(row.altExample) } : {}),
       ...(text(row?.note) ? { note:text(row.note) } : {})
     })).filter(row => row.form);
     const sense = {

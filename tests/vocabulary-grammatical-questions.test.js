@@ -39,6 +39,15 @@ test('filling the correct answer into a curated blank restores the curated sente
     // Meaning Mastery blanks the sense's authored mastery sentence (a meaning_context or paraphrase_context record); everything else blanks a curated gap-fill sentence.
     const expectedTypes = question.type === 'gloss_in_context_type' ? ['meaning_context', 'paraphrase_context'] : ['gap_fill'];
     assert.ok(expectedTypes.includes(record.type), `${question.type} must blank a curated ${expectedTypes.join('/')} sentence, not a ${record.type}`);
+    if (question.type === 'type_in_passage') {
+      // Job 9: a genuine passage. Its text is the sense's authored masteryPassage bound to this gap-fill row, and filling the answer restores it exactly.
+      const sense = content.itemsById[question.vocabularyId].senses[0];
+      const passage = (sense.masteryPassages ?? []).find(row => row.contextId === question.contentId);
+      assert.ok(passage, `type_in_passage: no authored passage for ${question.contentId}`);
+      assert.equal(norm(question.sourceText), norm(passage.text.includes('____') ? passage.text : passage.text.replace(passage.answer, '____')));
+      assert.equal(question.markingReference.acceptedAnswers[0], passage.answer);
+      continue;
+    }
     if (Array.isArray(question.slots)) {
       // a multi-slot passage: every slot, filled with its answer, restores one of this word's curated gap-fill sentences
       const gapTexts = new Set(unit.contexts.filter(row => row.occurrenceId === record.occurrenceId && row.type === 'gap_fill').map(row => norm(row.text)));
@@ -126,7 +135,7 @@ test('every blankable gap sentence has exactly three reviewed distractors, and n
     assert.equal(row.length, 3, keyOf(candidate));
     assert.equal(new Set(row.map(norm)).size, 3, `duplicate distractors: ${keyOf(candidate)}`);
     assert.ok(!row.some(value => norm(value) === norm(candidate.answer)), `a distractor equals the answer: ${keyOf(candidate)}`);
-    assert.ok(row.every(value => /^[a-z-]+$/.test(value)), `unexpected characters: ${keyOf(candidate)}`);
+    assert.ok(row.every(value => /^[a-z][a-z -]*$/.test(value)), `unexpected characters: ${keyOf(candidate)}`);
   }
   const contextIds = new Set(candidates.map(candidate => candidate.context.contextId));
   for (const item of unit.items) for (const row of item.senses[0].gapDistractors ?? []) assert.ok(contextIds.has(row.contextId), `reviewed row matches no sentence: ${row.contextId}`);

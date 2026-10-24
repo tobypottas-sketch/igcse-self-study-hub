@@ -28,13 +28,14 @@ function withPhraseRecordsForIdeaWords() {
   return { ...full, activities:[...full.activities, ...clone('phrase_set', 'idea'), ...clone('idea_set', 'phrase')] };
 }
 
-test('Unit 1 under stage-level readiness: four pathways live (Word Families awaits authored families, Paraphrasing locked: no word has both idea and phrase records)', () => {
+test('Unit 1 under stage-level readiness: five pathways live (Word Families authored in Job 9, Paraphrasing locked: no word has both idea and phrase records)', () => {
   const readiness = evaluateUnitReadiness({ content:full });
-  assert.deepEqual(live(readiness), { meaning:true, context:true, word_families:false, paraphrasing:false, precision_use:true, spelling_recall:true });
-  assert.deepEqual(readiness.pathways.meaning.stageCounts, { recognise:50, match:48, apply:50, recall:50, mastery:47 });
-  // Word Families Recognise-Recall run from the bare family strings; Mastery needs authored per-form records, and Unit 1 has none, so the pathway is not live (nothing is inferred).
-  assert.deepEqual(readiness.pathways.word_families.stageCounts, { recognise:37, match:37, apply:37, recall:37, mastery:0 });
-  assert.equal(readiness.pathways.word_families.reason, 'stage_below_minimum');
+  assert.deepEqual(live(readiness), { meaning:true, context:true, word_families:true, paraphrasing:false, precision_use:true, spelling_recall:true });
+  assert.deepEqual(readiness.pathways.meaning.stageCounts, { recognise:50, match:48, apply:50, recall:50, mastery:50 });
+  // Word Families: 30 targets have an authored, reviewed, complete family (Job 9); Mastery needs those per-form records and nothing is inferred.
+  assert.deepEqual(readiness.pathways.word_families.stageCounts, { recognise:29, match:35, apply:37, recall:37, mastery:29 });
+  assert.equal(readiness.pathways.word_families.live, true);
+  assert.equal(readiness.pathways.word_families.servedCount, 29);
   const paraphrasing = readiness.pathways.paraphrasing;
   assert.deepEqual(paraphrasing.stageCounts, { recognise:12, match:12, apply:24, recall:12, mastery:24 });
   assert.equal(paraphrasing.servedCount, 0, 'under the locked ladder Recognise (same_idea) is idea-set only and Match/Recall are phrase-set only; no Unit 1 word has both, so none runs every rung');
@@ -112,8 +113,8 @@ test('the release check reports every release file with the same answer', () => 
   const [report] = releaseReadinessReports([release1]);
   assert.equal(report.unitNumber, 1);
   assert.equal(report.publishedWords, 50);
-  assert.equal(report.live, 4);
-  assert.equal(report.locked, 2);
+  assert.equal(report.live, 5);
+  assert.equal(report.locked, 1);
   assert.equal(report.ready, false);
 });
 

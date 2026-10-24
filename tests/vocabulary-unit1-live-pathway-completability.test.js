@@ -32,8 +32,11 @@ function strongMastery() {
   };
 }
 
+let attemptCounter = 0;
 function serverLikeAttempt(pathwayId, stageId, question) {
   const evidenceId = question.contentId;
+  // The Edge Function identifies item-backed questions (no context or activity row) by the attempt id, so each attempt is distinct content there.
+  const questionIdentity = question.contentSource === 'item' ? `${evidenceId}:attempt-${attemptCounter += 1}` : evidenceId;
   const contextualEvidence = question.contentSource === 'context' || question.contentSource === 'language_bank';
   return {
     stageId,
@@ -42,7 +45,7 @@ function serverLikeAttempt(pathwayId, stageId, question) {
     firstAttempt:true,
     retryUsed:false,
     supportLevel:'none',
-    contentId:evidenceId,
+    contentId:questionIdentity,
     contextId:contextualEvidence ? evidenceId : null,
     promptKey:`${evidenceId}:${question.activityVariantId ?? question.type}`,
     activityType:question.type,
@@ -78,28 +81,14 @@ function completeStage({ pathwayId, stageId, content, target, progress }) {
 
 const content = plannerContent(unit1);
 const coverage = buildPathwayCoverage({ content });
-const LIVE_PATHWAYS = ['meaning','context','precision_use','spelling_recall'];   // Word Families joins when families are authored
+const LIVE_PATHWAYS = ['meaning','context','word_families','precision_use','spelling_recall'];   // Word Families joined in Job 9
 
-test('Unit 1 Word Families is held back (not live) until families are authored; Recognise-Recall cohort is the curated 37, Mastery is 0', () => {
-  const expected = unit1.occurrences
-    .filter(occurrence => {
-      const item = content.itemsById[occurrence.vocabularyId];
-      const family = new Set([item?.term,...(item?.wordFamily ?? [])].map(value => String(value ?? '').trim().toLowerCase()).filter(Boolean));
-      const hasCuratedFamilyPrompt = unit1.activities.some(activity =>
-        activity.contentType === 'writing_set' &&
-        activity.activityData?.taskType === 'word_family' &&
-        (activity.activityData?.linkedVocabularyIds ?? []).includes(occurrence.vocabularyId)
-      );
-      // incredible has one transparent form (incredibly); its Match rung borrows wrong forms from other families.
-      return (family.size >= 3 || item?.term === 'incredible') && hasCuratedFamilyPrompt;
-    })
-    .map(occurrence => occurrence.occurrenceId)
-    .sort();
-  assert.ok(expected.length > 0,'Unit 1 needs real three-form word-family targets');
-  assert.equal(coverage.word_families.available,false,'no authored families: Mastery cannot be offered, so the pathway is not live');
-  assert.equal(coverage.word_families.stageCounts.mastery,0);
-  assert.equal(coverage.word_families.stageCounts.recognise,expected.length);
-  assert.deepEqual([...coverage.word_families.occurrenceIds],[],'a pathway that is not live serves nobody');
+test('Unit 1 Word Families is live (Job 9): its served cohort is exactly the 29 authored, eligible families', () => {
+  assert.equal(coverage.word_families.available,true);
+  assert.equal(coverage.word_families.occurrenceIds.length,29);
+  assert.equal(coverage.word_families.stageCounts.mastery,29);
+  assert.equal(coverage.word_families.stageCounts.recognise,29);
+  assert.equal(coverage.word_families.setCount ?? 2,2);
 });
 
 test('every Unit 1 pathway declared live is genuinely completable to Mastery for every serviceable word', () => {

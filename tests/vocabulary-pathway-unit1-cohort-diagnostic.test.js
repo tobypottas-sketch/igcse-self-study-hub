@@ -39,7 +39,7 @@ test('diagnostic: report Unit 1 buildable counts while distinguishing intentiona
       }
       const ids = new Set(eligible.map(row => row.occurrenceId));
       cohort = new Set([...cohort].filter(id => ids.has(id)));
-      // An explicit AUTHORING gate is not a hidden gap: Word Families Mastery needs authored per-form records (Job 8), which Unit 1 does not have yet.
+      // An explicit AUTHORING gate is not a hidden gap: Word Families Mastery needs authored per-form records (Job 8), which Unit 1 now has for 30 targets (Job 9).
       if (AUTHORING_GATES.has(`${pathway.id}/${stage.id}`)) { gated.add(pathway.id); continue; }
       assert.ok(eligible.length > 0, `${pathway.id}/${stage.id} has zero buildable Unit 1 targets but is not explicitly withheld`);
     }
@@ -49,7 +49,7 @@ test('diagnostic: report Unit 1 buildable counts while distinguishing intentiona
 
   assert.equal(counts.precision_use.mastery.withheld,false,'Precision Mastery is live (typed precision production, no clue)');
   for (const pathway of VOCABULARY_PATHWAYS) {
-    if (pathway.id === 'word_families') { assert.equal(counts[pathway.id].mastery.buildable, 0, 'no authored families: Mastery is not offered'); continue; }
+    if (pathway.id === 'word_families') { assert.equal(counts[pathway.id].mastery.buildable, 29, 'exactly the 29 authored, eligible families run Mastery'); assert.ok(counts[pathway.id].allStages > 0); continue; }
     // Paraphrasing is locked for Unit 1: under the locked ladder Recognise (same_idea) needs idea records and Match/Recall need phrase records, and no word has both (content gap, reported by readiness).
     if (pathway.id === 'paraphrasing') { assert.equal(counts[pathway.id].allStages, 0); continue; }
     assert.ok(counts[pathway.id].allStages > 0, `${pathway.id} needs at least one target buildable through every declared rung`);

@@ -204,7 +204,7 @@ export default Object.freeze({
   ],
   historic: [
     w(['old enough to be placed in a museum', 'celebrated only by supporters of one team', 'arranged long before the final took place'],
-      { meaning: 'so important that people will remember it for years', reason: 'Original gloss ("important enough to matter in history") contained the stem of the target, so Meaning Mastery refused it.' }),
+      { meaning: 'important enough to be remembered for years', reason: 'Original gloss ("important enough to matter in history") contained the stem of the target, so Meaning Mastery refused it.' }),
     w(['sad enough to be remembered by everyone', 'busy enough to fill the whole calendar', 'early enough to be listed in the printed programme'],
       { text: 'The opening of the first women’s league was a historic day for the sport.', meaning: 'important enough to change what happens later',
         reason: 'Original gloss ("likely to be remembered historically") contained a derivative of the target; the sentence is replaced with one that gives a second, different context.' })

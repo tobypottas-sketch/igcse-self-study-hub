@@ -62,7 +62,7 @@ test('journey summary: counts and (optionally) the full log for the report', () 
   assert.ok(total > 0);
   const byPathway = {};
   for (const j of journeyLog) byPathway[j.pathway] = (byPathway[j.pathway] ?? 0) + 1;
-  assert.deepEqual(Object.keys(byPathway).sort(), ['context', 'meaning', 'precision_use', 'spelling_recall']);
+  assert.deepEqual(Object.keys(byPathway).sort(), ['context', 'meaning', 'precision_use', 'spelling_recall', 'word_families']);
   if (process.env.JOB7_JOURNEY_OUT) fs.writeFileSync(process.env.JOB7_JOURNEY_OUT, JSON.stringify({ sets: sets.size, journeys: journeyLog.length, missions: total, byPathway, journeyLog }, null, 1));
 });
 

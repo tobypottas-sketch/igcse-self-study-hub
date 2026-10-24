@@ -129,12 +129,6 @@ export const unit1WordFamilies = Object.freeze({
     f('patiently', 'adverb', 'The fans waited patiently for the gates to open.', 'Adverb for narrative.'),
     f('impatient', 'adjective', 'He grew impatient when the match kept being delayed.', 'Opposite adjective; shows the im- prefix.')
   ] },
-  incredible: { forms: [
-    f('incredible', 'adjective', 'The view from the top of the mountain was incredible.', 'Headword.'),
-    f('incredibly', 'adverb', 'The runner was incredibly fast over the final hundred metres.', 'Adverb of degree used constantly in speech.'),
-    f('credible', 'adjective', 'Without evidence, the team’s excuse did not sound credible.', 'Base adjective in argument and news language.'),
-    f('credibility', 'noun', 'Cheating would destroy the credibility of the whole competition.', 'Noun for formal and argumentative writing.')
-  ] },
   historic: { forms: [
     f('historic', 'adjective', 'The opening of the new stadium was a historic occasion for the town.', 'Headword.'),
     f('history', 'noun', 'The club has a long and proud history.', 'Base noun.'),
@@ -197,7 +191,8 @@ export const unit1WordFamilyRejected = Object.freeze({
   atmosphere: '"atmospheric" is rare and technical.',
   criteria: 'A plural form of "criterion"; the family is rare and technical.',
   craftspeople: 'Plural-only headword; "craft" and "craftsmanship" are weakly linked, so the family is thin.',
-  antiques: '"antique" is just the singular; no other forms.'
+  antiques: '"antique" is just the singular; no other forms.',
+  incredible: 'Only "incredibly" is a transparent relative. "Credible" and "credibility" mean "believable", which has drifted from the "amazing" sense taught here (a Job 7 review decision), so the family has two forms, not three.'
 });
 
 export default unit1WordFamilies;

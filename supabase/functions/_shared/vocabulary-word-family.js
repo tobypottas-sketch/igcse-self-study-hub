@@ -72,20 +72,38 @@ export function eligibleSlotForms(item = {}, sense = {}) {
 }
 
 // Every non-empty subset of size 2..3 of the eligible slot forms, as a bitmask over the eligible list. The mask travels as the
-// attempt's activity variant (`q<mask>`), so client and server agree on exactly which forms were asked.
+// attempt's activity variant (`q<n>`), so client and server agree on exactly which forms were asked.
+//
+// A family whose only non-target forms are two has a single mask, hence a single prompt, and per-word Mastery needs two DIFFERENT prompts.
+// An author may therefore give a form a SECOND, hand-written example sentence (`altExample`). The alternate prompt asks the same forms in
+// their second sentences; it is encoded as the same mask with bit 64 set (`q<mask+64>`), so the variant format and its validation are unchanged.
+// A form without an `altExample` simply has no alternate prompt: nothing is generated.
+export const ALT_BIT = 64;
+export const MAX_SLOT_FORMS = 6;
+function altSlot(item, sense, slot) {
+  const row = countedForms(familyFormsOf(item, sense) ?? []).find(r => lower(r.form) === lower(slot.form));
+  const example = text(row?.altExample);
+  if (!example || lower(example) === lower(slot.example) || wholeWordMatches(example, slot.form).length !== 1) return null;
+  const blank = blankTargetInSentence(example, { term: slot.form }, {});
+  return blank && lower(blank.answer) === lower(slot.form) ? { ...slot, sourceText: blank.sourceText, example } : null;
+}
 export function familyMasks(item, sense) {
-  const count = eligibleSlotForms(item, sense).length;
+  const forms = eligibleSlotForms(item, sense).slice(0, MAX_SLOT_FORMS);
+  const alt = forms.map(slot => altSlot(item, sense, slot));
   const masks = [];
-  for (let mask = 1; mask < (1 << count); mask += 1) {
+  for (let mask = 1; mask < (1 << forms.length); mask += 1) {
     const size = mask.toString(2).replaceAll('0', '').length;
-    if (size >= MIN_MASTERY_SLOTS && size <= MAX_MASTERY_SLOTS) masks.push(mask);
+    if (size < MIN_MASTERY_SLOTS || size > MAX_MASTERY_SLOTS) continue;
+    masks.push(mask);
+    if (forms.every((_, index) => !((mask >> index) & 1) || alt[index])) masks.push(mask | ALT_BIT);
   }
   return masks;
 }
-export function familySlotsForMask(item, sense, mask) {
-  const forms = eligibleSlotForms(item, sense);
-  const chosen = forms.filter((_, index) => (mask >> index) & 1);
-  return chosen.length >= MIN_MASTERY_SLOTS && chosen.length <= MAX_MASTERY_SLOTS ? chosen : null;
+export function familySlotsForMask(item, sense, variant) {
+  const forms = eligibleSlotForms(item, sense).slice(0, MAX_SLOT_FORMS);
+  const useAlt = (variant & ALT_BIT) !== 0, mask = variant & (ALT_BIT - 1);
+  const chosen = forms.filter((_, index) => (mask >> index) & 1).map(slot => useAlt ? altSlot(item, sense, slot) : slot);
+  return chosen.length >= MIN_MASTERY_SLOTS && chosen.length <= MAX_MASTERY_SLOTS && chosen.every(Boolean) ? chosen : null;
 }
 export function familyVariantId(mask) { return `q${mask}`; }
 export function familyMaskFromVariant(variant) { const match = /^q(\d{1,3})$/.exec(String(variant ?? '')); return match ? Number(match[1]) : null; }

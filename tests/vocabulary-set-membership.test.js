@@ -23,32 +23,36 @@ test('seed + the guarded v2 delta equals the membership the app computes from th
     for (const k of [...effective.keys()]) if (k.startsWith(`${now[0].unit}|${now[0].pathway}|${now[0].set}|`)) effective.delete(k);
     for (const r of now) effective.set(`${r.unit}|${r.pathway}|${r.set}|${r.position}`, r);
   }
-  const live = new Set(membershipRows().map(r => `${r.unit}|${r.pathway}`));
-  const applied = [...effective.values()].filter(r => live.has(`${r.unit}|${r.pathway}`)).map(key).sort();
+  // a seeded Set the app no longer offers (Word Families Set 3) keeps its rows but is inert, so only currently offered Sets are compared
+  const offered = new Set(membershipRows().map(r => `${r.unit}|${r.pathway}|${r.set}`));
+  const applied = [...effective.values()].filter(r => offered.has(`${r.unit}|${r.pathway}|${r.set}`)).map(key).sort();
   assert.deepEqual(applied, membershipRows().map(key).sort());
 });
-test('Set stability: the only Unit 1 membership change is Meaning Set 4 (competitor, historic -> selection, produce); Word Families seed rows are left, never deleted', () => {
+test('Set stability: the only Unit 1 membership changes are Word Families Sets 1-2 (re-packed to the 29 eligible families; Set 3 is left inert); every other Set equals the seed', () => {
   const changed = changedSets();
-  assert.deepEqual(changed.map(c => c.key), ['1|meaning|4']);
-  assert.deepEqual(changed[0].was.map(r => r.occurrenceId).filter(id => !changed[0].now.some(n => n.occurrenceId === id)), ['u1_36_competitor', 'u1_42_historic']);
-  assert.deepEqual(changed[0].now.map(r => r.occurrenceId).filter(id => !changed[0].was.some(n => n.occurrenceId === id)), ['u1_43_selection', 'u1_44_produce']);
-  assert.doesNotMatch(delta, /vocabulary_set_members[^;]*word_families/i);
+  assert.deepEqual(changed.map(c => c.key), ['1|word_families|1', '1|word_families|2']);
+  // Meaning Set 4 is NOT changed: Job 9 authored the missing Meaning Mastery contexts, so competitor and historic stay where the seed put them.
+  const meaning4 = membershipRows().filter(r => r.pathway === 'meaning' && r.set === 4).map(r => r.occurrenceId);
+  assert.deepEqual(meaning4, baselineRows().filter(r => r.pathway === 'meaning' && r.set === 4).map(r => r.occurrenceId));
+  assert.ok(meaning4.includes('u1_36_competitor') && meaning4.includes('u1_42_historic'));
+  // an unchanged Set is never rewritten
+  assert.doesNotMatch(delta, /'(meaning|context|precision_use|spelling_recall)'/);
 });
-test('the delta is guarded: it raises (never silently skips or reshuffles) if the Set was started; no student data is touched', () => {
-  assert.match(delta, /from public\.vocabulary_pathway_sets where unit_number = 1 and pathway_id = 'meaning' and set_number = 4/);
-  assert.match(delta, /raise exception/);
+test('the delta is guarded: it raises (never silently skips or reshuffles) if a Set was started; no student data is touched', () => {
+  for (const set of [1, 2]) assert.match(delta, new RegExp(`from public\\.vocabulary_pathway_sets where unit_number = 1 and pathway_id = 'word_families' and set_number = ${set}`));
+  assert.equal([...delta.matchAll(/raise exception/g)].length, 2, 'one guard per replaced Set');
   assert.doesNotMatch(delta, /\b(drop table|drop column|truncate)\b/i);
   assert.doesNotMatch(delta, /(update|delete from) public\.(?!vocabulary_set_members)/i);
   assert.doesNotMatch(delta, /\bgrant\b|\bcreate policy\b|\bdisable row level security\b/i);
 });
-test('every live Set has exactly ten distinct members; only live pathways are in the current membership; Unit 1 matches the Job 8 Set counts', () => {
+test('every live Set has exactly ten distinct members; only live pathways are in the current membership; Unit 1 matches the Job 9 Set counts', () => {
   const rows = membershipRows();
   const bySet = new Map();
   for (const r of rows) { const k = `${r.unit}|${r.pathway}|${r.set}`; (bySet.get(k) ?? bySet.set(k, []).get(k)).push(r.occurrenceId); }
   for (const [k, ids] of bySet) { assert.equal(ids.length, 10, k); assert.equal(new Set(ids).size, 10, k); }
   const counts = {}; for (const k of bySet.keys()) { const p = k.split('|')[1]; counts[p] = (counts[p] ?? 0) + 1; }
-  assert.deepEqual(counts, { meaning: 4, context: 4, precision_use: 5, spelling_recall: 5 });
-  assert.equal(rows.some(r => r.pathway === 'paraphrasing' || r.pathway === 'word_families'), false, 'a pathway that is not live has no current Set');
+  assert.deepEqual(counts, { meaning: 4, context: 4, word_families: 2, precision_use: 5, spelling_recall: 5 });
+  assert.equal(rows.some(r => r.pathway === 'paraphrasing'), false, 'a pathway that is not live has no current Set');
 });
 test('the settlement trigger advances only when attempted = finished = Set members, read from the protected table', () => {
   assert.match(migration, /from public\.vocabulary_set_members m/);

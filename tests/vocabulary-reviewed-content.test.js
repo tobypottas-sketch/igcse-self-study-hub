@@ -16,8 +16,11 @@ import { buildReadinessReport } from '../src/vocabulary/teacher-readiness.js';
 
 // ---- helpers ----------------------------------------------------------------------------------------------------------
 const STRIPPED_SENSE_FIELDS = ['situationDistractors','gapDistractors','spellingErrors'];
-function withoutReviewedFields(item) {
-  return { ...item, senses:item.senses.map(sense => Object.fromEntries(Object.entries(sense).filter(([key]) => !STRIPPED_SENSE_FIELDS.includes(key)))) };
+// Job 9 content (wrongParaphrases, masteryPassages, wordFamilyForms, masteryContexts[].wrongMeanings) is published by the Job 9 full unit sync, not by this older republish SQL.
+const JOB9_SENSE_FIELDS = ['wrongParaphrases','masteryPassages','wordFamilyForms'];
+const withoutWrongMeanings = sense => sense.masteryContexts ? { ...sense, masteryContexts:sense.masteryContexts.map(({ wrongMeanings, ...rest }) => rest) } : sense;
+function withoutReviewedFields(item, { job9 = false } = {}) {
+  return { ...item, senses:item.senses.map(sense => { const kept = Object.fromEntries(Object.entries(sense).filter(([key]) => !STRIPPED_SENSE_FIELDS.includes(key) && !(job9 && JOB9_SENSE_FIELDS.includes(key)))); return job9 ? withoutWrongMeanings(kept) : kept; }) };
 }
 function contentFrom({ items = unit1.items, occurrences = unit1.occurrences, contexts = unit1.contexts, activities = unit1.activities } = {}) {
   const content = { occurrences, items, contexts, activities, itemsById:Object.fromEntries(items.map(item => [item.vocabularyId, item])), contextsByOccurrence:{} };
@@ -142,7 +145,7 @@ test('the engine holds no reviewed content of its own: a word published without 
 
 test('Unit 1 published with its reviewed data behaves exactly as before the migration', () => {
   const readiness = evaluateUnitReadiness({ content:unitContent });
-  assert.equal(Object.values(readiness.pathways).filter(row => row.live).length, 4);
+  assert.equal(Object.values(readiness.pathways).filter(row => row.live).length, 5);
   const recognise = planPathwayQuestion({ pathwayId:'context', stageId:'recognise', content:unitContent, target:unit1.occurrences[5], seed:'pin' }).question;
   assert.equal(recognise.distractorSource, DISTRACTOR_SOURCE.REVIEWED);
   for (const row of Object.values(readiness.pathways)) assert.equal(Object.values(row.stageReview).reduce((total, stage) => total + stage.unreviewed, 0), 0);
@@ -155,7 +158,7 @@ test('generated semantic fallback does not count toward strict readiness; safe s
   const meaning = stageCounts(readiness, 'meaning');
   const context = stageCounts(readiness, 'context');
   assert.equal(meaning.apply, 0, 'Meaning Apply needs reviewed wrong situations');
-  assert.equal(meaning.mastery, 47, 'Meaning Mastery is a typed gloss task that needs two authored mastery sentences whose glosses do not expose the word; historic (none) and competitor (one) are withheld');
+  assert.equal(meaning.mastery, 50, 'Meaning Mastery is a typed gloss task that needs two authored mastery sentences whose glosses do not expose the word; Job 9 authored the missing contexts for historic and competitor');
   assert.equal(context.recognise, 0);
   assert.equal(context.match, 0);
   assert.equal(context.apply, 0);
@@ -284,22 +287,22 @@ test('reviewed gap rows are keyed by context id, so the same word or sentence in
 });
 
 // ---- 8. Unit 1 readiness is unchanged -----------------------------------------------------------------------------------------
-test('Unit 1 readiness after the migration: four pathways live (Word Families awaits authored families), Paraphrasing locked', () => {
+test('Unit 1 readiness after the migration: five pathways live (Word Families authored in Job 9), Paraphrasing locked', () => {
   const readiness = evaluateUnitReadiness({ content:unitContent });
   const live = Object.fromEntries(Object.entries(readiness.pathways).map(([id, row]) => [id, row.live]));
-  assert.deepEqual(live, { meaning:true, context:true, word_families:false, paraphrasing:false, precision_use:true, spelling_recall:true });
-  assert.deepEqual(stageCounts(readiness, 'meaning'), { recognise:50, match:48, apply:50, recall:50, mastery:47 });
+  assert.deepEqual(live, { meaning:true, context:true, word_families:true, paraphrasing:false, precision_use:true, spelling_recall:true });
+  assert.deepEqual(stageCounts(readiness, 'meaning'), { recognise:50, match:48, apply:50, recall:50, mastery:50 });
   assert.deepEqual(stageCounts(readiness, 'context'), { recognise:48, match:50, apply:48, recall:48, mastery:50 });
-  assert.deepEqual(stageCounts(readiness, 'word_families'), { recognise:37, match:37, apply:37, recall:37, mastery:0 });
+  assert.deepEqual(stageCounts(readiness, 'word_families'), { recognise:29, match:35, apply:37, recall:37, mastery:29 });
   assert.deepEqual(stageCounts(readiness, 'paraphrasing'), { recognise:12, match:12, apply:24, recall:12, mastery:24 });
   assert.deepEqual(stageCounts(readiness, 'precision_use'), { recognise:50, match:50, apply:50, recall:50, mastery:50 });
   assert.deepEqual(stageCounts(readiness, 'spelling_recall'), { recognise:50, match:50, apply:50, recall:50, mastery:50 });
-  assert.equal(readiness.pathways.meaning.servedCount, 45);
+  assert.equal(readiness.pathways.meaning.servedCount, 48);
   assert.equal(readiness.pathways.context.servedCount, 48);
   assert.equal(readiness.pathways.paraphrasing.reason, 'stage_below_minimum');
   const { wordFamilyBlockedTerms, ...authoredCounts } = readiness.authoring;
-  assert.deepEqual(authoredCounts, { gapSentences:182, gapSentencesReviewed:182, gapMalformed:0, situationWordsReviewed:50, situationWordsMalformed:0, words:50, wordFamilyEligible:0, wordFamilyIneligible:0, wordFamilyUnknown:37, wordFamilyNoFamily:13 });
-  assert.equal(wordFamilyBlockedTerms.length, 37);
+  assert.deepEqual(authoredCounts, { gapSentences:182, gapSentencesReviewed:182, gapMalformed:0, situationWordsReviewed:50, situationWordsMalformed:0, words:50, wordFamilyEligible:29, wordFamilyIneligible:0, wordFamilyUnknown:0, wordFamilyNoFamily:21 });
+  assert.equal(wordFamilyBlockedTerms.length, 0);
   for (const row of Object.values(readiness.pathways)) assert.equal(Object.values(row.stageReview).reduce((total, stage) => total + stage.unreviewed, 0), 0);
 });
 
@@ -325,11 +328,12 @@ test('the Unit 1 republish SQL carries exactly the reviewed fields the build pro
 
 test('applying the republish SQL to the pre-migration published data reproduces the current unit data exactly', () => {
   const sql = fs.readFileSync(new URL('../docs/vocabulary-content-updates/unit-01-reviewed-content-in-unit-data.sql', import.meta.url), 'utf8');
-  const published = unit1.items.map(withoutReviewedFields); // what the database held before the republish
+  const published = unit1.items.map(item => withoutReviewedFields(item, { job9:true })); // what the database held before the republish (Job 9 fields excluded)
   for (const item of published) {
     const line = sql.split('\n').find(row => row.includes(`where vocabulary_id='${item.vocabularyId}'`));
     const merged = JSON.parse(line.match(/\|\| \$sx\$(.*)\$sx\$::jsonb/)[1]);
     item.senses = [{ ...item.senses[0], ...merged }, ...item.senses.slice(1)]; // senses->0 || fields
   }
-  assert.deepEqual(published, unit1.items);
+  const expected = unit1.items.map(item => ({ ...item, senses:item.senses.map(sense => withoutWrongMeanings(Object.fromEntries(Object.entries(sense).filter(([key]) => !JOB9_SENSE_FIELDS.includes(key))))) }));
+  assert.deepEqual(published, expected);
 });

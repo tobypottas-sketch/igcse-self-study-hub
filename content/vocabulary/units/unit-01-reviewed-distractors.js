@@ -187,9 +187,9 @@ export const unit1GapDistractors = Object.freeze({
     { id:"x2", answer:"discipline", wrong:["panic","laziness","nervousness"] }
   ],
   "goal-oriented":[
-    { id:"meaning_sentence", answer:"goal-oriented", wrong:["careless","forgetful","unenthusiastic"] },
-    { id:"x2", answer:"goal-oriented", wrong:["distracted","careless","unenthusiastic"] },
-    { id:"x3", answer:"goal-oriented", wrong:["careless","forgetful","unenthusiastic"] }
+    { id:"meaning_sentence", answer:"goal-oriented", wrong:["careless","forgetful","disorganised"] },
+    { id:"x2", answer:"goal-oriented", wrong:["distracted","careless","disorganised"] },
+    { id:"x3", answer:"goal-oriented", wrong:["careless","forgetful","disorganised"] }
   ],
   "achievement":[
     { id:"meaning_sentence", answer:"achievement", wrong:["injury","accident","disappointment"] },

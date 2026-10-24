@@ -27,7 +27,7 @@ const base = {
   championship:['Every week, the club holds a relaxed practice session for members of every age and ability.','The two schools played a friendly match to raise money for the new library.'],
   competitor:['Hundreds of supporters waited outside the stadium to watch the team arrive.','At the end of the event, the head teacher presented certificates to all of the volunteers.'],
   relatively:['Nobody could believe how enormous the new stadium looked inside.','The match started at exactly three o’clock on the school field on the last day of term.'],
-  patience:['He lost his temper very quickly and threw his racket onto the ground.','The teacher complained that the students never listened carefully, or followed any of her instructions.'],
+  patience:[],
   atmosphere:['The stadium sold out within minutes, so the club doubled the seating.','Tickets for the final cost twice as much as for the earlier rounds, which surprised many fans.'],
   incredible:['The match finished as a boring nil-nil draw that nobody will remember.','Her time in the race was rather slow, so she felt a little disappointed afterwards.'],
   criteria:['Last year’s winners received medals, a shiny trophy and a free trip to the capital.','The competition results will be displayed on the school notice board this evening, after lessons.'],
@@ -117,9 +117,7 @@ const more = {
     "Before the match began yesterday, journalists interviewed several famous footballers outside the stadium."
   ],
   "patience": [
-    "The fans shouted angrily and demanded that the match start immediately.",
-    "Our coach shouted instructions from the touchline, but nobody could hear him properly.",
-    "Heavy rain turned the training pitch into a muddy, slippery swamp overnight."
+    "Our coach rushed every drill to save time."
   ],
   "atmosphere": [
     "The ticket office closes at five, so latecomers must buy tickets online.",
