@@ -381,6 +381,9 @@ function missionSlotFor(request) {
 // the learner sees a plain "try again" message, or resumes the cached open mission with the same id.
 function beginSession(request) {
   const { kind, familyId = null, selected, forceNew = false, mode } = request;
+  // A normal Set-based pathway mission must carry Set identity. Only a student-chosen activity (familyId) is free practice without a Set; a
+  // pathway mission with neither can never start, so Continue cannot silently fall back to a null-Set (legacy, evidence-derived) mission.
+  if (kind === 'pathway' && !request.setStep && !familyId) throw new Error('This pathway mission has no Set. Open the pathway again to carry on.');
   const eligible = !state.preview && mode === 'adaptive' && selected.length === 10 && typeof state.client?.rpc === 'function';
   if (!eligible) return commitSession(request, null, null);
   const slot = missionSlotFor(request);
