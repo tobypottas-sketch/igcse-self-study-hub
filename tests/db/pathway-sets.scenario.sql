@@ -8,17 +8,17 @@ grant all on r to authenticated, anon;
 -- One whole mission through the SERVER: start (server decides the step) -> the student's graded attempts -> record. Returns the Set row afterwards.
 create or replace function pg_temp.mission(p_student uuid, p_pathway text, p_correct int, p_set int default null, p_claim_stage text default null, p_attempt_stage text default null)
 returns jsonb language plpgsql as $$
-declare j jsonb; m uuid; i int; st text; rec jsonb; s public.vocabulary_pathway_sets;
+declare j jsonb; m uuid; i int; st text; rec jsonb; s public.vocabulary_pathway_sets; off int;
 begin
   perform set_config('request.jwt.claim.sub', p_student::text, false);
   j := public.start_vocabulary_mission(1, 'pathway', p_pathway, coalesce(p_claim_stage, 'recognise'), 'stage', false, true, p_set);
-  m := (j->>'mission_id')::uuid; st := coalesce(p_attempt_stage, j->>'pathway_stage');
+  m := (j->>'mission_id')::uuid; st := coalesce(p_attempt_stage, j->>'pathway_stage'); off := 10 * (coalesce((j->>'set_number')::int, 1) - 1);
   for i in 1..10 loop
     insert into public.activity_events(user_id,app_key,event_type,set_id,metadata) values (p_student,'vocabulary_paraphrase','question_attempt','unit-1',
-      jsonb_build_object('mission_id',m,'unit_number',1,'occurrence_id','u1_t'||i,'attempt_number',1,'outcome',case when i<=p_correct then 'correct' else 'try_again' end,'mission_kind','pathway','practice_family','recommended','mission_size',10,'pathway_id',p_pathway,'pathway_stage',st));
+      jsonb_build_object('mission_id',m,'unit_number',1,'occurrence_id','u1_t'||(i+off),'attempt_number',1,'outcome',case when i<=p_correct then 'correct' else 'try_again' end,'mission_kind','pathway','practice_family','recommended','mission_size',10,'pathway_id',p_pathway,'pathway_stage',st));
     if i > p_correct then
       insert into public.activity_events(user_id,app_key,event_type,set_id,metadata) values (p_student,'vocabulary_paraphrase','question_attempt','unit-1',
-        jsonb_build_object('mission_id',m,'unit_number',1,'occurrence_id','u1_t'||i,'attempt_number',2,'outcome','try_again','recovery',true,'mission_kind','pathway','practice_family','recommended','mission_size',10,'pathway_id',p_pathway,'pathway_stage',st));
+        jsonb_build_object('mission_id',m,'unit_number',1,'occurrence_id','u1_t'||(i+off),'attempt_number',2,'outcome','try_again','recovery',true,'mission_kind','pathway','practice_family','recommended','mission_size',10,'pathway_id',p_pathway,'pathway_stage',st));
     end if;
   end loop;
   rec := public.record_vocabulary_mission(m);

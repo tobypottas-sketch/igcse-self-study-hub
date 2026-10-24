@@ -14,7 +14,8 @@ export function dbRow({ pathwayId, setNumber = 1, stage = 'recognise', phase = '
   };
 }
 
-export function createSetServer({ rows = [], unitNumber = 1, maxSets = 12, startId = 1 } = {}) {
+// membersFor(pathwayId, setNumber) -> the Set's authoritative occurrence ids (the model of vocabulary_set_members). null = no membership check (legacy tests).
+export function createSetServer({ rows = [], unitNumber = 1, maxSets = 12, startId = 1, membersFor = null } = {}) {
   const sets = new Map(); const starts = new Map(); let counter = startId; const log = [];
   const key = (pathwayId, setNumber) => `${pathwayId}|${setNumber}`;
   for (const row of rows) sets.set(key(row.pathway_id, row.set_number), clone(row));
@@ -81,7 +82,14 @@ export function createSetServer({ rows = [], unitNumber = 1, maxSets = 12, start
       const claimedStage = mine[0].pathwayStage;
       if (row && !row.applied_mission_ids.includes(missionId)) {
         row.applied_mission_ids.push(missionId);
-        if (row.status !== 'maintain' && entry.stage === row.stage && entry.setPhase === row.phase && claimedStage === entry.stage) {
+        // Membership (mirrors the migration): the targets attempted AND the targets finished must be exactly the Set's members, order ignored.
+        const members = membersFor ? membersFor(entry.pathwayId, entry.setNumber) : null;
+        const sameIds = (a, b) => a.length === b.length && a.every(id => b.includes(id));
+        const attempted = [...new Set(mine.map(a => a.occurrenceId))];
+        const finished = [...new Set(mine.filter(a => (a.firstAttempt && a.rawAnswer !== '__wrong__') || (!a.firstAttempt && a.recoveredLater)).map(a => a.occurrenceId))];
+        const memberOk = !members || (members.length === 10 && sameIds(attempted, members) && sameIds(finished, members));
+        if (!memberOk) row.history.push({ missionId, rejected: 'targets_not_set_members' });
+        if (memberOk && row.status !== 'maintain' && entry.stage === row.stage && entry.setPhase === row.phase && claimedStage === entry.stage) {
           const kind = row.phase === 'consolidate' ? 'consolidate' : row.phase === 'recovery' ? 'recovery' : 'stage';
           const before = { ...newSetState(), stage: row.stage, phase: row.phase, advancedWithSupport: [...row.advanced_with_support], supportFlags: [...row.support_flags], maintain: false };
           const after = applyMissionResult(before, { missionId, stage: row.stage, kind, size: 10, score, complete: true, missedTargetIds: missed });

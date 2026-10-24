@@ -44,7 +44,9 @@ export function harness({ pathwayId = 'word_families', stage = 'match', size = 2
   const stages = ['recognise','match','apply','recall','mastery'];
   // Server-held Set progression: by default Set 1 of this pathway sits at `stage`. `setServer: true` runs a faithful in-memory server (start + record + Set trigger).
   const defaultRows = setRows ?? [dbRow({ pathwayId, setNumber:1, stage })];
-  const server = setServer ? createSetServer({ rows:defaultRows }) : null;
+  const authored = occurrences.map(row => row.occurrenceId);
+  const membersFor = (pathway, setNumber) => (size % 10 === 0 ? realSetsFromCoverage(pathway, { available:true, occurrenceIds:authored }, authored).sets[setNumber - 1] : authored);
+  const server = setServer ? createSetServer({ rows:defaultRows, membersFor }) : null;
   const staticRows = defaultRows;
   for (const target of occurrences) {
     state.globalMastery[target.vocabularyId] = { status:'building', strandEvidence:{ meaning:3, recognition:3, context:3, paraphrasing:3 } };
