@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { membershipRows, membershipSql, baselineRows, changedSets, deltaSql } from '../scripts/generate-set-membership-sql.mjs';
+import { membershipRows, membershipSql, baselineRows, changedSets, removedSets, deltaSql } from '../scripts/generate-set-membership-sql.mjs';
 import { harness } from './vocabulary-app-harness.mjs';
 
 const migration = fs.readFileSync(new URL('../supabase/migrations/20261024170000_vocabulary_set_membership.sql', import.meta.url), 'utf8');
@@ -19,18 +19,18 @@ test('the seed migration is immutable history: it still equals the seed it shipp
 test('seed + the guarded v2 delta equals the membership the app computes from the Unit 1 release (re-run scripts/generate-set-membership-sql.mjs --write if this fails)', () => {
   assert.equal(generatedDelta.replace(/^-- CONTENT LOCK[^\n]*\n/, '').trim(), deltaSql().trim());
   const effective = new Map(baselineRows().map(r => [`${r.unit}|${r.pathway}|${r.set}|${r.position}`, r]));
-  for (const { now } of changedSets()) {
-    for (const k of [...effective.keys()]) if (k.startsWith(`${now[0].unit}|${now[0].pathway}|${now[0].set}|`)) effective.delete(k);
-    for (const r of now) effective.set(`${r.unit}|${r.pathway}|${r.set}|${r.position}`, r);
-  }
-  // a seeded Set the app no longer offers (Word Families Set 3) keeps its rows but is inert, so only currently offered Sets are compared
-  const offered = new Set(membershipRows().map(r => `${r.unit}|${r.pathway}|${r.set}`));
-  const applied = [...effective.values()].filter(r => offered.has(`${r.unit}|${r.pathway}|${r.set}`)).map(key).sort();
+  const drop = set => { for (const k of [...effective.keys()]) if (k.startsWith(`${set.unit}|${set.pathway}|${set.set}|`)) effective.delete(k); };
+  for (const { now } of changedSets()) { drop(now[0]); for (const r of now) effective.set(`${r.unit}|${r.pathway}|${r.set}|${r.position}`, r); }
+  for (const { was } of removedSets()) drop(was[0]);
+  // Job 9 follow-up: NOTHING obsolete survives. The authoritative table after seed + delta is exactly the release membership.
+  const applied = [...effective.values()].map(key).sort();
   assert.deepEqual(applied, membershipRows().map(key).sort());
+  assert.equal(applied.length, 200);
 });
-test('Set stability: the only Unit 1 membership changes are Word Families Sets 1-2 (re-packed to the 29 eligible families; Set 3 is left inert); every other Set equals the seed', () => {
+test('Set stability: the only Unit 1 membership changes are Word Families Sets 1-2 (re-packed to the 29 eligible families); Set 3 is REMOVED; every other Set equals the seed', () => {
   const changed = changedSets();
   assert.deepEqual(changed.map(c => c.key), ['1|word_families|1', '1|word_families|2']);
+  assert.deepEqual(removedSets().map(c => c.key), ['1|word_families|3']);
   // Meaning Set 4 is NOT changed: Job 9 authored the missing Meaning Mastery contexts, so competitor and historic stay where the seed put them.
   const meaning4 = membershipRows().filter(r => r.pathway === 'meaning' && r.set === 4).map(r => r.occurrenceId);
   assert.deepEqual(meaning4, baselineRows().filter(r => r.pathway === 'meaning' && r.set === 4).map(r => r.occurrenceId));
@@ -39,8 +39,8 @@ test('Set stability: the only Unit 1 membership changes are Word Families Sets 1
   assert.doesNotMatch(delta, /'(meaning|context|precision_use|spelling_recall)'/);
 });
 test('the delta is guarded: it raises (never silently skips or reshuffles) if a Set was started; no student data is touched', () => {
-  for (const set of [1, 2]) assert.match(delta, new RegExp(`from public\\.vocabulary_pathway_sets where unit_number = 1 and pathway_id = 'word_families' and set_number = ${set}`));
-  assert.equal([...delta.matchAll(/raise exception/g)].length, 2, 'one guard per replaced Set');
+  for (const set of [1, 2, 3]) assert.match(delta, new RegExp(`from public\\.vocabulary_pathway_sets where unit_number = 1 and pathway_id = 'word_families' and set_number = ${set}`));
+  assert.equal([...delta.matchAll(/raise exception/g)].length, 3, 'one guard per replaced or removed Set');
   assert.doesNotMatch(delta, /\b(drop table|drop column|truncate)\b/i);
   assert.doesNotMatch(delta, /(update|delete from) public\.(?!vocabulary_set_members)/i);
   assert.doesNotMatch(delta, /\bgrant\b|\bcreate policy\b|\bdisable row level security\b/i);
@@ -98,4 +98,37 @@ test('model: a mission that finished ten targets from outside the Set does not a
   await g.run("startPathwaySession('meaning')");
   await playToEnd(g);
   assert.equal(g.server.rows()[0].stage, 'recall', 'a real Set mission still advances');
+});
+
+// ---- Job 9 follow-up: removed Sets ----
+const row = (set, position, occurrenceId, pathway = 'word_families') => ({ unit: 1, pathway, set, position, occurrenceId });
+const setOf = (set, ids, pathway) => ids.map((id, i) => row(set, i + 1, id, pathway));
+test('removed Sets are detected: a Set in the baseline that is absent from the current membership', () => {
+  const base = [...setOf(1, ['a', 'b']), ...setOf(2, ['c', 'd']), ...setOf(3, ['e', 'f'])];
+  const now = [...setOf(1, ['a', 'b']), ...setOf(2, ['c', 'd'])];
+  assert.deepEqual(removedSets(now, base).map(r => r.key), ['1|word_families|3']);
+  assert.deepEqual(changedSets(now, base), [], 'a removed Set is not a changed Set');
+  assert.deepEqual(removedSets(base, base), []);
+  assert.deepEqual(removedSets(now, []), []);
+  // the real Unit 1 case
+  assert.deepEqual(removedSets().map(r => r.key), ['1|word_families|3']);
+  assert.equal(removedSets()[0].was.length, 10);
+});
+test('a removed Set is guarded like a changed Set, then deleted with no replacement', () => {
+  const base = [...setOf(1, ['a', 'b']), ...setOf(2, ['c', 'd'])];
+  const sql = deltaSql(setOf(1, ['a', 'b']), base);
+  const guard = sql.indexOf("set_number = 2) then"); const del = sql.indexOf('delete from public.vocabulary_set_members');
+  assert.ok(guard > -1 && del > guard, 'guard runs before any delete');
+  assert.match(sql, /raise exception 'Set 1\/word_families\/2 has already been started/);
+  assert.match(sql, /delete from public\.vocabulary_set_members where unit_number = 1 and pathway_id = 'word_families' and set_number = 2;/);
+  assert.doesNotMatch(sql, /insert into/, 'a removal has no replacement rows');
+  assert.equal(deltaSql(base, base), '', 'nothing removed or changed gives no delta');
+});
+test('the generated v2 migration guards and deletes Word Families Set 3 without replacement, and does so atomically after all guards', () => {
+  assert.match(delta, /set_number = 3\) then\n\s+raise exception/);
+  assert.match(delta, /delete from public\.vocabulary_set_members where unit_number = 1 and pathway_id = 'word_families' and set_number = 3;/);
+  assert.equal([...delta.matchAll(/'word_families', 3, /g)].length, 0, 'no Set 3 rows are inserted');
+  const lastGuard = delta.lastIndexOf('raise exception'); const firstDelete = delta.indexOf('delete from public.vocabulary_set_members');
+  assert.ok(firstDelete > lastGuard, 'every guard precedes the first delete');
+  assert.equal([...delta.matchAll(/\bdo \$\$/g)].length, 1, 'one atomic block');
 });

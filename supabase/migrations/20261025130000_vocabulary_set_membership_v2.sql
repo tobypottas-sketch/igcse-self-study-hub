@@ -7,7 +7,9 @@
 --     re-packed in authored order, so Sets 1 and 2 are REPLACED. The 9 eligible targets beyond the 20 form no complete Set and are held back
 --     (never padded). Word Families was not live between the seed and now, so no student could have started these Sets; the guard below
 --     still raises if any has.
---   * word_families Set 3 (seed): its rows are LEFT IN PLACE (no delete); the app no longer offers a third Word Families Set, so it is inert.
+--   * word_families Set 3 (seed): REMOVED. The app no longer offers a third Word Families Set, and leftover rows are NOT inert (server Set
+--     progression can open the next Set number and the old rows would satisfy the membership guard). The same started-Set guard applies, then
+--     the ten rows are deleted with no replacement. Final Unit 1 membership is exactly the release membership (200 rows).
 --   * meaning, context, precision_use, spelling_recall: IDENTICAL to the seed (Job 9 authored the missing Meaning Mastery contexts for
 --     historic and competitor, so the Job 8 Meaning Set 4 replacement is no longer needed and is not generated).
 -- Version strategy: 20261024170000 is immutable. A Set is replaced ONLY while no student has started it. If any student has, the migration
@@ -24,6 +26,9 @@ begin
   end if;
   if exists (select 1 from public.vocabulary_pathway_sets where unit_number = 1 and pathway_id = 'word_families' and set_number = 2) then
     raise exception 'Set 1/word_families/2 has already been started by a student; its members must not change silently. Decide a version policy first.';
+  end if;
+  if exists (select 1 from public.vocabulary_pathway_sets where unit_number = 1 and pathway_id = 'word_families' and set_number = 3) then
+    raise exception 'Set 1/word_families/3 has already been started by a student; its members must not change silently. Decide a version policy first.';
   end if;
   delete from public.vocabulary_set_members where unit_number = 1 and pathway_id = 'word_families' and set_number = 1;
   insert into public.vocabulary_set_members (unit_number, pathway_id, set_number, position, occurrence_id) values
@@ -49,5 +54,6 @@ begin
     (1, 'word_families', 2, 8, 'u1_27_solution'),
     (1, 'word_families', 2, 9, 'u1_32_estimated'),
     (1, 'word_families', 2, 10, 'u1_34_minimum');
+  delete from public.vocabulary_set_members where unit_number = 1 and pathway_id = 'word_families' and set_number = 3;
 end $$;
 -- END GENERATED DELTA

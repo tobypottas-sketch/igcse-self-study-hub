@@ -31,7 +31,7 @@ export function membershipSql(rows = membershipRows()) {
 // The first migration (20261024170000) is immutable history: it seeded the Sets that were live then. When the ladder changes which targets are
 // servable, the CURRENT membership may differ from that seed. We never edit the seed and never silently reshuffle: the delta migration replaces a
 // Set's rows only when NO student has started that Set (guarded in SQL, and it raises instead of skipping so a started Set is a decision, not a drift).
-// A Set that is no longer offered (Word Families, not live) keeps its rows; the app simply does not offer it.
+// A Set that is no longer offered is REMOVED (guarded, then deleted): see removedSets().
 export const BASELINE_MIGRATION = new URL('../supabase/migrations/20261024170000_vocabulary_set_membership.sql', import.meta.url);
 export const DELTA_MIGRATION = new URL('../supabase/migrations/20261025130000_vocabulary_set_membership_v2.sql', import.meta.url);
 export function baselineRows() {
@@ -49,21 +49,32 @@ export function changedSets(current = membershipRows(), baseline = baselineRows(
   }
   return changed;
 }
+// Job 9 follow-up: Sets in the BASELINE that no longer exist in the CURRENT membership. Leaving their rows in place is NOT inert: server Set
+// progression can open "the next Set number" and the leftover rows would satisfy the membership guard. They get the same started-Set guard
+// as a changed Set, and (when unstarted) their rows are deleted without replacement.
+export function removedSets(current = membershipRows(), baseline = baselineRows()) {
+  const now = members(current); const removed = [];
+  for (const [key, list] of members(baseline)) if (!now.has(key)) removed.push({ key, was: list, now: [], removed: true });
+  return removed;
+}
 export function deltaSql(current = membershipRows(), baseline = baselineRows()) {
-  const sets = changedSets(current, baseline);
+  const sets = [...changedSets(current, baseline), ...removedSets(current, baseline)];
   if (!sets.length) return '';
   // ONE statement (one implicit transaction): every started-Set guard runs before anything is written, so a started Set aborts the whole
   // migration and never leaves some Sets replaced and others not.
-  const guards = sets.map(({ now }) => {
-    const { unit, pathway, set } = now[0];
+  const ident = ({ now, was }) => (now[0] ?? was[0]);
+  const guards = sets.map(entry => {
+    const { unit, pathway, set } = ident(entry);
     return `  if exists (select 1 from public.vocabulary_pathway_sets where unit_number = ${unit} and pathway_id = '${pathway}' and set_number = ${set}) then
     raise exception 'Set ${unit}/${pathway}/${set} has already been started by a student; its members must not change silently. Decide a version policy first.';
   end if;`;
   }).join('\n');
-  const writes = sets.map(({ now }) => {
-    const { unit, pathway, set } = now[0];
+  const writes = sets.map(entry => {
+    const { now } = entry; const { unit, pathway, set } = ident(entry);
+    const del = `  delete from public.vocabulary_set_members where unit_number = ${unit} and pathway_id = '${pathway}' and set_number = ${set};`;
+    if (!now.length) return del;                                                  // removed Set: delete, no replacement
     const values = now.map(r => `    (${r.unit}, '${r.pathway}', ${r.set}, ${r.position}, '${r.occurrenceId}')`).join(',\n');
-    return `  delete from public.vocabulary_set_members where unit_number = ${unit} and pathway_id = '${pathway}' and set_number = ${set};
+    return `${del}
   insert into public.vocabulary_set_members (unit_number, pathway_id, set_number, position, occurrence_id) values
 ${values};`;
   }).join('\n');
