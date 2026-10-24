@@ -48,7 +48,8 @@ test('gate: spelling and word-family items are exempt from grammar-shape rules (
 });
 
 // ---------- today's generated bank, held against the gate ----------
-const { questions } = bank();
+// Job 9: 12 variants per target (not 3), so a solver's rate is measured on enough questions that it is not sampling noise.
+const { questions } = bank(Array.from({ length: 12 }, (_, i) => i));
 const byType = new Map();
 for (const q of questions) { const key = `${q.pathwayId}/${q.stageId}/${q.type}`; if (!byType.has(key)) byType.set(key, []); byType.get(key).push(q); }
 
@@ -86,10 +87,14 @@ function builtMasteryFor(term) {
   const target = content.occurrences.find(o => content.itemsById[o.vocabularyId].term === term);
   return buildQuestion({ pathwayId: 'meaning', stageId: 'mastery', target, k: 0 });
 }
+// Job 9: Meaning Mastery is a typed gloss task (STAGE_CONTRACT v2), so there are no options whose phrase-vs-word shape could give the answer away.
 for (const term of ['preference', 'avoid']) {
-  let q; try { q = builtMasteryFor(term); } catch (e) { q = null; }
-  expectedFailure({ rule: 'Meaning Mastery must not give the answer away by phrase-vs-word shape', today: q ? `production serves "${q.answers[0]}" against [${q.options.filter(o => o !== q.answers[0]).join(' | ')}]: ${assessQuestionQuality(q).violations.join(', ')}` : 'could not be built', turnsGreenWhen: 'Meaning Mastery is rebuilt (typed gloss-in-context) or its distractors pass the shape gate' },
-    `production Meaning Mastery for "${term}" passes the quality gate`, () => { assert.ok(q, 'not built'); assert.equal(assessQuestionQuality(q).ok, true, assessQuestionQuality(q).violations.join()); });
+  test(`production Meaning Mastery for "${term}" is typed with no options (nothing to infer from option shape)`, () => {
+    const q = builtMasteryFor(term);
+    assert.equal(q.type, 'gloss_in_context_type');
+    assert.ok(!q.options?.length, 'no options are shown');
+    assert.equal(assessQuestionQuality(q).applicable, false);
+  });
 }
 
 test('production assessQuestionQuality exists, rejects preference and avoid, accepts a balanced set, and the planner prefers clean candidates', async () => {

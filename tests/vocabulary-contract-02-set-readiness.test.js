@@ -6,7 +6,6 @@ import { releasePlannerContent } from '../content/vocabulary/readiness-report.js
 import { evaluateUnitReadiness } from '../src/vocabulary/pathway-readiness.js';
 import { computeSets, servedAtAllStages, familyCompleteForMastery, SET_SIZE } from './support/vocabulary-contract/reference-sets.js';
 import { hook } from './support/vocabulary-contract/production-hooks.js';
-import { expectedFailure } from './support/vocabulary-contract/xfail.js';
 
 const ids = n => Array.from({ length: n }, (_, i) => `w${String(i + 1).padStart(2, '0')}`);
 const FIXTURES = [[50, 5, 0], [47, 4, 7], [40, 4, 0], [9, 0, 9], [0, 0, 0], [10, 1, 0], [19, 1, 9], [20, 2, 0]];
@@ -94,12 +93,12 @@ test('unit 1: Word Families is never offered Mastery or served as ready while no
   if (authoring.wordFamilyEligible < 10) assert.equal(wf.setCount, 0, 'no Set may be offered without enough Mastery-eligible families');
 });
 
-// Content (class B): authoring the per-form metadata for enough Unit 1 families.
-expectedFailure({
-  rule: 'Word Families is live for Unit 1 only when enough families are authored to pass the locked complete-family rule at Mastery',
-  today: `Unit 1 has ${authoring.wordFamilyEligible} of ${unit1.items.length} Mastery-eligible families (${authoring.wordFamilyUnknown} have no authored wordFamilyForms)`,
-  turnsGreenWhen: 'Teachers author sense.wordFamilyForms ({ form, partOfSpeech, example, pedagogicallyUseful }) for at least 20 words'
-}, 'unit 1: Word Families Mastery eligibility is authored for enough words to form Sets', () => assert.ok(authoring.wordFamilyEligible >= 20));
+// Job 9 (was an expected failure, class B): Unit 1 now has authored, reviewed, complete families for enough words to form Sets.
+test('unit 1: Word Families Mastery eligibility is authored for enough words to form Sets', () => {
+  assert.ok(authoring.wordFamilyEligible >= 20, `Unit 1 has ${authoring.wordFamilyEligible} Mastery-eligible families`);
+  assert.equal(readiness.pathways.word_families.setCount, 2);
+  assert.equal(readiness.pathways.word_families.heldBackCount, 9);
+});
 
 test('production readiness exposes Set count and held-back words per pathway', () => {
   for (const p of Object.values(readiness.pathways)) {

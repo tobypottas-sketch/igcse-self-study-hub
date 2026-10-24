@@ -19,7 +19,7 @@ const w = (wrongMeanings, extra = {}) => ({ wrongMeanings, ...extra });
 export default Object.freeze({
   'leisure time': [
     w(['time set aside for school lessons', 'hours spent travelling between places', 'a short pause between two tasks']),
-    w(['extra time added to the working week', 'the period needed to finish a job', 'hours of rest taken after an illness'])
+    w(['extra time added to the working week', 'the period needed to finish a job', 'rest taken after an illness'])
   ],
   preference: [
     w(['a rule about which food to buy', 'a belief that tinned food is unsafe', 'a habit of eating the same meals'],
@@ -107,11 +107,11 @@ export default Object.freeze({
   discipline: [
     w(['natural talent seen from a very early age', 'strong dislike of early morning exercise', 'pleasure gained from winning difficult races'],
       { meaning: 'self-control that supports steady daily effort', reason: 'Gloss lengthened to match the option lengths.' }),
-    w(['punishment given for breaking a school rule', 'knowledge gained from many years of experience', 'energy needed for a very long race'])
+    w(['punishment given for breaking a school rule', 'knowledge gained after many years abroad', 'energy needed for a very long race'])
   ],
   'goal-oriented': [
-    w(['mainly interested in pleasing other people', 'careful to follow each rule exactly', 'keen to share work equally with others']),
-    w(['influenced by the opinions of friends', 'limited to a few simple exercises', 'decided by chance rather than planning'])
+    w(['mainly interested in pleasing other people', 'careful to obey every rule', 'keen to share work equally with others']),
+    w(['influenced by the opinions of friends', 'limited to a few exercises', 'decided by chance rather than planning'])
   ],
   achievement: [
     w(['serious problem caused by lack of training', 'public award given for taking part', 'short rest taken during a long race']),
@@ -146,7 +146,7 @@ export default Object.freeze({
   ],
   feat: [
     w(['lucky result that nobody expected', 'serious mistake that took time to fix', 'long journey that tested everyone’s patience']),
-    w(['reckless decision that endangered other runners', 'slow recovery after a painful injury', 'simple task that anyone could complete'])
+    w(['reckless decision that endangered other runners', 'slow recovery after an injury', 'simple task that anyone could complete'])
   ],
   regardless: [
     w(['only after the weather has improved', 'depending on how bad the weather becomes', 'because the weather has been so bad']),
@@ -181,7 +181,7 @@ export default Object.freeze({
   ],
   relatively: [
     w(['to a very high degree', 'in a way that avoids all comparison', 'without any change over time']),
-    w(['more than anyone could expect', 'completely and without any doubt', 'only for a short time'],
+    w(['more than anyone could expect', 'to the highest possible degree every time', 'only for a short time'],
       { meaning: 'to a fair degree, judged against another', reason: 'Original gloss repeated "compared" from the sentence.' })
   ],
   patience: [
@@ -190,7 +190,7 @@ export default Object.freeze({
   ],
   atmosphere: [
     w(['noise level measured near the pitch', 'number of fans who watch a match', 'weather conditions at the start of play']),
-    w(['warm air produced inside a large building', 'design of the seating inside the stadium', 'space available for fans in the stadium'])
+    w(['warm air produced inside a large building', 'shape of the stadium seating area', 'space available for fans in the stadium'])
   ],
   incredible: [
     w(['quite slow but still acceptable', 'very hard to measure by hand', 'just good enough to be noticed'],
@@ -215,7 +215,7 @@ export default Object.freeze({
   ],
   produce: [
     w(['repair something that has been broken', 'sell something to a customer', 'take something away from a place']),
-    w(['store something safely for later use', 'deliver something to a new address', 'test something before it is sold'])
+    w(['store something safely for later use', 'deliver something to a new address', 'check something before delivery'])
   ],
   craftspeople: [
     w(['workers who sell goods in markets', 'people who design large buildings and public parks', 'managers who plan large sports events'],

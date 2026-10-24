@@ -9,10 +9,10 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import unit1 from '../content/vocabulary/releases/unit-01.js';
-import { membershipRows } from './generate-set-membership-sql.mjs';
+import { membershipRows, membershipChecksum, CONTENT_VERSION } from './generate-set-membership-sql.mjs';
 
 export const LOCK_FILE = new URL('../content/vocabulary/units/unit-01.content-lock.json', import.meta.url);
-export const CONTENT_VERSION = 'unit-01/job9';
+export { CONTENT_VERSION };
 
 // Stable JSON: object keys sorted, arrays kept in authored order (order is meaningful: Sets are consecutive blocks of 10).
 export function canonicalJson(value) {
@@ -24,8 +24,7 @@ const sha = text => crypto.createHash('sha256').update(text).digest('hex');
 
 export function releaseFingerprint(release = unit1) {
   const content = { items: release.items, occurrences: release.occurrences, contexts: release.contexts, activities: release.activities };
-  const members = membershipRows([release]).map(row => `${row.unit}|${row.pathway}|${row.set}|${row.position}|${row.occurrenceId}`).join('\n');
-  return { version: CONTENT_VERSION, contentChecksum: sha(canonicalJson(content)), membershipChecksum: sha(members), words: release.occurrences.length, memberRows: membershipRows([release]).length };
+  return { version: CONTENT_VERSION, contentChecksum: sha(canonicalJson(content)), membershipChecksum: membershipChecksum(membershipRows([release])), words: release.occurrences.length, memberRows: membershipRows([release]).length };
 }
 export function readLock() { return JSON.parse(fs.readFileSync(LOCK_FILE, 'utf8')); }
 

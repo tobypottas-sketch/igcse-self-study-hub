@@ -1,11 +1,13 @@
 // Prints (or, with --write, splices into the migration) the authoritative Set members for every released unit's LIVE pathways.
 // Source of truth: the unit release content -> the canonical readiness evaluator -> computePathwaySets (the same code the app uses).
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 import unit1 from '../content/vocabulary/releases/unit-01.js';
 import { releasePlannerContent } from '../content/vocabulary/readiness-report.js';
 import { evaluateUnitReadiness } from '../src/vocabulary/pathway-readiness.js';
 
 export const RELEASES = [unit1];
+export const CONTENT_VERSION = 'unit-01/job9';
 export function membershipRows(releases = RELEASES) {
   const rows = [];
   for (const unit of releases) {
@@ -16,6 +18,9 @@ export function membershipRows(releases = RELEASES) {
     }
   }
   return rows;
+}
+export function membershipChecksum(rows = membershipRows()) {
+  return crypto.createHash('sha256').update(rows.map(row => `${row.unit}|${row.pathway}|${row.set}|${row.position}|${row.occurrenceId}`).join('\n')).digest('hex');
 }
 export function membershipSql(rows = membershipRows()) {
   const values = rows.map(r => `  (${r.unit}, '${r.pathway}', ${r.set}, ${r.position}, '${r.occurrenceId}')`).join(',\n');
@@ -63,7 +68,9 @@ end $$;`;
 if (process.argv[1] && import.meta.url === new URL(process.argv[1], 'file://').href) {
   // The baseline migration is immutable history. --write only refreshes the generated DELTA block of the v2 migration.
   if (process.argv.includes('--write')) {
-    const text = fs.readFileSync(DELTA_MIGRATION, 'utf8').replace(/-- BEGIN GENERATED DELTA[^\n]*\n[\s\S]*?\n-- END GENERATED DELTA/, () => `-- BEGIN GENERATED DELTA (scripts/generate-set-membership-sql.mjs)\n${deltaSql()}\n-- END GENERATED DELTA`);
+    // Job 9 (Part 12): the generated block also carries the content lock header (version + membership checksum), so a migration that no longer
+    // matches the release fails tests/vocabulary-content-drift.test.js. The lock file itself is refreshed by scripts/vocabulary-content-checksum.mjs --write.
+    const text = fs.readFileSync(DELTA_MIGRATION, 'utf8').replace(/-- BEGIN GENERATED DELTA[^\n]*\n[\s\S]*?\n-- END GENERATED DELTA/, () => `-- BEGIN GENERATED DELTA (scripts/generate-set-membership-sql.mjs)\n-- CONTENT LOCK version=${CONTENT_VERSION} membership=${membershipChecksum()}\n${deltaSql()}\n-- END GENERATED DELTA`);
     fs.writeFileSync(DELTA_MIGRATION, text);
   } else console.log(deltaSql());
 }

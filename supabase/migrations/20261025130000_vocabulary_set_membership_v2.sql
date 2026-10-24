@@ -16,6 +16,7 @@
 -- No student data is read or written.
 
 -- BEGIN GENERATED DELTA (scripts/generate-set-membership-sql.mjs)
+-- CONTENT LOCK version=unit-01/job9 membership=916d07fc46b44ef0d3ea1746c3642eb701e4121c6429a2fefc83ef2413a4751c
 do $$
 begin
   if exists (select 1 from public.vocabulary_pathway_sets where unit_number = 1 and pathway_id = 'word_families' and set_number = 1) then

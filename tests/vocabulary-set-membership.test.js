@@ -17,7 +17,7 @@ test('the seed migration is immutable history: it still equals the seed it shipp
   assert.equal(generated.trim(), baselineRows().map(r => `  (${r.unit}, '${r.pathway}', ${r.set}, ${r.position}, '${r.occurrenceId}')`).join(',\n').replace(/^/, 'insert into public.vocabulary_set_members (unit_number, pathway_id, set_number, position, occurrence_id) values\n').concat('\non conflict do nothing;').trim());
 });
 test('seed + the guarded v2 delta equals the membership the app computes from the Unit 1 release (re-run scripts/generate-set-membership-sql.mjs --write if this fails)', () => {
-  assert.equal(generatedDelta.trim(), deltaSql().trim());
+  assert.equal(generatedDelta.replace(/^-- CONTENT LOCK[^\n]*\n/, '').trim(), deltaSql().trim());
   const effective = new Map(baselineRows().map(r => [`${r.unit}|${r.pathway}|${r.set}|${r.position}`, r]));
   for (const { now } of changedSets()) {
     for (const k of [...effective.keys()]) if (k.startsWith(`${now[0].unit}|${now[0].pathway}|${now[0].set}|`)) effective.delete(k);
