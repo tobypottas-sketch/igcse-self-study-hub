@@ -279,3 +279,52 @@ browserTest('Connections supportive UI: no -100 on buttons, encouraging feedback
     }
   } finally { await browser.close(); server.close(); }
 });
+
+// ---------------------------------------------------------------- Connections picture clues (clue 2)
+const IMG_DIR = 'assets/vocabulary/games/connections/unit-01';
+test('Connections picture clues: every one of the 12 puzzles points at its own local PNG, with alt text that never reveals the answer', () => {
+  assert.equal(CONNECTIONS_PUZZLES.length, 12);
+  assert.deepEqual(fs.readdirSync(path.join(repo, IMG_DIR)).sort(), CONNECTIONS_PUZZLES.map(p => `${p.target}.png`).sort(), 'one PNG per target, nothing else in the folder');
+  for (const p of CONNECTIONS_PUZZLES) {
+    assert.equal(p.image.src, `${IMG_DIR}/${p.target}.png`); assert.doesNotMatch(p.image.src, /^(https?:)?\/\//, 'local asset only');
+    const file = fs.readFileSync(path.join(repo, p.image.src)); assert.equal(file.subarray(1, 4).toString(), 'PNG', `${p.target}: a real PNG`);
+    const [w, h] = [file.readUInt32BE(16), file.readUInt32BE(20)]; assert.ok(w >= 600 && h >= 450 && w / h >= 1 && w / h <= 1.4, `${p.target}: ${w}x${h}`); assert.ok(file.length < 1_000_000, `${p.target}: under 1MB`);
+    const alt = p.image.alt.toLowerCase(); assert.ok(alt.length > 15);
+    for (const word of [p.target, ...p.accept]) assert.ok(!new RegExp(`\\b${word.slice(0, Math.max(5, word.length - 3))}`).test(alt), `${p.target}: alt text contains "${word}"`);
+  }
+  const html = read('src/vocabulary/games/games-view.js'); assert.doesNotMatch(html.replace(/\/\/.*$/gm, ''), /https?:\/\//, 'no external URLs in the games view');
+});
+
+browserTest('Connections picture clues in the real UI: clue 2 is the PNG, clues 1, 3 and 4 stay text, scoring/aliases unchanged, no overflow, local requests only, missing file falls back to text', async () => {
+  const playwright = loadPlaywright(); const browser = await playwright.chromium.launch({ executablePath: await findChromium() }); const { server, url } = await startServer();
+  try {
+    for (const [w, h, rm] of [[1280, 800, 'no-preference'], [390, 844, 'no-preference'], [320, 640, 'no-preference'], [390, 844, 'reduce']]) {
+      const page = await browser.newPage({ viewport: { width: w, height: h }, reducedMotion: rm }); const requests = []; page.on('request', r => requests.push(r.url())); page.on('pageerror', e => { throw e; });
+      await page.goto(`${url}/__games.html`); await page.waitForFunction(() => window.__ready);
+      const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      for (const p of CONNECTIONS_PUZZLES) {
+        const where = `${w}/${rm}/${p.target}`;
+        await page.evaluate(t => window.__mountP('connections', window.__puzzles.filter(x => x.target === t)), p.target); await page.click('[data-game-act="cx-start"]');
+        assert.equal(await page.locator('[data-clue="1"] .gm-clue__text').textContent(), p.clues[0].text, `${where}: clue 1 is text`); assert.equal(await page.locator('img[data-cx-img]').count(), 0, `${where}: no picture before clue 2`);
+        await page.click('[data-game-act="cx-reveal"]'); assert.equal(await page.textContent('[data-cx-worth]'), '400');
+        const img = page.locator('img[data-cx-img]'); assert.equal(await img.count(), 1); assert.match(await img.getAttribute('src'), new RegExp(`${p.target}\\.png$`)); assert.equal(await img.getAttribute('alt'), p.image.alt);
+        await page.waitForFunction(() => document.querySelector('img[data-cx-img]').complete); assert.ok(await img.evaluate(i => i.naturalWidth > 0), `${where}: image loaded`);
+        const box = await img.boundingBox(); assert.ok(box.height <= h * 0.5 + 1 && box.width <= w, `${where}: picture size ${box.width}x${box.height}`); assert.ok(Math.abs(box.width / box.height - (await img.evaluate(i => i.naturalWidth / i.naturalHeight))) < 0.02, `${where}: not stretched`);
+        assert.equal(await page.locator('[data-cx-img-fallback]').isVisible(), false, `${where}: text hidden while the picture shows`);
+        await page.click('[data-game-act="cx-reveal"]'); assert.equal(await page.locator('[data-clue="3"] .gm-clue__text').textContent(), p.clues[2].text); assert.equal(await page.textContent('[data-cx-worth]'), '300'); assert.equal(await page.textContent('[data-cx-first] b'), p.target[0].toUpperCase());
+        await page.click('[data-game-act="cx-reveal"]'); assert.equal(await page.locator('[data-clue="4"] .gm-clue__text').textContent(), p.clues[3].text); assert.equal(await page.textContent('[data-cx-worth]'), '200');
+        assert.ok((await overflow()) <= 0, `${where}: overflow`);
+        await page.click('[data-game-act="cx-help"]'); assert.equal(await page.locator('.gm-choice').count(), 3); assert.equal(await page.textContent('[data-cx-worth]'), '100');
+        await page.fill('#cxGuess', p.accept[0] ?? p.target); await page.press('#cxGuess', 'Enter'); assert.equal(await page.textContent('[data-cx-score]'), '100', `${where}: picture does not change scoring/aliases`);
+        assert.equal(await page.locator('figcaption').count(), 1, `${where}: after the answer the clue text is shown with the picture`); assert.ok((await overflow()) <= 0, `${where}: result overflow`);
+      }
+      assert.ok(requests.every(r => r.startsWith(url)), `${w}: all requests local`); assert.ok(requests.filter(r => r.endsWith('.png')).every(r => r.includes(`/${IMG_DIR}/`)));
+      assert.equal(await page.evaluate(() => window.__fetches), 0);
+      // a picture that cannot load falls back to its text clue, and the game carries on at the same score
+      await page.evaluate(() => window.__mountP('connections', [{ ...window.__puzzles[2], image: { src: 'assets/vocabulary/games/connections/unit-01/missing.png', alt: 'x' } }])); await page.click('[data-game-act="cx-start"]'); await page.click('[data-game-act="cx-reveal"]');
+      await page.waitForSelector('[data-cx-img-fallback]:not([hidden])'); assert.equal(await page.locator('img[data-cx-img]').isVisible(), false); assert.equal(await page.textContent('[data-cx-img-fallback]'), CONNECTIONS_PUZZLES[2].clues[1].text);
+      await page.fill('#cxGuess', CONNECTIONS_PUZZLES[2].target); await page.press('#cxGuess', 'Enter'); assert.equal(await page.textContent('[data-cx-score]'), '400');
+      await page.close();
+    }
+  } finally { await browser.close(); server.close(); }
+});
