@@ -49,7 +49,13 @@ export function renderBlitzOver(sum, isBest, best) {
 export function renderConnectionsIntro() {
   return `<main class="vocab-shell gm-shell gm-shell--cx" data-game="connections" data-phase="intro">${topbar('Games', 'lobby')}<section class="gm-panel gm-intro"><p class="gm-tag">🧩 Connections</p><h1>What links the clues?</h1><ul class="gm-rules"><li>Each puzzle hides one <b>Unit 1 word</b>. You start with one clue.</li><li>Solve it now for <b>${CONNECTIONS.points[0]}</b> points, or reveal another clue. Each extra clue is worth <b>100</b> less (${CONNECTIONS.points.join(' → ')}).</li><li>Wrong guesses are free and never end the puzzle.</li></ul><button type="button" class="gm-go gm-go--teal" data-game-act="cx-start" autofocus>Start</button></section></main>`;
 }
-const KIND = { association: 'Association', context: 'In context', synonym: 'Similar word', meaning: 'Meaning' };
+const NUDGES = [
+  e => e.canReveal() ? 'Good thinking — try another clue.' : 'Good thinking — you’re getting closer.',
+  e => e.canReveal() ? 'You’re getting closer. One more clue should help.' : 'You’re getting closer.',
+  e => e.canReveal() ? 'Nearly there — use the next clue if you need it.' : 'Nearly there — pick from the three words if you like.',
+  e => e.canHelp() ? 'Nearly there — “Need help?” gives you three words to choose from.' : 'Nearly there. Take your time.'
+];
+const KIND = { association: 'Association', context: 'In context', synonym: 'Similar word', meaning: 'Meaning', plain: 'In plain English' };
 export function renderConnectionsPlay(engine) {
   const s = engine.state; const p = engine.puzzle(); const phase = s.phase; const done = phase !== 'guessing';
   const shown = done ? p.clues.length : s.revealed;
@@ -59,8 +65,10 @@ export function renderConnectionsPlay(engine) {
   const shape = wordShape(p, shown); const shapeHtml = phase === 'guessing' ? `<p class="gm-shape" data-cx-shape><span class="gm-shape__len" data-cx-length>${esc(shape.label)}</span>${shape.firstLetter ? `<span class="gm-shape__first" data-cx-first>Starts with: <b>${esc(shape.firstLetter)}</b></span>` : ''}</p>` : '';
   let panel;
   if (phase === 'guessing') {
-    const wrong = s.wrong.length ? `<p class="gm-wrong" role="status">Not ${s.wrong.map(w => `“${esc(w)}”`).join(', ')}. Try again${engine.canReveal() ? ', or reveal another clue' : ''}.</p>` : '';
-    panel = `<div class="gm-worth"><span>Worth</span><strong data-cx-worth>${engine.potential()}</strong><span>points</span><i class="gm-pips" aria-hidden="true">${pips}</i></div><form class="gm-guess" data-cx-form autocomplete="off"><label class="vocab-sr-only" for="cxGuess">Your guess</label><input id="cxGuess" name="guess" type="text" inputmode="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore placeholder="Type the Unit 1 word" enterkeyhint="go"><button type="submit" class="gm-go gm-go--teal">Guess</button></form><ul class="gm-suggest" data-cx-suggest></ul>${wrong}<div class="gm-row">${engine.canReveal() ? `<button type="button" class="gm-ghost" data-game-act="cx-reveal">Reveal clue ${s.revealed + 1} <small>−100</small></button>` : ''}${engine.canGiveUp() ? '<button type="button" class="gm-ghost" data-game-act="cx-giveup">Show the answer <small>0</small></button>' : ''}</div>`;
+    const total = s.wrong.length + s.choiceWrong.length;
+    const wrong = total ? `<p class="gm-nudge" role="status">${esc(NUDGES[(total - 1) % NUDGES.length](engine))}</p>` : '';
+    const choices = s.helpOn ? `<div class="gm-choices" data-cx-choices role="group" aria-label="Choose the answer">${s.choices.map(t => `<button type="button" class="gm-choice" data-game-act="cx-choice" data-term="${esc(t)}"${s.choiceWrong.includes(t) ? ' disabled data-tried' : ''}>${esc(t)}</button>`).join('')}</div>` : '';
+    panel = `<div class="gm-worth"><span>Worth</span><strong data-cx-worth>${engine.potential()}</strong><span>points</span><i class="gm-pips" aria-hidden="true">${pips}</i></div><form class="gm-guess" data-cx-form autocomplete="off"><label class="vocab-sr-only" for="cxGuess">Your guess</label><input id="cxGuess" name="guess" type="text" inputmode="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore placeholder="Type the Unit 1 word" enterkeyhint="go"><button type="submit" class="gm-go gm-go--teal">Guess</button></form><ul class="gm-suggest" data-cx-suggest></ul>${wrong}${choices}<div class="gm-row">${engine.canReveal() ? `<button type="button" class="gm-ghost" data-game-act="cx-reveal">Show next clue</button>` : ''}${engine.canHelp() ? '<button type="button" class="gm-ghost gm-ghost--help" data-game-act="cx-help">Need help?</button>' : ''}${engine.canGiveUp() ? '<button type="button" class="gm-ghost" data-game-act="cx-giveup">Show the answer</button>' : ''}</div>`;
   } else {
     const solved = phase === 'solved'; const lastPuzzle = s.index + 1 >= s.puzzles.length;
     panel = `<div class="gm-result gm-result--${solved ? 'ok' : 'miss'}" role="status"><p class="gm-result__head">${solved ? `✓ ${esc(p.target)}` : `The answer was ${esc(p.target)}`}<strong>${solved ? `+${last.points}` : '+0'}</strong></p><p class="gm-result__why">${esc(p.why)}</p></div><button type="button" class="gm-go gm-go--teal" data-game-act="cx-next" autofocus>${lastPuzzle ? 'See results' : 'Next puzzle'}</button>`;
