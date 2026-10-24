@@ -555,10 +555,24 @@ export function renderEngagementSlot() {
 }
 export function renderEngagementStrip(info) {
   if (!info) return '';
-  const chips = info.chips.map(chip => `<li data-engagement-chip="${escapeHtml(chip.id)}">${escapeHtml(chip.label)}</li>`).join('');
+  // Presentation only: the model's chips are unchanged. Mission count is a quiet label beside the headline; XP, streak and level are the stats.
+  const chipValue = chip => {
+    const label = String(chip.label ?? '');
+    const level = label.match(/^(Level up: )?Level (\d+)$/);
+    if (chip.id === 'level' && level) return { value:level[2], caption:level[1] ? 'Level up' : 'Level' };
+    const xp = label.match(/^(\+?\d+) XP$/);
+    if (chip.id === 'xp' && xp) return { value:xp[1], caption:'XP' };
+    const streak = label.match(/^Best clean streak (\d+)$/);
+    if (chip.id === 'streak' && streak) return { value:streak[1], caption:'Best clean streak' };
+    return { value:'', caption:label };
+  };
+  const missionChip = info.chips.find(chip => chip.id === 'mission');
+  const statChips = info.chips.filter(chip => chip.id !== 'mission');
+  const mission = missionChip ? `<span class="vocab-engagement__mission" data-engagement-chip="mission">${escapeHtml(missionChip.label)}</span>` : '';
+  const chips = statChips.map(chip => { const { value, caption } = chipValue(chip); return `<li data-engagement-chip="${escapeHtml(chip.id)}" aria-label="${escapeHtml(chip.label)}">${value ? `<b>${escapeHtml(value)}</b> ` : ''}<span>${escapeHtml(caption)}</span></li>`; }).join('');
   const unlockedLine = info.unlockedLine ? `<p class="vocab-engagement__unlocked" data-achievement-unlocked>${renderStudyIcon('trophy',{className:'study-icon'})}<span>${escapeHtml(info.unlockedLine)}</span></p>` : '';
   const next = info.challenge ? `<p class="vocab-engagement__next" data-next-challenge="${escapeHtml(info.challenge.kind)}"><strong>Next challenge</strong><span>${escapeHtml(info.challenge.text)}</span></p>` : '';
-  return `<p class="vocab-engagement__headline">${info.isPersonalBest ? renderStudyIcon('spark',{className:'study-icon'}) : ''}<span>${escapeHtml(info.headline)}</span></p><ul class="vocab-engagement__chips">${chips}</ul>${unlockedLine}${next}<span class="vocab-sr-only" data-engagement-spoken>${escapeHtml(info.spoken)}</span>`;
+  return `<div class="vocab-engagement__top"><p class="vocab-engagement__headline">${info.isPersonalBest ? renderStudyIcon('spark',{className:'study-icon'}) : ''}<span>${escapeHtml(info.headline)}</span></p>${mission}</div>${chips ? `<ul class="vocab-engagement__chips">${chips}</ul>` : ''}${unlockedLine}${next}<span class="vocab-sr-only" data-engagement-spoken>${escapeHtml(info.spoken)}</span>`;
 }
 
 export function renderSessionSummary(root, { durationMinutes = null, summary = {}, practiceMode = 'adaptive', nextPractice = null, pathwayId = null, finishModel = null, engagementPending = false } = {}) {
