@@ -1,0 +1,48 @@
+/* ===== Unit navigation and header identity: the single style owner for `.vocab-topbar--home`, `.vocab-topbar--unit`, `.vocab-back--chip`,
+   `.vocab-unit-id*` and `.vocab-hero--home`. Presentation only; the session screens keep the plain `.vocab-topbar`. ===== */
+
+/* Shared strip: a slim tinted surface with a restrained divider. */
+.vocab-topbar--home,.vocab-topbar--unit{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;min-height:56px;margin-bottom:18px;padding:6px 8px 6px 6px;border:1px solid var(--c-teal-line);border-bottom-width:2px;border-radius:12px;background:linear-gradient(100deg,var(--c-teal-soft),rgba(255,255,255,.92) 62%);box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 6px 16px rgba(14,95,97,.06)}
+
+/* Back control: a deliberate chip, large tap area, still secondary to the unit identity. */
+.vocab-back--chip{display:inline-flex;align-items:center;gap:8px;flex:none;min-height:var(--tap-min);padding:0 14px 0 8px;border:1px solid var(--c-teal-line);border-radius:9px;background:var(--c-surface);color:var(--c-teal-dark);font:inherit;font-size:var(--fs-sm);font-weight:900;letter-spacing:.01em;text-decoration:none;cursor:pointer;box-shadow:0 1px 2px rgba(14,95,97,.1);transition:background-color 140ms ease,border-color 140ms ease,transform 140ms ease}
+.vocab-back--chip .vocab-back__arrow{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:7px;background:var(--c-teal-soft);color:var(--c-teal-dark);font-size:1rem;line-height:1;transition:transform 140ms ease,background-color 140ms ease}
+.vocab-back--chip:hover{background:var(--c-teal-soft);border-color:var(--c-teal)}
+.vocab-back--chip:hover .vocab-back__arrow{transform:translateX(-2px);background:var(--c-surface)}
+.vocab-back--chip:active{transform:none}
+
+/* Inside a unit: the strip says where you are. Navy badge + title, right-anchored, wraps safely. */
+.vocab-unit-id{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-width:0;flex:1 1 190px;text-align:right}
+.vocab-unit-id__badge{flex:none;padding:5px 10px 5px 11px;border-radius:5px 5px 5px 0;background:var(--c-ink);color:#f3c33c;font-size:var(--fs-xs);font-weight:900;letter-spacing:.14em;text-transform:uppercase;line-height:1.1;box-shadow:inset 3px 0 0 #f3c33c}
+.vocab-unit-id__title{min-width:0;color:var(--c-ink);font-size:var(--fs-md);font-weight:900;line-height:1.2;letter-spacing:-.01em;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+
+/* Unit selection: course name sits in the strip, the hero gets identity without more decoration. */
+.vocab-topbar__course{flex:1 1 auto;min-width:0;text-align:center;color:var(--c-ink-2);font-size:var(--fs-xs);font-weight:900;letter-spacing:.14em;text-transform:uppercase;overflow-wrap:anywhere}
+.vocab-hero--home{position:relative;overflow:hidden;border-color:var(--c-teal-line);background:linear-gradient(135deg,var(--c-surface) 0%,var(--c-surface) 52%,var(--c-teal-soft) 100%)}
+.vocab-hero--home::before{content:"";position:absolute;left:0;top:26px;bottom:26px;width:5px;border-radius:0 4px 4px 0;background:linear-gradient(180deg,var(--c-teal),#f3c33c)}
+.vocab-hero--home::after{content:"";position:absolute;right:-30px;top:-30px;width:150px;height:150px;background:linear-gradient(135deg,rgba(19,126,128,.12),rgba(19,126,128,0) 70%);clip-path:polygon(100% 0,100% 100%,0 0);pointer-events:none}
+.vocab-hero--home .vocab-kicker{display:inline-block;margin:0 0 10px;padding:5px 12px 5px 11px;border-radius:5px 5px 5px 0;background:var(--c-ink);color:#f3c33c;font-size:var(--fs-xs);font-weight:900;letter-spacing:.14em;text-transform:uppercase;box-shadow:inset 3px 0 0 #f3c33c}
+.vocab-hero--home h1{position:relative;margin-bottom:18px;padding-bottom:14px;color:var(--c-ink)}
+.vocab-hero--home h1::after{content:"";position:absolute;left:2px;bottom:0;width:56px;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--c-teal),#f3c33c)}
+.vocab-hero--home p:last-child{max-width:46ch;color:var(--c-ink-2);font-size:var(--fs-md)}
+.vocab-hero--home p:last-child strong{color:var(--c-ink)}
+
+@media (max-width:620px){
+  .vocab-topbar--home,.vocab-topbar--unit{gap:8px;min-height:52px;margin-bottom:14px;padding:5px 8px 5px 5px}
+  .vocab-back--chip{padding:0 10px 0 6px;gap:6px}
+  .vocab-back--chip .vocab-back__arrow{width:26px;height:26px}
+  .vocab-unit-id{gap:7px}
+  .vocab-unit-id__title{font-size:var(--fs-sm)}
+  .vocab-topbar__course{font-size:11px;letter-spacing:.08em}
+}
+@media (max-width:380px){
+  .vocab-topbar--unit .vocab-unit-id{justify-content:flex-start;text-align:left;padding:0 4px 2px}
+  .vocab-unit-id__badge{padding:4px 7px 4px 9px;letter-spacing:.1em}
+  .vocab-back--chip{padding:0 8px 0 5px}
+  .vocab-topbar--home .vocab-topbar__course{display:none}
+}
+@media (prefers-reduced-motion:reduce){.vocab-back--chip,.vocab-back--chip .vocab-back__arrow{transition:none}.vocab-back--chip:hover .vocab-back__arrow{transform:none}}
+
+/* A long future unit title wraps inside the hero instead of running past its edge. */
+.vocab-unit-hero h1{overflow-wrap:anywhere}
+@media (max-width:620px){.vocab-unit-hero h1{font-size:clamp(1.7rem,8vw,2.2rem)}}
