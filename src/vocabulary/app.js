@@ -334,6 +334,7 @@ async function startPathwaySession(pathwayId, continueHistory = false, choice = 
   if (step.firstPassComplete) throw new Error('Every Set in this pathway is in Maintain. Mixed Practice keeps them sharp.');
   // Fail safe on membership drift: never start a mission the server would not count for this Set.
   if (!state.preview) {
+    state.setMemberCache ??= new Map();
     if (!state.setMemberCache.has(state.currentUnitNumber)) state.setMemberCache.set(state.currentUnitNumber, await loadSetMembers(state.client, state.currentUnitNumber));
     const drift = compareSetMembership({ pathwayId, setNumber:step.setNumber, clientMembers:step.members, serverRows:state.setMemberCache.get(state.currentUnitNumber) });
     if (drift.status === MEMBERSHIP.MISMATCH) {

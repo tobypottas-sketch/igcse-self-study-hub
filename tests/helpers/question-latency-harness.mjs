@@ -39,6 +39,8 @@ function fakeMastery(table) {
   return null;
 }
 function run(q) {
+  // Set membership is not modelled in this fake: an unreadable table is the documented 'unknown' path (the server still enforces membership).
+  if (q.table === 'vocabulary_set_members') return { data:null, error:{ message:'membership not modelled by this fake' } };
   const sets = fakeSets(q.table); if (sets) return { data:sets, error:null };
   const mastery = fakeMastery(q.table); if (mastery) return { data:mastery, error:null };
   if (q.table === 'profiles') return { data:{ id:'u1', role:'student', display_name:'Sam', active:true }, error:null };
