@@ -16,6 +16,7 @@ import { MISSION_SIZE } from './stage-progression.js';
 import { VOCABULARY_PATHWAYS } from './pathway-model.js';
 import { registeredPathwayCoverage, servedByAnyLivePathway } from './pathway-coverage-store.js';
 import { buildSessionFinishModel } from './session-finish-model.js';
+import { mountGames } from './games/games-controller.js';
 import { buildUnitProgress, renderAchievementsSheet, renderEngagementStrip, renderSessionSummary, renderVocabularyError, renderPracticeSheet, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js';
 import { deriveLearningStage } from './learning-stage.js';
 import { createAttemptPersistence } from './attempt-persistence.js';
@@ -886,6 +887,7 @@ root?.addEventListener('click', event => {
   if (tile) { const form = tile.closest?.('[data-form="vocabulary-answer"]'); const input = form?.querySelector?.('input[name="answer"]'); const build = form?.querySelector?.('[data-tile-build]'); if (!input || tile.disabled) return; if (build?.dataset?.missingTemplate) { const template = JSON.parse(build.dataset.missingTemplate); const filled = JSON.parse(build.dataset.filled || '[]'); if (filled.length >= template.filter(letter => letter == null).length) return; filled.push(tile.dataset.tileAnswer); build.dataset.filled = JSON.stringify(filled); let next = 0; const word = template.map(letter => letter ?? filled[next++] ?? null); input.value = word.every(letter => letter != null) ? word.join(' ') : ''; build.textContent = word.map(letter => letter ?? '_').join(' '); tile.disabled = true; tile.classList.add('is-used'); const notice = form.querySelector?.('[data-tile-validation]'); if (notice) notice.textContent = ''; return; } const parts = String(input.value ?? '').trim().split(/\s+/).filter(Boolean); parts.push(tile.dataset.tileAnswer); input.value = parts.join(' '); tile.disabled = true; tile.classList.add('is-used'); if (build) build.textContent = parts.join(' '); const notice = form.querySelector?.('[data-tile-validation]'); if (notice) notice.textContent = ''; return; }
   const target = event.target?.closest?.('[data-action]'); const action = target?.dataset?.action; if (!action) return;
   if (action === 'open-unit') openUnit(Number(target.dataset.unit)).catch(error => renderVocabularyError(root, error.message));
+  else if (action === 'open-game') { if (!state.content) return; state.games?.destroy?.(); state.games = mountGames(root, { content:state.content, game:target.dataset.game, onExit:() => { state.games = null; renderCurrentUnit(); } }); } /* PROTOTYPE games: isolated, no state or client passed */
   else if (action === 'back-units') showHome().catch(error => renderVocabularyError(root, error.message)); else if (action === 'view-all-words') showAllWords();
   else if (action === 'open-pathway') { try { openPracticeSheet(target.dataset.pathway); } catch (error) { renderVocabularyError(root, error.message); } }
   else if (action === 'start-recommended') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, null); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId)); }
