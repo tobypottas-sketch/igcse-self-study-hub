@@ -1,4 +1,4 @@
-// PROTOTYPE (throwaway). One controller for the Games area. It is handed only the loaded Unit 1 content, a root element and an exit callback:
+// One controller for the Games area. It is handed only the loaded Unit 1 content, a root element and an exit callback:
 // it never sees the Supabase client, the app state, mission/Set/XP code or storage. Personal best lives in this module's memory only.
 import { createBlitz, BLITZ } from './blitz-engine.js';
 import { createConnections, pickPuzzles, CONNECTIONS, normaliseGuess } from './connections-engine.js';
@@ -8,7 +8,7 @@ import { renderLobby, renderBlitzIntro, renderBlitzPlay, renderBlitzQuestion, re
 let bestBlitz = 0;   // in-memory only, gone on reload (deliberate)
 export const resetGamesMemory = () => { bestBlitz = 0; };
 
-export function mountGames(root, { content, game = 'lobby', onExit = () => {}, rng = Math.random, now = () => Date.now(), setTimer = setTimeout, clearTimer = clearTimeout, setTick = setInterval, clearTick = clearInterval } = {}) {
+export function mountGames(root, { content, game = 'lobby', onExit = () => {}, rng = Math.random, puzzles = null, now = () => Date.now(), setTimer = setTimeout, clearTimer = clearTimeout, setTick = setInterval, clearTick = clearInterval } = {}) {
   let blitz = null; let cx = null; let tick = null; let advance = null; let popTimer = null; let alive = true;
   const stop = () => { if (tick) clearTick(tick); if (advance) clearTimer(advance); if (popTimer) clearTimer(popTimer); tick = advance = popTimer = null; };
   const q = selector => root.querySelector(selector);
@@ -32,14 +32,21 @@ export function mountGames(root, { content, game = 'lobby', onExit = () => {}, r
   };
   const endBlitz = () => {
     stop(); const sum = blitz.summary(); const isBest = sum.score > bestBlitz && sum.score > 0; if (isBest) bestBlitz = sum.score;
-    paint(renderBlitzOver(sum, isBest, bestBlitz)); focus('[data-game-act="blitz-again"]');
+    paint(renderBlitzOver(sum, isBest, bestBlitz)); focus('[data-game-act="blitz-again"]'); countUp(sum.score);
+  };
+  // Cosmetic only: the final score is already in the markup; with motion allowed it counts up from 0 over ~0.9s and always lands on the real value.
+  const prefersReducedMotion = () => { try { return Boolean(globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches); } catch { return false; } };
+  const countUp = target => {
+    const el = q('[data-final-score]'); if (!el || target <= 0 || prefersReducedMotion() || typeof performance === 'undefined') return;
+    const startedAt = performance.now(); el.textContent = '0';
+    tick = setTick(() => { const t = Math.min(1, (performance.now() - startedAt) / 900); el.textContent = String(Math.round(target * (1 - (1 - t) ** 3))); if (t >= 1) { clearTick(tick); tick = null; el.textContent = String(target); } }, 30);
   };
   const answerBlitz = index => {
     if (!blitz) return;
     const result = blitz.answer(index); if (!result) return;
     const buttons = [...root.querySelectorAll('.gm-option')];
     buttons.forEach((b, i) => { b.disabled = true; if (i === result.correctIndex) b.dataset.state = 'correct'; else if (i === Number(index)) b.dataset.state = 'wrong'; });
-    q('[data-blitz-score]').textContent = String(blitz.state.score); paintCombo(result.streak);
+    const scoreEl = q('[data-blitz-score]'); scoreEl.textContent = String(blitz.state.score); if (result.correct) { scoreEl.classList.remove('is-punch'); void scoreEl.offsetWidth; scoreEl.classList.add('is-punch'); } paintCombo(result.streak);
     const tierUp = result.correct && [3, 6, 10].includes(result.streak);
     pop(result.correct ? `+${result.points}${tierUp ? (result.multiplier === 2 ? '  x2 streak' : `  x${result.multiplier} combo`) : ''}` : 'Streak reset', result.correct ? 'ok' : 'miss');
     const live = q('[data-blitz-live]'); if (live) live.textContent = result.correct ? `Correct. ${result.points} points.` : `Not quite. The answer was ${result.term}.`;
@@ -51,7 +58,7 @@ export function mountGames(root, { content, game = 'lobby', onExit = () => {}, r
     const terms = [...new Set((content?.items ?? []).map(item => item.term))]; const t = normaliseGuess(typed);
     return t.length < 2 ? [] : terms.filter(term => term.toLowerCase().startsWith(t)).slice(0, 5);
   };
-  const startConnections = () => { stop(); cx = createConnections({ puzzles: pickPuzzles(CONNECTIONS_PUZZLES, rng, CONNECTIONS.puzzleCount) }); showCx(); };
+  const startConnections = () => { stop(); cx = createConnections({ puzzles: puzzles ?? pickPuzzles(CONNECTIONS_PUZZLES, rng, CONNECTIONS.puzzleCount) }); showCx(); };
   const showCx = () => { if (cx.state.status === 'over') { paint(renderConnectionsOver(cx.summary())); focus('[data-game-act="cx-again"]'); return; } paint(renderConnectionsPlay(cx)); focus(cx.state.phase === 'guessing' ? '#cxGuess' : '[data-game-act="cx-next"]'); };
   const submitGuess = text => {
     if (!cx) return; const r = cx.guess(text); if (!r) return;
