@@ -26,7 +26,7 @@ function fakeServer() {
     if (existing && !args.forceNew) return { ...existing, resumed: true };
     if (existing) existing.status = 'abandoned';
     minted += 1;
-    const row = { missionId: `00000000-0000-4000-8000-${String(minted).padStart(12, '0')}`, missionSeed: `seed${String(minted).padStart(3, '0')}-${'x'.repeat(24)}`, resumed: false, status: 'open', startedAt: new Date().toISOString() };
+    const row = { missionId: `00000000-0000-4000-8000-${String(minted).padStart(12, '0')}`, missionSeed: `seed${String(minted).padStart(3, '0')}-${'x'.repeat(24)}`, resumed: false, status: 'open', startedAt: new Date().toISOString(), ...(args.setProgression ? { setNumber: 1, setPhase: 'stage', pathwayStage: args.pathwayStage } : {}) };   // a Set mission always comes back with Set identity
     open.set(key, row); return { ...row };
   };
   api.log = log; api.open = open; api.minted = () => minted; api.setDown = value => { down = value; };

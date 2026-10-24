@@ -113,19 +113,20 @@ browserTest('browser: a card opens the sheet; Recommended starts as before; a ch
     assert.ok(rows.filter(row => row.disabled).length >= 2);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     assert.ok(overflow <= 0, 'no horizontal overflow');
-    await page.click('[data-family="context:recognise"]');
+    // A chosen activity is the Set's CURRENT step (Match here) limited to that activity: it carries Set identity and is not a separate journey.
+    await page.click('[data-family="context:match"]');
     await page.waitForFunction(() => window.__currentQuestion);
     const types = [];
     for (let n = 0; n < 3; n += 1) {
       types.push(await page.evaluate(() => `${window.__currentQuestion.type}@${window.__currentQuestion.pathwayStage}`));
       await api.answer(true); await api.clickNext(8000);
     }
-    assert.deepEqual([...new Set(types)], ['choose_word_sentence@recognise']);
+    assert.deepEqual([...new Set(types)], ['context_sentence_match@match']);
     // finish → "Try another activity" is not on a mid-session screen; leaving returns to the unit and the choice is remembered
     await page.click('[data-action="leave-session"]');
     await page.waitForSelector('.vocab-pathway-card[data-pathway="context"]');
     await page.click('.vocab-pathway-card[data-pathway="context"]');
-    assert.equal(await page.evaluate(() => document.activeElement.dataset.family), 'context:recognise', 'last choice is pre-focused');
+    assert.equal(await page.evaluate(() => document.activeElement.dataset.family), 'context:match', 'last choice is pre-focused');
   } finally { await api.close(); }
 });
 

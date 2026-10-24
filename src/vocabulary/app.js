@@ -318,18 +318,27 @@ async function startPathwaySession(pathwayId, continueHistory = false, choice = 
   const step = pathwayStep(pathwayId);
   if (!step.available) throw new Error('That pathway is coming soon for this unit.');
   let selected; let pathwayChoice = null;
+  // Continue studying after the Set moved on (a new stage) follows the Set: the earlier chosen activity belongs to the stage just finished.
+  if (continueHistory && choice?.familyId) {
+    const carried = activityFamily(pathwayId, choice.familyId);
+    if (!carried || (step.phase === 'stage' && !carried.stageIds.includes(step.stage))) choice = null;
+  }
   if (choice?.familyId) {
-    // Student-chosen activity: only words the Set progression has already unlocked for this family's stage, each recorded against its own stage.
+    // A student-chosen activity is NOT a separate, Set-less journey: it is the Set's CURRENT step (the server-held Set, stage and phase), with
+    // the ten questions limited to the chosen activity type. It therefore carries Set identity, settles through the Set trigger, and Continue
+    // follows the Set. A chosen activity this stage cannot serve for all ten words is refused, never swapped for another format.
     const family = activityFamily(pathwayId, choice.familyId);
     if (!family) throw new Error('That activity is not available in this pathway.');
-    const wordStates = wordSetStatesFor(pathwayId);
-    const found = familyTargets({ pathwayId, family, content:state.content, unitMastery:state.unitMastery, globalMastery:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${family.id}`, wordStateFor:target => wordStates[target.occurrenceId] ?? null });
-    if (found.length < MIN_SHORT_MISSION) throw new Error('Not enough words are ready for that activity yet. Try the recommended practice instead.');
-    const foundIds = new Set(found.map(row => row.target.occurrenceId));
-    const ranked = rankedTargets(Math.max(10,state.content.occurrences.length),'adaptive').filter(target => foundIds.has(target.occurrenceId));
-    selected = [...ranked, ...found.map(row => row.target).filter(target => !ranked.some(row => row.occurrenceId === target.occurrenceId))].slice(0,10);
-    pathwayChoice = { familyId:family.id, types:[...family.types], stageByOccurrence:new Map(found.map(row => [row.target.occurrenceId,row.stageId])) };
-    return beginSession(pathwayRequest({ pathwayId, stageId:step.stage, pathwayChoice, selected, setStep:null, forceNew, continueHistory }));
+    if (step.firstPassComplete) throw new Error('Every Set in this pathway is in Maintain. Mixed Practice keeps them sharp.');
+    const notOffered = new Error('That activity is not part of this stage of your Set yet. Choose Recommended or another activity.');
+    if (step.phase === 'stage' && !family.stageIds.includes(step.stage)) throw notOffered;
+    const members = occurrencesByIds(missionTargetIds({ step }));
+    if (members.length !== MISSION_SIZE) throw new Error('No suitable curated activity is available for this pathway stage yet.');
+    for (const target of members) {
+      try { planPathwayQuestion({ pathwayId, stageId:step.stage, content:state.content, target, mastery:state.globalMastery[target.vocabularyId] ?? {}, allowedTypes:[...family.types], seed:`unit-${state.currentUnitNumber}:${family.id}:${target.occurrenceId}` }); }
+      catch { throw notOffered; }
+    }
+    pathwayChoice = { familyId:family.id, types:[...family.types], stageByOccurrence:null };
   }
   if (step.firstPassComplete) throw new Error('Every Set in this pathway is in Maintain. Mixed Practice keeps them sharp.');
   // Fail safe on membership drift: never start a mission the server would not count for this Set.
@@ -345,7 +354,7 @@ async function startPathwaySession(pathwayId, continueHistory = false, choice = 
   // A Set is exactly ten words, so a normal mission is exactly those ten: no tail, no padding, no duplicates.
   selected = occurrencesByIds(missionTargetIds({ step }));
   if (selected.length !== MISSION_SIZE) throw new Error('No suitable curated activity is available for this pathway stage yet.');
-  return beginSession(pathwayRequest({ pathwayId, stageId:step.stage, pathwayChoice:null, selected, setStep:step, forceNew, continueHistory }));
+  return beginSession(pathwayRequest({ pathwayId, stageId:step.stage, pathwayChoice, selected, setStep:step, forceNew, continueHistory }));
 }
 function pathwayRequest({ pathwayId, stageId, pathwayChoice, selected, setStep, forceNew, continueHistory }) {
   return {
@@ -387,7 +396,10 @@ function beginSession(request) {
   const eligible = !state.preview && mode === 'adaptive' && selected.length === 10 && typeof state.client?.rpc === 'function';
   if (!eligible) return commitSession(request, null, null);
   const slot = missionSlotFor(request);
-  const startMission = ask => startVocabularyMission(state.client, { unitNumber:ask.unitNumber, kind:ask.kind, pathwayId:ask.pathwayId, pathwayStage:ask.stageId, phase:'stage', forceNew:ask.forceNew, ...(request.setStep ? { setProgression:true, setNumber:request.setStep.askNextSet ?? null } : {}) });
+  // Fail closed: a Set-based mission whose server answer carries no Set identity (an out-of-date function, a mismatched deploy) must never
+  // run as a legacy, evidence-derived mission. It does not start, and the student sees the plain "try again" message.
+  const startMission = ask => Promise.resolve(startVocabularyMission(state.client, { unitNumber:ask.unitNumber, kind:ask.kind, pathwayId:ask.pathwayId, pathwayStage:ask.stageId, phase:'stage', forceNew:ask.forceNew, ...(request.setStep ? { setProgression:true, setNumber:request.setStep.askNextSet ?? null } : {}) }))
+    .then(issued => { if (request.setStep && issued?.setNumber == null) throw Object.assign(new Error('The server returned a mission without a Set.'), { code:'no_set_identity' }); return issued; });
   const unavailable = acquired => {
     const message = String(acquired?.error?.serverMessage ?? '');
     if (/No further Set/i.test(message)) return new Error('Every Set in this pathway is in Maintain. Mixed Practice keeps them sharp.');
