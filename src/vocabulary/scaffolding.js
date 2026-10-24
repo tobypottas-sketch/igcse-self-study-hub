@@ -94,6 +94,10 @@ export function buildSupportStep(activity = {}, attemptResult = {}) {
     };
   }
 
+  if (activity.responseMode === 'tiles' && activity.stageVariant === 'missing-letters') {
+    // The supported retry of the missing-letter task simply restores the full letter bank.
+    return { action:'retry', recycle:false, supportLevel:'light', kind:'partial_build', fixedChunks:[], remainingTiles:array(activity.tiles), misconceptionCategory };
+  }
   if (activity.responseMode === 'tiles') {
     const tiles = array(activity.tiles).map(text).filter(Boolean);
     const fixed = firstCorrectTile(tiles, accepted);
@@ -131,7 +135,10 @@ export function buildSupportStep(activity = {}, attemptResult = {}) {
     };
   }
 
-  const clue = partialTextClue(accepted[0]);
+  const slotAnswers = array(activity?.markingReference?.slotAnswers);
+  const clue = activity.responseMode === 'slots' && slotAnswers.length
+    ? slotAnswers.map(slot => partialTextClue(array(slot)[0])).join(' · ')
+    : partialTextClue(accepted[0]);
   return {
     action:'retry',
     recycle:false,

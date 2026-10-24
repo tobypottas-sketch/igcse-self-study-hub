@@ -58,5 +58,6 @@ test('the teacher pathway table counts only live pathways once the unit readines
   const table = run();
   assert.equal(table.paraphrasing.available, false);
   assert.equal(table.meaning.available, true);
-  assert.equal(table.word_families.evidenceCount, 37, "only the 37 words a live pathway serves count");
+  assert.equal(table.word_families.available, true, 'Word Families is live for the 30 authored families (Job 9)');
+  assert.equal(table.meaning.evidenceCount, readiness.pathways.meaning.servedCount, 'only the words a live pathway serves count');
 });

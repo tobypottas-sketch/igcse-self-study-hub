@@ -33,7 +33,7 @@ test('every pathway stage belongs to exactly one family, every family has classr
       assert.doesNotMatch(family.label, /_/, 'no backend enum names in student labels');
     }
   }
-  assert.deepEqual(activityFamilies('context').find(f => f.label === 'Type the Missing Word').stageIds, ['recall', 'mastery'], 'identical stages merge');
+  assert.deepEqual(activityFamilies('context').find(f => f.label === 'Type the Missing Word').stageIds, ['recall'], 'Context Mastery is its own activity (Complete Both Sentences) now');
 });
 
 test('a fresh unit offers only the first stage; later activities are listed as locked with the reason', () => {

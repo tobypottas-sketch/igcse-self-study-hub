@@ -32,8 +32,11 @@ function strongMastery() {
   };
 }
 
+let attemptCounter = 0;
 function serverLikeAttempt(pathwayId, stageId, question) {
   const evidenceId = question.contentId;
+  // The Edge Function identifies item-backed questions (no context or activity row) by the attempt id, so each attempt is distinct content there.
+  const questionIdentity = question.contentSource === 'item' ? `${evidenceId}:attempt-${attemptCounter += 1}` : evidenceId;
   const contextualEvidence = question.contentSource === 'context' || question.contentSource === 'language_bank';
   return {
     stageId,
@@ -42,7 +45,7 @@ function serverLikeAttempt(pathwayId, stageId, question) {
     firstAttempt:true,
     retryUsed:false,
     supportLevel:'none',
-    contentId:evidenceId,
+    contentId:questionIdentity,
     contextId:contextualEvidence ? evidenceId : null,
     promptKey:`${evidenceId}:${question.activityVariantId ?? question.type}`,
     activityType:question.type,
@@ -78,26 +81,14 @@ function completeStage({ pathwayId, stageId, content, target, progress }) {
 
 const content = plannerContent(unit1);
 const coverage = buildPathwayCoverage({ content });
-const LIVE_PATHWAYS = ['meaning','context','word_families','spelling_recall'];
+const LIVE_PATHWAYS = ['meaning','context','word_families','precision_use','spelling_recall'];   // Word Families joined in Job 9
 
-test('Unit 1 Word Families exposes only targets with enough same-family forms for meaningful Match discrimination', () => {
-  const expected = unit1.occurrences
-    .filter(occurrence => {
-      const item = content.itemsById[occurrence.vocabularyId];
-      const family = new Set([item?.term,...(item?.wordFamily ?? [])].map(value => String(value ?? '').trim().toLowerCase()).filter(Boolean));
-      const hasCuratedFamilyPrompt = unit1.activities.some(activity =>
-        activity.contentType === 'writing_set' &&
-        activity.activityData?.taskType === 'word_family' &&
-        (activity.activityData?.linkedVocabularyIds ?? []).includes(occurrence.vocabularyId)
-      );
-      // incredible has one transparent form (incredibly); its Match rung borrows wrong forms from other families.
-      return (family.size >= 3 || item?.term === 'incredible') && hasCuratedFamilyPrompt;
-    })
-    .map(occurrence => occurrence.occurrenceId)
-    .sort();
-  assert.ok(expected.length > 0,'Unit 1 needs real three-form word-family targets');
-  assert.equal(coverage.word_families.available,true,'Word Families must be live for its genuinely serviceable cohort');
-  assert.deepEqual([...coverage.word_families.occurrenceIds].sort(),expected);
+test('Unit 1 Word Families is live (Job 9): its served cohort is exactly the 29 authored, eligible families', () => {
+  assert.equal(coverage.word_families.available,true);
+  assert.equal(coverage.word_families.occurrenceIds.length,29);
+  assert.equal(coverage.word_families.stageCounts.mastery,29);
+  assert.equal(coverage.word_families.stageCounts.recognise,29);
+  assert.equal(coverage.word_families.setCount ?? 2,2);
 });
 
 test('every Unit 1 pathway declared live is genuinely completable to Mastery for every serviceable word', () => {
@@ -121,7 +112,7 @@ test('every Unit 1 pathway declared live is genuinely completable to Mastery for
 test('Unit 1 pathways withheld for incomplete banks are excluded from the completability gate', () => {
   for (const pathwayId of ['paraphrasing']) {
     assert.equal(coverage[pathwayId].available,false,pathwayId);
-    assert.equal(coverage[pathwayId].reason,'diversity_below_minimum',pathwayId);
+    assert.equal(coverage[pathwayId].reason,'stage_below_minimum',pathwayId);
   }
   assert.equal(coverage.precision_use.available,true,'Precision & Use is live now that every rung has content');
 });

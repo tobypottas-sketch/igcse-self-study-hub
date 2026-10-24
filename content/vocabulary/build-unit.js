@@ -113,12 +113,28 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
     const masteryContexts = array(entry.masteryContexts).slice(0,2).map((record,index) => ({
       contextId:index === 0 ? meaningId : paraphraseId,
       text:text(record?.text),
-      meaning:text(record?.meaning)
+      meaning:text(record?.meaning),
+      ...(array(record?.wrongMeanings).length ? { wrongMeanings:array(record.wrongMeanings).map(text).filter(Boolean) } : {})
     })).filter(record => record.text && record.meaning);
     const gapContextIds = new Set(retrievalContexts.map((record,retrievalIndex) => `${occurrenceId}_gap_${slug(record?.id || String(retrievalIndex + 1))}`));
     const gapRows = reviewedGapRows(entry, occurrenceId, gapContextIds);
     const situationDistractors = array(entry.situationDistractors).map(text);
     const spellingErrors = array(object(lexicalSpelling)[vocabularyId]).map(text).filter(Boolean);
+    // Word Families Mastery data (Job 8): authored per-form facts, passed through untouched. NEVER derived from `wordFamily` strings.
+    // Context Mastery passages (Job 9): each authored passage is bound to one of the occurrence's own live gap-fill context rows (in order),
+    // which is the row an attempt on that passage points at. The passage text itself lives on the sense, like Meaning Mastery contexts.
+    const passageContextIds = [...gapContextIds];
+    const masteryPassages = array(entry.masteryPassages).map((record,index) => ({
+      passageId:`${occurrenceId}_passage_${index + 1}`,
+      contextId:passageContextIds[index] ?? '',
+      text:text(record?.text),
+      answer:text(record?.answer)
+    })).filter(record => record.text && record.answer && record.contextId);
+    const wordFamilyForms = array(entry.wordFamilyForms).map(row => ({
+      form:text(row?.form), partOfSpeech:text(row?.partOfSpeech), example:text(row?.example), pedagogicallyUseful:row?.pedagogicallyUseful === true,
+      ...(text(row?.altExample) ? { altExample:text(row.altExample) } : {}),
+      ...(text(row?.note) ? { note:text(row.note) } : {})
+    })).filter(row => row.form);
     const sense = {
       senseId,
       meaning:text(entry.meaning),
@@ -127,7 +143,10 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
       ...(situationDistractors.length ? { situationDistractors } : {}),
       ...(gapRows.length ? { gapDistractors:gapRows } : {}),
       ...(spellingErrors.length ? { spellingErrors } : {}),
+      ...(wordFamilyForms.length ? { wordFamilyForms } : {}),
+      ...(masteryPassages.length ? { masteryPassages } : {}),
       contextDependentParaphrases:array(entry.contextDependentParaphrases),
+      ...(array(entry.wrongParaphrases).length ? { wrongParaphrases:array(entry.wrongParaphrases).map(text).filter(Boolean) } : {}),
       misleadingDistractors:distractors,
       ...(Object.keys(grammarForms).length ? { grammarForms:{ ...grammarForms } } : {}),
       ...(grammarPatterns.length ? { grammarPatterns } : {}),

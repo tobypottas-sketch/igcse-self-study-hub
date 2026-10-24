@@ -6,7 +6,10 @@ import { buildActivity } from '../src/vocabulary/activity-factory.js';
 import { completeParaphraseBlank } from '../supabase/functions/_shared/vocabulary-phrase-blank.js';
 import { markCuratedAnswer, spotMeaningChangeMarking } from '../supabase/functions/_shared/vocabulary-engine.js';
 
-const LIVE_TYPES = ACTIVITY_TYPES.filter(row => row.retired !== true).map(row => row.id);
+// family_multi_form needs an authored Word Families record; Unit 1 has none, so it cannot build on the real release. Its client/server marking
+// parity is proven on explicit fixtures in tests/vocabulary-job8-stage-contract.test.js.
+const NEEDS_AUTHORED_FAMILY = new Set(['family_multi_form']);
+const LIVE_TYPES = ACTIVITY_TYPES.filter(row => row.retired !== true && !NEEDS_AUTHORED_FAMILY.has(row.id)).map(row => row.id);
 const SENTENCE_CONTEXT_TYPES = new Set(['which_situation_fits','correct_usage']);
 
 function masteryFor(type) {

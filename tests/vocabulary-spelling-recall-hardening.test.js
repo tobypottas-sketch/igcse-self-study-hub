@@ -8,7 +8,16 @@ import { unsolvedTileOrder, isSolvedOrder } from '../src/vocabulary/tile-order.j
 // Spelling & Recall → Apply (`spelling_rebuild`): the letter tiles must never be served already spelling the answer.
 const itemOf = term => unit.items.find(row => row.term === term);
 const occurrenceOf = term => unit.occurrences.find(row => row.vocabularyId === itemOf(term).vocabularyId);
+// Apply has two supported variants (Job 8): the full letter rebuild and, for single words of 5+ letters, a missing-letter fill. These hardening
+// tests are about the full rebuild (every letter served), so `rebuild` returns that variant; `anyVariant` returns whichever the seed picks.
 function rebuild(term, seed) {
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    const question = anyVariant(term, attempt ? `${seed}~${attempt}` : seed);
+    if (question.stageVariant !== 'missing-letters') return question;
+  }
+  throw new Error(`no full-rebuild variant found for ${term}`);
+}
+function anyVariant(term, seed) {
   const item = itemOf(term); const occurrence = occurrenceOf(term);
   return buildActivity({
     activityType:'spelling_rebuild', occurrence, item, contexts:unit.contexts.filter(row => row.occurrenceId === occurrence.occurrenceId),
@@ -97,4 +106,24 @@ test('other tile activities keep their exact current retry behaviour', () => {
   const step = buildSupportStep(activity, { correct:false });
   assert.deepEqual(step.fixedChunks, ['make']);
   assert.deepEqual(step.remainingTiles, ['a', 'decision']);
+});
+
+test('missing-letter variant: appears for long single words, hides only inner letters, bank = missing letters + 2 decoys, answer unchanged', () => {
+  let seen = 0;
+  for (const seed of SEEDS.slice(0, 60)) {
+    const question = anyVariant('reasonable', seed);
+    if (question.stageVariant !== 'missing-letters') continue;
+    seen += 1;
+    const template = question.missingTemplate;
+    assert.equal(template.length, 'reasonable'.length);
+    assert.notEqual(template[0], null); assert.notEqual(template.at(-1), null);
+    const hidden = template.map((letter, index) => (letter === null ? index : -1)).filter(index => index >= 0);
+    assert.ok(hidden.length >= 2 && hidden.length <= 3);
+    const missing = hidden.map(index => 'reasonable'[index]);
+    assert.equal(question.tiles.length, hidden.length + 2, 'the bank is the missing letters plus two decoys');
+    for (const letter of missing) assert.ok(question.tiles.includes(letter));
+    assert.ok(question.markingReference.acceptedAnswers.includes('reasonable'));
+  }
+  assert.ok(seen > 5, 'both Apply variants occur across seeds');
+  assert.equal(anyVariant('deny', 'seed-1').stageVariant, undefined, 'short words keep the full rebuild');
 });

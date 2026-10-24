@@ -14,6 +14,10 @@ export function authoringHint(failure = {}) {
   if (failure.kind === 'situation') return 'reviewed wrong situations: sense.situationDistractors (at least 3, distinct, none showing the target word)';
   if (failure.kind === 'gap-fill') return 'reviewed gap-fill options: a gapDistractors row (3 wrong options) for a blankable gap-fill sentence, and no malformed rows';
   if (failure.kind === 'meaning') return 'at least 3 distinct authored wrong meanings (distractors) for the word';
+  if (/Word Families Mastery is not offered/.test(failure.reason ?? '')) return 'an authored word family: sense.wordFamilyForms with at least 3 pedagogically useful forms INCLUDING the target, at least 2 parts of speech, and an example sentence for every form (nothing is inferred from the bare wordFamily strings)';
+  if (/Meaning Mastery needs a mastery sentence/.test(failure.reason ?? '')) return 'a Meaning Mastery gloss (sense.masteryContexts[].meaning) that does not contain the word or a word with its stem';
+  if (/Context Mastery needs two curated gap sentences/.test(failure.reason ?? '')) return 'at least two gap-fill sentences in which the word appears exactly once and not at the start';
+  if (/Precision (Apply|Recall|Mastery) needs/.test(failure.reason ?? '')) return 'at least two improve_vocabulary writing records for the word (Apply also needs the weak wording quoted in the prompt and found in the sentence)';
   if (/spelling/i.test(failure.reason ?? '')) return 'reviewed misspellings (the lexical list): the generator cannot make three plausible ones for this word';
   if (/No suitable curated activity/.test(failure.reason ?? '')) return 'content this stage can use. Usual causes: fewer than 3 other words of the same part of speech in the unit, no blankable gap-fill sentence (the word inside it, not at the start), no target-free situation, or no mastery contexts';
   return failure.reason || 'content the builders need is missing';

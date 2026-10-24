@@ -14,7 +14,8 @@ const HIDE_TARGET_TYPES = new Set([
   'replace_phrase','produce_paraphrase','use_target','context_gap_fill',
   'complete_paraphrase','rewrite_phrase','rewrite_idea','improve_vocabulary','explain_another_way','word_family_switch',
   'definition_to_word','drag_definition_word','gap_fill_bank','drag_word_sentence','type_missing_word','spell_word','spell_in_context','choose_word_sentence','word_family_choice',
-  'type_word_from_definition','context_sentence_match','word_family_match','precision_choice','precision_match','spelling_choice','spelling_cue_match','spelling_rebuild'
+  'type_word_from_definition','context_sentence_match','word_family_match','precision_choice','precision_match','spelling_choice','spelling_cue_match','spelling_rebuild',
+  'gloss_in_context_type','type_in_passage','word_family_identify','family_multi_form','precision_type_cued','upgrade_passage','spot_the_error'
 ]);
 
 function statusOf(row) { return row?.status ?? 'new'; }
@@ -375,6 +376,18 @@ function renderAnswerControl(question, feedback, retry, support, matchView = nul
     const chips = (options ?? []).map(option => `<button type="button" class="vocab-gap-chip" data-gap-choice="${escapeHtml(option)}" aria-pressed="false">${escapeHtml(option)}</button>`).join('');
     return `<fieldset class="vocab-drag-gap${retry ? ' is-retry' : ''}" data-gap-fill><legend>${retry ? 'Try the gap again' : 'Drag a word into the gap'}</legend><p class="vocab-gap-hint">Drag a word card onto the gap in the sentence. (Keyboard: focus a word and press Enter.)</p><div class="vocab-gap-bank">${chips}</div><input type="hidden" name="answer" value=""><button class="vocab-button vocab-button--primary" type="submit" data-gap-submit disabled aria-disabled="true">${retry ? 'Check supported answer' : 'Check answer'}</button></fieldset>`;
   }
+  if (responseMode === 'slots') {
+    // Multi-slot typed Mastery (type_in_passage, family_multi_form, upgrade_passage): one typed box per slot, no bank, no options.
+    // The slot boxes are joined into one answer at submit time; the item is correct only when every slot is right.
+    const rows = (question.slots ?? []).map((slot,index) => {
+      const sentence = String(slot?.sourceText ?? '');
+      const parts = sentence.split(/_{2,}/);
+      const field = `<input class="vocab-slot-input" data-slot-input name="slot-${index}" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="80" aria-label="${escapeHtml(slot?.label ?? `Gap ${index + 1}`)}">`;
+      const body = parts.length > 1 ? `${escapeHtml(parts[0])}${field}${escapeHtml(parts.slice(1).join(''))}` : `${escapeHtml(sentence)}<br>${field}`;
+      return `<li class="vocab-slot-row"><span class="vocab-slot-label">${escapeHtml(slot?.label ?? `Gap ${index + 1}`)}</span><p>${body}</p></li>`;
+    }).join('');
+    return `<fieldset class="vocab-slots${retry ? ' is-retry' : ''}" data-slots><legend>${retry ? 'Try each gap again' : 'Type your answer in every gap'}</legend><ol class="vocab-slot-list">${rows}</ol><p class="vocab-slot-notice" data-slot-notice role="alert"></p><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Check supported answer' : 'Check answers'}</button></fieldset>`;
+  }
   if (responseMode === 'spelling') {
     return `<div class="vocab-spelling-pattern" aria-label="Spelling clue">${escapeHtml(question?.spellingPattern ?? '')}</div><label>${retry ? 'Try the spelling again' : 'Type the word'}<input name="answer" required autocomplete="off" maxlength="120" spellcheck="false" aria-describedby="vocab-support-hint"></label><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Check supported answer' : 'Check answer'}</button>`;
   }
@@ -382,6 +395,10 @@ function renderAnswerControl(question, feedback, retry, support, matchView = nul
     const fixed = support?.kind === 'partial_build' ? (support.fixedChunks ?? []) : [];
     const fixedAnswer = fixed.join(' ');
     const source = support?.kind === 'partial_build' ? support.remainingTiles : question.tiles;
+    if (Array.isArray(question.missingTemplate) && !fixed.length) {
+      const shown = question.missingTemplate.map(letter => letter ?? '_').join(' ');
+      return `<div class="vocab-build-answer vocab-missing-letters" data-tile-build data-missing-template='${escapeHtml(JSON.stringify(question.missingTemplate))}' data-filled="[]" aria-live="polite">${escapeHtml(shown)}</div><div class="vocab-tile-bank">${(source ?? []).map(tile => `<button type="button" class="vocab-tile" data-tile-answer="${escapeHtml(tile)}">${escapeHtml(tile)}</button>`).join('')}</div><input type="hidden" name="answer" value=""><div class="vocab-answer-actions"><button type="button" class="vocab-button" data-action="clear-tile-answer" data-fixed-answer="">Clear answer</button><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Check supported answer' : 'Check answer'}</button></div><p class="vocab-inline-validation" data-tile-validation role="alert"></p>`;
+    }
     const fixedHtml = fixed.length ? `<div class="vocab-build-answer"><span class="vocab-build-fixed">${fixed.map(escapeHtml).join(' ')}</span><span data-tile-build></span></div>` : '<div class="vocab-build-answer" data-tile-build aria-live="polite">Choose tiles to build your answer</div>';
     const tiles = (source ?? []).map(tile => `<button type="button" class="vocab-tile" data-tile-answer="${escapeHtml(tile)}">${escapeHtml(tile)}</button>`).join('');
     return `${fixedHtml}<div class="vocab-tile-bank">${tiles}</div><input type="hidden" name="answer" value="${escapeHtml(fixedAnswer)}"><div class="vocab-answer-actions"><button type="button" class="vocab-button" data-action="clear-tile-answer" data-fixed-answer="${escapeHtml(fixedAnswer)}">Clear answer</button><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Check supported answer' : 'Check answer'}</button></div>${question.type === 'spelling_rebuild' ? '<p class="vocab-inline-validation" data-tile-validation role="alert"></p>' : ''}`;
@@ -406,7 +423,7 @@ function renderPathwaySessionProgress(pathwayId, pathwayStage) {
 }
 
 const PARAPHRASE_TYPES = new Set(['phrase_match','build_paraphrase','complete_paraphrase','rewrite_phrase','rewrite_idea','improve_vocabulary','explain_another_way','same_idea','build_same_idea','spot_meaning_change']);
-const RECALL_TYPES = new Set(['type_missing_word','spell_word','spell_in_context','type_word_from_definition','spelling_rebuild']);
+const RECALL_TYPES = new Set(['type_missing_word','spell_word','spell_in_context','type_word_from_definition','spelling_rebuild','gloss_in_context_type','type_in_passage','precision_type_cued','upgrade_passage','family_multi_form']);
 export function questionLook(question) {
   const type = String(question?.type ?? '');
   if (/word_famil/.test(type)) return 'family';
@@ -457,7 +474,7 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
   const sourceHtml = question?.responseMode === 'drag_gap' && source && /_{2,}/.test(source.text)
     ? source.text.replace(/^([\s\S]*?)(_{2,})([\s\S]*)$/, (_, before, gap, after) => `${escapeHtml(before)}${gapSlotHtml(gap, feedback)}${escapeHtml(after)}`)
     : (source ? escapeHtml(source.text) : '');
-  const questionContext = source && !sourceDuplicatesMatchCue ? `<aside class="vocab-question-context vocab-source-text"><span>${escapeHtml(source.label)}</span><p>${sourceHtml}</p></aside>` : '';
+  const questionContext = source && !sourceDuplicatesMatchCue && question?.responseMode !== 'slots' ? `<aside class="vocab-question-context vocab-source-text"><span>${escapeHtml(source.label)}</span><p>${sourceHtml}</p></aside>` : '';
   const targetPill = term && !matchView && !HIDE_TARGET_TYPES.has(question?.type) ? `<div class="vocab-target-pill">${escapeHtml(term)}</div>` : '';
   const pathwayProgress = renderPathwaySessionProgress(fixedPathwayId,fixedPathwayStage);
   const stage = learningStage ?? question?.learningStage ?? null;

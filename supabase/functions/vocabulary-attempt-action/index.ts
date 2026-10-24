@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 import { applyEvidence, markCuratedAnswer, spotMeaningChangeMarking, successClearsRecentError } from '../_shared/vocabulary-engine.js';
 import { completeParaphraseBlank } from '../_shared/vocabulary-phrase-blank.js';
+import { glossInContextMarking, typeInPassageMarking, upgradePassageMarking, itemStageMarking } from '../_shared/vocabulary-stage-marking.js';
 import { applyPathwayAttempt, freshPathwayProgress, currentPathwayStage } from '../_shared/vocabulary-pathway-progress.js';
 import { authoritativeSupportLevel, assertContextQuestionMatchesContextType, assertUnitActivityQuestionMatchesContentType, assertWritingTaskMatchesQuestionType, buildStoredAttemptMetadata, strandForQuestionType, validateVocabularyAttempt } from './validation.js';
 
@@ -49,7 +50,15 @@ const ACTIVITY_EVIDENCE: Record<string, { strands:string[]; evidenceStrength:str
   build_same_idea:{ strands:['paraphrasing'], evidenceStrength:'medium', productive:false },
   rewrite_idea:{ strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true },
   improve_vocabulary:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
-  explain_another_way:{ strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true }
+  explain_another_way:{ strands:['paraphrasing','production'], evidenceStrength:'very_strong', productive:true },
+  // Stage Contract v2 (Job 8). Evidence parity: each new task keeps the strands and strength of the task it replaces on the ladder.
+  gloss_in_context_type:{ strands:['context','meaning'], evidenceStrength:'medium', productive:false },
+  type_in_passage:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
+  word_family_identify:{ strands:['recognition'], evidenceStrength:'light', productive:false },
+  family_multi_form:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
+  precision_type_cued:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
+  upgrade_passage:{ strands:['context','recognition'], evidenceStrength:'medium', productive:false },
+  spot_the_error:{ strands:['recognition'], evidenceStrength:'light', productive:false }
 };
 const sentenceAnswerTypes = new Set(['which_situation_fits','correct_usage']);
 
@@ -165,11 +174,16 @@ function unitActivityMarking(activity: any, questionType: string, activityVarian
   }
   throw new Error('Unsupported vocabulary unit activity content type.');
 }
-function itemMarking(item: any, sense: any, questionType: string) {
+function itemMarking(item: any, sense: any, questionType: string, activityVariantId: string | null = null) {
   const term = String(item?.term ?? '').trim();
   if (!term) throw new Error('Vocabulary term is missing.');
   if (['definition_to_word','drag_definition_word','spell_word','type_word_from_definition','spelling_choice','spelling_cue_match'].includes(questionType)) return { acceptedAnswers:[term], distractors:[] };
   if (questionType === 'spelling_rebuild') return { acceptedAnswers:[term, Array.from(term).join(' ')], distractors:[] };
+  if (['word_family_identify','spot_the_error','family_multi_form'].includes(questionType)) {
+    const marking = itemStageMarking({ item, sense, questionType, activityVariantId });
+    if (!marking) throw new Error('Vocabulary stage activity is not available for this word.');
+    return marking;
+  }
   if (['word_definition_match','drag_word_definition'].includes(questionType)) {
     const meanings = [String(sense?.meaning ?? '').trim(), String(item?.core_meaning ?? '').trim(), ...strings(sense?.acceptedParaphrases)].filter(Boolean);
     if (!meanings.length) throw new Error('Vocabulary meaning is missing.');
@@ -225,7 +239,17 @@ Deno.serve(async (req: Request) => {
       if (input.primaryEvidenceTargetId && input.primaryEvidenceTargetId !== curatedPrimary) return json({ error:'Primary evidence target does not match curated activity' }, 400);
       primaryEvidenceTargetId = curatedPrimary;
       if (primaryEvidenceTargetId && primaryEvidenceTargetId !== occurrence.vocabulary_id) return json({ error:'Curated primary evidence target does not match occurrence' }, 400);
-      const marking = unitActivityMarking(activity, input.questionType, input.activityVariantId);
+      let marking: any;
+      if (input.questionType === 'upgrade_passage') {
+        assertUnitActivityQuestionMatchesContentType(activity.content_type, input.questionType);
+        assertWritingTaskMatchesQuestionType(data.taskType, input.questionType);
+        const { data:rows, error:rowsError } = await adminClient.from('vocabulary_unit_activities').select('activity_content_id, content_type, activity_data').eq('unit_number', occurrence.unit_number).eq('content_type', 'writing_set').eq('status', 'live');
+        if (rowsError) throw new Error('Unable to read vocabulary unit activities.');
+        marking = upgradePassageMarking({ activityContentId:activity.activity_content_id, activityRows:rows ?? [], vocabularyId:occurrence.vocabulary_id, activityVariantId:input.activityVariantId });
+        if (!marking) return json({ error:'Precision Mastery pair is invalid' }, 400);
+      } else {
+        marking = unitActivityMarking(activity, input.questionType, input.activityVariantId);
+      }
       markingContext = { contextId:activity.activity_content_id, activityContentId:activity.activity_content_id, ...marking };
       evidenceContentId = activity.activity_content_id;
       if (data.taskType === 'language_bank_context') contextualEvidenceId = activity.activity_content_id;
@@ -234,7 +258,17 @@ Deno.serve(async (req: Request) => {
       if (contextError || !context || context.occurrence_id !== occurrence.occurrence_id || context.sense_id !== occurrence.sense_id) return json({ error:'Vocabulary context does not match target' }, 400);
       assertContextQuestionMatchesContextType(context.context_type, input.questionType);
       let acceptedAnswers: string[];
-      if (input.questionType === 'meaning_in_context') {
+      let slotAnswers: string[][] | null = null;
+      if (input.questionType === 'gloss_in_context_type') {
+        const marking = glossInContextMarking({ item, sense, contextRow:context });
+        if (!marking) return json({ error:'Vocabulary mastery sentence is not available for this activity' }, 400);
+        acceptedAnswers = marking.acceptedAnswers;
+      } else if (input.questionType === 'type_in_passage') {
+        const marking = typeInPassageMarking({ item, sense, contextRow:context });
+        if (!marking) return json({ error:'The curated passage for this activity is not available' }, 400);
+        acceptedAnswers = marking.acceptedAnswers;
+        slotAnswers = marking.slotAnswers;
+      } else if (input.questionType === 'meaning_in_context') {
         const masteryContext = (Array.isArray(sense.masteryContexts) ? sense.masteryContexts : [])
           .find((record: any) => String(record?.contextId ?? '') === context.context_id);
         const designated = String(masteryContext?.meaning ?? '').trim();
@@ -242,11 +276,11 @@ Deno.serve(async (req: Request) => {
       } else {
         acceptedAnswers = sentenceAnswerTypes.has(input.questionType) ? [String(context.prompt_text ?? '').trim()].filter(Boolean) : (context.accepted_answers ?? []);
       }
-      markingContext = { contextId:context.context_id, acceptedAnswers };
+      markingContext = { contextId:context.context_id, acceptedAnswers, ...(slotAnswers ? { slotAnswers } : {}) };
       evidenceContentId = context.context_id;
       contextualEvidenceId = context.context_id;
     } else {
-      const marking = itemMarking(item, sense, input.questionType);
+      const marking = itemMarking(item, sense, input.questionType, input.activityVariantId);
       markingContext = { ...marking };
       evidenceContentId = `item:${item.vocabulary_id}:${occurrence.sense_id}`;
     }

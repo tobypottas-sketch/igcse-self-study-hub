@@ -12,10 +12,10 @@ import { pathwayStageActivities } from '../supabase/functions/_shared/vocabulary
 // Contract: Meaning → Match and Meaning → Apply must never render the same activity again.
 //   Recognise: meaning_match and definition_to_word (single-word meaning recognition).
 //   Match: word_definition_match ONLY (the tap-to-match word ↔ definition set).
-//   Apply: drag_word_definition, drag_definition_word, which_situation_fits (a contextual situation + answer cards).
+//   Apply: which_situation_fits and meaning_in_context (a contextual situation + answer cards). The old drag types are retired from the ladder (Job 8).
 const MATCH_STAGE = ['word_definition_match'];
 const RECOGNISE_STAGE = ['meaning_match', 'definition_to_word'];
-const APPLY_STAGE = ['drag_word_definition', 'drag_definition_word', 'which_situation_fits'];
+const APPLY_STAGE = ['which_situation_fits', 'meaning_in_context'];
 const FORBIDDEN_UI = /<select|draggable|data-drag-|data-drop-target|data-gap-drop|vocab-drop-zone|vocab-drag-token|vocab-accessible-fallback|data-match-set|data-match-word|data-match-definition/;
 
 const question = (activityType, occurrence) => {
@@ -32,7 +32,7 @@ test('regression: Meaning → Match serves exactly the word/definition set and n
   assert.equal(activityTypesForPathwayStage('meaning', 'match').includes('definition_to_word'), false, 'no one-at-a-time "Which word means…?" card in Match');
   assert.deepEqual([...activityTypesForPathwayStage('meaning', 'recognise')].sort(), [...RECOGNISE_STAGE].sort(), 'definition_to_word lives in Recognise');
   assert.deepEqual(activityTypesForPathwayStage('meaning', 'recall'), ['type_word_from_definition']);
-  assert.deepEqual(activityTypesForPathwayStage('meaning', 'mastery'), ['meaning_in_context']);
+  assert.deepEqual(activityTypesForPathwayStage('meaning', 'mastery'), ['gloss_in_context_type']);
 });
 
 test('pathway contract: Meaning Match and Meaning Apply keep their documented activity types', () => {

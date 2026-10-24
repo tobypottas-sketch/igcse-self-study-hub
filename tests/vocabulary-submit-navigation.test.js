@@ -1,4 +1,5 @@
 import test from 'node:test';
+import * as pathwaySets from '../src/vocabulary/pathway-sets.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
@@ -63,7 +64,7 @@ test('reopening a cached unit is immediate and does not refetch content or maste
   const context = vm.createContext({
     state,
     attempts:() => ({ blocked:false, retry:async () => true }),
-    clearClock:() => {}, refreshSetRows:async () => {}, loadPathwaySets:async () => [],
+    clearClock:() => {}, refreshSetRows:async () => {}, loadPathwaySets:async () => [],loadSetMembers:async () => null,compareSetMembership:pathwaySets.compareSetMembership,MEMBERSHIP:pathwaySets.MEMBERSHIP,
     renderCurrentUnit:() => { renders++; },
     loadVocabularyUnit:async () => { contentReads++; throw new Error('cached reopen must not reload content'); },
     loadStudentMastery:async () => { masteryReads++; throw new Error('cached reopen must not reload mastery'); },

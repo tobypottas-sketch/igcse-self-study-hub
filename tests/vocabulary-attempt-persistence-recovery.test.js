@@ -1,4 +1,5 @@
 import test from 'node:test';
+import * as pathwaySets from '../src/vocabulary/pathway-sets.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { createAttemptPersistence } from '../src/vocabulary/attempt-persistence.js';
@@ -179,7 +180,7 @@ test('an unsaved attempt survives opening a unit while saving keeps failing, the
   const context = vm.createContext({
     state, root:{}, createAttemptPersistence, console:{ error() {}, warn() {} },
     submitVocabularyAttempt:async (_client, payload) => server.submit(payload),
-    freshMastery:() => ({ status:'new' }), loadPathwaySets:async () => [], refreshSetRows:async () => {},
+    freshMastery:() => ({ status:'new' }), loadPathwaySets:async () => [],loadSetMembers:async () => null,compareSetMembership:pathwaySets.compareSetMembership,MEMBERSHIP:pathwaySets.MEMBERSHIP, refreshSetRows:async () => {},
     clearClock() {}, renderCurrentUnit() {}, clearSyncWarning() {},
     showSyncWarning() { warnings += 1; },
     loadVocabularyUnit:async () => ({ occurrences:[], items:[], contexts:[], activities:[] }),

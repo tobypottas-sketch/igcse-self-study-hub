@@ -12,6 +12,7 @@ import { pathwayLivePolicy } from './pathway-live-policy.js';
 import { READINESS_RULES, stageMinimum } from '../../content/vocabulary/pathway-readiness-rules.js';
 import { unitConfig } from '../../content/vocabulary/unit-registry.js';
 import { computePathwaySets } from './pathway-sets.js';
+import { evaluateFamilyEligibility, FAMILY_STATUS } from './word-family-eligibility.js';
 
 function array(value) { return Array.isArray(value) ? value : []; }
 function idOf(row) { return String(row.occurrenceId ?? row.occurrence_id); }
@@ -20,7 +21,10 @@ function contextsFor(content, occurrence) {
 }
 // How much of the unit's judgement-call content (gap-fill options, wrong situations) is reviewed and well formed. Teacher-facing only.
 function authoringSummary(content) {
-  const summary = { gapSentences:0, gapSentencesReviewed:0, gapMalformed:0, situationWordsReviewed:0, situationWordsMalformed:0, words:0 };
+  const summary = { gapSentences:0, gapSentencesReviewed:0, gapMalformed:0, situationWordsReviewed:0, situationWordsMalformed:0, words:0,
+    // Word Families Mastery needs an authored, complete family per word (Job 8). `unknown` = a family exists only as bare strings (per-form metadata
+    // missing, so it is BLOCKED until authored); `noFamily` = the word has no family at all (nothing to author, not blocked).
+    wordFamilyEligible:0, wordFamilyIneligible:0, wordFamilyUnknown:0, wordFamilyNoFamily:0, wordFamilyBlockedTerms:[] };
   for (const occurrence of array(content?.occurrences)) {
     const item = content?.itemsById?.[occurrence.vocabularyId] ?? array(content?.items).find(row => row?.vocabularyId === occurrence.vocabularyId);
     if (!item) continue;
@@ -31,6 +35,10 @@ function authoringSummary(content) {
     summary.gapSentences += candidates.length;
     summary.gapSentencesReviewed += candidates.filter(candidate => index.byContextId.has(String(candidate.context.contextId))).length;
     summary.gapMalformed += index.problems.length;
+    const familyVerdict = evaluateFamilyEligibility(item, array(item.senses).find(row => row?.senseId === occurrence.senseId) ?? array(item.senses)[0] ?? {});
+    if (familyVerdict.status === FAMILY_STATUS.ELIGIBLE) summary.wordFamilyEligible += 1;
+    else if (familyVerdict.status === FAMILY_STATUS.UNKNOWN && !array(item.wordFamily).length && !array(array(item.senses)[0]?.wordFamilyForms).length) summary.wordFamilyNoFamily += 1;
+    else { if (familyVerdict.status === FAMILY_STATUS.INELIGIBLE) summary.wordFamilyIneligible += 1; else summary.wordFamilyUnknown += 1; summary.wordFamilyBlockedTerms.push(item.term); }
     const situation = situationDistractorRecord({ item, occurrence });
     if (situation.status === 'valid') summary.situationWordsReviewed += 1;
     if (situation.status === 'malformed') summary.situationWordsMalformed += 1;

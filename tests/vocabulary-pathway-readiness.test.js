@@ -12,28 +12,35 @@ import { VOCABULARY_PATHWAYS } from '../src/vocabulary/pathway-model.js';
 const full = releasePlannerContent(unit1);
 const live = readiness => Object.fromEntries(Object.entries(readiness.pathways).map(([id, row]) => [id, row.live]));
 
-// Fixture only: give the 12 idea-set words phrase records too (copies of existing phrase-set shapes), so every Paraphrasing stage
-// can run for them. This shows the Unit 1 lock is a content gap, not a rule that cannot be met.
+// Fixture only: give the idea-set words phrase records AND the phrase-set words idea records (copies of existing shapes of the other kind), so every
+// Paraphrasing stage can run for 24 words (Recognise is same_idea, an idea-set rung; Match and Recall are phrase-set rungs). This shows the Unit 1 lock
+// is a content gap, not a rule that cannot be met.
 function withPhraseRecordsForIdeaWords() {
   const linked = (vocabularyId, type) => unit1.activities.filter(row => row.contentType === type && row.activityData.linkedVocabularyIds.includes(vocabularyId));
-  const phraseSets = unit1.activities.filter(row => row.contentType === 'phrase_set');
-  const extra = unit1.items.filter(item => linked(item.vocabularyId, 'idea_set').length).map((item, index) => {
-    const source = phraseSets[index % phraseSets.length];
-    return { ...source, activityContentId:`fixture-phrase-${item.vocabularyId}`, activityData:{ ...source.activityData, linkedVocabularyIds:[item.vocabularyId], primaryEvidenceTargetId:item.vocabularyId } };
-  });
-  return { ...full, activities:[...full.activities, ...extra] };
+  const clone = (type, kind) => {
+    const sources = unit1.activities.filter(row => row.contentType === type);
+    const wanted = kind === 'idea' ? 'idea_set' : 'phrase_set';
+    return unit1.items.filter(item => linked(item.vocabularyId, wanted).length && !linked(item.vocabularyId, type).length).map((item, index) => {
+      const source = sources[index % sources.length];
+      return { ...source, activityContentId:`fixture-${type}-${item.vocabularyId}`, activityData:{ ...source.activityData, linkedVocabularyIds:[item.vocabularyId], primaryEvidenceTargetId:item.vocabularyId } };
+    });
+  };
+  return { ...full, activities:[...full.activities, ...clone('phrase_set', 'idea'), ...clone('idea_set', 'phrase')] };
 }
 
-test('Unit 1 under stage-level readiness: five pathways live, Paraphrasing locked for diversity', () => {
+test('Unit 1 under stage-level readiness: five pathways live (Word Families authored in Job 9, Paraphrasing locked: no word has both idea and phrase records)', () => {
   const readiness = evaluateUnitReadiness({ content:full });
   assert.deepEqual(live(readiness), { meaning:true, context:true, word_families:true, paraphrasing:false, precision_use:true, spelling_recall:true });
   assert.deepEqual(readiness.pathways.meaning.stageCounts, { recognise:50, match:48, apply:50, recall:50, mastery:50 });
-  assert.deepEqual(readiness.pathways.word_families.stageCounts, { recognise:37, match:37, apply:37, recall:37, mastery:37 });
+  // Word Families: 30 targets have an authored, reviewed, complete family (Job 9); Mastery needs those per-form records and nothing is inferred.
+  assert.deepEqual(readiness.pathways.word_families.stageCounts, { recognise:29, match:35, apply:37, recall:37, mastery:29 });
+  assert.equal(readiness.pathways.word_families.live, true);
+  assert.equal(readiness.pathways.word_families.servedCount, 29);
   const paraphrasing = readiness.pathways.paraphrasing;
-  assert.deepEqual(paraphrasing.stageCounts, { recognise:24, match:12, apply:24, recall:12, mastery:24 });
-  assert.equal(paraphrasing.servedCount, 12, 'only the phrase words can run every rung');
-  assert.equal(paraphrasing.reason, 'diversity_below_minimum');
-  assert.deepEqual(paraphrasing.missing.map(row => [row.kind, row.id, row.have, row.need]), [['diversity', 'idea_records', 0, 10]]);
+  assert.deepEqual(paraphrasing.stageCounts, { recognise:12, match:12, apply:24, recall:12, mastery:24 });
+  assert.equal(paraphrasing.servedCount, 0, 'under the locked ladder Recognise (same_idea) is idea-set only and Match/Recall are phrase-set only; no Unit 1 word has both, so none runs every rung');
+  assert.equal(paraphrasing.reason, 'stage_below_minimum');
+  assert.deepEqual(paraphrasing.missing.map(row => [row.kind, row.id ?? row.stage, row.have, row.need]), [['stage', 'recognise', 12, 20], ['full_path', undefined, 0, 10], ['diversity', 'phrase_records', 0, 10], ['diversity', 'idea_records', 0, 10]]);
   assert.deepEqual(paraphrasing.servedOccurrenceIds, [], 'a locked pathway serves nobody');
 });
 
@@ -55,7 +62,7 @@ test('a half-built unit is locked by readiness, with the reason and the counts',
     assert.equal(readiness.pathways[id].live, false, id);
     assert.equal(readiness.pathways[id].reason, 'stage_below_minimum', id);
   }
-  assert.equal(readiness.pathways.word_families.live, true, '30 words still hold 20+ genuine families');
+  assert.equal(readiness.pathways.word_families.live, false, 'no family is authored for Mastery, so a partial unit cannot make Word Families live either');
   const report = buildReadinessReport({ readiness, publishedWords:30 });
   assert.equal(report.wordsComplete, false);
   assert.equal(report.ready, false);
@@ -119,7 +126,7 @@ test('the teacher readiness view makes a half-built unit obvious', () => {
   assert.match(root.innerHTML, /30 of 50 words published/);
   assert.match(root.innerHTML, /the unit is incomplete/);
   assert.match(root.innerHTML, /data-readiness-pathway="meaning" data-live="false"/);
-  assert.match(root.innerHTML, /data-readiness-pathway="word_families" data-live="true"/);
+  assert.match(root.innerHTML, /data-readiness-pathway="word_families" data-live="false"/);
   assert.match(root.innerHTML, /Authoring view, not student analytics/);
   assert.match(root.innerHTML, /No live words yet: Units 2, 3/);
 });

@@ -1,4 +1,5 @@
 import test from 'node:test';
+import * as pathwaySets from '../src/vocabulary/pathway-sets.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
@@ -50,7 +51,7 @@ function controller(stage = 'recognise', priorSuccess = false) {
     state.unitMastery[target.occurrenceId] = {status:'building',contextualEvidence:{pathwayProgress:{context:progress}}};
   }
   const saved = [];
-  const context = vm.createContext({state,crypto,loadPathwaySets:async () => server.rows(),acquireMission,startVocabularyMission:async (_c,args) => server.start(args),derivePresentationNonce:missionSeedLib.derivePresentationNonce,orderMissionTargets:missionSeedLib.orderMissionTargets,...missionCache,MISSION_SIZE:10,setsFromCoverage,...setProgress,createAttemptPersistence,Date,Map,Set,console,root:{},window:{clearInterval(){},setInterval(){return 1;}},
+  const context = vm.createContext({state,crypto,loadPathwaySets:async () => server.rows(),loadSetMembers:async () => null,compareSetMembership:pathwaySets.compareSetMembership,MEMBERSHIP:pathwaySets.MEMBERSHIP,acquireMission,startVocabularyMission:async (_c,args) => server.start(args),derivePresentationNonce:missionSeedLib.derivePresentationNonce,orderMissionTargets:missionSeedLib.orderMissionTargets,...missionCache,MISSION_SIZE:10,setsFromCoverage,...setProgress,createAttemptPersistence,Date,Map,Set,console,root:{},window:{clearInterval(){},setInterval(){return 1;}},
     ...sessions,...targets,...pathways,...placement,...engine,...matchSetLogic,...matchSetView,...engagementCopy, ...engagementModel, VOCABULARY_PATHWAYS:[], servedByAnyLivePathway:() => true, registeredPathwayCoverage:() => null, playCue:() => false, setSoundEnabled:value => value === true, soundEnabled:() => false, loadVocabularyMissions:async () => [], loadMeritAwardCount:async () => null, newAchievements:() => [], markAchievementsSeen() {}, renderAchievementsSheet:() => "", recordVocabularyMission:async (_c,missionId) => server.record(missionId,saved), renderEngagementStrip:() => "", installMatchDrag() {}, playCompletionSequence() {}, loadSeenContent:() => new Map(), saveSeenContent() {}, _unused() {}, playCompletionSequence() {}, matchDragJustEnded:() => false,deriveLearningStage,buildSupportStep,buildSessionFinishModel,
     renderVocabularyQuestion(){},renderSessionSummary(){},renderVocabularyUnit(){},supportiveFeedback(){return '';},
     trackVocabularyEvent:async () => {},
