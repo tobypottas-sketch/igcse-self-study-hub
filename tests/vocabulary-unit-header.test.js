@@ -35,7 +35,7 @@ test('back navigation is the same control and the same action: a <button data-ac
   assert.match(strip, />\s*<span class="vocab-back__arrow" aria-hidden="true">←<\/span> All units<\/button>/);
   assert.equal((strip.match(/data-action=/g) ?? []).length, 1, 'one action only');
   assert.match(homeHtml(), /<a href="\.\/" class="vocab-back vocab-back--chip">/);
-  assert.match(read('src/vocabulary/app.js'), /action === 'back-units'\) showHome\(\)/, 'controller wiring untouched');
+  assert.match(read('src/vocabulary/app.js'), /action === 'back-units'\) showHome\((\{ cachedFirst:true \})?\)/, 'controller wiring untouched');
 });
 
 test('unit selection keeps its structure: strip, hero, XP strip, unit grid, coursebook card, sound toggle; the hero copy is unchanged', () => {

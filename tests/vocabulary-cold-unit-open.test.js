@@ -30,7 +30,7 @@ test('cold openUnit never renders the unit before its data is ready', () => {
 test('stale unit loads are rejected by a request token', () => {
   assert.match(openUnit, /const request = state\.unitRequest \+= 1/);
   assert.match(openUnit, /if \(request !== state\.unitRequest\) return;/);
-  assert.match(app, /async function showHome\(\) \{\s*state\.unitRequest \+= 1/, 'going Home also invalidates an in-flight load');
+  assert.match(app, /async function showHome\([^)]*\) \{\s*const request = state\.unitRequest \+= 1/, 'going Home also invalidates an in-flight load');
 });
 
 test('loading is shown on the clicked card only, without taking space', () => {
