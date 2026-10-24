@@ -50,19 +50,28 @@ export function changedSets(current = membershipRows(), baseline = baselineRows(
   return changed;
 }
 export function deltaSql(current = membershipRows(), baseline = baselineRows()) {
-  return changedSets(current, baseline).map(({ now }) => {
+  const sets = changedSets(current, baseline);
+  if (!sets.length) return '';
+  // ONE statement (one implicit transaction): every started-Set guard runs before anything is written, so a started Set aborts the whole
+  // migration and never leaves some Sets replaced and others not.
+  const guards = sets.map(({ now }) => {
+    const { unit, pathway, set } = now[0];
+    return `  if exists (select 1 from public.vocabulary_pathway_sets where unit_number = ${unit} and pathway_id = '${pathway}' and set_number = ${set}) then
+    raise exception 'Set ${unit}/${pathway}/${set} has already been started by a student; its members must not change silently. Decide a version policy first.';
+  end if;`;
+  }).join('\n');
+  const writes = sets.map(({ now }) => {
     const { unit, pathway, set } = now[0];
     const values = now.map(r => `    (${r.unit}, '${r.pathway}', ${r.set}, ${r.position}, '${r.occurrenceId}')`).join(',\n');
-    return `do $$
-begin
-  if exists (select 1 from public.vocabulary_pathway_sets where unit_number = ${unit} and pathway_id = '${pathway}' and set_number = ${set}) then
-    raise exception 'Set ${unit}/${pathway}/${set} has already been started by a student; its members must not change silently. Decide a version policy first.';
-  end if;
-  delete from public.vocabulary_set_members where unit_number = ${unit} and pathway_id = '${pathway}' and set_number = ${set};
+    return `  delete from public.vocabulary_set_members where unit_number = ${unit} and pathway_id = '${pathway}' and set_number = ${set};
   insert into public.vocabulary_set_members (unit_number, pathway_id, set_number, position, occurrence_id) values
-${values};
+${values};`;
+  }).join('\n');
+  return `do $$
+begin
+${guards}
+${writes}
 end $$;`;
-  }).join('\n\n');
 }
 
 if (process.argv[1] && import.meta.url === new URL(process.argv[1], 'file://').href) {

@@ -22,6 +22,9 @@ begin
   if exists (select 1 from public.vocabulary_pathway_sets where unit_number = 1 and pathway_id = 'word_families' and set_number = 1) then
     raise exception 'Set 1/word_families/1 has already been started by a student; its members must not change silently. Decide a version policy first.';
   end if;
+  if exists (select 1 from public.vocabulary_pathway_sets where unit_number = 1 and pathway_id = 'word_families' and set_number = 2) then
+    raise exception 'Set 1/word_families/2 has already been started by a student; its members must not change silently. Decide a version policy first.';
+  end if;
   delete from public.vocabulary_set_members where unit_number = 1 and pathway_id = 'word_families' and set_number = 1;
   insert into public.vocabulary_set_members (unit_number, pathway_id, set_number, position, occurrence_id) values
     (1, 'word_families', 1, 1, 'u1_02_preference'),
@@ -34,13 +37,6 @@ begin
     (1, 'word_families', 1, 8, 'u1_12_resent'),
     (1, 'word_families', 1, 9, 'u1_13_regret'),
     (1, 'word_families', 1, 10, 'u1_14_unfamiliar');
-end $$;
-
-do $$
-begin
-  if exists (select 1 from public.vocabulary_pathway_sets where unit_number = 1 and pathway_id = 'word_families' and set_number = 2) then
-    raise exception 'Set 1/word_families/2 has already been started by a student; its members must not change silently. Decide a version policy first.';
-  end if;
   delete from public.vocabulary_set_members where unit_number = 1 and pathway_id = 'word_families' and set_number = 2;
   insert into public.vocabulary_set_members (unit_number, pathway_id, set_number, position, occurrence_id) values
     (1, 'word_families', 2, 1, 'u1_16_opponent'),
