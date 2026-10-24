@@ -40,6 +40,27 @@ export function validateVocabularyItem(item = {}, { strict = true } = {}) {
       errorIf(errors, !Array.isArray(sense?.acceptedParaphrases), `${text(item.term) || 'Item'} accepted paraphrases must be an array.`);
       errorIf(errors, !Array.isArray(sense?.contextDependentParaphrases), `${text(item.term) || 'Item'} context-dependent paraphrases must be an array.`);
       errorIf(errors, !Array.isArray(sense?.misleadingDistractors), `${text(item.term) || 'Item'} distractors must be an array.`);
+      // Job 9 authored fields. Optional, but when present they must be usable: a short or repeated list is an error, never silently trimmed.
+      const label9 = text(item.term) || 'Item';
+      const distinct = list => new Set(array(list).map(value => text(value).toLocaleLowerCase('en'))).size;
+      if (sense?.wrongParaphrases != null) {
+        errorIf(errors, !Array.isArray(sense.wrongParaphrases) || sense.wrongParaphrases.length < 3 || distinct(sense.wrongParaphrases) !== sense.wrongParaphrases.length, `${label9} wrongParaphrases needs at least three distinct wrong meanings.`);
+        const right = new Set([text(sense.meaning), ...array(sense.acceptedParaphrases)].map(value => text(value).toLocaleLowerCase('en')));
+        errorIf(errors, array(sense.wrongParaphrases).some(value => right.has(text(value).toLocaleLowerCase('en'))), `${label9} a wrong paraphrase equals an accepted meaning.`);
+      }
+      if (sense?.situationDistractors != null) errorIf(errors, !Array.isArray(sense.situationDistractors) || sense.situationDistractors.length < 4 || distinct(sense.situationDistractors) !== sense.situationDistractors.length, `${label9} situationDistractors needs at least four distinct situations.`);
+      for (const [index, context] of array(sense?.masteryContexts).entries()) {
+        if (context?.wrongMeanings != null) errorIf(errors, !Array.isArray(context.wrongMeanings) || context.wrongMeanings.length < 3 || distinct(context.wrongMeanings) !== context.wrongMeanings.length || array(context.wrongMeanings).some(value => text(value).toLocaleLowerCase('en') === text(context.meaning).toLocaleLowerCase('en')), `${label9} mastery context ${index + 1} wrongMeanings needs three distinct meanings that differ from the answer.`);
+      }
+      if (sense?.masteryPassages != null) {
+        errorIf(errors, !Array.isArray(sense.masteryPassages), `${label9} masteryPassages must be an array.`);
+        for (const passage of array(sense.masteryPassages)) {
+          errorIf(errors, !text(passage?.passageId) || !text(passage?.contextId) || !text(passage?.answer), `${label9} a mastery passage needs passageId, contextId and answer.`);
+          errorIf(errors, (text(passage?.text).match(/____/g) ?? []).length !== 1, `${label9} a mastery passage needs exactly one blank (____).`);
+          errorIf(errors, (text(passage?.text).match(/[.!?](\s|$)/g) ?? []).length < 2, `${label9} a mastery passage must be at least two sentences, or it is just a gap-fill sentence.`);
+          errorIf(errors, text(passage?.text).toLocaleLowerCase('en').includes(text(passage?.answer).toLocaleLowerCase('en')), `${label9} a mastery passage shows its own answer.`);
+        }
+      }
       // Optional Word Families Mastery data. When present every row must be well formed; a malformed row is an error, never silently skipped.
       if (sense?.wordFamilyForms != null) {
         errorIf(errors, !Array.isArray(sense.wordFamilyForms), `${text(item.term) || 'Item'} wordFamilyForms must be an array.`);

@@ -67,3 +67,17 @@ test('generator: a Set whose members changed but that has no guard cannot be pro
     assert.match(sql, new RegExp(`vocabulary_pathway_sets where unit_number = ${unit} and pathway_id = '${pathway}' and set_number = ${set}`));
   }
 });
+
+test('the Unit 1 database sync SQL is derived from the canonical release: regenerating it changes nothing (run `node scripts/generate-unit1-sync-sql.mjs --write`)', async () => {
+  const { generatedChunks, outFile } = await import('../scripts/generate-unit1-sync-sql.mjs');
+  const chunks = generatedChunks();
+  assert.equal(chunks.length, 5);
+  for (const { number, text } of chunks) {
+    assert.equal(fs.readFileSync(outFile(number), 'utf8'), text, `sync chunk ${number} is stale`);
+    assert.match(text, /^-- Unit 1 content sync \(Job 9\)/);
+    assert.doesNotMatch(text.replace(/\$sx\$[\s\S]*?\$sx\$/g, ''), /\b(drop table|delete from|truncate)\b/i, 'upserts only');
+  }
+  // the server reads these fields from the published senses, so they must be in the sync
+  const all = chunks.map(c => c.text).join('\n');
+  for (const field of ['masteryPassages', 'wordFamilyForms', 'altExample', 'wrongMeanings', 'wrongParaphrases', 'situationDistractors']) assert.ok(all.includes(`\\"${field}\\"`) || all.includes(`"${field}"`), field);
+});
