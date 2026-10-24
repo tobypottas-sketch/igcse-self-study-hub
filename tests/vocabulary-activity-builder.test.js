@@ -53,7 +53,11 @@ function build(type, overrides = {}) {
 }
 
 test('builder constructs every approved 0511 activity with catalogue-aligned interaction metadata', () => {
-  for (const definition of ACTIVITY_TYPES.filter(candidate => candidate.retired !== true)) {
+  // The Job 8 stage-contract types need authored structures this small synthetic fixture does not have (two blankable gap sentences, a mastery
+  // sentence with a gloss, authored family forms, spelling errors, a second improve record). Their builders are proven on the real Unit 1
+  // release and on explicit fixtures in tests/vocabulary-job8-stage-contract.test.js.
+  const NEEDS_REAL_RELEASE = new Set(['gloss_in_context_type', 'type_in_passage', 'family_multi_form', 'upgrade_passage', 'spot_the_error', 'word_family_identify', 'precision_type_cued']);
+  for (const definition of ACTIVITY_TYPES.filter(candidate => candidate.retired !== true && !NEEDS_REAL_RELEASE.has(candidate.id))) {
     const activity = build(definition.id);
     assert.equal(activity.type, definition.id, definition.id); assert.equal(activity.responseMode, definition.responseMode, definition.id);
     assert.equal(activity.skillFamily, definition.skillFamily, definition.id); assert.deepEqual(activity.strands, definition.strands, definition.id);

@@ -40,6 +40,17 @@ export function validateVocabularyItem(item = {}, { strict = true } = {}) {
       errorIf(errors, !Array.isArray(sense?.acceptedParaphrases), `${text(item.term) || 'Item'} accepted paraphrases must be an array.`);
       errorIf(errors, !Array.isArray(sense?.contextDependentParaphrases), `${text(item.term) || 'Item'} context-dependent paraphrases must be an array.`);
       errorIf(errors, !Array.isArray(sense?.misleadingDistractors), `${text(item.term) || 'Item'} distractors must be an array.`);
+      // Optional Word Families Mastery data. When present every row must be well formed; a malformed row is an error, never silently skipped.
+      if (sense?.wordFamilyForms != null) {
+        errorIf(errors, !Array.isArray(sense.wordFamilyForms), `${text(item.term) || 'Item'} wordFamilyForms must be an array.`);
+        for (const row of array(sense.wordFamilyForms)) {
+          const label = `${text(item.term) || 'Item'} family form “${text(row?.form)}”`;
+          errorIf(errors, !text(row?.form), `${text(item.term) || 'Item'} has a family form without text.`);
+          errorIf(errors, !['noun','verb','adjective','adverb'].includes(row?.partOfSpeech), `${label} needs partOfSpeech noun, verb, adjective or adverb (authored, never inferred).`);
+          errorIf(errors, typeof row?.pedagogicallyUseful !== 'boolean', `${label} needs pedagogicallyUseful true or false.`);
+          errorIf(errors, !text(row?.example) || !new RegExp(`(^|[^A-Za-z])${text(row?.form).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}(?=$|[^A-Za-z])`, 'i').test(text(row?.example)), `${label} needs an example sentence that contains the form.`);
+        }
+      }
     }
   }
 

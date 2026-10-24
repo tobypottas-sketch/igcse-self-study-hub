@@ -81,17 +81,25 @@ test('unit 1: complete Sets derived from today\'s served words obey the rule for
   }
 });
 
-const byOcc = Object.fromEntries(unit1.occurrences.map(o => [o.occurrenceId, o]));
-const byItem = Object.fromEntries(unit1.items.map(i => [i.vocabularyId, i]));
-const wfServed = readiness.pathways.word_families.servedOccurrenceIds ?? [];
-const structured = wfServed.filter(id => (byItem[byOcc[id].vocabularyId]?.wordFamily ?? []).some(f => f && typeof f === 'object'));
-const withTwoOtherForms = wfServed.filter(id => (byItem[byOcc[id].vocabularyId]?.wordFamily ?? []).length >= 2).length;
+const authoring = readiness.authoring ?? {};
 
+// Architecture (Job 8): the data model now carries authored per-form records and readiness evaluates the locked complete-family rule.
+test('unit 1: Word Families Mastery eligibility is evaluated from the v2 data model and reported (eligible / ineligible / unknown)', () => {
+  for (const key of ['wordFamilyEligible', 'wordFamilyIneligible', 'wordFamilyUnknown', 'wordFamilyNoFamily', 'wordFamilyBlockedTerms']) assert.ok(key in authoring, key);
+  assert.equal(authoring.wordFamilyEligible + authoring.wordFamilyIneligible + authoring.wordFamilyUnknown + authoring.wordFamilyNoFamily, unit1.items.length);
+  assert.equal(authoring.wordFamilyBlockedTerms.length, authoring.wordFamilyIneligible + authoring.wordFamilyUnknown);
+});
+test('unit 1: Word Families is never offered Mastery or served as ready while no family is authored', () => {
+  const wf = readiness.pathways.word_families;
+  if (authoring.wordFamilyEligible < 10) assert.equal(wf.setCount, 0, 'no Set may be offered without enough Mastery-eligible families');
+});
+
+// Content (class B): authoring the per-form metadata for enough Unit 1 families.
 expectedFailure({
-  rule: 'Word Families Mastery eligibility is decided by the locked complete-family rule (3+ authentic, authored forms across 2+ parts of speech)',
-  today: `Unit 1 records wordFamily as a bare string list: ${structured.length} of ${wfServed.length} served Word Families words carry part of speech or authored-context linkage per form, so the locked rule cannot be evaluated for any of them (${withTwoOtherForms} would only pass a naive two-other-forms count)`,
-  turnsGreenWhen: 'Unit data records each family form as { form, partOfSpeech, authentic, authoredContext } (content authoring, a later job) and readiness gates Word Families Mastery on familyCompleteForMastery'
-}, 'unit 1: Word Families Mastery eligibility can be evaluated from the data model', () => assert.equal(structured.length, wfServed.length));
+  rule: 'Word Families is live for Unit 1 only when enough families are authored to pass the locked complete-family rule at Mastery',
+  today: `Unit 1 has ${authoring.wordFamilyEligible} of ${unit1.items.length} Mastery-eligible families (${authoring.wordFamilyUnknown} have no authored wordFamilyForms)`,
+  turnsGreenWhen: 'Teachers author sense.wordFamilyForms ({ form, partOfSpeech, example, pedagogicallyUseful }) for at least 20 words'
+}, 'unit 1: Word Families Mastery eligibility is authored for enough words to form Sets', () => assert.ok(authoring.wordFamilyEligible >= 20));
 
 test('production readiness exposes Set count and held-back words per pathway', () => {
   for (const p of Object.values(readiness.pathways)) {

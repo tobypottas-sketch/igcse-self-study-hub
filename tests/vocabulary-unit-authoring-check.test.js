@@ -13,13 +13,17 @@ const strip = item => ({ ...item, senses:item.senses.map(sense => Object.fromEnt
 const bare = { ...unit1, items:unit1.items.map(strip), activities:unit1.activities.filter(a => a.activityData?.taskType !== 'language_bank_context') };
 const pathway = (report, id) => report.pathways.find(row => row.pathwayId === id);
 
-test('Unit 1 passes the authoring check: structure valid, five pathways live, Paraphrasing short of idea records', () => {
+test('Unit 1 passes the authoring check: structure valid, four pathways live, Word Families short of authored families, Paraphrasing short of idea and phrase records', () => {
   const report = checkUnitAuthoring(unit1);
   assert.equal(report.publishable, true);
-  assert.deepEqual(report.pathways.filter(row => row.live).map(row => row.pathwayId), ['meaning','context','word_families','precision_use','spelling_recall']);
+  assert.deepEqual(report.pathways.filter(row => row.live).map(row => row.pathwayId), ['meaning','context','precision_use','spelling_recall']);
+  const families = pathway(report, 'word_families');
+  assert.equal(families.live, false);
+  assert.equal(families.stages.find(stage => stage.stage === 'mastery').shortBy, 20, 'Word Families Mastery needs 20 authored complete families (none are authored yet)');
+  assert.equal(families.atLeastMoreWords, 20);
   const paraphrasing = pathway(report, 'paraphrasing');
   assert.equal(paraphrasing.live, false);
-  assert.deepEqual(paraphrasing.diversity.map(entry => [entry.have, entry.need, entry.shortBy]), [[0, 10, 10]]);
+  assert.deepEqual(paraphrasing.diversity.map(entry => [entry.have, entry.need, entry.shortBy]), [[0, 10, 10], [0, 10, 10]]);
   assert.equal(paraphrasing.atLeastMoreWords, 10);
 });
 
@@ -37,27 +41,30 @@ test('without published reviewed content the check names exactly what each stric
 test('the spelling shortfall is calculated from the real words, not a fixed quota', () => {
   const report = checkUnitAuthoring(bare);
   const spelling = pathway(report, 'spelling_recall');
-  const recognise = spelling.stages.find(stage => stage.stage === 'recognise');
-  // 90% of 50 = 45 words must be ready; the generator covers 42, so 3 more are needed even though 8 words lack coverage.
+  const stage = id => spelling.stages.find(row => row.stage === id);
+  const recognise = stage('recognise');
+  // 90% of 50 = 45 words must be ready. The generator covers 42 for the choice stage, so 3 more are needed even though 8 words lack coverage...
   assert.equal(recognise.need, 45);
   assert.equal(recognise.shortBy, 45 - recognise.have);
-  const lacking = recognise.blockers.reduce((total, entry) => total + entry.words, 0);
-  assert.ok(lacking > recognise.shortBy, 'more words lack coverage than the minimum requires');
-  assert.equal(spelling.atLeastMoreWords, recognise.shortBy);
+  assert.ok(recognise.blockers.reduce((total, entry) => total + entry.words, 0) > recognise.shortBy, 'more words lack coverage than the minimum requires');
+  // ...but Spot the Error (Match) needs an AUTHORED misspelling for every word it serves (the server verifies the answer), so with none authored it needs all 45.
+  assert.equal(stage('match').have, 0);
+  assert.equal(stage('match').shortBy, 45);
+  assert.equal(spelling.atLeastMoreWords, 45);
 
-  // Author reviewed spellings for words it named, and the requirement shrinks by exactly that many, down to none.
-  const named = recognise.blockers.flatMap(entry => entry.terms);
+  // Author reviewed spellings for N words and every requirement shrinks by exactly N, down to none.
   const withSpellings = count => ({
     ...bare,
-    items:bare.items.map(item => named.slice(0, count).includes(item.term)
+    items:bare.items.map((item, index) => index < count
       ? { ...item, senses:item.senses.map(sense => ({ ...sense, spellingErrors:['zxqa one', 'zxqa two', 'zxqa three'].map(value => value.replace(' ', item.term.slice(0, 2))) })) }
       : item)
   });
   const after = n => pathway(checkUnitAuthoring(withSpellings(n)), 'spelling_recall');
-  assert.equal(after(1).stages.find(stage => stage.stage === 'recognise').shortBy, recognise.shortBy - 1);
-  assert.equal(after(recognise.shortBy).live, true);
-  assert.equal(after(recognise.shortBy).atLeastMoreWords, 0);
+  assert.equal(after(10).stages.find(row => row.stage === 'match').shortBy, 35);
+  assert.equal(after(45).live, true);
+  assert.equal(after(45).atLeastMoreWords, 0);
 });
+
 
 test('a malformed reviewed row is reported and blocks that word instead of being trusted', () => {
   const items = unit1.items.map(item => {

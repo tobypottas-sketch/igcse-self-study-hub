@@ -24,7 +24,9 @@ const EXACT_CONTEXT_TYPES = new Set([
   'definition_to_word','drag_definition_word','spell_word',
   // Recall the Word tests recall of the target headword; a synonym is not the word.
   'type_word_from_definition',
-  'gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence'
+  'gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence',
+  // Stage Contract v2 typed Mastery/Recall tasks: the surface form(s) the sentence needs, never a paraphrase.
+  'gloss_in_context_type','type_in_passage','precision_type_cued','upgrade_passage','family_multi_form','word_family_identify','spot_the_error'
 ]);
 const INACCURATE_SELECTION_TYPES = new Set(['identify_inaccurate_paraphrase','spot_meaning_change']);
 const EVIDENCE_STRENGTH = Object.freeze({ light:1, medium:2, strong:3, very_strong:4 });
@@ -192,6 +194,25 @@ export function normalizeVocabularyAnswer(value) {
     .replace(/\s+/g, ' ');
 }
 
+
+// ---- multi-slot typed answers (family_multi_form, upgrade_passage, type_in_passage) ----
+export function encodeSlotAnswer(values) { return JSON.stringify((Array.isArray(values) ? values : []).map(value => String(value ?? ''))); }
+export function decodeSlotAnswer(raw) {
+  try {
+    const parsed = JSON.parse(String(raw ?? ''));
+    return Array.isArray(parsed) && parsed.every(value => typeof value === 'string') ? parsed : null;
+  } catch { return null; }
+}
+// All required slots correct = correct; any wrong or missing = incorrect. No partial visible credit. `slots` keeps the per-slot
+// result for hidden diagnostics only.
+export function markSlotAnswer(raw, slotAnswers) {
+  const expected = (Array.isArray(slotAnswers) ? slotAnswers : []).map(slot => (Array.isArray(slot) ? slot : []).map(normalizeVocabularyAnswer).filter(Boolean));
+  const given = decodeSlotAnswer(raw);
+  if (!expected.length || !given || given.length !== expected.length) return { correct: false, slots: expected.map(() => false) };
+  const slots = expected.map((accepted, index) => accepted.includes(normalizeVocabularyAnswer(given[index])));
+  return { correct: slots.every(Boolean), slots };
+}
+
 function semanticDistractorMap(context = {}) {
   const map = new Map();
   for (const distractor of Array.isArray(context.distractors) ? context.distractors : []) {
@@ -202,7 +223,8 @@ function semanticDistractorMap(context = {}) {
 }
 
 function defaultStrandsForQuestionType(questionType) {
-  if (['improve_vocabulary','word_family_switch','word_family_choice','gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence'].includes(questionType)) return ['context','recognition'];
+  if (['improve_vocabulary','word_family_switch','word_family_choice','gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence','type_in_passage','precision_type_cued','upgrade_passage','family_multi_form'].includes(questionType)) return ['context','recognition'];
+  if (questionType === 'gloss_in_context_type') return ['context','meaning'];
   if (['definition_to_word','word_definition_match','drag_word_definition','drag_definition_word'].includes(questionType)) return ['meaning','recognition'];
   if (questionType === 'spell_word') return ['recognition','meaning'];
   if (['produce_paraphrase','use_target','replace_phrase','rewrite_phrase','rewrite_idea','explain_another_way'].includes(questionType)) return ['production'];
@@ -259,6 +281,16 @@ export function spotMeaningChangeMarking(data = {}, activityVariantId = null) {
 }
 
 export function markCuratedAnswer({ item = {}, sense = {}, context = {}, questionType, rawAnswer }) {
+  if (Array.isArray(context.slotAnswers)) {
+    // Multi-slot item: the visible item is correct only when EVERY slot is correct. No partial visible credit.
+    const slotResult = markSlotAnswer(rawAnswer, context.slotAnswers);
+    const slotStrands = defaultStrandsForQuestionType(questionType);
+    return {
+      correct: slotResult.correct, normalizedAnswer: normalizeVocabularyAnswer(rawAnswer), misconceptionCategory: slotResult.correct ? null : 'retrieval_failure',
+      slots: slotResult.slots,
+      evidence: { strand: slotStrands[0], strands: slotStrands, correct: slotResult.correct, contextId: context.contextId ?? null, activityContentId: context.activityContentId ?? null, questionType: questionType ?? null, activityType: questionType ?? null, misconceptionCategory: slotResult.correct ? null : 'retrieval_failure' }
+    };
+  }
   const normalizedAnswer = normalizeVocabularyAnswer(rawAnswer);
   const accepted = new Set();
   const exactContextOnly = EXACT_CONTEXT_TYPES.has(questionType);

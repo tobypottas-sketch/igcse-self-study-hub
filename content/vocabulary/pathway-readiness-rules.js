@@ -39,7 +39,7 @@ export function stageMinimum(pathwayId, stageId, expectedWords) {
 // shows how much of that content is reviewed.
 export const STRICT_REVIEW_QUESTION_TYPES = Object.freeze([
   'which_situation_fits',  // Meaning Apply
-  'meaning_in_context',    // Meaning Mastery
+  'meaning_in_context',    // Meaning Apply (Job 8: Meaning Mastery is now the typed gloss_in_context_type)
   'choose_word_sentence',  // Context Recognise
   'context_sentence_match',// Context Match
   'gap_fill_bank',         // Context Apply

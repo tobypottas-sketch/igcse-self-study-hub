@@ -28,8 +28,11 @@ test('missing approved rungs use dedicated operations rather than disguising unr
   assert.ok(activityTypesForPathwayStage('context','match').includes('context_sentence_match'));
   assert.ok(activityTypesForPathwayStage('word_families','match').includes('word_family_match'));
   assert.ok(activityTypesForPathwayStage('precision_use','match').includes('precision_match'));
-  assert.deepEqual(activityTypesForPathwayStage('precision_use','mastery'),['improve_vocabulary'],'Precision Mastery is typed precision production with no clue');
+  assert.deepEqual(activityTypesForPathwayStage('precision_use','mastery'),['upgrade_passage'],'Precision Mastery is an unsupported typed passage upgrade');
+  assert.deepEqual(activityTypesForPathwayStage('precision_use','apply'),['improve_vocabulary']);
+  assert.deepEqual(activityTypesForPathwayStage('precision_use','recall'),['precision_type_cued']);
   assert.ok(activityTypesForPathwayStage('spelling_recall','recognise').includes('spelling_choice'));
-  assert.ok(activityTypesForPathwayStage('spelling_recall','match').includes('spelling_cue_match'));
+  assert.ok(activityTypesForPathwayStage('spelling_recall','match').includes('spot_the_error'));
+  assert.ok(!activityTypesForPathwayStage('spelling_recall','match').includes('spelling_cue_match'),'retired');
   assert.ok(activityTypesForPathwayStage('spelling_recall','apply').includes('spelling_rebuild'));
 });

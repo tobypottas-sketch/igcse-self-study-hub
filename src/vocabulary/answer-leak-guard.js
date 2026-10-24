@@ -4,9 +4,9 @@ import { markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-e
 // student an answer that the marker would accept. This module only inspects a built activity; it never
 // changes marking, evidence or progression.
 
-export const TYPED_RESPONSE_MODES = Object.freeze(new Set(['text','spelling']));
+export const TYPED_RESPONSE_MODES = Object.freeze(new Set(['text','spelling','slots']));
 // Student-visible text fields on built activities. Option lists, tiles and ids are deliberately excluded.
-const VISIBLE_FIELDS = Object.freeze(['prompt','sourceText','sourcePhrase','sourceIdea','matchCue','cue','hint','clue','exampleText']);
+const VISIBLE_FIELDS = Object.freeze(['prompt','sourceText','sourcePhrase','sourceIdea','matchCue','cue','hint','clue','exampleText','gloss']);
 const MAX_WINDOW_WORDS = 10;
 
 function text(value) { return String(value ?? '').trim(); }
@@ -58,7 +58,11 @@ export function acceptedAnswersForActivity(activity, sense = {}) {
 }
 
 function visibleTexts(activity) {
-  return VISIBLE_FIELDS.map(field => [field,text(activity?.[field])]).filter(([,value]) => value);
+  const rows = VISIBLE_FIELDS.map(field => [field,text(activity?.[field])]).filter(([,value]) => value);
+  for (const [index,slot] of array(activity?.slots).entries()) {
+    for (const field of ['label','sourceText']) { const value = text(slot?.[field]); if (value) rows.push([`slots[${index}].${field}`,value]); }
+  }
+  return rows;
 }
 
 // Returns null when safe, otherwise { field, answer } describing the first visible field that shows an

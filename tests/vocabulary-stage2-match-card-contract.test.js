@@ -61,8 +61,15 @@ test('Word Family Match exposes same-family forms through the Match Card contrac
   assert.ok(question.matchOptions.every(value => family.has(value.toLowerCase())));
 });
 
-test('Spelling Match exposes all spelling variants simultaneously', () => {
-  const question = build('spelling_cue_match');
-  assertMatchCard(question,'spelling_visual_discrimination');
-  assert.equal(question.matchCue,target.coreMeaning);
+test('Spelling Match (Spot the Error) shows four spellings at once, exactly one of them an authored misspelling', () => {
+  const authored = { ...target, senses:[{ ...target.senses[0], spellingErrors:['preferance', 'prefference', 'preferrence'] }] };
+  const question = buildActivity({ activityType:'spot_the_error', occurrence, item:authored, contexts, unitItems, unitActivities, mastery, readinessStage:'building', seed:'stage2:spot_the_error' });
+  assert.equal(question.responseMode,'matching');
+  const shown = (question.pairs ?? []).map(pair => pair.definition);
+  assert.equal(shown.length,4);
+  assert.equal(new Set(shown).size,4);
+  assert.equal(shown.filter(value => authored.senses[0].spellingErrors.includes(value)).length,1, 'exactly one authored misspelling');
+  assert.ok(shown.includes(question.markingReference.acceptedAnswers[0]));
+  assert.throws(() => buildActivity({ activityType:'spot_the_error', occurrence, item:target, contexts, unitItems, unitActivities, mastery, readinessStage:'building', seed:'x' }), /authored/i, 'no authored misspelling, no activity (the server could not verify a generated one)');
+  assert.throws(() => build('spelling_cue_match'), /unavailable/i, 'spelling_cue_match is retired');
 });

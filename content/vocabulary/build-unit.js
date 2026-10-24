@@ -119,6 +119,11 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
     const gapRows = reviewedGapRows(entry, occurrenceId, gapContextIds);
     const situationDistractors = array(entry.situationDistractors).map(text);
     const spellingErrors = array(object(lexicalSpelling)[vocabularyId]).map(text).filter(Boolean);
+    // Word Families Mastery data (Job 8): authored per-form facts, passed through untouched. NEVER derived from `wordFamily` strings.
+    const wordFamilyForms = array(entry.wordFamilyForms).map(row => ({
+      form:text(row?.form), partOfSpeech:text(row?.partOfSpeech), example:text(row?.example), pedagogicallyUseful:row?.pedagogicallyUseful === true,
+      ...(text(row?.note) ? { note:text(row.note) } : {})
+    })).filter(row => row.form);
     const sense = {
       senseId,
       meaning:text(entry.meaning),
@@ -127,6 +132,7 @@ export function buildCuratedUnit({ unitNumber, unitTitle, status = 'draft', sour
       ...(situationDistractors.length ? { situationDistractors } : {}),
       ...(gapRows.length ? { gapDistractors:gapRows } : {}),
       ...(spellingErrors.length ? { spellingErrors } : {}),
+      ...(wordFamilyForms.length ? { wordFamilyForms } : {}),
       contextDependentParaphrases:array(entry.contextDependentParaphrases),
       misleadingDistractors:distractors,
       ...(Object.keys(grammarForms).length ? { grammarForms:{ ...grammarForms } } : {}),

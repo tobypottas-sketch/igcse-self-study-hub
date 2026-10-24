@@ -142,7 +142,7 @@ test('the engine holds no reviewed content of its own: a word published without 
 
 test('Unit 1 published with its reviewed data behaves exactly as before the migration', () => {
   const readiness = evaluateUnitReadiness({ content:unitContent });
-  assert.equal(Object.values(readiness.pathways).filter(row => row.live).length, 5);
+  assert.equal(Object.values(readiness.pathways).filter(row => row.live).length, 4);
   const recognise = planPathwayQuestion({ pathwayId:'context', stageId:'recognise', content:unitContent, target:unit1.occurrences[5], seed:'pin' }).question;
   assert.equal(recognise.distractorSource, DISTRACTOR_SOURCE.REVIEWED);
   for (const row of Object.values(readiness.pathways)) assert.equal(Object.values(row.stageReview).reduce((total, stage) => total + stage.unreviewed, 0), 0);
@@ -155,7 +155,7 @@ test('generated semantic fallback does not count toward strict readiness; safe s
   const meaning = stageCounts(readiness, 'meaning');
   const context = stageCounts(readiness, 'context');
   assert.equal(meaning.apply, 0, 'Meaning Apply needs reviewed wrong situations');
-  assert.equal(meaning.mastery, 50, 'Meaning Mastery rests on authored wrong meanings, which Unit 1 data carries on the sense');
+  assert.equal(meaning.mastery, 47, 'Meaning Mastery is a typed gloss task that needs two authored mastery sentences whose glosses do not expose the word; historic (none) and competitor (one) are withheld');
   assert.equal(context.recognise, 0);
   assert.equal(context.match, 0);
   assert.equal(context.apply, 0);
@@ -165,7 +165,7 @@ test('generated semantic fallback does not count toward strict readiness; safe s
   assert.equal(readiness.pathways.meaning.reason, 'stage_below_minimum');
   // lenient content still counts: spelling uses generated plausible misspellings where the generator can make three, so every
   // spelling stage that needs no wrong spellings is fully ready, and the choice stages are ready for the words it can cover.
-  assert.deepEqual(stageCounts(readiness, 'spelling_recall'), { recognise:42, match:42, apply:50, recall:50, mastery:50 });
+  assert.deepEqual(stageCounts(readiness, 'spelling_recall'), { recognise:42, match:0, apply:50, recall:50, mastery:50 });   // Spot the Error needs an AUTHORED misspelling (the server verifies it); generated ones only feed the choice stages
   // the teacher can see why
   const report = buildReadinessReport({ readiness, publishedWords:50 });
   const contextRow = report.rows.find(row => row.pathwayId === 'context');
@@ -284,20 +284,22 @@ test('reviewed gap rows are keyed by context id, so the same word or sentence in
 });
 
 // ---- 8. Unit 1 readiness is unchanged -----------------------------------------------------------------------------------------
-test('Unit 1 readiness after the migration: five pathways live, Paraphrasing locked, same counts', () => {
+test('Unit 1 readiness after the migration: four pathways live (Word Families awaits authored families), Paraphrasing locked', () => {
   const readiness = evaluateUnitReadiness({ content:unitContent });
   const live = Object.fromEntries(Object.entries(readiness.pathways).map(([id, row]) => [id, row.live]));
-  assert.deepEqual(live, { meaning:true, context:true, word_families:true, paraphrasing:false, precision_use:true, spelling_recall:true });
-  assert.deepEqual(stageCounts(readiness, 'meaning'), { recognise:50, match:48, apply:50, recall:50, mastery:50 });
-  assert.deepEqual(stageCounts(readiness, 'context'), { recognise:48, match:50, apply:48, recall:48, mastery:48 });
-  assert.deepEqual(stageCounts(readiness, 'word_families'), { recognise:37, match:37, apply:37, recall:37, mastery:37 });
-  assert.deepEqual(stageCounts(readiness, 'paraphrasing'), { recognise:24, match:12, apply:24, recall:12, mastery:24 });
+  assert.deepEqual(live, { meaning:true, context:true, word_families:false, paraphrasing:false, precision_use:true, spelling_recall:true });
+  assert.deepEqual(stageCounts(readiness, 'meaning'), { recognise:50, match:48, apply:50, recall:50, mastery:47 });
+  assert.deepEqual(stageCounts(readiness, 'context'), { recognise:48, match:50, apply:48, recall:48, mastery:50 });
+  assert.deepEqual(stageCounts(readiness, 'word_families'), { recognise:37, match:37, apply:37, recall:37, mastery:0 });
+  assert.deepEqual(stageCounts(readiness, 'paraphrasing'), { recognise:12, match:12, apply:24, recall:12, mastery:24 });
   assert.deepEqual(stageCounts(readiness, 'precision_use'), { recognise:50, match:50, apply:50, recall:50, mastery:50 });
   assert.deepEqual(stageCounts(readiness, 'spelling_recall'), { recognise:50, match:50, apply:50, recall:50, mastery:50 });
-  assert.equal(readiness.pathways.meaning.servedCount, 48);
+  assert.equal(readiness.pathways.meaning.servedCount, 45);
   assert.equal(readiness.pathways.context.servedCount, 48);
-  assert.equal(readiness.pathways.paraphrasing.reason, 'diversity_below_minimum');
-  assert.deepEqual(readiness.authoring, { gapSentences:182, gapSentencesReviewed:182, gapMalformed:0, situationWordsReviewed:50, situationWordsMalformed:0, words:50 });
+  assert.equal(readiness.pathways.paraphrasing.reason, 'stage_below_minimum');
+  const { wordFamilyBlockedTerms, ...authoredCounts } = readiness.authoring;
+  assert.deepEqual(authoredCounts, { gapSentences:182, gapSentencesReviewed:182, gapMalformed:0, situationWordsReviewed:50, situationWordsMalformed:0, words:50, wordFamilyEligible:0, wordFamilyIneligible:0, wordFamilyUnknown:37, wordFamilyNoFamily:13 });
+  assert.equal(wordFamilyBlockedTerms.length, 37);
   for (const row of Object.values(readiness.pathways)) assert.equal(Object.values(row.stageReview).reduce((total, stage) => total + stage.unreviewed, 0), 0);
 });
 

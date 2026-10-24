@@ -12,7 +12,8 @@ const QUESTION_TYPES = new Set([
   'definition_to_word','word_definition_match','drag_word_definition','drag_definition_word',
   'gap_fill_bank','drag_word_sentence','type_missing_word','spell_word','choose_word_sentence','word_family_choice',
   'type_word_from_definition','context_sentence_match','word_family_match','precision_choice','precision_match',
-  'spelling_choice','spelling_cue_match','spelling_rebuild','spell_in_context'
+  'spelling_choice','spelling_cue_match','spelling_rebuild','spell_in_context',
+  'gloss_in_context_type','type_in_passage','word_family_identify','family_multi_form','precision_type_cued','upgrade_passage','spot_the_error'
 ]);
 const RETIRED_QUESTION_TYPES = new Set(['correct_usage','collocation_builder']);
 const STRANDS = new Set(['meaning','recognition','context','paraphrasing','production']);
@@ -26,7 +27,8 @@ const SUPPORT_LEVELS = new Set(['none','light','major']);
 const CONTENT_SOURCES = new Set(['context','unit_activity','item']);
 const ITEM_QUESTION_TYPES = new Set([
   'definition_to_word','word_definition_match','drag_word_definition','drag_definition_word','spell_word',
-  'type_word_from_definition','spelling_choice','spelling_cue_match','spelling_rebuild'
+  'type_word_from_definition','spelling_choice','spelling_cue_match','spelling_rebuild',
+  'word_family_identify','family_multi_form','spot_the_error'
 ]);
 const LANGUAGE_BANK_CONTEXT_QUESTION_TYPES = [
   'gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence','context_sentence_match'
@@ -34,21 +36,22 @@ const LANGUAGE_BANK_CONTEXT_QUESTION_TYPES = [
 const WRITING_TASK_FOR_QUESTION = Object.freeze({
   word_family_switch:'word_family', word_family_choice:'word_family', word_family_match:'word_family',
   improve_vocabulary:'improve_vocabulary', precision_choice:'improve_vocabulary', precision_match:'improve_vocabulary',
+  precision_type_cued:'improve_vocabulary', upgrade_passage:'improve_vocabulary',
   ...Object.fromEntries(LANGUAGE_BANK_CONTEXT_QUESTION_TYPES.map(questionType => [questionType,'language_bank_context']))
 });
 const UNIT_ACTIVITY_QUESTION_TYPES = Object.freeze({
   phrase_set:new Set(['phrase_match','build_paraphrase','complete_paraphrase','rewrite_phrase','explain_another_way']),
   idea_set:new Set(['same_idea','spot_meaning_change','build_same_idea','rewrite_idea','explain_another_way']),
   question_text:new Set(['question_text_bridge','find_evidence']),
-  writing_set:new Set(['word_family_switch','word_family_choice','word_family_match','improve_vocabulary','precision_choice','precision_match',...LANGUAGE_BANK_CONTEXT_QUESTION_TYPES])
+  writing_set:new Set(['word_family_switch','word_family_choice','word_family_match','improve_vocabulary','precision_choice','precision_match','precision_type_cued','upgrade_passage',...LANGUAGE_BANK_CONTEXT_QUESTION_TYPES])
 });
 const RETRIEVAL_CONTEXT_TYPES = ['gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence','context_sentence_match','spell_in_context','spelling_choice'];
 const CONTEXT_QUESTION_TYPES = Object.freeze({
-  meaning_context:new Set(['meaning_match','meaning_in_context']),
-  paraphrase_context:new Set(['meaning_in_context','which_situation_fits',...RETRIEVAL_CONTEXT_TYPES]),
+  meaning_context:new Set(['meaning_match','meaning_in_context','gloss_in_context_type']),
+  paraphrase_context:new Set(['meaning_in_context','gloss_in_context_type','which_situation_fits',...RETRIEVAL_CONTEXT_TYPES]),
   production_context:new Set(['which_situation_fits',...RETRIEVAL_CONTEXT_TYPES]),
   // Curated gap-fill sentences are written with the exact target form and store that form as the accepted answer.
-  gap_fill:new Set(RETRIEVAL_CONTEXT_TYPES)
+  gap_fill:new Set([...RETRIEVAL_CONTEXT_TYPES,'type_in_passage'])
 });
 
 function id(value,label){const text=String(value??'').trim();if(!ID_RE.test(text))throw new Error(`${label} is invalid.`);return text;}
@@ -99,7 +102,7 @@ export function validateVocabularyAttempt(value={}){
   if(inferredSource==='context'&&!contextId)throw new Error('Context ID is required for context content.');
   if(inferredSource==='unit_activity'&&!activityContentId)throw new Error('Activity content ID is required for unit activity content.');
   if(inferredSource==='item'){if(!ITEM_QUESTION_TYPES.has(value.questionType))throw new Error('Question type is invalid for item content.');if(contextId||activityContentId)throw new Error('Item content cannot include context or activity content IDs.');}
-  if(activityVariantId&&inferredSource!=='unit_activity')throw new Error('Activity variant ID requires unit activity content.');
+  if(activityVariantId&&inferredSource!=='unit_activity'&&!(inferredSource==='item'&&value.questionType==='family_multi_form'))throw new Error('Activity variant ID requires unit activity content.');
   if(value.evidenceStrength!=null&&!EVIDENCE_STRENGTHS.has(value.evidenceStrength))throw new Error('Evidence strength is invalid.');
   if(value.supportLevel!=null&&!SUPPORT_LEVELS.has(value.supportLevel))throw new Error('Support level is invalid.');
   const pathway=validatePathwayCoordinates(value);
@@ -112,7 +115,7 @@ export function assertWritingTaskMatchesQuestionType(taskType,questionType){cons
 export function strandForQuestionType(questionType){
   if(['produce_paraphrase','use_target','replace_phrase','rewrite_phrase','rewrite_idea','explain_another_way','collocation_builder'].includes(questionType))return'production';
   if(['build_paraphrase','complete_paraphrase','build_same_idea','same_idea','spot_meaning_change','phrase_match'].includes(questionType))return'paraphrasing';
-  if(['context_inference','question_text_bridge','context_gap_fill','mini_mixed_check','find_evidence','meaning_in_context','correct_usage','which_situation_fits','word_family_switch','word_family_choice','word_family_match','improve_vocabulary','precision_choice','precision_match','gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence','context_sentence_match'].includes(questionType))return'context';
+  if(['context_inference','question_text_bridge','context_gap_fill','mini_mixed_check','find_evidence','meaning_in_context','correct_usage','which_situation_fits','word_family_switch','word_family_choice','word_family_match','improve_vocabulary','precision_choice','precision_match','gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence','context_sentence_match','gloss_in_context_type','type_in_passage','family_multi_form','precision_type_cued','upgrade_passage'].includes(questionType))return'context';
   if(questionType==='paraphrase_match')return'paraphrasing';
   if(['meaning_match','definition_to_word','word_definition_match','drag_word_definition','drag_definition_word','type_word_from_definition'].includes(questionType))return'meaning';
   return'recognition';

@@ -18,7 +18,9 @@ const NEW = (mode, extra = {}) => T(mode, { status: 'new', ...extra });
 export const ACTIVITY_REGISTRY = Object.freeze({
   // Meaning
   definition_to_word: T('select'), meaning_match: T('select', { status: 'redesign' }),
-  word_definition_match: T('set_discrimination'), drag_word_definition: T('set_discrimination', { status: 'moved' }), drag_definition_word: T('set_discrimination', { status: 'moved' }),
+  word_definition_match: T('set_discrimination'),
+  // Job 8 owner ruling (P2): the Situation → Meaning/Word drags are not on the Meaning ladder; they stay as dormant legacy types.
+  drag_word_definition: T('supported_context', { status: 'retired' }), drag_definition_word: T('supported_context', { status: 'retired' }),
   which_situation_fits: T('supported_context', { status: 'redesign' }), meaning_in_context: T('supported_context', { status: 'moved' }),
   type_word_from_definition: T('typed_cued'), gloss_in_context_type: NEW('typed_transfer'),
   // Context
@@ -47,7 +49,7 @@ export const contractName = type => LEGACY_ALIASES[type] ?? type;
 
 // The locked ladder (STAGE_CONTRACT.md, "LOCKED STAGE CONTRACT").
 const LADDER = Object.freeze({
-  meaning: { recognise: ['definition_to_word', 'meaning_match'], match: ['word_definition_match', 'drag_word_definition', 'drag_definition_word'], apply: ['which_situation_fits', 'meaning_in_context'], recall: ['type_word_from_definition'], mastery: ['gloss_in_context_type'] },
+  meaning: { recognise: ['definition_to_word', 'meaning_match'], match: ['word_definition_match'], apply: ['which_situation_fits', 'meaning_in_context'], recall: ['type_word_from_definition'], mastery: ['gloss_in_context_type'] },
   context: { recognise: ['choose_word_sentence'], match: ['context_sentence_match'], apply: ['gap_fill_bank', 'drag_word_sentence'], recall: ['type_missing_word'], mastery: ['type_in_passage'] },
   word_families: { recognise: ['word_family_identify'], match: ['word_family_match'], apply: ['word_family_choice'], recall: ['word_family_switch'], mastery: ['family_multi_form'] },
   paraphrasing: { recognise: ['same_idea'], match: ['phrase_match'], apply: ['build_paraphrase', 'build_same_idea'], recall: ['complete_paraphrase'], mastery: ['rewrite_phrase', 'rewrite_idea'] },

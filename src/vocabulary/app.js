@@ -30,7 +30,7 @@ import { acquireMission } from './mission-lifecycle.js';
 import { playCompletionSequence } from './completion-sequence.js';
 import { playCue, setSoundEnabled, soundEnabled } from './sound.js';
 import { matchKeyTarget, renderMatchSet, repaintMatchSet } from './match-set-view.js';
-import { applyEvidence, markCuratedAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
+import { applyEvidence, markCuratedAnswer, encodeSlotAnswer } from '../../supabase/functions/_shared/vocabulary-engine.js';
 
 const root = document.getElementById('vocabularyApp');
 const state = {
@@ -570,7 +570,7 @@ function nextQuestion() {
 function renderCurrentQuestion(feedback = null) { if (!state.current) return; const currentMastery = state.globalMastery[state.current.target.vocabularyId] ?? freshMastery(); renderVocabularyQuestion(root, { unitNumber:state.currentUnitNumber, unitTitle:state.current.target.unitTitle, question:state.current.question, term:state.current.item.term, sessionLabel:remainingLabel(), learningStage:deriveLearningStage(currentMastery), feedback, retry:state.current.retry, support:state.current.support, matchSet:state.current.matchSet ?? null, matchState:state.current.matchState ?? null, streak:state.streak ?? 0, sessionScore:state.session?.summary?.strengthened ?? 0, missionSize:state.session?.mode === 'adaptive' ? missionProgress(state.session).total : null }); decoratePreview(); if (state.attempts?.blocked) renderSyncWarning(); }
 function markVocabularyAttemptLocally(current, rawAnswer) {
   const sense = Array.isArray(current.item?.senses) ? current.item.senses.find(candidate => candidate?.senseId === current.target.senseId) : null; if (!sense) throw new Error('This vocabulary question is missing its marking data.');
-  const reference = current.question.markingReference ?? {}; const markingContext = { contextId:current.context?.contextId ?? current.question.contentId, activityContentId:current.activityRecord?.activityContentId ?? null, acceptedAnswers:reference.acceptedAnswers ?? [], distractors:reference.distractors ?? [] };
+  const reference = current.question.markingReference ?? {}; const markingContext = { contextId:current.context?.contextId ?? current.question.contentId, activityContentId:current.activityRecord?.activityContentId ?? null, acceptedAnswers:reference.acceptedAnswers ?? [], distractors:reference.distractors ?? [], ...(Array.isArray(reference.slotAnswers) ? { slotAnswers:reference.slotAnswers } : {}) };
   const marked = markCuratedAnswer({ item:{ vocabularyId:current.item.vocabularyId }, sense, context:markingContext, questionType:current.question.type, rawAnswer });
   return { ...marked, strand:current.question.strands?.[0], strands:current.question.strands ?? marked.evidence?.strands ?? [] };
 }
@@ -651,6 +651,13 @@ function handleAnswer(form, providedAnswer = null) {
     if (checked.primaryCorrect && !checked.allCorrect) { paintMatchSet(current); return; }
     providedAnswer = checked.rawAnswer;
   }
+  if (current.question.responseMode === 'slots' && providedAnswer == null) {
+    // Multi-slot typed Mastery: every box must be filled, then the boxes travel as ONE answer. No partial credit exists downstream.
+    const boxes = [...(form?.querySelectorAll?.('[data-slot-input]') ?? [])].map(box => String(box.value ?? '').trim());
+    if (!boxes.length || boxes.some(value => !value)) { const notice = form?.querySelector?.('[data-slot-notice]'); if (notice) notice.textContent = 'Type an answer in every gap before checking.'; return; }
+    const canonical = Array.isArray(current.question.slotCanonicalIndex) ? boxes.reduce((out, value, index) => { out[current.question.slotCanonicalIndex[index]] = value; return out; }, []) : boxes;
+    providedAnswer = encodeSlotAnswer(canonical);
+  }
   const rawAnswer = providedAnswer != null ? String(providedAnswer) : (input?.value ?? '');
   if (current.question.responseMode === 'tiles' && !form?.querySelector?.('[data-tile-answer].is-used')) {
     // Spelling & Recall: validation only. Nothing is marked, saved or counted; the message sits in an alert region that the
@@ -661,6 +668,7 @@ function handleAnswer(form, providedAnswer = null) {
     if (build) build.textContent = 'Choose at least one tile before checking.';
     return;
   }
+  if (current.question.stageVariant === 'missing-letters' && providedAnswer == null && !String(input?.value ?? '').trim()) { const notice = form?.querySelector?.('[data-tile-validation]'); if (notice) notice.textContent = 'Fill every missing letter before checking your answer.'; return; }
   const previousGlobal = state.globalMastery[current.target.vocabularyId] ?? freshMastery(); const previousGlobalStatus = previousGlobal.status ?? 'new'; const review = Boolean(previousGlobal.reviewDueAt && new Date(previousGlobal.reviewDueAt).getTime() <= Date.now());
   // supportLevel feeds evidence exactly as before. declaredSupportLevel is what the browser tells the server about the question it served: a lower-stage recovery question is temporary support, as the pathway planner declared.
   const retrySupport = current.retry ? (current.support?.supportLevel ?? 'light') : 'none';
@@ -860,7 +868,7 @@ root?.addEventListener('click', event => {
   const choice = event.target?.closest?.('[data-choice-answer], [data-evidence-answer]');
   if (choice) { const form = choice.closest?.('[data-form="vocabulary-answer"]'); const answer = choice.dataset.choiceAnswer ?? choice.dataset.evidenceAnswer; try { handleAnswer(form, answer); } catch (error) { renderVocabularyError(root, error instanceof Error ? error.message : 'Unable to check that answer.'); } return; }
   const tile = event.target?.closest?.('[data-tile-answer]');
-  if (tile) { const form = tile.closest?.('[data-form="vocabulary-answer"]'); const input = form?.querySelector?.('input[name="answer"]'); const build = form?.querySelector?.('[data-tile-build]'); if (!input || tile.disabled) return; const parts = String(input.value ?? '').trim().split(/\s+/).filter(Boolean); parts.push(tile.dataset.tileAnswer); input.value = parts.join(' '); tile.disabled = true; tile.classList.add('is-used'); if (build) build.textContent = parts.join(' '); const notice = form.querySelector?.('[data-tile-validation]'); if (notice) notice.textContent = ''; return; }
+  if (tile) { const form = tile.closest?.('[data-form="vocabulary-answer"]'); const input = form?.querySelector?.('input[name="answer"]'); const build = form?.querySelector?.('[data-tile-build]'); if (!input || tile.disabled) return; if (build?.dataset?.missingTemplate) { const template = JSON.parse(build.dataset.missingTemplate); const filled = JSON.parse(build.dataset.filled || '[]'); if (filled.length >= template.filter(letter => letter == null).length) return; filled.push(tile.dataset.tileAnswer); build.dataset.filled = JSON.stringify(filled); let next = 0; const word = template.map(letter => letter ?? filled[next++] ?? null); input.value = word.every(letter => letter != null) ? word.join(' ') : ''; build.textContent = word.map(letter => letter ?? '_').join(' '); tile.disabled = true; tile.classList.add('is-used'); const notice = form.querySelector?.('[data-tile-validation]'); if (notice) notice.textContent = ''; return; } const parts = String(input.value ?? '').trim().split(/\s+/).filter(Boolean); parts.push(tile.dataset.tileAnswer); input.value = parts.join(' '); tile.disabled = true; tile.classList.add('is-used'); if (build) build.textContent = parts.join(' '); const notice = form.querySelector?.('[data-tile-validation]'); if (notice) notice.textContent = ''; return; }
   const target = event.target?.closest?.('[data-action]'); const action = target?.dataset?.action; if (!action) return;
   if (action === 'open-unit') openUnit(Number(target.dataset.unit)).catch(error => renderVocabularyError(root, error.message));
   else if (action === 'back-units') showHome().catch(error => renderVocabularyError(root, error.message)); else if (action === 'view-all-words') showAllWords();
@@ -878,7 +886,9 @@ root?.addEventListener('click', event => {
     const form = target.closest?.('[data-form="vocabulary-answer"]'); const input = form?.querySelector?.('input[name="answer"]'); const build = form?.querySelector?.('[data-tile-build]');
     const fixed = String(target.dataset.fixedAnswer ?? '').trim(); if (!form || !input) return;
     for (const tile of form.querySelectorAll?.('.vocab-tile') ?? []) { tile.disabled = false; tile.classList.remove('is-used'); }
-    input.value = fixed; if (build) build.textContent = fixed ? '' : 'Choose tiles to build your answer';
+    input.value = fixed;
+    if (build?.dataset?.missingTemplate) { build.dataset.filled = '[]'; build.textContent = JSON.parse(build.dataset.missingTemplate).map(letter => letter ?? '_').join(' '); }
+    else if (build) build.textContent = fixed ? '' : 'Choose tiles to build your answer';
   }
   else if (action === 'retry-save') { attempts().retry().then(saved => { if (saved) clearSyncWarning(); }); }
   else if (action === 'next-question') advanceToNextQuestion().catch(error => renderVocabularyError(root, error.message)); else if (action === 'leave-session' || action === 'back-unit') returnToCurrentUnit().catch(error => renderVocabularyError(root, error.message));

@@ -314,7 +314,7 @@ async function openApply(options = {}) {
   return api;
 }
 const applyUi = api => api.page.evaluate(() => ({
-  type:window.__currentQuestion.type, prompt:window.__currentQuestion.prompt,
+  type:window.__currentQuestion.type, prompt:window.__currentQuestion.prompt, sourceText:window.__currentQuestion.sourceText ?? '',
   set:document.querySelectorAll('[data-match-set],[data-match-word],[data-match-definition]').length,
   select:document.querySelectorAll('select').length,
   drop:document.querySelectorAll('[data-drop-target],[data-gap-drop],[data-drag-gap-value],.vocab-drop-zone,.vocab-drag-token,[draggable="true"],.vocab-accessible-fallback').length,
@@ -326,10 +326,10 @@ browserTest('Apply (desktop): a situation with four answer cards: no set, no sel
   const api = await openApply();
   try {
     const ui = await applyUi(api);
-    assert.ok(['drag_word_definition', 'drag_definition_word', 'which_situation_fits'].includes(ui.type), ui.type);
+    assert.ok(['which_situation_fits', 'meaning_in_context'].includes(ui.type), ui.type);
     assert.equal(ui.set, 0); assert.equal(ui.select, 0); assert.equal(ui.drop, 0);
     assert.ok(ui.choices >= 3);
-    assert.match(ui.prompt.split('\n').slice(1).join(' '), /\w{3,}\s+\w{3,}\s+\w{3,}/, 'a real situation sentence is shown');
+    assert.match([ui.prompt, ui.sourceText].join(' '), /\w{3,}\s+\w{3,}\s+\w{3,}/, 'a real situation sentence is shown');
     await api.answer(true);
     await api.page.waitForSelector('[data-action="next-question"]');
     await api.page.waitForFunction(() => window.__net.length === 1, null, { timeout:4000 });

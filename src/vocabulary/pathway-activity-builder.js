@@ -3,12 +3,16 @@ import { unsolvedTileOrder } from './tile-order.js';
 import { activityDefinition, isActivityLive } from './activity-catalogue.js';
 import { grammaticalBlankCandidates, blankDistractorsDetailed, reviewedGapIndex } from './foundational-activity-builder.js';
 import { languageBankContextForItem } from './language-bank.js';
-import { DISTRACTOR_SOURCE, UnreviewedContentError } from './reviewed-content.js';
+import { DISTRACTOR_SOURCE, UnreviewedContentError, reviewedSpellingErrors } from './reviewed-content.js';
 import { pickSpellingErrorsDetailed } from './spelling-errors.js';
+import { glossBlank, passagePair, blankableGapContexts, improveGapSentence, improveRecordsFor, weakPhraseOf, encodeSlotAnswer } from '../../supabase/functions/_shared/vocabulary-typed-forms.js';
+import { evaluateFamilyEligibility, eligibleSlotForms, familyMasks, familySlotsForMask, familyVariantId, FAMILY_STATUS } from '../../supabase/functions/_shared/vocabulary-word-family.js';
 
 export const PATHWAY_ACTIVITY_TYPES = Object.freeze(new Set([
   'type_word_from_definition','context_sentence_match','word_family_match',
-  'precision_choice','precision_match','spelling_choice','spelling_cue_match','spelling_rebuild','spell_in_context'
+  'precision_choice','precision_match','spelling_choice','spelling_cue_match','spelling_rebuild','spell_in_context',
+  // Stage Contract v2 (Job 8)
+  'gloss_in_context_type','type_in_passage','word_family_identify','family_multi_form','precision_type_cued','upgrade_passage','spot_the_error'
 ]));
 
 function text(value) { return String(value ?? '').trim(); }
@@ -175,13 +179,153 @@ function spellingRebuild(args, definition) {
   const term=text(args.item.term), meaning=definitionFor(args.item,args.occurrence);
   if (!term||!meaning) throw new Error('Spelling rebuild requires a target word and meaning.');
   const letters=Array.from(term).filter(char=>!/\s/.test(char)); const spaced=Array.from(term).join(' ');
-  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Rebuild the word meaning “${meaning}”.`,markingReference:{acceptedAnswers:[term,spaced]},extra:{tiles:spellingTiles(letters,term,args),primaryEvidenceTargetId:args.item.vocabularyId}});
+  const answers=[term,spaced];
+  // Missing-letter variant (Apply, supported): a single word of five or more letters is shown with its inner letters missing and the
+  // learner fills the gaps from a small bank of letters. The answer and marking are identical to the full rebuild.
+  if (letters.length>=5 && letters.length===term.length && hashSeed(`${args.seed}:spelling-variant`)%2===1) {
+    const innerCount=letters.length>=8?3:2;
+    const candidates=letters.map((_,index)=>index).filter(index=>index>0&&index<letters.length-1);
+    const hidden=shuffle(candidates,`${args.seed}:missing-positions`).slice(0,innerCount).sort((a,b)=>a-b);
+    const template=letters.map((letter,index)=>hidden.includes(index)?null:letter);
+    const missing=hidden.map(index=>letters[index]);
+    const decoyPool='etaoinsrlcdhumpgbyfwkvx'.split('').filter(letter=>!missing.includes(letter)&&!letters.includes(letter));
+    const decoys=shuffle(decoyPool,`${args.seed}:missing-decoys`).slice(0,2);
+    const tiles=shuffle([...missing,...decoys],`${args.seed}:missing-tiles:${args.optionNonce}`);
+    return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Fill in the missing letters of the word meaning “${meaning}”.`,markingReference:{acceptedAnswers:answers},extra:{tiles,missingTemplate:template,spellingPattern:template.map(letter=>letter??'_').join(' '),stageVariant:'missing-letters',primaryEvidenceTargetId:args.item.vocabularyId}});
+  }
+  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Rebuild the word meaning “${meaning}”.`,markingReference:{acceptedAnswers:answers},extra:{tiles:spellingTiles(letters,term,args),primaryEvidenceTargetId:args.item.vocabularyId}});
 }
 function spellInContext(args, definition) {
   const context=blankableContext(args), term=text(args.item.term), rewrite=text(context.targetRewrite);
   if (!term||!rewrite) throw new Error('Spelling Mastery requires a curated sentence cue.');
   const source=text(context.text).replace(new RegExp(rewrite.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),'____');
   return base({definition,occurrence:args.occurrence,contentId:context.contextId,contentSource:'context',prompt:'Complete the sentence by spelling the missing word.',markingReference:{acceptedAnswers:[term]},extra:{sourceText:source,contextId:context.contextId,primaryEvidenceTargetId:args.item.vocabularyId}});
+}
+
+// ======================= Stage Contract v2 builders (Job 8) =======================
+function clueFor(answer) {
+  const words = text(answer).split(/\s+/).filter(Boolean);
+  if (!words.length) return null;
+  return words.length > 1 ? `Clue: ${words.length} words, starting with “${words[0][0]}”.` : `Clue: starts with “${words[0][0]}” · ${words[0].length} letters.`;
+}
+
+// Meaning · Mastery. One authored mastery sentence for the sense with the target blanked, plus the authored contextual gloss. The
+// learner types the word or phrase: no options, no bank, no letters shown. The gloss is refused if it exposes the word.
+function glossInContextType(args, definition) {
+  const sense=senseFor(args.item,args.occurrence), used=new Set(array(args.usedContentIds).map(String));
+  const candidates=array(sense.masteryContexts).map(masteryContext=>glossBlank({item:args.item,sense,masteryContext})).filter(Boolean);
+  // Per-word Mastery completes only after two DISTINCT prompts (pathway-progress rule, unchanged), so a word needs two usable authored sentences.
+  if (candidates.length<2) throw new Error('Meaning Mastery needs two mastery sentences whose glosses do not show the word.');
+  const unused=candidates.filter(row=>!used.has(row.contextId));
+  const pick=shuffle(unused.length?unused:candidates,`${args.seed}:gloss-in-context`)[0];
+  return base({definition,occurrence:args.occurrence,contentId:pick.contextId,contentSource:'context',prompt:`Type the word or phrase that completes the sentence and means “${pick.gloss}”.`,markingReference:{acceptedAnswers:[pick.answer]},extra:{sourceText:pick.sourceText,contextId:pick.contextId,gloss:pick.gloss,primaryEvidenceTargetId:args.item.vocabularyId,answerForm:'surface_form'}});
+}
+
+// Context · Mastery. Two authored gap sentences for the same target, completed together. No bank, no letters, no options. Each gap
+// needs the form its own sentence requires, so grammar in context matters. The pair is a pure function of the first context id.
+function typeInPassage(args, definition) {
+  const sense=senseFor(args.item,args.occurrence), used=new Set(array(args.usedContentIds).map(String));
+  const list=blankableGapContexts(args.contexts,args.item,sense);
+  if (list.length<2) throw new Error('Context Mastery needs two curated gap sentences for this word.');
+  const unused=list.filter(row=>!used.has(row.contextId));
+  const first=shuffle(unused.length?unused:list,`${args.seed}:passage-first`)[0];
+  const pair=passagePair(args.contexts,args.item,sense,first.contextId);
+  const answers=pair.map(row=>row.answer);
+  return base({definition,occurrence:args.occurrence,contentId:pair[0].contextId,contentSource:'context',prompt:'Complete each sentence with the word or phrase that fits. Each gap may need a different form.',markingReference:{acceptedAnswers:answers,slotAnswers:answers.map(answer=>[answer])},extra:{sourceText:pair.map(row=>row.sourceText).join(' '),contextId:pair[0].contextId,slots:pair.map((row,index)=>({label:`Gap ${index+1}`,sourceText:row.sourceText})),primaryEvidenceTargetId:args.item.vocabularyId,answerForm:'surface_form'}});
+}
+
+// Word Families · Recognise. Which word belongs to the same family as the target? Built only from the stored family strings.
+function wordFamilyIdentify(args, definition) {
+  const term=text(args.item.term), members=uniqueText(array(args.item.wordFamily)).filter(v=>v.toLocaleLowerCase('en')!==term.toLocaleLowerCase('en'));
+  if (!term||!members.length) throw new Error('Word Family identification needs at least one stored family member.');
+  const member=shuffle(members,`${args.seed}:family-identify`)[0];
+  const familyKeys=new Set([term,...array(args.item.wordFamily)].map(v=>text(v).toLocaleLowerCase('en')));
+  const stem=(value)=>text(value).toLocaleLowerCase('en').slice(0,4);
+  const pool=uniqueText(array(args.unitItems).filter(c=>c?.vocabularyId!==args.item.vocabularyId).flatMap(c=>[c?.term,...array(c?.wordFamily)])).filter(v=>!familyKeys.has(v.toLocaleLowerCase('en'))&&stem(v)!==stem(term)&&!/\s/.test(v)===!/\s/.test(member));
+  const near=pool.filter(v=>Math.abs(v.length-member.length)<=3);
+  const distractors=shuffle(near.length>=3?near:pool,`${args.seed}:family-identify-wrong`).slice(0,3);
+  if (distractors.length<3) throw new Error('Word Family identification needs three words from other families.');
+  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:`Which word belongs to the same word family as “${term}”?`,markingReference:{acceptedAnswers:[member]},extra:{options:present([member,...distractors],'family-identify',args),primaryEvidenceTargetId:args.item.vocabularyId}});
+}
+
+// Word Families · Mastery. One base family, several authored sentences, the learner supplies the correct form in each gap. No bank,
+// no options. Offered ONLY for a family that passes the locked eligibility rule; nothing is inferred or generated.
+function familyMultiForm(args, definition) {
+  const sense=senseFor(args.item,args.occurrence), verdict=evaluateFamilyEligibility(args.item,sense);
+  if (verdict.status!==FAMILY_STATUS.ELIGIBLE) throw new Error(`Word Families Mastery is not offered for this word: ${verdict.reason}.`);
+  const masks=familyMasks(args.item,sense);
+  if (!masks.length) throw new Error('Word Families Mastery has no valid set of forms for this word.');
+  const mask=shuffle(masks,`${args.seed}:family-mask`)[0], slots=familySlotsForMask(args.item,sense,mask);
+  // Order the sentences by seed so the same family does not always ask its forms in the same order (presentation only).
+  const ordered=shuffle(slots,`${args.seed}:family-slot-order:${args.optionNonce}`);
+  // Marking is in the AUTHORED order the server derives from the mask; the boxes are shown in the shuffled order and mapped back.
+  const answers=slots.map(slot=>slot.form), slotCanonicalIndex=ordered.map(slot=>slots.indexOf(slot));
+  return base({definition,occurrence:args.occurrence,contentId:`item:${args.item.vocabularyId}:${senseFor(args.item,args.occurrence)?.senseId ?? 'sense'}:family:${mask}`,contentSource:'item',prompt:`Complete each sentence with the correct form from the “${text(args.item.term)}” word family.`,markingReference:{acceptedAnswers:answers,slotAnswers:answers.map(answer=>[answer])},extra:{sourceText:ordered.map(slot=>slot.sourceText).join(' '),slots:ordered.map((slot,index)=>({label:`Sentence ${index+1}`,sourceText:slot.sourceText})),activityVariantId:familyVariantId(mask),slotCanonicalIndex,primaryEvidenceTargetId:args.item.vocabularyId}});
+}
+
+function improveRecords(args) {
+  return improveRecordsFor(args.unitActivities,args.item.vocabularyId);
+}
+function accepted(data) { return uniqueText(array(data.acceptedAnswers)); }
+
+// Precision & Use · Apply. The weak wording is replaced by a gap and the learner taps the best replacement from a visible bank.
+function improveVocabularyApply(args, definition) {
+  const records=improveRecords(args).filter(row=>improveGapSentence(row.data)&&accepted(row.data).length);
+  if (!records.length) throw new Error('Precision Apply needs a curated sentence whose weak wording can be replaced by a gap.');
+  const used=new Set(array(args.usedContentIds).map(String)), unused=records.filter(row=>!used.has(row.id));
+  const record=shuffle(unused.length?unused:records,`${args.seed}:precision-apply`)[0], data=record.data, gap=improveGapSentence(data), answers=accepted(data);
+  const acceptedKeys=new Set(answers.map(v=>v.toLocaleLowerCase('en')));
+  const samePos=array(args.unitItems).filter(c=>c?.vocabularyId!==args.item?.vocabularyId&&text(c?.partOfSpeech).toLocaleLowerCase('en')===text(args.item?.partOfSpeech).toLocaleLowerCase('en')).map(c=>c?.term);
+  const wrong=uniqueText([...array(data.distractors).map(d=>typeof d==='object'?d?.text:d),...array(senseFor(args.item,args.occurrence)?.misleadingDistractors),...samePos]).filter(v=>!acceptedKeys.has(v.toLocaleLowerCase('en'))).slice(0,3);
+  if (wrong.length<3) throw new Error('Precision Apply requires three close alternatives.');
+  const bank=present([answers[0],...wrong],`${record.id}:precision-apply`,args);
+  return base({definition,occurrence:args.occurrence,contentId:record.id,contentSource:'unit_activity',prompt:`Replace “${gap.weak}” with the most precise word or phrase.`,markingReference:{acceptedAnswers:answers},extra:{responseMode:'drag_gap',sourceText:gap.sourceText,draggables:[...bank],wordBank:[...bank],options:[...bank],activityContentId:record.id,taskType:'improve_vocabulary',primaryEvidenceTargetId:data.primaryEvidenceTargetId ?? args.item.vocabularyId,distractorSource:DISTRACTOR_SOURCE.REVIEWED}});
+}
+
+// Precision & Use · Recall. The weak sentence stays visible; the learner types the precise word from that contextual cue with at most
+// the first letter and the length as help.
+function precisionTypeCued(args, definition) {
+  const records=improveRecords(args).filter(row=>accepted(row.data).length);
+  if (!records.length) throw new Error('Precision Recall needs a curated weak-wording sentence.');
+  const used=new Set(array(args.usedContentIds).map(String)), unused=records.filter(row=>!used.has(row.id));
+  const record=shuffle(unused.length?unused:records,`${args.seed}:precision-recall`)[0], data=record.data, answers=accepted(data);
+  return base({definition,occurrence:args.occurrence,contentId:record.id,contentSource:'unit_activity',prompt:text(data.prompt)||'Type a more precise word or phrase.',markingReference:{acceptedAnswers:answers},extra:{sourceText:text(data.sourceText),clue:clueFor(answers[0]),activityContentId:record.id,taskType:'improve_vocabulary',primaryEvidenceTargetId:data.primaryEvidenceTargetId ?? args.item.vocabularyId}});
+}
+
+function weakLabel(data, index) {
+  const weak=weakPhraseOf(data);
+  return weak ? `Replace “${weak.phrase}”` : `Sentence ${index+1}: upgrade the weak wording`;
+}
+// Precision & Use · Mastery. A short passage of two curated weak-wording sentences for the same target. The learner upgrades the weak
+// wording in EACH sentence by typing: no bank, no clue. Every slot must be right for the item to be right.
+function upgradePassage(args, definition) {
+  const all=improveRecords(args), usable=all.map((row,index)=>({...row,index})).filter(row=>accepted(row.data).length&&text(row.data.sourceText));
+  if (usable.length<2) throw new Error('Precision Mastery needs two curated weak-wording sentences for this word.');
+  const used=new Set(array(args.usedContentIds).map(String)), unused=usable.filter(row=>!used.has(row.id));
+  const first=shuffle(unused.length?unused:usable,`${args.seed}:upgrade-first`)[0];
+  const others=usable.filter(row=>row.id!==first.id), second=shuffle(others,`${args.seed}:upgrade-second`)[0];
+  const pair=[first,second], answers=pair.map(row=>accepted(row.data));
+  return base({definition,occurrence:args.occurrence,contentId:first.id,contentSource:'unit_activity',prompt:'Upgrade the weak wording in each sentence with a precise word or phrase.',markingReference:{acceptedAnswers:answers.flat(),slotAnswers:answers},extra:{sourceText:pair.map(row=>text(row.data.sourceText)).join(' '),slots:pair.map((row,index)=>({label:weakLabel(row.data,index),sourceText:text(row.data.sourceText)})),activityContentId:first.id,activityVariantId:`q${second.index}`,taskType:'improve_vocabulary',primaryEvidenceTargetId:first.data.primaryEvidenceTargetId ?? args.item.vocabularyId}});
+}
+
+// Spelling & Recall · Match. A visible set of four words in which exactly one is misspelled; the learner spots it. The three correct
+// words are other Unit 1 words of the same length class, so the odd one out is a spelling difference, not a length or shape clue.
+function spotTheError(args, definition) {
+  const term=text(args.item.term);
+  // ONLY an authored misspelling may be the wrong card: the server marks the answer against sense.spellingErrors, so a rule-generated one could never be verified.
+  const authored=reviewedSpellingErrors(args.item).filter(v=>text(v).toLocaleLowerCase('en')!==term.toLocaleLowerCase('en'));
+  const wrong=text(authored.length?shuffle(authored,`${args.seed}:spot-wrong`)[0]:'');
+  if (!term||!wrong) throw new Error('Spot the Error requires an authored plausible misspelling.');
+  const wordCount=term.split(/\s+/).length;
+  const familyOwn=new Set([term,...array(args.item.wordFamily),...array(args.item.collocations)].map(v=>text(v).toLocaleLowerCase('en')));
+  // Correct words of the same word count: other Unit 1 headwords, their authored collocations and stored family forms (never this word's own).
+  const pool=uniqueText(array(args.unitItems).filter(c=>c?.vocabularyId!==args.item.vocabularyId).flatMap(c=>[c?.term,...array(c?.collocations),...array(c?.wordFamily)])).filter(v=>v.split(/\s+/).length===wordCount&&!familyOwn.has(v.toLocaleLowerCase('en')));
+  const near=pool.filter(v=>Math.abs(v.length-wrong.length)<=2);
+  const others=shuffle(near.length>=3?near:pool,`${args.seed}:spot-others`).slice(0,3);
+  if (others.length<3) throw new Error('Spot the Error needs three other correctly spelled words.');
+  const options=present([wrong,...others],'spot-error',args), cue='Three of these spellings are correct. Which one has a spelling mistake?';
+  const pairs=options.map((option,index)=>({vocabularyId:option===wrong?args.item.vocabularyId:`alt-${index}`,term:option===wrong?cue:'',definition:option}));
+  return base({definition,occurrence:args.occurrence,contentId:itemContentId(args),contentSource:'item',prompt:cue,markingReference:{acceptedAnswers:[wrong]},extra:{pairs,primaryEvidenceTargetId:args.item.vocabularyId,matchCue:cue,matchOptions:options,matchPresentation:'spelling_spot_error',distractorSource:DISTRACTOR_SOURCE.REVIEWED}});
 }
 
 const BUILDERS=Object.freeze({
@@ -193,8 +337,23 @@ const BUILDERS=Object.freeze({
   spelling_choice:spellingChoice,
   spelling_cue_match:spellingCueMatch,
   spelling_rebuild:spellingRebuild,
-  spell_in_context:spellInContext
+  spell_in_context:spellInContext,
+  gloss_in_context_type:glossInContextType,
+  type_in_passage:typeInPassage,
+  word_family_identify:wordFamilyIdentify,
+  family_multi_form:familyMultiForm,
+  precision_type_cued:precisionTypeCued,
+  upgrade_passage:upgradePassage,
+  spot_the_error:spotTheError
 });
+
+// improve_vocabulary is the Precision & Use APPLY task only inside that pathway (a bank-supported replacement). Elsewhere it stays the
+// legacy typed task, so non-pathway practice is unchanged.
+export function buildPrecisionApply(args) {
+  const definition=activityDefinition('improve_vocabulary');
+  if (!args?.occurrence||!args?.item) throw new Error('Vocabulary occurrence and item are required.');
+  return improveVocabularyApply(args,definition);
+}
 
 export function buildPathwayActivity({activityType,occurrence,item,contexts=[],unitActivities=[],unitItems=[],unitContexts=[],unitOccurrences=[],mastery={},readinessStage=null,usedContentIds=[],seed='',optionNonce='',avoidTileOrders=[],requireReviewed=false}={}) {
   if (!PATHWAY_ACTIVITY_TYPES.has(activityType)) throw new Error('Not a fixed-pathway activity type.');

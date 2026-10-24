@@ -90,7 +90,9 @@ test('class pathway analytics builds compact student × pathway and word × path
 
 test('activity types map to authoritative pathway/stage analytics coordinates without treating interaction variants as new skills', () => {
   assert.deepEqual(pathwayCoordinatesForQuestionType('meaning_match'),[{ pathwayId:'meaning', stageId:'recognise' }]);
-  assert.deepEqual(pathwayCoordinatesForQuestionType('drag_word_definition'),[{ pathwayId:'meaning', stageId:'apply' }]);
+  assert.deepEqual(pathwayCoordinatesForQuestionType('which_situation_fits'),[{ pathwayId:'meaning', stageId:'apply' }]);
+  assert.deepEqual(pathwayCoordinatesForQuestionType('gloss_in_context_type'),[{ pathwayId:'meaning', stageId:'mastery' }]);
+  assert.deepEqual(pathwayCoordinatesForQuestionType('drag_word_definition'),[], 'retired from the ladder (Job 8): no stage owns it');
   assert.deepEqual(pathwayCoordinatesForQuestionType('spell_word'),[
     { pathwayId:'spelling_recall', stageId:'recall' }
   ]);

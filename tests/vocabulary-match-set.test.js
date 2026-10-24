@@ -9,7 +9,8 @@ import { matchKeyTarget, matchStatusText, renderMatchSet } from '../src/vocabula
 
 const sleep = ms => new Promise(done => setTimeout(done, ms));
 const TYPES = ['word_definition_match'];
-const APPLY_DRAG_TYPES = ['drag_word_definition', 'drag_definition_word'];
+const APPLY_DRAG_TYPES = ['drag_word_definition', 'drag_definition_word'];   // legacy single-decision builders (off the ladder since Job 8)
+const APPLY_LADDER_TYPES = ['which_situation_fits', 'meaning_in_context'];
 
 // ── Fixtures: the real builders over real Unit 1 content ────────────────────────────────────────────
 function realQuestion(activityType, occurrence = unit.occurrences[0], seed = 'seed') {
@@ -450,7 +451,7 @@ test('Apply: the server marks the situation answer with the existing rules (word
 
 test('Apply (browser-free app run): no set, no drop zone, no dropdown; one decision is one attempt and one counted activity', async () => {
   const served = [];
-  for (const type of [...APPLY_DRAG_TYPES, 'which_situation_fits']) {
+  for (const type of APPLY_LADDER_TYPES) {
     const h = await playApply([type]);
     if (!h) continue;
     served.push(type);
@@ -469,11 +470,11 @@ test('Apply (browser-free app run): no set, no drop zone, no dropdown; one decis
     assert.equal(h.rejected.length, 0, 'the server validation accepts the payload');
     assert.equal(practised(h), before + 1, 'the mission counter advances exactly once');
   }
-  assert.ok(served.includes('drag_word_definition'), `the Apply stage serves the situation task (${served})`);
+  assert.ok(served.includes('which_situation_fits'), `the Apply stage serves the situation task (${served})`);
 });
 
 test('Apply retry/recovery: a miss gives a supported retry, the target comes back once, and the activity counts exactly once', async () => {
-  const h = await playApply(APPLY_DRAG_TYPES, { size:2 });
+  const h = await playApply(['which_situation_fits'], { size:2 });
   const first = cur(h);
   const answer = first.question.markingReference.acceptedAnswers[0];
   const wrong = first.question.options.find(option => option !== answer);
@@ -503,7 +504,7 @@ test('Apply retry/recovery: a miss gives a supported retry, the target comes bac
 });
 
 test('Apply persistence: a failed save retries with the same attempt id, once', async () => {
-  const h = await playApply(APPLY_DRAG_TYPES, { size:2, fail:(_payload, index) => index <= 1 });
+  const h = await playApply(['which_situation_fits'], { size:2, fail:(_payload, index) => index <= 1 });
   await answerNow(h, cur(h).question.markingReference.acceptedAnswers[0]);
   await h.state.attempts.settled();
   assert.equal(h.requests.length, 2);

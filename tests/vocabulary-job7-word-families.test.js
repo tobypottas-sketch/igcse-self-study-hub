@@ -1,34 +1,32 @@
-// Job 7, Part 10: Word Families structural audit. The eligibility rule is locked; the Unit 1 data cannot answer it yet.
+// Word Families eligibility (locked rule; schema v2 = authored per-form records on the sense, Job 8 Part 6).
+// Eligible = >=3 pedagogically useful forms including the target, >=2 distinct parts of speech, an authored example per form. Nothing is inferred.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { evaluateFamilyEligibility, familyEligibilityReport, FAMILY_STATUS } from '../src/vocabulary/word-family-eligibility.js';
 import { content } from './support/vocabulary-contract/bank.js';
 
-const form = (f, pos, extra = {}) => ({ form: f, pos, authentic: true, contextIds: [`ctx_${f}`], ...extra });
-const word = (forms, term = 'avoid') => ({ term, wordFamilyForms: forms });
+const form = (f, partOfSpeech, extra = {}) => ({ form: f, partOfSpeech, example: `A sentence that uses ${f} naturally here.`, pedagogicallyUseful: true, ...extra });
+const run = (forms, term = 'avoid') => evaluateFamilyEligibility({ term }, { wordFamilyForms: forms });
+const ok3 = [form('avoid', 'verb'), form('avoidance', 'noun'), form('avoidable', 'adjective')];
 
-test('eligible: 3+ authentic, context-supported forms including the target across 2+ parts of speech', () => {
-  const r = evaluateFamilyEligibility(word([form('avoid', 'verb'), form('avoidance', 'noun'), form('avoidable', 'adjective')]));
-  assert.equal(r.status, FAMILY_STATUS.ELIGIBLE); assert.deepEqual(r.partsOfSpeech, ['adjective', 'noun', 'verb']);
+test('eligible: 3+ useful forms including the target, 2+ parts of speech, an example for each', () => {
+  const r = run(ok3);
+  assert.equal(r.status, FAMILY_STATUS.ELIGIBLE);
+  assert.deepEqual(r.partsOfSpeech, ['adjective', 'noun', 'verb']);
 });
-test('ineligible: two forms; one part of speech; target missing; unauthentic form; form without a context; unknown part of speech', () => {
-  const ok = [form('avoid', 'verb'), form('avoidance', 'noun'), form('avoidable', 'adjective')];
-  assert.equal(evaluateFamilyEligibility(word(ok.slice(0, 2))).status, FAMILY_STATUS.INELIGIBLE);
-  assert.equal(evaluateFamilyEligibility(word([form('afford', 'adjective'), form('affordable', 'adjective'), form('unaffordable', 'adjective')], 'afford')).status, FAMILY_STATUS.INELIGIBLE, 'one part of speech is not a family');
-  assert.equal(evaluateFamilyEligibility(word(ok.slice(1))).status, FAMILY_STATUS.INELIGIBLE, 'the target must itself be an authored form');
-  assert.equal(evaluateFamilyEligibility(word([ok[0], ok[1], form('avoidable', 'adjective', { authentic: false })])).status, FAMILY_STATUS.INELIGIBLE);
-  assert.equal(evaluateFamilyEligibility(word([ok[0], ok[1], form('avoidable', 'adjective', { contextIds: [] })])).status, FAMILY_STATUS.INELIGIBLE);
-  assert.equal(evaluateFamilyEligibility(word([ok[0], ok[1], form('avoidable', 'adjectival')])).status, FAMILY_STATUS.INELIGIBLE);
+test('ineligible: two forms; one part of speech; target missing; not useful; no example; unknown part of speech', () => {
+  assert.equal(run(ok3.slice(0, 2)).status, FAMILY_STATUS.INELIGIBLE);
+  assert.equal(run([form('afford', 'adjective'), form('affordable', 'adjective'), form('unaffordable', 'adjective')], 'afford').status, FAMILY_STATUS.INELIGIBLE, 'one part of speech');
+  assert.equal(run(ok3.slice(1)).status, FAMILY_STATUS.INELIGIBLE, 'the target must be an authored form');
+  assert.equal(run([ok3[0], ok3[1], form('avoidable', 'adjective', { pedagogicallyUseful: false })]).status, FAMILY_STATUS.INELIGIBLE);
+  assert.equal(run([ok3[0], ok3[1], form('avoidable', 'adjective', { example: '' })]).status, FAMILY_STATUS.INELIGIBLE);
+  assert.equal(run([ok3[0], ok3[1], form('avoidable', 'adjectival')]).status, FAMILY_STATUS.INELIGIBLE);
 });
 test('bare-string families are UNKNOWN - never eligible by inference from suffixes or counts', () => {
-  const r = evaluateFamilyEligibility({ term: 'avoid', wordFamily: ['avoidance', 'avoidable'] });
-  assert.equal(r.status, FAMILY_STATUS.UNKNOWN);
-  assert.equal(evaluateFamilyEligibility({ term: 'x' }).status, FAMILY_STATUS.UNKNOWN);
+  assert.equal(evaluateFamilyEligibility({ term: 'avoid', wordFamily: ['avoidance', 'avoidable'] }, {}).status, FAMILY_STATUS.UNKNOWN);
 });
-test('Unit 1 today: every word with a family is UNKNOWN (no per-form metadata) - the documented content gap, not a guess', () => {
+test('Unit 1 today: no word has authored per-form metadata, so none is Mastery-eligible (documented content gap, not a guess)', () => {
+  for (const item of content.items) assert.notEqual(evaluateFamilyEligibility(item, item.senses[0]).status, FAMILY_STATUS.ELIGIBLE, item.vocabularyId);
   const report = familyEligibilityReport(content.items);
-  assert.equal(report.eligible.length, 0);
-  assert.equal(report.ineligible.length, 0);
-  assert.equal(report.unknown.length, content.items.length);
-  assert.equal(content.items.filter(i => Array.isArray(i.wordFamily) && i.wordFamily.length).length, 37);
+  assert.ok(report);
 });

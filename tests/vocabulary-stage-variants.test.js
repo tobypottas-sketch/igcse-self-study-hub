@@ -14,7 +14,7 @@ test('Word Families Apply presents the choice as a drag-into-gap task; type and 
 
 test('typed recall shows a clue; mastery shows none', () => {
   const wf = { type:'word_family_switch', markingReference:{ acceptedAnswers:['competition'] } };
-  assert.match(applyStageVariant(wf, { pathwayId:'word_families', servedStage:'recall', item }).clue, /^Related forms: compete · competitor · competitive$/);
+  assert.match(applyStageVariant(wf, { pathwayId:'word_families', servedStage:'recall', item }).clue, /^Clue: starts with “c” · 11 letters\.$/);
   assert.equal(applyStageVariant(wf, { pathwayId:'word_families', servedStage:'mastery', item }).clue, undefined);
   const ctx = { type:'type_missing_word', markingReference:{ acceptedAnswers:['leisure'] } };
   assert.match(applyStageVariant(ctx, { pathwayId:'context', servedStage:'recall' }).clue, /starts with “l” · 7 letters/);

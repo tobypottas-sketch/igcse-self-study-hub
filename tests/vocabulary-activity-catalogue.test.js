@@ -46,6 +46,8 @@ const EXPECTED_ACTIVITIES = [
   'build_same_idea',
   'rewrite_idea',
   'improve_vocabulary',
+  // Job 8 (STAGE_CONTRACT v2) additions, in catalogue order
+  'gloss_in_context_type', 'type_in_passage', 'word_family_identify', 'family_multi_form', 'precision_type_cued', 'upgrade_passage', 'spot_the_error',
   'explain_another_way'
 ];
 
@@ -59,7 +61,7 @@ const EXPECTED_MODES = [
   'adaptive'
 ];
 
-const VALID_RESPONSE_MODES = new Set(['choice', 'matching', 'drag_match', 'drag_gap', 'spelling', 'tiles', 'evidence', 'text']);
+const VALID_RESPONSE_MODES = new Set(['choice', 'matching', 'drag_match', 'drag_gap', 'spelling', 'tiles', 'evidence', 'text', 'slots']);
 const VALID_STAGES = new Set(['new', 'building', 'secure', 'mastered']);
 const VALID_STRENGTHS = new Set(['light', 'medium', 'strong', 'very_strong']);
 const VALID_STRANDS = new Set(['meaning', 'recognition', 'context', 'paraphrasing', 'production']);
@@ -109,7 +111,7 @@ test('stage filtering respects minimum readiness while keeping supported work av
   assert.ok(fresh.includes('drag_definition_word'));
   assert.ok(fresh.includes('phrase_match'));
   assert.ok(fresh.includes('spelling_choice'));
-  assert.ok(fresh.includes('spelling_cue_match'));
+  assert.ok(!fresh.includes('spelling_cue_match'), 'retired by STAGE_CONTRACT v2: off every ladder');
   assert.equal(fresh.includes('rewrite_idea'), false);
   assert.equal(fresh.includes('explain_another_way'), false);
 

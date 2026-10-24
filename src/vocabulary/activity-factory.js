@@ -1,6 +1,6 @@
 import { buildActivity as buildLegacyActivity } from './activity-builder.js';
 import { buildFoundationalActivity, FOUNDATIONAL_ACTIVITY_TYPES } from './foundational-activity-builder.js';
-import { buildPathwayActivity, PATHWAY_ACTIVITY_TYPES } from './pathway-activity-builder.js';
+import { buildPathwayActivity, buildPrecisionApply, PATHWAY_ACTIVITY_TYPES } from './pathway-activity-builder.js';
 import { buildSpellingChoiceActivity } from './spelling-choice-builder.js';
 import { buildSpellInContextActivity } from './spelling-context-builder.js';
 import { AnswerLeakError, findAnswerLeak } from './answer-leak-guard.js';
@@ -11,6 +11,8 @@ const WORD_FAMILY_ACTIVITY_TYPES = new Set(['word_family_choice','word_family_ma
 function withFreshWritingPrompt(args = {}) {
   const taskType = WORD_FAMILY_ACTIVITY_TYPES.has(args?.activityType) ? 'word_family' : PRECISION_ACTIVITY_TYPES.has(args?.activityType) ? 'improve_vocabulary' : null;
   if (!taskType) return args;
+  // The Precision Apply builder prefers records the session has not used by itself, and must see every record to fall back to a repeat when a word has only one usable sentence.
+  if (args?.activityType === 'improve_vocabulary' && args?.pathwayId === 'precision_use' && args?.pathwayStage === 'apply') return args;
   const activities = Array.isArray(args.unitActivities) ? args.unitActivities : [];
   const used = new Set(Array.isArray(args.usedContentIds) ? args.usedContentIds.map(String) : []);
   const targetId = String(args?.item?.vocabularyId ?? '');
@@ -27,6 +29,7 @@ function withFreshWritingPrompt(args = {}) {
 }
 
 function dispatchActivity(prepared) {
+  if (prepared?.activityType === 'improve_vocabulary' && prepared?.pathwayId === 'precision_use' && prepared?.pathwayStage === 'apply') return buildPrecisionApply(prepared);
   if (prepared?.activityType === 'spelling_choice') return buildSpellingChoiceActivity(prepared);
   if (prepared?.activityType === 'spell_in_context') return buildSpellInContextActivity(prepared);
   if (PATHWAY_ACTIVITY_TYPES.has(prepared?.activityType)) return buildPathwayActivity(prepared);

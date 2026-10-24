@@ -52,15 +52,15 @@ test('support metadata is honest and evidence/progression stay server-authoritat
 });
 
 test('validation still rejects an undeclared lower-stage question (the rule is not weakened)', () => {
-  const base = { occurrenceId:'o1', rawAnswer:'x', questionType:'word_family_choice', contentSource:'unit_activity', activityContentId:'a1', pathwayId:'word_families', pathwayStage:'match', servedPathwayStage:'recognise', firstAttempt:true, retryUsed:false, supportLevel:'none' };
+  const base = { occurrenceId:'o1', rawAnswer:'x', questionType:'choose_word_sentence', contentSource:'context', contextId:'a1', pathwayId:'context', pathwayStage:'match', servedPathwayStage:'recognise', firstAttempt:true, retryUsed:false, supportLevel:'none' };
   assert.throws(() => validateVocabularyAttempt(base), /requires support/);
   assert.doesNotThrow(() => validateVocabularyAttempt({ ...base, supportLevel:'light' }));
   assert.throws(() => validateVocabularyAttempt({ ...base, servedPathwayStage:'apply' }), /Served pathway stage is invalid/);
 });
 
 // ── Evidence semantics of lower-stage support (server-authoritative) ───────────────────────────
-const base = { occurrenceId:'o1', rawAnswer:'x', questionType:'word_family_choice', contentSource:'unit_activity', activityContentId:'a1', pathwayId:'word_families', pathwayStage:'match', servedPathwayStage:'recognise', firstAttempt:true, retryUsed:false, supportLevel:'light' };
-const sameStage = { ...base, questionType:'word_family_match', servedPathwayStage:'match', supportLevel:'none' };
+const base = { occurrenceId:'o1', rawAnswer:'x', questionType:'choose_word_sentence', contentSource:'context', contextId:'a1', pathwayId:'context', pathwayStage:'match', servedPathwayStage:'recognise', firstAttempt:true, retryUsed:false, supportLevel:'light' };
+const sameStage = { ...base, questionType:'context_sentence_match', servedPathwayStage:'match', supportLevel:'none' };
 
 test('authoritative support: lower-stage served question is at least light; ordinary same-stage stays none', () => {
   assert.equal(authoritativeSupportLevel(validateVocabularyAttempt(base)), 'light');

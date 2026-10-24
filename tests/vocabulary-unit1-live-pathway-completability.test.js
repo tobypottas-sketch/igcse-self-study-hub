@@ -78,9 +78,9 @@ function completeStage({ pathwayId, stageId, content, target, progress }) {
 
 const content = plannerContent(unit1);
 const coverage = buildPathwayCoverage({ content });
-const LIVE_PATHWAYS = ['meaning','context','word_families','spelling_recall'];
+const LIVE_PATHWAYS = ['meaning','context','precision_use','spelling_recall'];   // Word Families joins when families are authored
 
-test('Unit 1 Word Families exposes only targets with enough same-family forms for meaningful Match discrimination', () => {
+test('Unit 1 Word Families is held back (not live) until families are authored; Recognise-Recall cohort is the curated 37, Mastery is 0', () => {
   const expected = unit1.occurrences
     .filter(occurrence => {
       const item = content.itemsById[occurrence.vocabularyId];
@@ -96,8 +96,10 @@ test('Unit 1 Word Families exposes only targets with enough same-family forms fo
     .map(occurrence => occurrence.occurrenceId)
     .sort();
   assert.ok(expected.length > 0,'Unit 1 needs real three-form word-family targets');
-  assert.equal(coverage.word_families.available,true,'Word Families must be live for its genuinely serviceable cohort');
-  assert.deepEqual([...coverage.word_families.occurrenceIds].sort(),expected);
+  assert.equal(coverage.word_families.available,false,'no authored families: Mastery cannot be offered, so the pathway is not live');
+  assert.equal(coverage.word_families.stageCounts.mastery,0);
+  assert.equal(coverage.word_families.stageCounts.recognise,expected.length);
+  assert.deepEqual([...coverage.word_families.occurrenceIds],[],'a pathway that is not live serves nobody');
 });
 
 test('every Unit 1 pathway declared live is genuinely completable to Mastery for every serviceable word', () => {
@@ -121,7 +123,7 @@ test('every Unit 1 pathway declared live is genuinely completable to Mastery for
 test('Unit 1 pathways withheld for incomplete banks are excluded from the completability gate', () => {
   for (const pathwayId of ['paraphrasing']) {
     assert.equal(coverage[pathwayId].available,false,pathwayId);
-    assert.equal(coverage[pathwayId].reason,'diversity_below_minimum',pathwayId);
+    assert.equal(coverage[pathwayId].reason,'stage_below_minimum',pathwayId);
   }
   assert.equal(coverage.precision_use.available,true,'Precision & Use is live now that every rung has content');
 });

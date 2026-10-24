@@ -131,6 +131,8 @@ function buildCandidate({ content, target, mastery, item, contexts, plan, usedCo
     optionNonce,
     avoidTileOrders,
     requireReviewed,
+    pathwayId:plan.pathwayId,
+    pathwayStage:plan.servedStage,
     matchingPresentation:plan.servedStage === 'match'
   });
   const question = applyStageVariant(normalizedStageTwoMatch(built,plan,item,target),{ pathwayId:plan.pathwayId, servedStage:plan.servedStage, item });
