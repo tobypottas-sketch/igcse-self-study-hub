@@ -1,8 +1,8 @@
 // Presentation-only completion sequence. Final state is always in the markup;
-// this module only plays an optional ~2.6s intro and lets students skip it.
-const DURATION_MS = 2600;
-const COUNT_MS = 900;
-const COUNT_DELAY_MS = 450;
+// this module only plays an optional ~1.5s intro and lets students skip it.
+const DURATION_MS = 1500;
+const COUNT_MS = 650;
+const COUNT_DELAY_MS = 150;
 
 export function prefersReducedMotion(win = globalThis) {
   try { return Boolean(win.matchMedia?.('(prefers-reduced-motion: reduce)').matches); } catch { return false; }
