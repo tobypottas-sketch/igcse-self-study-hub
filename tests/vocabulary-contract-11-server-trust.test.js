@@ -105,10 +105,16 @@ test('the existing record_vocabulary_mission body and its anti-tamper rules are 
 });
 
 // ---- not yet true (blocked on wiring the app) ----
-expectedFailure({ rule: 'Server-owned visible-stage advancement: one passed mission advances once; replay of a passed stage does not double-advance',
-  today: 'the server now records the mission outcome, but nothing applies it to a stored Set stage: src/vocabulary/stage-progression.js is pure and not wired, and the app still derives the visible stage from per-word evidence',
-  turnsGreenWhen: 'a server-side Set state row (using the stage-progression rules) is advanced in the mission-recording transaction, keyed by mission_id' },
-'mission recording advances a server-held Set stage exactly once', () => assert.match(migration + identity, /set_stage|current_stage|advance_set/i));
+// Job 6: the Set state is server-held and advanced inside the mission-recording transaction (behaviour: tests/db/pathway-sets.scenario.sql, 33 checks + 383 parity checks).
+const setMigration = read('supabase/migrations/20261024160000_vocabulary_pathway_sets.sql');
+test('mission recording advances a server-held Set stage exactly once', () => {
+  assert.match(setMigration, /create table if not exists public\.vocabulary_pathway_sets/i);
+  assert.match(setMigration, /after insert on public\.vocabulary_missions/i);
+  assert.match(setMigration, /applied_mission_ids/);                                    // idempotence key: a mission is applied once
+  assert.match(setMigration, /revoke all on public\.vocabulary_pathway_sets from anon, authenticated/i);
+  assert.match(setMigration, /grant select on public\.vocabulary_pathway_sets to authenticated/i);
+  assert.doesNotMatch(setMigration, /grant (insert|update|delete|all)[^;]*vocabulary_pathway_sets[^;]*to (anon|authenticated)/i);
+});
 
 // ---- server enforcement (migration 20261024140000 + the attempt Edge Function). Behaviour is exercised on local Postgres by tests/db/mission-enforcement.scenario.sql (12 checks). ----
 const enforcement = read('supabase/migrations/20261024140000_vocabulary_mission_enforcement.sql');

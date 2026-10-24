@@ -5,8 +5,9 @@ import fs from 'node:fs';
 const source = fs.readFileSync(new URL('../src/vocabulary/app.js', import.meta.url), 'utf8');
 
 test('unit rendering derives six pathway cards from persisted evidence', () => {
-  assert.match(source, /buildUnitPathwayStates/);
-  assert.match(source, /pathwayStates\s*=\s*buildUnitPathwayStates/);
+  // Job 6: the six pathway cards are derived from the server-held Set progression, not from per-word evidence.
+  assert.match(source, /buildSetPathwayStates/);
+  assert.match(source, /pathwayStates\s*=\s*setPathwayStates\(/);
   assert.match(source, /renderVocabularyUnit\([\s\S]*pathwayStates/);
 });
 

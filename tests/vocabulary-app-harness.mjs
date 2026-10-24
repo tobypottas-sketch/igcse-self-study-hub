@@ -33,8 +33,8 @@ const source = fs.readFileSync(new URL('../src/vocabulary/app.js',import.meta.ur
 
 // Optional latency controls: `submitDelay(payload, index)` returns ms to wait before the fake server answers (real timers),
 // `serverCorrect(payload, local)` overrides the server's marking, `deterministic` fixes randomUUID so two runs are comparable.
-export function harness({ pathwayId = 'word_families', stage = 'match', size = 2, validate = true, submitDelay = null, serverCorrect = null, deterministic = false, fail = null, missionServer = null, rejectMissionAttempts = null, userKey = 'tester', recordMission = null, setServer = null, setRows = null } = {}) {
-  const chosen = ['afford', 'avoid']
+export function harness({ pathwayId = 'word_families', stage = 'match', size = 2, validate = true, submitDelay = null, serverCorrect = null, deterministic = false, fail = null, missionServer = null, rejectMissionAttempts = null, userKey = 'tester', recordMission = null, setServer = null, setRows = null, terms = ['afford', 'avoid'] } = {}) {
+  const chosen = terms
     .map(term => unit.items.find(row => row.term === term)).filter(Boolean)
     .map(item => unit.occurrences.find(row => row.vocabularyId === item.vocabularyId));
   const occurrences = [...chosen, ...unit.occurrences.filter(row => !chosen.includes(row))].slice(0, size);

@@ -7,7 +7,7 @@ const sleep = ms => new Promise(done => setTimeout(done, ms));
 
 // Plays a mission: answers per plan(n) (true = correct), clicking Next as soon as the answer is final.
 async function play(h, { pathwayId, plan = () => true, waitForSaves = false, max = 60 } = {}) {
-  h.run(`startPathwaySession('${pathwayId}')`);
+  await h.run(`startPathwaySession('${pathwayId}')`);
   for (let n = 1; n <= max && h.state.current && !h.summaries.length; n += 1) {
     const answer = plan(n) ? correctAnswer(h) : '__wrong__';
     h.run(`handleAnswer(null,${JSON.stringify(answer)})`);
@@ -57,7 +57,7 @@ test('a recovery question is never skipped, duplicated or counted twice when sav
 test('a server marking mismatch that arrives after the student moved on is applied safely', async () => {
   const warnings = [];
   const h = harness({ pathwayId:'word_families', stage:'match', size:4, deterministic:true, submitDelay:() => 60, serverCorrect:(payload, local) => (payload.firstAttempt && local ? false : local) });
-  h.run("startPathwaySession('word_families')");
+  await h.run("startPathwaySession('word_families')");
   h.run(`handleAnswer(null,${JSON.stringify(correctAnswer(h))})`);          // locally correct
   await h.run('advanceToNextQuestion()');
   const shown = h.state.current;                                             // the student is already on question 2
@@ -90,7 +90,7 @@ test('background saves stay strictly ordered, one attempt id each, exactly once'
 
 test('a slow network never queues Next behind the save: Next is effectively instant', async () => {
   const h = harness({ pathwayId:'context', stage:'recognise', size:6, deterministic:true, submitDelay:() => 400 });
-  h.run("startPathwaySession('context')");
+  await h.run("startPathwaySession('context')");
   const start = performance.now();
   for (let n = 0; n < 3; n += 1) { h.run(`handleAnswer(null,${JSON.stringify(correctAnswer(h))})`); await h.run('advanceToNextQuestion()'); }
   const elapsed = performance.now() - start;
@@ -103,7 +103,7 @@ test('a slow network never queues Next behind the save: Next is effectively inst
 // ── Failure behaviour ─────────────────────────────────────────────────────────────────────────────
 test('transient failures retry in the background with the same attempt id; Next is not tied to the backoff', async () => {
   const h = harness({ pathwayId:'context', stage:'recognise', size:4, deterministic:true, submitDelay:() => 5, fail:(_p, i) => i <= 2 });
-  h.run("startPathwaySession('context')");
+  await h.run("startPathwaySession('context')");
   h.run(`handleAnswer(null,${JSON.stringify(correctAnswer(h))})`);
   const start = performance.now();
   await h.run('advanceToNextQuestion()');
@@ -118,7 +118,7 @@ test('transient failures retry in the background with the same attempt id; Next 
 test('a blocked head attempt keeps its place; answers queue behind it and a backlog cap forces recovery before more progress', async () => {
   let failing = true;
   const h = harness({ pathwayId:'context', stage:'recognise', size:10, deterministic:true, submitDelay:() => 2, fail:() => failing });
-  h.run("startPathwaySession('context')");
+  await h.run("startPathwaySession('context')");
   h.run(`handleAnswer(null,${JSON.stringify(correctAnswer(h))})`);
   await h.run('advanceToNextQuestion()');
   await h.state.attempts.settled();                                          // auto retries exhausted -> blocked
@@ -145,7 +145,7 @@ test('a blocked head attempt keeps its place; answers queue behind it and a back
 
 test('with the network still down at the backlog cap, Next stays safe: no advance, nothing lost, warning kept', async () => {
   const h = harness({ pathwayId:'context', stage:'recognise', size:10, deterministic:true, submitDelay:() => 1, fail:() => true });
-  h.run("startPathwaySession('context')");
+  await h.run("startPathwaySession('context')");
   for (let n = 0; n < 4; n += 1) { h.run(`handleAnswer(null,${JSON.stringify(correctAnswer(h))})`); await h.run('advanceToNextQuestion()'); await h.state.attempts.settled(); }
   assert.equal(h.state.attempts.blocked, true);
   const pending = h.state.attempts.pending;
@@ -159,7 +159,7 @@ test('with the network still down at the backlog cap, Next stays safe: no advanc
 // ── Finishing is the one place that waits ─────────────────────────────────────────────────────────
 test('the results screen waits for every save; nothing pending means it appears synchronously', async () => {
   const slow = harness({ pathwayId:'context', stage:'recognise', size:3, deterministic:true, submitDelay:() => 80 });
-  slow.run("startPathwaySession('context')");
+  await slow.run("startPathwaySession('context')");
   for (let n = 0; n < 3; n += 1) { slow.run(`handleAnswer(null,${JSON.stringify(correctAnswer(slow))})`); await slow.run('advanceToNextQuestion()'); }
   assert.equal(slow.summaries.length, 0, 'results are held back while saves are in flight');
   assert.equal(slow.saved.length < 3, true);
@@ -168,7 +168,7 @@ test('the results screen waits for every save; nothing pending means it appears 
   assert.equal(slow.summaries.length, 1, 'then shown exactly once');
 
   const instant = harness({ pathwayId:'context', stage:'recognise', size:1, deterministic:true });
-  instant.run("startPathwaySession('context')");
+  await instant.run("startPathwaySession('context')");
   instant.run(`handleAnswer(null,${JSON.stringify(correctAnswer(instant))})`);
   await instant.state.attempts.settled();
   await instant.run('advanceToNextQuestion()');
@@ -195,7 +195,7 @@ test('every wait on persistence is accounted for in app.js', async () => {
 test('backlog cap boundary: blocked + 2 pending lets Next through; blocked + exactly 3 pending retries first', async () => {
   const net = { down:true };
   const h = harness({ pathwayId:'context', stage:'recognise', size:10, deterministic:true, submitDelay:() => 1, fail:() => net.down });
-  h.run("startPathwaySession('context')");
+  await h.run("startPathwaySession('context')");
   const answer = () => h.run(`handleAnswer(null,${JSON.stringify(correctAnswer(h))})`);
   answer(); await h.run('advanceToNextQuestion()'); await h.state.attempts.settled();    // head attempt fails -> blocked
   assert.equal(h.state.attempts.blocked, true);

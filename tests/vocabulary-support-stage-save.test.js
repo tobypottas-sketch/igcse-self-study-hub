@@ -8,7 +8,7 @@ import { applyPathwayAttempt, freshPathwayProgress } from '../supabase/functions
 
 test('production shape: Word Families Match → wrong → supported retry → recovery question is accepted by server validation', async () => {
   const h = harness();
-  h.run("startPathwaySession('word_families')");
+  await h.run("startPathwaySession('word_families')");
   assert.equal(h.state.pathwayStage, 'match');
   const first = h.state.current; assert.equal(first.question.type, 'word_family_match');
 
@@ -33,7 +33,7 @@ test('production shape: Word Families Match → wrong → supported retry → re
 
 test('support metadata is honest and evidence/progression stay server-authoritative', async () => {
   const h = harness();
-  h.run("startPathwaySession('word_families')");
+  await h.run("startPathwaySession('word_families')");
   h.run('handleAnswer(null,"__wrong__")');
   h.run(`handleAnswer(null,${JSON.stringify(correctAnswer(h))})`);
   await advanceToRecovery(h);
