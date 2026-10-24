@@ -1,6 +1,6 @@
 // Connections rules as a small pure state machine over the curated puzzles. No storage, network or progression.
-// Scoring: solving at clue 1 = 500, clue 2 = 400, clue 3 = 300, clue 4 = 200; revealing the answer = 0. Wrong guesses never end a puzzle and never cost points.
-export const CONNECTIONS = Object.freeze({ puzzleCount: 5, clues: 4, points: Object.freeze([500, 400, 300, 200]) });
+// Scoring: solving at clue 1 = 500, clue 2 = 400, clue 3 = 300, clue 4 = 200; using the 3-choice "Need help?" step = 100; revealing the answer = 0. Wrong guesses never end a puzzle and never cost points.
+export const CONNECTIONS = Object.freeze({ puzzleCount: 5, clues: 4, points: Object.freeze([500, 400, 300, 200]), helpPoints: 100 });
 
 const shuffle = (list, rng) => { const a = list.slice(); for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 // One normal form for typed answers and for the stored target/aliases: lower case, accents folded, only letters/space/hyphen, single spaces,
@@ -17,13 +17,26 @@ export const wordShape = (puzzle, revealed = 1) => {
 export const acceptedForms = puzzle => new Set([puzzle.target, ...(puzzle.accept ?? [])].map(normaliseGuess));
 
 export function createConnections({ puzzles }) {
-  const s = { status: 'playing', index: 0, revealed: 1, wrong: [], score: 0, results: [], puzzles, phase: 'guessing' };   // phase: guessing | solved | gaveUp
+  const s = { status: 'playing', index: 0, revealed: 1, wrong: [], helpOn: false, choices: [], choiceWrong: [], score: 0, results: [], puzzles, phase: 'guessing' };   // phase: guessing | solved | gaveUp
   const puzzle = () => s.puzzles[s.index];
-  const potential = () => CONNECTIONS.points[Math.min(s.revealed, puzzle().clues.length) - 1] ?? 0;
-  const settle = (solved, points) => { s.results.push({ target: puzzle().target, solved, points, clues: s.revealed, wrong: s.wrong.length }); s.score += points; s.phase = solved ? 'solved' : 'gaveUp'; };
+  const potential = () => s.helpOn ? CONNECTIONS.helpPoints : CONNECTIONS.points[Math.min(s.revealed, puzzle().clues.length) - 1] ?? 0;
+  const settle = (solved, points) => { s.results.push({ target: puzzle().target, solved, points, clues: s.revealed, wrong: s.wrong.length + s.choiceWrong.length, help: s.helpOn }); s.score += points; s.phase = solved ? 'solved' : 'gaveUp'; };
   return {
     state: s, puzzle, potential,
     canReveal: () => s.phase === 'guessing' && s.revealed < puzzle().clues.length,
+    canHelp: () => s.phase === 'guessing' && !s.helpOn && s.revealed >= puzzle().clues.length,
+    // "Need help?": three Unit 1 words (the answer plus two curated distractors) in a stable, answer-not-first order. Worth 100; wrong picks cost nothing.
+    help() {
+      if (!this.canHelp()) return false;
+      const p = puzzle(); const options = [p.target, ...(p.help ?? [])]; const shift = (s.index + 1) % options.length;
+      s.choices = options.slice(shift).concat(options.slice(0, shift)); s.helpOn = true; return true;
+    },
+    pick(term) {
+      if (s.phase !== 'guessing' || !s.helpOn || !s.choices.includes(term)) return null;
+      if (term === puzzle().target) { const points = potential(); settle(true, points); return { correct: true, points }; }
+      if (!s.choiceWrong.includes(term)) s.choiceWrong.push(term);
+      return { correct: false, potential: potential() };
+    },
     canGiveUp: () => s.phase === 'guessing' && s.revealed >= puzzle().clues.length,
     reveal() { if (s.phase !== 'guessing' || s.revealed >= puzzle().clues.length) return false; s.revealed += 1; return true; },
     // `text` is exactly what the student typed. Wrong guesses are kept as typed (so the screen can show what was received) and de-duplicated by normal form.
@@ -38,7 +51,7 @@ export function createConnections({ puzzles }) {
     next() {
       if (s.phase === 'guessing') return false;
       if (s.index + 1 >= s.puzzles.length) { s.status = 'over'; return true; }
-      s.index += 1; s.revealed = 1; s.wrong = []; s.phase = 'guessing'; return true;
+      s.index += 1; s.revealed = 1; s.wrong = []; s.helpOn = false; s.choices = []; s.choiceWrong = []; s.phase = 'guessing'; return true;
     },
     summary() {
       const solved = s.results.filter(r => r.solved).length;

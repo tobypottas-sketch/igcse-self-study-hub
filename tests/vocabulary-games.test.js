@@ -108,12 +108,12 @@ test('Connections: curated Unit 1 puzzles, exactly four clues each, on the agree
     assert.ok(terms.has(p.target), `${p.target} is a Unit 1 word`); assert.equal(p.clues.length, 4, `${p.target}: four clues`);
     const stem = p.target.slice(0, Math.max(5, p.target.length - 3)).toLowerCase();
     for (const [i, c] of p.clues.entries()) { assert.ok(!c.text.toLowerCase().replace(/___/g, '').includes(stem), `${p.target} clue ${i + 1} gives the word away`); kinds.add(c.kind); }
-    assert.deepEqual(p.clues.map(c => c.kind).slice(0, 2), ['association', 'association'], `${p.target}: clues 1-2 are associations`);
-    assert.ok(['context', 'synonym'].includes(p.clues[2].kind), `${p.target}: clue 3 is a usage/synonym clue`); assert.equal(p.clues[3].kind, 'meaning', `${p.target}: clue 4 is the near-definition`);
-    assert.ok(p.clues[2].kind === 'synonym' || p.clues[2].text.includes('___'), `${p.target}: a context clue shows the blank`);
-    assert.ok(p.clues[0].text.length <= p.clues[3].text.length + 10 && p.why.length > 30);
+    assert.deepEqual(p.clues.map(c => c.kind), ['association', 'association', 'plain', 'meaning'], `${p.target}: the clue staircase`);
+    assert.ok(!p.clues[2].text.includes('___'), `${p.target}: clue 3 is plain meaning, not a blank sentence`);
+    assert.ok(p.clues.every(c => !c.text.includes('___')));
+    assert.ok(p.why.length > 30); assert.ok(p.clues[2].text.length < 70);
   }
-  assert.deepEqual([...kinds].sort(), ['association', 'context', 'meaning', 'synonym']);
+  assert.deepEqual([...kinds].sort(), ['association', 'meaning', 'plain']);
   // clue 4 is the real Unit 1 meaning, in the student's own words: it shares vocabulary with the unit's definition
   for (const p of CONNECTIONS_PUZZLES) { const def = unit1.items.find(i => i.term === p.target).coreMeaning.toLowerCase().match(/[a-z]{5,}/g) ?? []; assert.ok(def.some(w => p.clues[3].text.toLowerCase().includes(w.slice(0, 5))) || p.target === 'racquet', `${p.target}: clue 4 tracks the definition`); }
 });
@@ -227,7 +227,7 @@ browserTest('Connections accepted spellings through the real rendered UI: racque
     }
     // a wrong answer shows in the UI and the puzzle stays open
     await page.evaluate(() => window.__mountP('connections', window.__puzzles.filter(p => p.target === 'racquet'))); await page.click('[data-game-act="cx-start"]'); await page.fill('#cxGuess', 'raquet'); await page.press('#cxGuess', 'Enter');
-    assert.match(await page.textContent('.gm-shell'), /raquet/); assert.equal(await page.locator('#cxGuess').count(), 1);
+    assert.match(await page.textContent('.gm-nudge'), /Good thinking/); assert.equal(await page.locator('#cxGuess').count(), 1);
   } finally { await browser.close(); server.close(); }
 });
 
@@ -242,4 +242,40 @@ test('Connections word shape: length always shown, first letter only from clue 3
   const racquet = CONNECTIONS_PUZZLES.find(p => p.target === 'racquet');
   assert.equal(wordShape(racquet, 3).label, '7 letters', 'the alias "racket" (6) never changes the shown length'); assert.equal(wordShape({ ...racquet, accept: ['zzz'] }, 1).label, '7 letters');
   const game = createConnections({ puzzles: [racquet] }); assert.equal(game.potential(), 500); game.reveal(); game.reveal(); assert.equal(game.potential(), 300);
+});
+
+test('Connections "Need help?": exactly three Unit 1 choices, one correct, curated distractors, worth 100, wrong picks free', () => {
+  const unitPos = new Map(unit1.items.map(i => [i.term, i.partOfSpeech]));
+  for (const p of CONNECTIONS_PUZZLES) {
+    assert.equal(p.help.length, 2, p.target); assert.equal(new Set([p.target, ...p.help]).size, 3);
+    for (const h of p.help) { assert.ok(terms.has(h), `${p.target}: ${h} is a Unit 1 word`); assert.equal(unitPos.get(h), unitPos.get(p.target), `${p.target}: ${h} same part of speech`); assert.ok(!BLITZ_CONFUSABLE.some(g => g.includes(p.target) && g.includes(h)), `${p.target}/${h} are near neighbours`); assert.ok(!acceptedForms(p).has(h)); }
+  }
+  const p = CONNECTIONS_PUZZLES.find(x => x.target === 'patience'); const game = createConnections({ puzzles: [p, CONNECTIONS_PUZZLES[0]] });
+  assert.equal(game.canHelp(), false, 'not before clue 4'); assert.equal(game.help(), false); while (game.reveal()); assert.equal(game.potential(), 200); assert.equal(game.canHelp(), true);
+  assert.equal(game.help(), true); assert.equal(game.state.choices.length, 3); assert.deepEqual([...game.state.choices].sort(), [p.target, ...p.help].sort()); assert.equal(game.potential(), 100); assert.equal(game.canHelp(), false);
+  const wrongPick = game.state.choices.find(c => c !== p.target); assert.equal(game.pick(wrongPick).correct, false); assert.equal(game.potential(), 100); assert.equal(game.state.score, 0); assert.equal(game.pick('not offered'), null);
+  assert.equal(game.pick(p.target).points, 100); assert.equal(game.state.score, 100); assert.equal(game.state.results[0].help, true);
+  game.next(); assert.equal(game.state.helpOn, false); assert.deepEqual(game.state.choices, []); assert.equal(game.potential(), 500);
+  assert.equal(CONNECTIONS.helpPoints, 100);
+});
+
+browserTest('Connections supportive UI: no -100 on buttons, encouraging feedback after a miss, Need help? shows three choices and finishes the puzzle', async () => {
+  const playwright = loadPlaywright(); const browser = await playwright.chromium.launch({ executablePath: await findChromium() }); const { server, url } = await startServer();
+  try {
+    for (const [w, h] of [[1280, 800], [390, 844], [320, 640]]) {
+      const page = await browser.newPage({ viewport: { width: w, height: h } }); page.on('pageerror', e => { throw e; }); await page.goto(`${url}/__games.html`); await page.waitForFunction(() => window.__ready);
+      const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      await page.evaluate(() => window.__mountP('connections', window.__puzzles.filter(p => p.target === 'patience'))); await page.click('[data-game-act="cx-start"]');
+      assert.equal(await page.locator('[data-game-act="cx-help"]').count(), 0, 'no help before clue 4');
+      const text = async () => page.textContent('.gm-shell'); assert.match(await text(), /Worth\s*500\s*points/); assert.match(await page.textContent('[data-game-act="cx-reveal"]'), /^Show next clue$/);
+      await page.fill('#cxGuess', 'pressure'); await page.press('#cxGuess', 'Enter'); assert.match(await page.textContent('.gm-nudge'), /Good thinking — try another clue\./); assert.doesNotMatch(await text(), /wrong|incorrect|−100|-100|Not “/i); assert.equal(await page.textContent('[data-cx-worth]'), '500', 'a wrong guess costs nothing');
+      for (let i = 0; i < 3; i += 1) await page.click('[data-game-act="cx-reveal"]');
+      assert.equal(await page.locator('[data-game-act="cx-reveal"]').count(), 0); assert.equal(await page.textContent('[data-cx-first] b'), 'P'); assert.equal(await page.textContent('[data-cx-length]'), '8 letters');
+      assert.equal(await page.textContent('[data-cx-worth]'), '200'); await page.click('[data-game-act="cx-help"]'); assert.equal(await page.locator('.gm-choice').count(), 3); assert.equal(await page.textContent('[data-cx-worth]'), '100'); assert.ok((await overflow()) <= 0, `${w}: overflow with choices`);
+      const labels = await page.locator('.gm-choice').allTextContents(); assert.deepEqual(labels.sort(), ['challenge', 'patience', 'solution']);
+      await page.click('.gm-choice:has-text("challenge")'); assert.equal(await page.locator('.gm-choice[disabled]').count(), 1); assert.match(await page.textContent('.gm-nudge'), /./); assert.equal(await page.textContent('[data-cx-worth]'), '100');
+      await page.click('.gm-choice:has-text("patience")'); assert.equal(await page.textContent('[data-cx-score]'), '100'); assert.match(await text(), /\+100/); assert.ok((await overflow()) <= 0, `${w}: overflow on result`);
+      await page.close();
+    }
+  } finally { await browser.close(); server.close(); }
 });

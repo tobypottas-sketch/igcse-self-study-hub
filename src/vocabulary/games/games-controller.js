@@ -82,6 +82,8 @@ export function mountGames(root, { content, game = 'lobby', onExit = () => {}, r
     else if (act === 'blitz-answer') answerBlitz(target.dataset.index);
     else if (act === 'cx-start' || act === 'cx-again') startConnections();
     else if (act === 'cx-reveal') { cx.reveal(); showCx(); focus('#cxGuess'); }
+    else if (act === 'cx-help') { cx.help(); showCx(); focus('[data-cx-choices] .gm-choice'); }
+    else if (act === 'cx-choice') { const r = cx.pick(target.dataset.term); if (r) { showCx(); if (!r.correct) { const first = q('[data-cx-choices] .gm-choice:not([disabled])'); first?.focus?.(); } } }
     else if (act === 'cx-giveup') { cx.giveUp(); showCx(); }
     else if (act === 'cx-next') { cx.next(); showCx(); }
     else if (act === 'suggest') { const input = q('#cxGuess'); if (input) { input.value = target.dataset.term; input.focus?.(); } }
