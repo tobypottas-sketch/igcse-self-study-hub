@@ -98,8 +98,10 @@ export function mountGames(root, { content, game = 'lobby', onExit = () => {}, r
     if (!blitz || blitz.state.status !== 'playing' || event.ctrlKey || event.metaKey || event.altKey) return;
     const n = Number(event.key); if (n >= 1 && n <= 4 && q('.gm-option')) { event.preventDefault?.(); answerBlitz(n - 1); }
   };
-  root.addEventListener('click', onClick); root.addEventListener('submit', onSubmit); root.addEventListener('input', onInput); globalThis.addEventListener?.('keydown', onKey);
-  function destroy() { if (!alive) return; alive = false; stop(); root.removeEventListener('click', onClick); root.removeEventListener('submit', onSubmit); root.removeEventListener('input', onInput); globalThis.removeEventListener?.('keydown', onKey); }
+  // A picture clue that cannot load falls back to its text clue (error events do not bubble, so listen in the capture phase).
+  const onImgError = event => { const img = event.target; if (!img?.matches?.('img[data-cx-img]')) return; img.hidden = true; const fb = img.parentElement?.querySelector?.('[data-cx-img-fallback]'); if (fb) fb.hidden = false; };
+  root.addEventListener('error', onImgError, true); root.addEventListener('click', onClick); root.addEventListener('submit', onSubmit); root.addEventListener('input', onInput); globalThis.addEventListener?.('keydown', onKey);
+  function destroy() { if (!alive) return; alive = false; stop(); root.removeEventListener('error', onImgError, true); root.removeEventListener('click', onClick); root.removeEventListener('submit', onSubmit); root.removeEventListener('input', onInput); globalThis.removeEventListener?.('keydown', onKey); }
 
   show(game === 'blitz' || game === 'connections' ? game : 'lobby');
   return { destroy, get blitz() { return blitz; }, get connections() { return cx; } };
