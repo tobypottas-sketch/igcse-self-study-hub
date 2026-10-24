@@ -16,12 +16,12 @@ const openUnit = app.match(/async function openUnit\(unitNumber\) \{([\s\S]*?)\n
 test('cold openUnit never renders the unit before its data is ready', () => {
   assert.ok(openUnit, 'openUnit found');
   const renders = [...openUnit.matchAll(/renderCurrentUnit\(\)/g)].map(match => match.index);
-  assert.equal(renders.length, 2, 'one render for the cached path, one for the loaded cold path');
+  assert.equal(renders.length, 3, 'cached path renders at once, repaints only if the server rows changed, and the cold path renders once after loading');
   const cachedBlock = openUnit.slice(openUnit.indexOf('if (cached) {'), openUnit.indexOf('state.loadingUnit = unitNumber'));
   assert.match(cachedBlock, /renderCurrentUnit\(\)/, 'cached units still render immediately');
-  const awaitLoad = openUnit.indexOf('await Promise.all([contentPromise, masteryPromise])');
+  const awaitLoad = openUnit.indexOf('await Promise.all([contentPromise, masteryPromise');          // content, mastery and the server-held Set progression
   assert.ok(awaitLoad > 0);
-  assert.ok(renders[1] > awaitLoad, 'the cold render happens only after content and mastery are awaited');
+  assert.ok(renders[2] > awaitLoad, 'the cold render happens only after content and mastery are awaited');
   assert.ok(openUnit.indexOf('renderCurrentUnit()') < openUnit.indexOf('state.loadingUnit = unitNumber'));
   assert.doesNotMatch(openUnit, /state\.content = null/, 'no placeholder state');
   assert.doesNotMatch(openUnit, /attempts\(\)\.reset/);

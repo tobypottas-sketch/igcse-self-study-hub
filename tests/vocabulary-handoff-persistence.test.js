@@ -16,7 +16,7 @@ const HANDOFFS = {
 async function blockedHarness({ count = 2, delay = 2 } = {}) {
   const net = { down:true };
   const h = harness({ pathwayId:'context', stage:'recognise', size:10, deterministic:true, submitDelay:() => delay, fail:() => net.down });
-  h.run("startPathwaySession('context')");
+  await h.run("startPathwaySession('context')");
   for (let n = 0; n < count; n += 1) { h.run(`handleAnswer(null,${JSON.stringify(correctAnswer(h))})`); await h.run('advanceToNextQuestion()'); }
   await h.state.attempts.settled();
   assert.equal(h.state.attempts.blocked, true, 'precondition: the head attempt is blocked');
@@ -68,7 +68,7 @@ for (const [name, handoff] of Object.entries(HANDOFFS)) {
 
   test(`${name} hand-off: a healthy pending save lets the hand-off through once it completes`, async () => {
     const h = harness({ pathwayId:'context', stage:'recognise', size:10, deterministic:true, submitDelay:() => 60 });
-    h.run("startPathwaySession('context')");
+    await h.run("startPathwaySession('context')");
     h.run(`handleAnswer(null,${JSON.stringify(correctAnswer(h))})`);
     await h.run('advanceToNextQuestion()');
     assert.ok(h.state.attempts.pending > 0);
@@ -81,7 +81,7 @@ for (const [name, handoff] of Object.entries(HANDOFFS)) {
 
   test(`${name} hand-off: with nothing pending it starts immediately`, async () => {
     const h = harness({ pathwayId:'context', stage:'recognise', size:10, deterministic:true });
-    h.run("startPathwaySession('context')");
+    await h.run("startPathwaySession('context')");
     h.run(`handleAnswer(null,${JSON.stringify(correctAnswer(h))})`);
     await h.state.attempts.settled();
     h.run(handoff);
@@ -112,7 +112,7 @@ test('Next Question stays optimistic with a blocked queue, and the Q10 finish is
   net.down = false;
 
   const fin = harness({ pathwayId:'context', stage:'recognise', size:2, deterministic:true, submitDelay:() => 60 });
-  fin.run("startPathwaySession('context')");
+  await fin.run("startPathwaySession('context')");
   for (let n = 0; n < 2; n += 1) { fin.run(`handleAnswer(null,${JSON.stringify(correctAnswer(fin))})`); await fin.run('advanceToNextQuestion()'); }
   assert.equal(fin.summaries.length, 0, 'results still held until saves land');
   await fin.state.attempts.settled(); await sleep(20);

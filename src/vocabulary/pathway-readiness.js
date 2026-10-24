@@ -11,6 +11,7 @@ import { linkedActivitiesForTarget } from './session-targets.js';
 import { pathwayLivePolicy } from './pathway-live-policy.js';
 import { READINESS_RULES, stageMinimum } from '../../content/vocabulary/pathway-readiness-rules.js';
 import { unitConfig } from '../../content/vocabulary/unit-registry.js';
+import { computePathwaySets } from './pathway-sets.js';
 
 function array(value) { return Array.isArray(value) ? value : []; }
 function idOf(row) { return String(row.occurrenceId ?? row.occurrence_id); }
@@ -109,6 +110,8 @@ export function evaluateUnitReadiness({ content, masteryByVocabularyId = {}, exp
     else if (missing.some(row => row.kind === 'full_path')) reason = 'too_few_full_path_words';
     else if (missing.some(row => row.kind === 'diversity')) reason = 'diversity_below_minimum';
     const live = !reason;
+    // Sets of 10 over the words that can run every stage (authored order). Held-back words stay visible here and are never padded in.
+    const sets = computePathwaySets(servedIds, { pathwayId:pathway.id });
 
     pathways[pathway.id] = {
       pathwayId:pathway.id,
@@ -122,6 +125,12 @@ export function evaluateUnitReadiness({ content, masteryByVocabularyId = {}, exp
       supportedStages:PATHWAY_STAGES.map(stage => stage.id).filter(id => stageCounts[id] >= stageMinimums[id]),
       servedOccurrenceIds:live ? servedIds : [],
       servedCount:servedIds.length,
+      setCount:sets.setCount,
+      playableSetCount:live ? sets.setCount : 0,
+      setMembers:sets.sets,
+      heldBackOccurrenceIds:sets.heldBack,
+      heldBackCount:sets.heldBackCount,
+      setReadiness:sets.reason,
       totalOccurrences:occurrences.length,
       withheldStages,
       missing

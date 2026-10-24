@@ -287,6 +287,7 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 .vocab-finish-evidence>div{display:grid;gap:2px;padding:14px;border:1px solid color-mix(in srgb,var(--study-accent) 14%,var(--c-teal-soft));border-radius:var(--r-md);background:color-mix(in srgb,var(--study-accent-soft) 42%,white)}
 .vocab-finish-evidence strong{font-size:1.55rem}.vocab-finish-evidence span{font-size:var(--fs-sm);font-weight:800;color:var(--study-muted)}
 .vocab-finish-context{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:18px 0 10px;text-align:left}.vocab-finish-context span{font-size:var(--fs-sm);font-weight:800;color:var(--study-muted)}
+.vocab-finish-next{margin:0 0 10px;text-align:left;font-size:var(--fs-sm);font-weight:900;color:var(--study-ink,inherit)}.vocab-pathway-card__set{display:block;font-weight:900}
 .vocab-finish-ladder{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;min-width:0;margin:10px 0 18px}
 .vocab-finish-stage{display:grid;place-items:center;gap:4px;min-width:0;padding:10px 4px;border-radius:var(--r-md);background:var(--c-bg);border:1px solid var(--c-teal-soft);color:var(--study-muted)}
 .vocab-finish-stage i{font-style:normal;font-weight:900}.vocab-finish-stage small{max-width:100%;overflow-wrap:anywhere;font-weight:800}

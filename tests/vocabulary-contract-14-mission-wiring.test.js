@@ -205,9 +205,9 @@ for (const code of ['mission_not_open', 'mission_not_issued']) {
 }
 
 // ---- sessions that cannot have a server mission keep the legacy behaviour and send no mission fields ----
-test('a short (<10 target) session starts synchronously with no mission and no RPC', async () => {
+test('a short (<10 target) session starts with no mission and no RPC (harness-only: production Sets are always ten)', async () => {
   installStorage(); const server = fakeServer(); const h = harness(options(server, { size: 2 }));
-  h.run("startPathwaySession('meaning')");
+  await h.run("startPathwaySession('meaning')");
   assert.equal(server.log.length, 0); assert.equal(h.state.session.missionId, undefined);
 });
 

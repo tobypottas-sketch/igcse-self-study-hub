@@ -5,7 +5,7 @@ import unit1 from '../content/vocabulary/units/unit-01.js';
 import { releasePlannerContent } from '../content/vocabulary/readiness-report.js';
 import { evaluateUnitReadiness } from '../src/vocabulary/pathway-readiness.js';
 import { computeSets, servedAtAllStages, familyCompleteForMastery, SET_SIZE } from './support/vocabulary-contract/reference-sets.js';
-import { hook, hookLocation } from './support/vocabulary-contract/production-hooks.js';
+import { hook } from './support/vocabulary-contract/production-hooks.js';
 import { expectedFailure } from './support/vocabulary-contract/xfail.js';
 
 const ids = n => Array.from({ length: n }, (_, i) => `w${String(i + 1).padStart(2, '0')}`);
@@ -93,11 +93,7 @@ expectedFailure({
   turnsGreenWhen: 'Unit data records each family form as { form, partOfSpeech, authentic, authoredContext } (content authoring, a later job) and readiness gates Word Families Mastery on familyCompleteForMastery'
 }, 'unit 1: Word Families Mastery eligibility can be evaluated from the data model', () => assert.equal(structured.length, wfServed.length));
 
-expectedFailure({
-  rule: 'Readiness exposes complete Sets per pathway and the held-back remainder (Locked Decisions 1-2)',
-  today: 'evaluateUnitReadiness returns servedCount only; there is no setCount / heldBack / Set membership, so a 48-word pathway looks like a full pathway',
-  turnsGreenWhen: 'readiness (or a pure selector it calls) exposes setCount, set membership and heldBack for each pathway'
-}, 'production readiness exposes Set count and held-back words per pathway', () => {
+test('production readiness exposes Set count and held-back words per pathway', () => {
   for (const p of Object.values(readiness.pathways)) {
     assert.equal(typeof p.setCount, 'number', `${p.pathwayId}.setCount`);
     assert.ok(Array.isArray(p.heldBackOccurrenceIds), `${p.pathwayId}.heldBackOccurrenceIds`);
@@ -105,11 +101,7 @@ expectedFailure({
   }
 });
 
-expectedFailure({
-  rule: 'A pure Set selector returns the approved Set counts for the five fixtures',
-  today: `no module exports ${hookLocation('computePathwaySets')}`,
-  turnsGreenWhen: `${hookLocation('computePathwaySets')} is implemented to return { setCount, sets, heldBack } for a list of serviceable ids`
-}, 'production Set selector satisfies the 50/47/40/9/0 fixtures', async () => {
+test('production Set selector satisfies the 50/47/40/9/0 fixtures', async () => {
   const fn = await hook('computePathwaySets');
   assert.equal(typeof fn, 'function', 'computePathwaySets is not exported');
   for (const [n, sets, held] of FIXTURES) { const r = fn(ids(n)); assert.equal(r.setCount, sets); assert.equal(r.heldBack.length, held); }
