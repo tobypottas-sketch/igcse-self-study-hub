@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import { renderVocabularyUnit, renderVocabularyHome } from '../src/vocabulary/views.js';
 import { createBlitz, BLITZ, buildBlitzPool, multiplierFor, blankSentence, blankExact, ratingFor } from '../src/vocabulary/games/blitz-engine.js';
-import { createConnections, pickPuzzles, CONNECTIONS, normaliseGuess, acceptedForms } from '../src/vocabulary/games/connections-engine.js';
+import { createConnections, pickPuzzles, CONNECTIONS, normaliseGuess, acceptedForms, wordShape } from '../src/vocabulary/games/connections-engine.js';
 import { CONNECTIONS_PUZZLES, BLITZ_CONFUSABLE } from '../src/vocabulary/games/games-data.js';
 import { findChromium, loadPlaywright } from './helpers/pathway-geometry-harness.mjs';
 
@@ -194,9 +194,9 @@ browserTest('in a browser: both games launch without network or progression call
       await page.click('[data-game-act="blitz-again"]'); await page.evaluate(() => { window.__t = 100000; }); assert.equal(await page.textContent('[data-blitz-score]'), '0', `${where}: Play again restarts at zero`);
       await page.click('[data-game-act="lobby"]'); assert.equal(await page.locator('[data-games-lobby]').count(), 1, `${where}: Back to Games`);
       // ---- Connections
-      await page.click('[data-game-act="open"][data-game="connections"]'); await page.click('[data-game-act="cx-start"]'); assert.equal(await page.locator('.gm-clue:not(.gm-clue--hidden)').count(), 1);
-      await page.click('[data-game-act="cx-reveal"]'); assert.equal(await page.locator('.gm-clue:not(.gm-clue--hidden)').count(), 2); assert.equal(await page.textContent('[data-cx-worth]'), '400');
-      await page.fill('#cxGuess', 'zzz'); await page.press('#cxGuess', 'Enter'); assert.equal(await page.textContent('[data-cx-worth]'), '400', `${where}: a wrong guess costs nothing`); assert.ok((await overflow(page)) <= 0, `${where}: connections overflow`);
+      await page.click('[data-game-act="open"][data-game="connections"]'); await page.click('[data-game-act="cx-start"]'); assert.equal(await page.locator('.gm-clue:not(.gm-clue--hidden)').count(), 1); assert.match(await page.textContent('[data-cx-length]'), /^\d+ letters$/); assert.equal(await page.locator('[data-cx-first]').count(), 0, `${where}: no first letter at clue 1`);
+      await page.click('[data-game-act="cx-reveal"]'); assert.equal(await page.locator('.gm-clue:not(.gm-clue--hidden)').count(), 2); assert.equal(await page.textContent('[data-cx-worth]'), '400'); assert.equal(await page.locator('[data-cx-first]').count(), 0, `${where}: no first letter at clue 2`);
+      await page.click('[data-game-act="cx-reveal"]'); { const t = await page.evaluate(() => window.__g.connections.puzzle().target); assert.equal((await page.textContent('[data-cx-first] b')), t[0].toUpperCase(), `${where}: first letter at clue 3`); assert.equal(await page.textContent('[data-cx-length]'), `${t.length} letters`); } await page.fill('#cxGuess', 'zzz'); await page.press('#cxGuess', 'Enter'); assert.equal(await page.textContent('[data-cx-worth]'), '300', `${where}: a wrong guess costs nothing`); assert.ok((await overflow(page)) <= 0, `${where}: connections overflow`);
       for (let i = 0; i < 5; i += 1) { const target = await page.evaluate(() => window.__g.connections.puzzle().target); await page.fill('#cxGuess', target); await page.press('#cxGuess', 'Enter'); await page.click('[data-game-act="cx-next"]'); }
       await page.waitForSelector('[data-phase="over"]'); assert.ok((await overflow(page)) <= 0, `${where}: connections result overflow`); assert.match(await page.textContent('.gm-stats'), /Solved[\s\S]*5 \/ 5[\s\S]*Average clues used/);
       await page.click('[data-game-act="cx-again"]'); assert.equal(await page.textContent('[data-cx-score]'), '0', `${where}: Play again restarts`);
@@ -229,4 +229,17 @@ browserTest('Connections accepted spellings through the real rendered UI: racque
     await page.evaluate(() => window.__mountP('connections', window.__puzzles.filter(p => p.target === 'racquet'))); await page.click('[data-game-act="cx-start"]'); await page.fill('#cxGuess', 'raquet'); await page.press('#cxGuess', 'Enter');
     assert.match(await page.textContent('.gm-shell'), /raquet/); assert.equal(await page.locator('#cxGuess').count(), 1);
   } finally { await browser.close(); server.close(); }
+});
+
+test('Connections word shape: length always shown, first letter only from clue 3, canonical (not alias) based, multi-word aware, scoring unchanged', () => {
+  for (const p of CONNECTIONS_PUZZLES) {
+    const a = wordShape(p, 1), b = wordShape(p, 2), c = wordShape(p, 3), d = wordShape(p, 4);
+    assert.equal(a.letters, p.target.length); assert.equal(a.label, `${p.target.length} letters`);
+    assert.equal(a.firstLetter, null); assert.equal(b.firstLetter, null); assert.equal(c.firstLetter, p.target[0].toUpperCase()); assert.equal(d.firstLetter, p.target[0].toUpperCase());
+    assert.equal(c.label, a.label, 'length stays visible');
+  }
+  const multi = wordShape({ target: 'goal-oriented', accept: [] }, 3); assert.deepEqual([multi.words, multi.lengths, multi.letters, multi.label, multi.firstLetter], [2, [4, 8], 12, '2 words · 4 + 8 letters', 'G']);
+  const racquet = CONNECTIONS_PUZZLES.find(p => p.target === 'racquet');
+  assert.equal(wordShape(racquet, 3).label, '7 letters', 'the alias "racket" (6) never changes the shown length'); assert.equal(wordShape({ ...racquet, accept: ['zzz'] }, 1).label, '7 letters');
+  const game = createConnections({ puzzles: [racquet] }); assert.equal(game.potential(), 500); game.reveal(); game.reveal(); assert.equal(game.potential(), 300);
 });

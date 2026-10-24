@@ -1,6 +1,6 @@
 // All markup for the Games area. Buttons here use data-game-act (never data-action) so the main controller ignores them.
 import { BLITZ, multiplierFor, nextTierAt } from './blitz-engine.js';
-import { CONNECTIONS } from './connections-engine.js';
+import { CONNECTIONS, wordShape } from './connections-engine.js';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
 export const GAME_LIST = Object.freeze([
@@ -56,6 +56,7 @@ export function renderConnectionsPlay(engine) {
   const clues = p.clues.map((c, i) => i < shown ? `<li class="gm-clue" data-clue="${i + 1}"${i === shown - 1 && !done ? ' data-new' : ''}><span class="gm-clue__n">${i + 1}</span><span class="gm-clue__text">${esc(c.text)}</span>${done ? `<em>${esc(KIND[c.kind] ?? '')}</em>` : ''}</li>` : `<li class="gm-clue gm-clue--hidden" aria-hidden="true"><span class="gm-clue__n">${i + 1}</span><span class="gm-clue__text">?</span></li>`).join('');
   const pips = Array.from({ length: p.clues.length }, (_, i) => `<i class="gm-pip${i < s.revealed ? ' is-open' : ''}"></i>`).join('');
   const last = s.results[s.results.length - 1];
+  const shape = wordShape(p, shown); const shapeHtml = phase === 'guessing' ? `<p class="gm-shape" data-cx-shape><span class="gm-shape__len" data-cx-length>${esc(shape.label)}</span>${shape.firstLetter ? `<span class="gm-shape__first" data-cx-first>Starts with: <b>${esc(shape.firstLetter)}</b></span>` : ''}</p>` : '';
   let panel;
   if (phase === 'guessing') {
     const wrong = s.wrong.length ? `<p class="gm-wrong" role="status">Not ${s.wrong.map(w => `“${esc(w)}”`).join(', ')}. Try again${engine.canReveal() ? ', or reveal another clue' : ''}.</p>` : '';
@@ -64,7 +65,7 @@ export function renderConnectionsPlay(engine) {
     const solved = phase === 'solved'; const lastPuzzle = s.index + 1 >= s.puzzles.length;
     panel = `<div class="gm-result gm-result--${solved ? 'ok' : 'miss'}" role="status"><p class="gm-result__head">${solved ? `✓ ${esc(p.target)}` : `The answer was ${esc(p.target)}`}<strong>${solved ? `+${last.points}` : '+0'}</strong></p><p class="gm-result__why">${esc(p.why)}</p></div><button type="button" class="gm-go gm-go--teal" data-game-act="cx-next" autofocus>${lastPuzzle ? 'See results' : 'Next puzzle'}</button>`;
   }
-  return `<main class="vocab-shell gm-shell gm-shell--cx" data-game="connections" data-phase="play" data-state="${phase}"><header class="gm-hud gm-hud--light"><button type="button" class="gm-quit" data-game-act="lobby" aria-label="Quit to Games">✕</button><div class="gm-progress">Puzzle <strong>${s.index + 1}</strong> of ${s.puzzles.length}</div><div class="gm-scorebox"><strong data-cx-score>${esc(s.score)}</strong><span>points</span></div></header><section class="gm-panel gm-cx"><p class="gm-cx__q">Which Unit 1 word connects these?</p><ol class="gm-clues">${clues}</ol>${panel}</section></main>`;
+  return `<main class="vocab-shell gm-shell gm-shell--cx" data-game="connections" data-phase="play" data-state="${phase}"><header class="gm-hud gm-hud--light"><button type="button" class="gm-quit" data-game-act="lobby" aria-label="Quit to Games">✕</button><div class="gm-progress">Puzzle <strong>${s.index + 1}</strong> of ${s.puzzles.length}</div><div class="gm-scorebox"><strong data-cx-score>${esc(s.score)}</strong><span>points</span></div></header><section class="gm-panel gm-cx"><p class="gm-cx__q">Which Unit 1 word connects these?</p>${shapeHtml}<ol class="gm-clues">${clues}</ol>${panel}</section></main>`;
 }
 export function renderConnectionsOver(sum) {
   return `<main class="vocab-shell gm-shell gm-shell--cx" data-game="connections" data-phase="over">${topbar('Games', 'lobby')}<section class="gm-panel gm-over"><h1 class="gm-rating gm-rating--light">Puzzles complete</h1><p class="gm-bigscore"><span data-final-score>${esc(sum.score)}</span><small>points</small></p><dl class="gm-stats"><div><dt>Solved</dt><dd>${esc(sum.solved)} / ${esc(sum.total)}</dd></div><div><dt>Average clues used</dt><dd>${esc(sum.avgClues)}</dd></div></dl><div class="gm-actions"><button type="button" class="gm-go gm-go--teal" data-game-act="cx-again" autofocus>Play again</button><button type="button" class="gm-ghost" data-game-act="lobby">Back to Games</button></div></section></main>`;

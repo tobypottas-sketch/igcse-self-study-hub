@@ -7,6 +7,13 @@ const shuffle = (list, rng) => { const a = list.slice(); for (let i = a.length -
 // and a hyphen or space compare the same ("goal oriented" = "goal-oriented").
 export const normaliseGuess = text => String(text ?? '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[-‐-―]/g, ' ').replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
 export const pickPuzzles = (all, rng = Math.random, count = CONNECTIONS.puzzleCount) => shuffle(all, rng).slice(0, count);
+// Word-shape scaffold, always derived from the canonical target (never from an accepted alias). Length is shown from clue 1; the first letter from clue 3. Free: no scoring effect.
+export const FIRST_LETTER_AT = 3;
+export const wordShape = (puzzle, revealed = 1) => {
+  const words = normaliseGuess(puzzle.target).split(' ').filter(Boolean); const lengths = words.map(w => w.length); const total = lengths.reduce((a, b) => a + b, 0);
+  const label = words.length > 1 ? `${words.length} words · ${lengths.join(' + ')} letters` : `${total} letters`;
+  return { words: words.length, lengths, letters: total, label, firstLetter: revealed >= FIRST_LETTER_AT ? words[0][0].toUpperCase() : null };
+};
 export const acceptedForms = puzzle => new Set([puzzle.target, ...(puzzle.accept ?? [])].map(normaliseGuess));
 
 export function createConnections({ puzzles }) {
