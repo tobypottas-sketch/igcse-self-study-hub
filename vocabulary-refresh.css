@@ -128,7 +128,7 @@
   padding:17px 19px;
   background:linear-gradient(180deg,var(--c-surface),var(--c-surface));
   box-shadow:0 6px 18px rgba(23,56,82,.035);
-  overflow-wrap:anywhere;
+  overflow-wrap:break-word;
   word-break:normal;
   transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,background .16s ease;
 }
@@ -326,5 +326,5 @@
   .vocab-celebration span{display:none}
 }
 
-.vocab-inline-validation{margin:.6rem 0 0;padding:.55rem .8rem;border-radius:var(--r-md);background:var(--c-warning-soft);border:1px solid #f0c987;color:var(--c-warning-ink);font-weight:650;font-size:var(--fs-md);line-height:1.35;overflow-wrap:anywhere}
+.vocab-inline-validation{margin:.6rem 0 0;padding:.55rem .8rem;border-radius:var(--r-md);background:var(--c-warning-soft);border:1px solid #f0c987;color:var(--c-warning-ink);font-weight:650;font-size:var(--fs-md);line-height:1.35;overflow-wrap:break-word}
 .vocab-inline-validation:empty{display:none}

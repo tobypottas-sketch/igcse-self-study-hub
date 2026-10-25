@@ -87,7 +87,7 @@
   font-size:var(--fs-lg);
   font-weight:700;
   line-height:1.5;
-  overflow-wrap:anywhere;
+  overflow-wrap:break-word;
 }
 
 /* Give the legacy overall learning-stage badge some context without changing its data. */

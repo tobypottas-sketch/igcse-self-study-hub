@@ -62,6 +62,6 @@ test('keyboard focus, mobile layout, wrapping and overflow safeguards are explic
   assert.match(css,/:focus-visible/);
   assert.match(css,/@media\s*\(max-width:\s*620px\s*\)/);
   assert.match(css,/min-width:\s*0/);
-  assert.match(css,/overflow-wrap:\s*anywhere/);
+  assert.match(css,/overflow-wrap:\s*break-word/);
   assert.match(css,/overflow-x:\s*clip/);
 });
