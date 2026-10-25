@@ -70,6 +70,8 @@ browserTest('cached unit still renders immediately, without reloading or waiting
   assert.equal(r.unitRendersForCachedOpen, 1);
   assert.equal(r.loadCalls, 1, 'the unit data was not loaded a second time');
   assert.deepEqual(r.later, r.immediately);
+  assert.equal(r.scrollsDuringCachedOpen, 0, 'opening a cached unit moves nothing: no scroll happens after it renders');
+  assert.equal(r.log.scrolls, 0, 'nothing in the whole open → back → open flow starts a scroll; html has scroll-behavior:smooth, so one still running after a navigation would resume on the next page');
 });
 
 browserTest('a slow first request cannot overwrite a later unit navigation', async () => {
