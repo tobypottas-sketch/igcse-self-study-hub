@@ -6,6 +6,7 @@ import { buildWordPathwayStates } from './pathway-view-model.js';
 import { planPathwayQuestion } from './pathway-planner.js';
 import { activityFamilies } from './activity-families.js';
 import { coverageServes } from './pathway-coverage-store.js';
+import { missionTargetIds } from './set-progress.js';
 
 export const FULL_MISSION = 10;
 export const MIN_SHORT_MISSION = 4;
@@ -68,7 +69,14 @@ export function familyServesStage(family, stageId) { return Boolean(stageId) && 
 export function restrictOptionsToStep(options, step) {
   const stageId = step?.stage ?? null; const maintain = step?.firstPassComplete === true;
   return options.map(option => {
-    if (!maintain && familyServesStage(option.family, stageId)) return option;
+    // The launch also needs EVERY word of the mission to build this activity (a partial family is refused, never swapped), so a family that
+    // cannot cover them all is not selectable either - "Short set" counts below ten only ever applied to the legacy, Set-less picker.
+    if (!maintain && familyServesStage(option.family, stageId)) {
+      const needed = step?.available ? missionTargetIds({ step }) : [];
+      const buildable = new Set((option.targets ?? []).filter(row => row.stageId === stageId).map(row => row.target?.occurrenceId));
+      if (needed.length === 0 || needed.every(id => buildable.has(id))) return option;
+      return { ...option, status:'locked', hint:'Not available for every word in this Set yet' };
+    }
     const cleared = !maintain && stageId && idx(option.family.stageIds[option.family.stageIds.length - 1]) < idx(stageId);
     const hint = maintain ? 'Every Set is in Maintain — try Mixed Practice' : cleared ? 'Cleared in this Set — Recommended keeps going' : option.hint;
     return { ...option, status:'locked', hint };

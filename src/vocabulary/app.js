@@ -493,6 +493,14 @@ function openPracticeSheet(pathwayId) {
   root.insertAdjacentHTML('beforeend', renderPracticeSheet({ pathwayId, options, lastFamilyId:loadLastChoice(pathwayId), bestAim:recommended.best ? recommended.copy : null }));
   root.querySelector?.('[data-practice-sheet] [data-autofocus]')?.focus?.();
 }
+// Entry point for every control that opens the practice sheet. The launcher settles any pending mission and re-reads the
+// server's Set rows before it validates, so the sheet must be built from those same rows: cached rows can be a stage behind
+// (unit opened from cache, or Choose practice tapped before the finished mission is recorded) and would offer an activity the launch then rejects.
+async function openFreshPracticeSheet(pathwayId) {
+  await state.settling;
+  try { await refreshSetRows(); } catch { /* offline: keep the cached rows; the launch re-reads and re-validates before anything starts */ }
+  openPracticeSheet(pathwayId);
+}
 function timerMinutes(button) { const minutes = Number(button?.dataset?.minutes); return Number.isFinite(minutes) && minutes > 0 ? minutes : null; }
 function startMixedReview(continueHistory = false, durationMinutes = null, forceNew = false) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
@@ -891,14 +899,14 @@ root?.addEventListener('click', event => {
   if (action === 'open-unit') openUnit(Number(target.dataset.unit)).catch(error => renderVocabularyError(root, error.message));
   else if (action === 'open-game') { if (!state.content) return; state.games?.destroy?.(); state.games = mountGames(root, { content:state.content, game:target.dataset.game, onExit:() => { state.games = null; renderCurrentUnit(); } }); } /* PROTOTYPE games: isolated, no state or client passed */
   else if (action === 'back-units') showHome().catch(error => renderVocabularyError(root, error.message)); else if (action === 'view-all-words') showAllWords();
-  else if (action === 'open-pathway') { try { openPracticeSheet(target.dataset.pathway); } catch (error) { renderVocabularyError(root, error.message); } }
+  else if (action === 'open-pathway') { openFreshPracticeSheet(target.dataset.pathway).catch(error => renderVocabularyError(root, error.message)); }
   else if (action === 'start-recommended') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, null); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId)); }
   else if (action === 'start-practice-choice') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, target.dataset.family); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId, false, { familyId:target.dataset.family })); }
   else if (action === 'close-practice-sheet') closePracticeSheet();
   else if (action === 'open-achievements') openAchievements();
   else if (action === 'toggle-sound') toggleSound(target);
   else if (action === 'close-achievements') closeAchievements();
-  else if (action === 'choose-practice') { const pathwayId = target.dataset.pathway; returnToCurrentUnit().then(() => openPracticeSheet(pathwayId)).catch(error => renderVocabularyError(root, error.message)); }
+  else if (action === 'choose-practice') { const pathwayId = target.dataset.pathway; returnToCurrentUnit().then(() => openFreshPracticeSheet(pathwayId)).catch(error => renderVocabularyError(root, error.message)); }
   else if (action === 'start-mixed-review') runAfterSaves(() => startMixedReview(false, timerMinutes(target)));
   else if (action === 'continue-practice') runAfterSaves(() => continuePractice());
   else if (action === 'clear-tile-answer') {
