@@ -91,11 +91,24 @@
   white-space:nowrap;
 }
 
-.vocab-pathway-card__coverage{
+/* The coverage chip and the held-back chip are siblings of ONE grid area: they used to both claim `coverage` and were painted on top of each other. */
+.vocab-pathway-card__chips{
   grid-area:coverage;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px 8px;
+  justify-self:start;
+  align-self:start;
+  min-width:0;
+  max-width:100%;
+}
+.vocab-pathway-card__coverage{
   justify-self:start!important;
   align-self:start;
   margin:0!important;
+  min-width:0;
+  white-space:normal;            /* a chip wraps inside the narrow card column instead of being clipped by the art column */
+  overflow-wrap:break-word;
 }
 
 /*
