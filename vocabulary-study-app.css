@@ -279,3 +279,7 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 
 /* Answer options never leave a single word alone on the last line: balance the lines (pretty is the fallback). */
 .vocab-choice-card>span:not(.vocab-choice-card__key),.vocab-match-card,.vocab-choice,.vocab-evidence-option{text-wrap:pretty;text-wrap:balance}
+/* Longer reading text (the context sentence) keeps its natural line lengths; `pretty` only moves a word down so the last line is never a lone word. */
+.vocab-question-context p{text-wrap:balance}
+/* Feedback and Match Set definitions are short sentences in narrow boxes: same rule. (text-wrap is inherited, so it is set on the block that breaks the lines, not on the inline <strong>.) */
+.study-feedback>div{text-wrap:pretty;text-wrap:balance}
