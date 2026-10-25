@@ -272,3 +272,40 @@
 @media (max-width:480px){.gm-pic__img{max-height:185px}}
 @media (max-width:340px){.gm-pic__img{max-height:170px}}
 .gm-pic [hidden]{display:none!important}
+
+/* ---- Connections intro: the same teal identity as the game screen (header band + badge), scoring as steps, a quiet reassurance note ---- */
+.gm-intro--cx{gap:0;padding:0;overflow:hidden;border:1px solid var(--c-teal-line);box-shadow:0 14px 34px rgba(14,95,97,.1)}
+.gm-intro__head{position:relative;display:flex;align-items:center;gap:14px;padding:16px 22px;background:linear-gradient(135deg,var(--c-teal-dark) 0%,var(--gm-teal) 100%);color:#fff;overflow:hidden}
+/* a restrained clue-card motif: three small tilted cards behind the right edge of the band */
+.gm-intro__head::before,.gm-intro__head::after{content:"";position:absolute;top:50%;width:46px;height:34px;border:2px solid rgba(255,255,255,.22);border-radius:8px;transform:translateY(-50%) rotate(-8deg);pointer-events:none}
+.gm-intro__head::before{right:62px}
+.gm-intro__head::after{right:14px;transform:translateY(-35%) rotate(7deg);border-color:rgba(243,195,60,.4)}
+.gm-intro__title{display:grid;gap:4px;min-width:0}
+.gm-intro--cx .gm-tag{width:max-content;max-width:100%;margin:0;padding:2px 9px;border-radius:999px;background:rgba(255,255,255,.16);color:#fff}
+.gm-intro--cx h1{margin:0;color:#fff;font-size:clamp(1.35rem,4.6vw,1.9rem);line-height:1.15;letter-spacing:-.015em;text-wrap:balance}
+.gm-intro__body{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;padding:18px 22px 22px}
+.gm-intro--cx .gm-rules li{min-width:0}
+.gm-intro--cx .gm-rules{gap:12px;counter-reset:rule}
+.gm-intro--cx .gm-rules li{padding-left:36px;color:var(--c-ink);font-size:var(--fs-md);line-height:1.5;text-wrap:pretty}
+.gm-intro--cx .gm-rules li::before{content:counter(rule);counter-increment:rule;top:.1em;width:24px;height:24px;display:grid;place-items:center;clip-path:none;border-radius:50%;background:var(--c-teal-soft);color:var(--c-teal-dark);font-size:var(--fs-sm);font-weight:900}
+/* "more clues = fewer points": the run of values as steps that fade as they fall */
+.gm-steps{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
+.gm-steps__chip{display:inline-grid;place-items:center;min-width:52px;padding:4px 10px;border-radius:999px;font-size:var(--fs-sm);font-weight:900;font-variant-numeric:tabular-nums;color:var(--c-teal-dark);background:var(--c-teal-soft);border:1px solid var(--c-teal-line)}
+.gm-steps__chip[data-step="0"]{background:var(--c-teal-dark);border-color:var(--c-teal-dark);color:#fff}
+.gm-steps__chip[data-step="1"]{background:color-mix(in srgb,var(--gm-teal) 30%,#fff)}
+.gm-steps__arrow{color:var(--c-muted);font-weight:800}
+/* reassurance: a soft tinted note, quieter than the rules */
+.gm-intro--cx .gm-rules li.gm-rules__note{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:var(--c-surface-soft);color:var(--c-ink-2);font-size:var(--fs-sm);font-weight:700}
+.gm-intro--cx .gm-rules li.gm-rules__note::before{content:none}
+.gm-rules__icon{flex:none;color:var(--gm-teal)}
+/* Start: obvious, touch-sized, no animation */
+.gm-intro--cx .gm-go{gap:10px;min-height:56px;padding:0 34px;font-size:var(--fs-lg);box-shadow:0 8px 20px rgba(19,126,128,.3)}
+.gm-intro--cx .gm-go:hover{filter:none;background:linear-gradient(135deg,#0d5557,var(--c-teal-dark) 60%,var(--gm-teal));box-shadow:0 10px 24px rgba(19,126,128,.38)}
+.gm-intro--cx .gm-go:focus-visible{outline:3px solid var(--gm-gold);outline-offset:3px}
+/* Narrow phones: the four steps always stay on one row (they use the full card width, not the indented text column). */
+@media (max-width:420px){.gm-intro--cx .gm-steps{flex-wrap:nowrap;gap:4px;margin-left:-36px}.gm-steps__chip{min-width:0;padding:3px 9px;flex:1 1 0}.gm-steps__arrow{flex:none}}
+@media (max-width:620px){
+  .gm-intro__head{padding:14px 16px}.gm-intro__head::before{display:none}
+  .gm-intro__body{padding:16px 16px 18px}
+  .gm-intro--cx .gm-go{width:100%}
+}
