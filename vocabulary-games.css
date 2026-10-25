@@ -82,13 +82,13 @@
 .gm-combo__track{flex:1;min-width:40px;height:6px}
 .gm-prompt{display:grid;align-content:center;gap:6px;min-height:140px;padding:16px 18px;border-left:4px solid var(--gm-gold);border-radius:4px 12px 12px 4px;background:rgba(255,255,255,.08)}
 .gm-prompt__label{margin:0;color:var(--gm-gold);font-size:var(--fs-xs);font-weight:900;letter-spacing:.14em;text-transform:uppercase}
-.gm-arena .gm-prompt__text{margin:0;color:#fff;font-size:clamp(1.15rem,3.8vw,1.75rem);font-weight:800;line-height:1.3;overflow-wrap:anywhere}
+.gm-arena .gm-prompt__text{margin:0;color:#fff;font-size:clamp(1.15rem,3.8vw,1.75rem);font-weight:800;line-height:1.3;overflow-wrap:break-word;text-wrap:pretty;text-wrap:balance}
 .gm-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .gm-option{position:relative;display:flex;align-items:center;gap:10px;min-height:92px;padding:10px 14px;text-align:left;border:2px solid rgba(255,255,255,.22);border-radius:12px;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-size:clamp(1rem,3vw,1.35rem);font-weight:800;cursor:pointer;transition:background 100ms ease,border-color 100ms ease,transform 100ms ease}
 .gm-option:hover:not(:disabled){background:rgba(255,255,255,.2);border-color:var(--gm-gold)}
 .gm-option:active:not(:disabled){transform:scale(.985)}
 .gm-option kbd{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:5px;background:rgba(0,0,0,.28);color:rgba(255,255,255,.8);font:inherit;font-size:.8rem;font-weight:900}
-.gm-option span{min-width:0;overflow-wrap:anywhere;line-height:1.15}
+.gm-option span{min-width:0;overflow-wrap:break-word;line-height:1.15;text-wrap:pretty;text-wrap:balance}
 .gm-option:disabled{cursor:default;color:#fff}
 .gm-option[data-state="correct"]{background:var(--gm-ok);border-color:#8cf0cb}
 .gm-option[data-state="wrong"]{background:var(--gm-miss);border-color:#ffb0bd}
@@ -119,7 +119,7 @@
 .gm-cx__head{display:flex;align-items:flex-start;gap:14px;padding:18px 22px;background:linear-gradient(135deg,var(--c-teal-dark) 0%,var(--gm-teal) 100%);color:#fff}
 .gm-cx__badge{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);color:var(--gm-gold);font-size:1.5rem;font-weight:900;line-height:1}
 .gm-cx__title{display:grid;gap:10px;min-width:0}
-.gm-cx__q{margin:0;color:#fff;font-size:clamp(1.2rem,4vw,1.6rem);font-weight:900;line-height:1.2;letter-spacing:-.01em}
+.gm-cx__q{margin:0;color:#fff;font-size:clamp(1.2rem,4vw,1.6rem);font-weight:900;line-height:1.2;letter-spacing:-.01em;text-wrap:balance}
 .gm-cx__head .gm-shape{margin:0;color:rgba(255,255,255,.88)}
 .gm-cx__head .gm-shape span{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.12);color:#fff}
 .gm-cx__head .gm-shape .gm-shape__first{border-style:solid;border-color:#fff;background:#fff;color:var(--c-ink)}
@@ -134,7 +134,7 @@
 @keyframes gm-reveal{from{opacity:0;transform:translateX(-10px)}}
 .gm-clue__n{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--c-ink);color:var(--gm-gold);font-size:var(--fs-sm);font-weight:900}
 .gm-clue[data-state="past"] .gm-clue__n,.gm-clue[data-state="done"] .gm-clue__n{background:var(--gm-teal);color:#fff}
-.gm-clue__text{color:var(--c-ink);font-size:clamp(1.1rem,3.4vw,1.35rem);font-weight:800;overflow-wrap:anywhere}
+.gm-clue__text{color:var(--c-ink);font-size:clamp(1.1rem,3.4vw,1.35rem);font-weight:800;overflow-wrap:break-word;text-wrap:pretty;text-wrap:balance}
 .gm-clue em{color:var(--c-muted);font-size:var(--fs-xs);font-style:normal;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
 .gm-clue--hidden{border-style:dashed;border-color:var(--c-line-strong);border-left-style:solid;border-left-color:var(--c-line-strong);background:repeating-linear-gradient(135deg,var(--c-surface-soft) 0 8px,#fff 8px 16px);padding-block:10px}
 .gm-clue--hidden .gm-clue__n{background:var(--c-line-strong);color:#fff}
@@ -172,10 +172,10 @@
 .gm-result__head{display:flex;align-items:center;gap:12px;margin:0;color:var(--c-ink);font-size:1.3rem;font-weight:900}
 .gm-result__icon{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--gm-ok);color:#fff;font-size:1.1rem}
 .gm-result--miss .gm-result__icon{background:var(--gm-gold-deep)}
-.gm-result__word{flex:1;min-width:0;overflow-wrap:anywhere}
+.gm-result__word{flex:1;min-width:0;overflow-wrap:break-word;text-wrap:balance}
 .gm-result__head strong{color:var(--c-teal-dark);font-size:1.6rem;font-variant-numeric:tabular-nums}
-.gm-panel .gm-result__why{margin:0;color:var(--c-ink-2);font-size:var(--fs-md);line-height:1.45}
-.gm-nudge{margin:0;padding:8px 12px;border-left:4px solid var(--gm-gold);border-radius:0 8px 8px 0;background:#fff8dc;color:var(--c-ink);font-size:var(--fs-sm);font-weight:700}
+.gm-panel .gm-result__why{margin:0;color:var(--c-ink-2);font-size:var(--fs-md);line-height:1.45;text-wrap:balance}
+.gm-nudge{margin:0;padding:8px 12px;border-left:4px solid var(--gm-gold);border-radius:0 8px 8px 0;background:#fff8dc;color:var(--c-ink);font-size:var(--fs-sm);font-weight:700;text-wrap:balance}
 
 @media (max-width:620px){
   .gm-entry{margin:20px 0;padding:16px 14px}
@@ -196,6 +196,13 @@
   .gm-answer{padding:12px}.gm-ladder{margin-left:0;width:100%}.gm-ladder li{flex:1;min-width:0}
   .gm-act--next,.gm-act--help{flex:1 1 140px}.gm-act--giveup{margin-left:0;width:100%}
 }
+/* Phones: two columns leave each answer about 65–95px of text, which strands single words and splits long ones. One compact column gives it ~3x the width. */
+@media (max-width:480px){.gm-options{grid-template-columns:minmax(0,1fr);gap:8px}.gm-option{min-height:56px}}
+/* `balance` only works up to six lines; at the narrowest width the longest sentences need seven, so the prompt steps down a little to stay within it. */
+@media (max-width:360px){.gm-arena .gm-prompt__text{font-size:1.05rem}}
+/* Narrow phones: the Connections clue and result cards lose ~60px of the 320px screen to nested margins, so the text column is trimmed back where it is cheapest. */
+@media (max-width:480px){.gm-result{padding:14px}.gm-result__head{gap:8px;font-size:1.15rem}.gm-result__icon{width:28px;height:28px;font-size:1rem}.gm-result__head strong{font-size:1.35rem}}
+@media (max-width:360px){.gm-cx>*:not(.gm-cx__head){margin-inline:8px}.gm-clue{gap:8px;padding:10px}}
 @media (max-width:360px){.gm-guess input{font-size:1.05rem;padding:0 12px}.gm-clock__num::after{display:none}.gm-options{gap:8px}.gm-option{font-size:.95rem}.gm-hud{padding:8px 10px;gap:8px}}
 @media (prefers-reduced-motion:reduce){
   .gm-shell *,.gm-card{animation:none!important;transition:none!important}
@@ -249,7 +256,7 @@
 .gm-shape__pattern b{letter-spacing:.14em;font-variant-numeric:tabular-nums;white-space:pre}
 
 .gm-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 4px}
-.gm-choice{min-height:52px;padding:10px 12px;border:2px solid var(--c-teal-line);border-radius:12px;background:#fff;color:var(--c-ink);font:inherit;font-size:clamp(1rem,3.4vw,1.15rem);font-weight:800;cursor:pointer;overflow-wrap:anywhere}
+.gm-choice{min-height:52px;padding:10px 12px;border:2px solid var(--c-teal-line);border-radius:12px;background:#fff;color:var(--c-ink);font:inherit;font-size:clamp(1rem,3.4vw,1.15rem);font-weight:800;cursor:pointer;overflow-wrap:break-word;text-wrap:balance}
 .gm-choice:hover:not([disabled]),.gm-choice:focus-visible{border-color:var(--c-teal-dark,#0f5f63);background:var(--c-teal-soft,#eef8f8)}
 .gm-choice[disabled]{opacity:.45;cursor:default;text-decoration:line-through}
 .gm-ghost--help{border-color:var(--gm-gold);color:var(--c-ink)}
