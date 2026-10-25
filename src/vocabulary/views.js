@@ -262,8 +262,12 @@ function renderPathwayCard(pathway, pathwayStates, ready) {
 }
 
 // "How do you want to practise?" sheet. `options` come from pathwayPracticeOptions(); locked ones stay visible with the reason, never hidden.
-export function renderPracticeSheet({ pathwayId, options = [], lastFamilyId = null, bestAim = null } = {}) {
+export function renderPracticeSheet({ pathwayId, options = [], lastFamilyId = null, bestAim = null, offline = false } = {}) {
   const identity = pathwayIdentity(pathwayId);
+  if (offline) {
+    // Set progress could not be checked, so no activity is offered (a stale list could name one this stage no longer accepts).
+    return `<div class="vocab-sheet-backdrop" data-practice-sheet-backdrop data-pathway="${escapeHtml(pathwayId)}"><section class="vocab-sheet" role="dialog" aria-modal="true" aria-labelledby="vocabSheetTitle" data-practice-sheet data-sheet-offline data-study-accent="${escapeHtml(identity.accent)}"><header class="vocab-sheet__head"><span class="vocab-sheet__icon">${renderStudyIcon(identity.icon,{ className:'study-icon--lg' })}</span><div><p class="vocab-kicker">${escapeHtml(identity.label)}</p><h2 id="vocabSheetTitle">We can't check your progress right now</h2></div><button type="button" class="vocab-sheet__close" data-action="close-practice-sheet" aria-label="Close">${renderStudyIcon('close',{ className:'study-icon' })}</button></header><p class="vocab-sheet__or">Check your internet connection, then try again.</p><button type="button" class="vocab-sheet-option vocab-sheet-option--recommended" data-action="open-pathway" data-pathway="${escapeHtml(pathwayId)}" data-autofocus><span class="vocab-sheet-option__text"><strong>Try again</strong></span></button></section></div>`;
+  }
   const lastUsable = options.find(option => option.family.id === lastFamilyId && option.status !== 'locked');
   const items = options.map(option => {
     const { family, status, hint } = option;

@@ -15,6 +15,8 @@ import { buildSupportStep } from '../src/vocabulary/scaffolding.js';
 import { buildSessionFinishModel } from '../src/vocabulary/session-finish-model.js';
 import * as engagementCopy from '../src/vocabulary/engagement-copy.js';
 import * as engagementModel from '../src/vocabulary/engagement-model.js';
+import { pathwayPracticeOptions, restrictOptionsToStep, loadLastChoice, saveLastChoice } from '../src/vocabulary/pathway-choice.js';
+import { renderPracticeSheet } from '../src/vocabulary/views.js';
 import * as missionSeedLib from '../src/vocabulary/mission-seed.js';
 import * as missionCache from '../src/vocabulary/mission-cache.js';
 import { acquireMission } from '../src/vocabulary/mission-lifecycle.js';
@@ -56,7 +58,10 @@ export function harness({ pathwayId = 'word_families', stage = 'match', size = 2
   const loadMembersCalls = { n:0 };
   const saved = []; const rejected = []; const served = []; const summaries = []; const requests = []; let counter = 0;
   const testCrypto = deterministic ? { randomUUID:() => `uuid-${++counter}` } : crypto;
-  const context = vm.createContext({ state, crypto:testCrypto, Date, Map, Set, console, root:{}, window:{ clearInterval() {}, setInterval() { return 1; } },
+  // Minimal root: records the practice sheet markup the real controller inserts so tests can read the buttons it renders.
+  const sheets = [];
+  const rootStub = { insertAdjacentHTML(_where, html) { sheets.push(html); }, querySelector() { return null; } };
+  const context = vm.createContext({ state, crypto:testCrypto, Date, Map, Set, console, root:rootStub, pathwayPracticeOptions, restrictOptionsToStep, loadLastChoice, saveLastChoice, renderPracticeSheet, window:{ clearInterval() {}, setInterval() { return 1; } },
     createAttemptPersistence, acquireMission, startVocabularyMission:async (_client, args) => { if (server) return server.start(args); if (!missionServer) throw new Error('no mission service in this harness'); return missionServer(args); }, loadPathwaySets:async () => (server ? server.rows() : staticRows), compareSetMembership, MEMBERSHIP, loadSetMembers:async () => { loadMembersCalls.n += 1; if (setMembers !== undefined) return typeof setMembers === 'function' ? setMembers() : setMembers; if (!(setServer && size % 10 === 0)) return null; const rows = []; for (const pathway of ['meaning','context','word_families','precision_use','spelling_recall']) { for (let n = 1; n <= 12; n += 1) { const members = membersFor(pathway, n); if (!members) break; members.forEach((occurrence_id, i) => rows.push({ pathway_id:pathway, set_number:n, position:i + 1, occurrence_id })); } } return rows; }, MISSION_SIZE:(size % 10 === 0 ? 10 : size), ...setProgress, activityFamily, setsFromCoverage:(pathway, coverage, authored) => (size % 10 === 0 ? realSetsFromCoverage(pathway, coverage, authored) : { pathwayId:pathway, serviceableCount:size, setCount:1, sets:[occurrences.map(row => row.occurrenceId)], setList:[{ setNumber:1, setId:`${pathway}:set-1`, pathwayId:pathway, members:occurrences.map(row => row.occurrenceId) }], heldBack:[], heldBackCount:0, reason:'ready' }), derivePresentationNonce:missionSeedLib.derivePresentationNonce, orderMissionTargets:missionSeedLib.orderMissionTargets, ...missionCache, ...sessions, ...targets, ...pathways, ...mixedReview, ...placement, ...engine, ...matchSetLogic, ...matchSetView, ...engagementCopy, ...engagementModel, VOCABULARY_PATHWAYS:[], servedByAnyLivePathway:() => true, registeredPathwayCoverage:() => null, playCue:() => false, setSoundEnabled:value => value === true, soundEnabled:() => false, loadVocabularyMissions:async () => [], loadMeritAwardCount:async () => null, newAchievements:() => [], markAchievementsSeen() {}, renderAchievementsSheet:() => "", recordVocabularyMission:async (_client, missionId) => (recordMission ? recordMission(missionId) : server ? server.record(missionId, server.allAttempts ?? saved) : null), renderEngagementStrip:() => "", installMatchDrag() {}, playCompletionSequence() {}, loadSeenContent:() => new Map(), saveSeenContent() {}, matchDragJustEnded:() => false, deriveLearningStage, buildSupportStep, buildSessionFinishModel,
     renderVocabularyQuestion(_root, opts) { served.push({ target:state.current?.target?.occurrenceId, type:opts?.question?.type, contentId:opts?.question?.contentId, prompt:opts?.question?.prompt, options:opts?.question?.options ?? null, retry:Boolean(opts?.retry), feedback:Boolean(opts?.feedback), recovery:Boolean(state.current?.recovery) }); },
     renderSessionSummary(_root, opts) { summaries.push(opts); }, renderVocabularyUnit() {}, supportiveFeedback() { return ''; }, trackVocabularyEvent:async () => {},
@@ -75,7 +80,7 @@ export function harness({ pathwayId = 'word_families', stage = 'match', size = 2
       return { correct, pathwayId:payload.pathwayId, pathwayProgress:applyPathwayAttempt(progress, { stageId:payload.pathwayStage, servedStageId:payload.servedPathwayStage, correct, firstAttempt:payload.firstAttempt, retryUsed:payload.retryUsed, supportLevel:payload.supportLevel, contentId:`${id}:${payload.questionType}`, contextId:payload.contextId ?? payload.activityContentId, promptKey:`${id}:${payload.questionType}`, activityType:payload.questionType, contextSensitive:false }) };
     } });
   vm.runInContext(source, context);
-  return { state, saved, rejected, served, summaries, requests, server, loadMembersCalls, run:code => vm.runInContext(code, context) };
+  return { state, sheets, saved, rejected, served, summaries, requests, server, loadMembersCalls, run:code => vm.runInContext(code, context) };
 }
 export const correctAnswer = h => h.state.current.question.markingReference.acceptedAnswers[0];
 export async function settle(h) { await h.state.attempts?.settled(); }

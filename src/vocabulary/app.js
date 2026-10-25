@@ -481,9 +481,10 @@ function closePracticeSheet(returnFocus = true) {
   const pathwayId = sheet.dataset.pathway; sheet.remove();
   if (returnFocus) root.querySelector?.(`.vocab-pathway-card[data-pathway="${pathwayId}"]`)?.focus?.();
 }
-function openPracticeSheet(pathwayId) {
+function openPracticeSheet(pathwayId, { known = true } = {}) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   closePracticeSheet(false);
+  if (!known) { root.insertAdjacentHTML('beforeend', renderPracticeSheet({ pathwayId, offline:true })); root.querySelector?.('[data-practice-sheet] [data-autofocus]')?.focus?.(); return; }
   const wordStates = wordSetStatesFor(pathwayId);
   const step = pathwayStep(pathwayId);
   // What the sheet offers must be what the launch accepts: only activities of the Set's current stage (see startPathwaySession).
@@ -492,6 +493,16 @@ function openPracticeSheet(pathwayId) {
   const recommended = bestAndAim(state.missions ?? [], { unitNumber:state.currentUnitNumber, kind:'pathway', pathwayId, stage:currentStage, family:'recommended' });
   root.insertAdjacentHTML('beforeend', renderPracticeSheet({ pathwayId, options, lastFamilyId:loadLastChoice(pathwayId), bestAim:recommended.best ? recommended.copy : null }));
   root.querySelector?.('[data-practice-sheet] [data-autofocus]')?.focus?.();
+}
+// Entry point for every control that opens the practice sheet. The launcher settles any pending mission and re-reads the
+// server's Set rows before it validates, so the sheet must be built from those same rows: cached rows can be a stage behind
+// (unit opened from cache, or Choose practice tapped before the finished mission is recorded) and would offer an activity the launch then rejects.
+async function openFreshPracticeSheet(pathwayId) {
+  await state.settling;
+  // If the Set rows cannot be refreshed we do NOT know the Set's current stage, so we do not guess from the cache: the sheet shows a retry state instead.
+  let known = true;
+  try { await refreshSetRows(); } catch { known = false; }
+  openPracticeSheet(pathwayId, { known });
 }
 function timerMinutes(button) { const minutes = Number(button?.dataset?.minutes); return Number.isFinite(minutes) && minutes > 0 ? minutes : null; }
 function startMixedReview(continueHistory = false, durationMinutes = null, forceNew = false) {
@@ -891,14 +902,14 @@ root?.addEventListener('click', event => {
   if (action === 'open-unit') openUnit(Number(target.dataset.unit)).catch(error => renderVocabularyError(root, error.message));
   else if (action === 'open-game') { if (!state.content) return; state.games?.destroy?.(); state.games = mountGames(root, { content:state.content, game:target.dataset.game, onExit:() => { state.games = null; renderCurrentUnit(); } }); } /* PROTOTYPE games: isolated, no state or client passed */
   else if (action === 'back-units') showHome().catch(error => renderVocabularyError(root, error.message)); else if (action === 'view-all-words') showAllWords();
-  else if (action === 'open-pathway') { try { openPracticeSheet(target.dataset.pathway); } catch (error) { renderVocabularyError(root, error.message); } }
+  else if (action === 'open-pathway') { openFreshPracticeSheet(target.dataset.pathway).catch(error => renderVocabularyError(root, error.message)); }
   else if (action === 'start-recommended') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, null); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId)); }
   else if (action === 'start-practice-choice') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, target.dataset.family); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId, false, { familyId:target.dataset.family })); }
   else if (action === 'close-practice-sheet') closePracticeSheet();
   else if (action === 'open-achievements') openAchievements();
   else if (action === 'toggle-sound') toggleSound(target);
   else if (action === 'close-achievements') closeAchievements();
-  else if (action === 'choose-practice') { const pathwayId = target.dataset.pathway; returnToCurrentUnit().then(() => openPracticeSheet(pathwayId)).catch(error => renderVocabularyError(root, error.message)); }
+  else if (action === 'choose-practice') { const pathwayId = target.dataset.pathway; returnToCurrentUnit().then(() => openFreshPracticeSheet(pathwayId)).catch(error => renderVocabularyError(root, error.message)); }
   else if (action === 'start-mixed-review') runAfterSaves(() => startMixedReview(false, timerMinutes(target)));
   else if (action === 'continue-practice') runAfterSaves(() => continuePractice());
   else if (action === 'clear-tile-answer') {
