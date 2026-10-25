@@ -6,7 +6,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { findChromium, loadPlaywright, serve } from './pathway-geometry-harness.mjs';
 
-const FAKE_SUPABASE = `
+export const FAKE_SUPABASE = `
 import unit from '/content/vocabulary/releases/unit-01.js';
 import { applyPathwayAttempt, freshPathwayProgress } from '/src/vocabulary/pathway-progress.js';
 const tl = (name, extra = {}) => window.__tl?.push({ name, t:performance.now(), ...extra });

@@ -310,9 +310,17 @@ function resetSessionState(continueHistory = false) {
 // A pathway session. The server owns the journey: it says which Set, which stage and which kind of mission (stage / Consolidate /
 // Recovery / fresh) comes next, and the browser reads that, asks the server to start exactly that mission, and builds its ten questions.
 // The student-chosen activity ("How do you want to practise?") is FREE practice: it is recorded as evidence but never moves a Set.
+// One read of the server-held Set membership per unit, shared by every launch (and started early when the practice sheet opens).
+function setMembersFor(unitNumber) {
+  state.setMemberCache ??= new Map();
+  if (!state.setMemberCache.has(unitNumber)) state.setMemberCache.set(unitNumber, loadSetMembers(state.client, unitNumber));
+  return state.setMemberCache.get(unitNumber);
+}
 async function startPathwaySession(pathwayId, continueHistory = false, choice = null, forceNew = false) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   // A mission that has just finished is settled on the server before the next step is read, so Continue can never start the old step again.
+  // Set membership does not depend on the settling mission or the Set rows, so its read runs alongside them (and is usually already cached).
+  const membersPromise = state.preview ? null : setMembersFor(state.currentUnitNumber);
   await state.settling;
   if (!state.preview) await refreshSetRows();
   // A locked pathway (no Sets) can never start a session, whatever asked for it.
@@ -344,9 +352,7 @@ async function startPathwaySession(pathwayId, continueHistory = false, choice = 
   if (step.firstPassComplete) throw new Error('Every Set in this pathway is in Maintain. Mixed Practice keeps them sharp.');
   // Fail safe on membership drift: never start a mission the server would not count for this Set.
   if (!state.preview) {
-    state.setMemberCache ??= new Map();
-    if (!state.setMemberCache.has(state.currentUnitNumber)) state.setMemberCache.set(state.currentUnitNumber, await loadSetMembers(state.client, state.currentUnitNumber));
-    const drift = compareSetMembership({ pathwayId, setNumber:step.setNumber, clientMembers:step.members, serverRows:state.setMemberCache.get(state.currentUnitNumber) });
+    const drift = compareSetMembership({ pathwayId, setNumber:step.setNumber, clientMembers:step.members, serverRows:await membersPromise });
     if (drift.status === MEMBERSHIP.MISMATCH) {
       state.setMemberCache.delete(state.currentUnitNumber);
       throw new Error('This Set is being updated and cannot be started right now. Your progress is safe. Please tell your teacher.');
@@ -498,6 +504,7 @@ function openPracticeSheet(pathwayId, { known = true } = {}) {
 // server's Set rows before it validates, so the sheet must be built from those same rows: cached rows can be a stage behind
 // (unit opened from cache, or Choose practice tapped before the finished mission is recorded) and would offer an activity the launch then rejects.
 async function openFreshPracticeSheet(pathwayId) {
+  if (!state.preview && state.content) void setMembersFor(state.currentUnitNumber);
   await state.settling;
   // If the Set rows cannot be refreshed we do NOT know the Set's current stage, so we do not guess from the cache: the sheet shows a retry state instead.
   let known = true;
