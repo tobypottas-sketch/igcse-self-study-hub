@@ -109,7 +109,8 @@ browserTest('browser: a card opens the sheet; Recommended starts as before; a ch
     assert.equal(await page.evaluate(() => document.activeElement.dataset.pathway), 'context', 'focus returns to the card');
     await page.click('.vocab-pathway-card[data-pathway="context"]');
     const rows = await page.$$eval('.vocab-sheet-option[data-family]', nodes => nodes.map(node => ({ label: node.querySelector('strong').textContent, disabled: node.disabled })));
-    assert.deepEqual(rows.filter(row => !row.disabled).map(row => row.label), ['Choose the Word', 'Match the Sentence']);
+    // Only activities the Set's CURRENT stage (Match) can serve are offered; the cleared Recognise activity is shown but disabled, matching the launch guard.
+    assert.deepEqual(rows.filter(row => !row.disabled).map(row => row.label), ['Match the Sentence']);
     assert.ok(rows.filter(row => row.disabled).length >= 2);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     assert.ok(overflow <= 0, 'no horizontal overflow');
