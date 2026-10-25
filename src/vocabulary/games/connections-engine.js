@@ -16,12 +16,23 @@ export function pickPuzzles(all, rng = Math.random, count = CONNECTIONS.puzzleCo
   for (const p of picked) history.cxSeen.set(p.target, history.cxRound);
   return picked;
 }
-// Word-shape scaffold, always derived from the canonical target (never from an accepted alias). Length is shown from clue 1; the first letter from clue 3. Free: no scoring effect.
-export const FIRST_LETTER_AT = 3;
+// Word-shape scaffold, always derived from the canonical target (never from an accepted alias). Free: no scoring effect.
+// Meaning first, spelling support later: length from clue 1; the first 2 letters from clue 3; the first 3 letters as a masked pattern at clue 4 ("STR_____").
+// The prefix is the first letters of the canonical target read across its words ("leisure time" -> LE, then LEI____ ____); a hyphen or space stays visible.
+export const PREFIX_AT = Object.freeze({ 3: 2, 4: 3 });
+export const PATTERN_AT = 4;
+export const prefixLengthFor = (revealed, letters) => Math.min(Math.max(0, letters - 1), Object.entries(PREFIX_AT).reduce((n, [clue, length]) => (revealed >= Number(clue) ? length : n), 0));
 export const wordShape = (puzzle, revealed = 1) => {
   const words = normaliseGuess(puzzle.target).split(' ').filter(Boolean); const lengths = words.map(w => w.length); const total = lengths.reduce((a, b) => a + b, 0);
   const label = words.length > 1 ? `${words.length} words · ${lengths.join(' + ')} letters` : `${total} letters`;
-  return { words: words.length, lengths, letters: total, label, firstLetter: revealed >= FIRST_LETTER_AT ? words[0][0].toUpperCase() : null };
+  const prefixLength = prefixLengthFor(revealed, total);
+  const letters = words.join('').toUpperCase(); const prefix = prefixLength ? letters.slice(0, prefixLength) : null;
+  // Masked pattern keeps the target's own separators (space or hyphen); letters beyond the prefix are underscores.
+  let seen = 0; const pattern = prefixLength && revealed >= PATTERN_AT
+    ? [...String(puzzle.target).normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()].map(ch => (/[a-z]/.test(ch) ? (seen++ < prefixLength ? ch.toUpperCase() : '_') : (/[-‐-―]/.test(ch) ? '-' : /\s/.test(ch) ? ' ' : '')))
+      .join('').replace(/\s+/g, ' ').trim()
+    : null;
+  return { words: words.length, lengths, letters: total, label, prefixLength, prefix, pattern, firstLetter: prefixLength ? letters[0] : null };
 };
 export const acceptedForms = puzzle => new Set([puzzle.target, ...(puzzle.accept ?? [])].map(normaliseGuess));
 
