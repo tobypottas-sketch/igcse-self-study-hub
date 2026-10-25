@@ -481,9 +481,10 @@ function closePracticeSheet(returnFocus = true) {
   const pathwayId = sheet.dataset.pathway; sheet.remove();
   if (returnFocus) root.querySelector?.(`.vocab-pathway-card[data-pathway="${pathwayId}"]`)?.focus?.();
 }
-function openPracticeSheet(pathwayId) {
+function openPracticeSheet(pathwayId, { known = true } = {}) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   closePracticeSheet(false);
+  if (!known) { root.insertAdjacentHTML('beforeend', renderPracticeSheet({ pathwayId, offline:true })); root.querySelector?.('[data-practice-sheet] [data-autofocus]')?.focus?.(); return; }
   const wordStates = wordSetStatesFor(pathwayId);
   const step = pathwayStep(pathwayId);
   // What the sheet offers must be what the launch accepts: only activities of the Set's current stage (see startPathwaySession).
@@ -498,8 +499,10 @@ function openPracticeSheet(pathwayId) {
 // (unit opened from cache, or Choose practice tapped before the finished mission is recorded) and would offer an activity the launch then rejects.
 async function openFreshPracticeSheet(pathwayId) {
   await state.settling;
-  try { await refreshSetRows(); } catch { /* offline: keep the cached rows; the launch re-reads and re-validates before anything starts */ }
-  openPracticeSheet(pathwayId);
+  // If the Set rows cannot be refreshed we do NOT know the Set's current stage, so we do not guess from the cache: the sheet shows a retry state instead.
+  let known = true;
+  try { await refreshSetRows(); } catch { known = false; }
+  openPracticeSheet(pathwayId, { known });
 }
 function timerMinutes(button) { const minutes = Number(button?.dataset?.minutes); return Number.isFinite(minutes) && minutes > 0 ? minutes : null; }
 function startMixedReview(continueHistory = false, durationMinutes = null, forceNew = false) {

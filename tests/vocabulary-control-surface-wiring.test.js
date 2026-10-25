@@ -78,3 +78,27 @@ test('every teacher-analytics data-action that is enabled has a handler in teach
   const handled = handledIn(read('teacher-app.js'));
   for (const action of rendered) assert.ok(handled.has(action), `data-action="${action}" is rendered enabled but teacher-app.js has no handler`);
 });
+
+// A failed Set refresh must never leave potentially stale activity availability on screen.
+for (const pathwayId of LIVE) {
+  test(`${pathwayId}: when the Set rows cannot be refreshed the sheet exposes no selectable activity, only a friendly retry`, async () => {
+    const h = make(pathwayId, 'match', [rowAt(pathwayId, 'match')]);
+    h.state.setRows = [rowAt(pathwayId, 'recognise')];                       // stale cache, would offer the Recognise activity
+    await h.run(`loadPathwaySets = async () => { throw new Error('offline'); }`);
+    await h.run(`openFreshPracticeSheet(${JSON.stringify(pathwayId)})`);
+    const html = h.sheets.at(-1);
+    assert.deepEqual(offered(html), [], 'no named activity is selectable');
+    assert.doesNotMatch(html, /data-action="start-recommended"/, 'Recommended is not offered either: it would fail the same refresh');
+    assert.match(html, /data-sheet-offline/);
+    assert.match(html, new RegExp(`data-action="open-pathway"[^>]*data-pathway="${pathwayId}"`), 'a retry control re-runs the refresh');
+    // Retry once the connection is back: fresh rows, valid activities only.
+    await h.run(`loadPathwaySets = async () => ${JSON.stringify([rowAt(pathwayId, 'match')])}`);
+    await h.run(`openFreshPracticeSheet(${JSON.stringify(pathwayId)})`);
+    const back = h.sheets.at(-1);
+    assert.doesNotMatch(back, /data-sheet-offline/);
+    for (const familyId of offered(back)) {
+      const fresh = make(pathwayId, 'match', [rowAt(pathwayId, 'match')]);
+      await assert.doesNotReject(fresh.run(`startPathwaySession(${JSON.stringify(pathwayId)}, false, { familyId:${JSON.stringify(familyId)} })`));
+    }
+  });
+}
