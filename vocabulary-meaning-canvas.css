@@ -20,7 +20,7 @@
 .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-question-prompt{
   max-width:100%;
   min-width:0;
-  overflow-wrap:anywhere;
+  overflow-wrap:break-word;
   word-break:normal;
 }
 
@@ -41,7 +41,7 @@
 
 .vocab-question-card:has(.vocab-pathway-session-progress[data-pathway-session-progress="meaning"][data-pathway-stage="recognise"]) .vocab-choice{
   min-width:0;
-  overflow-wrap:anywhere;
+  overflow-wrap:break-word;
   word-break:normal;
 }
 

@@ -119,7 +119,7 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 
 .vocab-unit-card,.vocab-pathway-card,.vocab-match-card,.vocab-choice-card{
   min-width:0;
-  overflow-wrap:anywhere;
+  overflow-wrap:break-word;
   transition:transform var(--study-motion-press) var(--study-ease),box-shadow var(--study-motion-state) var(--study-ease),border-color var(--study-motion-state) var(--study-ease),background var(--study-motion-state) var(--study-ease);
 }
 .vocab-unit-card:hover,.vocab-pathway-card:not(:disabled):hover,.vocab-match-card:hover,.vocab-choice-card:hover{transform:translateY(-2px);box-shadow:var(--study-shadow-hover)}
@@ -187,7 +187,7 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 
 .vocab-response-stage,.vocab-retry-stage{margin-top:6px}
 .vocab-retry-stage{padding-top:2px}
-.study-feedback{display:flex;align-items:flex-start;gap:13px;border:1px solid var(--study-line);border-radius:var(--r-lg);padding:15px 17px;background:var(--study-surface-soft);min-width:0;overflow-wrap:anywhere}
+.study-feedback{display:flex;align-items:flex-start;gap:13px;border:1px solid var(--study-line);border-radius:var(--r-lg);padding:15px 17px;background:var(--study-surface-soft);min-width:0;overflow-wrap:break-word}
 .study-feedback>div{min-width:0}
 .study-feedback strong{display:block;margin-bottom:3px;color:var(--study-ink)}
 .study-feedback p{margin:0;color:var(--c-muted);line-height:1.45}
@@ -206,7 +206,7 @@ html,body,#vocabularyApp,.vocab-shell{max-width:100%;overflow-x:clip}
 .vocab-pathway-card[data-study-accent] .vocab-pathway-stage[data-state="current"] i,
 .vocab-pathway-card[data-study-accent] .vocab-pathway-stage[data-state="complete"] i{color:var(--study-accent)}
 
-.study-milestone-card{position:relative;overflow:hidden;border:1px solid color-mix(in srgb,var(--study-accent) 30%,var(--study-line));border-radius:var(--study-radius-lg);background:linear-gradient(150deg,var(--study-surface),var(--study-accent-soft));box-shadow:var(--study-shadow);min-width:0;overflow-wrap:anywhere}
+.study-milestone-card{position:relative;overflow:hidden;border:1px solid color-mix(in srgb,var(--study-accent) 30%,var(--study-line));border-radius:var(--study-radius-lg);background:linear-gradient(150deg,var(--study-surface),var(--study-accent-soft));box-shadow:var(--study-shadow);min-width:0;overflow-wrap:break-word}
 [data-study-milestone]{margin-top:18px;padding:17px 18px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;text-align:center;letter-spacing:.01em}
 [data-study-milestone="stage_advanced"]{border-color:color-mix(in srgb,var(--study-accent) 45%,var(--study-line));background:linear-gradient(145deg,var(--c-surface),var(--study-accent-soft))}
 [data-study-milestone="stage_advanced"]::before{content:"↑";display:inline-grid;place-items:center;width:31px;height:31px;margin-right:10px;border-radius:50%;background:var(--study-accent);color:var(--c-surface);font-weight:900}

@@ -21,8 +21,8 @@ test('Meaning Recognise grows naturally on desktop instead of clipping to the re
 });
 
 test('Meaning Recognise text wraps internally instead of creating horizontal scrolling', () => {
-  assert.match(css, new RegExp(`${meaningRecognise} \\.vocab-question-prompt[^}]*overflow-wrap:anywhere`, 's'));
-  assert.match(css, new RegExp(`${meaningRecognise} \\.vocab-choice[^}]*overflow-wrap:anywhere`, 's'));
+  assert.match(css, new RegExp(`${meaningRecognise} \\.vocab-question-prompt[^}]*overflow-wrap:break-word`, 's'));
+  assert.match(css, new RegExp(`${meaningRecognise} \\.vocab-choice[^}]*overflow-wrap:break-word`, 's'));
   assert.match(css, /\.vocab-shell--session\{[^}]*min-width:0[^}]*overflow-x:clip/s);
 });
 
