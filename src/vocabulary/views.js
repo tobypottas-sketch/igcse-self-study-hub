@@ -521,6 +521,7 @@ export function supportiveFeedback({ correct, misconceptionCategory, recovery, t
   };
   if (messages[misconceptionCategory]) return `${messages[misconceptionCategory]} Try once more with support.`;
   if (clearMeaning && questionType === 'meaning_match') return `Not quite. Here, ${word} means ${clearMeaning}. Try once more with support.`;
+  if (['spelling_choice','spelling_cue_match','spelling_rebuild','spell_word','spell_in_context','spot_the_error'].includes(questionType)) return 'Not quite. Check the spelling carefully and try once more with support.';
   return 'Not quite. Check the meaning carefully and try once more with support.';
 }
 
