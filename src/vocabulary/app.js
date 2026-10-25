@@ -23,7 +23,7 @@ import { createAttemptPersistence } from './attempt-persistence.js';
 import { buildMatchSet, checkMatchSet, finishedMatchState, newMatchState, revealMatchSet, tapMatchItem, pairMatchItems } from './match-set.js';
 import { installMatchDrag, matchDragJustEnded } from './match-drag.js';
 import { activityFamily } from './activity-families.js';
-import { MIN_SHORT_MISSION, familyTargets, loadLastChoice, pathwayPracticeOptions, saveLastChoice } from './pathway-choice.js';
+import { MIN_SHORT_MISSION, familyTargets, loadLastChoice, pathwayPracticeOptions, restrictOptionsToStep, saveLastChoice } from './pathway-choice.js';
 import { loadSeenContent, saveSeenContent } from './seen-content.js';
 import { derivePresentationNonce, orderMissionTargets } from './mission-seed.js';
 import { clearMission, loadMission, markTargetComplete, saveMission, usedFromObject, usedToObject } from './mission-cache.js';
@@ -485,8 +485,10 @@ function openPracticeSheet(pathwayId) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
   closePracticeSheet(false);
   const wordStates = wordSetStatesFor(pathwayId);
-  const options = pathwayPracticeOptions({ pathwayId, content:state.content, unitMastery:state.unitMastery, globalMastery:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${pathwayId}`, wordStateFor:target => wordStates[target.occurrenceId] ?? null });
-  const currentStage = pathwayStep(pathwayId).stage ?? 'recognise';
+  const step = pathwayStep(pathwayId);
+  // What the sheet offers must be what the launch accepts: only activities of the Set's current stage (see startPathwaySession).
+  const options = restrictOptionsToStep(pathwayPracticeOptions({ pathwayId, content:state.content, unitMastery:state.unitMastery, globalMastery:state.globalMastery, seed:`unit-${state.currentUnitNumber}:${pathwayId}`, wordStateFor:target => wordStates[target.occurrenceId] ?? null }), step);
+  const currentStage = step.stage ?? 'recognise';
   const recommended = bestAndAim(state.missions ?? [], { unitNumber:state.currentUnitNumber, kind:'pathway', pathwayId, stage:currentStage, family:'recommended' });
   root.insertAdjacentHTML('beforeend', renderPracticeSheet({ pathwayId, options, lastFamilyId:loadLastChoice(pathwayId), bestAim:recommended.best ? recommended.copy : null }));
   root.querySelector?.('[data-practice-sheet] [data-autofocus]')?.focus?.();

@@ -61,6 +61,19 @@ export function pathwayPracticeOptions({ pathwayId, content, unitMastery, global
     return { family, count, status, hint, targets };
   });
 }
+// A student-chosen activity is the Set's CURRENT step (launch contract, startPathwaySession): only a family used at the Set's current stage can start.
+// The picker therefore offers exactly those. A family from a stage the Set has already cleared stays visible but is not selectable (it used to look
+// ready and then be refused with "not part of this stage"), and when every Set is in Maintain nothing here can start (Mixed Practice takes over).
+export function familyServesStage(family, stageId) { return Boolean(stageId) && family.stageIds.includes(stageId); }
+export function restrictOptionsToStep(options, step) {
+  const stageId = step?.stage ?? null; const maintain = step?.firstPassComplete === true;
+  return options.map(option => {
+    if (!maintain && familyServesStage(option.family, stageId)) return option;
+    const cleared = !maintain && stageId && idx(option.family.stageIds[option.family.stageIds.length - 1]) < idx(stageId);
+    const hint = maintain ? 'Every Set is in Maintain — try Mixed Practice' : cleared ? 'Cleared in this Set — Recommended keeps going' : option.hint;
+    return { ...option, status:'locked', hint };
+  });
+}
 function stageLabel(stageId) { return PATHWAY_STAGES.find(stage => stage.id === stageId)?.label ?? 'earlier stages'; }
 
 // Last choice per pathway: browser storage only (a convenience, never required, never sent anywhere).
