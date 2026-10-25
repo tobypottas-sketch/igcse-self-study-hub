@@ -37,7 +37,8 @@ export async function getSupabaseClient() {
 // Runs in the page after Home has rendered. Instruments the app root and returns helpers on window.
 function instrument() {
   const root = document.querySelector('#vocabularyApp');
-  const log = { replacements:0, unitRenders:0, homeRenders:0, events:[], shifts:[] };
+  const log = { replacements:0, unitRenders:0, homeRenders:0, scrolls:0, events:[], shifts:[] };
+  addEventListener('scroll', () => { log.scrolls += 1; }, { passive:true });
   new MutationObserver(records => {
     let added = false; let removed = false; const names = [];
     for (const r of records) { if (r.addedNodes.length) { added = true; for (const n of r.addedNodes) names.push(n.className ?? n.nodeName); } if (r.removedNodes.length) removed = true; }
@@ -64,6 +65,12 @@ function instrument() {
   window.__release = name => window.__gates[name]?.resolve();
 }
 
+// Clicks through the DOM instead of page.click(). page.click() first scrolls the element into view, and vocabulary-word-list-nav.css sets
+// `html{scroll-behavior:smooth}`, so that scroll is an animation that keeps running for a while after the click returns. How long it keeps running
+// depends on machine load, which made the scrollY sampled "immediately" and "later" differ (203 vs 444) under full-suite load. The tests
+// are about what the app does, so they must not start a scroll of their own.
+const domClick = (page, selector) => page.evaluate(sel => document.querySelector(sel).click(), selector);
+
 export async function runColdUnitFlow({ root, width = 1280, height = 560, scenario }) {
   const playwright = loadPlaywright(); const executablePath = await findChromium();
   if (!playwright || !executablePath) return null;
@@ -87,7 +94,7 @@ export const coldOpen = async ({ page, wait, snap, log }) => {
   const result = {};
   await page.evaluate(() => window.__gate('unit:1'));
   result.beforeClick = await snap();
-  await page.click('.vocab-unit-card[data-unit="1"]');
+  await domClick(page, '.vocab-unit-card[data-unit="1"]');
   await wait(500);
   result.duringDelay = await snap();
   await wait(500);
@@ -104,20 +111,22 @@ export const coldOpen = async ({ page, wait, snap, log }) => {
 // Scenario 2: open (cold) -> back to Home -> open again (cached) must render immediately.
 export const cachedOpen = async ({ page, wait, snap, log }) => {
   const result = {};
-  await page.click('.vocab-unit-card[data-unit="1"]');
+  await domClick(page, '.vocab-unit-card[data-unit="1"]');
   await page.waitForSelector('.vocab-unit-hero');
-  await page.click('[data-action="back-units"]');
+  await domClick(page, '[data-action="back-units"]');
   await page.waitForSelector('.vocab-unit-card');
   await wait(100);
   const rendersBefore = (await log()).unitRenders;
   // Gate the unit: a cached open must not wait for it.
   await page.evaluate(() => { window.__gate('unit:1'); });
   await page.evaluate(() => document.querySelector('.vocab-unit-card[data-unit="1"]').click());
+  const scrollsBefore = (await log()).scrolls;
   result.immediately = await snap();
   await wait(300);
   result.later = await snap();
   const finalLog = await log();
   result.unitRendersForCachedOpen = finalLog.unitRenders - rendersBefore;
+  result.scrollsDuringCachedOpen = finalLog.scrolls - scrollsBefore;
   result.loadCalls = await page.evaluate(() => window.__calls.filter(c => c === 'load:1').length);
   result.log = finalLog;
   return result;
@@ -127,10 +136,10 @@ export const cachedOpen = async ({ page, wait, snap, log }) => {
 export const staleRequest = async ({ page, wait, snap, log }) => {
   const result = {};
   await page.evaluate(() => window.__gate('unit:1'));
-  await page.click('.vocab-unit-card[data-unit="1"]');
+  await domClick(page, '.vocab-unit-card[data-unit="1"]');
   await wait(200);
   result.afterFirstClick = await snap();
-  await page.click('.vocab-unit-card[data-unit="2"]');
+  await domClick(page, '.vocab-unit-card[data-unit="2"]');
   await page.waitForSelector('.vocab-unit-hero');
   await wait(200);
   result.afterSecondUnit = await snap();
