@@ -328,3 +328,60 @@ browserTest('Connections picture clues in the real UI: clue 2 is the PNG, clues 
     }
   } finally { await browser.close(); server.close(); }
 });
+
+// ---------------------------------------------------------------- Clue 1 quality, compact pictures, stable scrolling
+test('Connections clue 1: every one is a real, specific first clue (not a bare place/topic phrase), and clue 1 never repeats a later clue', () => {
+  const stopTopics = /^(a|an|the)\s+\w+(\s+\w+)?$/i; // "a chess game", "a flea market", "banks and coins" style: article + one or two nouns
+  for (const p of CONNECTIONS_PUZZLES) {
+    const [c1, c2, c3, c4] = p.clues.map(c => c.text.trim().toLowerCase());
+    assert.ok(c1.length > 0); assert.ok(c1.split(/\s+/).length >= 4, `${p.target}: clue 1 "${c1}" is too thin`); assert.ok(!stopTopics.test(c1), `${p.target}: clue 1 is just a place/topic`);
+    assert.ok(c1.length <= 60, `${p.target}: clue 1 stays short`);
+    assert.notEqual(c1, c4); assert.notEqual(c1, c3); assert.notEqual(c1, c2); assert.notEqual(c3, c4, `${p.target}: clue 3 and 4 differ`);
+    assert.ok(!/___/.test(c1));
+  }
+  const byTarget = Object.fromEntries(CONNECTIONS_PUZZLES.map(p => [p.target, p.clues[0].text]));
+  assert.equal(byTarget.craftspeople, 'people who make things by hand'); assert.equal(byTarget.opponent, 'the person you are trying to beat');
+  assert.equal(byTarget.patience, 'staying calm while you wait'); assert.equal(byTarget.atmosphere, 'the feeling or mood of a place');
+  for (const bad of ['a pottery workshop', 'a chess game', 'banks and coins', 'online reviews', 'a flea market', 'a judge\'s scorecard']) assert.ok(!Object.values(byTarget).includes(bad), bad);
+});
+
+test('Connections picture clue CSS: compact display sizes per breakpoint, contained (never cropped or stretched)', () => {
+  const css = read('vocabulary-games.css');
+  assert.match(css, /\.gm-pic__img\{[^}]*max-height:270px[^}]*object-fit:contain/);
+  assert.match(css, /@media \(max-width:900px\)\{\.gm-pic__img\{max-height:215px\}\}/); assert.match(css, /@media \(max-width:480px\)\{\.gm-pic__img\{max-height:185px\}\}/); assert.match(css, /@media \(max-width:340px\)\{\.gm-pic__img\{max-height:170px\}\}/);
+});
+
+browserTest('Connections: picture clues are compact at 1280/390/320, and revealing clues never throws the viewport back to the top', async () => {
+  const playwright = loadPlaywright(); const browser = await playwright.chromium.launch({ executablePath: await findChromium() }); const { server, url } = await startServer();
+  try {
+    for (const [w, h, maxPic] of [[1280, 800, 270], [820, 900, 215], [390, 700, 185], [320, 560, 170]]) {
+      const page = await browser.newPage({ viewport: { width: w, height: h } }); page.on('pageerror', e => { throw e; }); await page.goto(`${url}/__games.html`); await page.waitForFunction(() => window.__ready);
+      const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      let scrolledAtLeastOnce = false;
+      for (const target of ['racquet', 'pastime', 'criteria']) {
+        const where = `${w}/${target}`;
+        await page.evaluate(t => window.__mountP('connections', window.__puzzles.filter(x => x.target === t)), target); await page.click('[data-game-act="cx-start"]');
+        await page.click('[data-game-act="cx-reveal"]'); await page.waitForFunction(() => document.querySelector('img[data-cx-img]').complete);
+        const box = await page.locator('img[data-cx-img]').boundingBox(); assert.ok(box.height <= maxPic + 1, `${where}: picture ${box.height}px > ${maxPic}px`); assert.ok((await overflow()) <= 0, `${where}: overflow`);
+        const fit = await page.locator('img[data-cx-img]').evaluate(i => getComputedStyle(i).objectFit); assert.equal(fit, 'contain');
+        // scroll stability: scroll down so the reveal button is in view, then reveal clue 3 and clue 4 and make sure the viewport stays put
+        for (const step of ['clue 3', 'clue 4']) {
+          await page.evaluate(() => { window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }); });
+          const before = await page.evaluate(() => window.scrollY); const canScroll = await page.evaluate(() => document.documentElement.scrollHeight > window.innerHeight + 60);
+          await page.click('[data-game-act="cx-reveal"]'); await page.waitForTimeout(120);
+          const after = await page.evaluate(() => window.scrollY);
+          if (canScroll) { scrolledAtLeastOnce = true; assert.ok(before > 0, `${where}/${step}: page was scrolled (before=${before}, sh=${await page.evaluate(() => document.documentElement.scrollHeight)}, ih=${h})`); assert.ok(after >= before - 2, `${where}/${step}: viewport jumped from ${before} to ${after}`); }
+          const active = await page.evaluate(() => document.activeElement?.getAttribute('data-game-act') ?? document.activeElement?.id);
+          assert.ok(['cx-reveal', 'cxGuess'].includes(active), `${where}/${step}: focus stays on the button or the input (was ${active})`);
+        }
+        // wrong guess and Need help? also keep position
+        await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' })); const y1 = await page.evaluate(() => window.scrollY);
+        await page.fill('#cxGuess', 'zzz'); await page.press('#cxGuess', 'Enter'); await page.click('[data-game-act="cx-help"]'); await page.waitForTimeout(120);
+        assert.ok((await page.evaluate(() => window.scrollY)) >= y1 - 2, `${where}: help/wrong guess kept the viewport`);
+        assert.ok((await overflow()) <= 0, `${where}: overflow after support`);
+      }
+      if (w <= 390) assert.ok(scrolledAtLeastOnce, `${w}: the page must really scroll for this test to prove anything`);
+      await page.close();
+    }
+  } finally { await browser.close(); server.close(); }
+});

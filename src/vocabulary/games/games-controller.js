@@ -13,7 +13,12 @@ export function mountGames(root, { content, game = 'lobby', onExit = () => {}, r
   const stop = () => { if (tick) clearTick(tick); if (advance) clearTimer(advance); if (popTimer) clearTimer(popTimer); tick = advance = popTimer = null; };
   const q = selector => root.querySelector(selector);
   const focus = selector => { try { q(selector)?.focus?.({ preventScroll: true }); } catch { /* focus is a convenience only */ } };
-  const paint = html => { root.innerHTML = html; if (typeof root.scrollTo === 'function') try { root.scrollTo(0, 0); } catch { /* ignore */ } try { globalThis.scrollTo?.(0, 0); } catch { /* ignore */ } };
+  // A repaint is a new screen (scroll to the top) unless `keep` says it is the same puzzle changing in place: then the viewport position is restored,
+  // because replacing the markup briefly shortens the page and the browser would otherwise clamp the scroll position upwards.
+  const paint = (html, keep = false) => {
+    const y = globalThis.scrollY ?? 0; const top = root.scrollTop ?? 0; root.innerHTML = html;
+    if (keep) { try { globalThis.scrollTo?.({ left: 0, top: y, behavior: 'instant' }); if (root.scrollTop !== undefined) root.scrollTop = top; } catch { /* ignore */ } return; }
+    if (typeof root.scrollTo === 'function') try { root.scrollTo(0, 0); } catch { /* ignore */ } try { globalThis.scrollTo?.(0, 0); } catch { /* ignore */ } };
 
   // ---- Word Blitz
   const setTime = () => {
@@ -59,10 +64,10 @@ export function mountGames(root, { content, game = 'lobby', onExit = () => {}, r
     return t.length < 2 ? [] : terms.filter(term => term.toLowerCase().startsWith(t)).slice(0, 5);
   };
   const startConnections = () => { stop(); cx = createConnections({ puzzles: puzzles ?? pickPuzzles(CONNECTIONS_PUZZLES, rng, CONNECTIONS.puzzleCount) }); showCx(); };
-  const showCx = () => { if (cx.state.status === 'over') { paint(renderConnectionsOver(cx.summary())); focus('[data-game-act="cx-again"]'); return; } paint(renderConnectionsPlay(cx)); focus(cx.state.phase === 'guessing' ? '#cxGuess' : '[data-game-act="cx-next"]'); };
+  const showCx = (keep = false, focusOn = null) => { if (cx.state.status === 'over') { paint(renderConnectionsOver(cx.summary())); focus('[data-game-act="cx-again"]'); return; } paint(renderConnectionsPlay(cx), keep); focus(focusOn ?? (cx.state.phase === 'guessing' ? '#cxGuess' : '[data-game-act="cx-next"]')); };
   const submitGuess = text => {
     if (!cx) return; const r = cx.guess(text); if (!r) return;
-    if (r.correct) showCx(); else { showCx(); const card = q('.gm-guess'); if (card) card.dataset.shake = 'on'; }
+    if (r.correct) showCx(true); else { showCx(true); const card = q('.gm-guess'); if (card) card.dataset.shake = 'on'; }
   };
 
   const show = which => {
@@ -81,10 +86,10 @@ export function mountGames(root, { content, game = 'lobby', onExit = () => {}, r
     else if (act === 'blitz-start' || act === 'blitz-again') startBlitz();
     else if (act === 'blitz-answer') answerBlitz(target.dataset.index);
     else if (act === 'cx-start' || act === 'cx-again') startConnections();
-    else if (act === 'cx-reveal') { cx.reveal(); showCx(); focus('#cxGuess'); }
-    else if (act === 'cx-help') { cx.help(); showCx(); focus('[data-cx-choices] .gm-choice'); }
-    else if (act === 'cx-choice') { const r = cx.pick(target.dataset.term); if (r) { showCx(); if (!r.correct) { const first = q('[data-cx-choices] .gm-choice:not([disabled])'); first?.focus?.(); } } }
-    else if (act === 'cx-giveup') { cx.giveUp(); showCx(); }
+    else if (act === 'cx-reveal') { cx.reveal(); showCx(true, cx.canReveal() ? '[data-game-act="cx-reveal"]' : '#cxGuess'); }
+    else if (act === 'cx-help') { cx.help(); showCx(true, '[data-cx-choices] .gm-choice'); }
+    else if (act === 'cx-choice') { const r = cx.pick(target.dataset.term); if (r) { showCx(true, r.correct ? null : '[data-cx-choices] .gm-choice:not([disabled])'); } }
+    else if (act === 'cx-giveup') { cx.giveUp(); showCx(true); }
     else if (act === 'cx-next') { cx.next(); showCx(); }
     else if (act === 'suggest') { const input = q('#cxGuess'); if (input) { input.value = target.dataset.term; input.focus?.(); } }
   };
