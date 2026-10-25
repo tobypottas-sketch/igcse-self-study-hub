@@ -57,3 +57,49 @@
   .vocab-sheet-option__text .vocab-sheet-option__note{display:block}
   .vocab-sheet__close{width:40px;height:40px}
 }
+
+/* ── Polish: one clear hierarchy ──────────────────────────────────────────────────────────────────────────────────────
+   identity → Recommended ("best next step") → "Or choose one activity" → open activities → quiet "Not open yet" group.
+   Same buttons, same data hooks; the lock moves in front of the title and the reason shrinks to one subordinate line. */
+.vocab-sheet{padding:16px 18px 18px;border-top-width:3px}
+.vocab-sheet__head{gap:12px;margin-bottom:12px}
+.vocab-sheet__head h2{font-size:var(--fs-lg);letter-spacing:-.01em}
+.vocab-sheet__icon{width:40px;height:40px;border-radius:12px}
+.vocab-sheet__close{flex:0 0 auto;background:transparent;color:var(--c-muted)}   /* never squeezed below the touch size by a long title */
+.vocab-sheet__close:hover{background:var(--c-surface-soft);color:var(--c-ink)}
+/* Recommended: the strongest element, but one calm row rather than a second product */
+.vocab-sheet .vocab-sheet-option--recommended{min-height:56px;padding:10px 12px 10px 16px;border:0;border-radius:14px;background:linear-gradient(100deg,var(--study-accent-soft,var(--c-teal-soft)),var(--c-surface) 130%);box-shadow:inset 4px 0 0 var(--study-accent,var(--c-teal)),0 1px 2px rgba(23,56,82,.06)}
+.vocab-sheet .vocab-sheet-option--recommended .vocab-sheet-option__text strong{font-size:var(--fs-md);letter-spacing:-.005em}
+.vocab-sheet .vocab-sheet-option--recommended .vocab-sheet-option__text small{color:var(--c-ink-2)}
+.vocab-sheet .vocab-sheet-option--recommended .vocab-sheet-option__go{width:32px;height:32px;border-radius:50%;background:var(--study-accent,var(--c-teal));color:#fff}
+.vocab-sheet__or{margin:12px 2px 6px;font-size:var(--fs-xs);font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--c-muted)}
+/* Open activities: light, inviting, not boxed */
+.vocab-sheet-option{border:1px solid transparent;background:var(--c-surface-soft);box-shadow:none}
+.vocab-sheet-option:hover:not(:disabled){transform:none;border-color:var(--study-accent,var(--c-teal));background:var(--c-surface);box-shadow:0 4px 14px rgba(23,56,82,.09)}
+.vocab-sheet-option__text strong{font-size:var(--fs-md);line-height:1.2}
+.vocab-sheet-option__text small{color:var(--c-ink-2)}
+.vocab-sheet-option__go{width:28px;height:28px;border-radius:50%;background:color-mix(in srgb,var(--study-accent,var(--c-teal)) 12%,transparent)}
+.vocab-sheet-option:hover:not(:disabled) .vocab-sheet-option__go{background:var(--study-accent,var(--c-teal));color:#fff}
+.vocab-sheet-option.is-last{border-color:var(--study-accent,var(--c-teal));box-shadow:none;background:var(--c-surface)}
+.vocab-sheet-option__note{font-weight:700;color:var(--c-muted)}
+/* Not open yet: intentionally quiet, still legible, no affordance */
+.vocab-sheet__or--locked{margin-top:14px}
+.vocab-sheet__list--locked{gap:5px}
+.vocab-sheet-option.is-locked{min-height:44px;padding:7px 12px;gap:8px;border:1px solid var(--c-line);border-style:solid;background:transparent;cursor:default;color:var(--c-ink-2)}
+.vocab-sheet-option.is-locked .vocab-sheet-option__go{order:-1;width:22px;height:22px;background:transparent;color:var(--c-muted)}
+.vocab-sheet-option.is-locked .vocab-sheet-option__text strong{font-size:var(--fs-sm);font-weight:800;color:var(--c-ink-2)}
+.vocab-sheet-option.is-locked .vocab-sheet-option__text small{display:none}
+.vocab-sheet-option.is-locked .vocab-sheet-option__note{font-size:var(--fs-xs);font-weight:600;color:var(--c-muted)}
+@media(min-width:520px){.vocab-sheet__list--locked{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Short screens: the polished rows step down with the viewport height, exactly like the base rows above. */
+@media(max-height:700px){
+  .vocab-sheet{padding:12px 14px 14px}
+  .vocab-sheet .vocab-sheet-option--recommended{min-height:44px;padding:6px 10px 6px 14px}
+  .vocab-sheet__or{margin:8px 2px 4px}
+  .vocab-sheet__or--locked{margin-top:8px}
+  .vocab-sheet-option.is-locked{min-height:40px;padding:4px 10px}
+}
+@media(max-height:600px){
+  .vocab-sheet__list--locked{gap:4px}
+  .vocab-sheet-option.is-locked .vocab-sheet-option__text{gap:0}
+}
