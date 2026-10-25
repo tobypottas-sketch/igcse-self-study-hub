@@ -1,6 +1,6 @@
 // Word Blitz rules as a small pure state machine. It reads Unit 1 items/contexts that are handed in and nothing else:
 // no storage, no network, no progression, XP, mastery or Set code.
-import { BLITZ_CONFUSABLE } from './games-data.js';
+import { BLITZ_CONFUSABLE, BLITZ_MEANING_OPTIONS } from './games-data.js';
 import { createGameHistory, leastRecentFirst } from './games-history.js';
 export const BLITZ = Object.freeze({ durationMs: 60000, base: 100, urgentMs: 10000, tiers: Object.freeze([[0, 1], [3, 2], [6, 3], [10, 4]]) });
 // Result-screen title, by score. Purely cosmetic.
@@ -92,9 +92,12 @@ export function buildBlitzPool(content, rng = Math.random) {
       for (const row of sense.masteryContexts ?? []) {
         const sentence = String(row?.text ?? '').trim(); const right = String(row?.meaning ?? '').trim();
         const wrong = [...new Set((row?.wrongMeanings ?? []).map(text => String(text).trim()))].filter(text => text && text.toLowerCase() !== right.toLowerCase());
-        if (!row?.contextId || !sentence || !right || wrong.length < 3 || sentence.length > 130 || [right, ...wrong.slice(0, 3)].some(text => text.length > 60)) continue;
+        if (!row?.contextId || !sentence || !right || wrong.length < 3 || sentence.length > 130) continue;
+        // Students see the plain-English wording kept in games-data.js for this reviewed row (same meaning, same order: correct first, then the three reviewed wrong ones).
+        const shown = BLITZ_MEANING_OPTIONS[row.contextId] ?? [right, ...wrong.slice(0, 3)];
+        if (shown.length !== 4 || new Set(shown.map(text => text.toLowerCase())).size !== 4 || shown.some(text => text.length > 60)) continue;
         add({ id: `mic:${row.contextId}`, type: 'mic', label: `In this sentence, “${item.term}” means…`, prompt: sentence, term: item.term, meaning,
-          build: () => { const all = shuffle([right, ...wrong.slice(0, 3)], rng); return { options: all, answerIndex: all.indexOf(right) }; } });
+          build: () => { const all = shuffle(shown, rng); return { options: all, answerIndex: all.indexOf(shown[0]) }; } });
       }
     }
   }

@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import { createBlitz, buildBlitzPool } from '../src/vocabulary/games/blitz-engine.js';
 import { createConnections, pickPuzzles, CONNECTIONS, normaliseGuess, acceptedForms } from '../src/vocabulary/games/connections-engine.js';
-import { CONNECTIONS_PUZZLES, BLITZ_CONFUSABLE } from '../src/vocabulary/games/games-data.js';
+import { CONNECTIONS_PUZZLES, BLITZ_CONFUSABLE, BLITZ_MEANING_OPTIONS } from '../src/vocabulary/games/games-data.js';
 import { createGameHistory, sharedGameHistory } from '../src/vocabulary/games/games-history.js';
 import { renderConnectionsPlay, renderBlitzQuestion } from '../src/vocabulary/games/games-view.js';
 
@@ -128,7 +128,7 @@ test('Word Blitz questions: four distinct viable options, one correct answer tha
     const answer = q.options[q.answerIndex];
     if (q.type === 'def' || q.type === 'para') assert.equal(answer, q.term);
     if (q.type === 'gap') assert.equal(answer.toLowerCase(), gapRows.get(q.id).answer.toLowerCase());
-    if (q.type === 'mic') { const row = micRows.get(q.id); assert.equal(answer, row.meaning); assert.deepEqual(q.options.filter(o => o !== answer).sort(), row.wrongMeanings.slice(0, 3).slice().sort(), 'the three wrong meanings are the reviewed ones'); assert.ok(q.label.includes(q.term)); assert.equal(q.prompt, row.text); }
+    if (q.type === 'mic') { const row = micRows.get(q.id); const shown = BLITZ_MEANING_OPTIONS[row.contextId]; assert.equal(answer, shown[0], 'the correct meaning is the reworded reviewed one'); assert.deepEqual(q.options.filter(o => o !== answer).sort(), shown.slice(1).slice().sort()); assert.ok(q.label.includes(q.term)); assert.equal(q.prompt, row.text); }
   }
 });
 
@@ -194,4 +194,19 @@ test('Text-only Connections puzzles render clue 2 as text (no picture), and mean
   for (const p of textOnly) { const engine = createConnections({ puzzles: [p] }); engine.reveal(); const html = renderConnectionsPlay(engine); assert.doesNotMatch(html, /<img/); const decoded = html.replace(/&quot;/g, '"').replace(/&#0?39;|&apos;/g, "'").replace(/&amp;/g, '&'); assert.ok(decoded.includes(p.clues[1].text), `${p.target}: clue 2 text shown`); }
   const mic = materialise(build(1)).find(q => q.type === 'mic'); const html = renderBlitzQuestion(mic);
   assert.match(html, /data-type="mic"/); assert.equal((html.match(/data-game-act="blitz-answer"/g) ?? []).length, 4); assert.ok(html.includes('In this sentence'));
+});
+
+// ---------------------------------------------------------------- Plain-English meaning options
+test('Meaning-in-context options: every reviewed row has a plain-English rewording that keeps the same shape (1 correct + 3 wrong, same order)', () => {
+  const rows = []; for (const item of unit1.items) for (const sense of item.senses) for (const r of sense.masteryContexts ?? []) rows.push({ item, r });
+  assert.equal(Object.keys(BLITZ_MEANING_OPTIONS).length, rows.length, 'one wording per reviewed row, none extra');
+  const formal = /\b(considerable|deliberately|exceptionally|approximately|recreation|recreational|decisive|perceived|acceptable|notable|accomplishment|financially|determine[sd]?|evaluating|requirements?|resources?|moderate|excessive|pursuit|regulation|scope|institution)\b/i;
+  for (const { item, r } of rows) {
+    const shown = BLITZ_MEANING_OPTIONS[r.contextId]; assert.ok(shown, `${r.contextId} has a wording`); assert.equal(shown.length, 4);
+    assert.equal(new Set(shown.map(t => t.toLowerCase())).size, 4, `${r.contextId}: duplicate options`);
+    for (const text of shown) { assert.ok(text.length >= 4 && text.length <= 60, `${r.contextId}: "${text}" length`); assert.ok(text.split(/\s+/).length <= 11, `${r.contextId}: "${text}" is long for a quick game`); assert.doesNotMatch(text, formal, `${r.contextId}: "${text}" is too formal`); assert.ok(!new RegExp(`\\b${item.term.replace('-', '[- ]')}\\b`, 'i').test(text), `${r.contextId}: "${text}" uses the target word`); }
+    assert.equal(shown.filter(t => t === shown[0]).length, 1);
+  }
+  // the reviewed content itself is untouched (other activities still use it as authored)
+  const urge = unit1.items.find(i => i.term === 'urge').senses[0].masteryContexts[0]; assert.equal(urge.meaning, 'press someone hard to do something');
 });
