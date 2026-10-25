@@ -3,12 +3,13 @@
 import { createBlitz, BLITZ } from './blitz-engine.js';
 import { createConnections, pickPuzzles, CONNECTIONS, normaliseGuess } from './connections-engine.js';
 import { CONNECTIONS_PUZZLES } from './games-data.js';
+import { sharedGameHistory } from './games-history.js';
 import { renderLobby, renderBlitzIntro, renderBlitzPlay, renderBlitzQuestion, renderBlitzOver, comboView, renderConnectionsIntro, renderConnectionsPlay, renderConnectionsOver } from './games-view.js';
 
 let bestBlitz = 0;   // in-memory only, gone on reload (deliberate)
 export const resetGamesMemory = () => { bestBlitz = 0; };
 
-export function mountGames(root, { content, game = 'lobby', onExit = () => {}, rng = Math.random, puzzles = null, now = () => Date.now(), setTimer = setTimeout, clearTimer = clearTimeout, setTick = setInterval, clearTick = clearInterval } = {}) {
+export function mountGames(root, { content, game = 'lobby', onExit = () => {}, rng = Math.random, puzzles = null, history = sharedGameHistory, now = () => Date.now(), setTimer = setTimeout, clearTimer = clearTimeout, setTick = setInterval, clearTick = clearInterval } = {}) {
   let blitz = null; let cx = null; let tick = null; let advance = null; let popTimer = null; let alive = true;
   const stop = () => { if (tick) clearTick(tick); if (advance) clearTimer(advance); if (popTimer) clearTimer(popTimer); tick = advance = popTimer = null; };
   const q = selector => root.querySelector(selector);
@@ -32,7 +33,7 @@ export function mountGames(root, { content, game = 'lobby', onExit = () => {}, r
   const paintCombo = streak => { const v = comboView(streak); const m = q('[data-blitz-mult]'); if (!m) return; m.textContent = v.mult; q('[data-blitz-streak]').textContent = v.streak; q('[data-blitz-tier]').style.width = `${v.tier}%`; q('[data-blitz-combo]').dataset.mult = v.mult; };
   const pop = (text, kind) => { const el = q('[data-blitz-pop]'); if (!el) return; el.textContent = text; el.dataset.kind = kind; el.classList.remove('is-on'); void el.offsetWidth; el.classList.add('is-on'); if (popTimer) clearTimer(popTimer); popTimer = setTimer(() => { el.classList.remove('is-on'); }, 700); };
   const startBlitz = () => {
-    stop(); blitz = createBlitz({ content, rng, now }); blitz.start();
+    stop(); blitz = createBlitz({ content, rng, now, history }); blitz.start();
     paint(renderBlitzPlay(blitz.state)); paintCombo(0); focus('.gm-option'); tick = setTick(setTime, 100);
   };
   const endBlitz = () => {
@@ -63,7 +64,7 @@ export function mountGames(root, { content, game = 'lobby', onExit = () => {}, r
     const terms = [...new Set((content?.items ?? []).map(item => item.term))]; const t = normaliseGuess(typed);
     return t.length < 2 ? [] : terms.filter(term => term.toLowerCase().startsWith(t)).slice(0, 5);
   };
-  const startConnections = () => { stop(); cx = createConnections({ puzzles: puzzles ?? pickPuzzles(CONNECTIONS_PUZZLES, rng, CONNECTIONS.puzzleCount) }); showCx(); };
+  const startConnections = () => { stop(); cx = createConnections({ puzzles: puzzles ?? pickPuzzles(CONNECTIONS_PUZZLES, rng, CONNECTIONS.puzzleCount, history) }); showCx(); };
   const showCx = (keep = false, focusOn = null) => { if (cx.state.status === 'over') { paint(renderConnectionsOver(cx.summary())); focus('[data-game-act="cx-again"]'); return; } paint(renderConnectionsPlay(cx), keep); focus(focusOn ?? (cx.state.phase === 'guessing' ? '#cxGuess' : '[data-game-act="cx-next"]')); };
   const submitGuess = text => {
     if (!cx) return; const r = cx.guess(text); if (!r) return;

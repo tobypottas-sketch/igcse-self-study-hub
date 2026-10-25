@@ -1,6 +1,7 @@
 // Word Blitz rules as a small pure state machine. It reads Unit 1 items/contexts that are handed in and nothing else:
 // no storage, no network, no progression, XP, mastery or Set code.
-import { BLITZ_CONFUSABLE } from './games-data.js';
+import { BLITZ_CONFUSABLE, BLITZ_MEANING_OPTIONS } from './games-data.js';
+import { createGameHistory, leastRecentFirst } from './games-history.js';
 export const BLITZ = Object.freeze({ durationMs: 60000, base: 100, urgentMs: 10000, tiers: Object.freeze([[0, 1], [3, 2], [6, 3], [10, 4]]) });
 // Result-screen title, by score. Purely cosmetic.
 export const RATINGS = Object.freeze([[3000, 'Unstoppable'], [1800, 'Brilliant'], [800, 'Strong round'], [0, 'Good start']]);
@@ -13,6 +14,7 @@ const shuffle = (list, rng) => { const a = list.slice(); for (let i = a.length -
 const escapeRegex = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const STOP = new Set(['about', 'after', 'being', 'could', 'doing', 'every', 'from', 'have', 'into', 'more', 'other', 'someone', 'something', 'than', 'that', 'their', 'there', 'these', 'they', 'this', 'those', 'time', 'very', 'what', 'when', 'where', 'which', 'while', 'will', 'with', 'would', 'your', 'you', 'are', 'for', 'not', 'the', 'and', 'person', 'people']);
 const contentWords = text => String(text ?? '').toLowerCase().match(/[a-z]{4,}/g)?.filter(word => !STOP.has(word)) ?? [];
+const PARA_STOP = new Set(['with', 'the', 'for', 'you', 'and', 'are', 'not', 'about', 'from', 'has', 'was']);
 const stem = word => word.replace(/(ing|ed|es|s|ly|ment|ion|ness)$/, '');
 
 // Blank one whole-word occurrence of `answer` in a sentence. Used only for teacher-reviewed gap rows, so the blank is the exact form.
@@ -56,39 +58,64 @@ export function buildBlitzPool(content, rng = Math.random) {
     const distractors = distractorsFor(item, promptText); if (distractors.length < 3) return null;
     const all = shuffle([item.term, ...distractors], rng); return { options: all, answerIndex: all.indexOf(item.term) };
   };
-  const pool = [];
+  const pool = []; const ids = new Set();
+  // One stable id per genuinely different prompt; a repeated id (for example a row authored twice) is dropped, never served twice.
+  const add = question => { if (ids.has(question.id)) return; ids.add(question.id); pool.push(question); };
   const termsLower = items.map(item => item.term.toLowerCase());
   for (const item of items) {
     const meaning = item.coreMeaning;
-    if (!meaning.toLowerCase().includes(item.term.toLowerCase())) pool.push({ id: `def:${item.vocabularyId}`, type: 'def', label: 'Which word means…', prompt: meaning, term: item.term, meaning, build: () => choice(item, meaning) });
+    if (!meaning.toLowerCase().includes(item.term.toLowerCase())) add({ id: `def:${item.vocabularyId}`, type: 'def', label: 'Which word means…', prompt: meaning, term: item.term, meaning, build: () => choice(item, meaning) });
     // A paraphrase is used only if it is short, does not contain the word, and is not also (part of) another Unit 1 word's meaning or paraphrase.
+    // Each reviewed paraphrase is its own prompt (at most two per word).
     const others = items.filter(other => other.vocabularyId !== item.vocabularyId);
-    const paraphrases = (item.senses ?? []).flatMap(sense => sense.acceptedParaphrases ?? []).filter(text => text && text.length <= 40 && !text.toLowerCase().includes(item.term.toLowerCase())
+    const paraphrases = [...new Set((item.senses ?? []).flatMap(sense => sense.acceptedParaphrases ?? []))].filter(text => text && text.length <= 40 && !text.toLowerCase().includes(item.term.toLowerCase())
       && !others.some(other => other.coreMeaning.toLowerCase().includes(text.toLowerCase()) || (other.senses ?? []).some(sense => (sense.acceptedParaphrases ?? []).some(p => p.toLowerCase() === text.toLowerCase()))) && !termsLower.includes(text.toLowerCase()));
-    if (paraphrases.length) { const text = paraphrases[Math.floor(rng() * paraphrases.length)]; pool.push({ id: `para:${item.vocabularyId}`, type: 'para', label: 'Another way to say…', prompt: text, term: item.term, meaning, build: () => choice(item, text) }); }
+    // A second paraphrase is used only when it is a genuinely different cue: not a rewording that shares a content word with the first ("top-level" / "highest-level").
+    const tokens = text => new Set((text.toLowerCase().match(/[a-z]{3,}/g) ?? []).filter(word => !PARA_STOP.has(word)).map(stem));
+    const chosen = []; for (const text of paraphrases) { if (chosen.length < 2 && chosen.every(taken => ![...tokens(text)].some(word => tokens(taken).has(word)))) chosen.push(text); }
+    for (const text of chosen) add({ id: `para:${item.vocabularyId}:${text.toLowerCase().replace(/[^a-z]+/g, '-')}`, type: 'para', label: 'Another way to say…', prompt: text, term: item.term, meaning, build: () => choice(item, text) });
     // Gap sentences come only from teacher-reviewed rows: the three wrong options are reviewed to be unable to complete the sentence.
-    for (const sense of item.senses ?? []) for (const row of sense.gapDistractors ?? []) {
-      const context = byId.get(row?.contextId); const wrong = [...new Set(row?.wrong ?? [])].filter(word => word && word.toLowerCase() !== String(row.answer).toLowerCase());
-      if (!context || !row.answer || wrong.length < 3) continue;
-      const blank = blankExact(context.text, row.answer); if (!blank) continue;
-      const cap = word => (blank.atStart ? word.charAt(0).toUpperCase() + word.slice(1) : word);
-      pool.push({ id: `gap:${row.contextId}`, type: 'gap', label: 'Fill the gap', prompt: blank.sentence, term: item.term, meaning,
-        build: () => { const all = shuffle([cap(row.answer), ...wrong.slice(0, 3).map(cap)], rng); return { options: all, answerIndex: all.indexOf(cap(row.answer)) }; } });
+    // Meaning-in-context prompts come only from reviewed mastery contexts: the correct meaning and three reviewed wrong meanings.
+    let gaps = 0;
+    for (const sense of item.senses ?? []) {
+      for (const row of sense.gapDistractors ?? []) {
+        if (gaps >= 2) break;   // keep at most two gap rows per word so one word is not over-served
+        const context = byId.get(row?.contextId); const wrong = [...new Set(row?.wrong ?? [])].filter(word => word && word.toLowerCase() !== String(row.answer).toLowerCase());
+        if (!context || !row.answer || wrong.length < 3) continue;
+        const blank = blankExact(context.text, row.answer); if (!blank) continue;
+        const cap = word => (blank.atStart ? word.charAt(0).toUpperCase() + word.slice(1) : word);
+        const before = pool.length;
+        add({ id: `gap:${row.contextId}`, type: 'gap', label: 'Fill the gap', prompt: blank.sentence, term: item.term, meaning,
+          build: () => { const all = shuffle([cap(row.answer), ...wrong.slice(0, 3).map(cap)], rng); return { options: all, answerIndex: all.indexOf(cap(row.answer)) }; } });
+        if (pool.length > before) gaps += 1;
+      }
+      for (const row of sense.masteryContexts ?? []) {
+        const sentence = String(row?.text ?? '').trim(); const right = String(row?.meaning ?? '').trim();
+        const wrong = [...new Set((row?.wrongMeanings ?? []).map(text => String(text).trim()))].filter(text => text && text.toLowerCase() !== right.toLowerCase());
+        if (!row?.contextId || !sentence || !right || wrong.length < 3 || sentence.length > 130) continue;
+        // Students see the plain-English wording kept in games-data.js for this reviewed row (same meaning, same order: correct first, then the three reviewed wrong ones).
+        const shown = BLITZ_MEANING_OPTIONS[row.contextId] ?? [right, ...wrong.slice(0, 3)];
+        if (shown.length !== 4 || new Set(shown.map(text => text.toLowerCase())).size !== 4 || shown.some(text => text.length > 60)) continue;
+        add({ id: `mic:${row.contextId}`, type: 'mic', label: `In this sentence, “${item.term}” means…`, prompt: sentence, term: item.term, meaning,
+          build: () => { const all = shuffle(shown, rng); return { options: all, answerIndex: all.indexOf(shown[0]) }; } });
+      }
     }
   }
-  // One question per word per kind would over-serve words with many gap rows: keep at most two gap rows per word.
-  const gapSeen = {}; const trimmed = pool.filter(q => q.type !== 'gap' || (gapSeen[q.term] = (gapSeen[q.term] ?? 0) + 1) <= 2);
-  return shuffle(trimmed.filter(q => q.type === 'gap' || q.build()), rng);
+  return shuffle(pool.filter(q => q.type === 'gap' || q.type === 'mic' || q.build()), rng);
 }
 
-export function createBlitz({ content, rng = Math.random, now = () => Date.now(), durationMs = BLITZ.durationMs } = {}) {
-  let queue = []; let lastWord = null; let startedAt = 0; let locked = false;
+// `history` (optional, see games-history.js) lets Play Again prefer prompts and words not seen recently. Without one, every game is independent.
+export function createBlitz({ content, rng = Math.random, now = () => Date.now(), durationMs = BLITZ.durationMs, history = createGameHistory() } = {}) {
+  let queue = []; let lastWord = null; let startedAt = 0; let locked = false; let round = 0;
+  // Unseen prompts first, then least recently seen; among equals the words served least often come first. The pool arrives shuffled, so ties stay random.
+  const ordered = pool => leastRecentFirst(pool, q => history.blitzSeen.get(q.id) ?? 0, q => history.blitzTermUse.get(q.term) ?? 0);
   const s = { status: 'ready', score: 0, correct: 0, answered: 0, streak: 0, bestStreak: 0, topMultiplier: 1, missed: [], question: null, durationMs };
   const draw = () => {
-    if (!queue.length) queue = buildBlitzPool(content, rng);
+    if (!queue.length) queue = ordered(buildBlitzPool(content, rng));
     if (!queue.length) return null;
     let index = queue.findIndex(q => q.term !== lastWord); if (index < 0) index = 0;   // never the same word twice in a row
     const [q] = queue.splice(index, 1); lastWord = q.term;
+    history.blitzSeen.set(q.id, round); history.blitzTermUse.set(q.term, (history.blitzTermUse.get(q.term) ?? 0) + 1);
     return { ...q, ...q.build() };
   };
   const remaining = () => (s.status === 'playing' ? Math.max(0, durationMs - (now() - startedAt)) : s.status === 'over' ? 0 : durationMs);
@@ -96,7 +123,7 @@ export function createBlitz({ content, rng = Math.random, now = () => Date.now()
   return {
     state: s,
     remaining,
-    start() { s.status = 'playing'; startedAt = now(); s.score = s.correct = s.answered = s.streak = s.bestStreak = 0; s.topMultiplier = 1; s.missed = []; locked = false; s.question = draw(); if (!s.question) finish(); return s.question; },
+    start() { history.blitzRound += 1; round = history.blitzRound; queue = []; lastWord = null; s.status = 'playing'; startedAt = now(); s.score = s.correct = s.answered = s.streak = s.bestStreak = 0; s.topMultiplier = 1; s.missed = []; locked = false; s.question = draw(); if (!s.question) finish(); return s.question; },
     // Returns null when the answer is ignored (not playing, already answered, or out of time).
     answer(index) {
       if (s.status !== 'playing' || locked) return null;
