@@ -93,7 +93,23 @@ function hasWordFamilyChoice(content, item, linked) {
   return alternatives.size >= 2;
 }
 
-export function availableActivityTypesForTarget({ content, target, item, contexts = [] } = {}) {
+// While a unit's readiness is being evaluated, the same target is asked "which activity types can you serve?" once per pathway and stage
+// (and again inside each question plan) although the answer only depends on the unit's immutable content. withContentMemo() keeps the
+// answers for the duration of ONE evaluation of ONE content object, so nothing is cached across content changes.
+let memo = null;
+export function withContentMemo(content, run) {
+  const previous = memo; memo = { content, answers:new Map() };
+  try { return run(); } finally { memo = previous; }
+}
+export function availableActivityTypesForTarget(args = {}) {
+  const { content, target, item, contexts = [] } = args;
+  if (!memo || memo.content !== content) return computeAvailableActivityTypes(args);
+  const key = `${target?.occurrenceId ?? ''}|${target?.senseId ?? ''}|${item?.vocabularyId ?? ''}|${array(contexts).map(row => row?.contextId ?? '').join(',')}`;
+  let answer = memo.answers.get(key);
+  if (!answer) { answer = computeAvailableActivityTypes(args); memo.answers.set(key, answer); }
+  return [...answer];
+}
+function computeAvailableActivityTypes({ content, target, item, contexts = [] } = {}) {
   const available = new Set();
   const targetContexts = array(contexts);
   if (targetContexts.length) ['meaning_match','which_situation_fits','meaning_in_context'].forEach(type => available.add(type));

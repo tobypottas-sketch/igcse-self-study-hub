@@ -7,7 +7,7 @@ import { VOCABULARY_PATHWAYS, PATHWAY_STAGES, activityTypesForPathwayStage } fro
 import { evaluateTargetForPathwayStage } from './pathway-planner.js';
 import { grammaticalBlankCandidates } from './foundational-activity-builder.js';
 import { gapDistractorIndex, situationDistractorRecord } from './reviewed-content.js';
-import { linkedActivitiesForTarget } from './session-targets.js';
+import { linkedActivitiesForTarget, withContentMemo } from './session-targets.js';
 import { pathwayLivePolicy } from './pathway-live-policy.js';
 import { READINESS_RULES, stageMinimum } from '../../content/vocabulary/pathway-readiness-rules.js';
 import { unitConfig } from '../../content/vocabulary/unit-registry.js';
@@ -51,7 +51,8 @@ function unitNumberFor(content = {}) {
 }
 const STAGE_LABEL = Object.freeze(Object.fromEntries(PATHWAY_STAGES.map(stage => [stage.id, stage.label])));
 
-export function evaluateUnitReadiness({ content, masteryByVocabularyId = {}, expectedWords = null, policy = pathwayLivePolicy } = {}) {
+export function evaluateUnitReadiness(args = {}) { return withContentMemo(args.content, () => evaluateUnitReadinessUncached(args)); }
+function evaluateUnitReadinessUncached({ content, masteryByVocabularyId = {}, expectedWords = null, policy = pathwayLivePolicy } = {}) {
   const occurrences = array(content?.occurrences);
   const unitNumber = unitNumberFor(content);
   const expected = Number(expectedWords ?? unitConfig(unitNumber)?.expectedWords ?? occurrences.length);
