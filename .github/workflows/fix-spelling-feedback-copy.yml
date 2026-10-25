@@ -1,0 +1,70 @@
+name: Apply spelling feedback copy fix
+
+on:
+  push:
+    branches:
+      - fix/spelling-feedback-copy
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/spelling-feedback-copy
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Apply focused feedback fix and regression test
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/vocabulary/views.js')
+          text = path.read_text()
+          old = "  return 'Not quite. Check the meaning carefully and try once more with support.';"
+          new = "  if (['spelling_choice','spelling_cue_match','spelling_rebuild','spell_word','spell_in_context','spot_the_error'].includes(questionType)) return 'Not quite. Check the spelling carefully and try once more with support.';\n  return 'Not quite. Check the meaning carefully and try once more with support.';"
+          if old in text and new not in text:
+              path.write_text(text.replace(old, new, 1))
+          elif new not in text:
+              raise SystemExit('Expected supportiveFeedback fallback was not found')
+
+          test = Path('tests/vocabulary-spelling-feedback.test.js')
+          test.write_text("""import test from 'node:test';
+          import assert from 'node:assert/strict';
+          import { supportiveFeedback } from '../src/vocabulary/views.js';
+
+          test('Spelling & Recall wrong-answer fallback talks about spelling', () => {
+            for (const questionType of ['spelling_choice','spelling_rebuild','spell_word','spell_in_context','spot_the_error']) {
+              assert.equal(
+                supportiveFeedback({ correct:false, questionType }),
+                'Not quite. Check the spelling carefully and try once more with support.'
+              );
+            }
+          });
+
+          test('non-spelling fallback still talks about meaning', () => {
+            assert.equal(
+              supportiveFeedback({ correct:false, questionType:'definition_to_word' }),
+              'Not quite. Check the meaning carefully and try once more with support.'
+            );
+          });
+          """)
+          PY
+      - name: Run tests
+        run: npm test
+      - name: Commit fix
+        shell: bash
+        run: |
+          if git diff --quiet -- src/vocabulary/views.js tests/vocabulary-spelling-feedback.test.js; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/vocabulary/views.js tests/vocabulary-spelling-feedback.test.js
+          git commit -m "fix: use spelling-specific retry feedback"
+          git push origin HEAD:fix/spelling-feedback-copy
