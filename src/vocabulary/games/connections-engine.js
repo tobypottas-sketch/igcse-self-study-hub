@@ -1,3 +1,4 @@
+import { leastRecentFirst } from './games-history.js';
 // Connections rules as a small pure state machine over the curated puzzles. No storage, network or progression.
 // Scoring: solving at clue 1 = 500, clue 2 = 400, clue 3 = 300, clue 4 = 200; using the 3-choice "Need help?" step = 100; revealing the answer = 0. Wrong guesses never end a puzzle and never cost points.
 export const CONNECTIONS = Object.freeze({ puzzleCount: 5, clues: 4, points: Object.freeze([500, 400, 300, 200]), helpPoints: 100 });
@@ -6,7 +7,15 @@ const shuffle = (list, rng) => { const a = list.slice(); for (let i = a.length -
 // One normal form for typed answers and for the stored target/aliases: lower case, accents folded, only letters/space/hyphen, single spaces,
 // and a hyphen or space compare the same ("goal oriented" = "goal-oriented").
 export const normaliseGuess = text => String(text ?? '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[-‐-―]/g, ' ').replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
-export const pickPuzzles = (all, rng = Math.random, count = CONNECTIONS.puzzleCount) => shuffle(all, rng).slice(0, count);
+// With a `history` (games-history.js): puzzles never seen come first, then the least recently seen, so the previous round's five are chosen again only
+// when the bank is too small to avoid it. The five are then shuffled so the order is never predictable. Without a history it is a plain random pick.
+export function pickPuzzles(all, rng = Math.random, count = CONNECTIONS.puzzleCount, history = null) {
+  if (!history) return shuffle(all, rng).slice(0, count);
+  history.cxRound += 1;
+  const picked = shuffle(leastRecentFirst(shuffle(all, rng), p => history.cxSeen.get(p.target) ?? 0).slice(0, count), rng);
+  for (const p of picked) history.cxSeen.set(p.target, history.cxRound);
+  return picked;
+}
 // Word-shape scaffold, always derived from the canonical target (never from an accepted alias). Length is shown from clue 1; the first letter from clue 3. Free: no scoring effect.
 export const FIRST_LETTER_AT = 3;
 export const wordShape = (puzzle, revealed = 1) => {

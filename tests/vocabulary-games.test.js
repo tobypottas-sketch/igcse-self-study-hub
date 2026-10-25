@@ -38,7 +38,7 @@ test('Games entry appears on the Unit 1 screen only, after the pathways, with st
 test('isolation: the games touch no storage, network, database, progression, XP, mastery or Set code', () => {
   for (const file of gameFiles.filter(f => f.endsWith('.js'))) {
     const code = read(file).replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').replace(/\s\/\/ .*$/gm, '');
-    for (const imported of [...code.matchAll(/from '([^']+)'/g)].map(m => m[1])) assert.match(imported, /^\.\/(blitz-engine|connections-engine|games-data|games-view|games-controller)\.js$/, `${file} imports ${imported}`);
+    for (const imported of [...code.matchAll(/from '([^']+)'/g)].map(m => m[1])) assert.match(imported, /^\.\/(blitz-engine|connections-engine|games-data|games-view|games-controller|games-history)\.js$/, `${file} imports ${imported}`);
     assert.doesNotMatch(code, /supabase|fetch\(|XMLHttpRequest|localStorage|sessionStorage|indexedDB|\.rpc\(|client\.from|recordVocabulary|engagement-model|settleMission|setProgression|applyMastery|xpGained|computeXp|\btrack\(|analytics/i, `${file} must stay isolated`);
   }
   const app = read('src/vocabulary/app.js');
@@ -51,10 +51,10 @@ const allBlitz = (rng = seeded(11)) => buildBlitzPool(unit1, rng).map(q => ({ ..
 const groupOf = term => new Set(BLITZ_CONFUSABLE.filter(g => g.includes(term.toLowerCase())).flat());
 
 test('Word Blitz: every question has four distinct options and exactly one defensible answer', () => {
-  const questions = allBlitz(); assert.ok(questions.length > 150); assert.deepEqual([...new Set(questions.map(q => q.type))].sort(), ['def', 'gap', 'para']);
+  const questions = allBlitz(); assert.ok(questions.length > 150); assert.deepEqual([...new Set(questions.map(q => q.type))].sort(), ['def', 'gap', 'mic', 'para']);
   for (const q of questions) {
     assert.equal(q.options.length, 4, q.id); assert.equal(new Set(q.options.map(o => o.toLowerCase())).size, 4, `${q.id}: duplicate options`); assert.equal(q.options.filter((_, i) => i === q.answerIndex).length, 1);
-    if (q.type !== 'gap') {
+    if (q.type === 'def' || q.type === 'para') {
       assert.ok(q.options.every(o => terms.has(o)), `${q.id}: options are Unit 1 words`); assert.ok(!q.prompt.toLowerCase().includes(q.term.toLowerCase()), `${q.id}: prompt leaks the word`);
       const blocked = groupOf(q.term);
       for (const o of q.options.filter(o => o !== q.term)) assert.ok(!blocked.has(o.toLowerCase()), `${q.id}: ${o} is a near neighbour of ${q.term}`);
@@ -102,7 +102,7 @@ test('Word Blitz: timer, scoring, multiplier, streak reset and the result summar
 
 // ---------------------------------------------------------------- Connections
 test('Connections: curated Unit 1 puzzles, exactly four clues each, on the agreed curve', () => {
-  assert.equal(CONNECTIONS_PUZZLES.length, 12);
+  assert.ok(CONNECTIONS_PUZZLES.length >= 40, 'at least 40 curated puzzles');
   const kinds = new Set();
   for (const p of CONNECTIONS_PUZZLES) {
     assert.ok(terms.has(p.target), `${p.target} is a Unit 1 word`); assert.equal(p.clues.length, 4, `${p.target}: four clues`);
@@ -137,7 +137,7 @@ test('Connections: reveal and scoring are 500 / 400 / 300 / 200, a revealed answ
 const variants = word => [word, word.toUpperCase(), `  ${word[0].toUpperCase()}${word.slice(1)}  `, `${word.slice(0, 2)}${word.slice(2).toUpperCase()}`];
 test('Connections accepted spellings: every target and alias, in every case/space variant, is correct; near misses are wrong', () => {
   const withAliases = CONNECTIONS_PUZZLES.filter(p => p.accept.length);
-  assert.deepEqual(withAliases.map(p => p.target).sort(), ['antiques', 'atmosphere', 'craftspeople', 'criteria', 'opponent', 'pastime', 'racquet', 'tournament']);
+  for (const target of ['antiques', 'atmosphere', 'craftspeople', 'criteria', 'opponent', 'pastime', 'racquet', 'tournament']) assert.ok(withAliases.some(p => p.target === target), `${target} keeps its aliases`);
   for (const p of CONNECTIONS_PUZZLES) for (const word of [p.target, ...p.accept]) for (const typed of variants(word)) {
     const game = createConnections({ puzzles: [p] }); assert.equal(game.guess(typed)?.correct, true, `${p.target}: "${typed}" should be correct`);
   }
@@ -234,7 +234,7 @@ browserTest('Connections accepted spellings through the real rendered UI: racque
 test('Connections word shape: length always shown, first letter only from clue 3, canonical (not alias) based, multi-word aware, scoring unchanged', () => {
   for (const p of CONNECTIONS_PUZZLES) {
     const a = wordShape(p, 1), b = wordShape(p, 2), c = wordShape(p, 3), d = wordShape(p, 4);
-    assert.equal(a.letters, p.target.length); assert.equal(a.label, `${p.target.length} letters`);
+    const letters = p.target.replace(/[^a-z]/g, '').length; assert.equal(a.letters, letters); if (!/[ -]/.test(p.target)) assert.equal(a.label, `${letters} letters`);
     assert.equal(a.firstLetter, null); assert.equal(b.firstLetter, null); assert.equal(c.firstLetter, p.target[0].toUpperCase()); assert.equal(d.firstLetter, p.target[0].toUpperCase());
     assert.equal(c.label, a.label, 'length stays visible');
   }
@@ -282,10 +282,10 @@ browserTest('Connections supportive UI: no -100 on buttons, encouraging feedback
 
 // ---------------------------------------------------------------- Connections picture clues (clue 2)
 const IMG_DIR = 'assets/vocabulary/games/connections/unit-01';
-test('Connections picture clues: every one of the 12 puzzles points at its own local PNG, with alt text that never reveals the answer', () => {
-  assert.equal(CONNECTIONS_PUZZLES.length, 12);
-  assert.deepEqual(fs.readdirSync(path.join(repo, IMG_DIR)).sort(), CONNECTIONS_PUZZLES.map(p => `${p.target}.png`).sort(), 'one PNG per target, nothing else in the folder');
-  for (const p of CONNECTIONS_PUZZLES) {
+test('Connections picture clues: every picture puzzle (the original 12) points at its own local PNG, with alt text that never reveals the answer', () => {
+  const pictured = CONNECTIONS_PUZZLES.filter(p => p.image); assert.equal(pictured.length, 12);
+  assert.deepEqual(fs.readdirSync(path.join(repo, IMG_DIR)).sort(), pictured.map(p => `${p.target}.png`).sort(), 'one PNG per pictured target, nothing else in the folder');
+  for (const p of pictured) {
     assert.equal(p.image.src, `${IMG_DIR}/${p.target}.png`); assert.doesNotMatch(p.image.src, /^(https?:)?\/\//, 'local asset only');
     const file = fs.readFileSync(path.join(repo, p.image.src)); assert.equal(file.subarray(1, 4).toString(), 'PNG', `${p.target}: a real PNG`);
     const [w, h] = [file.readUInt32BE(16), file.readUInt32BE(20)]; assert.ok(w >= 600 && h >= 450 && w / h >= 1 && w / h <= 1.4, `${p.target}: ${w}x${h}`); assert.ok(file.length < 1_000_000, `${p.target}: under 1MB`);
@@ -302,7 +302,7 @@ browserTest('Connections picture clues in the real UI: clue 2 is the PNG, clues 
       const page = await browser.newPage({ viewport: { width: w, height: h }, reducedMotion: rm }); const requests = []; page.on('request', r => requests.push(r.url())); page.on('pageerror', e => { throw e; });
       await page.goto(`${url}/__games.html`); await page.waitForFunction(() => window.__ready);
       const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-      for (const p of CONNECTIONS_PUZZLES) {
+      for (const p of CONNECTIONS_PUZZLES.filter(x => x.image)) {
         const where = `${w}/${rm}/${p.target}`;
         await page.evaluate(t => window.__mountP('connections', window.__puzzles.filter(x => x.target === t)), p.target); await page.click('[data-game-act="cx-start"]');
         assert.equal(await page.locator('[data-clue="1"] .gm-clue__text').textContent(), p.clues[0].text, `${where}: clue 1 is text`); assert.equal(await page.locator('img[data-cx-img]').count(), 0, `${where}: no picture before clue 2`);
