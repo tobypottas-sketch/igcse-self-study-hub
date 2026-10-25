@@ -16,7 +16,19 @@ window.__ms = {
   pairs: () => window.__currentQuestion.pairs.map(pair => ({ term:pair.term, definition:pair.definition, primary:pair.vocabularyId === window.__currentQuestion.primaryEvidenceTargetId })),
   wordButton: term => [...document.querySelectorAll('[data-match-word]')].find(btn => btn.querySelector('.vocab-matchset__text').childNodes[0].textContent.trim() === term),
   defButton: text => [...document.querySelectorAll('[data-match-definition]')].find(btn => btn.querySelector('.vocab-matchset__text').childNodes[0].textContent.trim() === text),
-  pair(term, definition) { this.wordButton(term).click(); this.defButton(definition).click(); },
+  // Tapping an already-paired item un-pairs it (and selects it), so release both ends first: pair() then always ends with exactly term↔definition,
+  // whatever the order of the question's pairs or what was paired before.
+  release(button) {
+    if (!button.classList.contains('is-paired')) return;
+    const key = button.dataset.matchWord ?? button.dataset.matchDefinition, attr = button.dataset.matchWord ? 'data-match-word' : 'data-match-definition';
+    button.click();                                                   // un-pairs it and selects it
+    document.querySelector('[' + attr + '="' + key + '"]').click();   // taps the (re-rendered) selected item again: deselected
+  },
+  pair(term, definition) {
+    // every tap repaints the set (new nodes), so each button is looked up again after the previous tap
+    this.release(this.wordButton(term)); this.release(this.defButton(definition));
+    this.wordButton(term).click(); this.defButton(definition).click();
+  },
   // rotate the definitions of the listed terms among themselves (a deliberate mistake), everything else correct
   pairAll(wrongTerms = []) {
     const pairs = this.pairs().filter(pair => !this.wordButton(pair.term).disabled);
