@@ -197,6 +197,7 @@
 .gm-shape span{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border:1px dashed var(--c-line-strong);border-radius:999px;background:transparent}
 .gm-shape__first{color:var(--c-ink);border-style:solid;border-color:var(--c-teal-line)}
 .gm-shape__first b{color:var(--c-teal-dark,#0f5f63);font-size:var(--fs-md)}
+.gm-shape__pattern b{letter-spacing:.14em;font-variant-numeric:tabular-nums;white-space:pre}
 
 .gm-nudge{margin:0;padding-left:10px;border-left:3px solid var(--gm-gold);color:var(--c-ink-2);font-size:var(--fs-sm);font-weight:700}
 .gm-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 4px}
