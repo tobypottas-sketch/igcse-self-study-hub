@@ -12,7 +12,7 @@ test('pathway card header uses explicit regions with generous spacing', () => {
   assert.match(css, /\.vocab-pathway-card\s*\{[^}]*column-gap:20px[^}]*row-gap:14px[^}]*padding:28px 30px 24px/s);
   assert.match(css, /\.vocab-pathway-card__identity\s*\{[^}]*grid-area:identity[^}]*display:flex/s);
   assert.match(css, /\.vocab-pathway-card__status\s*\{[^}]*grid-area:status[^}]*justify-self:start/s);
-  assert.match(css, /\.vocab-pathway-card__coverage\s*\{[^}]*grid-area:coverage[^}]*justify-self:start/s);
+  assert.match(css, /\.vocab-pathway-card__chips\s*\{[^}]*grid-area:coverage[^}]*justify-self:start/s);   // the chips share ONE wrapper that owns the grid area
   assert.match(css, /\.vocab-pathway-ladder\s*\{[^}]*grid-area:ladder/s);
   assert.match(css, /\.vocab-pathway-card__cta\s*\{[^}]*grid-area:cta/s);
 });
