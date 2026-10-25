@@ -130,3 +130,22 @@ for (const width of WIDTHS) {
     } finally { await api.close(); }
   });
 }
+
+// The shared chip contains its own <span> (the arrow). Code that reads or writes the session label must target the bar's own label,
+// never the first descendant span, or it would overwrite the arrow (timed Mixed Practice countdown) and misread progress.
+test('session-label readers/writers address the topbar label span, not the chip arrow', () => {
+  for (const file of ['src/vocabulary/app.js', 'src/vocabulary/pathway-question-progress.js']) assert.doesNotMatch(read(file), /'\.vocab-topbar span'/, `${file} must use '.vocab-topbar > span'`);
+});
+test('timed Mixed Practice countdown updates the label and leaves the back chip arrow intact', async t => {
+  const api = await openMission({ root:rootDir, width:390 });
+  if (!api) { t.skip('no browser available'); return; }
+  try {
+    const { page } = api;
+    await page.click('[data-action="start-mixed-review"][data-minutes]:not([disabled])'); await page.waitForSelector('[data-action="leave-session"]');
+    await page.waitForTimeout(1500);                                     // let the countdown interval write the label at least once
+    const arrow = await page.evaluate(() => document.querySelector('.vocab-topbar .vocab-back__arrow')?.textContent);
+    assert.equal(arrow, '←');
+    assert.match(await page.textContent('.vocab-topbar > span'), /\d/);
+    assert.equal(await page.evaluate(() => document.querySelectorAll('.vocab-topbar .vocab-back__arrow').length), 1);
+  } finally { await api.close(); }
+});

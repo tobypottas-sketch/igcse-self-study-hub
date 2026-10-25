@@ -535,7 +535,7 @@ function continuePractice() {
   throw new Error('No practice route is available to continue.');
 }
 function remainingLabel() { if (!state.session) return ''; if (state.session.mode === 'adaptive') { const { done, total } = missionProgress(state.session); return `${done} / ${total} activities`; } const ms = Math.max(0, new Date(state.session.expiresAt).getTime() - Date.now()); const seconds = Math.ceil(ms / 1000); const minutes = Math.floor(seconds / 60); return `${minutes}:${String(seconds % 60).padStart(2,'0')} remaining`; }
-function startClock() { clearClock(); state.clock = window.setInterval(() => { const label = root.querySelector?.('.vocab-topbar span'); if (label) label.textContent = remainingLabel(); if (state.session && isSessionComplete(state.session, new Date())) void finishSessionWhenSaved(); }, 1000); }
+function startClock() { clearClock(); state.clock = window.setInterval(() => { const label = root.querySelector?.('.vocab-topbar > span'); if (label) label.textContent = remainingLabel(); if (state.session && isSessionComplete(state.session, new Date())) void finishSessionWhenSaved(); }, 1000); }
 function clearClock() { if (state.clock) { window.clearInterval(state.clock); state.clock = null; } }
 function buildNextForTarget(target) {
   const masteryState = state.globalMastery[target.vocabularyId] ?? freshMastery();

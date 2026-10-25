@@ -31,7 +31,7 @@ function selectedStage(card) {
   return card?.querySelector?.('.vocab-pathway-stage[data-state="current"]')?.dataset?.pathwayStage ?? 'recognise';
 }
 function setPosition(root) {
-  const text = root?.querySelector?.('.vocab-topbar span')?.textContent ?? '';
+  const text = root?.querySelector?.('.vocab-topbar > span')?.textContent ?? '';
   const match = text.match(/(\d+)\s*\/\s*(\d+)\s*activities/i);
   if (!match) return { current:1, total:10 };
   const completed = Number(match[1]) || 0;
@@ -44,7 +44,7 @@ function setPosition(root) {
 function syncSessionProgress(root) {
   const progress = root?.querySelector?.('.vocab-question-session-progress');
   if (!progress) return;
-  const sessionLabel = root.querySelector?.('.vocab-topbar span')?.textContent ?? '';
+  const sessionLabel = root.querySelector?.('.vocab-topbar > span')?.textContent ?? '';
   if (/remaining/i.test(sessionLabel)) {
     progress.hidden = true;
     return;
