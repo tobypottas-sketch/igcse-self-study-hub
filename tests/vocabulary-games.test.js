@@ -43,7 +43,7 @@ test('isolation: the games touch no storage, network, database, progression, XP,
   }
   const app = read('src/vocabulary/app.js');
   assert.equal((app.match(/mountGames/g) ?? []).length, 2, 'app.js only imports and calls mountGames');
-  assert.match(app, /mountGames\(root, \{ content:state\.content, game:target\.dataset\.game, onExit:/, 'only the loaded content and an exit callback are passed');
+  assert.match(app, /mountGames\(root, \{ content:state\.content, game:target\.dataset\.game, onCue:playCue, onExit:/, 'games receive only loaded content, a harmless sound callback and an exit callback');
 });
 
 // ---------------------------------------------------------------- Word Blitz
