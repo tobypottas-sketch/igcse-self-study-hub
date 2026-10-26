@@ -6,6 +6,7 @@ import { languageBankContextForItem } from './language-bank.js';
 import { DISTRACTOR_SOURCE, UnreviewedContentError, reviewedSpellingErrors } from './reviewed-content.js';
 import { pickSpellingErrorsDetailed } from './spelling-errors.js';
 import { glossBlank, masteryPassageList, improveGapSentence, improveRecordsFor, weakPhraseOf, encodeSlotAnswer } from '../../supabase/functions/_shared/vocabulary-typed-forms.js';
+import { lexemeIndex, relateSlots, slotsAreDistinct, SLOT_RELATION } from './slot-distinctness.js';
 import { evaluateFamilyEligibility, eligibleSlotForms, familyMasks, familySlotsForMask, familyVariantId, FAMILY_STATUS } from '../../supabase/functions/_shared/vocabulary-word-family.js';
 
 export const PATHWAY_ACTIVITY_TYPES = Object.freeze(new Set([
@@ -255,7 +256,13 @@ function familyMultiForm(args, definition) {
   if (verdict.status!==FAMILY_STATUS.ELIGIBLE) throw new Error(`Word Families Mastery is not offered for this word: ${verdict.reason}.`);
   const masks=familyMasks(args.item,sense);
   if (!masks.length) throw new Error('Word Families Mastery has no valid set of forms for this word.');
-  const mask=shuffle(masks,`${args.seed}:family-mask`)[0], slots=familySlotsForMask(args.item,sense,mask);
+  // Every asked form must be a different word of the family: never the same form twice, never two inflections of one form (compete /
+  // competed). Derived family members (compete / competition) are exactly what this task is for.
+  const index=lexemeIndex(args.unitItems), distinctMasks=masks.filter(candidate=>{ const asked=familySlotsForMask(args.item,sense,candidate); return asked&&slotsAreDistinct(asked.map(slot=>[slot.form]),index,{allowFamily:true}); });
+  // A word whose authored forms offer no such set is still served (refusing it would change which words the Sets and readiness count);
+  // the content audit tracks it instead.
+  const pool=distinctMasks.length?distinctMasks:masks;
+  const mask=shuffle(pool,`${args.seed}:family-mask`)[0], slots=familySlotsForMask(args.item,sense,mask);
   // Order the sentences by seed so the same family does not always ask its forms in the same order (presentation only).
   const ordered=shuffle(slots,`${args.seed}:family-slot-order:${args.optionNonce}`);
   // Marking is in the AUTHORED order the server derives from the mask; the boxes are shown in the shuffled order and mapped back.
@@ -298,12 +305,18 @@ function weakLabel(data, index) {
 }
 // Precision & Use · Mastery. A short passage of two curated weak-wording sentences for the same target. The learner upgrades the weak
 // wording in EACH sentence by typing: no bank, no clue. Every slot must be right for the item to be right.
+const SLOT_DISTANCE=[SLOT_RELATION.NORMALISED,SLOT_RELATION.EXACT,SLOT_RELATION.INFLECTION,SLOT_RELATION.FAMILY,SLOT_RELATION.DISTINCT];
 function upgradePassage(args, definition) {
   const all=improveRecords(args), usable=all.map((row,index)=>({...row,index})).filter(row=>accepted(row.data).length&&text(row.data.sourceText));
   if (usable.length<2) throw new Error('Precision Mastery needs two curated weak-wording sentences for this word.');
   const used=new Set(array(args.usedContentIds).map(String)), unused=usable.filter(row=>!used.has(row.id));
   const first=shuffle(unused.length?unused:usable,`${args.seed}:upgrade-first`)[0];
-  const others=usable.filter(row=>row.id!==first.id), second=shuffle(others,`${args.seed}:upgrade-second`)[0];
+  // Each slot must add new evidence, so the second sentence is the sibling whose expected answer is FURTHEST from the first's (a different
+  // word beats an inflection, which beats the same answer). Among equally distant siblings the seed decides, exactly as before. A word whose
+  // siblings are all the same answer still gets a task (its authored content has no better pair); the content audit tracks those words.
+  const index=lexemeIndex(args.unitItems);
+  const others=usable.filter(row=>row.id!==first.id), distance=row=>SLOT_DISTANCE.indexOf(relateSlots(accepted(first.data),accepted(row.data),index));
+  const furthest=Math.max(...others.map(distance)), second=shuffle(others.filter(row=>distance(row)===furthest),`${args.seed}:upgrade-second`)[0];
   const pair=[first,second], answers=pair.map(row=>accepted(row.data));
   return base({definition,occurrence:args.occurrence,contentId:first.id,contentSource:'unit_activity',prompt:'Upgrade the weak wording in each sentence with a precise word or phrase.',markingReference:{acceptedAnswers:answers.flat(),slotAnswers:answers},extra:{sourceText:pair.map(row=>text(row.data.sourceText)).join(' '),slots:pair.map((row,index)=>({label:weakLabel(row.data,index),sourceText:text(row.data.sourceText)})),activityContentId:first.id,activityVariantId:`q${second.index}`,taskType:'improve_vocabulary',primaryEvidenceTargetId:first.data.primaryEvidenceTargetId ?? args.item.vocabularyId}});
 }
