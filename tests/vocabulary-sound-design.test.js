@@ -1,64 +1,76 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { cueRecipe } from '../src/vocabulary/sound.js';
+import { cueAsset, playCue, soundEnabled, setSoundEnabled } from '../src/vocabulary/sound.js';
 
-const duration = recipe => Math.max(0, ...recipe.map(note => note.offset + note.duration));
-const peak = recipe => Math.max(0, ...recipe.map(note => note.gain));
-const frequencies = recipe => recipe.flatMap(note => [note.frequency, note.endFrequency ?? note.frequency]);
+const memoryStorage = initial => {
+  const values = new Map(Object.entries(initial ?? {}));
+  return {
+    getItem:key => values.get(key) ?? null,
+    setItem:(key, value) => values.set(key, String(value))
+  };
+};
 
-function assertSafe(recipe, maxDuration) {
-  assert.ok(recipe.length > 0, 'cue has at least one voice');
-  assert.ok(duration(recipe) <= maxDuration, `cue ends within ${maxDuration}s`);
-  assert.ok(peak(recipe) <= 0.08, 'cue stays at a restrained gain');
-  for (const hz of frequencies(recipe)) assert.ok(hz >= 90 && hz <= 1400, `frequency ${hz}Hz stays in a comfortable range`);
-  for (const note of recipe) {
-    assert.ok(['sine', 'triangle'].includes(note.wave), `wave ${note.wave} stays soft rather than buzzy`);
-    assert.ok(note.duration > 0 && note.offset >= 0 && note.gain > 0, 'timings and gain are valid');
+const expectedAssets = {
+  correct:'correct.wav',
+  incorrect:'incorrect.wav',
+  finish:'finish.wav',
+  'blitz-correct':'blitz-correct.wav',
+  'blitz-wrong':'blitz-wrong.wav',
+  'blitz-timeout':'blitz-timeout.wav'
+};
+
+test('Vocabulary cues resolve to bundled local WAV assets instead of oscillator recipes', () => {
+  for (const [name, file] of Object.entries(expectedAssets)) {
+    const asset = cueAsset(name);
+    assert.ok(asset instanceof URL, `${name} has a local asset URL`);
+    assert.match(asset.pathname, new RegExp(`/src/vocabulary/sounds/${file.replace('.', '\\.')}$`));
   }
-}
+  assert.equal(cueAsset('does-not-exist'), null, 'unknown cues stay silent');
 
-test('normal feedback is playful but restrained: pop-chime correct, soft downward miss, richer finish', () => {
-  const correct = cueRecipe('correct');
-  const incorrect = cueRecipe('incorrect');
-  const finish = cueRecipe('finish');
-  assertSafe(correct, 0.22); assertSafe(incorrect, 0.18); assertSafe(finish, 0.72);
-  assert.ok(correct.length >= 2, 'correct cue is layered rather than the old two plain beeps');
-  assert.ok(correct.at(-1).frequency > correct[0].frequency, 'correct cue lifts upward');
-  assert.ok((incorrect[0].endFrequency ?? incorrect[0].frequency) < incorrect[0].frequency, 'incorrect cue falls gently');
-  const finishStarts = finish.map(note => note.frequency);
-  assert.ok(finishStarts.length >= 3 && finishStarts.every((hz, i) => i === 0 || hz > finishStarts[i - 1]), 'finish is a rising success sting');
+  const source = fs.readFileSync(new URL('../src/vocabulary/sound.js', import.meta.url), 'utf8');
+  assert.doesNotMatch(source, /createOscillator|cueRecipe|RECIPES/, 'runtime oscillator recipes are no longer the primary sound design');
 });
 
-test('Word Blitz feedback is faster, distinct, and streak variation is bounded', () => {
-  const base = cueRecipe('blitz-correct', { streak:1, multiplier:1 });
-  const hot = cueRecipe('blitz-correct', { streak:20, multiplier:4 });
-  const wrong = cueRecipe('blitz-wrong');
-  assertSafe(base, 0.16); assertSafe(hot, 0.18); assertSafe(wrong, 0.14);
-  assert.notDeepEqual(base, cueRecipe('correct'), 'Blitz does not reuse the normal activity sound');
-  assert.ok(hot.length >= base.length, 'a strong streak can add a small accent');
-  assert.ok(Math.max(...frequencies(hot)) <= 1200, 'streaks never become shrill');
-  assert.ok((wrong[0].endFrequency ?? wrong[0].frequency) < wrong[0].frequency, 'wrong answer gives a quick downward thud');
+test('sound remains opt-in and sample playback failures cannot affect learning flow', async () => {
+  const off = memoryStorage();
+  const calls = [];
+  class FakeAudio {
+    constructor(src) { this.src = src; calls.push(['new', src]); }
+    play() { calls.push(['play', this.src]); return Promise.resolve(); }
+    pause() { calls.push(['pause', this.src]); }
+  }
+
+  assert.equal(soundEnabled(off), false);
+  assert.equal(playCue('correct', { storage:off, AudioClass:FakeAudio }), false, 'muted sound does not construct audio');
+  assert.deepEqual(calls, []);
+
+  setSoundEnabled(true, off);
+  assert.equal(soundEnabled(off), true);
+  assert.equal(playCue('correct', { storage:off, AudioClass:FakeAudio }), true);
+  await Promise.resolve();
+  assert.ok(calls.some(([kind, src]) => kind === 'play' && src.endsWith('/src/vocabulary/sounds/correct.wav')));
+
+  class RejectingAudio { play() { return Promise.reject(new Error('blocked')); } pause() {} }
+  assert.doesNotThrow(() => playCue('incorrect', { storage:off, AudioClass:RejectingAudio }), 'playback rejection is swallowed');
+  await Promise.resolve();
 });
 
-test('Word Blitz finish uses one family and a personal best adds only a celebratory sparkle', () => {
-  const finish = cueRecipe('blitz-finish');
-  const best = cueRecipe('blitz-finish', { personalBest:true });
-  assertSafe(finish, 0.8); assertSafe(best, 0.8);
-  assert.equal(best.length, finish.length + 1, 'personal best adds one extra voice');
-  assert.deepEqual(best.slice(0, finish.length), finish, 'base victory sting stays recognisable');
+test('normal study gives restrained audio feedback for both correct and incorrect answers', () => {
+  const source = fs.readFileSync(new URL('../src/vocabulary/app.js', import.meta.url), 'utf8');
+  assert.match(source, /playCue\(result\.correct \? 'correct' : 'incorrect'\)/);
+  assert.match(source, /if \(on\) playCue\('correct'\)/, 'turning sound on still provides an immediate audition');
 });
 
-test('unknown cues are silent and every recipe is returned as a fresh copy', () => {
-  assert.deepEqual(cueRecipe('does-not-exist'), []);
-  const first = cueRecipe('correct'); first[0].frequency = 999;
-  assert.notEqual(cueRecipe('correct')[0].frequency, 999, 'callers cannot mutate the canonical recipe');
-});
-
-test('Word Blitz controller uses the shared sound owner for answer and finish events only', () => {
+test('Word Blitz uses dedicated sample cues and a neutral time-up cue', () => {
   const source = fs.readFileSync(new URL('../src/vocabulary/games/games-controller.js', import.meta.url), 'utf8');
-  assert.match(source, /import \{ playCue \} from '\.\.\/sound\.js';/);
   assert.match(source, /playCue\(result\.correct \? 'blitz-correct' : 'blitz-wrong'/);
-  assert.match(source, /playCue\('blitz-finish', \{ personalBest:isBest \}\)/);
-  assert.doesNotMatch(source, /setTime[\s\S]{0,500}playCue/, 'timer ticks do not add stressful audio');
+  assert.match(source, /playCue\('blitz-timeout'\)/);
+  assert.doesNotMatch(source, /playCue\('blitz-finish'/, 'timeout is not disguised as a success sting');
+});
+
+test('Connections uses the shared feedback family for guesses and choice-mode answers', () => {
+  const source = fs.readFileSync(new URL('../src/vocabulary/games/games-controller.js', import.meta.url), 'utf8');
+  const feedbackCalls = source.match(/playCue\(r\.correct \? 'correct' : 'incorrect'\)/g) ?? [];
+  assert.equal(feedbackCalls.length, 2, 'typed guesses and supported choices both receive right/wrong feedback');
 });
