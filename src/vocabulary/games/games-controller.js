@@ -38,7 +38,7 @@ export function mountGames(root, { content, game = 'lobby', onCue = () => {}, on
   };
   const endBlitz = () => {
     stop(); const sum = blitz.summary(); const isBest = sum.score > bestBlitz && sum.score > 0; if (isBest) bestBlitz = sum.score;
-    onCue('blitz-timeout');
+    onCue('finish');
     paint(renderBlitzOver(sum, isBest, bestBlitz)); focus('[data-game-act="blitz-again"]'); countUp(sum.score);
   };
   // Cosmetic only: the final score is already in the markup; with motion allowed it counts up from 0 over ~0.9s and always lands on the real value.
@@ -94,7 +94,7 @@ export function mountGames(root, { content, game = 'lobby', onCue = () => {}, on
     else if (act === 'cx-help') { cx.help(); showCx(true, '[data-cx-choices] .gm-choice'); }
     else if (act === 'cx-choice') { const r = cx.pick(target.dataset.term); if (r) { onCue(r.correct ? 'correct' : 'incorrect'); showCx(true, r.correct ? null : '[data-cx-choices] .gm-choice:not([disabled])'); } }
     else if (act === 'cx-giveup') { cx.giveUp(); showCx(true); }
-    else if (act === 'cx-next') { cx.next(); showCx(); }
+    else if (act === 'cx-next') { cx.next(); if (cx.state.status === 'over') onCue('finish'); showCx(); }
     else if (act === 'suggest') { const input = q('#cxGuess'); if (input) { input.value = target.dataset.term; input.focus?.(); } }
   };
   const onSubmit = event => { if (!event.target?.matches?.('[data-cx-form]')) return; event.preventDefault?.(); submitGuess(event.target.elements?.guess?.value ?? q('#cxGuess')?.value ?? ''); };
