@@ -63,15 +63,23 @@ test('normal study gives restrained audio feedback for both correct and incorrec
   assert.match(source, /if \(on\) playCue\('correct'\)/, 'turning sound on still provides an immediate audition');
 });
 
+test('games receive sound as a harmless callback instead of importing storage-aware sound code', () => {
+  const app = fs.readFileSync(new URL('../src/vocabulary/app.js', import.meta.url), 'utf8');
+  const source = fs.readFileSync(new URL('../src/vocabulary/games/games-controller.js', import.meta.url), 'utf8');
+  assert.match(app, /mountGames\(root, \{ content:state\.content, game:target\.dataset\.game, onCue:playCue, onExit:/);
+  assert.doesNotMatch(source, /from '\.\.\/sound\.js'/);
+  assert.match(source, /onCue = \(\) => \{\}/);
+});
+
 test('Word Blitz uses dedicated sample cues and a neutral time-up cue', () => {
   const source = fs.readFileSync(new URL('../src/vocabulary/games/games-controller.js', import.meta.url), 'utf8');
-  assert.match(source, /playCue\(result\.correct \? 'blitz-correct' : 'blitz-wrong'/);
-  assert.match(source, /playCue\('blitz-timeout'\)/);
-  assert.doesNotMatch(source, /playCue\('blitz-finish'/, 'timeout is not disguised as a success sting');
+  assert.match(source, /onCue\(result\.correct \? 'blitz-correct' : 'blitz-wrong'/);
+  assert.match(source, /onCue\('blitz-timeout'\)/);
+  assert.doesNotMatch(source, /onCue\('blitz-finish'/, 'timeout is not disguised as a success sting');
 });
 
 test('Connections uses the shared feedback family for guesses and choice-mode answers', () => {
   const source = fs.readFileSync(new URL('../src/vocabulary/games/games-controller.js', import.meta.url), 'utf8');
-  const feedbackCalls = source.match(/playCue\(r\.correct \? 'correct' : 'incorrect'\)/g) ?? [];
+  const feedbackCalls = source.match(/onCue\(r\.correct \? 'correct' : 'incorrect'\)/g) ?? [];
   assert.equal(feedbackCalls.length, 2, 'typed guesses and supported choices both receive right/wrong feedback');
 });
