@@ -25,6 +25,7 @@ test('Vocabulary cues resolve to bundled local WAV assets instead of oscillator 
     const asset = cueAsset(name);
     assert.ok(asset instanceof URL, `${name} has a local asset URL`);
     assert.match(asset.pathname, new RegExp(`/src/vocabulary/sounds/${file.replace('.', '\\.')}$`));
+    assert.ok(fs.existsSync(asset), `${file} is bundled in the repository`);
   }
   assert.equal(cueAsset('does-not-exist'), null, 'unknown cues stay silent');
 
