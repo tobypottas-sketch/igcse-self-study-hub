@@ -5,6 +5,7 @@ import { createConnections, pickPuzzles, CONNECTIONS, normaliseGuess } from './c
 import { CONNECTIONS_PUZZLES } from './games-data.js';
 import { sharedGameHistory } from './games-history.js';
 import { renderLobby, renderBlitzIntro, renderBlitzPlay, renderBlitzQuestion, renderBlitzOver, comboView, renderConnectionsIntro, renderConnectionsPlay, renderConnectionsOver } from './games-view.js';
+import { playCue } from '../sound.js';
 
 let bestBlitz = 0;   // in-memory only, gone on reload (deliberate)
 export const resetGamesMemory = () => { bestBlitz = 0; };
@@ -38,6 +39,7 @@ export function mountGames(root, { content, game = 'lobby', onExit = () => {}, r
   };
   const endBlitz = () => {
     stop(); const sum = blitz.summary(); const isBest = sum.score > bestBlitz && sum.score > 0; if (isBest) bestBlitz = sum.score;
+    playCue('blitz-finish', { personalBest:isBest });
     paint(renderBlitzOver(sum, isBest, bestBlitz)); focus('[data-game-act="blitz-again"]'); countUp(sum.score);
   };
   // Cosmetic only: the final score is already in the markup; with motion allowed it counts up from 0 over ~0.9s and always lands on the real value.
@@ -50,6 +52,7 @@ export function mountGames(root, { content, game = 'lobby', onExit = () => {}, r
   const answerBlitz = index => {
     if (!blitz) return;
     const result = blitz.answer(index); if (!result) return;
+    playCue(result.correct ? 'blitz-correct' : 'blitz-wrong', result.correct ? { streak:result.streak, multiplier:result.multiplier } : {});
     const buttons = [...root.querySelectorAll('.gm-option')];
     buttons.forEach((b, i) => { b.disabled = true; if (i === result.correctIndex) b.dataset.state = 'correct'; else if (i === Number(index)) b.dataset.state = 'wrong'; });
     const scoreEl = q('[data-blitz-score]'); scoreEl.textContent = String(blitz.state.score); if (result.correct) { scoreEl.classList.remove('is-punch'); void scoreEl.offsetWidth; scoreEl.classList.add('is-punch'); } paintCombo(result.streak);
