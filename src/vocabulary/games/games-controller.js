@@ -39,7 +39,7 @@ export function mountGames(root, { content, game = 'lobby', onExit = () => {}, r
   };
   const endBlitz = () => {
     stop(); const sum = blitz.summary(); const isBest = sum.score > bestBlitz && sum.score > 0; if (isBest) bestBlitz = sum.score;
-    playCue('blitz-finish', { personalBest:isBest });
+    playCue('blitz-timeout');
     paint(renderBlitzOver(sum, isBest, bestBlitz)); focus('[data-game-act="blitz-again"]'); countUp(sum.score);
   };
   // Cosmetic only: the final score is already in the markup; with motion allowed it counts up from 0 over ~0.9s and always lands on the real value.
@@ -71,6 +71,7 @@ export function mountGames(root, { content, game = 'lobby', onExit = () => {}, r
   const showCx = (keep = false, focusOn = null) => { if (cx.state.status === 'over') { paint(renderConnectionsOver(cx.summary())); focus('[data-game-act="cx-again"]'); return; } paint(renderConnectionsPlay(cx), keep); focus(focusOn ?? (cx.state.phase === 'guessing' ? '#cxGuess' : '[data-game-act="cx-next"]')); };
   const submitGuess = text => {
     if (!cx) return; const r = cx.guess(text); if (!r) return;
+    playCue(r.correct ? 'correct' : 'incorrect');
     if (r.correct) showCx(true); else { showCx(true); const card = q('.gm-guess'); if (card) card.dataset.shake = 'on'; }
   };
 
@@ -92,7 +93,7 @@ export function mountGames(root, { content, game = 'lobby', onExit = () => {}, r
     else if (act === 'cx-start' || act === 'cx-again') startConnections();
     else if (act === 'cx-reveal') { cx.reveal(); showCx(true, cx.canReveal() ? '[data-game-act="cx-reveal"]' : '#cxGuess'); }
     else if (act === 'cx-help') { cx.help(); showCx(true, '[data-cx-choices] .gm-choice'); }
-    else if (act === 'cx-choice') { const r = cx.pick(target.dataset.term); if (r) { showCx(true, r.correct ? null : '[data-cx-choices] .gm-choice:not([disabled])'); } }
+    else if (act === 'cx-choice') { const r = cx.pick(target.dataset.term); if (r) { playCue(r.correct ? 'correct' : 'incorrect'); showCx(true, r.correct ? null : '[data-cx-choices] .gm-choice:not([disabled])'); } }
     else if (act === 'cx-giveup') { cx.giveUp(); showCx(true); }
     else if (act === 'cx-next') { cx.next(); showCx(); }
     else if (act === 'suggest') { const input = q('#cxGuess'); if (input) { input.value = target.dataset.term; input.focus?.(); } }

@@ -709,7 +709,7 @@ function handleAnswer(form, providedAnswer = null) {
   // supportLevel feeds evidence exactly as before. declaredSupportLevel is what the browser tells the server about the question it served: a lower-stage recovery question is temporary support, as the pathway planner declared.
   const retrySupport = current.retry ? (current.support?.supportLevel ?? 'light') : 'none';
   const flags = { firstAttempt:!current.retry, retryUsed:current.retry, recoveredLater:current.recovery, review, supportLevel:retrySupport, declaredSupportLevel:current.retry ? retrySupport : (current.pathwayPlan?.supportLevel ?? 'none') };
-  const result = markVocabularyAttemptLocally(current, rawAnswer); if (result.correct) playCue('correct'); const shouldUpdate = updatesTargetMastery(current); const nextGlobal = shouldUpdate ? applyEvidence(previousGlobal, evidenceFor(current, result, flags), new Date()) : previousGlobal;
+  const result = markVocabularyAttemptLocally(current, rawAnswer); playCue(result.correct ? 'correct' : 'incorrect'); const shouldUpdate = updatesTargetMastery(current); const nextGlobal = shouldUpdate ? applyEvidence(previousGlobal, evidenceFor(current, result, flags), new Date()) : previousGlobal;
   if (shouldUpdate) {
     const previousPattern = previousGlobal.recentErrorPattern ?? state.unitMastery[current.target.occurrenceId]?.recentErrorPattern ?? null;
     const nextErrorPattern = result.correct ? (nextGlobal.recentErrorCount > 0 ? previousPattern : null) : (result.misconceptionCategory ?? 'retrieval_failure');
