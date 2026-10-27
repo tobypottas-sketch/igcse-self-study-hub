@@ -17,15 +17,15 @@ test('formal check is an isolated Unit 1 layer, not a seventh pathway', () => {
 });
 
 test('student and staff preview load the check controller, while teacher analytics does not', () => {
-  assert.equal((router.match(/import\('\.\/unit-check-controller\.js\?v=workspace-v2'\)/g) ?? []).length, 2);
+  assert.equal((router.match(/import\('\.\/unit-check-controller\.js\?v=workspace-v3'\)/g) ?? []).length, 2);
   const teacherBlock = router.slice(router.indexOf("if (staff) {"), router.indexOf("if (profile.role === 'student')"));
   assert.doesNotMatch(teacherBlock, /unit-check-controller/);
 });
 
-test('Vocabulary entry point cache-busts Unit Check workspace assets', () => {
-  assert.match(page, /src="src\/vocabulary\/router\.js\?v=workspace-v2"/);
-  assert.match(page, /href="vocabulary-unit-check\.css\?v=workspace-v2"/);
-  assert.match(controller, /unit-check-view\.js\?v=workspace-v2/);
+test('Vocabulary entry point cache-busts compact Unit Check workspace assets', () => {
+  assert.match(page, /src="src\/vocabulary\/router\.js\?v=workspace-v3"/);
+  assert.match(page, /href="vocabulary-unit-check\.css\?v=workspace-v3"/);
+  assert.match(controller, /unit-check-view\.js\?v=workspace-v3/);
 });
 
 test('an attempt is only advanced after a score-only save succeeds', () => {
@@ -51,17 +51,24 @@ test('passage layout stays sticky and remains available on narrow screens', () =
 });
 
 test('selected context answers are rendered back into reading gaps without correctness feedback', () => {
-  assert.match(view, /passageHtml\(form,\s*answers/);
+  assert.match(view, /const questionId = form\?\.questions\?\.\[gapNumber - 1\]\?\.id/);
+  assert.match(view, /answers\?\.\[questionId\]/);
   assert.match(view, /vocab-unit-check-gap--filled/);
-  assert.match(view, /answers\?\.\[`q\$\{gapNumber\}`\]/);
   assert.match(controller, /readAnswer\(target\)[\s\S]*paintActive\(/);
   assert.doesNotMatch(view, /vocab-unit-check-gap--correct|vocab-unit-check-gap--wrong/);
 });
 
-test('assessment workspace uses a progress bar and 1 to 10 navigator', () => {
-  assert.match(view, /vocab-unit-check-meter/);
+test('compact navigator uses numbers only with no Done or Open labels', () => {
   assert.match(view, /data-unit-check-action="jump"/);
   assert.match(view, /data-question-index=/);
-  assert.match(css, /\.vocab-shell--unit-check\{max-width:min\(1540px,calc\(100vw - 32px\)\)/);
-  assert.match(css, /\.vocab-unit-check-question-nav/);
+  assert.doesNotMatch(view, /<small>\$\{answered \? 'Done' : 'Open'\}<\/small>/);
+  assert.doesNotMatch(view, />Done<|>Open</);
+});
+
+test('compact workspace keeps assessment context visible without a tall status block', () => {
+  assert.match(view, /vocab-unit-check-topbar__meta/);
+  assert.doesNotMatch(view, /vocab-unit-check-status|vocab-unit-check-meter/);
+  assert.match(css, /\.vocab-unit-check-topbar\{[^}]*position:sticky/s);
+  assert.match(css, /\.vocab-unit-check-layout\{[^}]*min-height:0/s);
+  assert.match(css, /\.vocab-unit-check-question\{[^}]*min-height:0/s);
 });
