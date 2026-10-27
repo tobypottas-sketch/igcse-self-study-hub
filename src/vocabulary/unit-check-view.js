@@ -13,9 +13,15 @@ export function renderUnitCheckCard({ attemptNumber = 1, formId = 'A', attemptsU
   return `<section class="vocab-unit-check-card study-enter" data-unit-check-card aria-labelledby="unitCheckTitle"><div class="vocab-unit-check-card__copy"><p class="vocab-kicker">Formal assessment</p><h2 id="unitCheckTitle">Unit Vocabulary Check</h2><p class="vocab-unit-check-card__course">Cambridge iGCSE ESL 0511</p><p>10 questions · 3 attempts · feedback after submission</p><strong class="vocab-unit-check-card__status">${status}</strong></div><div class="vocab-unit-check-card__scores">${scoreStat('Latest', latest)}${scoreStat('Best', best)}<span class="vocab-unit-check-card__stat"><small>Attempts left</small><strong>${remaining}</strong></span></div><div class="vocab-unit-check-card__action">${action}</div></section>`;
 }
 
-function passageHtml(form, reference = false) {
+function passageHtml(form, answers = {}, reference = false) {
   const paragraphs = String(form?.passage ?? '').split(/\n\n+/).map(paragraph => {
-    const marked = escapeHtml(paragraph).replace(/\[\[([1-6])\]\]/g, '<mark class="vocab-unit-check-gap">($1) _____</mark>');
+    const marked = escapeHtml(paragraph).replace(/\[\[([1-6])\]\]/g, (_, rawGapNumber) => {
+      const gapNumber = Number(rawGapNumber);
+      const selected = String(answers?.[`q${gapNumber}`] ?? '').trim();
+      const value = selected || '_____';
+      const filled = selected ? ' vocab-unit-check-gap--filled' : '';
+      return `<mark class="vocab-unit-check-gap${filled}" data-unit-check-gap="${gapNumber}"><span class="vocab-unit-check-gap__number">(${gapNumber})</span> ${escapeHtml(value)}</mark>`;
+    });
     return `<p>${marked}</p>`;
   }).join('');
   return `<aside class="vocab-unit-check-passage${reference ? ' is-reference' : ''}" data-unit-check-passage><div class="vocab-unit-check-passage__head"><div><p class="vocab-kicker">Reading text</p><h2>${escapeHtml(form?.title ?? '')}</h2></div><button type="button" class="vocab-unit-check-passage__toggle" data-unit-check-action="toggle-passage" aria-expanded="true">Passage</button></div><div class="vocab-unit-check-passage__body" data-unit-check-passage-body>${paragraphs}</div></aside>`;
@@ -32,6 +38,16 @@ function questionControl(question, savedAnswer = '') {
   return `<fieldset class="vocab-unit-check-choices"><legend class="vocab-sr-only">Choose one answer</legend>${choices}</fieldset>`;
 }
 
+function questionNavigator(questions, currentIndex, answers) {
+  return `<nav class="vocab-unit-check-question-nav" aria-label="Questions">${questions.map((question,index) => {
+    const answered = Boolean(String(answers?.[question.id] ?? '').trim());
+    const current = index === currentIndex;
+    const classes = ['vocab-unit-check-question-nav__item', answered ? 'is-answered' : '', current ? 'is-current' : ''].filter(Boolean).join(' ');
+    const currentAttr = current ? ' aria-current="step"' : '';
+    return `<button type="button" class="${classes}" data-unit-check-action="jump" data-question-index="${index}"${currentAttr}><span>${index + 1}</span><small>${answered ? 'Done' : 'Open'}</small></button>`;
+  }).join('')}</nav>`;
+}
+
 export function renderUnitCheckScreen({ form, attemptNumber, questionIndex = 0, answers = {}, saving = false, saveError = '' } = {}) {
   const questions = form?.questions ?? [];
   const index = Math.max(0, Math.min(questions.length - 1, Number(questionIndex) || 0));
@@ -39,12 +55,14 @@ export function renderUnitCheckScreen({ form, attemptNumber, questionIndex = 0, 
   const number = index + 1;
   const reference = number > 6;
   const answered = Object.values(answers ?? {}).filter(value => String(value ?? '').trim()).length;
+  const completion = questions.length ? Math.round((answered / questions.length) * 100) : 0;
   const previous = index > 0 ? '<button type="button" class="vocab-button" data-unit-check-action="previous">← Previous</button>' : '<span></span>';
   const next = index < questions.length - 1
     ? '<button type="button" class="vocab-button vocab-button--primary" data-unit-check-action="next">Next →</button>'
     : `<button type="button" class="vocab-button vocab-button--primary" data-unit-check-action="submit"${saving ? ' disabled aria-busy="true"' : ''}>${saving ? 'Saving…' : 'Submit all 10 answers'}</button>`;
   const error = saveError ? `<p class="vocab-unit-check-error" role="alert">${escapeHtml(saveError)}</p>` : '';
-  return `<main class="vocab-shell vocab-shell--unit-check"><header class="vocab-topbar"><button type="button" class="vocab-back vocab-back--chip" data-unit-check-action="leave"><span class="vocab-back__arrow" aria-hidden="true">←</span> Unit 1</button><span>Unit Vocabulary Check · Attempt ${escapeHtml(attemptNumber)} of 3</span></header><section class="vocab-unit-check-layout">${passageHtml(form,reference)}<article class="vocab-unit-check-question" data-unit-check-question><div class="vocab-unit-check-progress"><span>Question ${number} of ${questions.length}</span><span>${answered} answered</span></div><p class="vocab-kicker">${question?.type === 'word_form' ? 'Word form' : question?.type === 'precision_mcq' ? 'Precision & use' : question?.type === 'paraphrase_mcq' ? 'Paraphrase' : 'Vocabulary in context'}</p><h1 tabindex="-1">${escapeHtml(question?.prompt ?? '')}</h1>${questionControl(question,answers?.[question?.id] ?? '')}${error}<div class="vocab-unit-check-nav">${previous}${next}</div><p class="vocab-unit-check-note">No answers are marked until you submit the whole check.</p></article></section></main>`;
+  const category = question?.type === 'word_form' ? 'Word form' : question?.type === 'precision_mcq' ? 'Precision & use' : question?.type === 'paraphrase_mcq' ? 'Paraphrase' : 'Vocabulary in context';
+  return `<main class="vocab-shell vocab-shell--unit-check"><header class="vocab-topbar vocab-unit-check-topbar"><button type="button" class="vocab-back vocab-back--chip" data-unit-check-action="leave"><span class="vocab-back__arrow" aria-hidden="true">←</span> Unit 1</button><div class="vocab-unit-check-topbar__title"><strong>Unit Vocabulary Check</strong><span>Attempt ${escapeHtml(attemptNumber)} of 3</span></div></header><section class="vocab-unit-check-status" aria-label="Assessment progress"><div><strong>Question ${number} of ${questions.length}</strong><span>${answered} of ${questions.length} answered</span></div><div class="vocab-unit-check-meter" aria-hidden="true"><span style="width:${completion}%"></span></div></section><section class="vocab-unit-check-layout">${passageHtml(form,answers,reference)}<article class="vocab-unit-check-question" data-unit-check-question><div class="vocab-unit-check-question__main"><div class="vocab-unit-check-progress"><span>Question ${number} of ${questions.length}</span><span>${answered} answered</span></div><p class="vocab-kicker">${category}</p><h1 tabindex="-1">${escapeHtml(question?.prompt ?? '')}</h1>${questionControl(question,answers?.[question?.id] ?? '')}${error}</div><footer class="vocab-unit-check-question__footer">${questionNavigator(questions,index,answers)}<div class="vocab-unit-check-nav">${previous}${next}</div><p class="vocab-unit-check-note">No answers are marked until you submit the whole check.</p></footer></article></section></main>`;
 }
 
 export function renderUnitCheckReview({ attemptNumber, scored, feedback, locked = false, saveError = '' } = {}) {
