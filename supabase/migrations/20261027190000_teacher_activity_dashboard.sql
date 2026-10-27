@@ -17,7 +17,8 @@ begin
   end if;
 
   actor_role := (select private.current_role());
-  if actor_role not in ('teacher'::public.user_role, 'admin'::public.user_role) then
+  if actor_role is null
+     or actor_role not in ('teacher'::public.user_role, 'admin'::public.user_role) then
     raise exception 'Not authorised for teacher Activity' using errcode = '42501';
   end if;
 
