@@ -2,7 +2,7 @@ import { getSupabaseClient } from '../supabase.js';
 import { unit1VocabularyCheck } from '../../content/vocabulary/checks/unit-01-check.js';
 import { feedbackForAttempt, nextCheckState, scoreCheck, scoreSummary } from './unit-check-model.js';
 import { loadVocabularyUnitCheckAttempts, recordVocabularyUnitCheckAttempt } from './unit-check-data.js';
-import { renderUnitCheckCard, renderUnitCheckReview, renderUnitCheckScreen } from './unit-check-view.js';
+import { renderUnitCheckCard, renderUnitCheckReview, renderUnitCheckScreen } from './unit-check-view.js?v=workspace-v2';
 
 const root = document.getElementById('vocabularyApp');
 const preview = new URLSearchParams(window.location.search).get('preview') === '1';
