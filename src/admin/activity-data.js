@@ -62,11 +62,25 @@ function previewDashboard(now = new Date()) {
   };
 }
 
+async function loadActivityRows(client) {
+  const rows = [];
+  const pageSize = 1000;
+  for (let offset = 0; ; offset += pageSize) {
+    const { data, error } = await client
+      .rpc('teacher_activity_rows')
+      .range(offset, offset + pageSize - 1);
+    if (error) throw error;
+    const page = data ?? [];
+    rows.push(...page);
+    if (page.length < pageSize) return rows;
+  }
+}
+
 export async function loadTeacherActivityData(client, { now = new Date() } = {}) {
   if (shouldUsePreviewFixture()) return previewDashboard(now);
 
-  const [{ data:records, error:activityError }, { data:occurrences, error:occurrenceError }] = await Promise.all([
-    client.rpc('teacher_activity_rows'),
+  const [records, { data:occurrences, error:occurrenceError }] = await Promise.all([
+    loadActivityRows(client),
     client.from('vocabulary_unit_occurrences')
       .select('occurrence_id, vocabulary_id, unit_number, unit_title, position_in_unit')
       .eq('status','live')
@@ -74,7 +88,6 @@ export async function loadTeacherActivityData(client, { now = new Date() } = {})
       .order('unit_number')
       .order('position_in_unit')
   ]);
-  if (activityError) throw activityError;
   if (occurrenceError) throw occurrenceError;
 
   const rows = records ?? [];
