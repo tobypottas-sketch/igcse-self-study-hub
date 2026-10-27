@@ -66,6 +66,14 @@ function resultTone(scored = {}) {
   return 'building';
 }
 
+function resultTheme(scored = {}) {
+  const ratio = Number(scored?.score ?? 0) / Math.max(1, Number(scored?.maxScore ?? 10));
+  if (ratio >= .9) return 'gold';
+  if (ratio >= .7) return 'teal';
+  if (ratio >= .4) return 'amber';
+  return 'rose';
+}
+
 function resultCopy(tone) {
   if (tone === 'perfect') return { title:'Excellent work', message:'Every answer was correct. That is a complete performance.' };
   if (tone === 'strong') return { title:'Strong result', message:'You have a secure grasp of most of this unit vocabulary.' };
@@ -123,5 +131,5 @@ export function renderUnitCheckReview({ attemptNumber, scored, feedback, locked 
     : '<p class="vocab-unit-check-next"><strong>Next form ready.</strong> When you return, your next attempt uses a different passage and questions.</p>';
   const error = saveError ? `<p class="vocab-unit-check-error" role="alert">${escapeHtml(saveError)}</p>` : '';
   const celebration = strong ? '<div class="vocab-unit-check-celebration" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>' : '';
-  return `<main class="vocab-shell vocab-shell--unit-check-review vocab-unit-check-result-shell vocab-unit-check-result-shell--${tone}"><article class="vocab-unit-check-result">${celebration}<header class="vocab-unit-check-result__hero"><div class="vocab-unit-check-result__copy"><p class="vocab-kicker">Attempt ${escapeHtml(attemptNumber)} complete</p><h1>${copy.title}</h1><p>${copy.message}</p></div><div class="vocab-unit-check-score-medallion" aria-label="Score ${escapeHtml(scored?.score ?? 0)} out of ${escapeHtml(scored?.maxScore ?? 10)}"><strong>${escapeHtml(scored?.score ?? 0)}<span>/</span>${escapeHtml(scored?.maxScore ?? 10)}</strong><small>score</small></div></header>${attemptJourney(attemptNumber,locked)}${feedbackSection}${next}${error}<div class="vocab-summary-actions vocab-unit-check-result__actions"><button type="button" class="vocab-button vocab-button--primary" data-unit-check-action="back-unit">Back to Unit 1</button></div></article></main>`;
+  return `<main class="vocab-shell vocab-shell--unit-check-review vocab-unit-check-result-shell vocab-unit-check-result-shell--${tone}" data-score-theme="${resultTheme(scored)}"><article class="vocab-unit-check-result">${celebration}<header class="vocab-unit-check-result__hero"><div class="vocab-unit-check-result__copy"><p class="vocab-kicker">Attempt ${escapeHtml(attemptNumber)} complete</p><h1>${copy.title}</h1><p>${copy.message}</p></div><div class="vocab-unit-check-score-medallion" aria-label="Score ${escapeHtml(scored?.score ?? 0)} out of ${escapeHtml(scored?.maxScore ?? 10)}"><strong>${escapeHtml(scored?.score ?? 0)}<span>/</span>${escapeHtml(scored?.maxScore ?? 10)}</strong><small>score</small></div></header>${attemptJourney(attemptNumber,locked)}${feedbackSection}${next}${error}<div class="vocab-summary-actions vocab-unit-check-result__actions"><button type="button" class="vocab-button vocab-button--primary" data-unit-check-action="back-unit">Back to Unit 1</button></div></article></main>`;
 }

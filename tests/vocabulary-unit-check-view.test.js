@@ -56,3 +56,12 @@ test('attempt three review reveals full answers and locks the assessment', () =>
   assert.match(html, /Assessment complete/);
   assert.match(html, /Back to Unit 1/);
 });
+
+test('completion colour follows the score bands without changing the displayed score', () => {
+  const themes = ['rose', 'rose', 'rose', 'rose', 'amber', 'amber', 'amber', 'teal', 'teal', 'gold', 'gold'];
+  for (const [score, theme] of themes.entries()) {
+    const html = renderUnitCheckReview({ attemptNumber:2, scored:{ score, maxScore:10 }, feedback:{ mode:'diagnostic', items:[] } });
+    assert.match(html, new RegExp(`data-score-theme="${theme}"`), `${score}/10 uses ${theme}`);
+    assert.match(html, new RegExp(`aria-label="Score ${score} out of 10"`));
+  }
+});
