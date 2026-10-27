@@ -56,6 +56,35 @@ function questionNavigator(questions, currentIndex, answers) {
   }).join('')}</nav>`;
 }
 
+function resultTone(scored = {}) {
+  const score = Number(scored?.score ?? 0);
+  const maxScore = Math.max(1, Number(scored?.maxScore ?? 10));
+  const ratio = score / maxScore;
+  if (ratio === 1) return 'perfect';
+  if (ratio >= .8) return 'strong';
+  if (ratio >= .6) return 'steady';
+  return 'building';
+}
+
+function resultCopy(tone) {
+  if (tone === 'perfect') return { title:'Excellent work', message:'Every answer was correct. That is a complete performance.' };
+  if (tone === 'strong') return { title:'Strong result', message:'You have a secure grasp of most of this unit vocabulary.' };
+  if (tone === 'steady') return { title:'Good progress', message:'You are close. Use the feedback below to tighten the remaining gaps.' };
+  return { title:'Keep building', message:'Use the feedback below, revisit the unit vocabulary, then return for another form.' };
+}
+
+function attemptJourney(attemptNumber = 1, locked = false) {
+  const current = Math.max(1, Math.min(3, Number(attemptNumber) || 1));
+  const steps = [1,2,3].map(number => {
+    let state = 'locked';
+    let stateLabel = 'Locked';
+    if (number <= current) { state = 'complete'; stateLabel = 'Complete'; }
+    else if (!locked && number === current + 1) { state = 'next'; stateLabel = 'Available'; }
+    return `<span class="vocab-unit-check-journey__step is-${state}"><span class="vocab-unit-check-journey__number">${number <= current ? '✓' : number}</span><span><strong>Attempt ${number}</strong><small>${stateLabel}</small></span></span>`;
+  }).join('');
+  return `<div class="vocab-unit-check-journey" aria-label="Assessment attempts">${steps}</div>`;
+}
+
 export function renderUnitCheckScreen({ form, attemptNumber, questionIndex = 0, answers = {}, saving = false, saveError = '' } = {}) {
   const questions = form?.questions ?? [];
   const index = Math.max(0, Math.min(questions.length - 1, Number(questionIndex) || 0));
@@ -69,7 +98,7 @@ export function renderUnitCheckScreen({ form, attemptNumber, questionIndex = 0, 
     : `<button type="button" class="vocab-button vocab-button--primary" data-unit-check-action="submit"${saving ? ' disabled aria-busy="true"' : ''}>${saving ? 'Saving…' : 'Submit all 10 answers'}</button>`;
   const error = saveError ? `<p class="vocab-unit-check-error" role="alert">${escapeHtml(saveError)}</p>` : '';
   const category = question?.type === 'word_form' ? 'Word form' : question?.type === 'precision_mcq' ? 'Precision & use' : question?.type === 'paraphrase_mcq' ? 'Paraphrase' : 'Vocabulary in context';
-  return `<main class="vocab-shell vocab-shell--unit-check"><header class="vocab-topbar vocab-unit-check-topbar"><button type="button" class="vocab-back vocab-back--chip" data-unit-check-action="leave"><span class="vocab-back__arrow" aria-hidden="true">←</span> Unit 1</button><div class="vocab-unit-check-topbar__title"><strong>Unit Vocabulary Check</strong></div><div class="vocab-unit-check-topbar__meta"><span>Attempt ${escapeHtml(attemptNumber)} of 3</span><span>Question ${number} of ${questions.length}</span><span>${answered}/${questions.length} answered</span></div></header><section class="vocab-unit-check-layout">${passageHtml(form,answers,reference)}<article class="vocab-unit-check-question" data-unit-check-question><div class="vocab-unit-check-question__main"><div class="vocab-unit-check-progress"><span>Question ${number} of ${questions.length}</span><span>${answered} answered</span></div><p class="vocab-kicker">${category}</p><h1 tabindex="-1">${questionPromptHtml(question)}</h1>${questionControl(question,answers?.[question?.id] ?? '')}${error}</div><footer class="vocab-unit-check-question__footer">${questionNavigator(questions,index,answers)}<div class="vocab-unit-check-nav">${previous}${next}</div><p class="vocab-unit-check-note">No answers are marked until you submit the whole check.</p></footer></article></section></main>`;
+  return `<main class="vocab-shell vocab-shell--unit-check"><header class="vocab-topbar vocab-unit-check-topbar"><button type="button" class="vocab-back vocab-back--chip" data-unit-check-action="leave"><span class="vocab-back__arrow" aria-hidden="true">←</span> Unit 1</button><div class="vocab-unit-check-topbar__title"><span class="vocab-unit-check-mode-badge">Formal check</span><strong>Unit Vocabulary Check</strong></div><div class="vocab-unit-check-topbar__meta"><span>Attempt ${escapeHtml(attemptNumber)} of 3</span><span>Question ${number} of ${questions.length}</span><span>${answered}/${questions.length} answered</span></div></header><section class="vocab-unit-check-layout">${passageHtml(form,answers,reference)}<article class="vocab-unit-check-question" data-unit-check-question><span class="vocab-unit-check-question__accent" aria-hidden="true"></span><div class="vocab-unit-check-question__main"><div class="vocab-unit-check-progress"><span>Question ${number} of ${questions.length}</span><span>${answered} answered</span></div><p class="vocab-kicker">${category}</p><h1 tabindex="-1">${questionPromptHtml(question)}</h1>${questionControl(question,answers?.[question?.id] ?? '')}${error}</div><footer class="vocab-unit-check-question__footer">${questionNavigator(questions,index,answers)}<div class="vocab-unit-check-nav">${previous}${next}</div><p class="vocab-unit-check-note">No answers are marked until you submit the whole check.</p></footer></article></section></main>`;
 }
 
 export function renderUnitCheckReview({ attemptNumber, scored, feedback, locked = false, saveError = '' } = {}) {
@@ -80,15 +109,19 @@ export function renderUnitCheckReview({ attemptNumber, scored, feedback, locked 
     const state = feedback.mode === 'full' ? ` <span class="vocab-unit-check-review-state">${item.correct ? '✓ Correct' : '✗ Review'}</span>` : '';
     return `<li><strong>Question ${escapeHtml(String(item.questionId).replace(/^\D+/,''))}${state}</strong>${answer}</li>`;
   }).join('');
-  const perfect = Number(scored?.score) === Number(scored?.maxScore);
+  const tone = resultTone(scored);
+  const copy = resultCopy(tone);
+  const perfect = tone === 'perfect';
+  const strong = tone === 'perfect' || tone === 'strong';
   const feedbackSection = feedback?.mode === 'full'
-    ? `<section class="vocab-unit-check-feedback"><h2>Full review</h2><ol>${items}</ol></section>`
+    ? `<section class="vocab-unit-check-feedback"><div class="vocab-unit-check-feedback__head"><span>Review</span><h2>Full answer review</h2></div><ol>${items}</ol></section>`
     : perfect
-      ? '<p class="vocab-unit-check-perfect">Excellent — every answer was correct.</p>'
-      : `<section class="vocab-unit-check-feedback"><h2>Check these areas</h2><ol>${items}</ol></section>`;
+      ? '<section class="vocab-unit-check-perfect"><strong>Clean sweep</strong><span>No review points this time — every response was correct.</span></section>'
+      : `<section class="vocab-unit-check-feedback"><div class="vocab-unit-check-feedback__head"><span>Next focus</span><h2>Check these areas</h2></div><ol>${items}</ol></section>`;
   const next = locked
-    ? '<p class="vocab-unit-check-complete"><strong>Assessment complete</strong> — all three forms have been used.</p>'
-    : '<p class="vocab-unit-check-next">Try again with a new form when you are ready. Your next attempt uses a different passage and questions.</p>';
+    ? '<p class="vocab-unit-check-complete"><strong>Assessment complete.</strong> All three forms have been used.</p>'
+    : '<p class="vocab-unit-check-next"><strong>Next form ready.</strong> When you return, your next attempt uses a different passage and questions.</p>';
   const error = saveError ? `<p class="vocab-unit-check-error" role="alert">${escapeHtml(saveError)}</p>` : '';
-  return `<main class="vocab-shell vocab-shell--unit-check-review"><article class="vocab-unit-check-result"><p class="vocab-kicker">Attempt ${escapeHtml(attemptNumber)} complete</p><h1>Score</h1><div class="vocab-unit-check-score"><strong>${escapeHtml(scored?.score ?? 0)} / ${escapeHtml(scored?.maxScore ?? 10)}</strong></div>${feedbackSection}${next}${error}<div class="vocab-summary-actions"><button type="button" class="vocab-button vocab-button--primary" data-unit-check-action="back-unit">Back to Unit 1</button></div></article></main>`;
+  const celebration = strong ? '<div class="vocab-unit-check-celebration" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>' : '';
+  return `<main class="vocab-shell vocab-shell--unit-check-review vocab-unit-check-result-shell vocab-unit-check-result-shell--${tone}"><article class="vocab-unit-check-result">${celebration}<header class="vocab-unit-check-result__hero"><div class="vocab-unit-check-result__copy"><p class="vocab-kicker">Attempt ${escapeHtml(attemptNumber)} complete</p><h1>${copy.title}</h1><p>${copy.message}</p></div><div class="vocab-unit-check-score-medallion" aria-label="Score ${escapeHtml(scored?.score ?? 0)} out of ${escapeHtml(scored?.maxScore ?? 10)}"><strong>${escapeHtml(scored?.score ?? 0)}<span>/</span>${escapeHtml(scored?.maxScore ?? 10)}</strong><small>score</small></div></header>${attemptJourney(attemptNumber,locked)}${feedbackSection}${next}${error}<div class="vocab-summary-actions vocab-unit-check-result__actions"><button type="button" class="vocab-button vocab-button--primary" data-unit-check-action="back-unit">Back to Unit 1</button></div></article></main>`;
 }
