@@ -1,6 +1,6 @@
 create table public.vocabulary_unit_check_attempts (
   id uuid primary key default gen_random_uuid(),
-  student_id uuid not null default (select auth.uid()) references public.profiles(id) on delete cascade,
+  student_id uuid not null default auth.uid() references public.profiles(id) on delete cascade,
   unit_number integer not null check (unit_number > 0),
   form_id text not null check (form_id in ('A','B','C')),
   attempt_number integer not null check (attempt_number between 1 and 3),
