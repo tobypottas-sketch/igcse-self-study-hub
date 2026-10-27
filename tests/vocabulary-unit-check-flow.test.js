@@ -21,6 +21,10 @@ test('student and staff preview load the check controller, while teacher analyti
   assert.doesNotMatch(teacherBlock, /unit-check-controller/);
 });
 
+test('Vocabulary entry point cache-busts the router that mounts the Unit Check', () => {
+  assert.match(page, /src="src\/vocabulary\/router\.js\?v=unit-check-v1"/);
+});
+
 test('an attempt is only advanced after a score-only save succeeds', () => {
   assert.match(controller, /const scored = scoreCheck/);
   const saveCall = controller.match(/recordVocabularyUnitCheckAttempt\(client, \{([\s\S]*?)\n    \}\);/)?.[1] ?? '';
