@@ -2,7 +2,7 @@ import { signIn, changePassword, getCurrentProfile } from './auth.js';
 import { loadApps } from './api.js';
 import { getSupabaseClient } from './supabase.js';
 import { createStudentAccount, createTeacherAccount, resetAccountPassword, setAccountActive, deleteAccount } from './admin/accounts.js';
-import { createClass, assignTeacherToClass, unassignTeacherFromClass, transferStudent, retireClass } from './admin/classes.js';
+import { createClass, renameClass, assignTeacherToClass, unassignTeacherFromClass, transferStudent, retireClass } from './admin/classes.js';
 import { loadAdminData } from './admin/data.js';
 import { loadTeacherActivityData, markMeritAwarded } from './admin/activity-data.js';
 import { parseStudentCsv, validateStudentImport, bulkProvisionStudents } from './admin/import.js';
@@ -78,15 +78,36 @@ export async function bootApp(clientOverride = null) {
       .catch(() => {});
   };
 
+  const enhanceClassRenameControls = () => {
+    for (const head of root.querySelectorAll?.('.admin-class-card__head') ?? []) {
+      if (head.querySelector?.('[data-action="admin-edit-class"]')) continue;
+      const deleteButton = head.querySelector?.('[data-action="admin-delete-class"]');
+      if (!deleteButton) continue;
+      const editButton = document.createElement('button');
+      editButton.type = 'button';
+      editButton.className = 'button admin-button';
+      editButton.dataset.action = 'admin-edit-class';
+      editButton.dataset.classId = deleteButton.dataset.classId ?? '';
+      editButton.dataset.className = deleteButton.dataset.className ?? '';
+      editButton.textContent = 'Edit name';
+      deleteButton.before(editButton);
+    }
+  };
+
   const renderCurrentState = async () => {
     currentState = await loadAppState(client);
     if (currentState.view === 'login') { cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; renderLogin(root); return; }
     if (currentState.view === 'change-password') { renderChangePassword(root, currentState.profile); return; }
     if (currentState.view === 'home') {
+      let activityDashboard = null;
+      if (['admin','teacher'].includes(currentState.profile?.role) && currentState.profile.active !== false) {
+        try { activityDashboard = await preloadActivityData(); }
+        catch { activityDashboard = null; }
+      }
+      currentState = { ...currentState, activityDashboard };
       cachedHomeState = { ...currentState };
-      renderHome(root, currentState.profile, currentState.apps);
+      renderHome(root, currentState.profile, currentState.apps, activityDashboard);
       if (currentState.profile?.role === 'admin' && currentState.profile.active !== false) preloadAdminData().catch(() => {});
-      if (['admin','teacher'].includes(currentState.profile?.role) && currentState.profile.active !== false) preloadActivityData().catch(() => {});
       return;
     }
     renderError(root, currentState.error instanceof Error ? currentState.error.message : 'Unable to load your account.');
@@ -96,6 +117,7 @@ export async function bootApp(clientOverride = null) {
     if (!['admin','teacher'].includes(currentState?.profile?.role) || currentState.profile.active === false) return;
     try {
       const activityDashboard = await preloadActivityData(refresh);
+      if (cachedHomeState) cachedHomeState = { ...cachedHomeState, activityDashboard };
       currentState = { ...currentState, ...extras, view:'admin', section:'activity', activityDashboard };
       renderAdmin(root, currentState);
     } catch (error) {
@@ -110,9 +132,11 @@ export async function bootApp(clientOverride = null) {
       const { accounts, classes } = await preloadAdminData(refresh);
       currentState = { ...currentState, ...extras, view:'admin', section, accounts, classes };
       renderAdmin(root, currentState);
+      enhanceClassRenameControls();
     } catch (error) {
       currentState = { ...currentState, ...extras, view:'admin', section, accounts:currentState.accounts ?? [], classes:currentState.classes ?? [], notice:error instanceof Error ? error.message : 'Unable to load admin data.' };
       renderAdmin(root, currentState);
+      enhanceClassRenameControls();
     }
   };
 
@@ -120,6 +144,7 @@ export async function bootApp(clientOverride = null) {
     if (currentState?.profile?.role !== 'admin' || currentState.profile.active === false) return;
     currentState = { ...currentState, ...extras, view:'admin', section };
     renderAdmin(root, currentState);
+    enhanceClassRenameControls();
   };
 
   const setFormBusy = (form, busy) => { const button = form?.querySelector?.('button[type="submit"]'); if (button) button.disabled = busy; };
@@ -198,7 +223,7 @@ export async function bootApp(clientOverride = null) {
     else if (action === 'admin-back') {
       if (cachedHomeState) {
         currentState = { ...cachedHomeState };
-        renderHome(root, currentState.profile, currentState.apps);
+        renderHome(root, currentState.profile, currentState.apps, currentState.activityDashboard);
       } else await renderCurrentState();
     }
     else if (action?.startsWith?.('admin-section-')) {
@@ -289,6 +314,37 @@ export async function bootApp(clientOverride = null) {
         try { await unassignTeacherFromClass(client, target.dataset.teacherId, target.dataset.classId); activityLoadPromise = null; await renderAdminSection('classes', { notice:'Teacher removed from class.', credential:null }, true); }
         catch (error) { await renderAdminSection('classes', { notice:error instanceof Error ? error.message : 'Unable to remove teacher.' }); }
       });
+    } else if (action === 'admin-edit-class') {
+      const classId = target?.dataset?.classId;
+      const currentClass = (currentState.classes ?? []).find(item => item.id === classId);
+      const oldName = currentClass?.className ?? target?.dataset?.className ?? '';
+      if (!classId || !oldName || target.disabled || typeof globalThis.prompt !== 'function') return;
+      const proposed = globalThis.prompt('Edit class name', oldName);
+      if (proposed == null) return;
+      const className = String(proposed).trim();
+      if (!className || className === oldName) return;
+      invalidateAdminBackgroundRefreshes();
+      const previousClasses = currentState.classes ?? [];
+      const previousAccounts = currentState.accounts ?? [];
+      currentState = {
+        ...currentState,
+        classes: previousClasses.map(item => item.id === classId ? { ...item, className } : item),
+        accounts: previousAccounts.map(item => {
+          if (item.role === 'student' && item.currentClassId === classId) return { ...item, currentClass:className };
+          if (item.role === 'teacher') return { ...item, assignedClasses:(item.assignedClasses ?? []).map(link => link.id === classId ? { ...link, className } : link) };
+          return item;
+        })
+      };
+      renderCachedAdminSection('classes', { notice:'Renaming class…', credential:null });
+      try {
+        await renameClass(client, classId, className);
+        activityLoadPromise = null;
+        renderCachedAdminSection('classes', { notice:'Class name updated.', credential:null });
+        refreshAdminCacheInBackground();
+      } catch (error) {
+        currentState = { ...currentState, classes:previousClasses, accounts:previousAccounts };
+        renderCachedAdminSection('classes', { notice:error instanceof Error ? error.message : 'Unable to rename class.' });
+      }
     } else if (action === 'admin-delete-class') {
       const classId = target?.dataset?.classId;
       const className = target?.dataset?.className || 'this class';
