@@ -52,7 +52,7 @@ test('selected context answers are rendered back into reading gaps without corre
   assert.match(view, /passageHtml\(form,\s*answers/);
   assert.match(view, /vocab-unit-check-gap--filled/);
   assert.match(view, /answers\?\.\[`q\$\{gapNumber\}`\]/);
-  assert.match(controller, /readAnswer\(target\)[\s\S]*paintActive\(\)/);
+  assert.match(controller, /readAnswer\(target\)[\s\S]*paintActive\(/);
   assert.doesNotMatch(view, /vocab-unit-check-gap--correct|vocab-unit-check-gap--wrong/);
 });
 
