@@ -1,5 +1,7 @@
 import { buildActivityDashboard } from './activity-model.js';
 
+const previewAwarded = new Set();
+
 function payloads(rows, type) {
   return (rows ?? []).filter(row => row.record_type === type).map(row => row.payload ?? {});
 }
@@ -9,6 +11,10 @@ function shouldUsePreviewFixture() {
   const host = String(globalThis.location.hostname ?? '');
   const params = new URLSearchParams(String(globalThis.location.search ?? ''));
   return host === 'igcse-self-study-preview.onrender.com' && params.get('activity_preview') === '1';
+}
+
+function previewPending(studentId, meritNumber) {
+  return previewAwarded.has(`${studentId}:${meritNumber}`) ? [] : [meritNumber];
 }
 
 function previewDashboard(now = new Date()) {
@@ -22,15 +28,17 @@ function previewDashboard(now = new Date()) {
     meaning:{ currentStage:'match' }, context:{ currentStage:'recognise' }, word_families:{ currentStage:'recognise' },
     paraphrasing:{ currentStage:'apply' }, precision_use:{ currentStage:'recognise' }, spelling_recall:{ currentStage:'match' }
   };
+  const aminaMerits = previewPending('preview-amina',1);
+  const soraMerits = previewPending('preview-sora',2);
   return {
-    pendingMerits:2,
+    pendingMerits:aminaMerits.length + soraMerits.length,
     needsAttention:1,
     students:[
       {
         studentId:'preview-amina', displayName:'Amina K.', classId:'preview-g9', className:'Grade 9 ESL',
         lastActive:iso(0), activityThisWeek:8, recentApp:'vocabulary_paraphrase', recentPathway:'paraphrasing', pathways:pathwaysA,
         unitCheck:{ latestScore:8, bestScore:8, attemptsUsed:1, attemptsRemaining:2, rows:[{ attemptNumber:1, score:8, maxScore:10, completedAt:iso(0) }] },
-        pendingMerits:1, pendingMeritNumbers:[1], needsAttention:false, attention:[],
+        pendingMerits:aminaMerits.length, pendingMeritNumbers:aminaMerits, needsAttention:false, attention:[],
         recentActivity:[
           { occurredAt:iso(0), appKey:'vocabulary_paraphrase', label:'paraphrasing · recall' },
           { occurredAt:iso(1), appKey:'vocabulary_paraphrase', label:'Unit 1 Vocabulary Check · 8/10' }
@@ -47,7 +55,7 @@ function previewDashboard(now = new Date()) {
         studentId:'preview-sora', displayName:'Sora T.', classId:'preview-g10', className:'Grade 10 ESL',
         lastActive:iso(1), activityThisWeek:5, recentApp:'vocabulary_paraphrase', recentPathway:'context', pathways:pathwaysA,
         unitCheck:{ latestScore:9, bestScore:9, attemptsUsed:1, attemptsRemaining:2, rows:[{ attemptNumber:1, score:9, maxScore:10, completedAt:iso(1) }] },
-        pendingMerits:1, pendingMeritNumbers:[2], needsAttention:false, attention:[],
+        pendingMerits:soraMerits.length, pendingMeritNumbers:soraMerits, needsAttention:false, attention:[],
         recentActivity:[{ occurredAt:iso(1), appKey:'vocabulary_paraphrase', label:'context · match' }]
       }
     ]
@@ -124,6 +132,10 @@ export async function loadTeacherActivityData(client, { now = new Date() } = {})
 }
 
 export async function markMeritAwarded(client, studentId, meritNumber) {
+  if (shouldUsePreviewFixture()) {
+    previewAwarded.add(`${studentId}:${Number(meritNumber)}`);
+    return;
+  }
   const { data:userData, error:userError } = await client.auth.getUser();
   if (userError || !userData?.user?.id) throw userError ?? new Error('Authentication required.');
   const { error } = await client.from('vocabulary_merit_awards').insert({
