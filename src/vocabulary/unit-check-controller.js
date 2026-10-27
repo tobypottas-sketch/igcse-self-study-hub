@@ -61,7 +61,7 @@ function ensureUnitCheckCard() {
   else void hydrateCard(1);
 }
 
-function paintActive() {
+function paintActive({ focusHeading = true } = {}) {
   if (!root || !active) return;
   root.innerHTML = renderUnitCheckScreen({
     form:active.form,
@@ -71,7 +71,7 @@ function paintActive() {
     saving:active.saving,
     saveError:active.error
   });
-  root.querySelector?.('[data-unit-check-question] h1')?.focus?.();
+  if (focusHeading) root.querySelector?.('[data-unit-check-question] h1')?.focus?.();
 }
 
 async function startCheck() {
@@ -96,6 +96,7 @@ function readAnswer(target) {
   if (!active || !target?.dataset?.questionId) return;
   active.answers[target.dataset.questionId] = target.value;
   active.error = '';
+  if (target.type === 'radio') paintActive({ focusHeading:false });
 }
 
 function missingAnswerIndex() {
@@ -174,6 +175,15 @@ function onAction(button) {
   if (action === 'leave' || action === 'back-unit') { backToUnit(); return; }
   if (action === 'previous') { active.questionIndex = Math.max(0, active.questionIndex - 1); active.error = ''; paintActive(); return; }
   if (action === 'next') { active.questionIndex = Math.min(active.form.questions.length - 1, active.questionIndex + 1); active.error = ''; paintActive(); return; }
+  if (action === 'jump') {
+    const index = Number(button.dataset.questionIndex);
+    if (Number.isInteger(index) && index >= 0 && index < active.form.questions.length) {
+      active.questionIndex = index;
+      active.error = '';
+      paintActive();
+    }
+    return;
+  }
   if (action === 'submit') { void submitCheck(); return; }
   if (action === 'toggle-passage') {
     const passage = root.querySelector('[data-unit-check-passage]');
