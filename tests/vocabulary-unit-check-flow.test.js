@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const controller = fs.readFileSync(new URL('../src/vocabulary/unit-check-controller.js', import.meta.url), 'utf8');
+const view = fs.readFileSync(new URL('../src/vocabulary/unit-check-view.js', import.meta.url), 'utf8');
 const router = fs.readFileSync(new URL('../src/vocabulary/router.js', import.meta.url), 'utf8');
 const page = fs.readFileSync(new URL('../vocabulary.html', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../vocabulary-unit-check.css', import.meta.url), 'utf8');
@@ -45,4 +46,20 @@ test('passage layout stays sticky and remains available on narrow screens', () =
   assert.match(css, /@media\(max-width:900px\)/);
   assert.match(css, /\.vocab-unit-check-passage\.is-collapsed \.vocab-unit-check-passage__body\{display:none\}/);
   assert.match(css, /\.vocab-unit-check-passage__head/);
+});
+
+test('selected context answers are rendered back into reading gaps without correctness feedback', () => {
+  assert.match(view, /passageHtml\(form,\s*answers/);
+  assert.match(view, /vocab-unit-check-gap--filled/);
+  assert.match(view, /answers\?\.\[`q\$\{gapNumber\}`\]/);
+  assert.match(controller, /readAnswer\(target\)[\s\S]*paintActive\(\)/);
+  assert.doesNotMatch(view, /vocab-unit-check-gap--correct|vocab-unit-check-gap--wrong/);
+});
+
+test('assessment workspace uses a progress bar and 1 to 10 navigator', () => {
+  assert.match(view, /vocab-unit-check-meter/);
+  assert.match(view, /data-unit-check-action="jump"/);
+  assert.match(view, /data-question-index=/);
+  assert.match(css, /\.vocab-shell--unit-check\{max-width:min\(1540px,calc\(100vw - 32px\)\)/);
+  assert.match(css, /\.vocab-unit-check-question-nav/);
 });
