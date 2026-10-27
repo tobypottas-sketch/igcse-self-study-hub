@@ -46,7 +46,7 @@ test('builds compact student usage, six-pathway progression and Unit Check summa
   assert.equal(amina.activityThisWeek, 2);
   assert.equal(amina.recentApp, 'vocabulary_paraphrase');
   assert.deepEqual(Object.keys(amina.pathways), ['meaning','context','word_families','paraphrasing','precision_use','spelling_recall']);
-  assert.equal(amina.pathways.meaning.currentStage, 'apply');
+  assert.equal(amina.pathways.meaning.currentStage, 'recognise');
   assert.equal(amina.unitCheck.latestScore, 3);
   assert.equal(amina.unitCheck.bestScore, 4);
   assert.equal(amina.unitCheck.attemptsUsed, 2);
