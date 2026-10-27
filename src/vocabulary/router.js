@@ -16,7 +16,7 @@ async function routeVocabulary() {
     const staff = profile.role === 'teacher' || profile.role === 'admin';
     if (staff && previewRequested) {
       await import('./app.js');
-      await import('./unit-check-controller.js');
+      await import('./unit-check-controller.js?v=workspace-v2');
       return;
     }
     if (staff) {
@@ -26,7 +26,7 @@ async function routeVocabulary() {
     }
     if (profile.role === 'student') {
       await import('./app.js');
-      await import('./unit-check-controller.js');
+      await import('./unit-check-controller.js?v=workspace-v2');
       return;
     }
     window.location.replace('./');
