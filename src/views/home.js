@@ -8,7 +8,8 @@ export function buildHomeModel(profile, apps) {
     displayName: profile.display_name,
     role: profile.role,
     apps: apps.filter(app => app.enabled),
-    showAdminControls: profile.role === 'admin'
+    showAdminControls: profile.role === 'admin',
+    showActivityControls: profile.role === 'admin' || profile.role === 'teacher'
   };
 }
 
@@ -36,6 +37,11 @@ export function renderHome(root, profile, apps) {
       </span>
       <span class="app-card__meta">Open practice →</span>
     </a>`).join('');
+
+  const teacherControls = [
+    model.showActivityControls ? '<button class="button button--primary" data-action="activity">Student activity</button>' : '',
+    model.showAdminControls ? '<button class="button" data-action="admin">Manage accounts</button>' : ''
+  ].filter(Boolean).join(' ');
 
   root.innerHTML = `
     <section class="shell shell--home">
@@ -72,7 +78,7 @@ export function renderHome(root, profile, apps) {
             <h2 id="study-tools-title">Choose a study app</h2>
             <p>Focused practice for Cambridge IGCSE English as a Second Language (0511).</p>
           </div>
-          ${model.showAdminControls ? '<button class="button" data-action="admin">Manage accounts</button>' : ''}
+          ${teacherControls ? `<div class="admin-actions">${teacherControls}</div>` : ''}
         </div>
         <div class="app-grid">${cards}</div>
       </section>
