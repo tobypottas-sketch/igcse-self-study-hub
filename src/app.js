@@ -79,11 +79,13 @@ export async function bootApp(clientOverride = null) {
   };
 
   const enhanceClassRenameControls = () => {
+    const doc = root.ownerDocument ?? globalThis.document;
+    if (!doc?.createElement) return;
     for (const head of root.querySelectorAll?.('.admin-class-card__head') ?? []) {
       if (head.querySelector?.('[data-action="admin-edit-class"]')) continue;
       const deleteButton = head.querySelector?.('[data-action="admin-delete-class"]');
       if (!deleteButton) continue;
-      const editButton = document.createElement('button');
+      const editButton = doc.createElement('button');
       editButton.type = 'button';
       editButton.className = 'button admin-button';
       editButton.dataset.action = 'admin-edit-class';
@@ -99,15 +101,20 @@ export async function bootApp(clientOverride = null) {
     if (currentState.view === 'login') { cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; renderLogin(root); return; }
     if (currentState.view === 'change-password') { renderChangePassword(root, currentState.profile); return; }
     if (currentState.view === 'home') {
-      let activityDashboard = null;
-      if (['admin','teacher'].includes(currentState.profile?.role) && currentState.profile.active !== false) {
-        try { activityDashboard = await preloadActivityData(); }
-        catch { activityDashboard = null; }
-      }
-      currentState = { ...currentState, activityDashboard };
+      currentState = { ...currentState, activityDashboard:null };
       cachedHomeState = { ...currentState };
-      renderHome(root, currentState.profile, currentState.apps, activityDashboard);
+      renderHome(root, currentState.profile, currentState.apps, null);
       if (currentState.profile?.role === 'admin' && currentState.profile.active !== false) preloadAdminData().catch(() => {});
+      if (['admin','teacher'].includes(currentState.profile?.role) && currentState.profile.active !== false) {
+        preloadActivityData()
+          .then(activityDashboard => {
+            if (cachedHomeState) cachedHomeState = { ...cachedHomeState, activityDashboard };
+            if (currentState.view !== 'home') return;
+            currentState = { ...currentState, activityDashboard };
+            renderHome(root, currentState.profile, currentState.apps, activityDashboard);
+          })
+          .catch(() => {});
+      }
       return;
     }
     renderError(root, currentState.error instanceof Error ? currentState.error.message : 'Unable to load your account.');
