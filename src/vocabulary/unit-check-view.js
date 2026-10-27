@@ -39,6 +39,12 @@ function questionControl(question, savedAnswer = '') {
   return `<fieldset class="vocab-unit-check-choices"><legend class="vocab-sr-only">Choose one answer</legend>${choices}</fieldset>`;
 }
 
+function questionPromptHtml(question) {
+  const prompt = escapeHtml(question?.prompt ?? '');
+  if (question?.type !== 'word_form') return prompt;
+  return prompt.replace(/(correct form of\s+)([A-Za-z-]+)/i, '$1<span class="vocab-unit-check-target-word">$2</span>');
+}
+
 function questionNavigator(questions, currentIndex, answers) {
   return `<nav class="vocab-unit-check-question-nav" aria-label="Questions">${questions.map((question,index) => {
     const answered = Boolean(String(answers?.[question.id] ?? '').trim());
@@ -63,7 +69,7 @@ export function renderUnitCheckScreen({ form, attemptNumber, questionIndex = 0, 
     : `<button type="button" class="vocab-button vocab-button--primary" data-unit-check-action="submit"${saving ? ' disabled aria-busy="true"' : ''}>${saving ? 'Saving…' : 'Submit all 10 answers'}</button>`;
   const error = saveError ? `<p class="vocab-unit-check-error" role="alert">${escapeHtml(saveError)}</p>` : '';
   const category = question?.type === 'word_form' ? 'Word form' : question?.type === 'precision_mcq' ? 'Precision & use' : question?.type === 'paraphrase_mcq' ? 'Paraphrase' : 'Vocabulary in context';
-  return `<main class="vocab-shell vocab-shell--unit-check"><header class="vocab-topbar vocab-unit-check-topbar"><button type="button" class="vocab-back vocab-back--chip" data-unit-check-action="leave"><span class="vocab-back__arrow" aria-hidden="true">←</span> Unit 1</button><div class="vocab-unit-check-topbar__title"><strong>Unit Vocabulary Check</strong></div><div class="vocab-unit-check-topbar__meta"><span>Attempt ${escapeHtml(attemptNumber)} of 3</span><span>Question ${number} of ${questions.length}</span><span>${answered}/${questions.length} answered</span></div></header><section class="vocab-unit-check-layout">${passageHtml(form,answers,reference)}<article class="vocab-unit-check-question" data-unit-check-question><div class="vocab-unit-check-question__main"><div class="vocab-unit-check-progress"><span>Question ${number} of ${questions.length}</span><span>${answered} answered</span></div><p class="vocab-kicker">${category}</p><h1 tabindex="-1">${escapeHtml(question?.prompt ?? '')}</h1>${questionControl(question,answers?.[question?.id] ?? '')}${error}</div><footer class="vocab-unit-check-question__footer">${questionNavigator(questions,index,answers)}<div class="vocab-unit-check-nav">${previous}${next}</div><p class="vocab-unit-check-note">No answers are marked until you submit the whole check.</p></footer></article></section></main>`;
+  return `<main class="vocab-shell vocab-shell--unit-check"><header class="vocab-topbar vocab-unit-check-topbar"><button type="button" class="vocab-back vocab-back--chip" data-unit-check-action="leave"><span class="vocab-back__arrow" aria-hidden="true">←</span> Unit 1</button><div class="vocab-unit-check-topbar__title"><strong>Unit Vocabulary Check</strong></div><div class="vocab-unit-check-topbar__meta"><span>Attempt ${escapeHtml(attemptNumber)} of 3</span><span>Question ${number} of ${questions.length}</span><span>${answered}/${questions.length} answered</span></div></header><section class="vocab-unit-check-layout">${passageHtml(form,answers,reference)}<article class="vocab-unit-check-question" data-unit-check-question><div class="vocab-unit-check-question__main"><div class="vocab-unit-check-progress"><span>Question ${number} of ${questions.length}</span><span>${answered} answered</span></div><p class="vocab-kicker">${category}</p><h1 tabindex="-1">${questionPromptHtml(question)}</h1>${questionControl(question,answers?.[question?.id] ?? '')}${error}</div><footer class="vocab-unit-check-question__footer">${questionNavigator(questions,index,answers)}<div class="vocab-unit-check-nav">${previous}${next}</div><p class="vocab-unit-check-note">No answers are marked until you submit the whole check.</p></footer></article></section></main>`;
 }
 
 export function renderUnitCheckReview({ attemptNumber, scored, feedback, locked = false, saveError = '' } = {}) {
