@@ -36,17 +36,21 @@ test('score summary reports latest and best independently', () => {
   ]), { latest:{ score:6, maxScore:10 }, best:{ score:8, maxScore:10 }, attemptsUsed:2 });
 });
 
-test('attempts one and two expose diagnostics only; attempt three may reveal answers', () => {
+test('attempts one and two expose wrong-answer diagnostics only; attempt three reveals a full review', () => {
   const form = unit1VocabularyCheck.forms.C;
-  const answers = Object.fromEntries(form.questions.map(question => [question.id, 'wrong']));
+  const answers = Object.fromEntries(form.questions.map(question => [question.id, question.answer]));
+  answers.C4 = 'urge';
   const scored = scoreCheck(form, answers);
+
   const early = feedbackForAttempt(form, scored.results, 2);
   assert.equal(early.mode, 'diagnostic');
+  assert.equal(early.items.length, 1);
   assert.ok(early.items.every(item => item.correctAnswer === undefined && item.explanation === undefined));
   assert.ok(early.items.every(item => item.diagnostic));
 
   const final = feedbackForAttempt(form, scored.results, 3);
   assert.equal(final.mode, 'full');
-  assert.equal(final.items[0].correctAnswer, form.questions[0].answer);
-  assert.ok(final.items[0].explanation);
+  assert.equal(final.items.length, 10);
+  assert.equal(final.items.find(item => item.questionId === 'C4').correctAnswer, 'afford');
+  assert.ok(final.items.every(item => item.explanation));
 });
