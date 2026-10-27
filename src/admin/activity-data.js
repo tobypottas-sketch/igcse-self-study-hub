@@ -4,11 +4,63 @@ function payloads(rows, type) {
   return (rows ?? []).filter(row => row.record_type === type).map(row => row.payload ?? {});
 }
 
+function shouldUsePreviewFixture() {
+  if (typeof globalThis.location === 'undefined') return false;
+  const host = String(globalThis.location.hostname ?? '');
+  const params = new URLSearchParams(String(globalThis.location.search ?? ''));
+  return host === 'igcse-self-study-preview.onrender.com' && params.get('activity_preview') === '1';
+}
+
+function previewDashboard(now = new Date()) {
+  const day = 24 * 60 * 60 * 1000;
+  const iso = offset => new Date(new Date(now).getTime() - offset * day).toISOString();
+  const pathwaysA = {
+    meaning:{ currentStage:'apply' }, context:{ currentStage:'match' }, word_families:{ currentStage:'recognise' },
+    paraphrasing:{ currentStage:'recall' }, precision_use:{ currentStage:'match' }, spelling_recall:{ currentStage:'apply' }
+  };
+  const pathwaysB = {
+    meaning:{ currentStage:'match' }, context:{ currentStage:'recognise' }, word_families:{ currentStage:'recognise' },
+    paraphrasing:{ currentStage:'apply' }, precision_use:{ currentStage:'recognise' }, spelling_recall:{ currentStage:'match' }
+  };
+  return {
+    pendingMerits:2,
+    needsAttention:1,
+    students:[
+      {
+        studentId:'preview-amina', displayName:'Amina K.', classId:'preview-g9', className:'Grade 9 ESL',
+        lastActive:iso(0), activityThisWeek:8, recentApp:'vocabulary_paraphrase', recentPathway:'paraphrasing', pathways:pathwaysA,
+        unitCheck:{ latestScore:8, bestScore:8, attemptsUsed:1, attemptsRemaining:2, rows:[{ attemptNumber:1, score:8, maxScore:10, completedAt:iso(0) }] },
+        pendingMerits:1, pendingMeritNumbers:[1], needsAttention:false, attention:[],
+        recentActivity:[
+          { occurredAt:iso(0), appKey:'vocabulary_paraphrase', label:'paraphrasing · recall' },
+          { occurredAt:iso(1), appKey:'vocabulary_paraphrase', label:'Unit 1 Vocabulary Check · 8/10' }
+        ]
+      },
+      {
+        studentId:'preview-leo', displayName:'Leo M.', classId:'preview-g9', className:'Grade 9 ESL',
+        lastActive:iso(9), activityThisWeek:0, recentApp:'vocabulary_paraphrase', recentPathway:'meaning', pathways:pathwaysB,
+        unitCheck:{ latestScore:4, bestScore:5, attemptsUsed:2, attemptsRemaining:1, rows:[{ attemptNumber:2, score:4, maxScore:10, completedAt:iso(9) },{ attemptNumber:1, score:5, maxScore:10, completedAt:iso(12) }] },
+        pendingMerits:0, pendingMeritNumbers:[], needsAttention:true, attention:[{ code:'inactive', label:'Inactive 7+ days' }],
+        recentActivity:[{ occurredAt:iso(9), appKey:'vocabulary_paraphrase', label:'meaning · match' }]
+      },
+      {
+        studentId:'preview-sora', displayName:'Sora T.', classId:'preview-g10', className:'Grade 10 ESL',
+        lastActive:iso(1), activityThisWeek:5, recentApp:'vocabulary_paraphrase', recentPathway:'context', pathways:pathwaysA,
+        unitCheck:{ latestScore:9, bestScore:9, attemptsUsed:1, attemptsRemaining:2, rows:[{ attemptNumber:1, score:9, maxScore:10, completedAt:iso(1) }] },
+        pendingMerits:1, pendingMeritNumbers:[2], needsAttention:false, attention:[],
+        recentActivity:[{ occurredAt:iso(1), appKey:'vocabulary_paraphrase', label:'context · match' }]
+      }
+    ]
+  };
+}
+
 export async function loadTeacherActivityData(client, { now = new Date() } = {}) {
+  if (shouldUsePreviewFixture()) return previewDashboard(now);
+
   const [{ data:records, error:activityError }, { data:occurrences, error:occurrenceError }] = await Promise.all([
     client.rpc('teacher_activity_rows'),
     client.from('vocabulary_unit_occurrences')
-      .select('occurrence_id, vocabulary_id, unit_number, unit_title')
+      .select('occurrence_id, vocabulary_id, unit_number, unit_title, position_in_unit')
       .eq('status','live')
       .eq('active',true)
       .order('unit_number')
