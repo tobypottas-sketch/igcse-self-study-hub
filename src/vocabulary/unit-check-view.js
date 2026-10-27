@@ -44,16 +44,23 @@ export function renderUnitCheckScreen({ form, attemptNumber, questionIndex = 0, 
     ? '<button type="button" class="vocab-button vocab-button--primary" data-unit-check-action="next">Next →</button>'
     : `<button type="button" class="vocab-button vocab-button--primary" data-unit-check-action="submit"${saving ? ' disabled aria-busy="true"' : ''}>${saving ? 'Saving…' : 'Submit all 10 answers'}</button>`;
   const error = saveError ? `<p class="vocab-unit-check-error" role="alert">${escapeHtml(saveError)}</p>` : '';
-  return `<main class="vocab-shell vocab-shell--unit-check"><header class="vocab-topbar"><button type="button" class="vocab-back vocab-back--chip" data-unit-check-action="leave"><span class="vocab-back__arrow" aria-hidden="true">←</span> Unit 1</button><span>Unit Vocabulary Check · Attempt ${escapeHtml(attemptNumber)} of 3</span></header><section class="vocab-unit-check-layout">${passageHtml(form,reference)}<article class="vocab-unit-check-question" data-unit-check-question><div class="vocab-unit-check-progress"><span>Question ${number} of ${questions.length}</span><span>${answered} answered</span></div><p class="vocab-kicker">${question?.type === 'word_form' ? 'Word form' : question?.type === 'precision_mcq' ? 'Precision & use' : question?.type === 'paraphrase_mcq' ? 'Paraphrase' : 'Vocabulary in context'}</p><h1>${escapeHtml(question?.prompt ?? '')}</h1>${questionControl(question,answers?.[question?.id] ?? '')}${error}<div class="vocab-unit-check-nav">${previous}${next}</div><p class="vocab-unit-check-note">No answers are marked until you submit the whole check.</p></article></section></main>`;
+  return `<main class="vocab-shell vocab-shell--unit-check"><header class="vocab-topbar"><button type="button" class="vocab-back vocab-back--chip" data-unit-check-action="leave"><span class="vocab-back__arrow" aria-hidden="true">←</span> Unit 1</button><span>Unit Vocabulary Check · Attempt ${escapeHtml(attemptNumber)} of 3</span></header><section class="vocab-unit-check-layout">${passageHtml(form,reference)}<article class="vocab-unit-check-question" data-unit-check-question><div class="vocab-unit-check-progress"><span>Question ${number} of ${questions.length}</span><span>${answered} answered</span></div><p class="vocab-kicker">${question?.type === 'word_form' ? 'Word form' : question?.type === 'precision_mcq' ? 'Precision & use' : question?.type === 'paraphrase_mcq' ? 'Paraphrase' : 'Vocabulary in context'}</p><h1 tabindex="-1">${escapeHtml(question?.prompt ?? '')}</h1>${questionControl(question,answers?.[question?.id] ?? '')}${error}<div class="vocab-unit-check-nav">${previous}${next}</div><p class="vocab-unit-check-note">No answers are marked until you submit the whole check.</p></article></section></main>`;
 }
 
 export function renderUnitCheckReview({ attemptNumber, scored, feedback, locked = false, saveError = '' } = {}) {
   const items = (feedback?.items ?? []).map(item => {
-    const answer = feedback.mode === 'full' ? `<p><strong>Correct answer:</strong> ${escapeHtml(item.correctAnswer)}</p><p>${escapeHtml(item.explanation)}</p>` : `<p>${escapeHtml(item.diagnostic)}</p>`;
-    return `<li><strong>Question ${escapeHtml(String(item.questionId).replace(/^\D+/,''))}</strong>${answer}</li>`;
+    const answer = feedback.mode === 'full'
+      ? `<p><strong>Your answer:</strong> ${escapeHtml(item.studentAnswer || 'No answer')}</p><p><strong>Correct answer:</strong> ${escapeHtml(item.correctAnswer)}</p><p>${escapeHtml(item.explanation)}</p>`
+      : `<p>${escapeHtml(item.diagnostic)}</p>`;
+    const state = feedback.mode === 'full' ? ` <span class="vocab-unit-check-review-state">${item.correct ? '✓ Correct' : '✗ Review'}</span>` : '';
+    return `<li><strong>Question ${escapeHtml(String(item.questionId).replace(/^\D+/,''))}${state}</strong>${answer}</li>`;
   }).join('');
   const perfect = Number(scored?.score) === Number(scored?.maxScore);
-  const feedbackSection = perfect ? '<p class="vocab-unit-check-perfect">Excellent — every answer was correct.</p>' : `<section class="vocab-unit-check-feedback"><h2>${feedback?.mode === 'full' ? 'Full review' : 'Check these areas'}</h2><ol>${items}</ol></section>`;
+  const feedbackSection = feedback?.mode === 'full'
+    ? `<section class="vocab-unit-check-feedback"><h2>Full review</h2><ol>${items}</ol></section>`
+    : perfect
+      ? '<p class="vocab-unit-check-perfect">Excellent — every answer was correct.</p>'
+      : `<section class="vocab-unit-check-feedback"><h2>Check these areas</h2><ol>${items}</ol></section>`;
   const next = locked
     ? '<p class="vocab-unit-check-complete"><strong>Assessment complete</strong> — all three forms have been used.</p>'
     : '<p class="vocab-unit-check-next">Try again with a new form when you are ready. Your next attempt uses a different passage and questions.</p>';
