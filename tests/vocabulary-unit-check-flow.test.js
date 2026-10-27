@@ -23,11 +23,16 @@ test('student and staff preview load the check controller, while teacher analyti
 
 test('an attempt is only advanced after a score-only save succeeds', () => {
   assert.match(controller, /const scored = scoreCheck/);
-  assert.match(controller, /await recordVocabularyUnitCheckAttempt/);
+  const saveCall = controller.match(/recordVocabularyUnitCheckAttempt\(client, \{([\s\S]*?)\n    \}\);/)?.[1] ?? '';
+  assert.match(saveCall, /unitNumber:1/);
+  assert.match(saveCall, /formId:active\.formId/);
+  assert.match(saveCall, /attemptNumber:active\.attemptNumber/);
+  assert.match(saveCall, /score:scored\.score/);
+  assert.match(saveCall, /maxScore:scored\.maxScore/);
+  assert.doesNotMatch(saveCall, /answers|studentAnswer|rawAnswer/);
   assert.match(controller, /attemptsCache\.set\(1, attempts\)/);
   assert.match(controller, /finishSavedAttempt\(scored, attempts\)/);
   assert.match(controller, /this attempt has not been used/);
-  assert.doesNotMatch(controller, /answers\s*:/g, 'answers are not included in the persistence call');
 });
 
 test('passage layout stays sticky and remains available on narrow screens', () => {
