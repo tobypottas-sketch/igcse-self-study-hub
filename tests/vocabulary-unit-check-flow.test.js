@@ -17,15 +17,15 @@ test('formal check is an isolated Unit 1 layer, not a seventh pathway', () => {
 });
 
 test('student and staff preview load the check controller, while teacher analytics does not', () => {
-  assert.equal((router.match(/import\('\.\/unit-check-controller\.js\?v=workspace-v3'\)/g) ?? []).length, 2);
+  assert.equal((router.match(/import\('\.\/unit-check-controller\.js\?v=workspace-v4'\)/g) ?? []).length, 2);
   const teacherBlock = router.slice(router.indexOf("if (staff) {"), router.indexOf("if (profile.role === 'student')"));
   assert.doesNotMatch(teacherBlock, /unit-check-controller/);
 });
 
 test('Vocabulary entry point cache-busts compact Unit Check workspace assets', () => {
-  assert.match(page, /src="src\/vocabulary\/router\.js\?v=workspace-v3"/);
-  assert.match(page, /href="vocabulary-unit-check\.css\?v=workspace-v3"/);
-  assert.match(controller, /unit-check-view\.js\?v=workspace-v3/);
+  assert.match(page, /src="src\/vocabulary\/router\.js\?v=workspace-v4"/);
+  assert.match(page, /href="vocabulary-unit-check\.css\?v=workspace-v4"/);
+  assert.match(controller, /unit-check-view\.js\?v=workspace-v4/);
 });
 
 test('an attempt is only advanced after a score-only save succeeds', () => {
@@ -71,4 +71,11 @@ test('compact workspace keeps assessment context visible without a tall status b
   assert.match(css, /\.vocab-unit-check-topbar\{[^}]*position:sticky/s);
   assert.match(css, /\.vocab-unit-check-layout\{[^}]*min-height:0/s);
   assert.match(css, /\.vocab-unit-check-question\{[^}]*min-height:0/s);
+});
+
+test('word-form questions visually emphasize the supplied base word without changing the prompt text', () => {
+  assert.match(view, /questionPromptHtml/);
+  assert.match(view, /correct form of\\s\+/);
+  assert.match(view, /vocab-unit-check-target-word/);
+  assert.match(css, /\.vocab-unit-check-target-word\{/);
 });
