@@ -61,18 +61,6 @@ function ensureUnitCheckCard() {
   else void hydrateCard(1);
 }
 
-function renderActive() {
-  if (!active) return;
-  renderUnitCheckScreen(root ? {
-    form:active.form,
-    attemptNumber:active.attemptNumber,
-    questionIndex:active.questionIndex,
-    answers:active.answers,
-    saving:active.saving,
-    saveError:active.error
-  } : {});
-}
-
 function paintActive() {
   if (!root || !active) return;
   root.innerHTML = renderUnitCheckScreen({
@@ -102,16 +90,6 @@ async function startCheck() {
     error:''
   };
   paintActive();
-}
-
-function leaveCheck() {
-  if (!root || !active) return;
-  active = null;
-  root.innerHTML = unitSnapshot ?? '';
-  unitSnapshot = null;
-  const attempts = attemptsCache.get(1) ?? [];
-  paintCard(attempts);
-  ensureUnitCheckCard();
 }
 
 function readAnswer(target) {
