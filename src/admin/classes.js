@@ -8,6 +8,10 @@ export async function createClass(client, className) {
   return invokeClassAction(client, { action: 'create_class', className });
 }
 
+export async function renameClass(client, classId, className) {
+  return invokeClassAction(client, { action: 'rename_class', classId, className:String(className ?? '').trim() });
+}
+
 export async function assignTeacherToClass(client, teacherId, classId) {
   return invokeClassAction(client, { action: 'assign_teacher', teacherId, classId });
 }

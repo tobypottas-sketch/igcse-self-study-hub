@@ -65,6 +65,19 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ ok: true, class: data });
     }
 
+    if (input.action === 'rename_class') {
+      const { data, error } = await adminClient
+        .from('classes')
+        .update({ class_name: input.className })
+        .eq('id', input.classId)
+        .eq('active', true)
+        .select('id, class_name, active')
+        .maybeSingle();
+      if (error) return jsonResponse({ error: error.message }, { status: 400 });
+      if (!data) return jsonResponse({ error: 'Class not found or inactive' }, { status: 404 });
+      return jsonResponse({ ok: true, class: data });
+    }
+
     if (input.action === 'assign_teacher') {
       const { data: teacher, error: teacherError } = await adminClient
         .from('profiles')

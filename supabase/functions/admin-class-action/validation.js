@@ -4,13 +4,19 @@ const requireUuid = (value, label) => {
   if (!UUID_RE.test(v)) throw new Error(`${label} must be a valid UUID.`);
   return v;
 };
+const requireClassName = value => {
+  const className = String(value ?? '').trim();
+  if (!className || className.length > 120) throw new Error('Class name is required.');
+  return className;
+};
 
 export function validateClassAction(value) {
   const action = value?.action;
   if (action === 'create_class') {
-    const className = String(value?.className ?? '').trim();
-    if (!className || className.length > 120) throw new Error('Class name is required.');
-    return { action, className };
+    return { action, className: requireClassName(value?.className) };
+  }
+  if (action === 'rename_class') {
+    return { action, classId: requireUuid(value?.classId, 'Class ID'), className: requireClassName(value?.className) };
   }
   if (action === 'assign_teacher' || action === 'unassign_teacher') {
     return { action, teacherId: requireUuid(value?.teacherId, 'Teacher ID'), classId: requireUuid(value?.classId, 'Class ID') };

@@ -3,12 +3,30 @@ import { escapeHtml, safeHttpsUrl } from './html.js';
 const EH_SCHOOLS_LOGO = './assets/evidence-hub-schools-logo.webp';
 const CAMBRIDGE_ENGLISH_LOGO = './assets/cambridge-assessment-english.webp';
 
-export function buildHomeModel(profile, apps) {
+export function buildHomeModel(profile, apps, activityDashboard = null) {
+  const canSeeTeacherActivity = profile.role === 'admin' || profile.role === 'teacher';
+  const meritAlerts = canSeeTeacherActivity
+    ? (activityDashboard?.students ?? [])
+      .filter(student => Number(student.pendingMerits ?? 0) > 0)
+      .map(student => ({
+        studentId:student.studentId,
+        displayName:student.displayName,
+        className:student.className,
+        meritNumbers:[...(student.pendingMeritNumbers ?? [])]
+      }))
+    : [];
+  const pendingMerits = canSeeTeacherActivity
+    ? Number(activityDashboard?.pendingMerits ?? meritAlerts.reduce((total, student) => total + student.meritNumbers.length, 0))
+    : 0;
+
   return {
     displayName: profile.display_name,
     role: profile.role,
-    apps: apps.filter(app => app.enabled),
-    showAdminControls: profile.role === 'admin'
+    apps: (apps ?? []).filter(app => app.enabled),
+    showAdminControls: profile.role === 'admin',
+    showActivityControls: canSeeTeacherActivity,
+    pendingMerits,
+    meritAlerts
   };
 }
 
@@ -22,8 +40,23 @@ function appVisual(appKey) {
   return 'S';
 }
 
-export function renderHome(root, profile, apps) {
-  const model = buildHomeModel(profile, apps);
+function renderMeritAlert(model) {
+  if (!model.pendingMerits) return '';
+  const shown = model.meritAlerts.slice(0, 3);
+  const summary = shown.map(student => `${escapeHtml(student.displayName)} · ${escapeHtml(student.className)} (${student.meritNumbers.length})`).join(' · ');
+  const more = model.meritAlerts.length > shown.length ? ` · +${model.meritAlerts.length - shown.length} more student${model.meritAlerts.length - shown.length === 1 ? '' : 's'}` : '';
+  return `
+    <aside class="notice home-merit-alert" role="status">
+      <div>
+        <strong>🏅 ${escapeHtml(model.pendingMerits)} new merit${model.pendingMerits === 1 ? '' : 's'} waiting</strong>
+        <p>${summary}${more}</p>
+      </div>
+      <button class="button button--primary" data-action="activity">Review merits</button>
+    </aside>`;
+}
+
+export function renderHome(root, profile, apps, activityDashboard = null) {
+  const model = buildHomeModel(profile, apps, activityDashboard);
   const cards = model.apps.map(app => `
     <a class="app-card" href="${safeHttpsUrl(app.launch_url)}" data-app="${escapeHtml(app.app_key)}">
       <span class="app-card__topline">
@@ -36,6 +69,12 @@ export function renderHome(root, profile, apps) {
       </span>
       <span class="app-card__meta">Open practice →</span>
     </a>`).join('');
+
+  const activityLabel = model.pendingMerits ? `Student activity · ${model.pendingMerits} new` : 'Student activity';
+  const teacherControls = [
+    model.showActivityControls ? `<button class="button button--primary" data-action="activity">${escapeHtml(activityLabel)}</button>` : '',
+    model.showAdminControls ? '<button class="button" data-action="admin">Manage accounts</button>' : ''
+  ].filter(Boolean).join(' ');
 
   root.innerHTML = `
     <section class="shell shell--home">
@@ -65,6 +104,8 @@ export function renderHome(root, profile, apps) {
         </div>
       </header>
 
+      ${renderMeritAlert(model)}
+
       <section class="study-tools" aria-labelledby="study-tools-title">
         <div class="section-heading section-heading--home">
           <div>
@@ -72,7 +113,7 @@ export function renderHome(root, profile, apps) {
             <h2 id="study-tools-title">Choose a study app</h2>
             <p>Focused practice for Cambridge IGCSE English as a Second Language (0511).</p>
           </div>
-          ${model.showAdminControls ? '<button class="button" data-action="admin">Manage accounts</button>' : ''}
+          ${teacherControls ? `<div class="admin-actions">${teacherControls}</div>` : ''}
         </div>
         <div class="app-grid">${cards}</div>
       </section>
