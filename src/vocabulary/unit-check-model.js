@@ -36,26 +36,27 @@ export function scoreCheck(form, answers = {}) {
 }
 
 export function scoreSummary(attempts = []) {
-  const saved = normalizedAttempts(attempts).filter(row => Number.isFinite(Number(row.score)) && Number.isFinite(Number(row.max_score)));
-  if (!saved.length) return { latest:null, best:null, attemptsUsed:normalizedAttempts(attempts).length };
+  const normalized = normalizedAttempts(attempts);
+  const saved = normalized.filter(row => Number.isFinite(Number(row.score)) && Number.isFinite(Number(row.max_score)));
+  if (!saved.length) return { latest:null, best:null, attemptsUsed:normalized.length };
   const latestRow = saved.at(-1);
   const bestRow = saved.reduce((best,row) => Number(row.score) > Number(best.score) ? row : best, saved[0]);
   return {
     latest:{ score:Number(latestRow.score), maxScore:Number(latestRow.max_score) },
     best:{ score:Number(bestRow.score), maxScore:Number(bestRow.max_score) },
-    attemptsUsed:normalizedAttempts(attempts).length
+    attemptsUsed:normalized.length
   };
 }
 
 export function feedbackForAttempt(form, results = [], attemptNumber) {
   const byId = new Map((form?.questions ?? []).map(question => [question.id, question]));
-  const wrong = results.filter(result => !result.correct);
   const full = Number(attemptNumber) === 3;
+  const selected = full ? results : results.filter(result => !result.correct);
   return {
     mode:full ? 'full' : 'diagnostic',
-    items:wrong.map(result => {
+    items:selected.map(result => {
       const question = byId.get(result.questionId);
-      const base = { questionId:result.questionId, studentAnswer:result.studentAnswer, diagnostic:question?.diagnostic ?? '' };
+      const base = { questionId:result.questionId, studentAnswer:result.studentAnswer, correct:result.correct, diagnostic:question?.diagnostic ?? '' };
       return full ? { ...base, correctAnswer:question?.answer ?? '', explanation:question?.explanation ?? '' } : base;
     })
   };
