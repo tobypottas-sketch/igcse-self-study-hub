@@ -17,15 +17,15 @@ test('formal check is an isolated Unit 1 layer, not a seventh pathway', () => {
 });
 
 test('student and staff preview load the check controller, while teacher analytics does not', () => {
-  assert.equal((router.match(/import\('\.\/unit-check-controller\.js\?v=workspace-v4'\)/g) ?? []).length, 2);
+  assert.equal((router.match(/import\('\.\/unit-check-controller\.js\?v=workspace-v5'\)/g) ?? []).length, 2);
   const teacherBlock = router.slice(router.indexOf("if (staff) {"), router.indexOf("if (profile.role === 'student')"));
   assert.doesNotMatch(teacherBlock, /unit-check-controller/);
 });
 
 test('Vocabulary entry point cache-busts compact Unit Check workspace assets', () => {
-  assert.match(page, /src="src\/vocabulary\/router\.js\?v=workspace-v4"/);
-  assert.match(page, /href="vocabulary-unit-check\.css\?v=workspace-v4"/);
-  assert.match(controller, /unit-check-view\.js\?v=workspace-v4/);
+  assert.match(page, /src="src\/vocabulary\/router\.js\?v=workspace-v5"/);
+  assert.match(page, /href="vocabulary-unit-check\.css\?v=workspace-v5"/);
+  assert.match(controller, /unit-check-view\.js\?v=workspace-v5/);
 });
 
 test('an attempt is only advanced after a score-only save succeeds', () => {
