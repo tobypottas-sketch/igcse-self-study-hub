@@ -47,3 +47,9 @@ test('students are explicitly rejected from the teacher Activity read boundary',
   assert.match(sql, /teacher[^;]+admin|admin[^;]+teacher/);
   assert.match(sql, /raise\s+exception|insufficient_privilege|not authorised|not authorized/);
 });
+
+test('a missing derived role is explicitly rejected from the teacher Activity read boundary', () => {
+  const sql = migrationSql();
+  assert.match(sql, /actor_role\s+is\s+null/);
+  assert.match(sql, /actor_role\s+not\s+in/);
+});
