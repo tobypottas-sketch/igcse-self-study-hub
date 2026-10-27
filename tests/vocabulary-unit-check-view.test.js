@@ -39,9 +39,10 @@ test('attempt two review contains diagnostics but no correct answers', () => {
   const scored = scoreCheck(form, {});
   const feedback = feedbackForAttempt(form, scored.results, 2);
   const html = renderUnitCheckReview({ form, attemptNumber:2, scored, feedback, locked:false });
-  assert.match(html, /Score/);
-  assert.match(html, /0 \/ 10/);
-  assert.match(html, /Try again with a new form/);
+  assert.match(html, /aria-label="Score 0 out of 10"/);
+  assert.match(html, /Next form ready\./);
+  assert.match(html, /your next attempt uses a different passage and questions/);
+  for (const item of feedback.items) assert.ok(html.includes(item.diagnostic), `Question ${item.questionId} diagnostic is shown`);
   assert.doesNotMatch(html, /Correct answer:/);
   assert.doesNotMatch(html, new RegExp(form.questions[0].answer, 'i'));
 });
