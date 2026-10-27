@@ -27,5 +27,8 @@ test('Back to Hub restores cached home state instead of refetching auth, profile
   assert.match(source, /let cachedHomeState = null/);
   const handler = source.match(/else if \(action === 'admin-back'\) \{([\s\S]*?)\n\s*\}\n\s*else if \(action\?\.startsWith/)?.[1] ?? '';
   assert.match(handler, /if \(cachedHomeState\)/);
-  assert.match(handler, /renderHome\(root, currentState\.profile, currentState\.apps\)/);
+  assert.match(
+    handler,
+    /renderHome\(root, currentState\.profile, currentState\.apps, currentState\.activityDashboard\)/
+  );
 });
