@@ -79,3 +79,26 @@ test('word-form questions visually emphasize the supplied base word without chan
   assert.match(view, /vocab-unit-check-target-word/);
   assert.match(css, /\.vocab-unit-check-target-word\{/);
 });
+
+test('active Unit Check exposes a distinct formal assessment theme', () => {
+  assert.match(view, /vocab-unit-check-mode-badge/);
+  assert.match(view, /Formal check/);
+  assert.match(view, /vocab-unit-check-question__accent/);
+  assert.match(css, /\.vocab-unit-check-mode-badge\{/);
+  assert.match(css, /\.vocab-unit-check-question__accent\{/);
+});
+
+test('completion screen has a score medallion and three-attempt journey', () => {
+  assert.match(view, /vocab-unit-check-score-medallion/);
+  assert.match(view, /vocab-unit-check-journey/);
+  assert.match(view, /vocab-unit-check-journey__step/);
+  assert.match(view, /resultTone/);
+  assert.match(css, /\.vocab-unit-check-score-medallion\{/);
+  assert.match(css, /\.vocab-unit-check-journey\{/);
+});
+
+test('celebratory completion motion respects reduced-motion preferences', () => {
+  assert.match(css, /@keyframes unit-check-celebrate/);
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
+  assert.match(css, /animation:\s*none/);
+});
