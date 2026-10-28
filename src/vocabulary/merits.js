@@ -3,6 +3,9 @@ import { buildUnitPathwayStates } from './pathway-view-model.js';
 export const DEFAULT_PATHWAYS_PER_MERIT = 2;
 export const MIN_PATHWAYS_PER_MERIT = 1;
 export const MAX_PATHWAYS_PER_MERIT = 6;
+// Compatibility only while the core Vocabulary engagement strip is progressively migrated.
+// Merit eligibility is no longer calculated from stage ticks; see buildMeritStatus/meritProgress below.
+export const SKILLS_PER_MERIT = 10;
 
 function unitNumberOf(occurrence) { return occurrence.unitNumber ?? occurrence.unit_number ?? null; }
 
@@ -26,6 +29,22 @@ export function countMasteredPathways({ occurrences = [], unitMastery = {}, glob
     for (const state of Object.values(states)) if (state?.available !== false && state?.mastered === true) completed += 1;
   }
   return completed;
+}
+
+export function meritProgress(completedPathways, pathwaysPerMerit = DEFAULT_PATHWAYS_PER_MERIT, awarded = 0) {
+  const completed = Math.max(0, Math.floor(Number(completedPathways) || 0));
+  const threshold = normalisePathwaysPerMerit(pathwaysPerMerit);
+  const awardedCount = Math.max(0, Math.floor(Number(awarded) || 0));
+  const nextMeritNumber = Math.max(Math.floor(completed / threshold), awardedCount) + 1;
+  const toNext = Math.max(0, nextMeritNumber * threshold - completed);
+  return {
+    completedPathways:completed,
+    pathwaysPerMerit:threshold,
+    toNext,
+    copy:`${toNext} more completed ${toNext === 1 ? 'pathway' : 'pathways'} toward your next teacher-awarded merit`,
+    awarded:awardedCount,
+    nextMeritNumber
+  };
 }
 
 export function buildMeritStatus({ students = [], occurrences = [], unitMastery = [], globalMastery = [], awards = [] } = {}) {
