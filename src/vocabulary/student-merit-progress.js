@@ -13,12 +13,8 @@ async function loadCopy() {
     const { data:profile, error:profileError } = await client.from('profiles').select('role').eq('id',userId).single();
     if (profileError || profile?.role !== 'student') return null;
 
-    const membership = await client.from('student_class_memberships')
-      .select('class_id').eq('student_id',userId).is('ended_at',null).maybeSingle();
-    if (membership.error || !membership.data?.class_id) return null;
-    const classResult = await client.from('classes')
-      .select('merit_pathways_required').eq('id',membership.data.class_id).single();
-    if (classResult.error) return null;
+    const thresholdResult = await client.rpc('current_merit_pathways_required');
+    if (thresholdResult.error) return null;
 
     const [occurrenceResult, unitResult, globalResult, awardsResult] = await Promise.all([
       client.from('vocabulary_unit_occurrences').select('occurrence_id,vocabulary_id,unit_number').eq('status','live').eq('active',true),
@@ -43,7 +39,7 @@ async function loadCopy() {
     }]));
     const completed = countMasteredPathways({ occurrences, unitMastery, globalMastery });
     const highestAwarded = Math.max(0, ...(awardsResult.data ?? []).map(row => Number(row.merit_number) || 0));
-    return meritProgress(completed, classResult.data?.merit_pathways_required, highestAwarded).copy;
+    return meritProgress(completed, thresholdResult.data, highestAwarded).copy;
   })().catch(error => {
     console.error('Unable to load student merit progress', error);
     return null;
