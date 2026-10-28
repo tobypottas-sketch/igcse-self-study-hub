@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { safeAuthAccountError, validateAdminProvisionRequest } from '../supabase/functions/admin-provision-user/validation.js';
-import { createStudentAccount, issueClassCredentials, resetAccountPassword, setAccountActive } from '../src/admin/accounts.js';
+import * as accounts from '../src/admin/accounts.js';
 
+const { createStudentAccount, resetAccountPassword, setAccountActive } = accounts;
 const userId = '11111111-1111-4111-8111-111111111111';
 const classId = '22222222-2222-4222-8222-222222222222';
 
@@ -35,8 +36,9 @@ test('reset password validates target id and client action', async () => {
 test('class credential issuance validates class id and uses one explicit admin action', async () => {
   assert.throws(() => validateAdminProvisionRequest({ action:'issue_class_credentials', classId:'bad' }), /class/i);
   assert.deepEqual(validateAdminProvisionRequest({ action:'issue_class_credentials', classId }), { action:'issue_class_credentials', classId });
+  assert.equal(typeof accounts.issueClassCredentials, 'function');
   const client = fakeClient({ data:{ ok:true, created:[], failed:[] }, error:null });
-  await issueClassCredentials(client, classId);
+  await accounts.issueClassCredentials(client, classId);
   assert.deepEqual(client.calls[0][1].body, { action:'issue_class_credentials', classId });
 });
 
