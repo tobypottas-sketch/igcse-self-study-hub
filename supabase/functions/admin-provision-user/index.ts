@@ -221,20 +221,35 @@ Deno.serve(async (req: Request) => {
       const { data:existing, error:existingError } = await adminClient.from('profiles').select('school_email');
       if (existingError) return jsonResponse({ error:existingError.message }, { status:400 });
       const existingEmails = new Set((existing ?? []).map(item => String(item.school_email).toLowerCase()));
-      const created = [];
-      const failed = [];
       const issuedPasswords = new Set<string>();
+      const rowResults = new Array(input.rows.length);
+      const provisionPlans = [];
 
-      for (const row of input.rows) {
-        if ((frequencies.get(row.email) ?? 0) > 1) { failed.push({ ...row, reason:'Duplicate email in batch.' }); continue; }
-        if (existingEmails.has(row.email)) { failed.push({ ...row, reason:'Email already exists.' }); continue; }
+      for (let index = 0; index < input.rows.length; index += 1) {
+        const row = input.rows[index];
+        if ((frequencies.get(row.email) ?? 0) > 1) {
+          rowResults[index] = { ok:false, failed:{ ...row, reason:'Duplicate email in batch.' } };
+          continue;
+        }
+        if (existingEmails.has(row.email)) {
+          rowResults[index] = { ok:false, failed:{ ...row, reason:'Email already exists.' } };
+          continue;
+        }
         let temporaryPassword = generateStudentPassword();
         while (issuedPasswords.has(temporaryPassword)) temporaryPassword = generateStudentPassword();
         issuedPasswords.add(temporaryPassword);
-        const result = await provisionOne(row, input.classId, 'student', temporaryPassword);
-        if ('error' in result) failed.push({ ...row, reason:result.error });
-        else created.push({ userId:result.userId, displayName:row.displayName, email:row.email, temporaryPassword });
+        provisionPlans.push({ index, row, temporaryPassword });
       }
+
+      const provisionResults = await mapWithConcurrency(provisionPlans, 12, async ({ index, row, temporaryPassword }) => {
+        const result = await provisionOne(row, input.classId, 'student', temporaryPassword);
+        if ('error' in result) return { index, value:{ ok:false, failed:{ ...row, reason:result.error } } };
+        return { index, value:{ ok:true, created:{ userId:result.userId, displayName:row.displayName, email:row.email, temporaryPassword } } };
+      });
+      for (const result of provisionResults) rowResults[result.index] = result.value;
+
+      const created = rowResults.filter(result => result?.ok).map(result => result.created);
+      const failed = rowResults.filter(result => result && !result.ok).map(result => result.failed);
       return jsonResponse({ ok:failed.length === 0, created, failed });
     }
 
