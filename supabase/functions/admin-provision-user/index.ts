@@ -87,7 +87,7 @@ Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') return jsonResponse({ error: 'Method not allowed' }, { status: 405 });
   try {
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) return jsonResponse({ error: 'Authentication required' }, { status: 401 });
+    if (!authHeader) return jsonResponse({ error:'Authentication required' }, { status:401 });
 
     const url = Deno.env.get('SUPABASE_URL');
     if (!url) throw new Error('Missing SUPABASE_URL.');
@@ -117,12 +117,8 @@ Deno.serve(async (req: Request) => {
           .is('ended_at', null);
         if (membershipError) return jsonResponse({ error:membershipError.message }, { status:400 });
       } else {
-        const { error:taskError } = await adminClient
-          .from('essay_tasks')
-          .update({ active:false })
-          .eq('created_by', input.userId);
+        const { error:taskError } = await adminClient.from('essay_tasks').update({ active:false }).eq('created_by', input.userId);
         if (taskError) return jsonResponse({ error:taskError.message }, { status:400 });
-
         const { error:teacherError } = await adminClient.from('teacher_classes').delete().eq('teacher_id', input.userId);
         if (teacherError) return jsonResponse({ error:teacherError.message }, { status:400 });
       }
@@ -145,20 +141,13 @@ Deno.serve(async (req: Request) => {
       const { data:targetClass, error:classError } = await adminClient.from('classes').select('id, active').eq('id', input.classId).single();
       if (classError || !targetClass?.active) return jsonResponse({ error:'Class is not active' }, { status:400 });
 
-      const { data:memberships, error:membershipError } = await adminClient
-        .from('student_class_memberships')
-        .select('student_id')
-        .eq('class_id', input.classId)
-        .is('ended_at', null);
+      const { data:memberships, error:membershipError } = await adminClient.from('student_class_memberships').select('student_id').eq('class_id', input.classId).is('ended_at', null);
       if (membershipError) return jsonResponse({ error:membershipError.message }, { status:400 });
 
       const studentIds = (memberships ?? []).map(item => item.student_id);
       if (!studentIds.length) return jsonResponse({ ok:true, created:[], failed:[] });
 
-      const { data:students, error:studentsError } = await adminClient
-        .from('profiles')
-        .select('id, display_name, school_email, role, active')
-        .in('id', studentIds);
+      const { data:students, error:studentsError } = await adminClient.from('profiles').select('id, display_name, school_email, role, active').in('id', studentIds);
       if (studentsError) return jsonResponse({ error:studentsError.message }, { status:400 });
 
       const issuedPasswords = new Set<string>();
@@ -171,7 +160,7 @@ Deno.serve(async (req: Request) => {
           return { student, password };
         });
 
-      const credentialResults = await mapWithConcurrency(credentialPlans, 6, async ({ student, password }) => {
+      const credentialResults = await mapWithConcurrency(credentialPlans, 12, async ({ student, password }) => {
         const { error:flagError } = await adminClient.from('profiles').update({ must_change_password:false }).eq('id', student.id);
         if (flagError) {
           return { ok:false, failed:{ userId:student.id, displayName:student.display_name, email:student.school_email, reason:flagError.message } };
