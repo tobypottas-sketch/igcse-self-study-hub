@@ -24,7 +24,7 @@ export function renderLoginCards(credentials = [], className = '', _url = '', fa
   return `${failures}<section class="admin-credential-sheet student-login-sheet" data-credential-sheet data-generated-login-sheet>
     <div class="admin-list-header student-login-sheet__screen-head">
       <div><p class="eyebrow">Class login cards</p><h2>${escapeHtml(className || 'Student logins')}</h2><p class="muted">Print this master sheet and cut along the card edges. Save a copy somewhere secure.</p></div>
-      <div class="admin-actions"><button class="button admin-button" data-action="admin-print-credentials">Print class login cards</button></div>
+      <div class="admin-actions"><button class="button admin-button" data-action="admin-print-credentials">Print class login cards</button><button class="button admin-button" data-action="admin-close-login-cards">Close</button></div>
     </div>
     <div class="student-login-grid">${rows}</div>
   </section>`;
@@ -36,6 +36,15 @@ function enhanceExistingCredentialSheet(sheet) {
   sheet.classList.add('student-login-sheet');
   const printButton = sheet.querySelector?.('[data-action="admin-print-credentials"]');
   if (printButton) printButton.textContent = 'Print class login cards';
+  const actions = sheet.querySelector?.('.admin-actions');
+  if (actions && !actions.querySelector?.('[data-action="admin-close-login-cards"]')) {
+    const closeButton = sheet.ownerDocument.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'button admin-button';
+    closeButton.dataset.action = 'admin-close-login-cards';
+    closeButton.textContent = 'Close';
+    actions.append(closeButton);
+  }
   const heading = sheet.querySelector?.('h2');
   if (heading) heading.textContent = 'Save or print class login cards';
   const eyebrow = sheet.querySelector?.('.eyebrow');
@@ -52,8 +61,41 @@ function enhanceExistingCredentialSheet(sheet) {
   }
 }
 
+function enhanceClassRoster(card) {
+  if (!card || card.dataset.rosterEnhanced === 'true') return;
+  const studentSection = [...card.children].find(section => section.querySelector?.(':scope > strong')?.textContent?.trim() === 'Students');
+  if (!studentSection) return;
+  const paragraph = studentSection.querySelector?.(':scope > p.muted');
+  if (!paragraph || /No students yet/i.test(paragraph.textContent ?? '')) {
+    card.dataset.rosterEnhanced = 'true';
+    return;
+  }
+
+  const names = String(paragraph.textContent ?? '').split(',').map(name => name.trim()).filter(Boolean);
+  if (!names.length) {
+    card.dataset.rosterEnhanced = 'true';
+    return;
+  }
+
+  const details = card.ownerDocument.createElement('details');
+  details.className = 'admin-class-roster';
+  const summary = card.ownerDocument.createElement('summary');
+  summary.textContent = `View ${names.length} student${names.length === 1 ? '' : 's'}`;
+  const list = card.ownerDocument.createElement('ul');
+  list.className = 'admin-class-roster__list';
+  for (const name of names) {
+    const item = card.ownerDocument.createElement('li');
+    item.textContent = name;
+    list.append(item);
+  }
+  details.append(summary, list);
+  paragraph.replaceWith(details);
+  card.dataset.rosterEnhanced = 'true';
+}
+
 function enhanceClassCards(root) {
   for (const card of root.querySelectorAll?.('.admin-class-card') ?? []) {
+    enhanceClassRoster(card);
     if (card.querySelector?.('[data-action="admin-issue-class-credentials"]')) continue;
     const deleteButton = card.querySelector?.('[data-action="admin-delete-class"]');
     if (!deleteButton) continue;
@@ -118,6 +160,13 @@ function printCredentialSheet(target) {
   }
 }
 
+function removeGeneratedLoginCards(target) {
+  const sheet = target?.closest?.('[data-credential-sheet]');
+  const panel = sheet?.closest?.('.admin-panel') ?? document.querySelector?.('.admin-panel');
+  sheet?.remove();
+  panel?.querySelector?.('[data-credential-failures]')?.remove();
+}
+
 async function issueForClass(target) {
   const classId = target?.dataset?.classId;
   const className = target?.dataset?.className || 'Class';
@@ -171,6 +220,12 @@ export function startCredentialPrintEnhancements() {
       event.preventDefault();
       event.stopPropagation();
       printCredentialSheet(target);
+      return;
+    }
+    if (target?.dataset?.action === 'admin-close-login-cards') {
+      event.preventDefault();
+      event.stopPropagation();
+      removeGeneratedLoginCards(target);
       return;
     }
     if (target?.dataset?.action === 'admin-issue-class-credentials') issueForClass(target);
