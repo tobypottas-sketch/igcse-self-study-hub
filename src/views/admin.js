@@ -85,7 +85,8 @@ function progressionText(pathways = {}, hasStarted = true) {
 
 function renderActivityRows(students = []) {
   if (!students.length) return '<p class="admin-empty">No students are available in your assigned classes.</p>';
-  return `<div class="admin-table-wrap"><table class="admin-table activity-table"><thead><tr><th>Student</th><th>Class</th><th>Last active</th><th>This week</th><th>Vocabulary progression</th><th>Unit Check</th><th>Merits</th><th>Attention</th></tr></thead><tbody>${students.map(row => {
+  const sortedStudents = students.slice().sort((a, b) => studentCollator.compare(String(a.className ?? '').trim(), String(b.className ?? '').trim()) || compareStudentNames(a, b));
+  return `<div class="admin-table-wrap"><table class="admin-table activity-table"><thead><tr><th>Student</th><th>Class</th><th>Last active</th><th>This week</th><th>Vocabulary progression</th><th>Unit Check</th><th>Merits</th><th>Attention</th></tr></thead><tbody>${sortedStudents.map(row => {
     const unit = row.unitCheck?.attemptsUsed ? `${row.unitCheck.latestScore}/10 latest · ${row.unitCheck.bestScore}/10 best · ${row.unitCheck.attemptsUsed}/3 attempts` : 'No Unit Check yet';
     const merits = row.pendingMerits ? `${row.pendingMerits} new` : 'None new';
     const attention = row.attention?.length ? row.attention.map(item => item.label).join('; ') : '—';
