@@ -33,7 +33,7 @@ Deno.serve(async (req: Request) => {
     if (callerError || !callerData.user) return jsonResponse({ error:'Invalid session' }, { status:401 });
     const adminClient = createClient(url, secretKey, { auth:{ persistSession:false, autoRefreshToken:false } });
     const { data:profile, error:profileError } = await adminClient.from('profiles').select('role,active').eq('id',callerData.user.id).single();
-    if (profileError || !profile?.active || profile.role !== 'admin') return jsonResponse({ error:'Admin access required' }, { status:403 });
+    if (profileError || !profile?.active || !['teacher','admin'].includes(profile.role)) return jsonResponse({ error:'Staff administration access required' }, { status:403 });
 
     const body = await req.json();
     const classId = String(body?.classId ?? '').trim();
