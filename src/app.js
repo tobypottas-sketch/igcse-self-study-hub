@@ -176,6 +176,7 @@ export async function bootApp(clientOverride = null) {
       return;
     }
     if (kind === 'change-password') {
+      if (currentState.profile?.active === false || (!['teacher','admin'].includes(currentState.profile?.role) && !(currentState.view === 'change-password' && currentState.profile?.must_change_password))) return;
       const password = String(data.get('password') ?? '');
       if (password !== String(data.get('confirmPassword') ?? '')) { renderChangePassword(root, currentState.profile, 'The two passwords do not match.'); return; }
       try { await changePassword(client, password); await renderCurrentState(); }
@@ -225,7 +226,15 @@ export async function bootApp(clientOverride = null) {
     const action = target?.dataset?.action;
     if (action === 'logout') { await client.auth.signOut(); cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; await renderCurrentState(); }
     else if (action === 'retry') await renderCurrentState();
-    else if (action === 'change-password') renderChangePassword(root, currentState.profile);
+    else if (action === 'change-password') {
+      if (['teacher','admin'].includes(currentState.profile?.role) && currentState.profile.active !== false) {
+        currentState = { ...currentState, view:'change-password' };
+        renderChangePassword(root, currentState.profile);
+      }
+    }
+    else if (action === 'cancel-change-password') {
+      if (['teacher','admin'].includes(currentState.profile?.role) && !currentState.profile.must_change_password) await renderCurrentState();
+    }
     else if (action === 'activity') await renderActivitySection({ selectedStudentId:null, notice:'' });
     else if (action === 'admin') await renderAdminSection('accounts', { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     else if (action === 'admin-back') {

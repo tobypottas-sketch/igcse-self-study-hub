@@ -150,9 +150,14 @@ Deno.serve(async (req: Request) => {
 
       const credentialResults = await mapWithConcurrency(credentialPlans, 12, async ({ student, password }) => {
         const { error:flagError } = await adminClient.from('profiles').update({ must_change_password:false }).eq('id', student.id);
-        if (flagError) return { ok:false, failed:{ userId:student.id, displayName:student.display_name, email:student.school_email, reason:flagError.message } };
+        if (flagError) {
+          return { ok:false, failed:{ userId:student.id, displayName:student.display_name, email:student.school_email, reason:flagError.message } };
+        }
         const { error:authError } = await adminClient.auth.admin.updateUserById(student.id, { password });
-        if (authError) return { ok:false, failed:{ userId:student.id, displayName:student.display_name, email:student.school_email, reason:'Unable to set student password.' } };
+        if (authError) {
+          await adminClient.from('profiles').update({ must_change_password:true }).eq('id', student.id);
+          return { ok:false, failed:{ userId:student.id, displayName:student.display_name, email:student.school_email, reason:'Unable to set student password.' } };
+        }
         return { ok:true, created:{ userId:student.id, displayName:student.display_name, email:student.school_email, temporaryPassword:password } };
       });
 

@@ -19,8 +19,8 @@ export async function loadAdminData(client) {
   return {
     accounts: normalizeAdminAccounts(profiles, memberships, classesRaw, teacherClasses),
     teachingAdmins: profiles
-      .filter(profile => profile.active === true && profile.role === 'admin')
-      .map(profile => ({ id:profile.id, displayName:profile.display_name, email:profile.school_email, role:profile.role, active:true })),
+      .filter(profile => profile.role === 'admin')
+      .map(profile => ({ id:profile.id, displayName:profile.display_name, email:profile.school_email, role:profile.role, active:profile.active === true })),
     classes: normalizeAdminClasses(classesRaw, profiles, memberships, teacherClasses)
   };
 }
