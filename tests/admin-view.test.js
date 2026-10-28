@@ -94,3 +94,19 @@ test('Assign teacher includes active teachers and labelled admins, excluding ina
   assert.match(options, /<option value="active-admin">Test Admin — admin@example\.test \(Admin\)<\/option>/);
   assert.doesNotMatch(options, /inactive-teacher|inactive-admin|active-student/);
 });
+
+test('activity renders never-started students without fake progression or inactivity', () => {
+  const target = root();
+  renderAdmin(target, {
+    profile:{ display_name:'Admin', role:'admin' }, section:'activity',
+    activityDashboard:{ pendingMerits:0, needsAttention:0, students:[{
+      studentId:'fresh', displayName:'Fresh Student', classId:'c1', className:'9 ESL 2',
+      hasStarted:false, lastActive:null, activityThisWeek:0, pathways:{},
+      unitCheck:{ attemptsUsed:0 }, pendingMerits:0, attention:[], needsAttention:false
+    }] }
+  });
+  assert.match(target.innerHTML, />Not started<\/td>/);
+  assert.match(target.innerHTML, /class="activity-progression">Not started<\/td>/);
+  assert.doesNotMatch(target.innerHTML, /Inactive 7\+ days/);
+  assert.doesNotMatch(target.innerHTML, /Meaning: recognise/);
+});
