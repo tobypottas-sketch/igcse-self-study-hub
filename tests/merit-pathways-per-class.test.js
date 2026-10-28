@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildMeritStatus, countMasteredPathways, DEFAULT_PATHWAYS_PER_MERIT } from '../src/vocabulary/merits.js';
-import { meritProgress } from '../src/vocabulary/engagement-model.js';
+import { buildMeritStatus, countMasteredPathways, DEFAULT_PATHWAYS_PER_MERIT, meritProgress } from '../src/vocabulary/merits.js';
 
 const stages = ['recognise','match','apply','recall','mastery'];
 const pathways = ['meaning','context','word_families','paraphrasing','precision_use','spelling_recall'];
@@ -31,10 +30,7 @@ test('default merit threshold is two fully mastered pathways', () => {
 
 test('each student uses the threshold of their class', () => {
   const data = fixture(4);
-  const [status] = buildMeritStatus({
-    students:[{ id:'s1', meritPathwaysRequired:4 }],
-    ...data
-  });
+  const [status] = buildMeritStatus({ students:[{ id:'s1', meritPathwaysRequired:4 }], ...data });
   assert.equal(status.pathwaysPerMerit, 4);
   assert.equal(status.earned, 1);
   assert.deepEqual(status.pendingNumbers, [1]);
@@ -45,10 +41,7 @@ test('raising a threshold never resurrects or revokes an awarded merit number', 
   const [status] = buildMeritStatus({
     students:[{ id:'s1', meritPathwaysRequired:4 }],
     ...data,
-    awards:[
-      { studentId:'s1', meritNumber:1 },
-      { studentId:'s1', meritNumber:2 }
-    ]
+    awards:[{ studentId:'s1', meritNumber:1 },{ studentId:'s1', meritNumber:2 }]
   });
   assert.equal(status.awarded, 2);
   assert.deepEqual(status.pendingNumbers, []);
