@@ -23,6 +23,21 @@ test('printable login cards escape credential text before rendering', () => {
   assert.match(html, /&lt;img src=x onerror=1&gt;/);
 });
 
+test('partial class credential issuance clearly lists failed students outside the printable cards', () => {
+  const html = renderLoginCards(
+    [{ displayName:'Created Student', email:'created@example.test', temporaryPassword:'CloudRiver42' }],
+    'G9 ESL',
+    'https://hub.example.test/',
+    [{ displayName:'Failed Student', email:'failed@example.test', reason:'Unable to set student password.' }]
+  );
+  assert.match(html, /1 login card created; 1 student failed/i);
+  assert.match(html, /Failed Student/);
+  assert.match(html, /Unable to set student password/);
+  assert.match(html, /data-credential-failures/);
+  const printableGrid = html.match(/<div class="student-login-grid">([\s\S]*?)<\/div>\s*<\/section>/)?.[1] ?? '';
+  assert.doesNotMatch(printableGrid, /Failed Student/);
+});
+
 test('normal login tells students to ask their teacher instead of offering self-service reset', () => {
   const root = { innerHTML:'' };
   renderLogin(root);
