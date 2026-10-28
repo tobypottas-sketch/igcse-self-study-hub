@@ -111,4 +111,5 @@ export function renderAdmin(root, model) {
   const content = section === 'activity' ? renderActivity(model ?? {}) : section === 'accounts' ? renderAccounts(model ?? {}) : section === 'classes' ? renderClasses(model ?? {}) : renderImport(model ?? {});
   const title = isAdmin ? 'Admin' : 'Student activity';
   root.innerHTML = `<section class="shell admin-shell"><header class="admin-header"><div><p class="eyebrow">iGCSE Self-Study Hub</p><h1>${title}</h1><p class="admin-subtitle">Signed in as ${escapeHtml(profile.display_name ?? (isAdmin ? 'Administrator' : 'Teacher'))}</p></div><button class="button button--ghost" data-action="admin-back">Back to Hub</button></header><nav class="admin-tabs" aria-label="${isAdmin ? 'Admin' : 'Teacher'} sections">${tabs}</nav><section class="admin-panel" data-admin-section="${escapeHtml(section)}">${content}</section></section>`;
+  if (section === 'activity' && model?.selectedStudentId) root.ownerDocument?.defaultView?.scrollTo?.(0,0);
 }
