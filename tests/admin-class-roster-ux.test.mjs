@@ -2,14 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-const adminView = fs.readFileSync(new URL('../src/views/admin.js', import.meta.url), 'utf8');
 const credentialPrint = fs.readFileSync(new URL('../src/admin/credential-print.js', import.meta.url), 'utf8');
-const adminCss = fs.readFileSync(new URL('../admin.css', import.meta.url), 'utf8');
+const credentialCss = fs.readFileSync(new URL('../credential-print.css', import.meta.url), 'utf8');
 
-test('class cards use a collapsible roster instead of a comma-separated paragraph', () => {
-  assert.match(adminView, /admin-class-roster/);
-  assert.match(adminView, /<details/);
-  assert.doesNotMatch(adminView, /c\.students\.map\(s => escapeHtml\(s\.displayName\)\)\.join\(', '\)/);
+test('class cards replace the long names paragraph with a collapsible roster', () => {
+  assert.match(credentialPrint, /function enhanceClassRoster/);
+  assert.match(credentialPrint, /createElement\('details'\)/);
+  assert.match(credentialPrint, /admin-class-roster/);
+  assert.match(credentialPrint, /View \$\{names\.length\} student/);
 });
 
 test('generated login card sheets can be dismissed', () => {
@@ -18,6 +18,6 @@ test('generated login card sheets can be dismissed', () => {
 });
 
 test('class rosters have dedicated compact styling', () => {
-  assert.match(adminCss, /\.admin-class-roster/);
-  assert.match(adminCss, /\.admin-class-roster__list/);
+  assert.match(credentialCss, /\.admin-class-roster/);
+  assert.match(credentialCss, /\.admin-class-roster__list/);
 });
