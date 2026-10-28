@@ -79,6 +79,21 @@ test('flags inactivity and repeated weak Unit Check results with simple explicit
   assert.equal(leo.needsAttention, true);
 });
 
+test('never-started students are not treated as inactive or pre-populated with pathway progression', () => {
+  const dashboard = buildActivityDashboard(input({
+    students:[{ id:'fresh', displayName:'Fresh Student', classId:'c1', className:'Grade 9' }],
+    activity:[], unitChecks:[], unitMastery:[], globalMastery:[]
+  }));
+  const fresh = dashboard.students[0];
+  assert.equal(fresh.hasStarted, false);
+  assert.equal(fresh.lastActive, null);
+  assert.equal(fresh.activityThisWeek, 0);
+  assert.deepEqual(fresh.pathways, {});
+  assert.deepEqual(fresh.attention, []);
+  assert.equal(fresh.needsAttention, false);
+  assert.equal(dashboard.needsAttention, 0);
+});
+
 test('recent activity feed contains safe labels but no answer or prompt text', () => {
   const dashboard = buildActivityDashboard(input({ activity:[
     { studentId:'s1', appKey:'vocabulary_paraphrase', eventType:'attempt_completed', occurredAt:'2026-10-27T10:00:00Z', metadata:{ pathway_id:'meaning', student_answer:'SECRET', prompt_text:'PRIVATE' } }
