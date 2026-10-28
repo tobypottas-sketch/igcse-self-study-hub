@@ -10,17 +10,17 @@ Create an IXL-style class login-card workflow for the iGCSE Self-Study Hub. A te
 - Passwords are simple, readable and permanent for normal use; no forced first-login password change.
 - Teacher keeps the master PDF so the same password can be re-issued if a student loses their card.
 - Existing security boundary remains: Supabase Auth stores passwords as hashes; plaintext passwords are never written to database tables or GitHub.
-- Existing imported class `9 ESL 2` can be issued a fresh permanent credential set once, without deleting/recreating the class or accounts.
+- Any active class can deliberately receive a fresh permanent credential set without deleting/recreating its student accounts or memberships.
 
 ## Non-goals
 - No server-side PDF storage.
 - No database column containing plaintext passwords.
 - No automatic recurring password rotation.
 - No change to Vocabulary, Reading, Listening, Essay Writing, Student Activity, mastery, merits, scoring, or progression.
-- No changes to class membership/history beyond the existing accounts already assigned.
+- No automatic recovery/reconstruction of a retired class; class membership remains a separate admin concern.
 
 ## Password design
-Use a student-friendly generated password with no punctuation or visually confusing characters. Proposed format: two short common words plus two digits, e.g. `TigerRiver42` or `MangoCloud27`.
+Use a student-friendly generated password with no punctuation or visually confusing characters. Format: two short common words plus two digits, e.g. `TigerRiver42` or `MangoCloud27`.
 
 The password is intended to remain the student's normal password. The system must not set `must_change_password=true` for newly provisioned students using this workflow.
 
@@ -29,7 +29,7 @@ The teacher's saved master PDF is the recovery source for the same password. The
 ## Student password-change behaviour
 To keep the printed teacher master sheet authoritative, students should not be encouraged or routed into a first-login password-change flow. The login experience should direct a student who has lost their credentials to their teacher rather than encouraging an independent password reset that would make the printed card stale.
 
-Teacher/admin account recovery can remain available through admin tooling; student credential changes should be deliberate teacher/admin actions, not part of normal student sign-in.
+Teacher/admin-controlled recovery tooling can remain available; student credential changes should be deliberate teacher/admin actions, not part of normal student sign-in.
 
 ## Teacher workflow
 ### Future bulk imports
@@ -39,13 +39,16 @@ Teacher/admin account recovery can remain available through admin tooling; stude
 4. Backend generates one permanent friendly password per student.
 5. Successful one-time response contains the generated credentials.
 6. Admin sees a `Print class login cards` action.
-7. Browser opens a dedicated print layout; teacher prints or saves one master PDF.
+7. Browser opens the print layout; teacher prints or saves one master PDF.
 8. Teacher cuts the cards and distributes them.
 
-### Existing `9 ESL 2` students
-Because the original import succeeded but its one-time credential response was lost/misreported, provide a class credential action that deliberately assigns a new friendly permanent password to each selected student and immediately renders the printable master sheet. This is a one-time recovery operation for the class; it does not delete/recreate accounts or memberships.
+### Existing active classes
+Provide a class credential action that deliberately assigns a new friendly permanent password to every active student currently in the selected active class and immediately renders the printable master sheet. It does not delete/recreate accounts or memberships.
 
 The action must clearly warn that it changes the affected students' current passwords before execution.
+
+### Retired classes
+The previously used `9 ESL 2` class was retired by the admin during this work. Its student accounts are not automatically deleted by class retirement, but rebuilding/reassigning that class is separate from the credential-card feature. Once students belong to an active class, the same class credential action can issue their printable credentials.
 
 ## Printable layout
 - A4 portrait.
@@ -65,10 +68,10 @@ The action must clearly warn that it changes the affected students' current pass
 ## Existing implementation to reuse
 - `admin-provision-user` already creates Supabase Auth users and already returns generated plaintext credentials once in the response.
 - Bulk Import already renders a one-time credential table with `Copy all` and `Print` controls.
-- The new workflow should extend these surfaces rather than introduce a separate credential system.
+- The new workflow extends these surfaces rather than introducing a separate credential store.
 
 ## Security / privacy
-- Plaintext passwords exist only in memory in the one-time provisioning/reset response and in the teacher's locally printed/saved PDF.
+- Plaintext passwords exist only in memory in the one-time provisioning/issuance response and in the teacher's locally printed/saved PDF.
 - Do not persist plaintext passwords in Supabase tables, logs, source control, analytics, browser localStorage, or app caches.
 - Do not include real student credentials in tests; use synthetic fixtures only.
 - Any class-wide credential regeneration must require an explicit admin action and confirmation.
@@ -85,7 +88,7 @@ Rejected. It adds PDF-generation/storage complexity and creates unnecessary risk
 - The teacher can print/save a master class credential sheet immediately after provisioning.
 - Cards are cleanly printable and cuttable on A4.
 - Passwords contain no symbols and are easy to transcribe.
-- Existing `9 ESL 2` accounts can receive a fresh credential pack without deleting the class/accounts.
+- An active class can receive a fresh credential pack without deleting its class/accounts/memberships.
 - No plaintext credential is persisted in Supabase or GitHub.
 - Students who lose a card are instructed to ask their teacher.
 - Existing non-auth app behaviour remains unchanged.
