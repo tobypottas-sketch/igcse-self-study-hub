@@ -4,7 +4,8 @@ const EH_SCHOOLS_LOGO = './assets/evidence-hub-schools-logo.webp';
 const CAMBRIDGE_ENGLISH_LOGO = './assets/cambridge-assessment-english.webp';
 
 export function buildHomeModel(profile, apps, activityDashboard = null) {
-  const canSeeTeacherActivity = profile.role === 'admin' || profile.role === 'teacher';
+  const showAdminControls = ['admin','teacher'].includes(profile.role);
+  const canSeeTeacherActivity = showAdminControls;
   const meritAlerts = canSeeTeacherActivity
     ? (activityDashboard?.students ?? [])
       .filter(student => Number(student.pendingMerits ?? 0) > 0)
@@ -23,7 +24,7 @@ export function buildHomeModel(profile, apps, activityDashboard = null) {
     displayName: profile.display_name,
     role: profile.role,
     apps: (apps ?? []).filter(app => app.enabled),
-    showAdminControls: profile.role === 'admin',
+    showAdminControls,
     showActivityControls: canSeeTeacherActivity,
     pendingMerits,
     meritAlerts
@@ -73,7 +74,8 @@ export function renderHome(root, profile, apps, activityDashboard = null) {
   const activityLabel = model.pendingMerits ? `Student activity · ${model.pendingMerits} new` : 'Student activity';
   const teacherControls = [
     model.showActivityControls ? `<button class="button button--primary" data-action="activity">${escapeHtml(activityLabel)}</button>` : '',
-    model.showAdminControls ? '<button class="button" data-action="admin">Manage accounts</button>' : ''
+    model.showAdminControls ? '<button class="button" data-action="admin">Manage accounts</button>' : '',
+    model.showAdminControls ? '<button class="button" data-action="change-password">Change password</button>' : ''
   ].filter(Boolean).join(' ');
 
   root.innerHTML = `

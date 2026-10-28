@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { bootApp } from '../src/app.js';
 
-test('Classes receives active teacher/admin candidates from the real admin loader without adding admins to Accounts', async t => {
+test('Classes receives active teacher/admin candidates while Accounts separates students and staff', async t => {
   const profiles = [
     { id:'caller', display_name:'Synthetic Caller', school_email:'caller@example.test', role:'admin', active:true },
     { id:'teacher', display_name:'Synthetic Teacher', school_email:'teacher@example.test', role:'teacher', active:true },
@@ -36,7 +36,9 @@ test('Classes receives active teacher/admin candidates from the real admin loade
   assert.match(options, /value="admin">Synthetic Admin — admin@example\.test \(Admin\)/);
   assert.doesNotMatch(options, /value="(?:inactive-teacher|inactive-admin|student)"/);
   await click('admin-section-accounts');
-  assert.doesNotMatch(root.innerHTML, /data-user-id="(?:caller|admin|inactive-admin)"/);
+  const studentDirectory = root.innerHTML.match(/<section class="admin-directory-section">([\s\S]*?)<\/section>/)?.[1] ?? '';
+  assert.doesNotMatch(studentDirectory, /data-user-id="(?:caller|admin|inactive-admin)"/);
+  assert.match(root.innerHTML, /data-user-id="admin"/);
   holdRefresh = true;
   await click('admin-set-active', { userId:'teacher', nextActive:'false' });
   await click('admin-section-classes');

@@ -29,15 +29,15 @@ test('bulk credential state is not written to browser persistence or URL storage
   assert.doesNotMatch(combined, /location\.(hash|search).*temporaryPassword|URLSearchParams.*temporaryPassword/s);
 });
 
-test('admin Edge Functions independently enforce active admin authorization', async () => {
+test('admin Edge Functions independently enforce active staff authorization', async () => {
   const [accountsFn, classFn] = await Promise.all([
     readFile(new URL('../supabase/functions/admin-provision-user/index.ts', import.meta.url), 'utf8'),
     readFile(new URL('../supabase/functions/admin-class-action/index.ts', import.meta.url), 'utf8')
   ]);
   for (const source of [accountsFn, classFn]) {
     assert.match(source, /callerProfile\?\.active/);
-    assert.match(source, /callerProfile\.role !== 'admin'/);
-    assert.match(source, /Admin access required/);
+    assert.match(source, /!\['teacher','admin'\]\.includes\(callerProfile\.role\)/);
+    assert.match(source, /Staff administration access required/);
   }
 });
 
