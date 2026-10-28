@@ -9,7 +9,19 @@ export async function createClass(client, className) {
 }
 
 export async function renameClass(client, classId, className) {
-  return invokeClassAction(client, { action: 'rename_class', classId, className:String(className ?? '').trim() });
+  const name = String(className ?? '').trim();
+  let result;
+  try {
+    result = await invokeClassAction(client, { action: 'rename_class', classId, className:name });
+  } catch (error) {
+    let message;
+    try { message = (await error?.context?.json?.())?.error; } catch { /* retain the transport error */ }
+    throw typeof message === 'string' && message.trim() ? new Error(message.trim()) : error;
+  }
+  if (result?.ok !== true || result.class?.id !== classId || result.class?.class_name !== name || result.class?.active !== true) {
+    throw new Error('Class rename was not confirmed. Refresh and try again.');
+  }
+  return result;
 }
 
 export async function assignTeacherToClass(client, teacherId, classId) {

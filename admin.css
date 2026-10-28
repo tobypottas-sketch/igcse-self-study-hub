@@ -3,6 +3,9 @@
 /* Keep account creation actions equal-sized and anchored to each card's bottom. */
 .admin-create-grid > :is([data-form="admin-create-student"], [data-form="admin-create-teacher"]) { display: flex; flex-direction: column; }
 .admin-create-grid > :is([data-form="admin-create-student"], [data-form="admin-create-teacher"]) > button[type="submit"] { width: 100%; margin-top: auto; flex: none; }
+/* Classes setup uses the same fixed-size actions despite differing field counts. */
+.admin-create-grid > :is([data-form="admin-create-class"], [data-form="admin-assign-teacher"], [data-form="admin-transfer-student"]) { display: flex; flex-direction: column; }
+.admin-create-grid > :is([data-form="admin-create-class"], [data-form="admin-assign-teacher"], [data-form="admin-transfer-student"]) > button[type="submit"] { width: 100%; margin-top: auto; flex: none; }
 @media (max-width: 620px) {
   .admin-create-grid:has(.admin-card:nth-child(2):last-child) { grid-template-columns: 1fr; }
 }
