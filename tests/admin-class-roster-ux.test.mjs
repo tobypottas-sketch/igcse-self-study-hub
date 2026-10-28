@@ -12,12 +12,16 @@ test('class cards replace the long names paragraph with a collapsible roster', (
   assert.match(credentialPrint, /View \$\{names\.length\} student/);
 });
 
-test('generated login card sheets can be dismissed', () => {
+test('generated login cards use a modal with an explicit close action', () => {
+  assert.match(credentialPrint, /student-login-modal/);
   assert.match(credentialPrint, /admin-close-login-cards/);
   assert.match(credentialPrint, /removeGeneratedLoginCards/);
+  assert.match(credentialPrint, /aria-label="Close login cards"/);
 });
 
-test('class rosters have dedicated compact styling', () => {
+test('class rosters and modal have dedicated styling', () => {
   assert.match(credentialCss, /\.admin-class-roster/);
   assert.match(credentialCss, /\.admin-class-roster__list/);
+  assert.match(credentialCss, /\.student-login-modal/);
+  assert.match(credentialCss, /\.student-login-modal__close/);
 });
