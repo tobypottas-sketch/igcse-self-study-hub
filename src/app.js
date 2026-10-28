@@ -71,9 +71,9 @@ export async function bootApp(clientOverride = null) {
   const refreshAdminCacheInBackground = () => {
     const refreshGeneration = ++adminRefreshGeneration;
     preloadAdminData(true)
-      .then(({ accounts, classes }) => {
+      .then(({ accounts, classes, teachingAdmins }) => {
         if (refreshGeneration !== adminRefreshGeneration) return;
-        if (currentState.view === 'admin') currentState = { ...currentState, accounts, classes };
+        if (currentState.view === 'admin') currentState = { ...currentState, accounts, classes, teachingAdmins };
       })
       .catch(() => {});
   };
@@ -136,8 +136,8 @@ export async function bootApp(clientOverride = null) {
   const renderAdminSection = async (section = 'accounts', extras = {}, refresh = false) => {
     if (currentState?.profile?.role !== 'admin' || currentState.profile.active === false) return;
     try {
-      const { accounts, classes } = await preloadAdminData(refresh);
-      currentState = { ...currentState, ...extras, view:'admin', section, accounts, classes };
+      const { accounts, classes, teachingAdmins } = await preloadAdminData(refresh);
+      currentState = { ...currentState, ...extras, view:'admin', section, accounts, classes, teachingAdmins };
       renderAdmin(root, currentState);
       enhanceClassRenameControls();
     } catch (error) {
