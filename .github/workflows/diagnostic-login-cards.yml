@@ -1,0 +1,26 @@
+name: Login Cards Diagnostic
+on:
+  push:
+    branches: ['fix/verify-login-cards-clean']
+jobs:
+  npm-test-diagnostic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Capture npm test output
+        shell: bash
+        run: |
+          set +e
+          npm test > npm-test.log 2>&1
+          code=$?
+          echo "$code" > npm-test.exit
+          exit 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: login-cards-npm-test
+          path: |
+            npm-test.log
+            npm-test.exit
