@@ -7,7 +7,7 @@ function hubUrl() {
   return `${window.location.origin}${window.location.pathname}`;
 }
 
-export function renderLoginCards(credentials = [], className = '', url = '') {
+export function renderLoginCards(credentials = [], className = '', url = '', failed = []) {
   const rows = credentials.map(row => `
     <article class="student-login-card">
       <p class="student-login-card__brand">iGCSE Self-Study Hub</p>
@@ -19,7 +19,8 @@ export function renderLoginCards(credentials = [], className = '', url = '') {
       </dl>
       <p class="student-login-card__instruction">Sign in with the details above. Keep this card safe.</p>
     </article>`).join('');
-  return `<section class="admin-credential-sheet student-login-sheet" data-credential-sheet data-generated-login-sheet>
+  const failures = failed.length ? `<aside class="admin-import-errors student-login-failures" data-credential-failures><h3>${credentials.length} login card${credentials.length === 1 ? '' : 's'} created; ${failed.length} student${failed.length === 1 ? '' : 's'} failed</h3><p>Do not assume the pack is complete. These students did not receive a new password:</p><ul>${failed.map(row => `<li><strong>${escapeHtml(row.displayName || row.email || 'Student')}</strong> — ${escapeHtml(row.reason || 'Credential update failed.')}</li>`).join('')}</ul></aside>` : '';
+  return `${failures}<section class="admin-credential-sheet student-login-sheet" data-credential-sheet data-generated-login-sheet>
     <div class="admin-list-header student-login-sheet__screen-head">
       <div><p class="eyebrow">Class login cards</p><h2>${escapeHtml(className || 'Student logins')}</h2><p class="muted">Save or print this master sheet now. These passwords cannot be recovered from the app later.</p></div>
       <div class="admin-actions"><button class="button admin-button" data-action="admin-print-credentials">Print class login cards</button></div>
@@ -91,17 +92,19 @@ async function issueForClass(target) {
     const client = await getSupabaseClient();
     const result = await issueClassCredentials(client, classId);
     const created = result?.created ?? [];
+    const failed = result?.failed ?? [];
     const panel = document.querySelector?.('.admin-panel');
     if (!panel) return;
     panel.querySelector?.('[data-generated-login-sheet]')?.remove();
+    panel.querySelector?.('[data-credential-failures]')?.remove();
     if (!created.length) {
       const notice = document.createElement('div');
       notice.className = 'notice';
-      notice.textContent = result?.failed?.length ? 'No login cards were created. Check the failed accounts and try again.' : 'This class has no active students to issue credentials for.';
+      notice.textContent = failed.length ? 'No login cards were created. Check the failed accounts and try again.' : 'This class has no active students to issue credentials for.';
       panel.prepend(notice);
       return;
     }
-    panel.insertAdjacentHTML('afterbegin', renderLoginCards(created, className, hubUrl()));
+    panel.insertAdjacentHTML('afterbegin', renderLoginCards(created, className, hubUrl(), failed));
     const sheet = panel.querySelector?.('[data-generated-login-sheet]');
     sheet?.scrollIntoView?.({ block:'start', behavior:'smooth' });
   } catch (error) {
