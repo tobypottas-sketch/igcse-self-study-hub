@@ -7,10 +7,9 @@ const login = fs.readFileSync(new URL('../src/views/login.js', import.meta.url),
 const recovery = fs.readFileSync(new URL('../src/password-recovery.js', import.meta.url), 'utf8');
 const index = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
-test('login exposes a forgot-password action', () => {
-  assert.match(login, /data-action=["']forgot-password["']/);
-  assert.match(login, /data-form=["']forgot-password["']/);
-  assert.match(login, /data-form=["']recovery-password["']/);
+test('login directs students to their teacher for replacement login details', () => {
+  assert.match(login, /Lost your login details\? Ask your teacher\./);
+  assert.doesNotMatch(login, /data-action=["']forgot-password["']/);
 });
 
 test('password reset email uses the supplied Hub redirect URL', async () => {
