@@ -236,7 +236,7 @@ export async function bootApp(clientOverride = null) {
     else if (action?.startsWith?.('admin-section-')) {
       const section = action.slice('admin-section-'.length);
       if (section === 'activity') await renderActivitySection({ selectedStudentId:null, notice:'' });
-      else if (['accounts','classes','import'].includes(section)) renderCachedAdminSection(section, { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
+      else if (['accounts','classes','import'].includes(section)) await renderAdminSection(section, { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     } else if (action === 'activity-student') {
       const studentId = target?.dataset?.studentId;
       if (!studentId || !currentState.activityDashboard) return;
