@@ -34,6 +34,7 @@ function parseCsvRecords(text) {
 const normalizeHeader = value => String(value ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
 const normalizeEmail = value => String(value ?? '').trim().toLowerCase();
 const validEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const bulkImportInFlight = new Map();
 
 export function parseStudentCsv(text) {
   const records = parseCsvRecords(text);
@@ -78,13 +79,24 @@ export function validateStudentImport(rows, existingEmails = new Set()) {
   return { validRows, errors };
 }
 
-export async function bulkProvisionStudents(client, classId, rows) {
+export function bulkProvisionStudents(client, classId, rows) {
   const body = {
     action: 'bulk_provision_students',
     classId,
     rows: rows.map(row => ({ displayName: String(row.displayName ?? '').trim(), email: normalizeEmail(row.email) }))
   };
-  const { data, error } = await client.functions.invoke('admin-provision-user', { body });
-  if (error) throw error;
-  return data;
+  const key = JSON.stringify(body);
+  const existing = bulkImportInFlight.get(key);
+  if (existing) return existing;
+
+  const operation = client.functions.invoke('admin-provision-user', { body })
+    .then(({ data, error }) => {
+      if (error) throw error;
+      return data;
+    })
+    .finally(() => {
+      if (bulkImportInFlight.get(key) === operation) bulkImportInFlight.delete(key);
+    });
+  bulkImportInFlight.set(key, operation);
+  return operation;
 }
