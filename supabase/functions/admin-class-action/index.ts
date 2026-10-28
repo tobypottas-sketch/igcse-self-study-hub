@@ -49,8 +49,8 @@ Deno.serve(async (req: Request) => {
       .select('role, active')
       .eq('id', callerData.user.id)
       .single();
-    if (profileError || !callerProfile?.active || callerProfile.role !== 'admin') {
-      return jsonResponse({ error: 'Admin access required' }, { status: 403 });
+    if (profileError || !callerProfile?.active || !['teacher','admin'].includes(callerProfile.role)) {
+      return jsonResponse({ error: 'Staff administration access required' }, { status: 403 });
     }
 
     const input = validateClassAction(await req.json());
