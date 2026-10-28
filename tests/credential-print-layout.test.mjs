@@ -5,18 +5,23 @@ import fs from 'node:fs';
 const js = fs.readFileSync(new URL('../src/admin/credential-print.js', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../credential-print.css', import.meta.url), 'utf8');
 
-test('login cards omit website URLs', () => {
-  assert.doesNotMatch(js, /<dt>Website<\/dt>/);
-  assert.doesNotMatch(js, /student-login-card-url/);
+test('login cards contain only student identity and login credentials', () => {
+  assert.match(js, /Email \/ username/);
+  assert.match(js, /Password/);
+  assert.doesNotMatch(js, /Website/);
+  assert.doesNotMatch(js, /Keep this card safe/);
+  assert.doesNotMatch(js, /Student login/);
 });
 
-test('printing uses an isolated print-only root', () => {
-  assert.match(js, /credential-print-root/);
-  assert.match(js, /cloneNode\(true\)/);
-  assert.match(css, /body\s*>\s*\*:not\(\.credential-print-root\)/);
+test('login cards live in a closable modal that is also the print source', () => {
+  assert.match(js, /student-login-modal/);
+  assert.match(js, /admin-close-login-cards/);
+  assert.match(css, /body>\*:not\(\.student-login-modal\)/);
+  assert.doesNotMatch(js, /credential-print-root/);
+  assert.doesNotMatch(js, /cloneNode\(true\)/);
 });
 
 test('A4 layout is a two-column four-row grid', () => {
-  assert.match(css, /grid-template-columns:\s*1fr 1fr/);
-  assert.match(css, /grid-template-rows:\s*repeat\(4,\s*1fr\)/);
+  assert.match(css, /grid-template-columns:1fr 1fr/);
+  assert.match(css, /grid-template-rows:repeat\(4,1fr\)/);
 });
