@@ -65,6 +65,23 @@ function generateStudentPassword(): string {
   return `${first}${second}${digits}`;
 }
 
+async function mapWithConcurrency<T, R>(items: T[], limit: number, worker: (item: T, index: number) => Promise<R>): Promise<R[]> {
+  if (!items.length) return [];
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+  const runnerCount = Math.min(Math.max(1, limit), items.length);
+  const runners = Array.from({ length:runnerCount }, async () => {
+    while (true) {
+      const index = nextIndex;
+      nextIndex += 1;
+      if (index >= items.length) return;
+      results[index] = await worker(items[index], index);
+    }
+  });
+  await Promise.all(runners);
+  return results;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'POST') return jsonResponse({ error: 'Method not allowed' }, { status: 405 });
@@ -144,28 +161,31 @@ Deno.serve(async (req: Request) => {
         .in('id', studentIds);
       if (studentsError) return jsonResponse({ error:studentsError.message }, { status:400 });
 
-      const created = [];
-      const failed = [];
       const issuedPasswords = new Set<string>();
-      for (const student of students ?? []) {
-        if (student.role !== 'student' || !student.active) continue;
-        let password = generateStudentPassword();
-        while (issuedPasswords.has(password)) password = generateStudentPassword();
-        issuedPasswords.add(password);
+      const credentialPlans = (students ?? [])
+        .filter(student => student.role === 'student' && student.active)
+        .map(student => {
+          let password = generateStudentPassword();
+          while (issuedPasswords.has(password)) password = generateStudentPassword();
+          issuedPasswords.add(password);
+          return { student, password };
+        });
 
+      const credentialResults = await mapWithConcurrency(credentialPlans, 6, async ({ student, password }) => {
         const { error:flagError } = await adminClient.from('profiles').update({ must_change_password:false }).eq('id', student.id);
         if (flagError) {
-          failed.push({ userId:student.id, displayName:student.display_name, email:student.school_email, reason:flagError.message });
-          continue;
+          return { ok:false, failed:{ userId:student.id, displayName:student.display_name, email:student.school_email, reason:flagError.message } };
         }
         const { error:authError } = await adminClient.auth.admin.updateUserById(student.id, { password });
         if (authError) {
           await adminClient.from('profiles').update({ must_change_password:true }).eq('id', student.id);
-          failed.push({ userId:student.id, displayName:student.display_name, email:student.school_email, reason:'Unable to set student password.' });
-          continue;
+          return { ok:false, failed:{ userId:student.id, displayName:student.display_name, email:student.school_email, reason:'Unable to set student password.' } };
         }
-        created.push({ userId:student.id, displayName:student.display_name, email:student.school_email, temporaryPassword:password });
-      }
+        return { ok:true, created:{ userId:student.id, displayName:student.display_name, email:student.school_email, temporaryPassword:password } };
+      });
+
+      const created = credentialResults.filter(result => result.ok).map(result => result.created);
+      const failed = credentialResults.filter(result => !result.ok).map(result => result.failed);
       return jsonResponse({ ok:failed.length === 0, created, failed });
     }
 
