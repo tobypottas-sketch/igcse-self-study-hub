@@ -104,7 +104,7 @@ export async function bootApp(clientOverride = null) {
       currentState = { ...currentState, activityDashboard:null };
       cachedHomeState = { ...currentState };
       renderHome(root, currentState.profile, currentState.apps, null);
-      if (currentState.profile?.role === 'admin' && currentState.profile.active !== false) preloadAdminData().catch(() => {});
+      if (['admin','teacher'].includes(currentState.profile?.role) && currentState.profile.active !== false) preloadAdminData().catch(() => {});
       if (['admin','teacher'].includes(currentState.profile?.role) && currentState.profile.active !== false) {
         preloadActivityData()
           .then(activityDashboard => {
@@ -134,21 +134,21 @@ export async function bootApp(clientOverride = null) {
   };
 
   const renderAdminSection = async (section = 'accounts', extras = {}, refresh = false) => {
-    if (currentState?.profile?.role !== 'admin' || currentState.profile.active === false) return;
+    if (!['admin','teacher'].includes(currentState?.profile?.role) || currentState.profile.active === false) return;
     try {
       const { accounts, classes, teachingAdmins } = await preloadAdminData(refresh);
       currentState = { ...currentState, ...extras, view:'admin', section, accounts, classes, teachingAdmins };
       renderAdmin(root, currentState);
       enhanceClassRenameControls();
     } catch (error) {
-      currentState = { ...currentState, ...extras, view:'admin', section, accounts:currentState.accounts ?? [], classes:currentState.classes ?? [], notice:error instanceof Error ? error.message : 'Unable to load admin data.' };
+      currentState = { ...currentState, ...extras, view:'admin', section, accounts:currentState.accounts ?? [], classes:currentState.classes ?? [], teachingAdmins:currentState.teachingAdmins ?? [], notice:error instanceof Error ? error.message : 'Unable to load admin data.' };
       renderAdmin(root, currentState);
       enhanceClassRenameControls();
     }
   };
 
   const renderCachedAdminSection = (section = 'accounts', extras = {}) => {
-    if (currentState?.profile?.role !== 'admin' || currentState.profile.active === false) return;
+    if (!['admin','teacher'].includes(currentState?.profile?.role) || currentState.profile.active === false) return;
     currentState = { ...currentState, ...extras, view:'admin', section };
     renderAdmin(root, currentState);
     enhanceClassRenameControls();
@@ -225,6 +225,7 @@ export async function bootApp(clientOverride = null) {
     const action = target?.dataset?.action;
     if (action === 'logout') { await client.auth.signOut(); cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; await renderCurrentState(); }
     else if (action === 'retry') await renderCurrentState();
+    else if (action === 'change-password') renderChangePassword(root, currentState.profile);
     else if (action === 'activity') await renderActivitySection({ selectedStudentId:null, notice:'' });
     else if (action === 'admin') await renderAdminSection('accounts', { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     else if (action === 'admin-back') {
@@ -275,14 +276,15 @@ export async function bootApp(clientOverride = null) {
       if (typeof globalThis.confirm === 'function' && !globalThis.confirm(`${active ? 'Reactivate' : 'Deactivate'} this account?`)) return;
       invalidateAdminBackgroundRefreshes();
       const previousAccounts = currentState.accounts ?? [];
-      currentState = { ...currentState, accounts:previousAccounts.map(item => item.id === userId ? { ...item, active } : item) };
+      const previousTeachingAdmins = currentState.teachingAdmins ?? [];
+      currentState = { ...currentState, accounts:previousAccounts.map(item => item.id === userId ? { ...item, active } : item), teachingAdmins:previousTeachingAdmins.map(item => item.id === userId ? { ...item, active } : item) };
       renderCachedAdminSection('accounts', { credential:null, notice:`${active ? 'Reactivating' : 'Deactivating'} account…` });
       try {
         await setAccountActive(client, userId, active);
         renderCachedAdminSection('accounts', { credential:null, notice:`Account ${active ? 'reactivated' : 'deactivated'}.` });
         refreshAdminCacheInBackground();
       } catch (error) {
-        currentState = { ...currentState, accounts:previousAccounts };
+        currentState = { ...currentState, accounts:previousAccounts, teachingAdmins:previousTeachingAdmins };
         renderCachedAdminSection('accounts', { notice:error instanceof Error ? error.message : 'Unable to update account.' });
       }
     } else if (action === 'admin-delete-account') {
