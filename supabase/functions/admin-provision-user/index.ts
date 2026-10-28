@@ -116,7 +116,9 @@ Deno.serve(async (req: Request) => {
     }
 
     if (input.action === 'reset_password') {
-      const temporaryPassword = generateTemporaryPassword();
+      const { data:target, error:targetError } = await adminClient.from('profiles').select('role').eq('id', input.userId).single();
+      if (targetError || !target) return jsonResponse({ error:'Account not found' }, { status:404 });
+      const temporaryPassword = target?.role === 'student' ? generateStudentPassword() : generateTemporaryPassword();
       const { error:flagError } = await adminClient.from('profiles').update({ must_change_password:true }).eq('id', input.userId);
       if (flagError) return jsonResponse({ error:flagError.message }, { status:400 });
       const { error:authError } = await adminClient.auth.admin.updateUserById(input.userId, { password:temporaryPassword });
