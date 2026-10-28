@@ -21,7 +21,7 @@ test('login cards live in a closable modal that is also the print source', () =>
   assert.doesNotMatch(js, /cloneNode\(true\)/);
 });
 
-test('A4 layout is a two-column four-row grid', () => {
+test('A4 layout is a two-column five-row grid', () => {
   assert.match(css, /grid-template-columns:1fr 1fr/);
-  assert.match(css, /grid-template-rows:repeat\(4,1fr\)/);
+  assert.match(css, /grid-template-rows:repeat\(5,1fr\)/);
 });

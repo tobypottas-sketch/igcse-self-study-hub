@@ -171,7 +171,7 @@ Deno.serve(async (req: Request) => {
           return { student, password };
         });
 
-      const credentialResults = await mapWithConcurrency(credentialPlans, 6, async ({ student, password }) => {
+      const credentialResults = await mapWithConcurrency(credentialPlans, 12, async ({ student, password }) => {
         const { error:flagError } = await adminClient.from('profiles').update({ must_change_password:false }).eq('id', student.id);
         if (flagError) {
           return { ok:false, failed:{ userId:student.id, displayName:student.display_name, email:student.school_email, reason:flagError.message } };

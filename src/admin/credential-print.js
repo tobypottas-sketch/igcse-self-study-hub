@@ -19,8 +19,8 @@ function loginCardMarkup({ displayName = 'Student', email = '', temporaryPasswor
 
 function pageMarkup(credentials = []) {
   const pages = [];
-  for (let start = 0; start < credentials.length; start += 8) {
-    pages.push(`<section class="student-login-page">${credentials.slice(start, start + 8).map(loginCardMarkup).join('')}</section>`);
+  for (let start = 0; start < credentials.length; start += 10) {
+    pages.push(`<section class="student-login-page">${credentials.slice(start, start + 10).map(loginCardMarkup).join('')}</section>`);
   }
   return pages.join('');
 }
