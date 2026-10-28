@@ -11,7 +11,7 @@ test('rename class client action sends the class id and trimmed name', async () 
     functions: {
       invoke: async (_name, options) => {
         body = options.body;
-        return { data:{ ok:true }, error:null };
+        return { data:{ ok:true, class:{ id:CLASS_ID, class_name:'Grade 9 ESL', active:true } }, error:null };
       }
     }
   };
@@ -32,4 +32,17 @@ test('rename class validation rejects an empty name', () => {
     () => validateClassAction({ action:'rename_class', classId:CLASS_ID, className:'   ' }),
     /Class name is required/
   );
+});
+
+test('rename surfaces the backend error explaining an unsupported deployed action', async () => {
+  const error = Object.assign(new Error('Edge Function returned a non-2xx status code'), {
+    context:new Response(JSON.stringify({ error:'Unsupported class action.' }), { status:400 })
+  });
+  await assert.rejects(renameClass({ functions:{ invoke:async () => ({ data:null, error }) } }, CLASS_ID, 'New class'), /Unsupported class action\./);
+});
+
+test('rename requires the saved class row rather than accepting an unrelated success response', async () => {
+  for (const data of [{ ok:true }, { ok:true, class:{ id:CLASS_ID, class_name:'Old class', active:true } }]) {
+    await assert.rejects(renameClass({ functions:{ invoke:async () => ({ data, error:null }) } }, CLASS_ID, 'New class'), /not confirmed/);
+  }
 });
