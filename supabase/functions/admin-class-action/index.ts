@@ -84,7 +84,7 @@ Deno.serve(async (req: Request) => {
         .select('id, role, active')
         .eq('id', input.teacherId)
         .single();
-      if (teacherError || !teacher?.active || teacher.role !== 'teacher') {
+      if (teacherError || !teacher?.active || !['teacher','admin'].includes(teacher.role)) {
         return jsonResponse({ error: 'Teacher account is not active' }, { status: 400 });
       }
 

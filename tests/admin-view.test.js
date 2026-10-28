@@ -75,3 +75,22 @@ test('classes section renders create, assign, unassign and student transfer cont
   assert.match(target.innerHTML, /data-form="admin-transfer-student"/);
   assert.doesNotMatch(target.innerHTML, /<img src=x onerror=1>/);
 });
+
+test('Assign teacher includes active teachers and labelled admins, excluding inactive accounts and students', () => {
+  const target = root();
+  renderAdmin(target, {
+    profile:{ display_name:'Synthetic Admin', role:'admin' }, section:'classes', classes:[],
+    accounts:[
+      { id:'active-teacher', displayName:'Test Teacher', email:'teacher@example.test', role:'teacher', active:true },
+      { id:'active-admin', displayName:'Test Admin', email:'admin@example.test', role:'admin', active:true },
+      { id:'inactive-teacher', displayName:'Inactive Teacher', email:'inactive-teacher@example.test', role:'teacher', active:false },
+      { id:'inactive-admin', displayName:'Inactive Admin', email:'inactive-admin@example.test', role:'admin', active:false },
+      { id:'active-student', displayName:'Test Student', email:'student@example.test', role:'student', active:true }
+    ]
+  });
+  const options = target.innerHTML.match(/<select name="teacherId" required>([\s\S]*?)<\/select>/)?.[1];
+  assert.ok(options, 'Assign teacher dropdown exists');
+  assert.match(options, /<option value="active-teacher">Test Teacher — teacher@example\.test<\/option>/);
+  assert.match(options, /<option value="active-admin">Test Admin — admin@example\.test \(Admin\)<\/option>/);
+  assert.doesNotMatch(options, /inactive-teacher|inactive-admin|active-student/);
+});
