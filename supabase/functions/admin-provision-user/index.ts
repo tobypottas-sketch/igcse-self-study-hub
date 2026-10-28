@@ -21,33 +21,10 @@ function firstNamedKey(raw: string | undefined): string {
   return value;
 }
 
-function randomChar(alphabet: string): string {
-  const bytes = new Uint32Array(1);
-  crypto.getRandomValues(bytes);
-  return alphabet[bytes[0] % alphabet.length];
-}
-
 function randomIndex(length: number): number {
   const bytes = new Uint32Array(1);
   crypto.getRandomValues(bytes);
   return bytes[0] % length;
-}
-
-function generateTemporaryPassword(): string {
-  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-  const lower = 'abcdefghijkmnopqrstuvwxyz';
-  const digits = '23456789';
-  const symbols = '!@#$%*-_';
-  const all = `${upper}${lower}${digits}${symbols}`;
-  const chars = [randomChar(upper), randomChar(lower), randomChar(digits), randomChar(symbols)];
-  while (chars.length < 16) chars.push(randomChar(all));
-  for (let i = chars.length - 1; i > 0; i -= 1) {
-    const bytes = new Uint32Array(1);
-    crypto.getRandomValues(bytes);
-    const j = bytes[0] % (i + 1);
-    [chars[i], chars[j]] = [chars[j], chars[i]];
-  }
-  return chars.join('');
 }
 
 const studentWords = [
@@ -99,12 +76,12 @@ Deno.serve(async (req: Request) => {
 
     const adminClient = createClient(url, secretKey, { auth:{ persistSession:false, autoRefreshToken:false } });
     const { data:callerProfile, error:profileError } = await adminClient.from('profiles').select('role, active').eq('id', callerData.user.id).single();
-    if (profileError || !callerProfile?.active || callerProfile.role !== 'admin') return jsonResponse({ error:'Admin access required' }, { status:403 });
+    if (profileError || !callerProfile?.active || !['teacher','admin'].includes(callerProfile.role)) return jsonResponse({ error:'Staff administration access required' }, { status:403 });
 
     const input = validateAdminProvisionRequest(await req.json());
 
     if (input.action === 'delete_account') {
-      if (callerData.user.id === input.userId) return jsonResponse({ error:'You cannot delete your own admin account.' }, { status:400 });
+      if (callerData.user.id === input.userId) return jsonResponse({ error:'You cannot delete your own staff account.' }, { status:400 });
       const { data:target, error:targetError } = await adminClient.from('profiles').select('id, role').eq('id', input.userId).single();
       if (targetError || !target) return jsonResponse({ error:'Account not found' }, { status:404 });
       if (target.role !== 'student' && target.role !== 'teacher') return jsonResponse({ error:'Only student and teacher accounts can be deleted here.' }, { status:400 });
@@ -133,8 +110,8 @@ Deno.serve(async (req: Request) => {
     }
 
     if (input.action === 'reset_password') {
-      const temporaryPassword = generateTemporaryPassword();
-      const { error:flagError } = await adminClient.from('profiles').update({ must_change_password:true }).eq('id', input.userId);
+      const temporaryPassword = generateStudentPassword();
+      const { error:flagError } = await adminClient.from('profiles').update({ must_change_password:false }).eq('id', input.userId);
       if (flagError) return jsonResponse({ error:flagError.message }, { status:400 });
       const { error:authError } = await adminClient.auth.admin.updateUserById(input.userId, { password:temporaryPassword });
       if (authError) return jsonResponse({ error:authError.message }, { status:400 });
@@ -173,14 +150,9 @@ Deno.serve(async (req: Request) => {
 
       const credentialResults = await mapWithConcurrency(credentialPlans, 12, async ({ student, password }) => {
         const { error:flagError } = await adminClient.from('profiles').update({ must_change_password:false }).eq('id', student.id);
-        if (flagError) {
-          return { ok:false, failed:{ userId:student.id, displayName:student.display_name, email:student.school_email, reason:flagError.message } };
-        }
+        if (flagError) return { ok:false, failed:{ userId:student.id, displayName:student.display_name, email:student.school_email, reason:flagError.message } };
         const { error:authError } = await adminClient.auth.admin.updateUserById(student.id, { password });
-        if (authError) {
-          await adminClient.from('profiles').update({ must_change_password:true }).eq('id', student.id);
-          return { ok:false, failed:{ userId:student.id, displayName:student.display_name, email:student.school_email, reason:'Unable to set student password.' } };
-        }
+        if (authError) return { ok:false, failed:{ userId:student.id, displayName:student.display_name, email:student.school_email, reason:'Unable to set student password.' } };
         return { ok:true, created:{ userId:student.id, displayName:student.display_name, email:student.school_email, temporaryPassword:password } };
       });
 
@@ -199,7 +171,7 @@ Deno.serve(async (req: Request) => {
       const { data:created, error:createError } = await adminClient.auth.admin.createUser({ email:row.email, password, email_confirm:true, app_metadata:{ role } });
       if (createError || !created.user) return { error:safeAuthAccountError(createError) };
       const userId = created.user.id;
-      const { error:insertProfileError } = await adminClient.from('profiles').insert({ id:userId, role, display_name:row.displayName, school_email:row.email, active:true, must_change_password:role === 'teacher' });
+      const { error:insertProfileError } = await adminClient.from('profiles').insert({ id:userId, role, display_name:row.displayName, school_email:row.email, active:true, must_change_password:false });
       let membershipError = null;
       if (!insertProfileError && role === 'student') {
         const membership = await adminClient.from('student_class_memberships').insert({ student_id:userId, class_id:classId, changed_by:callerData.user.id });
@@ -258,7 +230,7 @@ Deno.serve(async (req: Request) => {
       if (classError || !targetClass?.active) return jsonResponse({ error:'Class is not active' }, { status:400 });
     }
 
-    const temporaryPassword = input.role === 'student' ? generateStudentPassword() : generateTemporaryPassword();
+    const temporaryPassword = generateStudentPassword();
     const result = await provisionOne({ displayName:input.displayName, email:input.email }, input.classId, input.role, temporaryPassword);
     if ('error' in result) return jsonResponse({ error:result.error }, { status:400 });
     return jsonResponse({ ok:true, userId:result.userId, role:input.role, temporaryPassword });
