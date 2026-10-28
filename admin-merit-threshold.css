@@ -1,0 +1,7 @@
+.admin-merit-threshold{margin-top:12px;padding-top:12px;border-top:1px solid var(--c-line)}
+.admin-merit-threshold__copy{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.admin-merit-threshold__copy strong{font-size:.75rem;color:var(--c-muted)}
+.admin-merit-threshold__copy span{font-size:.8125rem;font-weight:700;color:var(--hub-navy)}
+.admin-merit-threshold input[type="range"]{width:100%;margin:10px 0 0;accent-color:var(--hub-teal);cursor:pointer}
+.admin-merit-threshold__scale{display:flex;justify-content:space-between;margin-top:2px;color:var(--c-muted);font-size:.7rem}
+.admin-merit-threshold p{margin:6px 0 0!important;font-size:.72rem!important}

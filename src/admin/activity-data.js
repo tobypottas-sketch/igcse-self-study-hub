@@ -66,9 +66,7 @@ async function loadActivityRows(client) {
   const rows = [];
   const pageSize = 1000;
   for (let offset = 0; ; offset += pageSize) {
-    const { data, error } = await client
-      .rpc('teacher_activity_rows')
-      .range(offset, offset + pageSize - 1);
+    const { data, error } = await client.rpc('teacher_activity_rows').range(offset, offset + pageSize - 1);
     if (error) throw error;
     const page = data ?? [];
     rows.push(...page);
@@ -79,23 +77,24 @@ async function loadActivityRows(client) {
 export async function loadTeacherActivityData(client, { now = new Date() } = {}) {
   if (shouldUsePreviewFixture()) return previewDashboard(now);
 
-  const [records, { data:occurrences, error:occurrenceError }] = await Promise.all([
+  const [records, occurrenceResult, classResult] = await Promise.all([
     loadActivityRows(client),
     client.from('vocabulary_unit_occurrences')
       .select('occurrence_id, vocabulary_id, unit_number, unit_title, position_in_unit')
-      .eq('status','live')
-      .eq('active',true)
-      .order('unit_number')
-      .order('position_in_unit')
+      .eq('status','live').eq('active',true).order('unit_number').order('position_in_unit'),
+    client.from('classes').select('id, merit_pathways_required')
   ]);
-  if (occurrenceError) throw occurrenceError;
+  if (occurrenceResult.error) throw occurrenceResult.error;
+  if (classResult.error) throw classResult.error;
 
+  const thresholdByClass = new Map((classResult.data ?? []).map(row => [row.id, Number(row.merit_pathways_required) || 2]));
   const rows = records ?? [];
   const students = payloads(rows,'student').map(row => ({
     id:row.student_id,
     displayName:row.display_name,
     classId:row.class_id,
-    className:row.class_name
+    className:row.class_name,
+    meritPathwaysRequired:thresholdByClass.get(row.class_id) ?? 2
   }));
   const globalMastery = payloads(rows,'vocabulary_global_mastery').map(row => ({
     studentId:row.student_id,
@@ -134,7 +133,7 @@ export async function loadTeacherActivityData(client, { now = new Date() } = {})
     meritNumber:Number(row.merit_number),
     awardedAt:row.awarded_at
   }));
-  const normalizedOccurrences = (occurrences ?? []).map(row => ({
+  const normalizedOccurrences = (occurrenceResult.data ?? []).map(row => ({
     occurrenceId:row.occurrence_id,
     vocabularyId:row.vocabulary_id,
     unitNumber:Number(row.unit_number),
