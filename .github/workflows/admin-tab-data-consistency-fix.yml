@@ -1,0 +1,43 @@
+name: Apply admin tab consistency patch
+
+on:
+  push:
+    branches:
+      - fix/admin-tab-data-consistency
+    paths:
+      - .github/workflows/admin-tab-data-consistency-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/admin-tab-data-consistency
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Patch Activity-to-admin tab navigation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('src/app.js')
+          text = p.read_text()
+          old = "else if (['accounts','classes','import'].includes(section)) renderCachedAdminSection(section, { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });"
+          new = "else if (['accounts','classes','import'].includes(section)) await renderAdminSection(section, { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });"
+          if old not in text:
+              raise SystemExit('Expected navigation line not found')
+          p.write_text(text.replace(old, new, 1))
+          PY
+          node --test tests/admin-tab-data-consistency.test.mjs
+      - name: Commit patch and remove one-shot workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/admin-tab-data-consistency-fix.yml
+          git add src/app.js tests/admin-tab-data-consistency.test.mjs
+          git commit -m "fix(admin): load data when switching from activity"
+          git push origin HEAD:fix/admin-tab-data-consistency
