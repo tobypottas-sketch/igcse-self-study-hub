@@ -38,6 +38,10 @@ export async function resetAccountPassword(client, userId) {
   return invokeProvision(client, { action: 'reset_password', userId });
 }
 
+export async function issueClassCredentials(client, classId) {
+  return invokeProvision(client, { action: 'issue_class_credentials', classId });
+}
+
 export async function setAccountActive(client, userId, active) {
   return invokeProvision(client, { action: 'set_active', userId, active });
 }

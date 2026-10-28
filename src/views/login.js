@@ -16,7 +16,7 @@ export function renderLogin(root, message = '') {
             <input name="password" type="password" autocomplete="current-password" required>
           </label>
           <button class="button button--primary" type="submit">Sign in</button>
-          <button class="button button--ghost" type="button" data-action="forgot-password">Forgot password?</button>
+          <p class="muted">Lost your login details? Ask your teacher.</p>
         </form>
       </div>
     </section>`;

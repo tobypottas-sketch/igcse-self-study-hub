@@ -27,6 +27,12 @@ function randomChar(alphabet: string): string {
   return alphabet[bytes[0] % alphabet.length];
 }
 
+function randomIndex(length: number): number {
+  const bytes = new Uint32Array(1);
+  crypto.getRandomValues(bytes);
+  return bytes[0] % length;
+}
+
 function generateTemporaryPassword(): string {
   const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
   const lower = 'abcdefghijkmnopqrstuvwxyz';
@@ -42,6 +48,21 @@ function generateTemporaryPassword(): string {
     [chars[i], chars[j]] = [chars[j], chars[i]];
   }
   return chars.join('');
+}
+
+const studentWords = [
+  'Apple','Beach','Berry','Blue','Breeze','Bridge','Cloud','Coral','Cove','Daisy','Dawn','Dream','Eagle','Ember','Falcon','Fern',
+  'Field','Flame','Forest','Fox','Garden','Gold','Harbor','Hill','Honey','Island','Jade','Lake','Leaf','Lemon','Light','Lion',
+  'Maple','Mango','Meadow','Moon','Nova','Ocean','Olive','Orange','Panda','Pearl','Pine','Plum','Rain','Reef','River','Robin',
+  'Rocket','Rose','Ruby','Sage','Shell','Sky','Snow','Solar','Star','Stone','Storm','Sunny','Tiger','Tulip','Wave','Willow'
+];
+
+function generateStudentPassword(): string {
+  const first = studentWords[randomIndex(studentWords.length)];
+  let second = studentWords[randomIndex(studentWords.length)];
+  while (second === first) second = studentWords[randomIndex(studentWords.length)];
+  const digits = String(10 + randomIndex(90));
+  return `${first}${second}${digits}`;
 }
 
 Deno.serve(async (req: Request) => {
@@ -103,6 +124,51 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ ok:true, userId:input.userId, temporaryPassword });
     }
 
+    if (input.action === 'issue_class_credentials') {
+      const { data:targetClass, error:classError } = await adminClient.from('classes').select('id, active').eq('id', input.classId).single();
+      if (classError || !targetClass?.active) return jsonResponse({ error:'Class is not active' }, { status:400 });
+
+      const { data:memberships, error:membershipError } = await adminClient
+        .from('student_class_memberships')
+        .select('student_id')
+        .eq('class_id', input.classId)
+        .is('ended_at', null);
+      if (membershipError) return jsonResponse({ error:membershipError.message }, { status:400 });
+
+      const studentIds = (memberships ?? []).map(item => item.student_id);
+      if (!studentIds.length) return jsonResponse({ ok:true, created:[], failed:[] });
+
+      const { data:students, error:studentsError } = await adminClient
+        .from('profiles')
+        .select('id, display_name, school_email, role, active')
+        .in('id', studentIds);
+      if (studentsError) return jsonResponse({ error:studentsError.message }, { status:400 });
+
+      const created = [];
+      const failed = [];
+      const issuedPasswords = new Set<string>();
+      for (const student of students ?? []) {
+        if (student.role !== 'student' || !student.active) continue;
+        let password = generateStudentPassword();
+        while (issuedPasswords.has(password)) password = generateStudentPassword();
+        issuedPasswords.add(password);
+
+        const { error:flagError } = await adminClient.from('profiles').update({ must_change_password:false }).eq('id', student.id);
+        if (flagError) {
+          failed.push({ userId:student.id, displayName:student.display_name, email:student.school_email, reason:flagError.message });
+          continue;
+        }
+        const { error:authError } = await adminClient.auth.admin.updateUserById(student.id, { password });
+        if (authError) {
+          await adminClient.from('profiles').update({ must_change_password:true }).eq('id', student.id);
+          failed.push({ userId:student.id, displayName:student.display_name, email:student.school_email, reason:'Unable to set student password.' });
+          continue;
+        }
+        created.push({ userId:student.id, displayName:student.display_name, email:student.school_email, temporaryPassword:password });
+      }
+      return jsonResponse({ ok:failed.length === 0, created, failed });
+    }
+
     if (input.action === 'set_active') {
       const { data:profile, error:updateError } = await adminClient.from('profiles').update({ active:input.active }).eq('id', input.userId).select('id, active').single();
       if (updateError || !profile) return jsonResponse({ error:updateError?.message ?? 'Account not found' }, { status:400 });
@@ -113,7 +179,7 @@ Deno.serve(async (req: Request) => {
       const { data:created, error:createError } = await adminClient.auth.admin.createUser({ email:row.email, password, email_confirm:true, app_metadata:{ role } });
       if (createError || !created.user) return { error:safeAuthAccountError(createError) };
       const userId = created.user.id;
-      const { error:insertProfileError } = await adminClient.from('profiles').insert({ id:userId, role, display_name:row.displayName, school_email:row.email, active:true, must_change_password:true });
+      const { error:insertProfileError } = await adminClient.from('profiles').insert({ id:userId, role, display_name:row.displayName, school_email:row.email, active:true, must_change_password:role === 'teacher' });
       let membershipError = null;
       if (!insertProfileError && role === 'student') {
         const membership = await adminClient.from('student_class_memberships').insert({ student_id:userId, class_id:classId, changed_by:callerData.user.id });
@@ -142,8 +208,8 @@ Deno.serve(async (req: Request) => {
       for (const row of input.rows) {
         if ((frequencies.get(row.email) ?? 0) > 1) { failed.push({ ...row, reason:'Duplicate email in batch.' }); continue; }
         if (existingEmails.has(row.email)) { failed.push({ ...row, reason:'Email already exists.' }); continue; }
-        let temporaryPassword = generateTemporaryPassword();
-        while (issuedPasswords.has(temporaryPassword)) temporaryPassword = generateTemporaryPassword();
+        let temporaryPassword = generateStudentPassword();
+        while (issuedPasswords.has(temporaryPassword)) temporaryPassword = generateStudentPassword();
         issuedPasswords.add(temporaryPassword);
         const result = await provisionOne(row, input.classId, 'student', temporaryPassword);
         if ('error' in result) failed.push({ ...row, reason:result.error });
@@ -157,7 +223,7 @@ Deno.serve(async (req: Request) => {
       if (classError || !targetClass?.active) return jsonResponse({ error:'Class is not active' }, { status:400 });
     }
 
-    const temporaryPassword = generateTemporaryPassword();
+    const temporaryPassword = input.role === 'student' ? generateStudentPassword() : generateTemporaryPassword();
     const result = await provisionOne({ displayName:input.displayName, email:input.email }, input.classId, input.role, temporaryPassword);
     if ('error' in result) return jsonResponse({ error:result.error }, { status:400 });
     return jsonResponse({ ok:true, userId:result.userId, role:input.role, temporaryPassword });
