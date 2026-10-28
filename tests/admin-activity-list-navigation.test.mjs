@@ -51,8 +51,8 @@ test('Student Activity groups students by class and then sorts names within each
 
   const names = [...root.innerHTML.matchAll(/data-action="activity-student"[^>]*>([^<]+)<\/button>/g)].map(match => match[1]);
   assert.deepEqual(names, [
-    'Zixuan Catherine Liu',
     'Youran Yura Jiang',
+    'Zixuan Catherine Liu',
     'Jingqi Qiora ZHANG',
     'Yue Yuliana LIU',
     'Haoxuan Cason ZHANG'
