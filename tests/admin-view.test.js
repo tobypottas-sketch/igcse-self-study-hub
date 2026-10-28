@@ -41,6 +41,23 @@ test('accounts section renders manual create forms and lifecycle controls', () =
   assert.doesNotMatch(target.innerHTML, /<script>x<\/script>/);
 });
 
+test('staff directory presents teachers as Teacher / Admin and admins as Admin', () => {
+  const target = root();
+  renderAdmin(target, {
+    profile:{ display_name:'Synthetic Admin', role:'admin' },
+    section:'accounts',
+    classes:[],
+    accounts:[
+      { id:'teacher-1', displayName:'Synthetic Teacher', email:'teacher@example.test', role:'teacher', active:true, assignedClasses:[] }
+    ],
+    teachingAdmins:[
+      { id:'admin-1', displayName:'Synthetic Admin', email:'admin@example.test', role:'admin', active:true, assignedClasses:[] }
+    ]
+  });
+  assert.match(target.innerHTML, /<td>Teacher \/ Admin<\/td>/);
+  assert.match(target.innerHTML, /<td>Admin<\/td>/);
+});
+
 test('accounts section shows a one-time credential without persisting it into navigation controls', () => {
   const target = root();
   renderAdmin(target, {
