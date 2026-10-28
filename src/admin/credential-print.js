@@ -2,27 +2,28 @@ import { getSupabaseClient } from '../supabase.js';
 import { issueClassCredentials } from './accounts.js';
 import { escapeHtml } from '../views/html.js';
 
-function hubUrl() {
-  if (typeof window === 'undefined') return '';
-  return `${window.location.origin}${window.location.pathname}`;
+function loginCardMarkup({ displayName = 'Student', email = '', temporaryPassword = '' } = {}) {
+  return `
+    <article class="student-login-card">
+      <div class="student-login-card__topline">
+        <p class="student-login-card__brand">iGCSE Self-Study Hub</p>
+        <span class="student-login-card__tag">Student login</span>
+      </div>
+      <h3>${escapeHtml(displayName)}</h3>
+      <dl>
+        <div><dt>Email</dt><dd>${escapeHtml(email)}</dd></div>
+        <div class="student-login-card__password-row"><dt>Password</dt><dd class="student-login-card__password">${escapeHtml(temporaryPassword)}</dd></div>
+      </dl>
+      <p class="student-login-card__instruction">Keep this card safe. Use these details whenever you sign in.</p>
+    </article>`;
 }
 
-export function renderLoginCards(credentials = [], className = '', url = '', failed = []) {
-  const rows = credentials.map(row => `
-    <article class="student-login-card">
-      <p class="student-login-card__brand">iGCSE Self-Study Hub</p>
-      <h3>${escapeHtml(row.displayName ?? 'Student')}</h3>
-      <dl>
-        <div><dt>Email</dt><dd>${escapeHtml(row.email ?? '')}</dd></div>
-        <div><dt>Password</dt><dd class="student-login-card__password">${escapeHtml(row.temporaryPassword ?? '')}</dd></div>
-        <div><dt>Website</dt><dd>${escapeHtml(url)}</dd></div>
-      </dl>
-      <p class="student-login-card__instruction">Sign in with the details above. Keep this card safe.</p>
-    </article>`).join('');
+export function renderLoginCards(credentials = [], className = '', _url = '', failed = []) {
+  const rows = credentials.map(row => loginCardMarkup(row)).join('');
   const failures = failed.length ? `<aside class="admin-import-errors student-login-failures" data-credential-failures><h3>${credentials.length} login card${credentials.length === 1 ? '' : 's'} created; ${failed.length} student${failed.length === 1 ? '' : 's'} failed</h3><p>Do not assume the pack is complete. These students did not receive a new password:</p><ul>${failed.map(row => `<li><strong>${escapeHtml(row.displayName || row.email || 'Student')}</strong> — ${escapeHtml(row.reason || 'Credential update failed.')}</li>`).join('')}</ul></aside>` : '';
   return `${failures}<section class="admin-credential-sheet student-login-sheet" data-credential-sheet data-generated-login-sheet>
     <div class="admin-list-header student-login-sheet__screen-head">
-      <div><p class="eyebrow">Class login cards</p><h2>${escapeHtml(className || 'Student logins')}</h2><p class="muted">Save or print this master sheet now. These passwords cannot be recovered from the app later.</p></div>
+      <div><p class="eyebrow">Class login cards</p><h2>${escapeHtml(className || 'Student logins')}</h2><p class="muted">Print this master sheet and cut along the card edges. Save a copy somewhere secure.</p></div>
       <div class="admin-actions"><button class="button admin-button" data-action="admin-print-credentials">Print class login cards</button></div>
     </div>
     <div class="student-login-grid">${rows}</div>
@@ -42,20 +43,12 @@ function enhanceExistingCredentialSheet(sheet) {
   const table = sheet.querySelector?.('table');
   if (!table) return;
   table.classList.add('student-login-table');
-  const url = hubUrl();
   for (const row of table.querySelectorAll?.('tbody tr') ?? []) {
     row.classList.add('student-login-card-row');
     const cells = row.querySelectorAll?.('td') ?? [];
     if (cells[0]) cells[0].dataset.label = 'Student';
     if (cells[1]) cells[1].dataset.label = 'Email';
     if (cells[2]) cells[2].dataset.label = 'Password';
-    if (!row.querySelector?.('.student-login-card-url')) {
-      const cell = row.ownerDocument.createElement('td');
-      cell.className = 'student-login-card-url';
-      cell.dataset.label = 'Website';
-      cell.textContent = url;
-      row.append(cell);
-    }
   }
 }
 
@@ -78,6 +71,51 @@ function enhanceClassCards(root) {
 function enhance(root) {
   for (const sheet of root.querySelectorAll?.('[data-credential-sheet]') ?? []) enhanceExistingCredentialSheet(sheet);
   enhanceClassCards(root);
+}
+
+function cardsFromSheet(sheet) {
+  const cards = [...(sheet?.querySelectorAll?.('.student-login-card') ?? [])];
+  if (cards.length) return cards.map(card => card.cloneNode(true));
+
+  return [...(sheet?.querySelectorAll?.('.student-login-table tbody tr') ?? [])].map(row => {
+    const cells = row.querySelectorAll?.('td') ?? [];
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = loginCardMarkup({
+      displayName:cells[0]?.textContent?.trim() ?? 'Student',
+      email:cells[1]?.textContent?.trim() ?? '',
+      temporaryPassword:cells[2]?.textContent?.trim() ?? ''
+    });
+    return wrapper.firstElementChild;
+  }).filter(Boolean);
+}
+
+function buildPrintRoot(sheet) {
+  const cards = cardsFromSheet(sheet);
+  if (!cards.length) return null;
+
+  const printRoot = document.createElement('div');
+  printRoot.className = 'credential-print-root';
+
+  for (let start = 0; start < cards.length; start += 8) {
+    const page = document.createElement('section');
+    page.className = 'student-login-page';
+    for (const card of cards.slice(start, start + 8)) page.append(card.cloneNode(true));
+    printRoot.append(page);
+  }
+  return printRoot;
+}
+
+function printCredentialSheet(target) {
+  const sheet = target?.closest?.('[data-credential-sheet]') ?? document.querySelector?.('[data-credential-sheet]');
+  if (!sheet || typeof globalThis.print !== 'function') return;
+  const printRoot = buildPrintRoot(sheet);
+  if (!printRoot) return;
+  document.body.append(printRoot);
+  try {
+    globalThis.print();
+  } finally {
+    printRoot.remove();
+  }
 }
 
 async function issueForClass(target) {
@@ -104,7 +142,7 @@ async function issueForClass(target) {
       panel.prepend(notice);
       return;
     }
-    panel.insertAdjacentHTML('afterbegin', renderLoginCards(created, className, hubUrl(), failed));
+    panel.insertAdjacentHTML('afterbegin', renderLoginCards(created, className, '', failed));
     const sheet = panel.querySelector?.('[data-generated-login-sheet]');
     sheet?.scrollIntoView?.({ block:'start', behavior:'smooth' });
   } catch (error) {
@@ -129,8 +167,14 @@ export function startCredentialPrintEnhancements() {
   observer?.observe(root, { childList:true, subtree:true });
   document.addEventListener('click', event => {
     const target = event.target?.closest?.('[data-action]');
+    if (target?.dataset?.action === 'admin-print-credentials') {
+      event.preventDefault();
+      event.stopPropagation();
+      printCredentialSheet(target);
+      return;
+    }
     if (target?.dataset?.action === 'admin-issue-class-credentials') issueForClass(target);
-  });
+  }, true);
 }
 
 startCredentialPrintEnhancements();
