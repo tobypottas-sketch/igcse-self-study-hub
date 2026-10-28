@@ -10,6 +10,7 @@ test('login cards contain only student identity and login credentials', () => {
   assert.match(js, /Password/);
   assert.doesNotMatch(js, /Website/);
   assert.doesNotMatch(js, /Keep this card safe/);
+  assert.doesNotMatch(js, /Student login/);
 });
 
 test('login cards live in a closable modal that is also the print source', () => {
