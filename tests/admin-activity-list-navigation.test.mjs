@@ -37,6 +37,28 @@ test('Student Activity renders every student instead of capping the class list',
   assert.match(root.innerHTML, /Synthetic Student 18/);
 });
 
+test('Student Activity groups students by class and then sorts names within each class', () => {
+  const root = { innerHTML:'' };
+  const students = [
+    { ...student(1), displayName:'Yue Yuliana LIU', classId:'class-10', className:'10 ESL 5' },
+    { ...student(2), displayName:'Zixuan Catherine Liu', classId:'class-9', className:'9 ESL 4' },
+    { ...student(3), displayName:'Haoxuan Cason ZHANG', classId:'class-11', className:'11 ESL 2' },
+    { ...student(4), displayName:'Youran Yura Jiang', classId:'class-9', className:'9 ESL 4' },
+    { ...student(5), displayName:'Jingqi Qiora ZHANG', classId:'class-10', className:'10 ESL 5' }
+  ];
+
+  renderAdmin(root, model(students));
+
+  const names = [...root.innerHTML.matchAll(/data-action="activity-student"[^>]*>([^<]+)<\/button>/g)].map(match => match[1]);
+  assert.deepEqual(names, [
+    'Zixuan Catherine Liu',
+    'Youran Yura Jiang',
+    'Jingqi Qiora ZHANG',
+    'Yue Yuliana LIU',
+    'Haoxuan Cason ZHANG'
+  ]);
+});
+
 test('opening a student Activity profile resets the page to the top', () => {
   const scrollCalls = [];
   const root = {
