@@ -321,8 +321,9 @@ async function startPathwaySession(pathwayId, continueHistory = false, choice = 
   // A mission that has just finished is settled on the server before the next step is read, so Continue can never start the old step again.
   // Set membership does not depend on the settling mission or the Set rows, so its read runs alongside them (and is usually already cached).
   const membersPromise = state.preview ? null : setMembersFor(state.currentUnitNumber);
-  await state.settling;
-  if (!state.preview) await refreshSetRows();
+  const settled = await state.settling;
+  // A waiting Continue can use the read settlement just completed. Failed reads and later launches still refresh.
+  if (!state.preview && (settled?.unitNumber !== state.currentUnitNumber || settled?.setRows !== state.setRows)) await refreshSetRows();
   // A locked pathway (no Sets) can never start a session, whatever asked for it.
   const step = pathwayStep(pathwayId);
   if (!step.available) throw new Error('That pathway is coming soon for this unit.');
@@ -808,13 +809,18 @@ function finishSession() {
 async function settleMission(missionId, { finishModel = null, setContext = null, finished = null, summaryArgs = null } = {}) {
   // Settlement never depends on the screen: the Set must advance even if the results screen has been left or has no engagement slot.
   let slot = root?.querySelector?.('[data-engagement-slot]') ?? null;
+  const unitNumber = state.currentUnitNumber;
+  let refreshed = null;
   const row = await recordVocabularyMission(state.client, missionId);
   if (row && state.missionSlot) clearMission(state.userKey, state.missionSlot);
   // The server has now applied (or refused) the mission to the Set. Read the authoritative state; if it disagrees with the projection the
   // screen was painted from, the screen is repainted from the server's state before anything else is added to it.
   let shownModel = finishModel;
   if (row && setContext) {
-    try { await refreshSetRows(); } catch { /* the next start re-reads the server state */ }
+    try {
+      await refreshSetRows();
+      if (unitNumber === state.currentUnitNumber) refreshed = { unitNumber, setRows:state.setRows };
+    } catch { /* the next start re-reads the server state */ }
     const settled = serverSetProjection(setContext);
     if (settled && !sameProjection(settled, setContext.projection) && slot && root?.contains?.(slot)) {
       shownModel = finishModelForSet(setContext, finished, settled);
@@ -823,7 +829,7 @@ async function settleMission(missionId, { finishModel = null, setContext = null,
       root.querySelector?.('[data-session-finish-heading]')?.focus?.();
     }
   }
-  if (!slot || !root?.contains?.(slot)) return;
+  if (!slot || !root?.contains?.(slot)) return refreshed;
   if (!row) { slot.remove(); return; }
   state.missions = [...(state.missions ?? []).filter(existing => existing.mission_id !== row.mission_id), row];
   const evaluation = evaluateMission(state.missions, row.mission_id);
@@ -833,9 +839,10 @@ async function settleMission(missionId, { finishModel = null, setContext = null,
   const unlocked = newAchievements(after.list, state.userKey);
   markAchievementsSeen(after.list, state.userKey);
   const info = describeEngagement(evaluation, challenge, { xpGained:Math.max(0, after.xp.total - before.xp.total), level:after.xp.level, levelUp:after.xp.level > before.xp.level, unlocked });
-  if (!info) { slot.remove(); return; }
+  if (!info) { slot.remove(); return refreshed; }
   slot.innerHTML = renderEngagementStrip(info);
   slot.dataset.engagement = 'ready'; slot.dataset.personalBest = String(info.isPersonalBest); slot.removeAttribute('aria-busy');
+  return refreshed;
 }
 // The Set the mission was played in, as the server now holds it, in the same shape projectSettlement() returns.
 function serverSetProjection(context) {
