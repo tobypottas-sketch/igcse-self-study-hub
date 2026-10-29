@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {serve,findChromium,loadPlaywright} from './pathway-geometry-harness.mjs';
 import {FAKE_SUPABASE,installRoutes} from './question-latency-harness.mjs';
 const root=fileURLToPath(new URL('../..',import.meta.url));
-export async function profileNavigation({ cpu=1,net=40 }={}) {
+export async function profileNavigation({ cpu=1,net=40,continueOnly=false }={}) {
 const {chromium}=loadPlaywright();
 
 const {server,origin}=await serve(root);const browser=await chromium.launch({executablePath:await findChromium()});
@@ -23,7 +23,7 @@ const originalRun=run;run=q=>q.table==='vocabulary_pathway_sets'?{data:[{pathway
 function rpc(name,args){return netCall('rpc:'+name,()=>{
 if(name==='current_merit_pathways_required')return {data:2,error:null};
 if(name==='start_vocabulary_mission'){missionNumber++;return {data:{mission_id:'synthetic-'+missionNumber,mission_seed:'synthetic-seed-'+missionNumber,pathway_stage:stage,set_number:1,set_phase:'stage',weak_target_ids:[]},error:null};}
-if(name==='record_vocabulary_mission'){stage='match';return {data:{mission_id:args.p_mission_id,unit_number:1,mission_kind:'pathway',pathway_id:'context',pathway_stage:'recognise',mission_size:10,score:10,stars:3,best_streak:10,completed_at:new Date().toISOString()},error:null};}
+if(name==='record_vocabulary_mission'||name==='record_vocabulary_mission_with_sets'){stage='match';return {data:{...(name==='record_vocabulary_mission_with_sets'?{pathway_sets:run({table:'vocabulary_pathway_sets'}).data}:{}),mission_id:args.p_mission_id,unit_number:1,mission_kind:'pathway',pathway_id:'context',pathway_stage:'recognise',mission_size:10,score:10,stars:3,best_streak:10,completed_at:new Date().toISOString()},error:null};}
 return {data:null,error:{message:'Unsupported synthetic RPC'}};});}
 `;
 await page.route('**/src/supabase.js',r=>r.fulfill({contentType:'text/javascript',body:fixture}));
@@ -32,13 +32,14 @@ let body=await readFile(`${root}/src/vocabulary/${file}`,'utf8');for(const name 
 await page.route(`**/src/vocabulary/${file}`,r=>r.fulfill({contentType:'text/javascript',body}));}
 await page.goto(origin+'/vocabulary.html');await page.locator('.vocab-unit-card').waitFor();await page.waitForTimeout(100);
 await (await page.context().newCDPSession(page)).send('Emulation.setCPUThrottlingRate',{rate:cpu});
-await page.evaluate(ms=>{window.__netMs=ms;window.__attemptMs=ms;},net);
+await page.evaluate(ms=>{window.__netMs=ms;window.__attemptMs=ms;},continueOnly?0:net);
 const results=[];
 async function measure(name,selector,end){const start=await page.evaluate(sel=>{const t=performance.now();document.querySelector(sel).click();return t;},selector);await page.waitForFunction(end,{},{timeout:45000});await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));const data=await page.evaluate(t=>({ms:performance.now()-t,spans:window.__spans.filter(x=>x.start>=t||x.end==null||x.end>=t).map(x=>({...x,start:x.start-t,end:x.end==null?null:x.end-t})),calls:window.__calls.filter(x=>x.start>=t||x.end==null||x.end>=t).map(x=>({...x,start:x.start-t,end:x.end==null?null:x.end-t})),longTasks:window.__cpuTasks.filter(x=>x.start>=t)}),start);results.push({name,...data});}
 await measure('unit-open','.vocab-unit-card[data-unit="1"]',()=>Boolean(document.querySelector('.vocab-pathway-card')));
 await measure('pathway-sheet','[data-action="open-pathway"][data-pathway="context"]',()=>Boolean(document.querySelector('[data-practice-sheet]')));
 await measure('mission-start','[data-action="start-recommended"]',()=>Boolean(document.querySelector('.vocab-shell--session [data-choice-answer]')));
 for(let i=0;i<10;i++){
+if(continueOnly && i===9) await page.evaluate(ms=>{window.__netMs=ms;window.__attemptMs=ms;},net);
 await page.evaluate(()=>{const q=window.__currentQuestion;const accepted=q.markingReference.acceptedAnswers;const button=[...document.querySelectorAll('[data-choice-answer]')].find(b=>accepted.includes(b.dataset.choiceAnswer));if(!button)throw new Error('no answer '+q.type);button.click();});
 // Human-paced earlier answers: do not manufacture a queue of ten unsaved answers.
 if(i<9){await page.waitForFunction(()=>window.__calls.filter(c=>c.name==='invoke:vocabulary-attempt-action').every(c=>c.end!=null));await measure('next-'+i,'[data-action="next-question"]',()=>!document.querySelector('.vocab-feedback'));}

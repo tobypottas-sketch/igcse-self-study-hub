@@ -7,11 +7,11 @@ function deferred() {
   const promise = new Promise(done => { resolve = done; });
   return { promise, resolve };
 }
-async function finishedMission() {
+async function finishedMission({ bundled = false } = {}) {
   const gate = deferred();
   const h = harness({ pathwayId:'context', stage:'recognise', size:10, setServer:true, userKey:'synthetic-continue-latency' });
   const record = h.server.record;
-  h.server.record = async (...args) => { await gate.promise; return record(...args); };
+  h.server.record = async (...args) => { await gate.promise; const row = record(...args); return bundled && row ? { ...row, unit_number:1, pathway_sets:h.server.rows() } : row; };
   await h.run("startPathwaySession('context')");
   for (let guard = 0; guard < 30 && h.state.current; guard += 1) {
     h.run(`handleAnswer(null,${JSON.stringify(correctAnswer(h))})`);
@@ -69,4 +69,14 @@ test('Continue does not reuse a settlement snapshot replaced by intervening navi
   gate.resolve(); await next;
   assert.equal(h.run('reads'),2,'a different snapshot must be refreshed before launch');
   assert.equal(h.state.pathwayStage,'match');
+});
+
+// The bundled values are returned by the recording RPC after the real server model settles the mission.
+test('a bundled post-settlement response removes the intermediate Set request from Continue', async () => {
+  const { h,gate } = await finishedMission({ bundled:true });
+  const next = h.run('continuePractice()');
+  gate.resolve(); await next;
+  assert.equal(h.run('reads'),0,'authoritative rows from the response need no second server read');
+  assert.equal(h.state.pathwayStage,'match');
+  assert.equal(h.state.setStep.setNumber,1);
 });
