@@ -29,7 +29,8 @@ test('the Set-members read is started alongside, never after, the Set refresh at
 
 test('the launch guard and Stage Contract validation are still in the launch', () => {
   const launch = app.match(/async function startPathwaySession\([^)]*\) \{([\s\S]*?)\n\}\n/)?.[1] ?? '';
-  assert.match(launch, /await state\.settling;\s*\n\s*if \(!state\.preview\) await refreshSetRows\(\)/, 'the Set rows are re-read after settling, before validating');
+  assert.match(launch, /const settled = await state\.settling;/, 'settlement is awaited before validating');
+  assert.match(launch, /if \(!state\.preview && \(settled\?\.unitNumber !== state\.currentUnitNumber \|\| settled\?\.setRows !== state\.setRows\)\) await refreshSetRows\(\)/, 'only a successful unchanged Set snapshot from this settlement replaces a fresh read');
   assert.match(launch, /if \(step\.phase === 'stage' && !family\.stageIds\.includes\(step\.stage\)\) throw notOffered/);
   assert.match(launch, /planPathwayQuestion\(\{ pathwayId, stageId:step\.stage/);
   assert.match(launch, /compareSetMembership\(/);
