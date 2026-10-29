@@ -52,7 +52,9 @@ async function refresh() {
   if (!nodes.length) return;
   const copy = await loadCopy();
   if (!copy) return;
-  for (const node of nodes) node.textContent = copy;
+  // This module observes child-list mutations. Replacing an unchanged text node would create another
+  // child-list mutation and immediately schedule refresh() again, trapping the browser in a microtask loop.
+  for (const node of nodes) if (node.textContent !== copy) node.textContent = copy;
 }
 
 const observer = new MutationObserver(() => { void refresh(); });
