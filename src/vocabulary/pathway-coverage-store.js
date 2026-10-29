@@ -26,7 +26,8 @@ export function coverageServes(unitNumber, pathwayId, occurrenceId) {
   const coverage = unitNumber == null ? null : registeredPathwayCoverage(unitNumber)?.[pathwayId] ?? null;
   if (!coverage) return true;
   if (coverage.available === false) return false;
-  return new Set((coverage.occurrenceIds ?? []).map(String)).has(String(occurrenceId));
+  if (new Set((coverage.occurrenceIds ?? []).map(String)).has(String(occurrenceId))) return true;
+  return typeof coverage.canServeOccurrence === 'function' ? coverage.canServeOccurrence(String(occurrenceId)) : false;
 }
 
 // Can any live pathway serve this word? Mixed Practice only uses words for which one can.

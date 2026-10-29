@@ -44,6 +44,7 @@ test('unit content and mastery loaders reuse preloaded dashboard occurrences ins
       if (name === 'vocabulary_unit_occurrences') throw new Error('preloaded occurrences should eliminate this query');
       if (name === 'vocabulary_items') return queryResult([permit]);
       if (name === 'vocabulary_contexts') return queryResult(contexts.map(row => ({ context_id:row.contextId, vocabulary_id:row.vocabularyId, occurrence_id:row.occurrenceId, sense_id:row.senseId, context_type:row.type, prompt_text:row.text, accepted_answers:row.acceptedAnswers, status:'live' })));
+      if (name === 'vocabulary_set_members') return queryResult([]);
       if (name === 'vocabulary_unit_activities') return queryResult([]);
       if (name === 'vocabulary_global_mastery') return queryResult([]);
       if (name === 'vocabulary_unit_mastery') return queryResult([]);
@@ -57,6 +58,7 @@ test('unit content and mastery loaders reuse preloaded dashboard occurrences ins
   assert.equal(unit.occurrences.length, 1);
   assert.deepEqual(mastery, { global:[], unit:[] });
   assert.equal(calls.includes('vocabulary_unit_occurrences'), false);
+  assert.equal(calls.filter(name => name === 'vocabulary_set_members').length, 1);
 });
 
 test('dashboard occurrence payload includes sense_id so opening a unit can reuse it immediately', () => {

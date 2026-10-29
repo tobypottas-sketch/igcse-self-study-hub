@@ -4,6 +4,7 @@
 // (page.route) only to record a timeline; production source is not modified.
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { publishedVocabularyMembers } from './published-vocabulary-members.mjs';
 import { findChromium, loadPlaywright, serve } from './pathway-geometry-harness.mjs';
 
 export const FAKE_SUPABASE = `
@@ -39,8 +40,8 @@ function fakeMastery(table) {
   return null;
 }
 function run(q) {
-  // Set membership is not modelled in this fake: an unreadable table is the documented 'unknown' path (the server still enforces membership).
-  if (q.table === 'vocabulary_set_members') return { data:null, error:{ message:'membership not modelled by this fake' } };
+  // The fake server holds published membership independently of this student's progression rows.
+  if (q.table === 'vocabulary_set_members') return { data:${JSON.stringify(publishedVocabularyMembers)}, error:null };
   const sets = fakeSets(q.table); if (sets) return { data:sets, error:null };
   const mastery = fakeMastery(q.table); if (mastery) return { data:mastery, error:null };
   if (q.table === 'profiles') return { data:{ id:'u1', role:'student', display_name:'Sam', active:true }, error:null };
