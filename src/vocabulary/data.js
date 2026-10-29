@@ -1,5 +1,5 @@
-import { buildPathwayCoverage } from './pathway-coverage.js';
 import { registerPathwayCoverage } from './pathway-coverage-store.js';
+import { VOCABULARY_PATHWAYS } from './pathway-model.js';
 import { PAGE_SIZE, fetchAllRows } from './teacher-paging.js';
 
 function assertNoError(result, message) {
@@ -63,6 +63,35 @@ export function plannerContent({ occurrences = [], items = [], contexts = [], ac
   return content;
 }
 
+// Student runtime does not need to re-run the authoring/readiness evaluator. Published Set membership is already the server-held
+// release decision and is the same authority the mission guard checks. Build the light-weight coverage shape the student UI needs
+// directly from those rows. Pathways with no published Set are explicitly unavailable so missing coverage can never unlock everything.
+export function coverageFromServerSetMembers(rows = [], occurrences = []) {
+  const totalOccurrences = Array.isArray(occurrences) ? occurrences.length : 0;
+  const authored = new Set((occurrences ?? []).map(row => String(row?.occurrence_id ?? row?.occurrenceId ?? '')).filter(Boolean));
+  const grouped = new Map(VOCABULARY_PATHWAYS.map(pathway => [pathway.id, []]));
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const pathwayId = String(row?.pathway_id ?? '');
+    const occurrenceId = String(row?.occurrence_id ?? '');
+    if (!grouped.has(pathwayId) || !occurrenceId || (authored.size && !authored.has(occurrenceId))) continue;
+    grouped.get(pathwayId).push(row);
+  }
+  return Object.fromEntries(VOCABULARY_PATHWAYS.map(pathway => {
+    const pathwayRows = grouped.get(pathway.id).slice().sort((a,b) => Number(a.set_number) - Number(b.set_number) || Number(a.position) - Number(b.position));
+    const occurrenceIds = [...new Set(pathwayRows.map(row => String(row.occurrence_id)).filter(Boolean))];
+    const setCount = new Set(pathwayRows.map(row => Number(row.set_number)).filter(Number.isFinite)).size;
+    const available = setCount > 0 && occurrenceIds.length >= 10;
+    return [pathway.id, {
+      available,
+      occurrenceIds:available ? occurrenceIds : [],
+      totalOccurrences,
+      setCount:available ? setCount : 0,
+      heldBackOccurrenceIds:[],
+      reason:available ? null : 'no_published_sets'
+    }];
+  }));
+}
+
 export async function loadVocabularyDashboard(client, options = {}) {
   const occurrencesResult = await client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number, unit_title, set_number, position_in_unit, sense_id, status').eq('status','live').eq('active',true).order('unit_number').order('position_in_unit');
   const occurrences = assertNoError(occurrencesResult, 'Unable to load vocabulary units.');
@@ -82,16 +111,17 @@ export async function loadVocabularyUnit(client, unitNumber, options = {}) {
   );
   const vocabularyIds = [...new Set(occurrences.map(row => row.vocabulary_id))];
   const occurrenceIds = occurrences.map(row => row.occurrence_id);
-  const [itemsResult, contextsResult, activitiesResult] = await Promise.all([
+  const [itemsResult, contextsResult, activitiesResult, setMembersResult] = await Promise.all([
     client.from('vocabulary_items').select('vocabulary_id, term, part_of_speech, core_meaning, senses, word_family, collocations, status').in('vocabulary_id', vocabularyIds).eq('status', 'live'),
     client.from('vocabulary_contexts').select('context_id, vocabulary_id, occurrence_id, sense_id, context_type, prompt_text, target_rewrite, accepted_answers, misconception_category, status').in('occurrence_id', occurrenceIds).eq('status', 'live'),
-    client.from('vocabulary_unit_activities').select('activity_content_id, unit_number, content_type, activity_data, status').eq('unit_number', unitNumber).eq('status', 'live')
+    client.from('vocabulary_unit_activities').select('activity_content_id, unit_number, content_type, activity_data, status').eq('unit_number', unitNumber).eq('status', 'live'),
+    client.from('vocabulary_set_members').select('pathway_id, set_number, position, occurrence_id').eq('unit_number', unitNumber).order('pathway_id').order('set_number').order('position')
   ]);
   const items = await completeRows(assertNoError(itemsResult, 'Unable to load vocabulary items.'), () => client.from('vocabulary_items').select('vocabulary_id, term, part_of_speech, core_meaning, senses, word_family, collocations, status', { count:'exact' }).in('vocabulary_id', vocabularyIds).eq('status', 'live').order('vocabulary_id'), 'vocabulary items');
   const contexts = await completeRows(assertNoError(contextsResult, 'Unable to load vocabulary contexts.'), () => client.from('vocabulary_contexts').select('context_id, vocabulary_id, occurrence_id, sense_id, context_type, prompt_text, target_rewrite, accepted_answers, misconception_category, status', { count:'exact' }).in('occurrence_id', occurrenceIds).eq('status', 'live').order('context_id'), 'vocabulary contexts');
   const activities = await completeRows(assertNoError(activitiesResult, 'Unable to load vocabulary activities.'), () => client.from('vocabulary_unit_activities').select('activity_content_id, unit_number, content_type, activity_data, status', { count:'exact' }).eq('unit_number', unitNumber).eq('status', 'live').order('activity_content_id'), 'vocabulary activities');
-  const coverage = buildPathwayCoverage({ content:plannerContent({ occurrences, items, contexts, activities }) });
-  registerPathwayCoverage(unitNumber, coverage);
+  const setMembers = assertNoError(setMembersResult, 'Unable to load vocabulary pathways.');
+  registerPathwayCoverage(unitNumber, coverageFromServerSetMembers(setMembers, occurrences));
   return { occurrences, items, contexts, activities };
 }
 
