@@ -33,7 +33,7 @@ function run(q) {
 function rpc(name, args) {
   return netCall('rpc:' + name, () => {
     if (name === 'start_vocabulary_mission') { __missionCounter += 1; return { data:{ mission_id:'mission-' + __missionCounter, mission_seed:'seed-' + __missionCounter, resumed:false, started_at:new Date().toISOString(), pathway_stage:args.p_pathway_stage, set_number:1, set_phase:'stage', weak_target_ids:[] }, error:null }; }
-    return { data:{ ok:true }, error:null };
+    return { data:null, error:{ message:'RPC not modelled by the activity-entry fixture' } };
   });
 }
 `;

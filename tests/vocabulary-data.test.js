@@ -21,6 +21,7 @@ test('student vocabulary data adapter loads live content and mastery without wri
       if (name === 'vocabulary_unit_occurrences') return queryResult([{ occurrence_id:'u1_1', vocabulary_id:'v1', unit_number:1, status:'live' }]);
       if (name === 'vocabulary_items') return queryResult([{ vocabulary_id:'v1', term:'leisure', status:'live' }]);
       if (name === 'vocabulary_contexts') return queryResult([{ context_id:'c1', occurrence_id:'u1_1', status:'live' }]);
+      if (name === 'vocabulary_set_members') return queryResult([]);
       if (name === 'vocabulary_unit_activities') return queryResult([{ activity_content_id:'a1', unit_number:1, status:'live' }]);
       if (name === 'vocabulary_global_mastery') return queryResult([{ vocabulary_id:'v1', status:'building' }]);
       if (name === 'vocabulary_unit_mastery') return queryResult([{ occurrence_id:'u1_1', status:'building' }]);
@@ -36,6 +37,7 @@ test('student vocabulary data adapter loads live content and mastery without wri
   assert.equal(mastery.global.length, 1);
   assert.equal(mastery.unit.length, 1);
   assert.ok(calls.includes('vocabulary_global_mastery'));
+  assert.equal(calls.filter(name => name === 'vocabulary_set_members').length, 1);
 });
 
 test('legacy context attempt submission invokes Edge Function and never supplies a student identity field', async () => {

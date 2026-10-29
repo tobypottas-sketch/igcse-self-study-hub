@@ -1,3 +1,5 @@
+import { publishedVocabularyMembers } from './helpers/published-vocabulary-members.mjs';
+
 // Network boundary fixture: real router, controller, renderer, planner and marking run in-browser.
 export async function mockVocabularyStudent(page, saveMode = 'success') {
   await page.route('**/src/supabase.js', route => route.fulfill({ contentType:'text/javascript', body:`
@@ -12,6 +14,7 @@ export async function mockVocabularyStudent(page, saveMode = 'success') {
       vocabulary_items:unit.items.map(snake),
       vocabulary_contexts:unit.contexts.map(row => ({ ...snake(row), context_type:row.type, prompt_text:row.text })),
       vocabulary_unit_activities:unit.activities.filter(row => ${JSON.stringify(saveMode)} !== 'unpublished' || !row.activityContentId.startsWith('language-bank:')).map(snake),
+      vocabulary_set_members:${JSON.stringify(publishedVocabularyMembers)},
       vocabulary_global_mastery:[], vocabulary_unit_mastery:[]
     };
     window.vocabularyAttempts = [];

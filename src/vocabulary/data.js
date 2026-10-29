@@ -1,5 +1,7 @@
 import { registerPathwayCoverage } from './pathway-coverage-store.js';
-import { VOCABULARY_PATHWAYS } from './pathway-model.js';
+import { VOCABULARY_PATHWAYS, PATHWAY_STAGES } from './pathway-model.js';
+import { evaluateTargetForPathwayStage } from './pathway-planner.js';
+import { withContentMemo } from './session-targets.js';
 import { PAGE_SIZE, fetchAllRows } from './teacher-paging.js';
 
 function assertNoError(result, message) {
@@ -73,7 +75,7 @@ export function coverageFromServerSetMembers(rows = [], occurrences = []) {
   for (const row of Array.isArray(rows) ? rows : []) {
     const pathwayId = String(row?.pathway_id ?? '');
     const occurrenceId = String(row?.occurrence_id ?? '');
-    if (!grouped.has(pathwayId) || !occurrenceId || (authored.size && !authored.has(occurrenceId))) continue;
+    if (!grouped.has(pathwayId) || !authored.has(occurrenceId)) continue;
     grouped.get(pathwayId).push(row);
   }
   return Object.fromEntries(VOCABULARY_PATHWAYS.map(pathway => {
@@ -90,6 +92,27 @@ export function coverageFromServerSetMembers(rows = [], occurrences = []) {
       reason:available ? null : 'no_published_sets'
     }];
   }));
+}
+
+// Complete published Sets drive the ladder. Serviceable remainder words can still be used in free/Mixed Practice.
+// Check those only when practice asks for them, using the canonical per-target rules and seed; never during Unit open.
+function withPracticeCoverage(coverage, rawContent) {
+  let content = null;
+  for (const [pathwayId,row] of Object.entries(coverage)) {
+    if (!row.available) continue;
+    const checked = new Map();
+    row.canServeOccurrence = occurrenceId => {
+      if (!checked.has(occurrenceId)) {
+        content ??= plannerContent(rawContent);
+        const target = content.occurrences.find(candidate => candidate.occurrenceId === occurrenceId);
+        checked.set(occurrenceId, Boolean(target) && withContentMemo(content, () => PATHWAY_STAGES.every(stage =>
+          evaluateTargetForPathwayStage({ pathwayId, stageId:stage.id, content, target, seed:`coverage:${pathwayId}:${stage.id}:${target.occurrenceId}` }).eligible
+        )));
+      }
+      return checked.get(occurrenceId);
+    };
+  }
+  return coverage;
 }
 
 export async function loadVocabularyDashboard(client, options = {}) {
@@ -121,7 +144,7 @@ export async function loadVocabularyUnit(client, unitNumber, options = {}) {
   const contexts = await completeRows(assertNoError(contextsResult, 'Unable to load vocabulary contexts.'), () => client.from('vocabulary_contexts').select('context_id, vocabulary_id, occurrence_id, sense_id, context_type, prompt_text, target_rewrite, accepted_answers, misconception_category, status', { count:'exact' }).in('occurrence_id', occurrenceIds).eq('status', 'live').order('context_id'), 'vocabulary contexts');
   const activities = await completeRows(assertNoError(activitiesResult, 'Unable to load vocabulary activities.'), () => client.from('vocabulary_unit_activities').select('activity_content_id, unit_number, content_type, activity_data, status', { count:'exact' }).eq('unit_number', unitNumber).eq('status', 'live').order('activity_content_id'), 'vocabulary activities');
   const setMembers = assertNoError(setMembersResult, 'Unable to load vocabulary pathways.');
-  registerPathwayCoverage(unitNumber, coverageFromServerSetMembers(setMembers, occurrences));
+  registerPathwayCoverage(unitNumber, withPracticeCoverage(coverageFromServerSetMembers(setMembers, occurrences), { occurrences, items, contexts, activities }));
   return { occurrences, items, contexts, activities };
 }
 
