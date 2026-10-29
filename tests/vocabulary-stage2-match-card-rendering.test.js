@@ -35,7 +35,7 @@ test('normalized Stage 2 matching renders selectable Match Cards and no visible 
   assert.equal((html.match(/data-match-card=/g) ?? []).length,4);
   assert.match(html,/type="hidden" name="answer"/);
   assert.doesNotMatch(html,/<select/);
-  assert.equal((html.match(/Her ____ is for individual sports\./g) ?? []).length,1);
+  assert.equal((html.replace(/<[^>]*>/g, '').match(/Her ____ is for individual sports\./g) ?? []).length,1);
 });
 
 test('narrowed Stage 2 retry renders two Match Cards rather than a dropdown', () => {

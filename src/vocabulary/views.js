@@ -68,6 +68,75 @@ function displayPrompt(question) {
   if (!prompt.endsWith(source.text)) return prompt;
   return prompt.slice(0, -source.text.length).trim();
 }
+
+// Split only known authored prompt shapes. Unrecognised wording keeps the existing rendering.
+// All language comes from the visible prompt/source, never from marking references.
+function questionPresentation(question) {
+  const prompt = String(question?.prompt ?? '').trim();
+  const phrase = String(question?.sourcePhrase ?? '').trim();
+  const quotedPhrase = `“${phrase}”`;
+  if (phrase && prompt.includes(quotedPhrase)) {
+    const index = prompt.indexOf(quotedPhrase);
+    const before = prompt.slice(0,index), after = prompt.slice(index + quotedPhrase.length);
+    const instructions = {
+      phrase_match:['Which phrase keeps the meaning of ', '?', 'Which phrase keeps the meaning?'],
+      build_paraphrase:['Build a paraphrase of ', '.', 'Build a paraphrase.'],
+      rewrite_phrase:['Rewrite this phrase without changing its meaning: ', '', 'Rewrite without changing the meaning.'],
+      explain_another_way:['Explain this another way without using exactly the same wording: ', '', 'Explain this another way.']
+    };
+    if (question.type === 'complete_paraphrase' && before === 'Complete the paraphrase of ' && after?.startsWith(': ')) {
+      return { instruction:'Complete the paraphrase.', source:{ text:phrase, label:'Original phrase' }, rewrite:after.slice(2) };
+    }
+    const shape = instructions[question.type];
+    if (shape && before === shape[0] && after === shape[1]) return { instruction:shape[2], source:{ text:phrase, label:'Original phrase' } };
+  }
+  const definitionInstructions = {
+    definition_to_word:['Which word means ', '?', 'Choose the best word.'],
+    type_word_from_definition:['Type the word that means ', '.', 'Type the word.'],
+    spell_word:['Type the word that means ', '.', 'Type the word.'],
+    spelling_choice:['Which is the correct spelling of the word meaning ', '?', 'Choose the correct spelling.'],
+    spelling_rebuild:['Rebuild the word meaning ', '.', 'Rebuild the word.']
+  };
+  if (question?.type === 'spelling_rebuild' && prompt.startsWith('Fill in the missing letters')) {
+    definitionInstructions.spelling_rebuild = ['Fill in the missing letters of the word meaning ', '.', 'Fill in the missing letters.'];
+  }
+  const shape = definitionInstructions[question?.type];
+  if (shape && prompt.startsWith(`${shape[0]}“`) && prompt.endsWith(`”${shape[1]}`)) {
+    return { instruction:shape[2], source:{ text:prompt.slice(shape[0].length + 1, -(shape[1].length + 1)), label:'Meaning' } };
+  }
+  return { instruction:displayPrompt(question), source:visibleQuestionSource(question) };
+}
+
+function targetLanguageHtml(text, term = '') {
+  if (!term) return escapeHtml(text);
+  const pattern = new RegExp(`(^|[^\\p{L}\\p{N}])(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})(?=$|[^\\p{L}\\p{N}])`, 'giu');
+  let html = '', end = 0;
+  for (const match of String(text).matchAll(pattern)) {
+    const start = match.index + match[1].length;
+    html += `${escapeHtml(text.slice(end,start))}<strong class="vocab-target-language">${escapeHtml(match[2])}</strong>`;
+    end = start + match[2].length;
+  }
+  return html + escapeHtml(text.slice(end));
+}
+
+function stimulusHtml(text, { term = '', dragGap = false, feedback = null } = {}) {
+  let interactiveGap = dragGap;
+  return String(text).split(/(_{2,})/).map(part => {
+    if (!/^_{2,}$/.test(part)) return targetLanguageHtml(part,term);
+    if (interactiveGap) { interactiveGap = false; return gapSlotHtml(part,feedback); }
+    return `<span class="vocab-language-gap" role="img" aria-label="Missing word">${escapeHtml(part)}</span>`;
+  }).join('');
+}
+
+function instructionHtml(instruction, question) {
+  // Emphasise the weak language or base form already given in these instructions.
+  if (['precision_choice','improve_vocabulary','precision_type_cued'].includes(question?.type)) {
+    return String(instruction).split(/(“[^”]+”)/).map(part => part.startsWith('“') && part.endsWith('”')
+      ? `“<strong class="vocab-target-language">${escapeHtml(part.slice(1,-1))}</strong>”` : escapeHtml(part)).join('');
+  }
+  const family = question?.type === 'word_family_switch' && instruction.match(/^Use the correct form from the (.+) word family\.$/);
+  return family ? `Use the correct form from the <strong class="vocab-target-language">${escapeHtml(family[1])}</strong> word family.` : escapeHtml(instruction);
+}
 function renderLearningProgress(stages = {}) {
   const cells = LEARNING_STAGES.map(stage => `<span class="vocab-learning-progress__stage" data-stage="${stage}"><strong>${escapeHtml(stages?.[stage] ?? 0)}</strong><small>${escapeHtml(learningStageLabel(stage))}</small></span>`).join('');
   return `<div class="vocab-learning-progress" data-learning-progress aria-label="Vocabulary learning progress">${cells}</div>`;
@@ -357,7 +426,7 @@ function renderSelectOptions(options) {
 function renderMatchCards(question, retry, support) {
   const options = matchOptions(question,support);
   const cards = options.map(option => `<button type="button" class="vocab-match-card" data-match-card="${escapeHtml(option)}" aria-pressed="false">${escapeHtml(option)}</button>`).join('');
-  return `<fieldset class="vocab-match-card-fieldset${retry ? ' is-retry' : ''}"><legend>${retry ? 'Choose from these two' : 'Choose the match'}</legend><div class="vocab-match-cue">${escapeHtml(question?.matchCue ?? '')}</div><div class="vocab-match-card-grid">${cards}</div><input type="hidden" name="answer" required><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Try again' : 'Check answer'} ${renderStudyIcon('arrow')}</button></fieldset>`;
+  return `<fieldset class="vocab-match-card-fieldset${retry ? ' is-retry' : ''}"><legend>${retry ? 'Choose from these two' : 'Choose the match'}</legend><div class="vocab-match-cue">${stimulusHtml(question?.matchCue ?? '')}</div><div class="vocab-match-card-grid">${cards}</div><input type="hidden" name="answer" required><button class="vocab-button vocab-button--primary" type="submit">${retry ? 'Try again' : 'Check answer'} ${renderStudyIcon('arrow')}</button></fieldset>`;
 }
 
 function renderAnswerControl(question, feedback, retry, support, matchView = null) {
@@ -482,14 +551,15 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
   const supportHtml = supportText ? `<div id="vocab-support-hint" class="vocab-support-hint study-feedback" data-study-support>${renderStudyIcon('bulb')}<span>${escapeHtml(supportText)}</span></div>` : '';
   const definition = activityDefinition(question?.type);
   const questionLabel = definition?.label ?? titleCase(question?.type ?? 'Practice');
-  const source = visibleQuestionSource(question);
+  const presentation = questionPresentation(question);
+  const source = presentation.source;
+  const visibleTerm = !HIDE_TARGET_TYPES.has(question?.type) ? term : '';
   const matchCue = String(question?.matchCue ?? '').trim();
   const sourceDuplicatesMatchCue = source && matchCue && normalizedDisplayText(source.text) === normalizedDisplayText(matchCue);
-  const sourceHtml = question?.responseMode === 'drag_gap' && source && /_{2,}/.test(source.text)
-    ? source.text.replace(/^([\s\S]*?)(_{2,})([\s\S]*)$/, (_, before, gap, after) => `${escapeHtml(before)}${gapSlotHtml(gap, feedback)}${escapeHtml(after)}`)
-    : (source ? escapeHtml(source.text) : '');
+  const sourceHtml = source ? stimulusHtml(source.text, { term:visibleTerm, dragGap:question?.responseMode === 'drag_gap', feedback }) : '';
   const questionContext = source && !sourceDuplicatesMatchCue && question?.responseMode !== 'slots' ? `<aside class="vocab-question-context vocab-source-text"><span>${escapeHtml(source.label)}</span><p>${sourceHtml}</p></aside>` : '';
-  const targetPill = term && !matchView && !HIDE_TARGET_TYPES.has(question?.type) ? `<div class="vocab-target-pill">${escapeHtml(term)}</div>` : '';
+  const rewriteContext = presentation.rewrite ? `<aside class="vocab-question-context vocab-rewrite-text"><span>Your rewrite</span><p>${stimulusHtml(presentation.rewrite)}</p></aside>` : '';
+  const targetPill = term && !matchView && visibleTerm ? `<div class="vocab-target-pill" aria-label="Target word or phrase">${escapeHtml(term)}</div>` : '';
   const pathwayProgress = renderPathwaySessionProgress(fixedPathwayId,fixedPathwayStage);
   const stage = learningStage ?? question?.learningStage ?? null;
   const stageCue = !pathwayProgress && LEARNING_STAGES.includes(stage) ? `<span class="vocab-learning-stage" data-stage="${escapeHtml(stage)}"><strong>${escapeHtml(learningStageLabel(stage))}</strong><small>${learningStagePosition(stage)} of 5</small></span>` : '';
@@ -502,7 +572,7 @@ export function renderVocabularyQuestion(root, { unitNumber, unitTitle, question
     ? `<section class="vocab-retry-stage study-enter">${feedbackHtml}${supportHtml}${answerForm}</section>`
     : `<section class="vocab-response-stage${feedback?.correct ? ' is-correct' : ''}">${feedbackHtml}${supportHtml}${answerForm}</section>`;
   const milestoneHtml = milestone ? `<section class="study-milestone-card study-milestone" data-study-milestone="${escapeHtml(milestone.kind)}">${milestoneArt(milestone.kind)}<strong>${escapeHtml(milestone.title ?? '')}</strong></section>` : '';
-  root.innerHTML = `<main class="vocab-shell vocab-shell--session" data-study-accent="${escapeHtml(identity.accent)}"><header class="vocab-topbar">${backChip({ action:'leave-session', label:`Unit ${unitNumber}`, aria:`Leave this activity and go back to Unit ${unitNumber}` })}<span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card study-enter" data-study-question data-question-look="${questionLook(question)}"${isFreshQuestion(question,term) ? ' data-question-fresh' : ''}><div class="vocab-study-question-header"><div class="vocab-study-question-header__path">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}<div><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(PATHWAY_STAGES.find(item => item.id === fixedPathwayStage)?.label ?? questionLabel)}</small></div></div>${sessionProgress}</div><div class="vocab-question-meta"><p class="vocab-kicker">${escapeHtml(questionLabel)}</p><div class="vocab-question-meta__right">${skillCue}</div></div>${targetPill}<h1 class="vocab-question-prompt">${escapeHtml(matchView ? 'Match each word with its definition.' : displayPrompt(question))}</h1>${question?.clue ? `<p class="vocab-clue" data-question-clue>${escapeHtml(question.clue)}</p>` : ''}${questionContext}${responseArea}${milestoneHtml}</section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
+  root.innerHTML = `<main class="vocab-shell vocab-shell--session" data-study-accent="${escapeHtml(identity.accent)}"><header class="vocab-topbar">${backChip({ action:'leave-session', label:`Unit ${unitNumber}`, aria:`Leave this activity and go back to Unit ${unitNumber}` })}<span>${escapeHtml(sessionLabel ?? '')}</span></header><section class="vocab-question-card study-enter" data-study-question data-question-look="${questionLook(question)}"${isFreshQuestion(question,term) ? ' data-question-fresh' : ''}><div class="vocab-study-question-header"><div class="vocab-study-question-header__path">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}<div><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(PATHWAY_STAGES.find(item => item.id === fixedPathwayStage)?.label ?? questionLabel)}</small></div></div>${sessionProgress}</div><div class="vocab-question-meta"><p class="vocab-kicker">${escapeHtml(questionLabel)}</p><div class="vocab-question-meta__right">${skillCue}</div></div><h1 class="vocab-question-prompt">${instructionHtml(matchView ? 'Match each word with its definition.' : presentation.instruction,question)}</h1>${targetPill}${question?.clue ? `<p class="vocab-clue" data-question-clue>${escapeHtml(question.clue)}</p>` : ''}${questionContext}${rewriteContext}${responseArea}${milestoneHtml}</section><p class="vocab-session-unit">Unit ${escapeHtml(unitNumber)} — ${escapeHtml(unitTitle)}</p></main>`;
 }
 
 // Controlled variety for correct answers: the explanation stays exactly as before, only the short lead changes. `variant` is any

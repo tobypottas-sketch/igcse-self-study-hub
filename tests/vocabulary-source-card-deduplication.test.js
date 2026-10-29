@@ -27,7 +27,7 @@ test('context appended to a task prompt is split into a separate reading beat', 
   assert.equal((html.match(/Doctors urge teenagers to stay active for their health\./g) ?? []).length, 1);
 });
 
-test('source card is suppressed when the source is already quoted inside the task itself', () => {
+test('quoted source is shown once in its own panel, outside the instruction', () => {
   const phrase = 'strongly encourage students to';
   const html = render({
     type:'phrase_match', responseMode:'choice',
@@ -35,9 +35,9 @@ test('source card is suppressed when the source is already quoted inside the tas
     sourcePhrase:phrase,
     options:['urge students to','stop students from','allow students to','ask students about']
   });
-  assert.match(html, /Which phrase keeps the meaning of/);
-  assert.doesNotMatch(html, /Original phrase/);
-  assert.equal((html.match(/strongly encourage students to/g) ?? []).length, 1);
+  assert.match(html, /<h1 class="vocab-question-prompt">Which phrase keeps the meaning\?<\/h1>/);
+  assert.match(html, /Original phrase/);
+  assert.equal((html.replace(/<[^>]*>/g, '').match(/strongly encourage students to/g) ?? []).length, 1);
 });
 
 test('a genuinely additional source remains visible even when task wording is short', () => {
