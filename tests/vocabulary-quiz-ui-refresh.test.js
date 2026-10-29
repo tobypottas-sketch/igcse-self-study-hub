@@ -49,7 +49,7 @@ test('same-idea questions render the original idea as a separate reading beat in
   const heading = host.innerHTML.match(/<h1 class="vocab-question-prompt">([\s\S]*?)<\/h1>/)?.[1] ?? '';
   assert.match(heading, /Which sentence expresses the same idea as this\?/);
   assert.doesNotMatch(heading, /Mina has a preference/);
-  assert.match(host.innerHTML, /<span>Original idea<\/span><p>Mina has a preference for individual sports rather than team games\.<\/p>/);
+  assert.match(host.innerHTML, /<span>Original idea<\/span><p>Mina has a <strong class="vocab-target-language">preference<\/strong> for individual sports rather than team games\.<\/p>/);
 });
 
 test('incorrect narrow-choice retry stays compact and does not repeat support instructions above the answers', () => {

@@ -28,7 +28,7 @@ function assertSourceShownOnce(question) {
   const root = { innerHTML:'' };
   renderVocabularyQuestion(root, { unitNumber:1, unitTitle:'Sports and free time', question, term:'test', sessionLabel:'1 / 10 activities' });
   const escaped = question.sourceText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  assert.equal((root.innerHTML.match(new RegExp(escaped, 'g')) ?? []).length, 1, 'source sentence should appear exactly once in the rendered question');
+  assert.equal((root.innerHTML.replace(/<[^>]*>/g, '').match(new RegExp(escaped, 'g')) ?? []).length, 1, 'source sentence should appear exactly once in the rendered question');
 }
 
 test('Word Family Switch renders its source sentence once', () => {
@@ -58,6 +58,6 @@ test('legacy newline prompts render the question and context sentence as separat
 
   assert.match(root.innerHTML, /<h1 class="vocab-question-prompt">What does “leisure” mean in this context\?<\/h1>/);
   assert.match(root.innerHTML, /<aside class="vocab-question-context vocab-source-text">/);
-  assert.match(root.innerHTML, /<p>Many students use their leisure to play sport or meet friends\.<\/p>/);
+  assert.match(root.innerHTML, /<p>Many students use their <strong class="vocab-target-language">leisure<\/strong> to play sport or meet friends\.<\/p>/);
   assert.doesNotMatch(root.innerHTML, /<h1 class="vocab-question-prompt">[^<]*Many students use their leisure/);
 });
