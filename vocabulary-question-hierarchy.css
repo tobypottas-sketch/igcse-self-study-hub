@@ -1,11 +1,11 @@
 /* Shared question hierarchy. Presentation only; controls and answer state keep their existing hooks. */
 .vocab-shell--session .vocab-question-card[data-study-question][data-question-look] .vocab-question-prompt{
-  margin:18px 0 0;
+  margin:10px 0 0;
   padding:0;
   border:0;
   font-size:1rem;
   font-weight:550;
-  line-height:1.5;
+  line-height:1.45;
   letter-spacing:0;
   color:var(--c-muted);
   text-wrap:pretty;
@@ -15,28 +15,29 @@
   display:inline-flex;
   width:fit-content;
   max-width:100%;
-  margin:14px 0 0;
-  padding:7px 12px;
+  margin:7px 0 0;
+  padding:4px 9px;
   border:1px solid var(--c-teal-line);
   background:var(--c-teal-soft);
   color:var(--c-teal-dark);
-  font-size:1.125rem;
+  font-size:1rem;
   font-weight:750;
+  line-height:1.25;
   text-transform:none;
   letter-spacing:0;
   overflow-wrap:break-word;
 }
 
 .vocab-shell--session [data-study-question] .vocab-question-context{
-  margin:18px 0 0!important;
-  padding:20px 22px!important;
+  margin:10px 0 0!important;
+  padding:12px 16px!important;
   border:1px solid var(--c-line)!important;
   background:var(--c-surface-soft)!important;
   box-shadow:none;
 }
 .vocab-shell--session [data-study-question] .vocab-question-context>span{
   display:block;
-  margin-bottom:9px;
+  margin-bottom:5px;
   color:var(--c-muted);
   font-size:.75rem;
   font-weight:650;
@@ -48,7 +49,7 @@
 .vocab-shell--session [data-study-question] .vocab-slot-row p{
   font-size:clamp(1.125rem,2vw,1.25rem)!important;
   font-weight:500;
-  line-height:1.6!important;
+  line-height:1.45!important;
   color:var(--c-ink-2);
   text-wrap:pretty;
   overflow-wrap:break-word;
@@ -77,15 +78,15 @@
   text-transform:none;
 }
 .vocab-shell--session [data-study-question] .vocab-match-cue{
-  padding:18px!important;
+  padding:14px!important;
   background:var(--c-surface-soft)!important;
 }
 .vocab-shell--session [data-study-question] .vocab-slot-row{
-  padding:18px;
+  padding:14px;
   background:var(--c-surface-soft);
 }
 .vocab-shell--session .vocab-question-card[data-study-question][data-question-look] .vocab-response-stage,
-.vocab-shell--session .vocab-question-card[data-study-question][data-question-look] .vocab-retry-stage{margin-top:22px}
+.vocab-shell--session .vocab-question-card[data-study-question][data-question-look] .vocab-retry-stage{margin-top:14px}
 .vocab-shell--session [data-study-question] .vocab-answer-form::before{content:none}
 .vocab-shell--session [data-study-question] .vocab-answer-form{
   margin-top:0;
@@ -93,10 +94,10 @@
   border-top:0;
 }
 .vocab-shell--session [data-study-question] .vocab-clue{
-  margin:14px 0 0;
+  margin:10px 0 0;
   color:var(--c-muted);
   font-size:.875rem;
 }
 @media(max-width:520px){
-  .vocab-shell--session [data-study-question] .vocab-question-context{padding:16px!important}
+  .vocab-shell--session [data-study-question] .vocab-question-context{padding:10px 12px!important}
 }
