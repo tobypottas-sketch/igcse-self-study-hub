@@ -1,0 +1,83 @@
+/* Vocabulary home unit-card polish.
+   Visual-only: keeps the whole card as the existing click target and does not change unit behaviour. */
+.vocab-unit-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+}
+
+.vocab-unit-card{
+  min-height:156px;
+  gap:7px;
+  padding:20px 152px 20px 22px!important;
+  justify-content:flex-start;
+}
+
+.vocab-unit-card>.vocab-unit-card__number{
+  margin-bottom:2px;
+  font-size:var(--fs-xs);
+  letter-spacing:.11em;
+}
+
+.vocab-unit-card>strong{
+  display:block;
+  max-width:10ch;
+  margin:0 0 4px;
+  font-size:clamp(1.3rem,2vw,1.55rem);
+  line-height:1.08;
+  letter-spacing:-.025em;
+  text-wrap:balance;
+}
+
+.vocab-unit-card>.vocab-unit-card__progress-copy{
+  display:block;
+  margin:0;
+  color:var(--c-muted);
+  font-size:var(--fs-sm);
+  font-weight:700;
+  line-height:1.25;
+  white-space:nowrap;
+}
+
+.vocab-unit-card>[data-study-unit-progress]{
+  display:block;
+  width:min(128px,100%);
+  margin:1px 0 3px;
+}
+
+.vocab-unit-card>small{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  width:max-content;
+  margin-top:auto;
+  padding:7px 10px;
+  border:1px solid var(--c-teal-line);
+  border-radius:var(--r-pill);
+  background:var(--c-teal-soft);
+  color:var(--c-teal-dark)!important;
+  font-size:var(--fs-xs);
+  font-weight:900;
+  line-height:1;
+}
+
+.vocab-unit-card__arrow{
+  width:1rem;
+  height:1rem;
+}
+
+@media(max-width:900px){
+  .vocab-unit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:620px){
+  .vocab-unit-grid{grid-template-columns:1fr}
+  .vocab-unit-card{
+    min-height:142px;
+    padding:18px 116px 18px 18px!important;
+  }
+  .vocab-unit-card>strong{
+    max-width:11ch;
+    font-size:1.35rem;
+  }
+  .vocab-unit-card>[data-study-unit-progress]{width:min(112px,100%)}
+}
