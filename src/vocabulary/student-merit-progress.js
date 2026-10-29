@@ -52,7 +52,8 @@ async function refresh() {
   if (!nodes.length) return;
   const copy = await loadCopy();
   if (!copy) return;
-  for (const node of nodes) node.textContent = copy;
+  // Identical textContent writes still emit childList mutations and would retrigger this observer forever.
+  for (const node of nodes) if (node.textContent !== copy) node.textContent = copy;
 }
 
 const observer = new MutationObserver(() => { void refresh(); });
