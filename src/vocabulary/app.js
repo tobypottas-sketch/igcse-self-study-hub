@@ -818,7 +818,10 @@ async function settleMission(missionId, { finishModel = null, setContext = null,
   let shownModel = finishModel;
   if (row && setContext) {
     try {
-      await refreshSetRows();
+      if (Number(row.unit_number) === unitNumber && unitNumber === state.currentUnitNumber && Array.isArray(row.pathway_sets)) {
+        state.setRows = row.pathway_sets;
+        const cached = state.unitCache.get(unitNumber); if (cached) cached.setRows = state.setRows;
+      } else await refreshSetRows();
       if (unitNumber === state.currentUnitNumber) refreshed = { unitNumber, setRows:state.setRows };
     } catch { /* the next start re-reads the server state */ }
     const settled = serverSetProjection(setContext);

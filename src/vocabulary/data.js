@@ -222,7 +222,12 @@ export async function loadVocabularyMissions(client, options = {}) {
 export async function recordVocabularyMission(client, missionId) {
   if (!missionId || typeof client?.rpc !== 'function') return null;
   try {
-    const result = await client.rpc('record_vocabulary_mission', { p_mission_id:missionId });
+    let result = await client.rpc('record_vocabulary_mission_with_sets', { p_mission_id:missionId });
+    // A frontend release may precede the additive RPC migration. Only a missing function permits the old call;
+    // auth, validation and uncertain network failures must not cause a second recording request here.
+    if (result?.error?.code === 'PGRST202' || result?.error?.code === '42883') {
+      result = await client.rpc('record_vocabulary_mission', { p_mission_id:missionId });
+    }
     return result?.error ? null : (result?.data ?? null);
   } catch { return null; }
 }
