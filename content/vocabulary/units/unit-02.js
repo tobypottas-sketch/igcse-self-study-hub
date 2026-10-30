@@ -1,7 +1,6 @@
-// UNIT 2 – DIGITAL LIFE: authoring skeleton. Source: 0511 key words UNIT 2 (50 targets, coursebook order).
-// Every entry is a bare term + part of speech; meanings, sentences and wrong options are still to be authored and reviewed.
-// Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-02-draft.js
-// Rename to unit-02.js only when ready to publish (the release tooling ignores this draft name).
+// UNIT 2 – DIGITAL LIFE: approved source for the Unit 2 release (releases/unit-02.js promotes it to live). Source: 0511 key words UNIT 2
+// (50 targets, coursebook order), all 50 authored and reviewed.
+// Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-02.js
 //
 // "afford" is also a Unit 1 target. It has its own id here (idKey 'afford_2' -> vocab_afford_2) so publishing Unit 2 can never overwrite
 // Unit 1's vocab_afford row. Its spelling list is the shared lexical one for "afford", aliased below.
@@ -20,7 +19,7 @@ import { unit2WordFamilies, unit2WordFamilyRejected } from './unit-02-word-famil
 import { unit2WordFamilyAlternates } from './unit-02-word-family-alternates.js';
 
 const UNIT_NUMBER = 2;
-const status = 'draft';
+const status = 'approved';
 
 const e = (term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence, paraphraseSource, paraphraseSentence, productionSource, productionSentence, extras = {}) => ({
   term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence,

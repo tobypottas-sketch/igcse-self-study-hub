@@ -3,7 +3,7 @@
 //   idea_set   : originalIdea (contains the target) with accurate paraphrases that do NOT contain it, a meaning invariant, and three
 //                meaning-changing distractors each tagged with the misconception it represents.
 // Every record is linked to exactly one Unit 2 word. Words 11–50 are not authored yet.
-const status = 'draft';
+const status = 'approved';
 const unitNumber = 2;
 
 function phrase(id, originalPhrase, equivalentPhrase, linkedVocabularyIds, { acceptedVariants = [], chunks = null, distortions = [] } = {}) {

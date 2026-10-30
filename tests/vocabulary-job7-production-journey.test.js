@@ -11,7 +11,7 @@ import { applyMissionResult, composeFollowUp, newSetState, MISSION_SIZE, STAGE_O
 import { PATHWAY_ACTIVITY_MAP } from '../supabase/functions/_shared/vocabulary-pathway-contract.js';
 import { buildQuestion, content } from './support/vocabulary-contract/bank.js';
 
-const rows = membershipRows();
+const rows = membershipRows().filter(r => r.unit === 1); // this journey simulates Unit 1 only; Unit 2 has its own release test
 const sets = new Map();
 for (const r of rows) { const k = `${r.pathway}|${r.set}`; (sets.get(k) ?? sets.set(k, { pathway: r.pathway, set: r.set, members: [] }).get(k)).members.push(r.occurrenceId); }
 const byOcc = new Map(content.occurrences.map(o => [o.occurrenceId, o]));

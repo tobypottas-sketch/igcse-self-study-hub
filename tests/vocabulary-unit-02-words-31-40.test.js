@@ -1,9 +1,9 @@
 // Unit 2 (Digital Life) · words 31–40 authored. Same contract checks as the words 1–10 test, run through the real readiness evaluator and
-// builders. All 50 words are authored; the unit stays an unreleased draft.
+// builders. All 50 words are authored; the source unit is approved and releases/unit-02.js promotes it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import unit2 from '../content/vocabulary/units/unit-02-draft.js';
+import unit2 from '../content/vocabulary/units/unit-02.js';
 import { validateUnit } from '../content/vocabulary/schema.js';
 import { evaluateUnitReadiness } from '../src/vocabulary/pathway-readiness.js';
 import { releasePlannerContent } from '../content/vocabulary/readiness-report.js';
@@ -15,10 +15,10 @@ const readiness = evaluateUnitReadiness({ content: releasePlannerContent(unit2) 
 const block = unit2.items.slice(30, 40);
 const failed = (pathwayId, occurrenceId) => STAGES.filter(stage => (readiness.pathways[pathwayId].stageFailures[stage] ?? []).some(f => f.occurrenceId === occurrenceId));
 
-test('words 31–40 are the agreed targets (no adverbs, so no same-part-of-speech gaps) and the unit is still an unreleased draft', () => {
+test('words 31–40 are the agreed targets (no adverbs, so no same-part-of-speech gaps) and the source unit is approved (the live release is releases/unit-02.js)', () => {
   assert.deepEqual(block.map(item => item.term), TERMS);
-  assert.equal(unit2.status, 'draft');
-  assert.ok(!fs.existsSync(new URL('../content/vocabulary/releases/unit-02.js', import.meta.url)), 'Unit 2 must not be released yet');
+  assert.equal(unit2.status, 'approved');
+  assert.ok(fs.existsSync(new URL('../content/vocabulary/releases/unit-02.js', import.meta.url)), 'Unit 2 release file must exist');
 });
 
 test('every stage is buildable for words 31–40, except Word Families for the two words with no genuine family', () => {

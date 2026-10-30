@@ -3,7 +3,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { membershipRows, membershipSql, baselineRows, changedSets, removedSets, deltaSql } from '../scripts/generate-set-membership-sql.mjs';
+import { membershipRows as allMembershipRows, membershipSql, baselineRows, changedSets, removedSets, deltaSql } from '../scripts/generate-set-membership-sql.mjs';
+// These tests cover Unit 1's seeded + delta membership; Unit 2's Sets have their own release test (vocabulary-unit-02-release.test.js).
+const membershipRows = (...args) => (args.length ? allMembershipRows(...args) : allMembershipRows().filter(r => r.unit === 1));
 import { harness } from './vocabulary-app-harness.mjs';
 
 const migration = fs.readFileSync(new URL('../supabase/migrations/20261024170000_vocabulary_set_membership.sql', import.meta.url), 'utf8');
