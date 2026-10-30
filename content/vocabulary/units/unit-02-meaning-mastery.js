@@ -53,5 +53,53 @@ export default Object.freeze({
   'current affairs': [
     w(['stories about sport and music', 'advice about money and health', 'lessons about history and languages']),
     w(['events planned for next year', 'events from a long time ago', 'events that happen at school'])
+  ],
+  apparently: [
+    w(['according to the official announcement made today', 'because the other members asked him to go', 'as the band proudly announced last week']),
+    w(['as the owner had promised earlier', 'as an expert had measured it exactly', 'as had been proved by the records'],
+      { meaning: 'as it seemed at first sight', reason: 'The draft gloss was an adjective phrase for an adverb in the sentence; reworded to match the adverb use.' })
+  ],
+  supposedly: [
+    w(['proved to be true by the evidence', 'agreed to be true by all the critics', 'confirmed as true by the director']),
+    w(['according to what I have seen myself', 'according to the official restaurant guide', 'according to a test I carried out'])
+  ],
+  celebrity: [
+    w(['a person who owns the hotel', 'a person who works at the hotel', 'a person who is staying alone']),
+    w(['someone skilled at designing posters', 'someone employed by the local council', 'someone who has just left school'],
+      { text: 'The charity asked a celebrity to support its campaign.', meaning: 'someone well known from entertainment or sport',
+        reason: 'The draft sentence used the plural and began with the target, so the blank would not accept the headword or hide the capital letter; the sentence was reworded.' })
+  ],
+  informed: [
+    w(['made quickly without any discussion', 'made by a group of friends', 'made to please her teachers']),
+    w(['asked for permission about everything', 'warned about what to avoid', 'corrected about what is wrong'])
+  ],
+  admit: [
+    w(['explain why something was done', 'promise that it will not happen again', 'believe that something is not important']),
+    w(['refuse to speak about a problem', 'promise to solve a problem quickly', 'blame other people for a problem'],
+      { text: 'Politicians rarely admit responsibility when something goes wrong.', meaning: 'accept that you are to blame',
+        reason: 'The draft sentence used the past form "admitted", which is not an accepted answer for the headword blank; reworded to the base form.' })
+  ],
+  communicate: [
+    w(['keep information or ideas secret from others', 'change information or ideas to suit others', 'copy information or ideas from others']),
+    w(['copy their trainers using signals', 'learn new tricks using signals', 'follow orders using signals'])
+  ],
+  remotely: [
+    w(['quickly using the right tools', 'carefully using a written plan', 'slowly using spare parts']),
+    w(['without paying any fee at all', 'without taking notes of the lecture', 'without needing a teacher to speak'])
+  ],
+  transform: [
+    w(['clean slightly and leave unchanged', 'protect from future damage', 'sell for more money']),
+    w(['copy exactly in a new place', 'slow down in a major way', 'explain in a simple way'],
+      { text: 'Technology can transform the way people learn.', meaning: 'change in a big and important way',
+        reason: 'The draft sentence used "have transformed", a form that is not an accepted answer for the headword blank; reworded to the base form.' })
+  ],
+  percentage: [
+    w(['what total number of pupils there are', 'what average age the pupils have', 'what speed they walk at']),
+    w(['the length of time the profit is kept', 'the name of the charity that is chosen', 'the reason the profit was made'])
+  ],
+  impression: [
+    w(['a strong argument for changing the law', 'a strong reaction against a bad idea', 'a strong promise to improve the town'],
+      { meaning: 'a strong effect on what people think of someone', reason: 'The draft gloss was a clause ("caused people to think well of him"); reworded as a noun phrase so it reads as the meaning of a noun.' }),
+    w(['a proof that something is true', 'a rule that everyone must follow', 'a memory of an earlier lesson'])
   ]
 });

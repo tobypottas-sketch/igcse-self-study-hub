@@ -42,7 +42,17 @@ const phraseSets = [
   phrase('experienced_educator', 'a teacher with many years of experience', 'an experienced educator', ['vocab_educator'], { acceptedVariants:['a seasoned educator'], chunks:['an', 'experienced', 'educator'], distortions:['a pupil who is new to the school', 'an inspector who visits schools', 'a parent who helps at school'] }),
   phrase('cannot_afford_phone', 'do not have enough money for a new phone', 'cannot afford a new phone', ['vocab_afford_2'], { acceptedVariants:['are unable to afford a new phone'], chunks:['cannot', 'afford', 'a new phone'], distortions:['choose not to buy a new phone', 'borrow money for a new phone', 'refuse to pay for a new phone'] }),
   phrase('essential_learning', 'absolutely necessary for learning', 'essential for learning', ['vocab_essential'], { acceptedVariants:['vital for learning'], chunks:['essential', 'for', 'learning'], distortions:['unnecessary for learning', 'harmful to learning', 'pleasant but optional for learning'] }),
-  phrase('current_affairs', 'the latest news about politics and world events', 'current affairs', ['vocab_current_affairs'], { chunks:['current', 'affairs'], distortions:['old stories about world history', 'private news about family events', 'weather news for local areas'] })
+  phrase('current_affairs', 'the latest news about politics and world events', 'current affairs', ['vocab_current_affairs'], { chunks:['current', 'affairs'], distortions:['old stories about world history', 'private news about family events', 'weather news for local areas'] }),
+  phrase('apparently_cancelled', 'it seems that the match has been cancelled', 'the match has apparently been cancelled', ['vocab_apparently'], { acceptedVariants:['the match has seemingly been cancelled'], chunks:['the match', 'has apparently', 'been cancelled'], distortions:['the match has officially been cancelled', 'the match has probably been rearranged', 'the match has certainly not been cancelled'] }),
+  phrase('supposedly_haunted', 'people say, without proof, that the house is haunted', 'the house is supposedly haunted', ['vocab_supposedly'], { acceptedVariants:['the house is allegedly haunted'], chunks:['the house', 'is supposedly', 'haunted'], distortions:['the house is certainly haunted', 'the house is proved to be haunted', 'the house was closed because it is haunted'] }),
+  phrase('sports_celebrity', 'a famous footballer or athlete', 'a sports celebrity', ['vocab_celebrity'], { acceptedVariants:['a sporting celebrity'], chunks:['a sports', 'celebrity'], distortions:['a local sports coach', 'a retired sports teacher', 'a sports fan in the crowd'] }),
+  phrase('informed_decision', 'a decision based on the facts', 'an informed decision', ['vocab_informed'], { acceptedVariants:['a well-informed decision'], chunks:['an', 'informed', 'decision'], distortions:['a hasty decision', 'a decision made by someone else', 'a decision made without reading anything'] }),
+  phrase('admit_wrong', 'agree that you were wrong', 'admit that you were wrong', ['vocab_admit'], { acceptedVariants:['accept that you were wrong'], chunks:['admit', 'that', 'you were wrong'], distortions:['deny that you were wrong', 'insist that you were right', 'forget that you were wrong'] }),
+  phrase('communicate_ideas', 'share ideas with other people', 'communicate ideas to other people', ['vocab_communicate'], { acceptedVariants:['pass ideas on to other people'], chunks:['communicate', 'ideas', 'to other people'], distortions:['hide ideas from other people', 'argue about ideas with other people', 'forget the ideas other people shared'] }),
+  phrase('work_remotely', 'work from a different place using a computer link', 'work remotely', ['vocab_remotely'], { acceptedVariants:['work from a distance'], chunks:['work', 'remotely'], distortions:['work in the main office', 'work without any technology', 'work only at weekends'] }),
+  phrase('transform_station', 'change the old station completely', 'transform the old station', ['vocab_transform'], { acceptedVariants:['completely change the old station'], chunks:['transform', 'the old station'], distortions:['repair the old station slightly', 'close the old station', 'paint the old station'] }),
+  phrase('high_percentage', 'a large part out of every hundred students', 'a high percentage of students', ['vocab_percentage'], { acceptedVariants:['a large percentage of students'], chunks:['a high', 'percentage', 'of students'], distortions:['a small percentage of students', 'the total number of students', 'the average age of students'] }),
+  phrase('good_impression', 'a positive feeling about someone after meeting them', 'a good impression', ['vocab_impression'], { acceptedVariants:['a positive impression'], chunks:['a good', 'impression'], distortions:['a bad impression', 'a final decision', 'a written report'] })
 ];
 
 const ideaSets = [
@@ -95,7 +105,57 @@ const ideaSets = [
     { text:'Students who keep up with the news find it harder to write about global issues.', misconceptionCategory:'cause_effect_change' },
     { text:'Students who write about global issues find it easier to follow the news.', misconceptionCategory:'cause_effect_change' },
     { text:'Students who read old history books find it easier to write about global issues.', misconceptionCategory:'meaning_confusion' }
-  ], ['vocab_current_affairs'])
+  ], ['vocab_current_affairs']),
+  idea('apparently', 'Apparently, the new teacher used to work as a pilot.', ['It seems that the new teacher used to be a pilot.', 'From what people say, the new teacher used to fly planes for a living.', 'The new teacher used to work as a pilot, according to what has been said.'], 'degree', 'reported, not confirmed', [
+    { text:'The new teacher is definitely a former pilot, as the school has confirmed.', misconceptionCategory:'degree_change' },
+    { text:'The new teacher wants to become a pilot.', misconceptionCategory:'meaning_confusion' },
+    { text:'The new teacher used to teach pilots how to fly.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_apparently']),
+  idea('supposedly', 'The restaurant is supposedly the best in town, but the food was disappointing.', ['People say the restaurant is the best in town, but the food was disappointing.', 'The restaurant is said to be the best in town, yet the food was disappointing.', 'The restaurant has a reputation as the best in town, but the food was disappointing.'], 'degree', 'said to be the best, but doubted', [
+    { text:'The restaurant is the best in town, and the food was excellent.', misconceptionCategory:'meaning_confusion' },
+    { text:'The food was disappointing because the restaurant is not the best in town.', misconceptionCategory:'cause_effect_change' },
+    { text:'Nobody says the restaurant is the best in town, but the food was good.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_supposedly']),
+  idea('celebrity', 'Many teenagers follow a celebrity online and copy the way he dresses.', ['Lots of teenagers follow a famous person online and copy his style of clothes.', 'A large number of teenagers watch a star on the internet and copy what he wears.', 'Many young people follow a well-known figure on the internet and dress as he does.'], 'quantity', 'many teenagers', [
+    { text:'A few teenagers follow a star online and copy the way he dresses.', misconceptionCategory:'quantity_change' },
+    { text:'Many teenagers follow a star online but ignore how he dresses.', misconceptionCategory:'omitted_information' },
+    { text:'Many teenagers dislike a famous person online and refuse to copy him.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_celebrity']),
+  idea('informed', 'Voters should make an informed choice before an election.', ['Voters should choose carefully after learning the facts before an election.', 'Before an election, voters ought to base their choice on knowledge of the facts.', 'Voters need to know the facts before they decide in an election.'], 'time', 'facts first, then the choice', [
+    { text:'Voters should make a quick choice on the day of an election.', misconceptionCategory:'meaning_confusion' },
+    { text:'Voters should let other people make the choice before an election.', misconceptionCategory:'meaning_confusion' },
+    { text:'Voters should choose first and learn the facts afterwards.', misconceptionCategory:'time_change' }
+  ], ['vocab_informed']),
+  idea('admit', 'The company admitted that the product had a serious fault.', ['The company accepted that the product had a serious fault.', 'The company confessed that the product had a serious fault.', 'The company agreed that there was a serious fault in its product.'], 'polarity', 'the fault is accepted as true', [
+    { text:'The company denied that the product had a serious fault.', misconceptionCategory:'meaning_confusion' },
+    { text:'The company warned that the product might have a serious fault.', misconceptionCategory:'degree_change' },
+    { text:'The company announced that it would improve the product.', misconceptionCategory:'added_information' }
+  ], ['vocab_admit']),
+  idea('communicate', 'Some doctors use video calls to communicate with patients in distant villages.', ['Some doctors speak to patients in faraway villages through video calls.', 'Video calls allow some doctors to share information with patients who live in distant villages.', 'Some doctors stay in touch with patients in far-away villages using video calls.'], 'quantity', 'some doctors', [
+    { text:'All doctors use video calls to speak to patients in distant villages.', misconceptionCategory:'quantity_change' },
+    { text:'Some doctors travel to distant villages instead of using video calls.', misconceptionCategory:'meaning_confusion' },
+    { text:'Some doctors use video calls to speak to patients in the same town.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_communicate']),
+  idea('remotely', 'Many employees now work remotely on Fridays.', ['Many employees now work away from the office on Fridays.', 'On Fridays, many employees now do their jobs from a distance rather than in the office.', 'Many staff now work from somewhere other than the office on Fridays.'], 'time', 'on Fridays', [
+    { text:'Many employees now work in the office only on Fridays.', misconceptionCategory:'meaning_confusion' },
+    { text:'Few employees now work away from the office on Fridays.', misconceptionCategory:'quantity_change' },
+    { text:'Many employees now work away from the office every day except Fridays.', misconceptionCategory:'time_change' }
+  ], ['vocab_remotely']),
+  idea('transform', 'The new library has transformed the town centre.', ['The new library has completely changed the town centre.', 'Because of the new library, the town centre is now very different.', 'The town centre has become something quite different since the new library was built.'], 'degree', 'a complete change', [
+    { text:'The new library has slightly improved the town centre.', misconceptionCategory:'degree_change' },
+    { text:'The new library has damaged the town centre.', misconceptionCategory:'meaning_confusion' },
+    { text:'The town centre has changed the new library.', misconceptionCategory:'cause_effect_change' }
+  ], ['vocab_transform']),
+  idea('percentage', 'A high percentage of students use their phones to revise.', ['A large proportion of students use their phones to revise.', 'A large share of the students use their phones when they revise.', 'A big part of the student group uses phones for revision.'], 'quantity', 'a large part', [
+    { text:'A low proportion of students use their phones to revise.', misconceptionCategory:'quantity_change' },
+    { text:'A high proportion of students own phones but never use them to revise.', misconceptionCategory:'meaning_confusion' },
+    { text:'Every single student uses a phone to revise.', misconceptionCategory:'quantity_change' }
+  ], ['vocab_percentage']),
+  idea('impression', 'The new student made a very good impression on her teachers.', ['The new student made her teachers think very well of her.', 'Her teachers formed a very positive opinion of the new student.', 'The new student left her teachers with a very favourable view of her.'], 'degree', 'a very positive opinion', [
+    { text:'The new student made her teachers think badly of her.', misconceptionCategory:'meaning_confusion' },
+    { text:'The teachers made a very good impression on the new student.', misconceptionCategory:'cause_effect_change' },
+    { text:'The new student hardly changed what her teachers thought.', misconceptionCategory:'degree_change' }
+  ], ['vocab_impression'])
 ];
 
 export default [...phraseSets, ...ideaSets];

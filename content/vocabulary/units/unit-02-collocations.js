@@ -10,5 +10,15 @@ export default Object.freeze({
   educator: ['experienced educator', 'qualified educator', 'dedicated educator'],
   afford: ['can afford', 'barely afford', 'afford the cost'],
   essential: ['absolutely essential', 'essential equipment', 'essential skills'],
-  'current affairs': ['follow current affairs', 'discuss current affairs', 'international current affairs']
+  'current affairs': ['follow current affairs', 'discuss current affairs', 'international current affairs'],
+  apparently: ['apparently unaware', 'apparently simple', 'apparently true'],
+  supposedly: ['supposedly safe', 'supposedly harmless', 'supposedly healthy'],
+  celebrity: ['celebrity chef', 'celebrity status', 'young celebrity'],
+  informed: ['well informed', 'stay informed', 'informed choice'],
+  admit: ['admit defeat', 'freely admit', 'admit responsibility'],
+  communicate: ['communicate effectively', 'communicate clearly', 'communicate online'],
+  remotely: ['work remotely', 'controlled remotely', 'accessed remotely'],
+  transform: ['transform lives', 'completely transform', 'transform society'],
+  percentage: ['high percentage', 'small percentage', 'large percentage'],
+  impression: ['good impression', 'first impression', 'lasting impression']
 });

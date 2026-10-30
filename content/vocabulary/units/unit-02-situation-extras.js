@@ -52,5 +52,55 @@ export default Object.freeze({
     'The class watched a documentary about life in the Roman army and then drew pictures of soldiers’ armour.',
     'Students swapped recipes for their favourite meals and prepared a small cookbook for the school fair.',
     'The principal reminded the school that the swimming gala would take place on the first Friday of next term.'
+  ],
+  apparently: [
+    'The teacher checked the register and counted every student in the room.',
+    'A news reporter stood outside the stadium and described exactly what she was watching.',
+    'The headteacher read the official exam results aloud to the whole school.'
+  ],
+  supposedly: [
+    'The chef tasted every dish himself and checked that the flavours were right.',
+    'A scientist repeated the experiment three times and recorded every result in a table.',
+    'The museum guide pointed to the signed document and explained exactly when it had been written.'
+  ],
+  celebrity: [
+    'A shy student won the school science prize and was congratulated by her class.',
+    'A university professor gave a lecture on climate change to a hall of two hundred people.',
+    'The school choir performed at the town hall, and parents took photographs of their own children.'
+  ],
+  informed: [
+    'He bought the first laptop he saw because the sales assistant was friendly.',
+    'The committee voted on the proposal after a very short discussion and without checking the figures.',
+    'She copied her friend’s opinion on the topic because she had not read the article herself.'
+  ],
+  admit: [
+    'The player argued with the referee and insisted that the ball had never crossed the line.',
+    'Nobody in the class could remember who had left the door open, and they all looked puzzled.',
+    'The manager praised the team for their hard work and announced a day off.'
+  ],
+  communicate: [
+    'Every evening, the old man sat alone on the bench and watched the ducks on the lake.',
+    'The students worked silently on their own exercises, and nobody asked any questions.',
+    'The two neighbours lived next door for years but never spoke to each other.'
+  ],
+  remotely: [
+    'The whole team sat around one table in the meeting room and discussed the budget.',
+    'The technician travelled to the factory and replaced the broken part with his own hands.',
+    'She visited her grandmother every Sunday and helped her to cook lunch in the kitchen.'
+  ],
+  transform: [
+    'The council repaired a few holes in the road and repainted the lines.',
+    'The shop changed its opening hours from nine o’clock to half past nine.',
+    'The students moved their desks closer to the window but left everything else in the classroom the same.'
+  ],
+  percentage: [
+    'The teacher wrote the date and the title on the board before the lesson began.',
+    'The class built a model bridge from paper and tested how much weight it could hold.',
+    'A group of pupils measured the length of the playground using a long measuring tape.'
+  ],
+  impression: [
+    'He read the instructions twice and then put the furniture together in under an hour.',
+    'The two friends compared their timetables and planned a time to revise together.',
+    'The council repaired the old bridge and reopened it to traffic last week.'
   ]
 });
