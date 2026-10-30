@@ -1,6 +1,6 @@
-// UNIT 4 – TRANSPORT: authoring draft (batches 1–5 = words 1–50). Source: 0511 key words UNIT 4 – TRANSPORT (coursebook order). All 50 words are authored; the unit stays a draft until it is packaged for release.
-// Same architecture as unit-03.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-04-draft.js
-// A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-04.js only when all 50 words are final.
+// UNIT 4 – TRANSPORT: approved source for the Unit 4 release (releases/unit-04.js promotes it to live). Source: 0511 key words UNIT 4 – TRANSPORT
+// (coursebook order), all 50 authored and audited. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-04.js
+// demand, advertisement, equipment and participant are also earlier-unit targets; each has its own Unit 4 id (idKey 'X_4' -> vocab_X_4) and aliases the earlier spelling list.
 import { buildCuratedUnit } from '../build-unit.js';
 import { LEXICAL_SPELLING_ERRORS } from '../lexical-spelling-errors.js';
 import unit4Activities from './unit-04-activities.js';
@@ -15,7 +15,7 @@ import { unit4WordFamilies, unit4WordFamilyRejected } from './unit-04-word-famil
 import { unit4WordFamilyAlternates } from './unit-04-word-family-alternates.js';
 
 const UNIT_NUMBER = 4;
-const status = 'draft';
+const status = 'approved';
 
 const e = (term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence, paraphraseSource, paraphraseSentence, productionSource, productionSentence, extras = {}) => ({
   term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence,

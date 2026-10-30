@@ -1,9 +1,9 @@
-// Unit 4 (Transport) · all 50 words authored (batches 1–5, draft). Guards the contract with the real readiness evaluator and builders. The unit stays a draft:
-// no releases/unit-04.js, no lock, no SQL until it is packaged for release.
+// Unit 4 (Transport) · all 50 words authored (batches 1–5). Guards the contract with the real readiness evaluator and builders. The source unit is approved;
+// releases/unit-04.js promotes it (see vocabulary-unit-04-release.test.js).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import unit4 from '../content/vocabulary/units/unit-04-draft.js';
+import unit4 from '../content/vocabulary/units/unit-04.js';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import unit2 from '../content/vocabulary/units/unit-02.js';
 import unit3 from '../content/vocabulary/units/unit-03.js';
@@ -20,13 +20,13 @@ const POS_LIMITS = { efficiently: { meaning: ['match'], context: ['recognise', '
 const readiness = evaluateUnitReadiness({ content: releasePlannerContent(unit4) });
 const failed = (pathwayId, occurrenceId) => STAGES.filter(stage => (readiness.pathways[pathwayId].stageFailures[stage] ?? []).some(f => f.occurrenceId === occurrenceId));
 
-test('Unit 4 batches 1–5 is exactly the fifty locked targets, as a draft with no release artefacts', () => {
+test('Unit 4 batches 1–5 is exactly the fifty locked targets, as an approved source with a release file', () => {
   assert.deepEqual(unit4.items.map(item => item.term), TERMS);
   assert.equal(unit4.occurrences.length, 50);
   assert.equal(new Set(unit4.items.map(item => item.term)).size, 50);
-  assert.equal(unit4.status, 'draft');
+  assert.equal(unit4.status, 'approved');
   assert.equal(unit4.unitNumber, 4);
-  for (const name of ['releases/unit-04.js']) assert.ok(!fs.existsSync(new URL(`../content/vocabulary/${name}`, import.meta.url)), name);
+  assert.ok(fs.existsSync(new URL('../content/vocabulary/releases/unit-04.js', import.meta.url)), 'Unit 4 release file must exist');
 });
 
 test('IDs are Unit 4-specific, unique, and never collide with Units 1, 2 or 3', () => {
