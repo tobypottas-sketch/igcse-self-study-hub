@@ -175,5 +175,15 @@ export const LEXICAL_SPELLING_ERRORS = Object.freeze({
   "vocab_machinery":["machinary","mashinery","machinry","machienery","machnery","machinerry"], // machinery (Unit 4)
   "vocab_enormous":["enormus","enourmous","enormuos","anormous","enormouse","enomous"], // enormous (Unit 4)
   "vocab_collision":["colision","collission","collizion","colission","collsion","collisoin"], // collision (Unit 4)
-  "vocab_organisation":["organisasion","orginisation","organistion","oraganisation","organisaton","organization"], // organisation (Unit 4)
+  "vocab_organisation":["organisasion","orginisation","organistion","oraganisation","organisaton","organization"], // organisation (Unit 4),
+  "vocab_livelihood":["livlihood","livelyhood","liveliehood","livelihod","livilihood","livelhood"], // livelihood (Unit 4)
+  "vocab_fatality":["fatalty","fatallity","fatilty","fatelity","fatalitty","fataliti"], // fatality (Unit 4)
+  "vocab_initiative":["initative","inititive","intiative","initiatve","inisiative","initaitive"], // initiative (Unit 4)
+  "vocab_campaign":["campain","campaing","campagn","campiagn","kampaign","campaigne"], // campaign (Unit 4)
+  "vocab_pothole":["potthole","pothol","poothole","pothoole","potehole","pothoel"], // pothole (Unit 4)
+  "vocab_trauma":["trama","traumma","trauna","trawma","traumer","tramua"], // trauma (Unit 4)
+  "vocab_measures":["mesures","measurs","meashures","mezures","measuers","meausres"], // measures (Unit 4)
+  "vocab_estimate":["estamate","estimete","esstimate","estimat","astimate","estimite"], // estimate (Unit 4)
+  "vocab_regulation":["reguation","regualtion","regulashun","reglation","regulatoin","rgulation"], // regulation (Unit 4)
+  "vocab_operate":["oparate","operat","operrate","opperate","operete","oporate"], // operate (Unit 4)
 });

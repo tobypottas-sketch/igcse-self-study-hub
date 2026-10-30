@@ -151,5 +151,55 @@ export default Object.freeze({
     'The taxi driver took a shortcut through the old town.',
     'The tourists bought postcards at the kiosk near the harbour.',
     'A cyclist waited at the traffic lights for the green signal.'
+  ],
+  livelihood: [
+    'The taxi driver carried the suitcases to the hotel entrance.',
+    'The ferry left the harbour at noon with two hundred people on board.',
+    'A cyclist stopped beside the road to fix a puncture.'
+  ],
+  fatality: [
+    'The guide gave everyone a map of the old harbour and explained the timetable.',
+    'The ticket machine at the station accepted only coins.',
+    'A mechanic checked the oil and filled the tank with petrol.'
+  ],
+  initiative: [
+    'The ferry captain welcomed everyone on board and pointed out the lifeboats.',
+    'A mechanic changed a wheel while the family waited beside the road.',
+    'The air steward served drinks and then collected the empty cups.'
+  ],
+  campaign: [
+    'The tourists photographed the old castle from the harbour wall.',
+    'The ferry arrived at the port and the passengers walked off slowly.',
+    'The coach driver stopped at a service area so that the travellers could stretch their legs.'
+  ],
+  pothole: [
+    'The tourists queued at the ticket office to buy tickets for the evening train.',
+    'The pilot spoke to the control tower and checked the weather report.',
+    'The guide held up a map and pointed at the harbour.'
+  ],
+  trauma: [
+    'The mechanic changed the tyres and checked the brakes before the long drive.',
+    'The cyclist put on a helmet and fixed a light to the front of the bike.',
+    'The guide handed out maps and explained the plan for the day.'
+  ],
+  measures: [
+    'The ferry captain welcomed everyone on board and pointed out the lifeboats.',
+    'The air steward served drinks and then collected the empty cups.',
+    'A cyclist waited at the traffic lights for the green signal.'
+  ],
+  estimate: [
+    'The tourists photographed the old castle from the harbour wall.',
+    'A cyclist stopped beside the road to fix a puncture.',
+    'The ferry left the harbour at noon and reached the island before dark.'
+  ],
+  regulation: [
+    'The mechanic repaired the brakes while the family waited beside the road.',
+    'The taxi driver took a shortcut through the old town.',
+    'The cyclist stopped at the traffic lights and waited for the signal to change.'
+  ],
+  operate: [
+    'The tourists bought postcards at the kiosk near the harbour.',
+    'The ferry arrived at the port and the passengers walked off slowly.',
+    'The pilot spoke to the control tower and checked the weather report.'
   ]
 });

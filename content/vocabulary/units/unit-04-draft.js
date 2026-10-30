@@ -1,4 +1,4 @@
-// UNIT 4 – TRANSPORT: authoring draft (batches 1–3 = words 1–30). Source: 0511 key words UNIT 4 – TRANSPORT (coursebook order). Words 31–50 are not locked yet.
+// UNIT 4 – TRANSPORT: authoring draft (batches 1–4 = words 1–40). Source: 0511 key words UNIT 4 – TRANSPORT (coursebook order). Words 41–50 are not locked yet.
 // Same architecture as unit-03.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-04-draft.js
 // A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-04.js only when all 50 words are final.
 import { buildCuratedUnit } from '../build-unit.js';
@@ -873,6 +873,288 @@ const entries = [
         { id:'1', answer:'participant', wrong:['spectator', 'engineer', 'pilot'] },
         { id:'2', answer:'participant', wrong:['passenger', 'spectator', 'inspector'] },
         { id:'3', answer:'participant', wrong:['spectator', 'engineer', 'journalist'] }
+      ]
+    }),
+  e('livelihood', 'noun',
+    'the work or activity that a person depends on to earn money for living',
+    ['means of earning a living', 'source of income'],
+    ['the amount of money a person is paid each month', 'the particular position a person holds in a company', 'the way a person chooses to live and spend free time'],
+    'For thousands of families in the region, ferry work provides their livelihood.',
+    'means of earning a living', 'For thousands of families in the region, ferry work provides their means of earning a living.',
+    'source of income', 'Closing the bus depot would destroy the only source of income for many local families.',
+    {
+      masteryContexts:[
+        { text:'Many taxi drivers depend on tourism for their livelihood.', meaning:'the way a person earns money to live' },
+        { text:'When the ferry service closed, hundreds of dockworkers lost their livelihood.', meaning:'the work that a person depends on for an income' }
+      ],
+      situationDistractors:[
+        'The family spent the weekend at a beach resort and relaxed in the sun.',
+        'The manager moved to a larger office on the top floor of the building.',
+        'The tourists asked the guide where they could buy a cup of coffee.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Ferry work has been the livelihood of many families on the island for generations.', target:'livelihood', grammarPattern:'' },
+        { id:'2', text:'The new motorway threatened the livelihood of the owners of small roadside cafés.', target:'livelihood', grammarPattern:'' },
+        { id:'3', text:'Many rickshaw drivers earn their livelihood by carrying tourists around the old city.', target:'livelihood', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'livelihood', wrong:['hobby', 'uniform', 'fashion'] },
+        { id:'2', answer:'livelihood', wrong:['holiday', 'uniform', 'neighbour'] },
+        { id:'3', answer:'livelihood', wrong:['holiday', 'uniform', 'weekend'] }
+      ]
+    }),
+  e('fatality', 'noun',
+    'a death caused by an accident, disaster or similar event',
+    ['death', 'loss of life'],
+    ['an injury that heals after a few weeks', 'a person who is hurt in an accident', 'a report written after an accident'],
+    'Each fatality on the road is a reminder of why speed limits matter.',
+    'death', 'Each death on the road is a reminder of why speed limits matter.',
+    'loss of life', 'Fortunately, the collision caused no loss of life.',
+    {
+      masteryContexts:[
+        { text:'Fortunately, the minor crash at the roundabout caused no fatality, only some damage to the vehicles.', meaning:'a death caused by an accident' },
+        { text:'Each fatality on the railway is recorded in an official report so that safety can be improved.', meaning:'a death in an accident or disaster' }
+      ],
+      situationDistractors:[
+        'A cyclist fell off her bike and bruised her knee, but she was able to walk home.',
+        'The bus was delayed for an hour after the driver took a wrong turning.',
+        'Rescue workers helped everyone leave the damaged ferry safely.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Investigators are still trying to discover what caused the single fatality in last night’s bus accident.', target:'fatality', grammarPattern:'' },
+        { id:'2', text:'New speed limits were introduced after a fatality at the same junction.', target:'fatality', grammarPattern:'' },
+        { id:'3', text:'The airline had an excellent record, with not a single fatality in thirty years.', target:'fatality', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'fatality', wrong:['delay', 'complaint', 'mistake'] },
+        { id:'2', answer:'fatality', wrong:['festival', 'holiday', 'picnic'] },
+        { id:'3', answer:'fatality', wrong:['holiday', 'festival', 'promotion'] }
+      ]
+    }),
+  e('initiative', 'noun',
+    'a new plan or action intended to solve a problem or improve a situation',
+    ['scheme', 'programme'],
+    ['the ability to make decisions without being told what to do', 'a speech given at the start of a meeting', 'the first lesson in a training course'],
+    'The council introduced a new initiative to reduce traffic outside schools.',
+    'scheme', 'The council introduced a new scheme to reduce traffic outside schools.',
+    'programme', 'A new programme to teach children road safety has started in primary schools.',
+    {
+      masteryContexts:[
+        { text:'The government has announced a new initiative to make roads safer near schools.', meaning:'a new plan to solve a problem' },
+        { text:'The bus company’s latest initiative offers free travel to students on Sundays.', meaning:'a new action intended to improve a situation' }
+      ],
+      situationDistractors:[
+        'The school was closed for the holidays, and the playground was empty.',
+        'The traffic officer waved the cars forward when the lights failed.',
+        'A group of tourists took a photograph in front of the old station.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'A cycling initiative in the city has persuaded thousands of commuters to leave their cars at home.', target:'initiative', grammarPattern:'' },
+        { id:'2', text:'The railway company welcomed the government’s initiative to build a new high-speed line.', target:'initiative', grammarPattern:'' },
+        { id:'3', text:'Local residents started an initiative to clean up the litter beside the main road.', target:'initiative', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'initiative', wrong:['timetable', 'festival', 'engine'] },
+        { id:'2', answer:'initiative', wrong:['complaint', 'timetable', 'festival'] },
+        { id:'3', answer:'initiative', wrong:['argument', 'exercise', 'accident'] }
+      ]
+    }),
+  e('campaign', 'noun',
+    'an organised series of actions intended to achieve a particular result, such as changing public behaviour',
+    ['public-awareness drive', 'planned series of actions'],
+    ['a long fight between two armies', 'a short speech given at a public meeting', 'a plan for the route of a journey'],
+    'The road safety campaign reminds drivers to slow down near schools.',
+    'public-awareness drive', 'The road safety public-awareness drive reminds drivers to slow down near schools.',
+    'planned series of actions', 'A planned series of actions to protect cyclists begins next month.',
+    {
+      masteryContexts:[
+        { text:'The charity started a campaign to persuade cyclists to wear helmets.', meaning:'a series of actions planned to achieve a result' },
+        { text:'Thanks to a successful campaign, the council agreed to build a new crossing outside the school.', meaning:'organised public action to achieve a change' }
+      ],
+      situationDistractors:[
+        'The driver switched on the radio and sang along to his favourite song.',
+        'A single officer stood at the junction and waved cars through.',
+        'The engineers worked late to repair the bridge, then went home.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'A national campaign encourages drivers to put their phones away while driving.', target:'campaign', grammarPattern:'' },
+        { id:'2', text:'The campaign to save the local railway line attracted thousands of supporters.', target:'campaign', grammarPattern:'' },
+        { id:'3', text:'Parents organised a campaign for a safer crossing outside the primary school.', target:'campaign', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'campaign', wrong:['bridge', 'timetable', 'engine'] },
+        { id:'2', answer:'campaign', wrong:['journey', 'timetable', 'tunnel'] },
+        { id:'3', answer:'campaign', wrong:['timetable', 'journey', 'holiday'] }
+      ]
+    }),
+  e('pothole', 'noun',
+    'a hole in the surface of a road caused by wear or damage',
+    ['hole in the road', 'damaged patch of road'],
+    ['a deep hole that is dug for pipes or cables', 'a long crack that runs along the edge of a road', 'a pond or pool of water beside a road'],
+    'The bus driver slowed down to avoid a deep pothole.',
+    'hole in the road', 'The bus driver slowed down to avoid a deep hole in the road.',
+    'damaged patch of road', 'The council promised to repair the damaged patch of road outside the school.',
+    {
+      masteryContexts:[
+        { text:'A deep pothole in the middle of the lane damaged two tyres on the same afternoon.', meaning:'a hole in a road surface caused by damage' },
+        { text:'The council promised to fill every pothole on the main road before the end of the month.', meaning:'a damaged hole in a road' }
+      ],
+      situationDistractors:[
+        'The road had just been resurfaced, and the new tarmac was smooth and black.',
+        'A fallen tree blocked the lane until workers arrived with a saw.',
+        'Workers dug a trench beside the pavement to lay new cables.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The front wheel of the bicycle hit a pothole, and the rider had to stop to check for damage.', target:'pothole', grammarPattern:'' },
+        { id:'2', text:'Heavy lorries and freezing weather soon turned a small crack into a dangerous pothole.', target:'pothole', grammarPattern:'' },
+        { id:'3', text:'Residents have asked the council to repair the pothole outside the primary school.', target:'pothole', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'pothole', wrong:['tunnel', 'village', 'holiday'] },
+        { id:'2', answer:'pothole', wrong:['bridge', 'junction', 'tunnel'] },
+        { id:'3', answer:'pothole', wrong:['holiday', 'weather', 'accident'] }
+      ]
+    }),
+  e('trauma', 'noun',
+    'a serious physical or emotional effect caused by a shocking or dangerous event',
+    ['lasting distress', 'deep shock'],
+    ['a physical illness that spreads quickly', 'a feeling of tiredness after a long journey', 'a sense of pride after an achievement'],
+    'The survivors of the train crash were offered counselling to help them deal with the trauma.',
+    'lasting distress', 'The survivors of the train crash were offered counselling to help them deal with the lasting distress.',
+    'deep shock', 'The deep shock of the accident stayed with the driver for months.',
+    {
+      masteryContexts:[
+        { text:'Witnessing a serious accident can cause trauma that lasts for months.', meaning:'a lasting emotional shock' },
+        { text:'The school arranged support for pupils to help them cope with the trauma of the bus accident.', meaning:'a serious emotional effect caused by a shocking event' }
+      ],
+      situationDistractors:[
+        'The passengers enjoyed the calm crossing and watched dolphins from the deck.',
+        'The driver felt tired after the long journey and stopped for a rest.',
+        'The bus arrived on time, and everyone went straight home.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The pilot received counselling to help him deal with the trauma of the emergency landing.', target:'trauma', grammarPattern:'' },
+        { id:'2', text:'Emergency workers are trained to recognise signs of trauma in people who have been through a disaster.', target:'trauma', grammarPattern:'' },
+        { id:'3', text:'Years after the accident, the driver still felt the trauma every time he heard a loud noise.', target:'trauma', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'trauma', wrong:['cost', 'noise', 'speed'] },
+        { id:'2', answer:'trauma', wrong:['boredom', 'fashion', 'noise'] },
+        { id:'3', answer:'trauma', wrong:['cold', 'price', 'distance'] }
+      ]
+    }),
+  e('measures', 'noun',
+    'actions taken to achieve a result or deal with a problem',
+    ['actions', 'official steps'],
+    ['the sizes of objects, shown in numbers', 'the amounts of money paid for a service', 'the instruments used to find the weight of a load'],
+    'The city has introduced strict measures to cut pollution from traffic.',
+    'actions', 'The city has introduced strict actions to cut pollution from traffic.',
+    'official steps', 'Official steps to improve air quality were announced yesterday.',
+    {
+      masteryContexts:[
+        { text:'The council took emergency measures to clear the snow from the main roads.', meaning:'actions taken to deal with a problem' },
+        { text:'Safety measures on the new tram line include barriers, warning lights and cameras.', meaning:'actions taken to achieve a result such as safety' }
+      ],
+      situationDistractors:[
+        'The tourists bought tickets and boarded the sightseeing bus.',
+        'The pilot announced that the flight would land in twenty minutes.',
+        'A mechanic washed the car and polished the wheels.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Cameras and speed bumps are among the measures used to slow down drivers near schools.', target:'measures', grammarPattern:'' },
+        { id:'2', text:'Emergency measures were taken to repair the flooded railway line before the morning rush hour.', target:'measures', grammarPattern:'' },
+        { id:'3', text:'Airports have introduced extra security measures after the warning.', target:'measures', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'measures', wrong:['tickets', 'uniforms', 'timetables'] },
+        { id:'2', answer:'measures', wrong:['holidays', 'uniforms', 'timetables'] },
+        { id:'3', answer:'measures', wrong:['holidays', 'fares', 'meals'] }
+      ]
+    }),
+  e('estimate', 'verb',
+    'to calculate or judge an amount approximately',
+    ['roughly calculate', 'judge approximately'],
+    ['to count exactly how many there are', 'to guess without any evidence', 'to give a firm promise about something'],
+    'Transport officials estimate that more than ten thousand passengers use the station every day.',
+    'roughly calculate', 'Transport officials roughly calculate that more than ten thousand passengers use the station every day.',
+    'judge approximately', 'The engineers judge approximately how long the repairs will take.',
+    {
+      grammarForms:{ base:'estimate', thirdPerson:'estimates', past:'estimated', pastParticiple:'estimated', ing:'estimating' },
+      masteryContexts:[
+        { text:'Engineers estimate that the new bridge will cost about two hundred million pounds.', meaning:'to calculate approximately' },
+        { text:'It is difficult to estimate how many cars use this road because there are no counting machines.', meaning:'to judge an amount without exact figures' }
+      ],
+      situationDistractors:[
+        'The driver counted every passenger as they got on and wrote down the exact number.',
+        'The bus company published the exact timetable on its website.',
+        'The engineer measured the bridge with a tape and recorded the precise length.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Experts estimate that heavy traffic costs the city millions of pounds in lost time each year.', target:'estimate', grammarPattern:'' },
+        { id:'2', text:'It is hard to estimate how long the roadworks will last until the engineers finish their survey.', target:'estimate', grammarPattern:'' },
+        { id:'3', text:'Before you set off, use a map to estimate how long the journey will take.', target:'estimate', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'estimate', wrong:['regret', 'refuse', 'forget'] },
+        { id:'2', answer:'estimate', wrong:['regret', 'refuse', 'announce'] },
+        { id:'3', answer:'estimate', wrong:['forget', 'repair', 'sell'] }
+      ]
+    }),
+  e('regulation', 'noun',
+    'an official rule made by an authority',
+    ['official rule', 'formal requirement'],
+    ['a set of laws considered together', 'a habit that a person follows each day', 'a suggestion that people may ignore'],
+    'A new regulation says that all lorries must be fitted with a speed-limiting device.',
+    'official rule', 'A new official rule says that all lorries must be fitted with a speed-limiting device.',
+    'formal requirement', 'A formal requirement forces all drivers to carry a warning triangle.',
+    {
+      masteryContexts:[
+        { text:'Under the new regulation, every school bus must have a seat belt for each child.', meaning:'an official rule made by an authority' },
+        { text:'The airline broke a safety regulation, so it was fined by the aviation authority.', meaning:'an official rule about how something must be done' }
+      ],
+      situationDistractors:[
+        'The driver chose a different route because he wanted to see the coast.',
+        'The bus company offered a discount to passengers who travelled on Sundays.',
+        'The tourists asked the guide where they could buy a cup of coffee.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'European regulation requires every new car to be fitted with a rear-view camera.', target:'regulation', grammarPattern:'' },
+        { id:'2', text:'Under international regulation, pilots must take regular medical tests.', target:'regulation', grammarPattern:'' },
+        { id:'3', text:'The tour company was fined for ignoring a basic safety regulation.', target:'regulation', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'regulation', wrong:['timetable', 'holiday', 'fashion'] },
+        { id:'2', answer:'regulation', wrong:['holiday', 'weather', 'fashion'] },
+        { id:'3', answer:'regulation', wrong:['festival', 'holiday', 'journey'] }
+      ]
+    }),
+  e('operate', 'verb',
+    'to control or use a machine, vehicle or system',
+    ['control', 'work'],
+    ['to repair a machine that is not working', 'to build a machine from separate parts', 'to sell a machine to a customer'],
+    'Only trained staff are allowed to operate the cranes in the port.',
+    'control', 'Only trained staff are allowed to control the cranes in the port.',
+    'work', 'It takes years of training to learn how to work a large crane safely.',
+    {
+      grammarForms:{ base:'operate', thirdPerson:'operates', past:'operated', pastParticiple:'operated', ing:'operating' },
+      masteryContexts:[
+        { text:'Drivers need a special licence to operate a heavy lorry.', meaning:'to control and use a vehicle' },
+        { text:'The pilot learned to operate the aircraft’s flight computer.', meaning:'to use a system correctly' }
+      ],
+      situationDistractors:[
+        'The crane stood still beside the quay because the workers had gone home.',
+        'A mechanic repaired the engine of the tractor in his workshop.',
+        'The engineers designed the new crane on a computer and sent the plans to the factory.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'It takes years of practice to learn how to operate a large passenger aircraft safely.', target:'operate', grammarPattern:'' },
+        { id:'2', text:'Passengers should not try to operate the emergency door unless the crew tell them to.', target:'operate', grammarPattern:'' },
+        { id:'3', text:'The new bus is easy to operate, so drivers need only a short training course.', target:'operate', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'operate', wrong:['sell', 'paint', 'photograph'] },
+        { id:'2', answer:'operate', wrong:['destroy', 'paint', 'deliver'] },
+        { id:'3', answer:'operate', wrong:['paint', 'steal', 'insure'] }
       ]
     })
 ];

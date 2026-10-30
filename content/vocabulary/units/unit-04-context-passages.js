@@ -123,5 +123,45 @@ export default Object.freeze({
   participant: [
     p('The city held a car-free day to encourage cleaner travel. Every ____ agreed to leave their car at home and go to work by bus, tram or bicycle.', 'participant', 'Event; "Every ____ agreed".'),
     p('Researchers tested a new road safety app with fifty drivers. Each ____ used the app for a month and then answered questions about their driving.', 'participant', 'Trial with fifty drivers; "Each ____ used the app".')
+  ],
+  livelihood: [
+    p('The new bypass will take traffic away from the village. Local shopkeepers fear that fewer customers will damage their ____.', 'livelihood', 'Shopkeepers and customers; "damage their ____".'),
+    p('In many coastal towns, tourism is the only way to earn a living. When storms stopped the ferries for a month, boat owners and guides lost their ____.', 'livelihood', 'Way to earn a living; "lost their ____".')
+  ],
+  fatality: [
+    p('The charity reported that road accidents are a major cause of death among young people in the region. Each ____ on the roads is a tragedy for a family and a community.', 'fatality', 'Road accidents and death; "Each ____ on the roads".'),
+    p('The new safety system has transformed the railway. In the last decade there has not been a single ____, although millions of passengers use the trains every day.', 'fatality', 'Safety record; "not been a single ____".')
+  ],
+  initiative: [
+    p('Too many pupils were being driven to school, which caused heavy traffic at the gates. So the head teacher started a walking ____ in which parents and children meet and walk together.', 'initiative', 'A new scheme to solve traffic at the gates.'),
+    p('The city had a serious problem with air pollution. In response, the mayor announced a bold new ____ to encourage cycling and public transport.', 'initiative', 'Response to a problem; "a bold new ____".')
+  ],
+  campaign: [
+    p('Too many drivers were using their mobile phones at the wheel. So the government started a television ____ showing how quickly an accident can happen.', 'campaign', 'Government effort to change behaviour; "a television ____".'),
+    p('Local cyclists wanted a protected lane on the busy main road. They collected signatures, wrote to the council and held a public meeting as part of their ____.', 'campaign', 'Signatures, letters, meeting; "part of their ____".')
+  ],
+  pothole: [
+    p('After a hard winter, the main road was in terrible condition. Cars bumped from side to side as drivers tried to avoid every ____ in the surface.', 'pothole', 'Damaged surface; drivers avoiding "every ____".'),
+    p('A small crack in the tarmac let rainwater seep underneath. When the water froze and thawed, the crack grew until it became a deep ____ that damaged several tyres.', 'pothole', 'Crack grows into a deep hole damaging tyres.')
+  ],
+  trauma: [
+    p('Emergency workers often arrive first at the scene of a serious accident. Afterwards, many of them talk to a counsellor to help them deal with the ____ of what they have seen.', 'trauma', 'Counsellor; "deal with the ____".'),
+    p('The school bus accident was frightening, although nobody was seriously hurt. For several weeks, some of the children found it difficult to travel by road because of the ____ they had experienced.', 'trauma', 'Frightening event with lasting emotional effect.')
+  ],
+  measures: [
+    p('Air pollution in the capital reached dangerous levels last winter. As a result, the authorities took urgent ____, including a ban on older diesel cars in the city centre.', 'measures', 'Authorities took urgent ____, with a ban as an example.'),
+    p('Too many cyclists were being injured at the roundabout. The council therefore introduced several safety ____: separate cycle lanes, clearer signs and lower speed limits.', 'measures', 'A list of actions; "several safety ____".')
+  ],
+  estimate: [
+    p('Nobody has counted every traveller who passes through the station. However, officials ____ that about ten thousand people use it on a normal weekday.', 'estimate', 'Nobody has counted exactly; "officials ____ that about".'),
+    p('Before they start building, engineers must ____ the cost of the project. They compare similar projects and add a safety margin because the final bill is never exactly known.', 'estimate', 'Final bill is not exactly known; compare and add a margin.')
+  ],
+  regulation: [
+    p('Airlines may only carry a limited weight of cargo on each flight. This ____ exists to protect passengers, and companies that ignore it can be fined.', 'regulation', 'Official limit with fines; "This ____ exists".'),
+    p('Cyclists in some countries must have a working light on their bike after dark. A police officer can stop anyone who breaks this ____.', 'regulation', 'Officers enforce it; "breaks this ____".')
+  ],
+  operate: [
+    p('Learner pilots begin by practising on a simulator. Only after many hours are they allowed to ____ a real aeroplane with passengers on board.', 'operate', 'Allowed to control a real aeroplane after simulator practice.'),
+    p('Tram drivers must complete a training course before they are allowed to ____ the vehicles. They learn how the brakes, doors and signals work.', 'operate', 'Training on brakes, doors, signals; "allowed to ____ the vehicles".')
   ]
 });
