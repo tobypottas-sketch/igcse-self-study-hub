@@ -52,7 +52,17 @@ const phraseSets = [
   phrase('work_remotely', 'work from a different place using a computer link', 'work remotely', ['vocab_remotely'], { acceptedVariants:['work from a distance'], chunks:['work', 'remotely'], distortions:['work in the main office', 'work without any technology', 'work only at weekends'] }),
   phrase('transform_station', 'change the old station completely', 'transform the old station', ['vocab_transform'], { acceptedVariants:['completely change the old station'], chunks:['transform', 'the old station'], distortions:['repair the old station slightly', 'close the old station', 'paint the old station'] }),
   phrase('high_percentage', 'a large part out of every hundred students', 'a high percentage of students', ['vocab_percentage'], { acceptedVariants:['a large percentage of students'], chunks:['a high', 'percentage', 'of students'], distortions:['a small percentage of students', 'the total number of students', 'the average age of students'] }),
-  phrase('good_impression', 'a positive feeling about someone after meeting them', 'a good impression', ['vocab_impression'], { acceptedVariants:['a positive impression'], chunks:['a good', 'impression'], distortions:['a bad impression', 'a final decision', 'a written report'] })
+  phrase('good_impression', 'a positive feeling about someone after meeting them', 'a good impression', ['vocab_impression'], { acceptedVariants:['a positive impression'], chunks:['a good', 'impression'], distortions:['a bad impression', 'a final decision', 'a written report'] }),
+  phrase('remote_control_tv', 'a handheld device for changing the television channel from across the room', 'a remote control', ['vocab_remote_control'], { acceptedVariants:['a TV remote control'], chunks:['a', 'remote control'], distortions:['a switch on the television itself', 'a cable that joins the television to the wall', 'a screen that shows the television programme'] }),
+  phrase('key_feature', 'an important part of how a product is designed', 'a key feature', ['vocab_feature'], { acceptedVariants:['a main feature'], chunks:['a key', 'feature'], distortions:['a serious fault', 'a low price', 'a customer review'] }),
+  phrase('main_function', 'the job that a part of a machine is made to do', 'the main function', ['vocab_function'], { acceptedVariants:['the main purpose'], chunks:['the main', 'function'], distortions:['the main colour', 'the main cost', 'the main weakness'] }),
+  phrase('interactive_lesson', 'a lesson in which students take part and respond', 'an interactive lesson', ['vocab_interactive'], { acceptedVariants:['a participatory lesson'], chunks:['an', 'interactive', 'lesson'], distortions:['a lesson given by a recording', 'a lesson with no students', 'a lesson that is too short'] }),
+  phrase('widespread_use', 'use by people in many places', 'widespread use', ['vocab_widespread'], { acceptedVariants:['common use'], chunks:['widespread', 'use'], distortions:['use by a small group', 'use only on weekends', 'use that is not allowed'] }),
+  phrase('limited_availability', 'only a few can be obtained', 'limited availability', ['vocab_availability'], { acceptedVariants:['restricted availability'], chunks:['limited', 'availability'], distortions:['unlimited availability', 'unusual quality', 'lower price'] }),
+  phrase('high_performance_laptop', 'a computer that works at very high speed', 'a high-performance laptop', ['vocab_high_performance'], { acceptedVariants:['a high-performance computer'], chunks:['a', 'high-performance', 'laptop'], distortions:['a cheap laptop', 'a broken laptop', 'a very old laptop'] }),
+  phrase('stabilising_effect', 'an influence that makes a situation steadier', 'a stabilising effect', ['vocab_stabilising'], { acceptedVariants:['a steadying effect'], chunks:['a', 'stabilising', 'effect'], distortions:['a worrying effect', 'a very small effect', 'a sudden effect'] }),
+  phrase('multi_task_easily', 'do several jobs at the same time', 'multi-task', ['vocab_multi_task'], { acceptedVariants:['multitask'], chunks:['multi-task'], distortions:['do one job at a time', 'do jobs slowly', 'avoid doing any jobs'] }),
+  phrase('predictable_result', 'a result that people can guess in advance', 'a predictable result', ['vocab_predictable'], { acceptedVariants:['an expected result'], chunks:['a', 'predictable', 'result'], distortions:['a surprising result', 'a disappointing result', 'a result nobody saw'] })
 ];
 
 const ideaSets = [
@@ -155,7 +165,57 @@ const ideaSets = [
     { text:'The new student made her teachers think badly of her.', misconceptionCategory:'meaning_confusion' },
     { text:'The teachers made a very good impression on the new student.', misconceptionCategory:'cause_effect_change' },
     { text:'The new student hardly changed what her teachers thought.', misconceptionCategory:'degree_change' }
-  ], ['vocab_impression'])
+  ], ['vocab_impression']),
+  idea('remote_control', 'The boy steered the toy car across the garden with a remote control.', ['The boy guided the toy car across the garden using a handheld device.', 'Using a handheld device, the boy made the toy car move across the garden.', 'The boy drove the toy car around the garden from a distance with a controller.'], 'cause_effect', 'the boy controls the car', [
+    { text:'The toy car steered the boy across the garden.', misconceptionCategory:'cause_effect_change' },
+    { text:'The boy carried the toy car across the garden.', misconceptionCategory:'meaning_confusion' },
+    { text:'The boy steered the toy car across the garden by pushing it.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_remote_control']),
+  idea('feature', 'The most useful feature of this phone is its long battery life.', ['The best thing about this phone is that its battery lasts a long time.', 'This phone’s most helpful quality is its long-lasting battery.', 'What makes this phone most useful is a battery that lasts for a long time.'], 'comparison', 'the most useful', [
+    { text:'The least useful thing about this phone is its short battery life.', misconceptionCategory:'polarity_change' },
+    { text:'The phone is useful because its battery is cheap to replace.', misconceptionCategory:'meaning_confusion' },
+    { text:'One useful thing about this phone is its long battery life.', misconceptionCategory:'degree_change' }
+  ], ['vocab_feature']),
+  idea('function', 'The function of a thermostat is to control the temperature in a room.', ['A thermostat is made to control the temperature in a room.', 'The purpose of a thermostat is to keep the temperature of a room under control.', 'A thermostat does the job of controlling the temperature in a room.'], 'cause_effect', 'controls the temperature', [
+    { text:'A thermostat is made to measure the time in a room.', misconceptionCategory:'meaning_confusion' },
+    { text:'A thermostat is controlled by the temperature of a room.', misconceptionCategory:'cause_effect_change' },
+    { text:'A thermostat sometimes controls the temperature in a room.', misconceptionCategory:'degree_change' }
+  ], ['vocab_function']),
+  idea('interactive', 'Students enjoy the interactive displays in the science museum.', ['Students enjoy the displays in the science museum that they can touch and respond to.', 'In the science museum, students like the displays that react to what they do.', 'The science museum has displays that students can take part in, and they enjoy them.'], 'polarity', 'students like the displays', [
+    { text:'Students dislike the interactive displays in the science museum.', misconceptionCategory:'meaning_confusion' },
+    { text:'Students enjoy the displays in the science museum but cannot touch them.', misconceptionCategory:'omitted_information' },
+    { text:'Students enjoy the museum shop in the science museum.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_interactive']),
+  idea('widespread', 'Flooding was widespread across the north of the country last winter.', ['Flooding affected many parts of the north of the country last winter.', 'Last winter, floods covered large areas across the north of the country.', 'Last winter, the north of the country was hit by floods in many places.'], 'quantity', 'many places', [
+    { text:'Flooding affected only one village in the north last winter.', misconceptionCategory:'quantity_change' },
+    { text:'Flooding was widespread across the south of the country last winter.', misconceptionCategory:'meaning_confusion' },
+    { text:'Flooding was widespread in the north last summer.', misconceptionCategory:'time_change' }
+  ], ['vocab_widespread']),
+  idea('availability', 'The availability of fresh fruit improves in the summer months.', ['It is easier to get fresh fruit in the summer months.', 'In the summer months, fresh fruit becomes easier to find.', 'During summer, there is more fresh fruit to buy.'], 'time', 'in the summer months', [
+    { text:'Fresh fruit becomes harder to find in the summer months.', misconceptionCategory:'degree_change' },
+    { text:'The price of fresh fruit improves in the summer months.', misconceptionCategory:'meaning_confusion' },
+    { text:'It is easier to get fresh fruit in the winter months.', misconceptionCategory:'time_change' }
+  ], ['vocab_availability']),
+  idea('high_performance', 'Professional cyclists ride high-performance bikes in major races.', ['Professional cyclists ride very fast, powerful bikes in major races.', 'In major races, professional cyclists use bikes built for top speed.', 'Top cyclists use specially built, powerful bikes in important races.'], 'degree', 'top level', [
+    { text:'Professional cyclists ride cheap bikes in major races.', misconceptionCategory:'meaning_confusion' },
+    { text:'Some cyclists ride high-quality bikes in small races.', misconceptionCategory:'quantity_change' },
+    { text:'Professional cyclists ride slightly faster bikes in major races.', misconceptionCategory:'degree_change' }
+  ], ['vocab_high_performance']),
+  idea('stabilising', 'The new manager has had a stabilising effect on the team.', ['The new manager has made the team steadier.', 'Since the new manager arrived, the team has become more settled.', 'The team has become calmer and more settled because of the new manager.'], 'cause_effect', 'the manager causes the change', [
+    { text:'The team has had a stabilising effect on the new manager.', misconceptionCategory:'cause_effect_change' },
+    { text:'The new manager has made the team more nervous.', misconceptionCategory:'meaning_confusion' },
+    { text:'The new manager has had a small effect on the team.', misconceptionCategory:'degree_change' }
+  ], ['vocab_stabilising']),
+  idea('multi_task', 'Few people can multi-task effectively while they study.', ['Few people can do several jobs well at the same time while they study.', 'Only a small number of people manage to do many things at once while studying.', 'It is difficult for most people to study well while doing other things at the same time.'], 'quantity', 'few people', [
+    { text:'Many people can do several jobs well at the same time while they study.', misconceptionCategory:'quantity_change' },
+    { text:'Few people can study for a long time.', misconceptionCategory:'meaning_confusion' },
+    { text:'Few people can study well at night.', misconceptionCategory:'time_change' }
+  ], ['vocab_multi_task']),
+  idea('predictable', 'The ending of the story was entirely predictable.', ['Everyone could guess the ending of the story.', 'It was easy to guess how the story would end.', 'The story’s ending was exactly what readers expected.'], 'degree', 'completely', [
+    { text:'The ending of the story was partly predictable.', misconceptionCategory:'degree_change' },
+    { text:'The ending of the story was impossible to guess.', misconceptionCategory:'meaning_confusion' },
+    { text:'The ending of the story was predictable, but the beginning was not.', misconceptionCategory:'added_information' }
+  ], ['vocab_predictable'])
 ];
 
 export default [...phraseSets, ...ideaSets];

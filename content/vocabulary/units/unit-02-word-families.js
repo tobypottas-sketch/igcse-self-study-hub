@@ -79,7 +79,35 @@ export const unit2WordFamilies = Object.freeze({
     f('impression', 'noun', 'The photographs gave a false impression of the hotel.', 'Headword.'),
     f('impress', 'verb', 'She hoped to impress the judges with her speech.', 'The base verb.'),
     f('impressed', 'adjective', 'The examiners were impressed by the quality of her essay.', 'Very common participle adjective for reactions.')
-  ], excludedForms: [{ form: 'impressive', reason: 'It is a separate target later in Unit 2, so it is taught there.' }] }
+  ], excludedForms: [{ form: 'impressive', reason: 'It is a separate target later in Unit 2, so it is taught there.' }] },
+  availability: { forms: [
+    f('availability', 'noun', 'The availability of fresh food is a problem in some regions.', 'Headword.'),
+    f('available', 'adjective', 'Free wi-fi is available in every classroom.', 'The base adjective; far more frequent than the noun.'),
+    f('unavailable', 'adjective', 'The tickets were unavailable online after midday.', 'Common negative adjective.')
+  ] },
+  function: { forms: [
+    f('function', 'noun', 'The function of a hinge is to let a door swing open.', 'Headword.'),
+    f('functional', 'adjective', 'The kitchen is small but perfectly functional.', 'Common adjective in descriptions of design and buildings.'),
+    f('malfunction', 'noun', 'A malfunction in the software caused the system to crash.', 'Frequent in technology and news texts: a failure to work properly.')
+  ], excludedForms: [{ form: 'functionality', reason: 'Technical near-synonym of "features"; it would blur the feature / function contrast taught in this unit.' }] },
+  interactive: { forms: [
+    f('interactive', 'adjective', 'The website has several interactive maps that respond to clicks.', 'Headword.'),
+    f('interact', 'verb', 'Babies learn quickly when adults interact with them.', 'The base verb.'),
+    f('interaction', 'noun', 'Face-to-face interaction is important for young children.', 'The common noun; frequent in education and technology texts.')
+  ], excludedForms: [{ form: 'interactivity', reason: 'Technical abstract noun beyond the level of this unit.' }] },
+  stabilising: { forms: [
+    f('stabilising', 'adjective', 'The coach’s calm voice had a stabilising effect on the nervous team.', 'Headword.'),
+    f('stabilise', 'verb', 'Doctors worked quickly to stabilise the patient before the journey.', 'The base verb (British spelling).'),
+    f('stable', 'adjective', 'The ladder must be stable before anyone climbs it.', 'The root adjective; far more frequent than the headword.'),
+    f('stability', 'noun', 'The country needs political stability to attract investors.', 'The common noun in news and discussion writing.'),
+    f('unstable', 'adjective', 'The unstable bridge was closed to traffic.', 'Common negative adjective.')
+  ], excludedForms: [{ form: 'stabiliser', reason: 'Technical noun for a device; adds little for iGCSE.' }] },
+  predictable: { forms: [
+    f('predictable', 'adjective', 'The ending of the film was entirely predictable.', 'Headword.'),
+    f('predict', 'verb', 'No one can predict exactly how technology will change our lives.', 'The base verb.'),
+    f('prediction', 'noun', 'Her prediction about the exam questions turned out to be correct.', 'The common noun.'),
+    f('unpredictable', 'adjective', 'Mountain weather can be dangerously unpredictable.', 'The most useful negative; very frequent in description and discussion.')
+  ], excludedForms: [{ form: 'predictably', reason: 'Regular adverb; adds little beyond the adjective at this level.' }] }
 });
 
 // Headwords considered and NOT made families: a bare list would offer unauthorised members in Recognise/Match.
@@ -89,5 +117,10 @@ export const unit2WordFamilyRejected = Object.freeze({
   apparently: 'Its only relative, "apparent", is common but means "clear or obvious" in many uses ("it is apparent that"), which is almost the opposite of "apparently"; the family would teach a false link and has only two forms.',
   celebrity: '"celebrate" and "celebration" mean marking a special occasion, a different meaning, and "celebrities" is only the plural; the family would teach a false link.',
   remotely: 'Only "remote" is common; "remoteness" is rare, so the family has two forms, not three. "Remote control" is its own Unit 2 target.',
-  percentage: 'Its only relative, "percent" / "per cent", is the same kind of word, so the family has one part of speech and no useful derivative.'
+  percentage: 'Its only relative, "percent" / "per cent", is the same kind of word, so the family has one part of speech and no useful derivative.',
+  'remote control': 'A fixed two-word noun phrase: it has no derived forms ("remote" alone is a separate adjective).',
+  feature: 'The verb shares the noun’s spelling, "featured" is a participle and "featureless" is rare, so there are fewer than three distinct teachable forms.',
+  widespread: 'A compound of "wide" and "spread" with no derived forms; "spread" and "widely" are different words, so the family would be forced.',
+  'high-performance': 'A compound adjective: its relatives (perform, performance, performer) belong to a different headword, so they would not describe this word.',
+  'multi-task': 'Its only relatives are the -ing and -er forms of the same compound ("multi-tasking", "multi-tasker"), which are rare and written inconsistently ("multitask"); the family would give no reliable marking.'
 });

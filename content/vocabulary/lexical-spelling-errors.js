@@ -71,4 +71,14 @@ export const LEXICAL_SPELLING_ERRORS = Object.freeze({
   "vocab_transform":["transfrom","tranform","transfom","trasform","transferm","transforn"], // transform (Unit 2)
   "vocab_percentage":["percentege","precentage","percantage","percentge","pecentage","persentage"], // percentage (Unit 2)
   "vocab_impression":["impresion","impresssion","imprestion","impreshion","inpression","empression"], // impression (Unit 2)
+  "vocab_remote_control":["remot control","remote contrel","remote controll","remoat control","remote cotrol","remote contol"], // remote control (Unit 2)
+  "vocab_feature":["featur","feture","feeature","featuer","fearture","feachure"], // feature (Unit 2)
+  "vocab_function":["funtion","fuction","funcion","functon","functoin","funccion"], // function (Unit 2)
+  "vocab_interactive":["intaractive","interactiv","interactave","intreractive","interractive","interective"], // interactive (Unit 2)
+  "vocab_widespread":["widespred","widesprad","wydespread","widespreed","widdespread","widesread"], // widespread (Unit 2)
+  "vocab_availability":["availablity","avalibility","availabilty","aviability","availibility","availabilaty"], // availability (Unit 2)
+  "vocab_high_performance":["high-preformance","high-performence","high-perfomance","high-performanse","high-peformance","high-performanc"], // high-performance (Unit 2)
+  "vocab_stabilising":["stablising","stabillising","stabiliseing","stabalising","stabilisng","stebilising"], // stabilising (Unit 2): "stabilizing" is the valid US spelling, so it is not listed as an error
+  "vocab_multi_task":["multi task","mult-task","multi-tsak","multy-task","multi-taks","mutli-task"], // multi-task (Unit 2): "multitask" is an accepted variant, so it is not listed as an error
+  "vocab_predictable":["predicable","predictible","predictabel","predectable","preditable","predictabull"], // predictable (Unit 2)
 });

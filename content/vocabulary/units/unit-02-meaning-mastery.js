@@ -101,5 +101,49 @@ export default Object.freeze({
     w(['a strong argument for changing the law', 'a strong reaction against a bad idea', 'a strong promise to improve the town'],
       { meaning: 'a strong effect on what people think of someone', reason: 'The draft gloss was a clause ("caused people to think well of him"); reworded as a noun phrase so it reads as the meaning of a noun.' }),
     w(['a proof that something is true', 'a rule that everyone must follow', 'a memory of an earlier lesson'])
+  ],
+  'remote control': [
+    w(['a switch fixed to the side of a machine', 'a cable that connects a machine to a socket', 'a screen that shows what a machine is doing']),
+    w(['a camera that records what a drone sees', 'a battery that powers the drone in flight', 'a case that protects the drone when stored'])
+  ],
+  feature: [
+    w(['a fault that makes a product unsafe', 'a price that makes a product attractive', 'a review that helps people choose a product']),
+    w(['a rule that visitors must follow', 'a map that shows the way around', 'a danger that visitors must avoid'])
+  ],
+  function: [
+    w(['what it looks like', 'how much it costs', 'where it was made']),
+    w(['the name or title of a group', 'the size and age of a group', 'the history and origin of a group'])
+  ],
+  interactive: [
+    w(['designed to be used by teachers only', 'able to show pictures in colour', 'fixed to the wall of a room']),
+    w(['taking place outside the school', 'led entirely by one speaker', 'recorded for later viewing'],
+      { text: 'Students stay more engaged when a lesson is interactive instead of a long lecture.', meaning: 'involving active participation',
+        reason: 'The draft sentence began with the target, so the blank would have hidden the capital letter; the sentence was reworded.' })
+  ],
+  widespread: [
+    w(['limited to one small area', 'caused by a sudden accident', 'expected by local people']),
+    w(['kept secret by a few people', 'opposed by many people', 'explained by one person'])
+  ],
+  availability: [
+    w(['how much something costs', 'what something looks like', 'who is selling something']),
+    w(['how safe something is to use', 'how long something lasts for', 'how popular something is with people'])
+  ],
+  'high-performance': [
+    w(['designed to be small and light', 'made to be cheap and simple', 'built to last for many years']),
+    w(['cheap and easy to repair', 'quiet and kind to the environment', 'old but still in good condition'],
+      { text: 'Racing teams spend huge sums on high-performance engines.', meaning: 'powerful and able to work at top speed',
+        reason: 'The draft sentence began with the target, so the blank would have hidden the capital letter; the sentence was reworded.' })
+  ],
+  stabilising: [
+    w(['making a situation busier and louder', 'causing students to compete harder', 'making lessons shorter and easier']),
+    w(['making something faster and lighter', 'making something hotter and louder', 'making something larger and stronger'])
+  ],
+  'multi-task': [
+    w(['finish one thing before starting another', 'repeat the same thing many times', 'share one thing between several people']),
+    w(['work very slowly on one job', 'ask for help with every job', 'change jobs very often'])
+  ],
+  predictable: [
+    w(['very different from what people wanted', 'too sudden for people to notice', 'kinder than people deserved']),
+    w(['difficult to live in for long', 'harmful to people and animals', 'different every single day'])
   ]
 });

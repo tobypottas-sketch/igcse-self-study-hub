@@ -84,5 +84,45 @@ export default Object.freeze({
   impression: [
     p('Tom wore a clean shirt, shook the interviewer’s hand and smiled. He knew that the first few minutes would decide what the panel thought of him, so he wanted to make a good ____.', 'impression', 'Interview first minutes; "make a good ____".'),
     p('The streets were quiet and the shops were closing early. I got the ____ that most people in the town had gone away for the holidays.', 'impression', '"got the ____ that" a belief from what was seen.')
+  ],
+  'remote control': [
+    p('The family sat down to watch a film, but the television stayed on the wrong channel. After ten minutes of searching under the sofa cushions, Dad finally found the ____ and pressed the button.', 'remote control', 'Searching the sofa; pressing the button to change the channel.'),
+    p('The toy helicopter hovered above the garden while the boy stood on the grass. He steered it left and right using the ____ in his hands.', 'remote control', 'Steering a toy from the ground using something in his hands.')
+  ],
+  feature: [
+    p('Customers compared three laptops before buying one. The deciding ____ was the battery, which could last for fifteen hours on a single charge.', 'feature', 'Comparing products; "the deciding ____" is one quality.'),
+    p('The hotel is not especially large or cheap. Its best ____, according to most guests, is the garden terrace overlooking the sea.', 'feature', '"Its best ____" among the hotel’s qualities.')
+  ],
+  function: [
+    p('Every part of the human body does something important. The ____ of the lungs is to take oxygen from the air and pass it into the blood.', 'function', 'Each body part does something; "The ____ of the lungs is to".'),
+    p('Ella pressed every button on the new camera, but she could not work out what each one did. She asked her brother to explain the ____ of the small red one.', 'function', 'Not knowing what a button does; "explain the ____ of".')
+  ],
+  interactive: [
+    p('At the science museum, visitors do not just look at the displays. They can touch the screens, answer questions and change the experiment, which makes the exhibits much more ____.', 'interactive', 'Touch, answer, change: visitors take part.'),
+    p('A recorded lecture keeps students silent for an hour. By contrast, a really ____ lesson lets them vote, ask questions and work in small groups.', 'interactive', 'Contrast with silent lecture: voting, questions, groups.')
+  ],
+  widespread: [
+    p('Heavy rain fell across the whole country for a week. The ____ flooding damaged roads, farms and homes in dozens of towns.', 'widespread', 'Whole country, dozens of towns.'),
+    p('Ten years ago, only a few families owned a tablet. Today the use of tablets is ____, and almost every classroom has several.', 'widespread', 'Few then, almost everywhere now.')
+  ],
+  availability: [
+    p('A farmer in a remote valley wanted to sell vegetables online, but there was no phone signal for kilometres. The poor ____ of the internet made the plan impossible.', 'availability', 'No signal, so the internet could not be obtained.'),
+    p('Before booking a hotel, check the ____ of rooms for your dates. In summer, the most popular hotels are often full months ahead.', 'availability', 'Check whether rooms can be booked; hotels full.')
+  ],
+  'high-performance': [
+    p('Most office computers are cheap and simple, because they only run email and documents. Video editors, however, need a ____ machine that can handle enormous files without slowing down.', 'high-performance', 'Contrast with cheap simple machines; handles enormous files.'),
+    p('Formula One teams spend millions on their cars. Every ____ engine is tested for months so that it works at maximum speed in every race.', 'high-performance', 'Millions spent; maximum speed.')
+  ],
+  stabilising: [
+    p('After weeks of arguments, the school council needed someone calm. The new head of year had a ____ effect on the whole group, and the meetings became peaceful again.', 'stabilising', 'Arguments, then peace after a calm person arrived.'),
+    p('The tall tower sways in strong winds. Engineers added a ____ system of heavy weights at the top, which stops the building moving too far from side to side.', 'stabilising', 'Sway reduced by weights.')
+  ],
+  'multi-task': [
+    p('Some students write an essay, listen to music and message friends all together. Research suggests that nobody can truly ____, because the brain really switches quickly between the jobs.', 'multi-task', 'Several jobs together; the brain switches between them.'),
+    p('A modern phone can run a map, a music player and a video call together. The reason is that the processor is designed to ____ without crashing.', 'multi-task', 'Several programs run together.')
+  ],
+  predictable: [
+    p('The film began with a hero, a villain and a chase. By the middle, everyone in the cinema knew how it would end, and the story felt completely ____.', 'predictable', 'Everyone knew the ending.'),
+    p('Our bus arrives at exactly the same time every morning and takes the same route. Because the journey is so ____, I can plan my day to the minute.', 'predictable', 'Same time, same route: can be planned.')
   ]
 });
