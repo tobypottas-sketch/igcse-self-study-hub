@@ -62,4 +62,13 @@ export const LEXICAL_SPELLING_ERRORS = Object.freeze({
   "vocab_educator":["educater","edukator","educatar","eductor","educaitor","edducator"], // educator (Unit 2)
   "vocab_essential":["essencial","esential","essentail","essensial","essentual","esssential"], // essential (Unit 2)
   "vocab_current_affairs":["curent affairs","current affaires","current afairs","current affares","currant affairs","current affiars"], // current affairs (Unit 2)
+  "vocab_apparently":["apparantly","aparently","apparentlly","apparrently","apperently","aparrently"], // apparently (Unit 2)
+  "vocab_supposedly":["supposidly","suposedly","supposeddly","suppossedly","supposebly","supposadly"], // supposedly (Unit 2)
+  "vocab_celebrity":["celebrety","celibrity","celebritty","celabrity","celebraty","celebirty"], // celebrity (Unit 2)
+  "vocab_informed":["infomed","informd","enformed","inforrmed","informmed","imformed"], // informed (Unit 2)
+  "vocab_communicate":["comunicate","communcate","communikate","comunnicate","communicat","comminicate"], // communicate (Unit 2)
+  "vocab_remotely":["remotly","remotley","remotelly","remoetly","rimotely","remotelie"], // remotely (Unit 2)
+  "vocab_transform":["transfrom","tranform","transfom","trasform","transferm","transforn"], // transform (Unit 2)
+  "vocab_percentage":["percentege","precentage","percantage","percentge","pecentage","persentage"], // percentage (Unit 2)
+  "vocab_impression":["impresion","impresssion","imprestion","impreshion","inpression","empression"], // impression (Unit 2)
 });

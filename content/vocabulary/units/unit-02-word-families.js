@@ -46,11 +46,48 @@ export const unit2WordFamilies = Object.freeze({
     f('essential', 'adjective', 'A charger is essential for anyone who travels with a phone.', 'Headword.'),
     f('essentially', 'adverb', 'The two apps are essentially the same, but one is free.', 'Common adverb meaning "basically"; frequent in explanations.'),
     f('essentials', 'noun', 'Pack the essentials first, such as your passport and tickets.', 'Plural noun used naturally for the things you must have.')
-  ], excludedForms: [{ form: 'essence', reason: 'Related in origin but a different, abstract meaning ("the central nature of something").' }] }
+  ], excludedForms: [{ form: 'essence', reason: 'Related in origin but a different, abstract meaning ("the central nature of something").' }] },
+  supposedly: { forms: [
+    f('supposedly', 'adverb', 'The old well is supposedly the oldest in the village, though nobody has checked.', 'Headword.'),
+    f('suppose', 'verb', 'I suppose the shop will be closed by now.', 'The base verb; "suppose" and "supposedly" share the idea of what is assumed or said.'),
+    f('supposed', 'adjective', 'The supposed expert had never actually studied the subject.', 'Adjective meaning "said to be", used before a noun; the "supposed to" (duty) sense is not taught here.')
+  ], excludedForms: [{ form: 'supposition', reason: 'Formal noun beyond the level of this unit.' }] },
+  informed: { forms: [
+    f('informed', 'adjective', 'The article helps readers make an informed choice about their diet.', 'Headword.'),
+    f('inform', 'verb', 'Please inform the office if you are going to be absent.', 'The base verb.'),
+    f('information', 'noun', 'The website provides useful information about courses.', 'The most frequent noun in the family.'),
+    f('informative', 'adjective', 'The museum guide was friendly and very informative.', 'Common evaluative adjective in reviews.'),
+    f('uninformed', 'adjective', 'Many people hold uninformed opinions about the topic.', 'Common negative; contrasts directly with the headword.')
+  ] },
+  admit: { forms: [
+    f('admit', 'verb', 'Few people find it easy to admit that they were wrong.', 'Headword.'),
+    f('admission', 'noun', 'His admission that he had copied the answers surprised his teachers.', 'Noun for the act of accepting that something is true (taught in this sense only).', 'The "entrance fee" sense of admission is a separate meaning and is not taught here.'),
+    f('admittedly', 'adverb', 'The plan is expensive and, admittedly, rather risky.', 'Discourse adverb that is very useful in discussion writing.')
+  ], excludedForms: [{ form: 'admittance', reason: 'Formal and rare; it means "permission to enter", which is a different sense.' }] },
+  communicate: { forms: [
+    f('communicate', 'verb', 'Scientists need to communicate their findings clearly to the public.', 'Headword.'),
+    f('communication', 'noun', 'Good communication between teachers and parents prevents many problems.', 'The most frequent noun in the family.'),
+    f('communicator', 'noun', 'She is an excellent communicator who explains complex ideas simply.', 'Person noun used in character and skills descriptions.'),
+    f('communicative', 'adjective', 'After a few months abroad, the shy boy became far more communicative.', 'Adjective for someone who talks and shares readily.')
+  ] },
+  transform: { forms: [
+    f('transform', 'verb', 'A good teacher can transform a shy student into a confident speaker.', 'Headword.'),
+    f('transformation', 'noun', 'The city has undergone a remarkable transformation in ten years.', 'The common noun; frequent in description and report writing.'),
+    f('transformative', 'adjective', 'Many students describe the exchange year as a transformative experience.', 'Adjective used in education and technology texts.', 'Moderately formal; flagged for teacher review.')
+  ], excludedForms: [{ form: 'transformer', reason: 'The electrical-equipment sense is unrelated to the meaning taught here.' }] },
+  impression: { forms: [
+    f('impression', 'noun', 'The photographs gave a false impression of the hotel.', 'Headword.'),
+    f('impress', 'verb', 'She hoped to impress the judges with her speech.', 'The base verb.'),
+    f('impressed', 'adjective', 'The examiners were impressed by the quality of her essay.', 'Very common participle adjective for reactions.')
+  ], excludedForms: [{ form: 'impressive', reason: 'It is a separate target later in Unit 2, so it is taught there.' }] }
 });
 
 // Headwords considered and NOT made families: a bare list would offer unauthorised members in Recognise/Match.
 export const unit2WordFamilyRejected = Object.freeze({
   device: 'No normal derivative of "device" with the same meaning; "devise" is a different word (a verb meaning to invent) and would mislead.',
-  'current affairs': 'A fixed two-word noun phrase: it has no derived forms.'
+  'current affairs': 'A fixed two-word noun phrase: it has no derived forms.',
+  apparently: 'Its only relative, "apparent", is common but means "clear or obvious" in many uses ("it is apparent that"), which is almost the opposite of "apparently"; the family would teach a false link and has only two forms.',
+  celebrity: '"celebrate" and "celebration" mean marking a special occasion, a different meaning, and "celebrities" is only the plural; the family would teach a false link.',
+  remotely: 'Only "remote" is common; "remoteness" is rare, so the family has two forms, not three. "Remote control" is its own Unit 2 target.',
+  percentage: 'Its only relative, "percent" / "per cent", is the same kind of word, so the family has one part of speech and no useful derivative.'
 });

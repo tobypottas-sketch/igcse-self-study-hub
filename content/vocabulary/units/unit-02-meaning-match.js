@@ -10,5 +10,15 @@ export default {
   educator: ['inspector', 'librarian', 'caretaker'],
   afford: ['borrow money for', 'refuse to pay for', 'offer a discount on'],
   essential: ['widely available', 'very expensive', 'quite useful'],
-  'current affairs': ['past events', 'celebrity gossip', 'weather forecasts']
+  'current affairs': ['past events', 'celebrity gossip', 'weather forecasts'],
+  apparently: ['definitely', 'recently', 'secretly'],
+  supposedly: ['definitely', 'deliberately', 'officially'],
+  celebrity: ['skilled worker', 'school leader', 'online shopper'],
+  informed: ['anxious', 'generous', 'certain'],
+  admit: ['complain', 'announce', 'insist'],
+  communicate: ['hide information', 'collect information', 'delete information'],
+  remotely: ['in a hurry', 'by accident', 'in secret'],
+  transform: ['repeat often', 'improve slightly', 'destroy completely'],
+  percentage: ['total', 'average', 'difference'],
+  impression: ['final decision', 'written report', 'public speech']
 };

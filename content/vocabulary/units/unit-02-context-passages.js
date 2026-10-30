@@ -44,5 +44,45 @@ export default Object.freeze({
   'current affairs': [
     p('Every morning, Mr Park’s class reads two articles from the newspaper and discusses elections, wars and new laws. He wants students to understand the world beyond school, so ____ is part of his timetable.', 'current affairs', 'Newspaper articles on elections, wars and laws; "so ____ is part of his timetable".'),
     p('Keira wanted to join the debating club, but she knew little about politics. She started listening to a daily podcast on ____ so that she could discuss international issues with confidence.', 'current affairs', 'Debating club, politics, daily podcast; "podcast on ____".')
+  ],
+  apparently: [
+    p('Mia did not see the game herself, so she cannot be sure of anything. She heard from a classmate that, ____, the home team lost by two goals.', 'apparently', 'Hearsay from a classmate; "she cannot be sure".'),
+    p('From the street, the shop looked busy and bright. Inside, however, the ____ popular café was nearly empty, and the owner was reading a newspaper.', 'apparently', 'Looks one way from outside, is different inside; "the ____ popular café".')
+  ],
+  supposedly: [
+    p('The leaflet says the herbal tea cures every illness. Our science teacher laughed and asked for proof, because a drink that is ____ so powerful ought to be tested properly.', 'supposedly', 'A claim without proof; the teacher asks for proof.'),
+    p('The café is ____ the cheapest in the city, and it has a huge sign outside to say so. Yet my friends and I paid more there than anywhere else.', 'supposedly', 'A boast contradicted by experience ("Yet ... paid more").')
+  ],
+  celebrity: [
+    p('Hundreds of fans gathered outside the theatre, holding posters and phones. When the ____ finally stepped out of the car, the crowd screamed and photographers began taking pictures.', 'celebrity', 'Fans, posters, photographers, screaming crowd.'),
+    p('Brands often pay a singer or footballer to appear in their adverts. They hope that customers will trust a product more if a ____ is seen using it.', 'celebrity', 'Paid singer or footballer used to sell products.')
+  ],
+  informed: [
+    p('Before voting in the school election, Tariq read each candidate’s plan and asked them questions. As a result, he felt he was making a properly ____ choice.', 'informed', 'Read plans and asked questions first; "properly ____ choice".'),
+    p('The head teacher believes that parents should hear about every change to the timetable. She writes a weekly email so that families stay ____.', 'informed', 'Weekly email; "stay ____".')
+  ],
+  admit: [
+    p('The manager stared at the broken window, and the boy looked at his shoes. After a long silence, he decided to ____ that the ball had been his.', 'admit', 'Guilty silence, then owning up; "decided to ____ that".'),
+    p('Nobody likes being wrong in front of others. Still, a good scientist is willing to ____ when the results do not support her idea.', 'admit', 'Being wrong in front of others; "willing to ____".')
+  ],
+  communicate: [
+    p('Pilots and air traffic controllers use short, standard phrases on the radio. This helps them to ____ quickly and without misunderstandings, even when the weather is terrible.', 'communicate', 'Standard radio phrases; avoiding misunderstanding.'),
+    p('My cousin lives in Canada, and we are eight hours apart. We usually ____ by sending voice messages, because it is hard to find a time when we are both awake.', 'communicate', 'Time difference; voice messages as the method.')
+  ],
+  remotely: [
+    p('The engineer did not have to travel to the wind farm in the north. She repaired the fault ____, using a secure computer link from her office in the city.', 'remotely', 'No travel; computer link from the city.'),
+    p('During the heavy snow, the school was closed, but lessons did not stop. Students joined their classes ____ and could still ask the teacher questions on screen.', 'remotely', 'School closed, lessons on screen.')
+  ],
+  transform: [
+    p('The old factory has stood empty for twenty years. The council plans to ____ it into a library, a café and a small theatre by next year.', 'transform', 'Empty factory becomes three new uses.'),
+    p('Some teachers believe that one inspiring lesson can ____ how a student feels about a whole subject. A pupil who once hated science may start to love it.', 'transform', 'Hate becomes love: a deep change.')
+  ],
+  percentage: [
+    p('The teacher told the class that only 15 of the 60 pupils had chosen chemistry. She asked them to work out what ____ that is of the whole group and to write it with a % sign.', 'percentage', 'Calculation task ending in a % sign.'),
+    p('The company promised to give some of its profits to charity. Critics asked what ____ of the money would be donated, since the announcement did not say whether it was 1% or 10%.', 'percentage', '"1% or 10%": the unknown is a figure out of 100.')
+  ],
+  impression: [
+    p('Tom wore a clean shirt, shook the interviewer’s hand and smiled. He knew that the first few minutes would decide what the panel thought of him, so he wanted to make a good ____.', 'impression', 'Interview first minutes; "make a good ____".'),
+    p('The streets were quiet and the shops were closing early. I got the ____ that most people in the town had gone away for the holidays.', 'impression', '"got the ____ that" a belief from what was seen.')
   ]
 });

@@ -29,5 +29,21 @@ export const unit2WordFamilyAlternates = Object.freeze({
   essential: {
     essentially: 'The film is essentially a love story set in a futuristic city.',
     essentials: 'The shop sells all the essentials, such as bread, milk and batteries.'
+  },
+  supposedly: {
+    suppose: 'Let us suppose that every student had a laptop; how would lessons change?',
+    supposed: 'The supposed benefits of the diet were never proved.'
+  },
+  admit: {
+    admission: 'The company’s admission of responsibility came after months of denial.',
+    admittedly: 'The film is long and, admittedly, a little slow, but I enjoyed it.'
+  },
+  transform: {
+    transformation: 'The caterpillar’s transformation into a butterfly takes several weeks.',
+    transformative: 'Online learning has had a transformative effect on rural schools.'
+  },
+  impression: {
+    impress: 'It is difficult to impress an audience that has heard everything before.',
+    impressed: 'I was impressed by how quickly the team solved the problem.'
   }
 });
