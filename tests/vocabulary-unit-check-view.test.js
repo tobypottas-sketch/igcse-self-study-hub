@@ -51,7 +51,7 @@ test('attempt three review reveals full answers and locks the assessment', () =>
   const form = unit1VocabularyCheck.forms.C;
   const scored = scoreCheck(form, {});
   const feedback = feedbackForAttempt(form, scored.results, 3);
-  const html = renderUnitCheckReview({ form, attemptNumber:3, scored, feedback, locked:true });
+  const html = renderUnitCheckReview({ unitNumber:1, form, attemptNumber:3, scored, feedback, locked:true });
   assert.match(html, /Correct answer:/);
   assert.match(html, /Assessment complete/);
   assert.match(html, /Back to Unit 1/);

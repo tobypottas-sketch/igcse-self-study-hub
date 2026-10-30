@@ -65,6 +65,7 @@ function ensureUnitCheckCard() {
 function paintActive({ focusHeading = true } = {}) {
   if (!root || !active) return;
   root.innerHTML = renderUnitCheckScreen({
+    unitNumber:active.unitNumber,
     form:active.form,
     attemptNumber:active.attemptNumber,
     questionIndex:active.questionIndex,
@@ -111,7 +112,7 @@ function finishSavedAttempt(scored, attempts) {
   active.scored = scored;
   active.feedback = feedbackForAttempt(active.form, scored.results, active.attemptNumber);
   const locked = nextCheckState(attempts).locked;
-  root.innerHTML = renderUnitCheckReview({ form:active.form, attemptNumber:active.attemptNumber, scored, feedback:active.feedback, locked });
+  root.innerHTML = renderUnitCheckReview({ unitNumber:active.unitNumber, form:active.form, attemptNumber:active.attemptNumber, scored, feedback:active.feedback, locked });
 }
 
 async function submitCheck() {
