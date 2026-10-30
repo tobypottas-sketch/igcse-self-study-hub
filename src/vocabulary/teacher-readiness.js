@@ -64,13 +64,23 @@ function unitChips(options, selected) {
   return `<nav class="vocab-unit-chips" aria-label="Choose a unit">${options.map(option => `<button type="button" class="vocab-unit-chip" data-action="teacher-readiness-unit" data-unit="${escapeHtml(option.unitNumber)}" aria-pressed="${option.unitNumber === selected ? 'true' : 'false'}">Unit ${escapeHtml(option.unitNumber)}</button>`).join('')}</nav>`;
 }
 
+// Healthy pathways collapse to one line; anything locked, short of a stage minimum or carrying review notes opens with its full stage coverage.
+function readinessRow(row) {
+  const problem = !row.live || row.stages.some(stage => !stage.ok) || row.notes.length > 0;
+  const pillTone = row.live ? 'done' : 'warn';
+  const stages = `<ul class="vocab-readiness__stages" aria-label="Words ready per stage">${row.stages.map(stage => `<li data-ok="${stage.ok ? 'true' : 'false'}">${escapeHtml(stage.label)} <b>${escapeHtml(stage.have)}/${escapeHtml(stage.need)}</b></li>`).join('')}</ul>`;
+  const notes = row.notes.length ? `<ul class="vocab-readiness__notes" aria-label="Reviewed content">${row.notes.map(note => `<li>${escapeHtml(note)}</li>`).join('')}</ul>` : '';
+  const head = `<strong>${escapeHtml(row.label)}</strong><span class="vocab-pill vocab-readiness__state" data-tone="${pillTone}">${row.live ? 'Live' : 'Locked'}</span><span class="vocab-readiness__reason">${escapeHtml(row.reason)}</span>`;
+  return `<article class="vocab-readiness__row" role="row" data-readiness-pathway="${escapeHtml(row.pathwayId)}" data-live="${row.live ? 'true' : 'false'}" data-expanded="${problem ? 'true' : 'false'}">${problem ? `<details open><summary>${head}</summary>${stages}${notes}</details>` : `<div class="vocab-readiness__line">${head}</div>`}</article>`;
+}
+
 export function renderReadinessReport(root, { options = [], selected = null, title = '', report = null } = {}) {
   const planned = Object.keys(UNIT_REGISTRY).map(Number).filter(number => !options.some(option => option.unitNumber === number));
   const body = !report
     ? '<p class="vocab-empty-small">No live words have been published yet.</p>'
     : `<p class="vocab-readiness__summary" data-readiness-summary><strong>${escapeHtml(report.publishedWords)} of ${escapeHtml(report.expectedWords)} words published</strong>${report.wordsComplete ? '' : ' · the unit is incomplete'} · <strong>${escapeHtml(report.live)} of ${escapeHtml(report.rows.length)} pathways live</strong></p>
-      <div class="vocab-readiness__table" role="table" aria-label="Pathway readiness">${report.rows.map(row => `<article class="vocab-readiness__row" role="row" data-readiness-pathway="${escapeHtml(row.pathwayId)}" data-live="${row.live ? 'true' : 'false'}"><header><strong>${escapeHtml(row.label)}</strong><span class="vocab-readiness__state">${row.live ? 'Live' : 'Locked'}</span></header><p>${escapeHtml(row.reason)}</p><ul class="vocab-readiness__stages" aria-label="Words ready per stage">${row.stages.map(stage => `<li data-ok="${stage.ok ? 'true' : 'false'}">${escapeHtml(stage.label)} <b>${escapeHtml(stage.have)}/${escapeHtml(stage.need)}</b></li>`).join('')}</ul>${row.notes.length ? `<ul class="vocab-readiness__notes" aria-label="Reviewed content">${row.notes.map(note => `<li>${escapeHtml(note)}</li>`).join('')}</ul>` : ''}</article>`).join('')}</div>`;
-  root.innerHTML = `<main class="vocab-shell"><header class="vocab-topbar"><button class="vocab-back" data-action="teacher-back-classes">← Classes</button><span>Unit readiness</span></header><section class="vocab-teacher-hero"><p class="vocab-kicker">Authoring view, not student analytics</p><h1>${selected ? `Unit ${escapeHtml(selected)}${title ? `: ${escapeHtml(title)}` : ''}` : 'Unit readiness'}</h1>${options.length ? unitChips(options, selected) : ''}</section><section class="vocab-teacher-panel vocab-readiness" data-readiness-report>${body}${planned.length ? `<p class="vocab-empty-small">No live words yet: Units ${escapeHtml(planned.join(', '))}.</p>` : ''}</section></main>`;
+      <div class="vocab-readiness__table" role="table" aria-label="Pathway readiness">${report.rows.map(readinessRow).join('')}</div>`;
+  root.innerHTML = `<main class="vocab-shell vocab-shell--teacher"><header class="vocab-topbar"><button class="vocab-back" data-action="teacher-back-classes">← Classes</button><span>Unit readiness</span></header><section class="vocab-teacher-hero"><p class="vocab-kicker">Authoring view, not student analytics</p><h1>${selected ? `Unit ${escapeHtml(selected)}${title ? `: ${escapeHtml(title)}` : ''}` : 'Unit readiness'}</h1>${options.length ? unitChips(options, selected) : ''}</section><section class="vocab-teacher-panel vocab-readiness" data-readiness-report>${body}${planned.length ? `<p class="vocab-empty-small">No live words yet: Units ${escapeHtml(planned.join(', '))}.</p>` : ''}</section></main>`;
 }
 
 export function unitTitleFor(unitNumber) { return unitConfig(unitNumber)?.title ?? ''; }
