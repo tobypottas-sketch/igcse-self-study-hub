@@ -76,8 +76,14 @@ function occurrencesByIds(ids) { const byId = new Map((state.content?.occurrence
 async function refreshSetRows() {
   if (state.preview || !state.currentUnitNumber) return;
   state.setRows = await loadPathwaySets(state.client, state.currentUnitNumber);
+  markSetRowsFresh(state.currentUnitNumber);
   const cached = state.unitCache.get(state.currentUnitNumber); if (cached) cached.setRows = state.setRows;
 }
+// Set rows read from the server a moment ago are as good as a re-read for DISPLAY (the pathway popup). Anything that can change a Set
+// (an answer, a finished mission) clears this, and the launch guard always re-reads, so a launch never trusts it.
+const SET_ROWS_FRESH_MS = 20000;
+function markSetRowsFresh(unitNumber) { state.setRowsFresh = { unitNumber, at:Date.now() }; }
+function setRowsAreFresh() { const fresh = state.setRowsFresh; return Boolean(fresh && fresh.unitNumber === state.currentUnitNumber && Date.now() - fresh.at < SET_ROWS_FRESH_MS); }
 function wordSetStatesFor(pathwayId) { return buildWordSetStates({ occurrences:state.content?.occurrences ?? [], coverageByPathway:unitCoverage(), setRows:state.setRows })[pathwayId] ?? {}; }
 
 function decoratePreview() {
@@ -258,6 +264,7 @@ async function openUnit(unitNumber) {
         : loadStudentMastery(state.client, unitNumber, loadOptions);
     const [contentRaw, masteryRaw, setRowsRaw] = await Promise.all([contentPromise, masteryPromise, loadPathwaySets(state.client, unitNumber, { preview:state.preview })]);
     state.setRows = setRowsRaw;
+    if (request === state.unitRequest) markSetRowsFresh(unitNumber);
     if (request !== state.unitRequest) return;
     // Never reset the attempt queue here: an unsaved answer must survive opening or reloading a unit.
     state.finishPending = false;
@@ -397,6 +404,7 @@ function missionSlotFor(request) {
 // seeding and sends no mission fields. A mission-eligible session whose RPC fails does NOT start and never makes a second mission:
 // the learner sees a plain "try again" message, or resumes the cached open mission with the same id.
 function beginSession(request) {
+  state.setRowsFresh = null;
   const { kind, familyId = null, selected, forceNew = false, mode } = request;
   // A normal Set-based pathway mission must carry Set identity. Only a student-chosen activity (familyId) is free practice without a Set; a
   // pathway mission with neither can never start, so Continue cannot silently fall back to a null-Set (legacy, evidence-derived) mission.
@@ -509,7 +517,7 @@ async function openFreshPracticeSheet(pathwayId) {
   await state.settling;
   // If the Set rows cannot be refreshed we do NOT know the Set's current stage, so we do not guess from the cache: the sheet shows a retry state instead.
   let known = true;
-  try { await refreshSetRows(); } catch { known = false; }
+  if (!setRowsAreFresh()) { try { await refreshSetRows(); } catch { known = false; } }
   openPracticeSheet(pathwayId, { known });
 }
 function timerMinutes(button) { const minutes = Number(button?.dataset?.minutes); return Number.isFinite(minutes) && minutes > 0 ? minutes : null; }
@@ -784,6 +792,7 @@ function finishModelForSet(context, finished, projection = context.projection) {
 }
 function finishSession() {
   if (!state.session) return;
+  state.setRowsFresh = null;
   if (state.session.mode === 'timed') state.session = expireSession(state.session, new Date());
   clearClock();
   const finished = state.session;
@@ -820,6 +829,7 @@ async function settleMission(missionId, { finishModel = null, setContext = null,
     try {
       if (Number(row.unit_number) === unitNumber && unitNumber === state.currentUnitNumber && Array.isArray(row.pathway_sets)) {
         state.setRows = row.pathway_sets;
+        markSetRowsFresh(unitNumber);
         const cached = state.unitCache.get(unitNumber); if (cached) cached.setRows = state.setRows;
       } else await refreshSetRows();
       if (unitNumber === state.currentUnitNumber) refreshed = { unitNumber, setRows:state.setRows };
