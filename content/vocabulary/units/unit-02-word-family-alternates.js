@@ -45,5 +45,17 @@ export const unit2WordFamilyAlternates = Object.freeze({
   impression: {
     impress: 'It is difficult to impress an audience that has heard everything before.',
     impressed: 'I was impressed by how quickly the team solved the problem.'
+  },
+  availability: {
+    available: 'Only three rooms are still available for tonight.',
+    unavailable: 'The manager was unavailable because she was in a meeting.'
+  },
+  function: {
+    functional: 'Designers want products to look good and also be functional.',
+    malfunction: 'The engineer reported a serious malfunction in the lift.'
+  },
+  interactive: {
+    interact: 'Visitors can interact with the exhibits by touching the screens.',
+    interaction: 'Online games give players more interaction with each other.'
   }
 });

@@ -102,5 +102,55 @@ export default Object.freeze({
     'He read the instructions twice and then put the furniture together in under an hour.',
     'The two friends compared their timetables and planned a time to revise together.',
     'The council repaired the old bridge and reopened it to traffic last week.'
+  ],
+  'remote control': [
+    'The family sat around the table and played a board game after dinner.',
+    'The shop assistant fixed the new television to the wall with four strong screws.',
+    'Mum plugged in the lamp and moved the sofa closer to the window.'
+  ],
+  feature: [
+    'The carpenter measured the wood twice before cutting the shelf to length.',
+    'The company announced a new price for its monthly subscription.',
+    'The reviewer spent a week testing the phone and then posted her opinion online.'
+  ],
+  function: [
+    'The architect drew the plan of the new school hall on large sheets of paper.',
+    'The workers painted the machine bright yellow so that it could be seen in the dark.',
+    'The manufacturer recalled the product because customers had complained about the quality.'
+  ],
+  interactive: [
+    'The audience sat in rows and listened to the speaker without asking anything.',
+    'The teacher handed back the marked essays and asked everyone to read the comments silently.',
+    'The class watched a video about volcanoes and then went home for the weekend.'
+  ],
+  widespread: [
+    'The power cut affected one street for about twenty minutes.',
+    'A single student in the school caught a cold this week.',
+    'Only the village near the river lost its bridge in the storm.'
+  ],
+  availability: [
+    'The new phone received excellent reviews for its camera and screen.',
+    'The manager praised the staff for the friendly way they welcomed visitors.',
+    'The library changed the colour of its signs and moved the desk near the door.'
+  ],
+  'high-performance': [
+    'The small family car was cheap to run and very easy to park in the city.',
+    'The old bicycle had a slow, squeaky chain and a broken brake.',
+    'The student bought a simple notebook and a pen for her first day at school.'
+  ],
+  stabilising: [
+    'The heavy rain made the river rise and flood the fields overnight.',
+    'The loud music woke the neighbours and caused a long argument.',
+    'A rumour about closing the factory spread quickly and worried the workers.'
+  ],
+  'multi-task': [
+    'He closed his email, turned off his phone and wrote the report from start to finish.',
+    'The two friends shared one large pizza and talked about their holidays.',
+    'The manager asked the new employee to focus on a single customer for the whole morning.'
+  ],
+  predictable: [
+    'The magician pulled a rabbit out of an empty box, and the children gasped.',
+    'Nobody could say what the new film would be about before the trailer came out.',
+    'The sudden thunderstorm ruined the outdoor concert on a sunny afternoon.'
   ]
 });

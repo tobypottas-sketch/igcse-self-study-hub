@@ -20,5 +20,15 @@ export default Object.freeze({
   remotely: ['work remotely', 'controlled remotely', 'accessed remotely'],
   transform: ['transform lives', 'completely transform', 'transform society'],
   percentage: ['high percentage', 'small percentage', 'large percentage'],
-  impression: ['good impression', 'first impression', 'lasting impression']
+  impression: ['good impression', 'first impression', 'lasting impression'],
+  'remote control': ['remote-control car', 'universal remote', 'wireless remote'],
+  feature: ['key feature', 'safety feature', 'special feature'],
+  function: ['main function', 'basic function', 'vital function'],
+  interactive: ['interactive whiteboard', 'interactive display', 'interactive learning'],
+  widespread: ['widespread support', 'widespread damage', 'widespread use'],
+  availability: ['limited availability', 'online availability', 'product availability'],
+  'high-performance': ['high-performance engine', 'high-performance computer', 'high-performance car'],
+  stabilising: ['stabilising effect', 'stabilising influence', 'stabilising measure'],
+  'multi-task': ['multi-task effectively', 'multi-task easily', 'cannot multi-task'],
+  predictable: ['highly predictable', 'entirely predictable', 'easily predictable']
 });

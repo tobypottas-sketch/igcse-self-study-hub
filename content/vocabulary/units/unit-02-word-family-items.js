@@ -55,5 +55,22 @@ export default [
   family('transform_c', 'vocab_transform', 'transform', 'Access to the internet had a _____ effect on the village school.', 'transformative'),
   family('impression_a', 'vocab_impression', 'impression', 'The examiner was clearly _____ by her fluent answers.', 'impressed'),
   family('impression_b', 'vocab_impression', 'impression', 'It is hard to _____ a teacher who has seen every trick.', 'impress'),
-  family('impression_c', 'vocab_impression', 'impression', 'Her calm manner gave a strong _____ of confidence.', 'impression')
+  family('impression_c', 'vocab_impression', 'impression', 'Her calm manner gave a strong _____ of confidence.', 'impression'),
+  family('availability_a', 'vocab_availability', 'availability', 'Free parking is _____ for all guests.', 'available'),
+  family('availability_b', 'vocab_availability', 'availability', 'The _____ of clean water varies greatly between regions.', 'availability'),
+  family('availability_c', 'vocab_availability', 'availability', 'The website was _____ for most of the afternoon because of repairs.', 'unavailable'),
+  family('function_a', 'vocab_function', 'function', 'The designer wanted the chair to be comfortable, attractive and _____.', 'functional'),
+  family('function_b', 'vocab_function', 'function', 'A _____ in the software caused the app to crash.', 'malfunction'),
+  family('function_c', 'vocab_function', 'function', 'What is the main _____ of this button?', 'function'),
+  family('interactive_a', 'vocab_interactive', 'interactive', 'Visitors can _____ with the exhibits by touching the screen.', 'interact'),
+  family('interactive_b', 'vocab_interactive', 'interactive', 'There was very little _____ between the speaker and the audience.', 'interaction'),
+  family('interactive_c', 'vocab_interactive', 'interactive', 'The new textbook is more _____ because every chapter ends with a quiz.', 'interactive'),
+  family('stabilising_a', 'vocab_stabilising', 'stabilising', 'Engineers added extra supports to _____ the tall tower.', 'stabilise'),
+  family('stabilising_b', 'vocab_stabilising', 'stabilising', 'A _____ income helps families plan for the future.', 'stable'),
+  family('stabilising_c', 'vocab_stabilising', 'stabilising', 'Political _____ encourages companies to invest.', 'stability'),
+  family('stabilising_d', 'vocab_stabilising', 'stabilising', 'The ground was too _____ for building after the heavy rain.', 'unstable'),
+  family('predictable_a', 'vocab_predictable', 'predictable', 'Scientists use computer models to _____ future weather patterns.', 'predict'),
+  family('predictable_b', 'vocab_predictable', 'predictable', 'The forecaster’s _____ was wrong, and the picnic was cancelled by rain.', 'prediction'),
+  family('predictable_c', 'vocab_predictable', 'predictable', 'Young children can be wonderfully _____, so parents never know what will happen next.', 'unpredictable'),
+  family('predictable_d', 'vocab_predictable', 'predictable', 'The routine at the factory is dull and completely _____.', 'predictable')
 ];

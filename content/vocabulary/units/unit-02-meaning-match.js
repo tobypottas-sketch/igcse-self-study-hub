@@ -20,5 +20,15 @@ export default {
   remotely: ['in a hurry', 'by accident', 'in secret'],
   transform: ['repeat often', 'improve slightly', 'destroy completely'],
   percentage: ['total', 'average', 'difference'],
-  impression: ['final decision', 'written report', 'public speech']
+  impression: ['final decision', 'written report', 'public speech'],
+  'remote control': ['battery', 'screen', 'antenna'],
+  feature: ['mistake', 'warning', 'guarantee'],
+  function: ['design', 'price', 'size'],
+  interactive: ['automatic', 'pre-recorded', 'one-way'],
+  widespread: ['rare', 'temporary', 'harmful'],
+  availability: ['demand', 'price', 'quality'],
+  'high-performance': ['very expensive', 'very small', 'very old'],
+  stabilising: ['weakening', 'speeding', 'tightening'],
+  'multi-task': ['do one thing slowly', 'do things in secret', 'do things for others'],
+  predictable: ['hard to believe', 'easy to forget', 'hard to find']
 };
