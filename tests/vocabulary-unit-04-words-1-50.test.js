@@ -1,5 +1,5 @@
-// Unit 4 (Transport) · words 1–40 authored (batches 1–4, draft). Guards the contract with the real readiness evaluator and builders. Words 41–50 are not
-// authored yet, so the unit stays a draft: no releases/unit-04.js, no lock, no SQL.
+// Unit 4 (Transport) · all 50 words authored (batches 1–5, draft). Guards the contract with the real readiness evaluator and builders. The unit stays a draft:
+// no releases/unit-04.js, no lock, no SQL until it is packaged for release.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -11,8 +11,8 @@ import { validateUnit } from '../content/vocabulary/schema.js';
 import { evaluateUnitReadiness } from '../src/vocabulary/pathway-readiness.js';
 import { releasePlannerContent } from '../content/vocabulary/readiness-report.js';
 
-const TERMS = ['breathtaking', 'comfort', 'reality', 'toughest', 'storeys', 'accommodate', 'luxury', 'altitude', 'landscape', 'passenger', 'engineer', 'pilot', 'airship', 'launch', 'height', 'anxious', 'vehicle', 'pollution', 'destination', 'spacious', 'efficiently', 'demand', 'invention', 'machinery', 'advertisement', 'enormous', 'equipment', 'collision', 'organisation', 'participant', 'livelihood', 'fatality', 'initiative', 'campaign', 'pothole', 'trauma', 'measures', 'estimate', 'regulation', 'operate'];
-const NO_FAMILY = ['breathtaking', 'toughest', 'storeys', 'accommodate', 'altitude', 'landscape', 'passenger', 'engineer', 'pilot', 'airship', 'launch', 'height', 'vehicle', 'destination', 'spacious', 'demand', 'machinery', 'enormous', 'collision', 'livelihood', 'fatality', 'initiative', 'campaign', 'pothole', 'trauma', 'measures', 'estimate', 'regulation'];
+const TERMS = ['breathtaking', 'comfort', 'reality', 'toughest', 'storeys', 'accommodate', 'luxury', 'altitude', 'landscape', 'passenger', 'engineer', 'pilot', 'airship', 'launch', 'height', 'anxious', 'vehicle', 'pollution', 'destination', 'spacious', 'efficiently', 'demand', 'invention', 'machinery', 'advertisement', 'enormous', 'equipment', 'collision', 'organisation', 'participant', 'livelihood', 'fatality', 'initiative', 'campaign', 'pothole', 'trauma', 'measures', 'estimate', 'regulation', 'operate', 'detain', 'offences', 'provisional', 'enforcement', 'statistics', 'safety', 'sustainability', 'legislation', 'introduce', 'innovative'];
+const NO_FAMILY = ['breathtaking', 'toughest', 'storeys', 'accommodate', 'altitude', 'landscape', 'passenger', 'engineer', 'pilot', 'airship', 'launch', 'height', 'vehicle', 'destination', 'spacious', 'demand', 'machinery', 'enormous', 'collision', 'livelihood', 'initiative', 'campaign', 'pothole', 'trauma', 'measures', 'estimate', 'detain', 'offences', 'provisional', 'introduce'];
 const STAGES = ['recognise', 'match', 'apply', 'recall', 'mastery'];
 // Same-part-of-speech pools: the five adjectives (breathtaking, toughest, anxious, spacious, enormous) support each other and the four verbs (accommodate,
 // launch) now support each other with the new verbs estimate and operate; only the lone adverb (efficiently) is still short of three same-POS words.
@@ -20,10 +20,10 @@ const POS_LIMITS = { efficiently: { meaning: ['match'], context: ['recognise', '
 const readiness = evaluateUnitReadiness({ content: releasePlannerContent(unit4) });
 const failed = (pathwayId, occurrenceId) => STAGES.filter(stage => (readiness.pathways[pathwayId].stageFailures[stage] ?? []).some(f => f.occurrenceId === occurrenceId));
 
-test('Unit 4 batches 1–3 is exactly the thirty locked targets, as a draft with no release artefacts', () => {
+test('Unit 4 batches 1–5 is exactly the fifty locked targets, as a draft with no release artefacts', () => {
   assert.deepEqual(unit4.items.map(item => item.term), TERMS);
-  assert.equal(unit4.occurrences.length, 40);
-  assert.equal(new Set(unit4.items.map(item => item.term)).size, 40);
+  assert.equal(unit4.occurrences.length, 50);
+  assert.equal(new Set(unit4.items.map(item => item.term)).size, 50);
   assert.equal(unit4.status, 'draft');
   assert.equal(unit4.unitNumber, 4);
   for (const name of ['releases/unit-04.js']) assert.ok(!fs.existsSync(new URL(`../content/vocabulary/${name}`, import.meta.url)), name);
@@ -48,7 +48,7 @@ test('IDs are Unit 4-specific, unique, and never collide with Units 1, 2 or 3', 
   assert.ok(unit4.activities.every(row => /^u4_/.test(row.activityContentId) && row.unitNumber === 4));
 });
 
-test('every pathway stage is buildable for words 1–40, except the documented Word Family and same-POS pool limits', () => {
+test('every pathway stage is buildable for words 1–50, except the documented Word Family and same-POS pool limits', () => {
   for (const occurrence of unit4.occurrences) {
     const term = unit4.items.find(item => item.vocabularyId === occurrence.vocabularyId).term;
     for (const pathwayId of Object.keys(readiness.pathways)) {
@@ -60,11 +60,11 @@ test('every pathway stage is buildable for words 1–40, except the documented W
   }
 });
 
-test('words 1–40 satisfy the strict (approved) content schema; only whole-unit count rules remain', () => {
+test('words 1–50 satisfy the strict (approved) content schema as a complete 50-word unit', () => {
   const approve = row => ({ ...row, status: 'approved' });
   const strict = { ...unit4, status: 'approved', items: unit4.items.map(approve), occurrences: unit4.occurrences.map(approve), contexts: unit4.contexts.map(approve), activities: unit4.activities.map(approve) };
   const errors = validateUnit(strict).errors;
-  assert.deepEqual(errors.filter(error => !/exactly 50 occurrences|exactly ten targets/.test(error)), []);
+  assert.deepEqual(errors, []);
 });
 
 test('gap-fill: target inside the blankable sentence (not first), three distinct wrong options that never equal the answer', () => {
@@ -91,7 +91,7 @@ test('wrong situations: at least four distinct, target-free situations per word'
   }
 });
 
-test('Word Families: only genuine families are authored, each with >=3 forms, >=2 parts of speech and alternates; the twenty-eight others are left unavailable', () => {
+test('Word Families: only genuine families are authored, each with >=3 forms, >=2 parts of speech and alternates; the thirty others are left unavailable', () => {
   for (const item of unit4.items) {
     const forms = item.senses[0].wordFamilyForms;
     if (NO_FAMILY.includes(item.term)) {
@@ -104,7 +104,7 @@ test('Word Families: only genuine families are authored, each with >=3 forms, >=
     }
   }
   const familyItems = unit4.activities.filter(a => a.activityData.taskType === 'word_family');
-  assert.equal(familyItems.length, 36);
+  assert.equal(familyItems.length, 60);
   assert.ok(familyItems.every(a => a.activityData.sourceText.split('____').length === 2 && !a.activityData.sourceText.startsWith('____')));
 });
 

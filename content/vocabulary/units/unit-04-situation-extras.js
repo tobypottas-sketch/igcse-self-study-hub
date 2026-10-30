@@ -201,5 +201,55 @@ export default Object.freeze({
     'The tourists bought postcards at the kiosk near the harbour.',
     'The ferry arrived at the port and the passengers walked off slowly.',
     'The pilot spoke to the control tower and checked the weather report.'
+  ],
+  detain: [
+    'A porter carried the heavy bags up the steps to the platform.',
+    'The conductor checked the tickets before the train left the station.',
+    'A teenager waited at the bus stop with a bag of books.'
+  ],
+  offences: [
+    'The new tram line carries thousands of commuters across the city every day.',
+    'A baker delivered fresh bread to the café beside the bus station.',
+    'The airline offered passengers a free drink during the long flight.'
+  ],
+  provisional: [
+    'The runway was cleaned and then painted with bright new markings.',
+    'The coach stopped at a service station so that everyone could stretch their legs.',
+    'The tour guide pointed out the old bridge to the visitors.'
+  ],
+  enforcement: [
+    'A mechanic changed the tyres on the delivery van.',
+    'The ferry crossed the river every half hour from early morning.',
+    'Tourists took photographs of the famous clock tower from the bus.'
+  ],
+  statistics: [
+    'The taxi driver helped an elderly couple with their luggage.',
+    'The cyclist stopped at the café for a drink and a short rest.',
+    'The ship left the port early and sailed north along the coast.'
+  ],
+  safety: [
+    'The tourists bought souvenirs at the airport shop before boarding.',
+    'A friendly steward handed out blankets to the passengers on the night train.',
+    'The taxi waited outside the hotel for the family with the suitcases.'
+  ],
+  sustainability: [
+    'The coach driver took a break at the motorway services.',
+    'The tickets for the evening ferry sold out within an hour.',
+    'A little boy pressed his nose against the window of the train.'
+  ],
+  legislation: [
+    'The passengers queued patiently at the bus station for the late coach.',
+    'The engineer cleaned the lenses of the signal lights beside the track.',
+    'A group of students took photographs of the tram from the bridge.'
+  ],
+  introduce: [
+    'The porter pushed the trolley of suitcases along the platform.',
+    'The captain thanked the crew after the ship reached the harbour.',
+    'The old tram rattled slowly along the main street towards the market.'
+  ],
+  innovative: [
+    'The family waited at the harbour for the ferry to arrive.',
+    'A taxi stopped outside the museum at ten o’clock.',
+    'The traveller read a newspaper while the coach drove through the hills.'
   ]
 });

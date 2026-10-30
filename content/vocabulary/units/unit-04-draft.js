@@ -1,4 +1,4 @@
-// UNIT 4 – TRANSPORT: authoring draft (batches 1–4 = words 1–40). Source: 0511 key words UNIT 4 – TRANSPORT (coursebook order). Words 41–50 are not locked yet.
+// UNIT 4 – TRANSPORT: authoring draft (batches 1–5 = words 1–50). Source: 0511 key words UNIT 4 – TRANSPORT (coursebook order). All 50 words are authored; the unit stays a draft until it is packaged for release.
 // Same architecture as unit-03.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-04-draft.js
 // A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-04.js only when all 50 words are final.
 import { buildCuratedUnit } from '../build-unit.js';
@@ -296,7 +296,7 @@ const entries = [
         'The pilot told the control tower that the aeroplane was ready to take off.'
       ],
       retrievalContexts:[
-        { id:'1', text:'Every passenger must fasten a seat belt before the aeroplane takes off.', target:'passenger', grammarPattern:'' },
+        { id:'1', text:'Each passenger on the night train received a blanket and a small pillow.', target:'passenger', grammarPattern:'' },
         { id:'2', text:'The last passenger to board the ferry was a small boy carrying a huge suitcase.', target:'passenger', grammarPattern:'' },
         { id:'3', text:'The taxi driver asked the passenger which hotel she wanted to go to.', target:'passenger', grammarPattern:'' }
       ],
@@ -1155,6 +1155,288 @@ const entries = [
         { id:'1', answer:'operate', wrong:['sell', 'paint', 'photograph'] },
         { id:'2', answer:'operate', wrong:['destroy', 'paint', 'deliver'] },
         { id:'3', answer:'operate', wrong:['paint', 'steal', 'insure'] }
+      ]
+    }),
+  e('detain', 'verb',
+    'to officially keep someone in a place and not allow them to leave',
+    ['hold', 'keep in custody'],
+    ['to make someone wait longer than they expected', 'to follow someone to find out where they are going', 'to ask someone to leave a place immediately'],
+    'Border officers may detain a lorry driver for questioning if the papers look false.',
+    'hold', 'Border officers may hold a lorry driver for questioning if the papers look false.',
+    'keep in custody', 'Customs officers may keep in custody anyone who is carrying false documents.',
+    {
+      grammarForms:{ base:'detain', thirdPerson:'detains', past:'detained', pastParticiple:'detained', ing:'detaining' },
+      masteryContexts:[
+        { text:'The police may detain a driver who refuses to take a breath test.', meaning:'to officially keep someone and not let them leave' },
+        { text:'Airport officials decided to detain the passenger while they checked his documents.', meaning:'to officially stop someone from leaving a place' }
+      ],
+      situationDistractors:[
+        'The bus driver waved to the passengers as they left at the final stop.',
+        'A traveller bought a sandwich and sat down to wait for the evening train.',
+        'The tour guide told the group to meet beside the fountain at noon.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Police officers have the right to detain anyone who is suspected of a serious crime.', target:'detain', grammarPattern:'' },
+        { id:'2', text:'The customs officer decided to detain the lorry driver until the documents had been checked.', target:'detain', grammarPattern:'' },
+        { id:'3', text:'The police may only detain a person for a limited time without charging them.', target:'detain', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'detain', wrong:['thank', 'greet', 'invite'] },
+        { id:'2', answer:'detain', wrong:['thank', 'pay', 'photograph'] },
+        { id:'3', answer:'detain', wrong:['employ', 'invite', 'thank'] }
+      ]
+    }),
+  e('offences', 'noun',
+    'illegal acts, or actions that break a rule or law',
+    ['crimes', 'violations of the law'],
+    ['the feelings of anger caused by rude words', 'the punishments given to people who break the law', 'the people who have been found guilty of a crime'],
+    'Drivers who commit serious offences can lose their licences for a year.',
+    'crimes', 'Drivers who commit serious crimes can lose their licences for a year.',
+    'violations of the law', 'Speeding and parking in the wrong place are common violations of the law in busy city centres.',
+    {
+      masteryContexts:[
+        { text:'Dangerous driving and speeding are among the most serious traffic offences.', meaning:'actions that break the law' },
+        { text:'The number of parking offences has risen since the new charges began.', meaning:'illegal acts that break a rule' }
+      ],
+      situationDistractors:[
+        'The coach left the station and drove along the coast road.',
+        'A cyclist stopped to buy water at the corner shop.',
+        'The captain welcomed the visitors and showed them where the lifeboats were kept.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Motoring offences such as speeding can lead to a fine or a driving ban.', target:'offences', grammarPattern:'' },
+        { id:'2', text:'The police recorded more than two hundred traffic offences in the city last month.', target:'offences', grammarPattern:'' },
+        { id:'3', text:'Drivers who repeat the same offences may lose their licence.', target:'offences', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'offences', wrong:['holidays', 'journeys', 'timetables'] },
+        { id:'2', answer:'offences', wrong:['festivals', 'journeys', 'souvenirs'] },
+        { id:'3', answer:'offences', wrong:['holidays', 'festivals', 'timetables'] }
+      ]
+    }),
+  e('provisional', 'adjective',
+    'temporary and not yet final or permanent',
+    ['temporary', 'draft'],
+    ['allowed only under certain conditions', 'costing more than most people can afford', 'checked carefully by an expert'],
+    'The council has published a provisional timetable for the new bus routes, which may change.',
+    'temporary', 'The council has published a temporary timetable for the new bus routes, which may change.',
+    'draft', 'The draft plan for the new railway line will be discussed at a public meeting.',
+    {
+      masteryContexts:[
+        { text:'Learner drivers must pass a test before their provisional licence becomes a full one.', meaning:'temporary and not yet permanent' },
+        { text:'The provisional date for the opening of the tunnel is March, but it may change.', meaning:'not yet final' }
+      ],
+      situationDistractors:[
+        'The tram stopped at the market and several passengers got on.',
+        'A porter carried two large cases to the hotel entrance.',
+        'The railway museum is open every day except Monday.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Learner drivers must carry their provisional licence at all times.', target:'provisional', grammarPattern:'' },
+        { id:'2', text:'The provisional opening date of the new airport is June, but delays are possible.', target:'provisional', grammarPattern:'' },
+        { id:'3', text:'Officials gave provisional approval to the new tram route, but a final decision will come later.', target:'provisional', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'provisional', wrong:['delicious', 'crowded', 'windy'] },
+        { id:'2', answer:'provisional', wrong:['tiring', 'windy', 'sleepy'] },
+        { id:'3', answer:'provisional', wrong:['wooden', 'crowded', 'hungry'] }
+      ]
+    }),
+  e('enforcement', 'noun',
+    'the act of making sure that laws or rules are obeyed',
+    ['policing', 'monitoring'],
+    ['the process of writing new laws', 'the punishment given to a person who breaks a rule', 'a document that explains the rules of the road'],
+    'Stricter enforcement of speed limits has reduced accidents near schools.',
+    'policing', 'Stricter policing of speed limits has reduced accidents near schools.',
+    'monitoring', 'Monitoring of parking rules in the city centre has become stricter this year.',
+    {
+      masteryContexts:[
+        { text:'Stricter enforcement of the speed limit has reduced accidents near the school.', meaning:'making sure that a rule is obeyed' },
+        { text:'Without proper enforcement, many drivers ignore the parking rules.', meaning:'making sure that rules are followed' }
+      ],
+      situationDistractors:[
+        'The conductor smiled and helped a child onto the train.',
+        'Passengers waited patiently in the departure hall for the gate to open.',
+        'A taxi driver stopped to fill his tank with petrol.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Traffic police are responsible for the enforcement of speed limits on the motorway.', target:'enforcement', grammarPattern:'' },
+        { id:'2', text:'Better enforcement of the seat belt law has saved many lives.', target:'enforcement', grammarPattern:'' },
+        { id:'3', text:'Cameras have made the enforcement of parking rules much easier.', target:'enforcement', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'enforcement', wrong:['decoration', 'tourism', 'weather'] },
+        { id:'2', answer:'enforcement', wrong:['decoration', 'tourism', 'rainfall'] },
+        { id:'3', answer:'enforcement', wrong:['decoration', 'weather', 'tourism'] }
+      ]
+    }),
+  e('statistics', 'noun',
+    'numbers that are collected and studied to show facts or patterns',
+    ['figures', 'numerical data'],
+    ['the study of numbers as a school subject', 'opinions given by a small group of passengers', 'rules that control how a transport system works'],
+    'Government statistics show that road accidents have fallen by ten per cent since 2015.',
+    'figures', 'Government figures show that road accidents have fallen by ten per cent since 2015.',
+    'numerical data', 'Numerical data collected by the rail company shows how many passengers travel each hour.',
+    {
+      masteryContexts:[
+        { text:'The latest statistics show that more people are cycling to work.', meaning:'numbers that show facts' },
+        { text:'Transport statistics on rail delays are published every month.', meaning:'numbers collected to show a pattern' }
+      ],
+      situationDistractors:[
+        'The tourists boarded the open-top bus and took photographs of the cathedral.',
+        'A mechanic wiped the oil from his hands and closed the bonnet.',
+        'The ferry sailed slowly out of the harbour at sunset.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'According to official statistics, train travel is now faster than it was ten years ago.', target:'statistics', grammarPattern:'' },
+        { id:'2', text:'Accident statistics from the past five years helped planners choose where to build the new crossing.', target:'statistics', grammarPattern:'' },
+        { id:'3', text:'The airport publishes monthly statistics on the number of delayed flights.', target:'statistics', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'statistics', wrong:['jokes', 'uniforms', 'souvenirs'] },
+        { id:'2', answer:'statistics', wrong:['menus', 'fashions', 'uniforms'] },
+        { id:'3', answer:'statistics', wrong:['jokes', 'menus', 'uniforms'] }
+      ]
+    }),
+  e('safety', 'noun',
+    'the condition of being protected from danger, risk or injury',
+    ['protection', 'freedom from danger'],
+    ['the protection of property from thieves', 'the speed that is allowed on a road', 'the rules for building new roads'],
+    'Seat belts are essential for the safety of everyone in the car.',
+    'protection', 'Seat belts are essential for the protection of everyone in the car.',
+    'freedom from danger', 'Passengers expect freedom from danger when they board a plane.',
+    {
+      masteryContexts:[
+        { text:'Child seats are designed to improve the safety of young passengers.', meaning:'protection from danger' },
+        { text:'Cyclists should always put their own safety first when they cross a busy road.', meaning:'being free from the risk of injury' }
+      ],
+      situationDistractors:[
+        'The tour guide gave everyone a map and a bottle of water.',
+        'A baker delivered fresh rolls to the café beside the station.',
+        'The passengers clapped when the plane landed on time.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Wearing a helmet is important for the safety of cyclists.', target:'safety', grammarPattern:'' },
+        { id:'2', text:'Airlines must follow strict rules to protect the safety of their passengers.', target:'safety', grammarPattern:'' },
+        { id:'3', text:'Road safety lessons teach children how to cross busy streets.', target:'safety', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'safety', wrong:['fashion', 'price', 'colour'] },
+        { id:'2', answer:'safety', wrong:['weather', 'price', 'colour'] },
+        { id:'3', answer:'safety', wrong:['fashion', 'weather', 'colour'] }
+      ]
+    }),
+  e('sustainability', 'noun',
+    'the ability to continue without seriously damaging the environment or using up resources',
+    ['eco-friendliness', 'environmental responsibility'],
+    ['the strength of a bridge or a building', 'the quality of being cheap to produce', 'the speed at which a project is completed'],
+    'The airline has published a plan to improve its sustainability by using less fuel.',
+    'eco-friendliness', 'The airline has published a plan to improve its eco-friendliness by using less fuel.',
+    'environmental responsibility', 'Customers increasingly expect environmental responsibility from the companies that move their goods.',
+    {
+      masteryContexts:[
+        { text:'City planners now think about the sustainability of every new transport project.', meaning:'the ability to continue without harming the environment' },
+        { text:'Public transport can improve sustainability by reducing the number of cars on the road.', meaning:'using resources without damaging the environment' }
+      ],
+      situationDistractors:[
+        'A tourist asked the driver the price of a ticket to the airport.',
+        'The children waved to the sailors from the end of the pier.',
+        'The traveller packed a coat and a camera for the journey.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Cycle lanes and electric buses are part of the city’s plan for long-term sustainability.', target:'sustainability', grammarPattern:'' },
+        { id:'2', text:'Environmental groups welcomed the airport’s new commitment to sustainability.', target:'sustainability', grammarPattern:'' },
+        { id:'3', text:'The company’s focus on sustainability led it to replace its diesel trucks with electric ones.', target:'sustainability', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'sustainability', wrong:['disaster', 'laughter', 'curiosity'] },
+        { id:'2', answer:'sustainability', wrong:['disaster', 'laughter', 'darkness'] },
+        { id:'3', answer:'sustainability', wrong:['curiosity', 'laughter', 'darkness'] }
+      ]
+    }),
+  e('legislation', 'noun',
+    'laws considered together, especially laws made by a government',
+    ['laws', 'laws made by the government'],
+    ['one official rule about a particular activity', 'the act of making sure that laws are obeyed', 'a group of people who discuss and decide policy'],
+    'New legislation will make it compulsory for all cyclists to wear helmets.',
+    'laws', 'New laws will make it compulsory for all cyclists to wear helmets.',
+    'laws made by the government', 'Airlines must follow laws made by the government about the weight of luggage.',
+    {
+      masteryContexts:[
+        { text:'The government is planning new legislation to control the use of electric scooters.', meaning:'laws made by a government' },
+        { text:'Road safety legislation has changed several times in the last twenty years.', meaning:'laws considered together' }
+      ],
+      situationDistractors:[
+        'The pilot welcomed the passengers and pointed out the exits.',
+        'A cyclist rode past the market and stopped at the traffic lights.',
+        'The tourists took a taxi from the hotel to the railway station.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Parliament passed new legislation to ban the use of mobile phones while driving.', target:'legislation', grammarPattern:'' },
+        { id:'2', text:'The airline industry is controlled by strict international legislation.', target:'legislation', grammarPattern:'' },
+        { id:'3', text:'Environmental groups are calling for tougher legislation on exhaust fumes from lorries.', target:'legislation', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'legislation', wrong:['entertainment', 'furniture', 'scenery'] },
+        { id:'2', answer:'legislation', wrong:['entertainment', 'scenery', 'weather'] },
+        { id:'3', answer:'legislation', wrong:['furniture', 'scenery', 'weather'] }
+      ]
+    }),
+  e('introduce', 'verb',
+    'to bring something into use for the first time',
+    ['bring in', 'start using'],
+    ['to say who someone is when two people meet', 'to remove an old system that no longer works', 'to test something before it is sold'],
+    'The city plans to introduce a congestion charge for vehicles entering the centre.',
+    'bring in', 'The city plans to bring in a congestion charge for vehicles entering the centre.',
+    'start using', 'The railway company will start using electric trains on this line in June.',
+    {
+      grammarForms:{ base:'introduce', thirdPerson:'introduces', past:'introduced', pastParticiple:'introduced', ing:'introducing' },
+      masteryContexts:[
+        { text:'The government will introduce a new speed limit on country roads next year.', meaning:'to bring into use for the first time' },
+        { text:'Airlines will introduce electronic boarding passes at every airport this summer.', meaning:'to start to use something new' }
+      ],
+      situationDistractors:[
+        'The captain waved to the crowd from the bridge of the ship.',
+        'Tourists queued outside the museum to buy their tickets.',
+        'A mechanic tightened the bolts on the wheel of the van.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The council plans to introduce a new bus lane on the main road next month.', target:'introduce', grammarPattern:'' },
+        { id:'2', text:'Airlines are about to introduce new rules for hand luggage on short flights.', target:'introduce', grammarPattern:'' },
+        { id:'3', text:'Some countries have decided to introduce a lower speed limit in towns.', target:'introduce', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'introduce', wrong:['forget', 'swallow', 'translate'] },
+        { id:'2', answer:'introduce', wrong:['forget', 'sneeze', 'translate'] },
+        { id:'3', answer:'introduce', wrong:['swallow', 'sneeze', 'translate'] }
+      ]
+    }),
+  e('innovative', 'adjective',
+    'using new ideas or methods in an original and effective way',
+    ['original', 'pioneering'],
+    ['following old methods that have been used for many years', 'recently built or recently bought', 'very popular with young people'],
+    'The company has developed innovative designs for folding electric bikes.',
+    'original', 'The company has developed original designs for folding electric bikes.',
+    'pioneering', 'The pioneering engineers who built the first tunnel under the river faced many problems.',
+    {
+      masteryContexts:[
+        { text:'The airline is famous for its innovative approach to reducing waste on board.', meaning:'using new ideas in an original way' },
+        { text:'Engineers have designed an innovative bridge that makes its own electricity.', meaning:'new and effective in an original way' }
+      ],
+      situationDistractors:[
+        'The old ferry carried passengers across the river every hour.',
+        'A boy bought a ticket and ran to catch the last bus.',
+        'The driver parked the van beside the harbour wall.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Engineers have come up with innovative ways to make aircraft lighter.', target:'innovative', grammarPattern:'' },
+        { id:'2', text:'The innovative design of the new station won an international prize.', target:'innovative', grammarPattern:'' },
+        { id:'3', text:'Several innovative ideas were presented at the transport conference.', target:'innovative', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'innovative', wrong:['ordinary', 'traditional', 'heavy'] },
+        { id:'2', answer:'innovative', wrong:['ordinary', 'historic', 'heavy'] },
+        { id:'3', answer:'innovative', wrong:['traditional', 'ordinary', 'historic'] }
       ]
     })
 ];

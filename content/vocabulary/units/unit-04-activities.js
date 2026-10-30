@@ -72,7 +72,17 @@ const phraseSets = [
   phrase('measures_road_safety', 'official actions for road safety', 'road safety measures', ['vocab_measures'], { chunks:['road safety', 'measures'], distortions:['road safety posters', 'road safety lessons', 'road safety uniforms'] }),
   phrase('estimate_how_many', 'work out roughly how many', 'estimate how many', ['vocab_estimate'], { chunks:['estimate', 'how many'], distortions:['count exactly how many', 'forget how many', 'ask how many'] }),
   phrase('regulation_safety', 'an official rule about safety', 'a safety regulation', ['vocab_regulation'], { chunks:['a safety', 'regulation'], distortions:['a safety suggestion', 'a safety tradition', 'a safety habit'] }),
-  phrase('operate_crane', 'control a crane', 'operate a crane', ['vocab_operate'], { chunks:['operate', 'a crane'], distortions:['repair a crane', 'sell a crane', 'paint a crane'] })
+  phrase('operate_crane', 'control a crane', 'operate a crane', ['vocab_operate'], { chunks:['operate', 'a crane'], distortions:['repair a crane', 'sell a crane', 'paint a crane'] }),
+  phrase('detain_suspect', 'officially keep a suspect at the police station', 'detain a suspect at the police station', ['vocab_detain'], { chunks:['detain', 'a suspect at the police station'], distortions:['release a suspect at the police station', 'follow a suspect at the police station', 'thank a suspect at the police station'] }),
+  phrase('offences_driving', 'illegal acts committed by drivers', 'driving offences', ['vocab_offences'], { chunks:['driving', 'offences'], distortions:['driving lessons', 'driving licences', 'driving tests'] }),
+  phrase('provisional_licence', 'a temporary driving licence', 'a provisional driving licence', ['vocab_provisional'], { chunks:['a provisional', 'driving licence'], distortions:['a full driving licence', 'a free driving licence', 'a stolen driving licence'] }),
+  phrase('enforcement_traffic', 'making sure traffic rules are obeyed', 'enforcement of traffic rules', ['vocab_enforcement'], { chunks:['enforcement', 'of traffic rules'], distortions:['removal of traffic rules', 'creation of traffic rules', 'ignorance of traffic rules'] }),
+  phrase('statistics_accident', 'numbers collected about accidents', 'accident statistics', ['vocab_statistics'], { chunks:['accident', 'statistics'], distortions:['accident reports', 'accident insurance', 'accident victims'] }),
+  phrase('safety_road', 'protection from danger on the road', 'road safety', ['vocab_safety'], { chunks:['road', 'safety'], distortions:['road works', 'road signs', 'road maps'] }),
+  phrase('sustainability_transport', 'continuing to use transport without harming the environment', 'the sustainability of transport', ['vocab_sustainability'], { chunks:['the sustainability', 'of transport'], distortions:['the popularity of transport', 'the cost of transport', 'the speed of transport'] }),
+  phrase('legislation_government', 'laws made by the government', 'government legislation', ['vocab_legislation'], { chunks:['government', 'legislation'], distortions:['government advertising', 'government offices', 'government funds'] }),
+  phrase('introduce_system', 'bring a new system into use', 'introduce a new system', ['vocab_introduce'], { chunks:['introduce', 'a new system'], distortions:['remove a new system', 'criticise a new system', 'sell a new system'] }),
+  phrase('innovative_design', 'a new and original design', 'an innovative design', ['vocab_innovative'], { chunks:['an innovative', 'design'], distortions:['an old-fashioned design', 'an expensive design', 'an unpopular design'] })
 ];
 
 const ideaSets = [
@@ -275,7 +285,57 @@ const ideaSets = [
     { text:'Any member of staff may operate the cranes at the port.', misconceptionCategory:'quantity_change' },
     { text:'Only trained staff may repair the cranes at the port.', misconceptionCategory:'meaning_confusion' },
     { text:'Only trained staff may operate the cranes at the airport.', misconceptionCategory:'added_information' }
-  ], ['vocab_operate'])
+  ], ['vocab_operate']),
+  idea('detain', 'Police detained the driver for two hours while they checked his documents.', ['The driver was held by the police for two hours while his documents were checked.', 'For two hours, the police kept the driver in custody while they examined his papers.', 'The police held the driver for two hours until his documents had been checked.'], 'quantity', 'two hours', [
+    { text:'Police detained the driver for four hours while they checked his documents.', misconceptionCategory:'quantity_change' },
+    { text:'Police released the driver after two hours, once they had checked his documents.', misconceptionCategory:'polarity_change' },
+    { text:'Police delayed the driver for two hours because of roadworks.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_detain']),
+  idea('offences', 'The number of driving offences fell by ten per cent last year.', ['Drivers broke the law ten per cent less often last year.', 'Last year, there was a ten per cent fall in the number of illegal acts by drivers.', 'Illegal acts by drivers decreased by ten per cent over the past year.'], 'quantity', 'fell by ten per cent', [
+    { text:'The number of driving offences rose by ten per cent last year.', misconceptionCategory:'polarity_change' },
+    { text:'The number of driving offences fell by twenty per cent last year.', misconceptionCategory:'quantity_change' },
+    { text:'The number of driving lessons fell by ten per cent last year.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_offences']),
+  idea('provisional', 'The provisional date for opening the tunnel is March, but it may change.', ['The tunnel is expected to open in March, although that date is not yet final.', 'March is the temporary date for the opening of the tunnel, and it could change.', 'For now, the tunnel is due to open in March, but the date may be changed.'], 'time', 'March, not yet final', [
+    { text:'The final date for opening the tunnel is March, and it will not change.', misconceptionCategory:'degree_change' },
+    { text:'The provisional date for opening the tunnel is December, but it may change.', misconceptionCategory:'time_change' },
+    { text:'The provisional date for closing the tunnel is March, but it may change.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_provisional']),
+  idea('enforcement', 'Stricter enforcement of the speed limit reduced accidents outside the school.', ['Making sure drivers obeyed the speed limit more strictly led to fewer accidents outside the school.', 'Because the speed limit was policed more strictly, there were fewer accidents outside the school.', 'There were fewer accidents outside the school after drivers were made to obey the speed limit more strictly.'], 'cause_effect', 'stricter checking led to fewer accidents', [
+    { text:'Stricter enforcement of the speed limit increased accidents outside the school.', misconceptionCategory:'polarity_change' },
+    { text:'Stricter enforcement of the speed limit reduced accidents outside the hospital.', misconceptionCategory:'meaning_confusion' },
+    { text:'Fewer accidents outside the school led to stricter enforcement of the speed limit.', misconceptionCategory:'cause_effect_change' }
+  ], ['vocab_enforcement']),
+  idea('statistics', 'Official statistics show that bus passenger numbers rose by five per cent in 2025.', ['Official figures show a five per cent increase in the number of bus passengers in 2025.', 'According to official figures, five per cent more people travelled by bus in 2025.', 'The number of people using buses grew by five per cent in 2025, according to the official figures.'], 'quantity', 'rose by five per cent, 2025', [
+    { text:'Official statistics show that bus passenger numbers fell by five per cent in 2025.', misconceptionCategory:'polarity_change' },
+    { text:'Official statistics show that bus passenger numbers rose by fifteen per cent in 2025.', misconceptionCategory:'quantity_change' },
+    { text:'Official statistics show that bus passenger numbers rose by five per cent in 2015.', misconceptionCategory:'time_change' }
+  ], ['vocab_statistics']),
+  idea('safety', 'The new barriers have improved the safety of pedestrians on the bridge.', ['Pedestrians on the bridge are now better protected from danger because of the new barriers.', 'Because of the new barriers, people walking on the bridge face less risk of injury.', 'The new barriers have made walking on the bridge less dangerous for pedestrians.'], 'cause_effect', 'barriers improved protection', [
+    { text:'The new barriers have reduced the number of pedestrians on the bridge.', misconceptionCategory:'meaning_confusion' },
+    { text:'The new barriers have made pedestrians on the bridge less protected.', misconceptionCategory:'polarity_change' },
+    { text:'Pedestrians’ improved protection caused the new barriers to be built on the bridge.', misconceptionCategory:'cause_effect_change' }
+  ], ['vocab_safety']),
+  idea('sustainability', 'The airline aims to improve its sustainability by using less fuel.', ['The airline hopes to do less harm to the environment by using less fuel.', 'By using less fuel, the airline wants to become kinder to the environment.', 'The airline intends to use fewer resources, so that its flights damage the environment less.'], 'cause_effect', 'less fuel to do less harm', [
+    { text:'The airline aims to improve its sustainability by using more fuel.', misconceptionCategory:'polarity_change' },
+    { text:'The airline aims to reduce its costs by using less fuel.', misconceptionCategory:'meaning_confusion' },
+    { text:'The airline has already improved its sustainability by using less fuel.', misconceptionCategory:'time_change' }
+  ], ['vocab_sustainability']),
+  idea('legislation', 'Parliament passed new legislation last month to ban mobile phones while driving.', ['Last month, new laws were passed by Parliament to ban the use of mobile phones when driving.', 'Parliament approved new laws last month that forbid drivers to use mobile phones.', 'A ban on using mobile phones at the wheel became law last month, after Parliament passed it.'], 'time', 'last month, ban on phones while driving', [
+    { text:'Parliament rejected new legislation last month to ban mobile phones while driving.', misconceptionCategory:'polarity_change' },
+    { text:'Parliament passed new legislation last year to ban mobile phones while driving.', misconceptionCategory:'time_change' },
+    { text:'Parliament passed new legislation last month to ban loud music while driving.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_legislation']),
+  idea('introduce', 'The city will introduce free bus travel for students in September.', ['Free bus travel for students will begin in the city in September.', 'In September, the city will start offering students free bus travel.', 'From September, students in the city will be able to travel by bus for free.'], 'time', 'September', [
+    { text:'The city will end free bus travel for students in September.', misconceptionCategory:'polarity_change' },
+    { text:'The city will introduce free bus travel for pensioners in September.', misconceptionCategory:'meaning_confusion' },
+    { text:'The city will introduce free bus travel for students in December.', misconceptionCategory:'time_change' }
+  ], ['vocab_introduce']),
+  idea('innovative', 'The company is famous for its innovative designs for electric bicycles.', ['The company is well known for its original and effective designs for electric bicycles.', 'Its original and effective electric bicycle designs have made the company famous.', 'People know the company for the new ideas in its designs for electric bicycles.'], 'degree', 'original, effective designs', [
+    { text:'The company is famous for its cheap designs for electric bicycles.', misconceptionCategory:'meaning_confusion' },
+    { text:'The company is famous for its traditional designs for electric bicycles.', misconceptionCategory:'polarity_change' },
+    { text:'The company is more innovative than every other company that makes electric bicycles.', misconceptionCategory:'comparison_change' }
+  ], ['vocab_innovative'])
 ];
 
 export default [...phraseSets, ...ideaSets];

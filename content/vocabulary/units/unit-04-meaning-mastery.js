@@ -163,5 +163,45 @@ export default Object.freeze({
   operate: [
     w(['to repair and test a vehicle', 'to buy and sell a vehicle', 'to wash and clean a vehicle']),
     w(['to design a system correctly', 'to repair a system correctly', 'to sell a system correctly'])
+  ],
+  detain: [
+    w(['to ask someone to leave a place quickly', 'to follow someone to see where they go', 'to make someone wait for a short time']),
+    w(['to make someone arrive later than planned', 'to take someone to a different place', 'to give someone a fine for a mistake'])
+  ],
+  offences: [
+    w(['actions that are rude to other people', 'rules that people must follow', 'punishments given for breaking the law']),
+    w(['payments made for breaking a rule', 'people who break a rule', 'warnings given before a rule is made'])
+  ],
+  provisional: [
+    w(['allowed only under certain conditions', 'very expensive to obtain', 'checked carefully by an expert']),
+    w(['already completed and approved', 'made for a special occasion', 'cancelled for a short time'])
+  ],
+  enforcement: [
+    w(['writing a rule so that it is clear', 'explaining a rule to a group of people', 'changing a rule so that it is simpler']),
+    w(['listing rules in a book', 'removing rules that are old', 'teaching rules to children'])
+  ],
+  statistics: [
+    w(['opinions collected from a small group of people', 'pictures taken to show a place', 'stories told by people who were there']),
+    w(['words that explain a rule', 'maps that show a route', 'prices that change often'])
+  ],
+  safety: [
+    w(['protection of property from thieves', 'the speed that is allowed on a road', 'the rules for building new roads']),
+    w(['being able to travel at high speed', 'having plenty of space to move', 'being cheap to use every day'])
+  ],
+  sustainability: [
+    w(['the ability to travel very fast over long distances', 'the ability to carry heavy loads for many hours', 'the ability to make a large profit each year']),
+    w(['spending large sums on new projects', 'reducing the time that a journey takes', 'increasing the number of people who travel'])
+  ],
+  legislation: [
+    w(['one official rule about an activity', 'the act of making sure laws are obeyed', 'a group of people who decide policy']),
+    w(['a single rule on one road', 'a punishment for breaking a law', 'a plan to improve a road'])
+  ],
+  introduce: [
+    w(['to remove from use after many years', 'to repair after it has broken', 'to explain to a group of visitors']),
+    w(['to stop something old', 'to continue something familiar', 'to repeat something many times'])
+  ],
+  innovative: [
+    w(['following old and trusted methods', 'costing very little to produce', 'attracting very large crowds']),
+    w(['old and well known to everyone', 'large and difficult to move', 'cheap and easy to copy'])
   ]
 });

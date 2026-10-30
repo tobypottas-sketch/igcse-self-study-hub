@@ -68,7 +68,51 @@ export const unit4WordFamilies = Object.freeze({
     f('operator', 'noun', 'The bus operator announced a new timetable for the summer.', 'The person or company that runs a vehicle or service; common in transport news.'),
     f('operation', 'noun', 'The safe operation of heavy machinery requires years of training.', 'The noun for controlling a machine or system; this unit teaches the machine sense, not the medical one.'),
     f('operational', 'adjective', 'The new airport terminal will become operational in March.', 'Adjective meaning working and in use; common in news about transport projects.')
-  ], excludedForms: [{ form: 'operating', reason: 'Only an inflection of “operate”.' }] }
+  ], excludedForms: [{ form: 'operating', reason: 'Only an inflection of “operate”.' }] },
+  safety: { forms: [
+    f('safety', 'noun', 'The safety of passengers is the first duty of every airline.', 'Headword.'),
+    f('safe', 'adjective', 'The tunnel was closed until engineers could prove that it was safe.', 'The base adjective; far more frequent than the noun in speech.'),
+    f('safely', 'adverb', 'The pilot landed the aircraft safely despite the strong wind.', 'The adverb; very common in descriptions of journeys.')
+  ], excludedForms: [{ form: 'unsafe', reason: 'The negative of “safe”; adds no new meaning at this level.' }, { form: 'safeguard', reason: 'Less common verb and noun beyond the level of this unit.' }] },
+  sustainability: { forms: [
+    f('sustainability', 'noun', 'Many airports now publish a yearly report on their sustainability.', 'Headword.'),
+    f('sustainable', 'adjective', 'Electric buses are a more sustainable choice than diesel ones.', 'The adjective used most often in news and school topics.'),
+    f('sustainably', 'adverb', 'The new ferries are designed to travel more sustainably than older ships.', 'The adverb; common in phrases such as “sustainably produced”.')
+  ], excludedForms: [{ form: 'sustain', reason: 'Shifts to other senses such as “keep alive” and “suffer an injury”.' }] },
+  innovative: { forms: [
+    f('innovative', 'adjective', 'The city won a prize for its innovative cycle-sharing scheme.', 'Headword.'),
+    f('innovate', 'verb', 'Car makers must innovate to meet the demand for cleaner vehicles.', 'The verb; the same idea as an action.'),
+    f('innovation', 'noun', 'Folding bicycles were an important innovation in city transport.', 'The common noun; a new idea or method that is put into use.'),
+    f('innovator', 'noun', 'Engineers regard her as an innovator who changed the way trains are built.', 'The person who creates new ideas or methods.')
+  ], excludedForms: [{ form: 'innovatively', reason: 'Rare adverb that adds little at this level.' }] },
+  fatality: { forms: [
+    f('fatality', 'noun', 'Investigators confirmed that there had been only one fatality in the crash.', 'Headword.'),
+    f('fatal', 'adjective', 'Tiredness is a common cause of fatal accidents on long journeys.', 'The base adjective: causing death. Far more frequent than the noun.'),
+    f('fatally', 'adverb', 'The lorry driver was fatally injured in the crash, the police confirmed.', 'The adverb, used in factual news reports about accidents.')
+  ], excludedForms: [{ form: 'fatalistic', reason: 'Describes accepting that events cannot be changed; a different sense.' }] },
+  regulation: { forms: [
+    f('regulation', 'noun', 'The airline broke a regulation about the weight of hand luggage.', 'Headword.'),
+    f('regulate', 'verb', 'Governments regulate the number of hours that lorry drivers may work.', 'The verb: to control by official rules.'),
+    f('regulated', 'adjective', 'Taxi fares are strictly regulated in most large cities.', 'Adjective or participle for something controlled by rules; compare equipped and organised.'),
+    f('regulatory', 'adjective', 'A regulatory body checks that airlines follow the safety rules.', 'Formal adjective for something connected with official rules; common in news reports.')
+  ], excludedForms: [{ form: 'regulator', reason: 'Names the official body; a rarer word that adds little at this level.' }] },
+  enforcement: { forms: [
+    f('enforcement', 'noun', 'The city plans to hire more officers for parking enforcement.', 'Headword.'),
+    f('enforce', 'verb', 'Police officers enforce the law by checking the speed of passing cars.', 'The verb: to make sure that a rule or law is obeyed.'),
+    f('enforced', 'adjective', 'The seat belt law is strictly enforced on this motorway.', 'Adjective or participle for a rule that is actually applied; compare equipped and polluted.')
+  ], excludedForms: [{ form: 'enforceable', reason: 'Legal term meaning “possible to enforce”; too technical for this level.' }] },
+  legislation: { forms: [
+    f('legislation', 'noun', 'Strict legislation controls the hours that bus drivers may work.', 'Headword.'),
+    f('legislate', 'verb', 'Parliament has the power to legislate on matters such as seat belts and speed limits.', 'The verb: to make laws.'),
+    f('legislative', 'adjective', 'The legislative process can take years before a new road law is passed.', 'Formal adjective for anything connected with making laws; common in news reports.'),
+    f('legislator', 'noun', 'One legislator argued that the speed limit should be lower near schools.', 'The person who makes laws; the same pattern as inventor and commentator in earlier units.')
+  ], excludedForms: [{ form: 'legislature', reason: 'Names the institution, not the laws or the act of making them.' }] },
+  statistics: { forms: [
+    f('statistics', 'noun', 'The tourist office keeps statistics on how many visitors arrive by train.', 'Headword.'),
+    f('statistical', 'adjective', 'The report includes a statistical analysis of rail delays.', 'The adjective for anything based on numerical data.'),
+    f('statistically', 'adverb', 'Travelling by train is statistically much safer than travelling by car.', 'The adverb meaning according to the numbers; common in exam texts.'),
+    f('statistician', 'noun', 'A statistician analysed the accident data to find the most dangerous junctions.', 'The expert who works with numerical data; the same pattern as historian in Unit 1.')
+  ], excludedForms: [{ form: 'statistic', reason: 'Only the singular of the headword.' }] }
 });
 
 export const unit4WordFamilyRejected = Object.freeze({
@@ -92,12 +136,14 @@ export const unit4WordFamilyRejected = Object.freeze({
   enormous: 'Only “enormously” (very much) is a straightforward relative, and “enormity” means great wickedness, so fewer than three forms are worth teaching.',
   collision: 'Only “collide” is a genuine relative; “colliding” is an inflection and “collider” is a technical physics term, so fewer than three useful forms exist.',
   livelihood: 'A compound noun with no derived forms; “live” and “lively” belong to different senses.',
-  fatality: '“fatal” is closely related, but “fatally” is used mostly in “fatally injured”, which this unit avoids, or in “fatally flawed”, which shifts the sense, so only two reliable forms remain.',
   initiative: '“initiate” (to start) is related, but “initiation” is rare or ritual and “initial” and “initially” mean “first”, so fewer than three forms keep the sense.',
   campaign: '“campaign” is both noun and verb with one spelling, “campaigner” is the only distinct form, and “campaigning” is an inflection or gerund, so fewer than three forms exist.',
   pothole: 'A compound noun with no derived forms.',
   trauma: 'Only “traumatic” is a useful relative; “traumatically” is rare and “traumatise” is not needed at this level, so fewer than three forms are worth teaching.',
   measures: 'The target sense is “actions”; “measure” (to find a size), “measurement” and “measurable” all shift to size, so no family keeps the sense.',
   estimate: 'Only “estimation” is a distinct relative: “estimated” is a Unit 1 target, “underestimate” is a Unit 3 target and the noun “estimate” has the same spelling, so fewer than three forms remain.',
-  regulation: '“regulate” is useful, but “regulatory” and “regulator” are formal and rare at this level and “regulated” is an inflection, so fewer than three forms are worth teaching.'
+  detain: '“detention” and “detainee” are related, but “detention” is mostly the school punishment and “detainee” is a rare legal word, so fewer than three forms keep the sense; “detained” is only an inflection.',
+  offences: '“offend” and “offensive” shift to the sense of upsetting someone, and “offender” is the only close relative, so fewer than three forms keep the sense.',
+  provisional: 'Only “provisionally” is a derived form, which gives two forms and not the three the contract needs; “provision” is a different word.',
+  introduce: '“introduction” keeps the sense, but “introductory” (for beginners) and the social sense of “introduce” shift the meaning, so fewer than three forms keep the target sense.'
 });
