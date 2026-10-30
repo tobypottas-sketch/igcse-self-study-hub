@@ -23,16 +23,78 @@
 .vocab-unit-chip{border:1px solid var(--line);border-radius:var(--r-pill);background:var(--c-surface);color:var(--muted);font-weight:800;font-size:var(--fs-sm);padding:8px 14px;min-height:40px;cursor:pointer}
 .vocab-unit-chip.is-selected{border-color:var(--c-teal-line);background:var(--soft);color:var(--teal)}
 
-/* Unit readiness report (authoring view). */
-.vocab-readiness__summary { margin: 0 0 .75rem; }
-.vocab-readiness__table { display: grid; gap: .6rem; }
-.vocab-readiness__row { border: 1px solid var(--line, #d9dde3); border-radius: 10px; padding: .7rem .85rem; }
-.vocab-readiness__row header { display: flex; justify-content: space-between; gap: .5rem; align-items: baseline; }
-.vocab-readiness__row[data-live="false"] { background: color-mix(in srgb, var(--surface, #fff) 92%, #b45309 8%); }
-.vocab-readiness__state { font-weight: 700; font-size: .85rem; }
-.vocab-readiness__row p { margin: .25rem 0 .4rem; }
-.vocab-readiness__stages { display: flex; flex-wrap: wrap; gap: .35rem .9rem; list-style: none; margin: 0; padding: 0; font-size: .85rem; }
-.vocab-readiness__stages li[data-ok="false"] { color: #b45309; font-weight: 600; }
 
-.vocab-readiness__notes { margin:8px 0 0; padding:0 0 0 18px; font-size:0.85rem; color:var(--vocab-muted, #5a6472); }
-.vocab-readiness__notes li { margin:2px 0; }
+/* ===== Teacher / admin consolidation: one pill system, one button system, hairline rows, fewer nested boxes ===== */
+.vocab-shell--teacher .vocab-teacher-hero,.vocab-readiness-hero{background:linear-gradient(120deg,var(--navy),var(--c-teal-dark));border:0;color:#fff;padding:20px 26px;box-shadow:none}
+.vocab-shell--teacher .vocab-teacher-hero h1{color:#fff;font-size:clamp(1.6rem,3vw,2.2rem);margin:0}
+.vocab-shell--teacher .vocab-teacher-hero .vocab-kicker{color:var(--c-teal-soft);margin:0 0 4px}
+.vocab-teacher-hero:has(.vocab-unit-chips){color:#fff}
+.vocab-teacher-hero .vocab-unit-chip{background:transparent;color:#fff;border-color:rgba(255,255,255,.45)}
+.vocab-teacher-hero .vocab-unit-chip[aria-pressed="true"]{background:#fff;color:var(--navy)}
+.vocab-pill{display:inline-block;padding:3px 10px;border-radius:var(--r-pill);font-size:var(--fs-xs);font-weight:800;line-height:1.3;white-space:nowrap;background:var(--c-surface-soft);color:var(--muted)}
+.vocab-pill[data-tone="done"]{background:var(--c-teal);color:#fff}
+.vocab-pill[data-tone="mid"]{background:var(--c-teal-soft);color:var(--c-teal-dark)}
+.vocab-pill[data-tone="start"]{background:#fff;color:var(--navy);box-shadow:inset 0 0 0 1px var(--c-teal-line)}
+.vocab-pill[data-tone="locked"]{background:transparent;color:var(--muted);box-shadow:inset 0 0 0 1px var(--line)}
+.vocab-pill[data-tone="warn"]{background:#fdecc8;color:#7a4a00}
+.vocab-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* Buttons: one primary per screen, the rest quiet. */
+.vocab-button--primary{background:var(--c-teal);color:#fff;border-color:var(--c-teal)}
+.vocab-button--secondary{background:#fff;color:var(--c-teal-dark);border:1px solid var(--c-teal-line)}
+.vocab-button--quiet{background:transparent;color:var(--c-teal-dark);border:1px solid transparent;box-shadow:none;font-weight:700}
+.vocab-button--quiet:hover{border-color:var(--c-teal-line)}
+.vocab-shell--teacher .vocab-teacher-actions{align-items:center;justify-content:space-between;margin:14px 0 0}
+.vocab-teacher-actions__quiet{display:flex;flex-wrap:wrap;gap:4px}
+.vocab-teacher-actions__reason{flex-basis:100%;margin:0;color:var(--muted);font-size:var(--fs-sm)}
+.vocab-teacher-actions__footer{display:flex;flex-wrap:wrap;gap:4px;margin:14px 0 0}
+/* Cards and rows */
+.vocab-shell--teacher .vocab-insight-grid{gap:10px;margin-top:14px}
+.vocab-shell--teacher .vocab-insight-card,.vocab-shell--teacher .vocab-teacher-panel{padding:16px 18px;gap:4px;box-shadow:none;border-color:var(--c-teal-line)}
+.vocab-shell--teacher .vocab-insight-card>strong{color:var(--navy);font-size:1.5rem}
+.vocab-shell--teacher .vocab-teacher-grid{gap:12px;margin-top:12px}
+.vocab-shell--teacher .vocab-teacher-panel h2{font-size:1.02rem;margin:0 0 2px;color:var(--navy)}
+.vocab-shell--teacher .vocab-teacher-panel h3{font-size:.92rem;margin:8px 0 2px;color:var(--navy)}
+.vocab-rows,.vocab-merit-list,.vocab-chips{list-style:none;margin:4px 0 0;padding:0;display:block}
+.vocab-shell--teacher .vocab-teacher-panel li{border:0;border-radius:0;background:transparent;padding:7px 0;border-top:1px solid var(--c-surface-soft)}
+.vocab-shell--teacher .vocab-teacher-panel li:first-child{border-top:0}
+.vocab-shell--teacher .vocab-student-row{border:0;background:transparent;padding:0;font-weight:800;width:100%}
+.vocab-shell--teacher .vocab-student-row:hover span{text-decoration:underline}
+.vocab-muted-line,.vocab-note{margin:2px 0;color:var(--muted);font-size:var(--fs-sm)}
+.vocab-link{background:none;border:0;padding:0;color:var(--c-teal-dark);font-weight:800;cursor:pointer;text-align:left}
+.vocab-panel-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.vocab-panel-head .vocab-unit-chips{margin:0}
+.vocab-chips{display:flex;flex-wrap:wrap;gap:6px}
+.vocab-shell--teacher .vocab-teacher-panel li.vocab-chip{display:inline-flex;gap:8px;border:1px solid var(--c-teal-line);border-radius:var(--r-pill);padding:4px 10px}
+.vocab-more{margin-top:12px}.vocab-more>summary{cursor:pointer;color:var(--c-teal-dark);font-weight:800}
+/* Class pathway matrix: one table, no per-cell boxes */
+.vocab-matrix-wrap{overflow-x:auto;margin-top:6px}
+.vocab-matrix{width:100%;border-collapse:collapse;font-size:var(--fs-sm)}
+.vocab-matrix th,.vocab-matrix td{padding:5px 8px;text-align:left;border-top:1px solid var(--c-surface-soft);white-space:nowrap}
+.vocab-matrix thead th{border-top:0;color:var(--muted);font-size:var(--fs-xs);font-weight:800}
+.vocab-matrix tbody th{font-weight:800;color:var(--navy);position:sticky;left:0;background:var(--c-surface)}
+.vocab-flag{display:inline-block;width:8px;height:8px;margin-left:5px;border-radius:50%;background:#d98a00;vertical-align:middle}
+/* Habits and merits */
+.vocab-habits-stats{gap:8px;margin:6px 0 8px}
+.vocab-habits-stats span{border:0;background:transparent;padding:0}
+.vocab-habits-stats strong{font-size:1.25rem;color:var(--navy)}
+.vocab-merit-panel{margin-top:12px}
+.vocab-merit-panel--quiet{margin-top:12px;color:var(--muted);font-size:var(--fs-sm)}
+.vocab-merit-row{border:0;padding:6px 0}
+.vocab-shell--teacher .vocab-teacher-pathway{border:0;background:transparent;padding:4px 0}
+.vocab-shell--teacher .vocab-teacher-pathway-cells{gap:10px}
+.vocab-teacher-pathway em{display:block}
+/* Unit readiness: healthy pathways one line, problems expanded */
+.vocab-readiness__summary{margin:0 0 8px}
+.vocab-readiness__table{display:block}
+.vocab-readiness__row{border:0;border-top:1px solid var(--c-surface-soft);padding:8px 0;background:transparent}
+.vocab-readiness__line,.vocab-readiness__row summary{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.vocab-readiness__row summary{cursor:pointer;list-style:none}
+.vocab-readiness__reason{color:var(--muted);font-size:var(--fs-sm)}
+.vocab-readiness__stages{display:flex;flex-wrap:wrap;gap:4px 16px;list-style:none;margin:6px 0 0;padding:0;font-size:var(--fs-sm)}
+.vocab-readiness__stages li[data-ok="false"]{color:#7a4a00;font-weight:800}
+.vocab-readiness__notes{margin:6px 0 0;padding:0 0 0 18px;font-size:var(--fs-sm);color:var(--muted)}
+@media(max-width:900px){.vocab-shell--teacher .vocab-insight-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.vocab-shell--teacher .vocab-teacher-hero{padding:16px 18px}.vocab-shell--teacher .vocab-teacher-actions{flex-direction:column;align-items:stretch}.vocab-habits-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.vocab-shell--teacher .vocab-teacher-grid--three{grid-template-columns:repeat(3,minmax(0,1fr))}@media(max-width:900px){.vocab-shell--teacher .vocab-teacher-grid--three{grid-template-columns:1fr}}
+.vocab-shell--teacher .vocab-teacher-panel,.vocab-shell--teacher .vocab-insight-card{min-width:0}.vocab-matrix-wrap{max-width:100%}
+.vocab-matrix-wrap,.vocab-matrix td{position:relative}
