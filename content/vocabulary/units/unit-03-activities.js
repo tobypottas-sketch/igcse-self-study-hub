@@ -60,7 +60,7 @@ const phraseSets = [
   phrase('online_purchase', 'something that you bought on the internet', 'an online purchase', ['vocab_purchase'], { acceptedVariants:['an internet purchase'], chunks:['an', 'online', 'purchase'], distortions:['an online refund', 'an online advert', 'an online review'] }),
   phrase('chinese_takeaway', 'a meal from a Chinese restaurant to eat at home', 'a Chinese takeaway', ['vocab_takeaway'], { chunks:['a', 'Chinese', 'takeaway'], distortions:['a Chinese cooking lesson', 'a Chinese restaurant with tables', 'a Chinese food market'] }),
   phrase('garden_barbecue', 'an outdoor meal in the garden cooked over a fire', 'a garden barbecue', ['vocab_barbecue'], { acceptedVariants:['a barbecue in the garden'], chunks:['a', 'garden', 'barbecue'], distortions:['a formal dinner in the garden', 'a cold picnic in the garden', 'a cooking lesson in the garden'] }),
-  phrase('saturated_fat', 'the hard kind of fat in butter and fatty meat', 'saturated fat', ['vocab_saturated'], { chunks:['saturated', 'fat'], distortions:['fat that stays liquid at room temperature', 'fat that has been removed', 'fat that tastes sweet'] }),
+  phrase('saturated_fat', 'the type of fat found in butter and fatty meat', 'saturated fat', ['vocab_saturated'], { chunks:['saturated', 'fat'], distortions:['fat that stays liquid at room temperature', 'fat that has been removed', 'fat that tastes sweet'] }),
   phrase('convenient_way', 'an easy way that saves time', 'a convenient way', ['vocab_convenient'], { acceptedVariants:['a handy way'], chunks:['a', 'convenient', 'way'], distortions:['a costly way', 'a slow way', 'a dangerous way'] }),
   phrase('extensive_gardens', 'very large gardens', 'extensive gardens', ['vocab_extensive'], { chunks:['extensive', 'gardens'], distortions:['tiny gardens', 'private gardens', 'dull gardens'] })
 
@@ -202,9 +202,9 @@ const ideaSets = [
     { text:'Our neighbours hold a formal dinner indoors every summer.', misconceptionCategory:'meaning_confusion' },
     { text:'Our neighbours hold an outdoor cooking party in their garden every summer and charge guests money.', misconceptionCategory:'added_information' }
   ], ['vocab_barbecue']),
-  idea('saturated', 'Butter contains more saturated fat than olive oil.', ['Butter contains more of the hard kind of fat than olive oil does.', 'Compared with butter, olive oil contains less of the kind of fat that is solid when cold.', 'Butter has a larger amount of the kind of fat that stays hard in the fridge than olive oil has.'], 'comparison', 'butter has more', [
-    { text:'Olive oil contains more of the hard kind of fat than butter does.', misconceptionCategory:'comparison_change' },
-    { text:'Butter contains less of the hard kind of fat than olive oil does.', misconceptionCategory:'comparison_change' },
+  idea('saturated', 'Butter contains more saturated fat than olive oil.', ['Butter contains more of the type of fat found in fatty meat than olive oil does.', 'Compared with butter, olive oil contains less of the type of fat found in cheese and fatty meat.', 'Butter has a higher amount of the type of fat found in cheese and fatty meat than olive oil has.'], 'comparison', 'butter has more', [
+    { text:'Olive oil contains more of the type of fat found in cheese and fatty meat than butter does.', misconceptionCategory:'comparison_change' },
+    { text:'Butter contains less of the type of fat found in cheese and fatty meat than olive oil does.', misconceptionCategory:'comparison_change' },
     { text:'Butter costs more than olive oil.', misconceptionCategory:'meaning_confusion' }
   ], ['vocab_saturated']),
   idea('convenient', 'Ready meals are convenient for people who work long hours.', ['Ready meals are handy for people who work long hours.', 'People who work long hours find ready meals easy and time-saving.', 'For those with long working hours, ready meals save time and effort.'], 'cause_effect', 'saves time and effort', [

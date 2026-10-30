@@ -784,16 +784,16 @@ const entries = [
       ]
     }),
   e('saturated', 'adjective',
-    'describing the kind of fat in butter and fatty meat that is solid when cold',
-    ['hard', 'solid'],
+    'describing the type of fat found mainly in butter, cheese and fatty meat',
+    ['the type of fat found in butter', 'the kind of fat in fatty meat and dairy foods'],
     ['describing oil that stays liquid in the fridge', 'describing food that has been fried for a long time', 'describing fat that has been removed from meat'],
-    'Butter, cheese and fatty meat are high in saturated fat.',
-    'hard', 'Butter, cheese and fatty meat are high in hard fat.',
-    'solid', 'Lard is a solid fat that is used in some traditional recipes.',
+    'Cheese, cream and fatty meat are high in saturated fat.',
+    'the type of fat found in butter', 'Cheese, cream and fatty meat are high in the type of fat found in butter.',
+    'the kind of fat in fatty meat and dairy foods', 'The label shows how much of the kind of fat in fatty meat and dairy foods is in each portion.',
     {
       masteryContexts:[
-        { text:'Butter, cheese and fatty meat are high in saturated fat.', meaning:'describing the hard kind of fat in butter and meat' },
-        { text:'The label says that one portion of the pizza contains a lot of saturated fat.', meaning:'of the hard-fat type found in animal foods' }
+        { text:'Butter, cheese and fatty meat are high in saturated fat.', meaning:'describing the type of fat found in butter and meat' },
+        { text:'The label says that one portion of the pizza contains a lot of saturated fat.', meaning:'of the type of fat found in butter and meat' }
       ],
       situationDistractors:[
         'The cook poured olive oil, which stays liquid in the fridge, over the salad.',

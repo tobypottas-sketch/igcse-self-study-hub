@@ -114,7 +114,7 @@ export default Object.freeze({
   ],
   saturated: [
     p('Pupils in the food technology class compared two foods. Butter contains much more ____ fat than olive oil, and it stays hard in the fridge.', 'saturated', 'Butter versus olive oil; stays hard.'),
-    p('The nutrition label has a line for fat and another line for ____ fat. The second line is smaller, because it shows only the kind found in butter and fatty meat.', 'saturated', 'Second line for the kind in butter and meat.')
+    p('The nutrition label has a line for fat and another line for ____ fat. The second line is smaller, because it shows only the fat that comes mainly from animal foods such as cheese.', 'saturated', 'Second line for the kind in butter and meat.')
   ],
   convenient: [
     p('Kim has a very busy week with little time to shop. She likes the small supermarket near her flat, because it is open late and she can buy dinner on her way home. It is a very ____ shop.', 'convenient', 'Open late; on her way home.'),
