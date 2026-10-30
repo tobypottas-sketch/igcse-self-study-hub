@@ -1,5 +1,5 @@
-// Unit 3 (Food) · words 1–40 authored (batches 1–4, draft). Guards the contract with the real readiness evaluator and builders. Words 41–50 are not
-// authored yet, so the unit stays a draft: no releases/unit-03.js, no lock, no SQL.
+// Unit 3 (Food) · all fifty words authored (batches 1–5, draft). Guards the contract with the real readiness evaluator and builders. The unit stays
+// a draft until the release audit: no releases/unit-03.js, no lock, no SQL.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -10,18 +10,19 @@ import { validateUnit } from '../content/vocabulary/schema.js';
 import { evaluateUnitReadiness } from '../src/vocabulary/pathway-readiness.js';
 import { releasePlannerContent } from '../content/vocabulary/readiness-report.js';
 
-const TERMS = ['participant', 'outlet', 'sprinkled', 'underestimate', 'considerably', 'guaranteed', 'harmless', 'pressure', 'fooled', 'majority', 'inexpensive', 'sodium', 'commercially', 'processed', 'depression', 'overweight', 'unwell', 'ingredients', 'nutritious', 'moderation', 'deceive', 'advertisement', 'variety', 'portion', 'purchase', 'takeaway', 'barbecue', 'saturated', 'convenient', 'extensive', 'fashionable', 'satisfying', 'reasonable', 'disappointed', 'inconvenient', 'excellent', 'polite', 'helpful', 'recommendation', 'informative'];
-const NO_FAMILY = ['outlet', 'considerably', 'guaranteed', 'pressure', 'fooled', 'majority', 'sodium', 'commercially', 'unwell', 'ingredients', 'portion', 'purchase', 'takeaway', 'barbecue', 'saturated'];
+const TERMS = ['participant', 'outlet', 'sprinkled', 'underestimate', 'considerably', 'guaranteed', 'harmless', 'pressure', 'fooled', 'majority', 'inexpensive', 'sodium', 'commercially', 'processed', 'depression', 'overweight', 'unwell', 'ingredients', 'nutritious', 'moderation', 'deceive', 'advertisement', 'variety', 'portion', 'purchase', 'takeaway', 'barbecue', 'saturated', 'convenient', 'extensive', 'fashionable', 'satisfying', 'reasonable', 'disappointed', 'inconvenient', 'excellent', 'polite', 'helpful', 'recommendation', 'informative', 'reflection', 'organiser', 'presenter', 'evaluate', 'consume', 'balanced', 'calorie', 'hygienic', 'appetising', 'cuisine'];
+const NO_FAMILY = ['outlet', 'considerably', 'guaranteed', 'pressure', 'fooled', 'majority', 'sodium', 'commercially', 'unwell', 'ingredients', 'portion', 'purchase', 'takeaway', 'barbecue', 'saturated', 'evaluate', 'calorie', 'cuisine'];
 const STAGES = ['recognise', 'match', 'apply', 'recall', 'mastery'];
 // Same-part-of-speech pools: adverbs need 3 other adverbs in the unit. Batch 2 added six adjectives, so harmless builds every stage naturally;
-// batches 3–4 added no target adverbs (derived forms such as reasonably and politely are not targets), so considerably and commercially are still the only two adverbs, so Meaning Match and Context Recognise/Apply/Recall remain a structural contract limit.
+// batches 3–5 added no target adverbs (derived forms such as reasonably, politely and hygienically are not targets), so considerably and commercially are still the only two adverbs, so Meaning Match and Context Recognise/Apply/Recall remain a structural contract limit.
 const POS_LIMITS = { considerably: { meaning: ['match'], context: ['recognise', 'apply', 'recall'] }, commercially: { meaning: ['match'], context: ['recognise', 'apply', 'recall'] } };
 const readiness = evaluateUnitReadiness({ content: releasePlannerContent(unit3) });
 const failed = (pathwayId, occurrenceId) => STAGES.filter(stage => (readiness.pathways[pathwayId].stageFailures[stage] ?? []).some(f => f.occurrenceId === occurrenceId));
 
-test('Unit 3 batches 1–2 are exactly the forty locked targets, as a draft with no release artefacts', () => {
+test('Unit 3 is exactly the fifty locked targets, as a draft with no release artefacts', () => {
   assert.deepEqual(unit3.items.map(item => item.term), TERMS);
-  assert.equal(unit3.occurrences.length, 40);
+  assert.equal(unit3.occurrences.length, 50);
+  assert.equal(new Set(unit3.occurrences.map(row => row.vocabularyId)).size, 50);
   assert.equal(unit3.status, 'draft');
   assert.equal(unit3.unitNumber, 3);
   for (const name of ['releases/unit-03.js']) assert.ok(!fs.existsSync(new URL(`../content/vocabulary/${name}`, import.meta.url)), name);
@@ -46,7 +47,7 @@ test('IDs are Unit 3-specific, unique, and never collide with Units 1 or 2', () 
   assert.ok(unit3.activities.every(row => /^u3_/.test(row.activityContentId) && row.unitNumber === 3));
 });
 
-test('every pathway stage is buildable for words 1–40, except the documented Word Family and same-POS pool limits', () => {
+test('every pathway stage is buildable for all fifty words, except the documented Word Family and same-POS pool limits', () => {
   for (const occurrence of unit3.occurrences) {
     const term = unit3.items.find(item => item.vocabularyId === occurrence.vocabularyId).term;
     for (const pathwayId of Object.keys(readiness.pathways)) {
@@ -58,11 +59,11 @@ test('every pathway stage is buildable for words 1–40, except the documented W
   }
 });
 
-test('words 1–40 satisfy the strict (approved) content schema; only whole-unit count rules remain', () => {
+test('the full unit satisfies the strict (approved) content schema, including the 50-occurrence and ten-per-set rules', () => {
   const approve = row => ({ ...row, status: 'approved' });
   const strict = { ...unit3, status: 'approved', items: unit3.items.map(approve), occurrences: unit3.occurrences.map(approve), contexts: unit3.contexts.map(approve), activities: unit3.activities.map(approve) };
   const errors = validateUnit(strict).errors;
-  assert.deepEqual(errors.filter(error => !/exactly 50 occurrences|exactly ten targets/.test(error)), []);
+  assert.deepEqual(errors, []);
 });
 
 test('gap-fill: target inside the blankable sentence (not first), three distinct wrong options that never equal the answer', () => {
@@ -89,7 +90,7 @@ test('wrong situations: at least four distinct, target-free situations per word'
   }
 });
 
-test('Word Families: twenty-five genuine families are authored, each with >=3 forms, >=2 parts of speech and alternates; the rest are left unavailable', () => {
+test('Word Families: thirty-two genuine families are authored, each with >=3 forms, >=2 parts of speech and alternates; the rest are left unavailable', () => {
   for (const item of unit3.items) {
     const forms = item.senses[0].wordFamilyForms;
     if (NO_FAMILY.includes(item.term)) {
@@ -102,8 +103,8 @@ test('Word Families: twenty-five genuine families are authored, each with >=3 fo
     }
   }
   const familyItems = unit3.activities.filter(a => a.activityData.taskType === 'word_family');
-  assert.equal(familyItems.length, 75);
-  assert.equal(unit3.items.filter(item => !NO_FAMILY.includes(item.term)).length, 25);
+  assert.equal(familyItems.length, 96);
+  assert.equal(unit3.items.filter(item => !NO_FAMILY.includes(item.term)).length, 32);
   assert.ok(familyItems.every(a => a.activityData.sourceText.split('____').length === 2 && !a.activityData.sourceText.startsWith('____')));
 });
 
@@ -112,4 +113,19 @@ test('Mastery sentences never begin with the target and Unit 1/2 sources are unt
   assert.equal(unit1.status, 'approved');
   assert.equal(unit2.status, 'approved');
   assert.equal(unit2.occurrences.length, 50);
+});
+
+test('corrected saturated, isolated reasonable_3, fully available harmless and the documented adverb limit', () => {
+  const byTerm = term => unit3.items.find(item => item.term === term);
+  const saturated = byTerm('saturated').senses[0];
+  assert.equal(saturated.meaning, 'describing the type of fat found mainly in butter, cheese and fatty meat');
+  assert.deepEqual(saturated.acceptedParaphrases, ['the type of fat found in butter', 'the kind of fat in fatty meat and dairy foods']);
+  const reasonable = byTerm('reasonable');
+  assert.equal(reasonable.vocabularyId, 'vocab_reasonable_3');
+  assert.ok(!unit1.items.some(item => item.vocabularyId === 'vocab_reasonable_3'));
+  assert.ok(unit3.occurrences.some(row => row.occurrenceId === 'u3_33_reasonable_3'));
+  const harmless = unit3.occurrences.find(row => row.vocabularyId === byTerm('harmless').vocabularyId);
+  for (const pathwayId of Object.keys(readiness.pathways)) assert.deepEqual(failed(pathwayId, harmless.occurrenceId), [], `harmless / ${pathwayId}`);
+  const adverbs = unit3.items.filter(item => item.partOfSpeech === 'adverb').map(item => item.term);
+  assert.deepEqual(adverbs, ['considerably', 'commercially']);
 });

@@ -92,6 +92,30 @@ export const unit3WordFamilyAlternates = Object.freeze({
   informative: {
     inform: 'The school will inform parents about the new lunch menu by email.',
     information: 'Tourists can find information about local restaurants at the station.'
+  },
+  reflection: {
+    reflect: 'Good cooks reflect on their mistakes and then try the recipe again.',
+    reflective: 'She kept a reflective diary of her work in the school kitchen.'
+  },
+  organiser: {
+    organise: 'The students organise the tables before the guests arrive.',
+    organisation: 'The success of the festival depended on careful organisation.'
+  },
+  presenter: {
+    present: 'Students will present a short talk about local food to the whole school.',
+    presentation: 'The class gave a presentation on how bread is made.'
+  },
+  consume: {
+    consumer: 'The shop gives each consumer a free recipe card.',
+    consumption: 'Rice consumption has risen steadily in the city.'
+  },
+  hygienic: {
+    hygiene: 'Teachers explain food hygiene to students before they use the kitchen.',
+    hygienically: 'The knives must be stored hygienically after every lesson.'
+  },
+  appetising: {
+    appetite: 'After the long hike, the whole group had a big appetite.',
+    unappetising: 'The cold, grey soup looked so unappetising that nobody finished it.'
   }
 
 });

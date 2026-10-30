@@ -163,6 +163,46 @@ export default Object.freeze({
   informative: [
     w(['exciting and full of surprises', 'long and difficult to follow', 'cheap and open to everyone']),
     w(['colourful and attractive to children', 'short and without any detail', 'difficult to read from far away'])
+  ],
+  reflection: [
+    w(['a list of future plans for a project', 'a report written by a teacher alone', 'a prize given for good work']),
+    w(['time spent eating a quick lunch', 'time spent waiting for guests to arrive', 'time spent cleaning the kitchen after work'])
+  ],
+  organiser: [
+    w(['the person who pays for an event and its food', 'the person who takes part in an event as a guest', 'the person who writes about an event afterwards']),
+    w(['the person who judges the best cook in a contest', 'the person who sells tickets to visitors at the door', 'the person who films the activity for the school'])
+  ],
+  presenter: [
+    w(['a person who cooks the food for a programme', 'a person who watches a programme at home', 'a person who pays for a programme to be made']),
+    w(['a person who asks the audience hard questions', 'a person who sits in the audience and listens', 'a person who sells tickets for the talk'])
+  ],
+  evaluate: [
+    w(['decide how much to pay for it', 'notice what is missing from it', 'describe what it looks like']),
+    w(['choose something quickly without thinking', 'copy something exactly as it was shown', 'make something better by changing it'])
+  ],
+  consume: [
+    w(['buy or store a large amount of food', 'cook or serve a large amount of food', 'waste or throw away a large amount of food']),
+    w(['buy or order something regularly', 'make or prepare something regularly', 'avoid or refuse something regularly'])
+  ],
+  balanced: [
+    w(['containing only foods that are cheap to buy', 'including only foods that are grown nearby', 'containing foods that are served very hot']),
+    w(['arranged in order from the cheapest to the dearest', 'arranged so that every dish is served at the same time', 'arranged so that each dish comes from a different country'])
+  ],
+  calorie: [
+    w(['a unit for measuring the weight of food', 'a unit for measuring the heat of an oven', 'a unit for measuring the time needed to cook']),
+    w(['a measure of the salt in food', 'a measure of the cost of food', 'a measure of the age of food'])
+  ],
+  hygienic: [
+    w(['tidy in a way that makes space for guests', 'neat in a way that pleases the eye', 'new in a way that attracts more customers']),
+    w(['rude because it is not the usual custom', 'impossible because it takes too much time', 'expensive because it needs special tools'])
+  ],
+  appetising: [
+    w(['looking so unusual that you are surprised by it', 'looking so expensive that you cannot buy it', 'looking so new that nobody has tried it']),
+    w(['noisy and making people want to leave', 'cheap and making people want to return', 'colourful and making people want to take photographs'])
+  ],
+  cuisine: [
+    w(['the type of farming found in a particular place', 'the kind of weather found in a particular place', 'the price of food in a particular place']),
+    w(['kitchen tools that are typical of a country or culture', 'shops that are popular in a country or culture', 'farming that is typical of a country or culture'])
   ]
 
 });

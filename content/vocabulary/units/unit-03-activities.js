@@ -72,7 +72,17 @@ const phraseSets = [
   phrase('polite_guests', 'showing good manners to guests', 'polite to guests', ['vocab_polite'], { acceptedVariants:['courteous to guests'], chunks:['polite', 'to guests'], distortions:['rude to guests', 'afraid of guests', 'busy with guests'] }),
   phrase('helpful_staff', 'staff who are willing to give useful help', 'helpful staff', ['vocab_helpful'], { chunks:['helpful', 'staff'], distortions:['unfriendly staff', 'busy staff', 'new staff'] }),
   phrase('recommendation_friend', 'a suggestion from a friend', 'a recommendation from a friend', ['vocab_recommendation'], { chunks:['a recommendation', 'from a friend'], distortions:['a complaint from a friend', 'a gift from a friend', 'a question from a friend'] }),
-  phrase('informative_leaflet', 'a leaflet that gives useful facts', 'an informative leaflet', ['vocab_informative'], { chunks:['an', 'informative', 'leaflet'], distortions:['a colourful leaflet', 'a misleading leaflet', 'a long leaflet'] })
+  phrase('informative_leaflet', 'a leaflet that gives useful facts', 'an informative leaflet', ['vocab_informative'], { chunks:['an', 'informative', 'leaflet'], distortions:['a colourful leaflet', 'a misleading leaflet', 'a long leaflet'] }),
+  phrase('reflection_lesson', 'careful thought about the lesson', 'reflection on the lesson', ['vocab_reflection'], { chunks:['reflection', 'on the lesson'], distortions:['a complaint about the lesson', 'a prize for the lesson', 'a quick answer in the lesson'] }),
+  phrase('organiser_picnic', 'the person who plans the picnic', 'the organiser of the picnic', ['vocab_organiser'], { acceptedVariants:['the picnic organiser'], chunks:['the organiser', 'of the picnic'], distortions:['a guest at the picnic', 'the winner of the picnic', 'the cook at the picnic'] }),
+  phrase('presenter_programme', 'the host of the programme', 'the presenter of the programme', ['vocab_presenter'], { acceptedVariants:['the programme presenter'], chunks:['the presenter', 'of the programme'], distortions:['a viewer of the programme', 'the cook on the programme', 'a guest on the programme'] }),
+  phrase('evaluate_menu', 'judge how good the menu is', 'evaluate the menu', ['vocab_evaluate'], { acceptedVariants:['assess the menu'], chunks:['evaluate', 'the menu'], distortions:['copy the menu', 'print the menu', 'change the menu'] }),
+  phrase('consume_rice', 'eat or use up a lot of rice', 'consume a lot of rice', ['vocab_consume'], { chunks:['consume', 'a lot of rice'], distortions:['grow a lot of rice', 'sell a lot of rice', 'waste a lot of rice'] }),
+  phrase('balanced_diet', 'a diet with the right mix of foods', 'a balanced diet', ['vocab_balanced'], { chunks:['a', 'balanced', 'diet'], distortions:['a very strict diet', 'a diet of one food', 'a cheap diet'] }),
+  phrase('calorie_count', 'the amount of food energy in the meal', 'the calorie count of the meal', ['vocab_calorie'], { chunks:['the calorie count', 'of the meal'], distortions:['the weight of the meal', 'the price of the meal', 'the cooking time of the meal'] }),
+  phrase('hygienic_kitchen', 'a kitchen that is clean and free from germs', 'a hygienic kitchen', ['vocab_hygienic'], { chunks:['a', 'hygienic', 'kitchen'], distortions:['a tidy kitchen', 'a modern kitchen', 'a noisy kitchen'] }),
+  phrase('appetising_smell', 'a smell that makes you want to eat', 'an appetising smell', ['vocab_appetising'], { acceptedVariants:['a tempting smell'], chunks:['an', 'appetising', 'smell'], distortions:['a strong smell', 'an unpleasant smell', 'a smell of smoke'] }),
+  phrase('cuisine_region', 'the cooking style of the region', 'the cuisine of the region', ['vocab_cuisine'], { acceptedVariants:['the regional cuisine'], chunks:['the cuisine', 'of the region'], distortions:['the climate of the region', 'the shops of the region', 'the farmers of the region'] })
 
 ];
 
@@ -276,7 +286,57 @@ const ideaSets = [
     { text:'The leaflet about healthy eating was funny and easy to read.', misconceptionCategory:'meaning_confusion' },
     { text:'The leaflet about healthy eating gave no facts and was easy to read.', misconceptionCategory:'polarity_change' },
     { text:'The leaflet about healthy eating gave useful facts but was hard to read.', misconceptionCategory:'degree_change' }
-  ], ['vocab_informative'])
+  ], ['vocab_informative']),
+  idea('reflection', 'After some reflection, the owner decided to change the menu.', ['After thinking about it carefully, the owner decided to change the menu.', 'The owner thought carefully and then decided to change the menu.', 'Once she had thought it over, the owner decided to change the menu.'], 'time', 'after careful thought', [
+    { text:'Before thinking about it, the owner decided to change the menu.', misconceptionCategory:'time_change' },
+    { text:'After some thinking, the owner decided to keep the menu the same.', misconceptionCategory:'polarity_change' },
+    { text:'After a short argument, the owner decided to change the menu.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_reflection']),
+  idea('organiser', 'The organiser of the food fair booked forty stalls for the weekend.', ['The person who arranged the food fair booked forty stalls for the weekend.', 'The food fair’s planner booked forty stalls for the weekend.', 'The person in charge of planning the food fair booked forty stalls for the weekend.'], 'quantity', 'forty stalls', [
+    { text:'A visitor to the food fair booked forty stalls for the weekend.', misconceptionCategory:'meaning_confusion' },
+    { text:'The person who arranged the food fair booked only four stalls for the weekend.', misconceptionCategory:'quantity_change' },
+    { text:'The person who arranged the food fair cancelled forty stalls for the weekend.', misconceptionCategory:'polarity_change' }
+  ], ['vocab_organiser']),
+  idea('presenter', 'The presenter of the programme introduced three guest chefs.', ['The host of the programme introduced three guest chefs.', 'The programme’s host introduced three guest chefs.', 'The person leading the programme introduced three guest chefs.'], 'quantity', 'three guest chefs', [
+    { text:'A viewer of the programme introduced three guest chefs.', misconceptionCategory:'meaning_confusion' },
+    { text:'The host of the programme introduced only one guest chef.', misconceptionCategory:'quantity_change' },
+    { text:'The host of the programme introduced three guest chefs and then cooked a meal.', misconceptionCategory:'added_information' }
+  ], ['vocab_presenter']),
+  idea('evaluate', 'Judges evaluate each dish carefully before giving a score.', ['Judges assess each dish carefully before giving a score.', 'Before giving a score, judges carefully judge the quality of each dish.', 'Judges give each dish a careful assessment before scoring it.'], 'time', 'before giving a score', [
+    { text:'Judges give a score to each dish before looking at it carefully.', misconceptionCategory:'time_change' },
+    { text:'Judges ignore each dish and simply give a score.', misconceptionCategory:'polarity_change' },
+    { text:'Judges cook each dish carefully before giving a score.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_evaluate']),
+  idea('consume', 'Visitors to the festival consume thousands of snacks every day.', ['Visitors to the festival eat thousands of snacks every day.', 'Every day, thousands of snacks are eaten by visitors to the festival.', 'Festival visitors get through thousands of snacks every day.'], 'quantity', 'thousands of snacks', [
+    { text:'Visitors to the festival eat a few snacks every day.', misconceptionCategory:'quantity_change' },
+    { text:'Visitors to the festival sell thousands of snacks every day.', misconceptionCategory:'meaning_confusion' },
+    { text:'Visitors to the festival eat thousands of snacks every week.', misconceptionCategory:'time_change' }
+  ], ['vocab_consume']),
+  idea('balanced', 'The school lunch is balanced, with vegetables, protein and rice.', ['The school lunch has the right mix of vegetables, protein and rice.', 'The school lunch contains vegetables, protein and rice in the right amounts.', 'In the school lunch, vegetables, protein and rice are well proportioned.'], 'degree', 'right proportions', [
+    { text:'The school lunch contains too much rice and almost no vegetables or protein.', misconceptionCategory:'degree_change' },
+    { text:'The school lunch is cheap, with vegetables, protein and rice.', misconceptionCategory:'meaning_confusion' },
+    { text:'The school lunch has the right mix of vegetables and rice.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_balanced']),
+  idea('calorie', 'The nutrition label gives the calorie value of one portion.', ['The nutrition label gives the energy value of one portion.', 'The label states how much food energy one portion contains.', 'The food energy in one portion is shown on the nutrition label.'], 'quantity', 'one portion', [
+    { text:'The nutrition label gives the energy value of the whole packet.', misconceptionCategory:'quantity_change' },
+    { text:'The nutrition label gives the price of one portion.', misconceptionCategory:'meaning_confusion' },
+    { text:'The nutrition label gives the energy value of one portion and the cooking time.', misconceptionCategory:'added_information' }
+  ], ['vocab_calorie']),
+  idea('hygienic', 'The inspector said that the kitchen was hygienic.', ['The inspector said that the kitchen was clean and free from germs.', 'According to the inspector, the kitchen was clean and safe from germs.', 'The inspector found that the kitchen was free from dirt and germs.'], 'polarity', 'the kitchen was clean and safe', [
+    { text:'The inspector said that the kitchen was dirty and unsafe.', misconceptionCategory:'polarity_change' },
+    { text:'The inspector said that the kitchen was tidy and large.', misconceptionCategory:'meaning_confusion' },
+    { text:'The inspector said that the kitchen was clean and that the staff were friendly.', misconceptionCategory:'added_information' }
+  ], ['vocab_hygienic']),
+  idea('appetising', 'The smell of the soup was appetising, so we ordered two bowls.', ['The smell of the soup was so tempting that we ordered two bowls.', 'We ordered two bowls because the smell of the soup was mouth-watering.', 'The mouth-watering smell of the soup made us order two bowls.'], 'cause_effect', 'the smell led to the order', [
+    { text:'We ordered two bowls, so the smell of the soup was tempting.', misconceptionCategory:'cause_effect_change' },
+    { text:'The smell of the soup was unpleasant, so we ordered two bowls.', misconceptionCategory:'polarity_change' },
+    { text:'The smell of the soup was tempting, so we ordered one bowl.', misconceptionCategory:'quantity_change' }
+  ], ['vocab_appetising']),
+  idea('cuisine', 'Many tourists visit the region to enjoy its local cuisine.', ['Many tourists visit the region to enjoy its local style of cooking.', 'Many tourists travel to the region to enjoy its traditional cooking.', 'The region’s local cooking attracts many tourists.'], 'quantity', 'many tourists', [
+    { text:'A few tourists visit the region to enjoy its local style of cooking.', misconceptionCategory:'quantity_change' },
+    { text:'Many tourists avoid the region because of its local style of cooking.', misconceptionCategory:'polarity_change' },
+    { text:'Many tourists visit the region to enjoy its local weather.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_cuisine'])
 
 ];
 

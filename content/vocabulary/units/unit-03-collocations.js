@@ -39,6 +39,16 @@ export default Object.freeze({
   polite: ['very polite', 'perfectly polite', 'polite reply'],
   helpful: ['extremely helpful', 'helpful staff', 'helpful advice'],
   recommendation: ['strong recommendation', 'personal recommendation', 'make recommendation'],
-  informative: ['highly informative', 'informative leaflet', 'very informative']
+  informative: ['highly informative', 'informative leaflet', 'very informative'],
+  reflection: ['on reflection', 'quiet reflection', 'written reflection'],
+  organiser: ['event organiser', 'festival organiser', 'chief organiser'],
+  presenter: ['television presenter', 'radio presenter', 'news presenter'],
+  evaluate: ['carefully evaluate', 'evaluate the quality', 'critically evaluate'],
+  consume: ['consume food', 'consume large amounts', 'regularly consume'],
+  balanced: ['balanced diet', 'balanced meal', 'well balanced'],
+  calorie: ['calorie count', 'calorie content', 'low-calorie'],
+  hygienic: ['hygienic conditions', 'hygienic kitchen', 'perfectly hygienic'],
+  appetising: ['look appetising', 'appetising smell', 'appetising meal'],
+  cuisine: ['local cuisine', 'regional cuisine', 'traditional cuisine']
 
 });

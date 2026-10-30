@@ -131,7 +131,43 @@ export const unit3WordFamilies = Object.freeze({
     f('informative', 'adjective', 'The guide to local food was informative, with clear facts about every dish.', 'Headword.'),
     f('inform', 'verb', 'Please inform the waiter if you have any special dietary needs.', 'The base verb: to give someone facts.'),
     f('information', 'noun', 'The menu gives clear information about every dish.', 'The uncountable noun for facts; very frequent.')
-  ], excludedForms: [{ form: 'informed', reason: 'Already a Unit 2 target word.' }] }
+  ], excludedForms: [{ form: 'informed', reason: 'Already a Unit 2 target word.' }] },
+  reflection: { forms: [
+    f('reflection', 'noun', 'The chef spent a quiet hour in reflection before she decided on the new menu.', 'Headword.'),
+    f('reflect', 'verb', 'Take a few minutes to reflect on what you have learned from the cooking class.', 'The base verb; in this sense it is followed by “on” and means to think carefully.'),
+    f('reflective', 'adjective', 'Ravi is a quiet, reflective student who thinks carefully before he answers.', 'Adjective for a person or a piece of writing that shows careful thought.')
+  ], excludedForms: [{ form: 'reflector', reason: 'Names an object that sends back light, a different sense.' }] },
+  organiser: { forms: [
+    f('organiser', 'noun', 'The organiser of the picnic asked each family to bring one dish.', 'Headword.'),
+    f('organise', 'verb', 'Our class will organise a bake sale to raise money for the school trip.', 'The base verb: to plan and arrange an event or activity.'),
+    f('organisation', 'noun', 'Good organisation helped the team serve three hundred guests in one hour.', 'The noun for careful planning; here it means the act of arranging, not a company.')
+  ], excludedForms: [{ form: 'organised', reason: 'Adjective with a wider sense (tidy, well planned), so it is not needed for this sense.' }] },
+  presenter: { forms: [
+    f('presenter', 'noun', 'The presenter of the cooking programme welcomed the viewers.', 'Headword.'),
+    f('present', 'verb', 'Each group must present its findings about school lunches to the class.', 'The base verb: to show or explain information to an audience.'),
+    f('presentation', 'noun', 'Her presentation about vegetarian food included photographs and a short quiz.', 'The noun for a talk that shows information; very common in school work.')
+  ], excludedForms: [{ form: 'presently', reason: 'Means “soon” or “now”, a different sense.' }] },
+  consume: { forms: [
+    f('consume', 'verb', 'Families in cold regions consume more hot soup in winter than in summer.', 'Headword.'),
+    f('consumer', 'noun', 'Every consumer has the right to clear information on food labels.', 'The noun for a person who buys and uses goods or food.'),
+    f('consumption', 'noun', 'The daily consumption of water in the school kitchen is about two hundred litres.', 'The noun for the amount that is eaten, drunk or used.')
+  ], excludedForms: [{ form: 'consumable', reason: 'Rare adjective beyond the level of this unit.' }] },
+  balanced: { forms: [
+    f('balanced', 'adjective', 'The school lunch is balanced, with vegetables, protein and rice.', 'Headword.'),
+    f('balance', 'verb', 'Good cooks balance sweet and sour flavours in the same dish.', 'The base verb: to keep different things in the right proportions.'),
+    f('unbalanced', 'adjective', 'A lunch of only chips and sweets is unbalanced, because it has no variety.', 'The opposite adjective; the pair is worth learning together.'),
+    f('imbalance', 'noun', 'There is an imbalance on the menu, because nearly every dish contains meat.', 'The noun for a lack of the right proportions.')
+  ], excludedForms: [] },
+  hygienic: { forms: [
+    f('hygienic', 'adjective', 'The health inspector found that the kitchen was hygienic.', 'Headword.'),
+    f('hygiene', 'noun', 'Good hygiene in the kitchen starts with washing your hands.', 'The noun for keeping things clean to stop germs spreading; very common in food texts.'),
+    f('hygienically', 'adverb', 'All the food is prepared hygienically in a separate room.', 'The adverb for doing something in a clean, germ-free way.')
+  ], excludedForms: [{ form: 'unhygienic', reason: 'Opposite adjective, but it adds no new part of speech to the family.' }] },
+  appetising: { forms: [
+    f('appetising', 'adjective', 'The smell of fresh bread from the bakery was very appetising.', 'Headword.'),
+    f('appetite', 'noun', 'The long walk along the beach gave us a good appetite for lunch.', 'The noun for the wish to eat; the base of the adjective.'),
+    f('unappetising', 'adjective', 'The grey, lumpy porridge looked unappetising, so few students ate it.', 'The opposite adjective; the pair is worth learning together.')
+  ], excludedForms: [] }
 
 });
 
@@ -150,6 +186,9 @@ export const unit3WordFamilyRejected = Object.freeze({
   purchase: 'Noun and verb share one spelling, and “purchaser” is rare, so there are fewer than three useful distinct forms.',
   takeaway: 'A compound noun with no derived forms; the verb phrase “take away” is a different structure and sense.',
   barbecue: 'The other forms (barbecued, barbecuing) are only verb inflections, not a derivational family.',
-  saturated: 'The related forms (saturate, saturation, unsaturated) mostly belong to the “soaked” sense or a technical sense, so the nutrition sense has no second useful part of speech.'
+  saturated: 'The related forms (saturate, saturation, unsaturated) mostly belong to the “soaked” sense or a technical sense, so the nutrition sense has no second useful part of speech.',
+  evaluate: 'Only “evaluation” is a common relative; “evaluative” and “evaluator” are rare and academic, so there are fewer than three useful forms.',
+  calorie: '“calorific” is a rare technical word and “caloric” is the American form, so there is no third useful form under British-English rules.',
+  cuisine: 'No derived forms are used in everyday English (“culinary” is a different, more formal word), so there is no useful family.'
 
 });
