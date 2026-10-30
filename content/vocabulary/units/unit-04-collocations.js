@@ -1,4 +1,4 @@
-// Unit 4 collocations, WORDS 1–10 ONLY: natural, frequent two-word combinations for each target (authored; same shape as unit-03-collocations.js).
+// Unit 4 collocations, WORDS 1–20 ONLY: natural, frequent two-word combinations for each target (authored; same shape as unit-03-collocations.js).
 export default Object.freeze({
   breathtaking: ['breathtaking view', 'breathtaking scenery', 'absolutely breathtaking'],
   comfort: ['travel in comfort', 'passenger comfort', 'comfort and safety'],
@@ -9,5 +9,16 @@ export default Object.freeze({
   luxury: ['luxury hotel', 'in luxury', 'luxury cruise'],
   altitude: ['high altitude', 'cruising altitude', 'gain altitude'],
   landscape: ['rural landscape', 'changing landscape', 'stunning landscape'],
-  passenger: ['passenger seat', 'passenger train', 'fellow passenger']
+  passenger: ['passenger seat', 'passenger train', 'fellow passenger'],
+  engineer: ['railway engineer', 'qualified engineer', 'chief engineer'],
+  pilot: ['airline pilot', 'fighter pilot', 'experienced pilot'],
+  airship: ['giant airship', 'passenger airship', 'airship flight'],
+  launch: ['launch a rocket', 'launch a service', 'officially launch'],
+  height: ['maximum height', 'great height', 'average height'],
+  anxious: ['feel anxious', 'extremely anxious', 'anxious about'],
+  vehicle: ['electric vehicle', 'motor vehicle', 'commercial vehicle'],
+  pollution: ['air pollution', 'traffic pollution', 'reduce pollution'],
+  destination: ['final destination', 'holiday destination', 'tourist destination'],
+  spacious: ['spacious interior', 'spacious cabin', 'spacious room']
+
 });

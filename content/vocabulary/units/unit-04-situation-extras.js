@@ -1,4 +1,4 @@
-// Unit 4 · additional authored WRONG situations for "Which situation fits?", WORDS 1–10 ONLY. Same purpose as unit-03-situation-extras.js:
+// Unit 4 · additional authored WRONG situations for "Which situation fits?", WORDS 1–20 ONLY. Same purpose as unit-03-situation-extras.js:
 // the schema needs at least four distinct, target-free situations. Each word gets three more plausible, clearly wrong situations of mixed length.
 // None of them shows the word, and none could also illustrate it.
 export default Object.freeze({
@@ -51,5 +51,56 @@ export default Object.freeze({
     'The mechanic repaired the engine while the owner waited in the garage.',
     'The road was closed for a week because of a landslide near the tunnel.',
     'The railway company bought twenty new trains for the northern routes.'
+  ],
+  engineer: [
+    'The taxi driver took the suitcases out of the boot and carried them to the hotel door.',
+    'The tourists queued at the ticket office to buy tickets for the afternoon ferry.',
+    'The air steward served drinks and then collected the empty cups.'
+  ],
+  pilot: [
+    'The cyclist stopped beside the road to fix a puncture.',
+    'The tourists photographed the old castle from the harbour wall.',
+    'The bus driver opened the doors and asked everyone to move to the back.'
+  ],
+  airship: [
+    'The coach driver stopped at a service area so that the travellers could stretch their legs.',
+    'The ferry left the port at noon with two hundred people on board.',
+    'A mechanic changed the tyre while the family waited at the roadside.'
+  ],
+  launch: [
+    'The cyclist stopped to pump air into a flat tyre.',
+    'The tourists took photographs of the old harbour.',
+    'The pilot spoke to the control tower and checked the weather report.'
+  ],
+  height: [
+    'The mechanic checked the oil and replaced a worn tyre.',
+    'The guide showed the group a map of the old town and pointed out the museum.',
+    'The cyclist waited at the traffic lights for the signal to change.'
+  ],
+  anxious: [
+    'The guide handed out maps and explained the timetable for the day.',
+    'The mechanic changed a wheel while the family waited by the road.',
+    'The ticket machine at the station accepted only coins.'
+  ],
+  vehicle: [
+    'The family waited on the platform for the late train.',
+    'The guide held up a map and pointed at the harbour.',
+    'The mountain guide told the climbers to keep close together on the narrow path.'
+  ],
+  pollution: [
+    'The tourists queued at the ticket office to buy tickets for the evening train.',
+    'The pilot checked the weather report before take-off.',
+    'A cyclist stopped to repair a puncture beside the road.'
+  ],
+  destination: [
+    'The mechanic checked the oil and filled the tank with petrol.',
+    'The ferry captain welcomed everyone on board and pointed out the lifeboats.',
+    'The cyclist put on a helmet and fixed a light to the front of the bike.'
+  ],
+  spacious: [
+    'The taxi driver took a shortcut through the old town.',
+    'The tourists bought postcards at the kiosk near the harbour.',
+    'A cyclist waited at the traffic lights for the green signal.'
   ]
+
 });

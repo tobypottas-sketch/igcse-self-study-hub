@@ -1,4 +1,4 @@
-// Unit 4 · Context · Mastery (type_in_passage) — authored short passages, WORDS 1–10 ONLY. Same contract as unit-03-context-passages.js:
+// Unit 4 · Context · Mastery (type_in_passage) — authored short passages, WORDS 1–20 ONLY. Same contract as unit-03-context-passages.js:
 // two passages per word, each 2-3 natural sentences with exactly ONE gap (`____`); the passage never contains the target elsewhere, never starts
 // with the gap, and makes the target the natural fit. `answer` is the exact surface form typed. `why` records what points to the word.
 const p = (text, answer, why) => ({ text, answer, why });
@@ -43,5 +43,46 @@ export default Object.freeze({
   passenger: [
     p('The bus driver stopped beside the school gate. A young ____ climbed on, showed her pass and found a seat near the window.', 'passenger', 'Climbed on, showed a pass, found a seat.'),
     p('The flight attendant checked that every ____ had fastened a seat belt. Then the aeroplane began to move slowly towards the runway.', 'passenger', 'Flight attendant; "every ____ had fastened a seat belt".')
+  ],
+  engineer: [
+    p('The new tunnel was designed with great care. The ____ who planned it spent six years studying how the rock would behave under the river.', 'engineer', 'Designing and planning a tunnel; "The ____ who planned it".'),
+    p('Before every flight, a team checks the aircraft carefully. One ____ inspects the wings, while another tests the electrical system.', 'engineer', 'Technical checks on an aircraft; "One ____ inspects the wings".')
+  ],
+  pilot: [
+    p('The aeroplane began its descent through thick cloud. The ____ calmly spoke to the control tower and prepared to land.', 'pilot', 'Descent and landing; speaks to the control tower.'),
+    p('Learning to fly takes years of training and hundreds of hours in the air. Only then can a trainee become a qualified ____ and take passengers on commercial flights.', 'pilot', 'Learning to fly; "qualified ____" on commercial flights.')
+  ],
+  airship: [
+    p('Early in the twentieth century, passengers could cross the Atlantic in a huge ____ filled with gas. It moved slowly, but it was quiet and offered a smooth ride.', 'airship', 'Gas-filled craft crossing the Atlantic slowly.'),
+    p('A hot-air balloon goes wherever the wind carries it. A powered ____, however, has engines and propellers, so the crew can steer it where they want.', 'airship', 'Contrast with a balloon; engines and propellers; steered.')
+  ],
+  launch: [
+    p('The space agency has prepared the rocket for months. If the weather stays calm, it will ____ the satellite from the coast on Friday morning.', 'launch', 'Rocket and satellite; "will ____ the satellite".'),
+    p('Sales of electric cars have grown quickly in recent years. Several manufacturers plan to ____ new models next year.', 'launch', 'Manufacturers plan to bring out new models.')
+  ],
+  height: [
+    p('The lorry driver stopped suddenly before the tunnel. A sign warned that the maximum ____ of vehicles was four metres, and his lorry was taller.', 'height', 'Sign; lorry "was taller"; "maximum ____".'),
+    p('The new bridge is extremely impressive. Its ____ is more than two hundred metres, so even the tallest ships can pass underneath.', 'height', 'Tall ships pass underneath; "Its ____ is more than two hundred metres".')
+  ],
+  anxious: [
+    p('Tom had never travelled by air before. As the aeroplane began to shake in the strong wind, he gripped his seat and felt extremely ____.', 'anxious', 'First flight; shaking aeroplane; gripping the seat.'),
+    p('The train was already forty minutes late. Everyone on the platform became ____ about missing their connections, and a queue formed at the information desk.', 'anxious', 'Delay; worry about missing connections.')
+  ],
+  vehicle: [
+    p('The city has banned traffic from the old town. Only an electric ____ with a special permit may enter, and it must travel slowly.', 'vehicle', 'Traffic ban; "electric ____ with a special permit".'),
+    p('The police officer waved the driver to the side of the road. The ____ had no lights, and its tyres were worn smooth.', 'vehicle', 'Driver, lights and tyres all point to a road vehicle.')
+  ],
+  pollution: [
+    p('Thousands of cars drive into the city every morning. As a result, the ____ from exhaust fumes makes the air dirty and unpleasant to breathe.', 'pollution', 'Cars, exhaust fumes, dirty air; "the ____ from exhaust fumes".'),
+    p('The factory dumped its waste into the river for years. Fish disappeared, and local people complained about the ____ that had turned the water brown.', 'pollution', 'Dumped waste, brown water; "the ____ that had turned the water brown".')
+  ],
+  destination: [
+    p('We left London at dawn and drove north for most of the day. When we finally reached our ____, a quiet village beside a lake, the sun was already setting.', 'destination', 'Long drive; "reached our ____".'),
+    p('The station was busy and several trains were waiting at the platforms. Every train shows its final ____ on the front, so passengers can check they are boarding the right one.', 'destination', 'Shown on the front of a train; checking the right one.')
+  ],
+  spacious: [
+    p('The old bus was cramped and uncomfortable. By contrast, the new coach is wonderfully ____, with wide seats and plenty of room for luggage.', 'spacious', 'Contrast with cramped; wide seats and room.'),
+    p('The family needed a bigger car for their holiday. They chose a ____ estate car because it could hold four people, two dogs and all their suitcases.', 'spacious', 'Holds four people, two dogs and suitcases.')
   ]
+
 });

@@ -1,4 +1,4 @@
-// UNIT 4 – TRANSPORT: authoring draft (batch 1 = words 1–10). Source: 0511 key words UNIT 4 – TRANSPORT (coursebook order). Words 11–50 are not locked yet.
+// UNIT 4 – TRANSPORT: authoring draft (batches 1–2 = words 1–20). Source: 0511 key words UNIT 4 – TRANSPORT (coursebook order). Words 21–50 are not locked yet.
 // Same architecture as unit-03.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-04-draft.js
 // A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-04.js only when all 50 words are final.
 import { buildCuratedUnit } from '../build-unit.js';
@@ -304,6 +304,287 @@ const entries = [
         { id:'1', answer:'passenger', wrong:['mechanic', 'engineer', 'guard'] },
         { id:'2', answer:'passenger', wrong:['sailor', 'captain', 'cook'] },
         { id:'3', answer:'passenger', wrong:['mechanic', 'pilot', 'guard'] }
+      ]
+    }),
+  e('engineer', 'noun',
+    'a person trained to design, build or repair machines, vehicles or structures',
+    ['technical expert', 'technical specialist'],
+    ['a person who flies and controls an aircraft', 'a person who sells vehicles to customers', 'a person who checks tickets on trains'],
+    'Before the first flight, an engineer checked the new aircraft’s wings carefully.',
+    'technical expert', 'Before the first flight, a technical expert checked the new aircraft’s wings carefully.',
+    'technical specialist', 'The technical specialist who designed the new tunnel explained how it was built.',
+    {
+      masteryContexts:[
+        { text:'The railway engineer explained how the new bridge could carry heavy freight trains.', meaning:'a person trained to design and build structures' },
+        { text:'The aircraft engineer inspected every engine before the plane was allowed to take off.', meaning:'a person trained to keep machines and systems working' }
+      ],
+      situationDistractors:[
+        'The pilot welcomed the passengers and announced the flying time.',
+        'The guard waved a green flag and the train left the platform.',
+        'The tourist asked a stranger for directions to the nearest station.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The engineer who designed the bridge checked every steel beam before it opened to traffic.', target:'engineer', grammarPattern:'' },
+        { id:'2', text:'The ship’s engineer repaired the damaged motor while the vessel waited in the harbour.', target:'engineer', grammarPattern:'' },
+        { id:'3', text:'She studied physics at university because she wanted to become an engineer and design faster trains.', target:'engineer', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'engineer', wrong:['pilot', 'passenger', 'driver'] },
+        { id:'2', answer:'engineer', wrong:['captain', 'passenger', 'cook'] },
+        { id:'3', answer:'engineer', wrong:['astronaut', 'accountant', 'announcer'] }
+      ]
+    }),
+  e('pilot', 'noun',
+    'a person who flies an aircraft',
+    ['person flying the aeroplane', 'person at the controls'],
+    ['a person who repairs aircraft engines', 'a person who serves food on a flight', 'a person who travels on a flight'],
+    'The pilot told the passengers that the flight would take about two hours.',
+    'person flying the aeroplane', 'The person flying the aeroplane told the passengers that the flight would take about two hours.',
+    'person at the controls', 'The person at the controls landed the aircraft safely in strong wind.',
+    {
+      masteryContexts:[
+        { text:'The pilot landed the aeroplane safely in thick fog.', meaning:'a person who flies an aircraft' },
+        { text:'Our pilot announced that we were flying at ten thousand metres.', meaning:'the person in charge of flying the aeroplane' }
+      ],
+      situationDistractors:[
+        'The mechanic changed a flat tyre at the side of the road.',
+        'The ticket inspector walked along the train checking everyone’s tickets.',
+        'The ferry captain steered the boat slowly into the harbour.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The pilot told the passengers that they would land in about twenty minutes.', target:'pilot', grammarPattern:'' },
+        { id:'2', text:'Strong winds made it hard for the pilot to land the aeroplane safely.', target:'pilot', grammarPattern:'' },
+        { id:'3', text:'As a child, he dreamed of becoming a pilot and flying jets around the world.', target:'pilot', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'pilot', wrong:['mechanic', 'guard', 'porter'] },
+        { id:'2', answer:'pilot', wrong:['mechanic', 'passenger', 'porter'] },
+        { id:'3', answer:'pilot', wrong:['driver', 'sailor', 'cyclist'] }
+      ]
+    }),
+  e('airship', 'noun',
+    'a large aircraft filled with gas that is lighter than air, which has engines and can be steered',
+    ['gas-filled flying craft', 'large steerable aircraft'],
+    ['a small flying machine with rotating blades', 'a large bag of hot air that cannot be steered', 'a fast aircraft with fixed wings and jet engines'],
+    'The airship floated slowly above the city, carrying tourists on a sightseeing flight.',
+    'gas-filled flying craft', 'The gas-filled flying craft floated slowly above the city, carrying tourists on a sightseeing flight.',
+    'large steerable aircraft', 'In the 1930s, a large steerable aircraft carried passengers across the Atlantic Ocean.',
+    {
+      masteryContexts:[
+        { text:'In the 1930s, a giant airship carried passengers across the Atlantic in about three days.', meaning:'a large gas-filled aircraft that can be steered' },
+        { text:'The advertising company hired an airship to float above the stadium during the match.', meaning:'a lighter-than-air aircraft with engines' }
+      ],
+      situationDistractors:[
+        'The helicopter landed on the hospital roof to collect an injured climber.',
+        'The hot-air balloon drifted slowly over the fields at sunrise, going wherever the wind took it.',
+        'The jet took off at high speed and disappeared into the clouds.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The giant airship floated silently above the city while tourists waved from the cabin below.', target:'airship', grammarPattern:'' },
+        { id:'2', text:'Unlike a balloon, the airship has engines and can be steered in any direction.', target:'airship', grammarPattern:'' },
+        { id:'3', text:'In the 1930s, a German airship carried passengers across the Atlantic Ocean in about three days.', target:'airship', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'airship', wrong:['mountain', 'bridge', 'tower'] },
+        { id:'2', answer:'airship', wrong:['kite', 'cloud', 'parachute'] },
+        { id:'3', answer:'airship', wrong:['tram', 'ferry', 'lorry'] }
+      ]
+    }),
+  e('launch', 'verb',
+    'to send a rocket, ship or aircraft on its way, or to start a new product or service',
+    ['start', 'introduce'],
+    ['to stop or cancel something before it begins', 'to repair something that has been damaged', 'to move something heavy to a new place'],
+    'The airline will launch a new service between London and Singapore next spring.',
+    'start', 'The airline will start a new service between London and Singapore next spring.',
+    'introduce', 'The council plans to introduce a new electric bus route next year.',
+    {
+      grammarForms:{ base:'launch', thirdPerson:'launches', past:'launched', pastParticiple:'launched', ing:'launching' },
+      masteryContexts:[
+        { text:'The space agency will launch a new satellite from the coast next week.', meaning:'send into the air or space' },
+        { text:'The railway company plans to launch a high-speed service between the two cities.', meaning:'start a new service for the public' }
+      ],
+      situationDistractors:[
+        'The company closed the old bus station because too few people used it.',
+        'The engineers tested the bridge by driving heavy lorries across it.',
+        'The airline cancelled the flight because of thick fog.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The airline plans to launch a new route from London to Singapore in the spring.', target:'launch', grammarPattern:'' },
+        { id:'2', text:'Scientists will launch the rocket as soon as the weather improves.', target:'launch', grammarPattern:'' },
+        { id:'3', text:'The company decided to launch its electric bus service in three cities first.', target:'launch', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'launch', wrong:['cancel', 'repair', 'follow'] },
+        { id:'2', answer:'launch', wrong:['repair', 'insure', 'borrow'] },
+        { id:'3', answer:'launch', wrong:['close', 'copy', 'sell'] }
+      ]
+    }),
+  e('height', 'noun',
+    'how tall something is, measured from the bottom to the top',
+    ['vertical measurement', 'tallness'],
+    ['how wide something is from side to side', 'how far one place is from another', 'how heavy something is when it is lifted'],
+    'The height of the new bridge is more than two hundred metres.',
+    'vertical measurement', 'The vertical measurement of the new bridge is more than two hundred metres.',
+    'tallness', 'The tallness of the lorry prevented it from passing under the low bridge.',
+    {
+      masteryContexts:[
+        { text:'Drivers must check the height of their lorry before they enter a low tunnel.', meaning:'how tall something is from bottom to top' },
+        { text:'Engineers measured the height of the new tower before they planned where the lifts would go.', meaning:'the measurement from bottom to top' }
+      ],
+      situationDistractors:[
+        'The tourists queued at the ticket office to buy tickets for the evening train.',
+        'The driver filled the tank with petrol before the long journey.',
+        'The ferry carried two hundred cars across the river.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Lorry drivers must check the height of their vehicle before entering a low tunnel.', target:'height', grammarPattern:'' },
+        { id:'2', text:'The tower has a height of three hundred metres, so it can be seen from far away.', target:'height', grammarPattern:'' },
+        { id:'3', text:'The height of the bridge allows tall ships to sail underneath.', target:'height', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'height', wrong:['weight', 'speed', 'colour'] },
+        { id:'2', answer:'height', wrong:['weight', 'speed', 'price'] },
+        { id:'3', answer:'height', wrong:['length', 'weight', 'age'] }
+      ]
+    }),
+  e('anxious', 'adjective',
+    'worried or nervous about something that may happen',
+    ['worried', 'nervous'],
+    ['very keen and excited to do something', 'angry because of a long delay', 'tired after a long journey'],
+    'Many passengers feel anxious before their first flight.',
+    'nervous', 'Many passengers feel nervous before their first flight.',
+    'worried', 'The worried parents waited at the station for the delayed train.',
+    {
+      masteryContexts:[
+        { text:'Many passengers feel anxious before their first flight, so the crew explain what each noise means.', meaning:'worried about what may happen' },
+        { text:'The anxious parents waited at the station, afraid that their daughter’s train had been cancelled.', meaning:'nervous and worried' }
+      ],
+      situationDistractors:[
+        'The passengers laughed and chatted happily as the bus rolled along the coast.',
+        'The driver whistled a cheerful tune while he waited at the traffic lights.',
+        'The young traveller slept peacefully on the night train.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Many people feel anxious before their first flight, especially during take-off.', target:'anxious', grammarPattern:'' },
+        { id:'2', text:'The anxious parents kept checking the departure board for news of the delayed train.', target:'anxious', grammarPattern:'' },
+        { id:'3', text:'She was anxious about missing the connecting flight, so she ran through the terminal.', target:'anxious', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'anxious', wrong:['bored', 'proud', 'sleepy'] },
+        { id:'2', answer:'anxious', wrong:['cheerful', 'sleepy', 'generous'] },
+        { id:'3', answer:'anxious', wrong:['pleased', 'cheerful', 'sleepy'] }
+      ]
+    }),
+  e('vehicle', 'noun',
+    'something such as a car, bus or lorry that is used to carry people or goods, especially on land',
+    ['means of transport', 'form of transport'],
+    ['a wide road with several lanes', 'a building where cars are repaired', 'a person who drives a lorry or bus'],
+    'Each vehicle that enters the city centre must pay a daily charge.',
+    'means of transport', 'Each means of transport that enters the city centre must pay a daily charge.',
+    'form of transport', 'An electric form of transport is quiet and produces no smoke.',
+    {
+      masteryContexts:[
+        { text:'The police stopped the vehicle because one of its headlights was broken.', meaning:'something used to carry people or goods on land' },
+        { text:'An electric vehicle produces no smoke, so it is better for the air in cities.', meaning:'a machine such as a car or bus used for transport' }
+      ],
+      situationDistractors:[
+        'The tourists walked along the beach and collected shells.',
+        'The pilot spoke to the control tower and checked the weather report.',
+        'The ticket office closed at six o’clock in the evening.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The traffic officer stopped the vehicle because it was travelling far too fast on the motorway.', target:'vehicle', grammarPattern:'' },
+        { id:'2', text:'Each vehicle that enters the old town must display a parking permit.', target:'vehicle', grammarPattern:'' },
+        { id:'3', text:'Heavy equipment had to be carried across the desert in a vehicle with six wheels.', target:'vehicle', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'vehicle', wrong:['road', 'garage', 'bridge'] },
+        { id:'2', answer:'vehicle', wrong:['road', 'bridge', 'garage'] },
+        { id:'3', answer:'vehicle', wrong:['building', 'bridge', 'village'] }
+      ]
+    }),
+  e('pollution', 'noun',
+    'damage to air, water or land caused by harmful substances or waste',
+    ['contamination', 'environmental damage'],
+    ['a shortage of fuel caused by heavy use', 'a lack of space caused by too many people', 'a rise in the cost of travelling'],
+    'Heavy traffic is one of the main causes of air pollution in big cities.',
+    'contamination', 'Heavy traffic is one of the main causes of air contamination in big cities.',
+    'environmental damage', 'Cutting the number of cars on the road will reduce environmental damage.',
+    {
+      masteryContexts:[
+        { text:'Traffic fumes are a major cause of air pollution in large cities.', meaning:'damage to the air caused by harmful substances' },
+        { text:'The factory was fined because its waste caused serious pollution in the river.', meaning:'harmful damage to water, air or land' }
+      ],
+      situationDistractors:[
+        'The sun shone brightly and the beach was clean and empty.',
+        'The city council opened a new cycle lane along the river.',
+        'The factory workers finished their shift and went home.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Scientists are worried about the high level of air pollution around the busy motorway.', target:'pollution', grammarPattern:'' },
+        { id:'2', text:'Electric buses help to reduce pollution because they produce no exhaust fumes.', target:'pollution', grammarPattern:'' },
+        { id:'3', text:'Local people blamed the oil company for the pollution that had spread along the coast.', target:'pollution', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'pollution', wrong:['travel', 'supply', 'conditioning'] },
+        { id:'2', answer:'pollution', wrong:['congestion', 'accidents', 'delays'] },
+        { id:'3', answer:'pollution', wrong:['sunshine', 'silence', 'friendship'] }
+      ]
+    }),
+  e('destination', 'noun',
+    'the place to which someone or something is travelling or being sent',
+    ['the end of our journey', 'the place we were heading for'],
+    ['the road that a journey follows', 'the place where a journey begins', 'the time that a journey takes'],
+    'After six hours on the road, we finally reached our destination.',
+    'the end of our journey', 'After six hours on the road, we finally reached the end of our journey.',
+    'the place we were heading for', 'The taxi driver took us straight to the place we were heading for.',
+    {
+      masteryContexts:[
+        { text:'Venice is a popular holiday destination for visitors from all over the world.', meaning:'a place that people travel to' },
+        { text:'We checked the departure board to confirm the time and the destination of our train.', meaning:'the place the train is going to' }
+      ],
+      situationDistractors:[
+        'The road ran straight for fifty kilometres before it curved through the hills.',
+        'The coach left from the central station at seven o’clock in the morning.',
+        'The journey took nearly nine hours because of heavy traffic.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'After six hours on the road, we finally reached our destination, a small fishing village.', target:'destination', grammarPattern:'' },
+        { id:'2', text:'The departure board shows the time of each train and its destination.', target:'destination', grammarPattern:'' },
+        { id:'3', text:'Tokyo is a popular tourist destination for visitors from all over the world.', target:'destination', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'destination', wrong:['journey', 'route', 'departure'] },
+        { id:'2', answer:'destination', wrong:['driver', 'engine', 'ticket'] },
+        { id:'3', answer:'destination', wrong:['route', 'season', 'guide'] }
+      ]
+    }),
+  e('spacious', 'adjective',
+    'having plenty of room inside',
+    ['roomy', 'wide and uncrowded'],
+    ['very small and difficult to enter', 'very crowded with people or things', 'very clean and carefully organised'],
+    'The new carriages are spacious, so passengers can store large suitcases easily.',
+    'roomy', 'The new carriages are roomy, so passengers can store large suitcases easily.',
+    'wide and uncrowded', 'The new airport lounge is bright, modern, wide and uncrowded.',
+    {
+      masteryContexts:[
+        { text:'The new coach is spacious, so passengers can stretch their legs and put large bags at their feet.', meaning:'having plenty of room inside' },
+        { text:'The spacious departure hall was bright and quiet, with rows of empty seats.', meaning:'large enough to hold many people comfortably' }
+      ],
+      situationDistractors:[
+        'Passengers squeezed together on the bus, holding their bags above their heads.',
+        'The tiny cabin had one bed, and the suitcases were stacked in the corridor.',
+        'Every seat on the tram was taken, and people were standing in the aisle.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The new minibus is so spacious that eight people can sit comfortably with their bags.', target:'spacious', grammarPattern:'' },
+        { id:'2', text:'We booked a spacious cabin on the ferry, with room for the whole family and our luggage.', target:'spacious', grammarPattern:'' },
+        { id:'3', text:'The airport has a spacious terminal where passengers can walk freely even at busy times.', target:'spacious', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'spacious', wrong:['crowded', 'narrow', 'noisy'] },
+        { id:'2', answer:'spacious', wrong:['crowded', 'tiny', 'noisy'] },
+        { id:'3', answer:'spacious', wrong:['tiny', 'crowded', 'noisy'] }
       ]
     })
 ];
