@@ -30,5 +30,15 @@ export default {
   'high-performance': ['very expensive', 'very small', 'very old'],
   stabilising: ['weakening', 'speeding', 'tightening'],
   'multi-task': ['do one thing slowly', 'do things in secret', 'do things for others'],
-  predictable: ['hard to believe', 'easy to forget', 'hard to find']
+  predictable: ['hard to believe', 'easy to forget', 'hard to find'],
+  professional: ['careless', 'nervous', 'famous'],
+  regional: ['national', 'global', 'historic'],
+  commentary: ['written summary', 'final score', 'long interview'],
+  educational: ['relaxing', 'expensive', 'frightening'],
+  culture: ['rules of law', 'level of wealth', 'style of building'],
+  genuine: ['rare', 'new', 'popular'],
+  amusing: ['strange', 'sad', 'tiring'],
+  competitive: ['happy to share', 'afraid to try', 'ready to quit'],
+  critical: ['approving', 'indifferent', 'grateful'],
+  impressive: ['ordinary', 'disappointing', 'confusing']
 };

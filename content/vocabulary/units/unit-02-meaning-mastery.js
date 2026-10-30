@@ -145,5 +145,51 @@ export default Object.freeze({
   predictable: [
     w(['very different from what people wanted', 'too sudden for people to notice', 'kinder than people deserved']),
     w(['difficult to live in for long', 'harmful to people and animals', 'different every single day'])
+  ],
+  professional: [
+    w(['showing great fear and a lack of practice', 'showing an unusual wish to be paid', 'showing the kindness and humour expected']),
+    w(['from a company’s advertisements', 'from an anonymous stranger', 'from a recent newspaper'])
+  ],
+  regional: [
+    w(['belonging to a country’s capital city', 'belonging to people of one age group', 'belonging to a different country'],
+      { text: 'Many British accents are regional, so people can often guess where a speaker grew up.', meaning: 'belonging to a particular part of a country',
+        reason: 'The draft sentence began with the target, so the blank would have hidden the capital letter; the sentence was reworded.' }),
+    w(['responsible for one shop', 'responsible for one department', 'responsible for one project'])
+  ],
+  commentary: [
+    w(['a written report of an event after it ends', 'a list of results printed after an event', 'a photograph of an event shown on screen']),
+    w(['a recorded written summary of a season', 'a printed table of scores in a match', 'a loud song sung by fans at a match'])
+  ],
+  educational: [
+    w(['showing very old photographs', 'making people laugh loudly', 'costing a great deal to make']),
+    w(['designed to keep people busy', 'designed to make people spend money', 'designed to help people sleep'],
+      { text: 'Good apps for young children are educational, helping them learn letters and numbers.', meaning: 'designed to help people learn',
+        reason: 'The draft sentence began with the target, so the blank would have hidden the capital letter; the sentence was reworded.' })
+  ],
+  culture: [
+    w(['buildings, roads and bridges', 'laws, taxes and punishments', 'jobs, wages and prices']),
+    w(['the history and age of a town', 'the size and wealth of a city', 'the climate and land of a region'])
+  ],
+  genuine: [
+    w(['sudden, not planned', 'mild, not strong', 'private, not shared']),
+    w(['bright, not dull', 'old, not new', 'heavy, not light'])
+  ],
+  amusing: [
+    w(['strange and worrying', 'long and tiring', 'sad and moving']),
+    w(['making you feel a little sleepy', 'making you feel a little sad', 'making you feel a little afraid'])
+  ],
+  competitive: [
+    w(['willing to teach others', 'eager to travel abroad', 'careful to avoid mistakes']),
+    w(['involving strong cooperation', 'involving high prices', 'involving long training'],
+      { text: 'It is a competitive industry, with many companies fighting for customers.', meaning: 'involving strong rivalry',
+        reason: 'The draft gloss contained a derivative of the target, which would have exposed the answer in Meaning Mastery; the gloss was reworded.' })
+  ],
+  critical: [
+    w(['showing great respect for', 'paying close attention to', 'giving full support to']),
+    w(['quick to forgive mistakes', 'quick to ask for help', 'quick to praise others'])
+  ],
+  impressive: [
+    w(['causing confusion', 'causing delay', 'causing worry']),
+    w(['showing great nervousness', 'showing great luck', 'showing great length'])
   ]
 });

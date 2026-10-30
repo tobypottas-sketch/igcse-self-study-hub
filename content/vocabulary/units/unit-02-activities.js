@@ -62,7 +62,17 @@ const phraseSets = [
   phrase('high_performance_laptop', 'a computer that works at very high speed', 'a high-performance laptop', ['vocab_high_performance'], { acceptedVariants:['a high-performance computer'], chunks:['a', 'high-performance', 'laptop'], distortions:['a cheap laptop', 'a broken laptop', 'a very old laptop'] }),
   phrase('stabilising_effect', 'an influence that makes a situation steadier', 'a stabilising effect', ['vocab_stabilising'], { acceptedVariants:['a steadying effect'], chunks:['a', 'stabilising', 'effect'], distortions:['a worrying effect', 'a very small effect', 'a sudden effect'] }),
   phrase('multi_task_easily', 'do several jobs at the same time', 'multi-task', ['vocab_multi_task'], { acceptedVariants:['multitask'], chunks:['multi-task'], distortions:['do one job at a time', 'do jobs slowly', 'avoid doing any jobs'] }),
-  phrase('predictable_result', 'a result that people can guess in advance', 'a predictable result', ['vocab_predictable'], { acceptedVariants:['an expected result'], chunks:['a', 'predictable', 'result'], distortions:['a surprising result', 'a disappointing result', 'a result nobody saw'] })
+  phrase('predictable_result', 'a result that people can guess in advance', 'a predictable result', ['vocab_predictable'], { acceptedVariants:['an expected result'], chunks:['a', 'predictable', 'result'], distortions:['a surprising result', 'a disappointing result', 'a result nobody saw'] }),
+  phrase('professional_advice', 'advice from a trained expert', 'professional advice', ['vocab_professional'], { acceptedVariants:['expert advice'], chunks:['professional', 'advice'], distortions:['advice from a close friend', 'advice from a stranger online', 'advice that costs nothing'] }),
+  phrase('regional_newspaper', 'a newspaper for one part of the country', 'a regional newspaper', ['vocab_regional'], { acceptedVariants:['a regional paper'], chunks:['a', 'regional', 'newspaper'], distortions:['a newspaper for the whole world', 'a newspaper for one street', 'a newspaper printed in colour'] }),
+  phrase('live_commentary', 'a spoken description of a match as it is played', 'a live commentary', ['vocab_commentary'], { acceptedVariants:['a running commentary'], chunks:['a live', 'commentary'], distortions:['a written report of a match', 'a list of the final scores', 'a photograph of the winning team'] }),
+  phrase('educational_game', 'a game that helps people learn', 'an educational game', ['vocab_educational'], { acceptedVariants:['a learning game'], chunks:['an', 'educational', 'game'], distortions:['a game that is very difficult', 'a game played outside', 'a game that costs a lot'] }),
+  phrase('local_culture', 'the customs and way of life of the area', 'the local culture', ['vocab_culture'], { acceptedVariants:['the culture of the area'], chunks:['the local', 'culture'], distortions:['the weather of the area', 'the map of the area', 'the history of one building'] }),
+  phrase('genuine_leather', 'leather that is real, not fake', 'genuine leather', ['vocab_genuine'], { acceptedVariants:['real leather'], chunks:['genuine', 'leather'], distortions:['leather that is very old', 'leather that is cheap', 'leather that is brightly coloured'] }),
+  phrase('amusing_story', 'a story that makes you smile', 'an amusing story', ['vocab_amusing'], { acceptedVariants:['a funny story'], chunks:['an', 'amusing', 'story'], distortions:['a story that makes you afraid', 'a story that is very long', 'a story that teaches a lesson'] }),
+  phrase('competitive_market', 'a market where many companies try to win customers', 'a competitive market', ['vocab_competitive'], { acceptedVariants:['a highly competitive market'], chunks:['a', 'competitive', 'market'], distortions:['a market with only one seller', 'a market that is closed on Sundays', 'a market that sells old goods'] }),
+  phrase('critical_of_plan', 'saying that the plan has faults', 'critical of the plan', ['vocab_critical'], { acceptedVariants:['critical about the plan'], chunks:['critical of', 'the plan'], distortions:['in favour of the plan', 'unaware of the plan', 'responsible for the plan'] }),
+  phrase('impressive_performance', 'a performance that makes people admire it', 'an impressive performance', ['vocab_impressive'], { acceptedVariants:['a remarkable performance'], chunks:['an', 'impressive', 'performance'], distortions:['a boring performance', 'a short performance', 'a performance nobody saw'] })
 ];
 
 const ideaSets = [
@@ -215,7 +225,57 @@ const ideaSets = [
     { text:'The ending of the story was partly predictable.', misconceptionCategory:'degree_change' },
     { text:'The ending of the story was impossible to guess.', misconceptionCategory:'meaning_confusion' },
     { text:'The ending of the story was predictable, but the beginning was not.', misconceptionCategory:'added_information' }
-  ], ['vocab_predictable'])
+  ], ['vocab_predictable']),
+  idea('professional', 'Many professional athletes stop competing before they are forty.', ['Many people who earn their living from sport stop competing before the age of forty.', 'A large number of full-time sportspeople end their careers before they turn forty.', 'Lots of athletes who are paid to compete retire before they reach forty.'], 'quantity', 'many', [
+    { text:'A few people who earn their living from sport stop competing before the age of forty.', misconceptionCategory:'quantity_change' },
+    { text:'Many amateur athletes begin competing after they are forty.', misconceptionCategory:'meaning_confusion' },
+    { text:'Many people who earn their living from sport start competing before the age of forty.', misconceptionCategory:'time_change' }
+  ], ['vocab_professional']),
+  idea('regional', 'Regional newspapers have lost many readers over the last ten years.', ['Newspapers that cover one part of the country have lost many readers over the last ten years.', 'Over the last decade, papers serving a single area have lost a large number of readers.', 'In the past ten years, many readers have stopped buying papers that report on one area of the country.'], 'time', 'over the last ten years', [
+    { text:'Newspapers that cover the whole country have lost many readers over the last ten years.', misconceptionCategory:'meaning_confusion' },
+    { text:'Newspapers that cover one part of the country have gained many readers over the last ten years.', misconceptionCategory:'polarity_change' },
+    { text:'Newspapers that cover one part of the country lost a few readers last year.', misconceptionCategory:'quantity_change' }
+  ], ['vocab_regional']),
+  idea('commentary', 'The radio commentary made the match sound more exciting than it really was.', ['The spoken description on the radio made the match seem more exciting than it was.', 'Listeners on the radio heard a description that made the match sound better than it really was.', 'The match was not as exciting as the radio description made it sound.'], 'comparison', 'more exciting than in reality', [
+    { text:'The radio commentary made the match sound less exciting than it really was.', misconceptionCategory:'polarity_change' },
+    { text:'The match was even more exciting than the radio commentary made it sound.', misconceptionCategory:'comparison_change' },
+    { text:'The radio made the match sound more exciting because it played music.', misconceptionCategory:'added_information' }
+  ], ['vocab_commentary']),
+  idea('educational', 'The museum runs educational workshops for school groups every Friday.', ['Every Friday, the museum holds workshops where school groups learn new things.', 'School groups can join workshops at the museum each Friday that are designed to teach them.', 'The museum offers learning workshops for school groups every week on a Friday.'], 'time', 'every Friday', [
+    { text:'The museum runs workshops for school groups on one Friday each year.', misconceptionCategory:'time_change' },
+    { text:'The museum runs workshops for adults every Friday to teach them to paint.', misconceptionCategory:'meaning_confusion' },
+    { text:'The museum runs entertaining shows for school groups every Friday.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_educational']),
+  idea('culture', 'Learning a language helps you understand the culture of the people who speak it.', ['Learning a language helps you understand the way of life of the people who speak it.', 'If you learn their language, you can better understand the customs and beliefs of its speakers.', 'Studying a language gives you a better understanding of how its speakers live and what they believe.'], 'cause_effect', 'learning a language leads to understanding', [
+    { text:'Understanding the way of life of a people helps you learn their language.', misconceptionCategory:'cause_effect_change' },
+    { text:'Learning a language makes it harder to understand the people who speak it.', misconceptionCategory:'meaning_confusion' },
+    { text:'Learning a language guarantees that you will visit the country where it is spoken.', misconceptionCategory:'added_information' }
+  ], ['vocab_culture']),
+  idea('genuine', 'The inspector checked that the painting was genuine before the museum bought it.', ['The inspector made sure the painting was real before the museum bought it.', 'Before buying the painting, the museum had an inspector confirm that it was not a fake.', 'The museum bought the painting only after the inspector had checked that it was authentic.'], 'time', 'before it was bought', [
+    { text:'The inspector checked that the painting was real after the museum bought it.', misconceptionCategory:'time_change' },
+    { text:'The inspector checked that the painting was valuable before the museum bought it.', misconceptionCategory:'meaning_confusion' },
+    { text:'The museum bought the painting without asking the inspector.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_genuine']),
+  idea('amusing', 'Most students found the headteacher’s speech mildly amusing.', ['Most students thought the headteacher’s speech was slightly funny.', 'The majority of students smiled a little at the headteacher’s speech.', 'For most students, the headteacher’s speech was a little entertaining.'], 'degree', 'mildly', [
+    { text:'Most students found the headteacher’s speech extremely amusing.', misconceptionCategory:'degree_change' },
+    { text:'Few students found the headteacher’s speech mildly amusing.', misconceptionCategory:'quantity_change' },
+    { text:'Most students found the headteacher’s speech slightly boring.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_amusing']),
+  idea('competitive', 'The mobile phone industry has become far more competitive in recent years.', ['Far more companies now try hard to win customers in the mobile phone industry than in the past.', 'In recent years, mobile phone firms have started to compete much more strongly.', 'Competition between mobile phone companies has grown a great deal recently.'], 'time', 'in recent years', [
+    { text:'The mobile phone industry has become slightly more competitive in recent years.', misconceptionCategory:'degree_change' },
+    { text:'The mobile phone industry has become far less competitive in recent years.', misconceptionCategory:'polarity_change' },
+    { text:'Mobile phone companies have become far more profitable in recent years.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_competitive']),
+  idea('critical', 'The inspector was critical of the way the school kept its records.', ['The inspector said that the school’s record-keeping had faults.', 'The inspector disapproved of how the school kept its records.', 'The inspector found problems in the way the school looked after its records.'], 'polarity', 'disapproval', [
+    { text:'The inspector praised the way the school kept its records.', misconceptionCategory:'meaning_confusion' },
+    { text:'The inspector was surprised by how many records the school kept.', misconceptionCategory:'meaning_confusion' },
+    { text:'The inspector thought the school’s records were very important.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_critical']),
+  idea('impressive', 'Her exam results were impressive, especially in mathematics.', ['Her exam results were excellent, particularly in mathematics.', 'She got very good exam results, and the best were in mathematics.', 'Her results in the exams were remarkable, most of all in mathematics.'], 'degree', 'very good', [
+    { text:'Her exam results were average, except in mathematics.', misconceptionCategory:'degree_change' },
+    { text:'Her exam results were impressive, but not in mathematics.', misconceptionCategory:'omitted_information' },
+    { text:'Her mathematics results were better than her other results.', misconceptionCategory:'added_information' }
+  ], ['vocab_impressive'])
 ];
 
 export default [...phraseSets, ...ideaSets];

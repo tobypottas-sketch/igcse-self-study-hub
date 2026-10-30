@@ -57,5 +57,17 @@ export const unit2WordFamilyAlternates = Object.freeze({
   interactive: {
     interact: 'Visitors can interact with the exhibits by touching the screens.',
     interaction: 'Online games give players more interaction with each other.'
+  },
+  commentary: {
+    comment: 'Several players refused to comment after the match.',
+    commentator: 'The commentator became hoarse after shouting for ninety minutes.'
+  },
+  educational: {
+    educate: 'The campaign aims to educate people about the dangers of fake news.',
+    education: 'Good education depends on well-trained teachers.'
+  },
+  culture: {
+    cultural: 'Exchange students learn a great deal about cultural differences.',
+    culturally: 'The festival is culturally important to the whole region.'
   }
 });

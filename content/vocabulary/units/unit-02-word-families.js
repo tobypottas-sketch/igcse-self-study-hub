@@ -107,7 +107,52 @@ export const unit2WordFamilies = Object.freeze({
     f('predict', 'verb', 'No one can predict exactly how technology will change our lives.', 'The base verb.'),
     f('prediction', 'noun', 'Her prediction about the exam questions turned out to be correct.', 'The common noun.'),
     f('unpredictable', 'adjective', 'Mountain weather can be dangerously unpredictable.', 'The most useful negative; very frequent in description and discussion.')
-  ], excludedForms: [{ form: 'predictably', reason: 'Regular adverb; adds little beyond the adjective at this level.' }] }
+  ], excludedForms: [{ form: 'predictably', reason: 'Regular adverb; adds little beyond the adjective at this level.' }] },
+  professional: { forms: [
+    f('professional', 'adjective', 'She gave a very professional presentation to the company directors.', 'Headword; also a noun for a person who does a job for pay.'),
+    f('profession', 'noun', 'Teaching is a respected profession in many countries.', 'The base noun; very frequent in work and education texts.'),
+    f('professionally', 'adverb', 'The photographs were taken professionally, so they look like magazine pictures.', 'Regular adverb used for how work is done.'),
+    f('unprofessional', 'adjective', 'It was unprofessional of the guide to arrive an hour late.', 'Common negative adjective in complaints and reviews.')
+  ] },
+  commentary: { forms: [
+    f('commentary', 'noun', 'The radio commentary made the race sound even more exciting.', 'Headword.'),
+    f('comment', 'verb', 'The headteacher refused to comment on the rumours.', 'The base verb; the noun “comment” shares the spelling.'),
+    f('commentator', 'noun', 'The commentator described every pass of the match.', 'Person noun; the speaker who gives the commentary.')
+  ] },
+  educational: { forms: [
+    f('educational', 'adjective', 'The museum offers educational visits for primary schools.', 'Headword.'),
+    f('educate', 'verb', 'Schools must educate children about online safety.', 'The base verb.'),
+    f('education', 'noun', 'Free education gives every child the chance to succeed.', 'The common noun; frequent in news and discussion writing.')
+  ], excludedForms: [{ form: 'educator', reason: 'Already taught as a separate Unit 2 target word (word 20), so it is not repeated here.' }] },
+  culture: { forms: [
+    f('culture', 'noun', 'Food is an important part of Italian culture.', 'Headword.'),
+    f('cultural', 'adjective', 'The city holds a cultural festival every summer.', 'Very common adjective; used before nouns such as “event”, “difference” and “heritage”.'),
+    f('culturally', 'adverb', 'The class is culturally mixed, with students from twelve countries.', 'Regular adverb used in descriptions of groups and places.')
+  ] },
+  amusing: { forms: [
+    f('amusing', 'adjective', 'He told an amusing story about his first day at work.', 'Headword: describes the thing that is funny.'),
+    f('amuse', 'verb', 'The clown tried to amuse the children while they waited.', 'The base verb.'),
+    f('amused', 'adjective', 'The teacher looked amused when the class began to laugh.', 'Describes the person who feels entertained; the key contrast with “amusing”.'),
+    f('amusement', 'noun', 'To her amusement, the cat chased its own tail.', 'The common noun; fixed in the phrase “to someone’s amusement”.')
+  ] },
+  competitive: { forms: [
+    f('competitive', 'adjective', 'The mobile phone market is extremely competitive.', 'Headword.'),
+    f('compete', 'verb', 'Over a hundred schools compete in the national quiz.', 'The base verb.'),
+    f('competition', 'noun', 'There is fierce competition for places at the best universities.', 'The common noun, covering contests and business rivalry.'),
+    f('competitor', 'noun', 'Our main competitor has just lowered its prices.', 'Person or company noun; frequent in business texts.')
+  ] },
+  critical: { forms: [
+    f('critical', 'adjective', 'The report was highly critical of the way the school was run.', 'Headword (sense taught: expressing disapproval).'),
+    f('criticise', 'verb', 'It is easy to criticise other people’s work.', 'The base verb (British spelling).'),
+    f('criticism', 'noun', 'The headteacher accepted the criticism and promised to change the policy.', 'The common noun; frequent in news and opinion writing.'),
+    f('critic', 'noun', 'The film critic gave the new comedy an excellent review.', 'Person noun who judges books, films or performances.')
+  ], excludedForms: [{ form: 'critically', reason: 'Mostly used for the different sense “seriously” (critically ill), which would blur the sense taught here.' }] },
+  impressive: { forms: [
+    f('impressive', 'adjective', 'The view from the top of the tower is truly impressive.', 'Headword: describes the thing that causes admiration.'),
+    f('impress', 'verb', 'She worked hard to impress the interview panel.', 'The base verb.'),
+    f('impressed', 'adjective', 'The examiner was impressed by her fluent answers.', 'Describes the person who feels admiration; the key contrast with “impressive”.'),
+    f('impressively', 'adverb', 'The young goalkeeper played impressively in her first match.', 'Regular adverb used in descriptions of performance.')
+  ], excludedForms: [{ form: 'impression', reason: 'Already taught as a separate Unit 2 target word (word 20), so it is not repeated here.' }] }
 });
 
 // Headwords considered and NOT made families: a bare list would offer unauthorised members in Recognise/Match.
@@ -122,5 +167,7 @@ export const unit2WordFamilyRejected = Object.freeze({
   feature: 'The verb shares the noun’s spelling, "featured" is a participle and "featureless" is rare, so there are fewer than three distinct teachable forms.',
   widespread: 'A compound of "wide" and "spread" with no derived forms; "spread" and "widely" are different words, so the family would be forced.',
   'high-performance': 'A compound adjective: its relatives (perform, performance, performer) belong to a different headword, so they would not describe this word.',
-  'multi-task': 'Its only relatives are the -ing and -er forms of the same compound ("multi-tasking", "multi-tasker"), which are rare and written inconsistently ("multitask"); the family would give no reliable marking.'
+  'multi-task': 'Its only relatives are the -ing and -er forms of the same compound ("multi-tasking", "multi-tasker"), which are rare and written inconsistently ("multitask"); the family would give no reliable marking.',
+  regional: 'Only “region” (noun) and “regional” are in everyday use; “regionally” is rare, so there are not three genuinely useful forms.',
+  genuine: 'Only “genuinely” is in regular use; “genuineness” is rare, so there are two useful forms, not three.'
 });

@@ -124,5 +124,45 @@ export default Object.freeze({
   predictable: [
     p('The film began with a hero, a villain and a chase. By the middle, everyone in the cinema knew how it would end, and the story felt completely ____.', 'predictable', 'Everyone knew the ending.'),
     p('Our bus arrives at exactly the same time every morning and takes the same route. Because the journey is so ____, I can plan my day to the minute.', 'predictable', 'Same time, same route: can be planned.')
+  ],
+  professional: [
+    p('Amateur players train after work and are not paid. In contrast, a ____ footballer plays full time and earns a salary from a club.', 'professional', 'Contrast with unpaid amateurs; full time, salary.'),
+    p('The wiring in the old house was dangerous, so we did not try to repair it ourselves. We hired a ____ electrician who had years of training.', 'professional', 'Hired a trained expert instead of doing it themselves.')
+  ],
+  regional: [
+    p('The national news covers the whole country, but our ____ newspaper reports mainly on events in Yorkshire. It tells readers about local sports teams and council decisions.', 'regional', 'One part of the country, between national and local.'),
+    p('The company divided Britain into five areas. Each ____ manager is responsible for the shops in one of them, such as Scotland or the south-west.', 'regional', 'Five areas, each with its own manager.')
+  ],
+  commentary: [
+    p('Many fans cannot get tickets, so they listen to the match on the radio. The ____ describes every pass and shot as it happens.', 'commentary', 'Radio; describes the match as it happens.'),
+    p('The final of the tournament was close, but the television ____ made it even more exciting. The speakers’ voices rose with every goal.', 'commentary', 'Speakers describing the game on television.')
+  ],
+  educational: [
+    p('The school did not want children to waste their time online. It chose games and websites that were ____, because they taught maths and science.', 'educational', 'Chosen because they teach useful things.'),
+    p('The museum trip was fun, but it was also ____. By the end of the day, the students had learnt a great deal about the history of the town.', 'educational', 'Fun, but students also learnt a lot.')
+  ],
+  culture: [
+    p('When you travel abroad, you should learn about the local ____. Customs such as greetings, food and festivals can be very different from your own.', 'culture', 'Customs, greetings, food, festivals.'),
+    p('Language and history are important, but they are only part of a ____. Music, clothing and daily habits also show how a group of people lives.', 'culture', 'A group’s way of life: music, clothing, habits.')
+  ],
+  genuine: [
+    p('The teacher could tell that the apology was not just polite words. Her ____ regret showed in her voice and in the way she looked at him.', 'genuine', 'Not pretended: real regret.'),
+    p('The shop sold bags at a very low price. Customers soon discovered that the leather was not ____, because it was a cheap imitation.', 'genuine', 'Not real leather: an imitation.')
+  ],
+  amusing: [
+    p('My uncle tells stories about his school days. They are never cruel, and they are so ____ that the whole family laughs until they cry.', 'amusing', 'Stories that make the family laugh.'),
+    p('The film was not a comedy, but it had a few ____ moments. Several times, the audience smiled at a character’s clumsy mistakes.', 'amusing', 'Moments that made the audience smile.')
+  ],
+  competitive: [
+    p('Mia hates losing at anything, even a quick game of cards. Her friends say she is far too ____, because every game becomes a battle.', 'competitive', 'Hates losing; every game a battle.'),
+    p('Dozens of companies sell mobile phones in this country. The market is so ____ that firms keep lowering their prices to attract customers.', 'competitive', 'Many companies; lowering prices for customers.')
+  ],
+  critical: [
+    p('Some parents liked the new timetable, but many were ____ of it. They complained that the lessons started too early and finished too late.', 'critical', 'Complained about faults.'),
+    p('Good friends can be honest, but nobody enjoys being told that everything they do is wrong. Her father was always ____ of her work and rarely praised it.', 'critical', 'Always found faults; rarely praised.')
+  ],
+  impressive: [
+    p('The young pianist played for two hours without a single mistake. The audience stood up and clapped, because the performance was truly ____.', 'impressive', 'Two hours without a mistake; audience applauds.'),
+    p('The new stadium holds eighty thousand people and has a roof that opens in minutes. Visitors often say it is the most ____ building in the city.', 'impressive', 'Size and design that make visitors admire it.')
   ]
 });
