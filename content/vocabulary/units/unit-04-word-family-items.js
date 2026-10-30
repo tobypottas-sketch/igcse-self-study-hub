@@ -43,5 +43,8 @@ export default [
   family('organisation_c', 'vocab_organisation', 'organisation', 'The railway timetable was so badly ____ that passengers missed their connections.', 'organised'),
   family('participant_a', 'vocab_participant_4', 'participant', 'The youngest ____ in the cycling trial was only ten years old.', 'participant'),
   family('participant_b', 'vocab_participant_4', 'participant', 'Several schools have agreed to ____ in the national road safety week.', 'participate'),
-  family('participant_c', 'vocab_participant_4', 'participant', 'The council thanked local residents for their ____ in the car-free day.', 'participation')
+  family('participant_c', 'vocab_participant_4', 'participant', 'The council thanked local residents for their ____ in the car-free day.', 'participation'),
+  family('operate_a', 'vocab_operate', 'operate', 'Only licensed drivers are permitted to ____ a taxi in the city.', 'operate'),
+  family('operate_b', 'vocab_operate', 'operate', 'The tram ____ announced that services would stop earlier on Sundays.', 'operator'),
+  family('operate_c', 'vocab_operate', 'operate', 'The new airport terminal will not be fully ____ until the end of the year.', 'operational')
 ];

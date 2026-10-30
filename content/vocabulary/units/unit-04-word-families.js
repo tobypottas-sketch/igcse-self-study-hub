@@ -62,7 +62,13 @@ export const unit4WordFamilies = Object.freeze({
     f('participant', 'noun', 'Each participant in the trial recorded how they travelled to school.', 'Headword.'),
     f('participate', 'verb', 'Students from five schools will participate in the road safety week.', 'The verb behind the noun; very common.'),
     f('participation', 'noun', 'Parents’ participation in the car-free day was higher than expected.', 'The abstract noun for taking part; common in reports.')
-  ], excludedForms: [{ form: 'participatory', reason: 'Rare adjective beyond the level of this unit.' }] }
+  ], excludedForms: [{ form: 'participatory', reason: 'Rare adjective beyond the level of this unit.' }] },
+  operate: { forms: [
+    f('operate', 'verb', 'Pilots must learn how to operate every system in the cockpit.', 'Headword.'),
+    f('operator', 'noun', 'The bus operator announced a new timetable for the summer.', 'The person or company that runs a vehicle or service; common in transport news.'),
+    f('operation', 'noun', 'The safe operation of heavy machinery requires years of training.', 'The noun for controlling a machine or system; this unit teaches the machine sense, not the medical one.'),
+    f('operational', 'adjective', 'The new airport terminal will become operational in March.', 'Adjective meaning working and in use; common in news about transport projects.')
+  ], excludedForms: [{ form: 'operating', reason: 'Only an inflection of “operate”.' }] }
 });
 
 export const unit4WordFamilyRejected = Object.freeze({
@@ -84,5 +90,14 @@ export const unit4WordFamilyRejected = Object.freeze({
   demand: 'The verb “demand” (to insist) and the adjective “demanding” (difficult) shift away from the noun sense of a strong public need, and the verb sense already belongs to Unit 1.',
   machinery: '“machine” is the countable base word, while “mechanical” and “mechanic” come from a different root and shift towards automatic behaviour and repair work, so no clean family keeps the collective sense.',
   enormous: 'Only “enormously” (very much) is a straightforward relative, and “enormity” means great wickedness, so fewer than three forms are worth teaching.',
-  collision: 'Only “collide” is a genuine relative; “colliding” is an inflection and “collider” is a technical physics term, so fewer than three useful forms exist.'
+  collision: 'Only “collide” is a genuine relative; “colliding” is an inflection and “collider” is a technical physics term, so fewer than three useful forms exist.',
+  livelihood: 'A compound noun with no derived forms; “live” and “lively” belong to different senses.',
+  fatality: '“fatal” is closely related, but “fatally” is used mostly in “fatally injured”, which this unit avoids, or in “fatally flawed”, which shifts the sense, so only two reliable forms remain.',
+  initiative: '“initiate” (to start) is related, but “initiation” is rare or ritual and “initial” and “initially” mean “first”, so fewer than three forms keep the sense.',
+  campaign: '“campaign” is both noun and verb with one spelling, “campaigner” is the only distinct form, and “campaigning” is an inflection or gerund, so fewer than three forms exist.',
+  pothole: 'A compound noun with no derived forms.',
+  trauma: 'Only “traumatic” is a useful relative; “traumatically” is rare and “traumatise” is not needed at this level, so fewer than three forms are worth teaching.',
+  measures: 'The target sense is “actions”; “measure” (to find a size), “measurement” and “measurable” all shift to size, so no family keeps the sense.',
+  estimate: 'Only “estimation” is a distinct relative: “estimated” is a Unit 1 target, “underestimate” is a Unit 3 target and the noun “estimate” has the same spelling, so fewer than three forms remain.',
+  regulation: '“regulate” is useful, but “regulatory” and “regulator” are formal and rare at this level and “regulated” is an inflection, so fewer than three forms are worth teaching.'
 });

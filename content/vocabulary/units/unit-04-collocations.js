@@ -29,5 +29,15 @@ export default Object.freeze({
   equipment: ['safety equipment', 'emergency equipment', 'rescue equipment'],
   collision: ['head-on collision', 'mid-air collision', 'avoid a collision'],
   organisation: ['international organisation', 'charity organisation', 'public organisation'],
-  participant: ['trial participant', 'active participant', 'every participant']
+  participant: ['trial participant', 'active participant', 'every participant'],
+  livelihood: ['earn a livelihood', 'means of livelihood', 'lose their livelihood'],
+  fatality: ['road fatality', 'fatality rate', 'single fatality'],
+  initiative: ['new initiative', 'government initiative', 'local initiative'],
+  campaign: ['road safety campaign', 'launch a campaign', 'public campaign'],
+  pothole: ['deep pothole', 'fill a pothole', 'repair a pothole'],
+  trauma: ['emotional trauma', 'cope with trauma', 'psychological trauma'],
+  measures: ['safety measures', 'emergency measures', 'take measures'],
+  estimate: ['estimate the cost', 'estimate how many', 'conservatively estimate'],
+  regulation: ['safety regulation', 'strict regulation', 'new regulation'],
+  operate: ['operate a vehicle', 'operate machinery', 'safely operate']
 });

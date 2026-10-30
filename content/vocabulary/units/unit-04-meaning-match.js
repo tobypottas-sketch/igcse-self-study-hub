@@ -30,5 +30,15 @@ export default {
   equipment: ['staff', 'tickets', 'rules'],
   collision: ['delay', 'breakdown', 'detour'],
   organisation: ['arrangement', 'competition', 'celebration'],
-  participant: ['person watching', 'person organising', 'person paying']
+  participant: ['person watching', 'person organising', 'person paying'],
+  livelihood: ['amount of money earned', 'position held in a company', 'style of everyday life'],
+  fatality: ['injury', 'delay', 'fine'],
+  initiative: ['complaint', 'invoice', 'permit'],
+  campaign: ['road-building project', 'ticket-selling system', 'traffic-control device'],
+  pothole: ['bump in the road', 'sign beside the road', 'bend in the road'],
+  trauma: ['brief excitement', 'physical strength', 'daily routine'],
+  measures: ['sizes', 'prices', 'weights'],
+  estimate: ['carefully check', 'publicly announce', 'strongly deny'],
+  regulation: ['official report', 'public holiday', 'private contract'],
+  operate: ['repair', 'sell', 'paint']
 };

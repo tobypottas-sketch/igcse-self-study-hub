@@ -62,7 +62,17 @@ const phraseSets = [
   phrase('equipment_safety', 'tools and devices needed for safety', 'safety equipment', ['vocab_equipment_4'], { chunks:['safety', 'equipment'], distortions:['safety rules', 'safety officers', 'safety posters'] }),
   phrase('collision_cars', 'a crash between two cars', 'a collision between two cars', ['vocab_collision'], { chunks:['a collision', 'between two cars'], distortions:['a race between two cars', 'a meeting between two cars', 'a journey between two cars'] }),
   phrase('organisation_road_safety', 'a group working together for road safety', 'a road safety organisation', ['vocab_organisation'], { chunks:['a road safety', 'organisation'], distortions:['a road safety timetable', 'a road safety uniform', 'a road safety lesson'] }),
-  phrase('participant_trial', 'a person taking part in the trial', 'a participant in the trial', ['vocab_participant_4'], { chunks:['a participant', 'in the trial'], distortions:['a spectator at the trial', 'the organiser of the trial', 'the judge of the trial'] })
+  phrase('participant_trial', 'a person taking part in the trial', 'a participant in the trial', ['vocab_participant_4'], { chunks:['a participant', 'in the trial'], distortions:['a spectator at the trial', 'the organiser of the trial', 'the judge of the trial'] }),
+  phrase('livelihood_fishermen', 'the way local fishermen earn money', 'the livelihood of local fishermen', ['vocab_livelihood'], { chunks:['the livelihood', 'of local fishermen'], distortions:['the salary of local fishermen', 'the lifestyle of local fishermen', 'the uniform of local fishermen'] }),
+  phrase('fatality_road', 'a death on the road', 'a road fatality', ['vocab_fatality'], { chunks:['a road', 'fatality'], distortions:['a road injury', 'a road delay', 'a road closure'] }),
+  phrase('initiative_traffic', 'a new scheme to reduce traffic', 'an initiative to reduce traffic', ['vocab_initiative'], { chunks:['an initiative', 'to reduce traffic'], distortions:['a complaint about traffic', 'a ban on traffic', 'a fine for traffic'] }),
+  phrase('campaign_cyclists', 'an organised effort to protect cyclists', 'a campaign to protect cyclists', ['vocab_campaign'], { chunks:['a campaign', 'to protect cyclists'], distortions:['a complaint about cyclists', 'a ban on cyclists', 'a race for cyclists'] }),
+  phrase('pothole_deep', 'a deep hole in the road', 'a deep pothole', ['vocab_pothole'], { chunks:['a deep', 'pothole'], distortions:['a deep puddle', 'a deep tunnel', 'a deep river'] }),
+  phrase('trauma_crash', 'a lasting emotional shock after a crash', 'trauma after a crash', ['vocab_trauma'], { chunks:['trauma', 'after a crash'], distortions:['excitement after a crash', 'boredom after a crash', 'payment after a crash'] }),
+  phrase('measures_road_safety', 'official actions for road safety', 'road safety measures', ['vocab_measures'], { chunks:['road safety', 'measures'], distortions:['road safety posters', 'road safety lessons', 'road safety uniforms'] }),
+  phrase('estimate_how_many', 'work out roughly how many', 'estimate how many', ['vocab_estimate'], { chunks:['estimate', 'how many'], distortions:['count exactly how many', 'forget how many', 'ask how many'] }),
+  phrase('regulation_safety', 'an official rule about safety', 'a safety regulation', ['vocab_regulation'], { chunks:['a safety', 'regulation'], distortions:['a safety suggestion', 'a safety tradition', 'a safety habit'] }),
+  phrase('operate_crane', 'control a crane', 'operate a crane', ['vocab_operate'], { chunks:['operate', 'a crane'], distortions:['repair a crane', 'sell a crane', 'paint a crane'] })
 ];
 
 const ideaSets = [
@@ -215,7 +225,57 @@ const ideaSets = [
     { text:'Only the winner of the road safety trial must wear a helmet.', misconceptionCategory:'quantity_change' },
     { text:'Every spectator at the road safety trial must wear a helmet.', misconceptionCategory:'meaning_confusion' },
     { text:'Every participant in the road safety trial may choose not to wear a helmet.', misconceptionCategory:'polarity_change' }
-  ], ['vocab_participant_4'])
+  ], ['vocab_participant_4']),
+  idea('livelihood', 'The closure of the railway workshop threatened the livelihood of hundreds of families.', ['Hundreds of families risked losing their means of earning a living when the railway workshop closed.', 'Closing the railway workshop put the income of hundreds of families at risk.', 'The shutting of the railway workshop endangered how hundreds of families earned money.'], 'cause_effect', 'the closure put hundreds of families’ income at risk', [
+    { text:'The closure of the railway workshop created new jobs for hundreds of families.', misconceptionCategory:'polarity_change' },
+    { text:'The closure of the railway workshop threatened the holidays of hundreds of families.', misconceptionCategory:'meaning_confusion' },
+    { text:'The closure of the railway workshop threatened the livelihood of a few families.', misconceptionCategory:'quantity_change' }
+  ], ['vocab_livelihood']),
+  idea('fatality', 'The police said that the accident had caused one fatality.', ['The police stated that one person had died in the accident.', 'According to the police, the accident had resulted in a single death.', 'One person lost their life in the accident, the police said.'], 'quantity', 'one', [
+    { text:'The police said that the accident had caused three fatalities.', misconceptionCategory:'quantity_change' },
+    { text:'The police said that the accident had caused no fatalities.', misconceptionCategory:'polarity_change' },
+    { text:'The police said that the accident had caused one injury.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_fatality']),
+  idea('initiative', 'The new initiative aims to cut the number of road accidents near schools.', ['The new scheme is intended to reduce accidents on roads near schools.', 'The purpose of the new programme is to lower the number of road accidents close to schools.', 'A new plan has been introduced in order to have fewer accidents on roads near schools.'], 'cause_effect', 'the aim is to cut accidents near schools', [
+    { text:'The new initiative aims to increase the number of road accidents near schools.', misconceptionCategory:'polarity_change' },
+    { text:'The new initiative aims to cut the number of road accidents near hospitals.', misconceptionCategory:'meaning_confusion' },
+    { text:'The new initiative cut the number of road accidents near schools last year.', misconceptionCategory:'time_change' }
+  ], ['vocab_initiative']),
+  idea('campaign', 'The campaign persuaded thousands of drivers to slow down near schools.', ['Thousands of drivers were convinced to reduce speed near schools by the organised effort.', 'Because of the public effort, thousands of drivers began to drive more slowly near schools.', 'The public-awareness drive led thousands of drivers to slow down near schools.'], 'cause_effect', 'the campaign led drivers to slow down', [
+    { text:'The campaign forced thousands of drivers to leave their cars near schools.', misconceptionCategory:'cause_effect_change' },
+    { text:'The campaign persuaded a few drivers to slow down near schools.', misconceptionCategory:'quantity_change' },
+    { text:'The campaign persuaded thousands of drivers to speed up near schools.', misconceptionCategory:'polarity_change' }
+  ], ['vocab_campaign']),
+  idea('pothole', 'The council has promised to repair every pothole on the main road this month.', ['The council has pledged to mend all the holes in the main road this month.', 'This month, the council intends to fix each hole in the surface of the main road.', 'All the road-surface holes on the main road will be repaired by the council this month, it has promised.'], 'quantity', 'every one, this month', [
+    { text:'The council has promised to repair some potholes on the main road this month.', misconceptionCategory:'quantity_change' },
+    { text:'The council has promised to build a new main road this month.', misconceptionCategory:'meaning_confusion' },
+    { text:'The council has promised to repair every pothole on the main road next year.', misconceptionCategory:'time_change' }
+  ], ['vocab_pothole']),
+  idea('trauma', 'The survivors were offered counselling to help them deal with the trauma of the accident.', ['The people who survived were given counselling so that they could cope with the lasting shock of the accident.', 'Counselling was offered to survivors to help them manage the emotional effects of the accident.', 'To help them handle the distress caused by the accident, the survivors were offered counselling.'], 'cause_effect', 'counselling offered to help with emotional effects', [
+    { text:'The survivors were refused counselling to help them deal with the trauma of the accident.', misconceptionCategory:'polarity_change' },
+    { text:'The survivors were offered compensation to help them deal with the cost of the accident.', misconceptionCategory:'meaning_confusion' },
+    { text:'The survivors were offered counselling before the accident.', misconceptionCategory:'time_change' }
+  ], ['vocab_trauma']),
+  idea('measures', 'The council took emergency measures to clear the snow from the roads.', ['The council acted urgently to remove the snow from the roads.', 'Urgent action was taken by the council to clear snow off the roads.', 'The council did what it could at once to get the snow off the roads.'], 'degree', 'urgent action', [
+    { text:'The council took emergency measures to build new roads in the snow.', misconceptionCategory:'meaning_confusion' },
+    { text:'The council took no emergency measures to clear the snow from the roads.', misconceptionCategory:'polarity_change' },
+    { text:'The council plans to take emergency measures to clear the snow from the roads next winter.', misconceptionCategory:'time_change' }
+  ], ['vocab_measures']),
+  idea('estimate', 'Officials estimate that the new tunnel will carry twenty thousand vehicles a day.', ['Officials calculate roughly that twenty thousand vehicles a day will use the new tunnel.', 'According to officials’ rough calculations, the new tunnel will carry around twenty thousand vehicles daily.', 'Officials believe, though they cannot be exact, that the new tunnel will carry about twenty thousand vehicles every day.'], 'quantity', 'about twenty thousand a day', [
+    { text:'Officials guarantee that the new tunnel will carry exactly twenty thousand vehicles a day.', misconceptionCategory:'degree_change' },
+    { text:'Officials estimate that the new tunnel will carry two thousand vehicles a day.', misconceptionCategory:'quantity_change' },
+    { text:'Officials estimate that the old tunnel carried twenty thousand vehicles a day.', misconceptionCategory:'time_change' }
+  ], ['vocab_estimate']),
+  idea('regulation', 'A new regulation requires all cyclists to use lights after dark.', ['An official rule now says that every cyclist must have lights when it is dark.', 'All cyclists are required by a new official rule to use lights once it is dark.', 'According to a new rule from the authorities, cyclists must use lights at night.'], 'quantity', 'all cyclists, after dark', [
+    { text:'A new regulation advises some cyclists to use lights after dark.', misconceptionCategory:'quantity_change' },
+    { text:'A new regulation requires all cyclists to use lights before dark.', misconceptionCategory:'time_change' },
+    { text:'A new regulation forbids all cyclists from using lights after dark.', misconceptionCategory:'polarity_change' }
+  ], ['vocab_regulation']),
+  idea('operate', 'Only trained staff may operate the cranes at the port.', ['Only people who have been trained are permitted to control the port’s cranes.', 'The cranes at the port may be controlled by trained staff alone.', 'Staff must be trained before they are allowed to work the cranes at the port.'], 'quantity', 'only trained staff', [
+    { text:'Any member of staff may operate the cranes at the port.', misconceptionCategory:'quantity_change' },
+    { text:'Only trained staff may repair the cranes at the port.', misconceptionCategory:'meaning_confusion' },
+    { text:'Only trained staff may operate the cranes at the airport.', misconceptionCategory:'added_information' }
+  ], ['vocab_operate'])
 ];
 
 export default [...phraseSets, ...ideaSets];

@@ -123,5 +123,45 @@ export default Object.freeze({
   participant: [
     w(['a person who watches an event from the side', 'a person who plans an event beforehand', 'a person who pays for an event to be held']),
     w(['a person who judges a test or study', 'a person who writes about a test or study', 'a person who sells equipment for a study'])
+  ],
+  livelihood: [
+    w(['the way a person spends money on holiday', 'the way a person travels between home and work', 'the way a person pays tax each year']),
+    w(['the training that a person receives for a job', 'the union that a person joins at work', 'the home that a person rents near work'])
+  ],
+  fatality: [
+    w(['an injury caused by an accident', 'a delay caused by an accident', 'a fine caused by an accident']),
+    w(['a person who survives an accident or disaster', 'a warning given before an accident or disaster', 'a loss of money in an accident or disaster'])
+  ],
+  initiative: [
+    w(['a new law to punish drivers', 'a new report about school children', 'a new building near a school']),
+    w(['a new rule intended to limit a service', 'a new ticket intended to raise prices', 'a new complaint intended to stop a change'])
+  ],
+  campaign: [
+    w(['a single announcement made to the press', 'a long journey made by a group of cyclists', 'a race held between rival cycling clubs']),
+    w(['a formal complaint made to a court', 'a private meeting held with a council', 'a long delay caused by a council'])
+  ],
+  pothole: [
+    w(['a pool of water that forms beside a road', 'a bump that is built to slow traffic down', 'a trench that is dug to repair a pipe']),
+    w(['a small bridge over a road', 'a painted line along a road', 'a metal cover over a drain'])
+  ],
+  trauma: [
+    w(['a short feeling of excitement', 'a minor injury to the body', 'a sense of boredom after a long wait']),
+    w(['a serious delay caused by an unexpected event', 'a serious cost caused by an expensive event', 'a serious illness caused by an infection'])
+  ],
+  measures: [
+    w(['calculations made to find the width of a road', 'plans made to build a longer road', 'payments made to the workers on a road']),
+    w(['sizes that are given for barriers, lights and cameras', 'prices that are charged for barriers, lights and cameras', 'rules that forbid barriers, lights and cameras'])
+  ],
+  estimate: [
+    w(['to pay in advance', 'to announce publicly', 'to check carefully against a plan']),
+    w(['to list every car on a road exactly', 'to record the speed of cars on a road', 'to forbid cars from using a road'])
+  ],
+  regulation: [
+    w(['a polite request made by a driver', 'an advert printed on a bus', 'a record kept by a bus company']),
+    w(['a private agreement between two airlines', 'a fee charged to every passenger', 'a report written by an airline pilot'])
+  ],
+  operate: [
+    w(['to repair and test a vehicle', 'to buy and sell a vehicle', 'to wash and clean a vehicle']),
+    w(['to design a system correctly', 'to repair a system correctly', 'to sell a system correctly'])
   ]
 });
