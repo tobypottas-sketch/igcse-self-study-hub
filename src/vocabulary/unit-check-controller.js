@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '../supabase.js';
-import { unit1VocabularyCheck } from '../../content/vocabulary/checks/unit-01-check.js';
+import { unitCheckFor } from '../../content/vocabulary/checks/index.js';
 import { feedbackForAttempt, nextCheckState, scoreCheck, scoreSummary } from './unit-check-model.js';
 import { loadVocabularyUnitCheckAttempts, recordVocabularyUnitCheckAttempt } from './unit-check-data.js';
 import { renderUnitCheckCard, renderUnitCheckReview, renderUnitCheckScreen } from './unit-check-view.js?v=workspace-v5';
@@ -42,7 +42,7 @@ async function hydrateCard(unitNumber) {
   loadingUnits.add(unitNumber);
   try {
     const attempts = await loadAttempts(unitNumber);
-    paintCard(attempts);
+    if (visibleUnitNumber() === unitNumber) paintCard(attempts);
   } catch (error) {
     paintCard([], { unavailable:true });
     console.error('Unit Vocabulary Check scores could not be loaded', error);
@@ -52,13 +52,14 @@ async function hydrateCard(unitNumber) {
 }
 
 function ensureUnitCheckCard() {
-  if (!root || active || visibleUnitNumber() !== 1) return;
+  const unitNumber = visibleUnitNumber();
+  if (!root || active || !unitCheckFor(unitNumber)) return;
   if (root.querySelector('[data-unit-check-card]')) return;
   const pathways = root.querySelector('.vocab-pathways');
   if (!pathways) return;
   pathways.insertAdjacentHTML('afterend', renderUnitCheckCard({ loading:!preview }));
   if (preview) paintCard([]);
-  else void hydrateCard(1);
+  else void hydrateCard(unitNumber);
 }
 
 function paintActive({ focusHeading = true } = {}) {
@@ -75,15 +76,18 @@ function paintActive({ focusHeading = true } = {}) {
 }
 
 async function startCheck() {
-  const attempts = await loadAttempts(1);
+  const unitNumber = visibleUnitNumber();
+  const check = unitCheckFor(unitNumber);
+  if (!check) return;
+  const attempts = await loadAttempts(unitNumber);
   const next = nextCheckState(attempts);
   if (next.locked) { paintCard(attempts); return; }
   unitSnapshot = root.innerHTML;
   active = {
-    unitNumber:1,
+    unitNumber,
     attemptNumber:next.attemptNumber,
     formId:next.formId,
-    form:unit1VocabularyCheck.forms[next.formId],
+    form:check.forms[next.formId],
     questionIndex:0,
     answers:{},
     saving:false,
@@ -130,20 +134,20 @@ async function submitCheck() {
   try {
     const client = await getSupabaseClient();
     const saved = await recordVocabularyUnitCheckAttempt(client, {
-      unitNumber:1,
+      unitNumber:active.unitNumber,
       formId:active.formId,
       attemptNumber:active.attemptNumber,
       score:scored.score,
       maxScore:scored.maxScore
     });
-    const attempts = [...(attemptsCache.get(1) ?? []).filter(row => Number(row.attempt_number) !== active.attemptNumber), saved]
+    const attempts = [...(attemptsCache.get(active.unitNumber) ?? []).filter(row => Number(row.attempt_number) !== active.attemptNumber), saved]
       .sort((a,b) => Number(a.attempt_number) - Number(b.attempt_number));
-    attemptsCache.set(1, attempts);
+    attemptsCache.set(active.unitNumber, attempts);
     active.saving = false;
     finishSavedAttempt(scored, attempts);
   } catch (error) {
     try {
-      const attempts = await loadAttempts(1, { force:true });
+      const attempts = await loadAttempts(active.unitNumber, { force:true });
       if (attempts.some(row => Number(row.attempt_number) === active.attemptNumber && row.form_id === active.formId)) {
         active.saving = false;
         finishSavedAttempt(scored, attempts);
@@ -159,7 +163,7 @@ async function submitCheck() {
 
 function backToUnit() {
   if (!root || !active) return;
-  const attempts = attemptsCache.get(1) ?? [];
+  const attempts = attemptsCache.get(active.unitNumber) ?? [];
   active = null;
   root.innerHTML = unitSnapshot ?? '';
   unitSnapshot = null;
