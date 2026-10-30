@@ -2,7 +2,7 @@
 // Same record shape as unit-01-word-family-expansion.js. Each sentence has one gap that exactly one form of the family completes, and the
 // gap never opens the sentence. "device" and "current affairs" have no family, so they have no items (see unit-02-word-families.js).
 const unitNumber = 2;
-const status = 'draft';
+const status = 'approved';
 function family(id, vocabularyId, name, sourceText, acceptedAnswer) {
   return {
     activityContentId:`u2_writing_word_family_${id}`, unitNumber, contentType:'writing_set', status,

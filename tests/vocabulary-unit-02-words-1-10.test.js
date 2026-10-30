@@ -1,9 +1,9 @@
 // Unit 2 (Digital Life) · words 1–10 authored. Guards the contract with the real readiness evaluator and builders, so a content change that
-// breaks a pathway for these ten words fails here. Words 11–50 have their own test files; all 50 are authored and the unit stays an unreleased draft.
+// breaks a pathway for these ten words fails here. Words 11–50 have their own test files; all 50 are authored; the source unit is approved and releases/unit-02.js promotes it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import unit2 from '../content/vocabulary/units/unit-02-draft.js';
+import unit2 from '../content/vocabulary/units/unit-02.js';
 import { validateUnit } from '../content/vocabulary/schema.js';
 import { evaluateUnitReadiness } from '../src/vocabulary/pathway-readiness.js';
 import { releasePlannerContent } from '../content/vocabulary/readiness-report.js';
@@ -15,10 +15,10 @@ const readiness = evaluateUnitReadiness({ content: releasePlannerContent(unit2) 
 const first = unit2.items.slice(0, 10);
 const failed = (pathwayId, occurrenceId) => STAGES.filter(stage => (readiness.pathways[pathwayId].stageFailures[stage] ?? []).some(f => f.occurrenceId === occurrenceId));
 
-test('the first ten Unit 2 words are the agreed targets, and the unit is still an unreleased draft', () => {
+test('the first ten Unit 2 words are the agreed targets, and the source unit is approved (the live release is releases/unit-02.js)', () => {
   assert.deepEqual(first.map(item => item.term), TERMS);
-  assert.equal(unit2.status, 'draft');
-  assert.ok(!fs.existsSync(new URL('../content/vocabulary/releases/unit-02.js', import.meta.url)), 'Unit 2 must not be released yet');
+  assert.equal(unit2.status, 'approved');
+  assert.ok(fs.existsSync(new URL('../content/vocabulary/releases/unit-02.js', import.meta.url)), 'Unit 2 release file must exist');
 });
 
 test('every pathway stage is buildable for every word 1–10, except Word Families for the two words with no family', () => {

@@ -292,7 +292,7 @@ test('held back: the remainder is counted, never padded, never in a Set, never i
   assert.deepEqual([...sets.heldBack], ids(47).slice(40), 'held back words are the tail, in authored order');
 });
 test('held back: Unit 1 current membership holds exactly the whole Sets of the LIVE pathways (meaning 40, context 40, word_families 20, precision 50, spelling 50)', () => {
-  const rows = membershipRows(); const seeded = {};
+  const rows = membershipRows().filter(r => r.unit === 1); const seeded = {};
   for (const r of rows) (seeded[r.pathway] ??= new Set()).add(r.occurrenceId);
   assert.deepEqual(Object.fromEntries(Object.entries(seeded).map(([k, v]) => [k, v.size])), { meaning: 40, context: 40, word_families: 20, precision_use: 50, spelling_recall: 50 });
 });
