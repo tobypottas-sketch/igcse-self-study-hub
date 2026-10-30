@@ -1,4 +1,4 @@
-// Unit 5 · Meaning · Match (Recognise) — authored WRONG meanings, words 1–30. Same contract as unit-04-meaning-match.js: each set of three is
+// Unit 5 · Meaning · Match (Recognise) — authored WRONG meanings, words 1–40. Same contract as unit-04-meaning-match.js: each set of three is
 // the same part of speech as the answer (acceptedParaphrases[0]), comparable in length, and plausible without being a synonym.
 export default {
   'aerial tourism': ['sightseeing from a coach', 'holidays on a mountain railway', 'tours of underground caves'],
@@ -30,5 +30,15 @@ export default {
   licence: ['printed list of rules for visitors', 'receipt showing that money was paid', 'letter thanking a customer'],
   offer: ['extra charge for luggage', 'refund for a cancelled trip', 'change in flight times'],
   'guided tour': ['unplanned stroll', 'independent trip', 'classroom lesson'],
-  'travel assistant': ['employee who cleans rooms in a hotel', 'worker who drives visitors around a city', 'official who checks passports at a border']
+  'travel assistant': ['employee who cleans rooms in a hotel', 'worker who drives visitors around a city', 'official who checks passports at a border'],
+  'tourism industry': ['factories that make goods for export', 'farms that grow food for local markets', 'schools that train young people for jobs'],
+  exploring: ['packing bags for a long trip', 'buying gifts from market stalls', 'waiting for a late train'],
+  observation: ['quick guessing', 'careless counting', 'heavy lifting'],
+  relaxation: ['effort and preparation for exams', 'noise and excitement at a festival', 'speed and competition on a track'],
+  'adventurous activities': ['quiet things to do that need no effort', 'peaceful trips that follow the same route', 'gentle lessons that are given indoors'],
+  memorable: ['hard to understand', 'easy to forget', 'difficult to afford'],
+  recommendation: ['complaint about poor service', 'information about opening times', 'instructions for using a machine'],
+  reservation: ['final payment', 'spare ticket', 'late arrival'],
+  destination: ['train timetable', 'travel document', 'luggage label'],
+  availability: ['how popular rooms are with guests', 'how much rooms cost in winter', 'how large rooms are for families']
 };

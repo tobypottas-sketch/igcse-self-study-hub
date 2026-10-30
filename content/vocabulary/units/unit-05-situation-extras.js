@@ -1,4 +1,4 @@
-// Unit 5 · additional authored WRONG situations for "Which situation fits?", WORDS 1–30 ONLY. Same purpose as unit-04-situation-extras.js:
+// Unit 5 · additional authored WRONG situations for "Which situation fits?", WORDS 1–40 ONLY. Same purpose as unit-04-situation-extras.js:
 // the schema needs at least four distinct, target-free situations. Each word gets three more plausible, clearly wrong situations of mixed length.
 // None of them shows the word, and none could also illustrate it.
 export default Object.freeze({
@@ -151,5 +151,55 @@ export default Object.freeze({
     'My aunt kept her holiday photographs in a thick album beside the television.',
     'The village is quiet in winter, when most of the cafés and shops are closed.',
     'A friendly stranger carried the buggy up the steps of the metro station.'
+  ],
+  'tourism industry': [
+    'The local council has repaired the roads and replaced the street lights in the town centre.',
+    'Students in the school choir rehearsed for the winter concert twice a week.',
+    'The fishing boats returned with their nets full of sardines.'
+  ],
+  exploring: [
+    'The conference delegates sat in rows and listened to a talk about marketing.',
+    'My grandfather read the newspaper and drank coffee on the balcony all morning.',
+    'The mechanic replaced the brake pads and washed the car.'
+  ],
+  observation: [
+    'The band performed on the open stage while the audience danced.',
+    'He signed the receipt and put his card back in his wallet.',
+    'Heavy luggage was loaded onto the trolley and wheeled to the lift.'
+  ],
+  relaxation: [
+    'The airline staff worked all night to find seats for hundreds of delayed passengers.',
+    'The students argued about which route to take and ran out of time to see the museum.',
+    'Heavy traffic made the drivers shout and sound their horns in the narrow street.'
+  ],
+  'adventurous activities': [
+    'A museum curator explained the history of the clock to a small group.',
+    'The coach followed the main road through the valley and stopped at three villages.',
+    'They played cards in the lounge while the rain fell outside.'
+  ],
+  memorable: [
+    'The film was so dull that half the audience fell asleep before the end.',
+    'The room was clean but ordinary, with plain white walls and no view.',
+    'Most visitors walked past the small exhibit without stopping to read the sign.'
+  ],
+  recommendation: [
+    'A thick fog covered the harbour and delayed the first ferry of the morning.',
+    'Two families shared a table in the crowded café and talked about football.',
+    'The pharmacist wrapped the sunscreen and put it into a paper bag.'
+  ],
+  reservation: [
+    'The singer waved to the crowd and the band began their second song.',
+    'It took nearly an hour to push the broken-down coach to the side of the road.',
+    'The local newspaper published photographs of the winning team.'
+  ],
+  destination: [
+    'The photographer waited an hour for the light to change over the lake.',
+    'A group of schoolchildren sang as the coach climbed the winding road.',
+    'The ticket machine was out of order, so passengers queued at the office window.'
+  ],
+  availability: [
+    'The old tram climbs the steep hill and stops outside the museum.',
+    'Her passport photograph made her laugh because her hair looked so strange.',
+    'Fresh snow had covered the car park by the time the skiers finished their lunch.'
   ]
 });

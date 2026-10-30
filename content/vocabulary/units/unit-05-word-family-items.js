@@ -1,6 +1,6 @@
-// Unit 5 Word Families items (writing_set, taskType 'word_family'), WORDS 1–30 ONLY: three items for each word that has a genuine family.
+// Unit 5 Word Families items (writing_set, taskType 'word_family'), WORDS 1–40 ONLY: three items for each word that has a genuine family.
 // Same record shape as unit-04-word-family-items.js. Each sentence has one gap that exactly one form of the family completes, and the gap never
-// opens the sentence. only snorkelling, attractions, adventurous, spectacular, popular and preservation have a genuine family, so the other twenty-four words have no items
+// opens the sentence. only snorkelling, attractions, adventurous, spectacular, popular, preservation, exploring, observation, relaxation, recommendation, reservation and availability have a genuine family, so the other twenty-eight words have no items
 // (see unit-05-word-families.js).
 const unitNumber = 5;
 const status = 'approved';
@@ -29,5 +29,23 @@ export default [
   family('popular_c', 'vocab_popular', 'popular', 'Because the entry fee was so high, the new theme park was ____ with local families.', 'unpopular'),
   family('preservation_a', 'vocab_preservation', 'preservation', 'Volunteers in the village raise money to ____ the harbour walls and the old lighthouse.', 'preserve'),
   family('preservation_b', 'vocab_preservation', 'preservation', 'The museum’s main aim is the ____ of rare manuscripts from fire and damp.', 'preservation'),
-  family('preservation_c', 'vocab_preservation', 'preservation', 'Tourists admire the perfectly ____ remains of a Roman villa near the beach.', 'preserved')
+  family('preservation_c', 'vocab_preservation', 'preservation', 'Tourists admire the perfectly ____ remains of a Roman villa near the beach.', 'preserved'),
+  family('exploring_a', 'vocab_exploring', 'exploring', 'Guests are welcome to ____ the surrounding hills on foot or by bicycle.', 'explore'),
+  family('exploring_b', 'vocab_exploring', 'exploring', 'In the nineteenth century, an ____ from Scotland travelled up the river and drew the first map of the region.', 'explorer'),
+  family('exploring_c', 'vocab_exploring', 'exploring', 'Scientific ____ of the deep ocean has revealed thousands of new species.', 'exploration'),
+  family('observation_a', 'vocab_observation', 'observation', 'Rangers asked the visitors to ____ the seals quietly from the platform.', 'observe'),
+  family('observation_b', 'vocab_observation', 'observation', 'The scientists’ conclusions were based on weeks of careful ____ of the birds.', 'observation'),
+  family('observation_c', 'vocab_observation', 'observation', 'An experienced ____ sat in the hide and wrote down every bird that landed on the lake.', 'observer'),
+  family('relaxation_a', 'vocab_relaxation', 'relaxation', 'After the exams, the students needed a week of complete ____ with no homework at all.', 'relaxation'),
+  family('relaxation_b', 'vocab_relaxation', 'relaxation', 'The therapist taught the guests how to ____ their shoulders and breathe slowly.', 'relax'),
+  family('relaxation_c', 'vocab_relaxation', 'relaxation', 'After a long walk, a hot bath is a very ____ way to end the day.', 'relaxing'),
+  family('recommendation_a', 'vocab_recommendation_5', 'recommendation', 'Could you ____ a quiet place to eat near the cathedral?', 'recommend'),
+  family('recommendation_b', 'vocab_recommendation_5', 'recommendation', 'The guidebook gives a clear ____ for every hotel it lists, from budget to luxury.', 'recommendation'),
+  family('recommendation_c', 'vocab_recommendation_5', 'recommendation', 'We stayed at a highly ____ guesthouse run by a retired couple.', 'recommended'),
+  family('reservation_a', 'vocab_reservation', 'reservation', 'It is wise to ____ your seats on the ferry well in advance during the summer holidays.', 'reserve'),
+  family('reservation_b', 'vocab_reservation', 'reservation', 'Please confirm your ____ by email at least a week before your arrival.', 'reservation'),
+  family('reservation_c', 'vocab_reservation', 'reservation', 'The front rows of the theatre are ____ for guests with young children.', 'reserved'),
+  family('availability_a', 'vocab_availability_5', 'availability', 'Because of the festival, ____ of tents at the campsite is very limited.', 'availability'),
+  family('availability_b', 'vocab_availability_5', 'availability', 'Is a double room still ____ for the last week of August?', 'available'),
+  family('availability_c', 'vocab_availability_5', 'availability', 'The guide said that the cave tour was ____ today because of flooding.', 'unavailable')
 ];

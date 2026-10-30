@@ -1,4 +1,4 @@
-// Unit 5 · Meaning · Apply and Mastery — authored wrong meanings, WORDS 1–30 ONLY. Same contract as unit-04-meaning-mastery.js:
+// Unit 5 · Meaning · Apply and Mastery — authored wrong meanings, WORDS 1–40 ONLY. Same contract as unit-04-meaning-mastery.js:
 // two records per word in the order of the word's two Mastery contexts; exactly three authored WRONG glosses, same grammar and similar length
 // as the correct gloss, plausible in general, wrong in this sentence.
 const w = (wrongMeanings, extra = {}) => ({ wrongMeanings, ...extra });
@@ -123,5 +123,45 @@ export default Object.freeze({
   'travel assistant': [
     w(['a pilot whose job is to fly passengers to their destinations', 'a waiter whose job is to bring food to hotel guests', 'a driver whose job is to take visitors to the airport']),
     w(['a worker who cleans the rooms of holiday guests', 'a worker who cooks meals for holiday guests', 'a worker who guards the entrance of a holiday resort'])
+  ],
+  'tourism industry': [
+    w(['the factories and workshops that make goods for local people', 'the schools and colleges that train students for their careers', 'the farms and markets that supply food to the whole country']),
+    w(['the banks and offices that manage money for local companies', 'the farms and fisheries that provide food for the island', 'the schools and hospitals that serve the local community'])
+  ],
+  exploring: [
+    w(['staying in one place to rest and recover from a journey', 'packing equipment in preparation for a long walk', 'waiting for a guide to arrive at a meeting point']),
+    w(['taking photographs of famous places for a magazine', 'buying tickets for places that tourists want to visit', 'learning the history of a place from a book'])
+  ],
+  observation: [
+    w(['the act of taking photographs of something for a newspaper', 'the act of counting something to find out how many there are', 'the act of guarding something from people who might harm it']),
+    w(['the careful planning of people or events to avoid problems', 'the careful selling of things to people who visit events', 'the careful counting of money paid by people at events'])
+  ],
+  relaxation: [
+    w(['the state of being busy and excited, with many plans', 'the state of feeling lost and alone in a strange place', 'the state of being tired and cross after a long journey']),
+    w(['exercise and activity that keep the body strong', 'learning and study that prepare people for exams', 'adventure and risk that make the heart beat faster'])
+  ],
+  'adventurous activities': [
+    w(['quiet things to do that need no effort or skill', 'things to do that take place only in a classroom', 'things to do that cost nothing and last all day']),
+    w(['sports and pastimes that are calm and completely safe', 'games and lessons that are enjoyed mainly by young children', 'trips and visits that are arranged by a travel company'])
+  ],
+  memorable: [
+    w(['so cheap that you pay almost nothing for it', 'so crowded that you cannot enjoy it at all', 'so long that you become tired of it']),
+    w(['boring enough to be forgotten within a few days', 'expensive enough to be paid for in advance', 'quiet enough to be enjoyed without any noise'])
+  ],
+  recommendation: [
+    w(['a complaint from someone with experience that something is poor and not worth choosing', 'an order from someone with authority that something is required and must be chosen', 'a payment from someone with money that something is needed and must be bought']),
+    w(['an advertisement from a company that says something is on sale', 'a warning from a guide who says that something is dangerous', 'a bill from a hotel that says something is unpaid'])
+  ],
+  reservation: [
+    w(['a request to change the menu for a large group', 'a payment made to a restaurant after a meal', 'a rule about the clothes that diners may wear']),
+    w(['a room or place that has been cleaned for the next guest', 'a room or place that has been decorated for a special event', 'a room or place that has been left empty after an accident'])
+  ],
+  destination: [
+    w(['the road that someone is travelling along', 'the time that someone is spending on a trip', 'the people that someone is travelling with']),
+    w(['a plan that people make for a holiday', 'a company that people pay for a holiday', 'a price that people agree for a holiday'])
+  ],
+  availability: [
+    w(['how many people want to travel in a particular season', 'how much money is needed to pay for a place', 'how far a place is from the main road']),
+    w(['how popular a region is with visitors from abroad', 'how much a booking costs in the busiest month', 'how well a region is known to local people'])
   ]
 });

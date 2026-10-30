@@ -1,8 +1,8 @@
-// Unit 5 · Paraphrasing content (phrase_set and idea_set), WORDS 1–30 ONLY. Same record shapes and contract as unit-04-activities.js:
+// Unit 5 · Paraphrasing content (phrase_set and idea_set), WORDS 1–40 ONLY. Same record shapes and contract as unit-04-activities.js:
 //   phrase_set : originalPhrase (plain wording) -> equivalentPhrase (contains the target), acceptedVariants, chunks, commonMeaningDistortions
 //   idea_set   : originalIdea (contains the target) with accurate paraphrases that do NOT contain it, a meaning invariant, and three
 //                meaning-changing distractors each tagged with the misconception it represents.
-// Every record is linked to exactly one Unit 5 word. Words 31–50 are not authored yet.
+// Every record is linked to exactly one Unit 5 word. Words 41–50 are not authored yet.
 const status = 'approved';
 const unitNumber = 5;
 
@@ -62,7 +62,17 @@ const phraseSets = [
   phrase('licence_fish', 'official permission to fish in the river', 'a licence to fish in the river', ['vocab_licence'], { chunks:['a licence', 'to fish in the river'], distortions:['a rule against fishing in the river', 'a lesson on fishing in the river', 'a fee for crossing the river'] }),
   phrase('offer_city_breaks', 'a cut-price deal on city breaks', 'a special offer on city breaks', ['vocab_offer'], { acceptedVariants:['a special offer for city breaks'], chunks:['a special offer', 'on city breaks'], distortions:['a delay on city breaks', 'a warning on city breaks', 'a complaint about city breaks'] }),
   phrase('guided_tour_old_town', 'a visit led by an expert around the old town', 'a guided tour around the old town', ['vocab_guided_tour'], { chunks:['a guided tour', 'around the old town'], distortions:['a map of the old town', 'a lecture about the old town', 'a race around the old town'] }),
-  phrase('travel_assistant_agency', 'an employee at the agency who helps customers book holidays', 'a travel assistant at the agency', ['vocab_travel_assistant'], { chunks:['a travel assistant', 'at the agency'], distortions:['a coach driver at the agency', 'a hotel receptionist at the agency', 'a pilot at the agency'] })
+  phrase('travel_assistant_agency', 'an employee at the agency who helps customers book holidays', 'a travel assistant at the agency', ['vocab_travel_assistant'], { chunks:['a travel assistant', 'at the agency'], distortions:['a coach driver at the agency', 'a hotel receptionist at the agency', 'a pilot at the agency'] }),
+  phrase('tourism_industry_region', 'the businesses that serve holidaymakers in the region', 'the tourism industry in the region', ['vocab_tourism_industry'], { chunks:['the tourism industry', 'in the region'], distortions:['the farming industry in the region', 'the film industry in the region', 'the steel industry in the region'] }),
+  phrase('exploring_villages', 'travelling around to discover the mountain villages', 'exploring the mountain villages', ['vocab_exploring'], { chunks:['exploring', 'the mountain villages'], distortions:['cleaning the mountain villages', 'guarding the mountain villages', 'leaving the mountain villages'] }),
+  phrase('observation_birds', 'watching the birds closely from a hide', 'careful observation of the birds from a hide', ['vocab_observation'], { chunks:['careful observation', 'of the birds', 'from a hide'], distortions:['careful feeding of the birds from a hide', 'careful capture of the birds from a hide', 'careful counting of the birds from a hide'] }),
+  phrase('relaxation_retreat', 'a quiet place for rest and freedom from stress', 'a quiet place for relaxation', ['vocab_relaxation'], { chunks:['a quiet place', 'for relaxation'], distortions:['a quiet place for competition', 'a quiet place for repairs', 'a quiet place for exams'] }),
+  phrase('adventurous_activities_camp', 'exciting things to do that involve some risk at the summer camp', 'adventurous activities at the summer camp', ['vocab_adventurous_activities'], { chunks:['adventurous activities', 'at the summer camp'], distortions:['quiet pastimes at the summer camp', 'boring chores at the summer camp', 'indoor lessons at the summer camp'] }),
+  phrase('memorable_day', 'a special day that the whole class will remember', 'a memorable day for the whole class', ['vocab_memorable'], { chunks:['a memorable day', 'for the whole class'], distortions:['a difficult day for the whole class', 'a forgotten day for the whole class', 'a crowded day for the whole class'] }),
+  phrase('recommendation_stay', 'a friend’s advice on where to stay', 'a friend’s recommendation on where to stay', ['vocab_recommendation_5'], { chunks:['a friend’s recommendation', 'on where to stay'], distortions:['a friend’s complaint on where to stay', 'a friend’s warning on where to stay', 'a friend’s invoice on where to stay'] }),
+  phrase('reservation_table', 'an advance booking for a table at the restaurant', 'a reservation for a table at the restaurant', ['vocab_reservation'], { chunks:['a reservation', 'for a table', 'at the restaurant'], distortions:['a menu for a table at the restaurant', 'a receipt for a table at the restaurant', 'a review for a table at the restaurant'] }),
+  phrase('destination_summer', 'a place that families choose to visit in summer', 'a family destination in summer', ['vocab_destination_5'], { chunks:['a family destination', 'in summer'], distortions:['a family timetable in summer', 'a family payment in summer', 'a family complaint in summer'] }),
+  phrase('availability_flights', 'whether seats are free to book on summer flights', 'the availability of seats on summer flights', ['vocab_availability_5'], { chunks:['the availability', 'of seats', 'on summer flights'], distortions:['the popularity of seats on summer flights', 'the price of seats on summer flights', 'the design of seats on summer flights'] })
 ];
 
 const ideaSets = [
@@ -215,7 +225,57 @@ const ideaSets = [
     { text:'The travel assistant checked only one airline before finding a cheaper flight for the family.', misconceptionCategory:'quantity_change' },
     { text:'The travel assistant found a cheaper flight for the family before checking three airlines.', misconceptionCategory:'time_change' },
     { text:'The travel assistant checked three hotels before finding a cheaper room for the family.', misconceptionCategory:'meaning_confusion' }
-  ], ['vocab_travel_assistant'])
+  ], ['vocab_travel_assistant']),
+  idea('tourism_industry', 'The tourism industry has grown rapidly in the region over the past ten years.', ['Businesses that serve holidaymakers have expanded quickly in the region during the last decade.', 'The region’s holiday trade has increased fast over the past ten years.', 'Over the last ten years, firms providing for holidaymakers in the region have multiplied rapidly.'], 'degree', 'rapidly', [
+    { text:'The tourism industry has grown slowly in the region over the past ten years.', misconceptionCategory:'degree_change' },
+    { text:'The tourism industry has shrunk rapidly in the region over the past ten years.', misconceptionCategory:'polarity_change' },
+    { text:'The tourism industry will grow rapidly in the region over the next ten years.', misconceptionCategory:'time_change' }
+  ], ['vocab_tourism_industry']),
+  idea('exploring', 'Exploring the rainforest on foot lets visitors see animals that they would never notice from a boat.', ['Discovering the rainforest on foot allows visitors to see animals that they would never spot from a boat.', 'Walking through the rainforest to find out about it lets visitors see animals that boat passengers would never notice.', 'Visitors who travel around the rainforest on foot can see animals that they would miss entirely from a boat.'], 'comparison', 'on foot ... from a boat', [
+    { text:'Exploring the rainforest by boat lets visitors see animals that they would never notice on foot.', misconceptionCategory:'comparison_change' },
+    { text:'Exploring the rainforest on foot stops visitors from seeing animals that they would notice from a boat.', misconceptionCategory:'polarity_change' },
+    { text:'Exploring the rainforest on foot lets visitors see animals that they would never notice from a boat, but only in the dry season.', misconceptionCategory:'added_information' }
+  ], ['vocab_exploring']),
+  idea('observation', 'Careful observation of the animals showed that they feed mainly at night.', ['Watching the animals closely revealed that they eat mostly after dark.', 'Close attention to the animals demonstrated that they mainly feed during the night.', 'Researchers who watched the animals carefully discovered that most of their feeding happens at night.'], 'cause_effect', 'showed that', [
+    { text:'Careful observation of the animals showed that they feed mainly in the morning.', misconceptionCategory:'time_change' },
+    { text:'Careful observation of the animals showed that they feed only occasionally at night.', misconceptionCategory:'quantity_change' },
+    { text:'Careful observation of the animals showed that they sleep mainly at night.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_observation']),
+  idea('relaxation', 'The spa is designed to provide complete relaxation for tired business travellers.', ['The spa is planned to give tired business travellers total rest and freedom from stress.', 'The spa is built so that worn-out business travellers can rest completely and forget their stress.', 'The spa has been created to give exhausted business travellers a complete rest from stress.'], 'degree', 'complete', [
+    { text:'The spa is designed to provide some relaxation for tired business travellers.', misconceptionCategory:'degree_change' },
+    { text:'The spa is not designed to provide complete relaxation for tired business travellers.', misconceptionCategory:'polarity_change' },
+    { text:'The spa is designed to provide complete training for tired business travellers.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_relaxation']),
+  idea('adventurous_activities', 'Adventurous activities are becoming more popular with young tourists than sightseeing.', ['Exciting, risky pastimes are increasingly preferred by young travellers to sightseeing.', 'Young holidaymakers now like thrilling outdoor pursuits better than sightseeing.', 'More and more young travellers choose challenging sports over sightseeing.'], 'comparison', 'more popular ... than sightseeing', [
+    { text:'Sightseeing is becoming more popular with young tourists than adventurous activities.', misconceptionCategory:'comparison_change' },
+    { text:'Adventurous activities are becoming slightly more popular with young tourists than sightseeing.', misconceptionCategory:'degree_change' },
+    { text:'Adventurous activities were once more popular with young tourists than sightseeing.', misconceptionCategory:'time_change' }
+  ], ['vocab_adventurous_activities']),
+  idea('memorable', 'The boat trip was so memorable that the children talked about it for weeks.', ['The boat trip was so special that the children kept talking about it for weeks.', 'The children spoke about the boat trip for weeks because it was worth remembering.', 'The children kept discussing the boat trip for weeks, since it was such a special experience.'], 'cause_effect', 'so ... that', [
+    { text:'The boat trip was so memorable that the children forgot about it for weeks.', misconceptionCategory:'polarity_change' },
+    { text:'The boat trip was so memorable that the children talked about it for days.', misconceptionCategory:'time_change' },
+    { text:'The boat trip was so noisy that the children talked about it for weeks.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_memorable']),
+  idea('recommendation', 'A personal recommendation from a friend influences holiday choices more than advertisements do.', ['Advice from a friend affects where people go on holiday more strongly than advertising does.', 'Holiday decisions are shaped more by a friend’s suggestion than by advertisements.', 'People are swayed by a friend’s suggestion about their holiday more than by adverts.'], 'comparison', 'more than advertisements', [
+    { text:'Advertisements influence holiday choices more than a personal recommendation from a friend does.', misconceptionCategory:'comparison_change' },
+    { text:'A personal recommendation from a friend influences holiday choices only a little.', misconceptionCategory:'degree_change' },
+    { text:'A personal complaint from a friend influences holiday choices more than advertisements do.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_recommendation_5']),
+  idea('reservation', 'You must make a reservation at least two days in advance, or the restaurant cannot guarantee a table.', ['A table cannot be guaranteed unless you book at least two days beforehand.', 'Unless you book a table at least forty-eight hours ahead, the restaurant cannot promise you one.', 'To be sure of a table, you need to book no later than two days before.'], 'time', 'at least two days in advance', [
+    { text:'You must make a reservation at least two weeks in advance, or the restaurant cannot guarantee a table.', misconceptionCategory:'time_change' },
+    { text:'You need not make a reservation in advance, because the restaurant can always guarantee a table.', misconceptionCategory:'polarity_change' },
+    { text:'You must make a reservation, or the restaurant cannot guarantee a table.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_reservation']),
+  idea('destination', 'The island has become the favourite destination of British families over the last five years.', ['British families have increasingly chosen the island as their preferred place to visit during the past five years.', 'During the last five years, the island has turned into the place that British families like best to visit.', 'Over the past five years, the island has grown into the holiday spot that British families prefer most.'], 'time', 'over the last five years', [
+    { text:'The island has become the favourite destination of British families over the last fifteen years.', misconceptionCategory:'time_change' },
+    { text:'The island has stopped being the favourite destination of British families over the last five years.', misconceptionCategory:'polarity_change' },
+    { text:'The island has become the favourite destination of German families over the last five years.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_destination_5']),
+  idea('availability', 'Availability of rooms is very limited during the festival, so you should book early.', ['There are hardly any rooms free to book during the festival, so you should arrange yours early.', 'Rooms are scarce during the festival, which means that you ought to book well in advance.', 'Since so few rooms can be booked during the festival, early booking is advisable.'], 'cause_effect', 'so you should book early', [
+    { text:'Availability of rooms is slightly limited during the festival, so you should book early.', misconceptionCategory:'degree_change' },
+    { text:'Availability of rooms is excellent during the festival, so you need not book early.', misconceptionCategory:'polarity_change' },
+    { text:'Availability of rooms is very limited during the festival because you booked early.', misconceptionCategory:'cause_effect_change' }
+  ], ['vocab_availability_5'])
 ];
 
 export default [...phraseSets, ...ideaSets];

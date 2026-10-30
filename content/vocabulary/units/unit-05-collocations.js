@@ -1,4 +1,4 @@
-// Unit 5 collocations, WORDS 1–30 ONLY: natural, frequent combinations for each target (authored; same shape as unit-04-collocations.js).
+// Unit 5 collocations, WORDS 1–40 ONLY: natural, frequent combinations for each target (authored; same shape as unit-04-collocations.js).
 export default Object.freeze({
   'aerial tourism': ['promote aerial tourism', 'aerial tourism industry', 'a form of aerial tourism'],
   'underwater photography': ['underwater photography course', 'professional underwater photography', 'specialise in underwater photography'],
@@ -29,5 +29,15 @@ export default Object.freeze({
   licence: ['driving licence', 'fishing licence', 'apply for a licence'],
   offer: ['special offer', 'limited offer', 'take advantage of an offer'],
   'guided tour': ['join a guided tour', 'book a guided tour', 'guided tour of the city'],
-  'travel assistant': ['work as a travel assistant', 'a helpful travel assistant', 'junior travel assistant']
+  'travel assistant': ['work as a travel assistant', 'a helpful travel assistant', 'junior travel assistant'],
+  'tourism industry': ['work in the tourism industry', 'support the tourism industry', 'a thriving tourism industry'],
+  exploring: ['go exploring', 'spend time exploring', 'exploring on foot'],
+  observation: ['careful observation', 'close observation', 'observation skills'],
+  relaxation: ['time for relaxation', 'relaxation techniques', 'a place for relaxation'],
+  'adventurous activities': ['try adventurous activities', 'a range of adventurous activities', 'enjoy adventurous activities'],
+  memorable: ['memorable experience', 'memorable holiday', 'make it memorable'],
+  recommendation: ['personal recommendation', 'follow a recommendation', 'on the recommendation of'],
+  reservation: ['make a reservation', 'cancel a reservation', 'a table reservation'],
+  destination: ['holiday destination', 'final destination', 'tourist destination'],
+  availability: ['room availability', 'check availability', 'limited availability']
 });
