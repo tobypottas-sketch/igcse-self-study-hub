@@ -99,3 +99,30 @@ input:focus{box-shadow:none;border-color:var(--c-blue)}
 @media(max-width:620px){.activity-strip{gap:2px}.activity-strip--head{font-size:.58rem}.activity-strip__cell .vocab-pill{padding:2px 4px;font-size:.62rem}}
 @media(max-width:900px){.activity-detail-grid{grid-template-columns:1fr}}
 .vocab-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Final polish: alignment, separation, control group, quieter active tab. */
+.activity-strip{gap:6px;grid-template-columns:repeat(6,minmax(58px,1fr));min-width:372px}
+.activity-strip--head{font-size:.72rem;color:var(--c-ink,var(--hub-navy));opacity:.72;letter-spacing:.01em}
+.activity-table th:nth-child(5){padding-block:9px}
+.activity-table tbody tr:nth-child(even){background:color-mix(in srgb,var(--c-teal-soft) 28%,transparent)}
+.activity-table tbody tr:hover{background:var(--c-teal-soft)}
+.activity-table td{border-bottom:1px solid var(--c-teal-soft)}
+.activity-table th:nth-child(6),.activity-table td:nth-child(6){text-align:center;width:1%;font-variant-numeric:tabular-nums}
+.activity-table td:nth-child(7){display:table-cell}
+.activity-table td:nth-child(7) .vocab-pill{display:inline-flex;align-items:center;height:22px;padding:0 10px;line-height:1;vertical-align:middle;margin-right:6px}
+.activity-table td:nth-child(7) .vocab-pill:last-child{margin-right:0}
+.admin-filters{gap:6px;min-width:min(100%,460px)}
+.admin-filters input,.admin-filters select{height:36px;padding:6px 10px;font-size:var(--fs-sm);border-radius:var(--r-sm)}
+.admin-tab{padding:8px 14px}
+.admin-tab[aria-current="page"]{background:var(--hub-teal);box-shadow:none}
+@media(max-width:1000px){
+.activity-table td:nth-child(3)[data-started="false"]::before{display:none}
+.activity-table td:nth-child(7){display:inline-flex;gap:6px}
+.activity-table td:nth-child(7) .vocab-pill{margin-right:0}
+.activity-table tbody tr:nth-child(even){background:transparent}
+.activity-table td:nth-child(6){text-align:left;width:auto}
+}
+@media(max-width:1000px){.activity-table td{border-bottom:0}.activity-table td.activity-progression[data-default="true"]{display:none}}
+@media(max-width:1000px){.activity-strip{min-width:0;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}}
+@media(max-width:620px){.activity-strip{gap:2px}}
+@media(max-width:620px){.activity-strip--head span{font-size:0}.activity-strip--head span::after{content:attr(data-short);font-size:.68rem}}
