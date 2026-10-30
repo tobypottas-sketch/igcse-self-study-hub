@@ -1,4 +1,4 @@
-// Unit 5 · Word Families — a SECOND authored example sentence for the two non-headword forms of each three-form family, WORDS 1–30.
+// Unit 5 · Word Families — a SECOND authored example sentence for the two non-headword forms of each three-form family, WORDS 1–40.
 // Same contract as unit-04-word-family-alternates.js: each sentence contains its form exactly once and never starts with it.
 export const unit5WordFamilyAlternates = Object.freeze({
   snorkelling: {
@@ -20,6 +20,22 @@ export const unit5WordFamilyAlternates = Object.freeze({
   preservation: {
     preserve: 'Strict rules on boat speed help to preserve the quiet lagoon for future visitors.',
     preserved: 'Visitors can see well-preserved mosaics that are nearly two thousand years old.'
+  },
+  observation: {
+    observe: 'Walkers are asked to observe the animals from a distance and never to feed them.',
+    observer: 'The expedition included an observer from the national park authority.'
+  },
+  recommendation: {
+    recommend: 'Local people recommend the fish soup at the harbour café.',
+    recommended: 'Book early if you want one of the recommended rooms on the top floor.'
+  },
+  reservation: {
+    reserve: 'Visitors should reserve their places on the glacier walk at least a week ahead.',
+    reserved: 'Please do not park in the reserved spaces outside the information centre.'
+  },
+  availability: {
+    available: 'Is a table for four available on Saturday evening?',
+    unavailable: 'Most morning trips were unavailable because the boat was being repaired.'
   },
   adventurous: {
     adventure: 'The school trip turned into a real adventure when the bus broke down in the mountains.',

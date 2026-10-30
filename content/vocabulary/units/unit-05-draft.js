@@ -1,4 +1,4 @@
-// UNIT 5 – HOLIDAYS: authoring draft (batches 1–3 = words 1–30). Source: 0511 key words UNIT 5 – HOLIDAYS (coursebook order). The full 50-word list is locked; words 31–50 are not authored yet.
+// UNIT 5 – HOLIDAYS: authoring draft (batches 1–4 = words 1–40). Source: 0511 key words UNIT 5 – HOLIDAYS (coursebook order). The full 50-word list is locked; words 41–50 are not authored yet.
 // Same architecture as unit-04.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-05-draft.js
 // A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-05.js only when all 50 words are final.
 import { buildCuratedUnit } from '../build-unit.js';
@@ -869,6 +869,295 @@ const entries = [
         { id:'2', answer:'travel assistant', wrong:['pilot', 'lifeguard', 'chef'] },
         { id:'3', answer:'travel assistant', wrong:['chef', 'lifeguard', 'pilot'] }
       ]
+    }),
+  e('tourism industry', 'noun',
+    'all the businesses and services that provide for people who travel for holidays, such as airlines, tour companies and restaurants',
+    ['businesses that serve holidaymakers', 'the business of looking after holidaymakers'],
+    ['the factories that make goods to sell in other countries', 'the study of old buildings and monuments in a country', 'the government offices that give passports to travellers'],
+    'The tourism industry employs one in ten workers in the country, from cleaners to pilots.',
+    'businesses that serve holidaymakers', 'The businesses that serve holidaymakers employ one in ten workers in the country, from cleaners to pilots.',
+    'the business of looking after holidaymakers', 'Many students hope to build a career in the business of looking after holidaymakers, perhaps as a tour guide.',
+    {
+      masteryContexts:[
+        { text:'Cheap flights and online booking helped the tourism industry to recover quickly after the storm.', meaning:'all the businesses and services that provide for people on holiday' },
+        { text:'In small island economies the tourism industry is often the biggest source of jobs, and it can disappear almost overnight if visitors stop coming.', meaning:'the businesses and services connected with people who travel for pleasure' }
+      ],
+      situationDistractors:[
+        'The village baker gets up at four o’clock every morning to make bread for the shop.',
+        'Farmers on the plain were waiting for rain to water their wheat fields.',
+        'The new factory produces thousands of bicycle frames every week.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Airlines, restaurants, coach firms and tour companies all belong to the tourism industry, which provides millions of jobs worldwide.', target:'tourism industry', grammarPattern:'' },
+        { id:'2', text:'When the borders closed, the tourism industry lost almost all of its customers, and thousands of guides and drivers lost their jobs.', target:'tourism industry', grammarPattern:'' },
+        { id:'3', text:'A degree in hospitality management can lead to a career in the tourism industry, perhaps as a hotel manager or a travel agent.', target:'tourism industry', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'tourism industry', wrong:['fishing industry', 'car industry', 'film industry'] },
+        { id:'2', answer:'tourism industry', wrong:['steel industry', 'farming industry', 'banking industry'] },
+        { id:'3', answer:'tourism industry', wrong:['mining industry', 'textile industry', 'publishing industry'] }
+      ]
+    }),
+  e('exploring', 'noun',
+    'the activity of travelling around a place or looking at it carefully in order to discover more about it',
+    ['discovering new places', 'finding out about a place by travelling around it'],
+    ['the activity of packing bags before a long trip', 'the activity of buying souvenirs in local markets', 'the activity of waiting for transport at a station'],
+    'For me, exploring is the best part of a holiday, because I love finding streets that are not in the guidebooks.',
+    'discovering new places', 'For me, discovering new places is the best part of a holiday, because I love finding streets that are not in the guidebooks.',
+    'finding out about a place by travelling around it', 'Part of the school trip is spent finding out about a place by travelling around it.',
+    {
+      teacherNote:'Topic-specific noun (gerund): the activity of travelling around a place to discover it. Related forms (explore, explorer, exploration) are the word family.',
+      masteryContexts:[
+        { text:'On the second day, the group left the camp and spent hours exploring the valley and its hidden waterfalls.', meaning:'travelling around a place to find out what it is like' },
+        { text:'The brochure promises plenty of time for exploring the ancient ruins at your own pace.', meaning:'walking and looking around a place to discover more about it' }
+      ],
+      situationDistractors:[
+        'The family stayed in their apartment all day and watched films because of the heavy rain.',
+        'The ticket inspector walked down the aisle and punched a hole in every ticket.',
+        'Customers waited in a long queue to pay for their groceries at the supermarket.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The best way to enjoy the old city is by exploring its narrow streets on foot, without a map.', target:'exploring', grammarPattern:'' },
+        { id:'2', text:'Children on the nature course spend their mornings exploring the forest and writing down what they find.', target:'exploring', grammarPattern:'' },
+        { id:'3', text:'After a week of exploring the islands by boat, the travellers knew every bay and village.', target:'exploring', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'exploring', wrong:['avoiding', 'cleaning', 'measuring'] },
+        { id:'2', answer:'exploring', wrong:['guarding', 'cutting', 'fencing'] },
+        { id:'3', answer:'exploring', wrong:['leaving', 'warning', 'cleaning'] }
+      ]
+    }),
+  e('observation', 'noun',
+    'the act of watching someone or something carefully in order to learn about it',
+    ['careful watching', 'close and patient watching'],
+    ['a written report on the weather in a region', 'a short talk given to a group of visitors', 'a form that visitors must complete at a border'],
+    'Several weeks of observation showed that the birds return to the same nests every spring.',
+    'careful watching', 'Several weeks of careful watching showed that the birds return to the same nests every spring.',
+    'close and patient watching', 'The expedition’s findings are based on close and patient watching of the glacier over three winters.',
+    {
+      masteryContexts:[
+        { text:'Whale watchers rely on observation, because the animals stay on the surface for only a few seconds at a time.', meaning:'the act of watching something carefully in order to learn about it' },
+        { text:'The students’ observation of the village market over three mornings showed which stalls sold most to visitors.', meaning:'the careful watching of people or events to learn something' }
+      ],
+      situationDistractors:[
+        'The children played football in the square until it got dark.',
+        'Passengers chatted loudly and ate snacks during the bus ride.',
+        'The chef added garlic and chilli to the sauce and stirred it slowly.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The researchers did not touch the nests; their findings were based entirely on observation from a hide.', target:'observation', grammarPattern:'' },
+        { id:'2', text:'Good guides know that careful observation of the weather is part of keeping visitors safe in the mountains.', target:'observation', grammarPattern:'' },
+        { id:'3', text:'During a nature trip, a notebook and binoculars are the most useful tools for observation.', target:'observation', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'observation', wrong:['interviews', 'experiments', 'questionnaires'] },
+        { id:'2', answer:'observation', wrong:['invention', 'decoration', 'punishment'] },
+        { id:'3', answer:'observation', wrong:['gardening', 'cooking', 'shopping'] }
+      ]
+    }),
+  e('relaxation', 'noun',
+    'the state of resting and feeling calm, free from worry or stress',
+    ['rest and freedom from stress', 'calm time without worry'],
+    ['physical exercise that keeps the body fit', 'a group activity that needs a lot of energy', 'a short period of work between two meetings'],
+    'Many people book a week at a quiet lakeside cabin in search of relaxation after a busy year at work.',
+    'rest and freedom from stress', 'Many people book a week at a quiet lakeside cabin in search of rest and freedom from stress after a busy year at work.',
+    'calm time without worry', 'The spa garden gives guests an hour of calm time without worry after a hard week.',
+    {
+      masteryContexts:[
+        { text:'After the hiking trip, the guests spent a day of complete relaxation, reading and sleeping in the garden of the farmhouse.', meaning:'the state of resting and feeling calm, without worry' },
+        { text:'Some travellers prefer adventure, but others choose a holiday that is all about relaxation, with massage, yoga and long, slow meals.', meaning:'rest and freedom from stress or hard work' }
+      ],
+      situationDistractors:[
+        'The tour leader hurried from room to room, handing out keys and answering twenty questions at once.',
+        'The kitchen staff rushed to prepare two hundred meals before the wedding party arrived.',
+        'The climbers tied their ropes and checked each other’s equipment before the steep ascent.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Teachers who need a break from their students often choose a holiday of relaxation, with no timetable and no alarm clock.', target:'relaxation', grammarPattern:'' },
+        { id:'2', text:'The riverside garden has hammocks, soft music and shady trees, so it is a perfect place for relaxation.', target:'relaxation', grammarPattern:'' },
+        { id:'3', text:'Doctors say that regular relaxation is as important for health as good food and enough sleep.', target:'relaxation', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'relaxation', wrong:['competition', 'training', 'examination'] },
+        { id:'2', answer:'relaxation', wrong:['construction', 'repair', 'navigation'] },
+        { id:'3', answer:'relaxation', wrong:['punishment', 'pollution', 'taxation'] }
+      ]
+    }),
+  e('adventurous activities', 'noun',
+    'exciting things to do that involve challenge and some risk, such as climbing or white-water rafting',
+    ['exciting things to do that involve some risk', 'thrilling outdoor pursuits'],
+    ['quiet pastimes that people do indoors in the evening', 'guided visits to museums and historic buildings', 'relaxing treatments such as massage and yoga'],
+    'The mountain resort is best known for its adventurous activities, including rock climbing, rafting and zip-lining.',
+    'exciting things to do that involve some risk', 'The mountain resort is best known for its exciting things to do that involve some risk, including rock climbing, rafting and zip-lining.',
+    'thrilling outdoor pursuits', 'The youth camp specialises in thrilling outdoor pursuits such as canoeing and abseiling.',
+    {
+      teacherNote:'The phrase names exciting things to do (plural noun phrase). It is not the adjective “adventurous” used for a person, which is taught earlier in the unit.',
+      masteryContexts:[
+        { text:'Teenagers on the summer programme can choose between sailing, abseiling and other adventurous activities.', meaning:'exciting things to do that involve challenge and some risk' },
+        { text:'Insurance for adventurous activities costs more, because accidents are more likely when people climb, jump or race down rivers.', meaning:'sports and pastimes that are exciting and a little dangerous' }
+      ],
+      situationDistractors:[
+        'Guests sat quietly in the library and read magazines in comfortable armchairs.',
+        'The class painted watercolours of the village church while sitting on folding stools.',
+        'Retired visitors strolled slowly along the flat promenade and stopped for tea.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The holiday camp organises adventurous activities such as rock climbing, canoeing and zip-lining for teenagers.', target:'adventurous activities', grammarPattern:'' },
+        { id:'2', text:'Parents should check the safety rules before their children join adventurous activities like white-water rafting.', target:'adventurous activities', grammarPattern:'' },
+        { id:'3', text:'Because of the danger, you must be over sixteen to take part in the adventurous activities at the outdoor centre.', target:'adventurous activities', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'adventurous activities', wrong:['cooking lessons', 'language classes', 'quiet games'] },
+        { id:'2', answer:'adventurous activities', wrong:['reading groups', 'art lessons', 'music clubs'] },
+        { id:'3', answer:'adventurous activities', wrong:['cookery classes', 'painting sessions', 'story hours'] }
+      ]
+    }),
+  e('memorable', 'adjective',
+    'special or unusual in a way that makes you remember it for a long time',
+    ['worth remembering', 'easy to remember because it is special'],
+    ['likely to be forgotten quickly', 'too expensive for most people', 'difficult to find without a guide'],
+    'Our trip to the volcano was memorable, so we still talk about it every year.',
+    'worth remembering', 'Our trip to the volcano was worth remembering, so we still talk about it every year.',
+    'easy to remember because it is special', 'Anything that is easy to remember because it is special deserves a place in your holiday diary.',
+    {
+      masteryContexts:[
+        { text:'The cooking lesson with a local family was the most memorable part of our week in Thailand.', meaning:'so special that you remember it for a long time' },
+        { text:'The guides made her birthday memorable by lighting a campfire and singing in three languages.', meaning:'special enough to be remembered for a long time' }
+      ],
+      situationDistractors:[
+        'The journey passed without anything unusual happening, and nobody could say afterwards what they had seen.',
+        'The meal was cold and plain, and the guests forgot it by the next morning.',
+        'Nothing special happened during the lecture, and most listeners left early.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Sleeping in a snow hole under the stars was the most memorable night of my life.', target:'memorable', grammarPattern:'' },
+        { id:'2', text:'The guide told such a funny story about the castle that the visit became memorable for every child in the group.', target:'memorable', grammarPattern:'' },
+        { id:'3', text:'Their wedding photographs show a memorable day, full of laughter, music and old friends.', target:'memorable', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'memorable', wrong:['crowded', 'expensive', 'predictable'] },
+        { id:'2', answer:'memorable', wrong:['expensive', 'unnecessary', 'dangerous'] },
+        { id:'3', answer:'memorable', wrong:['tiring', 'dull', 'quiet'] }
+      ]
+    }),
+  e('recommendation', 'noun',
+    'a suggestion, based on experience, that a place, service or choice is good and worth choosing',
+    ['advice about what to choose', 'a suggestion about the best choice'],
+    ['a poster that persuades people to visit a place', 'a complaint about poor service at a restaurant', 'a list of prices for rooms and meals'],
+    'Before booking the cruise, read the reviews and ask your friends for a recommendation.',
+    'advice about what to choose', 'Before booking the cruise, read the reviews and ask your friends for advice about what to choose.',
+    'a suggestion about the best choice', 'The woman at the information desk gave us a suggestion about the best choice for a rainy day.',
+    {
+      idKey:'recommendation_5',
+      teacherNote:'Unit 5 item (recommendation_5): advice from someone with experience that a place or service is worth choosing (not an advertisement). Unit 3 vocab_recommendation is a separate item that shares only the lexical spelling list.',
+      masteryContexts:[
+        { text:'Our host’s recommendation for a family-run café turned out to be the best meal of the trip.', meaning:'a suggestion from someone with experience that something is good and worth choosing' },
+        { text:'Online reviews are useful, but many travellers still prefer a personal recommendation from someone they know.', meaning:'advice from a person who says that something is worth choosing' }
+      ],
+      situationDistractors:[
+        'The receptionist asked guests to hand in their keys before they left the building.',
+        'The cyclist repaired a puncture at the side of the mountain road.',
+        'The museum closes at five on weekdays and at three on Sundays.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'If you are visiting Kyoto for the first time, ask the owner of your guesthouse for a recommendation about the best temples to see.', target:'recommendation', grammarPattern:'' },
+        { id:'2', text:'The restaurant was almost empty until a well-known critic wrote a positive recommendation of its seafood, and then every table was booked.', target:'recommendation', grammarPattern:'' },
+        { id:'3', text:'Many travellers trust the recommendation of a friend more than any advertisement in a magazine.', target:'recommendation', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'recommendation', wrong:['complaint', 'receipt', 'timetable'] },
+        { id:'2', answer:'recommendation', wrong:['photograph', 'menu', 'delivery'] },
+        { id:'3', answer:'recommendation', wrong:['punishment', 'payment', 'arrival'] }
+      ]
+    }),
+  e('reservation', 'noun',
+    'an arrangement to have a room, a table or a seat kept for you until you arrive',
+    ['advance booking', 'booking made before you arrive'],
+    ['a message that confirms that a payment has been received', 'a list of the rooms that are still empty', 'a card that opens the door of a room'],
+    'I made a reservation for a table for six at the mountain restaurant.',
+    'advance booking', 'I made an advance booking for a table for six at the mountain restaurant.',
+    'booking made before you arrive', 'A booking made before you arrive guarantees a bed on the busiest weekends.',
+    {
+      teacherNote:'Tourism/booking sense only: a place, room or table kept for you in advance. Not the “doubt” sense or a nature reserve.',
+      masteryContexts:[
+        { text:'Without a reservation, you may not find a table at the lakeside restaurant on a Saturday night.', meaning:'an arrangement to have a table kept for you' },
+        { text:'The family cancelled their reservation two days before the festival because the baby was ill.', meaning:'a room or place that has been kept for someone in advance' }
+      ],
+      situationDistractors:[
+        'The guide handed out maps and pointed to the best viewing platform.',
+        'The shop assistant gave the customer a receipt, and the customer put it in a pocket.',
+        'Walkers rested on the hillside and ate sandwiches in the sunshine.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'It is wise to make a reservation for the ferry in July, because every crossing is full in the school holidays.', target:'reservation', grammarPattern:'' },
+        { id:'2', text:'I rang the campsite to change the dates on my reservation, but the manager said that the weekend was already full.', target:'reservation', grammarPattern:'' },
+        { id:'3', text:'You can keep your reservation until six o’clock; after that, the restaurant gives the table to other customers.', target:'reservation', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'reservation', wrong:['complaint', 'donation', 'suggestion'] },
+        { id:'2', answer:'reservation', wrong:['tent', 'map', 'torch'] },
+        { id:'3', answer:'reservation', wrong:['umbrella', 'jacket', 'menu'] }
+      ]
+    }),
+  e('destination', 'noun',
+    'a place that people travel to for a holiday, a visit or a particular activity',
+    ['holiday spot', 'place you are travelling to'],
+    ['the long trip that leads to a place', 'the company that arranges a holiday', 'the date on which a holiday begins'],
+    'Many travel writers rank Costa Rica as the top destination for anyone who loves rainforests.',
+    'holiday spot', 'Many travel writers rank Costa Rica as the top holiday spot for anyone who loves rainforests.',
+    'place you are travelling to', 'Always check the weather in the place you are travelling to before you pack.',
+    {
+      idKey:'destination_5',
+      teacherNote:'Unit 5 item (destination_5): a place that people travel to for a holiday or a visit. Unit 4 vocab_destination is a separate item that shares only the lexical spelling list.',
+      masteryContexts:[
+        { text:'The ferry slowed as it approached the island, and the passengers gathered at the rail to see their destination at last.', meaning:'the place that someone is travelling to' },
+        { text:'Patagonia is a dream destination for walkers who want empty trails and enormous mountains.', meaning:'a place that people choose to visit for a holiday' }
+      ],
+      situationDistractors:[
+        'The driver stopped for petrol and checked the oil before continuing down the motorway.',
+        'The conductor announced that the train would be forty minutes late because of a signal failure.',
+        'Rain drummed on the tent all night, and nobody slept well.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Our holiday destination was decided in minutes, because everyone wanted to see the northern lights.', target:'destination', grammarPattern:'' },
+        { id:'2', text:'The tour guide asked the passengers to stay in their seats until the bus had reached its final destination.', target:'destination', grammarPattern:'' },
+        { id:'3', text:'Safety is the first thing many parents consider when choosing a family destination.', target:'destination', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'destination', wrong:['budget', 'insurance', 'timetable'] },
+        { id:'2', answer:'destination', wrong:['payment', 'speed', 'repair'] },
+        { id:'3', answer:'destination', wrong:['umbrella', 'sandwich', 'calendar'] }
+      ]
+    }),
+  e('availability', 'noun',
+    'whether rooms, tickets or places are free and can be booked',
+    ['whether rooms are free to book', 'how many seats or rooms are still free'],
+    ['the number of people who want to go to a place', 'the price of rooms during the busiest weeks', 'the distance from a campsite to the nearest village'],
+    'The booking website shows the availability of rooms for the next six months.',
+    'whether rooms are free to book', 'The booking website shows whether rooms are free to book for the next six months.',
+    'how many seats or rooms are still free', 'Please phone the office to find out how many seats or rooms are still free on the night boat.',
+    {
+      idKey:'availability_5',
+      teacherNote:'Unit 5 item (availability_5): whether rooms, tickets or places are free and can be booked. Unit 2 vocab_availability is a separate item that shares only the lexical spelling list.',
+      masteryContexts:[
+        { text:'Tickets for the boat trip are limited, so online availability changes every hour in summer.', meaning:'whether there are places or seats still free to book' },
+        { text:'The agent told us that availability was poor in August, because almost every campsite in the region was already full.', meaning:'how easy it is to find a free place that can be booked' }
+      ],
+      situationDistractors:[
+        'A volunteer collected the litter from the path and put it in large sacks.',
+        'The jazz club puts a small band on the stage every Thursday night.',
+        'The caretaker locked the gates at dusk and checked the windows.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Before you plan the rest of your trip, check the availability of seats on the sleeper train, because it is often fully booked.', target:'availability', grammarPattern:'' },
+        { id:'2', text:'Room availability is limited during the carnival, so many visitors stay in towns more than an hour away.', target:'availability', grammarPattern:'' },
+        { id:'3', text:'The website shows availability in real time, so you can see at once whether your dates are free.', target:'availability', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'availability', wrong:['comfort', 'price', 'design'] },
+        { id:'2', answer:'availability', wrong:['cleaning', 'temperature', 'decoration'] },
+        { id:'3', answer:'availability', wrong:['advertising', 'weather', 'payment'] }
+      ]
     })
 ];
 
@@ -911,9 +1200,13 @@ export default buildCuratedUnit({
   source:'0511 key words UNIT 5 – HOLIDAYS',
   entries:enrichedEntries,
   activities:[...unit5Activities, ...unit5PrecisionUse, ...unit5WordFamilyItems],
-  // breathtaking is also a Unit 4 target: Unit 5 keeps its own item (vocab_breathtaking_5) that reuses the reviewed misspellings of the shared spelling.
+  // breathtaking (Unit 4), recommendation (Unit 3), destination (Unit 4) and availability (Unit 2) are also earlier targets: Unit 5 keeps its own
+  // _5 item for each, which reuses the reviewed misspellings of the shared spelling without touching the earlier unit.
   lexicalSpelling:{
     ...LEXICAL_SPELLING_ERRORS,
-    vocab_breathtaking_5:LEXICAL_SPELLING_ERRORS.vocab_breathtaking
+    vocab_breathtaking_5:LEXICAL_SPELLING_ERRORS.vocab_breathtaking,
+    vocab_recommendation_5:LEXICAL_SPELLING_ERRORS.vocab_recommendation,
+    vocab_destination_5:LEXICAL_SPELLING_ERRORS.vocab_destination,
+    vocab_availability_5:LEXICAL_SPELLING_ERRORS.vocab_availability
   }
 });

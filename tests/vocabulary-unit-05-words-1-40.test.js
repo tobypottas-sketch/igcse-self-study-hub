@@ -1,4 +1,4 @@
-// Unit 5 (Holidays) · words 1–30 authored (batches 1–3, draft). Guards the contract with the real readiness evaluator and builders. Words 31–50 are not
+// Unit 5 (Holidays) · words 1–40 authored (batches 1–4, draft). Guards the contract with the real readiness evaluator and builders. Words 41–50 are not
 // authored yet, so the unit stays a draft: no releases/unit-05.js, no lock, no SQL, no artwork.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -13,24 +13,24 @@ import { validateUnit } from '../content/vocabulary/schema.js';
 import { evaluateUnitReadiness } from '../src/vocabulary/pathway-readiness.js';
 import { releasePlannerContent } from '../content/vocabulary/readiness-report.js';
 
-const TERMS = ['aerial tourism', 'underwater photography', 'documentary', 'snorkelling', 'expedition', 'yacht', 'scenery', 'attractions', 'accommodation', 'adventurous', 'breathtaking', 'spectacular', 'dramatic', 'stunning', 'popular', 'static', 'ground-level', 'angle of view', 'ecological habitats', 'marine world', 'coral', 'spellbound', 'wildlife', 'preservation', 'environmental impact', 'journey', 'licence', 'offer', 'guided tour', 'travel assistant'];
-const FAMILIES = ['snorkelling', 'attractions', 'adventurous', 'spectacular', 'popular', 'preservation'];
-const ISOLATED = { breathtaking: '_5' };
+const TERMS = ['aerial tourism', 'underwater photography', 'documentary', 'snorkelling', 'expedition', 'yacht', 'scenery', 'attractions', 'accommodation', 'adventurous', 'breathtaking', 'spectacular', 'dramatic', 'stunning', 'popular', 'static', 'ground-level', 'angle of view', 'ecological habitats', 'marine world', 'coral', 'spellbound', 'wildlife', 'preservation', 'environmental impact', 'journey', 'licence', 'offer', 'guided tour', 'travel assistant', 'tourism industry', 'exploring', 'observation', 'relaxation', 'adventurous activities', 'memorable', 'recommendation', 'reservation', 'destination', 'availability'];
+const FAMILIES = ['snorkelling', 'attractions', 'adventurous', 'spectacular', 'popular', 'preservation', 'exploring', 'observation', 'relaxation', 'recommendation', 'reservation', 'availability'];
+const ISOLATED = { breathtaking: '_5', recommendation: '_5', destination: '_5', availability: '_5' };
 const vocabIdOf = term => `vocab_${term.replace(/[ -]/g, '_')}${ISOLATED[term] ?? ''}`;
 const occIdOf = (term, position) => `u5_${String(position).padStart(2, '0')}_${term.replace(/[ -]/g, '_')}${ISOLATED[term] ?? ''}`;
 const NO_FAMILY = TERMS.filter(term => !FAMILIES.includes(term));
 const STAGES = ['recognise', 'match', 'apply', 'recall', 'mastery'];
-// The adjective pool is now 9 and the noun pool 21, so no same-POS limit remains (Batch 1's adventurous limit is resolved).
+// The adjective pool is now 10 and the noun pool 29, so no same-POS limit remains (Batch 1's adventurous limit is resolved).
 const POS_LIMITS = {};
 const earlier = [unit1, unit2, unit3, unit4];
 const readiness = evaluateUnitReadiness({ content: releasePlannerContent(unit5) });
 const failed = (pathwayId, occurrenceId) => STAGES.filter(stage => (readiness.pathways[pathwayId].stageFailures[stage] ?? []).some(f => f.occurrenceId === occurrenceId));
 const termOf = occurrence => unit5.items.find(item => item.vocabularyId === occurrence.vocabularyId).term;
 
-test('Unit 5 words 1–30 are exactly the thirty locked targets, in order, as a draft with no release artefacts', () => {
+test('Unit 5 words 1–40 are exactly the forty locked targets, in order, as a draft with no release artefacts', () => {
   assert.deepEqual(unit5.items.map(item => item.term), TERMS);
-  assert.equal(unit5.items.length, 30);
-  assert.deepEqual(unit5.occurrences.map(row => row.positionInUnit), Array.from({ length: 30 }, (_, i) => i + 1));
+  assert.equal(unit5.items.length, 40);
+  assert.deepEqual(unit5.occurrences.map(row => row.positionInUnit), Array.from({ length: 40 }, (_, i) => i + 1));
   assert.deepEqual(unit5.occurrences.map(row => row.occurrenceId), TERMS.map((term, i) => occIdOf(term, i + 1)));
   assert.deepEqual(unit5.items.map(row => row.vocabularyId), TERMS.map(vocabIdOf));
   assert.equal(unit5.occurrences[10].occurrenceId, 'u5_11_breathtaking_5');
@@ -53,7 +53,7 @@ test('multi-word targets keep their exact two-word form everywhere', () => {
   }
 });
 
-test('IDs are Unit 5-specific, unique, and never collide with Units 1–4; only breathtaking repeats an earlier target and is isolated with _5', () => {
+test('IDs are Unit 5-specific, unique, and never collide with Units 1–4; only breathtaking, recommendation, destination and availability repeat an earlier target and are isolated with _5', () => {
   const ids = [];
   unit5.items.forEach(row => ids.push(row.vocabularyId));
   unit5.occurrences.forEach(row => ids.push(row.occurrenceId));
@@ -69,9 +69,9 @@ test('IDs are Unit 5-specific, unique, and never collide with Units 1–4; only 
     unit.activities.forEach(row => others.add(row.activityContentId));
   }
   assert.deepEqual(ids.filter(id => others.has(id)), []);
-  assert.deepEqual(TERMS.filter(term => earlierTerms.has(term)), ['breathtaking'], 'breathtaking is the only exact earlier-unit target');
-  assert.deepEqual(unit5.items.filter(row => /_5$/.test(row.vocabularyId)).map(row => row.term), ['breathtaking']);
-  assert.deepEqual(unit5.occurrences.filter(row => /_5$/.test(row.occurrenceId)).map(row => row.occurrenceId), ['u5_11_breathtaking_5']);
+  assert.deepEqual(TERMS.filter(term => earlierTerms.has(term)), ['breathtaking', 'recommendation', 'destination', 'availability'], 'the only exact earlier-unit targets');
+  assert.deepEqual(unit5.items.filter(row => /_5$/.test(row.vocabularyId)).map(row => row.term), ['breathtaking', 'recommendation', 'destination', 'availability']);
+  assert.deepEqual(unit5.occurrences.filter(row => /_5$/.test(row.occurrenceId)).map(row => row.occurrenceId), ['u5_11_breathtaking_5', 'u5_37_recommendation_5', 'u5_39_destination_5', 'u5_40_availability_5']);
   const u4 = unit4.items.find(row => row.term === 'breathtaking');
   assert.equal(u4.vocabularyId, 'vocab_breathtaking');
   assert.ok(unit4.occurrences.some(row => row.occurrenceId === 'u4_01_breathtaking' && row.vocabularyId === 'vocab_breathtaking'));
@@ -80,10 +80,10 @@ test('IDs are Unit 5-specific, unique, and never collide with Units 1–4; only 
   assert.ok(unit5.activities.every(row => /^u5_/.test(row.activityContentId) && row.unitNumber === 5));
 });
 
-test('no Unit 5 target is a word-family form of an earlier unit, and earlier-unit content is untouched', () => {
+test('no Unit 5 target is a word-family form of an earlier unit (except recommendation, which is isolated), and earlier-unit content is untouched', () => {
   const forms = new Set();
   for (const unit of earlier) for (const item of unit.items) for (const form of item.wordFamily ?? []) forms.add(String(form).toLowerCase());
-  assert.deepEqual(TERMS.filter(term => forms.has(term)), []);
+  assert.deepEqual(TERMS.filter(term => forms.has(term)), ['recommendation'], 'recommendation is a family form of Unit 1 recommend and an exact Unit 3 target, so it is isolated as recommendation_5');
   assert.deepEqual(earlier.map(unit => unit.status), ['approved', 'approved', 'approved', 'approved']);
   assert.deepEqual(earlier.map(unit => unit.occurrences.length), [50, 50, 50, 50]);
   assert.equal(JSON.stringify(unit4).includes('breathtaking_5'), false, 'Unit 4 untouched by the Unit 5 isolation');
@@ -101,7 +101,7 @@ test('every pathway stage is buildable for words 1–30, except the documented W
   }
 });
 
-test('words 1–30 satisfy the strict (approved) content schema; only whole-unit count rules remain', () => {
+test('words 1–40 satisfy the strict (approved) content schema; only whole-unit count rules remain', () => {
   const approve = row => ({ ...row, status: 'approved' });
   const strict = { ...unit5, status: 'approved', items: unit5.items.map(approve), occurrences: unit5.occurrences.map(approve), contexts: unit5.contexts.map(approve), activities: unit5.activities.map(approve) };
   const errors = validateUnit(strict).errors;
@@ -151,7 +151,7 @@ test('wrong situations are not near-duplicates of each other inside Unit 5', () 
   assert.deepEqual(close, []);
 });
 
-test('Word Families: only the six genuine families are authored; the twenty-four others are left unavailable rather than padded', () => {
+test('Word Families: only the twelve genuine families are authored; the twenty-eight others are left unavailable rather than padded', () => {
   for (const item of unit5.items) {
     const forms = item.senses[0].wordFamilyForms;
     if (NO_FAMILY.includes(item.term)) {
@@ -168,7 +168,7 @@ test('Word Families: only the six genuine families are authored; the twenty-four
     }
   }
   const familyItems = unit5.activities.filter(a => a.activityData.taskType === 'word_family');
-  assert.equal(familyItems.length, 18);
+  assert.equal(familyItems.length, 36);
   assert.ok(familyItems.every(a => a.activityData.sourceText.split('____').length === 2 && !a.activityData.sourceText.startsWith('____')));
 });
 
@@ -238,11 +238,11 @@ test('countability and articles: "accommodation" and "scenery" are never used wi
 
 test('Batch 3 (words 21–30): exact forms, IDs, no "(job title)" label, noun senses only', () => {
   const batch = ['coral', 'spellbound', 'wildlife', 'preservation', 'environmental impact', 'journey', 'licence', 'offer', 'guided tour', 'travel assistant'];
-  assert.deepEqual(unit5.items.slice(20).map(item => item.term), batch);
-  assert.deepEqual(unit5.occurrences.slice(20).map(row => row.occurrenceId), ['u5_21_coral', 'u5_22_spellbound', 'u5_23_wildlife', 'u5_24_preservation', 'u5_25_environmental_impact', 'u5_26_journey', 'u5_27_licence', 'u5_28_offer', 'u5_29_guided_tour', 'u5_30_travel_assistant']);
+  assert.deepEqual(unit5.items.slice(20, 30).map(item => item.term), batch);
+  assert.deepEqual(unit5.occurrences.slice(20, 30).map(row => row.occurrenceId), ['u5_21_coral', 'u5_22_spellbound', 'u5_23_wildlife', 'u5_24_preservation', 'u5_25_environmental_impact', 'u5_26_journey', 'u5_27_licence', 'u5_28_offer', 'u5_29_guided_tour', 'u5_30_travel_assistant']);
   assert.ok(unit5.items.every(item => !/job title/i.test(item.term)));
-  assert.deepEqual(unit5.items.slice(20).map(item => item.partOfSpeech), ['noun', 'adjective', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun']);
-  assert.equal(unit5.items.slice(20).filter(item => /_5$/.test(item.vocabularyId)).length, 0, 'no other collision, so no further _5 isolation');
+  assert.deepEqual(unit5.items.slice(20, 30).map(item => item.partOfSpeech), ['noun', 'adjective', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun']);
+  assert.equal(unit5.items.slice(20, 30).filter(item => /_5$/.test(item.vocabularyId)).length, 0, 'no other collision, so no further _5 isolation');
 });
 
 test('licence is the British noun spelling everywhere except the spelling-error data and the teacher note; offer is the noun only', () => {
@@ -285,7 +285,71 @@ test('gap-fill: when the gap follows "a"/"an", every option starts with the same
 test('no stale "not locked" or "not authored" draft comments; the 50-word list is described as locked', () => {
   for (const name of ['draft', 'activities', 'collocations', 'context-passages', 'meaning-mastery', 'meaning-match', 'precision-use', 'situation-extras', 'word-families', 'word-family-alternates', 'word-family-items']) {
     const text = fs.readFileSync(new URL(`../content/vocabulary/units/unit-05-${name}.js`, import.meta.url), 'utf8');
-    assert.doesNotMatch(text, /not locked yet|Words 21–50|WORDS 1–20|words 1–20|batches 1–2/, name);
+    assert.doesNotMatch(text, /not locked yet|Words 21–50|Words 31–50|WORDS 1–30|words 1–30|WORDS 1–20|words 1–20|batches 1–[23]\b/, name);
   }
   assert.match(fs.readFileSync(new URL('../content/vocabulary/units/unit-05-draft.js', import.meta.url), 'utf8'), /full 50-word list is locked/);
+});
+
+test('Batch 4 (words 31–40): exact forms, IDs, three _5 isolations, earlier-unit items untouched', () => {
+  const batch = ['tourism industry', 'exploring', 'observation', 'relaxation', 'adventurous activities', 'memorable', 'recommendation', 'reservation', 'destination', 'availability'];
+  assert.deepEqual(unit5.items.slice(30).map(item => item.term), batch);
+  assert.deepEqual(unit5.occurrences.slice(30).map(row => row.occurrenceId), ['u5_31_tourism_industry', 'u5_32_exploring', 'u5_33_observation', 'u5_34_relaxation', 'u5_35_adventurous_activities', 'u5_36_memorable', 'u5_37_recommendation_5', 'u5_38_reservation', 'u5_39_destination_5', 'u5_40_availability_5']);
+  assert.deepEqual(unit5.items.slice(30).map(item => item.vocabularyId), ['vocab_tourism_industry', 'vocab_exploring', 'vocab_observation', 'vocab_relaxation', 'vocab_adventurous_activities', 'vocab_memorable', 'vocab_recommendation_5', 'vocab_reservation', 'vocab_destination_5', 'vocab_availability_5']);
+  assert.deepEqual(unit5.items.slice(30).map(item => item.partOfSpeech), ['noun', 'noun', 'noun', 'noun', 'noun', 'adjective', 'noun', 'noun', 'noun', 'noun']);
+  // Each isolated item keeps its earlier-unit original exactly where it was, with its own sense.
+  const checks = [[unit3, 'recommendation', 'vocab_recommendation', 'vocab_recommendation_5'], [unit4, 'destination', 'vocab_destination', 'vocab_destination_5'], [unit2, 'availability', 'vocab_availability', 'vocab_availability_5']];
+  for (const [unit, term, oldId, newId] of checks) {
+    const original = unit.items.find(row => row.term === term);
+    assert.equal(original.vocabularyId, oldId);
+    assert.ok(unit.occurrences.some(row => row.vocabularyId === oldId), `${term} occurrence still in its own unit`);
+    const isolated = unit5.items.find(row => row.vocabularyId === newId);
+    assert.equal(isolated.term, term);
+    assert.notEqual(isolated.senses[0].meaning, original.senses[0].meaning, `${term}: Unit 5 sense is tourism-specific`);
+    assert.ok(unit5.items.every(row => row.vocabularyId !== oldId), `${oldId} is never reused in Unit 5`);
+    assert.ok(isolated.senses[0].teacherNote.includes(oldId), `${term} teacher note names the earlier item`);
+    assert.deepEqual(isolated.senses[0].spellingErrors, original.senses[0].spellingErrors, `${term} shares the reviewed spelling list`);
+  }
+  assert.ok(!unit5.items.some(row => row.term === 'recommend'), 'the related Unit 1 word "recommend" is not an exact duplicate and is not isolated');
+  const ids = new Set(unit5.items.map(row => row.vocabularyId));
+  for (const activity of unit5.activities) for (const linked of activity.activityData.linkedVocabularyIds) assert.ok(ids.has(linked), `${activity.activityContentId} links to a Unit 5 item`);
+  for (const activity of unit5.activities.filter(row => row.activityData.taskType === 'word_family')) assert.ok(!['vocab_recommendation', 'vocab_destination', 'vocab_availability'].includes(activity.activityData.linkedVocabularyIds[0]));
+  assert.deepEqual(unit5.items.slice(30).filter(item => item.senses[0].wordFamilyForms?.length).map(item => item.term), ['exploring', 'observation', 'relaxation', 'recommendation', 'reservation', 'availability']);
+  for (const term of ['recommendation', 'availability']) assert.ok(unit5.items.find(item => item.term === term).senses[0].wordFamilyForms.every(form => form.form), term);
+});
+
+test('Unit 5 gap sentences, mastery sentences, passages and wrong situations are not near-copies of Units 1–4', () => {
+  const words = text => new Set(text.toLowerCase().replace(/[^a-z ]/g, ' ').split(/\s+/).filter(word => word.length > 3));
+  const earlierRows = [];
+  for (const unit of earlier) {
+    for (const context of unit.contexts) earlierRows.push(context.text);
+    for (const item of unit.items) {
+      for (const context of item.senses[0].masteryContexts ?? []) earlierRows.push(context.text);
+      earlierRows.push(...(item.senses[0].situationDistractors ?? []), ...(item.senses[0].masteryPassages ?? []).map(passage => passage.text));
+    }
+  }
+  const earlierSets = earlierRows.map(words);
+  const rows = [];
+  for (const item of unit5.items) {
+    rows.push(...unit5.contexts.filter(context => context.vocabularyId === item.vocabularyId && /_gap_/.test(context.contextId)).map(context => [item.term, context.text]));
+    rows.push(...item.senses[0].masteryContexts.map(context => [item.term, context.text]), ...item.senses[0].situationDistractors.map(text => [item.term, text]), ...(item.senses[0].masteryPassages ?? []).map(passage => [item.term, passage.text]));
+  }
+  const close = [];
+  for (const [term, text] of rows) {
+    const a = words(text);
+    if (earlierSets.some(b => { const shared = [...a].filter(word => b.has(word)).length; return shared / (a.size + b.size - shared) > 0.6; })) close.push(`${term}: ${text}`);
+  }
+  assert.deepEqual(close, []);
+});
+
+test('Batch 4 sense boundaries: reservation vs confirmation, destination vs journey, availability vs popularity, recommendation vs advertisement, memorable vs the visual adjectives', () => {
+  const sense = term => unit5.items.find(item => item.term === term).senses[0];
+  assert.doesNotMatch(JSON.stringify([sense('reservation').meaning, sense('reservation').acceptedParaphrases]), /confirm/i);
+  assert.doesNotMatch(JSON.stringify([sense('destination').meaning, sense('destination').acceptedParaphrases]), /journey|\btrip\b/i);
+  assert.doesNotMatch(JSON.stringify([sense('availability').meaning, sense('availability').acceptedParaphrases]), /popular/i);
+  assert.doesNotMatch(JSON.stringify([sense('recommendation').meaning, sense('recommendation').acceptedParaphrases]), /advert|promot/i);
+  assert.match(sense('recommendation').meaning, /experience/);
+  assert.doesNotMatch(JSON.stringify(sense('memorable')), /spectacular|stunning|breathtaking|dramatic/i);
+  for (const item of unit5.items.slice(0, 30)) assert.doesNotMatch(JSON.stringify(item.senses[0].gapDistractors), /"(memorable|availability|reservation|destination)"/, `${item.term}: a Batch 4 target is not used as a wrong option in earlier items`);
+  assert.equal(unit5.items.find(item => item.term === 'adventurous activities').partOfSpeech, 'noun');
+  assert.doesNotMatch(JSON.stringify(unit5).toLowerCase(), /availabilities/);
 });

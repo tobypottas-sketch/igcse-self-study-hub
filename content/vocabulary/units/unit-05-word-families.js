@@ -1,4 +1,4 @@
-// Unit 5 · Word Families — authored families, WORDS 1–30 ONLY. Same contract as unit-04-word-families.js: every row is AUTHORED (stated part of
+// Unit 5 · Word Families — authored families, WORDS 1–40 ONLY. Same contract as unit-04-word-families.js: every row is AUTHORED (stated part of
 // speech, one natural example containing the form exactly once and not as the first word, and the reason the form is worth teaching). A family
 // needs >= 3 pedagogically useful forms INCLUDING the headword and >= 2 parts of speech. Headwords with no genuine family are listed under
 // unit5WordFamilyRejected rather than padded with unnatural forms.
@@ -30,6 +30,38 @@ export const unit5WordFamilies = Object.freeze({
     f('preserve', 'verb', 'Local volunteers work every weekend to preserve the old fishing huts on the beach.', 'The verb behind the noun: to protect something so that it stays in good condition.'),
     f('preserved', 'adjective', 'The town is famous for its beautifully preserved medieval walls.', 'The participle adjective for something kept in good condition; very common in descriptions of historic sites.')
   ], excludedForms: [{ form: 'preservative', reason: 'A chemical added to food; a different sense from protecting places and wildlife.' }, { form: 'preservationist', reason: 'Rare person noun that adds no new meaning at this level.' }] },
+  exploring: { forms: [
+    f('exploring', 'noun', 'Children love exploring the caves behind the waterfall.', 'Headword.'),
+    f('explore', 'verb', 'Visitors can explore the old fort at their own pace.', 'The base verb: to travel around a place to find out about it; the most frequent form in tourism texts.'),
+    f('explorer', 'noun', 'The explorer spent three years mapping the rivers of the rainforest.', 'The person who explores; the same pattern as traveller and adventurer.'),
+    f('exploration', 'noun', 'Early exploration of the Arctic was extremely dangerous.', 'The abstract noun for the activity or process; common in academic and news texts.')
+  ], excludedForms: [{ form: 'explored', reason: 'Only the past tense of the verb already taught.' }, { form: 'exploratory', reason: 'Rare technical adjective at this level.' }] },
+  observation: { forms: [
+    f('observation', 'noun', 'Scientists learned about the birds’ habits through patient observation.', 'Headword.'),
+    f('observe', 'verb', 'Visitors can observe seals from a wooden platform without disturbing them.', 'The verb behind the noun: to watch carefully in order to learn.'),
+    f('observer', 'noun', 'A trained observer on the boat counts the whales every hour.', 'The person who observes; the same pattern as traveller and explorer.')
+  ], excludedForms: [{ form: 'observant', reason: 'Adjective for a person who notices things; rare at this level.' }, { form: 'observatory', reason: 'A building for studying the stars; a different, specialised sense.' }] },
+  relaxation: { forms: [
+    f('relaxation', 'noun', 'Yoga and walks in the garden provide gentle relaxation after a busy week.', 'Headword.'),
+    f('relax', 'verb', 'Guests can relax in a hammock or read in the shade.', 'The base verb: to rest and become calm.'),
+    f('relaxed', 'adjective', 'The staff were friendly and the atmosphere was relaxed.', 'The adjective for a calm person or place; students often confuse it with relaxing.'),
+    f('relaxing', 'adjective', 'A boat trip along the quiet river is a relaxing way to spend the afternoon.', 'The adjective for something that makes you feel calm; the -ed/-ing pair is worth learning together.')
+  ], excludedForms: [{ form: 'relaxedly', reason: 'Rare adverb that adds no new meaning at this level.' }] },
+  recommendation: { forms: [
+    f('recommendation', 'noun', 'The mountain guide’s recommendation saved us from walking in bad weather.', 'Headword.'),
+    f('recommend', 'verb', 'Most guidebooks recommend visiting the old harbour at sunrise.', 'The verb behind the noun; very common in travel writing.'),
+    f('recommended', 'adjective', 'The tourist office has a leaflet of recommended walks for families.', 'The participle adjective for something that is advised; common on booking and review sites.')
+  ], excludedForms: [{ form: 'recommendable', reason: 'Rare adjective that adds no new meaning at this level.' }] },
+  reservation: { forms: [
+    f('reservation', 'noun', 'The hostel will hold your reservation until six o’clock on the day of arrival.', 'Headword.'),
+    f('reserve', 'verb', 'You can reserve a seat on the night coach by telephoning the office.', 'The verb behind the noun: to book a place in advance.'),
+    f('reserved', 'adjective', 'A reserved seat means that nobody else can sit in it.', 'The adjective for a place kept for someone; common on tables, seats and parking spaces.')
+  ], excludedForms: [{ form: 'reservoir', reason: 'A different word for a lake that stores water.' }] },
+  availability: { forms: [
+    f('availability', 'noun', 'Please ring the agency to ask about availability for the August holiday week.', 'Headword.'),
+    f('available', 'adjective', 'Only two double rooms are still available for the night of the festival.', 'The adjective behind the noun; one of the most frequent words on booking pages.'),
+    f('unavailable', 'adjective', 'The cabin is unavailable in August because the owners use it themselves.', 'The opposite adjective; the pair is worth learning together.')
+  ], excludedForms: [{ form: 'avail', reason: 'Formal verb used mainly in the fixed phrase “avail yourself of”; rare at this level.' }] },
   adventurous: { forms: [
     f('adventurous', 'adjective', 'Lena is adventurous and always chooses the most exciting activity on the programme.', 'Headword.'),
     f('adventure', 'noun', 'Their journey across Africa was the greatest adventure of their lives.', 'The base noun: an exciting or unusual experience.'),
@@ -61,5 +93,9 @@ export const unit5WordFamilyRejected = Object.freeze({
   licence: 'A British noun/verb spelling split: the verb and participles (license, licensed) use a different spelling from the target, which would mix two spellings in one family and confuse the Spelling pathway.',
   offer: 'The verb and noun share one spelling, so there is no second form to teach; “offering” (a contribution) and “offered” are inflections or drift to a different sense.',
   'guided tour': 'A fixed noun phrase: “guide/guided” and “tour/tourist/tourism” belong to separate families, so there is no family for the target.',
-  'travel assistant': 'A fixed noun phrase for a job title: “travel” and “assist/assistance” belong to separate families, so there is no family for the target.'
+  'travel assistant': 'A fixed noun phrase for a job title: “travel” and “assist/assistance” belong to separate families, so there is no family for the target.',
+  'tourism industry': 'A fixed noun phrase: “tourism/tourist/tour” and “industry/industrial” belong to separate families, and neither family keeps the meaning of the whole phrase.',
+  'adventurous activities': 'A fixed plural noun phrase: “adventure/adventurous/adventurer” is the family of an earlier word, and “active/activity” is a separate family, so there is no family for the phrase.',
+  memorable: '“memory” and “memorise” drift to the ability to remember and to learning by heart, and “memorably” is rare, so fewer than three forms keep the sense “worth remembering”.',
+  destination: '“destined” and “destiny” drift to fate and “destine” is rare, so there is no useful family.'
 });

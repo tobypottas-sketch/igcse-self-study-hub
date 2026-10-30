@@ -1,4 +1,4 @@
-// Unit 5 · Context · Mastery (type_in_passage) — authored short passages, WORDS 1–30 ONLY. Same contract as unit-04-context-passages.js:
+// Unit 5 · Context · Mastery (type_in_passage) — authored short passages, WORDS 1–40 ONLY. Same contract as unit-04-context-passages.js:
 // two passages per word, each 2-3 natural sentences with exactly ONE gap (`____`); the passage never contains the target elsewhere, never starts
 // with the gap, and makes the target the natural fit. `answer` is the exact surface form typed. `why` records what points to the word.
 const p = (text, answer, why) => ({ text, answer, why });
@@ -123,5 +123,45 @@ export default Object.freeze({
   'travel assistant': [
     p('After university, Ana started work at a busy high-street agency. As a ____, she answered customers’ questions, compared flight prices and printed their tickets.', 'travel assistant', 'Agency job answering questions and comparing flight prices; "As a ____".'),
     p('The family could not decide between a beach holiday and a city break. The ____ listened carefully, checked the dates and suggested a hotel that was close to both the sea and the museums.', 'travel assistant', 'Helping a family choose a holiday; "The ____ listened carefully ... suggested a hotel".')
+  ],
+  'tourism industry': [
+    p('The country has warm weather, ancient ruins and miles of empty coastline. As more visitors arrive, the ____ is growing fast and creating jobs for guides, drivers, cooks and hotel staff.', 'tourism industry', 'Visitors arriving and jobs for guides, drivers and cooks; "the ____ is growing fast".'),
+    p('Many people in the mountain valley used to depend on farming. Today most of the families earn their living in the ____, working in ski shops, cafés and guesthouses.', 'tourism industry', 'From farming to ski shops, cafés and guesthouses; "earn their living in the ____".')
+  ],
+  exploring: [
+    p('The cave system has more than forty tunnels, and no two are the same. Visitors with torches and helmets can spend a whole day ____ them, finding underground lakes and strange rock shapes.', 'exploring', 'A whole day in forty tunnels, finding lakes and rock shapes; "spend a whole day ____ them".'),
+    p('There is no timetable on the trekking holiday. Guests are free to wander through the villages, talk to the local people and enjoy ____ the countryside at their own pace.', 'exploring', 'No timetable, wandering and talking to local people; "enjoy ____ the countryside at their own pace".')
+  ],
+  observation: [
+    p('Biologists camped beside the lake for a month and wrote down everything the birds did. Their conclusions came from patient ____, not from any experiment or machine.', 'observation', 'A month of writing down what birds did, with no experiment; "patient ____".'),
+    p('On the first evening, the guide taught the group how to sit quietly and keep their eyes on the forest edge. She told them that good ____ is a skill, and that the best way to learn it is to practise.', 'observation', 'Sitting quietly and watching the forest edge; "good ____ is a skill".')
+  ],
+  relaxation: [
+    p('The island has no nightclubs, no shopping centres and almost no cars. Most visitors come for ____: they swim, read and sleep late until their worries seem far away.', 'relaxation', 'No nightclubs or cars; swimming, reading and sleeping late; "come for ____".'),
+    p('After months of long hours at the office, Daniel wanted a holiday that was the opposite of his working life. He chose a quiet mountain retreat devoted to ____, with no phones and no meetings.', 'relaxation', 'The opposite of working life, no phones, no meetings; "devoted to ____".')
+  ],
+  'adventurous activities': [
+    p('The valley has fast rivers, steep cliffs and tall pine forests. Visitors can try rafting, canyoning and climbing, and many say the ____ are the highlight of their holiday.', 'adventurous activities', 'Fast rivers, cliffs, rafting, canyoning and climbing; "the ____ are the highlight".'),
+    p('Our school trip to the national park was not about museums or souvenirs. Every day we faced a new challenge, from crossing a rope bridge to paddling through rapids, and the instructors said that these ____ would build our confidence.', 'adventurous activities', 'Rope bridges and rapids as daily challenges; "these ____ would build our confidence".')
+  ],
+  memorable: [
+    p('The ancient city is full of famous monuments, but visitors often say that the best moments were small ones. A conversation with a street musician or a meal in a family kitchen can make a trip truly ____, because years later you can still describe every detail.', 'memorable', 'Small moments you can still describe years later; "make a trip truly ____".'),
+    p('Travel writers advise visitors to look for experiences that cannot be repeated. Watching a sunrise from a mountain top is ____ because you will keep the picture in your mind long after the photograph is lost.', 'memorable', 'Keeping the picture in your mind long after; "is ____ because you will keep the picture".')
+  ],
+  recommendation: [
+    p('We did not know which restaurant to try in the old town, so we asked the woman at the bakery. She sent us to a tiny family kitchen, and her ____ turned out to be perfect.', 'recommendation', 'Asking a local person where to eat; "her ____ turned out to be perfect".'),
+    p('The tourist office keeps a notebook of comments from earlier visitors. Staff read from it when families ask for a ____ about walks that are suitable for young children.', 'recommendation', 'A notebook of earlier visitors’ comments; "ask for a ____ about walks".')
+  ],
+  reservation: [
+    p('The ski season begins in December, and the best chalets are full by October. Families who want a room near the slopes are advised to make a ____ as early as possible.', 'reservation', 'Chalets full by October; "make a ____ as early as possible".'),
+    p('We turned up at the restaurant without telling anyone and asked for a table for eight. The waiter smiled politely and explained that every table had a ____ for the evening.', 'reservation', 'Turning up without telling anyone; "every table had a ____ for the evening".')
+  ],
+  destination: [
+    p('Many airlines now show passengers the weather and a short film about the city they are about to visit. The pilot announced that we would land in ten minutes, and everyone looked out of the window to catch the first glimpse of our ____.', 'destination', 'About to land; "the first glimpse of our ____".'),
+    p('The island has no motorways, no factories and only one small village. The brochure describes it as an ideal ____ for walkers, bird-watchers and anyone who wants to escape city life.', 'destination', 'A brochure praising an island for walkers and bird-watchers; "an ideal ____".')
+  ],
+  availability: [
+    p('We wanted to visit Rome in the middle of August, but every site we tried showed a red message saying that there was no ____ for our dates. In the end we moved the trip to September, when plenty of rooms were free.', 'availability', 'A red message and a move to September when rooms were free; "no ____ for our dates".'),
+    p('Before booking, the agent opened her computer and checked ____ for the week of the music festival. Only two rooms remained, and she suggested that we decide quickly.', 'availability', 'Only two rooms remained; "checked ____ for the week of the music festival".')
   ]
 });
