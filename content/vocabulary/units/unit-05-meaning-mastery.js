@@ -1,4 +1,4 @@
-// Unit 5 · Meaning · Apply and Mastery — authored wrong meanings, WORDS 1–20 ONLY. Same contract as unit-04-meaning-mastery.js:
+// Unit 5 · Meaning · Apply and Mastery — authored wrong meanings, WORDS 1–30 ONLY. Same contract as unit-04-meaning-mastery.js:
 // two records per word in the order of the word's two Mastery contexts; exactly three authored WRONG glosses, same grammar and similar length
 // as the correct gloss, plausible in general, wrong in this sentence.
 const w = (wrongMeanings, extra = {}) => ({ wrongMeanings, ...extra });
@@ -83,5 +83,45 @@ export default Object.freeze({
   'marine world': [
     w(['the ships and harbours that tourists visit by the sea', 'the beaches and cliffs that tourists photograph by the sea', 'the hotels and cafés that tourists use by the sea']),
     w(['the coastline and the towns built along it', 'the boats and equipment that divers use', 'the rules and laws that protect the shore'])
+  ],
+  coral: [
+    w(['the soft grey sand that covers the sea floor', 'the long green plants that grow in shallow water', 'the small fish that swim in large groups']),
+    w(['the sandy beaches that lie beside warm seas', 'the underwater caves that divers explore in warm seas', 'the green plants that float on the surface of warm seas'])
+  ],
+  spellbound: [
+    w(['mildly interested but ready to leave soon', 'very worried about missing the last bus', 'tired after a long day of sightseeing']),
+    w(['so tired that they could hardly stand', 'so annoyed that they wanted to leave', 'so cold that they started to shiver'])
+  ],
+  wildlife: [
+    w(['the visitors and guides who work in the reserve', 'the roads and paths that cross the reserve', 'the farms and villages around the reserve']),
+    w(['the local residents and workers of the area', 'the fishing boats and equipment of the area', 'the old buildings and monuments of the area'])
+  ],
+  preservation: [
+    w(['the act of selling something to visitors at a fair price', 'the act of repairing something until it looks completely new', 'the act of counting something to find out how much there is']),
+    w(['the work of building something new beside it', 'the work of selling tickets to people who visit it', 'the work of painting something in bright colours'])
+  ],
+  'environmental impact': [
+    w(['the amount of money that an activity earns for local people', 'the number of jobs that an activity creates in a region', 'the cost that an activity adds to a visitor’s holiday']),
+    w(['the way that its staff are trained to welcome visitors', 'the way that its rooms are priced for different seasons', 'the way that its menus are planned for each meal'])
+  ],
+  journey: [
+    w(['the length of time that a holiday usually lasts', 'the group of people who are led by a leader', 'the skill of finding the right way across land']),
+    w(['a short break in a hotel after a long day', 'a meal on a train that takes a long time', 'a holiday in a place that is far from home'])
+  ],
+  licence: [
+    w(['a printed map that shows the paths through a park', 'a written report that describes the animals of a region', 'a booklet that explains the rules of a game']),
+    w(['an identity card that shows someone’s home address', 'a membership card that gives a discount at shops', 'a boarding pass that allows someone to board a plane'])
+  ],
+  offer: [
+    w(['a rule that a business sets for customers who arrive late', 'a complaint that a customer makes about poor service', 'a payment that a customer makes before arriving']),
+    w(['a printed guide with maps and opening times', 'a formal complaint sent to a travel company', 'a list of the rooms that are still available'])
+  ],
+  'guided tour': [
+    w(['a ticket that allows you to enter a building', 'a map that shows you where to find the main sights', 'a book that tells you about the history of a city']),
+    w(['a visit made alone by someone who has a map', 'a visit made by friends who decide the route themselves', 'a visit made at night by people who want to avoid crowds'])
+  ],
+  'travel assistant': [
+    w(['a pilot whose job is to fly passengers to their destinations', 'a waiter whose job is to bring food to hotel guests', 'a driver whose job is to take visitors to the airport']),
+    w(['a worker who cleans the rooms of holiday guests', 'a worker who cooks meals for holiday guests', 'a worker who guards the entrance of a holiday resort'])
   ]
 });

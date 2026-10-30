@@ -1,4 +1,4 @@
-// Unit 5 · Meaning · Match (Recognise) — authored WRONG meanings, words 1–20. Same contract as unit-04-meaning-match.js: each set of three is
+// Unit 5 · Meaning · Match (Recognise) — authored WRONG meanings, words 1–30. Same contract as unit-04-meaning-match.js: each set of three is
 // the same part of speech as the answer (acceptedParaphrases[0]), comparable in length, and plausible without being a synonym.
 export default {
   'aerial tourism': ['sightseeing from a coach', 'holidays on a mountain railway', 'tours of underground caves'],
@@ -20,5 +20,15 @@ export default {
   'ground-level': ['taken from a boat', 'taken from above', 'taken at night'],
   'angle of view': ['speed of the shutter', 'weight of the lens', 'length of the journey'],
   'ecological habitats': ['wildlife photographs', 'national parks', 'weather patterns'],
-  'marine world': ['life along the coast', 'travel across the sea', 'work on a fishing boat']
+  'marine world': ['life along the coast', 'travel across the sea', 'work on a fishing boat'],
+  coral: ['smooth stone worn by waves and sand', 'green plant that grows beside rivers', 'hard shell that protects small shellfish'],
+  spellbound: ['mildly entertained', 'extremely nervous', 'quite exhausted'],
+  wildlife: ['animals kept on farms for food', 'plants grown in gardens for decoration', 'pets looked after in family homes'],
+  preservation: ['repairs that make something look new', 'research into the history of a place', 'payment for the use of a building'],
+  'environmental impact': ['rise in the cost of housing', 'growth in the number of visitors', 'fall in the profits of hotels'],
+  journey: ['stay in one place for a week', 'meal eaten at a restaurant', 'tour of a single building'],
+  licence: ['printed list of rules for visitors', 'receipt showing that money was paid', 'letter thanking a customer'],
+  offer: ['extra charge for luggage', 'refund for a cancelled trip', 'change in flight times'],
+  'guided tour': ['unplanned stroll', 'independent trip', 'classroom lesson'],
+  'travel assistant': ['employee who cleans rooms in a hotel', 'worker who drives visitors around a city', 'official who checks passports at a border']
 };

@@ -1,4 +1,4 @@
-// Unit 5 collocations, WORDS 1–20 ONLY: natural, frequent combinations for each target (authored; same shape as unit-04-collocations.js).
+// Unit 5 collocations, WORDS 1–30 ONLY: natural, frequent combinations for each target (authored; same shape as unit-04-collocations.js).
 export default Object.freeze({
   'aerial tourism': ['promote aerial tourism', 'aerial tourism industry', 'a form of aerial tourism'],
   'underwater photography': ['underwater photography course', 'professional underwater photography', 'specialise in underwater photography'],
@@ -19,5 +19,15 @@ export default Object.freeze({
   'ground-level': ['ground-level view', 'ground-level shot', 'ground-level photography'],
   'angle of view': ['wide angle of view', 'narrow angle of view', 'increase the angle of view'],
   'ecological habitats': ['protect ecological habitats', 'fragile ecological habitats', 'destroy ecological habitats'],
-  'marine world': ['explore the marine world', 'wonders of the marine world', 'protect the marine world']
+  'marine world': ['explore the marine world', 'wonders of the marine world', 'protect the marine world'],
+  coral: ['coral reef', 'bleached coral', 'protect the coral'],
+  spellbound: ['listen spellbound', 'watch spellbound', 'hold the audience spellbound'],
+  wildlife: ['wildlife reserve', 'protect wildlife', 'see local wildlife'],
+  preservation: ['heritage preservation', 'preservation work', 'the preservation of historic buildings'],
+  'environmental impact': ['reduce the environmental impact', 'environmental impact assessment', 'have a damaging environmental impact'],
+  journey: ['a long journey', 'journey time', 'break the journey'],
+  licence: ['driving licence', 'fishing licence', 'apply for a licence'],
+  offer: ['special offer', 'limited offer', 'take advantage of an offer'],
+  'guided tour': ['join a guided tour', 'book a guided tour', 'guided tour of the city'],
+  'travel assistant': ['work as a travel assistant', 'a helpful travel assistant', 'junior travel assistant']
 });

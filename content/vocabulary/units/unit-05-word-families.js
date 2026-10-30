@@ -1,4 +1,4 @@
-// Unit 5 · Word Families — authored families, WORDS 1–20 ONLY. Same contract as unit-04-word-families.js: every row is AUTHORED (stated part of
+// Unit 5 · Word Families — authored families, WORDS 1–30 ONLY. Same contract as unit-04-word-families.js: every row is AUTHORED (stated part of
 // speech, one natural example containing the form exactly once and not as the first word, and the reason the form is worth teaching). A family
 // needs >= 3 pedagogically useful forms INCLUDING the headword and >= 2 parts of speech. Headwords with no genuine family are listed under
 // unit5WordFamilyRejected rather than padded with unnatural forms.
@@ -25,6 +25,11 @@ export const unit5WordFamilies = Object.freeze({
     f('popularity', 'noun', 'The popularity of the island has grown since the film was released.', 'The abstract noun; common in essays about tourism.'),
     f('unpopular', 'adjective', 'The new tourist tax proved unpopular with hotel owners.', 'The opposite adjective; the pair is worth learning together.')
   ], excludedForms: [{ form: 'popularise', reason: 'Formal verb that is rare at this level.' }, { form: 'popularly', reason: 'Rare adverb that adds no new meaning at this level.' }] },
+  preservation: { forms: [
+    f('preservation', 'noun', 'Money from ticket sales pays for the preservation of the ancient city.', 'Headword.'),
+    f('preserve', 'verb', 'Local volunteers work every weekend to preserve the old fishing huts on the beach.', 'The verb behind the noun: to protect something so that it stays in good condition.'),
+    f('preserved', 'adjective', 'The town is famous for its beautifully preserved medieval walls.', 'The participle adjective for something kept in good condition; very common in descriptions of historic sites.')
+  ], excludedForms: [{ form: 'preservative', reason: 'A chemical added to food; a different sense from protecting places and wildlife.' }, { form: 'preservationist', reason: 'Rare person noun that adds no new meaning at this level.' }] },
   adventurous: { forms: [
     f('adventurous', 'adjective', 'Lena is adventurous and always chooses the most exciting activity on the programme.', 'Headword.'),
     f('adventure', 'noun', 'Their journey across Africa was the greatest adventure of their lives.', 'The base noun: an exciting or unusual experience.'),
@@ -47,5 +52,14 @@ export const unit5WordFamilyRejected = Object.freeze({
   'ground-level': 'A hyphenated compound adjective: “ground” and “level” belong to separate words, so there is no family for the target.',
   'angle of view': 'A fixed three-word noun phrase: “angle” and “view” belong to separate word families, so there is no family for the target.',
   'ecological habitats': 'A fixed noun phrase: “ecological/ecology/ecologist” and “habitat/inhabit/inhabitant” are two separate families, and neither family keeps the meaning of the whole phrase.',
-  'marine world': 'A fixed noun phrase: “marine” (mariner, maritime) and “world” belong to separate families, so there is no family for the target.'
+  'marine world': 'A fixed noun phrase: “marine” (mariner, maritime) and “world” belong to separate families, so there is no family for the target.',
+  coral: 'No derived forms are useful at this level; “coralline” is technical and “corals” is only the plural.',
+  spellbound: 'A compound adjective: “spell” and “bound” belong to separate families and drift to magic and restriction, so no form keeps the sense of being completely fascinated.',
+  wildlife: 'A compound noun with no derived forms; “wild” belongs to a separate family and drifts to other senses.',
+  'environmental impact': 'A fixed noun phrase: “environment/environmental/environmentally” and “impact/impactful” are two separate families, and neither keeps the meaning of the whole phrase.',
+  journey: 'Only the plural “journeys” and a rare verb use exist; “journeyman” drifts to a different sense, so fewer than three useful forms.',
+  licence: 'A British noun/verb spelling split: the verb and participles (license, licensed) use a different spelling from the target, which would mix two spellings in one family and confuse the Spelling pathway.',
+  offer: 'The verb and noun share one spelling, so there is no second form to teach; “offering” (a contribution) and “offered” are inflections or drift to a different sense.',
+  'guided tour': 'A fixed noun phrase: “guide/guided” and “tour/tourist/tourism” belong to separate families, so there is no family for the target.',
+  'travel assistant': 'A fixed noun phrase for a job title: “travel” and “assist/assistance” belong to separate families, so there is no family for the target.'
 });

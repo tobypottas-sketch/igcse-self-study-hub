@@ -1,4 +1,4 @@
-// Unit 5 (Holidays) · words 1–20 authored (batches 1–2, draft). Guards the contract with the real readiness evaluator and builders. Words 21–50 are not
+// Unit 5 (Holidays) · words 1–30 authored (batches 1–3, draft). Guards the contract with the real readiness evaluator and builders. Words 31–50 are not
 // authored yet, so the unit stays a draft: no releases/unit-05.js, no lock, no SQL, no artwork.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -13,24 +13,24 @@ import { validateUnit } from '../content/vocabulary/schema.js';
 import { evaluateUnitReadiness } from '../src/vocabulary/pathway-readiness.js';
 import { releasePlannerContent } from '../content/vocabulary/readiness-report.js';
 
-const TERMS = ['aerial tourism', 'underwater photography', 'documentary', 'snorkelling', 'expedition', 'yacht', 'scenery', 'attractions', 'accommodation', 'adventurous', 'breathtaking', 'spectacular', 'dramatic', 'stunning', 'popular', 'static', 'ground-level', 'angle of view', 'ecological habitats', 'marine world'];
-const FAMILIES = ['snorkelling', 'attractions', 'adventurous', 'spectacular', 'popular'];
+const TERMS = ['aerial tourism', 'underwater photography', 'documentary', 'snorkelling', 'expedition', 'yacht', 'scenery', 'attractions', 'accommodation', 'adventurous', 'breathtaking', 'spectacular', 'dramatic', 'stunning', 'popular', 'static', 'ground-level', 'angle of view', 'ecological habitats', 'marine world', 'coral', 'spellbound', 'wildlife', 'preservation', 'environmental impact', 'journey', 'licence', 'offer', 'guided tour', 'travel assistant'];
+const FAMILIES = ['snorkelling', 'attractions', 'adventurous', 'spectacular', 'popular', 'preservation'];
 const ISOLATED = { breathtaking: '_5' };
 const vocabIdOf = term => `vocab_${term.replace(/[ -]/g, '_')}${ISOLATED[term] ?? ''}`;
 const occIdOf = (term, position) => `u5_${String(position).padStart(2, '0')}_${term.replace(/[ -]/g, '_')}${ISOLATED[term] ?? ''}`;
 const NO_FAMILY = TERMS.filter(term => !FAMILIES.includes(term));
 const STAGES = ['recognise', 'match', 'apply', 'recall', 'mastery'];
-// The adjective pool is now 8 and the noun pool 12, so no same-POS limit remains (Batch 1's adventurous limit is resolved).
+// The adjective pool is now 9 and the noun pool 21, so no same-POS limit remains (Batch 1's adventurous limit is resolved).
 const POS_LIMITS = {};
 const earlier = [unit1, unit2, unit3, unit4];
 const readiness = evaluateUnitReadiness({ content: releasePlannerContent(unit5) });
 const failed = (pathwayId, occurrenceId) => STAGES.filter(stage => (readiness.pathways[pathwayId].stageFailures[stage] ?? []).some(f => f.occurrenceId === occurrenceId));
 const termOf = occurrence => unit5.items.find(item => item.vocabularyId === occurrence.vocabularyId).term;
 
-test('Unit 5 words 1–20 are exactly the twenty locked targets, in order, as a draft with no release artefacts', () => {
+test('Unit 5 words 1–30 are exactly the thirty locked targets, in order, as a draft with no release artefacts', () => {
   assert.deepEqual(unit5.items.map(item => item.term), TERMS);
-  assert.equal(unit5.items.length, 20);
-  assert.deepEqual(unit5.occurrences.map(row => row.positionInUnit), Array.from({ length: 20 }, (_, i) => i + 1));
+  assert.equal(unit5.items.length, 30);
+  assert.deepEqual(unit5.occurrences.map(row => row.positionInUnit), Array.from({ length: 30 }, (_, i) => i + 1));
   assert.deepEqual(unit5.occurrences.map(row => row.occurrenceId), TERMS.map((term, i) => occIdOf(term, i + 1)));
   assert.deepEqual(unit5.items.map(row => row.vocabularyId), TERMS.map(vocabIdOf));
   assert.equal(unit5.occurrences[10].occurrenceId, 'u5_11_breathtaking_5');
@@ -89,7 +89,7 @@ test('no Unit 5 target is a word-family form of an earlier unit, and earlier-uni
   assert.equal(JSON.stringify(unit4).includes('breathtaking_5'), false, 'Unit 4 untouched by the Unit 5 isolation');
 });
 
-test('every pathway stage is buildable for words 1–20, except the documented Word Family limit (no same-POS limit remains)', () => {
+test('every pathway stage is buildable for words 1–30, except the documented Word Family limit (no same-POS limit remains)', () => {
   for (const occurrence of unit5.occurrences) {
     const term = termOf(occurrence);
     for (const pathwayId of Object.keys(readiness.pathways)) {
@@ -101,7 +101,7 @@ test('every pathway stage is buildable for words 1–20, except the documented W
   }
 });
 
-test('words 1–20 satisfy the strict (approved) content schema; only whole-unit count rules remain', () => {
+test('words 1–30 satisfy the strict (approved) content schema; only whole-unit count rules remain', () => {
   const approve = row => ({ ...row, status: 'approved' });
   const strict = { ...unit5, status: 'approved', items: unit5.items.map(approve), occurrences: unit5.occurrences.map(approve), contexts: unit5.contexts.map(approve), activities: unit5.activities.map(approve) };
   const errors = validateUnit(strict).errors;
@@ -139,7 +139,19 @@ test('wrong situations are not repeated inside Unit 5 or from Units 1–4', () =
   assert.deepEqual(seen.filter(row => earlierSituations.has(row)), []);
 });
 
-test('Word Families: only the five genuine families are authored; the fifteen others are left unavailable rather than padded', () => {
+test('wrong situations are not near-duplicates of each other inside Unit 5', () => {
+  const rows = unit5.items.flatMap(item => item.senses[0].situationDistractors.map(text => ({ term: item.term, text })));
+  const words = text => new Set(text.toLowerCase().replace(/[^a-z ]/g, ' ').split(/\s+/).filter(word => word.length > 3));
+  const close = [];
+  for (let i = 0; i < rows.length; i += 1) for (let j = i + 1; j < rows.length; j += 1) {
+    const a = words(rows[i].text), b = words(rows[j].text);
+    const shared = [...a].filter(word => b.has(word)).length;
+    if (shared / (a.size + b.size - shared) > 0.6) close.push(`${rows[i].term} / ${rows[j].term}`);
+  }
+  assert.deepEqual(close, []);
+});
+
+test('Word Families: only the six genuine families are authored; the twenty-four others are left unavailable rather than padded', () => {
   for (const item of unit5.items) {
     const forms = item.senses[0].wordFamilyForms;
     if (NO_FAMILY.includes(item.term)) {
@@ -156,7 +168,7 @@ test('Word Families: only the five genuine families are authored; the fifteen ot
     }
   }
   const familyItems = unit5.activities.filter(a => a.activityData.taskType === 'word_family');
-  assert.equal(familyItems.length, 15);
+  assert.equal(familyItems.length, 18);
   assert.ok(familyItems.every(a => a.activityData.sourceText.split('____').length === 2 && !a.activityData.sourceText.startsWith('____')));
 });
 
@@ -222,4 +234,58 @@ test('countability and articles: "accommodation" and "scenery" are never used wi
   const text = JSON.stringify(unit5).toLowerCase();
   assert.doesNotMatch(text, /\ban? (accommodation|scenery)\b|\b(accommodations|sceneries)\b/);
   assert.doesNotMatch(text, /\b(traveling|licensing|colorful|organized|neighbors)\b/, 'British spelling');
+});
+
+test('Batch 3 (words 21–30): exact forms, IDs, no "(job title)" label, noun senses only', () => {
+  const batch = ['coral', 'spellbound', 'wildlife', 'preservation', 'environmental impact', 'journey', 'licence', 'offer', 'guided tour', 'travel assistant'];
+  assert.deepEqual(unit5.items.slice(20).map(item => item.term), batch);
+  assert.deepEqual(unit5.occurrences.slice(20).map(row => row.occurrenceId), ['u5_21_coral', 'u5_22_spellbound', 'u5_23_wildlife', 'u5_24_preservation', 'u5_25_environmental_impact', 'u5_26_journey', 'u5_27_licence', 'u5_28_offer', 'u5_29_guided_tour', 'u5_30_travel_assistant']);
+  assert.ok(unit5.items.every(item => !/job title/i.test(item.term)));
+  assert.deepEqual(unit5.items.slice(20).map(item => item.partOfSpeech), ['noun', 'adjective', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun']);
+  assert.equal(unit5.items.slice(20).filter(item => /_5$/.test(item.vocabularyId)).length, 0, 'no other collision, so no further _5 isolation');
+});
+
+test('licence is the British noun spelling everywhere except the spelling-error data and the teacher note; offer is the noun only', () => {
+  const texts = [];
+  for (const context of unit5.contexts) texts.push(context.text);
+  for (const item of unit5.items) {
+    const sense = item.senses[0];
+    texts.push(sense.meaning, sense.meaningSentence ?? '', ...sense.masteryContexts.map(c => `${c.text} ${c.meaning}`), ...(sense.masteryPassages ?? []).map(p => p.text), ...(sense.acceptedParaphrases ?? []));
+  }
+  for (const activity of unit5.activities) texts.push(JSON.stringify(activity.activityData));
+  assert.doesNotMatch(texts.join('\n').toLowerCase(), /\blicen[sz]e[sd]?\b|\blicensing\b/);
+  const offerItem = unit5.items.find(item => item.term === 'offer');
+  assert.equal(offerItem.partOfSpeech, 'noun');
+  const offerText = [...unit5.contexts.filter(c => c.vocabularyId === offerItem.vocabularyId).map(c => c.text), ...offerItem.senses[0].masteryContexts.map(c => c.text), ...(offerItem.senses[0].masteryPassages ?? []).map(p => p.text)].join(' ');
+  assert.doesNotMatch(offerText, /\b(to offer|we offer|they offer|offers (a|an|the)|offered)\b/i, 'offer is used as a noun only');
+});
+
+test('close neighbours are not blurred: preservation vs conservation, journey vs expedition', () => {
+  const pick = term => JSON.stringify(unit5.items.find(item => item.term === term).senses[0]).toLowerCase();
+  assert.doesNotMatch(pick('preservation'), /conservation/);
+  assert.doesNotMatch(pick('journey'), /expedition/);
+  assert.doesNotMatch(pick('guided tour'), /sightseeing/);
+  assert.doesNotMatch(pick('expedition'), /"[^"]*\bjourney\b[^"]*"\s*,\s*"acceptedParaphrases"/);
+});
+
+test('gap-fill: when the gap follows "a"/"an", every option starts with the same kind of letter (no article giveaway)', () => {
+  const vowel = word => /^[aeiou]/i.test(word);
+  for (const item of unit5.items) {
+    const sense = item.senses[0];
+    for (const [index, gap] of sense.gapDistractors.entries()) {
+      const context = unit5.contexts.find(c => c.vocabularyId === item.vocabularyId && c.contextId.endsWith(`_gap_${gap.id}`)) ?? unit5.contexts.filter(c => c.vocabularyId === item.vocabularyId && /_gap_/.test(c.contextId))[index];
+      const match = context.text.match(new RegExp(`\\b(a|an) ${item.term.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}\\b`, 'i'));
+      if (!match) continue;
+      const options = [gap.answer, ...(gap.wrong ?? gap.distractors)];
+      assert.equal(new Set(options.map(option => vowel(option))).size, 1, `${item.term}: "${match[0]}" gives the answer away through a/an`);
+    }
+  }
+});
+
+test('no stale "not locked" or "not authored" draft comments; the 50-word list is described as locked', () => {
+  for (const name of ['draft', 'activities', 'collocations', 'context-passages', 'meaning-mastery', 'meaning-match', 'precision-use', 'situation-extras', 'word-families', 'word-family-alternates', 'word-family-items']) {
+    const text = fs.readFileSync(new URL(`../content/vocabulary/units/unit-05-${name}.js`, import.meta.url), 'utf8');
+    assert.doesNotMatch(text, /not locked yet|Words 21–50|WORDS 1–20|words 1–20|batches 1–2/, name);
+  }
+  assert.match(fs.readFileSync(new URL('../content/vocabulary/units/unit-05-draft.js', import.meta.url), 'utf8'), /full 50-word list is locked/);
 });

@@ -1,4 +1,4 @@
-// Unit 5 · additional authored WRONG situations for "Which situation fits?", WORDS 1–20 ONLY. Same purpose as unit-04-situation-extras.js:
+// Unit 5 · additional authored WRONG situations for "Which situation fits?", WORDS 1–30 ONLY. Same purpose as unit-04-situation-extras.js:
 // the schema needs at least four distinct, target-free situations. Each word gets three more plausible, clearly wrong situations of mixed length.
 // None of them shows the word, and none could also illustrate it.
 export default Object.freeze({
@@ -101,5 +101,55 @@ export default Object.freeze({
     'The conference delegates collected their badges and walked into the main hall.',
     'The tourists argued about whether to take a taxi or wait for the next bus.',
     'The airline allowed each passenger one small bag and one suitcase.'
+  ],
+  coral: [
+    'The campsite manager showed the family where to pitch their tent near the stream.',
+    'Passengers on the night train were given blankets and a light breakfast.',
+    'The tour leader reminded everyone to carry water and sun cream on the desert walk.'
+  ],
+  spellbound: [
+    'The group looked at their phones throughout the museum talk and left before the end.',
+    'Tourists hurried through the souvenir market because it had started to rain.',
+    'The ferry crossing was so uneventful that most people slept in their seats.'
+  ],
+  wildlife: [
+    'The festival ended with a loud firework display above the river.',
+    'The shop assistant wrapped the pottery carefully in tissue paper.',
+    'Rain forced the cyclists to shelter in a café until the afternoon.'
+  ],
+  preservation: [
+    'He booked a double room with a balcony for the last two nights of the trip.',
+    'The café by the beach served fresh lemonade and ice cream to hot, tired walkers.',
+    'A traveller on the platform asked a stranger which train went to the coast.'
+  ],
+  'environmental impact': [
+    'The family picked a hotel because it had a children’s club and a large pool.',
+    'Visitors rated the restaurant highly for its friendly staff and generous portions.',
+    'Heavy snow closed the mountain pass, so the coach returned to the valley.'
+  ],
+  journey: [
+    'The museum shop sold postcards, maps and small wooden souvenirs.',
+    'He lost his sunglasses somewhere near the swimming pool.',
+    'The class spent the morning painting pictures of the harbour.'
+  ],
+  licence: [
+    'He was delighted with his window seat because it gave him a view of the mountains.',
+    'The cleaner left fresh towels and a small bar of soap on every bed.',
+    'They compared prices online before choosing a hotel near the station.'
+  ],
+  offer: [
+    'The little girl built a sandcastle with a moat and four towers.',
+    'He apologised for arriving late and explained that the bus had broken down.',
+    'Dark clouds gathered above the mountains, and the wind began to rise.'
+  ],
+  'guided tour': [
+    'The restaurant was so busy that we waited forty minutes for a table.',
+    'The children spent all morning splashing in the shallow end of the pool.',
+    'A heavy suitcase burst open on the platform and clothes fell across the floor.'
+  ],
+  'travel assistant': [
+    'My aunt kept her holiday photographs in a thick album beside the television.',
+    'The village is quiet in winter, when most of the cafés and shops are closed.',
+    'A friendly stranger carried the buggy up the steps of the metro station.'
   ]
 });

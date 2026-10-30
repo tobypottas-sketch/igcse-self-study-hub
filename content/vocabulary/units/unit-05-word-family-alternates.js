@@ -1,4 +1,4 @@
-// Unit 5 · Word Families — a SECOND authored example sentence for the two non-headword forms of each three-form family, WORDS 1–20.
+// Unit 5 · Word Families — a SECOND authored example sentence for the two non-headword forms of each three-form family, WORDS 1–30.
 // Same contract as unit-04-word-family-alternates.js: each sentence contains its form exactly once and never starts with it.
 export const unit5WordFamilyAlternates = Object.freeze({
   snorkelling: {
@@ -16,6 +16,10 @@ export const unit5WordFamilyAlternates = Object.freeze({
   popular: {
     popularity: 'Cheap flights have increased the popularity of weekend breaks in Europe.',
     unpopular: 'Long queues made the museum unpopular with school groups.'
+  },
+  preservation: {
+    preserve: 'Strict rules on boat speed help to preserve the quiet lagoon for future visitors.',
+    preserved: 'Visitors can see well-preserved mosaics that are nearly two thousand years old.'
   },
   adventurous: {
     adventure: 'The school trip turned into a real adventure when the bus broke down in the mountains.',
