@@ -1346,7 +1346,7 @@ const entries = [
       retrievalContexts:[
         { id:'1', text:'Cycle lanes and electric buses are part of the city’s plan for long-term sustainability.', target:'sustainability', grammarPattern:'' },
         { id:'2', text:'Environmental groups welcomed the airport’s new commitment to sustainability.', target:'sustainability', grammarPattern:'' },
-        { id:'3', text:'The company’s focus on sustainability led it to replace its diesel trucks with electric ones.', target:'sustainability', grammarPattern:'' }
+        { id:'3', text:'The company’s focus on sustainability led it to replace its diesel lorries with electric ones.', target:'sustainability', grammarPattern:'' }
       ],
       gapDistractors:[
         { id:'1', answer:'sustainability', wrong:['disaster', 'laughter', 'curiosity'] },
