@@ -12,7 +12,7 @@ import { evaluateUnitReadiness } from '../src/vocabulary/pathway-readiness.js';
 import { releasePlannerContent } from '../content/vocabulary/readiness-report.js';
 
 const TERMS = ['breathtaking', 'comfort', 'reality', 'toughest', 'storeys', 'accommodate', 'luxury', 'altitude', 'landscape', 'passenger', 'engineer', 'pilot', 'airship', 'launch', 'height', 'anxious', 'vehicle', 'pollution', 'destination', 'spacious', 'efficiently', 'demand', 'invention', 'machinery', 'advertisement', 'enormous', 'equipment', 'collision', 'organisation', 'participant', 'livelihood', 'fatality', 'initiative', 'campaign', 'pothole', 'trauma', 'measures', 'estimate', 'regulation', 'operate', 'detain', 'offences', 'provisional', 'enforcement', 'statistics', 'safety', 'sustainability', 'legislation', 'introduce', 'innovative'];
-const NO_FAMILY = ['breathtaking', 'toughest', 'storeys', 'accommodate', 'altitude', 'landscape', 'passenger', 'engineer', 'pilot', 'airship', 'launch', 'height', 'vehicle', 'destination', 'spacious', 'demand', 'machinery', 'enormous', 'collision', 'livelihood', 'fatality', 'initiative', 'campaign', 'pothole', 'trauma', 'measures', 'estimate', 'regulation', 'detain', 'offences', 'provisional', 'enforcement', 'statistics', 'legislation', 'introduce'];
+const NO_FAMILY = ['breathtaking', 'toughest', 'storeys', 'accommodate', 'altitude', 'landscape', 'passenger', 'engineer', 'pilot', 'airship', 'launch', 'height', 'vehicle', 'destination', 'spacious', 'demand', 'machinery', 'enormous', 'collision', 'livelihood', 'initiative', 'campaign', 'pothole', 'trauma', 'measures', 'estimate', 'detain', 'offences', 'provisional', 'introduce'];
 const STAGES = ['recognise', 'match', 'apply', 'recall', 'mastery'];
 // Same-part-of-speech pools: the five adjectives (breathtaking, toughest, anxious, spacious, enormous) support each other and the four verbs (accommodate,
 // launch) now support each other with the new verbs estimate and operate; only the lone adverb (efficiently) is still short of three same-POS words.
@@ -91,7 +91,7 @@ test('wrong situations: at least four distinct, target-free situations per word'
   }
 });
 
-test('Word Families: only genuine families are authored, each with >=3 forms, >=2 parts of speech and alternates; the twenty-five others are left unavailable', () => {
+test('Word Families: only genuine families are authored, each with >=3 forms, >=2 parts of speech and alternates; the thirty others are left unavailable', () => {
   for (const item of unit4.items) {
     const forms = item.senses[0].wordFamilyForms;
     if (NO_FAMILY.includes(item.term)) {
@@ -104,7 +104,7 @@ test('Word Families: only genuine families are authored, each with >=3 forms, >=
     }
   }
   const familyItems = unit4.activities.filter(a => a.activityData.taskType === 'word_family');
-  assert.equal(familyItems.length, 45);
+  assert.equal(familyItems.length, 60);
   assert.ok(familyItems.every(a => a.activityData.sourceText.split('____').length === 2 && !a.activityData.sourceText.startsWith('____')));
 });
 

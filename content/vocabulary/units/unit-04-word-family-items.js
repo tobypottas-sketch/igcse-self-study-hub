@@ -55,5 +55,20 @@ export default [
   family('sustainability_c', 'vocab_sustainability', 'sustainability', 'Fuel for the new trains is produced ____ from waste vegetable oil.', 'sustainably'),
   family('innovative_a', 'vocab_innovative', 'innovative', 'The ____ engineer designed a train that uses no fuel at all.', 'innovative'),
   family('innovative_b', 'vocab_innovative', 'innovative', 'Airlines must ____ if they want to reduce their fuel use.', 'innovate'),
-  family('innovative_c', 'vocab_innovative', 'innovative', 'The most important ____ in public transport this century has been the electric bus.', 'innovation')
+  family('innovative_c', 'vocab_innovative', 'innovative', 'The most important ____ in public transport this century has been the electric bus.', 'innovation'),
+  family('fatality_a', 'vocab_fatality', 'fatality', 'Police confirmed that the crash had caused one ____ and three injuries.', 'fatality'),
+  family('fatality_b', 'vocab_fatality', 'fatality', 'Tiredness at the wheel is a leading cause of ____ road accidents.', 'fatal'),
+  family('fatality_c', 'vocab_fatality', 'fatality', 'The motorist was ____ injured when his car hit a barrier.', 'fatally'),
+  family('regulation_a', 'vocab_regulation', 'regulation', 'The tram operator was fined for breaking a ____ on opening hours.', 'regulation'),
+  family('regulation_b', 'vocab_regulation', 'regulation', 'Local councils have the power to ____ the number of taxis in the city.', 'regulate'),
+  family('regulation_c', 'vocab_regulation', 'regulation', 'The ____ authority can close any airline that ignores safety rules.', 'regulatory'),
+  family('enforcement_a', 'vocab_enforcement', 'enforcement', 'Local councils have asked for more money for traffic ____.', 'enforcement'),
+  family('enforcement_b', 'vocab_enforcement', 'enforcement', 'The police do not have enough officers to ____ the new speed limit.', 'enforce'),
+  family('enforcement_c', 'vocab_enforcement', 'enforcement', 'The ban on mobile phones is rarely ____ on this road.', 'enforced'),
+  family('legislation_a', 'vocab_legislation', 'legislation', 'Parliament spent months debating the proposed ____ on drones.', 'legislation'),
+  family('legislation_b', 'vocab_legislation', 'legislation', 'The minister said that it was time to ____ on the use of electric scooters.', 'legislate'),
+  family('legislation_c', 'vocab_legislation', 'legislation', 'The ____ body of the country meets in the capital every Tuesday.', 'legislative'),
+  family('statistics_a', 'vocab_statistics', 'statistics', 'The council collects ____ on the number of cyclists who use the new bridge.', 'statistics'),
+  family('statistics_b', 'vocab_statistics', 'statistics', 'There is no ____ evidence that the new speed limit has reduced accidents.', 'statistical'),
+  family('statistics_c', 'vocab_statistics', 'statistics', 'It is ____ unlikely that two such accidents will happen in one week.', 'statistically')
 ];

@@ -41,5 +41,13 @@ export const unit4WordFamilyAlternates = Object.freeze({
   sustainability: {
     sustainable: 'The council is looking for sustainable ways to reduce city traffic.',
     sustainably: 'Some airlines now claim that they buy their fuel sustainably.'
+  },
+  fatality: {
+    fatal: 'Drivers who fall asleep at the wheel risk a fatal crash.',
+    fatally: 'Sadly, the cyclist was fatally injured when a van hit her.'
+  },
+  enforcement: {
+    enforce: 'Cameras help the police to enforce the speed limit on country roads.',
+    enforced: 'Rules that are not enforced soon stop being respected.'
   }
 });
