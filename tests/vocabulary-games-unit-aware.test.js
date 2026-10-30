@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import { GAMES_BY_UNIT, gamesFor, availableGames, CONNECTIONS_PUZZLES, BLITZ_CONFUSABLE, BLITZ_MEANING_OPTIONS } from '../src/vocabulary/games/games-data.js';
 import { renderGamesEntry, renderLobby, renderConnectionsIntro, renderConnectionsPlay } from '../src/vocabulary/games/games-view.js';
+import { buildBlitzPool, createBlitz } from '../src/vocabulary/games/blitz-engine.js';
 import { createConnections } from '../src/vocabulary/games/connections-engine.js';
 import { mountGames } from '../src/vocabulary/games/games-controller.js';
 import { renderVocabularyUnit } from '../src/vocabulary/views.js';
@@ -84,4 +85,20 @@ test('controller: puzzles and Blitz data come from the unit registry, never stra
   assert.match(controllerSource, /unitGames\?\.connections\?\.puzzles/);
   assert.match(controllerSource, /data: unitGames\?\.blitz/);
   assert.doesNotMatch(controllerSource, /CONNECTIONS_PUZZLES/);
+});
+
+test('Word Blitz engine: without unit data it has no game and exposes no Unit 1 content', () => {
+  const engineSource = fs.readFileSync(fileURLToPath(new URL('../src/vocabulary/games/blitz-engine.js', import.meta.url)), 'utf8');
+  const code = engineSource.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').replace(/\s\/\/ .*$/gm, '');
+  assert.doesNotMatch(code, /games-data|BLITZ_CONFUSABLE|BLITZ_MEANING_OPTIONS/, 'the engine does not import Unit 1 data');
+  for (const data of [undefined, null, {}, { confusable:[] }, { meaningOptions:{} }]) {
+    assert.deepEqual(buildBlitzPool(unit1, () => 0.5, data), [], `pool without usable data: ${JSON.stringify(data)}`);
+  }
+  const game = createBlitz({ content:unit1, rng:() => 0.5, now: () => 0 });
+  assert.equal(game.start(), null, 'no question is served');
+  assert.equal(game.state.question, null);
+  assert.equal(JSON.stringify(game.state).includes(unit1.items[0].term), false, 'no Unit 1 term appears in the engine state');
+  // Explicit Unit 1 data keeps Unit 1 behaviour.
+  assert.ok(buildBlitzPool(unit1, () => 0.5, gamesFor(1).blitz).length > 50);
+  assert.ok(createBlitz({ content:unit1, rng:() => 0.5, now: () => 0, data:gamesFor(1).blitz }).start());
 });

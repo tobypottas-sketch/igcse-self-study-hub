@@ -1,6 +1,5 @@
 // Word Blitz rules as a small pure state machine. It reads Unit 1 items/contexts that are handed in and nothing else:
 // no storage, no network, no progression, XP, mastery or Set code.
-import { BLITZ_CONFUSABLE, BLITZ_MEANING_OPTIONS } from './games-data.js';
 import { createGameHistory, leastRecentFirst } from './games-history.js';
 export const BLITZ = Object.freeze({ durationMs: 60000, base: 100, urgentMs: 10000, tiers: Object.freeze([[0, 1], [3, 2], [6, 3], [10, 4]]) });
 // Result-screen title, by score. Purely cosmetic.
@@ -36,12 +35,15 @@ export function blankSentence(text, term) {
 }
 
 // Words that may not share a question: near neighbours in meaning, where a distractor could be argued as correct.
-const clusterOf = (term, confusable = BLITZ_CONFUSABLE) => { const t = String(term).toLowerCase(); return new Set(confusable.filter(group => group.includes(t)).flat()); };
+const clusterOf = (term, confusable) => { const t = String(term).toLowerCase(); return new Set(confusable.filter(group => group.includes(t)).flat()); };
 // Fallback order when a word class is too small to supply three distractors.
 const NEAR_POS = { adverb: ['adjective', 'noun', 'verb'], adjective: ['noun', 'verb', 'adverb'], noun: ['adjective', 'verb', 'adverb'], verb: ['noun', 'adjective', 'adverb'] };
 
-export function buildBlitzPool(content, rng = Math.random, data = {}) {
-  const confusable = data?.confusable ?? BLITZ_CONFUSABLE; const meaningOptions = data?.meaningOptions ?? BLITZ_MEANING_OPTIONS;
+// `data` is the UNIT's Blitz dataset ({ confusable, meaningOptions }, see GAMES_BY_UNIT). Without it there is no game: the pool is empty and
+// the engine never falls back to another unit's content.
+export function buildBlitzPool(content, rng = Math.random, data = null) {
+  if (!Array.isArray(data?.confusable) || !data.meaningOptions || typeof data.meaningOptions !== 'object') return [];
+  const confusable = data.confusable; const meaningOptions = data.meaningOptions;
   const items = (content?.items ?? []).filter(item => item.term && item.coreMeaning);
   if (items.length < 4) return [];
   const byId = new Map((content?.contexts ?? []).map(context => [context.contextId, context]));
@@ -106,7 +108,7 @@ export function buildBlitzPool(content, rng = Math.random, data = {}) {
 }
 
 // `history` (optional, see games-history.js) lets Play Again prefer prompts and words not seen recently. Without one, every game is independent.
-export function createBlitz({ content, rng = Math.random, now = () => Date.now(), durationMs = BLITZ.durationMs, history = createGameHistory(), data = {} } = {}) {
+export function createBlitz({ content, rng = Math.random, now = () => Date.now(), durationMs = BLITZ.durationMs, history = createGameHistory(), data = null } = {}) {
   let queue = []; let lastWord = null; let startedAt = 0; let locked = false; let round = 0;
   // Unseen prompts first, then least recently seen; among equals the words served least often come first. The pool arrives shuffled, so ties stay random.
   const ordered = pool => leastRecentFirst(pool, q => history.blitzSeen.get(q.id) ?? 0, q => history.blitzTermUse.get(q.term) ?? 0);
