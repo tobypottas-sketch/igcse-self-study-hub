@@ -1,4 +1,4 @@
-// UNIT 5 – HOLIDAYS: authoring draft (batches 1–4 = words 1–40). Source: 0511 key words UNIT 5 – HOLIDAYS (coursebook order). The full 50-word list is locked; words 41–50 are not authored yet.
+// UNIT 5 – HOLIDAYS: authoring draft (batches 1–5 = words 1–50, all authored). Source: 0511 key words UNIT 5 – HOLIDAYS (coursebook order). The full 50-word list is locked and now fully authored; the unit stays a draft until it is packaged in a separate job.
 // Same architecture as unit-04.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-05-draft.js
 // A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-05.js only when all 50 words are final.
 import { buildCuratedUnit } from '../build-unit.js';
@@ -1158,6 +1158,298 @@ const entries = [
         { id:'2', answer:'availability', wrong:['cleaning', 'temperature', 'decoration'] },
         { id:'3', answer:'availability', wrong:['advertising', 'weather', 'payment'] }
       ]
+    }),
+  e('facilities', 'noun',
+    'the buildings, rooms and services that are provided for people to use, such as toilets, a café or a swimming pool',
+    ['amenities for guests', 'buildings and services for visitors'],
+    ['the money that visitors pay to enter an attraction', 'the people who work at a visitor centre', 'the rules that visitors must follow on a site'],
+    'The campsite has excellent facilities, including hot showers and a small shop.',
+    'amenities for guests', 'The campsite has excellent amenities for guests, including hot showers and a small shop.',
+    'buildings and services for visitors', 'The leaflet lists the buildings and services for visitors, including toilets, a café and a car park.',
+    {
+      teacherNote:'Normally plural in this sense: the buildings, rooms and services provided for users (toilets, a café, a pool). It is not the same as equipment, which is the physical items needed for an activity.',
+      masteryContexts:[
+        { text:'The sports centre has excellent facilities, including a pool, a climbing wall and changing rooms.', meaning:'the buildings and services provided for people to use' },
+        { text:'Parents of young children often choose a campsite with good toilet and washing facilities.', meaning:'the rooms and services that are provided for the use of visitors' }
+      ],
+      situationDistractors:[
+        'The mayor cut a ribbon to open the new bridge over the river.',
+        'A group of students sat on the grass and sketched the old castle.',
+        'The postman delivered a parcel to the cottage at the end of the lane.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The visitor centre has excellent facilities, including a café, clean toilets and a play area for children.', target:'facilities', grammarPattern:'' },
+        { id:'2', text:'Because the campsite has no washing facilities, most of the walkers stayed in the village hostel instead.', target:'facilities', grammarPattern:'' },
+        { id:'3', text:'Before booking a family holiday, parents often check the sports facilities, the childcare and the opening hours of the pool.', target:'facilities', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'facilities', wrong:['souvenirs', 'timetables', 'brochures'] },
+        { id:'2', answer:'facilities', wrong:['photographs', 'tickets', 'guidebooks'] },
+        { id:'3', answer:'facilities', wrong:['rainstorms', 'languages', 'postcards'] }
+      ]
+    }),
+  e('equipment', 'noun',
+    'the items and tools that people need in order to do a particular sport or activity',
+    ['kit', 'items needed for an activity'],
+    ['the money paid to use a sports centre', 'the instructions that explain how to play a sport', 'the people who help visitors during an activity'],
+    'The kayak centre provides all the equipment you need, including helmets, paddles and life jackets.',
+    'kit', 'The kayak centre provides all the kit you need, including helmets, paddles and life jackets.',
+    'items needed for an activity', 'Before the canoe trip, each student received a list of the items needed for an activity like paddling.',
+    {
+      idKey:'equipment_5',
+      teacherNote:'Unit 5 item (equipment_5), separate from the Unit 2 and Unit 4 equipment items; shares only the lexical spelling list. Uncountable: no “an equipment” or “equipments”; use “a piece of equipment”. Facilities are buildings and services, whereas equipment is the physical items needed for an activity.',
+      masteryContexts:[
+        { text:'Hire shops in the mountain village rent out skis, boots and other winter sports equipment by the day.', meaning:'the items needed for a particular sport or activity' },
+        { text:'Climbing a rock face without the right equipment is extremely dangerous, however strong you are.', meaning:'the ropes, tools and clothing that people need for an activity' }
+      ],
+      situationDistractors:[
+        'A waiter carried a tray of cold drinks across the terrace.',
+        'The tour leader read out the names of the people in the group.',
+        'Heavy rain filled the streets of the old town with puddles.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The outdoor centre lends visitors waterproof jackets, helmets and all the other equipment needed for canyoning.', target:'equipment', grammarPattern:'' },
+        { id:'2', text:'Some of the expedition equipment was lost when the boat tipped over in the rapids.', target:'equipment', grammarPattern:'' },
+        { id:'3', text:'Hiring specialist equipment is cheaper than buying it, especially if you only go skiing once a year.', target:'equipment', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'equipment', wrong:['scenery', 'weather', 'traffic'] },
+        { id:'2', answer:'equipment', wrong:['rainfall', 'scenery', 'traffic'] },
+        { id:'3', answer:'equipment', wrong:['sunshine', 'traffic', 'information'] }
+      ]
+    }),
+  e('location', 'noun',
+    'the place or position where something is found or situated',
+    ['position', 'spot'],
+    ['a long journey made by sea or by air', 'the number of people who live in a particular area', 'the time of year when most visitors arrive'],
+    'The museum’s location, in the old harbour, makes it easy to reach on foot.',
+    'position', 'The museum’s position, in the old harbour, makes it easy to reach on foot.',
+    'spot', 'The ranger pointed to the spot on the map where the new campsite would be built.',
+    {
+      teacherNote:'The place or position where something is found. Not the same as destination, which is the place a traveller is going to.',
+      masteryContexts:[
+        { text:'The new visitor centre has a perfect location at the foot of the mountain, only five minutes from the car park.', meaning:'the place where something is situated' },
+        { text:'Because of its remote location, the island has no bridge and can only be reached by boat.', meaning:'the position of a place in relation to other places' }
+      ],
+      situationDistractors:[
+        'The conductor tapped his baton, and the orchestra began to play.',
+        'Two children shared an umbrella as they walked to school.',
+        'The baker sold out of bread before nine o’clock.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The campsite is in a lovely location beside a quiet river, far from the main road.', target:'location', grammarPattern:'' },
+        { id:'2', text:'Many walkers choose a guesthouse for its location, hoping to start the path straight from the front door.', target:'location', grammarPattern:'' },
+        { id:'3', text:'The tour operator refused to reveal the exact location of the hidden waterfall, because it wanted to protect it from crowds.', target:'location', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'location', wrong:['collection', 'invitation', 'competition'] },
+        { id:'2', answer:'location', wrong:['decoration', 'reputation', 'temperature'] },
+        { id:'3', answer:'location', wrong:['price', 'menu', 'timetable'] }
+      ]
+    }),
+  e('obtain', 'verb',
+    'to get something, especially by making an effort or by following an official process',
+    ['acquire', 'get hold of'],
+    ['to pay for something in a shop', 'to refuse something that is offered', 'to lose something and look for it'],
+    'Visitors must obtain a permit before entering the nature reserve.',
+    'acquire', 'Visitors must acquire a permit before entering the nature reserve.',
+    'get hold of', 'Students who want to work abroad must get hold of a visa well before they leave.',
+    {
+      teacherNote:'To get something officially or by making an effort (a visa, permission, information). It is not the same as buy, which means to pay for something.',
+      masteryContexts:[
+        { text:'Foreign visitors can obtain a tourist visa online in less than ten minutes.', meaning:'to get something through an official process' },
+        { text:'It was difficult to obtain accurate information about the ferry times, because every website gave a different answer.', meaning:'to succeed in getting something that is difficult to find' }
+      ],
+      situationDistractors:[
+        'A seagull landed on the railing and watched the children eat their chips.',
+        'The farmer drove his tractor slowly along the narrow road.',
+        'The choir rehearsed in the hall until late in the evening.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Foreign students can obtain a work permit if a local company has agreed to employ them.', target:'obtain', grammarPattern:'' },
+        { id:'2', text:'Tourists who wish to climb the volcano must obtain permission from the park office at least a day before.', target:'obtain', grammarPattern:'' },
+        { id:'3', text:'The researchers spent six weeks in the forest trying to obtain clear photographs of the rare cat.', target:'obtain', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'obtain', wrong:['repair', 'widen', 'invent'] },
+        { id:'2', answer:'obtain', wrong:['burn', 'spill', 'pour'] },
+        { id:'3', answer:'obtain', wrong:['unfold', 'predict', 'calm'] }
+      ]
+    }),
+  e('specialise', 'verb',
+    'to focus your work or study on one particular area and become an expert in it',
+    ['become an expert', 'focus on one area'],
+    ['to travel to many different countries in a short time', 'to avoid doing a job that is difficult', 'to teach a subject to a large group of students'],
+    'The company is small, but it chooses to specialise in cycling holidays in the mountains.',
+    'become an expert', 'The company is small, but it chooses to become an expert in cycling holidays in the mountains.',
+    'focus on one area', 'Medical students usually have to focus on one area after five years of general training.',
+    {
+      teacherNote:'British spelling (-ise). Taught with “in”: specialise in + subject. Students often write the American spelling.',
+      masteryContexts:[
+        { text:'After a general degree in geography, she decided to specialise in sustainable tourism.', meaning:'to focus on one particular area of study or work' },
+        { text:'Some tour operators prefer to specialise in a single region, so that their guides know it extremely well.', meaning:'to concentrate on one area and become an expert in it' }
+      ],
+      situationDistractors:[
+        'A small boat rocked gently beside the stone steps of the harbour.',
+        'The shop assistant wrapped the glass vase in layers of paper.',
+        'It rained all morning, so the picnic was moved to the village hall.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Students who want to become marine biologists usually study general science first and specialise later.', target:'specialise', grammarPattern:'' },
+        { id:'2', text:'The agency has only five staff, so it cannot organise every kind of holiday and has chosen to specialise in cultural tours.', target:'specialise', grammarPattern:'' },
+        { id:'3', text:'Doctors who specialise in tropical diseases are in great demand, because they help travellers who fall ill abroad.', target:'specialise', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'specialise', wrong:['hesitate', 'celebrate', 'separate'] },
+        { id:'2', answer:'specialise', wrong:['recover', 'escape', 'complain'] },
+        { id:'3', answer:'specialise', wrong:['believe', 'succeed', 'participate'] }
+      ]
+    }),
+  e('qualification', 'noun',
+    'an official certificate or achievement, such as a diploma or an exam result, that shows you have the training or ability to do a job',
+    ['certificate', 'proof of training'],
+    ['official permission to do something, usually shown on a card', 'a complaint made about the quality of a service', 'a meeting held to discuss a job application'],
+    'To work as a ski instructor, you need a qualification in teaching and first aid.',
+    'certificate', 'To work as a ski instructor, you need a certificate in teaching and first aid.',
+    'proof of training', 'Employers usually ask applicants for proof of training in customer service.',
+    {
+      teacherNote:'An official certificate or achievement (a diploma, a degree, an exam result) that shows training or ability. A licence, by contrast, is official permission to do something. Often used with “in” (a qualification in first aid) or “for” (a qualification for the job).',
+      masteryContexts:[
+        { text:'Without a qualification in diving, you cannot work as an instructor at a dive school.', meaning:'an official certificate showing that someone has the training for a job' },
+        { text:'Maria has a degree in hospitality, which is an important qualification for anyone who wants to manage a hotel.', meaning:'an achievement, such as a degree, that shows someone is able to do a job' }
+      ],
+      situationDistractors:[
+        'The ferry horn sounded twice as the boat left the quay.',
+        'A group of cyclists stopped to fix a flat tyre beside the road.',
+        'On Sundays the market square is filled with stalls selling cheese and honey.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'A lifeguard must have a recognised qualification in rescue and first aid before starting work at the pool.', target:'qualification', grammarPattern:'' },
+        { id:'2', text:'Although he had no formal qualification, his years of experience as a mountain guide impressed the employer.', target:'qualification', grammarPattern:'' },
+        { id:'3', text:'A university degree is a useful qualification for a career in tourism management.', target:'qualification', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'qualification', wrong:['collection', 'invitation', 'decoration'] },
+        { id:'2', answer:'qualification', wrong:['complaint', 'accident', 'holiday'] },
+        { id:'3', answer:'qualification', wrong:['souvenir', 'timetable', 'departure'] }
+      ]
+    }),
+  e('evaluate', 'verb',
+    'to judge the quality, value or success of something by studying evidence or using clear criteria',
+    ['weigh up', 'measure the success of'],
+    ['to repeat an activity many times to improve at it', 'to change something so that it looks better', 'to tell people that something is worth choosing'],
+    'Tour operators evaluate each new route by studying the number of bookings and the comments of customers.',
+    'weigh up', 'Tour operators weigh up each new route by studying the number of bookings and the comments of customers.',
+    'measure the success of', 'Researchers measure the success of each new tourist project by using visitor numbers and surveys.',
+    {
+      idKey:'evaluate_5',
+      teacherNote:'Unit 5 item (evaluate_5), separate from Unit 3 evaluate; shares only the lexical spelling list. Sense: to judge quality, value or success using evidence or criteria. It is not the same as recommend, which says that something is worth choosing.',
+      masteryContexts:[
+        { text:'Before the new bus route was introduced, the council hired an expert to evaluate its effect on traffic and on local businesses.', meaning:'to judge the value or effect of something using evidence' },
+        { text:'At the end of the walk, the leader invited everyone to evaluate the route, the guide and the arrangements on a scale from one to five.', meaning:'to judge how good something is by using clear criteria' }
+      ],
+      situationDistractors:[
+        'A busker played the violin outside the station while commuters hurried past.',
+        'The children built a sandcastle and decorated it with shells.',
+        'Thick clouds covered the summit, so the climbers waited in the hut.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Tourist boards use visitor surveys and booking figures to evaluate how successful a campaign has been.', target:'evaluate', grammarPattern:'' },
+        { id:'2', text:'Before you choose a language school, take time to evaluate its teaching methods, class sizes and results.', target:'evaluate', grammarPattern:'' },
+        { id:'3', text:'The inspectors visited the campsite to evaluate the quality of the food, the cleanliness and the condition of the showers.', target:'evaluate', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'evaluate', wrong:['repeat', 'delay', 'invite'] },
+        { id:'2', answer:'evaluate', wrong:['borrow', 'applaud', 'forgive'] },
+        { id:'3', answer:'evaluate', wrong:['postpone', 'decorate', 'translate'] }
+      ]
+    }),
+  e('itinerary', 'noun',
+    'a detailed plan of a trip, showing the route and the places that will be visited',
+    ['travel plan', 'day-by-day programme'],
+    ['a printed list of the times when trains and buses leave', 'a document that proves you have paid for a holiday', 'a short guide to the history of a town'],
+    'The tour company sent us a detailed itinerary showing where we would stay each night.',
+    'travel plan', 'The tour company sent us a detailed travel plan showing where we would stay each night.',
+    'day-by-day programme', 'The agency emailed the day-by-day programme of the trip a week before departure.',
+    {
+      teacherNote:'A countable noun: a detailed plan of a trip showing the route and the places to be visited. It is not the same as a timetable, which lists the times when buses or trains leave.',
+      masteryContexts:[
+        { text:'Our itinerary included two nights in Lisbon, a day trip to the coast and a morning at the national tile museum.', meaning:'a detailed plan of a trip showing places and times' },
+        { text:'The tour leader read out the itinerary on the coach so that everybody knew what to expect on the first morning.', meaning:'the planned route and list of places to visit on a journey' }
+      ],
+      situationDistractors:[
+        'The waiter brought a basket of warm bread and a bowl of olives.',
+        'The lighthouse keeper polished the lamp every evening before sunset.',
+        'Cold water splashed over the bow of the little fishing boat.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The itinerary for the first day includes a visit to the castle, lunch in the old town and an evening boat trip.', target:'itinerary', grammarPattern:'' },
+        { id:'2', text:'Before leaving, we sent a copy of our itinerary to my parents, so they would know where we were each night.', target:'itinerary', grammarPattern:'' },
+        { id:'3', text:'A well-planned itinerary leaves free time for rest, because trying to see too much in a week is exhausting.', target:'itinerary', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'itinerary', wrong:['invoice', 'receipt', 'passport'] },
+        { id:'2', answer:'itinerary', wrong:['luggage', 'sandwich', 'sunburn'] },
+        { id:'3', answer:'itinerary', wrong:['dictionary', 'postcard', 'sandwich'] }
+      ]
+    }),
+  e('safety regulations', 'noun',
+    'official rules made by an authority to protect people from danger and injury',
+    ['official protective rules', 'rules that protect people from harm'],
+    ['suggestions from experienced travellers about staying healthy', 'the notices that tell visitors the opening times', 'the instructions that explain how to use a machine'],
+    'Tour operators must obey strict safety regulations when they take tourists on mountain tracks.',
+    'official protective rules', 'Tour operators must obey strict official protective rules when they take tourists on mountain tracks.',
+    'rules that protect people from harm', 'Everyone on the site has to follow the rules that protect people from harm, including the wearing of helmets.',
+    {
+      teacherNote:'A fixed noun phrase, normally plural: official rules made to keep people safe. Taught as a whole; Unit 4 teaches safety and regulation as separate words. Not the same as general advice, which nobody is required to follow.',
+      masteryContexts:[
+        { text:'Hot-air balloon pilots need a licence, and under strict safety regulations the basket must be inspected every year.', meaning:'official rules designed to keep people from being hurt or put in danger' },
+        { text:'The adventure park was closed for a week after inspectors found that it had broken several safety regulations.', meaning:'rules made by an authority to protect people from danger' }
+      ],
+      situationDistractors:[
+        'The conductor stamped each ticket and walked down the swaying carriage.',
+        'A sudden gust of wind blew the menu off the café table.',
+        'Tourists queued patiently to buy ice cream on the promenade.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Cable cars must pass regular inspections under strict safety regulations before they carry passengers.', target:'safety regulations', grammarPattern:'' },
+        { id:'2', text:'Because the company ignored safety regulations, the authorities closed the zip-line park for a month.', target:'safety regulations', grammarPattern:'' },
+        { id:'3', text:'In most countries, boats that carry passengers must follow safety regulations, such as carrying enough life jackets for everybody.', target:'safety regulations', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'safety regulations', wrong:['opening hours', 'ticket prices', 'dining customs'] },
+        { id:'2', answer:'safety regulations', wrong:['school holidays', 'local customs', 'travel brochures'] },
+        { id:'3', answer:'safety regulations', wrong:['holiday traditions', 'food prices', 'weather reports'] }
+      ]
+    }),
+  e('excursion', 'noun',
+    'a short organised trip, usually made for pleasure or education, from which people return the same day',
+    ['day trip', 'organised outing'],
+    ['a long and difficult journey to an unknown or dangerous place', 'a talk given by a guide who walks with a group around a building', 'a ticket that allows people to travel on any bus or train for a day'],
+    'The highlight of the language course was the excursion to the castle, which took the whole of Saturday.',
+    'day trip', 'The highlight of the language course was the day trip to the castle, which took the whole of Saturday.',
+    'organised outing', 'Pupils must wear sensible shoes for the organised outing to the caves next week.',
+    {
+      teacherNote:'A short organised trip, usually for pleasure or education, and normally returning the same day. Not an expedition (a long, difficult journey), not simply a journey, and not a guided tour of one building or site.',
+      masteryContexts:[
+        { text:'The optional excursion to the island, a boat trip with a picnic lunch, costs extra and must be booked at the tour desk.', meaning:'a short organised trip that people take for pleasure' },
+        { text:'Every Friday, the school organises an excursion to a farm, a factory or a museum, and the pupils write a report the next day.', meaning:'a short organised trip, usually for education' }
+      ],
+      situationDistractors:[
+        'The barista steamed the milk and drew a leaf in the foam.',
+        'Workmen repaired the tiles on the roof of the station.',
+        'An elderly couple sat on a bench and fed crumbs to the sparrows.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The school arranged an excursion to a nature reserve, where the pupils spent the day counting birds.', target:'excursion', grammarPattern:'' },
+        { id:'2', text:'Tourists who stay in the capital can book a half-day excursion to the old fortress for a small extra fee.', target:'excursion', grammarPattern:'' },
+        { id:'3', text:'The highlight of the stay was a full-day excursion along the coast, with a picnic lunch and a stop at a fishing village.', target:'excursion', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'excursion', wrong:['examination', 'exhibition', 'explanation'] },
+        { id:'2', answer:'excursion', wrong:['lesson', 'invoice', 'payment'] },
+        { id:'3', answer:'excursion', wrong:['rehearsal', 'argument', 'repair'] }
+      ]
     })
 ];
 
@@ -1200,13 +1492,15 @@ export default buildCuratedUnit({
   source:'0511 key words UNIT 5 – HOLIDAYS',
   entries:enrichedEntries,
   activities:[...unit5Activities, ...unit5PrecisionUse, ...unit5WordFamilyItems],
-  // breathtaking (Unit 4), recommendation (Unit 3), destination (Unit 4) and availability (Unit 2) are also earlier targets: Unit 5 keeps its own
+  // breathtaking (Unit 4), recommendation (Unit 3), destination (Unit 4), availability (Unit 2), equipment (Units 2 and 4) and evaluate (Unit 3) are also earlier targets: Unit 5 keeps its own
   // _5 item for each, which reuses the reviewed misspellings of the shared spelling without touching the earlier unit.
   lexicalSpelling:{
     ...LEXICAL_SPELLING_ERRORS,
     vocab_breathtaking_5:LEXICAL_SPELLING_ERRORS.vocab_breathtaking,
     vocab_recommendation_5:LEXICAL_SPELLING_ERRORS.vocab_recommendation,
     vocab_destination_5:LEXICAL_SPELLING_ERRORS.vocab_destination,
-    vocab_availability_5:LEXICAL_SPELLING_ERRORS.vocab_availability
+    vocab_availability_5:LEXICAL_SPELLING_ERRORS.vocab_availability,
+    vocab_equipment_5:LEXICAL_SPELLING_ERRORS.vocab_equipment,
+    vocab_evaluate_5:LEXICAL_SPELLING_ERRORS.vocab_evaluate
   }
 });

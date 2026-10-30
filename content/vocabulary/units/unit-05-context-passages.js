@@ -1,4 +1,4 @@
-// Unit 5 · Context · Mastery (type_in_passage) — authored short passages, WORDS 1–40 ONLY. Same contract as unit-04-context-passages.js:
+// Unit 5 · Context · Mastery (type_in_passage) — authored short passages, WORDS 1–50. Same contract as unit-04-context-passages.js:
 // two passages per word, each 2-3 natural sentences with exactly ONE gap (`____`); the passage never contains the target elsewhere, never starts
 // with the gap, and makes the target the natural fit. `answer` is the exact surface form typed. `why` records what points to the word.
 const p = (text, answer, why) => ({ text, answer, why });
@@ -163,5 +163,45 @@ export default Object.freeze({
   availability: [
     p('We wanted to visit Rome in the middle of August, but every site we tried showed a red message saying that there was no ____ for our dates. In the end we moved the trip to September, when plenty of rooms were free.', 'availability', 'A red message and a move to September when rooms were free; "no ____ for our dates".'),
     p('Before booking, the agent opened her computer and checked ____ for the week of the music festival. Only two rooms remained, and she suggested that we decide quickly.', 'availability', 'Only two rooms remained; "checked ____ for the week of the music festival".')
+  ],
+  facilities: [
+    p('The new youth hostel stands beside a lake and is surrounded by pine forests. Although the dormitories are simple, the ____ are excellent, with a large kitchen, a laundry and a games room.', 'facilities', 'A large kitchen, a laundry and a games room; "the ____ are excellent".'),
+    p('Disabled visitors need to know in advance whether a park can offer ramps, wide paths and accessible toilets. The website lists all of the ____ and shows them on a simple map.', 'facilities', 'Ramps, wide paths and accessible toilets; "lists all of the ____".')
+  ],
+  equipment: [
+    p('The expedition leader spread everything out on the floor of the hut and counted it twice. Ropes, tents, stoves and radios were all there, so the team felt confident that their ____ was complete.', 'equipment', 'Ropes, tents, stoves and radios; "their ____ was complete".'),
+    p('Beginners at the sailing school do not need to buy anything before the first lesson. The school provides life jackets, wetsuits and all the other ____ that students need on the water.', 'equipment', 'Life jackets and wetsuits; "all the other ____ that students need".')
+  ],
+  location: [
+    p('Before buying the old farmhouse, the family walked around the village, talked to the neighbours and checked the bus times. They were delighted with the ____, because the beach, the shops and the school were all within walking distance.', 'location', 'The beach, shops and school within walking distance; "delighted with the ____".'),
+    p('The writer of the guidebook visited every restaurant in town. He praised the food at the harbour café, but he thought that its ____ next to a noisy car park spoilt the evening.', 'location', 'Next to a noisy car park; "its ____ next to a noisy car park".')
+  ],
+  obtain: [
+    p('Last summer my sister planned a month of volunteer work in Peru. Before she could leave, she had to ____ a visa, a medical certificate and a letter from the charity, and that took nearly three weeks.', 'obtain', 'A visa, a medical certificate and a letter; "she had to ____ a visa".'),
+    p('Every journalist at the festival needed a special pass to enter the main hall. The press office asked reporters to ____ their passes in person on the first morning and to bring a photograph.', 'obtain', 'Passes collected on the first morning; "asked reporters to ____ their passes".')
+  ],
+  specialise: [
+    p('Maya loves mountains, so after finishing school she took a course in outdoor leadership. In her second year she chose to ____ in winter sports, and now she trains ski instructors.', 'specialise', 'Winter sports and training ski instructors; "chose to ____ in winter sports".'),
+    p('A large travel company can sell hundreds of different holidays. A small firm cannot compete in this way, so many small firms decide to ____ and become known for one particular kind of trip.', 'specialise', 'Becoming known for one kind of trip; "decide to ____".')
+  ],
+  qualification: [
+    p('Tom wanted to work as a scuba diving instructor on a Greek island. The dive school liked his enthusiasm, but it could only employ him once he had completed the exams and received a professional ____.', 'qualification', 'Completing exams and receiving a professional certificate; "a professional ____".'),
+    p('Applicants for the museum guide post are asked to list their education and experience. A degree in history is helpful, but an additional ____ in a foreign language is even more attractive to the employer.', 'qualification', 'A degree and a language certificate; "an additional ____ in a foreign language".')
+  ],
+  evaluate: [
+    p('After the first summer season, the new heritage trail had attracted ten thousand walkers. The council asked a team of researchers to ____ the project by counting visitors, interviewing local shop owners and checking the damage to the path.', 'evaluate', 'Counting visitors and checking damage; "asked researchers to ____ the project".'),
+    p('Teachers often ask students to compare two travel websites. The task is not simply to describe them; students have to ____ each one, deciding how clear, accurate and useful it is, and then explain their judgement.', 'evaluate', 'Deciding how clear, accurate and useful; "have to ____ each one".')
+  ],
+  itinerary: [
+    p('Our class trip to London lasted four days. On the first evening, the teacher gave out a printed ____ which listed every museum, meal and train that we would use, so nobody was surprised.', 'itinerary', 'Every museum, meal and train listed; "a printed ____".'),
+    p('The travel agent spread a large map across her desk and began to plan a ten-day holiday for a family of four. She marked the route in red pen and then wrote out a day-by-day ____, leaving the final two days empty for rest.', 'itinerary', 'Marking the route and writing it out day by day; "a day-by-day ____".')
+  ],
+  'safety regulations': [
+    p('Before the first white-water rafting trip of the season, the guides met to go through the new rules. Every raft needed enough life jackets, every client had to wear a helmet and all guides had to be trained in rescue, because the national ____ now said so.', 'safety regulations', 'Life jackets, helmets and rescue training; "the national ____ now said so".'),
+    p('Many travellers think that a hot-air balloon flight is simply a matter of floating gently over the countryside. In fact, pilots must obey strict ____, including checks on wind speed and regular inspection of the basket.', 'safety regulations', 'Checks on wind speed and inspection of the basket; "must obey strict ____".')
+  ],
+  excursion: [
+    p('During our week in Seville, there were many free afternoons for exploring the old streets. The only organised activity was a full-day ____ to a sherry cellar in the countryside, which included lunch, a tasting and the coach ride home.', 'excursion', 'Lunch, a tasting and the coach ride home; "a full-day ____".'),
+    p('The geography teacher wanted her pupils to see a glacier with their own eyes, but a week in the mountains was too expensive. Instead she arranged a one-day ____ to a nearby ice cave, and the pupils were back in school by evening.', 'excursion', 'Back in school by evening; "a one-day ____ to a nearby ice cave".')
   ]
 });

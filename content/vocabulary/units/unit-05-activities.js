@@ -1,8 +1,8 @@
-// Unit 5 · Paraphrasing content (phrase_set and idea_set), WORDS 1–40 ONLY. Same record shapes and contract as unit-04-activities.js:
+// Unit 5 · Paraphrasing content (phrase_set and idea_set), WORDS 1–50. Same record shapes and contract as unit-04-activities.js:
 //   phrase_set : originalPhrase (plain wording) -> equivalentPhrase (contains the target), acceptedVariants, chunks, commonMeaningDistortions
 //   idea_set   : originalIdea (contains the target) with accurate paraphrases that do NOT contain it, a meaning invariant, and three
 //                meaning-changing distractors each tagged with the misconception it represents.
-// Every record is linked to exactly one Unit 5 word. Words 41–50 are not authored yet.
+// Every record is linked to exactly one Unit 5 word.
 const status = 'approved';
 const unitNumber = 5;
 
@@ -72,7 +72,17 @@ const phraseSets = [
   phrase('recommendation_stay', 'a friend’s advice on where to stay', 'a friend’s recommendation on where to stay', ['vocab_recommendation_5'], { chunks:['a friend’s recommendation', 'on where to stay'], distortions:['a friend’s complaint on where to stay', 'a friend’s warning on where to stay', 'a friend’s invoice on where to stay'] }),
   phrase('reservation_table', 'an advance booking for a table at the restaurant', 'a reservation for a table at the restaurant', ['vocab_reservation'], { chunks:['a reservation', 'for a table', 'at the restaurant'], distortions:['a menu for a table at the restaurant', 'a receipt for a table at the restaurant', 'a review for a table at the restaurant'] }),
   phrase('destination_summer', 'a place that families choose to visit in summer', 'a family destination in summer', ['vocab_destination_5'], { chunks:['a family destination', 'in summer'], distortions:['a family timetable in summer', 'a family payment in summer', 'a family complaint in summer'] }),
-  phrase('availability_flights', 'whether seats are free to book on summer flights', 'the availability of seats on summer flights', ['vocab_availability_5'], { chunks:['the availability', 'of seats', 'on summer flights'], distortions:['the popularity of seats on summer flights', 'the price of seats on summer flights', 'the design of seats on summer flights'] })
+  phrase('availability_flights', 'whether seats are free to book on summer flights', 'the availability of seats on summer flights', ['vocab_availability_5'], { chunks:['the availability', 'of seats', 'on summer flights'], distortions:['the popularity of seats on summer flights', 'the price of seats on summer flights', 'the design of seats on summer flights'] }),
+  phrase('facilities_visitor_centre', 'the amenities for guests at the visitor centre', 'the facilities at the visitor centre', ['vocab_facilities'], { chunks:['the facilities', 'at the visitor centre'], distortions:['the prices at the visitor centre', 'the staff at the visitor centre', 'the rules at the visitor centre'] }),
+  phrase('equipment_canoe_trip', 'the items required for a canoe trip', 'the equipment required for a canoe trip', ['vocab_equipment_5'], { chunks:['the equipment', 'required for a canoe trip'], distortions:['the permission required for a canoe trip', 'the money required for a canoe trip', 'the training required for a canoe trip'] }),
+  phrase('location_waterfall', 'the position of the waterfall in the national park', 'the location of the waterfall in the national park', ['vocab_location'], { chunks:['the location', 'of the waterfall', 'in the national park'], distortions:['the height of the waterfall in the national park', 'the history of the waterfall in the national park', 'the owner of the waterfall in the national park'] }),
+  phrase('obtain_cave_permission', 'to gain official approval to enter the cave', 'to obtain permission to enter the cave', ['vocab_obtain'], { chunks:['to obtain', 'permission', 'to enter the cave'], distortions:['to refuse permission to enter the cave', 'to lose permission to enter the cave', 'to cancel permission to enter the cave'] }),
+  phrase('specialise_adventure_teenagers', 'to become an expert in adventure holidays for teenagers', 'to specialise in adventure holidays for teenagers', ['vocab_specialise'], { chunks:['to specialise in', 'adventure holidays', 'for teenagers'], distortions:['to participate in adventure holidays for teenagers', 'to invest in adventure holidays for teenagers', 'to believe in adventure holidays for teenagers'] }),
+  phrase('qualification_first_aid', 'a certificate in first aid for outdoor leaders', 'a qualification in first aid for outdoor leaders', ['vocab_qualification'], { chunks:['a qualification', 'in first aid', 'for outdoor leaders'], distortions:['a complaint in first aid for outdoor leaders', 'a reservation in first aid for outdoor leaders', 'a holiday in first aid for outdoor leaders'] }),
+  phrase('evaluate_walking_tour', 'to judge the success of the walking tour using visitor comments', 'to evaluate the success of the walking tour using visitor comments', ['vocab_evaluate_5'], { chunks:['to evaluate', 'the success of the walking tour', 'using visitor comments'], distortions:['to advertise the success of the walking tour using visitor comments', 'to repeat the success of the walking tour using visitor comments', 'to forget the success of the walking tour using visitor comments'] }),
+  phrase('itinerary_ten_day_tour', 'the planned route and schedule for the ten-day tour', 'the itinerary for the ten-day tour', ['vocab_itinerary'], { chunks:['the itinerary', 'for the ten-day tour'], distortions:['the invoice for the ten-day tour', 'the insurance for the ten-day tour', 'the souvenir for the ten-day tour'] }),
+  phrase('safety_regulations_boats', 'the official rules that protect people on pleasure boats', 'the safety regulations for pleasure boats', ['vocab_safety_regulations'], { chunks:['the safety regulations', 'for pleasure boats'], distortions:['the opening hours for pleasure boats', 'the ticket prices for pleasure boats', 'the holiday traditions for pleasure boats'] }),
+  phrase('excursion_old_town', 'a short organised trip to the old town for tourists', 'an excursion to the old town for tourists', ['vocab_excursion'], { chunks:['an excursion', 'to the old town', 'for tourists'], distortions:['an expedition to the old town for tourists', 'a payment to the old town for tourists', 'an invitation to the old town for tourists'] })
 ];
 
 const ideaSets = [
@@ -275,7 +285,57 @@ const ideaSets = [
     { text:'Availability of rooms is slightly limited during the festival, so you should book early.', misconceptionCategory:'degree_change' },
     { text:'Availability of rooms is excellent during the festival, so you need not book early.', misconceptionCategory:'polarity_change' },
     { text:'Availability of rooms is very limited during the festival because you booked early.', misconceptionCategory:'cause_effect_change' }
-  ], ['vocab_availability_5'])
+  ], ['vocab_availability_5']),
+  idea('facilities', 'The facilities at the sports centre are much better than those at the old gym.', ['The amenities at the sports centre are far superior to those at the old gym.', 'Compared with the old gym, the sports centre offers considerably better amenities.', 'The old gym cannot match the standard of amenities available at the sports centre.'], 'comparison', 'much better than', [
+    { text:'The facilities at the old gym are much better than those at the sports centre.', misconceptionCategory:'comparison_change' },
+    { text:'The facilities at the sports centre are slightly better than those at the old gym.', misconceptionCategory:'degree_change' },
+    { text:'The facilities at the sports centre are not better than those at the old gym.', misconceptionCategory:'polarity_change' }
+  ], ['vocab_facilities']),
+  idea('equipment', 'Good equipment is essential for climbing mountains, so beginners should hire it rather than buy it.', ['Proper kit is vital for climbing mountains, which is why beginners ought to rent it instead of purchasing it.', 'Beginners should rent good kit instead of buying it, since it is essential for climbing mountains.', 'Because suitable kit is essential for mountain climbing, newcomers are advised to rent it rather than purchase it.'], 'cause_effect', 'so beginners should hire it', [
+    { text:'Good equipment is essential for climbing mountains because beginners should hire it rather than buy it.', misconceptionCategory:'cause_effect_change' },
+    { text:'Good equipment is not essential for climbing mountains, so beginners should hire it rather than buy it.', misconceptionCategory:'polarity_change' },
+    { text:'Good equipment is useful for climbing mountains, so beginners should hire it rather than buy it.', misconceptionCategory:'degree_change' }
+  ], ['vocab_equipment_5']),
+  idea('location', 'The location of the visitor centre is ideal because it is next to the main bus station.', ['The visitor centre stands in an excellent spot because the main bus station is right beside it.', 'Its position next to the main bus station makes the visitor centre ideal.', 'The spot chosen for the visitor centre is perfect, as the main bus station is next door.'], 'cause_effect', 'because it is next to the main bus station', [
+    { text:'The location of the visitor centre is ideal, so it is next to the main bus station.', misconceptionCategory:'cause_effect_change' },
+    { text:'The location of the visitor centre is poor because it is next to the main bus station.', misconceptionCategory:'polarity_change' },
+    { text:'The location of the visitor centre is acceptable because it is next to the main bus station.', misconceptionCategory:'degree_change' }
+  ], ['vocab_location']),
+  idea('obtain', 'Visitors must obtain their tickets at least one hour before the tour begins.', ['Guests have to get their tickets no later than an hour ahead of the start of the tour.', 'Tickets must be acquired by visitors a minimum of sixty minutes before the tour starts.', 'Visitors are required to secure their tickets, at the latest, one hour prior to the beginning of the tour.'], 'time', 'at least one hour before', [
+    { text:'Visitors must obtain their tickets at least one hour after the tour begins.', misconceptionCategory:'time_change' },
+    { text:'Visitors must obtain their tickets at least three hours before the tour begins.', misconceptionCategory:'quantity_change' },
+    { text:'Visitors may obtain their tickets at least one hour before the tour begins.', misconceptionCategory:'degree_change' }
+  ], ['vocab_obtain']),
+  idea('specialise', 'Many young guides specialise in wildlife tours because visitors are willing to pay more for them.', ['Lots of young guides concentrate on wildlife tours since visitors will pay higher prices for them.', 'A large number of young guides become experts in wildlife tours, as visitors are ready to pay more for them.', 'Wildlife tours are the area many young guides focus on, because visitors will spend more money on them.'], 'cause_effect', 'because visitors are willing to pay more', [
+    { text:'Many young guides specialise in wildlife tours, so visitors are willing to pay more for them.', misconceptionCategory:'cause_effect_change' },
+    { text:'Many young guides specialise in wildlife tours because visitors are willing to pay less for them.', misconceptionCategory:'comparison_change' },
+    { text:'A few young guides specialise in wildlife tours because visitors are willing to pay more for them.', misconceptionCategory:'quantity_change' }
+  ], ['vocab_specialise']),
+  idea('qualification', 'Employers in the tourism sector often prefer applicants with a recognised qualification to those with only work experience.', ['Companies in tourism frequently choose job seekers holding an official certificate over those who have only worked before.', 'Firms in the travel trade tend to favour candidates with an approved certificate rather than candidates with nothing but job experience.', 'In the tourism trade, applicants with an official certificate are often preferred to applicants who can offer only time spent working.'], 'comparison', 'prefer applicants with a recognised qualification to those with only work experience', [
+    { text:'Employers in the tourism sector often prefer applicants with only work experience to those with a recognised qualification.', misconceptionCategory:'comparison_change' },
+    { text:'Employers in the tourism sector rarely prefer applicants with a recognised qualification to those with only work experience.', misconceptionCategory:'degree_change' },
+    { text:'Employers in the tourism sector often prefer applicants with a recognised qualification.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_qualification']),
+  idea('evaluate', 'The tourist board will evaluate the new campaign after six months, using visitor numbers and survey results.', ['Six months from now, the tourist board will judge the new campaign using visitor numbers and survey results.', 'The tourist board plans to measure how well the new campaign has worked once six months have passed, using visitor figures and survey results.', 'Once six months have gone by, the tourist board will weigh up the new campaign with the help of visitor numbers and survey results.'], 'time', 'after six months', [
+    { text:'The tourist board evaluated the new campaign six months ago, using visitor numbers and survey results.', misconceptionCategory:'time_change' },
+    { text:'The tourist board will evaluate the new campaign after twelve months, using visitor numbers and survey results.', misconceptionCategory:'quantity_change' },
+    { text:'The tourist board will evaluate the new campaign after six months.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_evaluate_5']),
+  idea('itinerary', 'The itinerary covers six cities in twelve days, so travellers will have very little time in each place.', ['The programme takes in six cities during twelve days, which means that visitors can spend only a short time in each.', 'Travellers visit six cities over twelve days on this plan, leaving hardly any time in any one place.', 'With six cities packed into twelve days, the trip plan gives visitors almost no time in each town.'], 'cause_effect', 'so travellers will have very little time in each place', [
+    { text:'The itinerary covers four cities in twelve days, so travellers will have very little time in each place.', misconceptionCategory:'quantity_change' },
+    { text:'Travellers will have very little time in each place, so the itinerary covers six cities in twelve days.', misconceptionCategory:'cause_effect_change' },
+    { text:'The itinerary covers six cities in twelve days, so travellers will have some time in each place.', misconceptionCategory:'degree_change' }
+  ], ['vocab_itinerary']),
+  idea('safety_regulations', 'Safety regulations have become much stricter since the accident, so tour companies now spend more on training.', ['Official protective rules have become far tougher since the accident, which is why tour companies now spend more on training.', 'Since the accident, the rules that protect people have grown much stricter, so tour operators invest more in training.', 'Tour companies now spend more on training because the official rules protecting travellers have become much tougher since the accident.'], 'cause_effect', 'so tour companies now spend more on training', [
+    { text:'Safety regulations have become much stricter since the accident because tour companies now spend more on training.', misconceptionCategory:'cause_effect_change' },
+    { text:'Safety regulations have become slightly stricter since the accident, so tour companies now spend more on training.', misconceptionCategory:'degree_change' },
+    { text:'Safety regulations became much stricter before the accident, so tour companies now spend more on training.', misconceptionCategory:'time_change' }
+  ], ['vocab_safety_regulations']),
+  idea('excursion', 'The excursion to the waterfall lasted only three hours, so we were back at the hostel before lunch.', ['The outing to the waterfall took just three hours, so we returned to the hostel before midday.', 'Our short trip to the waterfall was over in a mere three hours, which meant that we got back to the hostel ahead of lunch.', 'We reached the hostel again before lunch because the organised trip to the waterfall needed only three hours.'], 'time', 'only three hours', [
+    { text:'The excursion to the waterfall lasted only three hours, so we were back at the hostel after dinner.', misconceptionCategory:'time_change' },
+    { text:'The excursion to the waterfall lasted only one hour, so we were back at the hostel before lunch.', misconceptionCategory:'quantity_change' },
+    { text:'The excursion to the waterfall lasted almost three hours, so we were back at the hostel before lunch.', misconceptionCategory:'degree_change' }
+  ], ['vocab_excursion'])
 ];
 
 export default [...phraseSets, ...ideaSets];

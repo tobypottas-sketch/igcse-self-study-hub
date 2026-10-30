@@ -1,4 +1,4 @@
-// Unit 5 · Word Families — authored families, WORDS 1–40 ONLY. Same contract as unit-04-word-families.js: every row is AUTHORED (stated part of
+// Unit 5 · Word Families — authored families, WORDS 1–50. Same contract as unit-04-word-families.js: every row is AUTHORED (stated part of
 // speech, one natural example containing the form exactly once and not as the first word, and the reason the form is worth teaching). A family
 // needs >= 3 pedagogically useful forms INCLUDING the headword and >= 2 parts of speech. Headwords with no genuine family are listed under
 // unit5WordFamilyRejected rather than padded with unnatural forms.
@@ -62,6 +62,26 @@ export const unit5WordFamilies = Object.freeze({
     f('available', 'adjective', 'Only two double rooms are still available for the night of the festival.', 'The adjective behind the noun; one of the most frequent words on booking pages.'),
     f('unavailable', 'adjective', 'The cabin is unavailable in August because the owners use it themselves.', 'The opposite adjective; the pair is worth learning together.')
   ], excludedForms: [{ form: 'avail', reason: 'Formal verb used mainly in the fixed phrase “avail yourself of”; rare at this level.' }] },
+  specialise: { forms: [
+    f('specialise', 'verb', 'Medical students may specialise in tropical medicine after three years of general study.', 'Headword.'),
+    f('specialist', 'noun', 'A specialist in mountain rescue led the training session on the glacier.', 'The person who has specialised: an expert in one area; common in job adverts and news texts.'),
+    f('specialisation', 'noun', 'Her main area of specialisation is marine biology, and she has worked on coral reefs for ten years.', 'The noun for the area in which someone specialises; common in university and career texts.')
+  ], excludedForms: [{ form: 'special', reason: 'A very common adjective with its own meaning (“not ordinary”), so it does not keep the sense “focus on one area”.' }, { form: 'specialised', reason: 'Adjective for something designed for one purpose (specialised equipment); a step away from the verb sense, so left out to keep the family tight.' }] },
+  qualification: { forms: [
+    f('qualification', 'noun', 'A first-aid qualification is required for all guides at the centre.', 'Headword.'),
+    f('qualify', 'verb', 'Guides must pass a practical exam in order to qualify as mountain leaders.', 'The verb behind the noun: to gain the qualification needed for a job; very common in job and course texts.'),
+    f('qualified', 'adjective', 'Only qualified instructors are allowed to teach diving at the school.', 'The adjective for a person who has the qualification; the opposite, unqualified, follows from it.')
+  ], excludedForms: [{ form: 'qualifying', reason: 'Used mainly in sport (“a qualifying round”), a different sense.' }, { form: 'unqualified', reason: 'The negative adjective; its meaning follows from qualified.' }] },
+  location: { forms: [
+    f('location', 'noun', 'The tourist board has chosen a central location for the new information office.', 'Headword.'),
+    f('locate', 'verb', 'Visitors can use the map in the app to locate the nearest pharmacy.', 'The verb: to find the exact position of something; closely linked to the noun in the phrase “find the location of”.'),
+    f('located', 'adjective', 'The campsite is located beside a quiet lake, about ten minutes from the village.', 'The form used to say where something is situated; very frequent in descriptions of places.')
+  ], excludedForms: [{ form: 'relocate', reason: 'Verb meaning “to move to a new place”; a different, more advanced sense.' }] },
+  equipment: { forms: [
+    f('equipment', 'noun', 'The adventure camp provides all the equipment that beginners need on the climbing wall.', 'Headword.'),
+    f('equip', 'verb', 'The centre plans to equip every instructor with a radio and a first-aid kit.', 'The verb behind the noun: to provide someone or something with the items needed for an activity.'),
+    f('equipped', 'adjective', 'Each cabin is fully equipped with a stove, a fridge and warm blankets.', 'The adjective for a place or person that has the items needed; very common in booking and review texts.')
+  ], excludedForms: [{ form: 'equipping', reason: 'Only the -ing form of the verb already taught.' }] },
   adventurous: { forms: [
     f('adventurous', 'adjective', 'Lena is adventurous and always chooses the most exciting activity on the programme.', 'Headword.'),
     f('adventure', 'noun', 'Their journey across Africa was the greatest adventure of their lives.', 'The base noun: an exciting or unusual experience.'),
@@ -97,5 +117,11 @@ export const unit5WordFamilyRejected = Object.freeze({
   'tourism industry': 'A fixed noun phrase: “tourism/tourist/tour” and “industry/industrial” belong to separate families, and neither family keeps the meaning of the whole phrase.',
   'adventurous activities': 'A fixed plural noun phrase: “adventure/adventurous/adventurer” is the family of an earlier word, and “active/activity” is a separate family, so there is no family for the phrase.',
   memorable: '“memory” and “memorise” drift to the ability to remember and to learning by heart, and “memorably” is rare, so fewer than three forms keep the sense “worth remembering”.',
-  destination: '“destined” and “destiny” drift to fate and “destine” is rare, so there is no useful family.'
+  destination: '“destined” and “destiny” drift to fate and “destine” is rare, so there is no useful family.',
+  facilities: '“facility” (singular) usually means a single service or the ease of doing something, which drifts from the plural sense of buildings and services provided for users, so there is no useful family.',
+  obtain: '“obtained” is only the past form and “obtainable” is rare, so there are fewer than three useful forms.',
+  evaluate: 'Only “evaluation” is a common relative; “evaluator” and “evaluative” are rare and academic, so there are fewer than three useful forms (the same decision as for the Unit 3 item).',
+  itinerary: 'Only the plural “itineraries” exists; there is no related verb or adjective, so there is no family.',
+  'safety regulations': 'A fixed noun phrase: “safe/safety” and “regulate/regulation” belong to separate families (taught in Unit 4), and neither keeps the meaning of the whole phrase.',
+  excursion: 'Only the plural “excursions” and the very rare “excursionist” exist, so there are fewer than three useful forms and no second part of speech.'
 });

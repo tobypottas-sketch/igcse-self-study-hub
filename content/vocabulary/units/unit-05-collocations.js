@@ -1,4 +1,4 @@
-// Unit 5 collocations, WORDS 1–40 ONLY: natural, frequent combinations for each target (authored; same shape as unit-04-collocations.js).
+// Unit 5 collocations, WORDS 1–50: natural, frequent combinations for each target (authored; same shape as unit-04-collocations.js).
 export default Object.freeze({
   'aerial tourism': ['promote aerial tourism', 'aerial tourism industry', 'a form of aerial tourism'],
   'underwater photography': ['underwater photography course', 'professional underwater photography', 'specialise in underwater photography'],
@@ -39,5 +39,15 @@ export default Object.freeze({
   recommendation: ['personal recommendation', 'follow a recommendation', 'on the recommendation of'],
   reservation: ['make a reservation', 'cancel a reservation', 'a table reservation'],
   destination: ['holiday destination', 'final destination', 'tourist destination'],
-  availability: ['room availability', 'check availability', 'limited availability']
+  availability: ['room availability', 'check availability', 'limited availability'],
+  facilities: ['sports facilities', 'excellent facilities', 'facilities for visitors'],
+  equipment: ['camping equipment', 'climbing equipment', 'a piece of equipment'],
+  location: ['a central location', 'a remote location', 'the exact location'],
+  obtain: ['obtain permission', 'obtain a visa', 'obtain information'],
+  specialise: ['specialise in tourism', 'specialise in one region', 'specialise in adventure travel'],
+  qualification: ['a teaching qualification', 'a recognised qualification', 'qualification in first aid'],
+  evaluate: ['evaluate the results', 'evaluate the success of', 'carefully evaluate'],
+  itinerary: ['a detailed itinerary', 'plan an itinerary', 'follow the itinerary'],
+  'safety regulations': ['strict safety regulations', 'follow safety regulations', 'break safety regulations'],
+  excursion: ['go on an excursion', 'a day excursion', 'an organised excursion']
 });
