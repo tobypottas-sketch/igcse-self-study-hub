@@ -866,6 +866,288 @@ const entries = [
         { id:'2', answer:'extensive', wrong:['tiny', 'narrow', 'limited'] },
         { id:'3', answer:'extensive', wrong:['quick', 'casual', 'lucky'] }
       ]
+    }),
+  e('fashionable', 'adjective',
+    'popular and stylish at a particular time',
+    ['trendy', 'in style'],
+    ['cheap and easy to find', 'old and traditional', 'plain and practical'],
+    'Bubble tea is a fashionable drink among teenagers in the city.',
+    'trendy', 'Bubble tea is a trendy drink among teenagers in the city.',
+    'in style', 'Healthy juice bars are in style among young people at the moment.',
+    {
+      masteryContexts:[
+        { text:'It is fashionable to eat plant-based food, and many new cafes now offer vegan menus.', meaning:'popular at the present time' },
+        { text:'The fashionable restaurant on the harbour is always full of young people who want to be seen there.', meaning:'popular and stylish' }
+      ],
+      situationDistractors:[
+        'Nobody visits the old cafe, and its menu has not changed since 1980.',
+        'The restaurant is empty, and young people say it looks dull and out of date.',
+        'The shop sells plain, practical lunch boxes that people have used for years.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Bubble tea became fashionable among teenagers after it appeared on social media.', target:'fashionable', grammarPattern:'' },
+        { id:'2', text:'The cafe is in a fashionable part of town, so the prices are high and it is always busy.', target:'fashionable', grammarPattern:'' },
+        { id:'3', text:'Ten years ago, kale was not fashionable, but now it is on the menu of many restaurants.', target:'fashionable', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'fashionable', wrong:['punctual', 'generous', 'nervous'] },
+        { id:'2', answer:'fashionable', wrong:['remote', 'abandoned', 'peaceful'] },
+        { id:'3', answer:'fashionable', wrong:['punctual', 'tired', 'shy'] }
+      ]
+    }),
+  e('satisfying', 'adjective',
+    'pleasing because it gives you what you wanted or needed',
+    ['pleasing', 'rewarding'],
+    ['causing worry because it is not enough', 'needing a lot of time and effort', 'costing more than expected'],
+    'A bowl of hot soup is a satisfying meal after a long, cold walk.',
+    'pleasing', 'A bowl of hot soup is a pleasing meal after a long, cold walk.',
+    'rewarding', 'Cooking a meal for your family can be a rewarding experience.',
+    {
+      masteryContexts:[
+        { text:'After the long hike, the hot noodle soup was warm, filling and very satisfying.', meaning:'pleasing because it gave what was needed' },
+        { text:'It is satisfying to see customers enjoy a meal that you have cooked yourself.', meaning:'giving a pleasant feeling of success' }
+      ],
+      situationDistractors:[
+        'The soup was cold and tasted of nothing, and we left most of it.',
+        'The portion was so small that we were still hungry after dessert.',
+        'The waiter forgot our order twice, and the bill was wrong.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'A warm bowl of soup on a cold evening is simple but very satisfying.', target:'satisfying', grammarPattern:'' },
+        { id:'2', text:'The restaurant’s chocolate dessert was rich, sweet and deeply satisfying.', target:'satisfying', grammarPattern:'' },
+        { id:'3', text:'There is nothing more satisfying than finishing a difficult recipe and tasting the result.', target:'satisfying', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'satisfying', wrong:['confusing', 'tiring', 'worrying'] },
+        { id:'2', answer:'satisfying', wrong:['disappointing', 'annoying', 'worrying'] },
+        { id:'3', answer:'satisfying', wrong:['unfair', 'confusing', 'noisy'] }
+      ]
+    }),
+  e('reasonable', 'adjective',
+    'fair and sensible, not too extreme',
+    ['fair', 'sensible'],
+    ['very cheap and of poor quality', 'strange and difficult to believe', 'extreme and unfair to others'],
+    'The meal was good, and the price was reasonable.',
+    'fair', 'The meal was good, and the price was fair.',
+    'sensible', 'It is sensible to ask about the price before you order.',
+    {
+      idKey:'reasonable_3',
+      teacherNote:'Unit 3 item (reasonable_3), separate from Unit 1 reasonable; shares only the lexical spelling list.',
+      masteryContexts:[
+        { text:'The cafe serves large portions at a reasonable price, so it is popular with students.', meaning:'fair and not too high' },
+        { text:'It is reasonable to expect hot food to arrive hot, so her complaint was fair.', meaning:'sensible and fair to expect' }
+      ],
+      situationDistractors:[
+        'The bill came to three times the price on the menu, and nobody could explain why.',
+        'The waiter shouted at the customer for asking a simple question.',
+        'The restaurant demanded a deposit of two hundred pounds for a cup of tea.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'You can eat a three-course lunch at a reasonable price in this small restaurant.', target:'reasonable', grammarPattern:'' },
+        { id:'2', text:'It is reasonable to ask the waiter what a dish contains if you are not sure.', target:'reasonable', grammarPattern:'' },
+        { id:'3', text:'After a long, tiring day, it is reasonable to expect a hot meal and a quick reply from the staff.', target:'reasonable', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'reasonable', wrong:['sudden', 'secret', 'loud'] },
+        { id:'2', answer:'reasonable', wrong:['impossible', 'unlucky', 'careless'] },
+        { id:'3', answer:'reasonable', wrong:['selfish', 'dishonest', 'dangerous'] }
+      ]
+    }),
+  e('disappointed', 'adjective',
+    'unhappy because something was not as good as you hoped',
+    ['let down', 'unhappy with the result'],
+    ['angry because someone was rude', 'tired because of too much work', 'worried because something is dangerous'],
+    'We were disappointed by the soup, which was cold and tasted of nothing.',
+    'let down', 'We were let down by the soup, which was cold and tasted of nothing.',
+    'unhappy with the result', 'Many customers were unhappy with the result of the new recipe.',
+    {
+      masteryContexts:[
+        { text:'Customers were disappointed when the restaurant ran out of their favourite dish.', meaning:'unhappy because things were not as hoped' },
+        { text:'She felt disappointed with the service, because the waiter forgot her order twice.', meaning:'let down because expectations were not met' }
+      ],
+      situationDistractors:[
+        'The meal arrived quickly, and every dish tasted wonderful.',
+        'The family left the restaurant delighted by the friendly service.',
+        'He was thrilled when the chef brought a free dessert.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'We were disappointed with the burger, because it was cold and much smaller than the picture on the menu.', target:'disappointed', grammarPattern:'' },
+        { id:'2', text:'The customers felt disappointed when they found out that the restaurant had no vegetarian dishes.', target:'disappointed', grammarPattern:'' },
+        { id:'3', text:'I was disappointed that the dessert I had waited all evening for was sold out.', target:'disappointed', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'disappointed', wrong:['delighted', 'grateful', 'excited'] },
+        { id:'2', answer:'disappointed', wrong:['grateful', 'pleased', 'proud'] },
+        { id:'3', answer:'disappointed', wrong:['grateful', 'pleased', 'proud'] }
+      ]
+    }),
+  e('inconvenient', 'adjective',
+    'causing difficulty or extra trouble because it does not suit your needs',
+    ['not suitable', 'troublesome'],
+    ['not physically comfortable to sit in', 'not clean enough to use', 'not friendly to customers'],
+    'The restaurant is inconvenient for people without a car, because the nearest bus stop is two kilometres away.',
+    'not suitable', 'The restaurant is not suitable for people without a car, because the nearest bus stop is two kilometres away.',
+    'troublesome', 'The late opening time is troublesome for families with small children.',
+    {
+      masteryContexts:[
+        { text:'The cafe is open only from ten to two, which is inconvenient for people who finish work at five.', meaning:'causing difficulty because of the time' },
+        { text:'Having no parking near the market is inconvenient for shoppers with heavy bags.', meaning:'not suitable and causing extra trouble' }
+      ],
+      situationDistractors:[
+        'The chairs were soft, the room was warm, and the music was gentle.',
+        'The restaurant was right next to the station and open until midnight.',
+        'Buses stopped outside the cafe every five minutes all day.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The new supermarket is inconvenient for people without a car, because the nearest bus stop is two kilometres away.', target:'inconvenient', grammarPattern:'' },
+        { id:'2', text:'Closing at four o’clock is inconvenient for workers who only finish at five.', target:'inconvenient', grammarPattern:'' },
+        { id:'3', text:'It is inconvenient to carry heavy shopping bags home when there is no lift.', target:'inconvenient', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'inconvenient', wrong:['uncomfortable', 'generous', 'punctual'] },
+        { id:'2', answer:'inconvenient', wrong:['uncomfortable', 'dishonest', 'delicious'] },
+        { id:'3', answer:'inconvenient', wrong:['dishonest', 'delicious', 'generous'] }
+      ]
+    }),
+  e('excellent', 'adjective',
+    'of a very high standard, much better than most others',
+    ['outstanding', 'first-class'],
+    ['good enough to be acceptable', 'different from most others', 'expensive for what you get'],
+    'The restaurant has an excellent reputation for its fresh seafood and friendly service.',
+    'outstanding', 'The restaurant has an outstanding reputation for its fresh seafood and friendly service.',
+    'first-class', 'The hotel restaurant serves first-class food at weekends.',
+    {
+      masteryContexts:[
+        { text:'The reviews describe the service as excellent and the food as fresh and well cooked.', meaning:'of a very high standard' },
+        { text:'The chef received an award for his excellent cooking.', meaning:'much better than most' }
+      ],
+      situationDistractors:[
+        'The soup was lukewarm, and the service was slow but acceptable.',
+        'The meal was average: neither good nor bad.',
+        'Nothing on the menu stood out, and most diners forgot the evening quickly.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The reviews describe the service as excellent and the food as fresh and perfectly cooked.', target:'excellent', grammarPattern:'' },
+        { id:'2', text:'Everyone at the table agreed that the seafood soup was excellent, and several guests ordered a second bowl.', target:'excellent', grammarPattern:'' },
+        { id:'3', text:'The seafood at that restaurant is excellent, so it is fully booked every weekend.', target:'excellent', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'excellent', wrong:['terrible', 'careless', 'rude'] },
+        { id:'2', answer:'excellent', wrong:['terrible', 'tasteless', 'disgusting'] },
+        { id:'3', answer:'excellent', wrong:['terrible', 'plain', 'cold'] }
+      ]
+    }),
+  e('polite', 'adjective',
+    'behaving in a respectful way that shows good manners',
+    ['courteous', 'well-mannered'],
+    ['quick and efficient in serving food', 'friendly and talkative with friends', 'formal and strict about rules'],
+    'The waiter was polite to every guest, even when the restaurant was very busy.',
+    'courteous', 'The waiter was courteous to every guest, even when the restaurant was very busy.',
+    'well-mannered', 'The well-mannered staff greeted every customer with a smile.',
+    {
+      masteryContexts:[
+        { text:'The polite waiter thanked us for coming and held the door open.', meaning:'showing good manners and respect' },
+        { text:'It is polite to say thank you to the person who brings your food.', meaning:'showing respect and good manners' }
+      ],
+      situationDistractors:[
+        'The waiter shouted at the customer and threw the menu on the table.',
+        'The guests talked loudly and rudely about the food while the cook was listening.',
+        'He interrupted the manager three times and walked away without a word.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The waiter was polite even when a customer complained loudly about the soup.', target:'polite', grammarPattern:'' },
+        { id:'2', text:'It is polite to wait until everyone at the table has been served before you start eating.', target:'polite', grammarPattern:'' },
+        { id:'3', text:'Customers like staff who are polite and who answer questions with a smile.', target:'polite', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'polite', wrong:['curious', 'hungry', 'proud'] },
+        { id:'2', answer:'polite', wrong:['expensive', 'tired', 'hungry'] },
+        { id:'3', answer:'polite', wrong:['famous', 'jealous', 'curious'] }
+      ]
+    }),
+  e('helpful', 'adjective',
+    'willing to help, or useful for solving a problem',
+    ['willing to help', 'useful'],
+    ['pleased to see customers again', 'good at making food quickly', 'careful with money'],
+    'The staff in the cafe were friendly and helpful when we asked about the menu.',
+    'willing to help', 'The staff in the cafe were friendly and willing to help when we asked about the menu.',
+    'useful', 'The waiter gave us useful advice about which dishes to order.',
+    {
+      masteryContexts:[
+        { text:'The shop assistant was very helpful and explained which cheese goes best with each biscuit.', meaning:'willing to give useful help' },
+        { text:'The website has a helpful map that shows where each food stall is located.', meaning:'useful for finding what you need' }
+      ],
+      situationDistractors:[
+        'The waiter ignored our questions and walked away.',
+        'Nobody at the information desk could explain the menu, and they would not try.',
+        'The assistant said it was not her job to answer and went back to her phone.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The waiter was very helpful and suggested a dish that did not contain nuts.', target:'helpful', grammarPattern:'' },
+        { id:'2', text:'The instructions were so helpful that even a beginner could make the sauce.', target:'helpful', grammarPattern:'' },
+        { id:'3', text:'Staff who are helpful always answer questions patiently, and they never make customers feel silly.', target:'helpful', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'helpful', wrong:['punctual', 'famous', 'nervous'] },
+        { id:'2', answer:'helpful', wrong:['careless', 'boring', 'famous'] },
+        { id:'3', answer:'helpful', wrong:['careless', 'famous', 'nervous'] }
+      ]
+    }),
+  e('recommendation', 'noun',
+    'a suggestion about what is good or what to do',
+    ['suggestion', 'advice'],
+    ['a complaint about poor service', 'a bill for a meal', 'a rule that everyone must follow'],
+    'We chose this restaurant on the recommendation of a friend.',
+    'suggestion', 'We chose this restaurant on the suggestion of a friend.',
+    'advice', 'On the advice of our teacher, we tried the local fish curry.',
+    {
+      masteryContexts:[
+        { text:'We booked the table on the recommendation of a friend who had eaten there twice.', meaning:'a suggestion that something is good' },
+        { text:'The waiter gave us a recommendation for dessert, and the chocolate cake was delicious.', meaning:'advice about what to choose' }
+      ],
+      situationDistractors:[
+        'The customer wrote a long complaint about the cold soup.',
+        'The manager ordered the staff to wear uniforms.',
+        'The guests paid the bill and left a tip.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'We chose this restaurant on the recommendation of a friend who had eaten here many times.', target:'recommendation', grammarPattern:'' },
+        { id:'2', text:'The waiter gave us a recommendation for a main course, and we ordered the grilled fish.', target:'recommendation', grammarPattern:'' },
+        { id:'3', text:'The guidebook includes a recommendation for every town, with a short note on the best local dish.', target:'recommendation', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'recommendation', wrong:['complaint', 'argument', 'invoice'] },
+        { id:'2', answer:'recommendation', wrong:['complaint', 'argument', 'invoice'] },
+        { id:'3', answer:'recommendation', wrong:['warning', 'argument', 'invoice'] }
+      ]
+    }),
+  e('informative', 'adjective',
+    'giving a lot of useful facts',
+    ['full of facts', 'instructive'],
+    ['exciting and enjoyable to watch', 'long and difficult to follow', 'short and without any detail'],
+    'The guide to local food was informative, with clear facts about every dish.',
+    'full of facts', 'The guide to local food was full of facts, with clear details about every dish.',
+    'instructive', 'The cooking programme was instructive, and viewers learned how to make bread.',
+    {
+      masteryContexts:[
+        { text:'The museum’s food exhibition was very informative, with clear facts about how rice is grown.', meaning:'giving a lot of useful facts' },
+        { text:'The label is informative because it lists every ingredient and the amount of sugar in each portion.', meaning:'giving clear and useful facts' }
+      ],
+      situationDistractors:[
+        'The leaflet had a lovely picture of a cake but no facts at all.',
+        'The poster was colourful, but nobody could say what it was about.',
+        'The speaker told funny stories for an hour and gave no facts about the food.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The documentary about street food was informative, and viewers learned how each dish is made.', target:'informative', grammarPattern:'' },
+        { id:'2', text:'Nutrition labels are informative because they show how much sugar, salt and fat each product contains.', target:'informative', grammarPattern:'' },
+        { id:'3', text:'The guide to local dishes was short, clear and informative, so tourists used it every day.', target:'informative', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'informative', wrong:['careless', 'crowded', 'tasteless'] },
+        { id:'2', answer:'informative', wrong:['noisy', 'sticky', 'crowded'] },
+        { id:'3', answer:'informative', wrong:['careless', 'tasteless', 'dishonest'] }
+      ]
     })
 
 ];
@@ -909,5 +1191,6 @@ export default buildCuratedUnit({
   source:'0511 key words UNIT 3 – FOOD',
   entries:enrichedEntries,
   activities:[...unit3Activities, ...unit3PrecisionUse, ...unit3WordFamilyItems],
-  lexicalSpelling:{ ...LEXICAL_SPELLING_ERRORS }
+  // One shared list per word: Unit 3's "reasonable" reuses Unit 1's reviewed misspellings.
+  lexicalSpelling:{ ...LEXICAL_SPELLING_ERRORS, vocab_reasonable_3:LEXICAL_SPELLING_ERRORS.vocab_reasonable }
 });

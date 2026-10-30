@@ -151,6 +151,56 @@ export default Object.freeze({
     'The survey asked only five pupils one question about breakfast.',
     'The recipe was short and needed just three ingredients.',
     'The garden behind the restaurant had one small herb pot.'
+  ],
+  fashionable: [
+    'The market stall sells local vegetables at low prices.',
+    'The cafe closes early on Sundays.',
+    'The chef learned the recipe from his grandmother.'
+  ],
+  satisfying: [
+    'The cafe opens at eight and closes at six.',
+    'The chef wore a white hat and an apron.',
+    'There were four tables near the window.'
+  ],
+  reasonable: [
+    'The menu was written in a language that none of the guests could read.',
+    'He refused to listen to any opinion except his own.',
+    'The cafe closed for the afternoon.'
+  ],
+  disappointed: [
+    'The waiter wiped the table and brought the menus.',
+    'The queue outside the cafe moved quickly.',
+    'She ordered tea and a slice of lemon cake.'
+  ],
+  inconvenient: [
+    'The cook made a pot of tomato soup.',
+    'The restaurant’s walls were painted yellow.',
+    'He asked for the bill and paid in cash.'
+  ],
+  excellent: [
+    'The restaurant opened at noon and closed at ten.',
+    'The waiter carried the plates on a large tray.',
+    'There were fifteen tables in the main room.'
+  ],
+  polite: [
+    'The chef put on his apron and washed his hands.',
+    'The restaurant has red tablecloths and candles.',
+    'The bill was paid by credit card.'
+  ],
+  helpful: [
+    'The chef cooked the fish for ten minutes.',
+    'The restaurant has a garden at the back.',
+    'The tickets were printed on blue paper.'
+  ],
+  recommendation: [
+    'The waiter wiped the menu and put it back.',
+    'The cook peeled carrots into a bowl.',
+    'The restaurant opens on Mondays.'
+  ],
+  informative: [
+    'The chef washed the pans after the lesson.',
+    'The class visited the market on Tuesday.',
+    'The tour guide wore a green jacket.'
   ]
 
 });

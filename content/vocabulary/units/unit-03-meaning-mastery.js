@@ -123,6 +123,46 @@ export default Object.freeze({
   extensive: [
     w(['divided into small private gardens', 'covered by thick forest', 'close to the busy town centre']),
     w(['quick and without much care', 'secret and unfinished', 'expensive and inaccurate'])
+  ],
+  fashionable: [
+    w(['expensive and hard to find', 'healthy and good for the body', 'simple and cheap to make']),
+    w(['old and no longer used', 'quiet and far from the city', 'large and cheap'])
+  ],
+  satisfying: [
+    w(['causing worry because it was not enough', 'difficult to swallow because it was dry', 'too hot to eat quickly']),
+    w(['annoying to see because of the noise', 'tiring to do because of the crowd', 'difficult to see because of the light'])
+  ],
+  reasonable: [
+    w(['very low and of poor quality', 'far too high for most people', 'different every week']),
+    w(['strange and hard to believe', 'rude and unkind to say', 'secret and not for sharing'])
+  ],
+  disappointed: [
+    w(['angry because the staff were rude', 'worried because the food was unsafe', 'surprised because the dish was free']),
+    w(['tired because the day was long', 'happy because the food was ready', 'nervous because the room was full'])
+  ],
+  inconvenient: [
+    w(['uncomfortable because the chairs are hard', 'unpleasant because of the smell', 'unsafe because of the traffic']),
+    w(['unpopular because the food is plain', 'unfair because the prices are high', 'unhealthy because the food is fried'])
+  ],
+  excellent: [
+    w(['acceptable but nothing special', 'slow and sometimes unfriendly', 'cheap and quick to arrive']),
+    w(['plain and easy to copy', 'expensive and hard to find', 'unusual and hard to explain'])
+  ],
+  polite: [
+    w(['quick at serving every table', 'friendly with the owner only', 'careful about keeping the room clean']),
+    w(['sensible to do when you pay', 'necessary by law', 'popular among young people'])
+  ],
+  helpful: [
+    w(['pleased to sell the most expensive item', 'quick to give the bill', 'careful to avoid answering']),
+    w(['colourful but difficult to read', 'old and no longer correct', 'expensive but badly made'])
+  ],
+  recommendation: [
+    w(['a complaint about something bad', 'an order to do something', 'a promise to return']),
+    w(['a bill for something eaten', 'a warning about something dangerous', 'a list of everything on the menu'])
+  ],
+  informative: [
+    w(['exciting and full of surprises', 'long and difficult to follow', 'cheap and open to everyone']),
+    w(['colourful and attractive to children', 'short and without any detail', 'difficult to read from far away'])
   ]
 
 });

@@ -62,7 +62,17 @@ const phraseSets = [
   phrase('garden_barbecue', 'an outdoor meal in the garden cooked over a fire', 'a garden barbecue', ['vocab_barbecue'], { acceptedVariants:['a barbecue in the garden'], chunks:['a', 'garden', 'barbecue'], distortions:['a formal dinner in the garden', 'a cold picnic in the garden', 'a cooking lesson in the garden'] }),
   phrase('saturated_fat', 'the type of fat found in butter and fatty meat', 'saturated fat', ['vocab_saturated'], { chunks:['saturated', 'fat'], distortions:['fat that stays liquid at room temperature', 'fat that has been removed', 'fat that tastes sweet'] }),
   phrase('convenient_way', 'an easy way that saves time', 'a convenient way', ['vocab_convenient'], { acceptedVariants:['a handy way'], chunks:['a', 'convenient', 'way'], distortions:['a costly way', 'a slow way', 'a dangerous way'] }),
-  phrase('extensive_gardens', 'very large gardens', 'extensive gardens', ['vocab_extensive'], { chunks:['extensive', 'gardens'], distortions:['tiny gardens', 'private gardens', 'dull gardens'] })
+  phrase('extensive_gardens', 'very large gardens', 'extensive gardens', ['vocab_extensive'], { chunks:['extensive', 'gardens'], distortions:['tiny gardens', 'private gardens', 'dull gardens'] }),
+  phrase('fashionable_cafe', 'a cafe that is popular and stylish right now', 'a fashionable cafe', ['vocab_fashionable'], { acceptedVariants:['a trendy cafe'], chunks:['a', 'fashionable', 'cafe'], distortions:['an old-fashioned cafe', 'a cheap cafe', 'an empty cafe'] }),
+  phrase('satisfying_meal', 'a meal that gives you what you wanted', 'a satisfying meal', ['vocab_satisfying'], { chunks:['a', 'satisfying', 'meal'], distortions:['a disappointing meal', 'a very expensive meal', 'a meal eaten alone'] }),
+  phrase('reasonable_price', 'a price that is fair', 'a reasonable price', ['vocab_reasonable_3'], { acceptedVariants:['a fair price'], chunks:['a', 'reasonable', 'price'], distortions:['a very low price', 'a price nobody can pay', 'a price that changes daily'] }),
+  phrase('disappointed_food', 'let down by the food', 'disappointed with the food', ['vocab_disappointed'], { acceptedVariants:['disappointed by the food'], chunks:['disappointed', 'with the food'], distortions:['delighted with the food', 'curious about the food', 'worried about the food'] }),
+  phrase('inconvenient_car', 'not suitable for people without a car', 'inconvenient for people without a car', ['vocab_inconvenient'], { chunks:['inconvenient', 'for people', 'without a car'], distortions:['comfortable for people without a car', 'popular with people without a car', 'free for people without a car'] }),
+  phrase('excellent_service', 'service of a very high standard', 'excellent service', ['vocab_excellent'], { acceptedVariants:['outstanding service'], chunks:['excellent', 'service'], distortions:['slow service', 'average service', 'free service'] }),
+  phrase('polite_guests', 'showing good manners to guests', 'polite to guests', ['vocab_polite'], { acceptedVariants:['courteous to guests'], chunks:['polite', 'to guests'], distortions:['rude to guests', 'afraid of guests', 'busy with guests'] }),
+  phrase('helpful_staff', 'staff who are willing to give useful help', 'helpful staff', ['vocab_helpful'], { chunks:['helpful', 'staff'], distortions:['unfriendly staff', 'busy staff', 'new staff'] }),
+  phrase('recommendation_friend', 'a suggestion from a friend', 'a recommendation from a friend', ['vocab_recommendation'], { chunks:['a recommendation', 'from a friend'], distortions:['a complaint from a friend', 'a gift from a friend', 'a question from a friend'] }),
+  phrase('informative_leaflet', 'a leaflet that gives useful facts', 'an informative leaflet', ['vocab_informative'], { chunks:['an', 'informative', 'leaflet'], distortions:['a colourful leaflet', 'a misleading leaflet', 'a long leaflet'] })
 
 ];
 
@@ -216,7 +226,57 @@ const ideaSets = [
     { text:'The restaurant has a short menu with fewer than ten dishes.', misconceptionCategory:'quantity_change' },
     { text:'The restaurant has a menu with over a hundred dishes, all of them free.', misconceptionCategory:'added_information' },
     { text:'The restaurant has an expensive menu with only a few dishes.', misconceptionCategory:'meaning_confusion' }
-  ], ['vocab_extensive'])
+  ], ['vocab_extensive']),
+  idea('fashionable', 'Vegan burgers have become fashionable among teenagers in the city.', ['Vegan burgers have become trendy with teenagers in the city.', 'Teenagers in the city now think vegan burgers are in style.', 'Among teenagers in the city, vegan burgers have turned into a popular trend.'], 'time', 'has become popular recently', [
+    { text:'Vegan burgers have become cheaper for teenagers in the city.', misconceptionCategory:'meaning_confusion' },
+    { text:'Vegan burgers have always been popular among teenagers in the city.', misconceptionCategory:'time_change' },
+    { text:'Vegan burgers have become unpopular among teenagers in the city.', misconceptionCategory:'polarity_change' }
+  ], ['vocab_fashionable']),
+  idea('satisfying', 'The hot soup was satisfying after the long walk in the cold.', ['The hot soup was very pleasing after the long, cold walk.', 'After the long walk in the cold, the hot soup was just what we wanted.', 'The hot soup gave us a pleasant feeling after the cold walk.'], 'time', 'after the long walk', [
+    { text:'The hot soup was disappointing after the long walk in the cold.', misconceptionCategory:'polarity_change' },
+    { text:'The hot soup was served before the long walk in the cold.', misconceptionCategory:'time_change' },
+    { text:'The hot soup was too hot to eat after the long walk in the cold.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_satisfying']),
+  idea('reasonable', 'Most customers think the prices at this cafe are reasonable.', ['Most customers believe the prices at this cafe are fair.', 'Most diners consider that this cafe charges fair prices.', 'Customers generally find the cafe’s prices fair.'], 'quantity', 'most customers', [
+    { text:'A few customers think the prices at this cafe are fair.', misconceptionCategory:'quantity_change' },
+    { text:'Most customers think the prices at this cafe are too high.', misconceptionCategory:'polarity_change' },
+    { text:'Most customers think the portions at this cafe are large.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_reasonable_3']),
+  idea('disappointed', 'Many diners were disappointed that the restaurant had no vegetarian dishes.', ['Many diners felt let down because the restaurant had no vegetarian dishes.', 'Many diners were unhappy that the restaurant offered no vegetarian dishes.', 'The lack of vegetarian dishes at the restaurant left many diners let down.'], 'cause_effect', 'no vegetarian dishes caused unhappiness', [
+    { text:'Many diners were delighted that the restaurant had no vegetarian dishes.', misconceptionCategory:'polarity_change' },
+    { text:'Many diners were unhappy that the restaurant had no meat dishes.', misconceptionCategory:'cause_effect_change' },
+    { text:'A few diners felt let down that the restaurant had no vegetarian dishes.', misconceptionCategory:'quantity_change' }
+  ], ['vocab_disappointed']),
+  idea('inconvenient', 'The restaurant’s location is inconvenient for people without a car.', ['The restaurant’s location is not suitable for people without a car.', 'People without a car find the restaurant’s location troublesome.', 'Reaching the restaurant is difficult for people who do not have a car.'], 'polarity', 'difficult for people without a car', [
+    { text:'The restaurant’s location is ideal for people without a car.', misconceptionCategory:'polarity_change' },
+    { text:'The restaurant’s location is expensive for people without a car.', misconceptionCategory:'meaning_confusion' },
+    { text:'The restaurant’s location is not suitable for people with a car.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_inconvenient']),
+  idea('excellent', 'The reviews describe the service at the new restaurant as excellent.', ['The reviews describe the service at the new restaurant as outstanding.', 'According to the reviews, the new restaurant’s service is of a very high standard.', 'Reviewers say the service at the new restaurant is much better than most.'], 'degree', 'a very high standard', [
+    { text:'The reviews describe the service at the new restaurant as average.', misconceptionCategory:'degree_change' },
+    { text:'The reviews describe the service at the new restaurant as terrible.', misconceptionCategory:'polarity_change' },
+    { text:'The reviews describe the prices at the new restaurant as outstanding.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_excellent']),
+  idea('polite', 'The waiter was polite to every customer, even during the busy lunch hour.', ['The waiter showed good manners to every customer, even during the busy lunch hour.', 'Even at the busy lunch hour, the waiter was courteous to each customer.', 'Every customer was treated with respect by the waiter, even during the busy lunch hour.'], 'quantity', 'every customer', [
+    { text:'The waiter showed good manners only to regular customers, even during the busy lunch hour.', misconceptionCategory:'quantity_change' },
+    { text:'The waiter was rude to every customer, even during the busy lunch hour.', misconceptionCategory:'polarity_change' },
+    { text:'The waiter was quick with every customer, even during the busy lunch hour.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_polite']),
+  idea('helpful', 'The staff were helpful and answered all our questions about the menu.', ['The staff were willing to help and answered all our questions about the menu.', 'The staff gave useful answers to all our questions about the menu.', 'All our questions about the menu were answered by friendly, supportive staff.'], 'quantity', 'all questions', [
+    { text:'The staff were willing to help but answered only some of our questions about the menu.', misconceptionCategory:'quantity_change' },
+    { text:'The staff refused to answer our questions about the menu.', misconceptionCategory:'polarity_change' },
+    { text:'The staff were friendly and gave us a free dessert.', misconceptionCategory:'added_information' }
+  ], ['vocab_helpful']),
+  idea('recommendation', 'We chose the cafe on the recommendation of our teacher.', ['We chose the cafe because our teacher suggested it.', 'Our teacher suggested the cafe, so we went there.', 'The cafe was our choice after advice from our teacher.'], 'cause_effect', 'the teacher suggested it', [
+    { text:'We chose the cafe because our teacher complained about it.', misconceptionCategory:'cause_effect_change' },
+    { text:'We chose the cafe, so our teacher suggested it.', misconceptionCategory:'cause_effect_change' },
+    { text:'We chose the cafe because our teacher paid for it.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_recommendation']),
+  idea('informative', 'The leaflet about healthy eating was informative and easy to read.', ['The leaflet about healthy eating gave useful facts and was easy to read.', 'The healthy eating leaflet was full of facts and easy to read.', 'Readers learned a lot from the clear leaflet about healthy eating.'], 'degree', 'full of useful facts', [
+    { text:'The leaflet about healthy eating was funny and easy to read.', misconceptionCategory:'meaning_confusion' },
+    { text:'The leaflet about healthy eating gave no facts and was easy to read.', misconceptionCategory:'polarity_change' },
+    { text:'The leaflet about healthy eating gave useful facts but was hard to read.', misconceptionCategory:'degree_change' }
+  ], ['vocab_informative'])
 
 ];
 

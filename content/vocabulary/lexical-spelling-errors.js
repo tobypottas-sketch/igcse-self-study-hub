@@ -131,4 +131,13 @@ export const LEXICAL_SPELLING_ERRORS = Object.freeze({
   "vocab_saturated":["saturaded","satturated","saturatid","saterated","saturted","sarurated"], // saturated (Unit 3)
   "vocab_convenient":["convienient","convinient","conveniant","convenint","conveneint","convenent"], // convenient (Unit 3)
   "vocab_extensive":["extencive","extensiv","extenisve","extentive","extensife","estensive"], // extensive (Unit 3)
+  "vocab_fashionable":["fashonable","fasionable","fashionible","fashinable","fashionnable","fashionabel"], // fashionable (Unit 3)
+  "vocab_satisfying":["satisfiing","satisfyng","satisfing","satsfying","satisfieing","satysfying"], // satisfying (Unit 3)
+  "vocab_disappointed":["dissapointed","disapointed","disappointd","disappoinded","dissapoited","disappointted"], // disappointed (Unit 3)
+  "vocab_inconvenient":["inconvienent","inconvinient","inconveniant","inconvenint","incovenient","inconvenent"], // inconvenient (Unit 3)
+  "vocab_excellent":["excelent","exellent","excellant","excellint","ecxellent","excelllent"], // excellent (Unit 3)
+  "vocab_polite":["polit","poilte","pollite","polight","polyte","pollight"], // polite (Unit 3)
+  "vocab_helpful":["helpfull","helpfal","helfull","helpfool","halpful","helppful"], // helpful (Unit 3)
+  "vocab_recommendation":["recomendation","reccomendation","recommendasion","recommedation","recommandation","recomendacion"], // recommendation (Unit 3)
+  "vocab_informative":["informitive","infomative","informativ","enformative","informatif","informatuve"], // informative (Unit 3)
 });

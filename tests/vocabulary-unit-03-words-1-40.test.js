@@ -1,4 +1,4 @@
-// Unit 3 (Food) · words 1–30 authored (batches 1–3, draft). Guards the contract with the real readiness evaluator and builders. Words 31–50 are not
+// Unit 3 (Food) · words 1–40 authored (batches 1–4, draft). Guards the contract with the real readiness evaluator and builders. Words 41–50 are not
 // authored yet, so the unit stays a draft: no releases/unit-03.js, no lock, no SQL.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -10,18 +10,18 @@ import { validateUnit } from '../content/vocabulary/schema.js';
 import { evaluateUnitReadiness } from '../src/vocabulary/pathway-readiness.js';
 import { releasePlannerContent } from '../content/vocabulary/readiness-report.js';
 
-const TERMS = ['participant', 'outlet', 'sprinkled', 'underestimate', 'considerably', 'guaranteed', 'harmless', 'pressure', 'fooled', 'majority', 'inexpensive', 'sodium', 'commercially', 'processed', 'depression', 'overweight', 'unwell', 'ingredients', 'nutritious', 'moderation', 'deceive', 'advertisement', 'variety', 'portion', 'purchase', 'takeaway', 'barbecue', 'saturated', 'convenient', 'extensive'];
+const TERMS = ['participant', 'outlet', 'sprinkled', 'underestimate', 'considerably', 'guaranteed', 'harmless', 'pressure', 'fooled', 'majority', 'inexpensive', 'sodium', 'commercially', 'processed', 'depression', 'overweight', 'unwell', 'ingredients', 'nutritious', 'moderation', 'deceive', 'advertisement', 'variety', 'portion', 'purchase', 'takeaway', 'barbecue', 'saturated', 'convenient', 'extensive', 'fashionable', 'satisfying', 'reasonable', 'disappointed', 'inconvenient', 'excellent', 'polite', 'helpful', 'recommendation', 'informative'];
 const NO_FAMILY = ['outlet', 'considerably', 'guaranteed', 'pressure', 'fooled', 'majority', 'sodium', 'commercially', 'unwell', 'ingredients', 'portion', 'purchase', 'takeaway', 'barbecue', 'saturated'];
 const STAGES = ['recognise', 'match', 'apply', 'recall', 'mastery'];
 // Same-part-of-speech pools: adverbs need 3 other adverbs in the unit. Batch 2 added six adjectives, so harmless builds every stage naturally;
-// batch 3 added no adverbs, so considerably and commercially are still the only two adverbs, so Meaning Match and Context Recognise/Apply/Recall remain a structural contract limit.
+// batches 3–4 added no target adverbs (derived forms such as reasonably and politely are not targets), so considerably and commercially are still the only two adverbs, so Meaning Match and Context Recognise/Apply/Recall remain a structural contract limit.
 const POS_LIMITS = { considerably: { meaning: ['match'], context: ['recognise', 'apply', 'recall'] }, commercially: { meaning: ['match'], context: ['recognise', 'apply', 'recall'] } };
 const readiness = evaluateUnitReadiness({ content: releasePlannerContent(unit3) });
 const failed = (pathwayId, occurrenceId) => STAGES.filter(stage => (readiness.pathways[pathwayId].stageFailures[stage] ?? []).some(f => f.occurrenceId === occurrenceId));
 
-test('Unit 3 batches 1–2 are exactly the thirty locked targets, as a draft with no release artefacts', () => {
+test('Unit 3 batches 1–2 are exactly the forty locked targets, as a draft with no release artefacts', () => {
   assert.deepEqual(unit3.items.map(item => item.term), TERMS);
-  assert.equal(unit3.occurrences.length, 30);
+  assert.equal(unit3.occurrences.length, 40);
   assert.equal(unit3.status, 'draft');
   assert.equal(unit3.unitNumber, 3);
   for (const name of ['releases/unit-03.js']) assert.ok(!fs.existsSync(new URL(`../content/vocabulary/${name}`, import.meta.url)), name);
@@ -46,7 +46,7 @@ test('IDs are Unit 3-specific, unique, and never collide with Units 1 or 2', () 
   assert.ok(unit3.activities.every(row => /^u3_/.test(row.activityContentId) && row.unitNumber === 3));
 });
 
-test('every pathway stage is buildable for words 1–30, except the documented Word Family and same-POS pool limits', () => {
+test('every pathway stage is buildable for words 1–40, except the documented Word Family and same-POS pool limits', () => {
   for (const occurrence of unit3.occurrences) {
     const term = unit3.items.find(item => item.vocabularyId === occurrence.vocabularyId).term;
     for (const pathwayId of Object.keys(readiness.pathways)) {
@@ -58,7 +58,7 @@ test('every pathway stage is buildable for words 1–30, except the documented W
   }
 });
 
-test('words 1–30 satisfy the strict (approved) content schema; only whole-unit count rules remain', () => {
+test('words 1–40 satisfy the strict (approved) content schema; only whole-unit count rules remain', () => {
   const approve = row => ({ ...row, status: 'approved' });
   const strict = { ...unit3, status: 'approved', items: unit3.items.map(approve), occurrences: unit3.occurrences.map(approve), contexts: unit3.contexts.map(approve), activities: unit3.activities.map(approve) };
   const errors = validateUnit(strict).errors;
@@ -89,7 +89,7 @@ test('wrong situations: at least four distinct, target-free situations per word'
   }
 });
 
-test('Word Families: fifteen genuine families are authored, each with >=3 forms, >=2 parts of speech and alternates; the rest are left unavailable', () => {
+test('Word Families: twenty-five genuine families are authored, each with >=3 forms, >=2 parts of speech and alternates; the rest are left unavailable', () => {
   for (const item of unit3.items) {
     const forms = item.senses[0].wordFamilyForms;
     if (NO_FAMILY.includes(item.term)) {
@@ -98,12 +98,12 @@ test('Word Families: fifteen genuine families are authored, each with >=3 forms,
     } else {
       assert.ok(forms.length >= 3 && new Set(forms.map(f => f.partOfSpeech)).size >= 2, item.term);
       assert.ok(forms.some(f => f.form === item.term), `${item.term} headword present`);
-      assert.ok(forms.filter(f => f.form !== item.term).every(f => f.altExample), `${item.term} alternates`);
+      if (forms.length === 3) assert.ok(forms.filter(f => f.form !== item.term).every(f => f.altExample), `${item.term} alternates`); // four-form families need none, as in Unit 2
     }
   }
   const familyItems = unit3.activities.filter(a => a.activityData.taskType === 'word_family');
-  assert.equal(familyItems.length, 45);
-  assert.equal(unit3.items.filter(item => !NO_FAMILY.includes(item.term)).length, 15);
+  assert.equal(familyItems.length, 75);
+  assert.equal(unit3.items.filter(item => !NO_FAMILY.includes(item.term)).length, 25);
   assert.ok(familyItems.every(a => a.activityData.sourceText.split('____').length === 2 && !a.activityData.sourceText.startsWith('____')));
 });
 

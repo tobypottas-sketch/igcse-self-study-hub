@@ -29,6 +29,16 @@ export default Object.freeze({
   barbecue: ['garden barbecue', 'summer barbecue', 'charcoal barbecue'],
   saturated: ['saturated fat', 'saturated fats', 'mostly saturated'],
   convenient: ['very convenient', 'more convenient', 'convenient time'],
-  extensive: ['extensive research', 'extensive menu', 'extensive range']
+  extensive: ['extensive research', 'extensive menu', 'extensive range'],
+  fashionable: ['highly fashionable', 'become fashionable', 'fashionable restaurant'],
+  satisfying: ['deeply satisfying', 'satisfying meal', 'very satisfying'],
+  reasonable: ['reasonable price', 'perfectly reasonable', 'reasonable request'],
+  disappointed: ['feel disappointed', 'bitterly disappointed', 'slightly disappointed'],
+  inconvenient: ['inconvenient time', 'rather inconvenient', 'inconvenient location'],
+  excellent: ['excellent service', 'excellent value', 'absolutely excellent'],
+  polite: ['very polite', 'perfectly polite', 'polite reply'],
+  helpful: ['extremely helpful', 'helpful staff', 'helpful advice'],
+  recommendation: ['strong recommendation', 'personal recommendation', 'make recommendation'],
+  informative: ['highly informative', 'informative leaflet', 'very informative']
 
 });

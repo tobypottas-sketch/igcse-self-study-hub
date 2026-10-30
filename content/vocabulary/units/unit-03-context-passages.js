@@ -123,6 +123,46 @@ export default Object.freeze({
   extensive: [
     p('Wei wanted to be a chef, so he read widely about cooking. His ____ knowledge of world cuisines impressed the judges at the competition.', 'extensive', 'Read widely; impressed the judges.'),
     p('The hotel has a huge garden with fruit trees, vegetable beds and a lake. Guests enjoy walking in the ____ grounds before dinner.', 'extensive', 'Huge garden with a lake.')
+  ],
+  fashionable: [
+    p('A few years ago, nobody drank green juice. Now it is ____ among young people, and every cafe on the main street sells it.', 'fashionable', 'Nobody before; now every cafe sells it.'),
+    p('Mei wanted to take her friends somewhere new and exciting. She chose a ____ restaurant with bright lights and a famous chef, even though it was expensive.', 'fashionable', 'New, exciting, famous chef.')
+  ],
+  satisfying: [
+    p('We walked for five hours in the rain, and we were cold, wet and hungry. The hot rice and chicken that the hotel served us afterwards were simple, but ____.', 'satisfying', 'Simple hot food after a hard day.'),
+    p('Anna spent all afternoon baking bread for the first time. When she cut the warm loaf and everyone said it was delicious, she found the whole experience deeply ____.', 'satisfying', 'Success after effort.')
+  ],
+  reasonable: [
+    p('The restaurant was not the cheapest in town, but the food was of a high quality. Considering the size of the meals, most customers agreed that the price was ____.', 'reasonable', 'Not cheapest but worth it.'),
+    p('Daniel complained that his soup was cold, and the waiter replaced it quickly. It was a ____ request, because anyone would expect hot soup.', 'reasonable', 'Anyone would expect hot soup.')
+  ],
+  disappointed: [
+    p('Max had heard that the new restaurant was the best in town. When his meal finally arrived, it was small and lukewarm, and he left feeling ____.', 'disappointed', 'High hopes versus small cold meal.'),
+    p('The poster promised enormous portions and a friendly atmosphere. The reality was a tiny plate of rice and a rude waiter, so the guests were ____ with their evening.', 'disappointed', 'Promise versus reality.')
+  ],
+  inconvenient: [
+    p('The restaurant has wonderful food, but it is in the middle of a forest, an hour from the nearest town. For people without a car, the location is very ____.', 'inconvenient', 'Far from town; no car.'),
+    p('The shop opens at ten and closes at three, when most people are still at work. Many customers say these hours are ____ for them.', 'inconvenient', 'Hours do not suit workers.')
+  ],
+  excellent: [
+    p('Tourists often travel across the city to eat at the small family restaurant. Its soup is so ____ that people queue in the rain for a table.', 'excellent', 'People queue in the rain.'),
+    p('The judges tasted twenty dishes at the cooking competition. They gave the highest marks to Li Na, whose fish curry was ____ in every way.', 'excellent', 'Highest marks.')
+  ],
+  polite: [
+    p('The customer was angry about the long wait, but the manager stayed calm. He spoke quietly, said sorry twice and was extremely ____ throughout the conversation.', 'polite', 'Calm, quiet, said sorry.'),
+    p('In many cultures, children are taught to say please and thank you from an early age. Parents say that these habits help children become ____ adults.', 'polite', 'Please and thank you.')
+  ],
+  helpful: [
+    p('I could not read the menu because it was written in a language I did not know. Luckily, the waiter was extremely ____ and translated every dish for me.', 'helpful', 'Translated every dish.'),
+    p('Before the cooking exam, the teacher gave us a ____ list of tips. It explained how to measure ingredients and how to save time in the kitchen.', 'helpful', 'Tips list for the exam.')
+  ],
+  recommendation: [
+    p('Tourists often ask hotel staff where to eat. On the ____ of the receptionist, we tried a small noodle shop, and it was the best meal of our trip.', 'recommendation', '"On the ____ of the receptionist".'),
+    p('I could not decide what to order, so I asked the waiter for a ____. He told me the lamb curry was the best dish on the menu, and he was right.', 'recommendation', 'Asked the waiter what is best.')
+  ],
+  informative: [
+    p('Before the school trip to the farm, the teacher handed out a leaflet. It was short but very ____: it explained where milk comes from and how cheese is made.', 'informative', 'Explains where milk comes from.'),
+    p('Tom did not enjoy the cooking show at first. However, he found it ____, because he learned why bread needs time to rise.', 'informative', 'Learned a fact.')
   ]
 
 });
