@@ -12,7 +12,7 @@ function precision(id, vocabularyId, prompt, sourceText, acceptedAnswers, distra
 const P = weak => `Replace “${weak}” with a more precise Unit 4 word or phrase.`;
 
 export default [
-  precision('u4_writing_precision_breathtaking_a', 'vocab_breathtaking', P('very beautiful'), 'From the cable car, we had a very beautiful view of the whole valley.', ['breathtaking'], ['ordinary', 'narrow', 'crowded']),
+  precision('u4_writing_precision_breathtaking_a', 'vocab_breathtaking', P('very beautiful'), 'From the cable car, we had a very beautiful view of the whole valley.', ['breathtaking'], ['plain', 'narrow', 'crowded']),
   precision('u4_writing_precision_breathtaking_b', 'vocab_breathtaking', P('amazing'), 'The sunset over the runway was amazing, so the travellers took photographs.', ['breathtaking'], ['ordinary', 'noisy', 'familiar']),
   precision('u4_writing_precision_comfort_a', 'vocab_comfort', P('being physically relaxed'), 'The coach has wide seats, so passengers can enjoy being physically relaxed on long journeys.', ['comfort', 'physical comfort'], ['danger', 'speed', 'silence']),
   precision('u4_writing_precision_comfort_b', 'vocab_comfort', P('ease and relaxation'), 'The airline spends millions on seats that offer passengers ease and relaxation.', ['comfort'], ['speed', 'danger', 'information']),

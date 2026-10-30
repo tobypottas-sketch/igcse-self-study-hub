@@ -91,7 +91,7 @@ const ideaSets = [
     { text:'The view from the top of the mountain railway was somewhat pleasant.', misconceptionCategory:'degree_change' },
     { text:'The journey up the mountain railway was long and tiring.', misconceptionCategory:'meaning_confusion' }
   ], ['vocab_breathtaking']),
-  idea('comfort', 'The new coaches allow passengers to travel in comfort.', ['The new coaches let travellers enjoy a relaxed, pain-free journey.', 'Passengers on the new coaches can make their journey in physical ease.', 'The new coaches make it possible for people to travel without discomfort.'], 'cause_effect', 'the new coaches make the journey relaxed', [
+  idea('comfort', 'The new coaches allow passengers to travel in comfort.', ['The new coaches let travellers enjoy a relaxed, pain-free journey.', 'Passengers on the new coaches can make their journey in physical ease.', 'The new coaches make long journeys easy and pleasant for travellers.'], 'cause_effect', 'the new coaches make the journey relaxed', [
     { text:'The new coaches force passengers to travel in discomfort.', misconceptionCategory:'polarity_change' },
     { text:'The new coaches allow passengers to travel at high speed.', misconceptionCategory:'meaning_confusion' },
     { text:'Only passengers who pay extra can travel in a relaxed way on the new coaches.', misconceptionCategory:'added_information' }
