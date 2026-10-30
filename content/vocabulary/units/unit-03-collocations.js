@@ -19,6 +19,16 @@ export default Object.freeze({
   unwell: ['feel unwell', 'look unwell', 'seem unwell'],
   ingredients: ['fresh ingredients', 'key ingredients', 'natural ingredients'],
   nutritious: ['nutritious food', 'nutritious meal', 'nutritious diet'],
-  moderation: ['in moderation', 'with moderation', 'practise moderation']
+  moderation: ['in moderation', 'with moderation', 'practise moderation'],
+  deceive: ['deceive customers', 'deceive people', 'easily deceive'],
+  advertisement: ['television advertisement', 'newspaper advertisement', 'online advertisement'],
+  variety: ['wide variety', 'great variety', 'huge variety'],
+  portion: ['large portion', 'small portion', 'generous portion'],
+  purchase: ['online purchase', 'recent purchase', 'major purchase'],
+  takeaway: ['Chinese takeaway', 'order takeaway', 'takeaway food'],
+  barbecue: ['garden barbecue', 'summer barbecue', 'charcoal barbecue'],
+  saturated: ['saturated fat', 'saturated fats', 'mostly saturated'],
+  convenient: ['very convenient', 'more convenient', 'convenient time'],
+  extensive: ['extensive research', 'extensive menu', 'extensive range']
 
 });

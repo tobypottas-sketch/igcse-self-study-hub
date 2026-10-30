@@ -52,7 +52,17 @@ const phraseSets = [
   phrase('feel_unwell', 'feel ill', 'feel unwell', ['vocab_unwell'], { chunks:['feel', 'unwell'], distortions:['feel hungry', 'feel angry', 'feel excited'] }),
   phrase('ingredients_recipe', 'the foods that go into a recipe', 'the ingredients in a recipe', ['vocab_ingredients'], { chunks:['the ingredients', 'in a recipe'], distortions:['the tools used for a recipe', 'the steps of a recipe', 'the cooks who write a recipe'] }),
   phrase('nutritious_food', 'food that is good for the body', 'nutritious food', ['vocab_nutritious'], { acceptedVariants:['healthy food'], chunks:['nutritious', 'food'], distortions:['food that is expensive', 'food that is sweet', 'food that is fried'] }),
-  phrase('in_moderation', 'in sensible amounts, not too much', 'in moderation', ['vocab_moderation'], { chunks:['in', 'moderation'], distortions:['in secret', 'in large amounts', 'in a hurry'] })
+  phrase('in_moderation', 'in sensible amounts, not too much', 'in moderation', ['vocab_moderation'], { chunks:['in', 'moderation'], distortions:['in secret', 'in large amounts', 'in a hurry'] }),
+  phrase('deceive_customers', 'make customers believe something false', 'deceive customers', ['vocab_deceive'], { acceptedVariants:['mislead customers'], chunks:['deceive', 'customers'], distortions:['inform customers', 'thank customers', 'warn customers'] }),
+  phrase('advertisement_burger', 'a message that tries to sell a burger', 'an advertisement for a burger', ['vocab_advertisement'], { acceptedVariants:['an advert for a burger'], chunks:['an advertisement', 'for a burger'], distortions:['a review of a burger', 'a recipe for a burger', 'a bill for a burger'] }),
+  phrase('variety_dishes', 'many different kinds of dishes', 'a variety of dishes', ['vocab_variety'], { acceptedVariants:['a range of dishes'], chunks:['a variety', 'of dishes'], distortions:['one kind of dish', 'a list of dishes', 'the cost of dishes'] }),
+  phrase('portion_rice', 'the amount of rice for one person', 'a portion of rice', ['vocab_portion'], { acceptedVariants:['a serving of rice'], chunks:['a portion', 'of rice'], distortions:['a bag of rice', 'the price of rice', 'a field of rice'] }),
+  phrase('online_purchase', 'something that you bought on the internet', 'an online purchase', ['vocab_purchase'], { acceptedVariants:['an internet purchase'], chunks:['an', 'online', 'purchase'], distortions:['an online refund', 'an online advert', 'an online review'] }),
+  phrase('chinese_takeaway', 'a meal from a Chinese restaurant to eat at home', 'a Chinese takeaway', ['vocab_takeaway'], { chunks:['a', 'Chinese', 'takeaway'], distortions:['a Chinese cooking lesson', 'a Chinese restaurant with tables', 'a Chinese food market'] }),
+  phrase('garden_barbecue', 'an outdoor meal in the garden cooked over a fire', 'a garden barbecue', ['vocab_barbecue'], { acceptedVariants:['a barbecue in the garden'], chunks:['a', 'garden', 'barbecue'], distortions:['a formal dinner in the garden', 'a cold picnic in the garden', 'a cooking lesson in the garden'] }),
+  phrase('saturated_fat', 'the type of fat found in butter and fatty meat', 'saturated fat', ['vocab_saturated'], { chunks:['saturated', 'fat'], distortions:['fat that stays liquid at room temperature', 'fat that has been removed', 'fat that tastes sweet'] }),
+  phrase('convenient_way', 'an easy way that saves time', 'a convenient way', ['vocab_convenient'], { acceptedVariants:['a handy way'], chunks:['a', 'convenient', 'way'], distortions:['a costly way', 'a slow way', 'a dangerous way'] }),
+  phrase('extensive_gardens', 'very large gardens', 'extensive gardens', ['vocab_extensive'], { chunks:['extensive', 'gardens'], distortions:['tiny gardens', 'private gardens', 'dull gardens'] })
 
 ];
 
@@ -156,7 +166,57 @@ const ideaSets = [
     { text:'The teacher suggested never eating sweets at all.', misconceptionCategory:'degree_change' },
     { text:'The teacher suggested eating as many sweets as possible.', misconceptionCategory:'degree_change' },
     { text:'The teacher suggested giving sweets to friends.', misconceptionCategory:'meaning_confusion' }
-  ], ['vocab_moderation'])
+  ], ['vocab_moderation']),
+  idea('deceive', 'Some adverts deceive children by making sweets look healthy.', ['Some adverts mislead children by making sweets seem healthy.', 'Certain adverts trick children into thinking that sweets are healthy.', 'By making sweets look healthy, some adverts give children a false idea.'], 'cause_effect', 'adverts cause a false belief', [
+    { text:'Some adverts warn children that sweets are not healthy.', misconceptionCategory:'polarity_change' },
+    { text:'Some adverts persuade children to buy healthy fruit.', misconceptionCategory:'meaning_confusion' },
+    { text:'Some adverts show children how to make sweets.', misconceptionCategory:'added_information' }
+  ], ['vocab_deceive']),
+  idea('advertisement', 'The advertisement for the new pizza appears on television every evening.', ['The advert for the new pizza is shown on television every evening.', 'Every evening, television shows an advert for the new pizza.', 'An advert for the new pizza comes on the television each evening.'], 'time', 'every evening', [
+    { text:'The advert for the new pizza appears on television only on Sundays.', misconceptionCategory:'time_change' },
+    { text:'The review of the new pizza appears on television every evening.', misconceptionCategory:'meaning_confusion' },
+    { text:'The advert for the new pizza appeared on television once last year.', misconceptionCategory:'time_change' }
+  ], ['vocab_advertisement']),
+  idea('variety', 'The market offers a wide variety of fresh fruit.', ['The market sells a large range of fresh fruit.', 'Shoppers at the market can choose from many different kinds of fresh fruit.', 'Many kinds of fresh fruit are available at the market.'], 'quantity', 'many kinds', [
+    { text:'The market sells only one kind of fresh fruit.', misconceptionCategory:'quantity_change' },
+    { text:'The market sells a large amount of the same fresh fruit.', misconceptionCategory:'meaning_confusion' },
+    { text:'The market offers fresh fruit at a low price.', misconceptionCategory:'added_information' }
+  ], ['vocab_variety']),
+  idea('portion', 'The restaurant gives customers a large portion of rice with every curry.', ['The restaurant serves a big helping of rice with each curry.', 'With every curry, the restaurant gives customers a generous serving of rice.', 'Each curry comes with a big amount of rice for one person.'], 'degree', 'large', [
+    { text:'The restaurant serves a tiny helping of rice with each curry.', misconceptionCategory:'degree_change' },
+    { text:'The restaurant serves a big helping of rice with only some curries.', misconceptionCategory:'quantity_change' },
+    { text:'The restaurant sells large bags of rice with every curry.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_portion']),
+  idea('purchase', 'Please keep the receipt for every purchase you make in the shop.', ['Please keep the receipt for everything you buy in the shop.', 'Make sure you hold on to the receipt for each item you buy in the shop.', 'The receipt for each thing bought in the shop should be kept.'], 'quantity', 'every item', [
+    { text:'Please keep the receipt only for the most expensive thing you buy in the shop.', misconceptionCategory:'quantity_change' },
+    { text:'Please throw away the receipt for everything you buy in the shop.', misconceptionCategory:'polarity_change' },
+    { text:'Please keep the receipt for every item you sell in the shop.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_purchase']),
+  idea('takeaway', 'We usually order a takeaway on Friday evenings.', ['We usually order a meal to eat at home on Friday evenings.', 'On Friday evenings we normally buy hot food from a restaurant to eat at home.', 'Friday evening is when we typically get a restaurant meal to take home.'], 'time', 'Friday evenings', [
+    { text:'We usually order a meal to eat at home on Sunday mornings.', misconceptionCategory:'time_change' },
+    { text:'We usually cook a meal at home on Friday evenings.', misconceptionCategory:'polarity_change' },
+    { text:'We usually eat at a restaurant table on Friday evenings.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_takeaway']),
+  idea('barbecue', 'Our neighbours hold a barbecue in the garden every summer.', ['Every summer, our neighbours have an outdoor meal cooked over a fire in their garden.', 'Each summer our neighbours throw a garden party where food is grilled.', 'Our neighbours cook food outdoors at a party in their garden each summer.'], 'time', 'every summer', [
+    { text:'Our neighbours hold an outdoor cooking party in their garden every winter.', misconceptionCategory:'time_change' },
+    { text:'Our neighbours hold a formal dinner indoors every summer.', misconceptionCategory:'meaning_confusion' },
+    { text:'Our neighbours hold an outdoor cooking party in their garden every summer and charge guests money.', misconceptionCategory:'added_information' }
+  ], ['vocab_barbecue']),
+  idea('saturated', 'Butter contains more saturated fat than olive oil.', ['Butter contains more of the type of fat found in fatty meat than olive oil does.', 'Compared with butter, olive oil contains less of the type of fat found in cheese and fatty meat.', 'Butter has a higher amount of the type of fat found in cheese and fatty meat than olive oil has.'], 'comparison', 'butter has more', [
+    { text:'Olive oil contains more of the type of fat found in cheese and fatty meat than butter does.', misconceptionCategory:'comparison_change' },
+    { text:'Butter contains less of the type of fat found in cheese and fatty meat than olive oil does.', misconceptionCategory:'comparison_change' },
+    { text:'Butter costs more than olive oil.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_saturated']),
+  idea('convenient', 'Ready meals are convenient for people who work long hours.', ['Ready meals are handy for people who work long hours.', 'People who work long hours find ready meals easy and time-saving.', 'For those with long working hours, ready meals save time and effort.'], 'cause_effect', 'saves time and effort', [
+    { text:'Ready meals are cheap for people who work long hours.', misconceptionCategory:'meaning_confusion' },
+    { text:'Ready meals are unpopular with people who work long hours.', misconceptionCategory:'polarity_change' },
+    { text:'Ready meals are healthy for people who work long hours.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_convenient']),
+  idea('extensive', 'The restaurant has an extensive menu with over a hundred dishes.', ['The restaurant has a wide-ranging menu with over a hundred dishes.', 'There are more than a hundred dishes on the restaurant’s very large menu.', 'The restaurant’s menu is very large and lists over a hundred dishes.'], 'quantity', 'over a hundred dishes', [
+    { text:'The restaurant has a short menu with fewer than ten dishes.', misconceptionCategory:'quantity_change' },
+    { text:'The restaurant has a menu with over a hundred dishes, all of them free.', misconceptionCategory:'added_information' },
+    { text:'The restaurant has an expensive menu with only a few dishes.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_extensive'])
 
 ];
 

@@ -40,6 +40,21 @@ export default [
   family('nutritious_c', 'vocab_nutritious', 'nutritious', 'Beans, rice and vegetables make a cheap and ____ meal.', 'nutritious'),
   family('moderation_a', 'vocab_moderation', 'moderation', 'We should eat sweets in ____ rather than every day.', 'moderation'),
   family('moderation_b', 'vocab_moderation', 'moderation', 'Add a ____ amount of salt, not too much and not too little.', 'moderate'),
-  family('moderation_c', 'vocab_moderation', 'moderation', 'The curry was only ____ spicy, so everyone in the class could eat it.', 'moderately')
+  family('moderation_c', 'vocab_moderation', 'moderation', 'The curry was only ____ spicy, so everyone in the class could eat it.', 'moderately'),
+  family('deceive_a', 'vocab_deceive', 'deceive', 'Some labels ____ customers by using green pictures to suggest that a food is natural.', 'deceive'),
+  family('deceive_b', 'vocab_deceive', 'deceive', 'The photograph on the website was ____, because the real cake was half the size.', 'deceptive'),
+  family('deceive_c', 'vocab_deceive', 'deceive', 'The company was fined for ____ after it sold frozen fish as fresh.', 'deception'),
+  family('advertisement_a', 'vocab_advertisement', 'advertisement', 'The cafe pays a local radio station to ____ its new menu.', 'advertise'),
+  family('advertisement_b', 'vocab_advertisement', 'advertisement', 'Healthy eating campaigns compete with enormous budgets for fast-food ____.', 'advertising'),
+  family('advertisement_c', 'vocab_advertisement', 'advertisement', 'A bright ____ in the window announced half-price pizza.', 'advertisement'),
+  family('variety_a', 'vocab_variety', 'variety', 'The price of fish can ____ a lot from one season to the next.', 'vary'),
+  family('variety_b', 'vocab_variety', 'variety', 'The festival has stalls selling ____ kinds of street food.', 'various'),
+  family('variety_c', 'vocab_variety', 'variety', 'A balanced diet includes a ____ of fruit and vegetables.', 'variety'),
+  family('convenient_a', 'vocab_convenient', 'convenient', 'Many people choose ready meals for the ____ rather than for the taste.', 'convenience'),
+  family('convenient_b', 'vocab_convenient', 'convenient', 'The new restaurant is ____ placed next to the railway station.', 'conveniently'),
+  family('convenient_c', 'vocab_convenient', 'convenient', 'A microwave is a ____ way to heat food quickly after work.', 'convenient'),
+  family('extensive_a', 'vocab_extensive', 'extensive', 'The survey tried to find out the ____ of food waste in schools.', 'extent'),
+  family('extensive_b', 'vocab_extensive', 'extensive', 'The chef has travelled ____ to learn about street food.', 'extensively'),
+  family('extensive_c', 'vocab_extensive', 'extensive', 'The hotel has ____ gardens where guests can walk before dinner.', 'extensive')
 
 ];

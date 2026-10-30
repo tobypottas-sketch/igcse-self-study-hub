@@ -101,6 +101,56 @@ export default Object.freeze({
     'The diner filled his plate three times at the buffet.',
     'She gave up every kind of sweet food and never ate any.',
     'He ate a whole pizza on his own.'
+  ],
+  deceive: [
+    'The shop owner admitted the mistake and gave customers their money back.',
+    'The poster showed the real price in large clear numbers.',
+    'The manager told the staff to speak politely to every guest.'
+  ],
+  advertisement: [
+    'The restaurant printed a menu with the day’s dishes.',
+    'A customer wrote a review of the cafe on the internet.',
+    'The cashier gave the customer a receipt.'
+  ],
+  variety: [
+    'The restaurant was full of customers on Saturday night.',
+    'The cook washed all the vegetables in cold water.',
+    'The shop closes at six o’clock on weekdays.'
+  ],
+  portion: [
+    'The manager asked the cooks to clean the kitchen at closing time.',
+    'A large pot of beans was kept warm on the stove.',
+    'The customer asked for the menu and a glass of water.'
+  ],
+  purchase: [
+    'He read the menu twice before deciding what to eat.',
+    'The cashier counted the notes in the till.',
+    'They borrowed a table from a neighbour for the party.'
+  ],
+  takeaway: [
+    'The shop sold fresh vegetables, eggs and milk to local families.',
+    'The school canteen served lunch to the pupils at noon.',
+    'He packed sandwiches from home for the trip.'
+  ],
+  barbecue: [
+    'The class watched a film about how bread is made.',
+    'He boiled the eggs in a small pan on the stove.',
+    'The pupils ate lunch in the canteen.'
+  ],
+  saturated: [
+    'The label listed the vitamins in the juice.',
+    'The salad contained lettuce, tomato and cucumber.',
+    'The baker cooled the bread on a wire rack.'
+  ],
+  convenient: [
+    'The opening hours changed every week, so customers never knew when it was open.',
+    'The tiny kitchen had no space for a fridge.',
+    'The queue stretched all the way down the street.'
+  ],
+  extensive: [
+    'The survey asked only five pupils one question about breakfast.',
+    'The recipe was short and needed just three ingredients.',
+    'The garden behind the restaurant had one small herb pot.'
   ]
 
 });

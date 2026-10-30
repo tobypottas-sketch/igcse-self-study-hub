@@ -83,6 +83,46 @@ export default Object.freeze({
   moderation: [
     p('Mr Lee never gives up his favourite desserts. He simply eats them in ____, one small piece on Sundays.', 'moderation', '"in ____, one small piece on Sundays".'),
     p('The old saying “too much of anything is bad” teaches the value of ____. Even good things can cause problems if you have huge amounts of them.', 'moderation', 'Saying about too much.')
+  ],
+  deceive: [
+    p('Some adverts use clever photographs. Their aim is to ____ customers, because the real meal looks much smaller than the picture.', 'deceive', 'Picture bigger than the real meal.'),
+    p('Honest shopkeepers never try to ____ their customers. They tell the truth about where the food comes from and what it contains.', 'deceive', 'Contrast with telling the truth.')
+  ],
+  advertisement: [
+    p('Last night, a colourful ____ for a new burger appeared between two television programmes. It showed smiling people, a low price and the shop’s address.', 'advertisement', 'Between programmes; low price and address.'),
+    p('The restaurant wanted more customers. It put an ____ in the local newspaper, with a photograph of its most popular dish and a special offer.', 'advertisement', 'Newspaper; photograph and special offer.')
+  ],
+  variety: [
+    p('There is a huge ____ of food at the festival. Stalls sell noodles, tacos, pancakes, sushi and ice cream from many countries.', 'variety', 'List of very different foods.'),
+    p('Eating the same lunch every day can become boring. A good meal plan includes a ____ of vegetables, so that each day brings new colours and flavours.', 'variety', 'Boring versus new colours and flavours.')
+  ],
+  portion: [
+    p('The restaurant gives each guest a very generous ____ of rice. Many people take some home in a box.', 'portion', 'Generous amount of rice; leftovers.'),
+    p('Nutrition labels show the size of one ____. Shoppers can then compare how much sugar is in the amount a person usually eats.', 'portion', 'Label size for one person.')
+  ],
+  purchase: [
+    p('Tom saved his pocket money for weeks. His first big ____ was a set of kitchen knives, and he was proud to carry them home.', 'purchase', 'Saved money; carried it home.'),
+    p('Before you pay, check the price on the shelf. After every ____ in a supermarket, keep the receipt, because it proves what you paid.', 'purchase', 'Receipt proves payment.')
+  ],
+  takeaway: [
+    p('Neither of my parents had time to cook last night. Dad phoned the Indian restaurant and collected a ____ on his way home.', 'takeaway', 'Collected on the way home.'),
+    p('I do not like waiting for a table. When I am in a hurry, I order a ____ so that I can eat at home or in the park.', 'takeaway', 'Avoids waiting for a table.')
+  ],
+  barbecue: [
+    p('The weather forecast promised a hot Saturday. Our neighbours invited everyone to a ____ in their garden, where they cooked burgers and corn over hot coals.', 'barbecue', 'Garden; cooked over hot coals.'),
+    p('My uncle lit the charcoal and put the chicken on the metal frame. At our family ____, everyone eats outside and shares food from the same table.', 'barbecue', 'Charcoal and eating outside.')
+  ],
+  saturated: [
+    p('Pupils in the food technology class compared two foods. Butter contains much more ____ fat than olive oil, and it stays hard in the fridge.', 'saturated', 'Butter versus olive oil; stays hard.'),
+    p('The nutrition label has a line for fat and another line for ____ fat. The second line is smaller, because it shows only the fat that comes mainly from animal foods such as cheese.', 'saturated', 'Second line for the kind in butter and meat.')
+  ],
+  convenient: [
+    p('Kim has a very busy week with little time to shop. She likes the small supermarket near her flat, because it is open late and she can buy dinner on her way home. It is a very ____ shop.', 'convenient', 'Open late; on her way home.'),
+    p('Ready-to-heat meals are popular with busy families. They are not always the cheapest choice, but they are ____ because they save time in the kitchen.', 'convenient', 'Saves time.')
+  ],
+  extensive: [
+    p('Wei wanted to be a chef, so he read widely about cooking. His ____ knowledge of world cuisines impressed the judges at the competition.', 'extensive', 'Read widely; impressed the judges.'),
+    p('The hotel has a huge garden with fruit trees, vegetable beds and a lake. Guests enjoy walking in the ____ grounds before dinner.', 'extensive', 'Huge garden with a lake.')
   ]
 
 });

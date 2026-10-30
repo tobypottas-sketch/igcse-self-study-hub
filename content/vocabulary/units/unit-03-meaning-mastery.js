@@ -83,6 +83,46 @@ export default Object.freeze({
   moderation: [
     w(['very large amounts at one time', 'a rush without thinking', 'secret amounts that nobody sees']),
     w(['the habit of eating alone at home', 'the habit of paying too much attention to prices', 'the habit of copying friends'])
+  ],
+  deceive: [
+    w(['persuade people to give money to charity', 'warn people about unsafe products', 'help people to find cheaper goods']),
+    w(['teach customers about healthy eating', 'ask customers about their opinions', 'refuse to serve customers at all'])
+  ],
+  advertisement: [
+    w(['a report that explains how a pizza is made', 'a menu that lists the dishes in a restaurant', 'a bill that shows how much a family must pay']),
+    w(['a letter that thanks customers for their custom', 'a list of the goods that a shop has in stock', 'a notice that warns people about a danger'])
+  ],
+  variety: [
+    w(['a small amount of food that is served first', 'a single type of dish that is always the same', 'a long list of rules for a kitchen']),
+    w(['a lack of choice in a shop', 'a high price for goods', 'a feeling of being tired and bored'])
+  ],
+  portion: [
+    w(['the whole amount of food made in a kitchen', 'the price that a customer pays for a meal', 'the list of dishes on offer']),
+    w(['a part of a restaurant for large groups', 'a rule about how to eat politely', 'the person who brings the food'])
+  ],
+  purchase: [
+    w(['a machine that cooks food quickly', 'a gift that a customer received', 'a list of things that a shop sells']),
+    w(['a refund for goods that were returned', 'an order that a cook receives', 'an offer that a shop makes'])
+  ],
+  takeaway: [
+    w(['a restaurant with tables and waiters', 'a market that sells fruit', 'a school for cooks']),
+    w(['a meal that the family cooks together', 'a main idea from a conversation', 'a dish that has been left over'])
+  ],
+  barbecue: [
+    w(['a quiet dinner in a formal restaurant', 'a cold picnic eaten in a park', 'a cooking lesson held at school']),
+    w(['a metal bowl used for mixing food', 'a machine that freezes food quickly', 'a cupboard used for storing plates'])
+  ],
+  saturated: [
+    w(['describing a fat that stays liquid in the fridge', 'describing food that is completely wet', 'describing a fat that has no taste']),
+    w(['full of water after heavy rain', 'sweet and sticky after cooking', 'very hot after frying'])
+  ],
+  convenient: [
+    w(['popular because it sells cheap food', 'large enough for many customers', 'pleasant because it has a garden']),
+    w(['expensive because it is in the city', 'crowded because it is lunchtime', 'open only at weekends'])
+  ],
+  extensive: [
+    w(['divided into small private gardens', 'covered by thick forest', 'close to the busy town centre']),
+    w(['quick and without much care', 'secret and unfinished', 'expensive and inaccurate'])
   ]
 
 });

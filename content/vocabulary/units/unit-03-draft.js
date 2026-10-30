@@ -585,6 +585,287 @@ const entries = [
         { id:'2', answer:'moderation', wrong:['silence', 'advance', 'public'] },
         { id:'3', answer:'moderation', wrong:['silence', 'speed', 'luck'] }
       ]
+    }),
+  e('deceive', 'verb',
+    'to make someone believe something that is not true',
+    ['mislead', 'trick'],
+    ['to warn someone about a danger', 'to ask someone for their opinion', 'to teach someone a new skill'],
+    'Some adverts deceive shoppers by showing food that looks much bigger than it really is.',
+    'mislead', 'Some adverts mislead shoppers by showing food that looks much bigger than it really is.',
+    'trick', 'Companies should not trick customers with false claims on food labels.',
+    {
+      grammarForms:{ base:'deceive', thirdPerson:'deceives', past:'deceived', pastParticiple:'deceived', ing:'deceiving' },
+      masteryContexts:[
+        { text:'Some websites use fake reviews to deceive customers into buying poor products.', meaning:'make people believe something false' },
+        { text:'It is wrong to deceive customers about what is in a product, so the law requires honest labels.', meaning:'give people a false idea' }
+      ],
+      situationDistractors:[
+        'The waiter described each dish honestly and answered every question about the food.',
+        'The chef showed the customers exactly how the burger was cooked.',
+        'The label listed every ingredient clearly, from the largest amount to the smallest.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Some fast-food adverts use clever photographs to deceive customers about the size of the burger.', target:'deceive', grammarPattern:'' },
+        { id:'2', text:'It is illegal for a company to deceive shoppers by selling cheap rice as expensive rice.', target:'deceive', grammarPattern:'' },
+        { id:'3', text:'He used a fake website to deceive people into paying for food that never arrived.', target:'deceive', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'deceive', wrong:['thank', 'reward', 'invite'] },
+        { id:'2', answer:'deceive', wrong:['advise', 'thank', 'invite'] },
+        { id:'3', answer:'deceive', wrong:['remind', 'excuse', 'greet'] }
+      ]
+    }),
+  e('advertisement', 'noun',
+    'a notice, picture or film that tries to persuade people to buy something',
+    ['advert', 'message to sell a product'],
+    ['a short report about a news event', 'a list of the prices of goods', 'a letter that thanks a customer'],
+    'The advertisement for the new burger appeared on television every evening.',
+    'advert', 'The advert for the new burger appeared on television every evening.',
+    'message to sell a product', 'A message to sell a product must not give false information about food.',
+    {
+      masteryContexts:[
+        { text:'The advertisement showed a happy family sharing a pizza at the dinner table.', meaning:'a picture or film that tries to sell something' },
+        { text:'Chocolate companies spend millions of pounds on every advertisement they put on television.', meaning:'a message that tries to make people buy a product' }
+      ],
+      situationDistractors:[
+        'The newspaper printed a long report about a school sports day.',
+        'The waiter handed the family the bill at the end of the meal.',
+        'The chef posted the recipe on a cooking website for free.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The new advertisement for the energy drink appears at every bus stop in the city.', target:'advertisement', grammarPattern:'' },
+        { id:'2', text:'The television advertisement lasted thirty seconds and ended with the price of the burger.', target:'advertisement', grammarPattern:'' },
+        { id:'3', text:'Every good advertisement must be honest, so the company cannot claim that its juice is healthier than it really is.', target:'advertisement', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'advertisement', wrong:['recipe', 'receipt', 'invoice'] },
+        { id:'2', answer:'advertisement', wrong:['recipe', 'receipt', 'invoice'] },
+        { id:'3', answer:'advertisement', wrong:['recipe', 'menu', 'receipt'] }
+      ]
+    }),
+  e('variety', 'noun',
+    'a number of different kinds of the same thing',
+    ['range', 'selection'],
+    ['a single kind of something that is sold', 'a plan for how something will be made', 'a feeling that something is boring'],
+    'The market sells a wide variety of fresh fruit.',
+    'range', 'The market sells a wide range of fresh fruit.',
+    'selection', 'The cafe offers a large selection of cakes and pastries.',
+    {
+      masteryContexts:[
+        { text:'The buffet offers a wide variety of dishes from different countries.', meaning:'many different kinds of something' },
+        { text:'Customers love the variety at the market, where every stall sells something different.', meaning:'a lot of different things to choose from' }
+      ],
+      situationDistractors:[
+        'The cafe sells only one kind of sandwich and nothing else.',
+        'Every stall at the market sold exactly the same cheese.',
+        'The menu had a single dish, which never changed.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The supermarket offers a wide variety of cheeses from different countries.', target:'variety', grammarPattern:'' },
+        { id:'2', text:'Children need a variety of fruit and vegetables in their meals, not just apples and carrots.', target:'variety', grammarPattern:'' },
+        { id:'3', text:'There is a great variety of street food in this city, from noodles to grilled fish.', target:'variety', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'variety', wrong:['price', 'speed', 'level'] },
+        { id:'2', answer:'variety', wrong:['price', 'speed', 'level'] },
+        { id:'3', answer:'variety', wrong:['shortage', 'habit', 'absence'] }
+      ]
+    }),
+  e('portion', 'noun',
+    'the amount of food served to one person',
+    ['serving', 'helping'],
+    ['the whole amount of food in a large dish', 'a small part of a restaurant where people wait', 'the money paid for a meal'],
+    'A large portion of chips costs two pounds at the school canteen.',
+    'serving', 'A large serving of chips costs two pounds at the school canteen.',
+    'helping', 'The waiter gave me a generous helping of rice.',
+    {
+      masteryContexts:[
+        { text:'A child’s portion at the restaurant is smaller and cheaper than an adult’s.', meaning:'the amount of food served to one person' },
+        { text:'The dish comes with a free portion of rice, so you do not have to order any extra.', meaning:'an amount of food for one person' }
+      ],
+      situationDistractors:[
+        'The chef cooked enough soup to feed two hundred guests at the wedding.',
+        'The waiter wrote down the number of each table.',
+        'The bill showed the total price for the whole meal.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The restaurant gave me such a large portion of pasta that I could not finish it.', target:'portion', grammarPattern:'' },
+        { id:'2', text:'You should check the size of one portion on the label before you decide how much to eat.', target:'portion', grammarPattern:'' },
+        { id:'3', text:'A small portion of chips came with the burger, but we ordered an extra one.', target:'portion', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'portion', wrong:['recipe', 'receipt', 'menu'] },
+        { id:'2', answer:'portion', wrong:['recipe', 'receipt', 'price'] },
+        { id:'3', answer:'portion', wrong:['recipe', 'receipt', 'dessert'] }
+      ]
+    }),
+  e('purchase', 'noun',
+    'something that you have bought',
+    ['thing bought', 'an item you bought'],
+    ['a list of goods that a shop has for sale', 'the money that you save each month', 'a small gift that a shop gives away'],
+    'The receipt shows the date and price of each purchase.',
+    'thing bought', 'The receipt shows the date and price of each thing bought.',
+    'an item you bought', 'Keep the receipt in case you need to return an item you bought.',
+    {
+      masteryContexts:[
+        { text:'Her biggest purchase this month was a new oven for the family kitchen.', meaning:'a thing that was bought' },
+        { text:'Every purchase over ten pounds at the cafe earns you a stamp towards a free coffee.', meaning:'an act of buying something' }
+      ],
+      situationDistractors:[
+        'The customer returned the faulty kettle and asked for her money back.',
+        'A friend gave him a box of chocolates for his birthday.',
+        'The shop was having a sale, but the doors were locked.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The shopper checked the receipt and saw that her biggest purchase of the day was a coffee machine.', target:'purchase', grammarPattern:'' },
+        { id:'2', text:'You can return any online purchase within thirty days if you keep the receipt.', target:'purchase', grammarPattern:'' },
+        { id:'3', text:'When you make a purchase in a shop, you should check that the price on the receipt matches the price on the shelf.', target:'purchase', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'purchase', wrong:['dish', 'recipe', 'guest'] },
+        { id:'2', answer:'purchase', wrong:['recipe', 'dish', 'guest'] },
+        { id:'3', answer:'purchase', wrong:['recipe', 'dish', 'speech'] }
+      ]
+    }),
+  e('takeaway', 'noun',
+    'a meal that you buy at a restaurant and eat somewhere else',
+    ['meal to take home', 'food to go'],
+    ['a meal that is served at a table by a waiter', 'a main point that you remember from a talk', 'a shop that sells only fruit and vegetables'],
+    'We were too tired to cook, so we ordered a takeaway from the Chinese restaurant.',
+    'meal to take home', 'We were too tired to cook, so we ordered a meal to take home from the Chinese restaurant.',
+    'food to go', 'On Fridays my family orders food to go from the Indian restaurant.',
+    {
+      masteryContexts:[
+        { text:'There is a Chinese takeaway on the corner of our street that stays open until midnight.', meaning:'a shop that sells hot meals to eat elsewhere' },
+        { text:'On Fridays we usually order a takeaway instead of cooking.', meaning:'a meal bought to eat at home' }
+      ],
+      situationDistractors:[
+        'We sat at a table in the restaurant while the waiter brought each course.',
+        'She cooked a pot of soup at home for the whole family.',
+        'The guests ate the wedding meal in the hotel dining room.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'After the match we were so hungry that we stopped at a fish-and-chip takeaway on the way home.', target:'takeaway', grammarPattern:'' },
+        { id:'2', text:'It was Friday evening and nobody wanted to cook, so we ordered a takeaway.', target:'takeaway', grammarPattern:'' },
+        { id:'3', text:'The curry from the takeaway was still hot when we carried it home in a plastic bag.', target:'takeaway', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'takeaway', wrong:['library', 'cinema', 'stadium'] },
+        { id:'2', answer:'takeaway', wrong:['recipe', 'lesson', 'uniform'] },
+        { id:'3', answer:'takeaway', wrong:['library', 'cinema', 'museum'] }
+      ]
+    }),
+  e('barbecue', 'noun',
+    'an outdoor meal where food is cooked over a fire or on a grill',
+    ['grill party', 'outdoor cooking party'],
+    ['a formal dinner served in a restaurant', 'a picnic of cold food in a park', 'a cooking class held in a school kitchen'],
+    'We had a barbecue in the garden to celebrate the end of term.',
+    'grill party', 'We had a grill party in the garden to celebrate the end of term.',
+    'outdoor cooking party', 'The neighbours invited us to an outdoor cooking party on Sunday.',
+    {
+      masteryContexts:[
+        { text:'We had a barbecue on the beach and cooked sausages over a small fire.', meaning:'an outdoor meal cooked over a fire' },
+        { text:'Dad cleaned the barbecue before our guests arrived and checked that it had enough charcoal.', meaning:'a metal frame used for cooking food outside' }
+      ],
+      situationDistractors:[
+        'The guests ate cold sandwiches at a small table in a hotel restaurant.',
+        'The chef baked the cake in a large oven in the school kitchen.',
+        'The family had dinner indoors at the dining table while it rained.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'We held a barbecue in the park, and everyone brought meat, vegetables or salad to share.', target:'barbecue', grammarPattern:'' },
+        { id:'2', text:'The smell of grilled sausages from the neighbours’ barbecue made us hungry.', target:'barbecue', grammarPattern:'' },
+        { id:'3', text:'Because the weather was dry and warm, they decided to have a barbecue instead of cooking indoors.', target:'barbecue', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'barbecue', wrong:['lesson', 'meeting', 'concert'] },
+        { id:'2', answer:'barbecue', wrong:['classroom', 'library', 'bedroom'] },
+        { id:'3', answer:'barbecue', wrong:['lesson', 'test', 'concert'] }
+      ]
+    }),
+  e('saturated', 'adjective',
+    'describing the type of fat found mainly in butter, cheese and fatty meat',
+    ['the type of fat found in butter', 'the kind of fat in fatty meat and dairy foods'],
+    ['describing oil that stays liquid in the fridge', 'describing food that has been fried for a long time', 'describing fat that has been removed from meat'],
+    'Cheese, cream and fatty meat are high in saturated fat.',
+    'the type of fat found in butter', 'Cheese, cream and fatty meat are high in the type of fat found in butter.',
+    'the kind of fat in fatty meat and dairy foods', 'The label shows how much of the kind of fat in fatty meat and dairy foods is in each portion.',
+    {
+      masteryContexts:[
+        { text:'Butter, cheese and fatty meat are high in saturated fat.', meaning:'describing the type of fat found in butter and meat' },
+        { text:'The label says that one portion of the pizza contains a lot of saturated fat.', meaning:'of the type of fat found in butter and meat' }
+      ],
+      situationDistractors:[
+        'The cook poured olive oil, which stays liquid in the fridge, over the salad.',
+        'The nutritionist recommended eating more fruit and fish.',
+        'The cook trimmed all the fat off the meat before grilling it.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Butter, cream and fatty meat contain a lot of saturated fat.', target:'saturated', grammarPattern:'' },
+        { id:'2', text:'The label on the cheese shows how much saturated fat is in one portion.', target:'saturated', grammarPattern:'' },
+        { id:'3', text:'Coconut oil comes from plants, but it is still rich in saturated fat.', target:'saturated', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'saturated', wrong:['liquid', 'spicy', 'sugary'] },
+        { id:'2', answer:'saturated', wrong:['spicy', 'sugary', 'liquid'] },
+        { id:'3', answer:'saturated', wrong:['spicy', 'sugary', 'sweet'] }
+      ]
+    }),
+  e('convenient', 'adjective',
+    'easy to use or suitable because it saves time or effort',
+    ['handy', 'easy to use'],
+    ['cheap enough for everyone to buy', 'healthy enough for every meal', 'large enough for a big family'],
+    'Ready meals are convenient for people who work long hours.',
+    'handy', 'Ready meals are handy for people who work long hours.',
+    'easy to use', 'A microwave oven is easy to use when you are in a hurry.',
+    {
+      masteryContexts:[
+        { text:'The supermarket is open until midnight, which is convenient for people who work late.', meaning:'suitable because it saves time or effort' },
+        { text:'A restaurant near the station is convenient because you can eat before you catch the train.', meaning:'easy to reach and useful' }
+      ],
+      situationDistractors:[
+        'The only shop was twenty kilometres away, and there was no bus.',
+        'The restaurant was so far from the station that diners missed their trains.',
+        'The recipe took four hours and needed twelve different pans.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Frozen vegetables are convenient because you can keep them for months and cook them in minutes.', target:'convenient', grammarPattern:'' },
+        { id:'2', text:'A cafe next to the bus stop is very convenient for commuters who want a quick breakfast.', target:'convenient', grammarPattern:'' },
+        { id:'3', text:'It is more convenient to shop online than to carry heavy bags home from the market.', target:'convenient', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'convenient', wrong:['curious', 'confident', 'cautious'] },
+        { id:'2', answer:'convenient', wrong:['jealous', 'generous', 'anxious'] },
+        { id:'3', answer:'convenient', wrong:['famous', 'honest', 'polite'] }
+      ]
+    }),
+  e('extensive', 'adjective',
+    'covering a large area or including many things',
+    ['wide-ranging', 'very large'],
+    ['costing a lot of money to produce', 'lasting only a short time', 'difficult for most people to understand'],
+    'The restaurant has an extensive menu with over a hundred dishes.',
+    'wide-ranging', 'The restaurant has a wide-ranging menu with over a hundred dishes.',
+    'very large', 'The hotel has a very large garden with fruit trees and a lake.',
+    {
+      masteryContexts:[
+        { text:'The farm has extensive fields where vegetables are grown for the local market.', meaning:'covering a large area' },
+        { text:'After extensive research, the company changed its recipe to use less sugar.', meaning:'thorough and including many details' }
+      ],
+      situationDistractors:[
+        'The tiny cafe had room for only four tables.',
+        'The menu offered just three dishes, and they changed very rarely.',
+        'The shop sold a few kinds of bread and nothing else.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The restaurant’s extensive wine list includes bottles from twenty countries.', target:'extensive', grammarPattern:'' },
+        { id:'2', text:'Farmers in the region own extensive fields, and some farms are bigger than a small town.', target:'extensive', grammarPattern:'' },
+        { id:'3', text:'Before opening the restaurant, the owner did extensive research for two years into local tastes and prices.', target:'extensive', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'extensive', wrong:['limited', 'tiny', 'narrow'] },
+        { id:'2', answer:'extensive', wrong:['tiny', 'narrow', 'limited'] },
+        { id:'3', answer:'extensive', wrong:['quick', 'casual', 'lucky'] }
+      ]
     })
 
 ];

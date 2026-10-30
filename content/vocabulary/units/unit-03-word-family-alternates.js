@@ -40,6 +40,26 @@ export const unit3WordFamilyAlternates = Object.freeze({
   moderation: {
     moderate: 'The weather in spring is moderate, neither too hot nor too cold.',
     moderately: 'The soup was moderately spicy, which suited most of the class.'
+  },
+  deceive: {
+    deception: 'The shop owner admitted the deception and gave customers their money back.',
+    deceptive: 'The label was deceptive, because the juice contained almost no fruit.'
+  },
+  advertisement: {
+    advertise: 'Companies must not advertise food with false claims.',
+    advertising: 'The company spends millions of pounds on advertising every year.'
+  },
+  variety: {
+    vary: 'The taste of the soup can vary depending on the chef.',
+    various: 'We tried various dishes at the street food festival.'
+  },
+  convenient: {
+    convenience: 'The convenience of online ordering means you never have to queue.',
+    conveniently: 'The supermarket is conveniently open until midnight.'
+  },
+  extensive: {
+    extent: 'To some extent, the price of fish depends on the weather.',
+    extensively: 'The scientist has written extensively about school meals.'
   }
 
 });

@@ -51,6 +51,26 @@ export default [
   precision('u3_writing_precision_nutritious_a', 'vocab_nutritious', P('good for the body'), 'Beans and rice are cheap and good for the body.', ['nutritious'], ['tasteless', 'greasy', 'sugary']),
   precision('u3_writing_precision_nutritious_b', 'vocab_nutritious', P('healthy'), 'The canteen now serves a healthy breakfast of fruit, eggs and porridge.', ['nutritious'], ['sugary', 'greasy', 'spicy']),
   precision('u3_writing_precision_moderation_a', 'vocab_moderation', P('sensible amounts'), 'Chocolate is fine in sensible amounts, but it should not be eaten all day.', ['moderation'], ['secret', 'advance', 'public']),
-  precision('u3_writing_precision_moderation_b', 'vocab_moderation', P('small, sensible amounts'), 'Dessert is acceptable at weekends, in small, sensible amounts.', ['moderation'], ['secret', 'advance', 'silence'])
+  precision('u3_writing_precision_moderation_b', 'vocab_moderation', P('small, sensible amounts'), 'Dessert is acceptable at weekends, in small, sensible amounts.', ['moderation'], ['secret', 'advance', 'silence']),
+  precision('u3_writing_precision_deceive_a', 'vocab_deceive', P('trick'), 'Some websites use fake photographs to trick customers into buying poor food.', ['deceive'], ['teach', 'reward', 'thank']),
+  precision('u3_writing_precision_deceive_b', 'vocab_deceive', P('give a false idea to'), 'Labels that say “natural” may give a false idea to shoppers who do not read the ingredients.', ['deceive'], ['inform', 'teach', 'guide']),
+  precision('u3_writing_precision_advertisement_a', 'vocab_advertisement', P('advert'), 'A colourful advert for fizzy drinks was shown during the football match.', ['advertisement'], ['review', 'recipe', 'report']),
+  precision('u3_writing_precision_advertisement_b', 'vocab_advertisement', P('poster that sells'), 'The cafe put a poster that sells its new cakes in the window.', ['advertisement'], ['menu', 'receipt', 'recipe']),
+  precision('u3_writing_precision_variety_a', 'vocab_variety', P('many different kinds'), 'The market offers many different kinds of fresh fruit and vegetables.', ['a wide variety of', 'a variety of'], ['only one kind of', 'a tiny amount of', 'a poor price for']),
+  precision('u3_writing_precision_variety_b', 'vocab_variety', P('range'), 'The cafe has a range of cakes, from carrot cake to chocolate cake.', ['variety'], ['shortage', 'habit', 'price']),
+  precision('u3_writing_precision_portion_a', 'vocab_portion', P('serving'), 'At the school canteen, a serving of chips costs two pounds.', ['portion'], ['recipe', 'menu', 'receipt']),
+  precision('u3_writing_precision_portion_b', 'vocab_portion', P('helping'), 'Mum gave my brother a second helping of rice because he was still hungry.', ['portion'], ['recipe', 'receipt', 'lecture']),
+  precision('u3_writing_precision_purchase_a', 'vocab_purchase', P('item you bought'), 'Please keep the receipt for any item you bought online.', ['purchase'], ['recipe', 'refund', 'advert']),
+  precision('u3_writing_precision_purchase_b', 'vocab_purchase', P('thing you buy'), 'The biggest thing you buy in a year is often a car or a sofa.', ['purchase'], ['refund', 'recipe', 'discount']),
+  precision('u3_writing_precision_takeaway_a', 'vocab_takeaway', P('meal to eat at home'), 'On Saturdays my family often orders a meal to eat at home from the Indian restaurant.', ['takeaway'], ['starter', 'dessert', 'breakfast']),
+  precision('u3_writing_precision_takeaway_b', 'vocab_takeaway', P('shop selling meals to go'), 'There is a shop selling meals to go on the corner of our street.', ['takeaway'], ['bakery', 'library', 'pharmacy']),
+  precision('u3_writing_precision_barbecue_a', 'vocab_barbecue', P('cooking party outside'), 'We invited all our friends to a cooking party outside on the last day of term.', ['barbecue'], ['lecture', 'concert', 'interview']),
+  precision('u3_writing_precision_barbecue_b', 'vocab_barbecue', P('grill party'), 'The neighbours have a grill party in their garden every summer.', ['barbecue'], ['meeting', 'lesson', 'exam']),
+  precision('u3_writing_precision_saturated_a', 'vocab_saturated', P('the type of fat found in butter'), 'Cheese and cream are high in the type of fat found in butter, so many people eat them less often.', ['saturated fat'], ['liquid oil', 'plant protein', 'natural sugar']),
+  precision('u3_writing_precision_saturated_b', 'vocab_saturated', P('the kind of fat in fatty meat and dairy foods'), 'The label shows how much of the kind of fat in fatty meat and dairy foods is in one portion of the pizza.', ['saturated fat'], ['natural sugar', 'added salt', 'plant protein']),
+  precision('u3_writing_precision_convenient_a', 'vocab_convenient', P('handy'), 'A microwave is handy for heating food quickly after a long day.', ['convenient'], ['unnecessary', 'noisy', 'famous']),
+  precision('u3_writing_precision_convenient_b', 'vocab_convenient', P('easy and quick'), 'For people who work late, ready meals are easy and quick.', ['convenient'], ['cheap', 'healthy', 'traditional']),
+  precision('u3_writing_precision_extensive_a', 'vocab_extensive', P('very large'), 'The hotel has very large gardens where guests can walk before dinner.', ['extensive'], ['tiny', 'private', 'noisy']),
+  precision('u3_writing_precision_extensive_b', 'vocab_extensive', P('wide-ranging'), 'The wine list at this restaurant is wide-ranging, with bottles from twenty countries.', ['extensive'], ['short', 'narrow', 'plain'])
 
 ];
