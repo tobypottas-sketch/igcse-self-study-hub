@@ -1,4 +1,4 @@
-// Unit 5 (Holidays) · words 1–10 authored (batch 1, draft). Guards the contract with the real readiness evaluator and builders. Words 11–50 are not
+// Unit 5 (Holidays) · words 1–20 authored (batches 1–2, draft). Guards the contract with the real readiness evaluator and builders. Words 21–50 are not
 // authored yet, so the unit stays a draft: no releases/unit-05.js, no lock, no SQL, no artwork.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -13,23 +13,28 @@ import { validateUnit } from '../content/vocabulary/schema.js';
 import { evaluateUnitReadiness } from '../src/vocabulary/pathway-readiness.js';
 import { releasePlannerContent } from '../content/vocabulary/readiness-report.js';
 
-const TERMS = ['aerial tourism', 'underwater photography', 'documentary', 'snorkelling', 'expedition', 'yacht', 'scenery', 'attractions', 'accommodation', 'adventurous'];
-const FAMILIES = ['snorkelling', 'attractions', 'adventurous'];
+const TERMS = ['aerial tourism', 'underwater photography', 'documentary', 'snorkelling', 'expedition', 'yacht', 'scenery', 'attractions', 'accommodation', 'adventurous', 'breathtaking', 'spectacular', 'dramatic', 'stunning', 'popular', 'static', 'ground-level', 'angle of view', 'ecological habitats', 'marine world'];
+const FAMILIES = ['snorkelling', 'attractions', 'adventurous', 'spectacular', 'popular'];
+const ISOLATED = { breathtaking: '_5' };
+const vocabIdOf = term => `vocab_${term.replace(/[ -]/g, '_')}${ISOLATED[term] ?? ''}`;
+const occIdOf = (term, position) => `u5_${String(position).padStart(2, '0')}_${term.replace(/[ -]/g, '_')}${ISOLATED[term] ?? ''}`;
 const NO_FAMILY = TERMS.filter(term => !FAMILIES.includes(term));
 const STAGES = ['recognise', 'match', 'apply', 'recall', 'mastery'];
-// "adventurous" is the lone adjective in the batch, so Meaning Match and Context Recognise / Apply / Recall (which need at least three other
-// same-part-of-speech targets) cannot be built until more adjectives are authored. A structural contract limit, not a content gap.
-const POS_LIMITS = { adventurous: { meaning: ['match'], context: ['recognise', 'apply', 'recall'] } };
+// The adjective pool is now 8 and the noun pool 12, so no same-POS limit remains (Batch 1's adventurous limit is resolved).
+const POS_LIMITS = {};
 const earlier = [unit1, unit2, unit3, unit4];
 const readiness = evaluateUnitReadiness({ content: releasePlannerContent(unit5) });
 const failed = (pathwayId, occurrenceId) => STAGES.filter(stage => (readiness.pathways[pathwayId].stageFailures[stage] ?? []).some(f => f.occurrenceId === occurrenceId));
 const termOf = occurrence => unit5.items.find(item => item.vocabularyId === occurrence.vocabularyId).term;
 
-test('Unit 5 batch 1 is exactly the ten locked targets, in order, as a draft with no release artefacts', () => {
+test('Unit 5 words 1–20 are exactly the twenty locked targets, in order, as a draft with no release artefacts', () => {
   assert.deepEqual(unit5.items.map(item => item.term), TERMS);
-  assert.deepEqual(unit5.occurrences.map(row => row.positionInUnit), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-  assert.deepEqual(unit5.occurrences.map(row => row.occurrenceId), ['u5_01_aerial_tourism', 'u5_02_underwater_photography', 'u5_03_documentary', 'u5_04_snorkelling', 'u5_05_expedition', 'u5_06_yacht', 'u5_07_scenery', 'u5_08_attractions', 'u5_09_accommodation', 'u5_10_adventurous']);
-  assert.deepEqual(unit5.items.map(row => row.vocabularyId), TERMS.map(term => `vocab_${term.replace(/ /g, '_')}`));
+  assert.equal(unit5.items.length, 20);
+  assert.deepEqual(unit5.occurrences.map(row => row.positionInUnit), Array.from({ length: 20 }, (_, i) => i + 1));
+  assert.deepEqual(unit5.occurrences.map(row => row.occurrenceId), TERMS.map((term, i) => occIdOf(term, i + 1)));
+  assert.deepEqual(unit5.items.map(row => row.vocabularyId), TERMS.map(vocabIdOf));
+  assert.equal(unit5.occurrences[10].occurrenceId, 'u5_11_breathtaking_5');
+  assert.equal(unit5.items[10].vocabularyId, 'vocab_breathtaking_5');
   assert.equal(unit5.unitNumber, 5);
   assert.equal(unit5.unitTitle, 'Holidays');
   assert.equal(unit5.status, 'draft');
@@ -48,7 +53,7 @@ test('multi-word targets keep their exact two-word form everywhere', () => {
   }
 });
 
-test('IDs are Unit 5-specific, unique, and never collide with Units 1–4; no exact earlier target is repeated', () => {
+test('IDs are Unit 5-specific, unique, and never collide with Units 1–4; only breathtaking repeats an earlier target and is isolated with _5', () => {
   const ids = [];
   unit5.items.forEach(row => ids.push(row.vocabularyId));
   unit5.occurrences.forEach(row => ids.push(row.occurrenceId));
@@ -64,8 +69,13 @@ test('IDs are Unit 5-specific, unique, and never collide with Units 1–4; no ex
     unit.activities.forEach(row => others.add(row.activityContentId));
   }
   assert.deepEqual(ids.filter(id => others.has(id)), []);
-  assert.deepEqual(TERMS.filter(term => earlierTerms.has(term)), [], 'no exact earlier-unit target, so no _5 isolation is needed');
-  assert.ok(unit5.items.every(row => !/_5$/.test(row.vocabularyId)));
+  assert.deepEqual(TERMS.filter(term => earlierTerms.has(term)), ['breathtaking'], 'breathtaking is the only exact earlier-unit target');
+  assert.deepEqual(unit5.items.filter(row => /_5$/.test(row.vocabularyId)).map(row => row.term), ['breathtaking']);
+  assert.deepEqual(unit5.occurrences.filter(row => /_5$/.test(row.occurrenceId)).map(row => row.occurrenceId), ['u5_11_breathtaking_5']);
+  const u4 = unit4.items.find(row => row.term === 'breathtaking');
+  assert.equal(u4.vocabularyId, 'vocab_breathtaking');
+  assert.ok(unit4.occurrences.some(row => row.occurrenceId === 'u4_01_breathtaking' && row.vocabularyId === 'vocab_breathtaking'));
+  assert.notEqual(unit5.items[10].senses[0].meaning, u4.senses[0].meaning, 'Unit 5 sense is tourism-specific');
   assert.ok(unit5.occurrences.every(row => /^u5_\d{2}_/.test(row.occurrenceId)));
   assert.ok(unit5.activities.every(row => /^u5_/.test(row.activityContentId) && row.unitNumber === 5));
 });
@@ -76,9 +86,10 @@ test('no Unit 5 target is a word-family form of an earlier unit, and earlier-uni
   assert.deepEqual(TERMS.filter(term => forms.has(term)), []);
   assert.deepEqual(earlier.map(unit => unit.status), ['approved', 'approved', 'approved', 'approved']);
   assert.deepEqual(earlier.map(unit => unit.occurrences.length), [50, 50, 50, 50]);
+  assert.equal(JSON.stringify(unit4).includes('breathtaking_5'), false, 'Unit 4 untouched by the Unit 5 isolation');
 });
 
-test('every pathway stage is buildable for words 1–10, except the documented Word Family and same-POS pool limits', () => {
+test('every pathway stage is buildable for words 1–20, except the documented Word Family limit (no same-POS limit remains)', () => {
   for (const occurrence of unit5.occurrences) {
     const term = termOf(occurrence);
     for (const pathwayId of Object.keys(readiness.pathways)) {
@@ -90,7 +101,7 @@ test('every pathway stage is buildable for words 1–10, except the documented W
   }
 });
 
-test('words 1–10 satisfy the strict (approved) content schema; only whole-unit count rules remain', () => {
+test('words 1–20 satisfy the strict (approved) content schema; only whole-unit count rules remain', () => {
   const approve = row => ({ ...row, status: 'approved' });
   const strict = { ...unit5, status: 'approved', items: unit5.items.map(approve), occurrences: unit5.occurrences.map(approve), contexts: unit5.contexts.map(approve), activities: unit5.activities.map(approve) };
   const errors = validateUnit(strict).errors;
@@ -121,7 +132,14 @@ test('wrong situations: at least four distinct, target-free situations per word'
   }
 });
 
-test('Word Families: only the three genuine families are authored; the seven others are left unavailable rather than padded', () => {
+test('wrong situations are not repeated inside Unit 5 or from Units 1–4', () => {
+  const seen = unit5.items.flatMap(item => item.senses[0].situationDistractors.map(row => row.trim().toLowerCase()));
+  assert.equal(new Set(seen).size, seen.length);
+  const earlierSituations = new Set(earlier.flatMap(unit => unit.items.flatMap(item => item.senses[0].situationDistractors ?? [])).map(row => row.trim().toLowerCase()));
+  assert.deepEqual(seen.filter(row => earlierSituations.has(row)), []);
+});
+
+test('Word Families: only the five genuine families are authored; the fifteen others are left unavailable rather than padded', () => {
   for (const item of unit5.items) {
     const forms = item.senses[0].wordFamilyForms;
     if (NO_FAMILY.includes(item.term)) {
@@ -138,7 +156,7 @@ test('Word Families: only the three genuine families are authored; the seven oth
     }
   }
   const familyItems = unit5.activities.filter(a => a.activityData.taskType === 'word_family');
-  assert.equal(familyItems.length, 9);
+  assert.equal(familyItems.length, 15);
   assert.ok(familyItems.every(a => a.activityData.sourceText.split('____').length === 2 && !a.activityData.sourceText.startsWith('____')));
 });
 
@@ -156,20 +174,23 @@ test('Mastery sentences never begin with the target, and mastery passages have o
 
 test('Spelling & Recall: six distinct, lower-case, wrong spellings for every target (multi-word targets keep the full phrase)', () => {
   for (const item of unit5.items) {
-    const errors = LEXICAL_SPELLING_ERRORS[item.vocabularyId];
+    const errors = item.senses[0].spellingErrors;
+    assert.deepEqual(errors, LEXICAL_SPELLING_ERRORS[item.vocabularyId.replace(/_5$/, '')], `${item.term} uses the reviewed lexical list`);
     assert.equal(errors.length, 6, item.term);
     assert.equal(new Set(errors).size, 6, item.term);
     for (const error of errors) {
       assert.notEqual(error, item.term);
       assert.equal(error, error.toLowerCase());
-      if (item.term.includes(' ')) assert.equal(error.split(' ').length, 2, `${item.term}: ${error} keeps both words`);
+      if (item.term.includes(' ')) assert.equal(error.split(' ').length, item.term.split(' ').length, `${item.term}: ${error} keeps every word`);
+      if (item.term.includes(' ') || item.term.includes('-')) assert.notEqual(error.replace(/[ -]/g, ''), item.term.replace(/[ -]/g, ''), `${item.term}: ${error} is not just a separator change`);
     }
   }
   assert.ok(!LEXICAL_SPELLING_ERRORS.vocab_snorkelling.includes('snorkelling'));
+  assert.deepEqual(unit5.items[10].senses[0].spellingErrors, unit4.items.find(row => row.term === 'breathtaking').senses[0].spellingErrors, 'isolated breathtaking shares the reviewed spelling list');
 });
 
 test('no target leakage in paraphrases and no repeated sentences inside the batch or against Units 1–4', () => {
-  const stemOf = term => term.split(' ').map(word => word.slice(0, Math.max(5, word.length - 3)).toLowerCase());
+  const stemOf = term => term.split(' ').filter(word => word.length > 3).map(word => word.slice(0, Math.max(5, word.length - 3)).toLowerCase());
   for (const activity of unit5.activities) {
     const data = activity.activityData;
     if (activity.contentType === 'idea_set') {
