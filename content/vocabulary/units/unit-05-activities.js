@@ -178,7 +178,7 @@ const ideaSets = [
   ], ['vocab_angle_of_view']),
   idea('ecological_habitats', 'Tourism development is threatening the ecological habitats of the island’s rarest birds.', ['New building for visitors is putting at risk the natural homes of the rarest birds on the island.', 'The island’s rarest birds are in danger because tourist development is damaging the environments where they live.', 'The environments that support the island’s rarest birds are under threat from tourism development.'], 'cause_effect', 'tourism development endangers the birds’ habitats', [
     { text:'Tourism development is protecting the ecological habitats of the island’s rarest birds.', misconceptionCategory:'polarity_change' },
-    { text:'Tourism development is threatening the ecological habitats of the island’s commonest birds.', misconceptionCategory:'degree_change' },
+    { text:'Tourism development is slightly affecting the ecological habitats of the island’s rarest birds.', misconceptionCategory:'degree_change' },
     { text:'Tourism development is threatening the feeding habits of the island’s rarest birds.', misconceptionCategory:'meaning_confusion' }
   ], ['vocab_ecological_habitats']),
   idea('marine_world', 'Pollution is a serious threat to the marine world, especially near busy tourist beaches.', ['Pollution seriously endangers life beneath the waves, particularly near busy tourist beaches.', 'Life in the sea is gravely threatened by pollution, especially close to crowded holiday beaches.', 'Near busy tourist beaches, pollution is a major danger to the ocean and its creatures.'], 'degree', 'a serious threat', [
