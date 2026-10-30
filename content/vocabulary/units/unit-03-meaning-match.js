@@ -30,6 +30,16 @@ export default {
   barbecue: ['picnic lunch', 'school dinner', 'tea party'],
   saturated: ['the type of oil found in olives', 'the type of sugar found in fruit', 'the type of salt found in the sea'],
   convenient: ['costly', 'crowded', 'tasty'],
-  extensive: ['narrow', 'brief', 'costly']
+  extensive: ['narrow', 'brief', 'costly'],
+  fashionable: ['traditional', 'unpopular', 'affordable'],
+  satisfying: ['disappointing', 'worrying', 'tiring'],
+  reasonable: ['absurd', 'selfish', 'costly'],
+  disappointed: ['worn out', 'held up', 'sold out'],
+  inconvenient: ['uncomfortable', 'unfriendly', 'unclean'],
+  excellent: ['ordinary', 'average', 'acceptable'],
+  polite: ['impatient', 'careless', 'talkative'],
+  helpful: ['ready to leave', 'keen to win', 'afraid to ask'],
+  recommendation: ['complaint', 'refund', 'order'],
+  informative: ['entertaining', 'confusing', 'misleading']
 
 };

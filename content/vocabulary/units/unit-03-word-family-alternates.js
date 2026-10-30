@@ -60,6 +60,38 @@ export const unit3WordFamilyAlternates = Object.freeze({
   extensive: {
     extent: 'To some extent, the price of fish depends on the weather.',
     extensively: 'The scientist has written extensively about school meals.'
+  },
+  fashionable: {
+    fashion: 'A new fashion for tiny cafes has appeared in the city centre.',
+    unfashionable: 'Many people think that boiled vegetables are unfashionable today.'
+  },
+  reasonable: {
+    reasonably: 'The pasta was reasonably good, but the sauce was too salty.',
+    unreasonable: 'The customer made an unreasonable demand when he asked for a free meal.'
+  },
+  inconvenient: {
+    inconvenience: 'The long queue was an inconvenience for people who only had a short lunch break.',
+    inconveniently: 'The cafe opens inconveniently late for workers who start at seven.'
+  },
+  excellent: {
+    excel: 'Italian chefs often excel at making fresh pasta.',
+    excellence: 'The school restaurant won an award for excellence in student cooking.'
+  },
+  polite: {
+    politely: 'She politely refused a second helping of dessert.',
+    politeness: 'The customers praised the politeness of the young waiter.'
+  },
+  helpful: {
+    help: 'The staff are always ready to help customers who cannot decide.',
+    unhelpful: 'The sign was unhelpful because it did not show the opening times.'
+  },
+  recommendation: {
+    recommend: 'I strongly recommend the chocolate cake at that cafe.',
+    recommended: 'The recommended cooking time is twenty minutes.'
+  },
+  informative: {
+    inform: 'The school will inform parents about the new lunch menu by email.',
+    information: 'Tourists can find information about local restaurants at the station.'
   }
 
 });

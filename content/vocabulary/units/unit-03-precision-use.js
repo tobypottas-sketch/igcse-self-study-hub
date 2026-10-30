@@ -71,6 +71,26 @@ export default [
   precision('u3_writing_precision_convenient_a', 'vocab_convenient', P('handy'), 'A microwave is handy for heating food quickly after a long day.', ['convenient'], ['unnecessary', 'noisy', 'famous']),
   precision('u3_writing_precision_convenient_b', 'vocab_convenient', P('easy and quick'), 'For people who work late, ready meals are easy and quick.', ['convenient'], ['cheap', 'healthy', 'traditional']),
   precision('u3_writing_precision_extensive_a', 'vocab_extensive', P('very large'), 'The hotel has very large gardens where guests can walk before dinner.', ['extensive'], ['tiny', 'private', 'noisy']),
-  precision('u3_writing_precision_extensive_b', 'vocab_extensive', P('wide-ranging'), 'The wine list at this restaurant is wide-ranging, with bottles from twenty countries.', ['extensive'], ['short', 'narrow', 'plain'])
+  precision('u3_writing_precision_extensive_b', 'vocab_extensive', P('wide-ranging'), 'The wine list at this restaurant is wide-ranging, with bottles from twenty countries.', ['extensive'], ['short', 'narrow', 'plain']),
+  precision('u3_writing_precision_fashionable_a', 'vocab_fashionable', P('trendy'), 'Vegan burgers are trendy among teenagers in this city.', ['fashionable'], ['affordable', 'traditional', 'seasonal']),
+  precision('u3_writing_precision_fashionable_b', 'vocab_fashionable', P('in style'), 'Healthy juice bars are in style with young people at the moment.', ['fashionable'], ['local', 'private', 'empty']),
+  precision('u3_writing_precision_satisfying_a', 'vocab_satisfying', P('pleasing'), 'A bowl of hot noodle soup is pleasing after a long, cold walk.', ['satisfying'], ['confusing', 'tiring', 'worrying']),
+  precision('u3_writing_precision_satisfying_b', 'vocab_satisfying', P('rewarding'), 'Baking bread for your family can be a rewarding experience.', ['satisfying'], ['tiring', 'crowded', 'embarrassing']),
+  precision('u3_writing_precision_reasonable_a', 'vocab_reasonable_3', P('fair'), 'The price of the lunch was fair, and the portions were large.', ['reasonable'], ['sudden', 'secret', 'double']),
+  precision('u3_writing_precision_reasonable_b', 'vocab_reasonable_3', P('sensible'), 'It is sensible to ask about the price before you order a dish.', ['reasonable'], ['selfish', 'dishonest', 'dangerous']),
+  precision('u3_writing_precision_disappointed_a', 'vocab_disappointed', P('let down'), 'We were let down by the soup, which was cold and tasteless.', ['disappointed'], ['delighted', 'amazed', 'grateful']),
+  precision('u3_writing_precision_disappointed_b', 'vocab_disappointed', P('unhappy'), 'Many customers were unhappy when the restaurant ran out of their favourite dish.', ['disappointed'], ['delighted', 'grateful', 'proud']),
+  precision('u3_writing_precision_inconvenient_a', 'vocab_inconvenient', P('not suitable'), 'The late opening time is not suitable for families with small children.', ['inconvenient'], ['unfriendly', 'unusual', 'unhealthy']),
+  precision('u3_writing_precision_inconvenient_b', 'vocab_inconvenient', P('troublesome'), 'Having no parking near the market is troublesome for shoppers with heavy bags.', ['inconvenient'], ['unlucky', 'unfair', 'unfriendly']),
+  precision('u3_writing_precision_excellent_a', 'vocab_excellent', P('outstanding'), 'The restaurant has an outstanding reputation for its fresh seafood.', ['excellent'], ['average', 'ordinary', 'acceptable']),
+  precision('u3_writing_precision_excellent_b', 'vocab_excellent', P('of a very high standard'), 'The dessert at the end of the meal was of a very high standard.', ['excellent'], ['ordinary', 'average', 'plain']),
+  precision('u3_writing_precision_polite_a', 'vocab_polite', P('courteous'), 'The courteous waiter thanked every guest and held the door open.', ['polite'], ['hungry', 'nervous', 'famous']),
+  precision('u3_writing_precision_polite_b', 'vocab_polite', P('well-mannered'), 'Staff who are well-mannered greet customers with a smile.', ['polite'], ['curious', 'famous', 'jealous']),
+  precision('u3_writing_precision_helpful_a', 'vocab_helpful', P('willing to help'), 'The staff at the information desk were friendly and willing to help.', ['helpful'], ['hungry', 'famous', 'nervous']),
+  precision('u3_writing_precision_helpful_b', 'vocab_helpful', P('useful'), 'The instructions on the packet were so useful that even a beginner could make the sauce.', ['helpful'], ['careless', 'boring', 'famous']),
+  precision('u3_writing_precision_recommendation_a', 'vocab_recommendation', P('suggestion'), 'We chose this cafe on the suggestion of a friend who had eaten here twice.', ['recommendation'], ['complaint', 'argument', 'invoice']),
+  precision('u3_writing_precision_recommendation_b', 'vocab_recommendation', P('advice'), 'Thanks to the advice of the waiter, we ordered the best dish on the menu.', ['recommendation'], ['complaint', 'argument', 'invoice']),
+  precision('u3_writing_precision_informative_a', 'vocab_informative', P('full of facts'), 'The leaflet about local farms was short but full of facts.', ['informative'], ['noisy', 'sticky', 'crowded']),
+  precision('u3_writing_precision_informative_b', 'vocab_informative', P('instructive'), 'The cooking programme was instructive, and viewers learned how to make bread.', ['informative'], ['careless', 'tasteless', 'dishonest'])
 
 ];

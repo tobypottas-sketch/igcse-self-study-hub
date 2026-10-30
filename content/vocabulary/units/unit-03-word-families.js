@@ -79,7 +79,59 @@ export const unit3WordFamilies = Object.freeze({
     f('extensive', 'adjective', 'The restaurant has an extensive menu with over a hundred dishes.', 'Headword.'),
     f('extent', 'noun', 'The report studied the extent of food waste in the school canteen.', 'The noun for how far or how large something is.'),
     f('extensively', 'adverb', 'The chef has travelled extensively to learn about street food.', 'Adverb meaning to a wide degree.')
-  ], excludedForms: [{ form: 'extend', reason: 'The main sense (make longer) differs from “large or wide-ranging”.' }] }
+  ], excludedForms: [{ form: 'extend', reason: 'The main sense (make longer) differs from “large or wide-ranging”.' }] },
+  fashionable: { forms: [
+    f('fashionable', 'adjective', 'Bubble tea is a fashionable drink among teenagers in the city.', 'Headword.'),
+    f('fashion', 'noun', 'Restaurant menus often follow fashion, so dishes that were popular last year may disappear.', 'The base noun for what is popular at a time; not only clothes.'),
+    f('unfashionable', 'adjective', 'Five years ago, kale was unfashionable, but now it appears on many menus.', 'The opposite adjective; the pair is worth learning together.')
+  ], excludedForms: [{ form: 'fashionably', reason: 'Rare adverb; not useful at this level.' }] },
+  satisfying: { forms: [
+    f('satisfying', 'adjective', 'A bowl of hot soup is satisfying after a long walk in the cold.', 'Headword.'),
+    f('satisfy', 'verb', 'One small sandwich will not satisfy a hungry teenager after sport.', 'The base verb: to give someone what they need or want.'),
+    f('satisfied', 'adjective', 'The customers were satisfied with the service and left a generous tip.', 'Adjective for the person who feels pleased; contrasts with “satisfying”.'),
+    f('satisfaction', 'noun', 'Many cooks say that the greatest satisfaction comes from seeing guests enjoy their food.', 'The noun for the pleased feeling; common in customer-service texts.')
+  ], excludedForms: [{ form: 'satisfactory', reason: 'Means only “good enough”, so the sense is weaker than the rest of the family.' }] },
+  reasonable: { forms: [
+    f('reasonable', 'adjective', 'Her complaint was reasonable, because the soup really was cold.', 'Headword.'),
+    f('reasonably', 'adverb', 'The soup was reasonably hot, so we ate it before it cooled.', 'Adverb meaning fairly or to a sensible degree.'),
+    f('unreasonable', 'adjective', 'It is unreasonable to expect a fast meal in a crowded restaurant.', 'The opposite adjective; the pair is worth learning together.')
+  ], excludedForms: [{ form: 'reason', reason: 'The noun mostly means “cause”, a looser sense than “fair and sensible”.' }] },
+  disappointed: { forms: [
+    f('disappointed', 'adjective', 'We were disappointed by the soup, which was cold and tasted of nothing.', 'Headword.'),
+    f('disappoint', 'verb', 'I do not want to disappoint my guests, so I will check the recipe again.', 'The base verb: to let someone down.'),
+    f('disappointing', 'adjective', 'The service was slow and the food was disappointing.', 'Adjective for the thing that causes the feeling; contrasts with “disappointed”.'),
+    f('disappointment', 'noun', 'To her disappointment, the cafe was closed on Mondays.', 'The noun for the feeling; common in the phrase “to my disappointment”.')
+  ], excludedForms: [] },
+  inconvenient: { forms: [
+    f('inconvenient', 'adjective', 'The cafe is open only from ten to two, which is inconvenient for office workers.', 'Headword.'),
+    f('inconvenience', 'noun', 'We apologise for any inconvenience caused by the closure of the kitchen.', 'The noun used in notices and apologies.'),
+    f('inconveniently', 'adverb', 'The bus stop is inconveniently far from the restaurant.', 'Adverb used for badly placed or badly timed things.')
+  ], excludedForms: [{ form: 'convenient', reason: 'Already a Unit 3 target word.' }] },
+  excellent: { forms: [
+    f('excellent', 'adjective', 'The reviews describe the food as excellent and the staff as friendly.', 'Headword.'),
+    f('excel', 'verb', 'Some students excel at science but find cooking difficult.', 'The verb: to be much better than others at something.'),
+    f('excellence', 'noun', 'The hotel is famous for the excellence of its breakfast buffet.', 'The abstract noun for a very high standard.')
+  ], excludedForms: [{ form: 'excellently', reason: 'Rare adverb; not useful at this level.' }] },
+  polite: { forms: [
+    f('polite', 'adjective', 'It is polite to say thank you to the person who brings your food.', 'Headword.'),
+    f('politely', 'adverb', 'The waiter politely asked us to move to a larger table.', 'Adverb used for how people speak or ask.'),
+    f('politeness', 'noun', 'Staff are trained in politeness, so they always greet customers warmly.', 'The noun for good manners; common in customer-service texts.')
+  ], excludedForms: [{ form: 'impolite', reason: 'Useful, but the family is already complete without it.' }] },
+  helpful: { forms: [
+    f('helpful', 'adjective', 'The staff in the cafe were friendly and helpful.', 'Headword.'),
+    f('help', 'verb', 'Can you help me choose a dish from this long menu?', 'The base verb; also a noun.'),
+    f('unhelpful', 'adjective', 'The unhelpful waiter did not explain a single dish on the menu.', 'The opposite adjective; the pair is worth learning together.')
+  ], excludedForms: [{ form: 'helpless', reason: 'Means unable to act, a different sense from “willing to help”.' }] },
+  recommendation: { forms: [
+    f('recommendation', 'noun', 'We chose this restaurant on the recommendation of a friend.', 'Headword.'),
+    f('recommend', 'verb', 'Could you recommend a quiet restaurant near the station?', 'The base verb; very common in reviews and spoken English.'),
+    f('recommended', 'adjective', 'The label gives the recommended amount for one person.', 'Adjective for something that is advised or suggested.')
+  ], excludedForms: [] },
+  informative: { forms: [
+    f('informative', 'adjective', 'The guide to local food was informative, with clear facts about every dish.', 'Headword.'),
+    f('inform', 'verb', 'Please inform the waiter if you have any special dietary needs.', 'The base verb: to give someone facts.'),
+    f('information', 'noun', 'The menu gives clear information about every dish.', 'The uncountable noun for facts; very frequent.')
+  ], excludedForms: [{ form: 'informed', reason: 'Already a Unit 2 target word.' }] }
 
 });
 
