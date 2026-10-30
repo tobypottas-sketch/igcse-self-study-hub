@@ -10,5 +10,16 @@ export default {
   harmless: ['poisonous', 'weak', 'tasteless'],
   pressure: ['strong flavour', 'large amount', 'quick answer'],
   fooled: ['warned', 'surprised', 'persuaded'],
-  majority: ['a small group', 'the whole total', 'a few people']
+  majority: ['a small group', 'the whole total', 'a few people'],
+  inexpensive: ['luxurious', 'rare', 'heavy'],
+  sodium: ['a vitamin in fruit', 'a fat in meat', 'a sugar in milk'],
+  commercially: ['as a hobby', 'as a gift', 'as a punishment'],
+  processed: ['home-grown', 'farm-fresh', 'hand-picked'],
+  depression: ['sudden anger', 'brief excitement', 'mild boredom'],
+  overweight: ['below a healthy height', 'under a normal age', 'beyond a safe speed'],
+  unwell: ['hungry', 'nervous', 'bored'],
+  ingredients: ['kitchen tools', 'cooking steps', 'dinner guests'],
+  nutritious: ['sugary', 'salty', 'greasy'],
+  moderation: ['large amounts', 'exact amounts', 'hidden amounts']
+
 };

@@ -51,5 +51,56 @@ export default Object.freeze({
     'Only a small number of pupils chose the fish, and most picked the pasta instead.',
     'Every single guest at the wedding asked for a second helping of dessert.',
     'Three people were absent.'
+  ],
+  inexpensive: [
+    'Tickets for the food festival sold out within an hour.',
+    'The new restaurant uses the finest and rarest produce available.',
+    'The waiter forgot to bring the bill to the table.'
+  ],
+  sodium: [
+    'The nurse measured the height and weight of each child.',
+    'The dessert was sweet because it contained a lot of honey.',
+    'The waiter brought a jug of water and some bread.'
+  ],
+  commercially: [
+    'The neighbours swapped vegetables over the garden fence.',
+    'The teacher explained how bread rises in the oven.',
+    'A volunteer cooked soup for the whole street on a cold evening.'
+  ],
+  processed: [
+    'The restaurant cooks every dish from scratch each morning.',
+    'The cafe serves salad made from vegetables picked that day.',
+    'He drank a glass of water.'
+  ],
+  depression: [
+    'The team was disappointed to lose the match but laughed about it later that evening.',
+    'He was annoyed that the bus was late.',
+    'The children were thrilled by the magic show.'
+  ],
+  overweight: [
+    'She was very strong and could lift heavy boxes easily.',
+    'The athlete trained every morning before school started.',
+    'The man was very tall and had to bend through the door.'
+  ],
+  unwell: [
+    'The twins were bored and played cards on the bus.',
+    'The chef was proud of the new menu.',
+    'The guests were delighted with the meal.'
+  ],
+  ingredients: [
+    'She followed the instructions to heat the meal for two minutes.',
+    'The manager counted the money at the end of the day.',
+    'He carried the tray to the table by the window.'
+  ],
+  nutritious: [
+    'The chef fried the potatoes in a large pan of hot oil.',
+    'The dessert was so sweet that nobody could finish it.',
+    'The cafe served enormous portions of white bread and butter.'
+  ],
+  moderation: [
+    'The diner filled his plate three times at the buffet.',
+    'She gave up every kind of sweet food and never ate any.',
+    'He ate a whole pizza on his own.'
   ]
+
 });

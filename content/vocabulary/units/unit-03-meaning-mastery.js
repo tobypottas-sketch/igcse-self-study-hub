@@ -43,5 +43,46 @@ export default Object.freeze({
   majority: [
     w(['a few of a group', 'all of a group', 'none of a group']),
     w(['fewer than half of the people', 'exactly half of the people', 'all of the people'])
+  ],
+  inexpensive: [
+    w(['costing far too much for most people', 'made from weak and poor materials', 'sold for only a short time']),
+    w(['hard to find in the shops', 'high in quality and price', 'quick to cook and serve'])
+  ],
+  sodium: [
+    w(['a vitamin found in fruit', 'a fat used for frying', 'a sweet substance added to drinks']),
+    w(['a type of cooking oil', 'a kind of fresh herb', 'a colour added to sweets'])
+  ],
+  commercially: [
+    w(['in order to teach and inform people', 'in order to save and reuse materials', 'in order to test and improve ideas']),
+    w(['in small pots for pleasure', 'in secret without permission', 'by hand without any machines'])
+  ],
+  processed: [
+    w(['kept in its natural form on a farm', 'grown from seeds in a garden', 'bought fresh from a local market']),
+    w(['grown or picked by hand on a farm', 'cooked or served in a restaurant', 'washed or sorted in a market'])
+  ],
+  depression: [
+    w(['a short period of feeling very tired and bored', 'a sudden feeling of anger and fear', 'a long period of feeling very proud']),
+    w(['a fear of being left alone in a place', 'a habit of eating too much food', 'a feeling of being very excited about change'])
+  ],
+  overweight: [
+    w(['taller than is usual for their age', 'stronger than is needed for sport', 'older than is allowed for the class']),
+    w(['carrying more bags than is needed', 'thinner than is healthy for their height', 'paid more than is fair for their work'])
+  ],
+  unwell: [
+    w(['upset about a bad result', 'worried about a test', 'annoyed by the noise']),
+    w(['unhappy about the school rules', 'unable to find a seat', 'unlikely to arrive on time'])
+  ],
+  ingredients: [
+    w(['the pans and knives used to cook food', 'the recipes that cooks write down', 'the customers who eat the food']),
+    w(['the prices of all the goods in a shop', 'the dates when food will go bad', 'the instructions for heating a meal'])
+  ],
+  nutritious: [
+    w(['containing a lot of sugar and cream', 'made quickly in a hot pan', 'sold at a very low price']),
+    w(['popular because of their sweet taste', 'easy to carry in a bag', 'able to be kept for years'])
+  ],
+  moderation: [
+    w(['very large amounts at one time', 'a rush without thinking', 'secret amounts that nobody sees']),
+    w(['the habit of eating alone at home', 'the habit of paying too much attention to prices', 'the habit of copying friends'])
   ]
+
 });

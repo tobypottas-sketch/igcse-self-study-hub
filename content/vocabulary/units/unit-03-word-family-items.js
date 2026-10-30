@@ -22,5 +22,24 @@ export default [
   family('underestimate_c', 'vocab_underestimate', 'underestimate', 'Many diners ____ how hungry they are, so they order far too much food.', 'overestimate'),
   family('harmless_a', 'vocab_harmless', 'harmless', 'Although the spider looks frightening, it is completely ____ and has never hurt anyone.', 'harmless'),
   family('harmless_b', 'vocab_harmless', 'harmless', 'Eating a small piece of cake will do you no ____.', 'harm'),
-  family('harmless_c', 'vocab_harmless', 'harmless', 'Too much salt can be ____ to your heart over many years.', 'harmful')
+  family('harmless_c', 'vocab_harmless', 'harmless', 'Too much salt can be ____ to your heart over many years.', 'harmful'),
+  family('inexpensive_a', 'vocab_inexpensive', 'inexpensive', 'The restaurant was far too ____ for a student, so we ate at the market.', 'expensive'),
+  family('inexpensive_b', 'vocab_inexpensive', 'inexpensive', 'Because the meal was so ____, the whole family could eat out twice a month.', 'inexpensive'),
+  family('inexpensive_c', 'vocab_inexpensive', 'inexpensive', 'Rent is the biggest ____ for a small restaurant.', 'expense'),
+  family('processed_a', 'vocab_processed', 'processed', 'The factory can ____ ten tonnes of fruit in a single day.', 'process'),
+  family('processed_b', 'vocab_processed', 'processed', 'The ____ of the milk takes place in a clean, modern building.', 'processing'),
+  family('processed_c', 'vocab_processed', 'processed', 'Fresh vegetables are usually cheaper than ____ products such as frozen pizza.', 'processed'),
+  family('depression_a', 'vocab_depression', 'depression', 'After weeks of bad news, many families felt ____ about their future.', 'depressed'),
+  family('depression_b', 'vocab_depression', 'depression', 'The empty, grey cafe was a ____ place to eat lunch.', 'depressing'),
+  family('depression_c', 'vocab_depression', 'depression', 'Talking openly about ____ can help students feel less alone.', 'depression'),
+  family('overweight_a', 'vocab_overweight', 'overweight', 'A set of scales will tell you the ____ of the flour for the cake.', 'weight'),
+  family('overweight_b', 'vocab_overweight', 'overweight', 'The chart showed which children were underweight, healthy or ____ for their height.', 'overweight'),
+  family('overweight_c', 'vocab_overweight', 'overweight', 'The charity gave extra meals to children who were ____ because of a lack of food.', 'underweight'),
+  family('nutritious_a', 'vocab_nutritious', 'nutritious', 'A teacher explained the basics of ____ to the class.', 'nutrition'),
+  family('nutritious_b', 'vocab_nutritious', 'nutritious', 'A dietitian explained the ____ value of beans to the class.', 'nutritional'),
+  family('nutritious_c', 'vocab_nutritious', 'nutritious', 'Beans, rice and vegetables make a cheap and ____ meal.', 'nutritious'),
+  family('moderation_a', 'vocab_moderation', 'moderation', 'We should eat sweets in ____ rather than every day.', 'moderation'),
+  family('moderation_b', 'vocab_moderation', 'moderation', 'Add a ____ amount of salt, not too much and not too little.', 'moderate'),
+  family('moderation_c', 'vocab_moderation', 'moderation', 'The curry was only ____ spicy, so everyone in the class could eat it.', 'moderately')
+
 ];
