@@ -1,4 +1,4 @@
-// Unit 4 · Meaning · Match (Recognise) — authored WRONG meanings, words 1–10. Same contract as unit-03-meaning-match.js: each set of three is
+// Unit 4 · Meaning · Match (Recognise) — authored WRONG meanings, words 1–20. Same contract as unit-03-meaning-match.js: each set of three is
 // the same part of speech as the answer (acceptedParaphrases[0]), comparable in length, and plausible without being a synonym.
 export default {
   breathtaking: ['frightening', 'exhausting', 'disappointing'],
@@ -10,5 +10,16 @@ export default {
   luxury: ['plain surroundings', 'heavy luggage', 'cheap holidays'],
   altitude: ['distance from the coast', 'speed over the ground', 'depth below the surface'],
   landscape: ['wildlife', 'weather', 'farming'],
-  passenger: ['person driving the vehicle', 'person selling the tickets', 'person repairing the engine']
+  passenger: ['person driving the vehicle', 'person selling the tickets', 'person repairing the engine'],
+  engineer: ['skilled driver', 'ticket inspector', 'safety officer'],
+  pilot: ['person repairing the aeroplane', 'person serving on the aeroplane', 'person travelling on the aeroplane'],
+  airship: ['fast jet aircraft', 'small rescue helicopter', 'large passenger ship'],
+  launch: ['stop', 'repair', 'cancel'],
+  height: ['width', 'weight', 'distance'],
+  anxious: ['bored', 'excited', 'careless'],
+  vehicle: ['place for parking', 'type of fuel', 'kind of road'],
+  pollution: ['congestion', 'overcrowding', 'deforestation'],
+  destination: ['the start of our journey', 'the route of our journey', 'the length of our journey'],
+  spacious: ['cramped', 'sheltered', 'decorated']
+
 };

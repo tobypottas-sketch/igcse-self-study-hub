@@ -1,6 +1,6 @@
-// Unit 4 Word Families items (writing_set, taskType 'word_family'), WORDS 1–10 ONLY: three items for each word that has a genuine family.
+// Unit 4 Word Families items (writing_set, taskType 'word_family'), WORDS 1–20 ONLY: three items for each word that has a genuine family.
 // Same record shape as unit-03-word-family-items.js. Each sentence has one gap that exactly one form of the family completes, and the gap never
-// opens the sentence. breathtaking, toughest, storeys, accommodate, altitude, landscape and passenger have no family, so no items (see unit-04-word-families.js).
+// opens the sentence. the fifteen other words have no family, so no items (see unit-04-word-families.js).
 const unitNumber = 4;
 const status = 'approved';
 function family(id, vocabularyId, name, sourceText, acceptedAnswer) {
@@ -19,5 +19,12 @@ export default [
   family('reality_c', 'vocab_reality', 'reality', 'The pilot asked whether the warning light showed a ____ problem or only a mistake in the display.', 'real'),
   family('luxury_a', 'vocab_luxury', 'luxury', 'The film star lived a life of ____ on a private yacht.', 'luxury'),
   family('luxury_b', 'vocab_luxury', 'luxury', 'The hotel rooms were large, quiet and extremely ____.', 'luxurious'),
-  family('luxury_c', 'vocab_luxury', 'luxury', 'Their yacht was ____ equipped, with a cinema, a pool and a private chef.', 'luxuriously')
+  family('luxury_c', 'vocab_luxury', 'luxury', 'Their yacht was ____ equipped, with a cinema, a pool and a private chef.', 'luxuriously'),
+  family('anxious_a', 'vocab_anxious', 'anxious', 'I always feel ____ when the plane begins to shake in strong wind.', 'anxious'),
+  family('anxious_b', 'vocab_anxious', 'anxious', 'The long delay caused great ____ among the waiting passengers.', 'anxiety'),
+  family('anxious_c', 'vocab_anxious', 'anxious', 'The family waited ____ at the arrivals gate for news of the diverted flight.', 'anxiously'),
+  family('pollution_a', 'vocab_pollution', 'pollution', 'The council introduced a daily charge to reduce traffic ____ in the city centre.', 'pollution'),
+  family('pollution_b', 'vocab_pollution', 'pollution', 'Cars that burn petrol ____ the air with harmful gases.', 'pollute'),
+  family('pollution_c', 'vocab_pollution', 'pollution', 'After the oil spill, the beaches were so ____ that nobody could swim there.', 'polluted')
+
 ];

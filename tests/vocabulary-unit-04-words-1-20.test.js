@@ -1,4 +1,4 @@
-// Unit 4 (Transport) · words 1–10 authored (batch 1, draft). Guards the contract with the real readiness evaluator and builders. Words 11–50 are not
+// Unit 4 (Transport) · words 1–20 authored (batches 1–2, draft). Guards the contract with the real readiness evaluator and builders. Words 21–50 are not
 // authored yet, so the unit stays a draft: no releases/unit-04.js, no lock, no SQL.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -11,18 +11,19 @@ import { validateUnit } from '../content/vocabulary/schema.js';
 import { evaluateUnitReadiness } from '../src/vocabulary/pathway-readiness.js';
 import { releasePlannerContent } from '../content/vocabulary/readiness-report.js';
 
-const TERMS = ['breathtaking', 'comfort', 'reality', 'toughest', 'storeys', 'accommodate', 'luxury', 'altitude', 'landscape', 'passenger'];
-const NO_FAMILY = ['breathtaking', 'toughest', 'storeys', 'accommodate', 'altitude', 'landscape', 'passenger'];
+const TERMS = ['breathtaking', 'comfort', 'reality', 'toughest', 'storeys', 'accommodate', 'luxury', 'altitude', 'landscape', 'passenger', 'engineer', 'pilot', 'airship', 'launch', 'height', 'anxious', 'vehicle', 'pollution', 'destination', 'spacious'];
+const NO_FAMILY = ['breathtaking', 'toughest', 'storeys', 'accommodate', 'altitude', 'landscape', 'passenger', 'engineer', 'pilot', 'airship', 'launch', 'height', 'vehicle', 'destination', 'spacious'];
 const STAGES = ['recognise', 'match', 'apply', 'recall', 'mastery'];
-// Same-part-of-speech pools: the two adjectives (breathtaking, toughest) and lone verb (accommodate) cannot build Meaning Match / Context Recognise,
-// Apply and Recall until more same-POS words are authored. This is a structural contract limit, not a content gap.
-const POS_LIMITS = { breathtaking: { meaning: ['match'], context: ['recognise', 'apply', 'recall'] }, toughest: { meaning: ['match'], context: ['recognise', 'apply', 'recall'] }, accommodate: { meaning: ['match'], context: ['recognise', 'apply', 'recall'] } };
+// Same-part-of-speech pools: the four adjectives (breathtaking, toughest, anxious, spacious) now give each other the three same-POS words the
+// contract needs, so the Batch 1 adjective limits are lifted by the contract itself. The two verbs (accommodate, launch) are still short of three.
+const POS_LIMITS = { accommodate: { meaning: ['match'], context: ['recognise', 'apply', 'recall'] }, launch: { meaning: ['match'], context: ['recognise', 'apply', 'recall'] } };
 const readiness = evaluateUnitReadiness({ content: releasePlannerContent(unit4) });
 const failed = (pathwayId, occurrenceId) => STAGES.filter(stage => (readiness.pathways[pathwayId].stageFailures[stage] ?? []).some(f => f.occurrenceId === occurrenceId));
 
-test('Unit 4 batch 1 is exactly the ten locked targets, as a draft with no release artefacts', () => {
+test('Unit 4 batches 1–2 is exactly the twenty locked targets, as a draft with no release artefacts', () => {
   assert.deepEqual(unit4.items.map(item => item.term), TERMS);
-  assert.equal(unit4.occurrences.length, 10);
+  assert.equal(unit4.occurrences.length, 20);
+  assert.equal(new Set(unit4.items.map(item => item.term)).size, 20);
   assert.equal(unit4.status, 'draft');
   assert.equal(unit4.unitNumber, 4);
   for (const name of ['releases/unit-04.js']) assert.ok(!fs.existsSync(new URL(`../content/vocabulary/${name}`, import.meta.url)), name);
@@ -47,7 +48,7 @@ test('IDs are Unit 4-specific, unique, and never collide with Units 1, 2 or 3', 
   assert.ok(unit4.activities.every(row => /^u4_/.test(row.activityContentId) && row.unitNumber === 4));
 });
 
-test('every pathway stage is buildable for words 1–10, except the documented Word Family and same-POS pool limits', () => {
+test('every pathway stage is buildable for words 1–20, except the documented Word Family and same-POS pool limits', () => {
   for (const occurrence of unit4.occurrences) {
     const term = unit4.items.find(item => item.vocabularyId === occurrence.vocabularyId).term;
     for (const pathwayId of Object.keys(readiness.pathways)) {
@@ -59,7 +60,7 @@ test('every pathway stage is buildable for words 1–10, except the documented W
   }
 });
 
-test('words 1–10 satisfy the strict (approved) content schema; only whole-unit count rules remain', () => {
+test('words 1–20 satisfy the strict (approved) content schema; only whole-unit count rules remain', () => {
   const approve = row => ({ ...row, status: 'approved' });
   const strict = { ...unit4, status: 'approved', items: unit4.items.map(approve), occurrences: unit4.occurrences.map(approve), contexts: unit4.contexts.map(approve), activities: unit4.activities.map(approve) };
   const errors = validateUnit(strict).errors;
@@ -90,7 +91,7 @@ test('wrong situations: at least four distinct, target-free situations per word'
   }
 });
 
-test('Word Families: only genuine families are authored, each with >=3 forms, >=2 parts of speech and alternates; the seven others are left unavailable', () => {
+test('Word Families: only genuine families are authored, each with >=3 forms, >=2 parts of speech and alternates; the fifteen others are left unavailable', () => {
   for (const item of unit4.items) {
     const forms = item.senses[0].wordFamilyForms;
     if (NO_FAMILY.includes(item.term)) {
@@ -103,7 +104,7 @@ test('Word Families: only genuine families are authored, each with >=3 forms, >=
     }
   }
   const familyItems = unit4.activities.filter(a => a.activityData.taskType === 'word_family');
-  assert.equal(familyItems.length, 9);
+  assert.equal(familyItems.length, 15);
   assert.ok(familyItems.every(a => a.activityData.sourceText.split('____').length === 2 && !a.activityData.sourceText.startsWith('____')));
 });
 

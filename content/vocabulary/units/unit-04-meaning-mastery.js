@@ -1,4 +1,4 @@
-// Unit 4 · Meaning · Apply and Mastery — authored wrong meanings, WORDS 1–10 ONLY. Same contract as unit-03-meaning-mastery.js:
+// Unit 4 · Meaning · Apply and Mastery — authored wrong meanings, WORDS 1–20 ONLY. Same contract as unit-03-meaning-mastery.js:
 // two records per word in the order of the word's two Mastery contexts; exactly three authored WRONG glosses, same grammar and similar length
 // as the correct gloss, plausible in general, wrong in this sentence.
 const w = (wrongMeanings, extra = {}) => ({ wrongMeanings, ...extra });
@@ -43,5 +43,46 @@ export default Object.freeze({
   passenger: [
     w(['a person who drives a vehicle but does not own it', 'a person who repairs a vehicle but does not use it', 'a person who waits for a vehicle but does not board it']),
     w(['an inspector who works for the driver or crew', 'a visitor who waits to meet the driver or crew', 'a guard who travels with the driver or crew'])
+  ],
+  engineer: [
+    w(['a person trained to drive and park vehicles', 'a person trained to sell and advertise buildings', 'a person trained to inspect and sell tickets']),
+    w(['a person trained to fly aircraft and ships', 'a person trained to guide tourists and visitors', 'a person trained to sell parts and tools'])
+  ],
+  pilot: [
+    w(['a person who builds an aircraft', 'a person who guides an aircraft from the ground', 'a person who inspects an aircraft']),
+    w(['the person who serves meals on the aeroplane', 'the person who checks tickets on the aeroplane', 'the person who carries bags onto the aeroplane'])
+  ],
+  airship: [
+    w(['a fast aircraft with wings and jet engines', 'a large ship that sails across the ocean', 'a small helicopter with rotating blades']),
+    w(['a camera fixed to a tall tower', 'a helicopter with a long rope', 'a balloon that drifts with the wind'])
+  ],
+  launch: [
+    w(['bring back to Earth', 'pay for in advance', 'test on the ground']),
+    w(['close an old service for the public', 'advertise an old service to the public', 'increase the price of a service'])
+  ],
+  height: [
+    w(['how heavy something is when loaded', 'how fast something can travel', 'how much something costs to own']),
+    w(['the measurement from side to side', 'the measurement from front to back', 'the measurement of its total weight'])
+  ],
+  anxious: [
+    w(['excited about what may happen', 'angry about what has happened', 'bored by what is happening']),
+    w(['calm and relaxed', 'proud and pleased', 'tired and sleepy'])
+  ],
+  vehicle: [
+    w(['a person who drives on public roads', 'a road used by cars and lorries', 'a building where cars are kept']),
+    w(['a station where cars or buses stop', 'a licence that allows people to drive', 'a service that sells cars and buses'])
+  ],
+  pollution: [
+    w(['a shortage of space caused by crowded streets', 'the noise caused by heavy lorries', 'the heat caused by sunny weather']),
+    w(['a shortage of water or fuel', 'a rise in the cost of materials', 'a loss of workers or customers'])
+  ],
+  destination: [
+    w(['a place that people leave from', 'a road that people drive along', 'a time that people choose to travel']),
+    w(['the platform the train leaves from', 'the company that runs the train', 'the route the train follows'])
+  ],
+  spacious: [
+    w(['having very little room for people', 'having a great many passengers', 'having a very low price']),
+    w(['crowded and noisy with queues of people', 'small and dark with low ceilings', 'old and dirty with broken equipment'])
   ]
+
 });

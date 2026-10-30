@@ -1,4 +1,4 @@
-// Unit 4 · Word Families — authored families, WORDS 1–10 ONLY. Same contract as unit-03-word-families.js: every row is AUTHORED (stated part of
+// Unit 4 · Word Families — authored families, WORDS 1–20 ONLY. Same contract as unit-03-word-families.js: every row is AUTHORED (stated part of
 // speech, one natural example containing the form exactly once and not as the first word, and the reason the form is worth teaching). A family
 // needs >= 3 pedagogically useful forms INCLUDING the headword and >= 2 parts of speech. Headwords with no genuine family are listed under
 // unit4WordFamilyRejected rather than padded with unnatural forms.
@@ -21,7 +21,17 @@ export const unit4WordFamilies = Object.freeze({
     f('luxury', 'noun', 'The cruise offers every luxury, from heated pools to private balconies.', 'Headword.'),
     f('luxurious', 'adjective', 'The hotel suites were large, quiet and extremely luxurious.', 'The adjective; far more common than the noun in descriptions.'),
     f('luxuriously', 'adverb', 'The first-class cabin was luxuriously decorated with leather seats and soft lights.', 'The adverb; used with decorated, furnished and equipped.')
-  ], excludedForms: [{ form: 'luxuriant', reason: 'Describes plants growing thickly, a different sense.' }] }
+  ], excludedForms: [{ form: 'luxuriant', reason: 'Describes plants growing thickly, a different sense.' }] },
+  anxious: { forms: [
+    f('anxious', 'adjective', 'Many first-time flyers feel anxious during take-off.', 'Headword.'),
+    f('anxiety', 'noun', 'The announcement about the delay caused anxiety among the waiting passengers.', 'The noun for the feeling; common in news and exam texts.'),
+    f('anxiously', 'adverb', 'The parents waited anxiously at the arrivals gate for their daughter’s flight.', 'The adverb; common in narrative and description.')
+  ], excludedForms: [{ form: 'anxiousness', reason: 'Rare; “anxiety” is the normal noun.' }] },
+  pollution: { forms: [
+    f('pollution', 'noun', 'Air pollution is a serious problem in many large cities.', 'Headword.'),
+    f('pollute', 'verb', 'Factories that pollute rivers should be fined heavily.', 'The verb behind the noun; very common in environmental texts.'),
+    f('polluted', 'adjective', 'The polluted river smelled terrible and no fish could live in it.', 'Adjective for places and substances that are harmed; common in descriptions.')
+  ], excludedForms: [{ form: 'pollutant', reason: 'Technical term for a harmful substance; beyond the level of this unit.' }] }
 });
 
 export const unit4WordFamilyRejected = Object.freeze({
@@ -31,5 +41,13 @@ export const unit4WordFamilyRejected = Object.freeze({
   accommodate: '“accommodation” (a place to stay) and “accommodating” (helpful) drift to different senses.',
   altitude: 'There are no everyday derived forms.',
   landscape: '“landscaping” and the verb “landscape” mean garden design, a different sense.',
-  passenger: '“pass” and “passage” belong to different senses.'
+  passenger: '“pass” and “passage” belong to different senses.',
+  engineer: 'Only “engineering” is closely related; “engine” is a different sense and the verb “engineer” (to arrange cleverly) shifts meaning, so there are fewer than three useful forms.',
+  pilot: 'No derived forms of this sense; “piloting” is only an inflection, and “pilot” as a verb or a trial scheme is a different use.',
+  airship: 'A compound noun with no derived forms; “air” and “ship” are separate words with different senses.',
+  launch: '“launching” and “launched” are inflections of the same verb, and “launcher” is a technical noun with a shifted sense.',
+  height: 'Only “high” stays close in sense; “heighten” means to increase (a feeling or effect) and “highly” means very, so fewer than three forms keep the meaning.',
+  vehicle: 'No derived forms; “vehicular” is a rare, formal adjective.',
+  destination: '“destine”, “destined” and “destiny” drift to the idea of fate, so there is no clean family.',
+  spacious: 'Only “space” (room) is a genuinely useful relative, and it also means outer space; “spaciously” is rare and “spaciousness” is uncommon at this level, so fewer than three forms are worth teaching.'
 });
