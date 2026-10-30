@@ -2,14 +2,16 @@
 // it never sees the Supabase client, the app state, mission/Set/XP code or storage. Personal best lives in this module's memory only.
 import { createBlitz, BLITZ } from './blitz-engine.js';
 import { createConnections, pickPuzzles, CONNECTIONS, normaliseGuess } from './connections-engine.js';
-import { CONNECTIONS_PUZZLES } from './games-data.js';
+import { gamesFor, availableGames } from './games-data.js';
 import { sharedGameHistory } from './games-history.js';
 import { renderLobby, renderBlitzIntro, renderBlitzPlay, renderBlitzQuestion, renderBlitzOver, comboView, renderConnectionsIntro, renderConnectionsPlay, renderConnectionsOver } from './games-view.js';
 
 let bestBlitz = 0;   // in-memory only, gone on reload (deliberate)
 export const resetGamesMemory = () => { bestBlitz = 0; };
 
-export function mountGames(root, { content, game = 'lobby', onCue = () => {}, onExit = () => {}, rng = Math.random, puzzles = null, history = sharedGameHistory, now = () => Date.now(), setTimer = setTimeout, clearTimer = clearTimeout, setTick = setInterval, clearTick = clearInterval } = {}) {
+export function mountGames(root, { content, unitNumber = 1, game = 'lobby', onCue = () => {}, onExit = () => {}, rng = Math.random, puzzles = null, history = sharedGameHistory, now = () => Date.now(), setTimer = setTimeout, clearTimer = clearTimeout, setTick = setInterval, clearTick = clearInterval } = {}) {
+  // This unit's authored games. A unit with none can only show the "not available yet" lobby; it never borrows another unit's content.
+  const unitGames = gamesFor(unitNumber); const playable = availableGames(unitNumber);
   let blitz = null; let cx = null; let tick = null; let advance = null; let popTimer = null; let alive = true;
   const stop = () => { if (tick) clearTick(tick); if (advance) clearTimer(advance); if (popTimer) clearTimer(popTimer); tick = advance = popTimer = null; };
   const q = selector => root.querySelector(selector);
@@ -33,7 +35,7 @@ export function mountGames(root, { content, game = 'lobby', onCue = () => {}, on
   const paintCombo = streak => { const v = comboView(streak); const m = q('[data-blitz-mult]'); if (!m) return; m.textContent = v.mult; q('[data-blitz-streak]').textContent = v.streak; q('[data-blitz-tier]').style.width = `${v.tier}%`; q('[data-blitz-combo]').dataset.mult = v.mult; };
   const pop = (text, kind) => { const el = q('[data-blitz-pop]'); if (!el) return; el.textContent = text; el.dataset.kind = kind; el.classList.remove('is-on'); void el.offsetWidth; el.classList.add('is-on'); if (popTimer) clearTimer(popTimer); popTimer = setTimer(() => { el.classList.remove('is-on'); }, 700); };
   const startBlitz = () => {
-    stop(); blitz = createBlitz({ content, rng, now, history }); blitz.start();
+    stop(); blitz = createBlitz({ content, rng, now, history, data: unitGames?.blitz }); blitz.start();
     paint(renderBlitzPlay(blitz.state)); paintCombo(0); focus('.gm-option'); tick = setTick(setTime, 100);
   };
   const endBlitz = () => {
@@ -66,8 +68,8 @@ export function mountGames(root, { content, game = 'lobby', onCue = () => {}, on
     const terms = [...new Set((content?.items ?? []).map(item => item.term))]; const t = normaliseGuess(typed);
     return t.length < 2 ? [] : terms.filter(term => term.toLowerCase().startsWith(t)).slice(0, 5);
   };
-  const startConnections = () => { stop(); cx = createConnections({ puzzles: puzzles ?? pickPuzzles(CONNECTIONS_PUZZLES, rng, CONNECTIONS.puzzleCount, history) }); showCx(); };
-  const showCx = (keep = false, focusOn = null) => { if (cx.state.status === 'over') { paint(renderConnectionsOver(cx.summary())); focus('[data-game-act="cx-again"]'); return; } paint(renderConnectionsPlay(cx), keep); focus(focusOn ?? (cx.state.phase === 'guessing' ? '#cxGuess' : '[data-game-act="cx-next"]')); };
+  const startConnections = () => { stop(); cx = createConnections({ puzzles: puzzles ?? pickPuzzles(unitGames?.connections?.puzzles ?? [], rng, CONNECTIONS.puzzleCount, history) }); showCx(); };
+  const showCx = (keep = false, focusOn = null) => { if (cx.state.status === 'over') { paint(renderConnectionsOver(cx.summary())); focus('[data-game-act="cx-again"]'); return; } paint(renderConnectionsPlay(cx, unitNumber), keep); focus(focusOn ?? (cx.state.phase === 'guessing' ? '#cxGuess' : '[data-game-act="cx-next"]')); };
   const submitGuess = text => {
     if (!cx) return; const r = cx.guess(text); if (!r) return;
     onCue(r.correct ? 'correct' : 'incorrect');
@@ -76,9 +78,9 @@ export function mountGames(root, { content, game = 'lobby', onCue = () => {}, on
 
   const show = which => {
     stop(); blitz = blitz && which === 'blitz-keep' ? blitz : null;
-    if (which === 'lobby') paint(renderLobby());
+    if (which === 'lobby') paint(renderLobby(unitNumber));
     else if (which === 'blitz') paint(renderBlitzIntro(bestBlitz));
-    else if (which === 'connections') paint(renderConnectionsIntro());
+    else if (which === 'connections') paint(renderConnectionsIntro(unitNumber));
   };
 
   const onClick = event => {
@@ -86,7 +88,7 @@ export function mountGames(root, { content, game = 'lobby', onCue = () => {}, on
     const act = target.dataset.gameAct;
     if (act === 'exit-unit') { destroy(); onExit(); }
     else if (act === 'lobby') show('lobby');
-    else if (act === 'open') show(target.dataset.game);
+    else if (act === 'open') { if (playable.includes(target.dataset.game)) show(target.dataset.game); }
     else if (act === 'blitz-start' || act === 'blitz-again') startBlitz();
     else if (act === 'blitz-answer') answerBlitz(target.dataset.index);
     else if (act === 'cx-start' || act === 'cx-again') startConnections();
@@ -112,6 +114,6 @@ export function mountGames(root, { content, game = 'lobby', onCue = () => {}, on
   root.addEventListener('error', onImgError, true); root.addEventListener('click', onClick); root.addEventListener('submit', onSubmit); root.addEventListener('input', onInput); globalThis.addEventListener?.('keydown', onKey);
   function destroy() { if (!alive) return; alive = false; stop(); root.removeEventListener('error', onImgError, true); root.removeEventListener('click', onClick); root.removeEventListener('submit', onSubmit); root.removeEventListener('input', onInput); globalThis.removeEventListener?.('keydown', onKey); }
 
-  show(game === 'blitz' || game === 'connections' ? game : 'lobby');
+  show(playable.includes(game) || (puzzles && game === 'connections') ? game : 'lobby');
   return { destroy, get blitz() { return blitz; }, get connections() { return cx; } };
 }

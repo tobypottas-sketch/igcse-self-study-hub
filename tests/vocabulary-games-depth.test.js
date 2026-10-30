@@ -182,7 +182,7 @@ test('Variety memory: in memory only, holds ids and round numbers, and the contr
   for (const value of Object.values(history)) assert.ok(typeof value === 'number' || value instanceof Map);
   for (const map of [history.blitzSeen, history.blitzTermUse, history.cxSeen]) for (const [k, v] of map) { assert.equal(typeof k, 'string'); assert.equal(typeof v, 'number'); }
   const controller = fs.readFileSync(new URL('../src/vocabulary/games/games-controller.js', import.meta.url), 'utf8');
-  assert.match(controller, /history = sharedGameHistory/); assert.match(controller, /createBlitz\(\{ content, rng, now, history \}\)/); assert.match(controller, /pickPuzzles\(CONNECTIONS_PUZZLES, rng, CONNECTIONS\.puzzleCount, history\)/);
+  assert.match(controller, /history = sharedGameHistory/); assert.match(controller, /createBlitz\(\{ content, rng, now, history, data: unitGames\?\.blitz \}\)/); assert.match(controller, /pickPuzzles\(unitGames\?\.connections\?\.puzzles \?\? \[\], rng, CONNECTIONS\.puzzleCount, history\)/);
   assert.ok(sharedGameHistory && sharedGameHistory.blitzSeen instanceof Map);
   const src = fs.readFileSync(new URL('../src/vocabulary/games/games-history.js', import.meta.url), 'utf8').replace(/\/\/.*$/gm, '');
   assert.doesNotMatch(src, /localStorage|sessionStorage|indexedDB|fetch\(|supabase|import /i);
