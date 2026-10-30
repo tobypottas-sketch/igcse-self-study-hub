@@ -185,5 +185,15 @@ export const LEXICAL_SPELLING_ERRORS = Object.freeze({
   "vocab_measures":["mesures","measurs","meashures","mezures","measuers","meausres"], // measures (Unit 4)
   "vocab_estimate":["estamate","estimete","esstimate","estimat","astimate","estimite"], // estimate (Unit 4)
   "vocab_regulation":["reguation","regualtion","regulashun","reglation","regulatoin","rgulation"], // regulation (Unit 4)
-  "vocab_operate":["oparate","operat","operrate","opperate","operete","oporate"], // operate (Unit 4)
+  "vocab_operate":["oparate","operat","operrate","opperate","operete","oporate"], // operate (Unit 4),
+  "vocab_detain":["detane","detian","deatin","dettain","detaen","ditain"], // detain (Unit 4)
+  "vocab_offences":["offenses","ofences","offencs","offeces","offennces","offensess"], // offences (Unit 4)
+  "vocab_provisional":["provisonal","provisinal","provissional","provitional","proviscional","provisonel"], // provisional (Unit 4)
+  "vocab_enforcement":["enforcment","enforcemant","inforcement","enforsement","enforcemnt","enforcemment"], // enforcement (Unit 4)
+  "vocab_statistics":["statistcs","statisics","statictics","statistiks","stastistics","statisitcs"], // statistics (Unit 4)
+  "vocab_safety":["safty","saftey","saftety","safetey","saefty","sayfety"], // safety (Unit 4)
+  "vocab_sustainability":["sustainabilty","sustainibility","sustanability","sustainablity","sustainabilitty","sustenability"], // sustainability (Unit 4)
+  "vocab_legislation":["legislaton","legeslation","legislashun","ledgislation","legislasion","lesgislation"], // legislation (Unit 4)
+  "vocab_introduce":["introduse","intruduce","introdyce","intorduce","introduc","entroduce"], // introduce (Unit 4)
+  "vocab_innovative":["inovative","inovvative","inivative","innovatve","innovitive","innovativ"], // innovative (Unit 4)
 });

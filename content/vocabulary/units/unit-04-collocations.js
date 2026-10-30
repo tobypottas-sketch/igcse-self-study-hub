@@ -39,5 +39,15 @@ export default Object.freeze({
   measures: ['safety measures', 'emergency measures', 'take measures'],
   estimate: ['estimate the cost', 'estimate how many', 'conservatively estimate'],
   regulation: ['safety regulation', 'strict regulation', 'new regulation'],
-  operate: ['operate a vehicle', 'operate machinery', 'safely operate']
+  operate: ['operate a vehicle', 'operate machinery', 'safely operate'],
+  detain: ['detain a suspect', 'detain for questioning', 'legally detain'],
+  offences: ['traffic offences', 'serious offences', 'motoring offences'],
+  provisional: ['provisional licence', 'provisional date', 'provisional approval'],
+  enforcement: ['law enforcement', 'strict enforcement', 'traffic enforcement'],
+  statistics: ['official statistics', 'accident statistics', 'statistics show'],
+  safety: ['road safety', 'safety rules', 'safety measures'],
+  sustainability: ['environmental sustainability', 'long-term sustainability', 'improve sustainability'],
+  legislation: ['new legislation', 'pass legislation', 'traffic legislation'],
+  introduce: ['introduce a law', 'introduce new rules', 'introduce a scheme'],
+  innovative: ['innovative design', 'innovative technology', 'highly innovative']
 });

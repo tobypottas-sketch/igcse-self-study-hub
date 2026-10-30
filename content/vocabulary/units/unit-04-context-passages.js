@@ -163,5 +163,45 @@ export default Object.freeze({
   operate: [
     p('Learner pilots begin by practising on a simulator. Only after many hours are they allowed to ____ a real aeroplane with passengers on board.', 'operate', 'Allowed to control a real aeroplane after simulator practice.'),
     p('Tram drivers must complete a training course before they are allowed to ____ the vehicles. They learn how the brakes, doors and signals work.', 'operate', 'Training on brakes, doors, signals; "allowed to ____ the vehicles".')
+  ],
+  detain: [
+    p('Customs officers found forged documents in a lorry at the border. They have the legal power to ____ the driver until the papers have been checked.', 'detain', 'Customs, forged documents; "power to ____ the driver".'),
+    p('A passenger acted suspiciously at the airport, so security staff stopped him. Officers may ____ a person for a short time, but they must explain the reason.', 'detain', 'Security staff; "may ____ a person for a short time".')
+  ],
+  offences: [
+    p('Last year, the traffic police gave fines to thousands of drivers. Speeding and using a phone at the wheel were the most common ____.', 'offences', 'Police fines; "the most common ____".'),
+    p('The new law raises the penalty for drivers who break the rules. Drink-driving and driving without insurance are now treated as serious ____ in the city.', 'offences', 'Law and penalty; "treated as serious ____".')
+  ],
+  provisional: [
+    p('Teenagers who want to learn to drive must first apply for a ____ licence. They can exchange it for a full licence after they pass the driving test.', 'provisional', 'Learner drivers; "exchange it for a full licence".'),
+    p('The railway company has announced an opening date for the new line. The date is only ____, because bad weather has delayed the building work.', 'provisional', 'Opening date may change; "only ____".')
+  ],
+  enforcement: [
+    p('Many drivers ignored the speed limit on the coast road. After the police began stricter ____, the number of accidents fell sharply.', 'enforcement', 'Police, speed limit; "stricter ____".'),
+    p('The city has plenty of parking rules, but few drivers obey them. Without proper ____, the rules make little difference.', 'enforcement', 'Rules not obeyed; "Without proper ____".')
+  ],
+  statistics: [
+    p('The transport ministry has published its yearly report. The ____ show that rail passenger numbers rose by eight per cent last year.', 'statistics', 'Report with numbers; "The ____ show".'),
+    p('Planners wanted to know where most accidents happen. They studied ____ from the past five years and found three dangerous junctions.', 'statistics', 'Numbers from five years; "studied ____".')
+  ],
+  safety: [
+    p('Every year, thousands of children learn how to cross roads carefully. Teachers say that road ____ lessons are one of the most important parts of the school year.', 'safety', 'Children crossing roads; "road ____ lessons".'),
+    p('Before each flight, the crew explain the exits and show how to use the life jackets. The airline says that the ____ of its passengers is always more important than the timetable.', 'safety', 'Exits and life jackets; "the ____ of its passengers".')
+  ],
+  sustainability: [
+    p('Many cities want to reduce traffic and pollution. By building cycle lanes and electric bus routes, they hope to improve the ____ of their transport systems in the long term.', 'sustainability', 'Cycle lanes and electric buses; "improve the ____ of".'),
+    p('The shipping company is replacing old diesel engines with cleaner ones. The managers say that ____ is now as important to them as speed and cost.', 'sustainability', 'Cleaner engines; "____ is now as important as speed and cost".')
+  ],
+  legislation: [
+    p('Electric scooters have become popular, but there are few clear rules about where they can be used. Parliament is now discussing new ____ to control them.', 'legislation', 'Parliament; "new ____ to control them".'),
+    p('The government wants to cut pollution from lorries. It has promised tougher ____ on exhaust fumes before the end of the year.', 'legislation', 'Government promise; "tougher ____ on exhaust fumes".')
+  ],
+  introduce: [
+    p('Traffic in the city centre has become much worse. The council has decided to ____ a charge for cars that enter the centre during the day.', 'introduce', 'Council decision; "decided to ____ a charge".'),
+    p('Passengers often wait a long time to buy paper tickets. From next month, the airline will ____ electronic boarding passes at every airport it serves.', 'introduce', 'From next month; "will ____ electronic boarding passes".')
+  ],
+  innovative: [
+    p('Engineers in the city have designed a bridge that produces its own electricity from passing traffic. The design is so ____ that experts from many countries have visited to study it.', 'innovative', 'Bridge that makes electricity; "so ____ that".'),
+    p('The company wanted to solve the problem of crowded trains. Its ____ idea was to use the space under the seats for luggage, which made room for more passengers.', 'innovative', 'New idea under the seats; "Its ____ idea".')
   ]
 });

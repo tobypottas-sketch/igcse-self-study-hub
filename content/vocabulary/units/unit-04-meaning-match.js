@@ -40,5 +40,15 @@ export default {
   measures: ['sizes', 'prices', 'weights'],
   estimate: ['carefully check', 'publicly announce', 'strongly deny'],
   regulation: ['official report', 'public holiday', 'private contract'],
-  operate: ['repair', 'sell', 'paint']
+  operate: ['repair', 'sell', 'paint'],
+  detain: ['release', 'welcome', 'follow'],
+  offences: ['rewards', 'punishments', 'suspects'],
+  provisional: ['expensive', 'dangerous', 'popular'],
+  enforcement: ['funding', 'training', 'publicity'],
+  statistics: ['rumours', 'opinions', 'pictures'],
+  safety: ['speed', 'profit', 'fashion'],
+  sustainability: ['affordability', 'popularity', 'reliability'],
+  legislation: ['taxes', 'prices', 'crimes'],
+  introduce: ['take away', 'look at', 'send back'],
+  innovative: ['ordinary', 'crowded', 'expensive']
 };

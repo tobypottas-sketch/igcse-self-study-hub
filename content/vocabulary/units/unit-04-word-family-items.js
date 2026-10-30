@@ -46,5 +46,14 @@ export default [
   family('participant_c', 'vocab_participant_4', 'participant', 'The council thanked local residents for their ____ in the car-free day.', 'participation'),
   family('operate_a', 'vocab_operate', 'operate', 'Only licensed drivers are permitted to ____ a taxi in the city.', 'operate'),
   family('operate_b', 'vocab_operate', 'operate', 'The tram ____ announced that services would stop earlier on Sundays.', 'operator'),
-  family('operate_c', 'vocab_operate', 'operate', 'The new airport terminal will not be fully ____ until the end of the year.', 'operational')
+  family('operate_c', 'vocab_operate', 'operate', 'The new airport terminal will not be fully ____ until the end of the year.', 'operational'),
+  family('safety_a', 'vocab_safety', 'safety', 'Airlines spend large sums of money to improve the ____ of their passengers.', 'safety'),
+  family('safety_b', 'vocab_safety', 'safety', 'The captain brought the ferry ____ into the harbour despite the storm.', 'safely'),
+  family('safety_c', 'vocab_safety', 'safety', 'It is not ____ to cross the railway line when the barriers are down.', 'safe'),
+  family('sustainability_a', 'vocab_sustainability', 'sustainability', 'City planners believe that cycle lanes will improve the long-term ____ of urban transport.', 'sustainability'),
+  family('sustainability_b', 'vocab_sustainability', 'sustainability', 'Many experts say that cheap short flights are not ____ in the long term.', 'sustainable'),
+  family('sustainability_c', 'vocab_sustainability', 'sustainability', 'Fuel for the new trains is produced ____ from waste vegetable oil.', 'sustainably'),
+  family('innovative_a', 'vocab_innovative', 'innovative', 'The ____ engineer designed a train that uses no fuel at all.', 'innovative'),
+  family('innovative_b', 'vocab_innovative', 'innovative', 'Airlines must ____ if they want to reduce their fuel use.', 'innovate'),
+  family('innovative_c', 'vocab_innovative', 'innovative', 'The most important ____ in public transport this century has been the electric bus.', 'innovation')
 ];

@@ -33,5 +33,13 @@ export const unit4WordFamilyAlternates = Object.freeze({
   participant: {
     participate: 'Anyone over sixteen can participate in the city cycling event.',
     participation: 'Active participation in the trial helped the scientists collect useful data.'
+  },
+  safety: {
+    safe: 'Passengers are told to stay seated until the plane reaches a safe height.',
+    safely: 'All the children crossed the road safely with the help of the crossing guard.'
+  },
+  sustainability: {
+    sustainable: 'The council is looking for sustainable ways to reduce city traffic.',
+    sustainably: 'Some airlines now claim that they buy their fuel sustainably.'
   }
 });
