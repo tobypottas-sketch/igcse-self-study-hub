@@ -1,4 +1,4 @@
-// Unit 4 · Meaning · Apply and Mastery — authored wrong meanings, WORDS 1–20 ONLY. Same contract as unit-03-meaning-mastery.js:
+// Unit 4 · Meaning · Apply and Mastery — authored wrong meanings, WORDS 1–30 ONLY. Same contract as unit-03-meaning-mastery.js:
 // two records per word in the order of the word's two Mastery contexts; exactly three authored WRONG glosses, same grammar and similar length
 // as the correct gloss, plausible in general, wrong in this sentence.
 const w = (wrongMeanings, extra = {}) => ({ wrongMeanings, ...extra });
@@ -83,6 +83,45 @@ export default Object.freeze({
   spacious: [
     w(['having very little room for people', 'having a great many passengers', 'having a very low price']),
     w(['crowded and noisy with queues of people', 'small and dark with low ceilings', 'old and dirty with broken equipment'])
+  ],
+  efficiently: [
+    w(['at a very high speed whatever the cost', 'in a cheerful and friendly manner', 'with a great deal of effort']),
+    w(['in a way that costs more to run', 'in a way that moves much faster', 'in a way that needs more drivers'])
+  ],
+  demand: [
+    w(['the number of seats that an airline has', 'the price that an airline charges', 'the time that an airline takes to fly']),
+    w(['a strong complaint from the public about something', 'a strong rule made by the public about something', 'a strong threat from the public to stop something'])
+  ],
+  invention: [
+    w(['an old tool that people no longer use', 'a popular story about travel', 'a natural feature of the landscape']),
+    w(['the repair of something that was broken', 'the discovery of something that was hidden', 'the sale of something that was cheap'])
+  ],
+  machinery: [
+    w(['workers who are hired to help with a job', 'buildings where goods are stored and sold', 'animals that are trained to pull heavy loads']),
+    w(['storage areas used for keeping goods dry', 'offices used for managing the shipping staff', 'contracts used for sending goods overseas'])
+  ],
+  advertisement: [
+    w(['a notice designed to warn people of danger', 'a notice designed to give people directions', 'a notice designed to tell people the time']),
+    w(['a message designed to warn people of delays', 'a message designed to thank people for waiting', 'a message designed to teach people a skill'])
+  ],
+  enormous: [
+    w(['extremely strong for its weight', 'extremely slow to operate', 'extremely new in design']),
+    w(['surprisingly low and fair', 'paid slowly over many years', 'shared equally between cities'])
+  ],
+  equipment: [
+    w(['the staff needed for a particular job', 'the rules needed for a particular purpose', 'the money needed for a particular task']),
+    w(['the permission needed to start a job', 'the training needed to pass a test', 'the time needed to finish a project'])
+  ],
+  collision: [
+    w(['a race between two moving vehicles', 'a signal between moving vehicles', 'a gap between moving vehicles']),
+    w(['a meeting in which things come together peacefully', 'a decision to change the direction of travel', 'a delay caused by bad weather'])
+  ],
+  organisation: [
+    w(['a building where people learn together', 'a plan for arranging a project carefully', 'a class of children who study together']),
+    w(['an official event held to celebrate a success', 'an official law made to control a business', 'an official report written to describe a problem'])
+  ],
+  participant: [
+    w(['a person who watches an event from the side', 'a person who plans an event beforehand', 'a person who pays for an event to be held']),
+    w(['a person who judges a test or study', 'a person who writes about a test or study', 'a person who sells equipment for a study'])
   ]
-
 });

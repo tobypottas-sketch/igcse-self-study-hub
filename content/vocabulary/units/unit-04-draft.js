@@ -1,4 +1,4 @@
-// UNIT 4 – TRANSPORT: authoring draft (batches 1–2 = words 1–20). Source: 0511 key words UNIT 4 – TRANSPORT (coursebook order). Words 21–50 are not locked yet.
+// UNIT 4 – TRANSPORT: authoring draft (batches 1–3 = words 1–30). Source: 0511 key words UNIT 4 – TRANSPORT (coursebook order). Words 31–50 are not locked yet.
 // Same architecture as unit-03.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-04-draft.js
 // A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-04.js only when all 50 words are final.
 import { buildCuratedUnit } from '../build-unit.js';
@@ -586,6 +586,294 @@ const entries = [
         { id:'2', answer:'spacious', wrong:['crowded', 'tiny', 'noisy'] },
         { id:'3', answer:'spacious', wrong:['tiny', 'crowded', 'noisy'] }
       ]
+    }),
+  e('efficiently', 'adverb',
+    'in a way that works well and does not waste time, energy or money',
+    ['without wasting time or energy', 'in a well-planned way'],
+    ['very quickly, without careful thought', 'in a slow and careful way', 'in a noisy and disorganised way'],
+    'The new ticket system allows the airline to process passengers efficiently.',
+    'without wasting time or energy', 'The new ticket system allows the airline to process passengers without wasting time or energy.',
+    'in a well-planned way', 'The airport staff cleared the runway in a well-planned way after the snowstorm.',
+    {
+      masteryContexts:[
+        { text:'The depot manager plans the delivery routes carefully so that the lorries use fuel efficiently.', meaning:'without wasting energy, time or money' },
+        { text:'Freight trains carry heavy goods more efficiently than lorries because they use less fuel for each tonne.', meaning:'in a way that wastes little energy or money' }
+      ],
+      situationDistractors:[
+        'The driver forgot the route, took three wrong turns and arrived an hour late.',
+        'The warehouse workers searched for twenty minutes before they found the missing boxes.',
+        'The ticket office ran out of tickets because nobody had ordered new ones.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The new baggage system allows the airport to deal with thousands of suitcases efficiently.', target:'efficiently', grammarPattern:'' },
+        { id:'2', text:'The city redesigned its bus routes so that commuters could travel efficiently across town.', target:'efficiently', grammarPattern:'' },
+        { id:'3', text:'Small teams of ground staff can turn an aircraft around efficiently if everyone knows their task.', target:'efficiently', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'efficiently', wrong:['carelessly', 'reluctantly', 'noisily'] },
+        { id:'2', answer:'efficiently', wrong:['carelessly', 'noisily', 'suddenly'] },
+        { id:'3', answer:'efficiently', wrong:['reluctantly', 'carelessly', 'noisily'] }
+      ]
+    }),
+  e('demand', 'noun',
+    'a strong need or wish for something, especially from customers or the public',
+    ['need', 'call'],
+    ['an order given by a police officer or teacher', 'the amount of money paid for a service', 'the supply of goods that a company has available'],
+    'There is a growing demand for electric buses in many cities.',
+    'need', 'There is a growing need for electric buses in many cities.',
+    'call', 'There was a strong call for cheaper train tickets after the price rise.',
+    {
+      idKey:'demand_4',
+      teacherNote:'Unit 4 item (demand_4): the noun sense. Unit 1 vocab_demand is the verb "to require a lot of effort"; separate item that shares only the lexical spelling list.',
+      masteryContexts:[
+        { text:'The demand for cheap flights rises sharply every summer.', meaning:'the strong wish of customers to buy something' },
+        { text:'There is such strong demand for the new tram line that the council plans to build a second one.', meaning:'a strong need from the public for something' }
+      ],
+      situationDistractors:[
+        'The shop had hundreds of unsold scooters in its warehouse and nobody came to buy them.',
+        'The bus company reduced its timetable because very few people used the service.',
+        'The factory produced twice as many bicycles as it had planned.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The demand for electric cars has grown quickly over the last five years.', target:'demand', grammarPattern:'' },
+        { id:'2', text:'Because of high demand, the railway company added extra trains on Friday evenings.', target:'demand', grammarPattern:'' },
+        { id:'3', text:'Airlines usually raise their prices when demand is at its highest.', target:'demand', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'demand', wrong:['fear', 'permission', 'respect'] },
+        { id:'2', answer:'demand', wrong:['costs', 'wages', 'prices'] },
+        { id:'3', answer:'demand', wrong:['safety', 'comfort', 'wind'] }
+      ]
+    }),
+  e('invention', 'noun',
+    'something newly created or designed that did not exist before',
+    ['creation', 'new device'],
+    ['the discovery of something that already existed in nature', 'a small repair made to an old machine', 'a story about life in the future'],
+    'The invention of the steam engine changed transport for ever.',
+    'creation', 'The creation of the steam engine changed transport for ever.',
+    'new device', 'The new device that helps cars park themselves was shown at the exhibition.',
+    {
+      masteryContexts:[
+        { text:'Her latest invention is a folding electric scooter that fits inside a school bag.', meaning:'a newly designed device' },
+        { text:'The bicycle was a remarkable invention, because it gave ordinary people a cheap way to travel.', meaning:'something that was created and did not exist before' }
+      ],
+      situationDistractors:[
+        'The explorers found a hidden valley that nobody had ever mapped before.',
+        'The mechanic repaired the old engine and the bus ran again.',
+        'The museum displayed old posters from the nineteenth century.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Many historians believe that the invention of the wheel was the most important step in the history of transport.', target:'invention', grammarPattern:'' },
+        { id:'2', text:'The invention of the jet engine made long-distance air travel much faster.', target:'invention', grammarPattern:'' },
+        { id:'3', text:'The Wright brothers’ invention made it possible for people to fly in a powered aeroplane.', target:'invention', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'invention', wrong:['repair', 'price', 'weight'] },
+        { id:'2', answer:'invention', wrong:['repair', 'sale', 'cost'] },
+        { id:'3', answer:'invention', wrong:['mistake', 'complaint', 'holiday'] }
+      ]
+    }),
+  e('machinery', 'noun',
+    'large powered devices, considered together, that are used to do work in industry, farming or construction',
+    ['mechanical devices', 'heavy powered devices'],
+    ['a group of workers who operate vehicles', 'the buildings where factories are located', 'the money spent on running a factory'],
+    'The factory uses modern machinery to build aeroplane parts.',
+    'mechanical devices', 'The factory uses modern mechanical devices to build aeroplane parts.',
+    'heavy powered devices', 'Cranes and other heavy powered devices were brought in to lift the bridge into place.',
+    {
+      masteryContexts:[
+        { text:'Farmers now use heavy machinery to plant and harvest crops across large fields.', meaning:'large powered devices used to do work' },
+        { text:'The port has invested in new machinery for unloading containers from ships.', meaning:'powered devices used for lifting and moving heavy loads' }
+      ],
+      situationDistractors:[
+        'Farmers planted every seed by hand, working in the fields from dawn until dark.',
+        'The warehouse was full of wooden boxes, stacked from floor to ceiling.',
+        'The workers carried the bricks up the ladder one by one.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The construction company uses heavy machinery to dig the tunnel under the river.', target:'machinery', grammarPattern:'' },
+        { id:'2', text:'Workers must wear ear protection when they are near noisy machinery.', target:'machinery', grammarPattern:'' },
+        { id:'3', text:'The airport spent millions on new machinery to load luggage onto the planes.', target:'machinery', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'machinery', wrong:['furniture', 'clothing', 'luggage'] },
+        { id:'2', answer:'machinery', wrong:['furniture', 'scenery', 'clothing'] },
+        { id:'3', answer:'machinery', wrong:['furniture', 'clothing', 'uniforms'] }
+      ]
+    }),
+  e('advertisement', 'noun',
+    'a notice, picture, film or message designed to persuade people to buy or use something',
+    ['promotional message', 'paid promotion'],
+    ['a warning notice put up for passengers', 'a timetable showing when trains arrive', 'a report written by a journalist'],
+    'A large advertisement for the new express train appeared on every bus in the city.',
+    'promotional message', 'A large promotional message for the new express train appeared on every bus in the city.',
+    'paid promotion', 'A paid promotion for the new tram line appeared on every bus.',
+    {
+      idKey:'advertisement_4',
+      teacherNote:'Unit 4 item (advertisement_4), separate from Unit 3 advertisement; shares only the lexical spelling list.',
+      masteryContexts:[
+        { text:'The bus company paid for a huge advertisement on the side of every double-decker bus.', meaning:'a notice designed to persuade people to use a service' },
+        { text:'The advertisement promised free Wi-Fi on all trains, but passengers found that the signal was weak.', meaning:'a message designed to persuade people to buy or use something' }
+      ],
+      situationDistractors:[
+        'A police officer stopped the traffic so that a group of children could cross the road.',
+        'The station announcer reminded everyone to keep their luggage with them.',
+        'The newspaper published a long report about the new motorway.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The airline ran a television advertisement showing smiling passengers on a luxury flight.', target:'advertisement', grammarPattern:'' },
+        { id:'2', text:'Passengers waiting at the station noticed a colourful advertisement for cheap holidays on the wall.', target:'advertisement', grammarPattern:'' },
+        { id:'3', text:'Every advertisement on the underground must be approved by the transport authority before it goes up.', target:'advertisement', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'advertisement', wrong:['timetable', 'ticket', 'warning'] },
+        { id:'2', answer:'advertisement', wrong:['timetable', 'suitcase', 'engine'] },
+        { id:'3', answer:'advertisement', wrong:['ticket', 'suitcase', 'engine'] }
+      ]
+    }),
+  e('enormous', 'adjective',
+    'extremely large',
+    ['huge', 'gigantic'],
+    ['extremely important to many people', 'extremely expensive to build', 'extremely old and badly damaged'],
+    'The new airport terminal is enormous, with room for thousands of passengers.',
+    'huge', 'The new airport terminal is huge, with room for thousands of passengers.',
+    'gigantic', 'A gigantic cargo ship blocked the narrow channel for several hours.',
+    {
+      masteryContexts:[
+        { text:'An enormous crane lifted the bridge sections into place one by one.', meaning:'extremely large in size' },
+        { text:'The tunnel project cost an enormous amount of money, but it saved hours of travelling time every day.', meaning:'very great in amount' }
+      ],
+      situationDistractors:[
+        'The tiny car could hardly carry two people and one small bag.',
+        'The path beside the river was so narrow that only one cyclist could pass at a time.',
+        'The model train was no bigger than a pencil case.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The cruise ship is so enormous that it cannot enter the old harbour.', target:'enormous', grammarPattern:'' },
+        { id:'2', text:'Engineers built an enormous bridge across the bay, more than five kilometres long.', target:'enormous', grammarPattern:'' },
+        { id:'3', text:'The airport car park was enormous, with room for more than ten thousand vehicles.', target:'enormous', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'enormous', wrong:['silent', 'popular', 'expensive'] },
+        { id:'2', answer:'enormous', wrong:['ancient', 'empty', 'awful'] },
+        { id:'3', answer:'enormous', wrong:['crowded', 'closed', 'narrow'] }
+      ]
+    }),
+  e('equipment', 'noun',
+    'the tools, devices and items needed for a particular purpose',
+    ['gear', 'necessary tools'],
+    ['the people who work in a team', 'the rules that must be followed during a job', 'the money spent on a project'],
+    'All rescue teams must carry the correct safety equipment.',
+    'gear', 'All rescue teams must carry the correct safety gear.',
+    'necessary tools', 'The mechanic packed all the necessary tools into the back of the van.',
+    {
+      idKey:'equipment_4',
+      teacherNote:'Unit 4 item (equipment_4), separate from Unit 2 equipment; shares only the lexical spelling list.',
+      masteryContexts:[
+        { text:'The airline checks all emergency equipment, including life jackets and oxygen masks, before every flight.', meaning:'the items needed for a particular purpose' },
+        { text:'Railway workers need special equipment to repair the tracks at night.', meaning:'the tools and devices needed to do a job' }
+      ],
+      situationDistractors:[
+        'The passengers waited in the departure hall until their gate was announced.',
+        'The coach driver told the group to be back at the bus by six o’clock.',
+        'The workers took a break and drank tea beside the road.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The airport fire service keeps its emergency equipment in a special building beside the runway.', target:'equipment', grammarPattern:'' },
+        { id:'2', text:'Engineers brought heavy equipment to the site to repair the damaged bridge.', target:'equipment', grammarPattern:'' },
+        { id:'3', text:'Cyclists should check their lights and other safety equipment before riding at night.', target:'equipment', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'equipment', wrong:['furniture', 'tickets', 'luggage'] },
+        { id:'2', answer:'equipment', wrong:['furniture', 'clothing', 'luggage'] },
+        { id:'3', answer:'equipment', wrong:['posters', 'tickets', 'luggage'] }
+      ]
+    }),
+  e('collision', 'noun',
+    'an accident in which moving vehicles or objects hit each other',
+    ['crash', 'accident between vehicles'],
+    ['a sudden stop caused by a red light', 'a disagreement between two drivers about the route', 'a fault in the brakes of a vehicle'],
+    'A collision between two lorries closed the motorway for three hours.',
+    'crash', 'A crash between two lorries closed the motorway for three hours.',
+    'accident between vehicles', 'An accident between vehicles at the junction caused long delays.',
+    {
+      masteryContexts:[
+        { text:'A fog warning was issued after a collision involving more than twenty cars.', meaning:'a crash between moving vehicles' },
+        { text:'The pilot turned sharply to avoid a mid-air collision with another aircraft.', meaning:'an accident in which things hit each other' }
+      ],
+      situationDistractors:[
+        'The two trains passed each other safely on parallel tracks.',
+        'A lorry broke down on the hard shoulder, and the driver called for help.',
+        'The cyclist braked gently and stopped at the red light.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Heavy fog caused a collision between a bus and a lorry on the main road.', target:'collision', grammarPattern:'' },
+        { id:'2', text:'Air traffic controllers guide planes carefully to prevent a mid-air collision.', target:'collision', grammarPattern:'' },
+        { id:'3', text:'The train driver braked hard, but a collision with the fallen tree could not be avoided.', target:'collision', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'collision', wrong:['race', 'meeting', 'journey'] },
+        { id:'2', answer:'collision', wrong:['meeting', 'race', 'party'] },
+        { id:'3', answer:'collision', wrong:['race', 'meeting', 'delay'] }
+      ]
+    }),
+  e('organisation', 'noun',
+    'a group of people who work together for a particular purpose, such as a company, charity or public body',
+    ['association', 'official body'],
+    ['the way in which things are arranged', 'a plan made for a long journey', 'a building where people work'],
+    'A national organisation is campaigning for safer cycle lanes in the city.',
+    'association', 'A national association is campaigning for safer cycle lanes in the city.',
+    'official body', 'The official body responsible for rail safety published its yearly report.',
+    {
+      masteryContexts:[
+        { text:'The road safety organisation visits schools to teach children how to cross busy streets.', meaning:'a group of people working together for a particular purpose' },
+        { text:'Air travel is regulated by an international organisation that sets safety standards for all airlines.', meaning:'an official body set up to do a particular job' }
+      ],
+      situationDistractors:[
+        'A group of friends met by chance on the platform and chatted until the train arrived.',
+        'One man built a small boat alone in his garden over several years.',
+        'The shop on the station concourse sells newspapers and snacks.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'A charity organisation provides free bicycles to students who cannot afford transport.', target:'organisation', grammarPattern:'' },
+        { id:'2', text:'The organisation that runs the metro system has promised to keep fares low next year.', target:'organisation', grammarPattern:'' },
+        { id:'3', text:'An international organisation sets safety rules for airlines all over the world.', target:'organisation', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'organisation', wrong:['bridge', 'timetable', 'engine'] },
+        { id:'2', answer:'organisation', wrong:['driver', 'ticket', 'station'] },
+        { id:'3', answer:'organisation', wrong:['engineer', 'aeroplane', 'island'] }
+      ]
+    }),
+  e('participant', 'noun',
+    'a person who takes part in an activity, event or trial',
+    ['person involved', 'member of the group'],
+    ['a person who watches an event from the crowd', 'a person who plans and manages an event', 'a person who travels on a bus or train'],
+    'Every participant in the cycling safety trial wore a bright jacket.',
+    'person involved', 'Every person involved in the cycling safety trial wore a bright jacket.',
+    'member of the group', 'The youngest member of the group was only eight years old.',
+    {
+      idKey:'participant_4',
+      teacherNote:'Unit 4 item (participant_4), separate from Unit 3 participant; shares only the lexical spelling list.',
+      masteryContexts:[
+        { text:'Each participant in the road safety workshop learned how to give first aid.', meaning:'a person who takes part in an event' },
+        { text:'Every participant in the trial received a free bicycle helmet.', meaning:'a person involved in a test or study' }
+      ],
+      situationDistractors:[
+        'The spectators clapped from the pavement as the cyclists rode past.',
+        'The organiser stood at the finish line with a stopwatch and a microphone.',
+        'A sponsor gave the cycling club some money but did not attend the event.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Each participant in the cycling safety trial kept a diary of every journey they made.', target:'participant', grammarPattern:'' },
+        { id:'2', text:'The mayor thanked each participant in the car-free day for helping to reduce traffic.', target:'participant', grammarPattern:'' },
+        { id:'3', text:'The oldest participant in the road safety campaign was an eighty-year-old retired bus driver.', target:'participant', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'participant', wrong:['spectator', 'engineer', 'pilot'] },
+        { id:'2', answer:'participant', wrong:['passenger', 'spectator', 'inspector'] },
+        { id:'3', answer:'participant', wrong:['spectator', 'engineer', 'journalist'] }
+      ]
     })
 ];
 
@@ -628,5 +916,12 @@ export default buildCuratedUnit({
   source:'0511 key words UNIT 4 – TRANSPORT',
   entries:enrichedEntries,
   activities:[...unit4Activities, ...unit4PrecisionUse, ...unit4WordFamilyItems],
-  lexicalSpelling:{ ...LEXICAL_SPELLING_ERRORS }
+  // One shared list per word: Unit 4's demand, advertisement, equipment and participant reuse the reviewed misspellings of the earlier-unit items with the same spelling.
+  lexicalSpelling:{
+    ...LEXICAL_SPELLING_ERRORS,
+    vocab_demand_4:LEXICAL_SPELLING_ERRORS.vocab_demand,
+    vocab_advertisement_4:LEXICAL_SPELLING_ERRORS.vocab_advertisement,
+    vocab_equipment_4:LEXICAL_SPELLING_ERRORS.vocab_equipment,
+    vocab_participant_4:LEXICAL_SPELLING_ERRORS.vocab_participant
+  }
 });

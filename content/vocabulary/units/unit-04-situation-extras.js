@@ -1,4 +1,4 @@
-// Unit 4 · additional authored WRONG situations for "Which situation fits?", WORDS 1–20 ONLY. Same purpose as unit-03-situation-extras.js:
+// Unit 4 · additional authored WRONG situations for "Which situation fits?", WORDS 1–30 ONLY. Same purpose as unit-03-situation-extras.js:
 // the schema needs at least four distinct, target-free situations. Each word gets three more plausible, clearly wrong situations of mixed length.
 // None of them shows the word, and none could also illustrate it.
 export default Object.freeze({
@@ -101,6 +101,55 @@ export default Object.freeze({
     'The taxi driver took a shortcut through the old town.',
     'The tourists bought postcards at the kiosk near the harbour.',
     'A cyclist waited at the traffic lights for the green signal.'
+  ],
+  efficiently: [
+    'The tourists photographed the old bridge from the riverbank.',
+    'The cyclist stopped at the traffic lights and waited for the signal to change.',
+    'The bus driver announced the next stop and opened the doors.'
+  ],
+  demand: [
+    'The pilot checked the weather report before the flight.',
+    'The tourists queued at the ticket office for the afternoon ferry.',
+    'A mechanic changed the oil and checked the tyres.'
+  ],
+  invention: [
+    'The ferry left the harbour at noon and reached the island before dark.',
+    'A cyclist waited patiently at the traffic lights.',
+    'The guide gave everyone a map of the old harbour.'
+  ],
+  machinery: [
+    'The ferry left the harbour at noon with two hundred people on board.',
+    'The tourists photographed the old castle from the harbour wall.',
+    'A cyclist stopped beside the road to fix a puncture.'
+  ],
+  advertisement: [
+    'The taxi driver carried the suitcases to the hotel entrance.',
+    'The tourists queued at the ticket office to buy tickets for the afternoon ferry.',
+    'The mechanic changed a wheel while the family waited beside the road.'
+  ],
+  enormous: [
+    'The ferry arrived at the port and the passengers walked off slowly.',
+    'The pilot spoke to the control tower and checked the weather report.',
+    'The cyclist stopped at the traffic lights and waited for the signal to change.'
+  ],
+  equipment: [
+    'The tourists photographed the old harbour from the hill above the town.',
+    'A mechanic repaired the brakes while the family waited beside the road.',
+    'The air steward served drinks and then collected the empty cups.'
+  ],
+  collision: [
+    'The tourists took photographs of the old harbour from the pier.',
+    'The ticket machine at the station accepted only coins.',
+    'The guide handed out maps and explained the timetable for the day.'
+  ],
+  organisation: [
+    'The mechanic checked the oil and filled the tank with petrol.',
+    'The ferry captain welcomed everyone on board and pointed out the lifeboats.',
+    'The cyclist put on a helmet and fixed a light to the front of the bike.'
+  ],
+  participant: [
+    'The taxi driver took a shortcut through the old town.',
+    'The tourists bought postcards at the kiosk near the harbour.',
+    'A cyclist waited at the traffic lights for the green signal.'
   ]
-
 });

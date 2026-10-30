@@ -1,8 +1,8 @@
-// Unit 4 · Paraphrasing content (phrase_set and idea_set), WORDS 1–20 ONLY. Same record shapes and contract as unit-03-activities.js:
+// Unit 4 · Paraphrasing content (phrase_set and idea_set), WORDS 1–30 ONLY. Same record shapes and contract as unit-03-activities.js:
 //   phrase_set : originalPhrase (plain wording) -> equivalentPhrase (contains the target), acceptedVariants, chunks, commonMeaningDistortions
 //   idea_set   : originalIdea (contains the target) with accurate paraphrases that do NOT contain it, a meaning invariant, and three
 //                meaning-changing distractors each tagged with the misconception it represents.
-// Every record is linked to exactly one Unit 4 word. Words 21–50 are not authored yet.
+// Every record is linked to exactly one Unit 4 word. Words 31–50 are not authored yet.
 const status = 'approved';
 const unitNumber = 4;
 
@@ -52,7 +52,17 @@ const phraseSets = [
   phrase('vehicle_goods', 'a machine for carrying goods on roads', 'a goods vehicle', ['vocab_vehicle'], { chunks:['a goods', 'vehicle'], distortions:['a goods driver', 'a goods garage', 'a goods station'] }),
   phrase('pollution_cars', 'damage to the air caused by cars', 'air pollution from cars', ['vocab_pollution'], { chunks:['air pollution', 'from cars'], distortions:['air pressure from cars', 'air travel from cars', 'air conditioning from cars'] }),
   phrase('destination_train', 'the place the train is going to', 'the destination of the train', ['vocab_destination'], { chunks:['the destination', 'of the train'], distortions:['the driver of the train', 'the departure of the train', 'the speed of the train'] }),
-  phrase('spacious_cabin', 'a cabin with plenty of room', 'a spacious cabin', ['vocab_spacious'], { chunks:['a spacious', 'cabin'], distortions:['a crowded cabin', 'a tiny cabin', 'a noisy cabin'] })
+  phrase('spacious_cabin', 'a cabin with plenty of room', 'a spacious cabin', ['vocab_spacious'], { chunks:['a spacious', 'cabin'], distortions:['a crowded cabin', 'a tiny cabin', 'a noisy cabin'] }),
+  phrase('efficiently_work', 'work without wasting time or energy', 'work efficiently', ['vocab_efficiently'], { chunks:['work', 'efficiently'], distortions:['work carelessly', 'work reluctantly', 'work without a break'] }),
+  phrase('demand_electric_buses', 'a strong public need for electric buses', 'demand for electric buses', ['vocab_demand_4'], { chunks:['demand', 'for electric buses'], distortions:['a supply of electric buses', 'a ban on electric buses', 'a price for electric buses'] }),
+  phrase('invention_remarkable', 'a very impressive new creation', 'a remarkable invention', ['vocab_invention'], { chunks:['a remarkable', 'invention'], distortions:['a remarkable discovery', 'a remarkable repair', 'a remarkable journey'] }),
+  phrase('machinery_construction', 'large powered devices for building work', 'construction machinery', ['vocab_machinery'], { chunks:['construction', 'machinery'], distortions:['construction workers', 'construction materials', 'construction plans'] }),
+  phrase('advertisement_tickets', 'a message that persuades people to buy train tickets', 'an advertisement for train tickets', ['vocab_advertisement_4'], { chunks:['an advertisement', 'for train tickets'], distortions:['a timetable for train tickets', 'a warning about train tickets', 'a receipt for train tickets'] }),
+  phrase('enormous_aeroplane', 'an extremely large aeroplane', 'an enormous aeroplane', ['vocab_enormous'], { chunks:['an enormous', 'aeroplane'], distortions:['an ancient aeroplane', 'an empty aeroplane', 'an expensive aeroplane'] }),
+  phrase('equipment_safety', 'tools and devices needed for safety', 'safety equipment', ['vocab_equipment_4'], { chunks:['safety', 'equipment'], distortions:['safety rules', 'safety officers', 'safety posters'] }),
+  phrase('collision_cars', 'a crash between two cars', 'a collision between two cars', ['vocab_collision'], { chunks:['a collision', 'between two cars'], distortions:['a race between two cars', 'a meeting between two cars', 'a journey between two cars'] }),
+  phrase('organisation_road_safety', 'a group working together for road safety', 'a road safety organisation', ['vocab_organisation'], { chunks:['a road safety', 'organisation'], distortions:['a road safety timetable', 'a road safety uniform', 'a road safety lesson'] }),
+  phrase('participant_trial', 'a person taking part in the trial', 'a participant in the trial', ['vocab_participant_4'], { chunks:['a participant', 'in the trial'], distortions:['a spectator at the trial', 'the organiser of the trial', 'the judge of the trial'] })
 ];
 
 const ideaSets = [
@@ -155,7 +165,57 @@ const ideaSets = [
     { text:'The new train is less spacious than the old one, so passengers have less room for their luggage.', misconceptionCategory:'polarity_change' },
     { text:'The new train is just as spacious as the old one, so passengers have the same room for their luggage.', misconceptionCategory:'comparison_change' },
     { text:'The new train is faster than the old one, so passengers reach their destination sooner.', misconceptionCategory:'meaning_confusion' }
-  ], ['vocab_spacious'])
+  ], ['vocab_spacious']),
+  idea('efficiently', 'The new system allows the airline to process passengers efficiently.', ['The new system lets the airline deal with passengers without wasting time or effort.', 'With the new system, the airline can handle its passengers in a well-run, economical way.', 'Passengers can be processed by the airline in a way that wastes very little time with the new system.'], 'degree', 'with very little waste', [
+    { text:'The new system allows the airline to process passengers very slowly.', misconceptionCategory:'polarity_change' },
+    { text:'The new system allows the airport to process luggage efficiently.', misconceptionCategory:'meaning_confusion' },
+    { text:'The new system allows the airline to process passengers efficiently but at a much higher cost.', misconceptionCategory:'added_information' }
+  ], ['vocab_efficiently']),
+  idea('demand', 'Demand for cheap train tickets rises sharply at the start of the school holidays.', ['Many more people want cheap train tickets at the start of the school holidays.', 'At the start of the school holidays, the public’s wish for cheap train tickets increases greatly.', 'The need for cheap train tickets goes up quickly when the school holidays begin.'], 'time', 'at the start of the school holidays', [
+    { text:'Demand for cheap train tickets falls sharply at the start of the school holidays.', misconceptionCategory:'polarity_change' },
+    { text:'Demand for cheap train tickets rises slightly at the start of the school holidays.', misconceptionCategory:'degree_change' },
+    { text:'Demand for cheap train tickets rises sharply at the end of the school holidays.', misconceptionCategory:'time_change' }
+  ], ['vocab_demand_4']),
+  idea('invention', 'The invention of the railway changed the way people travelled in the nineteenth century.', ['The creation of the railway transformed how people travelled in the nineteenth century.', 'Travel in the nineteenth century was changed by the creation of the railway.', 'When the railway was first created, it changed how people travelled in the nineteenth century.'], 'cause_effect', 'the new railway changed how people travelled', [
+    { text:'The invention of the railway changed the way people travelled in the twentieth century.', misconceptionCategory:'time_change' },
+    { text:'The discovery of the railway changed the way people travelled in the nineteenth century.', misconceptionCategory:'meaning_confusion' },
+    { text:'The invention of the railway had no effect on the way people travelled in the nineteenth century.', misconceptionCategory:'polarity_change' }
+  ], ['vocab_invention']),
+  idea('machinery', 'The factory has installed new machinery to produce car parts more quickly.', ['The factory has put in new powered devices so that it can make car parts faster.', 'New mechanical devices have been fitted in the factory so that car parts are produced faster.', 'The factory now has newly installed powered devices that help it make car parts more quickly.'], 'cause_effect', 'new devices to produce parts faster', [
+    { text:'The factory has installed new machinery to produce car parts more slowly.', misconceptionCategory:'polarity_change' },
+    { text:'The factory has installed new machinery to produce aeroplane parts more quickly.', misconceptionCategory:'meaning_confusion' },
+    { text:'The factory plans to install new machinery to produce car parts more quickly.', misconceptionCategory:'time_change' }
+  ], ['vocab_machinery']),
+  idea('advertisement', 'The airline withdrew its advertisement because it made a false claim about ticket prices.', ['The airline took away its promotional message because it gave false information about ticket prices.', 'Because its promotion contained a false claim about ticket prices, the airline removed it.', 'The airline stopped using its promotional message after it wrongly described its ticket prices.'], 'cause_effect', 'a false claim caused the withdrawal', [
+    { text:'The airline withdrew its advertisement because it was too expensive to show.', misconceptionCategory:'cause_effect_change' },
+    { text:'The airline kept its advertisement even though it made a false claim about ticket prices.', misconceptionCategory:'polarity_change' },
+    { text:'The airline withdrew its timetable because it made a false claim about ticket prices.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_advertisement_4']),
+  idea('enormous', 'The enormous cargo ship was too wide to pass through the old canal.', ['The extremely large cargo ship could not fit through the old canal because it was too wide.', 'The old canal was not wide enough for the huge cargo ship.', 'Because of its great width, the gigantic cargo ship could not use the old canal.'], 'cause_effect', 'too wide for the canal', [
+    { text:'The enormous cargo ship was too heavy to pass through the old canal.', misconceptionCategory:'cause_effect_change' },
+    { text:'The tiny cargo ship was too wide to pass through the old canal.', misconceptionCategory:'degree_change' },
+    { text:'The enormous cargo ship passed easily through the old canal.', misconceptionCategory:'polarity_change' }
+  ], ['vocab_enormous']),
+  idea('equipment', 'All emergency equipment on the ferry is checked before every voyage.', ['Every piece of emergency gear on the ferry is inspected before each journey.', 'Before each voyage, all the emergency tools and devices on the ferry are checked.', 'The ferry’s emergency gear is all examined before every trip.'], 'quantity', 'all of it, before every voyage', [
+    { text:'Some emergency equipment on the ferry is checked before every voyage.', misconceptionCategory:'quantity_change' },
+    { text:'All emergency equipment on the ferry is checked after every voyage.', misconceptionCategory:'time_change' },
+    { text:'All emergency staff on the ferry are trained before every voyage.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_equipment_4']),
+  idea('collision', 'The collision between the bus and the lorry happened early in the morning.', ['The crash between the bus and the lorry took place early in the morning.', 'Early in the morning, the bus and the lorry were involved in a crash.', 'The bus and the lorry hit each other early in the morning.'], 'time', 'early in the morning', [
+    { text:'The collision between the bus and the lorry happened late at night.', misconceptionCategory:'time_change' },
+    { text:'The race between the bus and the lorry happened early in the morning.', misconceptionCategory:'meaning_confusion' },
+    { text:'The collision between the bus and the lorry was prevented early in the morning.', misconceptionCategory:'polarity_change' }
+  ], ['vocab_collision']),
+  idea('organisation', 'The organisation was set up in 1950 to improve road safety.', ['The group was founded in 1950 with the aim of making roads safer.', 'In 1950, people came together to form a group whose aim was safer roads.', 'The association was established in 1950 in order to make the roads safer.'], 'time', '1950', [
+    { text:'The organisation was set up in 1990 to improve road safety.', misconceptionCategory:'time_change' },
+    { text:'The organisation was set up in 1950 to improve railway comfort.', misconceptionCategory:'meaning_confusion' },
+    { text:'The organisation was closed in 1950 after failing to improve road safety.', misconceptionCategory:'polarity_change' }
+  ], ['vocab_organisation']),
+  idea('participant', 'Every participant in the road safety trial must wear a helmet.', ['All the people taking part in the road safety trial have to wear a helmet.', 'Everyone involved in the road safety trial is required to wear a helmet.', 'Each person who takes part in the road safety trial must put on a helmet.'], 'quantity', 'everyone wears a helmet', [
+    { text:'Only the winner of the road safety trial must wear a helmet.', misconceptionCategory:'quantity_change' },
+    { text:'Every spectator at the road safety trial must wear a helmet.', misconceptionCategory:'meaning_confusion' },
+    { text:'Every participant in the road safety trial may choose not to wear a helmet.', misconceptionCategory:'polarity_change' }
+  ], ['vocab_participant_4'])
 ];
 
 export default [...phraseSets, ...ideaSets];

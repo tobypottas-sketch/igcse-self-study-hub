@@ -170,4 +170,10 @@ export const LEXICAL_SPELLING_ERRORS = Object.freeze({
   "vocab_pollution":["polution","pollushion","pollutian","polluton","pollusion","polutian"], // pollution (Unit 4)
   "vocab_destination":["destinashun","destenation","destinasion","destanation","destinaton","distination"], // destination (Unit 4)
   "vocab_spacious":["spatious","spacius","spaceous","spasious","spacous","spaciuos"], // spacious (Unit 4)
+  "vocab_efficiently":["efficently","effeciently","eficiently","efficiantly","efficeintly","efficienly"], // efficiently (Unit 4)
+  "vocab_invention":["invension","inventian","invenshun","invantion","inventon","invetion"], // invention (Unit 4)
+  "vocab_machinery":["machinary","mashinery","machinry","machienery","machnery","machinerry"], // machinery (Unit 4)
+  "vocab_enormous":["enormus","enourmous","enormuos","anormous","enormouse","enomous"], // enormous (Unit 4)
+  "vocab_collision":["colision","collission","collizion","colission","collsion","collisoin"], // collision (Unit 4)
+  "vocab_organisation":["organisasion","orginisation","organistion","oraganisation","organisaton","organization"], // organisation (Unit 4)
 });

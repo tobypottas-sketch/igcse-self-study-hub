@@ -1,4 +1,4 @@
-// Unit 4 · Word Families — authored families, WORDS 1–20 ONLY. Same contract as unit-03-word-families.js: every row is AUTHORED (stated part of
+// Unit 4 · Word Families — authored families, WORDS 1–30 ONLY. Same contract as unit-03-word-families.js: every row is AUTHORED (stated part of
 // speech, one natural example containing the form exactly once and not as the first word, and the reason the form is worth teaching). A family
 // needs >= 3 pedagogically useful forms INCLUDING the headword and >= 2 parts of speech. Headwords with no genuine family are listed under
 // unit4WordFamilyRejected rather than padded with unnatural forms.
@@ -31,7 +31,38 @@ export const unit4WordFamilies = Object.freeze({
     f('pollution', 'noun', 'Air pollution is a serious problem in many large cities.', 'Headword.'),
     f('pollute', 'verb', 'Factories that pollute rivers should be fined heavily.', 'The verb behind the noun; very common in environmental texts.'),
     f('polluted', 'adjective', 'The polluted river smelled terrible and no fish could live in it.', 'Adjective for places and substances that are harmed; common in descriptions.')
-  ], excludedForms: [{ form: 'pollutant', reason: 'Technical term for a harmful substance; beyond the level of this unit.' }] }
+  ], excludedForms: [{ form: 'pollutant', reason: 'Technical term for a harmful substance; beyond the level of this unit.' }] },
+  efficiently: { forms: [
+    f('efficiently', 'adverb', 'The new baggage system allows the airport to work more efficiently.', 'Headword.'),
+    f('efficient', 'adjective', 'Electric trains are efficient because they waste very little energy.', 'The base adjective; far more common than the adverb.'),
+    f('efficiency', 'noun', 'Better planning has improved the efficiency of the city’s bus service.', 'The noun for how well resources are used; common in reports and news.')
+  ], excludedForms: [{ form: 'inefficient', reason: 'The negative of “efficient”; adds no new meaning at this level.' }] },
+  invention: { forms: [
+    f('invention', 'noun', 'The invention of the compass helped sailors find their way across the open sea.', 'Headword.'),
+    f('invent', 'verb', 'Who was the first person to invent the bicycle?', 'The verb behind the noun; very common.'),
+    f('inventor', 'noun', 'The inventor of the telephone, Alexander Graham Bell, was born in Scotland.', 'The person noun; common in history and biography texts.'),
+    f('inventive', 'adjective', 'The students came up with an inventive way to reduce traffic outside the school.', 'Adjective meaning full of new ideas; useful in descriptions.')
+  ], excludedForms: [{ form: 'reinvent', reason: 'Rare prefixed verb; not useful at this level.' }] },
+  advertisement: { forms: [
+    f('advertisement', 'noun', 'The advertisement on the side of the bus promised free travel for children.', 'Headword.'),
+    f('advertise', 'verb', 'Airlines advertise their cheapest tickets on social media.', 'The verb behind the noun; very common.'),
+    f('advertising', 'noun', 'Most of the company’s income comes from advertising on buses and trams.', 'The uncountable noun for the whole activity; different from the single “advertisement”.')
+  ], excludedForms: [{ form: 'advert', reason: 'Informal shortening of the headword, not a separate family member.' }] },
+  equipment: { forms: [
+    f('equipment', 'noun', 'Engineers use special equipment to test the strength of each bridge.', 'Headword.'),
+    f('equip', 'verb', 'Airlines must equip every aircraft with life jackets and oxygen masks.', 'The verb behind the noun; common in safety and engineering texts.'),
+    f('equipped', 'adjective', 'The new coaches are fully equipped with air conditioning and charging points.', 'Adjective used with “well” or “fully”; common in descriptions of vehicles and buildings.')
+  ], excludedForms: [{ form: 'equipping', reason: 'Only an inflection of “equip”.' }] },
+  organisation: { forms: [
+    f('organisation', 'noun', 'Every large organisation needs clear rules about safety.', 'Headword.'),
+    f('organise', 'verb', 'Students can organise a road safety campaign with the help of their teachers.', 'The verb behind the noun; very common.'),
+    f('organised', 'adjective', 'The airport is very well organised, so passengers never get lost.', 'Adjective for people and systems that are well arranged; common in descriptions.')
+  ], excludedForms: [{ form: 'organiser', reason: 'Already a Unit 3 target word.' }, { form: 'organisational', reason: 'Formal adjective that is rare at this level.' }] },
+  participant: { forms: [
+    f('participant', 'noun', 'Each participant in the trial recorded how they travelled to school.', 'Headword.'),
+    f('participate', 'verb', 'Students from five schools will participate in the road safety week.', 'The verb behind the noun; very common.'),
+    f('participation', 'noun', 'Parents’ participation in the car-free day was higher than expected.', 'The abstract noun for taking part; common in reports.')
+  ], excludedForms: [{ form: 'participatory', reason: 'Rare adjective beyond the level of this unit.' }] }
 });
 
 export const unit4WordFamilyRejected = Object.freeze({
@@ -49,5 +80,9 @@ export const unit4WordFamilyRejected = Object.freeze({
   height: 'Only “high” stays close in sense; “heighten” means to increase (a feeling or effect) and “highly” means very, so fewer than three forms keep the meaning.',
   vehicle: 'No derived forms; “vehicular” is a rare, formal adjective.',
   destination: '“destine”, “destined” and “destiny” drift to the idea of fate, so there is no clean family.',
-  spacious: 'Only “space” (room) is a genuinely useful relative, and it also means outer space; “spaciously” is rare and “spaciousness” is uncommon at this level, so fewer than three forms are worth teaching.'
+  spacious: 'Only “space” (room) is a genuinely useful relative, and it also means outer space; “spaciously” is rare and “spaciousness” is uncommon at this level, so fewer than three forms are worth teaching.',
+  demand: 'The verb “demand” (to insist) and the adjective “demanding” (difficult) shift away from the noun sense of a strong public need, and the verb sense already belongs to Unit 1.',
+  machinery: '“machine” is the countable base word, while “mechanical” and “mechanic” come from a different root and shift towards automatic behaviour and repair work, so no clean family keeps the collective sense.',
+  enormous: 'Only “enormously” (very much) is a straightforward relative, and “enormity” means great wickedness, so fewer than three forms are worth teaching.',
+  collision: 'Only “collide” is a genuine relative; “colliding” is an inflection and “collider” is a technical physics term, so fewer than three useful forms exist.'
 });
