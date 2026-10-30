@@ -232,3 +232,20 @@ export const BLITZ_MEANING_OPTIONS = Object.freeze({
   u1_50_antiques_meaning: Object.freeze(["valuable old things people collect", "modern goods sold cheaply", "copies of famous sports trophies", "damaged things waiting to be thrown away"]),
   u1_50_antiques_paraphrase: Object.freeze(["collectable objects from long ago", "expensive tools used by professionals", "rare plants grown for display", "recent products made by local artists"]),
 });
+
+// Games content by unit. A unit appears here ONLY when its Blitz data and/or Connections puzzles have been authored and reviewed.
+// A unit with no entry (or an entry without a game) simply has no Games section: it never falls back to another unit's content.
+//   blitz:       { confusable, meaningOptions }   Word Blitz still builds its questions from the unit's own loaded words
+//   connections: { puzzles }
+export const GAMES_BY_UNIT = Object.freeze({
+  1:Object.freeze({
+    blitz:Object.freeze({ confusable:BLITZ_CONFUSABLE, meaningOptions:BLITZ_MEANING_OPTIONS }),
+    connections:Object.freeze({ puzzles:CONNECTIONS_PUZZLES })
+  })
+});
+export function gamesFor(unitNumber, registry = GAMES_BY_UNIT) { return registry[String(Math.trunc(Number(unitNumber)))] ?? null; }
+// The game ids a unit can actually play, in lobby order.
+export function availableGames(unitNumber, registry = GAMES_BY_UNIT) {
+  const data = gamesFor(unitNumber, registry);
+  return [data?.blitz ? 'blitz' : null, data?.connections?.puzzles?.length ? 'connections' : null].filter(Boolean);
+}

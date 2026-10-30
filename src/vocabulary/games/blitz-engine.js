@@ -1,6 +1,5 @@
 // Word Blitz rules as a small pure state machine. It reads Unit 1 items/contexts that are handed in and nothing else:
 // no storage, no network, no progression, XP, mastery or Set code.
-import { BLITZ_CONFUSABLE, BLITZ_MEANING_OPTIONS } from './games-data.js';
 import { createGameHistory, leastRecentFirst } from './games-history.js';
 export const BLITZ = Object.freeze({ durationMs: 60000, base: 100, urgentMs: 10000, tiers: Object.freeze([[0, 1], [3, 2], [6, 3], [10, 4]]) });
 // Result-screen title, by score. Purely cosmetic.
@@ -36,18 +35,22 @@ export function blankSentence(text, term) {
 }
 
 // Words that may not share a question: near neighbours in meaning, where a distractor could be argued as correct.
-const clusterOf = term => { const t = String(term).toLowerCase(); return new Set(BLITZ_CONFUSABLE.filter(group => group.includes(t)).flat()); };
+const clusterOf = (term, confusable) => { const t = String(term).toLowerCase(); return new Set(confusable.filter(group => group.includes(t)).flat()); };
 // Fallback order when a word class is too small to supply three distractors.
 const NEAR_POS = { adverb: ['adjective', 'noun', 'verb'], adjective: ['noun', 'verb', 'adverb'], noun: ['adjective', 'verb', 'adverb'], verb: ['noun', 'adjective', 'adverb'] };
 
-export function buildBlitzPool(content, rng = Math.random) {
+// `data` is the UNIT's Blitz dataset ({ confusable, meaningOptions }, see GAMES_BY_UNIT). Without it there is no game: the pool is empty and
+// the engine never falls back to another unit's content.
+export function buildBlitzPool(content, rng = Math.random, data = null) {
+  if (!Array.isArray(data?.confusable) || !data.meaningOptions || typeof data.meaningOptions !== 'object') return [];
+  const confusable = data.confusable; const meaningOptions = data.meaningOptions;
   const items = (content?.items ?? []).filter(item => item.term && item.coreMeaning);
   if (items.length < 4) return [];
   const byId = new Map((content?.contexts ?? []).map(context => [context.contextId, context]));
   // Distractors for a definition / paraphrase question: other Unit 1 words of the same class, minus near neighbours and anything whose own
   // meaning overlaps the prompt. If the class is too small, the nearest other classes fill in (still minus near neighbours).
   const distractorsFor = (item, promptText) => {
-    const blocked = clusterOf(item.term); const promptWords = new Set([...contentWords(promptText), ...contentWords(item.coreMeaning)].map(stem));
+    const blocked = clusterOf(item.term, confusable); const promptWords = new Set([...contentWords(promptText), ...contentWords(item.coreMeaning)].map(stem));
     const eligible = other => other.vocabularyId !== item.vocabularyId && !blocked.has(other.term.toLowerCase())
       && ![...contentWords(other.coreMeaning), ...(other.senses ?? []).flatMap(sense => (sense.acceptedParaphrases ?? []).flatMap(contentWords))].some(word => promptWords.has(stem(word)));
     const same = shuffle(items.filter(other => other.partOfSpeech === item.partOfSpeech && eligible(other)), rng);
@@ -94,7 +97,7 @@ export function buildBlitzPool(content, rng = Math.random) {
         const wrong = [...new Set((row?.wrongMeanings ?? []).map(text => String(text).trim()))].filter(text => text && text.toLowerCase() !== right.toLowerCase());
         if (!row?.contextId || !sentence || !right || wrong.length < 3 || sentence.length > 130) continue;
         // Students see the plain-English wording kept in games-data.js for this reviewed row (same meaning, same order: correct first, then the three reviewed wrong ones).
-        const shown = BLITZ_MEANING_OPTIONS[row.contextId] ?? [right, ...wrong.slice(0, 3)];
+        const shown = meaningOptions[row.contextId] ?? [right, ...wrong.slice(0, 3)];
         if (shown.length !== 4 || new Set(shown.map(text => text.toLowerCase())).size !== 4 || shown.some(text => text.length > 60)) continue;
         add({ id: `mic:${row.contextId}`, type: 'mic', label: `In this sentence, “${item.term}” means…`, prompt: sentence, term: item.term, meaning,
           build: () => { const all = shuffle(shown, rng); return { options: all, answerIndex: all.indexOf(shown[0]) }; } });
@@ -105,13 +108,13 @@ export function buildBlitzPool(content, rng = Math.random) {
 }
 
 // `history` (optional, see games-history.js) lets Play Again prefer prompts and words not seen recently. Without one, every game is independent.
-export function createBlitz({ content, rng = Math.random, now = () => Date.now(), durationMs = BLITZ.durationMs, history = createGameHistory() } = {}) {
+export function createBlitz({ content, rng = Math.random, now = () => Date.now(), durationMs = BLITZ.durationMs, history = createGameHistory(), data = null } = {}) {
   let queue = []; let lastWord = null; let startedAt = 0; let locked = false; let round = 0;
   // Unseen prompts first, then least recently seen; among equals the words served least often come first. The pool arrives shuffled, so ties stay random.
   const ordered = pool => leastRecentFirst(pool, q => history.blitzSeen.get(q.id) ?? 0, q => history.blitzTermUse.get(q.term) ?? 0);
   const s = { status: 'ready', score: 0, correct: 0, answered: 0, streak: 0, bestStreak: 0, topMultiplier: 1, missed: [], question: null, durationMs };
   const draw = () => {
-    if (!queue.length) queue = ordered(buildBlitzPool(content, rng));
+    if (!queue.length) queue = ordered(buildBlitzPool(content, rng, data));
     if (!queue.length) return null;
     let index = queue.findIndex(q => q.term !== lastWord); if (index < 0) index = 0;   // never the same word twice in a row
     const [q] = queue.splice(index, 1); lastWord = q.term;

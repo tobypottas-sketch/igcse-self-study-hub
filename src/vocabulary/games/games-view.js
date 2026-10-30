@@ -1,26 +1,31 @@
 // All markup for the Games area. Buttons here use data-game-act (never data-action) so the main controller ignores them.
 import { BLITZ, multiplierFor, nextTierAt } from './blitz-engine.js';
 import { CONNECTIONS, wordShape } from './connections-engine.js';
+import { availableGames } from './games-data.js';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
 export const GAME_LIST = Object.freeze([
   { id: 'blitz', emoji: '⚡', name: 'Word Blitz', kicker: '60 seconds', copy: 'Race the clock. Chain correct answers to build a multiplier.' },
-  { id: 'connections', emoji: '🧩', name: 'Connections', kicker: '5 puzzles', copy: 'Clues appear one at a time. Name the Unit 1 word that links them.' }
+  { id: 'connections', emoji: '🧩', name: 'Connections', kicker: '5 puzzles', copy: 'Clues appear one at a time. Name the word that links them.' }
 ]);
 
 // `mode` decides which attribute launches a game: the unit screen uses the main controller's data-action, the Games lobby its own.
-export function renderGameCards(mode = 'unit') {
-  return `<div class="gm-cards">${GAME_LIST.map(game => `<button type="button" class="gm-card" data-game-card="${game.id}" ${mode === 'unit' ? `data-action="open-game" data-game="${game.id}"` : `data-game-act="open" data-game="${game.id}"`}><span class="gm-card__emoji" aria-hidden="true">${game.emoji}</span><span class="gm-card__body"><span class="gm-card__kicker">${esc(game.kicker)}</span><strong>${esc(game.name)}</strong><span class="gm-card__copy">${esc(game.copy)}</span></span><span class="gm-card__play" aria-hidden="true">Play →</span></button>`).join('')}</div>`;
+export function renderGameCards(mode = 'unit', ids = GAME_LIST.map(game => game.id)) {
+  return `<div class="gm-cards">${GAME_LIST.filter(game => ids.includes(game.id)).map(game => `<button type="button" class="gm-card" data-game-card="${game.id}" ${mode === 'unit' ? `data-action="open-game" data-game="${game.id}"` : `data-game-act="open" data-game="${game.id}"`}><span class="gm-card__emoji" aria-hidden="true">${game.emoji}</span><span class="gm-card__body"><span class="gm-card__kicker">${esc(game.kicker)}</span><strong>${esc(game.name)}</strong><span class="gm-card__copy">${esc(game.copy)}</span></span><span class="gm-card__play" aria-hidden="true">Play →</span></button>`).join('')}</div>`;
 }
-// The temporary Unit 1 entry: one self-contained section, easy to delete.
-export function renderGamesEntry() {
-  return `<section class="gm-entry" data-games-entry aria-labelledby="gmEntryTitle"><div class="gm-entry__head"><h2 id="gmEntryTitle">Bonus Games</h2><p>Practise your Unit 1 vocabulary in a different way.</p><p class="gm-fine">Games don’t affect your pathway progress.</p></div>${renderGameCards('unit')}</section>`;
+// The Games entry on a unit screen: one self-contained section. A unit with no authored games gets none (empty string).
+export function renderGamesEntry(unitNumber = 1) {
+  const ids = availableGames(unitNumber);
+  if (!ids.length) return '';
+  return `<section class="gm-entry" data-games-entry aria-labelledby="gmEntryTitle"><div class="gm-entry__head"><h2 id="gmEntryTitle">Bonus Games</h2><p>Practise your Unit ${esc(unitNumber)} vocabulary in a different way.</p><p class="gm-fine">Games don’t affect your pathway progress.</p></div>${renderGameCards('unit', ids)}</section>`;
 }
 
 const topbar = (backLabel, backAct, right = '') => `<header class="vocab-topbar vocab-topbar--unit gm-top"><button type="button" class="vocab-back vocab-back--chip" data-game-act="${backAct}"><span class="vocab-back__arrow" aria-hidden="true">←</span> ${esc(backLabel)}</button>${right}</header>`;
 
-export function renderLobby() {
-  return `<main class="vocab-shell gm-shell" data-games-lobby>${topbar('Unit 1', 'exit-unit', '<div class="vocab-unit-id"><span class="vocab-unit-id__badge">Games</span><strong class="vocab-unit-id__title">Bonus practice</strong></div>')}<section class="gm-entry gm-entry--lobby"><div class="gm-entry__head"><h1>Bonus Games</h1><p>Practise your Unit 1 vocabulary in a different way.</p></div>${renderGameCards('lobby')}</section></main>`;
+export function renderLobby(unitNumber = 1) {
+  const ids = availableGames(unitNumber);
+  const cards = ids.length ? renderGameCards('lobby', ids) : '<p class="gm-fine" data-games-unavailable>Games are not available for this unit yet.</p>';
+  return `<main class="vocab-shell gm-shell" data-games-lobby>${topbar(`Unit ${unitNumber}`, 'exit-unit', '<div class="vocab-unit-id"><span class="vocab-unit-id__badge">Games</span><strong class="vocab-unit-id__title">Bonus practice</strong></div>')}<section class="gm-entry gm-entry--lobby"><div class="gm-entry__head"><h1>Bonus Games</h1><p>Practise your Unit ${esc(unitNumber)} vocabulary in a different way.</p></div>${cards}</section></main>`;
 }
 
 // ---------------------------------------------------------------- Word Blitz
@@ -46,12 +51,12 @@ export function renderBlitzOver(sum, isBest, best) {
 }
 
 // ---------------------------------------------------------------- Connections
-export function renderConnectionsIntro() {
+export function renderConnectionsIntro(unitNumber = 1) {
   // Same three rules, same wording and values; the points run is shown as steps and the reassurance as a quiet note.
   const steps = CONNECTIONS.points.map((points, index) => `<b class="gm-steps__chip" data-step="${index}">${points}</b>`).join('<span class="gm-steps__arrow" aria-hidden="true">→</span>');
   const shield = '<svg class="gm-rules__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg>';
   const go = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-  return `<main class="vocab-shell gm-shell gm-shell--cx" data-game="connections" data-phase="intro">${topbar('Games', 'lobby')}<section class="gm-panel gm-intro gm-intro--cx"><div class="gm-intro__head"><span class="gm-cx__badge" aria-hidden="true">?</span><div class="gm-intro__title"><p class="gm-tag">🧩 Connections</p><h1>What links the clues?</h1></div></div><div class="gm-intro__body"><ul class="gm-rules"><li>Each puzzle hides one <b>Unit 1 word</b>. You start with one clue.</li><li>Solve it now for <b>${CONNECTIONS.points[0]}</b> points, or reveal another clue. Each extra clue is worth <b>100</b> less. <span class="gm-steps" role="img" aria-label="${CONNECTIONS.points.join(', ')}">${steps}</span></li><li class="gm-rules__note">${shield}<span>Wrong guesses are free and never end the puzzle.</span></li></ul><button type="button" class="gm-go gm-go--teal" data-game-act="cx-start" autofocus><span>Start</span>${go}</button></div></section></main>`;
+  return `<main class="vocab-shell gm-shell gm-shell--cx" data-game="connections" data-phase="intro">${topbar('Games', 'lobby')}<section class="gm-panel gm-intro gm-intro--cx"><div class="gm-intro__head"><span class="gm-cx__badge" aria-hidden="true">?</span><div class="gm-intro__title"><p class="gm-tag">🧩 Connections</p><h1>What links the clues?</h1></div></div><div class="gm-intro__body"><ul class="gm-rules"><li>Each puzzle hides one <b>Unit ${esc(unitNumber)} word</b>. You start with one clue.</li><li>Solve it now for <b>${CONNECTIONS.points[0]}</b> points, or reveal another clue. Each extra clue is worth <b>100</b> less. <span class="gm-steps" role="img" aria-label="${CONNECTIONS.points.join(', ')}">${steps}</span></li><li class="gm-rules__note">${shield}<span>Wrong guesses are free and never end the puzzle.</span></li></ul><button type="button" class="gm-go gm-go--teal" data-game-act="cx-start" autofocus><span>Start</span>${go}</button></div></section></main>`;
 }
 const NUDGES = [
   e => e.canReveal() ? 'Good thinking — try another clue.' : 'Good thinking — you’re getting closer.',
@@ -61,7 +66,7 @@ const NUDGES = [
 ];
 const KIND = { association: 'Association', context: 'In context', synonym: 'Similar word', meaning: 'Meaning', plain: 'In plain English' };
 const LOCK = '<svg class="gm-clue__lock" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
-export function renderConnectionsPlay(engine) {
+export function renderConnectionsPlay(engine, unitNumber = 1) {
   const s = engine.state; const p = engine.puzzle(); const phase = s.phase; const done = phase !== 'guessing';
   const shown = done ? p.clues.length : s.revealed;
   const stateOf = i => (done ? 'done' : i === shown - 1 ? 'current' : 'past');
@@ -76,12 +81,12 @@ export function renderConnectionsPlay(engine) {
     const total = s.wrong.length + s.choiceWrong.length;
     const wrong = total ? `<p class="gm-nudge" role="status">${esc(NUDGES[(total - 1) % NUDGES.length](engine))}</p>` : '';
     const choices = s.helpOn ? `<div class="gm-choices" data-cx-choices role="group" aria-label="Choose the answer">${s.choices.map(t => `<button type="button" class="gm-choice" data-game-act="cx-choice" data-term="${esc(t)}"${s.choiceWrong.includes(t) ? ' disabled data-tried' : ''}>${esc(t)}</button>`).join('')}</div>` : '';
-    panel = `<div class="gm-answer"><div class="gm-worth"><span>Worth</span><strong data-cx-worth>${engine.potential()}</strong><span>points</span><ol class="gm-ladder" aria-hidden="true">${ladder}</ol></div><form class="gm-guess" data-cx-form autocomplete="off"><label class="vocab-sr-only" for="cxGuess">Your guess</label><input id="cxGuess" name="guess" type="text" inputmode="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore placeholder="Type the Unit 1 word" enterkeyhint="go"><button type="submit" class="gm-go gm-go--teal">Guess</button></form><ul class="gm-suggest" data-cx-suggest></ul>${wrong}${choices}</div><div class="gm-row gm-row--actions">${engine.canReveal() ? `<button type="button" class="gm-ghost gm-act gm-act--next" data-game-act="cx-reveal">Show next clue</button>` : ''}${engine.canHelp() ? '<button type="button" class="gm-ghost gm-ghost--help gm-act gm-act--help" data-game-act="cx-help">Need help?</button>' : ''}${engine.canGiveUp() ? '<button type="button" class="gm-ghost gm-act gm-act--giveup" data-game-act="cx-giveup">Show the answer</button>' : ''}</div>`;
+    panel = `<div class="gm-answer"><div class="gm-worth"><span>Worth</span><strong data-cx-worth>${engine.potential()}</strong><span>points</span><ol class="gm-ladder" aria-hidden="true">${ladder}</ol></div><form class="gm-guess" data-cx-form autocomplete="off"><label class="vocab-sr-only" for="cxGuess">Your guess</label><input id="cxGuess" name="guess" type="text" inputmode="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore placeholder="Type the Unit ${esc(unitNumber)} word" enterkeyhint="go"><button type="submit" class="gm-go gm-go--teal">Guess</button></form><ul class="gm-suggest" data-cx-suggest></ul>${wrong}${choices}</div><div class="gm-row gm-row--actions">${engine.canReveal() ? `<button type="button" class="gm-ghost gm-act gm-act--next" data-game-act="cx-reveal">Show next clue</button>` : ''}${engine.canHelp() ? '<button type="button" class="gm-ghost gm-ghost--help gm-act gm-act--help" data-game-act="cx-help">Need help?</button>' : ''}${engine.canGiveUp() ? '<button type="button" class="gm-ghost gm-act gm-act--giveup" data-game-act="cx-giveup">Show the answer</button>' : ''}</div>`;
   } else {
     const solved = phase === 'solved'; const lastPuzzle = s.index + 1 >= s.puzzles.length;
     panel = `<div class="gm-result gm-result--${solved ? 'ok' : 'miss'}" role="status"><p class="gm-result__head"><span class="gm-result__icon" aria-hidden="true">${solved ? '✓' : '→'}</span><span class="gm-result__word">${solved ? esc(p.target) : `The answer was ${esc(p.target)}`}</span><strong>${solved ? `+${last.points}` : '+0'}</strong></p><p class="gm-result__why">${esc(p.why)}</p></div><button type="button" class="gm-go gm-go--teal" data-game-act="cx-next" autofocus>${lastPuzzle ? 'See results' : 'Next puzzle'}</button>`;
   }
-  return `<main class="vocab-shell gm-shell gm-shell--cx" data-game="connections" data-phase="play" data-state="${phase}"><header class="gm-hud gm-hud--light"><button type="button" class="gm-quit" data-game-act="lobby" aria-label="Quit to Games">✕</button><div class="gm-progress"><span>Puzzle <strong>${s.index + 1}</strong> of ${s.puzzles.length}</span><i class="gm-cx-track" aria-hidden="true">${track}</i></div><div class="gm-scorebox"><strong data-cx-score>${esc(s.score)}</strong><span>points</span></div></header><section class="gm-panel gm-cx"><div class="gm-cx__head"><span class="gm-cx__badge" aria-hidden="true">?</span><div class="gm-cx__title"><p class="gm-cx__q">Which Unit 1 word connects these?</p>${shapeHtml}</div></div><ol class="gm-clues">${clues}</ol>${panel}</section></main>`;
+  return `<main class="vocab-shell gm-shell gm-shell--cx" data-game="connections" data-phase="play" data-state="${phase}"><header class="gm-hud gm-hud--light"><button type="button" class="gm-quit" data-game-act="lobby" aria-label="Quit to Games">✕</button><div class="gm-progress"><span>Puzzle <strong>${s.index + 1}</strong> of ${s.puzzles.length}</span><i class="gm-cx-track" aria-hidden="true">${track}</i></div><div class="gm-scorebox"><strong data-cx-score>${esc(s.score)}</strong><span>points</span></div></header><section class="gm-panel gm-cx"><div class="gm-cx__head"><span class="gm-cx__badge" aria-hidden="true">?</span><div class="gm-cx__title"><p class="gm-cx__q">Which Unit ${esc(unitNumber)} word connects these?</p>${shapeHtml}</div></div><ol class="gm-clues">${clues}</ol>${panel}</section></main>`;
 }
 export function renderConnectionsOver(sum) {
   return `<main class="vocab-shell gm-shell gm-shell--cx" data-game="connections" data-phase="over">${topbar('Games', 'lobby')}<section class="gm-panel gm-over"><h1 class="gm-rating gm-rating--light">Puzzles complete</h1><p class="gm-bigscore"><span data-final-score>${esc(sum.score)}</span><small>points</small></p><dl class="gm-stats"><div><dt>Solved</dt><dd>${esc(sum.solved)} / ${esc(sum.total)}</dd></div><div><dt>Average clues used</dt><dd>${esc(sum.avgClues)}</dd></div></dl><div class="gm-actions"><button type="button" class="gm-go gm-go--teal" data-game-act="cx-again" autofocus>Play again</button><button type="button" class="gm-ghost" data-game-act="lobby">Back to Games</button></div></section></main>`;

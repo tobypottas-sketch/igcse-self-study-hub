@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import { createBlitz, buildBlitzPool } from '../src/vocabulary/games/blitz-engine.js';
 import { createConnections, pickPuzzles, CONNECTIONS, normaliseGuess, acceptedForms } from '../src/vocabulary/games/connections-engine.js';
-import { CONNECTIONS_PUZZLES, BLITZ_CONFUSABLE, BLITZ_MEANING_OPTIONS } from '../src/vocabulary/games/games-data.js';
+import { CONNECTIONS_PUZZLES, BLITZ_CONFUSABLE, BLITZ_MEANING_OPTIONS, gamesFor } from '../src/vocabulary/games/games-data.js';
 import { createGameHistory, sharedGameHistory } from '../src/vocabulary/games/games-history.js';
 import { renderConnectionsPlay, renderBlitzQuestion } from '../src/vocabulary/games/games-view.js';
 
@@ -86,7 +86,7 @@ test('Connections rounds: still random inside the eligible pool, and without a h
 });
 
 // ---------------------------------------------------------------- Word Blitz pool
-const build = (seed = 1, content = unit1) => buildBlitzPool(content, seeded(seed));
+const build = (seed = 1, content = unit1) => buildBlitzPool(content, seeded(seed), gamesFor(1).blitz);
 const materialise = pool => pool.map(q => ({ ...q, ...q.build() }));
 
 test('Word Blitz pool: a deep pool (5-7 prompts for every word), each with a unique stable id, built from reviewed content only', () => {
@@ -142,14 +142,14 @@ test('Word Blitz questions: confusable and overlapping distractors stay excluded
 test('Word Blitz questions: a prompt that cannot support three safe distractors is left out, never padded', () => {
   const four = { ...unit1, items: unit1.items.slice(0, 4) }; const pool = build(2, four);
   for (const q of pool) { const built = q.build(); assert.ok(!built || built.options.length === 4); }
-  assert.ok(buildBlitzPool({ ...unit1, items: unit1.items.slice(0, 3) }, seeded(1)).length === 0);
+  assert.ok(buildBlitzPool({ ...unit1, items: unit1.items.slice(0, 3) }, seeded(1), gamesFor(1).blitz).length === 0);
   const thin = { ...unit1, items: unit1.items.map(item => ({ ...item, senses: item.senses.map(sense => ({ ...sense, masteryContexts: (sense.masteryContexts ?? []).map(c => ({ ...c, wrongMeanings: c.wrongMeanings.slice(0, 2) })) })) })) };
   assert.ok(build(2, thin).every(q => q.type !== 'mic'), 'two wrong meanings is not enough for a meaning prompt');
 });
 
 // ---------------------------------------------------------------- Word Blitz: recent-prompt avoidance across Play Again
 const playRound = (history, seed, count) => {
-  const game = createBlitz({ content: unit1, rng: seeded(seed), now: () => 0, history }); const served = []; let q = game.start(); let last = null;
+  const game = createBlitz({ content: unit1, rng: seeded(seed), now: () => 0, history, data: gamesFor(1).blitz }); const served = []; let q = game.start(); let last = null;
   for (let i = 0; i < count; i += 1) { assert.ok(q, 'a question is always available'); assert.notEqual(q.term, last, 'no word twice in a row'); last = q.term; served.push({ id: q.id, term: q.term }); game.answer(q.answerIndex); q = game.next(); }
   return served;
 };
@@ -169,7 +169,7 @@ test('Word Blitz Play Again: words that were under-served come first, and play i
 
 test('Word Blitz Play Again: when the whole pool has been used it recycles the least recently seen, not the prompts just played', () => {
   const history = createGameHistory(); const size = build(1).length;
-  const pass = (seed, draws) => { const game = createBlitz({ content: unit1, rng: seeded(seed), now: () => 0, history }); const ids = []; let q = game.start(); for (let i = 0; i < draws; i += 1) { ids.push(q.id); game.answer(q.answerIndex); q = game.next(); } return ids; };
+  const pass = (seed, draws) => { const game = createBlitz({ content: unit1, rng: seeded(seed), now: () => 0, history, data: gamesFor(1).blitz }); const ids = []; let q = game.start(); for (let i = 0; i < draws; i += 1) { ids.push(q.id); game.answer(q.answerIndex); q = game.next(); } return ids; };
   const everything = pass(1, size); assert.equal(new Set(everything).size, size, 'a whole pass serves every prompt exactly once');
   const recent = new Set(pass(2, 30));
   const third = pass(3, 30); assert.ok(third.every(id => !recent.has(id)), 'the third round starts from the prompts not played in the second');
@@ -182,7 +182,7 @@ test('Variety memory: in memory only, holds ids and round numbers, and the contr
   for (const value of Object.values(history)) assert.ok(typeof value === 'number' || value instanceof Map);
   for (const map of [history.blitzSeen, history.blitzTermUse, history.cxSeen]) for (const [k, v] of map) { assert.equal(typeof k, 'string'); assert.equal(typeof v, 'number'); }
   const controller = fs.readFileSync(new URL('../src/vocabulary/games/games-controller.js', import.meta.url), 'utf8');
-  assert.match(controller, /history = sharedGameHistory/); assert.match(controller, /createBlitz\(\{ content, rng, now, history \}\)/); assert.match(controller, /pickPuzzles\(CONNECTIONS_PUZZLES, rng, CONNECTIONS\.puzzleCount, history\)/);
+  assert.match(controller, /history = sharedGameHistory/); assert.match(controller, /createBlitz\(\{ content, rng, now, history, data: unitGames\?\.blitz \}\)/); assert.match(controller, /pickPuzzles\(unitGames\?\.connections\?\.puzzles \?\? \[\], rng, CONNECTIONS\.puzzleCount, history\)/);
   assert.ok(sharedGameHistory && sharedGameHistory.blitzSeen instanceof Map);
   const src = fs.readFileSync(new URL('../src/vocabulary/games/games-history.js', import.meta.url), 'utf8').replace(/\/\/.*$/gm, '');
   assert.doesNotMatch(src, /localStorage|sessionStorage|indexedDB|fetch\(|supabase|import /i);

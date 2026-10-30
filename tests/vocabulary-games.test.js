@@ -10,7 +10,7 @@ import unit1 from '../content/vocabulary/units/unit-01.js';
 import { renderVocabularyUnit, renderVocabularyHome } from '../src/vocabulary/views.js';
 import { createBlitz, BLITZ, buildBlitzPool, multiplierFor, blankSentence, blankExact, ratingFor } from '../src/vocabulary/games/blitz-engine.js';
 import { createConnections, pickPuzzles, CONNECTIONS, normaliseGuess, acceptedForms, wordShape } from '../src/vocabulary/games/connections-engine.js';
-import { CONNECTIONS_PUZZLES, BLITZ_CONFUSABLE } from '../src/vocabulary/games/games-data.js';
+import { CONNECTIONS_PUZZLES, BLITZ_CONFUSABLE, gamesFor } from '../src/vocabulary/games/games-data.js';
 import { findChromium, loadPlaywright } from './helpers/pathway-geometry-harness.mjs';
 
 const repo = fileURLToPath(new URL('..', import.meta.url));
@@ -43,11 +43,11 @@ test('isolation: the games touch no storage, network, database, progression, XP,
   }
   const app = read('src/vocabulary/app.js');
   assert.equal((app.match(/mountGames/g) ?? []).length, 2, 'app.js only imports and calls mountGames');
-  assert.match(app, /mountGames\(root, \{ content:state\.content, game:target\.dataset\.game, onCue:playCue, onExit:/, 'games receive only loaded content, a harmless sound callback and an exit callback');
+  assert.match(app, /mountGames\(root, \{ content:state\.content, unitNumber:state\.currentUnitNumber, game:target\.dataset\.game, onCue:playCue, onExit:/, 'games receive only loaded content, the unit number, a harmless sound callback and an exit callback');
 });
 
 // ---------------------------------------------------------------- Word Blitz
-const allBlitz = (rng = seeded(11)) => buildBlitzPool(unit1, rng).map(q => ({ ...q, ...q.build() }));
+const allBlitz = (rng = seeded(11)) => buildBlitzPool(unit1, rng, gamesFor(1).blitz).map(q => ({ ...q, ...q.build() }));
 const groupOf = term => new Set(BLITZ_CONFUSABLE.filter(g => g.includes(term.toLowerCase())).flat());
 
 test('Word Blitz: every question has four distinct options and exactly one defensible answer', () => {
@@ -72,13 +72,13 @@ test('Word Blitz: gap-fill questions come only from teacher-reviewed rows, and t
   }
   // content with no reviewed gap rows yields no gap questions (never an unreviewed guess)
   const bare = { ...unit1, items: unit1.items.map(item => ({ ...item, senses: item.senses.map(sense => ({ ...sense, gapDistractors: undefined })) })) };
-  assert.ok(buildBlitzPool(bare, seeded(2)).every(q => q.type !== 'gap'));
+  assert.ok(buildBlitzPool(bare, seeded(2), gamesFor(1).blitz).every(q => q.type !== 'gap'));
   assert.deepEqual(blankExact('Avoiding injury requires care.', 'avoiding'), { sentence: '____ injury requires care.', atStart: true });
   assert.equal(blankSentence('She avoided the traffic.', 'avoid'), 'She ____ed the traffic.');
 });
 
 test('Word Blitz: no word twice in a row, and questions never leave Unit 1', () => {
-  const game = createBlitz({ content: unit1, rng: seeded(3), now: () => 0 }); let last = null;
+  const game = createBlitz({ content: unit1, rng: seeded(3), now: () => 0, data: gamesFor(1).blitz }); let last = null;
   for (let i = 0; i < 80; i += 1) {
     const q = i === 0 ? game.start() : game.next(); assert.notEqual(q.term, last); last = q.term; assert.ok(terms.has(q.term));
     game.answer(q.answerIndex);
@@ -86,7 +86,7 @@ test('Word Blitz: no word twice in a row, and questions never leave Unit 1', () 
 });
 
 test('Word Blitz: timer, scoring, multiplier, streak reset and the result summary', () => {
-  let t = 0; const game = createBlitz({ content: unit1, rng: seeded(5), now: () => t });
+  let t = 0; const game = createBlitz({ content: unit1, rng: seeded(5), now: () => t, data: gamesFor(1).blitz });
   assert.equal(game.remaining(), BLITZ.durationMs); game.start();
   const right = () => game.answer(game.state.question.answerIndex); const wrong = () => game.answer((game.state.question.answerIndex + 1) % 4);
   assert.equal(right().points, 100); game.next(); assert.equal(right().points, 100); game.next();
