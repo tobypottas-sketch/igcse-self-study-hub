@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { findChromium, loadPlaywright } from './helpers/pathway-geometry-harness.mjs';
 import { openEntryPage } from './helpers/activity-entry-harness.mjs';
-import { plannerContent } from '../src/vocabulary/data.js';
+import { plannerFor } from './helpers/mastery-slot-audit.mjs';
 import { availableActivityTypesForTarget, withContentMemo } from '../src/vocabulary/session-targets.js';
 import unit from '../content/vocabulary/releases/unit-01.js';
 
@@ -45,7 +45,7 @@ test('the practice sheet starts the members read early without delaying its own 
 
 // ── Memoised readiness answers are identical to the uncached ones ────────────────
 test('memoised activity-type answers equal the uncached answers for every Unit 1 word', () => {
-  const content = plannerContent(unit);
+  const content = plannerFor(unit);
   const ask = target => {
     const item = content.items.find(row => row.vocabularyId === target.vocabularyId);
     const contexts = content.contexts.filter(row => row.occurrenceId === target.occurrenceId);
