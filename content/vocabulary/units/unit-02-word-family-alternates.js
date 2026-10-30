@@ -69,5 +69,29 @@ export const unit2WordFamilyAlternates = Object.freeze({
   culture: {
     cultural: 'Exchange students learn a great deal about cultural differences.',
     culturally: 'The festival is culturally important to the whole region.'
+  },
+  equipment: {
+    equip: 'The hospital plans to equip every ward with new monitors.',
+    equipped: 'The gym is fully equipped with weights and running machines.'
+  },
+  fixture: {
+    fix: 'Please fix the mirror to the wall with four screws.',
+    fixed: 'The seats in the hall are fixed to the floor.'
+  },
+  removable: {
+    remove: 'Remove the lid before you heat the food.',
+    removal: 'Removal of the old carpet took two days.'
+  },
+  adjustable: {
+    adjust: 'Adjust the brightness if the screen is too dark.',
+    adjustment: 'The driver made a small adjustment to the mirror.'
+  },
+  affordable: {
+    afford: 'Many students cannot afford to live near the university.',
+    unaffordable: 'The tickets were unaffordable for most families.'
+  },
+  concentrate: {
+    concentration: 'Playing chess requires a great deal of concentration.',
+    concentrated: 'After a concentrated week of revision, she felt ready.'
   }
 });

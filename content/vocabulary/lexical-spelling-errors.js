@@ -91,4 +91,14 @@ export const LEXICAL_SPELLING_ERRORS = Object.freeze({
   "vocab_competitive":["competative","compettitive","competive","competitave","comptitive","competitiv"], // competitive (Unit 2)
   "vocab_critical":["critcal","critacal","critticall","criticle","critial","cricital"], // critical (Unit 2)
   "vocab_impressive":["impresive","impressiv","impressave","imprressive","impresssive","inpressive"], // impressive (Unit 2)
+  "vocab_determination":["determnation","detirmination","determinasion","deturmination","determinattion","determenation"], // determination (Unit 2)
+  "vocab_overcome":["overcom","ovarcome","overcomme","overkome","over come","overcum"], // overcome (Unit 2)
+  "vocab_accessory":["accesory","acessory","accessary","accesorry","acsessory","axessory"], // accessory (Unit 2)
+  "vocab_equipment":["equipement","equipmant","ekwipment","equiptment","equipmet","equipmment"], // equipment (Unit 2)
+  "vocab_fixture":["fixtur","fixchure","fiksture","fixtre","fixure","fixtuer"], // fixture (Unit 2)
+  "vocab_removable":["remuvable","removible","removabel","remmovable","removabal","remoovable"], // removable (Unit 2): "removeable" is not listed as an error because some dictionaries record it as a variant
+  "vocab_adjustable":["adjustible","adjustabel","ajustable","adjustble","adjusstable","adjustabal"], // adjustable (Unit 2)
+  "vocab_affordable":["affordible","afordable","affordabel","affoardable","affordabal","affforable"], // affordable (Unit 2)
+  "vocab_external":["externel","exturnal","extenal","extrenal","eksternal","externall"], // external (Unit 2)
+  "vocab_concentrate":["concentrat","consentrate","concentate","concentrait","concetrate","consentrait"], // concentrate (Unit 2)
 });

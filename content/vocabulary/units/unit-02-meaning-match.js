@@ -40,5 +40,15 @@ export default {
   amusing: ['strange', 'sad', 'tiring'],
   competitive: ['happy to share', 'afraid to try', 'ready to quit'],
   critical: ['approving', 'indifferent', 'grateful'],
-  impressive: ['ordinary', 'disappointing', 'confusing']
+  impressive: ['ordinary', 'disappointing', 'confusing'],
+  determination: ['good luck', 'deep fear', 'sudden anger'],
+  overcome: ['avoid', 'delay', 'cause'],
+  accessory: ['main part', 'warning sign', 'free gift'],
+  equipment: ['workers', 'payments', 'rules'],
+  fixture: ['visitor', 'tenant', 'invoice'],
+  removable: ['waterproof', 'fragile', 'portable'],
+  adjustable: ['able to be repaired', 'able to be hidden', 'able to be sold'],
+  affordable: ['extremely rare', 'poorly made', 'widely sold'],
+  external: ['inner', 'central', 'hidden'],
+  concentrate: ['relax', 'wander', 'rest']
 };

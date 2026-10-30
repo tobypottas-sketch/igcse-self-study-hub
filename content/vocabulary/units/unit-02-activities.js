@@ -72,7 +72,17 @@ const phraseSets = [
   phrase('amusing_story', 'a story that makes you smile', 'an amusing story', ['vocab_amusing'], { acceptedVariants:['a funny story'], chunks:['an', 'amusing', 'story'], distortions:['a story that makes you afraid', 'a story that is very long', 'a story that teaches a lesson'] }),
   phrase('competitive_market', 'a market where many companies try to win customers', 'a competitive market', ['vocab_competitive'], { acceptedVariants:['a highly competitive market'], chunks:['a', 'competitive', 'market'], distortions:['a market with only one seller', 'a market that is closed on Sundays', 'a market that sells old goods'] }),
   phrase('critical_of_plan', 'saying that the plan has faults', 'critical of the plan', ['vocab_critical'], { acceptedVariants:['critical about the plan'], chunks:['critical of', 'the plan'], distortions:['in favour of the plan', 'unaware of the plan', 'responsible for the plan'] }),
-  phrase('impressive_performance', 'a performance that makes people admire it', 'an impressive performance', ['vocab_impressive'], { acceptedVariants:['a remarkable performance'], chunks:['an', 'impressive', 'performance'], distortions:['a boring performance', 'a short performance', 'a performance nobody saw'] })
+  phrase('impressive_performance', 'a performance that makes people admire it', 'an impressive performance', ['vocab_impressive'], { acceptedVariants:['a remarkable performance'], chunks:['an', 'impressive', 'performance'], distortions:['a boring performance', 'a short performance', 'a performance nobody saw'] }),
+  phrase('great_determination', 'a very strong will not to give up', 'great determination', ['vocab_determination'], { acceptedVariants:['strong determination'], chunks:['great', 'determination'], distortions:['great luck', 'great fear', 'great speed'] }),
+  phrase('overcome_difficulties', 'succeed in dealing with problems', 'overcome difficulties', ['vocab_overcome'], { acceptedVariants:['overcome problems'], chunks:['overcome', 'difficulties'], distortions:['ignore difficulties', 'cause difficulties', 'avoid difficulties'] }),
+  phrase('phone_accessory', 'an extra item sold for a phone', 'a phone accessory', ['vocab_accessory'], { acceptedVariants:['an accessory for a phone'], chunks:['a phone', 'accessory'], distortions:['a broken phone', 'a new phone', 'a phone contract'] }),
+  phrase('sports_equipment', 'the tools and clothing needed to play sport', 'sports equipment', ['vocab_equipment'], { acceptedVariants:['sports gear'], chunks:['sports', 'equipment'], distortions:['sports results', 'sports teams', 'sports fees'] }),
+  phrase('light_fixture', 'a lamp that is fixed permanently to a ceiling', 'a light fixture', ['vocab_fixture'], { acceptedVariants:['a lighting fixture'], chunks:['a light', 'fixture'], distortions:['a table lamp', 'a light bulb', 'a window blind'] }),
+  phrase('removable_cover', 'a cover that can be taken off', 'a removable cover', ['vocab_removable'], { acceptedVariants:['a detachable cover'], chunks:['a', 'removable', 'cover'], distortions:['a cover glued in place', 'a very thin cover', 'a broken cover'] }),
+  phrase('adjustable_seat', 'a seat that can be moved to suit different people', 'an adjustable seat', ['vocab_adjustable'], { acceptedVariants:['a seat that is adjustable'], chunks:['an', 'adjustable', 'seat'], distortions:['a seat fixed to the floor', 'a very soft seat', 'a seat nobody uses'] }),
+  phrase('affordable_housing', 'homes that ordinary people can pay for', 'affordable housing', ['vocab_affordable'], { acceptedVariants:['reasonably priced housing'], chunks:['affordable', 'housing'], distortions:['luxury housing', 'empty housing', 'temporary housing'] }),
+  phrase('external_drive', 'a storage device kept outside the computer', 'an external drive', ['vocab_external'], { acceptedVariants:['an external hard drive'], chunks:['an', 'external', 'drive'], distortions:['a drive built into the computer', 'a broken drive', 'a drive for cars'] }),
+  phrase('concentrate_on_task', 'give your full attention to the work', 'concentrate on the task', ['vocab_concentrate'], { acceptedVariants:['focus on the task'], chunks:['concentrate', 'on', 'the task'], distortions:['give up the task', 'delay the task', 'forget about the task'] })
 ];
 
 const ideaSets = [
@@ -275,7 +285,57 @@ const ideaSets = [
     { text:'Her exam results were average, except in mathematics.', misconceptionCategory:'degree_change' },
     { text:'Her exam results were impressive, but not in mathematics.', misconceptionCategory:'omitted_information' },
     { text:'Her mathematics results were better than her other results.', misconceptionCategory:'added_information' }
-  ], ['vocab_impressive'])
+  ], ['vocab_impressive']),
+  idea('determination', 'Her determination to win a place at university never weakened.', ['She never lost her strong will to win a place at university.', 'She kept her firm resolve to get into university throughout.', 'Her strong wish to win a place at university stayed just as firm.'], 'polarity', 'it never weakened', [
+    { text:'Her determination to win a place at university weakened over time.', misconceptionCategory:'polarity_change' },
+    { text:'Her family’s determination to win a place at university never weakened.', misconceptionCategory:'meaning_confusion' },
+    { text:'She won a place at university without trying.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_determination']),
+  idea('overcome', 'He overcame his fear of speaking in public by practising every week.', ['He got past his fear of speaking in public by practising each week.', 'Weekly practice helped him beat his fear of public speaking.', 'By practising every week, he dealt successfully with his fear of speaking in front of people.'], 'cause_effect', 'practice caused success', [
+    { text:'He avoided speaking in public because he practised every week.', misconceptionCategory:'cause_effect_change' },
+    { text:'He still fears speaking in public, although he practises every week.', misconceptionCategory:'polarity_change' },
+    { text:'He overcame his fear of heights by practising every week.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_overcome']),
+  idea('accessory', 'The most popular accessory in the shop is a protective phone case.', ['The extra item that sells best in the shop is a protective phone case.', 'In the shop, customers buy a protective case for their phone more often than any other extra.', 'A protective phone case is the best-selling extra in the shop.'], 'comparison', 'the most popular', [
+    { text:'The least popular extra item in the shop is a protective phone case.', misconceptionCategory:'polarity_change' },
+    { text:'One popular extra item in the shop is a protective phone case.', misconceptionCategory:'degree_change' },
+    { text:'The most popular phone in the shop has a protective case.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_accessory']),
+  idea('equipment', 'The school must replace its old science equipment before next term.', ['The school has to buy new science tools and machines before the next term.', 'Before next term, the school needs to get rid of its old laboratory apparatus and replace it.', 'The science department needs new tools to take the place of the old ones by next term.'], 'time', 'before next term', [
+    { text:'The school may replace its old science equipment after next term.', misconceptionCategory:'time_change' },
+    { text:'The school must repair its old science equipment before next term.', misconceptionCategory:'meaning_confusion' },
+    { text:'The school must replace its old teachers before next term.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_equipment']),
+  idea('fixture', 'In this flat, the kitchen units are fixtures, so the tenant cannot take them away.', ['In this flat, the kitchen units are permanently fitted, so the tenant cannot remove them.', 'The tenant must leave the kitchen units in the flat because they are permanently attached to it.', 'The kitchen units are part of the flat, so the tenant is not allowed to take them away.'], 'cause_effect', 'because they are permanent', [
+    { text:'In this flat, the kitchen units belong to the tenant, so he can take them away.', misconceptionCategory:'polarity_change' },
+    { text:'In this flat, the tenant cannot take the kitchen units away because he has not paid for them.', misconceptionCategory:'cause_effect_change' },
+    { text:'In this flat, only some of the kitchen units are permanently fitted.', misconceptionCategory:'quantity_change' }
+  ], ['vocab_fixture']),
+  idea('removable', 'The headphones have removable ear pads, which makes them easy to clean.', ['The ear pads on the headphones can be taken off, so cleaning them is easy.', 'Because the headphones’ ear pads come off, they are easy to clean.', 'Taking the ear pads off the headphones makes cleaning simple.'], 'cause_effect', 'being detachable makes cleaning easy', [
+    { text:'The ear pads on the headphones cannot be taken off, so cleaning them is difficult.', misconceptionCategory:'polarity_change' },
+    { text:'The headphones are easy to clean because they are waterproof.', misconceptionCategory:'cause_effect_change' },
+    { text:'The ear pads can be taken off, but they are hard to clean.', misconceptionCategory:'cause_effect_change' }
+  ], ['vocab_removable']),
+  idea('adjustable', 'The adjustable desk can be raised or lowered to suit students of any height.', ['The desk can be moved up or down to fit students of any height.', 'Students of any height can use the desk because its height can be changed.', 'The desk’s height can be changed so that every student can work comfortably.'], 'quantity', 'students of any height', [
+    { text:'The desk can be raised or lowered, but only for tall students.', misconceptionCategory:'quantity_change' },
+    { text:'The desk is fixed at one height that suits all students.', misconceptionCategory:'polarity_change' },
+    { text:'The desk can be folded away when students are not using it.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_adjustable']),
+  idea('affordable', 'The council wants more affordable homes for young families.', ['The council wants more homes that young families can pay for.', 'The council would like to provide more houses at prices young families can manage.', 'More homes at reasonable prices for young families are what the council wants.'], 'quantity', 'more homes', [
+    { text:'The council wants fewer homes for young families.', misconceptionCategory:'quantity_change' },
+    { text:'The council wants more luxury homes for young families.', misconceptionCategory:'meaning_confusion' },
+    { text:'The council wants more homes for older people to buy.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_affordable']),
+  idea('external', 'Marks for the project are checked by an external examiner.', ['A person from outside the school checks the marks for the project.', 'An examiner who does not work at the school checks the project marks.', 'The project marks are checked by someone from another organisation.'], 'cause_effect', 'checked by an outsider', [
+    { text:'Marks for the project are checked by the class teacher.', misconceptionCategory:'meaning_confusion' },
+    { text:'Marks for the project are changed by an external examiner.', misconceptionCategory:'cause_effect_change' },
+    { text:'Marks for the project are checked by a computer.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_external']),
+  idea('concentrate', 'Students often find it hard to concentrate when their phones are nearby.', ['Students often struggle to focus when their phones are close.', 'It is often difficult for students to give full attention to their work with a phone nearby.', 'Having a phone close makes it hard for students to pay attention.'], 'polarity', 'it is hard', [
+    { text:'Students often find it easy to concentrate when their phones are nearby.', misconceptionCategory:'polarity_change' },
+    { text:'Students rarely find it hard to concentrate when their phones are nearby.', misconceptionCategory:'quantity_change' },
+    { text:'Students often find it hard to concentrate when their phones are switched off.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_concentrate'])
 ];
 
 export default [...phraseSets, ...ideaSets];

@@ -40,5 +40,15 @@ export default Object.freeze({
   amusing: ['amusing story', 'mildly amusing', 'rather amusing'],
   competitive: ['competitive market', 'highly competitive', 'competitive sport'],
   critical: ['critical review', 'extremely critical', 'critical comment'],
-  impressive: ['impressive performance', 'truly impressive', 'impressive results']
+  impressive: ['impressive performance', 'truly impressive', 'impressive results'],
+  determination: ['sheer determination', 'great determination', 'show determination'],
+  overcome: ['overcome difficulties', 'overcome obstacles', 'overcome fear'],
+  accessory: ['phone accessory', 'fashion accessory', 'computer accessory'],
+  equipment: ['sports equipment', 'safety equipment', 'modern equipment'],
+  fixture: ['bathroom fixture', 'light fixture', 'permanent fixture'],
+  removable: ['removable cover', 'removable battery', 'removable lid'],
+  adjustable: ['adjustable seat', 'adjustable height', 'adjustable strap'],
+  affordable: ['affordable housing', 'affordable price', 'reasonably affordable'],
+  external: ['external drive', 'external examiner', 'external speakers'],
+  concentrate: ['concentrate hard', 'concentrate fully', 'cannot concentrate']
 });

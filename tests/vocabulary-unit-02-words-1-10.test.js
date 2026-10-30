@@ -1,5 +1,5 @@
 // Unit 2 (Digital Life) · words 1–10 authored. Guards the contract with the real readiness evaluator and builders, so a content change that
-// breaks a pathway for these ten words fails here. Words 11–40 have their own test files; words 41–50 are intentionally NOT authored and the unit stays a draft.
+// breaks a pathway for these ten words fails here. Words 11–50 have their own test files; all 50 are authored and the unit stays an unreleased draft.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -39,13 +39,13 @@ test('words 1–10 satisfy the strict (approved) content schema; only the unauth
   assert.deepEqual(errors.filter(error => named.has(error.split(' situationDistractors')[0]) || /vocab_(entertainment|access|device|digital|streaming|relevant|educator|afford_2|essential|current_affairs)\b/.test(error)), []);
 });
 
-test('words 41–50 are not authored yet; Unit 2 afford stays separate from Unit 1 afford', () => {
-  for (const item of unit2.items.slice(40)) {
+test('all 50 Unit 2 words are authored; Unit 2 afford stays separate from Unit 1 afford', () => {
+  for (const item of unit2.items) {
     const sense = item.senses[0];
-    assert.ok(!sense.masteryPassages?.length && !sense.wordFamilyForms?.length && !sense.wrongParaphrases?.length, `${item.term} must not be authored yet`);
+    assert.ok(sense.masteryPassages?.length && sense.wrongParaphrases?.length, `${item.term} must be authored`);
   }
-  const authoredIds = new Set(unit2.items.slice(0, 40).map(item => item.vocabularyId));
-  assert.ok(unit2.activities.every(activity => authoredIds.has(activity.activityData.linkedVocabularyIds[0])));
+  const ids = new Set(unit2.items.map(item => item.vocabularyId));
+  assert.ok(unit2.activities.every(activity => ids.has(activity.activityData.linkedVocabularyIds[0])));
   assert.equal(first[7].vocabularyId, 'vocab_afford_2');
 });
 
