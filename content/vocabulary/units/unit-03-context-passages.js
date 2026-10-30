@@ -43,5 +43,46 @@ export default Object.freeze({
   majority: [
     p('Thirty students voted on the new canteen menu. Twenty-two of them chose the vegetarian option, so the ____ got what they wanted.', 'majority', '22 of 30; "the ____ got what they wanted".'),
     p('A few customers complained about the price. However, the great ____ left the restaurant happy.', 'majority', 'Few complained; "the great ____".')
+  ],
+  inexpensive: [
+    p('Hana only had five pounds for lunch. Luckily, the market stall sold a hot, ____ meal of rice and vegetables.', 'inexpensive', 'Only five pounds; a meal she could afford.'),
+    p('Many students live far from home and have little spending money. They look for ____ restaurants where a full meal costs only a few pounds.', 'inexpensive', 'Little spending money; "full meal costs only a few pounds".')
+  ],
+  sodium: [
+    p('Table salt is made of two elements, chlorine and ____. Nutrition labels often show how much of it a food contains.', 'sodium', 'Salt = chlorine + ____; labels show amounts.'),
+    p('Pupils compared the labels on three kinds of soup. The tinned soup listed the highest amount of ____, so it tasted the saltiest.', 'sodium', 'Label amount linked to salty taste.')
+  ],
+  commercially: [
+    p('A small family bakery began by baking for neighbours. Now it produces bread ____ and delivers to shops in three cities.', 'commercially', 'Neighbours versus shops in three cities.'),
+    p('Some wild berries are tasty but difficult to harvest. They are rarely grown ____, because the cost is higher than the price shoppers will pay.', 'commercially', 'Cost versus price shoppers pay.')
+  ],
+  processed: [
+    p('Ali compared a fresh tomato with ketchup. He learned that ketchup is a ____ food, made by machines from tomatoes, sugar and vinegar.', 'processed', 'Fresh versus ketchup made by machines.'),
+    p('The supermarket has two sections. One has fresh fruit and vegetables, and the other has ____ products such as sausages, tinned beans and frozen pizza.', 'processed', 'Contrast with fresh; examples of tinned and frozen food.')
+  ],
+  depression: [
+    p('Months of bad news left Karim feeling empty and hopeless. His teacher noticed the signs of ____ and suggested a talk with the school counsellor.', 'depression', 'Empty and hopeless for months; counsellor.'),
+    p('Everyone feels sad sometimes, but ____ is different because the sadness and hopelessness last for weeks or months. Charities help by giving people a place to talk.', 'depression', 'Contrast with ordinary sadness; lasts for weeks.')
+  ],
+  overweight: [
+    p('The nurse weighed and measured every pupil in Year 9. She then compared the results with a chart to see who was ____ for their height.', 'overweight', 'Chart comparing weight and height.'),
+    p('The jockey is very small and light. If he were even a little ____, his horse would have to carry extra load and might lose the race.', 'overweight', 'Small and light versus extra load.')
+  ],
+  unwell: [
+    p('Sara looked pale and kept holding her stomach during class. The teacher asked if she was ____ and sent her to the nurse.', 'unwell', 'Pale; holding stomach; nurse.'),
+    p('The restaurant owner has a strict rule for the kitchen. If any member of staff feels ____, they must stay at home, which protects customers as well as workers.', 'unwell', 'Stay at home to protect customers.')
+  ],
+  ingredients: [
+    p('To make the sauce, you need tomatoes, garlic and olive oil. Write a list of all the ____ before you go shopping.', 'ingredients', 'List of foods before shopping.'),
+    p('The label on the biscuit packet was very long. It listed all the ____ in order, from the largest amount to the smallest.', 'ingredients', 'Label order of amounts.')
+  ],
+  nutritious: [
+    p('Sam usually ate chips and sweets for lunch. His mother wanted him to try something more ____, so she packed rice, eggs and fruit.', 'nutritious', 'Contrast with chips and sweets.'),
+    p('Spinach is not the tastiest vegetable, but it is full of vitamins and minerals. Dietitians call it a very ____ food.', 'nutritious', 'Vitamins and minerals; "very ____ food".')
+  ],
+  moderation: [
+    p('Mr Lee never gives up his favourite desserts. He simply eats them in ____, one small piece on Sundays.', 'moderation', '"in ____, one small piece on Sundays".'),
+    p('The old saying “too much of anything is bad” teaches the value of ____. Even good things can cause problems if you have huge amounts of them.', 'moderation', 'Saying about too much.')
   ]
+
 });

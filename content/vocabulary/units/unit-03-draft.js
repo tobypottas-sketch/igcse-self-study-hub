@@ -305,7 +305,288 @@ const entries = [
         { id:'2', answer:'majority', wrong:['minority', 'average', 'difference'] },
         { id:'3', answer:'majority', wrong:['minority', 'average', 'total'] }
       ]
+    }),
+  e('inexpensive', 'adjective',
+    'not costing a lot of money',
+    ['cheap', 'low in price'],
+    ['costing too much for most people', 'made from poor materials', 'sold only for a short time'],
+    'The cafe offers inexpensive meals for students.',
+    'cheap', 'The cafe offers cheap meals for students.',
+    'low in price', 'Street food in the city is low in price and very tasty.',
+    {
+      masteryContexts:[
+        { text:'The school canteen serves a healthy and inexpensive lunch every day.', meaning:'not costing much money' },
+        { text:'Rice and beans are an inexpensive way to feed a large family.', meaning:'low in cost' }
+      ],
+      situationDistractors:[
+        'The restaurant charges fifty pounds for a plain bowl of soup.',
+        'The shop sells only luxury chocolates imported from Switzerland.',
+        'The meal was free because the chef made a mistake with the order.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Students on a small budget often choose inexpensive snacks such as bread and fruit.', target:'inexpensive', grammarPattern:'' },
+        { id:'2', text:'The restaurant is popular with families because its menu is inexpensive and the portions are large.', target:'inexpensive', grammarPattern:'' },
+        { id:'3', text:'Rice is very inexpensive, so millions of people can afford it every day.', target:'inexpensive', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'inexpensive', wrong:['luxurious', 'expensive', 'extravagant'] },
+        { id:'2', answer:'inexpensive', wrong:['expensive', 'luxurious', 'exclusive'] },
+        { id:'3', answer:'inexpensive', wrong:['rare', 'luxurious', 'forbidden'] }
+      ]
+    }),
+  e('sodium', 'noun',
+    'a substance found in salt and in many foods',
+    ['a mineral in salt', 'the element in salt'],
+    ['a vitamin found in fruit and vegetables', 'a type of fat used for frying', 'a sweet substance added to drinks'],
+    'The label shows how much sodium is in one portion of the soup.',
+    'a mineral in salt', 'The label shows how much of a mineral in salt is in one portion of the soup.',
+    'the element in salt', 'Packaged snacks often contain a lot of the element in salt.',
+    {
+      masteryContexts:[
+        { text:'Crisps and instant noodles often contain a lot of sodium.', meaning:'a substance found in salt' },
+        { text:'The nutrition label lists sodium, sugar and fat for each portion.', meaning:'a substance listed on food labels' }
+      ],
+      situationDistractors:[
+        'The label listed the vitamins found in fresh oranges.',
+        'The chef fried the fish in a little sunflower oil.',
+        'A bag of sugar was poured into the cake mixture.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Table salt is made of chlorine and sodium.', target:'sodium', grammarPattern:'' },
+        { id:'2', text:'Instant noodles taste very salty because the seasoning packet is high in sodium.', target:'sodium', grammarPattern:'' },
+        { id:'3', text:'The label says that the soup has a low level of sodium, so it tastes less salty than the ordinary version.', target:'sodium', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'sodium', wrong:['carbon', 'sugar', 'oil'] },
+        { id:'2', answer:'sodium', wrong:['sugar', 'fibre', 'protein'] },
+        { id:'3', answer:'sodium', wrong:['sugar', 'fat', 'vinegar'] }
+      ]
+    }),
+  e('commercially', 'adverb',
+    'in order to sell something and make a profit',
+    ['as a business', 'for profit'],
+    ['in order to teach and inform people', 'in order to save and reuse materials', 'in order to test and improve ideas'],
+    'The farm now sells its cheese commercially instead of only to neighbours.',
+    'for profit', 'The farm now sells its cheese for profit instead of only to neighbours.',
+    'as a business', 'Many families now bake bread as a business and sell it in the market.',
+    {
+      masteryContexts:[
+        { text:'Bread has been made commercially in large factories for over a century.', meaning:'in order to sell it and make a profit' },
+        { text:'The mushrooms are grown commercially, so they appear in supermarkets all year.', meaning:'on a large scale to sell them' }
+      ],
+      situationDistractors:[
+        'She baked a cake for her grandmother’s birthday and gave it away.',
+        'The students grew tomatoes on the school roof just for fun.',
+        'He shared his recipe online without asking for any payment.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Salmon is farmed commercially in large sea cages, and the fish are sold to supermarkets all over the world.', target:'commercially', grammarPattern:'' },
+        { id:'2', text:'The recipe is for home cooks only, and it has never been produced commercially.', target:'commercially', grammarPattern:'' },
+        { id:'3', text:'Some old varieties of apple are no longer grown commercially, but a few gardeners still keep the trees.', target:'commercially', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'commercially', wrong:['politely', 'secretly', 'accidentally'] },
+        { id:'2', answer:'commercially', wrong:['quietly', 'politely', 'happily'] },
+        { id:'3', answer:'commercially', wrong:['politely', 'noisily', 'sadly'] }
+      ]
+    }),
+  e('processed', 'adjective',
+    'changed from its natural form by a factory process, often to make it last longer',
+    ['factory-made', 'prepared in a factory'],
+    ['grown without chemicals on a small farm', 'cooked fresh at home from raw ingredients', 'sold only in specialist shops'],
+    'Fresh fruit is healthier than processed snacks such as crisps.',
+    'factory-made', 'Fresh fruit is healthier than factory-made snacks such as crisps.',
+    'prepared in a factory', 'Many snacks that are prepared in a factory contain added salt and sugar.',
+    {
+      masteryContexts:[
+        { text:'Supermarkets sell fresh fruit as well as processed foods such as sausages and tinned soup.', meaning:'changed from the natural form in a factory' },
+        { text:'The shop sells only fresh vegetables, with no processed products such as tinned or frozen food.', meaning:'made or changed in a factory' }
+      ],
+      situationDistractors:[
+        'The farmer picked the apples by hand and sold them from a stall.',
+        'She bought fresh fish straight from the boat at the harbour.',
+        'The family grew their own tomatoes in the garden.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Tinned soup and sausages are processed foods that can be kept for months.', target:'processed', grammarPattern:'' },
+        { id:'2', text:'The factory makes processed cheese in thin, individually wrapped slices.', target:'processed', grammarPattern:'' },
+        { id:'3', text:'Instead of eating processed snacks every day, she brings an apple and some nuts to school.', target:'processed', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'processed', wrong:['fresh', 'raw', 'natural'] },
+        { id:'2', answer:'processed', wrong:['raw', 'organic', 'home-grown'] },
+        { id:'3', answer:'processed', wrong:['fresh', 'natural', 'raw'] }
+      ]
+    }),
+  e('depression', 'noun',
+    'a state of feeling very sad and without hope for a long time',
+    ['long-lasting sadness', 'low mood that lasts'],
+    ['a feeling of being very angry for a short time', 'a worry about speaking in front of others', 'a tiredness after a long walk'],
+    'Teachers should take depression seriously and encourage students to talk to someone.',
+    'long-lasting sadness', 'Teachers should take long-lasting sadness seriously and encourage students to talk to someone.',
+    'low mood that lasts', 'The school counsellor can give information about low mood that lasts.',
+    {
+      masteryContexts:[
+        { text:'Her depression made even simple daily tasks, such as cooking a meal, feel very hard.', meaning:'a long period of feeling very sad and hopeless' },
+        { text:'Many students find it helpful to talk to a counsellor about depression.', meaning:'a long period of feeling very sad' }
+      ],
+      situationDistractors:[
+        'He felt a little nervous before the cooking test but enjoyed it afterwards.',
+        'The students were excited about the school trip to the market.',
+        'She was tired after the long walk and went to bed early.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The school counsellor supports students who suffer from depression and offers a quiet place to talk.', target:'depression', grammarPattern:'' },
+        { id:'2', text:'After months of depression, he slowly began to enjoy cooking and seeing his friends again.', target:'depression', grammarPattern:'' },
+        { id:'3', text:'Many people describe depression as a heavy feeling of sadness that does not go away quickly.', target:'depression', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'depression', wrong:['pride', 'excitement', 'curiosity'] },
+        { id:'2', answer:'depression', wrong:['laughter', 'excitement', 'celebration'] },
+        { id:'3', answer:'depression', wrong:['happiness', 'excitement', 'curiosity'] }
+      ]
+    }),
+  e('overweight', 'adjective',
+    'heavier than is considered healthy for a person’s height',
+    ['above a healthy weight', 'carrying extra weight'],
+    ['carrying too much luggage on a journey', 'weighing less than most people of the same age', 'very strong and good at sport'],
+    'The report says that many children in the city are overweight.',
+    'above a healthy weight', 'The report says that many children in the city are above a healthy weight.',
+    'carrying extra weight', 'The nurse measured each child to see who was carrying extra weight.',
+    {
+      masteryContexts:[
+        { text:'The survey asked how many children in the region are overweight.', meaning:'heavier than is healthy for their height' },
+        { text:'Teachers do not comment on whether a student is overweight, because it can hurt their feelings.', meaning:'heavier than a person’s body needs' }
+      ],
+      situationDistractors:[
+        'The runner was thin and light and finished the race first.',
+        'The boy was shorter than his classmates but ate the same meals.',
+        'The nurse measured the height of each child.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The nurse measured each pupil’s height and weight to see whether any were overweight.', target:'overweight', grammarPattern:'' },
+        { id:'2', text:'A person is called overweight when they weigh more than is healthy for their height.', target:'overweight', grammarPattern:'' },
+        { id:'3', text:'The boxer had to lose a few kilos before the match because he was slightly overweight for his class.', target:'overweight', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'overweight', wrong:['late', 'absent', 'dishonest'] },
+        { id:'2', answer:'overweight', wrong:['dishonest', 'nervous', 'ambitious'] },
+        { id:'3', answer:'overweight', wrong:['tall', 'late', 'quiet'] }
+      ]
+    }),
+  e('unwell', 'adjective',
+    'feeling ill, or not in good health',
+    ['ill', 'not feeling well'],
+    ['feeling very hungry before a meal', 'feeling happy and full of energy', 'feeling nervous about an exam'],
+    'She stayed at home because she felt unwell.',
+    'ill', 'She stayed at home because she felt ill.',
+    'not feeling well', 'He did not eat lunch because he was not feeling well.',
+    {
+      masteryContexts:[
+        { text:'Several guests felt unwell after eating at the street stall, so the owner closed it for the day.', meaning:'ill or not in good health' },
+        { text:'If you are unwell, please stay at home so that you do not pass the illness to others.', meaning:'not healthy' }
+      ],
+      situationDistractors:[
+        'He felt full of energy and ran all the way to school.',
+        'The students were hungry and queued early for lunch.',
+        'She was nervous about the speaking exam.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Mia did not come to school because she felt unwell and had a high temperature.', target:'unwell', grammarPattern:'' },
+        { id:'2', text:'If you feel unwell during the exam, tell the teacher so that someone can help you.', target:'unwell', grammarPattern:'' },
+        { id:'3', text:'The visitor looked pale and unwell, so we offered him a chair and a glass of water.', target:'unwell', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'unwell', wrong:['proud', 'generous', 'curious'] },
+        { id:'2', answer:'unwell', wrong:['proud', 'generous', 'curious'] },
+        { id:'3', answer:'unwell', wrong:['cheerful', 'wealthy', 'famous'] }
+      ]
+    }),
+  e('ingredients', 'noun',
+    'the different foods that are mixed together to make a dish',
+    ['food items', 'things in a recipe'],
+    ['the tools that are used to cook a dish', 'the steps that are followed to cook a dish', 'the people who help to cook a dish'],
+    'Always read the list of ingredients on the packet before you buy it.',
+    'food items', 'Always read the list of food items on the packet before you buy it.',
+    'things in a recipe', 'The chef carefully chose the things in a recipe for the new pizza.',
+    {
+      masteryContexts:[
+        { text:'The chef bought all the ingredients for the soup at the local market.', meaning:'the foods used to make a dish' },
+        { text:'The label lists the ingredients in order, from the largest amount to the smallest.', meaning:'the foods that a product is made from' }
+      ],
+      situationDistractors:[
+        'The cook washed the pans and put the knives in the drawer.',
+        'The waiter wrote the order on a small notepad.',
+        'The customers waited outside until the cafe opened.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'To make a simple pancake, you need only three ingredients: flour, eggs and milk.', target:'ingredients', grammarPattern:'' },
+        { id:'2', text:'The soup contained only natural ingredients, such as carrots, onions and herbs.', target:'ingredients', grammarPattern:'' },
+        { id:'3', text:'The cake was delicious because the baker used high-quality ingredients such as real butter and fresh eggs.', target:'ingredients', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'ingredients', wrong:['plates', 'tools', 'guests'] },
+        { id:'2', answer:'ingredients', wrong:['plates', 'tools', 'guests'] },
+        { id:'3', answer:'ingredients', wrong:['tools', 'pans', 'plates'] }
+      ]
+    }),
+  e('nutritious', 'adjective',
+    'containing the substances that the body needs to stay healthy and grow',
+    ['healthy', 'good for the body'],
+    ['containing a lot of sugar and fat', 'tasting sweet and rich', 'cooked very quickly in hot oil'],
+    'The school provides a nutritious lunch for every student.',
+    'healthy', 'The school provides a healthy lunch for every student.',
+    'good for the body', 'Fruit and vegetables are good for the body, so the canteen offers them every day.',
+    {
+      masteryContexts:[
+        { text:'The canteen offers a nutritious meal that includes vegetables, rice and fish.', meaning:'containing what the body needs to stay healthy' },
+        { text:'Beans are cheap, filling and nutritious, which is why they are eaten all over the world.', meaning:'good for the body because of what they contain' }
+      ],
+      situationDistractors:[
+        'The cake was covered in thick cream and sweet icing.',
+        'The vending machine sold only fizzy drinks and sweets.',
+        'He ate a burger and chips every evening at a fast-food stall.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Fruit, vegetables and beans are nutritious foods that give the body what it needs to grow.', target:'nutritious', grammarPattern:'' },
+        { id:'2', text:'The cook chose a nutritious recipe with vegetables and lentils rather than one with cream and sugar.', target:'nutritious', grammarPattern:'' },
+        { id:'3', text:'Parents want school canteens to serve nutritious meals so that pupils can concentrate in the afternoon.', target:'nutritious', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'nutritious', wrong:['greasy', 'sugary', 'salty'] },
+        { id:'2', answer:'nutritious', wrong:['greasy', 'sugary', 'fried'] },
+        { id:'3', answer:'nutritious', wrong:['greasy', 'sugary', 'salty'] }
+      ]
+    }),
+  e('moderation', 'noun',
+    'the act of not doing or having too much of something',
+    ['small amounts', 'sensible amounts'],
+    ['the act of leading a discussion fairly', 'a strong wish for as much as possible', 'the habit of refusing something completely'],
+    'Sweets are fine in moderation, but not every day.',
+    'small amounts', 'Sweets are fine in small amounts, but not every day.',
+    'sensible amounts', 'Our teacher says we can enjoy chocolate in sensible amounts.',
+    {
+      masteryContexts:[
+        { text:'Our teacher says that fast food is fine in moderation, but not as a daily meal.', meaning:'limited, sensible amounts' },
+        { text:'He believes in moderation, so he never eats too much or goes without his favourite food entirely.', meaning:'the habit of not going to extremes' }
+      ],
+      situationDistractors:[
+        'She ate five slices of cake and then asked for more.',
+        'He refused to taste any dessert at the party.',
+        'They drank fizzy drinks all day during the holiday.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Cake and biscuits can be part of a balanced diet if they are eaten in moderation.', target:'moderation', grammarPattern:'' },
+        { id:'2', text:'The teacher told the class that everything is fine in moderation, even chocolate.', target:'moderation', grammarPattern:'' },
+        { id:'3', text:'The key to enjoying favourite foods without eating too much is moderation.', target:'moderation', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'moderation', wrong:['advance', 'public', 'silence'] },
+        { id:'2', answer:'moderation', wrong:['silence', 'advance', 'public'] },
+        { id:'3', answer:'moderation', wrong:['silence', 'speed', 'luck'] }
+      ]
     })
+
 ];
 
 // Authored Word Families (unit-03-word-families.js): per-form facts feed Mastery; the plain family list is the non-headword forms of the SAME

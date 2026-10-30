@@ -42,7 +42,18 @@ const phraseSets = [
   phrase('harmless_children', 'not able to hurt children', 'harmless to children', ['vocab_harmless'], { acceptedVariants:['safe for children'], chunks:['harmless', 'to children'], distortions:['dangerous to children', 'popular with children', 'unknown to children'] }),
   phrase('peer_pressure', 'strong influence from friends of the same age', 'peer pressure', ['vocab_pressure'], { chunks:['peer', 'pressure'], distortions:['pride in your friends', 'advice from your parents', 'competition between friends'] }),
   phrase('fooled_advert', 'tricked by the advert', 'fooled by the advert', ['vocab_fooled'], { acceptedVariants:['deceived by the advert'], chunks:['fooled', 'by the advert'], distortions:['warned by the advert', 'amused by the advert', 'interested in the advert'] }),
-  phrase('majority_customers', 'most of the customers', 'the majority of the customers', ['vocab_majority'], { acceptedVariants:['a majority of the customers'], chunks:['the majority', 'of the customers'], distortions:['a few of the customers', 'all of the customers', 'none of the customers'] })
+  phrase('majority_customers', 'most of the customers', 'the majority of the customers', ['vocab_majority'], { acceptedVariants:['a majority of the customers'], chunks:['the majority', 'of the customers'], distortions:['a few of the customers', 'all of the customers', 'none of the customers'] }),
+  phrase('inexpensive_meals', 'meals that do not cost much', 'inexpensive meals', ['vocab_inexpensive'], { acceptedVariants:['cheap meals'], chunks:['inexpensive', 'meals'], distortions:['expensive meals', 'free meals', 'tasteless meals'] }),
+  phrase('sodium_salt', 'the mineral in table salt', 'the sodium in table salt', ['vocab_sodium'], { chunks:['the sodium', 'in table salt'], distortions:['the sugar in table salt', 'the water in table salt', 'the colour of table salt'] }),
+  phrase('grown_commercially', 'grown in order to sell for profit', 'grown commercially', ['vocab_commercially'], { chunks:['grown', 'commercially'], distortions:['grown for fun', 'grown in secret', 'grown by accident'] }),
+  phrase('processed_foods', 'foods made in a factory', 'processed foods', ['vocab_processed'], { acceptedVariants:['factory-made foods'], chunks:['processed', 'foods'], distortions:['fresh foods', 'home-grown foods', 'foods that are free'] }),
+  phrase('suffer_depression', 'feel deep sadness for a long time', 'suffer from depression', ['vocab_depression'], { chunks:['suffer from', 'depression'], distortions:['feel angry for a short time', 'feel tired after exercise', 'feel nervous before a test'] }),
+  phrase('overweight_children', 'children who weigh more than is healthy', 'overweight children', ['vocab_overweight'], { acceptedVariants:['children who are overweight'], chunks:['overweight', 'children'], distortions:['underweight children', 'very tall children', 'hungry children'] }),
+  phrase('feel_unwell', 'feel ill', 'feel unwell', ['vocab_unwell'], { chunks:['feel', 'unwell'], distortions:['feel hungry', 'feel angry', 'feel excited'] }),
+  phrase('ingredients_recipe', 'the foods that go into a recipe', 'the ingredients in a recipe', ['vocab_ingredients'], { chunks:['the ingredients', 'in a recipe'], distortions:['the tools used for a recipe', 'the steps of a recipe', 'the cooks who write a recipe'] }),
+  phrase('nutritious_food', 'food that is good for the body', 'nutritious food', ['vocab_nutritious'], { acceptedVariants:['healthy food'], chunks:['nutritious', 'food'], distortions:['food that is expensive', 'food that is sweet', 'food that is fried'] }),
+  phrase('in_moderation', 'in sensible amounts, not too much', 'in moderation', ['vocab_moderation'], { chunks:['in', 'moderation'], distortions:['in secret', 'in large amounts', 'in a hurry'] })
+
 ];
 
 const ideaSets = [
@@ -95,7 +106,58 @@ const ideaSets = [
     { text:'A few pupils chose pasta for the school party.', misconceptionCategory:'quantity_change' },
     { text:'Every pupil chose pasta for the school party.', misconceptionCategory:'quantity_change' },
     { text:'Only the teachers chose pasta for the school party.', misconceptionCategory:'added_information' }
-  ], ['vocab_majority'])
+  ], ['vocab_majority']),
+  idea('inexpensive', 'The cafe near school offers an inexpensive lunch for students.', ['The cafe near school sells a cheap lunch to students.', 'Students can buy lunch at the nearby cafe without spending much.', 'Lunch for students at the cafe near school does not cost much.'], 'degree', 'a low price', [
+    { text:'The cafe near school offers a free lunch for students.', misconceptionCategory:'degree_change' },
+    { text:'The cafe near school offers an expensive lunch for students.', misconceptionCategory:'polarity_change' },
+    { text:'The cafe near school offers lunch only to teachers.', misconceptionCategory:'added_information' }
+  ], ['vocab_inexpensive']),
+  idea('sodium', 'Food labels show how much sodium a portion contains.', ['Food labels state the quantity of the mineral found in salt in each portion.', 'Packaging tells you how much of the mineral in salt is in a single serving.', 'Each label gives the amount of the mineral that salt contains for one portion.'], 'quantity', 'amount per portion', [
+    { text:'Food labels state the amount of vitamins in each portion.', misconceptionCategory:'meaning_confusion' },
+    { text:'Food labels state only the total weight of each portion.', misconceptionCategory:'omitted_information' },
+    { text:'Food labels state the amount of the mineral found in salt in the whole box.', misconceptionCategory:'quantity_change' }
+  ], ['vocab_sodium']),
+  idea('commercially', 'The farm grows strawberries commercially and sells them to supermarkets.', ['The farm grows strawberries as a business and sells them to supermarkets.', 'The farm grows strawberries in order to sell them to supermarkets for profit.', 'Supermarkets buy the strawberries that the farm grows to sell.'], 'cause_effect', 'grown in order to sell', [
+    { text:'The farm grows strawberries only for the family and never sells them.', misconceptionCategory:'polarity_change' },
+    { text:'The farm grows strawberries and sells them only at the farm gate.', misconceptionCategory:'meaning_confusion' },
+    { text:'The farm buys strawberries from supermarkets.', misconceptionCategory:'cause_effect_change' }
+  ], ['vocab_commercially']),
+  idea('processed', 'Many ready meals are made with processed meat, such as ham and sausages.', ['Many ready meals are made with meat prepared in factories, such as ham and sausages.', 'Ham and sausages, which are made in factories, are found in many ready meals.', 'Ready meals often contain factory-made meat such as ham and sausages.'], 'quantity', 'many ready meals', [
+    { text:'Few ready meals are made with meat prepared in factories.', misconceptionCategory:'quantity_change' },
+    { text:'Many ready meals are made with fresh meat from local farms.', misconceptionCategory:'meaning_confusion' },
+    { text:'Many ready meals are made without any meat.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_processed']),
+  idea('depression', 'Students who suffer from depression may find it hard to concentrate in lessons.', ['Students who feel deep, long-lasting sadness may find it hard to concentrate in lessons.', 'Concentrating in lessons can be hard for students who have felt deeply sad for a long time.', 'It may be difficult for students with long-lasting sadness to focus in lessons.'], 'degree', 'long-lasting deep sadness', [
+    { text:'Students who feel nervous before a test may find it hard to concentrate in lessons.', misconceptionCategory:'meaning_confusion' },
+    { text:'Students who feel deeply sad for a long time find it easy to concentrate in lessons.', misconceptionCategory:'polarity_change' },
+    { text:'Students who feel long-lasting sadness always fail their lessons.', misconceptionCategory:'degree_change' }
+  ], ['vocab_depression']),
+  idea('overweight', 'About a third of the pupils in the survey were overweight.', ['About a third of the pupils in the survey weighed more than is healthy for their height.', 'Roughly a third of the pupils in the survey were heavier than is healthy for their height.', 'One in three pupils in the survey was above a healthy weight.'], 'quantity', 'about a third', [
+    { text:'About two thirds of the pupils in the survey weighed more than is healthy for their height.', misconceptionCategory:'quantity_change' },
+    { text:'About a third of the pupils in the survey weighed less than is healthy for their height.', misconceptionCategory:'comparison_change' },
+    { text:'About a third of the pupils in the survey were taller than the others.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_overweight']),
+  idea('unwell', 'The chef went home early because he felt unwell.', ['The chef left early because he was ill.', 'Feeling ill, the chef went home early.', 'The chef went home before the end of the day as he was not feeling well.'], 'cause_effect', 'left because ill', [
+    { text:'The chef went home early because he was angry with the manager.', misconceptionCategory:'cause_effect_change' },
+    { text:'The chef stayed late even though he felt ill.', misconceptionCategory:'time_change' },
+    { text:'The chef felt ill because he went home early.', misconceptionCategory:'cause_effect_change' }
+  ], ['vocab_unwell']),
+  idea('ingredients', 'The cook checked the ingredients before starting the recipe.', ['The cook looked at the foods needed for the recipe before beginning it.', 'Before beginning the recipe, the cook made sure of the foods that go into it.', 'The cook examined what the recipe needed before starting to cook.'], 'time', 'before starting', [
+    { text:'The cook checked the foods needed for the recipe after finishing it.', misconceptionCategory:'time_change' },
+    { text:'The cook bought new pans before starting the recipe.', misconceptionCategory:'meaning_confusion' },
+    { text:'The cook skipped checking and started the recipe at once.', misconceptionCategory:'polarity_change' }
+  ], ['vocab_ingredients']),
+  idea('nutritious', 'The canteen serves a nutritious meal every day.', ['The canteen serves a healthy meal every day.', 'Every day the canteen provides a meal that is good for the body.', 'Each day the canteen offers food that gives the body what it needs.'], 'time', 'every day', [
+    { text:'The canteen serves a healthy meal only on Fridays.', misconceptionCategory:'time_change' },
+    { text:'The canteen serves a sugary meal every day.', misconceptionCategory:'meaning_confusion' },
+    { text:'The canteen sells a healthy meal every day at a high price.', misconceptionCategory:'added_information' }
+  ], ['vocab_nutritious']),
+  idea('moderation', 'The teacher suggested eating sweets in moderation.', ['The teacher suggested eating sweets in sensible amounts, not too much.', 'The teacher advised having only a reasonable amount of sweets.', 'Sweets, said the teacher, should be eaten but not in large quantities.'], 'degree', 'a limited amount', [
+    { text:'The teacher suggested never eating sweets at all.', misconceptionCategory:'degree_change' },
+    { text:'The teacher suggested eating as many sweets as possible.', misconceptionCategory:'degree_change' },
+    { text:'The teacher suggested giving sweets to friends.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_moderation'])
+
 ];
 
 export default [...phraseSets, ...ideaSets];

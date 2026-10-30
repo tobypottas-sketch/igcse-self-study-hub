@@ -31,5 +31,26 @@ export default [
   precision('u3_writing_precision_fooled_a', 'vocab_fooled', P('tricked'), 'Some shoppers are tricked by labels that say “natural” or “fresh”.', ['fooled'], ['paid', 'taught', 'praised']),
   precision('u3_writing_precision_fooled_b', 'vocab_fooled', P('deceived'), 'Customers were deceived by the advert showing a burger twice the real size.', ['fooled'], ['bored', 'invited', 'thanked']),
   precision('u3_writing_precision_majority_a', 'vocab_majority', P('most'), 'In our school, most of the pupils have lunch in the canteen.', ['the majority', 'a majority'], ['the minority', 'the average', 'the total']),
-  precision('u3_writing_precision_majority_b', 'vocab_majority', P('more than half'), 'The survey showed that more than half the customers prefer takeaway pizza.', ['a majority of', 'the majority of'], ['a minority of', 'an average of', 'a total of'])
+  precision('u3_writing_precision_majority_b', 'vocab_majority', P('more than half'), 'The survey showed that more than half the customers prefer takeaway pizza.', ['a majority of', 'the majority of'], ['a minority of', 'an average of', 'a total of']),
+  precision('u3_writing_precision_inexpensive_a', 'vocab_inexpensive', P('cheap'), 'Street food in this city is cheap and delicious.', ['inexpensive'], ['luxurious', 'rare', 'seasonal']),
+  precision('u3_writing_precision_inexpensive_b', 'vocab_inexpensive', P('low-priced'), 'The shop sells low-priced snacks near the school gate.', ['inexpensive'], ['seasonal', 'imported', 'organic']),
+  precision('u3_writing_precision_sodium_a', 'vocab_sodium', P('the mineral in salt'), 'Check the label for the mineral in salt before you buy the soup.', ['sodium'], ['sugar', 'protein', 'vitamins']),
+  precision('u3_writing_precision_sodium_b', 'vocab_sodium', P('the mineral found in table salt'), 'Crisps and instant noodles usually contain a lot of the mineral found in table salt.', ['sodium'], ['sugar', 'fibre', 'protein']),
+  precision('u3_writing_precision_commercially_a', 'vocab_commercially', P('as a business'), 'Some families grow vegetables as a business rather than just for themselves.', ['commercially'], ['carefully', 'secretly', 'slowly']),
+  precision('u3_writing_precision_commercially_b', 'vocab_commercially', P('in order to sell them'), 'The mushrooms are grown in order to sell them and are available all year.', ['commercially'], ['quietly', 'politely', 'slowly']),
+  precision('u3_writing_precision_processed_a', 'vocab_processed', P('factory-made'), 'Tinned beans and frozen pizza are factory-made foods that last a long time.', ['processed'], ['fresh', 'raw', 'organic']),
+  precision('u3_writing_precision_processed_b', 'vocab_processed', P('ready-made'), 'The shop sells ready-made food such as sausages and tinned soup.', ['processed'], ['seasonal', 'home-grown', 'organic']),
+  precision('u3_writing_precision_depression_a', 'vocab_depression', P('long-lasting sadness'), 'The charity offers advice to people who live with long-lasting sadness.', ['depression'], ['hunger', 'poverty', 'danger']),
+  precision('u3_writing_precision_depression_b', 'vocab_depression', P('deep sadness'), 'Several students talked to the counsellor about deep sadness they had felt for months.', ['depression'], ['excitement', 'nervousness', 'boredom']),
+  precision('u3_writing_precision_overweight_a', 'vocab_overweight', P('too heavy'), 'The chart shows which pupils are too heavy for their height.', ['overweight'], ['underweight', 'stronger', 'faster']),
+  precision('u3_writing_precision_overweight_b', 'vocab_overweight', P('carrying extra weight'), 'The nurse recorded which children were carrying extra weight at the start of the year.', ['overweight'], ['underweight', 'absent', 'tired']),
+  precision('u3_writing_precision_unwell_a', 'vocab_unwell', P('ill'), 'Pupils who feel ill should tell a teacher straight away.', ['unwell'], ['hungry', 'bored', 'nervous']),
+  precision('u3_writing_precision_unwell_b', 'vocab_unwell', P('not feeling well'), 'The manager sent the cook home because he was not feeling well.', ['unwell'], ['unhappy', 'impatient', 'dishonest']),
+  precision('u3_writing_precision_ingredients_a', 'vocab_ingredients', P('foods in the recipe'), 'The cook bought all the foods in the recipe at the market.', ['ingredients'], ['tools', 'dishes', 'plates']),
+  precision('u3_writing_precision_ingredients_b', 'vocab_ingredients', P('food items'), 'The label on the packet lists all the food items in order of quantity.', ['ingredients'], ['prices', 'colours', 'shops']),
+  precision('u3_writing_precision_nutritious_a', 'vocab_nutritious', P('good for the body'), 'Beans and rice are cheap and good for the body.', ['nutritious'], ['tasteless', 'greasy', 'sugary']),
+  precision('u3_writing_precision_nutritious_b', 'vocab_nutritious', P('healthy'), 'The canteen now serves a healthy breakfast of fruit, eggs and porridge.', ['nutritious'], ['sugary', 'greasy', 'spicy']),
+  precision('u3_writing_precision_moderation_a', 'vocab_moderation', P('sensible amounts'), 'Chocolate is fine in sensible amounts, but it should not be eaten all day.', ['moderation'], ['secret', 'advance', 'public']),
+  precision('u3_writing_precision_moderation_b', 'vocab_moderation', P('small, sensible amounts'), 'Dessert is acceptable at weekends, in small, sensible amounts.', ['moderation'], ['secret', 'advance', 'silence'])
+
 ];

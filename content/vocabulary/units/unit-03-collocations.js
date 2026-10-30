@@ -9,5 +9,16 @@ export default Object.freeze({
   harmless: ['completely harmless', 'perfectly harmless', 'relatively harmless'],
   pressure: ['peer pressure', 'under pressure', 'great pressure'],
   fooled: ['easily fooled', 'completely fooled', 'be fooled'],
-  majority: ['vast majority', 'great majority', 'large majority']
+  majority: ['vast majority', 'great majority', 'large majority'],
+  inexpensive: ['relatively inexpensive', 'fairly inexpensive', 'inexpensive meal'],
+  sodium: ['low sodium', 'high sodium', 'sodium content'],
+  commercially: ['commercially available', 'commercially produced', 'commercially grown'],
+  processed: ['processed food', 'processed meat', 'highly processed'],
+  depression: ['mild depression', 'severe depression', 'teenage depression'],
+  overweight: ['slightly overweight', 'overweight children', 'become overweight'],
+  unwell: ['feel unwell', 'look unwell', 'seem unwell'],
+  ingredients: ['fresh ingredients', 'key ingredients', 'natural ingredients'],
+  nutritious: ['nutritious food', 'nutritious meal', 'nutritious diet'],
+  moderation: ['in moderation', 'with moderation', 'practise moderation']
+
 });
