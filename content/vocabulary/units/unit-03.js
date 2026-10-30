@@ -1,6 +1,6 @@
-// UNIT 3 – FOOD: authoring draft (all 50 words authored, batches 1–5). Source: 0511 key words UNIT 3 – FOOD (coursebook order). Still a draft until the release audit.
-// Same architecture as unit-02.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-03-draft.js
-// A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-03.js only when all 50 words are final.
+// UNIT 3 – FOOD: approved source for the Unit 3 release (releases/unit-03.js promotes it to live). Source: 0511 key words UNIT 3 – FOOD
+// (coursebook order), all 50 authored and audited. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-03.js
+// "reasonable" is also a Unit 1 target; it has its own id here (idKey 'reasonable_3' -> vocab_reasonable_3) and aliases Unit 1's spelling list.
 import { buildCuratedUnit } from '../build-unit.js';
 import { LEXICAL_SPELLING_ERRORS } from '../lexical-spelling-errors.js';
 import unit3Activities from './unit-03-activities.js';
@@ -15,7 +15,7 @@ import { unit3WordFamilies, unit3WordFamilyRejected } from './unit-03-word-famil
 import { unit3WordFamilyAlternates } from './unit-03-word-family-alternates.js';
 
 const UNIT_NUMBER = 3;
-const status = 'draft';
+const status = 'approved';
 
 const e = (term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence, paraphraseSource, paraphraseSentence, productionSource, productionSentence, extras = {}) => ({
   term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence,
