@@ -53,4 +53,13 @@ export const LEXICAL_SPELLING_ERRORS = Object.freeze({
   "vocab_reasonable":["reasonible","resonable","reasonnable","reasonabal","reasenable","reasonble"], // reasonable
   "vocab_antiques":["antikes","antiqes","antiqus","anteques","antiquies","antikeys"], // antiques
   "vocab_admit":["admitt","admet","ammit","admmit","adimit","admite"], // admit (Unit 2)
+  "vocab_entertainment":["entertainmant","entertaiment","enterteinment","entertianment","entertainement","entertainmeant"], // entertainment (Unit 2)
+  "vocab_access":["acess","acces","axcess","accses","acsess","accesss"], // access (Unit 2)
+  "vocab_device":["divice","devic","deveice","devvice","deviec"], // device (Unit 2)
+  "vocab_digital":["digitel","digitall","digtal","dijital","digitale","degital"], // digital (Unit 2)
+  "vocab_streaming":["streeming","streming","streamimg","streammng","streamin","streeaming"], // streaming (Unit 2)
+  "vocab_relevant":["relevent","relavant","revelant","relevat","relivant","relevaant"], // relevant (Unit 2)
+  "vocab_educator":["educater","edukator","educatar","eductor","educaitor","edducator"], // educator (Unit 2)
+  "vocab_essential":["essencial","esential","essentail","essensial","essentual","esssential"], // essential (Unit 2)
+  "vocab_current_affairs":["curent affairs","current affaires","current afairs","current affares","currant affairs","current affiars"], // current affairs (Unit 2)
 });

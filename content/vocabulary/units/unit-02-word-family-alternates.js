@@ -1,0 +1,33 @@
+// Unit 2 · Word Families — a SECOND authored example sentence for the two non-headword forms of each minimal (three-form) family, WORDS 1–10.
+// Same reason and contract as unit-01-word-family-alternates.js: Word Families Mastery needs two DIFFERENT prompts per word; every sentence is
+// written by hand, contains its form exactly once, and never starts with it.
+export const unit2WordFamilyAlternates = Object.freeze({
+  access: {
+    accessible: 'Public libraries should be accessible to everyone in the community.',
+    inaccessible: 'Heavy snow left the remote cabin inaccessible for a week.'
+  },
+  digital: {
+    digitally: 'Tickets are now delivered digitally, so nobody needs to print them.',
+    digitise: 'It takes weeks to digitise a large archive of photographs.'
+  },
+  streaming: {
+    stream: 'Many families stream a film together on Friday evenings.',
+    streamer: 'A popular streamer can earn money from advertisements and gifts from viewers.'
+  },
+  relevant: {
+    relevance: 'The relevance of the statistics to the argument was unclear.',
+    irrelevant: 'Spelling mistakes were irrelevant to the marking of the speaking test.'
+  },
+  educator: {
+    educate: 'Parents and teachers must work together to educate young people.',
+    education: 'Access to good education should not depend on where you live.'
+  },
+  afford: {
+    affordable: 'Healthy food should be affordable for every family.',
+    unaffordable: 'Tickets for the concert were unaffordable for most students.'
+  },
+  essential: {
+    essentially: 'The film is essentially a love story set in a futuristic city.',
+    essentials: 'The shop sells all the essentials, such as bread, milk and batteries.'
+  }
+});

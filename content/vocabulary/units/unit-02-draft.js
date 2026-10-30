@@ -7,6 +7,17 @@
 // Unit 1's vocab_afford row. Its spelling list is the shared lexical one for "afford", aliased below.
 import { buildCuratedUnit } from '../build-unit.js';
 import { LEXICAL_SPELLING_ERRORS } from '../lexical-spelling-errors.js';
+// Words 1–10 are authored with the same supplements Unit 1 uses (each keyed by term, so words 11–50 are untouched until they are authored).
+import unit2Activities from './unit-02-activities.js';
+import unit2PrecisionUse from './unit-02-precision-use.js';
+import unit2WordFamilyItems from './unit-02-word-family-items.js';
+import unit2Collocations from './unit-02-collocations.js';
+import unit2SituationExtras from './unit-02-situation-extras.js';
+import unit2MeaningMatch from './unit-02-meaning-match.js';
+import unit2MeaningMastery from './unit-02-meaning-mastery.js';
+import unit2ContextPassages from './unit-02-context-passages.js';
+import { unit2WordFamilies, unit2WordFamilyRejected } from './unit-02-word-families.js';
+import { unit2WordFamilyAlternates } from './unit-02-word-family-alternates.js';
 
 const UNIT_NUMBER = 2;
 const status = 'draft';
@@ -1425,13 +1436,45 @@ const entries = [
     }),
 ];
 
+// Authored Word Families (unit-02-word-families.js): per-form facts feed Mastery; the plain family list is the non-headword forms of the SAME
+// family. A rejected headword keeps NO family list, so Recognise/Match never offer unauthorised members.
+function familyFields(entry) {
+  const family = unit2WordFamilies[entry.term];
+  if (!family) return unit2WordFamilyRejected[entry.term] ? { wordFamily:[] } : {};
+  const lower = value => String(value).toLocaleLowerCase('en');
+  return {
+    wordFamilyForms:family.forms.map(row => ({ form:row.form, partOfSpeech:row.partOfSpeech, example:row.example, pedagogicallyUseful:true, ...(unit2WordFamilyAlternates[entry.term]?.[row.form] ? { altExample:unit2WordFamilyAlternates[entry.term][row.form] } : {}), ...(row.note ? { note:row.note } : {}) })),
+    wordFamily:family.forms.map(row => row.form).filter(form => lower(form) !== lower(entry.term))
+  };
+}
+
+// Authored Meaning Mastery repairs/wrong meanings are applied by position to the word's two mastery contexts, as in Unit 1.
+const enrichedEntries = entries.map(entry => {
+  const authoredMastery = unit2MeaningMastery[entry.term];
+  const masteryContexts = authoredMastery
+    ? (entry.masteryContexts ?? []).map((record, index) => {
+        const authored = authoredMastery[index] ?? {};
+        return { text:authored.text ?? record.text, meaning:authored.meaning ?? record.meaning, ...(Array.isArray(authored.wrongMeanings) ? { wrongMeanings:authored.wrongMeanings } : {}) };
+      })
+    : entry.masteryContexts;
+  return {
+    ...entry,
+    ...(masteryContexts ? { masteryContexts } : {}),
+    ...(unit2SituationExtras[entry.term] ? { situationDistractors:[...(entry.situationDistractors ?? []), ...unit2SituationExtras[entry.term]] } : {}),
+    ...(unit2Collocations[entry.term] ? { collocations:unit2Collocations[entry.term] } : {}),
+    ...(unit2MeaningMatch[entry.term] ? { wrongParaphrases:unit2MeaningMatch[entry.term] } : {}),
+    ...(unit2ContextPassages[entry.term] ? { masteryPassages:unit2ContextPassages[entry.term] } : {}),
+    ...familyFields(entry)
+  };
+});
+
 export default buildCuratedUnit({
   unitNumber:UNIT_NUMBER,
   unitTitle:'Digital Life',
   status,
   source:'0511 key words UNIT 2 – DIGITAL LIFE',
-  entries,
-  activities:[],
+  entries:enrichedEntries,
+  activities:[...unit2Activities, ...unit2PrecisionUse, ...unit2WordFamilyItems],
   // One shared list per word: Unit 2's "afford" reuses Unit 1's reviewed misspellings.
   lexicalSpelling:{ ...LEXICAL_SPELLING_ERRORS, vocab_afford_2:LEXICAL_SPELLING_ERRORS.vocab_afford }
 });
