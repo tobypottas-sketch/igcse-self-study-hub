@@ -1,4 +1,4 @@
-// Unit 4 collocations, WORDS 1–20 ONLY: natural, frequent two-word combinations for each target (authored; same shape as unit-03-collocations.js).
+// Unit 4 collocations, WORDS 1–30 ONLY: natural, frequent two-word combinations for each target (authored; same shape as unit-03-collocations.js).
 export default Object.freeze({
   breathtaking: ['breathtaking view', 'breathtaking scenery', 'absolutely breathtaking'],
   comfort: ['travel in comfort', 'passenger comfort', 'comfort and safety'],
@@ -19,6 +19,15 @@ export default Object.freeze({
   vehicle: ['electric vehicle', 'motor vehicle', 'commercial vehicle'],
   pollution: ['air pollution', 'traffic pollution', 'reduce pollution'],
   destination: ['final destination', 'holiday destination', 'tourist destination'],
-  spacious: ['spacious interior', 'spacious cabin', 'spacious room']
-
+  spacious: ['spacious interior', 'spacious cabin', 'spacious room'],
+  efficiently: ['work efficiently', 'run efficiently', 'use fuel efficiently'],
+  demand: ['high demand', 'growing demand', 'meet demand'],
+  invention: ['great invention', 'useful invention', 'the invention of'],
+  machinery: ['heavy machinery', 'farm machinery', 'operate machinery'],
+  advertisement: ['television advertisement', 'online advertisement', 'place an advertisement'],
+  enormous: ['enormous size', 'enormous amount', 'absolutely enormous'],
+  equipment: ['safety equipment', 'emergency equipment', 'rescue equipment'],
+  collision: ['head-on collision', 'mid-air collision', 'avoid a collision'],
+  organisation: ['international organisation', 'charity organisation', 'public organisation'],
+  participant: ['trial participant', 'active participant', 'every participant']
 });

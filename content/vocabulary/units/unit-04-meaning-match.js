@@ -1,4 +1,4 @@
-// Unit 4 · Meaning · Match (Recognise) — authored WRONG meanings, words 1–20. Same contract as unit-03-meaning-match.js: each set of three is
+// Unit 4 · Meaning · Match (Recognise) — authored WRONG meanings, words 1–30. Same contract as unit-03-meaning-match.js: each set of three is
 // the same part of speech as the answer (acceptedParaphrases[0]), comparable in length, and plausible without being a synonym.
 export default {
   breathtaking: ['frightening', 'exhausting', 'disappointing'],
@@ -20,6 +20,15 @@ export default {
   vehicle: ['place for parking', 'type of fuel', 'kind of road'],
   pollution: ['congestion', 'overcrowding', 'deforestation'],
   destination: ['the start of our journey', 'the route of our journey', 'the length of our journey'],
-  spacious: ['cramped', 'sheltered', 'decorated']
-
+  spacious: ['cramped', 'sheltered', 'decorated'],
+  efficiently: ['without paying any money', 'without making any noise', 'without asking for help'],
+  demand: ['small supply', 'fixed price', 'official rule'],
+  invention: ['discovery', 'repair', 'collection'],
+  machinery: ['office furniture', 'building materials', 'safety clothing'],
+  advertisement: ['safety warning', 'travel timetable', 'news report'],
+  enormous: ['tiny', 'fragile', 'sudden'],
+  equipment: ['staff', 'tickets', 'rules'],
+  collision: ['delay', 'breakdown', 'detour'],
+  organisation: ['arrangement', 'competition', 'celebration'],
+  participant: ['person watching', 'person organising', 'person paying']
 };

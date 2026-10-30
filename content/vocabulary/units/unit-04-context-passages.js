@@ -1,4 +1,4 @@
-// Unit 4 · Context · Mastery (type_in_passage) — authored short passages, WORDS 1–20 ONLY. Same contract as unit-03-context-passages.js:
+// Unit 4 · Context · Mastery (type_in_passage) — authored short passages, WORDS 1–30 ONLY. Same contract as unit-03-context-passages.js:
 // two passages per word, each 2-3 natural sentences with exactly ONE gap (`____`); the passage never contains the target elsewhere, never starts
 // with the gap, and makes the target the natural fit. `answer` is the exact surface form typed. `why` records what points to the word.
 const p = (text, answer, why) => ({ text, answer, why });
@@ -83,6 +83,45 @@ export default Object.freeze({
   spacious: [
     p('The old bus was cramped and uncomfortable. By contrast, the new coach is wonderfully ____, with wide seats and plenty of room for luggage.', 'spacious', 'Contrast with cramped; wide seats and room.'),
     p('The family needed a bigger car for their holiday. They chose a ____ estate car because it could hold four people, two dogs and all their suitcases.', 'spacious', 'Holds four people, two dogs and suitcases.')
+  ],
+  efficiently: [
+    p('The new airport terminal was planned with great care. Staff can now process thousands of passengers ____ even during the busiest summer weekends.', 'efficiently', 'Careful planning; processing thousands "____" even at busy times.'),
+    p('Some companies waste a lot of fuel because their lorries travel half empty. Others plan their routes carefully so that their vehicles are always full and run ____.', 'efficiently', 'Full vehicles and careful routes; "run ____" without waste.')
+  ],
+  demand: [
+    p('More and more commuters want to cycle to work. As a result, there is growing ____ for safe cycle lanes in the city centre.', 'demand', '"growing ____ for" safe cycle lanes.'),
+    p('The railway company sold out of tickets for Friday evening trains within minutes. Because ____ was so high, the company added three extra services.', 'demand', 'Sold out; "Because ____ was so high".')
+  ],
+  invention: [
+    p('People have travelled by boat for thousands of years. The ____ of the steam engine in the eighteenth century, however, changed ships and trains for ever.', 'invention', 'Something new created; "The ____ of the steam engine".'),
+    p('Karl Benz built one of the first petrol-powered cars in 1885. His ____ was so successful that other engineers soon began to copy it.', 'invention', 'Built something new that others copied; "His ____".')
+  ],
+  machinery: [
+    p('The building site was noisy from early morning. Cranes, diggers and other heavy ____ moved tons of earth every hour.', 'machinery', 'Cranes and diggers; "heavy ____" as an uncountable group.'),
+    p('Modern ports are very busy. Without powerful ____ to lift the containers, ships would wait for days to be unloaded.', 'machinery', 'Lifting containers; "powerful ____".')
+  ],
+  advertisement: [
+    p('Posters line the walls of the underground station. One bright ____ shows a smiling family and invites travellers to book cheap holidays by train.', 'advertisement', 'Poster inviting travellers to book; "One bright ____".'),
+    p('The airline spent millions on a new television ____. In thirty seconds, it tried to convince viewers that flying with them was cheaper and friendlier than any rival.', 'advertisement', 'Thirty-second television message trying to convince viewers.')
+  ],
+  enormous: [
+    p('The new container ship is longer than four football pitches. Its ____ size means that only a few ports in the world can receive it.', 'enormous', 'Longer than four football pitches; "Its ____ size".'),
+    p('The storm left an ____ hole in the middle of the motorway. Drivers had to turn back, and repairs took several weeks.', 'enormous', 'Road closed and weeks of repairs; "an ____ hole".')
+  ],
+  equipment: [
+    p('Every aircraft carries life jackets, oxygen masks and a first-aid kit. Engineers inspect all this ____ regularly to make sure it works.', 'equipment', 'List of items; "all this ____" is uncountable.'),
+    p('The mountain rescue team arrived with ropes, stretchers and radios. Without the right ____, they could not have reached the injured climbers.', 'equipment', 'Ropes, stretchers, radios; "the right ____".')
+  ],
+  collision: [
+    p('Dense fog covered the motorway on Monday morning. Visibility was so poor that a ____ between three cars delayed traffic for two hours.', 'collision', 'Fog; cars; "a ____ between three cars".'),
+    p('Air traffic controllers monitor every aircraft on a radar screen. Their main duty is to keep planes at safe distances from one another so that a ____ never happens.', 'collision', 'Safe distances between planes; "a ____ never happens".')
+  ],
+  organisation: [
+    p('Every year, a road safety ____ visits hundreds of schools. Its volunteers teach children how to cross busy streets safely.', 'organisation', 'Volunteers working together for one purpose.'),
+    p('Airlines must follow strict rules. These rules are set by an international ____ whose members come from almost every country.', 'organisation', 'Members from many countries; "an international ____".')
+  ],
+  participant: [
+    p('The city held a car-free day to encourage cleaner travel. Every ____ agreed to leave their car at home and go to work by bus, tram or bicycle.', 'participant', 'Event; "Every ____ agreed".'),
+    p('Researchers tested a new road safety app with fifty drivers. Each ____ used the app for a month and then answered questions about their driving.', 'participant', 'Trial with fifty drivers; "Each ____ used the app".')
   ]
-
 });

@@ -1,4 +1,4 @@
-// Unit 4 Precision & Use content: two "weak wording -> precise word" items per word, WORDS 1–20 ONLY. Same contract as unit-03-precision-use.js:
+// Unit 4 Precision & Use content: two "weak wording -> precise word" items per word, WORDS 1–30 ONLY. Same contract as unit-03-precision-use.js:
 // each item is a writing_set improve_vocabulary record; the weak wording quoted in the prompt appears exactly once in sourceText and not at its
 // start; distractors fit the sentence grammatically but are wrong in meaning.
 const status = 'approved';
@@ -51,6 +51,25 @@ export default [
   precision('u4_writing_precision_destination_a', 'vocab_destination', P('the place we were travelling to'), 'After a long day, we arrived at the place we were travelling to just before midnight.', ['our destination', 'the destination'], ['our departure', 'our route', 'our timetable']),
   precision('u4_writing_precision_destination_b', 'vocab_destination', P('end point'), 'The bus company published a map showing every route and its end point.', ['destination'], ['driver', 'engine', 'ticket']),
   precision('u4_writing_precision_spacious_a', 'vocab_spacious', P('very big inside'), 'The new coach is very big inside, so passengers can stretch out their legs.', ['spacious', 'very spacious'], ['crowded', 'narrow', 'noisy']),
-  precision('u4_writing_precision_spacious_b', 'vocab_spacious', P('large and open'), 'Compared with the old station, the new terminal is large and open, with wide corridors.', ['spacious'], ['cramped', 'dusty', 'noisy'])
-
+  precision('u4_writing_precision_spacious_b', 'vocab_spacious', P('large and open'), 'Compared with the old station, the new terminal is large and open, with wide corridors.', ['spacious'], ['cramped', 'dusty', 'noisy']),
+  precision('u4_writing_precision_efficiently_a', 'vocab_efficiently', P('without wasting time or energy'), 'The new system helps the airline load luggage without wasting time or energy.', ['efficiently'], ['carelessly', 'reluctantly', 'noisily']),
+  precision('u4_writing_precision_efficiently_b', 'vocab_efficiently', P('in a well-planned way'), 'The council wants buses to run in a well-planned way during the winter.', ['efficiently'], ['dangerously', 'unwillingly', 'carelessly']),
+  precision('u4_writing_precision_demand_a', 'vocab_demand_4', P('strong need'), 'The council has noticed a strong need for faster trains between the two cities.', ['demand'], ['supply', 'permission', 'respect']),
+  precision('u4_writing_precision_demand_b', 'vocab_demand_4', P('how much the public wants'), 'Airlines set their prices according to how much the public wants each flight.', ['the demand for'], ['the colour of', 'the name of', 'the weather in']),
+  precision('u4_writing_precision_invention_a', 'vocab_invention', P('a brand-new machine'), 'The jet engine was a brand-new machine that changed air travel for ever.', ['an invention'], ['an accident', 'an island', 'an exhibition']),
+  precision('u4_writing_precision_invention_b', 'vocab_invention', P('the creation of'), 'Historians say that the creation of the first aeroplane took many years of experiments.', ['the invention of'], ['the repair of', 'the sale of', 'the cost of']),
+  precision('u4_writing_precision_machinery_a', 'vocab_machinery', P('big machines'), 'The workers used big machines to move the earth.', ['heavy machinery', 'machinery'], ['heavy furniture', 'heavy clothing', 'heavy luggage']),
+  precision('u4_writing_precision_machinery_b', 'vocab_machinery', P('all the machines'), 'During the storm, all the machines in the factory were switched off.', ['the machinery'], ['the furniture', 'the clothing', 'the scenery']),
+  precision('u4_writing_precision_advertisement_a', 'vocab_advertisement_4', P('a poster that tries to sell'), 'On the platform, we saw a poster that tries to sell cheap train tickets.', ['an advertisement'], ['an apology', 'an accident', 'an engine']),
+  precision('u4_writing_precision_advertisement_b', 'vocab_advertisement_4', P('a message to persuade people to buy'), 'The company paid for a message to persuade people to buy tickets on every bus.', ['an advertisement'], ['an apology', 'an accident', 'an engine']),
+  precision('u4_writing_precision_enormous_a', 'vocab_enormous', P('a very big'), 'The airport has a very big car park for long-stay visitors.', ['an enormous'], ['an ancient', 'an empty', 'an awful']),
+  precision('u4_writing_precision_enormous_b', 'vocab_enormous', P('extremely large'), 'Cargo ships have become extremely large in recent years.', ['enormous'], ['crowded', 'silent', 'expensive']),
+  precision('u4_writing_precision_equipment_a', 'vocab_equipment_4', P('tools and gear'), 'The mechanic put all the tools and gear he needed into the van.', ['equipment'], ['staff', 'tickets', 'rules']),
+  precision('u4_writing_precision_equipment_b', 'vocab_equipment_4', P('the things needed for the job'), 'Before the roadworks began, the crew collected the things needed for the job.', ['the equipment'], ['the permission', 'the weather', 'the silence']),
+  precision('u4_writing_precision_collision_a', 'vocab_collision', P('crash'), 'Heavy snow caused a crash on the motorway.', ['collision'], ['delay', 'detour', 'breakdown']),
+  precision('u4_writing_precision_collision_b', 'vocab_collision', P('a bad accident between two vehicles'), 'Several people were delayed by a bad accident between two vehicles near the bridge.', ['a collision'], ['a detour', 'a breakdown', 'a delay']),
+  precision('u4_writing_precision_organisation_a', 'vocab_organisation', P('a group of people working together for road safety'), 'In our city, a group of people working together for road safety has asked for lower speed limits.', ['a road safety organisation'], ['a road safety timetable', 'a road safety engine', 'a road safety uniform']),
+  precision('u4_writing_precision_organisation_b', 'vocab_organisation', P('official body'), 'Last week, the official body that runs the airport announced new safety checks.', ['organisation'], ['timetable', 'uniform', 'terminal']),
+  precision('u4_writing_precision_participant_a', 'vocab_participant_4', P('person taking part'), 'Every person taking part in the car-free day received a free travel pass.', ['participant'], ['spectator', 'organiser', 'sponsor']),
+  precision('u4_writing_precision_participant_b', 'vocab_participant_4', P('one of the people involved'), 'At the end of the trial, one of the people involved was asked to describe the experience.', ['a participant'], ['a spectator', 'a sponsor', 'a passenger'])
 ];
