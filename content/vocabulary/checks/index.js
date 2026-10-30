@@ -1,0 +1,11 @@
+// The Unit Check registry: which units have an authored Unit Check. A unit with no entry has NO Unit Check: its card is not shown.
+// To add a unit's check, author content/vocabulary/checks/unit-NN-check.js (same shape as unit-01-check.js) and list it here.
+import { unit1VocabularyCheck } from './unit-01-check.js';
+
+export const UNIT_CHECKS = Object.freeze({ 1:unit1VocabularyCheck });
+
+// The authored check for a unit, or null when the unit has none (or none with at least one form).
+export function unitCheckFor(unitNumber, registry = UNIT_CHECKS) {
+  const check = registry[String(Math.trunc(Number(unitNumber)))] ?? null;
+  return check && Object.keys(check.forms ?? {}).length ? check : null;
+}

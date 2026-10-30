@@ -9,7 +9,8 @@ const page = fs.readFileSync(new URL('../vocabulary.html', import.meta.url), 'ut
 const css = fs.readFileSync(new URL('../vocabulary-unit-check.css', import.meta.url), 'utf8');
 
 test('formal check is an isolated Unit 1 layer, not a seventh pathway', () => {
-  assert.match(controller, /visibleUnitNumber\(\) !== 1/);
+  assert.match(controller, /!unitCheckFor\(unitNumber\)/);
+  assert.doesNotMatch(controller, /unit1VocabularyCheck|visibleUnitNumber\(\) !== 1/);
   assert.match(controller, /\.vocab-pathways/);
   assert.match(controller, /insertAdjacentHTML\('afterend'/);
   assert.doesNotMatch(controller, /VOCABULARY_PATHWAYS|pathwayId|pathwayStage|Stage Contract|setRows/);
@@ -31,13 +32,13 @@ test('Vocabulary entry point cache-busts compact Unit Check workspace assets', (
 test('an attempt is only advanced after a score-only save succeeds', () => {
   assert.match(controller, /const scored = scoreCheck/);
   const saveCall = controller.match(/recordVocabularyUnitCheckAttempt\(client, \{([\s\S]*?)\n    \}\);/)?.[1] ?? '';
-  assert.match(saveCall, /unitNumber:1/);
+  assert.match(saveCall, /unitNumber:active\.unitNumber/);
   assert.match(saveCall, /formId:active\.formId/);
   assert.match(saveCall, /attemptNumber:active\.attemptNumber/);
   assert.match(saveCall, /score:scored\.score/);
   assert.match(saveCall, /maxScore:scored\.maxScore/);
   assert.doesNotMatch(saveCall, /answers|studentAnswer|rawAnswer/);
-  assert.match(controller, /attemptsCache\.set\(1, attempts\)/);
+  assert.match(controller, /attemptsCache\.set\(active\.unitNumber, attempts\)/);
   assert.match(controller, /finishSavedAttempt\(scored, attempts\)/);
   assert.match(controller, /this attempt has not been used/);
 });
