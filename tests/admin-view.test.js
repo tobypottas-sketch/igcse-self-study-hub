@@ -123,7 +123,7 @@ test('activity renders never-started students without fake progression or inacti
     }] }
   });
   assert.match(target.innerHTML, />Not started<\/td>/);
-  assert.match(target.innerHTML, /class="activity-progression">Not started<\/td>/);
+  assert.match(target.innerHTML, /class="activity-progression"[^>]*>Not started<\/td>/);
   assert.doesNotMatch(target.innerHTML, /Inactive 7\+ days/);
   assert.doesNotMatch(target.innerHTML, /Meaning: recognise/);
 });
