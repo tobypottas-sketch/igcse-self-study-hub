@@ -1,9 +1,9 @@
 // Unit 3 (Food) · all fifty words authored (batches 1–5, draft). Guards the contract with the real readiness evaluator and builders. The unit stays
-// a draft until the release audit: no releases/unit-03.js, no lock, no SQL.
+// the source unit is approved; releases/unit-03.js promotes it (see vocabulary-unit-03-release.test.js).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import unit3 from '../content/vocabulary/units/unit-03-draft.js';
+import unit3 from '../content/vocabulary/units/unit-03.js';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import unit2 from '../content/vocabulary/units/unit-02.js';
 import { validateUnit } from '../content/vocabulary/schema.js';
@@ -19,13 +19,13 @@ const POS_LIMITS = { considerably: { meaning: ['match'], context: ['recognise', 
 const readiness = evaluateUnitReadiness({ content: releasePlannerContent(unit3) });
 const failed = (pathwayId, occurrenceId) => STAGES.filter(stage => (readiness.pathways[pathwayId].stageFailures[stage] ?? []).some(f => f.occurrenceId === occurrenceId));
 
-test('Unit 3 is exactly the fifty locked targets, as a draft with no release artefacts', () => {
+test('Unit 3 is exactly the fifty locked targets, as an approved source with a release file', () => {
   assert.deepEqual(unit3.items.map(item => item.term), TERMS);
   assert.equal(unit3.occurrences.length, 50);
   assert.equal(new Set(unit3.occurrences.map(row => row.vocabularyId)).size, 50);
-  assert.equal(unit3.status, 'draft');
+  assert.equal(unit3.status, 'approved');
   assert.equal(unit3.unitNumber, 3);
-  for (const name of ['releases/unit-03.js']) assert.ok(!fs.existsSync(new URL(`../content/vocabulary/${name}`, import.meta.url)), name);
+  assert.ok(fs.existsSync(new URL('../content/vocabulary/releases/unit-03.js', import.meta.url)), 'Unit 3 release file must exist');
 });
 
 test('IDs are Unit 3-specific, unique, and never collide with Units 1 or 2', () => {

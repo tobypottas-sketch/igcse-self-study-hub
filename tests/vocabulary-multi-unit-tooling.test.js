@@ -23,10 +23,10 @@ function tempReleases(extra = {}) {
 }
 const synthetic = n => `export default ${relabel(JSON.stringify(unit1), n)};\n`;
 
-test('the real repo discovers Units 1 and 2, and each unit’s generated output equals its committed lock and chunk files', async () => {
-  assert.deepEqual(releaseNumbers(REAL), [1, 2]);
+test('the real repo discovers Units 1, 2 and 3, and each unit’s generated output equals its committed lock and chunk files', async () => {
+  assert.deepEqual(releaseNumbers(REAL), [1, 2, 3]);
   const releases = await loadReleases(REAL);
-  assert.equal(releases.length, 2);
+  assert.equal(releases.length, 3);
   assert.equal(releases[0].release, unit1);
   const lock = readLock(1);
   assert.deepEqual(releaseFingerprint(unit1), { version: lock.version, contentChecksum: lock.contentChecksum, membershipChecksum: lock.membershipChecksum, words: lock.words, memberRows: lock.memberRows });
@@ -39,6 +39,12 @@ test('the real repo discovers Units 1 and 2, and each unit’s generated output 
   assert.equal(lock2.version, 'unit-02/v1');
   assert.equal(lock2.words, 50);
   for (const { number, text } of generatedChunks(2)) assert.equal(text, fs.readFileSync(outFile(number, 2), 'utf8'), `Unit 2 chunk ${number} must match the committed file`);
+  const unit3 = releases[2].release;
+  const lock3 = readLock(3);
+  assert.deepEqual(releaseFingerprint(unit3), { version: lock3.version, contentChecksum: lock3.contentChecksum, membershipChecksum: lock3.membershipChecksum, words: lock3.words, memberRows: lock3.memberRows });
+  assert.equal(lock3.version, 'unit-03/v1');
+  assert.equal(lock3.words, 50);
+  for (const { number, text } of generatedChunks(3)) assert.equal(text, fs.readFileSync(outFile(number, 3), 'utf8'), `Unit 3 chunk ${number} must match the committed file`);
 });
 
 test('each unit gets its own lock file, version and chunk names (Unit 1 keeps its legacy names)', () => {
@@ -83,7 +89,7 @@ test('drafts are not released: only releases/unit-NN.js is scanned, and a non-li
   assert.deepEqual(releaseNumbers(dir), [1]);                          // a *-draft file is invisible
   assert.deepEqual((await loadReleases(dir)).map(r => r.unitNumber), [1]);
   await assert.rejects(loadReleases(tempReleases({ 'unit-02.js': synthetic(2).replace('"status":"live"', '"status":"draft"') })), /not a live release/);
-  await assert.rejects(loadReleases(tempReleases({ 'unit-03.js': synthetic(2) })), /file number and the unit number must match/);
+  await assert.rejects(loadReleases(tempReleases({ 'unit-04.js': synthetic(2) })), /file number and the unit number must match/);
   // the real Unit 2 release exists and is live; no draft file sits in the real release folder
   assert.ok(fs.existsSync(path.join(REAL, 'unit-02.js')));
   assert.ok(!fs.readdirSync(REAL).some(name => /draft/.test(name)));
