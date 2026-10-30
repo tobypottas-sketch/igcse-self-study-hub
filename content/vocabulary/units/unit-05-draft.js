@@ -1,4 +1,4 @@
-// UNIT 5 – HOLIDAYS: authoring draft (batch 1 = words 1–10). Source: 0511 key words UNIT 5 – HOLIDAYS (coursebook order). Words 11–50 are not locked yet.
+// UNIT 5 – HOLIDAYS: authoring draft (batches 1–2 = words 1–20). Source: 0511 key words UNIT 5 – HOLIDAYS (coursebook order). Words 21–50 are not locked yet.
 // Same architecture as unit-04.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-05-draft.js
 // A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-05.js only when all 50 words are final.
 import { buildCuratedUnit } from '../build-unit.js';
@@ -304,6 +304,288 @@ const entries = [
         { id:'2', answer:'adventurous', wrong:['sleepy', 'cautious', 'homesick'] },
         { id:'3', answer:'adventurous', wrong:['careful', 'patient', 'tired'] }
       ]
+    }),
+  e('breathtaking', 'adjective',
+    'so beautiful or impressive that it makes people stop and stare in amazement',
+    ['awe-inspiring', 'astonishingly beautiful'],
+    ['hard to breathe in because the air is thin', 'extremely cold, with strong winds', 'so crowded that people cannot move'],
+    'Visitors fell silent when the clouds cleared and revealed the breathtaking view from the summit.',
+    'awe-inspiring', 'Visitors fell silent when the clouds cleared and revealed the awe-inspiring view from the summit.',
+    'astonishingly beautiful', 'Travel writers often describe the lagoon as astonishingly beautiful at dawn.',
+    {
+      idKey:'breathtaking_5',
+      teacherNote:'Unit 5 item (breathtaking_5): the tourism sense of amazement at a sight. Unit 4 vocab_breathtaking is a separate item that shares only the lexical spelling list.',
+      masteryContexts:[
+        { text:'The tour guide waited at the viewpoint so that the group could take in the breathtaking sight of the sun rising over the temple.', meaning:'so beautiful or impressive that it amazes you' },
+        { text:'The helicopter ride over the canyon was a breathtaking experience that none of us will forget.', meaning:'so exciting and impressive that you never forget it' }
+      ],
+      situationDistractors:[
+        'The tour group sat in a café and complained that a bus was blocking the window.',
+        'The hotel lobby was plain and quiet, and the guests waited patiently for their keys.',
+        'The visitors walked quickly past the monument, glanced at it and returned to the coach.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Standing on the glass platform above the gorge was a breathtaking experience, and several visitors needed a moment to recover.', target:'breathtaking', grammarPattern:'' },
+        { id:'2', text:'Even experienced travellers admit that the first sight of the ancient city at sunrise is breathtaking.', target:'breathtaking', grammarPattern:'' },
+        { id:'3', text:'The documentary ends with a breathtaking shot of whales leaping out of the water at sunset.', target:'breathtaking', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'breathtaking', wrong:['routine', 'familiar', 'tedious'] },
+        { id:'2', answer:'breathtaking', wrong:['ordinary', 'tiresome', 'harmless'] },
+        { id:'3', answer:'breathtaking', wrong:['routine', 'quiet', 'faded'] }
+      ]
+    }),
+  e('spectacular', 'adjective',
+    'very impressive, striking and exciting to look at, often because of its size or scale',
+    ['grand and striking', 'impressive on a large scale'],
+    ['causing great fear or danger to those who watch', 'popular with large numbers of tourists', 'very expensive for ordinary visitors'],
+    'The firework display over the harbour was spectacular, with colour filling the sky for twenty minutes.',
+    'grand and striking', 'The firework display over the harbour was grand and striking, with colour filling the sky for twenty minutes.',
+    'impressive on a large scale', 'The opening ceremony was impressive on a large scale, with hundreds of dancers and a choir of two hundred voices.',
+    {
+      masteryContexts:[
+        { text:'Victoria Falls is spectacular, especially in the rainy season, when millions of litres of water crash into the gorge every second.', meaning:'very impressive to look at, especially because of its size and power' },
+        { text:'The ice hotel puts on a spectacular show of light and music every winter evening.', meaning:'exciting and impressive to watch, on a grand scale' }
+      ],
+      situationDistractors:[
+        'A small café on the corner served tea and sandwiches to the walkers.',
+        'The bus arrived at the hotel, and the driver unloaded the bags in the rain.',
+        'The tourists spent a quiet evening reading in the lounge.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The carnival procession through the old town was a spectacular event, with huge floats, live music and thousands of dancers.', target:'spectacular', grammarPattern:'' },
+        { id:'2', text:'The waterfall drops over a hundred metres into the gorge, and the spray makes a spectacular sight from the viewing platform.', target:'spectacular', grammarPattern:'' },
+        { id:'3', text:'Tourists gather every evening to watch the spectacular sunset show, when hundreds of birds fill the sky above the lake.', target:'spectacular', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'spectacular', wrong:['modest', 'quiet', 'routine'] },
+        { id:'2', answer:'spectacular', wrong:['modest', 'gentle', 'tiny'] },
+        { id:'3', answer:'spectacular', wrong:['hidden', 'tiny', 'faint'] }
+      ]
+    }),
+  e('dramatic', 'adjective',
+    'very noticeable and powerful, because of sharp contrasts or sudden changes',
+    ['striking and powerful', 'sudden and sharp'],
+    ['connected with acting and the theatre', 'calm, gentle and easy to relax in', 'popular with large crowds of visitors'],
+    'The dramatic coastline of the island has steep cliffs that fall straight into the sea.',
+    'striking and powerful', 'The striking and powerful coastline of the island has steep cliffs that fall straight into the sea.',
+    'sudden and sharp', 'Visitors were surprised by the sudden and sharp drop in temperature when the sun went down.',
+    {
+      masteryContexts:[
+        { text:'The road climbs through dramatic mountain scenery, with sharp peaks, deep valleys and clouds that change colour every hour.', meaning:'striking and powerful, with strong contrasts' },
+        { text:'There has been a dramatic rise in the number of tourists visiting the island since the new airport opened.', meaning:'sudden and very large' }
+      ],
+      situationDistractors:[
+        'The path followed a gentle river through flat fields, and nothing changed along the way.',
+        'The number of visitors stayed almost the same from one year to the next.',
+        'The weather was mild and cloudy all week, with no wind and no rain.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Photographers love the dramatic skies over the bay, where black storm clouds and bright sunlight appear together.', target:'dramatic', grammarPattern:'' },
+        { id:'2', text:'After the new hotel opened, there was a dramatic increase in the number of visitors, from two thousand to twenty thousand a year.', target:'dramatic', grammarPattern:'' },
+        { id:'3', text:'The boat trip had one dramatic moment, when a huge whale leapt out of the water beside us.', target:'dramatic', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'dramatic', wrong:['plain', 'pale', 'cloudless'] },
+        { id:'2', answer:'dramatic', wrong:['slight', 'gradual', 'minor'] },
+        { id:'3', answer:'dramatic', wrong:['quiet', 'dull', 'slow'] }
+      ]
+    }),
+  e('stunning', 'adjective',
+    'extremely attractive or beautiful, in a way that impresses you immediately',
+    ['extremely attractive', 'strikingly beautiful'],
+    ['causing someone to lose consciousness', 'extremely shocking or upsetting to see', 'very large, tall and heavy'],
+    'The hotel offers stunning views of the bay from every room.',
+    'extremely attractive', 'The hotel offers extremely attractive views of the bay from every room.',
+    'strikingly beautiful', 'Many guests say that the lagoon looks strikingly beautiful at dawn.',
+    {
+      masteryContexts:[
+        { text:'The villa has a stunning terrace overlooking the bay, with white stone floors and a pool the colour of the sky.', meaning:'extremely attractive and impressive to look at' },
+        { text:'The island’s beaches are so stunning that they appear on the cover of almost every travel brochure.', meaning:'extremely beautiful and impressive to look at' }
+      ],
+      situationDistractors:[
+        'The beach was littered with rubbish, and the sea smelt of oil.',
+        'The hotel room was small and dark, with a window that faced a brick wall.',
+        'The road to the village was muddy and full of holes.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The resort’s stunning beach, with its white sand and clear blue water, appears on posters all over the city.', target:'stunning', grammarPattern:'' },
+        { id:'2', text:'The photographs of the lagoon were so stunning that the magazine used one on its front cover.', target:'stunning', grammarPattern:'' },
+        { id:'3', text:'With its stunning mountain backdrop and its sparkling lake, the wedding venue is booked two years in advance.', target:'stunning', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'stunning', wrong:['muddy', 'polluted', 'dull'] },
+        { id:'2', answer:'stunning', wrong:['faint', 'blurry', 'ordinary'] },
+        { id:'3', answer:'stunning', wrong:['gloomy', 'plain', 'dull'] }
+      ]
+    }),
+  e('popular', 'adjective',
+    'liked or enjoyed by a large number of people',
+    ['well-liked', 'favoured by many people'],
+    ['known only to a small number of experts', 'available at a very low price', 'suitable for people of all ages'],
+    'Tropical islands are popular destinations for honeymoon couples.',
+    'well-liked', 'Tropical islands are well-liked destinations for honeymoon couples.',
+    'favoured by many people', 'The old fishing village remains favoured by many people looking for a quiet weekend away.',
+    {
+      masteryContexts:[
+        { text:'Cycling holidays have become very popular, and many hotels now offer secure places to keep bicycles.', meaning:'liked by many people' },
+        { text:'The restaurant on the harbour is popular with both locals and tourists, so booking a table is essential.', meaning:'enjoyed by large numbers of people' }
+      ],
+      situationDistractors:[
+        'The little museum was almost empty, and the guide had no one to talk to all afternoon.',
+        'The visitors had to ask three people before anyone knew where the old castle was.',
+        'The restaurant on the corner closed down after only two months.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'In summer, the coastal path is so popular that walkers sometimes have to queue to cross the narrow bridges.', target:'popular', grammarPattern:'' },
+        { id:'2', text:'The beach café is popular with local families, and every table is taken by noon.', target:'popular', grammarPattern:'' },
+        { id:'3', text:'Hiking has become one of the most popular activities in the national park, because it is cheap, healthy and open to everyone.', target:'popular', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'popular', wrong:['quiet', 'empty', 'unknown'] },
+        { id:'2', answer:'popular', wrong:['friendly', 'angry', 'familiar'] },
+        { id:'3', answer:'popular', wrong:['dangerous', 'expensive', 'difficult'] }
+      ]
+    }),
+  e('static', 'adjective',
+    'staying in one place or position, without moving or changing',
+    ['fixed', 'motionless'],
+    ['carrying a small electric charge', 'moving smoothly from one place to another', 'changing quickly in size and shape'],
+    'The film-maker used a static camera, so the picture of the harbour stayed the same from start to finish.',
+    'fixed', 'The film-maker used a fixed camera, so the picture of the harbour stayed the same from start to finish.',
+    'motionless', 'For the long exposure, she kept the camera perfectly motionless on a tripod.',
+    {
+      masteryContexts:[
+        { text:'Wildlife photographers often use a static camera hidden in a tree, which films the same waterhole for weeks.', meaning:'staying in one fixed position and not moving' },
+        { text:'Visitor numbers to the museum have remained static for three years, at about forty thousand a year.', meaning:'not changing or developing' }
+      ],
+      situationDistractors:[
+        'The drone swooped over the beach, tilted and followed a surfer along the waves.',
+        'Prices at the hotel rose twice in the same year, and visitors complained.',
+        'The bus raced along the coast road, and the passengers were thrown from side to side.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The wildlife film uses a static camera, fixed to a post beside the waterhole, to record the animals for months.', target:'static', grammarPattern:'' },
+        { id:'2', text:'Tourist numbers stayed static for five years, neither rising nor falling.', target:'static', grammarPattern:'' },
+        { id:'3', text:'Many British families spend summer weekends in a static caravan on the coast, which stays on the same site all year.', target:'static', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'static', wrong:['wireless', 'portable', 'waterproof'] },
+        { id:'2', answer:'static', wrong:['erratic', 'unstable', 'seasonal'] },
+        { id:'3', answer:'static', wrong:['touring', 'mobile', 'folding'] }
+      ]
+    }),
+  e('ground-level', 'adjective',
+    'at or near the level of the ground, rather than high above it',
+    ['taken from low down', 'shot from a low position'],
+    ['covering the whole surface of the earth', 'taken from a high place such as a hill or tower', 'showing only plants and soil'],
+    'Most of the pictures in the guidebook are ground-level, unlike the drone shots on the website.',
+    'taken from low down', 'Most of the pictures in the guidebook are taken from low down, unlike the drone shots on the website.',
+    'shot from a low position', 'Her best photographs were shot from a low position, which made the old walls look tall and strong.',
+    {
+      masteryContexts:[
+        { text:'The ground-level view of the market shows the crowds, the colourful stalls and the faces of the sellers.', meaning:'seen from a low standing position, not from above' },
+        { text:'Drone footage shows the whole island, while ground-level photographs show the details that visitors notice when they walk along the beach.', meaning:'taken from a low position near the earth' }
+      ],
+      situationDistractors:[
+        'The helicopter rose above the valley, and the passengers photographed the river from the air.',
+        'A drone flew over the lake and filmed the island from high above the trees.',
+        'The tourists climbed to the top of the tower and looked down at the roofs of the old town.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The drone pictures are impressive, but the ground-level photographs show what a visitor really sees when walking through the gate.', target:'ground-level', grammarPattern:'' },
+        { id:'2', text:'From this ground-level viewpoint, the old city walls look enormous, but from the air they seem low and thin.', target:'ground-level', grammarPattern:'' },
+        { id:'3', text:'Beginners are advised to take ground-level shots first, standing on the path, before trying to photograph the valley from the cable car.', target:'ground-level', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'ground-level', wrong:['aerial', 'satellite', 'infrared'] },
+        { id:'2', answer:'ground-level', wrong:['aerial', 'distant', 'satellite'] },
+        { id:'3', answer:'ground-level', wrong:['aerial', 'overhead', 'elevated'] }
+      ]
+    }),
+  e('angle of view', 'noun',
+    'the width of the scene that a camera lens can capture',
+    ['field of vision', 'width of the scene captured'],
+    ['the tilt of the camera above the ground', 'the distance between a photographer and a subject', 'the number of pictures a camera can store'],
+    'A wide angle of view lets the photographer fit the whole bay, the harbour and the mountains into a single picture.',
+    'field of vision', 'A wide field of vision lets the photographer fit the whole bay, the harbour and the mountains into a single picture.',
+    'width of the scene captured', 'Tourists with phones often forget that every lens affects the width of the scene captured.',
+    {
+      masteryContexts:[
+        { text:'With a narrow angle of view, the lens shows only the statue’s face, not the square around it.', meaning:'the width of the scene that a camera lens can capture' },
+        { text:'Guides at the viewpoint explain that a smartphone has a wider angle of view than a telephoto lens, so it can capture more of the valley.', meaning:'how much of a scene a lens can include' }
+      ],
+      situationDistractors:[
+        'The photographer cleaned the lens with a soft cloth and put the camera back in its bag.',
+        'A tour guide held up a map and pointed to the route that the coach would follow.',
+        'The visitor bought a memory card and a spare battery at the airport shop.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'To fit the whole mountain range into one picture, she switched to a lens with a much wider angle of view.', target:'angle of view', grammarPattern:'' },
+        { id:'2', text:'A photographer chooses the angle of view according to how much of the scene he wants in the picture.', target:'angle of view', grammarPattern:'' },
+        { id:'3', text:'The lens on the drone gives an angle of view of almost ninety degrees, so each photograph includes the entire beach.', target:'angle of view', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'angle of view', wrong:['shutter speed', 'battery life', 'memory capacity'] },
+        { id:'2', answer:'angle of view', wrong:['price', 'weight', 'colour'] },
+        { id:'3', answer:'angle of view', wrong:['aperture', 'altitude', 'exposure'] }
+      ]
+    }),
+  e('ecological habitats', 'noun',
+    'natural environments where particular plants and animals live and depend on one another',
+    ['natural homes of wildlife', 'environments that support living things'],
+    ['places where tourists stay close to nature', 'the study of how nature changes the weather', 'farms where animals are raised for food'],
+    'Careless tourism can damage fragile ecological habitats such as wetlands and coral reefs.',
+    'natural homes of wildlife', 'Careless tourism can damage fragile natural homes of wildlife such as wetlands and coral reefs.',
+    'environments that support living things', 'Protected areas safeguard environments that support living things, from insects to large mammals.',
+    {
+      masteryContexts:[
+        { text:'The nature reserve protects several ecological habitats, including a salt marsh, a pine forest and a freshwater lake.', meaning:'natural environments where plants and animals live together' },
+        { text:'Rangers explain to visitors that walking off the path can harm the ecological habitats of insects and small plants.', meaning:'the natural homes of plants and animals' }
+      ],
+      situationDistractors:[
+        'The hotel installed solar panels on its roof and a new heating system in the basement.',
+        'Visitors paid an entrance fee at the gate and collected a map of the gardens.',
+        'The coach company changed the departure time because of road works.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The reserve was created to protect rare ecological habitats, such as peat bogs and ancient woodland, from the effects of tourism.', target:'ecological habitats', grammarPattern:'' },
+        { id:'2', text:'Scientists warn that building new resorts on the coast will destroy the ecological habitats on which turtles and seabirds depend.', target:'ecological habitats', grammarPattern:'' },
+        { id:'3', text:'The guide stopped the group at the edge of the wetland and explained how the different ecological habitats support each other.', target:'ecological habitats', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'ecological habitats', wrong:['shopping centres', 'sports stadiums', 'industrial parks'] },
+        { id:'2', answer:'ecological habitats', wrong:['fishing licences', 'tourist leaflets', 'holiday prices'] },
+        { id:'3', answer:'ecological habitats', wrong:['souvenir shops', 'hotel rooms', 'bus routes'] }
+      ]
+    }),
+  e('marine world', 'noun',
+    'the sea and the plants and animals that live in it',
+    ['life beneath the waves', 'the ocean and its creatures'],
+    ['the ships and boats that travel on the sea', 'the sailors and fishermen who work at sea', 'the coastline and beaches next to the sea'],
+    'The aquarium takes children on a journey through the marine world.',
+    'life beneath the waves', 'The aquarium takes children on a journey through life beneath the waves.',
+    'the ocean and its creatures', 'This programme introduces young viewers to the ocean and its creatures.',
+    {
+      masteryContexts:[
+        { text:'The new aquarium lets children walk through a glass tunnel and see the marine world at close range.', meaning:'the sea and the animals and plants that live in it' },
+        { text:'Divers returned from the expedition with new photographs of the marine world around the remote island.', meaning:'the underwater environment and its living things' }
+      ],
+      situationDistractors:[
+        'The coach driver turned up the heating while the passengers slept in their seats.',
+        'A group of walkers followed the path through the pine forest and stopped to eat lunch.',
+        'Visitors sat on the terrace and watched the sun go down behind the hills.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The documentary invites viewers to explore the marine world, from tiny plankton to the largest whales.', target:'marine world', grammarPattern:'' },
+        { id:'2', text:'Snorkellers at the reef can see colourful fish, turtles and rays, and many return home fascinated by the marine world.', target:'marine world', grammarPattern:'' },
+        { id:'3', text:'Children at the seaside centre learn to protect the marine world by collecting plastic from the beach.', target:'marine world', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'marine world', wrong:['insect kingdom', 'desert landscape', 'mountain region'] },
+        { id:'2', answer:'marine world', wrong:['city centre', 'farming year', 'royal court'] },
+        { id:'3', answer:'marine world', wrong:['mountain forests', 'city parks', 'desert plants'] }
+      ]
     })
 ];
 
@@ -346,5 +628,9 @@ export default buildCuratedUnit({
   source:'0511 key words UNIT 5 – HOLIDAYS',
   entries:enrichedEntries,
   activities:[...unit5Activities, ...unit5PrecisionUse, ...unit5WordFamilyItems],
-  lexicalSpelling:{ ...LEXICAL_SPELLING_ERRORS }
+  // breathtaking is also a Unit 4 target: Unit 5 keeps its own item (vocab_breathtaking_5) that reuses the reviewed misspellings of the shared spelling.
+  lexicalSpelling:{
+    ...LEXICAL_SPELLING_ERRORS,
+    vocab_breathtaking_5:LEXICAL_SPELLING_ERRORS.vocab_breathtaking
+  }
 });

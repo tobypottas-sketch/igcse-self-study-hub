@@ -1,4 +1,4 @@
-// Unit 5 · additional authored WRONG situations for "Which situation fits?", WORDS 1–10 ONLY. Same purpose as unit-04-situation-extras.js:
+// Unit 5 · additional authored WRONG situations for "Which situation fits?", WORDS 1–20 ONLY. Same purpose as unit-04-situation-extras.js:
 // the schema needs at least four distinct, target-free situations. Each word gets three more plausible, clearly wrong situations of mixed length.
 // None of them shows the word, and none could also illustrate it.
 export default Object.freeze({
@@ -51,5 +51,55 @@ export default Object.freeze({
     'The guide gave clear safety instructions, and the group listened carefully before they began the gentle walk.',
     'The elderly couple spent a quiet week at the same seaside hotel, reading books and doing crosswords.',
     'The teenager checked every item on his packing list twice and took only the things he really needed.'
+  ],
+  breathtaking: [
+    'The package holiday included a free shuttle to the airport and a cooked breakfast each morning.',
+    'The tour leader checked everyone’s passports before the group went through customs.',
+    'Heavy traffic on the ring road made the coach forty minutes late for the lunch stop.'
+  ],
+  spectacular: [
+    'The campsite shop sold bottled water, matches and postcards of the village.',
+    'A queue of cars waited at the toll booth while the driver counted out the coins.',
+    'The hotel porter carried the heavy cases up two flights of stairs.'
+  ],
+  dramatic: [
+    'The hostel offers free tea and toast between seven and nine each morning.',
+    'The language school arranged a short walking tour of the town for new arrivals.',
+    'Tourists lined up at the kiosk to buy tickets for the afternoon boat.'
+  ],
+  stunning: [
+    'The tour office was closed on Sundays, so the family planned their trip for Monday.',
+    'The coach driver stopped at the border while an officer checked the documents.',
+    'The guest asked the receptionist to recommend a good place for lunch.'
+  ],
+  popular: [
+    'A heavy suitcase burst open on the conveyor belt, and the airline staff helped to repack it.',
+    'The guide handed each visitor a headset and a small leaflet at the entrance.',
+    'The campers pitched their tents beside the stream before dark.'
+  ],
+  static: [
+    'The holiday rep gave a short talk about the week’s excursions at nine o’clock.',
+    'The family shared a taxi from the airport to the guesthouse.',
+    'Guests were asked to leave their keys at reception before going out for the day.'
+  ],
+  'ground-level': [
+    'The backpackers shared a dormitory and cooked pasta in the hostel kitchen.',
+    'A courier delivered the festival tickets to the hotel before breakfast.',
+    'The old ferry made three crossings a day, even in bad weather.'
+  ],
+  'angle of view': [
+    'The tourists asked the waiter whether the soup contained nuts.',
+    'The summer school offers lessons in the mornings and sports in the afternoons.',
+    'Passengers boarded the night train and found their sleeping compartments.'
+  ],
+  'ecological habitats': [
+    'The hotel offers a free breakfast to guests who book three nights or more.',
+    'The queue for the museum shop was long, so the visitors went to the café instead.',
+    'The travel agent printed the itinerary and the boarding passes for the family.'
+  ],
+  'marine world': [
+    'The conference delegates collected their badges and walked into the main hall.',
+    'The tourists argued about whether to take a taxi or wait for the next bus.',
+    'The airline allowed each passenger one small bag and one suitcase.'
   ]
 });

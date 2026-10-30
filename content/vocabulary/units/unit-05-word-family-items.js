@@ -1,6 +1,6 @@
-// Unit 5 Word Families items (writing_set, taskType 'word_family'), WORDS 1–10 ONLY: three items for each word that has a genuine family.
+// Unit 5 Word Families items (writing_set, taskType 'word_family'), WORDS 1–20 ONLY: three items for each word that has a genuine family.
 // Same record shape as unit-04-word-family-items.js. Each sentence has one gap that exactly one form of the family completes, and the gap never
-// opens the sentence. aerial tourism, underwater photography, documentary, expedition, yacht, scenery and accommodation have no family, so no items
+// opens the sentence. only snorkelling, attractions, adventurous, spectacular and popular have a genuine family, so the other fifteen words have no items
 // (see unit-05-word-families.js).
 const unitNumber = 5;
 const status = 'approved';
@@ -20,5 +20,11 @@ export default [
   family('attractions_c', 'vocab_attractions', 'attractions', 'The old harbour is especially ____ at sunset, when the whole bay glows orange.', 'attractive'),
   family('adventurous_a', 'vocab_adventurous', 'adventurous', 'Young people who are ____ often choose rafting or rock climbing instead of a quiet beach holiday.', 'adventurous'),
   family('adventurous_b', 'vocab_adventurous', 'adventurous', 'For many teenagers, a week alone in the mountains is the ____ of a lifetime.', 'adventure'),
-  family('adventurous_c', 'vocab_adventurous', 'adventurous', 'The ____ spent three months crossing the polar ice on skis before reaching the coast.', 'adventurer')
+  family('adventurous_c', 'vocab_adventurous', 'adventurous', 'The ____ spent three months crossing the polar ice on skis before reaching the coast.', 'adventurer'),
+  family('spectacular_a', 'vocab_spectacular', 'spectacular', 'The fireworks made a ____ finish to the festival, lighting up the whole bay.', 'spectacular'),
+  family('spectacular_b', 'vocab_spectacular', 'spectacular', 'Thousands of people gathered on the beach to watch the ____ of the eclipse.', 'spectacle'),
+  family('spectacular_c', 'vocab_spectacular', 'spectacular', 'The cliffs rise ____ from the sea, almost two hundred metres high.', 'spectacularly'),
+  family('popular_a', 'vocab_popular', 'popular', 'Cycling is a ____ way to explore the island, and bicycle hire shops are everywhere.', 'popular'),
+  family('popular_b', 'vocab_popular', 'popular', 'The sudden ____ of the village among tourists surprised the local council.', 'popularity'),
+  family('popular_c', 'vocab_popular', 'popular', 'Because the entry fee was so high, the new theme park was ____ with local families.', 'unpopular')
 ];

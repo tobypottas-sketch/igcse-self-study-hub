@@ -1,4 +1,4 @@
-// Unit 5 · Word Families — a SECOND authored example sentence for the two non-headword forms of each three-form family, WORDS 1–10.
+// Unit 5 · Word Families — a SECOND authored example sentence for the two non-headword forms of each three-form family, WORDS 1–20.
 // Same contract as unit-04-word-family-alternates.js: each sentence contains its form exactly once and never starts with it.
 export const unit5WordFamilyAlternates = Object.freeze({
   snorkelling: {
@@ -8,6 +8,14 @@ export const unit5WordFamilyAlternates = Object.freeze({
   attractions: {
     attract: 'New museums are helping to attract more young visitors to the town.',
     attractive: 'Thanks to its attractive beaches and old streets, the town is popular in summer.'
+  },
+  spectacular: {
+    spectacle: 'Thousands of tourists gather each winter to watch the spectacle of the northern lights.',
+    spectacularly: 'The sunset turned the whole lagoon spectacularly red.'
+  },
+  popular: {
+    popularity: 'Cheap flights have increased the popularity of weekend breaks in Europe.',
+    unpopular: 'Long queues made the museum unpopular with school groups.'
   },
   adventurous: {
     adventure: 'The school trip turned into a real adventure when the bus broke down in the mountains.',
