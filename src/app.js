@@ -444,6 +444,9 @@ export async function bootApp(clientOverride = null) {
       const stateOk = state === 'all' || (state === 'attention' && row.dataset.needsAttention === 'true') || (state === 'merits' && row.dataset.newMerits === 'true');
       row.hidden = !(classOk && stateOk && (!search || text.includes(search)));
     }
+    // Presentation only: the Class column is shown only while the visible rows span more than one class.
+    const table = root.querySelector?.('.activity-table');
+    if (table) table.dataset.singleClass = new Set([...table.querySelectorAll('[data-activity-row]')].filter(row => !row.hidden).map(row => row.dataset.classId)).size <= 1 ? 'true' : 'false';
   };
 
   root.addEventListener('input', event => {
