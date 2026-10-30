@@ -20,6 +20,16 @@ export default {
   unwell: ['hungry', 'nervous', 'bored'],
   ingredients: ['kitchen tools', 'cooking steps', 'dinner guests'],
   nutritious: ['sugary', 'salty', 'greasy'],
-  moderation: ['large amounts', 'exact amounts', 'hidden amounts']
+  moderation: ['large amounts', 'exact amounts', 'hidden amounts'],
+  deceive: ['warn', 'thank', 'persuade'],
+  advertisement: ['review', 'recipe', 'receipt'],
+  variety: ['shortage', 'copy', 'habit'],
+  portion: ['recipe', 'receipt', 'menu'],
+  purchase: ['thing sold', 'thing borrowed', 'thing stolen'],
+  takeaway: ['meal to eat here', 'meal to cook yourself', 'meal to send abroad'],
+  barbecue: ['picnic lunch', 'school dinner', 'tea party'],
+  saturated: ['liquid', 'sweet', 'salty'],
+  convenient: ['costly', 'crowded', 'tasty'],
+  extensive: ['narrow', 'brief', 'costly']
 
 };

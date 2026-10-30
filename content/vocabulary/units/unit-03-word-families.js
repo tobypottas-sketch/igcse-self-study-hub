@@ -54,7 +54,32 @@ export const unit3WordFamilies = Object.freeze({
     f('moderation', 'noun', 'Our teacher says that fast food is fine in moderation.', 'Headword.'),
     f('moderate', 'adjective', 'Add a moderate amount of salt, not too much and not too little.', 'The base adjective; “moderate” means neither too much nor too little.'),
     f('moderately', 'adverb', 'The restaurant is moderately priced, so most families can afford it.', 'Adverb used before adjectives.')
-  ], excludedForms: [{ form: 'moderator', reason: 'A person who leads a discussion; a different sense.' }] }
+  ], excludedForms: [{ form: 'moderator', reason: 'A person who leads a discussion; a different sense.' }] },
+  deceive: { forms: [
+    f('deceive', 'verb', 'Some websites deceive customers with fake reviews.', 'Headword.'),
+    f('deception', 'noun', 'The cheating was a clear case of deception, and customers lost trust in the brand.', 'The noun for the act of misleading; common in news and law texts.'),
+    f('deceptive', 'adjective', 'The photograph on the menu was deceptive, because the real dish was much smaller.', 'Adjective for something that gives a false impression; common about adverts and labels.')
+  ], excludedForms: [{ form: 'deceit', reason: 'Formal noun beyond the level of this unit.' }, { form: 'deceptively', reason: 'Rare adverb; not useful at this level.' }] },
+  advertisement: { forms: [
+    f('advertisement', 'noun', 'The advertisement showed the burger far larger than it really is.', 'Headword.'),
+    f('advertise', 'verb', 'Fast-food companies advertise their products during children’s programmes.', 'The base verb; very common in consumer texts.'),
+    f('advertising', 'noun', 'Food advertising aimed at children is controlled by law in many countries.', 'The noun for the whole activity; a frequent topic in essays.')
+  ], excludedForms: [{ form: 'advertiser', reason: 'A job-title noun that does not extend the meaning of the word.' }] },
+  variety: { forms: [
+    f('variety', 'noun', 'The market has a great variety of fresh fish.', 'Headword.'),
+    f('vary', 'verb', 'Prices of vegetables vary from season to season.', 'The base verb meaning to be different or to change.'),
+    f('various', 'adjective', 'The cafe serves various kinds of soup.', 'Common adjective meaning several different kinds.')
+  ], excludedForms: [{ form: 'variation', reason: 'Abstract noun beyond the level of this unit.' }] },
+  convenient: { forms: [
+    f('convenient', 'adjective', 'Frozen peas are convenient because they keep for months.', 'Headword.'),
+    f('convenience', 'noun', 'Online shopping offers great convenience to people with busy lives.', 'The abstract noun; people choose some foods for convenience.'),
+    f('conveniently', 'adverb', 'The cafe is conveniently located next to the bus station.', 'Common adverb in descriptions of places.')
+  ], excludedForms: [{ form: 'inconvenient', reason: 'Useful, but not needed for this word’s family at this level.' }] },
+  extensive: { forms: [
+    f('extensive', 'adjective', 'The restaurant has an extensive menu with over a hundred dishes.', 'Headword.'),
+    f('extent', 'noun', 'The report studied the extent of food waste in the school canteen.', 'The noun for how far or how large something is.'),
+    f('extensively', 'adverb', 'The chef has travelled extensively to learn about street food.', 'Adverb meaning to a wide degree.')
+  ], excludedForms: [{ form: 'extend', reason: 'The main sense (make longer) differs from “large or wide-ranging”.' }] }
 
 });
 
@@ -68,6 +93,11 @@ export const unit3WordFamilyRejected = Object.freeze({
   sodium: 'A technical word with no derived forms in everyday use.',
   commercially: '“commercial” shares the sense, but “commerce” is formal and rare, and “commercialise” is beyond the level, so there is no third useful form.',
   unwell: 'The base “well” has several unrelated senses (adverb, noun, adjective) and “wellbeing” differs in meaning, so there is no clean family.',
-  ingredients: '“ingredient” is only the singular of the same word, so there are no other forms.'
+  ingredients: '“ingredient” is only the singular of the same word, so there are no other forms.',
+  portion: '“portion” as a verb is only the phrasal “portion out”, and “proportion” has a different sense, so there is no useful family.',
+  purchase: 'Noun and verb share one spelling, and “purchaser” is rare, so there are fewer than three useful distinct forms.',
+  takeaway: 'A compound noun with no derived forms; the verb phrase “take away” is a different structure and sense.',
+  barbecue: 'The other forms (barbecued, barbecuing) are only verb inflections, not a derivational family.',
+  saturated: 'The related forms (saturate, saturation, unsaturated) mostly belong to the “soaked” sense or a technical sense, so the nutrition sense has no second useful part of speech.'
 
 });
