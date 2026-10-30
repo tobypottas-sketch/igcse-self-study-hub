@@ -1,4 +1,4 @@
-// UNIT 5 – HOLIDAYS: authoring draft (batches 1–2 = words 1–20). Source: 0511 key words UNIT 5 – HOLIDAYS (coursebook order). Words 21–50 are not locked yet.
+// UNIT 5 – HOLIDAYS: authoring draft (batches 1–3 = words 1–30). Source: 0511 key words UNIT 5 – HOLIDAYS (coursebook order). The full 50-word list is locked; words 31–50 are not authored yet.
 // Same architecture as unit-04.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-05-draft.js
 // A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-05.js only when all 50 words are final.
 import { buildCuratedUnit } from '../build-unit.js';
@@ -585,6 +585,289 @@ const entries = [
         { id:'1', answer:'marine world', wrong:['insect kingdom', 'desert landscape', 'mountain region'] },
         { id:'2', answer:'marine world', wrong:['city centre', 'farming year', 'royal court'] },
         { id:'3', answer:'marine world', wrong:['mountain forests', 'city parks', 'desert plants'] }
+      ]
+    }),
+  e('coral', 'noun',
+    'a hard, often colourful material made by tiny sea animals, which forms reefs in warm seas',
+    ['rock-like growth made by tiny sea animals', 'colourful material that forms reefs'],
+    ['a smooth round stone found on sandy beaches', 'a green plant that grows on the sea floor', 'a hard shell that protects small shellfish'],
+    'Many tourists visit the island to swim among tropical fish and see the coral.',
+    'rock-like growth made by tiny sea animals', 'Many tourists visit the island to swim among tropical fish and see the rock-like growth made by tiny sea animals.',
+    'colourful material that forms reefs', 'Boat anchors can break the colourful material that forms reefs, so visitors must use the mooring buoys.',
+    {
+      masteryContexts:[
+        { text:'Snorkellers are asked to keep their fins away from the coral, which can take years to grow back if it is broken.', meaning:'the hard, colourful material made by tiny sea animals' },
+        { text:'Parts of the reef have turned white because the warm water is killing the coral.', meaning:'the rock-like material that forms reefs in warm seas' }
+      ],
+      situationDistractors:[
+        'The bakery near the harbour sells warm bread and pastries from six o’clock every morning.',
+        'The ski lift carried the guests up the snowy slope in under ten minutes.',
+        'A street musician played the violin outside the cathedral while crowds took photographs.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The glass-bottomed boat floats above a reef where the coral glows pink and orange in the sunlight.', target:'coral', grammarPattern:'' },
+        { id:'2', text:'Careless divers can easily damage the coral by touching it or kicking it with their fins.', target:'coral', grammarPattern:'' },
+        { id:'3', text:'The beach is made of white sand, but just offshore the sea floor is covered in living coral.', target:'coral', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'coral', wrong:['gravel', 'timber', 'concrete'] },
+        { id:'2', answer:'coral', wrong:['boat', 'pier', 'jetty'] },
+        { id:'3', answer:'coral', wrong:['stones', 'sand', 'mud'] }
+      ]
+    }),
+  e('spellbound', 'adjective',
+    'completely fascinated by something, so that you cannot look away',
+    ['completely fascinated', 'too fascinated to look away'],
+    ['mildly interested in something', 'very afraid of something', 'too tired to pay attention'],
+    'The children sat spellbound while the old fisherman described the storm.',
+    'completely fascinated', 'The children sat completely fascinated while the old fisherman described the storm.',
+    'too fascinated to look away', 'The tourists on the boat were too fascinated to look away as a whale rose beside them.',
+    {
+      masteryContexts:[
+        { text:'The audience sat spellbound as the dancers moved across the stage in the old temple courtyard.', meaning:'completely fascinated and unable to look away' },
+        { text:'Visitors stood spellbound at the cave entrance, watching thousands of bats pour into the evening sky.', meaning:'so amazed that they paid full attention' }
+      ],
+      situationDistractors:[
+        'The passengers yawned and checked their watches during the long delay at the departure gate.',
+        'Some guests complained that the buffet was cold and the service was slow.',
+        'The coach stopped at a petrol station so that everyone could buy snacks.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'When the magician pulled a coin from behind the child’s ear, the whole family watched spellbound.', target:'spellbound', grammarPattern:'' },
+        { id:'2', text:'The guests around the camp fire were so spellbound by the legend of the lost city that nobody wanted to go to bed.', target:'spellbound', grammarPattern:'' },
+        { id:'3', text:'Visitors who watched the sky turn pink above the glacier stood spellbound for several minutes without speaking.', target:'spellbound', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'spellbound', wrong:['unimpressed', 'sleepy', 'embarrassed'] },
+        { id:'2', answer:'spellbound', wrong:['bored', 'annoyed', 'unaffected'] },
+        { id:'3', answer:'spellbound', wrong:['impatient', 'disappointed', 'furious'] }
+      ]
+    }),
+  e('wildlife', 'noun',
+    'the animals and plants that live naturally in the wild, not looked after by people',
+    ['animals and plants living freely in nature', 'creatures that live free in nature'],
+    ['animals kept in a zoo for visitors to look at', 'the farm animals that provide food for people', 'the pets that families take on holiday'],
+    'Visitors to the reserve are asked to keep their distance from the wildlife.',
+    'animals and plants living freely in nature', 'Visitors to the reserve are asked to keep their distance from the animals and plants living freely in nature.',
+    'creatures that live free in nature', 'The photographer spent a month filming creatures that live free in nature in the mountains of Nepal.',
+    {
+      masteryContexts:[
+        { text:'The nature reserve is famous for its wildlife, including elephants, giraffes and over three hundred species of birds.', meaning:'the animals and plants living freely in nature' },
+        { text:'Rangers say that noise from tourist boats can frighten the wildlife and make animals leave their nests and feeding areas.', meaning:'the free-living creatures and plants of the area' }
+      ],
+      situationDistractors:[
+        'The hotel pool was cleaned every morning before the guests came down for breakfast.',
+        'We spent the afternoon queueing at passport control with our suitcases.',
+        'A guide in a velvet jacket showed the group around the ballroom of the old palace.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Guests at the safari lodge sit on the veranda at dusk and watch the wildlife coming down to the waterhole.', target:'wildlife', grammarPattern:'' },
+        { id:'2', text:'Because the island has no predators, its wildlife is unafraid of humans, and birds will land on your hand.', target:'wildlife', grammarPattern:'' },
+        { id:'3', text:'Rangers counted more than forty species of mammal, bird and reptile, which shows how rich the wildlife of the national park is.', target:'wildlife', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'wildlife', wrong:['traffic', 'shopping', 'furniture'] },
+        { id:'2', answer:'wildlife', wrong:['scenery', 'weather', 'transport'] },
+        { id:'3', answer:'wildlife', wrong:['history', 'architecture', 'cuisine'] }
+      ]
+    }),
+  e('preservation', 'noun',
+    'the act of protecting something so that it is not damaged, lost or destroyed',
+    ['protection from damage and loss', 'care and protection'],
+    ['the work of making something look new again', 'the study of old objects and buildings', 'the decision to remove something permanently'],
+    'Without regular preservation, the ancient temple will slowly fall apart.',
+    'protection from damage and loss', 'Without regular protection from damage and loss, the ancient temple will slowly fall apart.',
+    'care and protection', 'The museum spends most of its money on the care and protection of rare documents.',
+    {
+      masteryContexts:[
+        { text:'Funding for the preservation of the rainforest comes from entrance fees paid by tourists.', meaning:'the act of protecting something so that it is not harmed or lost' },
+        { text:'Tour guides explain that the preservation of the old town walls depends on limiting the number of visitors each day.', meaning:'the work of keeping something safe from damage' }
+      ],
+      situationDistractors:[
+        'The sightseeing boat left the pier at ten o’clock and returned in the late afternoon.',
+        'Tourists queued to buy tickets for the evening concert in the main square.',
+        'The airline changed the departure time, so the family had to rebook their taxi.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The charity spends all of its income on the preservation of the castle, because the roof and the walls are in danger of falling down.', target:'preservation', grammarPattern:'' },
+        { id:'2', text:'Many islanders believe that the preservation of their traditional way of life matters more than the money tourists bring.', target:'preservation', grammarPattern:'' },
+        { id:'3', text:'Some scientists argue that the preservation of coral reefs is more urgent than the building of new hotels.', target:'preservation', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'preservation', wrong:['advertising', 'decoration', 'sale'] },
+        { id:'2', answer:'preservation', wrong:['abandonment', 'criticism', 'invention'] },
+        { id:'3', answer:'preservation', wrong:['advertising', 'sale', 'transport'] }
+      ]
+    }),
+  e('environmental impact', 'noun',
+    'the effect that a person, a business or an activity has on nature and the natural world',
+    ['effect on the natural world', 'consequences for nature'],
+    ['the profit that a business makes from visitors', 'the number of tourists who visit a place each year', 'the change in weather from one season to the next'],
+    'Cruise ships bring money to the port, but their environmental impact is a growing concern.',
+    'effect on the natural world', 'Cruise ships bring money to the port, but their effect on the natural world is a growing concern.',
+    'consequences for nature', 'The new airport will have serious consequences for nature on the island.',
+    {
+      masteryContexts:[
+        { text:'Before the hotel was approved, an independent report studied its environmental impact on the beach and the nearby wetlands.', meaning:'the effect that an activity has on nature and the natural world' },
+        { text:'Using solar panels and recycling water helps the resort to reduce its environmental impact.', meaning:'the way that its activities affect nature and natural resources' }
+      ],
+      situationDistractors:[
+        'The tour operator printed a new brochure with photographs of the harbour at night.',
+        'Prices for rooms rise sharply during the school holidays, especially in August.',
+        'The conductor checked each ticket and then walked to the next carriage.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The council asked the developers to study the likely environmental impact of the new marina on the fish and birds in the bay.', target:'environmental impact', grammarPattern:'' },
+        { id:'2', text:'Flying is cheap and fast, but its environmental impact in terms of pollution and carbon dioxide is much greater than that of travelling by train.', target:'environmental impact', grammarPattern:'' },
+        { id:'3', text:'Visitors can reduce their environmental impact by refusing single-use plastic and by walking instead of taking taxis.', target:'environmental impact', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'environmental impact', wrong:['building cost', 'ticket price', 'opening time'] },
+        { id:'2', answer:'environmental impact', wrong:['popularity', 'comfort', 'speed'] },
+        { id:'3', answer:'environmental impact', wrong:['waiting time', 'language barrier', 'luggage weight'] }
+      ]
+    }),
+  e('journey', 'noun',
+    'the act of travelling from one place to another, especially over a long distance',
+    ['trip between two places', 'time spent getting to a destination'],
+    ['a short walk around the local area', 'the place where travellers arrive', 'the money paid for a ticket'],
+    'It was a long journey, but the views from the train window made it worthwhile.',
+    'trip between two places', 'It was a long trip between two places, but the views from the train window made it worthwhile.',
+    'time spent getting to a destination', 'The time spent getting to a destination is tiring after a night flight, so book a quiet room.',
+    {
+      masteryContexts:[
+        { text:'The journey across the desert by camel took three days, with only one stop for water.', meaning:'the act of going from one place to another over a long distance' },
+        { text:'After a long journey by overnight train, the group checked into their rooms and slept until noon.', meaning:'a trip between two places that takes some time' }
+      ],
+      situationDistractors:[
+        'The hotel receptionist gave the family a map and told them where the nearest pharmacy was.',
+        'The waiters carried trays of grilled fish to the tables on the terrace.',
+        'Several guests stayed on the beach to watch the sun set over the water.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The journey from London to Edinburgh takes about four and a half hours by train.', target:'journey', grammarPattern:'' },
+        { id:'2', text:'We stopped for lunch halfway through our journey, at a small restaurant beside the river.', target:'journey', grammarPattern:'' },
+        { id:'3', text:'Passengers on the night ferry were exhausted at the end of the journey because the sea had been rough all night.', target:'journey', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'journey', wrong:['flight', 'ferry crossing', 'coach ride'] },
+        { id:'2', answer:'journey', wrong:['film', 'lesson', 'concert'] },
+        { id:'3', answer:'journey', wrong:['concert', 'lecture', 'match'] }
+      ]
+    }),
+  e('licence', 'noun',
+    'an official document that gives you permission to do, use or own something',
+    ['official document giving permission', 'written permission from the authorities'],
+    ['a list of the rules for visitors to follow', 'a payment made to the government each year', 'a certificate given to someone who finishes a course'],
+    'Visitors need a licence to fish in the lake.',
+    'official document giving permission', 'Visitors need an official document giving permission to fish in the lake.',
+    'written permission from the authorities', 'Boat operators must carry written permission from the authorities before taking tourists to the reef.',
+    {
+      teacherNote:'British spelling: licence is the noun; license is the verb (and the American noun spelling). Unit 5 teaches the noun only.',
+      masteryContexts:[
+        { text:'Tour operators must apply to the government for a licence before they can take visitors into the national park.', meaning:'an official document that gives permission to do something' },
+        { text:'The diving instructor showed us her licence, which proved that she was trained and allowed to teach.', meaning:'an official card that shows someone has permission to do a job' }
+      ],
+      situationDistractors:[
+        'The guesthouse owner served tea and warm bread on the sunny balcony.',
+        'The brochure described a walk through the flower fields in spring.',
+        'By nine o’clock the beach was crowded with families and umbrellas.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Anyone who wants to run a boat trip around the bay needs a licence from the harbour authority.', target:'licence', grammarPattern:'' },
+        { id:'2', text:'You must show your driving licence when you collect the hire car, and the clerk will photocopy it.', target:'licence', grammarPattern:'' },
+        { id:'3', text:'The café was closed by the council because its owner had no licence to sell alcohol.', target:'licence', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'licence', wrong:['guidebook', 'torch', 'suitcase'] },
+        { id:'2', answer:'licence', wrong:['lesson', 'mirror', 'instructor'] },
+        { id:'3', answer:'licence', wrong:['profit', 'customers', 'supplies'] }
+      ]
+    }),
+  e('offer', 'noun',
+    'a special deal or reduced price that a business advertises to attract customers',
+    ['cut-price deal', 'bargain package'],
+    ['a payment returned to a customer after a cancellation', 'a request for a customer to pay more', 'a booking that has been confirmed in writing'],
+    'The travel agency has a new offer on winter holidays in the Alps.',
+    'cut-price deal', 'The travel agency has a new cut-price deal on winter holidays in the Alps.',
+    'bargain package', 'The airline has launched a bargain package for customers who book before March.',
+    {
+      teacherNote:'Noun sense only: a special deal advertised to customers. The verb “to offer” is not taught in this item.',
+      masteryContexts:[
+        { text:'The ski resort has a special offer for families: children under twelve stay and eat for free.', meaning:'a deal that a business advertises to attract customers, often at a lower price' },
+        { text:'Tourists who book before January can take advantage of an offer that includes flights, three nights in a hotel and a free city walk.', meaning:'a special package or lower price available for a limited time' }
+      ],
+      situationDistractors:[
+        'The ferry was delayed for an hour because of fog in the channel.',
+        'Hikers set off at dawn so that they could reach the summit before the clouds came in.',
+        'The cathedral was built in the twelfth century and has a tower that visitors can climb.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The airline is running a special offer this month: return flights to Madrid are half price if you book online.', target:'offer', grammarPattern:'' },
+        { id:'2', text:'Customers who accept the offer by Friday will get a free room upgrade.', target:'offer', grammarPattern:'' },
+        { id:'3', text:'The best offer in the brochure is seven nights in Greece for the price of five.', target:'offer', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'offer', wrong:['delay', 'route', 'warning'] },
+        { id:'2', answer:'offer', wrong:['apology', 'warning', 'complaint'] },
+        { id:'3', answer:'offer', wrong:['hotel', 'island', 'photograph'] }
+      ]
+    }),
+  e('guided tour', 'noun',
+    'an organised visit in which an expert leads a group and explains the sights',
+    ['expert-led visit', 'organised visit with a leader'],
+    ['a trip that you plan and make alone', 'a lesson about a place given in a classroom', 'a short visit to the shops near your hotel'],
+    'On the first morning, we joined a guided tour around the old fortress.',
+    'expert-led visit', 'On the first morning, we joined an expert-led visit around the old fortress.',
+    'organised visit with a leader', 'The price includes an organised visit with a leader to the old market.',
+    {
+      masteryContexts:[
+        { text:'The guided tour of the cathedral starts every hour and includes a climb to the top of the tower.', meaning:'an organised visit in which an expert leads you and explains what you see' },
+        { text:'Because the caves are dark and the paths are narrow, visitors can enter only on a guided tour.', meaning:'a visit led by someone who knows the place well' }
+      ],
+      situationDistractors:[
+        'Hikers who ignored the weather warning had to be rescued from the mountain.',
+        'The tourists wandered through the village without a map, looking at whatever interested them.',
+        'She spent the afternoon on her own, reading a novel on the hotel balcony.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'We booked a guided tour of the old quarter, and our leader pointed out buildings that we would never have noticed alone.', target:'guided tour', grammarPattern:'' },
+        { id:'2', text:'Everyone on the guided tour stopped outside the temple while the leader explained that it had been rebuilt twice after fires.', target:'guided tour', grammarPattern:'' },
+        { id:'3', text:'Tickets for the guided tour cost fifteen pounds, but the audio headset is free.', target:'guided tour', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'guided tour', wrong:['free map', 'bus ticket', 'shopping trip'] },
+        { id:'2', answer:'guided tour', wrong:['night flight', 'airport shuttle', 'cable car'] },
+        { id:'3', answer:'guided tour', wrong:['airport shuttle', 'night flight', 'ferry crossing'] }
+      ]
+    }),
+  e('travel assistant', 'noun',
+    'a person whose job is to help customers plan and book trips and holidays',
+    ['employee who helps customers plan holidays', 'person who arranges trips for clients'],
+    ['a person who drives a coach full of holidaymakers', 'a person who cleans the rooms in a hotel', 'a person who checks passports at an airport border'],
+    'Her first job after college was as a travel assistant, answering questions and booking flights.',
+    'employee who helps customers plan holidays', 'Her first job after college was as an employee who helps customers plan holidays, answering questions and booking flights.',
+    'person who arranges trips for clients', 'The company is looking for a person who arranges trips for clients to work in its busy office.',
+    {
+      teacherNote:'The source labels this a job title; the lexical target is the plain phrase “travel assistant”.',
+      masteryContexts:[
+        { text:'The travel assistant at the agency suggested a cheaper flight and helped us fill in the visa form.', meaning:'an employee whose job is to help customers plan and book their holidays' },
+        { text:'After training as a travel assistant, Marta spent two summers working at a resort, answering guests’ questions and arranging excursions.', meaning:'a worker who helps holidaymakers organise their trips' }
+      ],
+      situationDistractors:[
+        'The customs officer asked the passenger to open her bag and show what was inside.',
+        'Rain began just as the guests sat down to eat on the terrace.',
+        'The runners crossed the finishing line in front of the cathedral and were handed medals.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'I was quite nervous before my first day as a travel assistant, but my supervisor explained how the booking system worked.', target:'travel assistant', grammarPattern:'' },
+        { id:'2', text:'If you cannot decide between the two islands, ask the travel assistant at the agency, because she can compare prices and suggest routes.', target:'travel assistant', grammarPattern:'' },
+        { id:'3', text:'A good travel assistant needs to be patient, well organised and excellent at working out the cheapest routes for customers.', target:'travel assistant', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'travel assistant', wrong:['hotel porter', 'coach driver', 'ticket inspector'] },
+        { id:'2', answer:'travel assistant', wrong:['pilot', 'lifeguard', 'chef'] },
+        { id:'3', answer:'travel assistant', wrong:['chef', 'lifeguard', 'pilot'] }
       ]
     })
 ];

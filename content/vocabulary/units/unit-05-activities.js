@@ -1,8 +1,8 @@
-// Unit 5 · Paraphrasing content (phrase_set and idea_set), WORDS 1–20 ONLY. Same record shapes and contract as unit-04-activities.js:
+// Unit 5 · Paraphrasing content (phrase_set and idea_set), WORDS 1–30 ONLY. Same record shapes and contract as unit-04-activities.js:
 //   phrase_set : originalPhrase (plain wording) -> equivalentPhrase (contains the target), acceptedVariants, chunks, commonMeaningDistortions
 //   idea_set   : originalIdea (contains the target) with accurate paraphrases that do NOT contain it, a meaning invariant, and three
 //                meaning-changing distractors each tagged with the misconception it represents.
-// Every record is linked to exactly one Unit 5 word. Words 21–50 are not authored yet.
+// Every record is linked to exactly one Unit 5 word. Words 31–50 are not authored yet.
 const status = 'approved';
 const unitNumber = 5;
 
@@ -52,7 +52,17 @@ const phraseSets = [
   phrase('ground_level_view', 'a view taken from low down', 'a ground-level view', ['vocab_ground_level'], { chunks:['a ground-level', 'view'], distortions:['an aerial view', 'a distant view', 'a night view'] }),
   phrase('angle_of_view_lens', 'the width of the scene that a lens can capture', 'the angle of view of a lens', ['vocab_angle_of_view'], { chunks:['the angle of view', 'of a lens'], distortions:['the weight of a lens', 'the price of a lens', 'the length of a lens'] }),
   phrase('ecological_habitats_wetlands', 'the natural environments where wetland wildlife lives', 'the ecological habitats of the wetlands', ['vocab_ecological_habitats'], { chunks:['the ecological habitats', 'of the wetlands'], distortions:['the tourist facilities of the wetlands', 'the weather patterns of the wetlands', 'the farming methods of the wetlands'] }),
-  phrase('marine_world_exhibition', 'an exhibition about the sea and its living things', 'an exhibition about the marine world', ['vocab_marine_world'], { chunks:['an exhibition', 'about the marine world'], distortions:['an exhibition about ships and sailors', 'an exhibition about the polar regions', 'an exhibition about the desert'] })
+  phrase('marine_world_exhibition', 'an exhibition about the sea and its living things', 'an exhibition about the marine world', ['vocab_marine_world'], { chunks:['an exhibition', 'about the marine world'], distortions:['an exhibition about ships and sailors', 'an exhibition about the polar regions', 'an exhibition about the desert'] }),
+  phrase('coral_reef', 'the hard colourful material made by tiny sea animals on the reef', 'the coral on the reef', ['vocab_coral'], { chunks:['the coral', 'on the reef'], distortions:['the sand on the reef', 'the fish on the reef', 'the rubbish on the reef'] }),
+  phrase('spellbound_performance', 'completely fascinated by the performance', 'spellbound by the performance', ['vocab_spellbound'], { acceptedVariants:['captivated by the performance'], chunks:['spellbound', 'by the performance'], distortions:['bored by the performance', 'annoyed by the performance', 'confused by the performance'] }),
+  phrase('wildlife_park', 'the animals and plants living freely in the national park', 'the wildlife of the national park', ['vocab_wildlife'], { chunks:['the wildlife', 'of the national park'], distortions:['the farm animals of the national park', 'the hotels of the national park', 'the roads of the national park'] }),
+  phrase('preservation_city', 'the protection of the old city from damage', 'the preservation of the old city', ['vocab_preservation'], { chunks:['the preservation', 'of the old city'], distortions:['the demolition of the old city', 'the promotion of the old city', 'the sale of the old city'] }),
+  phrase('environmental_impact_road', 'the effect of the new road on nature', 'the environmental impact of the new road', ['vocab_environmental_impact'], { chunks:['the environmental impact', 'of the new road'], distortions:['the cost of the new road', 'the length of the new road', 'the opening of the new road'] }),
+  phrase('journey_mountains', 'a long trip by train through the mountains', 'a long journey by train through the mountains', ['vocab_journey'], { chunks:['a long journey', 'by train', 'through the mountains'], distortions:['a long stay in the mountains', 'a long wait at a mountain village', 'a long lesson about the mountains'] }),
+  phrase('licence_fish', 'official permission to fish in the river', 'a licence to fish in the river', ['vocab_licence'], { chunks:['a licence', 'to fish in the river'], distortions:['a rule against fishing in the river', 'a lesson on fishing in the river', 'a fee for crossing the river'] }),
+  phrase('offer_city_breaks', 'a cut-price deal on city breaks', 'a special offer on city breaks', ['vocab_offer'], { acceptedVariants:['a special offer for city breaks'], chunks:['a special offer', 'on city breaks'], distortions:['a delay on city breaks', 'a warning on city breaks', 'a complaint about city breaks'] }),
+  phrase('guided_tour_old_town', 'a visit led by an expert around the old town', 'a guided tour around the old town', ['vocab_guided_tour'], { chunks:['a guided tour', 'around the old town'], distortions:['a map of the old town', 'a lecture about the old town', 'a race around the old town'] }),
+  phrase('travel_assistant_agency', 'an employee at the agency who helps customers book holidays', 'a travel assistant at the agency', ['vocab_travel_assistant'], { chunks:['a travel assistant', 'at the agency'], distortions:['a coach driver at the agency', 'a hotel receptionist at the agency', 'a pilot at the agency'] })
 ];
 
 const ideaSets = [
@@ -155,7 +165,57 @@ const ideaSets = [
     { text:'Pollution is a minor benefit to the marine world, especially near busy tourist beaches.', misconceptionCategory:'polarity_change' },
     { text:'Pollution is a small risk to the marine world, especially near busy tourist beaches.', misconceptionCategory:'degree_change' },
     { text:'Pollution is a serious threat to the mountain forests, especially near busy tourist roads.', misconceptionCategory:'meaning_confusion' }
-  ], ['vocab_marine_world'])
+  ], ['vocab_marine_world']),
+  idea('coral', 'Rising sea temperatures are killing the coral around the island.', ['Warmer seas are destroying the colourful reef material near the island.', 'The reefs near the island are dying because the water is getting hotter.', 'Increasing ocean heat is causing the rock-like sea growth around the island to die.'], 'cause_effect', 'rising sea temperatures are killing', [
+    { text:'Rising sea temperatures are helping the coral around the island to grow.', misconceptionCategory:'polarity_change' },
+    { text:'Heavy tourism, not sea temperature, is killing the coral around the island.', misconceptionCategory:'cause_effect_change' },
+    { text:'Rising sea temperatures are killing the fish around the island.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_coral']),
+  idea('spellbound', 'The audience was completely spellbound by the folk dancers.', ['The audience was totally fascinated by the folk dancers.', 'The folk dancers held the audience in complete fascination.', 'The folk dancers completely captivated the audience.'], 'degree', 'completely', [
+    { text:'The audience was slightly interested in the folk dancers.', misconceptionCategory:'degree_change' },
+    { text:'The audience was completely bored by the folk dancers.', misconceptionCategory:'polarity_change' },
+    { text:'The audience was completely frightened by the folk dancers.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_spellbound']),
+  idea('wildlife', 'Tourists are not allowed to feed the wildlife in the national park.', ['Visitors are forbidden to give food to the animals living freely in the national park.', 'Giving food to creatures that live free in nature is banned for tourists in the national park.', 'It is against the rules for tourists to feed the free-living animals of the national park.'], 'polarity', 'not allowed', [
+    { text:'Tourists are encouraged to feed the wildlife in the national park.', misconceptionCategory:'polarity_change' },
+    { text:'Tourists are not allowed to photograph the wildlife in the national park.', misconceptionCategory:'meaning_confusion' },
+    { text:'Only a few tourists are allowed to feed the wildlife in the national park.', misconceptionCategory:'quantity_change' }
+  ], ['vocab_wildlife']),
+  idea('preservation', 'The preservation of the old harbour is more important than building new hotels.', ['Protecting the old harbour from damage matters more than constructing new hotels.', 'Keeping the old harbour safe is a higher priority than putting up new hotels.', 'It is more important to protect the old harbour than to build new hotels.'], 'comparison', 'more important than', [
+    { text:'Building new hotels is more important than the preservation of the old harbour.', misconceptionCategory:'comparison_change' },
+    { text:'The demolition of the old harbour is more important than building new hotels.', misconceptionCategory:'meaning_confusion' },
+    { text:'The preservation of the old harbour is more important than building new hotels, but only in summer.', misconceptionCategory:'added_information' }
+  ], ['vocab_preservation']),
+  idea('environmental_impact', 'The new airport will have a serious environmental impact on the coast.', ['The new airport will seriously affect the natural surroundings along the coast.', 'The coast will suffer major effects on nature from the new airport.', 'The new airport will do considerable harm to nature on the coast.'], 'degree', 'serious', [
+    { text:'The new airport will have a slight environmental impact on the coast.', misconceptionCategory:'degree_change' },
+    { text:'The new airport will have a positive environmental impact on the coast.', misconceptionCategory:'polarity_change' },
+    { text:'The old airport had a serious environmental impact on the coast.', misconceptionCategory:'time_change' }
+  ], ['vocab_environmental_impact']),
+  idea('journey', 'The journey to the island takes nearly six hours by ferry.', ['The trip to the island lasts almost six hours by ferry.', 'Getting to the island by ferry takes close to six hours.', 'It takes almost six hours to reach the island by ferry.'], 'quantity', 'nearly six hours', [
+    { text:'The journey to the island takes less than an hour by ferry.', misconceptionCategory:'quantity_change' },
+    { text:'The ferry to the island holds nearly six hundred passengers.', misconceptionCategory:'meaning_confusion' },
+    { text:'The journey to the island takes nearly six hours by ferry, plus a night in a hotel.', misconceptionCategory:'added_information' }
+  ], ['vocab_journey']),
+  idea('licence', 'Without a licence, nobody may take tourists out to the reef.', ['Nobody may take tourists out to the reef unless they hold official permission.', 'Taking tourists to the reef is forbidden without an official permit.', 'Only people with official permission may take tourists out to the reef.'], 'polarity', 'nobody may', [
+    { text:'Even without a licence, anybody may take tourists out to the reef.', misconceptionCategory:'polarity_change' },
+    { text:'Without a map, nobody may take tourists out to the reef.', misconceptionCategory:'meaning_confusion' },
+    { text:'Without a licence, nobody may take tourists out to the reef or the lagoon.', misconceptionCategory:'added_information' }
+  ], ['vocab_licence']),
+  idea('offer', 'The airline has a special offer on flights to Rome, but it ends on Friday.', ['The airline has a cut-price deal on flights to Rome, but it finishes on Friday.', 'A bargain on flights to Rome is available from the airline only until Friday.', 'Cheap flights to Rome are on sale with the airline, but only until Friday.'], 'time', 'ends on Friday', [
+    { text:'The airline has a special offer on flights to Rome, and it starts on Friday.', misconceptionCategory:'time_change' },
+    { text:'The airline has a delay on flights to Rome, but it ends on Friday.', misconceptionCategory:'meaning_confusion' },
+    { text:'The airline has a special offer on flights to Rome.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_offer']),
+  idea('guided_tour', 'All visitors to the caves must join a guided tour.', ['Every visitor to the caves is required to take part in an expert-led visit.', 'Nobody may enter the caves except as part of an organised group visit led by an expert.', 'Entering the caves is only possible with a visit led by a specialist.'], 'quantity', 'all', [
+    { text:'Some visitors to the caves must join a guided tour.', misconceptionCategory:'quantity_change' },
+    { text:'No visitors to the caves are allowed to join a guided tour.', misconceptionCategory:'polarity_change' },
+    { text:'All visitors to the caves must buy a guidebook.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_guided_tour']),
+  idea('travel_assistant', 'The travel assistant checked three airlines before finding a cheaper flight for the family.', ['The agency employee compared three airlines before finding the family a cheaper flight.', 'After looking at three airlines, the worker who arranges holidays found the family a cheaper flight.', 'The holiday-booking employee looked at three airlines before finding a cheaper flight for the family.'], 'time', 'before finding', [
+    { text:'The travel assistant checked only one airline before finding a cheaper flight for the family.', misconceptionCategory:'quantity_change' },
+    { text:'The travel assistant found a cheaper flight for the family before checking three airlines.', misconceptionCategory:'time_change' },
+    { text:'The travel assistant checked three hotels before finding a cheaper room for the family.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_travel_assistant'])
 ];
 
 export default [...phraseSets, ...ideaSets];

@@ -1,6 +1,6 @@
-// Unit 5 Word Families items (writing_set, taskType 'word_family'), WORDS 1–20 ONLY: three items for each word that has a genuine family.
+// Unit 5 Word Families items (writing_set, taskType 'word_family'), WORDS 1–30 ONLY: three items for each word that has a genuine family.
 // Same record shape as unit-04-word-family-items.js. Each sentence has one gap that exactly one form of the family completes, and the gap never
-// opens the sentence. only snorkelling, attractions, adventurous, spectacular and popular have a genuine family, so the other fifteen words have no items
+// opens the sentence. only snorkelling, attractions, adventurous, spectacular, popular and preservation have a genuine family, so the other twenty-four words have no items
 // (see unit-05-word-families.js).
 const unitNumber = 5;
 const status = 'approved';
@@ -26,5 +26,8 @@ export default [
   family('spectacular_c', 'vocab_spectacular', 'spectacular', 'The cliffs rise ____ from the sea, almost two hundred metres high.', 'spectacularly'),
   family('popular_a', 'vocab_popular', 'popular', 'Cycling is a ____ way to explore the island, and bicycle hire shops are everywhere.', 'popular'),
   family('popular_b', 'vocab_popular', 'popular', 'The sudden ____ of the village among tourists surprised the local council.', 'popularity'),
-  family('popular_c', 'vocab_popular', 'popular', 'Because the entry fee was so high, the new theme park was ____ with local families.', 'unpopular')
+  family('popular_c', 'vocab_popular', 'popular', 'Because the entry fee was so high, the new theme park was ____ with local families.', 'unpopular'),
+  family('preservation_a', 'vocab_preservation', 'preservation', 'Volunteers in the village raise money to ____ the harbour walls and the old lighthouse.', 'preserve'),
+  family('preservation_b', 'vocab_preservation', 'preservation', 'The museum’s main aim is the ____ of rare manuscripts from fire and damp.', 'preservation'),
+  family('preservation_c', 'vocab_preservation', 'preservation', 'Tourists admire the perfectly ____ remains of a Roman villa near the beach.', 'preserved')
 ];

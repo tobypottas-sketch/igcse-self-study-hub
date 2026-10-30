@@ -1,4 +1,4 @@
-// Unit 5 · Context · Mastery (type_in_passage) — authored short passages, WORDS 1–20 ONLY. Same contract as unit-04-context-passages.js:
+// Unit 5 · Context · Mastery (type_in_passage) — authored short passages, WORDS 1–30 ONLY. Same contract as unit-04-context-passages.js:
 // two passages per word, each 2-3 natural sentences with exactly ONE gap (`____`); the passage never contains the target elsewhere, never starts
 // with the gap, and makes the target the natural fit. `answer` is the exact surface form typed. `why` records what points to the word.
 const p = (text, answer, why) => ({ text, answer, why });
@@ -83,5 +83,45 @@ export default Object.freeze({
   'marine world': [
     p('A glass-bottomed boat leaves the harbour every morning. Passengers lean over the side to see coral, shoals of fish and even a turtle, and for many of them it is their first glimpse of the ____.', 'marine world', 'Glass-bottomed boat, coral and turtle; "first glimpse of the ____".'),
     p('The museum’s newest hall is filled with blue light and the sound of waves. Models of whales, sharks and jellyfish hang from the ceiling, giving visitors a feel for the ____ without getting wet.', 'marine world', 'Whales, sharks and waves; "a feel for the ____ without getting wet".')
+  ],
+  coral: [
+    p('The reef is only twenty metres from the beach, and the water is so clear that you can see every detail. Brightly coloured fish swim between branches of pink and orange ____, which grows very slowly and breaks easily.', 'coral', 'Reef, colourful fish and branches that grow slowly and break easily; "pink and orange ____".'),
+    p('The marine park asks every visitor to wear a life jacket and to stay away from the sea floor. Even a gentle kick can destroy ____ that has taken hundreds of years to grow.', 'coral', 'Life jackets and the sea floor; "destroy ____ that has taken hundreds of years to grow".')
+  ],
+  spellbound: [
+    p('The old fisherman lowered his voice and began to describe the night a giant wave hit the harbour. The children stopped playing and listened, completely ____, until the story was over.', 'spellbound', 'Children stop playing and listen until the end; "completely ____".'),
+    p('When the curtain rose, the audience gasped at the dancers in their golden costumes. For ninety minutes nobody coughed or looked at a phone, because everyone was ____.', 'spellbound', 'Nobody coughed or looked at a phone for ninety minutes; "because everyone was ____".')
+  ],
+  wildlife: [
+    p('Every morning at dawn, the lodge’s guests drive out to the waterhole with their cameras. They hope to see elephants, zebras and other ____ coming down to drink before the sun gets hot.', 'wildlife', 'Safari drive, elephants and zebras at a waterhole; "elephants, zebras and other ____".'),
+    p('The reserve has strict rules about noise, litter and speed. Rangers say these rules are necessary because careless visitors can disturb the ____ and damage fragile nesting areas.', 'wildlife', 'Rangers, nesting areas and rules about noise; "disturb the ____".')
+  ],
+  preservation: [
+    p('The ancient city attracts a million visitors a year, and their footsteps are wearing away the stone. Part of every ticket price now pays for the ____ of the oldest streets.', 'preservation', 'Footsteps wearing away stone; ticket money pays for the "____ of the oldest streets".'),
+    p('The villagers refused to let a developer build a car park next to the medieval church. They argued that the ____ of the building was more important than easy parking for tourists.', 'preservation', 'Refusing a car park beside a medieval church; "the ____ of the building was more important".')
+  ],
+  'environmental impact': [
+    p('Before the new cable car could be built, the council asked experts to measure how it would change the mountain. Their report on the ____ concluded that the construction would harm rare plants.', 'environmental impact', 'Experts measure the change a cable car would cause; "Their report on the ____".'),
+    p('The hotel has stopped using plastic bottles and now collects rainwater for its gardens. The manager says these changes have greatly reduced the resort’s ____.', 'environmental impact', 'Fewer plastic bottles and collected rainwater; "greatly reduced the resort’s ____".')
+  ],
+  journey: [
+    p('We left the hotel at five in the morning and changed buses twice. It was a tiring ____, but we reached the mountain village before lunch.', 'journey', 'Leaving at five and changing buses; "a tiring ____" before reaching the village.'),
+    p('The ferry leaves the mainland at nine and docks on the island after lunch. Passengers say that the ____ is worth the wait because dolphins often swim beside the boat.', 'journey', 'Leaves at nine, docks after lunch; "the ____ is worth the wait".')
+  ],
+  licence: [
+    p('Visitors who want to fish in the lake must first go to the village office. After paying a small fee, they are given a ____ that they must carry with them at all times.', 'licence', 'Paying a fee at the office and carrying a document at all times; "given a ____".'),
+    p('The inspector asked the boat captain to show his papers before the tourists boarded. Without a valid ____ from the harbour authority, he was not allowed to take passengers out to sea.', 'licence', 'An inspector checking papers; "a valid ____ from the harbour authority".')
+  ],
+  offer: [
+    p('The travel agency has put a poster in its window announcing a new ____ on summer holidays. Anyone who books before the end of March saves a quarter of the price.', 'offer', 'Poster in the window and a quarter off the price; "a new ____ on summer holidays".'),
+    p('Late in the season, hotels often try to fill empty rooms. A cheap ____, such as three nights for the price of two, can persuade travellers to book at the last minute.', 'offer', 'Empty rooms and "three nights for the price of two"; "A cheap ____".')
+  ],
+  'guided tour': [
+    p('We did not want to get lost in the huge palace, so we bought tickets for a ____ at ten o’clock. Our leader knew the history of every room and told us stories that were not in the travel books.', 'guided tour', 'Not getting lost, tickets, a leader who knew every room; "tickets for a ____ at ten o’clock".'),
+    p('Visitors cannot enter the ancient tombs on their own because the floors are fragile. They must join a ____, during which an expert explains each painting and tells the group where it is safe to walk.', 'guided tour', 'Cannot enter alone; an expert explains each painting; "They must join a ____".')
+  ],
+  'travel assistant': [
+    p('After university, Ana started work at a busy high-street agency. As a ____, she answered customers’ questions, compared flight prices and printed their tickets.', 'travel assistant', 'Agency job answering questions and comparing flight prices; "As a ____".'),
+    p('The family could not decide between a beach holiday and a city break. The ____ listened carefully, checked the dates and suggested a hotel that was close to both the sea and the museums.', 'travel assistant', 'Helping a family choose a holiday; "The ____ listened carefully ... suggested a hotel".')
   ]
 });
