@@ -1,4 +1,4 @@
-// Unit 5 · Word Families — a SECOND authored example sentence for the two non-headword forms of each three-form family, WORDS 1–40.
+// Unit 5 · Word Families — a SECOND authored example sentence for the two non-headword forms of each three-form family, WORDS 1–50.
 // Same contract as unit-04-word-family-alternates.js: each sentence contains its form exactly once and never starts with it.
 export const unit5WordFamilyAlternates = Object.freeze({
   snorkelling: {
@@ -36,6 +36,22 @@ export const unit5WordFamilyAlternates = Object.freeze({
   availability: {
     available: 'Is a table for four available on Saturday evening?',
     unavailable: 'Most morning trips were unavailable because the boat was being repaired.'
+  },
+  specialise: {
+    specialist: 'The hospital asked a specialist in tropical diseases to examine the returning traveller.',
+    specialisation: 'After a general course, students may choose a specialisation such as adventure tourism or event planning.'
+  },
+  qualification: {
+    qualify: 'It takes four years of study to qualify as a tour guide in some countries.',
+    qualified: 'The agency employs fully qualified guides who speak at least two languages.'
+  },
+  location: {
+    locate: 'Rescue teams used a satellite signal to locate the missing walkers.',
+    located: 'The visitor centre is located on the main square, opposite the cathedral.'
+  },
+  equipment: {
+    equip: 'The government decided to equip all rescue teams with satellite phones.',
+    equipped: 'The expedition was well equipped for the cold, with tents, stoves and thick jackets.'
   },
   adventurous: {
     adventure: 'The school trip turned into a real adventure when the bus broke down in the mountains.',

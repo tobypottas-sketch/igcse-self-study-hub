@@ -1,4 +1,4 @@
-// Unit 5 · Meaning · Match (Recognise) — authored WRONG meanings, words 1–40. Same contract as unit-04-meaning-match.js: each set of three is
+// Unit 5 · Meaning · Match (Recognise) — authored WRONG meanings, words 1–50. Same contract as unit-04-meaning-match.js: each set of three is
 // the same part of speech as the answer (acceptedParaphrases[0]), comparable in length, and plausible without being a synonym.
 export default {
   'aerial tourism': ['sightseeing from a coach', 'holidays on a mountain railway', 'tours of underground caves'],
@@ -40,5 +40,15 @@ export default {
   recommendation: ['complaint about poor service', 'information about opening times', 'instructions for using a machine'],
   reservation: ['final payment', 'spare ticket', 'late arrival'],
   destination: ['train timetable', 'travel document', 'luggage label'],
-  availability: ['how popular rooms are with guests', 'how much rooms cost in winter', 'how large rooms are for families']
+  availability: ['how popular rooms are with guests', 'how much rooms cost in winter', 'how large rooms are for families'],
+  facilities: ['complaints from guests', 'tickets for guests', 'reviews by guests'],
+  equipment: ['luggage', 'souvenirs', 'fuel'],
+  location: ['schedule', 'budget', 'distance'],
+  obtain: ['postpone', 'withdraw', 'replace'],
+  specialise: ['change to a new job', 'take a long break', 'move to a new town'],
+  qualification: ['receipt', 'invitation', 'brochure'],
+  evaluate: ['pack away', 'hand over', 'look after'],
+  itinerary: ['holiday brochure', 'travel insurance', 'luggage label'],
+  'safety regulations': ['official travel documents', 'school holiday dates', 'tourist information leaflets'],
+  excursion: ['rest day', 'school lesson', 'long holiday']
 };

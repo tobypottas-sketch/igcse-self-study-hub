@@ -1,4 +1,4 @@
-// Unit 5 · additional authored WRONG situations for "Which situation fits?", WORDS 1–40 ONLY. Same purpose as unit-04-situation-extras.js:
+// Unit 5 · additional authored WRONG situations for "Which situation fits?", WORDS 1–50. Same purpose as unit-04-situation-extras.js:
 // the schema needs at least four distinct, target-free situations. Each word gets three more plausible, clearly wrong situations of mixed length.
 // None of them shows the word, and none could also illustrate it.
 export default Object.freeze({
@@ -25,7 +25,7 @@ export default Object.freeze({
   expedition: [
     'The waiter at the beach café brought ice cream to the children at the next table.',
     'A guide pointed out the clock tower and told visitors about its history.',
-    'The airline offered passengers a free drink because the flight was delayed.'
+    'The shopkeeper rolled up the shutters and put boxes of fruit outside the door.'
   ],
   yacht: [
     'The tourists spent the afternoon on the beach, building sandcastles and eating ice cream.',
@@ -201,5 +201,55 @@ export default Object.freeze({
     'The old tram climbs the steep hill and stops outside the museum.',
     'Her passport photograph made her laugh because her hair looked so strange.',
     'Fresh snow had covered the car park by the time the skiers finished their lunch.'
+  ],
+  facilities: [
+    'A cold wind blew across the harbour and the fishermen pulled on their coats.',
+    'The museum closed early on Mondays so that the staff could clean the galleries.',
+    'Two cyclists stopped at the crossroads to read the signpost.'
+  ],
+  equipment: [
+    'Two students waited at the harbour wall for the ferry to the island.',
+    'The market closes at five, so the traders pack away their stalls early.',
+    'Fog hung over the valley until the middle of the morning.'
+  ],
+  location: [
+    'A little girl pointed at a rainbow over the roofs of the village.',
+    'Students collected shells along the shore and sorted them into boxes.',
+    'The librarian stamped the date on the inside cover of each book.'
+  ],
+  obtain: [
+    'The old bridge shook slightly each time a heavy lorry crossed it.',
+    'Heavy snow closed the mountain road for the third time that winter.',
+    'She poured two cups of mint tea and carried them onto the balcony.'
+  ],
+  specialise: [
+    'Rain drummed on the tin roof of the bus shelter all afternoon.',
+    'The twins painted a picture of their grandmother’s garden for the school exhibition.',
+    'A line of camels walked slowly across the dune at sunset.'
+  ],
+  qualification: [
+    'Waves broke over the rocks while gulls circled above the lighthouse.',
+    'Fresh paint was drying on the window frames of the little cottage.',
+    'An old man fed the pigeons in the square every morning.'
+  ],
+  evaluate: [
+    'A cold drink and a rest in the shade were all the walkers wanted.',
+    'The shop sells postcards, stamps and maps of the surrounding hills.',
+    'Snow fell silently on the roofs of the little mountain village.'
+  ],
+  itinerary: [
+    'The old woman waved from her balcony as the parade passed by.',
+    'Torches lit the path to the cave entrance.',
+    'The pupils lined up in pairs outside the museum gates.'
+  ],
+  'safety regulations': [
+    'Pupils drew maps of the village for their geography project.',
+    'The ferry crossing took forty minutes and the sea was calm.',
+    'A drone hovered above the festival crowd, filming the dancers.'
+  ],
+  excursion: [
+    'A street artist drew chalk pictures on the pavement near the fountain.',
+    'The fisherman mended his net on the quay, watched by a curious cat.',
+    'Rain had turned the football pitch into a muddy field.'
   ]
 });

@@ -1,6 +1,6 @@
-// Unit 5 Word Families items (writing_set, taskType 'word_family'), WORDS 1–40 ONLY: three items for each word that has a genuine family.
+// Unit 5 Word Families items (writing_set, taskType 'word_family'), WORDS 1–50: three items for each word that has a genuine family.
 // Same record shape as unit-04-word-family-items.js. Each sentence has one gap that exactly one form of the family completes, and the gap never
-// opens the sentence. only snorkelling, attractions, adventurous, spectacular, popular, preservation, exploring, observation, relaxation, recommendation, reservation and availability have a genuine family, so the other twenty-eight words have no items
+// opens the sentence. only snorkelling, attractions, adventurous, spectacular, popular, preservation, exploring, observation, relaxation, recommendation, reservation, availability, specialise, qualification, location and equipment have a genuine family, so the other thirty-four words have no items
 // (see unit-05-word-families.js).
 const unitNumber = 5;
 const status = 'approved';
@@ -47,5 +47,17 @@ export default [
   family('reservation_c', 'vocab_reservation', 'reservation', 'The front rows of the theatre are ____ for guests with young children.', 'reserved'),
   family('availability_a', 'vocab_availability_5', 'availability', 'Because of the festival, ____ of tents at the campsite is very limited.', 'availability'),
   family('availability_b', 'vocab_availability_5', 'availability', 'Is a double room still ____ for the last week of August?', 'available'),
-  family('availability_c', 'vocab_availability_5', 'availability', 'The guide said that the cave tour was ____ today because of flooding.', 'unavailable')
+  family('availability_c', 'vocab_availability_5', 'availability', 'The guide said that the cave tour was ____ today because of flooding.', 'unavailable'),
+  family('specialise_a', 'vocab_specialise', 'specialise', 'Some doctors choose to ____ in the illnesses that travellers catch in hot countries.', 'specialise'),
+  family('specialise_b', 'vocab_specialise', 'specialise', 'The agency asked a ____ in wildlife photography to lead the weekend course.', 'specialist'),
+  family('specialise_c', 'vocab_specialise', 'specialise', 'The university offers a choice of three areas of ____ in the final year of the degree.', 'specialisation'),
+  family('qualification_a', 'vocab_qualification', 'qualification', 'After a two-year course, she hoped to ____ as a tour guide.', 'qualify'),
+  family('qualification_b', 'vocab_qualification', 'qualification', 'The company employs only fully ____ lifeguards, so parents can feel confident at the pool.', 'qualified'),
+  family('qualification_c', 'vocab_qualification', 'qualification', 'To apply for the job, you need a ____ in tourism or a similar subject.', 'qualification'),
+  family('location_a', 'vocab_location', 'location', 'The explorers used the stars to ____ their position in the desert.', 'locate'),
+  family('location_b', 'vocab_location', 'location', 'The old fortress is ____ on a hill above the river, just outside the town.', 'located'),
+  family('location_c', 'vocab_location', 'location', 'The exact ____ of the treasure is marked with a cross on the map.', 'location'),
+  family('equipment_a', 'vocab_equipment_5', 'equipment', 'The school wants to ____ every classroom with a computer and a projector.', 'equip'),
+  family('equipment_b', 'vocab_equipment_5', 'equipment', 'The kitchen in our self-catering cabin is well ____, with everything from a toaster to a large oven.', 'equipped'),
+  family('equipment_c', 'vocab_equipment_5', 'equipment', 'Please return all hired ____ to the shop by six o’clock on Sunday.', 'equipment')
 ];

@@ -1,4 +1,4 @@
-// Unit 5 · Meaning · Apply and Mastery — authored wrong meanings, WORDS 1–40 ONLY. Same contract as unit-04-meaning-mastery.js:
+// Unit 5 · Meaning · Apply and Mastery — authored wrong meanings, WORDS 1–50. Same contract as unit-04-meaning-mastery.js:
 // two records per word in the order of the word's two Mastery contexts; exactly three authored WRONG glosses, same grammar and similar length
 // as the correct gloss, plausible in general, wrong in this sentence.
 const w = (wrongMeanings, extra = {}) => ({ wrongMeanings, ...extra });
@@ -163,5 +163,45 @@ export default Object.freeze({
   availability: [
     w(['how many people want to travel in a particular season', 'how much money is needed to pay for a place', 'how far a place is from the main road']),
     w(['how popular a region is with visitors from abroad', 'how much a booking costs in the busiest month', 'how well a region is known to local people'])
+  ],
+  facilities: [
+    w(['the staff and managers employed to look after people', 'the payments and prices charged for services to people', 'the rules and notices displayed for people to read']),
+    w(['the groups and clubs that are organised by the visitors', 'the stories and photographs that are collected by visitors', 'the maps and signs that are written for the visitors'])
+  ],
+  equipment: [
+    w(['the places where a particular sport or activity is held', 'the rules written for a particular sport or activity', 'the people trained for a particular sport or activity']),
+    w(['the maps, books and photographs that people take of an activity', 'the guides, drivers and cooks that people hire for an activity', 'the tickets, passes and receipts that people keep from an activity'])
+  ],
+  location: [
+    w(['the person who is responsible for a place', 'the time at which something is opened', 'the reason why something is built']),
+    w(['the size of a place compared with other places', 'the age of a place in relation to other places', 'the cost of a place compared with other places'])
+  ],
+  obtain: [
+    w(['to give something back after an official process', 'to lose something because of an official process', 'to send something through an official process']),
+    w(['to fail to understand something that is difficult to read', 'to decide to sell something that is difficult to replace', 'to agree to repair something that is difficult to lift'])
+  ],
+  specialise: [
+    w(['to move from one area of study or work to another', 'to give up an area of study or work completely', 'to compare different areas of study or work']),
+    w(['to avoid one area and become bored with it', 'to move to one area and become tired of it', 'to complain about one area and refuse to study it'])
+  ],
+  qualification: [
+    w(['an official letter showing that someone has paid for a holiday', 'an official card showing that someone is allowed to enter a country', 'an official list showing that someone has booked a table']),
+    w(['a prize, such as a medal, that shows someone is popular with tourists', 'a reward, such as a bonus, that shows someone has worked extra hours', 'a payment, such as a salary, that shows someone is employed by a company'])
+  ],
+  evaluate: [
+    w(['to ignore the value or effect of something despite the evidence', 'to increase the value or effect of something with advertising', 'to change the value or effect of something without evidence']),
+    w(['to tell people how good something is by using clear slogans', 'to show how good something is by using clear photographs', 'to promise that something is good by using clear guarantees'])
+  ],
+  itinerary: [
+    w(['a detailed bill for a trip showing prices and taxes', 'a detailed report on a trip showing problems and complaints', 'a detailed map of a town showing streets and shops']),
+    w(['the final cost and list of items to pay for on a holiday', 'the weather forecast and list of clothes to pack for a holiday', 'the safety rules and list of things to avoid on a mountain'])
+  ],
+  'safety regulations': [
+    w(['official prices set to stop people from spending or saving too much money', 'official signs designed to help people to find or reach a place', 'official lists designed to show people which hotels are cheapest']),
+    w(['rules made by an authority to collect money from visitors', 'rules made by an authority to attract tourists to a region', 'rules made by an authority to reduce traffic in a town'])
+  ],
+  excursion: [
+    w(['long journeys that people make across several countries', 'free days that people spend resting at a hotel', 'tickets that people buy for entry to a museum']),
+    w(['a long and tiring journey, usually for work', 'a guided talk about an object, usually for children', 'a free afternoon, usually for shopping'])
   ]
 });
