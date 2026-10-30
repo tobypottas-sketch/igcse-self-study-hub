@@ -1,4 +1,4 @@
-// UNIT 3 – FOOD: authoring draft (batch 1 = words 1–10). Source: 0511 key words UNIT 3 – FOOD (coursebook order). Words 11–50 are not locked yet.
+// UNIT 3 – FOOD: authoring draft (all 50 words authored, batches 1–5). Source: 0511 key words UNIT 3 – FOOD (coursebook order). Still a draft until the release audit.
 // Same architecture as unit-02.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-03-draft.js
 // A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-03.js only when all 50 words are final.
 import { buildCuratedUnit } from '../build-unit.js';
@@ -1147,6 +1147,288 @@ const entries = [
         { id:'1', answer:'informative', wrong:['careless', 'crowded', 'tasteless'] },
         { id:'2', answer:'informative', wrong:['noisy', 'sticky', 'crowded'] },
         { id:'3', answer:'informative', wrong:['careless', 'tasteless', 'dishonest'] }
+      ]
+    }),
+  e('reflection', 'noun',
+    'careful thought about something, especially to understand or judge it',
+    ['careful thought', 'serious consideration'],
+    ['a quick guess made without thinking', 'a sudden feeling of hunger', 'a formal rule about behaviour'],
+    'The chef spent a quiet hour in reflection before she decided on the new menu.',
+    'careful thought', 'The chef spent a quiet hour in careful thought before she decided on the new menu.',
+    'serious consideration', 'After serious consideration, the owner decided to change the menu.',
+    {
+      masteryContexts:[
+        { text:'After the cooking project, each student wrote a short reflection on what had gone well and what could improve.', meaning:'careful thought about past events or work' },
+        { text:'The owner read the customer comments and, after some reflection, decided to simplify the menu.', meaning:'time spent thinking carefully' }
+      ],
+      situationDistractors:[
+        'The student ordered a sandwich without reading the menu and ate it in a hurry.',
+        'The chef answered at once, started cooking and never stopped to think.',
+        'The class tasted five dishes and shouted their votes at the same moment.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'After a period of quiet reflection, the owner decided to change the menu.', target:'reflection', grammarPattern:'' },
+        { id:'2', text:'Students wrote a short reflection on their cooking lesson at the end of the term.', target:'reflection', grammarPattern:'' },
+        { id:'3', text:'The teacher asked the class for a written reflection on what they had learned about nutrition.', target:'reflection', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'reflection', wrong:['travel', 'laughter', 'payment'] },
+        { id:'2', answer:'reflection', wrong:['complaint', 'recipe', 'picture'] },
+        { id:'3', answer:'reflection', wrong:['complaint', 'receipt', 'schedule'] }
+      ]
+    }),
+  e('organiser', 'noun',
+    'a person who plans and arranges an event or activity',
+    ['event planner', 'person who arranges events'],
+    ['a person who takes part in an activity', 'a person who pays for an event', 'a person who cleans after an event'],
+    'The organiser of the food festival booked the stalls and sent the invitations.',
+    'event planner', 'The event planner of the food festival booked the stalls and sent the invitations.',
+    'person who arranges events', 'A person who arranges events must check the food and the guest list carefully.',
+    {
+      masteryContexts:[
+        { text:'The organiser of the school food festival booked forty stalls and invited every family in the town.', meaning:'the person who plans and arranges an event' },
+        { text:'The organiser asked every cook to arrive by eight o’clock so that the market could open on time.', meaning:'the person in charge of planning an activity' }
+      ],
+      situationDistractors:[
+        'A visitor tasted the soup at one stall and left without buying anything.',
+        'A cook washed the pans when the event had finished.',
+        'The audience clapped when the singer finished the last song.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The organiser of the food fair checked that every stall had a table and enough electricity.', target:'organiser', grammarPattern:'' },
+        { id:'2', text:'Thank you to the organiser, who worked for months to arrange the school cooking competition.', target:'organiser', grammarPattern:'' },
+        { id:'3', text:'As the organiser of the class picnic, Sara made a list of who would bring each dish.', target:'organiser', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'organiser', wrong:['visitor', 'winner', 'neighbour'] },
+        { id:'2', answer:'organiser', wrong:['winner', 'visitor', 'customer'] },
+        { id:'3', answer:'organiser', wrong:['winner', 'customer', 'neighbour'] }
+      ]
+    }),
+  e('presenter', 'noun',
+    'a person who introduces a programme or gives a talk to an audience',
+    ['host', 'person who introduces a programme'],
+    ['a person who cooks the food for a programme', 'a person who watches a programme at home', 'a person who pays for a programme'],
+    'The presenter of the cooking programme showed viewers how to make fresh pasta.',
+    'host', 'The host of the cooking programme showed viewers how to make fresh pasta.',
+    'person who introduces a programme', 'The person who introduces a programme welcomed the viewers and the guest chef.',
+    {
+      masteryContexts:[
+        { text:'The presenter of the radio programme introduced the guest chef and asked her about her favourite recipes.', meaning:'a person who introduces and leads a programme' },
+        { text:'At the school conference, each presenter had ten minutes to explain a project on healthy eating.', meaning:'a person who gives a talk to an audience' }
+      ],
+      situationDistractors:[
+        'The audience sat quietly and ate their sandwiches before the show began.',
+        'The camera operator set up the lights and checked the sound.',
+        'The viewers switched off the television and went to bed.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The presenter of the cooking programme smiled at the camera and welcomed the viewers.', target:'presenter', grammarPattern:'' },
+        { id:'2', text:'Each presenter at the food science conference had ten minutes to explain a project.', target:'presenter', grammarPattern:'' },
+        { id:'3', text:'The radio presenter asked the chef about the history of the dish.', target:'presenter', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'presenter', wrong:['driver', 'farmer', 'neighbour'] },
+        { id:'2', answer:'presenter', wrong:['waiter', 'driver', 'farmer'] },
+        { id:'3', answer:'presenter', wrong:['farmer', 'neighbour', 'tourist'] }
+      ]
+    }),
+  e('evaluate', 'verb',
+    'to judge how good, useful or successful something is by thinking about it carefully',
+    ['assess', 'judge the quality of'],
+    ['to prepare food for a large group', 'to repeat a recipe from memory', 'to choose a table in a restaurant'],
+    'Food critics evaluate a restaurant by looking at its dishes, its service and its atmosphere.',
+    'assess', 'Food critics assess a restaurant by looking at its dishes, its service and its atmosphere.',
+    'judge the quality of', 'Inspectors judge the quality of the food before they give a restaurant its award.',
+    {
+      grammarForms:{ base:'evaluate', thirdPerson:'evaluates', past:'evaluated', pastParticiple:'evaluated', ing:'evaluating' },
+      masteryContexts:[
+        { text:'Before choosing a restaurant, we read reviews to evaluate the quality of its food and service.', meaning:'judge how good something is' },
+        { text:'Students were asked to evaluate three school lunch menus and decide which one offered the best value.', meaning:'judge the quality or value of something carefully' }
+      ],
+      situationDistractors:[
+        'The cook added salt to the soup and stirred it without tasting it.',
+        'The waiter wrote down the order and walked to the kitchen.',
+        'The class ate their lunch and put the plates in the sink.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Judges evaluate each dish for taste, appearance and the skill of the cook.', target:'evaluate', grammarPattern:'' },
+        { id:'2', text:'It is important to evaluate the information on a food label before you decide to buy the product.', target:'evaluate', grammarPattern:'' },
+        { id:'3', text:'We asked customers to evaluate the service by filling in a short form.', target:'evaluate', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'evaluate', wrong:['peel', 'pour', 'wrap'] },
+        { id:'2', answer:'evaluate', wrong:['copy', 'fold', 'sell'] },
+        { id:'3', answer:'evaluate', wrong:['carry', 'fold', 'repair'] }
+      ]
+    }),
+  e('consume', 'verb',
+    'to eat or drink something, or to use up an amount of something',
+    ['eat or drink', 'use up'],
+    ['to prepare and cook something carefully', 'to buy something from a shop', 'to throw something away after use'],
+    'Hungry visitors at the food festival consume a huge amount of snacks and juice.',
+    'eat or drink', 'Hungry visitors at the food festival eat or drink a huge amount of snacks and juice.',
+    'use up', 'A large restaurant can use up hundreds of litres of cooking oil every week.',
+    {
+      grammarForms:{ base:'consume', thirdPerson:'consumes', past:'consumed', pastParticiple:'consumed', ing:'consuming' },
+      masteryContexts:[
+        { text:'A family of four can consume a large bag of rice in less than two weeks.', meaning:'eat or use up an amount of food' },
+        { text:'Most adults consume at least one cup of tea or coffee every day.', meaning:'drink or eat something regularly' }
+      ],
+      situationDistractors:[
+        'The farmer grew rice in a flooded field and sold it at the market.',
+        'The shop assistant put the rice on the shelf and counted the bags.',
+        'The chef bought vegetables and carried them to the kitchen.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Hungry visitors at the festival consume thousands of snacks in a single weekend.', target:'consume', grammarPattern:'' },
+        { id:'2', text:'The average family in this town will consume about two kilograms of rice each week.', target:'consume', grammarPattern:'' },
+        { id:'3', text:'Restaurants consume large amounts of cooking oil, so many of them buy it in bulk.', target:'consume', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'consume', wrong:['grow', 'repair', 'carry'] },
+        { id:'2', answer:'consume', wrong:['repair', 'forget', 'answer'] },
+        { id:'3', answer:'consume', wrong:['paint', 'repair', 'forget'] }
+      ]
+    }),
+  e('balanced', 'adjective',
+    'having the right amounts of different things, so that no one part is too big',
+    ['well-proportioned', 'in the right proportions'],
+    ['containing only one kind of food', 'served in very small amounts', 'prepared with a lot of oil'],
+    'The school offers a balanced lunch with vegetables, protein and rice.',
+    'well-proportioned', 'The school offers a well-proportioned lunch with vegetables, protein and rice.',
+    'in the right proportions', 'A good meal contains vegetables, protein and rice in the right proportions.',
+    {
+      masteryContexts:[
+        { text:'The school lunch is balanced, with vegetables, protein, rice and a piece of fruit.', meaning:'including the right amounts of different foods' },
+        { text:'The chef planned a balanced menu, with light dishes placed between the rich ones.', meaning:'arranged so that no part is too heavy or too large' }
+      ],
+      situationDistractors:[
+        'The lunch box held ten chocolate bars and nothing else.',
+        'The cook served a huge bowl of plain rice with no other food.',
+        'The plate was almost empty, with only one small pea in the middle.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'A balanced diet includes foods from several groups, such as grains, vegetables and protein.', target:'balanced', grammarPattern:'' },
+        { id:'2', text:'The school wants every lunch to be balanced, with some vegetables, some protein and some fruit.', target:'balanced', grammarPattern:'' },
+        { id:'3', text:'The chef planned a balanced menu in which each rich dish was followed by something light.', target:'balanced', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'balanced', wrong:['crowded', 'famous', 'cheap'] },
+        { id:'2', answer:'balanced', wrong:['crowded', 'famous', 'noisy'] },
+        { id:'3', answer:'balanced', wrong:['crowded', 'famous', 'noisy'] }
+      ]
+    }),
+  e('calorie', 'noun',
+    'a unit used to measure the energy that food provides',
+    ['unit of food energy', 'measure of food energy'],
+    ['a unit used to measure the weight of food', 'a unit used to measure the heat of an oven', 'a unit used to measure the time needed to cook'],
+    'Scientists measure the energy in a snack by counting each calorie that it contains.',
+    'unit of food energy', 'Scientists measure the energy in a snack by counting each unit of food energy that it contains.',
+    'measure of food energy', 'The label gives the measure of food energy in one portion of soup.',
+    {
+      masteryContexts:[
+        { text:'A calorie is a unit that shows how much energy a food provides.', meaning:'a unit for measuring the energy in food' },
+        { text:'The menu shows the calorie value of every dish next to its price.', meaning:'a measure of the energy in food' }
+      ],
+      situationDistractors:[
+        'The cook weighed the flour and added two spoons of sugar.',
+        'The oven was heated to two hundred degrees before the bread went in.',
+        'The label listed the country where the rice was grown.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'In science lessons, a calorie is described as a unit of energy in food.', target:'calorie', grammarPattern:'' },
+        { id:'2', text:'The nutrition label lists the calorie count for one portion of the soup.', target:'calorie', grammarPattern:'' },
+        { id:'3', text:'Each portion on the menu has a calorie value printed beside its price.', target:'calorie', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'calorie', wrong:['gram', 'litre', 'degree'] },
+        { id:'2', answer:'calorie', wrong:['page', 'word', 'seat'] },
+        { id:'3', answer:'calorie', wrong:['colour', 'shape', 'size'] }
+      ]
+    }),
+  e('hygienic', 'adjective',
+    'clean in a way that stops dirt and germs from spreading',
+    ['clean and germ-free', 'free from dirt and germs'],
+    ['tidy and well organised', 'cold and kept fresh', 'old and rarely used'],
+    'The kitchen was hygienic, with shining surfaces and staff who washed their hands often.',
+    'clean and germ-free', 'The kitchen was clean and germ-free, with shining surfaces and staff who washed their hands often.',
+    'free from dirt and germs', 'Food must be kept in containers that are free from dirt and germs.',
+    {
+      masteryContexts:[
+        { text:'The inspector praised the hygienic kitchen, where staff washed their hands and cleaned every surface.', meaning:'clean in a way that stops germs spreading' },
+        { text:'It is not hygienic to prepare raw chicken and salad on the same board.', meaning:'safe because it avoids spreading dirt and germs' }
+      ],
+      situationDistractors:[
+        'The cook left the raw meat on the table next to the bread for an hour.',
+        'The waiter dropped a spoon, wiped it on his shirt and put it back on the table.',
+        'The kitchen floor was covered in old food and the bins were overflowing.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The health inspector checked that the kitchen was hygienic before the restaurant opened.', target:'hygienic', grammarPattern:'' },
+        { id:'2', text:'It is not hygienic to touch food with dirty hands, so cooks wash their hands often.', target:'hygienic', grammarPattern:'' },
+        { id:'3', text:'Street food stalls must keep their equipment hygienic by cleaning it after every customer.', target:'hygienic', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'hygienic', wrong:['crowded', 'famous', 'noisy'] },
+        { id:'2', answer:'hygienic', wrong:['useful', 'cheap', 'famous'] },
+        { id:'3', answer:'hygienic', wrong:['noisy', 'famous', 'heavy'] }
+      ]
+    }),
+  e('appetising', 'adjective',
+    'looking or smelling so good that you want to eat it',
+    ['mouth-watering', 'tempting'],
+    ['tasting too strongly of salt', 'served hot and ready to eat', 'cheap enough for everyone to buy'],
+    'The smell of fresh bread from the bakery was very appetising.',
+    'mouth-watering', 'The smell of fresh bread from the bakery was very mouth-watering.',
+    'tempting', 'The cake looked tempting, with its thick chocolate sauce.',
+    {
+      masteryContexts:[
+        { text:'The pizza arrived hot from the oven, with melted cheese and a delicious smell, and it looked very appetising.', meaning:'looking so good that you want to eat it' },
+        { text:'Chefs arrange food carefully on the plate to make it look more appetising.', meaning:'attractive and making people want to eat' }
+      ],
+      situationDistractors:[
+        'The soup was cold, grey and full of lumps, so nobody wanted to try it.',
+        'The meal was served on time, but the portions were small.',
+        'The cook carried the heavy pot from the stove to the table.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The smell of fresh bread from the bakery was so appetising that we stopped to buy a loaf.', target:'appetising', grammarPattern:'' },
+        { id:'2', text:'The restaurant uses bright colours on the plate to make the food look more appetising.', target:'appetising', grammarPattern:'' },
+        { id:'3', text:'A grey, cold bowl of soup is not very appetising, even if it tastes fine.', target:'appetising', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'appetising', wrong:['crowded', 'noisy', 'heavy'] },
+        { id:'2', answer:'appetising', wrong:['crowded', 'noisy', 'heavy'] },
+        { id:'3', answer:'appetising', wrong:['crowded', 'noisy', 'famous'] }
+      ]
+    }),
+  e('cuisine', 'noun',
+    'a style of cooking that is typical of a particular place or culture',
+    ['style of cooking', 'cooking tradition'],
+    ['a place where food is sold', 'a list of dishes in a restaurant', 'a method used to keep food fresh'],
+    'Many tourists travel to Italy to enjoy the local cuisine.',
+    'style of cooking', 'Many tourists travel to Italy to enjoy the local style of cooking.',
+    'cooking tradition', 'Each region has its own cooking tradition, with different spices and ingredients.',
+    {
+      masteryContexts:[
+        { text:'Many tourists travel to Italy to enjoy the local cuisine, especially fresh pasta and pizza.', meaning:'the style of cooking of a particular place' },
+        { text:'The restaurant serves Korean cuisine, so the menu includes rice dishes, soups and spicy vegetables.', meaning:'cooking that is typical of a country or culture' }
+      ],
+      situationDistractors:[
+        'The farmer sold fresh tomatoes at the market on Saturday morning.',
+        'The waiter brought the bill and a mint to every table.',
+        'The chef tasted the soup, added salt and stirred it again.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Thai cuisine is famous for its balance of sweet, sour, salty and spicy flavours.', target:'cuisine', grammarPattern:'' },
+        { id:'2', text:'We tried the local cuisine and loved the fresh seafood and spicy sauces.', target:'cuisine', grammarPattern:'' },
+        { id:'3', text:'The festival gives visitors the chance to taste cuisine from twenty different countries.', target:'cuisine', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'cuisine', wrong:['weather', 'music', 'language'] },
+        { id:'2', answer:'cuisine', wrong:['weather', 'music', 'transport'] },
+        { id:'3', answer:'cuisine', wrong:['clothing', 'music', 'transport'] }
       ]
     })
 

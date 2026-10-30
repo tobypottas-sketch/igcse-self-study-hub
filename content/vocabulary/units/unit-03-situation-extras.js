@@ -201,6 +201,56 @@ export default Object.freeze({
     'The chef washed the pans after the lesson.',
     'The class visited the market on Tuesday.',
     'The tour guide wore a green jacket.'
+  ],
+  reflection: [
+    'The market stall sells local vegetables at low prices.',
+    'The cafe closes early on Sundays.',
+    'The chef learned the recipe from his grandmother.'
+  ],
+  organiser: [
+    'The cafe opens at eight and closes at six.',
+    'The chef wore a white hat and an apron.',
+    'There were four tables near the window.'
+  ],
+  presenter: [
+    'The waiter wiped the table and brought the menus.',
+    'The queue outside the cafe moved quickly.',
+    'She ordered tea and a slice of lemon cake.'
+  ],
+  evaluate: [
+    'The restaurant has red tablecloths and candles.',
+    'The bill was paid by credit card.',
+    'The market opens at six every morning.'
+  ],
+  consume: [
+    'The restaurant has a garden at the back.',
+    'The tickets were printed on blue paper.',
+    'The waiter carried the plates on a large tray.'
+  ],
+  balanced: [
+    'The cafe opens at eight and closes at six.',
+    'The queue outside the cafe moved quickly.',
+    'The waiter wiped the table and brought the menus.'
+  ],
+  calorie: [
+    'The chef wore a white hat and an apron.',
+    'There were four tables near the window.',
+    'The restaurant opens on Mondays.'
+  ],
+  hygienic: [
+    'The restaurant has red tablecloths and candles.',
+    'The bill was paid by credit card.',
+    'The cafe closes early on Sundays.'
+  ],
+  appetising: [
+    'The tickets were printed on blue paper.',
+    'The restaurant has a garden at the back.',
+    'The chef learned the recipe from his grandmother.'
+  ],
+  cuisine: [
+    'The queue outside the cafe moved quickly.',
+    'The restaurant opens on Mondays.',
+    'The bill was paid by credit card.'
   ]
 
 });

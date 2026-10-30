@@ -163,6 +163,46 @@ export default Object.freeze({
   informative: [
     p('Before the school trip to the farm, the teacher handed out a leaflet. It was short but very ____: it explained where milk comes from and how cheese is made.', 'informative', 'Explains where milk comes from.'),
     p('Tom did not enjoy the cooking show at first. However, he found it ____, because he learned why bread needs time to rise.', 'informative', 'Learned a fact.')
+  ],
+  reflection: [
+    p('At the end of the term, the teacher asked the class to look back at their cooking project. Each student wrote a short ____ on what had gone well and what they would change next time.', 'reflection', 'Look back; wrote on what went well.'),
+    p('The restaurant owner read all the customer comments carefully. After a long period of quiet ____, she decided to remove three dishes from the menu.', 'reflection', 'Read comments; quiet thinking before deciding.')
+  ],
+  organiser: [
+    p('The school wanted to hold a food festival for all families. The ____ spent three months booking stalls, choosing a date and sending invitations.', 'organiser', 'Booking stalls, choosing a date, invitations.'),
+    p('Everyone enjoyed the picnic because nothing went wrong. The ____ had made a list of who would bring each dish and had checked the weather forecast.', 'organiser', 'Made the list; planned the picnic.')
+  ],
+  presenter: [
+    p('Millions of people watch the Saturday cooking show. The ____ welcomes the viewers, introduces the guest chef and explains each recipe in simple words.', 'presenter', 'Welcomes viewers; introduces the guest.'),
+    p('At the school science fair, each student stood in front of a small crowd. The first ____ explained how salt keeps food fresh, and the others took notes.', 'presenter', 'Stood in front of a crowd; explained.')
+  ],
+  evaluate: [
+    p('The magazine sent a team of critics to the new restaurant. They had to ____ the food, the service and the prices, and then give the restaurant a score out of ten.', 'evaluate', 'Critics judge, then give a score.'),
+    p('Before the school changed its lunch menu, the cooks asked the students to try the new dishes. The teachers will then ____ the results and decide which meals to keep.', 'evaluate', 'Study the results, then decide.')
+  ],
+  consume: [
+    p('The school canteen serves about six hundred students each day. Together, the students ____ nearly two hundred loaves of bread every week.', 'consume', 'Students eat loaves of bread.'),
+    p('A busy restaurant needs a lot of supplies. In one weekend, the kitchen can ____ fifty kilograms of potatoes and thirty litres of oil.', 'consume', 'Kitchen uses up supplies.')
+  ],
+  balanced: [
+    p('The school canteen follows new guidelines. Every lunch must be ____, with some vegetables, some protein and some rice or bread.', 'balanced', 'Some of each kind of food.'),
+    p('The chef did not want the guests to feel too full by the third course. She planned a ____ menu, putting light dishes between the rich ones.', 'balanced', 'Light dishes between rich ones.')
+  ],
+  calorie: [
+    p('Food gives the body the energy it needs to move and think. Scientists measure this energy in units, and the unit that they use is the ____.', 'calorie', 'Unit for the energy in food.'),
+    p('Many packets of food show information about their contents on the back. Next to the amount of salt and fat, you can find the ____ count for one portion.', 'calorie', 'Label figure for one portion.')
+  ],
+  hygienic: [
+    p('Health inspectors visit restaurants without warning. They check that the kitchen is ____, with shining surfaces, fresh water and staff who wash their hands.', 'hygienic', 'Clean surfaces and handwashing.'),
+    p('Raw meat can carry germs that spread to other food. For this reason, it is not ____ to use the same knife for chicken and for salad.', 'hygienic', 'Germs spread by the same knife.')
+  ],
+  appetising: [
+    p('The bakery opens at five o’clock every morning. The smell of fresh bread is so ____ that people queue outside before the door opens.', 'appetising', 'Smell makes people queue.'),
+    p('The soup tasted wonderful, but it was grey and lumpy. Because it did not look ____, many guests refused to try it.', 'appetising', 'Looked grey, so guests refused.')
+  ],
+  cuisine: [
+    p('My cousin loves trying food from other countries. Last summer he travelled to Japan, where he discovered a ____ based on rice, fish and fresh vegetables.', 'cuisine', 'Style of cooking of Japan.'),
+    p('The school held an international evening. Each class chose a country and served dishes that were typical of its ____, from Mexican tacos to Indian curry.', 'cuisine', 'Dishes typical of a country.')
   ]
 
 });

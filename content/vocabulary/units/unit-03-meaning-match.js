@@ -40,6 +40,16 @@ export default {
   polite: ['impatient', 'careless', 'talkative'],
   helpful: ['ready to leave', 'keen to win', 'afraid to ask'],
   recommendation: ['complaint', 'refund', 'order'],
-  informative: ['entertaining', 'confusing', 'misleading']
+  informative: ['entertaining', 'confusing', 'misleading'],
+  reflection: ['quick decision', 'strong feeling', 'simple rule'],
+  organiser: ['guest speaker', 'head waiter', 'food critic'],
+  presenter: ['guest', 'viewer', 'cook'],
+  evaluate: ['prepare', 'repeat', 'delay'],
+  consume: ['cook or serve', 'buy or sell', 'grow or pick'],
+  balanced: ['over-salted', 'half-cooked', 'ill-prepared'],
+  calorie: ['unit of food weight', 'type of cooking oil', 'part of a recipe'],
+  hygienic: ['cheap and long-lasting', 'warm and well-cooked', 'fresh and full of flavour'],
+  appetising: ['eye-catching', 'long-lasting', 'well-known'],
+  cuisine: ['place for eating', 'list of dishes', 'way of storing food']
 
 };

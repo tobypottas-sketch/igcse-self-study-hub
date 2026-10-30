@@ -85,6 +85,27 @@ export default [
   family('recommendation_c', 'vocab_recommendation', 'recommendation', 'We tried the cafe on the ____ of our teacher.', 'recommendation'),
   family('informative_a', 'vocab_informative', 'informative', 'The manager will ____ all customers about the new opening hours.', 'inform'),
   family('informative_b', 'vocab_informative', 'informative', 'The website gives clear ____ about prices and opening times.', 'information'),
-  family('informative_c', 'vocab_informative', 'informative', 'The leaflet was short but very ____, with facts about local farms.', 'informative')
+  family('informative_c', 'vocab_informative', 'informative', 'The leaflet was short but very ____, with facts about local farms.', 'informative'),
+  family('reflection_a', 'vocab_reflection', 'reflection', 'After the tasting, the judges stopped to ____ on which dish had impressed them most.', 'reflect'),
+  family('reflection_b', 'vocab_reflection', 'reflection', 'Mei is a quiet, ____ student who thinks carefully before she speaks.', 'reflective'),
+  family('reflection_c', 'vocab_reflection', 'reflection', 'Each student wrote a short ____ on the cooking project.', 'reflection'),
+  family('organiser_a', 'vocab_organiser', 'organiser', 'The school council will ____ a healthy-eating week next month.', 'organise'),
+  family('organiser_b', 'vocab_organiser', 'organiser', 'Careful ____ is needed to feed five hundred guests on time.', 'organisation'),
+  family('organiser_c', 'vocab_organiser', 'organiser', 'Maria was the main ____ of the school picnic, and she planned every detail.', 'organiser'),
+  family('presenter_a', 'vocab_presenter', 'presenter', 'Each group must ____ its menu idea to the judges on Friday.', 'present'),
+  family('presenter_b', 'vocab_presenter', 'presenter', 'Maria prepared a short ____ about vegetarian food, with slides and photographs.', 'presentation'),
+  family('presenter_c', 'vocab_presenter', 'presenter', 'The radio ____ asked the chef three quick questions about the dish.', 'presenter'),
+  family('consume_a', 'vocab_consume', 'consume', 'Hungry teenagers can ____ a whole loaf of bread in one evening.', 'consume'),
+  family('consume_b', 'vocab_consume', 'consume', 'A careful ____ checks the price and the label before buying a packet of rice.', 'consumer'),
+  family('consume_c', 'vocab_consume', 'consume', 'The ____ of tea in this region has grown steadily over ten years.', 'consumption'),
+  family('balanced_a', 'vocab_balanced', 'balanced', 'Many chefs try to ____ sweet and sour flavours in a single dish.', 'balance'),
+  family('balanced_b', 'vocab_balanced', 'balanced', 'There is an ____ between meat and vegetable dishes on this menu, because nearly every dish contains meat.', 'imbalance'),
+  family('balanced_c', 'vocab_balanced', 'balanced', 'We want every school lunch to be ____, with vegetables, protein and rice.', 'balanced'),
+  family('hygienic_a', 'vocab_hygienic', 'hygienic', 'Cooks learn the basic rules of food ____ on their first day of training.', 'hygiene'),
+  family('hygienic_b', 'vocab_hygienic', 'hygienic', 'The meat is kept ____ in a closed container in the fridge.', 'hygienically'),
+  family('hygienic_c', 'vocab_hygienic', 'hygienic', 'The inspector wants the whole kitchen to be ____ before it opens.', 'hygienic'),
+  family('appetising_a', 'vocab_appetising', 'appetising', 'A short walk before dinner can give you a good ____.', 'appetite'),
+  family('appetising_b', 'vocab_appetising', 'appetising', 'The porridge was cold and grey, and it looked so ____ that nobody tried it.', 'unappetising'),
+  family('appetising_c', 'vocab_appetising', 'appetising', 'The photographs on the menu made every dish look ____.', 'appetising')
 
 ];

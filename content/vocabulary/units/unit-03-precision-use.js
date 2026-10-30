@@ -91,6 +91,26 @@ export default [
   precision('u3_writing_precision_recommendation_a', 'vocab_recommendation', P('suggestion'), 'We chose this cafe on the suggestion of a friend who had eaten here twice.', ['recommendation'], ['complaint', 'argument', 'invoice']),
   precision('u3_writing_precision_recommendation_b', 'vocab_recommendation', P('advice'), 'Thanks to the advice of the waiter, we ordered the best dish on the menu.', ['recommendation'], ['complaint', 'argument', 'invoice']),
   precision('u3_writing_precision_informative_a', 'vocab_informative', P('full of facts'), 'The leaflet about local farms was short but full of facts.', ['informative'], ['noisy', 'sticky', 'crowded']),
-  precision('u3_writing_precision_informative_b', 'vocab_informative', P('instructive'), 'The cooking programme was instructive, and viewers learned how to make bread.', ['informative'], ['careless', 'tasteless', 'dishonest'])
+  precision('u3_writing_precision_informative_b', 'vocab_informative', P('instructive'), 'The cooking programme was instructive, and viewers learned how to make bread.', ['informative'], ['careless', 'tasteless', 'dishonest']),
+  precision('u3_writing_precision_reflection_a', 'vocab_reflection', P('careful thought'), 'After careful thought, the owner decided to simplify the menu.', ['reflection'], ['travel', 'laughter', 'payment']),
+  precision('u3_writing_precision_reflection_b', 'vocab_reflection', P('deep thought'), 'The chef spent a quiet hour in deep thought before she wrote the new menu.', ['reflection'], ['laughter', 'travel', 'argument']),
+  precision('u3_writing_precision_organiser_a', 'vocab_organiser', P('planner'), 'The planner of the school fair sent invitations to every family.', ['organiser'], ['winner', 'visitor', 'neighbour']),
+  precision('u3_writing_precision_organiser_b', 'vocab_organiser', P('person in charge'), 'Ask the person in charge of the event whether there is a table for six.', ['organiser'], ['driver', 'visitor', 'neighbour']),
+  precision('u3_writing_precision_presenter_a', 'vocab_presenter', P('host'), 'The host of the evening show introduced the guest chef to the audience.', ['presenter'], ['driver', 'farmer', 'neighbour']),
+  precision('u3_writing_precision_presenter_b', 'vocab_presenter', P('speaker'), 'Each speaker at the science fair had ten minutes to explain a project.', ['presenter'], ['driver', 'farmer', 'waiter']),
+  precision('u3_writing_precision_evaluate_a', 'vocab_evaluate', P('assess'), 'Judges assess each dish for taste, appearance and skill.', ['evaluate'], ['peel', 'carry', 'fold']),
+  precision('u3_writing_precision_evaluate_b', 'vocab_evaluate', P('look closely at'), 'Teachers look closely at each project to decide the mark.', ['evaluate'], ['peel', 'carry', 'fold']),
+  precision('u3_writing_precision_consume_a', 'vocab_consume', P('eat'), 'Teenagers in the town eat about two loaves of bread each week.', ['consume'], ['grow', 'repair', 'carry']),
+  precision('u3_writing_precision_consume_b', 'vocab_consume', P('use up'), 'A busy kitchen can use up fifty kilograms of potatoes in one weekend.', ['consume'], ['paint', 'repair', 'forget']),
+  precision('u3_writing_precision_balanced_a', 'vocab_balanced', P('well mixed'), 'The school canteen offers a well mixed diet of vegetables, protein and rice.', ['balanced'], ['crowded', 'famous', 'noisy']),
+  precision('u3_writing_precision_balanced_b', 'vocab_balanced', P('well-proportioned'), 'The nutrition teacher showed us a well-proportioned lunch plate with vegetables, protein and rice.', ['balanced'], ['crowded', 'famous', 'noisy']),
+  precision('u3_writing_precision_calorie_a', 'vocab_calorie', P('unit of food energy'), 'Scientists measure a snack by counting each unit of food energy that it contains.', ['calorie'], ['gram', 'litre', 'degree']),
+  precision('u3_writing_precision_calorie_b', 'vocab_calorie', P('food energy'), 'The nutrition label lists the food energy count for one portion of soup.', ['calorie'], ['page', 'word', 'seat']),
+  precision('u3_writing_precision_hygienic_a', 'vocab_hygienic', P('clean and safe'), 'The inspector found the kitchen clean and safe for preparing food.', ['hygienic'], ['noisy', 'famous', 'crowded']),
+  precision('u3_writing_precision_hygienic_b', 'vocab_hygienic', P('free from germs'), 'Cooks must keep their knives free from germs by washing them after each job.', ['hygienic'], ['heavy', 'famous', 'noisy']),
+  precision('u3_writing_precision_appetising_a', 'vocab_appetising', P('tempting'), 'The tempting smell of fresh bread filled the street.', ['appetising'], ['crowded', 'noisy', 'heavy']),
+  precision('u3_writing_precision_appetising_b', 'vocab_appetising', P('mouth-watering'), 'The mouth-watering photographs on the menu made it hard to choose.', ['appetising'], ['crowded', 'noisy', 'heavy']),
+  precision('u3_writing_precision_cuisine_a', 'vocab_cuisine', P('style of cooking'), 'Many tourists come to Italy to enjoy the local style of cooking.', ['cuisine'], ['music', 'weather', 'transport']),
+  precision('u3_writing_precision_cuisine_b', 'vocab_cuisine', P('cooking tradition'), 'Each region has its own cooking tradition, with different spices.', ['cuisine'], ['music', 'weather', 'language'])
 
 ];
