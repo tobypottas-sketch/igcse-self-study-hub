@@ -391,7 +391,7 @@ const entries = [
       ]
     }),
   e('processed', 'adjective',
-    'changed from its natural form by a factory process, often to make it last longer',
+    'changed from its natural form in a factory, often to make it last longer',
     ['factory-made', 'prepared in a factory'],
     ['grown without chemicals on a small farm', 'cooked fresh at home from raw ingredients', 'sold only in specialist shops'],
     'Fresh fruit is healthier than processed snacks such as crisps.',
@@ -751,7 +751,7 @@ const entries = [
       ],
       gapDistractors:[
         { id:'1', answer:'takeaway', wrong:['library', 'cinema', 'stadium'] },
-        { id:'2', answer:'takeaway', wrong:['recipe', 'lesson', 'uniform'] },
+        { id:'2', answer:'takeaway', wrong:['recipe', 'lesson', 'jacket'] },
         { id:'3', answer:'takeaway', wrong:['library', 'cinema', 'museum'] }
       ]
     }),
@@ -891,7 +891,7 @@ const entries = [
       ],
       gapDistractors:[
         { id:'1', answer:'fashionable', wrong:['punctual', 'generous', 'nervous'] },
-        { id:'2', answer:'fashionable', wrong:['remote', 'abandoned', 'peaceful'] },
+        { id:'2', answer:'fashionable', wrong:['remote', 'dull', 'peaceful'] },
         { id:'3', answer:'fashionable', wrong:['punctual', 'tired', 'shy'] }
       ]
     }),
@@ -1117,8 +1117,8 @@ const entries = [
       ],
       gapDistractors:[
         { id:'1', answer:'recommendation', wrong:['complaint', 'argument', 'invoice'] },
-        { id:'2', answer:'recommendation', wrong:['complaint', 'argument', 'invoice'] },
-        { id:'3', answer:'recommendation', wrong:['warning', 'argument', 'invoice'] }
+        { id:'2', answer:'recommendation', wrong:['complaint', 'joke', 'photo'] },
+        { id:'3', answer:'recommendation', wrong:['warning', 'receipt', 'bill'] }
       ]
     }),
   e('informative', 'adjective',
