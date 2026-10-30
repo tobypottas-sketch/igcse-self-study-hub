@@ -17,11 +17,16 @@ for (const width of [1280, 820, 390]) {
       assert.equal(await page.locator('[data-activity-row]').count(), 14);
       assert.equal(await page.locator('[data-activity-row] .activity-strip').count(), 13);
       assert.equal(await page.locator('[data-activity-row]:first-child .activity-strip__cell').count(), 6);
-      assert.doesNotMatch(await page.locator('.activity-table').innerText(), /Meaning: recognise/i);
+      const text = await page.evaluate(() => { const clone = document.querySelector('.activity-table').cloneNode(true); clone.querySelectorAll('.vocab-sr').forEach(el => el.remove()); return clone.textContent; });
+      assert.doesNotMatch(text, /Meaning: recognise|No Unit Check yet|None new/i);
+      assert.equal(await page.locator('.activity-table[data-single-class="true"]').count(), 1);
+      assert.equal(await page.locator('[data-activity-row]:first-child .activity-strip__cell[data-pathway="meaning"]').getAttribute('title'), 'Meaning: Recognise');
+      assert.equal(await page.locator('.activity-strip--head span').count(), 6, 'pathway names appear once, in the header');
+      assert.ok(await page.locator('[data-activity-row] .vocab-pill[data-tone="done"]').count() >= 1, 'merits show as alert pills');
       assert.equal(await page.locator('[data-action="activity-student"]').count(), 14);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), 'no horizontal page scroll');
       assert.ok(await page.evaluate(() => { const w = document.querySelector('.admin-table-wrap'); return w.scrollWidth <= w.clientWidth + 1; }), 'table does not scroll sideways');
-      if (width === 1280) assert.ok(await page.evaluate(() => document.querySelector('[data-activity-row]').getBoundingClientRect().height) < 70, 'rows are short');
+      if (width === 1280) assert.ok(await page.evaluate(() => document.querySelector('[data-activity-row]').getBoundingClientRect().height) < 45, 'rows are short');
       assert.equal(await page.locator('[data-needs-attention="true"] .vocab-pill[data-tone="warn"]').count() >= 3, true);
       assert.deepEqual(demo.errors(), []);
     } finally { await demo.close(); }
@@ -35,7 +40,7 @@ browserTest('activity detail keeps every section and its actions', async () => {
     const text = await demo.page.locator('.activity-detail-grid').innerText();
     for (const heading of ['Usage', 'Vocabulary progression', 'Needs attention', 'Merits', 'Unit Checks', 'Recent activity']) assert.match(text, new RegExp(heading));
     assert.equal(await demo.page.locator('[data-action="activity-back"]').count(), 1);
-    assert.equal(await demo.page.locator('.activity-strip__cell').count(), 6);
+    assert.equal(await demo.page.locator(".activity-rows li[data-pathway]").count(), 6);
     assert.ok(await demo.page.evaluate(() => document.documentElement.scrollHeight) < 1100);
     assert.deepEqual(demo.errors(), []);
   } finally { await demo.close(); }

@@ -9,17 +9,26 @@
 .admin-button--quiet:hover{border-color:var(--c-teal-line,var(--c-line))}
 .activity-quiet{color:var(--c-muted);font-weight:500}
 .activity-table{min-width:0;table-layout:auto}
-.activity-table th,.activity-table td{padding:8px 10px;vertical-align:middle;border-right:0;line-height:1.3}
-.activity-table th{line-height:1.2}
+.activity-table th,.activity-table td{padding:7px 12px;vertical-align:middle;border-right:0;line-height:1.3}
+.activity-table th{line-height:1.2;white-space:nowrap}
 .activity-table tbody tr:hover{background:var(--c-bg)}
-.activity-table td:nth-child(4){text-align:center}
-.activity-table td:nth-child(-n+4),.activity-table td:nth-child(6),.activity-table td:nth-child(7){font-variant-numeric:tabular-nums;white-space:nowrap}
-.activity-student-link{white-space:nowrap;font-size:var(--fs-sm);text-align:left;line-height:1.25;font-weight:850;text-decoration:none;color:var(--hub-navy)}
+.activity-table[data-single-class="true"] [data-col="class"]{display:none}
+.activity-table td:nth-child(-n+4),.activity-table td:nth-child(6){white-space:nowrap}
+.activity-table td:nth-child(3){color:var(--c-muted)}
+.activity-table td:nth-child(4){color:var(--c-muted);text-align:center;font-variant-numeric:tabular-nums}
+.activity-table th:nth-child(4){text-align:center}
+.activity-table td:nth-child(6){font-variant-numeric:tabular-nums}
+.activity-table td:nth-child(7){white-space:nowrap}
+.activity-student-link{white-space:nowrap;font-size:var(--fs-sm);text-align:left;line-height:1.25;font-weight:900;text-decoration:none;color:var(--hub-navy)}
 .activity-student-link:hover{text-decoration:underline;color:var(--hub-teal)}
-.activity-strip{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px 6px}
-.activity-strip__cell{display:grid;gap:1px;justify-items:start;min-width:0}
-.activity-strip__cell small{color:var(--c-muted);font-size:.66rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.activity-progression{min-width:340px}
+.activity-progression[data-default="true"]{color:var(--c-muted)}
+.activity-strip{display:grid;grid-template-columns:repeat(6,minmax(54px,1fr));gap:4px;width:100%;min-width:340px}
+.activity-strip--head{text-transform:none;letter-spacing:0;font-size:.68rem;font-weight:800;color:var(--c-muted)}
+.activity-strip--head span,.activity-strip__cell{text-align:center;justify-self:center;white-space:nowrap}
+.activity-strip__cell{position:relative;display:inline-flex;align-items:center;justify-content:center;min-height:22px}
+.activity-dot{color:var(--c-line);font-size:1.3rem;line-height:1;font-weight:900}
+.activity-flag{position:absolute;top:2px;right:2px;width:7px;height:7px;border-radius:50%;background:#d98a00}
+.activity-strip__cell .vocab-pill{padding:2px 7px}
 .activity-detail-head{margin:14px 0;padding:16px 22px;border-radius:var(--r-lg);background:linear-gradient(120deg,var(--hub-navy),var(--hub-teal));color:#fff}
 .activity-detail-head .eyebrow{color:var(--c-teal-soft);margin:0 0 4px}
 .activity-detail-head h2{margin:0;color:#fff}.activity-detail-head p:last-child{margin:2px 0 0;color:var(--c-teal-soft)}
@@ -65,18 +74,28 @@ input{border-color:var(--c-control-border)}
 input:focus{box-shadow:none;border-color:var(--c-blue)}
 .auth-card .notice + .button{margin-top:14px}
 
-/* Tablet/phone: each student becomes a compact card, pathways stay a pill strip. */
+/* Tablet/phone: each student is a compact card; one legend row names the six pathways once; defaults stay hidden. */
 @media(max-width:1000px){
-.activity-table,.activity-table tbody{display:block}.activity-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-.activity-table tr{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:10px 14px;border-bottom:1px solid var(--c-teal-soft)}
+.activity-table,.activity-table tbody{display:block}
+.activity-table thead,.activity-table thead tr{display:block}
+.activity-table thead th{display:none}
+.activity-table thead th:nth-child(5){display:block;padding:8px 14px 6px;background:var(--c-surface-soft)}
+.activity-table thead th:nth-child(5)::before{content:"Progress";display:block;color:var(--c-muted);font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.activity-table tr{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;padding:9px 14px;border-bottom:1px solid var(--c-teal-soft)}
+.activity-table thead tr{padding:0;border:0}
 .activity-table td{display:inline-flex;align-items:center;gap:5px;padding:0;border:0;min-width:0;white-space:normal}
-.activity-table td::before{content:attr(data-label);color:var(--c-muted);font-size:var(--fs-xs);font-weight:700}
-.activity-table td:nth-child(1){font-size:1.02rem}.activity-table td:nth-child(1)::before,.activity-table td:nth-child(2)::before,.activity-table td.activity-progression::before{display:none}
-.activity-table td:nth-child(2){color:var(--c-muted);flex:1 1 auto}
-.activity-table td.activity-progression{flex:1 1 100%;min-width:0}
-.activity-strip{width:100%;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.activity-table td:nth-child(1){font-size:1.02rem;flex:1 1 auto}
+.activity-table td:nth-child(7){order:2;margin-left:auto}
+.activity-table td:nth-child(2){display:none}
+.activity-table td:nth-child(3)::before{content:"Active ";color:var(--c-muted)}
+.activity-table td:nth-child(4)::before{content:"Week ";color:var(--c-muted)}
+.activity-table td:nth-child(6)::before{content:"Check ";color:var(--c-muted)}
 .activity-table td:nth-child(4){text-align:left}
-.activity-table td:has(>.activity-quiet:only-child){display:none}
+.activity-table td.activity-progression{flex:1 1 100%;min-width:0;order:1}
+.activity-strip{min-width:0;grid-template-columns:repeat(6,minmax(0,1fr))}
+.activity-table td:empty{display:none}
+.activity-table[data-single-class="false"] td:nth-child(2){display:inline-flex;color:var(--c-muted);order:0}
 }
-@media(max-width:620px){.activity-strip{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:620px){.activity-strip{gap:2px}.activity-strip--head{font-size:.58rem}.activity-strip__cell .vocab-pill{padding:2px 4px;font-size:.62rem}}
 @media(max-width:900px){.activity-detail-grid{grid-template-columns:1fr}}
+.vocab-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

@@ -81,33 +81,67 @@ function renderImport(model) {
 // Status pills share the teacher-admin vocabulary (vocab-pill + data-tone); default/boring states render quiet, genuine issues render warn.
 const pathwayShort = { meaning:'Meaning', context:'Context', word_families:'Families', paraphrasing:'Paraphrase', precision_use:'Precision', spelling_recall:'Spelling' };
 const stageLabels = { recognise:'Recognise', match:'Match', apply:'Apply', recall:'Recall', mastery:'Mastery' };
-const stageTones = { recognise:'quiet', match:'start', apply:'mid', recall:'mid', mastery:'done' };
-function pill(text, tone = 'quiet') { return `<span class="vocab-pill" data-tone="${tone}">${escapeHtml(text)}</span>`; }
+const stageTones = { match:'start', apply:'mid', recall:'mid', mastery:'done' };
+function pill(text, tone = 'quiet', title = '') { return `<span class="vocab-pill" data-tone="${tone}"${title ? ` title="${escapeHtml(title)}"` : ''}>${escapeHtml(text)}</span>`; }
+// Compact human-readable "last active"; the exact date stays in the tooltip.
+function relativeDay(value, now = new Date()) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  const startOf = d => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const days = Math.round((startOf(now) - startOf(date)) / 86400000);
+  const time = date.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+  if (days <= 0) return `Today ${time}`;
+  if (days === 1) return 'Yesterday';
+  if (days < 14) return `${days} days ago`;
+  return date.toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+}
+// Six aligned cells. The default stage (recognise) disappears into a faint dot; the full meaning stays in the title and screen-reader text.
 function pathwayStrip(pathways = {}) {
   return `<span class="activity-strip">${Object.entries(pathwayLabels).map(([id,label]) => {
-    const stage = pathways?.[id]?.currentStage ?? 'recognise';
-    return `<span class="activity-strip__cell" data-pathway="${escapeHtml(id)}" data-stage="${escapeHtml(stage)}"><small title="${escapeHtml(label)}">${escapeHtml(pathwayShort[id] ?? label)}</small>${pill(stageLabels[stage] ?? stage, stageTones[stage] ?? 'quiet')}</span>`;
+    const state = pathways?.[id] ?? {};
+    const stage = state.currentStage ?? 'recognise';
+    const needs = state.needsPractice === true;
+    const title = `${label}: ${stageLabels[stage] ?? stage}${needs ? ' (needs practice)' : ''}`;
+    const body = stage === 'recognise' ? `<span class="activity-dot" aria-hidden="true">·</span>` : pill(stageLabels[stage] ?? stage, stageTones[stage] ?? 'quiet');
+    return `<span class="activity-strip__cell" data-pathway="${escapeHtml(id)}" data-stage="${escapeHtml(stage)}" title="${escapeHtml(title)}">${body}${needs ? '<i class="activity-flag" aria-hidden="true"></i>' : ''}<span class="vocab-sr">${escapeHtml(title)}</span></span>`;
   }).join('')}</span>`;
 }
-function unitCheckText(unitCheck) {
-  return unitCheck?.attemptsUsed ? `<strong>${escapeHtml(unitCheck.latestScore)}/10</strong> <span class="activity-quiet">best ${escapeHtml(unitCheck.bestScore)} · ${escapeHtml(unitCheck.attemptsUsed)}/3</span>` : '<span class="activity-quiet">No Unit Check yet</span>';
+function pathwayHeader() { return `<span class="activity-strip activity-strip--head">${Object.entries(pathwayLabels).map(([id,label]) => `<span title="${escapeHtml(label)}">${escapeHtml(pathwayShort[id] ?? label)}</span>`).join('')}</span>`; }
+function unitCheckCell(unitCheck) {
+  if (!unitCheck?.attemptsUsed) return '';
+  const detail = `Latest ${unitCheck.latestScore}/10 · best ${unitCheck.bestScore}/10 · ${unitCheck.attemptsUsed}/3 attempts`;
+  return `<strong title="${escapeHtml(detail)}">${escapeHtml(unitCheck.latestScore)}/10</strong>`;
+}
+function alertsCell(row) {
+  const parts = [];
+  if (row.pendingMerits) parts.push(pill(`${row.pendingMerits} merit${row.pendingMerits === 1 ? '' : 's'}`, 'done'));
+  if (row.attention?.length) parts.push(pill('Needs attention', 'warn', row.attention.map(item => item.label).join('; ')));
+  return parts.join(' ');
 }
 
 function renderActivityRows(students = []) {
   if (!students.length) return '<p class="admin-empty">No students are available in your assigned classes.</p>';
   const sortedStudents = students.slice().sort((a, b) => studentCollator.compare(String(a.className ?? '').trim(), String(b.className ?? '').trim()) || compareStudentNames(a, b));
-  return `<div class="admin-table-wrap"><table class="admin-table activity-table"><thead><tr><th>Student</th><th>Class</th><th>Last active</th><th>This week</th><th>Vocabulary progression</th><th>Unit Check</th><th>Merits</th><th>Attention</th></tr></thead><tbody>${sortedStudents.map(row => {
-    const merits = row.pendingMerits ? pill(`${row.pendingMerits} new`, 'warn') : '<span class="activity-quiet">None new</span>';
-    const attention = row.attention?.length ? row.attention.map(item => pill(item.label, 'warn')).join(' ') : '<span class="activity-quiet">—</span>';
-    const lastActive = row.hasStarted ? formatDate(row.lastActive) : 'Not started';
+  const singleClass = new Set(sortedStudents.map(row => row.classId ?? row.className)).size <= 1;
+  return `<div class="admin-table-wrap"><table class="admin-table activity-table" data-single-class="${singleClass ? 'true' : 'false'}"><thead><tr><th>Student</th><th data-col="class">Class</th><th>Last active</th><th>This week</th><th>${pathwayHeader()}<span class="vocab-sr">Vocabulary progression</span></th><th>Unit Check</th><th>Alerts</th></tr></thead><tbody>${sortedStudents.map(row => {
+    const lastActive = row.hasStarted ? relativeDay(row.lastActive) : 'Not started';
+    const exact = row.hasStarted ? formatDate(row.lastActive) : '';
     const progression = row.hasStarted ? pathwayStrip(row.pathways) : 'Not started';
-    return `<tr data-activity-row data-class-id="${escapeHtml(row.classId ?? '')}" data-needs-attention="${row.needsAttention ? 'true' : 'false'}" data-new-merits="${row.pendingMerits ? 'true' : 'false'}"><td data-label="Student"><button class="admin-link-button activity-student-link" data-action="activity-student" data-student-id="${escapeHtml(row.studentId)}">${escapeHtml(row.displayName)}</button></td><td data-label="Class">${escapeHtml(row.className)}</td><td data-label="Last active">${escapeHtml(lastActive)}</td><td data-label="This week">${escapeHtml(String(row.activityThisWeek))}</td><td class="activity-progression" data-label="Vocabulary">${progression}</td><td data-label="Unit Check">${unitCheckText(row.unitCheck)}</td><td data-label="Merits">${merits}</td><td data-label="Attention">${attention}</td></tr>`;
+    return `<tr data-activity-row data-class-id="${escapeHtml(row.classId ?? '')}" data-needs-attention="${row.needsAttention ? 'true' : 'false'}" data-new-merits="${row.pendingMerits ? 'true' : 'false'}"><td data-label="Student"><button class="admin-link-button activity-student-link" data-action="activity-student" data-student-id="${escapeHtml(row.studentId)}">${escapeHtml(row.displayName)}</button></td><td data-col="class" data-label="Class">${escapeHtml(row.className)}</td><td data-label="Last active"${exact ? ` title="${escapeHtml(exact)}"` : ''}>${escapeHtml(lastActive)}</td><td data-label="This week">${escapeHtml(String(row.activityThisWeek))}</td><td class="activity-progression" data-label="Progress" data-default="${row.hasStarted ? 'false' : 'true'}">${progression}</td><td data-label="Unit Check">${unitCheckCell(row.unitCheck)}</td><td data-label="Alerts">${alertsCell(row)}</td></tr>`;
   }).join('')}</tbody></table></div>`;
+}
+
+function detailPathways(pathways = {}) {
+  return `<ul class="activity-rows">${Object.entries(pathwayLabels).map(([id,label]) => {
+    const state = pathways?.[id] ?? {};
+    const stage = state.currentStage ?? 'recognise';
+    return `<li data-pathway="${escapeHtml(id)}" data-stage="${escapeHtml(stage)}"><span>${escapeHtml(label)}</span><span>${pill(stageLabels[stage] ?? stage, stageTones[stage] ?? 'quiet')}${state.needsPractice === true ? ` ${pill('Needs practice', 'warn')}` : ''}</span></li>`;
+  }).join('')}</ul>`;
 }
 
 function renderStudentDetail(student) {
   const lastActive = student.hasStarted ? formatDate(student.lastActive) : 'Not started';
-  const pathways = student.hasStarted ? pathwayStrip(student.pathways) : '<p class="muted">Not started</p>';
+  const pathways = student.hasStarted ? detailPathways(student.pathways) : '<p class="activity-quiet">Not started</p>';
   const checkRows = student.unitCheck?.rows?.length ? student.unitCheck.rows.map(row => `<li><span>Attempt ${escapeHtml(row.attemptNumber ?? row.attempt_number)}</span><span><strong>${escapeHtml(row.score)}/${escapeHtml(row.maxScore ?? row.max_score)}</strong> <span class="activity-quiet">${escapeHtml(formatDate(row.completedAt ?? row.completed_at))}</span></span></li>`).join('') : '<li class="activity-quiet">No Unit Check attempts yet.</li>';
   const meritRows = student.pendingMeritNumbers?.length ? student.pendingMeritNumbers.map(number => `<li><span>Merit ${escapeHtml(number)} ${pill('Waiting', 'warn')}</span><button class="button admin-button button--primary" data-action="activity-award-merit" data-student-id="${escapeHtml(student.studentId)}" data-merit-number="${escapeHtml(number)}">Mark awarded</button></li>`).join('') : '<li class="activity-quiet">No new merits waiting.</li>';
   const attention = student.attention?.length ? `<p class="activity-pills">${student.attention.map(item => pill(item.label, 'warn')).join(' ')}</p>` : '<p class="activity-quiet">No current flags.</p>';
