@@ -479,3 +479,28 @@ test('Batch 5 readiness: Meaning, Context, Paraphrasing, Precision & Use and Spe
   const verbs = unit5.items.filter(item => item.partOfSpeech === 'verb').map(item => item.term);
   assert.deepEqual(verbs, ['obtain', 'specialise', 'evaluate'], 'the verb pool is three, so no verb can have three same-POS distractors; none were added to pad it');
 });
+
+test('pre-release audit: licence vs qualification and breathtaking vs memorable stay distinct, and degree distractors only change the degree', () => {
+  const sense = term => unit5.items.find(item => item.term === term).senses[0];
+  assert.doesNotMatch(JSON.stringify(sense('licence').masteryContexts), /trained|training|qualif/i, 'a licence is permission, not evidence of training');
+  assert.doesNotMatch(JSON.stringify(sense('breathtaking').masteryContexts.map(context => context.meaning)), /forget|remember/i, 'breathtaking is amazement at a sight, not memorability');
+  const habitats = unit5.activities.find(row => row.contentType === 'idea_set' && row.activityData.linkedVocabularyIds.includes('vocab_ecological_habitats'));
+  const degree = habitats.activityData.distractors.find(row => row.misconceptionCategory === 'degree_change');
+  assert.match(degree.text, /rarest birds/, 'a degree distractor keeps the same birds and changes only how strong the effect is');
+});
+
+test('pre-release audit: no Unit 5 gap, mastery, passage or situation sentence is a near-copy (> 0.5 word overlap) of Units 1–4', () => {
+  const words = text => new Set(text.toLowerCase().replace(/[^a-z ]/g, ' ').split(/\s+/).filter(word => word.length > 3));
+  const earlierSets = [];
+  for (const unit of earlier) {
+    for (const context of unit.contexts) earlierSets.push(words(context.text));
+    for (const item of unit.items) for (const text of [...(item.senses[0].masteryContexts ?? []).map(c => c.text), ...(item.senses[0].situationDistractors ?? []), ...(item.senses[0].masteryPassages ?? []).map(p => p.text)]) earlierSets.push(words(text));
+  }
+  const rows = [];
+  for (const item of unit5.items) {
+    rows.push(...unit5.contexts.filter(c => c.vocabularyId === item.vocabularyId && /_gap_/.test(c.contextId)).map(c => [item.term, c.text]));
+    rows.push(...item.senses[0].masteryContexts.map(c => [item.term, c.text]), ...item.senses[0].situationDistractors.map(t => [item.term, t]), ...(item.senses[0].masteryPassages ?? []).map(p => [item.term, p.text]));
+  }
+  const close = rows.filter(([, text]) => { const a = words(text); return a.size >= 4 && earlierSets.some(b => { const shared = [...a].filter(w => b.has(w)).length; return shared / (a.size + b.size - shared) > 0.5; }); });
+  assert.deepEqual(close, []);
+});

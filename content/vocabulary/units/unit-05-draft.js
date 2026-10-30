@@ -317,7 +317,7 @@ const entries = [
       teacherNote:'Unit 5 item (breathtaking_5): the tourism sense of amazement at a sight. Unit 4 vocab_breathtaking is a separate item that shares only the lexical spelling list.',
       masteryContexts:[
         { text:'The tour guide waited at the viewpoint so that the group could take in the breathtaking sight of the sun rising over the temple.', meaning:'so beautiful or impressive that it amazes you' },
-        { text:'The helicopter ride over the canyon was a breathtaking experience that none of us will forget.', meaning:'so exciting and impressive that you never forget it' }
+        { text:'The helicopter ride over the canyon was a breathtaking experience, and the whole group fell silent as the cliffs rose around us.', meaning:'so exciting and impressive that it leaves you amazed' }
       ],
       situationDistractors:[
         'The tour group sat in a café and complained that a bus was blocking the window.',
@@ -766,7 +766,7 @@ const entries = [
       teacherNote:'British spelling: licence is the noun; license is the verb (and the American noun spelling). Unit 5 teaches the noun only.',
       masteryContexts:[
         { text:'Tour operators must apply to the government for a licence before they can take visitors into the national park.', meaning:'an official document that gives permission to do something' },
-        { text:'The diving instructor showed us her licence, which proved that she was trained and allowed to teach.', meaning:'an official card that shows someone has permission to do a job' }
+        { text:'The fishing guide showed us her licence, which proved that she was allowed to take visitors onto the lake.', meaning:'an official card that shows someone has permission to do a job' }
       ],
       situationDistractors:[
         'The guesthouse owner served tea and warm bread on the sunny balcony.',
