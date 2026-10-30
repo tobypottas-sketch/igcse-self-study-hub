@@ -1,6 +1,6 @@
-// UNIT 5 – HOLIDAYS: authoring draft (batches 1–5 = words 1–50, all authored). Source: 0511 key words UNIT 5 – HOLIDAYS (coursebook order). The full 50-word list is locked and now fully authored; the unit stays a draft until it is packaged in a separate job.
-// Same architecture as unit-04.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-05-draft.js
-// A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-05.js only when all 50 words are final.
+// UNIT 5 – HOLIDAYS: approved source for the Unit 5 release (releases/unit-05.js promotes it to live). Source: 0511 key words UNIT 5 – HOLIDAYS
+// (coursebook order), all 50 authored and audited. The full 50-word list is locked. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-05.js
+// breathtaking, recommendation, destination, availability, equipment and evaluate are also earlier-unit targets; each has its own Unit 5 id (idKey 'X_5' -> vocab_X_5) and aliases the earlier spelling list.
 import { buildCuratedUnit } from '../build-unit.js';
 import { LEXICAL_SPELLING_ERRORS } from '../lexical-spelling-errors.js';
 import unit5Activities from './unit-05-activities.js';
@@ -15,7 +15,7 @@ import { unit5WordFamilies, unit5WordFamilyRejected } from './unit-05-word-famil
 import { unit5WordFamilyAlternates } from './unit-05-word-family-alternates.js';
 
 const UNIT_NUMBER = 5;
-const status = 'draft';
+const status = 'approved';
 
 const e = (term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence, paraphraseSource, paraphraseSentence, productionSource, productionSentence, extras = {}) => ({
   term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence,

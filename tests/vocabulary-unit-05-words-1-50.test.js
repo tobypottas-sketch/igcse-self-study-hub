@@ -1,9 +1,9 @@
-// Unit 5 (Holidays) · all 50 words authored (batches 1–5, draft). Guards the contract with the real readiness evaluator and builders. The unit stays a
-// draft until it is packaged in a separate job: no releases/unit-05.js, no units/unit-05.js, no lock, no SQL, no artwork, no Unit Check, no Games.
+// Unit 5 (Holidays) · all 50 words authored (batches 1–5). Guards the contract with the real readiness evaluator and builders. The source unit is approved;
+// releases/unit-05.js promotes it (see vocabulary-unit-05-release.test.js). No artwork, Unit Check or Games here.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import unit5 from '../content/vocabulary/units/unit-05-draft.js';
+import unit5 from '../content/vocabulary/units/unit-05.js';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import unit2 from '../content/vocabulary/units/unit-02.js';
 import unit3 from '../content/vocabulary/units/unit-03.js';
@@ -30,7 +30,7 @@ const readiness = evaluateUnitReadiness({ content: releasePlannerContent(unit5) 
 const failed = (pathwayId, occurrenceId) => STAGES.filter(stage => (readiness.pathways[pathwayId].stageFailures[stage] ?? []).some(f => f.occurrenceId === occurrenceId));
 const termOf = occurrence => unit5.items.find(item => item.vocabularyId === occurrence.vocabularyId).term;
 
-test('Unit 5 words 1–50 are exactly the fifty locked targets, in order, as a draft with no release artefacts', () => {
+test('Unit 5 words 1–50 are exactly the fifty locked targets, in order, as an approved source with a release file and no draft', () => {
   assert.deepEqual(unit5.items.map(item => item.term), TERMS);
   assert.equal(unit5.items.length, 50);
   assert.deepEqual(unit5.occurrences.map(row => row.positionInUnit), Array.from({ length: 50 }, (_, i) => i + 1));
@@ -40,12 +40,11 @@ test('Unit 5 words 1–50 are exactly the fifty locked targets, in order, as a d
   assert.equal(unit5.items[10].vocabularyId, 'vocab_breathtaking_5');
   assert.equal(unit5.unitNumber, 5);
   assert.equal(unit5.unitTitle, 'Holidays');
-  assert.equal(unit5.status, 'draft');
-  assert.ok(fs.existsSync(new URL('../content/vocabulary/units/unit-05-draft.js', import.meta.url)), 'unit-05-draft.js is still the only source');
+  assert.equal(unit5.status, 'approved');
+  assert.ok(fs.existsSync(new URL('../content/vocabulary/releases/unit-05.js', import.meta.url)), 'Unit 5 release file must exist');
+  assert.ok(!fs.existsSync(new URL('../content/vocabulary/units/unit-05-draft.js', import.meta.url)), 'the draft source is gone: one authoritative Unit 5 source');
   for (const name of ['units/unit-05-unit-check.js', 'units/unit-05-games.js']) assert.ok(!fs.existsSync(new URL(`../content/vocabulary/${name}`, import.meta.url)), name);
-  for (const name of ['releases/unit-05.js', 'units/unit-05.js', 'units/unit-05.content-lock.json']) assert.ok(!fs.existsSync(new URL(`../content/vocabulary/${name}`, import.meta.url)), name);
   assert.ok(!fs.existsSync(new URL('../assets/vocabulary/units/unit-05.png', import.meta.url)), 'no artwork yet');
-  assert.ok(!fs.existsSync(new URL('../docs/vocabulary-content-updates/unit-05-sync-chunk-1.sql', import.meta.url)), 'no SQL yet');
 });
 
 test('multi-word targets keep their exact two-word form everywhere', () => {
@@ -288,11 +287,11 @@ test('gap-fill: when the gap follows "a"/"an", every option starts with the same
 });
 
 test('no stale "not locked" or "not authored" draft comments; the 50-word list is described as locked', () => {
-  for (const name of ['draft', 'activities', 'collocations', 'context-passages', 'meaning-mastery', 'meaning-match', 'precision-use', 'situation-extras', 'word-families', 'word-family-alternates', 'word-family-items']) {
-    const text = fs.readFileSync(new URL(`../content/vocabulary/units/unit-05-${name}.js`, import.meta.url), 'utf8');
+  for (const name of ['', 'activities', 'collocations', 'context-passages', 'meaning-mastery', 'meaning-match', 'precision-use', 'situation-extras', 'word-families', 'word-family-alternates', 'word-family-items']) {
+    const text = fs.readFileSync(new URL(`../content/vocabulary/units/unit-05${name && `-${name}`}.js`, import.meta.url), 'utf8');
     assert.doesNotMatch(text, /not locked yet|Words 21–50|Words 31–50|WORDS 1–30|words 1–30|WORDS 1–40|words 1–40|WORDS 1–20|words 1–20|batches 1–[234]\b|not authored yet/, name);
   }
-  assert.match(fs.readFileSync(new URL('../content/vocabulary/units/unit-05-draft.js', import.meta.url), 'utf8'), /full 50-word list is locked/);
+  assert.match(fs.readFileSync(new URL('../content/vocabulary/units/unit-05.js', import.meta.url), 'utf8'), /full 50-word list is locked/);
 });
 
 test('Batch 4 (words 31–40): exact forms, IDs, three _5 isolations, earlier-unit items untouched', () => {
@@ -441,7 +440,7 @@ test('Batch 5 spelling: specialise, qualification, itinerary and regulations are
   for (const term of ['facilities', 'equipment', 'location', 'obtain', 'specialise', 'qualification', 'evaluate', 'itinerary', 'safety regulations', 'excursion']) {
     assert.equal(unit5.items.find(item => item.term === term).senses[0].spellingErrors.length, 6, term);
   }
-  assert.deepEqual(LEXICAL_SPELLING_ERRORS.vocab_equipment_5 ?? null, null, 'the lexical list itself is untouched; _5 aliases live in the draft only');
+  assert.deepEqual(LEXICAL_SPELLING_ERRORS.vocab_equipment_5 ?? null, null, 'the lexical list itself is untouched; _5 aliases live in the unit source only');
   assert.deepEqual(unit5.items.find(item => item.term === 'equipment').senses[0].spellingErrors, LEXICAL_SPELLING_ERRORS.vocab_equipment);
   assert.deepEqual(unit5.items.find(item => item.term === 'evaluate').senses[0].spellingErrors, LEXICAL_SPELLING_ERRORS.vocab_evaluate);
 });
