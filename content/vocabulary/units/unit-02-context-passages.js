@@ -164,5 +164,45 @@ export default Object.freeze({
   impressive: [
     p('The young pianist played for two hours without a single mistake. The audience stood up and clapped, because the performance was truly ____.', 'impressive', 'Two hours without a mistake; audience applauds.'),
     p('The new stadium holds eighty thousand people and has a roof that opens in minutes. Visitors often say it is the most ____ building in the city.', 'impressive', 'Size and design that make visitors admire it.')
+  ],
+  determination: [
+    p('Jo failed her driving test three times, but she never gave up. Her ____ to pass finally paid off when she collected her licence on the fourth try.', 'determination', 'Failed three times, never gave up, passed on the fourth.'),
+    p('The mountain was steep, the weather was freezing and the climbers were exhausted. Only their ____ kept them walking towards the summit.', 'determination', 'Exhausted but kept going: strong will.')
+  ],
+  overcome: [
+    p('When Sam moved to England, he could barely speak English. Within two years, he managed to ____ the language barrier and passed his exams.', 'overcome', 'A problem that blocked him; he got past it.'),
+    p('Many successful people had a difficult start in life. They show that it is possible to ____ almost any obstacle with hard work and support.', 'overcome', 'Difficult start; dealing with an obstacle.')
+  ],
+  accessory: [
+    p('The basic phone costs very little, but customers often spend more on extras. A case or a charger is the most popular ____ in the shop.', 'accessory', 'An extra item that goes with the phone.'),
+    p('Her outfit was plain and dark. A bright yellow scarf was the only ____ she wore, but it made everyone look twice.', 'accessory', 'An extra item added to clothes.')
+  ],
+  equipment: [
+    p('Before the match, the coach checked that the team had everything it needed. The goals, nets and balls were all ready, but some of the training ____ was still in the van.', 'equipment', 'Goals, nets, balls: things needed for an activity (uncountable).'),
+    p('The laboratory buys new tools and machines every year. Without up-to-date ____, the students could not carry out the experiments.', 'equipment', 'Tools and machines needed for experiments.')
+  ],
+  fixture: [
+    p('When the family sold the flat, the buyers asked which items would stay. The kitchen sink was a ____, so it could not be taken away, but the table could.', 'fixture', 'Sink stays; table can go: permanently fitted.'),
+    p('The estate agent listed every light, radiator and tap in the house. Each ____ is attached to the building and is included in the sale price.', 'fixture', 'Attached to the building; included in the sale.')
+  ],
+  removable: [
+    p('The new tablet has a thin cover that you can pull off with your fingers. Because the cover is ____, it is easy to clean and replace.', 'removable', 'Can be pulled off.'),
+    p('Some old phones have a battery you can take out yourself. A ____ battery means that you do not have to buy a new phone when it stops working.', 'removable', 'Can be taken out and replaced.')
+  ],
+  adjustable: [
+    p('The desk chair suits tall and short students because the height can be changed. The ____ seat moves up and down with a small lever.', 'adjustable', 'Can be changed to fit different people.'),
+    p('Most backpacks have a strap that you can lengthen or shorten. An ____ strap makes the bag comfortable for people of different sizes.', 'adjustable', 'Strap can be made longer or shorter.')
+  ],
+  affordable: [
+    p('Many families cannot buy a house in the city centre because prices are so high. Governments are therefore building ____ homes in the suburbs.', 'affordable', 'Prices too high; homes ordinary families can pay for.'),
+    p('Ten years ago, a tablet cost as much as a laptop. Today there are cheaper models, and they are ____ enough for most schools to buy in large numbers.', 'affordable', 'Cheaper now; schools can pay for them.')
+  ],
+  external: [
+    p('The school’s own teachers marked the written papers. A visitor from another school, an ____ examiner, then checked a sample of the results.', 'external', 'A person from outside the school.'),
+    p('My laptop is almost full, so I saved my photographs on a small ____ drive. I can now plug it in whenever I need more space.', 'external', 'A drive separate from, and outside, the laptop.')
+  ],
+  concentrate: [
+    p('Marta cannot revise at home because her brother plays loud music. In the library, it is quiet, and she is able to ____ for hours.', 'concentrate', 'Quiet library; focus for hours.'),
+    p('The teacher asked the students to switch off their phones. “You will learn more if you ____ on the lesson and ignore everything else,” she said.', 'concentrate', 'Focus on the lesson; ignore everything else.')
   ]
 });

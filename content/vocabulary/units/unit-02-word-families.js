@@ -152,7 +152,37 @@ export const unit2WordFamilies = Object.freeze({
     f('impress', 'verb', 'She worked hard to impress the interview panel.', 'The base verb.'),
     f('impressed', 'adjective', 'The examiner was impressed by her fluent answers.', 'Describes the person who feels admiration; the key contrast with “impressive”.'),
     f('impressively', 'adverb', 'The young goalkeeper played impressively in her first match.', 'Regular adverb used in descriptions of performance.')
-  ], excludedForms: [{ form: 'impression', reason: 'Already taught as a separate Unit 2 target word (word 20), so it is not repeated here.' }] }
+  ], excludedForms: [{ form: 'impression', reason: 'Already taught as a separate Unit 2 target word (word 20), so it is not repeated here.' }] },
+  equipment: { forms: [
+    f('equipment', 'noun', 'The school has spent a lot of money on new sports equipment.', 'Headword; uncountable (no plural “equipments”).'),
+    f('equip', 'verb', 'The college will equip every classroom with a projector.', 'The base verb.'),
+    f('equipped', 'adjective', 'The kitchen is well equipped, with an oven and a large fridge.', 'Common adjective in descriptions of places (“well equipped”).')
+  ] },
+  fixture: { forms: [
+    f('fixture', 'noun', 'The ceiling light is a fixture, so it stays in the flat.', 'Headword.'),
+    f('fix', 'verb', 'The workers will fix the shelf to the wall tomorrow.', 'The base verb in the sense “attach firmly” (also “repair”).'),
+    f('fixed', 'adjective', 'The table is fixed to the floor, so nobody can move it.', 'Describes something attached or set in place.')
+  ], excludedForms: [{ form: 'fixation', reason: 'A different, psychological sense (an unhealthy obsession), unrelated to buildings.' }] },
+  removable: { forms: [
+    f('removable', 'adjective', 'The phone has a removable cover, so you can change its colour.', 'Headword.'),
+    f('remove', 'verb', 'Please remove your shoes before entering the house.', 'The base verb.'),
+    f('removal', 'noun', 'The removal of the old signs took a whole morning.', 'The common noun, in news and instructions.')
+  ] },
+  adjustable: { forms: [
+    f('adjustable', 'adjective', 'The chair has an adjustable back for extra comfort.', 'Headword.'),
+    f('adjust', 'verb', 'You can adjust the screen so that it faces you.', 'The base verb.'),
+    f('adjustment', 'noun', 'A small adjustment to the settings improved the sound.', 'The common noun.')
+  ] },
+  affordable: { forms: [
+    f('affordable', 'adjective', 'The company sells affordable laptops to students.', 'Headword.'),
+    f('afford', 'verb', 'Few families can afford a holiday abroad every year.', 'The base verb; also taught as a separate Unit 2 target word.'),
+    f('unaffordable', 'adjective', 'Rents in the capital have become unaffordable for most young people.', 'Common negative adjective in news writing about cost.')
+  ], excludedForms: [{ form: 'affordability', reason: 'Abstract noun beyond the level of this unit.' }] },
+  concentrate: { forms: [
+    f('concentrate', 'verb', 'It is hard to concentrate when the room is noisy.', 'Headword (sense taught: focus attention).'),
+    f('concentration', 'noun', 'Exams need a lot of concentration.', 'The common noun.'),
+    f('concentrated', 'adjective', 'She made a concentrated effort to finish the essay.', 'Used here for effort that is fully focused; the “strong, not diluted” sense is not taught.')
+  ], excludedForms: [{ form: 'concentrate (noun)', reason: 'A different sense (a strong liquid, as in fruit concentrate), not “focus attention”.' }] }
 });
 
 // Headwords considered and NOT made families: a bare list would offer unauthorised members in Recognise/Match.
@@ -169,5 +199,9 @@ export const unit2WordFamilyRejected = Object.freeze({
   'high-performance': 'A compound adjective: its relatives (perform, performance, performer) belong to a different headword, so they would not describe this word.',
   'multi-task': 'Its only relatives are the -ing and -er forms of the same compound ("multi-tasking", "multi-tasker"), which are rare and written inconsistently ("multitask"); the family would give no reliable marking.',
   regional: 'Only “region” (noun) and “regional” are in everyday use; “regionally” is rare, so there are not three genuinely useful forms.',
-  genuine: 'Only “genuinely” is in regular use; “genuineness” is rare, so there are two useful forms, not three.'
+  genuine: 'Only “genuinely” is in regular use; “genuineness” is rare, so there are two useful forms, not three.',
+  determination: 'The useful relatives are “determined” (adjective) and the verb “determine”, which mostly means “decide” or “find out”, a different sense from persistence; the family would blur the meaning taught.',
+  overcome: 'Only inflected forms (overcame, overcoming) exist; there are no derived words, so the family would be padded.',
+  accessory: 'Only the plural “accessories” and the fashion verb “accessorise” exist, so there are not three genuinely useful forms.',
+  external: 'Only “externally” is in regular use (the opposite “internal” is an antonym, not a family member), so there are fewer than three useful forms.'
 });

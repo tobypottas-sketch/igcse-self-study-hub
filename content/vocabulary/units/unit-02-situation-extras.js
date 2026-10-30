@@ -202,5 +202,55 @@ export default Object.freeze({
     'The exam was long, and the questions were difficult.',
     'The student arrived early, took out a pen and began to write.',
     'The film lasted two hours and finished late in the evening.'
+  ],
+  determination: [
+    'The team won the match easily because its opponents had only ten players.',
+    'The student copied the answers from a friend and handed in the work early.',
+    'The coach changed her mind about the plan and chose a different team.'
+  ],
+  overcome: [
+    'The runner avoided the steep hill by taking a longer road around it.',
+    'The old bridge was closed, so the bus used a different route.',
+    'The student never had any problem with the course and finished it early.'
+  ],
+  accessory: [
+    'The phone is made of glass and metal, and it has a large screen.',
+    'The shop sells coats, shoes and hats in many sizes.',
+    'The laptop is the main tool she uses for her studies.'
+  ],
+  equipment: [
+    'The coach shouted instructions to the players from the side of the pitch.',
+    'The fans queued for hours to buy tickets for the final.',
+    'The club pays a small fee to use the hall on Thursday evenings.'
+  ],
+  fixture: [
+    'The family moved the sofa and the table to the new house.',
+    'The tenant brought a lamp and a small rug to the flat.',
+    'The teacher carried the books from the cupboard to her desk.'
+  ],
+  removable: [
+    'The phone has a battery that is sealed inside the body.',
+    'The cover was glued to the box and could not be opened.',
+    'The sticker would not come off, however hard she scratched it.'
+  ],
+  adjustable: [
+    'The chair is fixed to the floor and cannot be moved at all.',
+    'The bag has one short strap, and it cannot be changed.',
+    'The screen has a fixed angle, so only people in front can see it.'
+  ],
+  affordable: [
+    'The new phone is extremely expensive, and only a few people can buy it.',
+    'The shop is always full of customers because it is open all night.',
+    'The flat is cheap, but it is damp and very small.'
+  ],
+  external: [
+    'The data is stored inside the computer, on a drive built into the case.',
+    'The speaker is part of the television, so nothing needs to be plugged in.',
+    'Every teacher in the school helped to mark the exam papers.'
+  ],
+  concentrate: [
+    'The students shouted and laughed in the corridor between lessons.',
+    'The teacher switched off the lights and left the room quickly.',
+    'He tried to do three things at once and finished none of them.'
   ]
 });

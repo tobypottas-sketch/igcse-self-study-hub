@@ -1,5 +1,5 @@
 // Unit 2 (Digital Life) · words 31–40 authored. Same contract checks as the words 1–10 test, run through the real readiness evaluator and
-// builders. Words 41–50 are intentionally NOT authored and the unit stays a draft.
+// builders. All 50 words are authored; the unit stays an unreleased draft.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -32,10 +32,10 @@ test('every stage is buildable for words 31–40, except Word Families for the t
   }
 });
 
-test('words 31–40 satisfy the strict (approved) content schema; only words 41–50 still fail it', () => {
+test('words 31–40 satisfy the strict (approved) content schema; the whole unit now passes it', () => {
   const approve = row => ({ ...row, status: 'approved' });
   const strict = { ...unit2, status: 'approved', items: unit2.items.map(approve), occurrences: unit2.occurrences.map(approve), contexts: unit2.contexts.map(approve), activities: unit2.activities.map(approve) };
-  const unauthored = new Set(unit2.items.slice(40).map(item => item.term));
+  const unauthored = new Set(unit2.items.slice(50).map(item => item.term));
   const errors = validateUnit(strict).errors.filter(error => !unauthored.has(error.split(' ')[0]) && ![...unauthored].some(term => error.startsWith(`${term} `)));
   assert.deepEqual(errors, []);
 });

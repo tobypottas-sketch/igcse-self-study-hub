@@ -191,5 +191,49 @@ export default Object.freeze({
   impressive: [
     w(['causing confusion', 'causing delay', 'causing worry']),
     w(['showing great nervousness', 'showing great luck', 'showing great length'])
+  ],
+  determination: [
+    w(['a quick wish to finish early', 'a nervous fear of failing', 'a polite request for more time']),
+    w(['a quiet hope of being chosen', 'a sudden stroke of luck in a match', 'a careful plan for winning a prize'])
+  ],
+  overcome: [
+    w(['avoid facing a danger', 'cause a serious problem', 'wait for a problem to end']),
+    w(['stay behind because of a problem', 'explain a problem to others', 'create a problem that stops progress'])
+  ],
+  accessory: [
+    w(['a main part that holds something up', 'a spare part kept in case of damage', 'a cheap copy of the real thing']),
+    w(['a piece of clothing worn underneath', 'a cheap material used for coats', 'a shop where clothes are sold'])
+  ],
+  equipment: [
+    w(['workers who are trained for a job', 'money that is paid for a job', 'rules that are made for a job']),
+    w(['rooms and spaces for an activity', 'people and teams for an activity', 'prices and fees for an activity'])
+  ],
+  fixture: [
+    w(['something carried between rooms in a building', 'something borrowed for a short time in a building', 'something stored in a cupboard in a building'],
+      { meaning: 'something fitted permanently in a building', reason: 'The draft gloss contained a derivative of the target and the second sentence used a plural; both were reworded to a base-form sentence with a gloss that does not expose the word.' }),
+    w(['a decoration that is placed in a building', 'a person who works in a building', 'a machine that is moved around a building'],
+      { text: 'The previous owners took their furniture but left every light and tap, because each one is a fixture.', meaning: 'a fitting that stays in a building', reason: 'The draft gloss contained a derivative of the target and the second sentence used a plural; both were reworded to a base-form sentence with a gloss that does not expose the word.' })
+  ],
+  removable: [
+    w(['able to be repaired quickly', 'able to be seen from outside', 'able to be bought separately']),
+    w(['able to be charged very fast', 'able to be used underwater', 'able to be copied by others'])
+  ],
+  adjustable: [
+    w(['able to be washed in water', 'able to be folded flat', 'able to be seen from far away']),
+    w(['able to be bought or sold', 'able to be lifted or carried', 'able to be wrapped or covered'])
+  ],
+  affordable: [
+    w(['built only for wealthy people', 'owned only by the government', 'designed only for young people'],
+      { text: 'In many big cities, affordable housing is hard to find.', meaning: 'not too expensive for ordinary people', reason: 'The draft sentence began with the target, so the blank would have hidden the capital letter; the sentence was reworded.' }),
+    w(['high enough in quality to use', 'light enough in weight to carry', 'small enough in size to hold'])
+  ],
+  external: [
+    w(['from inside the organisation', 'from a rival organisation', 'from a former member']),
+    w(['built into and inside the main device', 'faster than the main device', 'older than the main device'])
+  ],
+  concentrate: [
+    w(['stop thinking about anything', 'do several things at once', 'think about the past']),
+    w(['write a plan for', 'ask for help with', 'hurry to finish'],
+      { text: 'You will make fewer mistakes if you concentrate on the task in front of you.', meaning: 'give your full attention to', reason: 'The draft sentence began with the target, so the blank would have hidden the capital letter; the sentence was reworded.' })
   ]
 });
