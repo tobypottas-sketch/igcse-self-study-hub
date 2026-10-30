@@ -152,5 +152,55 @@ export default Object.freeze({
     'The magician pulled a rabbit out of an empty box, and the children gasped.',
     'Nobody could say what the new film would be about before the trailer came out.',
     'The sudden thunderstorm ruined the outdoor concert on a sunny afternoon.'
+  ],
+  professional: [
+    'The village team plays on Sunday mornings, and nobody receives any money for it.',
+    'The neighbour mended the fence badly because he had never done it before.',
+    'The tourist took a few photographs on her phone and shared them with her friends.'
+  ],
+  regional: [
+    'The prime minister gave a speech about plans for the whole country.',
+    'The neighbours organised a small party in their street for the summer.',
+    'The embassy in Paris published an announcement about visas for people from every country.'
+  ],
+  commentary: [
+    'The newspaper printed a long report about the match the next morning.',
+    'The coach gave a short interview to a journalist after the game.',
+    'The fans sang loudly and waved flags throughout the second half.'
+  ],
+  educational: [
+    'The cartoon was colourful, silly and full of noisy music.',
+    'The shop sells toys, sweets and birthday cards for children.',
+    'The students played a fast game on their phones during the break.'
+  ],
+  culture: [
+    'The tourists took photographs of the old castle and the harbour.',
+    'The weather in the north is usually cold and wet in winter.',
+    'The new road to the airport was finished two months earlier than planned.'
+  ],
+  genuine: [
+    'The bag was cheap, bright and very popular with students.',
+    'He smiled politely at the visitors and shook hands with each one.',
+    'The jewellery was displayed in a locked glass case near the door.'
+  ],
+  amusing: [
+    'The comedian was tired, and the show finished early.',
+    'The lesson was long, and several students found it difficult.',
+    'The cat chased the toy across the room, and then fell asleep.'
+  ],
+  competitive: [
+    'The two friends played a relaxed game of tennis and chatted between points.',
+    'The shop sells the same books as the one across the road.',
+    'The class worked together on a poster, and nobody kept the score.'
+  ],
+  critical: [
+    'The report was long and contained many tables of figures.',
+    'The teacher praised the whole class for the way they worked.',
+    'The manager explained the new rules clearly and then asked for questions.'
+  ],
+  impressive: [
+    'The exam was long, and the questions were difficult.',
+    'The student arrived early, took out a pen and began to write.',
+    'The film lasted two hours and finished late in the evening.'
   ]
 });

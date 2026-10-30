@@ -81,4 +81,14 @@ export const LEXICAL_SPELLING_ERRORS = Object.freeze({
   "vocab_stabilising":["stablising","stabillising","stabiliseing","stabalising","stabilisng","stebilising"], // stabilising (Unit 2): "stabilizing" is the valid US spelling, so it is not listed as an error
   "vocab_multi_task":["multi task","mult-task","multi-tsak","multy-task","multi-taks","mutli-task"], // multi-task (Unit 2): "multitask" is an accepted variant, so it is not listed as an error
   "vocab_predictable":["predicable","predictible","predictabel","predectable","preditable","predictabull"], // predictable (Unit 2)
+  "vocab_professional":["profesional","professinal","proffessional","proffesional","professionel","profesionnal"], // professional (Unit 2)
+  "vocab_regional":["regonal","reigional","regeonal","regionel","regionall","reagional"], // regional (Unit 2)
+  "vocab_commentary":["comentary","commentry","commentery","commenatry","comentry","commentarry"], // commentary (Unit 2)
+  "vocab_educational":["educasional","eductional","educatinal","educationel","educatonal","edducational"], // educational (Unit 2)
+  "vocab_culture":["culchure","cultur","cultue","kulture","cultere","culturre"], // culture (Unit 2)
+  "vocab_genuine":["genuin","genwine","genuwine","genuiine","gennuine","genune"], // genuine (Unit 2)
+  "vocab_amusing":["amuseing","amusung","amussing","amuzing","ammusing","amusinng"], // amusing (Unit 2)
+  "vocab_competitive":["competative","compettitive","competive","competitave","comptitive","competitiv"], // competitive (Unit 2)
+  "vocab_critical":["critcal","critacal","critticall","criticle","critial","cricital"], // critical (Unit 2)
+  "vocab_impressive":["impresive","impressiv","impressave","imprressive","impresssive","inpressive"], // impressive (Unit 2)
 });

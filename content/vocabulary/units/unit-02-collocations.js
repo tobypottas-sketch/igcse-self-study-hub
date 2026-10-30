@@ -30,5 +30,15 @@ export default Object.freeze({
   'high-performance': ['high-performance engine', 'high-performance computer', 'high-performance car'],
   stabilising: ['stabilising effect', 'stabilising influence', 'stabilising measure'],
   'multi-task': ['multi-task effectively', 'multi-task easily', 'cannot multi-task'],
-  predictable: ['highly predictable', 'entirely predictable', 'easily predictable']
+  predictable: ['highly predictable', 'entirely predictable', 'easily predictable'],
+  professional: ['professional footballer', 'professional advice', 'professional photographer'],
+  regional: ['regional accent', 'regional manager', 'regional newspaper'],
+  commentary: ['live commentary', 'radio commentary', 'football commentary'],
+  educational: ['educational game', 'educational visit', 'educational programme'],
+  culture: ['local culture', 'popular culture', 'youth culture'],
+  genuine: ['genuine interest', 'genuine concern', 'genuine leather'],
+  amusing: ['amusing story', 'mildly amusing', 'rather amusing'],
+  competitive: ['competitive market', 'highly competitive', 'competitive sport'],
+  critical: ['critical review', 'extremely critical', 'critical comment'],
+  impressive: ['impressive performance', 'truly impressive', 'impressive results']
 });
