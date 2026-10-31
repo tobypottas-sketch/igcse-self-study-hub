@@ -250,4 +250,13 @@ export const LEXICAL_SPELLING_ERRORS = Object.freeze({
   "vocab_engage":["enguage","engege","engaje","ingage","engadge","engaige"], // engage (Unit 6)
   "vocab_participate":["particpate","partisipate","participat","partcipate","participete","particapate"], // participate (Unit 6)
   "vocab_passive":["pasive","passiv","passsive","passeve","pessive","pasiv"], // passive (Unit 6)
+  "vocab_active":["activ","acitve","actve","aktive","activee","actieve"], // active (Unit 6)
+  "vocab_reflect":["reflet","reflact","relfect","reflecct","refelct","reflekt"], // reflect (Unit 6)
+  "vocab_process":["proces","procces","prosess","proccess","processs","procass"], // process (Unit 6)
+  "vocab_strategy":["stratagy","stratergy","strategi","stradegy","startegy","stategy"], // strategy (Unit 6)
+  "vocab_approach":["aproach","approch","apprach","approatch","appraoch","approche"], // approach (Unit 6)
+  "vocab_revise":["revize","revice","revies","reviese","revisse","rivise"], // revise (Unit 6)
+  "vocab_forecast":["forcast","forecest","foracast","forekast","forecasst","fourcast"], // forecast (Unit 6)
+  "vocab_interfere":["interfear","interfer","intefere","interfeer","intarfere","interfeare"], // interfere (Unit 6)
+  "vocab_distract":["distrct","distrack","disstract","distracct","destract","distarct"], // distract (Unit 6)
 });

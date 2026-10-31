@@ -43,5 +43,45 @@ export default Object.freeze({
   passive: [
     w(['calm and quiet while studying', 'lazy and unwilling to study', 'slow but careful when studying']),
     w(['too tired to listen carefully', 'too nervous to join in at all', 'too lazy to attend lectures'])
+  ],
+  active: [
+    w(['full of physical energy and movement', 'busy with too many different jobs', 'quick to give an answer']),
+    w(['always moving about the classroom', 'busy at every hour of the day', 'strong enough to lift heavy objects'])
+  ],
+  evaluate: [
+    w(['to describe how something looks in detail', 'to make something larger after the work ends', 'to give a prize to the best project']),
+    w(['to describe two methods without an opinion', 'to copy a method from another student', 'to choose a method at random'])
+  ],
+  reflect: [
+    w(['to repeat the same task until it is perfect', 'to complain about the task to the teacher', 'to forget a mistake as quickly as possible']),
+    w(['to watch a recording of the match again for fun', 'to show a mistake to the rest of the team', 'to copy the best player on the team'])
+  ],
+  process: [
+    w(['to hide something from other people', 'to repeat something to a friend', 'to write something down quickly']),
+    w(['to produce information in a factory', 'to copy information onto paper', 'to store information in a file'])
+  ],
+  strategy: [
+    w(['a rule that players must obey', 'a trophy given to the winning team', 'a mistake made by the defence']),
+    w(['a long list of difficult words', 'a game that helps students to relax', 'a test taken at the end of the week'])
+  ],
+  approach: [
+    w(['a distance covered in one step', 'a rule about how to write a plan', 'a final answer to a difficult problem']),
+    w(['a place where two paths meet', 'a test given at the end of the year', 'an argument between two scientists'])
+  ],
+  revise: [
+    w(['to take an examination for the first time', 'to change a text to remove mistakes', 'to give a lesson to other students']),
+    w(['to learn road signs for the first time', 'to correct mistakes in a printed sign', 'to teach road signs to a friend'])
+  ],
+  forecast: [
+    w(['to guess the result without any information', 'to warn people about something that has happened', 'to explain why a result happened']),
+    w(['to describe how the sea has changed', 'to guess a number without any records', 'to measure the sea level on a beach'])
+  ],
+  interfere: [
+    w(['to help something to work more smoothly', 'to prevent something from being stolen', 'to replace something that has broken']),
+    w(['to give a clear and useful instruction', 'to cheer loudly for a team', 'to take part in a game as a player'])
+  ],
+  distract: [
+    w(['to give information about what to do', 'to make someone feel sleepy in lessons', 'to hide the lesson from young pupils']),
+    w(['to help someone to finish their work', 'to copy someone’s answers carelessly', 'to give someone extra time to work'])
   ]
 });

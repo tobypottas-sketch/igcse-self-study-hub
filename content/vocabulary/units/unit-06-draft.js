@@ -1,4 +1,4 @@
-// UNIT 6 – LEARNING AND STUDY SKILLS: authoring draft (batch 1 = words 1–10). Source: 0511 key words UNIT 6 – LEARNING AND STUDY SKILLS (locked 50-word list). Words 11–50 are not authored yet.
+// UNIT 6 – LEARNING AND STUDY SKILLS: authoring draft (batches 1–2 = words 1–20). Source: 0511 key words UNIT 6 – LEARNING AND STUDY SKILLS (locked 50-word list). Words 21–50 are not authored yet.
 // Same architecture as unit-05.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-06-draft.js
 // A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-06.js only when all 50 words are final.
 import { buildCuratedUnit } from '../build-unit.js';
@@ -314,6 +314,297 @@ const entries = [
         { id:'2', answer:'passive', wrong:['noisy', 'generous', 'impatient'] },
         { id:'3', answer:'passive', wrong:['generous', 'noisy', 'tidy'] }
       ]
+    }),
+  e('active', 'adjective',
+    'taking a full part in something, rather than only watching or receiving information',
+    ['fully involved', 'taking a real part'],
+    ['full of physical energy and always moving', 'busy with several tasks at the same time', 'quick to give an answer in class'],
+    'Research suggests that active learners remember more than students who only listen to the teacher.',
+    'fully involved', 'Research suggests that fully involved learners remember more than students who only listen to the teacher.',
+    'taking a real part', 'Children usually learn faster when they are taking a real part in the lesson.',
+    {
+      teacherNote:'Taught in its learning sense: taking a full part and doing things, instead of only receiving information. It is the opposite of passive. It does not mean physically energetic (an active child) or busy (an active week).',
+      masteryContexts:[
+        { text:'Students who play an active part in group discussions usually understand the topic better than those who stay silent.', meaning:'fully involved and taking part' },
+        { text:'The museum gives children the chance to be active learners by building models instead of just reading labels.', meaning:'doing things rather than only receiving information' }
+      ],
+      situationDistractors:[
+        'The pupil sat at the back with her arms folded and waited for the lesson to finish.',
+        'After the long journey, the family slept in the hotel until late in the morning.',
+        'The manager read the report from the first page to the last and filed it without comment.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Teachers can encourage students to be active in class by asking open questions instead of giving long explanations.', target:'active', grammarPattern:'' },
+        { id:'2', text:'Employees who take an active role in training sessions usually learn new systems more quickly.', target:'active', grammarPattern:'' },
+        { id:'3', text:'An active reader underlines key points, asks questions about the text and summarises each section.', target:'active', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'active', wrong:['absent', 'nervous', 'generous'] },
+        { id:'2', answer:'active', wrong:['unusual', 'optional', 'official'] },
+        { id:'3', answer:'active', wrong:['untidy', 'anxious', 'impatient'] }
+      ]
+    }),
+  e('evaluate', 'verb',
+    'to judge the quality, value or effectiveness of something by using evidence or clear criteria',
+    ['judge the quality of', 'measure how well it works'],
+    ['to describe something in detail without giving an opinion', 'to repeat something until it is remembered', 'to copy something so that it looks the same'],
+    'Before buying a new laptop, it is wise to evaluate several models by comparing reviews, prices and battery life.',
+    'judge the quality of', 'Before buying a new laptop, it is wise to judge the quality of several models by comparing reviews, prices and battery life.',
+    'measure how well it works', 'Scientists use a pilot study to measure how well it works before the new treatment is offered to every patient.',
+    {
+      idKey:'evaluate_6',
+      teacherNote:'Unit 6 item (evaluate_6), separate from the Unit 3 and Unit 5 evaluate items; shares only the lexical spelling list. Sense: to judge quality, value or effectiveness using evidence or criteria. It is not the same as describe, which only says what something is like.',
+      masteryContexts:[
+        { text:'Marine biologists evaluate each conservation project by comparing fish numbers before and after the work began.', meaning:'to judge how successful something is using evidence' },
+        { text:'In the final task, candidates must describe two study methods and then evaluate which one suits them better.', meaning:'to judge the value of something by giving reasons' }
+      ],
+      situationDistractors:[
+        'The reporter listed the names of the winners and the prizes they received.',
+        'A student typed out the speech word for word and read it aloud to the class.',
+        'Rain delayed the match, and the players waited in the changing room.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Doctors evaluate a new treatment by comparing the results of patients who received it with those who did not.', target:'evaluate', grammarPattern:'' },
+        { id:'2', text:'Before you trust a website, evaluate who wrote it, when it was updated and what evidence it gives.', target:'evaluate', grammarPattern:'' },
+        { id:'3', text:'The company asked an outside expert to evaluate the safety of the old bridge.', target:'evaluate', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'evaluate', wrong:['announce', 'invent', 'advertise'] },
+        { id:'2', answer:'evaluate', wrong:['ignore', 'forget', 'delete'] },
+        { id:'3', answer:'evaluate', wrong:['ignore', 'neglect', 'hide'] }
+      ]
+    }),
+  e('reflect', 'verb',
+    'to think carefully about an experience, action or idea, especially in order to learn from it',
+    ['think back carefully', 'look back and learn'],
+    ['to repeat information until it is remembered', 'to copy another person’s ideas exactly', 'to hurry through a task to finish quickly'],
+    'Good learners take time to reflect after each task, asking what worked and what did not.',
+    'think back carefully', 'Good learners take time to think back carefully after each task, asking what worked and what did not.',
+    'look back and learn', 'Mistakes are useful only if students stop to look back and learn from them.',
+    {
+      teacherNote:'Taught in its thinking sense: to think carefully about an experience, action or idea, especially in order to learn from it (reflect on a mistake). The mirror and light senses are not taught. It is usually followed by on.',
+      masteryContexts:[
+        { text:'After the group project, the teacher gave everyone ten minutes to reflect on what had gone well and what had not.', meaning:'to think carefully about an experience in order to learn from it' },
+        { text:'Many successful athletes keep a diary so that they can reflect on each match and improve their next performance.', meaning:'to think carefully about past actions in order to improve' }
+      ],
+      situationDistractors:[
+        'The pupils lined up at the door and followed the teacher to the canteen.',
+        'A student crossed out his answer, wrote another one and handed in the paper at once.',
+        'The coach shouted instructions from the side of the pitch while the players ran up and down.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Before writing your final report, reflect on the comments you received during the course.', target:'reflect', grammarPattern:'' },
+        { id:'2', text:'Pilots reflect carefully on every flight, noting small mistakes before they become dangerous habits.', target:'reflect', grammarPattern:'' },
+        { id:'3', text:'Journals give young learners a quiet place to reflect on their feelings and their progress.', target:'reflect', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'reflect', wrong:['depend', 'insist', 'comment'] },
+        { id:'2', answer:'reflect', wrong:['rely', 'agree', 'insist'] },
+        { id:'3', answer:'reflect', wrong:['depend', 'rely', 'agree'] }
+      ]
+    }),
+  e('process', 'verb',
+    'to take in, organise and understand information',
+    ['make sense of', 'sort out and understand'],
+    ['to collect information from many different places', 'to repeat information aloud to other people', 'to hide information so that nobody can find it'],
+    'The brain needs time to process new information, so short breaks during study are useful.',
+    'make sense of', 'The brain needs time to make sense of new information, so short breaks during study are useful.',
+    'sort out and understand', 'It takes most people several days to sort out and understand a large amount of unfamiliar information.',
+    {
+      teacherNote:'Taught as a verb in its learning sense: to take in, organise and understand information (process new information). The factory sense (to process food) and the noun sense (a process) are not taught here.',
+      masteryContexts:[
+        { text:'Teenagers sometimes need a quiet room to process difficult news before they can talk about it.', meaning:'to take in and make sense of something' },
+        { text:'Language learners process spoken words faster when they hear them in a clear and familiar context.', meaning:'to take in and understand information' }
+      ],
+      situationDistractors:[
+        'The workers loaded boxes onto the lorry and drove them to the warehouse.',
+        'The librarian stacked the returned books on the trolley and wheeled it to the shelves.',
+        'Leo wrote his name at the top of the page and sharpened three pencils.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The human brain can process only a small amount of new information at one time.', target:'process', grammarPattern:'' },
+        { id:'2', text:'Readers who stop to summarise each paragraph process the text more deeply than those who read quickly.', target:'process', grammarPattern:'' },
+        { id:'3', text:'It takes young children longer to process long instructions, so teachers should give them one step at a time.', target:'process', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'process', wrong:['produce', 'invent', 'forget'] },
+        { id:'2', answer:'process', wrong:['copy', 'skip', 'print'] },
+        { id:'3', answer:'process', wrong:['ignore', 'cancel', 'shorten'] }
+      ]
+    }),
+  e('strategy', 'noun',
+    'a carefully planned method for achieving a goal',
+    ['carefully planned method', 'plan for reaching a goal'],
+    ['a single action that is done without thinking', 'a rule that everyone must obey', 'a result that is reached after hard work'],
+    'Students who use a strategy for learning new vocabulary usually remember more words.',
+    'carefully planned method', 'Students who use a carefully planned method for learning new vocabulary usually remember more words.',
+    'plan for reaching a goal', 'A good coach gives each player a plan for reaching a goal before the season starts.',
+    {
+      teacherNote:'A strategy is a carefully planned method, made up of several steps or decisions, for reaching a goal (a learning strategy). It is not a single action or trick. It is often followed by for or to: a strategy for learning, a strategy to reduce stress.',
+      masteryContexts:[
+        { text:'The football manager changed his strategy at half-time and put an extra player in defence.', meaning:'a plan for reaching a goal' },
+        { text:'Our class developed a strategy for learning irregular verbs: we grouped them by sound and tested each other every week.', meaning:'a planned method for achieving a goal' }
+      ],
+      situationDistractors:[
+        'He grabbed the nearest book from the shelf and started reading it without a plan.',
+        'The architect drew the window and the door on the same sheet of paper.',
+        'A man waved at the bus driver and jumped on just before the doors closed.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'A good time-management strategy helps people to balance study, work and rest.', target:'strategy', grammarPattern:'' },
+        { id:'2', text:'The government has announced a new strategy to reduce traffic in the city centre.', target:'strategy', grammarPattern:'' },
+        { id:'3', text:'Every successful business needs a clear strategy for attracting and keeping customers.', target:'strategy', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'strategy', wrong:['mistake', 'accident', 'rumour'] },
+        { id:'2', answer:'strategy', wrong:['accident', 'celebration', 'complaint'] },
+        { id:'3', answer:'strategy', wrong:['colour', 'distance', 'accident'] }
+      ]
+    }),
+  e('approach', 'noun',
+    'a way of dealing with a task or problem',
+    ['way of working', 'way of dealing with a task'],
+    ['a distance between two places', 'a rule that must always be followed', 'a final answer to a problem'],
+    'Many schools now take a flexible approach, so that students can choose how they show what they have learned.',
+    'way of working', 'Many schools now take a flexible way of working, so that students can choose how they show what they have learned.',
+    'way of dealing with a task', 'Choosing the right way of dealing with a task can save a lot of time.',
+    {
+      teacherNote:'Taught in its method sense: a way of dealing with a task or problem (a new approach to learning). The physical sense of moving closer (the approach of a train) is not taught. It is often followed by to: an approach to problem-solving.',
+      masteryContexts:[
+        { text:'A step-by-step approach to planning a long piece of writing makes the task seem less frightening.', meaning:'a method of dealing with a task' },
+        { text:'The two scientists each took a very different approach to the same problem, but both reached the same result.', meaning:'a way of dealing with a problem' }
+      ],
+      situationDistractors:[
+        'The tourists took photographs of the old bridge and bought postcards.',
+        'He finished the last question, checked his name on the paper and left the hall.',
+        'Maya borrowed a pen from her neighbour and forgot to return it.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Teachers often try a new approach when the usual method does not help students to learn.', target:'approach', grammarPattern:'' },
+        { id:'2', text:'A practical approach to learning a language is to speak a little every day.', target:'approach', grammarPattern:'' },
+        { id:'3', text:'The doctor explained that a calm approach works best with anxious patients.', target:'approach', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'approach', wrong:['uniform', 'playground', 'journey'] },
+        { id:'2', answer:'approach', wrong:['journey', 'distance', 'building'] },
+        { id:'3', answer:'approach', wrong:['building', 'rumour', 'invention'] }
+      ]
+    }),
+  e('revise', 'verb',
+    'to study material again in order to prepare for an examination or to understand it better',
+    ['go back over', 'prepare by studying'],
+    ['to change a text so that it contains fewer mistakes', 'to learn a topic for the first time', 'to take an examination at the end of a course'],
+    'Students should revise the key topics at least a week before the exam.',
+    'go back over', 'Students should go back over the key topics at least a week before the exam.',
+    'prepare by studying', 'Many students prepare by studying their notes aloud with a friend.',
+    {
+      teacherNote:'Taught in the British exam-study sense: to study material again to prepare for an examination or to understand it better (revise for a test). The sense of editing a document is not taught here.',
+      masteryContexts:[
+        { text:'Maria plans to revise one subject each evening, starting with the topics she finds hardest.', meaning:'to study again to prepare for an examination' },
+        { text:'Before the driving theory test, Karim used a mobile app to revise road signs during his bus journey.', meaning:'to study material again so that you remember it' }
+      ],
+      situationDistractors:[
+        'The editor crossed out a long paragraph and rewrote the opening sentence of the article.',
+        'On the first day of term, the new pupils learned the names of their teachers.',
+        'He took the test on Monday and received his result by email on Friday.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'It is better to revise a little each day than to try to learn everything the night before the test.', target:'revise', grammarPattern:'' },
+        { id:'2', text:'Teachers advise students to revise with past papers so that they become familiar with the style of the questions.', target:'revise', grammarPattern:'' },
+        { id:'3', text:'Candidates who revise their weakest topics first usually feel more prepared on the day.', target:'revise', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'revise', wrong:['argue', 'invent', 'complain'] },
+        { id:'2', answer:'revise', wrong:['argue', 'compete', 'travel'] },
+        { id:'3', answer:'revise', wrong:['avoid', 'hide', 'delete'] }
+      ]
+    }),
+  e('forecast', 'verb',
+    'to say what is likely to happen in the future, using the information available',
+    ['make an informed prediction about', 'say what is likely to happen'],
+    ['to guess something without looking at any information', 'to warn people about a danger that has already happened', 'to explain why something happened in the past'],
+    'Meteorologists can forecast the path of a storm several days before it reaches the coast.',
+    'make an informed prediction about', 'Meteorologists can make an informed prediction about the path of a storm several days before it reaches the coast.',
+    'say what is likely to happen', 'Nobody can say what is likely to happen in the housing market without studying the latest figures.',
+    {
+      teacherNote:'Taught as a verb: to say what is likely to happen in the future using the information available (forecast the weather, forecast sales). A forecast is based on evidence, so it is different from a guess.',
+      masteryContexts:[
+        { text:'Analysts forecast that online sales will double over the next five years because more people now shop on their phones.', meaning:'to say what will probably happen using information' },
+        { text:'Using records from the past forty years, scientists can forecast how much the sea level will rise by the end of the century.', meaning:'to predict the future using evidence' }
+      ],
+      situationDistractors:[
+        'Nobody remembered the name of the captain who won the cup twenty years ago.',
+        'The farmer woke before dawn and fed the animals before breakfast.',
+        'She guessed the colour of the card in his hand and laughed when she was wrong.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Experts forecast heavy rain for the weekend, so the match may have to be postponed.', target:'forecast', grammarPattern:'' },
+        { id:'2', text:'It is difficult to forecast exam results accurately without knowing how much each student has prepared.', target:'forecast', grammarPattern:'' },
+        { id:'3', text:'Banks use past figures to forecast the number of customers who will need loans next year.', target:'forecast', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'forecast', wrong:['cause', 'deny', 'remember'] },
+        { id:'2', answer:'forecast', wrong:['celebrate', 'copy', 'hide'] },
+        { id:'3', answer:'forecast', wrong:['spend', 'sell', 'remove'] }
+      ]
+    }),
+  e('interfere', 'verb',
+    'to get in the way of something so that it cannot work or progress properly',
+    ['get in the way', 'disturb the work of others'],
+    ['to help someone to finish a job more quickly', 'to ask a question to check understanding', 'to join a team after the work has started'],
+    'Teachers should not interfere while students are working out the answer for themselves.',
+    'get in the way', 'Teachers should not get in the way while students are working out the answer for themselves.',
+    'disturb the work of others', 'Loud talking in the library can disturb the work of others who are trying to read.',
+    {
+      teacherNote:'Taught in the sense of getting involved in a way that prevents or disrupts something. It is often followed by with (interfere with sleep, interfere with learning) and sometimes by in (interfere in other people’s business). It is not the same as help.',
+      masteryContexts:[
+        { text:'Mobile phones can interfere with sleep if teenagers use them in bed late at night.', meaning:'to get in the way of something so that it does not work well' },
+        { text:'The coach asked parents not to interfere during training, because the players needed to listen to one voice.', meaning:'to become involved in a way that disrupts something' }
+      ],
+      situationDistractors:[
+        'The nurse took the patient’s temperature and wrote it on the chart.',
+        'Hana offered to carry her grandmother’s shopping and walked her to the front door.',
+        'The pupils sang a song together and then returned to their desks.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Worrying about money can interfere with a student’s ability to learn.', target:'interfere', grammarPattern:'' },
+        { id:'2', text:'A noisy classroom may interfere with the way children follow spoken instructions.', target:'interfere', grammarPattern:'' },
+        { id:'3', text:'Heavy part-time work should not interfere with your studies in the final year of school.', target:'interfere', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'interfere', wrong:['agree', 'cope', 'argue'] },
+        { id:'2', answer:'interfere', wrong:['deal', 'agree', 'cooperate'] },
+        { id:'3', answer:'interfere', wrong:['compete', 'agree', 'deal'] }
+      ]
+    }),
+  e('distract', 'verb',
+    'to take someone’s attention away from what they should be thinking about or doing',
+    ['take attention away from', 'make it hard to pay attention'],
+    ['to make someone feel angry about their work', 'to help someone to remember a fact', 'to stop someone from entering a room'],
+    'Notifications on a phone can distract students while they are trying to complete a task.',
+    'take attention away from', 'Notifications on a phone can take attention away from students while they are trying to complete a task.',
+    'make it hard to pay attention', 'Open-plan offices can make it hard to pay attention to complicated work.',
+    {
+      teacherNote:'Taught as a verb: to take someone’s attention away from what they should be concentrating on (distract students, distract from the task). It differs from interfere: distract affects attention, while interfere affects how something works or progresses.',
+      masteryContexts:[
+        { text:'Bright posters on every wall can distract young children from the lesson.', meaning:'to take attention away from what you should be doing' },
+        { text:'During the exam, a student was asked to leave because he kept trying to distract the candidate sitting next to him.', meaning:'to take someone’s attention away from their work' }
+      ],
+      situationDistractors:[
+        'The class listened carefully while the guest speaker described her experience as a pilot.',
+        'He wrote the date in the margin and underlined the title of the chapter.',
+        'The examiner collected the papers and counted them twice.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Social media can easily distract teenagers who are trying to finish their homework.', target:'distract', grammarPattern:'' },
+        { id:'2', text:'Try not to distract the driver while the car is moving.', target:'distract', grammarPattern:'' },
+        { id:'3', text:'A tidy desk helps because there is less around to distract you from your work.', target:'distract', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'distract', wrong:['mislead', 'embarrass', 'photograph'] },
+        { id:'2', answer:'distract', wrong:['follow', 'hire', 'insult'] },
+        { id:'3', answer:'distract', wrong:['excuse', 'protect', 'prevent'] }
+      ]
     })
 ];
 
@@ -356,6 +647,10 @@ export default buildCuratedUnit({
   source:'0511 key words UNIT 6 – LEARNING AND STUDY SKILLS',
   entries:enrichedEntries,
   activities:[...unit6Activities, ...unit6PrecisionUse, ...unit6WordFamilyItems],
-  // None of words 1–10 is an exact earlier-unit target, so no _6 isolation is needed yet (evaluate and pressure, later in this unit, will need it).
-  lexicalSpelling:LEXICAL_SPELLING_ERRORS
+  // evaluate is also a Unit 3 and Unit 5 target; its Unit 6 item has its own id (idKey 'evaluate_6' -> vocab_evaluate_6) and aliases the earlier spelling list
+  // (pressure, later in this unit, will need the same treatment).
+  lexicalSpelling:{
+    ...LEXICAL_SPELLING_ERRORS,
+    vocab_evaluate_6:LEXICAL_SPELLING_ERRORS.vocab_evaluate
+  }
 });

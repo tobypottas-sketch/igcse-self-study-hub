@@ -51,5 +51,55 @@ export default Object.freeze({
     'The librarian recommended a book about volcanoes to a curious first-year student.',
     'The exam hall was silent, and every pupil wrote for the whole two hours.',
     'The teacher stood at the door and welcomed each pupil by name.'
+  ],
+  active: [
+    'The caretaker unlocked the gate and switched on the lights in the corridor.',
+    'Tom copied the date from the board and then looked out of the window for the rest of the lesson.',
+    'After lunch, the visitors rested in the garden and drank tea.'
+  ],
+  evaluate: [
+    'The guide pointed to the old clock tower and told the group when it was built.',
+    'The students copied the diagram from the board into their books.',
+    'Heavy snow closed the road, so the bus did not run.'
+  ],
+  reflect: [
+    'The mechanic opened the bonnet and changed the oil in the engine.',
+    'Two pupils shared a book because there were not enough copies for the class.',
+    'The team celebrated loudly and then headed to the restaurant.'
+  ],
+  process: [
+    'The farmer sold his vegetables at the market every Saturday.',
+    'A student wrote the answers on a small card and hid it inside his sleeve.',
+    'The school bus stopped outside the gate at a quarter to eight.'
+  ],
+  strategy: [
+    'The little boy waved goodbye to his grandmother from the window of the train.',
+    'Ana lost her keys, searched every pocket and eventually found them in the kitchen.',
+    'The shop closed at six, so the customers left one by one.'
+  ],
+  approach: [
+    'The chef chopped the onions and added them to the hot oil.',
+    'The pupils took their coats from the pegs and left the room in silence.',
+    'Some students arrived late because of the heavy traffic on the main road.'
+  ],
+  revise: [
+    'The clerk stamped each form and placed it in a wooden tray.',
+    'A tourist asked for directions to the station and thanked the stranger.',
+    'The teacher handed back the marked tests at the end of the lesson.'
+  ],
+  forecast: [
+    'The shop assistant wrapped the present and tied it with a red ribbon.',
+    'Ravi remembered the number of the bus but forgot where to get off.',
+    'The class repeated the new words after the teacher, one by one.'
+  ],
+  interfere: [
+    'The pupils tidied their desks and left their bags by the door.',
+    'A neighbour watered the plants while the family were away on holiday.',
+    'The team trained for an hour before sunset and then went home.'
+  ],
+  distract: [
+    'The chemistry teacher poured two clear liquids into a glass and waited for the colour to change.',
+    'Rita drank some water and carried on writing the last paragraph.',
+    'The cyclist stopped at the red light and waited for it to turn green.'
   ]
 });

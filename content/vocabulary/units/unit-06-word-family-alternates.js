@@ -1,4 +1,4 @@
-// Unit 6 · Word Families — a SECOND authored example sentence for the two non-headword forms of each three-form family, WORDS 1–10 so far.
+// Unit 6 · Word Families — a SECOND authored example sentence for the two non-headword forms of each three-form family, WORDS 1–20 so far.
 // Same contract as unit-05-word-family-alternates.js: each sentence contains its form exactly once and never starts with it.
 export const unit6WordFamilyAlternates = Object.freeze({
   confidence: {
@@ -16,5 +16,21 @@ export const unit6WordFamilyAlternates = Object.freeze({
   participate: {
     participation: 'Class participation counts for ten per cent of the final grade.',
     participant: 'One participant in the survey said that group work had improved her speaking.'
+  },
+  active: {
+    activity: 'Writing a short summary is a useful activity to do at the end of every lesson.',
+    actively: 'Employees who actively ask questions in training sessions learn new systems faster.'
+  },
+  reflect: {
+    reflection: 'Her reflection on the first term helped her to choose a better study plan.',
+    reflective: 'A reflective student asks why a method worked, not just whether it worked.'
+  },
+  strategy: {
+    strategic: 'Every strategic plan needs clear goals, a timetable and a way of measuring success.',
+    strategically: 'The signs were strategically placed so that visitors could find the exhibition easily.'
+  },
+  forecast: {
+    forecaster: 'A good forecaster explains how certain the prediction is, not only what will happen.',
+    forecasting: 'Banks rely on careful forecasting to decide how much money to lend next year.'
   }
 });
