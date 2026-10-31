@@ -12,8 +12,8 @@ export const resetGamesMemory = () => { bestBlitz = 0; };
 export function mountGames(root, { content, unitNumber = 1, game = 'lobby', onCue = () => {}, onExit = () => {}, rng = Math.random, puzzles = null, history = sharedGameHistory, now = () => Date.now(), setTimer = setTimeout, clearTimer = clearTimeout, setTick = setInterval, clearTick = clearInterval } = {}) {
   // This unit's authored games. A unit with none can only show the "not available yet" lobby; it never borrows another unit's content.
   const unitGames = gamesFor(unitNumber); const playable = availableGames(unitNumber);
-  let blitz = null; let cx = null; let tick = null; let advance = null; let popTimer = null; let alive = true;
-  const stop = () => { if (tick) clearTick(tick); if (advance) clearTimer(advance); if (popTimer) clearTimer(popTimer); tick = advance = popTimer = null; };
+  let blitz = null; let cx = null; let tick = null; let advance = null; let popTimer = null; let alive = true; let endTimer = null;
+  const stop = () => { if (tick) clearTick(tick); if (advance) clearTimer(advance); if (popTimer) clearTimer(popTimer); if (endTimer) clearTimer(endTimer); tick = advance = popTimer = endTimer = null; };
   const q = selector => root.querySelector(selector);
   const focus = selector => { try { q(selector)?.focus?.({ preventScroll: true }); } catch { /* focus is a convenience only */ } };
   // A repaint is a new screen (scroll to the top) unless `keep` says it is the same puzzle changing in place: then the viewport position is restored,
@@ -40,7 +40,8 @@ export function mountGames(root, { content, unitNumber = 1, game = 'lobby', onCu
   };
   const endBlitz = () => {
     stop(); const sum = blitz.summary(); const isBest = sum.score > bestBlitz && sum.score > 0; if (isBest) bestBlitz = sum.score;
-    onCue('finish');
+    // Time up: the calm descending pair first, then the completion sting a beat later. Running out of questions goes straight to the sting.
+    if (blitz.remaining() <= 0) { onCue('blitz-timeout'); endTimer = setTimer(() => { endTimer = null; onCue('blitz-finish'); }, 430); } else onCue('blitz-finish');
     paint(renderBlitzOver(sum, isBest, bestBlitz)); focus('[data-game-act="blitz-again"]'); countUp(sum.score);
   };
   // Cosmetic only: the final score is already in the markup; with motion allowed it counts up from 0 over ~0.9s and always lands on the real value.
@@ -53,11 +54,11 @@ export function mountGames(root, { content, unitNumber = 1, game = 'lobby', onCu
   const answerBlitz = index => {
     if (!blitz) return;
     const result = blitz.answer(index); if (!result) return;
-    onCue(result.correct ? 'blitz-correct' : 'blitz-wrong', result.correct ? { streak:result.streak, multiplier:result.multiplier } : {});
+    const tierUp = result.correct && [3, 6, 10].includes(result.streak);   // the multiplier event is the emphasis; ordinary correct answers stay light
+    onCue(!result.correct ? 'blitz-wrong' : tierUp ? `blitz-tier-${result.multiplier}` : 'blitz-correct', result.correct ? { streak:result.streak, multiplier:result.multiplier } : {});
     const buttons = [...root.querySelectorAll('.gm-option')];
     buttons.forEach((b, i) => { b.disabled = true; if (i === result.correctIndex) b.dataset.state = 'correct'; else if (i === Number(index)) b.dataset.state = 'wrong'; });
     const scoreEl = q('[data-blitz-score]'); scoreEl.textContent = String(blitz.state.score); if (result.correct) { scoreEl.classList.remove('is-punch'); void scoreEl.offsetWidth; scoreEl.classList.add('is-punch'); } paintCombo(result.streak);
-    const tierUp = result.correct && [3, 6, 10].includes(result.streak);
     pop(result.correct ? `+${result.points}${tierUp ? (result.multiplier === 2 ? '  x2 streak' : `  x${result.multiplier} combo`) : ''}` : 'Streak reset', result.correct ? 'ok' : 'miss');
     const live = q('[data-blitz-live]'); if (live) live.textContent = result.correct ? `Correct. ${result.points} points.` : `Not quite. The answer was ${result.term}.`;
     advance = setTimer(() => { advance = null; const nextQ = blitz.next(); if (!nextQ) { endBlitz(); return; } const box = q('[data-blitz-q]'); if (box) box.innerHTML = renderBlitzQuestion(nextQ); focus('.gm-option'); }, result.correct ? 380 : 900);
@@ -68,7 +69,7 @@ export function mountGames(root, { content, unitNumber = 1, game = 'lobby', onCu
   const showCx = (keep = false, focusOn = null) => { if (cx.state.status === 'over') { paint(renderConnectionsOver(cx.summary())); focus('[data-game-act="cx-again"]'); return; } paint(renderConnectionsPlay(cx, unitNumber), keep); focus(focusOn ?? (cx.state.phase === 'guessing' ? '#cxGuess' : '[data-game-act="cx-next"]')); };
   const submitGuess = text => {
     if (!cx) return; const r = cx.guess(text); if (!r) return;
-    onCue(r.correct ? 'correct' : 'incorrect');
+    onCue(r.correct ? 'connections-solved' : 'connections-wrong');
     if (r.correct) showCx(true); else { showCx(true); const card = q('.gm-guess'); if (card) card.dataset.shake = 'on'; }
   };
 
@@ -90,9 +91,9 @@ export function mountGames(root, { content, unitNumber = 1, game = 'lobby', onCu
     else if (act === 'cx-start' || act === 'cx-again') startConnections();
     else if (act === 'cx-reveal') { cx.reveal(); showCx(true, cx.canReveal() ? '[data-game-act="cx-reveal"]' : '#cxGuess'); }
     else if (act === 'cx-help') { cx.help(); showCx(true, '[data-cx-choices] .gm-choice'); }
-    else if (act === 'cx-choice') { const r = cx.pick(target.dataset.term); if (r) { onCue(r.correct ? 'correct' : 'incorrect'); showCx(true, r.correct ? null : '[data-cx-choices] .gm-choice:not([disabled])'); } }
+    else if (act === 'cx-choice') { const r = cx.pick(target.dataset.term); if (r) { onCue(r.correct ? 'connections-solved' : 'connections-wrong'); showCx(true, r.correct ? null : '[data-cx-choices] .gm-choice:not([disabled])'); } }
     else if (act === 'cx-giveup') { cx.giveUp(); showCx(true); }
-    else if (act === 'cx-next') { cx.next(); if (cx.state.status === 'over') onCue('finish'); showCx(); }
+    else if (act === 'cx-next') { cx.next(); if (cx.state.status === 'over') onCue('connections-finish'); showCx(); }
   };
   const onSubmit = event => { if (!event.target?.matches?.('[data-cx-form]')) return; event.preventDefault?.(); submitGuess(q('#cxGuess')?.value ?? ''); };
   const onKey = event => {
