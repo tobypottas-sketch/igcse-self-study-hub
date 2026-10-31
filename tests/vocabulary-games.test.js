@@ -108,12 +108,13 @@ test('Connections: curated Unit 1 puzzles, exactly four clues each, on the agree
     assert.ok(terms.has(p.target), `${p.target} is a Unit 1 word`); assert.equal(p.clues.length, 4, `${p.target}: four clues`);
     const stem = p.target.slice(0, Math.max(5, p.target.length - 3)).toLowerCase();
     for (const [i, c] of p.clues.entries()) { assert.ok(!c.text.toLowerCase().replace(/___/g, '').includes(stem), `${p.target} clue ${i + 1} gives the word away`); kinds.add(c.kind); }
-    assert.deepEqual(p.clues.map(c => c.kind), ['association', 'association', 'plain', 'meaning'], `${p.target}: the clue staircase`);
+    assert.deepEqual(p.clues.map(c => c.kind), ['situation', 'context', 'plain', 'meaning'], `${p.target}: the clue staircase`);
     assert.ok(!p.clues[2].text.includes('___'), `${p.target}: clue 3 is plain meaning, not a blank sentence`);
     assert.ok(p.clues.every(c => !c.text.includes('___')));
     assert.ok(p.why.length > 30); assert.ok(p.clues[2].text.length < 70);
   }
-  assert.deepEqual([...kinds].sort(), ['association', 'meaning', 'plain']);
+  assert.deepEqual([...kinds].sort(), ['context', 'meaning', 'plain', 'situation']);
+  assert.ok(CONNECTIONS_PUZZLES.every(p => !('image' in p)), 'Connections v2 is text only');
   // clue 4 is the real Unit 1 meaning, in the student's own words: it shares vocabulary with the unit's definition
   for (const p of CONNECTIONS_PUZZLES) { const def = unit1.items.find(i => i.term === p.target).coreMeaning.toLowerCase().match(/[a-z]{5,}/g) ?? []; assert.ok(def.some(w => p.clues[3].text.toLowerCase().includes(w.slice(0, 5))) || p.target === 'racquet', `${p.target}: clue 4 tracks the definition`); }
 });
@@ -194,9 +195,9 @@ browserTest('in a browser: both games launch without network or progression call
       await page.click('[data-game-act="blitz-again"]'); await page.evaluate(() => { window.__t = 100000; }); assert.equal(await page.textContent('[data-blitz-score]'), '0', `${where}: Play again restarts at zero`);
       await page.click('[data-game-act="lobby"]'); assert.equal(await page.locator('[data-games-lobby]').count(), 1, `${where}: Back to Games`);
       // ---- Connections
-      await page.click('[data-game-act="open"][data-game="connections"]'); await page.click('[data-game-act="cx-start"]'); assert.equal(await page.locator('.gm-clue:not(.gm-clue--hidden)').count(), 1); assert.match(await page.textContent('[data-cx-length]'), /^\d+ letters$/); assert.equal(await page.locator('[data-cx-first]').count(), 0, `${where}: no first letter at clue 1`);
-      await page.click('[data-game-act="cx-reveal"]'); assert.equal(await page.locator('.gm-clue:not(.gm-clue--hidden)').count(), 2); assert.equal(await page.textContent('[data-cx-worth]'), '400'); assert.equal(await page.locator('[data-cx-first]').count(), 0, `${where}: no first letter at clue 2`);
-      await page.click('[data-game-act="cx-reveal"]'); { const t = await page.evaluate(() => window.__g.connections.puzzle().target); assert.equal((await page.textContent('[data-cx-first] b')), t.slice(0, 2).toUpperCase(), `${where}: first two letters at clue 3`); assert.equal(await page.textContent('[data-cx-length]'), `${t.length} letters`); } await page.fill('#cxGuess', 'zzz'); await page.press('#cxGuess', 'Enter'); assert.equal(await page.textContent('[data-cx-worth]'), '300', `${where}: a wrong guess costs nothing`); assert.ok((await overflow(page)) <= 0, `${where}: connections overflow`);
+      await page.click('[data-game-act="open"][data-game="connections"]'); await page.click('[data-game-act="cx-start"]'); assert.equal(await page.locator('.gm-clue:not(.gm-clue--hidden)').count(), 1); assert.match(await page.textContent('[data-cx-length]'), /letters$/); assert.match(await page.textContent('[data-cx-first]'), /^[A-Z]…$/, `${where}: first letter at clue 1`); assert.equal(await page.locator('[data-cx-suggest], .gm-suggest').count(), 0);
+      await page.click('[data-game-act="cx-reveal"]'); assert.equal(await page.locator('.gm-clue:not(.gm-clue--hidden)').count(), 2); assert.equal(await page.textContent('[data-cx-worth]'), '400'); assert.match(await page.textContent('[data-cx-pattern]'), /^[A-Z]{2,3}[_ \-A-Z]*$/, `${where}: prefix pattern at clue 2`);
+      await page.click('[data-game-act="cx-reveal"]'); { const t = await page.evaluate(() => window.__g.connections.puzzle().target); assert.equal((await page.textContent('[data-cx-pattern] b')), wordShape(CONNECTIONS_PUZZLES.find(x => x.target === t), 3).pattern, `${where}: stage-3 pattern`); assert.match(await page.textContent('[data-cx-length]'), /letters$/); } await page.fill('#cxGuess', 'zzz'); await page.press('#cxGuess', 'Enter'); assert.equal(await page.textContent('[data-cx-worth]'), '300', `${where}: a wrong guess costs nothing`); assert.ok((await overflow(page)) <= 0, `${where}: connections overflow`);
       for (let i = 0; i < 5; i += 1) { const target = await page.evaluate(() => window.__g.connections.puzzle().target); await page.fill('#cxGuess', target); await page.press('#cxGuess', 'Enter'); await page.click('[data-game-act="cx-next"]'); }
       await page.waitForSelector('[data-phase="over"]'); assert.ok((await overflow(page)) <= 0, `${where}: connections result overflow`); assert.match(await page.textContent('.gm-stats'), /Solved[\s\S]*5 \/ 5[\s\S]*Average clues used/);
       await page.click('[data-game-act="cx-again"]'); assert.equal(await page.textContent('[data-cx-score]'), '0', `${where}: Play again restarts`);
@@ -231,16 +232,18 @@ browserTest('Connections accepted spellings through the real rendered UI: racque
   } finally { await browser.close(); server.close(); }
 });
 
-test('Connections word shape: length always shown, first letter only from clue 3, canonical (not alias) based, multi-word aware, scoring unchanged', () => {
+test('Connections word shape (v2): word class, length and first letter at clue 1; the stage, never the typing, decides the pattern; scoring unchanged', () => {
   for (const p of CONNECTIONS_PUZZLES) {
     const a = wordShape(p, 1), b = wordShape(p, 2), c = wordShape(p, 3), d = wordShape(p, 4);
-    const letters = p.target.replace(/[^a-z]/g, '').length; assert.equal(a.letters, letters); if (!/[ -]/.test(p.target)) assert.equal(a.label, `${letters} letters`);
-    assert.equal(a.firstLetter, null); assert.equal(b.firstLetter, null); assert.equal(c.firstLetter, p.target[0].toUpperCase()); assert.equal(d.firstLetter, p.target[0].toUpperCase());
-    assert.equal(c.label, a.label, 'length stays visible');
+    const letters = p.target.replace(/[^a-z]/g, '').length; assert.equal(a.letters, letters);
+    assert.equal(a.firstLetter, p.target[0].toUpperCase()); assert.equal(a.pattern, null); assert.equal(a.prefix, null);
+    for (const x of [b, c, d]) assert.equal(x.firstLetter, a.firstLetter);
+    assert.equal(b.prefix.length, letters <= 5 ? 2 : 3, p.target); assert.ok(c.pattern.startsWith(b.pattern.slice(0, b.prefix.length)));
+    assert.equal(c.lengthLabel, a.lengthLabel, 'length stays visible');
   }
-  const multi = wordShape({ target: 'goal-oriented', accept: [] }, 3); assert.deepEqual([multi.words, multi.lengths, multi.letters, multi.label, multi.firstLetter], [2, [4, 8], 12, '2 words · 4 + 8 letters', 'G']);
+  const multi = wordShape({ target: 'goal-oriented', accept: [] }, 3); assert.deepEqual([multi.words, multi.lengths, multi.letters, multi.lengthLabel, multi.firstLetter], [2, [4, 8], 12, '2 words · 4 + 8 letters', 'G']);
   const racquet = CONNECTIONS_PUZZLES.find(p => p.target === 'racquet');
-  assert.equal(wordShape(racquet, 3).label, '7 letters', 'the alias "racket" (6) never changes the shown length'); assert.equal(wordShape({ ...racquet, accept: ['zzz'] }, 1).label, '7 letters');
+  assert.equal(wordShape(racquet, 3).lengthLabel, '7 letters', 'the alias "racket" (6) never changes the shown length'); assert.equal(wordShape({ ...racquet, accept: ['zzz'] }, 1).lengthLabel, '7 letters');
   const game = createConnections({ puzzles: [racquet] }); assert.equal(game.potential(), 500); game.reveal(); game.reveal(); assert.equal(game.potential(), 300);
 });
 
@@ -270,7 +273,7 @@ browserTest('Connections supportive UI: no -100 on buttons, encouraging feedback
       const text = async () => page.textContent('.gm-shell'); assert.match(await text(), /Worth\s*500\s*points/); assert.match(await page.textContent('[data-game-act="cx-reveal"]'), /^Show next clue$/);
       await page.fill('#cxGuess', 'pressure'); await page.press('#cxGuess', 'Enter'); assert.match(await page.textContent('.gm-nudge'), /Good thinking — try another clue\./); assert.doesNotMatch(await text(), /wrong|incorrect|−100|-100|Not “/i); assert.equal(await page.textContent('[data-cx-worth]'), '500', 'a wrong guess costs nothing');
       for (let i = 0; i < 3; i += 1) await page.click('[data-game-act="cx-reveal"]');
-      assert.equal(await page.locator('[data-game-act="cx-reveal"]').count(), 0); assert.equal(await page.textContent('[data-cx-first] b'), 'PAT_____'); assert.equal(await page.textContent('[data-cx-length]'), '8 letters');
+      assert.equal(await page.locator('[data-game-act="cx-reveal"]').count(), 0); assert.equal(await page.textContent('[data-cx-pattern] b'), wordShape(CONNECTIONS_PUZZLES.find(x => x.target === 'patience'), 4).pattern); assert.equal(await page.textContent('[data-cx-length]'), '8 letters');
       assert.equal(await page.textContent('[data-cx-worth]'), '200'); await page.click('[data-game-act="cx-help"]'); assert.equal(await page.locator('.gm-choice').count(), 3); assert.equal(await page.textContent('[data-cx-worth]'), '100'); assert.ok((await overflow()) <= 0, `${w}: overflow with choices`);
       const labels = await page.locator('.gm-choice').allTextContents(); assert.deepEqual(labels.sort(), ['challenge', 'patience', 'solution']);
       await page.click('.gm-choice:has-text("challenge")'); assert.equal(await page.locator('.gm-choice[disabled]').count(), 1); assert.match(await page.textContent('.gm-nudge'), /./); assert.equal(await page.textContent('[data-cx-worth]'), '100');
@@ -280,97 +283,33 @@ browserTest('Connections supportive UI: no -100 on buttons, encouraging feedback
   } finally { await browser.close(); server.close(); }
 });
 
-// ---------------------------------------------------------------- Connections picture clues (clue 2)
-const IMG_DIR = 'assets/vocabulary/games/connections/unit-01';
-test('Connections picture clues: every picture puzzle (the original 12) points at its own local PNG, with alt text that never reveals the answer', () => {
-  const pictured = CONNECTIONS_PUZZLES.filter(p => p.image); assert.equal(pictured.length, 12);
-  assert.deepEqual(fs.readdirSync(path.join(repo, IMG_DIR)).sort(), pictured.map(p => `${p.target}.png`).sort(), 'one PNG per pictured target, nothing else in the folder');
-  for (const p of pictured) {
-    assert.equal(p.image.src, `${IMG_DIR}/${p.target}.png`); assert.doesNotMatch(p.image.src, /^(https?:)?\/\//, 'local asset only');
-    const file = fs.readFileSync(path.join(repo, p.image.src)); assert.equal(file.subarray(1, 4).toString(), 'PNG', `${p.target}: a real PNG`);
-    const [w, h] = [file.readUInt32BE(16), file.readUInt32BE(20)]; assert.ok(w >= 600 && h >= 450 && w / h >= 1 && w / h <= 1.4, `${p.target}: ${w}x${h}`); assert.ok(file.length < 1_000_000, `${p.target}: under 1MB`);
-    const alt = p.image.alt.toLowerCase(); assert.ok(alt.length > 15);
-    for (const word of [p.target, ...p.accept]) assert.ok(!new RegExp(`\\b${word.slice(0, Math.max(5, word.length - 3))}`).test(alt), `${p.target}: alt text contains "${word}"`);
-  }
-  const html = read('src/vocabulary/games/games-view.js'); assert.doesNotMatch(html.replace(/\/\/.*$/gm, ''), /https?:\/\//, 'no external URLs in the games view');
-});
-
-browserTest('Connections picture clues in the real UI: clue 2 is the PNG, clues 1, 3 and 4 stay text, scoring/aliases unchanged, no overflow, local requests only, missing file falls back to text', async () => {
-  const playwright = loadPlaywright(); const browser = await playwright.chromium.launch({ executablePath: await findChromium() }); const { server, url } = await startServer();
-  try {
-    for (const [w, h, rm] of [[1280, 800, 'no-preference'], [390, 844, 'no-preference'], [320, 640, 'no-preference'], [390, 844, 'reduce']]) {
-      const page = await browser.newPage({ viewport: { width: w, height: h }, reducedMotion: rm }); const requests = []; page.on('request', r => requests.push(r.url())); page.on('pageerror', e => { throw e; });
-      await page.goto(`${url}/__games.html`); await page.waitForFunction(() => window.__ready);
-      const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-      for (const p of CONNECTIONS_PUZZLES.filter(x => x.image)) {
-        const where = `${w}/${rm}/${p.target}`;
-        await page.evaluate(t => window.__mountP('connections', window.__puzzles.filter(x => x.target === t)), p.target); await page.click('[data-game-act="cx-start"]');
-        assert.equal(await page.locator('[data-clue="1"] .gm-clue__text').textContent(), p.clues[0].text, `${where}: clue 1 is text`); assert.equal(await page.locator('img[data-cx-img]').count(), 0, `${where}: no picture before clue 2`);
-        await page.click('[data-game-act="cx-reveal"]'); assert.equal(await page.textContent('[data-cx-worth]'), '400');
-        const img = page.locator('img[data-cx-img]'); assert.equal(await img.count(), 1); assert.match(await img.getAttribute('src'), new RegExp(`${p.target}\\.png$`)); assert.equal(await img.getAttribute('alt'), p.image.alt);
-        await page.waitForFunction(() => document.querySelector('img[data-cx-img]').complete); assert.ok(await img.evaluate(i => i.naturalWidth > 0), `${where}: image loaded`);
-        const box = await img.boundingBox(); assert.ok(box.height <= h * 0.5 + 1 && box.width <= w, `${where}: picture size ${box.width}x${box.height}`); assert.ok(Math.abs(box.width / box.height - (await img.evaluate(i => i.naturalWidth / i.naturalHeight))) < 0.02, `${where}: not stretched`);
-        assert.equal(await page.locator('[data-cx-img-fallback]').isVisible(), false, `${where}: text hidden while the picture shows`);
-        await page.click('[data-game-act="cx-reveal"]'); assert.equal(await page.locator('[data-clue="3"] .gm-clue__text').textContent(), p.clues[2].text); assert.equal(await page.textContent('[data-cx-worth]'), '300'); assert.equal(await page.textContent('[data-cx-first] b'), p.target.slice(0, 2).toUpperCase());
-        await page.click('[data-game-act="cx-reveal"]'); assert.equal(await page.locator('[data-clue="4"] .gm-clue__text').textContent(), p.clues[3].text); assert.equal(await page.textContent('[data-cx-worth]'), '200');
-        assert.ok((await overflow()) <= 0, `${where}: overflow`);
-        await page.click('[data-game-act="cx-help"]'); assert.equal(await page.locator('.gm-choice').count(), 3); assert.equal(await page.textContent('[data-cx-worth]'), '100');
-        await page.fill('#cxGuess', p.accept[0] ?? p.target); await page.press('#cxGuess', 'Enter'); assert.equal(await page.textContent('[data-cx-score]'), '100', `${where}: picture does not change scoring/aliases`);
-        assert.equal(await page.locator('figcaption').count(), 1, `${where}: after the answer the clue text is shown with the picture`); assert.ok((await overflow()) <= 0, `${where}: result overflow`);
-      }
-      assert.ok(requests.every(r => r.startsWith(url)), `${w}: all requests local`); assert.ok(requests.filter(r => r.endsWith('.png')).every(r => r.includes(`/${IMG_DIR}/`)));
-      assert.equal(await page.evaluate(() => window.__fetches), 0);
-      // a picture that cannot load falls back to its text clue, and the game carries on at the same score
-      await page.evaluate(() => window.__mountP('connections', [{ ...window.__puzzles[2], image: { src: 'assets/vocabulary/games/connections/unit-01/missing.png', alt: 'x' } }])); await page.click('[data-game-act="cx-start"]'); await page.click('[data-game-act="cx-reveal"]');
-      await page.waitForSelector('[data-cx-img-fallback]:not([hidden])'); assert.equal(await page.locator('img[data-cx-img]').isVisible(), false); assert.equal(await page.textContent('[data-cx-img-fallback]'), CONNECTIONS_PUZZLES[2].clues[1].text);
-      await page.fill('#cxGuess', CONNECTIONS_PUZZLES[2].target); await page.press('#cxGuess', 'Enter'); assert.equal(await page.textContent('[data-cx-score]'), '400');
-      await page.close();
-    }
-  } finally { await browser.close(); server.close(); }
-});
-
 // ---------------------------------------------------------------- Clue 1 quality, compact pictures, stable scrolling
-test('Connections clue 1: every one is a real, specific first clue (not a bare place/topic phrase), and clue 1 never repeats a later clue', () => {
-  const stopTopics = /^(a|an|the)\s+\w+(\s+\w+)?$/i; // "a chess game", "a flea market", "banks and coins" style: article + one or two nouns
+test('Connections clue 1 (v2): a real situation, never the bare definition, and never repeated later', () => {
   for (const p of CONNECTIONS_PUZZLES) {
     const [c1, c2, c3, c4] = p.clues.map(c => c.text.trim().toLowerCase());
-    assert.ok(c1.length > 0); assert.ok(c1.split(/\s+/).length >= 4, `${p.target}: clue 1 "${c1}" is too thin`); assert.ok(!stopTopics.test(c1), `${p.target}: clue 1 is just a place/topic`);
-    assert.ok(c1.length <= 60, `${p.target}: clue 1 stays short`);
-    assert.notEqual(c1, c4); assert.notEqual(c1, c3); assert.notEqual(c1, c2); assert.notEqual(c3, c4, `${p.target}: clue 3 and 4 differ`);
-    assert.ok(!/___/.test(c1));
+    assert.ok(c1.split(/\s+/).length >= 6, `${p.target}: clue 1 "${c1}" is a full situation`); assert.ok(c1.length <= 110, `${p.target}: clue 1 stays short`);
+    assert.notEqual(c1, c4); assert.notEqual(c1, c3); assert.notEqual(c1, c2); assert.notEqual(c3, c4, `${p.target}: clue 3 and 4 differ`); assert.ok(!/___/.test(c1));
   }
-  const byTarget = Object.fromEntries(CONNECTIONS_PUZZLES.map(p => [p.target, p.clues[0].text]));
-  assert.equal(byTarget.craftspeople, 'people who make things by hand'); assert.equal(byTarget.opponent, 'the person you are trying to beat');
-  assert.equal(byTarget.patience, 'staying calm while you wait'); assert.equal(byTarget.atmosphere, 'the feeling or mood of a place');
-  for (const bad of ['a pottery workshop', 'a chess game', 'banks and coins', 'online reviews', 'a flea market', 'a judge\'s scorecard']) assert.ok(!Object.values(byTarget).includes(bad), bad);
 });
 
-test('Connections picture clue CSS: compact display sizes per breakpoint, contained (never cropped or stretched)', () => {
-  const css = read('vocabulary-games.css');
-  assert.match(css, /\.gm-pic__img\{[^}]*max-height:270px[^}]*object-fit:contain/);
-  assert.match(css, /@media \(max-width:900px\)\{\.gm-pic__img\{max-height:215px\}\}/); assert.match(css, /@media \(max-width:480px\)\{\.gm-pic__img\{max-height:185px\}\}/); assert.match(css, /@media \(max-width:340px\)\{\.gm-pic__img\{max-height:170px\}\}/);
-});
-
-browserTest('Connections: picture clues are compact at 1280/390/320, and revealing clues never throws the viewport back to the top', async () => {
+browserTest('Connections: revealing clues, wrong guesses and Need help? never throw the viewport back to the top (text only, no pictures)', async () => {
   const playwright = loadPlaywright(); const browser = await playwright.chromium.launch({ executablePath: await findChromium() }); const { server, url } = await startServer();
   try {
-    for (const [w, h, maxPic] of [[1280, 800, 270], [820, 900, 215], [390, 700, 185], [320, 560, 170]]) {
+    for (const [w, h] of [[1280, 800], [820, 900], [390, 700], [320, 560]]) {
       const page = await browser.newPage({ viewport: { width: w, height: h } }); page.on('pageerror', e => { throw e; }); await page.goto(`${url}/__games.html`); await page.waitForFunction(() => window.__ready);
       const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       let scrolledAtLeastOnce = false;
       for (const target of ['racquet', 'pastime', 'criteria']) {
         const where = `${w}/${target}`;
         await page.evaluate(t => window.__mountP('connections', window.__puzzles.filter(x => x.target === t)), target); await page.click('[data-game-act="cx-start"]');
-        await page.click('[data-game-act="cx-reveal"]'); await page.waitForFunction(() => document.querySelector('img[data-cx-img]').complete);
-        const box = await page.locator('img[data-cx-img]').boundingBox(); assert.ok(box.height <= maxPic + 1, `${where}: picture ${box.height}px > ${maxPic}px`); assert.ok((await overflow()) <= 0, `${where}: overflow`);
-        const fit = await page.locator('img[data-cx-img]').evaluate(i => getComputedStyle(i).objectFit); assert.equal(fit, 'contain');
+        await page.click('[data-game-act="cx-reveal"]'); assert.equal(await page.locator('img').count(), 0, `${where}: no pictures`); assert.ok((await overflow()) <= 0, `${where}: overflow`);
         // scroll stability: scroll down so the reveal button is in view, then reveal clue 3 and clue 4 and make sure the viewport stays put
         for (const step of ['clue 3', 'clue 4']) {
           await page.evaluate(() => { window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }); });
           const before = await page.evaluate(() => window.scrollY); const canScroll = await page.evaluate(() => document.documentElement.scrollHeight > window.innerHeight + 60);
           await page.click('[data-game-act="cx-reveal"]'); await page.waitForTimeout(120);
           const after = await page.evaluate(() => window.scrollY);
-          if (canScroll) { scrolledAtLeastOnce = true; assert.ok(before > 0, `${where}/${step}: page was scrolled (before=${before}, sh=${await page.evaluate(() => document.documentElement.scrollHeight)}, ih=${h})`); assert.ok(after >= before - 2, `${where}/${step}: viewport jumped from ${before} to ${after}`); }
+          if (canScroll) { scrolledAtLeastOnce = true; assert.ok(before > 0, `${where}/${step}: page was scrolled (before=${before}, sh=${await page.evaluate(() => document.documentElement.scrollHeight)}, ih=${h})`); const maxScroll = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight); assert.ok(after >= Math.min(before, maxScroll) - 2, `${where}/${step}: viewport jumped from ${before} to ${after} (max ${maxScroll})`); }
           const active = await page.evaluate(() => document.activeElement?.getAttribute('data-game-act') ?? document.activeElement?.id);
           assert.ok(['cx-reveal', 'cxGuess'].includes(active), `${where}/${step}: focus stays on the button or the input (was ${active})`);
         }

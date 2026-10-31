@@ -155,9 +155,6 @@
 .gm-guess .gm-go{min-height:56px;padding:0 26px}
 .gm-guess[data-shake="on"]{animation:gm-shake 280ms ease-in-out}
 @keyframes gm-shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.gm-suggest{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 0;padding:0;list-style:none}
-.gm-suggest:empty{display:none}
-.gm-suggest button{min-height:36px;padding:0 12px;border:1px solid var(--c-teal-line);border-radius:6px;background:var(--c-surface-soft);color:var(--c-ink);font:inherit;font-weight:700;cursor:pointer}
 .gm-wrong{margin:0;padding-left:10px;border-left:3px solid var(--gm-miss);color:var(--c-ink-2);font-size:var(--fs-sm);font-weight:700}
 .gm-row{display:flex;flex-wrap:wrap;gap:10px}
 .gm-row--actions{align-items:center}
@@ -262,16 +259,6 @@
 .gm-ghost--help{border-color:var(--gm-gold);color:var(--c-ink)}
 @media (max-width:480px){.gm-choices{grid-template-columns:1fr}}
 
-.gm-clue--pic{align-items:start;padding:8px 12px}
-.gm-clue--pic .gm-clue__n{margin-top:4px}
-.gm-pic{margin:0;min-width:0;display:grid;justify-items:center;gap:4px}
-.gm-pic__img{display:block;width:auto;max-width:100%;height:auto;max-height:270px;object-fit:contain;border-radius:12px;border:1px solid var(--c-teal-line);background:var(--c-teal-soft,#eef8f8)}
-.gm-pic figcaption{color:var(--c-muted);font-size:var(--fs-sm);font-weight:700;text-align:center}
-.gm-pic__fallback{justify-self:start}
-@media (max-width:900px){.gm-pic__img{max-height:215px}}
-@media (max-width:480px){.gm-pic__img{max-height:185px}}
-@media (max-width:340px){.gm-pic__img{max-height:170px}}
-.gm-pic [hidden]{display:none!important}
 
 /* ---- Connections intro: the same teal identity as the game screen (header band + badge), scoring as steps, a quiet reassurance note ---- */
 .gm-intro--cx{gap:0;padding:0;overflow:hidden;border:1px solid var(--c-teal-line);box-shadow:0 14px 34px rgba(14,95,97,.1)}

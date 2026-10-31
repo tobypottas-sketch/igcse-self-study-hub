@@ -1,7 +1,7 @@
 // One controller for the Games area. It is handed only the loaded Unit 1 content, a root element and an exit callback:
 // it never sees the Supabase client, the app state, mission/Set/XP code or storage. Personal best lives in this module's memory only.
 import { createBlitz, BLITZ } from './blitz-engine.js';
-import { createConnections, pickPuzzles, CONNECTIONS, normaliseGuess } from './connections-engine.js';
+import { createConnections, pickPuzzles, withWordClasses, CONNECTIONS } from './connections-engine.js';
 import { gamesFor, availableGames } from './games-data.js';
 import { sharedGameHistory } from './games-history.js';
 import { renderLobby, renderBlitzIntro, renderBlitzPlay, renderBlitzQuestion, renderBlitzOver, comboView, renderConnectionsIntro, renderConnectionsPlay, renderConnectionsOver } from './games-view.js';
@@ -64,11 +64,7 @@ export function mountGames(root, { content, unitNumber = 1, game = 'lobby', onCu
   };
 
   // ---- Connections
-  const suggestFor = typed => {
-    const terms = [...new Set((content?.items ?? []).map(item => item.term))]; const t = normaliseGuess(typed);
-    return t.length < 2 ? [] : terms.filter(term => term.toLowerCase().startsWith(t)).slice(0, 5);
-  };
-  const startConnections = () => { stop(); cx = createConnections({ puzzles: puzzles ?? pickPuzzles(unitGames?.connections?.puzzles ?? [], rng, CONNECTIONS.puzzleCount, history) }); showCx(); };
+  const startConnections = () => { stop(); cx = createConnections({ puzzles: withWordClasses(puzzles ?? pickPuzzles(unitGames?.connections?.puzzles ?? [], rng, CONNECTIONS.puzzleCount, history), content?.items) }); showCx(); };
   const showCx = (keep = false, focusOn = null) => { if (cx.state.status === 'over') { paint(renderConnectionsOver(cx.summary())); focus('[data-game-act="cx-again"]'); return; } paint(renderConnectionsPlay(cx, unitNumber), keep); focus(focusOn ?? (cx.state.phase === 'guessing' ? '#cxGuess' : '[data-game-act="cx-next"]')); };
   const submitGuess = text => {
     if (!cx) return; const r = cx.guess(text); if (!r) return;
@@ -97,22 +93,14 @@ export function mountGames(root, { content, unitNumber = 1, game = 'lobby', onCu
     else if (act === 'cx-choice') { const r = cx.pick(target.dataset.term); if (r) { onCue(r.correct ? 'correct' : 'incorrect'); showCx(true, r.correct ? null : '[data-cx-choices] .gm-choice:not([disabled])'); } }
     else if (act === 'cx-giveup') { cx.giveUp(); showCx(true); }
     else if (act === 'cx-next') { cx.next(); if (cx.state.status === 'over') onCue('finish'); showCx(); }
-    else if (act === 'suggest') { const input = q('#cxGuess'); if (input) { input.value = target.dataset.term; input.focus?.(); } }
   };
   const onSubmit = event => { if (!event.target?.matches?.('[data-cx-form]')) return; event.preventDefault?.(); submitGuess(event.target.elements?.guess?.value ?? q('#cxGuess')?.value ?? ''); };
-  const onInput = event => {
-    if (event.target?.id !== 'cxGuess') return;
-    const list = q('[data-cx-suggest]'); if (!list) return;
-    list.innerHTML = suggestFor(event.target.value).map(term => `<li><button type="button" data-game-act="suggest" data-term="${term.replace(/"/g, '&quot;')}">${term.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c])}</button></li>`).join('');
-  };
   const onKey = event => {
     if (!blitz || blitz.state.status !== 'playing' || event.ctrlKey || event.metaKey || event.altKey) return;
     const n = Number(event.key); if (n >= 1 && n <= 4 && q('.gm-option')) { event.preventDefault?.(); answerBlitz(n - 1); }
   };
-  // A picture clue that cannot load falls back to its text clue (error events do not bubble, so listen in the capture phase).
-  const onImgError = event => { const img = event.target; if (!img?.matches?.('img[data-cx-img]')) return; img.hidden = true; const fb = img.parentElement?.querySelector?.('[data-cx-img-fallback]'); if (fb) fb.hidden = false; };
-  root.addEventListener('error', onImgError, true); root.addEventListener('click', onClick); root.addEventListener('submit', onSubmit); root.addEventListener('input', onInput); globalThis.addEventListener?.('keydown', onKey);
-  function destroy() { if (!alive) return; alive = false; stop(); root.removeEventListener('error', onImgError, true); root.removeEventListener('click', onClick); root.removeEventListener('submit', onSubmit); root.removeEventListener('input', onInput); globalThis.removeEventListener?.('keydown', onKey); }
+  root.addEventListener('click', onClick); root.addEventListener('submit', onSubmit); globalThis.addEventListener?.('keydown', onKey);
+  function destroy() { if (!alive) return; alive = false; stop(); root.removeEventListener('click', onClick); root.removeEventListener('submit', onSubmit); globalThis.removeEventListener?.('keydown', onKey); }
 
   show(playable.includes(game) || (puzzles && game === 'connections') ? game : 'lobby');
   return { destroy, get blitz() { return blitz; }, get connections() { return cx; } };

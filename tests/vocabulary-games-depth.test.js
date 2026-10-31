@@ -24,7 +24,7 @@ test('Connections bank: at least 40 curated puzzles, every object well-formed, e
     assert.equal(typeof p.target, 'string'); assert.ok(terms.has(p.target), `${p.target} is a Unit 1 word`); assert.ok(!seen.has(p.target), `${p.target} appears twice`); seen.add(p.target);
     assert.ok(Array.isArray(p.accept) && p.accept.every(a => typeof a === 'string' && normaliseGuess(a)), `${p.target}: accept list`);
     assert.equal(p.clues.length, 4, `${p.target}: exactly four clues`);
-    for (const c of p.clues) { assert.equal(typeof c.text, 'string'); assert.ok(c.text.trim().length >= 5, `${p.target}: empty/short clue`); assert.ok(['association', 'plain', 'meaning'].includes(c.kind)); }
+    for (const c of p.clues) { assert.equal(typeof c.text, 'string'); assert.ok(c.text.trim().length >= 5, `${p.target}: empty/short clue`); assert.ok(['situation', 'context', 'association', 'plain', 'meaning'].includes(c.kind)); }
     assert.equal(typeof p.why, 'string'); assert.ok(p.why.trim().length > 30);
     assert.equal(p.help.length, 2, `${p.target}: two help distractors`);
     for (const h of p.help) {
@@ -32,7 +32,6 @@ test('Connections bank: at least 40 curated puzzles, every object well-formed, e
       assert.ok(!clusterOf(p.target).has(h), `${p.target}/${h}: near neighbours`); assert.equal(posOf.get(h), posOf.get(p.target), `${p.target}/${h}: same part of speech`);
     }
     assert.notEqual(p.help[0], p.help[1]);
-    if (p.image) { assert.equal(typeof p.image.src, 'string'); assert.ok(p.image.alt.length > 15); }
   }
 });
 
@@ -190,7 +189,7 @@ test('Variety memory: in memory only, holds ids and round numbers, and the contr
 
 // ---------------------------------------------------------------- Rendering of the new content
 test('Text-only Connections puzzles render clue 2 as text (no picture), and meaning-in-context prompts render with their label and four options', () => {
-  const textOnly = CONNECTIONS_PUZZLES.filter(p => !p.image); assert.ok(textOnly.length >= 28);
+  const textOnly = CONNECTIONS_PUZZLES; assert.equal(textOnly.length, 48);
   for (const p of textOnly) { const engine = createConnections({ puzzles: [p] }); engine.reveal(); const html = renderConnectionsPlay(engine); assert.doesNotMatch(html, /<img/); const decoded = html.replace(/&quot;/g, '"').replace(/&#0?39;|&apos;/g, "'").replace(/&amp;/g, '&'); assert.ok(decoded.includes(p.clues[1].text), `${p.target}: clue 2 text shown`); }
   const mic = materialise(build(1)).find(q => q.type === 'mic'); const html = renderBlitzQuestion(mic);
   assert.match(html, /data-type="mic"/); assert.equal((html.match(/data-game-act="blitz-answer"/g) ?? []).length, 4); assert.ok(html.includes('In this sentence'));
