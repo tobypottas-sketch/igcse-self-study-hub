@@ -1,4 +1,4 @@
-// UNIT 6 – LEARNING AND STUDY SKILLS: authoring draft (batches 1–2 = words 1–20). Source: 0511 key words UNIT 6 – LEARNING AND STUDY SKILLS (locked 50-word list). Words 21–50 are not authored yet.
+// UNIT 6 – LEARNING AND STUDY SKILLS: authoring draft (batches 1–3 = words 1–30). Source: 0511 key words UNIT 6 – LEARNING AND STUDY SKILLS (locked 50-word list). Words 31–50 are not authored yet.
 // Same architecture as unit-05.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-06-draft.js
 // A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-06.js only when all 50 words are final.
 import { buildCuratedUnit } from '../build-unit.js';
@@ -604,6 +604,296 @@ const entries = [
         { id:'1', answer:'distract', wrong:['mislead', 'embarrass', 'photograph'] },
         { id:'2', answer:'distract', wrong:['follow', 'hire', 'insult'] },
         { id:'3', answer:'distract', wrong:['excuse', 'protect', 'prevent'] }
+      ]
+    }),
+  e('evidence', 'noun',
+    'facts, information or examples that support a conclusion, claim or judgement',
+    ['supporting facts', 'information that backs up a claim'],
+    ['absolute proof that cannot be questioned', 'a personal opinion based on feelings', 'a rule that must be followed'],
+    'Scientists collected evidence over several years before they published their conclusion.',
+    'supporting facts', 'Scientists collected supporting facts over several years before they published their conclusion.',
+    'information that backs up a claim', 'Readers should look for information that backs up a claim before they believe it.',
+    {
+      teacherNote:'Uncountable noun: facts, information or examples that support a conclusion, claim or judgement (some evidence, a piece of evidence; not “evidences”). It is not the same as proof, which means complete and final certainty.',
+      masteryContexts:[
+        { text:'The detective could not arrest anyone because there was not enough evidence to support his theory.', meaning:'facts that support a conclusion' },
+        { text:'Students are expected to give evidence from the text when they explain their opinion.', meaning:'information or examples that support a claim' }
+      ],
+      situationDistractors:[
+        'The students queued outside the canteen and ordered sandwiches and fruit juice.',
+        'A passenger asked the driver to stop at the next corner and stepped off the bus.',
+        'Heavy traffic delayed the visitors, who arrived twenty minutes late for the tour.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'There is strong evidence that regular exercise improves memory and concentration in teenagers.', target:'evidence', grammarPattern:'' },
+        { id:'2', text:'The report was rejected because the writer gave no evidence to support her main claim.', target:'evidence', grammarPattern:'' },
+        { id:'3', text:'Lawyers study every piece of evidence carefully before a trial begins.', target:'evidence', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'evidence', wrong:['holiday', 'talent', 'furniture'] },
+        { id:'2', answer:'evidence', wrong:['permission', 'patience', 'talent'] },
+        { id:'3', answer:'evidence', wrong:['furniture', 'machinery', 'equipment'] }
+      ]
+    }),
+  e('guidance', 'noun',
+    'help, advice or direction that helps someone to decide what to do',
+    ['helpful advice', 'support in making decisions'],
+    ['an order that must be obeyed immediately', 'a set of rules for a school', 'a test that checks what you know'],
+    'Students often need guidance from a teacher when they choose university courses.',
+    'helpful advice', 'Students often need helpful advice from a teacher when they choose university courses.',
+    'support in making decisions', 'Young people benefit from support in making decisions about their future careers.',
+    {
+      teacherNote:'Uncountable noun: help, advice or direction that helps someone to decide what to do (guidance from a teacher, career guidance). It is not an order or a rule: the person who receives guidance still makes the final decision. Not “a guidance” or “guidances”.',
+      masteryContexts:[
+        { text:'The school offers career guidance to students who are not sure which subjects to study at university.', meaning:'advice that helps someone to decide' },
+        { text:'Without guidance from an experienced coach, young athletes can easily develop bad habits.', meaning:'help and direction from someone with experience' }
+      ],
+      situationDistractors:[
+        'The cleaner swept the corridor and locked the cupboard.',
+        'The concert began at seven, and the audience clapped loudly after every song.',
+        'Anna was told that she must hand in her phone before the test started.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'New employees receive guidance from a mentor during their first month at the company.', target:'guidance', grammarPattern:'' },
+        { id:'2', text:'Many first-year students seek guidance when they have to plan their timetables.', target:'guidance', grammarPattern:'' },
+        { id:'3', text:'The government has published guidance for schools about using mobile phones in class.', target:'guidance', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'guidance', wrong:['luggage', 'furniture', 'clothing'] },
+        { id:'2', answer:'guidance', wrong:['clothing', 'luggage', 'sunshine'] },
+        { id:'3', answer:'guidance', wrong:['posters', 'uniforms', 'textbooks'] }
+      ]
+    }),
+  e('academic', 'adjective',
+    'connected with education, studying or scholarly work',
+    ['study-related', 'related to higher education'],
+    ['connected with sport and physical exercise', 'too theoretical to be useful in real life', 'connected with the arts and entertainment'],
+    'She spent most of her teenage years on academic work, and had little time for hobbies.',
+    'study-related', 'She spent most of her teenage years on study-related work, and had little time for hobbies.',
+    'related to higher education', 'The library holds thousands of books related to higher education and research.',
+    {
+      teacherNote:'Taught in its main sense: connected with education, studying or scholarly work (academic subjects, academic performance). The sense of “theoretical rather than practical” (an academic question) is not the focus here.',
+      masteryContexts:[
+        { text:'Students who read widely often achieve better academic results than those who read only their textbooks.', meaning:'connected with studying and education' },
+        { text:'Mehmet moved abroad to continue his academic career as a researcher in a university laboratory.', meaning:'connected with scholarly work and study at a university' }
+      ],
+      situationDistractors:[
+        'The football team trained twice a week and won the league for the first time.',
+        'A chef tasted the soup and added a little more salt.',
+        'The tourists took a boat across the lake and photographed the mountains.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Sports scholarships allow talented athletes to continue their academic studies at a good university.', target:'academic', grammarPattern:'' },
+        { id:'2', text:'Employers value practical skills as well as academic qualifications.', target:'academic', grammarPattern:'' },
+        { id:'3', text:'Some students find the academic year easier when they take short breaks between topics.', target:'academic', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'academic', wrong:['musical', 'athletic', 'seasonal'] },
+        { id:'2', answer:'academic', wrong:['musical', 'athletic', 'seasonal'] },
+        { id:'3', answer:'academic', wrong:['sporting', 'tropical', 'historic'] }
+      ]
+    }),
+  e('concentration', 'noun',
+    'the ability to give your full attention to one thing',
+    ['full attention', 'ability to give attention to one task'],
+    ['the reason why someone wants to work', 'the amount of a substance in a liquid', 'a feeling of worry before an important test'],
+    'Noise from the street made it hard for me to keep my concentration while I was studying.',
+    'full attention', 'Noise from the street made it hard for me to keep my full attention while I was studying.',
+    'ability to give attention to one task', 'Meditation can improve the ability to give attention to one task for a long time.',
+    {
+      teacherNote:'Uncountable in this sense: the ability to give your full attention to one thing (lose your concentration, concentration on a task). It is not motivation, which is the reason you want to do something. The chemical sense (the concentration of salt in water) is not taught here.',
+      masteryContexts:[
+        { text:'A short walk in fresh air can improve your concentration when you have been studying for several hours.', meaning:'the ability to give full attention to one thing' },
+        { text:'The surgeon needed complete concentration during the long operation, so nobody was allowed to speak to her.', meaning:'full attention on one task' }
+      ],
+      situationDistractors:[
+        'The bakery opens at six and sells fresh bread to workers on their way to the factory.',
+        'Pablo saved enough money to buy a second-hand bicycle.',
+        'The old bridge was closed because of the flood.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Lack of sleep can seriously reduce a teenager’s concentration in lessons.', target:'concentration', grammarPattern:'' },
+        { id:'2', text:'Driving at night requires great concentration, especially on roads with no street lights.', target:'concentration', grammarPattern:'' },
+        { id:'3', text:'Many people find that music with no words helps their concentration while they work.', target:'concentration', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'concentration', wrong:['handwriting', 'appetite', 'height'] },
+        { id:'2', answer:'concentration', wrong:['popularity', 'permission', 'distance'] },
+        { id:'3', answer:'concentration', wrong:['hunger', 'eyesight', 'handwriting'] }
+      ]
+    }),
+  e('complex', 'adjective',
+    'made of many connected parts and difficult to understand or deal with',
+    ['made up of many connected parts', 'hard to understand because of its many parts'],
+    ['hard to do, but simple to understand', 'new and not yet tested by anyone', 'easy to use after a little practice'],
+    'The rail network in the capital is complex, so visitors often buy a map.',
+    'made up of many connected parts', 'The rail network in the capital is made up of many connected parts, so visitors often buy a map.',
+    'hard to understand because of its many parts', 'The legal system is hard to understand because of its many parts, and most people need advice.',
+    {
+      teacherNote:'Taught as an adjective: made of many connected parts and difficult to understand or deal with (a complex system, a complex problem). It is not the same as difficult: a task can be difficult without having many connected parts.',
+      masteryContexts:[
+        { text:'The causes of climate change are complex, because natural cycles and human activity affect each other in many ways.', meaning:'made of many connected parts' },
+        { text:'The software looks simple, but its settings are complex, and beginners often spend hours learning how they affect one another.', meaning:'difficult to understand because of many connected parts' }
+      ],
+      situationDistractors:[
+        'The farmer fed the chickens and collected the eggs before breakfast.',
+        'Nadia waved to her friends and ran across the playground.',
+        'The shop sold only fruit, vegetables and fresh bread.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Pilots must understand a complex system of instruments and warning signals before they fly alone.', target:'complex', grammarPattern:'' },
+        { id:'2', text:'The plot of the novel is complex, with several storylines that gradually join together.', target:'complex', grammarPattern:'' },
+        { id:'3', text:'Environmental problems are often complex and cannot be solved by a single government.', target:'complex', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'complex', wrong:['musical', 'coastal', 'seasonal'] },
+        { id:'2', answer:'complex', wrong:['emotional', 'popular', 'tragic'] },
+        { id:'3', answer:'complex', wrong:['local', 'tiny', 'seasonal'] }
+      ]
+    }),
+  e('motivation', 'noun',
+    'the reason or desire that makes someone want to do something',
+    ['the desire to keep going', 'reason for wanting to succeed'],
+    ['the ability to give full attention to one task', 'a plan for how to reach a goal', 'a feeling of pride after finishing a task'],
+    'Many learners lose motivation when they do not see any progress after several weeks of study.',
+    'the desire to keep going', 'Many learners lose the desire to keep going when they do not see any progress after several weeks of study.',
+    'reason for wanting to succeed', 'A clear goal gives most people a strong reason for wanting to succeed.',
+    {
+      teacherNote:'Uncountable in this sense: the reason or desire that makes someone want to do something (lose motivation, motivation to learn). It is not concentration, which is the ability to give full attention to one thing.',
+      masteryContexts:[
+        { text:'Setting small weekly targets can increase a student’s motivation to continue with a long course.', meaning:'the desire to keep going' },
+        { text:'The company found that employees worked harder when managers recognised their good work, which raised motivation across the whole team.', meaning:'the reason that makes people want to work' }
+      ],
+      situationDistractors:[
+        'The train to the coast leaves from platform four at half past nine.',
+        'The students wrote down the homework and packed their bags.',
+        'A neighbour borrowed a ladder and returned it the next day.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Praise from a teacher can be a powerful source of motivation for a nervous learner.', target:'motivation', grammarPattern:'' },
+        { id:'2', text:'He lost his motivation after failing the first test, and he stopped attending the extra lessons.', target:'motivation', grammarPattern:'' },
+        { id:'3', text:'Money is not the only motivation for people who choose to work as nurses.', target:'motivation', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'motivation', wrong:['transport', 'pollution', 'luggage'] },
+        { id:'2', answer:'motivation', wrong:['patience', 'balance', 'passport'] },
+        { id:'3', answer:'motivation', wrong:['uniform', 'schedule', 'qualification'] }
+      ]
+    }),
+  e('curiosity', 'noun',
+    'a strong desire to know, learn or understand something',
+    ['strong wish to learn', 'eagerness to find things out'],
+    ['a wish to know about other people’s private lives', 'a feeling of fear about new experiences', 'a belief that you can do something well'],
+    'Children’s curiosity makes them ask hundreds of questions every day.',
+    'strong wish to learn', 'Children’s strong wish to learn makes them ask hundreds of questions every day.',
+    'eagerness to find things out', 'Scientists are driven by an eagerness to find things out about the natural world.',
+    {
+      teacherNote:'Uncountable in this sense: a strong desire to know, learn or understand something (curiosity about science, natural curiosity). It is positive here and is not the same as nosiness, which means wanting to know about other people’s private lives.',
+      masteryContexts:[
+        { text:'The teacher encouraged curiosity by asking students to write down questions about anything that surprised them.', meaning:'a strong desire to learn' },
+        { text:'Her curiosity about how engines work led her to take apart an old motorbike.', meaning:'a strong wish to understand' }
+      ],
+      situationDistractors:[
+        'The bus was full, so the passengers stood in the aisle.',
+        'Tom put the plates in the dishwasher and wiped the table.',
+        'The football match ended in a draw after a very quiet second half.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Natural curiosity drives young children to explore, ask questions and test new ideas.', target:'curiosity', grammarPattern:'' },
+        { id:'2', text:'His curiosity about space began when he saw the stars through a telescope on holiday.', target:'curiosity', grammarPattern:'' },
+        { id:'3', text:'Good scientists keep their curiosity alive by asking why things happen instead of accepting easy answers.', target:'curiosity', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'curiosity', wrong:['politeness', 'tiredness', 'loneliness'] },
+        { id:'2', answer:'curiosity', wrong:['complaint', 'insurance', 'journey'] },
+        { id:'3', answer:'curiosity', wrong:['hunger', 'strength', 'temper'] }
+      ]
+    }),
+  e('technique', 'noun',
+    'a particular skilled method of doing something',
+    ['skilled method', 'particular way of doing a task'],
+    ['a general plan for achieving a long-term goal', 'a machine that is used in a laboratory', 'a rule that all players must follow'],
+    'The coach showed the swimmers a new technique for turning quickly at the end of the pool.',
+    'skilled method', 'The coach showed the swimmers a new skilled method for turning quickly at the end of the pool.',
+    'particular way of doing a task', 'Every craftsperson has a particular way of doing a task, learned over many years.',
+    {
+      teacherNote:'Countable noun: a particular skilled method of doing something (a revision technique, a breathing technique). It is narrower than a strategy, which is a general plan for reaching a goal and may include several techniques.',
+      masteryContexts:[
+        { text:'Learning a simple breathing technique can help athletes to stay calm before an important race.', meaning:'a particular skilled method' },
+        { text:'The artist explained that her painting technique depends on thin layers of colour that dry quickly.', meaning:'a skilled way of doing something' }
+      ],
+      situationDistractors:[
+        'The waiter brought the menu and filled the glasses with water.',
+        'A cyclist stopped to fix a flat tyre by the side of the road.',
+        'The twins argued about whose turn it was to wash the dishes.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Flash cards are a popular technique for learning vocabulary because they allow quick self-testing.', target:'technique', grammarPattern:'' },
+        { id:'2', text:'The photographer used a special technique to capture the movement of the waves.', target:'technique', grammarPattern:'' },
+        { id:'3', text:'A good revision technique is to explain the topic aloud as if you were teaching it to someone else.', target:'technique', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'technique', wrong:['subject', 'excuse', 'rumour'] },
+        { id:'2', answer:'technique', wrong:['holiday', 'permission', 'budget'] },
+        { id:'3', answer:'technique', wrong:['mistake', 'excuse', 'rumour'] }
+      ]
+    }),
+  e('effective', 'adjective',
+    'successful in producing the result that was intended',
+    ['successful in getting good results', 'able to produce the intended result'],
+    ['working quickly without wasting time', 'costing very little money to use', 'popular with a large number of people'],
+    'Lessons that include discussion are effective, because students must think for themselves.',
+    'successful in getting good results', 'Lessons that include discussion are successful in getting good results, because students must think for themselves.',
+    'able to produce the intended result', 'A teaching method is worth using only if it is able to produce the intended result.',
+    {
+      teacherNote:'Taught as an adjective: successful in producing the intended result (an effective method). It is about whether something works, not how quickly or economically it works, which is efficient. The noun effect is a different word.',
+      masteryContexts:[
+        { text:'Many doctors say that regular exercise is one of the most effective ways of reducing stress.', meaning:'successful in producing the intended result' },
+        { text:'The advertising campaign was not effective: sales did not rise, even though millions of people saw the posters.', meaning:'producing the intended result' }
+      ],
+      situationDistractors:[
+        'The pupils lined up quietly and followed the guide into the museum.',
+        'Sara packed a sandwich, an apple and a bottle of water for the journey.',
+        'The tennis match was stopped because the court was too wet to play on.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Clear instructions and regular feedback are effective ways of helping beginners to improve.', target:'effective', grammarPattern:'' },
+        { id:'2', text:'The new medicine is highly effective against the virus, according to the first trials.', target:'effective', grammarPattern:'' },
+        { id:'3', text:'An effective leader listens to the team before making a final decision.', target:'effective', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'effective', wrong:['pleasant', 'traditional', 'familiar'] },
+        { id:'2', answer:'effective', wrong:['resistant', 'allergic', 'popular'] },
+        { id:'3', answer:'effective', wrong:['angry', 'anxious', 'unfriendly'] }
+      ]
+    }),
+  e('inefficient', 'adjective',
+    'not working or being organised in a way that uses time, effort or resources well',
+    ['wasteful of time and effort', 'not using resources well'],
+    ['not producing the intended result', 'very expensive to buy or repair', 'too complicated for most people to understand'],
+    'The old filing system was inefficient, and staff spent hours looking for simple documents.',
+    'wasteful of time and effort', 'The old filing system was wasteful of time and effort, and staff spent hours looking for simple documents.',
+    'not using resources well', 'Keeping every machine switched on overnight means not using resources well, and the bills show it.',
+    {
+      teacherNote:'Taught as an adjective: not working or being organised in a way that uses time, effort or resources well (an inefficient system). It is not the same as ineffective, which means not producing the intended result: a method can work and still be inefficient.',
+      masteryContexts:[
+        { text:'Walking to three different offices to collect one signature is an inefficient way of getting permission.', meaning:'wasting time and effort' },
+        { text:'Old light bulbs are inefficient because most of the electricity they use is lost as heat instead of light.', meaning:'not using energy or resources well' }
+      ],
+      situationDistractors:[
+        'The students filled in the form and handed it to the receptionist.',
+        'A tourist photographed the fountain and then bought an ice cream.',
+        'After the storm, the villagers repaired the roof and cleaned the street.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The hospital’s paper-based booking system was inefficient, so patients often waited for hours.', target:'inefficient', grammarPattern:'' },
+        { id:'2', text:'It is inefficient to read the whole book again when you only need to check three pages.', target:'inefficient', grammarPattern:'' },
+        { id:'3', text:'Heating a large building all day is inefficient if only a few rooms are being used.', target:'inefficient', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'inefficient', wrong:['dishonest', 'generous', 'talkative'] },
+        { id:'2', answer:'inefficient', wrong:['impolite', 'unsafe', 'unfair'] },
+        { id:'3', answer:'inefficient', wrong:['illegal', 'unsafe', 'unlucky'] }
       ]
     })
 ];

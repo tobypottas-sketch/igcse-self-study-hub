@@ -101,5 +101,55 @@ export default Object.freeze({
     'The chemistry teacher poured two clear liquids into a glass and waited for the colour to change.',
     'Rita drank some water and carried on writing the last paragraph.',
     'The cyclist stopped at the red light and waited for it to turn green.'
+  ],
+  evidence: [
+    'The museum closes at five on weekdays, so visitors should arrive early.',
+    'A boy fed the ducks beside the lake while his sister took photographs.',
+    'The mechanic replaced the brakes and test-drove the car around the block.'
+  ],
+  guidance: [
+    'The flight to Singapore was delayed because of thick fog over the airport.',
+    'Rosa polished her shoes and put on her best jacket.',
+    'The two teams shook hands before the match began.'
+  ],
+  academic: [
+    'The caretaker wiped his hands and closed the garage door for the night.',
+    'The tourists queued for an hour to buy tickets for the boat trip.',
+    'Little by little the snow melted, and the rivers began to rise.'
+  ],
+  concentration: [
+    'Dad bought a newspaper and read it on the train to work.',
+    'The two sisters shared a taxi and arrived at the airport together.',
+    'The class painted pictures of their favourite animals and hung them on the wall.'
+  ],
+  complex: [
+    'A boy carried a bucket of water from the well to the garden.',
+    'Nina folded the towels and put them in the cupboard.',
+    'A visitor photographed the market stalls and bought a scarf.'
+  ],
+  motivation: [
+    'The painter mixed blue and yellow to make green.',
+    'A man hung his coat on the hook and sat down to eat.',
+    'The lesson ended at noon, and the pupils ran out to the playground.'
+  ],
+  curiosity: [
+    'The rain stopped, and the children ran out to play in the puddles.',
+    'He parked the car, locked the doors and walked to the station.',
+    'The bakery sold out of bread before nine o’clock.'
+  ],
+  technique: [
+    'The pupils lined up quietly and waited for the headteacher.',
+    'A pigeon landed on the window sill and flew away again.',
+    'Jamal poured hot water into the cup and added a spoonful of sugar.'
+  ],
+  effective: [
+    'The plane landed safely, and the passengers collected their bags.',
+    'Mina wrote a short note and left it on the kitchen table.',
+    'The shop assistant gave the customer her change and a receipt.'
+  ],
+  inefficient: [
+    'Heavy rain fell all afternoon, so the match was moved indoors.',
+    'The students sat in a circle and took turns to read aloud.',
+    'A waiter carried three plates of soup to the corner table.'
   ]
 });

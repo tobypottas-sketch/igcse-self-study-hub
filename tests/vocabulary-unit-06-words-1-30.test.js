@@ -1,8 +1,9 @@
-// Unit 6 (Learning and Study Skills) · words 1–20 authored (batches 1–2, draft). Guards the contract with the real readiness evaluator and builders. Words 21–50 are not
+// Unit 6 (Learning and Study Skills) · words 1–30 authored (batches 1–3, draft). Guards the contract with the real readiness evaluator and builders. Words 31–50 are not
 // authored yet, so the unit stays a draft: no releases/unit-06.js, no lock, no SQL, no artwork.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 import unit6 from '../content/vocabulary/units/unit-06-draft.js';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import unit2 from '../content/vocabulary/units/unit-02.js';
@@ -14,27 +15,27 @@ import { validateUnit } from '../content/vocabulary/schema.js';
 import { evaluateUnitReadiness } from '../src/vocabulary/pathway-readiness.js';
 import { releasePlannerContent } from '../content/vocabulary/readiness-report.js';
 
-const TERMS = ['absorb', 'confidence', 'dilemma', 'dramatically', 'equivalent', 'overload', 'stagnate', 'engage', 'participate', 'passive', 'active', 'evaluate', 'reflect', 'process', 'strategy', 'approach', 'revise', 'forecast', 'interfere', 'distract'];
+const TERMS = ['absorb', 'confidence', 'dilemma', 'dramatically', 'equivalent', 'overload', 'stagnate', 'engage', 'participate', 'passive', 'active', 'evaluate', 'reflect', 'process', 'strategy', 'approach', 'revise', 'forecast', 'interfere', 'distract', 'evidence', 'guidance', 'academic', 'concentration', 'complex', 'motivation', 'curiosity', 'technique', 'effective', 'inefficient'];
 // Unit 6 evaluate is also a Unit 3 and Unit 5 target, so it is isolated: vocab_evaluate_6 / u6_12_evaluate_6.
 const VOCAB_ID = term => (term === 'evaluate' ? 'vocab_evaluate_6' : `vocab_${term}`);
-const FAMILIES = ['confidence', 'stagnate', 'engage', 'participate', 'active', 'reflect', 'strategy', 'forecast', 'distract'];
+const FAMILIES = ['confidence', 'stagnate', 'engage', 'participate', 'active', 'reflect', 'strategy', 'forecast', 'distract', 'evidence', 'concentration', 'motivation', 'effective', 'inefficient'];
 const NO_FAMILY = TERMS.filter(term => !FAMILIES.includes(term));
 const STAGES = ['recognise', 'match', 'apply', 'recall', 'mastery'];
-// Same-POS pools across words 1–20: 12 verbs, 4 nouns, 3 adjectives (equivalent, passive, active) and 1 adverb (dramatically). Only pools of four or more
-// give each member the three other same-POS targets that Meaning Match and Context Recognise / Apply / Recall need, so the verbs and (since Batch 2) the
-// nouns are ready. The adjectives are still one short, and `dramatically` is the only adverb in the whole locked Unit 6 list, so it is permanently held back
+// Same-POS pools across words 1–30: 12 verbs, 10 nouns, 7 adjectives (equivalent, passive, active, academic, complex, effective, inefficient) and 1 adverb
+// (dramatically). Every pool of four or more gives each member the three other same-POS targets that Meaning Match and Context Recognise / Apply / Recall
+// need, so since Batch 3 the adjectives are ready as well. `dramatically` is the only adverb in the whole locked Unit 6 list, so it is permanently held back
 // rather than padded with invalid distractors.
 const LIMITED = { meaning: ['match'], context: ['recognise', 'apply', 'recall'] };
-const POS_LIMITS = Object.fromEntries(['dramatically', 'equivalent', 'passive', 'active'].map(term => [term, LIMITED]));
+const POS_LIMITS = Object.fromEntries(['dramatically'].map(term => [term, LIMITED]));
 const earlier = [unit1, unit2, unit3, unit4, unit5];
 const readiness = evaluateUnitReadiness({ content: releasePlannerContent(unit6) });
 const failed = (pathwayId, occurrenceId) => STAGES.filter(stage => (readiness.pathways[pathwayId].stageFailures[stage] ?? []).some(f => f.occurrenceId === occurrenceId));
 const termOf = occurrence => unit6.items.find(item => item.vocabularyId === occurrence.vocabularyId).term;
 
-test('Unit 6 batches 1–2 are exactly the twenty locked targets, in order, as a draft with no release artefacts', () => {
+test('Unit 6 batches 1–3 are exactly the thirty locked targets, in order, as a draft with no release artefacts', () => {
   assert.deepEqual(unit6.items.map(item => item.term), TERMS);
-  assert.deepEqual(unit6.occurrences.map(row => row.positionInUnit), Array.from({ length: 20 }, (_, i) => i + 1));
-  assert.deepEqual(unit6.occurrences.map(row => row.occurrenceId), ['u6_01_absorb', 'u6_02_confidence', 'u6_03_dilemma', 'u6_04_dramatically', 'u6_05_equivalent', 'u6_06_overload', 'u6_07_stagnate', 'u6_08_engage', 'u6_09_participate', 'u6_10_passive', 'u6_11_active', 'u6_12_evaluate_6', 'u6_13_reflect', 'u6_14_process', 'u6_15_strategy', 'u6_16_approach', 'u6_17_revise', 'u6_18_forecast', 'u6_19_interfere', 'u6_20_distract']);
+  assert.deepEqual(unit6.occurrences.map(row => row.positionInUnit), Array.from({ length: 30 }, (_, i) => i + 1));
+  assert.deepEqual(unit6.occurrences.map(row => row.occurrenceId), ['u6_01_absorb', 'u6_02_confidence', 'u6_03_dilemma', 'u6_04_dramatically', 'u6_05_equivalent', 'u6_06_overload', 'u6_07_stagnate', 'u6_08_engage', 'u6_09_participate', 'u6_10_passive', 'u6_11_active', 'u6_12_evaluate_6', 'u6_13_reflect', 'u6_14_process', 'u6_15_strategy', 'u6_16_approach', 'u6_17_revise', 'u6_18_forecast', 'u6_19_interfere', 'u6_20_distract', 'u6_21_evidence', 'u6_22_guidance', 'u6_23_academic', 'u6_24_concentration', 'u6_25_complex', 'u6_26_motivation', 'u6_27_curiosity', 'u6_28_technique', 'u6_29_effective', 'u6_30_inefficient']);
   assert.deepEqual(unit6.items.map(row => row.vocabularyId), TERMS.map(VOCAB_ID));
   assert.equal(unit6.unitNumber, 6);
   assert.equal(unit6.unitTitle, 'Learning and Study Skills');
@@ -73,13 +74,15 @@ test('no Unit 6 target is a word-family form of an earlier unit, and earlier-uni
   for (const unit of earlier) for (const item of unit.items) for (const form of item.wordFamily ?? []) forms.add(String(form).toLowerCase());
   // `participate` (Unit 3/4 `participant`), `process` (Unit 3 `processed`) and `reflect` (Unit 3 `reflection`) are listed family forms of earlier targets, but they were
   // never targets there, so none needs ID isolation. Only `evaluate` is an exact earlier target.
-  assert.deepEqual(TERMS.filter(term => forms.has(term)), ['participate', 'reflect', 'process']);
+  assert.deepEqual(TERMS.filter(term => forms.has(term)), ['participate', 'reflect', 'process', 'concentration']);
+  // `concentration` (Batch 3) is a listed family form of the Unit 2 target `concentrate`; it is not itself a target there.
+  assert.ok(unit2.items.some(row => row.term === 'concentrate'));
   assert.ok(unit3.items.concat(unit4.items).some(row => row.term === 'participant'));
   assert.deepEqual(earlier.map(unit => unit.status), ['approved', 'approved', 'approved', 'approved', 'approved']);
   assert.deepEqual(earlier.map(unit => unit.occurrences.length), [50, 50, 50, 50, 50]);
 });
 
-test('every pathway stage is buildable for words 1–20, except the documented Word Family and same-POS pool limits', () => {
+test('every pathway stage is buildable for words 1–30, except the documented Word Family and same-POS pool limits', () => {
   for (const occurrence of unit6.occurrences) {
     const term = termOf(occurrence);
     for (const pathwayId of Object.keys(readiness.pathways)) {
@@ -91,7 +94,7 @@ test('every pathway stage is buildable for words 1–20, except the documented W
   }
 });
 
-test('words 1–20 satisfy the strict (approved) content schema; only whole-unit count rules remain', () => {
+test('words 1–30 satisfy the strict (approved) content schema; only whole-unit count rules remain', () => {
   const approve = row => ({ ...row, status: 'approved' });
   const strict = { ...unit6, status: 'approved', items: unit6.items.map(approve), occurrences: unit6.occurrences.map(approve), contexts: unit6.contexts.map(approve), activities: unit6.activities.map(approve) };
   const errors = validateUnit(strict).errors;
@@ -122,7 +125,7 @@ test('wrong situations: at least four distinct, target-free situations per word'
   }
 });
 
-test('Word Families: only the nine genuine families are authored; the eleven others are left unavailable rather than padded', () => {
+test('Word Families: only the fourteen genuine families are authored; the sixteen others are left unavailable rather than padded', () => {
   for (const item of unit6.items) {
     const forms = item.senses[0].wordFamilyForms;
     if (NO_FAMILY.includes(item.term)) {
@@ -139,7 +142,7 @@ test('Word Families: only the nine genuine families are authored; the eleven oth
     }
   }
   const familyItems = unit6.activities.filter(a => a.activityData.taskType === 'word_family');
-  assert.equal(familyItems.length, 27);
+  assert.equal(familyItems.length, 42);
   assert.ok(familyItems.every(a => a.activityData.sourceText.split('____').length === 2 && !a.activityData.sourceText.startsWith('____')));
 });
 
@@ -208,9 +211,9 @@ test('British English and sense boundaries: no US spellings; "dramatically" stay
   assert.doesNotMatch(JSON.stringify([engage.meaning, engage.masteryContexts, engage.acceptedParaphrases]).toLowerCase(), /\bhire|engaged to|wedding|marry/);
 });
 
-test('Precision & Use: two items for each of the twenty words, weak wording once and not first, accepted answers never in the distractors', () => {
+test('Precision & Use: two items for each of the thirty words, weak wording once and not first, accepted answers never in the distractors', () => {
   const rows = unit6.activities.filter(a => a.activityData.taskType === 'improve_vocabulary');
-  assert.equal(rows.length, 40);
+  assert.equal(rows.length, 60);
   for (const row of rows) {
     const d = row.activityData;
     const weak = d.prompt.match(/“(.+)”/)[1];
@@ -221,9 +224,9 @@ test('Precision & Use: two items for each of the twenty words, weak wording once
 });
 
 test('Paraphrasing: each word has a phrase set and an idea set with three accurate paraphrases and three tagged distractors', () => {
-  assert.equal(unit6.activities.filter(a => a.contentType === 'phrase_set').length, 20);
+  assert.equal(unit6.activities.filter(a => a.contentType === 'phrase_set').length, 30);
   const ideas = unit6.activities.filter(a => a.contentType === 'idea_set');
-  assert.equal(ideas.length, 20);
+  assert.equal(ideas.length, 30);
   for (const idea of ideas) {
     assert.equal(idea.activityData.accurateParaphrases.length, 3);
     assert.equal(idea.activityData.distractors.length, 3);
@@ -231,7 +234,7 @@ test('Paraphrasing: each word has a phrase set and an idea set with three accura
   }
 });
 
-test('Batch 1 content and spelling entries are unchanged by Batch 2', () => {
+test('Batch 1 content and spelling entries are unchanged by later batches', () => {
   const batch1 = {
     vocab_absorb:['absorbe', 'abzorb', 'absorbb', 'absob', 'absorbt', 'absorp'],
     vocab_confidence:['confidance', 'confedence', 'confidense', 'confidnce', 'conffidence', 'confindence'],
@@ -248,7 +251,7 @@ test('Batch 1 content and spelling entries are unchanged by Batch 2', () => {
   assert.deepEqual(unit6.items.slice(0, 10).map(i => i.vocabularyId), TERMS.slice(0, 10).map(t => `vocab_${t}`));
 });
 
-test('sense boundaries for words 11–20: learning senses only, and the active/passive pair stays distinct', () => {
+test('sense boundaries for words 11–30: learning senses only, and the active/passive pair stays distinct', () => {
   const sense = term => unit6.items.find(i => i.term === term).senses[0];
   assert.doesNotMatch(JSON.stringify([sense('process').meaning, sense('process').masteryContexts.map(c => [c.text, c.meaning])]).toLowerCase(), /factory|manufactur/);
   assert.doesNotMatch(JSON.stringify([sense('reflect').meaning, sense('reflect').masteryContexts.map(c => [c.text, c.meaning]), sense('reflect').acceptedParaphrases]).toLowerCase(), /mirror|light|glass/);
@@ -257,4 +260,68 @@ test('sense boundaries for words 11–20: learning senses only, and the active/p
   assert.doesNotMatch(JSON.stringify(sense('revise').masteryContexts.map(c => [c.text, c.meaning])).toLowerCase(), /\bedit/);
   assert.match(sense('forecast').teacherNote, /not a guess|different from a guess/);
   assert.equal(unit6.items.find(i => i.term === 'active').partOfSpeech, 'adjective');
+});
+
+test('Batches 1–2 (words 1–20) are pinned: their items, occurrences, contexts and linked activities are byte-identical to the merged content', () => {
+  const ids = new Set(unit6.items.slice(0, 20).map(row => row.vocabularyId));
+  const linked = activity => (activity.activityData.linkedVocabularyIds ?? []).some(id => ids.has(id));
+  const payload = {
+    items: unit6.items.slice(0, 20),
+    occurrences: unit6.occurrences.slice(0, 20),
+    contexts: unit6.contexts.filter(context => ids.has(context.vocabularyId)),
+    activities: unit6.activities.filter(linked)
+  };
+  assert.equal(payload.contexts.length, 120);
+  assert.equal(payload.activities.length, 107);
+  assert.equal(crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex'), 'd48b53d0e1b1f354fc40a7e094043eb47e380d21ddd60e3daa8f665e7e2d0197');
+});
+
+test('Batch 2 spelling entries are unchanged by Batch 3', () => {
+  const batch2 = {
+    vocab_active:['activ', 'acitve', 'actve', 'aktive', 'activee', 'actieve'],
+    vocab_reflect:['reflet', 'reflact', 'relfect', 'reflecct', 'refelct', 'reflekt'],
+    vocab_process:['proces', 'procces', 'prosess', 'proccess', 'processs', 'procass'],
+    vocab_strategy:['stratagy', 'stratergy', 'strategi', 'stradegy', 'startegy', 'stategy'],
+    vocab_approach:['aproach', 'approch', 'apprach', 'approatch', 'appraoch', 'approche'],
+    vocab_revise:['revize', 'revice', 'revies', 'reviese', 'revisse', 'rivise'],
+    vocab_forecast:['forcast', 'forecest', 'foracast', 'forekast', 'forecasst', 'fourcast'],
+    vocab_interfere:['interfear', 'interfer', 'intefere', 'interfeer', 'intarfere', 'interfeare'],
+    vocab_distract:['distrct', 'distrack', 'disstract', 'distracct', 'destract', 'distarct']
+  };
+  for (const [id, errors] of Object.entries(batch2)) assert.deepEqual(LEXICAL_SPELLING_ERRORS[id], errors, id);
+});
+
+test('Batch 3 sense boundaries: evidence is not proof, guidance is not an order, complex is not merely difficult, technique is not strategy, effective is not efficient', () => {
+  const sense = term => unit6.items.find(i => i.term === term).senses[0];
+  const text = term => JSON.stringify([sense(term).meaning, sense(term).masteryContexts.map(c => [c.text, c.meaning])]).toLowerCase();
+  assert.match(sense('evidence').teacherNote, /not the same as proof/);
+  assert.doesNotMatch(text('evidence'), /\bproof\b|proves? /);
+  assert.match(sense('guidance').teacherNote, /not an order or a rule/);
+  assert.match(sense('academic').teacherNote, /theoretical rather than practical/);
+  assert.doesNotMatch(text('concentration'), /chemical|solution|liquid/);
+  assert.match(sense('complex').teacherNote, /not the same as difficult/);
+  assert.match(sense('concentration').teacherNote, /not motivation/);
+  assert.match(sense('technique').teacherNote, /narrower than a strategy/);
+  assert.match(sense('effective').teacherNote, /efficient/);
+  assert.match(sense('inefficient').teacherNote, /not the same as ineffective/);
+  assert.doesNotMatch(text('curiosity'), /nosy|nosi|private lives/);
+  for (const term of ['evidence', 'guidance', 'academic', 'concentration', 'complex', 'motivation', 'curiosity', 'technique', 'effective', 'inefficient']) {
+    assert.equal(unit6.items.find(i => i.term === term).vocabularyId, `vocab_${term}`, 'no isolation needed: not an earlier target');
+  }
+  const partOfSpeech = Object.fromEntries(unit6.items.map(i => [i.term, i.partOfSpeech]));
+  assert.deepEqual(['academic', 'complex', 'effective', 'inefficient'].map(t => partOfSpeech[t]), ['adjective', 'adjective', 'adjective', 'adjective']);
+});
+
+test('same-POS pool recalculation across words 1–30: adjectives are now ready, dramatically stays the only held-back target', () => {
+  const pools = {};
+  for (const item of unit6.items) (pools[item.partOfSpeech] ??= []).push(item.term);
+  assert.deepEqual(Object.fromEntries(Object.entries(pools).map(([pos, list]) => [pos, list.length])), { verb: 12, noun: 10, adjective: 7, adverb: 1 });
+  for (const term of ['equivalent', 'passive', 'active', 'academic', 'complex', 'effective', 'inefficient']) {
+    const occurrence = unit6.occurrences.find(row => unit6.items.find(i => i.vocabularyId === row.vocabularyId).term === term);
+    assert.deepEqual(failed('meaning', occurrence.occurrenceId), [], `${term} meaning`);
+    assert.deepEqual(failed('context', occurrence.occurrenceId), [], `${term} context`);
+  }
+  const dramatically = unit6.occurrences.find(row => row.occurrenceId === 'u6_04_dramatically');
+  assert.deepEqual(failed('meaning', dramatically.occurrenceId), ['match']);
+  assert.deepEqual(failed('context', dramatically.occurrenceId), ['recognise', 'apply', 'recall']);
 });

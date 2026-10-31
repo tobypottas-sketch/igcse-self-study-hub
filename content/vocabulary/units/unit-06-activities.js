@@ -1,4 +1,4 @@
-// Unit 6 · Paraphrasing content (phrase_set and idea_set), WORDS 1–20 so far. Same record shapes and contract as unit-05-activities.js:
+// Unit 6 · Paraphrasing content (phrase_set and idea_set), WORDS 1–30 so far. Same record shapes and contract as unit-05-activities.js:
 //   phrase_set : originalPhrase (plain wording) -> equivalentPhrase (contains the target), acceptedVariants, chunks, commonMeaningDistortions
 //   idea_set   : originalIdea (contains the target) with accurate paraphrases that do NOT contain it, a meaning invariant, and three
 //                meaning-changing distractors each tagged with the misconception it represents.
@@ -52,7 +52,17 @@ const phraseSets = [
   phrase('revise_topics', 'to study the topics again before the test', 'to revise the topics before the test', ['vocab_revise'], { chunks:['to revise', 'the topics', 'before the test'], distortions:['to skip the topics before the test', 'to teach the topics before the test', 'to forget the topics before the test'] }),
   phrase('forecast_weather', 'to say what the weather will probably be like', 'to forecast the weather', ['vocab_forecast'], { chunks:['to forecast', 'the weather'], distortions:['to change the weather', 'to describe last week’s weather', 'to guess the weather without any information'] }),
   phrase('interfere_studies', 'to get in the way of your studies', 'to interfere with your studies', ['vocab_interfere'], { chunks:['to interfere', 'with your studies'], distortions:['to improve your studies', 'to finish your studies', 'to plan your studies'] }),
-  phrase('distract_lesson', 'to take your attention away from the lesson', 'to distract you from the lesson', ['vocab_distract'], { chunks:['to distract', 'you', 'from the lesson'], distortions:['to bore you in the lesson', 'to help you in the lesson', 'to excuse you from the lesson'] })
+  phrase('distract_lesson', 'to take your attention away from the lesson', 'to distract you from the lesson', ['vocab_distract'], { chunks:['to distract', 'you', 'from the lesson'], distortions:['to bore you in the lesson', 'to help you in the lesson', 'to excuse you from the lesson'] }),
+  phrase('evidence_claim', 'facts that support a claim', 'evidence to support a claim', ['vocab_evidence'], { chunks:['evidence', 'to support', 'a claim'], distortions:['proof that ends all doubt about a claim', 'opinions about a claim', 'questions about a claim'] }),
+  phrase('guidance_teacher', 'help and advice from a teacher', 'guidance from a teacher', ['vocab_guidance'], { chunks:['guidance', 'from a teacher'], distortions:['orders from a teacher', 'punishment from a teacher', 'homework from a teacher'] }),
+  phrase('academic_results', 'results in school and university study', 'academic results', ['vocab_academic'], { chunks:['academic', 'results'], distortions:['sporting results', 'election results', 'financial results'] }),
+  phrase('concentration_task', 'the ability to give full attention to a task', 'concentration on a task', ['vocab_concentration'], { chunks:['concentration', 'on a task'], distortions:['motivation to start a task', 'permission to do a task', 'fear of a task'] }),
+  phrase('complex_system', 'a system with many connected parts', 'a complex system', ['vocab_complex'], { chunks:['a complex', 'system'], distortions:['a cheap system', 'a broken system', 'a new system'] }),
+  phrase('motivation_keep_working', 'the desire to keep working', 'motivation to keep working', ['vocab_motivation'], { chunks:['motivation', 'to keep working'], distortions:['permission to keep working', 'payment for working', 'ability to keep working'] }),
+  phrase('curiosity_space', 'a strong wish to learn about space', 'curiosity about space', ['vocab_curiosity'], { chunks:['curiosity', 'about space'], distortions:['fear of space', 'knowledge of space', 'opinion about space'] }),
+  phrase('technique_painting', 'a skilled method of painting', 'a technique for painting', ['vocab_technique'], { chunks:['a technique', 'for painting'], distortions:['a plan for painting', 'a reason for painting', 'a place for painting'] }),
+  phrase('effective_method', 'a method that produces the intended result', 'an effective method', ['vocab_effective'], { chunks:['an effective', 'method'], distortions:['a quick method', 'a cheap method', 'a modern method'] }),
+  phrase('inefficient_way_of_working', 'a way of working that wastes time and effort', 'an inefficient way of working', ['vocab_inefficient'], { chunks:['an inefficient', 'way of working'], distortions:['an ineffective way of working', 'a dangerous way of working', 'a slow way of working'] })
 ];
 
 const ideaSets = [
@@ -155,7 +165,57 @@ const ideaSets = [
     { text:'Notifications from a mobile phone can distract students from their work for a few seconds at a time.', misconceptionCategory:'time_change' },
     { text:'Notifications from a mobile phone can help students to concentrate on their work for several minutes at a time.', misconceptionCategory:'polarity_change' },
     { text:'Notifications from a mobile phone can distract students.', misconceptionCategory:'omitted_information' }
-  ], ['vocab_distract'])
+  ], ['vocab_distract']),
+  idea('evidence', 'Researchers have found strong evidence that students who sleep eight hours remember more than students who sleep five.', ['Research gives solid support for the idea that students who sleep eight hours remember more than those who sleep five.', 'Studies strongly suggest that eight hours of sleep helps students to remember more than five hours does.', 'There is firm support in research for the view that students sleeping eight hours recall more than students sleeping five.'], 'comparison', 'remember more', [
+    { text:'Researchers have found strong evidence that students who sleep eight hours remember less than students who sleep five.', misconceptionCategory:'polarity_change' },
+    { text:'Researchers have proved beyond doubt that students who sleep eight hours remember more than students who sleep five.', misconceptionCategory:'degree_change' },
+    { text:'Researchers have found strong evidence that students who sleep eight hours remember more than students who sleep seven.', misconceptionCategory:'quantity_change' }
+  ], ['vocab_evidence']),
+  idea('guidance', 'Teachers should offer guidance rather than orders, so that students still make their own decisions.', ['Teachers ought to give helpful advice instead of commands, leaving the decisions to the students.', 'Instead of telling students what to do, teachers should advise them and let them decide.', 'Students should be helped by their teachers to choose for themselves, not instructed what to choose.'], 'polarity', 'advice rather than orders', [
+    { text:'Teachers should give orders rather than guidance, so that students do not make their own decisions.', misconceptionCategory:'polarity_change' },
+    { text:'Teachers should offer guidance.', misconceptionCategory:'omitted_information' },
+    { text:'Teachers should offer rewards rather than orders, so that students still make their own decisions.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_guidance']),
+  idea('academic', 'Schools in the region are judged mainly on academic achievement, while sport and music receive less attention.', ['The region’s schools are assessed chiefly on how well students do in their studies, and sport and music matter less.', 'Success in study is the main measure of the region’s schools, with less weight given to sport and music.', 'Sport and music are given less attention than study results when schools in the region are assessed.'], 'comparison', 'mainly study results, less sport and music', [
+    { text:'Schools in the region are judged mainly on sport and music, while academic achievement receives less attention.', misconceptionCategory:'comparison_change' },
+    { text:'Schools in the region are judged partly on academic achievement, and sport and music receive equal attention.', misconceptionCategory:'degree_change' },
+    { text:'Schools in the region are judged on academic achievement.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_academic']),
+  idea('concentration', 'Short breaks every forty minutes can restore a student’s concentration, which usually falls during long lessons.', ['Taking a rest every forty minutes can bring back a student’s ability to pay full attention, which normally drops in long lessons.', 'In long lessons, a student’s attention normally declines, but a short pause every forty minutes can renew it.', 'A brief rest after each forty minutes of work helps students to give full attention again once it has weakened.'], 'time', 'every forty minutes', [
+    { text:'Short breaks every ten minutes can restore a student’s concentration, which usually falls during long lessons.', misconceptionCategory:'time_change' },
+    { text:'Short breaks every forty minutes can damage a student’s concentration, which usually rises during long lessons.', misconceptionCategory:'polarity_change' },
+    { text:'A drop in concentration during long lessons can cause students to take short breaks every forty minutes.', misconceptionCategory:'cause_effect_change' }
+  ], ['vocab_concentration']),
+  idea('complex', 'Many scientists believe that the causes of the disease are complex, so no single treatment will cure it.', ['Many scientists think the disease has many connected causes that are hard to untangle, so no one treatment will cure it.', 'Because the causes of the disease are many and linked, many scientists expect that no single treatment will cure it.', 'A number of scientists say the disease has interlinked causes that are difficult to understand, so a cure will not come from one treatment.'], 'cause_effect', 'many connected causes, so no single cure', [
+    { text:'Many scientists believe that no single treatment will cure the disease, so its causes are complex.', misconceptionCategory:'cause_effect_change' },
+    { text:'A few scientists believe that the causes of the disease are complex, so no single treatment will cure it.', misconceptionCategory:'quantity_change' },
+    { text:'Many scientists believe that the causes of the disease are simple, so a single treatment will cure it.', misconceptionCategory:'polarity_change' }
+  ], ['vocab_complex']),
+  idea('motivation', 'Students who set their own goals usually have more motivation than students who are simply told what to do.', ['Students who choose their own targets generally feel a stronger desire to work than those who are just given instructions.', 'Having their own goals gives students more reason to keep working than being told what to do does.', 'Learners are more driven when they decide their own aims than when others simply tell them what to do.'], 'comparison', 'more motivation', [
+    { text:'Students who set their own goals usually have less motivation than students who are simply told what to do.', misconceptionCategory:'polarity_change' },
+    { text:'Students who set their own goals usually have more concentration than students who are simply told what to do.', misconceptionCategory:'meaning_confusion' },
+    { text:'Students who have more motivation usually set their own goals instead of being told what to do.', misconceptionCategory:'cause_effect_change' }
+  ], ['vocab_motivation']),
+  idea('curiosity', 'A young scientist’s curiosity about volcanoes led her to spend three summers studying them.', ['A young scientist’s strong wish to understand volcanoes led her to study them for three summers.', 'Because she was so eager to learn about volcanoes, a young scientist spent three summers studying them.', 'Three summers of study into volcanoes resulted from a young scientist’s eager interest in them.'], 'time', 'three summers', [
+    { text:'A young scientist’s curiosity about volcanoes led her to spend one summer studying them.', misconceptionCategory:'quantity_change' },
+    { text:'Three summers of studying volcanoes led a young scientist to feel curiosity about them.', misconceptionCategory:'cause_effect_change' },
+    { text:'A young scientist’s fear of volcanoes led her to spend three summers studying them.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_curiosity']),
+  idea('technique', 'A swimmer who improves her technique can swim faster without training for longer.', ['A swimmer who gets better at her skilled way of swimming can go faster without spending more time training.', 'By refining her method of swimming, a swimmer can increase her speed without longer training.', 'Faster swimming is possible through a better way of performing the strokes, with no need for extra hours of training.'], 'comparison', 'faster without longer training', [
+    { text:'A swimmer who improves her technique swims more slowly even though she trains for longer.', misconceptionCategory:'polarity_change' },
+    { text:'A swimmer who trains for longer can improve her technique without swimming faster.', misconceptionCategory:'cause_effect_change' },
+    { text:'A swimmer who improves her technique can swim much faster without training for longer.', misconceptionCategory:'degree_change' }
+  ], ['vocab_technique']),
+  idea('effective', 'Experts say that regular, short lessons are more effective than a single long lesson once a week.', ['According to experts, frequent brief lessons get better results than one long weekly lesson.', 'Experts believe a single long weekly lesson works less well than regular short ones.', 'Short lessons that take place regularly achieve more, experts say, than one long lesson a week.'], 'comparison', 'more effective', [
+    { text:'Experts say that regular, short lessons are less effective than a single long lesson once a week.', misconceptionCategory:'polarity_change' },
+    { text:'Experts say that regular, short lessons are as effective as a single long lesson once a week.', misconceptionCategory:'comparison_change' },
+    { text:'Experts say that regular, short lessons are cheaper than a single long lesson once a week.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_effective']),
+  idea('inefficient', 'The city’s old bus network is inefficient: many buses run almost empty while others are overcrowded.', ['The city’s old bus network wastes resources, since many buses are almost empty and others are packed.', 'Poor use is made of the old bus network in the city, with some buses nearly empty and others overcrowded.', 'Resources on the city’s old bus network are not well used: a number of buses carry hardly anyone while others are overfull.'], 'polarity', 'not well used', [
+    { text:'The city’s old bus network is well organised: buses are neither empty nor overcrowded.', misconceptionCategory:'polarity_change' },
+    { text:'The city’s old bus network is inefficient.', misconceptionCategory:'omitted_information' },
+    { text:'The city’s old bus network is unsafe: many buses run almost empty while others are overcrowded.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_inefficient'])
 ];
 
 export default [...phraseSets, ...ideaSets];
