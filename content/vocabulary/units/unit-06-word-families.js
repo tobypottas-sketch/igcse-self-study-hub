@@ -1,4 +1,4 @@
-// Unit 6 · Word Families — authored families, WORDS 1–30 so far. Same contract as unit-05-word-families.js: every row is AUTHORED (stated part of
+// Unit 6 · Word Families — authored families, WORDS 1–40 so far. Same contract as unit-05-word-families.js: every row is AUTHORED (stated part of
 // speech, one natural example containing the form exactly once and not as the first word, and the reason the form is worth teaching). A family
 // needs >= 3 pedagogically useful forms INCLUDING the headword and >= 2 parts of speech. Headwords with no genuine family are listed under
 // unit6WordFamilyRejected rather than padded with unnatural forms.
@@ -77,7 +77,27 @@ export const unit6WordFamilies = Object.freeze({
     f('inefficiency', 'noun', 'The report identified several causes of inefficiency in the hospital’s booking system.', 'The abstract noun; common in business and science texts.'),
     f('inefficiently', 'adverb', 'Workers who use their time inefficiently often have to stay late.', 'The adverb; useful for describing how people work.'),
     f('efficient', 'adjective', 'The new machine is far more efficient than the old one, using half as much electricity.', 'The positive base adjective: using time, effort or resources well; learners should contrast it with effective.')
-  ], excludedForms: [{ form: 'efficiency', reason: 'Closely related, but efficiency is the noun of the positive word and inefficiency already covers the noun for this target.' }] }
+  ], excludedForms: [{ form: 'efficiency', reason: 'Closely related, but efficiency is the noun of the positive word and inefficiency already covers the noun for this target.' }] },
+  awareness: { forms: [
+    f('awareness', 'noun', 'Public awareness of the dangers of sunburn has grown in recent years.', 'Headword.'),
+    f('aware', 'adjective', 'Most drivers are aware of the speed limit near the school.', 'The base adjective, usually followed by of or that; far more frequent than the noun in everyday speech.'),
+    f('unaware', 'adjective', 'Tom was completely unaware that his phone was ringing, because he was wearing headphones.', 'The opposite adjective for not knowing that something exists; common in news reports and stories.')
+  ], excludedForms: [{ form: 'awareness-raising', reason: 'A hyphenated compound that is rare at this level.' }] },
+  respond: { forms: [
+    f('respond', 'verb', 'Companies must respond quickly when customers report a fault.', 'Headword.'),
+    f('response', 'noun', 'The company’s response to the complaint arrived within an hour.', 'The noun for an answer or reaction; very common in emails, surveys and essays.'),
+    f('responsive', 'adjective', 'Patients prefer a responsive doctor who listens and answers questions quickly.', 'The adjective for reacting quickly and positively; keeps the answer-or-react sense.')
+  ], excludedForms: [{ form: 'responsible', reason: 'A different word about duty and blame, not about answering or reacting.' }, { form: 'respondent', reason: 'A formal noun used mainly in surveys and law, rare at this level.' }] },
+  hesitation: { forms: [
+    f('hesitation', 'noun', 'She accepted the offer without hesitation because she had wanted the job for years.', 'Headword.'),
+    f('hesitate', 'verb', 'Please do not hesitate to ask for help if you do not understand the instructions.', 'The base verb; very common in the polite phrase “do not hesitate to”.'),
+    f('hesitant', 'adjective', 'He gave a hesitant answer, as if he were not sure the figure was correct.', 'The adjective for showing doubt or a lack of confidence.')
+  ], excludedForms: [{ form: 'hesitantly', reason: 'A regular adverb that adds no new idea at this level.' }] },
+  independent: { forms: [
+    f('independent', 'adjective', 'The course helps adult learners to become independent and plan their own study.', 'Headword.'),
+    f('independence', 'noun', 'Many teenagers want more independence from their parents when they reach sixteen.', 'The abstract noun for managing without relying heavily on others; the political sense (national independence) is a related use.'),
+    f('independently', 'adverb', 'Please work independently on this task and do not ask your neighbour for answers.', 'The adverb for doing something without help; common in task instructions.')
+  ], excludedForms: [{ form: 'dependent', reason: 'The opposite word, taught separately because it takes a different pattern (dependent on).' }, { form: 'interdependent', reason: 'Rare academic adjective.' }] },
 });
 
 export const unit6WordFamilyRejected = Object.freeze({
@@ -96,5 +116,11 @@ export const unit6WordFamilyRejected = Object.freeze({
   academic: 'Only “academically” is a useful relative; academy names a type of school and academia is rare, so there are fewer than three forms.',
   complex: 'Only “complexity” is a useful relative; “complexly” is rare and complicated is a separate word, so there are fewer than three forms.',
   curiosity: 'Only “curious” is a stable relative; “curiously” usually means strangely and “curiosities” names unusual objects, so there are fewer than three forms in this sense.',
-  technique: 'Technical and technician belong to a different, technology-related meaning, and no other stable form exists, so there is no family.'
+  technique: 'Technical and technician belong to a different, technology-related meaning, and no other stable form exists, so there is no family.',
+  struggle: 'The noun and the verb share one form, and struggling is only a participle, so there are not enough distinct forms (the same decision as for the Unit 1 item).',
+  capacity: 'Capable and capability come from the same root but are formed irregularly (capac- and capab-), overlap in meaning with capacity and are easily confused; incapacity is rare, so there is no stable three-form family.',
+  feedback: 'Feedback is a compound noun, “to feed back” is a separate phrasal verb, and no other related form is useful, so there is no family.',
+  assumption: 'Only assume and assumption are stable; assumed is a participle that drifts to “an assumed name”, and assume also means to take on (assume responsibility), so there is no third form in this sense.',
+  perspective: 'Perspectives is only a plural, perspectival is very rare, and “in perspective” drifts to the sense of art and proportion, so there are not enough useful forms.',
+  pressure: 'Noun and verb share one form, pressured is only a participle, press names a different idea (newspapers, pushing) and pressurise is technical, so there is no stable three-form family (the same decision as for the Unit 3 item).'
 });

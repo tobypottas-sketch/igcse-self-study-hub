@@ -1,4 +1,4 @@
-// Unit 6 · Meaning · Match (Recognise) — authored WRONG meanings, words 1–10 so far. Same contract as unit-05-meaning-match.js: each set of three is
+// Unit 6 · Meaning · Match (Recognise) — authored WRONG meanings, words 1–40 so far. Same contract as unit-05-meaning-match.js: each set of three is
 // the same part of speech as the answer (acceptedParaphrases[0]), comparable in length, and plausible without being a synonym.
 export default {
   absorb: ['write down and check', 'read aloud and repeat', 'look at and ignore'],
@@ -30,5 +30,15 @@ export default {
   curiosity: ['strong fear of failure', 'great pride in work', 'deep respect for rules'],
   technique: ['general plan', 'useful tool', 'fixed rule'],
   effective: ['quick to start work', 'cheap to produce', 'popular with many people'],
-  inefficient: ['careless about safety', 'proud of past results', 'afraid of new ideas']
+  inefficient: ['careless about safety', 'proud of past results', 'afraid of new ideas'],
+  struggle: ['take a long break', 'make a quick choice', 'give a clear answer'],
+  awareness: ['attention and effort', 'pride and respect', 'speed and accuracy'],
+  capacity: ['recent success', 'strong desire', 'fixed rule'],
+  feedback: ['final marks', 'school rules', 'written tests'],
+  respond: ['ask a question', 'follow an order', 'make a note'],
+  hesitation: ['quick decision', 'angry refusal', 'sudden success'],
+  independent: ['willing to follow every rule', 'unable to finish any task', 'ready to copy other students'],
+  assumption: ['fact with strong proof', 'plan for next week', 'question with one answer'],
+  perspective: ['piece of news', 'sense of humour', 'place of work'],
+  pressure: ['support from friends', 'reward for success', 'time for rest']
 };

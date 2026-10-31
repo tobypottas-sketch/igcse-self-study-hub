@@ -1,4 +1,4 @@
-// Unit 6 · Word Families — a SECOND authored example sentence for the two non-headword forms of each three-form family, WORDS 1–30 so far.
+// Unit 6 · Word Families — a SECOND authored example sentence for the two non-headword forms of each three-form family, WORDS 1–40 so far.
 // Same contract as unit-05-word-family-alternates.js: each sentence contains its form exactly once and never starts with it.
 export const unit6WordFamilyAlternates = Object.freeze({
   confidence: {
@@ -44,5 +44,21 @@ export const unit6WordFamilyAlternates = Object.freeze({
   motivation: {
     motivate: 'A clear reward system can motivate even the most reluctant learners.',
     motivated: 'She stayed motivated throughout the course because she could see her progress.'
+  },
+  awareness: {
+    aware: 'Few shoppers are aware that the label refers to the weight of the packaging.',
+    unaware: 'Many residents remained unaware of the plan until the road was closed.'
+  },
+  respond: {
+    response: 'The survey received a strong response from parents of young children.',
+    responsive: 'A responsive website adjusts itself to the size of the screen.'
+  },
+  hesitation: {
+    hesitate: 'Doctors tell patients not to hesitate to call if the pain gets worse.',
+    hesitant: 'The new player was hesitant at first, but she soon gained confidence.'
+  },
+  independent: {
+    independence: 'Moving to another city gave Marco a greater sense of independence.',
+    independently: 'The students solved the problem independently before comparing answers.'
   }
 });

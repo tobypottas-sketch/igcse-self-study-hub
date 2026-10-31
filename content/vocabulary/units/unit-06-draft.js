@@ -1,4 +1,4 @@
-// UNIT 6 – LEARNING AND STUDY SKILLS: authoring draft (batches 1–3 = words 1–30). Source: 0511 key words UNIT 6 – LEARNING AND STUDY SKILLS (locked 50-word list). Words 31–50 are not authored yet.
+// UNIT 6 – LEARNING AND STUDY SKILLS: authoring draft (batches 1–4 = words 1–40). Source: 0511 key words UNIT 6 – LEARNING AND STUDY SKILLS (locked 50-word list). Words 41–50 are not authored yet.
 // Same architecture as unit-05.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-06-draft.js
 // A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-06.js only when all 50 words are final.
 import { buildCuratedUnit } from '../build-unit.js';
@@ -895,6 +895,298 @@ const entries = [
         { id:'2', answer:'inefficient', wrong:['impolite', 'unsafe', 'unfair'] },
         { id:'3', answer:'inefficient', wrong:['illegal', 'unsafe', 'unlucky'] }
       ]
+    }),
+  e('struggle', 'verb',
+    'to have difficulty doing or understanding something',
+    ['have a hard time', 'try hard but find it difficult'],
+    ['to fight physically with another person', 'to succeed easily without any help', 'to refuse to do what is asked'],
+    'Many beginners struggle with grammar at first, but they improve with regular practice.',
+    'have a hard time', 'Many beginners have a hard time with grammar at first, but they improve with regular practice.',
+    'try hard but find it difficult', 'Some pupils try hard but find it difficult to follow fast speech in a foreign language.',
+    {
+      idKey:'struggle_6',
+      teacherNote:'Unit 6 item (struggle_6), separate from the Unit 1 struggle item; shares only the lexical spelling list. Sense: to have difficulty doing or understanding something, often followed by with or to. The physical fight sense is not taught here.',
+      masteryContexts:[
+        { text:'Students who struggle with reading often avoid long texts, which makes the problem worse.', meaning:'to have difficulty doing or understanding something' },
+        { text:'Many small shops struggle to survive when a large supermarket opens nearby.', meaning:'to find it very hard to succeed' }
+      ],
+      situationDistractors:[
+        'The train arrived on time, and the passengers stepped onto the platform.',
+        'Bella baked a cake for her brother’s birthday and decorated it with strawberries.',
+        'The coach praised the team after an easy victory.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Many adults struggle with mathematics because they lost confidence in it at school.', target:'struggle', grammarPattern:'' },
+        { id:'2', text:'Elderly people sometimes struggle to use new technology without help from a younger relative.', target:'struggle', grammarPattern:'' },
+        { id:'3', text:'Athletes who struggle with injuries need patient support from their coaches and families.', target:'struggle', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'struggle', wrong:['agree', 'argue', 'quarrel'] },
+        { id:'2', answer:'struggle', wrong:['travel', 'arrive', 'hurry'] },
+        { id:'3', answer:'struggle', wrong:['agree', 'argue', 'quarrel'] }
+      ]
+    }),
+  e('awareness', 'noun',
+    'knowledge or understanding that something exists or is important',
+    ['knowledge and understanding', 'recognition that a problem exists'],
+    ['the ability to give full attention to one task', 'a feeling of pride in your own work', 'a rule that explains how to behave'],
+    'Public awareness of the risks of smoking has grown steadily over the last thirty years.',
+    'knowledge and understanding', 'Public knowledge and understanding of the risks of smoking has grown steadily over the last thirty years.',
+    'recognition that a problem exists', 'The first step towards change is recognition that a problem exists.',
+    {
+      teacherNote:'Uncountable in this sense: knowledge or understanding that something exists or is important (awareness of the risks, raise awareness). It is not concentration, which is the ability to give full attention to one thing. It is often followed by of.',
+      masteryContexts:[
+        { text:'The campaign aims to raise awareness of the dangers of using a phone while crossing the road.', meaning:'knowledge that something is important' },
+        { text:'Travelling abroad gave her a greater awareness of how people in other countries live.', meaning:'understanding that something exists' }
+      ],
+      situationDistractors:[
+        'The market opens at dawn, and farmers arrive with baskets of vegetables.',
+        'Kofi tied his shoelaces, picked up his bag and ran to the bus stop.',
+        'A thunderstorm cancelled the outdoor concert on Saturday evening.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Teachers play an important role in raising awareness of online safety among young people.', target:'awareness', grammarPattern:'' },
+        { id:'2', text:'There is growing awareness of the importance of sleep for health.', target:'awareness', grammarPattern:'' },
+        { id:'3', text:'Her awareness of the problem came too late to prevent a serious accident.', target:'awareness', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'awareness', wrong:['permission', 'payment', 'tolerance'] },
+        { id:'2', answer:'awareness', wrong:['shortage', 'weight', 'price'] },
+        { id:'3', answer:'awareness', wrong:['invitation', 'translation', 'punishment'] }
+      ]
+    }),
+  e('capacity', 'noun',
+    'the ability or potential to do, understand or hold something',
+    ['natural ability', 'potential to do or understand'],
+    ['the quantity of work a student has finished', 'a measure of how well someone is performing now', 'the size of a room or container'],
+    'Young children have a remarkable capacity to learn new languages quickly.',
+    'natural ability', 'Young children have a remarkable natural ability to learn new languages quickly.',
+    'potential to do or understand', 'Every student has the potential to do or understand more than they believe.',
+    {
+      teacherNote:'Taught in its ability or potential sense: the ability or potential to do, understand or hold something (a capacity to learn, capacity for hard work). It describes potential, not current performance. The physical size of a container (the capacity of a tank) is not the focus here.',
+      masteryContexts:[
+        { text:'People with a strong capacity for hard work often succeed even when they start with fewer advantages.', meaning:'the ability or potential to do something' },
+        { text:'The human brain has an enormous capacity to store information, although it cannot give attention to everything at once.', meaning:'the ability to hold or take in something' }
+      ],
+      situationDistractors:[
+        'Rain fell steadily as the cyclists climbed the hill.',
+        'The waiter carried a tray of drinks to the table by the window.',
+        'Ali spent the afternoon repairing his bicycle in the garage.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Children have a natural capacity to learn languages when they hear them every day.', target:'capacity', grammarPattern:'' },
+        { id:'2', text:'The hospital has the capacity to treat several hundred patients a day.', target:'capacity', grammarPattern:'' },
+        { id:'3', text:'A good manager recognises each employee’s capacity for growth and gives them suitable responsibilities.', target:'capacity', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'capacity', wrong:['permission', 'invitation', 'reluctance'] },
+        { id:'2', answer:'capacity', wrong:['uniform', 'reputation', 'schedule'] },
+        { id:'3', answer:'capacity', wrong:['demand', 'excuse', 'refusal'] }
+      ]
+    }),
+  e('feedback', 'noun',
+    'comments or information about performance that help someone to improve',
+    ['helpful comments', 'information about performance'],
+    ['harsh criticism that makes people feel bad', 'a reward given for finishing a task', 'the final mark on an examination'],
+    'Students who receive regular feedback on their writing usually improve faster than those who do not.',
+    'helpful comments', 'Students who receive regular helpful comments on their writing usually improve faster than those who do not.',
+    'information about performance', 'Coaches provide information about performance after every match so that players can adjust.',
+    {
+      teacherNote:'Uncountable noun: comments or information about performance that help someone to improve (give feedback, feedback on your work). It is not the same as criticism: good feedback also says what was done well. The sound-system sense (the loud noise from a microphone) is not taught.',
+      masteryContexts:[
+        { text:'The manager gave the new employee useful feedback on how to speak more clearly to customers.', meaning:'comments that help someone to improve' },
+        { text:'Fitness apps provide instant feedback on your speed and distance, so you can adjust your training.', meaning:'information about performance' }
+      ],
+      situationDistractors:[
+        'The family sat on the beach and ate sandwiches while the children built a castle.',
+        'A bus driver waited at the stop for two minutes and then pulled away.',
+        'Lena packed her suitcase the night before the flight.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Clear feedback helps learners to see which mistakes they repeat and which they have already corrected.', target:'feedback', grammarPattern:'' },
+        { id:'2', text:'Employees who receive regular feedback from their managers usually feel more confident about their work.', target:'feedback', grammarPattern:'' },
+        { id:'3', text:'The company asks customers for feedback after every delivery so that it can improve its service.', target:'feedback', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'feedback', wrong:['luggage', 'scenery', 'weather'] },
+        { id:'2', answer:'feedback', wrong:['uniforms', 'invoices', 'parcels'] },
+        { id:'3', answer:'feedback', wrong:['directions', 'permission', 'change'] }
+      ]
+    }),
+  e('respond', 'verb',
+    'to answer or react to something',
+    ['give an answer', 'answer or react'],
+    ['to obey an instruction without thinking', 'to ask a question to start a discussion', 'to ignore what someone has said'],
+    'When asked a difficult question, many students pause before they respond.',
+    'give an answer', 'When asked a difficult question, many students pause before they give an answer.',
+    'answer or react', 'People answer or react differently when they are under stress.',
+    {
+      teacherNote:'Taught as a verb: to answer or react to something, often in words (respond to a question, respond to feedback). It is not the same as obey: you can respond to an instruction by questioning it. It is usually followed by to.',
+      masteryContexts:[
+        { text:'When the interviewer asked about her weaknesses, she paused briefly and then began to respond calmly.', meaning:'to give an answer' },
+        { text:'Patients respond differently to the same medicine, so doctors often adjust the dose.', meaning:'to react to something' }
+      ],
+      situationDistractors:[
+        'The postman left a parcel on the doorstep and cycled to the next house.',
+        'The pupils sat down and opened their books at page twelve.',
+        'A guide led the group through the narrow streets to the old market.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Teachers should give students time to think before they are expected to respond to a difficult question.', target:'respond', grammarPattern:'' },
+        { id:'2', text:'Plants respond to light by growing towards the window.', target:'respond', grammarPattern:'' },
+        { id:'3', text:'Customers expect companies to respond quickly when they report a problem.', target:'respond', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'respond', wrong:['belong', 'travel', 'happen'] },
+        { id:'2', answer:'respond', wrong:['belong', 'listen', 'refer'] },
+        { id:'3', answer:'respond', wrong:['belong', 'happen', 'arrive'] }
+      ]
+    }),
+  e('hesitation', 'noun',
+    'a pause or delay caused by uncertainty or lack of confidence',
+    ['pause caused by doubt', 'delay caused by uncertainty'],
+    ['a firm refusal to do something', 'a sudden and confident decision', 'a feeling of anger about a result'],
+    'After a brief hesitation, Amira raised her hand and offered an answer.',
+    'pause caused by doubt', 'After a brief pause caused by doubt, Amira raised her hand and offered an answer.',
+    'delay caused by uncertainty', 'A delay caused by uncertainty can cost a team valuable time in an emergency.',
+    {
+      teacherNote:'A pause or delay caused by uncertainty or lack of confidence (a moment of hesitation, without hesitation). It is not the same as refusal: a person who shows hesitation may still agree in the end.',
+      masteryContexts:[
+        { text:'Without any hesitation, the lifeguard jumped into the water and swam towards the child.', meaning:'a pause caused by uncertainty' },
+        { text:'There was a moment of hesitation before he signed the contract, because he was not sure the salary was fair.', meaning:'a delay caused by doubt' }
+      ],
+      situationDistractors:[
+        'The cleaner emptied the bins and locked the side door.',
+        'Marta picked up her keys, locked the door and walked briskly to work.',
+        'The judge announced the winners and the crowd cheered loudly.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'She accepted the job offer without hesitation because she had wanted to work there for years.', target:'hesitation', grammarPattern:'' },
+        { id:'2', text:'A long hesitation before answering can make an examiner think that you do not know the topic.', target:'hesitation', grammarPattern:'' },
+        { id:'3', text:'The speaker’s hesitation showed that he was unsure which figure was correct.', target:'hesitation', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'hesitation', wrong:['permission', 'payment', 'insurance'] },
+        { id:'2', answer:'hesitation', wrong:['holiday', 'journey', 'invitation'] },
+        { id:'3', answer:'hesitation', wrong:['uniform', 'microphone', 'handwriting'] }
+      ]
+    }),
+  e('independent', 'adjective',
+    'able to work, think or make decisions without relying heavily on others',
+    ['able to work without constant help', 'able to decide for themselves'],
+    ['alone and cut off from other people', 'free from the control of another country', 'unwilling to listen to anyone’s advice'],
+    'By the end of the course, most students had become independent and could plan their own study.',
+    'able to work without constant help', 'By the end of the course, most students had become able to work without constant help and could plan their own study.',
+    'able to decide for themselves', 'By their final year, students are able to decide for themselves which topics to revise.',
+    {
+      teacherNote:'Taught in its learning and decision-making sense: able to work, think or make decisions without relying heavily on others (an independent learner). It does not mean isolated or lonely, and the political sense (an independent country) is not the focus.',
+      masteryContexts:[
+        { text:'Good teachers gradually give students more responsibility so that they become independent thinkers.', meaning:'able to think without relying on others' },
+        { text:'After moving to a new city for work, Tariq enjoyed being independent and managing his own money and meals.', meaning:'able to manage without relying on others' }
+      ],
+      situationDistractors:[
+        'The tour group gathered at the hotel entrance and waited for the coach.',
+        'Grandfather planted tomatoes in the garden and watered them every evening.',
+        'The referee blew the whistle, and the second half began.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Teenagers who are independent usually take responsibility for their own homework.', target:'independent', grammarPattern:'' },
+        { id:'2', text:'Parents often find it hard to accept that their children want to be independent.', target:'independent', grammarPattern:'' },
+        { id:'3', text:'The course helps adult learners to become independent and to plan their own study.', target:'independent', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'independent', wrong:['popular', 'tidy', 'talkative'] },
+        { id:'2', answer:'independent', wrong:['hungry', 'generous', 'famous'] },
+        { id:'3', answer:'independent', wrong:['absent', 'nervous', 'famous'] }
+      ]
+    }),
+  e('assumption', 'noun',
+    'something accepted as true without definite proof',
+    ['belief without proof', 'idea taken to be true'],
+    ['a fact that has been checked carefully', 'a plan for what to do next', 'a question that needs a quick answer'],
+    'The survey was based on the assumption that all students have access to a computer at home.',
+    'belief without proof', 'The survey was based on the belief without proof that all students have access to a computer at home.',
+    'idea taken to be true', 'Scientists test every idea taken to be true before they build a theory on it.',
+    {
+      teacherNote:'Countable noun: something accepted as true without definite proof (make an assumption, on the assumption that). It is not evidence, which is information that supports a claim. A careful writer checks an assumption before relying on it.',
+      masteryContexts:[
+        { text:'The manager’s assumption that everyone had read the email proved to be wrong.', meaning:'something accepted as true without proof' },
+        { text:'The plan rests on one assumption: that the river will not flood again this year.', meaning:'something taken as true without proof' }
+      ],
+      situationDistractors:[
+        'The tailor measured the customer and wrote the sizes on a small card.',
+        'The football pitch was covered in snow, so the match was postponed.',
+        'Nilufar finished her tea and washed the cup before leaving.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'The calculations are based on the assumption that prices will stay the same for the next two years.', target:'assumption', grammarPattern:'' },
+        { id:'2', text:'Many arguments fail because the writer makes an assumption that readers do not accept.', target:'assumption', grammarPattern:'' },
+        { id:'3', text:'Scientists test every assumption before they build a theory on it.', target:'assumption', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'assumption', wrong:['complaint', 'invitation', 'souvenir'] },
+        { id:'2', answer:'assumption', wrong:['ambulance', 'accident', 'invitation'] },
+        { id:'3', answer:'assumption', wrong:['holiday', 'photograph', 'invitation'] }
+      ]
+    }),
+  e('perspective', 'noun',
+    'a particular way of thinking about or viewing a situation',
+    ['point of view', 'way of looking at things'],
+    ['an opinion that has no reasons behind it', 'the way objects are drawn to look far away', 'a long view of a landscape'],
+    'Every witness described the accident from a different perspective.',
+    'point of view', 'Every witness described the accident from a different point of view.',
+    'way of looking at things', 'Good writers explain their way of looking at things so that readers can follow the argument.',
+    {
+      teacherNote:'Countable noun: a particular way of thinking about or viewing a situation (from a different perspective, a perspective on). It is based on experience or reasons, so it is not an opinion with no basis. The art sense (drawing objects so that they look far away) is not taught here.',
+      masteryContexts:[
+        { text:'Talking to people of different ages helped Jun to see the problem from a new perspective.', meaning:'a particular way of viewing a situation' },
+        { text:'From the perspective of a small business owner, higher taxes make it harder to employ extra staff.', meaning:'a way of thinking shaped by your situation' }
+      ],
+      situationDistractors:[
+        'The marathon runners set off at eight o’clock and crossed the old bridge together.',
+        'Two neighbours borrowed each other’s tools and returned them on Sunday.',
+        'It rained all morning, but the sun came out after lunch.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Reading newspapers from different countries gives students a wider perspective on world events.', target:'perspective', grammarPattern:'' },
+        { id:'2', text:'The film is told from the perspective of a young refugee who arrives in a new city.', target:'perspective', grammarPattern:'' },
+        { id:'3', text:'It is easier to solve a disagreement when each person tries to understand the other’s perspective.', target:'perspective', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'perspective', wrong:['invitation', 'income', 'supply'] },
+        { id:'2', answer:'perspective', wrong:['pocket', 'suitcase', 'birthday'] },
+        { id:'3', answer:'perspective', wrong:['homework', 'lunch', 'birthday'] }
+      ]
+    }),
+  e('pressure', 'noun',
+    'stress or demands that make someone feel they must perform or act',
+    ['stress from expectations', 'strong demands to succeed'],
+    ['the force of one object pushing on another', 'a strong reason that makes you want to work', 'a gentle suggestion from a friend'],
+    'Many teenagers feel pressure to achieve top grades and to look successful online.',
+    'stress from expectations', 'Many teenagers feel stress from expectations to achieve top grades and to look successful online.',
+    'strong demands to succeed', 'Young athletes often face strong demands to succeed from parents and coaches.',
+    {
+      idKey:'pressure_6',
+      teacherNote:'Unit 6 item (pressure_6), separate from the Unit 3 pressure item; shares only the lexical spelling list. Sense: stress or demands that make someone feel they must perform or act (pressure to succeed, under pressure). It is different from motivation, which is the wish to do something. The physical sense (air pressure) is not the focus.',
+      masteryContexts:[
+        { text:'Many young footballers say that the pressure to win every match makes the game less enjoyable.', meaning:'demands that make someone feel they must succeed' },
+        { text:'Working under pressure is a skill that employers value, because deadlines are common in most jobs.', meaning:'stress caused by demands or deadlines' }
+      ],
+      situationDistractors:[
+        'A couple of tourists photographed the fountain and bought tickets for the boat.',
+        'The baker pulled a tray of warm rolls out of the oven.',
+        'Rosa waved to her neighbour and watered the flowers on the balcony.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Students sometimes feel pressure from their friends to join activities they do not enjoy.', target:'pressure', grammarPattern:'' },
+        { id:'2', text:'Some people perform better under pressure, while others find that stress makes them forget what they know.', target:'pressure', grammarPattern:'' },
+        { id:'3', text:'The coach told the players not to feel pressure, because the team had already reached the final.', target:'pressure', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'pressure', wrong:['hunger', 'thirst', 'warmth'] },
+        { id:'2', answer:'pressure', wrong:['water', 'snow', 'cover'] },
+        { id:'3', answer:'pressure', wrong:['hunger', 'thirst', 'warmth'] }
+      ]
     })
 ];
 
@@ -937,10 +1229,12 @@ export default buildCuratedUnit({
   source:'0511 key words UNIT 6 – LEARNING AND STUDY SKILLS',
   entries:enrichedEntries,
   activities:[...unit6Activities, ...unit6PrecisionUse, ...unit6WordFamilyItems],
-  // evaluate is also a Unit 3 and Unit 5 target; its Unit 6 item has its own id (idKey 'evaluate_6' -> vocab_evaluate_6) and aliases the earlier spelling list
-  // (pressure, later in this unit, will need the same treatment).
+  // evaluate (Units 3 and 5), struggle (Unit 1) and pressure (Unit 3) are also earlier-unit targets; each has its own Unit 6 id (idKey 'X_6' -> vocab_X_6) and aliases the
+  // earlier spelling list.
   lexicalSpelling:{
     ...LEXICAL_SPELLING_ERRORS,
-    vocab_evaluate_6:LEXICAL_SPELLING_ERRORS.vocab_evaluate
+    vocab_evaluate_6:LEXICAL_SPELLING_ERRORS.vocab_evaluate,
+    vocab_struggle_6:LEXICAL_SPELLING_ERRORS.vocab_struggle,
+    vocab_pressure_6:LEXICAL_SPELLING_ERRORS.vocab_pressure
   }
 });

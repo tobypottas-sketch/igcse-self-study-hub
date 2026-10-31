@@ -269,4 +269,12 @@ export const LEXICAL_SPELLING_ERRORS = Object.freeze({
   "vocab_technique":["technic","techneque","tecnique","techniqe","techinique","tehnique"], // technique (Unit 6)
   "vocab_effective":["effectve","efective","effektive","effecttive","effectiv","effectave"], // effective (Unit 6)
   "vocab_inefficient":["inefficeint","inefficent","inneficient","ineficient","inefficiant","inefisient"], // inefficient (Unit 6)
+  "vocab_awareness":["awarness","awereness","awearness","awarenes","aweraness","awarenness"], // awareness (Unit 6)
+  "vocab_capacity":["capasity","capacitty","capacety","cappacity","capaciti","capacty"], // capacity (Unit 6)
+  "vocab_feedback":["feedbak","fedback","feadback","feedbac","feed-bak","feebback"], // feedback (Unit 6)
+  "vocab_respond":["responed","respnd","resbond","respund","resspond","respont"], // respond (Unit 6)
+  "vocab_hesitation":["hesitaton","hesitasion","hesistation","hessitation","hesitashun","hesatation"], // hesitation (Unit 6)
+  "vocab_independent":["independant","indipendent","independint","independet","indepedent","independnt"], // independent (Unit 6)
+  "vocab_assumption":["assumtion","asumption","assumpsion","assuption","asumsion","assumtpion"], // assumption (Unit 6)
+  "vocab_perspective":["perspectiv","perspektive","persepctive","perspectve","prespective","perpective"], // perspective (Unit 6)
 });
