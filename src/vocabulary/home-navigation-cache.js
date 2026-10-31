@@ -20,6 +20,15 @@ if (root) {
     for (const card of root.querySelectorAll('.vocab-unit-card.study-enter')) card.classList.remove('study-enter');
   };
 
+  // Where the student was on All units when they opened a unit. The unit screen is usually scrolled far down; Back used to leave
+  // that offset in place, so the (much shorter) Home was painted clamped to its bottom with its title and first cards scrolled
+  // away: the whole screen jumped to an unrelated position. Back now returns to where Home was left (instantly, in the same task as
+  // the restore, so the first painted frame is already there).
+  let homeScroll = 0;
+  const restoreScroll = () => {
+    if (Math.round(window.scrollY) !== homeScroll) window.scrollTo({ top:homeScroll, left:0, behavior:'instant' });
+  };
+
   const rememberHome = () => {
     if (!refreshPending && isHome()) cachedHome = root.innerHTML;
   };
@@ -56,13 +65,14 @@ if (root) {
       ignoreOwnMutation = true;
       root.innerHTML = cachedHome;
       settleReturn();
+      restoreScroll();
       queueMicrotask(() => { ignoreOwnMutation = false; });
       return;
     }
 
-    if (!refreshPending) return;
     const unitCard = event.target?.closest?.('.vocab-unit-card[data-action="open-unit"]');
-    if (!unitCard) return;
+    if (unitCard && !refreshPending) homeScroll = Math.round(window.scrollY);
+    if (!refreshPending || !unitCard) return;
 
     // showHome() in the existing controller is still refreshing. Queue an immediate re-entry click
     // until that authoritative repaint completes so it cannot overwrite the newly opened unit.
