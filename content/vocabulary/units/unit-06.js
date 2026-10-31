@@ -1,6 +1,6 @@
-// UNIT 6 – LEARNING AND STUDY SKILLS: authoring draft (batches 1–5 = words 1–50, authoring complete). Source: 0511 key words UNIT 6 – LEARNING AND STUDY SKILLS (locked 50-word list). All 50 words are authored; the unit stays a draft until the audit/polish pass.
-// Same architecture as unit-05.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-06-draft.js
-// A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-06.js only when all 50 words are final.
+// UNIT 6 – LEARNING AND STUDY SKILLS: approved source for the Unit 6 release (releases/unit-06.js promotes it to live). Source: 0511 key words UNIT 6 – LEARNING AND STUDY SKILLS
+// (coursebook order), all 50 authored and audited. The full 50-word list is locked. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-06.js
+// evaluate, struggle, pressure and achievement are also earlier-unit targets; each has its own Unit 6 id (idKey 'X_6' -> vocab_X_6) and aliases the earlier spelling list.
 import { buildCuratedUnit } from '../build-unit.js';
 import { LEXICAL_SPELLING_ERRORS } from '../lexical-spelling-errors.js';
 import unit6Activities from './unit-06-activities.js';
@@ -15,7 +15,7 @@ import { unit6WordFamilies, unit6WordFamilyRejected } from './unit-06-word-famil
 import { unit6WordFamilyAlternates } from './unit-06-word-family-alternates.js';
 
 const UNIT_NUMBER = 6;
-const status = 'draft';
+const status = 'approved';
 
 const e = (term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence, paraphraseSource, paraphraseSentence, productionSource, productionSentence, extras = {}) => ({
   term, partOfSpeech, meaning, paraphrases, distractors, meaningSentence,
