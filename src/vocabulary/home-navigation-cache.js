@@ -12,19 +12,32 @@ if (root) {
   const isHome = () => Boolean(root.querySelector?.('.vocab-unit-card[data-action="open-unit"]'))
     && !root.querySelector?.('[data-action="back-units"]');
 
+  // The unit cards carry the one-off `study-enter` entrance animation (opacity .2 + 10px slide). Both Home paints on a Back are
+  // the SAME screen coming back, not a new one appearing, yet each freshly inserted card restarted that animation: the whole
+  // card grid dimmed to 20% and slid in twice (cache restore, then the authoritative refresh). Clearing the class in the same
+  // task as the insertion (before the first style recalculation) means the animation never starts; first-time mounts are untouched.
+  const settleReturn = () => {
+    for (const card of root.querySelectorAll('.vocab-unit-card.study-enter')) card.classList.remove('study-enter');
+  };
+
   const rememberHome = () => {
     if (!refreshPending && isHome()) cachedHome = root.innerHTML;
   };
 
-  const observer = new MutationObserver(() => {
+  const observer = new MutationObserver(records => {
     if (ignoreOwnMutation || !isHome()) return;
     if (!refreshPending) {
       cachedHome = root.innerHTML;
       return;
     }
 
+    // Only a render of the root itself is the app's showHome() refresh. A change deeper in the tree (the graphics runtime swapping
+    // in an already-loaded cover <img> right after the restore) is not, and must not end the pending state early: that made the real
+    // refresh arrive "unpending", so its cards replayed the entrance animation and a queued unit click was replayed too soon.
+    if (!records.some(record => record.target === root)) return;
     // The app's normal showHome() refresh has now repainted Home with fresh data.
     refreshPending = false;
+    settleReturn();
     cachedHome = root.innerHTML;
     const unit = queuedUnit;
     queuedUnit = null;
@@ -42,6 +55,7 @@ if (root) {
       refreshPending = true;
       ignoreOwnMutation = true;
       root.innerHTML = cachedHome;
+      settleReturn();
       queueMicrotask(() => { ignoreOwnMutation = false; });
       return;
     }
