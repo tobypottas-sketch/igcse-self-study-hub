@@ -16,23 +16,63 @@ export function pickPuzzles(all, rng = Math.random, count = CONNECTIONS.puzzleCo
   for (const p of picked) history.cxSeen.set(p.target, history.cxRound);
   return picked;
 }
-// Word-shape scaffold, always derived from the canonical target (never from an accepted alias). Free: no scoring effect.
-// Meaning first, spelling support later: length from clue 1; the first 2 letters from clue 3; the first 3 letters as a masked pattern at clue 4 ("STR_____").
-// The prefix is the first letters of the canonical target read across its words ("leisure time" -> LE, then LEI____ ____); a hyphen or space stays visible.
-export const PREFIX_AT = Object.freeze({ 3: 2, 4: 3 });
-export const PATTERN_AT = 4;
-export const prefixLengthFor = (revealed, letters) => Math.min(Math.max(0, letters - 1), Object.entries(PREFIX_AT).reduce((n, [clue, length]) => (revealed >= Number(clue) ? length : n), 0));
+// Word-shape scaffold (Connections v2). It is derived ONLY from the canonical target and from how many clues are showing: what the student types never
+// changes it, and an accepted alias never changes it. Free: no scoring effect. The word class (from the unit's own item metadata) is shown with the length.
+//   clue 1  word class · length · first letter                      "NOUN · 10 letters · P…"
+//   clue 2  a stronger prefix: first 2 letters (4–5 letter targets) or first 3 (6+)        "PER_______"
+//   clue 3  that prefix plus ONE deterministic internal letter                                "PER____I__"
+//   clue 4  a stronger, still incomplete pattern (more internal letters)                      "PER_I_TE__"
+// Letters are counted across the words of the canonical target ("leisure time" -> LEI____ _I__); spaces and hyphens stay visible. At least 2 letters stay hidden
+// at clue 3 and at least 3 at clue 4 (when the target is long enough), so a short word is never effectively given away and the pattern is never "all but one".
+export const PREFIX_SHORT = 2;   // targets of 4–5 letters
+export const PREFIX_LONG = 3;    // targets of 6+ letters
+// Letters that must stay hidden at each stage. Clue 4 keeps 3 hidden, or 2 for 7-letter words so that they still gain one letter over clue 3 (4-6 letter words never go past clue 3's pattern).
+export const MIN_HIDDEN = Object.freeze({ 3: 2, 4: 3 });
+const hiddenAt4 = n => (n === 7 ? 2 : MIN_HIDDEN[4]);
+const foldTarget = target => String(target ?? '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase();
+export const prefixLengthFor = letters => (letters <= 3 ? 1 : letters <= 5 ? PREFIX_SHORT : PREFIX_LONG);
+// Which letter positions (0-based, across the target's letters) are visible at each clue. Pure and deterministic: a function of the letter count only.
+export function revealedIndices(letters, revealed = 1) {
+  const n = Math.max(0, letters); if (!n) return [];
+  if (revealed <= 1) return [0];
+  const prefix = Math.min(prefixLengthFor(n), Math.max(1, n - 2)); const shown = Array.from({ length: prefix }, (_, i) => i);
+  if (revealed === 2) return shown;
+  // Clue 3: one internal letter, a little past the middle of the hidden part (PER____I__), never the last letter, and always leaving MIN_HIDDEN[3] letters hidden.
+  const room3 = n - MIN_HIDDEN[3] - prefix;
+  const internal = room3 >= 1 ? Math.min(prefix + Math.floor((n - prefix) / 2) + 1, n - 2) : null;
+  if (internal != null) shown.push(internal);
+  if (revealed === 3) return shown;
+  // Clue 4: more internal letters (about 55% of the word visible), spread out from just after the prefix, never the last letter, leaving MIN_HIDDEN[4] letters hidden.
+  const goal = Math.min(Math.max(Math.ceil(n * 0.55), n === 7 ? 5 : 0), n - hiddenAt4(n));
+  const candidates = []; for (let i = prefix; i <= n - 2; i += 1) if (!shown.includes(i)) candidates.push(i);
+  const ordered = [...candidates.filter(i => (i - prefix) % 2 === 0), ...candidates.filter(i => (i - prefix) % 2 === 1)];
+  for (const i of ordered) { if (shown.length >= goal) break; shown.push(i); }
+  return shown.sort((x, y) => x - y);
+}
+const CLASS_LABEL = Object.freeze({ noun: 'NOUN', verb: 'VERB', adjective: 'ADJECTIVE', adverb: 'ADVERB' });
+export const wordClassLabel = (partOfSpeech, words = 1) => {
+  const pos = String(partOfSpeech ?? '').trim().toLowerCase(); if (!pos) return null;
+  return pos === 'noun' && words > 1 ? 'NOUN PHRASE' : (CLASS_LABEL[pos] ?? pos.toUpperCase());
+};
 export const wordShape = (puzzle, revealed = 1) => {
   const words = normaliseGuess(puzzle.target).split(' ').filter(Boolean); const lengths = words.map(w => w.length); const total = lengths.reduce((a, b) => a + b, 0);
-  const label = words.length > 1 ? `${words.length} words · ${lengths.join(' + ')} letters` : `${total} letters`;
-  const prefixLength = prefixLengthFor(revealed, total);
-  const letters = words.join('').toUpperCase(); const prefix = prefixLength ? letters.slice(0, prefixLength) : null;
-  // Masked pattern keeps the target's own separators (space or hyphen); letters beyond the prefix are underscores.
-  let seen = 0; const pattern = prefixLength && revealed >= PATTERN_AT
-    ? [...String(puzzle.target).normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()].map(ch => (/[a-z]/.test(ch) ? (seen++ < prefixLength ? ch.toUpperCase() : '_') : (/[-‐-―]/.test(ch) ? '-' : /\s/.test(ch) ? ' ' : '')))
-      .join('').replace(/\s+/g, ' ').trim()
-    : null;
-  return { words: words.length, lengths, letters: total, label, prefixLength, prefix, pattern, firstLetter: prefixLength ? letters[0] : null };
+  const lengthLabel = words.length > 1 ? `${words.length} words · ${lengths.join(' + ')} letters` : `${total} letters`;
+  const wordClass = wordClassLabel(puzzle.wordClass, words.length);
+  const letters = words.join('').toUpperCase(); const visible = new Set(revealedIndices(total, revealed));
+  const prefixLength = revealed >= 2 ? Math.min(prefixLengthFor(total), Math.max(1, total - 2)) : 1;
+  // The masked pattern keeps the target's own separators (space or hyphen); letters that are not visible are underscores.
+  let seen = 0; const masked = [...foldTarget(puzzle.target)].map(ch => (/[a-z]/.test(ch) ? (visible.has(seen++) ? ch.toUpperCase() : '_') : (/[-‐-―]/.test(ch) ? '-' : /\s/.test(ch) ? ' ' : ''))).join('').replace(/\s+/g, ' ').trim();
+  return {
+    words: words.length, lengths, letters: total, lengthLabel, wordClass,
+    label: [wordClass, lengthLabel].filter(Boolean).join(' · '),
+    firstLetter: letters[0] ?? null, prefixLength, prefix: revealed >= 2 ? letters.slice(0, prefixLength) : null,
+    pattern: revealed >= 2 ? masked : null, shownCount: visible.size, stage: Math.min(4, Math.max(1, revealed))
+  };
+};
+// The word class comes from the unit's own item metadata (the content loaded for the unit), never from a guess: items is [{ term, partOfSpeech }].
+export const withWordClasses = (puzzles, items = []) => {
+  const byTerm = new Map((items ?? []).map(item => [normaliseGuess(item.term), item.partOfSpeech]));
+  return puzzles.map(p => (p.wordClass ? p : { ...p, wordClass: byTerm.get(normaliseGuess(p.target)) ?? null }));
 };
 export const acceptedForms = puzzle => new Set([puzzle.target, ...(puzzle.accept ?? [])].map(normaliseGuess));
 

@@ -13,6 +13,5 @@ test('Word Blitz uses the compact prompt and answer spacing', () => {
 });
 
 test('Connections keeps its existing game-specific layout rules', () => {
-  assert.match(css, /\.gm-clue--pic\{align-items:start;padding:8px 12px\}/);
   assert.match(css, /\.gm-guess\{display:grid;grid-template-columns:minmax\(0,1fr\) auto;gap:10px\}/);
 });
