@@ -174,8 +174,7 @@ test('the Unit 5 sync SQL only upserts Unit 5 rows: no earlier-unit id, no delet
   assert.ok(!/\b(specialize|organized|neighbors|traveling)\b/i.test(JSON.stringify(unit5.contexts) + JSON.stringify(unit5.activities)));
 });
 
-test('this packaging adds no Supabase, Edge Function, artwork, Unit Check or Games artefact for Unit 5', () => {
-  assert.ok(!exists('assets/vocabulary/units/unit-05.png'));
+test('this packaging adds no Supabase, Edge Function, Unit Check or Games artefact for Unit 5 (cover artwork is a separate, shipped asset)', () => {
   for (const path of ['content/vocabulary/units/unit-05-unit-check.js', 'content/vocabulary/units/unit-05-games.js']) assert.ok(!exists(path), path);
   const migrations = fs.existsSync(new URL('../supabase/migrations/', import.meta.url)) ? fs.readdirSync(new URL('../supabase/migrations/', import.meta.url)) : [];
   assert.ok(!migrations.some(name => /unit[-_]?0?5/i.test(name)), 'no Unit 5 migration');
