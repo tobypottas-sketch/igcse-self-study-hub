@@ -178,11 +178,11 @@ function pngLayer(group, key, eager = false) {
 function artSlotAttrs(png) { return png.has ? ' data-art-slot' : ''; }
 function unitArtSlot(unitNumber) {
   const svg = unitArtSvg(unitNumber,'vocab-unit-card__art-image'); const png = pngLayer('unit', unitNumber);
-  return svg ? `<span class="vocab-unit-card__art${png.has ? ' has-png' : ''}" data-unit-art="${escapeHtml(unitNumber)}"${artSlotAttrs(png)} aria-hidden="true">${svg}${png.html}</span>` : '';
+  return svg || png.has ? `<span class="vocab-unit-card__art${png.has ? ' has-png' : ''}" data-unit-art="${escapeHtml(unitNumber)}"${artSlotAttrs(png)} aria-hidden="true">${svg}${png.html}</span>` : '';
 }
 function unitHeroArt(unitNumber) {
   const svg = unitArtSvg(unitNumber,'vocab-unit-hero__art-image'); const png = pngLayer('unit', unitNumber, true);
-  return svg ? `<figure class="vocab-unit-hero__art${png.has ? ' has-png' : ''}" data-unit-hero-art="${escapeHtml(unitNumber)}"${artSlotAttrs(png)} aria-hidden="true">${svg}${png.html}</figure>` : '';
+  return svg || png.has ? `<figure class="vocab-unit-hero__art${png.has ? ' has-png' : ''}" data-unit-hero-art="${escapeHtml(unitNumber)}"${artSlotAttrs(png)} aria-hidden="true">${svg}${png.html}</figure>` : '';
 }
 // has-png-art is decided at render time (from the manifest), never from load success, so the banner geometry is fixed from the
 // first paint and a PNG that loads late or fails cannot move anything.
@@ -190,7 +190,8 @@ function unitHeroArt(unitNumber) {
 function backChip({ action, label, aria }) {
   return `<button class="vocab-back vocab-back--chip" data-action="${action}" aria-label="${escapeHtml(aria)}"><span class="vocab-back__arrow" aria-hidden="true">←</span> ${escapeHtml(label)}</button>`;
 }
-function unitHeroClass(unitNumber) { return unitArtSvg(unitNumber) ? `vocab-unit-hero has-study-art${shippedGraphic('unit', unitNumber) ? ' has-png-art' : ''}` : 'vocab-unit-hero'; }
+// A unit has artwork when it has an inline SVG fallback, a shipped PNG, or both (a PNG alone is enough: Unit 6 has no SVG fallback).
+function unitHeroClass(unitNumber) { const png = shippedGraphic('unit', unitNumber); return unitArtSvg(unitNumber) || png ? `vocab-unit-hero has-study-art${png ? ' has-png-art' : ''}` : 'vocab-unit-hero'; }
 function pathwayArtSlot(pathwayId) {
   const svg = pathwayArtSvg(pathwayId,'vocab-pathway-card__art-image'); const png = pngLayer('pathway', pathwayId);
   return svg ? `<span class="vocab-pathway-card__art${png.has ? ' has-png' : ''}" data-pathway-art="${escapeHtml(pathwayId)}"${artSlotAttrs(png)} aria-hidden="true">${svg}${png.html}</span>` : '';
