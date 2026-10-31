@@ -1,9 +1,10 @@
 // Unit 6 (Learning and Study Skills) · words 1–50 authored (batches 1–5, authoring complete, draft). Guards the contract with the real readiness evaluator and builders. All 50 words are authored, so the unit stays a draft: no releases/unit-06.js, no lock, no SQL, no artwork.
+// Packaging note: the content pins below hash the audited content with the status normalised to 'draft', so promoting the unit to 'approved' does not change them: the packaged content is byte-identical to the audited draft apart from status.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
-import unit6 from '../content/vocabulary/units/unit-06-draft.js';
+import unit6 from '../content/vocabulary/units/unit-06.js';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import unit2 from '../content/vocabulary/units/unit-02.js';
 import unit3 from '../content/vocabulary/units/unit-03.js';
@@ -33,7 +34,7 @@ const readiness = evaluateUnitReadiness({ content: releasePlannerContent(unit6) 
 const failed = (pathwayId, occurrenceId) => STAGES.filter(stage => (readiness.pathways[pathwayId].stageFailures[stage] ?? []).some(f => f.occurrenceId === occurrenceId));
 const termOf = occurrence => unit6.items.find(item => item.vocabularyId === occurrence.vocabularyId).term;
 
-test('Unit 6 batches 1–5 are exactly the fifty locked targets, in order, as a draft with no release artefacts', () => {
+test('Unit 6 batches 1–5 are exactly the fifty locked targets, in order, as an approved source with a release file and no draft', () => {
   assert.deepEqual(unit6.items.map(item => item.term), TERMS);
   assert.deepEqual(unit6.occurrences.map(row => row.positionInUnit), Array.from({ length: 50 }, (_, i) => i + 1));
   const suffix = term => (ISOLATED.includes(term) ? '_6' : '');
@@ -45,10 +46,10 @@ test('Unit 6 batches 1–5 are exactly the fifty locked targets, in order, as a 
   assert.deepEqual(unit6.items.map(row => row.vocabularyId), TERMS.map(VOCAB_ID));
   assert.equal(unit6.unitNumber, 6);
   assert.equal(unit6.unitTitle, 'Learning and Study Skills');
-  assert.equal(unit6.status, 'draft');
-  for (const name of ['releases/unit-06.js', 'units/unit-06.js', 'units/unit-06.content-lock.json']) assert.ok(!fs.existsSync(new URL(`../content/vocabulary/${name}`, import.meta.url)), name);
+  assert.equal(unit6.status, 'approved');
+  assert.ok(fs.existsSync(new URL('../content/vocabulary/releases/unit-06.js', import.meta.url)), 'Unit 6 release file must exist');
+  assert.ok(!fs.existsSync(new URL('../content/vocabulary/units/unit-06-draft.js', import.meta.url)), 'the draft source is gone: one authoritative Unit 6 source');
   assert.ok(!fs.existsSync(new URL('../assets/vocabulary/units/unit-06.png', import.meta.url)), 'no artwork yet');
-  assert.ok(!fs.existsSync(new URL('../docs/vocabulary-content-updates/unit-06-sync-chunk-1.sql', import.meta.url)), 'no SQL yet');
 });
 
 test('IDs are Unit 6-specific, unique, and never collide with Units 1–5; no exact earlier target is repeated', () => {
@@ -289,7 +290,7 @@ test('Batches 1–2 (words 1–20) are pinned: their items, occurrences, context
   };
   assert.equal(payload.contexts.length, 120);
   assert.equal(payload.activities.length, 107);
-  assert.equal(crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex'), '5b78965de254ae150c4fafbe50ec231158dedc2e8eb8097dcd42c2b2c0d7e5d8');
+  assert.equal(crypto.createHash('sha256').update(JSON.stringify(payload).replace(/"status":"approved"/g, '"status":"draft"')).digest('hex'), '5b78965de254ae150c4fafbe50ec231158dedc2e8eb8097dcd42c2b2c0d7e5d8');
 });
 
 test('Batch 2 spelling entries are unchanged by Batch 3', () => {
@@ -359,7 +360,7 @@ test('Batch 3 spelling entries are unchanged by Batch 4', () => {
   // Earlier-unit lists that Batch 4 aliases are unchanged.
   assert.deepEqual(LEXICAL_SPELLING_ERRORS.vocab_struggle, ['strugle', 'struggel', 'strugel', 'struggal', 'strugal', 'struggol']);
   assert.deepEqual(LEXICAL_SPELLING_ERRORS.vocab_pressure, ['presure', 'pressur', 'pressher', 'preshure', 'presssure', 'pressere']);
-  assert.ok(!('vocab_struggle_6' in LEXICAL_SPELLING_ERRORS) && !('vocab_pressure_6' in LEXICAL_SPELLING_ERRORS), 'aliases are added in the Unit 6 draft only');
+  assert.ok(!('vocab_struggle_6' in LEXICAL_SPELLING_ERRORS) && !('vocab_pressure_6' in LEXICAL_SPELLING_ERRORS), 'aliases are added in the Unit 6 unit source only');
 });
 
 test('Batches 1–3 (words 1–30) are pinned: their items, occurrences, contexts and linked activities are byte-identical to the merged content', () => {
@@ -373,7 +374,7 @@ test('Batches 1–3 (words 1–30) are pinned: their items, occurrences, context
   };
   assert.equal(payload.contexts.length, 180);
   assert.equal(payload.activities.length, 162);
-  assert.equal(crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex'), '6929008ac2672547c237966330ccd8a1b81d32902772c37556882c22d6a9fbe4');
+  assert.equal(crypto.createHash('sha256').update(JSON.stringify(payload).replace(/"status":"approved"/g, '"status":"draft"')).digest('hex'), '6929008ac2672547c237966330ccd8a1b81d32902772c37556882c22d6a9fbe4');
 });
 
 test('Batch 4 spelling entries: six distinct lower-case misspellings for each new target (struggle and pressure alias their earlier lists)', () => {
@@ -441,7 +442,7 @@ test('Batches 1–4 (words 1–40) are pinned: their items, occurrences, context
   };
   assert.equal(payload.contexts.length, 240);
   assert.equal(payload.activities.length, 214);
-  assert.equal(crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex'), '7212611d4ca7f5579579db7117f293ab91ea0da32d8e8873394f79ae992d2136');
+  assert.equal(crypto.createHash('sha256').update(JSON.stringify(payload).replace(/"status":"approved"/g, '"status":"draft"')).digest('hex'), '7212611d4ca7f5579579db7117f293ab91ea0da32d8e8873394f79ae992d2136');
 });
 
 test('Batch 4 spelling entries are unchanged by Batch 5, and Batch 5 spelling is complete with British spellings only', () => {
@@ -475,7 +476,7 @@ test('Batch 4 spelling entries are unchanged by Batch 5, and Batch 5 spelling is
     assert.ok(!item.senses[0].spellingErrors.some(error => /(prioritize|summarize|memorize)/.test(error)), term);
   }
   assert.ok(!unit6.items.some(i => /(prioritize|summarize|memorize)/.test(i.term)));
-  assert.ok(!('vocab_achievement_6' in LEXICAL_SPELLING_ERRORS), 'alias is added in the Unit 6 draft only');
+  assert.ok(!('vocab_achievement_6' in LEXICAL_SPELLING_ERRORS), 'alias is added in the Unit 6 unit source only');
   assert.deepEqual(LEXICAL_SPELLING_ERRORS.vocab_achievement, unit6.items.find(i => i.term === 'achievement').senses[0].spellingErrors);
 });
 
@@ -533,7 +534,7 @@ test('Batch 5 Word Families: prioritise, coordination, achievement and memorise 
   assert.deepEqual(readiness.pathways.word_families.stageCounts, { recognise: 22, match: 22, apply: 22, recall: 22, mastery: 22 });
 });
 
-test('final authoring totals: 50 items, 50 occurrences, 300 contexts and 266 activities, still a draft with no release artefacts', () => {
+test('final authoring totals: 50 items, 50 occurrences, 300 contexts and 266 activities, approved source (released by releases/unit-06.js)', () => {
   assert.equal(unit6.items.length, 50);
   assert.equal(unit6.occurrences.length, 50);
   assert.equal(unit6.contexts.length, 300);
@@ -541,8 +542,7 @@ test('final authoring totals: 50 items, 50 occurrences, 300 contexts and 266 act
   const byType = {};
   for (const activity of unit6.activities) { const key = `${activity.contentType}:${activity.activityData.taskType ?? ''}`; byType[key] = (byType[key] ?? 0) + 1; }
   assert.deepEqual(byType, { 'phrase_set:': 50, 'idea_set:': 50, 'writing_set:improve_vocabulary': 100, 'writing_set:word_family': 66 });
-  assert.equal(unit6.status, 'draft');
-  for (const name of ['releases/unit-06.js', 'units/unit-06.js', 'units/unit-06.content-lock.json']) assert.ok(!fs.existsSync(new URL(`../content/vocabulary/${name}`, import.meta.url)), name);
+  assert.equal(unit6.status, 'approved');
 });
 
 // ---------------------------------------------------------------------------------------------

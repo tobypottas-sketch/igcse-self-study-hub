@@ -3,7 +3,7 @@
 // opens the sentence. Only confidence, stagnate, engage, participate, active, reflect, strategy, forecast, distract, evidence, concentration, motivation, effective, inefficient, awareness, respond, hesitation, independent, prioritise, coordination, achievement and memorise have a genuine family in words 1–30, so the other sixteen words have no items
 // (see unit-06-word-families.js).
 const unitNumber = 6;
-const status = 'draft';
+const status = 'approved';
 function family(id, vocabularyId, name, sourceText, acceptedAnswer) {
   return {
     activityContentId:`u6_writing_word_family_${id}`, unitNumber, contentType:'writing_set', status,

@@ -1,7 +1,7 @@
 // Unit 6 Precision & Use content: two "weak wording -> precise word" items per word, WORDS 1–50 (complete). Same contract as unit-05-precision-use.js:
 // each item is a writing_set improve_vocabulary record; the weak wording quoted in the prompt appears exactly once in sourceText and not at its
 // start; distractors fit the sentence grammatically but are wrong in meaning.
-const status = 'draft';
+const status = 'approved';
 const unitNumber = 6;
 function precision(id, vocabularyId, prompt, sourceText, acceptedAnswers, distractors) {
   return {
