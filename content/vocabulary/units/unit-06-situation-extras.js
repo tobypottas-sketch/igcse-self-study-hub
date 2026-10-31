@@ -210,7 +210,7 @@ export default Object.freeze({
   retain: [
     'A shepherd drove the flock across the road and closed the gate.',
     'Hana packed her suitcase and called a taxi to the station.',
-    'The referee blew the whistle, and the second half began.'
+    'The linesman raised his flag, and the match restarted with a free kick.'
   ],
   summarise: [
     'A waiter carried three bowls of soup to the corner table.',

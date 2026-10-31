@@ -33,7 +33,7 @@ const entries = [
     'take in and understand', 'Young children take in and understand new vocabulary quickly when they hear it used in everyday conversation.',
     'learn and take in', 'It is difficult to learn and take in a long list of facts if you read it only once.',
     {
-      teacherNote:'Taught in its learning sense: to take in and understand information or knowledge. The physical sense (a sponge absorbs water) is not taught here.',
+      teacherNote:'Taught in its learning sense: to take in and understand information or knowledge. Boundary: absorb is taking information in; process is working on it in your mind. The physical sense (a sponge absorbs water) is not taught here.',
       masteryContexts:[
         { text:'Students who read slowly and make notes absorb far more from a chapter than those who only turn the pages.', meaning:'to take in and understand information' },
         { text:'During her first months in a new country, children often absorb the rhythm of the language without ever opening a grammar book.', meaning:'to take in knowledge gradually and naturally' }
@@ -398,23 +398,23 @@ const entries = [
         { id:'3', text:'Journals give young learners a quiet place to reflect on their feelings and their progress.', target:'reflect', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'reflect', wrong:['depend', 'insist', 'comment'] },
+        { id:'1', answer:'reflect', wrong:['insist', 'agree', 'vote'] },
         { id:'2', answer:'reflect', wrong:['rely', 'agree', 'insist'] },
         { id:'3', answer:'reflect', wrong:['depend', 'rely', 'agree'] }
       ]
     }),
   e('process', 'verb',
-    'to take in, organise and understand information',
+    'to think about new information until you can make sense of it',
     ['make sense of', 'sort out and understand'],
     ['to collect information from many different places', 'to repeat information aloud to other people', 'to hide information so that nobody can find it'],
     'The brain needs time to process new information, so short breaks during study are useful.',
     'make sense of', 'The brain needs time to make sense of new information, so short breaks during study are useful.',
     'sort out and understand', 'It takes most people several days to sort out and understand a large amount of unfamiliar information.',
     {
-      teacherNote:'Taught as a verb in its learning sense: to take in, organise and understand information (process new information). The factory sense (to process food) and the noun sense (a process) are not taught here.',
+      teacherNote:'Taught as a verb in its learning sense: to think about new information until you can make sense of it (process new information). Boundary: absorb is taking information in, process is working on it in your mind, retain is keeping it, memorise is learning it exactly. The factory sense (to process food) and the noun sense (a process) are not taught here.',
       masteryContexts:[
-        { text:'Teenagers sometimes need a quiet room to process difficult news before they can talk about it.', meaning:'to take in and make sense of something' },
-        { text:'Language learners process spoken words faster when they hear them in a clear and familiar context.', meaning:'to take in and understand information' }
+        { text:'Teenagers sometimes need a quiet room to process difficult news before they can talk about it.', meaning:'to think about something until you can make sense of it' },
+        { text:'Language learners process spoken words faster when they hear them in a clear and familiar context.', meaning:'to work through information until you understand it' }
       ],
       situationDistractors:[
         'The workers loaded boxes onto the lorry and drove them to the warehouse.',
@@ -688,20 +688,20 @@ const entries = [
         { id:'3', text:'Some students find the academic year easier when they take short breaks between topics.', target:'academic', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'academic', wrong:['musical', 'athletic', 'seasonal'] },
-        { id:'2', answer:'academic', wrong:['musical', 'athletic', 'seasonal'] },
-        { id:'3', answer:'academic', wrong:['sporting', 'tropical', 'historic'] }
+        { id:'1', answer:'academic', wrong:['seasonal', 'tropical', 'metallic'] },
+        { id:'2', answer:'academic', wrong:['tropical', 'frozen', 'seasonal'] },
+        { id:'3', answer:'academic', wrong:['tropical', 'metallic', 'frozen'] }
       ]
     }),
   e('concentration', 'noun',
-    'the ability to give your full attention to one thing',
+    'the ability to keep your full attention on one thing for a period of time',
     ['full attention', 'ability to give attention to one task'],
     ['the reason why someone wants to work', 'the amount of a substance in a liquid', 'a feeling of worry before an important test'],
     'Noise from the street made it hard for me to keep my concentration while I was studying.',
     'full attention', 'Noise from the street made it hard for me to keep my full attention while I was studying.',
     'ability to give attention to one task', 'Meditation can improve the ability to give attention to one task for a long time.',
     {
-      teacherNote:'Uncountable in this sense: the ability to give your full attention to one thing (lose your concentration, concentration on a task). It is not motivation, which is the reason you want to do something. The chemical sense (the concentration of salt in water) is not taught here.',
+      teacherNote:'Uncountable in this sense: the ability to keep your full attention on one thing for a period of time (lose your concentration, concentration on a task). Boundary: focus (verb) is the act of directing attention; concentration is the ability to keep it there. It is not motivation, which is the reason you want to do something. The chemical sense (the concentration of salt in water) is not taught here.',
       masteryContexts:[
         { text:'A short walk in fresh air can improve your concentration when you have been studying for several hours.', meaning:'the ability to give full attention to one thing' },
         { text:'The surgeon needed complete concentration during the long operation, so nobody was allowed to speak to her.', meaning:'full attention on one task' }
@@ -1184,8 +1184,8 @@ const entries = [
       ],
       gapDistractors:[
         { id:'1', answer:'pressure', wrong:['hunger', 'thirst', 'warmth'] },
-        { id:'2', answer:'pressure', wrong:['water', 'snow', 'cover'] },
-        { id:'3', answer:'pressure', wrong:['hunger', 'thirst', 'warmth'] }
+        { id:'2', answer:'pressure', wrong:['distance', 'colour', 'tradition'] },
+        { id:'3', answer:'pressure', wrong:['budget', 'distance', 'schedule'] }
       ]
     }),
   e('prioritise', 'verb',
@@ -1416,9 +1416,9 @@ const entries = [
         { id:'3', text:'To reach the final, the team had to focus on one match at a time.', target:'focus', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'focus', wrong:['depend', 'agree', 'insist'] },
-        { id:'2', answer:'focus', wrong:['agree', 'insist', 'comment'] },
-        { id:'3', answer:'focus', wrong:['depend', 'agree', 'comment'] }
+        { id:'1', answer:'focus', wrong:['depend', 'vote', 'insist'] },
+        { id:'2', answer:'focus', wrong:['rely', 'agree', 'insist'] },
+        { id:'3', answer:'focus', wrong:['depend', 'agree', 'vote'] }
       ]
     }),
   e('memorise', 'verb',
