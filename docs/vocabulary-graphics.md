@@ -15,7 +15,8 @@ Nothing else changes. Unlisted files cause no requests. A listed file that fails
 | `units/unit-02.png` | 2127×739 (as supplied) |
 | `units/unit-03.png` | 2127×739 (as supplied) |
 | `units/unit-04.png` | 2127×739 (as supplied) |
-| `units/unit-05.png` (future: `unit-06.png` …) | 2127×739 (as supplied) |
+| `units/unit-05.png` | 2127×739 (as supplied) |
+| `units/unit-06.png` (future: `unit-07.png` …) | 2127×739 (as supplied) |
 | `pathways/meaning.png` | 1024×1024, transparent |
 | `pathways/context.png` | 1024×1024, transparent |
 | `pathways/word-families.png` | 1024×1024, transparent |
