@@ -1,5 +1,5 @@
 // Unit 5 (Holidays) · all 50 words authored (batches 1–5). Guards the contract with the real readiness evaluator and builders. The source unit is approved;
-// releases/unit-05.js promotes it (see vocabulary-unit-05-release.test.js). No artwork, Unit Check or Games here.
+// releases/unit-05.js promotes it (see vocabulary-unit-05-release.test.js). No Unit Check or Games here.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -44,7 +44,6 @@ test('Unit 5 words 1–50 are exactly the fifty locked targets, in order, as an 
   assert.ok(fs.existsSync(new URL('../content/vocabulary/releases/unit-05.js', import.meta.url)), 'Unit 5 release file must exist');
   assert.ok(!fs.existsSync(new URL('../content/vocabulary/units/unit-05-draft.js', import.meta.url)), 'the draft source is gone: one authoritative Unit 5 source');
   for (const name of ['units/unit-05-unit-check.js', 'units/unit-05-games.js']) assert.ok(!fs.existsSync(new URL(`../content/vocabulary/${name}`, import.meta.url)), name);
-  assert.ok(!fs.existsSync(new URL('../assets/vocabulary/units/unit-05.png', import.meta.url)), 'no artwork yet');
 });
 
 test('multi-word targets keep their exact two-word form everywhere', () => {
