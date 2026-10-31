@@ -37,7 +37,7 @@ test('2. no live suggestion code: the markup, the listener and the controller lo
   assert.doesNotMatch(view, /gm-suggest|data-cx-suggest/); assert.doesNotMatch(css, /gm-suggest/);
   assert.doesNotMatch(controller, /suggest|onInput|addEventListener\('input'|data-cx-suggest|startsWith\(t\)/i);
   assert.doesNotMatch(renderConnectionsPlay(at('achievement', 1)), /suggest/i);
-  assert.match(renderConnectionsPlay(at('achievement', 1)), /<input id="cxGuess" name="guess" type="text"[^>]*autocomplete="off"/, 'a plain free-text guess box');
+  assert.match(renderConnectionsPlay(at('achievement', 1)), /<input id="cxGuess" name="cx[a-z0-9]{6,}" type="text"[^>]*autocomplete="off"/, 'a plain free-text guess box');
 });
 
 test('4. clue 1 scaffold: word class, total length and first letter from the real Unit 1 item metadata', () => {
@@ -194,4 +194,41 @@ browserTest('the scaffold chips (class, length, pattern) stay unclipped at deskt
       await p.close();
     }
   } finally { await browser.close(); }
+});
+
+// ---------------------------------------------------------------- browser history / autofill leakage
+test('guess field identity: no reusable name, no datalist, autocomplete off, a fresh opaque name every render', () => {
+  const field = html => html.match(/<input id="cxGuess"[^>]*>/)[0];
+  const a = field(renderConnectionsPlay(at('generation', 1))), b = field(renderConnectionsPlay(at('generation', 1)));
+  for (const f of [a, b]) {
+    assert.doesNotMatch(f, /name="guess"/); assert.match(f, /name="cx[a-z0-9]{6,}"/); assert.match(f, /autocomplete="off"/); assert.match(f, /spellcheck="false"/); assert.match(f, /autocorrect="off"/); assert.match(f, /autocapitalize="none"/);
+    assert.doesNotMatch(f, /\blist=/); assert.match(f, /type="text"/);
+  }
+  assert.notEqual(a.match(/name="([^"]+)"/)[1], b.match(/name="([^"]+)"/)[1]);
+  assert.doesNotMatch(renderConnectionsPlay(at('generation', 1)), /<datalist|gm-suggest|data-cx-suggest/);
+  assert.match(renderConnectionsPlay(at('generation', 1)), /<form class="gm-guess" data-cx-form autocomplete="off">/);
+});
+
+browserTest('after a correct answer has been submitted once, partial input in a fresh game shows nothing; Enter and Guess still submit; usable at desktop/mobile', async () => {
+  const browser = await loadPlaywright().chromium.launch({ executablePath: await findChromium() }); const { server, url } = await startServer();
+  try {
+    for (const [w, h] of [[1280, 800], [390, 844], [320, 640]]) {
+      const page = await browser.newPage({ viewport: { width: w, height: h } }); page.on('pageerror', e => { throw e; }); await page.goto(`${url}/__v2.html`); await page.waitForFunction(() => window.__ready);
+      await page.evaluate(() => window.__mountP('generation')); await page.click('[data-game-act="cx-start"]');
+      await page.fill('#cxGuess', 'generation'); await page.press('#cxGuess', 'Enter'); assert.equal(await page.textContent('[data-cx-score]'), '500', 'Enter submits');
+      await page.evaluate(() => window.__mountP('generation')); await page.click('[data-game-act="cx-start"]');
+      const field = page.locator('#cxGuess'); assert.equal(await field.getAttribute('name') === 'guess', false); assert.equal(await field.getAttribute('autocomplete'), 'off');
+      const scaffold = await page.textContent('[data-cx-shape]');
+      for (const typed of ['g', 'ge', 'gen']) {
+        await field.fill(''); await field.pressSequentially(typed);
+        assert.equal(await field.inputValue(), typed); assert.equal(await page.locator('datalist, .gm-suggest, [data-cx-suggest], [role="listbox"], [role="option"]').count(), 0, `"${typed}": no suggestion DOM`);
+        assert.equal(await field.evaluate(el => el.list), null, 'no datalist attached'); assert.equal(await page.textContent('[data-cx-shape]'), scaffold, 'scaffold unchanged by typing');
+        const box = await field.boundingBox(); assert.ok(box.width > 120 && box.height >= 36 && box.x >= 0 && box.x + box.width <= w, `${w}px: field usable`);
+      }
+      await field.fill('generation'); await page.click('.gm-go'); assert.equal(await page.textContent('[data-cx-score]'), '500', 'Guess button submits');
+      await page.evaluate(() => window.__mountP('generation')); await page.click('[data-game-act="cx-start"]');
+      const n1 = await page.getAttribute('#cxGuess', 'name'); await page.click('[data-game-act="cx-reveal"]'); assert.notEqual(await page.getAttribute('#cxGuess', 'name'), n1, 'fresh name on each render');
+      await page.close();
+    }
+  } finally { await browser.close(); server.close(); }
 });
