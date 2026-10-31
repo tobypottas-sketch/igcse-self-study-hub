@@ -1,4 +1,4 @@
-// Unit 6 · Meaning · Apply and Mastery — authored wrong meanings, WORDS 1–40 so far. Same contract as unit-05-meaning-mastery.js:
+// Unit 6 · Meaning · Apply and Mastery — authored wrong meanings, WORDS 1–50 (complete). Same contract as unit-05-meaning-mastery.js:
 // two records per word in the order of the word's two Mastery contexts; exactly three authored WRONG glosses, same grammar and similar length
 // as the correct gloss, plausible in general, wrong in this sentence.
 const w = (wrongMeanings, extra = {}) => ({ wrongMeanings, ...extra });
@@ -163,5 +163,45 @@ export default Object.freeze({
   pressure: [
     w(['the force of weight on a surface', 'a reward given for winning a game', 'a friendly wish for good luck']),
     w(['air that is moving at high speed', 'a strong wish to relax after work', 'a gentle request to work later'])
+  ],
+  prioritise: [
+    w(['to write all the tasks in a tidy list', 'to avoid the tasks that seem difficult', 'to share the tasks equally with others']),
+    w(['to choose who is allowed to leave', 'to ask who is able to pay', 'to check who has arrived early'])
+  ],
+  retain: [
+    w(['to write information in a book', 'to share information with a friend', 'to understand information fully']),
+    w(['to look for new people to employ', 'to ask people to leave their jobs', 'to train people for different jobs'])
+  ],
+  summarise: [
+    w(['to repeat every detail in full', 'to give a personal opinion about it', 'to copy the words exactly from it']),
+    w(['to explain each result in detail', 'to criticise the way results were found', 'to ask readers to check the results'])
+  ],
+  coordination: [
+    w(['the competition between people for the same job', 'the payment of people for their work', 'the choice of people for a team']),
+    w(['the choice between two parts of the brain', 'the damage caused to the eyes and ears', 'the long time that learning takes'])
+  ],
+  cognitive: [
+    w(['connected with the body and its movement', 'connected with money and payment', 'connected with the home and family']),
+    w(['connected with sport and exercise', 'connected with feelings and moods', 'connected with age and health'])
+  ],
+  achievement: [
+    w(['a prize given for taking part', 'an accident that was avoided', 'a plan that was never finished']),
+    w(['a rule introduced by the school', 'a problem that the school faced', 'a cost that the school paid'])
+  ],
+  outcome: [
+    w(['the plan for a test', 'the question asked in a test', 'the equipment used in a test']),
+    w(['the price of a treatment', 'the reason for a treatment', 'the length of a treatment'])
+  ],
+  focus: [
+    w(['to look away from something', 'to move quickly towards something', 'to shout loudly at something']),
+    w(['to work faster on a task', 'to share a task with a colleague', 'to repeat a task many times'])
+  ],
+  memorise: [
+    w(['to read something once without noting it', 'to understand why something is important', 'to write something down for later']),
+    w(['to practise steps only when others watch', 'to explain steps to other people', 'to choose which steps are important'])
+  ],
+  insight: [
+    w(['a short report about a situation', 'a list of facts about a situation', 'a photo showing a situation']),
+    w(['a quick answer to a problem', 'a plan to avoid a problem', 'a complaint about a problem'])
   ]
 });

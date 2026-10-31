@@ -1,4 +1,4 @@
-// Unit 6 · Meaning · Match (Recognise) — authored WRONG meanings, words 1–40 so far. Same contract as unit-05-meaning-match.js: each set of three is
+// Unit 6 · Meaning · Match (Recognise) — authored WRONG meanings, words 1–50 (complete). Same contract as unit-05-meaning-match.js: each set of three is
 // the same part of speech as the answer (acceptedParaphrases[0]), comparable in length, and plausible without being a synonym.
 export default {
   absorb: ['write down and check', 'read aloud and repeat', 'look at and ignore'],
@@ -40,5 +40,15 @@ export default {
   independent: ['willing to follow every rule', 'unable to finish any task', 'ready to copy other students'],
   assumption: ['fact with strong proof', 'plan for next week', 'question with one answer'],
   perspective: ['piece of news', 'sense of humour', 'place of work'],
-  pressure: ['support from friends', 'reward for success', 'time for rest']
+  pressure: ['support from friends', 'reward for success', 'time for rest'],
+  prioritise: ['make a list of', 'look back at', 'keep away from'],
+  retain: ['read and copy', 'listen and forget', 'write and share'],
+  summarise: ['give every detail of', 'give an opinion on', 'give a copy of'],
+  coordination: ['friendly competition', 'private study', 'sudden change'],
+  cognitive: ['physical and social', 'musical and artistic', 'legal and financial'],
+  achievement: ['luck without any effort', 'prize given to everyone', 'plan made for later'],
+  outcome: ['first idea', 'main aim', 'clear plan'],
+  focus: ['take a long break', 'make a quick guess', 'tell a short story'],
+  memorise: ['read quickly', 'guess easily', 'copy neatly'],
+  insight: ['basic information', 'general opinion', 'popular belief']
 };

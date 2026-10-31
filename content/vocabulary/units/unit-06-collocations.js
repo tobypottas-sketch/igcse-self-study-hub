@@ -1,4 +1,4 @@
-// Unit 6 collocations, WORDS 1–40 so far: natural, frequent combinations for each target (authored; same shape as unit-05-collocations.js).
+// Unit 6 collocations, WORDS 1–50 (complete): natural, frequent combinations for each target (authored; same shape as unit-05-collocations.js).
 export default Object.freeze({
   absorb: ['absorb information', 'absorb new ideas', 'absorb knowledge'],
   confidence: ['build confidence', 'lack confidence', 'confidence in your own ability'],
@@ -39,5 +39,15 @@ export default Object.freeze({
   independent: ['an independent learner', 'independent thinking', 'independent study'],
   assumption: ['make an assumption', 'a false assumption', 'on the assumption that'],
   perspective: ['a different perspective', 'from the perspective of', 'gain a new perspective'],
-  pressure: ['under pressure', 'pressure to succeed', 'peer pressure']
+  pressure: ['under pressure', 'pressure to succeed', 'peer pressure'],
+  prioritise: ['prioritise tasks', 'prioritise your time', 'prioritise urgent work'],
+  retain: ['retain information', 'retain knowledge', 'retain what you learn'],
+  summarise: ['summarise the main points', 'summarise a text', 'briefly summarise'],
+  coordination: ['coordination between teams', 'poor coordination', 'careful coordination'],
+  cognitive: ['cognitive skills', 'cognitive development', 'cognitive ability'],
+  achievement: ['a major achievement', 'a sense of achievement', 'academic achievement'],
+  outcome: ['the outcome of', 'a positive outcome', 'the likely outcome'],
+  focus: ['focus on', 'focus on a task', 'focus your attention'],
+  memorise: ['memorise key facts', 'memorise a list', 'memorise vocabulary'],
+  insight: ['insight into', 'gain insight', 'valuable insight']
 });

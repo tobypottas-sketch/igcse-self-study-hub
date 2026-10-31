@@ -277,4 +277,13 @@ export const LEXICAL_SPELLING_ERRORS = Object.freeze({
   "vocab_independent":["independant","indipendent","independint","independet","indepedent","independnt"], // independent (Unit 6)
   "vocab_assumption":["assumtion","asumption","assumpsion","assuption","asumsion","assumtpion"], // assumption (Unit 6)
   "vocab_perspective":["perspectiv","perspektive","persepctive","perspectve","prespective","perpective"], // perspective (Unit 6)
+  "vocab_prioritise":["priotise","prioritice","prioratise","prioritiese","priortise","prioritis"], // prioritise (Unit 6)
+  "vocab_retain":["retane","reatain","retian","retaine","ritain","retayn"], // retain (Unit 6)
+  "vocab_summarise":["sumarise","summerise","summarice","summarrise","summariese","sumerise"], // summarise (Unit 6)
+  "vocab_coordination":["cooordination","coordenation","cordination","coordinaton","coordinasion","coordnation"], // coordination (Unit 6)
+  "vocab_cognitive":["cognative","cogntive","cognitiv","cognetive","conitive","cognitve"], // cognitive (Unit 6)
+  "vocab_outcome":["outcom","outcum","outkome","autcome","outcomme","outcame"], // outcome (Unit 6)
+  "vocab_focus":["focuss","fokus","focous","focas","fcous","foccus"], // focus (Unit 6)
+  "vocab_memorise":["memorice","memoriese","memerise","memmorise","memorrise","momorise"], // memorise (Unit 6)
+  "vocab_insight":["insite","insihgt","insigt","insightt","insaight","inzight"], // insight (Unit 6)
 });

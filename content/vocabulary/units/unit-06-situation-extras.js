@@ -1,4 +1,4 @@
-// Unit 6 · additional authored WRONG situations for "Which situation fits?", WORDS 1–40 so far. Same purpose as unit-05-situation-extras.js:
+// Unit 6 · additional authored WRONG situations for "Which situation fits?", WORDS 1–50 (complete). Same purpose as unit-05-situation-extras.js:
 // the schema needs at least four distinct, target-free situations. Each word gets three more plausible, clearly wrong situations of mixed length.
 // None of them shows the word, and none could also illustrate it.
 export default Object.freeze({
@@ -201,5 +201,55 @@ export default Object.freeze({
     'The artist mixed blue and yellow paint to make green.',
     'Visitors walked slowly through the quiet museum.',
     'Grandmother knitted a scarf while the soup cooked.'
+  ],
+  prioritise: [
+    'The harbour ferry leaves at noon and crosses to the island.',
+    'Grandfather fed the chickens and then collected the warm eggs.',
+    'Snow fell all night, so the school bus did not run on Monday.'
+  ],
+  retain: [
+    'A shepherd drove the flock across the road and closed the gate.',
+    'Hana packed her suitcase and called a taxi to the station.',
+    'The referee blew the whistle, and the second half began.'
+  ],
+  summarise: [
+    'A waiter carried three bowls of soup to the corner table.',
+    'The mechanic changed the flat tyre and wiped his hands.',
+    'Chen walked home beside the river after the football match.'
+  ],
+  coordination: [
+    'Tom filled the kettle and made tea for his guests.',
+    'The museum closes at five o’clock on weekdays.',
+    'At dawn, the baker pulled warm rolls from the oven.'
+  ],
+  cognitive: [
+    'The potter shaped the clay and placed the bowl in the kiln.',
+    'Rain fell steadily on the roof of the old barn.',
+    'The shop assistant wrapped the gift in blue paper.'
+  ],
+  achievement: [
+    'A thunderstorm cancelled the open-air film on Friday evening.',
+    'The shopkeeper counted the coins and locked the till.',
+    'Dev lent his umbrella to a stranger at the bus stop.'
+  ],
+  outcome: [
+    'Wind blew the washing off the line and into the pond.',
+    'The class sang a song while the teacher played the guitar.',
+    'Nadia boiled the eggs and cut the bread into thick slices.'
+  ],
+  focus: [
+    'A parcel arrived on Tuesday with a note from her aunt.',
+    'The lifeguard blew her whistle and the swimmers left the pool.',
+    'Fresh paint covered the cracks in the old garage door.'
+  ],
+  memorise: [
+    'Hot sun melted the ice cream before the children could eat it.',
+    'The shopkeeper rearranged the window display with winter coats.',
+    'The painter climbed the ladder and began to paint the ceiling.'
+  ],
+  insight: [
+    'The train to the coast leaves from platform six at noon.',
+    'Two sisters shared an umbrella on the walk to the shops.',
+    'Dinner was ready, and the family gathered around the table.'
   ]
 });

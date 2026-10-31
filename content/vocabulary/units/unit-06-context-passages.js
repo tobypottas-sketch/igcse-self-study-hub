@@ -1,4 +1,4 @@
-// Unit 6 · Context · Mastery (type_in_passage) — authored short passages, WORDS 1–40 so far. Same contract as unit-05-context-passages.js:
+// Unit 6 · Context · Mastery (type_in_passage) — authored short passages, WORDS 1–50 (complete). Same contract as unit-05-context-passages.js:
 // two passages per word, each 2-3 natural sentences with exactly ONE gap (`____`); the passage never contains the target elsewhere, never starts
 // with the gap, and makes the target the natural fit. `answer` is the exact surface form typed. `why` records what points to the word.
 const p = (text, answer, why) => ({ text, answer, why });
@@ -163,5 +163,45 @@ export default Object.freeze({
   pressure: [
     p('The final was watched by millions. The young goalkeeper said he felt no fear, but the ____ of the occasion made his hands shake.', 'pressure', 'Stress from expectations; "the ____ of the occasion made his hands shake".'),
     p('Some students revise best the night before an exam. Others cannot think clearly when they feel ____ from teachers, parents and friends all at once.', 'pressure', 'Demands that cause stress; "feel ____ from teachers, parents and friends".')
+  ],
+  prioritise: [
+    p('A new teacher has marking, planning and a parents’ meeting to finish before Friday. She cannot do everything at once, so she decides to ____ the work with the nearest deadline and leave the rest until later.', 'prioritise', 'Deal first with the most urgent; "decides to ____ the work with the nearest deadline".'),
+    p('The rescue team reached the flooded village with only two boats. They had to ____ the families with babies and elderly relatives, and bring the others out later.', 'prioritise', 'Decide who goes first; "to ____ the families with babies".')
+  ],
+  retain: [
+    p('Some students read a chapter three times and still forget it by the next morning. Others close the book, write down what they remember and find that they ____ far more.', 'retain', 'Keep in the memory; "they ____ far more".'),
+    p('A good employer knows that training new staff is expensive. For that reason, many companies try hard to ____ their best workers by offering fair pay and chances to progress.', 'retain', 'Continue to have; "try hard to ____ their best workers".')
+  ],
+  summarise: [
+    p('The examiner did not want the writer’s opinion or every small example. She asked students to ____ the passage in about fifty words, using only the main points.', 'summarise', 'Give the main points shortly; "to ____ the passage in about fifty words".'),
+    p('Millions of people read the headline and the first paragraph and then stop. For this reason, news writers try to ____ the whole story in the opening sentences.', 'summarise', 'Give the main points briefly; "to ____ the whole story in the opening sentences".')
+  ],
+  coordination: [
+    p('Hundreds of buses, trains and ambulances had to be sent to the stadium on the same day. Without good ____ between the transport services, the crowds could not have been moved safely.', 'coordination', 'Organised teamwork; "good ____ between the transport services".'),
+    p('Playing the piano with both hands needs more than finger strength. It depends on the ____ of eyes, ears and hands, which the brain must learn to combine.', 'coordination', 'Working together of parts; "the ____ of eyes, ears and hands".')
+  ],
+  cognitive: [
+    p('Researchers tested children on memory, language and problem-solving. These ____ skills improved most in the group that had slept for more than nine hours.', 'cognitive', 'Connected with thinking and memory; "These ____ skills".'),
+    p('A tired driver may be fit and strong but still react slowly. The problem is not physical but ____: lack of sleep makes it harder to think clearly and decide quickly.', 'cognitive', 'Contrasted with physical; about thinking; "not physical but ____".')
+  ],
+  achievement: [
+    p('When the team won the cup, nobody pretended that it had been easy. They had trained twice a day for a year, so the title was a genuine ____ rather than a lucky result.', 'achievement', 'Success through effort, not luck; "a genuine ____ rather than a lucky result".'),
+    p('The prize is not given for good luck or for taking part. It is awarded for an outstanding ____ that required years of study and careful work.', 'achievement', 'Something completed through effort; "an outstanding ____ that required years of study".')
+  ],
+  outcome: [
+    p('Before the experiment began, the scientists wrote down what they expected to see. When the ____ turned out to be different, they repeated the test twice to be sure.', 'outcome', 'Final result compared with expectation; "When the ____ turned out to be different".'),
+    p('Every decision has consequences. A careful manager considers not only what she wants, but also what the likely ____ will be if the plan goes wrong.', 'outcome', 'Final result of an action; "the likely ____ will be if the plan goes wrong".')
+  ],
+  focus: [
+    p('The pianist could hear people whispering in the audience and see a phone light in the third row. She closed her eyes and tried to ____ on the music alone.', 'focus', 'Direct full attention; "tried to ____ on the music alone".'),
+    p('Switching between messages, videos and homework makes work slower. Many learners do better when they switch off notifications and ____ on one task for half an hour.', 'focus', 'Give full attention; "____ on one task for half an hour".')
+  ],
+  memorise: [
+    p('The actor understood the story perfectly, but that was not enough. Before opening night he had to ____ every line, so that he could speak without looking at the script.', 'memorise', 'Learn exactly; "had to ____ every line ... without looking at the script".'),
+    p('Pilots and nurses sometimes work in emergencies where there is no time to read instructions. That is why they ____ the key steps in advance until they can repeat them without a mistake.', 'memorise', 'Learn by heart; "____ the key steps in advance until they can repeat them".')
+  ],
+  insight: [
+    p('The statistics told the council how many people used the bus. The long conversations with passengers gave something more valuable: ____ into why some people refused to use it at all.', 'insight', 'A deeper understanding; "something more valuable: ____ into why".'),
+    p('Anyone can learn the facts of a historical event. A good historian goes further and offers ____ into its causes, showing why events happened as they did.', 'insight', 'A deeper understanding beyond facts; "offers ____ into its causes".')
   ]
 });

@@ -1,4 +1,4 @@
-// Unit 6 · Word Families — a SECOND authored example sentence for the two non-headword forms of each three-form family, WORDS 1–40 so far.
+// Unit 6 · Word Families — a SECOND authored example sentence for the two non-headword forms of each three-form family, WORDS 1–50 (complete).
 // Same contract as unit-05-word-family-alternates.js: each sentence contains its form exactly once and never starts with it.
 export const unit6WordFamilyAlternates = Object.freeze({
   confidence: {
@@ -60,5 +60,21 @@ export const unit6WordFamilyAlternates = Object.freeze({
   independent: {
     independence: 'Moving to another city gave Marco a greater sense of independence.',
     independently: 'The students solved the problem independently before comparing answers.'
+  },
+  prioritise: {
+    priority: 'Reducing waiting times has become a priority for many city hospitals.',
+    prioritisation: 'The report recommends better prioritisation of repairs to the oldest bridges.'
+  },
+  coordination: {
+    coordinate: 'Volunteers will coordinate the traffic outside the stadium before the match.',
+    coordinated: 'The rescue was carefully coordinated by three different agencies.'
+  },
+  achievement: {
+    achieve: 'Few athletes achieve their best results in their first season.',
+    achievable: 'A target of ten new words a day is achievable for most learners.'
+  },
+  memorise: {
+    memory: 'The old man had a wonderful memory for names and faces.',
+    memorable: 'A short rhyme can make a rule more memorable.'
   }
 });

@@ -1,4 +1,4 @@
-// Unit 6 · Word Families — authored families, WORDS 1–40 so far. Same contract as unit-05-word-families.js: every row is AUTHORED (stated part of
+// Unit 6 · Word Families — authored families, WORDS 1–50 (complete). Same contract as unit-05-word-families.js: every row is AUTHORED (stated part of
 // speech, one natural example containing the form exactly once and not as the first word, and the reason the form is worth teaching). A family
 // needs >= 3 pedagogically useful forms INCLUDING the headword and >= 2 parts of speech. Headwords with no genuine family are listed under
 // unit6WordFamilyRejected rather than padded with unnatural forms.
@@ -98,6 +98,26 @@ export const unit6WordFamilies = Object.freeze({
     f('independence', 'noun', 'Many teenagers want more independence from their parents when they reach sixteen.', 'The abstract noun for managing without relying heavily on others; the political sense (national independence) is a related use.'),
     f('independently', 'adverb', 'Please work independently on this task and do not ask your neighbour for answers.', 'The adverb for doing something without help; common in task instructions.')
   ], excludedForms: [{ form: 'dependent', reason: 'The opposite word, taught separately because it takes a different pattern (dependent on).' }, { form: 'interdependent', reason: 'Rare academic adjective.' }] },
+  prioritise: { forms: [
+    f('prioritise', 'verb', 'Busy managers must prioritise urgent tasks over routine ones.', 'Headword.'),
+    f('priority', 'noun', 'Safety is the first priority for the rescue team.', 'The noun for something that is more important than other things; very common in school, work and news texts.'),
+    f('prioritisation', 'noun', 'Careful prioritisation helped the hospital to treat the most serious cases first.', 'The abstract noun for deciding what comes first; common in business and planning texts.')
+  ], excludedForms: [{ form: 'prior', reason: 'A different word meaning earlier (prior knowledge), not the idea of importance.' }, { form: 'prioritised', reason: 'Only the past participle of the verb already taught.' }] },
+  coordination: { forms: [
+    f('coordination', 'noun', 'Good coordination between the police and the fire service saved many lives.', 'Headword.'),
+    f('coordinate', 'verb', 'The project manager must coordinate the work of five different teams.', 'The base verb: to organise people or actions so that they work together; common in work and public-service texts.'),
+    f('coordinated', 'adjective', 'A coordinated response from several countries is needed to deal with the pollution.', 'The adjective for actions that are planned to work together; common in news and reports.')
+  ], excludedForms: [{ form: 'coordinator', reason: 'A job-title noun that is rare for most learners at this level.' }, { form: 'uncoordinated', reason: 'Mostly describes clumsy body movement, which is a different sense from planned teamwork.' }] },
+  achievement: { forms: [
+    f('achievement', 'noun', 'Winning the science prize was a remarkable achievement for such a small school.', 'Headword.'),
+    f('achieve', 'verb', 'It takes years of practice to achieve fluency in a second language.', 'The base verb: to succeed in doing or reaching something through effort; far more frequent than the noun.'),
+    f('achievable', 'adjective', 'Set targets that are achievable, so that you do not lose motivation.', 'The adjective for something that can be reached with effort; common in study and planning advice.')
+  ], excludedForms: [{ form: 'achiever', reason: 'A person noun used mostly in the fixed phrase high achiever, rare at this level.' }, { form: 'unachievable', reason: 'The negative adjective adds no new word-building pattern at this level.' }] },
+  memorise: { forms: [
+    f('memorise', 'verb', 'Many children memorise the times tables before they understand why they work.', 'Headword.'),
+    f('memory', 'noun', 'Regular sleep improves your memory and helps you to recall facts.', 'The noun for the ability to remember; the computer sense (storage) is separate and not taught here.'),
+    f('memorable', 'adjective', 'The final goal made it a memorable match for the whole town.', 'The adjective for something that is easy to remember or worth remembering; common in descriptions of events and speeches.')
+  ], excludedForms: [{ form: 'memorial', reason: 'A different word for a monument or an event that honours someone.' }, { form: 'memorisation', reason: 'A formal noun for the activity, rare compared with memory.' }] }
 });
 
 export const unit6WordFamilyRejected = Object.freeze({
@@ -122,5 +142,11 @@ export const unit6WordFamilyRejected = Object.freeze({
   feedback: 'Feedback is a compound noun, “to feed back” is a separate phrasal verb, and no other related form is useful, so there is no family.',
   assumption: 'Only assume and assumption are stable; assumed is a participle that drifts to “an assumed name”, and assume also means to take on (assume responsibility), so there is no third form in this sense.',
   perspective: 'Perspectives is only a plural, perspectival is very rare, and “in perspective” drifts to the sense of art and proportion, so there are not enough useful forms.',
-  pressure: 'Noun and verb share one form, pressured is only a participle, press names a different idea (newspapers, pushing) and pressurise is technical, so there is no stable three-form family (the same decision as for the Unit 3 item).'
+  pressure: 'Noun and verb share one form, pressured is only a participle, press names a different idea (newspapers, pushing) and pressurise is technical, so there is no stable three-form family (the same decision as for the Unit 3 item).',
+  retain: 'Retention is the only common relative and is formal; retained is a participle and retentive is rare, so there are fewer than three useful forms.',
+  summarise: 'Only summarise and summary are stable; summarised and summarising are participles, summarily is a different word meaning without delay, and summarisation is rare, so there are fewer than three useful forms.',
+  cognitive: 'Cognition is a technical noun and cognitively is rare, so there are fewer than three useful forms at this level.',
+  outcome: 'Outcome is a compound noun with no related verb or adjective, and outcomes is only a plural, so there is no family.',
+  focus: 'The noun and the verb share one form, focused is a participle adjective with unfocused as its negative, and the camera sense blurs the idea of attention, so there are not enough distinct, stable forms (the same decision as for struggle).',
+  insight: 'Insightful is the only related form and insights is only a plural, so there are fewer than three useful forms.'
 });
