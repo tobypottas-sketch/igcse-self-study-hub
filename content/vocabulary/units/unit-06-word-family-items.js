@@ -1,6 +1,6 @@
-// Unit 6 Word Families items (writing_set, taskType 'word_family'), WORDS 1–40 so far: three items for each word that has a genuine family.
+// Unit 6 Word Families items (writing_set, taskType 'word_family'), WORDS 1–50 (complete): three items for each word that has a genuine family.
 // Same record shape as unit-05-word-family-items.js. Each sentence has one gap that exactly one form of the family completes, and the gap never
-// opens the sentence. Only confidence, stagnate, engage, participate, active, reflect, strategy, forecast, distract, evidence, concentration, motivation, effective, inefficient, awareness, respond, hesitation and independent have a genuine family in words 1–30, so the other sixteen words have no items
+// opens the sentence. Only confidence, stagnate, engage, participate, active, reflect, strategy, forecast, distract, evidence, concentration, motivation, effective, inefficient, awareness, respond, hesitation, independent, prioritise, coordination, achievement and memorise have a genuine family in words 1–30, so the other sixteen words have no items
 // (see unit-06-word-families.js).
 const unitNumber = 6;
 const status = 'draft';
@@ -65,5 +65,17 @@ export default [
   family('hesitation_c', 'vocab_hesitation', 'hesitation', 'He gave a ____ answer, as if he were not sure the figure was correct.', 'hesitant'),
   family('independent_a', 'vocab_independent', 'independent', 'Good courses help learners to become ____ so that they can study without a teacher.', 'independent'),
   family('independent_b', 'vocab_independent', 'independent', 'Many teenagers want more ____ from their parents when they reach sixteen.', 'independence'),
-  family('independent_c', 'vocab_independent', 'independent', 'Please work ____ on this task and do not ask your neighbour for the answers.', 'independently')
+  family('independent_c', 'vocab_independent', 'independent', 'Please work ____ on this task and do not ask your neighbour for the answers.', 'independently'),
+  family('prioritise_a', 'vocab_prioritise', 'prioritise', 'Busy managers must learn to ____ urgent tasks over routine ones.', 'prioritise'),
+  family('prioritise_b', 'vocab_prioritise', 'prioritise', 'For most teenagers, revision is not the top ____ during the holidays.', 'priority'),
+  family('prioritise_c', 'vocab_prioritise', 'prioritise', 'Effective ____ means deciding what must be done first.', 'prioritisation'),
+  family('coordination_a', 'vocab_coordination', 'coordination', 'Poor ____ between departments caused delays in the project.', 'coordination'),
+  family('coordination_b', 'vocab_coordination', 'coordination', 'Someone has to ____ the volunteers so that they arrive at different times.', 'coordinate'),
+  family('coordination_c', 'vocab_coordination', 'coordination', 'The charities launched a ____ campaign to help the flood victims.', 'coordinated'),
+  family('achievement_a', 'vocab_achievement_6', 'achievement', 'Passing her driving test at the first attempt was a real ____ for her.', 'achievement'),
+  family('achievement_b', 'vocab_achievement_6', 'achievement', 'You will not ____ good results without regular practice.', 'achieve'),
+  family('achievement_c', 'vocab_achievement_6', 'achievement', 'Teachers should set clear and ____ goals for each lesson.', 'achievable'),
+  family('memorise_a', 'vocab_memorise', 'memorise', 'Some students can ____ a whole page after reading it twice.', 'memorise'),
+  family('memorise_b', 'vocab_memorise', 'memorise', 'Regular sleep and exercise can improve your ____ and help you recall facts.', 'memory'),
+  family('memorise_c', 'vocab_memorise', 'memorise', 'The teacher’s story made the lesson so ____ that nobody forgot it.', 'memorable')
 ];

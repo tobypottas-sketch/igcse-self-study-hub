@@ -1,4 +1,4 @@
-// UNIT 6 – LEARNING AND STUDY SKILLS: authoring draft (batches 1–4 = words 1–40). Source: 0511 key words UNIT 6 – LEARNING AND STUDY SKILLS (locked 50-word list). Words 41–50 are not authored yet.
+// UNIT 6 – LEARNING AND STUDY SKILLS: authoring draft (batches 1–5 = words 1–50, authoring complete). Source: 0511 key words UNIT 6 – LEARNING AND STUDY SKILLS (locked 50-word list). All 50 words are authored; the unit stays a draft until the audit/polish pass.
 // Same architecture as unit-05.js. Check: node scripts/check-unit-authoring.mjs content/vocabulary/units/unit-06-draft.js
 // A draft (status 'draft') is never in releases/, so the release tooling ignores it. Rename to unit-06.js only when all 50 words are final.
 import { buildCuratedUnit } from '../build-unit.js';
@@ -1187,6 +1187,297 @@ const entries = [
         { id:'2', answer:'pressure', wrong:['water', 'snow', 'cover'] },
         { id:'3', answer:'pressure', wrong:['hunger', 'thirst', 'warmth'] }
       ]
+    }),
+  e('prioritise', 'verb',
+    'to decide which tasks or needs are most important and deal with them first',
+    ['give first place to', 'decide what matters most and do it first'],
+    ['to write all the tasks in a tidy list', 'to avoid the tasks that seem difficult', 'to share the work equally with other people'],
+    'Good managers prioritise the work that is most urgent, so that nothing important is left until the last minute.',
+    'give first place to', 'Good managers give first place to the work that is most urgent, so that nothing important is left until the last minute.',
+    'decide what matters most and do it first', 'When time is short, it helps to decide what matters most and do it first.',
+    {
+      teacherNote:'Taught as a verb: to decide which tasks or needs are most important and deal with them first (prioritise tasks, prioritise patients). It is not the same as organise: making a list or a timetable does not in itself prioritise. British spelling: prioritise.',
+      masteryContexts:[
+        { text:'Students who prioritise the topics they find hardest usually make faster progress than those who revise only their favourite topics.', meaning:'to deal first with the most important tasks' },
+        { text:'During the flood, the rescue team had to prioritise families with babies and elderly relatives, and bring everyone else out later.', meaning:'to decide who needs help first' }
+      ],
+      situationDistractors:[
+        'The bakery on the corner opens its doors at six, and a queue forms outside.',
+        'Leila painted her bedroom wall pale yellow on Sunday afternoon.',
+        'A cyclist stopped at the red light and checked his phone.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'When several deadlines fall in the same week, you need to prioritise carefully.', target:'prioritise', grammarPattern:'' },
+        { id:'2', text:'Hospitals prioritise patients by the seriousness of their condition, not by the time they arrive.', target:'prioritise', grammarPattern:'' },
+        { id:'3', text:'Families on a small income often have to prioritise food and housing over entertainment.', target:'prioritise', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'prioritise', wrong:['travel', 'dress', 'paint'] },
+        { id:'2', answer:'prioritise', wrong:['invite', 'photograph', 'insure'] },
+        { id:'3', answer:'prioritise', wrong:['visit', 'paint', 'repair'] }
+      ]
+    }),
+  e('retain', 'verb',
+    'to keep information in your memory or continue to have something',
+    ['remember and keep', 'keep in your memory'],
+    ['to copy information onto paper', 'to hand information back to a teacher', 'to forget information after a short time'],
+    'Students retain more information when they test themselves than when they simply read their notes again.',
+    'remember and keep', 'Students remember and keep more information when they test themselves than when they simply read their notes again.',
+    'keep in your memory', 'It is hard to keep in your memory a long list of numbers without writing them down.',
+    {
+      teacherNote:'Taught in its learning and memory sense: to keep information in your memory (retain information). The sense of continuing to have something (retain a good employee) is secondary. It is not the same as understand: a person can retain a fact without understanding it. The physical sense of holding an object is not taught here.',
+      masteryContexts:[
+        { text:'Older adults often retain vivid memories of their school days, even when they forget what happened last week.', meaning:'to keep information in the memory' },
+        { text:'The company hopes to retain its best employees by offering training and clear opportunities for promotion.', meaning:'to continue to have something' }
+      ],
+      situationDistractors:[
+        'The visitors photographed the old stone bridge and bought postcards.',
+        'Marco mended the garden fence and painted it dark green.',
+        'The orchestra tuned their violins before the concert began.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Short, frequent revision sessions help students to retain what they have learned for much longer.', target:'retain', grammarPattern:'' },
+        { id:'2', text:'Most visitors retain only a small part of what a tour guide tells them.', target:'retain', grammarPattern:'' },
+        { id:'3', text:'Patients who receive clear, simple instructions are more likely to retain them after leaving the hospital.', target:'retain', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'retain', wrong:['forget', 'ignore', 'regret'] },
+        { id:'2', answer:'retain', wrong:['invent', 'buy', 'repair'] },
+        { id:'3', answer:'retain', wrong:['lose', 'sell', 'borrow'] }
+      ]
+    }),
+  e('summarise', 'verb',
+    'to give the main points of something in a shorter form',
+    ['give the main points of', 'say briefly what is in'],
+    ['to copy the whole text word for word', 'to give your own opinion about the text', 'to explain every detail in a longer form'],
+    'Please summarise the article in no more than three sentences.',
+    'give the main points of', 'Please give the main points of the article in no more than three sentences.',
+    'say briefly what is in', 'Reporters often say briefly what is in a long report so that busy readers understand it quickly.',
+    {
+      teacherNote:'To give the main points of something in a shorter form (summarise a text, summarise the main points). It is not copying, it does not repeat every detail, and it does not give your own opinion. British spelling: summarise.',
+      masteryContexts:[
+        { text:'The news programme will summarise the day’s events in two minutes, so that listeners can catch up quickly.', meaning:'to give the main points in a shorter form' },
+        { text:'A good report begins with a short paragraph that will summarise the main findings for readers who are short of time.', meaning:'to give the main points briefly' }
+      ],
+      situationDistractors:[
+        'The children built a sandcastle and decorated it with shells.',
+        'Omar watered the plants on his balcony every evening.',
+        'The bus was late, so the passengers waited in the rain.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'In the exam, you will be asked to summarise the writer’s main argument in your own words.', target:'summarise', grammarPattern:'' },
+        { id:'2', text:'Journalists must summarise a long press conference in a few clear paragraphs.', target:'summarise', grammarPattern:'' },
+        { id:'3', text:'It is useful to summarise each chapter in a few lines before you begin to revise.', target:'summarise', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'summarise', wrong:['copy', 'praise', 'replace'] },
+        { id:'2', answer:'summarise', wrong:['attend', 'cancel', 'record'] },
+        { id:'3', answer:'summarise', wrong:['print', 'borrow', 'photograph'] }
+      ]
+    }),
+  e('coordination', 'noun',
+    'the organisation of people, actions or parts so that they work together effectively',
+    ['organised teamwork', 'planning so that people work together'],
+    ['a willingness to help other people', 'competition between rival groups', 'a rule that all workers must obey'],
+    'Without coordination between the police and the ambulance service, the rescue would have been slower and less safe.',
+    'organised teamwork', 'Without organised teamwork between the police and the ambulance service, the rescue would have been slower and less safe.',
+    'planning so that people work together', 'Large events need planning so that people work together, or visitors will wait in long queues.',
+    {
+      teacherNote:'Uncountable noun: the organisation of people, actions or parts so that they work together effectively (coordination between teams). It is more than cooperation alone, which means only a willingness to help; coordination needs a plan. The body-movement sense is not the focus here.',
+      masteryContexts:[
+        { text:'Building a stadium requires careful coordination among architects, engineers, builders and city officials.', meaning:'the organisation of people so that they work together' },
+        { text:'Reading aloud while listening for mistakes demands coordination between the eyes, ears and brain, which is why it is hard for beginners.', meaning:'the working together of different parts of the mind' }
+      ],
+      situationDistractors:[
+        'The market sold fish, fruit and brightly coloured scarves.',
+        'Alicia sat by the window and watched the rain fall on the street.',
+        'The pilot landed the plane safely despite the strong wind.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Good coordination between teachers and parents helps pupils who find schoolwork difficult.', target:'coordination', grammarPattern:'' },
+        { id:'2', text:'The success of the festival depended on the coordination of hundreds of volunteers.', target:'coordination', grammarPattern:'' },
+        { id:'3', text:'In a football team, coordination between the defenders and the goalkeeper prevents many goals.', target:'coordination', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'coordination', wrong:['competition', 'invitation', 'punishment'] },
+        { id:'2', answer:'coordination', wrong:['weight', 'colour', 'reputation'] },
+        { id:'3', answer:'coordination', wrong:['distance', 'weather', 'payment'] }
+      ]
+    }),
+  e('cognitive', 'adjective',
+    'connected with thinking, understanding, learning or memory',
+    ['thinking and learning', 'connected with the brain'],
+    ['connected with the body and its movement', 'connected with subjects taught at school', 'connected with money and payment'],
+    'Doing puzzles every day can improve cognitive skills such as memory and problem-solving, especially in older adults.',
+    'thinking and learning', 'Doing puzzles every day can improve thinking and learning skills such as memory and problem-solving, especially in older adults.',
+    'connected with the brain', 'Sleep affects many abilities connected with the brain, such as attention and memory.',
+    {
+      teacherNote:'Adjective, usually before a noun (cognitive skills, cognitive development): connected with thinking, understanding, learning or memory. It is not the same as academic, which means connected with school study. Keep the idea simple: how the mind works.',
+      masteryContexts:[
+        { text:'Learning a second language is a cognitive challenge, because you must remember new words and also understand how sentences are built.', meaning:'connected with thinking and learning' },
+        { text:'Doctors found that regular walking improved the cognitive performance of older patients, who solved problems more quickly.', meaning:'connected with thinking and memory' }
+      ],
+      situationDistractors:[
+        'The runner stretched her legs and tied her laces.',
+        'Heavy traffic slowed the bus on the way to the airport.',
+        'My aunt planted tomatoes and beans in her garden.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Young children make rapid cognitive progress when parents talk and read to them every day.', target:'cognitive', grammarPattern:'' },
+        { id:'2', text:'Lack of sleep reduces cognitive abilities such as attention, memory and decision-making.', target:'cognitive', grammarPattern:'' },
+        { id:'3', text:'Some video games are designed to train cognitive skills, but scientists disagree about how much they help.', target:'cognitive', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'cognitive', wrong:['legal', 'financial', 'political'] },
+        { id:'2', answer:'cognitive', wrong:['athletic', 'musical', 'financial'] },
+        { id:'3', answer:'cognitive', wrong:['legal', 'financial', 'medical'] }
+      ]
+    }),
+  e('achievement', 'noun',
+    'something successfully completed through effort or ability',
+    ['success earned by effort', 'result of hard work'],
+    ['a result that happened by luck alone', 'a plan for what to do in the future', 'a prize given to every student'],
+    'Learning to swim at the age of sixty was a great achievement for my grandmother.',
+    'success earned by effort', 'Learning to swim at the age of sixty was a great success earned by effort for my grandmother.',
+    'result of hard work', 'Her place in the final was the result of hard work and not luck.',
+    {
+      idKey:'achievement_6',
+      teacherNote:'Unit 6 item (achievement_6), separate from the Unit 1 achievement item; shares only the lexical spelling list. Sense: something successfully completed through effort or ability (a major achievement, a sense of achievement). It is not the same as outcome, which is any final result, good or bad; an achievement needs effort.',
+      masteryContexts:[
+        { text:'Climbing the mountain without extra oxygen was the greatest achievement of his sporting career.', meaning:'something successfully done through effort' },
+        { text:'The school’s main achievement this year was to cut its energy use by a third.', meaning:'an important result reached through effort' }
+      ],
+      situationDistractors:[
+        'Two neighbours shared a taxi to the railway station.',
+        'The guide led the group along the narrow streets to the market.',
+        'Rosa cleaned the kitchen and put the dishes away.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Completing a university degree while working full time is a real achievement.', target:'achievement', grammarPattern:'' },
+        { id:'2', text:'The scientist received an award in recognition of her achievement in developing a cheaper vaccine.', target:'achievement', grammarPattern:'' },
+        { id:'3', text:'Every young swimmer who finished the course felt a strong sense of achievement.', target:'achievement', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'achievement', wrong:['rumour', 'schedule', 'shortage'] },
+        { id:'2', answer:'achievement', wrong:['absence', 'opinion', 'habit'] },
+        { id:'3', answer:'achievement', wrong:['hunger', 'distance', 'weather'] }
+      ]
+    }),
+  e('outcome', 'noun',
+    'the final result of a process, action or situation',
+    ['final result', 'what happens in the end'],
+    ['a plan made before an event', 'an aim that someone hopes to reach', 'a guess about what will happen'],
+    'The outcome of the election will not be known until all the votes have been counted.',
+    'final result', 'The final result of the election will not be known until all the votes have been counted.',
+    'what happens in the end', 'Nobody can be sure what happens in the end when two teams of equal strength meet.',
+    {
+      teacherNote:'Noun: the final result of a process, action or situation (the outcome of the match, a positive outcome). It is not a goal, which is what you hope to reach, and it is not a prediction, which is what you think will happen. An outcome can be good or bad.',
+      masteryContexts:[
+        { text:'The outcome of the experiment surprised the researchers, because the plant grew faster in the dark.', meaning:'the final result of a test' },
+        { text:'Doctors compared how patients who received the new treatment recovered, and the outcome was clearly better.', meaning:'the final result of a treatment' }
+      ],
+      situationDistractors:[
+        'The family sat on the grass and shared a picnic lunch.',
+        'A neighbour’s dog barked at the postman every morning.',
+        'The tailor measured the customer’s arm and wrote the size on a card.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Both sides hope for a peaceful outcome to the negotiations.', target:'outcome', grammarPattern:'' },
+        { id:'2', text:'A careful planner thinks about the possible outcome of each decision before acting.', target:'outcome', grammarPattern:'' },
+        { id:'3', text:'The outcome of the match was decided in the final minute.', target:'outcome', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'outcome', wrong:['invitation', 'appointment', 'temperature'] },
+        { id:'2', answer:'outcome', wrong:['colour', 'sentence', 'salary'] },
+        { id:'3', answer:'outcome', wrong:['uniform', 'ticket', 'journey'] }
+      ]
+    }),
+  e('focus', 'verb',
+    'to give full attention to something',
+    ['give full attention', 'keep your mind on one thing'],
+    ['to look at something for a long time', 'to change from one task to another', 'to hurry through a task without thinking'],
+    'It is hard to focus when the room is noisy and people keep walking past.',
+    'give full attention', 'It is hard to give full attention when the room is noisy and people keep walking past.',
+    'keep your mind on one thing', 'It takes practice to keep your mind on one thing for more than a few minutes.',
+    {
+      teacherNote:'Taught as a verb: to give full attention to something (focus on a task). Focus is the action of directing attention; concentration is the ability or state of sustained attention, so focus is not the same as concentration. The camera and optical senses are not taught.',
+      masteryContexts:[
+        { text:'When the match began, the goalkeeper tried to ignore the noise of the crowd and focus on the ball.', meaning:'to give full attention to something' },
+        { text:'Surgeons train to focus completely during long operations, so that small interruptions do not affect their decisions.', meaning:'to keep full attention on a task' }
+      ],
+      situationDistractors:[
+        'The tourists queued at the ticket office for nearly an hour.',
+        'Kemal bought a newspaper and left it on the train.',
+        'The farmer drove his tractor slowly along the narrow lane.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'It is difficult to focus on a lecture when you did not sleep well the night before.', target:'focus', grammarPattern:'' },
+        { id:'2', text:'Drivers should focus on the road and never use a phone while the car is moving.', target:'focus', grammarPattern:'' },
+        { id:'3', text:'To reach the final, the team had to focus on one match at a time.', target:'focus', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'focus', wrong:['depend', 'agree', 'insist'] },
+        { id:'2', answer:'focus', wrong:['agree', 'insist', 'comment'] },
+        { id:'3', answer:'focus', wrong:['depend', 'agree', 'comment'] }
+      ]
+    }),
+  e('memorise', 'verb',
+    'to learn something so that you can remember it exactly',
+    ['learn exactly', 'learn by heart'],
+    ['to understand how something works', 'to check an answer twice', 'to forget something after a short time'],
+    'Actors must memorise what they say before the first night of a play.',
+    'learn exactly', 'Actors must learn exactly what they say before the first night of a play.',
+    'learn by heart', 'Many children learn by heart the times tables before they understand why they work.',
+    {
+      teacherNote:'To learn something so that you can remember it exactly (memorise key facts). It is not the same as understand: a student can memorise a rule without understanding it. British spelling: memorise.',
+      masteryContexts:[
+        { text:'To pass the driving theory test, candidates must memorise the meaning of every road sign.', meaning:'to learn something so that you can remember it exactly' },
+        { text:'Emergency staff are trained to memorise the main steps of first aid so that they can act without looking at instructions.', meaning:'to learn steps so well that you do not need notes' }
+      ],
+      situationDistractors:[
+        'The neighbours held a barbecue in the garden on Saturday.',
+        'A tourist asked for directions to the nearest post office.',
+        'The coach handed out new shirts before the tournament began.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Some students memorise whole pages of notes but cannot explain the ideas in their own words.', target:'memorise', grammarPattern:'' },
+        { id:'2', text:'Learning the alphabet of a new language means you must memorise unfamiliar letters and sounds.', target:'memorise', grammarPattern:'' },
+        { id:'3', text:'It is easier to memorise a phone number if you divide it into small groups.', target:'memorise', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'memorise', wrong:['borrow', 'delete', 'measure'] },
+        { id:'2', answer:'memorise', wrong:['avoid', 'invent', 'protect'] },
+        { id:'3', answer:'memorise', wrong:['cancel', 'forbid', 'weigh'] }
+      ]
+    }),
+  e('insight', 'noun',
+    'a clear and often deeper understanding of a situation, problem or idea',
+    ['deeper understanding', 'clear understanding of a problem'],
+    ['basic facts that everyone already knows', 'a quick guess made without thinking', 'a feeling of pride in your own ideas'],
+    'Her experience as a nurse gave her insight that no textbook could provide.',
+    'deeper understanding', 'Her experience as a nurse gave her deeper understanding that no textbook could provide.',
+    'clear understanding of a problem', 'Good teachers help students to reach a clear understanding of a problem rather than repeat facts.',
+    {
+      teacherNote:'Noun: a clear and often deeper understanding of a situation, problem or idea (insight into, gain insight). It is more than basic information or simple awareness: an insight explains why or how something happens.',
+      masteryContexts:[
+        { text:'The interviews gave the researchers a new insight into why young people leave small villages.', meaning:'a clear understanding of a situation' },
+        { text:'Her habit of asking one extra question showed real insight, because it exposed the weakness in the plan.', meaning:'a deeper understanding of a problem' }
+      ],
+      situationDistractors:[
+        'The farmers loaded the cart with apples and drove into town.',
+        'A thunderstorm rolled across the hills in the late afternoon.',
+        'Selim washed the car and then polished the windows.'
+      ],
+      retrievalContexts:[
+        { id:'1', text:'Reading original letters from soldiers gives students an insight into daily life during the war.', target:'insight', grammarPattern:'' },
+        { id:'2', text:'The documentary offers a fascinating insight into the work of emergency doctors.', target:'insight', grammarPattern:'' },
+        { id:'3', text:'Regular conversations with customers give a business valuable insight into what people really want.', target:'insight', grammarPattern:'' }
+      ],
+      gapDistractors:[
+        { id:'1', answer:'insight', wrong:['argument', 'apology', 'excuse'] },
+        { id:'2', answer:'insight', wrong:['holiday', 'complaint', 'tradition'] },
+        { id:'3', answer:'insight', wrong:['furniture', 'permission', 'weather'] }
+      ]
     })
 ];
 
@@ -1229,12 +1520,13 @@ export default buildCuratedUnit({
   source:'0511 key words UNIT 6 – LEARNING AND STUDY SKILLS',
   entries:enrichedEntries,
   activities:[...unit6Activities, ...unit6PrecisionUse, ...unit6WordFamilyItems],
-  // evaluate (Units 3 and 5), struggle (Unit 1) and pressure (Unit 3) are also earlier-unit targets; each has its own Unit 6 id (idKey 'X_6' -> vocab_X_6) and aliases the
-  // earlier spelling list.
+  // evaluate (Units 3 and 5), struggle (Unit 1), pressure (Unit 3) and achievement (Unit 1) are also earlier-unit targets; each has its own Unit 6 id (idKey 'X_6' -> vocab_X_6)
+  // and aliases the earlier spelling list.
   lexicalSpelling:{
     ...LEXICAL_SPELLING_ERRORS,
     vocab_evaluate_6:LEXICAL_SPELLING_ERRORS.vocab_evaluate,
     vocab_struggle_6:LEXICAL_SPELLING_ERRORS.vocab_struggle,
-    vocab_pressure_6:LEXICAL_SPELLING_ERRORS.vocab_pressure
+    vocab_pressure_6:LEXICAL_SPELLING_ERRORS.vocab_pressure,
+    vocab_achievement_6:LEXICAL_SPELLING_ERRORS.vocab_achievement
   }
 });

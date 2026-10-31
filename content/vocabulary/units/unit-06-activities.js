@@ -1,4 +1,4 @@
-// Unit 6 · Paraphrasing content (phrase_set and idea_set), WORDS 1–40 so far. Same record shapes and contract as unit-05-activities.js:
+// Unit 6 · Paraphrasing content (phrase_set and idea_set), WORDS 1–50 (complete). Same record shapes and contract as unit-05-activities.js:
 //   phrase_set : originalPhrase (plain wording) -> equivalentPhrase (contains the target), acceptedVariants, chunks, commonMeaningDistortions
 //   idea_set   : originalIdea (contains the target) with accurate paraphrases that do NOT contain it, a meaning invariant, and three
 //                meaning-changing distractors each tagged with the misconception it represents.
@@ -72,7 +72,17 @@ const phraseSets = [
   phrase('independent_learner', 'a learner who can study without constant help', 'an independent learner', ['vocab_independent'], { chunks:['an independent', 'learner'], distortions:['a lonely learner', 'a famous learner', 'a slow learner'] }),
   phrase('make_an_assumption', 'to accept an idea as true without checking it', 'to make an assumption', ['vocab_assumption'], { chunks:['to make', 'an assumption'], distortions:['to prove a claim', 'to ask a question', 'to make a plan'] }),
   phrase('different_perspective_problem', 'a different way of looking at the problem', 'a different perspective on the problem', ['vocab_perspective'], { chunks:['a different perspective', 'on the problem'], distortions:['a different solution to the problem', 'a different cause of the problem', 'a different mistake in the problem'] }),
-  phrase('pressure_to_get_good_grades', 'strong demands to get good grades', 'pressure to get good grades', ['vocab_pressure_6'], { chunks:['pressure', 'to get good grades'], distortions:['a reward for good grades', 'a reason for good grades', 'help with good grades'] })
+  phrase('pressure_to_get_good_grades', 'strong demands to get good grades', 'pressure to get good grades', ['vocab_pressure_6'], { chunks:['pressure', 'to get good grades'], distortions:['a reward for good grades', 'a reason for good grades', 'help with good grades'] }),
+  phrase('prioritise_urgent_jobs', 'to deal first with the most urgent jobs', 'to prioritise urgent jobs', ['vocab_prioritise'], { chunks:['to prioritise', 'urgent jobs'], distortions:['to avoid urgent jobs', 'to list urgent jobs', 'to share urgent jobs'] }),
+  phrase('retain_new_facts', 'to keep new facts in your mind', 'to retain new facts', ['vocab_retain'], { chunks:['to retain', 'new facts'], distortions:['to forget new facts', 'to copy new facts', 'to teach new facts'] }),
+  phrase('summarise_long_text', 'to give only the main points of a long text in a few lines', 'to summarise a long text in a few lines', ['vocab_summarise'], { chunks:['to summarise', 'a long text', 'in a few lines'], distortions:['to copy a long text in a few lines', 'to translate a long text in a few lines', 'to criticise a long text in a few lines'] }),
+  phrase('coordination_between_departments', 'organised teamwork between departments', 'coordination between departments', ['vocab_coordination'], { chunks:['coordination', 'between departments'], distortions:['competition between departments', 'argument between departments', 'distance between departments'] }),
+  phrase('cognitive_skills', 'skills that involve thinking and memory', 'cognitive skills', ['vocab_cognitive'], { chunks:['cognitive', 'skills'], distortions:['physical skills', 'social skills', 'financial skills'] }),
+  phrase('achievement_hard_work', 'a great success earned through hard work', 'a great achievement', ['vocab_achievement_6'], { chunks:['a great', 'achievement'], distortions:['a great surprise', 'a great reward', 'a great mistake'] }),
+  phrase('outcome_of_the_talks', 'the final result of the talks', 'the outcome of the talks', ['vocab_outcome'], { chunks:['the outcome', 'of the talks'], distortions:['the aim of the talks', 'the length of the talks', 'the cost of the talks'] }),
+  phrase('focus_on_the_lesson', 'to give full attention to the lesson', 'to focus on the lesson', ['vocab_focus'], { chunks:['to focus', 'on the lesson'], distortions:['to look at the lesson', 'to arrive late for the lesson', 'to complain about the lesson'] }),
+  phrase('memorise_the_vocabulary', 'to learn the vocabulary by heart', 'to memorise the vocabulary', ['vocab_memorise'], { chunks:['to memorise', 'the vocabulary'], distortions:['to translate the vocabulary', 'to explain the vocabulary', 'to forget the vocabulary'] }),
+  phrase('insight_into_the_problem', 'a deeper understanding of the problem', 'insight into the problem', ['vocab_insight'], { chunks:['insight', 'into the problem'], distortions:['a quick solution to the problem', 'a warning about the problem', 'a complaint about the problem'] })
 ];
 
 const ideaSets = [
@@ -275,7 +285,57 @@ const ideaSets = [
     { text:'All students perform worse under pressure.', misconceptionCategory:'quantity_change' },
     { text:'Some students perform worse under pressure.', misconceptionCategory:'omitted_information' },
     { text:'Some students perform worse under pressure, while others perform the same.', misconceptionCategory:'comparison_change' }
-  ], ['vocab_pressure_6'])
+  ], ['vocab_pressure_6']),
+  idea('prioritise', 'Hospitals prioritise patients with life-threatening injuries, so minor cases often wait for several hours.', ['Patients whose lives are in danger are treated first in hospitals, which is why minor cases are often left waiting for hours.', 'Because hospitals treat the most serious injuries before others, people with minor problems frequently wait for hours.', 'Minor cases often have a long wait in hospital, since life-threatening injuries are dealt with first.'], 'cause_effect', 'treating serious cases first causes long waits for minor cases', [
+    { text:'Hospitals prioritise patients with minor injuries, so life-threatening cases often wait for several hours.', misconceptionCategory:'polarity_change' },
+    { text:'Hospitals prioritise patients with life-threatening injuries because minor cases often wait for several hours.', misconceptionCategory:'cause_effect_change' },
+    { text:'Hospitals prioritise patients with life-threatening injuries.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_prioritise']),
+  idea('retain', 'People retain more of a lesson when they teach it to someone else than when they only read it.', ['Teaching a lesson to another person helps people to remember more than reading it alone does.', 'More of a lesson stays in the mind if people explain it to someone than if they simply read it.', 'Explaining a lesson to someone else is better for remembering it than reading it on your own.'], 'comparison', 'teaching gives better memory than reading', [
+    { text:'People retain less of a lesson when they teach it to someone else than when they only read it.', misconceptionCategory:'polarity_change' },
+    { text:'People retain the same amount from a lesson whether they teach it to someone else or only read it.', misconceptionCategory:'comparison_change' },
+    { text:'People retain more of a lesson.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_retain']),
+  idea('summarise', 'Candidates are asked to summarise the passage in fewer than one hundred words, leaving out the examples.', ['Candidates must give only the main points of the passage in under a hundred words and omit the examples.', 'In the exam, the passage has to be reduced to its key ideas, in less than a hundred words, without the examples.', 'The task is to state the key points of the passage briefly, using fewer than one hundred words and no examples.'], 'quantity', 'fewer than one hundred words', [
+    { text:'Candidates are asked to summarise the passage in more than one hundred words, leaving out the examples.', misconceptionCategory:'quantity_change' },
+    { text:'Candidates are asked to criticise the passage in fewer than one hundred words, leaving out the examples.', misconceptionCategory:'meaning_confusion' },
+    { text:'Candidates are asked to summarise the passage.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_summarise']),
+  idea('coordination', 'Poor coordination between the airline and the airport caused long delays for hundreds of passengers.', ['Because the airline and the airport did not work together well, hundreds of passengers faced long delays.', 'Hundreds of passengers waited a long time because the airline and the airport failed to organise their work together.', 'A lack of teamwork between the airline and the airport led to long delays for hundreds of passengers.'], 'cause_effect', 'poor teamwork caused long delays', [
+    { text:'Long delays for hundreds of passengers caused poor coordination between the airline and the airport.', misconceptionCategory:'cause_effect_change' },
+    { text:'Good coordination between the airline and the airport caused long delays for hundreds of passengers.', misconceptionCategory:'polarity_change' },
+    { text:'Poor coordination between the airline and the airport caused long delays for a few passengers.', misconceptionCategory:'quantity_change' }
+  ], ['vocab_coordination']),
+  idea('cognitive', 'Regular exercise can improve cognitive abilities such as memory, especially in older adults.', ['Memory and other thinking abilities can get better through regular exercise, particularly for older adults.', 'Older adults in particular may find that regular exercise strengthens abilities like memory and thinking.', 'Taking exercise regularly may help thinking skills, for example memory, and the effect is strongest in older adults.'], 'degree', 'especially older adults', [
+    { text:'Regular exercise can damage cognitive abilities such as memory, especially in older adults.', misconceptionCategory:'polarity_change' },
+    { text:'Regular exercise can improve cognitive abilities such as memory, especially in young children.', misconceptionCategory:'meaning_confusion' },
+    { text:'Regular exercise can improve cognitive abilities.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_cognitive']),
+  idea('achievement', 'Finishing the course while caring for two children was a remarkable achievement for her.', ['It was an outstanding success for her to complete the course while looking after two children.', 'Completing the course while raising two children showed what she could do through great effort and ability.', 'She did something truly impressive by finishing the course while caring for two young children.'], 'degree', 'remarkable', [
+    { text:'Finishing the course while caring for two children was a small achievement for her.', misconceptionCategory:'degree_change' },
+    { text:'Finishing the course while caring for two children was not an achievement for her.', misconceptionCategory:'polarity_change' },
+    { text:'Finishing the course was an achievement for her.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_achievement_6']),
+  idea('outcome', 'The outcome of the match was decided by a single goal in the last minute.', ['One goal in the final minute decided who won the match.', 'The result of the game came down to one goal scored right at the end.', 'A last-minute goal settled how the match finished.'], 'time', 'one goal in the last minute', [
+    { text:'The outcome of the match was decided by a single goal in the first minute.', misconceptionCategory:'time_change' },
+    { text:'The outcome of the match was decided by three goals in the last minute.', misconceptionCategory:'quantity_change' },
+    { text:'The outcome of the match was decided by a single goal.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_outcome']),
+  idea('focus', 'Students who focus on one task at a time usually make fewer mistakes than those who switch between tasks.', ['Working on a single task at a time usually leads to fewer mistakes than moving between tasks.', 'Fewer mistakes are usually made by students who give full attention to one task at a time than by those who keep changing tasks.', 'Those who keep their attention on one job at once tend to make fewer errors than students who jump between jobs.'], 'comparison', 'one task at a time gives fewer mistakes', [
+    { text:'Students who focus on one task at a time usually make more mistakes than those who switch between tasks.', misconceptionCategory:'polarity_change' },
+    { text:'Students who focus on one task at a time make the same number of mistakes as those who switch between tasks.', misconceptionCategory:'comparison_change' },
+    { text:'Students who focus on one task at a time usually make fewer mistakes.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_focus']),
+  idea('memorise', 'It is easier to memorise a long number if you divide it into short groups.', ['Splitting a long number into short groups makes it easier to learn by heart.', 'A long number is easier to learn exactly if it is divided into small groups.', 'Dividing a long number into short groups helps you to learn it so that you can repeat it exactly.'], 'cause_effect', 'dividing into groups makes learning easier', [
+    { text:'It is harder to memorise a long number if you divide it into short groups.', misconceptionCategory:'polarity_change' },
+    { text:'It is easier to divide a long number into short groups if you memorise it.', misconceptionCategory:'cause_effect_change' },
+    { text:'It is easier to memorise a long number.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_memorise']),
+  idea('insight', 'Reading the manager’s emails gave the investigator real insight into why the project had failed.', ['The investigator came to understand much better why the project had failed after reading the manager’s emails.', 'By reading the manager’s emails, the investigator gained a clear understanding of the reasons for the project’s failure.', 'The manager’s emails helped the investigator to see more deeply why the project failed.'], 'cause_effect', 'reading the emails led to deeper understanding', [
+    { text:'The investigator read the manager’s emails because he already had insight into why the project had failed.', misconceptionCategory:'cause_effect_change' },
+    { text:'Reading the manager’s emails gave the investigator no insight into why the project had failed.', misconceptionCategory:'polarity_change' },
+    { text:'Reading the manager’s emails gave the investigator real information about the cost of the project.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_insight'])
 ];
 
 export default [...phraseSets, ...ideaSets];
