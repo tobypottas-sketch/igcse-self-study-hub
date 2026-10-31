@@ -1,4 +1,4 @@
-// Unit 6 · Paraphrasing content (phrase_set and idea_set), WORDS 1–10 so far. Same record shapes and contract as unit-05-activities.js:
+// Unit 6 · Paraphrasing content (phrase_set and idea_set), WORDS 1–20 so far. Same record shapes and contract as unit-05-activities.js:
 //   phrase_set : originalPhrase (plain wording) -> equivalentPhrase (contains the target), acceptedVariants, chunks, commonMeaningDistortions
 //   idea_set   : originalIdea (contains the target) with accurate paraphrases that do NOT contain it, a meaning invariant, and three
 //                meaning-changing distractors each tagged with the misconception it represents.
@@ -42,7 +42,17 @@ const phraseSets = [
   phrase('stagnate_studies', 'to stop making progress in your studies', 'to stagnate in your studies', ['vocab_stagnate'], { chunks:['to stagnate', 'in your studies'], distortions:['to hurry through your studies', 'to change your studies', 'to pause your studies for a year'] }),
   phrase('engage_class_discussion', 'to become involved in a class discussion', 'to engage in a class discussion', ['vocab_engage'], { chunks:['to engage in', 'a class discussion'], distortions:['to interrupt a class discussion', 'to avoid a class discussion', 'to record a class discussion'] }),
   phrase('participate_lessons', 'to take part in lessons and activities', 'to participate in lessons and activities', ['vocab_participate'], { chunks:['to participate in', 'lessons and activities'], distortions:['to watch lessons and activities', 'to organise lessons and activities', 'to miss lessons and activities'] }),
-  phrase('passive_learner', 'a learner who takes no active part', 'a passive learner', ['vocab_passive'], { chunks:['a passive', 'learner'], distortions:['a nervous learner', 'a lazy learner', 'a slow learner'] })
+  phrase('passive_learner', 'a learner who takes no active part', 'a passive learner', ['vocab_passive'], { chunks:['a passive', 'learner'], distortions:['a nervous learner', 'a lazy learner', 'a slow learner'] }),
+  phrase('active_learner', 'a learner who takes a full part in lessons', 'an active learner', ['vocab_active'], { chunks:['an active', 'learner'], distortions:['a learner who is always busy', 'a learner who plays a lot of sport', 'a learner who works alone'] }),
+  phrase('evaluate_results', 'to judge the results by using evidence', 'to evaluate the results using evidence', ['vocab_evaluate_6'], { chunks:['to evaluate', 'the results', 'using evidence'], distortions:['to describe the results without evidence', 'to repeat the results using evidence', 'to hide the results from the public'] }),
+  phrase('reflect_experience', 'to think carefully about what happened and learn from it', 'to reflect on what happened', ['vocab_reflect'], { chunks:['to reflect on', 'what happened'], distortions:['to forget what happened', 'to complain about what happened', 'to repeat what happened'] }),
+  phrase('process_information', 'to take in and make sense of new information', 'to process new information', ['vocab_process'], { chunks:['to process', 'new information'], distortions:['to ignore new information', 'to collect new information', 'to hide new information'] }),
+  phrase('strategy_learning', 'a planned way of learning new words', 'a strategy for learning new words', ['vocab_strategy'], { chunks:['a strategy', 'for learning', 'new words'], distortions:['a game for learning new words', 'a list of new words', 'a rule for spelling new words'] }),
+  phrase('approach_problem', 'a way of dealing with a difficult problem', 'an approach to a difficult problem', ['vocab_approach'], { chunks:['an approach', 'to', 'a difficult problem'], distortions:['a solution to a difficult problem', 'a warning about a difficult problem', 'a cause of a difficult problem'] }),
+  phrase('revise_topics', 'to study the topics again before the test', 'to revise the topics before the test', ['vocab_revise'], { chunks:['to revise', 'the topics', 'before the test'], distortions:['to skip the topics before the test', 'to teach the topics before the test', 'to forget the topics before the test'] }),
+  phrase('forecast_weather', 'to say what the weather will probably be like', 'to forecast the weather', ['vocab_forecast'], { chunks:['to forecast', 'the weather'], distortions:['to change the weather', 'to describe last week’s weather', 'to guess the weather without any information'] }),
+  phrase('interfere_studies', 'to get in the way of your studies', 'to interfere with your studies', ['vocab_interfere'], { chunks:['to interfere', 'with your studies'], distortions:['to improve your studies', 'to finish your studies', 'to plan your studies'] }),
+  phrase('distract_lesson', 'to take your attention away from the lesson', 'to distract you from the lesson', ['vocab_distract'], { chunks:['to distract', 'you', 'from the lesson'], distortions:['to bore you in the lesson', 'to help you in the lesson', 'to excuse you from the lesson'] })
 ];
 
 const ideaSets = [
@@ -95,7 +105,57 @@ const ideaSets = [
     { text:'Passive learning always helps students to remember new vocabulary.', misconceptionCategory:'polarity_change' },
     { text:'Passive learning rarely helps students to remember new grammar.', misconceptionCategory:'meaning_confusion' },
     { text:'Passive learning sometimes helps students to forget new vocabulary.', misconceptionCategory:'cause_effect_change' }
-  ], ['vocab_passive'])
+  ], ['vocab_passive']),
+  idea('active', 'Students who are active in lessons usually remember more than students who only listen.', ['Students who take a full part in lessons generally remember more than those who simply listen.', 'Learners who are fully involved in class tend to recall more than learners who just listen.', 'Taking a real part in lessons helps students to remember more than listening alone does.'], 'comparison', 'remember more', [
+    { text:'Students who are active in lessons usually remember less than students who only listen.', misconceptionCategory:'polarity_change' },
+    { text:'Students who are physically energetic in lessons usually remember more than students who only listen.', misconceptionCategory:'meaning_confusion' },
+    { text:'Students who are active in lessons always remember more than students who only listen.', misconceptionCategory:'degree_change' }
+  ], ['vocab_active']),
+  idea('evaluate', 'Teachers should evaluate each new method by comparing students’ results before and after it is introduced.', ['Teachers should judge how well each new method works by comparing students’ results from before and after its introduction.', 'Each new method should be judged by comparing the results that students achieved before it began with those they achieved afterwards.', 'Teachers ought to measure the success of every new method by looking at results from before and after it starts.'], 'comparison', 'before and after', [
+    { text:'Teachers should evaluate each new method.', misconceptionCategory:'omitted_information' },
+    { text:'Teachers should describe each new method by comparing students’ results before and after it is introduced.', misconceptionCategory:'meaning_confusion' },
+    { text:'Teachers should evaluate each new method by comparing students’ results only after it is introduced.', misconceptionCategory:'time_change' }
+  ], ['vocab_evaluate_6']),
+  idea('reflect', 'Athletes who reflect on their mistakes after a match usually improve faster than those who ignore them.', ['Athletes who think carefully about their mistakes once a match is over generally improve more quickly than those who pay them no attention.', 'After a match, athletes who look back on what went wrong tend to get better faster than those who disregard it.', 'Improvement comes sooner for athletes who consider their errors after a game than for those who take no notice of them.'], 'comparison', 'improve faster', [
+    { text:'Athletes who reflect on their mistakes after a match usually improve more slowly than those who ignore them.', misconceptionCategory:'polarity_change' },
+    { text:'Athletes who reflect on their mistakes before a match usually improve faster than those who ignore them.', misconceptionCategory:'time_change' },
+    { text:'Athletes who reflect on their mistakes after a match always improve faster than those who ignore them.', misconceptionCategory:'degree_change' }
+  ], ['vocab_reflect']),
+  idea('process', 'The brain can process only a limited amount of new information at one time, so very long lectures are rarely helpful.', ['Because the brain can take in and understand only a small amount of new information at once, very long lectures are rarely helpful.', 'Very long lectures seldom help, since the brain can make sense of only a limited amount of new information at a time.', 'The amount of new information that the brain can understand at one moment is limited, so lengthy lectures are seldom useful.'], 'cause_effect', 'limited capacity, so long lectures rarely help', [
+    { text:'The brain can process only a limited amount of new information at one time because very long lectures are rarely helpful.', misconceptionCategory:'cause_effect_change' },
+    { text:'The brain can process a very large amount of new information at one time, so very long lectures are often helpful.', misconceptionCategory:'quantity_change' },
+    { text:'Very long lectures are rarely helpful.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_process']),
+  idea('strategy', 'Successful learners usually have a strategy that combines short study sessions with regular self-testing.', ['Learners who do well generally follow a planned method that mixes short periods of study with frequent self-testing.', 'Most successful learners have a clear plan for reaching their goals that includes brief study sessions and regular self-testing.', 'A carefully planned method of short study sessions and regular self-testing is typical of successful learners.'], 'quantity', 'short sessions and regular self-testing', [
+    { text:'Successful learners usually have a strategy that combines long study sessions with regular self-testing.', misconceptionCategory:'degree_change' },
+    { text:'Successful learners rarely have a strategy that combines short study sessions with regular self-testing.', misconceptionCategory:'polarity_change' },
+    { text:'Successful learners usually have a strategy that combines short study sessions.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_strategy']),
+  idea('approach', 'The school has adopted a new approach to behaviour, which rewards good conduct instead of punishing poor conduct.', ['The school has introduced a different way of dealing with behaviour, in which good conduct is rewarded rather than poor conduct punished.', 'Instead of punishing bad conduct, the school now has a different method for behaviour that gives rewards for good conduct.', 'The school has switched to a new way of handling behaviour: it praises and rewards good conduct and no longer relies on punishment.'], 'polarity', 'rewards good conduct instead of punishing poor conduct', [
+    { text:'The school has adopted a new approach to behaviour, which punishes poor conduct instead of rewarding good conduct.', misconceptionCategory:'polarity_change' },
+    { text:'The school has adopted a new approach to behaviour.', misconceptionCategory:'omitted_information' },
+    { text:'The school has adopted a new rule about behaviour, which rewards good conduct instead of punishing poor conduct.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_approach']),
+  idea('revise', 'Students who revise a little every day usually feel calmer before a test than students who leave everything until the last night.', ['Students who go back over their work a little each day generally feel calmer before a test than those who put it all off until the final night.', 'Studying material again in small amounts every day tends to leave students calmer before a test than waiting until the last night does.', 'Those who prepare by studying for a short time each day usually feel less worried about a test than those who wait until the night before.'], 'comparison', 'calmer', [
+    { text:'Students who revise a little every day usually feel more nervous before a test than students who leave everything until the last night.', misconceptionCategory:'polarity_change' },
+    { text:'Students who revise a little every day feel exactly as calm before a test as students who leave everything until the last night.', misconceptionCategory:'comparison_change' },
+    { text:'Students who revise for many hours every day usually feel calmer before a test than students who leave everything until the last night.', misconceptionCategory:'quantity_change' }
+  ], ['vocab_revise']),
+  idea('forecast', 'Economists forecast that house prices will fall slightly next year because interest rates are rising.', ['Economists expect, on the basis of current figures, a slight drop in house prices next year because interest rates are rising.', 'Because interest rates are rising, economists say that house prices are likely to fall a little next year.', 'Next year house prices will probably fall slightly, economists say, as a result of rising interest rates.'], 'degree', 'slightly', [
+    { text:'Economists forecast that house prices will rise slightly next year because interest rates are rising.', misconceptionCategory:'polarity_change' },
+    { text:'Economists forecast that house prices will fall sharply next year because interest rates are rising.', misconceptionCategory:'degree_change' },
+    { text:'Economists forecast that house prices will fall slightly next year and that, as a result, interest rates are rising.', misconceptionCategory:'cause_effect_change' }
+  ], ['vocab_forecast']),
+  idea('interfere', 'Working late every night can interfere with a teenager’s sleep and concentration.', ['Working until late every night can get in the way of a teenager’s sleep and ability to pay attention.', 'If teenagers work late every night, their sleep and their ability to concentrate may suffer.', 'Late work every night can harm both the sleep and the attention span of a teenager.'], 'cause_effect', 'late work harms sleep and attention', [
+    { text:'A lack of sleep and concentration can make a teenager work late every night.', misconceptionCategory:'cause_effect_change' },
+    { text:'Working late every night can improve a teenager’s sleep and concentration.', misconceptionCategory:'polarity_change' },
+    { text:'Working late once a month can interfere with a teenager’s sleep and concentration.', misconceptionCategory:'quantity_change' }
+  ], ['vocab_interfere']),
+  idea('distract', 'Notifications from a mobile phone can distract students from their work for several minutes at a time.', ['Messages that appear on a mobile phone can pull students’ attention away from their work for several minutes at a time.', 'A phone alert can draw students’ attention away from their work, sometimes for several minutes.', 'For several minutes at a time, alerts from a mobile phone can take students’ attention off what they are supposed to be doing.'], 'time', 'several minutes', [
+    { text:'Notifications from a mobile phone can distract students from their work for a few seconds at a time.', misconceptionCategory:'time_change' },
+    { text:'Notifications from a mobile phone can help students to concentrate on their work for several minutes at a time.', misconceptionCategory:'polarity_change' },
+    { text:'Notifications from a mobile phone can distract students.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_distract'])
 ];
 
 export default [...phraseSets, ...ideaSets];

@@ -43,5 +43,45 @@ export default Object.freeze({
   passive: [
     p('Some students believe that studying means reading the same pages again and again. This is a ____ method, because the brain only receives information and never has to use it, whereas writing questions or testing yourself works much better.', 'passive', 'Only receiving information; "a ____ method" contrasted with testing yourself.'),
     p('During the group project, two members stayed ____ and left all the research and writing to the others, even though everybody had agreed to share the work. The teacher later asked them to describe what they had contributed, and neither could give an answer.', 'passive', 'Left everything to the others; "stayed ____".')
+  ],
+  active: [
+    p('Some museums no longer ask visitors to walk quietly past glass cases. Instead, they invite children to build, test and ask questions, because learners who are ____ remember far more than those who simply look and listen.', 'active', 'Contrast with those who "simply look and listen"; "learners who are ____".'),
+    p('The teacher noticed that the same few students answered every question. She changed the lesson so that each pupil had a task, and soon even the quietest members of the class became ____ participants.', 'active', 'Quiet students given tasks; "became ____ participants".')
+  ],
+  evaluate: [
+    p('Describing a new app is easy: you say what it looks like and what it can do. The harder skill is to ____ it, by deciding how useful it is and giving evidence to support your judgement.', 'evaluate', 'Contrast with describing; "decide how useful ... with evidence".'),
+    p('A small company tested two training programmes with its new staff. After six months, managers looked at test scores and customer comments in order to ____ which programme had worked better.', 'evaluate', 'Comparing results to judge which worked better; "in order to ____ which".')
+  ],
+  reflect: [
+    p('At the end of each week, the swimming coach gives her team ten minutes without talking. During that time, the swimmers ____ on their training, thinking about what they did well and what they could change.', 'reflect', 'Quiet thinking time; "____ on their training".'),
+    p('Students often hurry from one task to the next and learn little from their mistakes. A short learning journal gives them a regular chance to ____ on what went wrong and how to avoid the same problem again.', 'reflect', 'Journal for looking back; "____ on what went wrong".')
+  ],
+  process: [
+    p('After listening to a long lecture, many students feel tired, because the brain has to ____ a great deal of new information at the same time. Short breaks allow it to sort ideas into a clear order.', 'process', 'Brain taking in and sorting information; "has to ____ new information".'),
+    p('Young children need time to ____ what they hear. A teacher who asks a question and waits patiently for a few seconds usually gets a better answer than one who moves on immediately.', 'process', 'Waiting time for understanding; "time to ____ what they hear".')
+  ],
+  strategy: [
+    p('Instead of reading a new vocabulary list again and again, Elena tested herself with cards, grouped the words by topic and used each one in a sentence. This ____ took longer at first, but she remembered far more words by the end of the month.', 'strategy', 'A planned set of steps; "This ____ took longer at first".'),
+    p('The football club had lost six matches in a row. The new manager studied the results carefully and introduced a different ____: the team would defend deeply and attack quickly.', 'strategy', 'A planned method introduced to win; "a different ____: the team would...".')
+  ],
+  approach: [
+    p('Some students try to write a long report in one session and feel exhausted by the end. A better ____ is to plan first, write one section at a time and leave time for checking.', 'approach', 'A better way of dealing with the task; "A better ____ is to plan first".'),
+    p('Two nurses cared for the same anxious patient. One spoke quickly and loudly, while the other used a slow and gentle ____, and only the second succeeded in calming the patient.', 'approach', 'Two ways of dealing with the patient; "a slow and gentle ____".')
+  ],
+  revise: [
+    p('The exam is in three weeks, so Jun has made a timetable. Every evening, he will ____ one subject, working through his notes and then answering questions from past papers.', 'revise', 'Studying again for an exam; "will ____ one subject ... past papers".'),
+    p('Memory research shows that students remember more when they ____ a topic several times over a few weeks than when they study it once for many hours. Each return visit makes the material easier to recall.', 'revise', 'Studying a topic again, spaced out; "____ a topic several times".')
+  ],
+  forecast: [
+    p('Using satellite images and records from the past century, meteorologists can ____ the weather for the next seven days with a high degree of accuracy. Their statements are not guesses; they are based on measurable evidence.', 'forecast', 'Predicting from evidence, not guessing; "can ____ the weather".'),
+    p('The tourist board wants to ____ how many visitors will arrive next summer. To do this, it is studying booking figures from previous years and the latest information on flight prices.', 'forecast', 'Predicting from booking figures; "wants to ____ how many visitors will arrive".')
+  ],
+  interfere: [
+    p('Many teenagers say that they can study and watch a series at the same time. However, research suggests that the programme can ____ with their memory, so they learn less than they expect.', 'interfere', 'Getting in the way of memory; "can ____ with their memory".'),
+    p('A good tutor gives hints rather than answers. If the tutor were to ____ every time a student made a mistake, the student would never learn how to solve a problem independently.', 'interfere', 'Stepping in and spoiling the learning; "to ____ every time".')
+  ],
+  distract: [
+    p('The library has a rule that phones must be switched off. Even a quiet vibration can ____ people who are reading, and it may take several minutes for them to find their place again.', 'distract', 'Taking attention from reading; "can ____ people who are reading".'),
+    p('Chen likes to work with music playing, but he chooses songs without words. Lyrics, he says, ____ him from the task because he starts to listen to the story.', 'distract', 'Words pull his attention away; "Lyrics ____ him from the task".')
   ]
 });

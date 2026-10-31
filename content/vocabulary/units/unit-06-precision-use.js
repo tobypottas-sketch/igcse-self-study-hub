@@ -1,4 +1,4 @@
-// Unit 6 Precision & Use content: two "weak wording -> precise word" items per word, WORDS 1–10 so far. Same contract as unit-05-precision-use.js:
+// Unit 6 Precision & Use content: two "weak wording -> precise word" items per word, WORDS 1–20 so far. Same contract as unit-05-precision-use.js:
 // each item is a writing_set improve_vocabulary record; the weak wording quoted in the prompt appears exactly once in sourceText and not at its
 // start; distractors fit the sentence grammatically but are wrong in meaning.
 const status = 'draft';
@@ -31,5 +31,25 @@ export default [
   precision('u6_writing_precision_participate_a', 'vocab_participate', P('take part in'), 'More than a hundred students will take part in the sponsored walk next Saturday.', ['participate in'], ['succeed in', 'believe in', 'result in']),
   precision('u6_writing_precision_participate_b', 'vocab_participate', P('join in'), 'Visitors are invited to join in the activities at the science fair.', ['participate in'], ['succeed in', 'believe in', 'result in']),
   precision('u6_writing_precision_passive_a', 'vocab_passive', P('inactive'), 'Students who are inactive in lessons rarely remember what they hear.', ['passive'], ['unfriendly', 'impatient', 'unlucky']),
-  precision('u6_writing_precision_passive_b', 'vocab_passive', P('not taking part in'), 'Students who are not taking part in discussions often forget the content quickly.', ['passive in'], ['noisy in', 'careless in', 'generous in'])
+  precision('u6_writing_precision_passive_b', 'vocab_passive', P('not taking part in'), 'Students who are not taking part in discussions often forget the content quickly.', ['passive in'], ['noisy in', 'careless in', 'generous in']),
+  precision('u6_writing_precision_active_a', 'vocab_active', P('busy'), 'Students learn more when they are busy in discussions instead of sitting and listening.', ['active'], ['absent', 'nervous', 'passive']),
+  precision('u6_writing_precision_active_b', 'vocab_active', P('taking part'), 'The teacher praised the pupils who were taking part in the discussion.', ['active'], ['absent', 'silent', 'nervous']),
+  precision('u6_writing_precision_evaluate_a', 'vocab_evaluate_6', P('describe'), 'The task asks students to describe the two sources and say which is more reliable, giving reasons.', ['evaluate'], ['copy', 'translate', 'publish']),
+  precision('u6_writing_precision_evaluate_b', 'vocab_evaluate_6', P('look at'), 'To see whether the scheme is worth keeping, the council will look at the costs and benefits over three years.', ['evaluate'], ['reduce', 'announce', 'hide']),
+  precision('u6_writing_precision_reflect_a', 'vocab_reflect', P('think about'), 'After the debate, students wrote a paragraph to think about what they had learned and how to improve.', ['reflect on'], ['rely on', 'insist on', 'agree on']),
+  precision('u6_writing_precision_reflect_b', 'vocab_reflect', P('look back at'), 'Good teachers regularly look back at their own lessons and ask what they could change.', ['reflect on'], ['rely on', 'insist on', 'agree on']),
+  precision('u6_writing_precision_process_a', 'vocab_process', P('deal with'), 'Young children need time to deal with new information before they can use it.', ['process'], ['delete', 'sell', 'hide']),
+  precision('u6_writing_precision_process_b', 'vocab_process', P('handle'), 'Short breaks help students to handle complicated ideas without feeling overwhelmed.', ['process'], ['cancel', 'sell', 'ignore']),
+  precision('u6_writing_precision_strategy_a', 'vocab_strategy', P('plan'), 'The headteacher explained the school’s long-term plan for improving attendance, which included early phone calls to parents.', ['strategy'], ['timetable', 'budget', 'calendar']),
+  precision('u6_writing_precision_strategy_b', 'vocab_strategy', P('ways of studying'), 'Successful learners combine several ways of studying, such as self-testing, mind maps and regular breaks.', ['study strategies', 'strategies for studying'], ['study timetables', 'study rewards', 'study subjects']),
+  precision('u6_writing_precision_approach_a', 'vocab_approach', P('method of'), 'Many universities now take a flexible method of assessing students, with fewer final examinations.', ['approach to'], ['permission for', 'distance from', 'advice about']),
+  precision('u6_writing_precision_approach_b', 'vocab_approach', P('way'), 'Scientists often try a new way when the usual method fails to solve a problem.', ['approach'], ['journey', 'building', 'distance']),
+  precision('u6_writing_precision_revise_a', 'vocab_revise', P('studying again'), 'Maria spent the whole weekend studying again for her biology test.', ['revising'], ['editing', 'teaching', 'marking']),
+  precision('u6_writing_precision_revise_b', 'vocab_revise', P('study his notes again'), 'Karim will study his notes again before the geography exam next week, working through past papers.', ['revise'], ['rehearse', 'replace', 'repair']),
+  precision('u6_writing_precision_forecast_a', 'vocab_forecast', P('guess'), 'Based on ten years of figures, analysts guess that the cost of living will rise next year.', ['forecast'], ['remember', 'announce', 'deny']),
+  precision('u6_writing_precision_forecast_b', 'vocab_forecast', P('say in advance'), 'Meteorologists can say in advance when a storm will reach the coast, but only a few days ahead.', ['forecast'], ['explain', 'record', 'remember']),
+  precision('u6_writing_precision_interfere_a', 'vocab_interfere', P('get in the way of'), 'Constant noise from the road can get in the way of a student’s sleep.', ['interfere with'], ['agree with', 'cope with', 'deal with']),
+  precision('u6_writing_precision_interfere_b', 'vocab_interfere', P('spoil'), 'If parents keep correcting every sentence, they may spoil the child’s confidence as a writer.', ['interfere with'], ['agree with', 'argue with', 'compete with']),
+  precision('u6_writing_precision_distract_a', 'vocab_distract', P('take your attention away from'), 'Bright images on the wall can take your attention away from the story the teacher is reading.', ['distract you from'], ['excuse you from', 'protect you from', 'introduce you to']),
+  precision('u6_writing_precision_distract_b', 'vocab_distract', P('bother'), 'Please keep your voices low so that you do not bother the students who are sitting an exam.', ['distract'], ['instruct', 'assist', 'excuse'])
 ];
