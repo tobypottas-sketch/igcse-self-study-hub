@@ -1,4 +1,4 @@
-// Unit 6 · Paraphrasing content (phrase_set and idea_set), WORDS 1–30 so far. Same record shapes and contract as unit-05-activities.js:
+// Unit 6 · Paraphrasing content (phrase_set and idea_set), WORDS 1–40 so far. Same record shapes and contract as unit-05-activities.js:
 //   phrase_set : originalPhrase (plain wording) -> equivalentPhrase (contains the target), acceptedVariants, chunks, commonMeaningDistortions
 //   idea_set   : originalIdea (contains the target) with accurate paraphrases that do NOT contain it, a meaning invariant, and three
 //                meaning-changing distractors each tagged with the misconception it represents.
@@ -62,7 +62,17 @@ const phraseSets = [
   phrase('curiosity_space', 'a strong wish to learn about space', 'curiosity about space', ['vocab_curiosity'], { chunks:['curiosity', 'about space'], distortions:['fear of space', 'knowledge of space', 'opinion about space'] }),
   phrase('technique_painting', 'a skilled method of painting', 'a technique for painting', ['vocab_technique'], { chunks:['a technique', 'for painting'], distortions:['a plan for painting', 'a reason for painting', 'a place for painting'] }),
   phrase('effective_method', 'a method that produces the intended result', 'an effective method', ['vocab_effective'], { chunks:['an effective', 'method'], distortions:['a quick method', 'a cheap method', 'a modern method'] }),
-  phrase('inefficient_way_of_working', 'a way of working that wastes time and effort', 'an inefficient way of working', ['vocab_inefficient'], { chunks:['an inefficient', 'way of working'], distortions:['an ineffective way of working', 'a dangerous way of working', 'a slow way of working'] })
+  phrase('inefficient_way_of_working', 'a way of working that wastes time and effort', 'an inefficient way of working', ['vocab_inefficient'], { chunks:['an inefficient', 'way of working'], distortions:['an ineffective way of working', 'a dangerous way of working', 'a slow way of working'] }),
+  phrase('struggle_with_grammar', 'to find it hard to understand grammar', 'to struggle with grammar', ['vocab_struggle_6'], { chunks:['to struggle', 'with grammar'], distortions:['to improve quickly at grammar', 'to fight against grammar', 'to refuse to study grammar'] }),
+  phrase('awareness_of_danger', 'understanding that the danger exists', 'awareness of the danger', ['vocab_awareness'], { chunks:['awareness', 'of the danger'], distortions:['fear of the danger', 'attention to the danger', 'a plan for the danger'] }),
+  phrase('capacity_to_learn_quickly', 'the natural ability to learn quickly', 'a capacity to learn quickly', ['vocab_capacity'], { chunks:['a capacity', 'to learn quickly'], distortions:['a wish to learn quickly', 'a need to learn quickly', 'a plan to learn quickly'] }),
+  phrase('feedback_on_an_essay', 'helpful comments on an essay', 'feedback on an essay', ['vocab_feedback'], { chunks:['feedback', 'on an essay'], distortions:['a mark for an essay', 'a reward for an essay', 'a title for an essay'] }),
+  phrase('respond_to_a_question', 'to give an answer to a question', 'to respond to a question', ['vocab_respond'], { chunks:['to respond', 'to a question'], distortions:['to ask a question', 'to ignore a question', 'to repeat a question'] }),
+  phrase('hesitation_before_answering', 'a short pause caused by doubt before you answer', 'hesitation before answering', ['vocab_hesitation'], { chunks:['hesitation', 'before answering'], distortions:['refusal to answer', 'a quick answer', 'anger before answering'] }),
+  phrase('independent_learner', 'a learner who can study without constant help', 'an independent learner', ['vocab_independent'], { chunks:['an independent', 'learner'], distortions:['a lonely learner', 'a famous learner', 'a slow learner'] }),
+  phrase('make_an_assumption', 'to accept an idea as true without checking it', 'to make an assumption', ['vocab_assumption'], { chunks:['to make', 'an assumption'], distortions:['to prove a claim', 'to ask a question', 'to make a plan'] }),
+  phrase('different_perspective_problem', 'a different way of looking at the problem', 'a different perspective on the problem', ['vocab_perspective'], { chunks:['a different perspective', 'on the problem'], distortions:['a different solution to the problem', 'a different cause of the problem', 'a different mistake in the problem'] }),
+  phrase('pressure_to_get_good_grades', 'strong demands to get good grades', 'pressure to get good grades', ['vocab_pressure_6'], { chunks:['pressure', 'to get good grades'], distortions:['a reward for good grades', 'a reason for good grades', 'help with good grades'] })
 ];
 
 const ideaSets = [
@@ -215,7 +225,57 @@ const ideaSets = [
     { text:'The city’s old bus network is well organised: buses are neither empty nor overcrowded.', misconceptionCategory:'polarity_change' },
     { text:'The city’s old bus network is inefficient.', misconceptionCategory:'omitted_information' },
     { text:'The city’s old bus network is unsafe: many buses run almost empty while others are overcrowded.', misconceptionCategory:'meaning_confusion' }
-  ], ['vocab_inefficient'])
+  ], ['vocab_inefficient']),
+  idea('struggle', 'Many adults struggle to learn a new language because they have little time to practise.', ['Many adults find it hard to pick up a new language, since they rarely have time to practise.', 'Little time for practice makes learning a new language difficult for many adults.', 'A lack of practice time means numerous grown-ups have difficulty learning another language.'], 'cause_effect', 'little practice time causes difficulty', [
+    { text:'Many adults learn a new language easily because they have a lot of time to practise.', misconceptionCategory:'polarity_change' },
+    { text:'Many adults struggle to learn a new language.', misconceptionCategory:'omitted_information' },
+    { text:'Many adults struggle to learn a new language because they are afraid of making mistakes.', misconceptionCategory:'cause_effect_change' }
+  ], ['vocab_struggle_6']),
+  idea('awareness', 'Awareness of road safety has increased sharply since the campaign began, especially among young drivers.', ['Since the campaign started, young drivers in particular have become much more conscious of road safety.', 'Knowledge of road safety has risen greatly since the campaign began, most of all among young drivers.', 'The campaign has led to a big rise in understanding of road safety, particularly for young drivers.'], 'degree', 'sharp increase', [
+    { text:'Awareness of road safety has fallen sharply since the campaign began, especially among young drivers.', misconceptionCategory:'polarity_change' },
+    { text:'Awareness of road safety has increased slightly since the campaign began, especially among young drivers.', misconceptionCategory:'degree_change' },
+    { text:'Awareness of road safety has increased.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_awareness']),
+  idea('capacity', 'Children have a greater capacity than adults to learn new sounds, although adults are better at studying grammar.', ['Children are naturally better able than adults to learn new sounds, but adults are stronger at studying grammar.', 'Adults do better at studying grammar, while children have more potential to pick up new sounds.', 'Although grammar study suits adults more, children have the greater natural ability to learn new sounds.'], 'comparison', 'children better with sounds, adults better with grammar', [
+    { text:'Adults have a greater capacity than children to learn new sounds, although children are better at studying grammar.', misconceptionCategory:'comparison_change' },
+    { text:'Children have a greater capacity than adults to learn new sounds.', misconceptionCategory:'omitted_information' },
+    { text:'Children are more interested than adults in new sounds, although adults are better at studying grammar.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_capacity']),
+  idea('feedback', 'Students improve faster when they receive feedback soon after finishing a task than when they wait a week.', ['Learners progress more quickly if comments on their work come straight after the task rather than a week later.', 'Getting helpful comments promptly after a task helps students to improve faster than waiting seven days does.', 'A week’s wait for comments slows improvement compared with receiving them soon after the task.'], 'time', 'soon after the task, not a week later', [
+    { text:'Students improve faster when they receive feedback a week after finishing a task than when they receive it immediately.', misconceptionCategory:'time_change' },
+    { text:'Students improve more slowly when they receive feedback soon after finishing a task than when they wait a week.', misconceptionCategory:'polarity_change' },
+    { text:'Students improve faster when they receive feedback.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_feedback']),
+  idea('respond', 'Patients respond better to treatment when they understand why the doctor has chosen it.', ['Patients react more positively to treatment if they understand the doctor’s reasons for choosing it.', 'Understanding the doctor’s reasons for a treatment makes patients react to it more positively.', 'Patients who are told why a treatment was chosen show a better reaction to it.'], 'cause_effect', 'understanding the reason leads to a better reaction', [
+    { text:'Patients respond worse to treatment when they understand why the doctor has chosen it.', misconceptionCategory:'polarity_change' },
+    { text:'Patients understand why the doctor has chosen a treatment when they respond better to it.', misconceptionCategory:'cause_effect_change' },
+    { text:'Patients respond to treatment.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_respond']),
+  idea('hesitation', 'After a long hesitation, the player took the penalty and scored.', ['The player was unsure for a long moment, then took the penalty and scored.', 'Only after a lengthy pause caused by uncertainty did the player take the penalty, and he scored.', 'The player paused for a long time, full of doubt, before taking the penalty and scoring.'], 'time', 'long pause before the penalty', [
+    { text:'After a brief hesitation, the player took the penalty and scored.', misconceptionCategory:'degree_change' },
+    { text:'Without any hesitation, the player took the penalty and scored.', misconceptionCategory:'polarity_change' },
+    { text:'After a long argument, the player took the penalty and scored.', misconceptionCategory:'meaning_confusion' }
+  ], ['vocab_hesitation']),
+  idea('independent', 'Parents can help children to become independent by giving them small responsibilities from an early age.', ['Parents can help children learn to manage without constant help by giving them small responsibilities from an early age.', 'Giving children small duties when they are young helps them to learn to look after themselves.', 'From an early age, small responsibilities help children to cope without relying heavily on their parents.'], 'cause_effect', 'small responsibilities lead to self-reliance', [
+    { text:'Parents can help children to become independent by doing everything for them from an early age.', misconceptionCategory:'cause_effect_change' },
+    { text:'Parents can help children to become independent by giving them small responsibilities only when they are adults.', misconceptionCategory:'time_change' },
+    { text:'Parents can help children to become independent.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_independent']),
+  idea('assumption', 'The scientist realised that her whole experiment depended on an assumption that nobody had tested.', ['The scientist realised that her entire experiment relied on an idea, taken as true, that no one had checked.', 'Her whole experiment rested on a belief that had never been tested, the scientist realised.', 'The scientist saw that everything in her experiment depended on one untested idea that was simply taken to be true.'], 'quantity', 'whole experiment depended on one untested belief', [
+    { text:'The scientist realised that part of her experiment depended on an assumption that nobody had tested.', misconceptionCategory:'quantity_change' },
+    { text:'The scientist realised that her whole experiment depended on evidence that nobody had tested.', misconceptionCategory:'meaning_confusion' },
+    { text:'The scientist realised that her whole experiment depended on an assumption that everybody had tested.', misconceptionCategory:'polarity_change' }
+  ], ['vocab_assumption']),
+  idea('perspective', 'Travelling abroad gave Ravi a new perspective on his own country, which he now sees as more diverse than he once thought.', ['Going overseas gave Ravi a fresh way of looking at his homeland, which he now finds more varied than he used to believe.', 'After travelling abroad, Ravi sees his own country differently and now finds it more diverse than before.', 'Spending time in other countries changed how Ravi thinks about his homeland; he now believes it is more varied than he once did.'], 'comparison', 'more diverse than before', [
+    { text:'Travelling abroad gave Ravi a new perspective on his own country, which he now sees as less diverse than he once thought.', misconceptionCategory:'comparison_change' },
+    { text:'Travelling abroad made Ravi miss his own country, which he now sees as more diverse than he once thought.', misconceptionCategory:'meaning_confusion' },
+    { text:'Travelling abroad gave Ravi a new perspective on his own country.', misconceptionCategory:'omitted_information' }
+  ], ['vocab_perspective']),
+  idea('pressure', 'Some students perform worse under pressure, while others perform better.', ['Heavy expectations lower some students’ results and raise those of others.', 'When demands are high, certain students achieve less, while others achieve more.', 'Stress makes some students do less well, but it helps others to do better.'], 'comparison', 'worse for some, better for others', [
+    { text:'All students perform worse under pressure.', misconceptionCategory:'quantity_change' },
+    { text:'Some students perform worse under pressure.', misconceptionCategory:'omitted_information' },
+    { text:'Some students perform worse under pressure, while others perform the same.', misconceptionCategory:'comparison_change' }
+  ], ['vocab_pressure_6'])
 ];
 
 export default [...phraseSets, ...ideaSets];

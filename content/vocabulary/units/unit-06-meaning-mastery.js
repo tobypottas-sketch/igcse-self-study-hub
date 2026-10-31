@@ -1,4 +1,4 @@
-// Unit 6 · Meaning · Apply and Mastery — authored wrong meanings, WORDS 1–10 so far. Same contract as unit-05-meaning-mastery.js:
+// Unit 6 · Meaning · Apply and Mastery — authored wrong meanings, WORDS 1–40 so far. Same contract as unit-05-meaning-mastery.js:
 // two records per word in the order of the word's two Mastery contexts; exactly three authored WRONG glosses, same grammar and similar length
 // as the correct gloss, plausible in general, wrong in this sentence.
 const w = (wrongMeanings, extra = {}) => ({ wrongMeanings, ...extra });
@@ -123,5 +123,45 @@ export default Object.freeze({
   inefficient: [
     w(['not producing the intended result', 'very expensive to repair', 'too difficult for most people']),
     w(['not safe for the people who use it', 'not popular with the shops that sell it', 'not available in very cold weather'])
+  ],
+  struggle: [
+    w(['to be unwilling to start something', 'to be too tired to continue', 'to dislike what other people do']),
+    w(['to refuse to stay open late', 'to decide to sell more goods', 'to plan to move somewhere else'])
+  ],
+  awareness: [
+    w(['anger that something is allowed', 'permission to do something risky', 'payment for doing something useful']),
+    w(['approval of how people choose', 'payment for how people work', 'memory of how people lived'])
+  ],
+  capacity: [
+    w(['the wish to avoid something difficult', 'the habit of finishing early', 'the reward for doing something well']),
+    w(['the speed of moving from place to place', 'the habit of forgetting unimportant things', 'the cost of keeping something safe'])
+  ],
+  feedback: [
+    w(['marks that decide a final result', 'rules that explain what to do', 'prizes that reward good work']),
+    w(['payment for finishing a task', 'advice about what to wear', 'instructions for starting a machine'])
+  ],
+  respond: [
+    w(['to ask a new question', 'to read a text aloud', 'to repeat what was said']),
+    w(['to refuse to take something', 'to suffer from something', 'to prepare for something'])
+  ],
+  hesitation: [
+    w(['a rush caused by excitement', 'a refusal caused by anger', 'a plan made with care']),
+    w(['a mistake caused by haste', 'a refusal caused by anger', 'an argument caused by a payment'])
+  ],
+  independent: [
+    w(['unwilling to listen to anyone', 'unable to work with other people', 'likely to copy what others think']),
+    w(['free from the control of a government', 'alone because nobody else is nearby', 'rich enough to buy what is needed'])
+  ],
+  assumption: [
+    w(['a fact that has been checked carefully', 'a message sent to many people', 'a rule written in an email']),
+    w(['a result found after a long test', 'a decision made by the council', 'a report written by an expert'])
+  ],
+  perspective: [
+    w(['a reward for finishing a task', 'a long journey to a new city', 'a record of past events']),
+    w(['an opinion with no reasons behind it', 'a plan to reduce a company’s costs', 'a habit formed by repeated practice'])
+  ],
+  pressure: [
+    w(['the force of weight on a surface', 'a reward given for winning a game', 'a friendly wish for good luck']),
+    w(['air that is moving at high speed', 'a strong wish to relax after work', 'a gentle request to work later'])
   ]
 });

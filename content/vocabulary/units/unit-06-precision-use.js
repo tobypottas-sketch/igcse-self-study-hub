@@ -1,4 +1,4 @@
-// Unit 6 Precision & Use content: two "weak wording -> precise word" items per word, WORDS 1–30 so far. Same contract as unit-05-precision-use.js:
+// Unit 6 Precision & Use content: two "weak wording -> precise word" items per word, WORDS 1–40 so far. Same contract as unit-05-precision-use.js:
 // each item is a writing_set improve_vocabulary record; the weak wording quoted in the prompt appears exactly once in sourceText and not at its
 // start; distractors fit the sentence grammatically but are wrong in meaning.
 const status = 'draft';
@@ -71,5 +71,25 @@ export default [
   precision('u6_writing_precision_effective_a', 'vocab_effective', P('successful in'), 'Although the new drug took years to develop and cost millions, it was successful in curing the disease.', ['effective in', 'effective at'], ['efficient in', 'popular in', 'dangerous in']),
   precision('u6_writing_precision_effective_b', 'vocab_effective', P('good'), 'Studies show that explaining ideas aloud is a good method of remembering them.', ['effective'], ['popular', 'traditional', 'common']),
   precision('u6_writing_precision_inefficient_a', 'vocab_inefficient', P('wasteful'), 'The old printer produced perfect copies, but it was wasteful, using three times as much paper as the new model.', ['inefficient'], ['ineffective', 'unreliable', 'unattractive']),
-  precision('u6_writing_precision_inefficient_b', 'vocab_inefficient', P('a wasteful'), 'Reading every page twice is a wasteful use of time when you only need to find one fact.', ['an inefficient'], ['an ineffective', 'an unfair', 'an unusual'])
+  precision('u6_writing_precision_inefficient_b', 'vocab_inefficient', P('a wasteful'), 'Reading every page twice is a wasteful use of time when you only need to find one fact.', ['an inefficient'], ['an ineffective', 'an unfair', 'an unusual']),
+  precision('u6_writing_precision_struggle_a', 'vocab_struggle_6', P('have problems'), 'Many new arrivals have problems with the local accent for the first few months.', ['struggle'], ['argue', 'agree', 'quarrel']),
+  precision('u6_writing_precision_struggle_b', 'vocab_struggle_6', P('fight'), 'Many small farmers fight to pay their bills when crop prices fall.', ['struggle'], ['refuse', 'intend', 'promise']),
+  precision('u6_writing_precision_awareness_a', 'vocab_awareness', P('knowledge'), 'The campaign aims to raise public knowledge of the risks of sunburn.', ['awareness'], ['concentration', 'guidance', 'motivation']),
+  precision('u6_writing_precision_awareness_b', 'vocab_awareness', P('knowledge about'), 'Many tourists have little knowledge about local customs, which sometimes causes offence.', ['awareness of', 'awareness about'], ['permission for', 'insurance for', 'payment for']),
+  precision('u6_writing_precision_capacity_a', 'vocab_capacity', P('power'), 'Human beings have an amazing power to adapt to new conditions.', ['capacity'], ['permission', 'excuse', 'reason']),
+  precision('u6_writing_precision_capacity_b', 'vocab_capacity', P('ability'), 'Good teachers look beyond a low mark to see a pupil’s true ability for hard work, because marks show only current performance.', ['capacity'], ['record', 'habit', 'excuse']),
+  precision('u6_writing_precision_feedback_a', 'vocab_feedback', P('criticism'), 'Good teachers give useful criticism that explains both what the student did well and how to improve.', ['feedback'], ['homework', 'equipment', 'permission']),
+  precision('u6_writing_precision_feedback_b', 'vocab_feedback', P('comments'), 'Many companies ask customers to leave comments after a purchase so that they can improve their service.', ['feedback'], ['receipts', 'deposits', 'passwords']),
+  precision('u6_writing_precision_respond_a', 'vocab_respond', P('answer'), 'When customers complain online, the company must answer within twenty-four hours.', ['respond'], ['vote', 'travel', 'retire']),
+  precision('u6_writing_precision_respond_b', 'vocab_respond', P('reply to'), 'Some students reply to stress by working harder, while others give up.', ['respond to'], ['agree to', 'belong to', 'point to']),
+  precision('u6_writing_precision_hesitation_a', 'vocab_hesitation', P('delay'), 'Without any delay, the firefighters entered the burning building.', ['hesitation'], ['permission', 'refusal', 'payment']),
+  precision('u6_writing_precision_hesitation_b', 'vocab_hesitation', P('uncertainty'), 'She stood at the door for a moment of uncertainty before knocking.', ['hesitation'], ['permission', 'celebration', 'explanation']),
+  precision('u6_writing_precision_independent_a', 'vocab_independent', P('grown-up'), 'After a year abroad, she became more grown-up and managed her own money and meals.', ['independent'], ['isolated', 'talkative', 'generous']),
+  precision('u6_writing_precision_independent_b', 'vocab_independent', P('on their own'), 'The programme teaches young people to cook and budget so that they can live on their own.', ['independently'], ['frequently', 'eventually', 'nearby']),
+  precision('u6_writing_precision_assumption_a', 'vocab_assumption', P('a fact'), 'Her plan was based on a fact that nobody had ever checked, so it failed.', ['an assumption'], ['an invitation', 'a receipt', 'a uniform']),
+  precision('u6_writing_precision_assumption_b', 'vocab_assumption', P('a guess'), 'The report makes a guess that sales will double, but it gives no evidence.', ['an assumption'], ['a promise', 'a complaint', 'a payment']),
+  precision('u6_writing_precision_perspective_a', 'vocab_perspective', P('opinion'), 'Reading the story from the child’s opinion helped the class to understand why she ran away.', ['perspective'], ['request', 'mistake', 'rumour']),
+  precision('u6_writing_precision_perspective_b', 'vocab_perspective', P('point of view'), 'Her work experience gave her a broader point of view on how companies operate.', ['perspective'], ['reputation', 'permission', 'salary']),
+  precision('u6_writing_precision_pressure_a', 'vocab_pressure_6', P('force'), 'Young players often say that the force to win every game takes away their enjoyment.', ['pressure'], ['motivation', 'curiosity', 'guidance']),
+  precision('u6_writing_precision_pressure_b', 'vocab_pressure_6', P('strain'), 'Surgeons must make quick decisions under strain, so they train in realistic simulations.', ['pressure'], ['suspicion', 'sunlight', 'ridicule'])
 ];

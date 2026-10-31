@@ -1,4 +1,4 @@
-// Unit 6 · Context · Mastery (type_in_passage) — authored short passages, WORDS 1–10 so far. Same contract as unit-05-context-passages.js:
+// Unit 6 · Context · Mastery (type_in_passage) — authored short passages, WORDS 1–40 so far. Same contract as unit-05-context-passages.js:
 // two passages per word, each 2-3 natural sentences with exactly ONE gap (`____`); the passage never contains the target elsewhere, never starts
 // with the gap, and makes the target the natural fit. `answer` is the exact surface form typed. `why` records what points to the word.
 const p = (text, answer, why) => ({ text, answer, why });
@@ -123,5 +123,45 @@ export default Object.freeze({
   inefficient: [
     p('In the old office, every form had to be signed by five different managers in five different buildings. The system was not impossible, but it was deeply ____, because it wasted days of staff time.', 'inefficient', 'Wasted days of time; "deeply ____, because it wasted".'),
     p('Energy experts often give a simple example. A kettle that is filled to the top for a single cup is ____: most of the electricity heats water that nobody will use.', 'inefficient', 'Energy wasted on unused water; "is ____: most of the electricity".')
+  ],
+  struggle: [
+    p('Learning to read in a second language is slow work. Some children ____ for years with spelling, even though they speak fluently and enjoy stories.', 'struggle', 'Have difficulty for a long time; "____ for years with spelling".'),
+    p('Opening a business is rarely easy. In the first year, many owners ____ to pay the rent, because customers take time to find them.', 'struggle', 'Find it very hard; "____ to pay the rent".')
+  ],
+  awareness: [
+    p('Few people knew that the disease existed until the charity began its campaign. Since then, public ____ has risen, and more patients visit a doctor early.', 'awareness', 'Knowledge that something exists; "public ____ has risen".'),
+    p('A driver may look at the road and still miss a cyclist. The problem is often a lack of ____ of other road users, not poor eyesight.', 'awareness', 'Not noticing or understanding that others are there; "a lack of ____ of".')
+  ],
+  capacity: [
+    p('Nobody is born knowing how to read, but almost every child has the ____ to learn it. Good teaching turns that potential into skill.', 'capacity', 'Potential or ability to learn; "the ____ to learn it".'),
+    p('A beginner may play badly today and still show great promise. A good coach looks for the ____ to improve, not only for the score on the day.', 'capacity', 'Potential, not current performance; "the ____ to improve".')
+  ],
+  feedback: [
+    p('The student handed in an essay and heard nothing for three weeks. Without ____, she did not know which mistakes to correct before the next one.', 'feedback', 'Comments on performance; "Without ____, she did not know which mistakes".'),
+    p('The app tells runners their speed after every kilometre. This instant ____ lets them slow down or speed up during the race.', 'feedback', 'Information about performance; "instant ____ lets them slow down".')
+  ],
+  respond: [
+    p('The teacher asked the class why the river had flooded. Nobody spoke at first, then one boy began to ____ with a simple, careful explanation.', 'respond', 'Give an answer; "began to ____ with a simple explanation".'),
+    p('Doctors know that two people with the same illness may not react in the same way. One patient may ____ well to a medicine, while another feels no change at all.', 'respond', 'React to treatment; "____ well to a medicine".')
+  ],
+  hesitation: [
+    p('The climber looked down at the narrow ledge. After a long ____, she took a deep breath and stepped forward.', 'hesitation', 'A pause caused by fear or doubt; "After a long ____, she took a deep breath".'),
+    p('The interviewer noticed every pause in the candidate’s answers. Her ____ suggested that she was unsure of the facts, even though her voice stayed calm.', 'hesitation', 'Pauses that show uncertainty; "Her ____ suggested that she was unsure".')
+  ],
+  independent: [
+    p('At first the pupils asked for help with every exercise. By the end of term they had become ____ readers who could choose, read and discuss books without a teacher.', 'independent', 'Able to read without relying on a teacher; "become ____ readers".'),
+    p('Mehmet’s parents drove him to school until he was fourteen. Then he decided to travel by bus alone, because he wanted to feel more ____.', 'independent', 'Able to manage without relying on parents; "feel more ____".')
+  ],
+  assumption: [
+    p('The architect designed the bridge for light traffic. Her whole plan rested on one ____: that the town would not grow, which turned out to be wrong.', 'assumption', 'Something accepted as true without proof; "rested on one ____: that the town would not grow".'),
+    p('Nobody had checked whether the website worked on older phones. The team had simply made an ____ that it would, and customers soon complained.', 'assumption', 'Belief taken as true without checking; "made an ____ that it would".')
+  ],
+  perspective: [
+    p('The history lesson usually described the battle from the winning side. When the teacher read letters from the other army, students gained a new ____ on the same events.', 'perspective', 'A way of viewing events; "a new ____ on the same events".'),
+    p('A landlord and a tenant may see the same flat very differently. From the landlord’s ____, a higher rent is fair; from the tenant’s, it is a burden.', 'perspective', 'A point of view; "From the landlord’s ____ ... from the tenant’s".')
+  ],
+  pressure: [
+    p('The final was watched by millions. The young goalkeeper said he felt no fear, but the ____ of the occasion made his hands shake.', 'pressure', 'Stress from expectations; "the ____ of the occasion made his hands shake".'),
+    p('Some students revise best the night before an exam. Others cannot think clearly when they feel ____ from teachers, parents and friends all at once.', 'pressure', 'Demands that cause stress; "feel ____ from teachers, parents and friends".')
   ]
 });

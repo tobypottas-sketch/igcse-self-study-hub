@@ -1,4 +1,4 @@
-// Unit 6 collocations, WORDS 1–10 so far: natural, frequent combinations for each target (authored; same shape as unit-05-collocations.js).
+// Unit 6 collocations, WORDS 1–40 so far: natural, frequent combinations for each target (authored; same shape as unit-05-collocations.js).
 export default Object.freeze({
   absorb: ['absorb information', 'absorb new ideas', 'absorb knowledge'],
   confidence: ['build confidence', 'lack confidence', 'confidence in your own ability'],
@@ -29,5 +29,15 @@ export default Object.freeze({
   curiosity: ['natural curiosity', 'curiosity about', 'satisfy your curiosity'],
   technique: ['a revision technique', 'learn a technique', 'breathing technique'],
   effective: ['an effective method', 'highly effective', 'an effective way of'],
-  inefficient: ['an inefficient system', 'inefficient use of', 'highly inefficient']
+  inefficient: ['an inefficient system', 'inefficient use of', 'highly inefficient'],
+  struggle: ['struggle with a task', 'struggle to understand', 'struggle to keep up'],
+  awareness: ['raise awareness', 'awareness of', 'public awareness'],
+  capacity: ['capacity to learn', 'capacity for', 'a limited capacity'],
+  feedback: ['give feedback', 'feedback on', 'positive feedback'],
+  respond: ['respond to', 'respond quickly', 'respond positively'],
+  hesitation: ['without hesitation', 'a moment of hesitation', 'show hesitation'],
+  independent: ['an independent learner', 'independent thinking', 'independent study'],
+  assumption: ['make an assumption', 'a false assumption', 'on the assumption that'],
+  perspective: ['a different perspective', 'from the perspective of', 'gain a new perspective'],
+  pressure: ['under pressure', 'pressure to succeed', 'peer pressure']
 });

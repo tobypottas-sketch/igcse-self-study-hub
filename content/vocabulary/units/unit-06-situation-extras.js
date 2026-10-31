@@ -1,4 +1,4 @@
-// Unit 6 · additional authored WRONG situations for "Which situation fits?", WORDS 1–10 so far. Same purpose as unit-05-situation-extras.js:
+// Unit 6 · additional authored WRONG situations for "Which situation fits?", WORDS 1–40 so far. Same purpose as unit-05-situation-extras.js:
 // the schema needs at least four distinct, target-free situations. Each word gets three more plausible, clearly wrong situations of mixed length.
 // None of them shows the word, and none could also illustrate it.
 export default Object.freeze({
@@ -151,5 +151,55 @@ export default Object.freeze({
     'Heavy rain fell all afternoon, so the match was moved indoors.',
     'The students sat in a circle and took turns to read aloud.',
     'A waiter carried three plates of soup to the corner table.'
+  ],
+  struggle: [
+    'Dana tidied her room and put the clean clothes in the wardrobe.',
+    'The ferry crossed the bay in under twenty minutes.',
+    'A neighbour offered to look after the cat for the weekend.'
+  ],
+  awareness: [
+    'The baker sold out of bread before nine o’clock.',
+    'Tomás painted the fence white and washed the brushes afterwards.',
+    'A group of cyclists stopped at the cafe on the corner.'
+  ],
+  capacity: [
+    'Ines bought a ticket and found a seat by the window.',
+    'The old clock in the square struck twelve.',
+    'Hot soup was served to everyone after the long walk.'
+  ],
+  feedback: [
+    'The farmer opened the gate and let the sheep cross the road.',
+    'Two friends shared a taxi to the airport.',
+    'Snow covered the village and the roads were closed.'
+  ],
+  respond: [
+    'A man in a yellow coat sold umbrellas outside the station.',
+    'The children built a tent in the garden with old sheets.',
+    'Lucas painted the kitchen wall pale green on Sunday.'
+  ],
+  hesitation: [
+    'The orchestra tuned their instruments before the concert began.',
+    'Rain stopped just before the parade reached the square.',
+    'Priya sorted the letters into three piles on the desk.'
+  ],
+  independent: [
+    'The fisherman repaired his net while the tide went out.',
+    'A clerk stamped the forms and handed them back.',
+    'Harvest began early because the weather was so warm.'
+  ],
+  assumption: [
+    'The bus driver opened the doors and the passengers got off.',
+    'Mei watered the plants and closed the curtains for the night.',
+    'A delivery van blocked the narrow street for ten minutes.'
+  ],
+  perspective: [
+    'The pianist played the final piece and the audience stood up.',
+    'Customers queued outside the bakery in the morning cold.',
+    'Omar fixed the bicycle chain and wiped his hands.'
+  ],
+  pressure: [
+    'The artist mixed blue and yellow paint to make green.',
+    'Visitors walked slowly through the quiet museum.',
+    'Grandmother knitted a scarf while the soup cooked.'
   ]
 });

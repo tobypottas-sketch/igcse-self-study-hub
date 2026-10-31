@@ -1,6 +1,6 @@
-// Unit 6 Word Families items (writing_set, taskType 'word_family'), WORDS 1–30 so far: three items for each word that has a genuine family.
+// Unit 6 Word Families items (writing_set, taskType 'word_family'), WORDS 1–40 so far: three items for each word that has a genuine family.
 // Same record shape as unit-05-word-family-items.js. Each sentence has one gap that exactly one form of the family completes, and the gap never
-// opens the sentence. Only confidence, stagnate, engage, participate, active, reflect, strategy, forecast, distract, evidence, concentration, motivation, effective and inefficient have a genuine family in words 1–30, so the other sixteen words have no items
+// opens the sentence. Only confidence, stagnate, engage, participate, active, reflect, strategy, forecast, distract, evidence, concentration, motivation, effective, inefficient, awareness, respond, hesitation and independent have a genuine family in words 1–30, so the other sixteen words have no items
 // (see unit-06-word-families.js).
 const unitNumber = 6;
 const status = 'draft';
@@ -53,5 +53,17 @@ export default [
   family('effective_c', 'vocab_effective', 'effective', 'Researchers measured the ____ of the scheme by comparing test scores before and after.', 'effectiveness'),
   family('inefficient_a', 'vocab_inefficient', 'inefficient', 'It is ____ to walk to three different offices when one online form would be enough.', 'inefficient'),
   family('inefficient_b', 'vocab_inefficient', 'inefficient', 'The company lost money because of ____ in the way orders were handled.', 'inefficiency'),
-  family('inefficient_c', 'vocab_inefficient', 'inefficient', 'Employees who plan badly use their time ____ and finish work late.', 'inefficiently')
+  family('inefficient_c', 'vocab_inefficient', 'inefficient', 'Employees who plan badly use their time ____ and finish work late.', 'inefficiently'),
+  family('awareness_a', 'vocab_awareness', 'awareness', 'The campaign aims to increase public ____ of the risks of sunburn.', 'awareness'),
+  family('awareness_b', 'vocab_awareness', 'awareness', 'Most drivers are ____ of the speed limit near the school.', 'aware'),
+  family('awareness_c', 'vocab_awareness', 'awareness', 'Tom was completely ____ that his phone was ringing, because he was wearing headphones.', 'unaware'),
+  family('respond_a', 'vocab_respond', 'respond', 'Companies must ____ quickly when customers report a fault.', 'respond'),
+  family('respond_b', 'vocab_respond', 'respond', 'The council promised a full ____ to the complaint within a week.', 'response'),
+  family('respond_c', 'vocab_respond', 'respond', 'Patients prefer a ____ doctor who listens and answers questions quickly.', 'responsive'),
+  family('hesitation_a', 'vocab_hesitation', 'hesitation', 'She accepted the job without ____ because she had wanted it for years.', 'hesitation'),
+  family('hesitation_b', 'vocab_hesitation', 'hesitation', 'Please do not ____ to ask for help if the instructions are unclear.', 'hesitate'),
+  family('hesitation_c', 'vocab_hesitation', 'hesitation', 'He gave a ____ answer, as if he were not sure the figure was correct.', 'hesitant'),
+  family('independent_a', 'vocab_independent', 'independent', 'Good courses help learners to become ____ so that they can study without a teacher.', 'independent'),
+  family('independent_b', 'vocab_independent', 'independent', 'Many teenagers want more ____ from their parents when they reach sixteen.', 'independence'),
+  family('independent_c', 'vocab_independent', 'independent', 'Please work ____ on this task and do not ask your neighbour for the answers.', 'independently')
 ];
