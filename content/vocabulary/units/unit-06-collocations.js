@@ -19,5 +19,15 @@ export default Object.freeze({
   revise: ['revise for an exam', 'revise a topic', 'revise regularly'],
   forecast: ['forecast the weather', 'forecast sales', 'accurately forecast'],
   interfere: ['interfere with sleep', 'interfere with learning', 'interfere in a decision'],
-  distract: ['distract attention', 'distract from the task', 'easily distract']
+  distract: ['distract attention', 'distract from the task', 'easily distract'],
+  evidence: ['strong evidence', 'evidence to support', 'gather evidence'],
+  guidance: ['career guidance', 'guidance from a teacher', 'provide guidance'],
+  academic: ['academic achievement', 'academic performance', 'academic subjects'],
+  concentration: ['lose concentration', 'concentration on a task', 'require concentration'],
+  complex: ['a complex problem', 'a complex system', 'increasingly complex'],
+  motivation: ['lose motivation', 'motivation to learn', 'a source of motivation'],
+  curiosity: ['natural curiosity', 'curiosity about', 'satisfy your curiosity'],
+  technique: ['a revision technique', 'learn a technique', 'breathing technique'],
+  effective: ['an effective method', 'highly effective', 'an effective way of'],
+  inefficient: ['an inefficient system', 'inefficient use of', 'highly inefficient']
 });

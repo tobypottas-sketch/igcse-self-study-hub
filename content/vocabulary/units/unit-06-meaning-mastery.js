@@ -83,5 +83,45 @@ export default Object.freeze({
   distract: [
     w(['to give information about what to do', 'to make someone feel sleepy in lessons', 'to hide the lesson from young pupils']),
     w(['to help someone to finish their work', 'to copy someone’s answers carelessly', 'to give someone extra time to work'])
+  ],
+  evidence: [
+    w(['proof that nobody can question', 'opinions that people share', 'rules that guide a decision']),
+    w(['personal feelings about a text', 'a summary of the whole text', 'questions about the meaning of a text'])
+  ],
+  guidance: [
+    w(['orders that students must obey', 'rules about uniform and behaviour', 'results of an entrance test']),
+    w(['punishment from a strict teacher', 'payment for a training course', 'praise for a good performance'])
+  ],
+  academic: [
+    w(['connected with sport and exercise', 'connected with art and music', 'connected with money and trade']),
+    w(['connected with building and repair work', 'connected with farming and food', 'connected with travel and tourism'])
+  ],
+  concentration: [
+    w(['a strong wish to finish a task', 'the amount of a substance in water', 'a feeling of tiredness after exercise']),
+    w(['a fear of making a mistake', 'pride in a good result', 'a desire to be the best'])
+  ],
+  complex: [
+    w(['hard to do but simple in structure', 'new and not yet tested', 'old and no longer useful']),
+    w(['simple to use after one lesson', 'too expensive for most people', 'hard to see because it is small'])
+  ],
+  motivation: [
+    w(['the ability to give full attention', 'the plan for reaching a goal', 'the feeling of pride in work']),
+    w(['the rule that people must follow at work', 'the time when people finish work', 'the money that people receive for work'])
+  ],
+  curiosity: [
+    w(['a fear of making mistakes', 'a wish to win a prize', 'a feeling of boredom']),
+    w(['a worry about breaking something', 'a plan to earn some money', 'a habit of arriving late'])
+  ],
+  technique: [
+    w(['a general plan for a whole season', 'a rule that all athletes follow', 'a prize for the best athlete']),
+    w(['a long plan for selling paintings', 'a place where artists meet', 'a rule about painting in public'])
+  ],
+  effective: [
+    w(['working quickly without wasting time', 'costing very little money', 'popular with a large number of people']),
+    w(['seen by a large number of people', 'paid for by a famous company', 'finished before the planned date'])
+  ],
+  inefficient: [
+    w(['not producing the intended result', 'very expensive to repair', 'too difficult for most people']),
+    w(['not safe for the people who use it', 'not popular with the shops that sell it', 'not available in very cold weather'])
   ]
 });

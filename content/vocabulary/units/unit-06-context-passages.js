@@ -83,5 +83,45 @@ export default Object.freeze({
   distract: [
     p('The library has a rule that phones must be switched off. Even a quiet vibration can ____ people who are reading, and it may take several minutes for them to find their place again.', 'distract', 'Taking attention from reading; "can ____ people who are reading".'),
     p('Chen likes to work with music playing, but he chooses songs without words. Lyrics, he says, ____ him from the task because he starts to listen to the story.', 'distract', 'Words pull his attention away; "Lyrics ____ him from the task".')
+  ],
+  evidence: [
+    p('A student wrote that homework is useless but did not mention a single study. Her teacher explained that a strong argument needs ____, such as statistics, examples or results from experiments, rather than personal opinion alone.', 'evidence', 'Statistics, examples and results; "a strong argument needs ____".'),
+    p('The detective listened carefully to every witness, yet he refused to name the thief. Without enough ____ to support his theory, he knew that an accusation could be wrong.', 'evidence', 'Supporting a theory; "enough ____ to support his theory".')
+  ],
+  guidance: [
+    p('First-year students are often unsure which courses to choose. The university therefore provides ____ through a team of advisers, who explain the options but leave the final decision to each student.', 'guidance', 'Advisers explain but students decide; "provides ____ through advisers".'),
+    p('Young athletes can develop poor habits if they train alone. With ____ from an experienced coach, they learn to improve safely and to understand why each exercise matters.', 'guidance', 'Help from an experienced coach; "With ____ from an experienced coach".')
+  ],
+  academic: [
+    p('Nadia was an excellent footballer, but her parents also wanted her to succeed in her ____ work. She therefore agreed to finish her homework before every training session.', 'academic', 'Homework versus football; "her ____ work".'),
+    p('A university looks for more than exam grades. Applicants are asked to describe their ____ interests, such as the subjects they enjoy reading about in their own time.', 'academic', 'Subjects they enjoy reading about; "their ____ interests".')
+  ],
+  concentration: [
+    p('After two hours of continuous reading, many students notice that their minds begin to wander. A short walk or a glass of water can restore their ____ so that they can continue working.', 'concentration', 'Minds wander, then attention returns; "restore their ____".'),
+    p('The surgeon asked everyone to leave the room during the delicate operation. Complete ____ was essential, because even a small mistake could harm the patient.', 'concentration', 'Full attention on one task; "Complete ____ was essential".')
+  ],
+  complex: [
+    p('A national economy cannot be explained by a single cause. Prices, jobs, trade and government decisions all affect one another, which makes the system far too ____ for a simple answer.', 'complex', 'Many connected parts; "far too ____ for a simple answer".'),
+    p('At first the board game seemed easy. After a few rounds, however, the players realised that its rules were ____: each move changed the value of several other pieces.', 'complex', 'One move changes several pieces; "its rules were ____".')
+  ],
+  motivation: [
+    p('Rania started the course with great energy, but after a month of slow progress she began to skip lessons. Her teacher suggested small weekly goals, which gave her new ____ to continue.', 'motivation', 'Energy fades, goals restore it; "new ____ to continue".'),
+    p('Managers often assume that salary is the only reason people work hard. However, surveys show that recognition, interesting tasks and a sense of purpose provide strong ____ for many employees.', 'motivation', 'Reasons people work hard; "provide strong ____".')
+  ],
+  curiosity: [
+    p('The boy took apart a broken radio just to see how it worked. His ____ annoyed his father at first, but it eventually led him to a career in electronics.', 'curiosity', 'Taking things apart to learn; "His ____ annoyed his father".'),
+    p('Good science teachers do not simply give answers. They encourage ____ by asking questions such as “Why do you think that happened?” and by welcoming unexpected ideas.', 'curiosity', 'Asking why; "encourage ____ by asking questions".')
+  ],
+  technique: [
+    p('The guitarist could already play every note of the song. He practised the same short piece for weeks, not to learn the notes, but to improve his ____ for changing chords quickly without any pause.', 'technique', 'A skilled method for changing chords; "his ____ for changing chords".'),
+    p('Two runners had the same strength, yet one always finished ahead. The coach explained that her ____ was better: she landed lightly, kept her arms relaxed and wasted no energy.', 'technique', 'Skilled way of running; "her ____ was better".')
+  ],
+  effective: [
+    p('The school tried posters, assemblies and letters to reduce lateness, but nothing changed. When it introduced a short breakfast club, the number of late arrivals fell sharply, so the club proved to be far more ____.', 'effective', 'It produced the intended result; "far more ____".'),
+    p('A good medicine must do more than exist; it must be ____ when patients use it. Doctors therefore compare patients who take the medicine with similar patients who do not.', 'effective', 'It must work when used; "must be ____ when patients use it".')
+  ],
+  inefficient: [
+    p('In the old office, every form had to be signed by five different managers in five different buildings. The system was not impossible, but it was deeply ____, because it wasted days of staff time.', 'inefficient', 'Wasted days of time; "deeply ____, because it wasted".'),
+    p('Energy experts often give a simple example. A kettle that is filled to the top for a single cup is ____: most of the electricity heats water that nobody will use.', 'inefficient', 'Energy wasted on unused water; "is ____: most of the electricity".')
   ]
 });

@@ -20,5 +20,15 @@ export default {
   revise: ['hand back', 'give out', 'write down'],
   forecast: ['write a long report on', 'ask a direct question about', 'give a clear warning about'],
   interfere: ['stay out of sight', 'keep a safe distance', 'make way for others'],
-  distract: ['give attention to', 'pay a visit to', 'take a message from']
+  distract: ['give attention to', 'pay a visit to', 'take a message from'],
+  evidence: ['personal opinions', 'strong feelings', 'general rules'],
+  guidance: ['strict orders', 'school rules', 'final decisions'],
+  academic: ['sport-related', 'travel-related', 'health-related'],
+  concentration: ['strong feelings', 'quick decisions', 'good manners'],
+  complex: ['made of one simple part', 'built a long time ago', 'used by very few people'],
+  motivation: ['the ability to stay calm', 'the wish to be alone', 'the need to rest'],
+  curiosity: ['strong fear of failure', 'great pride in work', 'deep respect for rules'],
+  technique: ['general plan', 'useful tool', 'fixed rule'],
+  effective: ['quick to start work', 'cheap to produce', 'popular with many people'],
+  inefficient: ['careless about safety', 'proud of past results', 'afraid of new ideas']
 };

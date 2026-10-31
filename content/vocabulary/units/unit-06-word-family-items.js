@@ -1,6 +1,6 @@
-// Unit 6 Word Families items (writing_set, taskType 'word_family'), WORDS 1–20 so far: three items for each word that has a genuine family.
+// Unit 6 Word Families items (writing_set, taskType 'word_family'), WORDS 1–30 so far: three items for each word that has a genuine family.
 // Same record shape as unit-05-word-family-items.js. Each sentence has one gap that exactly one form of the family completes, and the gap never
-// opens the sentence. Only confidence, stagnate, engage, participate, active, reflect, strategy, forecast and distract have a genuine family in words 1–20, so the other eleven words have no items
+// opens the sentence. Only confidence, stagnate, engage, participate, active, reflect, strategy, forecast, distract, evidence, concentration, motivation, effective and inefficient have a genuine family in words 1–30, so the other sixteen words have no items
 // (see unit-06-word-families.js).
 const unitNumber = 6;
 const status = 'draft';
@@ -38,5 +38,20 @@ export default [
   family('forecast_c', 'vocab_forecast', 'forecast', 'Weather ____ has become more reliable because of satellites and powerful computers.', 'forecasting'),
   family('distract_a', 'vocab_distract', 'distract', 'Phone notifications can ____ students from important tasks.', 'distract'),
   family('distract_b', 'vocab_distract', 'distract', 'A tidy workspace removes every possible ____ and makes it easier to concentrate.', 'distraction'),
-  family('distract_c', 'vocab_distract', 'distract', 'The sound of building work outside was so ____ that the teacher stopped the lesson.', 'distracting')
+  family('distract_c', 'vocab_distract', 'distract', 'The sound of building work outside was so ____ that the teacher stopped the lesson.', 'distracting'),
+  family('evidence_a', 'vocab_evidence', 'evidence', 'Reliable ____ is needed before a scientist can publish a result.', 'evidence'),
+  family('evidence_b', 'vocab_evidence', 'evidence', 'After several weeks of practice, the improvement in her pronunciation was ____ to everyone.', 'evident'),
+  family('evidence_c', 'vocab_evidence', 'evidence', 'The shop was ____ closed, since the lights were off and the door was locked.', 'evidently'),
+  family('concentration_a', 'vocab_concentration', 'concentration', 'Loud music can reduce your ____ when you are solving maths problems.', 'concentration'),
+  family('concentration_b', 'vocab_concentration', 'concentration', 'It is easier to ____ on a difficult text in a quiet library.', 'concentrate'),
+  family('concentration_c', 'vocab_concentration', 'concentration', 'Ten minutes of ____ practice every day is better than one long, tired session.', 'concentrated'),
+  family('motivation_a', 'vocab_motivation', 'motivation', 'Without ____, even talented students may stop trying.', 'motivation'),
+  family('motivation_b', 'vocab_motivation', 'motivation', 'Praise and clear targets can ____ students who feel discouraged.', 'motivate'),
+  family('motivation_c', 'vocab_motivation', 'motivation', 'Teachers prefer to work with ____ learners who want to improve.', 'motivated'),
+  family('effective_a', 'vocab_effective', 'effective', 'Regular self-testing is a highly ____ way to learn vocabulary, and research shows that students remember far more.', 'effective'),
+  family('effective_b', 'vocab_effective', 'effective', 'Students who plan their time ____ usually finish their work without stress.', 'effectively'),
+  family('effective_c', 'vocab_effective', 'effective', 'Researchers measured the ____ of the scheme by comparing test scores before and after.', 'effectiveness'),
+  family('inefficient_a', 'vocab_inefficient', 'inefficient', 'It is ____ to walk to three different offices when one online form would be enough.', 'inefficient'),
+  family('inefficient_b', 'vocab_inefficient', 'inefficient', 'The company lost money because of ____ in the way orders were handled.', 'inefficiency'),
+  family('inefficient_c', 'vocab_inefficient', 'inefficient', 'Employees who plan badly use their time ____ and finish work late.', 'inefficiently')
 ];
