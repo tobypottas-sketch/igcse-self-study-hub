@@ -1,0 +1,13 @@
+name: Unit 6 Check Focused Verify
+on:
+  push:
+    branches: ['fix/unit6-check-focused-verify']
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/vocabulary-unit-06-check.test.js
