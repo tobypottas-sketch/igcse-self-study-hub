@@ -94,7 +94,7 @@ export function mountGames(root, { content, unitNumber = 1, game = 'lobby', onCu
     else if (act === 'cx-giveup') { cx.giveUp(); showCx(true); }
     else if (act === 'cx-next') { cx.next(); if (cx.state.status === 'over') onCue('finish'); showCx(); }
   };
-  const onSubmit = event => { if (!event.target?.matches?.('[data-cx-form]')) return; event.preventDefault?.(); submitGuess(event.target.elements?.guess?.value ?? q('#cxGuess')?.value ?? ''); };
+  const onSubmit = event => { if (!event.target?.matches?.('[data-cx-form]')) return; event.preventDefault?.(); submitGuess(q('#cxGuess')?.value ?? ''); };
   const onKey = event => {
     if (!blitz || blitz.state.status !== 'playing' || event.ctrlKey || event.metaKey || event.altKey) return;
     const n = Number(event.key); if (n >= 1 && n <= 4 && q('.gm-option')) { event.preventDefault?.(); answerBlitz(n - 1); }
