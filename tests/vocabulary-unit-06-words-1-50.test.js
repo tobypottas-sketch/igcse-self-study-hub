@@ -289,7 +289,7 @@ test('Batches 1–2 (words 1–20) are pinned: their items, occurrences, context
   };
   assert.equal(payload.contexts.length, 120);
   assert.equal(payload.activities.length, 107);
-  assert.equal(crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex'), 'd48b53d0e1b1f354fc40a7e094043eb47e380d21ddd60e3daa8f665e7e2d0197');
+  assert.equal(crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex'), '5b78965de254ae150c4fafbe50ec231158dedc2e8eb8097dcd42c2b2c0d7e5d8');
 });
 
 test('Batch 2 spelling entries are unchanged by Batch 3', () => {
@@ -373,7 +373,7 @@ test('Batches 1–3 (words 1–30) are pinned: their items, occurrences, context
   };
   assert.equal(payload.contexts.length, 180);
   assert.equal(payload.activities.length, 162);
-  assert.equal(crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex'), '12d7ffd4aae3efb16870e42762e7362a8574b8fb954d127674b2a6ba0d10070c');
+  assert.equal(crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex'), '6929008ac2672547c237966330ccd8a1b81d32902772c37556882c22d6a9fbe4');
 });
 
 test('Batch 4 spelling entries: six distinct lower-case misspellings for each new target (struggle and pressure alias their earlier lists)', () => {
@@ -441,7 +441,7 @@ test('Batches 1–4 (words 1–40) are pinned: their items, occurrences, context
   };
   assert.equal(payload.contexts.length, 240);
   assert.equal(payload.activities.length, 214);
-  assert.equal(crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex'), 'a34de52ff080f5b6e155ba8374cfa2382f90c4c6e8cc571816277d8e67cd3b3c');
+  assert.equal(crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex'), '7212611d4ca7f5579579db7117f293ab91ea0da32d8e8873394f79ae992d2136');
 });
 
 test('Batch 4 spelling entries are unchanged by Batch 5, and Batch 5 spelling is complete with British spellings only', () => {
@@ -543,4 +543,65 @@ test('final authoring totals: 50 items, 50 occurrences, 300 contexts and 266 act
   assert.deepEqual(byType, { 'phrase_set:': 50, 'idea_set:': 50, 'writing_set:improve_vocabulary': 100, 'writing_set:word_family': 66 });
   assert.equal(unit6.status, 'draft');
   for (const name of ['releases/unit-06.js', 'units/unit-06.js', 'units/unit-06.content-lock.json']) assert.ok(!fs.existsSync(new URL(`../content/vocabulary/${name}`, import.meta.url)), name);
+});
+
+// ---------------------------------------------------------------------------------------------
+// Pre-release audit/polish. The pins for words 1–20/1–30/1–40 above were intentionally re-pinned
+// after the audit changed: the process definition (absorb/process boundary), the concentration
+// definition (concentration/focus boundary) and the matching teacher notes.
+// ---------------------------------------------------------------------------------------------
+test('audit: locked order, positions and isolated duplicate IDs are intact', () => {
+  assert.deepEqual(unit6.items.map(i => i.term), TERMS);
+  assert.equal(new Set(unit6.items.map(i => i.vocabularyId)).size, 50);
+  for (const w of ISOLATED) assert.ok(unit6.items.some(i => i.vocabularyId === `vocab_${w}_6`), w);
+  for (const earlier of [unit1, unit2, unit3, unit4, unit5]) {
+    const ids = new Set(earlier.items.map(i => i.vocabularyId));
+    assert.deepEqual(unit6.items.filter(i => ids.has(i.vocabularyId)).map(i => i.term), []);
+  }
+});
+
+test('audit: absorb/process and concentration/focus boundaries are written into the definitions', () => {
+  const sense = t => unit6.items.find(i => i.term === t).senses[0];
+  assert.equal(sense('process').meaning, 'to think about new information until you can make sense of it');
+  assert.equal(sense('concentration').meaning, 'the ability to keep your full attention on one thing for a period of time');
+  assert.match(sense('process').teacherNote, /absorb is taking information in/);
+  assert.match(sense('concentration').teacherNote, /focus \(verb\) is the act of directing attention/);
+});
+
+test('audit: no sentence is reused anywhere in Unit 6 content outside the fixed task prompts, and no US spellings appear', () => {
+  const counts = new Map();
+  for (const m of JSON.stringify(unit6).matchAll(/"([^"]{40,}?[.?!])"/g)) counts.set(m[1], (counts.get(m[1]) ?? 0) + 1);
+  const repeated = [...counts].filter(([text, n]) => n > 1 && !/^(Use the correct form from the|Replace “)/.test(text));
+  assert.deepEqual(repeated, []);
+  assert.doesNotMatch(JSON.stringify(unit6), /prioritize|summarize|memorize|organize|recognize/i);
+});
+
+test('audit: gap-fill distractors that gave an accidental second answer have been replaced', () => {
+  const wrong = term => unit6.items.find(i => i.term === term).senses[0].gapDistractors.map(g => g.wrong.join(','));
+  assert.deepEqual(wrong('reflect')[0], 'insist,agree,vote');
+  assert.deepEqual(wrong('academic'), ['seasonal,tropical,metallic', 'tropical,frozen,seasonal', 'tropical,metallic,frozen']);
+  assert.deepEqual(wrong('pressure'), ['hunger,thirst,warmth', 'distance,colour,tradition', 'budget,distance,schedule']);
+  assert.deepEqual(wrong('focus'), ['depend,vote,insist', 'rely,agree,insist', 'depend,agree,vote']);
+});
+
+test('audit: planner decision — whole sets of 10 are preserved and the exact served and held-back membership is pinned', () => {
+  const sets = id => readiness.pathways[id].setMembers.map(s => s.map(x => x.replace(/^u6_\d+_/, '')));
+  const held = id => readiness.pathways[id].heldBackOccurrenceIds.map(x => x.replace(/^u6_\d+_/, ''));
+  for (const id of ['meaning', 'context']) {
+    assert.equal(readiness.pathways[id].servedCount, 49);
+    assert.equal(readiness.pathways[id].setCount, 4);
+    assert.ok(sets(id).every(s => s.length === 10));
+    assert.deepEqual(held(id), ['retain', 'summarise', 'coordination', 'cognitive', 'achievement_6', 'outcome', 'focus', 'memorise', 'insight']);
+    assert.ok(!sets(id).flat().includes('dramatically'));
+  }
+  assert.equal(readiness.pathways.word_families.setCount, 2);
+  assert.ok(sets('word_families').every(s => s.length === 10));
+  assert.deepEqual(held('word_families'), ['achievement_6', 'memorise']);
+  for (const id of ['paraphrasing', 'precision_use', 'spelling_recall']) {
+    assert.equal(readiness.pathways[id].setCount, 5);
+    assert.equal(readiness.pathways[id].heldBackCount, 0);
+  }
+  // Unit 4 has the identical Meaning/Context shape under the same planner, so the behaviour is not Unit 6-specific.
+  const r4 = evaluateUnitReadiness({ content: releasePlannerContent(unit4) });
+  assert.deepEqual([r4.pathways.meaning.servedCount, r4.pathways.meaning.setCount, r4.pathways.meaning.heldBackCount], [49, 4, 9]);
 });
