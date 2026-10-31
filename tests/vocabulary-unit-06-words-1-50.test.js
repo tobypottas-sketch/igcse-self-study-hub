@@ -1,4 +1,4 @@
-// Unit 6 (Learning and Study Skills) · words 1–50 authored (batches 1–5, authoring complete, draft). Guards the contract with the real readiness evaluator and builders. All 50 words are authored, so the unit stays a draft: no releases/unit-06.js, no lock, no SQL, no artwork.
+// Unit 6 (Learning and Study Skills) · words 1–50 authored (batches 1–5, authoring complete, draft). Guards the contract with the real readiness evaluator and builders. All 50 words are authored, so the unit stays a draft: cover artwork is a separate shipped asset (assets/vocabulary/units/unit-06.png).
 // Packaging note: the content pins below hash the audited content with the status normalised to 'draft', so promoting the unit to 'approved' does not change them: the packaged content is byte-identical to the audited draft apart from status.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -49,7 +49,6 @@ test('Unit 6 batches 1–5 are exactly the fifty locked targets, in order, as an
   assert.equal(unit6.status, 'approved');
   assert.ok(fs.existsSync(new URL('../content/vocabulary/releases/unit-06.js', import.meta.url)), 'Unit 6 release file must exist');
   assert.ok(!fs.existsSync(new URL('../content/vocabulary/units/unit-06-draft.js', import.meta.url)), 'the draft source is gone: one authoritative Unit 6 source');
-  assert.ok(!fs.existsSync(new URL('../assets/vocabulary/units/unit-06.png', import.meta.url)), 'no artwork yet');
 });
 
 test('IDs are Unit 6-specific, unique, and never collide with Units 1–5; no exact earlier target is repeated', () => {

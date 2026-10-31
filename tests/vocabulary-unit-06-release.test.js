@@ -171,7 +171,7 @@ test('the Unit 6 sync SQL only upserts Unit 6 rows: no earlier-unit id, no delet
 });
 
 test('this packaging adds no Supabase, Edge Function, Unit Check or Games artefact for Unit 6', () => {
-  for (const path of ['content/vocabulary/units/unit-06-unit-check.js', 'content/vocabulary/units/unit-06-games.js', 'assets/vocabulary/units/unit-06.png']) assert.ok(!exists(path), path);
+  for (const path of ['content/vocabulary/units/unit-06-unit-check.js', 'content/vocabulary/units/unit-06-games.js']) assert.ok(!exists(path), path);
   const migrations = fs.existsSync(new URL('../supabase/migrations/', import.meta.url)) ? fs.readdirSync(new URL('../supabase/migrations/', import.meta.url)) : [];
   assert.ok(!migrations.some(name => /unit[-_]?0?6/i.test(name)), 'no Unit 6 migration');
 });
