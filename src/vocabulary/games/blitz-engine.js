@@ -44,6 +44,9 @@ const NEAR_POS = { adverb: ['adjective', 'noun', 'verb'], adjective: ['noun', 'v
 export function buildBlitzPool(content, rng = Math.random, data = null) {
   if (!Array.isArray(data?.confusable) || !data.meaningOptions || typeof data.meaningOptions !== 'object') return [];
   const confusable = data.confusable; const meaningOptions = data.meaningOptions;
+  // Optional, per unit: question ids the Games layer withholds even though the canonical content allows them elsewhere (for example an accepted
+  // paraphrase that suits a pathway activity but is too loose for "Another way to say…"). Canonical content is never edited. Absent = nothing withheld.
+  const excluded = new Set(Array.isArray(data.excluded) ? data.excluded : []);
   const items = (content?.items ?? []).filter(item => item.term && item.coreMeaning);
   if (items.length < 4) return [];
   const byId = new Map((content?.contexts ?? []).map(context => [context.contextId, context]));
@@ -63,7 +66,7 @@ export function buildBlitzPool(content, rng = Math.random, data = null) {
   };
   const pool = []; const ids = new Set();
   // One stable id per genuinely different prompt; a repeated id (for example a row authored twice) is dropped, never served twice.
-  const add = question => { if (ids.has(question.id)) return; ids.add(question.id); pool.push(question); };
+  const add = question => { if (excluded.has(question.id) || ids.has(question.id)) return; ids.add(question.id); pool.push(question); };
   const termsLower = items.map(item => item.term.toLowerCase());
   for (const item of items) {
     const meaning = item.coreMeaning;
@@ -88,6 +91,7 @@ export function buildBlitzPool(content, rng = Math.random, data = null) {
         const blank = blankExact(context.text, row.answer); if (!blank) continue;
         const cap = word => (blank.atStart ? word.charAt(0).toUpperCase() + word.slice(1) : word);
         const before = pool.length;
+        if (excluded.has(`gap:${row.contextId}`)) { gaps += 1; continue; }   // a withheld row still uses up its place, so another row never slips in
         add({ id: `gap:${row.contextId}`, type: 'gap', label: 'Fill the gap', prompt: blank.sentence, term: item.term, meaning,
           build: () => { const all = shuffle([cap(row.answer), ...wrong.slice(0, 3).map(cap)], rng); return { options: all, answerIndex: all.indexOf(cap(row.answer)) }; } });
         if (pool.length > before) gaps += 1;
