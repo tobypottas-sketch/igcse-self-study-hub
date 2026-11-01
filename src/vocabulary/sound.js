@@ -9,7 +9,14 @@ const CUE_ASSETS = Object.freeze({
   finish:new URL('./sounds/finish.wav', import.meta.url),
   'blitz-correct':new URL('./sounds/blitz-correct.wav', import.meta.url),
   'blitz-wrong':new URL('./sounds/blitz-wrong.wav', import.meta.url),
-  'blitz-timeout':new URL('./sounds/blitz-timeout.wav', import.meta.url)
+  'blitz-timeout':new URL('./sounds/blitz-timeout.wav', import.meta.url),
+  'blitz-tier-2':new URL('./sounds/blitz-tier-2.wav', import.meta.url),
+  'blitz-tier-3':new URL('./sounds/blitz-tier-3.wav', import.meta.url),
+  'blitz-tier-4':new URL('./sounds/blitz-tier-4.wav', import.meta.url),
+  'blitz-finish':new URL('./sounds/blitz-finish.wav', import.meta.url),
+  'connections-solved':new URL('./sounds/connections-solved.wav', import.meta.url),
+  'connections-wrong':new URL('./sounds/connections-wrong.wav', import.meta.url),
+  'connections-finish':new URL('./sounds/connections-finish.wav', import.meta.url)
 });
 
 export function cueAsset(name) { return CUE_ASSETS[name] ?? null; }

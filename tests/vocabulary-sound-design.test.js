@@ -21,7 +21,14 @@ const expectedAssets = {
   finish:'finish.wav',
   'blitz-correct':'blitz-correct.wav',
   'blitz-wrong':'blitz-wrong.wav',
-  'blitz-timeout':'blitz-timeout.wav'
+  'blitz-timeout':'blitz-timeout.wav',
+  'blitz-tier-2':'blitz-tier-2.wav',
+  'blitz-tier-3':'blitz-tier-3.wav',
+  'blitz-tier-4':'blitz-tier-4.wav',
+  'blitz-finish':'blitz-finish.wav',
+  'connections-solved':'connections-solved.wav',
+  'connections-wrong':'connections-wrong.wav',
+  'connections-finish':'connections-finish.wav'
 };
 
 test('Vocabulary cues resolve to bundled local WAV assets instead of oscillator recipes', () => {
@@ -70,7 +77,7 @@ test('normal study gives restrained audio feedback for both correct and incorrec
 test('games receive sound as a harmless callback instead of importing storage-aware sound code', () => {
   const app = fs.readFileSync(new URL('../src/vocabulary/app.js', import.meta.url), 'utf8');
   const source = fs.readFileSync(new URL('../src/vocabulary/games/games-controller.js', import.meta.url), 'utf8');
-  assert.match(app, /mountGames\(root, \{ content:state\.content, game:target\.dataset\.game, onCue:playCue, onExit:/);
+  assert.match(app, /onCue:playCue, onExit:/);
   assert.doesNotMatch(source, /from '\.\.\/sound\.js'/);
   assert.match(source, /onCue = \(\) => \{\}/);
 });
@@ -125,14 +132,16 @@ for (const expiry of ['tick', 'pending answer']) {
 
     assert.equal(game.blitz.state.status, 'over');
     assert.match(root.innerHTML, /data-game-act="blitz-again"/, 'the completion screen was rendered');
-    assert.deepEqual(cues, ['blitz-correct', 'blitz-wrong', 'finish'], 'completion plays finish once, without a timeout cue');
+    assert.deepEqual(cues, ['blitz-correct', 'blitz-wrong', 'blitz-timeout'], 'time up plays the timeout cue first');
+    assert.equal(timers.size, 1, 'the completion sting is scheduled a beat later'); { const [id, fn] = timers.entries().next().value; timers.delete(id); fn(); }
+    assert.deepEqual(cues, ['blitz-correct', 'blitz-wrong', 'blitz-timeout', 'blitz-finish']);
     assert.equal(timers.size, 0, 'completion cancels answer timers');
     assert.equal(ticks.size, 0, 'completion stops the game clock');
   });
 }
 
-test('Connections uses the shared feedback family for guesses and choice-mode answers', () => {
+test('Connections uses its own cues for guesses and choice-mode answers', () => {
   const source = fs.readFileSync(new URL('../src/vocabulary/games/games-controller.js', import.meta.url), 'utf8');
-  const feedbackCalls = source.match(/onCue\(r\.correct \? 'correct' : 'incorrect'\)/g) ?? [];
+  const feedbackCalls = source.match(/onCue\(r\.correct \? 'connections-solved' : 'connections-wrong'\)/g) ?? [];
   assert.equal(feedbackCalls.length, 2, 'typed guesses and supported choices both receive right/wrong feedback');
 });
