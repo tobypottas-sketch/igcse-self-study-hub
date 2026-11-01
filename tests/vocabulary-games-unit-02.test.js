@@ -27,8 +27,8 @@ test('registration: Unit 1 stays Unit 1, Unit 2 is Unit 2, later units borrow no
   assert.notEqual(gamesFor(2).connections.puzzles, gamesFor(1).connections.puzzles);
   assert.deepEqual(availableGames(1), ['blitz', 'connections']);
   assert.deepEqual(availableGames(2), ['blitz', 'connections']);
-  for (const unit of [4, 5, 6, 7, 0, NaN, null, undefined]) { assert.equal(gamesFor(unit), null, `unit ${unit}`); assert.deepEqual(availableGames(unit), []); }
-  assert.deepEqual(Object.keys(GAMES_BY_UNIT), ['1', '2', '3']);
+  for (const unit of [5, 6, 7, 0, NaN, null, undefined]) { assert.equal(gamesFor(unit), null, `unit ${unit}`); assert.deepEqual(availableGames(unit), []); }
+  assert.deepEqual(Object.keys(GAMES_BY_UNIT), ['1', '2', '3', '4']);
 });
 
 test('Unit 1 game data is byte-for-byte what it was before Unit 2 was added', () => {
