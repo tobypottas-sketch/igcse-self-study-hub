@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import unit2 from '../content/vocabulary/units/unit-02.js';
 import { GAMES_BY_UNIT, gamesFor, availableGames, CONNECTIONS_PUZZLES, BLITZ_CONFUSABLE, BLITZ_MEANING_OPTIONS } from '../src/vocabulary/games/games-data.js';
-import { BLITZ_CONFUSABLE_U2, CONNECTIONS_PUZZLES_U2 } from '../src/vocabulary/games/games-data-unit-02.js';
+import { BLITZ_CONFUSABLE_U2, BLITZ_EXCLUDED_U2, CONNECTIONS_PUZZLES_U2 } from '../src/vocabulary/games/games-data-unit-02.js';
 import { buildBlitzPool, createBlitz } from '../src/vocabulary/games/blitz-engine.js';
 import { pickPuzzles, withWordClasses, wordShape, acceptedForms, createConnections, normaliseGuess, CONNECTIONS } from '../src/vocabulary/games/connections-engine.js';
 import { createGameHistory } from '../src/vocabulary/games/games-history.js';
@@ -107,7 +107,7 @@ test('Connections: no clue contains the target or one of its word-family forms',
 });
 
 test('Connections: help has exactly two Unit 2 distractors, never the target and never a near-synonym of it', () => {
-  const NEAR = [['availability', 'access'], ['apparently', 'supposedly'], ['device', 'equipment'], ['device', 'accessory'], ['essential', 'critical'], ['impressive', 'professional'], ['affordable', 'competitive'], ['communicate', 'admit'], ['professional', 'high-performance'], ['feature', 'function'], ['entertainment', 'streaming'], ['removable', 'adjustable'], ['concentrate', 'multi-task'], ['educational', 'informed']];
+  const NEAR = [['availability', 'access'], ['device', 'equipment'], ['device', 'accessory'], ['essential', 'critical'], ['impressive', 'professional'], ['affordable', 'competitive'], ['communicate', 'admit'], ['professional', 'high-performance'], ['feature', 'function'], ['entertainment', 'streaming'], ['removable', 'adjustable'], ['concentrate', 'multi-task'], ['educational', 'informed']];
   for (const p of CONNECTIONS_PUZZLES_U2) {
     assert.equal(p.help.length, 2, p.target); assert.equal(new Set(p.help).size, 2);
     for (const h of p.help) {
@@ -141,7 +141,7 @@ test('Connections: Unit 2 works through pickPuzzles and withWordClasses resolves
   assert.equal(seen.size, CONNECTIONS_PUZZLES_U2.length, 'history rotates through the whole bank');
   const classed = withWordClasses(CONNECTIONS_PUZZLES_U2, unit2.items);
   const shape = t => wordShape(classed.find(p => p.target === t), 1);
-  assert.equal(shape('afford').wordClass, 'VERB'); assert.equal(shape('digital').wordClass, 'ADJECTIVE'); assert.equal(shape('apparently').wordClass, 'ADVERB');
+  assert.equal(shape('afford').wordClass, 'VERB'); assert.equal(shape('digital').wordClass, 'ADJECTIVE'); assert.equal(shape('remotely').wordClass, 'ADVERB');
   assert.equal(shape('device').wordClass, 'NOUN'); assert.equal(shape('current affairs').wordClass, 'NOUN PHRASE'); assert.equal(shape('high-performance').wordClass, 'ADJECTIVE');
   for (const p of classed) assert.ok(wordShape(p, 1).wordClass, `${p.target} has a word class`);
 });
@@ -190,4 +190,85 @@ test('scope: the Unit 2 Games change touches no sound, scoring, timer, Supabase,
   const code = root('src/vocabulary/games/games-data-unit-02.js').replace(/\/\/.*$/gm, '');
   assert.doesNotMatch(code, /import |supabase|fetch\(|localStorage|sessionStorage|indexedDB|Audio|\.wav|\.mp3/i);
   for (const f of ['blitz-engine', 'connections-engine', 'games-view', 'games-controller', 'games-history']) assert.doesNotMatch(root(`src/vocabulary/games/${f}.js`), /games-data-unit-02/);
+});
+
+// ---- Semantic-safety guards (corrective audit of the Unit 2 Blitz pool and Connections bank) ----
+const enumerate = (data, content = unit2) => { const byId = new Map(); for (let seed = 1; seed <= 60; seed += 1) for (const q of buildBlitzPool(content, seeded(seed), data)) if (!byId.has(q.id)) byId.set(q.id, q); return [...byId.values()]; };
+const livePool = enumerate(data2.blitz);
+
+test('Blitz audit: the Unit 2 pool can be enumerated and its size and type counts are pinned', () => {
+  const counts = livePool.reduce((c, q) => ({ ...c, [q.type]: (c[q.type] ?? 0) + 1 }), {});
+  assert.deepEqual(counts, { def: 48, para: 52, gap: 93, mic: 100 });
+  assert.equal(livePool.length, 293);
+});
+
+test('Blitz audit: every excluded id is real, and no excluded question is ever served', () => {
+  const unfiltered = enumerate({ ...data2.blitz, excluded: [] }).map(q => q.id); const live = new Set(livePool.map(q => q.id));
+  assert.ok(BLITZ_EXCLUDED_U2.length >= 40); assert.equal(new Set(BLITZ_EXCLUDED_U2).size, BLITZ_EXCLUDED_U2.length);
+  for (const id of BLITZ_EXCLUDED_U2) { assert.ok(unfiltered.includes(id), `${id} no longer exists in the canonical pool (stale exclusion)`); assert.ok(!live.has(id), `${id} must not be served`); }
+  assert.equal(unfiltered.length - BLITZ_EXCLUDED_U2.length, livePool.length, 'withholding a gap row never lets another row slip in');
+});
+
+test('Blitz audit regression: "Another way to say… two-way" with "interactive" can never be served', () => {
+  assert.ok(!livePool.some(q => q.type === 'para' && norm(q.prompt) === 'two-way'));
+  assert.ok(!livePool.some(q => q.term === 'interactive' && q.type === 'para'), 'interactive has no paraphrase prompt at all');
+  for (let seed = 1; seed <= 80; seed += 1) for (const q of buildBlitzPool(unit2, seeded(seed), data2.blitz)) assert.ok(!(norm(q.prompt) === 'two-way' || norm(q.prompt) === 'hands-on'), 'no loose paraphrase for interactive');
+  assert.ok(BLITZ_EXCLUDED_U2.includes('para:vocab_interactive:two-way'));
+});
+
+test('Blitz audit: loose paraphrases stay out of "Another way to say…" (broader/narrower, association, collocation)', () => {
+  const served = new Set(livePool.filter(q => q.type === 'para').map(q => `${q.term}|${norm(q.prompt)}`));
+  for (const bad of ['relevant|related', 'relevant|connected', 'digital|electronic', 'professional|expert', 'informed|aware', 'widespread|common', 'regional|local', 'percentage|proportion', 'culture|customs and traditions', 'availability|supply', 'communicate|exchange ideas', 'remote control|controller', 'impression|general feeling', 'admit|confess']) assert.ok(!served.has(bad), bad);
+  for (const good of ['afford|have enough money for', 'removable|detachable', 'genuine|real', 'overcome|get past', 'multi-task|do several things at once']) assert.ok(served.has(good), good);
+});
+
+test('Blitz audit: every served question has 4 unique options and exactly one keyed answer', () => {
+  for (let round = 0; round < 25; round += 1) for (const q of buildBlitzPool(unit2, seeded(round + 100), data2.blitz)) {
+    const b = q.build(); assert.ok(b, q.id); assert.equal(b.options.length, 4, q.id);
+    assert.equal(new Set(b.options.map(norm)).size, 4, `${q.id} has duplicate options`);
+    assert.equal(b.options.filter(o => norm(o) === norm(b.options[b.answerIndex])).length, 1, `${q.id}: keyed answer appears once`);
+    if (q.type === 'def' || q.type === 'para') assert.equal(b.options[b.answerIndex], q.term, q.id);
+  }
+});
+
+test('Blitz audit: no confusable pair is ever shown together in a def/para question, and the adverbs are never answered by word class alone', () => {
+  const pos = new Map(unit2.items.map(i => [i.term, i.partOfSpeech])); const group = t => new Set(BLITZ_CONFUSABLE_U2.filter(g => g.includes(t)).flat());
+  for (let round = 0; round < 40; round += 1) for (const q of buildBlitzPool(unit2, seeded(round + 200), data2.blitz)) {
+    if (q.type !== 'def' && q.type !== 'para') continue; const b = q.build();
+    for (const o of b.options) if (o !== q.term) assert.ok(!group(q.term).has(o), `${q.id}: ${o} is a near-neighbour of ${q.term}`);
+    const cross = b.options.filter(o => o !== q.term && pos.get(o) !== pos.get(q.term)).length;
+    assert.ok(cross <= 1, `${q.id}: ${cross} distractors come from a different word class`);
+  }
+  assert.ok(!livePool.some(q => (q.type === 'def' || q.type === 'para') && (q.term === 'apparently' || q.term === 'supposedly')), 'apparently / supposedly are tested only by gap and meaning-in-context questions');
+});
+
+test('Blitz audit: a/an cannot give a gap answer away (at least two options fit the article)', () => {
+  for (const q of livePool.filter(x => x.type === 'gap')) {
+    const options = q.build().options; const an = /\ban ____/i.test(q.prompt), a = /\ba ____/i.test(q.prompt);
+    const vowel = o => /^[aeiou]/i.test(o);
+    if (an) assert.ok(options.filter(vowel).length >= 2, `${q.id}: "an ____" leaves ${options.filter(vowel).length} option(s)`);
+    if (a) assert.ok(options.filter(o => !vowel(o)).length >= 2, `${q.id}: "a ____" leaves ${options.filter(o => !vowel(o)).length} option(s)`);
+  }
+});
+
+test('Blitz audit: the engine option is generic and inert without data; Unit 1 serves exactly what it served before', () => {
+  const none = buildBlitzPool(unit2, seeded(1), { confusable: [], meaningOptions: {} }).map(q => q.id);
+  const some = buildBlitzPool(unit2, seeded(1), { confusable: [], meaningOptions: {}, excluded: [none[0]] }).map(q => q.id);
+  assert.ok(!some.includes(none[0])); assert.equal(some.length, none.length - 1);
+  assert.equal(gamesFor(1).blitz.excluded, undefined);
+  const pool = buildBlitzPool(unit1, () => 0.5, gamesFor(1).blitz); const sig = pool.map(q => q.id + '|' + q.prompt).sort();
+  assert.equal(pool.length, 328); assert.equal(hash(sig), 'c9975726638400c9');
+});
+
+test('Connections audit: apparently and supposedly are deliberately not puzzles (their meanings overlap in everyday use); both stay in Blitz gap/meaning questions', () => {
+  const targets = CONNECTIONS_PUZZLES_U2.map(p => p.target); assert.ok(!targets.includes('apparently')); assert.ok(!targets.includes('supposedly'));
+  assert.equal(CONNECTIONS_PUZZLES_U2.length, 48);
+  for (const t of ['apparently', 'supposedly']) assert.ok(livePool.some(q => q.term === t && (q.type === 'gap' || q.type === 'mic')));
+});
+
+test('Connections audit: feature/function and fixture/accessory clues keep their locked distinctions', () => {
+  const clues = t => CONNECTIONS_PUZZLES_U2.find(p => p.target === t).clues.map(c => norm(c.text)).join(' ');
+  assert.doesNotMatch(clues('feature'), /\b(purpose|job|designed to do|is for)\b/); assert.doesNotMatch(clues('function'), /\b(noticeable|stands out|persuade you to buy)\b/);
+  assert.match(clues('fixture'), /building/); assert.match(clues('accessory'), /add/); assert.doesNotMatch(clues('accessory'), /\bbuilding\b/);
+  assert.doesNotMatch(clues('essential'), /\b(critical|crucial)\b/);
 });

@@ -21,6 +21,39 @@ export const BLITZ_CONFUSABLE_U2 = Object.freeze([
   ['apparently', 'supposedly']
 ].map(group => Object.freeze(group)));
 
+// Question ids withheld from Unit 2 Word Blitz. The canonical content stays the source of truth for meaning and still drives the six pathways;
+// these items are simply not safe as standalone Games questions. Every id was read against the live pool (see the PR audit):
+//   para  "Another way to say…" needs target and prompt to be genuinely interchangeable. Removed: loose associations, broader/narrower meanings,
+//         collocations and category/example links (e.g. "two-way" is not another way to say "interactive").
+//   gap   removed where grammar alone (a/an) or a second plausible word makes the answer unfair.
+export const BLITZ_EXCLUDED_U2 = Object.freeze([
+  // para: loose association / broader or narrower / not interchangeable
+  'para:vocab_interactive:two-way', 'para:vocab_interactive:hands-on',
+  'para:vocab_relevant:related', 'para:vocab_relevant:connected',
+  'para:vocab_digital:electronic', 'para:vocab_digital:computer-based',
+  'para:vocab_professional:skilled', 'para:vocab_professional:expert',
+  'para:vocab_informed:aware', 'para:vocab_impressive:admirable',
+  'para:vocab_high_performance:top-quality', 'para:vocab_high_performance:very-powerful',
+  'para:vocab_widespread:found-everywhere', 'para:vocab_widespread:common',
+  'para:vocab_regional:local', 'para:vocab_percentage:proportion',
+  'para:vocab_culture:customs-and-traditions', 'para:vocab_current_affairs:world-news',
+  'para:vocab_availability:supply', 'para:vocab_commentary:spoken-report',
+  'para:vocab_communicate:exchange-ideas', 'para:vocab_device:electronic-tool',
+  'para:vocab_educational:teaching', 'para:vocab_entertainment:things-people-watch-for-fun',
+  'para:vocab_equipment:apparatus', 'para:vocab_fixture:permanent-attachment',
+  'para:vocab_impression:general-feeling', 'para:vocab_impression:first-opinion',
+  'para:vocab_remote_control:controller', 'para:vocab_stabilising:balancing',
+  'para:vocab_streaming:online-viewing', 'para:vocab_supposedly:reportedly',
+  'para:vocab_admit:confess', 'para:vocab_admit:accept-that-it-is-true',
+  'para:vocab_accessory:extra-item', 'para:vocab_adjustable:able-to-be-altered',
+  // def / para: apparently and supposedly are two of only three adverbs, and each other's near-neighbour, so these prompts could only be answered by
+  // word class (-ly) plus one weak elimination. Both words stay in Blitz through reviewed gap and meaning-in-context questions.
+  'def:vocab_apparently', 'def:vocab_supposedly', 'para:vocab_apparently:seemingly', 'para:vocab_apparently:as-it-appears', 'para:vocab_supposedly:allegedly',
+  // gap: the article (an) gives the answer away, or a second option also fits
+  'gap:u2_43_accessory_gap_1', 'gap:u2_43_accessory_gap_2', 'gap:u2_37_amusing_gap_2', 'gap:u2_20_impression_gap_1',
+  'gap:u2_07_educator_gap_1', 'gap:u2_15_admit_gap_2', 'gap:u2_17_remotely_gap_2'
+]);
+
 // Reviewed wrong meanings in the Unit 2 content are already plain student English, so no overrides are needed.
 export const BLITZ_MEANING_OPTIONS_U2 = Object.freeze({});
 
@@ -38,25 +71,21 @@ const PUZZLES_U2 = [
   text('digital', [], ['regional', 'amusing'], 'A ticket on your phone, a camera without film and an online library all use computers instead of paper: they are digital.',
     ['Instead of carrying a paper ticket, you show the one stored on your phone at the cinema door.', 'Cameras, clocks and libraries can all have this version, using computers instead of film, hands or paper.', 'stored or shown using computers and screens rather than on paper', 'using electronic technology, especially computers and the internet, to store or send information']),
   text('streaming', [], ['culture', 'percentage'], 'Video and music that play as they arrive, without a saved file, are streaming; that is why it needs a steady connection.',
-    ['On a long train ride, your series starts playing at once without saving a file to your phone.', 'Music and video apps use this, which needs a steady internet connection or it keeps pausing.', 'watching films online without waiting for them to be saved on your device', 'playing video or music over the internet as it arrives, without downloading it first']),
+    ['On the bus home, your series starts playing at once without waiting for a file to save to your phone.', 'Music and video apps use this, which needs a steady internet connection or it keeps pausing.', 'watching films online without waiting for them to be saved on your device', 'playing video or music over the internet as it arrives, without downloading it first']),
   text('relevant', [], ['amusing', 'affordable'], 'A paragraph about your holiday does not belong in an essay on climate change, because it is not connected to the question: it is not relevant.',
     ['While you write about climate change, your teacher crosses out a paragraph about your holiday.', 'Evidence, examples and facts must be this to the question you are answering.', 'closely connected to what is being discussed', 'connected to the subject being discussed, and so useful or important for it']),
   text('educator', ['educators'], ['celebrity', 'accessory'], 'Teachers, lecturers and trainers all have the job of helping others learn: they are educators.',
     ['At parents\' evening you meet the people who spend the day helping children learn.', 'The job title covers teachers, lecturers and training staff.', 'someone who teaches or trains other people as a job', 'a person whose job is to teach or train others']),
   text('afford', ['affords', 'afforded', 'affording'], ['concentrate', 'communicate'], 'When money is tight, families look at a price and say whether they can pay it: that is whether they can afford something.',
     ['You want the latest phone, but you check your bank balance and decide it is out of reach.', 'Families with a tight budget often say they cannot do this when they look at holiday prices.', 'to be able to pay for something without a money problem', 'to have enough money to buy or pay for something']),
-  text('essential', [], ['regional', 'amusing'], 'Water in the desert, oxygen for divers and a licence for drivers are things nobody can do without: they are essential.',
-    ['Packing for a desert trip, you take the things you absolutely cannot leave without, such as water.', 'Oxygen for divers and a licence for drivers are things that people simply cannot do without.', 'so important that you cannot manage without it', 'absolutely necessary; extremely important']),
+  text('essential', [], ['regional', 'amusing'], 'On a packing list, water, boots and a map are the items you must bring, while sweets and games are only optional extras: the must-haves are essential.',
+    ['The trip leader hands out a packing list and underlines the items every student has to bring.', 'Water, boots and a map must go in the bag, while sweets and games are only optional extras.', 'something you must have, not just a nice extra', 'absolutely necessary; extremely important']),
   text('current affairs', [], ['celebrity', 'equipment'], 'Election results, conflicts and new laws are the news about what is happening in the world right now: current affairs.',
     ['Your teacher asks you to read the headlines each morning so you can discuss what is happening in the world.', 'Election results, international conflicts and new laws are covered in this kind of programme or newspaper section.', 'what is going on in the world today, such as in politics', 'important news about politics, society and world events that are happening now']),
-  text('apparently', [], ['remotely', 'predictable'], 'When something seems true from what you see or hear but nobody has confirmed it, you report it with "apparently".',
-    ['You have not seen the news yourself, but a friend says the school will close early today.', 'A reporter writes that the singer has left the band, based on what fans are saying, although nobody has confirmed it.', 'as it seems from what you hear or see, but not certain', 'according to what seems to be true or what people say, although it is not confirmed']),
-  text('supposedly', [], ['remotely', 'genuine'], 'A "miracle" diet and a "healthy" snack are only said to be true by the adverts, and you doubt them: they are supposedly so.',
-    ['A website claims a miracle diet works, but you suspect it is not true.', 'Adverts call a snack healthy, but the label says it is full of sugar.', 'according to what people claim, though it may be false', 'according to what many people believe or say, although it may not be true']),
   text('celebrity', ['celebrities'], ['educator', 'percentage'], 'Crowds outside hotels, red carpets and magazine covers all follow one kind of person: a famous one, or celebrity.',
     ['Crowds with phones gather outside a hotel, hoping to see one particular person step out of a car.', 'Magazines, red carpets and social media followers all follow the life of this kind of person.', 'someone everyone has heard of, usually from television, music or sport', 'a famous person, especially from entertainment or sport']),
   text('informed', [], ['external', 'removable'], 'A voter who has read every plan and followed the news makes decisions from facts, not guesses: an informed choice.',
-    ['Before voting in the school election, she reads every candidate\'s plan so that she is not guessing.', 'A well-researched decision, a clear explanation and a voter who follows the news can all be described this way.', 'knowing the facts about a subject', 'having or showing knowledge about a subject or situation']),
+    ['Before voting in the school election, she reads every candidate\'s plan so that she is not guessing.', 'An opinion backed by research, a choice made after checking the facts and a voter who follows the news can all be described this way.', 'knowing the facts about a subject', 'having or showing knowledge about a subject or situation']),
   text('admit', ['admits', 'admitted', 'admitting'], ['overcome', 'transform'], 'A suspect or a politician who finally says "yes, it is true" when they would rather not is making an admission: they admit it.',
     ['After a long silence, the footballer says it was his mistake after all.', 'A suspect, a politician or a child caught with sweets might finally say "yes, it is true" even though they would rather not.', 'to say, usually reluctantly, that something is true', 'to agree, often unwillingly, that something is true or that you did something wrong']),
   text('communicate', ['communicates', 'communicated', 'communicating'], ['afford', 'overcome'], 'Phones, emails, body language and sign language are all ways of getting your ideas across to other people: they let you communicate.',
@@ -114,7 +143,7 @@ const PUZZLES_U2 = [
   text('overcome', ['overcomes', 'overcame', 'overcoming'], ['admit', 'afford'], 'A swimmer beating her fear of deep water, or an athlete returning from injury, gets past a problem that was stopping them: they overcome it.',
     ['A swimmer afraid of deep water finally dives in from the high board.', 'Learners of a new language, injured athletes and nervous speakers all talk about doing this to a problem standing in their way.', 'to beat a problem and get past it', 'to succeed in dealing with a problem or difficulty that is stopping you']),
   text('accessory', ['accessories'], ['percentage', 'celebrity'], 'A phone case, a scarf and a laptop mouse are all extras that go with a main item: accessories.',
-    ['You buy a new phone, then add a case, a charger and a screen protector to go with it.', 'A scarf or a belt can be this for an outfit; a mouse or headphones can be this for a laptop.', 'an extra item that goes with something you already have', 'a small extra item, such as a case or a scarf, that is added to a main item to go with it']),
+    ['You buy a new phone, then add a case, a charger and a screen protector to go with it.', 'A scarf or a belt can be this for an outfit; a mouse or headphones can be this for a laptop.', 'something you add to a main item to make it more useful or more attractive', 'a small extra item, such as a case or a scarf, that is added to a main item to go with it']),
   text('equipment', [], ['culture', 'percentage'], 'Ropes and boots for a climb, cameras for a film crew and machines for a hospital are everything needed for a job: equipment.',
     ['Before a mountain hike, you pack ropes, boots, a tent and a stove.', 'A football club, a hospital and a film crew all need a lot of this to do their work.', 'all the things you need to do a particular job or activity', 'the tools, machines or clothing needed for a particular job or activity']),
   text('fixture', ['fixtures'], ['celebrity', 'percentage'], 'The sink, the ceiling lights and the bath stay behind when the sellers move out because they are permanently attached to the building: fixtures.',
