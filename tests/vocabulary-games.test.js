@@ -27,7 +27,7 @@ test('Games entry appears on the Unit 1 screen only, after the pathways, with st
   assert.ok(one.indexOf('data-games-entry') > one.indexOf('vocab-pathway-grid') && one.indexOf('data-games-entry') < one.indexOf('Extra Practice'));
   const entry = one.match(/<section class="gm-entry"[\s\S]*?<\/section>/)[0];
   assert.doesNotMatch(entry, /data-pathway|open-pathway|start-mixed/); assert.doesNotMatch(entry, /mastery|XP|saved/i, 'no administrative wording in the entry');
-  assert.doesNotMatch(unitHtml(5), /data-games-entry/); assert.doesNotMatch(unitHtml(7), /gm-entry/);
+  assert.doesNotMatch(unitHtml(6), /data-games-entry/); assert.doesNotMatch(unitHtml(7), /gm-entry/);
   const home = { innerHTML: '' }; renderVocabularyHome(home, { units: [{ unitNumber: 1, unitTitle: 'U', mastered: 0, total: 50 }], soundOn: true });
   assert.doesNotMatch(home.innerHTML, /data-games-entry/);
   const gamesView = read('src/vocabulary/games/games-view.js').replace(/^\s*\/\/.*$/gm, '');
@@ -38,7 +38,7 @@ test('Games entry appears on the Unit 1 screen only, after the pathways, with st
 test('isolation: the games touch no storage, network, database, progression, XP, mastery or Set code', () => {
   for (const file of gameFiles.filter(f => f.endsWith('.js'))) {
     const code = read(file).replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').replace(/\s\/\/ .*$/gm, '');
-    for (const imported of [...code.matchAll(/from '([^']+)'/g)].map(m => m[1])) assert.match(imported, /^\.\/(blitz-engine|connections-engine|games-data|games-data-unit-02|games-data-unit-03|games-data-unit-04|games-view|games-controller|games-history)\.js$/, `${file} imports ${imported}`);
+    for (const imported of [...code.matchAll(/from '([^']+)'/g)].map(m => m[1])) assert.match(imported, /^\.\/(blitz-engine|connections-engine|games-data|games-data-unit-02|games-data-unit-03|games-data-unit-04|games-data-unit-05|games-view|games-controller|games-history)\.js$/, `${file} imports ${imported}`);
     assert.doesNotMatch(code, /supabase|fetch\(|XMLHttpRequest|localStorage|sessionStorage|indexedDB|\.rpc\(|client\.from|recordVocabulary|engagement-model|settleMission|setProgression|applyMastery|xpGained|computeXp|\btrack\(|analytics/i, `${file} must stay isolated`);
   }
   const app = read('src/vocabulary/app.js');

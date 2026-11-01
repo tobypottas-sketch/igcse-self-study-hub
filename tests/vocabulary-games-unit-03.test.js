@@ -41,10 +41,10 @@ test('registration: Units 1-4 have games, 5-6 stay unavailable, nothing falls ba
   assert.equal(gamesFor(3).blitz.excluded, BLITZ_EXCLUDED_U3);
   assert.notEqual(gamesFor(3).connections.puzzles, gamesFor(2).connections.puzzles);
   for (const u of [1, 2]) assert.deepEqual(availableGames(u), ['blitz', 'connections']);
-  for (const u of [5, 6, 7, 0, NaN, null, undefined]) { assert.equal(gamesFor(u), null, `unit ${u}`); assert.deepEqual(availableGames(u), []); }
-  assert.deepEqual(Object.keys(GAMES_BY_UNIT), ['1', '2', '3', '4']);
+  for (const u of [6, 7, 0, NaN, null, undefined]) { assert.equal(gamesFor(u), null, `unit ${u}`); assert.deepEqual(availableGames(u), []); }
+  assert.deepEqual(Object.keys(GAMES_BY_UNIT), ['1', '2', '3', '4', '5']);
   assert.match(renderGamesEntry(3), /Unit 3/); assert.match(renderLobby(3), /data-game="blitz"/); assert.match(renderLobby(3), /data-game="connections"/);
-  assert.equal(renderGamesEntry(5), '');
+  assert.equal(renderGamesEntry(6), '');
 });
 
 test('Blitz: the audited Unit 3 pool has the pinned size and counts', () => {
