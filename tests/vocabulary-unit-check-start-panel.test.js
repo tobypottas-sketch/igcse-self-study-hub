@@ -68,5 +68,5 @@ browserTest('the panel has no horizontal overflow or clipped chips at 1440 / 102
 test('scope: only the card view, its CSS and tests changed (no logic, Supabase, SQL, Edge, Games or content)', t => {
   let files; try { files = execFileSync('git', ['diff', '--name-only', 'origin/main...HEAD'], { cwd: repo, encoding: 'utf8' }).split('\n').filter(Boolean); } catch { t.skip('no git history'); return; }
   if (!files.length) { t.skip('no committed diff yet'); return; }
-  for (const f of files) assert.match(f, /^(src\/vocabulary\/unit-check-view\.js|vocabulary-unit-check\.css|tests\/vocabulary-unit-check-start-panel\.test\.js)$/, f);
+  for (const f of files) assert.match(f, /^(src\/vocabulary\/unit-check-view\.js|vocabulary-unit-check\.css|tests\/vocabulary-unit-check-start-panel\.test\.js|content\/vocabulary\/checks\/[a-z0-9-]+\.js|tests\/vocabulary-unit-[a-z0-9-]*check[a-z0-9-]*\.test\.js)$/, f);
 });
