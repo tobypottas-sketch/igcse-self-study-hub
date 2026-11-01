@@ -10,11 +10,11 @@ import { openEntryPage } from './helpers/activity-entry-harness.mjs';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const browserTest = loadPlaywright() && await findChromium() ? test : test.skip;
 
-test('registry: Units 1 and 4 have their checks; units without an authored check have none', () => {
+test('registry: Units 1, 2, 4 and 6 have their checks; units without an authored check have none', () => {
   assert.equal(unitCheckFor(1), unit1Check);
   assert.deepEqual(Object.keys(unit1Check.forms), ['A', 'B', 'C']);
-  for (const unit of [2, 3, 20, 0, 21, NaN, null, undefined, '2']) assert.equal(unitCheckFor(unit), null, `unit ${unit}`);
-  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '4']);
+  for (const unit of [3, 5, 20, 0, 21, NaN, null, undefined, '3']) assert.equal(unitCheckFor(unit), null, `unit ${unit}`);
+  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '2', '4', '6']);
 });
 
 test('registry: a registered check with no forms is treated as no check', () => {
@@ -24,17 +24,17 @@ test('registry: a registered check with no forms is treated as no check', () => 
   assert.equal(unitCheckFor(2, { 2:check }), check);
 });
 
-browserTest('Unit 1 shows the Unit Check card and a Unit 2 screen does not', async () => {
+browserTest('Unit 1 shows the Unit Check card and a Unit 3 screen does not', async () => {
   const api = await openEntryPage({ root, netMs:0 });
   try {
     await api.openUnit();
     await api.page.waitForSelector('[data-unit-check-card]');
     assert.equal(await api.page.locator('[data-unit-check-card]').count(), 1);
     assert.equal(await api.page.locator('[data-unit-check-action="start"]').count() >= 1, true, 'Unit 1 can start its check');
-    // Present the same unit screen as Unit 2: the card must go away and must not come back.
+    // Present the same unit screen as Unit 3: the card must go away and must not come back.
     await api.page.evaluate(() => {
       document.querySelector('[data-unit-check-card]').remove();
-      document.querySelectorAll('.vocab-unit-id__badge').forEach(el => { el.textContent = 'Unit 2'; });
+      document.querySelectorAll('.vocab-unit-id__badge').forEach(el => { el.textContent = 'Unit 3'; });
     });
     await api.page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done))));
     assert.equal(await api.page.locator('[data-unit-check-card]').count(), 0, 'no card for a unit without a check');
