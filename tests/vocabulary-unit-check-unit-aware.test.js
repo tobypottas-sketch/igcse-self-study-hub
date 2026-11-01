@@ -13,8 +13,8 @@ const browserTest = loadPlaywright() && await findChromium() ? test : test.skip;
 test('registry: Units 1, 2, 4 and 6 have their checks; units without an authored check have none', () => {
   assert.equal(unitCheckFor(1), unit1Check);
   assert.deepEqual(Object.keys(unit1Check.forms), ['A', 'B', 'C']);
-  for (const unit of [5, 20, 0, 21, NaN, null, undefined, '5']) assert.equal(unitCheckFor(unit), null, `unit ${unit}`);
-  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '2', '3', '4', '6']);
+  for (const unit of [7, 20, 0, 21, NaN, null, undefined, '7']) assert.equal(unitCheckFor(unit), null, `unit ${unit}`);
+  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '2', '3', '4', '5', '6']);
 });
 
 test('registry: a registered check with no forms is treated as no check', () => {
@@ -24,17 +24,17 @@ test('registry: a registered check with no forms is treated as no check', () => 
   assert.equal(unitCheckFor(2, { 2:check }), check);
 });
 
-browserTest('Unit 1 shows the Unit Check card and a Unit 5 screen does not', async () => {
+browserTest('Unit 1 shows the Unit Check card and a Unit 7 screen does not', async () => {
   const api = await openEntryPage({ root, netMs:0 });
   try {
     await api.openUnit();
     await api.page.waitForSelector('[data-unit-check-card]');
     assert.equal(await api.page.locator('[data-unit-check-card]').count(), 1);
     assert.equal(await api.page.locator('[data-unit-check-action="start"]').count() >= 1, true, 'Unit 1 can start its check');
-    // Present the same unit screen as Unit 5: the card must go away and must not come back.
+    // Present the same unit screen as Unit 7: the card must go away and must not come back.
     await api.page.evaluate(() => {
       document.querySelector('[data-unit-check-card]').remove();
-      document.querySelectorAll('.vocab-unit-id__badge').forEach(el => { el.textContent = 'Unit 5'; });
+      document.querySelectorAll('.vocab-unit-id__badge').forEach(el => { el.textContent = 'Unit 7'; });
     });
     await api.page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done))));
     assert.equal(await api.page.locator('[data-unit-check-card]').count(), 0, 'no card for a unit without a check');
