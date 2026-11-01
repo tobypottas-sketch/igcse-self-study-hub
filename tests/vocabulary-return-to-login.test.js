@@ -66,7 +66,7 @@ async function harness({ role = 'teacher', must = false, active = true, signedIn
     const el = { dataset: { action } };
     for (const handler of handlers.click ?? []) await handler({ target: { closest: () => el, dataset: {} }, preventDefault() {} });
   };
-  const restore = () => { for (const [k, v] of Object.entries(saved)) { if (v === undefined) delete global[k]; else global[k] = v; } };
+  const restore = () => { for (const [k, v] of Object.entries(saved)) { delete global[k]; if (v !== undefined) Object.defineProperty(global, k, { value: v, configurable: true, writable: true }); } };
   return { submit, click, replaced, storage, root, profile, restore };
 }
 
@@ -210,6 +210,16 @@ test('normal logins are unchanged', async () => {
     await h.submit('login', LOGIN);
     assert.match(h.root.innerHTML, /password/i);
     assert.deepEqual(h.replaced, []);
+  });
+});
+
+test('blocked sessionStorage never breaks sign-in', async () => {
+  await withHarness({ stored: 'none' }, async h => {
+    Object.defineProperty(globalThis, 'sessionStorage', { configurable: true, get() { throw new Error('SecurityError'); } });
+    await h.submit('login', LOGIN);
+    assert.deepEqual(h.replaced, []);
+    assert.doesNotMatch(h.root.innerHTML, /SecurityError/);
+    assert.ok(h.root.innerHTML.length > 0);
   });
 });
 

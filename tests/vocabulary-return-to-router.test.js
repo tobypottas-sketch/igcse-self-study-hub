@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { redirectToHubSignIn } from '../src/return-target.js';
+import { redirectToHubSignIn, getSessionStorage } from '../src/return-target.js';
 
 const source = fs.readFileSync(new URL('../src/vocabulary/router.js', import.meta.url), 'utf8');
 
@@ -24,7 +24,8 @@ test('router stores the target only in the no-session branch', () => {
 });
 
 test('router never builds the target from the url', () => {
-  assert.match(source, /redirectToHubSignIn\(window\.sessionStorage, window\.location\)/);
+  assert.match(source, /redirectToHubSignIn\(getSessionStorage\(\), window\.location\)/);
+  assert.doesNotMatch(source, /window\.sessionStorage/);
   assert.doesNotMatch(source, /storeVocabularyReturnTarget/);
 });
 
@@ -46,4 +47,17 @@ test('a signed-in teacher is not given a stored target', () => {
   const noSessionBranch = block('if (userError || !userData?.user)');
   const outside = source.replace(noSessionBranch, '');
   assert.doesNotMatch(outside, /redirectToHubSignIn\(|storeVocabularyReturnTarget/);
+});
+
+test('reading a blocked sessionStorage property does not throw and yields null', () => {
+  const saved = Object.getOwnPropertyDescriptor(globalThis, 'sessionStorage');
+  Object.defineProperty(globalThis, 'sessionStorage', { configurable: true, get() { throw new Error('SecurityError'); } });
+  try {
+    assert.equal(getSessionStorage(), null);
+    const replaced = [];
+    redirectToHubSignIn(getSessionStorage(), { replace: target => replaced.push(target) });
+    assert.deepEqual(replaced, ['./']);
+  } finally {
+    if (saved) Object.defineProperty(globalThis, 'sessionStorage', saved); else delete globalThis.sessionStorage;
+  }
 });

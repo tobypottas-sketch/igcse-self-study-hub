@@ -1,7 +1,7 @@
 import { getSupabaseClient } from '../supabase.js';
 import { renderVocabularyError } from './views.js';
 import './foundational-interactions.js';
-import { redirectToHubSignIn } from '../return-target.js';
+import { redirectToHubSignIn, getSessionStorage } from '../return-target.js';
 
 const root = document.getElementById('vocabularyApp');
 
@@ -10,7 +10,7 @@ async function routeVocabulary() {
   try {
     const client = await getSupabaseClient();
     const { data:userData, error:userError } = await client.auth.getUser();
-    if (userError || !userData?.user) { redirectToHubSignIn(window.sessionStorage, window.location); return; }
+    if (userError || !userData?.user) { redirectToHubSignIn(getSessionStorage(), window.location); return; }
     const { data:profile, error:profileError } = await client.from('profiles').select('id, role, display_name, active').eq('id', userData.user.id).single();
     if (profileError || !profile?.active) { window.location.replace('./'); return; }
     const previewRequested = new URLSearchParams(window.location.search).get('preview') === '1';

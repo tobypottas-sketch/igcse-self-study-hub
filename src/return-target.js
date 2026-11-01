@@ -38,3 +38,8 @@ export function redirectToHubSignIn(storage, location, now = Date.now()) {
   storeVocabularyReturnTarget(storage, now);
   location.replace('./');
 }
+
+// Reading the storage property itself can throw (blocked storage), so it is read here, guarded.
+export function getSessionStorage() {
+  try { return globalThis.sessionStorage ?? null; } catch { return null; }
+}

@@ -1,4 +1,4 @@
-import { takeReturnPath, clearReturnTarget } from './return-target.js';
+import { takeReturnPath, clearReturnTarget, getSessionStorage } from './return-target.js';
 import { signIn, changePassword, getCurrentProfile } from './auth.js';
 import { loadApps } from './api.js';
 import { getSupabaseClient } from './supabase.js';
@@ -101,8 +101,8 @@ export async function bootApp(clientOverride = null) {
   const resumeReturnTarget = () => {
     if (currentState.view !== 'home') return;
     const staff = ['teacher','admin'].includes(currentState.profile?.role) && currentState.profile.active !== false;
-    if (!staff) { clearReturnTarget(globalThis.sessionStorage); return; }
-    const path = takeReturnPath(globalThis.sessionStorage);
+    if (!staff) { clearReturnTarget(getSessionStorage()); return; }
+    const path = takeReturnPath(getSessionStorage());
     if (path) globalThis.location.replace(path);
   };
 
@@ -234,7 +234,7 @@ export async function bootApp(clientOverride = null) {
   root.addEventListener('click', async (event) => {
     const target = event.target?.closest?.('[data-action]') ?? event.target;
     const action = target?.dataset?.action;
-    if (action === 'logout') { await client.auth.signOut(); clearReturnTarget(globalThis.sessionStorage); cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; await renderCurrentState(); }
+    if (action === 'logout') { await client.auth.signOut(); clearReturnTarget(getSessionStorage()); cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; await renderCurrentState(); }
     else if (action === 'retry') await renderCurrentState();
     else if (action === 'change-password') {
       if (['teacher','admin'].includes(currentState.profile?.role) && currentState.profile.active !== false) {
@@ -469,7 +469,7 @@ export async function bootApp(clientOverride = null) {
   });
 
   await renderCurrentState();
-  if (currentState.view === 'home') clearReturnTarget(globalThis.sessionStorage);
+  if (currentState.view === 'home') clearReturnTarget(getSessionStorage());
 }
 
 if (typeof document !== 'undefined') bootApp();
