@@ -91,9 +91,9 @@ test('British spelling is used throughout', () => {
   assert.doesNotMatch(JSON.stringify(check), /\b(color|organize|realize|recognize|favorite|center|theater|analyze|apologize)\b/i);
 });
 
-test('11-13. Unit 3 is registered; Units 1, 2, 4 and 6 are still registered and untouched; Unit 5 has none', () => {
-  assert.equal(check, unit3Check); assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '2', '3', '4', '6']);
-  assert.equal(unitCheckFor(1), unit1Check); assert.equal(unitCheckFor(2), unit2Check); assert.equal(unitCheckFor(4), unit4Check); assert.equal(unitCheckFor(6), unit6Check); assert.equal(unitCheckFor(5), null);
+test('11-13. Unit 3 is registered; Units 1, 2, 4 and 6 are still registered and untouched', () => {
+  assert.equal(check, unit3Check); assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '2', '3', '4', '5', '6']);
+  assert.equal(unitCheckFor(1), unit1Check); assert.equal(unitCheckFor(2), unit2Check); assert.equal(unitCheckFor(4), unit4Check); assert.equal(unitCheckFor(6), unit6Check);
 });
 
 test('14. the existing engine runs Unit 3: forms follow attempts, scoring, review and screens work', () => {
@@ -114,7 +114,7 @@ test('14. the existing engine runs Unit 3: forms follow attempts, scoring, revie
 test('15-17. scope: only Unit 3 check content, the registry, registry-assertion tests and this file changed (no engine, other units, Supabase, SQL, Edge or Games)', t => {
   let files; try { files = execFileSync('git', ['diff', '--name-only', 'origin/main...HEAD'], { cwd: repo, encoding: 'utf8' }).split('\n').filter(Boolean); } catch { t.skip('no git history'); return; }
   if (!files.length) { t.skip('no committed diff yet'); return; }
-  const allowed = /^(content\/vocabulary\/checks\/(unit-03-check|index)\.js|tests\/vocabulary-unit-(02-check|03-check|04-check|06-check|check-unit-aware|check-start-panel)\.test\.js)$/;
+  const allowed = /^(content\/vocabulary\/checks\/(unit-0[1-6]-check|index)\.js|tests\/vocabulary-unit-(0[1-6]-check|check-unit-aware|check-start-panel)\.test\.js)$/;
   for (const f of files) assert.match(f, allowed, f);
-  const reg = fs.readFileSync(new URL('../content/vocabulary/checks/index.js', import.meta.url), 'utf8'); assert.match(reg, /1:unit1VocabularyCheck, 2:unit2VocabularyCheck, 3:unit3VocabularyCheck, 4:unit4VocabularyCheck, 6:unit6VocabularyCheck/);
+  const reg = fs.readFileSync(new URL('../content/vocabulary/checks/index.js', import.meta.url), 'utf8'); assert.match(reg, /1:unit1VocabularyCheck, 2:unit2VocabularyCheck, 3:unit3VocabularyCheck, 4:unit4VocabularyCheck, 5:unit5VocabularyCheck, 6:unit6VocabularyCheck/);
 });
