@@ -156,11 +156,11 @@ test('6. result and retry flow keeps Unit 4 through all three attempts, in order
   assert.match(controller, /attemptsCache\.get\(active\.unitNumber\)/);
 });
 
-test('7. Unit 1 behaviour is unchanged and Units 3 and 5 still have no check', () => {
+test('7. Unit 1 behaviour is unchanged and Unit 3 now has its check and Unit 5 still has none', () => {
   assert.equal(unitCheckFor(1), unit1Check);
-  assert.equal(unitCheckFor(3), null);
+  assert.ok(unitCheckFor(3));
   assert.equal(unitCheckFor(5), null);
-  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1','2','4','6']);
+  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1','2','3','4','6']);
   const form = unit1Check.forms.A;
   const html = renderUnitCheckScreen({ unitNumber:1, form, attemptNumber:1, questionIndex:0, answers:{} });
   assert.match(html, /<\/span> Unit 1<\/button>/);
