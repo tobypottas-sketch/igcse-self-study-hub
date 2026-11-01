@@ -33,7 +33,7 @@ function enumerate(content, data, runs = 60) {
 const rows3 = enumerate(unit3, data3.blitz);
 const posOf = new Map(unit3.items.map(i => [i.term, i.partOfSpeech]));
 
-test('registration: Units 1-3 have games, 4-6 stay unavailable, nothing falls back', () => {
+test('registration: Units 1-4 have games, 5-6 stay unavailable, nothing falls back', () => {
   assert.deepEqual(availableGames(3), ['blitz', 'connections']);
   assert.equal(gamesFor(3).connections.puzzles, CONNECTIONS_PUZZLES_U3);
   assert.equal(gamesFor(3).blitz.confusable, BLITZ_CONFUSABLE_U3);
@@ -41,10 +41,10 @@ test('registration: Units 1-3 have games, 4-6 stay unavailable, nothing falls ba
   assert.equal(gamesFor(3).blitz.excluded, BLITZ_EXCLUDED_U3);
   assert.notEqual(gamesFor(3).connections.puzzles, gamesFor(2).connections.puzzles);
   for (const u of [1, 2]) assert.deepEqual(availableGames(u), ['blitz', 'connections']);
-  for (const u of [4, 5, 6, 7, 0, NaN, null, undefined]) { assert.equal(gamesFor(u), null, `unit ${u}`); assert.deepEqual(availableGames(u), []); }
-  assert.deepEqual(Object.keys(GAMES_BY_UNIT), ['1', '2', '3']);
+  for (const u of [5, 6, 7, 0, NaN, null, undefined]) { assert.equal(gamesFor(u), null, `unit ${u}`); assert.deepEqual(availableGames(u), []); }
+  assert.deepEqual(Object.keys(GAMES_BY_UNIT), ['1', '2', '3', '4']);
   assert.match(renderGamesEntry(3), /Unit 3/); assert.match(renderLobby(3), /data-game="blitz"/); assert.match(renderLobby(3), /data-game="connections"/);
-  assert.equal(renderGamesEntry(4), '');
+  assert.equal(renderGamesEntry(5), '');
 });
 
 test('Blitz: the audited Unit 3 pool has the pinned size and counts', () => {
