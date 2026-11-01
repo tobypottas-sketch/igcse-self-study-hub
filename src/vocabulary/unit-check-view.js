@@ -1,16 +1,26 @@
 import { escapeHtml } from '../views/html.js';
 
+const CHECK_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const SHEET_ICON = '<svg viewBox="0 0 48 48" width="40" height="40" fill="none" aria-hidden="true" focusable="false"><rect x="9" y="5" width="30" height="38" rx="6" fill="#fff" stroke="currentColor" stroke-width="2.4"/><path d="M17 5.5h14v4.5a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2z" fill="currentColor" opacity=".18" stroke="currentColor" stroke-width="2.4"/><path d="M16 22.5l2.8 2.8 5-5.6M16 33.5l2.8 2.8 5-5.6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M28 23h6M28 34h6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".55"/></svg>';
+
 function scoreStat(label, value) {
   return `<span class="vocab-unit-check-card__stat"><small>${escapeHtml(label)}</small><strong>${value ? `${escapeHtml(value.score)} / ${escapeHtml(value.maxScore)}` : '—'}</strong></span>`;
 }
 
+// Remaining attempts are always written as a number plus a short phrase; the state tint is only a reinforcement.
+const REMAINING_NOTE = ['No attempts left', 'Last attempt', 'Two attempts remain', 'All attempts available'];
+
 export function renderUnitCheckCard({ attemptNumber = 1, formId = 'A', attemptsUsed = 0, latest = null, best = null, locked = false, loading = false, unavailable = false } = {}) {
   const remaining = Math.max(0, 3 - Number(attemptsUsed || 0));
-  const status = loading ? 'Loading your check…' : unavailable ? 'Score service unavailable' : locked ? 'All 3 attempts complete' : `Attempt ${escapeHtml(attemptNumber)} of 3 · Form ${escapeHtml(formId)}`;
+  const statusPills = loading ? '<span class="vocab-unit-check-card__pill">Loading your check…</span>'
+    : unavailable ? '<span class="vocab-unit-check-card__pill is-warn">Score service unavailable</span>'
+    : locked ? '<span class="vocab-unit-check-card__pill">All 3 attempts complete</span>'
+    : `<span class="vocab-unit-check-card__pill is-strong">Attempt ${escapeHtml(attemptNumber)} of 3</span><span class="vocab-unit-check-card__pill">Form ${escapeHtml(formId)}</span>`;
   const action = locked
     ? '<span class="vocab-unit-check-card__locked">Assessment complete</span>'
-    : `<button type="button" class="vocab-button vocab-button--primary" data-unit-check-action="start"${loading || unavailable ? ' disabled aria-disabled="true"' : ''}>${attemptsUsed ? 'Start next attempt' : 'Start Unit Check'}</button>`;
-  return `<section class="vocab-unit-check-card study-enter" data-unit-check-card aria-labelledby="unitCheckTitle"><div class="vocab-unit-check-card__copy"><p class="vocab-kicker">Formal assessment</p><h2 id="unitCheckTitle">Unit Vocabulary Check</h2><p class="vocab-unit-check-card__course">Cambridge iGCSE ESL 0511</p><p>10 questions · 3 attempts · feedback after submission</p><strong class="vocab-unit-check-card__status">${status}</strong></div><div class="vocab-unit-check-card__scores">${scoreStat('Latest', latest)}${scoreStat('Best', best)}<span class="vocab-unit-check-card__stat"><small>Attempts left</small><strong>${remaining}</strong></span></div><div class="vocab-unit-check-card__action">${action}</div></section>`;
+    : `<button type="button" class="vocab-button vocab-button--primary vocab-unit-check-card__cta" data-unit-check-action="start"${loading || unavailable ? ' disabled aria-disabled="true"' : ''}>${attemptsUsed ? 'Start next attempt' : 'Start Unit Check'}<span class="vocab-unit-check-card__arrow" aria-hidden="true">→</span></button>`;
+  const meta = ['10 questions', '3 attempts', 'Feedback after submission'].map(text => `<li>${text}</li>`).join('');
+  return `<section class="vocab-unit-check-card study-enter" data-unit-check-card data-remaining="${remaining}" aria-labelledby="unitCheckTitle"><div class="vocab-unit-check-card__copy"><p class="vocab-kicker vocab-unit-check-card__badge">${CHECK_ICON}<span>Formal assessment</span></p><div class="vocab-unit-check-card__heading"><span class="vocab-unit-check-card__icon">${SHEET_ICON}</span><div><h2 id="unitCheckTitle">Unit Vocabulary Check</h2><p class="vocab-unit-check-card__course">Cambridge iGCSE ESL 0511</p></div></div><ul class="vocab-unit-check-card__meta" aria-label="Assessment details">${meta}</ul><div class="vocab-unit-check-card__status">${statusPills}</div></div><div class="vocab-unit-check-card__panel"><div class="vocab-unit-check-card__scores">${scoreStat('Latest', latest)}${scoreStat('Best', best)}<span class="vocab-unit-check-card__stat vocab-unit-check-card__stat--hero" role="group" aria-label="Attempts left: ${remaining} of 3"><small>Attempts left</small><strong>${remaining}</strong><em>${REMAINING_NOTE[remaining]}</em></span></div><div class="vocab-unit-check-card__action">${action}</div></div></section>`;
 }
 
 function unitLabel(unitNumber) {
