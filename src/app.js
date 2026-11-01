@@ -1,3 +1,4 @@
+import { takeReturnPath, clearReturnTarget, getSessionStorage } from './return-target.js';
 import { signIn, changePassword, getCurrentProfile } from './auth.js';
 import { loadApps } from './api.js';
 import { getSupabaseClient } from './supabase.js';
@@ -96,6 +97,15 @@ export async function bootApp(clientOverride = null) {
     }
   };
 
+  // Follows a stored Vocabulary return target once, for active teachers/admins only.
+  const resumeReturnTarget = () => {
+    if (currentState.view !== 'home') return;
+    const staff = ['teacher','admin'].includes(currentState.profile?.role) && currentState.profile.active !== false;
+    if (!staff) { clearReturnTarget(getSessionStorage()); return; }
+    const path = takeReturnPath(getSessionStorage());
+    if (path) globalThis.location.replace(path);
+  };
+
   const renderCurrentState = async () => {
     currentState = await loadAppState(client);
     if (currentState.view === 'login') { cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; renderLogin(root); return; }
@@ -171,7 +181,7 @@ export async function bootApp(clientOverride = null) {
     const data = new FormData(form);
 
     if (kind === 'login') {
-      try { await signIn(client, String(data.get('email') ?? '').trim(), String(data.get('password') ?? '')); await renderCurrentState(); }
+      try { await signIn(client, String(data.get('email') ?? '').trim(), String(data.get('password') ?? '')); await renderCurrentState(); resumeReturnTarget(); }
       catch (error) { renderLogin(root, error instanceof Error ? error.message : 'Unable to sign in.'); }
       return;
     }
@@ -179,7 +189,7 @@ export async function bootApp(clientOverride = null) {
       if (currentState.profile?.active === false || (!['teacher','admin'].includes(currentState.profile?.role) && !(currentState.view === 'change-password' && currentState.profile?.must_change_password))) return;
       const password = String(data.get('password') ?? '');
       if (password !== String(data.get('confirmPassword') ?? '')) { renderChangePassword(root, currentState.profile, 'The two passwords do not match.'); return; }
-      try { await changePassword(client, password); await renderCurrentState(); }
+      try { await changePassword(client, password); await renderCurrentState(); resumeReturnTarget(); }
       catch (error) { renderChangePassword(root, currentState.profile, error instanceof Error ? error.message : 'Unable to change password.'); }
       return;
     }
@@ -224,7 +234,7 @@ export async function bootApp(clientOverride = null) {
   root.addEventListener('click', async (event) => {
     const target = event.target?.closest?.('[data-action]') ?? event.target;
     const action = target?.dataset?.action;
-    if (action === 'logout') { await client.auth.signOut(); cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; await renderCurrentState(); }
+    if (action === 'logout') { await client.auth.signOut(); clearReturnTarget(getSessionStorage()); cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; await renderCurrentState(); }
     else if (action === 'retry') await renderCurrentState();
     else if (action === 'change-password') {
       if (['teacher','admin'].includes(currentState.profile?.role) && currentState.profile.active !== false) {
@@ -459,6 +469,7 @@ export async function bootApp(clientOverride = null) {
   });
 
   await renderCurrentState();
+  if (currentState.view === 'home') clearReturnTarget(getSessionStorage());
 }
 
 if (typeof document !== 'undefined') bootApp();
