@@ -53,7 +53,7 @@ const APP_ART = {
 function appArt(appKey) {
   const key = String(appKey ?? '').toLowerCase();
   const match = Object.keys(APP_ART).find(name => key.includes(name)) ?? (key.includes('writ') ? 'essay' : null);
-  return match ? `<img class="app-card__art" src="${APP_ART[match]}" alt="" width="240" height="180" loading="lazy" decoding="async" aria-hidden="true">` : '';
+  return match ? `<img class="app-card__art" src="${APP_ART[match]}" alt="" width="300" height="200" loading="lazy" decoding="async" aria-hidden="true">` : '';
 }
 
 function renderMeritAlert(model) {

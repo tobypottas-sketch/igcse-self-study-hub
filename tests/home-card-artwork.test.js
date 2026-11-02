@@ -37,7 +37,7 @@ test('existing card content is unchanged: badge, arrow, title, description and C
 test('the SVG files are small, self-contained, transparent and scalable', async () => {
   for (const file of Object.values(FILES)) {
     const svg = await readFile(new URL(`../assets/launcher/${file}.svg`, import.meta.url), 'utf8');
-    assert.match(svg, /^<svg [^>]*viewBox="0 0 240 180"/);
+    assert.match(svg, /^<svg [^>]*viewBox="0 0 300 200"/);
     assert.ok(svg.length < 4000, `${file} is lightweight`);
     assert.doesNotMatch(svg, /<image|data:|href=|<script|<style|<foreignObject|url\((?!#)/i, `${file} is self-contained`);
     assert.doesNotMatch(svg, /<rect[^>]*width="240"[^>]*height="180"/, `${file} has no opaque background rect`);
@@ -48,8 +48,8 @@ test('artwork CSS is decorative only: absolute, non-interactive, scaled down on 
   const art = css.match(/\.app-card__art\s*\{[^}]*\}/)?.[0] ?? '';
   assert.match(art, /position:\s*absolute/);
   assert.match(art, /pointer-events:\s*none/);
-  assert.match(art, /width:\s*min\(44%,\s*128px\)/);
-  assert.match(css, /@media \(max-width: 560px\)[\s\S]*\.app-card__art\s*\{[^}]*min\(40%/);
+  assert.match(art, /width:\s*min\(100%,\s*320px\)/);
+  assert.match(css, /@media \(max-width: 560px\)[\s\S]*\.app-card__art\s*\{[^}]*min\(72%/);
   assert.match(css, /\.app-card__topline, \.app-card__content, \.app-card__meta\s*\{[^}]*z-index:\s*1/);
   assert.match(css, /\.app-card\s*\{[^}]*min-height:\s*230px/, 'card size unchanged');
 });
