@@ -65,34 +65,8 @@ export function plannerContent({ occurrences = [], items = [], contexts = [], ac
   return content;
 }
 
-// Student runtime does not need to re-run the authoring/readiness evaluator. Published Set membership is already the server-held
-// release decision and is the same authority the mission guard checks. Build the light-weight coverage shape the student UI needs
-// directly from those rows. Pathways with no published Set are explicitly unavailable so missing coverage can never unlock everything.
-export function coverageFromServerSetMembers(rows = [], occurrences = []) {
-  const totalOccurrences = Array.isArray(occurrences) ? occurrences.length : 0;
-  const authored = new Set((occurrences ?? []).map(row => String(row?.occurrence_id ?? row?.occurrenceId ?? '')).filter(Boolean));
-  const grouped = new Map(VOCABULARY_PATHWAYS.map(pathway => [pathway.id, []]));
-  for (const row of Array.isArray(rows) ? rows : []) {
-    const pathwayId = String(row?.pathway_id ?? '');
-    const occurrenceId = String(row?.occurrence_id ?? '');
-    if (!grouped.has(pathwayId) || !authored.has(occurrenceId)) continue;
-    grouped.get(pathwayId).push(row);
-  }
-  return Object.fromEntries(VOCABULARY_PATHWAYS.map(pathway => {
-    const pathwayRows = grouped.get(pathway.id).slice().sort((a,b) => Number(a.set_number) - Number(b.set_number) || Number(a.position) - Number(b.position));
-    const occurrenceIds = [...new Set(pathwayRows.map(row => String(row.occurrence_id)).filter(Boolean))];
-    const setCount = new Set(pathwayRows.map(row => Number(row.set_number)).filter(Number.isFinite)).size;
-    const available = setCount > 0 && occurrenceIds.length >= 10;
-    return [pathway.id, {
-      available,
-      occurrenceIds:available ? occurrenceIds : [],
-      totalOccurrences,
-      setCount:available ? setCount : 0,
-      heldBackOccurrenceIds:[],
-      reason:available ? null : 'no_published_sets'
-    }];
-  }));
-}
+import { coverageFromServerSetMembers } from '../../supabase/functions/_shared/vocabulary-pathway-sets.js';
+export { coverageFromServerSetMembers };
 
 // Complete published Sets drive the ladder. Serviceable remainder words can still be used in free/Mixed Practice.
 // Check those only when practice asks for them, using the canonical per-target rules and seed; never during Unit open.
