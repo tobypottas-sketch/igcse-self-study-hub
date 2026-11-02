@@ -41,6 +41,21 @@ function appVisual(appKey) {
   return 'S';
 }
 
+const APP_ART = {
+  vocabulary: './assets/launcher/vocabulary.svg',
+  read: './assets/launcher/reading.svg',
+  listen: './assets/launcher/listening.svg',
+  paraphr: './assets/launcher/paraphrasing.svg',
+  essay: './assets/launcher/essay-writing.svg'
+};
+
+// Decorative card artwork, chosen the same way as the letter badge. Unknown apps simply get no artwork.
+function appArt(appKey) {
+  const key = String(appKey ?? '').toLowerCase();
+  const match = Object.keys(APP_ART).find(name => key.includes(name)) ?? (key.includes('writ') ? 'essay' : null);
+  return match ? `<img class="app-card__art" src="${APP_ART[match]}" alt="" width="240" height="180" loading="lazy" decoding="async" aria-hidden="true">` : '';
+}
+
 function renderMeritAlert(model) {
   if (!model.pendingMerits) return '';
   const shown = model.meritAlerts.slice(0, 3);
@@ -60,6 +75,7 @@ export function renderHome(root, profile, apps, activityDashboard = null) {
   const model = buildHomeModel(profile, apps, activityDashboard);
   const cards = model.apps.map(app => `
     <a class="app-card" href="${safeHttpsUrl(app.launch_url)}" data-app="${escapeHtml(app.app_key)}">
+      ${appArt(app.app_key)}
       <span class="app-card__topline">
         <span class="app-card__icon" aria-hidden="true">${appVisual(app.app_key)}</span>
         <span class="app-card__arrow" aria-hidden="true">→</span>
