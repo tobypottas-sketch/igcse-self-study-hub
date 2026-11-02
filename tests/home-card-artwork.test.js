@@ -27,7 +27,7 @@ test('existing card content is unchanged: badge, arrow, title, description and C
     assert.match(html, new RegExp(`app-card__icon" aria-hidden="true">${badges[key]}<`));
     assert.match(html, /app-card__arrow" aria-hidden="true">→</);
     assert.match(html, new RegExp(`app-card__title">${NAMES[key].replace('&', '&amp;')}<`));
-    assert.match(html, /app-card__description">Independent iGCSE practice</);
+    assert.match(html, /app-card__description"><span class="app-card__line">Independent iGCSE<\/span><span class="app-card__line">practice<\/span><\/span>/);
     assert.match(html, /app-card__meta">Open practice →</);
     assert.match(html, new RegExp(`href="https://example.test/${key}"`));
   }
@@ -52,4 +52,13 @@ test('artwork CSS is decorative only: absolute, non-interactive, scaled down on 
   assert.match(css, /@media \(max-width: 560px\)[\s\S]*\.app-card__art\s*\{[^}]*min\(72%/);
   assert.match(css, /\.app-card__topline, \.app-card__content, \.app-card__meta\s*\{[^}]*z-index:\s*1/);
   assert.match(css, /\.app-card\s*\{[^}]*min-height:\s*230px/, 'card size unchanged');
+});
+
+test('subtitle is a deliberate two-line block layout owned by one shared rule', () => {
+  for (const key of Object.keys(FILES)) {
+    const lines = [...card(key).matchAll(/app-card__line">([^<]+)</g)].map(m => m[1]);
+    assert.deepEqual(lines, ['Independent iGCSE', 'practice'], key);
+  }
+  assert.match(css, /\.app-card__line\s*\{[^}]*display:\s*block[^}]*white-space:\s*nowrap/);
+  assert.equal((css.match(/\.app-card__line\b/g) || []).length, 1, 'no per-card or per-breakpoint overrides');
 });

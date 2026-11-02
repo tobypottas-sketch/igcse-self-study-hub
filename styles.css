@@ -132,6 +132,8 @@ input:focus { border-color: var(--hub-teal); box-shadow: 0 0 0 3px rgba(19, 126,
 .app-card__content { display: grid; gap: 8px; margin-top: 28px; }
 .app-card__title { color: var(--hub-navy); font-size: var(--fs-lg); font-weight: 900; letter-spacing: -.025em; }
 .app-card__description { color: var(--c-muted); font-size: var(--fs-xs); line-height: 1.45; font-weight: 680; }
+/* Deliberate two-line subtitle ("Independent iGCSE" / "practice"): each line is its own block so the break never depends on card width. */
+.app-card__line { display: block; white-space: nowrap; }
 .app-card__meta { position: relative; z-index: 1; margin-top: 24px; color: var(--hub-teal); font-size: var(--fs-xs); font-weight: 900; }
 .app-card[data-app*="listen"] .app-card__icon { background: linear-gradient(135deg, var(--c-teal-dark), var(--hub-blue)); }
 .app-card[data-app*="paraphr"] .app-card__icon { background: linear-gradient(135deg, var(--hub-teal-2), var(--hub-blue)); }
