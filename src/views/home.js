@@ -82,7 +82,7 @@ export function renderHome(root, profile, apps, activityDashboard = null) {
       </span>
       <span class="app-card__content">
         <span class="app-card__title">${escapeHtml(app.display_name)}</span>
-        <span class="app-card__description">Independent iGCSE practice</span>
+        <span class="app-card__description"><span class="app-card__line">Independent iGCSE</span><span class="app-card__line">practice</span></span>
       </span>
       <span class="app-card__meta">Open practice →</span>
     </a>`).join('');
