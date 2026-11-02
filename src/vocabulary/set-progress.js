@@ -7,60 +7,11 @@
 import { STAGE_ORDER, MISSION_SIZE, composeFollowUp, applyMissionResult, newSetState } from './stage-progression.js';
 import { setsFromCoverage, computePathwaySets } from './pathway-sets.js';
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES } from './pathway-model.js';
+import { normalizeSetRow, groupSetRows, activeSetStep } from '../../supabase/functions/_shared/vocabulary-pathway-sets.js';
+export { normalizeSetRow, groupSetRows, activeSetStep };
 
 const STAGE_LABEL = Object.freeze(Object.fromEntries(PATHWAY_STAGES.map(stage => [stage.id, stage.label])));
 
-export function normalizeSetRow(row = {}) {
-  const stage = STAGE_ORDER.includes(row.stage) ? row.stage : 'recognise';
-  const phase = ['stage', 'consolidate', 'recovery', 'fresh'].includes(row.phase) ? row.phase : 'stage';
-  const list = value => Array.isArray(value) ? value.map(String) : [];
-  return {
-    pathwayId: String(row.pathway_id ?? row.pathwayId ?? ''),
-    unitNumber: Number(row.unit_number ?? row.unitNumber ?? 0) || null,
-    setNumber: Number(row.set_number ?? row.setNumber ?? 0),
-    stage,
-    phase,
-    status: row.status === 'maintain' ? 'maintain' : 'active',
-    completedStages: list(row.completed_stages ?? row.completedStages).filter(id => STAGE_ORDER.includes(id)),
-    weakTargetIds: list(row.weak_target_ids ?? row.weakTargetIds),
-    advancedWithSupport: Array.isArray(row.advanced_with_support ?? row.advancedWithSupport) ? (row.advanced_with_support ?? row.advancedWithSupport) : [],
-    supportFlags: Array.isArray(row.support_flags ?? row.supportFlags) ? (row.support_flags ?? row.supportFlags) : []
-  };
-}
-
-// rows -> { [pathwayId]: { [setNumber]: normalizedRow } }
-export function groupSetRows(rows = []) {
-  const grouped = {};
-  for (const raw of Array.isArray(rows) ? rows : []) {
-    const row = normalizeSetRow(raw);
-    if (!row.pathwayId || !(row.setNumber >= 1)) continue;
-    (grouped[row.pathwayId] ??= {})[row.setNumber] = row;
-  }
-  return grouped;
-}
-
-// The Set a student is working on in a pathway and what the next mission is.
-//   `sets`   = computePathwaySets(...) for the pathway,  `rowsForPathway` = { [setNumber]: row }
-// Returns { available, firstPassComplete, setNumber, stage, phase, missionKind, members, weakTargetIds, completedStages, setCount, heldBackCount, askNextSet }.
-export function activeSetStep({ sets, rowsForPathway = {} } = {}) {
-  const setCount = sets?.setCount ?? 0;
-  const base = { setCount, heldBackCount: sets?.heldBackCount ?? 0, reason: sets?.reason ?? null };
-  if (setCount < 1) return { ...base, available: false, firstPassComplete: false, setNumber: null, stage: 'recognise', phase: 'stage', missionKind: null, members: [], weakTargetIds: [], completedStages: [], askNextSet: null };
-  for (let number = 1; number <= setCount; number += 1) {
-    const row = rowsForPathway?.[number] ?? null;
-    if (row && row.status === 'maintain') continue;
-    const phase = row?.phase ?? 'stage';
-    return {
-      ...base, available: true, firstPassComplete: false, setNumber: number, stage: row?.stage ?? 'recognise', phase,
-      missionKind: phase === 'consolidate' ? 'consolidate' : phase === 'recovery' ? 'recovery' : 'stage',
-      members: sets.sets[number - 1], weakTargetIds: row?.weakTargetIds ?? [], completedStages: row?.completedStages ?? [],
-      // The server opens a new Set only when told which Set is next: that is the lowest Set number without a row.
-      askNextSet: row ? null : number,
-      supportFlags: row?.supportFlags ?? []
-    };
-  }
-  return { ...base, available: true, firstPassComplete: true, setNumber: setCount, stage: 'mastery', phase: 'stage', missionKind: null, members: sets.sets[setCount - 1], weakTargetIds: [], completedStages: [...STAGE_ORDER], askNextSet: null };
-}
 
 export function stageNumber(stageId) { return Math.max(0, STAGE_ORDER.indexOf(stageId)) + 1; }
 export function stageLabel(stageId) { return STAGE_LABEL[stageId] ?? ''; }
