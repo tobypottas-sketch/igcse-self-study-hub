@@ -73,6 +73,7 @@ function renderMeritAlert(model) {
 
 export function renderHome(root, profile, apps, activityDashboard = null) {
   const model = buildHomeModel(profile, apps, activityDashboard);
+  const canChangePassword = ['student','teacher','admin'].includes(profile.role) && profile.active !== false;
   const cards = model.apps.map(app => `
     <a class="app-card" href="${safeHttpsUrl(app.launch_url)}" data-app="${escapeHtml(app.app_key)}">
       ${appArt(app.app_key)}
@@ -88,10 +89,10 @@ export function renderHome(root, profile, apps, activityDashboard = null) {
     </a>`).join('');
 
   const activityLabel = model.pendingMerits ? `Student activity · ${model.pendingMerits} new` : 'Student activity';
-  const teacherControls = [
+  const accountControls = [
     model.showActivityControls ? `<button class="button button--primary" data-action="activity">${escapeHtml(activityLabel)}</button>` : '',
     model.showAdminControls ? '<button class="button" data-action="admin">Manage accounts</button>' : '',
-    model.showAdminControls ? '<button class="button" data-action="change-password">Change password</button>' : ''
+    canChangePassword ? `<button class="button" data-action="change-password"${model.role === 'student' ? ' data-student-password-change' : ''}>Change password</button>` : ''
   ].filter(Boolean).join(' ');
 
   root.innerHTML = `
@@ -131,7 +132,7 @@ export function renderHome(root, profile, apps, activityDashboard = null) {
             <h2 id="study-tools-title">Choose a study app</h2>
             <p>Focused practice for Cambridge IGCSE English as a Second Language (0511).</p>
           </div>
-          ${teacherControls ? `<div class="admin-actions">${teacherControls}</div>` : ''}
+          ${accountControls ? `<div class="admin-actions">${accountControls}</div>` : ''}
         </div>
         <div class="app-grid">${cards}</div>
       </section>
