@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const views = await readFile(new URL('../src/vocabulary/teacher-views.js', import.meta.url), 'utf8');
-const css = await readFile(new URL('../vocabulary-teacher.css', import.meta.url), 'utf8');
+const css = await readFile(new URL('../vocabulary-monthly-usage.css', import.meta.url), 'utf8');
 
 test('teacher overview renders a full-width monthly usage panel from habits data', () => {
   assert.match(views, /function monthlyUsagePanel\(/);
