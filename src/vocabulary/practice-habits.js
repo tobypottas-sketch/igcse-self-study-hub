@@ -2,6 +2,7 @@
 // already-loaded attempt flags. It never reads answers, scores-as-mastery or evidence, and nothing here feeds
 // progression, mastery, merits or interventions.
 import { WEEKLY_GOAL } from './engagement-model.js';
+import { buildMonthlyUsage } from './monthly-usage.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 export const QUIET_AFTER_DAYS = 14;
@@ -62,6 +63,7 @@ export function buildPracticeHabits({ students = [], missions = [], activity = [
     quiet,
     quietAfterDays:QUIET_AFTER_DAYS,
     classSecondTryPercent:rated.length ? Math.round(rated.reduce((sum, row) => sum + row.secondTryPercent, 0) / rated.length) : null,
+    monthlyUsage:buildMonthlyUsage({ students, activity, now }),
     rows
   };
 }
