@@ -16,6 +16,8 @@ body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-pathways-pan
 body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix-wrap{margin-top:10px}
 body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix th,body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix td{padding:7px 9px;border-top-color:rgba(23,56,82,.055)}
 body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix thead th{padding-top:3px;padding-bottom:8px;color:#5f7281;letter-spacing:.01em}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix thead th:not(:first-child),body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix tbody td{text-align:center}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix thead th:first-child,body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix tbody th{text-align:left}
 body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix tbody th{background:#fff}
 body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix tbody tr{transition:background .14s ease}
 body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix tbody tr:hover{background:rgba(23,145,145,.035)}
