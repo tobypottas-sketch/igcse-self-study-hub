@@ -14,6 +14,12 @@ test('teacher overview renders a full-width monthly usage panel from habits data
   assert.match(views, /data-active-students=/);
 });
 
+test('monthly usage shows an intentional empty state instead of a dead chart', () => {
+  assert.match(css, /No student activity recorded yet this month\./);
+  assert.match(css, /:not\(:has\(\.vocab-monthly-usage__day:not\(\[data-active-students="0"\]\)\)\)/);
+  assert.match(css, /vocab-monthly-usage__chart:after/);
+});
+
 test('monthly usage bars are accessible and responsive', () => {
   assert.match(views, /aria-label=/);
   assert.match(views, /role="img"/);
