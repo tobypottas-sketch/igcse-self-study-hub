@@ -19,6 +19,12 @@ test('active student sees a self-service Change password control on the Hub home
   assert.match(root.innerHTML, />Change password<\/button>/);
 });
 
+test('inactive student does not see the self-service password control', () => {
+  const root = { innerHTML:'' };
+  renderHome(root, { ...activeStudent, active:false }, []);
+  assert.doesNotMatch(root.innerHTML, /data-action="change-password"/);
+});
+
 test('voluntary student password change is cancellable but forced first-sign-in change is not', () => {
   const voluntaryRoot = { innerHTML:'' };
   renderChangePassword(voluntaryRoot, activeStudent);
