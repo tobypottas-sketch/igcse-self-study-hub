@@ -1,0 +1,42 @@
+/* Teacher class overview polish: presentation only. Scoped by the overview-only monthly usage panel. */
+body:has(.vocab-monthly-usage) .vocab-shell--teacher{padding-bottom:44px}
+
+/* Give the main working area more breathing room without changing its structure. */
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-monthly-usage{margin-top:16px}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-monthly-usage + .vocab-teacher-grid{gap:16px;margin-top:18px}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-monthly-usage + .vocab-teacher-grid > .vocab-teacher-panel{border-color:transparent;box-shadow:0 12px 34px rgba(23,56,82,.065);padding:20px 22px}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-monthly-usage + .vocab-teacher-grid > .vocab-teacher-panel:first-child{background:linear-gradient(145deg,#fff 0%,#f7fbfc 100%)}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-monthly-usage + .vocab-teacher-grid > .vocab-habits-panel{background:linear-gradient(145deg,#fff 0%,#f5faf9 100%)}
+
+/* Pathways should read like a reference surface, not another heavy bordered card. */
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-pathways-panel{margin-top:4px;background:linear-gradient(180deg,#fff 0%,#fbfcfd 100%);border-color:transparent;box-shadow:0 14px 38px rgba(23,56,82,.055);padding:22px 24px 20px}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-pathways-panel .vocab-panel-head{padding-bottom:12px;border-bottom:1px solid rgba(23,56,82,.07)}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-pathways-panel .vocab-unit-chips{gap:6px}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-pathways-panel .vocab-unit-chip{min-height:36px;padding:6px 12px;background:rgba(255,255,255,.72)}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix-wrap{margin-top:10px}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix th,body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix td{padding:7px 9px;border-top-color:rgba(23,56,82,.055)}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix thead th{padding-top:3px;padding-bottom:8px;color:#5f7281;letter-spacing:.01em}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix tbody th{background:#fff}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix tbody tr{transition:background .14s ease}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix tbody tr:hover{background:rgba(23,145,145,.035)}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix .vocab-pill[data-tone="start"]{background:#f7fafb;box-shadow:none;color:#29465d}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-matrix .vocab-pill[data-tone="locked"]{background:transparent;box-shadow:none;color:#7b8b97}
+
+/* The final diagnostics are deliberately lighter and visually distinct. */
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-monthly-usage + .vocab-teacher-grid + .vocab-teacher-grid--three{gap:14px;margin-top:18px}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-grid--three > .vocab-teacher-panel{position:relative;overflow:hidden;border-color:transparent;box-shadow:none;padding:18px 20px 20px}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-grid--three > .vocab-teacher-panel:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:0 4px 4px 0;opacity:.8}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-grid--three > .vocab-teacher-panel:nth-child(1){background:#f4faf9}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-grid--three > .vocab-teacher-panel:nth-child(1):before{background:#168c8c}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-grid--three > .vocab-teacher-panel:nth-child(2){background:#fdf8ee}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-grid--three > .vocab-teacher-panel:nth-child(2):before{background:#c18a2b}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-grid--three > .vocab-teacher-panel:nth-child(3){background:#f7f6fb}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-grid--three > .vocab-teacher-panel:nth-child(3):before{background:#7f78a8}
+body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-grid--three .vocab-muted-line{max-width:32ch;line-height:1.5}
+
+@media(max-width:620px){
+  body:has(.vocab-monthly-usage) .vocab-shell--teacher{padding-bottom:28px}
+  body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-monthly-usage + .vocab-teacher-grid > .vocab-teacher-panel,body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-pathways-panel{padding:18px}
+  body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-pathways-panel .vocab-panel-head{align-items:flex-start}
+  body:has(.vocab-monthly-usage) .vocab-shell--teacher .vocab-teacher-grid--three > .vocab-teacher-panel{padding:17px 18px 18px}
+}
