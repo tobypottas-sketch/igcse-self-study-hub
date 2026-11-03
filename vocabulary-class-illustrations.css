@@ -1,5 +1,5 @@
 /* Vocabulary teacher class-card illustration layer.
-   Intentionally isolated from generic Vocabulary cards and analytics screens. */
+   Grade identity is deliberate: G9 = open book, G10 = stacked books, G11 = notebook. */
 
 .vocab-class-chooser .vocab-class-card{
   position:relative;
@@ -10,6 +10,11 @@
 
 .vocab-class-chooser .vocab-class-card > *{position:relative;z-index:1}
 
+/* One consistent tint per grade, so teachers can recognise the year group at a glance. */
+.vocab-class-chooser .vocab-class-card[data-grade-variant="g9"]{background:linear-gradient(145deg,#fbfcff 0%,#f3f4fb 100%)}
+.vocab-class-chooser .vocab-class-card[data-grade-variant="g10"]{background:linear-gradient(145deg,#fbfefe 0%,#f1f8f7 100%)}
+.vocab-class-chooser .vocab-class-card[data-grade-variant="g11"]{background:linear-gradient(145deg,#fffefa 0%,#fbf7ee 100%)}
+
 .vocab-class-chooser .vocab-class-card::before{
   content:"";
   position:absolute;
@@ -18,7 +23,7 @@
   width:210px;
   height:210px;
   border-radius:50%;
-  background:radial-gradient(circle at 45% 45%,rgba(255,255,255,.72),rgba(255,255,255,.18) 58%,transparent 72%);
+  background:radial-gradient(circle at 45% 45%,rgba(255,255,255,.78),rgba(255,255,255,.18) 58%,transparent 72%);
   pointer-events:none;
 }
 
@@ -38,18 +43,19 @@
   transform-origin:center;
 }
 
-/* Open book + pencil */
-.vocab-class-chooser__grid > .vocab-class-card:nth-child(3n+1)::after{
+/* Grade 9: open book + pencil — foundations and building core skills. */
+.vocab-class-chooser .vocab-class-card[data-grade-variant="g9"]::after,
+.vocab-class-chooser .vocab-class-card[data-grade-variant="default"]::after{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 140' fill='none'%3E%3Cpath d='M25 34c22-8 43-5 62 7v70c-18-11-39-14-62-6V34Zm130 0c-22-8-43-5-62 7v70c18-11 39-14 62-6V34Z' stroke='%230b7774' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round' opacity='.34'/%3E%3Cpath d='M90 42v69M40 53c14-3 27-1 38 5M40 67c14-3 27-1 38 5M140 53c-14-3-27-1-38 5M140 67c-14-3-27-1-38 5' stroke='%230b7774' stroke-width='2.5' stroke-linecap='round' opacity='.25'/%3E%3Cpath d='m126 103 29-29 8 8-29 29-12 4 4-12Z' stroke='%230b7774' stroke-width='3' stroke-linejoin='round' opacity='.42'/%3E%3C/svg%3E");
 }
 
-/* Stacked books */
-.vocab-class-chooser__grid > .vocab-class-card:nth-child(3n+2)::after{
+/* Grade 10: stacked books — deeper study and growing academic load. */
+.vocab-class-chooser .vocab-class-card[data-grade-variant="g10"]::after{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 140' fill='none'%3E%3Crect x='27' y='82' width='126' height='28' rx='8' stroke='%230b7774' stroke-width='3.2' opacity='.36'/%3E%3Cpath d='M45 82v28M37 96h16M48 50h101a8 8 0 0 1 8 8v16a8 8 0 0 1-8 8H48a12 12 0 0 1 0-32Z' stroke='%230b7774' stroke-width='3.2' opacity='.34'/%3E%3Cpath d='M57 58h78M57 68h61M34 22h99a8 8 0 0 1 8 8v12a8 8 0 0 1-8 8H34a11 11 0 0 1 0-28Z' stroke='%230b7774' stroke-width='3.2' stroke-linecap='round' opacity='.3'/%3E%3Cpath d='M50 31h67M50 40h45' stroke='%230b7774' stroke-width='2.4' stroke-linecap='round' opacity='.24'/%3E%3C/svg%3E");
 }
 
-/* Notebook + bookmark */
-.vocab-class-chooser__grid > .vocab-class-card:nth-child(3n+3)::after{
+/* Grade 11: notebook + bookmark — senior, organised and exam-focused. */
+.vocab-class-chooser .vocab-class-card[data-grade-variant="g11"]::after{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 140' fill='none'%3E%3Cpath d='M48 20h83a13 13 0 0 1 13 13v88H55a15 15 0 0 1-15-15V28a8 8 0 0 1 8-8Z' stroke='%230b7774' stroke-width='3.4' stroke-linejoin='round' opacity='.35'/%3E%3Cpath d='M58 20v101M71 46h51M71 61h51M71 76h38M71 91h45' stroke='%230b7774' stroke-width='2.5' stroke-linecap='round' opacity='.25'/%3E%3Cpath d='M112 20v38l10-7 10 7V20' stroke='%230b7774' stroke-width='3' stroke-linejoin='round' opacity='.42'/%3E%3Ccircle cx='58' cy='42' r='3' fill='%230b7774' opacity='.35'/%3E%3Ccircle cx='58' cy='63' r='3' fill='%230b7774' opacity='.35'/%3E%3Ccircle cx='58' cy='84' r='3' fill='%230b7774' opacity='.35'/%3E%3C/svg%3E");
 }
 
