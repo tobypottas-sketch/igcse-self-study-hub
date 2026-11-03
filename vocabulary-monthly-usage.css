@@ -13,5 +13,7 @@
 .vocab-monthly-usage__day[data-active-students="0"] i{opacity:.15}
 .vocab-monthly-usage__day small{position:absolute;bottom:-19px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:9px;white-space:nowrap}
 .vocab-monthly-usage__day:nth-child(even) small{display:none}
+.vocab-monthly-usage__chart:not(:has(.vocab-monthly-usage__day:not([data-active-students="0"]))) .vocab-monthly-usage__ceiling,.vocab-monthly-usage__chart:not(:has(.vocab-monthly-usage__day:not([data-active-students="0"]))) .vocab-monthly-usage__bars{visibility:hidden}
+.vocab-monthly-usage__chart:not(:has(.vocab-monthly-usage__day:not([data-active-students="0"]))):after{content:"No student activity recorded yet this month.";position:absolute;inset:20px 0 0;display:grid;place-items:center;min-height:150px;border:1px dashed var(--line);border-radius:14px;background:var(--c-surface-soft);color:var(--muted);font-size:var(--fs-sm);font-weight:700;text-align:center;padding:18px}
 .vocab-monthly-usage .vocab-note{margin:10px 0 0}
-@media(max-width:620px){.vocab-monthly-usage{padding:16px}.vocab-monthly-usage__head{flex-direction:column;gap:6px}.vocab-monthly-usage__summary{text-align:left}.vocab-monthly-usage__bars{gap:3px;height:130px}.vocab-monthly-usage__day i{width:min(100%,14px)}.vocab-monthly-usage__day small{display:none}}
+@media(max-width:620px){.vocab-monthly-usage{padding:16px}.vocab-monthly-usage__head{flex-direction:column;gap:6px}.vocab-monthly-usage__summary{text-align:left}.vocab-monthly-usage__bars{gap:3px;height:130px}.vocab-monthly-usage__day i{width:min(100%,14px)}.vocab-monthly-usage__day small{display:none}.vocab-monthly-usage__chart:not(:has(.vocab-monthly-usage__day:not([data-active-students="0"]))):after{min-height:130px}}
