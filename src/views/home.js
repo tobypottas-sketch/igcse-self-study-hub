@@ -6,7 +6,6 @@ const CAMBRIDGE_ENGLISH_LOGO = './assets/cambridge-assessment-english.webp';
 export function buildHomeModel(profile, apps, activityDashboard = null) {
   const showAdminControls = ['admin','teacher'].includes(profile.role);
   const canSeeTeacherActivity = showAdminControls;
-  const canChangePassword = ['student','teacher','admin'].includes(profile.role) && profile.active !== false;
   const meritAlerts = canSeeTeacherActivity
     ? (activityDashboard?.students ?? [])
       .filter(student => Number(student.pendingMerits ?? 0) > 0)
@@ -27,7 +26,6 @@ export function buildHomeModel(profile, apps, activityDashboard = null) {
     apps: (apps ?? []).filter(app => app.enabled),
     showAdminControls,
     showActivityControls: canSeeTeacherActivity,
-    canChangePassword,
     pendingMerits,
     meritAlerts
   };
@@ -75,6 +73,7 @@ function renderMeritAlert(model) {
 
 export function renderHome(root, profile, apps, activityDashboard = null) {
   const model = buildHomeModel(profile, apps, activityDashboard);
+  const canChangePassword = ['student','teacher','admin'].includes(profile.role) && profile.active !== false;
   const cards = model.apps.map(app => `
     <a class="app-card" href="${safeHttpsUrl(app.launch_url)}" data-app="${escapeHtml(app.app_key)}">
       ${appArt(app.app_key)}
@@ -93,7 +92,7 @@ export function renderHome(root, profile, apps, activityDashboard = null) {
   const accountControls = [
     model.showActivityControls ? `<button class="button button--primary" data-action="activity">${escapeHtml(activityLabel)}</button>` : '',
     model.showAdminControls ? '<button class="button" data-action="admin">Manage accounts</button>' : '',
-    model.canChangePassword ? `<button class="button" data-action="change-password"${model.role === 'student' ? ' data-student-password-change' : ''}>Change password</button>` : ''
+    canChangePassword ? `<button class="button" data-action="change-password"${model.role === 'student' ? ' data-student-password-change' : ''}>Change password</button>` : ''
   ].filter(Boolean).join(' ');
 
   root.innerHTML = `
