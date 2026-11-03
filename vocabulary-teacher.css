@@ -98,3 +98,24 @@
 .vocab-shell--teacher .vocab-teacher-grid--three{grid-template-columns:repeat(3,minmax(0,1fr))}@media(max-width:900px){.vocab-shell--teacher .vocab-teacher-grid--three{grid-template-columns:1fr}}
 .vocab-shell--teacher .vocab-teacher-panel,.vocab-shell--teacher .vocab-insight-card{min-width:0}.vocab-matrix-wrap{max-width:100%}
 .vocab-matrix-wrap,.vocab-matrix td{position:relative}
+
+/* Teacher class chooser: intentionally scoped so generic Vocabulary cards remain unchanged. */
+.vocab-class-chooser .vocab-class-chooser__hero{background:linear-gradient(135deg,#f8fbff 0%,#f3faf8 58%,#f8f7fc 100%);border-color:var(--c-teal-line);padding:26px 28px;box-shadow:0 12px 34px rgba(23,56,82,.055)}
+.vocab-class-chooser .vocab-class-chooser__hero h1{margin:0 0 8px;font-size:clamp(1.9rem,3.6vw,2.7rem);letter-spacing:-.04em;color:var(--navy)}
+.vocab-class-chooser .vocab-class-chooser__hero>p:not(.vocab-kicker){max-width:520px;color:var(--muted)}
+.vocab-class-chooser .vocab-class-chooser__hero .vocab-teacher-actions{margin-top:18px}
+.vocab-class-chooser .vocab-class-chooser__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:20px 0 0}
+.vocab-class-chooser .vocab-class-card{appearance:none;width:100%;min-height:198px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:20px;border:1px solid rgba(32,93,104,.15);border-radius:var(--r-lg);background:#f5faf9;color:var(--navy);font:inherit;text-align:left;box-shadow:0 8px 24px rgba(23,56,82,.045);cursor:pointer;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.vocab-class-chooser .vocab-class-card:nth-child(3n+2){background:#f7f8fd;border-color:rgba(70,86,128,.14)}
+.vocab-class-chooser .vocab-class-card:nth-child(3n){background:#fbf8f3;border-color:rgba(126,99,61,.13)}
+.vocab-class-chooser .vocab-class-card:hover{transform:translateY(-2px);border-color:var(--c-teal-line);box-shadow:0 12px 30px rgba(23,56,82,.075)}
+.vocab-class-chooser .vocab-class-card:focus-visible{outline:3px solid var(--c-teal-soft);outline-offset:3px;border-color:var(--c-teal)}
+.vocab-class-chooser .vocab-class-card__icon{width:38px;height:38px;display:grid;place-items:center;margin-bottom:2px;border:1px solid rgba(32,93,104,.13);border-radius:12px;background:rgba(255,255,255,.64);color:var(--c-teal-dark)}
+.vocab-class-chooser .vocab-class-card__icon svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
+.vocab-class-chooser .vocab-class-card__eyebrow{color:var(--muted);font-size:var(--fs-xs);font-weight:850;letter-spacing:.07em;text-transform:uppercase}
+.vocab-class-chooser .vocab-class-card__title{font-size:1.18rem;line-height:1.25;letter-spacing:-.018em}
+.vocab-class-chooser .vocab-class-card__count{display:inline-flex;align-items:center;padding:5px 10px;border:1px solid rgba(32,93,104,.13);border-radius:var(--r-pill);background:rgba(255,255,255,.7);color:var(--muted);font-size:var(--fs-xs);font-weight:800}
+.vocab-class-chooser .vocab-class-card__cta{margin-top:auto;padding-top:8px;color:var(--c-teal-dark);font-size:var(--fs-sm);font-weight:900}
+.vocab-class-chooser .vocab-class-card:hover .vocab-class-card__cta{text-decoration:underline;text-underline-offset:3px}
+@media(max-width:900px){.vocab-class-chooser .vocab-class-chooser__grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.vocab-class-chooser .vocab-class-chooser__grid{grid-template-columns:1fr}.vocab-class-chooser .vocab-class-chooser__hero{padding:22px}.vocab-class-chooser .vocab-class-card{min-height:176px}}
