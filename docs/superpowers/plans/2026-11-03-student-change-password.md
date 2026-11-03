@@ -4,7 +4,7 @@
 
 **Goal:** Let active students change their own password from the Hub while preserving teacher/admin reset capability.
 
-**Architecture:** Reuse the existing home-screen action and password-change view. Centralize self-service eligibility in one small helper shared by the home view, password view, and app event guards so role rules cannot drift.
+**Architecture:** Reuse the existing password-change view and existing `changePassword` auth function. Add a student-only controller that intercepts only voluntary student password actions, rechecks the current active student profile, and leaves the existing teacher/admin and forced-reset controller paths untouched.
 
 **Tech Stack:** Vanilla JavaScript ES modules, Node `node:test`.
 
@@ -33,28 +33,29 @@
 **Files:**
 - Create: `tests/student-password-change.test.js`
 
-- [ ] Write a failing regression test proving a normal student home screen exposes Change password, the voluntary student password screen is cancellable, and app guards admit active students.
-- [ ] Run `node --test tests/student-password-change.test.js` and confirm it fails for the missing student behaviour.
+- [x] Write a failing regression test proving a normal student home screen exposes Change password.
+- [x] Confirm the focused regression test fails before the student feature is implemented.
 
-### Task 2: Implement shared self-service eligibility
+### Task 2: Implement student self-service without disturbing existing staff/reset paths
 
 **Files:**
-- Create: `src/password-access.js`
+- Create: `src/student-password-controller.js`
 - Modify: `src/views/home.js`
 - Modify: `src/views/change-password.js`
-- Modify: `src/app.js`
+- Modify: `index.html`
 
-**Interfaces:**
-- Produces: `canSelfChangePassword(profile) -> boolean`
+- [x] Show Change password to active students on the Hub home screen.
+- [x] Mark only voluntary student password UI for the student controller.
+- [x] Recheck the current profile is an active student before opening or submitting voluntary password settings.
+- [x] Reuse the existing `changePassword` auth function.
+- [x] Keep forced password changes non-cancellable.
+- [x] Keep teacher/admin self-service and admin reset paths unchanged.
+- [x] Keep the existing `buildHomeModel` return contract unchanged.
 
-- [ ] Add the shared eligibility helper for active `student`, `teacher`, and `admin` roles.
-- [ ] Show the Change password home control when eligible.
-- [ ] Make voluntary student password changes render as account settings with Cancel.
-- [ ] Use the helper in click, submit, and cancel guards.
-- [ ] Keep forced password change and admin reset paths unchanged.
-- [ ] Run the focused test and full `npm test` suite.
+### Task 3: Verify and review
 
-### Task 3: Review and PR
-
-- [ ] Inspect the diff for unrelated changes and privacy regressions.
-- [ ] Open a PR against `main` and do not merge without explicit approval.
+- [x] Add active/inactive student, voluntary/forced flow, controller, and admin-reset regression coverage.
+- [x] Run the focused test: 5 tests pass, 0 fail.
+- [x] Inspect the PR diff for unrelated production changes and privacy regressions.
+- [ ] Full repository suite was not run in this environment; the repo's Actions workflows do not target this feature branch.
+- [x] Open a PR against `main` and do not merge without explicit approval.
