@@ -555,7 +555,7 @@ try {
  document.documentElement.classList.add('email-auth-ready');
 } catch {location.replace('./');}
 </script>
-<link rel="stylesheet" href="email-writing-hub-polish.css?v=4">
+<link rel="stylesheet" href="email-writing-hub-polish.css?v=5">
 </head>
 <body><nav class="hub-topbar" aria-label="Return navigation"><a href="./">← Back to Hub</a></nav>
 
@@ -763,6 +763,16 @@ try {
       </ol>
       <div class="draft-rail-foot"><span id="draftTaskAudience">To: a friend</span><span id="draftTaskTarget">120–160 words</span></div>
       <p class="draft-rail-note">Keep all three points in mind as you write.</p>
+      <div id="writingHelpDock" class="writing-help-dock" aria-label="Optional writing help" hidden>
+        <details class="writing-help-menu">
+          <summary>Writing help <span aria-hidden="true">+</span></summary>
+          <div class="writing-help-menu__actions">
+            <button type="button" class="help-dock-btn" data-help-open="cards" aria-controls="helpWindowCards">Phrase cards</button>
+            <button type="button" class="help-dock-btn" data-help-open="task" aria-controls="helpWindowTask">Task language</button>
+            <button type="button" class="help-dock-clear" id="hideAllHelp">Close open references</button>
+          </div>
+        </details>
+      </div>
     </aside>
     <div class="card draft-main">
       <div class="card-header"><span class="icon">&#9997;&#65039;</span> Write Your Email</div>
@@ -1079,11 +1089,6 @@ try {
 
 
 <!-- Non-modal writing reference windows: remain outside draft flow -->
-<div id="writingHelpDock" class="writing-help-dock" aria-label="Optional writing help" hidden>
-  <button type="button" class="help-dock-btn" data-help-open="cards" aria-controls="helpWindowCards">📖 Phrase cards</button>
-  <button type="button" class="help-dock-btn" data-help-open="task" aria-controls="helpWindowTask">💡 Task language</button>
-  <button type="button" class="help-dock-clear" id="hideAllHelp" title="Hide all writing help">Hide all</button>
-</div>
 <div id="helpWindowCards" class="writing-float" role="region" aria-label="Informal email phrase reference cards" hidden>
   <div class="float-topbar" data-drag-handle="cards">
     <strong>📖 Phrase cards</strong>

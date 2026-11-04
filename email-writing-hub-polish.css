@@ -321,3 +321,38 @@ summary:focus-visible{outline:3px solid #14aaa3;outline-offset:3px}
   #panel-draft .draft-task-rail,#panel-draft .draft-practice-tools{display:none!important}
   #panel-draft .draft-workspace{display:block}
 }
+
+/* Discreet writing reference access: inside task rail, never over the editor. */
+#panel-draft .draft-task-rail .writing-help-dock{
+  position:static;inset:auto;z-index:auto;display:block;width:100%;
+  max-width:none;margin-top:15px;border-top:1px solid #cce7e2;padding:13px 0 0;
+}
+#panel-draft .draft-task-rail .writing-help-dock[hidden]{display:none!important}
+#panel-draft .writing-help-menu{width:100%;border:1px solid #b9ddd6;border-radius:12px;background:#fff;overflow:hidden}
+#panel-draft .writing-help-menu>summary{
+  cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:10px 12px;font-size:.84rem;color:#236d66;font-weight:800;list-style:none
+}
+#panel-draft .writing-help-menu>summary::-webkit-details-marker{display:none}
+#panel-draft .writing-help-menu>summary span{font-size:1.15rem;line-height:1;font-weight:500;color:#288d85}
+#panel-draft .writing-help-menu[open]>summary span{transform:rotate(45deg)}
+#panel-draft .writing-help-menu__actions{padding:0 10px 11px;display:flex;flex-direction:column;gap:7px}
+#panel-draft .writing-help-menu__actions button{
+  display:block;width:100%;min-height:37px;border-radius:9px;box-shadow:none;
+  padding:7px 10px;font-size:.78rem;text-align:left
+}
+#panel-draft .writing-help-menu__actions .help-dock-btn{
+  background:#eaf7f4;border:1px solid #c7e5df;color:#146f67
+}
+#panel-draft .writing-help-menu__actions .help-dock-btn:hover{background:#d9eee9}
+#panel-draft .writing-help-menu__actions .help-dock-clear{
+  background:#fff;color:#587574;border:1px solid #d9e7e4
+}
+@media(max-width:1050px){
+  #panel-draft .draft-task-rail .writing-help-dock{margin-top:9px;padding-top:9px}
+  #panel-draft .writing-help-menu__actions{flex-direction:row;flex-wrap:wrap}
+  #panel-draft .writing-help-menu__actions button{flex:1 1 130px}
+}
+@media(max-width:700px){
+  #panel-draft .draft-task-rail .writing-help-dock{position:static;left:auto;right:auto;bottom:auto}
+}
