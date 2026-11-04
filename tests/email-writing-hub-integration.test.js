@@ -63,7 +63,7 @@ test('optional trainers are collapsed while remaining accessible', () => {
   assert.match(html, /<details class="dev-trainer-launch draft-practice-tools">/);
   assert.match(html, /id="devOpen"/);
   assert.match(html, /id="errorOpen"/);
-  assert.match(html, /email-writing-hub-polish\.css\?v=6/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=7/);
 });
 
 test('writing assistance stays in a collapsed sidebar control instead of floating over the editor', () => {
@@ -73,7 +73,7 @@ test('writing assistance stays in a collapsed sidebar control instead of floatin
   assert.match(html, /data-help-open="task"/);
   assert.match(html, /id="hideAllHelp"/);
   assert.ok(html.indexOf('id="writingHelpDock"') < html.indexOf('</aside>', html.indexOf('class="draft-task-rail"')));
-  assert.match(html, /email-writing-hub-polish\.css\?v=6/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=7/);
 });
 
 test('detailed progress is optional and an empty draft never shows equal bullet segments', () => {
@@ -82,6 +82,20 @@ test('detailed progress is optional and an empty draft never shows equal bullet 
   assert.match(html, /if \(total === 0\) \{\s*bar\.classList\.add\('is-empty'\)/);
   assert.match(html, /bar\.replaceChildren\(\)/);
   assert.match(html, /bar\.classList\.remove\('is-empty'\)/);
-  assert.match(html, /email-writing-hub-polish\.css\?v=6/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=7/);
   assert.equal((html.match(/id="draftWordCountBadge"/g) ?? []).length, 1);
+});
+
+test('review screen presents three focused steps with an empty-draft state', () => {
+  assert.match(html, /class="tab-panel review-workspace" id="panel-dashboard"/);
+  assert.match(html, /id="reviewEmpty" hidden/);
+  assert.match(html, /class="review-step-layout"/);
+  assert.match(html, /class="card review-section review-content"/);
+  assert.match(html, /class="card review-section review-language"/);
+  assert.match(html, /class="card review-section review-improve"/);
+  assert.match(html, /dashboard\.classList\.toggle\('review-has-no-draft', count === 0\)/);
+  assert.match(html, /className = 'review-bullet-prompt'/);
+  for (const id of ['reviewFacts','reviewBullets','reviewContentGoal','reviewLanguageGoal','reviewDone']) {
+    assert.equal((html.match(new RegExp('id="' + id + '"','g')) ?? []).length, 1);
+  }
 });

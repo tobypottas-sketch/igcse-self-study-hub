@@ -555,7 +555,7 @@ try {
  document.documentElement.classList.add('email-auth-ready');
 } catch {location.replace('./');}
 </script>
-<link rel="stylesheet" href="email-writing-hub-polish.css?v=6">
+<link rel="stylesheet" href="email-writing-hub-polish.css?v=7">
 </head>
 <body><nav class="hub-topbar" aria-label="Return navigation"><a href="./">← Back to Hub</a></nav>
 
@@ -864,33 +864,46 @@ try {
   </div>
 
   <!-- ==================== CAMBRIDGE-INFORMED REVIEW TAB ==================== -->
-  <div class="tab-panel" id="panel-dashboard">
+  <div class="tab-panel review-workspace" id="panel-dashboard">
     <div class="card review-intro">
-      <div class="card-header"><span class="icon">&#128221;</span> Review &amp; Improve</div>
-      <p>Read your email again. Use the three steps below to check <strong>content</strong>, <strong>language</strong> and then <strong>make improvements</strong>.</p>
-      <p class="review-boundary">Based on Cambridge's official informal email guidance and examiner comments. The app can count words and identify empty boxes, but <strong>cannot decide whether your ideas are relevant, well developed, accurate, or worth a particular mark</strong>.</p>
-      <div class="review-facts" id="reviewFacts" aria-live="polite"></div>
+      <div class="review-heading-row">
+        <div>
+          <div class="card-header"><span class="icon" aria-hidden="true">&#128221;</span> Review &amp; Improve</div>
+          <p class="review-lead">Three focused checks. Read your email, reflect, then improve it.</p>
+        </div>
+        <div class="review-facts" id="reviewFacts" aria-live="polite"></div>
+      </div>
+      <div class="review-empty" id="reviewEmpty" hidden>
+        <strong>Write your first draft before reviewing.</strong>
+        <p>Once you've written something, come back to check your ideas, language and improvements.</p>
+        <button type="button" class="btn btn-primary" onclick="switchTab('draft')">Go to my draft</button>
+      </div>
+      <details class="review-guidance">
+        <summary>How this self-review works</summary>
+        <p>Based on Cambridge's official informal email guidance and examiner comments. The app checks word counts and empty boxes. It <strong>does not grade relevance, development, language accuracy or Cambridge marks</strong>. Use the checks below to reflect on your own writing.</p>
+      </details>
     </div>
-    <div class="card review-section">
-      <div class="card-header"><span class="review-number">1</span> Content &mdash; Did I answer and develop the task?</div>
-      <p class="review-hint">Cambridge assesses task fulfilment and development of ideas (up to 6 marks). Only you or a reader can judge whether your words actually answer the question.</p>
+    <div class="review-step-layout">
+    <section class="card review-section review-content">
+      <div class="card-header"><span class="review-number">1</span> Content <span class="review-step-subtitle">Answer and develop each bullet</span></div>
+      <p class="review-hint">Check each point against the question. Cambridge assesses content out of 6; these ticks are your own judgement, not marks.</p>
       <div id="reviewBullets"></div>
-      <p class="review-note">For every bullet: <strong>answer it</strong>, then add a useful <strong>reason, detail, explanation or example</strong>. Not every bullet needs the same number of words.</p>
-    </div>
-    <div class="card review-section">
-      <div class="card-header"><span class="review-number">2</span> Language &mdash; Does it sound clear and natural?</div>
-      <p class="review-hint">Cambridge assesses range, accuracy and organisation (up to 9 marks). Tick these after rereading your actual sentences; these are self-checks, not automatic grades.</p>
+      <p class="review-note">Answer each point, then develop it with a relevant <strong>reason, detail or example</strong>.</p>
+    </section>
+    <section class="card review-section review-language">
+      <div class="card-header"><span class="review-number">2</span> Language <span class="review-step-subtitle">Clear, accurate and natural</span></div>
+      <p class="review-hint">Reread your sentences for range, accuracy and organisation (Cambridge language criteria: 9 marks). No automatic grades.</p>
       <div class="review-checks">
         <label class="review-check"><input type="checkbox" data-review="tone"> <span>The tone sounds like I'm writing to someone I know, not producing a report.</span></label>
         <label class="review-check"><input type="checkbox" data-review="range"> <span>I've used suitable topic vocabulary and a natural variety of sentence structures.</span></label>
         <label class="review-check"><input type="checkbox" data-review="accuracy"> <span>I've checked verbs, tenses, articles, prepositions, spelling and punctuation.</span></label>
         <label class="review-check"><input type="checkbox" data-review="organisation"> <span>My ideas follow a clear order, with paragraphs and linking that help my friend follow the message.</span></label>
       </div>
-      <details class="review-tip"><summary>What does Cambridge say about errors?</summary><p>A high-scoring email can still contain occasional mistakes when communication remains clear. Aim for accurate and effective writing, not unnecessary idioms or complicated expressions.</p></details>
-    </div>
-    <div class="card review-section">
-      <div class="card-header"><span class="review-number">3</span> Improve &mdash; Make two useful changes</div>
-      <p class="review-hint">Based on the Cambridge online-purchase specimen response: its third bullet was covered, but needed more detail. Choose one content improvement and one language improvement.</p>
+      <details class="review-tip"><summary>Cambridge guidance on errors</summary><p>A high-scoring email can still contain occasional mistakes when communication remains clear. Aim for effective writing, not unnecessary complicated expressions.</p></details>
+    </section>
+    <section class="card review-section review-improve">
+      <div class="card-header"><span class="review-number">3</span> Improve <span class="review-step-subtitle">Make two meaningful changes</span></div>
+      <p class="review-hint">Choose one content improvement and one language improvement, then return to your draft to make the changes.</p>
       <div class="form-grid review-goals">
         <div><label for="reviewContentGoal">My content improvement</label><select id="reviewContentGoal"><option value="">Choose one...</option><option value="detail">Develop a bullet with a relevant detail or example</option><option value="reason">Explain why something happened or mattered</option><option value="focus">Remove an irrelevant or repeated idea</option><option value="purpose">Make my reason for writing clearer</option></select></div>
         <div><label for="reviewLanguageGoal">My language improvement</label><select id="reviewLanguageGoal"><option value="">Choose one...</option><option value="grammar">Correct a grammar or spelling error</option><option value="sentence">Vary sentence structure naturally</option><option value="vocab">Use more precise topic vocabulary</option><option value="flow">Improve a link between ideas</option><option value="register">Make the tone more suitable for my reader</option></select></div>
@@ -901,6 +914,7 @@ try {
         <label class="review-check"><input type="checkbox" data-review="revisedLanguage"> <span>I made and checked my language improvement.</span></label>
       </div>
       <p id="reviewDone" class="review-done" aria-live="polite">Use your draft to make the changes, then tick both boxes when you've checked them.</p>
+    </section>
     </div>
     <div class="review-source">Teaching basis: Cambridge IGCSE 0510/0511 <em>Writing an informal email</em> (2024), pp. 1&ndash;5; <em>Specimen Paper Answers &mdash; Paper 1</em>, Exercise 5, pp. 21&ndash;22. These are formative prompts, not Cambridge marks.</div>
   </div>
@@ -2888,7 +2902,14 @@ function runAllChecks() {
   const max = Number(c.maxWords) || 160;
   const facts = document.getElementById('reviewFacts');
   const countStatus = count < min ? 'below the suggested range' : count > max ? 'above the suggested range' : 'within the suggested range';
-  facts.textContent = count + ' words (' + countStatus + ': ' + min + '–' + max + '). These are guidelines, not a score.';
+  facts.textContent = count + ' words · ' + min + '–' + max + ' target';
+  facts.dataset.status = count === 0 ? 'empty' : count < min ? 'short' : count > max ? 'over' : 'target';
+  const empty = document.getElementById('reviewEmpty');
+  const dashboard = document.getElementById('panel-dashboard');
+  if (empty && dashboard) {
+    empty.hidden = count !== 0;
+    dashboard.classList.toggle('review-has-no-draft', count === 0);
+  }
   const target = document.getElementById('reviewBullets');
   target.replaceChildren();
   ['bp1','bp2','bp3'].forEach((key, i) => {
@@ -2896,15 +2917,18 @@ function runAllChecks() {
     block.className = 'review-bullet';
     const heading = document.createElement('div');
     heading.className = 'review-bullet-heading';
-    heading.textContent = 'Bullet ' + (i + 1) + ': ' + (c[key] || 'Check the ' + (i + 1) + 'st task prompt');
+    heading.textContent = 'Bullet ' + (i + 1);
+    const prompt = document.createElement('p');
+    prompt.className = 'review-bullet-prompt';
+    prompt.textContent = c[key] || 'Check your task instructions';
     const countLine = document.createElement('p');
     const words = wordCount(s[key]);
     countLine.className = 'review-count';
-    countLine.textContent = words === 0 ? 'No text in this writing box yet.' : words + ' words entered here — relevance and development not automatically assessed.';
-    block.append(heading, countLine);
+    countLine.textContent = words === 0 ? 'Nothing written yet' : words + (words === 1 ? ' word' : ' words') + ' written';
+    block.append(heading, prompt, countLine);
     const checks = [
-      ['covered'+(i+1), 'My writing answers this bullet point directly.'],
-      ['developed'+(i+1), 'I have added relevant detail, an explanation, reason or example.']
+      ['covered'+(i+1), 'I answered this point'],
+      ['developed'+(i+1), 'I developed my idea']
     ];
     checks.forEach(([id, title]) => {
       const label = document.createElement('label');
