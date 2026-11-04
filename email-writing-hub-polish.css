@@ -180,3 +180,42 @@ summary:focus-visible{outline:3px solid #14aaa3;outline-offset:3px}
   .header-actions button{flex:0 1 auto;min-height:35px;font-size:.75rem}
   .exam-mode-switch{padding:12px 14px}
 }
+
+/* Focused Task-screen refinement: readable exam prompt and compact support. */
+#panel-task .task-main-card{padding:24px 28px}
+#panel-task #examTaskChooseRow{margin-bottom:14px!important}
+#panel-task #examTaskChooseRow label{font-weight:750;font-size:.9rem}
+#panel-task #examTaskChooseRow p{font-size:.76rem!important}
+#panel-task #examTaskSelect{min-height:46px}
+#panel-task #examTaskLoadButton{min-height:46px;padding:8px 20px;font-size:.88rem}
+#panel-task #taskDisplay{
+  padding:21px 24px!important;background:#f2faf8!important;
+  border:1px solid #c6e6e0!important;border-radius:16px!important
+}
+#panel-task #taskQuestion{font-size:1.06rem!important;line-height:1.5;font-weight:750!important;margin-bottom:14px!important}
+#panel-task #taskBullets{margin:10px 0 12px!important}
+#panel-task #taskBullets .form-row{display:flex;align-items:flex-start;gap:11px;margin-bottom:10px!important;line-height:1.5}
+#panel-task #taskBullets .form-row[style*="display: none"],
+#panel-task #taskBullets .form-row[style*="display:none"]{display:none!important}
+#panel-task #taskBullets .form-row > span:first-child{margin:2px 0 0!important}
+#panel-task #taskBullets .form-row > span:last-child{flex:1;min-width:0}
+#panel-task #examTaskPreview{background:#f0faf8!important;border-color:#c7e5e0!important;border-radius:12px!important}
+#panel-task .task-tips-card{
+  margin-top:0;padding:0;border-radius:16px;overflow:hidden
+}
+#panel-task .task-tips-summary{
+  display:flex;align-items:center;flex-wrap:wrap;gap:10px;
+  cursor:pointer;padding:18px 24px;font-weight:800;font-size:.98rem;color:#2d5756;
+  list-style:none
+}
+#panel-task .task-tips-summary::-webkit-details-marker{display:none}
+#panel-task .task-tips-summary::after{content:"+";margin-left:auto;color:#188c87;font-size:1.45rem;line-height:1}
+#panel-task .task-tips-card[open] .task-tips-summary::after{content:"−"}
+#panel-task .task-tips-hint{font-weight:500;color:#668080;font-size:.8rem}
+#panel-task .task-tips-card ul{margin:0 28px 22px 44px!important;line-height:1.75!important}
+@media(max-width:720px){
+ #panel-task .task-main-card{padding:18px}
+ #panel-task #taskDisplay{padding:17px!important}
+ #panel-task .task-tips-summary{padding:15px 18px}
+ #panel-task .task-tips-hint{font-size:.75rem}
+}

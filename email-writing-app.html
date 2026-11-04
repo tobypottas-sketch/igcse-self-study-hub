@@ -555,7 +555,7 @@ try {
  document.documentElement.classList.add('email-auth-ready');
 } catch {location.replace('./');}
 </script>
-<link rel="stylesheet" href="email-writing-hub-polish.css?v=2">
+<link rel="stylesheet" href="email-writing-hub-polish.css?v=3">
 </head>
 <body><nav class="hub-topbar" aria-label="Return navigation"><a href="./">← Back to Hub</a></nav>
 
@@ -603,7 +603,7 @@ try {
 
   <!-- ==================== TASK TAB ==================== -->
   <div class="tab-panel active" id="panel-task">
-    <div class="card">
+    <div class="card task-main-card">
       <div class="card-header"><span class="icon">&#128221;</span> Your Email Task</div>
 
       <!-- Practice task bank + custom entry; task provenance not verified -->
@@ -658,8 +658,8 @@ try {
         </details>
       </div>
     </div>
-    <div class="card exam-hide-task-tips">
-      <div class="card-header"><span class="icon">&#128161;</span> Informal Email Tips</div>
+    <details class="card exam-hide-task-tips task-tips-card">
+      <summary class="task-tips-summary"><span class="icon" aria-hidden="true">&#128161;</span> Informal Email Tips <span class="task-tips-hint">7 helpful reminders · expand when needed</span></summary>
       <ul style="margin-left:18px;font-size:0.88rem;line-height:2">
         <li>Write as if you're chatting to your friend &mdash; warm, natural, relaxed.</li>
         <li>Use contractions: <em>I'm, don't, we'll, it's, can't</em>.</li>
@@ -669,7 +669,7 @@ try {
         <li>Use linking phrases that sound natural: <em>anyway, before anything else, that's why</em>.</li>
         <li>Don't sound like a formal report. Avoid <em>furthermore, consequently</em>.</li>
       </ul>
-    </div>
+    </details>
   </div>
 
   <!-- ==================== EXAMPLES TAB ==================== -->
@@ -2339,7 +2339,14 @@ function updateTaskDisplay() {
     const span = document.getElementById(key + 'Text');
     if (text) {
       display.style.display = '';
-      span.textContent = (cmd ? cmd.charAt(0).toUpperCase() + cmd.slice(1) + ': ' : '') + text;
+      // Task bullets already begin with their command verb (e.g. "explain why").
+      // Avoid rendering "Explain: explain why", while preserving unlike commands.
+      const command = String(cmd).trim();
+      const bullet = String(text).trim();
+      const repeatsCommand = command && bullet.toLowerCase().startsWith(command.toLowerCase() + ' ');
+      span.textContent = repeatsCommand
+        ? bullet.charAt(0).toUpperCase() + bullet.slice(1)
+        : (command ? command.charAt(0).toUpperCase() + command.slice(1) + ': ' : '') + bullet;
     } else {
       display.style.display = 'none';
     }
