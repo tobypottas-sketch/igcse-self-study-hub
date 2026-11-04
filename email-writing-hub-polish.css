@@ -532,3 +532,67 @@ summary:focus-visible{outline:3px solid #14aaa3;outline-offset:3px}
   #panel-examples .example-task-box{padding:15px}
   #panel-examples .feature-list{grid-template-columns:1fr}
 }
+
+/* Plan tab: compact, task-led preparation instead of tall orange forms. */
+#panel-plan .plan-main-card{padding:25px 29px}
+#panel-plan .plan-intro{font-size:.88rem;color:#617773;line-height:1.55;margin:0 0 18px}
+#panel-plan .plan-task-reference{
+  background:#edf9f6;border:1px solid #c8e7df;border-radius:14px;
+  padding:15px 19px;margin:0 0 19px
+}
+#panel-plan .plan-task-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#panel-plan .plan-task-heading span{font-size:.7rem;font-weight:850;letter-spacing:.09em;color:#167b76}
+#panel-plan .plan-task-heading button{border:0;background:none;color:#117d76;font-size:.79rem;font-weight:750;cursor:pointer}
+#panel-plan .plan-task-heading button:hover{text-decoration:underline}
+#panel-plan #planTaskQuestion{font-weight:750;font-size:.92rem;line-height:1.5;margin:8px 0 6px}
+#panel-plan .plan-task-target{font-size:.74rem;color:#607b76;margin:0}
+#panel-plan .plan-basics{display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:17px}
+#panel-plan .form-row{margin-bottom:0}
+#panel-plan .form-row label{display:block;font-size:.82rem;font-weight:750;margin-bottom:6px;color:#2a4847}
+#panel-plan .form-row textarea,#panel-plan .form-row input{
+  width:100%;font-size:.88rem;line-height:1.5;padding:11px 12px;border-radius:10px
+}
+#panel-plan .form-row textarea{min-height:74px;resize:vertical}
+#panel-plan .form-row input{min-height:46px}
+#panel-plan .plan-points{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+#panel-plan .plan-point{
+  min-width:0;padding:18px;background:#f6faf9;border:1px solid #d6e9e4;
+  border-radius:15px;display:flex;flex-direction:column;gap:14px
+}
+#panel-plan .plan-point-head{display:flex;align-items:flex-start;gap:10px;min-height:73px}
+#panel-plan .plan-number{display:grid;place-items:center;flex:none;width:28px;height:28px;
+  border-radius:50%;background:#159b95;color:white;font-size:.83rem;font-weight:800}
+#panel-plan .plan-point-head strong{font-size:.9rem;color:#265b57}
+#panel-plan .plan-point-head p{font-size:.79rem;line-height:1.4;color:#5f7773;margin:5px 0 0}
+#panel-plan .plan-point .form-row{flex:1}
+#panel-plan .plan-point textarea{min-height:83px}
+#panel-plan .plan-finishing{
+  margin-top:17px;background:#f3f9f8;border:1px solid #d4e8e3;border-radius:13px
+}
+#panel-plan .plan-finishing>summary{
+  display:flex;align-items:center;gap:10px;list-style:none;cursor:pointer;
+  padding:13px 17px;font-size:.86rem;font-weight:800;color:#276c65
+}
+#panel-plan .plan-finishing>summary::-webkit-details-marker{display:none}
+#panel-plan .plan-finishing>summary:before{content:"+";color:#178c85;font-size:1.2rem}
+#panel-plan .plan-finishing[open]>summary:before{content:"−"}
+#panel-plan .plan-finishing>summary span{color:#718783;font-size:.76rem;font-weight:500}
+#panel-plan .plan-finishing-fields{padding:0 17px 17px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#panel-plan .plan-next{margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+#panel-plan .plan-next span{color:#68817c;font-size:.77rem}
+#panel-plan .plan-next button{min-width:165px}
+@media(max-width:1060px){
+ #panel-plan .plan-points{grid-template-columns:1fr}
+ #panel-plan .plan-point{display:grid;grid-template-columns:minmax(175px,1fr) 1fr 1fr;align-items:start;gap:12px}
+ #panel-plan .plan-point-head{min-height:0}
+}
+@media(max-width:720px){
+ #panel-plan .plan-main-card{padding:18px}
+ #panel-plan .plan-basics,#panel-plan .plan-finishing-fields,#panel-plan .plan-point{grid-template-columns:1fr}
+ #panel-plan .plan-point{display:flex;gap:11px}
+ #panel-plan .plan-point-head{min-height:0}
+ #panel-plan .plan-task-reference{padding:13px 15px}
+ #panel-plan .plan-finishing>summary{flex-wrap:wrap}
+ #panel-plan .plan-next{align-items:stretch;flex-direction:column}
+ #panel-plan .plan-next button{width:100%}
+}

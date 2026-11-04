@@ -63,7 +63,7 @@ test('optional trainers are collapsed while remaining accessible', () => {
   assert.match(html, /<details class="dev-trainer-launch draft-practice-tools">/);
   assert.match(html, /id="devOpen"/);
   assert.match(html, /id="errorOpen"/);
-  assert.match(html, /email-writing-hub-polish\.css\?v=8/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=9/);
 });
 
 test('writing assistance stays in a collapsed sidebar control instead of floating over the editor', () => {
@@ -73,7 +73,7 @@ test('writing assistance stays in a collapsed sidebar control instead of floatin
   assert.match(html, /data-help-open="task"/);
   assert.match(html, /id="hideAllHelp"/);
   assert.ok(html.indexOf('id="writingHelpDock"') < html.indexOf('</aside>', html.indexOf('class="draft-task-rail"')));
-  assert.match(html, /email-writing-hub-polish\.css\?v=8/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=9/);
 });
 
 test('detailed progress is optional and an empty draft never shows equal bullet segments', () => {
@@ -82,7 +82,7 @@ test('detailed progress is optional and an empty draft never shows equal bullet 
   assert.match(html, /if \(total === 0\) \{\s*bar\.classList\.add\('is-empty'\)/);
   assert.match(html, /bar\.replaceChildren\(\)/);
   assert.match(html, /bar\.classList\.remove\('is-empty'\)/);
-  assert.match(html, /email-writing-hub-polish\.css\?v=8/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=9/);
   assert.equal((html.match(/id="draftWordCountBadge"/g) ?? []).length, 1);
 });
 
@@ -98,4 +98,16 @@ test('review screen presents three focused steps with an empty-draft state', () 
   for (const id of ['reviewFacts','reviewBullets','reviewContentGoal','reviewLanguageGoal','reviewDone']) {
     assert.equal((html.match(new RegExp('id="' + id + '"','g')) ?? []).length, 1);
   }
+});
+
+test('plan screen retains all saved fields in concise task-led layout', () => {
+  for (const id of ['planWho','planReason','planBP1','planBP1Dev','planBP2','planBP2Dev','planBP3','planBP3Dev','planTone','planClosing']) {
+    assert.equal((html.match(new RegExp('id="' + id + '"','g')) ?? []).length, 1);
+  }
+  assert.match(html, /id="planTaskQuestion"/);
+  assert.match(html, /function updatePlanTaskReference\(\)/);
+  assert.match(html, /if \(tabId === 'plan'\) updatePlanTaskReference\(\)/);
+  assert.match(html, /class="plan-points"/);
+  assert.match(html, /<details class="plan-finishing">/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=9/);
 });
