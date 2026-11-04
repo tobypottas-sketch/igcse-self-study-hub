@@ -46,3 +46,22 @@ test('main embedded classic JavaScript remains parseable', () => {
   assert.ok(scripts.length > 0, 'expected an inline application script');
   for (const script of scripts) new Script(script[1], { filename:'email-writing-app.inline.js' });
 });
+
+test('draft workspace keeps the current task visible without changing student writing IDs', () => {
+  for (const id of ['draftTaskQuestion','draftTaskBP1','draftTaskBP2','draftTaskBP3','draftTaskAudience','draftTaskTarget','draftWordCountBadge']) {
+    assert.match(html, new RegExp('id="' + id + '"'));
+  }
+  for (const id of ['draftOpening','draftBP1','draftBP2','draftBP3','draftClosing','draftSignoff']) {
+    assert.equal((html.match(new RegExp('id="' + id + '"','g')) ?? []).length, 1);
+  }
+  assert.match(html, /function updateDraftTaskRail\(\)/);
+  assert.match(html, /if \(tabId === 'draft'\)/);
+  assert.match(html, /badge\.textContent = total/);
+});
+
+test('optional trainers are collapsed while remaining accessible', () => {
+  assert.match(html, /<details class="dev-trainer-launch draft-practice-tools">/);
+  assert.match(html, /id="devOpen"/);
+  assert.match(html, /id="errorOpen"/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=4/);
+});
