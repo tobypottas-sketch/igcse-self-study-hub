@@ -3141,9 +3141,24 @@ function checkWarnings(s, full, c) {
 function autoSave() {
   clearTimeout(autosaveTimer);
   autosaveTimer = setTimeout(() => {
+    autosaveTimer = null;
     saveCurrentDraft();
   }, 1000);
 }
+
+// A student can close the tab before the debounce completes. Flush pending
+// typing synchronously when the page is hidden or unloaded.
+function flushPendingDraft() {
+  if (autosaveTimer === null) return;
+  clearTimeout(autosaveTimer);
+  autosaveTimer = null;
+  if (!window.__emailWriterAccountId) return;
+  saveCurrentDraft();
+}
+window.addEventListener('pagehide', flushPendingDraft);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') flushPendingDraft();
+});
 
 function saveCurrentDraft() {
   const data = {
