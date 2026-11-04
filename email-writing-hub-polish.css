@@ -644,3 +644,19 @@ summary:focus-visible{outline:3px solid #14aaa3;outline-offset:3px}
   .email-header-back{flex:0 0 auto}
 }
 @media print{.email-header-toolbar{display:none!important}}
+
+/* Task selector should be comfortably sized, not full-page width. */
+#panel-task .task-select-controls{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  width:100%;max-width:690px;margin-top:7px
+}
+#panel-task #examTaskSelect{
+  flex:1 1 350px;width:min(100%,560px);max-width:560px;
+  min-width:0;min-height:46px;
+}
+#panel-task #examTaskLoadButton{flex:0 0 auto;min-width:88px}
+@media(max-width:540px){
+ #panel-task .task-select-controls{max-width:none;flex-wrap:nowrap}
+ #panel-task #examTaskSelect{flex:1 1 auto;width:0;min-width:0}
+ #panel-task #examTaskLoadButton{min-width:70px;padding-inline:12px}
+}

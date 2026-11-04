@@ -555,7 +555,7 @@ try {
  document.documentElement.classList.add('email-auth-ready');
 } catch {location.replace('./');}
 </script>
-<link rel="stylesheet" href="email-writing-hub-polish.css?v=10">
+<link rel="stylesheet" href="email-writing-hub-polish.css?v=11">
 </head>
 <body>
 
@@ -610,8 +610,8 @@ try {
       <!-- Practice task bank + custom entry; task provenance not verified -->
       <div id="examTaskChooseRow" style="margin-bottom:16px">
         <label id="examTaskChooseLabel">Choose a practice task:</label>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px">
-          <select id="examTaskSelect" style="flex:1;min-width:220px">
+        <div class="task-select-controls">
+          <select id="examTaskSelect">
             <option value="">-- Select a practice question --</option>
           </select>
           <button class="btn btn-primary btn-sm" id="examTaskLoadButton" onclick="loadExamTask()">Load</button>
