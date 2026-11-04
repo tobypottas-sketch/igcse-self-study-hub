@@ -356,3 +356,32 @@ summary:focus-visible{outline:3px solid #14aaa3;outline-offset:3px}
 @media(max-width:700px){
   #panel-draft .draft-task-rail .writing-help-dock{position:static;left:auto;right:auto;bottom:auto}
 }
+
+/* Keep detailed feedback optional while the primary live word count remains above. */
+#panel-draft .draft-progress-details{
+  margin-top:14px;border:1px solid #d0e6e2;border-radius:13px;overflow:hidden;background:#f6fbfa
+}
+#panel-draft .draft-progress-details>summary{
+  cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;gap:9px;
+  padding:13px 16px;font-size:.85rem;font-weight:800;color:#295e5a;list-style:none
+}
+#panel-draft .draft-progress-details>summary::-webkit-details-marker{display:none}
+#panel-draft .draft-progress-details>summary::before{
+  content:"+";color:#178b86;font-size:1.15rem;line-height:1
+}
+#panel-draft .draft-progress-details[open]>summary::before{content:"−"}
+#panel-draft .draft-progress-details>summary span{
+  font-size:.75rem;font-weight:500;color:#6a8080
+}
+#panel-draft .draft-progress-details>.wc-meter{margin:0 16px 15px}
+#panel-draft .draft-balance-wrap{margin:0 16px 16px}
+#panel-draft .draft-balance-label{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;font-size:.82rem;font-weight:750;margin-bottom:8px}
+#panel-draft .draft-balance-label span{font-size:.73rem;font-weight:400;color:#68817d}
+#panel-draft #balanceBar.is-empty{
+  height:auto;min-height:39px;display:flex;align-items:center;justify-content:center;
+  border:1px dashed #b8dbd5;border-radius:10px;background:#fff
+}
+#panel-draft .draft-balance-empty{
+  padding:8px 10px;font-size:.76rem;color:#67817f;text-align:center
+}
+#panel-draft #balanceBar:not(.is-empty) .balance-seg{min-width:0;overflow:hidden}
