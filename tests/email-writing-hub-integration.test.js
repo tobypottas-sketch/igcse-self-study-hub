@@ -46,3 +46,12 @@ test('main embedded classic JavaScript remains parseable', () => {
   assert.ok(scripts.length > 0, 'expected an inline application script');
   for (const script of scripts) new Script(script[1], { filename:'email-writing-app.inline.js' });
 });
+
+test('pending autosave is flushed when a student closes or hides the tab', () => {
+  assert.match(html, /function flushPendingDraft\(\)/);
+  assert.match(html, /window\.addEventListener\('pagehide', flushPendingDraft\)/);
+  assert.match(html, /document\.addEventListener\('visibilitychange'/);
+  assert.match(html, /document\.visibilityState === 'hidden'/);
+  assert.match(html, /if \(autosaveTimer === null\) return;/);
+  assert.match(html, /if \(!window\.__emailWriterAccountId\) return;/);
+});
