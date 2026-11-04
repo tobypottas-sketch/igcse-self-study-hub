@@ -555,7 +555,7 @@ try {
  document.documentElement.classList.add('email-auth-ready');
 } catch {location.replace('./');}
 </script>
-<link rel="stylesheet" href="email-writing-hub-polish.css?v=8">
+<link rel="stylesheet" href="email-writing-hub-polish.css?v=9">
 </head>
 <body><nav class="hub-topbar" aria-label="Return navigation"><a href="./">← Back to Hub</a></nav>
 
@@ -694,60 +694,77 @@ try {
 
   <!-- ==================== PLAN TAB ==================== -->
   <div class="tab-panel" id="panel-plan">
-    <div class="card">
-      <div class="card-header"><span class="icon">&#128301;</span> Plan Your Email</div>
-      <p style="font-size:0.88rem;color:var(--text-light);margin-bottom:16px">
-        Good writers plan first. Answer these questions to organise your ideas before you start drafting.
-      </p>
-      <div class="form-row">
-        <label>Who am I writing to? What's their name?</label>
-        <input type="text" id="planWho" placeholder="e.g. My friend Alex" oninput="autoSave()">
+    <div class="card plan-main-card">
+      <div class="card-header"><span class="icon" aria-hidden="true">&#128221;</span> Plan Your Email</div>
+      <p class="plan-intro">Make brief notes, not full paragraphs. For each bullet, write your <strong>answer</strong> and develop it with a useful <strong>reason, detail or example</strong>.</p>
+
+      <div class="plan-task-reference" aria-label="Selected writing task">
+        <div class="plan-task-heading"><span>YOUR QUESTION</span><button type="button" onclick="switchTab('task')">Change task →</button></div>
+        <p id="planTaskQuestion">Choose a practice task to see its instructions here.</p>
+        <p class="plan-task-target" id="planTaskTarget">Target: 120–160 words</p>
       </div>
-      <div class="form-row">
-        <label>What is my reason for writing?</label>
-        <textarea id="planReason" rows="2" placeholder="e.g. I want to tell Alex about the amazing concert I went to last weekend." oninput="autoSave()"></textarea>
-      </div>
-      <div class="card" style="background:#FFF8F0;border-color:#FFCC80">
-        <div class="card-header" style="border-bottom-color:#FFCC80"><span class="icon">1&#65039;&#8419;</span> Bullet Point 1</div>
+
+      <div class="plan-basics">
         <div class="form-row">
-          <label>What will I say for bullet point 1?</label>
-          <textarea id="planBP1" rows="2" placeholder="Main idea for bullet point 1..." oninput="autoSave()"></textarea>
+          <label for="planWho">Who am I writing to?</label>
+          <input type="text" id="planWho" placeholder="e.g. My friend Alex" oninput="autoSave()">
         </div>
         <div class="form-row">
-          <label>How can I develop bullet point 1 with detail?</label>
-          <textarea id="planBP1Dev" rows="2" placeholder="Add a detail, example, or reason..." oninput="autoSave()"></textarea>
+          <label for="planReason">Why am I writing?</label>
+          <textarea id="planReason" rows="2" placeholder="The reason for my email..." oninput="autoSave()"></textarea>
         </div>
       </div>
-      <div class="card" style="background:#FFF8F0;border-color:#FFCC80">
-        <div class="card-header" style="border-bottom-color:#FFCC80"><span class="icon">2&#65039;&#8419;</span> Bullet Point 2</div>
-        <div class="form-row">
-          <label>What will I say for bullet point 2?</label>
-          <textarea id="planBP2" rows="2" placeholder="Main idea for bullet point 2..." oninput="autoSave()"></textarea>
-        </div>
-        <div class="form-row">
-          <label>How can I make bullet point 2 interesting?</label>
-          <textarea id="planBP2Dev" rows="2" placeholder="An example, feeling, or interesting detail..." oninput="autoSave()"></textarea>
-        </div>
+
+      <div class="plan-points" aria-label="Plan the three bullet points">
+        <section class="plan-point">
+          <div class="plan-point-head"><span class="plan-number">1</span><div><strong>Bullet point 1</strong><p id="planPrompt1">First task point</p></div></div>
+          <div class="form-row">
+            <label for="planBP1">My answer</label>
+            <textarea id="planBP1" rows="2" placeholder="What will I say?" oninput="autoSave()"></textarea>
+          </div>
+          <div class="form-row">
+            <label for="planBP1Dev">Develop it</label>
+            <textarea id="planBP1Dev" rows="2" placeholder="Add a reason, detail or example..." oninput="autoSave()"></textarea>
+          </div>
+        </section>
+        <section class="plan-point">
+          <div class="plan-point-head"><span class="plan-number">2</span><div><strong>Bullet point 2</strong><p id="planPrompt2">Second task point</p></div></div>
+          <div class="form-row">
+            <label for="planBP2">My answer</label>
+            <textarea id="planBP2" rows="2" placeholder="What will I say?" oninput="autoSave()"></textarea>
+          </div>
+          <div class="form-row">
+            <label for="planBP2Dev">Develop it</label>
+            <textarea id="planBP2Dev" rows="2" placeholder="Add a reason, detail or example..." oninput="autoSave()"></textarea>
+          </div>
+        </section>
+        <section class="plan-point">
+          <div class="plan-point-head"><span class="plan-number">3</span><div><strong>Bullet point 3</strong><p id="planPrompt3">Third task point</p></div></div>
+          <div class="form-row">
+            <label for="planBP3">My answer</label>
+            <textarea id="planBP3" rows="2" placeholder="What will I say?" oninput="autoSave()"></textarea>
+          </div>
+          <div class="form-row">
+            <label for="planBP3Dev">Develop it</label>
+            <textarea id="planBP3Dev" rows="2" placeholder="Add a reason, detail or example..." oninput="autoSave()"></textarea>
+          </div>
+        </section>
       </div>
-      <div class="card" style="background:#FFF8F0;border-color:#FFCC80">
-        <div class="card-header" style="border-bottom-color:#FFCC80"><span class="icon">3&#65039;&#8419;</span> Bullet Point 3</div>
-        <div class="form-row">
-          <label>What will I say for bullet point 3?</label>
-          <textarea id="planBP3" rows="2" placeholder="Main idea for bullet point 3..." oninput="autoSave()"></textarea>
+
+      <details class="plan-finishing">
+        <summary>Optional finishing touches <span>Friendly tone and ending</span></summary>
+        <div class="plan-finishing-fields">
+          <div class="form-row">
+            <label for="planTone">How will I sound friendly and natural?</label>
+            <textarea id="planTone" rows="2" placeholder="A contraction, feeling or question..." oninput="autoSave()"></textarea>
+          </div>
+          <div class="form-row">
+            <label for="planClosing">How will I finish my email?</label>
+            <textarea id="planClosing" rows="2" placeholder="A friendly question, invitation or sign-off..." oninput="autoSave()"></textarea>
+          </div>
         </div>
-        <div class="form-row">
-          <label>How can I develop bullet point 3 fully?</label>
-          <textarea id="planBP3Dev" rows="2" placeholder="A reason, suggestion, or extra thought..." oninput="autoSave()"></textarea>
-        </div>
-      </div>
-      <div class="form-row">
-        <label>How will I sound friendly and natural?</label>
-        <textarea id="planTone" rows="2" placeholder="e.g. I'll use contractions, ask Alex questions, share how I feel..." oninput="autoSave()"></textarea>
-      </div>
-      <div class="form-row">
-        <label>What question, invitation, or friendly message will I include at the end?</label>
-        <textarea id="planClosing" rows="2" placeholder="e.g. I'll ask if Alex wants to go to the next concert together." oninput="autoSave()"></textarea>
-      </div>
+      </details>
+      <div class="plan-next"><span>Your plan is saved automatically on this device.</span><button type="button" class="btn btn-primary" onclick="switchTab('draft')">Write my email →</button></div>
     </div>
   </div>
 
@@ -2242,6 +2259,7 @@ function switchTab(tabId) {
   if (panel) panel.classList.add('active');
   // Update dashboard and preview when switching to those tabs
   if (tabId === 'dashboard') runAllChecks();
+  if (tabId === 'plan') updatePlanTaskReference();
   if (tabId === 'draft') { updateDraftTaskRail(); updateTotalWordCount(); }
   if (tabId === 'preview') updatePreview();
   if (tabId === 'examples') renderExamplesTab();
@@ -2408,6 +2426,19 @@ function updateTaskDisplay() {
   document.getElementById('targetDisplay').textContent = minW + '\u2013' + maxW;
   document.getElementById('wcTargetLabel').textContent = 'Target: ' + minW + '\u2013' + maxW;
   updateDraftTaskRail();
+}
+
+function updatePlanTaskReference() {
+  const question = document.getElementById('planTaskQuestion');
+  if (!question) return;
+  const c = getConfig();
+  question.textContent = c.taskQ || 'Choose a practice task on the Task tab before planning.';
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById('planPrompt' + i);
+    if (el) el.textContent = c['bp' + i] || 'Choose a task to see this bullet point';
+  }
+  const target = document.getElementById('planTaskTarget');
+  if (target) target.textContent = 'Target: ' + (c.minWords || 120) + '–' + (c.maxWords || 160) + ' words';
 }
 
 function updateDraftTaskRail() {
