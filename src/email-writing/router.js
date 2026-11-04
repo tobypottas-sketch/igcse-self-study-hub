@@ -1,28 +1,12 @@
 import { getSupabaseClient } from '../supabase.js';
 import { getCurrentProfile } from '../auth.js';
-import { escapeHtml } from '../views/html.js';
 
 const root = document.getElementById('emailWritingApp');
 const hubHref = './';
 
-function renderShell(profile) {
-  const who = escapeHtml(profile.display_name);
-  root.innerHTML = `<div class="email-shell">
-    <header class="email-topbar">
-      <span class="email-brand">iGCSE Self-Study Hub · Writing</span>
-      <a class="email-return" href="${hubHref}">← Back to Hub</a>
-    </header>
-    <section class="email-panel" aria-labelledby="email-heading">
-      <p class="eyebrow">Cambridge IGCSE ESL · 0511 · Paper 1</p>
-      <h1 id="email-heading">Informal Email Writing</h1>
-      <p>Welcome, ${who}. Your Hub account has been checked.</p>
-      <p class="email-note" role="status">
-        The writing workspace is not enabled yet. Integration is being prepared
-        separately to ensure student drafts stay private on shared school devices.
-      </p>
-      <a class="button button--primary" href="${hubHref}">Return to the Hub</a>
-    </section>
-  </div>`;
+function renderShell() {
+  // Full writer has its own second authentication check to prevent bypassing the entry point.
+  window.location.replace('./email-writing-app.html');
 }
 
 function renderError() {
