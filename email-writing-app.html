@@ -555,7 +555,7 @@ try {
  document.documentElement.classList.add('email-auth-ready');
 } catch {location.replace('./');}
 </script>
-<link rel="stylesheet" href="email-writing-hub-polish.css?v=7">
+<link rel="stylesheet" href="email-writing-hub-polish.css?v=8">
 </head>
 <body><nav class="hub-topbar" aria-label="Return navigation"><a href="./">← Back to Hub</a></nav>
 
@@ -676,12 +676,16 @@ try {
   <div class="tab-panel" id="panel-examples">
     <div class="card">
       <div class="card-header"><span class="icon">&#127775;</span> Interactive Model Emails</div>
-      <p style="font-size:0.88rem;color:var(--text-light);margin-bottom:14px">These are original practice models, not verified exam-paper responses. Read the task first, then scroll down to the answer. Hover over the sidebar labels to highlight key features. Click a label to lock the highlight on.</p>
+      <p class="examples-intro">Study an original model email, then explore how it answers the task. These models are teaching examples, not verified Cambridge examination responses.</p>
+      <div class="example-nav" id="exampleNav" aria-label="Choose a model email"></div>
       <div class="examples-layout">
         <aside class="examples-sidebar">
-          <div class="example-nav" id="exampleNav"></div>
-          <div class="feature-list" id="featureList"></div>
-          <div class="example-note">Hover = temporary highlight. Click = keep it highlighted until you click again.</div>
+          <details class="example-analysis-tools" id="exampleAnalysisTools">
+            <summary><span>Analyse the writing</span><span class="example-analysis-count">13 features</span></summary>
+            <p class="example-analysis-help">Hover to preview a feature, or click to keep it highlighted.</p>
+            <div class="feature-list" id="featureList"></div>
+            <div class="example-note">Click the same feature again to clear the highlight.</div>
+          </details>
         </aside>
         <div class="example-stack" id="exampleStack"></div>
       </div>
