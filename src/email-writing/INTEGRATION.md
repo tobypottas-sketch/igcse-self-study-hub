@@ -1,47 +1,27 @@
-# Email Writer integration — staging only
+# Email Writing — authenticated integration branch
 
-This branch adds an **authenticated staging entry point** at `email-writing.html`.
-It deliberately does **not** expose, register, embed or deploy the standalone writing app.
+## Implemented on this branch
+- `email-writing.html` authenticates the Hub user and redirects to `email-writing-app.html`.
+- `email-writing-app.html` contains the **complete 20-task tablet-polished standalone writing application**, including sentence trainer, language challenges, error clinic, independent exam practice, floating references and Review & Improve.
+- The full app independently checks the authenticated Hub profile before revealing or initialising the editor. A signed-out session is redirected to the Hub.
+- Existing local autosave and named drafts are retained. Keys are **scoped by authenticated user ID**: `email-writer:<user-id>:igcse0511email...`. No legacy unscoped drafts are silently imported.
+- Local teacher mode is hidden from student profiles; teacher/admin profiles can use the existing local task authoring controls.
+- Added a return-to-hub link.
+- **Nothing registered in the database-backed launcher; no merge or deployment.**
 
-## What is wired
+## Privacy limitations
+- Drafts remain in browser localStorage, not Supabase. This is suitable for personally owned student devices, but browser data can be lost and same-origin scripts have access to localStorage. User-ID namespacing prevents accidental cross-account display, **not malicious same-origin access**.
+- No writing is sent to the Hub API by this integration. Export is explicitly user-initiated.
+- Scripts and the static HTML are publicly readable, even though the app itself checks login. Never put secrets or private model answers in its source.
+- Local teacher tools should not be considered server-authorised; before enabling teacher-specific persistent actions, they need server-side role enforcement.
 
-- Reuses the existing Supabase client and `getCurrentProfile`, including active profile checks.
-- Provides a separate URL and scoped stylesheet; the existing Vocabulary/Reading/Listening application code is unchanged.
-- Leaves the database-backed `apps` launcher registry untouched.
-- Does not send, store, or collect student writing.
+## Outstanding gates before release
+1. Automated desktop and mobile interaction tests on the authenticated deployment, including browser refresh, sign-out, account changes, 20 tasks and saved-draft recovery.
+2. Security audit of all interpolated student writing and custom task HTML; the transplanted app has significant legacy DOM insertion code.
+3. Verify teacher-mode restrictions and account-expiration behaviour.
+4. Run repo's complete `npm test` suite and review CI.
+5. Resolve whether local browser-only saving meets classroom durability needs.
+6. Final hub-consistent visual polish and accessibility review.
+7. Only after approval: register `https://<approved-host>/email-writing.html` in the `apps` table, merge and deploy.
 
-## Required before enabling students
-
-1. Transplant the **latest tablet-polished standalone build**, keeping the 20 tasks,
-   models, floating phrase bank, supported and independent modes, reviews,
-   sentence trainer, language upgrade and error clinic.
-2. Remove the standalone local teacher tools (they are **not authenticated**).
-   Any future teacher functionality must use the existing Hub roles.
-3. Fix draft privacy **before** mounting editor code. Standalone storage uses
-   `igcse0511email*` keys in origin-wide localStorage; that is unsafe on shared
-   school devices. Merely prefixing keys with the user ID does **not** create
-   secure isolation: any later same-origin session can read them.
-4. Proposed initial safe choice: **in-memory editor only** with explicit
-   download/export, no autosave or saved drafts; data is cleared on sign-out.
-   Persistence requires a separately reviewed secure solution and informed
-   product decision. Do not silently import legacy localStorage drafts.
-5. Review the app's use of `innerHTML`, dynamic template strings, custom task
-   entry, clipboard access, export and student supplied text for XSS.
-6. Add tests for account status, sign-out, switching users on one device,
-   refresh/recovery, teacher access boundaries, and responsive behaviour.
-7. Register the app in the `apps` table **only after** the full integration
-   passes security and classroom acceptance. Launcher uses an HTTPS URL.
-8. Run existing regression suite and review all changes in a PR; do not merge
-   or deploy without explicit approval.
-
-## Privacy boundary
-
-A client-side auth gate improves navigation, but **does not secure static
-assets**. Do not place private content or secrets in publicly accessible
-HTML/JS, and do not assume blocking a page's UI is access control.
-
-## Reference source
-
-Local development source: `iGCSE_0511_EMAIL_WRITER_TABLET_POLISHED.html`
-(standalone build supplied in the conversation). This file is not yet part of
-the repository; avoid claiming that the writer has been integrated.
+Source: `iGCSE_0511_EMAIL_WRITER_TABLET_POLISHED.html` uploaded in the conversation.
