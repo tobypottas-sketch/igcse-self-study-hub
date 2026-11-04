@@ -25,7 +25,8 @@ export const PNG_SIZE = Object.freeze({ unit:Object.freeze({ width:1672, height:
 // Replaced artwork needs a new request URL so an already cached PNG cannot hide the update.
 const PNG_REVISIONS = Object.freeze({
   'units/unit-03.png':'riverside-feast-20261104',
-  'units/unit-05.png':'seaside-snorkeling-20261104'
+  'units/unit-05.png':'seaside-snorkeling-20261104',
+  'units/unit-06.png':'study-group-20261104'
 });
 
 let shipped = new Set(SHIPPED_PNG);
