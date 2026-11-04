@@ -596,3 +596,51 @@ summary:focus-visible{outline:3px solid #14aaa3;outline-offset:3px}
  #panel-plan .plan-next{align-items:stretch;flex-direction:column}
  #panel-plan .plan-next button{width:100%}
 }
+
+/* Header toolbar: navigation + exam metadata share one restrained row inside hero. */
+.hub-topbar{display:none!important}
+.app-header{margin:10px auto 14px}
+.email-header-toolbar{
+  position:absolute;top:13px;right:24px;z-index:3;display:flex;align-items:center;
+  justify-content:flex-end;flex-wrap:wrap;gap:9px;font-size:.78rem
+}
+.email-header-exam,.email-header-back{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  padding:8px 12px;min-height:36px;border:1px solid #c6e2dd;border-radius:10px;
+  background:rgba(255,255,255,.86);white-space:nowrap;font-weight:750
+}
+.email-header-exam{color:#38766f;background:#ecf8f5}
+.email-header-separator{width:1px;height:15px;background:#afd6d0;display:block}
+.email-header-back{color:#087e79;text-decoration:none;background:#fff}
+.email-header-back:hover{background:#e5f5f2}
+.email-header-back:focus-visible{outline:3px solid #14aaa3;outline-offset:2px}
+.header-inner{
+  padding:52px 30px 20px;
+  grid-template-columns:minmax(155px,21%) minmax(0,1fr);
+  gap:5px 24px
+}
+.header-titles{grid-column:2}
+.header-actions{grid-column:2}
+.header-qual{display:none!important}
+@media(max-width:1050px){
+  .email-header-toolbar{top:11px;right:18px}
+  .header-inner{grid-template-columns:minmax(120px,23%) minmax(0,1fr);padding:51px 24px 18px}
+  .header-titles,.header-actions{grid-column:2}
+}
+@media(max-width:720px){
+  .app-header{margin:7px auto 12px}
+  .email-header-toolbar{
+    position:relative;top:auto;right:auto;justify-content:flex-start;
+    padding:13px 16px 0;gap:7px
+  }
+  .email-header-exam,.email-header-back{
+    font-size:.72rem;min-height:34px;padding:7px 10px
+  }
+  .header-inner{padding:15px 18px 19px}
+}
+@media(max-width:400px){
+  .email-header-toolbar{align-items:stretch}
+  .email-header-exam{white-space:normal;flex:1 1 auto;flex-wrap:wrap}
+  .email-header-back{flex:0 0 auto}
+}
+@media print{.email-header-toolbar{display:none!important}}
