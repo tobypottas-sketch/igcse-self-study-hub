@@ -555,7 +555,7 @@ try {
  document.documentElement.classList.add('email-auth-ready');
 } catch {location.replace('./');}
 </script>
-<link rel="stylesheet" href="email-writing-hub-polish.css?v=5">
+<link rel="stylesheet" href="email-writing-hub-polish.css?v=6">
 </head>
 <body><nav class="hub-topbar" aria-label="Return navigation"><a href="./">← Back to Hub</a></nav>
 
@@ -831,7 +831,9 @@ try {
         <input type="text" id="draftSignoff" placeholder="e.g. Best wishes, Karim" oninput="onDraftInput()">
       </div>
 
-      <!-- Word count meter -->
+      <!-- Detailed feedback stays available, but the live word count is already at the top. -->
+      <details class="draft-progress-details">
+        <summary>Writing progress <span>Word range and bullet-point distribution</span></summary>
       <div class="wc-meter">
         <div class="wc-bar-bg"><div class="wc-bar-fill" id="wcBarFill" style="width:0;background:var(--red)"></div></div>
         <div class="wc-labels">
@@ -843,15 +845,14 @@ try {
       </div>
 
       <!-- Balance bar -->
-      <div style="margin-top:12px">
-        <label style="font-size:0.82rem">Bullet Point Balance</label>
-        <div class="balance-bar" id="balanceBar">
-          <div class="balance-seg" style="width:33%;background:var(--orange)">BP1</div>
-          <div class="balance-seg" style="width:33%;background:var(--orange-light)">BP2</div>
-          <div class="balance-seg" style="width:34%;background:var(--orange-dark)">BP3</div>
+      <div class="draft-balance-wrap">
+        <div class="draft-balance-label">Bullet-point distribution <span>Word counts only; not a score</span></div>
+        <div class="balance-bar is-empty" id="balanceBar" aria-label="No bullet-point writing yet">
+          <span class="draft-balance-empty">Start writing to see your bullet-point distribution</span>
         </div>
         <div id="balanceWarning" style="font-size:0.78rem;color:var(--red);display:none"></div>
       </div>
+      </details>
       <div class="exam-finish" id="examFinish">
         <strong>Finished your first draft?</strong>
         <p>Finish independent practice to unlock Review &amp; Improve and your usual writing support. Your draft will stay exactly as you wrote it. You can then revise it.</p>
@@ -2808,13 +2809,27 @@ function updateBalanceBar() {
   const w1 = wordCount(s.bp1);
   const w2 = wordCount(s.bp2);
   const w3 = wordCount(s.bp3);
-  const total = w1 + w2 + w3 || 1;
+  const total = w1 + w2 + w3;
+  const bar = document.getElementById('balanceBar');
+  const warn = document.getElementById('balanceWarning');
+  if (total === 0) {
+    bar.classList.add('is-empty');
+    bar.setAttribute('aria-label', 'No bullet-point writing yet');
+    bar.replaceChildren();
+    const empty = document.createElement('span');
+    empty.className = 'draft-balance-empty';
+    empty.textContent = 'Start writing to see your bullet-point distribution';
+    bar.appendChild(empty);
+    warn.style.display = 'none';
+    return;
+  }
+  bar.classList.remove('is-empty');
+  bar.setAttribute('aria-label', 'Bullet-point writing distribution: ' + w1 + ', ' + w2 + ', ' + w3 + ' words');
 
   const p1 = Math.round((w1/total)*100);
   const p2 = Math.round((w2/total)*100);
   const p3 = 100 - p1 - p2;
 
-  const bar = document.getElementById('balanceBar');
   bar.innerHTML = `
     <div class="balance-seg" style="width:${p1}%;background:var(--orange)">BP1: ${w1}w</div>
     <div class="balance-seg" style="width:${p2}%;background:var(--orange-light)">BP2: ${w2}w</div>
@@ -2822,7 +2837,6 @@ function updateBalanceBar() {
   `;
 
   // Check balance
-  const warn = document.getElementById('balanceWarning');
   const counts = [w1, w2, w3].filter(x => x > 0);
   if (counts.length >= 2) {
     const maxC = Math.max(w1, w2, w3);
