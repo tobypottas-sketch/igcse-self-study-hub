@@ -5,8 +5,9 @@
   line-height:1.15;
 }
 
-.vocab-shell--session .vocab-topbar > span::before,
-.vocab-unit-hero::before{
+/* Session screens retain the course qualifier. Unit landing heroes show
+   their course identity in the actual inline badge row, not via ::before. */
+.vocab-shell--session .vocab-topbar > span::before{
   content:"Cambridge IGCSE ESL 0511";
   display:inline-flex;
   align-items:center;
@@ -26,13 +27,8 @@
   box-shadow:0 2px 8px rgba(23,56,82,.05);
 }
 
-.vocab-unit-hero::before{
-  margin:0 0 16px;
-}
-
 @media(max-width:520px){
-  .vocab-shell--session .vocab-topbar > span::before,
-  .vocab-unit-hero::before{
+  .vocab-shell--session .vocab-topbar > span::before{
     font-size:var(--fs-xs);
     padding:5px 8px;
   }
