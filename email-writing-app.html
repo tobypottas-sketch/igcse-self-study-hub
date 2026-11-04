@@ -555,7 +555,7 @@ try {
  document.documentElement.classList.add('email-auth-ready');
 } catch {location.replace('./');}
 </script>
-<link rel="stylesheet" href="email-writing-hub-polish.css?v=3">
+<link rel="stylesheet" href="email-writing-hub-polish.css?v=4">
 </head>
 <body><nav class="hub-topbar" aria-label="Return navigation"><a href="./">← Back to Hub</a></nav>
 
@@ -750,53 +750,68 @@ try {
   <!-- ==================== DRAFT TAB ==================== -->
   <div class="tab-panel" id="panel-draft">
     <div class="draft-workspace">
+    <aside class="draft-task-rail" aria-label="Current writing task">
+      <div class="draft-rail-head">
+        <span class="draft-rail-kicker">YOUR WRITING TASK</span>
+        <button type="button" class="draft-change-task" onclick="switchTab('task')">Change task →</button>
+      </div>
+      <p id="draftTaskQuestion" class="draft-rail-question">Choose a task on the Task tab to begin.</p>
+      <ol id="draftTaskBullets" class="draft-rail-bullets">
+        <li><span>1</span><p id="draftTaskBP1">First bullet point</p></li>
+        <li><span>2</span><p id="draftTaskBP2">Second bullet point</p></li>
+        <li><span>3</span><p id="draftTaskBP3">Third bullet point</p></li>
+      </ol>
+      <div class="draft-rail-foot"><span id="draftTaskAudience">To: a friend</span><span id="draftTaskTarget">120–160 words</span></div>
+      <p class="draft-rail-note">Keep all three points in mind as you write.</p>
+    </aside>
     <div class="card draft-main">
       <div class="card-header"><span class="icon">&#9997;&#65039;</span> Write Your Email</div>
-      <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:16px">
-        Write each section in its own box. Think of it as paragraphs. Your final email will combine them all.
-      </p>
+      <div class="draft-intro-row">
+        <p>Write in sections. Your paragraphs will combine into one email.</p>
+        <div class="draft-live-count" aria-live="polite"><strong id="draftWordCountBadge">0 words</strong><span id="draftWordTargetBadge">Target: 120–160</span></div>
+      </div>
 
       <div class="dev-trainer-launch"><p><strong>Practise idea development</strong><br>Compare short and developed answers, then try improving a sentence yourself. Optional — your draft stays unchanged.</p><button type="button" class="dev-trainer-open" id="devOpen">✦ Writing Skills Trainer</button><button type="button" class="dev-trainer-open" id="errorOpen" style="background:#fff;color:#126b78;border:1px solid #126b78">Spot the Error</button></div>
 
       <!-- Opening -->
-      <div class="form-row">
-        <label>Opening / Greeting Paragraph</label>
-        <textarea id="draftOpening" rows="3" placeholder="e.g. Hi Alex,&#10;&#10;How are you? I hope you're having a great week! I'm writing because..." oninput="onDraftInput()"></textarea>
+      <div class="form-row draft-section">
+        <label for="draftOpening">Opening / Greeting Paragraph</label>
+        <textarea id="draftOpening" rows="2" placeholder="e.g. Hi Alex,&#10;&#10;How are you? I hope you're having a great week! I'm writing because..." oninput="onDraftInput()"></textarea>
         <div class="section-wc" id="wcOpening">0 words</div>
       </div>
 
       <!-- BP1 -->
-      <div class="form-row" style="border-left:3px solid var(--orange);padding-left:14px">
-        <label>Bullet Point 1 Paragraph <span id="bp1Label" style="font-weight:400;color:var(--text-light)"></span></label>
+      <div class="form-row draft-section draft-bullet-section">
+        <label for="draftBP1">Bullet Point 1 Paragraph <span id="bp1Label" style="font-weight:400;color:var(--text-light)"></span></label>
         <textarea id="draftBP1" rows="4" placeholder="Write about bullet point 1 here. Develop it with detail, examples, or reasons." oninput="onDraftInput()"></textarea>
         <div class="section-wc" id="wcBP1">0 words</div>
       </div>
 
       <!-- BP2 -->
-      <div class="form-row" style="border-left:3px solid var(--orange);padding-left:14px">
-        <label>Bullet Point 2 Paragraph <span id="bp2Label" style="font-weight:400;color:var(--text-light)"></span></label>
+      <div class="form-row draft-section draft-bullet-section">
+        <label for="draftBP2">Bullet Point 2 Paragraph <span id="bp2Label" style="font-weight:400;color:var(--text-light)"></span></label>
         <textarea id="draftBP2" rows="4" placeholder="Write about bullet point 2 here. Make it interesting and detailed." oninput="onDraftInput()"></textarea>
         <div class="section-wc" id="wcBP2">0 words</div>
       </div>
 
       <!-- BP3 -->
-      <div class="form-row" style="border-left:3px solid var(--orange);padding-left:14px">
-        <label>Bullet Point 3 Paragraph <span id="bp3Label" style="font-weight:400;color:var(--text-light)"></span></label>
+      <div class="form-row draft-section draft-bullet-section">
+        <label for="draftBP3">Bullet Point 3 Paragraph <span id="bp3Label" style="font-weight:400;color:var(--text-light)"></span></label>
         <textarea id="draftBP3" rows="4" placeholder="Write about bullet point 3 here. Develop it fully." oninput="onDraftInput()"></textarea>
         <div class="section-wc" id="wcBP3">0 words</div>
       </div>
 
       <!-- Closing -->
-      <div class="form-row">
-        <label>Closing Paragraph</label>
-        <textarea id="draftClosing" rows="3" placeholder="e.g. Anyway, I'd love to hear what you think! We should definitely meet up soon..." oninput="onDraftInput()"></textarea>
+      <div class="form-row draft-section">
+        <label for="draftClosing">Closing Paragraph</label>
+        <textarea id="draftClosing" rows="2" placeholder="e.g. Anyway, I'd love to hear what you think! We should definitely meet up soon..." oninput="onDraftInput()"></textarea>
         <div class="section-wc" id="wcClosing">0 words</div>
       </div>
 
       <!-- Sign-off -->
-      <div class="form-row">
-        <label>Sign-off</label>
-        <input type="text" id="draftSignoff" placeholder="e.g. Best wishes,&#10;Karim" oninput="onDraftInput()">
+      <div class="form-row draft-section draft-signoff-section">
+        <label for="draftSignoff">Sign-off</label>
+        <input type="text" id="draftSignoff" placeholder="e.g. Best wishes, Karim" oninput="onDraftInput()">
       </div>
 
       <!-- Word count meter -->
@@ -2196,6 +2211,7 @@ function switchTab(tabId) {
   if (panel) panel.classList.add('active');
   // Update dashboard and preview when switching to those tabs
   if (tabId === 'dashboard') runAllChecks();
+  if (tabId === 'draft') { updateDraftTaskRail(); updateTotalWordCount(); }
   if (tabId === 'preview') updatePreview();
   if (tabId === 'examples') renderExamplesTab();
 }
@@ -2360,6 +2376,25 @@ function updateTaskDisplay() {
   document.getElementById('friendDisplay').textContent = friend ? friend + ' (' + audience + ')' : audience;
   document.getElementById('targetDisplay').textContent = minW + '\u2013' + maxW;
   document.getElementById('wcTargetLabel').textContent = 'Target: ' + minW + '\u2013' + maxW;
+  updateDraftTaskRail();
+}
+
+function updateDraftTaskRail() {
+  const c = getConfig();
+  const rail = document.getElementById('draftTaskQuestion');
+  if (!rail) return;
+  rail.textContent = c.taskQ || 'Choose a question on the Task tab before writing.';
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById('draftTaskBP' + i);
+    if (el) el.textContent = c['bp' + i] || 'Bullet point ' + i + ' not selected';
+  }
+  const audience = document.getElementById('draftTaskAudience');
+  const target = document.getElementById('draftTaskTarget');
+  const targetBadge = document.getElementById('draftWordTargetBadge');
+  const range = (c.minWords || 120) + '–' + (c.maxWords || 160);
+  if (audience) audience.textContent = 'To: ' + (c.audience || 'a friend');
+  if (target) target.textContent = range + ' words';
+  if (targetBadge) targetBadge.textContent = 'Target: ' + range;
 }
 
 // Student task entry
@@ -2749,6 +2784,11 @@ function updateTotalWordCount() {
   document.getElementById('wcBarFill').style.background = color;
   document.getElementById('wcStatus').textContent = status;
   document.getElementById('wcStatus').style.color = color === '#CCC' ? 'var(--text-light)' : color;
+  const badge = document.getElementById('draftWordCountBadge');
+  if (badge) {
+    badge.textContent = total + (total === 1 ? ' word' : ' words');
+    badge.dataset.status = total === 0 ? 'empty' : total < min ? 'short' : total <= max ? 'target' : 'over';
+  }
 }
 
 function updateBalanceBar() {
