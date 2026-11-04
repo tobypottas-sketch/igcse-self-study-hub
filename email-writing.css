@@ -1,0 +1,11 @@
+:root { color-scheme: light; }
+.email-shell { max-width: 860px; margin: 0 auto; padding: clamp(18px, 5vw, 48px) 20px; }
+.email-topbar { display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; align-items: center; margin-bottom: 28px; }
+.email-brand { font-size: .9rem; color: var(--c-muted, #536578); font-weight: 750; }
+.email-return { color: var(--c-teal, #127f83); font-weight: 800; }
+.email-panel { background: var(--c-surface, white); border: 1px solid var(--c-line, #dbe4e9); border-radius: 20px; padding: clamp(20px, 5vw, 38px); box-shadow: 0 12px 38px rgba(23,56,82,.06); }
+.email-panel h1 { margin: 4px 0 14px; }
+.email-panel p { line-height: 1.6; }
+.email-note { border-left: 3px solid var(--c-teal, #127f83); padding: 10px 14px; background: var(--c-surface-soft, #f4f9f9); color: var(--c-muted, #536578); }
+.email-error { border-left-color: #b33e47; }
+:focus-visible { outline: 3px solid var(--c-teal, #127f83); outline-offset: 3px; }

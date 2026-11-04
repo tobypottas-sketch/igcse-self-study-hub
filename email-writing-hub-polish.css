@@ -1,0 +1,126 @@
+/* Email Writer / hub visual alignment. Scoped to the transplanted workspace.
+   Reference: Listening, Reading and Paraphrasing resource headers. */
+:root {
+  --orange:#108d8b;
+  --orange-dark:#087675;
+  --orange-light:#28aaa5;
+  --bg:#f5f8f8;
+  --white:#fff;
+  --card:#fff;
+  --text:#243436;
+  --text-light:#5d6f70;
+  --border:#d8e7e7;
+  --green:#1e7866;
+  --green-light:#e9f6f2;
+  --blue:#2877ae;
+  --blue-light:#ecf5fc;
+  --shadow:0 12px 34px rgba(20,60,68,.06);
+  --radius:16px;
+}
+html {font-size:16px}
+body {
+  color:var(--text);
+  background:radial-gradient(circle at 86% 0%,rgba(30,176,164,.09),transparent 36%),
+             linear-gradient(115deg,#f6f5f5 0%,#f6faf9 100%);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+.hub-topbar {width:min(100% - 48px,1420px);margin:0 auto;padding:14px 0 12px;display:flex;justify-content:flex-end}
+.hub-topbar a {display:inline-flex;align-items:center;justify-content:center;min-height:46px;
+  padding:9px 22px;border:1px solid #bae0df;border-radius:999px;background:#fff;
+  box-shadow:0 5px 14px rgba(27,86,93,.08);color:#117c7d;text-decoration:none;font-weight:750}
+.hub-topbar a:hover{background:#ebf8f7}
+.app-header{
+  position:relative;top:auto;z-index:1;width:min(100% - 48px,1420px);margin:14px auto 24px;
+  border:1px solid #c9e9e5;border-radius:32px;color:var(--text);overflow:hidden;
+  background:linear-gradient(115deg,rgba(255,255,255,.98),rgba(245,252,250,.98) 58%,rgba(226,249,245,.95));
+  box-shadow:0 12px 38px rgba(27,68,70,.07)
+}
+.app-header::before {content:"";position:absolute;inset:auto 0 0;height:74px;opacity:.48;pointer-events:none;
+  background:repeating-linear-gradient(90deg,transparent 0 18px,rgba(37,156,159,.17) 18px 22px,transparent 22px 44px);
+  clip-path:polygon(0 57%,3% 65%,6% 47%,9% 75%,12% 50%,15% 60%,18% 42%,21% 73%,25% 51%,29% 78%,33% 53%,38% 70%,43% 49%,47% 81%,51% 50%,56% 68%,60% 46%,64% 76%,68% 51%,72% 67%,77% 41%,81% 73%,85% 58%,89% 45%,93% 66%,97% 52%,100% 59%,100% 100%,0 100%)}
+.header-inner{position:relative;z-index:1;max-width:none;min-height:262px;padding:36px 44px 50px;
+  display:grid;grid-template-columns:minmax(230px,30%) minmax(0,1fr) auto;align-items:center;gap:36px}
+.header-brand{display:contents}
+.header-logo{width:100%;height:178px;max-width:340px;padding:18px 16px;border-right:1px solid #a6d7d2;
+  border-radius:0;background:transparent;color:transparent;justify-content:flex-start;
+  font-size:0;box-shadow:none;position:relative}
+.header-logo::before{content:"";display:block;width:100%;height:100%;background:url("assets/cambridge-assessment-english.webp") left center/contain no-repeat}
+.header-titles{min-width:0;grid-column:2}
+.header-titles::before {content:"CAMBRIDGE IGCSE · ENGLISH AS A SECOND LANGUAGE";
+  display:inline-block;margin-bottom:18px;padding:7px 14px;border:1px solid #c3e8e3;border-radius:999px;
+  background:#ebf8f5;color:#087f7b;font-size:.78rem;font-weight:800;letter-spacing:.09em}
+.header-titles h1{max-width:780px;font-size:clamp(2rem,3.45vw,3.55rem);line-height:1.07;
+  font-weight:850;letter-spacing:-.045em;color:#233031;margin:0 0 20px}
+.header-titles .subtitle{font-size:clamp(.94rem,1.35vw,1.17rem);line-height:1.55;opacity:1;color:#586b6c}
+.header-qual{grid-column:3;align-self:center;display:flex;align-items:center;justify-content:center;text-align:center;
+  width:130px;height:130px;border:1px solid #bae0dd;border-radius:50%;padding:28px;background:rgba(255,255,255,.87);
+  color:#087f7b;font-size:.82rem;line-height:1.55;opacity:1;box-shadow:0 8px 22px rgba(30,100,100,.07)}
+.header-actions{grid-column:2/4;justify-content:flex-start;gap:10px;padding-top:6px}
+.header-actions button{background:#fff;border:1px solid #bfdddc;color:#426264;border-radius:999px;
+  min-height:42px;font-weight:750;padding:9px 18px}
+.header-actions button:hover{background:#f1fbfa}
+.header-actions button.active{background:#e7f6f4;color:#087e79;border-color:#9dd8d1}
+.app-container{width:min(100% - 48px,1420px);max-width:1420px;margin:0 auto;padding:0 0 84px}
+.tab-bar{padding:12px 14px;gap:8px;margin:0 0 24px;background:#fff;border:1px solid var(--border);
+  border-radius:24px;box-shadow:var(--shadow);scrollbar-width:thin}
+.tab-btn{border:1px solid transparent;border-radius:14px;padding:12px 17px;min-height:48px;
+  font-size:.91rem;font-weight:750;color:#5a6b6b}
+.tab-btn:hover{background:#edf7f6;color:#087e79}
+.tab-btn.active{background:#149b99;color:white;box-shadow:0 6px 16px rgba(18,151,147,.16)}
+.card{border-radius:24px;padding:30px;margin-bottom:22px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.card-header{color:#2c5555;font-weight:800;font-size:1.16rem;border-bottom:2px solid #e0efed;padding-bottom:15px;margin-bottom:20px}
+.btn{border-radius:11px;min-height:42px;padding:10px 18px}
+.btn-primary{background:#109b97}
+.btn-primary:hover{background:#087e7b}
+.btn-secondary{background:#edf5f4;color:#365958;border:1px solid #d4e6e4}
+.btn-secondary:hover{background:#e2f1ef}
+input[type="text"],input[type="number"],input[type="password"],textarea,select{
+  border-radius:11px;border-color:#d1e3e2;font-size:1rem;padding:13px 15px}
+input:focus,textarea:focus,select:focus{border-color:#119995;box-shadow:0 0 0 3px rgba(17,153,149,.13)}
+textarea{line-height:1.75}
+.exam-mode-switch{border:1px solid #c5e3e0;border-radius:20px;padding:17px 22px;background:#f1faf8;box-shadow:none;margin-bottom:22px}
+.exam-tag{background:#ddf3ef;color:#136960}
+body.exam-active .exam-mode-switch{border-color:#7ec4bb;background:#e9f7f3}
+.example-task-box{background:#f0faf8;border-color:#c6e4df}
+.example-task-box h3{color:#1e706a}
+.email-preview{background:#fffdfa;border-color:#d8e4e0;border-radius:17px}
+.teacher-section{border-left-color:#108d8b}
+.teacher-section h3{color:#087675}
+.comment-btn{background:#e9f6f3;color:#146d6a;border-color:#c7e5e0}
+.comment-btn:hover{background:#d9eeea}
+.modal{border-radius:22px;border:1px solid #cfe4e1}
+.modal h3{color:#116d69}
+.stat-value{color:#087f7d}
+.writing-float{border-radius:17px;border-color:#bcded9;box-shadow:0 16px 48px rgba(19,64,70,.18)}
+.float-topbar{background:#eaf7f4;border-color:#c3e3de}
+.help-dock-btn{background:#117e7b;border-color:#0e716e}
+.help-dock-btn:hover{background:#0b6966}
+.float-tabs button.active{background:#108d8b}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,
+summary:focus-visible{outline:3px solid #14aaa3;outline-offset:3px}
+@media(max-width:1050px){
+ .header-inner{grid-template-columns:220px minmax(0,1fr);gap:24px;padding:30px 28px 40px;min-height:0}
+ .header-logo{height:150px}
+ .header-titles{grid-column:2}
+ .header-qual{display:none}
+ .header-actions{grid-column:2}
+ .header-titles h1{font-size:clamp(1.9rem,4.1vw,3rem)}
+}
+@media(max-width:720px){
+ .hub-topbar,.app-header,.app-container{width:calc(100% - 24px)}
+ .app-header{border-radius:22px;margin:4px auto 16px}
+ .header-inner{display:flex;flex-direction:column;align-items:flex-start;gap:15px;padding:25px 22px 30px}
+ .header-logo{height:74px;max-width:290px;border-right:0;border-bottom:1px solid #cde6e2;padding:0 0 10px}
+ .header-titles::before{font-size:.65rem;line-height:1.4;letter-spacing:.055em;margin-bottom:13px}
+ .header-titles h1{font-size:clamp(1.9rem,7vw,2.5rem);margin-bottom:12px}
+ .header-titles .subtitle{font-size:.94rem}
+ .header-actions{width:100%;padding-top:0}
+ .header-actions button{flex:1}
+ .tab-bar{padding:8px;border-radius:16px;margin-bottom:16px}
+ .tab-btn{min-height:44px;padding:10px 13px}
+ .card{padding:20px;border-radius:18px}
+ .exam-mode-switch{padding:16px;border-radius:16px}
+ .writing-help-dock{bottom:10px}
+}
+@media(max-width:420px){.header-actions button{font-size:.78rem;padding:8px}.header-titles h1{font-size:1.9rem}}
+@media print{.hub-topbar{display:none!important}.app-header{display:none!important}}
