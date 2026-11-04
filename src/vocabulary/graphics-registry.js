@@ -22,6 +22,12 @@ export const unitPngName = unitNumber => `units/unit-${String(Math.trunc(Number(
 // Intrinsic sizes the artwork is produced at (only used to reserve the aspect ratio; the slot owns the displayed size).
 export const PNG_SIZE = Object.freeze({ unit:Object.freeze({ width:1672, height:411 }), pathway:Object.freeze({ width:1024, height:1024 }) });
 
+// Replaced artwork needs a new request URL so an already cached PNG cannot hide the update.
+const PNG_REVISIONS = Object.freeze({
+  'units/unit-03.png':'riverside-feast-20261104',
+  'units/unit-05.png':'seaside-snorkeling-20261104'
+});
+
 let shipped = new Set(SHIPPED_PNG);
 const failedThisSession = new Set();
 // A listed PNG that failed to load is not requested again in this session (the SVG artwork stays in use).
@@ -46,7 +52,8 @@ export function graphicPath(group, key) {
 export function shippedGraphic(group, key) {
   const file = name(group, key);
   if (!file || !shipped.has(file)) return null;
-  const src = `${GRAPHICS_ROOT}/${file}`;
+  const revision = PNG_REVISIONS[file];
+  const src = `${GRAPHICS_ROOT}/${file}${revision ? `?v=${revision}` : ''}`;
   return failedThisSession.has(src) ? null : { src, ...PNG_SIZE[group] };
 }
 export function allGraphicNames() {
