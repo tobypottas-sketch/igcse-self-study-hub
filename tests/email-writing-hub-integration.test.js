@@ -63,7 +63,7 @@ test('optional trainers are collapsed while remaining accessible', () => {
   assert.match(html, /<details class="dev-trainer-launch draft-practice-tools">/);
   assert.match(html, /id="devOpen"/);
   assert.match(html, /id="errorOpen"/);
-  assert.match(html, /email-writing-hub-polish\.css\?v=4/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=6/);
 });
 
 test('writing assistance stays in a collapsed sidebar control instead of floating over the editor', () => {
@@ -73,7 +73,7 @@ test('writing assistance stays in a collapsed sidebar control instead of floatin
   assert.match(html, /data-help-open="task"/);
   assert.match(html, /id="hideAllHelp"/);
   assert.ok(html.indexOf('id="writingHelpDock"') < html.indexOf('</aside>', html.indexOf('class="draft-task-rail"')));
-  assert.match(html, /email-writing-hub-polish\.css\?v=5/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=6/);
 });
 
 test('detailed progress is optional and an empty draft never shows equal bullet segments', () => {
