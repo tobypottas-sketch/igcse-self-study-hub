@@ -65,3 +65,13 @@ test('optional trainers are collapsed while remaining accessible', () => {
   assert.match(html, /id="errorOpen"/);
   assert.match(html, /email-writing-hub-polish\.css\?v=4/);
 });
+
+test('writing assistance stays in a collapsed sidebar control instead of floating over the editor', () => {
+  assert.equal((html.match(/id="writingHelpDock"/g) ?? []).length, 1);
+  assert.match(html, /<details class="writing-help-menu">/);
+  assert.match(html, /data-help-open="cards"/);
+  assert.match(html, /data-help-open="task"/);
+  assert.match(html, /id="hideAllHelp"/);
+  assert.ok(html.indexOf('id="writingHelpDock"') < html.indexOf('</aside>', html.indexOf('class="draft-task-rail"')));
+  assert.match(html, /email-writing-hub-polish\.css\?v=5/);
+});
