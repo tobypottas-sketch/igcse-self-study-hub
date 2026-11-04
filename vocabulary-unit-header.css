@@ -65,3 +65,19 @@
 .vocab-hero-stages li{counter-increment:stage;display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 5px;border:1px solid var(--c-teal-line);border-radius:var(--r-pill);background:var(--c-teal-soft);color:var(--c-teal-dark);font-size:var(--fs-xs);font-weight:900}
 .vocab-hero-stages li::before{content:counter(stage);display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--c-ink);color:#fff;font-size:11px;line-height:1}
 @media (max-width:620px){.vocab-hero-guide{max-width:none;padding:10px 12px 12px}.vocab-unit-hero__theme{font-size:var(--fs-md)}}
+
+
+/* Compact unit landing hero: course identity shares the label row.
+   All-word detail and other vocabulary screens retain their own geometry. */
+.vocab-unit-hero__identity{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin-bottom:8px}
+.vocab-unit-hero__identity .vocab-kicker{display:inline-flex;align-items:center;flex:none;width:auto;margin:0;padding:5px 12px 5px 11px;border-radius:5px 5px 5px 0;background:var(--c-ink);color:#f3c33c;font-size:var(--fs-xs);font-weight:900;letter-spacing:.14em;text-transform:uppercase;box-shadow:inset 3px 0 0 #f3c33c}
+.vocab-unit-hero__course{display:inline-flex;align-items:center;min-height:30px;max-width:100%;padding:5px 12px;border:1px solid var(--c-teal-line);border-radius:var(--r-pill);background:rgba(255,255,255,.9);color:var(--c-ink);font-size:var(--fs-xs);font-weight:850;line-height:1.25;overflow-wrap:anywhere}
+.vocab-unit-hero:not(.vocab-unit-hero--detail){padding-top:23px;padding-bottom:23px}
+.vocab-unit-hero:not(.vocab-unit-hero--detail)>h1{margin-bottom:9px;padding-bottom:11px}
+.vocab-unit-hero:not(.vocab-unit-hero--detail) .vocab-progress-row{margin-top:12px}
+@media (max-width:620px){
+  .vocab-unit-hero__identity{gap:7px 9px}
+  .vocab-unit-hero__course{padding:5px 10px;font-size:11px}
+  .vocab-unit-hero:not(.vocab-unit-hero--detail){padding-top:18px;padding-bottom:18px}
+  .vocab-unit-hero:not(.vocab-unit-hero--detail).has-study-art{padding-bottom:148px}
+}
