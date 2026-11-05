@@ -2,15 +2,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { serve } from './helpers/pathway-geometry-harness.mjs';
-const modulePath=process.env.ASSESSOR_PLAYWRIGHT_MODULE;
-const executablePath=process.env.CHROMIUM_PATH;
-const ready=!!(modulePath&&executablePath);
+import os from 'node:os';
+import { serve, findChromium, loadPlaywright } from './helpers/pathway-geometry-harness.mjs';
+// Same convention as the repo's other browser tests: use the shared Playwright/Chromium finders, skip if unavailable.
+const playwright=loadPlaywright();
+const executablePath=await findChromium();
+const ready=!!(playwright&&executablePath);
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const result={contentMark:4,languageMark:6,totalMark:10,wordCount:20,contentReason:'Relevant, but needs development.',languageReason:'Clear vocabulary with some variety.',strengths:[{quote:'The museum was fascinating',advice:'Gives a clear opinion.'}],improvements:[{quote:'The museum was fascinating',advice:'Explain the reason in more detail.'}],nextStep:'Develop one exhibit example.',warning:'Experimental estimate.'};
 async function open(t,{role='teacher',active=true,width=1280}={}){
- const {chromium}=await import(modulePath);const {server,origin}=await serve(root);
- const browser=await chromium.launch({executablePath,headless:true});t.after(async()=>{await browser.close();server.close();});
+ const {chromium}=playwright;const {server,origin}=await serve(root);let browser;
+ t.after(async()=>{await browser?.close();server.close();});
+ browser=await chromium.launch({executablePath,headless:true});
  const page=await browser.newPage({viewport:{width,height:960}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(({role,active})=>{
   const profile={id:'11111111-1111-4111-8111-111111111111',display_name:'Synthetic Staff',school_email:'staff@example.invalid',role,active,must_change_password:false};let callback;
@@ -38,7 +41,7 @@ for(const width of [1280,390])test('real Hub assessor flow, cleanup and duplicat
  await page.waitForFunction(()=>document.querySelector('[type=submit]').disabled);await new Promise(resolve=>setTimeout(resolve,30));assert.equal(calls.length,1);
  assert.equal(calls[0].headers.authorization,'Bearer synthetic-session-token');assert.deepEqual(Object.keys(calls[0].body).sort(),['privacyConfirmed','response','task','taskType']);
  h.release();await page.getByRole('heading',{name:'Assessment estimate'}).waitFor();assert.match(await page.locator('[data-assessor-result]').innerText(),/10/);
- await page.screenshot({path:'/private/tmp/teacher-assessor-'+width+'.png',fullPage:true});
+ await page.screenshot({path:path.join(os.tmpdir(),'teacher-assessor-'+width+'.png'),fullPage:true});
  await page.getByRole('button',{name:'Clear writing and feedback'}).click();assert.equal(await page.locator('[name=response]').inputValue(),'');assert.equal(await page.locator('[data-assessor-result]').innerText(),'');
  await page.locator('[name=task]').fill('Describe a fictional museum and explain whether you recommend it.');await page.locator('[name=response]').fill('Synthetic draft must disappear on navigation.');
  await page.getByRole('button',{name:'Back to Hub',exact:true}).click();await page.waitForSelector('.shell--home');assert.ok(!(await page.locator('body').innerText()).includes('Synthetic draft must disappear'));
@@ -50,7 +53,7 @@ for(const width of [1280,390])test('real Hub assessor flow, cleanup and duplicat
  await page.locator('[name=response]').fill('Synthetic logout draft');await page.evaluate(()=>window.__logout());await page.waitForSelector('.shell--home');assert.ok(!(await page.locator('body').innerText()).includes('Synthetic logout draft'));
  assert.deepEqual(h.errors,[]);assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),[]);
 });
-for(const [role,active] of [['admin',true],['student',true],['teacher',false]])test('real Hub permission boundary: '+role+' active='+active,{skip:!ready},async t=>{
+for(const [role,active] of [['admin',true],['teacher',true],['student',true],['teacher',false],['admin',false]])test('real Hub permission boundary: '+role+' active='+active,{skip:!ready},async t=>{
  const {page,calls,errors}=await open(t,{role,active});
- assert.equal(await page.getByRole('button',{name:'Writing assessor',exact:true}).count(),role==='admin'?1:0);assert.equal(calls.length,0);assert.deepEqual(errors,[]);
+ assert.equal(await page.getByRole('button',{name:'Writing assessor',exact:true}).count(),['admin','teacher'].includes(role)&&active?1:0);assert.equal(calls.length,0);assert.deepEqual(errors,[]);
 });

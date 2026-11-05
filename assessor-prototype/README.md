@@ -1,6 +1,6 @@
 # Cambridge IGCSE 0511 writing assessor — teacher research prototype
 
-**Status:** experimental teacher-only prototype, separate from the Hub. These changes have not been deployed or tested against the live Cloudflare account. Not validated for real student assessment.
+**Status:** experimental, **teacher-only**. The Hub's staff area (Teacher tools → *Writing assessor*) calls this Worker's `POST /assess` route. Nothing here has been deployed or tested against the live Cloudflare account/Supabase project. Marks are **not validated** against teacher judgement and must not be given to students or treated as official grades.
 
 This folder contains a two-stage Cloudflare Workers AI prototype. Stage 1 extracts exact text evidence about review task fulfilment, vocabulary/structures and possible language errors; the application discards any supposed quote not found verbatim in the essay. Stage 2 receives this filtered evidence and estimates Content (0–6) and Language (0–9) using paraphrases of the official 2024 specimen band descriptors. The final validator discards unsupported quotations, stops obvious false claims about missing food/recommendations, checks marks are valid and withholds the mark if it lacks basic grounded support.
 
@@ -9,20 +9,37 @@ The safeguards reduce some errors but **do not prove marking accuracy**. A model
 ## Sources
 
 - Cambridge 0511 2027–2029 syllabus: https://www.cambridgeinternational.org/Images/721343-2027-2029-syllabus.pdf — Exercises 5 and 6: 120–160 words, Content 6, Language 9.
-- Cambridge 0511 2024 specimen Paper 1 mark scheme: https://www.cambridgeinternational.org/Images/637289-2024-specimen-paper-1-mark-scheme.pdf — Content bands 5–6 / 3–4 / 1–2 and Language 7–9 / 4–6 / 1–3.
+- Cambridge 0511 2024 specimen Paper 1 mark scheme: https://www.cambridgeinternational.org/Images/637270-2024-specimen-paper-1-mark-scheme.pdf — Content bands 5–6 / 3–4 / 1–2 and Language 7–9 / 4–6 / 1–3.
 - Mark-scheme and paper-year alignment must be reconfirmed before classroom deployment.
 
 ## Run regression tests
 
 ```sh
-node --test assessor-prototype/worker.test.mjs
+node --test assessor-prototype/*.test.mjs tests/teacher-writing-assessor.test.mjs tests/teacher-writing-assessor-contract.test.mjs
 ```
 
-The GitHub workflow `.github/workflows/assessor-prototype-tests.yml` runs these for changes in this folder.
+The GitHub workflow `.github/workflows/assessor-prototype-tests.yml` runs these for changes to the Worker, the Hub assessor screen or these tests. `tests/teacher-writing-assessor.browser.test.mjs` (real Hub in Chromium at 1280 px and 390 px) runs locally when Playwright and Chromium are installed and is skipped otherwise.
 
 ## Cloudflare configuration (future teacher-only testing)
 
-Copy `worker.js` to the **existing** `igcse-writing-assessor` Worker in a controlled deployment after tests pass, keeping the existing `AI` binding and `ASSESSMENT_TEST_KEY` secret. Do **not** deploy automatically. There is no live assessment integration in this commit. `GET /` is a harmless status response. `POST /teacher-test` requires the secret and always uses the **hard-coded fictional restaurant sample**; the request body is ignored and student submissions are not accepted. The secret must be rotated because the earlier testing key was exposed in chat/screenshots.
+Deploy `worker.js` **and** `staff-assessment.js` (two modules) to the **existing** `igcse-writing-assessor` Worker in a controlled, separately approved release. Never deploy automatically.
+
+Routes:
+
+- `GET /` harmless status. `POST /teacher-test` and `POST /diagnose` need the `ASSESSMENT_TEST_KEY` secret and use only the fixed fictional sample/probes (bodies ignored, no real writing).
+- `OPTIONS|POST /assess` is the teacher route. It never uses the shared test key. It requires an approved `Origin` (`HUB_ORIGIN`), a Supabase user session (`Authorization: Bearer <session token>`), and then **two server-side checks with the caller's own token**: `GET {SUPABASE_URL}/auth/v1/user` and `GET /rest/v1/profiles?select=role,active,must_change_password&id=eq.<verified id>`. Only an **active** `teacher` or `admin` with `must_change_password = false` reaches the model. Any lookup failure denies access (fail closed). No service-role key is used or needed.
+
+Worker settings for `/assess` (plain/public values, **not** secrets): `HUB_ORIGIN` (exact Hub origin, https), `SUPABASE_URL` (https project origin), `SUPABASE_PUBLISHABLE_KEY` (the public publishable key; never a `sb_secret_`/service-role key). Without them `/assess` answers `assessor_not_configured`.
+
+Limits per request: task ≤ 3,000 and writing ≤ 6,000 characters, ≤ 12 KB body, five task types, `privacyConfirmed: true`, no extra fields, obvious e-mail addresses/labelled identifiers rejected. Two AI calls maximum (≤ 900 and ≤ 1,100 output tokens), no retries. The Hub client gives up after 90 s.
+
+### Privacy (what the code does and does not guarantee)
+
+The Worker keeps no storage and has no `console` calls; responses are `Cache-Control: no-store`; the Hub keeps writing/results only in the page and clears them on Back, logout, session loss and `pagehide`. Writing is processed by Cloudflare Workers AI; Cloudflare/provider operational metadata cannot be removed by application code. **Before real use, confirm in the Cloudflare dashboard that Workers Logs, Tail/Logpush, traces and any AI Gateway content logging are off for this Worker.** Anonymisation is the teacher's responsibility; the automatic check only catches obvious identifiers.
+
+### Secrets during deployment
+
+A staged version containing a temporary test secret exists. **Never promote it or inherit from it.** `deployment-plan.mjs` builds (it never sends) a version-upload request that inherits `ASSESSMENT_TEST_KEY` explicitly from the *verified active production version ID* and refuses to proceed unless exactly that single version has 100% of traffic and only the expected bindings. Re-read the active version immediately before upload and before promotion. The test key must still be rotated because an earlier one was exposed in chat/screenshots.
 
 The model is `@cf/meta/llama-3.3-70b-instruct-fp8-fast`. The pipeline makes **at most two AI calls**, capped at 900 and 1,100 output tokens. Failed extraction stops grading. There are no automatic retries, alternative models, paid providers or AI Gateway billing. No student names, emails or writing are transmitted by this prototype. Responses are explicitly not cached and errors avoid logging writing, secrets and model output.
 
@@ -62,6 +79,7 @@ Sources checked:
 
 ## Before any student-facing use
 
+0. **Teacher calibration is required even for teacher-only use.** The prompts paraphrase the published *band* descriptors; the model must choose the mark *within* a band without worked exemplars, so within-band marks (e.g. 3 vs 4, 5 vs 6, 7 vs 9) are the least reliable part.
 1. Obtain several teacher-marked responses spanning low, mid and high quality and independently compare Content and Language band agreement.
 2. Verify fabricated-claim rate and language-error precision, not just average mark agreement; adjust or reject the model if too weak.
 3. Implement authenticated per-student requests, server-side throttling/quotas, privacy review, and assessment opt-in; **never** distribute `ASSESSMENT_TEST_KEY` to browsers.

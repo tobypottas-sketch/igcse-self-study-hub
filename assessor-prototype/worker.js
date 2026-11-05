@@ -1,6 +1,6 @@
 import { handleStaffAssessment } from './staff-assessment.js';
 // Cambridge 0511 evidence-verified teacher-only prototype. NOT student-facing.
-// Source: https://www.cambridgeinternational.org/Images/637289-2024-specimen-paper-1-mark-scheme.pdf
+// Source: https://www.cambridgeinternational.org/Images/637270-2024-specimen-paper-1-mark-scheme.pdf
 // Deployment: Cloudflare ES module Worker, AI binding + ASSESSMENT_TEST_KEY secret.
 // Verified against the model catalog AND JSON Mode guide (2026-11-05).
 // The older non-fp8 llama-3.1-8b-instruct is no longer in the catalog.

@@ -49,3 +49,17 @@ test('client rejects malformed assessment output and inconsistent totals',async(
  const {assessWriting}=await import('../src/assessor/client.js');const client={auth:{getSession:async()=>({data:{session:{access_token:'synthetic-session-token'}}})}};
  for(const body of [{stages:1,result},{stages:2,result:{...result,totalMark:15}},{stages:2,result:{...result,languageMark:12}}])await assert.rejects(assessWriting(client,input,{fetcher:async()=>Response.json(body)}),/valid assessment/);
 });
+
+test('a stalled request ends with a clear message instead of leaving the form busy',async()=>{
+ const {assessWriting}=await import('../src/assessor/client.js');let aborted=false;
+ const client={auth:{getSession:async()=>({data:{session:{access_token:'synthetic-session-token'}}})}};
+ await assert.rejects(assessWriting(client,input,{timeoutMs:20,fetcher:(url,options)=>new Promise((resolve,reject)=>{options.signal.addEventListener('abort',()=>{aborted=true;reject(options.signal.reason??new DOMException('aborted','AbortError'));});})}),
+  error=>error.code==='assessment_timeout'&&/No mark has been issued/.test(error.message));
+ assert.ok(aborted,'the stalled request must actually be cancelled');
+});
+test('caller cancellation (navigation/logout) still cancels the request and is not reported as a timeout',async()=>{
+ const {assessWriting}=await import('../src/assessor/client.js');const controller=new AbortController();
+ const client={auth:{getSession:async()=>({data:{session:{access_token:'synthetic-session-token'}}})}};
+ const pending=assessWriting(client,input,{signal:controller.signal,timeoutMs:5000,fetcher:(url,options)=>new Promise((resolve,reject)=>{const stop=()=>reject(new DOMException('aborted','AbortError'));if(options.signal.aborted)stop();else options.signal.addEventListener('abort',stop);})});
+ controller.abort();await assert.rejects(pending,error=>error.name==='AbortError'&&error.code!=='assessment_timeout');
+});
