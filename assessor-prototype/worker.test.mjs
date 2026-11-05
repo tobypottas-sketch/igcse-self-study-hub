@@ -139,3 +139,42 @@ test('JSON Mode is requested for both stages without exposing extra submissions'
  assert.ok(received.every(call=>call.args.response_format.type==='json_schema'));
  assert.ok(received.every(call=>!JSON.stringify(call).includes('ignored student text')));
 });
+
+test('protected diagnostic isolates model access without reading essay or using JSON schema',async()=>{
+ const {worker}=harness();
+ const calls=[];
+ const env={ASSESSMENT_TEST_KEY:'test-key',AI:{run:async(model,args)=>{
+  calls.push(args);
+  return {response:'READY'};
+ }}};
+ const endpoint='https://example.workers.dev/diagnose';
+ const denied=await worker.fetch(new Request(endpoint,{method:'POST'}),env);
+ assert.equal(denied.status,401);
+ assert.equal(calls.length,0);
+ const accepted=await worker.fetch(new Request(endpoint,{method:'POST',headers:{'X-Assessment-Test-Key':'test-key'}}),env);
+ assert.equal(accepted.status,200);
+ const body=await accepted.json();
+ assert.equal(body.diagnostic,'basic_model_access');
+ assert.equal(body.ok,true);
+ assert.equal(body.structuredOutputTested,false);
+ assert.equal(calls.length,1);
+ assert.equal(calls[0].max_tokens,20);
+ assert.equal('response_format' in calls[0],false);
+ assert.equal(JSON.stringify(calls[0]).includes('Green Garden'),false);
+});
+test('diagnostic reports known upstream JSON mode error without returning prompt or secret',async()=>{
+ const {worker}=harness();
+ const env={ASSESSMENT_TEST_KEY:'test-key',AI:{run:async()=>{
+   const err=new Error("JSON Mode couldn't be met");
+   err.code=400;
+   throw err;
+ }}};
+ const response=await worker.fetch(new Request('https://example.workers.dev/diagnose',{
+  method:'POST',headers:{'X-Assessment-Test-Key':'test-key'}
+ }),env);
+ assert.equal(response.status,503);
+ const result=await response.json();
+ assert.equal(result.category,'json_mode_or_schema');
+ assert.equal(result.code,400);
+ assert.ok(!JSON.stringify(result).includes('test-key'));
+});
