@@ -6,7 +6,7 @@ import vm from 'node:vm';
 
 const source = readFileSync(new URL('./worker.js', import.meta.url),'utf8')
   .replace('export default {','const worker = {') +
-  '\n;globalThis.__api={worker,verifyEvidence,verifyAssessment,countWords,ESSAY,TASK};';
+  '\n;globalThis.__api={worker,verifyEvidence,verifyAssessment,countWords,ESSAY,TASK,parseModel,evidenceSchema,assessmentSchema};';
 
 function harness() {
  const sandbox={crypto:webcrypto,TextEncoder,Response,Request,URL,console:undefined};
@@ -102,4 +102,40 @@ test('failed assessment returns no invented marks',async()=>{
  const data=await res.json();
  assert.equal(data.error,'Verification failed — no mark issued.');
  assert.equal('totalMark' in data,false);
+});
+
+test('Cloudflare JSON Mode returns valid structured objects or valid JSON text',()=>{
+ const {parseModel,evidenceSchema,assessmentSchema}=harness();
+ assert.equal(parseModel({response:{requirements:{}}}).requirements.constructor,Object);
+ assert.equal(parseModel({response:'{"contentMark":4}'}).contentMark,4);
+ assert.equal(parseModel({response:'```json\\n{"languageMark":6}\\n```'}).languageMark,6);
+ assert.ok(evidenceSchema.required.includes('requirements'));
+ assert.ok(assessmentSchema.required.includes('contentMark'));
+ assert.throws(()=>parseModel({response:'{"unfinished":'}),/Invalid AI JSON/);
+});
+test('JSON Mode is requested for both stages without exposing extra submissions',async()=>{
+ const {worker}=harness();
+ const received=[];
+ const input={requirements:{
+  subject:{quote:'Green Garden Restaurant'},food:{quote:'I ordered a pizza'},
+  atmosphere:{quote:'relaxing atmosphere'},opinion:{quote:'In my opinion'},
+  recommendation:{quote:'I would recommend'}
+ },features:[],errors:[]};
+ const mark={contentMark:4,languageMark:6,
+  contentReason:'Covers the task with reasonable detail.',
+  languageReason:'Language is appropriate and clear.',
+  strengths:[{quote:'I ordered a pizza',advice:'Specific detail'}],
+  improvements:[{quote:'fresh and delicious',advice:'Develop the description'}],
+  missingRequirements:[],nextStep:'Improve this review'};
+ const env={ASSESSMENT_TEST_KEY:'test-secret',AI:{run:async(model,args)=>{
+   received.push({model,args});
+   return {response:received.length===1?input:mark};
+ }}};
+ const response=await worker.fetch(new Request('https://example.workers.dev/teacher-test',{
+   method:'POST',headers:{'X-Assessment-Test-Key':'test-secret'},body:'ignored student text'
+ }),env);
+ assert.equal(response.status,200);
+ assert.equal(received.length,2);
+ assert.ok(received.every(call=>call.args.response_format.type==='json_schema'));
+ assert.ok(received.every(call=>!JSON.stringify(call).includes('ignored student text')));
 });
