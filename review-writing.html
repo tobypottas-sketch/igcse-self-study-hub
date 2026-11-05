@@ -195,8 +195,7 @@ function updateTopic(){
  const customActive=Boolean(state.customPrompt.trim());
  document.querySelectorAll('[data-topic]').forEach(b=>{
    b.setAttribute('aria-pressed',String(b.dataset.topic===state.topic));
-   b.setAttribute('aria-disabled',String(customActive));
-   b.title=customActive?'Clear the teacher question to use this practice topic.':'Choose this practice topic';
+   b.title=customActive?'You can select a practice topic, but the teacher question stays active until you clear it.':'Choose this practice topic';
  });
  const prompt=state.customPrompt.trim()||TOPICS[state.topic];
  $('promptDisplay').textContent=prompt;
