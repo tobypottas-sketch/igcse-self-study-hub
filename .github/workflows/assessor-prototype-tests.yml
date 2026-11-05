@@ -1,0 +1,23 @@
+name: Writing assessor prototype checks
+on:
+  push:
+    paths:
+      - 'assessor-prototype/**'
+      - '.github/workflows/assessor-prototype-tests.yml'
+  pull_request:
+    paths:
+      - 'assessor-prototype/**'
+      - '.github/workflows/assessor-prototype-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  assessor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run evidence and auth regression tests
+        run: node --test assessor-prototype/worker.test.mjs
