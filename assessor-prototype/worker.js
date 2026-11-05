@@ -55,6 +55,15 @@ function verifyAssessment(raw,essay,evidence){
   const strengths=points(raw?.strengths,2),improvements=points(raw?.improvements,3);
   const contentReason=short(raw?.contentReason,350),languageReason=short(raw?.languageReason,350);
   const nextStep=short(raw?.nextStep,230);
+  // Block obvious contradictions even in free-text reasons (not just quote fields).
+  // This is a narrow guard, not a complete semantic truth verifier.
+  const prose=[contentReason,languageReason,nextStep,...improvements.map(x=>x.advice)].join(" ").toLowerCase();
+  if(evidence.requirements.food.present &&
+    /(?:no|never|not|failed to|fails to|didn't|doesn't|without|lack(?:s|ing)?)\\s+(?:\\w+\\s+){0,5}(?:mention|identify|name|include|describe)\\s+(?:a\\s+|any\\s+|the\\s+)?(?:specific\\s+)?(?:food|dish|pizza)/i.test(prose))
+    throw Error("Contradicts verified food evidence");
+  if(evidence.requirements.recommendation.present &&
+    /(?:no|not|never|without|lack(?:s|ing)?)\\s+(?:\\w+\\s+){0,4}recommendation/i.test(prose))
+    throw Error("Contradicts verified recommendation");
   // The teacher never sees an unsupported score as a valid result.
   if(!strengths.length||!contentReason||!languageReason||!nextStep)throw Error("Insufficient grounded feedback");
   const missing=(Array.isArray(raw?.missingRequirements)?raw.missingRequirements:[])
