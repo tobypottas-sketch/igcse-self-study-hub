@@ -25,7 +25,7 @@ function parseModel(result){
   try{data=JSON.parse(raw.trim());}
   catch(_){
     // Tolerate only a well-formed fenced object; never repair truncated JSON.
-    const fenced=raw.trim().match(/^\x60\x60\x60(?:json)?\\s*([\\s\\S]*?)\\s*\x60\x60\x60$/i);
+    const fenced=raw.trim().match(/^\x60\x60\x60(?:json)?\s*([\s\S]*?)\s*\x60\x60\x60$/i);
     if(!fenced)throw Error("Invalid AI JSON");
     data=JSON.parse(fenced[1]);
   }
