@@ -1,7 +1,9 @@
 // Cambridge 0511 evidence-verified teacher-only prototype. NOT student-facing.
 // Source: https://www.cambridgeinternational.org/Images/637289-2024-specimen-paper-1-mark-scheme.pdf
 // Deployment: Cloudflare ES module Worker, AI binding + ASSESSMENT_TEST_KEY secret.
-const MODEL = "@cf/meta/llama-3.1-8b-instruct"; // Cloudflare JSON Mode supported model.
+// Verified against the model catalog AND JSON Mode guide (2026-11-05).
+// The older non-fp8 llama-3.1-8b-instruct is no longer in the catalog.
+const MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
 const TASK = "Your school magazine is publishing restaurant reviews. Review a restaurant you visited. Describe food and atmosphere, give opinions with reasons and recommend it or not. Write 120–160 words.";
 const ESSAY = `Last weekend, I visited Green Garden Restaurant with my family. It is a small Italian restaurant near the city centre.
 
@@ -122,50 +124,82 @@ const evidenceSchema = {
  properties:{
   requirements:{
    type:"object",properties:Object.fromEntries(REQUIREMENTS.map(name=>[name,{
-    type:"object",properties:{quote:{type:"string"}},required:["quote"]
+    type:"object",properties:{quote:{type:"string",maxLength:180}},required:["quote"]
    }])),required:REQUIREMENTS
   },
-  features:{type:"array",items:{type:"object",properties:{
-   label:{type:"string"},quote:{type:"string"}
+  features:{type:"array",maxItems:8,items:{type:"object",properties:{
+   label:{type:"string",maxLength:70},quote:{type:"string",maxLength:170}
   },required:["label","quote"]}},
-  errors:{type:"array",items:{type:"object",properties:{
-   quote:{type:"string"},correction:{type:"string"},explanation:{type:"string"}
+  errors:{type:"array",maxItems:5,items:{type:"object",properties:{
+   quote:{type:"string",maxLength:150},correction:{type:"string",maxLength:150},explanation:{type:"string",maxLength:200}
   },required:["quote","correction","explanation"]}}
  },required:["requirements","features","errors"]
 };
 const assessmentSchema = {
  type:"object",properties:{
-  contentMark:{type:"integer"},languageMark:{type:"integer"},
-  contentReason:{type:"string"},languageReason:{type:"string"},
-  strengths:{type:"array",items:{type:"object",properties:{
-   quote:{type:"string"},advice:{type:"string"}
+  contentMark:{type:"integer",minimum:0,maximum:6},languageMark:{type:"integer",minimum:0,maximum:9},
+  contentReason:{type:"string",maxLength:350},languageReason:{type:"string",maxLength:350},
+  strengths:{type:"array",maxItems:2,items:{type:"object",properties:{
+   quote:{type:"string",maxLength:180},advice:{type:"string",maxLength:300}
   },required:["quote","advice"]}},
-  improvements:{type:"array",items:{type:"object",properties:{
-   quote:{type:"string"},advice:{type:"string"}
+  improvements:{type:"array",maxItems:3,items:{type:"object",properties:{
+   quote:{type:"string",maxLength:180},advice:{type:"string",maxLength:300}
   },required:["quote","advice"]}},
-  missingRequirements:{type:"array",items:{type:"string"}},
-  nextStep:{type:"string"}
+  missingRequirements:{type:"array",maxItems:5,items:{type:"string",maxLength:40}},
+  nextStep:{type:"string",maxLength:230}
  },required:["contentMark","languageMark","contentReason","languageReason",
  "strengths","improvements","missingRequirements","nextStep"]
 };
+// Validate the small schema subset used above locally too: JSON Mode is not
+// guaranteed. Never let an error envelope or incomplete evidence reach grading.
+function matchesSchema(value,schema) {
+  switch(schema.type) {
+    case "object":
+      return value!==null && typeof value==="object" && !Array.isArray(value) &&
+        (schema.required||[]).every(key=>Object.hasOwn(value,key)) &&
+        Object.entries(schema.properties||{}).every(([key,child])=>
+          !Object.hasOwn(value,key)||matchesSchema(value[key],child));
+    case "array":
+      return Array.isArray(value) && value.length<=(schema.maxItems??Infinity) &&
+        value.every(item=>matchesSchema(item,schema.items));
+    case "string":return typeof value==="string" && [...value].length<=(schema.maxLength??Infinity);
+    case "integer":return Number.isInteger(value) && value>=(schema.minimum??-Infinity) && value<=(schema.maximum??Infinity);
+    case "boolean":return typeof value==="boolean";
+    default:return false;
+  }
+}
 // Diagnostic probes never contain student work or the fictional essay.
 function classifyAIError(error) {
+  // Prefer documented codes: permission/quota messages can also say "model".
+  const code=Number(error?.code);
+  if([5018,5016,3023,3041].includes(code))return "model_permission";
+  if(code===5035)return "paid_model_not_allowed";
+  if([3036,3040].includes(code))return "quota_or_rate_limit";
+  if([3007,3008].includes(code))return "model_timeout";
+  if([5007,3042].includes(code))return "model_unavailable";
   const msg=String(error?.message||"").toLowerCase();
   if(/json mode|json.schema|grammar|couldn.t be met|could not be met|schema validation/.test(msg))return "json_mode_or_schema";
-  if(/model|not found|unknown model|not supported/.test(msg))return "model_unavailable";
-  if(/quota|limit|rate|capacity|neurons|exceeded|billing|credits/.test(msg))return "quota_or_rate_limit";
-  if(/permission|auth|forbidden|unauthori/.test(msg))return "model_permission";
+  if(/paid plan|paid billing/.test(msg))return "paid_model_not_allowed";
+  if(/permission|auth|forbidden|unauthori|not allowed/.test(msg))return "model_permission";
+  if(/quota|limit|rate|capacity|neurons|exceeded|billing|credits|free allocation/.test(msg))return "quota_or_rate_limit";
   if(/timeout|timed out|deadline/.test(msg))return "model_timeout";
+  if(/no such model|not found|unknown model|not supported|invalid model/.test(msg))return "model_unavailable";
   return "upstream_ai_error";
 }
 function safeAIErrorCode(error) {
   const raw=error?.code ?? error?.status ?? error?.statusCode;
-  return (typeof raw==="number" && Number.isInteger(raw)) ? raw :
-    (typeof raw==="string" && /^[A-Za-z0-9_-]{1,40}$/.test(raw) ? raw : null);
+  // Cloudflare codes/statuses are numeric. Never echo arbitrary error strings.
+  return /^(?:[1-5][0-9]{2}|[0-9]{4,5})$/.test(String(raw)) ? Number(raw) : null;
 }
-async function diagnoseAI(env) {
-  // One minimal call, no schema and no student writing, to isolate basic model access.
+async function diagnoseAI(env,structured=false) {
+  // One minimal call per diagnostic. Never include the essay or request body.
   try {
+    if(structured) {
+      const reply=await ask(env,"Return JSON with ready set to true.","Check structured output.",32,{
+        type:"object",properties:{ready:{type:"boolean"}},required:["ready"]
+      });
+      return {ok:reply.ready===true,model:MODEL,structuredOutputTested:true};
+    }
     const reply=await env.AI.run(MODEL,{
       messages:[{role:"user",content:"Reply with exactly the word READY."}],
       max_tokens:20,temperature:0
@@ -180,10 +214,12 @@ async function diagnoseAI(env) {
 async function ask(env,system,message,max_tokens,schema){
   const response=await env.AI.run(MODEL,{
     messages:[{role:"system",content:system},{role:"user",content:message}],
-    temperature:0,max_tokens,
+    temperature:0,max_tokens,stream:false,
     response_format:{type:"json_schema",json_schema:schema}
   });
-  return parseModel(response);
+  const data=parseModel(response);
+  if(!matchesSchema(data,schema))throw Error("Invalid AI response schema");
+  return data;
 }
 export default {
   async fetch(request,env){
@@ -195,8 +231,9 @@ export default {
       return json({error:"Unauthorised"},401);
     if(!env.AI)return json({error:"AI binding unavailable"},503);
     if(path==="/diagnose") {
-      const report=await diagnoseAI(env);
-      return json({diagnostic:"basic_model_access",...report},report.ok?200:503);
+      const structured=new URL(request.url).searchParams.get("mode")==="json";
+      const report=await diagnoseAI(env,structured);
+      return json({diagnostic:structured?"structured_model_access":"basic_model_access",...report},report.ok?200:503);
     }
     let stage="evidence_model";
     try{
@@ -214,7 +251,7 @@ export default {
       // raw model responses, secrets, or stack traces.
       let reason="model_or_runtime_error";
       if(error instanceof SyntaxError || error?.message==="Invalid AI JSON")reason="invalid_ai_json";
-      else if(error?.message==="No AI text"||error?.message==="No JSON"||error?.message==="Bad JSON")
+      else if(error?.message==="Invalid AI response schema"||error?.message==="No AI text"||error?.message==="No JSON"||error?.message==="Bad JSON")
         reason="invalid_ai_response";
       else if(stage==="assessment_validation")reason="evidence_checks_rejected_mark";
       else if(stage==="evidence_validation")reason="evidence_checks_failed";
