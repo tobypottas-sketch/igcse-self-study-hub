@@ -1,3 +1,4 @@
+import { handleStaffAssessment } from './staff-assessment.js';
 // Cambridge 0511 evidence-verified teacher-only prototype. NOT student-facing.
 // Source: https://www.cambridgeinternational.org/Images/637289-2024-specimen-paper-1-mark-scheme.pdf
 // Deployment: Cloudflare ES module Worker, AI binding + ASSESSMENT_TEST_KEY secret.
@@ -224,6 +225,7 @@ async function ask(env,system,message,max_tokens,schema){
 export default {
   async fetch(request,env){
     const path=new URL(request.url).pathname;
+    if(path==="/assess")return handleStaffAssessment(request,env,(...args)=>ask(env,...args),classifyAIError);
     if(request.method==="GET"&&path==="/")
       return json({service:"0511 teacher assessment prototype",aiConnected:Boolean(env.AI),studentsEnabled:false});
     if(request.method!=="POST"||(path!=="/teacher-test"&&path!=="/diagnose"))return json({error:"Not found"},404);

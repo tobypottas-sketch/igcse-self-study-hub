@@ -3,13 +3,15 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { webcrypto } from 'node:crypto';
 import vm from 'node:vm';
+import { handleStaffAssessment } from './staff-assessment.js';
 
 const source = readFileSync(new URL('./worker.js', import.meta.url),'utf8')
+  .replace(/^import .*staff-assessment.*;$/m,'')
   .replace('export default {','const worker = {') +
   '\n;globalThis.__api={worker,verifyEvidence,verifyAssessment,countWords,ESSAY,TASK,parseModel,evidenceSchema,assessmentSchema};';
 
 function harness() {
- const sandbox={crypto:webcrypto,TextEncoder,Response,Request,URL,console:undefined};
+ const sandbox={handleStaffAssessment,crypto:webcrypto,TextEncoder,Response,Request,URL,console:undefined};
  vm.runInNewContext(source,sandbox);
  return sandbox.__api;
 }
@@ -264,7 +266,7 @@ test('wrong key, missing configured secret and other routes never invoke AI',asy
   assert.equal(denied.status,401);
   const unconfigured=await worker.fetch(authorisedRequest(path),{AI});assert.equal(unconfigured.status,401);
  }
- assert.equal((await worker.fetch(authorisedRequest('/assess'),{ASSESSMENT_TEST_KEY:'synthetic-key',AI})).status,404);
+ assert.equal((await worker.fetch(authorisedRequest('/unknown'),{ASSESSMENT_TEST_KEY:'synthetic-key',AI})).status,404);
  assert.equal(calls,0);
 });
 

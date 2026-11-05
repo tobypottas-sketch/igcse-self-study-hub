@@ -1,0 +1,24 @@
+/* Staff assessor only: no student application styles. */
+.assessor-shell { max-width: 1080px; }
+.assessor-form { margin-block: 1.25rem; }
+.assessor-form textarea { width: 100%; resize: vertical; line-height: 1.6; min-width: 0; padding: .75rem; border: 1px solid var(--c-line); border-radius: var(--r-sm); background: var(--c-surface); color: var(--hub-navy); font: inherit; }
+.assessor-task-controls, .assessor-feedback { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.assessor-form label.assessor-consent { display: flex; align-items: flex-start; gap: .65rem; line-height: 1.5; }
+.assessor-form .assessor-consent input { flex: 0 0 auto; width: 18px; height: 18px; padding: 0; margin-top: .3rem; accent-color: #147e80; }
+.assessor-privacy, .assessor-criteria { line-height: 1.6; }
+.assessor-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
+.assessor-scores dl { margin-block: .5rem 1rem; }
+.assessor-scores dt { font-weight: 650; }
+.assessor-scores dd { margin: .5rem 0 0; font-size: 2rem; font-weight: 750; }
+.assessor-scores small { font-size: 1rem; font-weight: 500; }
+.assessor-result .admin-card { margin-bottom: 1rem; overflow-wrap: anywhere; }
+.assessor-result blockquote { margin: .75rem 0; padding-left: .8rem; border-left: 3px solid #147e80; color: #285d65; }
+.assessor-result li + li { margin-top: 1rem; }
+.assessor-result ul { padding-left: 1.2rem; }
+@media (max-width: 650px) {
+  .assessor-task-controls, .assessor-feedback { grid-template-columns: 1fr; }
+  .assessor-scores { gap: .4rem; }
+  .assessor-scores .admin-card { padding: .65rem; }
+  .assessor-scores dd { font-size: 1.5rem; }
+  .assessor-form .admin-actions { align-items: stretch; flex-direction: column; }
+}
