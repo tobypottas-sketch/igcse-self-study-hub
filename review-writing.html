@@ -41,6 +41,35 @@ fieldset{min-width:0;border:0;margin:0;padding:0}.label{display:block;font-size:
 #view-task .practice-options{margin-bottom:10px}
 .session-warning{font-size:.79rem;color:#5a7380;margin:9px 0 0}
 @media(max-width:600px){#view-plan .stage{padding:13px}#view-plan .stage textarea{height:78px}}
+
+/* Writing workspace: compact guidance, clear editing actions, stable sticky count. */
+#view-write .task-context{margin-bottom:13px}
+#view-write .wordmeter{top:0;isolation:isolate;background:#fff;padding:10px 16px;margin:0 0 14px;box-shadow:0 5px 16px #17385217}
+#view-write .wordmeter .track{height:6px;margin:5px 0}
+#view-write .wordmeter strong{font-size:1.17rem}
+#view-write .writing-section{padding:16px 0}
+#view-write .writing-section textarea{min-height:110px;height:128px;font-size:.97rem;line-height:1.7;background:#fcfefe}
+#view-write .writing-section[data-section="recommendation"] textarea,
+#view-write .writing-section[data-section="intro"] textarea{height:105px}
+#view-write .writing-section textarea:focus{background:#fff}
+#view-write .writing-section h3{color:#234657}
+#view-write .writing-section .section-help{font-size:.81rem;line-height:1.5;color:#5d7782;margin:2px 0 10px}
+#view-write .draft-plan-reference{margin:0 0 13px;border:1px solid #dae8e7;border-radius:12px;background:#f9fcfb;overflow:hidden}
+#view-write .draft-plan-reference summary{cursor:pointer;padding:11px 15px;font-size:.85rem;color:#1d6c73;font-weight:760;list-style:none}
+#view-write .draft-plan-reference summary::-webkit-details-marker{display:none}
+#view-write .draft-plan-reference summary:after{content:" +";float:right}
+#view-write .draft-plan-reference[open] summary:after{content:" −"}
+#view-write .draft-plan-notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:0 15px 14px}
+#view-write .draft-plan-note{border:1px solid #deebea;border-radius:9px;padding:9px 11px;background:#fff;min-width:0}
+#view-write .draft-plan-note b{display:block;font-size:.73rem;color:#46727a;margin-bottom:4px}
+#view-write .draft-plan-note p{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;font-size:.85rem;color:#2d4c58}
+#view-write .draft-plan-no-notes{font-size:.83rem;color:#5a7481;padding:0 15px 14px;margin:0}
+#view-write .draft-plan-reference .btn{margin:0 15px 15px;font-size:.77rem;min-height:35px;padding:7px 11px}
+#view-write .draft-clear-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:13px}
+#view-write .draft-clear-footer .clear-all{margin:0}
+#view-write .draft-clear-footer .draft-clear-note{color:#71848b;font-size:.77rem}
+#view-write .writing-section .clear-section{color:#5a7480;border-color:#d8e4e5}
+@media(max-width:680px){#view-write .draft-plan-notes{grid-template-columns:1fr}#view-write .writing-section .section-head{align-items:flex-start}#view-write .writing-section .clear-section{flex:0 0 auto}}
 </style>
 </head>
 <body>
@@ -97,16 +126,22 @@ fieldset{min-width:0;border:0;margin:0;padding:0}.label{display:block;font-size:
 <p class="task-context-prompt"></p>
 <p class="task-context-help">Check the audience, purpose and required content before you write.</p>
 </details>
-<div class="wordmeter no-print"><div class="row between"><b>Word count</b><strong id="wordTotal">0</strong></div><div class="track"><div class="fill" id="wordFill"></div></div><div class="wordmeta"><span>0</span><span id="wordStatus">Target: 120–160</span><span>200+</span></div></div>
+<div class="wordmeter no-print" aria-label="Current review word count"><div class="row between"><b>Word count</b><strong id="wordTotal">0</strong></div><div class="track"><div class="fill" id="wordFill"></div></div><div class="wordmeta"><span>0</span><span id="wordStatus">Target: 120–160</span><span>200+</span></div></div>
+<details class="draft-plan-reference no-print" id="draftPlanReference">
+<summary>My planning notes</summary>
+<div class="draft-plan-notes" id="draftPlanNotes"></div>
+<p class="draft-plan-no-notes hidden" id="draftPlanNoNotes">You haven't added any planning notes yet. You can still write, or return to Plan.</p>
+<button type="button" class="btn ghost" data-next="plan">Edit my plan →</button>
+</details>
 <div class="writing-paper">
 <div class="eyebrow">Your review</div><h2 id="writeHeading">Build your draft</h2><p class="lead">Write one section at a time. Your writing is saved temporarily in this tab. Copy or export it before leaving.</p>
-<div class="writing-section"><div class="section-head"><h3>Introduction</h3><button class="btn ghost clear-section no-print" data-clear="intro">Clear section</button></div><textarea id="draftIntro" rows="4" placeholder="Introduce what you are reviewing and give some context."></textarea><div class="section-foot" id="countIntro">0 words</div></div>
-<div class="writing-section"><div class="section-head"><h3>Description</h3><button class="btn ghost clear-section no-print" data-clear="description">Clear section</button></div><textarea id="draftDescription" rows="5" placeholder="Describe important features. Include a memorable, specific detail."></textarea><div class="section-foot" id="countDescription">0 words</div></div>
-<div class="writing-section"><div class="section-head"><h3>Opinion and evaluation</h3><button class="btn ghost clear-section no-print" data-clear="opinion">Clear section</button></div><textarea id="draftOpinion" rows="5" placeholder="Explain what worked well, what was less successful, and why."></textarea><div class="section-foot" id="countOpinion">0 words</div></div>
-<div class="writing-section"><div class="section-head"><h3>Recommendation</h3><button class="btn ghost clear-section no-print" data-clear="recommendation">Clear section</button></div><textarea id="draftRecommendation" rows="3" placeholder="Say whether you recommend it, to whom, and give a reason."></textarea><div class="section-foot" id="countRecommendation">0 words</div></div>
+<div class="writing-section" data-section="intro"><div class="section-head"><h3>Introduction</h3><button class="btn ghost clear-section no-print" data-clear="intro">Clear section</button></div><p class="section-help" id="help-intro">Name what you're reviewing and briefly set the scene.</p><textarea aria-label="Introduction paragraph" id="draftIntro" rows="4" placeholder="Introduce what you are reviewing and give some context."></textarea><div class="section-foot" id="countIntro">0 words</div></div>
+<div class="writing-section" data-section="description"><div class="section-head"><h3>Description</h3><button class="btn ghost clear-section no-print" data-clear="description">Clear section</button></div><p class="section-help" id="help-description">Select relevant, specific details rather than listing everything.</p><textarea aria-label="Description paragraph" id="draftDescription" rows="5" placeholder="Describe important features. Include a memorable, specific detail."></textarea><div class="section-foot" id="countDescription">0 words</div></div>
+<div class="writing-section" data-section="opinion"><div class="section-head"><h3>Opinion and evaluation</h3><button class="btn ghost clear-section no-print" data-clear="opinion">Clear section</button></div><p class="section-help" id="help-opinion">Explain what worked, what did not, and why.</p><textarea aria-label="Opinion and evaluation paragraph" id="draftOpinion" rows="5" placeholder="Explain what worked well, what was less successful, and why."></textarea><div class="section-foot" id="countOpinion">0 words</div></div>
+<div class="writing-section" data-section="recommendation"><div class="section-head"><h3>Recommendation</h3><button class="btn ghost clear-section no-print" data-clear="recommendation">Clear section</button></div><p class="section-help" id="help-recommendation">Say who would enjoy it, whether you recommend it and why.</p><textarea aria-label="Recommendation paragraph" id="draftRecommendation" rows="3" placeholder="Say whether you recommend it, to whom, and give a reason."></textarea><div class="section-foot" id="countRecommendation">0 words</div></div>
 </div>
 <div class="actions"><button class="btn primary" data-next="review">Review my writing →</button><button class="btn ghost" data-next="preview">Preview</button></div>
-<div class="row clear-all"><button class="btn danger no-print" id="clearDraft">Clear entire draft</button></div>
+<div class="draft-clear-footer no-print"><div class="row clear-all"><button class="btn danger" id="clearDraft">Clear entire draft</button></div><span class="draft-clear-note">This keeps your task and planning notes.</span></div>
 </section>
 <section id="view-review" class="view" aria-labelledby="reviewHeading">
 <div id="reviewEmpty" class="empty"><h2>Start your review first</h2><p>Write your draft, then return here for practical improvement targets.</p><button class="btn primary" data-next="write">Go to Write →</button></div>
@@ -203,6 +238,7 @@ function updateTopic(){
  document.querySelectorAll('.task-context-prompt').forEach(el=>{el.textContent=prompt;});
  document.querySelectorAll('.task-source-label').forEach(el=>{el.textContent=customActive?'Teacher question':'Practice · '+state.topic;});
  updatePlanningGuidance();
+ updateWritingGuidance();
 }
 function updatePlanningGuidance(){
  const guidance=PLAN_GUIDANCE[state.topic]||PLAN_GUIDANCE.restaurant;
@@ -223,10 +259,69 @@ function updatePlanningGuidance(){
    if(label)label.textContent=pair[0];
  }
 }
+const DRAFT_HELP = Object.freeze({
+ restaurant:{
+ intro:['Introduce the restaurant, where it is, and your overall impression.','Introduce the restaurant and give the reader some context.'],
+ description:['Describe the food, atmosphere or service. Include a specific detail.','Choose a dish or feature the reader can imagine.'],
+ opinion:['Evaluate the food and experience. Explain what impressed you or what could improve.','Support your opinion with a reason or example.'],
+ recommendation:['Say who should visit this restaurant, and why.','Recommend it to a suitable audience and give a reason.']
+ },
+ film:{
+ intro:['Name the film and genre, and introduce your first impression.','Introduce the film without spoiling key events.'],
+ description:['Describe the premise, characters or setting without revealing the ending.','Use one memorable feature or scene without spoilers.'],
+ opinion:['Evaluate the acting, story, visuals or soundtrack with clear reasons.','Explain which elements worked or disappointed you and why.'],
+ recommendation:['Say which viewers would enjoy this film and whether you recommend it.','Make your recommendation relevant to the audience.']
+ },
+ book:{
+ intro:['Give the title, author or genre and your overall impression.','Introduce the book and its appeal.'],
+ description:['Briefly describe the story, setting or characters without spoilers.','Select a meaningful detail rather than retelling the plot.'],
+ opinion:['Evaluate the writing, characters, pace or themes with reasons.','Explain what made the book engaging or disappointing.'],
+ recommendation:['Say which readers would enjoy this book and why.','Make a specific recommendation to the right reader.']
+ },
+ experience:{
+ intro:['Name the activity or event and when or where you attended.','Introduce the experience and your first impression.'],
+ description:['Describe the activity, facilities or atmosphere and one memorable moment.','Help the reader picture what the experience involved.'],
+ opinion:['Evaluate what went well and what could have been better.','Explain your opinions using a relevant example.'],
+ recommendation:['Recommend the experience to a particular type of person and explain why.','End with a clear, justified recommendation.']
+ }
+});
+function updateWritingGuidance(){
+ const custom=Boolean(state.customPrompt.trim());
+ const guidance=DRAFT_HELP[state.topic]||DRAFT_HELP.restaurant;
+ for(const [key,id] of Object.entries(FIELD_MAP)){
+  const field=$(id),help=$('help-'+key);
+  if(!field||!help)continue;
+  const info=custom?{
+   intro:['Introduce what you are reviewing and the context.','Name the subject and set the scene.'],
+   description:['Describe features relevant to the teacher question.','Choose specific details requested in the task.'],
+   opinion:['Give a supported opinion that answers the teacher question.','Explain why you hold that opinion.'],
+   recommendation:['Make a clear recommendation appropriate to the task and audience.','End with your recommendation and a reason.']
+  }[key]:guidance[key];
+  field.placeholder=info[0];help.textContent=info[1];
+ }
+}
+function renderPlanReference(){
+ const container=$('draftPlanNotes'),empty=$('draftPlanNoNotes');
+ if(!container||!empty)return;
+ container.replaceChildren();
+ let present=0;
+ for(const id of PLAN_FIELDS){
+  const value=String(state.plan[id]||'').trim();
+  if(!value)continue;
+  const card=document.createElement('div'),label=document.createElement('b'),text=document.createElement('p');
+  card.className='draft-plan-note';
+  label.textContent=document.querySelector('label[for="'+id+'"]')?.textContent||'Planning note';
+  text.textContent=value;
+  card.append(label,text);container.append(card);present++;
+ }
+ container.classList.toggle('hidden',present===0);
+ empty.classList.toggle('hidden',present!==0);
+}
 function changeTab(tab){
  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===tab)));
  document.querySelectorAll('.view').forEach(el=>el.classList.toggle('active',el.id==='view-'+tab));
  if(tab==='review')renderReview();
+ if(tab==='write')renderPlanReference();
  if(tab==='preview')renderPreview();
  const nav=$('tabBar');
  window.scrollTo({top:Math.max(0,window.scrollY+nav.getBoundingClientRect().top-10),behavior:'instant'});
