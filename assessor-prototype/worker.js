@@ -148,6 +148,35 @@ const assessmentSchema = {
  },required:["contentMark","languageMark","contentReason","languageReason",
  "strengths","improvements","missingRequirements","nextStep"]
 };
+// Diagnostic probes never contain student work or the fictional essay.
+function classifyAIError(error) {
+  const msg=String(error?.message||"").toLowerCase();
+  if(/json mode|json.schema|grammar|couldn.t be met|could not be met|schema validation/.test(msg))return "json_mode_or_schema";
+  if(/model|not found|unknown model|not supported/.test(msg))return "model_unavailable";
+  if(/quota|limit|rate|capacity|neurons|exceeded|billing|credits/.test(msg))return "quota_or_rate_limit";
+  if(/permission|auth|forbidden|unauthori/.test(msg))return "model_permission";
+  if(/timeout|timed out|deadline/.test(msg))return "model_timeout";
+  return "upstream_ai_error";
+}
+function safeAIErrorCode(error) {
+  const raw=error?.code ?? error?.status ?? error?.statusCode;
+  return (typeof raw==="number" && Number.isInteger(raw)) ? raw :
+    (typeof raw==="string" && /^[A-Za-z0-9_-]{1,40}$/.test(raw) ? raw : null);
+}
+async function diagnoseAI(env) {
+  // One minimal call, no schema and no student writing, to isolate basic model access.
+  try {
+    const reply=await env.AI.run(MODEL,{
+      messages:[{role:"user",content:"Reply with exactly the word READY."}],
+      max_tokens:20,temperature:0
+    });
+    const output=reply?.response;
+    if(typeof output!=="string")return {ok:false,category:"unexpected_model_response_type"};
+    return {ok:true,model:MODEL,responded:Boolean(output.trim()),structuredOutputTested:false};
+  } catch(error) {
+    return {ok:false,model:MODEL,category:classifyAIError(error),code:safeAIErrorCode(error)};
+  }
+}
 async function ask(env,system,message,max_tokens,schema){
   const response=await env.AI.run(MODEL,{
     messages:[{role:"system",content:system},{role:"user",content:message}],
@@ -161,10 +190,14 @@ export default {
     const path=new URL(request.url).pathname;
     if(request.method==="GET"&&path==="/")
       return json({service:"0511 teacher assessment prototype",aiConnected:Boolean(env.AI),studentsEnabled:false});
-    if(request.method!=="POST"||path!=="/teacher-test")return json({error:"Not found"},404);
+    if(request.method!=="POST"||(path!=="/teacher-test"&&path!=="/diagnose"))return json({error:"Not found"},404);
     if(!await validKey(request.headers.get("X-Assessment-Test-Key"),env.ASSESSMENT_TEST_KEY))
       return json({error:"Unauthorised"},401);
     if(!env.AI)return json({error:"AI binding unavailable"},503);
+    if(path==="/diagnose") {
+      const report=await diagnoseAI(env);
+      return json({diagnostic:"basic_model_access",...report},report.ok?200:503);
+    }
     let stage="evidence_model";
     try{
       // Body intentionally ignored. Fixed fictional answer only; no student texts sent.
@@ -185,7 +218,9 @@ export default {
         reason="invalid_ai_response";
       else if(stage==="assessment_validation")reason="evidence_checks_rejected_mark";
       else if(stage==="evidence_validation")reason="evidence_checks_failed";
-      return json({error:"Verification failed — no mark issued.",stage,reason},503);
+      const category=stage.endsWith("_model")?classifyAIError(error):null;
+      return json({error:"Verification failed — no mark issued.",stage,reason,category,
+        code:stage.endsWith("_model")?safeAIErrorCode(error):null},503);
     }
   }
 };
