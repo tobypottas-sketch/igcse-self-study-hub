@@ -1,7 +1,7 @@
 // Cambridge 0511 evidence-verified teacher-only prototype. NOT student-facing.
 // Source: https://www.cambridgeinternational.org/Images/637289-2024-specimen-paper-1-mark-scheme.pdf
 // Deployment: Cloudflare ES module Worker, AI binding + ASSESSMENT_TEST_KEY secret.
-const MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8-fast";
+const MODEL = "@cf/meta/llama-3.1-8b-instruct"; // Cloudflare JSON Mode supported model.
 const TASK = "Your school magazine is publishing restaurant reviews. Review a restaurant you visited. Describe food and atmosphere, give opinions with reasons and recommend it or not. Write 120–160 words.";
 const ESSAY = `Last weekend, I visited Green Garden Restaurant with my family. It is a small Italian restaurant near the city centre.
 
@@ -16,11 +16,19 @@ const grounded=(text,quote)=>typeof quote==="string"&&quote.trim().length>=4&&te
 const short=(v,max=240)=>typeof v==="string"?v.trim().slice(0,max):"";
 const json=(body,status=200)=>Response.json(body,{status,headers:{"Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
 function parseModel(result){
-  const raw=result?.response;
+  // JSON Mode returns an object directly, whereas ordinary text generation
+  // usually returns {response:"{...}"}. Support both without guessing marks.
+  const raw=result?.response ?? result;
+  if(raw&&typeof raw==="object"&&!Array.isArray(raw))return raw;
   if(typeof raw!=="string")throw Error("No AI text");
-  const start=raw.indexOf("{"),end=raw.lastIndexOf("}");
-  if(start<0||end<start)throw Error("No JSON");
-  const data=JSON.parse(raw.slice(start,end+1));
+  let data;
+  try{data=JSON.parse(raw.trim());}
+  catch(_){
+    // Tolerate only a well-formed fenced object; never repair truncated JSON.
+    const fenced=raw.trim().match(/^\x60\x60\x60(?:json)?\\s*([\\s\\S]*?)\\s*\x60\x60\x60$/i);
+    if(!fenced)throw Error("Invalid AI JSON");
+    data=JSON.parse(fenced[1]);
+  }
   if(!data||typeof data!=="object"||Array.isArray(data))throw Error("Bad JSON");
   return data;
 }
@@ -108,11 +116,45 @@ Return ONLY JSON with this schema (no markdown):
 "improvements":[{"quote":"exact quote","advice":"specific improvement to this passage"}],
 "missingRequirements":[],"nextStep":"One action to revise THIS response"}
 The numbers 4 and 6 above are placeholders, not required marks. Assess independently.`;
-async function ask(env,system,message,max_tokens){
-  return parseModel(await env.AI.run(MODEL,{
+// Explicit JSON schemas keep the output compact and reduce truncated/malformed text.
+const evidenceSchema = {
+ type:"object",
+ properties:{
+  requirements:{
+   type:"object",properties:Object.fromEntries(REQUIREMENTS.map(name=>[name,{
+    type:"object",properties:{quote:{type:"string"}},required:["quote"]
+   }])),required:REQUIREMENTS
+  },
+  features:{type:"array",items:{type:"object",properties:{
+   label:{type:"string"},quote:{type:"string"}
+  },required:["label","quote"]}},
+  errors:{type:"array",items:{type:"object",properties:{
+   quote:{type:"string"},correction:{type:"string"},explanation:{type:"string"}
+  },required:["quote","correction","explanation"]}}
+ },required:["requirements","features","errors"]
+};
+const assessmentSchema = {
+ type:"object",properties:{
+  contentMark:{type:"integer"},languageMark:{type:"integer"},
+  contentReason:{type:"string"},languageReason:{type:"string"},
+  strengths:{type:"array",items:{type:"object",properties:{
+   quote:{type:"string"},advice:{type:"string"}
+  },required:["quote","advice"]}},
+  improvements:{type:"array",items:{type:"object",properties:{
+   quote:{type:"string"},advice:{type:"string"}
+  },required:["quote","advice"]}},
+  missingRequirements:{type:"array",items:{type:"string"}},
+  nextStep:{type:"string"}
+ },required:["contentMark","languageMark","contentReason","languageReason",
+ "strengths","improvements","missingRequirements","nextStep"]
+};
+async function ask(env,system,message,max_tokens,schema){
+  const response=await env.AI.run(MODEL,{
     messages:[{role:"system",content:system},{role:"user",content:message}],
-    temperature:0,max_tokens
-  }));
+    temperature:0,max_tokens,
+    response_format:{type:"json_schema",json_schema:schema}
+  });
+  return parseModel(response);
 }
 export default {
   async fetch(request,env){
@@ -126,11 +168,11 @@ export default {
     let stage="evidence_model";
     try{
       // Body intentionally ignored. Fixed fictional answer only; no student texts sent.
-      const extracted=await ask(env,EVIDENCE_PROMPT,"TASK:\n"+TASK+"\nANSWER:\n"+ESSAY,1000);
+      const extracted=await ask(env,EVIDENCE_PROMPT,"TASK:\n"+TASK+"\nANSWER:\n"+ESSAY,900,evidenceSchema);
       stage="evidence_validation";
       const evidence=verifyEvidence(extracted,ESSAY);
       stage="assessment_model";
-      const draft=await ask(env,ASSESS_PROMPT,JSON.stringify({task:TASK,essay:ESSAY,wordCount:countWords(ESSAY),evidence}),1500);
+      const draft=await ask(env,ASSESS_PROMPT,JSON.stringify({task:TASK,essay:ESSAY,wordCount:countWords(ESSAY),evidence}),1100,assessmentSchema);
       stage="assessment_validation";
       const result=verifyAssessment(draft,ESSAY,evidence);
       return json({test:"fictional-restaurant",model:MODEL,stages:2,result});
@@ -138,7 +180,7 @@ export default {
       // Fail closed. Report ONLY a coarse diagnostic category, never essay content,
       // raw model responses, secrets, or stack traces.
       let reason="model_or_runtime_error";
-      if(error instanceof SyntaxError)reason="invalid_ai_json";
+      if(error instanceof SyntaxError || error?.message==="Invalid AI JSON")reason="invalid_ai_json";
       else if(error?.message==="No AI text"||error?.message==="No JSON"||error?.message==="Bad JSON")
         reason="invalid_ai_response";
       else if(stage==="assessment_validation")reason="evidence_checks_rejected_mark";
