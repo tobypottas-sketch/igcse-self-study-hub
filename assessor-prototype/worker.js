@@ -66,14 +66,15 @@ function verifyAssessment(raw,essay,evidence){
     throw Error("Contradicts verified recommendation");
   // The teacher never sees an unsupported score as a valid result.
   if(!strengths.length||!contentReason||!languageReason||!nextStep)throw Error("Insufficient grounded feedback");
-  const missing=(Array.isArray(raw?.missingRequirements)?raw.missingRequirements:[])
-    .filter(x=>REQUIREMENTS.includes(x)&&!evidence.requirements[x].present);
+  // Failure to find an exact quote is NOT proof that the requirement is absent.
+  // Withhold unverified "missing" claims until calibrated against teacher evidence.
+  const missing=[];
   return {
     experimental:true,wordCount:countWords(essay),contentMark:c,languageMark:l,totalMark:c+l,
     contentBand:c>=5?"5–6":c>=3?"3–4":c>=1?"1–2":"0",
     languageBand:l>=7?"7–9":l>=4?"4–6":l>=1?"1–3":"0",
     contentReason,languageReason,strengths,improvements,missingRequirements:missing,
-    observedEvidence:evidence.requirements,verifiedErrorCandidates:evidence.errors,nextStep,
+    observedEvidence:evidence.requirements,quotedErrorCandidatesRequireTeacherReview:evidence.errors,nextStep,
     warning:"Experimental teacher-only estimate, not a Cambridge examiner grade."
   };
 }
