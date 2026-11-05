@@ -123,15 +123,27 @@ export default {
     if(!await validKey(request.headers.get("X-Assessment-Test-Key"),env.ASSESSMENT_TEST_KEY))
       return json({error:"Unauthorised"},401);
     if(!env.AI)return json({error:"AI binding unavailable"},503);
+    let stage="evidence_model";
     try{
       // Body intentionally ignored. Fixed fictional answer only; no student texts sent.
-      const extracted=await ask(env,EVIDENCE_PROMPT,"TASK:\n"+TASK+"\nANSWER:\n"+ESSAY,800);
+      const extracted=await ask(env,EVIDENCE_PROMPT,"TASK:\n"+TASK+"\nANSWER:\n"+ESSAY,1000);
+      stage="evidence_validation";
       const evidence=verifyEvidence(extracted,ESSAY);
-      const draft=await ask(env,ASSESS_PROMPT,JSON.stringify({task:TASK,essay:ESSAY,wordCount:countWords(ESSAY),evidence}),1050);
-      return json({test:"fictional-restaurant",model:MODEL,stages:2,result:verifyAssessment(draft,ESSAY,evidence)});
-    }catch(_){
-      // Fail closed: never publish a guessed mark or log student text / model replies.
-      return json({error:"Verification failed — no mark issued."},503);
+      stage="assessment_model";
+      const draft=await ask(env,ASSESS_PROMPT,JSON.stringify({task:TASK,essay:ESSAY,wordCount:countWords(ESSAY),evidence}),1500);
+      stage="assessment_validation";
+      const result=verifyAssessment(draft,ESSAY,evidence);
+      return json({test:"fictional-restaurant",model:MODEL,stages:2,result});
+    }catch(error){
+      // Fail closed. Report ONLY a coarse diagnostic category, never essay content,
+      // raw model responses, secrets, or stack traces.
+      let reason="model_or_runtime_error";
+      if(error instanceof SyntaxError)reason="invalid_ai_json";
+      else if(error?.message==="No AI text"||error?.message==="No JSON"||error?.message==="Bad JSON")
+        reason="invalid_ai_response";
+      else if(stage==="assessment_validation")reason="evidence_checks_rejected_mark";
+      else if(stage==="evidence_validation")reason="evidence_checks_failed";
+      return json({error:"Verification failed — no mark issued.",stage,reason},503);
     }
   }
 };
