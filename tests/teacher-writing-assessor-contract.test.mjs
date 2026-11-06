@@ -11,7 +11,7 @@ const task = 'Write a review of a science museum for a school magazine. Describe
 const response = 'The museum was fascinating because the interactive exhibits made science easy to understand. I recommend visiting with friends.';
 const evidence = { requirements:[{ taskQuote:'recommend a visit', quote:'I recommend visiting with friends' }], features:[{ label:'reason', quote:'because the interactive exhibits made science easy to understand' }], errors:[] };
 const assessment = { contentMark:4, languageMark:6, contentReason:'Gives a reason and a recommendation but needs development.', languageReason:'Clear vocabulary with limited variety.',
-  strengths:[{ quote:'the interactive exhibits made science easy to understand', advice:'A clear, supported opinion.' }], improvements:[{ quote:'I recommend visiting with friends', advice:'Say why friends would enjoy it.' }], missingRequirements:[], nextStep:'Add one specific exhibit example.' };
+  strengths:[{ evidence:2, advice:'A clear, supported opinion.' }], improvements:[{ evidence:1, advice:'Say why friends would enjoy it.' }], missingRequirements:[], nextStep:'Add one specific exhibit example.' };
 
 function bridge(t, { replies = [evidence, assessment], role = 'teacher' } = {}) {
   const ai = [];
