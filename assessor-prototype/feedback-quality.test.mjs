@@ -116,6 +116,31 @@ test('a suggestion that repeats the original, drifts from its meaning, or carrie
   assert.ok(!quoted.body.result.improvements[0].suggestion.includes('"'));
 });
 
+test('error corrections are the checked stage-1 correction; model examples cannot change an error or smuggle evidence numbers', async t => {
+  for (const example of ['the chips were hot, see evidence 2', 'the chips were cold']) {
+    const { body } = await run(t, [stage1, withGood({ improvements:[{ evidence:5, advice:'Chips is plural.', example }] })]);
+    assert.equal(body.result.improvements[0].suggestion, 'the chips were cold');
+  }
+  const style = await run(t, [stage1, withGood({ improvements:[{ evidence:2, advice:'Optional.', example:'The staff were friendly, see evidence 3 and 7 for more.' }] })]);
+  assert.equal(style.body.result.improvements[0].suggestion, undefined);
+  const drift = await run(t, [stage1, withGood({ improvements:[{ evidence:2, advice:'Optional.', example:'The waiters were rude and slow.' }] })]);
+  assert.equal(drift.body.result.improvements[0].suggestion, undefined);
+});
+
+test('capitalisation, spelling and punctuation corrections are kept as errors', async t => {
+  const small = { taskType:'review', task, response:'Last saturday we recieve the food and i was happy. Dear Sir' + ' and madam.', privacyConfirmed:true };
+  const ev = { requirements:[], features:[{ label:'x', quote:'we recieve the food' }], errors:[
+    { quote:'we recieve the food', correction:'we received the food', explanation:'Past tense.' },
+    { quote:'and i was happy', correction:'and I was happy', explanation:'The pronoun I is always a capital letter.' }] };
+  const { body } = await run(t, [ev, withGood({ strengths:[], improvements:[{ evidence:2, advice:'Use capital I.', example:'' }, { evidence:3, advice:'Past tense.', example:'' }] })], small);
+  assert.deepEqual(body.result.improvements.map(i => i.suggestion), ['we received the food', 'and I was happy']);
+});
+
+test('a legitimate grammar term or a word in the cited quotation is not treated as hype, and a quote already flagged as an error is not praised', async t => {
+  const ok = await run(t, [stage1, withGood({ strengths:[{ evidence:4, advice:'You use the present perfect well.' }, { evidence:5, advice:'You wrote this.' }], improvements:[] })]);
+  assert.deepEqual(ok.body.result.strengths.map(i => i.evidence), [4]);
+});
+
 test('a style suggestion with no usable example is still returned, without a suggestion', async t => {
   const { body } = await run(t, [stage1, withGood({ improvements:[{ evidence:2, advice:'Optional: you could add what the staff did.', example:'The staff were friendly and welcomed us with a smile' }] })]);
   assert.equal(body.result.improvements[0].type, 'style');
@@ -167,7 +192,7 @@ test('the Hub view labels errors and optional style suggestions and shows one wr
     strengths:[{ quote:'creamy and tasty', advice:'You describe the food clearly.' }],
     improvements:[{ quote:'the chips was cold', advice:'Chips is plural.', type:'error', suggestion:'the chips were cold' },
       { quote:'creamy and tasty', advice:'Optional.', type:'style', suggestion:'<b>x</b>' }], warning:'Experimental.' });
-  assert.match(root.innerHTML, /Grammar error/); assert.match(root.innerHTML, /Correction/);
+  assert.match(root.innerHTML, /Language error/); assert.match(root.innerHTML, /Correction/);
   assert.match(root.innerHTML, /Optional style suggestion/); assert.match(root.innerHTML, /Example revision/);
   assert.match(root.innerHTML, /Your writing target/); assert.ok(!root.innerHTML.includes('<b>x</b>'));
 });

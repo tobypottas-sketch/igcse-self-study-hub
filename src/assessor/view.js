@@ -30,9 +30,9 @@ export function renderAssessor(root, profile) {
   return true;
 }
 export function renderAssessmentResult(root, result) {
-  const LABELS = { error:['Grammar error', 'Correction'], style:['Optional style suggestion', 'Example revision (one possible way)'] };
+  const LABELS = { error:['Language error', 'Correction'], style:['Optional style suggestion', 'Example revision (one possible way)'] };
   const item = value => {
-    const [tag, suggestionLabel] = LABELS[value.type] ?? [null, 'Example'];
+    const [tag, suggestionLabel] = (Object.hasOwn(LABELS, value.type) ? LABELS[value.type] : [null, 'Example']);
     return `<li>${tag ? `<p class="assessor-tag"><strong>${e(tag)}</strong></p>` : ''}<blockquote>${e(value.quote)}</blockquote><p>${e(value.advice)}</p>${typeof value.suggestion === 'string' && value.suggestion ? `<p class="assessor-suggestion"><strong>${e(suggestionLabel)}:</strong> ${e(value.suggestion)}</p>` : ''}</li>`;
   };
   const points = (title, values) => `<section class="admin-card"><h3>${title}</h3>${values.length ? `<ul>${values.map(item).join('')}</ul>` : '<p class="muted">None identified with verified evidence.</p>'}</section>`;
