@@ -179,7 +179,7 @@ function keepsMeaning(original, suggestion, minimumShare) {
 const HYPE = /\b(?:sophisticated|vivid|vividly|impressive|impressively|powerful|excellent|outstanding|brilliant|fantastic|wonderful|amazing|flawless|masterful|exceptional|stunning)\b/iu;
 const MAX_POINTS = 2, STYLE_MEANING_SHARE = 0.5;
 // Praise a short quotation cannot demonstrate: whole-text organisation claims and inflated descriptions of ordinary vocabulary.
-const UNSUPPORTED_PRAISE = /\b(?:well[- ](?:organised|organized|structured)|(?:clear|good|logical|effective|strong)\s+(?:structure|organisation|organization)|introduction|conclusion|paragraphs?|throughout|whole (?:review|text|response|piece))\b|\b(?:starting|beginning|begins?|ending|ends)\s+with\b|\b(?:descriptive|rich|varied|wide|advanced|strong|precise|effective|powerful|sophisticated)\s+(?:vocabulary|language|word choice|words?|adjectives?)\b/iu;
+const UNSUPPORTED_PRAISE = /\b(?:well[- ](?:organised|organized|structured|ordered|planned)|(?:clear|good|logical|logically|effective|strong)\s+(?:structure|organisation|organization|ordered)|introduction|throughout|whole (?:review|text|response|piece)|from start to finish)\b|\b(?:starting|beginning|begins?|ending|ends)\s+with\b|\b(?:descriptive|rich|varied|wide|advanced|strong|precise|effective|powerful|sophisticated|ambitious)\s+(?:vocabulary|language|word choice|words?|adjectives?|range)\b|\bwide range\b/iu;
 
 const zeroCounts = () => ({ evidenceProposed:0, evidenceVerified:0, feedbackProposed:0, feedbackLinked:0, textQuotesNeutralised:0, evidenceReferencesResolved:0 });
 // Stage 1 output -> catalogue of evidence the Worker has itself verified. Every `quote` is a verbatim span of the submission.
@@ -295,7 +295,7 @@ function verifyAssessment(raw, input, evidence, counts) {
     contentReason:clean(raw.contentReason), languageReason:clean(raw.languageReason), strengths, improvements,
     missingRequirements:[], observedEvidence:evidence.requirements,
     verifiedEvidence:evidence.catalogue.map(({ id, kind, quote }) => ({ id, kind, quote })),
-    quotedErrorCandidatesRequireTeacherReview:evidence.errors, nextStep:clean(raw.nextStep),
+    quotedErrorCandidatesRequireTeacherReview:evidence.errors.map(item => ({ ...item, demonstrable:confirmCorrection(item.quote, item.correction, input.response).confirmed })), nextStep:clean(raw.nextStep),
     warning:'Experimental teacher-only estimate. Check the evidence and marks; not a Cambridge examiner grade.' };
 }
 export async function handleStaffAssessment(request, env, runAI, classifyAIError) {

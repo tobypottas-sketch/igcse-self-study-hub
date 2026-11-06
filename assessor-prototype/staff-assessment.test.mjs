@@ -163,14 +163,15 @@ for (const [name, strengths, improvements] of [
  for (const value of Object.values(body.checks ?? {})) assert.ok(Number.isInteger(value));
 });
 
-test('a possible-error item cannot be presented as a strength, but may support an improvement', async t => {
- const err = { requirements:[], features:[], errors:[{ quote:'The museum didn’t disappoint me', correction:'The museums didn’t disappoint me', explanation:'The word museums needs an s here.' }] };
- const asStrength = await run(t, [err, cite([{ evidence:1, advice:'Nice.' }])]);
+test('a possible-error item cannot be presented as a strength, but a demonstrable one may support an improvement', async t => {
+ const writing = { ...submission, response:'Yesterday the exhibits was loud. I enjoyed the rest of the visit.' };
+ const err = { requirements:[], features:[], errors:[{ quote:'the exhibits was loud', correction:'the exhibits were loud', explanation:'Exhibits is plural.' }] };
+ const asStrength = await run(t, [err, cite([{ evidence:1, advice:'Nice.' }])], writing);
  assert.equal(asStrength.res.status, 503); assert.equal(asStrength.body.detail, 'no_feedback_linked_to_verified_evidence');
- const asImprovement = await run(t, [err, { ...assessment, strengths:[], improvements:[{ evidence:1, advice:'Check the word museums.' }] }]);
- assert.equal(asImprovement.res.status, 200); assert.equal(asImprovement.body.result.improvements[0].quote, 'The museum didn’t disappoint me');
+ const asImprovement = await run(t, [err, { ...assessment, strengths:[], improvements:[{ evidence:1, advice:'Check this.' }] }], writing);
+ assert.equal(asImprovement.res.status, 200); assert.equal(asImprovement.body.result.improvements[0].quote, 'the exhibits was loud');
+ assert.equal(asImprovement.body.result.improvements[0].advice, 'Exhibits is plural, so use were, not was.');
 });
-
 test('partially linked feedback keeps only the evidence-backed points and the same evidence is not cited twice', async t => {
  const { res, body } = await run(t, [feat('because the interactive exhibits made science easy to understand'), { ...assessment, strengths:[{ evidence:1, advice:'One.' }, { evidence:1, advice:'Duplicate.' }], improvements:[{ evidence:9, advice:'Unsupported.' }] }]);
  assert.equal(res.status, 200); assert.equal(body.result.strengths.length, 1); assert.equal(body.result.improvements.length, 0);
@@ -231,7 +232,7 @@ test('error candidates keep only verified quote, correction and explanation (no 
  const err = { requirements:[], features:[{ label:'reason', quote:ok }], errors:[{ quote:'The museum didn’t disappoint me', correction:'Use ‘a better phrase’ here', explanation:'It is "unclear" wording', injected:'<b>x</b>', verified:true }] };
  const { res, body } = await run(t, [err, cite([{ evidence:1, advice:'Good.' }])]);
  assert.equal(res.status, 200);
- assert.deepEqual(body.result.quotedErrorCandidatesRequireTeacherReview, [{ quote:'The museum didn’t disappoint me', correction:'Use a better phrase here', explanation:'It is unclear wording' }]);
+ assert.deepEqual(body.result.quotedErrorCandidatesRequireTeacherReview, [{ quote:'The museum didn’t disappoint me', correction:'Use a better phrase here', explanation:'It is unclear wording', demonstrable:false }]);
 });
 for (const [name, advice, expected] of [
  ['curly single quotes', 'You wrote ‘I runned fast’ here.', 'You wrote I runned fast here.'],
