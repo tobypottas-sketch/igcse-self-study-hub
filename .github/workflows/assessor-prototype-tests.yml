@@ -3,10 +3,16 @@ on:
   push:
     paths:
       - 'assessor-prototype/**'
+      - 'src/assessor/**'
+      - 'tests/teacher-writing-assessor*'
+      - 'assessor.css'
       - '.github/workflows/assessor-prototype-tests.yml'
   pull_request:
     paths:
       - 'assessor-prototype/**'
+      - 'src/assessor/**'
+      - 'tests/teacher-writing-assessor*'
+      - 'assessor.css'
       - '.github/workflows/assessor-prototype-tests.yml'
   workflow_dispatch:
 permissions:
@@ -19,5 +25,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Run evidence and auth regression tests
-        run: node --test assessor-prototype/worker.test.mjs
+      - name: Run Worker, staff-auth, deployment-plan, Hub client and contract tests
+        run: node --test assessor-prototype/*.test.mjs tests/teacher-writing-assessor.test.mjs tests/teacher-writing-assessor-contract.test.mjs

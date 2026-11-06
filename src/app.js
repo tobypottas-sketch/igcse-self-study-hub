@@ -1,3 +1,4 @@
+import { openWritingAssessor } from './assessor/controller.js';
 import { takeReturnPath, clearReturnTarget, getSessionStorage } from './return-target.js';
 import { signIn, changePassword, getCurrentProfile } from './auth.js';
 import { loadApps } from './api.js';
@@ -44,6 +45,7 @@ export async function bootApp(clientOverride = null) {
   catch { renderError(root, 'The Self-Study service is unavailable right now.'); return; }
 
   let currentState = { view:'login' };
+  let assessorController = null;
   let cachedHomeState = null;
   let adminLoadPromise = null;
   let activityLoadPromise = null;
@@ -107,6 +109,7 @@ export async function bootApp(clientOverride = null) {
   };
 
   const renderCurrentState = async () => {
+    assessorController?.dispose(); assessorController = null;
     currentState = await loadAppState(client);
     if (currentState.view === 'login') { cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; renderLogin(root); return; }
     if (currentState.view === 'change-password') { renderChangePassword(root, currentState.profile); return; }
@@ -234,7 +237,14 @@ export async function bootApp(clientOverride = null) {
   root.addEventListener('click', async (event) => {
     const target = event.target?.closest?.('[data-action]') ?? event.target;
     const action = target?.dataset?.action;
-    if (action === 'logout') { await client.auth.signOut(); clearReturnTarget(getSessionStorage()); cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; await renderCurrentState(); }
+    if (action && action !== 'writing-assessor' && assessorController) { assessorController.dispose(); assessorController = null; }
+    if (action === 'writing-assessor') {
+      if (!['teacher','admin'].includes(currentState.profile?.role) || currentState.profile.active !== true || currentState.profile.must_change_password) return;
+      assessorController?.dispose();
+      currentState = { ...currentState, view:'assessor' };
+      assessorController = openWritingAssessor(root, client, currentState.profile, { onBack:() => renderCurrentState() });
+    }
+    else if (action === 'logout') { await client.auth.signOut(); clearReturnTarget(getSessionStorage()); cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; await renderCurrentState(); }
     else if (action === 'retry') await renderCurrentState();
     else if (action === 'change-password') {
       if (['teacher','admin'].includes(currentState.profile?.role) && currentState.profile.active !== false) {

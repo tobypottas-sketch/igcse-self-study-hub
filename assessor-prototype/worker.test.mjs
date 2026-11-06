@@ -3,13 +3,15 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { webcrypto } from 'node:crypto';
 import vm from 'node:vm';
+import { handleStaffAssessment } from './staff-assessment.js';
 
 const source = readFileSync(new URL('./worker.js', import.meta.url),'utf8')
+  .replace(/^import .*staff-assessment.*;$/m,'')
   .replace('export default {','const worker = {') +
   '\n;globalThis.__api={worker,verifyEvidence,verifyAssessment,countWords,ESSAY,TASK,parseModel,evidenceSchema,assessmentSchema};';
 
 function harness() {
- const sandbox={crypto:webcrypto,TextEncoder,Response,Request,URL,console:undefined};
+ const sandbox={handleStaffAssessment,crypto:webcrypto,TextEncoder,Response,Request,URL,console:undefined};
  vm.runInNewContext(source,sandbox);
  return sandbox.__api;
 }
@@ -177,4 +179,171 @@ test('diagnostic reports known upstream JSON mode error without returning prompt
  assert.equal(result.category,'json_mode_or_schema');
  assert.equal(result.code,400);
  assert.ok(!JSON.stringify(result).includes('test-key'));
+});
+
+// Synthetic Workers binding contract: only the currently catalogued JSON Mode
+// model is accepted. This reproduces the retired-model 503 without credentials.
+const AVAILABLE_JSON_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+const authorisedRequest = (path='/teacher-test') => new Request('https://example.workers.dev'+path, {
+ method:'POST', headers:{'X-Assessment-Test-Key':'synthetic-key'}
+});
+test('assessment uses an available JSON Mode model and documented bounded requests',async()=>{
+ const {worker}=harness(); const calls=[];
+ const response=await worker.fetch(authorisedRequest(),{
+  ASSESSMENT_TEST_KEY:'synthetic-key',AI:{run:async(model,args)=>{
+   calls.push({model,args});
+   if(model!==AVAILABLE_JSON_MODEL) throw Object.assign(new Error('No such model'),{code:5007});
+   assert.equal(args.stream,false);
+   assert.equal(args.temperature,0);
+   assert.equal(args.response_format.type,'json_schema');
+   assert.equal(args.response_format.json_schema.type,'object');
+   assert.ok(args.max_tokens>0 && args.max_tokens<=1100);
+   return {response:calls.length===1?extracted():marked()};
+  }}
+ });
+ assert.equal(response.status,200);
+ assert.equal(calls.length,2);
+});
+test('generation schemas bound output size and Cambridge mark ranges',()=>{
+ const {evidenceSchema,assessmentSchema}=harness();
+ assert.equal(evidenceSchema.properties.features.maxItems,8);
+ assert.equal(evidenceSchema.properties.errors.maxItems,5);
+ assert.equal(evidenceSchema.properties.requirements.properties.food.properties.quote.maxLength,180);
+ assert.equal(assessmentSchema.properties.contentMark.minimum,0);
+ assert.equal(assessmentSchema.properties.contentMark.maximum,6);
+ assert.equal(assessmentSchema.properties.languageMark.maximum,9);
+ assert.equal(assessmentSchema.properties.strengths.maxItems,2);
+ assert.equal(assessmentSchema.properties.improvements.maxItems,3);
+});
+for(const [label,reply] of [
+ ['missing evidence fields',{response:{}}],
+ ['null evidence field',{response:{...extracted(),requirements:null}}],
+ ['wrong evidence array type',{response:{...extracted(),features:'not an array'}}],
+ ['inference error envelope',{error:'synthetic upstream failure'}],
+ ['malformed JSON',{response:'{"requirements":'}]
+]) test(label+' fails closed before the grading call, without retry',async()=>{
+ const {worker}=harness();let calls=0;
+ const response=await worker.fetch(authorisedRequest(),{
+  ASSESSMENT_TEST_KEY:'synthetic-key',AI:{run:async()=>{calls++;return calls===1?reply:{response:marked()};}}
+ });
+ assert.equal(response.status,503);
+ assert.equal(calls,1);
+ const data=await response.json();
+ assert.equal('result' in data,false);
+ assert.ok(['invalid_ai_response','invalid_ai_json'].includes(data.reason));
+});
+for(const [code,message,category] of [
+ [5007,'No such model','model_unavailable'],
+ [5018,'The account is not allowed to access this model','model_permission'],
+ [5035,'This model requires a Workers Paid plan','paid_model_not_allowed'],
+ [3036,'You have used up your daily free allocation','quota_or_rate_limit'],
+ [3040,'Capacity temporarily exceeded','quota_or_rate_limit'],
+ [3007,'Request timeout','model_timeout']
+]) test('documented Cloudflare error '+code+' is safe, precise and not retried',async()=>{
+ const {worker}=harness();let calls=0;
+ const response=await worker.fetch(authorisedRequest(),{
+  ASSESSMENT_TEST_KEY:'synthetic-key',AI:{run:async()=>{
+   calls++;throw Object.assign(new Error(message+' synthetic-private-marker'),{code});
+  }}
+ });
+ assert.equal(response.status,503);assert.equal(calls,1);
+ const body=await response.json();assert.equal(body.category,category);
+ assert.equal(body.code,code);
+ assert.ok(!JSON.stringify(body).includes('synthetic-private-marker'));
+});
+test('schema generation failure issues no mark and does not fall back to unconstrained text',async()=>{
+ const {worker}=harness();let calls=0;
+ const response=await worker.fetch(authorisedRequest(),{
+  ASSESSMENT_TEST_KEY:'synthetic-key',AI:{run:async()=>{calls++;throw new Error("JSON Mode couldn't be met");}}
+ });
+ assert.equal(response.status,503);assert.equal(calls,1);
+ assert.equal((await response.json()).category,'json_mode_or_schema');
+});
+test('wrong key, missing configured secret and other routes never invoke AI',async()=>{
+ const {worker}=harness();let calls=0;const AI={run:async()=>{calls++;throw Error('must not run');}};
+ for(const path of ['/teacher-test','/diagnose']) {
+  const denied=await worker.fetch(authorisedRequest(path),{ASSESSMENT_TEST_KEY:'different-key',AI});
+  assert.equal(denied.status,401);
+  const unconfigured=await worker.fetch(authorisedRequest(path),{AI});assert.equal(unconfigured.status,401);
+ }
+ assert.equal((await worker.fetch(authorisedRequest('/unknown'),{ASSESSMENT_TEST_KEY:'synthetic-key',AI})).status,404);
+ assert.equal(calls,0);
+});
+
+test('protected structured diagnostic tests the real JSON request contract without essay data',async()=>{
+ const {worker}=harness();const calls=[];
+ const env={ASSESSMENT_TEST_KEY:'synthetic-key',AI:{run:async(model,args)=>{
+  calls.push({model,args});return {response:{ready:true}};
+ }}};
+ const response=await worker.fetch(authorisedRequest('/diagnose?mode=json'),env);
+ assert.equal(response.status,200);
+ const body=await response.json();
+ assert.equal(body.structuredOutputTested,true);
+ assert.equal(body.ok,true);
+ assert.equal(calls.length,1);
+ assert.equal(calls[0].model,AVAILABLE_JSON_MODEL);
+ assert.equal(calls[0].args.response_format.type,'json_schema');
+ assert.equal(calls[0].args.max_tokens,32);
+ assert.ok(!JSON.stringify(calls).includes('Green Garden'));
+ assert.ok(!JSON.stringify(calls).includes('synthetic-key'));
+});
+test('structured diagnostic rejects an invalid response rather than reporting success',async()=>{
+ const {worker}=harness();
+ const response=await worker.fetch(authorisedRequest('/diagnose?mode=json'),{
+  ASSESSMENT_TEST_KEY:'synthetic-key',AI:{run:async()=>({response:{}})}
+ });
+ assert.equal(response.status,503);
+ assert.equal((await response.json()).ok,false);
+});
+
+test('upstream string error codes cannot leak credentials or arbitrary data',async()=>{
+ const {worker}=harness();
+ for(const path of ['/teacher-test','/diagnose']) {
+  const response=await worker.fetch(authorisedRequest(path),{
+   ASSESSMENT_TEST_KEY:'synthetic-key',AI:{run:async()=>{
+    throw Object.assign(new Error('synthetic confidential error'),{code:'synthetic-key'});
+   }}
+  });
+  assert.equal(response.status,503);
+  const body=await response.json();assert.equal(body.code,null);
+  assert.ok(!JSON.stringify(body).includes('synthetic-key'));
+  assert.equal(response.headers.get('cache-control'),'no-store');
+ }
+});
+for(const [label,mark] of [
+ ['fractional mark',{...marked(),contentMark:4.5}],
+ ['negative mark',{...marked(),languageMark:-1}],
+ ['out of range mark',{...marked(),languageMark:10}],
+ ['missing language reason',Object.fromEntries(Object.entries(marked()).filter(([key])=>key!=='languageReason'))],
+ ['oversized feedback',{...marked(),nextStep:'x'.repeat(231)}],
+ ['too many feedback points',{...marked(),strengths:Array(3).fill(marked().strengths[0])}]
+]) test(label+' is rejected after exactly two calls',async()=>{
+ const {worker}=harness();let calls=0;
+ const response=await worker.fetch(authorisedRequest(),{
+  ASSESSMENT_TEST_KEY:'synthetic-key',AI:{run:async()=>({response:++calls===1?extracted():mark})}
+ });
+ assert.equal(response.status,503);assert.equal(calls,2);
+ assert.equal('result' in await response.json(),false);
+});
+test('grading JSON failure reports the grading stage and never retries evidence',async()=>{
+ const {worker}=harness();let calls=0;
+ const response=await worker.fetch(authorisedRequest(),{
+  ASSESSMENT_TEST_KEY:'synthetic-key',AI:{run:async()=>({response:++calls===1?extracted():'{"contentMark":'})}
+ });
+ assert.equal(response.status,503);assert.equal(calls,2);
+ const body=await response.json();assert.equal(body.stage,'assessment_model');
+ assert.equal(body.reason,'invalid_ai_json');
+});
+
+test('ES module entry point handles teacher routes with Web Request/Response APIs',async()=>{
+ const {default:worker}=await import('./worker.js');
+ let calls=0;
+ const env={ASSESSMENT_TEST_KEY:'synthetic-key',AI:{run:async()=>({response:++calls===1?extracted():marked()})}};
+ const denied=await worker.fetch(new Request('https://example.workers.dev/teacher-test',{method:'POST'}),env);
+ assert.equal(denied.status,401);assert.equal(calls,0);
+ const response=await worker.fetch(authorisedRequest(),env);
+ assert.equal(response.status,200);assert.equal(calls,2);
+ assert.equal((await response.json()).result.totalMark,10);
+ assert.equal(response.headers.get('cache-control'),'no-store');
+ assert.equal(response.headers.get('access-control-allow-origin'),null);
 });
