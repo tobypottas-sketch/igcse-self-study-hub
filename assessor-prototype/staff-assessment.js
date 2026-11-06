@@ -114,22 +114,60 @@ async function readSubmission(request) {
     throw new AssessmentError(400, 'invalid_submission');
   } finally { reader.releaseLock(); }
 }
-const exact = (source, value) => typeof value === 'string' && value.trim().length >= 4 && source.includes(value.trim());
+// Evidence quotes must be demonstrably faithful: the model may differ from the submitted text only in HARMLESS ways (case, quote-mark style,
+// dash style, whitespace runs, and quote marks / ellipses / sentence punctuation wrapped around the ends). The quote that is kept and shown
+// is always the exact span copied from the submission, never the model's own wording. Changed words, added or removed interior words or
+// punctuation, paraphrases and fragments joined by an ellipsis (not contiguous in the submission) still fail.
+const QUOTE_CHARS = /[\u2018\u2019\u201A\u201B]/u, DQUOTE_CHARS = /[\u201C\u201D\u201E\u201F]/u, DASH_CHARS = /[\u2010-\u2015\u2212]/u;
+function foldChar(ch) {
+  if (/\s/u.test(ch)) return ' ';
+  if (QUOTE_CHARS.test(ch)) return "'";
+  if (DQUOTE_CHARS.test(ch)) return '"';
+  if (DASH_CHARS.test(ch)) return '-';
+  const lower = ch.toLowerCase();
+  return lower.length === ch.length ? lower : ch;
+}
+function fold(text) {
+  let folded = ''; const starts = [], ends = []; let index = 0;
+  for (const ch of text) {
+    const f = foldChar(ch); const end = index + ch.length - 1;
+    if (f === ' ' && folded.endsWith(' ')) { ends[ends.length - 1] = end; }
+    else { folded += f; starts.push(index); ends.push(end); }
+    index += ch.length;
+  }
+  return { folded, starts, ends };
+}
+const EDGE = /^[\s"'.,;:!?\u2026]+|[\s"'.,;:!?\u2026]+$/gu;
+function locate(source, value) {
+  if (typeof value !== 'string') return null;
+  const wanted = fold(value).folded.replace(EDGE, '');
+  if (wanted.length < 4) return null;
+  const haystack = fold(source);
+  const at = haystack.folded.indexOf(wanted);
+  if (at < 0) return null;
+  // folded characters map one-to-one onto starts/ends because fold() emits exactly one folded char per entry
+  const from = [...haystack.folded.slice(0, at)].length, length = [...wanted].length;
+  return source.slice(haystack.starts[from], haystack.ends[from + length - 1] + 1);
+}
+class ValidationFailure extends Error { constructor(detail) { super(detail); this.detail = detail; } }
+const nonEmpty = value => typeof value === 'string' && value.trim().length > 0;
 function verifyEvidence(raw, input) {
-  const requirements = raw.requirements.filter(item => exact(input.task, item.taskQuote)).map(item => ({
-    taskQuote:item.taskQuote.trim(), present:exact(input.response, item.quote), quote:exact(input.response, item.quote) ? item.quote.trim() : ''
-  }));
-  const features = raw.features.filter(item => item.label.trim() && exact(input.response, item.quote));
-  const errors = raw.errors.filter(item => exact(input.response, item.quote) && item.correction.trim() && item.explanation.trim());
-  if (!requirements.some(item => item.present) && !features.length && !errors.length) throw Error('Insufficient evidence');
+  const requirements = raw.requirements.map(item => ({ item, taskQuote:locate(input.task, item.taskQuote) })).filter(entry => entry.taskQuote).map(({ item, taskQuote }) => {
+    const quote = locate(input.response, item.quote);
+    return { taskQuote, present:Boolean(quote), quote:quote ?? '' };
+  });
+  const features = raw.features.filter(item => nonEmpty(item.label)).map(item => ({ label:item.label, quote:locate(input.response, item.quote) })).filter(item => item.quote);
+  const errors = raw.errors.filter(item => nonEmpty(item.correction) && nonEmpty(item.explanation)).map(item => ({ ...item, quote:locate(input.response, item.quote) })).filter(item => item.quote);
+  if (!requirements.some(item => item.present) && !features.length && !errors.length) throw new ValidationFailure('no_verifiable_evidence');
   return { requirements, features, errors };
 }
 function verifyAssessment(raw, input, evidence) {
-  const points = values => values.filter(item => exact(input.response, item.quote) && item.advice.trim());
+  const points = values => (Array.isArray(values) ? values : []).filter(item => nonEmpty(item?.advice)).map(item => ({ quote:locate(input.response, item.quote), advice:item.advice })).filter(item => item.quote);
   const strengths = points(raw.strengths), improvements = points(raw.improvements);
   if (!Number.isInteger(raw.contentMark) || raw.contentMark < 0 || raw.contentMark > 6 ||
-      !Number.isInteger(raw.languageMark) || raw.languageMark < 0 || raw.languageMark > 9 ||
-      !raw.contentReason.trim() || !raw.languageReason.trim() || !raw.nextStep.trim() || (!strengths.length && !improvements.length)) throw Error('Invalid assessment');
+      !Number.isInteger(raw.languageMark) || raw.languageMark < 0 || raw.languageMark > 9) throw new ValidationFailure('invalid_marks');
+  if (!nonEmpty(raw.contentReason) || !nonEmpty(raw.languageReason) || !nonEmpty(raw.nextStep)) throw new ValidationFailure('missing_text');
+  if (!strengths.length && !improvements.length) throw new ValidationFailure('no_verifiable_feedback_quotes');
   return { experimental:true, wordCount:input.response.split(/\s+/u).length,
     contentMark:raw.contentMark, languageMark:raw.languageMark, totalMark:raw.contentMark + raw.languageMark,
     contentReason:raw.contentReason, languageReason:raw.languageReason, strengths, improvements,
@@ -163,7 +201,9 @@ export async function handleStaffAssessment(request, env, runAI, classifyAIError
     if (error instanceof AssessmentError) return response({ error:error.code, stage }, error.status, origin);
     const reason = error instanceof SyntaxError || error?.message === 'Invalid AI JSON' ? 'invalid_ai_json' :
       stage.endsWith('_validation') ? 'evidence_checks_failed' : 'invalid_ai_response';
+    // `detail` is a fixed internal code (never model output or student text) naming which safeguard refused the result.
     return response({ error:'Assessment unavailable; no mark issued.', stage, reason,
+      ...(error instanceof ValidationFailure ? { detail:error.detail } : {}),
       category:stage.endsWith('_model') ? classifyAIError(error) : null }, 503, origin);
   }
 }

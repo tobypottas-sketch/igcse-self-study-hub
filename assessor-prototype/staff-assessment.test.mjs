@@ -83,3 +83,86 @@ test('model quota failures never retry or expose raw exception contents',async t
  const {env,calls}=setup(t);env.AI.run=async()=>{calls.ai.push({});throw Object.assign(new Error('Private synthetic response text'),{code:3036});};
  const res=await worker.fetch(request(),env);assert.equal(res.status,503);const body=await res.json();assert.equal(body.category,'quota_or_rate_limit');assert.ok(!JSON.stringify(body).includes('Private synthetic'));assert.equal(calls.ai.length,1);
 });
+
+// ---- Evidence quote faithfulness (regression for the live `assessment_validation / evidence_checks_failed` refusal) ----
+// Harmless model deviations (case, quote-mark style, wrapped quote marks/ellipses/end punctuation, whitespace runs) must be accepted and must
+// return the EXACT span from the submission. Anything that changes the student's words must still be refused.
+const messy = { ...submission, response:'The museum didn’t disappoint me.  It was “fascinating”\nbecause the interactive exhibits made science easy to understand.\n\nI recommend visiting with friends.' };
+function withFeedback(strengthQuote, improvementQuote = null, extra = {}) {
+ return [evidence, { ...assessment, strengths:[{ quote:strengthQuote, advice:'Specific advice.' }], improvements:improvementQuote ? [{ quote:improvementQuote, advice:'More advice.' }] : [], ...extra }];
+}
+async function run(t, replies, body = messy) { const { env, calls } = setup(t, { replies }); const res = await worker.fetch(request(body, {}), env); return { res, calls, body:await res.json() }; }
+
+for (const [name, quote, expected] of [
+ ['exact text', 'because the interactive exhibits made science easy to understand', 'because the interactive exhibits made science easy to understand'],
+ ['capitalisation changed', 'Because The Interactive Exhibits made science easy to understand', 'because the interactive exhibits made science easy to understand'],
+ ['curly quote marks wrapped round the quote', '“because the interactive exhibits made science easy to understand”', 'because the interactive exhibits made science easy to understand'],
+ ['straight quote marks wrapped round the quote', '"because the interactive exhibits made science easy to understand"', 'because the interactive exhibits made science easy to understand'],
+ ['leading ellipsis character', '…interactive exhibits made science easy to understand', 'interactive exhibits made science easy to understand'],
+ ['trailing three dots', 'interactive exhibits made science easy to understand...', 'interactive exhibits made science easy to understand'],
+ ['sentence punctuation added at the end', 'I recommend visiting with friends!', 'I recommend visiting with friends'],
+ ['newline in the submission collapsed to a space', 'It was “fascinating” because the interactive exhibits', 'It was “fascinating”\nbecause the interactive exhibits'],
+ ['double space and curly quotes in the submission', 'The museum didn\'t disappoint me. It was "fascinating"', 'The museum didn’t disappoint me.  It was “fascinating'],
+ ['paragraph break collapsed', 'easy to understand. I recommend visiting with friends', 'easy to understand.\n\nI recommend visiting with friends'],
+]) test('faithful quote accepted and replaced by the exact submitted span: ' + name, async t => {
+ const { res, body, calls } = await run(t, withFeedback(quote));
+ assert.equal(res.status, 200, JSON.stringify(body)); assert.equal(calls.ai.length, 2);
+ assert.equal(body.result.strengths[0].quote, expected);
+ assert.ok(messy.response.includes(body.result.strengths[0].quote), 'displayed quote is a verbatim substring of the submission');
+});
+
+for (const [name, quote] of [
+ ['paraphrase', 'the exhibits made science simple to follow'],
+ ['one word changed', 'because the interactive exhibits made science hard to understand'],
+ ['word added inside', 'because the very interactive exhibits made science easy to understand'],
+ ['word removed inside', 'because the exhibits made science easy to understand'],
+ ['comma added inside', 'The museum didn’t disappoint, me'],
+ ['ellipsis joining two fragments', 'The museum didn’t disappoint me … I recommend visiting with friends'],
+ ['three dots joining two fragments', 'It was fascinating ... easy to understand'],
+ ['words reordered', 'easy to understand because the interactive exhibits'],
+ ['text taken from the task, not the writing', 'Write a review of a science museum for a school magazine'],
+ ['too short once punctuation is stripped', '“...was!”'],
+ ['empty', ''],
+ ['wrapped punctuation only', '…'],
+]) test('unfaithful quote refused, no mark issued: ' + name, async t => {
+ const { res, body } = await run(t, withFeedback(quote));
+ assert.equal(res.status, 503); assert.equal(body.stage, 'assessment_validation'); assert.equal(body.detail, 'no_verifiable_feedback_quotes');
+ assert.ok(!('result' in body)); assert.ok(!JSON.stringify(body).includes('museum'));
+});
+
+test('a faithful quote beside an invented one: only the faithful quote is kept', async t => {
+ const { res, body } = await run(t, withFeedback('“Because the interactive exhibits made science easy to understand.”', 'a sentence the student never wrote'));
+ assert.equal(res.status, 200); assert.equal(body.result.strengths.length, 1); assert.equal(body.result.improvements.length, 0);
+});
+
+test('evidence stage: harmless variants count, invented evidence does not', async t => {
+ const faithful = { requirements:[{ taskQuote:'Recommend a Visit', quote:'“I recommend visiting with friends.”' }], features:[], errors:[] };
+ const { res, body } = await run(t, [faithful, assessment].map((x, i) => i ? { ...x, strengths:[{ quote:'I recommend visiting with friends', advice:'ok' }] } : x));
+ assert.equal(res.status, 200); assert.equal(body.result.observedEvidence[0].taskQuote, 'recommend a visit'); assert.equal(body.result.observedEvidence[0].quote, 'I recommend visiting with friends');
+ const invented = await run(t, [{ requirements:[{ taskQuote:'recommend a visit', quote:'I strongly urge a visit' }], features:[{ label:'x', quote:'a nonexistent passage' }], errors:[] }, assessment]);
+ assert.equal(invented.res.status, 503); assert.equal(invented.body.stage, 'evidence_validation'); assert.equal(invented.body.detail, 'no_verifiable_evidence'); assert.equal(invented.calls.ai.length, 1);
+});
+
+// Marks that break the schema (out of range, non-integer, string, missing field) are stopped even earlier, by the local schema check on the model output.
+for (const [name, extra] of [['mark above range', { contentMark:7 }], ['non-integer mark', { languageMark:5.5 }], ['string mark', { contentMark:'4' }], ['negative mark', { languageMark:-1 }], ['missing next step', { nextStep:undefined }]])
+ test('schema-invalid assessment is refused before validation: ' + name, async t => {
+  const { res, body } = await run(t, withFeedback('because the interactive exhibits made science easy to understand', null, extra));
+  assert.equal(res.status, 503); assert.equal(body.stage, 'assessment_model'); assert.ok(!('result' in body));
+ });
+// Schema-valid but empty text is stopped by the validation stage with a fixed diagnostic code.
+test('whitespace-only reason passes the schema but is refused by validation with a fixed code', async t => {
+ const { res, body } = await run(t, withFeedback('because the interactive exhibits made science easy to understand', null, { contentReason:'   ' }));
+ assert.equal(res.status, 503); assert.equal(body.stage, 'assessment_validation'); assert.equal(body.detail, 'missing_text'); assert.equal(body.reason, 'evidence_checks_failed'); assert.ok(!('result' in body));
+});
+
+test('diagnostic detail never contains student writing or model output', async t => {
+ const { body } = await run(t, withFeedback('Private synthetic phrase the student never wrote'));
+ assert.deepEqual(Object.keys(body).sort(), ['category', 'detail', 'error', 'reason', 'stage']);
+ assert.match(body.detail, /^[a-z_]+$/);
+});
+
+test('an ellipsis the student actually wrote is a faithful, contiguous quote', async t => {
+ const body = { ...submission, response:'I waited... and then the lights came on. I recommend visiting with friends.' };
+ const { res, body:out } = await run(t, [{ ...evidence }, { ...assessment, strengths:[{ quote:'I waited... and then the lights came on', advice:'Vivid.' }], improvements:[] }], body);
+ assert.equal(res.status, 200); assert.equal(out.result.strengths[0].quote, 'I waited... and then the lights came on');
+});
