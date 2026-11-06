@@ -63,7 +63,7 @@ async function authenticate(request, config) {
     throw new AssessmentError(401, 'authentication_required');
   const headers = { Authorization:authorization, apikey:config.key };
   const read = async url => {
-    try { return await fetch(url, { method:'GET', headers, cache:'no-store', redirect:'error', signal:AbortSignal.timeout(10000) }); }
+    try { return await fetch(url, { method:'GET', headers, redirect:'error', signal:AbortSignal.timeout(10000) }); }
     catch { throw new AssessmentError(503, 'staff_verification_unavailable'); }
   };
   const auth = await read(config.supabase + '/auth/v1/user');

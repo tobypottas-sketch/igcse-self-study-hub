@@ -50,3 +50,21 @@ test('client and Worker enforce identical size limits', async t => {
     assert.ok([400, 413].includes(res.status), field + ' over limit rejected by Worker, got ' + res.status);
   }
 });
+
+// Regression: on an older Workers compatibility date, fetch() THROWS if init contains `cache`
+// ("The 'cache' field on 'RequestInitializerDict' is not implemented"). The Worker then answered 503 for every
+// real request while mocked tests passed. This double behaves like that runtime.
+test('Worker outbound Supabase calls use only fetch options the Workers runtime accepts', async t => {
+  const seen = [];
+  t.mock.method(globalThis, 'fetch', async (url, init = {}) => {
+    seen.push(Object.keys(init));
+    if ('cache' in init) throw new TypeError("The 'cache' field on 'RequestInitializerDict' is not implemented.");
+    return String(url).includes('/auth/v1/user') ? Response.json({ id:uid }) : Response.json([{ role:'teacher', active:true, must_change_password:false }]);
+  });
+  const env = { HUB_ORIGIN:ORIGIN, SUPABASE_URL:'https://synthetic.supabase.co', SUPABASE_PUBLISHABLE_KEY:'synthetic-key',
+    AI:{ run:async () => { throw new Error('AI must not run for an empty body'); } } };
+  const res = await worker.fetch(new Request('https://w.example.invalid/assess', { method:'POST', headers:{ Origin:ORIGIN, Authorization:'Bearer synthetic-token', 'Content-Type':'application/json' }, body:'{}' }), env);
+  assert.notEqual(res.status, 503, 'staff verification must not fail because of unsupported fetch options');
+  assert.equal(seen.length, 2, 'both Supabase reads were attempted');
+  for (const keys of seen) assert.ok(!keys.includes('cache'));
+});
