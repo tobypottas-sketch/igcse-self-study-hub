@@ -195,7 +195,7 @@ function neutraliseQuotes(value, input, counts) {
 const REF_MARKED = /\b(?:evidence|items?|examples?|quotes?|quotations?|E)\s*#?\s*(\d{1,2}(?:\s*(?:,|and|&)\s*\d{1,2})*)(?![\d%])/giu;
 const REF_BRACKET = /[\[(]\s*#?(\d{1,2}(?:\s*(?:,|and|&)\s*\d{1,2})*)\s*[\])]/gu;
 const REF_BARE = /(?<![\d.\/\u2013\u2014-])\b(\d{1,2}(?:\s*,\s*\d{1,2})*\s*,?\s*(?:and|&)\s*\d{1,2})\b(?![\d%\/\u2013\u2014-]|\s*(?:%|percent|words?|marks?|points?|years?|minutes?|hours?|days?|weeks?|months?))/giu;
-const BARE_NOT_REF_BEFORE = /(?:\bbands?|\bmarks?|\bscores?|\blevels?|\bgrades?|\bbetween|\bfrom|\bout of|\bages?d?)\s*$/iu;
+const BARE_NOT_REF_BEFORE = /(?:\bbands?|\bmarks?|\bscores?|\blevels?|\bgrades?|\bbetween|\bfrom|\bout of|\bages?d?)\s*(?:of\s*)?$/iu;
 function resolveEvidenceReferences(value, input, evidence, counts) {
   const quoteOf = new Map(evidence.catalogue.map(item => [item.id, item.quote]));
   const writing = input.task + '\n' + input.response;
