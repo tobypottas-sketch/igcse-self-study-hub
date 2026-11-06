@@ -197,8 +197,11 @@ function neutraliseQuotes(value, input, counts) {
 //   2. "such as 5 and 8", "as seen in 5, 8 and 9", "see 5 and 8", "for example 5 and 8", ... when the list ends the clause
 // Brackets, "item/example N", "E5", ranges ("5 to 8", "5-8"), a single bare number and anything near marks/bands/units are never touched.
 const NUM_LIST = String.raw`\d{1,2}(?:\s*(?:,|&|and)\s*\d{1,2})*`;
-const EVIDENCE_REF = new RegExp(String.raw`\bevidence(?:\s+(?:items?|numbers?|ids?))?\s*#?\s*(${NUM_LIST})(?![\d%]|\s*(?:-|–|—|to\b|,|&|and\b)\s*\d)`, 'giu');
-const INTRO_REF = new RegExp(String.raw`\b(such as|as seen in|as shown in|as in|seen in|shown in|see|for example|for instance|e\.g\.|including|especially|notably)(\s+)(${NUM_LIST})(?![\d%/]|\.\d|\s*(?:-|–|—|to\b|,|&|and\b)\s*\d)(?=\s*(?:$|[,.;:!?)]|(?:and|but|which|that|so|is|are|shows?|helps?|supports?|gives?)\b))`, 'giu');
+const NOT_RANGE = String.raw`(?![\d%/]|\.\d|\s*(?:-|–|—|to\b|,|&|and\b)\s*\d)`;
+const CLAUSE_END = String.raw`(?=\s*(?:$|[,.;:!?)]|(?:and|but|which|that|so|is|are|shows?|helps?|supports?|gives?|as|for|in|from|with|because)\b))`;
+const EVIDENCE_REF = new RegExp(String.raw`\bevidence(?:\s+(?:items?|numbers?|ids?))?\s*#?\s*(${NUM_LIST})` + NOT_RANGE + CLAUSE_END, 'giu');
+const INTRO_REF = new RegExp(String.raw`\b(such as|as seen in|as shown in|as in|seen in|shown in|see|for example|for instance|e\.g\.|including|especially|notably)(\s+)(${NUM_LIST})` + NOT_RANGE + CLAUSE_END, 'giu');
+const BAND_WORDS = /\b(?:bands?|marks?|levels?|scores?|grades?)\b/iu, MAX_FIELD_LENGTH = 1000;
 const MAX_REFERENCES_PER_FIELD = 4, MAX_INSERTED_QUOTE = 80;
 function resolveEvidenceReferences(value, input, evidence, counts) {
   const quoteOf = new Map(evidence.catalogue.map(item => [item.id, item.quote]));
@@ -216,10 +219,15 @@ function resolveEvidenceReferences(value, input, evidence, counts) {
   };
   // one combined pass: inserted quotations are never scanned again
   const combined = new RegExp(EVIDENCE_REF.source + '|' + INTRO_REF.source, 'giu');
-  return value.replace(combined, (whole, evidenceList, intro, gap, introList) => {
+  const before = counts.evidenceReferencesResolved;
+  const result = value.replace(combined, (whole, evidenceList, intro, gap, introList, offset) => {
     if (evidenceList !== undefined) return render(evidenceList, false) ?? whole;
+    // "as in 6" next to band/mark wording is about the mark scheme, not evidence
+    if (BAND_WORDS.test(value.slice(0, offset).split(/[.!?]\s/u).pop())) return whole;
     const quotes = render(introList, true); return quotes === null ? whole : intro + gap + quotes;
   });
+  if (result.length > MAX_FIELD_LENGTH) { counts.evidenceReferencesResolved = before; return value; } // never balloon one field
+  return result;
 }
 function verifyAssessment(raw, input, evidence, counts) {
   const byId = new Map(evidence.catalogue.map(item => [item.id, item]));

@@ -390,3 +390,19 @@ test('review: adversarial 350-character model text is processed quickly', async 
  }
  assert.ok(Date.now() - started < 2000);
 });
+
+// ---- Second review: band wording, clause end, field length ----
+for (const text of ['Upper band, especially 2 and 3.', 'Middle mark, as in 2, which fits.', 'Between bands, e.g. 2 and 3.', 'A language mark of 2, as in 2.', 'Consider marks such as 2.', 'There is evidence 2 paragraphs are linked.', 'It happened evidence 3 times.'])
+ test('review 2: not rewritten: ' + text, async t => {
+  const { res, body } = await run(t, [three, prose({ contentReason:text })], rich);
+  assert.equal(res.status, 200); assert.equal(body.result.contentReason, text); assert.equal(body.checks.evidenceReferencesResolved, 0);
+ });
+test('review 2: a field that would exceed the length cap is left as written and not counted', async t => {
+ const phrases = Array.from({ length: 13 }, (_, i) => `Phrase number ${'abcdefghijklm'[i]} describes the museum visit with many careful words about robots`);
+ const writing = { ...submission, response:phrases.join('. ') + '.' };
+ const ev = { requirements:phrases.slice(0, 5).map((quote, i) => ({ taskQuote:'recommend a visit', quote })), features:phrases.slice(5, 10).map(quote => ({ label:'x', quote })), errors:phrases.slice(10, 13).map(quote => ({ quote, correction:'c', explanation:'e' })) };
+ const text = 'Range, such as 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 and 13.';
+ const { res, body } = await run(t, [ev, prose({ languageReason:text }, { strengths:[{ evidence:1, advice:'ok' }] })], writing);
+ assert.equal(res.status, 200); assert.ok(body.result.languageReason.length <= 1000);
+ assert.equal(body.checks.evidenceVerified, 13);
+});
