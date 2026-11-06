@@ -39,6 +39,8 @@ The Worker keeps no storage and has no `console` calls; responses are `Cache-Con
 
 ### Secrets during deployment
 
+Step-by-step staging, verification and rollback commands: **[STAGING_RUNBOOK.md](STAGING_RUNBOOK.md)**.
+
 A staged version containing a temporary test secret exists. **Never promote it or inherit from it.** `deployment-plan.mjs` builds (it never sends) a version-upload request that inherits `ASSESSMENT_TEST_KEY` explicitly from the *verified active production version ID* and refuses to proceed unless exactly that single version has 100% of traffic and only the expected bindings. Re-read the active version immediately before upload and before promotion. The test key must still be rotated because an earlier one was exposed in chat/screenshots.
 
 The model is `@cf/meta/llama-3.3-70b-instruct-fp8-fast`. The pipeline makes **at most two AI calls**, capped at 900 and 1,100 output tokens. Failed extraction stops grading. There are no automatic retries, alternative models, paid providers or AI Gateway billing. No student names, emails or writing are transmitted by this prototype. Responses are explicitly not cached and errors avoid logging writing, secrets and model output.
