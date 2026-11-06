@@ -280,6 +280,7 @@ function verifyAssessment(raw, input, evidence, counts) {
   };
   // An optional style suggestion is shown only with a usable model revision: a bare "you could say this differently" adds little.
   const stylePoint = (entry, item) => {
+    if (overlapsError(entry) || /\b(?:mistakes?|errors?|incorrect|wrong)\b/iu.test(item.advice)) return null;   // a style item may not smuggle in an error claim
     const own = nonEmpty(item.example) ? neutraliseQuotes(item.example, input, counts).trim() : '';
     const safe = own && !/\bevidence\b/iu.test(own) && (own.match(/\d+/gu) ?? []).every(n => writing.includes(n)) && !sameExact(own, entry.quote) && keepsMeaning(entry.quote, own, STYLE_MEANING_SHARE);
     return safe ? { extra:{ type:'style', suggestion:own } } : null;
@@ -289,6 +290,9 @@ function verifyAssessment(raw, input, evidence, counts) {
   if (!Number.isInteger(raw.contentMark) || raw.contentMark < 0 || raw.contentMark > 6 ||
       !Number.isInteger(raw.languageMark) || raw.languageMark < 0 || raw.languageMark > 9) throw new ValidationFailure('invalid_marks');
   if (!nonEmpty(raw.contentReason) || !nonEmpty(raw.languageReason) || !nonEmpty(raw.nextStep)) throw new ValidationFailure('missing_text');
+  // The writing target is read by the student, so it may not be built round a 'mistake' the Worker could not demonstrate.
+  const target = normal(raw.nextStep);
+  if (evidence.catalogue.some(entry => entry.kind === 'possible_error' && !confirmCorrection(entry.quote, entry.correction, input.response).confirmed && target.includes(normal(entry.quote)))) throw new ValidationFailure('target_uses_unconfirmed_error');
   if (!strengths.length && !improvements.length) throw new ValidationFailure('no_feedback_linked_to_verified_evidence');
   return { experimental:true, wordCount:input.response.split(/\s+/u).length,
     contentMark:raw.contentMark, languageMark:raw.languageMark, totalMark:raw.contentMark + raw.languageMark,

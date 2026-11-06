@@ -268,3 +268,19 @@ test('the prompts demand error-only-if-demonstrable, plain explanations, evidenc
   for (const rule of [/Cite a possible error only when the wording is definitely incorrect/, /name the wrong word and the right word/, /without grammar jargon/, /cannot prove that the whole response is well organised/,
     /least developed/, /Never ask for something the response already contains/, /leave that suggestion out altogether/]) assert.match(second, rule);
 });
+
+test('a style item cannot smuggle in an error claim or sit on a quote Stage 1 also called an error', async t => {
+  const ev = { requirements:[], features:[{ label:'topic', quote:'the kitchen should serve hot food' }], errors:[{ quote:'the kitchen should serve hot food', correction:'they should serve hot food', explanation:'Pronoun.' }] };
+  const stageTwo = withGood({ strengths:[], improvements:[{ evidence:1, advice:'This is optional.', example:'the kitchen should serve hot food quickly' }] });
+  const { res, body } = await run(t, [ev, stageTwo]);
+  assert.equal(res.status, 503); assert.equal(body.detail, 'no_feedback_linked_to_verified_evidence');
+  const mistake = await run(t, [stage1, withGood({ strengths:[], improvements:[{ evidence:2, advice:'This is a grammar mistake in your sentence.', example:'The staff were friendly: our waiter smiled.' }] })]);
+  assert.equal(mistake.res.status, 503);
+});
+
+test('the writing target cannot be built round an error the Worker could not demonstrate', async t => {
+  const { res, body } = await run(t, [withKitchen('Pronoun reference is clearer.'), withGood({ nextStep:'Fix the pronoun in the kitchen should serve hot food by using they.' })]);
+  assert.equal(res.status, 503); assert.equal(body.detail, 'target_uses_unconfirmed_error');
+  const fine = await run(t, [withKitchen('Pronoun reference is clearer.'), withGood({ nextStep:'Give your opinion about the food a specific reason.' })]);
+  assert.equal(fine.res.status, 200);
+});

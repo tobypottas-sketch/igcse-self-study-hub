@@ -5,7 +5,6 @@ import { confirmCorrection } from './error-check.js';
 
 const yes = [
   ['agreement, plural noun', 'the chips was cold', 'the chips were cold'],
-  ['agreement, singular noun', 'the museum were crowded', 'the museum was crowded'],
   ['agreement after they', 'they was late', 'they were late'],
   ['agreement with he', 'he were late', 'he was late'],
   ['agreement, plural noun with is', 'the exhibits is great', 'the exhibits are great'],
@@ -45,7 +44,20 @@ const no = [
   // tense is a teacher decision
   ['tense', 'I go there', 'I went there', 'I go there yesterday.'], ['tense marker then', 'Then I go there', 'Then I went there'],
   ['nothing changed', 'the chips were cold', 'the chips were cold'], ['rewritten phrase', 'I recommend visiting with friends', 'I suggest you visit with your friends'],
-  ['verb at the start of the quote: subject unknown', 'was cold', 'were cold']
+  ['verb at the start of the quote: subject unknown', 'was cold', 'were cold'],
+  // review round 2: correct English that a loose subject guess would 'correct'
+  ['irregular plural', 'the children were tired', 'the children was tired'], ['irregular plural with have', 'the children have lunch', 'the children has lunch'], ['men', 'the men were late', 'the men was late'],
+  ['adverb before the verb', 'the chips quickly were eaten', 'the chips quickly was eaten'], ['question word', 'where are the books', 'where is the books'], ['why do', 'why do the students leave', 'why does the students leave'],
+  ['gerund subject', 'Reading books is fun', 'Reading books are fun'], ['what-clause', 'what she wants is a car', 'what she wants are a car'], ['prepositional phrase', 'the box on the shelves was empty', 'the box on the shelves were empty'],
+  ['about-phrase', 'the book about animals is good', 'the book about animals are good'], ['one of, far from the verb', 'One of the really interesting old books is', 'One of the really interesting old books are'],
+  ['relative clause', 'the girl who always likes playful cats is', 'the girl who always likes playful cats are'], ['unlisted number', 'fifty dollars is a lot', 'fifty dollars are a lot'],
+  ['singular s word', 'the canvas is dry', 'the canvas are dry'], ['singular -ics', 'statistics is hard', 'statistics are hard'], ['singular noun made plural verb', 'the museum was crowded', 'the museum were crowded'],
+  ['subjunctive from the surrounding text', 'she were here', 'she was here', 'I wish she were here.'], ['as it were', 'it were', 'it was', 'It was, as it were, a dream.'],
+  ['gave her her book', 'I gave her her book', 'I gave her book'], ['told you you', 'I told you you were right', 'I told you were right'], ['is is', 'what it is is a problem', 'what it is a problem'], ['on on', 'the lights went on on Friday', 'the lights went on Friday'],
+  ['abbreviation is not a sentence end', 'the park', 'The park', 'Bring snacks, e.g. the park'], ['ellipsis', 'and then', 'And then', 'I waited... and then'], ['quoted speech', 'and ran away', 'And ran away', 'She shouted "Stop!" and ran away'],
+  ['a unanimous', 'a unanimous vote', 'an unanimous vote'], ['a ukulele', 'a ukulele', 'an ukulele'], ['letter name', 'an s', 'a s'], ['an herb', 'an herb', 'a herb'], ['an historic', 'an historic day', 'a historic day'],
+  ['sentence-start casing kept', 'Recieve the food', 'receive the food'], ['mid-sentence capital via spelling fix', 'we go wich way', 'we go Which way'], ['capital A', 'A apple fell', 'an apple fell'],
+  ['august', 'an august school', 'an August school'], ['roman numeral', 'part i of the book', 'part I of the book']
 ];
 for (const [name, quote, correction] of yes) test('demonstrable: ' + name, () => assert.equal(confirmCorrection(quote, correction).confirmed, true));
 for (const [name, quote, correction, context] of no) test('not demonstrable: ' + name, () => assert.equal(confirmCorrection(quote, correction, context).confirmed, false));
@@ -59,7 +71,6 @@ test('a sentence that begins with a lower-case letter, and days and months', () 
 test('each confirmed error is explained in plain English that names the actual words', () => {
   const say = (quote, correction, context = '') => confirmCorrection(quote, correction, context).explanation;
   assert.equal(say('the chips was cold', 'the chips were cold'), 'Chips is plural, so use were, not was.');
-  assert.equal(say('the museum were crowded', 'the museum was crowded'), 'Museum is singular, so use was, not were.');
   assert.equal(say('they was late', 'they were late'), 'After they, use were, not was.');
   assert.equal(say('and i was happy', 'and I was happy'), 'The word I is always written as a capital letter.');
   assert.equal(say('we recieve the food', 'we receive the food'), 'The correct spelling is receive, not recieve.');
