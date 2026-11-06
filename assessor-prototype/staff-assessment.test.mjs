@@ -7,7 +7,7 @@ const AUTH_URL='https://synthetic.supabase.co';
 const uid='11111111-1111-4111-8111-111111111111';
 const submission={taskType:'review',task:'Write a review of a science museum for a school magazine. Describe the exhibits and recommend a visit. Write 120–160 words.',response:'The museum was fascinating because the interactive exhibits made science easy to understand. I recommend visiting with friends.',privacyConfirmed:true};
 const evidence={requirements:[{taskQuote:'recommend a visit',quote:'I recommend visiting with friends'}],features:[{label:'reason',quote:'because the interactive exhibits made science easy to understand'}],errors:[]};
-const assessment={contentMark:4,languageMark:6,contentReason:'The review gives a reason and recommendation but needs more development.',languageReason:'Clear vocabulary and a supported opinion, with limited structural variety.',strengths:[{evidence:2,advice:'Explains why the exhibits worked well.'}],improvements:[{evidence:1,advice:'Explain why this would suit the audience.'}],missingRequirements:[],nextStep:'Develop the description of one exhibit.'};
+const assessment={contentMark:4,languageMark:6,contentReason:'The review gives a reason and recommendation but needs more development.',languageReason:'Clear vocabulary and a supported opinion, with limited structural variety.',strengths:[{evidence:2,advice:'Explains why the exhibits worked well.'}],improvements:[{evidence:1,advice:'Explain why this would suit the audience.',example:'I recommend visiting with friends because the exhibits are fun to try together.'}],missingRequirements:[],nextStep:'Develop the description of one exhibit.'};
 function request(body=submission,{token='synthetic-token',origin=ORIGIN,method='POST',headers={}}={}) {
  return new Request('https://assessor.example.invalid/assess',{method,headers:{...(origin?{Origin:origin}:{}),...(token?{Authorization:'Bearer '+token}:{}),'Content-Type':'application/json',...headers},...(method==='OPTIONS'?{}:{body:typeof body==='string'?body:JSON.stringify(body)})});
 }
@@ -164,10 +164,10 @@ for (const [name, strengths, improvements] of [
 });
 
 test('a possible-error item cannot be presented as a strength, but may support an improvement', async t => {
- const err = { requirements:[], features:[], errors:[{ quote:'The museum didn’t disappoint me', correction:'fine', explanation:'maybe' }] };
+ const err = { requirements:[], features:[], errors:[{ quote:'The museum didn’t disappoint me', correction:'The museums didn’t disappoint me', explanation:'The word museums needs an s here.' }] };
  const asStrength = await run(t, [err, cite([{ evidence:1, advice:'Nice.' }])]);
  assert.equal(asStrength.res.status, 503); assert.equal(asStrength.body.detail, 'no_feedback_linked_to_verified_evidence');
- const asImprovement = await run(t, [err, { ...assessment, strengths:[], improvements:[{ evidence:1, advice:'Check this.' }] }]);
+ const asImprovement = await run(t, [err, { ...assessment, strengths:[], improvements:[{ evidence:1, advice:'Check the word museums.' }] }]);
  assert.equal(asImprovement.res.status, 200); assert.equal(asImprovement.body.result.improvements[0].quote, 'The museum didn’t disappoint me');
 });
 
