@@ -19,7 +19,7 @@ function setup(t,{role='teacher',active=true,mustChange=false,userStatus=200,pro
   assert.equal(options.headers.Authorization,'Bearer synthetic-token');
   assert.equal(options.headers.apikey,'synthetic-publishable-key');
   assert.ok(!options.body);
-  assert.equal(options.redirect,'error');
+  assert.equal(options.redirect,'manual'); // Workers implement only follow|manual; 'error' threw on the live runtime (staging, Nov 2026). Never follow redirects with a bearer token.
   return String(url).includes('/auth/v1/user')?Response.json(userStatus===200?{id:uid,user_metadata:{role:'admin'}}:{error:'synthetic'}, {status:userStatus}):Response.json([{role,active,must_change_password:mustChange}],{status:profileStatus});
  });
  const env={HUB_ORIGIN:ORIGIN,SUPABASE_URL:AUTH_URL,SUPABASE_PUBLISHABLE_KEY:'synthetic-publishable-key',ASSESSMENT_TEST_KEY:'never-send-this-key',AI:{run:async(model,args)=>{
@@ -46,8 +46,8 @@ for(const [role,active,mustChange] of [['student',true,false],['teacher',false,f
 for(const [name,options] of [['missing token',{token:''}],['wrong origin',{origin:'https://evil.example.invalid'}],['missing origin',{origin:''}]])test(name+' cannot access assessment',async t=>{
  const {env,calls}=setup(t);const res=await worker.fetch(request(submission,options),env);assert.ok([401,403].includes(res.status));assert.equal(calls.ai.length,0);assert.equal(calls.auth.length,0);
 });
-for(const userStatus of [401,503])test('Supabase auth status '+userStatus+' fails closed',async t=>{
- const {env,calls}=setup(t,{userStatus});const res=await worker.fetch(request(),env);assert.equal(res.status,userStatus===401?401:503);assert.equal(calls.ai.length,0);assert.equal(calls.auth.length,1);
+for(const userStatus of [401,302,503])test('Supabase auth status '+userStatus+' fails closed',async t=>{
+ const {env,calls}=setup(t,{userStatus});const res=await worker.fetch(request(),env);assert.equal(res.status,userStatus===503?503:401);assert.equal(calls.ai.length,0);assert.equal(calls.auth.length,1);
 });
 test('profile lookup failure fails closed without reflecting provider details',async t=>{
  const {env,calls}=setup(t,{profileStatus:503});const res=await worker.fetch(request(),env);assert.equal(res.status,503);assert.equal(calls.ai.length,0);assert.ok(!(await res.text()).includes('synthetic'));
