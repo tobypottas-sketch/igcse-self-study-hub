@@ -38,7 +38,7 @@ Language 7–9: wide appropriate vocabulary/structures, high accuracy, effective
 Language 4–6: some variety, generally accurate, reasonably organised, errors do not generally impede communication.
 Language 1–3: limited range/organisation, errors may impede communication. 0: no creditable language.
 Consider task fulfilment/development separately from language range/accuracy/organisation. Respect email informality or the more formal article/report/essay/review audience as specified in the actual task. 120–160 words is the task target, not an automatic deduction or cap. Short writing can limit development.
-The "evidence" list holds quotations from the response that the Worker has ALREADY verified, each with a number. For strengths and improvements, cite evidence ONLY by its number in the "evidence" field and write advice about that item. Never write, copy or re-type a quotation from the response and do not use quotation marks anywhere in your answer. A strength must cite a requirement or feature item; an improvement may cite any item, including a possible error. If the evidence does not support a point, leave that point out. Always give at least one improvement or strength. Do not invent errors. Do not equate unverified requirements with a missing requirement. Do not claim requirements are absent when the evidence shows fulfilment. missingRequirements must be empty. Give one specific next step for THIS draft, not a replacement essay. Return only the requested JSON. This is an experimental estimate, not an official examiner grade.`;
+The "evidence" list holds quotations from the response that the Worker has ALREADY verified, each with a number. For strengths and improvements, cite evidence ONLY by its number in the "evidence" field and write advice about that item. Never write, copy or re-type a quotation from the response and do not use quotation marks anywhere in your answer. Write every reason, piece of advice and next step in natural language for a teacher: NEVER mention evidence numbers, IDs or list positions (for example "evidence 5", "items 5 and 8" or "such as 5 and 8") outside the "evidence" field; describe the point in words instead (for example "the causal connective that links the opinion to its reason"). Numbers may appear only when they belong to the student's own writing or to the marking bands. A strength must cite a requirement or feature item; an improvement may cite any item, including a possible error. If the evidence does not support a point, leave that point out. Always give at least one improvement or strength. Do not invent errors. Do not equate unverified requirements with a missing requirement. Do not claim requirements are absent when the evidence shows fulfilment. missingRequirements must be empty. Give one specific next step for THIS draft, not a replacement essay. Return only the requested JSON. This is an experimental estimate, not an official examiner grade.`;
 
 class AssessmentError extends Error {
   constructor(status, code) { super(code); this.status = status; this.code = code; }
@@ -160,7 +160,7 @@ function locate(source, value) {
 }
 class ValidationFailure extends Error { constructor(detail) { super(detail); this.detail = detail; } }
 const nonEmpty = value => typeof value === 'string' && value.trim().length > 0;
-const zeroCounts = () => ({ evidenceProposed:0, evidenceVerified:0, feedbackProposed:0, feedbackLinked:0, textQuotesNeutralised:0 });
+const zeroCounts = () => ({ evidenceProposed:0, evidenceVerified:0, feedbackProposed:0, feedbackLinked:0, textQuotesNeutralised:0, evidenceReferencesResolved:0 });
 // Stage 1 output -> catalogue of evidence the Worker has itself verified. Every `quote` is a verbatim span of the submission.
 function verifyEvidence(raw, input, counts) {
   counts.evidenceProposed = raw.requirements.length + raw.features.length + raw.errors.length;
@@ -189,8 +189,33 @@ function neutraliseQuotes(value, input, counts) {
     counts.textQuotesNeutralised += 1; return inner;
   });
 }
+// Stage 2 is told never to mention evidence numbers in prose, but a model can still write things like "such as 5 and 8". Numbers are NOT stripped
+// indiscriminately (marks, bands, word counts and numbers in the student's own writing are legitimate). Only forms that clearly read as references to
+// catalogue items are rewritten, and only when every number is a real catalogue id: the reference is replaced by the Worker's own verified quotation(s).
+const REF_MARKED = /\b(?:evidence|items?|examples?|quotes?|quotations?|E)\s*#?\s*(\d{1,2}(?:\s*(?:,|and|&)\s*\d{1,2})*)(?![\d%])/giu;
+const REF_BRACKET = /[\[(]\s*#?(\d{1,2}(?:\s*(?:,|and|&)\s*\d{1,2})*)\s*[\])]/gu;
+const REF_BARE = /(?<![\d.\/\u2013\u2014-])\b(\d{1,2}(?:\s*,\s*\d{1,2})*\s*,?\s*(?:and|&)\s*\d{1,2})\b(?![\d%\/\u2013\u2014-]|\s*(?:%|percent|words?|marks?|points?|years?|minutes?|hours?|days?|weeks?|months?))/giu;
+const BARE_NOT_REF_BEFORE = /(?:\bbands?|\bmarks?|\bscores?|\blevels?|\bgrades?|\bbetween|\bfrom|\bout of|\bages?d?)\s*$/iu;
+function resolveEvidenceReferences(value, input, evidence, counts) {
+  const quoteOf = new Map(evidence.catalogue.map(item => [item.id, item.quote]));
+  const writing = input.task + '\n' + input.response;
+  const render = list => {
+    const ids = list.split(/\s*(?:,|and|&)\s*/u).filter(Boolean).map(Number);
+    if (!ids.length || new Set(ids).size !== ids.length || !ids.every(id => quoteOf.has(id))) return null;
+    const quotes = ids.map(id => '\u201C' + quoteOf.get(id) + '\u201D');
+    return quotes.length === 1 ? quotes[0] : quotes.slice(0, -1).join(', ') + ' and ' + quotes[quotes.length - 1];
+  };
+  const swap = (text, pattern, guard) => text.replace(pattern, (whole, list, offset) => {
+    if (guard && !guard(list, text.slice(0, offset))) return whole;
+    const quotes = render(list); if (!quotes) return whole;
+    counts.evidenceReferencesResolved += 1; return quotes;
+  });
+  let out = swap(value, REF_MARKED); out = swap(out, REF_BRACKET);
+  return swap(out, REF_BARE, (list, before) => !BARE_NOT_REF_BEFORE.test(before) && !list.split(/\D+/u).filter(Boolean).some(n => new RegExp('(?<!\\d)' + n + '(?!\\d)', 'u').test(writing)));
+}
 function verifyAssessment(raw, input, evidence, counts) {
   const byId = new Map(evidence.catalogue.map(item => [item.id, item]));
+  const clean = text => resolveEvidenceReferences(neutraliseQuotes(text, input, counts), input, evidence, counts);
   // The ONLY quotation that can appear in feedback is the Worker's verified catalogue quote; the model's advice is attached to it by number.
   const link = (values, allowed) => {
     const list = Array.isArray(values) ? values : []; counts.feedbackProposed += list.length;
@@ -198,7 +223,7 @@ function verifyAssessment(raw, input, evidence, counts) {
     for (const item of list) {
       const entry = byId.get(item?.evidence);
       if (!entry || !allowed(entry) || !nonEmpty(item.advice) || used.has(entry.id)) continue;
-      used.add(entry.id); linked.push({ quote:entry.quote, advice:neutraliseQuotes(item.advice, input, counts), evidence:entry.id });
+      used.add(entry.id); linked.push({ quote:entry.quote, advice:clean(item.advice), evidence:entry.id });
     }
     counts.feedbackLinked += linked.length; return linked;
   };
@@ -210,10 +235,10 @@ function verifyAssessment(raw, input, evidence, counts) {
   if (!strengths.length && !improvements.length) throw new ValidationFailure('no_feedback_linked_to_verified_evidence');
   return { experimental:true, wordCount:input.response.split(/\s+/u).length,
     contentMark:raw.contentMark, languageMark:raw.languageMark, totalMark:raw.contentMark + raw.languageMark,
-    contentReason:neutraliseQuotes(raw.contentReason, input, counts), languageReason:neutraliseQuotes(raw.languageReason, input, counts), strengths, improvements,
+    contentReason:clean(raw.contentReason), languageReason:clean(raw.languageReason), strengths, improvements,
     missingRequirements:[], observedEvidence:evidence.requirements,
     verifiedEvidence:evidence.catalogue.map(({ id, kind, quote }) => ({ id, kind, quote })),
-    quotedErrorCandidatesRequireTeacherReview:evidence.errors, nextStep:neutraliseQuotes(raw.nextStep, input, counts),
+    quotedErrorCandidatesRequireTeacherReview:evidence.errors, nextStep:clean(raw.nextStep),
     warning:'Experimental teacher-only estimate. Check the evidence and marks; not a Cambridge examiner grade.' };
 }
 export async function handleStaffAssessment(request, env, runAI, classifyAIError) {

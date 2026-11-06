@@ -127,7 +127,7 @@ for (const [name, quote] of [
  const { res, body, calls } = await run(t, [feat(quote), cite()]);
  assert.equal(res.status, 503); assert.equal(body.stage, 'evidence_validation'); assert.equal(body.detail, 'insufficient_verified_evidence');
  assert.equal(calls.ai.length, 1, 'no marking call is made without verified evidence'); assert.ok(!('result' in body));
- assert.deepEqual(body.checks, { evidenceProposed:1, evidenceVerified:0, feedbackProposed:0, feedbackLinked:0, textQuotesNeutralised:0 });
+ assert.deepEqual(body.checks, { evidenceProposed:1, evidenceVerified:0, feedbackProposed:0, feedbackLinked:0, textQuotesNeutralised:0, evidenceReferencesResolved:0 });
  assert.ok(!JSON.stringify(body).includes('museum'));
 });
 
@@ -139,7 +139,7 @@ test('stage 2 never receives unverified quotations, and receives numbered verifi
  assert.deepEqual(sent.evidence.map(e => [e.id, e.kind, e.quote]), [[1, 'requirement', 'I recommend visiting with friends'], [2, 'feature', 'because the interactive exhibits made science easy to understand']]);
  assert.deepEqual(sent.unverifiedRequirements, ['Describe the exhibits']);
  const text = JSON.stringify(sent); for (const bad of ['a made-up description', 'fabricated phrase here']) assert.ok(!text.includes(bad), bad + ' must not reach stage 2');
- assert.deepEqual(body.checks, { evidenceProposed:4, evidenceVerified:2, feedbackProposed:1, feedbackLinked:1, textQuotesNeutralised:0 });
+ assert.deepEqual(body.checks, { evidenceProposed:4, evidenceVerified:2, feedbackProposed:1, feedbackLinked:1, textQuotesNeutralised:0, evidenceReferencesResolved:0 });
 });
 
 test('the final quotation is always the verified span, never anything the model writes', async t => {
@@ -174,7 +174,7 @@ test('a possible-error item cannot be presented as a strength, but may support a
 test('partially linked feedback keeps only the evidence-backed points and the same evidence is not cited twice', async t => {
  const { res, body } = await run(t, [feat('because the interactive exhibits made science easy to understand'), { ...assessment, strengths:[{ evidence:1, advice:'One.' }, { evidence:1, advice:'Duplicate.' }], improvements:[{ evidence:9, advice:'Unsupported.' }] }]);
  assert.equal(res.status, 200); assert.equal(body.result.strengths.length, 1); assert.equal(body.result.improvements.length, 0);
- assert.deepEqual(body.checks, { evidenceProposed:1, evidenceVerified:1, feedbackProposed:3, feedbackLinked:1, textQuotesNeutralised:0 });
+ assert.deepEqual(body.checks, { evidenceProposed:1, evidenceVerified:1, feedbackProposed:3, feedbackLinked:1, textQuotesNeutralised:0, evidenceReferencesResolved:0 });
 });
 
 test('quotation marks in model text survive only round wording that is really in the submission', async t => {
@@ -207,7 +207,7 @@ test('whitespace-only reason passes the schema but is refused by validation with
 test('diagnostics contain fixed codes and integer counts only, never writing or model output', async t => {
  const { body } = await run(t, [feat('Private synthetic phrase the student never wrote'), cite()]);
  assert.deepEqual(Object.keys(body).sort(), ['category', 'checks', 'detail', 'error', 'reason', 'stage']);
- assert.match(body.detail, /^[a-z_]+$/); assert.deepEqual(Object.keys(body.checks).sort(), ['evidenceProposed', 'evidenceVerified', 'feedbackLinked', 'feedbackProposed', 'textQuotesNeutralised']);
+ assert.match(body.detail, /^[a-z_]+$/); assert.deepEqual(Object.keys(body.checks).sort(), ['evidenceProposed', 'evidenceReferencesResolved', 'evidenceVerified', 'feedbackLinked', 'feedbackProposed', 'textQuotesNeutralised']);
  assert.ok(Object.values(body.checks).every(Number.isInteger));
 });
 
@@ -260,3 +260,96 @@ test('astral characters and length-changing case folding keep the exact submitte
  const { res, body } = await run(t, [feat('Good 😀 İstanbul trip'), cite()], { ...submission, response:'A good 😀 İstanbul trip was fun. I recommend visiting with friends.' });
  assert.equal(res.status, 200); assert.equal(body.result.strengths[0].quote, 'good 😀 İstanbul trip');
 });
+
+// ---- Natural-language explanations: no internal evidence numbers in prose ----
+// Live staging run: the language reason said "such as 5 and 8 ... as seen in 6 and 9" (evidence IDs). The prompt now forbids it, and the Worker
+// rewrites only clear ID-style references (to the Worker's own verified quotations) while leaving legitimate numbers alone.
+const rich = { ...submission, response:'The museum was fascinating because the interactive exhibits made science easy to understand. I recommend visiting with friends. We stayed for ages and saw seven robots.' };
+const A = 'because the interactive exhibits made science easy to understand', B = 'I recommend visiting with friends', C = 'We stayed for ages';
+const three = { requirements:[{ taskQuote:'recommend a visit', quote:B }], features:[{ label:'reason', quote:A }, { label:'detail', quote:C }], errors:[] }; // catalogue: 1 = B (requirement), 2 = A, 3 = C
+const prose = (reasons, extra = {}) => ({ ...assessment, strengths:[{ evidence:2, advice:'Good.' }], improvements:[], ...reasons, ...extra });
+const q = text => '“' + text + '”';
+
+for (const [name, text, expected] of [
+ ['bare list of two ids', 'Some variety in vocabulary, such as 2 and 3, and it is accurate.', `Some variety in vocabulary, such as ${q(A)} and ${q(C)}, and it is accurate.`],
+ ['bare list of three ids', 'Linking is clear, as seen in 1, 2 and 3.', `Linking is clear, as seen in ${q(B)}, ${q(A)} and ${q(C)}.`],
+ ['marked: evidence N', 'Evidence 2 shows a supported opinion.', `${q(A)} shows a supported opinion.`],
+ ['marked: items N and M', 'Items 1 and 2 show good control.', `${q(B)} and ${q(A)} show good control.`],
+ ['marked: example N', 'See example 3 for a concrete detail.', `See ${q(C)} for a concrete detail.`],
+ ['bracketed id', 'A clear reason (2) supports the opinion.', `A clear reason ${q(A)} supports the opinion.`],
+ ['bracketed list', 'Good range [1, 3].', `Good range ${q(B)} and ${q(C)}.`],
+ ['E-style id', 'E2 is a strong reason.', `${q(A)} is a strong reason.`],
+]) test('evidence id in prose is replaced by the verified quotation: ' + name, async t => {
+ const { res, body } = await run(t, [three, prose({ languageReason:text })], rich);
+ assert.equal(res.status, 200, JSON.stringify(body)); assert.equal(body.result.languageReason, expected);
+ assert.equal(body.checks.evidenceReferencesResolved >= 1, true);
+ for (const quote of body.result.languageReason.match(/“[^”]+”/gu) ?? []) assert.ok(rich.response.includes(quote.slice(1, -1)), 'only verified submission text is inserted');
+});
+
+for (const [name, text] of [
+ ['mark bands', 'This fits the 3-4 band for content and a language mark of 6.'],
+ ['band with and', 'Content is between bands 3 and 4 overall.'],
+ ['out of', 'A language mark of 6 out of 9 is a fair estimate.'],
+ ['word target', 'The 120–160 word target is a guide, not a cap.'],
+ ['percentage and units', 'About 5 and 8 percent of words are repeated; it took 5 and 8 minutes.'],
+ ['single bare number', 'There is limited development, around 2 in total.'],
+ ['id outside the catalogue', 'Evidence 9 shows a supported opinion and items 8 and 9 add detail.'],
+ ['year and ordinal', 'It follows the 2024 specimen and is the 1st draft.'],
+]) test('legitimate numbers are left alone: ' + name, async t => {
+ const { res, body } = await run(t, [three, prose({ languageReason:text })], rich);
+ assert.equal(res.status, 200, JSON.stringify(body)); assert.equal(body.result.languageReason, text);
+ assert.equal(body.checks.evidenceReferencesResolved, 0);
+});
+
+test('a list of numbers that the student wrote in their own text is never treated as evidence ids', async t => {
+ const counted = { ...submission, response:'The museum was fascinating because the interactive exhibits made science easy to understand. I saw 2 robots and 3 planets. I recommend visiting with friends.' };
+ const ev = { requirements:[{ taskQuote:'recommend a visit', quote:B }], features:[{ label:'reason', quote:A }, { label:'detail', quote:'I saw 2 robots and 3 planets' }], errors:[] };
+ const { res, body } = await run(t, [ev, prose({ languageReason:'The numbers are used accurately, such as 2 and 3.' })], counted);
+ assert.equal(res.status, 200); assert.equal(body.result.languageReason, 'The numbers are used accurately, such as 2 and 3.'); assert.equal(body.checks.evidenceReferencesResolved, 0);
+});
+
+test('ids are resolved in every model text field: content reason, advice and next step', async t => {
+ const { body } = await run(t, [three, prose({ contentReason:'Developed, see evidence 1.', nextStep:'Extend the detail in 2 and 3.' }, { strengths:[{ evidence:2, advice:'Keep the reason (2).' }] })], rich);
+ assert.equal(body.result.contentReason, `Developed, see ${q(B)}.`);
+ assert.equal(body.result.nextStep, `Extend the detail in ${q(A)} and ${q(C)}.`);
+ assert.equal(body.result.strengths[0].advice, `Keep the reason ${q(A)}.`);
+ assert.equal(body.checks.evidenceReferencesResolved, 3);
+});
+
+test('resolution cannot change marks, quotations, evidence or the structured fields', async t => {
+ const { body } = await run(t, [three, prose({ languageReason:'Range as in 2 and 3.' })], rich);
+ assert.deepEqual([body.result.contentMark, body.result.languageMark, body.result.totalMark], [4, 6, 10]);
+ assert.deepEqual(body.result.strengths.map(s => [s.evidence, s.quote]), [[2, A]]);
+ assert.deepEqual(body.result.verifiedEvidence.map(e => e.id), [1, 2, 3]);
+});
+
+test('the prompt tells the model to write natural prose without evidence numbers', async t => {
+ const { calls } = await run(t, [three, prose({})], rich);
+ const system = calls.ai[1].args.messages.find(m => m.role === 'system').content;
+ for (const phrase of ['natural language for a teacher', 'NEVER mention evidence numbers', 'items 5 and 8', 'outside the "evidence" field', 'student\'s own writing or to the marking bands', 'ONLY by its number'])
+  assert.ok(system.includes(phrase), phrase);
+ for (const phrase of ['Content 5–6: fulfils task', 'Language 7–9: wide appropriate vocabulary', 'not an official examiner grade']) assert.ok(system.includes(phrase), phrase);
+});
+
+test('the exact live wording that leaked ids is now readable', async t => {
+ const reason = 'The response shows some variety in vocabulary, such as 2 and 3, and is generally accurate and reasonably organised, as seen in 1 and 2.';
+ const { body } = await run(t, [three, prose({ languageReason:reason })], rich);
+ assert.ok(!/\b[123]\b/.test(body.result.languageReason.replace(/“[^”]*”/gu, '')), 'no bare id numbers remain outside inserted quotations');
+});
+
+test('replay of the live staging shape: a nine-item catalogue and ids 5, 8, 6 and 9 in the language reason', async t => {
+ const phrases = ['The museum was fascinating', 'because the interactive exhibits made science easy', 'I recommend visiting with friends', 'The guide spoke clearly', 'Robots waved at the visitors', 'A quiet gallery showed old tools', 'Children laughed in the lab', 'Everyone enjoyed the planetarium', 'The shop sold small telescopes'];
+ const writing = { ...submission, response:phrases.join('. ') + '.' };
+ const ev = { requirements:[{ taskQuote:'recommend a visit', quote:phrases[2] }, { taskQuote:'Describe the exhibits', quote:phrases[1] }, { taskQuote:'science museum', quote:phrases[0] }, { taskQuote:'school magazine', quote:phrases[3] }], features:phrases.slice(4).map(quote => ({ label:'detail', quote })), errors:[] };
+ const reason = 'The response shows some variety in vocabulary, such as 5 and 8, and is generally accurate and reasonably organised, as seen in 6 and 9.';
+ const { res, body } = await run(t, [ev, { ...assessment, languageReason:reason, strengths:[{ evidence:5, advice:'Lively detail.' }], improvements:[] }], writing);
+ assert.equal(res.status, 200, JSON.stringify(body));
+ assert.equal(body.result.languageReason, `The response shows some variety in vocabulary, such as “${phrases[4]}” and “${phrases[7]}”, and is generally accurate and reasonably organised, as seen in “${phrases[5]}” and “${phrases[8]}”.`);
+ assert.equal(body.checks.evidenceReferencesResolved, 2); assert.equal(body.checks.evidenceVerified, 9);
+});
+
+for (const text of ['Content sits between bands 2 and 3.', 'It is between 1 and 2 on the scale.', 'Language is borderline between grades 1 and 3.', 'A mark from 2 and 3 is plausible.', 'Scores of 2 and 3 are typical for this length.', 'Levels 1, 2 and 3 are all possible.'])
+ test('mark-band style number lists are not mistaken for evidence ids: ' + text, async t => {
+  const { res, body } = await run(t, [three, prose({ contentReason:text })], rich);
+  assert.equal(res.status, 200); assert.equal(body.result.contentReason, text); assert.equal(body.checks.evidenceReferencesResolved, 0);
+ });
