@@ -190,28 +190,36 @@ function neutraliseQuotes(value, input, counts) {
   });
 }
 // Stage 2 is told never to mention evidence numbers in prose, but a model can still write things like "such as 5 and 8". Numbers are NOT stripped
-// indiscriminately (marks, bands, word counts and numbers in the student's own writing are legitimate). Only forms that clearly read as references to
-// catalogue items are rewritten, and only when every number is a real catalogue id: the reference is replaced by the Worker's own verified quotation(s).
-const REF_MARKED = /\b(?:evidence|items?|examples?|quotes?|quotations?|E)\s*#?\s*(\d{1,2}(?:\s*(?:,|and|&)\s*\d{1,2})*)(?![\d%])/giu;
-const REF_BRACKET = /[\[(]\s*#?(\d{1,2}(?:\s*(?:,|and|&)\s*\d{1,2})*)\s*[\])]/gu;
-const REF_BARE = /(?<![\d.\/\u2013\u2014-])\b(\d{1,2}(?:\s*,\s*\d{1,2})*\s*,?\s*(?:and|&)\s*\d{1,2})\b(?![\d%\/\u2013\u2014-]|\s*(?:%|percent|words?|marks?|points?|years?|minutes?|hours?|days?|weeks?|months?))/giu;
-const BARE_NOT_REF_BEFORE = /(?:\bbands?|\bmarks?|\bscores?|\blevels?|\bgrades?|\bbetween|\bfrom|\bout of|\bages?d?)\s*(?:of\s*)?$/iu;
+// indiscriminately (marks, bands, paragraph numbers, word counts and numbers in the student's own writing are legitimate). Only two unmistakable
+// reference forms are rewritten, in ONE pass (so inserted text is never rescanned), and only when every number is a real catalogue id and not a
+// number the student wrote: the reference becomes the Worker's own verified quotation(s), shortened to a prefix if long.
+//   1. "evidence 5", "evidence items 5 and 8", "evidence number 5", "evidence #5"
+//   2. "such as 5 and 8", "as seen in 5, 8 and 9", "see 5 and 8", "for example 5 and 8", ... when the list ends the clause
+// Brackets, "item/example N", "E5", ranges ("5 to 8", "5-8"), a single bare number and anything near marks/bands/units are never touched.
+const NUM_LIST = String.raw`\d{1,2}(?:\s*(?:,|&|and)\s*\d{1,2})*`;
+const EVIDENCE_REF = new RegExp(String.raw`\bevidence(?:\s+(?:items?|numbers?|ids?))?\s*#?\s*(${NUM_LIST})(?![\d%]|\s*(?:-|–|—|to\b|,|&|and\b)\s*\d)`, 'giu');
+const INTRO_REF = new RegExp(String.raw`\b(such as|as seen in|as shown in|as in|seen in|shown in|see|for example|for instance|e\.g\.|including|especially|notably)(\s+)(${NUM_LIST})(?![\d%/]|\.\d|\s*(?:-|–|—|to\b|,|&|and\b)\s*\d)(?=\s*(?:$|[,.;:!?)]|(?:and|but|which|that|so|is|are|shows?|helps?|supports?|gives?)\b))`, 'giu');
+const MAX_REFERENCES_PER_FIELD = 4, MAX_INSERTED_QUOTE = 80;
 function resolveEvidenceReferences(value, input, evidence, counts) {
   const quoteOf = new Map(evidence.catalogue.map(item => [item.id, item.quote]));
   const writing = input.task + '\n' + input.response;
-  const render = list => {
-    const ids = list.split(/\s*(?:,|and|&)\s*/u).filter(Boolean).map(Number);
-    if (!ids.length || new Set(ids).size !== ids.length || !ids.every(id => quoteOf.has(id))) return null;
-    const quotes = ids.map(id => '\u201C' + quoteOf.get(id) + '\u201D');
+  const shorten = quote => { if ([...quote].length <= MAX_INSERTED_QUOTE) return quote; const cut = [...quote].slice(0, MAX_INSERTED_QUOTE).join(''); return cut.slice(0, Math.max(cut.lastIndexOf(' '), 20)) + '…'; };
+  let done = 0;
+  const render = (list, numbersAreSafe) => {
+    const ids = list.split(/\s*(?:,|&|and)\s*/u).filter(Boolean).map(Number);
+    if (done >= MAX_REFERENCES_PER_FIELD || !ids.length || new Set(ids).size !== ids.length || !ids.every(id => quoteOf.has(id))) return null;
+    // numerals the student wrote themselves ("2 robots and 3 planets") are the student's data, not references
+    if (numbersAreSafe && ids.some(n => new RegExp('(?<!\\d)' + n + '(?!\\d)', 'u').test(writing))) return null;
+    const quotes = ids.map(id => '“' + shorten(quoteOf.get(id)) + '”');
+    done += 1; counts.evidenceReferencesResolved += 1;
     return quotes.length === 1 ? quotes[0] : quotes.slice(0, -1).join(', ') + ' and ' + quotes[quotes.length - 1];
   };
-  const swap = (text, pattern, guard) => text.replace(pattern, (whole, list, offset) => {
-    if (guard && !guard(list, text.slice(0, offset))) return whole;
-    const quotes = render(list); if (!quotes) return whole;
-    counts.evidenceReferencesResolved += 1; return quotes;
+  // one combined pass: inserted quotations are never scanned again
+  const combined = new RegExp(EVIDENCE_REF.source + '|' + INTRO_REF.source, 'giu');
+  return value.replace(combined, (whole, evidenceList, intro, gap, introList) => {
+    if (evidenceList !== undefined) return render(evidenceList, false) ?? whole;
+    const quotes = render(introList, true); return quotes === null ? whole : intro + gap + quotes;
   });
-  let out = swap(value, REF_MARKED); out = swap(out, REF_BRACKET);
-  return swap(out, REF_BARE, (list, before) => !BARE_NOT_REF_BEFORE.test(before) && !list.split(/\D+/u).filter(Boolean).some(n => new RegExp('(?<!\\d)' + n + '(?!\\d)', 'u').test(writing)));
 }
 function verifyAssessment(raw, input, evidence, counts) {
   const byId = new Map(evidence.catalogue.map(item => [item.id, item]));

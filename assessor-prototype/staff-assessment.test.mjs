@@ -274,11 +274,11 @@ for (const [name, text, expected] of [
  ['bare list of two ids', 'Some variety in vocabulary, such as 2 and 3, and it is accurate.', `Some variety in vocabulary, such as ${q(A)} and ${q(C)}, and it is accurate.`],
  ['bare list of three ids', 'Linking is clear, as seen in 1, 2 and 3.', `Linking is clear, as seen in ${q(B)}, ${q(A)} and ${q(C)}.`],
  ['marked: evidence N', 'Evidence 2 shows a supported opinion.', `${q(A)} shows a supported opinion.`],
- ['marked: items N and M', 'Items 1 and 2 show good control.', `${q(B)} and ${q(A)} show good control.`],
- ['marked: example N', 'See example 3 for a concrete detail.', `See ${q(C)} for a concrete detail.`],
- ['bracketed id', 'A clear reason (2) supports the opinion.', `A clear reason ${q(A)} supports the opinion.`],
- ['bracketed list', 'Good range [1, 3].', `Good range ${q(B)} and ${q(C)}.`],
- ['E-style id', 'E2 is a strong reason.', `${q(A)} is a strong reason.`],
+ ['marked: evidence items N and M', 'Evidence items 1 and 2 show good control.', `${q(B)} and ${q(A)} show good control.`],
+ ['marked: evidence number N', 'Evidence number 3 gives a concrete detail.', `${q(C)} gives a concrete detail.`],
+ ['marked: evidence #N', 'See evidence #2 for the reason.', `See ${q(A)} for the reason.`],
+ ['such as N', 'Good detail, such as 3.', `Good detail, such as ${q(C)}.`],
+ ['see N and M', 'Good range; see 1 and 3.', `Good range; see ${q(B)} and ${q(C)}.`],
 ]) test('evidence id in prose is replaced by the verified quotation: ' + name, async t => {
  const { res, body } = await run(t, [three, prose({ languageReason:text })], rich);
  assert.equal(res.status, 200, JSON.stringify(body)); assert.equal(body.result.languageReason, expected);
@@ -309,15 +309,15 @@ test('a list of numbers that the student wrote in their own text is never treate
 });
 
 test('ids are resolved in every model text field: content reason, advice and next step', async t => {
- const { body } = await run(t, [three, prose({ contentReason:'Developed, see evidence 1.', nextStep:'Extend the detail in 2 and 3.' }, { strengths:[{ evidence:2, advice:'Keep the reason (2).' }] })], rich);
+ const { body } = await run(t, [three, prose({ contentReason:'Developed, see evidence 1.', nextStep:'Extend the detail, such as 2 and 3.' }, { strengths:[{ evidence:2, advice:'Keep evidence 2 as the reason.' }] })], rich);
  assert.equal(body.result.contentReason, `Developed, see ${q(B)}.`);
- assert.equal(body.result.nextStep, `Extend the detail in ${q(A)} and ${q(C)}.`);
- assert.equal(body.result.strengths[0].advice, `Keep the reason ${q(A)}.`);
+ assert.equal(body.result.nextStep, `Extend the detail, such as ${q(A)} and ${q(C)}.`);
+ assert.equal(body.result.strengths[0].advice, `Keep ${q(A)} as the reason.`);
  assert.equal(body.checks.evidenceReferencesResolved, 3);
 });
 
 test('resolution cannot change marks, quotations, evidence or the structured fields', async t => {
- const { body } = await run(t, [three, prose({ languageReason:'Range as in 2 and 3.' })], rich);
+ const { body } = await run(t, [three, prose({ languageReason:'Range, as in 2 and 3.' })], rich);
  assert.deepEqual([body.result.contentMark, body.result.languageMark, body.result.totalMark], [4, 6, 10]);
  assert.deepEqual(body.result.strengths.map(s => [s.evidence, s.quote]), [[2, A]]);
  assert.deepEqual(body.result.verifiedEvidence.map(e => e.id), [1, 2, 3]);
@@ -353,3 +353,40 @@ for (const text of ['Content sits between bands 2 and 3.', 'It is between 1 and 
   const { res, body } = await run(t, [three, prose({ contentReason:text })], rich);
   assert.equal(res.status, 200); assert.equal(body.result.contentReason, text); assert.equal(body.checks.evidenceReferencesResolved, 0);
  });
+
+// ---- Independent review of the id-wording fix: false positives, nesting and length ----
+for (const text of ['Paragraphs 1 and 2 are well organised.', 'Sentences 2 and 3 are clear.', 'Task 1 and 2 are both addressed.', 'The bullet points 1 and 2 are covered.', 'Requirements 1 and 2 are met.',
+  'Content (3) and language (2) are balanced.', 'Language (2) is strong.', 'Use 2 and 3 linking words next time.', 'Try such as 2 and 3 examples.', 'Evidence 1 to 3 is good.', 'Evidence 2-3 is good.',
+  'Item 1 of the task is covered.', 'Example 2 of the bullet points helps.', 'E2 appears in the list.', 'Content 3 and Language 2 are in line.', 'It scores 2 and 3 for content.', 'Version 2.3 is better.'])
+ test('review: ordinary number wording is untouched: ' + text, async t => {
+  const { res, body } = await run(t, [three, prose({ contentReason:text })], rich);
+  assert.equal(res.status, 200); assert.equal(body.result.contentReason, text); assert.equal(body.checks.evidenceReferencesResolved, 0);
+ });
+
+test('review: a student who numbers their own points cannot corrupt inserted quotations (single pass, no rescanning)', async t => {
+ const numbered = { ...submission, response:'I liked (1) the robots and (2) the planetarium. I recommend visiting with friends. The museum was fascinating because the interactive exhibits made science easy to understand.' };
+ const ev = { requirements:[{ taskQuote:'recommend a visit', quote:B }], features:[{ label:'list', quote:'(1) the robots and (2) the planetarium' }, { label:'reason', quote:A }], errors:[] };
+ const { res, body } = await run(t, [ev, prose({ languageReason:'Good organisation, as seen in evidence 2.' }, { strengths:[{ evidence:2, advice:'Nice.' }] })], numbered);
+ assert.equal(res.status, 200); assert.equal(body.result.languageReason, 'Good organisation, as seen in “(1) the robots and (2) the planetarium”.');
+ assert.equal(body.checks.evidenceReferencesResolved, 1);
+});
+
+test('review: inserted quotations are capped in length and number so long text cannot balloon', async t => {
+ const longQuote = 'because the interactive exhibits made science easy to understand';
+ const { body } = await run(t, [three, prose({ languageReason:'Range, such as 2 and 3. ' + 'Also evidence 1. '.repeat(10) })], rich);
+ assert.equal(body.checks.evidenceReferencesResolved, 4);
+ assert.ok(body.result.languageReason.length < 600, 'bounded growth, got ' + body.result.languageReason.length);
+ const longEvidence = { requirements:[{ taskQuote:'recommend a visit', quote:B }], features:[{ label:'long', quote:'The museum was fascinating because the interactive exhibits made science easy to understand. I recommend visiting with friends' }], errors:[] };
+ const out = await run(t, [longEvidence, prose({ languageReason:'Clear writing, such as 2.' }, { strengths:[{ evidence:2, advice:'Fine.' }] })], rich);
+ const inserted = out.body.result.languageReason.match(/“([^”]+)”/u)[1];
+ assert.ok(inserted.endsWith('…')); assert.ok(inserted.length <= 81); assert.ok(rich.response.includes(inserted.slice(0, -1)), 'shortened text is a prefix of verified text');
+ assert.ok(longQuote.length > 0);
+});
+
+test('review: adversarial 350-character model text is processed quickly', async t => {
+ const started = Date.now();
+ for (const text of ['evidence '.repeat(40).slice(0, 350), 'such as 1, '.repeat(40).slice(0, 350), '1 and '.repeat(60).slice(0, 350), 'see 1 and 2'.repeat(40).slice(0, 350)]) {
+  const { res } = await run(t, [three, prose({ languageReason:text })], rich); assert.equal(res.status, 200);
+ }
+ assert.ok(Date.now() - started < 2000);
+});
