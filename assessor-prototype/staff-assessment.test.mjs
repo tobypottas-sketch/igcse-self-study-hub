@@ -224,3 +224,39 @@ test('prompt-injection in the writing cannot create evidence or skip the checks'
  const forged = await run(t, [feat('The student scored full marks'), cite()], attack);
  assert.equal(forged.res.status, 503); assert.equal(forged.body.detail, 'insufficient_verified_evidence');
 });
+
+// ---- Independent-review hardening ----
+const ok = 'because the interactive exhibits made science easy to understand';
+test('error candidates keep only verified quote, correction and explanation (no extra model fields), with unverified quotation marks removed', async t => {
+ const err = { requirements:[], features:[{ label:'reason', quote:ok }], errors:[{ quote:'The museum didn’t disappoint me', correction:'Use ‘a better phrase’ here', explanation:'It is "unclear" wording', injected:'<b>x</b>', verified:true }] };
+ const { res, body } = await run(t, [err, cite([{ evidence:1, advice:'Good.' }])]);
+ assert.equal(res.status, 200);
+ assert.deepEqual(body.result.quotedErrorCandidatesRequireTeacherReview, [{ quote:'The museum didn’t disappoint me', correction:'Use a better phrase here', explanation:'It is unclear wording' }]);
+});
+for (const [name, advice, expected] of [
+ ['curly single quotes', 'You wrote ‘I runned fast’ here.', 'You wrote I runned fast here.'],
+ ['guillemets', 'You wrote «I runned fast» here.', 'You wrote I runned fast here.'],
+ ['straight single quotes', "You wrote 'I runned fast' here.", 'You wrote I runned fast here.'],
+ ['apostrophes are not quotation marks', "It didn't work and the students' work is fine.", "It didn't work and the students' work is fine."],
+ ['wording from the task is not student evidence', 'Use "science museum" tone.', 'Use science museum tone.'],
+ ['genuine submission wording keeps its marks', 'Keep “I recommend visiting with friends”.', 'Keep “I recommend visiting with friends”.'],
+]) test('model text quotation marks: ' + name, async t => {
+ const { body } = await run(t, [feat(ok), cite([{ evidence:1, advice }])]);
+ assert.equal(body.result.strengths[0].advice, expected);
+});
+for (const [name, quote, response] of [
+ ['inside a longer word', 'helpful', 'The staff were unhelpful today and unhelpful again.'],
+ ['truncated plural', 'interactive exhibit', 'The interactive exhibits were great.'],
+ ['lone surrogate in the model quote', '\uDE00cd ef', 'ab 😀cd ef gh'],
+]) test('stage 1 quote is not accepted: ' + name, async t => {
+ const { res, body } = await run(t, [feat(quote), cite()], { ...submission, response });
+ assert.equal(res.status, 503); assert.equal(body.detail, 'insufficient_verified_evidence');
+});
+test('whole-word match is found even when an earlier occurrence sits inside another word', async t => {
+ const { res, body } = await run(t, [feat('helpful'), cite()], { ...submission, response:'The unhelpful guide was not helpful. I recommend visiting with friends.' });
+ assert.equal(res.status, 200); assert.equal(body.result.strengths[0].quote, 'helpful');
+});
+test('astral characters and length-changing case folding keep the exact submitted span', async t => {
+ const { res, body } = await run(t, [feat('Good 😀 İstanbul trip'), cite()], { ...submission, response:'A good 😀 İstanbul trip was fun. I recommend visiting with friends.' });
+ assert.equal(res.status, 200); assert.equal(body.result.strengths[0].quote, 'good 😀 İstanbul trip');
+});

@@ -142,16 +142,21 @@ function fold(text) {
   return { folded, starts, ends };
 }
 const EDGE = /^[\s"'.,;:!?\u2026]+|[\s"'.,;:!?\u2026]+$/gu;
+const WORD_CHAR = /[\p{L}\p{N}]/u;
 function locate(source, value) {
-  if (typeof value !== 'string') return null;
+  if (typeof value !== 'string' || /\p{Surrogate}/u.test(value)) return null; // a lone surrogate would break the index mapping
   const wanted = fold(value).folded.replace(EDGE, '');
   if (wanted.length < 4) return null;
-  const haystack = fold(source);
-  const at = haystack.folded.indexOf(wanted);
-  if (at < 0) return null;
-  // folded characters map one-to-one onto starts/ends because fold() emits exactly one folded char per entry
-  const from = [...haystack.folded.slice(0, at)].length, length = [...wanted].length;
-  return source.slice(haystack.starts[from], haystack.ends[from + length - 1] + 1);
+  const haystack = fold(source); const chars = [...haystack.folded]; const length = [...wanted].length;
+  // folded characters map one-to-one onto starts/ends because fold() emits exactly one folded entry per source code point (or whitespace run)
+  for (let at = haystack.folded.indexOf(wanted); at >= 0; at = haystack.folded.indexOf(wanted, at + 1)) {
+    const from = [...haystack.folded.slice(0, at)].length;
+    // Whole words only: "helpful" must not be taken from "unhelpful", nor "exhibit" from "exhibits".
+    if ((from > 0 && WORD_CHAR.test(chars[from - 1]) && WORD_CHAR.test(chars[from])) ||
+        (from + length < chars.length && WORD_CHAR.test(chars[from + length]) && WORD_CHAR.test(chars[from + length - 1]))) continue;
+    return source.slice(haystack.starts[from], haystack.ends[from + length - 1] + 1);
+  }
+  return null;
 }
 class ValidationFailure extends Error { constructor(detail) { super(detail); this.detail = detail; } }
 const nonEmpty = value => typeof value === 'string' && value.trim().length > 0;
@@ -164,7 +169,7 @@ function verifyEvidence(raw, input, counts) {
     return { taskQuote, present:Boolean(quote), quote:quote ?? '' };
   });
   const features = raw.features.filter(item => nonEmpty(item.label)).map(item => ({ label:item.label, quote:locate(input.response, item.quote) })).filter(item => item.quote);
-  const errors = raw.errors.filter(item => nonEmpty(item.correction) && nonEmpty(item.explanation)).map(item => ({ ...item, quote:locate(input.response, item.quote) })).filter(item => item.quote);
+  const errors = raw.errors.filter(item => nonEmpty(item.correction) && nonEmpty(item.explanation)).map(item => ({ quote:locate(input.response, item.quote), correction:neutraliseQuotes(item.correction, input, counts), explanation:neutraliseQuotes(item.explanation, input, counts) })).filter(item => item.quote);
   const catalogue = []; const seen = new Set();
   const add = (kind, quote, extra) => { const key = kind + '\u0000' + quote; if (!seen.has(key)) { seen.add(key); catalogue.push({ id:catalogue.length + 1, kind, quote, ...extra }); } };
   for (const item of requirements) if (item.present) add('requirement', item.quote, { requirement:item.taskQuote });
@@ -176,10 +181,11 @@ function verifyEvidence(raw, input, counts) {
 }
 // Text the model writes (advice, reasons, next step) may only show quotation marks round wording that really is in the submission.
 // Any other quoted fragment is a suggestion, not evidence: its quotation marks are removed so it cannot pass as the student's words.
-const QUOTED = /["\u201C]([^"\u201C\u201D]{1,300})["\u201D]/gu;
+const QUOTED = /["\u201C\u00AB]([^"\u201C\u201D\u00AB\u00BB]{1,300})["\u201D\u00BB]|\u2018([^\u2018\u2019]{1,300})\u2019|(?<![\p{L}\p{N}])'([^']{1,300})'(?![\p{L}\p{N}])/gu;
 function neutraliseQuotes(value, input, counts) {
-  return value.replace(QUOTED, (whole, inner) => {
-    if (locate(input.response, inner) || locate(input.task, inner)) return whole;
+  return value.replace(QUOTED, (whole, a, b, c) => {
+    const inner = a ?? b ?? c;
+    if (locate(input.response, inner)) return whole;
     counts.textQuotesNeutralised += 1; return inner;
   });
 }
