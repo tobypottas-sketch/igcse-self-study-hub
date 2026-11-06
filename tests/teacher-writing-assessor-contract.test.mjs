@@ -59,6 +59,8 @@ test('Worker outbound Supabase calls use only fetch options the Workers runtime 
   t.mock.method(globalThis, 'fetch', async (url, init = {}) => {
     seen.push(Object.keys(init));
     if ('cache' in init) throw new TypeError("The 'cache' field on 'RequestInitializerDict' is not implemented.");
+    // Confirmed live on Cloudflare (Nov 2026): redirect:'error' is not implemented either, so every call threw -> 503.
+    if (init.redirect !== undefined && !['follow', 'manual'].includes(init.redirect)) throw new TypeError("Invalid redirect value, must be one of 'follow' or 'manual'.");
     return String(url).includes('/auth/v1/user') ? Response.json({ id:uid }) : Response.json([{ role:'teacher', active:true, must_change_password:false }]);
   });
   const env = { HUB_ORIGIN:ORIGIN, SUPABASE_URL:'https://synthetic.supabase.co', SUPABASE_PUBLISHABLE_KEY:'synthetic-key',
