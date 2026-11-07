@@ -75,7 +75,7 @@ test('Review Writing adapter keeps the chosen or teacher-set prompt and adds the
 });
 test('the privacy notice says what really happens and makes no claims the code does not keep', () => {
   const all = [PRIVACY_SUMMARY, ...PRIVACY_DETAIL, PRIVACY_CONSENT].join(' ');
-  assert.match(all, /not saved/i); assert.match(all, /AI/); assert.match(all, /personal details/i); assert.match(all, /no marks/i); assert.match(all, /mistakes/i); assert.doesNotMatch(all, /anonymous|guarantee|100%|never stored by Cloudflare|encrypted at rest/i);
+  assert.match(all, /does not save/i); assert.match(all, /autosave/i); assert.match(all, /AI/); assert.match(all, /personal details/i); assert.match(all, /no marks/i); assert.match(all, /mistakes/i); assert.doesNotMatch(all, /anonymous|guarantee|100%|never stored by Cloudflare|encrypted at rest/i);
 });
 test('nothing in the student feedback code touches storage, analytics, the database client or logging', () => {
   for (const file of ['src/assessor/student-client.js', 'src/assessor/student-feedback.js', 'src/assessor/writing-app-adapters.js', 'src/assessor/email-feedback.js', 'src/assessor/review-feedback.js', 'assessor-prototype/student-feedback.js']) {

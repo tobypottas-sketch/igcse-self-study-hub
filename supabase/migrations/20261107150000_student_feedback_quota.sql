@@ -24,7 +24,7 @@ create table if not exists private.feedback_quota_usage (
   refunds smallint not null default 0 check (refunds >= 0),
   last_request_at timestamptz,
   in_flight_until timestamptz,
-  ticket uuid                                    -- known only to the Worker; needed to give a turn back
+  ticket uuid                                    -- identifies one reservation; needed to give a turn back
 );
 
 create table if not exists private.feedback_quota_global (

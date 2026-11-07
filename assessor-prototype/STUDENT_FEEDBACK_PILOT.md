@@ -20,5 +20,8 @@ Status: built and tested on branch `claude/student-writing-feedback`. NOT merged
 ## Capacity warning
 Cloudflare Workers Free allows 10,000 neurons per day for the whole account, shared with the teacher assessor. One assessment is roughly 300 to 450 neurons (estimate), so 20 student requests can use most of the allowance. Watch real usage in the first days and lower `global_daily_limit` if teachers are being starved.
 
+## Release order (each step needs approval)
+migration in mode off → merge → Worker saved as undeployed version and verified → promote → staging test with pilot accounts → pilot → widen.
+
 ## Rollback
 `update private.feedback_settings set mode = 'off';` stops all student use at once. To remove the Worker route, promote the previous Worker version.
