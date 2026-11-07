@@ -174,7 +174,7 @@ test('writing-target checks run on the text the student would see, and developme
 
 test('a writing target that restates an improvement in different words is left out', async t => {
   const improvement = [{ evidence:2, advice:'This is optional. Say why long sessions are a problem for teenagers, so the reader sees the effect.', example:'On the other hand, long sessions can replace sleep, so teenagers are tired at school.' }];
-  const repeated = await run(t, [stage1, withAssess({ improvements:improvement, nextStep:'Pick one problem with long sessions and add a sentence saying why it affects teenagers.' })]);
+  const repeated = await run(t, [stage1, withAssess({ improvements:improvement, nextStep:'Explain why long sessions are a problem for teenagers and what effect they have.' })]);
   assert.equal(repeated.body.result.improvements.length, 1); assert.equal(repeated.body.result.nextStep, '');
   const distinct = await run(t, [stage1, withAssess({ improvements:improvement, nextStep:'Choose one benefit of games, such as teamwork, and add a real example from a friendship.' })]);
   assert.match(distinct.body.result.nextStep, /teamwork/);
@@ -201,14 +201,44 @@ test('unverified corrections are shown to the teacher in a separate, clearly lab
       { quote:'bring <b>you\'re</b> shoes', correction:'bring your shoes', explanation:'The model says this is a tense mistake.', demonstrable:false }] };
   const root = { innerHTML:'' }; renderAssessmentResult(root, result);
   const html = root.innerHTML;
-  assert.match(html, /Possible errors to check \(not verified\)/); assert.match(html, /Suggested correction \(unverified\)/);
+  assert.match(html, /Teacher only: possible errors to check \(not verified\)/); assert.match(html, /assessor-teacher-only/); assert.match(html, /Suggested correction \(unverified\)/);
+  assert.ok(html.indexOf('assessor-teacher-only') > html.indexOf('Experimental') || html.indexOf('assessor-teacher-only') > html.indexOf('notice'));   // after the student-facing feedback and notice
   assert.match(html, /could not confirm these/); assert.match(html, /bring your shoes/);
   assert.doesNotMatch(html, /<b>/); assert.match(html, /&lt;b&gt;/);                                   // escaped
   assert.doesNotMatch(html, /tense mistake/); assert.doesNotMatch(html, /model prose/);              // the model's explanation is never displayed
   assert.equal((html.match(/Suggested correction \(unverified\)/g) ?? []).length, 1);                // the verified error is not repeated here
   const none = { innerHTML:'' }; renderAssessmentResult(none, { ...result, quotedErrorCandidatesRequireTeacherReview:[{ quote:'we goes', correction:'we go', demonstrable:true }] });
-  assert.doesNotMatch(none.innerHTML, /Possible errors to check/);
+  assert.doesNotMatch(none.innerHTML, /possible errors to check/i);
   const partial = { innerHTML:'' };
   renderAssessmentResult(partial, { ...result, strengths:[], improvements:[], feedbackVerified:false, reviewStatus:'pending_teacher_review', verifiedEvidence:[{ id:1, kind:'feature', quote:'However, a timer' }] });
-  assert.match(partial.innerHTML, /Possible errors to check/); assert.match(partial.innerHTML, /Feedback not verified/);
+  assert.match(partial.innerHTML, /possible errors to check/i); assert.match(partial.innerHTML, /Feedback not verified/);
+});
+
+test('target and correction checks avoid the false positives found in review', async t => {
+  const { restates, skillAlreadyExplained, usableSuggestion } = await import('./response-profile.js');
+  const imp = 'long sessions can replace sleep. This is optional. Explain why long sessions are a problem for teenagers. On the other hand, long sessions can replace sleep, so teenagers are tired at school.';
+  assert.equal(restates('Choose the sentence about the timer and explain how it solves the problem of sleep for teenagers.', imp), false);
+  assert.equal(restates('Explain why long sessions are a problem for teenagers and what effect they have.', imp), true);
+  const uniform = 'School uniforms make students equal. This is optional. Say how uniforms help students feel equal at school.';
+  assert.equal(restates('In your paragraph about school uniforms, add the price of one uniform as an example.', uniform), false);
+  const taught = ['Friday is a day or month, so it needs a capital letter. After we, use go, not goes.'];
+  assert.equal(skillAlreadyExplained('Practise verbs after we in your plans.', taught), true);
+  assert.equal(skillAlreadyExplained('Proofread your capital letters again.', taught), true);
+  for (const target of ['In your article, add one detail about the museum visit.', 'Add one detail about the capital city and its transport.', 'Add a reason why science is your favourite subject.', 'Explain why going to the club twice a week helps you.'])
+    assert.equal(skillAlreadyExplained(target, ['Use a before a consonant sound.', 'Friday needs a capital letter.', 'After we, use go, not goes.', 'Of is repeated; use it only once. The correct spelling is receive, not recieve.']), false, target);
+  assert.equal(usableSuggestion('The news are good', 'The news is good'), true);
+  assert.equal(usableSuggestion('The news are good', 'The news is good. This is a tense mistake: news is uncountable, the student must learn past simple.'), false);
+  assert.equal(usableSuggestion('we goes', 'completely different words in this long correction text'), false);
+});
+
+test('one possible error per quotation, and a misleading correction is replaced by a plain note', async t => {
+  const err = (quote, correction) => ({ quote, correction, explanation: 'x' });
+  const s1 = { requirements:[{ taskQuote:'advantages and disadvantages', quote:'they help friends stay in touch' }], features:[],
+    errors:[err('they help friends stay in touch', 'they helps friends stay in touch'), err('they help friends stay in touch', 'they help friend stay in touch'), err('many games teach teamwork', 'many games teach team work. This is a tense mistake and the student must study the past simple.')] };
+  const { body } = await run(t, [s1, withAssess({ strengths:[{ evidence:1, advice:'You give a clear reason, so the reader sees the benefit.' }] })]);
+  const list = body.result.quotedErrorCandidatesRequireTeacherReview;
+  assert.equal(list.length, 2); assert.equal(new Set(list.map(item => item.quote)).size, 2);
+  assert.ok(list.every(item => item.correction === '' || !/tense|past simple/.test(item.correction)));
+  const root = { innerHTML:'' }; renderAssessmentResult(root, { ...body.result, quotedErrorCandidatesRequireTeacherReview:[{ quote:'many games teach teamwork', correction:'', demonstrable:false }] });
+  assert.match(root.innerHTML, /No usable suggestion/);
 });

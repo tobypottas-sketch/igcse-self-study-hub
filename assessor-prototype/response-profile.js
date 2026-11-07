@@ -90,16 +90,31 @@ export function namesPartOfResponse(target, response) {
 
 // ---- Distinct feedback: the writing target must not restate an improvement, nor work on a skill an error improvement has just explained ----
 // Content words are compared by their first five letters, so "recommend", "recommendation" and "recommends" count as one idea.
-const stemsOf = value => new Set((String(value).toLowerCase().match(/[\p{L}']{5,}/gu) ?? []).filter(word => !FILLER.has(word)).map(word => word.slice(0, 5)));
-export function sharedStems(a, b) { const other = stemsOf(b); let shared = 0; for (const stem of stemsOf(a)) if (other.has(stem)) shared += 1; return shared; }
+// Words that appear in almost all advice ("example", "problem", "explain") say nothing about WHICH idea is meant, so they are ignored.
+const ADVICE_STEMS = new Set(['examp', 'probl', 'expla', 'detai', 'reaso', 'reade', 'sente', 'point', 'ideas', 'sayin', 'makes', 'write', 'addin', 'givin', 'menti', 'choos', 'short', 'again', 'bette', 'effec']);
+const stemsOf = value => new Set((String(value).toLowerCase().match(/[\p{L}']{5,}/gu) ?? []).filter(word => !FILLER.has(word)).map(word => word.slice(0, 5)).filter(stem => !ADVICE_STEMS.has(stem)));
+// True when the target is (mostly) made of the same ideas as `other`: at least two shared stems AND at least 60% of the target's own stems.
+export function restates(target, other) {
+  const mine = stemsOf(target), theirs = stemsOf(other); if (!mine.size) return false;
+  let shared = 0; for (const stem of mine) if (theirs.has(stem)) shared += 1;
+  return shared >= 2 && shared / mine.size >= 0.6;
+}
 // Worker-written error explanations (error-check.js) name the skill they teach; the target may not then ask for the same skill again.
+// The patterns match a REQUEST for the skill, not ordinary words such as "article", "capital city" or "subject".
 const SKILLS = [
-  [/\bis (?:plural|singular)\b|^After \w+, use /u, /\b(?:verbs?|agree\w*|subject|plural|singular|grammar)\b/iu],
-  [/\bcorrect spelling\b/u, /\bspell\w*\b/iu],
-  [/\bcapital letter\b|\bThe word I\b/u, /\bcapital\w*\b/iu],
-  [/\bUse an? before\b/u, /\b(?:articles?|a or an)\b/iu],
-  [/ is repeated\b/u, /\brepeat\w*|\btwice\b/iu]
+  [/\bis (?:plural|singular)\b|\bAfter \w+, use \w+, not\b/u, /\b(?:subject[- ]verb|verbs? (?:match|agree|form|ending)|agreement|verbs? after|match(?:es)? the (?:subject|person)|action words?)\b/iu],
+  [/\bcorrect spelling\b/u, /\b(?:spell\w*|misspel\w*)\b/iu],
+  [/\bcapital letter\b|\bThe word I\b/u, /\b(?:capital letters?|upper-?case|lower-?case)\b/iu],
+  [/\bUse an? before\b/u, /\b(?:a or an|use (?:a|an) (?:before|with)|articles? (?:a|an)\b)/iu],
+  [/ is repeated\b/u, /\brepeat(?:ed|ing)? (?:words?|the same|the)\b|\bonly once\b|\bdouble words?\b/iu]
 ];
 export function skillAlreadyExplained(target, explanations) {
   return explanations.some(text => SKILLS.some(([taught, asked]) => taught.test(text) && asked.test(target)));
+}
+// A suggested correction for the teacher must read like a correction of the quoted wording: close to it, one sentence, no explanation or error label.
+export function usableSuggestion(quote, correction) {
+  const q = String(quote), c = String(correction).trim();
+  if (!c || c.length > q.length + 30 || UNVERIFIED_LABEL.test(c) || /[.!?]\s+\p{L}/u.test(c)) return false;
+  const have = new Set((c.toLowerCase().match(/[\p{L}']+/gu) ?? [])); const want = (q.toLowerCase().match(/[\p{L}']+/gu) ?? []);
+  return want.length > 0 && want.filter(word => have.has(word)).length / want.length >= 0.5;
 }

@@ -24,3 +24,5 @@
 }
 .assessor-tag{margin:0 0 .25rem;font-size:.85rem;text-transform:uppercase;letter-spacing:.03em}
 .assessor-suggestion{margin:.25rem 0 0;padding:.4rem .6rem;border-left:3px solid currentColor}
+
+@media print { .assessor-teacher-only { display: none; } }

@@ -237,7 +237,7 @@ test('error candidates keep only verified quote, correction and explanation (no 
  const err = { requirements:[], features:[{ label:'reason', quote:ok }], errors:[{ quote:'The museum didn’t disappoint me', correction:'Use ‘a better phrase’ here', explanation:'It is "unclear" wording', injected:'<b>x</b>', verified:true }] };
  const { res, body } = await run(t, [err, cite([{ evidence:1, advice:'Good.' }])]);
  assert.equal(res.status, 200);
- assert.deepEqual(body.result.quotedErrorCandidatesRequireTeacherReview, [{ quote:'The museum didn’t disappoint me', correction:'Use a better phrase here', explanation:'It is unclear wording', demonstrable:false }]);
+ assert.deepEqual(body.result.quotedErrorCandidatesRequireTeacherReview, [{ quote:'The museum didn’t disappoint me', correction:'', explanation:'It is unclear wording', demonstrable:false }]);   // a suggestion that is not a close correction of the quotation is withheld
 });
 for (const [name, advice, expected] of [
  ['curly single quotes', 'You wrote ‘I runned fast’ here.', 'You wrote I runned fast here.'],

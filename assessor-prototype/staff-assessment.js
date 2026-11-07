@@ -1,5 +1,5 @@
 import { confirmCorrection } from './error-check.js';
-import { profileResponse, describeProfile, redundantAddition, namesPartOfResponse, sharedStems, skillAlreadyExplained, UNVERIFIED_LABEL, ABSENCE_CLAIM } from './response-profile.js';
+import { profileResponse, describeProfile, redundantAddition, namesPartOfResponse, restates, skillAlreadyExplained, usableSuggestion, UNVERIFIED_LABEL, ABSENCE_CLAIM } from './response-profile.js';
 // Teacher submissions are transient. No storage, analytics, logs or shared-key auth.
 const TASK_TYPES = new Set(['email', 'article', 'report', 'essay', 'review']);
 const BODY_BYTES = 12000;
@@ -196,14 +196,15 @@ function verifyEvidence(raw, input, counts) {
   });
   const features = raw.features.filter(item => nonEmpty(item.label)).map(item => ({ label:item.label, quote:locate(input.response, item.quote) })).filter(item => item.quote);
   const errors = raw.errors.filter(item => nonEmpty(item.correction) && nonEmpty(item.explanation) && !sameExact(item.quote, item.correction)).map(item => ({ quote:locate(input.response, item.quote), correction:neutraliseQuotes(item.correction, input, counts), explanation:neutraliseQuotes(item.explanation, input, counts) })).filter(item => item.quote);
+  const seenError = new Set(); const distinctErrors = errors.filter(item => !seenError.has(item.quote) && seenError.add(item.quote)).slice(0, 3);   // one entry per quotation, at most three
   const catalogue = []; const seen = new Set();
   const add = (kind, quote, extra) => { const key = kind + '\u0000' + quote; if (!seen.has(key)) { seen.add(key); catalogue.push({ id:catalogue.length + 1, kind, quote, ...extra }); } };
   for (const item of requirements) if (item.present) add('requirement', item.quote, { requirement:item.taskQuote });
   for (const item of features) add('feature', item.quote, { label:item.label });
-  for (const item of errors) add('possible_error', item.quote, { correction:item.correction, explanation:item.explanation });
+  for (const item of distinctErrors) add('possible_error', item.quote, { correction:item.correction, explanation:item.explanation });
   counts.evidenceVerified = catalogue.length;
   if (!catalogue.length) throw new ValidationFailure('insufficient_verified_evidence');
-  return { requirements, errors, catalogue, unverifiedRequirements:requirements.filter(item => !item.present).map(item => item.taskQuote) };
+  return { requirements, errors:distinctErrors, catalogue, unverifiedRequirements:requirements.filter(item => !item.present).map(item => item.taskQuote) };
 }
 // Text the model writes (advice, reasons, next step) may only show quotation marks round wording that really is in the submission.
 // Any other quoted fragment is a suggestion, not evidence: its quotation marks are removed so it cannot pass as the student's words.
@@ -304,10 +305,11 @@ function verifyAssessment(raw, input, evidence, counts) {
   const cleanedTarget = nonEmpty(raw.nextStep) ? clean(raw.nextStep) : '', target = normal(cleanedTarget);   // every check runs on the text the student would SEE
   const targetOk = nonEmpty(cleanedTarget) && !redundantAddition(cleanedTarget, profile) && !UNVERIFIED_LABEL.test(cleanedTarget) && !ABSENCE_CLAIM.test(cleanedTarget) && namesPartOfResponse(cleanedTarget, input.response) &&
     !evidence.catalogue.some(entry => entry.kind === 'possible_error' && !confirmCorrection(entry.quote, entry.correction, input.response).confirmed && target.includes(normal(entry.quote))) &&
-    !improvements.some(point => target.includes(normal(point.quote)) || sharedStems(cleanedTarget, [point.quote, point.advice, point.suggestion ?? ''].join(' ')) >= 3) &&   // not a reworded repeat of an improvement
+    !improvements.some(point => target.includes(normal(point.quote)) || restates(cleanedTarget, [point.quote, point.advice, point.suggestion ?? ''].join(' '))) &&   // not a reworded repeat of an improvement
     !skillAlreadyExplained(cleanedTarget, improvements.filter(point => point.type === 'error').map(point => point.advice));                                   // a different skill from the error already explained
   // Marks and verified evidence are valid but no feedback item survived verification: return a clearly labelled PARTIAL result instead of failing.
-  // Nothing unverified is passed on: no strengths, no improvements and no writing target (the model's target was not checked against verified feedback).
+  // No unverified feedback is passed on as feedback: no strengths, no improvements and no writing target (the model's target was not checked against verified feedback).
+  // The teacher-only list of unverified possible errors (quotedErrorCandidatesRequireTeacherReview) is separate and labelled as unverified in the Hub.
   // The notice says feedback is unverified; it must never be read as "no mistakes".
   const partial = !strengths.length && !improvements.length;
   return { experimental:true, wordCount:input.response.split(/\s+/u).length,
@@ -316,7 +318,7 @@ function verifyAssessment(raw, input, evidence, counts) {
     ...(partial ? { feedbackVerified:false, reviewStatus:'pending_teacher_review', feedbackNotice:FEEDBACK_NOTICE } : {}),
     missingRequirements:[], observedEvidence:evidence.requirements,
     verifiedEvidence:evidence.catalogue.map(({ id, kind, quote }) => ({ id, kind, quote })),
-    quotedErrorCandidatesRequireTeacherReview:evidence.errors.map(item => ({ ...item, demonstrable:confirmCorrection(item.quote, item.correction, input.response).confirmed })), nextStep:partial || !targetOk ? '' : cleanedTarget,
+    quotedErrorCandidatesRequireTeacherReview:evidence.errors.map(item => ({ ...item, correction:usableSuggestion(item.quote, item.correction) ? item.correction : '', demonstrable:confirmCorrection(item.quote, item.correction, input.response).confirmed })), nextStep:partial || !targetOk ? '' : cleanedTarget,
     warning:partial ? 'Experimental estimate, pending teacher review. Not a Cambridge examiner grade.' : 'Experimental teacher-only estimate. Check the evidence and marks; not a Cambridge examiner grade.' };
 }
 export async function handleStaffAssessment(request, env, runAI, classifyAIError) {
