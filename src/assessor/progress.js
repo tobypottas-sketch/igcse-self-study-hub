@@ -16,7 +16,7 @@ export function estimateFraction(elapsedMs, { ceiling = DEFAULTS.ceiling, curveM
 }
 export function stageAt(elapsedMs, timeoutMs = DEFAULTS.timeoutMs) {
   if (elapsedMs >= timeoutMs - 25000 && elapsedMs >= 60000)
-    return { index: STAGES.length, title: 'Nearly out of time', detail: 'The check will stop by itself soon. If it does, no mark is given and you can try again.' };
+    return { index: STAGES.length, title: 'This is taking longer than expected…', detail: 'The check will stop by itself soon. If it does, no mark is given and you can try again.' };
   let index = 0;
   STAGES.forEach((stage, i) => { if (elapsedMs >= stage.from) index = i; });
   return { index, ...STAGES[index] };

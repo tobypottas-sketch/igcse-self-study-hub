@@ -27,7 +27,7 @@ test('a 15-45 second assessment shows visible, believable movement without stall
 });
 test('status messages are plain-English stages in order, with a patience message and a timeout warning', () => {
   assert.deepEqual([0, 7000, 17000, 30000, 50000].map(ms => stageAt(ms).index), [0, 1, 2, 3, 4]);
-  assert.equal(stageAt(50000).title, 'Still working'); assert.equal(stageAt(70000).title, 'Nearly out of time');
+  assert.equal(stageAt(50000).title, 'Still working'); assert.equal(stageAt(70000).title, 'This is taking longer than expected…');
   for (const s of STAGES) { assert.ok(s.title.length < 45); assert.ok(s.detail.split(' ').length < 20); assert.doesNotMatch(s.title + s.detail, /\d+\s*%|percent|Worker|model|token|LLM/i); }
 });
 test('starts immediately and labels progress as an estimate with no numeric percentage', () => {
