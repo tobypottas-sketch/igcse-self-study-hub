@@ -280,7 +280,8 @@ test('a style item cannot smuggle in an error claim or sit on a quote Stage 1 al
 
 test('the writing target cannot be built round an error the Worker could not demonstrate', async t => {
   const { res, body } = await run(t, [withKitchen('Pronoun reference is clearer.'), withGood({ nextStep:'Fix the pronoun in the kitchen should serve hot food by using they.' })]);
-  assert.equal(res.status, 503); assert.equal(body.detail, 'target_uses_unconfirmed_error');
+  // A wrong target is worse than none: the result is still returned, with the target left out.
+  assert.equal(res.status, 200); assert.equal(body.result.nextStep, ''); assert.ok(body.result.strengths.length || body.result.improvements.length);
   const fine = await run(t, [withKitchen('Pronoun reference is clearer.'), withGood({ nextStep:'Give your opinion about the food a specific reason.' })]);
   assert.equal(fine.res.status, 200);
 });

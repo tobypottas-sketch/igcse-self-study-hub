@@ -19,7 +19,7 @@ function validResult(body) {
     Number.isInteger(r.languageMark) && r.languageMark >= 0 && r.languageMark <= 9 && r.totalMark === r.contentMark + r.languageMark &&
     ['contentReason','languageReason'].every(key => typeof r[key] === 'string' && r[key].trim()) && points(r.strengths) && points(r.improvements) &&
     (partial ? r.reviewStatus === 'pending_teacher_review' && !r.strengths.length && !r.improvements.length && Array.isArray(r.verifiedEvidence)
-      : typeof r.nextStep === 'string' && r.nextStep.trim() && (r.strengths.length || r.improvements.length));
+      : typeof r.nextStep === 'string' && (r.strengths.length || r.improvements.length));   // the writing target may be empty: it is left out when it cannot be verified
 }
 // Two sequential 70B inference calls took ~16 s live; allow generous headroom, then stop waiting (no retry).
 const REQUEST_TIMEOUT_MS = 90000;
