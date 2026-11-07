@@ -556,6 +556,8 @@ try {
 } catch {location.replace('./');}
 </script>
 <link rel="stylesheet" href="email-writing-hub-polish.css?v=11">
+<link rel="stylesheet" href="assessment-progress.css">
+<link rel="stylesheet" href="student-feedback.css">
 </head>
 <body>
 
@@ -905,6 +907,7 @@ try {
         <p>Based on Cambridge's official informal email guidance and examiner comments. The app checks word counts and empty boxes. It <strong>does not grade relevance, development, language accuracy or Cambridge marks</strong>. Use the checks below to reflect on your own writing.</p>
       </details>
     </div>
+    <div id="studentFeedbackHost"></div>
     <div class="review-step-layout">
     <section class="card review-section review-content">
       <div class="card-header"><span class="review-number">1</span> Content <span class="review-step-subtitle">Answer and develop each bullet</span></div>
@@ -4456,5 +4459,6 @@ function setupIndependentExam(){
 document.addEventListener('DOMContentLoaded',setupIndependentExam);
 
 </script>
+<script type="module" src="./src/assessor/email-feedback.js"></script>
 </body>
 </html>

@@ -1,0 +1,39 @@
+// Pure helpers that turn each writing app's own data into the task text and response text sent to the shared assessor.
+// To add another writing app: write two small functions like these and call mountStudentFeedback (see student-feedback.js).
+const clean = value => String(value ?? '').replace(/\s+/g, ' ').trim();
+const sentence = value => { const t = clean(value); return t && !/[.!?]$/.test(t) ? t + '.' : t; };
+function range(min, max) {
+  const lo = Number.parseInt(min, 10), hi = Number.parseInt(max, 10);
+  if (Number.isInteger(lo) && Number.isInteger(hi) && lo > 0 && hi >= lo) return ' Write between ' + lo + ' and ' + hi + ' words.';
+  return '';
+}
+// Informal Email: the question, the audience and the three bullet points the student must cover.
+export function emailTaskText(config = {}) {
+  if (!clean(config.taskQ)) return '';   // no task chosen yet: the panel asks the student to choose one
+  const points = [config.bp1, config.bp2, config.bp3].map(clean).filter(Boolean);
+  const audience = clean(config.audience) || 'a friend';
+  const parts = [sentence(config.taskQ)];
+  if (!/\bemail\b/i.test(config.taskQ)) parts.push('Write an informal email to ' + audience + '.');   // most task questions already say so
+  if (points.length) parts.push('In your email, you must: ' + points.map(p => p.replace(/[.!?]+$/, '')).join('; ') + '.');
+  return parts.filter(Boolean).join(' ') + range(config.minWords, config.maxWords);
+}
+// The sign-off box usually holds the student's own name, which must not be sent: keep a closing phrase, replace a name with a placeholder.
+export function safeSignoff(value) {
+  const lines = String(value ?? '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  if (!lines.length) return '';
+  if (lines.length === 1) return /,$/.test(lines[0]) ? lines[0] + '\n[Name]' : '[Name]';
+  return lines.slice(0, -1).join('\n') + '\n[Name]';
+}
+export function emailResponseText(sections = {}) {
+  const body = [sections.opening, sections.bp1, sections.bp2, sections.bp3, sections.closing].map(v => String(v ?? '').trim()).filter(Boolean);
+  const sign = safeSignoff(sections.signoff);
+  return [...body, sign].filter(Boolean).join('\n\n');
+}
+// Review Writing: the chosen or teacher-supplied prompt, plus the word range if the prompt does not already state one.
+export function reviewTaskText(prompt, { min = 120, max = 160 } = {}) {
+  const t = clean(prompt);
+  return /\bwords?\b/i.test(t) ? t : t + range(min, max);
+}
+export function reviewResponseText(sections = []) {
+  return (Array.isArray(sections) ? sections : Object.values(sections)).map(v => String(v ?? '').trim()).filter(Boolean).join('\n\n');
+}

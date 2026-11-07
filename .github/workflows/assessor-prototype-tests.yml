@@ -5,6 +5,9 @@ on:
       - 'assessor-prototype/**'
       - 'src/assessor/**'
       - 'tests/teacher-writing-assessor*'
+      - 'tests/student-writing-feedback*'
+      - 'student-feedback.css'
+      - 'supabase/migrations/20261107150000_student_feedback_quota.sql'
       - 'assessor.css'
       - 'assessment-progress.css'
       - '.github/workflows/assessor-prototype-tests.yml'
@@ -13,6 +16,9 @@ on:
       - 'assessor-prototype/**'
       - 'src/assessor/**'
       - 'tests/teacher-writing-assessor*'
+      - 'tests/student-writing-feedback*'
+      - 'student-feedback.css'
+      - 'supabase/migrations/20261107150000_student_feedback_quota.sql'
       - 'assessor.css'
       - 'assessment-progress.css'
       - '.github/workflows/assessor-prototype-tests.yml'
@@ -28,4 +34,4 @@ jobs:
         with:
           node-version: '22'
       - name: Run Worker, staff-auth, deployment-plan, Hub client and contract tests
-        run: node --test assessor-prototype/*.test.mjs tests/teacher-writing-assessor*.test.mjs
+        run: node --test assessor-prototype/*.test.mjs tests/teacher-writing-assessor*.test.mjs tests/student-writing-feedback.test.mjs
