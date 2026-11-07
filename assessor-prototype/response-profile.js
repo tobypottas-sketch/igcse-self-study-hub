@@ -87,3 +87,19 @@ export function namesPartOfResponse(target, response) {
   for (const word of words(target)) if (mine.has(word) || mine.has(word.replace(/s$/u, '')) || mine.has(word + 's')) shared += 1;
   return shared >= 2;
 }
+
+// ---- Distinct feedback: the writing target must not restate an improvement, nor work on a skill an error improvement has just explained ----
+// Content words are compared by their first five letters, so "recommend", "recommendation" and "recommends" count as one idea.
+const stemsOf = value => new Set((String(value).toLowerCase().match(/[\p{L}']{5,}/gu) ?? []).filter(word => !FILLER.has(word)).map(word => word.slice(0, 5)));
+export function sharedStems(a, b) { const other = stemsOf(b); let shared = 0; for (const stem of stemsOf(a)) if (other.has(stem)) shared += 1; return shared; }
+// Worker-written error explanations (error-check.js) name the skill they teach; the target may not then ask for the same skill again.
+const SKILLS = [
+  [/\bis (?:plural|singular)\b|^After \w+, use /u, /\b(?:verbs?|agree\w*|subject|plural|singular|grammar)\b/iu],
+  [/\bcorrect spelling\b/u, /\bspell\w*\b/iu],
+  [/\bcapital letter\b|\bThe word I\b/u, /\bcapital\w*\b/iu],
+  [/\bUse an? before\b/u, /\b(?:articles?|a or an)\b/iu],
+  [/ is repeated\b/u, /\brepeat\w*|\btwice\b/iu]
+];
+export function skillAlreadyExplained(target, explanations) {
+  return explanations.some(text => SKILLS.some(([taught, asked]) => taught.test(text) && asked.test(target)));
+}

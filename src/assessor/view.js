@@ -29,6 +29,7 @@ export function renderAssessor(root, profile) {
   <p class="muted assessor-criteria">Uses the 0511 writing criteria: Content—task fulfilment and development; Language—range, accuracy and organisation. Estimates require teacher judgement, not automatic acceptance. <a href="https://www.cambridgeinternational.org/Images/637270-2024-specimen-paper-1-mark-scheme.pdf" target="_blank" rel="noopener noreferrer">Cambridge specimen criteria</a>.</p></section>`;
   return true;
 }
+const UNVERIFIED_NOTE = 'The checker could not confirm these. They are model suggestions, not verified errors: please check each one yourself before you use it with the student.';
 const PARTIAL_NOTICE = 'Specific feedback could not be verified for this response. Please ask your teacher to review it.';
 export function renderAssessmentResult(root, result) {
   const LABELS = { error:['Language error', 'Correction'], style:['Optional style suggestion', 'Example revision (one possible way)'] };
@@ -38,12 +39,17 @@ export function renderAssessmentResult(root, result) {
   };
   const points = (title, values) => `<section class="admin-card"><h3>${title}</h3>${values.length ? `<ul>${values.map(item).join('')}</ul>` : '<p class="muted">None identified with verified evidence.</p>'}</section>`;
   const scores = `<div class="assessor-scores">${[['Content',result.contentMark,6],['Language',result.languageMark,9],['Total',result.totalMark,15]].map(([label,value,max])=>`<dl class="admin-card"><dt>${label}</dt><dd>${e(value)} <small>/ ${max}</small></dd></dl>`).join('')}</div>`;
+  // Possible errors the Worker could not demonstrate. The quotation is verified (it is in the response); the correction is only a model suggestion,
+  // and the model's explanation is deliberately NOT shown. Kept apart from the verified feedback and labelled for the teacher.
+  const candidates = (Array.isArray(result.quotedErrorCandidatesRequireTeacherReview) ? result.quotedErrorCandidatesRequireTeacherReview : [])
+    .filter(item => item?.demonstrable === false && typeof item.quote === 'string' && typeof item.correction === 'string').slice(0, 3);
+  const unverified = candidates.length ? `<section class="admin-card assessor-unverified"><h3>Possible errors to check (not verified)</h3><p class="muted">${e(UNVERIFIED_NOTE)}</p><ul>${candidates.map(item => `<li><blockquote>${e(item.quote)}</blockquote><p><strong>Suggested correction (unverified):</strong> ${e(item.correction)}</p></li>`).join('')}</ul></section>` : '';
   const reasons = `<section class="admin-card"><h3>Content</h3><p>${e(result.contentReason)}</p><h3>Language</h3><p>${e(result.languageReason)}</p></section>`;
   if (result.feedbackVerified === false) {
     // Partial result: marks and verified evidence only. The notice is fixed text and never implies the student made no mistakes.
     const evidence = (Array.isArray(result.verifiedEvidence) ? result.verifiedEvidence : []).filter(item => typeof item?.quote === 'string');
-    root.innerHTML = `<div class="assessor-result"><h2>Assessment estimate (pending teacher review)</h2>${scores}<section class="admin-card assessor-unverified" role="alert"><h3>Feedback not verified</h3><p>${e(PARTIAL_NOTICE)}</p></section><div class="assessor-feedback">${reasons}${evidence.length ? `<section class="admin-card"><h3>Verified evidence from the response</h3><ul>${evidence.map(item => `<li><blockquote>${e(item.quote)}</blockquote></li>`).join('')}</ul></section>` : ''}</div><p class="notice">Experimental estimate, pending teacher review. Not a Cambridge examiner grade.</p></div>`;
+    root.innerHTML = `<div class="assessor-result"><h2>Assessment estimate (pending teacher review)</h2>${scores}<section class="admin-card assessor-unverified" role="alert"><h3>Feedback not verified</h3><p>${e(PARTIAL_NOTICE)}</p></section><div class="assessor-feedback">${reasons}${unverified}${evidence.length ? `<section class="admin-card"><h3>Verified evidence from the response</h3><ul>${evidence.map(item => `<li><blockquote>${e(item.quote)}</blockquote></li>`).join('')}</ul></section>` : ''}</div><p class="notice">Experimental estimate, pending teacher review. Not a Cambridge examiner grade.</p></div>`;
     return;
   }
-  root.innerHTML = `<div class="assessor-result"><h2>Assessment estimate</h2>${scores}<div class="assessor-feedback">${reasons}${points('Strengths',result.strengths)}${points('Improvements',result.improvements)}</div>${typeof result.nextStep === 'string' && result.nextStep.trim() ? `<section class="admin-card"><h3>Your writing target</h3><p>${e(result.nextStep)}</p></section>` : ''}<p class="notice">${e(result.warning ?? 'Experimental teacher-only estimate; review before using.')}</p></div>`;
+  root.innerHTML = `<div class="assessor-result"><h2>Assessment estimate</h2>${scores}<div class="assessor-feedback">${reasons}${points('Strengths',result.strengths)}${points('Improvements',result.improvements)}${unverified}</div>${typeof result.nextStep === 'string' && result.nextStep.trim() ? `<section class="admin-card"><h3>Your writing target</h3><p>${e(result.nextStep)}</p></section>` : ''}<p class="notice">${e(result.warning ?? 'Experimental teacher-only estimate; review before using.')}</p></div>`;
 }

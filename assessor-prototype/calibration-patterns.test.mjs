@@ -168,6 +168,47 @@ test('writing-target checks run on the text the student would see, and developme
   const s1 = { ...stage1, errors:[{ quote:'many games teach teamwork', correction:'many game teaches teamwork', explanation:'x' }] };
   const hidden = await run(t, [s1, withAssess({ nextStep:'Rewrite the sentence in evidence 4 so the verb matches.' })]);
   assert.equal(hidden.res.status, 200); assert.equal(hidden.body.result.nextStep, '');
-  const detail = await run(t, [stage1, withAssess({ nextStep:'Make your description of long sessions more detailed, with one example of tired students.', improvements:[{ evidence:2, advice:'This is optional. Make this point more detailed: say how long sessions affect school.', example:'On the other hand, long sessions can replace sleep, so students are tired at school.' }] })]);
-  assert.match(detail.body.result.nextStep, /more detailed/); assert.equal(detail.body.result.improvements.length, 1);
+  const detail = await run(t, [stage1, withAssess({ nextStep:'Pick one benefit of online games and add a real example from a teenager\'s week.', improvements:[{ evidence:2, advice:'This is optional. Make this point more detailed: say how long sessions affect school.', example:'On the other hand, long sessions can replace sleep, so students are tired at school.' }] })]);
+  assert.match(detail.body.result.nextStep, /benefit/); assert.equal(detail.body.result.improvements.length, 1);
+});
+
+test('a writing target that restates an improvement in different words is left out', async t => {
+  const improvement = [{ evidence:2, advice:'This is optional. Say why long sessions are a problem for teenagers, so the reader sees the effect.', example:'On the other hand, long sessions can replace sleep, so teenagers are tired at school.' }];
+  const repeated = await run(t, [stage1, withAssess({ improvements:improvement, nextStep:'Pick one problem with long sessions and add a sentence saying why it affects teenagers.' })]);
+  assert.equal(repeated.body.result.improvements.length, 1); assert.equal(repeated.body.result.nextStep, '');
+  const distinct = await run(t, [stage1, withAssess({ improvements:improvement, nextStep:'Choose one benefit of games, such as teamwork, and add a real example from a friendship.' })]);
+  assert.match(distinct.body.result.nextStep, /teamwork/);
+});
+
+test('after an error has been explained the target must work on a different skill', async t => {
+  const s1 = { requirements:[{ taskQuote:'advantages and disadvantages', quote:'they help friends stay in touch' }], features:[{ label:'plan', quote:'However, a timer can solve this problem' }], errors:[{ quote:'we goes to the club', correction:'we go to the club', explanation:'Wrong verb.' }] };
+  const text = { ...submission, response:'Online games are everywhere. They help friends stay in touch. On Friday we goes to the club. However, a timer can solve this problem.' };
+  const reply = target => withAssess({ strengths:[{ evidence:2, advice:'You use however to move from a problem to a solution, which helps the reader follow your argument.' }], improvements:[{ evidence:3, advice:'x' }], nextStep:target });
+  const same = await run(t, [s1, reply('Practise verbs after we by rewriting your plans for the club on Friday.')], text);
+  assert.equal(same.body.result.improvements[0].advice, 'After we, use go, not goes.'); assert.equal(same.body.result.nextStep, '');
+  const other = await run(t, [s1, reply('Choose the plan for Friday at the club and add one detail about what you will do there.')], text);
+  assert.match(other.body.result.nextStep, /Friday/);
+  const { skillAlreadyExplained } = await import('./response-profile.js');
+  assert.equal(skillAlreadyExplained('Check your spelling.', ['The correct spelling is receive, not recieve.']), true);
+  assert.equal(skillAlreadyExplained('Add a detail about the plan.', ['The correct spelling is receive, not recieve.']), false);
+});
+
+test('unverified corrections are shown to the teacher in a separate, clearly labelled section, never as verified feedback', () => {
+  const result = { contentMark:4, languageMark:6, totalMark:10, wordCount:40, contentReason:'Ok.', languageReason:'Ok.', nextStep:'',
+    strengths:[{ quote:'However, a timer', advice:'You link ideas.' }], improvements:[{ type:'error', quote:'we goes', advice:'After we, use go, not goes.', suggestion:'we go' }],
+    quotedErrorCandidatesRequireTeacherReview:[
+      { quote:'we goes', correction:'we go', explanation:'model prose', demonstrable:true },
+      { quote:'bring <b>you\'re</b> shoes', correction:'bring your shoes', explanation:'The model says this is a tense mistake.', demonstrable:false }] };
+  const root = { innerHTML:'' }; renderAssessmentResult(root, result);
+  const html = root.innerHTML;
+  assert.match(html, /Possible errors to check \(not verified\)/); assert.match(html, /Suggested correction \(unverified\)/);
+  assert.match(html, /could not confirm these/); assert.match(html, /bring your shoes/);
+  assert.doesNotMatch(html, /<b>/); assert.match(html, /&lt;b&gt;/);                                   // escaped
+  assert.doesNotMatch(html, /tense mistake/); assert.doesNotMatch(html, /model prose/);              // the model's explanation is never displayed
+  assert.equal((html.match(/Suggested correction \(unverified\)/g) ?? []).length, 1);                // the verified error is not repeated here
+  const none = { innerHTML:'' }; renderAssessmentResult(none, { ...result, quotedErrorCandidatesRequireTeacherReview:[{ quote:'we goes', correction:'we go', demonstrable:true }] });
+  assert.doesNotMatch(none.innerHTML, /Possible errors to check/);
+  const partial = { innerHTML:'' };
+  renderAssessmentResult(partial, { ...result, strengths:[], improvements:[], feedbackVerified:false, reviewStatus:'pending_teacher_review', verifiedEvidence:[{ id:1, kind:'feature', quote:'However, a timer' }] });
+  assert.match(partial.innerHTML, /Possible errors to check/); assert.match(partial.innerHTML, /Feedback not verified/);
 });
