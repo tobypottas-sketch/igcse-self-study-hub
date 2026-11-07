@@ -25,7 +25,7 @@ export function renderAssessor(root, profile) {
     <label class="assessor-consent"><input type="checkbox" name="privacyConfirmed" required> I have removed identifying details and am authorised to submit this anonymised writing for AI processing.</label>
     <div class="admin-actions"><button class="button button--primary" type="submit">Assess writing</button><button class="button" type="button" data-assessor-clear>Clear writing and feedback</button></div>
     <p class="muted">Two AI calls per assessment. The shared Cloudflare Free allowance is limited; there are no automatic retries.</p>
-  </form><p data-assessor-status role="status" aria-live="polite"></p><section data-assessor-result aria-live="polite"></section>
+  </form><div data-assessor-progress hidden></div><p data-assessor-status role="status" aria-live="polite"></p><section data-assessor-result aria-live="polite"></section>
   <p class="muted assessor-criteria">Uses the 0511 writing criteria: Content—task fulfilment and development; Language—range, accuracy and organisation. Estimates require teacher judgement, not automatic acceptance. <a href="https://www.cambridgeinternational.org/Images/637270-2024-specimen-paper-1-mark-scheme.pdf" target="_blank" rel="noopener noreferrer">Cambridge specimen criteria</a>.</p></section>`;
   return true;
 }
