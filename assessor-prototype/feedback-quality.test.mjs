@@ -103,7 +103,8 @@ test('fewer than two weaknesses is accepted rather than invented', async t => {
   assert.equal((await run(t, [stage1, one])).body.result.improvements.length, 1);
   const none = withGood({ improvements:[] });
   const { res, body } = await run(t, [stage1, none]);
-  assert.equal(res.status, 200); assert.equal(body.result.improvements.length, 0);
+  // the confirmable error "the chips was" is reported even though the model cited nothing; nothing else is invented
+  assert.equal(res.status, 200); assert.deepEqual(body.result.improvements.map(x => x.type), ['error']);
 });
 
 test('a suggestion that repeats the original, drifts from its meaning, or carries unverified quotation marks is not shown as a correction', async t => {
@@ -123,9 +124,9 @@ test('error corrections are the checked stage-1 correction; model examples canno
   }
   // an optional style suggestion with an unusable example (evidence reference, drift from the student's meaning) is omitted, not shown without help
   const style = await run(t, [stage1, withGood({ improvements:[{ evidence:2, advice:'Optional.', example:'The staff were friendly, see evidence 3 and 7 for more.' }] })]);
-  assert.equal(style.body.result.improvements.length, 0);
+  assert.deepEqual(style.body.result.improvements.map(x => x.type), ['error']);   // only the independently confirmed error; the unusable style suggestion is dropped
   const drift = await run(t, [stage1, withGood({ improvements:[{ evidence:2, advice:'Optional.', example:'The waiters were rude and slow.' }] })]);
-  assert.equal(drift.body.result.improvements.length, 0);
+  assert.deepEqual(drift.body.result.improvements.map(x => x.type), ['error']);
 });
 
 test('capitalisation, spelling and punctuation corrections are kept as errors', async t => {
@@ -144,7 +145,7 @@ test('a legitimate grammar term or a word in the cited quotation is not treated 
 
 test('a style suggestion with no usable example is omitted because it adds little', async t => {
   const { body } = await run(t, [stage1, withGood({ improvements:[{ evidence:2, advice:'Optional: you could add what the staff did.', example:'The staff were friendly and welcomed us with a smile' }] })]);
-  assert.equal(body.result.improvements.length, 0);
+  assert.deepEqual(body.result.improvements.map(x => x.type), ['error']);
 });
 
 test('quotations, marks, evidence checks and experimental labelling are unchanged', async t => {
@@ -275,7 +276,7 @@ test('a style item cannot smuggle in an error claim or sit on a quote Stage 1 al
   const { res, body } = await run(t, [ev, stageTwo]);
   assert.equal(res.status, 200); assert.equal(body.result.feedbackVerified, false); assert.deepEqual(body.result.improvements, []);
   const mistake = await run(t, [stage1, withGood({ strengths:[], improvements:[{ evidence:2, advice:'This is a grammar mistake in your sentence.', example:'The staff were friendly: our waiter smiled.' }] })]);
-  assert.equal(mistake.res.status, 200); assert.equal(mistake.body.result.feedbackVerified, false); assert.deepEqual(mistake.body.result.improvements, []);
+  assert.equal(mistake.res.status, 200); assert.ok(mistake.body.result.improvements.every(point => point.type === 'error'), 'the style item with an error claim is dropped; only the independently confirmed error remains');
 });
 
 test('the writing target cannot be built round an error the Worker could not demonstrate', async t => {
@@ -289,7 +290,7 @@ test('the writing target cannot be built round an error the Worker could not dem
 // ---- safe partial results ----
 const NOTICE = 'Specific feedback could not be verified for this response. Please ask your teacher to review it.';
 test('valid marks with no surviving feedback return a labelled partial result, not a failure', async t => {
-  const { res, body } = await run(t, [stage1, withGood({ strengths:[{ evidence:15, advice:'Invented.' }], improvements:[], nextStep:'Fix the pronoun in the kitchen should serve hot food.' })]);
+  const { res, body } = await run(t, [{ ...stage1, errors:[] }, withGood({ strengths:[{ evidence:15, advice:'Invented.' }], improvements:[], nextStep:'Fix the pronoun in the kitchen should serve hot food.' })]);   // no confirmable error, so nothing can be promoted
   assert.equal(res.status, 200); const r = body.result;
   assert.equal(r.feedbackVerified, false); assert.equal(r.reviewStatus, 'pending_teacher_review'); assert.equal(r.experimental, true);
   assert.equal(r.feedbackNotice, NOTICE); assert.match(r.warning, /Experimental/); assert.match(r.warning, /pending teacher review/);

@@ -81,10 +81,11 @@ export const ABSENCE_CLAIM = /\b(?:missing|absent|lacks?|lacking|forgot(?:ten)?|
 
 // A writing target must be about THIS response: it has to share at least two content words (4+ letters) with the student's text.
 const FILLER = new Set('your with that this have from will they them their there what when which would should could about more some into then than also each other your next write writing'.split(' '));
-export function namesPartOfResponse(target, response) {
-  const words = value => new Set((String(value).toLowerCase().match(/[\p{L}']{4,}/gu) ?? []).filter(word => !FILLER.has(word)));
-  const mine = words(response); let shared = 0;
-  for (const word of words(target)) if (mine.has(word) || mine.has(word.replace(/s$/u, '')) || mine.has(word + 's')) shared += 1;
+// `exclude` (optional) lists words that do not count, for example the task wording: a marking reason that only repeats the task is generic.
+export function namesPartOfResponse(target, response, exclude = '') {
+  const words = value => new Set((String(value).toLowerCase().match(/[\p{L}']{4,}/gu) ?? []).map(word => word.replace(/^'+|'+$/gu, '')).filter(word => word.length >= 4 && !FILLER.has(word)));   // 'however' in quotation marks is the word however
+  const mine = words(response), skip = words(exclude); let shared = 0;
+  for (const word of words(target)) if (!skip.has(word) && (mine.has(word) || mine.has(word.replace(/s$/u, '')) || mine.has(word + 's'))) shared += 1;
   return shared >= 2;
 }
 
@@ -93,11 +94,21 @@ export function namesPartOfResponse(target, response) {
 // Words that appear in almost all advice ("example", "problem", "explain") say nothing about WHICH idea is meant, so they are ignored.
 const ADVICE_STEMS = new Set(['examp', 'probl', 'expla', 'detai', 'reaso', 'reade', 'sente', 'point', 'ideas', 'sayin', 'makes', 'write', 'addin', 'givin', 'menti', 'choos', 'short', 'again', 'bette', 'effec']);
 const stemsOf = value => new Set((String(value).toLowerCase().match(/[\p{L}']{5,}/gu) ?? []).filter(word => !FILLER.has(word)).map(word => word.slice(0, 5)).filter(stem => !ADVICE_STEMS.has(stem)));
-// True when the target is (mostly) made of the same ideas as `other`: at least two shared stems AND at least 60% of the target's own stems.
+// True when the target is (mostly) made of the same ideas as `other`: at least two shared stems AND at least 60% of the target's own stems,
+// or a longer overlap (three shared stems and at least 35%) so that a reworded repeat with extra examples is still caught.
 export function restates(target, other) {
   const mine = stemsOf(target), theirs = stemsOf(other); if (!mine.size) return false;
   let shared = 0; for (const stem of mine) if (theirs.has(stem)) shared += 1;
-  return shared >= 2 && shared / mine.size >= 0.6;
+  return (shared >= 2 && shared / mine.size >= 0.6) || (shared >= 3 && shared / mine.size >= 0.35);
+}
+// Both ask the student to develop an idea with detail, and they are about the same topic words: the same advice in different words.
+const DEVELOP_ADVICE = /\b(?:develop\w*|specific\w*|detail\w*|examples?|expand\w*|explain\w*|elaborate|concrete|strateg\w+)\b/iu;
+export function repeatsImprovement(target, point) {
+  const other = [point.quote, point.advice, point.suggestion ?? ''].join(' ');
+  if (restates(target, other)) return true;
+  if (point.type !== 'style' || !DEVELOP_ADVICE.test(target) || !DEVELOP_ADVICE.test(point.advice)) return false;
+  const mine = stemsOf(target), theirs = stemsOf(other); let shared = 0; for (const stem of mine) if (theirs.has(stem)) shared += 1;
+  return shared >= 2;
 }
 // Worker-written error explanations (error-check.js) name the skill they teach; the target may not then ask for the same skill again.
 // The patterns match a REQUEST for the skill, not ordinary words such as "article", "capital city" or "subject".
