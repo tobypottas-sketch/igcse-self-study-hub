@@ -23,7 +23,7 @@ const stage1 = {
 const base = {
   contentMark:4, languageMark:7, contentReason:'Both sides are covered with some development.', languageReason:'Accurate with a good range of linking words.',
   strengths:[{ evidence:3, advice:'You use however to move from a problem to a solution, which helps the reader follow your argument.' }],
-  improvements:[], missingRequirements:[], nextStep:'Choose one disadvantage and explain with a detail why it matters to teenagers.'
+  improvements:[], missingRequirements:[], nextStep:'Choose one problem, such as long sessions replacing sleep, and explain with a detail why it matters.'
 };
 function run(t, replies, body = submission) {
   const ai = [];
@@ -96,7 +96,9 @@ test('a writing target that repeats existing features or an improvement is left 
   const repeated = await run(t, [stage1, reply]);
   assert.equal(repeated.res.status, 200); assert.equal(repeated.body.result.nextStep, ''); assert.equal(repeated.body.result.improvements.length, 1);
   const fine = await run(t, [stage1, withAssess()]);
-  assert.match(fine.body.result.nextStep, /disadvantage/);
+  assert.match(fine.body.result.nextStep, /long sessions/);
+  const generic = await run(t, [stage1, withAssess({ nextStep:'Add more detail to your article.' })]);
+  assert.equal(generic.res.status, 200); assert.equal(generic.body.result.nextStep, '');   // names no part of THIS response
 });
 
 test('praise that rates ordinary wording is rejected, but praise of what the quotation does is kept', async t => {
@@ -130,4 +132,16 @@ test('the Hub accepts and renders a result whose writing target was left out', a
   const out = await assessWriting(client, submission, { fetcher: async () => new Response(JSON.stringify({ stages:2, result }), { status:200, headers:{ 'content-type':'application/json' } }) });
   assert.equal(out.nextStep, '');
   await assert.rejects(assessWriting(client, submission, { fetcher: async () => new Response(JSON.stringify({ stages:2, result:{ ...result, nextStep:undefined } }), { status:200, headers:{ 'content-type':'application/json' } }) }), /valid assessment/);
+});
+
+test('suggestions and targets may not claim that something is absent, and the profile notes how information was collected', async t => {
+  const { ABSENCE_CLAIM, namesPartOfResponse } = await import('./response-profile.js');
+  for (const text of ['Your report is missing a method.', 'You do not include a conclusion.', 'There is no mention of costs.', 'You never mention the reason.']) assert.match(text, ABSENCE_CLAIM, text);
+  for (const text of ['Say how this change would help.', 'Explain the effect with one detail.']) assert.doesNotMatch(text, ABSENCE_CLAIM, text);
+  assert.ok(describeProfile(profileResponse('During one week I counted the bins and surveyed students.')).some(fact => /how information was collected \(counted, surveyed\)/.test(fact)));
+  assert.equal(namesPartOfResponse('Add more detail to your article.', response), false);
+  assert.equal(namesPartOfResponse('Explain why long sessions can replace sleep.', response), true);
+  const reply = withAssess({ improvements:[{ evidence:2, advice:'This is optional. Your article does not include a reason for this, so explain why.', example:'On the other hand, long sessions can replace sleep, so students feel tired.' }] });
+  const { body } = await run(t, [stage1, reply]);
+  assert.equal(body.result.improvements.length, 0);
 });

@@ -86,3 +86,13 @@ test('odd and very long input is handled safely and quickly', () => {
   const long = Array.from({ length:5000 }, (_, i) => 'w' + i).join(' ');
   const started = Date.now(); assert.equal(confirmCorrection(long, long + ' x').confirmed, false); assert.ok(Date.now() - started < 200);
 });
+
+test('a plural or first-person pronoun directly before a verb with a wrong -s/-es ending is demonstrable', () => {
+  for (const [quote, correction, expected] of [['we goes to the park', 'we go to the park', /After we, use go, not goes/], ['they plays football', 'they play football', /After they, use play, not plays/], ['I watches films', 'I watch films', /After I, use watch, not watches/], ['you studies hard', 'you study hard', /After you, use study, not studies/]]) {
+    const check = confirmCorrection(quote, correction, 'Context. ' + quote); assert.equal(check.confirmed, true, quote); assert.match(check.explanation, expected);
+  }
+});
+test('the -s verb rule stays narrow: nouns, singular subjects, irregular words and wider changes are left to the teacher', () => {
+  for (const [quote, correction] of [['he goes to school', 'he go to school'], ['the dogs bark', 'the dog bark'], ['we news every day', 'we new every day'], ['we pass the ball', 'we pas the ball'], ['we goes to parks', 'we go to park'], ['Sam goes home', 'Sam go home']])
+    assert.equal(confirmCorrection(quote, correction, quote).confirmed, false, quote);
+});

@@ -97,6 +97,13 @@ function explainRegion(region, tokens, original, sentenceStart, wholeText) {
       const subject = original[region.start - 1];
       return kind.endsWith('pronoun') ? 'After ' + lower(subject) + ', use ' + t + ', not ' + f + '.' : cap(lower(subject)) + ' is ' + (wantPlural ? 'plural' : 'singular') + ', so use ' + t + ', not ' + f + '.';
     }
+    // A plural or first-person pronoun directly before a verb that wrongly carries the singular -s/-es ending: we goes -> we go.
+    const stem = f.endsWith('ies') ? f.slice(0, -3) + 'y' : f.endsWith('es') && /(?:s|x|z|ch|sh|o)es$/u.test(f) ? f.slice(0, -2) : f.endsWith('s') ? f.slice(0, -1) : null;
+    if (stem && t === stem && region.start >= 1 && from === f && to === t && /^[a-z]{3,}$/u.test(f) && t.length >= 2 && !SINGULAR_S_WORDS.has(f) && !/(?:ss|us|is|as)$/u.test(f) && !BE_PAIRS.has(f)) {
+      const subject = lower(original[region.start - 1] ?? '');
+      if (['we', 'they', 'you', 'i'].includes(subject) && original[region.start + 1] !== undefined) return 'After ' + (subject === 'i' ? 'I' : subject) + ', use ' + t + ', not ' + from + '.';
+      return null;
+    }
     if (['a', 'an'].includes(f) && ['a', 'an'].includes(t) && f !== t) {
       const next = original[region.start + 1];
       if (from !== f || to !== t || !next || !isLowerWord(next) || next.length < 4 || NO_A_AN_SOUND.test(next)) return null;

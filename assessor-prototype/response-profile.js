@@ -9,6 +9,7 @@ const LINKING = [
 ];
 const REASON = /\b(?:because|since|so that|as a result|which means|this means|in order to)\b/iu;
 const EXAMPLE = /\b(?:for example|for instance|such as|e\.g\.|including)\b/iu;
+const METHOD = /(?<![\p{L}\p{N}])(?:counted|surveyed|interviewed|questionnaire|survey|observed|measured|investigated|collected|recorded|timed)(?![\p{L}\p{N}])/giu;
 const GREETING = /^\s*(?:dear|hi|hello|hey)\b/iu;
 const SIGN_OFF = /(?:^|\n)\s*(?:yours (?:sincerely|faithfully)|best wishes|kind regards|regards|your friend|love|see you soon|thank you for (?:reading|your time|considering))\b/iu;
 
@@ -24,6 +25,7 @@ export function profileResponse(response) {
   const linkingPhrases = LINKING_PATTERNS.filter(([, pattern]) => pattern.test(text)).map(([phrase]) => phrase);
   return {
     paragraphs, headings, linkingPhrases,
+    methodWords: [...new Set((text.match(METHOD) ?? []).map(word => word.toLowerCase()))],
     questions: (text.match(/\?/gu) ?? []).length,
     reasons: (text.match(new RegExp(REASON.source, 'giu')) ?? []).length,
     examples: (text.match(new RegExp(EXAMPLE.source, 'giu')) ?? []).length,
@@ -38,6 +40,7 @@ export function describeProfile(profile) {
   if (profile.questions) facts.push(`${profile.questions} question mark${profile.questions === 1 ? '' : 's'} (the response already asks at least one question)`);
   if (profile.reasons) facts.push(`${profile.reasons} reason marker${profile.reasons === 1 ? '' : 's'} such as because`);
   if (profile.examples) facts.push(`${profile.examples} example marker${profile.examples === 1 ? '' : 's'} such as for example`);
+  if (profile.methodWords.length) facts.push(`the response already describes how information was collected (${profile.methodWords.join(', ')})`);
   if (profile.headings) facts.push(`${profile.headings} heading-like line${profile.headings === 1 ? '' : 's'}`);
   if (profile.paragraphs > 1) facts.push(`${profile.paragraphs} paragraphs`);
   if (profile.greeting) facts.push('a greeting');
@@ -66,3 +69,16 @@ export function redundantAddition(advice, profile, quote = '') {
 // Student-facing wording the Worker cannot stand behind: error-type labels it cannot demonstrate.
 // Verified errors are explained by the Worker's own text, so a model-written label like "tense" is never needed.
 export const UNVERIFIED_LABEL = /\b(?:tenses?|verb form|grammar(?:atical)? (?:mistake|error)|subject[- ]verb)\b/iu;
+
+// Claims that something is absent. An optional style suggestion or a writing target must not assert absence: the Worker cannot verify it
+// (the idea may be present in another part of the response), so such wording is left out.
+export const ABSENCE_CLAIM = /\b(?:missing|absent|lacks?|lacking|forgot(?:ten)?|no mention|never mention(?:s|ed)?|(?:do(?:es)?\s*n[o']t|did\s*not|have\s*not|has\s*not|not)\s+(?:yet\s+)?(?:include|included|mention|mentioned|have|give|gave|say|said|explain|explained|describe|described|state|stated))\b/iu;
+
+// A writing target must be about THIS response: it has to share at least two content words (4+ letters) with the student's text.
+const FILLER = new Set('your with that this have from will they them their there what when which would should could about more some into then than also each other your next write writing'.split(' '));
+export function namesPartOfResponse(target, response) {
+  const words = value => new Set((String(value).toLowerCase().match(/[\p{L}']{4,}/gu) ?? []).filter(word => !FILLER.has(word)));
+  const mine = words(response); let shared = 0;
+  for (const word of words(target)) if (mine.has(word) || mine.has(word.replace(/s$/u, '')) || mine.has(word + 's')) shared += 1;
+  return shared >= 2;
+}

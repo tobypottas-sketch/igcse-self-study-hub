@@ -184,10 +184,10 @@ test('partially linked feedback keeps only the evidence-backed points and the sa
 });
 
 test('quotation marks in model text survive only round wording that is really in the submission', async t => {
- const { res, body } = await run(t, [feat('because the interactive exhibits made science easy to understand'), cite([{ evidence:1, advice:'Add “a specific exhibit” and keep “I recommend visiting with friends”.' }], { nextStep:'Try "The planetarium was my favourite" next.' })]);
+ const { res, body } = await run(t, [feat('because the interactive exhibits made science easy to understand'), cite([{ evidence:1, advice:'Add “a specific exhibit” and keep “I recommend visiting with friends”.' }], { nextStep:'Try "The planetarium was my favourite" after the interactive exhibits, then explain why science was easy.' })]);
  assert.equal(res.status, 200);
  assert.equal(body.result.strengths[0].advice, 'Add a specific exhibit and keep “I recommend visiting with friends”.');
- assert.equal(body.result.nextStep, 'Try The planetarium was my favourite next.');
+ assert.equal(body.result.nextStep, 'Try The planetarium was my favourite after the interactive exhibits, then explain why science was easy.');
  assert.equal(body.checks.textQuotesNeutralised, 2);
 });
 

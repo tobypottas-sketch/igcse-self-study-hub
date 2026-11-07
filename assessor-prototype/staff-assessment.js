@@ -1,5 +1,5 @@
 import { confirmCorrection } from './error-check.js';
-import { profileResponse, describeProfile, redundantAddition, UNVERIFIED_LABEL } from './response-profile.js';
+import { profileResponse, describeProfile, redundantAddition, namesPartOfResponse, UNVERIFIED_LABEL, ABSENCE_CLAIM } from './response-profile.js';
 // Teacher submissions are transient. No storage, analytics, logs or shared-key auth.
 const TASK_TYPES = new Set(['email', 'article', 'report', 'essay', 'review']);
 const BODY_BYTES = 12000;
@@ -288,7 +288,7 @@ function verifyAssessment(raw, input, evidence, counts) {
   const stylePoint = (entry, item) => {
     if (overlapsError(entry) || /\b(?:mistakes?|errors?|incorrect|wrong)\b/iu.test(item.advice)) return null;   // a style item may not smuggle in an error claim
     // Advice may not ask for what the response already has, nor use error-type labels the Worker cannot demonstrate, nor rate ordinary wording.
-    if (redundantAddition(item.advice, profile, entry.quote) || UNVERIFIED_LABEL.test(item.advice) || hypeIn(item.advice, entry)) return null;
+    if (redundantAddition(item.advice, profile, entry.quote) || UNVERIFIED_LABEL.test(item.advice) || ABSENCE_CLAIM.test(item.advice) || hypeIn(item.advice, entry)) return null;
     const own = nonEmpty(item.example) ? neutraliseQuotes(item.example, input, counts).trim() : '';
     const safe = own && !/\bevidence\b/iu.test(own) && (own.match(/\d+/gu) ?? []).every(n => writing.includes(n)) && !sameExact(own, entry.quote) && keepsMeaning(entry.quote, own, STYLE_MEANING_SHARE);
     return safe ? { extra:{ type:'style', suggestion:own } } : null;
@@ -301,8 +301,8 @@ function verifyAssessment(raw, input, evidence, counts) {
   // The writing target is read by the student. A wrong target is worse than none, so it is left out (never shown) when it
   // is built round a 'mistake' the Worker could not demonstrate, asks for something the response already contains, uses an error label the Worker cannot
   // stand behind, or repeats the sentence an improvement already covers.
-  const target = normal(raw.nextStep);
-  const targetOk = nonEmpty(raw.nextStep) && !redundantAddition(raw.nextStep, profile) && !UNVERIFIED_LABEL.test(raw.nextStep) && !hypeIn(raw.nextStep, { quote:'' }) &&
+  const target = normal(raw.nextStep), cleanedTarget = nonEmpty(raw.nextStep) ? clean(raw.nextStep) : '';
+  const targetOk = nonEmpty(raw.nextStep) && !redundantAddition(raw.nextStep, profile) && !UNVERIFIED_LABEL.test(raw.nextStep) && !ABSENCE_CLAIM.test(raw.nextStep) && namesPartOfResponse(cleanedTarget, input.response) && !hypeIn(raw.nextStep, { quote:'' }) &&
     !evidence.catalogue.some(entry => entry.kind === 'possible_error' && !confirmCorrection(entry.quote, entry.correction, input.response).confirmed && target.includes(normal(entry.quote))) &&
     !improvements.some(point => target.includes(normal(point.quote)));
   // Marks and verified evidence are valid but no feedback item survived verification: return a clearly labelled PARTIAL result instead of failing.
@@ -315,7 +315,7 @@ function verifyAssessment(raw, input, evidence, counts) {
     ...(partial ? { feedbackVerified:false, reviewStatus:'pending_teacher_review', feedbackNotice:FEEDBACK_NOTICE } : {}),
     missingRequirements:[], observedEvidence:evidence.requirements,
     verifiedEvidence:evidence.catalogue.map(({ id, kind, quote }) => ({ id, kind, quote })),
-    quotedErrorCandidatesRequireTeacherReview:evidence.errors.map(item => ({ ...item, demonstrable:confirmCorrection(item.quote, item.correction, input.response).confirmed })), nextStep:partial || !targetOk ? '' : clean(raw.nextStep),
+    quotedErrorCandidatesRequireTeacherReview:evidence.errors.map(item => ({ ...item, demonstrable:confirmCorrection(item.quote, item.correction, input.response).confirmed })), nextStep:partial || !targetOk ? '' : cleanedTarget,
     warning:partial ? 'Experimental estimate, pending teacher review. Not a Cambridge examiner grade.' : 'Experimental teacher-only estimate. Check the evidence and marks; not a Cambridge examiner grade.' };
 }
 export async function handleStaffAssessment(request, env, runAI, classifyAIError) {
