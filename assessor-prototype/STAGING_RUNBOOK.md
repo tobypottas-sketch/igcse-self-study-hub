@@ -1,6 +1,6 @@
 # Staging runbook — teacher assessor Worker (nothing here deploys by itself)
 
-Worker `igcse-writing-assessor`. **Production version `d99b6b8e-1b7a-4eed-8499-8f596c3ebcb9`** stays 100 % live and untouched until a *separately approved* promotion. **Never inherit from the staged version `c04dfeac-9c33-4019-9534-a261f4db591d`** (temporary testing key).
+Worker `igcse-writing-assessor`. **Production version at the time of the e470c86 release: `3f7b3e18-da42-4124-bbe6-675a96fca17f` (code hash `4870c7b0…`; the older `d99b6b8e…` named below is historical)** stays 100 % live and untouched until a *separately approved* promotion. **Never inherit from the staged version `c04dfeac-9c33-4019-9534-a261f4db591d`** (temporary testing key).
 
 Run these in your own terminal. Never paste tokens or keys into chat, screenshots, files or command arguments; use `read -rs` as shown. Steps A–F only read, or create an **undeployed** version. Step G (promotion) needs explicit approval.
 
