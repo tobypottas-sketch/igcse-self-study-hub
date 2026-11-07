@@ -17,12 +17,14 @@ export function emailTaskText(config = {}) {
   if (points.length) parts.push('In your email, you must: ' + points.map(p => p.replace(/[.!?]+$/, '')).join('; ') + '.');
   return parts.filter(Boolean).join(' ') + range(config.minWords, config.maxWords);
 }
-// The sign-off box usually holds the student's own name, which must not be sent: keep a closing phrase, replace a name with a placeholder.
+// The sign-off box usually holds the student's own name, which must not be sent. Only a short, known closing phrase ending in a comma is kept;
+// everything else (names, surnames, classes) is replaced by a placeholder.
+const CLOSING = /^(?:(?:best|kind|warm|many)\s+)?(?:wishes|regards|thanks)\s*,$|^(?:yours|love|lots of love|cheers|see you soon|take care|speak soon|write soon|your friend)\s*,$/i;
 export function safeSignoff(value) {
   const lines = String(value ?? '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   if (!lines.length) return '';
-  if (lines.length === 1) return /,$/.test(lines[0]) ? lines[0] + '\n[Name]' : '[Name]';
-  return lines.slice(0, -1).join('\n') + '\n[Name]';
+  const closing = lines.find(l => l.split(/\s+/).length <= 4 && CLOSING.test(l));
+  return (closing ? closing + '\n' : '') + '[Name]';
 }
 export function emailResponseText(sections = {}) {
   const body = [sections.opening, sections.bp1, sections.bp2, sections.bp3, sections.closing].map(v => String(v ?? '').trim()).filter(Boolean);

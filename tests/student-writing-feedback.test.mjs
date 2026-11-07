@@ -37,7 +37,7 @@ test('a partial or empty result is shown as partial and carries no feedback', ()
 });
 test('every failure has a friendly, accurate message that blames nothing on the student and reveals no private detail', async () => {
   const cases = [[429, { error: 'rate_limited', reason: 'daily_limit', retryAfterSeconds: 3600 }, 'rate_daily', /used all of today/], [429, { error: 'rate_limited', reason: 'too_soon', retryAfterSeconds: 25 }, 'rate_too_soon', /25 seconds/],
-    [429, { error: 'rate_limited', reason: 'busy' }, 'rate_busy', /still being prepared/], [429, { error: 'rate_limited', reason: 'global_limit' }, 'rate_global', /very busy today/], [403, { error: 'feedback_not_available' }, 'not_available', /ask your teacher/],
+    [429, { error: 'rate_limited', reason: 'busy' }, 'rate_busy', /still being prepared/], [429, { error: 'rate_limited', reason: 'global_limit' }, 'rate_global', /reached its limit for today/], [403, { error: 'feedback_not_available' }, 'not_available', /ask your teacher/],
     [403, { error: 'active_student_required' }, 'access_denied', /sign in/i], [401, {}, 'access_denied', /sign in/i], [400, { error: 'remove_personal_identifiers' }, 'personal_details', /remove email/], [413, {}, 'invalid_submission', /6,000/],
     [503, { error: 'feedback_unavailable', category: 'quota_or_rate_limit' }, 'allowance_used', /allowance for today/], [503, { error: 'quota_unavailable' }, 'unavailable', /nothing was saved/], [500, null, 'unavailable', /try again/]];
   for (const [status, body, code, pattern] of cases) {
@@ -90,4 +90,12 @@ test('both apps load the shared component and progress card; Review Writing has 
   assert.match(read('src/assessor/student-feedback.js'), /from '\.\/progress\.js'/, 'the existing progress component is reused, not copied');
   assert.match(read('src/assessor/email-feedback.js'), /role === 'student'/); assert.match(read('src/assessor/review-feedback.js'), /role === 'student'/);
   for (const file of ['src/assessor/client.js', 'src/assessor/controller.js', 'src/assessor/view.js', 'src/assessor/progress.js']) assert.doesNotMatch(read(file), /\/feedback|student-client|student-feedback/, file + ' must stay teacher-only');
+});
+
+test('sign-off keeps only a known closing phrase and never a name', async () => {
+  const { safeSignoff } = await import('../src/assessor/writing-app-adapters.js');
+  assert.equal(safeSignoff('Best wishes,\nAmy Zhang'), 'Best wishes,\n[Name]');
+  assert.equal(safeSignoff('Amy\nZhang\nClass 10B'), '[Name]');
+  assert.equal(safeSignoff('Zhang Wei'), '[Name]');
+  assert.equal(safeSignoff(''), '');
 });

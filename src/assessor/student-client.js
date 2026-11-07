@@ -14,7 +14,7 @@ export function messageFor(status, body, now = Date.now()) {
     if (body.reason === 'busy') return ['rate_busy', 'Your feedback is still being prepared. Please wait for it to finish.'];
     if (body.reason === 'too_soon') return ['rate_too_soon', 'Please wait ' + (retry > 0 ? Math.min(retry, 600) + ' seconds' : 'a minute') + ' before asking again. This gives everyone a fair turn.'];
     if (body.reason === 'daily_limit') return ['rate_daily', 'You have used all of today’s feedback requests. They start again ' + (retry > 0 ? 'at about ' + clock(retry, now) : 'tomorrow') + '. You can keep improving your writing and ask again then.'];
-    if (body.reason === 'global_limit') return ['rate_global', 'Feedback is very busy today and has reached its daily limit for the whole school. Please try again tomorrow. Your writing is still here.'];
+    if (body.reason === 'global_limit') return ['rate_global', 'Feedback has reached its limit for today. Please try again tomorrow. Your writing is still here.'];
   }
   if (status === 403 && body?.error === 'feedback_not_available') return ['not_available', 'AI feedback is not available for your account yet. Please ask your teacher.'];
   if (status === 401 || (status === 403 && body?.error === 'active_student_required')) return ['access_denied', 'Please sign in again with your student account to get feedback.'];
@@ -37,7 +37,7 @@ export function parseFeedback(body) {
 }
 const TIMEOUT_MS = 90000;
 export async function requestFeedback(client, input, { signal, fetcher = globalThis.fetch, timeoutMs = TIMEOUT_MS, now = Date.now } = {}) {
-  if (!input || !APPS.includes(input.app) || input.privacyNoticeAccepted !== true || typeof input.task !== 'string' || input.task.trim().length < 10 || input.task.length > 3000 ||
+  if (!input || !APPS.includes(input.app) || input.privacyNoticeAccepted !== true || typeof input.task !== 'string' || input.task.trim().length < 10 || input.task.length > 1500 ||
       typeof input.response !== 'string' || input.response.trim().length < 4 || input.response.length > 6000 || Object.keys(input).some(k => !['app', 'task', 'response', 'privacyNoticeAccepted'].includes(k)))
     throw new FeedbackError('Write something first, then ask for feedback. Check the box to confirm you have removed personal details.', 'invalid_submission');
   const { data, error } = await client.auth.getSession();

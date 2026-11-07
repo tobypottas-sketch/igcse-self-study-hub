@@ -8,12 +8,12 @@ try {
   const profile = await getCurrentProfile(client);
   const host = document.getElementById('studentFeedbackHost');
   if (host && profile.role === 'student' && profile.active === true && !profile.must_change_password) {
-    mountStudentFeedback(host, {
+    const feedback = mountStudentFeedback(host, {
       app: 'review', getClient: () => client,
       getTask: () => { const s = window.reviewWritingFeedbackSource(); return reviewTaskText(s.task); },
       getResponse: () => reviewResponseText(window.reviewWritingFeedbackSource().sections),
       onRevise: () => document.querySelector('[data-tab="write"]')?.click()
     });
-    client.auth.onAuthStateChange(event => { if (event === 'SIGNED_OUT') host.replaceChildren(); });
+    client.auth.onAuthStateChange(event => { if (event === 'SIGNED_OUT') feedback.dispose(); });
   }
 } catch { /* the login gate in the page handles signed-out users */ }

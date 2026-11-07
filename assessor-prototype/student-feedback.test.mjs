@@ -99,9 +99,9 @@ test('when the AI fails, the student gets a coarse error, the turn is refunded a
   assert.equal(body.error, 'feedback_unavailable'); assert.equal(body.category, 'quota_or_rate_limit'); assert.ok(!text.includes('PRIVATE') && !text.includes('museum') && !text.includes('neurons'));
   assert.deepEqual(calls.finish, { p_ticket: TICKET, p_refund: true });
 });
-test('a malformed model answer gives a refunded, coarse failure', async t => {
+test('a malformed model answer gives a coarse failure and does NOT refund (junk cannot be retried for free)', async t => {
   const { env, calls } = setup(t, { replies: [{ nonsense: true }] }); const res = await worker.fetch(request(), env); assert.equal(res.status, 503);
-  assert.deepEqual(calls.finish, { p_ticket: TICKET, p_refund: true }); assert.ok(!(await res.text()).includes('museum'));
+  assert.deepEqual(calls.finish, { p_ticket: TICKET, p_refund: false }); assert.ok(!(await res.text()).includes('museum'));
 });
 test('a result with no checked feedback is returned as a labelled partial, without marks, and still uses the turn', async t => {
   const { env, calls } = setup(t, { replies: [evidence, { ...assessment, strengths: [{ evidence: 9, advice: 'Invented' }], improvements: [] }] });

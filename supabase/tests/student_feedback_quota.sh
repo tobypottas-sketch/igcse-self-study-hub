@@ -60,8 +60,13 @@ check "refund also returns the global turn" "$($DB -c "select used from private.
 as $U1 "select public.finish_student_feedback('$T', true)" >/dev/null
 check "ticket is single use (no double refund)" "$($DB -c "select used from private.feedback_quota_global")" 0
 
-reset; $DB -c "insert into private.feedback_quota_usage values ('$U1', current_date - 1, 3, now() - interval '1 day', null, null)"
+reset; $DB -c "insert into private.feedback_quota_usage (student_id, usage_day, used, last_request_at) values ('$U1', current_date - 1, 3, now() - interval '1 day')"
 r=$(begin_ $U1); check "new UTC day resets the student's count" "$(field "$r" allowed)" True
+
+reset; settings "daily_limit=50"
+for i in 1 2 3 4; do r=$(begin_ $U1); as $U1 "select public.finish_student_feedback('$(field "$r" ticket)', true)" >/dev/null; done
+check "refunds are capped per student per day (2): used = 2 after 4 refunded attempts" "$($DB -c "select used from private.feedback_quota_usage where student_id='$U1'")" 2
+check "global counter matches the capped refunds" "$($DB -c "select used from private.feedback_quota_global")" 2
 
 # Concurrency: 12 simultaneous requests from ONE student, and 30 students against a global cap of 7.
 reset; settings "daily_limit=50"

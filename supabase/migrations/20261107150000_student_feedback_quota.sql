@@ -8,7 +8,8 @@ create table if not exists private.feedback_settings (
   daily_limit smallint not null default 3 check (daily_limit between 1 and 50),
   gap_seconds smallint not null default 60 check (gap_seconds between 0 and 3600),
   global_daily_limit integer not null default 20 check (global_daily_limit between 0 and 10000),
-  in_flight_seconds smallint not null default 100 check (in_flight_seconds between 30 and 600)
+  in_flight_seconds smallint not null default 100 check (in_flight_seconds between 30 and 600),
+  refunds_per_day smallint not null default 2 check (refunds_per_day between 0 and 10)   -- turns a student can get back per day after platform failures
 );
 insert into private.feedback_settings default values on conflict do nothing;
 
@@ -20,6 +21,7 @@ create table if not exists private.feedback_quota_usage (
   student_id uuid primary key references public.profiles(id) on delete cascade,
   usage_day date not null,                       -- UTC day, matching Cloudflare's daily reset
   used smallint not null default 0 check (used >= 0),
+  refunds smallint not null default 0 check (refunds >= 0),
   last_request_at timestamptz,
   in_flight_until timestamptz,
   ticket uuid                                    -- known only to the Worker; needed to give a turn back
@@ -70,7 +72,7 @@ begin
 
   insert into private.feedback_quota_usage (student_id, usage_day) values (v_uid, v_day) on conflict (student_id) do nothing;
   select * into u from private.feedback_quota_usage where student_id = v_uid for update;   -- serialises this student's requests
-  if u.usage_day <> v_day then u.used := 0; end if;
+  if u.usage_day <> v_day then u.used := 0; u.refunds := 0; end if;
 
   if u.in_flight_until is not null and u.in_flight_until > v_now then
     return jsonb_build_object('allowed', false, 'reason', 'busy', 'retry_after', ceil(extract(epoch from u.in_flight_until - v_now))::int);
@@ -94,15 +96,15 @@ begin
   end if;
 
   update private.feedback_quota_usage
-  set usage_day = v_day, used = u.used + 1, last_request_at = v_now,
+  set usage_day = v_day, used = u.used + 1, refunds = u.refunds, last_request_at = v_now,
       in_flight_until = v_now + make_interval(secs => s.in_flight_seconds), ticket = v_ticket
   where student_id = v_uid;
   return jsonb_build_object('allowed', true, 'ticket', v_ticket);
 end;
 $$;
 
--- Frees the in-flight slot. With p_refund the turn is given back (used only when the AI failed and no feedback was produced).
--- Only the caller holding the current ticket can do this, and only the Worker ever sees it.
+-- Frees the in-flight slot. With p_refund the turn is given back, at most refunds_per_day times per student per day, and only the Worker asks
+-- for it (after an AI platform failure). The ticket is a convenience; the refund cap is the real protection against abuse.
 create or replace function public.finish_student_feedback(p_ticket uuid, p_refund boolean)
 returns jsonb
 language plpgsql
@@ -112,13 +114,15 @@ as $$
 declare
   v_uid uuid := auth.uid();
   u private.feedback_quota_usage%rowtype;
+  s private.feedback_settings%rowtype;
   v_day date := (now() at time zone 'utc')::date;
 begin
   if v_uid is null or p_ticket is null then return jsonb_build_object('ok', true); end if;
   select * into u from private.feedback_quota_usage where student_id = v_uid for update;
   if not found or u.ticket is distinct from p_ticket then return jsonb_build_object('ok', true); end if;
-  if coalesce(p_refund, false) and u.usage_day = v_day and u.used > 0 then
-    update private.feedback_quota_usage set used = used - 1, in_flight_until = null, ticket = null where student_id = v_uid;
+  select * into s from private.feedback_settings where id;
+  if coalesce(p_refund, false) and u.usage_day = v_day and u.used > 0 and u.refunds < s.refunds_per_day then
+    update private.feedback_quota_usage set used = used - 1, refunds = refunds + 1, in_flight_until = null, ticket = null where student_id = v_uid;
     update private.feedback_quota_global set used = greatest(used - 1, 0) where usage_day = v_day;
   else
     update private.feedback_quota_usage set in_flight_until = null, ticket = null where student_id = v_uid;

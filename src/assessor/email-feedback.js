@@ -9,12 +9,12 @@ try {
   const host = document.getElementById('studentFeedbackHost');
   // Students only: teachers and admins use the separate teacher assessor in the Hub.
   if (host && profile.role === 'student' && profile.active === true && !profile.must_change_password) {
-    mountStudentFeedback(host, {
+    const feedback = mountStudentFeedback(host, {
       app: 'email', getClient: () => client,
       getTask: () => emailTaskText(window.getConfig()),
       getResponse: () => emailResponseText(window.getDraftSections()),
       onRevise: () => window.switchTab('draft')
     });
-    client.auth.onAuthStateChange(event => { if (event === 'SIGNED_OUT') host.replaceChildren(); });
+    client.auth.onAuthStateChange(event => { if (event === 'SIGNED_OUT') feedback.dispose(); });
   }
 } catch { /* the app's own authentication gate handles signed-out users; feedback simply stays hidden */ }

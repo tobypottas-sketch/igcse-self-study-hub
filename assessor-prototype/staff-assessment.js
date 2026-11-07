@@ -175,7 +175,7 @@ function locate(source, value) {
   }
   return null;
 }
-class ValidationFailure extends Error { constructor(detail) { super(detail); this.detail = detail; } }
+export class ValidationFailure extends Error { constructor(detail) { super(detail); this.detail = detail; } }
 const nonEmpty = value => typeof value === 'string' && value.trim().length > 0;
 const normal = value => fold(String(value ?? '')).folded.replace(EDGE, '');
 const sameExact = (a, b) => tidy(a) === tidy(b); // case and punctuation matter: a capital letter or comma IS a correction

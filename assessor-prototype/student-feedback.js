@@ -1,11 +1,15 @@
-import { AssessmentError, response, configuration, verifyAccount, zeroCounts, runPipeline } from './staff-assessment.js';
+import { AssessmentError, ValidationFailure, response, configuration, verifyAccount, zeroCounts, runPipeline } from './staff-assessment.js';
 // Student writing feedback: a separate, authenticated route that reuses the teacher pipeline but never returns marks.
 // Nothing is stored, logged or sent to analytics. The only state is a per-student counter (no text) in Supabase.
 const BODY_BYTES = 12000;
 // The Worker, not the browser, decides the Cambridge 0511 task type for each app. Add an app here to reuse the route.
 export const STUDENT_APPS = Object.freeze({ email:{ taskType:'email' }, review:{ taskType:'review' } });
 const QUOTA_REASONS = new Set(['busy', 'too_soon', 'daily_limit', 'global_limit', 'not_available']);
-const MARK_TALK = /\b(?:marks?|bands?|scores?|scored|grades?|graded)\b/iu;
+const MARK_TALK = /\b(?:marks?|bands?|scores?|scored|grades?|graded|levels?)\b|\b\d{1,2}\s*(?:\/|out of)\s*\d{1,2}\b/iu;
+// Only a failure of the AI platform itself gives a turn back. Junk, injected or unverifiable output (the student's doing) never does:
+// otherwise nonsense could be resubmitted every minute without ever using up the daily limit.
+const PLATFORM_FAILURES = new Set(['quota_or_rate_limit', 'model_timeout', 'model_unavailable', 'model_permission', 'paid_model_not_allowed']);
+const PHONE = /(?:\+?\d[\s().-]?){9,}/;
 async function readStudentSubmission(request) {
   if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get('Content-Type') ?? '')) throw new AssessmentError(400, 'json_required');
   if (Number(request.headers.get('Content-Length')) > BODY_BYTES) throw new AssessmentError(413, 'submission_too_large');
@@ -26,11 +30,11 @@ async function readStudentSubmission(request) {
         Object.keys(input).some(key => !['app','task','response','privacyNoticeAccepted'].includes(key)) ||
         !Object.hasOwn(STUDENT_APPS, input.app) || input.privacyNoticeAccepted !== true ||
         typeof input.task !== 'string' || typeof input.response !== 'string' ||
-        input.task.trim().length < 10 || input.task.length > 3000 ||
+        input.task.trim().length < 10 || input.task.length > 1500 ||
         input.response.trim().length < 4 || input.response.length > 6000)
       throw new AssessmentError(400, 'invalid_submission');
     const combined = input.task + '\n' + input.response;
-    if (/[\w.+-]+@[\w.-]+\.[a-z]{2,}/i.test(combined) || /\b(?:student name|candidate number|student id|full name)\s*:/i.test(combined))
+    if (/[\w.+-]+@[\w.-]+\.[a-z]{2,}/i.test(combined) || PHONE.test(combined) || /\b(?:student name|candidate number|student id|full name)\s*:/i.test(combined))
       throw new AssessmentError(400, 'remove_personal_identifiers');
     return { taskType:STUDENT_APPS[input.app].taskType, task:input.task.trim(), response:input.response.trim() };
   } catch (error) {
@@ -68,7 +72,7 @@ export function studentView(result) {
     .map(item => ({ quote:item.quote, advice:item.advice }));
   const strengths = clean(result?.strengths);
   const improvements = (Array.isArray(result?.improvements) ? result.improvements : []).filter(item => typeof item?.quote === 'string' && typeof item?.advice === 'string' && !MARK_TALK.test(item.advice))
-    .map(item => ({ quote:item.quote, advice:item.advice, type:item.type === 'error' ? 'error' : 'style', suggestion:typeof item.suggestion === 'string' ? item.suggestion : '' }));
+    .map(item => ({ quote:item.quote, advice:item.advice, type:item.type === 'error' ? 'error' : 'style', suggestion:typeof item.suggestion === 'string' && !MARK_TALK.test(item.suggestion) ? item.suggestion : '' }));
   const notice = result?.lengthNotice;
   const lengthNotice = notice && Number.isInteger(notice.wordCount) && Number.isInteger(notice.minimum) ? {
     wordCount:notice.wordCount, minimum:notice.minimum, maximum:Number.isInteger(notice.maximum) ? notice.maximum : null,
@@ -80,7 +84,7 @@ export function studentView(result) {
   return { partial, strengths:partial ? [] : strengths, improvements:partial ? [] : improvements, nextStep:partial ? '' : target, lengthNotice };
 }
 export async function handleStudentFeedback(request, env, runAI, classifyAIError) {
-  let origin; let stage = 'authorization'; let ticket = null; let authorization = ''; let config; let refund = true;
+  let origin; let stage = 'authorization'; let ticket = null; let authorization = ''; let config; let refund = false;
   try {
     config = configuration(env);
     if (request.headers.get('Origin') !== config.origin) throw new AssessmentError(403, 'origin_not_allowed');
@@ -98,7 +102,6 @@ export async function handleStudentFeedback(request, env, runAI, classifyAIError
     stage = 'assessment';
     const result = await runPipeline(input, runAI, zeroCounts(), () => {});
     const feedback = studentView(result);
-    refund = false;   // the AI did run: only a failure (no result at all) gives the turn back, so empty or nonsense writing cannot be retried for free
     return response({ feedback }, 200, origin);
   } catch (error) {
     if (error instanceof AssessmentError) {
@@ -108,6 +111,8 @@ export async function handleStudentFeedback(request, env, runAI, classifyAIError
     }
     // Fixed coarse codes only: never student text, model output or stack traces.
     const category = stage === 'assessment' ? classifyAIError(error) : null;
+    const ownFault = error instanceof ValidationFailure || error instanceof SyntaxError || /^(?:Invalid AI|No AI text|No JSON|Bad JSON)/.test(String(error?.message ?? ''));
+    refund = Boolean(ticket) && !ownFault && PLATFORM_FAILURES.has(category);
     return response({ error:'feedback_unavailable', ...(category ? { category } : {}) }, 503, origin);
   } finally {
     if (ticket) await release(config, authorization, ticket, refund);
