@@ -60,7 +60,7 @@ function startsSentence(quote, context) {
 }
 // Agreement is demonstrable in only two shapes, both read directly from the quotation:
 //   - a personal pronoun immediately before the verb (they/we/you + singular verb, he/she/it + plural verb), or
-//   - determiner + regular -s plural noun + verb at the start of a clause: the chips was / these exhibits is.
+//   - determiner + regular -s plural noun + verb at the start of a clause: the books was / these exhibits is.
 // Everything else (of-phrases, relative clauses, gerunds, collectives, irregular plurals, names, questions, adverbs) is left to the teacher.
 const CLAUSE_STARTERS = new Set(['however', 'but', 'so', 'because', 'when', 'while', 'although', 'then', 'since']);
 const NOUN_DETERMINERS = new Set(['the', 'these', 'those', 'my', 'your', 'our', 'their']);
@@ -97,7 +97,7 @@ function explainRegion(region, tokens, original, sentenceStart, wholeText) {
       const subject = original[region.start - 1];
       return kind.endsWith('pronoun') ? 'After ' + lower(subject) + ', use ' + t + ', not ' + f + '.' : cap(lower(subject)) + ' is ' + (wantPlural ? 'plural' : 'singular') + ', so use ' + t + ', not ' + f + '.';
     }
-    // A plural or first-person pronoun directly before a verb that wrongly carries the singular -s/-es ending: we goes -> we go.
+    // A plural or first-person pronoun directly before a verb that wrongly carries the singular -s/-es ending: they plays -> they play.
     const stem = f.endsWith('ies') ? f.slice(0, -3) + 'y' : f.endsWith('es') && /(?:s|x|z|ch|sh|o)es$/u.test(f) ? f.slice(0, -2) : f.endsWith('s') ? f.slice(0, -1) : null;
     if (stem && t === stem && region.start >= 1 && from === f && to === t && /^[a-z]{3,}$/u.test(f) && t.length >= 2 && !SINGULAR_S_WORDS.has(f) && !/(?:ss|us|is|as)$/u.test(f) && !BE_PAIRS.has(f)) {
       const subject = lower(original[region.start - 1] ?? '');
