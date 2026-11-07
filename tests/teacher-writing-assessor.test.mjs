@@ -63,3 +63,13 @@ test('caller cancellation (navigation/logout) still cancels the request and is n
  const pending=assessWriting(client,input,{signal:controller.signal,timeoutMs:5000,fetcher:(url,options)=>new Promise((resolve,reject)=>{const stop=()=>reject(new DOMException('aborted','AbortError'));if(options.signal.aborted)stop();else options.signal.addEventListener('abort',stop);})});
  controller.abort();await assert.rejects(pending,error=>error.name==='AbortError'&&error.code!=='assessment_timeout');
 });
+test('client accepts a labelled partial result and rejects a partial that carries unverified feedback or lacks the review label',async()=>{
+ const {assessWriting}=await import('../src/assessor/client.js');
+ const client={auth:{getSession:async()=>({data:{session:{access_token:'synthetic-session-token'}}})}};
+ const partial={...result,strengths:[],improvements:[],nextStep:'',feedbackVerified:false,reviewStatus:'pending_teacher_review',verifiedEvidence:[{id:1,kind:'feature',quote:'science clear'}]};
+ const send=body=>assessWriting(client,input,{fetcher:async()=>new Response(JSON.stringify({stages:2,result:body}),{status:200,headers:{'content-type':'application/json'}})});
+ assert.equal((await send(partial)).feedbackVerified,false);
+ await assert.rejects(send({...partial,strengths:result.strengths}),/valid assessment/);
+ await assert.rejects(send({...partial,reviewStatus:undefined}),/valid assessment/);
+ await assert.rejects(send({...result,strengths:[],improvements:[]}),/valid assessment/); // an ordinary result with no feedback is still invalid
+});

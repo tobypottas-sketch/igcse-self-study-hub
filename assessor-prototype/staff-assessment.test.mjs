@@ -74,7 +74,7 @@ test('invalid grading marks are withheld after two calls',async t=>{
  const {env,calls}=setup(t,{replies:[evidence,{...assessment,contentMark:7}]});const res=await worker.fetch(request(),env);assert.equal(res.status,503);assert.equal(calls.ai.length,2);
 });
 test('feedback citing evidence that does not exist is withheld',async t=>{
- const {env}=setup(t,{replies:[evidence,{...assessment,strengths:[{evidence:9,advice:'Invented'}],improvements:[]}]});const res=await worker.fetch(request(),env);assert.equal(res.status,503);assert.equal((await res.json()).stage,'assessment_validation');
+ const {env}=setup(t,{replies:[evidence,{...assessment,strengths:[{evidence:9,advice:'Invented'}],improvements:[]}]});const res=await worker.fetch(request(),env);const body=await res.json();assert.equal(res.status,200);assert.equal(body.result.feedbackVerified,false);assert.deepEqual(body.result.strengths,[]);assert.ok(!JSON.stringify(body).includes('Invented'));
 });
 test('zero marks remain possible with grounded improvement feedback',async t=>{
  const {env}=setup(t,{replies:[evidence,{...assessment,contentMark:0,languageMark:0,strengths:[]}]});const res=await worker.fetch(request(),env);assert.equal(res.status,200);assert.equal((await res.json()).result.totalMark,0);
@@ -155,11 +155,16 @@ for (const [name, strengths, improvements] of [
  ['missing evidence reference', [{ advice:'x' }], []],
  ['blank advice', [{ evidence:1, advice:'  ' }], []],
  ['no feedback at all', [], []],
-]) test('feedback that cannot be tied to verified evidence is refused with counts only: ' + name, async t => {
+]) test('feedback that cannot be tied to verified evidence gives a partial result with counts only: ' + name, async t => {
  const { res, body, calls } = await run(t, [feat('because the interactive exhibits made science easy to understand'), { ...assessment, strengths, improvements }]);
- assert.equal(res.status, 503); assert.ok(!('result' in body)); assert.equal(calls.ai.length, 2);
- assert.ok(['assessment_model', 'assessment_validation'].includes(body.stage));
- if (body.stage === 'assessment_validation') assert.equal(body.detail, 'no_feedback_linked_to_verified_evidence');
+ assert.equal(calls.ai.length, 2);
+ // Output that breaks the response schema (number 0, text, missing) is still a model failure; everything else becomes a safe partial result.
+ if (res.status === 503) { assert.equal(body.stage, 'assessment_model'); assert.ok(!('result' in body)); return; }
+ // Safe partial result: marks and verified evidence are kept, nothing unverified is passed on.
+ assert.equal(res.status, 200);
+ assert.equal(body.result.feedbackVerified, false); assert.equal(body.result.reviewStatus, 'pending_teacher_review');
+ assert.deepEqual(body.result.strengths, []); assert.deepEqual(body.result.improvements, []); assert.equal(body.result.nextStep, '');
+ assert.equal(body.result.totalMark, assessment.contentMark + assessment.languageMark); assert.ok(body.result.verifiedEvidence.length > 0);
  for (const value of Object.values(body.checks ?? {})) assert.ok(Number.isInteger(value));
 });
 
@@ -167,7 +172,7 @@ test('a possible-error item cannot be presented as a strength, but a demonstrabl
  const writing = { ...submission, response:'Yesterday the exhibits was loud. I enjoyed the rest of the visit.' };
  const err = { requirements:[], features:[], errors:[{ quote:'the exhibits was loud', correction:'the exhibits were loud', explanation:'Exhibits is plural.' }] };
  const asStrength = await run(t, [err, cite([{ evidence:1, advice:'Nice.' }])], writing);
- assert.equal(asStrength.res.status, 503); assert.equal(asStrength.body.detail, 'no_feedback_linked_to_verified_evidence');
+ assert.equal(asStrength.res.status, 200); assert.equal(asStrength.body.result.feedbackVerified, false); assert.deepEqual(asStrength.body.result.strengths, []);
  const asImprovement = await run(t, [err, { ...assessment, strengths:[], improvements:[{ evidence:1, advice:'Check this.' }] }], writing);
  assert.equal(asImprovement.res.status, 200); assert.equal(asImprovement.body.result.improvements[0].quote, 'the exhibits was loud');
  assert.equal(asImprovement.body.result.improvements[0].advice, 'Exhibits is plural, so use were, not was.');

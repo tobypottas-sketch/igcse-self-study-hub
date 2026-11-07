@@ -273,9 +273,9 @@ test('a style item cannot smuggle in an error claim or sit on a quote Stage 1 al
   const ev = { requirements:[], features:[{ label:'topic', quote:'the kitchen should serve hot food' }], errors:[{ quote:'the kitchen should serve hot food', correction:'they should serve hot food', explanation:'Pronoun.' }] };
   const stageTwo = withGood({ strengths:[], improvements:[{ evidence:1, advice:'This is optional.', example:'the kitchen should serve hot food quickly' }] });
   const { res, body } = await run(t, [ev, stageTwo]);
-  assert.equal(res.status, 503); assert.equal(body.detail, 'no_feedback_linked_to_verified_evidence');
+  assert.equal(res.status, 200); assert.equal(body.result.feedbackVerified, false); assert.deepEqual(body.result.improvements, []);
   const mistake = await run(t, [stage1, withGood({ strengths:[], improvements:[{ evidence:2, advice:'This is a grammar mistake in your sentence.', example:'The staff were friendly: our waiter smiled.' }] })]);
-  assert.equal(mistake.res.status, 503);
+  assert.equal(mistake.res.status, 200); assert.equal(mistake.body.result.feedbackVerified, false); assert.deepEqual(mistake.body.result.improvements, []);
 });
 
 test('the writing target cannot be built round an error the Worker could not demonstrate', async t => {
@@ -283,4 +283,39 @@ test('the writing target cannot be built round an error the Worker could not dem
   assert.equal(res.status, 503); assert.equal(body.detail, 'target_uses_unconfirmed_error');
   const fine = await run(t, [withKitchen('Pronoun reference is clearer.'), withGood({ nextStep:'Give your opinion about the food a specific reason.' })]);
   assert.equal(fine.res.status, 200);
+});
+
+// ---- safe partial results ----
+const NOTICE = 'Specific feedback could not be verified for this response. Please ask your teacher to review it.';
+test('valid marks with no surviving feedback return a labelled partial result, not a failure', async t => {
+  const { res, body } = await run(t, [stage1, withGood({ strengths:[{ evidence:15, advice:'Invented.' }], improvements:[], nextStep:'Fix the pronoun in the kitchen should serve hot food.' })]);
+  assert.equal(res.status, 200); const r = body.result;
+  assert.equal(r.feedbackVerified, false); assert.equal(r.reviewStatus, 'pending_teacher_review'); assert.equal(r.experimental, true);
+  assert.equal(r.feedbackNotice, NOTICE); assert.match(r.warning, /Experimental/); assert.match(r.warning, /pending teacher review/);
+  assert.equal(r.contentMark, 4); assert.equal(r.languageMark, 6); assert.equal(r.totalMark, 10);
+  assert.deepEqual(r.strengths, []); assert.deepEqual(r.improvements, []); assert.equal(r.nextStep, '');
+  assert.ok(r.verifiedEvidence.length > 0 && r.verifiedEvidence.every(item => response.includes(item.quote)));
+  assert.ok(!JSON.stringify(body).includes('Invented') && !JSON.stringify(body).includes('kitchen should serve hot food.' + ' Fix'), 'no unverified model feedback is passed on');
+  assert.ok(!/no mistakes|no errors|error-free|perfect/i.test(JSON.stringify([r.feedbackNotice, r.warning])), 'never implies the student made no mistakes');
+  assert.equal(body.stages, 2); for (const value of Object.values(body.checks)) assert.ok(Number.isInteger(value));
+});
+
+test('a partial result still needs verified evidence and valid marks, and keeps authentication', async t => {
+  const none = await run(t, [{ requirements:[], features:[], errors:[] }, good]);
+  assert.equal(none.res.status, 503); assert.equal(none.body.detail, 'insufficient_verified_evidence');
+  const marks = await run(t, [stage1, withGood({ contentMark:7, strengths:[], improvements:[] })]);
+  assert.notEqual(marks.res.status, 200);
+  const calls = []; t.mock.method(globalThis, 'fetch', async url => { calls.push(String(url)); return Response.json({}, { status:401 }); });
+  const env = { HUB_ORIGIN:ORIGIN, SUPABASE_URL:'https://synthetic.supabase.co', SUPABASE_PUBLISHABLE_KEY:'k', AI:{ run:async () => { throw new Error('AI must not run'); } } };
+  const denied = await worker.fetch(new Request('https://a.invalid/assess', { method:'POST', headers:{ Origin:ORIGIN, Authorization:'Bearer t', 'Content-Type':'application/json' }, body:JSON.stringify(submission) }), env);
+  assert.ok([401, 403].includes(denied.status));
+});
+
+test('the Hub shows the partial notice, evidence and pending-review label, with no feedback sections or writing target', () => {
+  const root = { innerHTML:'' };
+  renderAssessmentResult(root, { contentMark:4, languageMark:6, totalMark:10, contentReason:'Reason c', languageReason:'Reason l', strengths:[], improvements:[], nextStep:'', feedbackVerified:false, reviewStatus:'pending_teacher_review',
+    verifiedEvidence:[{ id:1, kind:'feature', quote:'creamy and <b>tasty</b>' }], warning:'x' });
+  assert.ok(root.innerHTML.includes(NOTICE)); assert.match(root.innerHTML, /pending teacher review/i); assert.match(root.innerHTML, /Experimental/);
+  assert.ok(!/Strengths|Improvements|writing target|None identified/i.test(root.innerHTML)); assert.ok(!root.innerHTML.includes('<b>tasty</b>')); assert.match(root.innerHTML, /&lt;b&gt;tasty/);
+  assert.ok(!/no mistakes|no errors/i.test(root.innerHTML));
 });

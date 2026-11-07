@@ -181,6 +181,7 @@ const MAX_POINTS = 2, STYLE_MEANING_SHARE = 0.5;
 // Praise a short quotation cannot demonstrate: whole-text organisation claims and inflated descriptions of ordinary vocabulary.
 const UNSUPPORTED_PRAISE = /\b(?:well[- ](?:organised|organized|structured|ordered|planned)|(?:clear|good|logical|logically|effective|strong)\s+(?:structure|organisation|organization|ordered)|introduction|throughout|whole (?:review|text|response|piece)|from start to finish)\b|\b(?:starting|beginning|begins?|ending|ends)\s+with\b|\b(?:descriptive|rich|varied|wide|advanced|strong|precise|effective|powerful|sophisticated|ambitious)\s+(?:vocabulary|language|word choice|words?|adjectives?|range)\b|\bwide range\b/iu;
 
+const FEEDBACK_NOTICE = 'Specific feedback could not be verified for this response. Please ask your teacher to review it.';
 const zeroCounts = () => ({ evidenceProposed:0, evidenceVerified:0, feedbackProposed:0, feedbackLinked:0, textQuotesNeutralised:0, evidenceReferencesResolved:0 });
 // Stage 1 output -> catalogue of evidence the Worker has itself verified. Every `quote` is a verbatim span of the submission.
 function verifyEvidence(raw, input, counts) {
@@ -293,14 +294,18 @@ function verifyAssessment(raw, input, evidence, counts) {
   // The writing target is read by the student, so it may not be built round a 'mistake' the Worker could not demonstrate.
   const target = normal(raw.nextStep);
   if (evidence.catalogue.some(entry => entry.kind === 'possible_error' && !confirmCorrection(entry.quote, entry.correction, input.response).confirmed && target.includes(normal(entry.quote)))) throw new ValidationFailure('target_uses_unconfirmed_error');
-  if (!strengths.length && !improvements.length) throw new ValidationFailure('no_feedback_linked_to_verified_evidence');
+  // Marks and verified evidence are valid but no feedback item survived verification: return a clearly labelled PARTIAL result instead of failing.
+  // Nothing unverified is passed on: no strengths, no improvements and no writing target (the model's target was not checked against verified feedback).
+  // The notice says feedback is unverified; it must never be read as "no mistakes".
+  const partial = !strengths.length && !improvements.length;
   return { experimental:true, wordCount:input.response.split(/\s+/u).length,
     contentMark:raw.contentMark, languageMark:raw.languageMark, totalMark:raw.contentMark + raw.languageMark,
     contentReason:clean(raw.contentReason), languageReason:clean(raw.languageReason), strengths, improvements,
+    ...(partial ? { feedbackVerified:false, reviewStatus:'pending_teacher_review', feedbackNotice:FEEDBACK_NOTICE } : {}),
     missingRequirements:[], observedEvidence:evidence.requirements,
     verifiedEvidence:evidence.catalogue.map(({ id, kind, quote }) => ({ id, kind, quote })),
-    quotedErrorCandidatesRequireTeacherReview:evidence.errors.map(item => ({ ...item, demonstrable:confirmCorrection(item.quote, item.correction, input.response).confirmed })), nextStep:clean(raw.nextStep),
-    warning:'Experimental teacher-only estimate. Check the evidence and marks; not a Cambridge examiner grade.' };
+    quotedErrorCandidatesRequireTeacherReview:evidence.errors.map(item => ({ ...item, demonstrable:confirmCorrection(item.quote, item.correction, input.response).confirmed })), nextStep:partial ? '' : clean(raw.nextStep),
+    warning:partial ? 'Experimental estimate, pending teacher review. Not a Cambridge examiner grade.' : 'Experimental teacher-only estimate. Check the evidence and marks; not a Cambridge examiner grade.' };
 }
 export async function handleStaffAssessment(request, env, runAI, classifyAIError) {
   let origin; let stage = 'staff_authorization'; const counts = zeroCounts();
