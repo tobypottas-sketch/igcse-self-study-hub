@@ -14,7 +14,7 @@ test('Review Writing uses the same listbox pattern as Informal Email instead of 
   assert.ok(reviewCombo.length > 1500 && emailCombo.length > 1500);
   // Behaviours that make the Email picker smooth: bounded list, roles, keyboard model, click-outside, Escape, focus return, type-ahead.
   for (const piece of ["setAttribute('aria-haspopup','listbox')", "setAttribute('role','listbox')", "setAttribute('role','option')", "'aria-activedescendant'", "document.addEventListener('pointerdown',outside,true)", "window.addEventListener('resize',place)",
-    "scrollIntoView({block:'nearest'})", "row*6.5+8", "classList.toggle('is-up',up)", "k==='Escape')close(true)", "k==='Tab'){close(false);return;}", "'PageDown'", "'Home'", "'End'", "focus({preventScroll:true})", "dispatchEvent(new Event('change',{bubbles:true}))", "tabIndex=-1;select.setAttribute('aria-hidden','true')"]) {
+    "list.scrollTop=", "row*6.5+8", "classList.toggle('is-up',up)", "k==='Escape')close(true)", "k==='Tab'){close(false);return;}", "'PageDown'", "'Home'", "'End'", "focus({preventScroll:true})", "dispatchEvent(new Event('change',{bubbles:true}))", "tabIndex=-1;select.setAttribute('aria-hidden','true')"]) {
     assert.ok(squash(reviewCombo).includes(squash(piece)), 'Review: ' + piece);
   }
   for (const piece of ["setAttribute('aria-haspopup', 'listbox')", "setAttribute('role', 'listbox')", "row * 6.5 + 8", "classList.toggle('is-up', up)", "k === 'Escape') close(true)", "k === 'Tab') { close(false); return; }"]) assert.ok(emailCombo.includes(piece), 'Email still has: ' + piece);

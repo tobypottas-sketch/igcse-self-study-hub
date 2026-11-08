@@ -2540,14 +2540,17 @@ function enhanceTaskSelect(select) {
     active = Math.max(0, Math.min(items.length - 1, i));
     items.forEach((li, k) => li.classList.toggle('is-active', k === active));
     list.setAttribute('aria-activedescendant', items[active].id);
-    if (scroll !== false) items[active].scrollIntoView({block: 'nearest'});
+    // Scroll only the list's own box. Element.scrollIntoView() also scrolls the window, which drags the page back to the menu if the student has scrolled away.
+    if (scroll !== false) {
+      const li = items[active], top = active === 0 ? 0 : li.offsetTop, bottom = li.offsetTop + li.offsetHeight;
+      if (top < list.scrollTop) list.scrollTop = top; else if (bottom > list.scrollTop + list.clientHeight) list.scrollTop = bottom - list.clientHeight;
+    }
   }
   function place() {
     list.style.maxHeight = ''; list.classList.remove('is-up');
     const row = (items[0] && items[0].offsetHeight) || 44, want = row * 6.5 + 8, HEADER = 140;
-    let r = btn.getBoundingClientRect();
-    // Not enough room below: bring the picker up the page (clear of any sticky header) so the whole menu fits without being clipped.
-    if (window.innerHeight - r.bottom - 12 < want && r.top > HEADER) { window.scrollBy({top: r.top - HEADER, behavior: 'instant'}); r = btn.getBoundingClientRect(); }
+    const r = btn.getBoundingClientRect();
+    // Never scroll the document to make room: open on whichever side has more space and let the list scroll inside its own bounded box.
     const below = window.innerHeight - r.bottom - 12, above = r.top - HEADER;
     const up = below < Math.min(want, 200) && above > below;
     const room = Math.max(row * 2, Math.min(want, up ? above : below));
