@@ -20,8 +20,32 @@ test('the four launch skills exist in order with a colour identity and an icon e
 test('every existing app is classified under the right skill', () => {
   const expected = { essay_writing: 'writing', email_writing: 'writing', review_writing: 'writing', reading: 'reading', listening: 'listening', paraphrasing: 'language', vocabulary_paraphrase: 'language' };
   for (const [key, skill] of Object.entries(expected)) assert.equal(skillOf(key), skill, key);
-  // vocabulary_paraphrase contains "paraphr" but must not fall into a broader rule.
-  assert.equal(skillOf('vocabulary_paraphrase'), 'language');
+});
+
+// The exact app_key values in production public.apps (read-only check of the live table on 2026-11-08: 7 rows, all enabled).
+const PRODUCTION = [
+  ['email_writing', 'Informal Email Writing', 'writing'], ['essay_writing', 'Essay Writing', 'writing'], ['listening', 'Listening', 'listening'],
+  ['paraphrasing', 'Paraphrasing', 'language'], ['reading', 'Reading', 'reading'], ['review_writing', 'Review Writing', 'writing'],
+  ['vocabulary_paraphrase', 'Vocabulary & Paraphrase Builder', 'language']
+];
+
+test('the seven production app_key values each map to their skill by exact key', () => {
+  for (const [key, , skill] of PRODUCTION) assert.equal(skillOf(key), skill, key);
+  const apps = PRODUCTION.map(([key, name]) => A(key, name));
+  assert.deepEqual(cards(render(apps)).map(c => [c.key, c.skill]), PRODUCTION.map(([key, , skill]) => [key, skill]));
+  assert.deepEqual(skillSummaries(apps).map(s => [s.id, s.count]), [['writing', 3], ['reading', 1], ['listening', 1], ['language', 2]]);
+  // Every catalogue key is an exact production key: nothing speculative is registered.
+  assert.deepEqual(APP_CATALOGUE.flatMap(entry => entry.keys).sort(), PRODUCTION.map(([key]) => key).sort());
+});
+
+test('classification is exact: look-alike future keys are not guessed into a skill and stay under All apps', () => {
+  for (const key of ['reading_club', 'listening_extra', 'essay_planner', 'email', 'writing', 'review', 'vocabulary', 'paraphrase', 'paraphrasing_2', 'vocabulary_paraphrase_v2', 'speak_read']) {
+    assert.equal(skillOf(key), null, key);
+  }
+  assert.equal(skillOf('READING'), 'reading', 'case-insensitive exact match');
+  const html = render([...SEVEN, A('reading_club', 'Reading Club'), A('essay_planner', 'Essay Planner')]);
+  for (const key of ['reading_club', 'essay_planner']) { const c = cards(html).find(x => x.key === key); assert.ok(c && c.skill === null && !c.hidden, key); }
+  assert.deepEqual(skillSummaries([...SEVEN, A('reading_club'), A('essay_planner')]).map(s => s.count), [3, 1, 1, 2]);
 });
 
 test('skill counts are calculated from the apps the student can see, not hard-coded', () => {
@@ -59,14 +83,14 @@ test('an app with no recognised skill stays reachable under All apps and is not 
 });
 
 test('a catalogue entry naming an unknown skill is treated as unclassified, not lost', () => {
-  const registry = { skills: SKILLS, catalogue: [{ id: 'x', match: ['robot'], skill: 'robotics', badge: 'X' }, ...APP_CATALOGUE] };
+  const registry = { skills: SKILLS, catalogue: [{ id: 'x', keys: ['robot_lab'], skill: 'robotics', badge: 'X' }, ...APP_CATALOGUE] };
   const html = render([...SEVEN, A('robot_lab', 'Robot Lab')], { registry });
   const robot = cards(html).find(c => c.key === 'robot_lab');
   assert.ok(robot && robot.skill === null && !robot.hidden);
 });
 
 test('mock future app: one catalogue entry places it in the right skill automatically and updates the count', () => {
-  const registry = { skills: SKILLS, catalogue: [{ id: 'summary', match: ['summary'], skill: 'writing', badge: 'S' }, ...APP_CATALOGUE] };
+  const registry = { skills: SKILLS, catalogue: [{ id: 'summary', keys: ['summary_writing'], skill: 'writing', badge: 'S' }, ...APP_CATALOGUE] };
   const apps = [...SEVEN, A('summary_writing', 'Summary Writing')];
   assert.equal(skillOf('summary_writing', registry), 'writing');
   assert.equal(skillSummaries(apps, registry).find(s => s.id === 'writing').count, 4);
@@ -78,7 +102,7 @@ test('mock future app: one catalogue entry places it in the right skill automati
 
 test('mock new skill (Speaking): added to the registry only, it appears as a fifth card with its own colours and no homepage change', () => {
   const speaking = { id: 'speaking', name: 'Speaking', description: 'Practise speaking.', icon: 'headphones', color: { accent: '#0b7a3b', ink: '#095c2d', tint: '#e9f7ee', line: '#a9d8bb' } };
-  const registry = { skills: [...SKILLS, speaking], catalogue: [{ id: 'speak', match: ['speak'], skill: 'speaking', badge: 'S' }, ...APP_CATALOGUE] };
+  const registry = { skills: [...SKILLS, speaking], catalogue: [{ id: 'speak', keys: ['speaking_practice'], skill: 'speaking', badge: 'S' }, ...APP_CATALOGUE] };
   // No speaking app yet: no empty card.
   assert.ok(!skillSummaries(SEVEN, registry).some(s => s.id === 'speaking'));
   const apps = [...SEVEN, A('speaking_practice', 'Speaking Practice')];
@@ -101,5 +125,5 @@ test('skill cards are real buttons with a pressed state and the app grid is labe
 
 test('the registry holds presentation only: no URLs, no access rules, and the default registry is frozen', () => {
   assert.ok(Object.isFrozen(SKILLS) && Object.isFrozen(APP_CATALOGUE) && Object.isFrozen(DEFAULT_REGISTRY));
-  assert.doesNotMatch(JSON.stringify(APP_CATALOGUE), /https?:|enabled|launch_url/);
+  assert.doesNotMatch(JSON.stringify(APP_CATALOGUE), /https?:|enabled|launch_url|match/);
 });

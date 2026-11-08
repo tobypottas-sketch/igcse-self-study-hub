@@ -7,7 +7,7 @@
 //
 // To add an app: insert its `public.apps` row as usual, then add one entry to APP_CATALOGUE below with `skill` set.
 // To add a skill (e.g. Speaking): add one entry to SKILLS. Skills with no visible apps are hidden automatically.
-// An app that matches no catalogue entry (or names an unknown skill) is never hidden: it appears under All apps.
+// An app whose key is in no catalogue entry (or names an unknown skill) is never hidden: it appears under All apps.
 
 // `color` drives the whole identity of a skill (icon tile, selected state, card accent) through CSS variables, so a new skill
 // needs no new CSS: accent = icon and bars, ink = text on the tint (>= 4.5:1), tint = soft background, line = borders.
@@ -22,24 +22,24 @@ export const SKILLS = Object.freeze([
     color: { accent: '#b56a18', ink: '#7a4a0c', tint: '#fff6e5', line: '#eacb8f' } }
 ]);
 
-// `match` is a list of lowercase fragments tested against `app_key`; the first entry that matches wins,
-// so more specific keys (vocabulary_paraphrase) must come before broader ones (paraphras).
+// Each entry lists the exact `public.apps.app_key` values it covers (compared case-insensitively, never as a substring), so a future
+// key such as "reading_club" or "essay_planner" is NOT silently classified: it shows under All apps until it gets its own entry.
+// Production keys (checked against public.apps): email_writing, essay_writing, listening, paraphrasing, reading, review_writing, vocabulary_paraphrase.
 export const APP_CATALOGUE = Object.freeze([
-  { id: 'vocabulary', match: ['vocabulary'],           skill: 'language',  badge: 'V', art: './assets/launcher/vocabulary.svg' },
-  { id: 'review',     match: ['review'],               skill: 'writing',   badge: 'R', art: './assets/launcher/essay-writing.svg' },
-  { id: 'email',      match: ['email'],                skill: 'writing',   badge: 'E', art: './assets/launcher/essay-writing.svg' },
-  { id: 'essay',      match: ['essay'],                skill: 'writing',   badge: 'E', art: './assets/launcher/essay-writing.svg' },
-  { id: 'reading',    match: ['read'],                 skill: 'reading',   badge: 'R', art: './assets/launcher/reading.svg' },
-  { id: 'listening',  match: ['listen'],               skill: 'listening', badge: 'L', art: './assets/launcher/listening.svg' },
-  { id: 'paraphrasing', match: ['paraphr'],            skill: 'language',  badge: 'P', art: './assets/launcher/paraphrasing.svg' },
-  { id: 'writing',    match: ['writ'],                 skill: 'writing',   badge: 'E', art: './assets/launcher/essay-writing.svg' }
+  { id: 'essay',        keys: ['essay_writing'],         skill: 'writing',   badge: 'E', art: './assets/launcher/essay-writing.svg' },
+  { id: 'email',        keys: ['email_writing'],         skill: 'writing',   badge: 'E', art: './assets/launcher/essay-writing.svg' },
+  { id: 'review',       keys: ['review_writing'],        skill: 'writing',   badge: 'R', art: './assets/launcher/essay-writing.svg' },
+  { id: 'reading',      keys: ['reading'],               skill: 'reading',   badge: 'R', art: './assets/launcher/reading.svg' },
+  { id: 'listening',    keys: ['listening'],             skill: 'listening', badge: 'L', art: './assets/launcher/listening.svg' },
+  { id: 'paraphrasing', keys: ['paraphrasing'],          skill: 'language',  badge: 'P', art: './assets/launcher/paraphrasing.svg' },
+  { id: 'vocabulary',   keys: ['vocabulary_paraphrase'], skill: 'language',  badge: 'V', art: './assets/launcher/vocabulary.svg' }
 ]);
 
 export const DEFAULT_REGISTRY = Object.freeze({ skills: SKILLS, catalogue: APP_CATALOGUE });
 
 export function catalogueEntry(appKey, registry = DEFAULT_REGISTRY) {
   const key = String(appKey ?? '').toLowerCase();
-  return registry.catalogue.find(entry => entry.match.some(fragment => key.includes(fragment))) ?? null;
+  return registry.catalogue.find(entry => entry.keys.some(candidate => candidate.toLowerCase() === key)) ?? null;
 }
 
 // The skill id an app belongs to, or null when it is unclassified (or names a skill that does not exist).

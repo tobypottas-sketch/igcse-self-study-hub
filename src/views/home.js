@@ -179,10 +179,14 @@ function wireSkillPicker(root, skills, totalApps) {
   const count = root.querySelector('[data-app-results-count]');
   const status = root.querySelector('[data-app-results-status]');
   const results = root.querySelector('[data-app-results]');
+  const grid = root.querySelector('.app-grid');
   const choose = id => {
-    // Keep the results area as tall as it has been, so a shorter list never shortens the page. Otherwise the browser clamps the
-    // scroll position and the skill buttons the student just pressed slide down the screen. (Layout stability, not scroll control.)
-    if (results) results.style.minHeight = `${Math.max(Math.ceil(results.getBoundingClientRect().height), parseFloat(results.style.minHeight) || 0)}px`;
+    // Hold the results area at its current height while the cards change, then give back everything the page does not need.
+    // Without this, a shorter list can shorten the document below the current scroll position; the browser then clamps the scroll
+    // and the skill buttons the student just pressed slide down the screen. Only the shortfall (if any) is kept, so there is no
+    // blank area beyond what keeps the viewport filled. This is layout stability, not scroll control: nothing here scrolls.
+    if (results) results.style.minHeight = `${Math.ceil(results.getBoundingClientRect().height)}px`;
+    const held = results ? Math.ceil(results.getBoundingClientRect().height) : 0;
     selectedSkill = id;
     const skill = skills.find(candidate => candidate.id === id);
     let shown = 0;
@@ -192,6 +196,12 @@ function wireSkillPicker(root, skills, totalApps) {
     if (title) title.textContent = label;
     if (count) count.textContent = id === 'all' ? '' : plural(shown, 'app');
     if (status) status.textContent = `${label}: showing ${plural(shown, 'app')}`;
+    if (results && grid) {
+      const natural = Math.ceil(grid.getBoundingClientRect().bottom - results.getBoundingClientRect().top);
+      const documentIfNatural = document.documentElement.scrollHeight - held + natural;
+      const needed = Math.ceil(window.scrollY + window.innerHeight);
+      results.style.minHeight = documentIfNatural >= needed ? '' : `${natural + needed - documentIfNatural}px`;
+    }
   };
   for (const button of choices) button.addEventListener('click', () => choose(button.dataset.skillChoice));
 }
