@@ -34,6 +34,7 @@ export function buildHomeModel(profile, apps, activityDashboard = null) {
 function appVisual(appKey) {
   const key = String(appKey ?? '').toLowerCase();
   if (key.includes('vocabulary')) return 'V';
+  if (key.includes('review')) return 'R';
   if (key.includes('read')) return 'R';
   if (key.includes('listen')) return 'L';
   if (key.includes('paraphr')) return 'P';
