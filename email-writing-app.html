@@ -1455,7 +1455,7 @@ const EXAM_TASKS = [
     vocab: ['confusing','stressful','deadline','research','presentation','instructions','difficult','advice','support','solution'],
     collocations: ['ask for advice','meet the deadline','make progress','need some help','understand the instructions'],
     idioms: ['stuck on','my mind has gone blank','in a bit of a mess'],
-    openings: ["Hi [name], I really need your help with some homework I'm struggling with.", "Hey [name], I'm having a nightmare with one of my assignments and thought you might be able to help."],
+    openings: ["Hi [name], I really need your help with some homework I'm struggling with.", "Hey [name], I'm having a nightmare with one of my assignments and I thought you might be able to help."],
     closings: ["Please let me know if you can help me work through it.", "I'd really appreciate it if we could go through it together."],
     toneNotes: ['Sound honest and friendly.','Ask for help directly but naturally.']
   },
@@ -1541,7 +1541,7 @@ const EXAM_TASKS = [
       "get along well"
     ],
     "openings": [
-      "Hi [name], I have some news about the family who just moved in."
+      "Hi [name], I've got some news about the family who just moved in."
     ],
     "closings": [
       "I think we are going to be really good friends.",
@@ -1625,7 +1625,7 @@ const EXAM_TASKS = [
       "catch up"
     ],
     "openings": [
-      "Hi [name], I am really sorry I could not make it to your birthday."
+      "Hi [name], I'm really sorry I couldn't make it to your birthday."
     ],
     "closings": [
       "Can we organise something special this weekend?",
@@ -1667,10 +1667,10 @@ const EXAM_TASKS = [
       "in the end"
     ],
     "openings": [
-      "Hi [name], our family day out did not go to plan at all!"
+      "Hi [name], our family day out didn't go to plan at all!"
     ],
     "closings": [
-      "It is definitely a day I will remember.",
+      "It's definitely a day I'll remember.",
       "Has anything like that happened to you?"
     ],
     "toneNotes": [
@@ -1712,7 +1712,7 @@ const EXAM_TASKS = [
       "Hey [name], I helped out at a community event last weekend."
     ],
     "closings": [
-      "I would definitely do it again.",
+      "I'd definitely do it again.",
       "Would you be interested in joining me next time?"
     ],
     "toneNotes": [
@@ -1751,10 +1751,10 @@ const EXAM_TASKS = [
       "give it a shot"
     ],
     "openings": [
-      "Hi [name], I finally tried a sport I had never played before!"
+      "Hi [name], I finally tried a sport I'd never played before!"
     ],
     "closings": [
-      "I think you would enjoy it too.",
+      "I think you'd enjoy it too.",
       "Would you like to come along next time?"
     ],
     "toneNotes": [
@@ -1796,7 +1796,7 @@ const EXAM_TASKS = [
       "Hey [name], something surprising happened on my way home yesterday."
     ],
     "closings": [
-      "I am glad I did the right thing.",
+      "I'm glad I did the right thing.",
       "What would you have done?"
     ],
     "toneNotes": [
@@ -1835,10 +1835,10 @@ const EXAM_TASKS = [
       "find out"
     ],
     "openings": [
-      "Hi [name], we have just said goodbye to our visiting student."
+      "Hi [name], we've just said goodbye to our visiting student."
     ],
     "closings": [
-      "I would love to host someone again.",
+      "I'd love to host someone again.",
       "Have you ever had an exchange visitor?"
     ],
     "toneNotes": [
@@ -1877,7 +1877,7 @@ const EXAM_TASKS = [
       "make it work"
     ],
     "openings": [
-      "Hi [name], I am sorry but we need to change our plans for Saturday."
+      "Hi [name], I'm sorry, but we need to change our plans for Saturday."
     ],
     "closings": [
       "Let me know if the new plan works for you.",
@@ -1919,7 +1919,7 @@ const EXAM_TASKS = [
       "pay off"
     ],
     "openings": [
-      "Hey [name], I have just finished a competition I had been preparing for!"
+      "Hey [name], I've just finished a competition I'd been preparing for!"
     ],
     "closings": [
       "I learnt a lot from the experience.",
@@ -1961,7 +1961,7 @@ const EXAM_TASKS = [
       "have a great time"
     ],
     "openings": [
-      "Hi [name], I have found somewhere I think you would really like."
+      "Hi [name], I've found somewhere I think you'd really like."
     ],
     "closings": [
       "We should definitely go together next month.",
@@ -2003,10 +2003,10 @@ const EXAM_TASKS = [
       "work out"
     ],
     "openings": [
-      "Hey [name], I have just finished my first holiday job!"
+      "Hey [name], I've just finished my first holiday job!"
     ],
     "closings": [
-      "It was hard work but I learnt a lot.",
+      "It was hard work, but I learnt a lot.",
       "Would you try a job like this?"
     ],
     "toneNotes": [
@@ -2089,7 +2089,7 @@ const EXAM_TASKS = [
       "Hey [name], our school wants ideas for improving our break-time area."
     ],
     "closings": [
-      "What is the best thing about the break spaces at your school?",
+      "What's the best thing about the break areas at your school?",
       "I would love to hear your ideas."
     ],
     "toneNotes": [
@@ -2124,7 +2124,7 @@ const DEFAULT_OPENINGS = [
 ];
 const DEFAULT_LINKERS = [
   "Anyway, the main thing I wanted to tell you is...",
-  "Before anything else, let me say that...",
+  "First of all, ...",
   "Later that day, ...",
   "Soon after that, ...",
   "But then, ...",
@@ -2685,7 +2685,7 @@ const TASK_BP_STARTERS = {
   "homework-difficulty": [
     "For this project, I have to…",
     "I’m struggling with… because…",
-    "Could you possibly help me by…?"
+    "Could you help me by…?"
   ],
   "weekend-course": [
     "During the course, we learnt how to…",
@@ -2725,7 +2725,7 @@ const TASK_BP_STARTERS = {
   "volunteer-event": [
     "My main job at the event was to…",
     "The hardest part was… because…",
-    "I would definitely volunteer again because…"
+    "I'd definitely volunteer again because…"
   ],
   "trying-sport": [
     "I decided to try… after…",
@@ -2802,7 +2802,8 @@ function updateScaffolds() {
   if (!show) return;
 
   const task = getActiveTask();
-  const fname = c.friend || 'friend';
+  // Never teach "Hi friend": with no friend name set, model greetings use a realistic example name (Hi Alex / Hey Sam).
+  const nameFor = line => c.friend || (/^\s*hey\b/i.test(line) ? 'Sam' : 'Alex');
 
   const vocab = task && task.vocab ? task.vocab : [];
   const collocations = task && task.collocations ? task.collocations : [];
@@ -2820,7 +2821,7 @@ function updateScaffolds() {
     : '<div style="font-size:0.8rem;color:var(--text-light)">Load an exam task to see useful collocations here.</div>';
 
   document.getElementById('scaffoldOpeningsList').innerHTML = openings.map(l =>
-    formatScaffoldItem(l.replace(/\[name\]/gi, fname), 'opening')
+    formatScaffoldItem(l.replace(/\[name\]/gi, nameFor(l)), 'opening')
   ).join('');
 
   document.getElementById('scaffoldLinkersList').innerHTML = linkers.map(l =>
@@ -2832,7 +2833,7 @@ function updateScaffolds() {
   ).join('');
 
   document.getElementById('scaffoldClosingsList').innerHTML = closings.map(l =>
-    formatScaffoldItem(l.replace(/\[name\]/gi, fname), 'closing')
+    formatScaffoldItem(l.replace(/\[name\]/gi, nameFor(l)), 'closing')
   ).join('');
 }
 
@@ -3893,7 +3894,7 @@ const DEVELOPMENT_EXAMPLES = {
   "weekend-course": [
     [
       "I did a photography course.",
-      "On Saturday, we learnt how to change the lighting on a camera before taking portraits of each other."
+      "On Saturday, we learnt how to adjust the camera settings and the lighting before taking portraits of each other."
     ],
     [
       "I wanted to learn photography.",
@@ -3963,7 +3964,7 @@ const DEVELOPMENT_EXAMPLES = {
   "missed-birthday": [
     [
       "I missed your birthday.",
-      "I could not attend your birthday meal on Saturday because my little brother suddenly became ill and Mum needed my help."
+      "I couldn't come to your birthday meal on Saturday because my little brother suddenly became ill and Mum needed my help."
     ],
     [
       "I had plans for the celebration.",
@@ -4023,7 +4024,7 @@ const DEVELOPMENT_EXAMPLES = {
     ],
     [
       "I tried to return it.",
-      "I handed it to the bus station office because I didn’t want to answer a stranger’s private messages."
+      "I handed it in at the bus station office because I didn’t want to read a stranger’s private messages."
     ],
     [
       "I learnt something.",
@@ -4047,7 +4048,7 @@ const DEVELOPMENT_EXAMPLES = {
   "change-of-plans": [
     [
       "Our plan changed.",
-      "The cycling trip is not possible now because heavy rain is forecast all Saturday and the route has no shelter."
+      "The cycling trip isn’t possible now because heavy rain is forecast all Saturday and the route has no shelter."
     ],
     [
       "I could not go.",
@@ -4336,7 +4337,7 @@ const ERROR_CLINIC_ITEMS = [
  {category:'tense', sentence:'Before the competition started, I already practise my speech.',choices:['Before the competition started, I already practising my speech.','Before the competition started, I had already practised my speech.','Before the competition started, I have already practise my speech.'],correct:1,explanation:'The practice happened before another past event, so the past perfect helps show the sequence.',transfer:'If you describe two past events, can your reader tell which happened first?'},
  {category:'tense', sentence:'Yesterday I was very nervous, but my friends helps me.',choices:['Yesterday I was very nervous, but my friends helping me.','Yesterday I was very nervous, but my friends has helped me.','Yesterday I was very nervous, but my friends helped me.'],correct:2,explanation:'The event is in the past, so “helped” keeps the time reference consistent.',transfer:'Check whether the verbs in a past-event paragraph use consistent and appropriate tenses.'},
  {category:'articles',sentence:'I bought a headphones because my old pair broke.',choices:['I bought a pair of headphones because my old pair broke.','I bought an headphones because my old pair broke.','I bought a headphone pairs because my old pair broke.'],correct:0,explanation:'“Headphones” is plural. “A pair of headphones” is a natural way to refer to one set.',transfer:'Check singular and plural nouns. Do articles such as a/an/the match the noun?'},
- {category:'articles',sentence:'The shop was located near to my school.',choices:['The shop was located close my school.','The shop was located near my school.','The shop was located nearby to my school.'],correct:1,explanation:'“Near” can take a noun directly: “near my school”. “Close to my school” would also work.',transfer:'Read your prepositions carefully. Are you using natural combinations such as “near school” or “close to school”?'},
+ {category:'articles',sentence:'The shop was located next my school.',choices:['The shop was located next of my school.','The shop was located next to my school.','The shop was located next at my school.'],correct:1,explanation:'“Next to” is the natural phrase for something beside another place. Learn the whole phrase, not just “next”.',transfer:'Check your prepositions. Are you using whole phrases such as “next to the school”, “opposite the park” or “close to the station”?'},
  {category:'articles',sentence:'I was proud about myself after I finished the race.',choices:['I was proud at myself after I finished the race.','I was proud with myself after I finished the race.','I was proud of myself after I finished the race.'],correct:2,explanation:'The standard collocation is “proud of”. Learning a word with its preposition helps accuracy.',transfer:'Check adjective + preposition combinations in your email, such as proud of or worried about.'},
  {category:'register',sentence:'Furthermore, I hereby wish to notify you that my bicycle broke.',choices:['Anyway, you won’t believe it — my bike broke!','Consequently, I must inform you of my bicycle malfunction.','With reference to the bicycle, a failure occurred.'],correct:0,explanation:'The first sentence sounds natural when sharing news with a friend. The other versions sound like formal correspondence.',transfer:'Could any of your sentences sound like a formal report rather than a friendly email?'},
  {category:'register',sentence:'The event was sick and everything was, like, totally insane.',choices:['The event was a grand occasion, which I hereby commend.','The event was brilliant, and I especially loved the live music.','The event was sick and furthermore its vibe was totally insane.'],correct:1,explanation:'Informal does not mean uncontrolled slang. Specific, natural language makes the reaction clear.',transfer:'Are your informal expressions clear and appropriate for the friend and situation?'},
