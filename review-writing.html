@@ -113,6 +113,7 @@ try {
 </div>
 <div class="field question-picker"><label class="label" for="questionSelect" id="questionLabel">Select a practice question</label><select id="questionSelect" aria-describedby="taskChangeNote"></select></div>
 <div class="task-change-note no-print" id="taskChangeNote" data-task-note role="status" hidden></div>
+<p class="hint" id="taskBusyNote" role="status" hidden>Feedback is being prepared. You can change tasks when it's ready.</p>
 <div class="task-override-banner" id="taskOverrideBanner" hidden role="status">Teacher's question is active. It replaces the selected practice task throughout Plan and Write.</div>
 <div class="prompt" id="promptDisplay"></div>
 <div class="field"><label class="label" for="customPrompt">Teacher's question (optional)</label><textarea id="customPrompt" rows="3" placeholder="Paste the exact review-writing task from your teacher here."></textarea><div class="hint">Enter a question to override the practice task. Clear this box to return to the selected practice task.</div>
@@ -344,6 +345,17 @@ function renderQuestionOptions(){
  }
  select.value=currentQuestion().id;
 }
+// While AI feedback is being prepared the task cannot change: a change would cancel the request (and still use one of the daily turns).
+let feedbackBusy=false;
+function setFeedbackBusy(busy){
+ feedbackBusy=busy;
+ document.querySelectorAll('[data-topic]').forEach(b=>{b.disabled=busy;});
+ $('questionSelect').disabled=busy;
+ $('customPrompt').disabled=busy;
+ $('taskBusyNote').hidden=!busy;
+ updateTaskChangeNote();
+}
+window.addEventListener('review-feedback-busy',e=>setFeedbackBusy(Boolean(e.detail&&e.detail.busy)));
 // The task the student's current plan/draft belongs to: a practice question id, or 'teacher' while the Teacher's question is active.
 function currentTaskId(){return state.customPrompt.trim()?'teacher':currentQuestion().id;}
 function taskName(id){
@@ -352,12 +364,13 @@ function taskName(id){
  return q?'\u201c'+q.title+'\u201d':'';
 }
 function switchBackToWorkTask(){
+ if(feedbackBusy)return;
  const q=Object.entries(QUESTIONS).find(([,list])=>list.some(x=>x.id===state.workQid));
  if(!q)return;
  state.topic=q[0];state.qid=state.workQid;state.picked[state.topic]=state.qid;
  updateTopic();scheduleSave();
 }
-function acceptWorkForCurrentTask(){state.workQid=currentTaskId();updateTaskChangeNote();scheduleSave();}
+function acceptWorkForCurrentTask(){if(feedbackBusy)return;state.workQid=currentTaskId();updateTaskChangeNote();scheduleSave();}
 // Shown wherever the writing is visible (Task, Plan, Write, Review, Preview) whenever the saved plan/draft was started for a different task.
 function updateTaskChangeNote(){
  const mismatch=hasWork()&&state.workQid&&state.workQid!==currentTaskId();
@@ -372,10 +385,10 @@ function updateTaskChangeNote(){
   const row=document.createElement('div');row.className='task-change-actions';
   if(state.workQid!=='teacher'){
    const back=document.createElement('button');back.type='button';back.className='btn ghost';back.textContent='Go back to '+from;
-   back.addEventListener('click',switchBackToWorkTask);row.append(back);
+   back.disabled=feedbackBusy;back.addEventListener('click',switchBackToWorkTask);row.append(back);
   }
   const keep=document.createElement('button');keep.type='button';keep.className='btn ghost';keep.textContent='This writing is for the new task';
-  keep.addEventListener('click',acceptWorkForCurrentTask);row.append(keep);
+  keep.disabled=feedbackBusy;keep.addEventListener('click',acceptWorkForCurrentTask);row.append(keep);
   note.append(text,row);
  });
 }
@@ -582,7 +595,7 @@ function downloadText(){
 document.querySelectorAll('[data-tab]').forEach(button=>button.addEventListener('click',()=>changeTab(button.dataset.tab)));
 document.querySelectorAll('[data-next]').forEach(button=>button.addEventListener('click',()=>changeTab(button.dataset.next)));
 document.querySelectorAll('[data-topic]').forEach(button=>button.addEventListener('click',()=>{
-  const topic=button.dataset.topic;if(!QUESTIONS[topic])return;
+  const topic=button.dataset.topic;if(feedbackBusy||!QUESTIONS[topic])return;
   state.picked[state.topic]=state.qid;
   state.topic=topic;
   const remembered=state.picked[topic];
@@ -590,11 +603,12 @@ document.querySelectorAll('[data-topic]').forEach(button=>button.addEventListene
   updateTopic();scheduleSave();
 }));
 $('questionSelect').addEventListener('change',e=>{
+  if(feedbackBusy){renderQuestionOptions();return;}
   if(!questionsFor(state.topic).some(q=>q.id===e.target.value))return;
   state.qid=e.target.value;state.picked[state.topic]=state.qid;
   updateTopic();scheduleSave();
 });
-$('customPrompt').addEventListener('input',e=>{state.customPrompt=e.target.value;updateTopic();scheduleSave();});
+$('customPrompt').addEventListener('input',e=>{if(feedbackBusy){e.target.value=state.customPrompt;return;}state.customPrompt=e.target.value;updateTopic();scheduleSave();});
 PLAN_FIELDS.forEach(id=>$(id).addEventListener('input',e=>{state.plan[id]=e.target.value;trackWork();updateTaskChangeNote();scheduleSave();}));
 Object.entries(FIELD_MAP).forEach(([key,id])=>$(id).addEventListener('input',e=>{state.draft[key]=e.target.value;trackWork();updateTaskChangeNote();updateCounts();scheduleSave();}));
 document.querySelectorAll('[data-clear]').forEach(button=>button.addEventListener('click',()=>confirmClear(button.dataset.clear)));

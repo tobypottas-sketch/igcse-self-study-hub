@@ -61,7 +61,7 @@ export function renderStudentFeedback(doc, feedback, { onRevise } = {}) {
 }
 export function mountStudentFeedback(host, options) {
   const doc = host.ownerDocument; const win = doc.defaultView;
-  const { app, getTask, getResponse, getClient, onRevise, request = requestFeedback, progressOptions = {}, label = 'Get My Feedback' } = options;
+  const { app, getTask, getResponse, getClient, onRevise, onBusyChange, request = requestFeedback, progressOptions = {}, label = 'Get My Feedback' } = options;
   let busy = false, disposed = false, generation = 0, pending = null, count = 0;
   const section = el(doc, 'section', 'student-feedback');
   const title = el(doc, 'h2', 'sf-title', 'Get feedback on your writing');
@@ -75,15 +75,17 @@ export function mountStudentFeedback(host, options) {
   const result = el(doc, 'div', 'sf-output'); result.setAttribute('aria-live', 'polite');
   section.append(title, lead, privacy, consentLabel, button, progressHost, status, result); host.replaceChildren(section);
   const progress = createAssessmentProgress(progressHost, { label: 'Getting your feedback', ...progressOptions });
+  // Optional: lets a page lock its own task controls while a request is in flight (apps that do not pass it are unaffected).
+  const setBusy = value => { if (busy === value) return; busy = value; try { onBusyChange?.(value); } catch { /* a page callback must never break feedback */ } };
   const say = (message, tone = '') => { status.textContent = message; status.className = 'sf-status' + (tone ? ' sf-status--' + tone : ''); };
-  function clear() { generation++; pending?.abort(); pending = null; busy = false; progress.reset(); result.replaceChildren(); say(''); button.disabled = false; button.textContent = count ? 'Get feedback on my revised writing' : label; }
+  function clear() { generation++; pending?.abort(); pending = null; setBusy(false); progress.reset(); result.replaceChildren(); say(''); button.disabled = false; button.textContent = count ? 'Get feedback on my revised writing' : label; }
   async function run() {
     if (busy || disposed) return;
     const response = String(getResponse() ?? ''), task = String(getTask() ?? '');
     if (task.trim().length < 10) { say('Choose your writing task first, so the feedback matches the question.', 'warn'); return; }
     if (response.trim().length < 4) { say('Write something first, then ask for feedback.', 'warn'); return; }
     if (!box.checked) { say('Please read how your writing is used and tick the box first.', 'warn'); box.focus?.(); return; }
-    busy = true; button.disabled = true; button.textContent = 'Getting your feedback…'; result.replaceChildren(); say('');
+    setBusy(true); button.disabled = true; button.textContent = 'Getting your feedback…'; result.replaceChildren(); say('');
     const current = ++generation; pending = new AbortController(); progress.start();
     try {
       const client = await getClient();
@@ -97,7 +99,7 @@ export function mountStudentFeedback(host, options) {
       const message = error instanceof FeedbackError ? error.message : 'We could not get your feedback this time. Your writing is still here and nothing was saved. Please try again in a minute.';
       progress.fail(message, { timedOut: error?.code === 'timeout' }); say(message, 'error');
       status.classList.add('sf-sr');   // the card already shows the words; keep the status line for screen readers only
-    } finally { if (!disposed && current === generation) { busy = false; pending = null; button.disabled = false; button.textContent = count ? 'Get feedback on my revised writing' : label; } }
+    } finally { if (!disposed && current === generation) { setBusy(false); pending = null; button.disabled = false; button.textContent = count ? 'Get feedback on my revised writing' : label; } }
   }
   button.addEventListener('click', run);
   const leave = () => clear(); win?.addEventListener('pagehide', leave);

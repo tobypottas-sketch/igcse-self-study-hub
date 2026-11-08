@@ -12,6 +12,8 @@ try {
   if (host && profile.role === 'student' && profile.active === true && !profile.must_change_password) {
     const feedback = mountStudentFeedback(host, {
       app: 'review', getClient: () => client,
+      // Task controls stay locked while a request is running, so it is never cancelled by a task change.
+      onBusyChange: busy => window.dispatchEvent(new CustomEvent('review-feedback-busy', { detail: { busy } })),
       getTask: () => { const s = window.reviewWritingFeedbackSource(); return reviewTaskText(s.task); },
       getResponse: () => reviewResponseText(window.reviewWritingFeedbackSource().sections),
       onRevise: () => document.querySelector('[data-tab="write"]')?.click()
