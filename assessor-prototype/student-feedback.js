@@ -4,7 +4,7 @@ import { AssessmentError, ValidationFailure, response, configuration, verifyAcco
 // Nothing is stored, logged or sent to analytics. The only state is a per-student counter (no text) in Supabase.
 const BODY_BYTES = 12000;
 // The Worker, not the browser, decides the Cambridge 0511 task type for each app. Add an app here to reuse the route.
-export const STUDENT_APPS = Object.freeze({ email:{ taskType:'email' }, review:{ taskType:'review' } });
+export const STUDENT_APPS = Object.freeze({ email:{ taskType:'email' }, review:{ taskType:'review' }, essay:{ taskType:'essay' } });
 const QUOTA_REASONS = new Set(['busy', 'too_soon', 'daily_limit', 'global_limit', 'not_available']);
 const MARK_TALK = /\b(?:marks?|bands?|scores?|scored|grades?|graded|levels?)\b|\b\d{1,2}\s*(?:\/|out of)\s*\d{1,2}\b/iu;
 // Only a failure of the AI platform itself gives a turn back. Junk, injected or unverifiable output (the student's doing) never does:

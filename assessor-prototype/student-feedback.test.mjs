@@ -48,6 +48,36 @@ test('only the three estimated scores reach a student: no reasons, evidence list
     assert.ok(!text.includes(forbidden), forbidden + ' leaked to the student');
   assert.deepEqual(Object.keys(body.feedback).sort(), ['improvements', 'lengthNotice', 'nextStep', 'partial', 'scores', 'strengths']);
 });
+const essayTask = 'Your school council is discussing whether teachers should stop setting homework at weekends. Write your essay, considering both sides of the issue and giving your own opinion. Ideas to consider: weekends are for rest; homework helps us remember lessons. Write 120–160 words.';
+const essayWriting = 'Many students feel that weekends should be free from homework because they need time to rest and see their families. However, some homework helps pupils remember lessons. In my opinion, a little weekend homework is fine.';
+const essayEvidence = { requirements: [{ taskQuote: 'both sides of the issue', quote: 'However, some homework helps pupils remember lessons' }], features: [{ label: 'reason', quote: 'because they need time to rest and see their families' }], errors: [] };
+const essayAssessment = { ...assessment, contentReason: 'SECRET-TEACHER-REASON the essay gives both sides.', strengths: [{ evidence: 2, advice: 'Gives a clear reason for the opinion.' }], improvements: [{ evidence: 1, advice: 'Develop this point with an example.', example: 'For example, a student with a long project could use the weekend to plan carefully.' }], nextStep: 'Add a specific example to the second argument.' };
+test('the essay app is accepted: the Worker fixes the task type to essay and only the three scores reach the student', async t => {
+  const { env, calls } = setup(t, { replies: [essayEvidence, essayAssessment] }); const res = await worker.fetch(request({ app: 'essay', task: essayTask, response: essayWriting, privacyNoticeAccepted: true }), env);
+  assert.equal(res.status, 200); const text = await res.text(); const body = JSON.parse(text);
+  assert.equal(JSON.parse(calls.ai[0].args.messages.at(-1).content).taskType, 'essay');
+  assert.deepEqual(body.feedback.scores, { content: 4, language: 6, total: 10 });
+  assert.deepEqual(Object.keys(body.feedback).sort(), ['improvements', 'lengthNotice', 'nextStep', 'partial', 'scores', 'strengths']);
+  for (const forbidden of ['contentMark', 'languageMark', 'totalMark', 'contentReason', 'languageReason', 'SECRET-']) assert.ok(!text.includes(forbidden), forbidden + ' leaked to the student');
+  assert.deepEqual(calls.order.filter(x => x !== 'ai'), ['auth', 'profile', 'begin', 'finish']);   // the same quota and refund path as the other apps
+});
+test('essay feedback keeps the same limits: a teacher, an unaccepted notice or an essay with an email address is refused before any quota or AI use', async t => {
+  for (const [body, opts] of [[{ app: 'essay', task: essayTask, response: essayWriting, privacyNoticeAccepted: false }, {}], [{ app: 'essay', task: essayTask, response: essayWriting + ' Write to alex@example.com', privacyNoticeAccepted: true }, {}], [{ app: 'essay', task: essayTask, response: essayWriting, privacyNoticeAccepted: true }, { role: 'teacher' }]]) {
+    const { env, calls } = setup(t, opts); const res = await worker.fetch(request(body), env); assert.ok([400, 403].includes(res.status));
+    assert.ok(!calls.order.includes('begin') && calls.ai.length === 0); t.mock.restoreAll();
+  }
+});
+test('essay next steps come only from evidence: nothing is invented for a response with nothing to fix, and a real slip is quoted from the student\u2019s own text', async t => {
+  const none = { ...essayAssessment, improvements: [], nextStep: '' };
+  let { env } = setup(t, { replies: [essayEvidence, none] });
+  let body = await (await worker.fetch(request({ app: 'essay', task: essayTask, response: essayWriting, privacyNoticeAccepted: true }), env)).json();
+  assert.deepEqual(body.feedback.improvements, []); assert.equal(body.feedback.nextStep, '', 'no generic target may be added to fill space'); t.mock.restoreAll();
+  const slip = essayWriting + ' I dont think students should be given too much work.';
+  ({ env } = setup(t, { replies: [essayEvidence, none] }));
+  body = await (await worker.fetch(request({ app: 'essay', task: essayTask, response: slip, privacyNoticeAccepted: true }), env)).json();
+  assert.ok(body.feedback.improvements.length >= 1 && body.feedback.improvements.every(p => slip.includes(p.quote)), 'a correction must quote the student');
+  assert.ok(body.feedback.improvements.some(p => p.quote === 'dont') && /apostrophe/i.test(JSON.stringify(body.feedback)));
+});
 test('scores are unavailable (null) when the assessment is partial or the marks are not whole numbers in range', () => {
   const base = { strengths: [{ quote: 'a', advice: 'Good reason.' }], improvements: [], nextStep: 'x' };
   assert.deepEqual(studentView({ ...base, contentMark: 6, languageMark: 9 }).scores, { content: 6, language: 9, total: 15 });
@@ -56,7 +86,7 @@ test('scores are unavailable (null) when the assessment is partial or the marks 
   assert.equal(studentView({ strengths: [], improvements: [], contentMark: 4, languageMark: 6 }).scores, null);
 });
 test('the request may not choose the task type, role or extra fields; unknown apps are rejected before any quota is used', async t => {
-  for (const body of [{ ...submission, taskType: 'essay' }, { ...submission, app: 'essay' }, { ...submission, app: '__proto__' }, { ...submission, privacyNoticeAccepted: false }, { ...submission, role: 'admin' }, { ...submission, task: 'short' }, { ...submission, response: 'x'.repeat(6001) }, 'not json', [] ]) {
+  for (const body of [{ ...submission, taskType: 'essay' }, { ...submission, app: 'discussion' }, { ...submission, app: '__proto__' }, { ...submission, privacyNoticeAccepted: false }, { ...submission, role: 'admin' }, { ...submission, task: 'short' }, { ...submission, response: 'x'.repeat(6001) }, 'not json', [] ]) {
     const { env, calls } = setup(t); const res = await worker.fetch(request(body), env); assert.ok([400, 413].includes(res.status), JSON.stringify(body).slice(0, 40));
     assert.ok(!calls.order.includes('begin') && calls.ai.length === 0, 'a malformed request must not use quota or AI'); t.mock.restoreAll();
   }
