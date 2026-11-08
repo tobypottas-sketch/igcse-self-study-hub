@@ -1,5 +1,5 @@
 import { escapeHtml, safeHttpsUrl } from './html.js';
-import { DEFAULT_REGISTRY, catalogueEntry, skillOf, skillStyle, skillSummaries } from './app-registry.js';
+import { DEFAULT_REGISTRY, catalogueEntry, skillOf, orderApps, skillStyle, skillSummaries } from './app-registry.js';
 
 const EH_SCHOOLS_LOGO = './assets/evidence-hub-schools-logo.webp';
 const CAMBRIDGE_ENGLISH_LOGO = './assets/cambridge-assessment-english.webp';
@@ -76,7 +76,7 @@ export function renderHome(root, profile, apps, activityDashboard = null, { regi
   // A remembered skill that no longer has visible apps (or never existed) falls back to All apps rather than an empty page.
   if (selectedSkill !== 'all' && !skills.some(skill => skill.id === selectedSkill)) selectedSkill = 'all';
   const canChangePassword = ['student','teacher','admin'].includes(profile.role) && profile.active !== false;
-  const cards = model.apps.map(app => {
+  const cards = orderApps(model.apps, registry).map(app => {
     const skill = skillOf(app.app_key, registry);
     const shown = selectedSkill === 'all' || skill === selectedSkill;
     return `
