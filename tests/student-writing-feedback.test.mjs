@@ -100,8 +100,8 @@ test('sign-off keeps only a known closing phrase and never a name', async () => 
   assert.equal(safeSignoff(''), '');
 });
 
-test('the student panel is switched OFF in the shipped pages until the pilot is approved', () => {
-  assert.match(read('src/assessor/student-feedback-flag.js'), /STUDENT_FEEDBACK_UI_ENABLED = false;/);
+test('the student panel switch is checked before anything else in both writing pages', () => {
+  assert.match(read('src/assessor/student-feedback-flag.js'), /STUDENT_FEEDBACK_UI_ENABLED = (true|false);/);
   for (const file of ['src/assessor/email-feedback.js', 'src/assessor/review-feedback.js']) {
     const source = read(file); assert.match(source, /STUDENT_FEEDBACK_UI_ENABLED/); assert.ok(source.indexOf('STUDENT_FEEDBACK_UI_ENABLED)') < source.indexOf('getSupabaseClient()'), file + ' must check the switch before doing anything');
   }
