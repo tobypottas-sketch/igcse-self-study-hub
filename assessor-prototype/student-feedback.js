@@ -42,19 +42,21 @@ async function readStudentSubmission(request) {
     throw new AssessmentError(400, 'invalid_submission');
   } finally { reader.releaseLock(); }
 }
-async function rpc(config, authorization, name, body) {
+// The quota functions are only usable with the Worker's own secret. No student credential is sent: the student's identity is the ID Supabase
+// itself verified from their session. The publishable key (role anon) is all the gateway needs.
+async function rpc(config, name, body) {
   let res;
   try {
     res = await fetch(config.supabase + '/rest/v1/rpc/' + name, { method:'POST', redirect:'manual', signal:AbortSignal.timeout(10000),
-      headers:{ Authorization:authorization, apikey:config.key, 'Content-Type':'application/json' }, body:JSON.stringify(body) });
+      headers:{ apikey:config.key, 'Content-Type':'application/json' }, body:JSON.stringify(body) });
   } catch { throw new AssessmentError(503, 'quota_unavailable'); }
   if (!res.ok) throw new AssessmentError(503, 'quota_unavailable');
   try { return await res.json(); } catch { throw new AssessmentError(503, 'quota_unavailable'); }
 }
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // Atomically reserves one request for this student, or says why not. Fails closed: any unexpected answer means no AI call.
-async function reserve(config, authorization) {
-  const answer = await rpc(config, authorization, 'begin_student_feedback', {});
+async function reserve(config, secret, studentId) {
+  const answer = await rpc(config, 'begin_student_feedback', { p_secret:secret, p_student_id:studentId });
   if (answer?.allowed === true && UUID.test(answer.ticket ?? '')) return answer.ticket;
   if (answer?.allowed === false && QUOTA_REASONS.has(answer.reason)) {
     const retry = Number.isInteger(answer.retry_after) && answer.retry_after > 0 ? Math.min(answer.retry_after, 86400) : 0;
@@ -63,8 +65,8 @@ async function reserve(config, authorization) {
   throw new AssessmentError(503, 'quota_unavailable');
 }
 // Releases the in-flight slot. A refund is only granted for the exact ticket this Worker was given, which the student never sees.
-async function release(config, authorization, ticket, refund) {
-  try { await rpc(config, authorization, 'finish_student_feedback', { p_ticket:ticket, p_refund:refund }); } catch { /* the slot expires on its own */ }
+async function release(config, secret, studentId, ticket, refund) {
+  try { await rpc(config, 'finish_student_feedback', { p_secret:secret, p_student_id:studentId, p_ticket:ticket, p_refund:refund }); } catch { /* the slot expires on its own */ }
 }
 // What a student may see: verified strengths, verified corrections, one writing target and a neutral length note. Never marks, reasons or teacher-only data.
 export function studentView(result) {
@@ -84,7 +86,7 @@ export function studentView(result) {
   return { partial, strengths:partial ? [] : strengths, improvements:partial ? [] : improvements, nextStep:partial ? '' : target, lengthNotice };
 }
 export async function handleStudentFeedback(request, env, runAI, classifyAIError) {
-  let origin; let stage = 'authorization'; let ticket = null; let authorization = ''; let config; let refund = false;
+  let origin; let stage = 'authorization'; let ticket = null; let studentId = ''; let config; let refund = false;
   try {
     config = configuration(env);
     if (request.headers.get('Origin') !== config.origin) throw new AssessmentError(403, 'origin_not_allowed');
@@ -92,13 +94,14 @@ export async function handleStudentFeedback(request, env, runAI, classifyAIError
     if (request.method === 'OPTIONS') return response(null, 204, origin);
     if (request.method !== 'POST') throw new AssessmentError(405, 'method_not_allowed');
     if (new URL(request.url).search) throw new AssessmentError(400, 'query_not_allowed');
-    const { profile } = await verifyAccount(request, config, 'verification_unavailable');
+    const { id, profile } = await verifyAccount(request, config, 'verification_unavailable');
     if (!profile || profile.active !== true || profile.must_change_password !== false || profile.role !== 'student') throw new AssessmentError(403, 'active_student_required');
     // Validate first: a malformed request must never use up a student's allowance.
     const input = await readStudentSubmission(request);
     if (!env.AI) throw new AssessmentError(503, 'ai_unavailable');
-    authorization = request.headers.get('Authorization');
-    stage = 'quota'; ticket = await reserve(config, authorization);
+    studentId = id;
+    if (typeof env.FEEDBACK_QUOTA_SECRET !== 'string' || env.FEEDBACK_QUOTA_SECRET.length < 32) throw new AssessmentError(503, 'quota_unavailable');   // fail closed
+    stage = 'quota'; ticket = await reserve(config, env.FEEDBACK_QUOTA_SECRET, studentId);
     stage = 'assessment';
     const result = await runPipeline(input, runAI, zeroCounts(), () => {});
     const feedback = studentView(result);
@@ -115,6 +118,6 @@ export async function handleStudentFeedback(request, env, runAI, classifyAIError
     refund = Boolean(ticket) && !ownFault && PLATFORM_FAILURES.has(category);
     return response({ error:'feedback_unavailable', ...(category ? { category } : {}) }, 503, origin);
   } finally {
-    if (ticket) await release(config, authorization, ticket, refund);
+    if (ticket) await release(config, env.FEEDBACK_QUOTA_SECRET, studentId, ticket, refund);
   }
 }

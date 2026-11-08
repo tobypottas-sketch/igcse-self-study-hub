@@ -6,6 +6,7 @@ import { studentView } from './student-feedback.js';
 const ORIGIN = 'https://hub.example.invalid';
 const AUTH_URL = 'https://synthetic.supabase.co';
 const uid = '22222222-2222-4222-8222-222222222222';
+const QUOTA_SECRET = 'q'.repeat(64);
 const TICKET = '33333333-3333-4333-8333-333333333333';
 const task = 'Write a review of a science museum for a school magazine. Describe the exhibits and recommend a visit. Write 120–160 words.';
 const writing = 'The museum was fascinating because the interactive exhibits made science easy to understand. I recommend visiting with friends.';
@@ -18,14 +19,15 @@ function setup(t, { role = 'student', active = true, mustChange = false, begin =
   const calls = { supabase: [], ai: [], order: [] };
   t.mock.method(globalThis, 'fetch', async (url, options) => {
     const u = String(url); calls.supabase.push({ url: u, options });
-    assert.equal(options.redirect, 'manual'); assert.equal(options.headers.Authorization, 'Bearer student-token'); assert.equal(options.headers.apikey, 'synthetic-publishable-key');
+    assert.equal(options.redirect, 'manual'); assert.equal(options.headers.apikey, 'synthetic-publishable-key');
+    if (u.includes('/rpc/')) assert.equal(options.headers.Authorization, undefined, 'no student credential goes to the quota functions'); else assert.equal(options.headers.Authorization, 'Bearer student-token');
     if (u.includes('/auth/v1/user')) { calls.order.push('auth'); return Response.json({ id: uid }); }
     if (u.includes('/rest/v1/profiles')) { calls.order.push('profile'); return Response.json([{ role, active, must_change_password: mustChange }]); }
-    if (u.endsWith('/rpc/begin_student_feedback')) { calls.order.push('begin'); assert.equal(options.body, '{}'); return Response.json(begin, { status: beginStatus }); }
-    if (u.endsWith('/rpc/finish_student_feedback')) { calls.order.push('finish'); calls.finish = JSON.parse(options.body); return Response.json({ ok: true }); }
+    if (u.endsWith('/rpc/begin_student_feedback')) { calls.order.push('begin'); calls.begin = JSON.parse(options.body); return Response.json(begin, { status: beginStatus }); }
+    if (u.endsWith('/rpc/finish_student_feedback')) { calls.order.push('finish'); calls.finishFull = JSON.parse(options.body); calls.finish = { p_ticket: calls.finishFull.p_ticket, p_refund: calls.finishFull.p_refund }; return Response.json({ ok: true }); }
     throw new Error('unexpected fetch ' + u);
   });
-  const env = { HUB_ORIGIN: ORIGIN, SUPABASE_URL: AUTH_URL, SUPABASE_PUBLISHABLE_KEY: 'synthetic-publishable-key', AI: { run: async (model, args) => { calls.order.push('ai'); calls.ai.push({ model, args }); if (aiError) throw aiError; return { response: replies[calls.ai.length - 1] }; } } };
+  const env = { HUB_ORIGIN: ORIGIN, SUPABASE_URL: AUTH_URL, SUPABASE_PUBLISHABLE_KEY: 'synthetic-publishable-key', FEEDBACK_QUOTA_SECRET: QUOTA_SECRET, AI: { run: async (model, args) => { calls.order.push('ai'); calls.ai.push({ model, args }); if (aiError) throw aiError; return { response: replies[calls.ai.length - 1] }; } } };
   return { calls, env };
 }
 const everything = body => JSON.stringify(body);
@@ -124,4 +126,21 @@ test('studentView drops anything that talks about marks and builds a mark-free l
 });
 test('GET / and /assess behaviour are unchanged and /feedback is an additional route', async t => {
   const { env } = setup(t); const res = await worker.fetch(new Request('https://assessor.example.invalid/'), env); assert.equal((await res.json()).studentsEnabled, false);
+});
+
+test('the quota functions get the Worker secret and the VERIFIED student id, never the student token, and the secret never reaches the AI, the student or the body', async t => {
+  const { env, calls } = setup(t); const res = await worker.fetch(request(), env); const text = await res.text();
+  assert.deepEqual(calls.begin, { p_secret: QUOTA_SECRET, p_student_id: uid });
+  assert.deepEqual(calls.finishFull, { p_secret: QUOTA_SECRET, p_student_id: uid, p_ticket: TICKET, p_refund: false });
+  assert.ok(!text.includes(QUOTA_SECRET) && !JSON.stringify(calls.ai).includes(QUOTA_SECRET));
+});
+test('the student id comes from Supabase verification, not from anything the student sends', async t => {
+  const { env, calls } = setup(t); const forged = { ...submission, studentId: '99999999-9999-4999-8999-999999999999' };
+  assert.equal((await worker.fetch(request(forged), env)).status, 400); assert.equal(calls.begin, undefined);
+});
+test('a missing or short quota secret fails closed before any quota call or AI call', async t => {
+  for (const secret of [undefined, '', 'short']) {
+    const { env, calls } = setup(t); env.FEEDBACK_QUOTA_SECRET = secret; const res = await worker.fetch(request(), env);
+    assert.equal(res.status, 503); assert.equal(calls.ai.length, 0); assert.equal(calls.begin, undefined); t.mock.restoreAll();
+  }
 });
