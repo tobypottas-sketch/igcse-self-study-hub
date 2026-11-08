@@ -1,4 +1,5 @@
 import { escapeHtml, safeHttpsUrl } from './html.js';
+import { DEFAULT_REGISTRY, catalogueEntry, skillOf, skillStyle, skillSummaries } from './app-registry.js';
 
 const EH_SCHOOLS_LOGO = './assets/evidence-hub-schools-logo.webp';
 const CAMBRIDGE_ENGLISH_LOGO = './assets/cambridge-assessment-english.webp';
@@ -31,31 +32,28 @@ export function buildHomeModel(profile, apps, activityDashboard = null) {
   };
 }
 
-function appVisual(appKey) {
-  const key = String(appKey ?? '').toLowerCase();
-  if (key.includes('vocabulary')) return 'V';
-  if (key.includes('review')) return 'R';
-  if (key.includes('read')) return 'R';
-  if (key.includes('listen')) return 'L';
-  if (key.includes('paraphr')) return 'P';
-  if (key.includes('essay') || key.includes('writ')) return 'E';
-  return 'S';
+function appVisual(appKey, registry = DEFAULT_REGISTRY) {
+  return catalogueEntry(appKey, registry)?.badge ?? 'S';
 }
 
-const APP_ART = {
-  vocabulary: './assets/launcher/vocabulary.svg',
-  read: './assets/launcher/reading.svg',
-  listen: './assets/launcher/listening.svg',
-  paraphr: './assets/launcher/paraphrasing.svg',
-  essay: './assets/launcher/essay-writing.svg'
+// Decorative card artwork. Unknown apps simply get no artwork.
+function appArt(appKey, registry = DEFAULT_REGISTRY) {
+  const art = catalogueEntry(appKey, registry)?.art;
+  return art ? `<img class="app-card__art" src="${escapeHtml(art)}" alt="" width="300" height="200" loading="lazy" decoding="async" aria-hidden="true">` : '';
+}
+
+const ICONS = {
+  pen: '<path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19l-4 1z"/><path d="M14 7l3 3"/>',
+  book: '<path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2z"/><path d="M12 6.5v13"/>',
+  headphones: '<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/>',
+  letters: '<path d="M3.5 18.5l4.5-12 4.5 12M5.2 14h5.6"/><path d="M14 8h6.5M17.2 6v2M15 18c2.6-1.5 4.2-4.2 4.6-8M16 12.5c.6 2.4 2.4 4.3 4.5 5"/>'
 };
+const icon = name => `<svg class="skill-card__svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[name] ?? ICONS.book}</svg>`;
 
-// Decorative card artwork, chosen the same way as the letter badge. Unknown apps simply get no artwork.
-function appArt(appKey) {
-  const key = String(appKey ?? '').toLowerCase();
-  const match = Object.keys(APP_ART).find(name => key.includes(name)) ?? (key.includes('writ') ? 'essay' : null);
-  return match ? `<img class="app-card__art" src="${APP_ART[match]}" alt="" width="300" height="200" loading="lazy" decoding="async" aria-hidden="true">` : '';
-}
+// Which skill is showing survives re-renders (the dashboard re-renders when activity data arrives). 'all' is the default.
+let selectedSkill = 'all';
+
+const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
 
 function renderMeritAlert(model) {
   if (!model.pendingMerits) return '';
@@ -72,14 +70,20 @@ function renderMeritAlert(model) {
     </aside>`;
 }
 
-export function renderHome(root, profile, apps, activityDashboard = null) {
+export function renderHome(root, profile, apps, activityDashboard = null, { registry = DEFAULT_REGISTRY } = {}) {
   const model = buildHomeModel(profile, apps, activityDashboard);
+  const skills = skillSummaries(model.apps, registry);
+  // A remembered skill that no longer has visible apps (or never existed) falls back to All apps rather than an empty page.
+  if (selectedSkill !== 'all' && !skills.some(skill => skill.id === selectedSkill)) selectedSkill = 'all';
   const canChangePassword = ['student','teacher','admin'].includes(profile.role) && profile.active !== false;
-  const cards = model.apps.map(app => `
-    <a class="app-card" href="${safeHttpsUrl(app.launch_url)}" data-app="${escapeHtml(app.app_key)}">
-      ${appArt(app.app_key)}
+  const cards = model.apps.map(app => {
+    const skill = skillOf(app.app_key, registry);
+    const shown = selectedSkill === 'all' || skill === selectedSkill;
+    return `
+    <a class="app-card" href="${safeHttpsUrl(app.launch_url)}" data-app="${escapeHtml(app.app_key)}"${skill ? ` data-skill="${escapeHtml(skill)}" style="${escapeHtml(skillStyle(registry.skills.find(candidate => candidate.id === skill)))}"` : ''}${shown ? '' : ' hidden'}>
+      ${appArt(app.app_key, registry)}
       <span class="app-card__topline">
-        <span class="app-card__icon" aria-hidden="true">${appVisual(app.app_key)}</span>
+        <span class="app-card__icon" aria-hidden="true">${appVisual(app.app_key, registry)}</span>
         <span class="app-card__arrow" aria-hidden="true">→</span>
       </span>
       <span class="app-card__content">
@@ -87,7 +91,20 @@ export function renderHome(root, profile, apps, activityDashboard = null) {
         <span class="app-card__description"><span class="app-card__line">Independent iGCSE</span><span class="app-card__line">practice</span></span>
       </span>
       <span class="app-card__meta">Open practice →</span>
-    </a>`).join('');
+    </a>`;
+  }).join('');
+
+  const skillCards = skills.map(skill => `
+    <button type="button" class="skill-card" data-skill-choice="${escapeHtml(skill.id)}" data-skill="${escapeHtml(skill.id)}" style="${escapeHtml(skillStyle(skill))}" aria-pressed="${selectedSkill === skill.id}">
+      <span class="skill-card__icon">${icon(skill.icon)}</span>
+      <span class="skill-card__text">
+        <span class="skill-card__name">${escapeHtml(skill.name)}</span>
+        <span class="skill-card__description">${escapeHtml(skill.description)}</span>
+      </span>
+      <span class="skill-card__count">${plural(skill.count, 'app')}</span>
+    </button>`).join('');
+  const heading = selectedSkill === 'all' ? 'All apps' : (skills.find(skill => skill.id === selectedSkill)?.name ?? '');
+  const shownCount = selectedSkill === 'all' ? model.apps.length : (skills.find(skill => skill.id === selectedSkill)?.count ?? 0);
 
   const activityLabel = model.pendingMerits ? `Student activity · ${model.pendingMerits} new` : 'Student activity';
   const accountControls = [
@@ -131,12 +148,63 @@ export function renderHome(root, profile, apps, activityDashboard = null) {
         <div class="section-heading section-heading--home">
           <div>
             <p class="eyebrow">Your study tools</p>
-            <h2 id="study-tools-title">Choose a study app</h2>
-            <p>Focused practice for Cambridge IGCSE English as a Second Language (0511).</p>
+            <h2 id="study-tools-title">Choose a skill</h2>
+            <p>Pick a skill, then open an app. Focused practice for Cambridge IGCSE English as a Second Language (0511).</p>
           </div>
           ${accountControls ? `<div class="admin-actions">${accountControls}</div>` : ''}
         </div>
-        <div class="app-grid">${cards}</div>
+        ${skills.length ? `<div class="skill-picker" role="group" aria-label="Skills">${skillCards}</div>` : ''}
+        <div class="app-results" data-app-results>
+          <div class="app-results__bar">
+            <h3 class="app-results__title" id="app-results-title" data-app-results-title>${escapeHtml(heading)}</h3>
+            <span class="app-results__count" data-app-results-count>${selectedSkill === 'all' ? '' : plural(shownCount, 'app')}</span>
+            ${skills.length ? `<button type="button" class="skill-all" data-skill-choice="all" aria-pressed="${selectedSkill === 'all'}">All apps <span class="skill-all__count">${model.apps.length}</span></button>` : ''}
+          </div>
+          <div class="app-grid" aria-labelledby="app-results-title">${cards}</div>
+          <p class="sr-only" role="status" aria-live="polite" data-app-results-status></p>
+        </div>
       </section>
     </section>`;
+
+  wireSkillPicker(root, skills, model.apps.length);
 }
+
+// Filters the cards already on the page. No re-render, no navigation, no focus or scroll changes: the button the student
+// pressed keeps focus and the document stays exactly where it is.
+function wireSkillPicker(root, skills, totalApps) {
+  const choices = root.querySelectorAll?.('[data-skill-choice]');
+  if (!choices?.length) return;
+  const cards = [...root.querySelectorAll('.app-card')];
+  const title = root.querySelector('[data-app-results-title]');
+  const count = root.querySelector('[data-app-results-count]');
+  const status = root.querySelector('[data-app-results-status]');
+  const results = root.querySelector('[data-app-results]');
+  const grid = root.querySelector('.app-grid');
+  const choose = id => {
+    // Hold the results area at its current height while the cards change, then give back everything the page does not need.
+    // Without this, a shorter list can shorten the document below the current scroll position; the browser then clamps the scroll
+    // and the skill buttons the student just pressed slide down the screen. Only the shortfall (if any) is kept, so there is no
+    // blank area beyond what keeps the viewport filled. This is layout stability, not scroll control: nothing here scrolls.
+    if (results) results.style.minHeight = `${Math.ceil(results.getBoundingClientRect().height)}px`;
+    const held = results ? Math.ceil(results.getBoundingClientRect().height) : 0;
+    selectedSkill = id;
+    const skill = skills.find(candidate => candidate.id === id);
+    let shown = 0;
+    for (const card of cards) { const visible = id === 'all' || card.dataset.skill === id; card.hidden = !visible; if (visible) shown++; }
+    for (const button of choices) button.setAttribute('aria-pressed', String(button.dataset.skillChoice === id));
+    const label = id === 'all' ? 'All apps' : (skill?.name ?? '');
+    if (title) title.textContent = label;
+    if (count) count.textContent = id === 'all' ? '' : plural(shown, 'app');
+    if (status) status.textContent = `${label}: showing ${plural(shown, 'app')}`;
+    if (results && grid) {
+      const natural = Math.ceil(grid.getBoundingClientRect().bottom - results.getBoundingClientRect().top);
+      const documentIfNatural = document.documentElement.scrollHeight - held + natural;
+      const needed = Math.ceil(window.scrollY + window.innerHeight);
+      results.style.minHeight = documentIfNatural >= needed ? '' : `${natural + needed - documentIfNatural}px`;
+    }
+  };
+  for (const button of choices) button.addEventListener('click', () => choose(button.dataset.skillChoice));
+}
+
+// A resize can change how many cards fit per row, so drop any reserved height and let it be measured afresh. Registered once.
+if (typeof window !== 'undefined') window.addEventListener('resize', () => { const results = document.querySelector('[data-app-results]'); if (results) results.style.minHeight = ''; });
