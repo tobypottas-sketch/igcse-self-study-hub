@@ -2668,7 +2668,9 @@ function loadExamTask() {
 
   // Hide the preview after loading
   document.getElementById('examTaskPreview').style.display = 'none';
+  // Reset the picker to its placeholder through a change event so the visible button stays in step with the hidden select.
   select.value = '';
+  select.dispatchEvent(new Event('change', {bubbles: true}));
 }
 
 const TASK_BP_STARTERS = {
