@@ -20,6 +20,8 @@ const MISSPELLINGS = new Map(Object.entries({
   knowlege:'knowledge', libary:'library', lenght:'length', maintainance:'maintenance', mischievious:'mischievous', noticable:'noticeable', peice:'piece', posible:'possible',
   prefered:'preferred', promiss:'promise', publically:'publicly', sincerly:'sincerely', strenght:'strength', studing:'studying', tounge:'tongue', usefull:'useful', wellcome:'welcome'
 }));
+// Read-only view of the curated list, so the student coach can look for the same demonstrable misspellings (teacher behaviour unchanged).
+export const KNOWN_MISSPELLINGS = MISSPELLINGS;
 const DAYS_MONTHS = new Set(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'january', 'february', 'april', 'june', 'july', 'september', 'october', 'november', 'december']); // "may"/"march" are also ordinary words
 const DOUBLED_OK = new Set(['the', 'a', 'an', 'to', 'of', 'for', 'and', 'with', 'from', 'by', 'my', 'your', 'our', 'their', 'his']);   // not is/on/in/it/you/her/was: they can be doubled correctly
 const PLURAL_SUBJECT_WORDS = new Set(['they', 'we', 'you', 'these', 'those']);

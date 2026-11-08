@@ -144,3 +144,13 @@ test('a missing or short quota secret fails closed before any quota call or AI c
     assert.equal(res.status, 503); assert.equal(calls.ai.length, 0); assert.equal(calls.begin, undefined); t.mock.restoreAll();
   }
 });
+
+test('end to end: a strengths-only model answer still yields verified corrections and a next step for the student, with no marks', async t => {
+  const { env } = setup(t); const slips = writing + ' I dont mind the queue. Whats best is the shop.';
+  const res = await worker.fetch(request({ ...submission, response: slips }), env); assert.equal(res.status, 200);
+  const text = await res.text(); const body = JSON.parse(text);
+  assert.ok(body.feedback.strengths.length >= 1);
+  assert.deepEqual(body.feedback.improvements.filter(i => i.type === 'error').map(i => [i.quote, i.suggestion]).filter(([q]) => ['dont', 'Whats'].includes(q)), [['dont', "don't"], ['Whats', "What's"]]);
+  assert.match(body.feedback.nextStep, /\S/); assert.doesNotMatch(text, /contentMark|languageMark|totalMark|SECRET-/);
+  for (const i of body.feedback.improvements) assert.ok(slips.includes(i.quote), 'quote is verbatim: ' + i.quote);
+});
