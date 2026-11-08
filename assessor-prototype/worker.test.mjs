@@ -4,14 +4,15 @@ import { readFileSync } from 'node:fs';
 import { webcrypto } from 'node:crypto';
 import vm from 'node:vm';
 import { handleStaffAssessment } from './staff-assessment.js';
+import { handleStudentFeedback } from './student-feedback.js';
 
 const source = readFileSync(new URL('./worker.js', import.meta.url),'utf8')
-  .replace(/^import .*staff-assessment.*;$/m,'')
+  .replace(/^import .*(?:staff-assessment|student-feedback).*;$/gm,'')
   .replace('export default {','const worker = {') +
   '\n;globalThis.__api={worker,verifyEvidence,verifyAssessment,countWords,ESSAY,TASK,parseModel,evidenceSchema,assessmentSchema};';
 
 function harness() {
- const sandbox={handleStaffAssessment,crypto:webcrypto,TextEncoder,Response,Request,URL,console:undefined};
+ const sandbox={handleStaffAssessment,handleStudentFeedback,crypto:webcrypto,TextEncoder,Response,Request,URL,console:undefined};
  vm.runInNewContext(source,sandbox);
  return sandbox.__api;
 }

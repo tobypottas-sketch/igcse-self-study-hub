@@ -52,17 +52,17 @@ Finish every sentence. Each piece of advice, and the next step, is one or two CO
 The two reasons are for the teacher and must say something specific about THIS response. The Content reason names which task points are developed with a reason, example or detail and which are only stated. The Language reason names one real feature of range or cohesion and says how often errors occur compared with the length of the response, using the confirmed-error fact. Use only wording of the band the mark is in: never write wide range or high accuracy for a Language mark below 7, and never write consistently or well-developed for a Content mark below 5. Do not reuse stock descriptor sentences, and do not make the two reasons follow the same sentence pattern.
 Do not equate unverified requirements with a missing requirement. Do not claim requirements are absent when the evidence shows fulfilment. missingRequirements must be empty. Give one specific next step for THIS draft, not a replacement essay. Return only the requested JSON. This is an experimental estimate, not an official examiner grade.`;
 
-class AssessmentError extends Error {
+export class AssessmentError extends Error {
   constructor(status, code) { super(code); this.status = status; this.code = code; }
 }
-function response(body, status, origin) {
+export function response(body, status, origin) {
   return new Response(status === 204 ? null : JSON.stringify(body), { status, headers:{
     'Content-Type':'application/json', 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff',
     'Vary':'Origin', ...(origin ? { 'Access-Control-Allow-Origin':origin,
       'Access-Control-Allow-Methods':'POST, OPTIONS', 'Access-Control-Allow-Headers':'authorization, content-type' } : {})
   } });
 }
-function configuration(env) {
+export function configuration(env) {
   try {
     const origin = new URL(env.HUB_ORIGIN);
     const supabase = new URL(env.SUPABASE_URL);
@@ -73,27 +73,32 @@ function configuration(env) {
     return { origin:origin.origin, supabase:supabase.origin, key:env.SUPABASE_PUBLISHABLE_KEY };
   } catch { throw new AssessmentError(503, 'assessor_not_configured'); }
 }
-async function authenticate(request, config) {
+// Verifies the Hub session and loads the caller's profile. Shared by the teacher route and the student route;
+// the callers decide which roles are allowed. Error codes for the teacher route are unchanged.
+export async function verifyAccount(request, config, unavailable = 'staff_verification_unavailable') {
   const authorization = request.headers.get('Authorization') ?? '';
   if (!/^Bearer [A-Za-z0-9._~-]+$/i.test(authorization) || authorization.length > 8192)
     throw new AssessmentError(401, 'authentication_required');
   const headers = { Authorization:authorization, apikey:config.key };
   const read = async url => {
     try { return await fetch(url, { method:'GET', headers, redirect:'manual', signal:AbortSignal.timeout(10000) }); }
-    catch { throw new AssessmentError(503, 'staff_verification_unavailable'); }
+    catch { throw new AssessmentError(503, unavailable); }
   };
   const auth = await read(config.supabase + '/auth/v1/user');
-  if (!auth.ok) throw new AssessmentError(auth.status >= 500 ? 503 : 401, auth.status >= 500 ? 'staff_verification_unavailable' : 'invalid_session');
+  if (!auth.ok) throw new AssessmentError(auth.status >= 500 ? 503 : 401, auth.status >= 500 ? unavailable : 'invalid_session');
   let user;
-  try { user = await auth.json(); } catch { throw new AssessmentError(503, 'staff_verification_unavailable'); }
+  try { user = await auth.json(); } catch { throw new AssessmentError(503, unavailable); }
   // Only the verified Auth user ID is used, never user-editable JWT metadata.
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(user?.id ?? '')) throw new AssessmentError(401, 'invalid_session');
   const query = new URLSearchParams({ select:'role,active,must_change_password', id:'eq.' + user.id, limit:'1' });
   const profiles = await read(config.supabase + '/rest/v1/profiles?' + query);
-  if (!profiles.ok) throw new AssessmentError(503, 'staff_verification_unavailable');
+  if (!profiles.ok) throw new AssessmentError(503, unavailable);
   let rows;
-  try { rows = await profiles.json(); } catch { throw new AssessmentError(503, 'staff_verification_unavailable'); }
-  const profile = Array.isArray(rows) && rows.length === 1 ? rows[0] : null;
+  try { rows = await profiles.json(); } catch { throw new AssessmentError(503, unavailable); }
+  return { id:user.id, profile:Array.isArray(rows) && rows.length === 1 ? rows[0] : null };
+}
+async function authenticate(request, config) {
+  const { profile } = await verifyAccount(request, config);
   if (!profile || profile.active !== true || profile.must_change_password !== false || !['teacher','admin'].includes(profile.role))
     throw new AssessmentError(403, 'active_staff_required');
 }
@@ -170,7 +175,7 @@ function locate(source, value) {
   }
   return null;
 }
-class ValidationFailure extends Error { constructor(detail) { super(detail); this.detail = detail; } }
+export class ValidationFailure extends Error { constructor(detail) { super(detail); this.detail = detail; } }
 const nonEmpty = value => typeof value === 'string' && value.trim().length > 0;
 const normal = value => fold(String(value ?? '')).folded.replace(EDGE, '');
 const sameExact = (a, b) => tidy(a) === tidy(b); // case and punctuation matter: a capital letter or comma IS a correction
@@ -189,7 +194,7 @@ const MAX_POINTS = 2, STYLE_MEANING_SHARE = 0.5, MAX_EXAMPLE_LENGTH = 200;   // 
 const UNSUPPORTED_PRAISE = /\b(?:well[- ](?:organised|organized|structured|ordered|planned)|(?:clear|good|logical|logically|effective|strong)\s+(?:structure|organisation|organization|ordered)|introduction|throughout|whole (?:review|text|response|piece)|from start to finish)\b|\b(?:starting|beginning|begins?|ending|ends)\s+with\b|\b(?:descriptive|rich|varied|wide|advanced|strong|precise|effective|powerful|sophisticated|ambitious|interesting|engaging|creative|colou?rful|expressive|good|great|nice)\s+(?:vocabulary|language|word choice|words?|adjectives?|range|expressions?|phrases?)\b|\bwide range\b/iu;
 
 const FEEDBACK_NOTICE = 'Specific feedback could not be verified for this response. Please ask your teacher to review it.';
-const zeroCounts = () => ({ evidenceProposed:0, evidenceVerified:0, feedbackProposed:0, feedbackLinked:0, textQuotesNeutralised:0, evidenceReferencesResolved:0 });
+export const zeroCounts = () => ({ evidenceProposed:0, evidenceVerified:0, feedbackProposed:0, feedbackLinked:0, textQuotesNeutralised:0, evidenceReferencesResolved:0 });
 // Stage 1 output -> catalogue of evidence the Worker has itself verified. Every `quote` is a verbatim span of the submission.
 function verifyEvidence(raw, input, counts) {
   counts.evidenceProposed = raw.requirements.length + raw.features.length + raw.errors.length;
@@ -372,6 +377,17 @@ function verifyAssessment(raw, input, evidence, counts) {
     }), nextStep:partial || !targetOk ? '' : cleanedTarget,
     warning:partial ? 'Experimental estimate, pending teacher review. Not a Cambridge examiner grade.' : 'Experimental teacher-only estimate. Check the evidence and marks; not a Cambridge examiner grade.' };
 }
+// The two-stage evidence-grounded pipeline, shared by the teacher route and the student route.
+export async function runPipeline(input, runAI, counts, setStage = () => {}) {
+  setStage('evidence_model');
+  const extracted = await runAI(EVIDENCE, JSON.stringify(input), 900, staffEvidenceSchema);
+  setStage('evidence_validation');
+  const evidence = verifyEvidence(extracted, input, counts);
+  setStage('assessment_model');
+  const draft = await runAI(ASSESS, JSON.stringify({ ...input, evidence:evidence.catalogue, unverifiedRequirements:evidence.unverifiedRequirements, alreadyPresent:describeProfile(profileResponse(input.response)), facts:{ wordCount:countWords(input.response), confirmedErrors:evidence.errors.filter(item => !item.optionalStyle && confirmCorrection(item.quote, item.correction, input.response).confirmed).length } }), 1400, staffAssessmentSchema);
+  setStage('assessment_validation');
+  return verifyAssessment(draft, input, evidence, counts);
+}
 export async function handleStaffAssessment(request, env, runAI, classifyAIError) {
   let origin; let stage = 'staff_authorization'; const counts = zeroCounts();
   try {
@@ -385,14 +401,7 @@ export async function handleStaffAssessment(request, env, runAI, classifyAIError
     stage = 'submission_validation';
     const input = await readSubmission(request);
     if (!env.AI) throw new AssessmentError(503, 'ai_unavailable');
-    stage = 'evidence_model';
-    const extracted = await runAI(EVIDENCE, JSON.stringify(input), 900, staffEvidenceSchema);
-    stage = 'evidence_validation';
-    const evidence = verifyEvidence(extracted, input, counts);
-    stage = 'assessment_model';
-    const draft = await runAI(ASSESS, JSON.stringify({ ...input, evidence:evidence.catalogue, unverifiedRequirements:evidence.unverifiedRequirements, alreadyPresent:describeProfile(profileResponse(input.response)), facts:{ wordCount:countWords(input.response), confirmedErrors:evidence.errors.filter(item => !item.optionalStyle && confirmCorrection(item.quote, item.correction, input.response).confirmed).length } }), 1400, staffAssessmentSchema);
-    stage = 'assessment_validation';
-    const result = verifyAssessment(draft, input, evidence, counts);
+    const result = await runPipeline(input, runAI, counts, name => { stage = name; });
     // `checks` holds integer counts only: never writing, quotations or model output.
     return response({ model:'@cf/meta/llama-3.3-70b-instruct-fp8-fast', stages:2, result, checks:counts }, 200, origin);
   } catch (error) {

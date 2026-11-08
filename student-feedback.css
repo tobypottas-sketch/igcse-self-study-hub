@@ -1,0 +1,39 @@
+/* Shared student feedback panel (src/assessor/student-feedback.js). Self-contained: works in the Hub, Email Writing and Review Writing. */
+.student-feedback { margin: 0 0 1.25rem; padding: 1.25rem; border: 1px solid var(--c-teal-line, #9fcbd0); border-radius: var(--r-lg, 18px); background: #fff; color: var(--c-ink, #173852); font-size: 1rem; line-height: 1.55; }
+.student-feedback * { box-sizing: border-box; }
+.sf-title { margin: 0 0 .35rem; font-size: 1.3rem; line-height: 1.25; }
+.sf-lead { margin: 0 0 .9rem; color: var(--c-ink-2, #2c4a63); }
+.sf-privacy { margin: 0 0 .9rem; border: 1px solid var(--c-line, #d7e6eb); border-radius: 12px; background: var(--c-teal-soft, #e8f6f5); }
+.sf-privacy summary { cursor: pointer; padding: .65rem .9rem; font-weight: 700; color: var(--c-teal-dark, #0e5f61); }
+.sf-privacy p, .sf-privacy-list { margin: 0; padding: 0 .9rem .7rem; }
+.sf-privacy-list { padding-left: 2.1rem; }
+.sf-consent { display: flex; gap: .6rem; align-items: flex-start; margin: 0 0 1rem; cursor: pointer; }
+.sf-consent input { flex: 0 0 auto; width: 20px; height: 20px; margin: .2rem 0 0; accent-color: #147e80; }
+.sf-button { appearance: none; border: 0; border-radius: 12px; padding: .8rem 1.3rem; min-height: 48px; font: inherit; font-weight: 800; color: #fff; cursor: pointer; background: linear-gradient(135deg, var(--c-teal, #137e80), var(--c-teal-2, #25aeb6) 48%, #3f6fd8); box-shadow: 0 6px 16px rgba(19, 126, 128, .25); }
+.sf-button:hover:not(:disabled) { filter: brightness(1.05); }
+.sf-button:focus-visible, .sf-consent input:focus-visible, .sf-privacy summary:focus-visible { outline: 3px solid #173852; outline-offset: 2px; }
+.sf-button:disabled { opacity: .65; cursor: progress; }
+.sf-button--ghost { background: #fff; color: var(--c-teal-dark, #0e5f61); border: 2px solid var(--c-teal, #137e80); box-shadow: none; }
+.sf-status { margin: .75rem 0 0; font-weight: 650; min-height: 1.5em; }
+.sf-status--warn { color: var(--c-warning-ink, #7a5a21); }
+.sf-status--error { color: var(--c-danger-ink, #8b3d35); }
+.sf-status--ok { color: var(--c-teal-dark, #0e5f61); }
+.sf-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.sf-result { display: grid; gap: .9rem; margin-top: 1rem; }
+.sf-card { padding: 1rem 1.1rem; border: 1px solid var(--c-line, #d7e6eb); border-radius: 14px; background: var(--c-surface-soft, #f8fbfb); overflow-wrap: anywhere; }
+.sf-card--good { border-left: 5px solid #179c88; }
+.sf-card--fix { border-left: 5px solid #d69a46; }
+.sf-card--next { border-left: 5px solid #3f6fd8; }
+.sf-card--length { border-left: 5px solid #7c8fa0; }
+.sf-card--notice { border-left: 5px solid #d69a46; background: var(--c-warning-soft, #fff8ea); }
+.sf-heading { margin: 0 0 .5rem; font-size: 1.05rem; }
+.sf-list { margin: 0; padding: 0; list-style: none; display: grid; gap: .9rem; }
+.sf-point + .sf-point { padding-top: .9rem; border-top: 1px solid var(--c-line, #d7e6eb); }
+.sf-tag { margin: 0 0 .25rem; font-size: .8rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #8a5a12; }
+.sf-quote { margin: .25rem 0 .5rem; padding: .1rem 0 .1rem .8rem; border-left: 3px solid #147e80; color: #285d65; font-style: italic; }
+.sf-advice, .sf-suggestion { margin: .3rem 0 0; }
+.sf-note { margin: .6rem 0 0; font-size: .875rem; color: var(--c-ink-2, #2c4a63); }
+.sf-foot { display: grid; gap: .75rem; justify-items: start; }
+.sf-progress { margin-top: 1rem; }
+@media (max-width: 650px) { .student-feedback { padding: 1rem; } .sf-button { width: 100%; } .sf-foot .sf-button { width: auto; } }
+@media print { .student-feedback { display: none; } }
