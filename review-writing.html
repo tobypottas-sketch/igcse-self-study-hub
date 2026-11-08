@@ -39,6 +39,8 @@ fieldset{min-width:0;border:0;margin:0;padding:0}.label{display:block;font-size:
 #view-plan .stage .label{font-size:.83rem;margin-bottom:5px}
 #view-plan .stage-note{font-size:.79rem;color:#4e737c;line-height:1.5}
 #view-task .practice-options{margin-bottom:10px}
+.question-picker{margin:0 0 10px}.question-picker select{max-width:100%;text-overflow:ellipsis}
+.task-change-note{margin:0 0 14px;padding:12px 14px;border:1px solid #e3d29c;border-radius:11px;background:#fff8e4;color:#5b4a16;font-size:.86rem}.task-change-note[hidden]{display:none}.task-change-note .task-change-text{margin:0 0 9px;line-height:1.5}.task-change-actions{display:flex;flex-wrap:wrap;gap:8px}.task-change-actions .btn{min-height:36px;padding:6px 12px;font-size:.8rem}
 .session-warning{font-size:.79rem;color:#5a7380;margin:9px 0 0}
 @media(max-width:600px){#view-plan .stage{padding:13px}#view-plan .stage textarea{height:78px}}
 
@@ -109,6 +111,9 @@ try {
   <button class="topic" data-topic="book" aria-pressed="false">📖 Book</button>
   <button class="topic" data-topic="experience" aria-pressed="false">🎟 Experience</button>
 </div>
+<div class="field question-picker"><label class="label" for="questionSelect" id="questionLabel">Select a practice question</label><select id="questionSelect" aria-describedby="taskChangeNote"></select></div>
+<div class="task-change-note no-print" id="taskChangeNote" data-task-note role="status" hidden></div>
+<p class="hint" id="taskBusyNote" role="status" hidden>Feedback is being prepared. You can change tasks when it's ready.</p>
 <div class="task-override-banner" id="taskOverrideBanner" hidden role="status">Teacher's question is active. It replaces the selected practice task throughout Plan and Write.</div>
 <div class="prompt" id="promptDisplay"></div>
 <div class="field"><label class="label" for="customPrompt">Teacher's question (optional)</label><textarea id="customPrompt" rows="3" placeholder="Paste the exact review-writing task from your teacher here."></textarea><div class="hint">Enter a question to override the practice task. Clear this box to return to the selected practice task.</div>
@@ -124,6 +129,7 @@ try {
 <p class="task-context-prompt"></p>
 <p class="task-context-help">Check the audience, purpose and required content before you write.</p>
 </details>
+<div class="task-change-note no-print" data-task-note role="status" hidden></div>
 <div class="card"><div class="card-head"><h2 id="planHeading">Plan your review</h2></div><div class="card-body">
 <p class="muted" style="margin-top:0">Short notes are enough. These prompts adapt to your selected practice topic. Use the exact task above to decide what matters.</p>
 <div class="stage"><h3>01 · Introduction</h3><p>What are you reviewing, and what should the reader know first?</p><div class="formgrid"><div class="field"><label class="label" for="planSubject">Name and context</label><textarea id="planSubject" rows="2" placeholder="Name, place or type of experience"></textarea></div><div class="field"><label class="label" for="planOpening">Your overall impression</label><textarea id="planOpening" rows="2" placeholder="Positive, mixed or negative? Why?"></textarea></div></div></div>
@@ -140,6 +146,7 @@ try {
 <p class="task-context-prompt"></p>
 <p class="task-context-help">Check the audience, purpose and required content before you write.</p>
 </details>
+<div class="task-change-note no-print" data-task-note role="status" hidden></div>
 <div class="wordmeter no-print" aria-label="Current review word count"><div class="row between"><b>Word count</b><strong id="wordTotal">0</strong></div><div class="track"><div class="fill" id="wordFill"></div></div><div class="wordmeta"><span>0</span><span id="wordStatus">Target: 120–160</span><span>200+</span></div></div>
 <details class="draft-plan-reference no-print" id="draftPlanReference">
 <summary>My planning notes</summary>
@@ -160,6 +167,7 @@ try {
 <section id="view-review" class="view" aria-labelledby="reviewHeading">
 <div id="reviewEmpty" class="empty"><h2>Start your review first</h2><p>Write your draft, then return here for practical improvement targets.</p><button class="btn primary" data-next="write">Go to Write →</button></div>
 <div id="reviewReady" class="hidden">
+<div class="task-change-note no-print" data-task-note role="status" hidden></div>
 <div id="studentFeedbackHost"></div>
 <div class="card"><div class="card-head"><h2 id="reviewHeading">Writing snapshot</h2></div><div class="card-body"><div class="snapshot"><div class="metric"><span>Words written</span><strong id="snapshotWords">0</strong></div><div class="metric"><span>Sections started</span><strong id="snapshotSections">0 / 4</strong></div><div class="metric"><span>Task relevance</span><strong>Not assessed</strong></div></div><p class="hint">These are observable writing features, not Cambridge marks or automated judgements of quality.</p></div></div>
 <div class="card"><div class="card-head"><h2>Three writing targets</h2></div><div class="card-body"><p class="notice" id="reviewContext">Use these suggestions to revise your work. Any advice about content quality is labelled as a self-check.</p><ol class="targets" id="feedbackTargets"></ol></div></div>
@@ -168,6 +176,7 @@ try {
 </div>
 </section>
 <section id="view-preview" class="view" aria-labelledby="previewHeading">
+<div class="task-change-note no-print" data-task-note role="status" hidden></div>
 <div class="card print-card"><div class="card-head"><h2 id="previewHeading">Final review</h2><div class="row no-print"><button class="btn" id="copyReview">Copy</button><button class="btn" id="printReview">Print</button><button class="btn" id="downloadReview">Export text</button></div></div><div class="card-body"><article id="previewText" class="preview-page"><p class="muted">Your review will appear here after you start writing.</p></article><div class="actions no-print"><button class="btn ghost" data-next="write">← Back to writing</button></div></div></div>
 </section>
 </main>
@@ -175,11 +184,81 @@ try {
 </div>
 <script>
 'use strict';
-const TOPICS = Object.freeze({
- restaurant:'Your school magazine is preparing a feature about places to eat. You recently visited a restaurant. Write a review for the magazine. Describe the food, service and atmosphere; explain what impressed or disappointed you; and say whether you would recommend it to other students.',
- film:'Your school magazine is publishing film recommendations for teenagers. Write a review of a film you have watched. Give a brief idea of the story without spoiling the ending, comment on the performances or other memorable features, and explain whether you recommend it.',
- book:'Your school newsletter is collecting book reviews to help students choose what to read next. Write a review of a book you have read. Briefly introduce the story or subject, describe a memorable feature, evaluate its strengths or weaknesses, and recommend it to a suitable reader.',
- experience:'A youth website wants reviews of activities and events for young people. Write a review of an event or activity you attended. Describe what the experience involved, discuss what worked well and what could have been better, and explain who you would recommend it to.'
+const CATEGORY_NAMES = Object.freeze({restaurant:'Restaurant & Food',film:'Film & Entertainment',book:'Books & Reading',experience:'Experiences & Activities'});
+// Twenty original practice tasks (not Cambridge past-paper questions). Each has a publication context, an audience and three content requirements.
+// Optional plan/draft entries replace the category wording for that task: [question or placeholder, hint].
+const QUESTIONS = Object.freeze({
+ restaurant:[
+  {id:'restaurant-1',title:'A restaurant worth recommending',
+   prompt:'Your school magazine is preparing a feature about places to eat. You recently visited a restaurant. Write a review for the magazine. Describe the food, service and atmosphere; explain what impressed or disappointed you; and say whether you would recommend it to other students.'},
+  {id:'restaurant-2',title:'A disappointing dining experience',
+   prompt:'The young readers’ page of your local newspaper has a series called “Honest Reviews”. Write a review of a meal that did not live up to your expectations. Describe what you ordered and what went wrong; explain how the restaurant could improve; and say whether you would give it a second chance.',
+   plan:{planSubject:['Where was the meal, and what did you expect?','Name, place and what you had hoped for'],planDetails:['What did you order, and what went wrong?','Dishes, waiting time, temperature, service or mistakes'],planPositive:['Was anything done well, and why?','Be fair: a friendly waiter, a good dessert, a pleasant table'],planImprovement:['How could the restaurant improve?','Specific, realistic changes the owner could make'],planAudience:['Would you go back, and who should avoid or try it?','Give a clear judgement with a reason']},
+   draft:{description:['Describe what you ordered and what went wrong, with specific details.','Choose the moments that show the problem most clearly.'],opinion:['Explain how the restaurant could improve, giving reasons.','Be fair and specific rather than only complaining.'],recommendation:['Say whether you would give it a second chance, and why.','Give a clear answer that readers can act on.']}},
+  {id:'restaurant-3',title:'A new café in your neighbourhood',
+   prompt:'A community website lists places where teenagers can meet friends after school. A new café has opened near your home or school. Write a review for the website. Describe the atmosphere and the menu; comment on whether the prices suit students; and say what kind of visitor you would recommend it to.',
+   plan:{planSubject:['Which café is it, and where is it?','Name, location and how new it is'],planDetails:['What is the café like inside, and what does it serve?','Atmosphere, seating, drinks, snacks and the menu'],planPositive:['What makes it a good place to meet friends, and why?','Comfort, Wi-Fi, music, friendly staff or space'],planImprovement:['Are the prices fair for students?','Compare cost with portion size and quality'],planAudience:['What kind of visitor would enjoy it?','Study groups, friends, families, quiet readers...']}},
+  {id:'restaurant-4',title:'A school canteen review',
+   prompt:'Your student council is collecting honest reviews of the canteen for its termly newsletter. Write a review of the food and service in your school canteen (or one you know well). Describe the choice and quality of the food; comment on prices, queues or the eating space; and suggest one change that would make lunchtime better.',
+   plan:{planSubject:['Which canteen are you reviewing?','Your school or one you know, and when students use it'],planOpening:['What is your overall impression of lunchtime?','Busy, healthy, rushed, welcoming?'],planDetails:['What food and choice does the canteen offer?','Hot meals, snacks, healthy options, special diets'],planPositive:['What does the canteen do well, and why?','Quality, variety, price, staff or atmosphere'],planImprovement:['What problems do students face?','Queues, noise, portion size, cost or seating'],planAudience:['What one change would you suggest, and why?','A realistic improvement the school could make']},
+   draft:{recommendation:['Suggest one change that would improve lunchtime and say why it would help.','Make your suggestion realistic and explain the benefit.']}},
+  {id:'restaurant-5',title:'A takeaway or food-delivery experience',
+   prompt:'A consumer-advice blog for young people is publishing reviews of takeaways and food-delivery services. Write a review of a meal you ordered for delivery or collection. Describe how the ordering and delivery went and the quality of the food when it arrived; explain what was convenient or frustrating; and say whether you would use the service again.',
+   plan:{planSubject:['Which takeaway or delivery service did you use?','Name, type of food and how you ordered'],planOpening:['What was your overall impression?','Quick and easy, disappointing, good value?'],planDetails:['How did ordering and delivery go?','App or phone, waiting time, packaging, accuracy'],planExample:['Which moment shows the quality most clearly?','The first bite, a missing item, a cold dish, a friendly driver'],planPositive:['What was convenient, and why?','Speed, choice, price or reliability'],planImprovement:['What was frustrating?','Delays, cost, packaging or mistakes'],planAudience:['Would you use it again, and who is it for?','Busy families, students, people who live nearby...']}}
+ ],
+ film:[
+  {id:'film-1',title:'A film worth watching',
+   prompt:'Your school magazine is publishing film recommendations for teenagers. Write a review of a film you have watched. Give a brief idea of the story without spoiling the ending, comment on the performances or other memorable features, and explain whether you recommend it.'},
+  {id:'film-2',title:'A TV series or streaming show',
+   prompt:'Your school media club is writing a blog about series worth following. Write a review of a TV series or streaming show you have watched over several episodes. Explain what the series is about without revealing major twists; comment on the characters and how the story develops; and say whether it is worth a student’s time.',
+   plan:{planSubject:['Which series are you reviewing?','Title, genre, number of seasons or episodes watched'],planDetails:['What is the series about, and who are the main characters?','Premise and characters — no major twists'],planExample:['Which episode or moment stands out?','A memorable scene, cliffhanger or character'],planPositive:['What keeps viewers watching, and why?','Characters, writing, humour, suspense or world-building'],planImprovement:['Does it lose energy anywhere?','Slow episodes, repeated ideas or weaker seasons'],planAudience:['Is it worth a student’s time, and for whom?','Consider how much time it takes and what viewers like']},
+   draft:{description:['Explain the series and its main characters without revealing major twists.','Choose one episode or moment instead of retelling the plot.'],opinion:['Evaluate how the characters and story develop over several episodes, with reasons.','Say whether it stays interesting, and why.']}},
+  {id:'film-3',title:'A film based on a book or true story',
+   prompt:'The English department newsletter has a “Page to Screen” feature. Write a review of a film based on a book, a game or real events. Describe how the film tells the story; comment on what it does well or less well compared with the original or the real events; and say whether you would recommend it to people who already know the original.',
+   plan:{planSubject:['Which film are you reviewing, and what is it based on?','Film title and the book, game or event behind it'],planOpening:['What was your overall reaction?','Faithful, surprising, disappointing, impressive?'],planDetails:['How does the film tell the story?','Main characters, setting, tone — no spoilers'],planExample:['Which choice by the filmmakers stands out?','A scene that was kept, changed or added'],planPositive:['What did the film do better than, or as well as, the original?','Visuals, casting, pace or emotion'],planImprovement:['What was lost or changed for the worse?','Missing characters, rushed plot or different ending'],planAudience:['Who would enjoy it — fans of the original or newcomers?','Give a clear recommendation with a reason']}},
+  {id:'film-4',title:'A live concert or performance',
+   prompt:'A local arts website publishes reviews written by young people. Write a review of a live performance you attended, such as a concert, school play, dance show or comedy night. Describe the performers and the atmosphere; evaluate what was most and least successful; and say whether you would encourage others to attend the next performance.',
+   plan:{planSubject:['What performance did you see, and where?','Name of the show or group, venue and date'],planOpening:['What was the mood of the evening?','Electric, relaxed, moving, disappointing?'],planDetails:['Who performed, and what did they do?','Performers, music or script, costumes, staging'],planExample:['Which moment was the highlight?','A song, scene, solo or reaction from the audience'],planPositive:['What was most successful, and why?','Energy, skill, atmosphere or originality'],planImprovement:['What was least successful?','Sound problems, a slow section, seating or length'],planAudience:['Who should go to the next performance?','Friends, families, fans of a particular style']}},
+  {id:'film-5',title:'A video game for teenagers',
+   prompt:'Your school’s technology and entertainment magazine is looking for game reviews. Write a review of a video game you have played. Explain what players have to do; evaluate how enjoyable, challenging and well designed it is; and say who you would recommend it to and whether it is good value.',
+   plan:{planSubject:['Which game are you reviewing?','Title, type of game and the device you play it on'],planOpening:['What is your first impression?','Addictive, frustrating, creative, repetitive?'],planDetails:['What does the player have to do?','Aim of the game, controls, levels or characters'],planExample:['Which moment or level shows the game at its best?','A challenge, a surprise or a team moment'],planPositive:['What makes it enjoyable, and why?','Graphics, story, challenge, music or playing with friends'],planImprovement:['What could be better?','Difficulty, cost of extras, repeated tasks or bugs'],planAudience:['Who would enjoy it, and is it good value?','Beginners, experienced players, friends, solo players']},
+   draft:{description:['Explain what players have to do, using one clear example.','Help a reader who has not played it understand the game.']}}
+ ],
+ book:[
+  {id:'book-1',title:'A book worth reading',
+   prompt:'Your school newsletter is collecting book reviews to help students choose what to read next. Write a review of a book you have read. Briefly introduce the story or subject, describe a memorable feature, evaluate its strengths or weaknesses, and recommend it to a suitable reader.'},
+  {id:'book-2',title:'A non-fiction book that taught you something',
+   prompt:'The school library’s “Read Smart” leaflet recommends non-fiction for students. Write a review of a non-fiction book you have read, such as a biography, a science book or a travel book. Explain what it is about and what you learned; evaluate how clearly and interestingly it presents information; and say who should read it.',
+   plan:{planSubject:['Which non-fiction book are you reviewing?','Title, author and subject'],planDetails:['What is the book about, and what did you learn?','Main topic and one or two key ideas'],planExample:['Which fact, chapter or story stayed with you?','A surprising detail or a clear explanation'],planPositive:['What makes it clear and interesting, and why?','Explanations, examples, photos, structure or tone'],planImprovement:['What was hard to follow or less useful?','Too technical, too long, out of date or repetitive'],planAudience:['Who should read it, and why?','Students, hobbyists, people studying the topic']},
+   draft:{description:['Explain what the book is about and what you learned from it.','Choose one idea or fact rather than listing everything.']}},
+  {id:'book-3',title:'A graphic novel or comic',
+   prompt:'The school library wants more students to try graphic novels and comics. Write a review of a graphic novel, comic or manga series you have read. Describe the story and the artwork; evaluate how well the pictures and words work together; and say what kind of reader you would recommend it to.',
+   plan:{planSubject:['Which graphic novel or comic are you reviewing?','Title, creator, genre and series'],planDetails:['What happens in the story, and what does the artwork look like?','Characters, setting, art style, colour — no spoilers'],planExample:['Which page, panel or scene stands out?','A striking image or moment of humour or emotion'],planPositive:['How do the pictures and words work together?','Artwork that adds meaning, fast pace, expressions'],planImprovement:['What could be better?','Confusing panels, thin plot, too many characters'],planAudience:['Who would enjoy it?','Reluctant readers, art fans, followers of a genre']}},
+  {id:'book-4',title:'A class reader or set text',
+   prompt:'Your English department is choosing a novel for next year’s class and is collecting student reviews for its planning document. Write a review of a book you have read in class or studied at school. Describe its main ideas or themes; explain what makes it good or less good for classroom discussion; and say whether next year’s students should read it.',
+   plan:{planSubject:['Which class reader or set text are you reviewing?','Title, author and when you read it'],planDetails:['What are its main ideas or themes?','Friendship, family, justice, growing up, change...'],planExample:['Which scene or character sparked discussion?','A moment your class debated or remembered'],planPositive:['Why does it work well in class?','Themes to discuss, characters to analyse, a gripping plot'],planImprovement:['What made it harder to study?','Difficult language, slow chapters or a confusing structure'],planAudience:['Should next year’s class read it, and why?','Give a clear recommendation with a reason']},
+   draft:{recommendation:['Say whether next year’s students should read it and give your reasons.','Make a clear decision that your teacher could use.']}},
+  {id:'book-5',title:'A local library or bookshop',
+   prompt:'A town website for young people is publishing reviews of places to spend free time. Write a review of a library or bookshop you have visited. Describe the atmosphere and what you can find there; evaluate how welcoming and useful it is for teenagers; and say whether you would recommend it and to whom.',
+   plan:{planSubject:['Which library or bookshop are you reviewing?','Name, location and what kind of place it is'],planOpening:['What is the place like when you walk in?','Calm, busy, cosy, bright, welcoming?'],planDetails:['What can you find or do there?','Book sections, study spaces, events, café, staff help'],planExample:['Which part of the visit stands out?','A reading corner, a helpful librarian or a special find'],planPositive:['What makes it useful for teenagers, and why?','Choice, quiet space, events, opening hours or prices'],planImprovement:['What could be better?','Limited choice, noise, lack of seating or opening times'],planAudience:['Who would enjoy it?','Students, book lovers, families, people looking for quiet']}}
+ ],
+ experience:[
+  {id:'experience-1',title:'An event or activity worth trying',
+   prompt:'A youth website wants reviews of activities and events for young people. Write a review of an event or activity you attended. Describe what the experience involved, discuss what worked well and what could have been better, and explain who you would recommend it to.'},
+  {id:'experience-2',title:'A school trip or excursion',
+   prompt:'Your school website has a section where students review trips to help teachers plan the next year. Write a review of a school trip or excursion you took part in. Describe where you went and what you did; evaluate how well it was organised and what you learned or enjoyed; and say whether the trip should be repeated and for which students.',
+   plan:{planSubject:['Where did you go, and when?','Place, year group and purpose of the trip'],planDetails:['What did you do during the trip?','Activities, timetable, travel and free time'],planExample:['Which moment do you remember most?','A surprise, a challenge or something you learned'],planPositive:['What worked well, and why?','Organisation, learning, teamwork or enjoyment'],planImprovement:['What could have been better?','Timing, cost, food, travel or too little time'],planAudience:['Should the trip run again, and for whom?','Which year groups and what to change']},
+   draft:{recommendation:['Say whether the trip should be repeated and which students would benefit.','Give your reasons and one improvement if needed.']}},
+  {id:'experience-3',title:'A sport or fitness activity',
+   prompt:'A youth sports club is producing a leaflet to help newcomers choose an activity. Write a review of a sport, class or fitness activity you have tried. Describe what a typical session involves; comment on the coaching, facilities or level of difficulty; and say who you would recommend it to.',
+   plan:{planSubject:['Which sport or activity did you try?','Name, where it takes place and how long you have done it'],planOpening:['How did it feel to take part?','Energising, exhausting, relaxing, confusing at first?'],planDetails:['What does a typical session involve?','Warm-up, skills, games, equipment, group size'],planExample:['Which moment stands out?','A new skill, a challenge or a friendly match'],planPositive:['What is good about the coaching or facilities?','Clear instructions, encouragement, equipment or space'],planImprovement:['What could be better or more difficult?','Level of difficulty, cost, timing or crowded sessions'],planAudience:['Who would enjoy it?','Beginners, teams, people who like a challenge']}},
+  {id:'experience-4',title:'A museum, gallery or exhibition',
+   prompt:'A family tourism website wants honest views from young visitors. Write a review of a museum, gallery or exhibition you have visited. Describe the most interesting things to see; evaluate how well it keeps teenagers interested and how good the facilities are; and say whether it is worth the entrance fee and who should go.',
+   plan:{planSubject:['Which museum, gallery or exhibition did you visit?','Name, location and what it is about'],planOpening:['What was your overall impression?','Fascinating, quiet, overwhelming, dull?'],planDetails:['What are the most interesting things to see?','Objects, displays, interactive areas, special exhibitions'],planExample:['Which exhibit or room was most memorable?','Something you could picture clearly and explain'],planPositive:['What keeps teenagers interested, and why?','Hands-on activities, technology, stories or atmosphere'],planImprovement:['What could be improved, and is it worth the price?','Crowds, cost, signs, food or seating'],planAudience:['Who should visit?','Families, school groups, history or art fans']}},
+  {id:'experience-5',title:'A holiday workshop or course',
+   prompt:'Your school’s student-voice magazine wants reviews of things to do in the holidays. Write a review of a workshop, camp or course you took part in during a holiday. Describe what you did and learned; evaluate the leaders, the level of challenge and the value for money; and say whether you would recommend it and to whom.',
+   plan:{planSubject:['What workshop, camp or course did you do?','Name, subject, length and where it took place'],planOpening:['How did you feel about it overall?','Inspiring, tiring, useful, not what you expected?'],planDetails:['What did you do and learn?','Activities, projects, skills and new friends'],planExample:['Which activity or moment stands out?','A project you finished, a challenge or a funny moment'],planPositive:['What was best about the leaders and the challenge?','Clear teaching, encouragement, hands-on tasks'],planImprovement:['What could have been better, and was it good value?','Group size, cost, timing or too easy or hard'],planAudience:['Who would you recommend it to?','Beginners, creative students, people wanting a challenge']}}
+ ]
 });
 const PLAN_GUIDANCE = Object.freeze({
  restaurant:{
@@ -223,12 +302,22 @@ const FIELD_MAP = Object.freeze({intro:'draftIntro',description:'draftDescriptio
 const PLAN_FIELDS = ['planSubject','planOpening','planDetails','planExample','planPositive','planImprovement','planAudience'];
 const STORAGE_KEY = 'igcse0511-review-writing-v1';
 // Drafts are retained only for the lifetime of this browser tab, not synced to accounts.
-const initial = {topic:'restaurant',customPrompt:'',plan:{},draft:{intro:'',description:'',opinion:'',recommendation:''}};
+const initial = {topic:'restaurant',qid:'restaurant-1',picked:{},workQid:'',customPrompt:'',plan:{},draft:{intro:'',description:'',opinion:'',recommendation:''}};
 let state = JSON.parse(JSON.stringify(initial));
 let autosaveTimer = null;
 const $ = id => document.getElementById(id);
 const wordCount = text => (String(text||'').trim().match(/\S+/g)||[]).length;
+const questionsFor = topic => QUESTIONS[topic] || QUESTIONS.restaurant;
+function currentQuestion(){const list=questionsFor(state.topic);return list.find(q=>q.id===state.qid)||list[0];}
+function currentPrompt(){return state.customPrompt.trim()||currentQuestion().prompt;}
+function hasWork(){return PLAN_FIELDS.some(id=>String(state.plan[id]||'').trim())||Object.values(state.draft).some(t=>String(t||'').trim());}
+// Remember which task the student's writing was started for, so a later change of question never deletes it silently.
+function trackWork(){
+  if(!hasWork()){state.workQid='';return;}
+  if(!state.workQid)state.workQid=state.customPrompt.trim()?'teacher':state.qid;
+}
 function save(){
+  trackWork();
   try{sessionStorage.setItem(STORAGE_KEY,JSON.stringify(state));$('saveStatus').textContent='Saved in this tab';}
   catch(e){$('saveStatus').textContent='Tab saving unavailable';}
 }
@@ -239,7 +328,69 @@ function load(){
  $('customPrompt').value=state.customPrompt||'';
  for(const id of PLAN_FIELDS) $(id).value=state.plan[id]||'';
  for(const [key,id] of Object.entries(FIELD_MAP)) $(id).value=state.draft[key]||'';
- updateTopic();updateCounts();
+ if(!QUESTIONS[state.topic])state.topic='restaurant';
+ if(!questionsFor(state.topic).some(q=>q.id===state.qid))state.qid=questionsFor(state.topic)[0].id;
+ if(!state.picked||typeof state.picked!=='object')state.picked={};
+ state.picked[state.topic]=state.qid;
+ if(hasWork()&&!state.workQid)state.workQid=state.customPrompt.trim()?'teacher':state.qid;
+ renderQuestionOptions();updateTopic();updateCounts();
+}
+let lastPrompt=null;
+function renderQuestionOptions(){
+ const select=$('questionSelect'),list=questionsFor(state.topic);
+ $('questionLabel').textContent='Select a practice question · '+(CATEGORY_NAMES[state.topic]||'');
+ if(select.dataset.optionsFor!==state.topic){
+  select.replaceChildren(...list.map((q,i)=>{const o=document.createElement('option');o.value=q.id;o.textContent=(i+1)+'. '+q.title;return o;}));
+  select.dataset.optionsFor=state.topic;
+ }
+ select.value=currentQuestion().id;
+}
+// While AI feedback is being prepared the task cannot change: a change would cancel the request (and still use one of the daily turns).
+let feedbackBusy=false;
+function setFeedbackBusy(busy){
+ feedbackBusy=busy;
+ document.querySelectorAll('[data-topic]').forEach(b=>{b.disabled=busy;});
+ $('questionSelect').disabled=busy;
+ $('customPrompt').disabled=busy;
+ $('taskBusyNote').hidden=!busy;
+ updateTaskChangeNote();
+}
+window.addEventListener('review-feedback-busy',e=>setFeedbackBusy(Boolean(e.detail&&e.detail.busy)));
+// The task the student's current plan/draft belongs to: a practice question id, or 'teacher' while the Teacher's question is active.
+function currentTaskId(){return state.customPrompt.trim()?'teacher':currentQuestion().id;}
+function taskName(id){
+ if(id==='teacher')return 'your teacher\u2019s question';
+ const q=Object.values(QUESTIONS).flat().find(x=>x.id===id);
+ return q?'\u201c'+q.title+'\u201d':'';
+}
+function switchBackToWorkTask(){
+ if(feedbackBusy)return;
+ const q=Object.entries(QUESTIONS).find(([,list])=>list.some(x=>x.id===state.workQid));
+ if(!q)return;
+ state.topic=q[0];state.qid=state.workQid;state.picked[state.topic]=state.qid;
+ updateTopic();scheduleSave();
+}
+function acceptWorkForCurrentTask(){if(feedbackBusy)return;state.workQid=currentTaskId();updateTaskChangeNote();scheduleSave();}
+// Shown wherever the writing is visible (Task, Plan, Write, Review, Preview) whenever the saved plan/draft was started for a different task.
+function updateTaskChangeNote(){
+ const mismatch=hasWork()&&state.workQid&&state.workQid!==currentTaskId();
+ const from=mismatch?taskName(state.workQid):'';
+ document.querySelectorAll('[data-task-note]').forEach(note=>{
+  note.replaceChildren();
+  note.hidden=!(mismatch&&from);
+  if(note.hidden)return;
+  const text=document.createElement('p');
+  text.className='task-change-text';
+  text.textContent='Your writing was started for '+from+', but the task above is now '+taskName(currentTaskId())+'. Your plan and draft have been kept. Make sure your writing answers the task shown before you ask for feedback, copy or submit it.';
+  const row=document.createElement('div');row.className='task-change-actions';
+  if(state.workQid!=='teacher'){
+   const back=document.createElement('button');back.type='button';back.className='btn ghost';back.textContent='Go back to '+from;
+   back.disabled=feedbackBusy;back.addEventListener('click',switchBackToWorkTask);row.append(back);
+  }
+  const keep=document.createElement('button');keep.type='button';keep.className='btn ghost';keep.textContent='This writing is for the new task';
+  keep.disabled=feedbackBusy;keep.addEventListener('click',acceptWorkForCurrentTask);row.append(keep);
+  note.append(text,row);
+ });
 }
 function updateTopic(){
  const customActive=Boolean(state.customPrompt.trim());
@@ -247,16 +398,20 @@ function updateTopic(){
    b.setAttribute('aria-pressed',String(b.dataset.topic===state.topic));
    b.title=customActive?'You can select a practice topic, but the teacher question stays active until you clear it.':'Choose this practice topic';
  });
- const prompt=state.customPrompt.trim()||TOPICS[state.topic];
+ const prompt=currentPrompt();
+ renderQuestionOptions();
  $('promptDisplay').textContent=prompt;
  $('taskOverrideBanner').hidden=!customActive;
  document.querySelectorAll('.task-context-prompt').forEach(el=>{el.textContent=prompt;});
- document.querySelectorAll('.task-source-label').forEach(el=>{el.textContent=customActive?'Teacher question':'Practice · '+state.topic;});
+ document.querySelectorAll('.task-source-label').forEach(el=>{el.textContent=customActive?'Teacher question':'Practice · '+currentQuestion().title;});
+ updateTaskChangeNote();
+ if(lastPrompt!==null&&lastPrompt!==prompt)window.dispatchEvent(new Event('review-feedback-reset'));
+ lastPrompt=prompt;
  updatePlanningGuidance();
  updateWritingGuidance();
 }
 function updatePlanningGuidance(){
- const guidance=PLAN_GUIDANCE[state.topic]||PLAN_GUIDANCE.restaurant;
+ const guidance={...(PLAN_GUIDANCE[state.topic]||PLAN_GUIDANCE.restaurant),...(currentQuestion().plan||{})};
  const custom=Boolean(state.customPrompt.trim());
  const neutral={
  planSubject:['What exactly are you reviewing?','Name, title, place or experience'],
@@ -302,7 +457,8 @@ const DRAFT_HELP = Object.freeze({
 });
 function updateWritingGuidance(){
  const custom=Boolean(state.customPrompt.trim());
- const guidance=DRAFT_HELP[state.topic]||DRAFT_HELP.restaurant;
+ const base=DRAFT_HELP[state.topic]||DRAFT_HELP.restaurant,extra=currentQuestion().draft||{};
+ const guidance=Object.fromEntries(Object.keys(base).map(k=>[k,extra[k]||base[k]]));
  for(const [key,id] of Object.entries(FIELD_MAP)){
   const field=$(id),help=$('help-'+key);
   if(!field||!help)continue;
@@ -361,7 +517,7 @@ function confirmClear(section){
  if(!window.confirm(message))return;
  if(all){for(const key of Object.keys(FIELD_MAP)){state.draft[key]='';$(FIELD_MAP[key]).value='';}}
  else {state.draft[section]='';$(FIELD_MAP[section]).value='';}
- clearTimeout(autosaveTimer);save();updateCounts();
+ clearTimeout(autosaveTimer);save();updateCounts();updateTaskChangeNote();
 }
 function words(text){return(String(text||'').toLowerCase().match(/[a-z]+(?:'[a-z]+)?/g)||[]);}
 function feedback(){
@@ -438,16 +594,29 @@ function downloadText(){
 }
 document.querySelectorAll('[data-tab]').forEach(button=>button.addEventListener('click',()=>changeTab(button.dataset.tab)));
 document.querySelectorAll('[data-next]').forEach(button=>button.addEventListener('click',()=>changeTab(button.dataset.next)));
-document.querySelectorAll('[data-topic]').forEach(button=>button.addEventListener('click',()=>{state.topic=button.dataset.topic;updateTopic();scheduleSave();}));
-$('customPrompt').addEventListener('input',e=>{state.customPrompt=e.target.value;updateTopic();scheduleSave();});
-PLAN_FIELDS.forEach(id=>$(id).addEventListener('input',e=>{state.plan[id]=e.target.value;scheduleSave();}));
-Object.entries(FIELD_MAP).forEach(([key,id])=>$(id).addEventListener('input',e=>{state.draft[key]=e.target.value;updateCounts();scheduleSave();}));
+document.querySelectorAll('[data-topic]').forEach(button=>button.addEventListener('click',()=>{
+  const topic=button.dataset.topic;if(feedbackBusy||!QUESTIONS[topic])return;
+  state.picked[state.topic]=state.qid;
+  state.topic=topic;
+  const remembered=state.picked[topic];
+  state.qid=questionsFor(topic).some(q=>q.id===remembered)?remembered:questionsFor(topic)[0].id;
+  updateTopic();scheduleSave();
+}));
+$('questionSelect').addEventListener('change',e=>{
+  if(feedbackBusy){renderQuestionOptions();return;}
+  if(!questionsFor(state.topic).some(q=>q.id===e.target.value))return;
+  state.qid=e.target.value;state.picked[state.topic]=state.qid;
+  updateTopic();scheduleSave();
+});
+$('customPrompt').addEventListener('input',e=>{if(feedbackBusy){e.target.value=state.customPrompt;return;}state.customPrompt=e.target.value;updateTopic();scheduleSave();});
+PLAN_FIELDS.forEach(id=>$(id).addEventListener('input',e=>{state.plan[id]=e.target.value;trackWork();updateTaskChangeNote();scheduleSave();}));
+Object.entries(FIELD_MAP).forEach(([key,id])=>$(id).addEventListener('input',e=>{state.draft[key]=e.target.value;trackWork();updateTaskChangeNote();updateCounts();scheduleSave();}));
 document.querySelectorAll('[data-clear]').forEach(button=>button.addEventListener('click',()=>confirmClear(button.dataset.clear)));
 $('clearDraft').addEventListener('click',()=>confirmClear('all'));
 $('copyReview').addEventListener('click',async()=>{const text=assembled();if(!text)return;try{await navigator.clipboard.writeText(text);$('copyReview').textContent='Copied!';setTimeout(()=>$('copyReview').textContent='Copy',1500);}catch(e){window.alert('Copy was blocked. Select the text in Preview and copy it manually.');}});
 $('printReview').addEventListener('click',()=>{renderPreview();window.print();});
 $('downloadReview').addEventListener('click',downloadText);
-window.reviewWritingFeedbackSource=()=>({task:state.customPrompt.trim()||TOPICS[state.topic],sections:Object.keys(FIELD_MAP).map(key=>state.draft[key]||'')});
+window.reviewWritingFeedbackSource=()=>({task:currentPrompt(),sections:Object.keys(FIELD_MAP).map(key=>state.draft[key]||'')});
 load();
 </script>
 <script type="module" src="./src/assessor/review-feedback.js"></script>
