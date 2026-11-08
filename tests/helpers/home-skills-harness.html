@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/theme.css"><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/home-skills.css"></head>
+<body><div id="app"></div>
+<script type="module">
+// Test harness: renders the real student home view with the seven production apps (no Supabase, no login).
+import { renderHome } from '/src/views/home.js';
+import { SKILLS, APP_CATALOGUE } from '/src/views/app-registry.js';
+const A = (k, n) => ({ app_key: k, display_name: n, enabled: true, launch_url: 'https://example.test/' + k });
+window.__apps = [A('essay_writing','Essay Writing'), A('email_writing','Informal Email Writing'), A('review_writing','Review Writing'), A('reading','Reading'), A('listening','Listening'), A('paraphrasing','Paraphrasing'), A('vocabulary_paraphrase','Vocabulary & Paraphrase Builder')];
+window.__registry = { SKILLS, APP_CATALOGUE };
+window.__render = options => renderHome(document.getElementById('app'), { role: 'student', display_name: 'Sample Student', active: true }, window.__apps, null, options);
+window.__render();
+document.documentElement.dataset.ready = '1';
+</script></body></html>
