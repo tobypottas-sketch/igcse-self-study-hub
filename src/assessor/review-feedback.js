@@ -16,6 +16,8 @@ try {
       getResponse: () => reviewResponseText(window.reviewWritingFeedbackSource().sections),
       onRevise: () => document.querySelector('[data-tab="write"]')?.click()
     });
+    // A different task makes earlier feedback out of date.
+    window.addEventListener('review-feedback-reset', () => feedback.clear());
     client.auth.onAuthStateChange(event => { if (event === 'SIGNED_OUT') feedback.dispose(); });
   }
 } catch { /* the login gate in the page handles signed-out users */ }
