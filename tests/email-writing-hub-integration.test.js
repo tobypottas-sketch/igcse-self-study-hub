@@ -63,7 +63,7 @@ test('optional trainers are collapsed while remaining accessible', () => {
   assert.match(html, /<details class="dev-trainer-launch draft-practice-tools">/);
   assert.match(html, /id="devOpen"/);
   assert.match(html, /id="errorOpen"/);
-  assert.match(html, /email-writing-hub-polish\.css\?v=11/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=12/);
 });
 
 test('writing assistance stays in a collapsed sidebar control instead of floating over the editor', () => {
@@ -73,7 +73,7 @@ test('writing assistance stays in a collapsed sidebar control instead of floatin
   assert.match(html, /data-help-open="task"/);
   assert.match(html, /id="hideAllHelp"/);
   assert.ok(html.indexOf('id="writingHelpDock"') < html.indexOf('</aside>', html.indexOf('class="draft-task-rail"')));
-  assert.match(html, /email-writing-hub-polish\.css\?v=11/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=12/);
 });
 
 test('detailed progress is optional and an empty draft never shows equal bullet segments', () => {
@@ -82,7 +82,7 @@ test('detailed progress is optional and an empty draft never shows equal bullet 
   assert.match(html, /if \(total === 0\) \{\s*bar\.classList\.add\('is-empty'\)/);
   assert.match(html, /bar\.replaceChildren\(\)/);
   assert.match(html, /bar\.classList\.remove\('is-empty'\)/);
-  assert.match(html, /email-writing-hub-polish\.css\?v=11/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=12/);
   assert.equal((html.match(/id="draftWordCountBadge"/g) ?? []).length, 1);
 });
 
@@ -109,7 +109,7 @@ test('plan screen retains all saved fields in concise task-led layout', () => {
   assert.match(html, /if \(tabId === 'plan'\) updatePlanTaskReference\(\)/);
   assert.match(html, /class="plan-points"/);
   assert.match(html, /<details class="plan-finishing">/);
-  assert.match(html, /email-writing-hub-polish\.css\?v=11/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=12/);
 });
 
 test('header groups the exam details and return navigation without a standalone top row', () => {
@@ -118,7 +118,7 @@ test('header groups the exam details and return navigation without a standalone 
   assert.match(html, /class="email-header-back" href="\.\/"/);
   assert.doesNotMatch(html, /<nav class="hub-topbar"/);
   assert.doesNotMatch(html, /class="header-qual"/);
-  assert.match(html, /email-writing-hub-polish\.css\?v=11/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=12/);
   assert.match(css, /\.email-header-toolbar\s*\{/);
 });
 
@@ -126,7 +126,17 @@ test('practice task select uses a bounded responsive control group', () => {
   assert.match(html, /class="task-select-controls"/);
   assert.match(html, /id="examTaskSelect"/);
   assert.match(html, /id="examTaskLoadButton"/);
-  assert.match(html, /email-writing-hub-polish\.css\?v=11/);
+  assert.match(html, /email-writing-hub-polish\.css\?v=12/);
   assert.match(css, /#panel-task \.task-select-controls/);
   assert.match(css, /max-width:690px/);
+});
+
+test('practice task picker is a bounded listbox over the unchanged native select', () => {
+  assert.match(html, /function enhanceTaskSelect\(select\)/);
+  assert.match(html, /enhanceTaskSelect\(select\);/);
+  assert.match(html, /role', 'listbox'/);
+  assert.match(html, /select\.dispatchEvent\(new Event\('change'/);
+  assert.match(css, /\.task-combo__list\{[^}]*overflow-y:auto/);
+  assert.match(html, /id="examTaskSelect"/);
+  assert.match(html, /id="examTaskLoadButton"/);
 });
