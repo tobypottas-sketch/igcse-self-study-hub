@@ -6,7 +6,7 @@ Status: built and tested on branch `claude/student-writing-feedback`. NOT merged
 - Worker route `POST /feedback` (separate from the teacher route `/assess`, which is unchanged). Active students only.
 - Returns only verified strengths, verified corrections, one writing target and a neutral length note. Marks, reasons and teacher-only data are removed on the server.
 - Quota in Supabase (counts and timestamps only): 3 per student per UTC day, 60 s between requests, 1 at a time, 20 per day for all students. Teachers are not counted. Only the Worker can reserve, finish or refund (shared secret checked inside the database functions; no service-role key; direct calls from a student browser are refused).
-- Shared front end: `src/assessor/student-feedback.js` (+ `progress.js`, `student-client.js`). Apps need a small adapter (`writing-app-adapters.js`, `email-feedback.js`, `review-feedback.js`).
+- Shared front end: `src/assessor/student-feedback.js` (+ `progress.js`, `student-client.js`). Apps need a small adapter (`writing-app-adapters.js`, `email-feedback.js`, `review-feedback.js`, `essay-feedback.js`). Essay Writing lives in the separate igcse-essay-writing repo and imports `essay-feedback.js` from the Hub; it offers feedback in Practice Mode only (never during Exam Mode).
 
 ## Minimum steps for a controlled pilot (each needs separate approval)
 1. School approves the privacy notice wording (`src/assessor/student-privacy-notice.js`) and student use of Cloudflare Workers AI.

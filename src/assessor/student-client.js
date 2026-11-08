@@ -1,7 +1,7 @@
 // Student feedback client: sends one request to the separate /feedback route and rebuilds the answer from an allow-list.
 // Never stores anything. The only numbers accepted are the three estimated scores; anything else that is not on the allow-list is dropped here as well.
 export const FEEDBACK_ENDPOINT = 'https://igcse-writing-assessor.toby-pottas.workers.dev/feedback';
-const APPS = ['email', 'review'];
+const APPS = ['email', 'review', 'essay'];
 export class FeedbackError extends Error {
   constructor(message, code, retryAfterSeconds = 0) { super(message); this.code = code; this.retryAfterSeconds = retryAfterSeconds; }
 }

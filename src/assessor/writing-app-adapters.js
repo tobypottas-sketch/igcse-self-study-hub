@@ -39,3 +39,18 @@ export function reviewTaskText(prompt, { min = 120, max = 160 } = {}) {
 export function reviewResponseText(sections = []) {
   return (Array.isArray(sections) ? sections : Object.values(sections)).map(v => String(v ?? '').trim()).filter(Boolean).join('\n\n');
 }
+// Essay Writing: the question plus its prompts (and the word range if the question does not already state one). Kept under the Worker's 1,500-character limit
+// by dropping the prompts first: the question and the range always matter more.
+export function essayTaskText(task = {}, { min = 120, max = 160 } = {}) {
+  const question = sentence(task.question);
+  if (!question) return '';
+  const prompts = (Array.isArray(task.prompts) ? task.prompts : String(task.prompts ?? '').split(/\n+/))
+    .map(p => clean(p).replace(/^[•*-]\s*/, '').replace(/[.!?]+$/, '')).filter(Boolean);
+  const finish = text => /\bwords?\b/i.test(question) ? text : text + range(task.wordMin ?? min, task.wordMax ?? max);
+  const withPrompts = finish(question + (prompts.length ? ' Ideas to consider: ' + prompts.join('; ') + '.' : ''));
+  return (withPrompts.length <= 1500 ? withPrompts : finish(question)).slice(0, 1500);
+}
+// The four essay sections in order (introduction, two arguments or an argument and the other side, conclusion).
+export function essayResponseText(sections = {}) {
+  return [sections.intro, sections.arg1, sections.arg2, sections.conc].map(v => String(v ?? '').trim()).filter(Boolean).join('\n\n');
+}

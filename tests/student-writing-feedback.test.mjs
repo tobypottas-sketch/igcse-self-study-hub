@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { requestFeedback, parseFeedback, messageFor, FeedbackError, FEEDBACK_ENDPOINT } from '../src/assessor/student-client.js';
-import { emailTaskText, emailResponseText, safeSignoff, reviewTaskText, reviewResponseText } from '../src/assessor/writing-app-adapters.js';
+import { emailTaskText, emailResponseText, safeSignoff, reviewTaskText, reviewResponseText, essayTaskText, essayResponseText } from '../src/assessor/writing-app-adapters.js';
 import { PRIVACY_SUMMARY, PRIVACY_DETAIL, PRIVACY_CONSENT } from '../src/assessor/student-privacy-notice.js';
 import { wordTarget } from '../assessor-prototype/text-integrity.js';
 const read = p => fs.readFileSync(new URL('../' + p, import.meta.url), 'utf8');
@@ -20,7 +20,7 @@ test('request goes once to the /feedback route with only the allowed fields and 
 });
 test('bad input never reaches the network; signed-out students are told to sign in', async () => {
   let calls = 0; const fetcher = async () => { calls++; };
-  for (const bad of [{ ...input, app: 'essay' }, { ...input, privacyNoticeAccepted: false }, { ...input, response: '' }, { ...input, task: 'short' }, { ...input, response: 'x'.repeat(6001) }, { ...input, taskType: 'essay' }])
+  for (const bad of [{ ...input, app: 'discussion' }, { ...input, privacyNoticeAccepted: false }, { ...input, response: '' }, { ...input, task: 'short' }, { ...input, response: 'x'.repeat(6001) }, { ...input, taskType: 'essay' }])
     await assert.rejects(requestFeedback(session, bad, { fetcher }), error => error instanceof FeedbackError && error.code === 'invalid_submission');
   await assert.rejects(requestFeedback({ auth: { getSession: async () => ({ data: { session: null } }) } }, input, { fetcher }), error => error.code === 'access_denied');
   assert.equal(calls, 0);
@@ -82,7 +82,7 @@ test('the privacy notice says what really happens and makes no claims the code d
   assert.match(all, /does not save/i); assert.match(all, /autosave/i); assert.match(all, /AI/); assert.match(all, /personal details/i); assert.match(all, /estimated score/i); assert.match(all, /not an official/i); assert.match(all, /mistakes/i); assert.doesNotMatch(all, /anonymous|guarantee|100%|never stored by Cloudflare|encrypted at rest/i);
 });
 test('nothing in the student feedback code touches storage, analytics, the database client or logging', () => {
-  for (const file of ['src/assessor/student-client.js', 'src/assessor/student-feedback.js', 'src/assessor/writing-app-adapters.js', 'src/assessor/email-feedback.js', 'src/assessor/review-feedback.js', 'assessor-prototype/student-feedback.js']) {
+  for (const file of ['src/assessor/student-client.js', 'src/assessor/student-feedback.js', 'src/assessor/writing-app-adapters.js', 'src/assessor/email-feedback.js', 'src/assessor/review-feedback.js', 'src/assessor/essay-feedback.js', 'assessor-prototype/student-feedback.js']) {
     const source = read(file).split('\n').filter(line => !line.trim().startsWith('//')).join('\n'); assert.doesNotMatch(source, /localStorage|sessionStorage|indexedDB|document\.cookie|\.from\(['"]|\.insert\(|\.upsert\(|activity_events|console\.(?:log|info|debug)|sendBeacon|gtag|analytics/, file);
   }
 });
@@ -106,7 +106,33 @@ test('sign-off keeps only a known closing phrase and never a name', async () => 
 
 test('the student panel switch is checked before anything else in both writing pages', () => {
   assert.match(read('src/assessor/student-feedback-flag.js'), /STUDENT_FEEDBACK_UI_ENABLED = (true|false);/);
-  for (const file of ['src/assessor/email-feedback.js', 'src/assessor/review-feedback.js']) {
+  for (const file of ['src/assessor/email-feedback.js', 'src/assessor/review-feedback.js', 'src/assessor/essay-feedback.js']) {
     const source = read(file); assert.match(source, /STUDENT_FEEDBACK_UI_ENABLED/); assert.ok(source.indexOf('STUDENT_FEEDBACK_UI_ENABLED)') < source.indexOf('getSupabaseClient()'), file + ' must check the switch before doing anything');
   }
+});
+
+test('Essay Writing adapters: question plus prompts plus the word range, within the Worker limit, sections joined in order', () => {
+  const bank = { question: 'Your school council is discussing homework. Write your essay. Write 120\u2013160 words.', prompts: ['\u2022 \u2018Weekends are for rest.\u2019', '\u2022 Add your own idea or example.'] };
+  const text = essayTaskText(bank);
+  assert.match(text, /Ideas to consider: \u2018Weekends are for rest\.\u2019; Add your own idea or example\./);
+  assert.deepEqual(wordTarget(text), { min: 120, max: 160 });
+  assert.equal((text.match(/120/g) || []).length, 1, 'the range already in the question is not repeated');
+  const teacher = essayTaskText({ question: 'Should school days start later?', prompts: '', wordMin: 150, wordMax: 200 });
+  assert.deepEqual(wordTarget(teacher), { min: 150, max: 200 });
+  assert.equal(essayTaskText({ question: '' }), '');
+  const long = essayTaskText({ question: 'Should uniforms be compulsory? Write 120\u2013160 words.', prompts: ['x'.repeat(400), 'y'.repeat(400), 'z'.repeat(400), 'w'.repeat(400)] });
+  assert.ok(long.length <= 1500 && /^Should uniforms/.test(long) && /120/.test(long));
+  assert.equal(essayResponseText({ intro: ' A. ', arg1: 'B.', arg2: '', conc: 'D.' }), 'A.\n\nB.\n\nD.');
+});
+test('the essay module is student-only, behind the panel switch, reads nothing outside Practice Mode and only adds the Hub\u2019s own CSS', () => {
+  const source = read('src/assessor/essay-feedback.js');
+  assert.match(source, /role === 'student'/); assert.match(source, /c\.allowed === true/); assert.match(source, /app: 'essay'/);
+  assert.match(source, /essay-feedback-reset/);
+  assert.match(source, /\['assessment-progress\.css', 'student-feedback\.css\?v=3'\]/); assert.doesNotMatch(source, /https?:\/\//);
+});
+
+test('the client accepts the essay app and sends exactly the same fields', async () => {
+  let sent;
+  await requestFeedback(session, { ...input, app: 'essay', task: 'Write your essay about homework. Write 120\u2013160 words.', response: 'Weekend homework is a topic many students discuss.' }, { fetcher: async (url, options) => { sent = JSON.parse(options.body); return Response.json(good); } });
+  assert.equal(sent.app, 'essay'); assert.deepEqual(Object.keys(sent).sort(), ['app', 'privacyNoticeAccepted', 'response', 'task']);
 });
