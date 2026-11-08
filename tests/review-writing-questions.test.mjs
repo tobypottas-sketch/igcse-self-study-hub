@@ -82,3 +82,15 @@ test('changing category or question never rewrites the plan or the draft', () =>
   assert.doesNotMatch(handlers, /state\.(plan|draft)\s*=|\.value\s*=\s*''|state\.draft\[[^\]]+\]\s*=/);
   assert.match(html, /have been kept/);
 });
+
+test('a task mismatch warning is present on every tab that shows the writing, with both escape actions', () => {
+  assert.equal((html.match(/<div class="task-change-note[^>]*data-task-note/g) || []).length, 5, 'Task, Plan, Write, Review and Preview');
+  for (const view of ['view-plan', 'view-write', 'view-review', 'view-preview']) {
+    const from = html.indexOf('id="' + view + '"');
+    const next = html.indexOf('<section', from + 10);
+    assert.match(html.slice(from, next < 0 ? undefined : next), /data-task-note/, view);
+  }
+  assert.match(html, /Go back to /);
+  assert.match(html, /This writing is for the new task/);
+  assert.match(html, /before you ask for feedback, copy or submit it/);
+});

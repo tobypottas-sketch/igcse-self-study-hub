@@ -40,7 +40,7 @@ fieldset{min-width:0;border:0;margin:0;padding:0}.label{display:block;font-size:
 #view-plan .stage-note{font-size:.79rem;color:#4e737c;line-height:1.5}
 #view-task .practice-options{margin-bottom:10px}
 .question-picker{margin:0 0 10px}.question-picker select{max-width:100%;text-overflow:ellipsis}
-.task-change-note{margin:0 0 12px;padding:10px 13px;border:1px solid #d9e6c8;border-radius:11px;background:#f6faee;color:#4c5f2f;font-size:.84rem}.task-change-note[hidden]{display:none}
+.task-change-note{margin:0 0 14px;padding:12px 14px;border:1px solid #e3d29c;border-radius:11px;background:#fff8e4;color:#5b4a16;font-size:.86rem}.task-change-note[hidden]{display:none}.task-change-note .task-change-text{margin:0 0 9px;line-height:1.5}.task-change-actions{display:flex;flex-wrap:wrap;gap:8px}.task-change-actions .btn{min-height:36px;padding:6px 12px;font-size:.8rem}
 .session-warning{font-size:.79rem;color:#5a7380;margin:9px 0 0}
 @media(max-width:600px){#view-plan .stage{padding:13px}#view-plan .stage textarea{height:78px}}
 
@@ -112,7 +112,7 @@ try {
   <button class="topic" data-topic="experience" aria-pressed="false">🎟 Experience</button>
 </div>
 <div class="field question-picker"><label class="label" for="questionSelect" id="questionLabel">Select a practice question</label><select id="questionSelect" aria-describedby="taskChangeNote"></select></div>
-<p class="task-change-note" id="taskChangeNote" role="status" hidden></p>
+<div class="task-change-note no-print" id="taskChangeNote" data-task-note role="status" hidden></div>
 <div class="task-override-banner" id="taskOverrideBanner" hidden role="status">Teacher's question is active. It replaces the selected practice task throughout Plan and Write.</div>
 <div class="prompt" id="promptDisplay"></div>
 <div class="field"><label class="label" for="customPrompt">Teacher's question (optional)</label><textarea id="customPrompt" rows="3" placeholder="Paste the exact review-writing task from your teacher here."></textarea><div class="hint">Enter a question to override the practice task. Clear this box to return to the selected practice task.</div>
@@ -128,6 +128,7 @@ try {
 <p class="task-context-prompt"></p>
 <p class="task-context-help">Check the audience, purpose and required content before you write.</p>
 </details>
+<div class="task-change-note no-print" data-task-note role="status" hidden></div>
 <div class="card"><div class="card-head"><h2 id="planHeading">Plan your review</h2></div><div class="card-body">
 <p class="muted" style="margin-top:0">Short notes are enough. These prompts adapt to your selected practice topic. Use the exact task above to decide what matters.</p>
 <div class="stage"><h3>01 · Introduction</h3><p>What are you reviewing, and what should the reader know first?</p><div class="formgrid"><div class="field"><label class="label" for="planSubject">Name and context</label><textarea id="planSubject" rows="2" placeholder="Name, place or type of experience"></textarea></div><div class="field"><label class="label" for="planOpening">Your overall impression</label><textarea id="planOpening" rows="2" placeholder="Positive, mixed or negative? Why?"></textarea></div></div></div>
@@ -144,6 +145,7 @@ try {
 <p class="task-context-prompt"></p>
 <p class="task-context-help">Check the audience, purpose and required content before you write.</p>
 </details>
+<div class="task-change-note no-print" data-task-note role="status" hidden></div>
 <div class="wordmeter no-print" aria-label="Current review word count"><div class="row between"><b>Word count</b><strong id="wordTotal">0</strong></div><div class="track"><div class="fill" id="wordFill"></div></div><div class="wordmeta"><span>0</span><span id="wordStatus">Target: 120–160</span><span>200+</span></div></div>
 <details class="draft-plan-reference no-print" id="draftPlanReference">
 <summary>My planning notes</summary>
@@ -164,6 +166,7 @@ try {
 <section id="view-review" class="view" aria-labelledby="reviewHeading">
 <div id="reviewEmpty" class="empty"><h2>Start your review first</h2><p>Write your draft, then return here for practical improvement targets.</p><button class="btn primary" data-next="write">Go to Write →</button></div>
 <div id="reviewReady" class="hidden">
+<div class="task-change-note no-print" data-task-note role="status" hidden></div>
 <div id="studentFeedbackHost"></div>
 <div class="card"><div class="card-head"><h2 id="reviewHeading">Writing snapshot</h2></div><div class="card-body"><div class="snapshot"><div class="metric"><span>Words written</span><strong id="snapshotWords">0</strong></div><div class="metric"><span>Sections started</span><strong id="snapshotSections">0 / 4</strong></div><div class="metric"><span>Task relevance</span><strong>Not assessed</strong></div></div><p class="hint">These are observable writing features, not Cambridge marks or automated judgements of quality.</p></div></div>
 <div class="card"><div class="card-head"><h2>Three writing targets</h2></div><div class="card-body"><p class="notice" id="reviewContext">Use these suggestions to revise your work. Any advice about content quality is labelled as a self-check.</p><ol class="targets" id="feedbackTargets"></ol></div></div>
@@ -172,6 +175,7 @@ try {
 </div>
 </section>
 <section id="view-preview" class="view" aria-labelledby="previewHeading">
+<div class="task-change-note no-print" data-task-note role="status" hidden></div>
 <div class="card print-card"><div class="card-head"><h2 id="previewHeading">Final review</h2><div class="row no-print"><button class="btn" id="copyReview">Copy</button><button class="btn" id="printReview">Print</button><button class="btn" id="downloadReview">Export text</button></div></div><div class="card-body"><article id="previewText" class="preview-page"><p class="muted">Your review will appear here after you start writing.</p></article><div class="actions no-print"><button class="btn ghost" data-next="write">← Back to writing</button></div></div></div>
 </section>
 </main>
@@ -340,17 +344,40 @@ function renderQuestionOptions(){
  }
  select.value=currentQuestion().id;
 }
-function updateTaskChangeNote(customActive){
- const note=$('taskChangeNote');
- let text='';
- if(hasWork()&&state.workQid&&!customActive){
-  if(state.workQid==='teacher')text='Your plan and draft were started for your teacher\u2019s question. They have been kept. Check they still answer the practice question you have selected.';
-  else if(state.workQid!==currentQuestion().id){
-   const from=Object.values(QUESTIONS).flat().find(q=>q.id===state.workQid);
-   if(from)text='Your plan and draft were started for \u201c'+from.title+'\u201d and have been kept. Check they still answer this question, or choose the earlier one again.';
+// The task the student's current plan/draft belongs to: a practice question id, or 'teacher' while the Teacher's question is active.
+function currentTaskId(){return state.customPrompt.trim()?'teacher':currentQuestion().id;}
+function taskName(id){
+ if(id==='teacher')return 'your teacher\u2019s question';
+ const q=Object.values(QUESTIONS).flat().find(x=>x.id===id);
+ return q?'\u201c'+q.title+'\u201d':'';
+}
+function switchBackToWorkTask(){
+ const q=Object.entries(QUESTIONS).find(([,list])=>list.some(x=>x.id===state.workQid));
+ if(!q)return;
+ state.topic=q[0];state.qid=state.workQid;state.picked[state.topic]=state.qid;
+ updateTopic();scheduleSave();
+}
+function acceptWorkForCurrentTask(){state.workQid=currentTaskId();updateTaskChangeNote();scheduleSave();}
+// Shown wherever the writing is visible (Task, Plan, Write, Review, Preview) whenever the saved plan/draft was started for a different task.
+function updateTaskChangeNote(){
+ const mismatch=hasWork()&&state.workQid&&state.workQid!==currentTaskId();
+ const from=mismatch?taskName(state.workQid):'';
+ document.querySelectorAll('[data-task-note]').forEach(note=>{
+  note.replaceChildren();
+  note.hidden=!(mismatch&&from);
+  if(note.hidden)return;
+  const text=document.createElement('p');
+  text.className='task-change-text';
+  text.textContent='Your writing was started for '+from+', but the task above is now '+taskName(currentTaskId())+'. Your plan and draft have been kept. Make sure your writing answers the task shown before you ask for feedback, copy or submit it.';
+  const row=document.createElement('div');row.className='task-change-actions';
+  if(state.workQid!=='teacher'){
+   const back=document.createElement('button');back.type='button';back.className='btn ghost';back.textContent='Go back to '+from;
+   back.addEventListener('click',switchBackToWorkTask);row.append(back);
   }
- }
- note.textContent=text;note.hidden=!text;
+  const keep=document.createElement('button');keep.type='button';keep.className='btn ghost';keep.textContent='This writing is for the new task';
+  keep.addEventListener('click',acceptWorkForCurrentTask);row.append(keep);
+  note.append(text,row);
+ });
 }
 function updateTopic(){
  const customActive=Boolean(state.customPrompt.trim());
@@ -364,7 +391,7 @@ function updateTopic(){
  $('taskOverrideBanner').hidden=!customActive;
  document.querySelectorAll('.task-context-prompt').forEach(el=>{el.textContent=prompt;});
  document.querySelectorAll('.task-source-label').forEach(el=>{el.textContent=customActive?'Teacher question':'Practice · '+currentQuestion().title;});
- updateTaskChangeNote(customActive);
+ updateTaskChangeNote();
  if(lastPrompt!==null&&lastPrompt!==prompt)window.dispatchEvent(new Event('review-feedback-reset'));
  lastPrompt=prompt;
  updatePlanningGuidance();
@@ -477,7 +504,7 @@ function confirmClear(section){
  if(!window.confirm(message))return;
  if(all){for(const key of Object.keys(FIELD_MAP)){state.draft[key]='';$(FIELD_MAP[key]).value='';}}
  else {state.draft[section]='';$(FIELD_MAP[section]).value='';}
- clearTimeout(autosaveTimer);save();updateCounts();updateTaskChangeNote(Boolean(state.customPrompt.trim()));
+ clearTimeout(autosaveTimer);save();updateCounts();updateTaskChangeNote();
 }
 function words(text){return(String(text||'').toLowerCase().match(/[a-z]+(?:'[a-z]+)?/g)||[]);}
 function feedback(){
@@ -568,8 +595,8 @@ $('questionSelect').addEventListener('change',e=>{
   updateTopic();scheduleSave();
 });
 $('customPrompt').addEventListener('input',e=>{state.customPrompt=e.target.value;updateTopic();scheduleSave();});
-PLAN_FIELDS.forEach(id=>$(id).addEventListener('input',e=>{state.plan[id]=e.target.value;trackWork();updateTaskChangeNote(Boolean(state.customPrompt.trim()));scheduleSave();}));
-Object.entries(FIELD_MAP).forEach(([key,id])=>$(id).addEventListener('input',e=>{state.draft[key]=e.target.value;trackWork();updateTaskChangeNote(Boolean(state.customPrompt.trim()));updateCounts();scheduleSave();}));
+PLAN_FIELDS.forEach(id=>$(id).addEventListener('input',e=>{state.plan[id]=e.target.value;trackWork();updateTaskChangeNote();scheduleSave();}));
+Object.entries(FIELD_MAP).forEach(([key,id])=>$(id).addEventListener('input',e=>{state.draft[key]=e.target.value;trackWork();updateTaskChangeNote();updateCounts();scheduleSave();}));
 document.querySelectorAll('[data-clear]').forEach(button=>button.addEventListener('click',()=>confirmClear(button.dataset.clear)));
 $('clearDraft').addEventListener('click',()=>confirmClear('all'));
 $('copyReview').addEventListener('click',async()=>{const text=assembled();if(!text)return;try{await navigator.clipboard.writeText(text);$('copyReview').textContent='Copied!';setTimeout(()=>$('copyReview').textContent='Copy',1500);}catch(e){window.alert('Copy was blocked. Select the text in Preview and copy it manually.');}});
