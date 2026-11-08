@@ -20,7 +20,7 @@ test('request goes once to the /feedback route with only the allowed fields and 
 });
 test('bad input never reaches the network; signed-out students are told to sign in', async () => {
   let calls = 0; const fetcher = async () => { calls++; };
-  for (const bad of [{ ...input, app: 'essay' }, { ...input, privacyNoticeAccepted: false }, { ...input, response: '' }, { ...input, task: 'short' }, { ...input, response: 'x'.repeat(6001) }, { ...input, taskType: 'essay' }])
+  for (const bad of [{ ...input, app: 'discussion' }, { ...input, privacyNoticeAccepted: false }, { ...input, response: '' }, { ...input, task: 'short' }, { ...input, response: 'x'.repeat(6001) }, { ...input, taskType: 'essay' }])
     await assert.rejects(requestFeedback(session, bad, { fetcher }), error => error instanceof FeedbackError && error.code === 'invalid_submission');
   await assert.rejects(requestFeedback({ auth: { getSession: async () => ({ data: { session: null } }) } }, input, { fetcher }), error => error.code === 'access_denied');
   assert.equal(calls, 0);
@@ -129,4 +129,10 @@ test('the essay module is student-only, behind the panel switch, reads nothing o
   assert.match(source, /role === 'student'/); assert.match(source, /c\.allowed === true/); assert.match(source, /app: 'essay'/);
   assert.match(source, /essay-feedback-reset/);
   assert.match(source, /\['assessment-progress\.css', 'student-feedback\.css\?v=3'\]/); assert.doesNotMatch(source, /https?:\/\//);
+});
+
+test('the client accepts the essay app and sends exactly the same fields', async () => {
+  let sent;
+  await requestFeedback(session, { ...input, app: 'essay', task: 'Write your essay about homework. Write 120\u2013160 words.', response: 'Weekend homework is a topic many students discuss.' }, { fetcher: async (url, options) => { sent = JSON.parse(options.body); return Response.json(good); } });
+  assert.equal(sent.app, 'essay'); assert.deepEqual(Object.keys(sent).sort(), ['app', 'privacyNoticeAccepted', 'response', 'task']);
 });

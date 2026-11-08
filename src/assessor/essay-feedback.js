@@ -27,6 +27,7 @@ try {
     // A new question, task or mode means any feedback on screen is about something else.
     window.addEventListener('essay-feedback-reset', () => feedback.clear());
     client.auth.onAuthStateChange(event => { if (event === 'SIGNED_OUT') feedback.dispose(); });
+    host.dataset.ready = '1';   // the page shows the panel only in Practice Mode
     host.dispatchEvent(new CustomEvent('essay-feedback-ready', { bubbles: true }));
   }
 } catch { /* the Hub wrapper's own sign-in check handles signed-out users; feedback simply stays hidden */ }
