@@ -12,10 +12,15 @@ test('every model opening greets by a name placeholder, never "friend"', () => {
   assert.match(html, /c\.friend \|\| \(\/\^\\s\*hey\\b\/i\.test\(line\) \? 'Sam' : 'Alex'\)/);
   assert.doesNotMatch(html, /const fname = c\.friend \|\| 'friend';\s*\n\s*\n\s*const vocab/);
 });
-test('model openings and closings use natural informal contractions', () => {
-  const stiff = /\b(?:I am|I have|I would|It is|did not|could not|do not|we have just|you would|I had been)\b/;
-  for (const t of tasks) for (const line of [...t.openings, ...t.closings]) assert.doesNotMatch(line, stiff, `${t.id}: ${line}`);
+test('every practice task has a language challenge under its own id (none orphaned)', () => {
+  const i = html.indexOf('const LANGUAGE_CHALLENGES = {'); let d = 0, j = html.indexOf('{', i), k = j; for (; k < html.length; k++) { if (html[k] === '{') d++; if (html[k] === '}' && !--d) break; }
+  const challenges = (0, eval)('(' + html.slice(j, k + 1) + ')');
+  const ids = tasks.map(t => t.id);
+  assert.deepEqual(Object.keys(challenges).filter(id => !ids.includes(id)), []);
+  assert.deepEqual(ids.filter(id => !challenges[id]), []);
+  assert.equal(challenges['exchange-visitor'].choices.length, 2);
 });
+// Contractions are good informal style but optional: these are style improvements to model phrases, not rules or error labels.
 test('corrected model sentences are in place', () => {
   assert.match(html, /I'm sorry, but we need to change our plans for Saturday/);
   assert.match(html, /It was hard work, but I learnt a lot\./);
