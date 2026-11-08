@@ -669,7 +669,7 @@ try {
         <li>Cover <strong>all 3 bullet points</strong> and develop each one with detail.</li>
         <li>Organise with clear paragraphs: opening, one per bullet, closing.</li>
         <li>Start with a friendly greeting and end with a question or plan to meet up.</li>
-        <li>Use linking phrases that sound natural: <em>anyway, before anything else, that's why</em>.</li>
+        <li>Use linking phrases that sound natural: <em>anyway, first of all, that's why</em>.</li>
         <li>Don't sound like a formal report. Avoid <em>furthermore, consequently</em>.</li>
       </ul>
     </details>
@@ -1080,7 +1080,7 @@ try {
       </div>
       <div class="form-row">
         <label>Model Linking Phrases (one per line)</label>
-        <textarea id="tLinkers" rows="3" placeholder="Anyway, the main thing I wanted to tell you about is...&#10;Before anything else, let me say that..." oninput="saveTeacherConfig()"></textarea>
+        <textarea id="tLinkers" rows="3" placeholder="Anyway, the main thing I wanted to tell you about is...&#10;First of all, ..." oninput="saveTeacherConfig()"></textarea>
       </div>
       <div class="form-row">
         <label>Model Idioms / Phrasal Verbs (one per line)</label>
@@ -2090,7 +2090,7 @@ const EXAM_TASKS = [
     ],
     "closings": [
       "What's the best thing about the break areas at your school?",
-      "I would love to hear your ideas."
+      "I'd love to hear your ideas."
     ],
     "toneNotes": [
       "Use a friendly, natural tone.",
@@ -2802,7 +2802,7 @@ function updateScaffolds() {
   if (!show) return;
 
   const task = getActiveTask();
-  // Never teach "Hi friend": with no friend name set, model greetings use a realistic example name (Hi Alex / Hey Sam).
+  // Never teach a greeting like "Hi" + "friend": with no friend name set, model greetings use a realistic example name (Hi Alex / Hey Sam).
   const nameFor = line => c.friend || (/^\s*hey\b/i.test(line) ? 'Sam' : 'Alex');
 
   const vocab = task && task.vocab ? task.vocab : [];

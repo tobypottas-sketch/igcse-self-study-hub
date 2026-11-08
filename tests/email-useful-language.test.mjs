@@ -22,5 +22,5 @@ test('corrected model sentences are in place', () => {
   assert.match(html, /adjust the camera settings and the lighting/);
   assert.match(html, /handed it in at the bus station office/);
   assert.doesNotMatch(html, /near to my school/);
-  assert.doesNotMatch(html, /Before anything else, let me say/);
+  assert.doesNotMatch(html, /Before anything else, let me say/i);
 });
