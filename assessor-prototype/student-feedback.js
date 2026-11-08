@@ -1,3 +1,4 @@
+import { studentCoach } from './clear-errors.js';
 import { AssessmentError, ValidationFailure, response, configuration, verifyAccount, zeroCounts, runPipeline } from './staff-assessment.js';
 // Student writing feedback: a separate, authenticated route that reuses the teacher pipeline but never returns marks.
 // Nothing is stored, logged or sent to analytics. The only state is a per-student counter (no text) in Supabase.
@@ -85,6 +86,16 @@ export function studentView(result) {
   const partial = result?.feedbackVerified === false || (!strengths.length && !improvements.length);
   return { partial, strengths:partial ? [] : strengths, improvements:partial ? [] : improvements, nextStep:partial ? '' : target, lengthNotice };
 }
+// Adds what the Worker can verify itself (clear slips found in the student's own text, and a concrete writing target) to the model-based view.
+// Model feedback is untouched; coaching only fills gaps, so feedback is not praise-only when a useful, evidence-supported target exists.
+export function addCoaching(view, input) {
+  const existing = view.partial ? [] : view.improvements;
+  const coach = studentCoach(input.taskType, input.response, existing);
+  const improvements = [...existing, ...coach.improvements].slice(0, 3);
+  const nextStep = (!view.partial && view.nextStep) || coach.target;
+  const partial = view.partial && !improvements.length && !nextStep;
+  return { ...view, partial, improvements:partial ? [] : improvements, nextStep:partial ? '' : nextStep };
+}
 export async function handleStudentFeedback(request, env, runAI, classifyAIError) {
   let origin; let stage = 'authorization'; let ticket = null; let studentId = ''; let config; let refund = false;
   try {
@@ -104,7 +115,7 @@ export async function handleStudentFeedback(request, env, runAI, classifyAIError
     stage = 'quota'; ticket = await reserve(config, env.FEEDBACK_QUOTA_SECRET, studentId);
     stage = 'assessment';
     const result = await runPipeline(input, runAI, zeroCounts(), () => {});
-    const feedback = studentView(result);
+    const feedback = addCoaching(studentView(result), input);
     return response({ feedback }, 200, origin);
   } catch (error) {
     if (error instanceof AssessmentError) {
