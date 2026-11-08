@@ -69,7 +69,8 @@ async function reserve(config, secret, studentId) {
 async function release(config, secret, studentId, ticket, refund) {
   try { await rpc(config, 'finish_student_feedback', { p_secret:secret, p_student_id:studentId, p_ticket:ticket, p_refund:refund }); } catch { /* the slot expires on its own */ }
 }
-// What a student may see: verified strengths, verified corrections, one writing target and a neutral length note. Never marks, reasons or teacher-only data.
+// What a student may see: verified strengths, verified corrections, one writing target, a neutral length note and an AI-estimated score (Content, Language, Total).
+// Never mark reasons, evidence or other teacher-only data.
 export function studentView(result) {
   const clean = list => (Array.isArray(list) ? list : []).filter(item => typeof item?.quote === 'string' && typeof item?.advice === 'string' && !MARK_TALK.test(item.advice))
     .map(item => ({ quote:item.quote, advice:item.advice }));
@@ -84,7 +85,11 @@ export function studentView(result) {
     suggestion:'Next time, add one reason, example or specific detail to each point in the task until you reach about ' + notice.minimum + ' words.' } : null;
   const target = typeof result?.nextStep === 'string' && !MARK_TALK.test(result.nextStep) ? result.nextStep : '';
   const partial = result?.feedbackVerified === false || (!strengths.length && !improvements.length);
-  return { partial, strengths:partial ? [] : strengths, improvements:partial ? [] : improvements, nextStep:partial ? '' : target, lengthNotice };
+  // The only numbers a student ever receives: an AI estimate of the three Cambridge totals, and only from a complete, verified assessment.
+  // Teacher-only reasons, evidence and unverified candidates are never part of the view.
+  const c = result?.contentMark, l = result?.languageMark;
+  const scores = !partial && Number.isInteger(c) && c >= 0 && c <= 6 && Number.isInteger(l) && l >= 0 && l <= 9 ? { content:c, language:l, total:c + l } : null;
+  return { partial, strengths:partial ? [] : strengths, improvements:partial ? [] : improvements, nextStep:partial ? '' : target, lengthNotice, scores };
 }
 // Adds what the Worker can verify itself (clear slips found in the student's own text, and a concrete writing target) to the model-based view.
 // Model feedback is untouched; coaching only fills gaps, so feedback is not praise-only when a useful, evidence-supported target exists.

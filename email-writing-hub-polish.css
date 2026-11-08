@@ -679,3 +679,13 @@ summary:focus-visible{outline:3px solid #14aaa3;outline-offset:3px}
 .task-combo__list [role="option"].is-active{background:#fff1e4}
 .task-combo__list [role="option"][aria-selected="true"]{font-weight:700;color:var(--orange-dark,#b85a10)}
 @media(max-width:540px){#panel-task .task-combo{flex:1 1 auto;width:0}}
+
+/* Optional manual self-review: collapsed by default so the AI feedback and Revise stay in view. */
+#panel-dashboard .review-optional{margin:14px 0}
+#panel-dashboard .review-optional>summary{cursor:pointer;list-style:none;padding:12px 16px;border:1px solid var(--border,#ddd);border-radius:12px;background:var(--card,#fff);font-weight:700;color:var(--teal-dark,#0e5f61);display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline}
+#panel-dashboard .review-optional>summary::-webkit-details-marker{display:none}
+#panel-dashboard .review-optional>summary::before{content:"\25B6";font-size:.75em}
+#panel-dashboard .review-optional[open]>summary::before{content:"\25BC"}
+#panel-dashboard .review-optional>summary span{font-weight:400;font-size:.88rem;color:var(--text-light,#5a5a5a)}
+#panel-dashboard .review-optional>summary:focus-visible{outline:3px solid #173852;outline-offset:2px}
+#panel-dashboard .review-optional[open]>summary{margin-bottom:12px}

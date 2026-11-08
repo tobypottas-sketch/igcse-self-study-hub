@@ -41,11 +41,19 @@ test('an active student gets verified feedback and the Worker maps the app to th
   assert.deepEqual(calls.order.filter(x => x !== 'ai'), ['auth', 'profile', 'begin', 'finish']); assert.deepEqual(calls.finish, { p_ticket: TICKET, p_refund: false });
   assert.equal(res.headers.get('cache-control'), 'no-store');
 });
-test('marks, reasons, evidence lists, teacher-only data and diagnostics NEVER reach a student', async t => {
+test('only the three estimated scores reach a student: no reasons, evidence lists, teacher-only data or diagnostics', async t => {
   const { env } = setup(t); const text = await (await worker.fetch(request(), env)).text();
+  const body = JSON.parse(text); assert.deepEqual(body.feedback.scores, { content: 4, language: 6, total: 10 }); assert.deepEqual(Object.keys(body.feedback.scores), ['content', 'language', 'total']);
   for (const forbidden of ['contentMark', 'languageMark', 'totalMark', 'contentReason', 'languageReason', 'SECRET-', 'quotedErrorCandidates', 'verifiedEvidence', 'observedEvidence', 'checks', 'reviewStatus', 'warning', 'stage', 'model', 'Cambridge examiner'])
     assert.ok(!text.includes(forbidden), forbidden + ' leaked to the student');
-  assert.doesNotMatch(text, /"(?:content|language|total)"?\s*:\s*\d/i);
+  assert.deepEqual(Object.keys(body.feedback).sort(), ['improvements', 'lengthNotice', 'nextStep', 'partial', 'scores', 'strengths']);
+});
+test('scores are unavailable (null) when the assessment is partial or the marks are not whole numbers in range', () => {
+  const base = { strengths: [{ quote: 'a', advice: 'Good reason.' }], improvements: [], nextStep: 'x' };
+  assert.deepEqual(studentView({ ...base, contentMark: 6, languageMark: 9 }).scores, { content: 6, language: 9, total: 15 });
+  for (const bad of [{ contentMark: 7, languageMark: 5 }, { contentMark: 3, languageMark: 10 }, { contentMark: 3.5, languageMark: 5 }, { contentMark: '3', languageMark: 5 }, { contentMark: -1, languageMark: 5 }, {}]) assert.equal(studentView({ ...base, ...bad }).scores, null, JSON.stringify(bad));
+  assert.equal(studentView({ ...base, contentMark: 4, languageMark: 6, feedbackVerified: false }).scores, null);
+  assert.equal(studentView({ strengths: [], improvements: [], contentMark: 4, languageMark: 6 }).scores, null);
 });
 test('the request may not choose the task type, role or extra fields; unknown apps are rejected before any quota is used', async t => {
   for (const body of [{ ...submission, taskType: 'essay' }, { ...submission, app: 'essay' }, { ...submission, app: '__proto__' }, { ...submission, privacyNoticeAccepted: false }, { ...submission, role: 'admin' }, { ...submission, task: 'short' }, { ...submission, response: 'x'.repeat(6001) }, 'not json', [] ]) {
