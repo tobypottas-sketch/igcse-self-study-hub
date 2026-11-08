@@ -24,15 +24,16 @@ export const SKILLS = Object.freeze([
 
 // Each entry lists the exact `public.apps.app_key` values it covers (compared case-insensitively, never as a substring), so a future
 // key such as "reading_club" or "essay_planner" is NOT silently classified: it shows under All apps until it gets its own entry.
+// `order` is the app's position inside its skill on the homepage (lower first). Apps without one follow the ordered ones, in the order Supabase returned them.
 // Production keys (checked against public.apps): email_writing, essay_writing, listening, paraphrasing, reading, review_writing, vocabulary_paraphrase.
 export const APP_CATALOGUE = Object.freeze([
-  { id: 'essay',        keys: ['essay_writing'],         skill: 'writing',   badge: 'E', art: './assets/launcher/essay-writing.svg' },
-  { id: 'email',        keys: ['email_writing'],         skill: 'writing',   badge: 'E', art: './assets/launcher/essay-writing.svg' },
-  { id: 'review',       keys: ['review_writing'],        skill: 'writing',   badge: 'R', art: './assets/launcher/essay-writing.svg' },
-  { id: 'reading',      keys: ['reading'],               skill: 'reading',   badge: 'R', art: './assets/launcher/reading.svg' },
-  { id: 'listening',    keys: ['listening'],             skill: 'listening', badge: 'L', art: './assets/launcher/listening.svg' },
-  { id: 'paraphrasing', keys: ['paraphrasing'],          skill: 'language',  badge: 'P', art: './assets/launcher/paraphrasing.svg' },
-  { id: 'vocabulary',   keys: ['vocabulary_paraphrase'], skill: 'language',  badge: 'V', art: './assets/launcher/vocabulary.svg' }
+  { id: 'essay',        keys: ['essay_writing'],         skill: 'writing',   order: 1, badge: 'E', art: './assets/launcher/essay-writing.svg' },
+  { id: 'email',        keys: ['email_writing'],         skill: 'writing',   order: 2, badge: 'E', art: './assets/launcher/essay-writing.svg' },
+  { id: 'review',       keys: ['review_writing'],        skill: 'writing',   order: 3, badge: 'R', art: './assets/launcher/essay-writing.svg' },
+  { id: 'reading',      keys: ['reading'],               skill: 'reading',   order: 1, badge: 'R', art: './assets/launcher/reading.svg' },
+  { id: 'listening',    keys: ['listening'],             skill: 'listening', order: 1, badge: 'L', art: './assets/launcher/listening.svg' },
+  { id: 'paraphrasing', keys: ['paraphrasing'],          skill: 'language',  order: 1, badge: 'P', art: './assets/launcher/paraphrasing.svg' },
+  { id: 'vocabulary',   keys: ['vocabulary_paraphrase'], skill: 'language',  order: 2, badge: 'V', art: './assets/launcher/vocabulary.svg' }
 ]);
 
 export const DEFAULT_REGISTRY = Object.freeze({ skills: SKILLS, catalogue: APP_CATALOGUE });
@@ -59,4 +60,18 @@ export function skillSummaries(apps, registry = DEFAULT_REGISTRY) {
 export function skillStyle(skill) {
   const c = skill?.color;
   return c ? `--sk:${c.accent};--sk-ink:${c.ink};--sk-tint:${c.tint};--sk-line:${c.line}` : '';
+}
+
+// Homepage order: skills in SKILLS order; inside a skill by the catalogue `order`, then Supabase order for apps without one;
+// unclassified apps last, in Supabase order. Pure and stable: it never drops or duplicates an app.
+export function orderApps(apps, registry = DEFAULT_REGISTRY) {
+  const rank = (app, index) => {
+    const skill = skillOf(app.app_key, registry);
+    const skillIndex = skill === null ? registry.skills.length : registry.skills.findIndex(candidate => candidate.id === skill);
+    const order = catalogueEntry(app.app_key, registry)?.order;
+    return [skillIndex, skill !== null && Number.isFinite(order) ? order : Infinity, index];
+  };
+  return apps.map((app, index) => ({ app, key: rank(app, index) }))
+    .sort((a, b) => a.key[0] - b.key[0] || (a.key[1] === b.key[1] ? 0 : a.key[1] - b.key[1]) || a.key[2] - b.key[2])
+    .map(entry => entry.app);
 }

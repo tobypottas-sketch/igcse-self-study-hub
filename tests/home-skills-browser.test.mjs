@@ -32,6 +32,16 @@ browserTest('student homepage: skill selection filters apps, keeps the page stil
       const same = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
 
       if (!same(await visible(), ALL)) failures.push(tag('default view is not All apps with all seven cards'));
+      // Ordering: exact required order even when Supabase returns the rows scrambled, in All apps and inside each skill.
+      await page.evaluate(() => { window.__apps = [window.__apps[6], window.__apps[3], window.__apps[0], window.__apps[5], window.__apps[2], window.__apps[4], window.__apps[1]]; window.__render(); });
+      const order = () => page.$$eval('.app-card', cards => cards.filter(c => !c.hidden).map(c => c.dataset.app));
+      if (JSON.stringify(await order()) !== JSON.stringify(ALL)) failures.push(tag(`All apps order is ${JSON.stringify(await order())}`));
+      for (const [skill, keys] of Object.entries(BY_SKILL)) {
+        await page.click(`[data-skill-choice="${skill}"]`);
+        if (JSON.stringify(await order()) !== JSON.stringify(keys)) failures.push(tag(`${skill} order is ${JSON.stringify(await order())}`));
+      }
+      await page.click('[data-skill-choice="all"]');
+      if (await page.$$eval('.skill-picker h3, .app-grid h3, .app-grid hr, .app-grid [role=separator]', e => e.length)) failures.push(tag('visible headings/separators were added between cards'));
       // Counts shown on the skill cards.
       const counts = await page.$$eval('.skill-card', els => Object.fromEntries(els.map(e => [e.dataset.skillChoice, e.querySelector('.skill-card__count').textContent])));
       for (const [skill, keys] of Object.entries(BY_SKILL)) if (counts[skill] !== `${keys.length} app${keys.length === 1 ? '' : 's'}`) failures.push(tag(`count for ${skill} is "${counts[skill]}"`));
