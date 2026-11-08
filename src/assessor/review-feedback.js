@@ -2,8 +2,10 @@
 import { getSupabaseClient } from '../supabase.js';
 import { getCurrentProfile } from '../auth.js';
 import { mountStudentFeedback } from './student-feedback.js';
+import { STUDENT_FEEDBACK_UI_ENABLED } from './student-feedback-flag.js';
 import { reviewTaskText, reviewResponseText } from './writing-app-adapters.js';
 try {
+  if (!STUDENT_FEEDBACK_UI_ENABLED) throw new Error('student feedback panel is switched off');
   const client = await getSupabaseClient();
   const profile = await getCurrentProfile(client);
   const host = document.getElementById('studentFeedbackHost');
