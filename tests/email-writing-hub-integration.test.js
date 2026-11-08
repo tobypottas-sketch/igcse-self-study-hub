@@ -140,3 +140,12 @@ test('practice task picker is a bounded listbox over the unchanged native select
   assert.match(html, /id="examTaskSelect"/);
   assert.match(html, /id="examTaskLoadButton"/);
 });
+
+test('Load resets the picker through a change event so the visible choice never goes stale', () => {
+  const fn = html.slice(html.indexOf('function loadExamTask()'));
+  const end = fn.indexOf('\n}\n');
+  const body = fn.slice(0, end);
+  const reset = body.indexOf("select.value = '';");
+  assert.ok(reset > -1);
+  assert.match(body.slice(reset), /select\.dispatchEvent\(new Event\('change'/);
+});
