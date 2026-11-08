@@ -1,5 +1,5 @@
 // Student feedback client: sends one request to the separate /feedback route and rebuilds the answer from an allow-list.
-// Never stores anything. Marks are not part of the student response, and anything that is not on the allow-list is dropped here as well.
+// Never stores anything. The only numbers accepted are the three estimated scores; anything else that is not on the allow-list is dropped here as well.
 export const FEEDBACK_ENDPOINT = 'https://igcse-writing-assessor.toby-pottas.workers.dev/feedback';
 const APPS = ['email', 'review'];
 export class FeedbackError extends Error {
@@ -33,7 +33,9 @@ export function parseFeedback(body) {
   const n = f.lengthNotice;
   const lengthNotice = n && Number.isInteger(n.wordCount) && Number.isInteger(n.minimum) ? { wordCount: n.wordCount, minimum: n.minimum, maximum: Number.isInteger(n.maximum) ? n.maximum : null, message: text(n.message, 400), suggestion: text(n.suggestion, 300) } : null;
   const partial = f.partial || (!strengths.length && !improvements.length);
-  return { partial, strengths: partial ? [] : strengths, improvements: partial ? [] : improvements, nextStep: partial ? '' : text(f.nextStep, 450), lengthNotice };
+  const sc = f.scores, whole = (v, max) => Number.isInteger(v) && v >= 0 && v <= max;
+  const scores = !partial && sc && whole(sc.content, 6) && whole(sc.language, 9) && sc.total === sc.content + sc.language ? { content: sc.content, language: sc.language, total: sc.total } : null;
+  return { partial, strengths: partial ? [] : strengths, improvements: partial ? [] : improvements, nextStep: partial ? '' : text(f.nextStep, 450), lengthNotice, scores };
 }
 const TIMEOUT_MS = 90000;
 export async function requestFeedback(client, input, { signal, fetcher = globalThis.fetch, timeoutMs = TIMEOUT_MS, now = Date.now } = {}) {

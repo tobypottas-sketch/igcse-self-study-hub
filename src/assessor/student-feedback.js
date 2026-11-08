@@ -1,38 +1,62 @@
 // Shared "Get My Feedback" panel for any writing app. An app supplies a small adapter:
 //   mountStudentFeedback(host, { app:'email'|'review', getTask(), getResponse(), getClient(), onRevise?() })
-// It reuses the assessor progress card, keeps nothing in storage and never shows marks.
+// It reuses the assessor progress card, keeps nothing in storage and shows only an AI-estimated score (never teacher-only reasons).
 import { createAssessmentProgress } from './progress.js';
 import { requestFeedback, FeedbackError } from './student-client.js';
 import { PRIVACY_SUMMARY, PRIVACY_DETAIL, PRIVACY_CONSENT } from './student-privacy-notice.js';
 const el = (doc, tag, className, text) => { const node = doc.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = text; return node; };
 export function renderStudentFeedback(doc, feedback, { onRevise } = {}) {
   const box = el(doc, 'div', 'sf-result');
-  const heading = (t, tag = 'h3') => el(doc, tag, 'sf-heading', t);
-  const point = (item, kind) => {
-    const li = el(doc, 'li', 'sf-point');
-    if (kind) li.append(el(doc, 'p', 'sf-tag', kind));
-    li.append(el(doc, 'blockquote', 'sf-quote', item.quote), el(doc, 'p', 'sf-advice', item.advice));
-    if (item.suggestion) { const s = el(doc, 'p', 'sf-suggestion'); s.append(el(doc, 'strong', '', item.type === 'error' ? 'Try this: ' : 'You could write: '), doc.createTextNode(item.suggestion)); li.append(s); }
-    return li;
-  };
-  if (feedback.partial) {
-    const note = el(doc, 'section', 'sf-card sf-card--notice');
-    note.append(heading('We could not check specific feedback this time'), el(doc, 'p', '', 'We only show comments that we can match to your exact words, and we could not do that for this version. This does not mean your writing has no mistakes. Read it again slowly, check each task point, then ask again when you have changed something.'));
-    box.append(note);
+  const panel = el(doc, 'section', 'sf-panel');
+  panel.setAttribute('aria-label', 'Your feedback');
+  const row = (kind, label) => { const r = el(doc, 'div', 'sf-row sf-row--' + kind); r.append(el(doc, 'h3', 'sf-label', label)); return r; };
+  const quote = text => el(doc, 'blockquote', 'sf-quote', text);
+  const scoreBlock = el(doc, 'div', 'sf-score');
+  const sc = feedback.scores;
+  if (sc && !feedback.partial) {
+    const tile = (name, value, max, total) => { const t = el(doc, 'div', 'sf-score__tile' + (total ? ' sf-score__tile--total' : '')); const v = el(doc, 'p', 'sf-score__value'); v.append(el(doc, 'strong', '', String(value)), el(doc, 'span', '', '/' + max)); t.append(el(doc, 'p', 'sf-score__name', name), v); return t; };
+    const grid = el(doc, 'div', 'sf-score__grid'); grid.append(tile('Content', sc.content, 6), tile('Language', sc.language, 9), tile('Total', sc.total, 15, true));
+    scoreBlock.append(el(doc, 'h3', 'sf-label', 'AI-estimated score'), grid, el(doc, 'p', 'sf-score__note', 'An AI estimate to guide your revision. It is not an official Cambridge mark.'));
   } else {
-    if (feedback.lengthNotice) { const c = el(doc, 'section', 'sf-card sf-card--length'); c.append(heading('Length'), el(doc, 'p', '', feedback.lengthNotice.message), el(doc, 'p', '', feedback.lengthNotice.suggestion)); box.append(c); }
-    if (feedback.strengths.length) { const c = el(doc, 'section', 'sf-card sf-card--good'); const ul = el(doc, 'ul', 'sf-list'); feedback.strengths.forEach(s => ul.append(point(s))); c.append(heading('What you did well'), ul); box.append(c); }
-    if (feedback.improvements.length) {
-      const c = el(doc, 'section', 'sf-card sf-card--fix'); const ul = el(doc, 'ul', 'sf-list');
-      feedback.improvements.forEach(i => ul.append(point(i, i.type === 'error' ? 'Correction' : 'Optional wording change')));
-      c.append(heading('What to fix or try'), ul, el(doc, 'p', 'sf-note', 'This is not a full list of every mistake. Read your whole text again.')); box.append(c);
-    }
-    if (feedback.nextStep) { const c = el(doc, 'section', 'sf-card sf-card--next'); c.append(heading('Your next step'), el(doc, 'p', '', feedback.nextStep)); box.append(c); }
+    scoreBlock.classList.add('sf-score--none'); scoreBlock.append(el(doc, 'h3', 'sf-label', 'AI-estimated score'), el(doc, 'p', 'sf-score__unavailable', 'Score unavailable'));
   }
-  const foot = el(doc, 'div', 'sf-foot');
-  foot.append(el(doc, 'p', 'sf-note', 'This feedback is about the version you just sent. If you change your writing, the examples above may no longer match. AI can make mistakes, so check anything that seems wrong with your teacher.'));
-  if (onRevise) { const b = el(doc, 'button', 'sf-button sf-button--ghost', 'Revise my writing'); b.type = 'button'; b.addEventListener('click', onRevise); foot.append(b); }
-  box.append(foot);
+  panel.append(scoreBlock);
+  if (feedback.partial) {
+    const r = el(doc, 'div', 'sf-row sf-row--notice');
+    r.append(el(doc, 'h3', 'sf-label', 'No specific feedback this time'), el(doc, 'p', 'sf-advice', 'We only show comments we can match to your exact words, and we could not do that for this version. This does not mean your writing has no mistakes. Try again after revising, or check it with your teacher.'));
+    panel.append(r);
+  } else {
+    const n = feedback.lengthNotice;
+    if (n) {
+      const target = Number.isInteger(n.maximum) ? n.minimum + '\u2013' + n.maximum : 'at least ' + n.minimum;
+      panel.append(el(doc, 'p', 'sf-length', n.wordCount + ' words: the task asks for ' + target + '. Add a reason, example or detail to each point to develop your ideas.'));
+    }
+    const best = feedback.strengths[0];
+    if (best) { const r = row('good', 'Strength'); r.append(quote(best.quote), el(doc, 'p', 'sf-advice', best.advice)); panel.append(r); }
+    const fixes = feedback.improvements.slice(0, 2);
+    if (fixes.length) {
+      const r = row('fix', fixes.length > 1 ? 'Corrections' : 'Correction'); const ul = el(doc, 'ul', 'sf-list');
+      fixes.forEach(item => {
+        const li = el(doc, 'li', 'sf-fix');
+        if (item.type === 'error' && item.suggestion) {
+          const change = el(doc, 'p', 'sf-change');
+          const wrong = el(doc, 'span', 'sf-wrong', item.quote); const right = el(doc, 'span', 'sf-right', item.suggestion);
+          wrong.prepend(el(doc, 'span', 'sf-sr', 'Incorrect: ')); right.prepend(el(doc, 'span', 'sf-sr', 'Correct: '));
+          change.append(wrong, el(doc, 'span', 'sf-arrow', '\u2192'), right); li.append(change);
+        } else {
+          if (item.type !== 'error') li.append(el(doc, 'p', 'sf-tag', 'Optional wording change'));
+          li.append(quote(item.quote));
+          if (item.suggestion) { const s = el(doc, 'p', 'sf-suggestion'); s.append(el(doc, 'strong', '', 'You could write: '), doc.createTextNode(item.suggestion)); li.append(s); }
+        }
+        li.append(el(doc, 'p', 'sf-advice', item.advice)); ul.append(li);
+      });
+      r.append(ul); panel.append(r);
+    }
+    if (feedback.nextStep) { const r = row('next', 'Next step'); r.append(el(doc, 'p', 'sf-advice', feedback.nextStep)); panel.append(r); }
+  }
+  panel.append(el(doc, 'p', 'sf-note', 'Based on the version you just sent. This is not a full list of mistakes, and AI can make errors, so check anything that seems wrong with your teacher.'));
+  box.append(panel);
+  if (onRevise) { const b = el(doc, 'button', 'sf-button sf-revise', 'Revise my writing'); b.type = 'button'; b.addEventListener('click', onRevise); box.append(b); }
   return box;
 }
 export function mountStudentFeedback(host, options) {
@@ -41,7 +65,7 @@ export function mountStudentFeedback(host, options) {
   let busy = false, disposed = false, generation = 0, pending = null, count = 0;
   const section = el(doc, 'section', 'student-feedback');
   const title = el(doc, 'h2', 'sf-title', 'Get feedback on your writing');
-  const lead = el(doc, 'p', 'sf-lead', 'Ask for specific comments on your writing. You will see strengths, corrections and one next step, but no marks. Then you can revise and ask again.');
+  const lead = el(doc, 'p', 'sf-lead', 'Get an AI-estimated score, a strength, up to two corrections and one next step. Then revise and ask again.');
   const privacy = el(doc, 'details', 'sf-privacy'); privacy.append(el(doc, 'summary', '', 'How your writing is used'), el(doc, 'p', '', PRIVACY_SUMMARY));
   const list = el(doc, 'ul', 'sf-privacy-list'); PRIVACY_DETAIL.forEach(t => list.append(el(doc, 'li', '', t))); privacy.append(list);
   const consentLabel = el(doc, 'label', 'sf-consent'); const box = el(doc, 'input'); box.type = 'checkbox'; consentLabel.append(box, el(doc, 'span', '', PRIVACY_CONSENT));

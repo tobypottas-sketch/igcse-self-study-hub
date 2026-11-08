@@ -25,13 +25,17 @@ test('bad input never reaches the network; signed-out students are told to sign 
   await assert.rejects(requestFeedback({ auth: { getSession: async () => ({ data: { session: null } }) } }, input, { fetcher }), error => error.code === 'access_denied');
   assert.equal(calls, 0);
 });
-test('marks and any unexpected field are dropped even if the service sends them', () => {
-  const dirty = { feedback: { ...good.feedback, contentMark: 5, languageMark: 7, totalMark: 12, contentReason: 'SECRET', quotedErrorCandidatesRequireTeacherReview: [{ quote: 'x' }], strengths: [{ quote: 'a', advice: 'b', mark: 9 }], improvements: [] }, marks: { total: 12 } };
+test('only the three estimated scores and known fields survive; raw marks, reasons and other fields are dropped', () => {
+  const dirty = { feedback: { ...good.feedback, scores: { content: 5, language: 7, total: 12, reason: 'SECRET' }, contentMark: 5, languageMark: 7, totalMark: 12, contentReason: 'SECRET', quotedErrorCandidatesRequireTeacherReview: [{ quote: 'x' }], strengths: [{ quote: 'a', advice: 'b', mark: 9 }], improvements: [] }, marks: { total: 12 } };
   const clean = parseFeedback(dirty); const text = JSON.stringify(clean);
-  assert.ok(!/Mark|SECRET|quotedError|"mark"|total/i.test(text)); assert.deepEqual(Object.keys(clean).sort(), ['improvements', 'lengthNotice', 'nextStep', 'partial', 'strengths']);
+  assert.ok(!/Mark|SECRET|quotedError|"mark"|reason/i.test(text)); assert.deepEqual(Object.keys(clean).sort(), ['improvements', 'lengthNotice', 'nextStep', 'partial', 'scores', 'strengths']);
+  assert.deepEqual(clean.scores, { content: 5, language: 7, total: 12 }); assert.deepEqual(Object.keys(clean.scores), ['content', 'language', 'total']);
+  for (const bad of [{ content: 7, language: 5, total: 12 }, { content: 5, language: 7, total: 13 }, { content: 5.5, language: 7, total: 12.5 }, { content: '5', language: 7, total: 12 }, 'nine', null])
+    assert.equal(parseFeedback({ feedback: { ...good.feedback, scores: bad } }).scores, null, JSON.stringify(bad));
+  assert.equal(parseFeedback({ feedback: { ...good.feedback, partial: true, scores: { content: 5, language: 7, total: 12 } } }).scores, null);
 });
 test('a partial or empty result is shown as partial and carries no feedback', () => {
-  assert.deepEqual(parseFeedback({ feedback: { partial: true, strengths: [{ quote: 'a', advice: 'b' }], improvements: [], nextStep: 'x' } }), { partial: true, strengths: [], improvements: [], nextStep: '', lengthNotice: null });
+  assert.deepEqual(parseFeedback({ feedback: { partial: true, strengths: [{ quote: 'a', advice: 'b' }], improvements: [], nextStep: 'x' } }), { partial: true, strengths: [], improvements: [], nextStep: '', lengthNotice: null, scores: null });
   assert.equal(parseFeedback({ feedback: { partial: false, strengths: [], improvements: [], nextStep: 'x' } }).partial, true);
   assert.equal(parseFeedback({ nothing: true }), null); assert.equal(parseFeedback({ feedback: { partial: 'no' } }), null);
 });
@@ -75,7 +79,7 @@ test('Review Writing adapter keeps the chosen or teacher-set prompt and adds the
 });
 test('the privacy notice says what really happens and makes no claims the code does not keep', () => {
   const all = [PRIVACY_SUMMARY, ...PRIVACY_DETAIL, PRIVACY_CONSENT].join(' ');
-  assert.match(all, /does not save/i); assert.match(all, /autosave/i); assert.match(all, /AI/); assert.match(all, /personal details/i); assert.match(all, /no marks/i); assert.match(all, /mistakes/i); assert.doesNotMatch(all, /anonymous|guarantee|100%|never stored by Cloudflare|encrypted at rest/i);
+  assert.match(all, /does not save/i); assert.match(all, /autosave/i); assert.match(all, /AI/); assert.match(all, /personal details/i); assert.match(all, /estimated score/i); assert.match(all, /not an official/i); assert.match(all, /mistakes/i); assert.doesNotMatch(all, /anonymous|guarantee|100%|never stored by Cloudflare|encrypted at rest/i);
 });
 test('nothing in the student feedback code touches storage, analytics, the database client or logging', () => {
   for (const file of ['src/assessor/student-client.js', 'src/assessor/student-feedback.js', 'src/assessor/writing-app-adapters.js', 'src/assessor/email-feedback.js', 'src/assessor/review-feedback.js', 'assessor-prototype/student-feedback.js']) {

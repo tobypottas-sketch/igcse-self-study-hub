@@ -3,7 +3,7 @@ export const PRIVACY_SUMMARY = 'Your writing and the task are sent securely to a
 export const PRIVACY_DETAIL = [
   'Only the task and the writing in the box are sent. Your name, class and account details are not.',
   'Do not type your full name, email address, phone number or other personal details in your writing.',
-  'Nothing is added to your progress records, and no marks are shown. Your teacher cannot see this feedback.',
+  'Nothing is added to your progress records. You will see an AI-estimated score that is not an official mark and is not saved. Your teacher cannot see this feedback.',
   'The autosaved draft stays on this device only, until you clear it or your browser data.',
   'AI can make mistakes. Use the feedback as advice and check it with your teacher.'
 ];
