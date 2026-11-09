@@ -1,0 +1,32 @@
+/* Unit background themes (decorative only). See src/vocabulary/unit-themes.js for the unit -> theme mapping.
+   The artwork is painted as two extra layers of the page's own background (the body gradient is kept underneath), so it
+   adds no elements, takes no space, cannot be focused, clicked or announced, and can never change layout or scrolling.
+   It sits in the side margins of wide screens, or a bottom corner on small ones, and is painted below every card and control.
+   Its strength (about 8%) is built into the SVG files. */
+body:has(.vocab-shell[data-unit-theme="sports-free-time"]){
+  background-color:var(--c-bg);
+  /* small screens: one small motif tucked into the bottom-right corner */
+  background-image:
+    url("assets/vocabulary/themes/sports-free-time-accent.svg"),
+    radial-gradient(circle at 8% 0%,rgba(37,174,182,.09),transparent 28%),
+    radial-gradient(circle at 94% 0%,rgba(46,115,214,.08),transparent 30%);
+  background-repeat:no-repeat,no-repeat,no-repeat;
+  background-attachment:fixed,scroll,scroll;
+  background-position:right -26px bottom -14px,0 0,0 0;
+  background-size:150px 125px,auto,auto;
+}
+/* Wide screens: the shell is centred (<=940px), so the side margins are free. A main motif bleeds off the lower-left edge, the accent sits upper-right. */
+@media (min-width:1240px){
+  body:has(.vocab-shell[data-unit-theme="sports-free-time"]){
+    background-image:
+      url("assets/vocabulary/themes/sports-free-time-main.svg"),
+      url("assets/vocabulary/themes/sports-free-time-accent.svg"),
+      radial-gradient(circle at 8% 0%,rgba(37,174,182,.09),transparent 28%),
+      radial-gradient(circle at 94% 0%,rgba(46,115,214,.08),transparent 30%);
+    background-repeat:no-repeat,no-repeat,no-repeat,no-repeat;
+    background-attachment:fixed,fixed,scroll,scroll;
+    background-position:left -70px bottom 20px,right 6px top 132px,0 0,0 0;
+    background-size:min(300px,calc((100vw - 940px) / 2 + 40px)) auto,min(210px,calc((100vw - 940px) / 2 - 28px)) auto,auto,auto;
+  }
+}
+@media print,(forced-colors:active){body:has(.vocab-shell[data-unit-theme]){background-image:none!important}}
