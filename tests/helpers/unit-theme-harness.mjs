@@ -176,7 +176,7 @@ const PAGE_CASES = [
   { name: 'home', url: '/home', art: 'vocabulary-home-background.svg' },
   { name: 'unit 1 overview', url: '/overview?u=1', art: 'sports-free-time-overview.svg', compact: 'sports-free-time-overview-compact.svg' },
   { name: 'unit 2 overview', url: '/overview?u=2', art: 'digital-life-overview.svg', compact: 'digital-life-overview-compact.svg' },
-  { name: 'unit 3 overview', url: '/overview?u=3', art: null }, { name: 'unit 4 overview', url: '/overview?u=4', art: null }
+  { name: 'unit 3 overview', url: '/overview?u=3', art: 'food-and-drink-overview.svg', compact: 'food-and-drink-overview-compact.svg' }, { name: 'unit 4 overview', url: '/overview?u=4', art: null }
 ];
 export async function checkPageBackgrounds() {
   const { server, origin } = await serve();
