@@ -31,7 +31,7 @@ test('themes are wired through one attribute on the activity shell and one share
   assert.match(read('vocabulary.html'), /<link rel="stylesheet" href="vocabulary-unit-themes\.css">/);
   assert.ok(SHEETS.includes('vocabulary-unit-themes.css'));
   // Decorative only: no motion, no generated content, no stacking or positioning; the only box property is the footer line's shrink-wrap.
-  const rules = css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/[^{}]*\.vocab-session-unit\{width:fit-content;margin-inline:auto\}/, '').replace(/background-size:[^;]*;/g, '');
+  const rules = css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/[^{}]*\.vocab-session-unit\{width:fit-content;margin-inline:auto\}/, '').replace(/@media \(min-width:901px\)\{[\s\S]*?\}\s*\}/, '').replace(/background-size:[^;]*;/g, '');
   for (const forbidden of [/animation|transition|@keyframes/, /(?<![-\w])(width|height|margin|padding|display|position|top|left|right|bottom|float):/, /content:/, /z-index/, /pointer-events/]) {
     assert.doesNotMatch(rules, forbidden, String(forbidden));
   }

@@ -25,3 +25,31 @@ body:has(.vocab-shell[data-unit-theme]){
 .vocab-shell[data-unit-theme] .vocab-session-unit{background:#f5fafb;border-radius:8px;box-shadow:0 0 0 4px #f5fafb}
 .vocab-shell[data-unit-theme] .vocab-session-unit{width:fit-content;margin-inline:auto}
 @media print,(forced-colors:active){body:has(.vocab-shell[data-unit-theme]){background-image:none!important}}
+/* Page backgrounds for the two screens above the activities (decorative only): the student homepage (understated academic art) and a unit overview
+   (a larger, composed illustration; pilot: Unit 1 only, see UNIT_OVERVIEW_THEMES). Same mechanism as the wallpapers: one extra layer of the page's own
+   background, painted behind the opaque cards. The art is sized like `cover` from viewport units and fixed to the viewport, so it frames the window
+   instead of stretching over a tall page; on narrow screens only its calm centre shows. */
+body:has(.vocab-shell--home){--page-art:url("assets/vocabulary/themes/vocabulary-home-background.svg")}
+body:has(.vocab-shell[data-unit-overview="sports-free-time"]){--page-art:url("assets/vocabulary/themes/sports-free-time-overview.svg")}
+body:has(.vocab-shell--home),body:has(.vocab-shell[data-unit-overview]){
+  background-color:var(--c-bg);
+  background-image:
+    var(--page-art),
+    radial-gradient(circle at 8% 0%,rgba(37,174,182,.09),transparent 28%),
+    radial-gradient(circle at 94% 0%,rgba(46,115,214,.08),transparent 30%);
+  background-repeat:no-repeat,no-repeat,no-repeat;
+  background-position:50% 50%,0 0,0 0;
+  background-size:max(100vw,177.78vh) auto,auto,auto;
+  background-attachment:fixed,scroll,scroll;
+}
+/* Narrow screens have no free margins, so the overview keeps only the soft hills and washes (no objects). */
+@media (max-width:900px){
+  body:has(.vocab-shell[data-unit-overview="sports-free-time"]){--page-art:url("assets/vocabulary/themes/sports-free-time-overview-compact.svg")}
+}
+/* Loose text on the overview (the section headings sit directly on the page) gets the same solid plate as on the activity pages, so the artwork never runs through letters. */
+@media (min-width:901px){
+  .vocab-shell[data-unit-overview] .vocab-pathways__head > *,
+  .vocab-shell[data-unit-overview] .vocab-support__head > *{width:fit-content;background:#f5fafb;border-radius:8px;box-shadow:0 0 0 4px #f5fafb}
+}
+@media print,(forced-colors:active){body:has(.vocab-shell--home),body:has(.vocab-shell[data-unit-overview]){background-image:none!important}}
+
