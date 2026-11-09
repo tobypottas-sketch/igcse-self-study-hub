@@ -1,10 +1,11 @@
 // Unit background themes: purely decorative page-edge artwork behind the activity screens.
 //
 // To theme another unit: add `<unitNumber>: '<theme id>'` below, drop its seamless repeating wallpaper SVG in assets/vocabulary/themes/
-// (<id>-wallpaper.svg) and add one block for the id in vocabulary-unit-themes.css. No activity screen needs editing.
+// (<id>-wallpaper.svg) and add one `--unit-wallpaper` line for the id in vocabulary-unit-themes.css. No activity screen needs editing.
 // Units without an entry keep the plain background. This file never reads or changes progress, scoring or saved state.
 export const UNIT_THEMES = Object.freeze({
-  1: 'sports-free-time'
+  1: 'sports-free-time',
+  2: 'digital-life'
 });
 
 export function unitThemeId(unitNumber) {

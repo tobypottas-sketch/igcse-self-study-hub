@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" width="420" height="420" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.38">
+<defs>
+<g id="phone"><rect x="-9" y="-18" width="18" height="36" rx="4"/><path d="M-3-14H3"/><circle cy="13" r="1.4"/></g>
+<g id="tablet"><rect x="-18" y="-13" width="36" height="26" rx="3"/><circle cx="14" r="1.2"/></g>
+<g id="laptop"><rect x="-15" y="-14" width="30" height="20" rx="2"/><path d="M-22 12H22M-19 12-15 6M19 12 15 6"/></g>
+<g id="keyboard"><rect x="-22" y="-10" width="44" height="20" rx="3"/><path d="M-16-4h2M-10-4h2M-4-4h2M2-4h2M8-4h2M14-4h2M-16 2h2M-10 2h2M-4 2h2M2 2h2M8 2h2M14 2h2M-12 7h24"/></g>
+<g id="wifi"><path d="M-18-4A25 25 0 0 1 18-4M-12 2A17 17 0 0 1 12 2M-6 8A8 8 0 0 1 6 8"/><circle cy="14" r="1.6"/></g>
+<g id="earbuds"><circle cx="-10" cy="-8" r="6"/><path d="M-14-3V14a3 3 0 0 0 6 0V-3"/><circle cx="10" cy="-8" r="6"/><path d="M6-3V14a3 3 0 0 0 6 0V-3"/></g>
+<g id="chat"><path d="M-20-14H20V8H-4L-12 16V8H-20Z"/><path d="M-10-3h.01M0-3h.01M10-3h.01"/></g>
+<g id="camera"><rect x="-20" y="-10" width="40" height="26" rx="4"/><circle cy="3" r="8"/><path d="M-8-10-5-16H5L8-10"/></g>
+<g id="videocall"><rect x="-20" y="-10" width="26" height="20" rx="3"/><path d="M6-3 20-10V10L6 3Z"/></g>
+<g id="cloud"><path d="M-14 12A8 8 0 0 1-14-4A12 12 0 0 1 8-8A10 10 0 0 1 16 12Z"/><path d="M0 8V-1M-4 3 0-1 4 3"/></g>
+<g id="mouse"><path d="M-10-4C-10-14 10-14 10-4V12C10 24-10 24-10 12Z"/><path d="M0-10V-2M-10-2H10"/></g>
+<g id="controller"><path d="M-20 6C-20-6-14-10-8-10H8C14-10 20-6 20 6 20 12 14 12 10 6H-10C-14 12-20 12-20 6Z"/><path d="M-15 0H-9M-12-3V3"/><circle cx="11" cy="-1" r="1.3"/><circle cx="15" cy="2" r="1.3"/></g>
+<g id="envelope"><rect x="-20" y="-13" width="40" height="26" rx="3"/><path d="M-20-13 0 3 20-13"/></g>
+<g id="bell"><path d="M-10 8V-2A10 10 0 0 1 10-2V8L13 12H-13ZM-4 16a4 4 0 0 0 8 0"/><circle cx="10" cy="-12" r="3"/></g>
+<g id="chip"><rect x="-9" y="-9" width="18" height="18" rx="2"/><path d="M-4-9V-15M4-9V-15M-4 9V15M4 9V15M-9-4H-15M-9 4H-15M9-4H15M9 4H15"/></g>
+</defs>
+<use href="#keyboard" transform="translate(42 42) rotate(26)" stroke="#2f9a9c"/>
+<use href="#chat" transform="translate(126 42) rotate(-24)" stroke="#6f8fa8"/>
+<use href="#tablet" transform="translate(210 42) rotate(16)" stroke="#2f9a9c"/>
+<use href="#wifi" transform="translate(294 42) rotate(0)" stroke="#6f8fa8"/>
+<use href="#tablet" transform="translate(378 42) rotate(8)" stroke="#2f9a9c"/>
+<use href="#phone" transform="translate(42 126) rotate(0)" stroke="#6f8fa8"/>
+<use href="#envelope" transform="translate(126 126) rotate(-6)" stroke="#2f9a9c"/>
+<use href="#keyboard" transform="translate(210 126) rotate(16)" stroke="#6f8fa8"/>
+<use href="#videocall" transform="translate(294 126) rotate(-6)" stroke="#2f9a9c"/>
+<use href="#mouse" transform="translate(378 126) rotate(0)" stroke="#6f8fa8"/>
+<use href="#videocall" transform="translate(42 210) rotate(-6)" stroke="#2f9a9c"/>
+<use href="#cloud" transform="translate(126 210) rotate(26)" stroke="#6f8fa8"/>
+<use href="#camera" transform="translate(210 210) rotate(-6)" stroke="#2f9a9c"/>
+<use href="#wifi" transform="translate(294 210) rotate(-6)" stroke="#6f8fa8"/>
+<use href="#controller" transform="translate(378 210) rotate(-6)" stroke="#2f9a9c"/>
+<use href="#camera" transform="translate(42 294) rotate(-14)" stroke="#6f8fa8"/>
+<use href="#laptop" transform="translate(126 294) rotate(0)" stroke="#2f9a9c"/>
+<use href="#bell" transform="translate(210 294) rotate(-24)" stroke="#6f8fa8"/>
+<use href="#chip" transform="translate(294 294) rotate(0)" stroke="#2f9a9c"/>
+<use href="#earbuds" transform="translate(378 294) rotate(26)" stroke="#6f8fa8"/>
+<use href="#phone" transform="translate(42 378) rotate(16)" stroke="#2f9a9c"/>
+<use href="#earbuds" transform="translate(126 378) rotate(0)" stroke="#6f8fa8"/>
+<use href="#chat" transform="translate(210 378) rotate(26)" stroke="#2f9a9c"/>
+<use href="#envelope" transform="translate(294 378) rotate(8)" stroke="#6f8fa8"/>
+<use href="#cloud" transform="translate(378 378) rotate(-6)" stroke="#2f9a9c"/>
+<circle cx="84" cy="84" r="1" stroke="#2f9a9c" fill="#2f9a9c"/>
+<path d="M165 84H171M168 81V87" stroke="#6f8fa8"/>
+<circle cx="252" cy="84" r="2" stroke="#2f9a9c"/>
+<circle cx="336" cy="84" r="1" stroke="#6f8fa8" fill="#6f8fa8"/>
+<path d="M81 168H87M84 165V171" stroke="#6f8fa8"/>
+<circle cx="168" cy="168" r="2" stroke="#2f9a9c"/>
+<circle cx="252" cy="168" r="1" stroke="#6f8fa8" fill="#6f8fa8"/>
+<path d="M333 168H339M336 165V171" stroke="#2f9a9c"/>
+<circle cx="84" cy="252" r="2" stroke="#2f9a9c"/>
+<circle cx="168" cy="252" r="1" stroke="#6f8fa8" fill="#6f8fa8"/>
+<path d="M249 252H255M252 249V255" stroke="#2f9a9c"/>
+<circle cx="336" cy="252" r="2" stroke="#6f8fa8"/>
+<circle cx="84" cy="336" r="1" stroke="#6f8fa8" fill="#6f8fa8"/>
+<path d="M165 336H171M168 333V339" stroke="#2f9a9c"/>
+<circle cx="252" cy="336" r="2" stroke="#6f8fa8"/>
+<circle cx="336" cy="336" r="1" stroke="#2f9a9c" fill="#2f9a9c"/>
+</svg>
