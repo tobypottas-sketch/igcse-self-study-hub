@@ -2,10 +2,13 @@
    A theme is a seamless, repeating SVG wallpaper painted as one extra layer of the page's own background; the existing
    light body gradient and background colour stay underneath. It adds no elements, takes no space, cannot be focused, clicked or
    announced, and cannot change layout or scrolling. Opaque cards and controls always paint over it. Strength (~38%) is built into the SVG. */
-body:has(.vocab-shell[data-unit-theme="sports-free-time"]){
+/* One wallpaper per theme: a themed page only has to name its tile; everything else is shared. */
+body:has(.vocab-shell[data-unit-theme="sports-free-time"]){--unit-wallpaper:url("assets/vocabulary/themes/sports-free-time-wallpaper.svg")}
+body:has(.vocab-shell[data-unit-theme="digital-life"]){--unit-wallpaper:url("assets/vocabulary/themes/digital-life-wallpaper.svg")}
+body:has(.vocab-shell[data-unit-theme]){
   background-color:var(--c-bg);
   background-image:
-    url("assets/vocabulary/themes/sports-free-time-wallpaper.svg"),
+    var(--unit-wallpaper),
     radial-gradient(circle at 8% 0%,rgba(37,174,182,.09),transparent 28%),
     radial-gradient(circle at 94% 0%,rgba(46,115,214,.08),transparent 30%);
   background-repeat:repeat,no-repeat,no-repeat;
@@ -14,7 +17,7 @@ body:has(.vocab-shell[data-unit-theme="sports-free-time"]){
 }
 /* Phones: a slightly smaller tile keeps the icon density in proportion. */
 @media (max-width:600px){
-  body:has(.vocab-shell[data-unit-theme="sports-free-time"]){background-size:340px 340px,auto,auto}
+  body:has(.vocab-shell[data-unit-theme]){background-size:340px 340px,auto,auto}
 }
 /* Plain text that sits directly on the page (not inside a card) gets a near-opaque plate in the page colour, so the wallpaper never runs through its letters.
    Backgrounds and box-shadows do not affect layout; the footer line is shrink-wrapped to its text (it stays centred). */
