@@ -19,6 +19,6 @@ export function unitThemeAttr(unitNumber) {
 }
 
 // Unit OVERVIEW pages (the screen with the six pathways) are a separate, larger illustration, not the repeating activity wallpaper.
-// Pilot: Unit 1 only. A new overview needs one line here, an `<id>-overview.svg` in assets/vocabulary/themes/ and one `--unit-overview` line in the CSS.
-export const UNIT_OVERVIEW_THEMES = Object.freeze({ 1: 'sports-free-time' });
+// Units 1 and 2 so far. A new overview needs one line here, an `<id>-overview.svg` in assets/vocabulary/themes/ and one `--unit-overview` line in the CSS.
+export const UNIT_OVERVIEW_THEMES = Object.freeze({ 1: 'sports-free-time', 2: 'digital-life' });
 export function unitOverviewAttr(unitNumber) { const id = UNIT_OVERVIEW_THEMES[Number(unitNumber)]; return id ? ` data-unit-overview="${id}"` : ''; }
