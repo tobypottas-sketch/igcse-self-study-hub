@@ -40,7 +40,7 @@ test('themes are wired through one attribute on the activity shell and one share
   const named = [...css.matchAll(/data-unit-theme="([^"]+)"\]\)\{--unit-wallpaper:url\("([^"]+)"\)\}/g)].map(m => [m[1], m[2]]);
   assert.deepEqual(named.map(([id]) => id).sort(), Object.values(THEMES).sort());
   for (const [id, file] of named) assert.equal(file, wallpaper(id), id);
-  assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ''), /data-unit-theme="(?!sports-free-time"|digital-life")/);
+  assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ''), /data-unit-theme="(?!sports-free-time"|digital-life"|food-and-drink")/);
   assert.match(css, /prefers|forced-colors/);
 });
 
