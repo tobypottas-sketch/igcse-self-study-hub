@@ -6,6 +6,7 @@
 body:has(.vocab-shell[data-unit-theme="sports-free-time"]){--unit-wallpaper:url("assets/vocabulary/themes/sports-free-time-wallpaper.svg")}
 body:has(.vocab-shell[data-unit-theme="digital-life"]){--unit-wallpaper:url("assets/vocabulary/themes/digital-life-wallpaper.svg")}
 body:has(.vocab-shell[data-unit-theme="food-and-drink"]){--unit-wallpaper:url("assets/vocabulary/themes/food-and-drink-wallpaper.svg")}
+body:has(.vocab-shell[data-unit-theme="transport"]){--unit-wallpaper:url("assets/vocabulary/themes/transport-wallpaper.svg")}
 body:has(.vocab-shell[data-unit-theme]){
   background-color:var(--c-bg);
   background-image:
@@ -34,6 +35,7 @@ body:has(.vocab-shell--home){--page-art:url("assets/vocabulary/themes/vocabulary
 body:has(.vocab-shell[data-unit-overview="sports-free-time"]){--page-art:url("assets/vocabulary/themes/sports-free-time-overview.svg")}
 body:has(.vocab-shell[data-unit-overview="digital-life"]){--page-art:url("assets/vocabulary/themes/digital-life-overview.svg")}
 body:has(.vocab-shell[data-unit-overview="food-and-drink"]){--page-art:url("assets/vocabulary/themes/food-and-drink-overview.svg")}
+body:has(.vocab-shell[data-unit-overview="transport"]){--page-art:url("assets/vocabulary/themes/transport-overview.svg")}
 body:has(.vocab-shell--home),body:has(.vocab-shell[data-unit-overview]){
   background-color:var(--c-bg);
   background-image:
@@ -50,6 +52,7 @@ body:has(.vocab-shell--home),body:has(.vocab-shell[data-unit-overview]){
   body:has(.vocab-shell[data-unit-overview="sports-free-time"]){--page-art:url("assets/vocabulary/themes/sports-free-time-overview-compact.svg")}
   body:has(.vocab-shell[data-unit-overview="digital-life"]){--page-art:url("assets/vocabulary/themes/digital-life-overview-compact.svg")}
   body:has(.vocab-shell[data-unit-overview="food-and-drink"]){--page-art:url("assets/vocabulary/themes/food-and-drink-overview-compact.svg")}
+  body:has(.vocab-shell[data-unit-overview="transport"]){--page-art:url("assets/vocabulary/themes/transport-overview-compact.svg")}
 }
 /* Loose text on the overview (the section headings sit directly on the page) gets the same solid plate as on the activity pages, so the artwork never runs through letters. */
 @media (min-width:901px){

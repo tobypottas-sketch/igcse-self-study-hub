@@ -12,18 +12,19 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const css = read('vocabulary-unit-themes.css').replace(/\/\*[\s\S]*?\*\//g, '');
 const views = read('src/vocabulary/views.js');
 const art = file => `assets/vocabulary/themes/${file}`;
-const FILES = ['vocabulary-home-background.svg', 'sports-free-time-overview.svg', 'sports-free-time-overview-compact.svg', 'digital-life-overview.svg', 'digital-life-overview-compact.svg', 'food-and-drink-overview.svg', 'food-and-drink-overview-compact.svg'];
+const FILES = ['vocabulary-home-background.svg', 'sports-free-time-overview.svg', 'sports-free-time-overview-compact.svg', 'digital-life-overview.svg', 'digital-life-overview-compact.svg', 'food-and-drink-overview.svg', 'food-and-drink-overview-compact.svg', 'transport-overview.svg', 'transport-overview-compact.svg'];
 
-test('Units 1 to 3 have an overview illustration; every other overview stays plain', () => {
-  assert.deepEqual({ ...UNIT_OVERVIEW_THEMES }, { 1: 'sports-free-time', 2: 'digital-life', 3: 'food-and-drink' });
+test('Units 1 to 4 have an overview illustration; every other overview stays plain', () => {
+  assert.deepEqual({ ...UNIT_OVERVIEW_THEMES }, { 1: 'sports-free-time', 2: 'digital-life', 3: 'food-and-drink', 4: 'transport' });
+  assert.equal(unitOverviewAttr(4), ' data-unit-overview="transport"');
   assert.equal(unitOverviewAttr(3), ' data-unit-overview="food-and-drink"');
   assert.equal(unitOverviewAttr(2), ' data-unit-overview="digital-life"');
   assert.equal(unitOverviewAttr(1), ' data-unit-overview="sports-free-time"');
-  for (const unit of [4, 5, 10, 0, null, undefined, 'x']) assert.equal(unitOverviewAttr(unit), '', `unit ${unit}`);
+  for (const unit of [5, 6, 10, 0, null, undefined, 'x']) assert.equal(unitOverviewAttr(unit), '', `unit ${unit}`);
   assert.equal((views.match(/unitOverviewAttr\(/g) ?? []).length, 1, 'one use in views.js');
   assert.match(views, /<main class="vocab-shell"\$\{unitOverviewAttr\(unitNumber\)\}><header class="vocab-topbar vocab-topbar--unit">/);
   // The activity wallpapers keep their own attribute and mapping.
-  assert.deepEqual({ ...UNIT_THEMES }, { 1: 'sports-free-time', 2: 'digital-life', 3: 'food-and-drink' });
+  assert.deepEqual({ ...UNIT_THEMES }, { 1: 'sports-free-time', 2: 'digital-life', 3: 'food-and-drink', 4: 'transport' });
 });
 
 test('the page backgrounds extend the one theme stylesheet, are light, decorative-only and hidden for print / forced colours', () => {
@@ -34,6 +35,8 @@ test('the page backgrounds extend the one theme stylesheet, are light, decorativ
   assert.match(css, /body:has\(\.vocab-shell\[data-unit-overview="digital-life"\]\)\{--page-art:url\("assets\/vocabulary\/themes\/digital-life-overview-compact\.svg"\)\}/);
   assert.match(css, /body:has\(\.vocab-shell\[data-unit-overview="food-and-drink"\]\)\{--page-art:url\("assets\/vocabulary\/themes\/food-and-drink-overview\.svg"\)\}/);
   assert.match(css, /body:has\(\.vocab-shell\[data-unit-overview="food-and-drink"\]\)\{--page-art:url\("assets\/vocabulary\/themes\/food-and-drink-overview-compact\.svg"\)\}/);
+  assert.match(css, /body:has\(\.vocab-shell\[data-unit-overview="transport"\]\)\{--page-art:url\("assets\/vocabulary\/themes\/transport-overview\.svg"\)\}/);
+  assert.match(css, /body:has\(\.vocab-shell\[data-unit-overview="transport"\]\)\{--page-art:url\("assets\/vocabulary\/themes\/transport-overview-compact\.svg"\)\}/);
   assert.match(css, /background-color:var\(--c-bg\)/);
   assert.match(css, /print,\(forced-colors:active\)\)?\{body:has\(\.vocab-shell--home\),body:has\(\.vocab-shell\[data-unit-overview\]\)\{background-image:none!important\}/);
   const block = css.slice(css.indexOf('--page-art:url("assets/vocabulary/themes/vocabulary-home'));
@@ -67,7 +70,7 @@ test('the Digital Life and Food and Drink overviews match the approved Unit 1 ov
   const facts = svg => ({ viewBox: svg.match(/viewBox="([^"]+)"/)[1], opacity: svg.match(/<svg[^>]*\sopacity="([\d.]+)"/)?.[1], widths: [...new Set([...svg.matchAll(/stroke-width="([\d.]+)"/g)].map(m => Number(m[1])))].filter(w => w >= 3) });
   const palette = svg => new Set([...svg.matchAll(/(?:stroke|fill)="(#[0-9a-f]{6})"/gi)].map(m => m[1].toLowerCase()));
   const a = facts(sports);
-  for (const id of ['digital-life', 'food-and-drink']) {
+  for (const id of ['digital-life', 'food-and-drink', 'transport']) {
     const overview = read(art(`${id}-overview.svg`)), wall = read(art(`${id}-wallpaper.svg`)), b = facts(overview);
     assert.equal(b.viewBox, a.viewBox, id); assert.equal(b.opacity, a.opacity, id);
     assert.ok(Math.max(...b.widths) <= Math.max(...a.widths) && Math.min(...b.widths) >= 2.2, `${id} stroke widths ${b.widths} vs ${a.widths}`);
@@ -87,4 +90,6 @@ browserTest('homepage and Unit 1 overview show their art on desktop, tablet and 
   assert.equal(seen['390/unit 2 overview'], 'digital-life-overview-compact.svg');
   assert.equal(seen['1440/unit 3 overview'], 'food-and-drink-overview.svg');
   assert.equal(seen['390/unit 3 overview'], 'food-and-drink-overview-compact.svg');
+  assert.equal(seen['1440/unit 4 overview'], 'transport-overview.svg');
+  assert.equal(seen['390/unit 4 overview'], 'transport-overview-compact.svg');
 });
