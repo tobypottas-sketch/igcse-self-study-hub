@@ -21,7 +21,7 @@ export const PATHWAYS = {
   precision_use: [others.find(q => q.type === 'gap_fill_choice'), 'Precision & Use'], spelling_recall: [others.find(q => q.type === 'type_word_from_definition'), 'Spelling & Recall']
 };
 export const VIEWPORTS = [[1440, 900], [820, 1100], [390, 844], [320, 640]];
-const FEEDBACK_PATHWAYS = new Set(['spelling_recall']); // the feedback box is the other content that must stay clear
+const FEEDBACK_PATHWAYS = new Set(['meaning', 'spelling_recall']); // the feedback box is the other content that must stay clear
 const links = [...read('vocabulary.html').matchAll(/<link rel="stylesheet" href="([^"]+)">/g)].map(m => `<link rel="stylesheet" href="/${m[1]}">`).join('');
 const markup = (unit, pathwayId, feedback) => {
   const [question, label] = PATHWAYS[pathwayId], holder = { innerHTML: '' };
