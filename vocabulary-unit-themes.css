@@ -31,6 +31,7 @@ body:has(.vocab-shell[data-unit-theme]){
    instead of stretching over a tall page; on narrow screens only its calm centre shows. */
 body:has(.vocab-shell--home){--page-art:url("assets/vocabulary/themes/vocabulary-home-background.svg")}
 body:has(.vocab-shell[data-unit-overview="sports-free-time"]){--page-art:url("assets/vocabulary/themes/sports-free-time-overview.svg")}
+body:has(.vocab-shell[data-unit-overview="digital-life"]){--page-art:url("assets/vocabulary/themes/digital-life-overview.svg")}
 body:has(.vocab-shell--home),body:has(.vocab-shell[data-unit-overview]){
   background-color:var(--c-bg);
   background-image:
@@ -45,6 +46,7 @@ body:has(.vocab-shell--home),body:has(.vocab-shell[data-unit-overview]){
 /* Narrow screens have no free margins, so the overview keeps only the soft hills and washes (no objects). */
 @media (max-width:900px){
   body:has(.vocab-shell[data-unit-overview="sports-free-time"]){--page-art:url("assets/vocabulary/themes/sports-free-time-overview-compact.svg")}
+  body:has(.vocab-shell[data-unit-overview="digital-life"]){--page-art:url("assets/vocabulary/themes/digital-life-overview-compact.svg")}
 }
 /* Loose text on the overview (the section headings sit directly on the page) gets the same solid plate as on the activity pages, so the artwork never runs through letters. */
 @media (min-width:901px){
