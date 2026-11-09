@@ -27,23 +27,29 @@ test('the theme is wired through one attribute on the activity shell and one sty
   assert.match(views, /vocab-shell vocab-shell--session"\$\{unitThemeAttr\(unitNumber\)\}/);
   assert.match(read('vocabulary.html'), /<link rel="stylesheet" href="vocabulary-unit-themes\.css">/);
   assert.ok(SHEETS.includes('vocabulary-unit-themes.css'));
-  // Decorative only: no motion, no layout properties, no pointer handling, only ever scoped to a themed shell.
-  for (const forbidden of [/animation|transition|@keyframes/, /(?<![-\w])(width|height|margin|padding|display|position):/, /content:/, /z-index/]) {
-    assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/background-size:[^;]*;/g, ''), forbidden, String(forbidden));
+  // Decorative only: no motion, no generated content, no stacking or positioning; the only box property is the footer line's shrink-wrap.
+  const rules = css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/[^{}]*\.vocab-session-unit\{width:fit-content;margin-inline:auto\}/, '').replace(/background-size:[^;]*;/g, '');
+  for (const forbidden of [/animation|transition|@keyframes/, /(?<![-\w])(width|height|margin|padding|display|position|top|left|right|bottom|float):/, /content:/, /z-index/, /pointer-events/]) {
+    assert.doesNotMatch(rules, forbidden, String(forbidden));
   }
+  assert.match(css, /background-repeat:\s*repeat/);
   assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ''), /data-unit-theme="(?!sports-free-time")/);
   assert.match(css, /prefers|forced-colors/);
 });
 
-test('the SVG artwork is original, lightweight, self-contained and faint', () => {
-  for (const name of ['main', 'accent']) {
-    const file = `assets/vocabulary/themes/sports-free-time-${name}.svg`;
-    const svg = read(file);
-    assert.ok(svg.length < 4000, `${file} is ${svg.length} bytes`);
-    assert.doesNotMatch(svg, /<script|<image|href=|xlink|<style|javascript:|<text/i);
-    const opacity = Number(svg.match(/<svg[^>]*\sopacity="([\d.]+)"/)?.[1]);
-    assert.ok(opacity >= 0.03 && opacity <= 0.1, `${file} opacity ${opacity}`);
+test('the wallpaper tile is an original, lightweight, self-contained SVG with a light-coloured, restrained stroke', () => {
+  const file = 'assets/vocabulary/themes/sports-free-time-wallpaper.svg';
+  const svg = read(file);
+  assert.ok(svg.length < 8000, `${file} is ${svg.length} bytes`);
+  assert.doesNotMatch(svg, /<script|<image|xlink|<style|javascript:|<text|<foreignObject|href="(?!#)/i);
+  assert.doesNotMatch(svg, /<rect[^>]*fill="(?!none)|background/i, 'the tile carries no background fill of its own');
+  const opacity = Number(svg.match(/<svg[^>]*\sopacity="([\d.]+)"/)?.[1]);
+  assert.ok(opacity >= 0.2 && opacity <= 0.5, `opacity ${opacity}`);
+  for (const stroke of new Set([...svg.matchAll(/stroke="(#[0-9a-f]{6})"/gi)].map(m => m[1]))) {
+    const [r, g, b] = [1, 3, 5].map(i => parseInt(stroke.slice(i, i + 2), 16));
+    assert.ok(Math.max(r, g, b) > 0x60 && Math.min(r, g, b) < 0xb0 && !(r < 0x40 && g < 0x40 && b < 0x40), `stroke ${stroke} is a muted teal / blue-grey`);
   }
+  for (const old of ['main', 'accent']) assert.equal(fs.existsSync(path.join(root, `assets/vocabulary/themes/sports-free-time-${old}.svg`)), false);
 });
 
 const playwright = loadPlaywright();
@@ -93,6 +99,27 @@ async function maxDiff(page, a, b) {
   }, [a.toString('base64'), b.toString('base64')]);
 }
 
+browserTest('the wallpaper tile repeats cleanly: nothing is cut at its edges, it is evenly filled and clearly visible', async () => {
+  const { server, origin } = await serve();
+  const browser = await playwright.chromium.launch({ executablePath });
+  try {
+    const page = await browser.newPage();
+    await page.goto(`${origin}/page?u=1&p=meaning`);
+    const stats = await page.evaluate(async () => {
+      const img = new Image(); img.src = '/assets/vocabulary/themes/sports-free-time-wallpaper.svg'; await img.decode();
+      const W = 420, c = new OffscreenCanvas(W, W), g = c.getContext('2d'); g.drawImage(img, 0, 0, W, W);
+      const d = g.getImageData(0, 0, W, W).data, a = (x, y) => d[(y * W + x) * 4 + 3];
+      let edge = 0, ink = 0; const quad = [0, 0, 0, 0];
+      for (let y = 0; y < W; y++) for (let x = 0; x < W; x++) { const alpha = a(x, y); if (alpha > 0) { ink++; quad[(y >= W / 2 ? 2 : 0) + (x >= W / 2 ? 1 : 0)]++; } if (alpha > 0 && (x < 6 || y < 6 || x >= W - 6 || y >= W - 6)) edge++; }
+      return { edge, ink: ink / (W * W), quad };
+    });
+    assert.equal(stats.edge, 0, 'no stroke touches the tile edge, so tiles join without a visible seam');
+    assert.ok(stats.ink > 0.04 && stats.ink < 0.2, `ink coverage ${stats.ink}`);
+    const mean = stats.quad.reduce((x, y) => x + y) / 4;
+    for (const q of stats.quad) assert.ok(Math.abs(q - mean) / mean < 0.2, `quadrants are evenly filled ${stats.quad}`);
+  } finally { await browser.close(); server.close(); }
+});
+
 browserTest('Unit 1 shows the artwork on every pathway and viewport without touching content, layout or scrolling; Units 2 and 4 are unchanged', async () => {
   const { server, origin } = await serve();
   const browser = await playwright.chromium.launch({ executablePath });
@@ -119,18 +146,24 @@ browserTest('Unit 1 shows the artwork on every pathway and viewport without touc
         await page.goto(`${origin}/page?u=1&${q}`);
         await page.addStyleTag({ content: '*,*::before,*::after{animation:none!important;transition:none!important}' }); await page.waitForTimeout(250);
         const themed = await snapshot();
-        // The card is checked inside its 20px rounded corners and soft shadow ring (that ring is page background, not content).
-        const clips = await page.evaluate(() => [[document.querySelector('.vocab-question-card'), 24], ...[...document.querySelectorAll('.vocab-topbar > *')].map(el => [el, 0])].filter(([el]) => el).map(([el, inset]) => { const r = el.getBoundingClientRect(); return { x: Math.floor(r.x) + inset, y: Math.floor(r.y) + inset, width: Math.ceil(r.width) + 1 - 2 * inset, height: Math.ceil(r.height) + 1 - 2 * inset }; }).filter(c => c.x >= 0 && c.y >= 0 && c.width > 1 && c.height > 1));
+        // Cards and chips are checked inside their rounded corners and soft shadow ring (that ring is page background, not content).
+        const clips = await page.evaluate(() => [[document.querySelector('.vocab-question-card'), 24], ...[...document.querySelectorAll('.vocab-topbar > *')].map(el => [el, 6])].filter(([el]) => el).map(([el, inset]) => { const r = el.getBoundingClientRect(); return { x: Math.floor(r.x) + inset, y: Math.floor(r.y) + inset, width: Math.ceil(r.width) + 1 - 2 * inset, height: Math.ceil(r.height) + 1 - 2 * inset }; }).filter(c => c.x >= 0 && c.y >= 0 && c.width > 1 && c.height > 1));
         const shotsThemed = []; for (const clip of clips) shotsThemed.push(await page.screenshot({ clip: { ...clip, width: Math.min(clip.width, width - clip.x), height: Math.min(clip.height, height - clip.y) } }));
         const fullThemed = await page.screenshot();
-        await page.evaluate(() => document.querySelector('.vocab-shell').removeAttribute('data-unit-theme')); await page.waitForTimeout(100);
-        const plain = await snapshot();
+        // Same themed page with ONLY the wallpaper layer taken off (page gradient kept): isolates exactly what the artwork paints.
+        await page.evaluate(() => { const s = document.body.style; s.setProperty('background-image', 'radial-gradient(circle at 8% 0%,rgba(37,174,182,.09),transparent 28%),radial-gradient(circle at 94% 0%,rgba(46,115,214,.08),transparent 30%)', 'important'); s.setProperty('background-size', 'auto', 'important'); s.setProperty('background-repeat', 'no-repeat', 'important'); }); await page.waitForTimeout(100);
         const shotsPlain = []; for (const clip of clips) shotsPlain.push(await page.screenshot({ clip: { ...clip, width: Math.min(clip.width, width - clip.x), height: Math.min(clip.height, height - clip.y) } }));
         const fullPlain = await page.screenshot();
+        // The text plates must be solid (so the wallpaper cannot show through them).
+        const plates = await page.evaluate(() => [...document.querySelectorAll('.vocab-topbar > span, .vocab-session-unit')].map(el => getComputedStyle(el).backgroundColor));
+        for (const colour of plates) if (!/^rgb\(/.test(colour) && !/, 1\)$/.test(colour)) failures.push(`${tag}: loose text plate is not solid (${colour})`);
+        // And the plain page (theme attribute removed) is the baseline for layout and DOM.
+        await page.evaluate(() => { for (const p of ['background-image', 'background-size', 'background-repeat']) document.body.style.removeProperty(p); document.querySelector('.vocab-shell').removeAttribute('data-unit-theme'); }); await page.waitForTimeout(100);
+        const plain = await snapshot();
 
         if (themed.theme !== 'sports-free-time') failures.push(`${tag}: Unit 1 shell is not themed`);
-        if (!/sports-free-time-accent\.svg/.test(themed.bg)) failures.push(`${tag}: artwork layer missing`);
-        if (width >= 1240 && !/sports-free-time-main\.svg/.test(themed.bg)) failures.push(`${tag}: main motif missing on a wide screen`);
+        if (!/sports-free-time-wallpaper\.svg/.test(themed.bg)) failures.push(`${tag}: wallpaper layer missing`);
+        if (!/radial-gradient/.test(themed.bg)) failures.push(`${tag}: the page's light gradient was lost`);
         if (await maxDiff(cmp, fullThemed, fullPlain) <= MAX_NOISE) failures.push(`${tag}: artwork is not visible in the page at all`);
         if (themed.scrollW > themed.clientW) failures.push(`${tag}: horizontal overflow`);
         for (const key of ['scrollH', 'shell', 'card', 'controls', 'nodes']) if (JSON.stringify(themed[key]) !== JSON.stringify(plain[key])) failures.push(`${tag}: ${key} differs with the artwork (layout or DOM changed)`);
