@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { renderVocabularyQuestion } from '../../src/vocabulary/views.js';
+import { renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit } from '../../src/vocabulary/views.js';
 import { contextQuestions, otherQuestions } from './wrap-audit-harness.mjs';
 import { findChromium, loadPlaywright } from './pathway-geometry-harness.mjs';
 
@@ -29,12 +29,21 @@ const markup = (unit, pathwayId, feedback) => {
     ...(feedback ? { feedback: { correct: false, message: 'Not quite — look again at the sentence.' }, retry: true } : {}) });
   return holder.innerHTML;
 };
+// Student homepage and unit overview, rendered the way app.js does (real views, real stylesheets).
+export const UNIT_TITLES = { 1: 'Sports and Free Time', 2: 'Digital Life', 3: 'Food and Drink', 4: 'Health and Fitness' };
+const homeMarkup = () => { const holder = { innerHTML: '' }; renderVocabularyHome(holder, { displayName: 'Mina', units: Object.entries(UNIT_TITLES).map(([n, t]) => ({ unitNumber: Number(n), unitTitle: t, mastered: 0, total: 50 })), soundOn: false }); return holder.innerHTML; };
+const overviewMarkup = unit => { const holder = { innerHTML: '' }; renderVocabularyUnit(holder, { unitNumber: unit, unitTitle: UNIT_TITLES[unit] ?? `Unit ${unit}`, progress: { mastered: 0, total: 50, needsAnotherLook: 0, reviewDue: 0, stages: {} }, pathwayStates: {}, contentReady: true }); return holder.innerHTML; };
 const TYPES = { '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp' };
 export function serve() {
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://x');
     if (url.pathname === '/page') {
       const body = markup(Number(url.searchParams.get('u')), url.searchParams.get('p'), url.searchParams.get('fb') === '1');
+      res.writeHead(200, { 'content-type': 'text/html' }).end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${links}</head><body><div id="vocabularyApp">${body}</div></body></html>`);
+      return;
+    }
+    if (url.pathname === '/home' || url.pathname === '/overview') {
+      const body = url.pathname === '/home' ? homeMarkup() : overviewMarkup(Number(url.searchParams.get('u')));
       res.writeHead(200, { 'content-type': 'text/html' }).end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${links}</head><body><div id="vocabularyApp">${body}</div></body></html>`);
       return;
     }
@@ -159,4 +168,63 @@ export async function checkPlainUnits(units) {
     }
   } finally { await browser.close(); server.close(); }
   return failures;
+}
+
+// Homepage and unit-overview backgrounds: the art is present where intended, absent everywhere else, and never changes layout or reaches content.
+// Content is compared with the artwork switched off (same page, same scroll position), so only what the art itself paints can differ.
+const PAGE_CASES = [
+  { name: 'home', url: '/home', art: 'vocabulary-home-background.svg' },
+  { name: 'unit 1 overview', url: '/overview?u=1', art: 'sports-free-time-overview.svg', compact: 'sports-free-time-overview-compact.svg' },
+  { name: 'unit 2 overview', url: '/overview?u=2', art: null }, { name: 'unit 3 overview', url: '/overview?u=3', art: null }, { name: 'unit 4 overview', url: '/overview?u=4', art: null }
+];
+export async function checkPageBackgrounds() {
+  const { server, origin } = await serve();
+  const browser = await playwright.chromium.launch({ executablePath });
+  const failures = [], seen = {};
+  try {
+    for (const [width, height] of VIEWPORTS) {
+      const ctx = await browser.newContext({ viewport: { width, height } });
+      const page = await ctx.newPage(), cmp = await ctx.newPage();
+      const errors = []; page.on('pageerror', e => errors.push(e.message));
+      for (const c of PAGE_CASES) {
+        const tag = `${width}px / ${c.name}`;
+        await page.goto(origin + c.url, { waitUntil: 'networkidle' });
+        await page.addStyleTag({ content: '*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto!important}' }); await page.waitForTimeout(250);
+        const layout = () => page.evaluate(() => {
+          const rect = el => { const r = el.getBoundingClientRect(); return [r.x, r.y + scrollY, r.width, r.height].map(n => Math.round(n * 100) / 100); };
+          return { scrollW: document.documentElement.scrollWidth, clientW: document.documentElement.clientWidth, scrollH: document.documentElement.scrollHeight, nodes: document.body.getElementsByTagName('*').length,
+            boxes: [...document.querySelectorAll('.vocab-shell, .vocab-topbar, .vocab-topbar > *, .vocab-hero, .vocab-unit-hero, .vocab-unit-card, .vocab-pathway-card, .vocab-coursebook, .vocab-engage-home, .vocab-pathways__head, .vocab-support__head, button, a')].map(rect) };
+        });
+        const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundImage);
+        const expected = width <= 900 && c.compact ? c.compact : c.art;
+        if (expected) { if (!bg.includes(expected)) failures.push(`${tag}: background art ${expected} missing`); seen[`${width}/${c.name}`] = bg.match(/themes\/([\w-]+\.svg)/)?.[1]; }
+        else if (bg.includes('assets/vocabulary/themes')) failures.push(`${tag}: this page must keep the plain background but has artwork`);
+        if (!/radial-gradient/.test(bg)) failures.push(`${tag}: the page's light gradient was lost`);
+        const themed = await layout();
+        if (themed.scrollW > themed.clientW) failures.push(`${tag}: horizontal overflow`);
+        const maxY = themed.scrollH - height, positions = [...new Set([0, Math.round(maxY * 0.5), Math.max(0, maxY)])];
+        const clipsAt = () => page.evaluate(() => {
+          const sel = '.vocab-topbar > *, .vocab-hero, .vocab-unit-hero, .vocab-unit-card, .vocab-pathway-card, .vocab-coursebook, .vocab-engage-home, .vocab-route-card, .vocab-support-card, .vocab-games-entry, .vocab-pathways__head > *, .vocab-support__head > *';
+          return [...document.querySelectorAll(sel)].filter(el => !(innerWidth <= 900 && el.matches('.vocab-pathways__head > *, .vocab-support__head > *'))).map(el => { const r = el.getBoundingClientRect(); const inset = el.matches('.vocab-pathways__head > *, .vocab-support__head > *') ? 2 : el.matches('.vocab-topbar > *') ? 6 : 24;
+            const x = Math.max(0, Math.floor(r.x) + inset), y = Math.max(0, Math.floor(r.y) + inset), w = Math.min(innerWidth, Math.ceil(r.right) - inset) - x, h = Math.min(innerHeight, Math.ceil(r.bottom) - inset) - y; return { x, y, width: w, height: h }; }).filter(c => c.width > 4 && c.height > 4);
+        });
+        const withArt = [], without = [];
+        for (const y of positions) {
+          await page.evaluate(y => scrollTo(0, y), y); await page.waitForTimeout(80);
+          const clips = await clipsAt();
+          withArt.push({ y, clips, full: await page.screenshot(), shots: await Promise.all(clips.map(clip => page.screenshot({ clip }))) });
+        }
+        await page.addStyleTag({ content: 'body{background-image:radial-gradient(circle at 8% 0%,rgba(37,174,182,.09),transparent 28%),radial-gradient(circle at 94% 0%,rgba(46,115,214,.08),transparent 30%)!important;background-attachment:scroll!important;background-size:auto!important}' }); await page.waitForTimeout(100);
+        for (const y of positions) { await page.evaluate(y => scrollTo(0, y), y); await page.waitForTimeout(80); without.push({ full: await page.screenshot(), shots: await Promise.all(withArt[without.length].clips.map(clip => page.screenshot({ clip }))) }); }
+        await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(80);
+        const plain = await layout();
+        for (const key of ['scrollW', 'scrollH', 'nodes', 'boxes']) if (JSON.stringify(themed[key]) !== JSON.stringify(plain[key])) failures.push(`${tag}: ${key} differs with the artwork (layout or DOM changed)`);
+        if (expected) { const visible = (await Promise.all(withArt.map((s, i) => maxDiff(cmp, s.full, without[i].full)))).some(d => d > MAX_NOISE); if (!visible) failures.push(`${tag}: artwork is not visible at any scroll position`); }
+        for (const [i, s] of withArt.entries()) for (const [j, clip] of s.clips.entries()) { const d = await maxDiff(cmp, s.shots[j], without[i].shots[j]); if (d > MAX_NOISE) failures.push(`${tag} @${s.y}px: artwork reaches content (${clip.x},${clip.y} ${clip.width}x${clip.height}) by ${d} levels`); }
+      }
+      if (errors.length) failures.push(`${width}px: page errors ${errors.join('; ')}`);
+      await ctx.close();
+    }
+  } finally { await browser.close(); server.close(); }
+  return { failures, seen };
 }
