@@ -2548,11 +2548,15 @@ function enhanceTaskSelect(select) {
   }
   function place() {
     list.style.maxHeight = ''; list.classList.remove('is-up');
-    const row = (items[0] && items[0].offsetHeight) || 44, want = row * 6.5 + 8, HEADER = 140;
+    const row = (items[0] && items[0].offsetHeight) || 44, want = row * 6.5 + 8;
     const r = btn.getBoundingClientRect();
-    // Never scroll the document to make room: open on whichever side has more space and let the list scroll inside its own bounded box.
-    const below = window.innerHeight - r.bottom - 12, above = r.top - HEADER;
-    const up = below < Math.min(want, 200) && above > below;
+    // Never scroll the document to make room.
+    // Open downwards, directly under the selector, whenever a usable menu (3 rows) fits there; shrink the list and let it scroll inside its own box when space is tight.
+    // Open upwards only as a last resort: when even a 3-row menu does not fit below AND the room above (clear of the sticky header) is larger.
+    // Clear the page header wherever it currently is on screen (sticky or scrolled into view); it is much taller on tablets and phones than on desktop.
+    const header = document.querySelector('.app-header'), headerEdge = header ? Math.max(0, header.getBoundingClientRect().bottom) : 0;
+    const below = window.innerHeight - r.bottom - 12, above = r.top - Math.max(headerEdge, 0) - 8, usable = row * 3 + 8;
+    const up = below < usable && above > below;
     const room = Math.max(row * 2, Math.min(want, up ? above : below));
     list.style.maxHeight = Math.floor(room) + 'px'; list.classList.toggle('is-up', up);
   }
