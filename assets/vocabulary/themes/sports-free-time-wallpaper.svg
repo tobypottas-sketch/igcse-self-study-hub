@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" width="420" height="420" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.38">
+<defs>
+<g id="football"><circle r="20"/><path d="M0-8 7-3 4 6H-4L-7-3Z"/><path d="M0-8V-20M7-3 18-7M4 6 11 16M-4 6-11 16M-7-3-18-7"/></g>
+<g id="basketball"><circle r="20"/><path d="M-20 0H20M0-20V20M-14-14C-6-6-6 6-14 14M14-14C6-6 6 6 14 14"/></g>
+<g id="racket"><ellipse cy="-8" rx="12" ry="15"/><path d="M-12-8H12M0-23V7M-8-17 8 1M8-17-8 1M0 7V22M-3 17H3"/></g>
+<g id="shuttle"><path d="M-6 12a6 6 0 0 0 12 0Z"/><path d="M-6 12-14-14M6 12 14-14M0 12V-16M-14-14Q0-22 14-14M-10-2H10"/></g>
+<g id="trophy"><path d="M-12-16H12V-4A12 12 0 0 1-12-4Z"/><path d="M-12-12H-18V-6Q-18 0-12 0M12-12H18V-6Q18 0 12 0M0 8V16M-9 21H9M-6 16H6"/></g>
+<g id="whistle"><circle cx="-6" cy="4" r="11"/><circle cx="-6" cy="4" r="3"/><path d="M3-3H22V3H5M-6-7V-14"/><circle cx="-6" cy="-17" r="3"/></g>
+<g id="shoe"><path d="M-22 10V-2Q-22-6-18-6H-10Q-8 4 0 4H10Q20 4 22 10Z"/><path d="M-22 14H22M-8-6-4-10M-3-3 1-8M2 0 6-5"/></g>
+<g id="stopwatch"><circle cy="4" r="16"/><path d="M0-12V-18M-4-18H4M0 4 8-4M12-10 15-13"/></g>
+<g id="medal"><circle cy="8" r="11"/><path d="M-9-18-3-3M9-18 3-3M0 3 2.4 8 8 8.8 4 12.6 5 18 0 15.3-5 18-4 12.6-8 8.8-2.4 8Z"/></g>
+<g id="bicycle"><circle cx="-14" cy="8" r="10"/><circle cx="14" cy="8" r="10"/><path d="M-14 8-3 8-8-8H8L14 8M-3 8 8-8M-9-10H-5M8-8 6-13H11"/></g>
+<g id="paddle"><circle cy="-6" r="13"/><path d="M-3 7V21Q0 24 3 21V7"/><circle cx="17" cy="14" r="4"/></g>
+<g id="note"><path d="M-6 14V-12L10-16V10"/><circle cx="-10" cy="14" r="5"/><circle cx="6" cy="10" r="5"/></g>
+<g id="book"><path d="M0-8V14M0-8Q-10-14-22-10V12Q-10 8 0 14Q10 8 22 12V-10Q10-14 0-8Z"/></g>
+<g id="phones"><path d="M-16 8V-2A16 16 0 0 1 16-2V8M-20 2H-14V14H-20ZM14 2H20V14H14Z"/></g>
+<g id="dumbbell"><path d="M-14-6V6M-8-10V10M-8 0H8M8-10V10M14-6V6M-18-3V3M18-3V3"/></g>
+</defs>
+<use href="#bicycle" transform="translate(42 42) rotate(26)" stroke="#2f9a9c"/>
+<use href="#book" transform="translate(126 42) rotate(-6)" stroke="#6f8fa8"/>
+<use href="#shoe" transform="translate(210 42) rotate(8)" stroke="#2f9a9c"/>
+<use href="#racket" transform="translate(294 42) rotate(16)" stroke="#6f8fa8"/>
+<use href="#basketball" transform="translate(378 42) rotate(8)" stroke="#2f9a9c"/>
+<use href="#whistle" transform="translate(42 126) rotate(8)" stroke="#6f8fa8"/>
+<use href="#bicycle" transform="translate(126 126) rotate(8)" stroke="#2f9a9c"/>
+<use href="#paddle" transform="translate(210 126) rotate(26)" stroke="#6f8fa8"/>
+<use href="#football" transform="translate(294 126) rotate(-14)" stroke="#2f9a9c"/>
+<use href="#trophy" transform="translate(378 126) rotate(0)" stroke="#6f8fa8"/>
+<use href="#shoe" transform="translate(42 210) rotate(26)" stroke="#2f9a9c"/>
+<use href="#stopwatch" transform="translate(126 210) rotate(26)" stroke="#6f8fa8"/>
+<use href="#phones" transform="translate(210 210) rotate(16)" stroke="#2f9a9c"/>
+<use href="#book" transform="translate(294 210) rotate(-14)" stroke="#6f8fa8"/>
+<use href="#paddle" transform="translate(378 210) rotate(-24)" stroke="#2f9a9c"/>
+<use href="#racket" transform="translate(42 294) rotate(0)" stroke="#6f8fa8"/>
+<use href="#note" transform="translate(126 294) rotate(16)" stroke="#2f9a9c"/>
+<use href="#football" transform="translate(210 294) rotate(0)" stroke="#6f8fa8"/>
+<use href="#dumbbell" transform="translate(294 294) rotate(-14)" stroke="#2f9a9c"/>
+<use href="#shuttle" transform="translate(378 294) rotate(0)" stroke="#6f8fa8"/>
+<use href="#basketball" transform="translate(42 378) rotate(0)" stroke="#2f9a9c"/>
+<use href="#trophy" transform="translate(126 378) rotate(-14)" stroke="#6f8fa8"/>
+<use href="#stopwatch" transform="translate(210 378) rotate(16)" stroke="#2f9a9c"/>
+<use href="#medal" transform="translate(294 378) rotate(-24)" stroke="#6f8fa8"/>
+<use href="#phones" transform="translate(378 378) rotate(0)" stroke="#2f9a9c"/>
+<circle cx="84" cy="84" r="1" stroke="#2f9a9c" fill="#2f9a9c"/>
+<path d="M165 84H171M168 81V87" stroke="#6f8fa8"/>
+<circle cx="252" cy="84" r="2" stroke="#2f9a9c"/>
+<circle cx="336" cy="84" r="1" stroke="#6f8fa8" fill="#6f8fa8"/>
+<path d="M81 168H87M84 165V171" stroke="#6f8fa8"/>
+<circle cx="168" cy="168" r="2" stroke="#2f9a9c"/>
+<circle cx="252" cy="168" r="1" stroke="#6f8fa8" fill="#6f8fa8"/>
+<path d="M333 168H339M336 165V171" stroke="#2f9a9c"/>
+<circle cx="84" cy="252" r="2" stroke="#2f9a9c"/>
+<circle cx="168" cy="252" r="1" stroke="#6f8fa8" fill="#6f8fa8"/>
+<path d="M249 252H255M252 249V255" stroke="#2f9a9c"/>
+<circle cx="336" cy="252" r="2" stroke="#6f8fa8"/>
+<circle cx="84" cy="336" r="1" stroke="#6f8fa8" fill="#6f8fa8"/>
+<path d="M165 336H171M168 333V339" stroke="#2f9a9c"/>
+<circle cx="252" cy="336" r="2" stroke="#6f8fa8"/>
+<circle cx="336" cy="336" r="1" stroke="#2f9a9c" fill="#2f9a9c"/>
+</svg>
