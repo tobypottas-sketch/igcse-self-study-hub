@@ -93,7 +93,7 @@ test('British spelling is used throughout', () => {
 });
 
 test('11-13. Unit 5 is registered; Units 1, 2, 3, 4 and 6 are still registered and untouched; the registry is exactly Units 1-6', () => {
-  assert.equal(check, unit5Check); assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '2', '3', '4', '5', '6']);
+  assert.equal(check, unit5Check); assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '2', '3', '4', '5', '6', '7']);
   assert.equal(unitCheckFor(1), unit1Check); assert.equal(unitCheckFor(2), unit2Check); assert.equal(unitCheckFor(3), unit3Check); assert.equal(unitCheckFor(4), unit4Check); assert.equal(unitCheckFor(6), unit6Check);
   for (const n of [0, 7, 20, NaN, null, undefined]) assert.equal(unitCheckFor(n), null, `unit ${n}`);
 });

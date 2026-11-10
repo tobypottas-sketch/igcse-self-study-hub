@@ -91,7 +91,7 @@ test('British spelling is used throughout', () => {
 });
 
 test('11-12. Unit 2 is registered; Units 1, 4 and 6 are still registered and untouched', () => {
-  assert.equal(check, unit2Check); assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '2', '3', '4', '5', '6']);
+  assert.equal(check, unit2Check); assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '2', '3', '4', '5', '6', '7']);
   assert.equal(unitCheckFor(1), unit1Check); assert.equal(unitCheckFor(4), unit4Check); assert.equal(unitCheckFor(6), unit6Check);
 });
 

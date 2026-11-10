@@ -160,7 +160,7 @@ test('7. Unit 1 behaviour is unchanged and Units 3 and 5 now have their checks',
   assert.equal(unitCheckFor(1), unit1Check);
   assert.ok(unitCheckFor(3));
   assert.ok(unitCheckFor(5));
-  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1','2','3','4','5','6']);
+  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1','2','3','4','5','6','7']);
   const form = unit1Check.forms.A;
   const html = renderUnitCheckScreen({ unitNumber:1, form, attemptNumber:1, questionIndex:0, answers:{} });
   assert.match(html, /<\/span> Unit 1<\/button>/);
