@@ -23,10 +23,10 @@ function tempReleases(extra = {}) {
 }
 const synthetic = n => `export default ${relabel(JSON.stringify(unit1), n)};\n`;
 
-test('the real repo discovers Units 1, 2, 3, 4, 5 and 6, and each unit’s generated output equals its committed lock and chunk files', async () => {
-  assert.deepEqual(releaseNumbers(REAL), [1, 2, 3, 4, 5, 6]);
+test('the real repo discovers Units 1, 2, 3, 4, 5, 6 and 7, and each unit’s generated output equals its committed lock and chunk files', async () => {
+  assert.deepEqual(releaseNumbers(REAL), [1, 2, 3, 4, 5, 6, 7]);
   const releases = await loadReleases(REAL);
-  assert.equal(releases.length, 6);
+  assert.equal(releases.length, 7);
   assert.equal(releases[0].release, unit1);
   const lock = readLock(1);
   assert.deepEqual(releaseFingerprint(unit1), { version: lock.version, contentChecksum: lock.contentChecksum, membershipChecksum: lock.membershipChecksum, words: lock.words, memberRows: lock.memberRows });
@@ -64,6 +64,13 @@ test('the real repo discovers Units 1, 2, 3, 4, 5 and 6, and each unit’s gener
   assert.equal(lock6.words, 50);
   assert.equal(lock6.memberRows, 250);
   for (const { number, text } of generatedChunks(6)) assert.equal(text, fs.readFileSync(outFile(number, 6), 'utf8'), `Unit 6 chunk ${number} must match the committed file`);
+  const unit7 = releases[6].release;
+  const lock7 = readLock(7);
+  assert.deepEqual(releaseFingerprint(unit7), { version: lock7.version, contentChecksum: lock7.contentChecksum, membershipChecksum: lock7.membershipChecksum, words: lock7.words, memberRows: lock7.memberRows });
+  assert.equal(lock7.version, 'unit-07/v1');
+  assert.equal(lock7.words, 50);
+  assert.equal(lock7.memberRows, 270);
+  for (const { number, text } of generatedChunks(7)) assert.equal(text, fs.readFileSync(outFile(number, 7), 'utf8'), `Unit 7 chunk ${number} must match the committed file`);
 });
 
 test('each unit gets its own lock file, version and chunk names (Unit 1 keeps its legacy names)', () => {
