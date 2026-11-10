@@ -111,5 +111,5 @@ test('5. existing Unit 1 and Unit 4 checks stay registered; Units 3 and 5 now ha
   assert.ok(unitCheckFor(2), 'Unit 2 now has its authored check');
   assert.ok(unitCheckFor(3), 'Unit 3 now has its authored check');
   assert.ok(unitCheckFor(5));
-  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1','2','3','4','5','6']);
+  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1','2','3','4','5','6','7']);
 });
