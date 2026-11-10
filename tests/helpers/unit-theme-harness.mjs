@@ -32,7 +32,7 @@ const markup = (unit, pathwayId, feedback) => {
   return holder.innerHTML;
 };
 // Student homepage and unit overview, rendered the way app.js does (real views, real stylesheets).
-export const UNIT_TITLES = { 1: 'Sports and Free Time', 2: 'Digital Life', 3: 'Food and Drink', 4: 'Transport', 5: 'Holidays', 6: 'Learning and Study Skills' };
+export const UNIT_TITLES = { 1: 'Sports and Free Time', 2: 'Digital Life', 3: 'Food and Drink', 4: 'Transport', 5: 'Holidays', 6: 'Learning and Study Skills', 7: 'Interviews' };
 const homeMarkup = () => { const holder = { innerHTML: '' }; renderVocabularyHome(holder, { displayName: 'Mina', units: Object.entries(UNIT_TITLES).filter(([n]) => Number(n) <= 4).map(([n, t]) => ({ unitNumber: Number(n), unitTitle: t, mastered: 0, total: 50 })), soundOn: false }); return holder.innerHTML; };
 const overviewMarkup = unit => { const holder = { innerHTML: '' }; renderVocabularyUnit(holder, { unitNumber: unit, unitTitle: UNIT_TITLES[unit] ?? `Unit ${unit}`, progress: { mastered: 0, total: 50, needsAnotherLook: 0, reviewDue: 0, stages: {} }, pathwayStates: {}, contentReady: true }); return holder.innerHTML; };
 const TYPES = { '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp' };

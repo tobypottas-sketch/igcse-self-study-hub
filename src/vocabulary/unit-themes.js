@@ -9,7 +9,8 @@ export const UNIT_THEMES = Object.freeze({
   3: 'food-and-drink',
   4: 'transport',
   5: 'holidays',
-  6: 'learning-study-skills'
+  6: 'learning-study-skills',
+  7: 'interviews'
 });
 
 export function unitThemeId(unitNumber) {
