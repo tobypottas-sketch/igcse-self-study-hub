@@ -4,6 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit } from '../../src/vocabulary/views.js';
 import { contextQuestions, otherQuestions } from './wrap-audit-harness.mjs';
+// FIXTURE CONTENT: every question rendered by this harness (all units) is a real Unit 1 sample from wrap-audit-harness.mjs, used only so the
+// cards have realistic text and height. It is not the student content of the unit being themed; only the backgrounds are under test.
 import { findChromium, loadPlaywright } from './pathway-geometry-harness.mjs';
 
 // Shared browser harness for the unit background themes: renders the REAL question-session markup with the REAL stylesheets
