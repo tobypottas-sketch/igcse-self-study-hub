@@ -26,7 +26,7 @@ test('Units 1 to 6 have an overview illustration; every other overview stays pla
   assert.equal((views.match(/unitOverviewAttr\(/g) ?? []).length, 1, 'one use in views.js');
   assert.match(views, /<main class="vocab-shell"\$\{unitOverviewAttr\(unitNumber\)\}><header class="vocab-topbar vocab-topbar--unit">/);
   // The activity wallpapers keep their own attribute and mapping.
-  assert.deepEqual({ ...UNIT_THEMES }, { 1: 'sports-free-time', 2: 'digital-life', 3: 'food-and-drink', 4: 'transport', 5: 'holidays', 6: 'learning-study-skills' });
+  assert.deepEqual({ ...UNIT_THEMES }, { 1: 'sports-free-time', 2: 'digital-life', 3: 'food-and-drink', 4: 'transport', 5: 'holidays', 6: 'learning-study-skills', 7: 'interviews' });
 });
 
 test('the page backgrounds extend the one theme stylesheet, are light, decorative-only and hidden for print / forced colours', () => {

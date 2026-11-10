@@ -7,22 +7,22 @@ import { UNIT_THEMES, unitThemeAttr, unitThemeId } from '../src/vocabulary/unit-
 import { SHEETS } from './helpers/wrap-audit-harness.mjs';
 import { browserAvailable, checkPlainUnits, checkThemedUnit, tileStats } from './helpers/unit-theme-harness.mjs';
 
-// Unit background wallpapers (decorative only): Unit 1 Sports & Free Time, Unit 2 Digital Life, Unit 3 Food and Drink, Unit 4 Transport, Unit 5 Holidays, Unit 6 Learning and Study Skills. Unit 2's to 6's browser checks live in
-// vocabulary-unit2-theme.test.mjs to vocabulary-unit6-theme.test.mjs so the units run in parallel; this file also holds the shared static and tile checks.
+// Unit background wallpapers (decorative only): Unit 1 Sports & Free Time, Unit 2 Digital Life, Unit 3 Food and Drink, Unit 4 Transport, Unit 5 Holidays, Unit 6 Learning and Study Skills, Unit 7 Interviews. Unit 2's to 7's browser checks live in
+// vocabulary-unit2-theme.test.mjs to vocabulary-unit7-theme.test.mjs so the units run in parallel; this file also holds the shared static and tile checks.
 const root = fileURLToPath(new URL('..', import.meta.url));
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const views = read('src/vocabulary/views.js');
 const css = read('vocabulary-unit-themes.css');
-const THEMES = { 1: 'sports-free-time', 2: 'digital-life', 3: 'food-and-drink', 4: 'transport', 5: 'holidays', 6: 'learning-study-skills' };
+const THEMES = { 1: 'sports-free-time', 2: 'digital-life', 3: 'food-and-drink', 4: 'transport', 5: 'holidays', 6: 'learning-study-skills', 7: 'interviews' };
 const wallpaper = id => `assets/vocabulary/themes/${id}-wallpaper.svg`;
 
-test('Units 1 to 6 have a theme; every other unit keeps the plain background', () => {
+test('Units 1 to 7 have a theme; every other unit keeps the plain background', () => {
   assert.deepEqual({ ...UNIT_THEMES }, THEMES);
   for (const [unit, id] of Object.entries(THEMES)) {
     assert.equal(unitThemeId(Number(unit)), id);
     assert.equal(unitThemeAttr(Number(unit)), ` data-unit-theme="${id}"`);
   }
-  for (const unit of [7, 8, 9, 10, 0, null, undefined, 'x']) assert.equal(unitThemeAttr(unit), '', `unit ${unit}`);
+  for (const unit of [8, 9, 10, 0, null, undefined, 'x']) assert.equal(unitThemeAttr(unit), '', `unit ${unit}`);
 });
 
 test('themes are wired through one attribute on the activity shell and one shared stylesheet, with no other behaviour', () => {
@@ -40,7 +40,7 @@ test('themes are wired through one attribute on the activity shell and one share
   const named = [...css.matchAll(/data-unit-theme="([^"]+)"\]\)\{--unit-wallpaper:url\("([^"]+)"\)\}/g)].map(m => [m[1], m[2]]);
   assert.deepEqual(named.map(([id]) => id).sort(), Object.values(THEMES).sort());
   for (const [id, file] of named) assert.equal(file, wallpaper(id), id);
-  assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ''), /data-unit-theme="(?!sports-free-time"|digital-life"|food-and-drink"|transport"|holidays"|learning-study-skills")/);
+  assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ''), /data-unit-theme="(?!sports-free-time"|digital-life"|food-and-drink"|transport"|holidays"|learning-study-skills"|interviews")/);
   assert.match(css, /prefers|forced-colors/);
 });
 
@@ -60,7 +60,7 @@ test('every wallpaper tile is an original, lightweight, self-contained SVG with 
   for (const old of ['main', 'accent']) assert.equal(fs.existsSync(path.join(root, `assets/vocabulary/themes/sports-free-time-${old}.svg`)), false);
 });
 
-test('Units 1 to 6 share one visual standard: same tile size, stroke, strength, palette, icon grid and variety', () => {
+test('Units 1 to 7 share one visual standard: same tile size, stroke, strength, palette, icon grid and variety', () => {
   const facts = id => {
     const svg = read(wallpaper(id));
     const root = svg.match(/<svg[^>]*>/)[0];
@@ -72,7 +72,7 @@ test('Units 1 to 6 share one visual standard: same tile size, stroke, strength, 
     };
   };
   const a = facts('sports-free-time');
-  for (const id of ['digital-life', 'food-and-drink', 'transport', 'holidays', 'learning-study-skills']) {
+  for (const id of ['digital-life', 'food-and-drink', 'transport', 'holidays', 'learning-study-skills', 'interviews']) {
     const b = facts(id);
     for (const key of ['viewBox', 'stroke', 'opacity', 'placed', 'palette']) assert.equal(a[key], b[key], `${id} ${key}`);
     assert.ok(a.icons >= 12 && a.icons <= 15 && b.icons >= 12 && b.icons <= 15, `distinct icons ${a.icons} / ${b.icons}`);
@@ -103,6 +103,6 @@ browserTest('Unit 1 keeps its wallpaper on every pathway and viewport without to
   assert.deepEqual(await checkThemedUnit({ unit: 1, themeId: 'sports-free-time', wallpaperFile: 'sports-free-time-wallpaper.svg' }), []);
 });
 
-browserTest('Units 7 and 8 are unchanged: no theme, no wallpaper, the plain page background', async () => {
-  assert.deepEqual(await checkPlainUnits([7, 8]), []);
+browserTest('Units 8 and 9 are unchanged: no theme, no wallpaper, the plain page background', async () => {
+  assert.deepEqual(await checkPlainUnits([8, 9]), []);
 });
