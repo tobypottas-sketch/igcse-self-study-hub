@@ -41,6 +41,7 @@ body:has(.vocab-shell[data-unit-overview="food-and-drink"]){--page-art:url("asse
 body:has(.vocab-shell[data-unit-overview="transport"]){--page-art:url("assets/vocabulary/themes/transport-overview.svg")}
 body:has(.vocab-shell[data-unit-overview="holidays"]){--page-art:url("assets/vocabulary/themes/holidays-overview.svg")}
 body:has(.vocab-shell[data-unit-overview="learning-study-skills"]){--page-art:url("assets/vocabulary/themes/learning-study-skills-overview.svg")}
+body:has(.vocab-shell[data-unit-overview="interviews"]){--page-art:url("assets/vocabulary/themes/interviews-overview.svg")}
 body:has(.vocab-shell--home),body:has(.vocab-shell[data-unit-overview]){
   background-color:var(--c-bg);
   background-image:
@@ -60,6 +61,7 @@ body:has(.vocab-shell--home),body:has(.vocab-shell[data-unit-overview]){
   body:has(.vocab-shell[data-unit-overview="transport"]){--page-art:url("assets/vocabulary/themes/transport-overview-compact.svg")}
   body:has(.vocab-shell[data-unit-overview="holidays"]){--page-art:url("assets/vocabulary/themes/holidays-overview-compact.svg")}
   body:has(.vocab-shell[data-unit-overview="learning-study-skills"]){--page-art:url("assets/vocabulary/themes/learning-study-skills-overview-compact.svg")}
+  body:has(.vocab-shell[data-unit-overview="interviews"]){--page-art:url("assets/vocabulary/themes/interviews-overview-compact.svg")}
 }
 /* Loose text on the overview (the section headings sit directly on the page) gets the same solid plate as on the activity pages, so the artwork never runs through letters. */
 @media (min-width:901px){
