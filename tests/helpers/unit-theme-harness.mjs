@@ -30,8 +30,8 @@ const markup = (unit, pathwayId, feedback) => {
   return holder.innerHTML;
 };
 // Student homepage and unit overview, rendered the way app.js does (real views, real stylesheets).
-export const UNIT_TITLES = { 1: 'Sports and Free Time', 2: 'Digital Life', 3: 'Food and Drink', 4: 'Transport' };
-const homeMarkup = () => { const holder = { innerHTML: '' }; renderVocabularyHome(holder, { displayName: 'Mina', units: Object.entries(UNIT_TITLES).map(([n, t]) => ({ unitNumber: Number(n), unitTitle: t, mastered: 0, total: 50 })), soundOn: false }); return holder.innerHTML; };
+export const UNIT_TITLES = { 1: 'Sports and Free Time', 2: 'Digital Life', 3: 'Food and Drink', 4: 'Transport', 5: 'Holidays' };
+const homeMarkup = () => { const holder = { innerHTML: '' }; renderVocabularyHome(holder, { displayName: 'Mina', units: Object.entries(UNIT_TITLES).filter(([n]) => Number(n) <= 4).map(([n, t]) => ({ unitNumber: Number(n), unitTitle: t, mastered: 0, total: 50 })), soundOn: false }); return holder.innerHTML; };
 const overviewMarkup = unit => { const holder = { innerHTML: '' }; renderVocabularyUnit(holder, { unitNumber: unit, unitTitle: UNIT_TITLES[unit] ?? `Unit ${unit}`, progress: { mastered: 0, total: 50, needsAnotherLook: 0, reviewDue: 0, stages: {} }, pathwayStates: {}, contentReady: true }); return holder.innerHTML; };
 const TYPES = { '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp' };
 export function serve() {
@@ -176,7 +176,7 @@ const PAGE_CASES = [
   { name: 'home', url: '/home', art: 'vocabulary-home-background.svg' },
   { name: 'unit 1 overview', url: '/overview?u=1', art: 'sports-free-time-overview.svg', compact: 'sports-free-time-overview-compact.svg' },
   { name: 'unit 2 overview', url: '/overview?u=2', art: 'digital-life-overview.svg', compact: 'digital-life-overview-compact.svg' },
-  { name: 'unit 3 overview', url: '/overview?u=3', art: 'food-and-drink-overview.svg', compact: 'food-and-drink-overview-compact.svg' }, { name: 'unit 4 overview', url: '/overview?u=4', art: 'transport-overview.svg', compact: 'transport-overview-compact.svg' }, { name: 'unit 5 overview', url: '/overview?u=5', art: null }
+  { name: 'unit 3 overview', url: '/overview?u=3', art: 'food-and-drink-overview.svg', compact: 'food-and-drink-overview-compact.svg' }, { name: 'unit 4 overview', url: '/overview?u=4', art: 'transport-overview.svg', compact: 'transport-overview-compact.svg' }, { name: 'unit 5 overview', url: '/overview?u=5', art: 'holidays-overview.svg', compact: 'holidays-overview-compact.svg' }, { name: 'unit 6 overview', url: '/overview?u=6', art: null }
 ];
 export async function checkPageBackgrounds() {
   const { server, origin } = await serve();
