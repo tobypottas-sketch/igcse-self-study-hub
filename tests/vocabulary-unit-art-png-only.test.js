@@ -28,8 +28,8 @@ test('the Unit 6 hero gets the art classes when only a PNG exists', () => {
 });
 
 test('an unshipped unit with no SVG renders no artwork at all', () => {
-  withShippedGraphics(['units/unit-06.png'], () => { // only Unit 6 is shipped here; Units 7+ are not
-    for (const n of [7, 12, 20]) {
+  withShippedGraphics(['units/unit-06.png'], () => { // only Unit 6 is shipped here; Units 8+ are not
+    for (const n of [8, 12, 20]) {
       assert.doesNotMatch(home(n), /data-unit-art|<img class="study-art__png"[^>]*units\//, `Unit ${n} home card`);
       const page = unit(n);
       assert.doesNotMatch(page, /data-unit-hero-art|has-png-art|<img class="study-art__png"/, `Unit ${n} hero`);
