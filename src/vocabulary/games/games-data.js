@@ -3,6 +3,7 @@ import { BLITZ_CONFUSABLE_U3, BLITZ_MEANING_OPTIONS_U3, BLITZ_EXCLUDED_U3, CONNE
 import { BLITZ_CONFUSABLE_U4, BLITZ_MEANING_OPTIONS_U4, BLITZ_EXCLUDED_U4, CONNECTIONS_PUZZLES_U4 } from './games-data-unit-04.js';
 import { BLITZ_CONFUSABLE_U5, BLITZ_MEANING_OPTIONS_U5, BLITZ_EXCLUDED_U5, CONNECTIONS_PUZZLES_U5 } from './games-data-unit-05.js';
 import { BLITZ_CONFUSABLE_U6, BLITZ_MEANING_OPTIONS_U6, BLITZ_EXCLUDED_U6, CONNECTIONS_PUZZLES_U6 } from './games-data-unit-06.js';
+import { BLITZ_CONFUSABLE_U7, BLITZ_MEANING_OPTIONS_U7, BLITZ_EXCLUDED_U7, CONNECTIONS_PUZZLES_U7 } from './games-data-unit-07.js';
 // Games data for Unit 1 (Unit 2 lives in games-data-unit-02.js and is registered below): (1) Word Blitz near-neighbour groups, (2) the curated Connections puzzles.
 //
 // Word Blitz: words in one group never appear as options in the same question, because a distractor could be argued as also correct.
@@ -264,6 +265,10 @@ export const GAMES_BY_UNIT = Object.freeze({
   6:Object.freeze({
     blitz:Object.freeze({ confusable:BLITZ_CONFUSABLE_U6, meaningOptions:BLITZ_MEANING_OPTIONS_U6, excluded:BLITZ_EXCLUDED_U6 }),
     connections:Object.freeze({ puzzles:CONNECTIONS_PUZZLES_U6 })
+  }),
+  7:Object.freeze({
+    blitz:Object.freeze({ confusable:BLITZ_CONFUSABLE_U7, meaningOptions:BLITZ_MEANING_OPTIONS_U7, excluded:BLITZ_EXCLUDED_U7 }),
+    connections:Object.freeze({ puzzles:CONNECTIONS_PUZZLES_U7 })
   })
 });
 export function gamesFor(unitNumber, registry = GAMES_BY_UNIT) { return registry[String(Math.trunc(Number(unitNumber)))] ?? null; }
