@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" width="420" height="420" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.38">
+<defs>
+<g id="hol-suitcase"><path d="M-11-10H11A3 3 0 0 1 14-7V16A3 3 0 0 1 11 19H-11A3 3 0 0 1-14 16V-7A3 3 0 0 1-11-10Z"/><path d="M-6-10V-16H6V-10M-5-4V13M0-4V13M5-4V13M-9 19V22M9 19V22"/></g>
+<g id="hol-passport"><rect x="-12" y="-18" width="24" height="36" rx="3"/><circle cy="-4" r="6"/><path d="M-6-4H6M0-10V2M-6 10H6"/></g>
+<g id="hol-camera"><rect x="-18" y="-10" width="36" height="26" rx="4"/><path d="M-8-10-5-15H5L8-10"/><circle cy="3" r="7"/><path d="M12-5H15"/></g>
+<g id="hol-sunglasses"><path d="M-19-6H-1C-1 4-3 10-10 10-16 10-19 4-19-6Z"/><path d="M1-6H19C19 4 17 10 10 10 4 10 1 4 1-6Z"/><path d="M-1-4C0-6 0-6 1-4M-19-6-22-9M19-6 22-9"/></g>
+<g id="hol-umbrella"><path d="M-20 2C-20-12-10-20 0-20 10-20 20-12 20 2C14-2 8-2 0 2-8-2-14-2-20 2Z"/><path d="M0-20V18C0 22 4 22 4 19M0-20C-6-12-6-4-8 0M0-20C6-12 6-4 8 0"/></g>
+<g id="hol-flipflops"><ellipse cx="-9" cy="0" rx="7" ry="17"/><ellipse cx="9" cy="0" rx="7" ry="17"/><path d="M-9-6-14 2M-9-6-4 2M-9-6V-11M9-6 4 2M9-6 14 2M9-6V-11"/></g>
+<g id="hol-palm"><path d="M-2 20C-2 8 0 0 3-6"/><path d="M3-6C-4-14-12-12-16-6M3-6C-2-18 6-22 14-18M3-6C10-14 18-10 20-4M3-6C0-12-6-18-12-18"/><path d="M-14 20H14"/></g>
+<g id="hol-shell"><path d="M-16 14C-20-2-10-16 0-16S20-2 16 14Z"/><path d="M0-16V14M-8-12-5 14M8-12 5 14M-5 14 0 20 5 14"/></g>
+<g id="hol-starfish"><path d="M0-18 4-6 17-6 7 2 11 15 0 7-11 15-7 2-17-6-4-6Z"/><path d="M0-4V0"/></g>
+<g id="hol-sailboat"><path d="M-18 8H18L12 16H-12Z"/><path d="M0-18V8M2-18V4H16ZM-2-12V4H-12Z"/><path d="M-20 21Q-15 18-10 21T0 21 10 21 20 21"/></g>
+<g id="hol-hotel"><path d="M-14 18V-14H14V18Z"/><path d="M-9-8H-6M-1-8H2M7-8H10M-9-1H-6M-1-1H2M7-1H10M-4 18V9H4V18M-4-14V-18H4V-14"/></g>
+<g id="hol-ticket"><path d="M-20-9H20V-3A3 3 0 0 0 20 3V9H-20V3A3 3 0 0 0-20-3Z"/><path d="M-8-9V-5M-8-2V2M-8 5V9M-3-3H14M-3 3H8"/></g>
+<g id="hol-pin"><path d="M0 12C-9 1-10-5-10-8A10 10 0 0 1 10-8C10-5 9 1 0 12Z"/><circle cy="-8" r="3.5"/><path d="M-12 17Q0 21 12 17"/></g>
+<g id="hol-plane"><path d="M-22 1C-22-3-12-5-2-5H14C20-5 23-1 23 1S20 6 14 6H-2C-12 6-22 5-22 1Z"/><path d="M-4 5 6 20H-1L-12 5M-4-4 4-18H-1L-12-4M-22 0-26-10H-19L-12-3"/></g>
+<g id="hol-sun"><circle r="7"/><path d="M0-12V-17M0 12V17M-12 0H-17M12 0H17M-8.5-8.5-12-12M8.5-8.5 12-12M-8.5 8.5-12 12M8.5 8.5 12 12"/></g>
+</defs>
+<use href="#hol-palm" transform="translate(42 42) rotate(0)" stroke="#2f9a9c"/>
+<use href="#hol-flipflops" transform="translate(126 42) rotate(8)" stroke="#6f8fa8"/>
+<use href="#hol-plane" transform="translate(210 42) rotate(0)" stroke="#2f9a9c"/>
+<use href="#hol-ticket" transform="translate(294 42) rotate(-24)" stroke="#6f8fa8"/>
+<use href="#hol-starfish" transform="translate(378 42) rotate(8)" stroke="#2f9a9c"/>
+<use href="#hol-flipflops" transform="translate(42 126) rotate(26)" stroke="#6f8fa8"/>
+<use href="#hol-sailboat" transform="translate(126 126) rotate(0)" stroke="#2f9a9c"/>
+<use href="#hol-passport" transform="translate(210 126) rotate(8)" stroke="#6f8fa8"/>
+<use href="#hol-sun" transform="translate(294 126) rotate(-14)" stroke="#2f9a9c"/>
+<use href="#hol-plane" transform="translate(378 126) rotate(16)" stroke="#6f8fa8"/>
+<use href="#hol-umbrella" transform="translate(42 210) rotate(8)" stroke="#2f9a9c"/>
+<use href="#hol-sun" transform="translate(126 210) rotate(-6)" stroke="#6f8fa8"/>
+<use href="#hol-shell" transform="translate(210 210) rotate(26)" stroke="#2f9a9c"/>
+<use href="#hol-sailboat" transform="translate(294 210) rotate(26)" stroke="#6f8fa8"/>
+<use href="#hol-hotel" transform="translate(378 210) rotate(-24)" stroke="#2f9a9c"/>
+<use href="#hol-shell" transform="translate(42 294) rotate(-6)" stroke="#6f8fa8"/>
+<use href="#hol-suitcase" transform="translate(126 294) rotate(-24)" stroke="#2f9a9c"/>
+<use href="#hol-pin" transform="translate(210 294) rotate(-14)" stroke="#6f8fa8"/>
+<use href="#hol-suitcase" transform="translate(294 294) rotate(8)" stroke="#2f9a9c"/>
+<use href="#hol-ticket" transform="translate(378 294) rotate(-24)" stroke="#6f8fa8"/>
+<use href="#hol-camera" transform="translate(42 378) rotate(-14)" stroke="#2f9a9c"/>
+<use href="#hol-palm" transform="translate(126 378) rotate(26)" stroke="#6f8fa8"/>
+<use href="#hol-starfish" transform="translate(210 378) rotate(26)" stroke="#2f9a9c"/>
+<use href="#hol-sunglasses" transform="translate(294 378) rotate(-14)" stroke="#6f8fa8"/>
+<use href="#hol-passport" transform="translate(378 378) rotate(-24)" stroke="#2f9a9c"/>
+<path d="M79 84Q81.5 81 84 84T89 84" stroke="#2f9a9c"/>
+<path d="M165 84H171M168 81V87" stroke="#6f8fa8"/>
+<circle cx="252" cy="84" r="2" stroke="#2f9a9c"/>
+<path d="M331 84Q333.5 81 336 84T341 84" stroke="#6f8fa8"/>
+<path d="M81 168H87M84 165V171" stroke="#6f8fa8"/>
+<circle cx="168" cy="168" r="2" stroke="#2f9a9c"/>
+<path d="M247 168Q249.5 165 252 168T257 168" stroke="#6f8fa8"/>
+<path d="M333 168H339M336 165V171" stroke="#2f9a9c"/>
+<circle cx="84" cy="252" r="2" stroke="#2f9a9c"/>
+<path d="M163 252Q165.5 249 168 252T173 252" stroke="#6f8fa8"/>
+<path d="M249 252H255M252 249V255" stroke="#2f9a9c"/>
+<circle cx="336" cy="252" r="2" stroke="#6f8fa8"/>
+<path d="M79 336Q81.5 333 84 336T89 336" stroke="#6f8fa8"/>
+<path d="M165 336H171M168 333V339" stroke="#2f9a9c"/>
+<circle cx="252" cy="336" r="2" stroke="#6f8fa8"/>
+<path d="M331 336Q333.5 333 336 336T341 336" stroke="#2f9a9c"/>
+</svg>
