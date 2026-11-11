@@ -103,6 +103,16 @@ input:focus { border-color: var(--hub-teal); box-shadow: 0 0 0 3px rgba(19, 126,
 .section-heading--home { margin: 0 0 20px; align-items: end; }
 .section-heading--home h2 { margin: 0; font-size: clamp(1.8rem, 3vw, 2.5rem); line-height: 1.02; letter-spacing: -.04em; color: var(--hub-navy); }
 .section-heading--home p:last-child { max-width: 680px; margin: 10px 0 0; color: var(--c-muted); font-size: var(--fs-md); }
+/* Homepage "Choose a skill" action buttons: keep all four in one row on desktop.
+   Scoped to the homepage heading; the shared .admin-actions class is used elsewhere. */
+.section-heading--home .admin-actions { flex: 0 0 auto; flex-wrap: nowrap; gap: 10px; }
+.section-heading--home > div:first-child { min-width: 0; }
+@media (max-width: 720px) {
+  .section-heading--home .admin-actions { flex-wrap: wrap; }
+}
+@media (min-width: 721px) and (max-width: 1199px) {
+  .section-heading--home { flex-direction: column; align-items: flex-start; gap: 16px; }
+}
 .app-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 .app-card {
   position: relative;
