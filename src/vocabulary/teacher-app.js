@@ -2,6 +2,7 @@ import { escapeHtml } from '../views/html.js';
 import { buildClassInsights, buildPathwayAnalytics, buildProblemDrilldown, buildStudentProfile } from './analytics.js';
 import { buildTeamsTargetList, buildVocabularyInterventionDraft, createLearningIntervention } from './interventions.js';
 import { buildPracticeHabits, buildStudentHabits } from './practice-habits.js';
+import { buildWeeklyUsage, MAX_WEEKS_BACK } from './weekly-usage.js';
 import { buildMeritStatus, SKILLS_PER_MERIT } from './merits.js';
 import { loadVocabularyTeacherData, loadUnitReadinessContent } from './teacher-data.js';
 import { evaluateUnitReadiness } from './pathway-readiness.js';
@@ -9,10 +10,10 @@ import { coverageFromReadiness } from './pathway-coverage.js';
 import { registerPathwayCoverage } from './pathway-coverage-store.js';
 import { buildReadinessReport, renderReadinessReport, unitTitleFor } from './teacher-readiness.js';
 import { selectedUnit, unitOccurrences, unitOptions } from './teacher-units.js';
-import { renderTeacherOverview, renderProblemArea, renderStudentVocabularyProfile } from './teacher-views.js';
+import { renderTeacherOverview, weeklyUsagePanel, renderProblemArea, renderStudentVocabularyProfile } from './teacher-views.js';
 import { renderVocabularyError } from './views.js';
 
-const teacherState = { readiness:new Map(), root:null, client:null, profile:null, data:null, currentClass:null, currentDrilldown:null, currentStudent:null, currentInsights:null };
+const teacherState = { readiness:new Map(), root:null, client:null, profile:null, data:null, currentClass:null, currentDrilldown:null, currentStudent:null, currentInsights:null, weeklyWeeksAgo:0 };
 
 function renderClassChooser() {
   const classes = teacherState.data?.classes ?? [];
@@ -81,16 +82,27 @@ async function ensureReadiness(unitNumber) {
   return entry;
 }
 
+function weeklyForClass(classData) {
+  return buildWeeklyUsage({ students:classData.students, activity:classData.activity, now:new Date(), weeksAgo:teacherState.weeklyWeeksAgo });
+}
+function changeWeeklyWeek(delta) {
+  if (!teacherState.currentClass) return;
+  teacherState.weeklyWeeksAgo = Math.max(0, Math.min(MAX_WEEKS_BACK, teacherState.weeklyWeeksAgo + delta));
+  const panel = teacherState.root.querySelector('[data-weekly-activity]');
+  if (panel) panel.outerHTML = weeklyUsagePanel(weeklyForClass(teacherState.currentClass));
+}
+
 async function openClass(classId) {
   const classData = teacherState.data.classes.find(row => row.id === classId);
   if (!classData) return;
   const { options, selected } = selectedUnit(classData);
   for (const unit of selected === 'all' ? options : options.filter(option => option.unitNumber === selected)) await ensureReadiness(unit.unitNumber);
+  if (teacherState.currentClass?.id !== classId) teacherState.weeklyWeeksAgo = 0;
   teacherState.currentClass = classData;
   teacherState.currentDrilldown = null;
   teacherState.currentStudent = null;
   teacherState.currentInsights = classInsights(classData);
-  renderTeacherOverview(teacherState.root, { className:classData.className, insights:teacherState.currentInsights, merits:classMerits(classData), habits:classHabits(classData), units:selectedUnit(classData) });
+  renderTeacherOverview(teacherState.root, { className:classData.className, insights:teacherState.currentInsights, merits:classMerits(classData), habits:classHabits(classData), units:selectedUnit(classData), weeklyUsage:weeklyForClass(classData) });
 }
 
 async function openReadiness(unitNumber = null) {
@@ -220,6 +232,8 @@ function handleClick(event) {
   const action = target?.dataset?.action;
   if (!action) return;
   if (action === 'teacher-open-class') void openClass(target.dataset.classId).catch(showError);
+  else if (action === 'teacher-week-previous') changeWeeklyWeek(1);
+  else if (action === 'teacher-week-next') changeWeeklyWeek(-1);
   else if (action === 'teacher-open-readiness') void openReadiness().catch(showError);
   else if (action === 'teacher-readiness-unit') void openReadiness(target.dataset.unit).catch(showError);
   else if (action === 'teacher-back-classes') { if (teacherState.data.classes.length === 1) void openClass(teacherState.data.classes[0].id).catch(showError); else renderClassChooser(); }

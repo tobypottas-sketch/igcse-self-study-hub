@@ -84,6 +84,57 @@ function monthlyUsagePanel(usage) {
   const summary = `${usage.activeStudents} of ${total} active this month`;
   return `<article class="vocab-teacher-panel vocab-monthly-usage" data-monthly-usage><header class="vocab-monthly-usage__head"><div><h2>Monthly usage</h2><p>${escapeHtml(usage.monthLabel)}</p></div><div class="vocab-monthly-usage__summary"><strong>${escapeHtml(summary)}</strong><span>${escapeHtml(usage.activeDays)} active day${usage.activeDays === 1 ? '' : 's'}</span></div></header><div class="vocab-monthly-usage__chart"><span class="vocab-monthly-usage__ceiling">All ${escapeHtml(total)} students</span><div class="vocab-monthly-usage__bars" style="--usage-days:${Math.max(1, (usage.days ?? []).length)}">${bars}</div></div>${habitsNote()}</article>`;
 }
+// A seven-point SVG line graph, deliberately independent of achievement/mastery.
+// The buttons are handled by the existing delegated teacher controller.
+export function weeklyUsagePanel(usage) {
+  if (!usage) return '';
+  const total = Math.max(0, Number(usage.studentCount) || 0);
+  const days = usage.days ?? [];
+  const left = 42, top = 18, bottom = 168, width = 700, span = bottom - top;
+  const points = days.map((day, i) => {
+    const count = Math.max(0, Number(day.activeStudents) || 0);
+    const x = left + i * (width / 6);
+    const y = bottom - (total ? (count / total) * span : 0);
+    return { x, y, count, day, i };
+  });
+  const elapsedPoints = points.filter(p => !p.day.future);
+  const path = elapsedPoints.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const circles = elapsedPoints.map(p => {
+    const description = `${p.day.day} ${p.day.date}: ${p.count} of ${total} students active`;
+    return `<circle cx="${p.x}" cy="${p.y.toFixed(1)}" r="6" tabindex="0" role="img" aria-label="${escapeHtml(description)}"><title>${escapeHtml(description)}</title></circle>`;
+  }).join('');
+  const labels = points.map(p => `<text x="${p.x}" y="199" text-anchor="middle">${escapeHtml(p.day.day)}</text>`).join('');
+  const guide = [0, 0.5, 1].map(fraction => {
+    const y = bottom - fraction * span, value = Math.round(total * fraction);
+    return `<line class="vocab-weekly-activity__gridline" x1="${left}" x2="${left + width}" y1="${y}" y2="${y}"/><text x="30" y="${y + 4}" text-anchor="end">${escapeHtml(value)}</text>`;
+  }).join('');
+  const previous = usage.canPrevious ? '' : ' disabled aria-disabled="true"';
+  const next = usage.canNext ? '' : ' disabled aria-disabled="true"';
+  return `<article class="vocab-teacher-panel vocab-weekly-activity" data-weekly-activity>
+    <header class="vocab-weekly-activity__head">
+      <div><h2>Weekly activity</h2><p>Unique students practising each day · ${escapeHtml(usage.range)}</p></div>
+      <nav class="vocab-weekly-activity__nav" aria-label="Choose activity week">
+        <button type="button" class="vocab-button vocab-button--quiet" data-action="teacher-week-previous" aria-label="Previous week"${previous}>← Previous</button>
+        <button type="button" class="vocab-button vocab-button--quiet" data-action="teacher-week-next" aria-label="Next week"${next}>Next →</button>
+      </nav>
+    </header>
+    <div class="vocab-weekly-activity__plot" role="group" aria-label="Daily active students from Monday to Sunday">
+      <svg viewBox="0 0 784 216" role="img" aria-label="Weekly activity line chart: ${escapeHtml(usage.range)}" preserveAspectRatio="xMidYMid meet">
+        ${guide}
+        <polyline class="vocab-weekly-activity__line" points="${path}"/>
+        <g class="vocab-weekly-activity__points">${circles}</g>
+        <g class="vocab-weekly-activity__labels">${labels}</g>
+      </svg>
+    </div>
+    <div class="vocab-weekly-activity__stats" aria-label="Weekly activity summary">
+      <div><small>Students active</small><strong>${escapeHtml(usage.activeStudents)} / ${escapeHtml(total)}</strong></div>
+      <div><small>Busiest day</small><strong>${escapeHtml(usage.busiestDay)}</strong></div>
+      <div><small>Daily average</small><strong>${escapeHtml(Number(usage.dailyAverage).toFixed(1))}</strong></div>
+    </div>
+    ${habitsNote()}
+  </article>`;
+}
+
 // Recent practice on the student profile: three facts, the rest sits under "More detail".
 function recentPracticeCard(habit, lastPractice) {
   if (!habit) return `<article class="vocab-teacher-panel" data-recent-practice><h2>Recent practice</h2><p class="vocab-muted-line">${escapeHtml(lastPractice || 'No recent practice')}</p></article>`;
@@ -104,7 +155,7 @@ function meritPanel(merits) {
 }
 function stat(labelText, value, detail, extra = '') { return `<article class="vocab-insight-card"><p>${escapeHtml(labelText)}</p><strong>${escapeHtml(value)}</strong>${detail ? `<span>${escapeHtml(detail)}</span>` : ''}${extra}</article>`; }
 
-export function renderTeacherOverview(root, { className = '', insights, merits = null, habits = null, units = null } = {}) {
+export function renderTeacherOverview(root, { className = '', insights, merits = null, habits = null, units = null, weeklyUsage = null } = {}) {
   const data = insights ?? { studentsNeedingAttention:[], mainWeakness:null, difficultWords:[], misconceptionPatterns:[], skillProfile:{ skills:{} }, engagement:{ practisedRecently:0, notRecentlyPractised:0 }, trend:{ label:'Insufficient evidence', improvedCount:0 }, pathwayAnalytics:{ studentRows:[], wordRows:[] } };
   const weaknessLabel = data.mainWeakness?.skillId ? skillLabel(data.mainWeakness.skillId) : label(data.mainWeakness?.strand);
   const weakness = data.mainWeakness
@@ -113,7 +164,7 @@ export function renderTeacherOverview(root, { className = '', insights, merits =
   const difficult = data.difficultWords.slice(0,5).map(row => `<li><span>${escapeHtml(row.term)}</span><b title="students affected">${escapeHtml(row.affectedCount)}</b></li>`).join('');
   const attention = data.studentsNeedingAttention.slice(0,8).map(row => `<li><button class="vocab-student-row" data-action="teacher-open-student" data-student-id="${escapeHtml(row.studentId)}"><span>${escapeHtml(row.displayName)}</span><small>${escapeHtml(row.targetCount)} recurring target${row.targetCount === 1 ? '' : 's'} →</small></button></li>`).join('');
   const attentionPanel = `<article class="vocab-teacher-panel"><h2>Needs attention</h2>${attention ? `<ul class="vocab-rows vocab-rows--links">${attention}</ul>` : '<p class="vocab-muted-line">No persistent attainment concern yet.</p>'}</article>`;
-  root.innerHTML = `<main class="vocab-shell vocab-shell--teacher"><header class="vocab-topbar"><a class="vocab-back" href="./">← Hub</a><span>Teacher analytics</span></header><section class="vocab-teacher-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase</p><h1>${escapeHtml(className || 'Class overview')}</h1></section>${actionButtons()}<section class="vocab-insight-grid">${stat('Students needing attention', data.studentsNeedingAttention.length, 'students')}${weakness}${stat('Practised recently', data.engagement.practisedRecently, `${data.engagement.notRecentlyPractised} not recently`)}${stat('Recent trend', data.trend.label, `${data.trend.improvedCount} secure signals`)}</section>${meritPanel(merits)}${monthlyUsagePanel(habits?.monthlyUsage)}<section class="vocab-teacher-grid">${attentionPanel}${habitsPanel(habits)}${classPathwayPanel(data.pathwayAnalytics, units)}</section><section class="vocab-teacher-grid vocab-teacher-grid--three"><article class="vocab-teacher-panel"><h2>0511 skills</h2>${skillRows(data.skillProfile)}</article><article class="vocab-teacher-panel"><h2>Repeated errors</h2>${misconceptionList(data.misconceptionPatterns)}</article><article class="vocab-teacher-panel"><h2>Hardest words</h2>${difficult ? `<ul class="vocab-rows">${difficult}</ul>` : '<p class="vocab-muted-line">No persistent vocabulary pattern yet.</p>'}</article></section></main>`;
+  root.innerHTML = `<main class="vocab-shell vocab-shell--teacher"><header class="vocab-topbar"><a class="vocab-back" href="./">← Hub</a><span>Teacher analytics</span></header><section class="vocab-teacher-hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase</p><h1>${escapeHtml(className || 'Class overview')}</h1></section>${actionButtons()}<section class="vocab-insight-grid">${stat('Students needing attention', data.studentsNeedingAttention.length, 'students')}${weakness}${stat('Practised recently', data.engagement.practisedRecently, `${data.engagement.notRecentlyPractised} not recently`)}${stat('Recent trend', data.trend.label, `${data.trend.improvedCount} secure signals`)}</section>${meritPanel(merits)}${weeklyUsagePanel(weeklyUsage)}${monthlyUsagePanel(habits?.monthlyUsage)}<section class="vocab-teacher-grid">${attentionPanel}${habitsPanel(habits)}${classPathwayPanel(data.pathwayAnalytics, units)}</section><section class="vocab-teacher-grid vocab-teacher-grid--three"><article class="vocab-teacher-panel"><h2>0511 skills</h2>${skillRows(data.skillProfile)}</article><article class="vocab-teacher-panel"><h2>Repeated errors</h2>${misconceptionList(data.misconceptionPatterns)}</article><article class="vocab-teacher-panel"><h2>Hardest words</h2>${difficult ? `<ul class="vocab-rows">${difficult}</ul>` : '<p class="vocab-muted-line">No persistent vocabulary pattern yet.</p>'}</article></section></main>`;
 }
 
 export function renderProblemArea(root, { className = '', drilldown } = {}) {

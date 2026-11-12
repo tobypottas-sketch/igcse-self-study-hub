@@ -1,0 +1,21 @@
+/* Teacher class analytics: weekly unique-student engagement. Presentation only. */
+.vocab-weekly-activity{margin-top:12px;padding:20px;overflow:hidden}
+.vocab-weekly-activity__head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.vocab-weekly-activity__head h2{margin:0 0 4px;color:var(--navy);font-size:1.07rem}
+.vocab-weekly-activity__head p{margin:0;color:var(--muted);font-size:var(--fs-sm)}
+.vocab-weekly-activity__nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.vocab-weekly-activity__nav .vocab-button{font-size:var(--fs-sm);min-height:36px;padding:7px 12px}
+.vocab-weekly-activity__nav .vocab-button:disabled{opacity:.4;cursor:not-allowed}
+.vocab-weekly-activity__plot{width:100%;overflow:hidden}
+.vocab-weekly-activity__plot svg{display:block;width:100%;height:auto;max-height:235px;overflow:visible}
+.vocab-weekly-activity__plot text{font-family:inherit;fill:var(--muted);font-size:15px}
+.vocab-weekly-activity__gridline{stroke:var(--line);stroke-width:1.1;stroke-dasharray:4 6}
+.vocab-weekly-activity__line{fill:none;stroke:var(--c-teal);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.vocab-weekly-activity__points circle{fill:var(--c-teal);stroke:white;stroke-width:3;cursor:help}
+.vocab-weekly-activity__points circle:hover,.vocab-weekly-activity__points circle:focus{fill:var(--c-teal-dark);stroke:var(--navy);outline:none;stroke-width:3.5}
+.vocab-weekly-activity__stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:6px}
+.vocab-weekly-activity__stats div{display:flex;flex-direction:column;gap:5px;border-radius:10px;background:var(--c-surface-soft);padding:12px 14px;min-width:0}
+.vocab-weekly-activity__stats small{color:var(--muted);font-size:var(--fs-xs)}
+.vocab-weekly-activity__stats strong{color:var(--navy);font-size:1.18rem;line-height:1.15}
+.vocab-weekly-activity .vocab-note{margin:12px 0 0}
+@media(max-width:620px){.vocab-weekly-activity{padding:16px}.vocab-weekly-activity__head{gap:10px}.vocab-weekly-activity__nav{width:100%}.vocab-weekly-activity__nav .vocab-button{flex:1}.vocab-weekly-activity__stats{gap:6px}.vocab-weekly-activity__stats div{padding:9px}.vocab-weekly-activity__stats strong{font-size:1rem}.vocab-weekly-activity__stats small{font-size:11px}}
