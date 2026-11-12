@@ -129,7 +129,7 @@ export function weeklyUsagePanel(usage) {
     <div class="vocab-weekly-activity__stats" aria-label="Weekly activity summary">
       <div><small>Students active</small><strong>${escapeHtml(usage.activeStudents)} / ${escapeHtml(total)}</strong></div>
       <div><small>Busiest day</small><strong>${escapeHtml(usage.busiestDay)}</strong></div>
-      <div><small>Daily average</small><strong>${escapeHtml(Number(usage.dailyAverage).toFixed(1))}</strong></div>
+      <div><small>Average students active per day</small><strong>${escapeHtml(Number(usage.dailyAverage).toFixed(1))} students</strong></div>
     </div>
     ${habitsNote()}
   </article>`;
