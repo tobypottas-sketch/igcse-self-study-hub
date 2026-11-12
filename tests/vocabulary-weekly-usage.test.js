@@ -52,7 +52,8 @@ test('weekly panel is a real SVG line chart with accessible day points, arrows a
   assert.equal((html.match(/<circle /g) || []).length,4); // Thu current week; future dates are not plotted
   assert.match(html,/Previous week/);
   assert.match(html,/Next week/);
-  assert.match(html,/Daily average/);
+  assert.match(html,/Average students active per day/);
+  assert.match(html,/1\.0 students/);
   assert.match(html,/Activity only — not evidence of mastery/);
   assert.match(html,/data-action="teacher-week-previous"/);
 });
