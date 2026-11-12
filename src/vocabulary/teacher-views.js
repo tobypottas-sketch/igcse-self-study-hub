@@ -97,8 +97,9 @@ export function weeklyUsagePanel(usage) {
     const y = bottom - (total ? (count / total) * span : 0);
     return { x, y, count, day, i };
   });
-  const path = points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
-  const circles = points.map(p => {
+  const elapsedPoints = points.filter(p => !p.day.future);
+  const path = elapsedPoints.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const circles = elapsedPoints.map(p => {
     const description = `${p.day.day} ${p.day.date}: ${p.count} of ${total} students active`;
     return `<circle cx="${p.x}" cy="${p.y.toFixed(1)}" r="6" tabindex="0" role="img" aria-label="${escapeHtml(description)}"><title>${escapeHtml(description)}</title></circle>`;
   }).join('');
