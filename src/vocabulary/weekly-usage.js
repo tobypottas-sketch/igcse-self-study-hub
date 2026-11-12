@@ -45,7 +45,7 @@ export function buildWeeklyUsage({ students = [], activity = [], now = new Date(
     weeksAgo:offset, canPrevious:offset < MAX_WEEKS_BACK, canNext:offset > 0,
     range:`${dateLabel(start)} – ${dateLabel(finish)}, ${finish.getFullYear()}`,
     studentCount:students.length, activeStudents:all.size, busiestDay,
-    dailyAverage:Math.round(days.reduce((sum, d) => sum + d.activeStudents, 0) / 7 * 10) / 10,
+    dailyAverage:Math.round(days.reduce((sum, d) => sum + d.activeStudents, 0) / Math.max(1, days.filter(d => !d.future).length) * 10) / 10,
     days
   };
 }
