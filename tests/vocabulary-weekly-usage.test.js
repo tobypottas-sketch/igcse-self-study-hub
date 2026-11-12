@@ -21,7 +21,7 @@ test('weekly usage includes Monday to Sunday, deduplicates each student per day 
   assert.deepEqual(usage.days.map(d => d.activeStudents), [1,2,0,1,0,0,0]);
   assert.equal(usage.activeStudents, 3);
   assert.equal(usage.busiestDay, 'Tue');
-  assert.equal(usage.dailyAverage, 0.6);
+  assert.equal(usage.dailyAverage, 1);
   assert.equal(usage.canNext, false);
   assert.equal(usage.canPrevious, true);
 });
@@ -49,7 +49,7 @@ test('weekly panel is a real SVG line chart with accessible day points, arrows a
   const html=weeklyUsagePanel(buildWeeklyUsage({students,now,activity:[at('a','2026-11-09T02:00:00')]}));
   assert.match(html, /data-weekly-activity/);
   assert.match(html, /<polyline/);
-  assert.equal((html.match(/<circle /g) || []).length,7);
+  assert.equal((html.match(/<circle /g) || []).length,4); // Thu current week; future dates are not plotted
   assert.match(html,/Previous week/);
   assert.match(html,/Next week/);
   assert.match(html,/Daily average/);
