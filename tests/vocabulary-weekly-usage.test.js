@@ -10,11 +10,11 @@ const now = new Date(2026, 10, 12, 16); // Thursday, local time
 
 test('weekly usage includes Monday to Sunday, deduplicates each student per day and ignores irrelevant events', () => {
   const usage = buildWeeklyUsage({ students, now, activity:[
-    at('a','2026-11-09T02:00:00Z'), at('a','2026-11-09T04:00:00Z'),
-    at('b','2026-11-10T02:00:00Z'), at('a','2026-11-10T03:00:00Z'),
-    at('c','2026-11-12T01:00:00Z'),
-    at('outside','2026-11-12T01:00:00Z'), at('c','2026-11-11T01:00:00Z','page_view'),
-    at('a','2026-11-16T01:00:00Z'), at('b','not-a-date')
+    at('a','2026-11-09T02:00:00'), at('a','2026-11-09T04:00:00'),
+    at('b','2026-11-10T02:00:00'), at('a','2026-11-10T03:00:00'),
+    at('c','2026-11-12T01:00:00'),
+    at('outside','2026-11-12T01:00:00'), at('c','2026-11-11T01:00:00','page_view'),
+    at('a','2026-11-16T01:00:00'), at('b','not-a-date')
   ] });
   assert.equal(usage.days.length, 7);
   assert.deepEqual(usage.days.map(d => d.day), ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']);
@@ -26,7 +26,7 @@ test('weekly usage includes Monday to Sunday, deduplicates each student per day 
   assert.equal(usage.canPrevious, true);
 });
 test('previous week navigation uses historical data and excludes current week', () => {
-  const activity = [at('a','2026-11-02T01:00:00Z'),at('b','2026-11-02T02:00:00Z'),at('c','2026-11-08T02:00:00Z'),at('a','2026-11-09T01:00:00Z')];
+  const activity = [at('a','2026-11-02T01:00:00'),at('b','2026-11-02T02:00:00'),at('c','2026-11-08T02:00:00'),at('a','2026-11-09T01:00:00')];
   const usage = buildWeeklyUsage({ students, activity, now, weeksAgo:1 });
   assert.deepEqual(usage.days.map(d => d.activeStudents), [2,0,0,0,0,0,1]);
   assert.equal(usage.activeStudents,3);
@@ -46,7 +46,7 @@ test('navigation bounds respect the 90-day source history', () => {
   assert.equal(atLimit.canNext,true);
 });
 test('weekly panel is a real SVG line chart with accessible day points, arrows and statistics', () => {
-  const html=weeklyUsagePanel(buildWeeklyUsage({students,now,activity:[at('a','2026-11-09T02:00:00Z')]}));
+  const html=weeklyUsagePanel(buildWeeklyUsage({students,now,activity:[at('a','2026-11-09T02:00:00')]}));
   assert.match(html, /data-weekly-activity/);
   assert.match(html, /<polyline/);
   assert.equal((html.match(/<circle /g) || []).length,7);
