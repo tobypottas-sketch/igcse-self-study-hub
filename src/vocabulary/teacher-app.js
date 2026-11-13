@@ -17,6 +17,14 @@ import { renderVocabularyError } from './views.js';
 
 const teacherState = { readiness:new Map(), root:null, client:null, profile:null, data:null, fullDataLoaded:false, fullDataPromise:null, currentClass:null, currentDrilldown:null, currentStudent:null, currentInsights:null, weeklyWeeksAgo:0, followUpPlan:null, usageData:null, usageDays:30, usageClassId:"all", usageStudentId:null, usageReturnClass:null, activityConfig:{type:"forms",minutes:10,level:"standard",variant:0} };
 
+function showTeacherLoading(message) {
+  const status=teacherState.root?.querySelector?.('[data-vocab-loading-status]');
+  if(status){status.textContent=message;return;}
+  teacherState.root.innerHTML='<section class="vocab-startup" aria-label="Loading Vocabulary Builder"><div class="vocab-startup__content"><span class="vocab-startup__symbol" aria-hidden="true">V</span><p class="vocab-startup__title">Vocabulary Builder</p><p class="vocab-startup__status" data-vocab-loading-status role="status"></p><div class="vocab-startup__track" aria-hidden="true"></div></div></section>';
+  const next=teacherState.root.querySelector('[data-vocab-loading-status]');
+  if(next)next.textContent=message;
+}
+
 function renderClassChooser() {
   const classes = teacherState.data?.classes ?? [];
   const cards = classes.map(row => `<button class="vocab-class-card" data-action="teacher-open-class" data-class-id="${escapeHtml(row.id)}"><span class="vocab-class-card__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.5 5.75A2.25 2.25 0 0 1 6.75 3.5H12v15.75H6.75A2.25 2.25 0 0 0 4.5 21.5V5.75Zm15 0a2.25 2.25 0 0 0-2.25-2.25H12v15.75h5.25a2.25 2.25 0 0 1 2.25 2.25V5.75Z"/></svg></span><span class="vocab-class-card__eyebrow">Class</span><strong class="vocab-class-card__title">${escapeHtml(row.className)}</strong><span class="vocab-class-card__count">${escapeHtml(row.students.length)} students</span><span class="vocab-class-card__cta">Open analytics →</span></button>`).join('') || '<p class="vocab-empty">No classes are currently available to this account.</p>';
@@ -32,7 +40,7 @@ function showStaffUsage() {
 async function openStaffUsage() {
   teacherState.usageReturnClass=teacherState.currentClass?.id??null;
   if(!teacherState.usageData) {
-    teacherState.root.innerHTML='<main class="vocab-shell"><p class="vocab-loading">Loading recorded Vocabulary usage…</p></main>';
+    showTeacherLoading('Loading recorded Vocabulary usage…');
     teacherState.usageData=await loadVocabularyStaffUsage(teacherState.client,teacherState.profile);
   }
   teacherState.usageClassId='all';teacherState.usageStudentId=null;
@@ -128,7 +136,7 @@ async function ensureFullTeacherData() {
 async function openClass(classId) {
   if(!teacherState.data?.classes.some(row=>row.id===classId))return;
   if(!teacherState.fullDataLoaded){
-    teacherState.root.innerHTML='<main class="vocab-shell"><div class="vocab-loading">Loading class analytics…</div></main>';
+    showTeacherLoading('Loading class analytics…');
     await ensureFullTeacherData();
   }
   const classData = teacherState.data.classes.find(row => row.id === classId);
@@ -389,6 +397,7 @@ export async function initialiseVocabularyTeacher({ root, client, profile }) {
   teacherState.client = client;
   teacherState.profile = profile;
   try {
+    showTeacherLoading('Loading your classes…');
     teacherState.data = await loadVocabularyTeacherClassList(client,profile);
     root.addEventListener('click', handleClick);
     root.addEventListener('change', handleStaffUsageChange);
