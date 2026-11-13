@@ -46,9 +46,21 @@
   <link rel="stylesheet" href="vocabulary-progress.css?v=my-progress-demo-v1">
   <link rel="stylesheet" href="vocabulary-staff-usage.css?v=clarity-v2">
   <link rel="stylesheet" href="vocabulary-activity-studio.css?v=studio-pills-row-v1">
+  <style>
+    /* Visible immediately, before application modules load; indeterminate (no fake percentage). */
+    .vocab-startup{min-height:60vh;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box}
+    .vocab-startup__content{width:min(100%,370px);text-align:center;color:#3b5871;font-family:inherit}
+    .vocab-startup__symbol{display:grid;place-items:center;width:54px;height:54px;margin:0 auto 18px;border-radius:16px;background:#e4f2f6;color:#1e7484;font-weight:900;font-size:1.5rem}
+    .vocab-startup__title{margin:0 0 8px;color:#244664;font-size:1.1rem;font-weight:850}
+    .vocab-startup__status{margin:0 0 18px;color:#60788d;font-size:.88rem;line-height:1.5}
+    .vocab-startup__track{height:8px;overflow:hidden;background:#dce7f2;border-radius:99px;position:relative}
+    .vocab-startup__track::before{content:'';position:absolute;top:0;bottom:0;left:0;width:40%;border-radius:99px;background:linear-gradient(90deg,#42b6ad,#467bc7);animation:vocab-startup-slide 1.5s ease-in-out infinite}
+    @keyframes vocab-startup-slide{from{transform:translateX(-110%)}to{transform:translateX(350%)}}
+    @media(prefers-reduced-motion:reduce){.vocab-startup__track::before{animation:none;left:0;width:100%;background:#348b9d}}
+  </style>
 </head>
 <body>
-  <main id="vocabularyApp" aria-live="polite"><div class="vocab-loading">Loading Vocabulary &amp; Paraphrase Builder…</div></main>
+  <main id="vocabularyApp" aria-live="polite"><section class="vocab-startup" aria-label="Loading Vocabulary Builder"><div class="vocab-startup__content"><span class="vocab-startup__symbol" aria-hidden="true">V</span><p class="vocab-startup__title">Vocabulary Builder</p><p class="vocab-startup__status" data-vocab-loading-status role="status">Checking your account…</p><div class="vocab-startup__track" aria-hidden="true"></div></div></section></main>
   <script type="module" src="src/vocabulary/home-navigation-cache.js"></script>
   <script type="module" src="src/vocabulary/graphics-boot.js"></script>
   <script type="module" src="src/vocabulary/router.js?v=fast-start-v1"></script>
