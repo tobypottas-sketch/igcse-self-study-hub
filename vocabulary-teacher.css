@@ -147,3 +147,5 @@
 .vocab-follow-up__hint{margin:0;color:var(--muted);font-size:var(--fs-sm);max-width:58ch}
 .vocab-follow-up__disclaimer{font-size:var(--fs-xs);line-height:1.5}
 @media(max-width:620px){.vocab-follow-up__students{grid-template-columns:1fr}.vocab-follow-up__card{padding:15px}.vocab-follow-up__head{align-items:flex-start}}
+
+.vocab-follow-up__draft{white-space:pre-wrap;overflow-wrap:anywhere;margin:3px 0;padding:15px;border:1px solid var(--c-teal-line);border-radius:10px;background:var(--c-surface-soft);color:var(--navy);font:inherit;font-size:var(--fs-sm);line-height:1.65}
