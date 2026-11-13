@@ -149,3 +149,47 @@
 @media(max-width:620px){.vocab-follow-up__students{grid-template-columns:1fr}.vocab-follow-up__card{padding:15px}.vocab-follow-up__head{align-items:flex-start}}
 
 .vocab-follow-up__draft{white-space:pre-wrap;overflow-wrap:anywhere;margin:3px 0;padding:15px;border:1px solid var(--c-teal-line);border-radius:10px;background:var(--c-surface-soft);color:var(--navy);font:inherit;font-size:var(--fs-sm);line-height:1.65}
+
+/* Compact teacher follow-up: decisions first, evidence as secondary detail. */
+.vocab-follow-up .vocab-follow-up__top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin:12px 0 15px}
+.vocab-follow-up .vocab-follow-up__top .vocab-kicker{color:var(--c-teal-dark);font-size:var(--fs-xs);letter-spacing:.08em;font-weight:850;margin:0 0 3px}
+.vocab-follow-up .vocab-follow-up__top h1{font-size:clamp(1.45rem,2.7vw,2.1rem);letter-spacing:-.035em;line-height:1.15;margin:0;color:var(--navy)}
+.vocab-follow-up__count{padding:7px 11px;border-radius:30px;background:var(--c-teal-soft);color:var(--c-teal-dark);font-size:var(--fs-sm);font-weight:850}
+.vocab-follow-up__priority{display:grid;gap:12px;margin:0 0 14px;padding:20px 22px;border:1px solid var(--c-teal-line);border-left:4px solid var(--c-teal);border-radius:var(--r-lg);background:var(--c-surface)}
+.vocab-follow-up__priority-head h2{margin:4px 0 0;font-size:1.3rem;color:var(--navy)}
+.vocab-follow-up__priority .vocab-follow-up__eyebrow{font-weight:850}
+.vocab-follow-up__activity{display:grid;gap:4px;color:var(--navy)}
+.vocab-follow-up__activity strong{font-size:var(--fs-sm)}
+.vocab-follow-up__activity p,.vocab-follow-up__check{font-size:var(--fs-sm);line-height:1.48;margin:0}
+.vocab-follow-up__check{padding-top:10px;border-top:1px solid var(--c-surface-soft);color:var(--muted)}
+.vocab-follow-up__students-card{margin:0 0 14px;padding:16px 19px;gap:7px}
+.vocab-follow-up__students-card .vocab-follow-up__meta{font-size:var(--fs-xs);margin:0 0 4px}
+.vocab-follow-up__students{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 20px}
+.vocab-follow-up__student{padding:9px 0;border:0;border-top:1px solid var(--c-surface-soft);border-radius:0;background:transparent;min-width:0}
+.vocab-follow-up__student-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.vocab-follow-up__student-title strong{font-size:var(--fs-sm)}
+.vocab-follow-up__student-title small{font-size:var(--fs-xs)}
+.vocab-follow-up__student p{font-size:var(--fs-xs);color:var(--muted);margin:3px 0 0;line-height:1.45}
+.vocab-follow-up__next{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:17px 20px;border-radius:var(--r-lg);background:var(--c-surface-soft);border:1px solid var(--c-teal-line);margin-bottom:12px}
+.vocab-follow-up__next h2{margin:0 0 4px;font-size:1.03rem;color:var(--navy)}
+.vocab-follow-up__next p{margin:0;color:var(--muted);font-size:var(--fs-sm)}
+.vocab-follow-up__next .vocab-button{flex:none}
+.vocab-follow-up__teams{border:1px solid var(--c-teal-line);border-radius:var(--r-md);background:var(--c-surface);margin-bottom:10px}
+.vocab-follow-up__teams>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;color:var(--c-teal-dark);cursor:pointer;font-weight:850;list-style:none}
+.vocab-follow-up__teams>summary::-webkit-details-marker{display:none}
+.vocab-follow-up__teams>summary:after{content:"+";font-size:1.2rem}
+.vocab-follow-up__teams[open]>summary:after{content:"−"}
+.vocab-follow-up__teams>summary small{color:var(--muted);font-size:var(--fs-xs);font-weight:600;margin-left:auto}
+.vocab-follow-up__teams-body{padding:0 18px 18px;display:grid;gap:10px}
+.vocab-follow-up__teams-body .vocab-button{justify-self:start}
+.vocab-follow-up__draft{margin:0;font-size:var(--fs-sm)}
+.vocab-follow-up__method{padding:7px 0;color:var(--muted);font-size:var(--fs-xs)}
+.vocab-follow-up__method summary{cursor:pointer;color:var(--muted);font-size:var(--fs-xs)}
+.vocab-follow-up__method p{line-height:1.5;max-width:90ch}
+.vocab-follow-up .vocab-recommendation-chooser{margin:0 0 12px;padding:15px 18px;gap:16px}
+.vocab-follow-up .vocab-recommendation-chooser h3{font-size:1.05rem;margin:0}
+.vocab-follow-up .vocab-recommendation-chooser .vocab-kicker{display:none}
+.vocab-follow-up .vocab-recommendation-chooser p{font-size:var(--fs-xs);line-height:1.45;margin:4px 0 0}
+.vocab-follow-up .vocab-time-grid{gap:8px}
+.vocab-follow-up .vocab-time-grid .vocab-button{padding:8px 10px;min-width:80px}
+@media(max-width:620px){.vocab-follow-up__students{grid-template-columns:1fr}.vocab-follow-up__priority{padding:16px}.vocab-follow-up__next{align-items:stretch}.vocab-follow-up__next .vocab-button{width:100%}.vocab-follow-up__teams>summary small{display:none}}
