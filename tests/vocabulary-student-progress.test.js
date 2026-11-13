@@ -97,3 +97,22 @@ test('student screen renders escaped name, actual values, and a back action',()=
   assert.match(root.innerHTML,/Question attempts/);
   assert.match(root.innerHTML,/My Vocabulary Journey|MY VOCABULARY JOURNEY/);
 });
+
+
+test('staff preview engagement is null and must still render safely',()=>{
+  // homeEngagement() intentionally returns null for staff preview.
+  const summary=summariseVocabularyProgress({
+    dashboard:{occurrences:[{occurrence_id:'one'}],global:[],unit:[]},
+    missions:[],
+    engagement:null,
+    recorded:{attempts:null,activeSeconds:null,attemptsAvailable:false,timeAvailable:false,preview:true}
+  });
+  assert.equal(summary.weekly,null);
+  assert.equal(summary.achievementsUnlocked,null);
+  assert.equal(summary.achievementsTotal,null);
+  assert.equal(summary.attempts,null);
+  const root={innerHTML:''};
+  renderStudentVocabularyProgress(root,{summary,displayName:'Teacher',preview:true});
+  assert.match(root.innerHTML,/Staff preview/);
+  assert.match(root.innerHTML,/data-action="progress-back-home"/);
+});
