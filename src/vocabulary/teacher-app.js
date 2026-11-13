@@ -10,7 +10,7 @@ import { evaluateUnitReadiness } from './pathway-readiness.js';
 import { coverageFromReadiness } from './pathway-coverage.js';
 import { registerPathwayCoverage } from './pathway-coverage-store.js';
 import { selectedUnit, unitOccurrences } from './teacher-units.js';
-import { renderTeacherOverview, weeklyUsagePanel, renderProblemArea, renderStudentVocabularyProfile, renderFollowUpPlan } from './teacher-views.js';
+import { renderTeacherOverview, weeklyUsagePanel, renderProblemArea, renderStudentVocabularyProfile, renderFollowUpPlan } from './teacher-views.js?v=teacher-recovery-20261113-2';
 import { renderVocabularyError } from './views.js';
 
 const teacherState = { readiness:new Map(), root:null, client:null, profile:null, data:null, currentClass:null, currentDrilldown:null, currentStudent:null, currentInsights:null, weeklyWeeksAgo:0, followUpPlan:null };
