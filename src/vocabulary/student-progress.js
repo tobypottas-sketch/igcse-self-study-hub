@@ -44,7 +44,7 @@ function persistedCompletions(row,pathwayId) {
   }
   return cleared;
 }
-export function summariseVocabularyProgress({dashboard={},missions=[],engagement={},recorded={}}={}) {
+export function summariseVocabularyProgress({dashboard={},missions=[],engagement=null,recorded={}}={}) {
   const rows=dashboard.global ?? [];
   const wordsMastered=rows.filter(row=>row.status==='mastered').length;
   const unitRows=Object.fromEntries((dashboard.unit??[]).map(row=>[row.occurrence_id,row]));
@@ -58,14 +58,14 @@ export function summariseVocabularyProgress({dashboard={},missions=[],engagement
   const completedMissions=missions.length;
   const available=Number.isFinite(recorded?.attempts)&&recorded.attemptsAvailable!==false;
   const timeAvailable=Number.isFinite(recorded?.activeSeconds)&&recorded.timeAvailable!==false;
-  const achievementsTotal=engagement.achievementsTotal??null;
+  const achievementsTotal=engagement?.achievementsTotal??null;
   return {
     attempts:available?recorded.attempts:null,
     activeSeconds:timeAvailable?recorded.activeSeconds:null,
     wordsMastered,
     completedMissions,
-    weekly:engagement.weekly ?? null,
-    achievementsUnlocked:engagement.achievementsUnlocked??null,
+    weekly:engagement?.weekly ?? null,
+    achievementsUnlocked:engagement?.achievementsUnlocked??null,
     achievementsTotal,
     pathways:VOCABULARY_PATHWAYS.map(pathway=>({
       id:pathway.id,...pathwayCount[pathway.id],
