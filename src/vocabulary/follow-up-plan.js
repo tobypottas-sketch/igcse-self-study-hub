@@ -21,6 +21,9 @@ export function buildFollowUpPlan({ classData, currentStudent = null, currentDri
     totalTargets:targets.length,
     patternCount:targets.filter(x => x.hasPattern).length
   })).sort((a,b) => b.patternCount-a.patternCount || b.totalTargets-a.totalTargets || a.name.localeCompare(b.name));
+  const frequencies = new Map();
+  for (const student of students) for (const term of student.words) frequencies.set(term, (frequencies.get(term) ?? 0) + 1);
+  const wordBank = [...frequencies].sort((a,b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0,6).map(([term]) => term);
   const focusId = currentStudent?.developmentSkill ?? currentStudent?.developmentArea
     ?? currentDrilldown?.skillId ?? currentDrilldown?.strand
     ?? currentInsights?.mainWeakness?.skillId ?? currentInsights?.mainWeakness?.strand ?? null;
@@ -36,6 +39,7 @@ export function buildFollowUpPlan({ classData, currentStudent = null, currentDri
   return {
     className:classData.className ?? '',
     students,
+    wordBank,
     focus,
     focusSource:currentStudent ? 'Individual profile' : currentDrilldown ? 'Selected problem area' : 'Class-level learning trend',
     activity,
@@ -45,12 +49,14 @@ export function buildFollowUpPlan({ classData, currentStudent = null, currentDri
 
 export function teamsFollowUpMessage(plan) {
   if (!plan?.students?.length) return '';
+  const sample = (plan.wordBank ?? []).length ? `Suggested practice words: ${plan.wordBank.join(', ')}.` : '';
   return [
-    'Vocabulary follow-up practice',
+    'Vocabulary follow-up | 10 minutes',
     `Focus: ${plan.focus}`,
-    '1. Open the iGCSE Self-Study Hub and review the vocabulary words you are still developing.',
-    '2. For each word, write its meaning and one accurate example sentence.',
-    '3. Check your examples, correct any errors, and try the words again without looking.',
-    'Please complete a short Hub practice session after this so we can check your progress.'
-  ].join('\n');
+    sample,
+    `1. ${plan.activity}`,
+    '2. Check your answers using the vocabulary definitions and correct any errors.',
+    '3. Try one new example independently without looking at your earlier answer.',
+    'Then complete a short session in the iGCSE Self-Study Hub to practise again.'
+  ].filter(Boolean).join('\\n');
 }
