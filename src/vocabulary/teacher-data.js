@@ -63,6 +63,22 @@ export function normalizeTeacherVocabularyData(raw = {}) {
   return { classes, targets:items, occurrences };
 }
 
+// Fast first paint: class names and membership counts only. No student evidence or history.
+// Teacher assignment filtering is applied before the class chooser is rendered.
+export async function loadVocabularyTeacherClassList(client,profile) {
+  if(!client||!profile?.id||!['teacher','admin'].includes(profile.role))throw new Error('Staff authorisation required.');
+  const [classes,memberships,assignments]=await Promise.all([
+    fetchAllRows(()=>client.from('classes').select('id,class_name,active',{count:'exact'}).eq('active',true).order('id'),{label:'active classes'}),
+    fetchAllRows(()=>client.from('student_class_memberships').select('class_id,student_id,ended_at',{count:'exact'}).is('ended_at',null).order('class_id').order('student_id'),{label:'active memberships'}),
+    profile.role==='teacher'?fetchAllRows(()=>client.from('teacher_classes').select('teacher_id,class_id',{count:'exact'}).eq('teacher_id',profile.id).order('class_id'),{label:'teacher assignments'}):Promise.resolve([])
+  ]);
+  const authorised=profile.role==='teacher'?new Set(assignments.map(row=>row.class_id)):null;
+  return {classes:classes.filter(row=>!authorised||authorised.has(row.id)).map(row=>({
+    id:row.id,className:row.class_name,
+    students:[...new Set(memberships.filter(m=>m.class_id===row.id).map(m=>m.student_id))].map(id=>({id}))
+  }))};
+}
+
 export const ACTIVITY_WINDOW_DAYS = 90;
 
 async function optional(work) {
