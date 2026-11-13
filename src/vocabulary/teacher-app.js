@@ -4,6 +4,7 @@ import { buildVocabularyInterventionDraft, createLearningIntervention } from './
 import { buildPracticeHabits, buildStudentHabits } from './practice-habits.js';
 import { buildWeeklyUsage, MAX_WEEKS_BACK } from './weekly-usage.js';
 import { buildFollowUpPlan, teamsFollowUpMessage } from './follow-up-plan.js';
+import { generateVocabularyActivity, renderVocabularyActivityStudio } from './teacher-activity-studio.js';
 import { buildMeritStatus, SKILLS_PER_MERIT } from './merits.js';
 import { loadVocabularyTeacherData, loadUnitReadinessContent } from './teacher-data.js';
 import { evaluateUnitReadiness } from './pathway-readiness.js';
@@ -13,7 +14,7 @@ import { selectedUnit, unitOccurrences } from './teacher-units.js';
 import { renderTeacherOverview, weeklyUsagePanel, renderProblemArea, renderStudentVocabularyProfile, renderFollowUpPlan } from './teacher-views.js?v=teacher-recovery-20261113-2';
 import { renderVocabularyError } from './views.js';
 
-const teacherState = { readiness:new Map(), root:null, client:null, profile:null, data:null, currentClass:null, currentDrilldown:null, currentStudent:null, currentInsights:null, weeklyWeeksAgo:0, followUpPlan:null };
+const teacherState = { readiness:new Map(), root:null, client:null, profile:null, data:null, currentClass:null, currentDrilldown:null, currentStudent:null, currentInsights:null, weeklyWeeksAgo:0, followUpPlan:null, activityConfig:{type:"forms",minutes:10,level:"standard",variant:0} };
 
 function renderClassChooser() {
   const classes = teacherState.data?.classes ?? [];
@@ -149,7 +150,8 @@ function openFollowUpPlan() {
     currentDrilldown:teacherState.currentDrilldown,
     currentInsights:teacherState.currentInsights
   });
-  renderFollowUpPlan(teacherState.root, teacherState.followUpPlan);
+  teacherState.activityConfig = {type:"forms",minutes:10,level:"standard",variant:0};
+  renderFollowUpPlan(teacherState.root, teacherState.followUpPlan, teacherState.activityConfig);
 }
 
 function closeFollowUpPlan() {
@@ -174,6 +176,41 @@ async function copyFollowUpInstructions() {
     if (status) status.textContent = 'Instructions copied. Choose the recipients in Teams.';
   } catch {
     if (status) status.textContent = 'Clipboard access was blocked. Please allow clipboard access and try again.';
+  }
+}
+
+function updateTeacherStudio(target) {
+  if (!teacherState.followUpPlan) return;
+  const option = target.dataset.kind;
+  if (target.dataset.action === 'teacher-studio-refresh') {
+    teacherState.activityConfig.variant += 1;
+  } else if (option === 'type') {
+    teacherState.activityConfig.type = target.dataset.value;
+    teacherState.activityConfig.variant = 0;
+  } else if (option === 'minutes') {
+    teacherState.activityConfig.minutes = Number(target.dataset.value);
+  } else if (option === 'level') {
+    teacherState.activityConfig.level = target.dataset.value;
+  }
+  const previous = teacherState.root.querySelector('[data-vocab-studio]');
+  if (!previous) return;
+  // Update only the activity studio. Do not reset the student list or Hub recommendation.
+  const holder = document.createElement('div');
+  holder.innerHTML = renderVocabularyActivityStudio(teacherState.followUpPlan,teacherState.activityConfig);
+  previous.replaceWith(holder.firstElementChild);
+}
+async function copyTeacherStudio(target) {
+  if (!teacherState.followUpPlan) return;
+  const result = generateVocabularyActivity(teacherState.followUpPlan,teacherState.activityConfig);
+  const status = teacherState.root.querySelector('[data-vocab-studio-status]');
+  const text = target.dataset.part === 'key' ? result.key : result.task;
+  if (!result.ready) return;
+  try {
+    if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+    await navigator.clipboard.writeText(text);
+    if (status) status.textContent = target.dataset.part === 'key' ? 'Answer key copied' : 'Student task copied';
+  } catch {
+    if (status) status.textContent = 'Copy unavailable. Select the text above to copy manually.';
   }
 }
 
@@ -257,6 +294,8 @@ function handleClick(event) {
   else if (action === 'teacher-follow-up-plan') openFollowUpPlan();
   else if (action === 'teacher-follow-up-back') closeFollowUpPlan();
   else if (action === 'teacher-copy-follow-up') void copyFollowUpInstructions();
+  else if (action === 'teacher-studio-select' || action === 'teacher-studio-refresh') updateTeacherStudio(target);
+  else if (action === 'teacher-studio-copy') void copyTeacherStudio(target);
   else if (action === 'teacher-recommend-practice') showRecommendationChooser();
   else if (action === 'teacher-create-recommendation') void createRecommendation(target);
 }
