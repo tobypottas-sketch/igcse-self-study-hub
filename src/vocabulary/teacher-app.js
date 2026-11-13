@@ -102,7 +102,7 @@ async function openClass(classId) {
   teacherState.currentDrilldown = null;
   teacherState.currentStudent = null;
   teacherState.currentInsights = classInsights(classData);
-  renderTeacherOverview(teacherState.root, { className:classData.className, insights:teacherState.currentInsights, merits:classMerits(classData), habits:classHabits(classData), units:selectedUnit(classData), weeklyUsage:weeklyForClass(classData) });
+  renderTeacherOverview(teacherState.root, { className:classData.className, insights:teacherState.currentInsights, merits:classMerits(classData), habits:classHabits(classData), units:selectedUnit(classData), weeklyUsage:weeklyForClass(classData), canChooseClass:teacherState.data.classes.length > 1 });
 }
 
 async function openReadiness(unitNumber = null) {
