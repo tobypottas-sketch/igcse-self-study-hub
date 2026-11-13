@@ -25,7 +25,7 @@ test('unit readiness returns to the previous class overview when class context e
 test('readiness is issue first and keeps all technical counts behind a disclosure', () => {
   assert.match(view, /vocab-readiness__metrics/);
   assert.match(view, /vocab-readiness__metric/);
-  assert.match(view, /Show stage details/);
+  assert.match(view, /View detailed content checks/);
   assert.doesNotMatch(view, /<details open>/);
   assert.match(view, /What needs attention/);
   assert.match(view, /Already available/);
@@ -38,7 +38,7 @@ test('readiness polish is isolated, responsive, and cache-versioned', () => {
   assert.match(css, /\.vocab-readiness__row/);
   assert.match(css, /\.vocab-readiness__audit/);
   assert.match(css, /@media\(max-width:620px\)/);
-  assert.match(html, /vocabulary-readiness-polish\.css\?v=readiness-v1/);
+  assert.match(html, /vocabulary-readiness-polish\.css\?v=readiness-v2/);
 });
 
 test('readiness guidance uses eligible word targets, not questions or student scores', () => {
