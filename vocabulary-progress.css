@@ -25,13 +25,13 @@
 .vocab-journey-week__dots span.is-done{background:#4dc6ae}
 .vocab-journey-sub{font-size:.82rem;line-height:1.5;color:var(--journey-muted);margin:9px 0 16px}
 .vocab-journey-pathways{display:grid;gap:14px}
-.vocab-journey-pathway__head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:6px}
+.vocab-journey-pathway__head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;margin-bottom:7px}
 .vocab-journey-pathway__head strong{font-size:.85rem;color:#254563}
-.vocab-journey-pathway__head span{color:#668197;font-size:.7rem;text-align:right}
+.vocab-journey-pathway__head span{color:#668197;font-size:.76rem;text-align:right;line-height:1.4;font-variant-numeric:tabular-nums}
 .vocab-journey-pathway__track{height:9px;border-radius:50px;background:#e9eef5;overflow:hidden}
 .vocab-journey-pathway__track>span{display:block;height:100%;border-radius:50px;background:linear-gradient(90deg,#49bda9,#4b79bc)}
 .vocab-journey-footnote{color:#697f92;font-size:.78rem;margin:18px 3px 30px;line-height:1.6}
-.vocab-journey-note{background:#fff4d8;border:1px solid #eed79b;border-radius:11px;color:#8a631e;padding:11px 15px}
+.vocab-journey-note{background:#fff4d8;border:1px solid #eed79b;border-radius:11px;color:#8a631e;padding:11px 15px;line-height:1.5}.vocab-journey-note strong{font-size:.82rem;letter-spacing:.07em}
 /* Occupies its own row even when the Home screen is a grid. No side-by-side staff banner/card. */
 .vocab-shell--home>.vocab-progress-entry{grid-column:1/-1;grid-row:auto;justify-self:stretch;align-self:stretch;box-sizing:border-box;width:100%;max-width:100%;min-width:0;clear:both;display:flex;align-items:center;justify-content:space-between;gap:18px;margin:14px 0 18px;padding:17px 21px;border:1px solid #cdddeb;border-radius:17px;background:linear-gradient(105deg,#eaf7fb,#f0f0ff)}
 .vocab-shell--home>.vocab-progress-entry>span{display:flex;flex:1 1 auto;min-width:0;flex-direction:column;gap:4px}
