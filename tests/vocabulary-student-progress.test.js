@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {loadStudentVocabularyProgress,summariseVocabularyProgress,renderStudentVocabularyProgress} from '../src/vocabulary/student-progress.js';
+import {loadStudentVocabularyProgress,summariseVocabularyProgress,sampleVocabularyProgress,renderStudentVocabularyProgress} from '../src/vocabulary/student-progress.js';
 
 function clientWith(events,{failAttempts=false,failTime=false}={}) {
   const calls=[];
@@ -80,6 +80,9 @@ test('only persisted contiguous stage completions are counted',()=>{
   assert.equal(s.completedMissions,1);
   assert.equal(s.pathways.find(p=>p.id==='meaning').cleared,3);
   assert.equal(s.pathways.find(p=>p.id==='meaning').total,10);
+  assert.equal(s.pathways.find(p=>p.id==='meaning').wordsProgressing,2);
+  assert.equal(s.pathways.find(p=>p.id==='meaning').wordCount,2);
+  assert.equal(s.pathways.find(p=>p.id==='meaning').percent,100);
   assert.equal(s.attempts,22);
   assert.equal(s.activeSeconds,130);
 });
@@ -113,6 +116,38 @@ test('staff preview engagement is null and must still render safely',()=>{
   assert.equal(summary.attempts,null);
   const root={innerHTML:''};
   renderStudentVocabularyProgress(root,{summary,displayName:'Teacher',preview:true});
-  assert.match(root.innerHTML,/Staff preview/);
+  assert.match(root.innerHTML,/DEMONSTRATION DATA/);
   assert.match(root.innerHTML,/data-action="progress-back-home"/);
+});
+
+test('staff demonstration has clearly fictional, populated metrics',()=>{
+  const summary=sampleVocabularyProgress();
+  assert.equal(summary.demo,true);
+  assert.ok(summary.attempts>0);
+  assert.ok(summary.activeSeconds>0);
+  assert.ok(summary.achievementsUnlocked>0);
+  assert.ok(summary.pathways.every(p=>p.wordsProgressing>0 && p.cleared>0 && p.wordCount>0));
+  const root={innerHTML:''};
+  renderStudentVocabularyProgress(root,{summary,displayName:'Staff Member',preview:true});
+  assert.match(root.innerHTML,/DEMONSTRATION DATA/);
+  assert.match(root.innerHTML,/fictional examples/);
+  assert.match(root.innerHTML,/words progressing/);
+  assert.match(root.innerHTML,/stages completed/);
+  assert.doesNotMatch(root.innerHTML,/word-stage steps/);
+  assert.doesNotMatch(root.innerHTML,/Staff Member/);
+});
+test('real student figures remain exact and are never replaced by example data',()=>{
+  const live=summariseVocabularyProgress({
+    dashboard:{occurrences:[],unit:[],global:[]},
+    missions:[],engagement:{weekly:{done:0,goal:4},achievementsUnlocked:0,achievementsTotal:14},
+    recorded:{attempts:0,activeSeconds:0,attemptsAvailable:true,timeAvailable:true}
+  });
+  const root={innerHTML:''};
+  renderStudentVocabularyProgress(root,{summary:live,displayName:'Learner',preview:false});
+  assert.equal(live.demo,undefined);
+  assert.equal(live.attempts,0);
+  assert.equal(live.wordsMastered,0);
+  assert.doesNotMatch(root.innerHTML,/DEMONSTRATION DATA/);
+  assert.doesNotMatch(root.innerHTML,/1,248/);
+  assert.match(root.innerHTML,/Learner/);
 });
