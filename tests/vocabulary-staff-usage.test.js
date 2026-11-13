@@ -43,6 +43,8 @@ test('render escapes student names, offers real actions and no demo metrics',()=
  assert.match(root.innerHTML,/&lt;script&gt;/);
  assert.match(root.innerHTML,/data-action="staff-usage-class"/);
  assert.match(root.innerHTML,/data-action="staff-usage-select-class"/);
+ assert.match(root.innerHTML,/data-action="staff-usage-search"/);
+ assert.match(root.innerHTML,/data-vocab-usage-student-row/);
  assert.match(root.innerHTML,/data-action="staff-usage-student"/);
  assert.match(root.innerHTML,/data-action="staff-usage-back"/);
  assert.doesNotMatch(root.innerHTML,/DEMONSTRATION DATA/);
@@ -83,4 +85,14 @@ test('teacher class permissions constrain the user and event query before loadin
  const eventCall=calls.find(row=>row.table==='activity_events');
  assert.ok(eventCall.filters.some(([k,op,v])=>k==='user_id'&&op==='in'&&v.length===1&&v[0]==='s1'));
  assert.ok(!calls.some(row=>row.table==='activity_events'&&row.filters.some(([k,op,v])=>k==='user_id'&&v.includes('s2'))));
+});
+
+test('seven-day chart partitions dates without duplicating attempts',()=>{
+ const root={innerHTML:''};
+ renderVocabularyStaffUsage(root,data,{days:7,now});
+ const chart=root.innerHTML.match(/<div class="vocab-usage-chart"[\s\S]*?<\/div><\/article>/)?.[0] ?? '';
+ assert.match(chart,/vocab-usage-bar/);
+ // The fixture has two attempts in the selected week, not duplicated across buckets.
+ assert.ok(chart.includes('>1</strong>'));
+ assert.doesNotMatch(chart,/>2<\/strong>/);
 });
