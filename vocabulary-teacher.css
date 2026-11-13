@@ -119,3 +119,10 @@
 .vocab-class-chooser .vocab-class-card:hover .vocab-class-card__cta{text-decoration:underline;text-underline-offset:3px}
 @media(max-width:900px){.vocab-class-chooser .vocab-class-chooser__grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.vocab-class-chooser .vocab-class-chooser__grid{grid-template-columns:1fr}.vocab-class-chooser .vocab-class-chooser__hero{padding:22px}.vocab-class-chooser .vocab-class-card{min-height:176px}}
+
+/* Multi-class teacher navigation: keep Hub and class chooser as distinct destinations. */
+.vocab-shell--teacher .vocab-teacher-navigation{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.vocab-shell--teacher .vocab-teacher-choose-class{appearance:none;border:0;padding:0;background:none;color:var(--hub-teal,var(--c-teal));font:inherit;font-weight:800;cursor:pointer;text-decoration:none}
+.vocab-shell--teacher .vocab-teacher-choose-class:hover{text-decoration:underline;text-underline-offset:3px}
+.vocab-shell--teacher .vocab-teacher-choose-class:focus-visible{outline:2px solid currentColor;outline-offset:4px;border-radius:3px}
+@media(max-width:620px){.vocab-shell--teacher .vocab-teacher-navigation{gap:10px}}
