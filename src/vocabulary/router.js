@@ -16,7 +16,7 @@ async function routeVocabulary() {
     const previewRequested = new URLSearchParams(window.location.search).get('preview') === '1';
     const staff = profile.role === 'teacher' || profile.role === 'admin';
     if (staff && previewRequested) {
-      await import('./app.js?v=my-progress-v1');
+      await import('./app.js?v=my-progress-fix2');
       await import('./unit-check-controller.js?v=workspace-v5');
       return;
     }
@@ -26,7 +26,7 @@ async function routeVocabulary() {
       return;
     }
     if (profile.role === 'student') {
-      await import('./app.js?v=my-progress-v1');
+      await import('./app.js?v=my-progress-fix2');
       await import('./unit-check-controller.js?v=workspace-v5');
       return;
     }
