@@ -992,7 +992,19 @@ root?.addEventListener('click', event => {
   else if (action === 'open-unit') openUnit(Number(target.dataset.unit)).catch(error => renderVocabularyError(root, error.message));
   else if (action === 'open-game') { if (!state.content) return; state.games?.destroy?.(); state.games = mountGames(root, { content:state.content, unitNumber:state.currentUnitNumber, game:target.dataset.game, onCue:playCue, onExit:() => { state.games = null; renderCurrentUnit(); } }); } /* PROTOTYPE games: isolated, no state or client passed */
   else if (action === 'back-units') showHome().catch(error => renderVocabularyError(root, error.message)); else if (action === 'view-all-words') showAllWords();
-  else if (action === 'open-pathway') { openFreshPracticeSheet(target.dataset.pathway).catch(error => renderVocabularyError(root, error.message)); }
+  else if (action === 'open-pathway') {
+    if(target.dataset.pathwayOpening==='true')return;
+    target.dataset.pathwayOpening='true';
+    target.setAttribute('aria-busy','true');
+    target.insertAdjacentHTML('beforeend','<span class="vocab-pending-track" data-pathway-loading aria-hidden="true"></span>');
+    openFreshPracticeSheet(target.dataset.pathway)
+      .catch(error=>renderVocabularyError(root,error.message))
+      .finally(()=>{
+        delete target.dataset.pathwayOpening;
+        target.removeAttribute('aria-busy');
+        target.querySelector('[data-pathway-loading]')?.remove?.();
+      });
+  }
   else if (action === 'start-recommended') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, null); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId)); }
   else if (action === 'start-practice-choice') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, target.dataset.family); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId, false, { familyId:target.dataset.family })); }
   else if (action === 'close-practice-sheet') closePracticeSheet();
