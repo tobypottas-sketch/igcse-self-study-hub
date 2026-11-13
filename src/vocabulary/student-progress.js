@@ -1,7 +1,6 @@
 import { escapeHtml } from '../views/html.js';
 import { fetchAllRows } from './teacher-paging.js';
 import { VOCABULARY_PATHWAYS } from './pathway-model.js';
-import { buildWordPathwayStates } from './pathway-view-model.js';
 
 // Read-only and student-scoped. Counting answered attempts includes retries, which are labelled as attempts.
 // Exact HEAD counts avoid the PostgREST 1,000-row cap; active seconds are paged and summed.
@@ -29,17 +28,31 @@ export async function loadStudentVocabularyProgress(client, userId, { preview=fa
     preview:false
   };
 }
+const FIVE_STAGES=['recognise','match','apply','recall','mastery'];
+// Only persisted, consecutively cleared pathway stages count; legacy inferred placement is not a completion.
+function persistedCompletions(row,pathwayId) {
+  const detail=row?.contextual_evidence ?? row?.contextualEvidence ?? {};
+  const progress=(detail.pathwayProgress ?? detail.pathway_progress ?? {})[pathwayId];
+  if(!progress)return 0;
+  const completed=Array.isArray(progress.completedStages) ? progress.completedStages
+    : Array.isArray(progress.completed_stages) ? progress.completed_stages
+    : FIVE_STAGES.filter(stage=>progress.stages?.[stage]?.completed===true);
+  let cleared=0;
+  for(const stage of FIVE_STAGES){
+    if(!completed.includes(stage))break;
+    cleared++;
+  }
+  return cleared;
+}
 export function summariseVocabularyProgress({dashboard={},missions=[],engagement={},recorded={}}={}) {
   const rows=dashboard.global ?? [];
   const wordsMastered=rows.filter(row=>row.status==='mastered').length;
   const unitRows=Object.fromEntries((dashboard.unit??[]).map(row=>[row.occurrence_id,row]));
-  const globalRows=Object.fromEntries(rows.map(row=>[row.vocabulary_id,row]));
   const pathwayCount=Object.fromEntries(VOCABULARY_PATHWAYS.map(pathway=>[pathway.id,{label:pathway.label,cleared:0,total:0}]));
   for(const occurrence of dashboard.occurrences??[]) {
-    const states=buildWordPathwayStates({occurrence,unitMastery:unitRows,globalMastery:globalRows});
     for(const pathway of VOCABULARY_PATHWAYS){
       pathwayCount[pathway.id].total+=5;
-      pathwayCount[pathway.id].cleared+=Math.min(5,states[pathway.id]?.completedStages?.length??0);
+      pathwayCount[pathway.id].cleared+=persistedCompletions(unitRows[occurrence.occurrence_id],pathway.id);
     }
   }
   const completedMissions=missions.length;
