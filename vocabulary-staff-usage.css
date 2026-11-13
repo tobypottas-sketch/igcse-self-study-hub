@@ -9,6 +9,8 @@
 .vocab-usage-controls strong{font-size:.77rem;letter-spacing:.04em;color:#375d7b}
 .vocab-usage-pills{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .vocab-usage-pill{background:#fff;border:1px solid #d5e0ed;color:#42617e;border-radius:999px;font-size:.83rem;font-weight:850;padding:8px 13px;min-height:37px;cursor:pointer}
+.vocab-usage-class-select{min-height:41px;max-width:min(100%,360px);width:320px;border:1px solid #ccdcec;border-radius:12px;background:#fff;color:#2c4d6c;padding:9px 13px;font:inherit;font-size:.86rem;font-weight:800;cursor:pointer;outline-offset:3px}
+.vocab-usage-class-select:focus-visible{outline:3px solid #267dc0}
 .vocab-usage-pill:hover{border-color:#5c7daf}
 .vocab-usage-pill.is-selected{background:#2d5188;color:white;border-color:#2d5188}
 .vocab-usage-pill:focus-visible,.vocab-usage-class:focus-visible,.vocab-usage-student-link:focus-visible{outline:3px solid #267dc0;outline-offset:2px}
@@ -55,4 +57,4 @@
 .vocab-class-chooser__usage-action{display:flex;margin-top:12px}
 .vocab-class-chooser__usage-action button{border:0;border-radius:12px;background:#246083;color:white;font-size:.88rem;font-weight:900;padding:12px 18px;cursor:pointer}
 @media(max-width:900px){.vocab-usage-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.vocab-usage-panels{grid-template-columns:1fr}.vocab-usage-class-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:570px){.vocab-usage-hero{padding:23px}.vocab-usage-class-grid{grid-template-columns:1fr}.vocab-usage-panel,.vocab-usage-classes{padding:16px}.vocab-usage-chart{gap:5px}.vocab-usage-bar small{font-size:.61rem}.vocab-usage-metric{padding:14px;min-height:130px}}
+@media(max-width:570px){.vocab-usage-class-select{width:100%;max-width:100%}.vocab-usage-hero{padding:23px}.vocab-usage-class-grid{grid-template-columns:1fr}.vocab-usage-panel,.vocab-usage-classes{padding:16px}.vocab-usage-chart{gap:5px}.vocab-usage-bar small{font-size:.61rem}.vocab-usage-metric{padding:14px;min-height:130px}}
