@@ -36,6 +36,13 @@ export function buildFollowUpPlan({ classData, currentStudent = null, currentDri
     : /word.famil|production|precision/i.test(kind)
     ? 'Ask students to use the target word accurately in a sentence, explain their choice, then improve or change its form where appropriate.'
     : 'Use a short sentence with the target word. Students explain its meaning in context and choose or write an accurate alternative.';
+  const studentTask = /paraphras/i.test(kind)
+    ? 'Choose two words from the list. Write one accurate sentence with each word, then rewrite each sentence in different words without changing its meaning. Explain which meaning you preserved.'
+    : /spelling|recall/i.test(kind)
+    ? 'Study three words from the list for one minute. Cover them, spell them from memory, then check and correct them. Use each correctly in a sentence.'
+    : /word.famil|production|precision/i.test(kind)
+    ? 'Choose three words from the list. Write an accurate example sentence for each. Where a natural related word form exists, write another sentence using that form.'
+    : 'Choose three words from the list. Write a short sentence for each that shows its meaning, then explain the meaning in your own words.';
   return {
     className:classData.className ?? '',
     students,
@@ -43,6 +50,7 @@ export function buildFollowUpPlan({ classData, currentStudent = null, currentDri
     focus,
     focusSource:currentStudent ? 'Individual profile' : currentDrilldown ? 'Selected problem area' : 'Class-level learning trend',
     activity,
+    studentTask,
     limitation:'Based on current developing-word records and recorded error patterns. These are practice priorities, not proof of a particular misconception or that every word failed the suggested skill.'
   };
 }
@@ -54,7 +62,7 @@ export function teamsFollowUpMessage(plan) {
     'Vocabulary follow-up | 10 minutes',
     `Focus: ${plan.focus}`,
     sample,
-    `1. ${plan.activity}`,
+    `1. ${plan.studentTask}`,
     '2. Check your answers using the vocabulary definitions and correct any errors.',
     '3. Try one new example independently without looking at your earlier answer.',
     'Then complete a short session in the iGCSE Self-Study Hub to practise again.'
