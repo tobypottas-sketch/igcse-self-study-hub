@@ -12,7 +12,7 @@ function pill(text, tone = 'quiet') { return `<span class="vocab-pill" data-tone
 function previewButton() { return '<a class="vocab-button vocab-button--quiet" href="./vocabulary.html?preview=1">Preview student activities</a>'; }
 // ONE primary action per screen; everything else is quiet. The recommendation chooser opens directly under this bar.
 function actionButtons({ followUp = true } = {}) {
-  return `<div class="vocab-teacher-actions"><button class="vocab-button vocab-button--primary" data-action="teacher-recommend-practice">Recommend Hub Practice</button><span class="vocab-teacher-actions__quiet">${followUp ? '<button class="vocab-button vocab-button--quiet" data-action="teacher-follow-up-plan">Plan follow-up practice</button>' : ''}${previewButton()}</span></div>`;
+  return `<div class="vocab-teacher-actions"><button class="vocab-button vocab-button--primary" data-action="teacher-recommend-practice">Recommend Hub Practice</button><span class="vocab-teacher-actions__quiet">${followUp ? '<button class="vocab-button vocab-button--quiet" data-action="teacher-follow-up-plan">Plan follow-up practice</button>' : ''}<button class="vocab-button vocab-button--quiet" data-action="teacher-open-usage">Usage overview</button>${previewButton()}</span></div>`;
 }
 function skillRows(profile) {
   const rows = Object.entries(profile?.skills ?? {}).filter(([,row]) => Number(row?.evidenceCount ?? 0) > 0);

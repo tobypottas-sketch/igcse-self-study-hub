@@ -6,20 +6,43 @@ import { buildWeeklyUsage, MAX_WEEKS_BACK } from './weekly-usage.js';
 import { buildFollowUpPlan, teamsFollowUpMessage } from './follow-up-plan.js';
 import { generateVocabularyActivity, renderVocabularyActivityStudio } from './teacher-activity-studio.js';
 import { buildMeritStatus, SKILLS_PER_MERIT } from './merits.js';
-import { loadVocabularyTeacherData, loadUnitReadinessContent } from './teacher-data.js';
+import { loadVocabularyTeacherData, loadUnitReadinessContent } from './teacher-data.js?v=staff-usage-v1';
+import { loadVocabularyStaffUsage, renderVocabularyStaffUsage } from './staff-usage.js';
 import { evaluateUnitReadiness } from './pathway-readiness.js';
 import { coverageFromReadiness } from './pathway-coverage.js';
 import { registerPathwayCoverage } from './pathway-coverage-store.js';
 import { selectedUnit, unitOccurrences } from './teacher-units.js';
-import { renderTeacherOverview, weeklyUsagePanel, renderProblemArea, renderStudentVocabularyProfile, renderFollowUpPlan } from './teacher-views.js?v=studio-v2-verified';
+import { renderTeacherOverview, weeklyUsagePanel, renderProblemArea, renderStudentVocabularyProfile, renderFollowUpPlan } from './teacher-views.js?v=staff-usage-v1';
 import { renderVocabularyError } from './views.js';
 
-const teacherState = { readiness:new Map(), root:null, client:null, profile:null, data:null, currentClass:null, currentDrilldown:null, currentStudent:null, currentInsights:null, weeklyWeeksAgo:0, followUpPlan:null, activityConfig:{type:"forms",minutes:10,level:"standard",variant:0} };
+const teacherState = { readiness:new Map(), root:null, client:null, profile:null, data:null, currentClass:null, currentDrilldown:null, currentStudent:null, currentInsights:null, weeklyWeeksAgo:0, followUpPlan:null, usageData:null, usageDays:30, usageClassId:"all", usageStudentId:null, usageReturnClass:null, activityConfig:{type:"forms",minutes:10,level:"standard",variant:0} };
 
 function renderClassChooser() {
   const classes = teacherState.data?.classes ?? [];
   const cards = classes.map(row => `<button class="vocab-class-card" data-action="teacher-open-class" data-class-id="${escapeHtml(row.id)}"><span class="vocab-class-card__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.5 5.75A2.25 2.25 0 0 1 6.75 3.5H12v15.75H6.75A2.25 2.25 0 0 0 4.5 21.5V5.75Zm15 0a2.25 2.25 0 0 0-2.25-2.25H12v15.75h5.25a2.25 2.25 0 0 1 2.25 2.25V5.75Z"/></svg></span><span class="vocab-class-card__eyebrow">Class</span><strong class="vocab-class-card__title">${escapeHtml(row.className)}</strong><span class="vocab-class-card__count">${escapeHtml(row.students.length)} students</span><span class="vocab-class-card__cta">Open analytics →</span></button>`).join('') || '<p class="vocab-empty">No classes are currently available to this account.</p>';
-  teacherState.root.innerHTML = `<main class="vocab-shell vocab-class-chooser"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Teacher analytics</span></header><section class="vocab-teacher-hero vocab-class-chooser__hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase</p><h1>Choose a class</h1><p>Open the class that needs your attention.</p><div class="vocab-teacher-actions"><a class="vocab-button" href="./vocabulary.html?preview=1">Preview student activities</a></div></section><section class="vocab-class-chooser__grid">${cards}</section></main>`;
+  teacherState.root.innerHTML = `<main class="vocab-shell vocab-class-chooser"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Teacher analytics</span></header><section class="vocab-teacher-hero vocab-class-chooser__hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase</p><h1>Choose a class</h1><p>Open the class that needs your attention.</p><div class="vocab-teacher-actions"><button type="button" class="vocab-button vocab-button--primary" data-action="teacher-open-usage">Usage overview</button><a class="vocab-button" href="./vocabulary.html?preview=1">Preview student activities</a></div></section><section class="vocab-class-chooser__grid">${cards}</section></main>`;
+}
+
+function showStaffUsage() {
+  if(!teacherState.usageData)return;
+  renderVocabularyStaffUsage(teacherState.root,teacherState.usageData,{
+    days:teacherState.usageDays,classId:teacherState.usageClassId,studentId:teacherState.usageStudentId
+  });
+}
+async function openStaffUsage() {
+  teacherState.usageReturnClass=teacherState.currentClass?.id??null;
+  if(!teacherState.usageData) {
+    teacherState.root.innerHTML='<main class="vocab-shell"><p class="vocab-loading">Loading recorded Vocabulary usage…</p></main>';
+    teacherState.usageData=await loadVocabularyStaffUsage(teacherState.client,teacherState.profile);
+  }
+  teacherState.usageClassId='all';teacherState.usageStudentId=null;
+  showStaffUsage();
+}
+function returnFromStaffUsage() {
+  const prior=teacherState.usageReturnClass;
+  if(prior && teacherState.data.classes.some(row=>row.id===prior))void openClass(prior).catch(showError);
+  else if(teacherState.data.classes.length===1)void openClass(teacherState.data.classes[0].id).catch(showError);
+  else renderClassChooser();
 }
 
 function pathwayAnalytics(classData, students = classData.students) {
@@ -278,11 +301,52 @@ async function createRecommendation(target) {
 
 function showError(error) { renderVocabularyError(teacherState.root, error instanceof Error ? error.message : 'Teacher vocabulary analytics are unavailable right now.'); }
 
+function filterStaffUsageStudents(event) {
+  const input=event.target?.closest?.('[data-action="staff-usage-search"]');
+  if(!input)return;
+  const query=String(input.value??'').trim().toLowerCase();
+  const rows=teacherState.root.querySelectorAll('[data-vocab-usage-student-row]');
+  let visible=0;
+  for(const row of rows) {
+    row.hidden=!String(row.dataset.name??'').includes(query);
+    if(!row.hidden)visible++;
+  }
+  const counter=teacherState.root.querySelector('[data-usage-search-count]');
+  if(counter)counter.textContent=visible+' of '+rows.length+' students';
+}
+
+function handleStaffUsageChange(event) {
+  const target=event.target?.closest?.('[data-action="staff-usage-select-class"]');
+  if(!target)return;
+  const requested=target.value;
+  if(requested==='all'||teacherState.usageData?.classes.some(row=>row.id===requested)){
+    teacherState.usageClassId=requested;
+    teacherState.usageStudentId=null;
+    showStaffUsage();
+  }
+}
+
 function handleClick(event) {
   const target = event.target?.closest?.('[data-action]');
   const action = target?.dataset?.action;
   if (!action) return;
-  if (action === 'teacher-open-class') void openClass(target.dataset.classId).catch(showError);
+  if (action === 'teacher-open-usage') void openStaffUsage().catch(showError);
+  else if (action === 'staff-usage-back') returnFromStaffUsage();
+  else if (action === 'staff-usage-days') {
+    teacherState.usageDays=Number(target.dataset.value);
+    teacherState.usageStudentId=null;showStaffUsage();
+  }
+  else if (action === 'staff-usage-class') {
+    const requested=target.dataset.value;
+    if(requested==='all'||teacherState.usageData?.classes.some(row=>row.id===requested)){
+      teacherState.usageClassId=requested;teacherState.usageStudentId=null;showStaffUsage();
+    }
+  }
+  else if (action === 'staff-usage-student') {
+    const requested=target.dataset.value;
+    teacherState.usageStudentId=requested||null;showStaffUsage();
+  }
+  else if (action === 'teacher-open-class') void openClass(target.dataset.classId).catch(showError);
   else if (action === 'teacher-week-previous') changeWeeklyWeek(1);
   else if (action === 'teacher-week-next') changeWeeklyWeek(-1);
   else if (action === 'teacher-back-classes') { if (teacherState.data.classes.length === 1) void openClass(teacherState.data.classes[0].id).catch(showError); else renderClassChooser(); }
@@ -305,8 +369,10 @@ export async function initialiseVocabularyTeacher({ root, client, profile }) {
   teacherState.client = client;
   teacherState.profile = profile;
   try {
-    teacherState.data = await loadVocabularyTeacherData(client);
+    teacherState.data = await loadVocabularyTeacherData(client,{profile});
     root.addEventListener('click', handleClick);
+    root.addEventListener('change', handleStaffUsageChange);
+    root.addEventListener('input', filterStaffUsageStudents);
     if (teacherState.data.classes.length === 1) await openClass(teacherState.data.classes[0].id);
     else renderClassChooser();
   } catch (error) {
