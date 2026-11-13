@@ -16,7 +16,9 @@ async function routeVocabulary() {
     const previewRequested = new URLSearchParams(window.location.search).get('preview') === '1';
     const staff = profile.role === 'teacher' || profile.role === 'admin';
     if (staff && previewRequested) {
-      await import('./app.js?v=my-progress-demo-v1');
+      const status=root.querySelector('[data-vocab-loading-status]');
+      if(status) status.textContent='Opening student preview…';
+      await import('./app.js?v=shared-loading-v1');
       await import('./unit-check-controller.js?v=workspace-v5');
       return;
     }
@@ -28,7 +30,9 @@ async function routeVocabulary() {
       return;
     }
     if (profile.role === 'student') {
-      await import('./app.js?v=my-progress-demo-v1');
+      const status=root.querySelector('[data-vocab-loading-status]');
+      if(status) status.textContent='Opening your vocabulary…';
+      await import('./app.js?v=shared-loading-v1');
       await import('./unit-check-controller.js?v=workspace-v5');
       return;
     }
