@@ -65,8 +65,23 @@ test('the plan renders an auditable focus and the exact copyable Teams draft',()
   renderFollowUpPlan(target,plan);
   assert.match(target.innerHTML,/Students to check in with/);
   assert.match(target.innerHTML,/Student One/);
-  assert.match(target.innerHTML,/10-minute classroom follow-up/);
+  assert.match(target.innerHTML,/Try this · 10 minutes/);
   assert.match(target.innerHTML,/class="vocab-follow-up__draft"/);
+  assert.match(target.innerHTML, /<details class="vocab-follow-up__teams">/);
+  assert.doesNotMatch(target.innerHTML, /<details class="vocab-follow-up__teams" open/);
+  assert.match(target.innerHTML, /data-follow-up-practice-actions/);
+  assert.doesNotMatch(target.innerHTML,/A practical next step from recorded learning evidence/);
   assert.match(target.innerHTML,/data-action="teacher-copy-follow-up"/);
   assert.match(target.innerHTML,/data-action="teacher-recommend-practice"/);
+});
+
+test('compact design keeps session recommendation mount, Teams copy and full target list', () => {
+  const app = readFileSync(new URL('../src/vocabulary/teacher-app.js', import.meta.url),'utf8');
+  const view = readFileSync(new URL('../src/vocabulary/teacher-views.js', import.meta.url),'utf8');
+  assert.match(app, /querySelector\?\.\('\[data-follow-up-practice-actions\]'\)/);
+  assert.match(view, /<ul class="vocab-follow-up__students">/);
+  assert.match(view, /<details class="vocab-follow-up__method">/);
+  assert.match(view, /teamsFollowUpMessage\(plan\)/);
+  assert.match(view, /teacher-copy-follow-up/);
+  assert.match(view, /teacher-recommend-practice/);
 });
