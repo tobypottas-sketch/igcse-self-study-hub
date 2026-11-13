@@ -199,8 +199,16 @@ async function evaluateUnitsThatLookMastered(dashboard) {
     try { await loadVocabularyUnit(state.client, unitNumber, { occurrences:dashboard.occurrences }); } catch { /* readiness unknown: Unit Mastery simply waits */ }
   }
 }
+function showStudentLoading(message) {
+  const current=root?.querySelector?.('[data-vocab-loading-status]');
+  if(current){current.textContent=message;return;}
+  if(!root)return;
+  root.innerHTML='<section class="vocab-startup" aria-label="Loading Vocabulary Builder"><div class="vocab-startup__content"><span class="vocab-startup__symbol" aria-hidden="true">V</span><p class="vocab-startup__title">Vocabulary Builder</p><p class="vocab-startup__status" data-vocab-loading-status role="status"></p><div class="vocab-startup__track" aria-hidden="true"></div></div></section>';
+  root.querySelector('[data-vocab-loading-status]').textContent=message;
+}
 async function showHome() {
   state.unitRequest += 1; state.loadingUnit = null;
+  showStudentLoading('Loading your vocabulary progress…');
   clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null; state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false; state.setStep = null;
   const [dashboard, missions, meritAwarded] = await Promise.all([loadVocabularyDashboard(state.client, { preview:state.preview }), loadVocabularyMissions(state.client, { preview:state.preview }), loadMeritAwardCount(state.client, { preview:state.preview })]);
   state.dashboard = dashboard; state.missions = missions; state.meritAwarded = meritAwarded; state.units = buildUnits(state.dashboard);
@@ -216,7 +224,7 @@ async function openMyProgress() {
     if (status) status.textContent = 'Progress is not ready. Return to All units and try again.';
     return;
   }
-  if (button) { button.disabled = true; button.textContent = 'Opening progress…'; }
+  if (button) { button.disabled = true; button.textContent = 'Opening progress…'; button.setAttribute('aria-busy','true'); button.insertAdjacentHTML('afterend','<span class="vocab-pending-track" data-progress-loading aria-hidden="true"></span>'); }
   if (status) status.textContent = '';
   try {
     // A staff preview is always a fictional example. It never asks for student activity
@@ -240,7 +248,9 @@ async function openMyProgress() {
     console.error('Vocabulary My Progress could not open', error);
   } finally {
     const remaining = root?.querySelector?.('[data-action="open-my-progress"]');
+    root?.querySelector?.('[data-progress-loading]')?.remove?.();
     if (remaining) {
+      remaining.removeAttribute('aria-busy');
       remaining.disabled = false;
       remaining.textContent = state.preview ? 'View sample progress →' : 'View my progress →';
     }
@@ -1010,6 +1020,7 @@ async function initialise() {
     const { data:profile, error:profileError } = await state.client.from('profiles').select('id, role, display_name, active').eq('id', userData.user.id).single(); const previewRequested = new URLSearchParams(window.location.search).get('preview') === '1'; const staff = profile?.role === 'teacher' || profile?.role === 'admin';
     if (profileError || !profile?.active || (profile.role !== 'student' && !(staff && previewRequested))) { window.location.replace('./'); return; }
     window.addEventListener('beforeunload', event => { if (attempts().pending) { event.preventDefault(); event.returnValue = ''; } });
+    showStudentLoading('Loading your vocabulary progress…');
     state.profile = profile; state.preview = staff && previewRequested; if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'app_open', mode:'practice' }).catch(() => {}); if (!state.preview) startActiveTime(); await showHome();
   } catch (error) { renderVocabularyError(root, error instanceof Error ? error.message : 'Vocabulary practice is unavailable right now.'); }
 }
