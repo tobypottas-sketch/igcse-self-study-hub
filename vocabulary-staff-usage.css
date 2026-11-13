@@ -49,6 +49,19 @@
 .vocab-usage-search input:focus-visible{outline:3px solid #67a2ce;outline-offset:2px}
 .vocab-usage-search small{font-size:.75rem;color:#708499}
 .vocab-usage-tablewrap tr[hidden]{display:none}
+.vocab-usage-active-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:9px 0 11px;color:#254765}
+.vocab-usage-active-title strong{font-size:.94rem;font-weight:900}
+.vocab-usage-active-title span{font-size:.78rem;color:#698296;font-weight:750}
+.vocab-usage-inactive{margin-top:15px;border:1px solid #d5e2ec;border-radius:14px;background:#f8fafc;overflow:hidden}
+.vocab-usage-inactive>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;color:#375a76;font-size:.86rem;font-weight:850;cursor:pointer;list-style:none}
+.vocab-usage-inactive>summary::-webkit-details-marker{display:none}
+.vocab-usage-inactive>summary:hover{background:#eff5f9}
+.vocab-usage-inactive>summary small{color:#236989;font-size:.78rem;font-weight:850}
+.vocab-usage-inactive[open]>summary{border-bottom:1px solid #d5e2ec}
+.vocab-usage-inactive[open]>summary small{font-size:0}
+.vocab-usage-inactive[open]>summary small::after{content:'Hide students';font-size:.78rem}
+.vocab-usage-inactive .vocab-usage-tablewrap{border:0;border-radius:0}
+.vocab-usage-facts small{font-size:.73rem;color:#6b8193}
 .vocab-usage-tablewrap{overflow-x:auto;border:1px solid #e0e7ef;border-radius:13px}
 .vocab-usage-tablewrap table{width:100%;border-collapse:collapse;text-align:left;min-width:590px}
 .vocab-usage-tablewrap th{background:#edf3f9;color:#44617b;font-size:.76rem;font-weight:900;padding:12px 14px;white-space:nowrap}

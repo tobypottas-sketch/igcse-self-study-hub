@@ -7,7 +7,7 @@ import { buildFollowUpPlan, teamsFollowUpMessage } from './follow-up-plan.js';
 import { generateVocabularyActivity, renderVocabularyActivityStudio } from './teacher-activity-studio.js';
 import { buildMeritStatus, SKILLS_PER_MERIT } from './merits.js';
 import { loadVocabularyTeacherData, loadUnitReadinessContent } from './teacher-data.js?v=staff-usage-v1';
-import { loadVocabularyStaffUsage, renderVocabularyStaffUsage } from './staff-usage.js';
+import { loadVocabularyStaffUsage, renderVocabularyStaffUsage } from './staff-usage.js?v=clarity-v2';
 import { evaluateUnitReadiness } from './pathway-readiness.js';
 import { coverageFromReadiness } from './pathway-coverage.js';
 import { registerPathwayCoverage } from './pathway-coverage-store.js';
@@ -310,6 +310,12 @@ function filterStaffUsageStudents(event) {
   for(const row of rows) {
     row.hidden=!String(row.dataset.name??'').includes(query);
     if(!row.hidden)visible++;
+  }
+  // Searching must include students inside the normally collapsed inactive section.
+  const inactive=teacherState.root.querySelector('[data-usage-inactive]');
+  if(inactive) {
+    if(query) inactive.open=Array.from(inactive.querySelectorAll('[data-vocab-usage-student-row]')).some(row=>!row.hidden);
+    else inactive.open=false;
   }
   const counter=teacherState.root.querySelector('[data-usage-search-count]');
   if(counter)counter.textContent=visible+' of '+rows.length+' students';

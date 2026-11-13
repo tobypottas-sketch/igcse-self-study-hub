@@ -40,7 +40,7 @@ export async function loadVocabularyStaffUsage(client,profile) {
       .eq('app_key',APP).in('user_id',ids).order('occurred_at').order('id'),{label:'Vocabulary activity'}),
     fetchAllRowsForIds(studentIds,ids=>client.from('vocabulary_global_mastery')
       .select('student_id,vocabulary_id,status',{count:'exact'})
-      .in('student_id',ids).eq('status','mastered').order('student_id').order('vocabulary_id'),{label:'Vocabulary mastery'})
+      .in('student_id',ids).in('status',['building','secure']).order('student_id').order('vocabulary_id'),{label:'Vocabulary mastery'})
   ]);
   return {role:profile.role,classes,profiles,memberships,events,mastery};
 }
@@ -57,10 +57,14 @@ export function calculateVocabularyUsage(data,{days=30,classId='all',studentId=n
     (!since || new Date(row.occurred_at)>=since) && new Date(row.occurred_at)<=ending);
   const students=new Map(scoped.map(row=>[row.id,{
     id:row.id,name:row.display_name||'Unnamed student',attempts:0,seconds:0,
-    lastActive:null,activeDays:new Set(),mastered:0
+    lastActive:null,activeDays:new Set(),wordsLearning:0,wordsSecure:0
   }]));
-  for(const row of data.mastery??[])if(row.status==='mastered'&&students.has(row.student_id))
-    students.get(row.student_id).mastered++;
+  // Current global status is not the same as complete five-stage mastery.
+  for(const row of data.mastery??[])if(students.has(row.student_id)) {
+    const student=students.get(row.student_id);
+    if(row.status==='building'||row.status==='secure') student.wordsLearning++;
+    if(row.status==='secure') student.wordsSecure++;
+  }
   const daily=new Map();
   for(const row of events) {
     const user=students.get(row.user_id);
@@ -88,7 +92,8 @@ export function calculateVocabularyUsage(data,{days=30,classId='all',studentId=n
     studentCount:studentRows.length,activeStudents,
     attempts:studentRows.reduce((n,row)=>n+row.attempts,0),
     seconds:studentRows.reduce((n,row)=>n+row.seconds,0),
-    mastered:studentRows.reduce((n,row)=>n+row.mastered,0),
+    wordsLearning:studentRows.reduce((n,row)=>n+row.wordsLearning,0),
+    wordsSecure:studentRows.reduce((n,row)=>n+row.wordsSecure,0),
     inactive:studentRows.length-activeStudents
   };
   const dailyRows=[...daily.values()].sort((a,b)=>a.day.localeCompare(b.day))
@@ -140,12 +145,19 @@ export function renderVocabularyStaffUsage(root,model,{days=30,classId='all',stu
     return '<button class="vocab-usage-class" data-action="staff-usage-class" data-value="'+escapeHtml(row.id)+'"><strong>'+
       escapeHtml(row.class_name)+'</strong><span>'+number(inClass.length)+' students</span><small>View class usage →</small></button>';
   }).join(''):'';
-  const rows=usage.students.map(s=>'<tr data-vocab-usage-student-row data-name="'+escapeHtml(s.name.toLowerCase())+'"><td><button class="vocab-usage-student-link" data-action="staff-usage-student" data-value="'+escapeHtml(s.id)+'">'+escapeHtml(s.name)+'</button></td>'+
-    '<td>'+number(s.attempts)+'</td><td>'+formatDuration(s.seconds)+'</td><td>'+number(s.mastered)+'</td><td>'+
-    escapeHtml(s.lastActive?new Date(s.lastActive).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'No recorded practice')+'</td></tr>').join('');
+  const tableRow=s=>'<tr data-vocab-usage-student-row data-name="'+escapeHtml(s.name.toLowerCase())+'"><td><button class="vocab-usage-student-link" data-action="staff-usage-student" data-value="'+escapeHtml(s.id)+'">'+escapeHtml(s.name)+'</button></td>'+
+    '<td>'+number(s.attempts)+'</td><td>'+formatDuration(s.seconds)+'</td><td>'+number(s.wordsLearning)+'</td><td>'+number(s.wordsSecure)+'</td><td>'+
+    escapeHtml(s.lastActive?new Date(s.lastActive).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'No recorded practice')+'</td></tr>';
+  const activeRows=usage.students.filter(s=>s.lastActive!==null);
+  const inactiveRows=usage.students.filter(s=>s.lastActive===null);
+  const tableHead='<thead><tr><th>Student</th><th>Attempts</th><th>Active time</th><th>Words in progress</th><th>Words secure</th><th>Last active</th></tr></thead>';
+  const activeTable='<div class="vocab-usage-tablewrap"><table>'+tableHead+'<tbody>'+
+    (activeRows.map(tableRow).join('')||'<tr><td colspan="6">No recorded practice in this period.</td></tr>')+'</tbody></table></div>';
+  const inactiveTable='<details class="vocab-usage-inactive" data-usage-inactive><summary><span>Not yet active in this period <strong>('+number(inactiveRows.length)+')</strong></span><small>Show students</small></summary>'+
+    '<div class="vocab-usage-tablewrap"><table>'+tableHead+'<tbody>'+inactiveRows.map(tableRow).join('')+'</tbody></table></div></details>';
   const detail=student?'<section class="vocab-usage-detail"><div><strong>'+escapeHtml(student.name)+'</strong><button class="vocab-usage-pill" data-action="staff-usage-student" data-value="">Close detail ✕</button></div><p>'+
     number(student.attempts)+' question attempts · '+formatDuration(student.seconds)+' recorded time · '+
-    number(student.mastered)+' words mastered · '+number(student.activeDays)+' active days</p>'+
+    number(student.wordsLearning)+' words in progress · '+number(student.wordsSecure)+' words secure · '+number(student.activeDays)+' active days</p>'+
     '<p>These figures are usage evidence, not an English attainment grade.</p></section>':'';
   root.innerHTML='<main class="vocab-shell vocab-usage-shell" data-staff-usage>'+
     '<header class="vocab-topbar"><button type="button" class="vocab-back" data-action="staff-usage-back">← Teacher analytics</button>'+
@@ -158,13 +170,14 @@ export function renderVocabularyStaffUsage(root,model,{days=30,classId='all',stu
     dailyChart(usage.daily,usage.days,now)+'</article><article class="vocab-usage-panel">'+
     heading('At a glance','What the activity records show')+
     '<div class="vocab-usage-facts"><p><strong>'+number(overview.inactive)+'</strong> students have no recorded practice in this period</p>'+
-    '<p><strong>'+number(overview.mastered)+'</strong> currently mastered vocabulary records</p>'+
-    '<p><strong>'+number(usage.classes.length)+'</strong> '+(usage.role==='admin'?'active classes':'assigned classes')+'</p></div></article></section>'+
+    '<p><strong>'+number(overview.wordsLearning)+'</strong> words in progress <small>(building or secure)</small></p>'+
+    '<p><strong>'+number(overview.wordsSecure)+'</strong> words secure <small>(current global status)</small></p>'+
+    '<p><strong>'+(usage.classId==='all'?number(usage.classes.length):'1')+'</strong> '+(usage.classId==='all'?(usage.role==='admin'?'active classes':'assigned classes'):'selected class')+'</p></div></article></section>'+
     (classCards?'<section class="vocab-usage-classes">'+heading('Choose a class','Open a class to focus on its students')+
       '<div class="vocab-usage-class-grid">'+classCards+'</div></section>':'')+
     '<section class="vocab-usage-panel vocab-usage-people">'+heading('Student activity','Select a student to inspect individual usage totals')+
     '<div class="vocab-usage-search"><label for="vocab-usage-search">Find a student</label><input id="vocab-usage-search" type="search" data-action="staff-usage-search" placeholder="Search student names…" autocomplete="off"><small data-usage-search-count role="status" aria-live="polite">'+number(usage.students.length)+' students</small></div>'+
-    detail+'<div class="vocab-usage-tablewrap"><table><thead><tr><th>Student</th><th>Attempts</th><th>Active time</th><th>Words mastered</th><th>Last active</th></tr></thead><tbody>'+
-    (rows||'<tr><td colspan="5">No students are assigned to this view.</td></tr>')+'</tbody></table></div></section>'+
-    '<p class="vocab-usage-foot">All values are real recorded Vocabulary Hub activity. Attempts include retries; active time may omit short intervals. Words mastered reflects current status, not only the selected date range. A student in multiple classes is counted once in the combined overview.</p></main>';
+    detail+'<div class="vocab-usage-active-title"><strong>Practised in this period</strong><span>'+number(activeRows.length)+' students</span></div>'+
+    activeTable+(inactiveRows.length?inactiveTable:'')+'</section>'+
+    '<p class="vocab-usage-foot">All values are real recorded Vocabulary Hub activity. Attempts include retries; active time may omit short intervals. Words in progress counts current global building and secure records; words secure counts current secure records. Neither measure is a mastery or exam grade, and both are independent of the date filter. A student in multiple classes is counted once in the combined overview.</p></main>';
 }

@@ -14,7 +14,7 @@ const data={
  {id:'e3',user_id:'s2',occurred_at:'2026-11-10T10:00:00Z',event_type:'question_attempt'},
  {id:'e4',user_id:'s3',occurred_at:'2026-10-01T10:00:00Z',event_type:'question_attempt'}
  ],
- mastery:[{student_id:'s1',status:'mastered',vocabulary_id:'word1'},{student_id:'s2',status:'mastered',vocabulary_id:'word2'}]
+ mastery:[{student_id:'s1',status:'building',vocabulary_id:'word1'},{student_id:'s2',status:'secure',vocabulary_id:'word2'}]
 };
 const now=new Date('2026-11-13T12:00:00Z');
 test('all classes counts overlapping students once',()=>{
@@ -22,13 +22,15 @@ test('all classes counts overlapping students once',()=>{
  assert.equal(a.overview.studentCount,3);
  assert.equal(a.overview.attempts,3);
  assert.equal(a.overview.seconds,60);
- assert.equal(a.overview.mastered,2);
+ assert.equal(a.overview.wordsLearning,2);
+ assert.equal(a.overview.wordsSecure,1);
 });
 test('date period changes activity but current mastered stays constant',()=>{
  const a=calculateVocabularyUsage(data,{days:7,now});
  assert.equal(a.overview.attempts,2);
  assert.equal(a.overview.studentCount,3);
- assert.equal(a.overview.mastered,2);
+ assert.equal(a.overview.wordsLearning,2);
+ assert.equal(a.overview.wordsSecure,1);
  assert.equal(a.overview.activeStudents,2);
 });
 test('class filter hides other class students and refuses foreign student details',()=>{
@@ -46,6 +48,9 @@ test('render escapes student names, offers real actions and no demo metrics',()=
  assert.match(root.innerHTML,/data-action="staff-usage-select-class"/);
  assert.match(root.innerHTML,/data-action="staff-usage-search"/);
  assert.match(root.innerHTML,/data-vocab-usage-student-row/);
+ assert.match(root.innerHTML,/Words in progress/);
+ assert.match(root.innerHTML,/Words secure/);
+ assert.doesNotMatch(root.innerHTML,/Words mastered/);
  assert.match(root.innerHTML,/data-action="staff-usage-student"/);
  assert.match(root.innerHTML,/data-action="staff-usage-back"/);
  assert.doesNotMatch(root.innerHTML,/DEMONSTRATION DATA/);
@@ -128,4 +133,33 @@ test('existing Teacher Analytics loads names and data only from owned classes',a
    const matches=calls.filter(call=>call.table===table);
    assert.ok(matches.every(call=>call.filters.some(([k,op,v])=>op==='in'&&Array.isArray(v)&&v.length===1&&v[0]==='s1')));
  }
+});
+
+
+test('class summary uses one selected class rather than school-wide class count',()=>{
+ const root={innerHTML:''};
+ renderVocabularyStaffUsage(root,{...data,role:'admin'},{days:7,classId:'c1',now});
+ assert.match(root.innerHTML,/1<\/strong> selected class/);
+ assert.doesNotMatch(root.innerHTML,/2<\/strong> active classes/);
+ const selected=calculateVocabularyUsage(data,{days:7,classId:'c1',now});
+ assert.equal(selected.overview.studentCount,2);
+ assert.equal(selected.overview.wordsLearning,2);
+ assert.equal(selected.overview.wordsSecure,1);
+});
+test('inactive students are collapsed separately; active students stay visible',()=>{
+ const root={innerHTML:''};
+ renderVocabularyStaffUsage(root,data,{days:7,classId:'c2',now});
+ assert.match(root.innerHTML,/Practised in this period/);
+ const section=root.innerHTML.match(/<details class="vocab-usage-inactive"[\s\S]+?<\/details>/)?.[0]??'';
+ assert.match(section,/Learner Three|Learner One|Learner Two|Not yet active/);
+ assert.doesNotMatch(section,/<details[^>]+open(?:\s|=|>)/);
+ assert.match(root.innerHTML,/data-usage-inactive/);
+});
+test('building and secure are learning evidence, not mastered',()=>{
+ const a=calculateVocabularyUsage(data,{days:7,now});
+ assert.equal(a.overview.wordsLearning,2);
+ assert.equal(a.overview.wordsSecure,1);
+ assert.equal(a.students.find(x=>x.id==='s1').wordsLearning,1);
+ assert.equal(a.students.find(x=>x.id==='s1').wordsSecure,0);
+ assert.equal(a.students.find(x=>x.id==='s2').wordsSecure,1);
 });
