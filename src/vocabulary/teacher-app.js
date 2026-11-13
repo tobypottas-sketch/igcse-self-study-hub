@@ -6,7 +6,7 @@ import { buildWeeklyUsage, MAX_WEEKS_BACK } from './weekly-usage.js';
 import { buildFollowUpPlan, teamsFollowUpMessage } from './follow-up-plan.js';
 import { generateVocabularyActivity, renderVocabularyActivityStudio } from './teacher-activity-studio.js';
 import { buildMeritStatus, SKILLS_PER_MERIT } from './merits.js';
-import { loadVocabularyTeacherData, loadUnitReadinessContent } from './teacher-data.js?v=staff-usage-v1';
+import { loadVocabularyTeacherData, loadVocabularyTeacherClassList, loadUnitReadinessContent } from './teacher-data.js?v=fast-start-v1';
 import { loadVocabularyStaffUsage, renderVocabularyStaffUsage } from './staff-usage.js?v=clarity-v2';
 import { evaluateUnitReadiness } from './pathway-readiness.js';
 import { coverageFromReadiness } from './pathway-coverage.js';
@@ -15,7 +15,7 @@ import { selectedUnit, unitOccurrences } from './teacher-units.js';
 import { renderTeacherOverview, weeklyUsagePanel, renderProblemArea, renderStudentVocabularyProfile, renderFollowUpPlan } from './teacher-views.js?v=staff-usage-v1';
 import { renderVocabularyError } from './views.js';
 
-const teacherState = { readiness:new Map(), root:null, client:null, profile:null, data:null, currentClass:null, currentDrilldown:null, currentStudent:null, currentInsights:null, weeklyWeeksAgo:0, followUpPlan:null, usageData:null, usageDays:30, usageClassId:"all", usageStudentId:null, usageReturnClass:null, activityConfig:{type:"forms",minutes:10,level:"standard",variant:0} };
+const teacherState = { readiness:new Map(), root:null, client:null, profile:null, data:null, fullDataLoaded:false, fullDataPromise:null, currentClass:null, currentDrilldown:null, currentStudent:null, currentInsights:null, weeklyWeeksAgo:0, followUpPlan:null, usageData:null, usageDays:30, usageClassId:"all", usageStudentId:null, usageReturnClass:null, activityConfig:{type:"forms",minutes:10,level:"standard",variant:0} };
 
 function renderClassChooser() {
   const classes = teacherState.data?.classes ?? [];
@@ -116,7 +116,21 @@ function changeWeeklyWeek(delta) {
   if (panel) panel.outerHTML = weeklyUsagePanel(weeklyForClass(teacherState.currentClass));
 }
 
+async function ensureFullTeacherData() {
+  if(teacherState.fullDataLoaded)return;
+  if(!teacherState.fullDataPromise){
+    teacherState.fullDataPromise=loadVocabularyTeacherData(teacherState.client,{profile:teacherState.profile})
+      .then(data=>{teacherState.data=data;teacherState.fullDataLoaded=true;})
+      .finally(()=>{teacherState.fullDataPromise=null;});
+  }
+  await teacherState.fullDataPromise;
+}
 async function openClass(classId) {
+  if(!teacherState.data?.classes.some(row=>row.id===classId))return;
+  if(!teacherState.fullDataLoaded){
+    teacherState.root.innerHTML='<main class="vocab-shell"><div class="vocab-loading">Loading class analytics…</div></main>';
+    await ensureFullTeacherData();
+  }
   const classData = teacherState.data.classes.find(row => row.id === classId);
   if (!classData) return;
   const { options, selected } = selectedUnit(classData);
@@ -375,12 +389,11 @@ export async function initialiseVocabularyTeacher({ root, client, profile }) {
   teacherState.client = client;
   teacherState.profile = profile;
   try {
-    teacherState.data = await loadVocabularyTeacherData(client,{profile});
+    teacherState.data = await loadVocabularyTeacherClassList(client,profile);
     root.addEventListener('click', handleClick);
     root.addEventListener('change', handleStaffUsageChange);
     root.addEventListener('input', filterStaffUsageStudents);
-    if (teacherState.data.classes.length === 1) await openClass(teacherState.data.classes[0].id);
-    else renderClassChooser();
+    renderClassChooser();
   } catch (error) {
     renderVocabularyError(root, error instanceof Error ? error.message : 'Teacher vocabulary analytics are unavailable right now.');
   }
