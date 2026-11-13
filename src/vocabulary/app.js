@@ -97,6 +97,7 @@ function decoratePreview() {
   if (topbar?.after) topbar.after(banner); else shell.prepend(banner);
 }
 function showSyncWarning(error) {
+  state.saveError = error instanceof Error ? error.message : 'Unable to save your answer.';
   console.error('Vocabulary progress sync failed', error);
   renderSyncWarning();
 }
@@ -105,9 +106,16 @@ function renderSyncWarning() {
   const shell = root?.querySelector?.('.vocab-shell');
   if (!shell || shell.querySelector?.('[data-vocab-sync-warning]')) return;
   const warning = document.createElement('aside'); warning.className = 'vocab-sync-warning'; warning.dataset.vocabSyncWarning = 'true'; warning.setAttribute('role', 'status');
-  warning.innerHTML = '<span>Your answer was checked, but progress could not be saved yet. Your place is kept.</span> <button type="button" class="vocab-link" data-action="retry-save">Try saving again</button>'; shell.prepend(warning);
+  warning.innerHTML = '<span>Your answer was checked, but progress could not be saved yet. Stop answering new questions; keep this tab open.</span> <button type="button" class="vocab-link" data-action="retry-save">Try saving again</button>';
+  if (state.saveError) {
+    const detail = document.createElement('small');
+    detail.className = 'vocab-sync-warning__reason';
+    detail.textContent = `Save error: ${state.saveError}`;
+    warning.append(detail);
+  }
+  shell.prepend(warning);
 }
-function clearSyncWarning() { root?.querySelectorAll?.('[data-vocab-sync-warning]')?.forEach?.(node => node.remove()); }
+function clearSyncWarning() { state.saveError = null; root?.querySelectorAll?.('[data-vocab-sync-warning]')?.forEach?.(node => node.remove()); }
 // Apply only what the server reports. Progression is never advanced client-side for an unsaved answer.
 function applyServerAttemptResult(entry, result) {
   const { occurrenceId, vocabularyId } = entry.context;
@@ -658,7 +666,7 @@ const MAX_UNSAVED_WHILE_BLOCKED = 3;
 async function advanceToNextQuestion() {
   const current = state.current;
   if (!current) return;
-  if (attempts().blocked && attempts().pending >= MAX_UNSAVED_WHILE_BLOCKED && !await attempts().retry()) return;
+  if (attempts().blocked && !await attempts().retry()) { renderSyncWarning(); return; }
   if (state.current !== current) return;
   nextQuestion();
 }
@@ -684,7 +692,10 @@ function runAfterSaves(start) {
 }
 function recordRecentActivity(current, result) { const recent = state.recentActivities.get(current.target.occurrenceId) ?? []; const entry = { type:current.question.type, contentId:current.question.contentId, correct:result.correct }; state.recentActivities.set(current.target.occurrenceId, [...recent, entry].slice(-5)); }
 function handleAnswer(form, providedAnswer = null) {
-  if (!state.current || !state.session) return; if (state.session.mode === 'timed' && isSessionComplete(state.session, new Date())) { void finishSessionWhenSaved(); return; }
+  if (!state.current || !state.session) return;
+  // Never accept more answers while a prior server rejection blocks ordered saving.
+  if (attempts().blocked) { renderSyncWarning(); return; }
+  if (state.session.mode === 'timed' && isSessionComplete(state.session, new Date())) { void finishSessionWhenSaved(); return; }
   const input = form?.querySelector?.('input[name="answer"], select[name="answer"]'); const current = state.current; if (current.answered) return;
   if (current.matchSet && providedAnswer == null) {
     // Whole-set check. Nothing is marked until every word is paired. Correct pairs lock; wrong pairs reopen. The existing
