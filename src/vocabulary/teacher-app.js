@@ -301,6 +301,17 @@ async function createRecommendation(target) {
 
 function showError(error) { renderVocabularyError(teacherState.root, error instanceof Error ? error.message : 'Teacher vocabulary analytics are unavailable right now.'); }
 
+function handleStaffUsageChange(event) {
+  const target=event.target?.closest?.('[data-action="staff-usage-select-class"]');
+  if(!target)return;
+  const requested=target.value;
+  if(requested==='all'||teacherState.usageData?.classes.some(row=>row.id===requested)){
+    teacherState.usageClassId=requested;
+    teacherState.usageStudentId=null;
+    showStaffUsage();
+  }
+}
+
 function handleClick(event) {
   const target = event.target?.closest?.('[data-action]');
   const action = target?.dataset?.action;
@@ -346,6 +357,7 @@ export async function initialiseVocabularyTeacher({ root, client, profile }) {
   try {
     teacherState.data = await loadVocabularyTeacherData(client,{profile});
     root.addEventListener('click', handleClick);
+    root.addEventListener('change', handleStaffUsageChange);
     if (teacherState.data.classes.length === 1) await openClass(teacherState.data.classes[0].id);
     else renderClassChooser();
   } catch (error) {
