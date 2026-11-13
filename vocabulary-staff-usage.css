@@ -43,6 +43,12 @@
 .vocab-usage-class span{font-size:.84rem;color:#6a8090}
 .vocab-usage-class small{font-size:.78rem;font-weight:850;color:#187c80}
 .vocab-usage-people{margin-top:17px}
+.vocab-usage-search{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:0 0 15px}
+.vocab-usage-search label{font-weight:850;font-size:.83rem;color:#375c7b}
+.vocab-usage-search input{flex:1 1 240px;max-width:420px;min-width:0;padding:10px 13px;border:1px solid #cadbe9;border-radius:11px;background:#f9fcff;font:inherit;font-size:.85rem;color:#28455e}
+.vocab-usage-search input:focus-visible{outline:3px solid #67a2ce;outline-offset:2px}
+.vocab-usage-search small{font-size:.75rem;color:#708499}
+.vocab-usage-tablewrap tr[hidden]{display:none}
 .vocab-usage-tablewrap{overflow-x:auto;border:1px solid #e0e7ef;border-radius:13px}
 .vocab-usage-tablewrap table{width:100%;border-collapse:collapse;text-align:left;min-width:590px}
 .vocab-usage-tablewrap th{background:#edf3f9;color:#44617b;font-size:.76rem;font-weight:900;padding:12px 14px;white-space:nowrap}
