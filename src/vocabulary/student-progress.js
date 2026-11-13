@@ -81,10 +81,10 @@ export function summariseVocabularyProgress({dashboard={},missions=[],engagement
 // persist, or merge them into a real student's evidence, engagement, or mastery.
 export function sampleVocabularyProgress() {
   const examples=[
-    [23,40,56],[18,40,41],[15,40,30],[12,40,22],[9,40,17],[26,40,64]
+    [67,120,156],[53,120,121],[45,120,91],[41,120,80],[36,120,71],[72,120,164]
   ];
   return {
-    demo:true,attempts:1248,activeSeconds:12*3600+35*60,wordsMastered:84,
+    demo:true,attempts:1248,activeSeconds:12*3600+35*60,wordsMastered:28,
     completedMissions:19,weekly:{done:3,goal:4},
     achievementsUnlocked:6,achievementsTotal:14,
     pathways:VOCABULARY_PATHWAYS.map((pathway,index)=>{
