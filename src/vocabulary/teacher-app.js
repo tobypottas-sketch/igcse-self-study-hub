@@ -210,7 +210,7 @@ function showRecommendationChooser() {
   const current = recommendationContext();
   const existing = teacherState.root.querySelector?.('[data-recommendation-chooser]');
   if (existing) existing.remove();
-  const actions = teacherState.root.querySelector?.('.vocab-teacher-actions');
+  const actions = teacherState.root.querySelector?.('[data-follow-up-practice-actions]') ?? teacherState.root.querySelector?.('.vocab-teacher-actions');
   if (!actions) return;
   if (!current || (!current.studentId && !(current.affectedStudents ?? []).length)) {
     actions.insertAdjacentHTML('afterend','<p class="vocab-empty-small" data-recommendation-chooser>No students currently have a persistent learning signal to target.</p>');
