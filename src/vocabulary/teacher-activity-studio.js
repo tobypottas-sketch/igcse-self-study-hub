@@ -42,7 +42,7 @@ function buildForms(items,variant) {
     return {item,choices,correctAt};
   });
   return {
-    instructions:'Select the best meaning of each underlined word in its sentence.',
+    instructions:'Choose the most accurate meaning of each quoted word in context.',
     task:numberLines(questions.map(({item,choices}) => item.sentence+'\nWhat does "'+item.word+'" mean here?\n'+choices.map((choice,i)=>'ABCD'[i]+'. '+choice).join('\n'))),
     key:numberLines(questions.map(({item,correctAt}) => item.word+': '+('ABCD'[correctAt])+' — '+item.meaning)),
     note:'Copyable Microsoft Forms questions and an answer key; this does not create a Form automatically.'
@@ -192,14 +192,31 @@ function buildGap(items,variant,level='standard',minutes=10){
    key,note:'Standard: meaningful contexts, without answer choices or explanations.'};
 }
 
-function buildParaphrase(items) {
-  return {
-    instructions:'Rewrite each sentence in different words without changing the meaning.',
-    task:numberLines(items.map(item=>item.sentence))+'\n\nExplain one change you made and why the meaning stayed the same.',
-    key:numberLines(items.map(item=>item.alternative))+'\n\nAccept other natural paraphrases that preserve the original meaning.',
-    note:'Model alternatives are examples, not the only acceptable answers.'
-  };
+function buildParaphrase(items,level='standard',minutes=10) {
+ const chosen=items.slice(0,minutes===5?2:minutes===15?6:4);
+ if(level==='supported')return {
+   instructions:'Read each original sentence and its alternative. Explain whether the meaning stays the same.',
+   task:numberLines(chosen.map(item=> 'Original: '+item.sentence+'\nPossible paraphrase: '+item.alternative+
+     '\nDoes the meaning stay the same? Highlight one expression that has changed.'))+
+     '\n\nRewrite one original sentence using a different phrase of your own.',
+   key:numberLines(chosen.map(item=>'Yes — '+item.word+' is expressed as "'+item.meaning+'".'))+
+     '\n\nAccept a third paraphrase if it preserves meaning.',
+   note:'Supported: recognise accurate paraphrases before producing one independently.'};
+ if(level==='challenge')return {
+   instructions:'Preserve the original meaning while changing both wording and sentence structure.',
+   task:numberLines(chosen.map(item=>item.sentence))+
+     '\n\nChoose TWO sentences. For each, explain how your reformulation preserves the original meaning, including any important limits or conditions.',
+   key:numberLines(chosen.map(item=>item.alternative))+
+     '\n\nAccept alternatives retaining the same claims, scope and degree of certainty.',
+   note:'Challenge: independent reformulation and explanation of meaning preservation.'};
+ return {instructions:'Rewrite each sentence in your own words without changing its meaning.',
+   task:numberLines(chosen.map(item=>item.sentence))+
+     '\n\nUnderline the vocabulary or phrase you replaced in each sentence.',
+   key:numberLines(chosen.map(item=>item.alternative))+
+     '\n\nOther natural meaning-preserving rewrites are acceptable.',
+   note:'Standard: independent sentence-level paraphrasing.'};
 }
+
 // Genuine contrast, interpretation and accuracy decisions—not invented "context clues".
 const DETECTIVE_CASES=[
  {words:['guaranteed','fooled'],title:'A promise or a possibility?',
@@ -299,15 +316,23 @@ function buildDetective(items,minutes,level,variant){
     note:'Evidence and semantic precision tasks using authored scenarios, not invented student errors.'};
 }
 
-function buildWriting(items,level) {
-  const bank=items.map(item=>item.word);
-  return {
-    instructions:'Write a short paragraph using target vocabulary accurately.',
-    task:'Your topic: A new experience, event or product.\n\nUse at least '+Math.min(3,bank.length)+' of these words: '+bank.join(', ')+'.\nWrite 80–120 words. Give your opinion, a reason and a specific example.'+(level==='challenge'?'\n\nChallenge: Include a contrasting point using although or however.':''),
-    key:'Teacher checklist: target vocabulary is used naturally and accurately; clear viewpoint; developed reason or example; understandable language.',
-    note:'Open-response writing needs teacher review; no automatic marking is implied.'
-  };
+function buildWriting(items,level='standard',minutes=10,variant=0) {
+ const topics=[
+   {title:'School website recommendation',prompt:'Your school website is collecting student recommendations for a place or activity that families could enjoy. Describe the experience, give a reason for your opinion and explain who it would suit.'},
+   {title:'An email about a disappointing service',prompt:'A friend asks about a service you recently used. Describe what was promised, what actually happened and what you would recommend doing next.'},
+   {title:'A short review of a new local business',prompt:'A local website wants a balanced review of a new café, shop or attraction. Explain what it offers, one positive feature, one limitation and whether you would recommend it.'}
+ ];
+ const topic=topics[variant%topics.length];const suggested=items.map(item=>item.word);
+ const targetCount=Math.min(level==='supported'?1:level==='challenge'?3:2,suggested.length);
+ const length=minutes===5?'45–65':minutes===15?'120–150':'80–110';
+ const support=level==='supported'?'\n\nPlan: (1) What is it? (2) What was good or bad? (3) Would you recommend it?\nSentence starters: I would recommend… because… / However, …':
+   level==='challenge'?'\n\nAim for a balanced judgement with precise vocabulary and at least one developed example. Do not force a target word where it would sound unnatural.':'';
+ return {instructions:'Write for a real audience. Use suitable target language naturally, not as a checklist of unrelated words.',
+   task:topic.title+'\n\n'+topic.prompt+'\n\nWrite '+length+' words. Try to use '+targetCount+' suitable words from: '+suggested.join(', ')+'.'+support,
+   key:'Teacher checklist: fulfils the situation and audience; opinion supported by specific details; natural vocabulary use; coherence and accuracy. Do not penalise sensible avoidance of an unsuitable suggested word.',
+   note:'Original iGCSE-style classroom writing prompt. Teacher marking required.'};
 }
+
 export function generateVocabularyActivity(plan, config={}) {
   const type=config.type || 'forms', minutes=Number(config.minutes)||10;
   const level=config.level || 'standard', variant=Number(config.variant)||0;
@@ -318,11 +343,15 @@ export function generateVocabularyActivity(plan, config={}) {
     key:'No answer key can be generated without verified examples.',
     note:'No made-up definitions or answers are provided.', ready:false
   };
-  const maker={forms:()=>buildForms(items,variant),reading:()=>buildReading(items),gap:()=>buildGap(items,variant),
-    paraphrase:()=>buildParaphrase(items),detective:()=>buildDetective(items),writing:()=>buildWriting(items,level)};
+  const maker={forms:()=>buildForms(items,variant),reading:()=>buildReading(items,minutes,level,variant),gap:()=>buildGap(items,variant,level,minutes),
+    paraphrase:()=>buildParaphrase(items,level,minutes),detective:()=>buildDetective(items,minutes,level,variant),writing:()=>buildWriting(items,level,minutes,variant)};
   const result=maker[chosen.id]();
-  const support=level==='supported'?'Support: Underline the clues, use the word bank and check the definitions.\n\n':
-    level==='challenge' && type!=='writing'?'Challenge: Justify each answer with evidence or an alternative.\n\n':'';
+  if(!result) return {
+    title:chosen.name, task:'No suitable verified '+chosen.name.toLowerCase()+' material is available for this word selection. Choose another activity format or target word set.',
+    key:'No answer key is available for an unsupported selection.',
+    note:'Only vetted, relevant scenarios are shown. The app does not invent an unrelated passage or exercise.',ready:false
+  };
+  const support=type==='forms' && level==='supported' ? 'Support: Underline the context before choosing a meaning.\n\n' : '';
   return {
     title:chosen.name,
     task:'VOCABULARY PRACTICE  ·  '+minutes+' MINUTES\n\n'+support+result.instructions+'\n\n'+result.task,
