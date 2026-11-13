@@ -311,6 +311,12 @@ function filterStaffUsageStudents(event) {
     row.hidden=!String(row.dataset.name??'').includes(query);
     if(!row.hidden)visible++;
   }
+  // Searching must include students inside the normally collapsed inactive section.
+  const inactive=teacherState.root.querySelector('[data-usage-inactive]');
+  if(inactive) {
+    if(query) inactive.open=true;
+    else inactive.open=false;
+  }
   const counter=teacherState.root.querySelector('[data-usage-search-count]');
   if(counter)counter.textContent=visible+' of '+rows.length+' students';
 }
