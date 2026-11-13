@@ -126,8 +126,10 @@ export function renderVocabularyStaffUsage(root,model,{days=30,classId='all',stu
   const {overview,student}=usage;
   const labels=usage.role==='admin'?['School-wide usage','All active student accounts']:['My classes · usage','Students in your assigned classes'];
   const options=[['7','7 days'],['30','30 days'],['0','All recorded']].map(([value,label])=>action(label,'staff-usage-days',value,usage.days===Number(value))).join('');
-  const classOptions=action(usage.role==='admin'?'All students':'All my classes','staff-usage-class','all',usage.classId==='all')+
-    usage.classes.map(row=>action(row.class_name,'staff-usage-class',row.id,row.id===usage.classId)).join('');
+  const classOptions='<select class="vocab-usage-class-select" data-action="staff-usage-select-class" aria-label="Select a class">'+
+    '<option value="all"'+(usage.classId==='all'?' selected':'')+'>'+(usage.role==='admin'?'All students':'All my classes')+'</option>'+
+    usage.classes.map(row=>'<option value="'+escapeHtml(row.id)+'"'+(row.id===usage.classId?' selected':'')+'>'+escapeHtml(row.class_name)+'</option>').join('')+
+    '</select>';
   const summary=metric('Students',number(overview.studentCount),'In selected scope','blue')+
     metric('Practising',number(overview.activeStudents),'Active during selected period','green')+
     metric('Question attempts',number(overview.attempts),'Includes retries','violet')+
@@ -152,7 +154,7 @@ export function renderVocabularyStaffUsage(root,model,{days=30,classId='all',stu
     '<div class="vocab-usage-controls"><div><strong>Time period</strong><div class="vocab-usage-pills">'+options+'</div></div>'+
     '<div><strong>Class</strong><div class="vocab-usage-pills">'+classOptions+'</div></div></div>'+
     '<section class="vocab-usage-metrics" aria-label="Recorded usage summary">'+summary+'</section>'+
-    '<section class="vocab-usage-panels"><article class="vocab-usage-panel">'+heading('Practice over time','Question attempts in recent periods')+
+    '<section class="vocab-usage-panels"><article class="vocab-usage-panel">'+heading('Practice over time',usage.days===0?'Recent 30 days · all-time totals remain in the cards above':'Question attempts across the selected period')+
     dailyChart(usage.daily,usage.days,now)+'</article><article class="vocab-usage-panel">'+
     heading('At a glance','What the activity records show')+
     '<div class="vocab-usage-facts"><p><strong>'+number(overview.inactive)+'</strong> students have no recorded practice in this period</p>'+
