@@ -1,0 +1,99 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {loadStudentVocabularyProgress,summariseVocabularyProgress,renderStudentVocabularyProgress} from '../src/vocabulary/student-progress.js';
+
+function clientWith(events,{failAttempts=false,failTime=false}={}) {
+  const calls=[];
+  return {
+    calls,
+    from(table) {
+      assert.equal(table,'activity_events');
+      const filters={};
+      let head=false;
+      const query={
+        select(_columns,options={}) { head=options.head===true; return query; },
+        eq(field,value) { filters[field]=value; return query; },
+        order() { return query; },
+        range(a,b) {
+          calls.push({...filters,range:[a,b]});
+          if(failTime) return Promise.resolve({error:new Error('time query failed')});
+          const filtered=events.filter(event=>Object.entries(filters).every(([key,value])=>event[key]===value));
+          return Promise.resolve({data:filtered.slice(a,b+1).map(({id,active_seconds})=>({id,active_seconds})),count:filtered.length,error:null});
+        },
+        then(resolve,reject) {
+          calls.push({...filters,head});
+          if(failAttempts) return Promise.resolve({count:null,error:new Error('count failed')}).then(resolve,reject);
+          const count=events.filter(event=>Object.entries(filters).every(([key,value])=>event[key]===value)).length;
+          return Promise.resolve({count,error:null}).then(resolve,reject);
+        }
+      };
+      return query;
+    }
+  };
+}
+test('student-scoped full-history count and paged active-time total',async()=>{
+  const data=[
+    ...Array.from({length:1105},(_,i)=>({id:'t'+i,user_id:'u1',app_key:'vocabulary_paraphrase',event_type:'active_time',active_seconds:60})),
+    ...Array.from({length:7},(_,i)=>({id:'a'+i,user_id:'u1',app_key:'vocabulary_paraphrase',event_type:'question_attempt'})),
+    {id:'other',user_id:'u2',app_key:'vocabulary_paraphrase',event_type:'question_attempt'},
+    {id:'wrong-app',user_id:'u1',app_key:'reading',event_type:'question_attempt'}
+  ];
+  const client=clientWith(data);
+  const progress=await loadStudentVocabularyProgress(client,'u1');
+  assert.equal(progress.attempts,7);
+  assert.equal(progress.activeSeconds,1105*60);
+  assert.ok(client.calls.some(call=>call.range?.[0]===1000));
+  assert.ok(client.calls.every(call=>call.user_id==='u1'));
+  assert.ok(client.calls.every(call=>call.app_key==='vocabulary_paraphrase'));
+});
+test('partial tracking failures are unavailable, not zero',async()=>{
+  const data=[{id:'x',user_id:'u1',app_key:'vocabulary_paraphrase',event_type:'active_time',active_seconds:60}];
+  const result=await loadStudentVocabularyProgress(clientWith(data,{failAttempts:true}),'u1');
+  assert.equal(result.attempts,null);
+  assert.equal(result.attemptsAvailable,false);
+  assert.equal(result.activeSeconds,60);
+  const missing=await loadStudentVocabularyProgress(clientWith(data,{failTime:true}),'u1');
+  assert.equal(missing.activeSeconds,null);
+  assert.equal(missing.timeAvailable,false);
+});
+test('staff preview has no student history queries',async()=>{
+  const client={from(){throw Error('Unexpected DB query')}};
+  const result=await loadStudentVocabularyProgress(client,'preview-id',{preview:true});
+  assert.equal(result.preview,true);
+  assert.equal(result.attempts,null);
+});
+test('only persisted contiguous stage completions are counted',()=>{
+  const s=summariseVocabularyProgress({
+    dashboard:{
+      occurrences:[{occurrence_id:'occ-1'},{occurrence_id:'occ-2'}],
+      global:[{vocabulary_id:'v1',status:'mastered'},{vocabulary_id:'v2',status:'building'}],
+      unit:[
+        {occurrence_id:'occ-1',contextual_evidence:{pathwayProgress:{meaning:{completedStages:['recognise','match']}}}},
+        {occurrence_id:'occ-2',contextual_evidence:{pathwayProgress:{meaning:{completedStages:['recognise','apply']}}}}
+      ]
+    },
+    missions:[{mission_id:'m1'}],
+    engagement:{weekly:{done:2,goal:4},achievementsUnlocked:3,achievementsTotal:14},
+    recorded:{attempts:22,activeSeconds:130,attemptsAvailable:true,timeAvailable:true}
+  });
+  assert.equal(s.wordsMastered,1);
+  assert.equal(s.completedMissions,1);
+  assert.equal(s.pathways.find(p=>p.id==='meaning').cleared,3);
+  assert.equal(s.pathways.find(p=>p.id==='meaning').total,10);
+  assert.equal(s.attempts,22);
+  assert.equal(s.activeSeconds,130);
+});
+test('student screen renders escaped name, actual values, and a back action',()=>{
+  const root={innerHTML:''};
+  const summary=summariseVocabularyProgress({
+    dashboard:{occurrences:[],global:[],unit:[]},
+    engagement:{weekly:{done:1,goal:4},achievementsUnlocked:0,achievementsTotal:14},
+    recorded:{attempts:0,activeSeconds:0,attemptsAvailable:true,timeAvailable:true}
+  });
+  renderStudentVocabularyProgress(root,{summary,displayName:'<script>alert(1)</script>'});
+  assert.doesNotMatch(root.innerHTML,/<script>/);
+  assert.match(root.innerHTML,/&lt;script&gt;/);
+  assert.match(root.innerHTML,/data-action="progress-back-home"/);
+  assert.match(root.innerHTML,/Question attempts/);
+  assert.match(root.innerHTML,/My Vocabulary Journey|MY VOCABULARY JOURNEY/);
+});
