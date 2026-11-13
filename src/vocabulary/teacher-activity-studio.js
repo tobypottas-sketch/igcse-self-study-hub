@@ -58,13 +58,58 @@ function buildReading(items) {
     note:'A short-text reading activity, rather than a fabricated continuous article.'
   };
 }
-function buildGap(items,variant) {
-  const shuffled = rotate(items.map(item=>item.word),variant+1);
+// The three levels change the actual task, not merely its introductory wording.
+// Context clues are teacher-reviewed: never manufacture a definition for unknown words.
+const GAP_CONTEXT = {
+  fooled:'The picture was edited to look genuine, so people believed the false advertisement.',
+  guaranteed:'The receipt clearly promised that every customer would get their money back.',
+  harmless:'The tiny insect cannot bite or sting, so visitors need not be afraid.',
+  inexpensive:'Even families on a tight budget could buy tickets without spending much.',
+  afford:'The ticket price was higher than the money some families had available.',
+  demand:'The shop sold out immediately because so many customers wanted the product.',
+  avoid:'Sharing a password could put an account at risk, so students were told not to do it.',
+  arrange:'The chairs were scattered around the hall and needed to be put in order.',
+  pressure:'She was worried about expectations and felt stressed before the test.',
+  participant:'Everyone who took part in the event was given a certificate afterwards.',
+  majority:'Only a few visitors arrived late; most were already there before opening.',
+  outlet:'The business opened another branch so customers could shop closer to home.',
+  sprinkled:'The chef scattered a small amount of herbs across the finished dish.',
+  considerably:'The price dropped by a large amount, not just a few cents.',
+  depression:'The report explained how this mental health condition can affect daily life.'
+};
+function gapSentence(item) {
+  return item.sentence.replace(new RegExp('\\b'+item.word+'\\b','i'),'________');
+}
+function buildGap(items,variant,level='standard') {
+  const key=numberLines(items.map(item=>item.word));
+  if(level==='supported') {
+    const task=numberLines(items.map((item,index)=>{
+      // Each pair contains one correct answer and one other target word, in varied order.
+      const other=items.length>1 ? items[(index+1)%items.length].word : (item.wrong[0] || 'different');
+      const options=(index+variant)%2===0 ? [item.word,other] : [other,item.word];
+      return gapSentence(item)+'\nChoose: '+options.join(' / ')+'\nClue: '+GAP_CONTEXT[item.word];
+    }));
+    return {
+      instructions:'Choose the correct word from the two options for each sentence. Read the clue to help you.',
+      task, key,
+      note:'Supported: two choices and a contextual clue for each gap.'
+    };
+  }
+  if(level==='challenge') {
+    return {
+      instructions:'No word bank. Work out the missing vocabulary from the context, then explain your choices.',
+      task:numberLines(items.map(item=>gapSentence(item)+'\n'+GAP_CONTEXT[item.word]))+
+        '\n\nExplain the evidence for TWO answers. Then write an original sentence using one of the missing words.',
+      key:key+'\n\nAccept explanations that connect the word to the context and an original sentence using the word accurately.',
+      note:'Challenge: no word bank, richer contextual clues and independent vocabulary use.'
+    };
+  }
+  const shuffled=rotate(items.map(item=>item.word),variant+1);
   return {
     instructions:'Complete each sentence using the word bank. Use every word once.',
-    task:'WORD BANK: '+shuffled.join(' · ')+'\n\n'+numberLines(items.map(item => item.sentence.replace(new RegExp('\\b'+item.word+'\\b','i'),'________'))),
-    key:numberLines(items.map(item=>item.word)),
-    note:'Each gap is taken from a checked example sentence.'
+    task:'WORD BANK: '+shuffled.join(' · ')+'\n\n'+numberLines(items.map(gapSentence)),
+    key,
+    note:'Standard: select from the word bank without additional clues.'
   };
 }
 function buildParaphrase(items) {
@@ -102,10 +147,10 @@ export function generateVocabularyActivity(plan, config={}) {
     key:'No answer key can be generated without verified examples.',
     note:'No made-up definitions or answers are provided.', ready:false
   };
-  const maker={forms:()=>buildForms(items,variant),reading:()=>buildReading(items),gap:()=>buildGap(items,variant),
+  const maker={forms:()=>buildForms(items,variant),reading:()=>buildReading(items),gap:()=>buildGap(items,variant,level),
     paraphrase:()=>buildParaphrase(items),detective:()=>buildDetective(items),writing:()=>buildWriting(items,level)};
   const result=maker[chosen.id]();
-  const support=level==='supported'?'Support: Underline the clues, use the word bank and check the definitions.\n\n':
+  const support=type==='gap' ? '' : level==='supported'?'Support: Underline the clues, use the word bank and check the definitions.\n\n':
     level==='challenge' && type!=='writing'?'Challenge: Justify each answer with evidence or an alternative.\n\n':'';
   return {
     title:chosen.name,

@@ -52,3 +52,31 @@ test('activity variant changes question order',()=>{
   const second=generateVocabularyActivity(evidence,{type:'forms',variant:1});
   assert.notEqual(first.task,second.task);
 });
+
+test('gap-fill difficulty changes the actual question format',()=>{
+  const supported=generateVocabularyActivity(evidence,{type:'gap',minutes:10,level:'supported'});
+  const standard=generateVocabularyActivity(evidence,{type:'gap',minutes:10,level:'standard'});
+  const challenge=generateVocabularyActivity(evidence,{type:'gap',minutes:10,level:'challenge'});
+  assert.match(supported.task,/Choose: /);
+  assert.match(supported.task,/Clue: /);
+  assert.doesNotMatch(supported.task,/WORD BANK:/);
+  assert.match(standard.task,/WORD BANK:/);
+  assert.doesNotMatch(standard.task,/Choose: /);
+  assert.doesNotMatch(standard.task,/Clue: /);
+  assert.doesNotMatch(challenge.task,/No word bank/);
+  assert.doesNotMatch(challenge.task,/WORD BANK:/);
+  assert.match(challenge.task,/Explain the evidence for TWO answers/);
+  assert.notEqual(supported.task,standard.task);
+  assert.notEqual(challenge.task,standard.task);
+  assert.equal(supported.key,standard.key);
+  assert.match(challenge.key,/Accept explanations/);
+});
+test('gap-fill keeps all levels usable with a single known word',()=>{
+  const plan={wordBank:['harmless']};
+  for(const level of ['supported','standard','challenge']){
+    const task=generateVocabularyActivity(plan,{type:'gap',level,minutes:5});
+    assert.equal(task.ready,true);
+    assert.match(task.task,/________/);
+    assert.match(task.key,/harmless/);
+  }
+});
