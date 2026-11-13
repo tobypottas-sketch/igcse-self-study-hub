@@ -42,6 +42,7 @@ test('render escapes student names, offers real actions and no demo metrics',()=
  assert.doesNotMatch(root.innerHTML,/<script>/);
  assert.match(root.innerHTML,/&lt;script&gt;/);
  assert.match(root.innerHTML,/data-action="staff-usage-class"/);
+ assert.match(root.innerHTML,/data-action="staff-usage-select-class"/);
  assert.match(root.innerHTML,/data-action="staff-usage-student"/);
  assert.match(root.innerHTML,/data-action="staff-usage-back"/);
  assert.doesNotMatch(root.innerHTML,/DEMONSTRATION DATA/);
