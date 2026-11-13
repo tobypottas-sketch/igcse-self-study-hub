@@ -193,3 +193,68 @@
 .vocab-follow-up .vocab-time-grid{gap:8px}
 .vocab-follow-up .vocab-time-grid .vocab-button{padding:8px 10px;min-width:80px}
 @media(max-width:620px){.vocab-follow-up__students{grid-template-columns:1fr}.vocab-follow-up__priority{padding:16px}.vocab-follow-up__next{align-items:stretch}.vocab-follow-up__next .vocab-button{width:100%}.vocab-follow-up__teams>summary small{display:none}}
+
+
+/* Teaching Activity Studio — scoped visual identity, independent of generic teacher cards. */
+.vocab-follow-up--studio{--studio-ink:#183a54;--studio-violet:#6854bd}
+.vocab-follow-up--studio .vocab-follow-up__top{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:20px 0}
+.vocab-follow-up--studio .vocab-follow-up__top h1{font-size:clamp(1.7rem,3vw,2.65rem);letter-spacing:-.045em;margin:4px 0;color:var(--studio-ink)}
+.vocab-follow-up--studio .vocab-follow-up__top p{margin:0;color:var(--muted)}
+.vocab-follow-up--studio .vocab-follow-up__count{border:1px solid #c5e6dd;border-radius:100px;background:#e7f7ef;padding:9px 14px;color:#176e60;font-size:.85rem;font-weight:800;white-space:nowrap}
+.vocab-studio__focus{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:15px 20px;border:1px solid #b9d9e4;border-radius:18px;background:linear-gradient(110deg,#eef8fe,#f6f4ff)}
+.vocab-studio__focus>div:first-child{display:grid;gap:3px}
+.vocab-studio__focus-label{font-size:.68rem;font-weight:900;letter-spacing:.11em;color:#47758b}
+.vocab-studio__focus strong{font-size:1.2rem;color:#1e405d}
+.vocab-studio__focus small{color:#546b80;font-size:.8rem}
+.vocab-studio__word-pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:50%}
+.vocab-studio__word-pills span{padding:6px 10px;border:1px solid #c9ddec;border-radius:20px;background:#fff;color:#3b6685;font-size:.76rem;font-weight:800}
+.vocab-studio{margin:18px 0 20px;overflow:hidden;border:1px solid #d4def0;border-radius:24px;background:white;box-shadow:0 16px 48px rgba(41,65,111,.08)}
+.vocab-studio__header{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(115deg,#253a75,#5246a3 65%,#7956a8);color:#fff;padding:26px 30px;gap:20px}
+.vocab-studio__header h2{font-size:clamp(1.35rem,2.5vw,2.1rem);font-weight:900;color:#fff;line-height:1.15;letter-spacing:-.04em;margin:8px 0}
+.vocab-studio__header h2 em{color:#b7ffda;font-style:normal}
+.vocab-studio__header p{color:#e6e8fc;margin:0;font-size:.9rem}
+.vocab-studio__eyebrow{font-weight:900;font-size:.68rem;letter-spacing:.16em;color:#6856b0}
+.vocab-studio__header .vocab-studio__eyebrow{color:#dbd2ff}
+.vocab-studio__sparkle{display:grid;place-items:center;flex:none;width:68px;height:68px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.12);border-radius:20px;transform:rotate(-9deg);font-size:1.6rem;font-family:Georgia,serif;font-style:italic;font-weight:800}
+.vocab-studio__inner{padding:24px 28px 28px}
+.vocab-studio__section-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;color:#233b62}
+.vocab-studio__section-heading>strong,.vocab-studio__options strong{font-size:.84rem;letter-spacing:.025em}
+.vocab-studio__section-heading span{font-size:.75rem;color:#718098}
+.vocab-studio__tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.vocab-studio__tile{--tile-bg:#eef2ff;--tile-ink:#3853b5;position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-height:132px;padding:16px;border:2px solid transparent;border-radius:17px;background:var(--tile-bg);color:var(--tile-ink);text-align:left;cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s}
+.vocab-studio__tile:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(35,60,91,.10)}
+.vocab-studio__tile:focus-visible,.vocab-studio__pill:focus-visible{outline:3px solid #1c78bf;outline-offset:2px}
+.vocab-studio__tile[aria-pressed=true]{border-color:var(--tile-ink);box-shadow:0 0 0 3px #fff inset}
+.vocab-studio__tile[data-tone=purple]{--tile-bg:#f2ecff;--tile-ink:#7350b2}
+.vocab-studio__tile[data-tone=orange]{--tile-bg:#fff2df;--tile-ink:#b86c1c}
+.vocab-studio__tile[data-tone=teal]{--tile-bg:#def6f3;--tile-ink:#167e77}
+.vocab-studio__tile[data-tone=pink]{--tile-bg:#ffeaf1;--tile-ink:#b44477}
+.vocab-studio__tile[data-tone=green]{--tile-bg:#eaf7e6;--tile-ink:#477f43}
+.vocab-studio__tile-icon{display:grid;place-items:center;border:1px solid currentColor;border-radius:10px;width:34px;height:34px;font-size:1.25rem;line-height:1;font-weight:800}
+.vocab-studio__tile strong{font-size:1rem;color:#193750;line-height:1.2}
+.vocab-studio__tile small{font-size:.78rem;color:#53647a}
+.vocab-studio__tile-check{display:none;position:absolute;top:12px;right:13px;font-weight:900}
+.vocab-studio__tile[aria-pressed=true] .vocab-studio__tile-check{display:block}
+.vocab-studio__options{display:flex;gap:32px;flex-wrap:wrap;margin:22px 0}
+.vocab-studio__options>div{display:grid;gap:10px}
+.vocab-studio__pills{display:flex;gap:7px;flex-wrap:wrap}
+.vocab-studio__pill{padding:8px 14px;border-radius:30px;background:#f7f8fc;border:1px solid #d9e0eb;color:#51647c;cursor:pointer;font-size:.82rem;font-weight:800;min-height:38px}
+.vocab-studio__pill.is-active{background:#263a78;color:#fff;border-color:#263a78}
+.vocab-studio__result{border:1px solid #d9e2ee;border-radius:18px;overflow:hidden;background:#fbfcff}
+.vocab-studio__result>header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid #e3e8f0;background:#f2f5fc}
+.vocab-studio__result h3{font-size:1.22rem;color:#233d61;margin:4px 0 0}
+.vocab-studio__task,.vocab-studio__answers pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:inherit;font-size:.93rem;line-height:1.72;color:#23394e;padding:20px 22px;margin:0}
+.vocab-studio__answers{margin:0 20px;border-top:1px solid #e0e6ef}
+.vocab-studio__answers summary{padding:13px 0;cursor:pointer;font-size:.85rem;font-weight:800;color:#4f55a6}
+.vocab-studio__answers pre{padding:0 0 16px}
+.vocab-studio__note{font-size:.8rem;color:#765c23;background:#fff8e9;border:1px solid #f0e2bd;border-radius:10px;padding:10px 13px;margin:0 20px 16px}
+.vocab-studio__footer{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:14px 20px;border-top:1px solid #e0e6ef;background:#fff}
+.vocab-studio__footer [data-studio-status]{color:#267b66;font-size:.82rem;font-weight:800}
+.vocab-follow-up__people{padding:16px 20px;background:#fff;border:1px solid #d6dfea;border-radius:18px;margin-bottom:16px}
+.vocab-follow-up__people>summary{cursor:pointer;display:flex;justify-content:space-between;gap:12px;align-items:center;color:#234360}
+.vocab-follow-up__people>summary span{font-size:.83rem;color:#59758b}
+.vocab-follow-up__people>p{color:#617186;font-size:.83rem}
+.vocab-follow-up--studio .vocab-follow-up__next{border-radius:18px}
+@media(max-width:800px){.vocab-studio__tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.vocab-studio__focus{align-items:flex-start;flex-direction:column}.vocab-studio__word-pills{max-width:100%;justify-content:flex-start}}
+@media(max-width:540px){.vocab-follow-up--studio .vocab-follow-up__top{align-items:flex-start;flex-direction:column}.vocab-studio__header{padding:22px}.vocab-studio__sparkle{display:none}.vocab-studio__inner{padding:16px}.vocab-studio__tiles{gap:9px}.vocab-studio__tile{min-height:126px;padding:12px}.vocab-studio__tile strong{font-size:.88rem}.vocab-studio__tile small{font-size:.7rem}.vocab-studio__options{gap:18px}.vocab-studio__result>header{flex-direction:column;align-items:flex-start}.vocab-studio__footer .vocab-button{flex:1 1 auto}.vocab-follow-up__people>summary{align-items:flex-start;flex-direction:column}}
+@media(prefers-reduced-motion:reduce){.vocab-studio__tile{transition:none}}
