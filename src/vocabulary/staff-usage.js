@@ -105,17 +105,17 @@ function action(text,kind,value,selected=false) {
   return '<button type="button" class="vocab-usage-pill'+(selected?' is-selected':'')+'" data-action="'+kind+'" data-value="'+escapeHtml(value)+'" aria-pressed="'+String(selected)+'">'+escapeHtml(text)+'</button>';
 }
 function dailyChart(daily,days,now=new Date()) {
-  // At most 7 bars, each day over the last week or seven consecutive buckets across the selected range.
-  const span=days===7?7:7;
-  const start=new Date(now.getTime()-(days===0?29:days-1)*DAY_MS);
-  const end=new Date(now);
-  const length=Math.max(1,Math.ceil((end-start+DAY_MS)/span/DAY_MS));
-  const buckets=Array.from({length:span},(_,i)=>{
-    const from=new Date(start.getTime()+i*length*DAY_MS);
-    const to=new Date(Math.min(end.getTime()+DAY_MS,from.getTime()+length*DAY_MS));
-    const rows=daily.filter(row=>new Date(row.day)>=new Date(dateKey(from))&&new Date(row.day)<new Date(dateKey(to)));
-    return {label:from.toLocaleDateString('en-GB',{day:'numeric',month:'short'}),
-      attempts:rows.reduce((n,row)=>n+row.attempts,0),users:Math.max(0,...rows.map(row=>row.activeStudents))};
+  // Seven contiguous buckets spanning the last 7 or 30 calendar days (also for All time).
+  const windowDays=days===7?7:30;
+  const today=new Date(dateKey(now)+'T00:00:00.000Z');
+  const buckets=Array.from({length:7},(_,i)=>{
+    const startOffset=Math.floor(i*windowDays/7);
+    const endOffset=Math.floor((i+1)*windowDays/7);
+    const from=new Date(today.getTime()-(windowDays-1-startOffset)*DAY_MS);
+    const to=new Date(today.getTime()-(windowDays-1-endOffset)*DAY_MS);
+    const rows=daily.filter(row=>row.day>=dateKey(from)&&row.day<dateKey(to));
+    return {label:from.toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'UTC'}),
+      attempts:rows.reduce((n,row)=>n+row.attempts,0)};
   });
   const max=Math.max(1,...buckets.map(row=>row.attempts));
   return '<div class="vocab-usage-chart" role="img" aria-label="Question attempts across seven periods">'+
@@ -140,7 +140,7 @@ export function renderVocabularyStaffUsage(root,model,{days=30,classId='all',stu
     return '<button class="vocab-usage-class" data-action="staff-usage-class" data-value="'+escapeHtml(row.id)+'"><strong>'+
       escapeHtml(row.class_name)+'</strong><span>'+number(inClass.length)+' students</span><small>View class usage →</small></button>';
   }).join(''):'';
-  const rows=usage.students.map(s=>'<tr><td><button class="vocab-usage-student-link" data-action="staff-usage-student" data-value="'+escapeHtml(s.id)+'">'+escapeHtml(s.name)+'</button></td>'+
+  const rows=usage.students.map(s=>'<tr data-vocab-usage-student-row data-name="'+escapeHtml(s.name.toLowerCase())+'"><td><button class="vocab-usage-student-link" data-action="staff-usage-student" data-value="'+escapeHtml(s.id)+'">'+escapeHtml(s.name)+'</button></td>'+
     '<td>'+number(s.attempts)+'</td><td>'+formatDuration(s.seconds)+'</td><td>'+number(s.mastered)+'</td><td>'+
     escapeHtml(s.lastActive?new Date(s.lastActive).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'No recorded practice')+'</td></tr>').join('');
   const detail=student?'<section class="vocab-usage-detail"><div><strong>'+escapeHtml(student.name)+'</strong><button class="vocab-usage-pill" data-action="staff-usage-student" data-value="">Close detail ✕</button></div><p>'+
@@ -163,6 +163,7 @@ export function renderVocabularyStaffUsage(root,model,{days=30,classId='all',stu
     (classCards?'<section class="vocab-usage-classes">'+heading('Choose a class','Open a class to focus on its students')+
       '<div class="vocab-usage-class-grid">'+classCards+'</div></section>':'')+
     '<section class="vocab-usage-panel vocab-usage-people">'+heading('Student activity','Select a student to inspect individual usage totals')+
+    '<div class="vocab-usage-search"><label for="vocab-usage-search">Find a student</label><input id="vocab-usage-search" type="search" data-action="staff-usage-search" placeholder="Search student names…" autocomplete="off"><small data-usage-search-count role="status" aria-live="polite">'+number(usage.students.length)+' students</small></div>'+
     detail+'<div class="vocab-usage-tablewrap"><table><thead><tr><th>Student</th><th>Attempts</th><th>Active time</th><th>Words mastered</th><th>Last active</th></tr></thead><tbody>'+
     (rows||'<tr><td colspan="5">No students are assigned to this view.</td></tr>')+'</tbody></table></div></section>'+
     '<p class="vocab-usage-foot">All values are real recorded Vocabulary Hub activity. Attempts include retries; active time may omit short intervals. Words mastered reflects current status, not only the selected date range. A student in multiple classes is counted once in the combined overview.</p></main>';
