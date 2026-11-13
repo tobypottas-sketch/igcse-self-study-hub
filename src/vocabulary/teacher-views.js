@@ -1,5 +1,6 @@
 import { escapeHtml } from '../views/html.js';
 import { teamsFollowUpMessage } from './follow-up-plan.js';
+import { renderVocabularyActivityStudio } from './teacher-activity-studio.js';
 import { skillLabel } from './skill-profile.js';
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES } from './pathway-model.js';
 import { habitsLastPractice } from './practice-habits.js';
@@ -190,17 +191,47 @@ export function renderStudentVocabularyProfile(root, { className = '', profile, 
   const reason = `Focus: ${development}${focusWords ? ` · ${focusWords}` : ''}`;
   root.innerHTML = `<main class="vocab-shell vocab-shell--teacher"><header class="vocab-topbar"><button class="vocab-back" data-action="teacher-back-overview">← ${escapeHtml(className || 'Class overview')}</button><span>Student profile</span></header><section class="vocab-teacher-hero"><p class="vocab-kicker">Vocabulary learning profile</p><h1>${escapeHtml(data.displayName || 'Student')}</h1></section>${actionButtons({ followUp:false }).replace('</div>', `<p class="vocab-teacher-actions__reason">${escapeHtml(reason)}</p></div>`)}<section class="vocab-teacher-grid"><article class="vocab-teacher-panel vocab-teacher-panel--wide"><h2>Vocabulary pathways</h2><div class="vocab-teacher-pathway-cells">${pathwayCells(data.pathways)}</div></article>${recentPracticeCard(habit, data.lastPractice)}<article class="vocab-teacher-panel"><h2>Strongest and weakest</h2><ul class="vocab-rows"><li><span>Strongest area</span>${pill(strongest, 'done')}</li><li><span>Development area</span>${pill(development, 'warn')}</li></ul></article><article class="vocab-teacher-panel vocab-teacher-panel--wide"><h2>Recurring problem words</h2>${targets}</article></section><details class="vocab-more"><summary>More detail</summary><div class="vocab-teacher-grid vocab-teacher-grid--three"><article class="vocab-teacher-panel"><h3>0511 skill pattern</h3>${skillRows(data.skillProfile)}</article><article class="vocab-teacher-panel"><h3>Meaning-preservation patterns</h3>${misconceptionList(data.misconceptionPatterns)}</article><article class="vocab-teacher-panel"><h3>Mastery strands</h3><ul class="vocab-rows">${strands}${habitDetailRows(habit)}</ul></article></div></details><p class="vocab-teacher-actions__footer"><button class="vocab-button vocab-button--quiet" data-action="teacher-follow-up-plan">Plan follow-up practice</button>${previewButton()}</p></main>`;
 }
-export function renderFollowUpPlan(root, plan) {
+export function renderFollowUpPlan(root, plan, config = {}) {
   const students = plan?.students ?? [];
-  const rows = students.map(student => `<li class="vocab-follow-up__student"><div class="vocab-follow-up__student-title"><strong>${escapeHtml(student.name)}</strong><small>${escapeHtml(student.totalTargets)} developing</small></div><p>${escapeHtml(student.words.join(', ') || 'No example words available')}${student.totalTargets > student.words.length ? '…' : ''}</p></li>`).join('');
-  const focus = escapeHtml(plan?.focus ?? 'Vocabulary practice');
-  const preview = students.length ? `<details class="vocab-follow-up__teams"><summary><span>Teams task preview</span><small>Open to view or copy</small></summary><div class="vocab-follow-up__teams-body"><pre class="vocab-follow-up__draft">${escapeHtml(teamsFollowUpMessage(plan))}</pre><button class="vocab-button vocab-button--secondary" data-action="teacher-copy-follow-up">Copy Teams instructions</button><span class="vocab-follow-up__copy-state" data-follow-up-copy-status role="status" aria-live="polite"></span></div></details>` : '';
-  root.innerHTML = `<main class="vocab-shell vocab-shell--teacher vocab-follow-up"><header class="vocab-topbar"><button class="vocab-back" data-action="teacher-follow-up-back">← Back to analytics</button><span>Teacher follow-up</span></header>
-    <section class="vocab-follow-up__top"><div><p class="vocab-kicker">Vocabulary support</p><h1>Plan follow-up practice</h1></div><span class="vocab-follow-up__count">${students.length} student${students.length === 1 ? '' : 's'} to check</span></section>
-    ${students.length ? `<section class="vocab-follow-up__priority" aria-label="Suggested teaching action"><div class="vocab-follow-up__priority-head"><span class="vocab-follow-up__eyebrow">Suggested class focus · ${escapeHtml(plan.focusSource)}</span><h2>${focus}</h2></div><div class="vocab-follow-up__activity"><strong>Try this · 10 minutes</strong><p>${escapeHtml(plan.activity)}</p></div><p class="vocab-follow-up__check"><strong>Check:</strong> Give a new example and see whether students can answer independently.</p></section>
-    <section class="vocab-follow-up__card vocab-follow-up__students-card"><div class="vocab-follow-up__head"><h2>Students to check in with</h2><span>${students.length} students</span></div><p class="vocab-follow-up__meta">Developing words are examples to check, not confirmed errors in the suggested skill.</p><ul class="vocab-follow-up__students">${rows}</ul></section>
-    <section class="vocab-follow-up__next" data-follow-up-practice-actions><div><h2>Give students follow-up practice</h2><p>Use the Teams task or recommend a trackable Hub session.</p></div><button class="vocab-button vocab-button--primary" data-action="teacher-recommend-practice">Recommend Hub Practice</button></section>
-    ${preview}
-    <details class="vocab-follow-up__method"><summary>How were these suggestions chosen?</summary><p>${escapeHtml(plan.limitation)}</p><p>Hub practice recommendations target developing vocabulary; they do not automatically assess this teaching focus.</p></details>`
-    : '<section class="vocab-follow-up__card"><h2>No students need a follow-up right now</h2><p>No developing-word or recorded-error signals are available for this selection.</p></section>'}</main>`;
+  const wordChips = (plan?.wordBank ?? []).map(word =>
+    '<span class="vocab-follow-up-word">'+escapeHtml(word)+'</span>').join('');
+  const rows = students.map(student =>
+    '<li class="vocab-follow-up__student"><div class="vocab-follow-up__student-title"><strong>'+
+    escapeHtml(student.name)+'</strong><small>'+escapeHtml(student.totalTargets)+' developing</small></div><p>'+
+    escapeHtml(student.words.join(', ') || 'No example words available')+'</p></li>').join('');
+  const header = [
+    '<main class="vocab-shell vocab-shell--teacher vocab-follow-up vocab-follow-up--studio">',
+    '<header class="vocab-topbar"><button class="vocab-back" data-action="teacher-follow-up-back">← Back to analytics</button>',
+    '<span>Teacher follow-up</span></header>',
+    '<section class="vocab-follow-up__top"><div><p class="vocab-kicker">TEACHER TOOLS · VOCABULARY</p>',
+    '<h1>Teaching activity studio</h1><p>From learning evidence to useful practice.</p></div>',
+    '<span class="vocab-follow-up__count">'+students.length+' students to check</span></section>'
+  ].join('');
+  if (!students.length) {
+    root.innerHTML = header+
+      '<section class="vocab-follow-up__card"><h2>No follow-up targets yet</h2><p>No persistent developing-word evidence is available for this selection.</p></section></main>';
+    return;
+  }
+  const focus = [
+    '<aside class="vocab-follow-up-focus"><div><span class="vocab-follow-up-focus__eyebrow">SUGGESTED FOCUS · ',
+    escapeHtml(plan.focusSource),'</span><strong>',escapeHtml(plan.focus),
+    '</strong><small>Class-level trend, not a diagnosed error for each student.</small></div>',
+    '<div class="vocab-follow-up-focus__words">',wordChips,'</div></aside>'
+  ].join('');
+  const evidence = [
+    '<details class="vocab-follow-up-evidence"><summary><strong>Students to check in with</strong>',
+    '<span>',students.length,' students · View evidence</span></summary>',
+    '<p>These example words are still developing; they do not prove that every student made the suggested skill error.</p>',
+    '<ul class="vocab-follow-up__students">',rows,'</ul></details>'
+  ].join('');
+  const next = [
+    '<section class="vocab-follow-up__next" data-follow-up-practice-actions>',
+    '<div><h2>Prefer trackable Hub practice?</h2><p>Recommend a separate Hub session to these students.</p></div>',
+    '<button type="button" class="vocab-button vocab-button--primary" data-action="teacher-recommend-practice">',
+    'Recommend Hub Practice</button></section>',
+    '<details class="vocab-follow-up__method"><summary>How were these suggestions chosen?</summary><p>',
+    escapeHtml(plan.limitation),'</p><p>Always review generated materials before assigning them. ',
+    'Activities are not automatically posted to Teams or Forms.</p></details>'
+  ].join('');
+  root.innerHTML = header+focus+renderVocabularyActivityStudio(plan,config)+evidence+next+'</main>';
 }
