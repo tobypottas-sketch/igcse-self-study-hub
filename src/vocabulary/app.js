@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '../supabase.js';
-import { loadStudentVocabularyProgress, summariseVocabularyProgress, renderStudentVocabularyProgress } from './student-progress.js?v=my-progress-null-fix3';
+import { loadStudentVocabularyProgress, summariseVocabularyProgress, sampleVocabularyProgress, renderStudentVocabularyProgress } from './student-progress.js?v=my-progress-demo-v1';
 import { loadVocabularyDashboard, loadMeritAwardCount, loadVocabularyMissions, loadVocabularyUnit, loadStudentMastery, loadPathwaySets, loadSetMembers, recordVocabularyMission, startVocabularyMission, submitVocabularyAttempt } from './data.js';
 import { achievements as buildAchievements, bestAndAim, computeXp, describeEngagement, evaluateMission, levelFor, meritProgress, nextChallenge, progressSnapshot, weeklyGoal } from './engagement-model.js';
 import { markAchievementsSeen, newAchievements } from './achievements-seen.js';
@@ -219,12 +219,16 @@ async function openMyProgress() {
   if (button) { button.disabled = true; button.textContent = 'Opening progress…'; }
   if (status) status.textContent = '';
   try {
-    const recorded = await loadStudentVocabularyProgress(state.client, state.userKey, { preview:state.preview });
+    // A staff preview is always a fictional example. It never asks for student activity
+    // and never mixes example figures into a real student's dashboard.
+    const summary = state.preview
+      ? sampleVocabularyProgress()
+      : summariseVocabularyProgress({
+          dashboard:state.dashboard, missions:state.missions,
+          engagement:homeEngagement(),
+          recorded:await loadStudentVocabularyProgress(state.client,state.userKey)
+        });
     if (!root?.querySelector?.('.vocab-shell--home')) return;
-    const summary = summariseVocabularyProgress({
-      dashboard:state.dashboard, missions:state.missions,
-      engagement:homeEngagement(), recorded
-    });
     renderStudentVocabularyProgress(root, {
       summary, displayName:state.profile?.display_name, preview:state.preview
     });
