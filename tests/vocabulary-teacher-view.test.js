@@ -75,3 +75,17 @@ test('individual student view is a qualitative 0511 learning profile rather than
   assert.match(target.innerHTML, /significant/);
   assert.doesNotMatch(target.innerHTML, /%/);
 });
+
+test('multi-class analytics offers a distinct return to the class chooser', () => {
+  const target = root();
+  renderTeacherOverview(target, { className:'G9 ESL 4', insights, canChooseClass:true });
+  assert.match(target.innerHTML, /href="\.\/"[^>]*>← Hub<\/a>/);
+  assert.match(target.innerHTML, /data-action="teacher-back-classes"[^>]*>← Choose another class<\/button>/);
+  assert.match(target.innerHTML, /Teacher analytics/);
+});
+
+test('single-class analytics does not show redundant class chooser control', () => {
+  const target = root();
+  renderTeacherOverview(target, { className:'G9 ESL 4', insights, canChooseClass:false });
+  assert.doesNotMatch(target.innerHTML, /data-action="teacher-back-classes"/);
+});
