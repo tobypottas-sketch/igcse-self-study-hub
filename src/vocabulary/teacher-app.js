@@ -12,7 +12,7 @@ import { evaluateUnitReadiness } from './pathway-readiness.js';
 import { coverageFromReadiness } from './pathway-coverage.js';
 import { registerPathwayCoverage } from './pathway-coverage-store.js';
 import { selectedUnit, unitOccurrences } from './teacher-units.js';
-import { renderTeacherOverview, weeklyUsagePanel, renderProblemArea, renderStudentVocabularyProfile, renderFollowUpPlan } from './teacher-views.js?v=studio-v2-verified';
+import { renderTeacherOverview, weeklyUsagePanel, renderProblemArea, renderStudentVocabularyProfile, renderFollowUpPlan } from './teacher-views.js?v=staff-usage-v1';
 import { renderVocabularyError } from './views.js';
 
 const teacherState = { readiness:new Map(), root:null, client:null, profile:null, data:null, currentClass:null, currentDrilldown:null, currentStudent:null, currentInsights:null, weeklyWeeksAgo:0, followUpPlan:null, usageData:null, usageDays:30, usageClassId:"all", usageStudentId:null, usageReturnClass:null, activityConfig:{type:"forms",minutes:10,level:"standard",variant:0} };
