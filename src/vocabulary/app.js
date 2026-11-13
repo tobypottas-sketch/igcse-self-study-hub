@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '../supabase.js';
-import { loadStudentVocabularyProgress, summariseVocabularyProgress, renderStudentVocabularyProgress } from './student-progress.js';
+import { loadStudentVocabularyProgress, summariseVocabularyProgress, renderStudentVocabularyProgress } from './student-progress.js?v=my-progress-null-fix3';
 import { loadVocabularyDashboard, loadMeritAwardCount, loadVocabularyMissions, loadVocabularyUnit, loadStudentMastery, loadPathwaySets, loadSetMembers, recordVocabularyMission, startVocabularyMission, submitVocabularyAttempt } from './data.js';
 import { achievements as buildAchievements, bestAndAim, computeXp, describeEngagement, evaluateMission, levelFor, meritProgress, nextChallenge, progressSnapshot, weeklyGoal } from './engagement-model.js';
 import { markAchievementsSeen, newAchievements } from './achievements-seen.js';
