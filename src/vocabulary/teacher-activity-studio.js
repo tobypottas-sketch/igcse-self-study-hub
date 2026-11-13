@@ -23,7 +23,7 @@ export const ACTIVITY_TYPES = [
   {id:'reading',icon:'◫',title:'Reading challenge',subtitle:'Text + comprehension',tone:'purple'},
   {id:'gap',icon:'✎',title:'Gap-fill practice',subtitle:'Words in context',tone:'orange'},
   {id:'paraphrase',icon:'⇄',title:'Paraphrasing lab',subtitle:'Meaning preservation',tone:'teal'},
-  {id:'errors',icon:'◎',title:'Error detective',subtitle:'Spot and fix errors',tone:'pink'},
+  {id:'errors',icon:'◎',title:'Context detective',subtitle:'Clues + word choices',tone:'pink'},
   {id:'writing',icon:'✦',title:'Writing challenge',subtitle:'Guided production',tone:'green'}
 ];
 const normalise = s => String(s ?? '').trim().toLowerCase();
@@ -43,16 +43,23 @@ export function buildActivity(plan, {type='forms',minutes=10,level='standard',va
   let body='', answers='', note='';
   if(type==='forms') {
     if(contexts.length) {
-      body=numbered(contexts.map(({w,example,meaning},i)=>`In this sentence, what does "${w}" mean?\n"${example}"\nA. ${meaning}\nB. the opposite meaning\nC. an unrelated action\nD. not enough information`));
-      answers=numbered(contexts.map(({w,meaning})=>`${w}: A — ${meaning}`));
-      note='Draft for Microsoft Forms. Review and replace the generic distractor options before assigning; these are not yet publication-ready multiple-choice questions.';
+      const pool = [...new Set(Object.values(KNOWN).map(item=>item[1]))];
+      const questions=contexts.map(({w,example,meaning},i)=>{
+        const distractors=rotate(pool.filter(x=>x!==meaning),variant+i*3).slice(0,3);
+        const correctIndex=(i+variant)%4;
+        const options=[...distractors];
+        options.splice(correctIndex,0,meaning);
+        return {w,example,meaning,options,correctIndex};
+      });
+      body=numbered(questions.map(({w,example,options})=>`In this sentence, what does "${w}" mean?\n"${example}"\n${options.map((choice,index)=>`${'ABCD'[index]}. ${choice}`).join('\n')}`));
+      answers=numbered(questions.map(({w,meaning,correctIndex})=>`${w}: ${'ABCD'[correctIndex]} — ${meaning}`));
+      note='Original auto-keyed draft for Microsoft Forms. Review distractor suitability and wording before publishing.';
     } else {body='Create context-based questions using the selected vocabulary. Include one sentence, four plausible meanings and one correct answer per question.';note='No vetted example sentences are available for these words. This is a teacher-editable outline, not an auto-marked quiz.';}
   } else if(type==='reading') {
-    const bank=words.slice(0,6);
-    body=`Read the paragraph and answer the questions.\n\n${contexts.length>=3 ? `A local community centre wanted more people to visit. Staff tried to make activities inexpensive, because some families could not afford costly tickets. They guaranteed that visitors could request a refund if an event was cancelled. The organisers hoped the changes would encourage more people to attend.` : 'Write or paste a short text containing the target vocabulary in natural context before sharing this task.'}\n\n${numbered(['What was the centre trying to improve?','Why did staff consider ticket prices?','What would happen if an event was cancelled?','Find a word or phrase in the text that means “low-cost”.','Summarise the main idea in your own words.'])}`;
+    body=`Read the paragraph and answer the questions.\n\n${['inexpensive','afford','guaranteed'].every(word=>words.includes(word)) ? `A local community centre wanted more people to visit. Staff tried to make activities inexpensive, because some families could not afford costly tickets. They guaranteed that visitors could request a refund if an event was cancelled. The organisers hoped the changes would encourage more people to attend.` : 'Write or paste a short text containing the target vocabulary in natural context before sharing this task.'}\n\n${numbered(['What was the centre trying to improve?','Why did staff consider ticket prices?','What would happen if an event was cancelled?','Find a word or phrase in the text that means “low-cost”.','Summarise the main idea in your own words.'])}`;
     answers='1. Increase attendance.\n2. Some families could not pay for expensive tickets.\n3. Visitors could request a refund.\n4. Inexpensive.\n5. Accept an accurate summary of improving access to activities.';
-    if(!contexts.length) {answers='Teacher: supply a passage and prepare an answer key before assigning.';note='Text scaffold requires a teacher-authored passage.';}
-    else note='Original sample passage; check whether all vocabulary matches your selected target list before assigning.';
+    if(!['inexpensive','afford','guaranteed'].every(word=>words.includes(word))) {answers='Teacher: supply a passage and prepare an answer key before assigning.';note='This word selection has no matched reading passage. The task is an editable scaffold, not a ready-to-assign reading.';}
+    else note='Original short passage using three of the selected target words.';
   } else if(type==='gap') {
     body=`Complete the sentences using a word from the bank. Use each word once.\nWord bank: ${selected.join(' · ') || words.join(' · ')}\n\n${numbered(contexts.map(({w,example})=>example.replace(new RegExp(`\\b${w}\\b`,'i'),'________')))`;
     answers=numbered(contexts.map(({w})=>w));
@@ -62,10 +69,10 @@ export function buildActivity(plan, {type='forms',minutes=10,level='standard',va
     answers=numbered(contexts.map(({w,meaning})=>`Accept natural alternatives preserving the sentence meaning; "${w}" can mean "${meaning}" in this context.`));
     if(!contexts.length){body='Choose three target words and write accurate sentences. Rewrite each without changing the meaning.';answers='Teacher: check meaning preservation, grammar and context.';note='Teacher needs to supply model sentences.';}
   } else if(type==='errors') {
-    body=`Find and correct the vocabulary error in each sentence. Explain your correction.\n\n${numbered(contexts.map(({w,example})=>example.replace(new RegExp(`\\b${w}\\b`,'i'), '________'))}\n\nEach blank represents a missing target word; explain how the context helps you decide.`;
+    body=`Work out which word completes each sentence. Underline the clues that helped you decide.\n\n${numbered(contexts.map(({w,example})=>example.replace(new RegExp(`\\b${w}\\b`,'i'), '________'))}\n\nEach blank represents a missing target word; explain how the context helps you decide.`;
     answers=numbered(contexts.map(({w,meaning})=>`${w} — ${meaning}`));
-    note='This is a missing-word correction activity, not a diagnosed misconception. It avoids inventing errors that students have not actually made.';
-    if(!contexts.length){body='Write three short sentences with one inaccurate vocabulary choice in each. Ask students to correct and justify it.';answers='Teacher: supply corrections before assigning.';}
+    note='Context-clue practice; not evidence of a specific student misconception.';
+    if(!contexts.length){body='Write three sentences with a missing target word in each. Ask students to identify context clues and justify their choices.';answers='Teacher: supply model answers before assigning.';}
   } else {
     body=`Write a short paragraph (80–120 words) about a memorable experience, using at least ${Math.min(3,words.length||3)} target words accurately.\n\nVocabulary: ${words.join(' · ')}\n\nInclude: a clear opening, a reason or example, and a final judgement. Underline the words you used.`;
     answers='Teacher check: accurate meaning in context; sentence clarity; appropriate examples; correct word forms.';
