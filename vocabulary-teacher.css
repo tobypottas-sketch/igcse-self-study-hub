@@ -126,3 +126,26 @@
 .vocab-shell--teacher .vocab-teacher-choose-class:hover{text-decoration:underline;text-underline-offset:3px}
 .vocab-shell--teacher .vocab-teacher-choose-class:focus-visible{outline:2px solid currentColor;outline-offset:4px;border-radius:3px}
 @media(max-width:620px){.vocab-shell--teacher .vocab-teacher-navigation{gap:10px}}
+
+/* Evidence-grounded teaching follow-up (not a raw-data export). */
+.vocab-follow-up__intro{color:var(--muted);font-size:var(--fs-sm);margin:15px 0}
+.vocab-follow-up__card{margin:14px 0;padding:20px;border:1px solid var(--c-teal-line);border-radius:var(--r-lg);background:var(--c-surface);color:var(--navy);display:grid;gap:9px}
+.vocab-follow-up__card h2{margin:0;font-size:1.12rem;color:var(--navy)}
+.vocab-follow-up__card h3{margin:12px 0 0;font-size:.98rem;color:var(--navy)}
+.vocab-follow-up__card p{margin:0;line-height:1.52;font-size:var(--fs-sm)}
+.vocab-follow-up__meta,.vocab-follow-up__disclaimer{color:var(--muted)}
+.vocab-follow-up__head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.vocab-follow-up__head>span{font-size:var(--fs-sm);color:var(--muted);font-weight:750}
+.vocab-follow-up__students{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.vocab-follow-up__student{min-width:0;border:1px solid var(--c-teal-line);background:var(--c-surface-soft);border-radius:10px;padding:12px}
+.vocab-follow-up__student>div{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
+.vocab-follow-up__student strong{font-size:var(--fs-sm)}
+.vocab-follow-up__student small{font-size:var(--fs-xs);color:var(--muted)}
+.vocab-follow-up__student p{margin:5px 0 0;font-size:var(--fs-sm);overflow-wrap:anywhere}
+.vocab-follow-up__eyebrow{font-size:var(--fs-xs)!important;color:var(--c-teal-dark);font-weight:850}
+.vocab-follow-up__copy-state{color:var(--c-teal-dark);font-size:var(--fs-sm);font-weight:750}
+.vocab-follow-up__hint{margin:0;color:var(--muted);font-size:var(--fs-sm);max-width:58ch}
+.vocab-follow-up__disclaimer{font-size:var(--fs-xs);line-height:1.5}
+@media(max-width:620px){.vocab-follow-up__students{grid-template-columns:1fr}.vocab-follow-up__card{padding:15px}.vocab-follow-up__head{align-items:flex-start}}
+
+.vocab-follow-up__draft{white-space:pre-wrap;overflow-wrap:anywhere;margin:3px 0;padding:15px;border:1px solid var(--c-teal-line);border-radius:10px;background:var(--c-surface-soft);color:var(--navy);font:inherit;font-size:var(--fs-sm);line-height:1.65}

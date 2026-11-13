@@ -1,18 +1,19 @@
 import { escapeHtml } from '../views/html.js';
 import { buildClassInsights, buildPathwayAnalytics, buildProblemDrilldown, buildStudentProfile } from './analytics.js';
-import { buildTeamsTargetList, buildVocabularyInterventionDraft, createLearningIntervention } from './interventions.js';
+import { buildVocabularyInterventionDraft, createLearningIntervention } from './interventions.js';
 import { buildPracticeHabits, buildStudentHabits } from './practice-habits.js';
 import { buildWeeklyUsage, MAX_WEEKS_BACK } from './weekly-usage.js';
+import { buildFollowUpPlan, teamsFollowUpMessage } from './follow-up-plan.js';
 import { buildMeritStatus, SKILLS_PER_MERIT } from './merits.js';
 import { loadVocabularyTeacherData, loadUnitReadinessContent } from './teacher-data.js';
 import { evaluateUnitReadiness } from './pathway-readiness.js';
 import { coverageFromReadiness } from './pathway-coverage.js';
 import { registerPathwayCoverage } from './pathway-coverage-store.js';
 import { selectedUnit, unitOccurrences } from './teacher-units.js';
-import { renderTeacherOverview, weeklyUsagePanel, renderProblemArea, renderStudentVocabularyProfile } from './teacher-views.js';
+import { renderTeacherOverview, weeklyUsagePanel, renderProblemArea, renderStudentVocabularyProfile, renderFollowUpPlan } from './teacher-views.js';
 import { renderVocabularyError } from './views.js';
 
-const teacherState = { readiness:new Map(), root:null, client:null, profile:null, data:null, currentClass:null, currentDrilldown:null, currentStudent:null, currentInsights:null, weeklyWeeksAgo:0 };
+const teacherState = { readiness:new Map(), root:null, client:null, profile:null, data:null, currentClass:null, currentDrilldown:null, currentStudent:null, currentInsights:null, weeklyWeeksAgo:0, followUpPlan:null };
 
 function renderClassChooser() {
   const classes = teacherState.data?.classes ?? [];
@@ -140,27 +141,49 @@ function openStudent(studentId) {
   renderStudentVocabularyProfile(teacherState.root, { className:teacherState.currentClass.className, profile:teacherState.currentStudent, habit });
 }
 
-function targetRowsForTeams() {
-  const classData = teacherState.currentClass;
-  if (!classData) return [];
-  const focus = teacherState.currentDrilldown;
-  const mastery = focus?.strand ? classData.mastery.filter(row => Number(row.strandEvidence?.[focus.strand] ?? 0) < 3) : classData.mastery.filter(row => row.status === 'building' || row.recentErrorPattern);
-  const studentById = new Map(classData.students.map(row => [row.id,row.displayName]));
-  const targetById = new Map(classData.targets.map(row => [row.vocabularyId,row.term]));
-  const learningFocus = focus?.skillId ?? focus?.strand ?? teacherState.currentStudent?.developmentSkill ?? teacherState.currentStudent?.developmentArea ?? teacherState.currentInsights?.mainWeakness?.skillId ?? teacherState.currentInsights?.mainWeakness?.strand ?? 'mixed';
-  return mastery.map(row => ({ student:studentById.get(row.studentId) ?? row.studentId, term:targetById.get(row.vocabularyId) ?? row.vocabularyId, strand:learningFocus, failureType:row.recentErrorPattern ?? '' }));
+function openFollowUpPlan() {
+  if (!teacherState.currentClass) return;
+  teacherState.followUpPlan = buildFollowUpPlan({
+    classData:teacherState.currentClass,
+    currentStudent:teacherState.currentStudent,
+    currentDrilldown:teacherState.currentDrilldown,
+    currentInsights:teacherState.currentInsights
+  });
+  renderFollowUpPlan(teacherState.root, teacherState.followUpPlan);
 }
 
-async function copyTeamsTargets() {
-  const text = buildTeamsTargetList(targetRowsForTeams());
-  const rows = text.split('\n').slice(1);
-  if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
-  const button = teacherState.root.querySelector?.('[data-action="teacher-teams-targets"]');
-  if (button) button.textContent = rows.length ? 'Teams target list copied' : 'No target list yet';
+function closeFollowUpPlan() {
+  teacherState.followUpPlan = null;
+  if (teacherState.currentStudent) { openStudent(teacherState.currentStudent.studentId); return; }
+  if (teacherState.currentDrilldown) {
+    openProblem({ strand:teacherState.currentDrilldown.strand, skillId:teacherState.currentDrilldown.skillId });
+    return;
+  }
+  if (teacherState.currentClass) void openClass(teacherState.currentClass.id).catch(showError);
+}
+
+async function copyFollowUpInstructions() {
+  const text = teamsFollowUpMessage(teacherState.followUpPlan);
+  const status = teacherState.root.querySelector?.('[data-follow-up-copy-status]');
+  if (!text || !navigator.clipboard?.writeText) {
+    if (status) status.textContent = 'Unable to copy automatically. Please copy the task manually.';
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    if (status) status.textContent = 'Instructions copied. Choose the recipients in Teams.';
+  } catch {
+    if (status) status.textContent = 'Clipboard access was blocked. Please allow clipboard access and try again.';
+  }
 }
 
 function recommendationContext() {
   if (!teacherState.currentClass) return null;
+  if (teacherState.followUpPlan) {
+    const studentIds = new Set(teacherState.followUpPlan.students.map(row => row.id));
+    const vocabularyIds = [...new Set(teacherState.currentClass.mastery.filter(row => studentIds.has(row.studentId) && (row.status === 'building' || row.recentErrorPattern)).map(row => row.vocabularyId))].slice(0,30);
+    return { affectedStudents:teacherState.followUpPlan.students.map(row => ({studentId:row.id})), strand:null, vocabularyIds };
+  }
   if (teacherState.currentStudent) {
     return {
       studentId:teacherState.currentStudent.studentId,
@@ -193,7 +216,7 @@ function showRecommendationChooser() {
     actions.insertAdjacentHTML('afterend','<p class="vocab-empty-small" data-recommendation-chooser>No students currently have a persistent learning signal to target.</p>');
     return;
   }
-  actions.insertAdjacentHTML('afterend', `<section class="vocab-recommendation-chooser" data-recommendation-chooser><div><p class="vocab-kicker">Recommend practice</p><h3>Choose session type</h3><p>Same target students and learning focus; only the stopping point changes.</p></div><div class="vocab-time-grid"><button class="vocab-button vocab-button--primary" data-action="teacher-create-recommendation" data-duration="adaptive">Adaptive</button>${[5,10,15,20].map(minutes => `<button class="vocab-button" data-action="teacher-create-recommendation" data-duration="${minutes}">${minutes} min</button>`).join('')}</div></section>`);
+  actions.insertAdjacentHTML('afterend', `<section class="vocab-recommendation-chooser" data-recommendation-chooser><div><p class="vocab-kicker">Recommend practice</p><h3>Choose session type</h3><p>${teacherState.followUpPlan ? 'This recommends general practice for the selected students and their developing vocabulary; it is not a targeted assessment of the suggested teaching skill.' : 'Same target students and learning focus; only the stopping point changes.'}</p></div><div class="vocab-time-grid"><button class="vocab-button vocab-button--primary" data-action="teacher-create-recommendation" data-duration="adaptive">Adaptive</button>${[5,10,15,20].map(minutes => `<button class="vocab-button" data-action="teacher-create-recommendation" data-duration="${minutes}">${minutes} min</button>`).join('')}</div></section>`);
 }
 
 async function createRecommendation(target) {
@@ -231,7 +254,9 @@ function handleClick(event) {
   else if (action === 'teacher-back-overview') teacherState.currentClass ? void openClass(teacherState.currentClass.id).catch(showError) : renderClassChooser();
   else if (action === 'teacher-select-unit') { if (teacherState.currentClass) { teacherState.currentClass.selectedUnit = target.dataset.unit === 'all' ? 'all' : Number(target.dataset.unit); void openClass(teacherState.currentClass.id).catch(showError); } }
   else if (action === 'teacher-award-merit') void awardMerit(target);
-  else if (action === 'teacher-teams-targets') void copyTeamsTargets().catch(() => {});
+  else if (action === 'teacher-follow-up-plan') openFollowUpPlan();
+  else if (action === 'teacher-follow-up-back') closeFollowUpPlan();
+  else if (action === 'teacher-copy-follow-up') void copyFollowUpInstructions();
   else if (action === 'teacher-recommend-practice') showRecommendationChooser();
   else if (action === 'teacher-create-recommendation') void createRecommendation(target);
 }
