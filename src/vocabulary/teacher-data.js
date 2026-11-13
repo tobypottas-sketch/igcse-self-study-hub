@@ -73,8 +73,7 @@ async function optional(work) {
 // separate calls and stay separate in the result. Attempts are limited to a recent window and then read completely;
 // missions are tiny (one row each) and read in full.
 export async function loadVocabularyTeacherData(client, { now = new Date(), profile = null } = {}) {
-  const [profiles, memberships, classes, items, occurrences] = await Promise.all([
-    fetchAllRows(() => client.from('profiles').select('id, display_name, role', { count:'exact' }).eq('role','student').order('id'), { label:'students' }),
+  const [memberships, classes, items, occurrences] = await Promise.all([
     fetchAllRows(() => client.from('student_class_memberships').select('student_id, class_id, ended_at', { count:'exact' }).order('student_id').order('class_id'), { label:'class memberships' }),
     fetchAllRows(() => client.from('classes').select('id, class_name, active', { count:'exact' }).eq('active',true).order('id'), { label:'classes' }),
     fetchAllRows(() => client.from('vocabulary_items').select('vocabulary_id, term', { count:'exact' }).eq('status','live').order('vocabulary_id'), { label:'vocabulary items' }),
@@ -92,6 +91,10 @@ export async function loadVocabularyTeacherData(client, { now = new Date(), prof
   const scopedClassIds=new Set(scopedClasses.map(row=>row.id));
   const scopedMemberships=memberships.filter(row=>scopedClassIds.has(row.class_id));
   const studentIds = [...new Set(scopedMemberships.filter(row => row.ended_at == null).map(row => row.student_id))];
+  // Request names only for students in the staff member's authorised classes.
+  const profiles=await fetchAllRowsForIds(studentIds, ids=>client.from('profiles')
+    .select('id, display_name, role', { count:'exact' }).in('id',ids)
+    .eq('role','student').order('id'), {label:'authorised students'});
   const since = new Date(new Date(now).getTime() - ACTIVITY_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
 
   const [mastery, unitMastery, activity, awards, missions] = await Promise.all([
