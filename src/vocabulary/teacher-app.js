@@ -314,7 +314,7 @@ function filterStaffUsageStudents(event) {
   // Searching must include students inside the normally collapsed inactive section.
   const inactive=teacherState.root.querySelector('[data-usage-inactive]');
   if(inactive) {
-    if(query) inactive.open=true;
+    if(query) inactive.open=Array.from(inactive.querySelectorAll('[data-vocab-usage-student-row]')).some(row=>!row.hidden);
     else inactive.open=false;
   }
   const counter=teacherState.root.querySelector('[data-usage-search-count]');
