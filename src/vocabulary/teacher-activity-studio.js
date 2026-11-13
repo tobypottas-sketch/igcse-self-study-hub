@@ -61,7 +61,7 @@ export function buildActivity(plan, {type='forms',minutes=10,level='standard',va
     if(!['inexpensive','afford','guaranteed'].every(word=>words.includes(word))) {answers='Teacher: supply a passage and prepare an answer key before assigning.';note='This word selection has no matched reading passage. The task is an editable scaffold, not a ready-to-assign reading.';}
     else note='Original short passage using three of the selected target words.';
   } else if(type==='gap') {
-    body=`Complete the sentences using a word from the bank. Use each word once.\nWord bank: ${selected.join(' · ') || words.join(' · ')}\n\n${numbered(contexts.map(({w,example})=>example.replace(new RegExp(`\\b${w}\\b`,'i'),'________')))`;
+    body=`Complete the sentences using a word from the bank. Use each word once.\nWord bank: ${selected.join(' · ') || words.join(' · ')}\n\n${numbered(contexts.map(({w,example})=>example.replace(new RegExp(`\\b${w}\\b`,'i'),'________')))}`;
     answers=numbered(contexts.map(({w})=>w));
     if(!contexts.length){body='Write context-rich sentences with one missing target word each. Add a word bank above the questions.';answers='Teacher: supply model sentences and keys.';note='No vetted sentences for this selection.';}
   } else if(type==='paraphrase') {
