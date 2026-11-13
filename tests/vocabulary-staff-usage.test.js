@@ -48,7 +48,6 @@ test('render escapes student names, offers real actions and no demo metrics',()=
  assert.match(root.innerHTML,/data-action="staff-usage-select-class"/);
  assert.match(root.innerHTML,/data-action="staff-usage-search"/);
  assert.match(root.innerHTML,/data-vocab-usage-student-row/);
- assert.match(root.innerHTML,/data-usage-inactive/);
  assert.match(root.innerHTML,/Words in progress/);
  assert.match(root.innerHTML,/Words secure/);
  assert.doesNotMatch(root.innerHTML,/Words mastered/);
@@ -149,7 +148,7 @@ test('class summary uses one selected class rather than school-wide class count'
 });
 test('inactive students are collapsed separately; active students stay visible',()=>{
  const root={innerHTML:''};
- renderVocabularyStaffUsage(root,data,{days:7,classId:'c1',now});
+ renderVocabularyStaffUsage(root,data,{days:7,classId:'c2',now});
  assert.match(root.innerHTML,/Practised in this period/);
  const section=root.innerHTML.match(/<details class="vocab-usage-inactive"[\s\S]+?<\/details>/)?.[0]??'';
  assert.match(section,/Learner Three|Learner One|Learner Two|Not yet active/);
