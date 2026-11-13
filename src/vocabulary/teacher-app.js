@@ -301,6 +301,20 @@ async function createRecommendation(target) {
 
 function showError(error) { renderVocabularyError(teacherState.root, error instanceof Error ? error.message : 'Teacher vocabulary analytics are unavailable right now.'); }
 
+function filterStaffUsageStudents(event) {
+  const input=event.target?.closest?.('[data-action="staff-usage-search"]');
+  if(!input)return;
+  const query=String(input.value??'').trim().toLowerCase();
+  const rows=teacherState.root.querySelectorAll('[data-vocab-usage-student-row]');
+  let visible=0;
+  for(const row of rows) {
+    row.hidden=!String(row.dataset.name??'').includes(query);
+    if(!row.hidden)visible++;
+  }
+  const counter=teacherState.root.querySelector('[data-usage-search-count]');
+  if(counter)counter.textContent=visible+' of '+rows.length+' students';
+}
+
 function handleStaffUsageChange(event) {
   const target=event.target?.closest?.('[data-action="staff-usage-select-class"]');
   if(!target)return;
@@ -358,6 +372,7 @@ export async function initialiseVocabularyTeacher({ root, client, profile }) {
     teacherState.data = await loadVocabularyTeacherData(client,{profile});
     root.addEventListener('click', handleClick);
     root.addEventListener('change', handleStaffUsageChange);
+    root.addEventListener('input', filterStaffUsageStudents);
     if (teacherState.data.classes.length === 1) await openClass(teacherState.data.classes[0].id);
     else renderClassChooser();
   } catch (error) {
