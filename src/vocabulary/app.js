@@ -18,7 +18,7 @@ import { VOCABULARY_PATHWAYS } from './pathway-model.js';
 import { registeredPathwayCoverage, servedByAnyLivePathway } from './pathway-coverage-store.js';
 import { buildSessionFinishModel } from './session-finish-model.js';
 import { mountGames } from './games/games-controller.js';
-import { buildUnitProgress, renderAchievementsSheet, renderEngagementStrip, renderSessionSummary, renderVocabularyError, renderPracticeSheet, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js?v=my-progress-v1';
+import { buildUnitProgress, renderAchievementsSheet, renderEngagementStrip, renderSessionSummary, renderVocabularyError, renderPracticeSheet, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js?v=my-progress-fix2';
 import { deriveLearningStage } from './learning-stage.js';
 import { createAttemptPersistence } from './attempt-persistence.js';
 import { buildMatchSet, checkMatchSet, finishedMatchState, newMatchState, revealMatchSet, tapMatchItem, pairMatchItems } from './match-set.js';
@@ -205,22 +205,42 @@ async function showHome() {
   const [dashboard, missions, meritAwarded] = await Promise.all([loadVocabularyDashboard(state.client, { preview:state.preview }), loadVocabularyMissions(state.client, { preview:state.preview }), loadMeritAwardCount(state.client, { preview:state.preview })]);
   state.dashboard = dashboard; state.missions = missions; state.meritAwarded = meritAwarded; state.units = buildUnits(state.dashboard);
   await evaluateUnitsThatLookMastered(dashboard);
-  renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units, engagement:homeEngagement(), soundOn:soundEnabled() }); decoratePreview();
+  renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units, engagement:homeEngagement(), soundOn:soundEnabled(), preview:state.preview }); decoratePreview();
 }
 async function openMyProgress() {
-  // Entry is only exposed on Vocabulary Home. Do not touch any ongoing practice session.
-  if (!state.dashboard || !root?.querySelector?.('.vocab-shell--home')) return;
-  const control=root.querySelector('[data-action="open-my-progress"]');
-  if (control) { control.disabled=true; control.textContent='Loading progress…'; }
-  const recorded=await loadStudentVocabularyProgress(state.client,state.userKey,{preview:state.preview});
-  // Ignore a finished request if the student has navigated elsewhere while it loaded.
-  if (!root?.querySelector?.('.vocab-shell--home')) return;
-  const summary=summariseVocabularyProgress({
-    dashboard:state.dashboard,missions:state.missions,
-    engagement:homeEngagement(),recorded
-  });
-  renderStudentVocabularyProgress(root,{summary,displayName:state.profile?.display_name,preview:state.preview});
-  decoratePreview();
+  // This view is read-only and is allowed in staff preview (no personal tracking queries).
+  const home = root?.querySelector?.('.vocab-shell--home');
+  const button = root?.querySelector?.('[data-action="open-my-progress"]');
+  const status = root?.querySelector?.('[data-my-progress-error]');
+  if (!home || !state.dashboard) {
+    if (status) status.textContent = 'Progress is not ready. Return to All units and try again.';
+    return;
+  }
+  if (button) { button.disabled = true; button.textContent = 'Opening progress…'; }
+  if (status) status.textContent = '';
+  try {
+    const recorded = await loadStudentVocabularyProgress(state.client, state.userKey, { preview:state.preview });
+    if (!root?.querySelector?.('.vocab-shell--home')) return;
+    const summary = summariseVocabularyProgress({
+      dashboard:state.dashboard, missions:state.missions,
+      engagement:homeEngagement(), recorded
+    });
+    renderStudentVocabularyProgress(root, {
+      summary, displayName:state.profile?.display_name, preview:state.preview
+    });
+    decoratePreview();
+    window.scrollTo({top:0,behavior:'instant'});
+  } catch (error) {
+    // A rejected read or render must never result in a seemingly dead button.
+    if (status) status.textContent = 'Unable to open My Progress right now. Please try again.';
+    console.error('Vocabulary My Progress could not open', error);
+  } finally {
+    const remaining = root?.querySelector?.('[data-action="open-my-progress"]');
+    if (remaining) {
+      remaining.disabled = false;
+      remaining.textContent = state.preview ? 'View sample progress →' : 'View my progress →';
+    }
+  }
 }
 function renderCurrentUnit() {
   if (!state.currentUnitNumber) return;
@@ -953,11 +973,7 @@ root?.addEventListener('click', event => {
   const tile = event.target?.closest?.('[data-tile-answer]');
   if (tile) { const form = tile.closest?.('[data-form="vocabulary-answer"]'); const input = form?.querySelector?.('input[name="answer"]'); const build = form?.querySelector?.('[data-tile-build]'); if (!input || tile.disabled) return; if (build?.dataset?.missingTemplate) { const template = JSON.parse(build.dataset.missingTemplate); const filled = JSON.parse(build.dataset.filled || '[]'); if (filled.length >= template.filter(letter => letter == null).length) return; filled.push(tile.dataset.tileAnswer); build.dataset.filled = JSON.stringify(filled); let next = 0; const word = template.map(letter => letter ?? filled[next++] ?? null); input.value = word.every(letter => letter != null) ? word.join(' ') : ''; build.textContent = word.map(letter => letter ?? '_').join(' '); tile.disabled = true; tile.classList.add('is-used'); const notice = form.querySelector?.('[data-tile-validation]'); if (notice) notice.textContent = ''; return; } const parts = String(input.value ?? '').trim().split(/\s+/).filter(Boolean); parts.push(tile.dataset.tileAnswer); input.value = parts.join(' '); tile.disabled = true; tile.classList.add('is-used'); if (build) build.textContent = parts.join(' '); const notice = form.querySelector?.('[data-tile-validation]'); if (notice) notice.textContent = ''; return; }
   const target = event.target?.closest?.('[data-action]'); const action = target?.dataset?.action; if (!action) return;
-  if (action === 'open-my-progress') openMyProgress().catch(error => {
-    const button=root?.querySelector?.('[data-action="open-my-progress"]');
-    if(button){button.disabled=false;button.textContent='View my progress →';}
-    console.warn('Unable to open Vocabulary progress',error);
-  });
+  if (action === 'open-my-progress') { event.preventDefault(); void openMyProgress(); }
   else if (action === 'progress-back-home') showHome().catch(error => renderVocabularyError(root,error.message));
   else if (action === 'open-unit') openUnit(Number(target.dataset.unit)).catch(error => renderVocabularyError(root, error.message));
   else if (action === 'open-game') { if (!state.content) return; state.games?.destroy?.(); state.games = mountGames(root, { content:state.content, unitNumber:state.currentUnitNumber, game:target.dataset.game, onCue:playCue, onExit:() => { state.games = null; renderCurrentUnit(); } }); } /* PROTOTYPE games: isolated, no state or client passed */

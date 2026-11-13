@@ -32,11 +32,18 @@
 .vocab-journey-pathway__track>span{display:block;height:100%;border-radius:50px;background:linear-gradient(90deg,#49bda9,#4b79bc)}
 .vocab-journey-footnote{color:#697f92;font-size:.78rem;margin:18px 3px 30px;line-height:1.6}
 .vocab-journey-note{background:#fff4d8;border:1px solid #eed79b;border-radius:11px;color:#8a631e;padding:11px 15px}
-.vocab-progress-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 19px;margin:14px 0 18px;border:1px solid #ccdced;border-radius:16px;background:linear-gradient(110deg,#eef7ff,#f4efff)}
-.vocab-progress-entry>span{display:flex;flex-direction:column;gap:3px}
-.vocab-progress-entry strong{color:#254b73;font-size:1rem}
-.vocab-progress-entry small{font-size:.8rem;color:#64798d}
-.vocab-progress-entry>button{white-space:nowrap;border:0;border-radius:12px;background:#2f568f;color:#fff;font-weight:850;padding:10px 16px;cursor:pointer;min-height:42px}
-.vocab-progress-entry>button:focus-visible{outline:3px solid #2382b8;outline-offset:3px}
+/* Occupies its own row even when the Home screen is a grid. No side-by-side staff banner/card. */
+.vocab-shell--home>.vocab-progress-entry{grid-column:1/-1;grid-row:auto;justify-self:stretch;align-self:stretch;box-sizing:border-box;width:100%;max-width:100%;min-width:0;clear:both;display:flex;align-items:center;justify-content:space-between;gap:18px;margin:14px 0 18px;padding:17px 21px;border:1px solid #cdddeb;border-radius:17px;background:linear-gradient(105deg,#eaf7fb,#f0f0ff)}
+.vocab-shell--home>.vocab-progress-entry>span{display:flex;flex:1 1 auto;min-width:0;flex-direction:column;gap:4px}
+.vocab-shell--home>.vocab-progress-entry strong{color:#254b73;font-size:1.05rem;line-height:1.25}
+.vocab-shell--home>.vocab-progress-entry small{color:#64798d;font-size:.82rem;line-height:1.4}
+.vocab-shell--home>.vocab-progress-entry>button{flex:0 0 auto;max-width:100%;white-space:normal;text-align:center;border:0;border-radius:12px;background:#2f568f;color:#fff;font-weight:850;padding:11px 17px;cursor:pointer;min-height:44px;overflow-wrap:anywhere}
+.vocab-shell--home>.vocab-progress-entry>button:hover{background:#244674}
+.vocab-shell--home>.vocab-progress-entry>button:focus-visible{outline:3px solid #2382b8;outline-offset:3px}
+.vocab-shell--home>.vocab-progress-entry>button:disabled{opacity:.7;cursor:wait}
+.vocab-shell--home>.vocab-progress-entry [data-my-progress-error]{color:#9b4236;font-size:.8rem;line-height:1.4}
+/* In preview the existing banner must take a full row, not share the progress entry's row. */
+.vocab-shell--home>.vocab-preview-banner{grid-column:1/-1;grid-row:auto;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+
 @media(max-width:870px){.vocab-journey-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.vocab-journey-panels{grid-template-columns:1fr}}
-@media(max-width:520px){.vocab-journey-hero{padding:22px}.vocab-journey-stat{min-height:145px;padding:13px}.vocab-journey-panel{padding:17px}.vocab-progress-entry{align-items:flex-start;flex-direction:column}.vocab-progress-entry>button{width:100%}}
+@media(max-width:520px){.vocab-journey-hero{padding:22px}.vocab-journey-stat{min-height:145px;padding:13px}.vocab-journey-panel{padding:17px}.vocab-shell--home>.vocab-progress-entry{align-items:stretch;flex-direction:column}.vocab-shell--home>.vocab-progress-entry>button{width:100%}}
