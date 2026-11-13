@@ -8,8 +8,7 @@ import { loadVocabularyTeacherData, loadUnitReadinessContent } from './teacher-d
 import { evaluateUnitReadiness } from './pathway-readiness.js';
 import { coverageFromReadiness } from './pathway-coverage.js';
 import { registerPathwayCoverage } from './pathway-coverage-store.js';
-import { buildReadinessReport, renderReadinessReport, unitTitleFor } from './teacher-readiness.js';
-import { selectedUnit, unitOccurrences, unitOptions } from './teacher-units.js';
+import { selectedUnit, unitOccurrences } from './teacher-units.js';
 import { renderTeacherOverview, weeklyUsagePanel, renderProblemArea, renderStudentVocabularyProfile } from './teacher-views.js';
 import { renderVocabularyError } from './views.js';
 
@@ -18,7 +17,7 @@ const teacherState = { readiness:new Map(), root:null, client:null, profile:null
 function renderClassChooser() {
   const classes = teacherState.data?.classes ?? [];
   const cards = classes.map(row => `<button class="vocab-class-card" data-action="teacher-open-class" data-class-id="${escapeHtml(row.id)}"><span class="vocab-class-card__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.5 5.75A2.25 2.25 0 0 1 6.75 3.5H12v15.75H6.75A2.25 2.25 0 0 0 4.5 21.5V5.75Zm15 0a2.25 2.25 0 0 0-2.25-2.25H12v15.75h5.25a2.25 2.25 0 0 1 2.25 2.25V5.75Z"/></svg></span><span class="vocab-class-card__eyebrow">Class</span><strong class="vocab-class-card__title">${escapeHtml(row.className)}</strong><span class="vocab-class-card__count">${escapeHtml(row.students.length)} students</span><span class="vocab-class-card__cta">Open analytics →</span></button>`).join('') || '<p class="vocab-empty">No classes are currently available to this account.</p>';
-  teacherState.root.innerHTML = `<main class="vocab-shell vocab-class-chooser"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Teacher analytics</span></header><section class="vocab-teacher-hero vocab-class-chooser__hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase</p><h1>Choose a class</h1><p>Open the class that needs your attention.</p><div class="vocab-teacher-actions"><a class="vocab-button" href="./vocabulary.html?preview=1">Preview student activities</a><button class="vocab-button" data-action="teacher-open-readiness">Unit readiness</button></div></section><section class="vocab-class-chooser__grid">${cards}</section></main>`;
+  teacherState.root.innerHTML = `<main class="vocab-shell vocab-class-chooser"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Teacher analytics</span></header><section class="vocab-teacher-hero vocab-class-chooser__hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase</p><h1>Choose a class</h1><p>Open the class that needs your attention.</p><div class="vocab-teacher-actions"><a class="vocab-button" href="./vocabulary.html?preview=1">Preview student activities</a></div></section><section class="vocab-class-chooser__grid">${cards}</section></main>`;
 }
 
 function pathwayAnalytics(classData, students = classData.students) {
@@ -103,14 +102,6 @@ async function openClass(classId) {
   teacherState.currentStudent = null;
   teacherState.currentInsights = classInsights(classData);
   renderTeacherOverview(teacherState.root, { className:classData.className, insights:teacherState.currentInsights, merits:classMerits(classData), habits:classHabits(classData), units:selectedUnit(classData), weeklyUsage:weeklyForClass(classData), canChooseClass:teacherState.data.classes.length > 1 });
-}
-
-async function openReadiness(unitNumber = null) {
-  const options = unitOptions({ occurrences:teacherState.data.occurrences });
-  const chosen = options.find(option => option.unitNumber === Number(unitNumber)) ?? options[0] ?? null;
-  if (!chosen) { renderReadinessReport(teacherState.root, { options }); return; }
-  const { readiness, publishedWords } = await ensureReadiness(chosen.unitNumber);
-  renderReadinessReport(teacherState.root, { options, selected:chosen.unitNumber, title:chosen.unitTitle || unitTitleFor(chosen.unitNumber), report:buildReadinessReport({ readiness, publishedWords }) });
 }
 
 function openProblem({ strand = null, skillId = null } = {}) {
@@ -234,8 +225,6 @@ function handleClick(event) {
   if (action === 'teacher-open-class') void openClass(target.dataset.classId).catch(showError);
   else if (action === 'teacher-week-previous') changeWeeklyWeek(1);
   else if (action === 'teacher-week-next') changeWeeklyWeek(-1);
-  else if (action === 'teacher-open-readiness') void openReadiness().catch(showError);
-  else if (action === 'teacher-readiness-unit') void openReadiness(target.dataset.unit).catch(showError);
   else if (action === 'teacher-back-classes') { if (teacherState.data.classes.length === 1) void openClass(teacherState.data.classes[0].id).catch(showError); else renderClassChooser(); }
   else if (action === 'teacher-open-problem') openProblem({ strand:target.dataset.strand ?? null, skillId:target.dataset.skillId ?? null });
   else if (action === 'teacher-open-student') openStudent(target.dataset.studentId);
