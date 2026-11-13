@@ -118,7 +118,7 @@ export function renderStudentVocabularyProgress(root, {summary,displayName='',pr
   ].join('');
   const pathways=(s.pathways??[]).map(p=>'<div class="vocab-journey-pathway">'+
     '<div class="vocab-journey-pathway__head"><strong>'+escapeHtml(p.label)+'</strong><span>'+
-    escapeHtml(count(p.wordsProgressing))+' words progressing <span aria-hidden="true">·</span> '+escapeHtml(count(p.cleared))+' stages completed</span></div>'+
+    escapeHtml(count(p.wordsProgressing))+' of '+escapeHtml(count(p.wordCount))+' words progressing ('+escapeHtml(p.percent)+'%) <span aria-hidden="true">·</span> '+escapeHtml(count(p.cleared))+' stages completed</span></div>'+
     '<div class="vocab-journey-pathway__track" role="progressbar" aria-label="'+escapeHtml(p.label)+' words with at least one completed stage" aria-valuemin="0" aria-valuemax="'+p.wordCount+'" aria-valuenow="'+p.wordsProgressing+'"><span style="width:'+p.percent+'%"></span></div></div>').join('');
   root.innerHTML='<main class="vocab-shell vocab-shell--journey" data-vocabulary-progress>'+
     '<header class="vocab-topbar"><button type="button" class="vocab-back vocab-back--chip" data-action="progress-back-home">← All units</button>'+
@@ -131,7 +131,7 @@ export function renderStudentVocabularyProgress(root, {summary,displayName='',pr
     '<div class="vocab-journey-week"><strong>'+escapeHtml(week?week.done+' / '+week.goal:'Unavailable')+
     '</strong><span>Missions towards your weekly goal</span></div>'+
     '<div class="vocab-journey-week__dots" aria-label="Weekly goal progress">'+Array.from({length:week?.goal??0},(_,i)=>'<span'+(i<week.done?' class="is-done"':'')+'></span>').join('')+'</div>'+
-    '<p class="vocab-journey-sub">Completed missions recorded: '+escapeHtml(count(s.completedMissions))+'</p></article>'+
+    '<p class="vocab-journey-sub">'+(preview?'Example completed missions: ':'Completed missions recorded: ')+escapeHtml(count(s.completedMissions))+'</p></article>'+
     '<article class="vocab-journey-panel"><div class="vocab-journey-panel__head"><span>LEARNING PATHWAYS</span><h2>Building your vocabulary</h2></div>'+
     '<p class="vocab-journey-sub">Words progressing have completed at least one stage in that pathway. The bars show the share of available words with recorded progress; stage totals show how much practice has been completed.</p>'+
     '<div class="vocab-journey-pathways">'+pathways+'</div></article></section>'+
