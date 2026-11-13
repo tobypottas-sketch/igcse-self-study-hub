@@ -21,7 +21,7 @@ async function routeVocabulary() {
       return;
     }
     if (staff) {
-      const { initialiseVocabularyTeacher } = await import('./teacher-app.js?v=teacher-recovery-20261113-2');
+      const { initialiseVocabularyTeacher } = await import('./teacher-app.js?v=studio-v2-verified');
       await initialiseVocabularyTeacher({ root, client, profile });
       return;
     }
