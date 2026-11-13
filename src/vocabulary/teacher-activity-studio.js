@@ -48,16 +48,103 @@ function buildForms(items,variant) {
     note:'Copyable Microsoft Forms questions and an answer key; this does not create a Form automatically.'
   };
 }
-function buildReading(items) {
+// Curated passages with explicit text-dependent questions and checked keys.
+// The selected text must meaningfully overlap the class vocabulary; never pretend to generate a bespoke passage.
+const READING_PACKS=[
+ {id:'holiday',title:'The Holiday That Wasn’t What It Seemed',words:['fooled','guaranteed','inexpensive','afford','demand'],
+ passage:'The Li family booked an inexpensive seaside holiday after seeing photographs of a modern hotel and a large swimming pool. The travel company guaranteed that every room would have a sea view and that all activities were included. However, when the family arrived, the pool was closed and their room faced a busy road. The company had used pictures of a different hotel. Mrs Li felt that the advertisement had fooled them.\n\nThey asked to move, but the receptionist explained that the cheaper rooms were already full. The family could not afford another hotel, so they stayed. During the week, they discovered that the advertised boat trip cost extra. After returning home, Mrs Li posted a detailed review with photographs. Other customers shared similar experiences and demanded refunds. A week later, the company apologised and offered the family part of their money back.',
+ easy:[
+ ['Where had the family planned to stay?','At a seaside hotel.'],
+ ['Name one problem they found on arrival.','The pool was closed / their room faced a busy road.'],
+ ['Why did the family stay at the hotel?','They could not afford another hotel.'],
+ ['What extra activity did they have to pay for?','The boat trip.'],
+ ['What did Mrs Li post after the holiday?','A detailed review with photographs.'],
+ ['What did the company eventually offer?','An apology and a partial refund.']],
+ standard:[
+ ['Give TWO ways the reality differed from the advertisement.','Pool closed; road-facing room instead of sea view; boat trip cost extra (any two).'],
+ ['Why was changing hotels not a realistic option for the family?','They did not have enough money for another hotel.'],
+ ['What does “fooled” suggest about the advertisement?','It misled the family into believing the hotel was better than it was.'],
+ ['What prompted other customers to demand refunds?','Mrs Li posted a review, and other customers recognised similar experiences.'],
+ ['Find a word meaning “promised with certainty”.','guaranteed'],
+ ['Did the company give the family everything they wanted? Explain.','No. It offered only part of their money back.']],
+ hard:[
+ ['How might the photographs have influenced the family’s decision?','They created a false expectation of the hotel’s facilities and quality.'],
+ ['Explain the difference between “inexpensive” and “good value” using this holiday.','A low price did not make it good value because promised facilities were absent or extra.'],
+ ['Why is the word “guaranteed” important to the complaint?','The company made a definite promise that was not honoured.'],
+ ['What can you infer about the effect of Mrs Li’s review?','It encouraged others to report similar problems and seek refunds.'],
+ ['Rewrite “The advertisement had fooled them” without changing its meaning.','The advertisement had misled / tricked the family.'],
+ ['In 25–35 words, explain how the family tried to resolve the problem.','They asked to move hotels, then posted a review describing the problems. Other customers complained, and the company eventually offered a partial refund. (Accept accurate 25–35 word summaries.)']]
+ },
+ {id:'event',title:'The School Event That Nearly Failed',words:['arrange','participant','majority','pressure','avoid','harmless'],
+ passage:'Students at Oakwood School planned a weekend sports event for local families. Maya had to arrange the equipment and make sure every participant knew where to go. Although the majority of volunteers arrived on time, several tables and signs had not been delivered. With parents already gathering outside, Maya began to feel pressure.\n\nHer friend Ben suggested cancelling the first activity, but Maya wanted to avoid disappointing the younger children. The volunteers changed the order of events and borrowed tables from the library. Later, a small insect appeared near the refreshments. Some children were frightened, but a science teacher explained that it was harmless and helped them move it outside safely. By lunchtime, every activity was running again. The organisers learned that flexible planning and clear communication mattered more than following the original timetable exactly.',
+ easy:[
+ ['What kind of event was the school organising?','A weekend sports event for local families.'],
+ ['What equipment had not arrived?','Several tables and signs.'],
+ ['Did most volunteers arrive on time?','Yes.'],
+ ['Why did Maya not want to cancel?','She did not want to disappoint younger children.'],
+ ['Where did the volunteers borrow tables from?','The library.'],
+ ['Who explained that the insect was harmless?','A science teacher.']],
+ standard:[
+ ['Identify TWO problems the organisers faced.','Missing tables/signs; frightened children near the refreshments (any two).'],
+ ['What does the word “majority” tell us about the volunteers?','More than half / most arrived on time, but not necessarily all.'],
+ ['Why did Maya feel under pressure?','Families were arriving, while essential materials were missing.'],
+ ['How did the volunteers change their plan?','They reordered activities and borrowed tables from the library.'],
+ ['What does “harmless” mean in the insect incident?','The insect was not dangerous to people.'],
+ ['What lesson did the organisers learn?','Adaptability and clear communication matter more than sticking rigidly to a schedule.']],
+ hard:[
+ ['Explain why Maya’s decision shows flexibility rather than poor planning.','She adapted to unexpected delays to keep the event running.'],
+ ['How does the phrase “majority of volunteers” limit what the writer claims?','It means most arrived on time, but leaves open that some did not.'],
+ ['Why was the science teacher’s response more effective than simply removing the insect?','The teacher reassured children and explained the risk accurately.'],
+ ['What does the story suggest about leadership under pressure?','Successful leaders communicate and adapt instead of abandoning the event.'],
+ ['Paraphrase “wanted to avoid disappointing the younger children”.','Did not want to let the younger children down.'],
+ ['Summarise the organisers’ main responses to the problems in 25–35 words.','They changed the order of activities, borrowed missing equipment and asked a teacher to reassure children about an insect. The event then continued successfully. (Accept accurate summaries.)']]
+ },
+ {id:'market',title:'A Small Business Changes Its Plans',words:['demand','outlet','sprinkled','considerably','inexpensive','majority'],
+ passage:'When Amina opened a small bakery outlet near the station, she hoped commuters would buy inexpensive snacks on their way to work. At first, sales were slow. The majority of customers bought only drinks, while her homemade cakes remained on the shelves. She asked regular visitors what they wanted and discovered strong demand for smaller portions.\n\nThe following week, Amina began selling mini cakes sprinkled with nuts and offering a choice of toppings. She also displayed the prices more clearly. Sales increased considerably, especially during the morning rush. However, the new products required more preparation, and some customers had allergies to nuts. Amina decided to label ingredients carefully and offer versions without nuts. After a month, she had enough regular customers to consider opening another outlet, but she chose to improve the first shop before expanding.',
+ easy:[
+ ['Where was the bakery located?','Near the station.'],
+ ['What did most customers buy at first?','Drinks.'],
+ ['What did customers want instead?','Smaller portions / mini cakes.'],
+ ['Name one change Amina made to her cakes.','Smaller cakes / nuts / toppings.'],
+ ['Why did she label ingredients carefully?','Some customers had nut allergies.'],
+ ['Did she open a second outlet immediately?','No.']],
+ standard:[
+ ['What information helped Amina decide what to change?','She asked regular customers what they wanted.'],
+ ['Explain “demand” in the context of mini cakes.','Many customers wanted to buy smaller portions.'],
+ ['Give TWO changes Amina made after listening to customers.','Introduced mini cakes, toppings and clearer prices (any two).'],
+ ['Why were nut-free versions important?','To offer safer choices for customers with nut allergies.'],
+ ['What does “increased considerably” tell us about sales?','They went up by a large amount.'],
+ ['Why did Amina decide against immediate expansion?','She wanted to improve the first bakery before opening another.']],
+ hard:[
+ ['What assumption did Amina make about commuters that proved incomplete?','She expected them to buy snacks without first checking preferred portion sizes.'],
+ ['Explain how customer feedback changed Amina’s business decisions.','She introduced smaller cakes, toppings and clearer prices based on what people wanted.'],
+ ['Why could rising sales create new problems?','More products required extra preparation and raised allergy-labelling concerns.'],
+ ['How is “demand” different from a single customer’s preference here?','It describes strong interest from multiple customers rather than one person.'],
+ ['Rewrite “Sales increased considerably” more simply.','Sales went up a lot / rose substantially.'],
+ ['In 25–35 words, summarise the changes Amina made and one decision she postponed.','She introduced smaller cakes, extra toppings and clearer prices, and improved ingredient labelling. Although sales rose, she delayed opening another outlet to improve the original bakery.']]
+ }
+];
+function buildReading(items,minutes,level,variant) {
+  const available=READING_PACKS.map(pack=>({...pack, overlap:items.filter(item=>pack.words.includes(item.word)).length})).filter(pack=>pack.overlap>=2)
+    .sort((a,b)=>b.overlap-a.overlap);
+  if(!available.length) return null;
+  const highest=available[0].overlap;
+  const shortlist=available.filter(pack=>pack.overlap===highest);
+  const chosen=shortlist[variant%shortlist.length];
+  const questions=chosen[level==='supported'?'easy':level==='challenge'?'hard':'standard'];
+  const limit=minutes===5?3:minutes===15?6:5;
+  const selected=questions.slice(0,limit);
+  const preface=level==='supported'?'Read the passage. Answer using information from the text. Short answers are fine.':
+    level==='challenge'?'Read carefully. Explain implied meaning and support your interpretations with details from the text.':
+      'Read the passage and answer the comprehension and vocabulary questions.';
   return {
-    instructions:'Read the short extracts and use context to understand each highlighted word.',
-    task:items.map((item,index) =>
-      'Extract '+(index+1)+'\n'+item.sentence+'\n\nA. Explain "'+item.word+'" in your own words.\nB. Which detail in the sentence helps you understand its meaning?'
-    ).join('\n\n')+'\n\nFinal question: Choose two extracts and explain how the vocabulary changes the meaning.',
-    key:numberLines(items.map(item => item.word+': '+item.meaning+'. Accept a relevant context clue and an accurate explanation.')),
-    note:'A short-text reading activity, rather than a fabricated continuous article.'
+    instructions:preface,
+    task:chosen.title+'\n\n'+chosen.passage+'\n\nQUESTIONS\n'+numberLines(selected.map(pair=>pair[0])),
+    key:numberLines(selected.map(pair=>pair[1])),
+    note:'Original curated reading passage. Target words used: '+items.filter(item=>chosen.words.includes(item.word)).map(item=>item.word).join(', ')+'.'
   };
 }
+
 function buildGap(items,variant) {
   const shuffled = rotate(items.map(item=>item.word),variant+1);
   return {
