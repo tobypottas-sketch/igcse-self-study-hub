@@ -168,7 +168,7 @@ function buildGap(items,variant,level='standard',minutes=10){
  const candidates=gapItems(items);
  if(!candidates.length)return null;
  const questions=candidates.map(item=>({word:item.word,context:GAP_CONTEXT[item.word]}));
- const missing=(text,word)=>text.replace(new RegExp('\\b'+word+'\\b','i'),'________');
+ const missing=(text,word)=>text.replace('______','________');
  const key=numberLines(questions.map(item=>item.word));
  if(level==='supported'){
    const lines=questions.map((item,i)=>{
