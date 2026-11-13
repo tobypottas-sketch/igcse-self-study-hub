@@ -57,6 +57,13 @@
     .vocab-startup__track::before{content:'';position:absolute;top:0;bottom:0;left:0;width:40%;border-radius:99px;background:linear-gradient(90deg,#42b6ad,#467bc7);animation:vocab-startup-slide 1.5s ease-in-out infinite}
     @keyframes vocab-startup-slide{from{transform:translateX(-110%)}to{transform:translateX(350%)}}
     @media(prefers-reduced-motion:reduce){.vocab-startup__track::before{animation:none;left:0;width:100%;background:#348b9d}}
+    /* Shared pending-operation cue, used by student cards and progress links too. */
+    .vocab-pending-track{display:block;position:relative;height:6px;overflow:hidden;border-radius:99px;background:#dce7f2;margin-top:10px;max-width:240px}
+    .vocab-pending-track::before{content:'';position:absolute;inset:0 auto 0 0;width:40%;border-radius:99px;background:linear-gradient(90deg,#42b6ad,#467bc7);animation:vocab-startup-slide 1.5s ease-in-out infinite}
+    .vocab-unit-card[data-loading="true"]{position:relative;cursor:progress}
+    .vocab-unit-card[data-loading="true"]::after{content:'';position:absolute;bottom:9px;left:12%;width:30%;height:5px;border-radius:99px;background:#319caa;animation:vocab-card-loading 1.15s ease-in-out infinite;pointer-events:none}
+    @keyframes vocab-card-loading{0%{left:8%}100%{left:62%}}
+    @media(prefers-reduced-motion:reduce){.vocab-pending-track::before,.vocab-unit-card[data-loading="true"]::after{animation:none}}
   </style>
 </head>
 <body>
