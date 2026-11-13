@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculateVocabularyUsage, loadVocabularyStaffUsage, renderVocabularyStaffUsage } from '../src/vocabulary/staff-usage.js';
+import { loadVocabularyTeacherData } from '../src/vocabulary/teacher-data.js';
 
 const data={
  role:'teacher',
@@ -95,4 +96,36 @@ test('seven-day chart partitions dates without duplicating attempts',()=>{
  // The fixture has two attempts in the selected week, not duplicated across buckets.
  assert.ok(chart.includes('>1</strong>'));
  assert.doesNotMatch(chart,/>2<\/strong>/);
+});
+
+test('existing Teacher Analytics loads names and data only from owned classes',async()=>{
+ const calls=[];
+ const fixtures={
+  student_class_memberships:[{class_id:'c1',student_id:'s1',ended_at:null},{class_id:'c2',student_id:'s2',ended_at:null}],
+  classes:[{id:'c1',class_name:'Owned',active:true},{id:'c2',class_name:'Unassigned',active:true}],
+  vocabulary_items:[], vocabulary_unit_occurrences:[],
+  teacher_classes:[{teacher_id:'t1',class_id:'c1'}],
+  profiles:[{id:'s1',role:'student',display_name:'Owned learner'},{id:'s2',role:'student',display_name:'Other learner'}],
+  vocabulary_global_mastery:[], vocabulary_unit_mastery:[], activity_events:[],
+  vocabulary_merit_awards:[],vocabulary_missions:[]
+ };
+ const client={from(table){
+   const filters=[];
+   const b={select(){return b},eq(k,v){filters.push([k,'eq',v]);return b},
+     in(k,v){filters.push([k,'in',v]);return b},gte(k,v){filters.push([k,'gte',v]);return b},
+     order(){return b},range(from,to){
+       calls.push({table,filters:[...filters]});
+       const data=(fixtures[table]??[]).filter(row=>filters.every(([k,op,v])=>
+         op==='eq'?row[k]===v:op==='in'?v.includes(row[k]):String(row[k])>=String(v)));
+       return Promise.resolve({data:data.slice(from,to+1),count:data.length,error:null});
+     }};
+   return b;
+ }};
+ const result=await loadVocabularyTeacherData(client,{profile:{role:'teacher',id:'t1'},now:new Date('2026-11-13T00:00:00Z')});
+ assert.deepEqual(result.classes.map(c=>c.id),['c1']);
+ assert.deepEqual(result.classes[0].students.map(st=>st.id),['s1']);
+ for(const table of ['profiles','vocabulary_global_mastery','vocabulary_unit_mastery','activity_events','vocabulary_missions','vocabulary_merit_awards']){
+   const matches=calls.filter(call=>call.table===table);
+   assert.ok(matches.every(call=>call.filters.some(([k,op,v])=>op==='in'&&Array.isArray(v)&&v.length===1&&v[0]==='s1')));
+ }
 });
