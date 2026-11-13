@@ -195,6 +195,7 @@ function itemMarking(item: any, sense: any, questionType: string, activityVarian
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { status:204, headers:CORS });
   if (req.method !== 'POST') return json({ error:'Method not allowed' }, 405);
+  let authenticatedUserId: string | null = null;
   try {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) return json({ error:'Authentication required' }, 401);
@@ -206,6 +207,7 @@ Deno.serve(async (req: Request) => {
     const callerClient = createClient(url, publishableKey, { global:{ headers:{ Authorization:authHeader } }, auth:{ persistSession:false, autoRefreshToken:false } });
     const { data:callerData, error:callerError } = await callerClient.auth.getUser();
     if (callerError || !callerData.user) return json({ error:'Invalid session' }, 401);
+    authenticatedUserId = callerData.user.id;
 
     const adminClient = createClient(url, secretKey, { auth:{ persistSession:false, autoRefreshToken:false } });
     const { data:profile, error:profileError } = await adminClient.from('profiles').select('role, active').eq('id', callerData.user.id).single();
@@ -423,7 +425,11 @@ Deno.serve(async (req: Request) => {
       });
 
       const { data:commitResult, error:commitError } = await adminClient.rpc('commit_vocabulary_attempt', { p_payload:commitPayload });
-      if (commitError || !commitResult) throw new Error('Unable to save vocabulary attempt.');
+      if (commitError || !commitResult) {
+        // Log only the server/database failure and account ID, never the student's answer or credentials.
+        console.error('vocabulary-attempt-action commit rejected', { userId:authenticatedUserId, code:commitError?.code ?? null, reason:commitError?.message ?? 'No commit result' });
+        throw new Error('Unable to save vocabulary attempt.');
+      }
 
       if (commitResult.duplicate === true) {
         const [actualGlobalResult, actualUnitResult] = shouldUpdateTargetMastery ? await Promise.all([
@@ -463,6 +469,10 @@ Deno.serve(async (req: Request) => {
 
     throw new Error('Unable to save vocabulary attempt after concurrent mastery changes.');
   } catch (error) {
-    return json({ error:error instanceof Error ? error.message : 'Unexpected error' }, 400);
+    const reason = error instanceof Error ? error.message : 'Unexpected error';
+    // Errors were previously returned only to the browser; retain a server-side diagnostic
+    // for support cases where students cannot access developer tools.
+    console.error('vocabulary-attempt-action rejected', { userId:authenticatedUserId, reason });
+    return json({ error:reason }, 400);
   }
 });
