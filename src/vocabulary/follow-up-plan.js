@@ -66,5 +66,5 @@ export function teamsFollowUpMessage(plan) {
     '2. Check your answers using the vocabulary definitions and correct any errors.',
     '3. Try one new example independently without looking at your earlier answer.',
     'Then complete a short session in the iGCSE Self-Study Hub to practise again.'
-  ].filter(Boolean).join('\\n');
+  ].filter(Boolean).join('\n');
 }
