@@ -69,7 +69,7 @@ export function buildActivity(plan, {type='forms',minutes=10,level='standard',va
     answers=numbered(contexts.map(({w,meaning})=>`Accept natural alternatives preserving the sentence meaning; "${w}" can mean "${meaning}" in this context.`));
     if(!contexts.length){body='Choose three target words and write accurate sentences. Rewrite each without changing the meaning.';answers='Teacher: check meaning preservation, grammar and context.';note='Teacher needs to supply model sentences.';}
   } else if(type==='errors') {
-    body=`Work out which word completes each sentence. Underline the clues that helped you decide.\n\n${numbered(contexts.map(({w,example})=>example.replace(new RegExp(`\\b${w}\\b`,'i'), '________'))}\n\nEach blank represents a missing target word; explain how the context helps you decide.`;
+    body=`Work out which word completes each sentence. Underline the clues that helped you decide.\n\n${numbered(contexts.map(({w,example})=>example.replace(new RegExp(`\\b${w}\\b`,'i'), '________')))}\n\nEach blank represents a missing target word; explain how the context helps you decide.`;
     answers=numbered(contexts.map(({w,meaning})=>`${w} — ${meaning}`));
     note='Context-clue practice; not evidence of a specific student misconception.';
     if(!contexts.length){body='Write three sentences with a missing target word in each. Ask students to identify context clues and justify their choices.';answers='Teacher: supply model answers before assigning.';}
