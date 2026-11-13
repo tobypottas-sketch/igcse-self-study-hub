@@ -446,12 +446,24 @@ export async function bootApp(clientOverride = null) {
     const search = String(root.querySelector?.('[data-admin-filter="account-search"]')?.value ?? '').trim().toLowerCase();
     const role = root.querySelector?.('[data-admin-filter="account-role"]')?.value ?? 'all';
     const status = root.querySelector?.('[data-admin-filter="account-status"]')?.value ?? 'all';
-    for (const row of root.querySelectorAll?.('.admin-table tbody tr[data-account-role]') ?? []) {
-      const text = String(row.textContent ?? '').toLowerCase();
-      const roleOk = role === 'all' || row.dataset.accountRole === role;
-      const statusOk = status === 'all' || (status === 'active') === (row.dataset.accountActive === 'true');
-      row.hidden = !(roleOk && statusOk && (!search || text.includes(search)));
+    const filtered = Boolean(search || status !== 'all' || role !== 'all');
+    // Keep the staff directory independent of student search and filters.
+    let anyStudentVisible = false;
+    for (const group of root.querySelectorAll?.('[data-admin-student-group]') ?? []) {
+      let visible = 0;
+      for (const row of group.querySelectorAll('tbody tr[data-account-role]')) {
+        const text = String(row.textContent ?? '').toLowerCase();
+        const roleOk = role === 'all' || row.dataset.accountRole === role;
+        const statusOk = status === 'all' || (status === 'active') === (row.dataset.accountActive === 'true');
+        row.hidden = !(roleOk && statusOk && (!search || text.includes(search)));
+        if (!row.hidden) visible++;
+      }
+      group.hidden = filtered && visible === 0;
+      if (filtered && visible) group.open = true;
+      anyStudentVisible ||= visible > 0;
     }
+    const empty = root.querySelector?.('[data-admin-student-no-matches]');
+    if (empty) empty.hidden = !filtered || anyStudentVisible;
   };
 
   const applyActivityFilters = () => {
@@ -468,6 +480,21 @@ export async function bootApp(clientOverride = null) {
     const table = root.querySelector?.('.activity-table');
     if (table) table.dataset.singleClass = new Set([...table.querySelectorAll('[data-activity-row]')].filter(row => !row.hidden).map(row => row.dataset.classId)).size <= 1 ? 'true' : 'false';
   };
+
+  // User-selected disclosure: keep one class open at a time.
+  // Programmatic openings from search/status filtering can reveal several matching classes.
+  root.addEventListener('click', event => {
+    const summary = event.target?.closest?.('[data-admin-student-group] > summary');
+    if (!summary) return;
+    const selected = summary.parentElement;
+    if (!selected) return;
+    event.preventDefault();
+    const willOpen = !selected.open;
+    for (const group of root.querySelectorAll('[data-admin-student-group]')) {
+      if (group !== selected) group.open = false;
+    }
+    selected.open = willOpen;
+  });
 
   root.addEventListener('input', event => {
     if (event.target?.dataset?.adminFilter) applyAccountFilters();

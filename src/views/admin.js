@@ -35,12 +35,32 @@ function renderAccountRows(accounts = [], emptyLabel = 'No accounts found yet.')
   }).join('')}</tbody></table></div>`;
 }
 
+// Keep account actions in their existing rows; group students by their current class.
+// Native details/summary provides keyboard and screen-reader accessible disclosure.
+function renderStudentDirectory(students = []) {
+  if (!students.length) return '<p class="admin-empty">No student accounts found yet.</p>';
+  const groups = new Map();
+  for (const student of students) {
+    const className = String(student.currentClass ?? '').trim() || 'Unassigned';
+    if (!groups.has(className)) groups.set(className, []);
+    groups.get(className).push(student);
+  }
+  return `<div class="admin-student-groups" data-admin-student-groups>${[...groups].map(([className, members]) => `
+    <details class="admin-student-group" data-admin-student-group>
+      <summary class="admin-student-group__summary">
+        <span class="admin-student-group__heading"><span class="admin-student-group__icon" aria-hidden="true">▤</span><strong>${escapeHtml(className)}</strong><span class="admin-student-group__count">${members.length} student${members.length === 1 ? '' : 's'}</span></span>
+        <span class="admin-student-group__chevron" aria-hidden="true"></span>
+      </summary>
+      <div class="admin-student-group__content">${renderAccountRows(members)}</div>
+    </details>`).join('')}</div><p class="admin-student-filter-empty" data-admin-student-no-matches hidden>No students match your search or status filter.</p>`;
+}
+
 function renderAccounts(model) {
   const classOptions = (model.classes ?? []).filter(c => c.active !== false).map(c => option(c.id, c.className)).join('');
   const students = (model.accounts ?? []).filter(account => account.role === 'student').sort(compareStudentsByClass);
   const staff = [...(model.accounts ?? []).filter(account => account.role === 'teacher'), ...(model.teachingAdmins ?? [])]
     .filter((account, index, all) => all.findIndex(item => item.id === account.id) === index);
-  return `${renderCredential(model.credential)}${notice(model)}<div class="admin-create-grid"><form class="admin-card form-stack" data-form="admin-create-student"><div><p class="eyebrow">New account</p><h2>Add student</h2></div><label>Student name<input name="displayName" required maxlength="120" autocomplete="off"></label><label>School email<input name="email" type="email" required autocomplete="off"></label><label>Class<select name="classId" required><option value="">Choose a class</option>${classOptions}</select></label><button class="button button--primary" type="submit">Create student</button></form><form class="admin-card form-stack" data-form="admin-create-teacher"><div><p class="eyebrow">New staff account</p><h2>Add teacher</h2><p class="muted">Teachers receive staff administration access and can change their password later.</p></div><label>Teacher name<input name="displayName" required maxlength="120" autocomplete="off"></label><label>School email<input name="email" type="email" required autocomplete="off"></label><button class="button button--primary" type="submit">Create teacher</button></form></div><section class="admin-directory-section"><div class="admin-list-header"><div><p class="eyebrow">Directory</p><h2>Students</h2></div><div class="admin-filters"><input type="search" placeholder="Search accounts" data-admin-filter="account-search" aria-label="Search accounts"><select data-admin-filter="account-status" aria-label="Filter by status"><option value="all">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div></div>${renderAccountRows(students, 'No student accounts found yet.')}</section><section class="admin-directory-section"><div class="admin-list-header"><div><p class="eyebrow">Staff directory</p><h2>Teachers / Admins</h2></div></div>${renderAccountRows(staff, 'No teacher or admin accounts found yet.')}</section>`;
+  return `${renderCredential(model.credential)}${notice(model)}<div class="admin-create-grid"><form class="admin-card form-stack" data-form="admin-create-student"><div><p class="eyebrow">New account</p><h2>Add student</h2></div><label>Student name<input name="displayName" required maxlength="120" autocomplete="off"></label><label>School email<input name="email" type="email" required autocomplete="off"></label><label>Class<select name="classId" required><option value="">Choose a class</option>${classOptions}</select></label><button class="button button--primary" type="submit">Create student</button></form><form class="admin-card form-stack" data-form="admin-create-teacher"><div><p class="eyebrow">New staff account</p><h2>Add teacher</h2><p class="muted">Teachers receive staff administration access and can change their password later.</p></div><label>Teacher name<input name="displayName" required maxlength="120" autocomplete="off"></label><label>School email<input name="email" type="email" required autocomplete="off"></label><button class="button button--primary" type="submit">Create teacher</button></form></div><section class="admin-directory-section"><div class="admin-list-header"><div><p class="eyebrow">Directory</p><h2>Students</h2></div><div class="admin-filters"><input type="search" placeholder="Search accounts" data-admin-filter="account-search" aria-label="Search accounts"><select data-admin-filter="account-status" aria-label="Filter by status"><option value="all">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div></div>${renderStudentDirectory(students)}</section><section class="admin-directory-section"><div class="admin-list-header"><div><p class="eyebrow">Staff directory</p><h2>Teachers / Admins</h2></div></div>${renderAccountRows(staff, 'No teacher or admin accounts found yet.')}</section>`;
 }
 
 function renderClasses(model) {
