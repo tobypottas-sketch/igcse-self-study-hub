@@ -21,7 +21,7 @@ async function routeVocabulary() {
       return;
     }
     if (staff) {
-      const { initialiseVocabularyTeacher } = await import('./teacher-app.js?v=clarity-v2');
+      const { initialiseVocabularyTeacher } = await import('./teacher-app.js?v=fast-start-v1');
       await initialiseVocabularyTeacher({ root, client, profile });
       return;
     }
