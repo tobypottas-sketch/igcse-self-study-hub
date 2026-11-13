@@ -145,15 +145,53 @@ function buildReading(items,minutes,level,variant) {
   };
 }
 
-function buildGap(items,variant) {
-  const shuffled = rotate(items.map(item=>item.word),variant+1);
-  return {
-    instructions:'Complete each sentence using the word bank. Use every word once.',
-    task:'WORD BANK: '+shuffled.join(' · ')+'\n\n'+numberLines(items.map(item => item.sentence.replace(new RegExp('\\b'+item.word+'\\b','i'),'________'))),
-    key:numberLines(items.map(item=>item.word)),
-    note:'Each gap is taken from a checked example sentence.'
-  };
+// More precise context than the single-sentence meaning samples in BANK.
+const GAP_CONTEXT={
+ fooled:'The photographs showed a luxurious hotel, but the rooms were dirty. The advertisement ______ customers into expecting something that was not there.',
+ guaranteed:'The company promised in writing that guests would get all their money back if the trip was cancelled. It ______ a refund.',
+ harmless:'Some children were frightened of the insect, but the science teacher explained that it could not bite or sting. It was ______.',
+ inexpensive:'The tickets cost only two pounds, so even families with a small budget could buy them. They were ______.',
+ afford:'A second hotel would cost more than the family had saved. They could not ______ to move.',
+ demand:'Hundreds of customers wanted the same small cakes, but the bakery could not make enough. There was high ______.',
+ avoid:'To keep accounts safe, students were advised not to share passwords. They should ______ giving their details to others.',
+ arrange:'The chairs were scattered across the room. The volunteers needed to ______ them into neat rows before the event.',
+ pressure:'The event was about to start and several things had gone wrong. Maya felt ______ because everyone was expecting her to solve the problems.',
+ participant:'Every person who joined the race received a certificate. Each ______ was congratulated at the finish line.',
+ majority:'Out of 30 visitors, 24 arrived before opening time. The ______ were early.',
+ outlet:'The company already had a shop in the city centre and opened another branch near the station. The new ______ attracted commuters.',
+ sprinkled:'The chef scattered a few herbs across the top of each dish. She ______ them over the food just before serving.',
+ considerably:'Last month the shop sold 20 cakes a day; this month it sold 80. Sales increased ______.',
+ depression:'The health article explained that persistent low mood and loss of interest can be symptoms of ______, a condition that may need professional care.'
+};
+function gapItems(items){return items.filter(item=>GAP_CONTEXT[item.word]);}
+function buildGap(items,variant,level='standard',minutes=10){
+ const candidates=gapItems(items);
+ if(!candidates.length)return null;
+ const questions=candidates.map(item=>({word:item.word,context:GAP_CONTEXT[item.word]}));
+ const missing=(text,word)=>text.replace(new RegExp('\\b'+word+'\\b','i'),'________');
+ const key=numberLines(questions.map(item=>item.word));
+ if(level==='supported'){
+   const lines=questions.map((item,i)=>{
+     const alternative=questions.length>1?questions[(i+1)%questions.length].word:BANK[item.word].wrong[0];
+     const options=(i+variant)%2 ? [alternative,item.word]:[item.word,alternative];
+     return missing(item.context,item.word)+'\nChoose: '+options.join(' / ');
+   });
+   return {instructions:'Read each situation and choose the word that fits. There are two options per question.',
+     task:numberLines(lines),key,note:'Supported: a clear situation and two plausible-looking choices for each answer.'};
+ }
+ if(level==='challenge'){
+   const lines=questions.map(item=>missing(item.context,item.word));
+   return {instructions:'No word bank. Infer the missing words from context, not spelling or a memorised list.',
+     task:numberLines(lines)+'\n\nChoose TWO answers. Explain why each word fits the context. Write one new sentence using a missing word in a different situation.',
+     key:key+'\n\nAccept sensible explanations and accurate original sentences.',
+     note:'Challenge: independent retrieval, context-based reasoning and transfer to new use.'};
+ }
+ const wordBank=rotate(questions.map(item=>item.word),variant+1);
+ return {instructions:'Complete the sentences using the word bank. Use each word once.',
+   task:'WORD BANK: '+wordBank.join(' · ')+'\n\n'+numberLines(questions.map(item=>missing(item.context,item.word))),
+   key,note:'Standard: meaningful contexts, without answer choices or explanations.'};
 }
+
 function buildParaphrase(items) {
   return {
     instructions:'Rewrite each sentence in different words without changing the meaning.',
@@ -162,14 +200,105 @@ function buildParaphrase(items) {
     note:'Model alternatives are examples, not the only acceptable answers.'
   };
 }
-function buildDetective(items) {
-  return {
-    instructions:'Be a vocabulary detective: explain the word and cite the context clue.',
-    task:numberLines(items.map(item=>item.sentence+'\nWhat does "'+item.word+'" mean? Which words in the sentence support your answer?')),
-    key:numberLines(items.map(item=>item.word+': '+item.meaning+'. Evidence must come from the sentence.')),
-    note:'This checks understanding, not a presumed individual student mistake.'
-  };
+// Genuine contrast, interpretation and accuracy decisions—not invented "context clues".
+const DETECTIVE_CASES=[
+ {words:['guaranteed','fooled'],title:'A promise or a possibility?',
+   text:'A travel website stated: “Every guest is guaranteed a room with a sea view.” After arriving, some guests found rooms facing a car park.',
+   supported:'Which is stronger: “guaranteed” or “might receive”? What did the website promise?',
+   standard:'A manager says: “The website only suggested a sea view.” Does this accurately represent the original claim? Explain.',
+   challenge:'Rewrite the manager’s explanation so it accurately acknowledges the original claim without promising an unverified solution.',
+   easyKey:'“Guaranteed” is stronger. Every guest was promised a sea view.',
+   key:'No. “Guaranteed” expresses a definite promise, not a suggestion.',
+   hardKey:'Accept an accurate acknowledgement, e.g. “We guaranteed sea views, but some guests received rooms facing the car park. We are investigating why.”'},
+ {words:['inexpensive','afford'],title:'Cheap for everyone?',
+   text:'A museum advertises “inexpensive tickets” at £4 each. A family of six has only £15 available for the visit.',
+   supported:'Does inexpensive mean free? Can this family pay for all six tickets?',
+   standard:'A reviewer writes: “The tickets are inexpensive, so every family can afford them.” Identify the problem with this conclusion.',
+   challenge:'Write a balanced, accurate two-sentence review explaining why the price may be low but not affordable to everyone.',
+   easyKey:'No, inexpensive means low-priced. Six tickets cost £24, more than the family’s £15.',
+   key:'Low-priced does not mean affordable to everyone. Six tickets would cost £24; this family has £15.',
+   hardKey:'Accept a response distinguishing relatively low prices from an individual family’s budget.'},
+ {words:['majority'],title:'Most is not all',
+   text:'A survey of 40 students found that 31 preferred afternoon sports clubs. Nine preferred morning activities.',
+   supported:'Do most students prefer afternoons? Do all students prefer afternoons?',
+   standard:'The school newsletter reports: “All students want afternoon clubs.” Correct this claim using the figures.',
+   challenge:'Write a precise headline and one sentence summarising the survey without exaggerating the results.',
+   easyKey:'Most do (31 of 40), but not all.',
+   key:'Incorrect: the majority (31 out of 40) preferred afternoons; nine preferred mornings.',
+   hardKey:'Accept “Most students favour afternoon clubs” and accurate figures showing both preferences.'},
+ {words:['demand'],title:'A popular product',
+   text:'A café made 30 mini cakes. They sold out in 20 minutes, and another 25 customers asked when more would be available.',
+   supported:'Is there low or high demand for these cakes? What happened to the cakes?',
+   standard:'The owner says: “We should probably make fewer mini cakes tomorrow.” Evaluate this decision using the evidence.',
+   challenge:'Recommend a sensible next step for the café, using the word “demand” accurately and acknowledging a possible risk.',
+   easyKey:'High demand; they sold out quickly and other customers still wanted them.',
+   key:'The evidence suggests strong demand, so producing fewer could disappoint customers.',
+   hardKey:'Accept increasing production cautiously, while considering waste, stock and staffing.'},
+ {words:['harmless'],title:'Harmless under which conditions?',
+   text:'A wildlife sign says: “This species is harmless to people when left undisturbed. Please do not handle it.”',
+   supported:'Does the sign say the animal is dangerous when left alone? Does it tell visitors to touch it?',
+   standard:'A visitor says: “Harmless means I can pick it up safely.” Explain why this interpretation is wrong.',
+   challenge:'Rewrite the sign as advice for younger visitors, preserving both the reassurance and the warning.',
+   easyKey:'No. It says harmless when undisturbed; visitors should not touch it.',
+   key:'The sign makes a conditional claim and explicitly advises against handling the animal.',
+   hardKey:'Accept, e.g. “You do not need to be afraid if you leave the animal alone. Please do not touch or pick it up.”'},
+ {words:['pressure','avoid'],title:'Responding to a deadline',
+   text:'Maya had to organise an event while volunteers were arriving late. She felt pressure but avoided cancelling by changing the order of activities.',
+   supported:'Did Maya cancel the event or find another solution?',
+   standard:'Which is more accurate: “Maya ignored the problem” or “Maya adapted her plan”? Use a detail from the situation.',
+   challenge:'Explain how “pressure” and “avoided” describe different parts of Maya’s experience.',
+   easyKey:'She found another solution: she changed the order.',
+   key:'She adapted her plan because she changed the order rather than cancelling.',
+   hardKey:'Pressure describes the stress or demands she faced; avoided describes the unwanted action she prevented.'},
+ {words:['arrange','participant'],title:'Before the event',
+   text:'There are 18 runners registered for a race. Volunteers must arrange the chairs and registration table before participants arrive.',
+   supported:'Who are the participants? What must the volunteers organise?',
+   standard:'A student writes: “Participants arranged the registration table.” Can you conclude this from the text? Explain.',
+   challenge:'Rewrite the event instructions to clearly separate the responsibilities of volunteers and runners.',
+   easyKey:'Participants are runners; the volunteers must organise chairs and a registration table.',
+   key:'No. The volunteers were responsible for arranging things, while the participants were registered runners.',
+   hardKey:'Accept directions with responsibilities correctly assigned to volunteers and runners.'},
+ {words:['outlet','considerably'],title:'Growth or exaggeration?',
+   text:'A bakery’s first outlet sold about 20 cakes a day in September. In October it sold around 65 a day. The owner has not yet opened a second shop.',
+   supported:'Have sales increased? Has a second shop opened?',
+   standard:'A report claims: “Sales improved considerably, and the bakery opened another outlet.” Which part is unsupported?',
+   challenge:'Rewrite the report as two accurate sentences, retaining “considerably” and “outlet” in context.',
+   easyKey:'Yes, sales rose from 20 to 65; no second shop has opened.',
+   key:'Sales increased substantially, but opening another outlet is not supported.',
+   hardKey:'Accept: “Sales at the first outlet increased considerably. The owner has not opened a second outlet yet.”'},
+ {words:['sprinkled'],title:'A small amount',
+   text:'The recipe says: “Sprinkle a little cinnamon onto the fruit before serving.” The chef covered every piece of fruit in a thick layer.',
+   supported:'Does “sprinkle a little” mean add a small or large amount?',
+   standard:'Did the chef follow the instruction accurately? Explain the difference.',
+   challenge:'Rewrite the instruction to remove ambiguity about the quantity and method without changing its intended meaning.',
+   easyKey:'A small amount, scattered lightly.',
+   key:'No. The chef used a thick layer instead of lightly scattering a little cinnamon.',
+   hardKey:'Accept a precise instruction, e.g. “Lightly scatter a small pinch of cinnamon over the fruit.”'},
+ {words:['depression'],title:'Careful health reporting',
+   text:'An article explains that depression can affect mood, sleep and daily life. It says only a qualified professional can assess someone’s symptoms.',
+   supported:'Does the article say everyone who feels sad has depression?',
+   standard:'A headline says: “Feeling sad means you have depression.” Explain why this is inaccurate.',
+   challenge:'Rewrite the headline and a one-sentence introduction to communicate the information accurately without diagnosing anyone.',
+   easyKey:'No. The article does not say ordinary sadness automatically means depression.',
+   key:'Sadness alone does not establish a diagnosis. A qualified professional must assess symptoms.',
+   hardKey:'Accept cautious, accurate statements distinguishing symptoms from diagnosis.'}
+];
+function buildDetective(items,minutes,level,variant){
+  const available=DETECTIVE_CASES.map(c=>({...c,score:c.words.filter(w=>items.some(item=>item.word===w)).length}))
+    .filter(c=>c.score>0).sort((a,b)=>b.score-a.score);
+  if(!available.length)return null;
+  const pool=rotate(available,variant%available.length);
+  const maximum=minutes===5?1:minutes===15?4:3;
+  const chosen=pool.slice(0,maximum);
+  const mode=level==='supported'?'supported':level==='challenge'?'challenge':'standard';
+  return {instructions:mode==='supported'?'Read each situation. Choose or explain the accurate interpretation.':
+       mode==='challenge'?'Investigate the claims. Write precise, evidence-based alternatives.':
+       'Examine the evidence. Identify inaccurate or exaggerated claims and justify your answer.',
+    task:chosen.map((c,i)=>'CASE '+(i+1)+' — '+c.title+'\n'+c.text+'\n\n'+c[mode]).join('\n\n'),
+    key:chosen.map((c,i)=>(i+1)+'. '+c[mode==='supported'?'easyKey':mode==='challenge'?'hardKey':'key']).join('\n\n'),
+    note:'Evidence and semantic precision tasks using authored scenarios, not invented student errors.'};
 }
+
 function buildWriting(items,level) {
   const bank=items.map(item=>item.word);
   return {
