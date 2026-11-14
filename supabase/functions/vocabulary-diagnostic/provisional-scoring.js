@@ -11,7 +11,9 @@ const PRACTICE=Object.freeze({
 });
 const integer=x=>Number.isInteger(x)&&x>=0;
 export function scoreProvisionalDiagnostic(coverage,total) {
- if(!coverage||typeof coverage!=='object'||Array.isArray(coverage))return null;
+ if(!coverage||typeof coverage!=='object'||Array.isArray(coverage) ||
+   Object.keys(coverage).length!==VOCABULARY_BANDS.length ||
+   Object.keys(coverage).some(k=>!VOCABULARY_BANDS.includes(k)))return null;
  // Require exactly the currently planned 40-item design: 8 questions per band.
  // No ranking from partial, corrupted, old-format, or alternate-length forms.
  const bands={};
@@ -35,7 +37,9 @@ export function scoreProvisionalDiagnostic(coverage,total) {
      VOCABULARY_BANDS.slice(0,i).every(k=>bands[k].correct>=5))placement=level;
  }
  const weakerBands=VOCABULARY_BANDS.filter(k=>bands[k].correct<=4);
- const needsReview=unknown>=10||weakerBands.length>=3;
+ const foundationGap=VOCABULARY_BANDS.slice(0,VOCABULARY_BANDS.indexOf(placement)+1)
+   .some(k=>bands[k].correct<5);
+ const needsReview=unknown>=10||foundationGap||weakerBands.length>=3;
  return {
    scoreStatus:'provisional',
    provisionalLevel:placement,
@@ -44,7 +48,7 @@ export function scoreProvisionalDiagnostic(coverage,total) {
    assessedQuestions:40,
    correct,
    unsure:unknown,
-   caution:needsReview?'Interpret with extra care: several answers were unsure or showed substantial gaps.':'This is an initial learning placement, not a certified CEFR result.',
+   caution:needsReview?'Interpret with extra care: some answers were unsure or showed gaps in foundation knowledge.':'This is an initial learning placement, not a certified CEFR result.',
    practice:PRACTICE[placement],
    nextStep:'Use Vocabulary Builder regularly and complete a later reassessment to check progress.'
  };
