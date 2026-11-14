@@ -139,8 +139,8 @@ test('existing Teacher Analytics loads names and data only from owned classes',a
 test('class summary uses one selected class rather than school-wide class count',()=>{
  const root={innerHTML:''};
  renderVocabularyStaffUsage(root,{...data,role:'admin'},{days:7,classId:'c1',now});
- assert.match(root.innerHTML,/1<\/strong> selected class/);
- assert.doesNotMatch(root.innerHTML,/2<\/strong> active classes/);
+ assert.match(root.innerHTML,/1<\/strong><span><b>Selected class<\/b>/);
+ assert.doesNotMatch(root.innerHTML,/2<\/strong><span><b>Active classes/);
  const selected=calculateVocabularyUsage(data,{days:7,classId:'c1',now});
  assert.equal(selected.overview.studentCount,2);
  assert.equal(selected.overview.wordsLearning,2);
@@ -162,4 +162,26 @@ test('building and secure are learning evidence, not mastered',()=>{
  assert.equal(a.students.find(x=>x.id==='s1').wordsLearning,1);
  assert.equal(a.students.find(x=>x.id==='s1').wordsSecure,0);
  assert.equal(a.students.find(x=>x.id==='s2').wordsSecure,1);
+});
+
+test('polished insight copy preserves scope, meaning and date window',()=>{
+ const root={innerHTML:''};
+ renderVocabularyStaffUsage(root,{...data,role:'admin'},{days:30,now});
+ assert.match(root.innerHTML,/Participation and current vocabulary status/);
+ assert.match(root.innerHTML,/Words in progress/);
+ assert.match(root.innerHTML,/Current building or secure vocabulary records/);
+ assert.match(root.innerHTML,/Records currently marked secure/);
+ assert.match(root.innerHTML,/all recorded activity|selected reporting period/i);
+ assert.match(root.innerHTML,/grouped into seven periods/);
+ assert.match(root.innerHTML,/Peak period/);
+ assert.match(root.innerHTML,/About these figures/);
+ assert.match(root.innerHTML,/data-action="staff-usage-days"/);
+ assert.match(root.innerHTML,/data-action="staff-usage-select-class"/);
+ assert.match(root.innerHTML,/data-action="staff-usage-student"/);
+});
+test('seven-day copy accurately describes daily bars',()=>{
+ const root={innerHTML:''};
+ renderVocabularyStaffUsage(root,data,{days:7,now});
+ assert.match(root.innerHTML,/Daily question attempts/);
+ assert.match(root.innerHTML,/Question submissions/);
 });
