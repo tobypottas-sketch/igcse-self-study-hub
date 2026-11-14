@@ -278,3 +278,12 @@ body:has(#vocabularyApp .diag-player){
   #vocabularyApp .diag-secondary{transition:none}
   #vocabularyApp .diag-option:hover{transform:none}
 }
+
+/* Provisional learning-placement result, shown only after trusted server scoring. */
+#vocabularyApp .diag-placement{margin:24px 0 8px;padding:22px 24px;border-radius:var(--r-lg);border:1px solid var(--c-teal-line);background:linear-gradient(135deg,var(--c-teal-soft),var(--c-surface))}
+#vocabularyApp .diag-placement__level{display:flex;align-items:center;gap:12px;color:var(--c-teal-dark);font-size:clamp(2.4rem,6vw,3.5rem);font-weight:950;line-height:1.15;letter-spacing:-.04em}
+#vocabularyApp .diag-placement__level small{font-size:var(--fs-sm);font-weight:800;letter-spacing:0;border:1px solid var(--c-teal-line);border-radius:var(--r-pill);padding:5px 10px;background:#fff}
+#vocabularyApp .diag-placement h2{font-size:var(--fs-xl);letter-spacing:-.02em;margin:12px 0 9px}
+#vocabularyApp .diag-placement p{margin-bottom:10px}
+#vocabularyApp .diag-placement__caution{font-size:var(--fs-sm);color:var(--c-muted);border-top:1px solid var(--c-teal-line);padding-top:11px}
+@media(max-width:600px){#vocabularyApp .diag-placement{padding:19px 16px}}
