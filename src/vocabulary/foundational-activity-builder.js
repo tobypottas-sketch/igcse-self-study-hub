@@ -142,7 +142,7 @@ function plausibleTermDistractors(args, count = 3) {
 export function definitionWordDistractors(args, count = 3) {
   const target=text(args.item?.term);
   const sense=senseFor(args.item,args.occurrence);
-  const wordCount=value=>text(value).split(/\\s+/).filter(Boolean).length;
+  const wordCount=value=>text(value).split(/\s+/).filter(Boolean).length;
   const size=wordCount(target);
   const forbidden=new Set(uniqueText([
     target, ...array(sense.acceptedParaphrases),
