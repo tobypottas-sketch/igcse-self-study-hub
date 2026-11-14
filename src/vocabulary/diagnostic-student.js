@@ -91,7 +91,7 @@ export async function initialiseVocabularyDiagnostic({root,client,assignmentId,s
       state.answer=null;state.request=null;state.error='';
       question();
     }catch(err){state.busy=false;setMessage(err.message);return}
-    state.busy=false;
+    state.busy=false;question();
   }
   async function submit(){
     if(state.busy||!state.question||!VALID.has(state.answer))return;
@@ -112,9 +112,9 @@ export async function initialiseVocabularyDiagnostic({root,client,assignmentId,s
         state.request=null;finished(data.result);return;
       }
       state.question=validateSafeQuestion(data.question);
-      state.answer=null;state.request=null;state.error='';question();
-    }catch(err){state.error=err.message;question()}
-    finally{state.busy=false}
+      state.answer=null;state.request=null;state.error='';
+    }catch(err){state.error=err.message}
+    finally{state.busy=false; if(!state.done)question()}
   }
   async function pause(){
     if(state.busy||!state.question)return;
