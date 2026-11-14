@@ -149,18 +149,19 @@ export function renderVocabularyStaffUsage(root,model,{days=30,classId='all',stu
     const inClass=usage.students.filter(s=>students.has(s.id));
     return '<button type="button" class="vocab-usage-class" data-action="staff-usage-class" data-value="'+escapeHtml(row.id)+'"><strong>'+escapeHtml(row.class_name)+'</strong><span>'+number(inClass.length)+' students</span><small aria-hidden="true">→</small></button>';
   }):[];
-  const visibleClassCards=classCards.slice(0,8).join('');
-  const remainingClassCards=classCards.slice(8).join('');
-  const tableRow=s=>'<tr data-vocab-usage-student-row data-name="'+escapeHtml(s.name.toLowerCase())+'"><td><button class="vocab-usage-student-link" data-action="staff-usage-student" data-value="'+escapeHtml(s.id)+'">'+escapeHtml(s.name)+'</button></td>'+
+  const classGrid=classCards.map((html,index)=>index<8?html:html.replace('class="vocab-usage-class"','class="vocab-usage-class" data-class-extra hidden')).join('');
+  const tableRow=s=>'<tr data-vocab-usage-student-row data-activity="'+(s.lastActive===null?'inactive':'active')+'" data-name="'+escapeHtml(s.name.toLowerCase())+'" hidden><td><button class="vocab-usage-student-link" data-action="staff-usage-student" data-value="'+escapeHtml(s.id)+'">'+escapeHtml(s.name)+'</button></td>'+
     '<td>'+number(s.attempts)+'</td><td>'+formatDuration(s.seconds)+'</td><td>'+number(s.wordsLearning)+'</td><td>'+number(s.wordsSecure)+'</td><td>'+
     escapeHtml(s.lastActive?new Date(s.lastActive).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'No recorded practice')+'</td></tr>';
   const activeRows=usage.students.filter(s=>s.lastActive!==null);
   const inactiveRows=usage.students.filter(s=>s.lastActive===null);
   const tableHead='<thead><tr><th>Student</th><th>Attempts</th><th>Active time</th><th>Words in progress</th><th>Words secure</th><th>Last active</th></tr></thead>';
-  const activeTable='<div class="vocab-usage-tablewrap"><table>'+tableHead+'<tbody>'+
-    (activeRows.map(tableRow).join('')||'<tr><td colspan="6">No recorded practice in this period.</td></tr>')+'</tbody></table></div>';
-  const inactiveTable='<details class="vocab-usage-inactive" data-usage-inactive><summary><span>Not yet active in this period <strong>('+number(inactiveRows.length)+')</strong></span><small>Show students</small></summary>'+
-    '<div class="vocab-usage-tablewrap"><table>'+tableHead+'<tbody>'+inactiveRows.map(tableRow).join('')+'</tbody></table></div></details>';
+  const studentTable='<div class="vocab-usage-tablewrap"><table>'+tableHead+'<tbody>'+
+    usage.students.map(tableRow).join('')+'</tbody></table></div>';
+  const studentTabs='<div class="vocab-usage-student-tabs" role="group" aria-label="Student activity filter">'+
+    '<button type="button" data-action="staff-usage-view" data-value="active" class="vocab-usage-tab is-selected" aria-pressed="true">Practised <span>'+number(activeRows.length)+'</span></button>'+
+    '<button type="button" data-action="staff-usage-view" data-value="inactive" class="vocab-usage-tab" aria-pressed="false">Not yet active <span>'+number(inactiveRows.length)+'</span></button>'+
+    '<button type="button" data-action="staff-usage-view" data-value="all" class="vocab-usage-tab" aria-pressed="false">All students <span>'+number(usage.students.length)+'</span></button></div>';
   const detail=student?'<section class="vocab-usage-detail"><div><strong>'+escapeHtml(student.name)+'</strong><button class="vocab-usage-pill" data-action="staff-usage-student" data-value="">Close detail ✕</button></div><p>'+
     number(student.attempts)+' question attempts · '+formatDuration(student.seconds)+' recorded time · '+
     number(student.wordsLearning)+' words in progress · '+number(student.wordsSecure)+' words secure · '+number(student.activeDays)+' active days</p>'+
@@ -180,11 +181,49 @@ export function renderVocabularyStaffUsage(root,model,{days=30,classId='all',stu
     '<div class="vocab-usage-fact" title="Vocabulary records currently marked secure"><strong>'+number(overview.wordsSecure)+'</strong><span><b>Words secure</b><small>Current status</small></span></div>'+
     '<div class="vocab-usage-fact" title="Number of classes in the current selection"><strong>'+(usage.classId==='all'?number(usage.classes.length):'1')+'</strong><span><b>'+(usage.classId==='all'?(usage.role==='admin'?'Active classes':'Assigned classes'):'Selected class')+'</b><small>'+(usage.classId==='all'?'In this view':'Current filter')+'</small></span></div></div></article></section>'+
     (classCards.length?'<section class="vocab-usage-classes">'+heading('Choose a class','Select a class to view its students')+
-      '<div class="vocab-usage-class-grid">'+visibleClassCards+'</div>'+
-      (remainingClassCards?'<details class="vocab-usage-more-classes"><summary>Show all '+number(classCards.length)+' classes <span aria-hidden="true">⌄</span></summary><div class="vocab-usage-class-grid">'+remainingClassCards+'</div></details>':'')+'</section>':'')+
+      '<div class="vocab-usage-class-grid" data-usage-class-grid>'+classGrid+'</div>'+
+      (classCards.length>8?'<button type="button" class="vocab-usage-class-toggle" data-action="staff-usage-toggle-classes" aria-expanded="false" data-total="'+number(classCards.length)+'">Show all '+number(classCards.length)+' classes <span aria-hidden="true">⌄</span></button>':'')+'</section>':'')+
     '<section class="vocab-usage-panel vocab-usage-people">'+heading('Student activity','Select a student to see their recorded practice and progress')+
-    '<div class="vocab-usage-search"><label for="vocab-usage-search">Find a student</label><input id="vocab-usage-search" type="search" data-action="staff-usage-search" placeholder="Search student names…" autocomplete="off"><small data-usage-search-count role="status" aria-live="polite">'+number(usage.students.length)+' students</small></div>'+
-    detail+'<div class="vocab-usage-active-title"><strong>Practised in this period</strong><span>'+number(activeRows.length)+' students</span></div>'+
-    activeTable+(inactiveRows.length?inactiveTable:'')+'</section>'+
+    '<div class="vocab-usage-search"><label for="vocab-usage-search">Find a student</label><input id="vocab-usage-search" type="search" data-action="staff-usage-search" placeholder="Search any student in this view…" autocomplete="off"></div>'+
+    detail+studentTabs+
+    '<div class="vocab-usage-student-list-head"><span data-usage-search-count role="status" aria-live="polite"></span></div>'+
+    studentTable+'<div class="vocab-usage-student-footer"><button type="button" class="vocab-usage-more-students" data-action="staff-usage-more-students" hidden>Show next 10 students</button></div></section>'+
     '<p class="vocab-usage-foot"><strong>About these figures</strong><span>Activity totals use the selected reporting period; question attempts include retries, and recorded time may omit short intervals. Vocabulary statuses describe current learning evidence, independent of the date filter—not attainment grades. Students belonging to more than one class are counted once in combined totals.</span></p></main>';
+  // The complete permitted student list is in the DOM but only ten rows are visible.
+  // Search/filter/pagination operate on this scope without fetching or exposing other classes.
+  updateVocabularyUsageStudentRows(root);
+}
+export function updateVocabularyUsageStudentRows(root,{view=null,query=null,more=false}={}) {
+  const panel=root?.querySelector?.('[data-staff-usage]');
+  if(!panel)return;
+  const state=panel.dataset;
+  const allowedViews=new Set(['active','inactive','all']);
+  if(view!==null){state.studentView=allowedViews.has(view)?view:'active';state.studentLimit='10';}
+  if(!allowedViews.has(state.studentView))state.studentView='active';
+  if(query!==null){state.studentQuery=String(query).trim().toLowerCase();state.studentLimit='10';}
+  const limit=Math.max(10,Number(state.studentLimit)||10);
+  if(more)state.studentLimit=String(limit+10);
+  const activeLimit=more?limit+10:limit;
+  const q=state.studentQuery??'';
+  let matched=0,shown=0;
+  const rows=panel.querySelectorAll('[data-vocab-usage-student-row]');
+  for(const row of rows){
+    const matchesView=state.studentView==='all'||row.dataset.activity===state.studentView;
+    const matchesName=String(row.dataset.name??'').includes(q);
+    const matches=matchesView&&matchesName;
+    row.hidden=!matches||shown>=activeLimit;
+    if(matches){matched++;if(!row.hidden)shown++;}
+  }
+  for(const tab of panel.querySelectorAll('[data-action="staff-usage-view"]')){
+    const selected=tab.dataset.value===state.studentView;
+    tab.classList.toggle('is-selected',selected);
+    tab.setAttribute('aria-pressed',String(selected));
+  }
+  const counter=panel.querySelector('[data-usage-search-count]');
+  if(counter)counter.textContent=matched?('Showing '+shown+' of '+matched+' students'):'No students match these filters';
+  const next=panel.querySelector('[data-action="staff-usage-more-students"]');
+  if(next){
+    next.hidden=shown>=matched;
+    next.textContent='Show next '+Math.min(10,matched-shown)+' students';
+  }
 }
