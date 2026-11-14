@@ -139,6 +139,12 @@ function plausibleTermDistractors(args, count = 3) {
 // (e.g. guaranteed / doubted / denied / regretted). Reuse those first; if a
 // multiword headword has too few similarly shaped alternatives, use same-POS
 // unit headwords. Never serve a one-word answer among three long definitions.
+// This compound has no three-word lexical alternatives in its published unit
+// bank. Keep it playable with explicitly authored, non-synonymous photography
+// terms rather than inventing random definitions or serving an obvious MCQ.
+const SUPPLEMENTAL_MEANING_RECOGNISE_WORDS = Object.freeze({
+  'angle of view':Object.freeze(['depth of field','point of focus','distance from subject'])
+});
 export function definitionWordDistractors(args, count = 3) {
   const target=text(args.item?.term);
   const sense=senseFor(args.item,args.occurrence);
@@ -170,7 +176,8 @@ export function definitionWordDistractors(args, count = 3) {
   // Long definition prose is categorically excluded by the word-count check.
   const authoredLabels=stableShuffle(authoredDistractors(args).filter(valid),
     `${args.seed}:definition-word-authored-labels`);
-  const choices=uniqueText([...curated,...samePos,...authoredLabels]).filter(valid);
+  const supplement=array(SUPPLEMENTAL_MEANING_RECOGNISE_WORDS[target.toLocaleLowerCase('en')]).filter(valid);
+  const choices=uniqueText([...curated,...samePos,...authoredLabels,...supplement]).filter(valid);
   if(choices.length<count)throw new Error('Definition → Word needs three comparable vocabulary-word alternatives.');
   return {options:choices.slice(0,count),source:choices.slice(0,count).every(value=>curated.includes(value))
     ? DISTRACTOR_SOURCE.GENERATED_SEMANTIC:DISTRACTOR_SOURCE.GENERATED_SAFE};
