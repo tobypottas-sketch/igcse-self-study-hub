@@ -326,7 +326,8 @@ function showError(error) { renderVocabularyError(teacherState.root, error insta
 function filterStaffUsageStudents(event) {
   const input=event.target?.closest?.('[data-action="staff-usage-search"]');
   if(!input)return;
-  updateVocabularyUsageStudentRows(teacherState.root,{query:input.value});
+  // A name search spans every permitted student, regardless of the selected tab.
+  updateVocabularyUsageStudentRows(teacherState.root,{...(String(input.value).trim()?{view:'all'}:{}),query:input.value});
 }
 
 function handleStaffUsageChange(event) {
