@@ -39,7 +39,7 @@ test('backend enforces and persists the four quality attestations',()=>{
  const ui=readFileSync(new URL('../src/vocabulary/diagnostic-review.js',import.meta.url),'utf8');
  assert.match(sql,/QUALITY_CONFIRMATIONS_REQUIRED/);
  assert.match(sql,/jsonb_typeof\(v_quality\)/);
- assert.match(sql,/jsonb_object_keys/);
+ assert.match(sql,/v_quality is distinct from/);
  assert.match(sql,/quality_confirmations\)/);
  assert.match(edge,/payload\.qualityConfirmations/);
  assert.match(edge,/Object\.keys\(payload\.qualityConfirmations\)\.length===4/);
