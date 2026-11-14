@@ -103,7 +103,7 @@ export function calculateVocabularyUsage(data,{days=30,classId='all',studentId=n
     role:data.role,classes,overview,students:studentRows,daily:dailyRows,student:visibleStudent};
 }
 function metric(title,value,caption,tone) {
-  return '<article class="vocab-usage-metric" data-tone="'+tone+'"><span>'+escapeHtml(title)+'</span><strong>'+escapeHtml(value)+'</strong><small>'+escapeHtml(caption)+'</small></article>';
+  return '<article class="vocab-usage-metric" data-tone="'+tone+'"><span class="vocab-usage-metric__label">'+escapeHtml(title)+'</span><strong class="vocab-usage-metric__value">'+escapeHtml(value)+'</strong><small class="vocab-usage-metric__caption">'+escapeHtml(caption)+'</small></article>';
 }
 function heading(text,sub) {return '<div class="vocab-usage-heading"><h2>'+escapeHtml(text)+'</h2><p>'+escapeHtml(sub)+'</p></div>';}
 function action(text,kind,value,selected=false) {
@@ -119,25 +119,29 @@ function dailyChart(daily,days,now=new Date()) {
     const from=new Date(today.getTime()-(windowDays-1-startOffset)*DAY_MS);
     const to=new Date(today.getTime()-(windowDays-1-endOffset)*DAY_MS);
     const rows=daily.filter(row=>row.day>=dateKey(from)&&row.day<dateKey(to));
-    return {label:from.toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'UTC'}),
+    const label=date=>date.toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'UTC'});
+    const last=new Date(to.getTime()-DAY_MS);
+    return {label:label(from),range:days===7?label(from):label(from)+'–'+label(last),
       attempts:rows.reduce((n,row)=>n+row.attempts,0)};
   });
   const max=Math.max(1,...buckets.map(row=>row.attempts));
-  return '<div class="vocab-usage-chart" role="img" aria-label="Question attempts across seven periods">'+
-    buckets.map(row=>'<div class="vocab-usage-bar"><strong>'+number(row.attempts)+'</strong><span class="vocab-usage-bar__track"><i style="height:'+Math.round(row.attempts/max*100)+'%"></i></span><small>'+escapeHtml(row.label)+'</small></div>').join('')+'</div>';
+  const peak=buckets.reduce((best,row)=>row.attempts>best.attempts?row:best,buckets[0]);
+  const lead='<div class="vocab-usage-chart-meta"><span>Question submissions</span><strong>'+(peak.attempts?('Peak period · '+escapeHtml(peak.range)+' · '+number(peak.attempts)):'No attempts recorded')+'</strong></div>';
+  return lead+'<div class="vocab-usage-chart" role="img" aria-label="Question attempts in seven consecutive time buckets">'+
+    buckets.map(row=>'<div class="vocab-usage-bar'+(row.attempts?'':' is-empty')+'" title="'+escapeHtml(row.range)+': '+number(row.attempts)+' attempts"><strong>'+number(row.attempts)+'</strong><span class="vocab-usage-bar__track"><i style="height:'+Math.round(row.attempts/max*100)+'%"></i></span><small>'+escapeHtml(row.label)+'</small></div>').join('')+'</div>';
 }
 export function renderVocabularyStaffUsage(root,model,{days=30,classId='all',studentId=null,now=new Date()}={}) {
   const usage=calculateVocabularyUsage(model,{days,classId,studentId,now});
   const {overview,student}=usage;
-  const labels=usage.role==='admin'?['School-wide usage','All active student accounts']:['My classes · usage','Students in your assigned classes'];
+  const labels=usage.role==='admin'?['School-wide usage','Vocabulary activity across active student accounts']:['My classes · usage','Vocabulary activity in your assigned classes'];
   const options=[['7','7 days'],['30','30 days'],['0','All recorded']].map(([value,label])=>action(label,'staff-usage-days',value,usage.days===Number(value))).join('');
   const classOptions='<select class="vocab-usage-class-select" data-action="staff-usage-select-class" aria-label="Select a class">'+
     '<option value="all"'+(usage.classId==='all'?' selected':'')+'>'+(usage.role==='admin'?'All students':'All my classes')+'</option>'+
     usage.classes.map(row=>'<option value="'+escapeHtml(row.id)+'"'+(row.id===usage.classId?' selected':'')+'>'+escapeHtml(row.class_name)+'</option>').join('')+
     '</select>';
-  const summary=metric('Students',number(overview.studentCount),'In selected scope','blue')+
-    metric('Practising',number(overview.activeStudents),'Active during selected period','green')+
-    metric('Question attempts',number(overview.attempts),'Includes retries','violet')+
+  const summary=metric('Students',number(overview.studentCount),'Active accounts in this view','blue')+
+    metric('Practising',number(overview.activeStudents),'Students active in this period','green')+
+    metric('Question attempts',number(overview.attempts),'All attempts, including retries','violet')+
     metric('Active time',formatDuration(overview.seconds),'Recorded practice time','orange');
   const classCards=usage.classId==='all' ? usage.classes.map(row=>{
     const students=new Set((model.memberships??[]).filter(m=>m.class_id===row.id).map(m=>m.student_id));
@@ -163,21 +167,21 @@ export function renderVocabularyStaffUsage(root,model,{days=30,classId='all',stu
     '<header class="vocab-topbar"><button type="button" class="vocab-back" data-action="staff-usage-back">← Teacher analytics</button>'+
     '<span>'+escapeHtml(usage.role==='admin'?'Admin overview':'Teacher overview')+'</span></header>'+
     '<section class="vocab-usage-hero"><span>VOCABULARY · LEARNING ACTIVITY</span><h1>'+escapeHtml(labels[0])+'</h1><p>'+escapeHtml(labels[1])+'</p></section>'+
-    '<div class="vocab-usage-controls"><div><strong>Time period</strong><div class="vocab-usage-pills">'+options+'</div></div>'+
+    '<div class="vocab-usage-controls" aria-label="Usage filters"><div><strong>Reporting period</strong><div class="vocab-usage-pills" role="group" aria-label="Reporting period">'+options+'</div></div>'+
     '<div><strong>Class</strong><div class="vocab-usage-pills">'+classOptions+'</div></div></div>'+
     '<section class="vocab-usage-metrics" aria-label="Recorded usage summary">'+summary+'</section>'+
-    '<section class="vocab-usage-panels"><article class="vocab-usage-panel">'+heading('Practice over time',usage.days===0?'Recent 30 days · all-time totals remain in the cards above':'Question attempts across the selected period')+
+    '<section class="vocab-usage-panels"><article class="vocab-usage-panel vocab-usage-panel--chart">'+heading('Practice over time',usage.days===0?'Last 30 days shown · summary cards include all recorded activity':usage.days===7?'Daily question attempts · last 7 days':'Question attempts grouped into seven periods · last 30 days')+
     dailyChart(usage.daily,usage.days,now)+'</article><article class="vocab-usage-panel">'+
-    heading('At a glance','What the activity records show')+
-    '<div class="vocab-usage-facts"><p><strong>'+number(overview.inactive)+'</strong> students have no recorded practice in this period</p>'+
-    '<p><strong>'+number(overview.wordsLearning)+'</strong> words in progress <small>(building or secure)</small></p>'+
-    '<p><strong>'+number(overview.wordsSecure)+'</strong> words secure <small>(current global status)</small></p>'+
-    '<p><strong>'+(usage.classId==='all'?number(usage.classes.length):'1')+'</strong> '+(usage.classId==='all'?(usage.role==='admin'?'active classes':'assigned classes'):'selected class')+'</p></div></article></section>'+
+    heading('At a glance','Participation and current vocabulary status')+
+    '<div class="vocab-usage-facts"><div class="vocab-usage-fact"><strong>'+number(overview.inactive)+'</strong><span><b>Not yet practising</b><small>No question attempts or timed activity in this period</small></span></div>'+
+    '<div class="vocab-usage-fact"><strong>'+number(overview.wordsLearning)+'</strong><span><b>Words in progress</b><small>Current building or secure vocabulary records</small></span></div>'+
+    '<div class="vocab-usage-fact"><strong>'+number(overview.wordsSecure)+'</strong><span><b>Words secure</b><small>Records currently marked secure</small></span></div>'+
+    '<div class="vocab-usage-fact"><strong>'+(usage.classId==='all'?number(usage.classes.length):'1')+'</strong><span><b>'+(usage.classId==='all'?(usage.role==='admin'?'Active classes':'Assigned classes'):'Selected class')+'</b><small>'+(usage.classId==='all'?'Available in this view':'Current class filter')+'</small></span></div></div></article></section>'+
     (classCards?'<section class="vocab-usage-classes">'+heading('Choose a class','Open a class to focus on its students')+
       '<div class="vocab-usage-class-grid">'+classCards+'</div></section>':'')+
-    '<section class="vocab-usage-panel vocab-usage-people">'+heading('Student activity','Select a student to inspect individual usage totals')+
+    '<section class="vocab-usage-panel vocab-usage-people">'+heading('Student activity','Select a student to see their recorded practice and progress')+
     '<div class="vocab-usage-search"><label for="vocab-usage-search">Find a student</label><input id="vocab-usage-search" type="search" data-action="staff-usage-search" placeholder="Search student names…" autocomplete="off"><small data-usage-search-count role="status" aria-live="polite">'+number(usage.students.length)+' students</small></div>'+
     detail+'<div class="vocab-usage-active-title"><strong>Practised in this period</strong><span>'+number(activeRows.length)+' students</span></div>'+
     activeTable+(inactiveRows.length?inactiveTable:'')+'</section>'+
-    '<p class="vocab-usage-foot">All values are real recorded Vocabulary Hub activity. Attempts include retries; active time may omit short intervals. Words in progress counts current global building and secure records; words secure counts current secure records. Neither measure is a mastery or exam grade, and both are independent of the date filter. A student in multiple classes is counted once in the combined overview.</p></main>';
+    '<p class="vocab-usage-foot"><strong>About these figures</strong><span>Activity totals use the selected reporting period; question attempts include retries, and recorded time may omit short intervals. Vocabulary statuses describe current learning evidence, independent of the date filter—not attainment grades. Students belonging to more than one class are counted once in combined totals.</span></p></main>';
 }
