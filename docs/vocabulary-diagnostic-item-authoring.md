@@ -13,7 +13,7 @@ This GitHub Pages repository is not an appropriate location for real scored diag
 - Local-only JSON bank audit: `node tools/diagnostic/audit-bank.mjs /path/to/your/private-bank.json --pilot`
 - Automated tests: `node --test tests/vocabulary-diagnostic-item-quality.test.js`
 
-The JSON items use a stable `itemId` and integer `version`, `formFamily` to prevent reused variant stems, `levelHypothesis` (A1–C1, **not** calibrated), `construct`, domain, lemma, part of speech and *specific sense*, an original contextual `stem`, A–D options, one correct option ID, a written rationale for *every* option, source/rights records, review status and distinct reviewer identities. The **correct key is private** and must never be shipped to clients. Options are ordered A–D in the authoring record; server delivery may randomise presentation, but must preserve the server-side answer mapping.
+The JSON items use a stable `itemId` and integer `version`, `formFamily` to prevent reused variant stems, `levelHypothesis` (A1–C1, **not** calibrated) with a mandatory **`levelReference`** record (CEFR framework, evidence basis, sense-specific justification, verification state, independent checker and timestamp), `construct`, domain, lemma, part of speech and *specific sense*, an original contextual `stem`, A–D options, one correct option ID, a written rationale for *every* option, source/rights records, review status and distinct reviewer identities. The **correct key is private** and must never be shipped to clients. Options are ordered A–D in the authoring record; server delivery may randomise presentation, but must preserve the server-side answer mapping.
 
 ### Who signs off?
 
@@ -79,7 +79,7 @@ These are **original editorial proposals** to build the *first* 25 independently
 | Draft creation | Schema + required fields + individual structural audit pass |
 | Language reviewed | Independent reviewer checks each option and precise sense, resolves wording/ambiguity |
 | Assessment reviewed | Independent assessor reviews level-reference notes, construct/age fit, exposure and cueing |
-| Pilot eligible | Verified reuse rights, two distinct reviewers/timestamps, no unresolved warnings, protected server storage |
+| Pilot eligible | Verified reuse rights, documented and checked CEFR-reference hypothesis, two distinct reviewers/timestamps, no unresolved warnings, protected server storage |
 | Calibrated / approved | Item performance analysis with appropriate sample, stable scoring model and approved level reporting |
 
 ### Review and administration rules
