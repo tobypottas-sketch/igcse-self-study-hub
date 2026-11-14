@@ -56,7 +56,7 @@ test('angle of view stays playable with related, distinct three-word photography
    ['the distance from camera to scene','how light enters the camera','the view of the world']);
  const options=optionsFor(args);
  assert.deepEqual(new Set(options),new Set(['angle of view','depth of field','point of focus','distance from subject']));
- assert.ok(options.every(option=>option.split(/\\s+/).length===3));
+ assert.ok(options.every(option=>option.split(/\s+/).length===3));
 });
 test('no comparable alternatives means no unsafe question is served',()=>{
  const args=fixture('shape of thought','noun','a specific mental pattern',
