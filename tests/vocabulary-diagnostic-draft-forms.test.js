@@ -17,7 +17,7 @@ test('two 40-item draft forms have 8 per proposed CEFR band and no overlap',()=>
 });
 test('assembly cannot promote unreviewed questions or form status',()=>{
  assert.match(assembly,/review_status<>'draft'/);
- assert.match(assembly,/status<>'unverified'/);
+ assert.match(assembly,/->>'status'<>'unverified'/);
  assert.match(assembly,/values \('DIAG-BASELINE-A-DRAFT',1,'draft'/);
  assert.match(assembly,/values \('DIAG-BASELINE-B-DRAFT',1,'draft'/);
  assert.doesNotMatch(assembly,/set review_status\s*=\s*'pilot'/);
