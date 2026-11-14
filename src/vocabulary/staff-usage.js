@@ -187,7 +187,8 @@ export function renderVocabularyStaffUsage(root,model,{days=30,classId='all',stu
     '<div class="vocab-usage-search"><label for="vocab-usage-search">Find a student</label><input id="vocab-usage-search" type="search" data-action="staff-usage-search" placeholder="Search any student in this view…" autocomplete="off"></div>'+
     detail+studentTabs+
     '<div class="vocab-usage-student-list-head"><span data-usage-search-count role="status" aria-live="polite"></span></div>'+
-    studentTable+'<div class="vocab-usage-student-footer"><button type="button" class="vocab-usage-more-students" data-action="staff-usage-more-students" hidden>Show next 10 students</button></div></section>'+
+    studentTable+'<p class="vocab-usage-no-results" data-usage-empty hidden>No students match this search and filter.</p>'+
+    '<div class="vocab-usage-student-footer"><button type="button" class="vocab-usage-more-students" data-action="staff-usage-more-students" hidden>Show next 10 students</button></div></section>'+
     '<p class="vocab-usage-foot"><strong>About these figures</strong><span>Activity totals use the selected reporting period; question attempts include retries, and recorded time may omit short intervals. Vocabulary statuses describe current learning evidence, independent of the date filter—not attainment grades. Students belonging to more than one class are counted once in combined totals.</span></p></main>';
   // The complete permitted student list is in the DOM but only ten rows are visible.
   // Search/filter/pagination operate on this scope without fetching or exposing other classes.
@@ -221,6 +222,8 @@ export function updateVocabularyUsageStudentRows(root,{view=null,query=null,more
   }
   const counter=panel.querySelector('[data-usage-search-count]');
   if(counter)counter.textContent=matched?('Showing '+shown+' of '+matched+' students'):'No students match these filters';
+  const empty=panel.querySelector('[data-usage-empty]');
+  if(empty)empty.hidden=matched!==0;
   const next=panel.querySelector('[data-action="staff-usage-more-students"]');
   if(next){
     next.hidden=shown>=matched;
