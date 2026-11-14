@@ -16,11 +16,11 @@ as $$
     'stem',i.stem,
     'options',(
       select coalesce(jsonb_agg(
-        jsonb_build_object('id',opt->>'id','text',opt->>'text')
+        jsonb_build_object('id',o.option->>'id','text',o.option->>'text')
         order by ord.pos
       ),'[]'::jsonb)
       from unnest(fi.option_order) with ordinality as ord(option_id,pos)
-      join lateral jsonb_array_elements(i.options) as opt on opt->>'id'=ord.option_id
+      join lateral jsonb_array_elements(i.options) as o(option) on o.option->>'id'=ord.option_id
     ),
     'allowUnknown',true
   )
@@ -150,6 +150,25 @@ begin
       select count(*) into v_count from private.vocabulary_diagnostic_form_items
        where form_id=v_assignment.form_id;
       if v_count<1 then raise exception 'EMPTY_FORM'; end if;
+      -- Do not ever serve a draft, malformed or ambiguously keyed form.
+      if exists(
+        select 1
+        from private.vocabulary_diagnostic_form_items fi
+        join private.vocabulary_diagnostic_items i
+          on i.item_id=fi.item_id and i.version=fi.item_version
+        where fi.form_id=v_assignment.form_id
+          and (
+            i.review_status not in ('pilot','approved')
+            or (select count(distinct e->>'id') from jsonb_array_elements(i.options) e) <> 4
+            or (select count(*) from jsonb_array_elements(i.options) e
+                  where e->>'id' in ('A','B','C','D')) <> 4
+            or not exists(select 1 from jsonb_array_elements(i.options) e
+                  where e->>'id'=i.correct_option_id)
+            or (select count(distinct x) from unnest(fi.option_order) x) <> 4
+            or (select count(*) from unnest(fi.option_order) x
+                 where x in ('A','B','C','D')) <> 4
+          )
+      ) then raise exception 'FORM_INVALID'; end if;
       if v_assignment.kind='follow_up' then
         select max(completed_at) into v_latest
         from private.vocabulary_diagnostic_results where student_id=p_actor;
