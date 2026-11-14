@@ -7,7 +7,7 @@ import { buildFollowUpPlan, teamsFollowUpMessage } from './follow-up-plan.js';
 import { generateVocabularyActivity, renderVocabularyActivityStudio } from './teacher-activity-studio.js';
 import { buildMeritStatus, SKILLS_PER_MERIT } from './merits.js';
 import { loadVocabularyTeacherData, loadVocabularyTeacherClassList, loadUnitReadinessContent } from './teacher-data.js?v=fast-start-v1';
-import { loadVocabularyStaffUsage, renderVocabularyStaffUsage } from './staff-usage.js?v=compact-v2';
+import { loadVocabularyStaffUsage, renderVocabularyStaffUsage, updateVocabularyUsageStudentRows } from './staff-usage.js?v=student-pages-v1';
 import { evaluateUnitReadiness } from './pathway-readiness.js';
 import { coverageFromReadiness } from './pathway-coverage.js';
 import { registerPathwayCoverage } from './pathway-coverage-store.js';
@@ -31,11 +31,31 @@ function renderClassChooser() {
   teacherState.root.innerHTML = `<main class="vocab-shell vocab-class-chooser"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Teacher analytics</span></header><section class="vocab-teacher-hero vocab-class-chooser__hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase</p><h1>Choose a class</h1><p>Open the class that needs your attention.</p><div class="vocab-teacher-actions"><button type="button" class="vocab-button vocab-button--primary" data-action="teacher-open-usage">Usage overview</button><a class="vocab-button" href="./vocabulary.html?preview=1">Preview student activities</a></div></section><section class="vocab-class-chooser__grid">${cards}</section></main>`;
 }
 
-function showStaffUsage() {
+function showStaffUsage({preserveStudentList=false}={}) {
   if(!teacherState.usageData)return;
+  const current=preserveStudentList?teacherState.root.querySelector('[data-staff-usage]'):null;
+  const saved=current?{
+    view:current.dataset.studentView,
+    query:current.dataset.studentQuery??'',
+    limit:current.dataset.studentLimit??'10',
+    classesExpanded:current.querySelector('[data-action="staff-usage-toggle-classes"]')?.getAttribute('aria-expanded')==='true'
+  }:null;
   renderVocabularyStaffUsage(teacherState.root,teacherState.usageData,{
     days:teacherState.usageDays,classId:teacherState.usageClassId,studentId:teacherState.usageStudentId
   });
+  if(!saved)return;
+  const panel=teacherState.root.querySelector('[data-staff-usage]');
+  if(!panel)return;
+  panel.dataset.studentView=saved.view;
+  panel.dataset.studentQuery=saved.query;
+  panel.dataset.studentLimit=saved.limit;
+  const input=panel.querySelector('[data-action="staff-usage-search"]');
+  if(input)input.value=saved.query;
+  updateVocabularyUsageStudentRows(teacherState.root);
+  if(saved.classesExpanded){
+    const toggle=panel.querySelector('[data-action="staff-usage-toggle-classes"]');
+    if(toggle)toggle.click();
+  }
 }
 async function openStaffUsage() {
   teacherState.usageReturnClass=teacherState.currentClass?.id??null;
@@ -326,21 +346,8 @@ function showError(error) { renderVocabularyError(teacherState.root, error insta
 function filterStaffUsageStudents(event) {
   const input=event.target?.closest?.('[data-action="staff-usage-search"]');
   if(!input)return;
-  const query=String(input.value??'').trim().toLowerCase();
-  const rows=teacherState.root.querySelectorAll('[data-vocab-usage-student-row]');
-  let visible=0;
-  for(const row of rows) {
-    row.hidden=!String(row.dataset.name??'').includes(query);
-    if(!row.hidden)visible++;
-  }
-  // Searching must include students inside the normally collapsed inactive section.
-  const inactive=teacherState.root.querySelector('[data-usage-inactive]');
-  if(inactive) {
-    if(query) inactive.open=Array.from(inactive.querySelectorAll('[data-vocab-usage-student-row]')).some(row=>!row.hidden);
-    else inactive.open=false;
-  }
-  const counter=teacherState.root.querySelector('[data-usage-search-count]');
-  if(counter)counter.textContent=visible+' of '+rows.length+' students';
+  // A name search spans every permitted student, regardless of the selected tab.
+  updateVocabularyUsageStudentRows(teacherState.root,{...(String(input.value).trim()?{view:'all'}:{}),query:input.value});
 }
 
 function handleStaffUsageChange(event) {
@@ -370,9 +377,22 @@ function handleClick(event) {
       teacherState.usageClassId=requested;teacherState.usageStudentId=null;showStaffUsage();
     }
   }
+  else if (action === 'staff-usage-toggle-classes') {
+    const grid=teacherState.root.querySelector('[data-usage-class-grid]');
+    const expanded=target.getAttribute('aria-expanded')!=='true';
+    for(const card of grid?.querySelectorAll('[data-class-extra]')??[])card.hidden=!expanded;
+    target.setAttribute('aria-expanded',String(expanded));
+    target.innerHTML=(expanded?'Show fewer classes':'Show all '+target.dataset.total+' classes')+' <span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span>';
+  }
+  else if (action === 'staff-usage-view') {
+    updateVocabularyUsageStudentRows(teacherState.root,{view:target.dataset.value});
+  }
+  else if (action === 'staff-usage-more-students') {
+    updateVocabularyUsageStudentRows(teacherState.root,{more:true});
+  }
   else if (action === 'staff-usage-student') {
     const requested=target.dataset.value;
-    teacherState.usageStudentId=requested||null;showStaffUsage();
+    teacherState.usageStudentId=requested||null;showStaffUsage({preserveStudentList:true});
   }
   else if (action === 'teacher-open-class') void openClass(target.dataset.classId).catch(showError);
   else if (action === 'teacher-week-previous') changeWeeklyWeek(1);

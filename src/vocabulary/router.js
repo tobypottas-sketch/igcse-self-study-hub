@@ -25,7 +25,7 @@ async function routeVocabulary() {
     if (staff) {
       const status=root.querySelector('[data-vocab-loading-status]');
       if(status) status.textContent='Opening teacher analytics…';
-      const { initialiseVocabularyTeacher } = await import('./teacher-app.js?v=compact-v2');
+      const { initialiseVocabularyTeacher } = await import('./teacher-app.js?v=student-pages-v1');
       await initialiseVocabularyTeacher({ root, client, profile });
       return;
     }

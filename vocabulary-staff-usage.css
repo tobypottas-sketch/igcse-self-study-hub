@@ -219,3 +219,27 @@
  .vocab-usage-shell .vocab-usage-class-grid{grid-template-columns:1fr 1fr}
  .vocab-usage-shell .vocab-usage-class{padding:10px;min-height:57px}
 }
+
+
+/* One continuous class grid: hidden overflow cards join the grid when expanded. */
+.vocab-usage-shell .vocab-usage-class[data-class-extra][hidden]{display:none!important}
+.vocab-usage-shell .vocab-usage-class-toggle{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:40px;margin-top:10px;border:1px solid #dce7ef;border-radius:10px;background:#fff;color:#2b617c;font:inherit;font-size:.79rem;font-weight:850;cursor:pointer}
+.vocab-usage-shell .vocab-usage-class-toggle:hover{background:#eff8fb;border-color:#abcbd6}
+.vocab-usage-shell .vocab-usage-class-toggle:focus-visible{outline:3px solid #267dc0;outline-offset:2px}
+/* Replace long stacked active/inactive tables with a single, ten-row viewport. */
+.vocab-usage-shell .vocab-usage-student-tabs{display:flex;flex-wrap:wrap;gap:7px;margin:15px 0 11px}
+.vocab-usage-shell .vocab-usage-tab{display:inline-flex;align-items:center;gap:7px;min-height:37px;padding:8px 12px;border:1px solid #d6e3ed;border-radius:10px;background:#f8fafc;color:#42617e;font:inherit;font-size:.79rem;font-weight:850;cursor:pointer}
+.vocab-usage-shell .vocab-usage-tab span{font-variant-numeric:tabular-nums;font-weight:750;opacity:.8}
+.vocab-usage-shell .vocab-usage-tab.is-selected{background:#2d5188;border-color:#2d5188;color:#fff}
+.vocab-usage-shell .vocab-usage-tab:not(.is-selected):hover{background:#eef5fa;border-color:#9dbfd0}
+.vocab-usage-shell .vocab-usage-tab:focus-visible{outline:3px solid #267dc0;outline-offset:2px}
+.vocab-usage-shell .vocab-usage-student-list-head{display:flex;justify-content:flex-end;min-height:25px;padding:0 2px 7px;color:#677e94;font-size:.75rem;font-weight:750}
+.vocab-usage-shell .vocab-usage-student-footer{display:flex;justify-content:center;padding-top:12px}
+.vocab-usage-shell .vocab-usage-more-students{min-height:41px;padding:9px 19px;border:1px solid #cadee9;border-radius:10px;background:#f7fbfe;color:#24617c;font:inherit;font-size:.81rem;font-weight:850;cursor:pointer}
+.vocab-usage-shell .vocab-usage-more-students:hover{background:#edf7fb;border-color:#8db8cb}
+.vocab-usage-shell .vocab-usage-more-students:focus-visible{outline:3px solid #267dc0;outline-offset:2px}
+.vocab-usage-shell .vocab-usage-more-students[hidden]{display:none}
+@media(max-width:570px){.vocab-usage-shell .vocab-usage-student-tabs{gap:5px}.vocab-usage-shell .vocab-usage-tab{padding:7px 9px;font-size:.73rem}}
+
+.vocab-usage-shell .vocab-usage-no-results{margin:12px 0 0;padding:17px;border:1px dashed #cddfe9;border-radius:10px;background:#f8fbfd;color:#5b7489;text-align:center;font-size:.82rem}
+.vocab-usage-shell .vocab-usage-no-results[hidden]{display:none}
