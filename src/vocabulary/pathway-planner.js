@@ -158,6 +158,9 @@ function buildCandidateGated(args) {
     if (verdict.ok) return attempt === 0 ? question : { ...question, qualityGate:{ ok:true, attempt } };
     if (!first) { first = question; firstViolations = verdict.violations; }
   }
+  // Never serve a trivially guessable Meaning → Recognise item, even when
+  // the normal best-effort quality gate has exhausted its retries.
+  if(first?.type==='definition_to_word') throw new Error('Meaning Recognise needs four comparable vocabulary-word options: '+firstViolations.join(', '));
   return { ...first, qualityGate:{ ok:false, violations:firstViolations } };
 }
 
