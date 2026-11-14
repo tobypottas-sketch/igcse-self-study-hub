@@ -1,5 +1,5 @@
 import { planNextActivity } from './adaptive-planner.js';
-import { buildActivity } from './activity-factory.js';
+import { buildActivity } from './activity-factory.js?v=meaning-recognise-v1';
 import { hasApplicationSituation } from './apply-situation.js';
 import { activitiesForStage } from './activity-catalogue.js';
 import { selectPriorityTargets } from './selector.js';
