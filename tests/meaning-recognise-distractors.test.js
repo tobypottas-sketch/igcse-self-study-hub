@@ -104,3 +104,26 @@ test('fewer than three truly comparable options is refused, not diluted with lon
    ['a pipe that carries water away','a plug socket in a building','a way of expressing strong feelings']);
  assert.throws(()=>optionsFor(args),/three comparable vocabulary-word alternatives/);
 });
+
+test('processed and saturated adjectives cannot be identified by unique -ed ending',()=>{
+ for(const [correct,other,wrong] of [
+  ['processed','saturated',['fresh','raw','natural']],
+  ['saturated','processed',['liquid','spicy','sugary']]
+ ]){
+   const args=fixture(correct,'adjective','a food descriptor',wrong,
+     ['describing food from a factory','grown on a small farm','a very long explanation']);
+   args.unitItems.push({vocabularyId:'other-'+other,term:other,partOfSpeech:'adjective'});
+   const options=optionsFor(args);
+   assert.ok(options.includes(other),correct+' needs a same-form distractor');
+   assert.equal(assessBuiltQuestion({type:'definition_to_word',options,markingReference:{acceptedAnswers:[correct]}}).ok,true);
+ }
+});
+test('focus is singular despite final s; criteria is irregular plural',()=>{
+ const verb=fixture('focus','verb','give attention to a task',['depend','vote','insist'],[]);
+ const noun=fixture('criteria','noun','standards used for judgement',['recipes','harbours','tickets'],[]);
+ for(const args of [verb,noun]){
+   const options=optionsFor(args);
+   const verdict=assessBuiltQuestion({type:'definition_to_word',options,markingReference:{acceptedAnswers:[args.item.term]}});
+   assert.equal(verdict.ok,true);
+ }
+});
