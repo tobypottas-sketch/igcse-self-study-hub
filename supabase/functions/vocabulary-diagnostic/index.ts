@@ -43,7 +43,12 @@ function validatePayload(action,payload){
   if(action==='review-decision')return string(payload.itemId,110)!==null&&Number.isInteger(payload.version)&&payload.version>0
     &&['language','assessment','cefr','flag'].includes(payload.stage)
     &&['approve','flag','reject','verify'].includes(payload.decision)
-    &&typeof payload.notes==='string'&&payload.notes.length<=1500;
+    &&typeof payload.notes==='string'&&payload.notes.length<=1500
+    &&(!['approve','verify'].includes(payload.decision)||(
+      payload.qualityConfirmations!==null&&typeof payload.qualityConfirmations==='object'&&!Array.isArray(payload.qualityConfirmations)
+      &&Object.keys(payload.qualityConfirmations).length===4
+      &&['singleKey','plausibleDistractors','noAnswerClues','appropriateLevel'].every(k=>payload.qualityConfirmations[k]===true)
+    ));
   if(action==='status'||action==='history'||action==='report')return Object.keys(payload).length===0;
   return false;
 }
@@ -108,7 +113,7 @@ Deno.serve(async (req:Request)=>{
         'EMPTY_FORM','FORM_INVALID','INVALID_KIND','REVIEW_ACCESS_DENIED',
         'ITEM_UNAVAILABLE','ITEM_LOCKED','INVALID_REVIEW','REVISION_REQUIRED',
         'INDEPENDENT_LANGUAGE_REVIEW_REQUIRED','CEFR_EVIDENCE_REQUIRED',
-        'REVIEW_SEQUENCE_REQUIRED','UNKNOWN_REVIEW_ACTION'];
+        'REVIEW_SEQUENCE_REQUIRED','QUALITY_CONFIRMATIONS_REQUIRED','UNKNOWN_REVIEW_ACTION'];
       const code=known.find(x=>error.message?.includes(x));
       if(code)return reply({error:code},['ACCESS_DENIED','SESSION_UNAVAILABLE','REVIEW_ACCESS_DENIED'].includes(code)?403:409);
       // Do not print question bank, SQL query strings, UUIDs or submitted payloads.
