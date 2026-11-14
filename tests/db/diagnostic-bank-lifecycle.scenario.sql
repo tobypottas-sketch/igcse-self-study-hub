@@ -60,8 +60,8 @@ do $$ declare r jsonb; begin
   if r->'imported'->0->>'version'<>'2' then raise exception 'EXPECTED VERSION 2 %',r; end if;
 end $$;
 
--- Authoring-schema exports import: per-option rationales and top-level metadata land in `authoring`,
--- stored options stay id/text only, unknown option keys are rejected.
+-- Authoring-schema exports import: per-option rationales stay on options (rendered by the staff review page),
+-- top-level metadata lands in `authoring`, unknown option keys are rejected.
 select public.vocabulary_diagnostic_bank_admin('00000000-0000-0000-0000-00000000000a','import',
   jsonb_build_object('reason','authoring export shape','items',jsonb_build_array(
     scenario.item('diag-synthetic-003','Synthetic placeholder stem three?')||jsonb_build_object(
@@ -75,13 +75,14 @@ select public.vocabulary_diagnostic_bank_admin('00000000-0000-0000-0000-00000000
         jsonb_build_object('id','D','text','delta','rationale','synthetic rationale d'))))));
 do $$ declare i private.vocabulary_diagnostic_items%rowtype; d jsonb; begin
   select * into i from private.vocabulary_diagnostic_items where item_id='diag-synthetic-003';
-  if exists(select 1 from jsonb_array_elements(i.options) o where (select array_agg(k order by k) from jsonb_object_keys(o) k)<>array['id','text'])
-    then raise exception 'OPTIONS NOT NORMALISED %',i.options; end if;
+  if exists(select 1 from jsonb_array_elements(i.options) o where (select array_agg(k order by k) from jsonb_object_keys(o) k)<>array['id','rationale','text'])
+    then raise exception 'OPTIONS SHAPE WRONG %',i.options; end if;
   if i.authoring->>'construct'<>'meaning_in_context' or i.authoring->'levelReference'->>'framework'<>'CEFR'
-     or i.authoring->'optionRationales'->>'C'<>'synthetic rationale c' or i.authoring->>'partOfSpeech'<>'verb'
+     or i.authoring->>'partOfSpeech'<>'verb'
     then raise exception 'AUTHORING NOT KEPT %',i.authoring; end if;
   d:=public.vocabulary_diagnostic_review_api('00000000-0000-0000-0000-00000000000c','detail','{"itemId":"diag-synthetic-003","version":1}');
   if d->'item'->>'construct'<>'meaning_in_context' or d->'item'->'levelReference' is null or d->'item'->>'partOfSpeech'<>'verb'
+     or (select o->>'rationale' from jsonb_array_elements(d->'item'->'options') o where o->>'id'='C')<>'synthetic rationale c'
     then raise exception 'REVIEW DETAIL MISSING METADATA %',d; end if;
 end $$;
 select scenario.expect_error($$select public.vocabulary_diagnostic_bank_admin('00000000-0000-0000-0000-00000000000a','import',

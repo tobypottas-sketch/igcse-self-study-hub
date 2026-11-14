@@ -201,18 +201,16 @@ begin
        (item_id,version,form_family,level_hypothesis,lemma,tested_sense,stem,options,correct_option_id,authoring,review_status)
      values (v_id,v_version,btrim(v_entry->>'formFamily'),v_entry->>'levelHypothesis',
        btrim(v_entry->>'lemma'),btrim(v_entry->>'sense'),btrim(v_entry->>'stem'),
-       -- Stored options are id/text only; authoring-export metadata (schema
-       -- top-level fields and per-option rationales) is kept in `authoring`,
-       -- where the staff review API reads it.
-       (select jsonb_agg(jsonb_build_object('id',o->>'id','text',btrim(o->>'text')) order by o->>'id')
+       -- Options keep id/text/rationale, the shape the staff review page renders;
+       -- students only ever receive id/text via private.vocabulary_diagnostic_safe_question.
+       -- Schema top-level metadata is kept in `authoring`, where review_api reads it.
+       (select jsonb_agg(jsonb_strip_nulls(jsonb_build_object('id',o->>'id','text',btrim(o->>'text'),'rationale',o->'rationale')) order by o->>'id')
           from jsonb_array_elements(v_entry->'options') o),
        v_entry->>'correctOptionId',
        coalesce(v_entry->'authoring','{}'::jsonb)||jsonb_strip_nulls(jsonb_build_object(
          'construct',v_entry->'construct','domain',v_entry->'domain','partOfSpeech',v_entry->'partOfSpeech',
          'levelReference',v_entry->'levelReference','source',v_entry->'source',
-         'review',v_entry->'review','calibration',v_entry->'calibration',
-         'optionRationales',(select jsonb_object_agg(o->>'id',o->'rationale')
-            from jsonb_array_elements(v_entry->'options') o where o ? 'rationale'))),
+         'review',v_entry->'review','calibration',v_entry->'calibration')),
        'draft');
      insert into private.vocabulary_diagnostic_item_events(item_id,item_version,event,actor_id,reason)
        values (v_id,v_version,'imported',p_actor,v_reason);
