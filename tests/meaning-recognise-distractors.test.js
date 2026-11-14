@@ -20,7 +20,7 @@ test('guaranteed question offers comparable verbs, never long explanations',()=>
  assert.equal(options.length,4);
  assert.ok(options.includes('guaranteed'));
  assert.deepEqual(new Set(options),new Set(['guaranteed','doubted','denied','regretted']));
- assert.ok(options.every(x=>x.trim().split(/\\s+/).length===1));
+ assert.ok(options.every(x=>x.trim().split(/\s+/).length===1));
 });
 test('outlet question uses vocabulary alternatives, not other definitions of outlet',()=>{
  const args=fixture('outlet','noun','a shop where a business sells its products',
@@ -47,7 +47,7 @@ test('two-word targets use comparable two-word alternatives from same-POS unit t
  );
  const options=optionsFor(args);
  assert.equal(options.length,4);
- assert.ok(options.every(option=>option.split(/\\s+/).length===2));
+ assert.ok(options.every(option=>option.split(/\s+/).length===2));
  assert.ok(options.includes('remote control'));
 });
 test('no comparable alternatives means no unsafe question is served',()=>{
