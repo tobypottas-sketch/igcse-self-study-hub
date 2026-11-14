@@ -17,7 +17,7 @@ test('visible answer states, focus and small-screen presentation are styled',()=
   assert.match(css,/var\(--focus-ring\)/);
 });
 test('new stylesheet is cache-busted on Vocabulary entry page',()=>{
-  assert.match(html,/vocabulary-diagnostic-student\.css\?v=diagnostic-theme-v2/);
+  assert.match(html,/vocabulary-diagnostic-student\.css\?v=diagnostic-results-v1/);
 });
 test('UI polish leaves the student answer-submission path intact',()=>{
   assert.match(player,/requestId:crypto\.randomUUID\(\)/);
