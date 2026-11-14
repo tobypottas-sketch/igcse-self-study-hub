@@ -31,7 +31,7 @@
 | 095 | wide | Low | Side-to-side vs height, distance and weight; correct tests a real dimension contrast. Could be an appropriate A1/A2 item, CEFR unverified. |
 | 096 | share | Medium | Key says both use same table; alternatives are unrelated moving/buying/different tables. |
 
-**Priority totals:** 9 high, 12 medium, 3 low. These are *editorial judgments*, not automated item-failure counts.
+**Priority totals:** 10 high, 11 medium, 3 low. These are *editorial judgments*, not automated item-failure counts.
 
 ## Additional rewrite candidates
 
