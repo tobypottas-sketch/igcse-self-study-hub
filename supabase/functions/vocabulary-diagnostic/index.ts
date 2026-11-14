@@ -4,9 +4,19 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 
 const PROJECT_URL=Deno.env.get('SUPABASE_URL')??'';
-const ANON_KEY=Deno.env.get('SUPABASE_ANON_KEY')??'';
-const SERVICE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')??'';
-const ALLOWED_ACTIONS=new Set(['status','start','pause','respond','history','assign','report','review-list','review-detail','review-decision']);
+// Support both legacy and current Supabase managed key environments.
+// Never return secret keys in responses or write them to logs.
+function firstNamedKey(raw:string|undefined):string {
+  if(!raw)return '';
+  try{
+    const keys=JSON.parse(raw);
+    const first=keys?.default??Object.values(keys??{})[0];
+    return typeof first==='string'?first:'';
+  }catch{return ''}
+}
+const ANON_KEY=Deno.env.get('SUPABASE_ANON_KEY')||firstNamedKey(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS'));
+const SERVICE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||firstNamedKey(Deno.env.get('SUPABASE_SECRET_KEYS'));
+const ALLOWED_ACTIONS=new Set(['status','start','pause','respond','history','assign','report','review-list','review-detail','review-decision','review-forms']);
 const MAX_BODY_BYTES=4000;
 const REVIEW_ACTIONS=new Set(['review-list','review-detail','review-decision']);
 
@@ -37,13 +47,19 @@ function validatePayload(action,payload){
     &&['baseline','follow_up','teacher_retake'].includes(payload.kind)
     &&(payload.availableAt===undefined||!Number.isNaN(Date.parse(payload.availableAt)))
     &&(payload.expiresAt===undefined||!Number.isNaN(Date.parse(payload.expiresAt)));
+  if(action==='review-forms')return Object.keys(payload).length===0;
   if(action==='review-list')return (!payload.level||['A1','A2','B1','B2','C1'].includes(payload.level))
     &&(payload.page===undefined||(Number.isInteger(payload.page)&&payload.page>=0&&payload.page<=100));
   if(action==='review-detail')return string(payload.itemId,110)!==null&&Number.isInteger(payload.version)&&payload.version>0;
   if(action==='review-decision')return string(payload.itemId,110)!==null&&Number.isInteger(payload.version)&&payload.version>0
     &&['language','assessment','cefr','flag'].includes(payload.stage)
     &&['approve','flag','reject','verify'].includes(payload.decision)
-    &&typeof payload.notes==='string'&&payload.notes.length<=1500;
+    &&typeof payload.notes==='string'&&payload.notes.length<=1500
+    &&(!['approve','verify'].includes(payload.decision)||(
+      payload.qualityConfirmations!==null&&typeof payload.qualityConfirmations==='object'&&!Array.isArray(payload.qualityConfirmations)
+      &&Object.keys(payload.qualityConfirmations).length===4
+      &&['singleKey','plausibleDistractors','noAnswerClues','appropriateLevel'].every(k=>payload.qualityConfirmations[k]===true)
+    ));
   if(action==='status'||action==='history'||action==='report')return Object.keys(payload).length===0;
   return false;
 }
@@ -94,11 +110,13 @@ Deno.serve(async (req:Request)=>{
     const admin=createClient(PROJECT_URL,SERVICE_KEY,{
       auth:{persistSession:false,autoRefreshToken:false}
     });
-    const rpc=REVIEW_ACTIONS.has(action)?'vocabulary_diagnostic_review_api':'vocabulary_diagnostic_api';
+    const isFormsRequest=action==='review-forms';
+    const rpc=isFormsRequest?'vocabulary_diagnostic_form_readiness'
+      :REVIEW_ACTIONS.has(action)?'vocabulary_diagnostic_review_api':'vocabulary_diagnostic_api';
     const rpcAction=REVIEW_ACTIONS.has(action)?action.slice('review-'.length):action;
-    const {data:result,error}=await admin.rpc(rpc,{
-      p_actor:identity.user.id,p_action:rpcAction,p_data:payload
-    });
+    const args=isFormsRequest?{p_actor:identity.user.id}
+      :{p_actor:identity.user.id,p_action:rpcAction,p_data:payload};
+    const {data:result,error}=await admin.rpc(rpc,args);
     if(error){
       const known=['ACCESS_DENIED','ASSIGNMENT_UNAVAILABLE','SESSION_UNAVAILABLE',
         'SESSION_CLOSED','OUT_OF_SEQUENCE','QUESTION_MISMATCH','INVALID_OPTION',
@@ -108,7 +126,7 @@ Deno.serve(async (req:Request)=>{
         'EMPTY_FORM','FORM_INVALID','INVALID_KIND','REVIEW_ACCESS_DENIED',
         'ITEM_UNAVAILABLE','ITEM_LOCKED','INVALID_REVIEW','REVISION_REQUIRED',
         'INDEPENDENT_LANGUAGE_REVIEW_REQUIRED','CEFR_EVIDENCE_REQUIRED',
-        'REVIEW_SEQUENCE_REQUIRED','UNKNOWN_REVIEW_ACTION'];
+        'REVIEW_SEQUENCE_REQUIRED','QUALITY_CONFIRMATIONS_REQUIRED','UNKNOWN_REVIEW_ACTION'];
       const code=known.find(x=>error.message?.includes(x));
       if(code)return reply({error:code},['ACCESS_DENIED','SESSION_UNAVAILABLE','REVIEW_ACCESS_DENIED'].includes(code)?403:409);
       // Do not print question bank, SQL query strings, UUIDs or submitted payloads.
