@@ -33,13 +33,16 @@ async function routeVocabulary() {
     if (profile.role === 'student') {
       // Intentionally dormant until the bank, student assessment UI, rollout
       // and server-side practice enforcement are verified and approved.
-      if (DIAGNOSTIC_BASELINE_GATE_ENABLED) {
+      const voluntaryDiagnosticRequested=new URLSearchParams(window.location.search).get('diagnostic')==='1';
+      if (DIAGNOSTIC_BASELINE_GATE_ENABLED || voluntaryDiagnosticRequested) {
         let decision=DIAGNOSTIC_ENTRY_STATES.STATUS_ERROR;
+        let diagnosticStatus=null;
         try {
           const {data,error}=await client.functions.invoke('vocabulary-diagnostic',{
             body:{action:'status',payload:{}}
           });
           if (!error && data && typeof data.baselineCompleted==='boolean') {
+            diagnosticStatus=data;
             decision=decideVocabularyEntry({
               enabled:true,
               baselineCompleted:data.baselineCompleted,
@@ -48,12 +51,27 @@ async function routeVocabulary() {
               statusAvailable:true
             });
           }
-        } catch { /* A failed check never unlocks practice. */ }
+        } catch { /* A failed check never unlocks practice when compulsory. */ }
         if (decision!==DIAGNOSTIC_ENTRY_STATES.PRACTICE) {
-          const {renderVocabularyBaselineGate}=await import('./diagnostic-gate-view.js?v=baseline-gate-v1');
-          renderVocabularyBaselineGate(root,decision);
+          if (
+            (decision===DIAGNOSTIC_ENTRY_STATES.BASELINE_REQUIRED||
+             decision===DIAGNOSTIC_ENTRY_STATES.BASELINE_IN_PROGRESS)&&
+            diagnosticStatus?.baselineAssignmentId
+          ) {
+            const {initialiseVocabularyDiagnostic}=await import('./diagnostic-student.js?v=student-player-v1');
+            await initialiseVocabularyDiagnostic({
+              root,client,
+              assignmentId:diagnosticStatus.baselineAssignmentId,
+              sessionState:diagnosticStatus.baselineSessionState,
+              onComplete:()=>window.location.replace('./vocabulary.html')
+            });
+          } else {
+            const {renderVocabularyBaselineGate}=await import('./diagnostic-gate-view.js?v=baseline-gate-v1');
+            renderVocabularyBaselineGate(root,decision);
+          }
           return;
         }
+        // A completed baseline allows the standard Vocabulary app to load.
       }
       const status=root.querySelector('[data-vocab-loading-status]');
       if(status) status.textContent='Opening your vocabulary…';
