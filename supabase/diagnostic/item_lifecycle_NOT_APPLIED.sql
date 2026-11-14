@@ -71,13 +71,22 @@ create or replace function private.vocabulary_diagnostic_form_item_guard()
 returns trigger language plpgsql set search_path='' as $$
 declare v_status text;
 begin
+ -- UPDATE and DELETE remove membership from OLD's form; INSERT and UPDATE
+ -- add membership to NEW's form. Both sides must be draft.
+ if tg_op in ('UPDATE','DELETE') then
+   select status into v_status from private.vocabulary_diagnostic_forms
+    where id=old.form_id for share;
+   if v_status is distinct from 'draft' then raise exception 'FORM_LOCKED'; end if;
+ end if;
+ if tg_op='DELETE' then return old; end if;
  select status into v_status from private.vocabulary_diagnostic_forms
-  where id=coalesce(new.form_id,old.form_id);
+  where id=new.form_id for share;
  if v_status is distinct from 'draft' then raise exception 'FORM_LOCKED'; end if;
- if tg_op<>'DELETE' and exists(select 1 from private.vocabulary_diagnostic_items i
-    where i.item_id=new.item_id and i.version=new.item_version and i.review_status='retired')
+ if (tg_op='INSERT' or (new.form_id,new.item_id,new.item_version) is distinct from (old.form_id,old.item_id,old.item_version))
+    and exists(select 1 from private.vocabulary_diagnostic_items i
+      where i.item_id=new.item_id and i.version=new.item_version and i.review_status='retired')
    then raise exception 'ITEM_RETIRED'; end if;
- return coalesce(new,old);
+ return new;
 end;
 $$;
 drop trigger if exists vocab_diag_form_item_guard on private.vocabulary_diagnostic_form_items;

@@ -96,6 +96,30 @@ insert into private.vocabulary_diagnostic_form_items(form_id,position,item_id,it
 update private.vocabulary_diagnostic_forms set status='pilot' where form_code='SYN-FORM-B';
 select scenario.expect_error($$update private.vocabulary_diagnostic_form_items set option_order=array['A','B','C','D'] where form_id=(select id from private.vocabulary_diagnostic_forms where form_code='SYN-FORM-B')$$,'FORM_LOCKED');
 
+-- Membership moves and deletes check both the source (OLD) and destination (NEW) forms.
+select public.vocabulary_diagnostic_bank_admin('00000000-0000-0000-0000-00000000000a','import',
+  jsonb_build_object('reason','synthetic draft item for membership tests','items',jsonb_build_array(scenario.item('diag-synthetic-002','Synthetic placeholder stem two?'))));
+insert into private.vocabulary_diagnostic_forms(form_code,version,status,item_bank_version) values ('SYN-FORM-C',1,'draft','syn'),('SYN-FORM-D',1,'draft','syn');
+insert into private.vocabulary_diagnostic_form_items(form_id,position,item_id,item_version,option_order)
+ select id,1,'diag-synthetic-002',1,array['A','B','C','D'] from private.vocabulary_diagnostic_forms where form_code='SYN-FORM-C';
+delete from private.vocabulary_diagnostic_form_items where form_id=(select id from private.vocabulary_diagnostic_forms where form_code='SYN-FORM-C');
+do $$ begin if exists(select 1 from private.vocabulary_diagnostic_form_items fi join private.vocabulary_diagnostic_forms f on f.id=fi.form_id where f.form_code='SYN-FORM-C')
+  then raise exception 'DRAFT DELETE DID NOT APPLY'; end if; end $$;
+select scenario.expect_error($$delete from private.vocabulary_diagnostic_form_items where form_id=(select id from private.vocabulary_diagnostic_forms where form_code='SYN-FORM-B')$$,'FORM_LOCKED');
+insert into private.vocabulary_diagnostic_form_items(form_id,position,item_id,item_version,option_order)
+ select id,1,'diag-synthetic-002',1,array['A','B','C','D'] from private.vocabulary_diagnostic_forms where form_code='SYN-FORM-C';
+select scenario.expect_error($$update private.vocabulary_diagnostic_form_items set form_id=(select id from private.vocabulary_diagnostic_forms where form_code='SYN-FORM-C'), position=9
+  where form_id=(select id from private.vocabulary_diagnostic_forms where form_code='SYN-FORM-B')$$,'FORM_LOCKED');
+select scenario.expect_error($$update private.vocabulary_diagnostic_form_items set form_id=(select id from private.vocabulary_diagnostic_forms where form_code='SYN-FORM-B'), position=9
+  where form_id=(select id from private.vocabulary_diagnostic_forms where form_code='SYN-FORM-C')$$,'FORM_LOCKED');
+update private.vocabulary_diagnostic_form_items set form_id=(select id from private.vocabulary_diagnostic_forms where form_code='SYN-FORM-D')
+  where form_id=(select id from private.vocabulary_diagnostic_forms where form_code='SYN-FORM-C');
+do $$ begin
+  if (select count(*) from private.vocabulary_diagnostic_form_items fi join private.vocabulary_diagnostic_forms f on f.id=fi.form_id where f.form_code='SYN-FORM-D')<>1
+     or (select count(*) from private.vocabulary_diagnostic_form_items fi join private.vocabulary_diagnostic_forms f on f.id=fi.form_id where f.form_code='SYN-FORM-B')<>1
+  then raise exception 'DRAFT-TO-DRAFT MOVE WRONG'; end if;
+end $$;
+
 -- Retirement: blocked while in a released form, idempotent, terminal, never deletes.
 select scenario.expect_error($$select public.vocabulary_diagnostic_bank_admin('00000000-0000-0000-0000-00000000000a','retire',
   '{"reason":"compromised by public exposure","items":[{"itemId":"diag-synthetic-001","version":2}]}')$$,'ITEM_IN_RELEASED_FORM');
@@ -114,6 +138,9 @@ select scenario.expect_error($$insert into private.vocabulary_diagnostic_form_it
 -- Retired text cannot be re-imported under a new ID.
 select scenario.expect_error($$select public.vocabulary_diagnostic_bank_admin('00000000-0000-0000-0000-00000000000a','import',
   jsonb_build_object('reason','reuse of retired text','items',jsonb_build_array(scenario.item('diag-synthetic-777','Synthetic placeholder stem number one?'))))$$,'CONTENT_REUSE_FORBIDDEN');
+update private.vocabulary_diagnostic_form_items set option_order=array['D','C','B','A'] where item_id='diag-synthetic-001' and item_version=1;
+select scenario.expect_error($$update private.vocabulary_diagnostic_form_items set form_id=(select id from private.vocabulary_diagnostic_forms where form_code='SYN-FORM-D'), position=5
+  where item_id='diag-synthetic-001' and item_version=1$$,'ITEM_RETIRED');
 select public.vocabulary_diagnostic_bank_admin('00000000-0000-0000-0000-00000000000a','retire-form','{"formCode":"SYN-FORM-A","reason":"retire compromised draft form"}');
 select scenario.expect_error($$update private.vocabulary_diagnostic_forms set status='draft' where form_code='SYN-FORM-A'$$,'FORM_RETIRED');
 select scenario.expect_error($$delete from private.vocabulary_diagnostic_forms where form_code='SYN-FORM-A'$$,'FORM_DELETE_FORBIDDEN');

@@ -45,6 +45,10 @@ test('promotion reuses the existing review chain and needs an independent publis
 
 test('forms: draft-only membership, release needs releasable items, retired forms terminal',()=>{
   assert.match(sql,/FORM_LOCKED/);
+  const guard=sql.slice(sql.indexOf('function private.vocabulary_diagnostic_form_item_guard'),sql.indexOf('drop trigger if exists vocab_diag_form_item_guard'));
+  assert.match(guard,/tg_op in \('UPDATE','DELETE'\)[\s\S]*where id=old\.form_id/,'source form checked on update/delete');
+  assert.match(guard,/if tg_op='DELETE' then return old; end if;[\s\S]*where id=new\.form_id/,'NEW only used after DELETE returns');
+  assert.doesNotMatch(guard,/coalesce\(new/);
   assert.match(sql,/FORM_ITEMS_NOT_RELEASABLE/);
   assert.match(sql,/FORM_RETIRED/);
   assert.match(body,/ITEM_IN_RELEASED_FORM/);
