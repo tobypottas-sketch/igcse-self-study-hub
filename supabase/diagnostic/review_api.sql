@@ -61,10 +61,10 @@ begin
          where r.item_id=t.item_id and r.item_version=t.version and r.stage='assessment' and r.decision='approve'),
        'cefrVerified',(select count(*)>0 from private.vocabulary_diagnostic_reviews r
          where r.item_id=t.item_id and r.item_version=t.version and r.stage='cefr' and r.decision='verify')
-       ) order by t.level_hypothesis,t.item_id), '[]'::jsonb)
+       ) order by t.level_hypothesis,t.item_id)
        from (select * from private.vocabulary_diagnostic_items i
          where v_level is null or i.level_hypothesis=v_level
-         order by i.level_hypothesis,i.item_id limit 10 offset v_page*10) t)
+         order by i.level_hypothesis,i.item_id limit 10 offset v_page*10) t),'[]'::jsonb)
    );
  elsif p_action in ('detail','decision') then
    v_id:=p_data->>'itemId';
