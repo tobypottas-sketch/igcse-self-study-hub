@@ -7,7 +7,7 @@ import { buildFollowUpPlan, teamsFollowUpMessage } from './follow-up-plan.js';
 import { generateVocabularyActivity, renderVocabularyActivityStudio } from './teacher-activity-studio.js';
 import { buildMeritStatus, SKILLS_PER_MERIT } from './merits.js';
 import { loadVocabularyTeacherData, loadVocabularyTeacherClassList, loadUnitReadinessContent } from './teacher-data.js?v=fast-start-v1';
-import { loadVocabularyStaffUsage, renderVocabularyStaffUsage } from './staff-usage.js?v=compact-v2';
+import { loadVocabularyStaffUsage, renderVocabularyStaffUsage, updateVocabularyUsageStudentRows } from './staff-usage.js?v=student-pages-v1';
 import { evaluateUnitReadiness } from './pathway-readiness.js';
 import { coverageFromReadiness } from './pathway-coverage.js';
 import { registerPathwayCoverage } from './pathway-coverage-store.js';
@@ -326,21 +326,7 @@ function showError(error) { renderVocabularyError(teacherState.root, error insta
 function filterStaffUsageStudents(event) {
   const input=event.target?.closest?.('[data-action="staff-usage-search"]');
   if(!input)return;
-  const query=String(input.value??'').trim().toLowerCase();
-  const rows=teacherState.root.querySelectorAll('[data-vocab-usage-student-row]');
-  let visible=0;
-  for(const row of rows) {
-    row.hidden=!String(row.dataset.name??'').includes(query);
-    if(!row.hidden)visible++;
-  }
-  // Searching must include students inside the normally collapsed inactive section.
-  const inactive=teacherState.root.querySelector('[data-usage-inactive]');
-  if(inactive) {
-    if(query) inactive.open=Array.from(inactive.querySelectorAll('[data-vocab-usage-student-row]')).some(row=>!row.hidden);
-    else inactive.open=false;
-  }
-  const counter=teacherState.root.querySelector('[data-usage-search-count]');
-  if(counter)counter.textContent=visible+' of '+rows.length+' students';
+  updateVocabularyUsageStudentRows(teacherState.root,{query:input.value});
 }
 
 function handleStaffUsageChange(event) {
@@ -369,6 +355,19 @@ function handleClick(event) {
     if(requested==='all'||teacherState.usageData?.classes.some(row=>row.id===requested)){
       teacherState.usageClassId=requested;teacherState.usageStudentId=null;showStaffUsage();
     }
+  }
+  else if (action === 'staff-usage-toggle-classes') {
+    const grid=teacherState.root.querySelector('[data-usage-class-grid]');
+    const expanded=target.getAttribute('aria-expanded')!=='true';
+    for(const card of grid?.querySelectorAll('[data-class-extra]')??[])card.hidden=!expanded;
+    target.setAttribute('aria-expanded',String(expanded));
+    target.innerHTML=(expanded?'Show fewer classes':'Show all '+target.dataset.total+' classes')+' <span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span>';
+  }
+  else if (action === 'staff-usage-view') {
+    updateVocabularyUsageStudentRows(teacherState.root,{view:target.dataset.value});
+  }
+  else if (action === 'staff-usage-more-students') {
+    updateVocabularyUsageStudentRows(teacherState.root,{more:true});
   }
   else if (action === 'staff-usage-student') {
     const requested=target.dataset.value;
