@@ -50,7 +50,7 @@ function detailView(){
  <label for="review-decision">Decision</label><select id="review-decision"><option value="approve">Approve this review stage</option><option value="flag">Flag problem</option><option value="reject">Reject item</option></select>
  <fieldset class="dr-human-checks"><legend>Required before approval</legend><label><input type="checkbox" data-quality-confirm="single-key"> Exactly one defensible answer</label><label><input type="checkbox" data-quality-confirm="distractors"> Three plausible distractors for this level</label><label><input type="checkbox" data-quality-confirm="no-clues"> No obvious wording, grammar or position clues</label><label><input type="checkbox" data-quality-confirm="level"> Appropriate vocabulary sense and proposed level</label></fieldset><label for="review-notes">Evidence / review notes</label><textarea id="review-notes" rows="5" maxlength="1500" placeholder="Explain any issue or record your supporting evidence. For CEFR verification, cite the specific permitted reference and sense."></textarea>
  <button type="button" class="dr-primary" data-action="save" ${state.busy?'disabled':''}>Save review decision</button><p role="status" data-review-status>${e(state.notice)}</p>
- <h3>Review history</h3><div class="dr-history">${reviews.length?reviews.map(r=>`<div><strong>${e(r.stage)} · ${e(r.decision)}</strong><small>${e(r.createdAt)}</small><p>${e(r.notes)}</p></div>`).join(''):'<p>No review decisions recorded yet.</p>'}</div>
+ <h3>Review history</h3><div class="dr-history">${reviews.length?reviews.map(r=>`<div><strong>${e(r.stage)} · ${e(r.decision)}</strong><small>${e(r.createdAt)}</small><p>${e(r.notes)}</p>${r.qualityConfirmations?'<small>Quality checklist attested and recorded</small>':''}</div>`).join(''):'<p>No review decisions recorded yet.</p>'}</div>
  </section></div>`);
 }
 
@@ -67,13 +67,14 @@ async function save(){
  const stage=root.querySelector('#review-stage')?.value;
  const decision=root.querySelector('#review-decision')?.value;
  const notes=root.querySelector('#review-notes')?.value?.trim()??'';
- if(decision==='approve' && root.querySelectorAll('[data-quality-confirm]:checked').length!==4){state.notice='Confirm all four quality checks before approving this stage.';status(state.notice);return;}
- if(decision==='approve' && state.details?.item && !auditDiagnosticItem(state.details.item).canApprove){state.notice='Blocking structural quality issue: flag this item for revision instead of approving.';status(state.notice);return;}
+ if(['approve','verify'].includes(decision) && root.querySelectorAll('[data-quality-confirm]:checked').length!==4){state.notice='Confirm all four quality checks before approving this stage.';status(state.notice);return;}
+ if(['approve','verify'].includes(decision) && state.details?.item && !auditDiagnosticItem(state.details.item).canApprove){state.notice='Blocking structural quality issue: flag this item for revision instead of approving.';status(state.notice);return;}
  if(notes.length<12||(stage==='cefr'&&decision==='verify'&&notes.length<30)){
    state.notice='Please provide a specific explanation or reference before saving.';status(state.notice);return;
  }
  state.busy=true;status('Saving review…');
- try{await invoke('decision',{itemId:state.selected.id,version:state.selected.version,stage,decision,notes});await detail(state.selected.id,state.selected.version);state.notice='Review recorded.';status(state.notice);}
+ const qualityConfirmations=['approve','verify'].includes(decision)?{singleKey:true,plausibleDistractors:true,noAnswerClues:true,appropriateLevel:true}:undefined;
+ try{await invoke('decision',{itemId:state.selected.id,version:state.selected.version,stage,decision,notes,...(qualityConfirmations?{qualityConfirmations}:{})});await detail(state.selected.id,state.selected.version);state.notice='Review recorded.';status(state.notice);}
  catch(err){state.notice=err.message;status(state.notice)}
  finally{state.busy=false}
 }
