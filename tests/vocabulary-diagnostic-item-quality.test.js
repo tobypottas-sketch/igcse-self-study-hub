@@ -5,7 +5,7 @@ import { validateDiagnosticItem, auditDiagnosticBank, LEVELS } from '../tools/di
 // This is a deliberately PUBLIC, synthetic test fixture — not a scored item bank.
 const draft = (changes={}) => ({
   itemId:'diag-example-001',version:1,formFamily:'fixture-example',
-  levelHypothesis:'B1',construct:'meaning_in_context',domain:'school',
+  levelHypothesis:'B1',levelReference:{framework:'CEFR',basis:'independent_educator',referenceNotes:'Synthetic level hypothesis for a test fixture, not validated.',status:'unverified',checkedBy:null,checkedAt:null},construct:'meaning_in_context',domain:'school',
   lemma:'revise',partOfSpeech:'verb',sense:'change or improve a piece of work',
   stem:'The teacher asked the class to revise their plans before Friday. What does revise mean in this sentence?',
   options:[
@@ -21,6 +21,7 @@ const draft = (changes={}) => ({
   ...changes
 });
 const reviewed = changes => draft({
+  levelReference:{framework:'CEFR',basis:'independent_educator',referenceNotes:'Synthetic verified fixture for structural tests only.',status:'verified',checkedBy:'reviewer-level',checkedAt:'2026-11-01T09:00:00Z'},
   review:{status:'pilot',authorId:'a',languageReviewerId:'b',assessmentReviewerId:'c',
     languageReviewedAt:'2026-11-01T10:00:00Z',assessmentReviewedAt:'2026-11-02T10:00:00Z'},
   ...changes
@@ -89,4 +90,16 @@ test('bank flags variants sharing the same target content family',()=>{
 test('invalid construct, missing sense and absent item ID block authoring',()=>{
   const c=codes(validateDiagnosticItem(draft({itemId:'x',construct:'spelling',sense:''})));
   assert.ok(c.includes('ITEM_ID'));assert.ok(c.includes('CONSTRUCT'));assert.ok(c.includes('SENSE'));
+});
+
+test('pilot cannot use an unverified CEFR level hypothesis',()=>{
+  const item=reviewed();
+  item.levelReference.status='unverified';
+  assert.ok(codes(validateDiagnosticItem(item,{forPilot:true})).includes('LEVEL_UNVERIFIED'));
+});
+test('a verified level requires a source note, reviewer and timestamp',()=>{
+  const item=reviewed();item.levelReference.referenceNotes='too short';item.levelReference.checkedBy=null;
+  const result=validateDiagnosticItem(item,{forPilot:true});
+  assert.ok(codes(result).includes('LEVEL_REFERENCE'));
+  assert.ok(codes(result).includes('LEVEL_REVIEW_EVIDENCE'));
 });
