@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 const source=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const assembly=source('supabase/diagnostic/assemble_draft_forms.sql');
 const readiness=source('supabase/diagnostic/form_readiness_api.sql');
+const randomised=source('supabase/diagnostic/randomise_draft_form_options.sql');
 const edge=source('supabase/functions/vocabulary-diagnostic/index.ts');
 const ui=source('src/vocabulary/diagnostic-review.js');
 
@@ -43,4 +44,13 @@ test('review interface reports progress without copying keyed items into form ca
  assert.match(ui,/languageApproved/);
  assert.match(ui,/cefrVerified/);
  assert.match(ui,/cannot yet be treated as equivalent/);
+});
+
+test('answer positions are privately randomised to exactly ten per slot',()=>{
+ assert.match(randomised,/order by gen_random_uuid\(\)/);
+ assert.match(randomised,/\(\(shuffled_rank-1\)%4\)\+1/);
+ assert.match(randomised,/counts\.n<>10/);
+ assert.match(randomised,/FORM_ALREADY_ASSIGNED/);
+ assert.match(randomised,/status='draft'/);
+ assert.doesNotMatch(randomised,/values\s*\(.*correct_option_id\s*=/);
 });
