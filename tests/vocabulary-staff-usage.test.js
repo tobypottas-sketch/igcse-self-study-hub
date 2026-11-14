@@ -173,7 +173,7 @@ test('polished insight copy preserves scope, meaning and date window',()=>{
  assert.match(root.innerHTML,/Current status/);
  assert.match(root.innerHTML,/all recorded activity|selected reporting period/i);
  assert.match(root.innerHTML,/grouped into seven periods/);
- assert.match(root.innerHTML,/Peak period/);
+ assert.match(root.innerHTML,/Peak ·/);
  assert.match(root.innerHTML,/About these figures/);
  assert.match(root.innerHTML,/data-action="staff-usage-days"/);
  assert.match(root.innerHTML,/data-action="staff-usage-select-class"/);
