@@ -41,7 +41,7 @@ test('authenticated Edge layer validates JWT and never uses client-supplied acto
   assert.match(edge,/p_actor:identity\.user\.id/);
   assert.match(edge,/SUPABASE_SERVICE_ROLE_KEY/);
   assert.match(edge,/MAX_BODY_BYTES=4000/);
-  assert.match(edge,/verify_jwt/i); // Documentation comment: deployed flag must be true.
+  assert.match(edge,/JWT verification enabled/i); // Deployment setting is independently verified.
   assert.doesNotMatch(edge,/p_actor:request\./);
 });
 test('pilot starts only from staff assignments, with pause/resume',()=>{
