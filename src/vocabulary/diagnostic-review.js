@@ -2,7 +2,7 @@ import { getSupabaseClient } from '../supabase.js';
 import { escapeHtml } from '../views/html.js';
 
 const root=document.getElementById('diagnosticReview');
-const state={client:null,level:'all',page:0,total:0,items:[],selected:null,details:null,busy:false,notice:''};
+const state={client:null,level:'all',page:0,total:0,items:[],forms:null,formsError:'',selected:null,details:null,busy:false,notice:''};
 const e=value=>escapeHtml(String(value??''));
 const human=s=>({draft:'Draft',language_reviewed:'Language reviewed',assessment_reviewed:'Assessment reviewed',pilot:'Pilot',approved:'Approved',retired:'Retired'})[s]||s;
 
@@ -25,10 +25,29 @@ function frame(body){
 }
 function status(message){const node=root.querySelector('[data-review-status]');if(node)node.textContent=message;}
 
+function formReadinessView(){
+ if(state.formsError)return '<section class="dr-panel dr-form-overview"><h2>Draft assessment forms</h2><p>Form review status is temporarily unavailable. The question list is still accessible.</p></section>';
+ if(!state.forms?.length)return '<section class="dr-panel dr-form-overview"><h2>Draft assessment forms</h2><p>No draft assessment forms have been prepared.</p></section>';
+ const cards=state.forms.map(f=>{
+  const total=Number(f.total)||0;
+  const draft=String(f.status)==='draft';
+  const bands=Object.entries(f.bands||{}).sort(([a],[b])=>a.localeCompare(b)).map(([level,n])=>e(level)+': '+e(n)).join(' · ');
+  return '<article class="dr-form-card"><div class="dr-form-heading"><strong>'+e(f.formCode)+'</strong><span>'+e(draft?'Draft — not released':f.status)+'</span></div>'+
+    '<p>'+e(total)+' questions · '+bands+'</p>'+
+    '<div class="dr-form-checks"><span>Language <strong>'+e(f.languageApproved)+'/'+e(total)+'</strong></span>'+
+    '<span>Assessment <strong>'+e(f.assessmentApproved)+'/'+e(total)+'</strong></span>'+
+    '<span>CEFR reference <strong>'+e(f.cefrVerified)+'/'+e(total)+'</strong></span>'+
+    '<span>Flagged <strong>'+e(f.flagged)+'</strong></span></div></article>';
+ }).join('');
+ return '<section class="dr-panel dr-form-overview"><div class="dr-form-intro"><div><h2>Draft assessment forms</h2><p>Two alternate question sets. All review counts refer to staff-recorded decisions—not calibrated difficulty.</p></div></div>'+
+   '<div class="dr-form-grid">'+cards+'</div><p class="dr-muted">Neither form can be assigned to students. The forms have no linking items and cannot yet be treated as equivalent.</p></section>';
+}
+
 function listView(){
  const start=state.page*10;
  const items=state.items.map(item=>`<button type="button" class="dr-item" data-action="open" data-id="${e(item.id)}" data-version="${e(item.version)}"><span><strong>${e(item.lemma)}</strong> <span class="dr-level">${e(item.level)}</span><small>${e(item.construct?.replaceAll('_',' '))}</small></span><span class="dr-item-meta">${item.flags?'<b>Flagged · '+e(item.flags)+'</b>':e(human(item.status))}<small>Language ${item.languageApproved?'✓':'—'} · Assessment ${item.assessmentApproved?'✓':'—'} · CEFR ${item.cefrVerified?'✓':'—'}</small></span><span aria-hidden="true">›</span></button>`).join('');
  frame(`<section class="dr-hero"><p class="dr-kicker">ASSESSMENT QUALITY</p><h1>Diagnostic question review</h1><p>Review original questions before they can be used in a student pilot. CEFR levels are provisional until independently verified.</p></section>
+ ${formReadinessView()}
  <section class="dr-panel"><div class="dr-toolbar"><label for="review-level">Level <select id="review-level" data-action="level"><option value="all">All levels</option>${['A1','A2','B1','B2','C1'].map(x=>`<option value="${x}" ${x===state.level?'selected':''}>${x}</option>`).join('')}</select></label><span>${e(state.total)} draft-bank items</span></div>
  <div class="dr-list">${items||'<p>No questions found.</p>'}</div>
  <footer class="dr-footer"><span>Showing ${state.total?start+1:0}–${Math.min(start+state.items.length,state.total)} of ${state.total}</span><div><button type="button" data-action="previous" ${state.page===0?'disabled':''}>Previous</button><button type="button" data-action="next" ${(state.page+1)*10>=state.total?'disabled':''}>Next 10</button></div></footer></section>
@@ -52,8 +71,14 @@ function detailView(){
 }
 
 async function load(){
- state.notice='';const data=await invoke('list',{page:state.page,...(state.level==='all'?{}:{level:state.level})});
- state.items=data.items||[];state.total=data.total||0;state.selected=null;state.details=null;listView();
+ state.notice='';
+ const data=await invoke('list',{page:state.page,...(state.level==='all'?{}:{level:state.level})});
+ state.items=data.items||[];state.total=data.total||0;
+ if(state.forms===null){
+   try{const readiness=await invoke('forms',{});state.forms=readiness.forms||[];state.formsError='';}
+   catch{state.forms=[];state.formsError='Unable to fetch form summary.';}
+ }
+ state.selected=null;state.details=null;listView();
 }
 async function detail(id,version){
  state.notice='';state.details=await invoke('detail',{itemId:id,version});
@@ -68,7 +93,7 @@ async function save(){
    state.notice='Please provide a specific explanation or reference before saving.';status(state.notice);return;
  }
  state.busy=true;status('Saving review…');
- try{await invoke('decision',{itemId:state.selected.id,version:state.selected.version,stage,decision,notes});await detail(state.selected.id,state.selected.version);state.notice='Review recorded.';status(state.notice);}
+ try{await invoke('decision',{itemId:state.selected.id,version:state.selected.version,stage,decision,notes});state.forms=null;await detail(state.selected.id,state.selected.version);state.notice='Review recorded.';status(state.notice);}
  catch(err){state.notice=err.message;status(state.notice)}
  finally{state.busy=false}
 }
