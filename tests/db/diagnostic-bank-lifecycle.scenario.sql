@@ -3,11 +3,16 @@
 -- All item text below is synthetic placeholder text, not diagnostic content.
 create schema scenario;
 create function scenario.expect_error(p_sql text, p_code text) returns void language plpgsql as $$
+declare v_succeeded boolean:=false;
 begin
-  execute p_sql;
-  raise exception 'EXPECTED % BUT STATEMENT SUCCEEDED: %', p_code, p_sql;
-exception when others then
-  if sqlerrm not like '%'||p_code||'%' then raise exception 'EXPECTED % GOT %', p_code, sqlerrm; end if;
+  begin
+    execute p_sql;
+    v_succeeded:=true;
+  exception when others then
+    if sqlerrm not like '%'||p_code||'%' then raise exception 'EXPECTED % GOT %', p_code, sqlerrm; end if;
+  end;
+  -- Raised outside the inner block so the handler above cannot swallow it.
+  if v_succeeded then raise exception 'EXPECTED % BUT STATEMENT SUCCEEDED: %', p_code, p_sql; end if;
 end $$;
 create function scenario.item(p_id text, p_stem text) returns jsonb language sql as $$
   select jsonb_build_object('itemId',p_id,'levelHypothesis','B1','formFamily','synthetic-family',
