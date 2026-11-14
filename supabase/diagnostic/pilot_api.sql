@@ -190,6 +190,20 @@ begin
     if v_next is null then raise exception 'FORM_INVALID'; end if;
     return jsonb_build_object('state','in_progress','question',v_next);
 
+  elsif p_action='pause' then
+    if v_role<>'student' then raise exception 'ACCESS_DENIED'; end if;
+    v_session_id:=nullif(p_data->>'sessionId','')::uuid;
+    select * into v_session from private.vocabulary_diagnostic_sessions
+      where id=v_session_id and student_id=p_actor for update;
+    if not found then raise exception 'SESSION_UNAVAILABLE'; end if;
+    if v_session.state='interrupted' then
+      return jsonb_build_object('state','interrupted','sessionId',v_session.id);
+    end if;
+    if v_session.state<>'in_progress' then raise exception 'SESSION_CLOSED'; end if;
+    update private.vocabulary_diagnostic_sessions set state='interrupted'
+      where id=v_session.id;
+    return jsonb_build_object('state','interrupted','sessionId',v_session.id);
+
   elsif p_action='respond' then
     if v_role<>'student' then raise exception 'ACCESS_DENIED'; end if;
     v_session_id:=nullif(p_data->>'sessionId','')::uuid;
