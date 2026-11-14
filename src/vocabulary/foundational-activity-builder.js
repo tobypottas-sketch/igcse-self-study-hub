@@ -179,7 +179,18 @@ export function definitionWordDistractors(args, count = 3) {
   const supplement=array(SUPPLEMENTAL_MEANING_RECOGNISE_WORDS[target.toLocaleLowerCase('en')]).filter(valid);
   const choices=uniqueText([...curated,...samePos,...authoredLabels,...supplement]).filter(valid);
   if(choices.length<count)throw new Error('Definition → Word needs three comparable vocabulary-word alternatives.');
-  return {options:choices.slice(0,count),source:choices.slice(0,count).every(value=>curated.includes(value))
+  const selected=choices.slice(0,count);
+  // Do not leave a participle or -ing adjective as the only matching form.
+  // Example: processed vs fresh/raw/natural is an answer-shape giveaway;
+  // saturated (another unit adjective) is a better contrasting option.
+  const formEnding=/(ed|ing)$/i.exec(target)?.[1]?.toLowerCase();
+  if(formEnding && selected.every(value=>!value.toLowerCase().endsWith(formEnding))){
+    const sameForm=stableShuffle(samePosCandidates(args).map(row=>text(row.term)).filter(value=>
+      valid(value)&&value.toLowerCase().endsWith(formEnding)),`${args.seed}:definition-word-form`);
+    const replacement=sameForm.find(value=>!selected.some(chosen=>chosen.toLowerCase()===value.toLowerCase()));
+    if(replacement)selected[count-1]=replacement;
+  }
+  return {options:selected,source:selected.every(value=>curated.includes(value))
     ? DISTRACTOR_SOURCE.GENERATED_SEMANTIC:DISTRACTOR_SOURCE.GENERATED_SAFE};
 }
 
