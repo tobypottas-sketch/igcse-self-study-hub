@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.invalid/igcse-vocabulary-diagnostic/item-authoring.schema.json",
+  "$id": "urn:igcse-self-study-hub:diagnostic:item-authoring:v1",
   "title": "Diagnostic vocabulary item — private authoring export v0.1",
   "description": "Developer-side validation shape only. Never publish real keyed item records to GitHub Pages.",
   "type": "object",
@@ -10,6 +10,7 @@
     "version",
     "formFamily",
     "levelHypothesis",
+    "levelReference",
     "construct",
     "domain",
     "lemma",
@@ -43,6 +44,55 @@
         "B2",
         "C1"
       ]
+    },
+    "levelReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "framework",
+        "basis",
+        "referenceNotes",
+        "status",
+        "checkedBy",
+        "checkedAt"
+      ],
+      "properties": {
+        "framework": {
+          "const": "CEFR"
+        },
+        "basis": {
+          "enum": [
+            "EVP_sense",
+            "Oxford_3000_5000",
+            "independent_educator",
+            "other_permitted"
+          ]
+        },
+        "referenceNotes": {
+          "type": "string",
+          "minLength": 15,
+          "maxLength": 500
+        },
+        "status": {
+          "enum": [
+            "unverified",
+            "verified"
+          ]
+        },
+        "checkedBy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "checkedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
     },
     "construct": {
       "enum": [
