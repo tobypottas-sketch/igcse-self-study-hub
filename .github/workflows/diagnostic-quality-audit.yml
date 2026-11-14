@@ -4,6 +4,9 @@ on:
     paths:
       - 'src/vocabulary/diagnostic-quality-audit.js'
       - 'src/vocabulary/diagnostic-review.js'
+      - 'vocabulary-diagnostic-review.css'
+      - 'vocabulary-diagnostic-review.html'
+      - 'tests/vocabulary-diagnostic-quality-dashboard.test.js'
       - 'tests/vocabulary-diagnostic-quality-audit.test.js'
       - 'supabase/diagnostic/review_api.sql'
       - 'supabase/functions/vocabulary-diagnostic/index.ts'
@@ -20,4 +23,4 @@ jobs:
         with:
           node-version: '22'
       - name: Run focused audit tests
-        run: node --test tests/vocabulary-diagnostic-quality-audit.test.js
+        run: node --test tests/vocabulary-diagnostic-quality-audit.test.js tests/vocabulary-diagnostic-quality-dashboard.test.js
