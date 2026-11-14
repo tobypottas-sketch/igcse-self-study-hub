@@ -25,6 +25,16 @@ Official Supabase documentation (current as of this blueprint):
 - Support cancellation, interruption and abandoned sessions. Completed sessions/results are immutable; a teacher-approved retake creates a new session with an audit link, not overwrite.
 - Safeguard young users: minimise personal data, avoid public rankings and do not expose diagnostic item records in staff exports.
 
+## Explicit private-schema access decision (must be resolved before deployment)
+
+Supabase's Data API exposes **configured schemas**, not every Postgres schema. Placing keyed items in `private` does not automatically make them queryable through `ctx.supabaseAdmin.schema('private')`; a schema that is not exposed to PostgREST will not magically become available because a service key is used. We must choose and test one of these narrow server-only database access approaches:
+
+1. **Preferred to evaluate:** a trusted, connection-pooled server-side Postgres connection with least-privilege credentials from Edge Functions, using secrets stored server-side, not a browser environment variable. Confirm Supabase Edge runtime/connection limits, token/SSL and pooling guidance before implementation.
+2. **Alternative requiring a security review:** restricted server-only RPC with explicit revocation of `EXECUTE` from `PUBLIC`, `anon` and `authenticated`. Do not create an exposed public `SECURITY DEFINER` function as a shortcut; verify ownership, fixed `search_path`, grants, user validation and all callable paths.
+3. **Do not broadly expose the existing `private` schema** to the Data API merely to retrieve keyed diagnostic questions: it contains other private application objects. Any schema exposure change requires a complete privilege audit.
+
+Whichever access method is chosen, the authenticated user identity must first be verified, and privileged SQL must be restricted to the exact authorised session. **Current PR does not choose, implement or deploy any of these database connections.**
+
 ## Server-owned API (proposed contract)
 
 All requests require a valid student JWT, except authorised staff assignment/review actions. Recommended: a Supabase Edge Function using **authenticated user context** (see current Supabase `withSupabase({ auth:'user' })` guidance). Never rely on a browser-supplied user ID; authorise every call by the validated identity. A privileged client is allowed *inside* the trusted function only after an explicit ownership/assignment check.
