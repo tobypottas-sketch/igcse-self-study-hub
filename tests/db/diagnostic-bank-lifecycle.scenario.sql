@@ -55,6 +55,34 @@ do $$ declare r jsonb; begin
   if r->'imported'->0->>'version'<>'2' then raise exception 'EXPECTED VERSION 2 %',r; end if;
 end $$;
 
+-- Authoring-schema exports import: per-option rationales and top-level metadata land in `authoring`,
+-- stored options stay id/text only, unknown option keys are rejected.
+select public.vocabulary_diagnostic_bank_admin('00000000-0000-0000-0000-00000000000a','import',
+  jsonb_build_object('reason','authoring export shape','items',jsonb_build_array(
+    scenario.item('diag-synthetic-003','Synthetic placeholder stem three?')||jsonb_build_object(
+      'construct','meaning_in_context','domain','school','partOfSpeech','verb',
+      'levelReference',jsonb_build_object('framework','CEFR','status','unverified'),
+      'source',jsonb_build_object('author','synthetic'),
+      'options',jsonb_build_array(
+        jsonb_build_object('id','A','text','alpha','rationale','synthetic rationale a'),
+        jsonb_build_object('id','B','text','beta','rationale','synthetic rationale b'),
+        jsonb_build_object('id','C','text','gamma','rationale','synthetic rationale c'),
+        jsonb_build_object('id','D','text','delta','rationale','synthetic rationale d'))))));
+do $$ declare i private.vocabulary_diagnostic_items%rowtype; d jsonb; begin
+  select * into i from private.vocabulary_diagnostic_items where item_id='diag-synthetic-003';
+  if exists(select 1 from jsonb_array_elements(i.options) o where (select array_agg(k order by k) from jsonb_object_keys(o) k)<>array['id','text'])
+    then raise exception 'OPTIONS NOT NORMALISED %',i.options; end if;
+  if i.authoring->>'construct'<>'meaning_in_context' or i.authoring->'levelReference'->>'framework'<>'CEFR'
+     or i.authoring->'optionRationales'->>'C'<>'synthetic rationale c' or i.authoring->>'partOfSpeech'<>'verb'
+    then raise exception 'AUTHORING NOT KEPT %',i.authoring; end if;
+  d:=public.vocabulary_diagnostic_review_api('00000000-0000-0000-0000-00000000000c','detail','{"itemId":"diag-synthetic-003","version":1}');
+  if d->'item'->>'construct'<>'meaning_in_context' or d->'item'->'levelReference' is null or d->'item'->>'partOfSpeech'<>'verb'
+    then raise exception 'REVIEW DETAIL MISSING METADATA %',d; end if;
+end $$;
+select scenario.expect_error($$select public.vocabulary_diagnostic_bank_admin('00000000-0000-0000-0000-00000000000a','import',
+  jsonb_build_object('reason','unknown option key should fail','items',jsonb_build_array(scenario.item('diag-synthetic-004','Synthetic placeholder stem four?')||
+  '{"options":[{"id":"A","text":"a","extra":"x"},{"id":"B","text":"b"},{"id":"C","text":"c"},{"id":"D","text":"d"}]}')))$$,'INVALID_ITEM');
+
 -- Immutability and deletion.
 select scenario.expect_error($$update private.vocabulary_diagnostic_items set correct_option_id='A' where item_id='diag-synthetic-001' and version=1$$,'ITEM_CONTENT_IMMUTABLE');
 select scenario.expect_error($$update private.vocabulary_diagnostic_items set stem='changed text here' where item_id='diag-synthetic-001' and version=1$$,'ITEM_CONTENT_IMMUTABLE');
