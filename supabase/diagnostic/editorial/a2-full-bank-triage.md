@@ -33,7 +33,7 @@
 
 ## High-priority revision directions
 
-_The keyed rewrite proposals that were here have been removed from the public repository (they were exposed through GitHub Pages and remain in public Git history, so they are retired). Replacement items are authored and reviewed only in the private bank — see `docs/vocabulary-diagnostic-secure-bank-boundary.md`._
+_The keyed rewrite proposals that were here have been removed from the public repository. They remain in public Git history, so these proposed texts must not be used in secure operational forms as written. The underlying items are preserved in Supabase and assessed individually for exposure and quality; see §6 of `docs/vocabulary-diagnostic-secure-bank-boundary.md`._
 
 ## Cross-level concerns
 
