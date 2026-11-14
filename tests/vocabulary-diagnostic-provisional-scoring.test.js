@@ -37,3 +37,28 @@ test('score and recommendations only appear through server-side path',()=>{
  assert.match(student,/esc\(result\.practice\.advice\)/);
  assert.doesNotMatch(student,/import .*provisional-scoring/);
 });
+
+
+test('a weak A1 foundation is cautioned even when higher band answers happen to be right',()=>{
+ const r=scoreProvisionalDiagnostic(bands([3,8,8,8,8]),40);
+ assert.equal(r.provisionalLevel,'A1');
+ assert.match(r.caution,/extra care/i);
+ const unexpected=bands([6,6,6,6,6]);unexpected.X={administered:1,correct:1,unknown:0};
+ assert.equal(scoreProvisionalDiagnostic(unexpected,40),null);
+});
+test('repeatable synthetic guessing does not routinely create high-level placements',()=>{
+ // This is a software sanity test, NOT empirical CEFR calibration.
+ let seed=24681357;
+ const random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
+ let b1OrHigher=0;
+ for(let trial=0;trial<12000;trial++){
+   const scores=VOCABULARY_BANDS.map(()=>{
+     let right=0;
+     for(let question=0;question<8;question++)if(random()<0.25)right++;
+     return right;
+   });
+   const result=scoreProvisionalDiagnostic(bands(scores),40);
+   if(['B1','B2','C1'].includes(result.provisionalLevel))b1OrHigher++;
+ }
+ assert.ok(b1OrHigher<25,'uniform guessing should almost never imply strong placement');
+});
