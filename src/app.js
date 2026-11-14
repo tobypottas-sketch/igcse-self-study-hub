@@ -7,6 +7,7 @@ import { createStudentAccount, createTeacherAccount, resetAccountPassword, setAc
 import { createClass, renameClass, assignTeacherToClass, unassignTeacherFromClass, transferStudent, retireClass } from './admin/classes.js';
 import { loadAdminData } from './admin/data.js';
 import { loadTeacherActivityData, markMeritAwarded } from './admin/activity-data.js';
+import { applyActivityListFilters, newActivityListState } from './admin/activity-list-ui.js?v=focused-v1';
 import { parseStudentCsv, validateStudentImport, bulkProvisionStudents } from './admin/import.js';
 import { renderLogin } from './views/login.js';
 import { renderChangePassword } from './views/change-password.js';
@@ -50,6 +51,17 @@ export async function bootApp(clientOverride = null) {
   let adminLoadPromise = null;
   let activityLoadPromise = null;
   let adminRefreshGeneration = 0;
+  let activityListState = newActivityListState();
+  const restoreActivityList = () => {
+    const filters=root.querySelectorAll?.('[data-activity-filter]')??[];
+    for(const control of filters){
+      const type=control.dataset.activityFilter;
+      if(type==='search')control.value=activityListState.search;
+      if(type==='class')control.value=activityListState.classId;
+      if(type==='state')control.value=activityListState.state;
+    }
+    applyActivityListFilters(root,activityListState);
+  };
 
   const preloadAdminData = (force = false) => {
     if (force) adminLoadPromise = null;
@@ -140,9 +152,11 @@ export async function bootApp(clientOverride = null) {
       if (cachedHomeState) cachedHomeState = { ...cachedHomeState, activityDashboard };
       currentState = { ...currentState, ...extras, view:'admin', section:'activity', activityDashboard };
       renderAdmin(root, currentState);
+      restoreActivityList();
     } catch (error) {
       currentState = { ...currentState, ...extras, view:'admin', section:'activity', activityDashboard:currentState.activityDashboard ?? { students:[], pendingMerits:0, needsAttention:0 }, notice:error instanceof Error ? error.message : 'Unable to load student activity.' };
       renderAdmin(root, currentState);
+      restoreActivityList();
     }
   };
 
@@ -255,7 +269,7 @@ export async function bootApp(clientOverride = null) {
     else if (action === 'cancel-change-password') {
       if (['teacher','admin'].includes(currentState.profile?.role) && !currentState.profile.must_change_password) await renderCurrentState();
     }
-    else if (action === 'activity') await renderActivitySection({ selectedStudentId:null, notice:'' });
+    else if (action === 'activity') { activityListState=newActivityListState(); await renderActivitySection({ selectedStudentId:null, notice:'' }); }
     else if (action === 'admin') await renderAdminSection('accounts', { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     else if (action === 'admin-back') {
       if (cachedHomeState) {
@@ -265,7 +279,7 @@ export async function bootApp(clientOverride = null) {
     }
     else if (action?.startsWith?.('admin-section-')) {
       const section = action.slice('admin-section-'.length);
-      if (section === 'activity') await renderActivitySection({ selectedStudentId:null, notice:'' });
+      if (section === 'activity') { activityListState=newActivityListState(); await renderActivitySection({ selectedStudentId:null, notice:'' }); }
       else if (['accounts','classes','import'].includes(section)) await renderAdminSection(section, { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     } else if (action === 'activity-student') {
       const studentId = target?.dataset?.studentId;
@@ -275,6 +289,10 @@ export async function bootApp(clientOverride = null) {
     } else if (action === 'activity-back') {
       currentState = { ...currentState, selectedStudentId:null, notice:'' };
       renderAdmin(root,currentState);
+      restoreActivityList();
+    } else if (action === 'activity-show-more') {
+      activityListState.limit+=10;
+      applyActivityListFilters(root,activityListState);
     } else if (action === 'activity-award-merit') {
       const studentId = target?.dataset?.studentId;
       const meritNumber = Number(target?.dataset?.meritNumber);
@@ -466,19 +484,21 @@ export async function bootApp(clientOverride = null) {
     if (empty) empty.hidden = !filtered || anyStudentVisible;
   };
 
-  const applyActivityFilters = () => {
-    const search = String(root.querySelector?.('[data-activity-filter="search"]')?.value ?? '').trim().toLowerCase();
-    const classId = root.querySelector?.('[data-activity-filter="class"]')?.value ?? 'all';
-    const state = root.querySelector?.('[data-activity-filter="state"]')?.value ?? 'all';
-    for (const row of root.querySelectorAll?.('[data-activity-row]') ?? []) {
-      const text = String(row.textContent ?? '').toLowerCase();
-      const classOk = classId === 'all' || row.dataset.classId === classId;
-      const stateOk = state === 'all' || (state === 'attention' && row.dataset.needsAttention === 'true') || (state === 'merits' && row.dataset.newMerits === 'true');
-      row.hidden = !(classOk && stateOk && (!search || text.includes(search)));
+  const applyActivityFilters = (target) => {
+    const type=target?.dataset?.activityFilter;
+    if(!type)return;
+    if(type==='search'){
+      activityListState.search=String(target.value??'');
+      if(activityListState.search.trim()){
+        activityListState.state='all';
+        const select=root.querySelector('[data-activity-filter="state"]');
+        if(select)select.value='all';
+      }
     }
-    // Presentation only: the Class column is shown only while the visible rows span more than one class.
-    const table = root.querySelector?.('.activity-table');
-    if (table) table.dataset.singleClass = new Set([...table.querySelectorAll('[data-activity-row]')].filter(row => !row.hidden).map(row => row.dataset.classId)).size <= 1 ? 'true' : 'false';
+    if(type==='class')activityListState.classId=target.value;
+    if(type==='state')activityListState.state=target.value;
+    activityListState.limit=10;
+    applyActivityListFilters(root,activityListState);
   };
 
   // User-selected disclosure: keep one class open at a time.
@@ -498,11 +518,11 @@ export async function bootApp(clientOverride = null) {
 
   root.addEventListener('input', event => {
     if (event.target?.dataset?.adminFilter) applyAccountFilters();
-    if (event.target?.dataset?.activityFilter) applyActivityFilters();
+    if (event.target?.dataset?.activityFilter) applyActivityFilters(event.target);
   });
   root.addEventListener('change', event => {
     if (event.target?.dataset?.adminFilter) applyAccountFilters();
-    if (event.target?.dataset?.activityFilter) applyActivityFilters();
+    if (event.target?.dataset?.activityFilter) applyActivityFilters(event.target);
   });
 
   await renderCurrentState();
