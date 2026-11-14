@@ -107,7 +107,8 @@ Deno.serve(async (req:Request)=>{
         'BASELINE_COMPLETE','STUDENT_UNAVAILABLE','UNKNOWN_ACTION',
         'EMPTY_FORM','FORM_INVALID','INVALID_KIND','REVIEW_ACCESS_DENIED',
         'ITEM_UNAVAILABLE','ITEM_LOCKED','INVALID_REVIEW','REVISION_REQUIRED',
-        'INDEPENDENT_LANGUAGE_REVIEW_REQUIRED','CEFR_EVIDENCE_REQUIRED','UNKNOWN_REVIEW_ACTION'];
+        'INDEPENDENT_LANGUAGE_REVIEW_REQUIRED','CEFR_EVIDENCE_REQUIRED',
+        'REVIEW_SEQUENCE_REQUIRED','UNKNOWN_REVIEW_ACTION'];
       const code=known.find(x=>error.message?.includes(x));
       if(code)return reply({error:code},['ACCESS_DENIED','SESSION_UNAVAILABLE','REVIEW_ACCESS_DENIED'].includes(code)?403:409);
       // Do not print question bank, SQL query strings, UUIDs or submitted payloads.
