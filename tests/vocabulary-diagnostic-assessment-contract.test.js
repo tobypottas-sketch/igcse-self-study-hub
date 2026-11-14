@@ -93,3 +93,15 @@ test('calendar intervals and timestamps are bounded',()=>{
   assert.throws(()=>nextDiagnosticDueAt('bad date'),/timestamp/);
   assert.throws(()=>nextDiagnosticDueAt('2026-01-01T00:00:00Z',3),/between 28 and 365/);
 });
+
+test('a duplicate authenticated retry may arrive after completion but is never rescored',()=>{
+  const request={sessionId:'s-1',questionId:privateItem.itemId,questionVersion:2,position:3,requestId:'original',answerId:'A'};
+  const session={id:'s-1',state:'completed',nextPosition:4};
+  assert.deepEqual(validateDiagnosticResponse(request,{session,question:privateItem,submittedRequestIds:['original']}),
+    {status:'duplicate_request',scoreNow:false});
+  assert.throws(()=>validateDiagnosticResponse({...request,requestId:'new'}, {session,question:privateItem}),/not in progress/);
+});
+test('pilot cannot count an unknown response as correct or accept fabricated bands',()=>{
+  assert.throws(()=>summarisePilotDiagnostic({sessionId:'s',adjudicatedResponses:[{levelHypothesis:'B2',answerId:'unknown',correct:true}]}),/independently adjudicated/);
+  assert.throws(()=>summarisePilotDiagnostic({sessionId:'s',adjudicatedResponses:[{levelHypothesis:'C3',answerId:'A',correct:true}]}),/independently adjudicated/);
+});
