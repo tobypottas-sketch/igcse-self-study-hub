@@ -33,6 +33,12 @@ export function assessQuestionQuality(q) {
   if (key.length !== 1) violations.push('NOT_EXACTLY_ONE_ANSWER');
   if (correct != null) {
     const counts = options.map(wc);
+    // Meaning Recognise asks for a WORD; definitions or full explanations in
+    // its answer list reveal the only lexical option without testing meaning.
+    if(q.type==='definition_to_word' && (
+      counts.some(count=>count!==wc(correct)) ||
+      options.some(option=>/[.!?]$/.test(String(option).trim()))
+    )) violations.push('NON_LEXICAL_DISTRACTOR');
     if (MATCH_TYPES.has(q.type)) {
       if (Math.max(...counts) > MATCH_RATIO * Math.min(...counts) + MATCH_SLACK_WORDS) violations.push('MATCH_WORD_RATIO');
     } else {
