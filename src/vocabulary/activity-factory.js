@@ -1,5 +1,5 @@
 import { buildActivity as buildLegacyActivity } from './activity-builder.js';
-import { buildFoundationalActivity, FOUNDATIONAL_ACTIVITY_TYPES } from './foundational-activity-builder.js';
+import { buildFoundationalActivity, FOUNDATIONAL_ACTIVITY_TYPES } from './foundational-activity-builder.js?v=meaning-recognise-v1';
 import { buildPathwayActivity, buildPrecisionApply, PATHWAY_ACTIVITY_TYPES } from './pathway-activity-builder.js';
 import { buildSpellingChoiceActivity } from './spelling-choice-builder.js';
 import { buildSpellInContextActivity } from './spelling-context-builder.js';
