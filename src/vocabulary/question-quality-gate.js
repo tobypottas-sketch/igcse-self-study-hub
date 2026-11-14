@@ -20,7 +20,16 @@ export function optionSetOf(q) {
   return null;
 }
 
-const formClass = w => (/ing$/.test(w) ? 'ing' : /ed$/.test(w) ? 'ed' : /[^s]s$/.test(w) ? 's' : 'base');
+// Only true inflectional endings count as form signals. "focus" is not
+// plural merely because it ends in -us, while "criteria" is a plural noun.
+const IRREGULAR_PLURALS = new Set(['criteria','phenomena','children','people','men','women','teeth','feet','mice','geese']);
+const formClass = w => (
+  IRREGULAR_PLURALS.has(w)?'s':
+  /ing$/.test(w)?'ing':
+  /ed$/.test(w)?'ed':
+  /(?:us|is|ss)$/.test(w)?'base':
+  /[^s]s$/.test(w)?'s':'base'
+);
 
 export function assessQuestionQuality(q) {
   const options = optionSetOf(q); const violations = [];
