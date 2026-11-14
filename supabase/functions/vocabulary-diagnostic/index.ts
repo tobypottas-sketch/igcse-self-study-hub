@@ -6,7 +6,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 const PROJECT_URL=Deno.env.get('SUPABASE_URL')??'';
 const ANON_KEY=Deno.env.get('SUPABASE_ANON_KEY')??'';
 const SERVICE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')??'';
-const ALLOWED_ACTIONS=new Set(['status','start','respond','history','assign','report']);
+const ALLOWED_ACTIONS=new Set(['status','start','pause','respond','history','assign','report']);
 const MAX_BODY_BYTES=4000;
 
 function headers(){
@@ -25,6 +25,7 @@ function validUuid(value){return typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]
 function validatePayload(action,payload){
   if(!payload||typeof payload!=='object'||Array.isArray(payload))return false;
   if(action==='start')return validUuid(payload.assignmentId);
+  if(action==='pause')return validUuid(payload.sessionId);
   if(action==='respond')return validUuid(payload.sessionId)
     &&validUuid(payload.requestId)
     &&string(payload.questionId,110)!==null
