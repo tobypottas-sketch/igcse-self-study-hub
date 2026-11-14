@@ -45,7 +45,7 @@ test('authenticated Edge layer validates JWT and never uses client-supplied acto
   assert.doesNotMatch(edge,/p_actor:request\./);
 });
 test('pilot starts only from staff assignments, with pause/resume',()=>{
-  assert.match(api,/p_action='assign'/);
+  assert.match(api,/p_action\s*=\s*'assign'/);
   assert.match(api,/m\.ended_at is null[\s\S]*tc\.teacher_id=p_actor/);
   assert.match(api,/p_action='start'/);
   assert.match(api,/p_action='pause'/);
