@@ -32,3 +32,17 @@ test('staff review uses advisory audit, not automatic approval',()=>{
  assert.match(ui,/Blocking structural quality issue/);
  assert.match(ui,/This does not mean the question is approved/);
 });
+
+test('backend enforces and persists the four quality attestations',()=>{
+ const sql=readFileSync(new URL('../supabase/diagnostic/review_api.sql',import.meta.url),'utf8');
+ const edge=readFileSync(new URL('../supabase/functions/vocabulary-diagnostic/index.ts',import.meta.url),'utf8');
+ const ui=readFileSync(new URL('../src/vocabulary/diagnostic-review.js',import.meta.url),'utf8');
+ assert.match(sql,/QUALITY_CONFIRMATIONS_REQUIRED/);
+ assert.match(sql,/jsonb_typeof\(v_quality\)/);
+ assert.match(sql,/jsonb_object_keys/);
+ assert.match(sql,/quality_confirmations\)/);
+ assert.match(edge,/payload\.qualityConfirmations/);
+ assert.match(edge,/Object\.keys\(payload\.qualityConfirmations\)\.length===4/);
+ assert.match(ui,/qualityConfirmations:\s*true|singleKey:true/);
+ assert.match(ui,/\['approve','verify'\]\.includes\(decision\)/);
+});
