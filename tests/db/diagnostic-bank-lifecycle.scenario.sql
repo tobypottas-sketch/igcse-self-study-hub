@@ -173,6 +173,15 @@ select public.vocabulary_diagnostic_bank_admin('00000000-0000-0000-0000-00000000
 select scenario.expect_error($$update private.vocabulary_diagnostic_forms set status='draft' where form_code='SYN-FORM-A'$$,'FORM_RETIRED');
 select scenario.expect_error($$delete from private.vocabulary_diagnostic_forms where form_code='SYN-FORM-A'$$,'FORM_DELETE_FORBIDDEN');
 
+-- Sessions can only be created on released forms; retire-form refuses while a session is open.
+insert into private.vocabulary_diagnostic_assignments(student_id,assigned_by,form_id,kind)
+ select '00000000-0000-0000-0000-00000000000e','00000000-0000-0000-0000-00000000000a',id,'baseline' from private.vocabulary_diagnostic_forms where form_code in ('SYN-FORM-A','SYN-FORM-B');
+select scenario.expect_error($$insert into private.vocabulary_diagnostic_sessions(assignment_id,student_id,form_id,kind)
+  select a.id,a.student_id,a.form_id,a.kind from private.vocabulary_diagnostic_assignments a join private.vocabulary_diagnostic_forms f on f.id=a.form_id where f.form_code='SYN-FORM-A'$$,'FORM_UNAVAILABLE');
+insert into private.vocabulary_diagnostic_sessions(assignment_id,student_id,form_id,kind)
+  select a.id,a.student_id,a.form_id,a.kind from private.vocabulary_diagnostic_assignments a join private.vocabulary_diagnostic_forms f on f.id=a.form_id where f.form_code='SYN-FORM-B';
+select scenario.expect_error($$select public.vocabulary_diagnostic_bank_admin('00000000-0000-0000-0000-00000000000a','retire-form','{"formCode":"SYN-FORM-B","reason":"retire while session open"}')$$,'FORM_HAS_OPEN_SESSIONS');
+
 -- Audit is append-only.
 select scenario.expect_error($$delete from private.vocabulary_diagnostic_item_events$$,'AUDIT_APPEND_ONLY');
 select scenario.expect_error($$update private.vocabulary_diagnostic_item_events set reason='edited reason text'$$,'AUDIT_APPEND_ONLY');

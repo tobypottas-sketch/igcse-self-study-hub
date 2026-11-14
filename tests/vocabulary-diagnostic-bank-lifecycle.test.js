@@ -53,6 +53,8 @@ test('forms: draft-only membership, release needs releasable items, retired form
   assert.match(sql,/FORM_RETIRED/);
   assert.match(body,/ITEM_IN_RELEASED_FORM/);
   assert.match(body,/FORM_HAS_OPEN_SESSIONS/);
+  assert.match(sql,/before insert or update of form_id on private\.vocabulary_diagnostic_sessions/);
+  assert.match(sql,/session_form_guard\(\)[\s\S]*?for share;/,'session start serialises with retire-form');
 });
 
 test('lifecycle SQL leaves students, progress and the practice gate untouched',()=>{

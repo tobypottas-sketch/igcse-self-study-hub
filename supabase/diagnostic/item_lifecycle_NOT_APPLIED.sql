@@ -113,6 +113,25 @@ create trigger vocab_diag_form_guard
  before update or delete on private.vocabulary_diagnostic_forms
  for each row execute function private.vocabulary_diagnostic_form_guard();
 
+-- A session may only be created on a released form. FOR SHARE serialises with
+-- retire-form's FOR UPDATE, so a concurrent start either sees the retired form
+-- or makes retire-form see the open session.
+create or replace function private.vocabulary_diagnostic_session_form_guard()
+returns trigger language plpgsql set search_path='' as $$
+declare v_status text;
+begin
+ select status into v_status from private.vocabulary_diagnostic_forms
+  where id=new.form_id for share;
+ if v_status is distinct from 'pilot' and v_status is distinct from 'approved'
+   then raise exception 'FORM_UNAVAILABLE'; end if;
+ return new;
+end;
+$$;
+drop trigger if exists vocab_diag_session_form_guard on private.vocabulary_diagnostic_sessions;
+create trigger vocab_diag_session_form_guard
+ before insert or update of form_id on private.vocabulary_diagnostic_sessions
+ for each row execute function private.vocabulary_diagnostic_session_form_guard();
+
 create or replace function public.vocabulary_diagnostic_bank_admin(
  p_actor uuid, p_action text, p_data jsonb default '{}'::jsonb
 ) returns jsonb
