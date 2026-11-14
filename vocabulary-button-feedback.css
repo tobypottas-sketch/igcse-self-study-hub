@@ -20,6 +20,7 @@
     a.vocab-back:not([aria-disabled="true"]),
     a.vocab-link:not([aria-disabled="true"]),
     [role="button"]:not([aria-disabled="true"])):hover {
+    transform: translateY(-1px);
     filter: brightness(1.025);
     box-shadow: var(--vocab-tap-shadow);
   }
