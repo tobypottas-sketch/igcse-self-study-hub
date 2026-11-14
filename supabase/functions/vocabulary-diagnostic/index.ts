@@ -4,8 +4,18 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 
 const PROJECT_URL=Deno.env.get('SUPABASE_URL')??'';
-const ANON_KEY=Deno.env.get('SUPABASE_ANON_KEY')??'';
-const SERVICE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')??'';
+// Support both legacy and current Supabase managed key environments.
+// Never return secret keys in responses or write them to logs.
+function firstNamedKey(raw:string|undefined):string {
+  if(!raw)return '';
+  try{
+    const keys=JSON.parse(raw);
+    const first=keys?.default??Object.values(keys??{})[0];
+    return typeof first==='string'?first:'';
+  }catch{return ''}
+}
+const ANON_KEY=Deno.env.get('SUPABASE_ANON_KEY')||firstNamedKey(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS'));
+const SERVICE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||firstNamedKey(Deno.env.get('SUPABASE_SECRET_KEYS'));
 const ALLOWED_ACTIONS=new Set(['status','start','pause','respond','history','assign','report','review-list','review-detail','review-decision','review-forms']);
 const MAX_BODY_BYTES=4000;
 const REVIEW_ACTIONS=new Set(['review-list','review-detail','review-decision']);
