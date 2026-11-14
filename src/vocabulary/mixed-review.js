@@ -1,7 +1,7 @@
 import { deriveContentSeed } from './mission-seed.js';
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES, derivePathwayPlacement } from './pathway-model.js';
 import { currentPathwayStage, isPathwayStageUnlocked } from './pathway-progress.js';
-import { planPathwayQuestion } from './pathway-planner.js';
+import { planPathwayQuestion } from './pathway-planner.js?v=meaning-recognise-v1';
 import { coverageServes } from './pathway-coverage-store.js';
 
 const STAGE_IDS = PATHWAY_STAGES.map(stage => stage.id);

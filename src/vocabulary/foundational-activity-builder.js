@@ -134,6 +134,66 @@ function plausibleTermDistractors(args, count = 3) {
   if (authored.length >= count) return stableShuffle(authored, `${args.seed}:authored-term-distractors`).slice(0,count);
   return stableShuffle(pool, `${args.seed}:term-distractors`).slice(0,count);
 }
+// Definition → Word must present WORDS, not the meaning-description prose stored in
+// misleadingDistractors. The curated gapDistractors contain lexical alternatives
+// (e.g. guaranteed / doubted / denied / regretted). Reuse those first; if a
+// multiword headword has too few similarly shaped alternatives, use same-POS
+// unit headwords. Never serve a one-word answer among three long definitions.
+// This compound has no three-word lexical alternatives in its published unit
+// bank. Keep it playable with explicitly authored, non-synonymous photography
+// terms rather than inventing random definitions or serving an obvious MCQ.
+const SUPPLEMENTAL_MEANING_RECOGNISE_WORDS = Object.freeze({
+  'angle of view':Object.freeze(['depth of field','point of focus','distance from subject'])
+});
+export function definitionWordDistractors(args, count = 3) {
+  const target=text(args.item?.term);
+  const sense=senseFor(args.item,args.occurrence);
+  const wordCount=value=>text(value).split(/\s+/).filter(Boolean).length;
+  const size=wordCount(target);
+  const forbidden=new Set(uniqueText([
+    target, ...array(sense.acceptedParaphrases),
+    ...array(sense.contextDependentParaphrases)
+  ]).map(value=>value.toLocaleLowerCase('en')));
+  const valid=value=>{
+    const candidate=text(value);
+    return candidate && !forbidden.has(candidate.toLocaleLowerCase('en'))
+      && wordCount(candidate)===size
+      && !/[.!?]$/.test(candidate);
+  };
+  // Prefer a coherent authored distractor group rather than three unrelated
+  // distractors selected from different situations.
+  const groups=array(sense.gapDistractors).map(row=>
+    uniqueText(array(row?.wrong)).filter(valid)
+  );
+  const complete=groups.filter(group=>group.length>=count);
+  const curated=complete.length
+    ? stableShuffle(complete,`${args.seed}:definition-word-group`)[0]
+    : stableShuffle(uniqueText(groups.flat()).filter(valid),`${args.seed}:definition-word-curated`);
+  const samePos=stableShuffle(uniqueText(samePosCandidates(args).map(row=>text(row.term))).filter(valid),
+    `${args.seed}:definition-word-same-pos`);
+  // Only if the gap bank and unit terms are insufficient, consider authored
+  // misleading choices that are ALREADY short lexical labels of the same shape.
+  // Long definition prose is categorically excluded by the word-count check.
+  const authoredLabels=stableShuffle(authoredDistractors(args).filter(valid),
+    `${args.seed}:definition-word-authored-labels`);
+  const supplement=array(SUPPLEMENTAL_MEANING_RECOGNISE_WORDS[target.toLocaleLowerCase('en')]).filter(valid);
+  const choices=uniqueText([...curated,...samePos,...authoredLabels,...supplement]).filter(valid);
+  if(choices.length<count)throw new Error('Definition → Word needs three comparable vocabulary-word alternatives.');
+  const selected=choices.slice(0,count);
+  // Do not leave a participle or -ing adjective as the only matching form.
+  // Example: processed vs fresh/raw/natural is an answer-shape giveaway;
+  // saturated (another unit adjective) is a better contrasting option.
+  const formEnding=/(ed|ing)$/i.exec(target)?.[1]?.toLowerCase();
+  if(formEnding && selected.every(value=>!value.toLowerCase().endsWith(formEnding))){
+    const sameForm=stableShuffle(samePosCandidates(args).map(row=>text(row.term)).filter(value=>
+      valid(value)&&value.toLowerCase().endsWith(formEnding)),`${args.seed}:definition-word-form`);
+    const replacement=sameForm.find(value=>!selected.some(chosen=>chosen.toLowerCase()===value.toLowerCase()));
+    if(replacement)selected[count-1]=replacement;
+  }
+  return {options:selected,source:selected.every(value=>curated.includes(value))
+    ? DISTRACTOR_SOURCE.GENERATED_SEMANTIC:DISTRACTOR_SOURCE.GENERATED_SAFE};
+}
+
 function semanticSurfaceDistractors(args, formKey) {
   const authored = new Set(authoredDistractors(args).map(value => value.toLocaleLowerCase('en')));
   return samePosCandidates(args)
@@ -201,8 +261,9 @@ function definitionToWord(args, definition) {
   const targetDefinition = definitionFor(args.item, args.occurrence);
   if (!targetDefinition || !text(args.item.term)) throw new Error('Definition → Word requires a curated definition and term.');
   const orderOptions = args.matchingPresentation ? (values, seed, nonce) => stableShuffle(values, `${seed}:${nonce ?? ''}`) : shuffleAnswerOptions;
-  const options = orderOptions([text(args.item.term), ...plausibleTermDistractors(args,3)], `${args.seed}:definition-word-options`, args.optionNonce);
-  return baseActivity({ definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt:`Which word means “${targetDefinition}”?`, markingReference:{ acceptedAnswers:[text(args.item.term)] }, extra:{ options, primaryEvidenceTargetId:args.item.vocabularyId, distractorSource:authoredDistractors(args).length >= 3 ? DISTRACTOR_SOURCE.REVIEWED : DISTRACTOR_SOURCE.GENERATED_SAFE } });
+  const wrong=definitionWordDistractors(args,3);
+  const options = orderOptions([text(args.item.term), ...wrong.options], `${args.seed}:definition-word-options`, args.optionNonce);
+  return baseActivity({ definition, occurrence:args.occurrence, contentId:itemContentId(args), contentSource:'item', prompt:`Which word means “${targetDefinition}”?`, markingReference:{ acceptedAnswers:[text(args.item.term)] }, extra:{ options, primaryEvidenceTargetId:args.item.vocabularyId, distractorSource:wrong.source } });
 }
 // Meaning → Match: the curated pairs for one tap-to-match set (words left, shuffled definitions right). The persisted
 // answer stays the single answer for the primary target, so one set is one activity.

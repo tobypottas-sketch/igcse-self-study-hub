@@ -20,7 +20,16 @@ export function optionSetOf(q) {
   return null;
 }
 
-const formClass = w => (/ing$/.test(w) ? 'ing' : /ed$/.test(w) ? 'ed' : /[^s]s$/.test(w) ? 's' : 'base');
+// Only true inflectional endings count as form signals. "focus" is not
+// plural merely because it ends in -us, while "criteria" is a plural noun.
+const IRREGULAR_PLURALS = new Set(['criteria','phenomena','children','people','men','women','teeth','feet','mice','geese']);
+const formClass = w => (
+  IRREGULAR_PLURALS.has(w)?'s':
+  /ing$/.test(w)?'ing':
+  /ed$/.test(w)?'ed':
+  /(?:us|is|ss)$/.test(w)?'base':
+  /[^s]s$/.test(w)?'s':'base'
+);
 
 export function assessQuestionQuality(q) {
   const options = optionSetOf(q); const violations = [];
@@ -33,6 +42,12 @@ export function assessQuestionQuality(q) {
   if (key.length !== 1) violations.push('NOT_EXACTLY_ONE_ANSWER');
   if (correct != null) {
     const counts = options.map(wc);
+    // Meaning Recognise asks for a WORD; definitions or full explanations in
+    // its answer list reveal the only lexical option without testing meaning.
+    if(q.type==='definition_to_word' && (
+      counts.some(count=>count!==wc(correct)) ||
+      options.some(option=>/[.!?]$/.test(String(option).trim()))
+    )) violations.push('NON_LEXICAL_DISTRACTOR');
     if (MATCH_TYPES.has(q.type)) {
       if (Math.max(...counts) > MATCH_RATIO * Math.min(...counts) + MATCH_SLACK_WORDS) violations.push('MATCH_WORD_RATIO');
     } else {
