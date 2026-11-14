@@ -167,13 +167,13 @@ test('building and secure are learning evidence, not mastered',()=>{
 test('polished insight copy preserves scope, meaning and date window',()=>{
  const root={innerHTML:''};
  renderVocabularyStaffUsage(root,{...data,role:'admin'},{days:30,now});
- assert.match(root.innerHTML,/Participation and current vocabulary status/);
+ assert.match(root.innerHTML,/Participation and progress/);
  assert.match(root.innerHTML,/Words in progress/);
- assert.match(root.innerHTML,/Current building or secure vocabulary records/);
- assert.match(root.innerHTML,/Records currently marked secure/);
+ assert.match(root.innerHTML,/Building or secure/);
+ assert.match(root.innerHTML,/Current status/);
  assert.match(root.innerHTML,/all recorded activity|selected reporting period/i);
  assert.match(root.innerHTML,/grouped into seven periods/);
- assert.match(root.innerHTML,/Peak period/);
+ assert.match(root.innerHTML,/Peak ·/);
  assert.match(root.innerHTML,/About these figures/);
  assert.match(root.innerHTML,/data-action="staff-usage-days"/);
  assert.match(root.innerHTML,/data-action="staff-usage-select-class"/);
@@ -184,4 +184,26 @@ test('seven-day copy accurately describes daily bars',()=>{
  renderVocabularyStaffUsage(root,data,{days:7,now});
  assert.match(root.innerHTML,/Daily question attempts/);
  assert.match(root.innerHTML,/Question submissions/);
+});
+
+test('class chooser is compact but all classes remain accessible',()=>{
+ const root={innerHTML:''};
+ const classes=Array.from({length:16},(_,i)=>({id:'class'+i,class_name:'G'+(9+i%3)+' ESL '+(i+1)}));
+ renderVocabularyStaffUsage(root,{...data,classes,role:'admin'},{days:30,now});
+ assert.equal((root.innerHTML.match(/data-action="staff-usage-class"/g)||[]).length,16);
+ assert.match(root.innerHTML,/Show all 16 classes/);
+ assert.match(root.innerHTML,/vocab-usage-more-classes/);
+ assert.match(root.innerHTML,/vocab-usage-class-grid/);
+ assert.match(root.innerHTML,/data-action="staff-usage-select-class"/);
+});
+test('compact insight labels retain accurate time and status meaning',()=>{
+ const root={innerHTML:''};
+ renderVocabularyStaffUsage(root,data,{days:7,now});
+ assert.match(root.innerHTML,/Not yet practising/);
+ assert.match(root.innerHTML,/In this period/);
+ assert.match(root.innerHTML,/Words in progress/);
+ assert.match(root.innerHTML,/Building or secure/);
+ assert.match(root.innerHTML,/Words secure/);
+ assert.match(root.innerHTML,/Current status/);
+ assert.match(root.innerHTML,/About these figures/);
 });
