@@ -1,0 +1,20 @@
+name: Diagnostic exposure guard
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  exposure-guard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Scan tracked (publicly served) files for diagnostic items and keys
+        run: node tools/diagnostic/check-public-exposure.mjs
+      - name: Exposure and bank-lifecycle contract tests
+        run: node --test tests/vocabulary-diagnostic-public-exposure.test.js tests/vocabulary-diagnostic-bank-lifecycle.test.js

@@ -1,0 +1,33 @@
+{
+  "note": "Exact-path exemptions for SYNTHETIC fixtures only. Never add real or candidate diagnostic items. Each entry must still match, or the check fails as stale.",
+  "entries": [
+    {
+      "path": "tests/vocabulary-diagnostic-assessment-contract.test.js",
+      "rules": [
+        "KEYED_LITERAL"
+      ],
+      "reason": "Synthetic diag-example-001 fixture proving the student payload whitelist drops the key"
+    },
+    {
+      "path": "tests/vocabulary-diagnostic-item-quality.test.js",
+      "rules": [
+        "KEYED_LITERAL"
+      ],
+      "reason": "Synthetic authoring fixture for the offline item-quality validator"
+    },
+    {
+      "path": "tests/vocabulary-diagnostic-quality-audit.test.js",
+      "rules": [
+        "KEYED_LITERAL"
+      ],
+      "reason": "Synthetic one-line items for the staff quality-audit heuristics"
+    },
+    {
+      "path": "tests/db/diagnostic-bank-lifecycle.scenario.sql",
+      "rules": [
+        "KEYED_LITERAL"
+      ],
+      "reason": "Synthetic placeholder items proving the lifecycle RPC rejects an invalid key"
+    }
+  ]
+}

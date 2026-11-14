@@ -1,0 +1,6 @@
+# Private diagnostic authoring material must never be committed: everything
+# tracked here is public through GitHub Pages and Git history.
+# See docs/vocabulary-diagnostic-secure-bank-boundary.md
+diagnostic-private/
+*.diag-private.json
+private-bank*.json
