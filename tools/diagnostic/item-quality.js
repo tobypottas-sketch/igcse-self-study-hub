@@ -22,6 +22,14 @@ export function validateDiagnosticItem(item,{forPilot=false}={}){
   if(!Number.isInteger(item.version)||item.version<1)fail('VERSION','Item version must be a positive integer');
   if(!hasText(item.formFamily,4))fail('FORM_FAMILY','Common-content family required to prevent repeated variants');
   if(!LEVELS.includes(item.levelHypothesis))fail('LEVEL','A1–C1 authoring hypothesis required');
+  if(item.levelReference?.framework!=='CEFR')fail('LEVEL_FRAMEWORK','Explicit CEFR reference framework required');
+  if(!['EVP_sense','Oxford_3000_5000','independent_educator','other_permitted'].includes(item.levelReference?.basis))
+    fail('LEVEL_BASIS','Record how the level hypothesis was informed');
+  if(!hasText(item.levelReference?.referenceNotes,15))fail('LEVEL_REFERENCE','Record the source/descriptor and sense-specific justification');
+  if(!['unverified','verified'].includes(item.levelReference?.status))fail('LEVEL_VERIFICATION','Explicit verification state required');
+  if(forPilot&&item.levelReference?.status!=='verified')fail('LEVEL_UNVERIFIED','Pilot items require level-reference verification');
+  if(forPilot&&(!hasText(item.levelReference?.checkedBy)||!validDate(item.levelReference?.checkedAt)))
+    fail('LEVEL_REVIEW_EVIDENCE','Record who verified the CEFR reference, and when');
   if(!CONSTRUCTS.includes(item.construct))fail('CONSTRUCT','Unknown assessment construct');
   if(!DOMAINS.includes(item.domain))fail('DOMAIN','Unknown lexical domain');
   if(!hasText(item.lemma,2))fail('LEMMA','Target lemma required');
