@@ -5,3 +5,276 @@
 .diag-result-stats span{background:#f1f8f7;border:1px solid #d7e9e7;border-radius:12px;padding:11px 18px;color:#476871}
 .diag-result-stats strong{font-size:1.6rem;color:#096c6d;margin-right:6px}
 @media(max-width:600px){.diag-player{padding:12px 14px 56px}.diag-hero,.diag-assessment{padding:20px 17px;border-radius:15px}.diag-option{padding:14px 12px;min-height:54px}.diag-actions{flex-direction:column-reverse;align-items:stretch}.diag-actions button{width:100%}}
+
+
+/*
+ * Vocabulary Diagnostic — Hub-aligned presentation layer.
+ * Reuses the existing Learning & Study Skills line-art wallpaper: no new image
+ * asset, no student-question content, no change to the answer/session logic.
+ * Scoped entirely to the diagnostic player, and its body backdrop.
+ */
+body:has(#vocabularyApp .diag-player){
+  background-color:var(--c-bg);
+  background-image:
+    linear-gradient(rgba(248,251,252,.66),rgba(248,251,252,.79)),
+    url("assets/vocabulary/themes/learning-study-skills-wallpaper.svg"),
+    radial-gradient(circle at 9% 0%,rgba(37,174,182,.10),transparent 29%),
+    radial-gradient(circle at 90% 5%,rgba(46,115,214,.08),transparent 35%);
+  background-position:0 0,0 0,0 0,0 0;
+  background-repeat:no-repeat,repeat,no-repeat,no-repeat;
+  background-size:auto,420px 420px,auto,auto;
+}
+#vocabularyApp .diag-player{
+  width:min(920px,calc(100% - 40px));
+  max-width:920px;
+  padding:26px 0 76px;
+  color:var(--c-ink);
+}
+#vocabularyApp .diag-player .vocab-topbar{
+  margin-bottom:14px;
+  padding:0 2px 14px;
+  border-bottom:1px solid rgba(159,203,208,.55);
+  color:var(--c-muted);
+  font-weight:750;
+  letter-spacing:.005em;
+}
+#vocabularyApp .diag-player .vocab-topbar span{
+  display:inline-flex;align-items:center;gap:8px;
+  color:var(--c-teal-dark);
+  font-size:var(--fs-sm);
+  font-weight:850;
+}
+#vocabularyApp .diag-player .vocab-topbar span::before{
+  content:"";width:9px;height:9px;border-radius:3px;
+  background:var(--c-teal-2);
+  box-shadow:0 0 0 4px var(--c-teal-soft);
+}
+#vocabularyApp .diag-hero,
+#vocabularyApp .diag-assessment{
+  position:relative;
+  margin-top:20px;
+  padding:clamp(22px,4.2vw,40px);
+  border:1px solid var(--c-line);
+  border-radius:var(--r-xl);
+  background:var(--c-surface);
+  box-shadow:0 16px 54px rgba(23,56,82,.075),0 2px 6px rgba(23,56,82,.025);
+}
+#vocabularyApp .diag-hero{
+  overflow:hidden;
+  background:linear-gradient(135deg,var(--c-teal-soft),var(--c-surface) 68%,var(--c-blue-soft));
+  border-top:4px solid var(--c-teal);
+}
+#vocabularyApp .diag-hero::after{
+  content:"";position:absolute;top:-52px;right:-70px;
+  width:215px;height:215px;border-radius:50%;
+  background:radial-gradient(circle,rgba(37,174,182,.12),transparent 67%);
+  pointer-events:none;
+}
+#vocabularyApp .diag-kicker{
+  color:var(--c-teal-dark);
+  font-size:var(--fs-xs);
+  font-weight:900;
+  letter-spacing:.13em;
+}
+#vocabularyApp .diag-hero h1{
+  max-width:17ch;
+  font-size:clamp(2rem,4.5vw,3rem);
+  letter-spacing:-.038em;
+  line-height:1.13;
+  color:var(--c-ink);
+}
+#vocabularyApp .diag-hero p{color:var(--c-ink-2);line-height:1.68}
+#vocabularyApp .diag-meta{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;
+  padding-bottom:20px;
+  border-bottom:1px solid var(--c-line);
+  color:var(--c-muted);
+  font-size:var(--fs-sm);
+}
+#vocabularyApp .diag-meta span:first-child{
+  display:inline-flex;align-items:center;
+  padding:8px 13px;
+  border:1px solid var(--c-teal-line);
+  border-radius:var(--r-pill);
+  background:var(--c-teal-soft);
+  color:var(--c-teal-dark);
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+}
+#vocabularyApp .diag-meta span:last-child{
+  display:inline-flex;align-items:center;gap:7px;
+  font-weight:650;
+}
+#vocabularyApp .diag-meta span:last-child::before{
+  content:"";width:7px;height:7px;border-radius:50%;
+  background:var(--c-blue);
+  opacity:.7;
+}
+#vocabularyApp .diag-prompt{
+  max-width:760px;
+  margin:24px 0 26px;
+  font-size:clamp(1.45rem,2.8vw,2rem);
+  font-weight:850;
+  line-height:1.32;
+  letter-spacing:-.027em;
+  color:var(--c-ink);
+  text-wrap:pretty;
+}
+#vocabularyApp .diag-choices legend{
+  margin:0 0 13px;
+  color:var(--c-ink-2);
+  font-size:var(--fs-sm);
+  font-weight:850;
+}
+#vocabularyApp .diag-choices{gap:10px}
+#vocabularyApp .diag-option{
+  position:relative;
+  display:flex;align-items:center;
+  gap:13px;
+  min-height:66px;
+  padding:14px 18px;
+  border:1.5px solid var(--c-line);
+  border-radius:var(--r-md);
+  background:rgba(255,255,255,.97);
+  color:var(--c-ink);
+  cursor:pointer;
+  box-shadow:0 1px 3px rgba(23,56,82,.025);
+  transition:background-color .15s,border-color .15s,box-shadow .15s,transform .15s;
+}
+#vocabularyApp .diag-option input{
+  width:19px;height:19px;
+  margin:0;
+  accent-color:var(--c-teal);
+}
+#vocabularyApp .diag-option-key{
+  display:inline-grid;place-items:center;
+  width:30px;height:30px;
+  flex:0 0 30px;
+  border:1px solid var(--c-line);
+  border-radius:9px;
+  background:var(--c-surface-soft);
+  color:var(--c-teal-dark);
+  font-size:var(--fs-sm);
+  font-weight:900;
+}
+@media(hover:hover) and (pointer:fine){
+  #vocabularyApp .diag-option:hover{
+    border-color:var(--c-teal-line);
+    background:#f5fbfa;
+    box-shadow:0 5px 14px rgba(19,126,128,.075);
+    transform:translateY(-1px);
+  }
+}
+#vocabularyApp .diag-option:focus-within{
+  outline:var(--focus-ring);
+  outline-offset:2px;
+}
+#vocabularyApp .diag-option--selected,
+#vocabularyApp .diag-option--selected:hover{
+  border-color:var(--c-teal);
+  background:var(--c-teal-soft);
+  box-shadow:inset 3px 0 0 var(--c-teal),0 4px 16px rgba(19,126,128,.08);
+}
+#vocabularyApp .diag-option--selected .diag-option-key{
+  border-color:var(--c-teal);
+  color:#fff;
+  background:var(--c-teal);
+}
+#vocabularyApp .diag-unsure{
+  margin-top:5px;
+  border-style:dashed;
+  background:var(--c-surface-soft);
+  color:var(--c-ink-2);
+}
+#vocabularyApp .diag-unsure.diag-option--selected{
+  border-style:solid;
+  background:var(--c-blue-soft);
+  border-color:var(--c-blue);
+  box-shadow:inset 3px 0 0 var(--c-blue);
+}
+#vocabularyApp .diag-actions{
+  display:flex;justify-content:flex-end;align-items:center;
+  gap:12px;flex-wrap:wrap;
+  margin-top:28px;
+  padding-top:20px;
+  border-top:1px solid var(--c-line);
+}
+#vocabularyApp .diag-primary,
+#vocabularyApp .diag-secondary{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:48px;
+  padding:12px 21px;
+  border-radius:var(--r-sm);
+  font-weight:850;
+  font-size:var(--fs-md);
+  line-height:1.3;
+  text-decoration:none;
+  transition:background-color .15s,border-color .15s,box-shadow .15s,transform .15s;
+}
+#vocabularyApp .diag-primary{
+  border:1px solid var(--c-teal-dark);
+  color:#fff;
+  background:var(--c-teal);
+  box-shadow:0 5px 14px rgba(14,95,97,.17);
+}
+@media(hover:hover) and (pointer:fine){
+  #vocabularyApp .diag-primary:not(:disabled):hover{
+    background:var(--c-teal-dark);
+    box-shadow:0 8px 20px rgba(14,95,97,.22);
+  }
+  #vocabularyApp .diag-secondary:not(:disabled):hover{
+    background:var(--c-teal-soft);
+    border-color:var(--c-teal);
+  }
+}
+#vocabularyApp .diag-secondary{
+  border:1px solid var(--c-teal-line);
+  color:var(--c-teal-dark);
+  background:var(--c-surface);
+}
+#vocabularyApp .diag-primary:disabled{
+  opacity:1;
+  color:#527d7d;
+  border-color:#c9dedd;
+  background:#e5f0ef;
+  box-shadow:none;
+  cursor:not-allowed;
+}
+#vocabularyApp .diag-preview-notice{
+  margin:20px 0 0;
+  padding:12px 16px;
+  border:1px solid var(--c-warning-line);
+  border-radius:var(--r-sm);
+  color:var(--c-warning-ink);
+  background:var(--c-warning-soft);
+}
+#vocabularyApp .diag-result-stats span{
+  background:var(--c-teal-soft);
+  border-color:var(--c-teal-line);
+  color:var(--c-ink-2);
+}
+@media(max-width:600px){
+  body:has(#vocabularyApp .diag-player){background-size:auto,340px 340px,auto,auto}
+  #vocabularyApp .diag-player{width:calc(100% - 24px);padding:14px 0 50px}
+  #vocabularyApp .diag-player .vocab-topbar{margin-bottom:10px;gap:8px}
+  #vocabularyApp .diag-hero,#vocabularyApp .diag-assessment{
+    margin-top:14px;
+    padding:22px 17px 24px;
+    border-radius:var(--r-lg);
+  }
+  #vocabularyApp .diag-hero h1{font-size:clamp(1.8rem,7vw,2.3rem)}
+  #vocabularyApp .diag-meta{align-items:flex-start;padding-bottom:17px}
+  #vocabularyApp .diag-meta span:last-child{font-size:var(--fs-xs)}
+  #vocabularyApp .diag-prompt{margin:20px 0 23px;font-size:clamp(1.35rem,5.4vw,1.7rem)}
+  #vocabularyApp .diag-option{min-height:60px;padding:13px 12px;gap:11px}
+  #vocabularyApp .diag-option-key{width:27px;height:27px;flex-basis:27px}
+  #vocabularyApp .diag-actions{flex-direction:column-reverse;align-items:stretch}
+  #vocabularyApp .diag-actions>*{width:100%;text-align:center}
+}
+@media(prefers-reduced-motion:reduce){
+  #vocabularyApp .diag-option,
+  #vocabularyApp .diag-primary,
+  #vocabularyApp .diag-secondary{transition:none}
+  #vocabularyApp .diag-option:hover{transform:none}
+}
