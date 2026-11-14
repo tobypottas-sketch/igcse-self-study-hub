@@ -42,112 +42,112 @@
     },
     {
       "item_id": "diag-candidate-004",
-      "revision": "editorial-v2",
+      "revision": "editorial-v3",
       "level_hypothesis": "A1",
       "lemma": "price",
       "item_family": "contextual_lexical_selection",
-      "stem": "It was £8 yesterday, but now it costs £10. So the ___ has gone up.",
+      "stem": "The shop sells the same notebook for £3.50, but the one next door charges £4. What is the shop's ___ for the notebook?",
       "options": [
         {
           "id": "A",
-          "text": "size",
-          "rationale": "Size describes dimensions, not the amount charged."
+          "text": "weight",
+          "rationale": "Weight is how heavy an item is, not the amount charged."
         },
         {
           "id": "B",
-          "text": "number",
-          "rationale": "Number does not specify the amount charged."
+          "text": "price",
+          "rationale": "Price is the amount a shop charges."
         },
         {
           "id": "C",
-          "text": "value",
-          "rationale": "Value can refer to monetary worth and is potentially defensible."
+          "text": "size",
+          "rationale": "Size is the item's dimensions, not the amount charged."
         },
         {
           "id": "D",
-          "text": "price",
-          "rationale": "Price is the amount charged for the item."
+          "text": "colour",
+          "rationale": "Colour is an appearance property, not the amount charged."
         }
       ],
-      "proposed_correct_option_id": "D",
+      "proposed_correct_option_id": "B",
       "review_status": "needs_independent_review",
       "approval": false,
       "blocking_risks": [
-        "Potential second key C (value). BLOCKED."
+        "No second key found in this pass, but distractors are very easy and the £ figures directly cue money; likely only an A1 anchor."
       ],
       "reviewer_decisions": []
     },
     {
       "item_id": "diag-candidate-015",
-      "revision": "editorial-v2",
+      "revision": "editorial-v3",
       "level_hypothesis": "A2",
       "lemma": "invite",
       "item_family": "contextual_lexical_selection",
-      "stem": "We are having a school information evening on Thursday. We would like to ___ all parents to attend.",
+      "stem": "The school would like parents to come to a meeting on Thursday. It will ___ them by sending a message asking them to attend.",
       "options": [
         {
           "id": "A",
-          "text": "remind",
-          "rationale": "Remind presupposes a known obligation or earlier arrangement."
+          "text": "invite",
+          "rationale": "An invitation asks someone to attend an event."
         },
         {
           "id": "B",
-          "text": "inform",
-          "rationale": "Inform someone to attend is not the standard construction."
+          "text": "remind",
+          "rationale": "A reminder assumes parents already know about the event or arrangement."
         },
         {
           "id": "C",
-          "text": "invite",
-          "rationale": "Invite someone to attend is the natural request."
+          "text": "inform",
+          "rationale": "Informing communicates facts but does not necessarily request attendance."
         },
         {
           "id": "D",
-          "text": "advise",
-          "rationale": "Advise someone to attend is also grammatically valid and pragmatically plausible."
+          "text": "thank",
+          "rationale": "Thanking expresses gratitude, not an attendance request."
         }
       ],
-      "proposed_correct_option_id": "C",
+      "proposed_correct_option_id": "A",
       "review_status": "needs_independent_review",
       "approval": false,
       "blocking_risks": [
-        "Potential second key D (advise), plus grammatical-elimination clue for inform. BLOCKED."
+        "Inform may also be a reasonable description of sending a message; stem and key definition strongly overlap. HOLD for independent review."
       ],
       "reviewer_decisions": []
     },
     {
       "item_id": "diag-candidate-018",
-      "revision": "editorial-v2",
+      "revision": "editorial-v3",
       "level_hypothesis": "A2",
       "lemma": "remind",
       "item_family": "contextual_lexical_selection",
-      "stem": "I know you have already agreed to bring the books, but I wanted to ___ you before tomorrow.",
+      "stem": "I know you agreed to bring the books tomorrow. I'll ___ you again before you leave home.",
       "options": [
         {
           "id": "A",
           "text": "invite",
-          "rationale": "Invitation is an initial request to participate."
+          "rationale": "An invitation asks someone to join an event, not recall an agreement."
         },
         {
           "id": "B",
           "text": "warn",
-          "rationale": "A warning suggests risk rather than recall of an agreement."
+          "rationale": "Warning alerts someone to danger or an unwanted consequence, not simply an existing agreement."
         },
         {
           "id": "C",
-          "text": "explain",
-          "rationale": "Explain you is ungrammatical in this structure."
+          "text": "contact",
+          "rationale": "Contacting describes reaching someone, but not the purpose of recalling the agreement."
         },
         {
           "id": "D",
           "text": "remind",
-          "rationale": "Brings an existing agreement back to mind."
+          "rationale": "Reminding brings an earlier agreement back to mind."
         }
       ],
       "proposed_correct_option_id": "D",
       "review_status": "needs_independent_review",
       "approval": false,
       "blocking_risks": [
-        "Distractor C fails grammatical parallelism. BLOCKED."
+        "Contact is possible as an action, but less precise than remind; test whether 'again' and prior agreement make this too easy."
       ],
       "reviewer_decisions": []
     },
@@ -264,40 +264,41 @@
     },
     {
       "item_id": "diag-candidate-088",
-      "revision": "editorial-v2",
+      "revision": "editorial-v3",
       "level_hypothesis": "B2",
       "lemma": "counterproductive",
       "item_family": "contextual_lexical_selection",
-      "stem": "The extra reminders were meant to improve homework submission, but students began ignoring every notification. In the end, the policy proved ___.",
+      "stem": "The school sent so many homework reminders that students stopped checking notifications. Late submissions rose from 10% to 25%, although the aim was to reduce them. The policy was ___.",
       "options": [
         {
           "id": "A",
           "text": "counterproductive",
-          "rationale": "Would mean the reminders worsened the problem, not established by stem."
+          "rationale": "The measure worsened the problem it was intended to solve."
         },
         {
           "id": "B",
           "text": "ineffective",
-          "rationale": "Could fit because reminders no longer improve submission."
+          "rationale": "The policy did not achieve its aim, but this is also true when it worsens the outcome: potentially defensible."
         },
         {
           "id": "C",
           "text": "unnecessary",
-          "rationale": "Not established by evidence."
+          "rationale": "The reminders might have been unnecessary, but this is not established by the data."
         },
         {
           "id": "D",
           "text": "unpopular",
-          "rationale": "Could be inferred but not explicitly supported."
+          "rationale": "Student attitudes are not directly measured."
         }
       ],
       "proposed_correct_option_id": "A",
       "review_status": "needs_independent_review",
       "approval": false,
       "blocking_risks": [
-        "Key not entailed; ineffective is defensible. BLOCKED."
+        "Ineffective remains technically true even when the policy is counterproductive; a 'best' instruction might distinguish precision, but the second key remains defensible. BLOCKED pending a different distractor."
       ],
       "reviewer_decisions": []
     }
-  ]
+  ],
+  "notes": "Revision v3 addresses grammatical mismatch and some second-key risks; explicit unresolved ambiguities remain. Editorial self-review is not independent approval."
 }
