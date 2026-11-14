@@ -1,0 +1,303 @@
+{
+  "schema_version": 1,
+  "purpose": "Editorial review ledger; never imported as approved production items",
+  "count": 8,
+  "items": [
+    {
+      "item_id": "diag-candidate-003",
+      "revision": "editorial-v2",
+      "level_hypothesis": "A1",
+      "lemma": "choose",
+      "item_family": "contextual_lexical_selection",
+      "stem": "There are three clubs, but I can join only one. I need to ___ which one I like best.",
+      "options": [
+        {
+          "id": "A",
+          "text": "describe",
+          "rationale": "Describing does not select one club."
+        },
+        {
+          "id": "B",
+          "text": "choose",
+          "rationale": "Selects one option from several."
+        },
+        {
+          "id": "C",
+          "text": "visit",
+          "rationale": "Visiting is not deciding which to join."
+        },
+        {
+          "id": "D",
+          "text": "explain",
+          "rationale": "Explaining does not select one."
+        }
+      ],
+      "proposed_correct_option_id": "B",
+      "review_status": "needs_independent_review",
+      "approval": false,
+      "blocking_risks": [
+        "Only one and one club strongly cue selection; may be a low-difficulty anchor."
+      ],
+      "reviewer_decisions": []
+    },
+    {
+      "item_id": "diag-candidate-004",
+      "revision": "editorial-v2",
+      "level_hypothesis": "A1",
+      "lemma": "price",
+      "item_family": "contextual_lexical_selection",
+      "stem": "It was £8 yesterday, but now it costs £10. So the ___ has gone up.",
+      "options": [
+        {
+          "id": "A",
+          "text": "size",
+          "rationale": "Size describes dimensions, not the amount charged."
+        },
+        {
+          "id": "B",
+          "text": "number",
+          "rationale": "Number does not specify the amount charged."
+        },
+        {
+          "id": "C",
+          "text": "value",
+          "rationale": "Value can refer to monetary worth and is potentially defensible."
+        },
+        {
+          "id": "D",
+          "text": "price",
+          "rationale": "Price is the amount charged for the item."
+        }
+      ],
+      "proposed_correct_option_id": "D",
+      "review_status": "needs_independent_review",
+      "approval": false,
+      "blocking_risks": [
+        "Potential second key C (value). BLOCKED."
+      ],
+      "reviewer_decisions": []
+    },
+    {
+      "item_id": "diag-candidate-015",
+      "revision": "editorial-v2",
+      "level_hypothesis": "A2",
+      "lemma": "invite",
+      "item_family": "contextual_lexical_selection",
+      "stem": "We are having a school information evening on Thursday. We would like to ___ all parents to attend.",
+      "options": [
+        {
+          "id": "A",
+          "text": "remind",
+          "rationale": "Remind presupposes a known obligation or earlier arrangement."
+        },
+        {
+          "id": "B",
+          "text": "inform",
+          "rationale": "Inform someone to attend is not the standard construction."
+        },
+        {
+          "id": "C",
+          "text": "invite",
+          "rationale": "Invite someone to attend is the natural request."
+        },
+        {
+          "id": "D",
+          "text": "advise",
+          "rationale": "Advise someone to attend is also grammatically valid and pragmatically plausible."
+        }
+      ],
+      "proposed_correct_option_id": "C",
+      "review_status": "needs_independent_review",
+      "approval": false,
+      "blocking_risks": [
+        "Potential second key D (advise), plus grammatical-elimination clue for inform. BLOCKED."
+      ],
+      "reviewer_decisions": []
+    },
+    {
+      "item_id": "diag-candidate-018",
+      "revision": "editorial-v2",
+      "level_hypothesis": "A2",
+      "lemma": "remind",
+      "item_family": "contextual_lexical_selection",
+      "stem": "I know you have already agreed to bring the books, but I wanted to ___ you before tomorrow.",
+      "options": [
+        {
+          "id": "A",
+          "text": "invite",
+          "rationale": "Invitation is an initial request to participate."
+        },
+        {
+          "id": "B",
+          "text": "warn",
+          "rationale": "A warning suggests risk rather than recall of an agreement."
+        },
+        {
+          "id": "C",
+          "text": "explain",
+          "rationale": "Explain you is ungrammatical in this structure."
+        },
+        {
+          "id": "D",
+          "text": "remind",
+          "rationale": "Brings an existing agreement back to mind."
+        }
+      ],
+      "proposed_correct_option_id": "D",
+      "review_status": "needs_independent_review",
+      "approval": false,
+      "blocking_risks": [
+        "Distractor C fails grammatical parallelism. BLOCKED."
+      ],
+      "reviewer_decisions": []
+    },
+    {
+      "item_id": "diag-candidate-022",
+      "revision": "editorial-v2",
+      "level_hypothesis": "B1",
+      "lemma": "consequence",
+      "item_family": "contextual_lexical_selection",
+      "stem": "The school shortened lunch breaks. One unexpected ___ was that fewer students attended lunchtime clubs.",
+      "options": [
+        {
+          "id": "A",
+          "text": "intention",
+          "rationale": "An intention is an aim, not the resulting lower attendance."
+        },
+        {
+          "id": "B",
+          "text": "proposal",
+          "rationale": "A proposal is a suggested plan, not the result."
+        },
+        {
+          "id": "C",
+          "text": "requirement",
+          "rationale": "A requirement is an obligation, not the outcome."
+        },
+        {
+          "id": "D",
+          "text": "consequence",
+          "rationale": "A consequence is a result of an action."
+        }
+      ],
+      "proposed_correct_option_id": "D",
+      "review_status": "needs_independent_review",
+      "approval": false,
+      "blocking_risks": [
+        "Three distractors are semantically distant; needs better matched alternatives."
+      ],
+      "reviewer_decisions": []
+    },
+    {
+      "item_id": "diag-candidate-070",
+      "revision": "editorial-v2",
+      "level_hypothesis": "B2",
+      "lemma": "adequate",
+      "item_family": "contextual_lexical_selection",
+      "stem": "The equipment is not the best available, but it is ___ for the basic tasks we need to complete.",
+      "options": [
+        {
+          "id": "A",
+          "text": "adequate",
+          "rationale": "Means sufficient for the specified purpose."
+        },
+        {
+          "id": "B",
+          "text": "exceptional",
+          "rationale": "Implies unusually high quality, not merely sufficient."
+        },
+        {
+          "id": "C",
+          "text": "excessive",
+          "rationale": "Means more than necessary, not sufficient."
+        },
+        {
+          "id": "D",
+          "text": "unsuitable",
+          "rationale": "Means inappropriate for the tasks."
+        }
+      ],
+      "proposed_correct_option_id": "A",
+      "review_status": "needs_independent_review",
+      "approval": false,
+      "blocking_risks": [
+        "Distractors are weakly matched and may be eliminated by polarity."
+      ],
+      "reviewer_decisions": []
+    },
+    {
+      "item_id": "diag-candidate-044",
+      "revision": "editorial-v2",
+      "level_hypothesis": "C1",
+      "lemma": "nuanced",
+      "item_family": "contextual_lexical_selection",
+      "stem": "The researcher avoided calling the programme simply a success or a failure. Instead, she offered a ___ assessment that considered differences between student groups.",
+      "options": [
+        {
+          "id": "A",
+          "text": "decisive",
+          "rationale": "Decisive suggests a firm judgement, not careful distinctions."
+        },
+        {
+          "id": "B",
+          "text": "uniform",
+          "rationale": "Uniform implies sameness, at odds with group differences."
+        },
+        {
+          "id": "C",
+          "text": "nuanced",
+          "rationale": "Recognises subtle differences and qualified interpretations."
+        },
+        {
+          "id": "D",
+          "text": "superficial",
+          "rationale": "Superficial lacks detailed consideration."
+        }
+      ],
+      "proposed_correct_option_id": "C",
+      "review_status": "needs_independent_review",
+      "approval": false,
+      "blocking_risks": [
+        "Stem explicitly explains the target; possible low discrimination at C1."
+      ],
+      "reviewer_decisions": []
+    },
+    {
+      "item_id": "diag-candidate-088",
+      "revision": "editorial-v2",
+      "level_hypothesis": "B2",
+      "lemma": "counterproductive",
+      "item_family": "contextual_lexical_selection",
+      "stem": "The extra reminders were meant to improve homework submission, but students began ignoring every notification. In the end, the policy proved ___.",
+      "options": [
+        {
+          "id": "A",
+          "text": "counterproductive",
+          "rationale": "Would mean the reminders worsened the problem, not established by stem."
+        },
+        {
+          "id": "B",
+          "text": "ineffective",
+          "rationale": "Could fit because reminders no longer improve submission."
+        },
+        {
+          "id": "C",
+          "text": "unnecessary",
+          "rationale": "Not established by evidence."
+        },
+        {
+          "id": "D",
+          "text": "unpopular",
+          "rationale": "Could be inferred but not explicitly supported."
+        }
+      ],
+      "proposed_correct_option_id": "A",
+      "review_status": "needs_independent_review",
+      "approval": false,
+      "blocking_risks": [
+        "Key not entailed; ineffective is defensible. BLOCKED."
+      ],
+      "reviewer_decisions": []
+    }
+  ]
+}
