@@ -109,7 +109,15 @@ export async function initialiseVocabularyDiagnostic({root,client,assignmentId,s
       };
       const data=await invoke('respond',state.request);
       if(data.state==='completed'){
-        state.request=null;finished(data.result);return;
+        // A network retry after successful completion returns a duplicate
+        // acknowledgement without result details. Recover from own history.
+        let result=data.result;
+        if(!result){
+          const history=await invoke('history',{});
+          result=(history?.results??[]).find(row=>row.sessionId===state.question.sessionId);
+          if(!result)throw new Error('Your result is saved, but we could not retrieve its summary. Please reload.');
+        }
+        state.request=null;finished(result);return;
       }
       state.question=validateSafeQuestion(data.question);
       state.answer=null;state.request=null;state.error='';
