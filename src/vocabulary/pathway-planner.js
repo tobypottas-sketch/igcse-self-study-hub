@@ -1,12 +1,12 @@
 import { applyStageVariant } from './stage-variants.js';
 import { deriveContentSeed } from './mission-seed.js';
-import { buildActivity } from './activity-factory.js';
+import { buildActivity } from './activity-factory.js?v=meaning-recognise-v1';
 import { PATHWAY_STAGES, activityTypesForPathwayStage, pathwayDefinition } from './pathway-model.js';
-import { availableActivityTypesForTarget } from './session-targets.js';
+import { availableActivityTypesForTarget } from './session-targets.js?v=meaning-recognise-v1';
 import { PATHWAY_ACTIVITY_TYPES } from './pathway-activity-builder.js';
 import { registeredPathwayCoverage } from './pathway-coverage-store.js';
 import { UnreviewedContentError } from './reviewed-content.js';
-import { assessBuiltQuestion } from './question-quality-gate.js';
+import { assessBuiltQuestion } from './question-quality-gate.js?v=meaning-recognise-v1';
 import { STRICT_REVIEW_QUESTION_TYPES } from '../../content/vocabulary/pathway-readiness-rules.js';
 
 const STAGE_IDS = Object.freeze(PATHWAY_STAGES.map(stage => stage.id));
