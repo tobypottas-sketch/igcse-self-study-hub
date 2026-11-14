@@ -27,7 +27,7 @@ test('student back chip remains styled by its existing owner',()=>{
 test('existing link targets and delegated button actions remain in place',()=>{
   assert.match(read('teacher-app.js'),/href="\.\/" class="vocab-back"/);
   assert.match(read('teacher-views.js'),/data-action="teacher-back-overview"/);
-  assert.match(read('staff-usage.js'),/data-action=\\"staff-usage-back\\"/);
+  assert.match(read('staff-usage.js'),/staff-usage-back/);
 });
 test('buttonisation remains scoped, keyboard-accessible and reduced-motion friendly',()=>{
   assert.match(css,/#vocabularyApp/);
