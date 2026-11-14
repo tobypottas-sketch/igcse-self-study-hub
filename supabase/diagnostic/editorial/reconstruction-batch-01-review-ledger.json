@@ -79,38 +79,38 @@
     },
     {
       "item_id": "diag-candidate-015",
-      "revision": "editorial-v3",
+      "revision": "editorial-v4",
       "level_hypothesis": "A2",
       "lemma": "invite",
       "item_family": "contextual_lexical_selection",
-      "stem": "The school would like parents to come to a meeting on Thursday. It will ___ them by sending a message asking them to attend.",
+      "stem": "The school is holding a parents' evening next Thursday. It wants to ___ parents to attend.",
       "options": [
         {
           "id": "A",
           "text": "invite",
-          "rationale": "An invitation asks someone to attend an event."
+          "rationale": "Invite means ask someone to attend an event."
         },
         {
           "id": "B",
           "text": "remind",
-          "rationale": "A reminder assumes parents already know about the event or arrangement."
+          "rationale": "Remind presupposes a previous invitation or known plan."
         },
         {
           "id": "C",
-          "text": "inform",
-          "rationale": "Informing communicates facts but does not necessarily request attendance."
+          "text": "encourage",
+          "rationale": "Encourage parents to attend is also grammatical and plausible."
         },
         {
           "id": "D",
-          "text": "thank",
-          "rationale": "Thanking expresses gratitude, not an attendance request."
+          "text": "require",
+          "rationale": "Require would make attendance compulsory, not merely request it."
         }
       ],
       "proposed_correct_option_id": "A",
-      "review_status": "needs_independent_review",
+      "review_status": "needs_rewrite",
       "approval": false,
       "blocking_risks": [
-        "Inform may also be a reasonable description of sending a message; stem and key definition strongly overlap. HOLD for independent review."
+        "Encourage is a defensible second key without further context; BLOCKED. Avoid solving this by an unnatural sentence."
       ],
       "reviewer_decisions": []
     },
@@ -264,41 +264,41 @@
     },
     {
       "item_id": "diag-candidate-088",
-      "revision": "editorial-v3",
+      "revision": "editorial-v4",
       "level_hypothesis": "B2",
       "lemma": "counterproductive",
       "item_family": "contextual_lexical_selection",
-      "stem": "The school sent so many homework reminders that students stopped checking notifications. Late submissions rose from 10% to 25%, although the aim was to reduce them. The policy was ___.",
+      "stem": "Extra homework reminders were meant to reduce late submissions. Instead, students began ignoring all notifications and lateness increased. The reminders were ___.",
       "options": [
         {
           "id": "A",
           "text": "counterproductive",
-          "rationale": "The measure worsened the problem it was intended to solve."
+          "rationale": "They caused an outcome opposite to the intended improvement."
         },
         {
           "id": "B",
-          "text": "ineffective",
-          "rationale": "The policy did not achieve its aim, but this is also true when it worsens the outcome: potentially defensible."
+          "text": "costly",
+          "rationale": "The context gives no information about expense."
         },
         {
           "id": "C",
-          "text": "unnecessary",
-          "rationale": "The reminders might have been unnecessary, but this is not established by the data."
+          "text": "temporary",
+          "rationale": "The context does not establish their duration."
         },
         {
           "id": "D",
           "text": "unpopular",
-          "rationale": "Student attitudes are not directly measured."
+          "rationale": "The context does not establish attitudes to the reminders."
         }
       ],
       "proposed_correct_option_id": "A",
-      "review_status": "needs_independent_review",
+      "review_status": "needs_rewrite",
       "approval": false,
       "blocking_risks": [
-        "Ineffective remains technically true even when the policy is counterproductive; a 'best' instruction might distinguish precision, but the second key remains defensible. BLOCKED pending a different distractor."
+        "Unique key is plausible, but three distractors are unrelated and trivially eliminated. BLOCKED for poor discrimination; do not treat single-key repair as sufficient."
       ],
       "reviewer_decisions": []
     }
   ],
-  "notes": "Revision v3 addresses grammatical mismatch and some second-key risks; explicit unresolved ambiguities remain. Editorial self-review is not independent approval."
+  "notes": "v4 stress-tests the two unresolved items. No safe high-quality distractor set yet; both remain blocked. Independent review still required for all."
 }
