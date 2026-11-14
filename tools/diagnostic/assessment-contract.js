@@ -61,16 +61,20 @@ export function toStudentDiagnosticQuestion(item,{sessionId,position,optionOrder
 // Only one response per question in the pilot. Resubmitted identical requestId
 // can be idempotently acknowledged by the backend without scoring it twice.
 export function validateDiagnosticResponse(request,{session,question,answeredIds=[],submittedRequestIds=[]}={}){
-  if(!session||session.state!=='in_progress')throw new Error('Diagnostic is not in progress');
+  if(!session)throw new Error('Diagnostic session not found');
   if(request?.sessionId!==session.id||request?.questionId!==question?.itemId||
       request?.questionVersion!==question?.version)
     throw new Error('Response does not match the server-held session question');
-  if(!Number.isInteger(request?.position)||request.position!==session.nextPosition)
-    throw new Error('Response is out of sequence');
   if(typeof request?.requestId!=='string'||!request.requestId.trim())
     throw new Error('Idempotency request ID is required');
+  // Backend must additionally bind stored requestId to the exact original
+  // request body and return its prior acknowledgement (not a new question).
+  // A true network retry may arrive after the first response completes a session.
   if(submittedRequestIds.includes(request.requestId))
     return {status:'duplicate_request',scoreNow:false};
+  if(session.state!=='in_progress')throw new Error('Diagnostic is not in progress');
+  if(!Number.isInteger(request?.position)||request.position!==session.nextPosition)
+    throw new Error('Response is out of sequence');
   if(answeredIds.includes(question.itemId+'@'+question.version))
     throw new Error('This diagnostic question has already been answered');
   const valid=new Set(question.options.map(x=>x.id));
@@ -86,7 +90,8 @@ export function summarisePilotDiagnostic({sessionId,adjudicatedResponses}={}){
   const correct=adjudicatedResponses.filter(x=>x.correct===true).length;
   const unknown=adjudicatedResponses.filter(x=>x.answerId==='unknown').length;
   const total=adjudicatedResponses.length;
-  if(adjudicatedResponses.some(x=>typeof x.correct!=='boolean'||!x.levelHypothesis))
+  if(adjudicatedResponses.some(x=>typeof x.correct!=='boolean'||!['A1','A2','B1','B2','C1'].includes(x.levelHypothesis)||
+    (x.answerId==='unknown'&&x.correct)))
     throw new Error('All pilot outcomes must be independently adjudicated');
   const coverage={};
   for(const row of adjudicatedResponses){
