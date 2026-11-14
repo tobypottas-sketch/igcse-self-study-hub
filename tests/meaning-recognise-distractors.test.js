@@ -78,3 +78,21 @@ test('authored misleading meanings can never substitute for lexical alternatives
  const chosen=definitionWordDistractors(args).options;
  assert.deepEqual(new Set(chosen),new Set(['spectator','organiser','customer']));
 });
+
+test('leisure time uses short parallel phrases rather than one obvious two-word key',()=>{
+ const args=fixture('leisure time','noun','time when you are free from work',
+   ['homework','working hours','uniform'],
+   ['working hours','homework time','training time']);
+ args.item.senses[0].gapDistractors.push({answer:'leisure time',wrong:['homework','school hours','rent']});
+ const options=optionsFor(args);
+ assert.equal(options.length,4);
+ assert.ok(options.every(option=>option.split(/\s+/).length===2));
+ assert.ok(options.includes('leisure time'));
+ assert.ok(options.includes('working hours'));
+});
+test('fewer than three truly comparable options is refused, not diluted with long descriptions',()=>{
+ const args=fixture('outlet','noun','a retail shop',
+   ['factory','office'],
+   ['a pipe that carries water away','a plug socket in a building','a way of expressing strong feelings']);
+ assert.throws(()=>optionsFor(args),/three comparable vocabulary-word alternatives/);
+});
