@@ -10,7 +10,12 @@ async function invoke(action,payload={}){
   const {data,error}=await state.client.functions.invoke('vocabulary-diagnostic',{
     body:{action:'review-'+action,payload}
   });
-  if(error)throw new Error('Diagnostic review service unavailable. Please try again.');
+  if(error){
+    let detail=null;
+    try{detail=await error.context?.json?.()}catch{}
+    if(typeof detail?.error==='string')throw new Error(detail.error.replaceAll('_',' ').toLowerCase());
+    throw new Error('Diagnostic review service unavailable. Please try again.');
+  }
   if(data?.error)throw new Error(data.error.replaceAll('_',' ').toLowerCase());
   return data;
 }
