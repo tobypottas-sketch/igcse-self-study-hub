@@ -1,0 +1,12 @@
+/* Staff administration — focused Activity roster.
+   Only this table is paginated; Accounts, Classes and Import are unchanged. */
+.admin-shell .activity-table [data-activity-row][hidden]{display:none!important}
+.admin-shell .activity-list-status{display:flex;align-items:center;justify-content:space-between;gap:10px 18px;flex-wrap:wrap;margin:10px 0 11px;color:var(--c-muted);font-size:.81rem}
+.admin-shell .activity-list-status [data-activity-list-count]{color:var(--hub-navy);font-weight:850}
+.admin-shell .activity-list-footer{display:flex;justify-content:center;padding:14px 0 0}
+.admin-shell .activity-list-more{min-height:41px;padding:9px 20px;border:1px solid var(--c-teal-line,var(--c-line));border-radius:10px;background:#f2f9fb;color:#22667e;font-size:.84rem;font-weight:850;cursor:pointer}
+.admin-shell .activity-list-more:hover{background:#e6f4f7;border-color:#83bcc6}
+.admin-shell .activity-list-more:focus-visible{outline:3px solid #377f9f;outline-offset:3px}
+.admin-shell .activity-list-more[hidden],.admin-shell .activity-list-empty[hidden]{display:none!important}
+.admin-shell .activity-list-empty{margin:10px 0;padding:18px;font-size:.86rem}
+@media(max-width:620px){.admin-shell .activity-list-status{align-items:flex-start;flex-direction:column;gap:4px}}
