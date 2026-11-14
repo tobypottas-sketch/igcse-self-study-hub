@@ -79,38 +79,38 @@
     },
     {
       "item_id": "diag-candidate-015",
-      "revision": "editorial-v4",
+      "revision": "replacement-v1",
       "level_hypothesis": "A2",
       "lemma": "invite",
-      "item_family": "contextual_lexical_selection",
-      "stem": "The school is holding a parents' evening next Thursday. It wants to ___ parents to attend.",
+      "item_family": "meaning_discrimination",
+      "stem": "The school invited parents to a meeting about next year's courses. What did the school do?",
       "options": [
         {
           "id": "A",
-          "text": "invite",
-          "rationale": "Invite means ask someone to attend an event."
+          "text": "Asked parents to come to the meeting.",
+          "rationale": "An invitation requests attendance."
         },
         {
           "id": "B",
-          "text": "remind",
-          "rationale": "Remind presupposes a previous invitation or known plan."
+          "text": "Told parents what was decided at the meeting.",
+          "rationale": "A report of decisions is not an invitation."
         },
         {
           "id": "C",
-          "text": "encourage",
-          "rationale": "Encourage parents to attend is also grammatical and plausible."
+          "text": "Asked parents what they thought of the meeting.",
+          "rationale": "A request for feedback is not an invitation."
         },
         {
           "id": "D",
-          "text": "require",
-          "rationale": "Require would make attendance compulsory, not merely request it."
+          "text": "Told parents when the meeting had finished.",
+          "rationale": "An announcement after an event is not an invitation."
         }
       ],
       "proposed_correct_option_id": "A",
-      "review_status": "needs_rewrite",
+      "review_status": "needs_independent_review",
       "approval": false,
       "blocking_risks": [
-        "Encourage is a defensible second key without further context; BLOCKED. Avoid solving this by an unnatural sentence."
+        "Independent reviewer must test whether the 'asked' wording makes A too obvious. All options describe plausible school communication acts; one target sense is clear."
       ],
       "reviewer_decisions": []
     },
@@ -264,41 +264,41 @@
     },
     {
       "item_id": "diag-candidate-088",
-      "revision": "editorial-v4",
+      "revision": "replacement-v1",
       "level_hypothesis": "B2",
       "lemma": "counterproductive",
-      "item_family": "contextual_lexical_selection",
-      "stem": "Extra homework reminders were meant to reduce late submissions. Instead, students began ignoring all notifications and lateness increased. The reminders were ___.",
+      "item_family": "meaning_discrimination",
+      "stem": "The headteacher described the new reminder system as counterproductive. Which finding would support that description most strongly?",
       "options": [
         {
           "id": "A",
-          "text": "counterproductive",
-          "rationale": "They caused an outcome opposite to the intended improvement."
+          "text": "Late submissions rose after the reminders began.",
+          "rationale": "An intervention intended to reduce lateness instead worsened it."
         },
         {
           "id": "B",
-          "text": "costly",
-          "rationale": "The context gives no information about expense."
+          "text": "Late submissions stayed at their previous level.",
+          "rationale": "This suggests no improvement, not worsening."
         },
         {
           "id": "C",
-          "text": "temporary",
-          "rationale": "The context does not establish their duration."
+          "text": "Late submissions fell, but only by a small amount.",
+          "rationale": "A modest improvement is not counterproductive."
         },
         {
           "id": "D",
-          "text": "unpopular",
-          "rationale": "The context does not establish attitudes to the reminders."
+          "text": "Late submissions fell in some classes but not others.",
+          "rationale": "Mixed improvement does not demonstrate overall worsening."
         }
       ],
       "proposed_correct_option_id": "A",
-      "review_status": "needs_rewrite",
+      "review_status": "needs_independent_review",
       "approval": false,
       "blocking_risks": [
-        "Unique key is plausible, but three distractors are unrelated and trivially eliminated. BLOCKED for poor discrimination; do not treat single-key repair as sufficient."
+        "Options are parallel and distinguish worsening from no effect, small benefit and uneven benefit. However, all four may be solved from general understanding of the stem; independent reviewer must check whether counterproductive itself is needed."
       ],
       "reviewer_decisions": []
     }
   ],
-  "notes": "v4 stress-tests the two unresolved items. No safe high-quality distractor set yet; both remain blocked. Independent review still required for all."
+  "notes": "Replacement-v1 abandons failed cloze designs for 015 and 088. No item approved. All eight still need independent blind review and pilot."
 }
