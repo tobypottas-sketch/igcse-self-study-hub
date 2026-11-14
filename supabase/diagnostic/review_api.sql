@@ -40,7 +40,6 @@ declare
  v_verified uuid;
  v_review jsonb;
  v_quality jsonb;
- v_required text[] := array['singleKey','plausibleDistractors','noAnswerClues','appropriateLevel'];
 begin
  select role::text into v_role from public.profiles where id=p_actor and active;
  if v_role not in ('teacher','admin') or v_role is null
@@ -108,8 +107,7 @@ begin
    -- Reject missing, partial, or incorrectly typed claims at the trusted RPC.
    if v_decision in ('approve','verify') and (
      jsonb_typeof(v_quality) is distinct from 'object'
-     or (select count(*) from jsonb_object_keys(coalesce(v_quality,'{}'::jsonb)))<>4
-     or exists(select 1 from unnest(v_required) k where v_quality->k is distinct from 'true'::jsonb)
+     or v_quality is distinct from '{"singleKey":true,"plausibleDistractors":true,"noAnswerClues":true,"appropriateLevel":true}'::jsonb
    ) then raise exception 'QUALITY_CONFIRMATIONS_REQUIRED'; end if;
    if v_item.review_status in ('pilot','approved','retired')
       then raise exception 'ITEM_LOCKED'; end if;
