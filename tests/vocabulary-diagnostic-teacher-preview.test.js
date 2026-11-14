@@ -95,6 +95,21 @@ test('API errors and unauthorised access become distinct states with no item dat
   assert.equal(classifyPreviewError(new Error('service error')), 'error');
 });
 
+test('retry after a failed navigation retries the failed question, not the previous one', async () => {
+  const { invoke } = fakeBank(5, { failDetailAt: 1 });
+  const m = createPreviewModel(invoke);
+  await m.load();
+  assert.equal(m.state.item.id, 'diag-synthetic-001');
+  await m.next();
+  assert.equal(m.state.phase, 'error');
+  const calls = [];
+  const spy = createPreviewModel(async (a, p) => { calls.push(p); return invoke(a, p); });
+  await spy.load(); await spy.next(); calls.length = 0;
+  await spy.load();
+  assert.ok(calls.some(p => p.itemId === 'diag-synthetic-002'), 'retry requested the failed item');
+  assert.ok(!calls.some(p => p.itemId === 'diag-synthetic-001'), 'retry did not reload the previous item');
+});
+
 test('loading state is announced and navigation is disabled', () => {
   const html = renderPreview({ level: 'all', index: 0, total: null, phase: 'loading', reviews: [] });
   assert.match(html, /role="status"[^>]*>[\s\S]*Loading question/);

@@ -56,6 +56,7 @@ export function createPreviewModel(invoke, { level = 'all', index = 0 } = {}) {
   const pages = new Map();
   const details = new Map();
   let token = 0;
+  let lastTarget = state.index;
   const levelPayload = () => (state.level === 'all' ? {} : { level: state.level });
 
   async function page(n) {
@@ -76,6 +77,7 @@ export function createPreviewModel(invoke, { level = 'all', index = 0 } = {}) {
   }
   async function go(target) {
     const mine = ++token;
+    lastTarget = target;
     state.phase = 'loading'; state.error = ''; state.selected = null;
     try {
       if (state.total === null) await page(0);
@@ -102,7 +104,7 @@ export function createPreviewModel(invoke, { level = 'all', index = 0 } = {}) {
   }
   return {
     state,
-    load: () => go(state.index),
+    load: () => go(lastTarget),
     next: () => go(state.index + 1),
     previous: () => go(state.index - 1),
     setLevel(level) {
