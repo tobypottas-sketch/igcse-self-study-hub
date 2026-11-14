@@ -119,14 +119,16 @@ function dailyChart(daily,days,now=new Date()) {
     const from=new Date(today.getTime()-(windowDays-1-startOffset)*DAY_MS);
     const to=new Date(today.getTime()-(windowDays-1-endOffset)*DAY_MS);
     const rows=daily.filter(row=>row.day>=dateKey(from)&&row.day<dateKey(to));
-    return {label:from.toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'UTC'}),
+    const label=date=>date.toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'UTC'});
+    const last=new Date(to.getTime()-DAY_MS);
+    return {label:label(from),range:days===7?label(from):label(from)+'–'+label(last),
       attempts:rows.reduce((n,row)=>n+row.attempts,0)};
   });
   const max=Math.max(1,...buckets.map(row=>row.attempts));
   const peak=buckets.reduce((best,row)=>row.attempts>best.attempts?row:best,buckets[0]);
-  const lead='<div class="vocab-usage-chart-meta"><span>Question submissions</span><strong>'+(peak.attempts?('Peak period · '+escapeHtml(peak.label)+' · '+number(peak.attempts)):'No attempts recorded')+'</strong></div>';
+  const lead='<div class="vocab-usage-chart-meta"><span>Question submissions</span><strong>'+(peak.attempts?('Peak period · '+escapeHtml(peak.range)+' · '+number(peak.attempts)):'No attempts recorded')+'</strong></div>';
   return lead+'<div class="vocab-usage-chart" role="img" aria-label="Question attempts in seven consecutive time buckets">'+
-    buckets.map(row=>'<div class="vocab-usage-bar'+(row.attempts?'':' is-empty')+'" title="'+escapeHtml(row.label)+': '+number(row.attempts)+' attempts"><strong>'+number(row.attempts)+'</strong><span class="vocab-usage-bar__track"><i style="height:'+Math.round(row.attempts/max*100)+'%"></i></span><small>'+escapeHtml(row.label)+'</small></div>').join('')+'</div>';
+    buckets.map(row=>'<div class="vocab-usage-bar'+(row.attempts?'':' is-empty')+'" title="'+escapeHtml(row.range)+': '+number(row.attempts)+' attempts"><strong>'+number(row.attempts)+'</strong><span class="vocab-usage-bar__track"><i style="height:'+Math.round(row.attempts/max*100)+'%"></i></span><small>'+escapeHtml(row.label)+'</small></div>').join('')+'</div>';
 }
 export function renderVocabularyStaffUsage(root,model,{days=30,classId='all',studentId=null,now=new Date()}={}) {
   const usage=calculateVocabularyUsage(model,{days,classId,studentId,now});
