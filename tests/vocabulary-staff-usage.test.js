@@ -154,6 +154,7 @@ test('student activity offers filtered paginated views without an enormous expan
  assert.match(root.innerHTML,/data-value="inactive"/);
  assert.match(root.innerHTML,/data-value="all"/);
  assert.match(root.innerHTML,/data-action="staff-usage-more-students"/);
+ assert.match(root.innerHTML,/data-usage-empty hidden/);
  assert.doesNotMatch(root.innerHTML,/data-usage-inactive/);
  assert.match(root.innerHTML,/data-activity="inactive"/);
 });
@@ -198,6 +199,7 @@ test('class chooser is compact but all classes remain accessible',()=>{
  assert.match(root.innerHTML,/data-class-extra hidden/);
  assert.doesNotMatch(root.innerHTML,/vocab-usage-more-classes/);
  assert.match(root.innerHTML,/vocab-usage-class-grid/);
+ assert.equal((root.innerHTML.match(/class="vocab-usage-class-grid"/g)||[]).length,1);
  assert.match(root.innerHTML,/data-action="staff-usage-select-class"/);
 });
 test('compact insight labels retain accurate time and status meaning',()=>{
