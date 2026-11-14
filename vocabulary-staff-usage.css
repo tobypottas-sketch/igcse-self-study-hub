@@ -240,3 +240,6 @@
 .vocab-usage-shell .vocab-usage-more-students:focus-visible{outline:3px solid #267dc0;outline-offset:2px}
 .vocab-usage-shell .vocab-usage-more-students[hidden]{display:none}
 @media(max-width:570px){.vocab-usage-shell .vocab-usage-student-tabs{gap:5px}.vocab-usage-shell .vocab-usage-tab{padding:7px 9px;font-size:.73rem}}
+
+.vocab-usage-shell .vocab-usage-no-results{margin:12px 0 0;padding:17px;border:1px dashed #cddfe9;border-radius:10px;background:#f8fbfd;color:#5b7489;text-align:center;font-size:.82rem}
+.vocab-usage-shell .vocab-usage-no-results[hidden]{display:none}
