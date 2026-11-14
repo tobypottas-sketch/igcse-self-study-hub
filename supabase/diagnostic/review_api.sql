@@ -13,6 +13,7 @@ create table if not exists private.vocabulary_diagnostic_reviews (
  check(stage<>'cefr' or decision in ('verify','flag','reject')),
  check(stage<>'flag' or decision='flag')
 );
+alter table private.vocabulary_diagnostic_reviews add column if not exists quality_confirmations jsonb;
 create index if not exists diag_reviews_item_idx on private.vocabulary_diagnostic_reviews(item_id,item_version,created_at desc);
 alter table private.vocabulary_diagnostic_reviews enable row level security;
 revoke all on private.vocabulary_diagnostic_reviews from public,anon,authenticated;
@@ -38,6 +39,8 @@ declare
  v_assessment uuid;
  v_verified uuid;
  v_review jsonb;
+ v_quality jsonb;
+ v_required text[] := array['singleKey','plausibleDistractors','noAnswerClues','appropriateLevel'];
 begin
  select role::text into v_role from public.profiles where id=p_actor and active;
  if v_role not in ('teacher','admin') or v_role is null
@@ -83,7 +86,7 @@ begin
        'levelReference',v_item.authoring->'levelReference',
        'construct',v_item.authoring->>'construct'),
        'reviews',coalesce((select jsonb_agg(jsonb_build_object(
-         'stage',r.stage,'decision',r.decision,'notes',r.notes,
+         'stage',r.stage,'decision',r.decision,'notes',r.notes,'qualityConfirmations',r.quality_confirmations,
          'reviewerId',r.reviewer_id,'createdAt',r.created_at)
          order by r.created_at desc)
          from private.vocabulary_diagnostic_reviews r
@@ -92,6 +95,7 @@ begin
    end if;
    v_stage:=p_data->>'stage';v_decision:=p_data->>'decision';
    v_notes:=trim(coalesce(p_data->>'notes',''));
+   v_quality:=p_data->'qualityConfirmations';
    if v_stage not in ('language','assessment','cefr','flag')
       or v_decision not in ('approve','flag','reject','verify')
       or length(v_notes)>1500
@@ -100,6 +104,13 @@ begin
       or (v_stage='flag' and v_decision<>'flag')
       or (v_stage not in ('cefr','flag') and v_decision='verify')
      then raise exception 'INVALID_REVIEW'; end if;
+   -- Quality attestations are required for approval and CEFR verification.
+   -- Reject missing, partial, or incorrectly typed claims at the trusted RPC.
+   if v_decision in ('approve','verify') and (
+     jsonb_typeof(v_quality) is distinct from 'object'
+     or (select count(*) from jsonb_object_keys(coalesce(v_quality,'{}'::jsonb)))<>4
+     or exists(select 1 from unnest(v_required) k where v_quality->k is distinct from 'true'::jsonb)
+   ) then raise exception 'QUALITY_CONFIRMATIONS_REQUIRED'; end if;
    if v_item.review_status in ('pilot','approved','retired')
       then raise exception 'ITEM_LOCKED'; end if;
    -- Block promotion if prior flags/rejections exist, until a future version is
@@ -127,8 +138,8 @@ begin
      -- This is not score calibration and does not assign proficiency to students.
    end if;
    insert into private.vocabulary_diagnostic_reviews
-     (item_id,item_version,reviewer_id,stage,decision,notes)
-   values(v_id,v_version,p_actor,v_stage,v_decision,v_notes);
+     (item_id,item_version,reviewer_id,stage,decision,notes,quality_confirmations)
+   values(v_id,v_version,p_actor,v_stage,v_decision,v_notes,case when v_decision in ('approve','verify') then v_quality else null end);
    if v_stage='language' and v_decision='approve' then
      update private.vocabulary_diagnostic_items set review_status='language_reviewed'
        where item_id=v_id and version=v_version;
