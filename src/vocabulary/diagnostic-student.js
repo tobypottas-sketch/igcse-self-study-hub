@@ -79,7 +79,17 @@ export async function initialiseVocabularyDiagnostic({root,client,assignmentId,s
     const totals=Number(result?.total)||0;
     shell('<section class="diag-hero"><p class="diag-kicker">ASSESSMENT COMPLETE</p>'+
       '<h1>'+(previewMode?'Preview complete':'Your diagnostic is saved')+'</h1><p>You answered '+esc(totals)+' questions. '+(previewMode?'This was a sample run. No answers were saved.':'Your teacher can use your results to understand your vocabulary starting point.')+'</p>'+(previewMode?'':'<div class="diag-result-stats"><span><strong>'+esc(Number(result?.correct)||0)+'</strong> correct</span><span><strong>'+esc(Number(result?.unknown)||0)+'</strong> unsure</span></div>')+
-      '<p>'+(previewMode?'The live test will report a provisional vocabulary level once scoring has been verified.':'A provisional vocabulary level will become available once assessment scoring is verified.')+'</p>'+
+      (previewMode?'<p>The live assessment will show a provisional learning placement when the scoring is ready.</p>':
+        result?.scoreStatus==='provisional' && ['A1','A2','B1','B2','C1'].includes(result.provisionalLevel) && result?.practice &&
+          typeof result.practice.focus==='string' && typeof result.practice.advice==='string'
+          ?'<section class="diag-placement" aria-label="Your provisional vocabulary placement">'+
+            '<p class="diag-kicker">YOUR STARTING LEVEL</p>'+
+            '<div class="diag-placement__level">'+esc(result.provisionalLevel)+' <small>provisional</small></div>'+
+            '<h2>'+esc(result.practice.focus)+'</h2>'+
+            '<p>'+esc(result.practice.advice)+'</p>'+
+            '<p class="diag-placement__caution">'+esc(result.caution||'This is an initial learning placement, not a certified CEFR result.')+'</p>'+
+            '</section>'
+          :'<p>Your vocabulary level will appear when the scoring model is available.</p>')+
       '<div class="diag-actions"><button class="diag-primary" type="button" data-diag="finish">'+(previewMode?'Return to teacher analytics':'Continue to Vocabulary Builder')+'</button></div></section>');
   }
   async function start(){
