@@ -1,0 +1,21 @@
+name: Diagnostic quality audit tests
+on:
+  pull_request:
+    paths:
+      - 'src/vocabulary/diagnostic-quality-audit.js'
+      - 'src/vocabulary/diagnostic-review.js'
+      - 'tests/vocabulary-diagnostic-quality-audit.test.js'
+      - '.github/workflows/diagnostic-quality-audit.yml'
+  workflow_dispatch:
+jobs:
+  quality-audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run focused audit tests
+        run: node --test tests/vocabulary-diagnostic-quality-audit.test.js
