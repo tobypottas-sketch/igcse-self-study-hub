@@ -3,7 +3,7 @@ import { escapeHtml } from '../views/html.js';
 import { auditDiagnosticItem } from './diagnostic-quality-audit.js';
 
 const root=document.getElementById('diagnosticReview');
-const state={client:null,level:'all',page:0,total:0,items:[],selected:null,details:null,busy:false,notice:''};
+const state={client:null,level:'all',page:0,total:0,items:[],selected:null,details:null,busy:false,notice:'',audit:null,auditBusy:false,auditFilter:'all'};
 const e=value=>escapeHtml(String(value??''));
 const human=s=>({draft:'Draft',language_reviewed:'Language reviewed',assessment_reviewed:'Assessment reviewed',pilot:'Pilot',approved:'Approved',retired:'Retired'})[s]||s;
 
@@ -27,10 +27,12 @@ function frame(body){
 function status(message){const node=root.querySelector('[data-review-status]');if(node)node.textContent=message;}
 
 function listView(){
+ const audit=state.audit;
+ const auditSummary=audit?`<section class="dr-panel dr-audit-panel"><h2>Bank-wide quality signals</h2><p class="dr-muted">Automated checks across ${audit.length} questions. These are review priorities, not validated item defects or CEFR calibration.</p><div class="dr-audit-metrics"><div><strong>${audit.length}</strong><small>Questions checked</small></div><div><strong>${audit.filter(x=>x.blocking).length}</strong><small>Structural blockers</small></div><div><strong>${audit.filter(x=>x.issues.length).length}</strong><small>With warnings</small></div></div><label for="audit-filter">Review priority <select id="audit-filter" data-action="audit-filter"><option value="all">All flagged questions</option><option value="blocking" ${state.auditFilter==='blocking'?'selected':''}>Structural blockers</option><option value="review" ${state.auditFilter==='review'?'selected':''}>Review warnings</option><option value="advisory" ${state.auditFilter==='advisory'?'selected':''}>Advisory warnings</option></select></label><div class="dr-audit-results">${audit.filter(x=>x.issues.length&&(state.auditFilter==='all'||x.issues.some(y=>y.severity===state.auditFilter))).slice(0,60).map(x=>`<button type="button" class="dr-audit-row" data-action="open" data-id="${e(x.id)}" data-version="${e(x.version)}"><strong>${e(x.lemma)} · ${e(x.level)}</strong><small>${e(x.issues.map(y=>y.code.replaceAll('_',' ')).join(' · '))}</small></button>`).join('')||'<p>No matching warnings.</p>'}</div><p class="dr-muted">Showing up to 60 matching flagged items. Use the level filter below for the regular review queue.</p></section>`: `<section class="dr-panel dr-audit-panel"><h2>Bank-wide quality signals</h2><p>Run the private, read-only audit to identify potential answer clues across the question bank.</p><button type="button" class="dr-primary" data-action="audit" ${state.auditBusy?'disabled':''}>${state.auditBusy?'Auditing questions…':'Audit all questions'}</button></section>`;
  const start=state.page*10;
  const items=state.items.map(item=>`<button type="button" class="dr-item" data-action="open" data-id="${e(item.id)}" data-version="${e(item.version)}"><span><strong>${e(item.lemma)}</strong> <span class="dr-level">${e(item.level)}</span><small>${e(item.construct?.replaceAll('_',' '))}</small></span><span class="dr-item-meta">${item.flags?'<b>Flagged · '+e(item.flags)+'</b>':e(human(item.status))}<small>Language ${item.languageApproved?'✓':'—'} · Assessment ${item.assessmentApproved?'✓':'—'} · CEFR ${item.cefrVerified?'✓':'—'}</small></span><span aria-hidden="true">›</span></button>`).join('');
  frame(`<section class="dr-hero"><p class="dr-kicker">ASSESSMENT QUALITY</p><h1>Diagnostic question review</h1><p>Review original questions before they can be used in a student pilot. CEFR levels are provisional until independently verified.</p></section>
- <section class="dr-panel"><div class="dr-toolbar"><label for="review-level">Level <select id="review-level" data-action="level"><option value="all">All levels</option>${['A1','A2','B1','B2','C1'].map(x=>`<option value="${x}" ${x===state.level?'selected':''}>${x}</option>`).join('')}</select></label><span>${e(state.total)} draft-bank items</span></div>
+ ${auditSummary}<section class="dr-panel"><div class="dr-toolbar"><label for="review-level">Level <select id="review-level" data-action="level"><option value="all">All levels</option>${['A1','A2','B1','B2','C1'].map(x=>`<option value="${x}" ${x===state.level?'selected':''}>${x}</option>`).join('')}</select></label><span>${e(state.total)} draft-bank items</span></div>
  <div class="dr-list">${items||'<p>No questions found.</p>'}</div>
  <footer class="dr-footer"><span>Showing ${state.total?start+1:0}–${Math.min(start+state.items.length,state.total)} of ${state.total}</span><div><button type="button" data-action="previous" ${state.page===0?'disabled':''}>Previous</button><button type="button" data-action="next" ${(state.page+1)*10>=state.total?'disabled':''}>Next 10</button></div></footer></section>
  <p class="dr-footnote">Private draft bank · No student assignments · Review decisions are recorded against your staff account.</p><p role="status" data-review-status>${e(state.notice)}</p>`);
@@ -57,6 +59,30 @@ function detailView(){
 async function load(){
  state.notice='';const data=await invoke('list',{page:state.page,...(state.level==='all'?{}:{level:state.level})});
  state.items=data.items||[];state.total=data.total||0;state.selected=null;state.details=null;listView();
+}
+async function runBankAudit(){
+ if(state.auditBusy)return;
+ state.auditBusy=true;state.notice='Auditing the private question bank…';listView();
+ try{
+  const rows=[];let page=0;let total=0;
+  do{
+   const batch=await invoke('list',{page});total=batch.total||0;
+   if(!(batch.items||[]).length&&rows.length<total)throw new Error('Question bank returned an incomplete page.');
+   const items=batch.items||[];
+   for(let offset=0;offset<items.length;offset+=4){
+    const group=items.slice(offset,offset+4);
+    const details=await Promise.all(group.map(item=>invoke('detail',{itemId:item.id,version:item.version})));
+    details.forEach((result,index)=>{
+     const item=group[index];const quality=auditDiagnosticItem(result.item);
+     rows.push({id:item.id,version:item.version,lemma:item.lemma,level:item.level,issues:quality.issues,blocking:!quality.canApprove});
+    });
+   }
+   page++;
+   if(page>100)throw new Error('Audit page limit exceeded.');
+  }while(rows.length<total);
+  state.audit=rows;state.notice=`Audited ${rows.length} questions. No review decisions were changed.`;
+ }catch(err){state.notice=`Audit incomplete: ${err.message}`;state.audit=null;}
+ finally{state.auditBusy=false;listView();}
 }
 async function detail(id,version){
  state.notice='';state.details=await invoke('detail',{itemId:id,version});
@@ -88,6 +114,7 @@ root.addEventListener('click',event=>{
    if(a==='previous'){state.page=Math.max(0,state.page-1);await load();return;}
    if(a==='next'){state.page++;await load();return;}
    if(a==='save'){await save();}
+   if(a==='audit'){await runBankAudit();}
  };
  void perform().catch(err=>{state.notice=err.message;status(state.notice)});
 });
@@ -100,6 +127,7 @@ root.addEventListener('change',event=>{
       :[['approve','Approve this review stage'],['flag','Flag problem'],['reject','Reject item']];
    if(decision)decision.innerHTML=pairs.map(([value,label])=>'<option value="'+value+'">'+label+'</option>').join('');
  }
+ if(event.target.dataset.action==='audit-filter'){state.auditFilter=event.target.value;listView();}
  if(event.target.dataset.action==='level'){
   state.level=event.target.value;state.page=0;void load().catch(err=>{state.notice=err.message;status(state.notice)});
  }
