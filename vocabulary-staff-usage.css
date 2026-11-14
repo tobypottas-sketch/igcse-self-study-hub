@@ -77,3 +77,86 @@
 .vocab-class-chooser__usage-action button{border:0;border-radius:12px;background:#246083;color:white;font-size:.88rem;font-weight:900;padding:12px 18px;cursor:pointer}
 @media(max-width:900px){.vocab-usage-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.vocab-usage-panels{grid-template-columns:1fr}.vocab-usage-class-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:570px){.vocab-usage-class-select{width:100%;max-width:100%}.vocab-usage-hero{padding:23px}.vocab-usage-class-grid{grid-template-columns:1fr}.vocab-usage-panel,.vocab-usage-classes{padding:16px}.vocab-usage-chart{gap:5px}.vocab-usage-bar small{font-size:.61rem}.vocab-usage-metric{padding:14px;min-height:130px}}
+
+
+/* Final editorial polish — restrained, consistent with existing dashboard colours. */
+.vocab-usage-shell{--vu-border:#dae5ef;--vu-navy:#203d5b;--vu-body:#556f86;--vu-soft-shadow:0 8px 26px rgba(27,60,91,.045)}
+.vocab-usage-hero{position:relative;overflow:hidden;padding:30px 34px 32px;box-shadow:0 14px 32px rgba(35,57,100,.09)}
+.vocab-usage-hero::after{content:"";position:absolute;right:32px;top:32px;width:42px;height:3px;border-radius:99px;background:rgba(255,255,255,.62)}
+.vocab-usage-hero>span{font-size:.7rem;letter-spacing:.17em}
+.vocab-usage-hero h1{margin:12px 0 7px;font-weight:850;letter-spacing:-.05em}
+.vocab-usage-hero p{font-size:.91rem;line-height:1.5;max-width:62ch}
+.vocab-usage-controls{gap:16px 28px;align-items:end;margin:23px 0 20px;padding:0 2px}
+.vocab-usage-controls>div{gap:10px}
+.vocab-usage-controls strong{font-size:.72rem;letter-spacing:.075em;text-transform:uppercase;color:#486984}
+.vocab-usage-pills{gap:7px}
+.vocab-usage-pill{min-height:41px;padding:9px 16px;font-size:.82rem;box-shadow:0 2px 5px rgba(29,61,90,.025)}
+.vocab-usage-pill.is-selected{box-shadow:0 4px 10px rgba(45,81,136,.12)}
+.vocab-usage-class-select{min-height:42px;width:340px;padding:9px 15px;box-shadow:0 2px 5px rgba(29,61,90,.025)}
+.vocab-usage-metrics{gap:14px;margin:10px 0 19px}
+.vocab-usage-metric{position:relative;overflow:hidden;gap:0;padding:22px 22px 19px;min-height:159px;border:1px solid rgba(255,255,255,.65);box-shadow:0 5px 14px rgba(27,60,91,.025)}
+.vocab-usage-metric::before{content:"";position:absolute;left:22px;top:0;width:31px;height:3px;background:var(--vu-color);border-radius:0 0 8px 8px;opacity:.72}
+.vocab-usage-metric__label{font-size:.77rem!important;line-height:1.3;letter-spacing:.01em}
+.vocab-usage-metric__value{display:block;margin:12px 0 8px;font-size:clamp(1.8rem,3vw,2.55rem)!important;letter-spacing:-.055em;line-height:1.02;font-variant-numeric:tabular-nums}
+.vocab-usage-metric__caption{display:block;margin-top:auto;font-size:.73rem!important;line-height:1.45;color:#61788b!important}
+.vocab-usage-panels{gap:17px}
+.vocab-usage-panel,.vocab-usage-classes{padding:25px 26px;border-color:var(--vu-border);border-radius:19px;box-shadow:var(--vu-soft-shadow)}
+.vocab-usage-heading{position:relative;padding-left:13px;margin-bottom:18px}
+.vocab-usage-heading::before{content:"";position:absolute;left:0;top:3px;width:3px;height:26px;background:#66acb7;border-radius:4px}
+.vocab-usage-heading h2{margin:0 0 6px;font-size:1.15rem;font-weight:850;letter-spacing:-.03em;color:var(--vu-navy)}
+.vocab-usage-heading p{margin:0;font-size:.79rem;line-height:1.5;color:var(--vu-body)}
+.vocab-usage-facts{gap:0;border:1px solid #e8edf3;border-radius:14px;overflow:hidden;background:#fbfcfe}
+.vocab-usage-fact{display:grid;grid-template-columns:minmax(54px,auto) minmax(0,1fr);align-items:center;gap:14px;padding:14px 15px;border-top:1px solid #e8edf3}
+.vocab-usage-fact:first-child{border-top:0}
+.vocab-usage-fact:nth-child(even){background:#f8fafc}
+.vocab-usage-fact>strong{font-size:1.26rem;letter-spacing:-.045em;color:#244e75;font-variant-numeric:tabular-nums;min-width:43px}
+.vocab-usage-fact>span{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.vocab-usage-fact b{font-size:.82rem;line-height:1.3;font-weight:850;color:#294961}
+.vocab-usage-fact small{font-size:.71rem;line-height:1.45;color:#718397}
+.vocab-usage-chart-meta{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px 14px;padding:5px 2px 8px;color:#75879b;font-size:.71rem;border-bottom:1px solid #edf1f6}
+.vocab-usage-chart-meta strong{font-weight:850;color:#466989}
+.vocab-usage-chart{height:202px;gap:13px;padding:18px 4px 2px}
+.vocab-usage-bar{gap:8px}
+.vocab-usage-bar strong{font-size:.78rem;line-height:1.25}
+.vocab-usage-bar__track{width:min(100%,43px)}
+.vocab-usage-bar.is-empty strong{color:#98aabd}
+.vocab-usage-bar.is-empty .vocab-usage-bar__track i{background:#d8e7ed;min-height:2px}
+.vocab-usage-bar small{color:#697e91;font-size:.72rem}
+.vocab-usage-bar:not(.is-empty):hover .vocab-usage-bar__track i{filter:saturate(1.15) brightness(1.03)}
+.vocab-usage-classes{margin:18px 0}
+.vocab-usage-class{background:#f7fbfd;border-color:#dce7ef;box-shadow:0 2px 8px rgba(27,60,91,.025);gap:9px}
+.vocab-usage-class strong{font-weight:850;line-height:1.35}
+.vocab-usage-people{margin-top:18px}
+.vocab-usage-search{margin:19px 0 20px;gap:10px 14px}
+.vocab-usage-search label{font-size:.79rem}
+.vocab-usage-search small{font-size:.74rem}
+.vocab-usage-active-title{margin:15px 0 12px;padding-bottom:10px;border-bottom:1px solid #e5ecf3}
+.vocab-usage-tablewrap th{font-size:.72rem;letter-spacing:.015em;text-transform:none}
+.vocab-usage-tablewrap td{line-height:1.45}
+.vocab-usage-inactive{background:#fbfcfe}
+.vocab-usage-foot{display:grid;grid-template-columns:minmax(120px,auto) 1fr;gap:11px 18px;border-top:1px solid #dce5ee;padding:17px 3px 0;margin:20px 0 32px;font-size:.73rem;line-height:1.65;color:#6a7e90}
+.vocab-usage-foot strong{font-size:.74rem;color:#375873}
+.vocab-usage-foot span{max-width:115ch}
+@media(max-width:900px){
+  .vocab-usage-chart{height:190px}
+  .vocab-usage-panels{gap:14px}
+}
+@media(max-width:570px){
+  .vocab-usage-hero{padding:25px 23px}
+  .vocab-usage-hero::after{right:22px;top:22px;width:25px}
+  .vocab-usage-controls{gap:17px;padding:0}
+  .vocab-usage-metric{padding:18px 16px;min-height:148px}
+  .vocab-usage-metric::before{left:16px}
+  .vocab-usage-metric__value{font-size:clamp(1.65rem,6vw,2.15rem)!important}
+  .vocab-usage-metric__caption{font-size:.68rem!important}
+  .vocab-usage-panel,.vocab-usage-classes{padding:19px 17px}
+  .vocab-usage-chart{gap:6px;height:184px}
+  .vocab-usage-chart-meta{font-size:.68rem}
+  .vocab-usage-bar small{font-size:.63rem}
+  .vocab-usage-fact{gap:9px;padding:12px 10px}
+  .vocab-usage-fact>strong{font-size:1.1rem;min-width:35px}
+  .vocab-usage-foot{grid-template-columns:1fr;gap:5px}
+}
+@media(prefers-reduced-motion:reduce){
+  .vocab-usage-bar:not(.is-empty):hover .vocab-usage-bar__track i{filter:none}
+}
