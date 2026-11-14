@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '../supabase.js';
 import { escapeHtml } from '../views/html.js';
+import { auditDiagnosticItem } from './diagnostic-quality-audit.js';
 
 const root=document.getElementById('diagnosticReview');
 const state={client:null,level:'all',page:0,total:0,items:[],selected:null,details:null,busy:false,notice:''};
@@ -38,10 +39,12 @@ function listView(){
 function detailView(){
  const x=state.details.item;
  const reviews=state.details.reviews||[];
+ const audit=auditDiagnosticItem(x);
+ const auditMarkup=`<section class="dr-quality" aria-label="Automatic quality checks"><h3>Automatic quality checks · advisory</h3><p>These signals identify possible problems, not proof of answer quality. A reviewer must still check plausibility, ambiguity and CEFR suitability.</p>${audit.issues.length?`<ul>${audit.issues.map(f=>`<li><strong>${e(f.severity)} · ${e(f.code.replaceAll('_',' '))}</strong>: ${e(f.message)}</li>`).join('')}</ul>`:'<p>No automatic warning found. This does not mean the question is approved.</p>'}<p><strong>Human checklist:</strong> One defensible answer · three believable near-misses · no grammar or answer-position giveaway · appropriate difficulty.</p></section>`;
  const opts=x.options.map(o=>`<li class="${o.id===x.correctOptionId?'dr-correct':''}"><strong>${e(o.id)}.</strong> ${e(o.text)} ${o.id===x.correctOptionId?'<span class="dr-key">Keyed answer</span>':''}<small>${e(o.rationale)}</small></li>`).join('');
  const flags=reviews.filter(x=>x.decision==='flag'||x.decision==='reject');
  frame(`<button class="dr-back" data-action="back">← All questions</button><section class="dr-hero dr-hero--small"><p class="dr-kicker">PRIVATE STAFF REVIEW · ${e(x.id)} · v${e(x.version)}</p><h1>${e(x.lemma)} <span class="dr-level">${e(x.level)}</span></h1><p>Tested sense: ${e(x.sense)}</p><p><strong>Status:</strong> ${e(human(x.status))}</p></section>
- <div class="dr-columns"><section class="dr-panel"><h2>Question and answers</h2><p class="dr-question">${e(x.stem)}</p><ol class="dr-options">${opts}</ol><h3>CEFR reference</h3><p>${e(x.levelReference?.referenceNotes||'Not documented')}</p><p class="dr-muted">Verification: ${e(x.levelReference?.status||'unverified')} · Source: ${e(x.source?.referenceNotes||'not recorded')}</p></section>
+ <div class="dr-columns"><section class="dr-panel"><h2>Question and answers</h2><p class="dr-question">${e(x.stem)}</p><ol class="dr-options">${opts}</ol>${auditMarkup}<h3>CEFR reference</h3><p>${e(x.levelReference?.referenceNotes||'Not documented')}</p><p class="dr-muted">Verification: ${e(x.levelReference?.status||'unverified')} · Source: ${e(x.source?.referenceNotes||'not recorded')}</p></section>
  <section class="dr-panel"><h2>Review decision</h2><p>Check whether every option is defensible, the distractors are plausible, and the assigned word sense matches the proposed level.</p>${flags.length?'<p class="dr-warning">This item has a flag or rejection. It requires a new version and fresh review before approval.</p>':''}
  <label for="review-stage">Review type</label><select id="review-stage"><option value="language">Language and answer quality</option><option value="assessment">Assessment design</option><option value="cefr">CEFR reference verification</option><option value="flag">Flag for revision</option></select>
  <label for="review-decision">Decision</label><select id="review-decision"><option value="approve">Approve this review stage</option><option value="flag">Flag problem</option><option value="reject">Reject item</option></select>
@@ -64,6 +67,7 @@ async function save(){
  const stage=root.querySelector('#review-stage')?.value;
  const decision=root.querySelector('#review-decision')?.value;
  const notes=root.querySelector('#review-notes')?.value?.trim()??'';
+ if(decision==='approve' && state.details?.item && !auditDiagnosticItem(state.details.item).canApprove){state.notice='Blocking structural quality issue: flag this item for revision instead of approving.';status(state.notice);return;}
  if(notes.length<12||(stage==='cefr'&&decision==='verify'&&notes.length<30)){
    state.notice='Please provide a specific explanation or reference before saving.';status(state.notice);return;
  }
