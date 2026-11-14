@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateVocabularyUsage, loadVocabularyStaffUsage, renderVocabularyStaffUsage } from '../src/vocabulary/staff-usage.js';
+import { calculateVocabularyUsage, loadVocabularyStaffUsage, renderVocabularyStaffUsage, updateVocabularyUsageStudentRows } from '../src/vocabulary/staff-usage.js';
 import { loadVocabularyTeacherData } from '../src/vocabulary/teacher-data.js';
 
 const data={
@@ -146,14 +146,16 @@ test('class summary uses one selected class rather than school-wide class count'
  assert.equal(selected.overview.wordsLearning,2);
  assert.equal(selected.overview.wordsSecure,1);
 });
-test('inactive students are collapsed separately; active students stay visible',()=>{
+test('student activity offers filtered paginated views without an enormous expanded list',()=>{
  const root={innerHTML:''};
  renderVocabularyStaffUsage(root,data,{days:7,classId:'c2',now});
- assert.match(root.innerHTML,/Practised in this period/);
- const section=root.innerHTML.match(/<details class="vocab-usage-inactive"[\s\S]+?<\/details>/)?.[0]??'';
- assert.match(section,/Learner Three|Learner One|Learner Two|Not yet active/);
- assert.doesNotMatch(section,/<details[^>]+open(?:\s|=|>)/);
- assert.match(root.innerHTML,/data-usage-inactive/);
+ assert.match(root.innerHTML,/data-action="staff-usage-view"/);
+ assert.match(root.innerHTML,/data-value="active"/);
+ assert.match(root.innerHTML,/data-value="inactive"/);
+ assert.match(root.innerHTML,/data-value="all"/);
+ assert.match(root.innerHTML,/data-action="staff-usage-more-students"/);
+ assert.doesNotMatch(root.innerHTML,/data-usage-inactive/);
+ assert.match(root.innerHTML,/data-activity="inactive"/);
 });
 test('building and secure are learning evidence, not mastered',()=>{
  const a=calculateVocabularyUsage(data,{days:7,now});
@@ -192,7 +194,9 @@ test('class chooser is compact but all classes remain accessible',()=>{
  renderVocabularyStaffUsage(root,{...data,classes,role:'admin'},{days:30,now});
  assert.equal((root.innerHTML.match(/data-action="staff-usage-class"/g)||[]).length,16);
  assert.match(root.innerHTML,/Show all 16 classes/);
- assert.match(root.innerHTML,/vocab-usage-more-classes/);
+ assert.match(root.innerHTML,/data-action="staff-usage-toggle-classes"/);
+ assert.match(root.innerHTML,/data-class-extra hidden/);
+ assert.doesNotMatch(root.innerHTML,/vocab-usage-more-classes/);
  assert.match(root.innerHTML,/vocab-usage-class-grid/);
  assert.match(root.innerHTML,/data-action="staff-usage-select-class"/);
 });
@@ -206,4 +210,45 @@ test('compact insight labels retain accurate time and status meaning',()=>{
  assert.match(root.innerHTML,/Words secure/);
  assert.match(root.innerHTML,/Current status/);
  assert.match(root.innerHTML,/About these figures/);
+});
+
+function usageUiFixture(activities) {
+ const rows=activities.map(([name,activity])=>({dataset:{name,activity},hidden:true}));
+ const buttons=['active','inactive','all'].map(value=>({dataset:{value},classList:{toggle(k,v){this.selected=v;}},setAttribute(k,v){this[k]=v;}}));
+ const counter={textContent:''},more={hidden:true,textContent:''};
+ const panel={dataset:{},querySelectorAll(selector){
+   if(selector==='[data-vocab-usage-student-row]')return rows;
+   if(selector==='[data-action="staff-usage-view"]')return buttons;
+   return [];
+ },querySelector(selector) {
+   if(selector==='[data-usage-search-count]')return counter;
+   if(selector==='[data-action="staff-usage-more-students"]')return more;
+   return null;
+ }};
+ return {root:{querySelector(sel){return sel==='[data-staff-usage]'?panel:null;}},rows,buttons,counter,more};
+}
+test('student views display just ten rows, with load-more revealing the next ten',()=>{
+ const fixture=usageUiFixture([...Array.from({length:43},(_,i)=>['active'+i,'active']),...Array.from({length:226},(_,i)=>['inactive'+i,'inactive'])]);
+ updateVocabularyUsageStudentRows(fixture.root);
+ assert.equal(fixture.rows.filter(r=>!r.hidden).length,10);
+ assert.equal(fixture.more.hidden,false);
+ assert.equal(fixture.counter.textContent,'Showing 10 of 43 students');
+ updateVocabularyUsageStudentRows(fixture.root,{more:true});
+ assert.equal(fixture.rows.filter(r=>!r.hidden).length,20);
+ updateVocabularyUsageStudentRows(fixture.root,{view:'inactive'});
+ assert.equal(fixture.rows.filter(r=>!r.hidden).length,10);
+ assert.equal(fixture.counter.textContent,'Showing 10 of 226 students');
+ updateVocabularyUsageStudentRows(fixture.root,{view:'all'});
+ assert.equal(fixture.rows.filter(r=>!r.hidden).length,10);
+ assert.equal(fixture.counter.textContent,'Showing 10 of 269 students');
+});
+test('search matches students beyond first ten and handles empty results',()=>{
+ const fixture=usageUiFixture(Array.from({length:269},(_,i)=>[i===256?'find this student':'learner '+i,i%3===0?'active':'inactive']));
+ updateVocabularyUsageStudentRows(fixture.root,{view:'all',query:'find this student'});
+ assert.equal(fixture.rows.filter(r=>!r.hidden).length,1);
+ assert.equal(fixture.rows[256].hidden,false);
+ assert.equal(fixture.more.hidden,true);
+ updateVocabularyUsageStudentRows(fixture.root,{query:'not present'});
+ assert.equal(fixture.rows.filter(r=>!r.hidden).length,0);
+ assert.match(fixture.counter.textContent,/No students match/);
 });
