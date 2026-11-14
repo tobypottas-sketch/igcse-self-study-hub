@@ -165,7 +165,12 @@ export function definitionWordDistractors(args, count = 3) {
     : stableShuffle(uniqueText(groups.flat()).filter(valid),`${args.seed}:definition-word-curated`);
   const samePos=stableShuffle(uniqueText(samePosCandidates(args).map(row=>text(row.term))).filter(valid),
     `${args.seed}:definition-word-same-pos`);
-  const choices=uniqueText([...curated,...samePos]).filter(valid);
+  // Only if the gap bank and unit terms are insufficient, consider authored
+  // misleading choices that are ALREADY short lexical labels of the same shape.
+  // Long definition prose is categorically excluded by the word-count check.
+  const authoredLabels=stableShuffle(authoredDistractors(args).filter(valid),
+    `${args.seed}:definition-word-authored-labels`);
+  const choices=uniqueText([...curated,...samePos,...authoredLabels]).filter(valid);
   if(choices.length<count)throw new Error('Definition → Word needs three comparable vocabulary-word alternatives.');
   return {options:choices.slice(0,count),source:choices.slice(0,count).every(value=>curated.includes(value))
     ? DISTRACTOR_SOURCE.GENERATED_SEMANTIC:DISTRACTOR_SOURCE.GENERATED_SAFE};
