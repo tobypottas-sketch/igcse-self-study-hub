@@ -6,8 +6,9 @@ import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 const PROJECT_URL=Deno.env.get('SUPABASE_URL')??'';
 const ANON_KEY=Deno.env.get('SUPABASE_ANON_KEY')??'';
 const SERVICE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')??'';
-const ALLOWED_ACTIONS=new Set(['status','start','pause','respond','history','assign','report']);
+const ALLOWED_ACTIONS=new Set(['status','start','pause','respond','history','assign','report','review-list','review-detail','review-decision']);
 const MAX_BODY_BYTES=4000;
+const REVIEW_ACTIONS=new Set(['review-list','review-detail','review-decision']);
 
 function headers(){
   return {
@@ -36,6 +37,13 @@ function validatePayload(action,payload){
     &&['baseline','follow_up','teacher_retake'].includes(payload.kind)
     &&(payload.availableAt===undefined||!Number.isNaN(Date.parse(payload.availableAt)))
     &&(payload.expiresAt===undefined||!Number.isNaN(Date.parse(payload.expiresAt)));
+  if(action==='review-list')return (!payload.level||['A1','A2','B1','B2','C1'].includes(payload.level))
+    &&(payload.page===undefined||(Number.isInteger(payload.page)&&payload.page>=0&&payload.page<=100));
+  if(action==='review-detail')return string(payload.itemId,110)!==null&&Number.isInteger(payload.version)&&payload.version>0;
+  if(action==='review-decision')return string(payload.itemId,110)!==null&&Number.isInteger(payload.version)&&payload.version>0
+    &&['language','assessment','cefr','flag'].includes(payload.stage)
+    &&['approve','flag','reject','verify'].includes(payload.decision)
+    &&typeof payload.notes==='string'&&payload.notes.length<=1500;
   if(action==='status'||action==='history'||action==='report')return Object.keys(payload).length===0;
   return false;
 }
@@ -86,8 +94,10 @@ Deno.serve(async (req:Request)=>{
     const admin=createClient(PROJECT_URL,SERVICE_KEY,{
       auth:{persistSession:false,autoRefreshToken:false}
     });
-    const {data:result,error}=await admin.rpc('vocabulary_diagnostic_api',{
-      p_actor:identity.user.id,p_action:action,p_data:payload
+    const rpc=REVIEW_ACTIONS.has(action)?'vocabulary_diagnostic_review_api':'vocabulary_diagnostic_api';
+    const rpcAction=REVIEW_ACTIONS.has(action)?action.slice('review-'.length):action;
+    const {data:result,error}=await admin.rpc(rpc,{
+      p_actor:identity.user.id,p_action:rpcAction,p_data:payload
     });
     if(error){
       const known=['ACCESS_DENIED','ASSIGNMENT_UNAVAILABLE','SESSION_UNAVAILABLE',
@@ -95,9 +105,12 @@ Deno.serve(async (req:Request)=>{
         'REPLAY_CONFLICT','OPEN_SESSION_EXISTS','FORM_UNAVAILABLE',
         'BASELINE_ALREADY_ASSIGNED','BASELINE_REQUIRED','FOLLOWUP_NOT_DUE',
         'BASELINE_COMPLETE','STUDENT_UNAVAILABLE','UNKNOWN_ACTION',
-        'EMPTY_FORM','FORM_INVALID','INVALID_KIND'];
+        'EMPTY_FORM','FORM_INVALID','INVALID_KIND','REVIEW_ACCESS_DENIED',
+        'ITEM_UNAVAILABLE','ITEM_LOCKED','INVALID_REVIEW','REVISION_REQUIRED',
+        'INDEPENDENT_LANGUAGE_REVIEW_REQUIRED','CEFR_EVIDENCE_REQUIRED',
+        'REVIEW_SEQUENCE_REQUIRED','UNKNOWN_REVIEW_ACTION'];
       const code=known.find(x=>error.message?.includes(x));
-      if(code)return reply({error:code},['ACCESS_DENIED','SESSION_UNAVAILABLE'].includes(code)?403:409);
+      if(code)return reply({error:code},['ACCESS_DENIED','SESSION_UNAVAILABLE','REVIEW_ACCESS_DENIED'].includes(code)?403:409);
       // Do not print question bank, SQL query strings, UUIDs or submitted payloads.
       console.error('Diagnostic RPC failed:',error.code??'unclassified');
       return reply({error:'SERVICE_ERROR'},500);
