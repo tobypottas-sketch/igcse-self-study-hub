@@ -2,6 +2,7 @@
 // This function never returns correct answers, answer rationales or CEFR cut scores.
 // Deploy with JWT verification enabled and both Supabase keys stored as server secrets.
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
+import { scoreProvisionalDiagnostic } from './provisional-scoring.js';
 
 const PROJECT_URL=Deno.env.get('SUPABASE_URL')??'';
 // Support both legacy and current Supabase managed key environments.
@@ -132,6 +133,18 @@ Deno.serve(async (req:Request)=>{
       // Do not print question bank, SQL query strings, UUIDs or submitted payloads.
       console.error('Diagnostic RPC failed:',error.code??'unclassified');
       return reply({error:'SERVICE_ERROR'},500);
+    }
+    // Score on the trusted server only, after database adjudication.
+    // Never return a placement for incomplete or unexpected form coverage.
+    if(action==='respond' && result?.state==='completed' && result?.result){
+      const placement=scoreProvisionalDiagnostic(result.result.coverage,result.result.total);
+      if(placement)return reply({...result,result:{...result.result,...placement}});
+    }
+    if(action==='history' && Array.isArray(result?.results)){
+      return reply({...result,results:result.results.map(row=>{
+        const placement=scoreProvisionalDiagnostic(row.coverage,row.total);
+        return placement?{...row,...placement}:row;
+      })});
     }
     return reply(result);
   }catch{
