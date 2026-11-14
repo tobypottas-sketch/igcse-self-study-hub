@@ -67,10 +67,15 @@ async function runBankAudit(){
   const rows=[];let page=0;let total=0;
   do{
    const batch=await invoke('list',{page});total=batch.total||0;
-   for(const item of batch.items||[]){
-    const result=await invoke('detail',{itemId:item.id,version:item.version});
-    const quality=auditDiagnosticItem(result.item);
-    rows.push({id:item.id,version:item.version,lemma:item.lemma,level:item.level,issues:quality.issues,blocking:!quality.canApprove});
+   if(!(batch.items||[]).length&&rows.length<total)throw new Error('Question bank returned an incomplete page.');
+   const items=batch.items||[];
+   for(let offset=0;offset<items.length;offset+=4){
+    const group=items.slice(offset,offset+4);
+    const details=await Promise.all(group.map(item=>invoke('detail',{itemId:item.id,version:item.version})));
+    details.forEach((result,index)=>{
+     const item=group[index];const quality=auditDiagnosticItem(result.item);
+     rows.push({id:item.id,version:item.version,lemma:item.lemma,level:item.level,issues:quality.issues,blocking:!quality.canApprove});
+    });
    }
    page++;
    if(page>100)throw new Error('Audit page limit exceeded.');
