@@ -95,7 +95,7 @@ begin
    if v_stage not in ('language','assessment','cefr','flag')
       or v_decision not in ('approve','flag','reject','verify')
       or length(v_notes)>1500
-      or (v_decision in ('flag','reject') and length(v_notes)<12)
+      or length(v_notes)<12
       or (v_stage='cefr' and v_decision not in ('verify','flag','reject'))
       or (v_stage='flag' and v_decision<>'flag')
       or (v_stage not in ('cefr','flag') and v_decision='verify')
@@ -108,6 +108,12 @@ begin
      select 1 from private.vocabulary_diagnostic_reviews
       where item_id=v_id and item_version=v_version and decision in ('flag','reject')
    ) then raise exception 'REVISION_REQUIRED'; end if;
+   if v_stage='language' and v_decision='approve'
+      and v_item.review_status not in ('draft','language_reviewed')
+     then raise exception 'REVIEW_SEQUENCE_REQUIRED'; end if;
+   if v_stage='assessment' and v_decision='approve'
+      and v_item.review_status not in ('language_reviewed','assessment_reviewed')
+     then raise exception 'REVIEW_SEQUENCE_REQUIRED'; end if;
    if v_stage='assessment' and v_decision='approve' then
      select reviewer_id into v_language
        from private.vocabulary_diagnostic_reviews where item_id=v_id and item_version=v_version
