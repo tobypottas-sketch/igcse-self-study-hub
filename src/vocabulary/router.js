@@ -2,6 +2,7 @@ import { getSupabaseClient } from '../supabase.js';
 import { renderVocabularyError } from './views.js';
 import './foundational-interactions.js';
 import { redirectToHubSignIn, getSessionStorage } from '../return-target.js';
+import { DIAGNOSTIC_BASELINE_GATE_ENABLED, decideVocabularyEntry, DIAGNOSTIC_ENTRY_STATES } from './diagnostic-entry-gate.js?v=baseline-gate-v1';
 
 const root = document.getElementById('vocabularyApp');
 
@@ -30,6 +31,30 @@ async function routeVocabulary() {
       return;
     }
     if (profile.role === 'student') {
+      // Intentionally dormant until the bank, student assessment UI, rollout
+      // and server-side practice enforcement are verified and approved.
+      if (DIAGNOSTIC_BASELINE_GATE_ENABLED) {
+        let decision=DIAGNOSTIC_ENTRY_STATES.STATUS_ERROR;
+        try {
+          const {data,error}=await client.functions.invoke('vocabulary-diagnostic',{
+            body:{action:'status',payload:{}}
+          });
+          if (!error && data && typeof data.baselineCompleted==='boolean') {
+            decision=decideVocabularyEntry({
+              enabled:true,
+              baselineCompleted:data.baselineCompleted,
+              baselineSessionState:data.baselineSessionState??null,
+              baselineAssignmentId:data.baselineAssignmentId??null,
+              statusAvailable:true
+            });
+          }
+        } catch { /* A failed check never unlocks practice. */ }
+        if (decision!==DIAGNOSTIC_ENTRY_STATES.PRACTICE) {
+          const {renderVocabularyBaselineGate}=await import('./diagnostic-gate-view.js?v=baseline-gate-v1');
+          renderVocabularyBaselineGate(root,decision);
+          return;
+        }
+      }
       const status=root.querySelector('[data-vocab-loading-status]');
       if(status) status.textContent='Opening your vocabulary…';
       await import('./app.js?v=meaning-recognise-v1');
