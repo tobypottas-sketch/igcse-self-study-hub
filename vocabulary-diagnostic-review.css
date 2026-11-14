@@ -11,3 +11,17 @@
 .dr-human-checks input[type=checkbox]{width:18px;height:18px;flex:none;margin:1px 0 0;accent-color:#087677}
 
 .dr-audit-panel{margin-bottom:18px}.dr-audit-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}.dr-audit-metrics>div{padding:13px;background:#f2f8f8;border-radius:10px}.dr-audit-metrics strong{display:block;font-size:1.55rem;color:#126f71}.dr-audit-metrics small{font-size:.78rem;color:#617780}.dr-audit-results{max-height:440px;overflow:auto;border-top:1px solid #dbe6e6;margin-top:12px}.dr-audit-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;width:100%;padding:12px 4px;border:0;border-bottom:1px solid #e6eded;background:transparent;text-align:left;cursor:pointer}.dr-audit-row:hover{background:#f4f9f9}.dr-audit-row small{color:#63777b;max-width:65%;text-align:right;line-height:1.4}@media(max-width:550px){.dr-audit-metrics{grid-template-columns:1fr 1fr}.dr-audit-row{display:block}.dr-audit-row small{display:block;max-width:none;text-align:left;margin-top:4px}}
+
+
+/* Teacher-only reconstructed-item preview */
+.dr-preview-options{border:0;padding:0;margin:20px 0;display:grid;gap:10px;min-width:0}
+.dr-preview-options legend{font-weight:750;margin-bottom:12px}
+.dr-preview-option{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;cursor:pointer;background:var(--c-surface)}
+.dr-preview-option:has(input:checked){border-color:var(--c-teal);background:var(--c-surface-soft)}
+.dr-preview-option input{margin-top:4px;flex-shrink:0}
+.dr-preview-actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 22px}
+.dr-preview-feedback{padding:16px;border:1px solid var(--line);border-radius:12px;margin-bottom:20px}
+.dr-preview-feedback li{margin-bottom:8px;overflow-wrap:anywhere}
+.dr-preview textarea{width:100%;max-width:100%;box-sizing:border-box;margin:8px 0 12px}
+.dr-preview .dr-topbar button{background:transparent;border:0;cursor:pointer;font:inherit}
+@media(max-width:600px){.dr-preview-option{padding:12px}.dr-preview-actions>*{flex:1 1 auto}}
