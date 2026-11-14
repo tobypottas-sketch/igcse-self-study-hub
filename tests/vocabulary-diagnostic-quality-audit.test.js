@@ -27,6 +27,8 @@ test('staff review uses advisory audit, not automatic approval',()=>{
  const ui=readFileSync(new URL('../src/vocabulary/diagnostic-review.js',import.meta.url),'utf8');
  assert.match(ui,/auditDiagnosticItem\(x\)/);
  assert.match(ui,/Human checklist:/);
+ assert.match(ui,/data-quality-confirm="distractors"/);
+ assert.match(ui,/Confirm all four quality checks before approving this stage/);
  assert.match(ui,/Blocking structural quality issue/);
  assert.match(ui,/This does not mean the question is approved/);
 });
