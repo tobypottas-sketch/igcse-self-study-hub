@@ -35,32 +35,7 @@
 
 ## Additional rewrite candidates
 
-### 003 — choose
-**Stem:** Three clubs are open today. Which student has made a choice?
-- A: “I'm still deciding between art and chess.”
-- **B: “I've decided to join the chess club.” (key)**
-- C: “I might join the chess club later.”
-- D: “I'm thinking about joining the chess club.”
-
-All responses are first-person statements about joining, eliminating the old “only statement among questions” clue. Reviewer must check whether *decided* is too transparent a synonym of *chosen*.
-
-### 004 — price
-**Stem:** A cinema ticket costs £12. Which sentence describes its price?
-- A: “It is cheaper than the £10 ticket.”
-- B: “It costs the same as the £15 ticket.”
-- C: “It costs £12 for two tickets.”
-- **D: “It costs £12 for one ticket.” (key)**
-
-**Do not approve yet:** This version is mainly numerical consistency and the word *price* is in the stem. Needs a genuinely lexical context, not arithmetic, before release.
-
-### 053 — fast
-**Stem:** Which cyclist is moving fast?
-- A: “Alex cycles 3 kilometres in one hour.”
-- **B: “Alex cycles 12 kilometres in half an hour.” (key)**
-- C: “Alex cycles 5 kilometres in two hours.”
-- D: “Alex cycles 4 kilometres in one hour.”
-
-**Do not approve yet:** Requires speed calculations; risks measuring numeracy instead of vocabulary. Replace with short contextual descriptions that distinguish speed without maths.
+_The keyed rewrite proposals that were here have been removed from the public repository (they were exposed through GitHub Pages and remain in public Git history, so they are retired). Replacement items are authored and reviewed only in the private bank — see `docs/vocabulary-diagnostic-secure-bank-boundary.md`._
 
 ## Editorial rules learned from this pass
 

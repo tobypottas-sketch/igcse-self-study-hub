@@ -33,32 +33,7 @@
 
 ## High-priority revision directions
 
-### 015 — invite (avoid copying the target into the answer)
-**Proposed stem:** The school wants parents to come to an evening talk. Which message invites them?
-- A: 'Thank you for coming to yesterday's talk.'
-- B: 'The talk has been moved to next Thursday.'
-- **C: 'We hope you can join us for the talk on Thursday.' (key)**
-- D: 'The talk starts at six and finishes at seven.'
-
-**Review caveat:** D could function as an invitation if sent in context; revise to explicitly make D an information-only notice. Human review required.
-
-### 018 — remind (repair construct mismatch)
-**Proposed stem:** Amir often forgets his library book. What could his friend say to remind him?
-- A: 'I borrowed your library book yesterday.'
-- B: 'I have finished reading my library book.'
-- C: 'You can borrow my library book.'
-- **D: 'Don't forget to bring your library book tomorrow.' (key)**
-
-**Review caveat:** Key is a very familiar imperative; consider whether it is an A2-level discriminating item or an easy anchor. This now targets communicative meaning, not verb-complement grammar.
-
-### 099 — avoid (remove unjustified inference)
-**Proposed stem:** The class wants to avoid the busiest road on its trip. What should the driver do?
-- A: 'Drive along the busiest road as usual.'
-- B: 'Stop on the busiest road for a break.'
-- C: 'Wait until the busiest road becomes even busier.'
-- **D: 'Choose a different road for the journey.' (key)**
-
-**Do not approve:** The alternatives remain absurdly easy. Rewrite again using plausible route choices that unambiguously test *avoid* without relying on prediction of traffic outcomes.
+_The keyed rewrite proposals that were here have been removed from the public repository (they were exposed through GitHub Pages and remain in public Git history, so they are retired). Replacement items are authored and reviewed only in the private bank — see `docs/vocabulary-diagnostic-secure-bank-boundary.md`._
 
 ## Cross-level concerns
 

@@ -33,26 +33,7 @@
 
 ## High-priority rewrite sketches
 
-### 030 — complain: eliminate format clues
-**Stem:** Four guests emailed a hotel after staying there. Which message is a complaint?
-- **A: “The shower did not work, even after we reported it.” (key)**
-- B: “The shower worked after staff repaired it for us.”
-- C: “The shower was working when we arrived.”
-- D: “The shower had been repaired before our stay.”
-
-**Caution:** All four discuss the shower, but A remains the only clearly negative outcome. Pilot data needed to know whether it discriminates.
-
-### 065 — cautious: keep options within one plausible safety context
-**Stem:** It has just rained and the steps are wet. Which person is being cautious?
-- **A: “Leah checks the steps and uses the handrail.” (key)**
-- B: “Leah uses the handrail but does not look at the steps.”
-- C: “Leah checks the steps but runs down them.”
-- D: “Leah asks if the steps are safe but then runs down them.”
-
-**Caution:** Still potentially a common-sense rather than lexical item. Check whether a direct vocabulary contrast would be more diagnostic.
-
-### 027 — investigate: ambiguity correction
-Original keyed B (“examine the cause of the failures”) is defensible, but A (“record the number of affected classrooms”) is also an investigative action. A revised item should ask for the **best first step to discover why** power cuts recur, and use alternatives that cannot also be investigative steps. Do not approve the current question until independently reviewed.
+_The keyed rewrite proposals that were here have been removed from the public repository (they were exposed through GitHub Pages and remain in public Git history, so they are retired). Replacement items are authored and reviewed only in the private bank — see `docs/vocabulary-diagnostic-secure-bank-boundary.md`._
 
 ## Cross-level observations
 

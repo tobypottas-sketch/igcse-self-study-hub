@@ -1,5 +1,7 @@
 # Vocabulary Diagnostic — secure backend pilot (deployed, not student enabled)
 
+> **Question-bank boundary:** operational items, options and keys never enter this public repository. See `docs/vocabulary-diagnostic-secure-bank-boundary.md`; the item lifecycle RPC is in `item_lifecycle_NOT_APPLIED.sql` (not applied).
+
 ## Current state — 14 November 2026
 
 **Supabase project:** existing Hub project. **Deployed Edge Function:** `vocabulary-diagnostic` version **2**, `verify_jwt=true`. **Database:** three successful managed migrations (private tables, initial API, pause/resume API replacement).

@@ -2,8 +2,16 @@
 // Run ONLY on a local, private bank file: node tools/diagnostic/audit-bank.mjs ./private-bank.json --pilot
 // Never commit real answer keys to this repository or publish them through GitHub Pages.
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { auditDiagnosticBank } from './item-quality.js';
+
+function isTrackedByGit(file){
+  try{
+    execFileSync('git',['ls-files','--error-unmatch',file],{cwd:dirname(file),stdio:'ignore'});
+    return true;
+  }catch{return false;}
+}
 
 const args=process.argv.slice(2);
 const forPilot=args.includes('--pilot');
@@ -13,6 +21,7 @@ if(!path||args.some(arg=>arg.startsWith('--')&&arg!=='--pilot')){
   process.exitCode=2;
 }else{
   try{
+    if(isTrackedByGit(resolve(path)))throw new Error('Refusing to audit a file tracked by Git: tracked files are public. Keep private banks outside the repository or under diagnostic-private/.');
     const content=JSON.parse(readFileSync(resolve(path),'utf8'));
     if(!Array.isArray(content))throw new Error('Private bank must be a JSON array.');
     const report=auditDiagnosticBank(content,{forPilot});
