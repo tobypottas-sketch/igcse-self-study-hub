@@ -1,6 +1,6 @@
 // A safe visual walkthrough for staff. Synthetic questions only; no live diagnostic data,
 // no answer keys and no API calls. The real student player is reused unchanged.
-import { initialiseVocabularyDiagnostic } from './diagnostic-student.js?v=student-live-v1';
+import { initialiseVocabularyDiagnostic } from './diagnostic-student.js?v=provisional-v1';
 
 const SAMPLE = [
   {stem:'The travellers arrived ___ the station just before midday.', options:['on','at','in','to']},
