@@ -39,7 +39,7 @@ function detailView(){
  <div class="dr-columns"><section class="dr-panel"><h2>Question and answers</h2><p class="dr-question">${e(x.stem)}</p><ol class="dr-options">${opts}</ol><h3>CEFR reference</h3><p>${e(x.levelReference?.referenceNotes||'Not documented')}</p><p class="dr-muted">Verification: ${e(x.levelReference?.status||'unverified')} · Source: ${e(x.source?.referenceNotes||'not recorded')}</p></section>
  <section class="dr-panel"><h2>Review decision</h2><p>Check whether every option is defensible, the distractors are plausible, and the assigned word sense matches the proposed level.</p>${flags.length?'<p class="dr-warning">This item has a flag or rejection. It requires a new version and fresh review before approval.</p>':''}
  <label for="review-stage">Review type</label><select id="review-stage"><option value="language">Language and answer quality</option><option value="assessment">Assessment design</option><option value="cefr">CEFR reference verification</option><option value="flag">Flag for revision</option></select>
- <label for="review-decision">Decision</label><select id="review-decision"><option value="flag">Flag problem</option><option value="approve">Approve this review stage</option><option value="reject">Reject item</option><option value="verify">Verify CEFR reference</option></select>
+ <label for="review-decision">Decision</label><select id="review-decision"><option value="approve">Approve this review stage</option><option value="flag">Flag problem</option><option value="reject">Reject item</option></select>
  <label for="review-notes">Evidence / review notes</label><textarea id="review-notes" rows="5" maxlength="1500" placeholder="Explain any issue or record your supporting evidence. For CEFR verification, cite the specific permitted reference and sense."></textarea>
  <button type="button" class="dr-primary" data-action="save" ${state.busy?'disabled':''}>Save review decision</button><p role="status" data-review-status>${e(state.notice)}</p>
  <h3>Review history</h3><div class="dr-history">${reviews.length?reviews.map(r=>`<div><strong>${e(r.stage)} · ${e(r.decision)}</strong><small>${e(r.createdAt)}</small><p>${e(r.notes)}</p></div>`).join(''):'<p>No review decisions recorded yet.</p>'}</div>
@@ -59,7 +59,7 @@ async function save(){
  const stage=root.querySelector('#review-stage')?.value;
  const decision=root.querySelector('#review-decision')?.value;
  const notes=root.querySelector('#review-notes')?.value?.trim()??'';
- if((stage==='cefr'&&decision==='verify'&&notes.length<30)||(['flag','reject'].includes(decision)&&notes.length<12)){
+ if(notes.length<12||(stage==='cefr'&&decision==='verify'&&notes.length<30)){
    state.notice='Please provide a specific explanation or reference before saving.';status(state.notice);return;
  }
  state.busy=true;status('Saving review…');
@@ -81,6 +81,14 @@ root.addEventListener('click',event=>{
  void perform().catch(err=>{state.notice=err.message;status(state.notice)});
 });
 root.addEventListener('change',event=>{
+ if(event.target.id==='review-stage'){
+   const decision=root.querySelector('#review-decision');
+   const stage=event.target.value;
+   const pairs=stage==='cefr'?[['verify','Verify CEFR reference'],['flag','Flag problem'],['reject','Reject item']]
+      :stage==='flag'?[['flag','Flag for revision']]
+      :[['approve','Approve this review stage'],['flag','Flag problem'],['reject','Reject item']];
+   if(decision)decision.innerHTML=pairs.map(([value,label])=>'<option value="'+value+'">'+label+'</option>').join('');
+ }
  if(event.target.dataset.action==='level'){
   state.level=event.target.value;state.page=0;void load().catch(err=>{state.notice=err.message;status(state.notice)});
  }
