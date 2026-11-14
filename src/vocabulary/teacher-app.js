@@ -31,11 +31,31 @@ function renderClassChooser() {
   teacherState.root.innerHTML = `<main class="vocab-shell vocab-class-chooser"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Teacher analytics</span></header><section class="vocab-teacher-hero vocab-class-chooser__hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase</p><h1>Choose a class</h1><p>Open the class that needs your attention.</p><div class="vocab-teacher-actions"><button type="button" class="vocab-button vocab-button--primary" data-action="teacher-open-usage">Usage overview</button><a class="vocab-button" href="./vocabulary.html?preview=1">Preview student activities</a></div></section><section class="vocab-class-chooser__grid">${cards}</section></main>`;
 }
 
-function showStaffUsage() {
+function showStaffUsage({preserveStudentList=false}={}) {
   if(!teacherState.usageData)return;
+  const current=preserveStudentList?teacherState.root.querySelector('[data-staff-usage]'):null;
+  const saved=current?{
+    view:current.dataset.studentView,
+    query:current.dataset.studentQuery??'',
+    limit:current.dataset.studentLimit??'10',
+    classesExpanded:current.querySelector('[data-action="staff-usage-toggle-classes"]')?.getAttribute('aria-expanded')==='true'
+  }:null;
   renderVocabularyStaffUsage(teacherState.root,teacherState.usageData,{
     days:teacherState.usageDays,classId:teacherState.usageClassId,studentId:teacherState.usageStudentId
   });
+  if(!saved)return;
+  const panel=teacherState.root.querySelector('[data-staff-usage]');
+  if(!panel)return;
+  panel.dataset.studentView=saved.view;
+  panel.dataset.studentQuery=saved.query;
+  panel.dataset.studentLimit=saved.limit;
+  const input=panel.querySelector('[data-action="staff-usage-search"]');
+  if(input)input.value=saved.query;
+  updateVocabularyUsageStudentRows(teacherState.root);
+  if(saved.classesExpanded){
+    const toggle=panel.querySelector('[data-action="staff-usage-toggle-classes"]');
+    if(toggle)toggle.click();
+  }
 }
 async function openStaffUsage() {
   teacherState.usageReturnClass=teacherState.currentClass?.id??null;
@@ -372,7 +392,7 @@ function handleClick(event) {
   }
   else if (action === 'staff-usage-student') {
     const requested=target.dataset.value;
-    teacherState.usageStudentId=requested||null;showStaffUsage();
+    teacherState.usageStudentId=requested||null;showStaffUsage({preserveStudentList:true});
   }
   else if (action === 'teacher-open-class') void openClass(target.dataset.classId).catch(showError);
   else if (action === 'teacher-week-previous') changeWeeklyWeek(1);
