@@ -1,0 +1,298 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:igcse-self-study-hub:diagnostic:item-authoring:v1",
+  "title": "Diagnostic vocabulary item — private authoring export v0.1",
+  "description": "Developer-side validation shape only. Never publish real keyed item records to GitHub Pages.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "itemId",
+    "version",
+    "formFamily",
+    "levelHypothesis",
+    "levelReference",
+    "construct",
+    "domain",
+    "lemma",
+    "partOfSpeech",
+    "sense",
+    "stem",
+    "options",
+    "correctOptionId",
+    "source",
+    "review"
+  ],
+  "properties": {
+    "itemId": {
+      "type": "string",
+      "pattern": "^diag-[a-z0-9-]{6,80}$"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "formFamily": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 100
+    },
+    "levelHypothesis": {
+      "enum": [
+        "A1",
+        "A2",
+        "B1",
+        "B2",
+        "C1"
+      ]
+    },
+    "levelReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "framework",
+        "basis",
+        "referenceNotes",
+        "status",
+        "checkedBy",
+        "checkedAt"
+      ],
+      "properties": {
+        "framework": {
+          "const": "CEFR"
+        },
+        "basis": {
+          "enum": [
+            "EVP_sense",
+            "Oxford_3000_5000",
+            "independent_educator",
+            "other_permitted"
+          ]
+        },
+        "referenceNotes": {
+          "type": "string",
+          "minLength": 15,
+          "maxLength": 500
+        },
+        "status": {
+          "enum": [
+            "unverified",
+            "verified"
+          ]
+        },
+        "checkedBy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "checkedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+    "construct": {
+      "enum": [
+        "meaning_in_context",
+        "precise_meaning",
+        "collocation_sense"
+      ]
+    },
+    "domain": {
+      "enum": [
+        "daily_life",
+        "school",
+        "work",
+        "travel",
+        "society",
+        "academic"
+      ]
+    },
+    "lemma": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 80
+    },
+    "partOfSpeech": {
+      "enum": [
+        "noun",
+        "verb",
+        "adjective",
+        "adverb",
+        "phrase",
+        "other"
+      ]
+    },
+    "sense": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 160
+    },
+    "stem": {
+      "type": "string",
+      "minLength": 25,
+      "maxLength": 450
+    },
+    "options": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "text",
+          "rationale"
+        ],
+        "properties": {
+          "id": {
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 170
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 300
+          }
+        }
+      }
+    },
+    "correctOptionId": {
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "origin",
+        "rightsStatus",
+        "referenceNotes"
+      ],
+      "properties": {
+        "origin": {
+          "enum": [
+            "original",
+            "licensed"
+          ]
+        },
+        "rightsStatus": {
+          "enum": [
+            "author_owned",
+            "license_verified",
+            "unverified"
+          ]
+        },
+        "referenceNotes": {
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 500
+        },
+        "licenseId": {
+          "type": "string",
+          "maxLength": 200
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "authorId",
+        "languageReviewerId",
+        "assessmentReviewerId",
+        "languageReviewedAt",
+        "assessmentReviewedAt"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "draft",
+            "language_reviewed",
+            "assessment_reviewed",
+            "pilot",
+            "approved",
+            "retired"
+          ]
+        },
+        "authorId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "languageReviewerId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "assessmentReviewerId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "languageReviewedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "assessmentReviewedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      }
+    },
+    "calibration": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "modelVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "difficulty": {
+          "type": "number"
+        },
+        "discrimination": {
+          "type": "number"
+        },
+        "sampleSize": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}
