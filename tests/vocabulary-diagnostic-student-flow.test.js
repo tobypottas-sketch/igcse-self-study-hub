@@ -34,7 +34,7 @@ test('student answers use server request IDs and do not receive correctness feed
 });
 test('review is not mistaken for a validated CEFR level',()=>{
  const source=readFileSync(new URL('../src/vocabulary/diagnostic-student.js',import.meta.url),'utf8');
- assert.match(source,/not awarding a CEFR level/i);
+ assert.match(source,/provisional vocabulary level.*once assessment scoring is verified/i);
  assert.match(source,/I’m not sure/);
 });
 test('diagnostic error messages do not leak backend details',()=>{
