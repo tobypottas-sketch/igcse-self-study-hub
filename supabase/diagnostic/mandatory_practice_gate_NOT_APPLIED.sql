@@ -52,6 +52,11 @@ revoke all on function private.vocabulary_diagnostic_enforce_practice_gate()
 
 -- Guard actual database write paths, not just the browser navigation and
 -- vocabulary-attempt-action endpoint. This prevents direct-RPC bypasses.
+drop trigger if exists vocab_diag_require_baseline on public.vocabulary_missions;
+create trigger vocab_diag_require_baseline before insert or update
+ on public.vocabulary_missions for each row
+ execute function private.vocabulary_diagnostic_enforce_practice_gate();
+
 drop trigger if exists vocab_diag_require_baseline on public.vocabulary_mission_starts;
 create trigger vocab_diag_require_baseline before insert or update
  on public.vocabulary_mission_starts for each row
