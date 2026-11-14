@@ -1,0 +1,59 @@
+/* Vocabulary-only tactile feedback. One visual language for every actionable control.
+   Excludes draggable gap chips, disabled controls and ordinary form inputs. */
+#vocabularyApp :where(button:not(.vocab-gap-chip):not(:disabled):not([aria-disabled="true"]),
+  a.vocab-button:not([aria-disabled="true"]),
+  a.vocab-back:not([aria-disabled="true"]),
+  a.vocab-link:not([aria-disabled="true"]),
+  [role="button"]:not([aria-disabled="true"])) {
+  --vocab-tap-shadow: 0 5px 14px rgba(22,60,83,.13);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition-property: transform, box-shadow, filter, border-color, background-color;
+  transition-duration: 130ms;
+  transition-timing-function: cubic-bezier(.22,1,.36,1);
+  transform-origin: center center;
+}
+/* Lift gently for mouse/trackpad users; don't leave hover states stuck on touch screens. */
+@media (hover:hover) and (pointer:fine) {
+  #vocabularyApp :where(button:not(.vocab-gap-chip):not(:disabled):not([aria-disabled="true"]),
+    a.vocab-button:not([aria-disabled="true"]),
+    a.vocab-back:not([aria-disabled="true"]),
+    a.vocab-link:not([aria-disabled="true"]),
+    [role="button"]:not([aria-disabled="true"])):hover {
+    transform: translateY(-1px);
+    filter: brightness(1.025);
+    box-shadow: var(--vocab-tap-shadow);
+  }
+}
+/* This is the 'physical press': button moves in, becomes slightly smaller, shadow tightens. */
+#vocabularyApp :is(button:not(.vocab-gap-chip),a.vocab-button,a.vocab-back,a.vocab-link,[role="button"]):not(:disabled):not([aria-disabled="true"]):active {
+  transform: translateY(2px) scale(.975) !important;
+  box-shadow: inset 0 2px 5px rgba(13,46,66,.14), 0 1px 3px rgba(13,46,66,.10) !important;
+  filter: brightness(.94);
+  transition-duration: 65ms;
+}
+/* Keep answer choices visually obvious while they are being selected. */
+#vocabularyApp :is(.vocab-choice,.vocab-evidence-option,.vocab-choice-card,.vocab-match-card):not(:disabled):active {
+  border-color: var(--c-teal-line, #61a8ae);
+  background-color: var(--c-teal-soft, #e5f6f4);
+}
+/* Active indicators never apply to buttons that cannot be used. */
+#vocabularyApp :is(button,[role="button"]):is(:disabled,[aria-disabled="true"]) {
+  cursor: not-allowed;
+}
+/* Keyboard users get a visible focus ring without requiring a pointer press. */
+#vocabularyApp :where(button,a.vocab-button,a.vocab-back,a.vocab-link,[role="button"]):focus-visible {
+  outline: 3px solid rgba(34,133,157,.68);
+  outline-offset: 3px;
+}
+/* No motion for users requesting reduced animation; preserve contrast and focus. */
+@media (prefers-reduced-motion: reduce) {
+  #vocabularyApp :where(button,a.vocab-button,a.vocab-back,a.vocab-link,[role="button"]) {
+    transition: none !important;
+  }
+  #vocabularyApp :is(button:not(.vocab-gap-chip),a.vocab-button,a.vocab-back,a.vocab-link,[role="button"]):not(:disabled):not([aria-disabled="true"]):active {
+    transform: none !important;
+    box-shadow: inset 0 2px 5px rgba(13,46,66,.2) !important;
+    filter: brightness(.9);
+  }
+}
