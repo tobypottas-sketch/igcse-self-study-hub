@@ -5,6 +5,8 @@ on:
       - 'src/vocabulary/diagnostic-quality-audit.js'
       - 'src/vocabulary/diagnostic-review.js'
       - 'tests/vocabulary-diagnostic-quality-audit.test.js'
+      - 'supabase/diagnostic/review_api.sql'
+      - 'supabase/functions/vocabulary-diagnostic/index.ts'
       - '.github/workflows/diagnostic-quality-audit.yml'
   workflow_dispatch:
 jobs:
