@@ -2,17 +2,29 @@
 -- Does not touch real items, Forms A/B, other students, progress or the gate.
 -- Everything is identifiable by form_code 'DIAG-PILOT-SYNTHETIC' and item_id prefix 'diag-pilot-syn-'.
 -- Reverse with pilot_synthetic_teardown.sql.
--- BEFORE RUNNING: replace the test student's email below (a dedicated test account with role 'student').
-do $$
+-- Uses the sole active student already provisioned in the dedicated TEST CLASS.
+-- Refuses to run if that class has a different membership count, an inactive student,
+-- or a student also enrolled in any other class.
+do $
 declare
-  c_test_email constant text := 'REPLACE-WITH-TEST-STUDENT-EMAIL';
+  c_test_class constant uuid := '88e7bcb7-c2ed-4bf9-98fb-ac18a0636e4f';
   v_student uuid; v_admin uuid; v_form uuid; v_level text; v_key text; p int;
 begin
-  select p.id into v_student from public.profiles p join auth.users u on u.id=p.id
-   where lower(u.email)=lower(c_test_email) and p.role='student' and p.active;
-  if v_student is null then raise exception 'PILOT: test student not found or not an active student'; end if;
-  if exists(select 1 from public.student_class_memberships where student_id=v_student and ended_at is null)
-    then raise exception 'PILOT: test student must not belong to a real class'; end if;
+  if not exists (select 1 from public.classes c
+    where c.id=c_test_class and c.active and upper(trim(c.class_name))='TEST CLASS')
+    then raise exception 'PILOT: dedicated TEST CLASS not found or inactive'; end if;
+  if (select count(*) from public.student_class_memberships m
+       where m.class_id=c_test_class and m.ended_at is null) <> 1
+    then raise exception 'PILOT: TEST CLASS must contain exactly one active membership'; end if;
+  select p.id into v_student from public.student_class_memberships m
+    join public.profiles p on p.id=m.student_id
+    join auth.users u on u.id=p.id
+    where m.class_id=c_test_class and m.ended_at is null
+      and p.role='student' and p.active;
+  if v_student is null then raise exception 'PILOT: TEST CLASS student must have an active authenticated student profile'; end if;
+  if exists(select 1 from public.student_class_memberships m
+      where m.student_id=v_student and m.ended_at is null and m.class_id<>c_test_class)
+    then raise exception 'PILOT: test student also belongs to another class'; end if;
   if exists(select 1 from private.vocabulary_diagnostic_forms where form_code='DIAG-PILOT-SYNTHETIC')
     then raise exception 'PILOT: already set up; run the teardown first'; end if;
   select id into v_admin from public.profiles where role='admin' and active order by id limit 1;
