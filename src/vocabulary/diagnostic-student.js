@@ -3,6 +3,7 @@
 import { escapeHtml } from '../views/html.js';
 
 const esc=v=>escapeHtml(String(v??''));
+const NOT_CERTIFIED='This is an initial learning placement, not a certified CEFR result.';
 const VALID=new Set(['A','B','C','D','unknown']);
 const SAFE_ERROR={
   ASSIGNMENT_UNAVAILABLE:'Your diagnostic is not currently available. Please ask your teacher.',
@@ -61,9 +62,10 @@ export async function initialiseVocabularyDiagnostic({root,client,assignmentId,s
   }
   function question(){
     const q=validateSafeQuestion(state.question);
-    const options=q.options.map(o=>'<label class="diag-option '+(state.answer===o.id?'diag-option--selected':'')+'">'+
+    // Badges follow the on-screen order; the submitted value stays the server's option id.
+    const options=q.options.map((o,i)=>'<label class="diag-option '+(state.answer===o.id?'diag-option--selected':'')+'">'+
       '<input type="radio" name="diagnostic-answer" value="'+esc(o.id)+'" '+(state.answer===o.id?'checked ':'')+(state.busy?'disabled ':'')+'/>'+
-      '<span class="diag-option-key">'+esc(o.id)+'</span><span>'+esc(o.text)+'</span></label>').join('');
+      '<span class="diag-option-key" aria-hidden="true">'+'ABCD'[i]+'</span><span>'+esc(o.text)+'</span></label>').join('');
     shell('<section class="diag-assessment"><div class="diag-meta"><span>Question '+esc(q.position)+'</span><span>No marks shown during the assessment</span></div>'+
       '<h1 class="diag-prompt">'+esc(q.stem)+'</h1><fieldset class="diag-choices"><legend>Choose one answer</legend>'+options+
       '<label class="diag-option diag-unsure '+(state.answer==='unknown'?'diag-option--selected':'')+'">'+
@@ -87,7 +89,8 @@ export async function initialiseVocabularyDiagnostic({root,client,assignmentId,s
             '<div class="diag-placement__level">'+esc(result.provisionalLevel)+' <small>provisional</small></div>'+
             '<h2>'+esc(result.practice.focus)+'</h2>'+
             '<p>'+esc(result.practice.advice)+'</p>'+
-            '<p class="diag-placement__caution">'+esc(result.caution||'This is an initial learning placement, not a certified CEFR result.')+'</p>'+
+            (result.caution&&result.caution!==NOT_CERTIFIED?'<p class="diag-placement__caution">'+esc(result.caution)+'</p>':'')+
+            '<p class="diag-placement__caution">'+NOT_CERTIFIED+'</p>'+
             '</section>'
           :'<p>Your vocabulary level will appear when the scoring model is available.</p>')+
       '<div class="diag-actions"><button class="diag-primary" type="button" data-diag="finish">'+(previewMode?'Return to teacher analytics':'Continue to Vocabulary Builder')+'</button></div></section>');

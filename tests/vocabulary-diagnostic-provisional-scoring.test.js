@@ -62,3 +62,10 @@ test('repeatable synthetic guessing does not routinely create high-level placeme
  }
  assert.ok(b1OrHigher<25,'uniform guessing should almost never imply strong placement');
 });
+test('the synthetic 40-question journey scenario coverage places at B1 without caution',()=>{
+ const r=scoreProvisionalDiagnostic(bands([8,7,6,3,1],[0,1,1,2,4]),40);
+ assert.equal(r.provisionalLevel,'B1');
+ assert.equal(r.correct,25);assert.equal(r.unsure,8);
+ assert.match(r.caution,/not a certified CEFR result/);
+ assert.match(r.practice.advice,/Paraphrasing/);
+});

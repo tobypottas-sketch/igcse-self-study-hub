@@ -11,7 +11,7 @@ test('the real student diagnostic is routed only for assigned students or explic
  assert.match(router,/DIAGNOSTIC_BASELINE_GATE_ENABLED \|\| voluntaryDiagnosticRequested/);
  assert.match(router,/diagnosticStatus\?\.baselineAssignmentId/);
  assert.match(router,/initialiseVocabularyDiagnostic/);
- assert.match(router,/diagnostic-student\.js\?v=provisional-v1/);
+ assert.match(router,/diagnostic-student\.js\?v=pilot-ready-v2/);
 });
 test('mandatory vocabulary gate is still disabled',()=>{
  const gate=read('src/vocabulary/diagnostic-entry-gate.js');
