@@ -37,7 +37,7 @@
       "reason": "Synthetic placeholder items (alphaN/betaN) for the local 40-question student-journey scenario"
     },
     {
-      "path": "supabase/diagnostic/pilot_synthetic_setup.sql",
+      "path": "tests/db/pilot/pilot_synthetic_setup.sql",
       "rules": [
         "KEYED_SQL_INSERT"
       ],
