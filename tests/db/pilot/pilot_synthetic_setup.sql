@@ -5,7 +5,7 @@
 -- Uses the sole active student already provisioned in the dedicated TEST CLASS.
 -- Refuses to run if that class has a different membership count, an inactive student,
 -- or a student also enrolled in any other class.
-do $
+do $pilot$
 declare
   c_test_class constant uuid := '88e7bcb7-c2ed-4bf9-98fb-ac18a0636e4f';
   v_student uuid; v_admin uuid; v_form uuid; v_level text; v_key text; p int;
@@ -50,7 +50,7 @@ begin
   update private.vocabulary_diagnostic_forms set status='pilot' where id=v_form;
   insert into private.vocabulary_diagnostic_assignments(student_id,assigned_by,form_id,kind)
     values (v_student,coalesce(v_admin,v_student),v_form,'baseline');
-end $$;
+end $pilot$;
 select f.form_code,f.status,(select count(*) from private.vocabulary_diagnostic_form_items fi where fi.form_id=f.id) as items,
   (select count(*) from private.vocabulary_diagnostic_assignments a where a.form_id=f.id) as assignments
 from private.vocabulary_diagnostic_forms f where f.form_code='DIAG-PILOT-SYNTHETIC';
