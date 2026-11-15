@@ -56,3 +56,9 @@ test('baseline status exposes the fields the router needs and ignores follow-ups
  const router=readFileSync(new URL('../src/vocabulary/router.js',import.meta.url),'utf8');
  assert.match(router,/typeof data\.baselineCompleted==='boolean'/);
 });
+
+test('the not-certified disclaimer is always shown, alongside any extra-care caution',()=>{
+  const source=readFileSync(new URL('../src/vocabulary/diagnostic-student.js',import.meta.url),'utf8');
+  assert.doesNotMatch(source,/result\.caution\|\|/);
+  assert.match(source,/'<p class="diag-placement__caution">'\+NOT_CERTIFIED\+'<\/p>'/);
+});

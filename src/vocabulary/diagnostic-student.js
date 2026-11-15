@@ -3,6 +3,7 @@
 import { escapeHtml } from '../views/html.js';
 
 const esc=v=>escapeHtml(String(v??''));
+const NOT_CERTIFIED='This is an initial learning placement, not a certified CEFR result.';
 const VALID=new Set(['A','B','C','D','unknown']);
 const SAFE_ERROR={
   ASSIGNMENT_UNAVAILABLE:'Your diagnostic is not currently available. Please ask your teacher.',
@@ -88,7 +89,8 @@ export async function initialiseVocabularyDiagnostic({root,client,assignmentId,s
             '<div class="diag-placement__level">'+esc(result.provisionalLevel)+' <small>provisional</small></div>'+
             '<h2>'+esc(result.practice.focus)+'</h2>'+
             '<p>'+esc(result.practice.advice)+'</p>'+
-            '<p class="diag-placement__caution">'+esc(result.caution||'This is an initial learning placement, not a certified CEFR result.')+'</p>'+
+            (result.caution&&result.caution!==NOT_CERTIFIED?'<p class="diag-placement__caution">'+esc(result.caution)+'</p>':'')+
+            '<p class="diag-placement__caution">'+NOT_CERTIFIED+'</p>'+
             '</section>'
           :'<p>Your vocabulary level will appear when the scoring model is available.</p>')+
       '<div class="diag-actions"><button class="diag-primary" type="button" data-diag="finish">'+(previewMode?'Return to teacher analytics':'Continue to Vocabulary Builder')+'</button></div></section>');
