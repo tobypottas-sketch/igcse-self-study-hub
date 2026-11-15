@@ -16,7 +16,7 @@ async function routeVocabulary() {
     if (profileError || !profile?.active) { window.location.replace('./'); return; }
     const diagnosticWalkthroughRequested = new URLSearchParams(window.location.search).get('diagnostic-preview') === '1';
     if ((profile.role === 'teacher' || profile.role === 'admin') && diagnosticWalkthroughRequested) {
-      const { startDiagnosticTeacherPreview } = await import('./diagnostic-teacher-walkthrough.js?v=student-live-v1');
+      const { startDiagnosticTeacherPreview } = await import('./diagnostic-teacher-walkthrough.js?v=pilot-ready-v1');
       await startDiagnosticTeacherPreview(root);
       return;
     }
@@ -60,7 +60,7 @@ async function routeVocabulary() {
         } catch { /* A failed check never unlocks practice. */ }
         if (decision!==DIAGNOSTIC_ENTRY_STATES.PRACTICE) {
           if ((decision===DIAGNOSTIC_ENTRY_STATES.BASELINE_REQUIRED || decision===DIAGNOSTIC_ENTRY_STATES.BASELINE_IN_PROGRESS) && diagnosticStatus?.baselineAssignmentId) {
-            const {initialiseVocabularyDiagnostic}=await import('./diagnostic-student.js?v=provisional-v1');
+            const {initialiseVocabularyDiagnostic}=await import('./diagnostic-student.js?v=pilot-ready-v1');
             await initialiseVocabularyDiagnostic({root,client,assignmentId:diagnosticStatus.baselineAssignmentId,
               sessionState:diagnosticStatus.baselineSessionState,
               onComplete:()=>window.location.replace('./vocabulary.html')});

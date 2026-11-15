@@ -108,19 +108,35 @@ begin
 
   elsif p_action='status' then
     if v_role<>'student' then raise exception 'ACCESS_DENIED'; end if;
+    -- Baseline status must never be confused with a later follow-up attempt.
     select * into v_session from private.vocabulary_diagnostic_sessions
-    where student_id=p_actor
+    where student_id=p_actor and kind='baseline'
     order by started_at desc limit 1;
     select id into v_assignment_id
     from private.vocabulary_diagnostic_assignments a
-    where a.student_id=p_actor and a.cancelled_at is null
+    where a.student_id=p_actor and a.kind='baseline' and a.cancelled_at is null
       and a.available_at<=now()
       and (a.expires_at is null or a.expires_at>now())
       and not exists(select 1 from private.vocabulary_diagnostic_sessions s
         where s.assignment_id=a.id)
     order by a.created_at desc limit 1;
-    return jsonb_build_object('sessionId',v_session.id,'state',v_session.state,
-      'assignmentId',v_assignment_id,'pilot',true,'levelEstimate',null);
+    return jsonb_build_object(
+      'sessionId',v_session.id,'state',v_session.state,
+      'assignmentId',v_assignment_id,'pilot',true,'levelEstimate',null,
+      -- Only an immutable completed baseline result grants Vocabulary entry.
+      'baselineCompleted',exists(
+        select 1 from private.vocabulary_diagnostic_results r
+        join private.vocabulary_diagnostic_sessions bs on bs.id=r.session_id
+        where r.student_id=p_actor and bs.kind='baseline' and bs.state='completed'
+      ),
+      'baselineSessionState',v_session.state,
+      'baselineAssignmentId',case
+        when v_session.state in ('in_progress','interrupted') then v_session.assignment_id
+        else v_assignment_id end,
+      'baselineSessionId',case
+        when v_session.state in ('in_progress','interrupted') then v_session.id
+        else null end
+    );
 
   elsif p_action='start' then
     if v_role<>'student' then raise exception 'ACCESS_DENIED'; end if;

@@ -61,9 +61,10 @@ export async function initialiseVocabularyDiagnostic({root,client,assignmentId,s
   }
   function question(){
     const q=validateSafeQuestion(state.question);
-    const options=q.options.map(o=>'<label class="diag-option '+(state.answer===o.id?'diag-option--selected':'')+'">'+
+    // Badges follow the on-screen order; the submitted value stays the server's option id.
+    const options=q.options.map((o,i)=>'<label class="diag-option '+(state.answer===o.id?'diag-option--selected':'')+'">'+
       '<input type="radio" name="diagnostic-answer" value="'+esc(o.id)+'" '+(state.answer===o.id?'checked ':'')+(state.busy?'disabled ':'')+'/>'+
-      '<span class="diag-option-key">'+esc(o.id)+'</span><span>'+esc(o.text)+'</span></label>').join('');
+      '<span class="diag-option-key" aria-hidden="true">'+'ABCD'[i]+'</span><span>'+esc(o.text)+'</span></label>').join('');
     shell('<section class="diag-assessment"><div class="diag-meta"><span>Question '+esc(q.position)+'</span><span>No marks shown during the assessment</span></div>'+
       '<h1 class="diag-prompt">'+esc(q.stem)+'</h1><fieldset class="diag-choices"><legend>Choose one answer</legend>'+options+
       '<label class="diag-option diag-unsure '+(state.answer==='unknown'?'diag-option--selected':'')+'">'+

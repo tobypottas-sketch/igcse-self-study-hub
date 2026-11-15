@@ -41,3 +41,18 @@ test('diagnostic error messages do not leak backend details',()=>{
  assert.match(diagnosticErrorMessage('ASSIGNMENT_UNAVAILABLE'),/teacher/i);
  assert.doesNotMatch(diagnosticErrorMessage('UNEXPECTED_QUERY_ERROR'),/UNEXPECTED_QUERY_ERROR/);
 });
+test('option badges follow on-screen order while the server option id is submitted',()=>{
+ const source=readFileSync(new URL('../src/vocabulary/diagnostic-student.js',import.meta.url),'utf8');
+ assert.match(source,/q\.options\.map\(\(o,i\)=>/);
+ assert.match(source,/diag-option-key" aria-hidden="true">'\+'ABCD'\[i\]/);
+ assert.match(source,/value="'\+esc\(o\.id\)\+'"/);
+});
+test('baseline status exposes the fields the router needs and ignores follow-ups',()=>{
+ const sql=readFileSync(new URL('../supabase/diagnostic/pilot_api.sql',import.meta.url),'utf8');
+ const status=sql.slice(sql.indexOf("p_action='status'"),sql.indexOf("p_action='start'"));
+ for(const key of ['baselineCompleted','baselineSessionState','baselineAssignmentId','baselineSessionId'])assert.match(status,new RegExp("'"+key+"'"));
+ assert.match(status,/student_id=p_actor and kind='baseline'/);
+ assert.match(status,/a\.kind='baseline'/);
+ const router=readFileSync(new URL('../src/vocabulary/router.js',import.meta.url),'utf8');
+ assert.match(router,/typeof data\.baselineCompleted==='boolean'/);
+});
