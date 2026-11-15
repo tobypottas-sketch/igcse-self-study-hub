@@ -28,6 +28,13 @@
         "KEYED_LITERAL"
       ],
       "reason": "Synthetic placeholder items proving the lifecycle RPC rejects an invalid key"
+    },
+    {
+      "path": "tests/db/diagnostic-student-journey.scenario.sql",
+      "rules": [
+        "KEYED_SQL_INSERT"
+      ],
+      "reason": "Synthetic placeholder items (alphaN/betaN) for the local 40-question student-journey scenario"
     }
   ]
 }
