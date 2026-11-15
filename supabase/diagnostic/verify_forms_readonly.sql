@@ -25,7 +25,7 @@ select jsonb_pretty(jsonb_agg(row_to_json(x) order by x.form_code)) as forms fro
     count(*) filter (where array_position(option_order,correct_option_id)=4) as key_in_slot_4,
     count(*) filter (where option_order<>array['A','B','C','D']) as reordered_items,
     jsonb_object_agg_status as item_statuses,
-    (select count(*) from fi o where o.form_code<>fi.form_code and o.item_id in
+    (select count(distinct o.item_id) from fi o where o.form_code<>fi.form_code and o.item_id in
        (select item_id from fi s where s.form_code=fi.form_code)) as items_shared_with_other_forms
   from fi
   cross join lateral (select
