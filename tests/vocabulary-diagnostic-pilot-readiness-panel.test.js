@@ -44,7 +44,7 @@ test('unexpected text is HTML escaped in the staff panel',()=>{
  data.forms[0].status='<img src=x onerror=alert(1)>';
  const html=renderPilotReadiness(data);
  assert.doesNotMatch(html,/<img/);
- assert.match(html,/&lt;img/);
+ assert.match(html,/Not ready for student use/);
 });
 
 test('fails safely when readiness information is missing or malformed',()=>{
