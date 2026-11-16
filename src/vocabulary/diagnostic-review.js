@@ -2,10 +2,11 @@ import { getSupabaseClient } from '../supabase.js';
 import { escapeHtml } from '../views/html.js';
 import { auditDiagnosticItem } from './diagnostic-quality-audit.js';
 import { createTeacherPreview } from './diagnostic-teacher-preview.js?v=teacher-preview-v2';
+import { renderPilotReadiness } from './diagnostic-pilot-readiness.js';
 
 const root=document.getElementById('diagnosticReview');
 let preview=null;
-const state={client:null,level:'all',page:0,total:0,items:[],selected:null,details:null,busy:false,notice:'',audit:null,auditBusy:false,auditFilter:'all'};
+const state={client:null,level:'all',page:0,total:0,items:[],selected:null,details:null,busy:false,notice:'',audit:null,auditBusy:false,auditFilter:'all',formReadiness:null,readinessLoading:true,readinessError:''};
 const e=value=>escapeHtml(String(value??''));
 const human=s=>({draft:'Draft',language_reviewed:'Language reviewed',assessment_reviewed:'Assessment reviewed',pilot:'Pilot',approved:'Approved',retired:'Retired'})[s]||s;
 
@@ -34,7 +35,7 @@ function listView(){
  const start=state.page*10;
  const items=state.items.map(item=>`<button type="button" class="dr-item" data-action="open" data-id="${e(item.id)}" data-version="${e(item.version)}"><span><strong>${e(item.lemma)}</strong> <span class="dr-level">${e(item.level)}</span><small>${e(item.construct?.replaceAll('_',' '))}</small></span><span class="dr-item-meta">${item.flags?'<b>Flagged · '+e(item.flags)+'</b>':e(human(item.status))}<small>Language ${item.languageApproved?'✓':'—'} · Assessment ${item.assessmentApproved?'✓':'—'} · CEFR ${item.cefrVerified?'✓':'—'}</small></span><span aria-hidden="true">›</span></button>`).join('');
  frame(`<section class="dr-hero"><p class="dr-kicker">ASSESSMENT QUALITY</p><h1>Diagnostic question review</h1><p>Review original questions before they can be used in a student pilot. CEFR levels are provisional until independently verified.</p></section>
- ${auditSummary}<section class="dr-panel"><div class="dr-toolbar"><label for="review-level">Level <select id="review-level" data-action="level"><option value="all">All levels</option>${['A1','A2','B1','B2','C1'].map(x=>`<option value="${x}" ${x===state.level?'selected':''}>${x}</option>`).join('')}</select></label><span>${e(state.total)} draft-bank items</span><button type="button" class="dr-preview-open" data-action="preview" ${state.total?'':'disabled'}>Preview questions</button></div>
+ ${renderPilotReadiness(state.formReadiness,{loading:state.readinessLoading,error:state.readinessError})}${auditSummary}<section class="dr-panel"><div class="dr-toolbar"><label for="review-level">Level <select id="review-level" data-action="level"><option value="all">All levels</option>${['A1','A2','B1','B2','C1'].map(x=>`<option value="${x}" ${x===state.level?'selected':''}>${x}</option>`).join('')}</select></label><span>${e(state.total)} draft-bank items</span><button type="button" class="dr-preview-open" data-action="preview" ${state.total?'':'disabled'}>Preview questions</button></div>
  <div class="dr-list">${items||'<p>No questions found.</p>'}</div>
  <footer class="dr-footer"><span>Showing ${state.total?start+1:0}–${Math.min(start+state.items.length,state.total)} of ${state.total}</span><div><button type="button" data-action="previous" ${state.page===0?'disabled':''}>Previous</button><button type="button" data-action="next" ${(state.page+1)*10>=state.total?'disabled':''}>Next 10</button></div></footer></section>
  <p class="dr-footnote">Private draft bank · No student assignments · Review decisions are recorded against your staff account.</p><p role="status" data-review-status>${e(state.notice)}</p>`);
@@ -58,6 +59,14 @@ function detailView(){
  </section></div>`);
 }
 
+async function refreshReadiness(){
+ if(state.readinessLoading&&state.formReadiness)return;
+ state.readinessLoading=true;state.readinessError='';
+ if(!state.selected&&!preview)listView();
+ try{state.formReadiness=await invoke('forms',{});}
+ catch(err){state.readinessError=err.message;}
+ finally{state.readinessLoading=false;if(!state.selected&&!preview)listView();}
+}
 async function load(){
  state.notice='';const data=await invoke('list',{page:state.page,...(state.level==='all'?{}:{level:state.level})});
  state.items=data.items||[];state.total=data.total||0;state.selected=null;state.details=null;listView();
@@ -118,6 +127,7 @@ root.addEventListener('click',event=>{
  const b=event.target.closest('[data-action]');if(!b)return;
  const a=b.dataset.action;
  const perform=async()=>{
+   if(a==='refresh-readiness'){await refreshReadiness();return;}
    if(a==='preview'){openPreview();return;}
    if(a==='back'){await load();return;}
    if(a==='open'){await detail(b.dataset.id,Number(b.dataset.version));return;}
@@ -151,6 +161,6 @@ root.addEventListener('change',event=>{
   if(profileError||!profile?.active||!['teacher','admin'].includes(profile.role)){
     frame('<h1>Staff access only</h1><p>This diagnostic review is unavailable to student accounts.</p><p><a href="./">Back to Hub</a></p>');return;
   }
-  state.client=client;await load();
+  state.client=client;await load();void refreshReadiness();
  }catch(err){frame('<h1>Unable to open review queue</h1><p>'+e(err.message)+'</p><p><a href="./vocabulary.html">Return to teacher analytics</a></p>')}
 })();

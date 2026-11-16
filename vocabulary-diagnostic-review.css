@@ -66,3 +66,22 @@
 .dp-nav .dp-open{border-color:transparent;background:transparent;text-decoration:underline;text-underline-offset:3px}
 .dp-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media(max-width:600px){.dp-card{padding:16px}.dp-bar h1{flex-basis:100%;order:-1}.dp-position{margin-left:auto}.dp-stem{font-size:1.02rem}.dp-nav{grid-template-columns:1fr 1fr}.dp-nav .dp-open{grid-column:1/-1;order:3}}
+
+/* Staff-only pilot readiness: counts are informative, not release controls. */
+.dr-readiness{margin-bottom:22px}
+.dr-readiness-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+.dr-readiness-heading h2{margin:0 0 4px;color:#193840;font-size:1.1rem}
+.dr-readiness-heading p{margin:0;color:#60767d;font-size:.85rem;line-height:1.45}
+.dr-readiness-refresh{border:1px solid #aac9c9;background:white;color:#086d70;border-radius:9px;padding:9px 13px;font-weight:700;white-space:nowrap}
+.dr-readiness-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.dr-readiness-card{border:1px solid #e1e9ec;background:#f9fbfb;border-radius:12px;padding:16px;min-width:0}
+.dr-readiness-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.dr-readiness-title strong{font-size:1.03rem}
+.dr-readiness-title span{font-size:.77rem;color:#795d29;background:#faf2de;border:1px solid #ead8a7;border-radius:7px;padding:4px 8px}
+.dr-readiness-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.dr-readiness-metrics span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.dr-readiness-metrics b{font-size:1.05rem;color:#20424a;font-variant-numeric:tabular-nums}
+.dr-readiness-metrics small{font-size:.72rem;color:#5a747c}
+.dr-readiness-foot{font-size:.76rem;color:#63777f;margin:12px 0 0}
+.dr-readiness-guidance{line-height:1.5;color:#48646b;font-size:.85rem;border-top:1px solid #e5ecee;padding-top:13px;margin:16px 0 0}
+@media(max-width:700px){.dr-readiness-grid{grid-template-columns:1fr}.dr-readiness-heading{flex-wrap:wrap}}
