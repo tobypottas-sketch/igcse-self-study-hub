@@ -16,8 +16,8 @@ async function routeVocabulary() {
     if (profileError || !profile?.active) { window.location.replace('./'); return; }
     const diagnosticWalkthroughRequested = new URLSearchParams(window.location.search).get('diagnostic-preview') === '1';
     if ((profile.role === 'teacher' || profile.role === 'admin') && diagnosticWalkthroughRequested) {
-      const { startDiagnosticTeacherPreview } = await import('./diagnostic-teacher-walkthrough.js?v=pilot-ready-v2');
-      await startDiagnosticTeacherPreview(root);
+      const { startDiagnosticTeacherPreview } = await import('./diagnostic-teacher-walkthrough.js?v=real-form-preview-v1');
+      await startDiagnosticTeacherPreview(root,client);
       return;
     }
     const previewRequested = new URLSearchParams(window.location.search).get('preview') === '1';
