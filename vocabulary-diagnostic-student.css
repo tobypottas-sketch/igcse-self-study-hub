@@ -287,3 +287,14 @@ body:has(#vocabularyApp .diag-player){
 #vocabularyApp .diag-placement p{margin-bottom:10px}
 #vocabularyApp .diag-placement__caution{font-size:var(--fs-sm);color:var(--c-muted);border-top:1px solid var(--c-teal-line);padding-top:11px}
 @media(max-width:600px){#vocabularyApp .diag-placement{padding:19px 16px}}
+
+/* Staff-only diagnostic form preview. Student assessment styles remain shared. */
+#vocabularyApp .diag-preview-modes{justify-content:flex-start;flex-wrap:wrap}
+#vocabularyApp .diag-preview-modes button{max-width:100%;white-space:normal}
+#vocabularyApp .diag-meta label{display:inline-flex;align-items:center;gap:10px;font-weight:800}
+#vocabularyApp .diag-meta select{
+  font:inherit;font-weight:800;color:var(--c-ink-2);background:var(--c-surface);
+  border:1px solid var(--c-teal-line);border-radius:10px;padding:7px 27px 7px 10px;
+}
+#vocabularyApp .diag-meta select:focus-visible{outline:3px solid var(--c-teal-line);outline-offset:3px}
+#vocabularyApp .diag-assessment .diag-actions button:disabled{opacity:.44;cursor:not-allowed}
