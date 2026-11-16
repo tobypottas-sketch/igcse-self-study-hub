@@ -17,7 +17,7 @@ function firstNamedKey(raw:string|undefined):string {
 }
 const ANON_KEY=Deno.env.get('SUPABASE_ANON_KEY')||firstNamedKey(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS'));
 const SERVICE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||firstNamedKey(Deno.env.get('SUPABASE_SECRET_KEYS'));
-const ALLOWED_ACTIONS=new Set(['status','start','pause','respond','history','assign','report','review-list','review-detail','review-decision','review-forms']);
+const ALLOWED_ACTIONS=new Set(['status','start','pause','respond','history','assign','report','review-list','review-detail','review-decision','review-forms','review-form-preview']);
 const MAX_BODY_BYTES=4000;
 const REVIEW_ACTIONS=new Set(['review-list','review-detail','review-decision']);
 
@@ -49,6 +49,7 @@ function validatePayload(action,payload){
     &&(payload.availableAt===undefined||!Number.isNaN(Date.parse(payload.availableAt)))
     &&(payload.expiresAt===undefined||!Number.isNaN(Date.parse(payload.expiresAt)));
   if(action==='review-forms')return Object.keys(payload).length===0;
+  if(action==='review-form-preview')return Object.keys(payload).length===1 && ['A','B'].includes(payload.form);
   if(action==='review-list')return (!payload.level||['A1','A2','B1','B2','C1'].includes(payload.level))
     &&(payload.page===undefined||(Number.isInteger(payload.page)&&payload.page>=0&&payload.page<=100));
   if(action==='review-detail')return string(payload.itemId,110)!==null&&Number.isInteger(payload.version)&&payload.version>0;
@@ -112,10 +113,13 @@ Deno.serve(async (req:Request)=>{
       auth:{persistSession:false,autoRefreshToken:false}
     });
     const isFormsRequest=action==='review-forms';
-    const rpc=isFormsRequest?'vocabulary_diagnostic_form_readiness'
+    const isPreviewRequest=action==='review-form-preview';
+    const rpc=isPreviewRequest?'vocabulary_diagnostic_teacher_form_preview'
+      :isFormsRequest?'vocabulary_diagnostic_form_readiness'
       :REVIEW_ACTIONS.has(action)?'vocabulary_diagnostic_review_api':'vocabulary_diagnostic_api';
     const rpcAction=REVIEW_ACTIONS.has(action)?action.slice('review-'.length):action;
-    const args=isFormsRequest?{p_actor:identity.user.id}
+    const args=isPreviewRequest?{p_actor:identity.user.id,p_form:payload.form}
+      :isFormsRequest?{p_actor:identity.user.id}
       :{p_actor:identity.user.id,p_action:rpcAction,p_data:payload};
     const {data:result,error}=await admin.rpc(rpc,args);
     if(error){
@@ -125,7 +129,7 @@ Deno.serve(async (req:Request)=>{
         'BASELINE_ALREADY_ASSIGNED','BASELINE_REQUIRED','FOLLOWUP_NOT_DUE',
         'BASELINE_COMPLETE','STUDENT_UNAVAILABLE','UNKNOWN_ACTION',
         'EMPTY_FORM','FORM_INVALID','INVALID_KIND','REVIEW_ACCESS_DENIED',
-        'ITEM_UNAVAILABLE','ITEM_LOCKED','INVALID_REVIEW','REVISION_REQUIRED',
+        'ITEM_UNAVAILABLE','ITEM_LOCKED','INVALID_REVIEW','REVISION_REQUIRED','INVALID_FORM',
         'INDEPENDENT_LANGUAGE_REVIEW_REQUIRED','CEFR_EVIDENCE_REQUIRED',
         'REVIEW_SEQUENCE_REQUIRED','QUALITY_CONFIRMATIONS_REQUIRED','UNKNOWN_REVIEW_ACTION'];
       const code=known.find(x=>error.message?.includes(x));
