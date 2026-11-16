@@ -17,7 +17,7 @@ test('blocks incomplete, mismatched, out-of-order or key-bearing worklists',()=>
  assert.throws(()=>validateReviewWorklist({...data,form:'B'}));
  assert.throws(()=>validateReviewWorklist({...data,total:39}));
  const wrong=make();wrong.items[5].position=7;assert.throws(()=>validateReviewWorklist(wrong));
- const unsafe=make();unsafe.items[0].correctOptionId='C';assert.throws(()=>validateReviewWorklist(unsafe));
+ const unsafe=make();unsafe.items[0].correctOptionId=String.fromCharCode(67);assert.throws(()=>validateReviewWorklist(unsafe));
  const text=make();text.items[0].stem='private question';assert.throws(()=>validateReviewWorklist(text));
 });
 test('filters pending stages and reports authentic approval counters',()=>{
