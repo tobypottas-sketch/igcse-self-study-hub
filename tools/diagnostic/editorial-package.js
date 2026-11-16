@@ -9,7 +9,8 @@ const blank=v=>typeof v!=='string'||!v.trim();
 export function validateEditorialPackage(doc){
   const errors=[];
   if(!doc||typeof doc!=='object'||Array.isArray(doc))return {errors:['package must be an object'],replacements:[]};
-  if(blank(doc.package_version))errors.push('package_version missing');
+  if(typeof doc.package_version!=='string'||!/^[A-Za-z0-9._-]{1,80}$/.test(doc.package_version))
+    errors.push('package_version must be 1–80 letters, digits, dot, underscore or hyphen');
   const list=Array.isArray(doc.proposed_replacements)?doc.proposed_replacements:null;
   if(!list||!list.length)return {errors:[...errors,'proposed_replacements missing or empty'],replacements:[]};
   const seen=new Set();

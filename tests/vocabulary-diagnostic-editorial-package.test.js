@@ -31,6 +31,7 @@ test('rejects malformed replacements', ()=>{
     'correct_option_id must be A–D','stem missing','expected_current_version','duplicate item_id'])
     assert.ok(errors.some(e=>e.includes(fragment)),fragment);
   assert.ok(validateEditorialPackage(pkg([])).errors.length);
+  assert.ok(validateEditorialPackage({...pkg([synthetic(1)]),package_version:'v1\nselect 1;'}).errors.some(e=>e.includes('package_version')));
 });
 
 test('builds one transactional private script around the content-free migration', ()=>{
