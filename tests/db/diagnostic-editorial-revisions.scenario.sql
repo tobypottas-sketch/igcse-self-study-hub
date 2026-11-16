@@ -89,7 +89,9 @@ select rev.expect_error($q$do $d$ begin update pg_temp.diag_editorial_package se
 select rev.expect_error($q$do $d$ begin update pg_temp.diag_editorial_package set doc=jsonb_set(doc,'{proposed_replacements,0,provisional_level}','"C1"');
   perform pg_temp.diag_apply_editorial_revisions(); end $d$$q$,'LEVEL_MISMATCH');
 select rev.expect_error($q$do $d$ begin update pg_temp.diag_editorial_package set doc=jsonb_set(doc,'{proposed_replacements,0,stem}','"Synthetic original stem 11"');
-  perform pg_temp.diag_apply_editorial_revisions(); end $d$$q$,'STEM_UNCHANGED');
+  perform pg_temp.diag_apply_editorial_revisions(); end $d$$q$,'STEM_ALREADY_IN_BANK');
+select rev.expect_error($q$do $d$ begin update pg_temp.diag_editorial_package set doc=jsonb_set(doc,'{proposed_replacements,0,stem}','"Synthetic original stem 70"');
+  perform pg_temp.diag_apply_editorial_revisions(); end $d$$q$,'STEM_ALREADY_IN_BANK');
 select rev.expect_error($q$do $d$ begin update pg_temp.diag_editorial_package set doc=jsonb_set(doc,'{proposed_replacements,0,options,1,text}','"revised 11A"');
   perform pg_temp.diag_apply_editorial_revisions(); end $d$$q$,'OPTIONS_INVALID');
 select rev.expect_error($q$do $d$ begin update pg_temp.diag_editorial_package set doc=jsonb_set(doc,'{proposed_replacements,0,correct_option_id}','"E"');

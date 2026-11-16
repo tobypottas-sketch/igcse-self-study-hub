@@ -61,7 +61,8 @@ begin
     if v_item.level_hypothesis is distinct from r->>'provisional_level' then raise exception 'LEVEL_MISMATCH %',r->>'item_id'; end if;
     if lower(trim(v_item.lemma)) is distinct from lower(trim(r->>'target_lemma')) then raise exception 'LEMMA_MISMATCH %',r->>'item_id'; end if;
     if coalesce(trim(r->>'stem'),'')='' then raise exception 'STEM_INVALID %',r->>'item_id'; end if;
-    if lower(trim(r->>'stem'))=lower(trim(v_item.stem)) then raise exception 'STEM_UNCHANGED %',r->>'item_id'; end if;
+    if exists(select 1 from private.vocabulary_diagnostic_items i where lower(trim(i.stem))=lower(trim(r->>'stem')))
+      then raise exception 'STEM_ALREADY_IN_BANK %',r->>'item_id'; end if;
     if jsonb_typeof(r->'options') is distinct from 'array' or jsonb_array_length(r->'options')<>4
       or (select array_agg(o->>'id' order by o->>'id') from jsonb_array_elements(r->'options') o) is distinct from array['A','B','C','D']
       or exists(select 1 from jsonb_array_elements(r->'options') o where coalesce(trim(o->>'text'),'')='')
