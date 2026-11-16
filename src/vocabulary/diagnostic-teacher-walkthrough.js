@@ -38,8 +38,8 @@ export function validateTeacherFormPreview(data,form) {
   if(data?.form!==form || data?.total!==40 || !Array.isArray(data.questions) || data.questions.length!==40)
     throw new Error('The draft form is incomplete or unavailable.');
   const seen = new Set();
-  for(const q of data.questions){
-    if(!Number.isInteger(q.position)||q.position<1||q.position>40||seen.has(q.position)
+  for(const [index,q] of data.questions.entries()){
+    if(!Number.isInteger(q.position)||q.position!==index+1||seen.has(q.position)
       ||typeof q.stem!=='string'||!q.stem.trim()
       ||!Array.isArray(q.options)||q.options.length!==4
       ||q.options.some((o,i)=>o?.id!=='ABCD'[i]||typeof o.text!=='string'||!o.text.trim())
