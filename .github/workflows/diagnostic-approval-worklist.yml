@@ -1,0 +1,28 @@
+name: Diagnostic approval worklist
+on:
+  pull_request:
+    paths:
+      - 'src/vocabulary/diagnostic-review-worklist.js'
+      - 'src/vocabulary/diagnostic-review.js'
+      - 'tests/vocabulary-diagnostic-review-worklist.test.js'
+      - '.github/workflows/diagnostic-approval-worklist.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/vocabulary/diagnostic-review-worklist.js'
+      - 'src/vocabulary/diagnostic-review.js'
+      - 'tests/vocabulary-diagnostic-review-worklist.test.js'
+      - '.github/workflows/diagnostic-approval-worklist.yml'
+permissions:
+  contents: read
+jobs:
+  review-worklist:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test reviewer worklist
+        run: node --test tests/vocabulary-diagnostic-review-worklist.test.js
