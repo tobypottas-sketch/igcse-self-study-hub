@@ -118,7 +118,7 @@ Deno.serve(async (req:Request)=>{
       :isFormsRequest?'vocabulary_diagnostic_form_readiness'
       :REVIEW_ACTIONS.has(action)?'vocabulary_diagnostic_review_api':'vocabulary_diagnostic_api';
     const rpcAction=REVIEW_ACTIONS.has(action)?action.slice('review-'.length):action;
-    const args=isPreviewRequest?{p_actor:identity.user.id,p_form:payload.form}
+    const args=isPreviewRequest?{p_actor:identity.user.id,p_form:(payload as Record<string,unknown>).form}
       :isFormsRequest?{p_actor:identity.user.id}
       :{p_actor:identity.user.id,p_action:rpcAction,p_data:payload};
     const {data:result,error}=await admin.rpc(rpc,args);
