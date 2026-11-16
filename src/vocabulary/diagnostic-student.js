@@ -49,7 +49,7 @@ export async function initialiseVocabularyDiagnostic({root,client,assignmentId,s
   }
   function shell(content){
     root.innerHTML='<main class="vocab-shell diag-player"><header class="vocab-topbar">'+
-      '<a class="vocab-back" href="./">← Hub</a><span>Vocabulary diagnostic</span></header>'+
+      (previewMode?'<a class="vocab-back" href="./vocabulary.html">← Back to Vocabulary</a>':'<a class="vocab-back" href="./">← Hub</a>')+'<span>Vocabulary diagnostic</span></header>'+
       (previewMode?'<p class="diag-preview-notice" role="note">Teacher preview · Sample questions only · No student records are saved</p>':'')+content+'</main>';
   }
   function intro(){
@@ -71,7 +71,7 @@ export async function initialiseVocabularyDiagnostic({root,client,assignmentId,s
       '<label class="diag-option diag-unsure '+(state.answer==='unknown'?'diag-option--selected':'')+'">'+
       '<input type="radio" name="diagnostic-answer" value="unknown" '+(state.answer==='unknown'?'checked ':'')+(state.busy?'disabled ':'')+'/>'+
       '<span>I’m not sure</span></label></fieldset>'+
-      '<div class="diag-actions"><button type="button" class="diag-secondary" data-diag="pause" '+(state.busy?'disabled':'')+'>Save & exit</button>'+
+      '<div class="diag-actions"><button type="button" class="diag-secondary" data-diag="pause" '+(state.busy?'disabled':'')+'>'+(previewMode?'Exit preview':'Save & exit')+'</button>'+
       '<button type="button" class="diag-primary" data-diag="submit" '+(!state.answer||state.busy?'disabled':'')+'>'+
       (state.busy?'Saving…':'Next question')+'</button></div>'+
       '<p class="diag-message" role="status">'+esc(state.error)+'</p></section>');
@@ -139,6 +139,7 @@ export async function initialiseVocabularyDiagnostic({root,client,assignmentId,s
   }
   async function pause(){
     if(state.busy||!state.question)return;
+    if(previewMode){window.location.assign('./vocabulary.html');return;}
     state.busy=true;setMessage('Saving your place…');
     try{
       await invoke('pause',{sessionId:state.question.sessionId});
