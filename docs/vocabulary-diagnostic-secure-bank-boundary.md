@@ -107,3 +107,13 @@ Record exposure and quality decisions per item through the existing staff review
 - Students see the questions they answer; exposure grows with each administration. Plan item rotation and exposure monitoring.
 - `authenticated` has USAGE on schema `private` in production (audit). Table/function grants appear closed, but this should be reviewed separately.
 - PR #458's preview loads the ledger JSON this change removes; it should be reworked to use authenticated `review-detail` instead of a public file.
+
+## 9. Editorial revisions to the draft forms (NOT APPLIED)
+
+`supabase/diagnostic/editorial_revisions_NOT_APPLIED.sql` replaces selected Form A/B slots with new item versions without exposing content in git:
+
+1. Keep the editorial package JSON outside the repo (or in git-ignored `diagnostic-private/`).
+2. `node tools/diagnostic/build-editorial-revision-sql.mjs <package.json>` validates it and writes a private, single-transaction SQL script to `diagnostic-private/`.
+3. Only after owner approval, run that private script against the database. It inserts version N+1 for each replaced item (version N is kept), repoints only those slots, keeps each key in its displayed slot, and aborts with no change if any form is not draft or assigned, an item/version/level/lemma does not match, or 40/40, 8-per-level, overlap or key-slot balance would change.
+
+Forms stay draft and items stay `draft`; publishing is a separate approval.
