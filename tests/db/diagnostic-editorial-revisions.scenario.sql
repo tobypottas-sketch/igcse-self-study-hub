@@ -96,6 +96,12 @@ select rev.expect_error($q$do $d$ begin update pg_temp.diag_editorial_package se
   perform pg_temp.diag_apply_editorial_revisions(); end $d$$q$,'OPTIONS_INVALID');
 select rev.expect_error($q$do $d$ begin update pg_temp.diag_editorial_package set doc=jsonb_set(doc,'{proposed_replacements,0,correct_option_id}','"E"');
   perform pg_temp.diag_apply_editorial_revisions(); end $d$$q$,'KEY_INVALID');
+-- An empty form fails the integrity re-check even when only the other form is revised.
+select rev.expect_error($q$do $d$ begin
+  update pg_temp.diag_editorial_package set doc=jsonb_set(doc,'{proposed_replacements}',
+    (select jsonb_agg(x) from jsonb_array_elements(doc->'proposed_replacements') x where x->>'form'='A'));
+  delete from private.vocabulary_diagnostic_form_items where form_id=(select id from private.vocabulary_diagnostic_forms where form_code='DIAG-BASELINE-B-DRAFT');
+  perform pg_temp.diag_apply_editorial_revisions(); end $d$$q$,'FORM_SHAPE_CHANGED');
 -- A late failure (after some inserts) must leave nothing behind.
 select rev.expect_error($q$do $d$ begin update pg_temp.diag_editorial_package set doc=jsonb_set(doc,'{proposed_replacements,19,target_lemma}','"other"');
   perform pg_temp.diag_apply_editorial_revisions(); end $d$$q$,'LEMMA_MISMATCH');

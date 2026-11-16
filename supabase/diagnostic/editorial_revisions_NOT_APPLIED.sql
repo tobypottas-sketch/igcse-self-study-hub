@@ -92,8 +92,9 @@ begin
   end loop;
 
   if exists(select 1 from (
-      select f.form_code,count(*) n,count(distinct fi.position) p,count(distinct fi.item_id) d,min(fi.position) lo,max(fi.position) hi
-      from private.vocabulary_diagnostic_forms f join private.vocabulary_diagnostic_form_items fi on fi.form_id=f.id
+      select f.form_code,count(fi.position) n,count(distinct fi.position) p,count(distinct fi.item_id) d,
+        coalesce(min(fi.position),0) lo,coalesce(max(fi.position),0) hi
+      from private.vocabulary_diagnostic_forms f left join private.vocabulary_diagnostic_form_items fi on fi.form_id=f.id
       where f.form_code=any(c_forms) group by 1) s where n<>40 or p<>40 or d<>40 or lo<>1 or hi<>40)
     or (select count(*) from private.vocabulary_diagnostic_forms f where f.form_code=any(c_forms))<>2
     then raise exception 'FORM_SHAPE_CHANGED'; end if;
