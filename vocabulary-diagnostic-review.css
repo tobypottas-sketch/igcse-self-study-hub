@@ -85,3 +85,28 @@
 .dr-readiness-foot{font-size:.76rem;color:#63777f;margin:12px 0 0}
 .dr-readiness-guidance{line-height:1.5;color:#48646b;font-size:.85rem;border-top:1px solid #e5ecee;padding-top:13px;margin:16px 0 0}
 @media(max-width:700px){.dr-readiness-grid{grid-template-columns:1fr}.dr-readiness-heading{flex-wrap:wrap}}
+
+/* Form A signed-review worklist. */
+.dr-worklist{margin-bottom:22px}
+.dr-worklist-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
+.dr-worklist-head h2{font-size:1.15rem;margin:0 0 5px;color:#193840}
+.dr-worklist-head p{font-size:.85rem;color:#60767d;line-height:1.5;margin:0;max-width:680px}
+.dr-worklist-summary{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}
+.dr-worklist-summary span{border:1px solid #dce9e8;background:#f3f9f8;border-radius:9px;padding:9px 12px;color:#4e6b71;font-size:.83rem}
+.dr-worklist-summary b{color:#163d41;font-variant-numeric:tabular-nums}
+.dr-worklist-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid #e3ebed;color:#60767d;font-size:.83rem}
+.dr-worklist-controls label{display:flex;align-items:center;gap:10px;font-weight:700}
+.dr-worklist-controls select{font-size:.85rem;border:1px solid #b5c9cb;border-radius:9px;padding:8px 11px;background:white;color:#173238}
+.dr-worklist-items{max-height:480px;overflow:auto;overscroll-behavior:contain}
+.dr-worklist-item{display:flex;align-items:center;gap:13px;min-height:62px;width:100%;background:transparent;border:0;border-bottom:1px solid #ecf0f1;padding:10px 6px;text-align:left;color:#1b3d44}
+.dr-worklist-item:hover,.dr-worklist-item:focus-visible{background:#f2f9f8}
+.dr-worklist-index{border:1px solid #d7e5e6;background:#f0f5f6;display:grid;place-items:center;border-radius:8px;min-width:32px;height:32px;font-size:.85rem;font-weight:800;color:#3e676c}
+.dr-worklist-topic{flex:1;min-width:0}
+.dr-worklist-topic strong{display:block;font-size:.94rem}
+.dr-worklist-topic small{display:block;font-size:.75rem;color:#63777f;margin-top:3px}
+.dr-worklist-checks{display:flex;gap:8px;align-items:center;color:#496d6d;white-space:nowrap;font-size:.76rem}
+.dr-worklist-checks span{border-radius:6px;background:#ecf4f2;padding:4px 6px}
+.dr-worklist-checks b{color:#9e4d30}
+.dr-worklist-note{line-height:1.5;font-size:.8rem;color:#5c737b;margin:14px 0 0}
+.dr-worklist-empty{color:#60767d;font-size:.86rem}
+@media(max-width:600px){.dr-worklist-head{flex-wrap:wrap}.dr-worklist-checks{gap:3px;font-size:.68rem}.dr-worklist-item{gap:8px}.dr-worklist-summary span{flex:1}}
