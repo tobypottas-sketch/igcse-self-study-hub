@@ -290,7 +290,7 @@ body:has(#vocabularyApp .diag-player){
 #vocabularyApp .ngsl-score strong{font-size:clamp(2rem,5vw,3rem);color:#0b6b67}
 #vocabularyApp .ngsl-score span{font-size:1.25rem;font-weight:700;color:#46666c}
 #vocabularyApp .ngsl-band-results{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:14px 0 20px}
-#vocabularyApp .ngsl-band-results span{padding:11px 8px;border-radius:9px;background:#edf6f3;
+#vocabularyApp .ngsl-band-results > span{padding:11px 8px;border-radius:9px;background:#edf6f3;
  border:1px solid #dcebe5;color:#27545b;text-align:center;font-size:.85rem}
 #vocabularyApp .ngsl-band-results b{display:block;font-size:.76rem}
 #vocabularyApp .ngsl-missed{word-wrap:break-word}
@@ -363,11 +363,11 @@ body:has(#vocabularyApp .diag-player){
  background:var(--band-bg);border:1.5px solid var(--band-edge);border-radius:15px;
  color:var(--band-ink);
 }
-#vocabularyApp .ngsl-band-card--1{--band-bg:#e4f5f6;--band-edge:#91ced1;--band-ink:#0b6c71;--band-fill:#168f94}
-#vocabularyApp .ngsl-band-card--2{--band-bg:#e9f2ff;--band-edge:#a5c7f5;--band-ink:#255c9f;--band-fill:#377dc5}
-#vocabularyApp .ngsl-band-card--3{--band-bg:#f0edff;--band-edge:#c5b5f1;--band-ink:#634aa3;--band-fill:#8270d1}
-#vocabularyApp .ngsl-band-card--4{--band-bg:#fff2e2;--band-edge:#efc18c;--band-ink:#985619;--band-fill:#d8923f}
-#vocabularyApp .ngsl-band-card--5{--band-bg:#fceaf0;--band-edge:#e9acc0;--band-ink:#9c3b62;--band-fill:#ce668a}
+#vocabularyApp .ngsl-completed .ngsl-band-card--1{--band-bg:#e4f5f6;--band-edge:#91ced1;--band-ink:#0b6c71;--band-fill:#168f94}
+#vocabularyApp .ngsl-completed .ngsl-band-card--2{--band-bg:#e9f2ff;--band-edge:#a5c7f5;--band-ink:#255c9f;--band-fill:#377dc5}
+#vocabularyApp .ngsl-completed .ngsl-band-card--3{--band-bg:#f0edff;--band-edge:#c5b5f1;--band-ink:#634aa3;--band-fill:#8270d1}
+#vocabularyApp .ngsl-completed .ngsl-band-card--4{--band-bg:#fff2e2;--band-edge:#efc18c;--band-ink:#985619;--band-fill:#d8923f}
+#vocabularyApp .ngsl-completed .ngsl-band-card--5{--band-bg:#fceaf0;--band-edge:#e9acc0;--band-ink:#9c3b62;--band-fill:#ce668a}
 #vocabularyApp .ngsl-completed .ngsl-band-card .ngsl-band-name{font-size:.85rem;font-weight:850;color:var(--band-ink)}
 #vocabularyApp .ngsl-completed .ngsl-band-card strong{font-size:clamp(1.7rem,2.9vw,2.25rem);letter-spacing:-.04em;font-weight:900;line-height:1;color:var(--band-ink)}
 #vocabularyApp .ngsl-completed .ngsl-band-card .ngsl-band-count{font-size:.81rem;font-weight:750;color:var(--band-ink)}
