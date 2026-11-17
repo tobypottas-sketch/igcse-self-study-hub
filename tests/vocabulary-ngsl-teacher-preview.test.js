@@ -13,7 +13,7 @@ test('NGSL teacher preview accepts exactly 50 safe questions',()=>{
  assert.throws(()=>validateTeacherFormPreview({...make(),form:'B'}),/incomplete/);
 });
 test('NGSL teacher preview rejects leaked keys, malformed or unordered questions',()=>{
- const a=make();a.questions[9].correctOptionId='A';
+ const a=make();a.questions[9].correctOptionId='secret';
  assert.throws(()=>validateTeacherFormPreview(a),/unsafe/);
  const b=make();b.questions[20].options[3].correct=true;
  assert.throws(()=>validateTeacherFormPreview(b),/unsafe/);
