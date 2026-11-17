@@ -26,3 +26,8 @@ jobs:
           node-version: '22'
       - name: Verify reward catalogue, XP parity fixtures and safe API contract
         run: node --test tests/vocabulary-rewards-*.test.js
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check Rewards Shop Edge Functions
+        run: deno check supabase/functions/vocabulary-reward-xp-audit/index.ts supabase/functions/vocabulary-reward-shop/index.ts
