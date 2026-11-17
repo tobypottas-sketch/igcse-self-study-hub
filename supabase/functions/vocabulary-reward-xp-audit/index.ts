@@ -24,6 +24,11 @@ const calculateProgress = progressSnapshot as unknown as (args:{
   occurrences:any[];unitMastery:Record<string,unknown>;globalMastery:Record<string,unknown>
 })=>any;
 const calculateXp = computeXp as unknown as (args:{missions:any[];snapshot:unknown;timeZone?:string})=>any;
+const calculatePathwayStates = buildUnitPathwayStates as unknown as (args:{
+  occurrences:any[];unitMastery:Record<string,unknown>;globalMastery:Record<string,unknown>;
+  coverageByPathway:Record<string,unknown>
+})=>Record<string,{mastered?:boolean}>;
+
 const indexBy = (rows: any[], field: string) =>
   Object.fromEntries(rows.map(row => [String(row[field]), row]));
 
@@ -95,7 +100,7 @@ Deno.serve(async request => {
     // pathway coverage unregistered. Mirror that behaviour for parity; using
     // published sets for all units here can change XP/mastery totals.
     for (const [unit,rows] of byUnit) {
-      const states=buildUnitPathwayStates({
+      const states=calculatePathwayStates({
         occurrences:rows,unitMastery,globalMastery,coverageByPathway:{}
       });
       if(!Object.values(states).every(state=>state.mastered===true))continue;
