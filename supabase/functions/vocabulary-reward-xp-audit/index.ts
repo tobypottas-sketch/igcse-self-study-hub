@@ -5,6 +5,7 @@
 // Deploy only after the new function passes integration tests.
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 import { computeXp, progressSnapshot } from '../../../src/vocabulary/engagement-model.js';
+import { buildUnitPathwayStates } from '../../../src/vocabulary/pathway-view-model.js';
 import { clearPathwayCoverage, registerPathwayCoverage } from '../../../src/vocabulary/pathway-coverage-store.js';
 import { coverageFromServerSetMembers } from '../_shared/vocabulary-pathway-sets.js';
 import { fetchAllRows } from '../../../src/vocabulary/teacher-paging.js';
@@ -78,14 +79,24 @@ Deno.serve(async request => {
       if (!byUnit.has(unit)) byUnit.set(unit,[]);
       byUnit.get(unit)!.push(occurrence);
     }
+    const unitMastery=indexBy(unitRows,'occurrence_id');
+    const globalMastery=indexBy(globalRows,'vocabulary_id');
+    // The existing student home screen evaluates readiness ONLY when every
+    // pathway initially appears mastered. Otherwise it leaves the unit's
+    // pathway coverage unregistered. Mirror that behaviour for parity; using
+    // published sets for all units here can change XP/mastery totals.
     for (const [unit,rows] of byUnit) {
+      const states=buildUnitPathwayStates({
+        occurrences:rows,unitMastery,globalMastery,coverageByPathway:{}
+      });
+      if(!Object.values(states).every(state=>state.mastered===true))continue;
       const members=membership.filter(row=>Number(row.unit_number)===unit);
       registerPathwayCoverage(unit,coverageFromServerSetMembers(members,rows));
     }
     const snapshot=calculateProgress({
       occurrences,
-      unitMastery:indexBy(unitRows,'occurrence_id'),
-      globalMastery:indexBy(globalRows,'vocabulary_id')
+      unitMastery,
+      globalMastery
     });
     // Show both explicit calendar interpretations; do not choose a wallet credit
     // before the browser and server are known to agree for each student.
