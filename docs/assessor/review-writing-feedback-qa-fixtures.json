@@ -1,0 +1,77 @@
+{
+  "description": "Synthetic QA cases for the Review Writing AI feedback Worker. Expected behaviours are qualitative, not exact marks. Use only after inspecting the actual Worker implementation.",
+  "cases": [
+    {
+      "id": "accurate-but-unsupported-opinion",
+      "task": "Write a restaurant review for students choosing somewhere to eat, 120–160 words.",
+      "response": "I visited the restaurant last weekend. The staff were incredibly friendly and attentive. I really enjoyed my meal. I would recommend it to everyone.",
+      "expect": {
+        "groundedQuote": "The staff were incredibly friendly and attentive.",
+        "focus": "Explain the attentive service through a real example, if the student can supply one",
+        "mustNot": [
+          "Invent grammatical errors",
+          "Claim details about food or staff that are not in the draft"
+        ]
+      }
+    },
+    {
+      "id": "genuine-grammar-error",
+      "task": "Write a review of a film for your school magazine.",
+      "response": "The story was exciting, but the actors was not convincing. The ending was surprising.",
+      "expect": {
+        "groundedQuote": "the actors was not convincing",
+        "type": "error",
+        "possibleSuggestion": "the actors were not convincing",
+        "focus": "Subject–verb agreement"
+      }
+    },
+    {
+      "id": "task-coverage",
+      "task": "Review a book for younger teenagers and explain whether you recommend it.",
+      "response": "The book had interesting characters and fast-moving action. I liked the ending because the central problem was solved in a surprising way.",
+      "expect": {
+        "focus": "Recommendation is missing, and the review should specify the target reader",
+        "mustNot": [
+          "Invent a book title",
+          "Invent a recommendation that the writer has not given"
+        ]
+      }
+    },
+    {
+      "id": "strong-writing",
+      "task": "Review a café for visitors to your city.",
+      "response": "The small café is worth visiting for its relaxed atmosphere and excellent coffee. Although the tables are tightly packed, the friendly staff make customers feel welcome. I would recommend it to anyone looking for a quiet afternoon break, especially on weekdays when it is less crowded.",
+      "expect": {
+        "focus": "Only justified refinements; accurate language must not be called incorrect",
+        "allowEmptyImprovements": true
+      }
+    },
+    {
+      "id": "nonrestaurant-task",
+      "task": "Review a school theatre performance for the school website.",
+      "response": "The actors made the main characters believable. However, the music was sometimes too loud, which made the dialogue difficult to follow. Overall, I would recommend the performance to younger students because it was funny and easy to understand.",
+      "expect": {
+        "focus": "Theatre performance, not restaurant",
+        "mustNot": [
+          "Refer to food",
+          "Refer to dining service"
+        ]
+      }
+    },
+    {
+      "id": "fabricated-quote",
+      "task": "Review a restaurant.",
+      "response": "The café was pleasant and the food arrived quickly.",
+      "mockModelItem": {
+        "quote": "The waiters were extremely attentive.",
+        "advice": "Excellent service",
+        "type": "style",
+        "suggestion": "The staff answered our questions politely."
+      },
+      "expect": {
+        "rejectMockItem": true,
+        "reason": "Model quotation is absent from submitted draft"
+      }
+    }
+  ]
+}
