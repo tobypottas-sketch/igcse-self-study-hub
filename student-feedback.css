@@ -112,3 +112,8 @@
  #view-review .sf-result--compact .sf-score__tile--total{grid-column:1/-1;grid-row:auto}
  #view-review .sf-result--compact .sf-revise{justify-self:stretch}
 }
+
+/* Compact two-line assessment rationale, no extra cards or lengthy examiner text. */
+#view-review .sf-result--compact .sf-score-reasons{display:grid;gap:5px;margin-top:12px;padding:10px 12px;border:1px solid #ccdced;border-radius:10px;background:#fff}
+#view-review .sf-result--compact .sf-score-reason{margin:0;font-size:.87rem;line-height:1.45;color:#3a536b}
+#view-review .sf-result--compact .sf-score-reason strong{color:#254a86}
