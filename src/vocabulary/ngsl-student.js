@@ -83,7 +83,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
     if(result.state==='completed'){completed(result.result);return;}
     state.question=validQuestion(result.question);state.answer=null;state.pending=null;state.error='';question();
   }catch(err){state.error=err.message;const status=root.querySelector('.diag-message');if(status)status.textContent=state.error;}
-  finally{state.busy=false;}
+  finally{state.busy=false;if(state.question&&!state.complete)question();}
  }
  async function submit(){
   if(state.busy||!state.question||!['A','B','C','D'].includes(state.answer))return;
