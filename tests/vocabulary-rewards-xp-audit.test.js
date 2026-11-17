@@ -92,4 +92,5 @@ test('XP audit cannot authorize funding and identifies timezone sensitivity',()=
   assert.match(edge,/timeZone:'Asia\/Shanghai'/);
   assert.match(edge,/timeZone:'UTC'/);
   assert.match(edge,/timezoneSensitive:shanghai.total!==utc.total/);
+  assert.match(edge,/Object.keys\(shanghai.parts\).some/);
 });
