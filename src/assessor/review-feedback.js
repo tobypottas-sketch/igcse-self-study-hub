@@ -1,7 +1,7 @@
 // Review Writing → shared student feedback. Loaded by review-writing.html after its login gate.
 import { getSupabaseClient } from '../supabase.js';
 import { getCurrentProfile } from '../auth.js';
-import { mountStudentFeedback } from './student-feedback.js?v=review-feedback-label-v1';
+import { mountStudentFeedback } from './student-feedback.js?v=review-score-notes-v1';
 import { STUDENT_FEEDBACK_UI_ENABLED } from './student-feedback-flag.js';
 import { reviewTaskText, reviewResponseText } from './writing-app-adapters.js';
 try {
