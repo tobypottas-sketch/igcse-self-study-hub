@@ -16,6 +16,13 @@ const CORS = {
 };
 const response = (body: unknown, status = 200) =>
   Response.json(body, {status, headers:{...CORS, 'Cache-Control':'no-store'}});
+// These functions are authored as plain JS. Deno otherwise infers default [] as
+// never[] and default null as the only accepted snapshot type; the runtime
+// contract is broader, and the same canonical implementation is still called.
+const calculateProgress = progressSnapshot as unknown as (args:{
+  occurrences:any[];unitMastery:Record<string,unknown>;globalMastery:Record<string,unknown>
+})=>any;
+const calculateXp = computeXp as unknown as (args:{missions:any[];snapshot:unknown})=>any;
 const indexBy = (rows: any[], field: string) =>
   Object.fromEntries(rows.map(row => [String(row[field]), row]));
 
@@ -75,12 +82,12 @@ Deno.serve(async request => {
       const members=membership.filter(row=>Number(row.unit_number)===unit);
       registerPathwayCoverage(unit,coverageFromServerSetMembers(members,rows));
     }
-    const snapshot=progressSnapshot({
+    const snapshot=calculateProgress({
       occurrences,
       unitMastery:indexBy(unitRows,'occurrence_id'),
       globalMastery:indexBy(globalRows,'vocabulary_id')
     });
-    const computed=computeXp({missions,snapshot});
+    const computed=calculateXp({missions,snapshot});
     return response({
       ok:true,
       auditOnly:true,
