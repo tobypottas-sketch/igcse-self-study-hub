@@ -87,10 +87,11 @@ fieldset{min-width:0;border:0;margin:0;padding:0}.label{display:block;font-size:
 #view-write .draft-clear-footer .draft-clear-note{color:#71848b;font-size:.77rem}
 #view-write .writing-section .clear-section{color:#5a7480;border-color:#d8e4e5}
 @media(max-width:680px){#view-write .draft-plan-notes{grid-template-columns:1fr}#view-write .writing-section .section-head{align-items:flex-start}#view-write .writing-section .clear-section{flex:0 0 auto}}
+.review-feedback-staff-note{margin:0 0 16px;padding:15px 18px;border:1px solid #bddce1;border-radius:12px;background:#eef7fa;color:#21516a;font-weight:650;line-height:1.5}
 </style>
 <style>html:not(.review-auth-ready) body{visibility:hidden}</style>
 <link rel="stylesheet" href="assessment-progress.css">
-<link rel="stylesheet" href="student-feedback.css?v=3">
+<link rel="stylesheet" href="student-feedback.css?v=schoolwide-feedback-v1">
 <script type="module">
 import {getSupabaseClient} from './src/supabase.js';
 import {getCurrentProfile} from './src/auth.js';
@@ -729,6 +730,6 @@ window.reviewWritingFeedbackSource=()=>({task:currentPrompt(),sections:Object.ke
 questionCombo=enhanceQuestionSelect($('questionSelect'));
 load();
 </script>
-<script type="module" src="./src/assessor/review-feedback.js"></script>
+<script type="module" src="./src/assessor/review-feedback.js?v=schoolwide-feedback-v1"></script>
 </body>
 </html>
