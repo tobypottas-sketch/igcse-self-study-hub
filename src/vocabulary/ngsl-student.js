@@ -74,39 +74,32 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
    const valid=Number.isInteger(n)&&n>=0&&n<=10;
    const percent=valid?n*10:null;
    return '<div class="ngsl-band-card ngsl-band-card--'+b+'"><span class="ngsl-band-name">Group '+b+'</span>'
-    +'<strong>'+ (valid?percent+'%':'—') +'</strong>'
-    +'<span class="ngsl-band-count">'+(valid?n+' of 10 words':'Score unavailable')+'</span>'
+    +'<strong>'+(valid?percent+'%':'—')+'</strong>'
     +'<span class="ngsl-band-track" aria-hidden="true"><span style="width:'+(valid?percent:0)+'%"></span></span>'
     +'<small>'+frequencyLabels[b-1]+'</small></div>';
   }).join('');
   const foundation=foundationLevel(correct);
   const missed=Array.isArray(result?.missedTargets)?result.missedTargets:[];
   const words=missed.map(x=>e(x.target)).filter(Boolean);
-  const message=correct===50?'You recognised all 50 words in this assessment.':
-   'You recognised '+correct+' of the 50 words in this assessment.';
+  const pct=Number(result?.percentage);
+  const percentage=Number.isFinite(pct)&&pct>=0&&pct<=100&&Math.abs(pct-correct*2)<0.01?pct:correct*2;
   shell('<section class="diag-hero ngsl-completed"><p class="diag-kicker">ASSESSMENT COMPLETE</p>'
     +'<h1>Your vocabulary results</h1>'
     +'<div class="ngsl-result-top"><div class="ngsl-result-summary">'
-      +'<p class="ngsl-result-eyebrow">YOUR SCORE</p>'
-      +'<div class="ngsl-score"><strong>'+correct+'<span class="ngsl-score-total">/50</span></strong><span>'+e(result.percentage)+'%</span></div>'
+      +'<p class="ngsl-result-eyebrow">YOUR RESULT</p>'
+      +'<div class="ngsl-score"><strong>'+percentage+'%</strong><span>'+correct+' / 50 correct</span></div>'
       +'<h2>'+e(foundation.label)+' vocabulary foundation</h2>'
-      +'<p class="ngsl-result-message">'+e(foundation.message)+'</p>'
       +'</div><img class="ngsl-result-art" src="'+e(foundation.image)+'" alt="Student on a mountain journey" /></div>'
-    +'<div class="ngsl-explainer"><h2>What does my score mean?</h2>'
-      +'<p>'+e(message)+' This gives you a starting point for vocabulary practice, not an overall English grade.</p></div>'
     +'<section class="ngsl-group-section" aria-label="Vocabulary frequency groups">'
-      +'<h2>How did I do across the word groups?</h2>'
-      +'<p>Each group has 10 words. The larger the percentage, the more words you recognised in that group. Group 1 contains the most common words.</p>'
-      +'<div class="ngsl-band-results">'+bands+'</div>'
-    +'</section>'
+      +'<h2>Your word groups</h2>'
+      +'<p>10 words per group · most common to less common</p>'
+      +'<div class="ngsl-band-results">'+bands+'</div></section>'
     +(words.length?'<section class="ngsl-review-section" aria-label="Words to revisit">'
       +'<div class="ngsl-review-intro"><div><span class="ngsl-review-label">WORDS TO REVISIT</span>'
-      +'<h2>'+words.length+' words to practise</h2>'
-      +'<p>These are words you did not recognise in this assessment. You can review them as you learn.</p></div>'
-      +'<span class="ngsl-review-number" aria-hidden="true">'+words.length+'</span></div>'
-      +'<details class="ngsl-word-details"><summary>Show my words <span aria-hidden="true">⌄</span></summary>'
+      +'<h2>'+words.length+' words to practise</h2></div></div>'
+      +'<details class="ngsl-word-details"><summary>Show words <span aria-hidden="true">⌄</span></summary>'
       +'<ul class="ngsl-missed-list">'+words.map(word=>'<li>'+word+'</li>').join('')+'</ul></details></section>':
-      '<p class="ngsl-all-correct">Excellent work — you recognised every word in this assessment.</p>')
+      '<p class="ngsl-all-correct">You recognised every word!</p>')
     +'<div class="diag-actions"><button type="button" class="diag-primary" data-ngsl="finish">Continue to Vocabulary Builder</button></div>'
     +'</section>');
  }
