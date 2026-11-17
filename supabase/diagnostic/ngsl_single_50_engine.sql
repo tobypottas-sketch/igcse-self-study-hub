@@ -183,15 +183,15 @@ begin
  if v_total<>50 then raise exception 'FORM_INVALID';end if;
  select jsonb_object_agg(ngsl_band::text,jsonb_build_object('correct',correct_count,'total',10))
   into v_bands from (
-   select i.ngsl_band,count(*) filter(where r.correct)::integer correct_count
-    from private.ngsl_baseline_responses r
-    join private.ngsl_baseline_items i on i.position=r.item_position
-    where r.session_id=s.id group by i.ngsl_band
+   select i.ngsl_band,count(*) filter(where resp.correct)::integer correct_count
+    from private.ngsl_baseline_responses resp
+    join private.ngsl_baseline_items i on i.position=resp.item_position
+    where resp.session_id=s.id group by i.ngsl_band
   ) scores;
  select coalesce(jsonb_agg(jsonb_build_object('target',i.target,'band',i.ngsl_band)
-    order by r.question_index) filter(where not r.correct),'[]'::jsonb) into v_missed
- from private.ngsl_baseline_responses r
- join private.ngsl_baseline_items i on i.position=r.item_position where r.session_id=s.id;
+    order by resp.question_index) filter(where not resp.correct),'[]'::jsonb) into v_missed
+ from private.ngsl_baseline_responses resp
+ join private.ngsl_baseline_items i on i.position=resp.item_position where resp.session_id=s.id;
  insert into private.ngsl_baseline_results(session_id,student_id,total,correct,band_scores,missed_targets)
  values(s.id,p_actor,v_total,v_correct,v_bands,v_missed);
  return jsonb_build_object('state','completed','result',jsonb_build_object(
