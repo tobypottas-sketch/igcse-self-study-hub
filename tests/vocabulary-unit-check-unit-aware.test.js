@@ -13,8 +13,8 @@ const browserTest = loadPlaywright() && await findChromium() ? test : test.skip;
 test('registry: Units 1, 2, 4 and 6 have their checks; units without an authored check have none', () => {
   assert.equal(unitCheckFor(1), unit1Check);
   assert.deepEqual(Object.keys(unit1Check.forms), ['A', 'B', 'C']);
-  for (const unit of [8, 20, 0, 21, NaN, null, undefined, '8']) assert.equal(unitCheckFor(unit), null, `unit ${unit}`);
-  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '2', '3', '4', '5', '6', '7']);
+  for (const unit of [9, 20, 0, 21, NaN, null, undefined, '9']) assert.equal(unitCheckFor(unit), null, `unit ${unit}`);
+  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '2', '3', '4', '5', '6', '7', '8']);
 });
 
 test('registry: a registered check with no forms is treated as no check', () => {
