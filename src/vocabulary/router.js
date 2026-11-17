@@ -52,7 +52,7 @@ async function routeVocabulary() {
           return;
         }
         if(ngslRequested||!status.completed){
-          const {startNGSLDiagnostic}=await import('./ngsl-student.js?v=ngsl-results-colour-v2');
+          const {startNGSLDiagnostic}=await import('./ngsl-student.js?v=ngsl-concise-v1');
           await startNGSLDiagnostic({root,client,onComplete:()=>window.location.replace('./vocabulary.html')});
           return;
         }
