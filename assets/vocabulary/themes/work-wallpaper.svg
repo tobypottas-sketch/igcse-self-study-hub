@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" width="420" height="420" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.38">
+<defs>
+<g id="wk-hat"><path d="M-18 8H18V13H-18Z"/><path d="M-14 8C-14-6-7-14 0-14S14-6 14 8M-3-14V-3M3-14V-3"/></g>
+<g id="wk-gear"><path d="M-2.9 -11.7L-2.2 -15.8L2.2 -15.8L2.9 -11.7L6.2 -10.3L9.6 -12.8L12.8 -9.6L10.3 -6.2L11.7 -2.9L15.8 -2.2L15.8 2.2L11.7 2.9L10.3 6.2L12.8 9.6L9.6 12.8L6.2 10.3L2.9 11.7L2.2 15.8L-2.2 15.8L-2.9 11.7L-6.2 10.3L-9.6 12.8L-12.8 9.6L-10.3 6.2L-11.7 2.9L-15.8 2.2L-15.8 -2.2L-11.7 -2.9L-10.3 -6.2L-12.8 -9.6L-9.6 -12.8L-6.2 -10.3Z"/><circle r="5"/></g>
+<g id="wk-wrench"><path d="M-15 15 2-2"/><path d="M2-2C-1-8 3-15 10-15L6-10 10-6 15-10C15-3 8 1 2-2Z"/></g>
+<g id="wk-bulb"><path d="M-6 8C-6 2-11 0-11-6A11 11 0 0 1 11-6C11 0 6 2 6 8Z"/><path d="M-5 12H5M-3 16H3M0 8V0"/></g>
+<g id="wk-laptop"><rect x="-14" y="-13" width="28" height="19" rx="2"/><path d="M-19 10H19L16 15H-16Z"/></g>
+<g id="wk-factory"><path d="M-18 16V-2L-8-8V-2L2-8V-2L12-8V-16H17V16Z"/><path d="M-12 6H-8M-2 6H2M8 6H12"/></g>
+<g id="wk-crane"><path d="M-12 18V-16H18M-12-10-5-16M14-16V-5"/><path d="M10-5H18V2H10ZM-17 18H-7"/></g>
+<g id="wk-square"><path d="M-16 16V-16L16 16Z"/><path d="M-10 10V0L0 10ZM-16-6H-12M-16 4H-12"/></g>
+<g id="wk-flask"><path d="M-6-16H6M-3-16V-4L-14 14H14L3-4V-16"/><path d="M-9 6H9"/></g>
+<g id="wk-apple"><path d="M0-8C-6-13-16-10-15 0S-6 16 0 13C6 16 15 10 15 0S6-13 0-8Z"/><path d="M0-8C0-12 2-15 5-17"/></g>
+<g id="wk-chart"><path d="M-16 16H16M-11 16V6M-3 16V-1M5 16V3M13 16V-8"/><path d="M-14-4-4-12 4-8 14-16"/></g>
+<g id="wk-box"><path d="M-15-6 0-14 15-6V10L0 18-15 10Z"/><path d="M-15-6 0 2 15-6M0 2V18"/></g>
+<g id="wk-leaf"><path d="M-12 12C-12-4 0-14 14-14 14 2 4 12-12 12Z"/><path d="M-12 12 4-4"/></g>
+<g id="wk-helmet2"><rect x="-16" y="-12" width="32" height="26" rx="3"/><path d="M-10-12V-16H10V-12M-16 0H16M-4-2H4V3H-4Z"/></g>
+</defs>
+<use href="#wk-bulb" transform="translate(42 42) rotate(0)" stroke="#2f9a9c"/>
+<use href="#wk-gear" transform="translate(126 42) rotate(-24)" stroke="#6f8fa8"/>
+<use href="#wk-hat" transform="translate(210 42) rotate(16)" stroke="#2f9a9c"/>
+<use href="#wk-box" transform="translate(294 42) rotate(0)" stroke="#6f8fa8"/>
+<use href="#wk-wrench" transform="translate(378 42) rotate(8)" stroke="#2f9a9c"/>
+<use href="#wk-box" transform="translate(42 126) rotate(8)" stroke="#6f8fa8"/>
+<use href="#wk-laptop" transform="translate(126 126) rotate(16)" stroke="#2f9a9c"/>
+<use href="#wk-flask" transform="translate(210 126) rotate(-14)" stroke="#6f8fa8"/>
+<use href="#wk-chart" transform="translate(294 126) rotate(0)" stroke="#2f9a9c"/>
+<use href="#wk-square" transform="translate(378 126) rotate(0)" stroke="#6f8fa8"/>
+<use href="#wk-flask" transform="translate(42 210) rotate(-24)" stroke="#2f9a9c"/>
+<use href="#wk-crane" transform="translate(126 210) rotate(0)" stroke="#6f8fa8"/>
+<use href="#wk-apple" transform="translate(210 210) rotate(16)" stroke="#2f9a9c"/>
+<use href="#wk-factory" transform="translate(294 210) rotate(0)" stroke="#6f8fa8"/>
+<use href="#wk-hat" transform="translate(378 210) rotate(16)" stroke="#2f9a9c"/>
+<use href="#wk-chart" transform="translate(42 294) rotate(16)" stroke="#6f8fa8"/>
+<use href="#wk-leaf" transform="translate(126 294) rotate(-24)" stroke="#2f9a9c"/>
+<use href="#wk-bulb" transform="translate(210 294) rotate(26)" stroke="#6f8fa8"/>
+<use href="#wk-helmet2" transform="translate(294 294) rotate(-14)" stroke="#2f9a9c"/>
+<use href="#wk-wrench" transform="translate(378 294) rotate(26)" stroke="#6f8fa8"/>
+<use href="#wk-gear" transform="translate(42 378) rotate(-24)" stroke="#2f9a9c"/>
+<use href="#wk-helmet2" transform="translate(126 378) rotate(-14)" stroke="#6f8fa8"/>
+<use href="#wk-apple" transform="translate(210 378) rotate(0)" stroke="#2f9a9c"/>
+<use href="#wk-laptop" transform="translate(294 378) rotate(-12)" stroke="#6f8fa8"/>
+<use href="#wk-factory" transform="translate(378 378) rotate(-6)" stroke="#2f9a9c"/>
+<path d="M84 80L85 83L88 84L85 85L84 88L83 85L80 84L83 83Z" stroke="#2f9a9c"/>
+<path d="M165 84H171M168 81V87" stroke="#6f8fa8"/>
+<circle cx="252" cy="84" r="2" stroke="#2f9a9c"/>
+<path d="M336 80L337 83L340 84L337 85L336 88L335 85L332 84L335 83Z" stroke="#6f8fa8"/>
+<path d="M81 168H87M84 165V171" stroke="#6f8fa8"/>
+<circle cx="168" cy="168" r="2" stroke="#2f9a9c"/>
+<path d="M252 164L253 167L256 168L253 169L252 172L251 169L248 168L251 167Z" stroke="#6f8fa8"/>
+<path d="M333 168H339M336 165V171" stroke="#2f9a9c"/>
+<circle cx="84" cy="252" r="2" stroke="#2f9a9c"/>
+<path d="M168 248L169 251L172 252L169 253L168 256L167 253L164 252L167 251Z" stroke="#6f8fa8"/>
+<path d="M249 252H255M252 249V255" stroke="#2f9a9c"/>
+<circle cx="336" cy="252" r="2" stroke="#6f8fa8"/>
+<path d="M84 332L85 335L88 336L85 337L84 340L83 337L80 336L83 335Z" stroke="#6f8fa8"/>
+<path d="M165 336H171M168 333V339" stroke="#2f9a9c"/>
+<circle cx="252" cy="336" r="2" stroke="#6f8fa8"/>
+<path d="M336 332L337 335L340 336L337 337L336 340L335 337L332 336L335 335Z" stroke="#2f9a9c"/>
+</svg>
