@@ -74,16 +74,16 @@ test('explicit China calendar avoids UTC daily-cap boundary miscount',()=>{
   assert.equal(shanghai.parts.missions-utc.parts.missions,20);
 });
 
-test('explicit timezone also sets the Monday weekly-goal boundary',()=>{
+test('explicit timezone splits missions across the Monday weekly-goal boundary',()=>{
   const rows=[1,2,3,4].map(i=>({
     ...mission(i,{score:6,unit:i,kind:'mixed'}),
-    completed_at:`2026-11-15T16:${String(i).padStart(2,'0')}:00Z`
+    completed_at:i<=2?`2026-11-15T15:${i===1?'40':'50'}:00Z`:
+      `2026-11-15T16:${String(i).padStart(2,'0')}:00Z`
   }));
   const shanghai=computeXp({missions:rows,snapshot:empty,timeZone:'Asia/Shanghai'});
   const utc=computeXp({missions:rows,snapshot:empty,timeZone:'UTC'});
-  // These four are in one qualifying week in either interpretation;
-  // comparing different groups verifies the explicit calendar is used.
-  assert.equal(shanghai.parts.weeklyGoals,15);
+  // UTC: 4 on Sunday in a single week. China: 2 on Sunday, 2 on Monday.
+  assert.equal(shanghai.parts.weeklyGoals,0);
   assert.equal(utc.parts.weeklyGoals,15);
 });
 
