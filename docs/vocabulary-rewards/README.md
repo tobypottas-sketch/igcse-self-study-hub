@@ -7,7 +7,7 @@
 - Existing mission rows, XP calculation, achievements, level, mastery and merits remain unchanged.
 
 ## New implementation in this PR
-- `supabase/functions/vocabulary-reward-xp-audit/index.ts`: authenticated, read-only student XP audit. It fetches database-owned missions, mastery, occurrences and published pathway memberships; runs the existing `computeXp()`/`progressSnapshot()` code and returns a breakdown. **Not deployed. Does not write a wallet.**
+- `supabase/functions/vocabulary-reward-xp-audit/index.ts`: authenticated, read-only student XP audit. It fetches database-owned missions, mastery, occurrences and published pathway memberships; runs the existing `computeXp()`/`progressSnapshot()` code and returns a breakdown. **Deployed as an isolated JWT-protected function on 18 November 2026 (version 1). Does not write a wallet.**
 - `supabase/functions/vocabulary-reward-shop/index.ts`: authenticated shop API. Status requests use student RLS; purchase/equip requests are blocked unless the server-only `VOCAB_REWARDS_ENABLE_PURCHASES=true` flag is set. The flag must stay unset in production while parity is unverified. **Not deployed.**
 - Proposed purchase/equip functions in `phase-2-wallet-schema.sql` now run as `SECURITY INVOKER` and grant EXECUTE to `service_role` only. The shop Edge function authenticates a student JWT and passes the authenticated ID to those privileged functions; browser-supplied IDs and prices are never accepted.
 - New Node tests cover the XP rules, catalogue consistency and the intended API/security contract. Their actual execution, staging and live authenticated verification are still required.
@@ -20,14 +20,12 @@ Edge Function and shows mismatches by all seven XP components. It never
 authorizes spending or changes any student record. It is inactive on ordinary
 `vocabulary.html` visits and unavailable in staff preview.
 
-**Not usable yet:** the audit Edge Function has not been deployed. Deploy it
-separately after reviewing runtime imports and JWT validation, then use a
-controlled TEST STUDENT session before enabling any wallet features.
+**Audit deployed but not yet student-verified:** Supabase confirms `vocabulary-reward-xp-audit` is ACTIVE (version 1) with `verify_jwt=true`, and all twelve imported files were present when its body was retrieved. No authenticated student end-to-end audit has yet been performed. Once the UI is merged, open an appropriate controlled student's `vocabulary.html?xp-audit=1` and compare their XP. The database wallet and shop API are NOT deployed.
 Any partial, unauthorized, or missing audit response is reported as unavailable,
 not as matching. Do not interpret a match on one student as full cohort parity.
 
 ## Critical limitation
-The XP audit currently computes day and week boundaries in its server runtime timezone, whereas the existing browser XP model uses the browser's local timezone. It also registers all published pathway coverage, whereas the browser lazily registers it. **Do not use audited totals for real credits until a parity investigation resolves these differences and verifies existing students' lifetime XP.** This is why reward funding and purchases remain off.
+The XP audit now accepts the browser timezone for read-only comparison and mirrors the browser's lazy pathway-coverage registration. These changes are covered by focused tests but **authenticated live parity has not been demonstrated**. **Do not use audited totals for real credits until a parity investigation resolves these differences and verifies existing students' lifetime XP.** This is why reward funding and purchases remain off.
 
 ## Read-only production baseline (18 November 2026)
 - **270** active student profiles in the project (not all belong to this teacher).
