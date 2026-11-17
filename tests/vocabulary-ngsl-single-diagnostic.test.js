@@ -26,12 +26,12 @@ test('NGSL student renderer uses exactly four options, server-owned save and no 
  assert.match(source,/missedTargets/);
  assert.doesNotMatch(source,/A1.*B1.*C1/);
 });
-test('old diagnostic and CEFR scoring are not replaced by NGSL rollout',()=>{
+test('only NGSL scoring and student routing remain',()=>{
  const route=readFileSync(new URL('../src/vocabulary/router.js',import.meta.url),'utf8');
  const edge=readFileSync(new URL('../supabase/functions/vocabulary-diagnostic/index.ts',import.meta.url),'utf8');
  assert.match(route,/NGSL_BASELINE_GATE_ENABLED/);
  assert.match(route,/ngsl-status/);
  assert.match(edge,/vocabulary_ngsl_api/);
- assert.match(edge,/vocabulary_diagnostic_api/);
+ assert.doesNotMatch(edge,/vocabulary_diagnostic_api|scoreProvisionalDiagnostic/);
  assert.equal(typeof NGSL_BASELINE_GATE_ENABLED,'boolean');
 });
