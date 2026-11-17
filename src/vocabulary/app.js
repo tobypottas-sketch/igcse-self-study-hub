@@ -229,7 +229,7 @@ async function runRewardsXpParityDiagnostic() {
   try {
     const {compareRewardsXp}=await import('./rewards-xp-parity.js');
     const local=engagementData().xp;
-    const result=await state.client.functions.invoke('vocabulary-reward-xp-audit',{body:{action:'audit'}});
+    const result=await state.client.functions.invoke('vocabulary-reward-xp-audit',{body:{action:'audit',timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone}});
     if(!output.isConnected)return;
     const report=compareRewardsXp(local,result.error?null:result.data);
     const reason=report.status==='match'?'XP totals and all seven components agree.':
