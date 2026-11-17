@@ -92,10 +92,10 @@ test('British spelling is used throughout', () => {
   assert.doesNotMatch(JSON.stringify(check), /\b(color|organize|realize|recognize|favorite|center|theater|analyze|apologize)\b/i);
 });
 
-test('11-13. Unit 5 is registered; Units 1, 2, 3, 4 and 6 are still registered and untouched; the registry is exactly Units 1-7', () => {
-  assert.equal(check, unit5Check); assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '2', '3', '4', '5', '6', '7']);
+test('11-13. Unit 5 is registered; Units 1, 2, 3, 4 and 6 are still registered and untouched; the registry is exactly Units 1-8', () => {
+  assert.equal(check, unit5Check); assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '2', '3', '4', '5', '6', '7', '8']);
   assert.equal(unitCheckFor(1), unit1Check); assert.equal(unitCheckFor(2), unit2Check); assert.equal(unitCheckFor(3), unit3Check); assert.equal(unitCheckFor(4), unit4Check); assert.equal(unitCheckFor(6), unit6Check);
-  for (const n of [0, 8, 20, NaN, null, undefined]) assert.equal(unitCheckFor(n), null, `unit ${n}`);
+  for (const n of [0, 9, 20, NaN, null, undefined]) assert.equal(unitCheckFor(n), null, `unit ${n}`);
 });
 
 test('14. the existing engine runs Unit 5: forms follow attempts, scoring, review and screens work', () => {
