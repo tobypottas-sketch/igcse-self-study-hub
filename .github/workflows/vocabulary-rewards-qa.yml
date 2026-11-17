@@ -30,4 +30,4 @@ jobs:
         with:
           deno-version: v2.x
       - name: Type-check Rewards Shop Edge Functions
-        run: deno check supabase/functions/vocabulary-reward-xp-audit/index.ts supabase/functions/vocabulary-reward-shop/index.ts
+        run: deno check --node-modules-dir=auto supabase/functions/vocabulary-reward-xp-audit/index.ts supabase/functions/vocabulary-reward-shop/index.ts
