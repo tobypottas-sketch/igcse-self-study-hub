@@ -314,3 +314,43 @@ body:has(#vocabularyApp .diag-player){
  #vocabularyApp .ngsl-result-art{width:44%;border-radius:10px}
  #vocabularyApp .ngsl-result-top .ngsl-score strong{font-size:clamp(1.65rem,7vw,2.5rem)}
 }
+
+/* NGSL completion redesign: illustration, result, and approachable vocabulary context. */
+#vocabularyApp .ngsl-completed{padding:clamp(22px,3.2vw,36px)}
+#vocabularyApp .ngsl-completed>h1{max-width:none;margin:9px 0 10px;font-size:clamp(1.85rem,3.4vw,2.65rem);line-height:1.12}
+#vocabularyApp .ngsl-completed .ngsl-result-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.14fr);gap:clamp(18px,3vw,40px);align-items:center;margin:18px 0 24px}
+#vocabularyApp .ngsl-completed .ngsl-result-art{width:100%;max-width:none;aspect-ratio:16/9;object-fit:cover;border-radius:18px;box-shadow:0 12px 26px rgba(24,63,73,.12)}
+#vocabularyApp .ngsl-result-summary{min-width:0}
+#vocabularyApp .ngsl-result-summary .ngsl-result-eyebrow{margin:0;color:var(--c-teal-dark);font-size:.8rem;font-weight:900;letter-spacing:.11em}
+#vocabularyApp .ngsl-result-summary .ngsl-score{display:flex;align-items:baseline;gap:16px;margin:4px 0 13px;flex-wrap:wrap}
+#vocabularyApp .ngsl-result-summary .ngsl-score strong{font-size:clamp(3.2rem,6vw,5.2rem);line-height:1;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+#vocabularyApp .ngsl-result-summary .ngsl-score .ngsl-score-total{font-size:.55em;color:var(--c-teal-dark);font-weight:750}
+#vocabularyApp .ngsl-result-summary .ngsl-score>span{font-size:clamp(1.2rem,2.2vw,1.6rem)}
+#vocabularyApp .ngsl-result-summary h2{margin:0 0 9px;color:var(--c-teal-dark);font-size:clamp(1.3rem,2.5vw,1.85rem);line-height:1.22;letter-spacing:-.02em}
+#vocabularyApp .ngsl-result-summary .ngsl-result-message{font-size:clamp(1rem,1.7vw,1.1rem);line-height:1.5;margin:0;max-width:42ch}
+#vocabularyApp .ngsl-explainer{padding:16px 19px;background:rgba(231,247,243,.7);border:1px solid var(--c-teal-line);border-radius:14px}
+#vocabularyApp .ngsl-explainer h2,#vocabularyApp .ngsl-group-section h2{margin:0 0 5px;color:var(--c-ink);font-size:clamp(1.08rem,1.8vw,1.28rem);letter-spacing:-.01em}
+#vocabularyApp .ngsl-explainer p,#vocabularyApp .ngsl-group-section>p{margin:0;max-width:none;font-size:.96rem;line-height:1.55;color:var(--c-ink-2)}
+#vocabularyApp .ngsl-group-section{margin:23px 0 16px}
+#vocabularyApp .ngsl-completed .ngsl-band-results{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:13px 0 0}
+#vocabularyApp .ngsl-completed .ngsl-band-card{display:flex;flex-direction:column;gap:3px;align-items:center;padding:13px 7px 12px;background:#edf6f3;border:1px solid #dcebe5;border-radius:12px;text-align:center}
+#vocabularyApp .ngsl-band-card .ngsl-band-name{font-size:.78rem;font-weight:800;color:var(--c-ink-2)}
+#vocabularyApp .ngsl-band-card strong{font-size:1.4rem;line-height:1.2;font-variant-numeric:tabular-nums;color:var(--c-teal-dark)}
+#vocabularyApp .ngsl-band-card small{font-size:.75rem;color:var(--c-ink-2);line-height:1.2}
+#vocabularyApp .ngsl-word-details{margin:20px 0 8px;background:rgba(255,255,255,.72);border:1px solid var(--c-line);border-radius:12px;overflow:hidden}
+#vocabularyApp .ngsl-word-details summary{padding:15px 18px;cursor:pointer;font-weight:800;color:var(--c-teal-dark);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+#vocabularyApp .ngsl-word-details summary::-webkit-details-marker{display:none}
+#vocabularyApp .ngsl-word-details summary:focus-visible{outline:3px solid var(--c-teal-line);outline-offset:-3px}
+#vocabularyApp .ngsl-word-details[open] summary span{transform:rotate(180deg)}
+#vocabularyApp .ngsl-word-details .ngsl-missed{padding:0 18px 17px;margin:0;max-width:none;line-height:1.85}
+#vocabularyApp .ngsl-all-correct{margin:18px 0}
+@media(max-width:720px){
+ #vocabularyApp .ngsl-completed .ngsl-result-top{grid-template-columns:1fr;gap:18px}
+ #vocabularyApp .ngsl-completed .ngsl-result-art{width:100%;max-height:340px;object-fit:cover}
+ #vocabularyApp .ngsl-completed .ngsl-band-results{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #vocabularyApp .ngsl-completed .ngsl-band-card:last-child{grid-column:1/-1}
+}
+@media(min-width:721px) and (max-width:930px){
+ #vocabularyApp .ngsl-completed .ngsl-band-card{padding:11px 4px}
+ #vocabularyApp .ngsl-band-card small{font-size:.7rem}
+}
