@@ -52,7 +52,8 @@ test('mastery bonuses belong to lifetime XP, even though they are not mission sc
 test('server audit is read-only, uses authenticated data and the canonical computation',()=>{
   assert.match(edge,/client\.auth\.getUser\(token\)/);
   assert.match(edge,/profile\?\.role !== 'student'/);
-  assert.match(edge,/computeXp\(\{missions,snapshot\}\)/);
+  assert.match(edge,/calculateXp\(\{missions,snapshot\}\)/);
+  assert.match(edge,/import \{ computeXp, progressSnapshot \}/);
   assert.match(edge,/coverageFromServerSetMembers\(members,rows\)/);
   assert.match(edge,/fetchAllRows\(/);
   assert.match(edge,/auditOnly:true/);
