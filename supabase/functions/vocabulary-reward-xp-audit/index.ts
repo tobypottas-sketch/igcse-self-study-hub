@@ -43,6 +43,15 @@ Deno.serve(async request => {
     const {data:userData,error:userError} = await client.auth.getUser(token);
     if (userError || !userData?.user?.id) return response({ok:false,error:'Invalid session'},401);
     const studentId = userData.user.id;
+    // Timezone is presentation input for a READ-ONLY comparison, never a credit
+    // instruction. Reject invalid zone names rather than silently defaulting.
+    const body=await request.json().catch(()=>({}));
+    const clientZone=typeof body?.timeZone==='string' && body.timeZone.length<=64 ? body.timeZone : null;
+    if(clientZone) {
+      try { new Intl.DateTimeFormat('en-US',{timeZone:clientZone}); }
+      catch { return response({ok:false,error:'Invalid timezone'},400); }
+    }
+
     const {data:profile,error:profileError} = await client.from('profiles')
       .select('role,active').eq('id',studentId).single();
     if (profileError || profile?.role !== 'student' || profile?.active !== true)
@@ -102,7 +111,7 @@ Deno.serve(async request => {
     // before the browser and server are known to agree for each student.
     const shanghai=calculateXp({missions,snapshot,timeZone:'Asia/Shanghai'});
     const utc=calculateXp({missions,snapshot,timeZone:'UTC'});
-    const computed=calculateXp({missions,snapshot});
+    const computed=calculateXp({missions,snapshot,timeZone:clientZone ?? 'Asia/Shanghai'});
     return response({
       ok:true,
       auditOnly:true,
@@ -114,10 +123,11 @@ Deno.serve(async request => {
         utc:{total:utc.total,parts:utc.parts},
         timezoneSensitive:shanghai.total!==utc.total || Object.keys(shanghai.parts).some(key=>shanghai.parts[key]!==utc.parts[key])
       },
+      calendarTimezone:clientZone ?? 'Asia/Shanghai',
       readyForWalletFunding:false,
       counts:{missions:missions.length,liveOccurrences:occurrences.length,masteryRows:unitRows.length,
         membershipRows:membership.length, masteredUnits:snapshot.unitsMastered},
-      timezoneCaveat:'This diagnostic compares calendar rules; it does not certify parity with the browser or authorize wallet funding.'
+      timezoneCaveat:'This diagnostic compares calendar rules in the requested timezone; it never authorizes wallet funding.'
     });
   } catch (error) {
     // Avoid exposing raw queries, token values or user records to callers.
