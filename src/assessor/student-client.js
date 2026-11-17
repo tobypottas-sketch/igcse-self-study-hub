@@ -35,7 +35,8 @@ export function parseFeedback(body) {
   const partial = f.partial || (!strengths.length && !improvements.length);
   const sc = f.scores, whole = (v, max) => Number.isInteger(v) && v >= 0 && v <= max;
   const scores = !partial && sc && whole(sc.content, 6) && whole(sc.language, 9) && sc.total === sc.content + sc.language ? { content: sc.content, language: sc.language, total: sc.total } : null;
-  return { partial, strengths: partial ? [] : strengths, improvements: partial ? [] : improvements, nextStep: partial ? '' : text(f.nextStep, 450), lengthNotice, scores };
+  const scoreReasons = !partial && scores && f.scoreReasons && typeof f.scoreReasons === 'object' && typeof f.scoreReasons.content === 'string' && typeof f.scoreReasons.language === 'string' ? { content: text(f.scoreReasons.content, 240), language: text(f.scoreReasons.language, 240) } : null;
+  return { partial, strengths: partial ? [] : strengths, improvements: partial ? [] : improvements, nextStep: partial ? '' : text(f.nextStep, 450), lengthNotice, scores, scoreReasons };
 }
 const TIMEOUT_MS = 90000;
 export async function requestFeedback(client, input, { signal, fetcher = globalThis.fetch, timeoutMs = TIMEOUT_MS, now = Date.now } = {}) {
