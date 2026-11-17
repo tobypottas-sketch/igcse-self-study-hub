@@ -3,6 +3,7 @@ import { renderVocabularyError } from './views.js';
 import './foundational-interactions.js';
 import { redirectToHubSignIn, getSessionStorage } from '../return-target.js';
 import { DIAGNOSTIC_BASELINE_GATE_ENABLED, decideVocabularyEntry, DIAGNOSTIC_ENTRY_STATES } from './diagnostic-entry-gate.js?v=baseline-gate-v1';
+import {NGSL_BASELINE_GATE_ENABLED} from './ngsl-entry-policy.js?v=single-ngsl-v1';
 
 const root = document.getElementById('vocabularyApp');
 
@@ -16,7 +17,7 @@ async function routeVocabulary() {
     if (profileError || !profile?.active) { window.location.replace('./'); return; }
     const diagnosticWalkthroughRequested = new URLSearchParams(window.location.search).get('diagnostic-preview') === '1';
     if ((profile.role === 'teacher' || profile.role === 'admin') && diagnosticWalkthroughRequested) {
-      const { startDiagnosticTeacherPreview } = await import('./diagnostic-teacher-walkthrough.js?v=ngsl-form-preview-v1');
+      const { startDiagnosticTeacherPreview } = await import('./diagnostic-teacher-walkthrough.js?v=single-ngsl-v1');
       await startDiagnosticTeacherPreview(root,client);
       return;
     }
@@ -37,6 +38,26 @@ async function routeVocabulary() {
       return;
     }
     if (profile.role === 'student') {
+      const ngslRequested=new URLSearchParams(window.location.search).get('ngsl')==='1';
+      if(NGSL_BASELINE_GATE_ENABLED||ngslRequested){
+        let status;
+        try{
+          const {data,error}=await client.functions.invoke('vocabulary-diagnostic',{
+            body:{action:'ngsl-status',payload:{}}
+          });
+          if(error||!data||typeof data.completed!=='boolean')
+            throw new Error('NGSL status unavailable.');
+          status=data;
+        }catch{
+          renderVocabularyError(root,'Your vocabulary assessment cannot be checked right now. Please try again.');
+          return;
+        }
+        if(ngslRequested||!status.completed){
+          const {startNGSLDiagnostic}=await import('./ngsl-student.js?v=single-ngsl-v1');
+          await startNGSLDiagnostic({root,client,onComplete:()=>window.location.replace('./vocabulary.html')});
+          return;
+        }
+      }
       // Intentionally dormant until the bank, student assessment UI, rollout
       // and server-side practice enforcement are verified and approved.
       const voluntaryDiagnosticRequested = new URLSearchParams(window.location.search).get('diagnostic') === '1';

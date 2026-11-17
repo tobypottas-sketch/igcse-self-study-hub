@@ -6,7 +6,7 @@ import {validateTeacherFormPreview} from '../src/vocabulary/diagnostic-teacher-w
 const make=(form,total)=>({
  form,total,
  questions:Array.from({length:total},(_,index)=>({
-   position:index+1,stem:'The target word is used in an ordinary sentence.',
+   position:index+1,stem:'The target word is used in an ordinary sentence.',target:'target',
    options:['A','B','C','D'].map(id=>({id,text:'Definition '+id+' for this question'}))
  }))
 });

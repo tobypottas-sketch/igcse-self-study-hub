@@ -2,6 +2,7 @@
 // read-only draft-form preview. The real preview never starts a student session.
 import { initialiseVocabularyDiagnostic } from './diagnostic-student.js?v=pilot-ready-v2';
 import { escapeHtml } from '../views/html.js';
+import { ngslPromptMarkup } from './ngsl-question-format.js';
 
 const e = value => escapeHtml(String(value ?? ''));
 const SAMPLE = [
@@ -40,6 +41,7 @@ export function validateTeacherFormPreview(data,form,expectedTotal=40) {
   const seen = new Set();
   for(const [index,q] of data.questions.entries()){
     if(!Number.isInteger(q.position)||q.position!==index+1||seen.has(q.position)
+      ||(expectedTotal===50&&(typeof q.target!=='string'||!q.target.trim()))
       ||typeof q.stem!=='string'||!q.stem.trim()
       ||!Array.isArray(q.options)||q.options.length!==4
       ||q.options.some((o,i)=>o?.id!=='ABCD'[i]||typeof o.text!=='string'||!o.text.trim())
@@ -64,11 +66,9 @@ export async function startDiagnosticTeacherPreview(root,client) {
     questions=null;error='';
     shell('<p class="diag-preview-notice" role="note">Teacher-only preview · No student records are saved</p>'
       +'<section class="diag-hero"><p class="diag-kicker">DIAGNOSTIC PREVIEW</p><h1>Choose what to preview</h1>'
-      +'<p>Try the sample student walkthrough, or review the real questions currently assembled in Form A or Form B.</p>'
+      +'<p>Try the single 50-question NGSL vocabulary diagnostic. No scores or student data are saved.</p>'
       +'<div class="diag-actions diag-preview-modes">'
-      +'<button type="button" class="diag-secondary" data-teacher-preview="sample">Sample walkthrough · 4 questions</button>'
-      +'<button type="button" class="diag-secondary" data-teacher-preview="real">Previous diagnostic · 40 questions</button>'
-      +'<button type="button" class="diag-primary" data-teacher-preview="ngsl">NGSL diagnostic · 50 questions · Forms A/B</button>'
+      +'<button type="button" class="diag-primary" data-teacher-preview="ngsl">Start NGSL diagnostic · 50 questions</button>'
       +'</div><p class="diag-message" role="status"></p></section>');
   }
   function view() {
@@ -77,14 +77,12 @@ export async function startDiagnosticTeacherPreview(root,client) {
     const opts=q.options.map(o=>'<label class="diag-option '+(selections.get(q.position)===o.id?'diag-option--selected':'')+'">'
       +'<input type="radio" name="teacher-preview-answer" value="'+e(o.id)+'" '+(selections.get(q.position)===o.id?'checked':'')+'/>'
       +'<span class="diag-option-key" aria-hidden="true">'+e(o.id)+'</span><span>'+e(o.text)+'</span></label>').join('');
-    shell('<p class="diag-preview-notice" role="note">'+(kind==='ngsl'?'NGSL 1.2 draft':'Previous diagnostic draft')+' · Form '+e(form)+' · Teacher-only · No answers, scores or student records are saved</p>'
-      +'<section class="diag-assessment"><div class="diag-meta"><label for="teacher-form">Form '
-      +'<select id="teacher-form" data-teacher-form><option value="A" '+(form==='A'?'selected':'')+'>A</option>'
-      +'<option value="B" '+(form==='B'?'selected':'')+'>B</option></select></label>'
+    shell('<p class="diag-preview-notice" role="note">NGSL 1.2 · Teacher-only preview · No scores or student records are saved</p>'
+      +'<section class="diag-assessment"><div class="diag-meta"><span>One diagnostic · 50 questions</span>'
       +'<span>Question '+e(q.position)+' of '+questions.length+'</span></div>'
-      +'<h1 class="diag-prompt">'+e(q.stem)+'</h1>'
+      +ngslPromptMarkup(q.stem,q.target)
       +'<fieldset class="diag-choices"><legend>Choose one answer (preview only)</legend>'+opts+'</fieldset>'
-      +'<div class="diag-actions"><button type="button" class="diag-secondary" data-teacher-preview="chooser">← Preview modes</button>'
+      +'<div class="diag-actions"><button type="button" class="diag-secondary" data-teacher-preview="chooser">Restart preview</button>'
       +'<button type="button" class="diag-secondary" data-teacher-preview="previous" '+(position===0?'disabled':'')+'>Previous</button>'
       +'<button type="button" class="diag-primary" data-teacher-preview="next" '+(position===questions.length-1?'disabled':'')+'>Next question</button>'
       +'</div><p class="diag-message" role="status">Your selections stay on this screen only and are never submitted.</p></section>');
@@ -93,19 +91,27 @@ export async function startDiagnosticTeacherPreview(root,client) {
     if(busy)return;
     busy=true;error='';
     shell('<p class="diag-preview-notice">Teacher preview · Real diagnostic questions</p><section class="diag-hero">'
-      +'<h1>Loading Form '+e(nextForm)+'…</h1><p role="status">Checking the secure draft form.</p></section>');
+      +'<h1>Loading NGSL diagnostic…</h1><p role="status">Checking the secure draft form.</p></section>');
     try{
       const {data, error:serviceError}=await client.functions.invoke('vocabulary-diagnostic',{
         body:{action:nextKind==='ngsl'?'ngsl-form-preview':'review-form-preview',payload:{form:nextForm}}
       });
       if(serviceError || data?.error)throw new Error('Unable to load this draft form. Staff-only preview may not yet be deployed.');
       questions=validateTeacherFormPreview(data,nextForm,nextKind==='ngsl'?50:40);
+      if(nextKind==='ngsl')questions=questions.map(q=>{
+        const original=q.options.slice();
+        for(let i=original.length-1;i>0;i--){
+          const a=new Uint32Array(1);crypto.getRandomValues(a);
+          const j=a[0]%(i+1);[original[i],original[j]]=[original[j],original[i]];
+        }
+        return {...q,options:original.map((o,i)=>({id:'ABCD'[i],text:o.text}))};
+      });
       form=nextForm;kind=nextKind;position=0;selections.clear();
       view();
     }catch(err){
       error=err.message||'Preview unavailable.';
       shell('<p class="diag-preview-notice">Teacher preview · No student records are saved</p>'
-        +'<section class="diag-hero"><h1>Could not open Form '+e(nextForm)+'</h1><p role="alert">'+e(error)+'</p>'
+        +'<section class="diag-hero"><h1>Could not open NGSL diagnostic</h1><p role="alert">'+e(error)+'</p>'
         +'<div class="diag-actions"><button class="diag-secondary" type="button" data-teacher-preview="chooser">← Preview modes</button>'
         +'<button class="diag-primary" type="button" data-teacher-preview="retry" data-kind="'+e(nextKind)+'" data-form="'+e(nextForm)+'">Try again</button></div></section>');
     }finally{busy=false}
@@ -116,7 +122,7 @@ export async function startDiagnosticTeacherPreview(root,client) {
     const action=button.dataset.teacherPreview;
     if(action==='chooser'){chooser();return}
     if(action==='sample'){void startSample(root);return}
-    if(action==='real'){void loadForm('A','legacy');return}
+    if(action==='real'){void loadForm('A','ngsl');return}
     if(action==='ngsl'){void loadForm('A','ngsl');return}
     if(action==='retry'){void loadForm(button.dataset.form==='B'?'B':'A',button.dataset.kind==='ngsl'?'ngsl':'legacy');return}
     if(!questions)return;
@@ -134,5 +140,5 @@ export async function startDiagnosticTeacherPreview(root,client) {
       view();
     }
   });
-  chooser();
+  void loadForm('A','ngsl');
 }
