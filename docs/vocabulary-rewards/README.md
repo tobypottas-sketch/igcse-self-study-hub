@@ -12,6 +12,20 @@
 - Proposed purchase/equip functions in `phase-2-wallet-schema.sql` now run as `SECURITY INVOKER` and grant EXECUTE to `service_role` only. The shop Edge function authenticates a student JWT and passes the authenticated ID to those privileged functions; browser-supplied IDs and prices are never accepted.
 - New Node tests cover the XP rules, catalogue consistency and the intended API/security contract. Their actual execution, staging and live authenticated verification are still required.
 
+## Read-only student comparison hook
+An opt-in student diagnostic exists at `vocabulary.html?xp-audit=1`.
+It runs only for an authenticated student after loading the normal home view.
+It compares the student's **existing on-screen XP calculation** with the audit
+Edge Function and shows mismatches by all seven XP components. It never
+authorizes spending or changes any student record. It is inactive on ordinary
+`vocabulary.html` visits and unavailable in staff preview.
+
+**Not usable yet:** the audit Edge Function has not been deployed. Deploy it
+separately after reviewing runtime imports and JWT validation, then use a
+controlled TEST STUDENT session before enabling any wallet features.
+Any partial, unauthorized, or missing audit response is reported as unavailable,
+not as matching. Do not interpret a match on one student as full cohort parity.
+
 ## Critical limitation
 The XP audit currently computes day and week boundaries in its server runtime timezone, whereas the existing browser XP model uses the browser's local timezone. It also registers all published pathway coverage, whereas the browser lazily registers it. **Do not use audited totals for real credits until a parity investigation resolves these differences and verifies existing students' lifetime XP.** This is why reward funding and purchases remain off.
 
