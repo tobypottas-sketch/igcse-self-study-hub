@@ -68,3 +68,47 @@
 .sf-score__note { margin: .5rem 0 0; font-size: .85rem; color: #254a86; }
 .sf-score--none { background: #f3f5f7; border-color: var(--c-line, #d7e6eb); }
 .sf-score__unavailable { margin: 0; font-weight: 700; color: var(--c-ink-2, #2c4a63); }
+
+/* Compact Review Writing results: visual priorities are score, strength, fixes, next step. */
+#view-review .student-feedback{padding:16px 18px;margin-bottom:14px}
+#view-review .sf-title{font-size:1.17rem;margin:0 0 3px;color:#173852}
+#view-review .sf-lead{font-size:.88rem;margin:0 0 12px;color:#526c7b}
+#view-review .sf-privacy{margin-bottom:10px}
+#view-review .sf-privacy summary{padding:8px 12px;font-size:.86rem}
+#view-review .sf-consent{margin-bottom:11px;font-size:.88rem;line-height:1.45}
+#view-review .sf-button:not(.sf-revise){font-size:.93rem;min-height:45px}
+#view-review .sf-status:empty{display:none}
+#view-review .sf-result--compact{gap:10px;margin-top:13px}
+#view-review .sf-result--compact .sf-panel{padding:0;border:0;background:transparent;display:grid;gap:10px}
+#view-review .sf-result--compact .sf-score{margin:0;padding:14px;border-radius:14px;background:#eef5ff;border:1px solid #c6ddf8}
+#view-review .sf-result--compact .sf-score>.sf-label{margin:0 0 9px;color:#22569b;font-size:.8rem}
+#view-review .sf-result--compact .sf-score__grid{grid-template-columns:1.3fr 1fr 1fr;gap:9px}
+#view-review .sf-result--compact .sf-score__tile{display:flex;flex-direction:column;justify-content:center;min-height:83px;border-radius:12px;padding:10px}
+#view-review .sf-result--compact .sf-score__tile--total{background:#2457a2;border-color:#2457a2;color:#fff;grid-column:1;grid-row:1}
+#view-review .sf-result--compact .sf-score__tile:nth-child(2){background:#e4f6f2;border-color:#9dd7c9;color:#08695c}
+#view-review .sf-result--compact .sf-score__tile:nth-child(3){background:#e9efff;border-color:#b7caf8;color:#3159a5}
+#view-review .sf-result--compact .sf-score__name{font-size:.79rem;font-weight:850}
+#view-review .sf-result--compact .sf-score__value strong{font-size:2rem;line-height:1.15}
+#view-review .sf-result--compact .sf-score__tile--total .sf-score__value strong{font-size:2.65rem}
+#view-review .sf-result--compact .sf-score__note{margin:9px 0 0;font-size:.78rem}
+#view-review .sf-result--compact .sf-row{border:1px solid transparent;border-left:5px solid;border-radius:12px;margin:0;padding:11px 14px}
+#view-review .sf-result--compact .sf-row--good{background:#e8f7ef;border-color:#badfca;border-left-color:#16866b}
+#view-review .sf-result--compact .sf-row--fix{background:#fff3e5;border-color:#efcfaa;border-left-color:#c47d29}
+#view-review .sf-result--compact .sf-row--next{background:#edf1ff;border-color:#c8d4f6;border-left-color:#4367c7}
+#view-review .sf-result--compact .sf-row--notice{background:#fff3e5;border-color:#efcfaa;border-left-color:#c47d29}
+#view-review .sf-result--compact .sf-row--good>.sf-label{color:#0c7057}
+#view-review .sf-result--compact .sf-row--fix>.sf-label{color:#995519}
+#view-review .sf-result--compact .sf-row--next>.sf-label{color:#3156a4}
+#view-review .sf-result--compact .sf-label{font-size:.79rem;margin-bottom:5px}
+#view-review .sf-result--compact .sf-quote{margin:2px 0 5px;font-size:.92rem}
+#view-review .sf-result--compact .sf-advice{margin:3px 0 0;line-height:1.45;font-size:.91rem}
+#view-review .sf-result--compact .sf-fix+.sf-fix{margin-top:9px;padding-top:9px}
+#view-review .sf-result--compact .sf-length{margin:0;padding:9px 12px;font-size:.86rem}
+#view-review .sf-result--compact .sf-panel>.sf-note{margin:0;font-size:.76rem;color:#5a7180}
+#view-review .sf-result--compact .sf-revise{min-height:47px;justify-self:start}
+@media(max-width:620px){
+ #view-review .student-feedback{padding:13px}
+ #view-review .sf-result--compact .sf-score__grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #view-review .sf-result--compact .sf-score__tile--total{grid-column:1/-1;grid-row:auto}
+ #view-review .sf-result--compact .sf-revise{justify-self:stretch}
+}
