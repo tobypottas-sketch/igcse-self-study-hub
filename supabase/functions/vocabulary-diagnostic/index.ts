@@ -17,7 +17,7 @@ function firstNamedKey(raw:string|undefined):string {
 }
 const ANON_KEY=Deno.env.get('SUPABASE_ANON_KEY')||firstNamedKey(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS'));
 const SERVICE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||firstNamedKey(Deno.env.get('SUPABASE_SECRET_KEYS'));
-const ALLOWED_ACTIONS=new Set(['status','start','pause','respond','history','assign','report','review-list','review-detail','review-decision','review-forms','review-form-preview','review-form-worklist']);
+const ALLOWED_ACTIONS=new Set(['status','start','pause','respond','history','assign','report','review-list','review-detail','review-decision','review-forms','review-form-preview','review-form-worklist','ngsl-form-preview']);
 const MAX_BODY_BYTES=4000;
 const REVIEW_ACTIONS=new Set(['review-list','review-detail','review-decision']);
 
@@ -49,7 +49,7 @@ function validatePayload(action,payload){
     &&(payload.availableAt===undefined||!Number.isNaN(Date.parse(payload.availableAt)))
     &&(payload.expiresAt===undefined||!Number.isNaN(Date.parse(payload.expiresAt)));
   if(action==='review-forms')return Object.keys(payload).length===0;
-  if(action==='review-form-preview'||action==='review-form-worklist')return Object.keys(payload).length===1 && ['A','B'].includes(payload.form);
+  if(action==='review-form-preview'||action==='review-form-worklist'||action==='ngsl-form-preview')return Object.keys(payload).length===1 && ['A','B'].includes(payload.form);
   if(action==='review-list')return (!payload.level||['A1','A2','B1','B2','C1'].includes(payload.level))
     &&(payload.page===undefined||(Number.isInteger(payload.page)&&payload.page>=0&&payload.page<=100));
   if(action==='review-detail')return string(payload.itemId,110)!==null&&Number.isInteger(payload.version)&&payload.version>0;
@@ -115,12 +115,14 @@ Deno.serve(async (req:Request)=>{
     const isFormsRequest=action==='review-forms';
     const isPreviewRequest=action==='review-form-preview';
     const isWorklistRequest=action==='review-form-worklist';
-    const rpc=isWorklistRequest?'vocabulary_diagnostic_review_form_worklist'
+    const isNGSLPreviewRequest=action==='ngsl-form-preview';
+    const rpc=isNGSLPreviewRequest?'vocabulary_ngsl_teacher_form_preview'
+      :isWorklistRequest?'vocabulary_diagnostic_review_form_worklist'
       :isPreviewRequest?'vocabulary_diagnostic_teacher_form_preview'
       :isFormsRequest?'vocabulary_diagnostic_form_readiness'
       :REVIEW_ACTIONS.has(action)?'vocabulary_diagnostic_review_api':'vocabulary_diagnostic_api';
     const rpcAction=REVIEW_ACTIONS.has(action)?action.slice('review-'.length):action;
-    const args=(isPreviewRequest||isWorklistRequest)?{p_actor:identity.user.id,p_form:(payload as Record<string,unknown>).form}
+    const args=(isPreviewRequest||isWorklistRequest||isNGSLPreviewRequest)?{p_actor:identity.user.id,p_form:(payload as Record<string,unknown>).form}
       :isFormsRequest?{p_actor:identity.user.id}
       :{p_actor:identity.user.id,p_action:rpcAction,p_data:payload};
     const {data:result,error}=await admin.rpc(rpc,args);
