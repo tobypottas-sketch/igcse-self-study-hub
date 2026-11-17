@@ -31,3 +31,8 @@ jobs:
           deno-version: v2.x
       - name: Type-check Rewards Shop Edge Functions
         run: deno check --node-modules-dir=auto supabase/functions/vocabulary-reward-xp-audit/index.ts supabase/functions/vocabulary-reward-shop/index.ts
+      - name: Bundle authenticated XP audit with all shared modules
+        run: |
+          npx --yes esbuild@0.25.12 supabase/functions/vocabulary-reward-xp-audit/index.ts --bundle --platform=neutral --format=esm --target=es2022 --external:npm:* --outfile=/tmp/vocabulary-reward-xp-audit.bundle.mjs
+          deno check --node-modules-dir=auto /tmp/vocabulary-reward-xp-audit.bundle.mjs
+          test -s /tmp/vocabulary-reward-xp-audit.bundle.mjs
