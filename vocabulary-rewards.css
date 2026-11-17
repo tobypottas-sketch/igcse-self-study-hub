@@ -40,3 +40,23 @@
 @media(max-width:980px){.vocab-rewards-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:680px){.vocab-rewards-hero{padding:24px;display:grid}.vocab-rewards-balance{min-width:0}.vocab-rewards-layout{grid-template-columns:1fr}.vocab-rewards-profile{grid-template-columns:auto 1fr;align-items:center}.vocab-rewards-profile .vocab-kicker,.vocab-rewards-profile small,.vocab-rewards-sample{grid-column:1/-1}.vocab-rewards-avatar{margin:0}.vocab-rewards-preview-entry{flex-direction:column;align-items:stretch}.vocab-rewards-preview-entry button{width:100%}}
 @media(max-width:430px){.vocab-rewards-grid{grid-template-columns:1fr}}
+
+/* Opt-in XP verification: isolated from ordinary student home screens. */
+.vocab-xp-audit{margin:14px 0;padding:18px 22px;border:1px solid #a6ccd5;border-radius:18px;background:#f2fbfc;color:#173c52}
+.vocab-xp-audit__head{display:flex;align-items:start;justify-content:space-between;gap:16px}
+.vocab-xp-audit__head strong{font-size:1.1rem}
+.vocab-xp-audit__head p{font-size:.9rem;line-height:1.5;margin:8px 0 0;max-width:690px}
+.vocab-xp-audit__status{font-size:.8rem;font-weight:850;border-radius:999px;padding:6px 13px;background:#e2f0f2;white-space:nowrap}
+.vocab-xp-audit__scroll{max-width:100%;overflow-x:auto;margin-top:16px}
+.vocab-xp-audit table{width:100%;border-collapse:collapse;min-width:440px;text-align:left;font-size:.88rem}
+.vocab-xp-audit table caption{text-align:left;font-weight:800;margin-bottom:8px}
+.vocab-xp-audit th,.vocab-xp-audit td{padding:9px 10px;border-bottom:1px solid #c9e0e6}
+.vocab-xp-audit thead th{font-size:.75rem;color:#526e80;text-transform:uppercase;letter-spacing:.04em}
+.vocab-xp-audit tfoot{font-weight:850}
+.vocab-xp-audit__note{margin-top:12px;font-weight:700}
+.vocab-xp-audit__footer{margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.vocab-xp-audit__footer span{font-size:.78rem;color:#567186;flex:1}
+.vocab-xp-audit__footer button{background:#107e7a;color:white;border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer}
+.vocab-xp-audit__footer button:focus-visible{outline:3px solid #3977d4;outline-offset:3px}
+.vocab-xp-audit__footer small{font-size:.8rem;flex-basis:100%}
+@media(max-width:580px){.vocab-xp-audit{padding:15px}.vocab-xp-audit__head{flex-direction:column}.vocab-xp-audit__footer button{width:100%}}
