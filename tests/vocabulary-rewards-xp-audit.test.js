@@ -20,12 +20,12 @@ test('repeated same-bucket missions taper and only genuine personal bests earn X
   ];
   const result=computeXp({missions,snapshot:empty});
   // Mission XP: 10+15+10+10; three improving personal bests; week 4+ missions;
-  // first_steps only (no 5+ streak, score 10, or pathway mastery).
+  // first_steps plus steady_week unlock when the fourth mission is recorded.
   assert.deepEqual(result.parts,{
-    missions:45,personalBests:15,weeklyGoals:15,achievements:25,
+    missions:45,personalBests:15,weeklyGoals:15,achievements:50,
     stageClears:0,pathwayMasteries:0,unitMasteries:0
   });
-  assert.equal(result.total,100);
+  assert.equal(result.total,125);
 });
 
 test('daily mission cap is not bypassed by switching mission buckets',()=>{
@@ -34,8 +34,8 @@ test('daily mission cap is not bypassed by switching mission buckets',()=>{
   assert.equal(result.parts.missions,XP_RULES.dailyMissionCap);
   assert.equal(result.parts.personalBests,0);
   assert.equal(result.parts.weeklyGoals,15);
-  assert.equal(result.parts.achievements,25);
-  assert.equal(result.total,120);
+  assert.equal(result.parts.achievements,50);
+  assert.equal(result.total,145);
 });
 
 test('mastery bonuses belong to lifetime XP, even though they are not mission scores',()=>{
