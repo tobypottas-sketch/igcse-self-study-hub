@@ -298,3 +298,26 @@ body:has(#vocabularyApp .diag-player){
 }
 #vocabularyApp .diag-meta select:focus-visible{outline:3px solid var(--c-teal-line);outline-offset:3px}
 #vocabularyApp .diag-assessment .diag-actions button:disabled{opacity:.44;cursor:not-allowed}
+
+/* Single 50-question NGSL vocabulary baseline: clear instruction, modest type, short meanings. */
+#vocabularyApp .ngsl-question-title{font-size:clamp(1.3rem,2.5vw,1.75rem);line-height:1.3;
+ margin:21px 0 13px;color:#193b50;letter-spacing:-.015em}
+#vocabularyApp .ngsl-question-title strong{color:#087978}
+#vocabularyApp .ngsl-example{font-size:clamp(1rem,1.7vw,1.2rem);line-height:1.65;
+ padding:15px 18px;margin:0 0 20px;background:#f2f7f7;border:1px solid #e1eaea;
+ border-radius:12px;color:#234553}
+#vocabularyApp .ngsl-target{color:#115c68;font-weight:800;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+#vocabularyApp .ngsl-player .diag-option{min-height:54px;padding:12px 15px;font-size:1rem}
+#vocabularyApp .ngsl-score{display:flex;gap:18px;align-items:baseline;margin:20px 0}
+#vocabularyApp .ngsl-score strong{font-size:clamp(2rem,5vw,3rem);color:#0b6b67}
+#vocabularyApp .ngsl-score span{font-size:1.25rem;font-weight:700;color:#46666c}
+#vocabularyApp .ngsl-band-results{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:14px 0 20px}
+#vocabularyApp .ngsl-band-results span{padding:11px 8px;border-radius:9px;background:#edf6f3;
+ border:1px solid #dcebe5;color:#27545b;text-align:center;font-size:.85rem}
+#vocabularyApp .ngsl-band-results b{display:block;font-size:.76rem}
+#vocabularyApp .ngsl-missed{word-wrap:break-word}
+@media(max-width:600px){
+ #vocabularyApp .ngsl-band-results{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #vocabularyApp .ngsl-question-title{margin-top:14px}
+ #vocabularyApp .ngsl-example{padding:12px 14px}
+}
