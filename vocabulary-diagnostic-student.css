@@ -411,3 +411,6 @@ body:has(#vocabularyApp .diag-player){
  #vocabularyApp .ngsl-completed .ngsl-result-summary .ngsl-score strong{font-size:clamp(3.8rem,15vw,5.5rem)}
  #vocabularyApp .ngsl-completed .ngsl-band-card{min-height:118px;padding:12px}
 }
+
+/* Highlight only the overall diagnostic percentage. */
+#vocabularyApp .ngsl-completed .ngsl-result-summary .ngsl-score strong{color:#2563eb}
