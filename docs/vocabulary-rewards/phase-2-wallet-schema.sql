@@ -83,18 +83,22 @@ insert into public.vocabulary_reward_catalog
 on conflict (reward_id) do nothing;
 
 -- Purchases are deliberately unavailable until verified XP funding is ready.
+-- Client users cannot call these SECURITY INVOKER functions; only the trusted Edge
+-- Function with the service_role key can invoke them after authenticating the user.
 -- Even if called with a forged price or by a different user, the RPC uses
 -- auth.uid() and the server-side reward catalogue and locks the student's wallet.
-create or replace function public.redeem_vocabulary_reward(p_reward_id text)
-returns jsonb language plpgsql security definer set search_path=''
+create or replace function public.redeem_vocabulary_reward(p_student_id uuid, p_reward_id text)
+returns jsonb language plpgsql security invoker set search_path=''
 as $$
 declare
-  v_student uuid := auth.uid();
+  v_student uuid := p_student_id;
   v_price integer;
   v_category text;
   v_earned bigint;
   v_spent bigint;
 begin
+  -- Only service_role may invoke this function; its Edge caller must verify the
+  -- user JWT and pass the authenticated user ID, never a request-supplied ID.
   if v_student is null or not exists (
     select 1 from public.profiles where id=v_student and role='student' and active=true
   ) then raise exception 'Student account required'; end if;
@@ -122,13 +126,15 @@ begin
   return jsonb_build_object('status','purchased','balance',v_earned-v_spent-v_price);
 end $$;
 
-create or replace function public.equip_vocabulary_reward(p_reward_id text)
-returns jsonb language plpgsql security definer set search_path=''
+create or replace function public.equip_vocabulary_reward(p_student_id uuid, p_reward_id text)
+returns jsonb language plpgsql security invoker set search_path=''
 as $$
 declare
-  v_student uuid := auth.uid();
+  v_student uuid := p_student_id;
   v_category text;
 begin
+  -- Only service_role may invoke this function; its Edge caller must verify the
+  -- user JWT and pass the authenticated user ID, never a request-supplied ID.
   if v_student is null or not exists (
     select 1 from public.profiles where id=v_student and role='student' and active=true
   ) then raise exception 'Student account required'; end if;
@@ -145,10 +151,10 @@ begin
   return jsonb_build_object('status','equipped','rewardId',p_reward_id);
 end $$;
 
-revoke all on function public.redeem_vocabulary_reward(text) from public,anon,authenticated;
-revoke all on function public.equip_vocabulary_reward(text) from public,anon,authenticated;
-grant execute on function public.redeem_vocabulary_reward(text) to authenticated;
-grant execute on function public.equip_vocabulary_reward(text) to authenticated;
+revoke all on function public.redeem_vocabulary_reward(uuid,text) from public,anon,authenticated;
+revoke all on function public.equip_vocabulary_reward(uuid,text) from public,anon,authenticated;
+grant execute on function public.redeem_vocabulary_reward(uuid,text) to service_role;
+grant execute on function public.equip_vocabulary_reward(uuid,text) to service_role;
 
 -- RELEASE BLOCKERS (do NOT bypass):
 -- 1. Implement a trusted, auditable source of verified_earned_xp that exactly
