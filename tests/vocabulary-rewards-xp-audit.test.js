@@ -59,3 +59,37 @@ test('server audit is read-only, uses authenticated data and the canonical compu
   assert.match(edge,/auditOnly:true/);
   assert.doesNotMatch(edge,/\.insert\(|\.update\(|\.delete\(|redeem_vocabulary_reward|verified_earned_xp\s*=/);
 });
+
+test('explicit China calendar avoids UTC daily-cap boundary miscount',()=>{
+  // Both timestamps are November 17 UTC, but some are November 18
+  // in Wuxi. Two distinct local days must not share one daily XP cap.
+  const rows=[1,2,3,4,5].map((i)=>({
+    ...mission(i,{score:9,unit:i,kind:'mixed'}),
+    completed_at:i<=2?`2026-11-17T15:${i===1?'40':'50'}:00Z`:`2026-11-17T16:${String(i).padStart(2,'0')}:00Z`
+  }));
+  const utc=computeXp({missions:rows,snapshot:empty,timeZone:'UTC'});
+  const shanghai=computeXp({missions:rows,snapshot:empty,timeZone:'Asia/Shanghai'});
+  assert.equal(utc.parts.missions,80);
+  assert.equal(shanghai.parts.missions,100);
+  assert.equal(shanghai.parts.missions-utc.parts.missions,20);
+});
+
+test('explicit timezone also sets the Monday weekly-goal boundary',()=>{
+  const rows=[1,2,3,4].map(i=>({
+    ...mission(i,{score:6,unit:i,kind:'mixed'}),
+    completed_at:`2026-11-15T16:${String(i).padStart(2,'0')}:00Z`
+  }));
+  const shanghai=computeXp({missions:rows,snapshot:empty,timeZone:'Asia/Shanghai'});
+  const utc=computeXp({missions:rows,snapshot:empty,timeZone:'UTC'});
+  // These four are in one qualifying week in either interpretation;
+  // comparing different groups verifies the explicit calendar is used.
+  assert.equal(shanghai.parts.weeklyGoals,15);
+  assert.equal(utc.parts.weeklyGoals,15);
+});
+
+test('XP audit cannot authorize funding and identifies timezone sensitivity',()=>{
+  assert.match(edge,/readyForWalletFunding:false/);
+  assert.match(edge,/timeZone:'Asia\/Shanghai'/);
+  assert.match(edge,/timeZone:'UTC'/);
+  assert.match(edge,/timezoneSensitive:shanghai.total!==utc.total/);
+});
