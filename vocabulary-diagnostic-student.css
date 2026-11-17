@@ -304,5 +304,3 @@ body:has(#vocabularyApp .diag-player){
 #vocabularyApp .ngsl-foundation{padding:17px 20px;margin:12px 0 17px;border:1px solid var(--c-teal-line);border-radius:12px;background:var(--c-teal-soft)}
 #vocabularyApp .ngsl-foundation>strong{display:block;color:var(--c-teal-dark);font-size:clamp(1.05rem,2vw,1.3rem)}
 #vocabularyApp .ngsl-foundation p{margin:8px 0 0;max-width:none;line-height:1.55}
-#vocabularyApp .ngsl-foundation .ngsl-next-step{font-size:.94rem}
-#vocabularyApp .ngsl-band-explainer{margin:16px 0 8px;font-size:.91rem;line-height:1.5}
