@@ -17,7 +17,7 @@ function firstNamedKey(raw:string|undefined):string {
 }
 const ANON_KEY=Deno.env.get('SUPABASE_ANON_KEY')||firstNamedKey(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS'));
 const SERVICE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||firstNamedKey(Deno.env.get('SUPABASE_SECRET_KEYS'));
-const ALLOWED_ACTIONS=new Set(['status','start','pause','respond','history','assign','report','review-list','review-detail','review-decision','review-forms','review-form-preview','review-form-worklist','ngsl-form-preview']);
+const ALLOWED_ACTIONS=new Set(['status','start','pause','respond','history','assign','report','review-list','review-detail','review-decision','review-forms','review-form-preview','review-form-worklist','ngsl-form-preview','ngsl-status','ngsl-start','ngsl-respond','ngsl-pause','ngsl-history','ngsl-teacher-report']);
 const MAX_BODY_BYTES=4000;
 const REVIEW_ACTIONS=new Set(['review-list','review-detail','review-decision']);
 
@@ -36,6 +36,12 @@ function string(value,max=128){return typeof value==='string'&&value.length<=max
 function validUuid(value){return typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);}
 function validatePayload(action,payload){
   if(!payload||typeof payload!=='object'||Array.isArray(payload))return false;
+  if(['ngsl-status','ngsl-start','ngsl-history','ngsl-teacher-report'].includes(action))return Object.keys(payload).length===0;
+  if(action==='ngsl-pause')return validUuid(payload.sessionId);
+  if(action==='ngsl-respond')return validUuid(payload.sessionId)&&validUuid(payload.requestId)
+    &&typeof payload.questionId==='string'&&/^NGSL-\\d{1,2}$/.test(payload.questionId)
+    &&Number.isInteger(payload.position)&&payload.position>=1&&payload.position<=50
+    &&['A','B','C','D'].includes(payload.answerId);
   if(action==='start')return validUuid(payload.assignmentId);
   if(action==='pause')return validUuid(payload.sessionId);
   if(action==='respond')return validUuid(payload.sessionId)
@@ -116,12 +122,15 @@ Deno.serve(async (req:Request)=>{
     const isPreviewRequest=action==='review-form-preview';
     const isWorklistRequest=action==='review-form-worklist';
     const isNGSLPreviewRequest=action==='ngsl-form-preview';
-    const rpc=isNGSLPreviewRequest?'vocabulary_ngsl_teacher_form_preview'
+    const isNGSLAssessmentRequest=action.startsWith('ngsl-')&&!isNGSLPreviewRequest;
+    const rpc=isNGSLAssessmentRequest?'vocabulary_ngsl_api'
+      :isNGSLPreviewRequest?'vocabulary_ngsl_teacher_form_preview'
       :isWorklistRequest?'vocabulary_diagnostic_review_form_worklist'
       :isPreviewRequest?'vocabulary_diagnostic_teacher_form_preview'
       :isFormsRequest?'vocabulary_diagnostic_form_readiness'
       :REVIEW_ACTIONS.has(action)?'vocabulary_diagnostic_review_api':'vocabulary_diagnostic_api';
-    const rpcAction=REVIEW_ACTIONS.has(action)?action.slice('review-'.length):action;
+    const rpcAction=isNGSLAssessmentRequest?action.slice('ngsl-'.length)
+      :REVIEW_ACTIONS.has(action)?action.slice('review-'.length):action;
     const args=(isPreviewRequest||isWorklistRequest||isNGSLPreviewRequest)?{p_actor:identity.user.id,p_form:(payload as Record<string,unknown>).form}
       :isFormsRequest?{p_actor:identity.user.id}
       :{p_actor:identity.user.id,p_action:rpcAction,p_data:payload};
