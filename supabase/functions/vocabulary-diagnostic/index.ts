@@ -1,8 +1,7 @@
-// Pilot diagnostic endpoint. No live student UI calls this function yet.
-// This function never returns correct answers, answer rationales or CEFR cut scores.
+// Single NGSL 50-question baseline. Legacy CEFR assessment actions are retired.
+// Answer keys and frequency ranks stay on the trusted database server.
 // Deploy with JWT verification enabled and both Supabase keys stored as server secrets.
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
-import { scoreProvisionalDiagnostic } from './provisional-scoring.js';
 
 const PROJECT_URL=Deno.env.get('SUPABASE_URL')??'';
 // Support both legacy and current Supabase managed key environments.
@@ -17,9 +16,8 @@ function firstNamedKey(raw:string|undefined):string {
 }
 const ANON_KEY=Deno.env.get('SUPABASE_ANON_KEY')||firstNamedKey(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS'));
 const SERVICE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||firstNamedKey(Deno.env.get('SUPABASE_SECRET_KEYS'));
-const ALLOWED_ACTIONS=new Set(['status','start','pause','respond','history','assign','report','review-list','review-detail','review-decision','review-forms','review-form-preview','review-form-worklist','ngsl-form-preview','ngsl-status','ngsl-start','ngsl-respond','ngsl-pause','ngsl-history','ngsl-teacher-report']);
+const ALLOWED_ACTIONS=new Set(['ngsl-form-preview','ngsl-status','ngsl-start','ngsl-respond','ngsl-pause','ngsl-history','ngsl-teacher-report']);
 const MAX_BODY_BYTES=4000;
-const REVIEW_ACTIONS=new Set(['review-list','review-detail','review-decision']);
 
 function headers(){
   return {
@@ -42,33 +40,7 @@ function validatePayload(action,payload){
     &&typeof payload.questionId==='string'&&/^NGSL-\\d{1,2}$/.test(payload.questionId)
     &&Number.isInteger(payload.position)&&payload.position>=1&&payload.position<=50
     &&['A','B','C','D'].includes(payload.answerId);
-  if(action==='start')return validUuid(payload.assignmentId);
-  if(action==='pause')return validUuid(payload.sessionId);
-  if(action==='respond')return validUuid(payload.sessionId)
-    &&validUuid(payload.requestId)
-    &&string(payload.questionId,110)!==null
-    &&Number.isInteger(payload.questionVersion)&&payload.questionVersion>0
-    &&Number.isInteger(payload.position)&&payload.position>0
-    &&['A','B','C','D','unknown'].includes(payload.answerId);
-  if(action==='assign')return validUuid(payload.studentId)&&validUuid(payload.formId)
-    &&['baseline','follow_up','teacher_retake'].includes(payload.kind)
-    &&(payload.availableAt===undefined||!Number.isNaN(Date.parse(payload.availableAt)))
-    &&(payload.expiresAt===undefined||!Number.isNaN(Date.parse(payload.expiresAt)));
-  if(action==='review-forms')return Object.keys(payload).length===0;
-  if(action==='review-form-preview'||action==='review-form-worklist'||action==='ngsl-form-preview')return Object.keys(payload).length===1 && ['A','B'].includes(payload.form);
-  if(action==='review-list')return (!payload.level||['A1','A2','B1','B2','C1'].includes(payload.level))
-    &&(payload.page===undefined||(Number.isInteger(payload.page)&&payload.page>=0&&payload.page<=100));
-  if(action==='review-detail')return string(payload.itemId,110)!==null&&Number.isInteger(payload.version)&&payload.version>0;
-  if(action==='review-decision')return string(payload.itemId,110)!==null&&Number.isInteger(payload.version)&&payload.version>0
-    &&['language','assessment','cefr','flag'].includes(payload.stage)
-    &&['approve','flag','reject','verify'].includes(payload.decision)
-    &&typeof payload.notes==='string'&&payload.notes.length<=1500
-    &&(!['approve','verify'].includes(payload.decision)||(
-      payload.qualityConfirmations!==null&&typeof payload.qualityConfirmations==='object'&&!Array.isArray(payload.qualityConfirmations)
-      &&Object.keys(payload.qualityConfirmations).length===4
-      &&['singleKey','plausibleDistractors','noAnswerClues','appropriateLevel'].every(k=>payload.qualityConfirmations[k]===true)
-    ));
-  if(action==='status'||action==='history'||action==='report')return Object.keys(payload).length===0;
+  if(action==='ngsl-form-preview')return Object.keys(payload).length===1&&payload.form==='A';
   return false;
 }
 
@@ -118,50 +90,21 @@ Deno.serve(async (req:Request)=>{
     const admin=createClient(PROJECT_URL,SERVICE_KEY,{
       auth:{persistSession:false,autoRefreshToken:false}
     });
-    const isFormsRequest=action==='review-forms';
-    const isPreviewRequest=action==='review-form-preview';
-    const isWorklistRequest=action==='review-form-worklist';
-    const isNGSLPreviewRequest=action==='ngsl-form-preview';
-    const isNGSLAssessmentRequest=action.startsWith('ngsl-')&&!isNGSLPreviewRequest;
-    const rpc=isNGSLAssessmentRequest?'vocabulary_ngsl_api'
-      :isNGSLPreviewRequest?'vocabulary_ngsl_teacher_form_preview'
-      :isWorklistRequest?'vocabulary_diagnostic_review_form_worklist'
-      :isPreviewRequest?'vocabulary_diagnostic_teacher_form_preview'
-      :isFormsRequest?'vocabulary_diagnostic_form_readiness'
-      :REVIEW_ACTIONS.has(action)?'vocabulary_diagnostic_review_api':'vocabulary_diagnostic_api';
-    const rpcAction=isNGSLAssessmentRequest?action.slice('ngsl-'.length)
-      :REVIEW_ACTIONS.has(action)?action.slice('review-'.length):action;
-    const args=(isPreviewRequest||isWorklistRequest||isNGSLPreviewRequest)?{p_actor:identity.user.id,p_form:(payload as Record<string,unknown>).form}
-      :isFormsRequest?{p_actor:identity.user.id}
-      :{p_actor:identity.user.id,p_action:rpcAction,p_data:payload};
+    const isPreviewRequest=action==='ngsl-form-preview';
+    const rpc=isPreviewRequest?'vocabulary_ngsl_teacher_form_preview':'vocabulary_ngsl_api';
+    const args=isPreviewRequest
+      ?{p_actor:identity.user.id,p_form:'A'}
+      :{p_actor:identity.user.id,p_action:action.slice('ngsl-'.length),p_data:payload};
     const {data:result,error}=await admin.rpc(rpc,args);
     if(error){
-      const known=['ACCESS_DENIED','ASSIGNMENT_UNAVAILABLE','SESSION_UNAVAILABLE',
-        'SESSION_CLOSED','OUT_OF_SEQUENCE','QUESTION_MISMATCH','INVALID_OPTION',
-        'REPLAY_CONFLICT','OPEN_SESSION_EXISTS','FORM_UNAVAILABLE',
-        'BASELINE_ALREADY_ASSIGNED','BASELINE_REQUIRED','FOLLOWUP_NOT_DUE',
-        'BASELINE_COMPLETE','STUDENT_UNAVAILABLE','UNKNOWN_ACTION',
-        'EMPTY_FORM','FORM_INVALID','INVALID_KIND','REVIEW_ACCESS_DENIED',
-        'ITEM_UNAVAILABLE','ITEM_LOCKED','INVALID_REVIEW','REVISION_REQUIRED','INVALID_FORM',
-        'INDEPENDENT_LANGUAGE_REVIEW_REQUIRED','CEFR_EVIDENCE_REQUIRED',
-        'REVIEW_SEQUENCE_REQUIRED','QUALITY_CONFIRMATIONS_REQUIRED','UNKNOWN_REVIEW_ACTION'];
+      const known=['ACCESS_DENIED','SESSION_UNAVAILABLE','SESSION_CLOSED',
+        'OUT_OF_SEQUENCE','QUESTION_MISMATCH','INVALID_OPTION','REPLAY_CONFLICT',
+        'FORM_INVALID','REVIEW_ACCESS_DENIED','INVALID_FORM','UNKNOWN_ACTION'];
       const code=known.find(x=>error.message?.includes(x));
       if(code)return reply({error:code},['ACCESS_DENIED','SESSION_UNAVAILABLE','REVIEW_ACCESS_DENIED'].includes(code)?403:409);
       // Do not print question bank, SQL query strings, UUIDs or submitted payloads.
       console.error('Diagnostic RPC failed:',error.code??'unclassified');
       return reply({error:'SERVICE_ERROR'},500);
-    }
-    // Score on the trusted server only, after database adjudication.
-    // Never return a placement for incomplete or unexpected form coverage.
-    if(action==='respond' && result?.state==='completed' && result?.result){
-      const placement=scoreProvisionalDiagnostic(result.result.coverage,result.result.total);
-      if(placement)return reply({...result,result:{...result.result,...placement}});
-    }
-    if(action==='history' && Array.isArray(result?.results)){
-      return reply({...result,results:result.results.map(row=>{
-        const placement=scoreProvisionalDiagnostic(row.coverage,row.total);
-        return placement?{...row,...placement}:row;
-      })});
     }
     return reply(result);
   }catch{
