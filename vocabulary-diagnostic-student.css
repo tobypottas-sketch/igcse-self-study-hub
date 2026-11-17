@@ -414,3 +414,28 @@ body:has(#vocabularyApp .diag-player){
 
 /* Highlight only the overall diagnostic percentage. */
 #vocabularyApp .ngsl-completed .ngsl-result-summary .ngsl-score strong{color:#2563eb}
+
+/* NGSL welcome: compact, visual and student-focused. Only affects the intro. */
+#vocabularyApp .ngsl-welcome{padding:clamp(22px,3.7vw,38px)}
+#vocabularyApp .ngsl-welcome-grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);align-items:center;gap:clamp(20px,3.5vw,42px)}
+#vocabularyApp .ngsl-welcome-content{min-width:0}
+#vocabularyApp .ngsl-welcome h1{max-width:13ch;margin:13px 0 15px;font-size:clamp(2.1rem,4vw,3.15rem);line-height:1.08;letter-spacing:-.04em}
+#vocabularyApp .ngsl-welcome .ngsl-welcome-lead{max-width:33ch;margin:0 0 22px;font-size:clamp(1.05rem,1.7vw,1.2rem);font-weight:600;line-height:1.5}
+#vocabularyApp .ngsl-welcome-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+#vocabularyApp .ngsl-welcome-facts>span{display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;min-height:84px;padding:11px 8px;border:1px solid #c8e2e4;border-radius:13px;background:rgba(240,250,250,.92);text-align:center}
+#vocabularyApp .ngsl-welcome-facts strong{font-size:clamp(1.45rem,2.6vw,2.1rem);line-height:1;color:#137a81;font-weight:900}
+#vocabularyApp .ngsl-welcome-facts small{font-size:.78rem;font-weight:700;color:#41636e;line-height:1.2}
+#vocabularyApp .ngsl-welcome .ngsl-welcome-save{max-width:none;margin:17px 0 0;color:#466978;font-size:.87rem;line-height:1.45}
+#vocabularyApp .ngsl-welcome .diag-actions{justify-content:flex-start;border:0;padding:0;margin:22px 0 0}
+#vocabularyApp .ngsl-welcome .diag-primary{padding:15px 24px;min-height:54px;font-size:1.04rem;gap:15px}
+#vocabularyApp .ngsl-welcome .diag-message{margin:8px 0 0}
+#vocabularyApp .ngsl-welcome-visual{align-self:stretch;display:flex;align-items:center}
+#vocabularyApp .ngsl-welcome-visual img{display:block;width:100%;height:auto;aspect-ratio:4/5;max-height:430px;object-fit:cover;object-position:28% 50%;border-radius:19px;box-shadow:0 16px 32px rgba(28,87,91,.14)}
+@media(max-width:700px){
+ #vocabularyApp .ngsl-welcome-grid{grid-template-columns:1fr;gap:18px}
+ #vocabularyApp .ngsl-welcome h1{font-size:clamp(2rem,8vw,2.65rem);max-width:16ch}
+ #vocabularyApp .ngsl-welcome-visual{grid-row:1}
+ #vocabularyApp .ngsl-welcome-visual img{aspect-ratio:16/8;max-height:210px;object-position:50% 42%}
+ #vocabularyApp .ngsl-welcome .diag-actions{justify-content:stretch}
+ #vocabularyApp .ngsl-welcome .diag-primary{width:100%}
+}
