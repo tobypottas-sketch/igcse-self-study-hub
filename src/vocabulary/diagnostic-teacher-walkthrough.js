@@ -91,7 +91,7 @@ export async function startDiagnosticTeacherPreview(root,client) {
     if(busy)return;
     busy=true;error='';
     shell('<p class="diag-preview-notice">Teacher preview · Real diagnostic questions</p><section class="diag-hero">'
-      +'<h1>Loading NGSL diagnostic…</h1>'<p role="status">Checking the secure draft form.</p></section>');
+      +'<h1>Loading NGSL diagnostic…</h1><p role="status">Checking the secure draft form.</p></section>');
     try{
       const {data, error:serviceError}=await client.functions.invoke('vocabulary-diagnostic',{
         body:{action:nextKind==='ngsl'?'ngsl-form-preview':'review-form-preview',payload:{form:nextForm}}
