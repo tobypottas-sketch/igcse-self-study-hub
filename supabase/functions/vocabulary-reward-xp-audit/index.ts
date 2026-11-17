@@ -22,7 +22,7 @@ const response = (body: unknown, status = 200) =>
 const calculateProgress = progressSnapshot as unknown as (args:{
   occurrences:any[];unitMastery:Record<string,unknown>;globalMastery:Record<string,unknown>
 })=>any;
-const calculateXp = computeXp as unknown as (args:{missions:any[];snapshot:unknown})=>any;
+const calculateXp = computeXp as unknown as (args:{missions:any[];snapshot:unknown;timeZone?:string})=>any;
 const indexBy = (rows: any[], field: string) =>
   Object.fromEntries(rows.map(row => [String(row[field]), row]));
 
@@ -87,6 +87,10 @@ Deno.serve(async request => {
       unitMastery:indexBy(unitRows,'occurrence_id'),
       globalMastery:indexBy(globalRows,'vocabulary_id')
     });
+    // Show both explicit calendar interpretations; do not choose a wallet credit
+    // before the browser and server are known to agree for each student.
+    const shanghai=calculateXp({missions,snapshot,timeZone:'Asia/Shanghai'});
+    const utc=calculateXp({missions,snapshot,timeZone:'UTC'});
     const computed=calculateXp({missions,snapshot});
     return response({
       ok:true,
@@ -94,9 +98,15 @@ Deno.serve(async request => {
       lifetimeXp:computed.total,
       parts:computed.parts,
       level:computed.level,
+      deterministicComparisons:{
+        shanghai:{total:shanghai.total,parts:shanghai.parts},
+        utc:{total:utc.total,parts:utc.parts},
+        timezoneSensitive:shanghai.total!==utc.total
+      },
+      readyForWalletFunding:false,
       counts:{missions:missions.length,liveOccurrences:occurrences.length,masteryRows:unitRows.length,
         membershipRows:membership.length, masteredUnits:snapshot.unitsMastered},
-      timezoneCaveat:'XP day/week boundaries currently follow the JavaScript runtime local timezone. Live parity must be tested before wallet funding.'
+      timezoneCaveat:'This diagnostic compares calendar rules; it does not certify parity with the browser or authorize wallet funding.'
     });
   } catch (error) {
     // Avoid exposing raw queries, token values or user records to callers.
