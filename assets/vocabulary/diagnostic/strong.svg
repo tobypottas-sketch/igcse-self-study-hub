@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="440" viewBox="0 0 760 440" role="img" aria-label="Illustration of a student making progress on a mountain path">
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#DDEFFB"/><stop offset="1" stop-color="#9FD6F7"/></linearGradient><linearGradient id="mountain" x2="0" y2="1"><stop stop-color="#5999C1"/><stop offset="1" stop-color="#3974A5"/></linearGradient></defs>
+<rect width="760" height="440" rx="42" fill="url(#sky)"/>
+<circle cx="618" cy="93" r="46" fill="#FFBE5B" opacity=".8"/>
+<g fill="#fff" opacity=".78"><ellipse cx="160" cy="89" rx="70" ry="20"/><ellipse cx="132" cy="76" rx="37" ry="25"/><ellipse cx="180" cy="77" rx="39" ry="26"/><ellipse cx="510" cy="139" rx="60" ry="16"/><ellipse cx="490" cy="126" rx="31" ry="21"/></g>
+<path d="M0 282 Q96 195 177 256 Q264 123 339 226 Q422 99 532 237 Q650 122 760 256 L760 440 H0Z" fill="#fff" opacity=".55"/>
+<path d="M0 337 Q106 225 218 299 Q319 186 436 280 Q577 140 760 276 V440 H0Z" fill="url(#mountain)"/>
+<path d="M0 386 Q154 323 278 356 Q424 253 541 330 Q648 252 760 315 V440 H0Z" fill="#3974A5" opacity=".53"/>
+<path d="M355 455 Q415 382 376 338 Q346 311 418 292 Q506 260 472 235 Q438 214 540 186 Q611 165 635 145" fill="none" stroke="#FFF5D3" stroke-width="33" stroke-linecap="round" opacity=".95"/>
+<path d="M355 455 Q415 382 376 338 Q346 311 418 292 Q506 260 472 235 Q438 214 540 186 Q611 165 635 145" fill="none" stroke="#FFBE5B" stroke-width="3" stroke-dasharray="10 17" opacity=".8"/>
+<g fill="#3974A5"><path d="M83 342l15-56 15 56z"/><rect x="96" y="335" width="5" height="22"/><path d="M681 302l18-68 18 68z"/><rect x="696" y="292" width="5" height="31"/><path d="M728 333l11-41 11 41z"/></g>
+<g transform="translate(349 178)">
+<ellipse cx="0" cy="89" rx="45" ry="11" fill="#163c4c" opacity=".18"/>
+<path d="M-13 56 L-22 90 M13 56 L22 90" stroke="#243B50" stroke-width="12" stroke-linecap="round"/>
+<path d="M-13 84 L-30 88 M22 84 L36 88" stroke="#39465A" stroke-width="10" stroke-linecap="round"/>
+<rect x="-28" y="4" width="56" height="58" rx="19" fill="#F5B83D" stroke="#DA8D34" stroke-width="3"/>
+<rect x="-34" y="16" width="22" height="37" rx="9" fill="#246E79"/>
+<path d="M-17 16 Q0 30 17 16" fill="none" stroke="#2D6073" stroke-width="7"/>
+<path d="M-23 22 L-38 50 M23 22 L37 44" stroke="#E5A780" stroke-width="10" stroke-linecap="round"/>
+<circle cy="-15" r="24" fill="#F1B78D"/>
+<path d="M-24-16 Q-28-45 0-42 Q23-43 26-14 L13-27 Q-6-19-21-28Z" fill="#614330"/>
+<circle cx="-8" cy="-14" r="2.6" fill="#243B50"/><circle cx="9" cy="-14" r="2.6" fill="#243B50"/><path d="M-6-3 Q1 3 9-3" fill="none" stroke="#985D52" stroke-width="2.3" stroke-linecap="round"/>
+</g>
+<g transform="translate(615 126)"><path d="M0 0V-45" stroke="#5E493E" stroke-width="6"/><path d="M0-45H55L46-58H0Z" fill="#EF6C65"/></g>
+<g fill="#fff" opacity=".85"><circle cx="244" cy="182" r="4"/><circle cx="255" cy="164" r="3"/><circle cx="261" cy="193" r="2"/></g>
+</svg>

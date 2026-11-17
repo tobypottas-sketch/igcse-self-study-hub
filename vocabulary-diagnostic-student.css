@@ -299,3 +299,18 @@ body:has(#vocabularyApp .diag-player){
  #vocabularyApp .ngsl-question-title{margin-top:14px}
  #vocabularyApp .ngsl-example{padding:12px 14px}
 }
+
+/* Plain-language feedback for the NGSL diagnostic, not a CEFR or exam grade. */
+#vocabularyApp .ngsl-foundation{padding:17px 20px;margin:12px 0 17px;border:1px solid var(--c-teal-line);border-radius:12px;background:var(--c-teal-soft)}
+#vocabularyApp .ngsl-foundation>strong{display:block;color:var(--c-teal-dark);font-size:clamp(1.05rem,2vw,1.3rem)}
+#vocabularyApp .ngsl-foundation p{margin:8px 0 0;max-width:none;line-height:1.55}
+
+/* NGSL completion illustration: keep all assessment content readable and responsive. */
+#vocabularyApp .ngsl-result-top{display:flex;justify-content:space-between;align-items:center;gap:22px;margin:12px 0}
+#vocabularyApp .ngsl-result-top .ngsl-score{flex:1;min-width:0}
+#vocabularyApp .ngsl-result-art{display:block;width:min(46%,330px);height:auto;aspect-ratio:760/440;object-fit:contain;border-radius:16px}
+@media(max-width:600px){
+ #vocabularyApp .ngsl-result-top{align-items:center;gap:12px}
+ #vocabularyApp .ngsl-result-art{width:44%;border-radius:10px}
+ #vocabularyApp .ngsl-result-top .ngsl-score strong{font-size:clamp(1.65rem,7vw,2.5rem)}
+}
