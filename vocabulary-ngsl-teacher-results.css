@@ -1,0 +1,50 @@
+
+/* NGSL teacher class results — compact, evidence-led and readable */
+#vocabularyApp .ngsl-report{max-width:1140px;margin-inline:auto;padding:24px 20px 72px}
+#vocabularyApp .ngsl-report-hero{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:22px 0 18px;padding:24px 28px;border:1px solid var(--c-teal-line);border-top:4px solid var(--c-teal);border-radius:18px;background:linear-gradient(110deg,#e9f7f6,#f6faff)}
+#vocabularyApp .ngsl-report-hero h1{font-size:clamp(1.7rem,3vw,2.3rem);margin:4px 0;color:var(--c-ink)}
+#vocabularyApp .ngsl-report-hero p{margin:0;color:var(--c-ink-2)}
+#vocabularyApp .ngsl-report-tools{display:flex;align-items:center;gap:14px;margin:16px 0}
+#vocabularyApp .ngsl-report-filter{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--c-ink)}
+#vocabularyApp .ngsl-report-filter select{max-width:min(420px,65vw);border:1px solid var(--c-teal-line);border-radius:10px;background:#fff;padding:11px 14px;color:var(--c-ink);font:inherit}
+#vocabularyApp .ngsl-report-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+#vocabularyApp .ngsl-report-metrics>div{display:flex;flex-direction:column;gap:5px;padding:18px 20px;border:1px solid #d8e9ea;border-radius:15px;background:#f4fafa;color:#23475c}
+#vocabularyApp .ngsl-report-metrics>div:nth-child(2){background:#e9f2ff;border-color:#a5c7f5;color:#255c9f}
+#vocabularyApp .ngsl-report-metrics>div:nth-child(3){background:#f0edff;border-color:#c5b5f1;color:#634aa3}
+#vocabularyApp .ngsl-report-metrics>div>span{font-size:.85rem;font-weight:800}
+#vocabularyApp .ngsl-report-metrics strong{font-size:clamp(1.8rem,3vw,2.6rem);font-weight:900;line-height:1.1;font-variant-numeric:tabular-nums}
+#vocabularyApp .ngsl-report-metrics strong small{font-size:.5em;font-weight:700}
+#vocabularyApp .ngsl-report-metrics>div>small{font-size:.8rem}
+#vocabularyApp .ngsl-report-panel{margin-top:18px;padding:22px;border:1px solid #d9e8ec;border-radius:16px;background:#fff}
+#vocabularyApp .ngsl-report-panel h2{margin:0 0 5px;font-size:1.22rem;color:var(--c-ink)}
+#vocabularyApp .ngsl-report-panel>p{font-size:.89rem;color:var(--c-ink-2);margin:0 0 16px}
+#vocabularyApp .ngsl-report-bands{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+#vocabularyApp .ngsl-report-band{display:flex;flex-direction:column;gap:5px;padding:16px 12px;border-radius:13px;background:#e4f5f6;color:#0b6c71;border:1px solid #91ced1}
+#vocabularyApp .ngsl-report-band--2{background:#e9f2ff;color:#255c9f;border-color:#a5c7f5}
+#vocabularyApp .ngsl-report-band--3{background:#f0edff;color:#634aa3;border-color:#c5b5f1}
+#vocabularyApp .ngsl-report-band--4{background:#fff2e2;color:#985619;border-color:#efc18c}
+#vocabularyApp .ngsl-report-band--5{background:#fceaf0;color:#9c3b62;border-color:#e9acc0}
+#vocabularyApp .ngsl-report-band span{font-size:.81rem;font-weight:800}
+#vocabularyApp .ngsl-report-band strong{font-size:clamp(1.55rem,2.6vw,2rem);font-variant-numeric:tabular-nums}
+#vocabularyApp .ngsl-report-band small{font-size:.77rem}
+#vocabularyApp .ngsl-report-panel-heading{display:flex;justify-content:space-between;align-items:center;gap:16px}
+#vocabularyApp .ngsl-report-panel-heading span{color:var(--c-muted);font-size:.85rem}
+#vocabularyApp .ngsl-report-table-scroll{overflow-x:auto}
+#vocabularyApp .ngsl-report table{width:100%;border-collapse:collapse;text-align:left;min-width:570px}
+#vocabularyApp .ngsl-report th{font-size:.78rem;color:var(--c-muted);background:#f1f7f8}
+#vocabularyApp .ngsl-report td,#vocabularyApp .ngsl-report th{padding:12px;border-bottom:1px solid #e4edf0}
+#vocabularyApp .ngsl-report tbody tr:last-child td{border-bottom:0}
+#vocabularyApp .ngsl-report-number{font-weight:850;font-variant-numeric:tabular-nums;color:#2563eb}
+#vocabularyApp .ngsl-report-done,#vocabularyApp .ngsl-report-wait{font-size:.79rem;font-weight:800}
+#vocabularyApp .ngsl-report-done{color:#13786a}
+#vocabularyApp .ngsl-report-wait{color:#95652b}
+#vocabularyApp .ngsl-report-footnote{margin:16px 2px;color:var(--c-muted);font-size:.78rem}
+@media(max-width:700px){
+ #vocabularyApp .ngsl-report{padding-inline:12px}
+ #vocabularyApp .ngsl-report-hero{padding:18px}
+ #vocabularyApp .ngsl-report-metrics{grid-template-columns:1fr 1fr}
+ #vocabularyApp .ngsl-report-metrics>div:last-child{grid-column:1/-1}
+ #vocabularyApp .ngsl-report-panel{padding:15px}
+ #vocabularyApp .ngsl-report-bands{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #vocabularyApp .ngsl-report-band:last-child{grid-column:1/-1}
+}
