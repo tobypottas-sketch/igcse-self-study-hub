@@ -1,0 +1,32 @@
+name: NGSL teacher preview safety
+on:
+  pull_request:
+    paths:
+      - 'src/vocabulary/diagnostic-teacher-walkthrough.js'
+      - 'src/vocabulary/router.js'
+      - 'supabase/functions/vocabulary-diagnostic/index.ts'
+      - 'tests/vocabulary-ngsl-teacher-preview.test.js'
+      - '.github/workflows/ngsl-teacher-preview.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/vocabulary/diagnostic-teacher-walkthrough.js'
+      - 'src/vocabulary/router.js'
+      - 'supabase/functions/vocabulary-diagnostic/index.ts'
+      - 'tests/vocabulary-ngsl-teacher-preview.test.js'
+      - '.github/workflows/ngsl-teacher-preview.yml'
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run NGSL preview tests
+        run: node --test tests/vocabulary-ngsl-teacher-preview.test.js
+      - name: Check JavaScript syntax
+        run: node --check src/vocabulary/diagnostic-teacher-walkthrough.js && node --check src/vocabulary/router.js
