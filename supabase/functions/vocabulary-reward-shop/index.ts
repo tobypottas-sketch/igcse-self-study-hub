@@ -59,7 +59,7 @@ Deno.serve(async req=>{
       const earned=Number(wallet.data?.verified_earned_xp??0);
       const spent=Number(wallet.data?.spent_xp??0);
       return reply({
-        ok:true,spendingEnabled:false,
+        ok:true,spendingEnabled:Deno.env.get('VOCAB_REWARDS_ENABLE_PURCHASES')==='true',
         walletReady:Boolean(wallet.data),
         wallet:wallet.data?{lifetimeEarned:earned,spent,available:Math.max(0,earned-spent)}:null,
         rewards:catalog.data??[],owned:owned.data??[]
