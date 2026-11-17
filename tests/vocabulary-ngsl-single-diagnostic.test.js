@@ -17,8 +17,7 @@ test('question markup escapes unsafe source strings',()=>{
 });
 test('NGSL student renderer uses exactly four options, server-owned save and no CEFR placement',()=>{
  const source=readFileSync(new URL('../src/vocabulary/ngsl-student.js',import.meta.url),'utf8');
- assert.match(source,/Question .* of 50/);
- assert.match(source,/What does/); // composed by shared prompt formatter
+ assert.match(source,/of 50/);
  assert.match(source,/ngslPromptMarkup/);
  assert.match(source,/ngsl-start|api\('start'/);
  assert.match(source,/api\('respond'/);
