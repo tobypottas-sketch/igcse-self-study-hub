@@ -41,6 +41,11 @@
 #vocabularyApp :is(button,[role="button"]):is(:disabled,[aria-disabled="true"]) {
   cursor: not-allowed;
 }
+/* Word Blitz locks answers briefly after a choice. Keep the normal arrow rather than
+   showing the prohibited cursor; all disabled behaviour remains unchanged. */
+#vocabularyApp .gm-shell--blitz .gm-option:is(:disabled,[aria-disabled="true"]) {
+  cursor: default;
+}
 /* Keyboard users get a visible focus ring without requiring a pointer press. */
 #vocabularyApp :where(button,a.vocab-button,a.vocab-back,a.vocab-link,[role="button"]):focus-visible {
   outline: 3px solid rgba(34,133,157,.68);
