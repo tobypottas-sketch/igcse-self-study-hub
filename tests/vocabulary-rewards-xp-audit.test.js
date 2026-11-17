@@ -94,3 +94,17 @@ test('XP audit cannot authorize funding and identifies timezone sensitivity',()=
   assert.match(edge,/timezoneSensitive:shanghai.total!==utc.total/);
   assert.match(edge,/Object.keys\(shanghai.parts\).some/);
 });
+
+test('the server mirrors the student home screen lazy pathway-coverage registration',()=>{
+  assert.match(edge,/import \{ buildUnitPathwayStates \}/);
+  assert.match(edge,/coverageByPathway:\{\}/);
+  assert.match(edge,/if\(!Object\.values\(states\)\.every\(state=>state\.mastered===true\)\)continue/);
+  assert.match(edge,/registerPathwayCoverage\(unit,coverageFromServerSetMembers\(members,rows\)\)/);
+  assert.match(edge,/const unitMastery=indexBy\(unitRows,'occurrence_id'\)/);
+  assert.match(edge,/const globalMastery=indexBy\(globalRows,'vocabulary_id'\)/);
+});
+test('the authenticated audit validates timezone input and can never fund wallets',()=>{
+  assert.match(edge,/new Intl\.DateTimeFormat\('en-US',\{timeZone:clientZone\}\)/);
+  assert.match(edge,/const computed=calculateXp\(\{missions,snapshot,timeZone:clientZone \?\? 'Asia\/Shanghai'\}\)/);
+  assert.match(edge,/readyForWalletFunding:false/);
+});
