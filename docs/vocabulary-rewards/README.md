@@ -1,14 +1,36 @@
 # Vocabulary Rewards Shop — implementation handover
 
+## Production rollout checkpoint — 18 November 2026
+The disabled Rewards Shop foundation was applied to production Supabase project
+`grjshlamooglytsajoun` under migration
+`vocabulary_reward_shop_disabled_foundation`.
+Lookup indexes were applied under `vocabulary_reward_lookup_indexes`.
+
+Verified after deployment:
+- All four `public.vocabulary_reward_*` tables have RLS enabled.
+- Catalogue contains **12** records, **zero enabled**.
+- **Zero wallets, ownership records, purchases or XP funding**.
+- `authenticated` can SELECT wallets but cannot INSERT or UPDATE them.
+- `anon` and `authenticated` cannot execute the redemption RPC;
+  `service_role` has EXECUTE permission.
+- Purchase/equip RPCs are `SECURITY INVOKER`, not `SECURITY DEFINER`.
+- `vocabulary-reward-shop` Edge Function deployed with JWT verification.
+- Source-level `PURCHASES_RELEASED = false` is enforced independently of
+  any environment flag, until a separate reviewed release.
+
+There has been **no authenticated live student XP parity comparison** and no
+purchasing test under student credentials. Do not fund wallets or enable rewards
+until both are complete.
+
 ## Status (Phase 2)
 - PR #494: staff preview with 12 cosmetics and disabled purchasing.
-- `phase-2-wallet-schema.sql` is **reviewed source only**: **NOT APPLIED** to Supabase.
+- `phase-2-wallet-schema.sql` was **applied** to production on 18 November 2026, with purchasing disabled and no wallet credits.
 - All reward catalog rows default to `enabled=false`. No student has a spendable balance.
 - Existing mission rows, XP calculation, achievements, level, mastery and merits remain unchanged.
 
 ## New implementation in this PR
 - `supabase/functions/vocabulary-reward-xp-audit/index.ts`: authenticated, read-only student XP audit. It fetches database-owned missions, mastery, occurrences and published pathway memberships; runs the existing `computeXp()`/`progressSnapshot()` code and returns a breakdown. **Deployed as an isolated JWT-protected function on 18 November 2026 (version 1). Does not write a wallet.**
-- `supabase/functions/vocabulary-reward-shop/index.ts`: authenticated shop API. Status requests use student RLS; purchase/equip requests are blocked unless the server-only `VOCAB_REWARDS_ENABLE_PURCHASES=true` flag is set. The flag must stay unset in production while parity is unverified. **Not deployed.**
+- `supabase/functions/vocabulary-reward-shop/index.ts`: authenticated shop API. Status requests use student RLS; purchase/equip requests are blocked unless the server-only `VOCAB_REWARDS_ENABLE_PURCHASES=true` flag is set. The flag must stay unset in production while parity is unverified. **Deployed; purchasing is hard-disabled.**
 - Proposed purchase/equip functions in `phase-2-wallet-schema.sql` now run as `SECURITY INVOKER` and grant EXECUTE to `service_role` only. The shop Edge function authenticates a student JWT and passes the authenticated ID to those privileged functions; browser-supplied IDs and prices are never accepted.
 - New Node tests cover the XP rules, catalogue consistency and the intended API/security contract. Their actual execution, staging and live authenticated verification are still required.
 
@@ -20,7 +42,7 @@ Edge Function and shows mismatches by all seven XP components. It never
 authorizes spending or changes any student record. It is inactive on ordinary
 `vocabulary.html` visits and unavailable in staff preview.
 
-**Audit deployed but not yet student-verified:** Supabase confirms `vocabulary-reward-xp-audit` is ACTIVE (version 1) with `verify_jwt=true`, and all twelve imported files were present when its body was retrieved. No authenticated student end-to-end audit has yet been performed. Once the UI is merged, open an appropriate controlled student's `vocabulary.html?xp-audit=1` and compare their XP. The database wallet and shop API are NOT deployed.
+**Audit deployed but not yet student-verified:** Supabase confirms `vocabulary-reward-xp-audit` is ACTIVE (version 1) with `verify_jwt=true`, and all twelve imported files were present when its body was retrieved. No authenticated student end-to-end audit has yet been performed. Once the UI is merged, open an appropriate controlled student's `vocabulary.html?xp-audit=1` and compare their XP. The database foundation and shop API are deployed, but no purchases or XP credits are enabled.
 Any partial, unauthorized, or missing audit response is reported as unavailable,
 not as matching. Do not interpret a match on one student as full cohort parity.
 

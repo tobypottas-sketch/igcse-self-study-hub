@@ -13,6 +13,9 @@ const reply=(body:unknown,status=200)=>Response.json(body,{
   status,headers:{...CORS,'Cache-Control':'no-store'}
 });
 const unavailable=()=>reply({ok:false,error:'Rewards spending is not enabled yet.'},423);
+// Explicit release lock. A configured environment flag alone cannot enable purchases.
+// Change this only in a separate reviewed student-release PR after wallet parity tests.
+const PURCHASES_RELEASED = false;
 function safeError(error:unknown) {
   const message=error instanceof Error?error.message:'';
   if (/not available|not enough|not owned|not a student|student account required|wallet not available/i.test(message))
@@ -59,7 +62,7 @@ Deno.serve(async req=>{
       const earned=Number(wallet.data?.verified_earned_xp??0);
       const spent=Number(wallet.data?.spent_xp??0);
       return reply({
-        ok:true,spendingEnabled:Deno.env.get('VOCAB_REWARDS_ENABLE_PURCHASES')==='true',
+        ok:true,spendingEnabled:PURCHASES_RELEASED && Deno.env.get('VOCAB_REWARDS_ENABLE_PURCHASES')==='true',
         walletReady:Boolean(wallet.data),
         wallet:wallet.data?{lifetimeEarned:earned,spent,available:Math.max(0,earned-spent)}:null,
         rewards:catalog.data??[],owned:owned.data??[]
@@ -68,7 +71,7 @@ Deno.serve(async req=>{
     if(!['buy','equip'].includes(action))return reply({ok:false,error:'Unknown action'},400);
     // A deploy flag and a separate DB catalogue enabled flag must both be on.
     // No purchase functions are called while wallet XP funding is unverified.
-    if(Deno.env.get('VOCAB_REWARDS_ENABLE_PURCHASES')!=='true')return unavailable();
+    if(!PURCHASES_RELEASED || Deno.env.get('VOCAB_REWARDS_ENABLE_PURCHASES')!=='true')return unavailable();
     const rewardId=typeof body?.rewardId==='string'?body.rewardId.trim():'';
     if(!/^[a-z0-9-]{2,50}$/.test(rewardId))return reply({ok:false,error:'Invalid reward'},400);
     const serviceKey=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');

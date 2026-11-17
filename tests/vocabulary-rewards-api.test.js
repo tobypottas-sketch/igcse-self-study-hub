@@ -35,6 +35,11 @@ test('no service-role access or purchases unless server flag is explicitly true'
   assert.doesNotMatch(sql,/returns jsonb language plpgsql security definer/);
 });
 
+test('student purchases remain hard-disabled independently of environment flags',()=>{
+  assert.match(api,/const PURCHASES_RELEASED = false;/);
+  assert.match(api,/if\(!PURCHASES_RELEASED \|\| Deno\.env\.get\('VOCAB_REWARDS_ENABLE_PURCHASES'\)!=='true'\)return unavailable\(\)/);
+  assert.match(api,/spendingEnabled:PURCHASES_RELEASED &&/);
+});
 test('audit cannot fund the wallet or spend from it',()=>{
   assert.match(audit,/auditOnly:true/);
   assert.doesNotMatch(audit,/\.rpc\(|\.insert\(|\.update\(|\.delete\(/);
