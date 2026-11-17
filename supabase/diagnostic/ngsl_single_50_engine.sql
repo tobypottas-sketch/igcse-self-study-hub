@@ -148,7 +148,7 @@ begin
  v_idx:=nullif(p_data->>'position','')::integer;
  v_selected:=p_data->>'answerId';
  v_question:=p_data->>'questionId';
- if v_rid is null or v_idx is null or v_selected not in ('A','B','C','D')
+ if v_rid is null or v_idx is null or (v_selected is null or v_selected not in ('A','B','C','D'))
   or v_question is null then raise exception 'INVALID_REQUEST';end if;
  v_hash:=md5(concat_ws('|',s.id::text,v_idx::text,v_question,v_selected));
  select * into r from private.ngsl_baseline_responses
