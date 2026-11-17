@@ -23,6 +23,9 @@ test('unsigned, incomplete and malformed audit results never pass',()=>{
   assert.equal(compareRewardsXp({total,parts},{...server,auditOnly:false}).status,'unavailable');
   assert.equal(compareRewardsXp({total,parts:{missions:10}},server).status,'invalid');
   assert.equal(compareRewardsXp({total:-1,parts},server).status,'invalid');
+  assert.equal(compareRewardsXp({total:null,parts},server).status,'invalid');
+  assert.equal(compareRewardsXp({total,parts:{...parts,missions:null}},server).status,'invalid');
+  assert.equal(compareRewardsXp({total,parts}, {...server,lifetimeXp:'105'}).status,'invalid');
 });
 test('the app invokes the audit only after explicit opt-in and does not redeem or write',()=>{
   const src=fs.readFileSync(new URL('../src/vocabulary/app.js',import.meta.url),'utf8');

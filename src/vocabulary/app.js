@@ -219,30 +219,33 @@ async function runRewardsXpParityDiagnostic() {
   const home = root?.querySelector?.('.vocab-shell--home');
   if (!home || !state.client) return;
   const output=document.createElement('aside');
-  output.setAttribute('role','status');
+  output.className='vocab-xp-audit';
+  output.setAttribute('aria-label','Read-only XP consistency diagnostic');
   output.setAttribute('aria-live','polite');
-  output.style.cssText='margin:12px 0;padding:14px 18px;border:1px solid #8fbfc7;border-radius:12px;background:#eff8fb;color:#173c52';
   output.textContent='Checking XP consistency (read-only)…';
   const progress=home.querySelector('.vocab-engage-home');
   if(progress)progress.insertAdjacentElement('afterend',output);
   else home.prepend(output);
   try {
-    const {compareRewardsXp}=await import('./rewards-xp-parity.js');
+    const [{compareRewardsXp},{renderXpParityReport,buildXpParityReportText}]=await Promise.all([
+      import('./rewards-xp-parity.js'), import('./rewards-xp-report.js')
+    ]);
     const local=engagementData().xp;
-    const result=await state.client.functions.invoke('vocabulary-reward-xp-audit',{body:{action:'audit',timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone}});
+    const timeZone=Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const result=await state.client.functions.invoke('vocabulary-reward-xp-audit',{body:{action:'audit',timeZone}});
     if(!output.isConnected)return;
-    const report=compareRewardsXp(local,result.error?null:result.data);
-    const reason=report.status==='match'?'XP totals and all seven components agree.':
-      report.status==='mismatch'?`Mismatch: ${report.differences.map(d=>d.part+': '+d.student+' vs '+d.server).join('; ')}.`:
-      'Server audit unavailable or incomplete.';
-    output.textContent='XP audit (no changes made): '+reason+
-      (report.timezoneSensitive?' Timezone-sensitive results detected.':'')+
-      ' This never authorizes wallet funding.';
+    const server=result.error?null:result.data;
+    const report=compareRewardsXp(local,server);
+    output.innerHTML=renderXpParityReport(report,local,server);
+    state.xpAuditReportText=['match','mismatch'].includes(report.status)
+      ?buildXpParityReportText(report,local,server,timeZone):null;
   }catch{
-    if(output.isConnected)output.textContent='XP audit unavailable. No XP or rewards were changed.';
+    if(output.isConnected)output.textContent='XP comparison unavailable. No XP or rewards were changed.';
+    state.xpAuditReportText=null;
   }
 }
 async function showHome() {
+  state.xpAuditReportText=null;
   state.unitRequest += 1; state.loadingUnit = null;
   showStudentLoading('Loading your vocabulary progress…');
   clearClock(); state.currentUnitNumber = null; state.currentUnitTitle = null; state.content = null; state.practiceFocus = null; state.pathwayId = null; state.pathwayStage = null; state.pathwayChoice = null; state.mixedReview = false; state.setStep = null;
@@ -1045,6 +1048,14 @@ root?.addEventListener('click', event => {
   else if (action === 'start-recommended') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, null); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId)); }
   else if (action === 'start-practice-choice') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, target.dataset.family); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId, false, { familyId:target.dataset.family })); }
   else if (action === 'close-practice-sheet') closePracticeSheet();
+  else if (action === 'copy-xp-audit-report' && state.xpAuditReportText && !state.preview) {
+    event.preventDefault();
+    const note=target.closest('.vocab-xp-audit')?.querySelector('[data-xp-audit-copy-status]');
+    if(!navigator.clipboard?.writeText) { if(note)note.textContent='Copy unavailable. Please capture the results for your teacher.'; return; }
+    void navigator.clipboard.writeText(state.xpAuditReportText)
+      .then(()=>{if(note?.isConnected)note.textContent='Copied without student identity.';})
+      .catch(()=>{if(note?.isConnected)note.textContent='Could not copy. Please capture the results.';});
+  }
   else if (action === 'open-rewards-preview' && state.preview) { void showRewardsPreview().catch(error => renderVocabularyError(root,error.message)); }
   else if (action === 'filter-rewards' && state.preview) { void showRewardsPreview(target.dataset.category ?? 'all').catch(error => renderVocabularyError(root,error.message)); }
   else if (action === 'back-rewards-home' && state.preview) { void showHome().catch(error => renderVocabularyError(root,error.message)); }

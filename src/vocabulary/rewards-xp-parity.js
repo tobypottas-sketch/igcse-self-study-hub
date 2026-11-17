@@ -4,7 +4,7 @@ export const XP_COMPONENTS = Object.freeze([
   'missions','personalBests','weeklyGoals','achievements',
   'stageClears','pathwayMasteries','unitMasteries'
 ]);
-const number = value => Number.isSafeInteger(Number(value)) && Number(value)>=0 ? Number(value):null;
+const number = value => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : null;
 
 export function compareRewardsXp(local = null, server = null) {
   if (server?.ok !== true || server?.auditOnly !== true)
