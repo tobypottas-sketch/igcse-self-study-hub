@@ -1,0 +1,38 @@
+name: Vocabulary Rewards Shop QA
+on:
+  pull_request:
+    paths:
+      - 'src/vocabulary/rewards-*.js'
+      - 'src/vocabulary/engagement-model.js'
+      - 'src/vocabulary/app.js'
+      - 'src/vocabulary/views.js'
+      - 'supabase/functions/vocabulary-reward-*/**'
+      - 'docs/vocabulary-rewards/**'
+      - 'tests/vocabulary-rewards-*.test.js'
+      - 'vocabulary-rewards.css'
+      - 'vocabulary.html'
+      - '.github/workflows/vocabulary-rewards-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reward-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify reward catalogue, XP parity fixtures and safe API contract
+        run: node --test tests/vocabulary-rewards-*.test.js
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check Rewards Shop Edge Functions
+        run: deno check --node-modules-dir=auto supabase/functions/vocabulary-reward-xp-audit/index.ts supabase/functions/vocabulary-reward-shop/index.ts
+      - name: Bundle authenticated XP audit with all shared modules
+        run: |
+          npx --yes esbuild@0.25.12 supabase/functions/vocabulary-reward-xp-audit/index.ts --bundle --platform=neutral --format=esm --target=es2022 --external:npm:* --outfile=/tmp/vocabulary-reward-xp-audit.bundle.mjs
+          deno check --node-modules-dir=auto /tmp/vocabulary-reward-xp-audit.bundle.mjs
+          test -s /tmp/vocabulary-reward-xp-audit.bundle.mjs
