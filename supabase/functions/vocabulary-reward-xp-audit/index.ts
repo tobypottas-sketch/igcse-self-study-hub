@@ -1,0 +1,99 @@
+// Read-only, authenticated XP parity audit for the Rewards Shop rollout.
+// This function reads the same authoritative mission/mastery rows used by the
+// Vocabulary Builder and calls its existing XP engine. It NEVER credits wallets,
+// performs redemption, or trusts XP totals supplied by the caller.
+// Deploy only after the new function passes integration tests.
+import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
+import { computeXp, progressSnapshot } from '../../../src/vocabulary/engagement-model.js';
+import { clearPathwayCoverage, registerPathwayCoverage } from '../../../src/vocabulary/pathway-coverage-store.js';
+import { coverageFromServerSetMembers } from '../_shared/vocabulary-pathway-sets.js';
+import { fetchAllRows } from '../../../src/vocabulary/teacher-paging.js';
+
+const CORS = {
+  'Access-Control-Allow-Origin':'*',
+  'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods':'POST, OPTIONS'
+};
+const response = (body: unknown, status = 200) =>
+  Response.json(body, {status, headers:{...CORS, 'Cache-Control':'no-store'}});
+const indexBy = (rows: any[], field: string) =>
+  Object.fromEntries(rows.map(row => [String(row[field]), row]));
+
+Deno.serve(async request => {
+  if (request.method === 'OPTIONS') return new Response(null, {status:204, headers:CORS});
+  if (request.method !== 'POST') return response({ok:false,error:'Method not allowed'},405);
+  try {
+    const token = request.headers.get('Authorization')?.match(/^Bearer (.+)$/i)?.[1];
+    if (!token) return response({ok:false,error:'Sign in required'},401);
+    const url = Deno.env.get('SUPABASE_URL');
+    const key = Deno.env.get('SUPABASE_ANON_KEY');
+    if (!url || !key) throw new Error('Supabase environment unavailable');
+    const client = createClient(url,key,{
+      global:{headers:{Authorization:`Bearer ${token}`}},
+      auth:{persistSession:false,autoRefreshToken:false}
+    });
+    const {data:userData,error:userError} = await client.auth.getUser(token);
+    if (userError || !userData?.user?.id) return response({ok:false,error:'Invalid session'},401);
+    const studentId = userData.user.id;
+    const {data:profile,error:profileError} = await client.from('profiles')
+      .select('role,active').eq('id',studentId).single();
+    if (profileError || profile?.role !== 'student' || profile?.active !== true)
+      return response({ok:false,error:'Student account required'},403);
+
+    // Request exactly the same owned rows used by the existing client model.
+    // Every query is filtered by authenticated RLS and paginated with a count
+    // check: no XP can be silently undercounted by the 1000-row API limit.
+    const [occurrences, globalRows, unitRows, missions, membership] = await Promise.all([
+      fetchAllRows(() => client.from('vocabulary_unit_occurrences')
+        .select('occurrence_id,vocabulary_id,unit_number,unit_title,set_number,position_in_unit,sense_id,status',{count:'exact'})
+        .eq('status','live').eq('active',true).order('unit_number').order('position_in_unit').order('occurrence_id'),{label:'live vocabulary occurrences'}),
+      fetchAllRows(() => client.from('vocabulary_global_mastery')
+        .select('vocabulary_id,status,review_due_at,recent_error_pattern,strand_evidence',{count:'exact'})
+        .eq('student_id',studentId).order('vocabulary_id'),{label:'global mastery'}),
+      fetchAllRows(() => client.from('vocabulary_unit_mastery')
+        .select('occurrence_id,status,recent_error_pattern,contextual_evidence',{count:'exact'})
+        .eq('student_id',studentId).order('occurrence_id'),{label:'unit mastery'}),
+      fetchAllRows(() => client.from('vocabulary_missions')
+        .select('mission_id,unit_number,mission_kind,pathway_id,pathway_stage,practice_family,mission_size,score,stars,best_streak,completed_at',{count:'exact'})
+        .eq('student_id',studentId).order('completed_at').order('mission_id'),{label:'missions'}),
+      fetchAllRows(() => client.from('vocabulary_set_members')
+        .select('unit_number,pathway_id,set_number,position,occurrence_id',{count:'exact'})
+        .order('unit_number').order('pathway_id').order('set_number').order('position'),{label:'pathway memberships'})
+    ]);
+
+    // Supabase Edge isolates are reused: clear module-level registered coverage
+    // on every invocation so one student's audit cannot see another request's
+    // cached unit coverage. Coverage is public curriculum data, not student data.
+    clearPathwayCoverage();
+    const byUnit = new Map<number,any[]>();
+    for (const occurrence of occurrences) {
+      const unit = Number(occurrence.unit_number);
+      if (!byUnit.has(unit)) byUnit.set(unit,[]);
+      byUnit.get(unit)!.push(occurrence);
+    }
+    for (const [unit,rows] of byUnit) {
+      const members=membership.filter(row=>Number(row.unit_number)===unit);
+      registerPathwayCoverage(unit,coverageFromServerSetMembers(members,rows));
+    }
+    const snapshot=progressSnapshot({
+      occurrences,
+      unitMastery:indexBy(unitRows,'occurrence_id'),
+      globalMastery:indexBy(globalRows,'vocabulary_id')
+    });
+    const computed=computeXp({missions,snapshot});
+    return response({
+      ok:true,
+      auditOnly:true,
+      lifetimeXp:computed.total,
+      parts:computed.parts,
+      level:computed.level,
+      counts:{missions:missions.length,liveOccurrences:occurrences.length,masteryRows:unitRows.length,
+        membershipRows:membership.length, masteredUnits:snapshot.unitsMastered},
+      timezoneCaveat:'XP day/week boundaries currently follow the JavaScript runtime local timezone. Live parity must be tested before wallet funding.'
+    });
+  } catch (error) {
+    // Avoid exposing raw queries, token values or user records to callers.
+    console.error('Vocabulary reward XP audit failed:',error instanceof Error ? error.message : 'unknown');
+    return response({ok:false,error:'XP audit unavailable; no credits were changed'},503);
+  }
+});
