@@ -212,6 +212,36 @@ function showStudentLoading(message) {
   root.innerHTML='<section class="vocab-startup" aria-label="Loading Vocabulary Builder"><div class="vocab-startup__content"><span class="vocab-startup__symbol" aria-hidden="true">V</span><p class="vocab-startup__title">Vocabulary Builder</p><p class="vocab-startup__status" data-vocab-loading-status role="status"></p><div class="vocab-startup__track" aria-hidden="true"></div></div></section>';
   root.querySelector('[data-vocab-loading-status]').textContent=message;
 }
+// Explicit opt-in diagnostic only; leaves all XP, progress and wallet state unchanged.
+// Intended for side-by-side testing after the read-only Edge audit is deployed.
+async function runRewardsXpParityDiagnostic() {
+  if (state.preview || new URLSearchParams(window.location.search).get('xp-audit') !== '1') return;
+  const home = root?.querySelector?.('.vocab-shell--home');
+  if (!home || !state.client) return;
+  const output=document.createElement('aside');
+  output.setAttribute('role','status');
+  output.setAttribute('aria-live','polite');
+  output.style.cssText='margin:12px 0;padding:14px 18px;border:1px solid #8fbfc7;border-radius:12px;background:#eff8fb;color:#173c52';
+  output.textContent='Checking XP consistency (read-only)…';
+  const progress=home.querySelector('.vocab-engage-home');
+  if(progress)progress.insertAdjacentElement('afterend',output);
+  else home.prepend(output);
+  try {
+    const {compareRewardsXp}=await import('./rewards-xp-parity.js');
+    const local=engagementData().xp;
+    const result=await state.client.functions.invoke('vocabulary-reward-xp-audit',{body:{action:'audit'}});
+    if(!output.isConnected)return;
+    const report=compareRewardsXp(local,result.error?null:result.data);
+    const reason=report.status==='match'?'XP totals and all seven components agree.':
+      report.status==='mismatch'?`Mismatch: ${report.differences.map(d=>d.part+': '+d.student+' vs '+d.server).join('; ')}.`:
+      'Server audit unavailable or incomplete.';
+    output.textContent='XP audit (no changes made): '+reason+
+      (report.timezoneSensitive?' Timezone-sensitive results detected.':'')+
+      ' This never authorizes wallet funding.';
+  }catch{
+    if(output.isConnected)output.textContent='XP audit unavailable. No XP or rewards were changed.';
+  }
+}
 async function showHome() {
   state.unitRequest += 1; state.loadingUnit = null;
   showStudentLoading('Loading your vocabulary progress…');
@@ -220,6 +250,7 @@ async function showHome() {
   state.dashboard = dashboard; state.missions = missions; state.meritAwarded = meritAwarded; state.units = buildUnits(state.dashboard);
   await evaluateUnitsThatLookMastered(dashboard);
   renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units, engagement:homeEngagement(), soundOn:soundEnabled(), preview:state.preview }); decoratePreview();
+  void runRewardsXpParityDiagnostic();
 }
 async function openMyProgress() {
   // This view is read-only and is allowed in staff preview (no personal tracking queries).
