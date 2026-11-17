@@ -34,8 +34,8 @@ async function startSample(root) {
     previewMode:true,onComplete:()=>window.location.replace('./vocabulary.html')});
 }
 
-export function validateTeacherFormPreview(data,form) {
-  if(data?.form!==form || data?.total!==40 || !Array.isArray(data.questions) || data.questions.length!==40)
+export function validateTeacherFormPreview(data,form,expectedTotal=40) {
+  if(data?.form!==form || data?.total!==expectedTotal || !Array.isArray(data.questions) || data.questions.length!==expectedTotal)
     throw new Error('The draft form is incomplete or unavailable.');
   const seen = new Set();
   for(const [index,q] of data.questions.entries()){
@@ -53,7 +53,7 @@ export function validateTeacherFormPreview(data,form) {
 }
 
 export async function startDiagnosticTeacherPreview(root,client) {
-  let form='A', position=0, questions=null, busy=false, error='';
+  let form='A', position=0, questions=null, busy=false, error='',kind='legacy';
   const selections = new Map();
   const shell = content => {
     root.innerHTML='<main class="vocab-shell diag-player"><header class="vocab-topbar">'
@@ -67,7 +67,8 @@ export async function startDiagnosticTeacherPreview(root,client) {
       +'<p>Try the sample student walkthrough, or review the real questions currently assembled in Form A or Form B.</p>'
       +'<div class="diag-actions diag-preview-modes">'
       +'<button type="button" class="diag-secondary" data-teacher-preview="sample">Sample walkthrough · 4 questions</button>'
-      +'<button type="button" class="diag-primary" data-teacher-preview="real">Review real diagnostic · Form A/B</button>'
+      +'<button type="button" class="diag-secondary" data-teacher-preview="real">Previous diagnostic · 40 questions</button>'
+      +'<button type="button" class="diag-primary" data-teacher-preview="ngsl">NGSL diagnostic · 50 questions · Forms A/B</button>'
       +'</div><p class="diag-message" role="status"></p></section>');
   }
   function view() {
@@ -76,37 +77,37 @@ export async function startDiagnosticTeacherPreview(root,client) {
     const opts=q.options.map(o=>'<label class="diag-option '+(selections.get(q.position)===o.id?'diag-option--selected':'')+'">'
       +'<input type="radio" name="teacher-preview-answer" value="'+e(o.id)+'" '+(selections.get(q.position)===o.id?'checked':'')+'/>'
       +'<span class="diag-option-key" aria-hidden="true">'+e(o.id)+'</span><span>'+e(o.text)+'</span></label>').join('');
-    shell('<p class="diag-preview-notice" role="note">Real draft Form '+e(form)+' · Teacher-only · No answers, scores or student records are saved</p>'
+    shell('<p class="diag-preview-notice" role="note">'+(kind==='ngsl'?'NGSL 1.2 draft':'Previous diagnostic draft')+' · Form '+e(form)+' · Teacher-only · No answers, scores or student records are saved</p>'
       +'<section class="diag-assessment"><div class="diag-meta"><label for="teacher-form">Form '
       +'<select id="teacher-form" data-teacher-form><option value="A" '+(form==='A'?'selected':'')+'>A</option>'
       +'<option value="B" '+(form==='B'?'selected':'')+'>B</option></select></label>'
-      +'<span>Question '+e(q.position)+' of 40</span></div>'
+      +'<span>Question '+e(q.position)+' of '+questions.length+'</span></div>'
       +'<h1 class="diag-prompt">'+e(q.stem)+'</h1>'
       +'<fieldset class="diag-choices"><legend>Choose one answer (preview only)</legend>'+opts+'</fieldset>'
       +'<div class="diag-actions"><button type="button" class="diag-secondary" data-teacher-preview="chooser">← Preview modes</button>'
       +'<button type="button" class="diag-secondary" data-teacher-preview="previous" '+(position===0?'disabled':'')+'>Previous</button>'
-      +'<button type="button" class="diag-primary" data-teacher-preview="next" '+(position===39?'disabled':'')+'>Next question</button>'
+      +'<button type="button" class="diag-primary" data-teacher-preview="next" '+(position===questions.length-1?'disabled':'')+'>Next question</button>'
       +'</div><p class="diag-message" role="status">Your selections stay on this screen only and are never submitted.</p></section>');
   }
-  async function loadForm(nextForm) {
+  async function loadForm(nextForm,nextKind=kind) {
     if(busy)return;
     busy=true;error='';
     shell('<p class="diag-preview-notice">Teacher preview · Real diagnostic questions</p><section class="diag-hero">'
       +'<h1>Loading Form '+e(nextForm)+'…</h1><p role="status">Checking the secure draft form.</p></section>');
     try{
       const {data, error:serviceError}=await client.functions.invoke('vocabulary-diagnostic',{
-        body:{action:'review-form-preview',payload:{form:nextForm}}
+        body:{action:nextKind==='ngsl'?'ngsl-form-preview':'review-form-preview',payload:{form:nextForm}}
       });
       if(serviceError || data?.error)throw new Error('Unable to load this draft form. Staff-only preview may not yet be deployed.');
-      questions=validateTeacherFormPreview(data,nextForm);
-      form=nextForm;position=0;selections.clear();
+      questions=validateTeacherFormPreview(data,nextForm,nextKind==='ngsl'?50:40);
+      form=nextForm;kind=nextKind;position=0;selections.clear();
       view();
     }catch(err){
       error=err.message||'Preview unavailable.';
       shell('<p class="diag-preview-notice">Teacher preview · No student records are saved</p>'
         +'<section class="diag-hero"><h1>Could not open Form '+e(nextForm)+'</h1><p role="alert">'+e(error)+'</p>'
         +'<div class="diag-actions"><button class="diag-secondary" type="button" data-teacher-preview="chooser">← Preview modes</button>'
-        +'<button class="diag-primary" type="button" data-teacher-preview="retry" data-form="'+e(nextForm)+'">Try again</button></div></section>');
+        +'<button class="diag-primary" type="button" data-teacher-preview="retry" data-kind="'+e(nextKind)+'" data-form="'+e(nextForm)+'">Try again</button></div></section>');
     }finally{busy=false}
   }
   root.addEventListener('click',event=>{
@@ -115,16 +116,17 @@ export async function startDiagnosticTeacherPreview(root,client) {
     const action=button.dataset.teacherPreview;
     if(action==='chooser'){chooser();return}
     if(action==='sample'){void startSample(root);return}
-    if(action==='real'){void loadForm('A');return}
-    if(action==='retry'){void loadForm(button.dataset.form==='B'?'B':'A');return}
+    if(action==='real'){void loadForm('A','legacy');return}
+    if(action==='ngsl'){void loadForm('A','ngsl');return}
+    if(action==='retry'){void loadForm(button.dataset.form==='B'?'B':'A',button.dataset.kind==='ngsl'?'ngsl':'legacy');return}
     if(!questions)return;
-    if(action==='next'&&position<39){position++;view()}
+    if(action==='next'&&position<questions.length-1){position++;view()}
     if(action==='previous'&&position>0){position--;view()}
   });
   root.addEventListener('change',event=>{
     if(event.target?.id==='teacher-form'){
       const next=event.target.value;
-      if(['A','B'].includes(next)&&next!==form)void loadForm(next);
+      if(['A','B'].includes(next)&&next!==form)void loadForm(next,kind);
       return;
     }
     if(event.target?.name==='teacher-preview-answer' && questions && 'ABCD'.includes(event.target.value)){
