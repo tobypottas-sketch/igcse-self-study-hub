@@ -5,7 +5,7 @@ export const REWARD_CATEGORIES = Object.freeze([
   { id:'all', label:'All' }, { id:'themes', label:'Themes' },
   { id:'frames', label:'Frames' }, { id:'titles', label:'Titles' },
   { id:'effects', label:'Effects' }
-]);
+].map(item => Object.freeze(item)));
 const rewards = [
   ['midnight','Midnight Theme','themes',600,'A calmer dark theme for focused study.','🌙'],
   ['forest','Forest Theme','themes',600,'A fresh, nature-inspired look.','🌿'],
@@ -22,7 +22,7 @@ const rewards = [
 ];
 export const REWARDS = Object.freeze(rewards.map(([id,name,category,price,description,icon]) =>
   Object.freeze({ id,name,category,price,description,icon,kind:'cosmetic' })));
-export const REWARD_IDS = Object.freeze(new Set(REWARDS.map(reward => reward.id)));
+// IDs are validated when constructing REWARDS; do not export a mutable Set as a frozen value.
 export function rewardsForCategory(category='all') {
   if (category === 'all') return [...REWARDS];
   if (!REWARD_CATEGORIES.some(row => row.id === category)) return [];
