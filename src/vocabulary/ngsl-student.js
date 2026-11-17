@@ -5,11 +5,11 @@ import {ngslPromptMarkup} from './ngsl-question-format.js';
 const e=x=>escapeHtml(String(x??''));
 const BANDS=[1,2,3,4,5];
 const FOUNDATION_LEVELS=[
- {max:14,label:'Beginning',message:'Start by strengthening your recognition of common English words.'},
- {max:24,label:'Developing',message:'You recognise some common English vocabulary, but there are gaps to strengthen.'},
- {max:34,label:'Building confidence',message:'You recognise many of these words. Keep practising less familiar vocabulary.'},
- {max:44,label:'Strong',message:'You recognise most of these words. Focus on the meanings you missed.'},
- {max:50,label:'Advanced recognition',message:'You recognised almost all the selected words. Keep extending your vocabulary through practice.'}
+ {max:14,label:'Beginning',message:'Start by strengthening your recognition of common English words.',image:'assets/vocabulary/diagnostic/beginning.svg'},
+ {max:24,label:'Developing',message:'You recognise some common English vocabulary, but there are gaps to strengthen.',image:'assets/vocabulary/diagnostic/developing.svg'},
+ {max:34,label:'Building confidence',message:'You recognise many of these words. Keep practising less familiar vocabulary.',image:'assets/vocabulary/diagnostic/building-confidence.svg'},
+ {max:44,label:'Strong',message:'You recognise most of these words. Focus on the meanings you missed.',image:'assets/vocabulary/diagnostic/strong.svg'},
+ {max:50,label:'Advanced recognition',message:'You recognised almost all the selected words. Keep extending your vocabulary through practice.',image:'assets/vocabulary/diagnostic/advanced-recognition.svg'}
 ];
 function foundationLevel(correct){return FOUNDATION_LEVELS.find(level=>correct<=level.max);}
 
@@ -77,7 +77,8 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
   const words=missed.map(x=>e(x.target)).filter(Boolean);
   shell('<section class="diag-hero"><p class="diag-kicker">ASSESSMENT COMPLETE</p>'
     +'<h1>Your NGSL vocabulary profile</h1>'
-    +'<div class="ngsl-score"><strong>'+correct+'/50</strong><span>'+e(result.percentage)+'%</span></div>'
+    +'<div class="ngsl-result-top"><div class="ngsl-score"><strong>'+correct+'/50</strong><span>'+e(result.percentage)+'%</span></div>'
+    +'<img class="ngsl-result-art" src="'+e(foundation.image)+'" alt="" /></div>'
     +'<div class="ngsl-foundation"><strong>'+e(foundation.label)+' vocabulary foundation</strong>'
     +'<p>'+e(foundation.message)+'</p></div>'
     +'<div class="ngsl-band-results">'+bands+'</div>'
