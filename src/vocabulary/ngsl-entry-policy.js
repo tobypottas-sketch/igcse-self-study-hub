@@ -1,3 +1,3 @@
-// NGSL rollout control. Enable only after a real browser end-to-end smoke test.
-// Only the current NGSL 50-question assessment exists; gate is intentionally OFF pending browser validation.
-export const NGSL_BASELINE_GATE_ENABLED=false;
+// All authenticated students must complete the single 50-question NGSL diagnostic once.
+// The router checks server-saved completion before loading Vocabulary Builder training.
+export const NGSL_BASELINE_GATE_ENABLED=true;

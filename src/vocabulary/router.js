@@ -2,7 +2,7 @@ import { getSupabaseClient } from '../supabase.js';
 import { renderVocabularyError } from './views.js';
 import './foundational-interactions.js';
 import { redirectToHubSignIn, getSessionStorage } from '../return-target.js';
-import {NGSL_BASELINE_GATE_ENABLED} from './ngsl-entry-policy.js?v=single-ngsl-v1';
+import {NGSL_BASELINE_GATE_ENABLED} from './ngsl-entry-policy.js?v=compulsory-ngsl-v1';
 
 const root = document.getElementById('vocabularyApp');
 
