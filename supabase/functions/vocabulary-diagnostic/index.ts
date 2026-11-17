@@ -37,7 +37,7 @@ function validatePayload(action,payload){
   if(['ngsl-status','ngsl-start','ngsl-history','ngsl-teacher-report'].includes(action))return Object.keys(payload).length===0;
   if(action==='ngsl-pause')return validUuid(payload.sessionId);
   if(action==='ngsl-respond')return validUuid(payload.sessionId)&&validUuid(payload.requestId)
-    &&typeof payload.questionId==='string'&&/^NGSL-\\d{1,2}$/.test(payload.questionId)
+    &&typeof payload.questionId==='string'&&/^NGSL-\d{1,2}$/.test(payload.questionId)
     &&Number.isInteger(payload.position)&&payload.position>=1&&payload.position<=50
     &&['A','B','C','D'].includes(payload.answerId);
   if(action==='ngsl-form-preview')return Object.keys(payload).length===1&&payload.form==='A';
