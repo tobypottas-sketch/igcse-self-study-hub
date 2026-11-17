@@ -85,8 +85,8 @@ on conflict (reward_id) do nothing;
 -- Purchases are deliberately unavailable until verified XP funding is ready.
 -- Client users cannot call these SECURITY INVOKER functions; only the trusted Edge
 -- Function with the service_role key can invoke them after authenticating the user.
--- Even if called with a forged price or by a different user, the RPC uses
--- auth.uid() and the server-side reward catalogue and locks the student's wallet.
+-- A trusted Edge caller supplies the authenticated student ID; the RPC
+-- uses the database catalogue price and serialises writes by wallet row lock.
 create or replace function public.redeem_vocabulary_reward(p_student_id uuid, p_reward_id text)
 returns jsonb language plpgsql security invoker set search_path=''
 as $$
