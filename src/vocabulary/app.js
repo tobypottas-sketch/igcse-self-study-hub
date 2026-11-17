@@ -181,6 +181,12 @@ function openAchievements() {
   root.querySelector?.('[data-achievements-badge], .vocab-engage-home__new')?.remove?.();
   root.querySelector?.('[data-achievements-sheet] [data-autofocus]')?.focus?.();
 }
+// Reward-shop Phase 1 lives only in staff preview; never expose mock balances to students.
+async function showRewardsPreview(category='all') {
+  if (!state.preview) return;
+  const { renderRewardsPreview } = await import('./rewards-view.js');
+  renderRewardsPreview(root, { category });
+}
 function closeAchievements() {
   const sheet = root?.querySelector?.('[data-achievements-backdrop]'); if (!sheet) return;
   sheet.remove(); state.achievementsReturn?.focus?.();
@@ -1008,6 +1014,9 @@ root?.addEventListener('click', event => {
   else if (action === 'start-recommended') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, null); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId)); }
   else if (action === 'start-practice-choice') { const pathwayId = target.dataset.pathway; saveLastChoice(pathwayId, target.dataset.family); closePracticeSheet(false); runAfterSaves(() => startPathwaySession(pathwayId, false, { familyId:target.dataset.family })); }
   else if (action === 'close-practice-sheet') closePracticeSheet();
+  else if (action === 'open-rewards-preview' && state.preview) { void showRewardsPreview().catch(error => renderVocabularyError(root,error.message)); }
+  else if (action === 'filter-rewards' && state.preview) { void showRewardsPreview(target.dataset.category ?? 'all').catch(error => renderVocabularyError(root,error.message)); }
+  else if (action === 'back-rewards-home' && state.preview) { void showHome().catch(error => renderVocabularyError(root,error.message)); }
   else if (action === 'open-achievements') openAchievements();
   else if (action === 'toggle-sound') toggleSound(target);
   else if (action === 'close-achievements') closeAchievements();
