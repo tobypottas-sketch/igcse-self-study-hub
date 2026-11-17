@@ -15,6 +15,30 @@
 ## Critical limitation
 The XP audit currently computes day and week boundaries in its server runtime timezone, whereas the existing browser XP model uses the browser's local timezone. It also registers all published pathway coverage, whereas the browser lazily registers it. **Do not use audited totals for real credits until a parity investigation resolves these differences and verifies existing students' lifetime XP.** This is why reward funding and purchases remain off.
 
+## Read-only production baseline (18 November 2026)
+- **270** active student profiles in the project (not all belong to this teacher).
+- **58** recorded Vocabulary Builder missions across **28** distinct students.
+- **399** unit-mastery rows across **40** students; same row count for global mastery.
+- **9** students have three or more recorded missions; the maximum is six.
+- **0** existing missions (across all 58) change calendar date when comparing UTC against Asia/Shanghai.
+
+These are anonymous aggregate SELECT results, not parity assertions. They rule out
+one potential *historical* timezone mismatch, but do not verify displayed XP,
+mastery availability, rewards balance, or different timezones on student devices.
+
+## Timezone reconciliation changes in this PR
+`computeXp()`, `weeklyGoal()` and `achievements()` now accept an **optional**
+IANA timezone. Calls that omit it preserve their original local-calendar behavior
+(including existing student XP and levels). The audit returns separate UTC and
+Asia/Shanghai results and always reports `readyForWalletFunding:false`. Do not
+interpret matching UTC/Shanghai totals alone as full client/server parity.
+
+Next: perform an authenticated side-by-side comparison using each student's
+actual browser computation and the read-only audit on a controlled test account,
+then repeat across a representative sample including mastery progress.
+After agreement, adopt a stable timezone policy for future purchases and credit
+existing balances with an auditable, idempotent operation.
+
 ## Why XP must be reconciled first
 Current `computeXp()` in `src/vocabulary/engagement-model.js` is a derived client calculation, not an account balance.
 
