@@ -101,7 +101,7 @@ Deno.serve(async request => {
       deterministicComparisons:{
         shanghai:{total:shanghai.total,parts:shanghai.parts},
         utc:{total:utc.total,parts:utc.parts},
-        timezoneSensitive:shanghai.total!==utc.total
+        timezoneSensitive:shanghai.total!==utc.total || Object.keys(shanghai.parts).some(key=>shanghai.parts[key]!==utc.parts[key])
       },
       readyForWalletFunding:false,
       counts:{missions:missions.length,liveOccurrences:occurrences.length,masteryRows:unitRows.length,
