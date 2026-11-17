@@ -1,0 +1,36 @@
+name: Single NGSL baseline regression
+on:
+  pull_request:
+    paths:
+      - 'src/vocabulary/ngsl-*'
+      - 'src/vocabulary/router.js'
+      - 'src/vocabulary/diagnostic-teacher-walkthrough.js'
+      - 'supabase/diagnostic/ngsl_single_50_engine.sql'
+      - 'supabase/functions/vocabulary-diagnostic/index.ts'
+      - 'tests/vocabulary-ngsl-single-diagnostic.test.js'
+      - '.github/workflows/ngsl-single-baseline.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/vocabulary/ngsl-*'
+      - 'src/vocabulary/router.js'
+      - 'src/vocabulary/diagnostic-teacher-walkthrough.js'
+      - 'supabase/diagnostic/ngsl_single_50_engine.sql'
+      - 'supabase/functions/vocabulary-diagnostic/index.ts'
+      - 'tests/vocabulary-ngsl-single-diagnostic.test.js'
+      - '.github/workflows/ngsl-single-baseline.yml'
+permissions:
+  contents: read
+jobs:
+  single-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test one-form NGSL diagnostic and old preview compatibility
+        run: node --test tests/vocabulary-ngsl-single-diagnostic.test.js tests/vocabulary-ngsl-teacher-preview.test.js
+      - name: Check browser module syntax
+        run: node --check src/vocabulary/ngsl-student.js && node --check src/vocabulary/ngsl-question-format.js && node --check src/vocabulary/diagnostic-teacher-walkthrough.js && node --check src/vocabulary/router.js
