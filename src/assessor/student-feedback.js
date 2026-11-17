@@ -16,7 +16,18 @@ export function renderStudentFeedback(doc, feedback, { onRevise, compact = false
   if (sc && !feedback.partial) {
     const tile = (name, value, max, total) => { const t = el(doc, 'div', 'sf-score__tile' + (total ? ' sf-score__tile--total' : '')); const v = el(doc, 'p', 'sf-score__value'); v.append(el(doc, 'strong', '', String(value)), el(doc, 'span', '', '/' + max)); t.append(el(doc, 'p', 'sf-score__name', name), v); return t; };
     const grid = el(doc, 'div', 'sf-score__grid'); grid.append(...(compact ? [tile('Total', sc.total, 15, true), tile('Content', sc.content, 6), tile('Language', sc.language, 9)] : [tile('Content', sc.content, 6), tile('Language', sc.language, 9), tile('Total', sc.total, 15, true)]));
-    scoreBlock.append(el(doc, 'h3', 'sf-label', 'AI-estimated score'), grid, el(doc, 'p', 'sf-score__note', compact ? 'AI estimate · not a Cambridge mark' : 'An AI estimate to guide your revision. It is not an official Cambridge mark.'));
+    scoreBlock.append(el(doc, 'h3', 'sf-label', 'AI-estimated score'), grid);
+    if (compact && feedback.scoreReasons) {
+      const explanations = el(doc, 'div', 'sf-score-reasons');
+      for (const [name, explanation] of [['Content', feedback.scoreReasons.content], ['Language', feedback.scoreReasons.language]]) {
+        if (!explanation) continue;
+        const line = el(doc, 'p', 'sf-score-reason');
+        line.append(el(doc, 'strong', '', name + ': '), doc.createTextNode(explanation));
+        explanations.append(line);
+      }
+      scoreBlock.append(explanations);
+    }
+    scoreBlock.append(el(doc, 'p', 'sf-score__note', compact ? 'AI estimate · not a Cambridge mark' : 'An AI estimate to guide your revision. It is not an official Cambridge mark.'));
   } else {
     scoreBlock.classList.add('sf-score--none'); scoreBlock.append(el(doc, 'h3', 'sf-label', 'AI-estimated score'), el(doc, 'p', 'sf-score__unavailable', 'Score unavailable'));
   }
