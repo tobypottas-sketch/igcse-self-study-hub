@@ -2,7 +2,7 @@
 //   mountStudentFeedback(host, { app:'email'|'review', getTask(), getResponse(), getClient(), onRevise?() })
 // It reuses the assessor progress card, keeps nothing in storage and shows only an AI-estimated score (never teacher-only reasons).
 import { createAssessmentProgress } from './progress.js';
-import { requestFeedback, FeedbackError } from './student-client.js';
+import { requestFeedback, FeedbackError } from './student-client.js?v=review-score-notes-v1';
 import { PRIVACY_SUMMARY, PRIVACY_DETAIL, PRIVACY_CONSENT } from './student-privacy-notice.js';
 const el = (doc, tag, className, text) => { const node = doc.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = text; return node; };
 export function renderStudentFeedback(doc, feedback, { onRevise, compact = false } = {}) {
