@@ -37,7 +37,8 @@ test('equipment is owned-only, one per category and serialised per user',()=>{
 test('catalogue is disabled until verified XP credits are implemented',()=>{
   assert.equal((sql.match(/,false\)/g)||[]).length,12);
   assert.match(sql,/enabled boolean not null default false/);
-  assert.match(doc,/NOT APPLIED/);
+  assert.match(doc,/was \*\*applied\*\* to production/);
+  assert.match(doc,/zero enabled/);
   assert.match(doc,/parity tests/);
   assert.match(model,/dailyMissionCap:80/);
   assert.match(model,/personalBest:5/);
