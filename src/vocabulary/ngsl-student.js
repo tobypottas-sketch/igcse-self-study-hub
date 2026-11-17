@@ -5,11 +5,11 @@ import {ngslPromptMarkup} from './ngsl-question-format.js';
 const e=x=>escapeHtml(String(x??''));
 const BANDS=[1,2,3,4,5];
 const FOUNDATION_LEVELS=[
- {max:14,label:'Beginning',message:'Start by strengthening your recognition of common English words.',image:'assets/vocabulary/diagnostic/beginning.svg'},
- {max:24,label:'Developing',message:'You recognise some common English vocabulary, but there are gaps to strengthen.',image:'assets/vocabulary/diagnostic/developing.svg'},
- {max:34,label:'Building confidence',message:'You recognise many of these words. Keep practising less familiar vocabulary.',image:'assets/vocabulary/diagnostic/building-confidence.svg'},
- {max:44,label:'Strong',message:'You recognise most of these words. Focus on the meanings you missed.',image:'assets/vocabulary/diagnostic/strong.svg'},
- {max:50,label:'Advanced recognition',message:'You recognised almost all the selected words. Keep extending your vocabulary through practice.',image:'assets/vocabulary/diagnostic/advanced-recognition.svg'}
+ {max:14,label:'Beginning',message:'Start by strengthening your recognition of common English words.',image:'assets/vocabulary/diagnostic/ChatGPT Image Nov 17, 2026, 10_46_12 AM-1.png'},
+ {max:24,label:'Developing',message:'You recognise some common English vocabulary, but there are gaps to strengthen.',image:'assets/vocabulary/diagnostic/ChatGPT Image Nov 17, 2026, 10_46_14 AM-2.png'},
+ {max:34,label:'Building confidence',message:'You recognise many of these words. Keep practising less familiar vocabulary.',image:'assets/vocabulary/diagnostic/ChatGPT Image Nov 17, 2026, 10_46_15 AM-3.png'},
+ {max:44,label:'Strong',message:'You recognise most of these words. Focus on the meanings you missed.',image:'assets/vocabulary/diagnostic/ChatGPT Image Nov 17, 2026, 10_46_16 AM-4.png'},
+ {max:50,label:'Advanced recognition',message:'You recognised almost all the selected words. Keep extending your vocabulary through practice.',image:'assets/vocabulary/diagnostic/ChatGPT Image Nov 17, 2026, 10_46_18 AM-5.png'}
 ];
 function foundationLevel(correct){return FOUNDATION_LEVELS.find(level=>correct<=level.max);}
 
