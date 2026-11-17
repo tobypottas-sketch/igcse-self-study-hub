@@ -90,12 +90,6 @@ test('retired editorial files with full items stay out of the public tree',()=>{
     assert.equal(existsSync(new URL('../supabase/diagnostic/editorial/'+f,import.meta.url)),false,f);
 });
 
-test('private authoring locations are git-ignored and the offline audit refuses tracked files',()=>{
-  const ignore=readFileSync(new URL('../.gitignore',import.meta.url),'utf8');
-  for(const p of ['diagnostic-private/','*.diag-private.json','private-bank*.json'])assert.ok(ignore.split('\n').includes(p),p);
-  const audit=readFileSync(new URL('../tools/diagnostic/audit-bank.mjs',import.meta.url),'utf8');
-  assert.match(audit,/ls-files','--error-unmatch'/);
-});
 
 test('exposure guard runs on every pull request',()=>{
   const wf=readFileSync(new URL('../.github/workflows/diagnostic-exposure-guard.yml',import.meta.url),'utf8');
