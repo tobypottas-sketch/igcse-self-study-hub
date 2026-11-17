@@ -35,7 +35,7 @@ export function renderStudentFeedback(doc, feedback, { onRevise, compact = false
     if (best) { const r = row('good', 'Strength'); r.append(quote(best.quote), el(doc, 'p', 'sf-advice', best.advice)); panel.append(r); }
     const fixes = feedback.improvements.slice(0, 2);
     if (fixes.length) {
-      const r = row('fix', fixes.length > 1 ? 'Corrections' : 'Correction'); const ul = el(doc, 'ul', 'sf-list');
+      const label = compact && fixes.every(item => item.type !== 'error') ? 'Improve your writing' : (fixes.length > 1 ? 'Corrections' : 'Correction'); const r = row('fix', label); const ul = el(doc, 'ul', 'sf-list');
       fixes.forEach(item => {
         const li = el(doc, 'li', 'sf-fix');
         if (item.type === 'error' && item.suggestion) {
@@ -44,7 +44,7 @@ export function renderStudentFeedback(doc, feedback, { onRevise, compact = false
           wrong.prepend(el(doc, 'span', 'sf-sr', 'Incorrect: ')); right.prepend(el(doc, 'span', 'sf-sr', 'Correct: '));
           change.append(wrong, el(doc, 'span', 'sf-arrow', '\u2192'), right); li.append(change);
         } else {
-          if (item.type !== 'error') li.append(el(doc, 'p', 'sf-tag', 'Optional wording change'));
+          if (item.type !== 'error') li.append(el(doc, 'p', 'sf-tag', compact ? 'Optional improvement' : 'Optional wording change'));
           li.append(quote(item.quote));
           if (item.suggestion) { const s = el(doc, 'p', 'sf-suggestion'); s.append(el(doc, 'strong', '', 'You could write: '), doc.createTextNode(item.suggestion)); li.append(s); }
         }
