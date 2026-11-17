@@ -42,12 +42,23 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
    +html+'</main>';
  }
  function intro(){
-  shell('<section class="diag-hero"><p class="diag-kicker">VOCABULARY STARTING POINT</p>'
-   +'<h1>50 vocabulary questions</h1><p>Read the highlighted word and choose its meaning. '
-   +'There are four choices for each question. Take your time—there is no time limit.</p>'
-   +'<p>Your answers are saved as you go. You can exit and continue later without losing your place.</p>'
-   +'<div class="diag-actions"><button class="diag-primary" type="button" data-ngsl="start">Start or continue</button></div>'
-   +'<p role="status" class="diag-message"></p></section>');
+  shell('<section class="diag-hero ngsl-welcome">'
+   +'<div class="ngsl-welcome-grid">'
+   +'<div class="ngsl-welcome-content">'
+   +'<p class="diag-kicker">YOUR VOCABULARY STARTING POINT</p>'
+   +'<h1>Ready to find your starting point?</h1>'
+   +'<p class="ngsl-welcome-lead">Choose the meaning of each highlighted word.</p>'
+   +'<div class="ngsl-welcome-facts" aria-label="Assessment details">'
+   +'<span><strong>50</strong><small>questions</small></span>'
+   +'<span><strong>4</strong><small>choices each</small></span>'
+   +'<span><strong>∞</strong><small>no time limit</small></span>'
+   +'</div>'
+   +'<p class="ngsl-welcome-save">Your answers save automatically. Leave and come back anytime.</p>'
+   +'<div class="diag-actions"><button class="diag-primary" type="button" data-ngsl="start">Start or continue <span aria-hidden="true">→</span></button></div>'
+   +'<p role="status" class="diag-message"></p>'
+   +'</div>'
+   +'<div class="ngsl-welcome-visual"><img src="assets/vocabulary/diagnostic/ChatGPT Image Nov 17, 2026, 10_46_12 AM-1.png" alt="A student looking up a mountain trail" /></div>'
+   +'</div></section>');
  }
  function question(){
   const q=validQuestion(state.question);
