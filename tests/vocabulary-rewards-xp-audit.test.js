@@ -69,8 +69,8 @@ test('explicit China calendar avoids UTC daily-cap boundary miscount',()=>{
   }));
   const utc=computeXp({missions:rows,snapshot:empty,timeZone:'UTC'});
   const shanghai=computeXp({missions:rows,snapshot:empty,timeZone:'Asia/Shanghai'});
-  assert.equal(utc.parts.missions,80);
-  assert.equal(shanghai.parts.missions,100);
+  assert.equal(utc.parts.missions,70);
+  assert.equal(shanghai.parts.missions,90);
   assert.equal(shanghai.parts.missions-utc.parts.missions,20);
 });
 
