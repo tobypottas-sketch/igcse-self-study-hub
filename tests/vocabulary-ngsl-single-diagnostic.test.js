@@ -35,3 +35,13 @@ test('only NGSL scoring and student routing remain',()=>{
  assert.doesNotMatch(edge,/vocabulary_diagnostic_api|scoreProvisionalDiagnostic/);
  assert.equal(typeof NGSL_BASELINE_GATE_ENABLED,'boolean');
 });
+
+
+test('Edge Function accepts valid NGSL numeric question IDs and rejects the legacy API',()=>{
+ const edge=readFileSync(new URL('../supabase/functions/vocabulary-diagnostic/index.ts',import.meta.url),'utf8');
+ const expected=['/^NGSL-',String.fromCharCode(92),'d{1,2}$/'].join('');
+ assert.ok(edge.includes(expected),'NGSL regex must contain exactly one digit escape');
+ assert.ok(!edge.includes(expected.replace('d{1,2}','\\d{1,2}')),'Double escaping would reject student submissions');
+ for(const action of ['review-form-preview','review-list','review-decision','review-forms','review-form-worklist'])
+   assert.ok(!edge.includes("'"+action+"'"),action+' must be retired');
+});
