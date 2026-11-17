@@ -198,19 +198,39 @@ export function meritProgress(passedStages, awarded = null) {
   };
 }
 
-function localDayKey(iso) { const date = new Date(iso); return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`; }
-function weekKey(iso) {
+// Optional IANA timezone for deterministic read-only XP audits. The legacy
+// default remains the runtime's local timezone to avoid silently rewriting
+// students' currently displayed XP before reconciliation.
+function dateParts(iso, timeZone = null) {
   const date = new Date(iso);
-  const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate() - ((date.getDay() + 6) % 7));
-  return `${monday.getFullYear()}-${monday.getMonth() + 1}-${monday.getDate()}`;
+  if (!timeZone) return [date.getFullYear(),date.getMonth()+1,date.getDate()];
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,year:'numeric',month:'numeric',day:'numeric'
+  }).formatToParts(date);
+  const component = type => Number(parts.find(part => part.type === type)?.value);
+  return [component('year'),component('month'),component('day')];
+}
+function localDayKey(iso, timeZone = null) {
+  return dateParts(iso,timeZone).join('-');
+}
+function weekKey(iso, timeZone = null) {
+  if (!timeZone) {
+    const date = new Date(iso);
+    const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate() - ((date.getDay() + 6) % 7));
+    return `${monday.getFullYear()}-${monday.getMonth() + 1}-${monday.getDate()}`;
+  }
+  const [year,month,day] = dateParts(iso,timeZone);
+  const monday = new Date(Date.UTC(year,month-1,day));
+  monday.setUTCDate(monday.getUTCDate() - ((monday.getUTCDay()+6)%7));
+  return [monday.getUTCFullYear(),monday.getUTCMonth()+1,monday.getUTCDate()].join('-');
 }
 
-export function weeklyGoal(rawRows = [], now = new Date()) {
+export function weeklyGoal(rawRows = [], now = new Date(), timeZone = null) {
   const rows = rawRows.map(normaliseMission);
-  const current = weekKey(now.toISOString());
-  const done = rows.filter(row => row.completedAt && weekKey(row.completedAt) === current).length;
+  const current = weekKey(now.toISOString(),timeZone);
+  const done = rows.filter(row => row.completedAt && weekKey(row.completedAt,timeZone) === current).length;
   const perWeek = new Map();
-  for (const row of rows) if (row.completedAt) perWeek.set(weekKey(row.completedAt), (perWeek.get(weekKey(row.completedAt)) ?? 0) + 1);
+  for (const row of rows) if (row.completedAt) perWeek.set(weekKey(row.completedAt,timeZone), (perWeek.get(weekKey(row.completedAt,timeZone)) ?? 0) + 1);
   const weeksMet = [...perWeek.values()].filter(count => count >= WEEKLY_GOAL).length;
   return { done, goal:WEEKLY_GOAL, met:done >= WEEKLY_GOAL, weeksMet, label:`${Math.min(done, WEEKLY_GOAL)} of ${WEEKLY_GOAL} missions this week` };
 }
@@ -225,7 +245,7 @@ const PATHWAY_ACHIEVEMENTS = Object.freeze([
 ]);
 
 // 14 deterministic rules, derived from real outcomes. They cannot be awarded twice and none can be earned by repeating one easy activity.
-export function achievements({ missions = [], snapshot = null } = {}) {
+export function achievements({ missions = [], snapshot = null, timeZone = null } = {}) {
   const rows = missions.map(normaliseMission);
   const progress = snapshot ?? { passedStages:0, masteredPathways:new Set(), unitsMastered:0 };
   const pathwaysDone = new Set(rows.filter(row => row.kind === 'pathway' && row.pathwayId).map(row => row.pathwayId));
@@ -237,7 +257,7 @@ export function achievements({ missions = [], snapshot = null } = {}) {
     { id:'stage_climber', name:'Stage Climber', rule:'Pass 5 pathway stages', unlocked:progress.passedStages >= 5 },
     { id:'all_rounder', name:'All-Rounder', rule:'A mission in all six pathways', unlocked:VOCABULARY_PATHWAYS.every(pathway => pathwaysDone.has(pathway.id)) },
     ...PATHWAY_ACHIEVEMENTS.map(([id, name, pathwayId]) => ({ id, name, rule:`All five ${VOCABULARY_PATHWAYS.find(pathway => pathway.id === pathwayId)?.label ?? pathwayId} stages`, unlocked:progress.masteredPathways?.has?.(pathwayId) === true })),
-    { id:'steady_week', name:'Steady Week', rule:`${WEEKLY_GOAL} missions in one week`, unlocked:weeklyGoal(missions).weeksMet >= 1 },
+    { id:'steady_week', name:'Steady Week', rule:`${WEEKLY_GOAL} missions in one week`, unlocked:weeklyGoal(missions,new Date(),timeZone).weeksMet >= 1 },
     { id:'unit_master', name:'Unit Master', rule:'Master a whole unit', unlocked:progress.unitsMastered >= 1 }
   ];
   return list;
@@ -245,12 +265,12 @@ export function achievements({ missions = [], snapshot = null } = {}) {
 
 function missionXp(score) { return score >= 9 ? 20 : score >= 7 ? 15 : 10; }
 
-export function computeXp({ missions = [], snapshot = null } = {}) {
+export function computeXp({ missions = [], snapshot = null, timeZone = null } = {}) {
   const rows = missions.map(normaliseMission).sort(byTime);
   const perDay = new Map(); const perDayBucket = new Map();
   let missionXpTotal = 0; let personalBests = 0;
   rows.forEach((row, index) => {
-    const day = localDayKey(row.completedAt);
+    const day = localDayKey(row.completedAt,timeZone);
     const taperKey = `${day}|${row.kind === 'mixed' ? 'mixed' : `${row.pathwayId}|${row.stage}`}`;
     const seen = (perDayBucket.get(taperKey) ?? 0) + 1; perDayBucket.set(taperKey, seen);
     let xp = missionXp(row.score);
@@ -261,8 +281,8 @@ export function computeXp({ missions = [], snapshot = null } = {}) {
     missionXpTotal += xp;
     if (evaluateMission(rows.slice(0, index + 1), row.missionId)?.isPersonalBest) personalBests += 1;
   });
-  const unlocked = achievements({ missions, snapshot }).filter(item => item.unlocked).length;
-  const goal = weeklyGoal(missions);
+  const unlocked = achievements({ missions, snapshot, timeZone }).filter(item => item.unlocked).length;
+  const goal = weeklyGoal(missions,new Date(),timeZone);
   const parts = {
     missions:missionXpTotal,
     personalBests:personalBests * XP_RULES.personalBest,
