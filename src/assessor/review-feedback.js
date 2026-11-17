@@ -21,5 +21,23 @@ try {
     // A different task makes earlier feedback out of date.
     window.addEventListener('review-feedback-reset', () => feedback.clear());
     client.auth.onAuthStateChange(event => { if (event === 'SIGNED_OUT') feedback.dispose(); });
+  } else if (host && (profile.role === 'teacher' || profile.role === 'admin')) {
+    // Staff may inspect the writing workflow, but the AI-feedback endpoint permits student accounts only.
+    // Avoid a mysteriously missing panel when a teacher previews the Review tab.
+    const note = document.createElement('p');
+    note.className = 'review-feedback-staff-note';
+    note.textContent = 'AI writing feedback is available to students. Sign in with a student account to try it. The self-checks below are still available to teachers.';
+    host.replaceChildren(note);
   }
-} catch { /* the login gate in the page handles signed-out users */ }
+} catch (error) {
+  // The writing page's login gate handles authentication; surface other integration failures.
+  const host = document.getElementById('studentFeedbackHost');
+  if (host && document.documentElement.classList.contains('review-auth-ready')) {
+    const status = document.createElement('p');
+    status.className = 'review-feedback-staff-note';
+    status.setAttribute('role', 'status');
+    status.textContent = 'AI feedback could not load. Refresh the page or ask your teacher.';
+    host.replaceChildren(status);
+    console.error('Review feedback failed to initialise', error);
+  }
+}
