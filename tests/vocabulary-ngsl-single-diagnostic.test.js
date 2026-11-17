@@ -26,12 +26,22 @@ test('NGSL student renderer uses exactly four options, server-owned save and no 
  assert.match(source,/missedTargets/);
  assert.doesNotMatch(source,/A1.*B1.*C1/);
 });
-test('old diagnostic and CEFR scoring are not replaced by NGSL rollout',()=>{
+test('only NGSL scoring and student routing remain',()=>{
  const route=readFileSync(new URL('../src/vocabulary/router.js',import.meta.url),'utf8');
  const edge=readFileSync(new URL('../supabase/functions/vocabulary-diagnostic/index.ts',import.meta.url),'utf8');
  assert.match(route,/NGSL_BASELINE_GATE_ENABLED/);
  assert.match(route,/ngsl-status/);
  assert.match(edge,/vocabulary_ngsl_api/);
- assert.match(edge,/vocabulary_diagnostic_api/);
+ assert.doesNotMatch(edge,/vocabulary_diagnostic_api|scoreProvisionalDiagnostic/);
  assert.equal(typeof NGSL_BASELINE_GATE_ENABLED,'boolean');
+});
+
+
+test('Edge Function accepts valid NGSL numeric question IDs and rejects the legacy API',()=>{
+ const edge=readFileSync(new URL('../supabase/functions/vocabulary-diagnostic/index.ts',import.meta.url),'utf8');
+ const expected=['/^NGSL-',String.fromCharCode(92),'d{1,2}$/'].join('');
+ assert.ok(edge.includes(expected),'NGSL regex must contain exactly one digit escape');
+ assert.ok(!edge.includes(expected.replace('d{1,2}','\\d{1,2}')),'Double escaping would reject student submissions');
+ for(const action of ['review-form-preview','review-list','review-decision','review-forms','review-form-worklist'])
+   assert.ok(!edge.includes("'"+action+"'"),action+' must be retired');
 });

@@ -2,7 +2,6 @@ import { getSupabaseClient } from '../supabase.js';
 import { renderVocabularyError } from './views.js';
 import './foundational-interactions.js';
 import { redirectToHubSignIn, getSessionStorage } from '../return-target.js';
-import { DIAGNOSTIC_BASELINE_GATE_ENABLED, decideVocabularyEntry, DIAGNOSTIC_ENTRY_STATES } from './diagnostic-entry-gate.js?v=baseline-gate-v1';
 import {NGSL_BASELINE_GATE_ENABLED} from './ngsl-entry-policy.js?v=single-ngsl-v1';
 
 const root = document.getElementById('vocabularyApp');
@@ -17,7 +16,7 @@ async function routeVocabulary() {
     if (profileError || !profile?.active) { window.location.replace('./'); return; }
     const diagnosticWalkthroughRequested = new URLSearchParams(window.location.search).get('diagnostic-preview') === '1';
     if ((profile.role === 'teacher' || profile.role === 'admin') && diagnosticWalkthroughRequested) {
-      const { startDiagnosticTeacherPreview } = await import('./diagnostic-teacher-walkthrough.js?v=single-ngsl-v1');
+      const { startDiagnosticTeacherPreview } = await import('./diagnostic-teacher-walkthrough.js?v=ngsl-only-v2');
       await startDiagnosticTeacherPreview(root,client);
       return;
     }
@@ -33,7 +32,7 @@ async function routeVocabulary() {
     if (staff) {
       const status=root.querySelector('[data-vocab-loading-status]');
       if(status) status.textContent='Opening teacher analytics…';
-      const { initialiseVocabularyTeacher } = await import('./teacher-app.js?v=diagnostic-review-v1');
+      const { initialiseVocabularyTeacher } = await import('./teacher-app.js?v=single-ngsl-only-v1');
       await initialiseVocabularyTeacher({ root, client, profile });
       return;
     }
@@ -55,40 +54,6 @@ async function routeVocabulary() {
         if(ngslRequested||!status.completed){
           const {startNGSLDiagnostic}=await import('./ngsl-student.js?v=single-ngsl-v1');
           await startNGSLDiagnostic({root,client,onComplete:()=>window.location.replace('./vocabulary.html')});
-          return;
-        }
-      }
-      // Intentionally dormant until the bank, student assessment UI, rollout
-      // and server-side practice enforcement are verified and approved.
-      const voluntaryDiagnosticRequested = new URLSearchParams(window.location.search).get('diagnostic') === '1';
-      if (DIAGNOSTIC_BASELINE_GATE_ENABLED || voluntaryDiagnosticRequested) {
-        let decision=DIAGNOSTIC_ENTRY_STATES.STATUS_ERROR;
-        let diagnosticStatus=null;
-        try {
-          const {data,error}=await client.functions.invoke('vocabulary-diagnostic',{
-            body:{action:'status',payload:{}}
-          });
-          if (!error && data && typeof data.baselineCompleted==='boolean') {
-            diagnosticStatus=data;
-            decision=decideVocabularyEntry({
-              enabled:true,
-              baselineCompleted:data.baselineCompleted,
-              baselineSessionState:data.baselineSessionState??null,
-              baselineAssignmentId:data.baselineAssignmentId??null,
-              statusAvailable:true
-            });
-          }
-        } catch { /* A failed check never unlocks practice. */ }
-        if (decision!==DIAGNOSTIC_ENTRY_STATES.PRACTICE) {
-          if ((decision===DIAGNOSTIC_ENTRY_STATES.BASELINE_REQUIRED || decision===DIAGNOSTIC_ENTRY_STATES.BASELINE_IN_PROGRESS) && diagnosticStatus?.baselineAssignmentId) {
-            const {initialiseVocabularyDiagnostic}=await import('./diagnostic-student.js?v=pilot-ready-v2');
-            await initialiseVocabularyDiagnostic({root,client,assignmentId:diagnosticStatus.baselineAssignmentId,
-              sessionState:diagnosticStatus.baselineSessionState,
-              onComplete:()=>window.location.replace('./vocabulary.html')});
-          } else {
-            const {renderVocabularyBaselineGate}=await import('./diagnostic-gate-view.js?v=baseline-gate-v1');
-            renderVocabularyBaselineGate(root,decision);
-          }
           return;
         }
       }

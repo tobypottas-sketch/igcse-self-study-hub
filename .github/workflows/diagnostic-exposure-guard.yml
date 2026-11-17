@@ -16,5 +16,5 @@ jobs:
           node-version: '22'
       - name: Scan tracked (publicly served) files for diagnostic items and keys
         run: node tools/diagnostic/check-public-exposure.mjs
-      - name: Exposure and bank-lifecycle contract tests
-        run: node --test tests/vocabulary-diagnostic-public-exposure.test.js tests/vocabulary-diagnostic-bank-lifecycle.test.js
+      - name: NGSL public-bank exposure contract tests
+        run: node --test tests/vocabulary-diagnostic-public-exposure.test.js
