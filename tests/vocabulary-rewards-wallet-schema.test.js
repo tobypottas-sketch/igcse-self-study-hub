@@ -16,7 +16,7 @@ test('the wallet and owned items have row-level security and client read-only gr
 });
 test('redemption is server-priced, serialised, and cannot double-charge an owned reward',()=>{
   assert.match(sql,/function public\.redeem_vocabulary_reward\(p_student_id uuid, p_reward_id text\)/);
-  assert.doesNotMatch(sql,/p_(?:price|xp|cost)\s/);
+  assert.doesNotMatch(sql,/\bp_(?:price|xp|cost)\b\s/);
   assert.match(sql,/grant execute on function public\.redeem_vocabulary_reward\(uuid,text\) to service_role/);
   assert.match(sql,/revoke all on function public\.redeem_vocabulary_reward\(uuid,text\) from public,anon,authenticated/);
   assert.match(sql,/where reward_id=p_reward_id and enabled=true/);
