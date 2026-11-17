@@ -5,8 +5,8 @@ import { createAssessmentProgress } from './progress.js';
 import { requestFeedback, FeedbackError } from './student-client.js';
 import { PRIVACY_SUMMARY, PRIVACY_DETAIL, PRIVACY_CONSENT } from './student-privacy-notice.js';
 const el = (doc, tag, className, text) => { const node = doc.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = text; return node; };
-export function renderStudentFeedback(doc, feedback, { onRevise } = {}) {
-  const box = el(doc, 'div', 'sf-result');
+export function renderStudentFeedback(doc, feedback, { onRevise, compact = false } = {}) {
+  const box = el(doc, 'div', compact ? 'sf-result sf-result--compact' : 'sf-result');
   const panel = el(doc, 'section', 'sf-panel');
   panel.setAttribute('aria-label', 'Your feedback');
   const row = (kind, label) => { const r = el(doc, 'div', 'sf-row sf-row--' + kind); r.append(el(doc, 'h3', 'sf-label', label)); return r; };
@@ -15,21 +15,21 @@ export function renderStudentFeedback(doc, feedback, { onRevise } = {}) {
   const sc = feedback.scores;
   if (sc && !feedback.partial) {
     const tile = (name, value, max, total) => { const t = el(doc, 'div', 'sf-score__tile' + (total ? ' sf-score__tile--total' : '')); const v = el(doc, 'p', 'sf-score__value'); v.append(el(doc, 'strong', '', String(value)), el(doc, 'span', '', '/' + max)); t.append(el(doc, 'p', 'sf-score__name', name), v); return t; };
-    const grid = el(doc, 'div', 'sf-score__grid'); grid.append(tile('Content', sc.content, 6), tile('Language', sc.language, 9), tile('Total', sc.total, 15, true));
-    scoreBlock.append(el(doc, 'h3', 'sf-label', 'AI-estimated score'), grid, el(doc, 'p', 'sf-score__note', 'An AI estimate to guide your revision. It is not an official Cambridge mark.'));
+    const grid = el(doc, 'div', 'sf-score__grid'); grid.append(...(compact ? [tile('Total', sc.total, 15, true), tile('Content', sc.content, 6), tile('Language', sc.language, 9)] : [tile('Content', sc.content, 6), tile('Language', sc.language, 9), tile('Total', sc.total, 15, true)]));
+    scoreBlock.append(el(doc, 'h3', 'sf-label', 'AI-estimated score'), grid, el(doc, 'p', 'sf-score__note', compact ? 'AI estimate · not a Cambridge mark' : 'An AI estimate to guide your revision. It is not an official Cambridge mark.'));
   } else {
     scoreBlock.classList.add('sf-score--none'); scoreBlock.append(el(doc, 'h3', 'sf-label', 'AI-estimated score'), el(doc, 'p', 'sf-score__unavailable', 'Score unavailable'));
   }
   panel.append(scoreBlock);
   if (feedback.partial) {
     const r = el(doc, 'div', 'sf-row sf-row--notice');
-    r.append(el(doc, 'h3', 'sf-label', 'No specific feedback this time'), el(doc, 'p', 'sf-advice', 'We only show comments we can match to your exact words, and we could not do that for this version. This does not mean your writing has no mistakes. Try again after revising, or check it with your teacher.'));
+    r.append(el(doc, 'h3', 'sf-label', 'No specific feedback this time'), el(doc, 'p', 'sf-advice', compact ? 'No reliable corrections found. Revise your writing or ask your teacher.' : 'We only show comments we can match to your exact words, and we could not do that for this version. This does not mean your writing has no mistakes. Try again after revising, or check it with your teacher.'));
     panel.append(r);
   } else {
     const n = feedback.lengthNotice;
     if (n) {
       const target = Number.isInteger(n.maximum) ? n.minimum + '\u2013' + n.maximum : 'at least ' + n.minimum;
-      panel.append(el(doc, 'p', 'sf-length', n.wordCount + ' words: the task asks for ' + target + '. Add a reason, example or detail to each point to develop your ideas.'));
+      panel.append(el(doc, 'p', 'sf-length', compact ? n.wordCount + ' words · target ' + target : n.wordCount + ' words: the task asks for ' + target + '. Add a reason, example or detail to each point to develop your ideas.'));
     }
     const best = feedback.strengths[0];
     if (best) { const r = row('good', 'Strength'); r.append(quote(best.quote), el(doc, 'p', 'sf-advice', best.advice)); panel.append(r); }
@@ -54,18 +54,18 @@ export function renderStudentFeedback(doc, feedback, { onRevise } = {}) {
     }
     if (feedback.nextStep) { const r = row('next', 'Next step'); r.append(el(doc, 'p', 'sf-advice', feedback.nextStep)); panel.append(r); }
   }
-  panel.append(el(doc, 'p', 'sf-note', 'Based on the version you just sent. This is not a full list of mistakes, and AI can make errors, so check anything that seems wrong with your teacher.'));
+  panel.append(el(doc, 'p', 'sf-note', compact ? 'AI may make mistakes. Check with your teacher.' : 'Based on the version you just sent. This is not a full list of mistakes, and AI can make errors, so check anything that seems wrong with your teacher.'));
   box.append(panel);
   if (onRevise) { const b = el(doc, 'button', 'sf-button sf-revise', 'Revise my writing'); b.type = 'button'; b.addEventListener('click', onRevise); box.append(b); }
   return box;
 }
 export function mountStudentFeedback(host, options) {
   const doc = host.ownerDocument; const win = doc.defaultView;
-  const { app, getTask, getResponse, getClient, onRevise, onBusyChange, request = requestFeedback, progressOptions = {}, label = 'Get My Feedback' } = options;
+  const { app, getTask, getResponse, getClient, onRevise, onBusyChange, request = requestFeedback, progressOptions = {}, compact = false, label = 'Get My Feedback' } = options;
   let busy = false, disposed = false, generation = 0, pending = null, count = 0;
   const section = el(doc, 'section', 'student-feedback');
   const title = el(doc, 'h2', 'sf-title', 'Get feedback on your writing');
-  const lead = el(doc, 'p', 'sf-lead', 'Get an AI-estimated score, a strength, up to two corrections and one next step. Then revise and ask again.');
+  const lead = el(doc, 'p', 'sf-lead', compact ? 'See your score, fix one thing, then revise.' : 'Get an AI-estimated score, a strength, up to two corrections and one next step. Then revise and ask again.');
   const privacy = el(doc, 'details', 'sf-privacy'); privacy.append(el(doc, 'summary', '', 'How your writing is used'), el(doc, 'p', '', PRIVACY_SUMMARY));
   const list = el(doc, 'ul', 'sf-privacy-list'); PRIVACY_DETAIL.forEach(t => list.append(el(doc, 'li', '', t))); privacy.append(list);
   const consentLabel = el(doc, 'label', 'sf-consent'); const box = el(doc, 'input'); box.type = 'checkbox'; consentLabel.append(box, el(doc, 'span', '', PRIVACY_CONSENT));
@@ -93,7 +93,7 @@ export function mountStudentFeedback(host, options) {
       if (disposed || current !== generation) return;
       await progress.succeed();
       if (disposed || current !== generation) return;
-      count++; result.append(renderStudentFeedback(doc, feedback, { onRevise })); say('Your feedback is ready.', 'ok');
+      count++; result.append(renderStudentFeedback(doc, feedback, { onRevise, compact })); say(compact ? '' : 'Your feedback is ready.', 'ok');
     } catch (error) {
       if (disposed || current !== generation || error?.name === 'AbortError') return;
       const message = error instanceof FeedbackError ? error.message : 'We could not get your feedback this time. Your writing is still here and nothing was saved. Please try again in a minute.';
