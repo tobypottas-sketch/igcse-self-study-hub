@@ -6,6 +6,15 @@
 - All reward catalog rows default to `enabled=false`. No student has a spendable balance.
 - Existing mission rows, XP calculation, achievements, level, mastery and merits remain unchanged.
 
+## New implementation in this PR
+- `supabase/functions/vocabulary-reward-xp-audit/index.ts`: authenticated, read-only student XP audit. It fetches database-owned missions, mastery, occurrences and published pathway memberships; runs the existing `computeXp()`/`progressSnapshot()` code and returns a breakdown. **Not deployed. Does not write a wallet.**
+- `supabase/functions/vocabulary-reward-shop/index.ts`: authenticated shop API. Status requests use student RLS; purchase/equip requests are blocked unless the server-only `VOCAB_REWARDS_ENABLE_PURCHASES=true` flag is set. The flag must stay unset in production while parity is unverified. **Not deployed.**
+- Proposed purchase/equip functions in `phase-2-wallet-schema.sql` now run as `SECURITY INVOKER` and grant EXECUTE to `service_role` only. The shop Edge function authenticates a student JWT and passes the authenticated ID to those privileged functions; browser-supplied IDs and prices are never accepted.
+- New Node tests cover the XP rules, catalogue consistency and the intended API/security contract. Their actual execution, staging and live authenticated verification are still required.
+
+## Critical limitation
+The XP audit currently computes day and week boundaries in its server runtime timezone, whereas the existing browser XP model uses the browser's local timezone. It also registers all published pathway coverage, whereas the browser lazily registers it. **Do not use audited totals for real credits until a parity investigation resolves these differences and verifies existing students' lifetime XP.** This is why reward funding and purchases remain off.
+
 ## Why XP must be reconciled first
 Current `computeXp()` in `src/vocabulary/engagement-model.js` is a derived client calculation, not an account balance.
 
