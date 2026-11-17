@@ -73,18 +73,13 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
    return '<span><b>Band '+b+'</b> '+(Number.isInteger(n)&&n>=0&&n<=10?n+'/10':'—')+'</span>';
   }).join('');
   const foundation=foundationLevel(correct);
-  const firstNeedsWork=BANDS.find(b=>Number(result?.bandScores?.[String(b)]?.correct)<8);
-  const nextStep=firstNeedsWork
-   ?'Start by reviewing missed words from Band '+firstNeedsWork+'.'
-   :'Review any missed words and keep practising across all frequency bands.';
   const missed=Array.isArray(result?.missedTargets)?result.missedTargets:[];
   const words=missed.map(x=>e(x.target)).filter(Boolean);
   shell('<section class="diag-hero"><p class="diag-kicker">ASSESSMENT COMPLETE</p>'
     +'<h1>Your NGSL vocabulary profile</h1>'
     +'<div class="ngsl-score"><strong>'+correct+'/50</strong><span>'+e(result.percentage)+'%</span></div>'
     +'<div class="ngsl-foundation"><strong>'+e(foundation.label)+' vocabulary foundation</strong>'
-    +'<p>'+e(foundation.message)+'</p><p class="ngsl-next-step"><b>Your next step:</b> '+e(nextStep)+'</p></div>'
-    +'<p class="ngsl-band-explainer">NGSL Bands 1–5 group words by frequency, from more common to less common. Each band shows how many of its 10 selected words you recognised.</p>'
+    +'<p>'+e(foundation.message)+'</p></div>'
     +'<div class="ngsl-band-results">'+bands+'</div>'
     +(words.length?'<h2>Words to practise</h2><p class="ngsl-missed">'+words.join(', ')+'</p>':
       '<p>Excellent work — no missed targets in this assessment.</p>')
