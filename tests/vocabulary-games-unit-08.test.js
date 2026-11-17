@@ -445,15 +445,15 @@ const startServer = () => new Promise(resolve => {
   const types = { '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png' };
   const server = http.createServer((req, res) => {
     const url = decodeURIComponent(req.url.split('?')[0]);
-    if (url === '/__games7.html') {
+    if (url === '/__games8.html') {
       const css = [...read('vocabulary.html').matchAll(/href="([^"]+\.css)"/g)].map(m => `<link rel="stylesheet" href="/${m[1]}">`).join('');
       res.setHeader('content-type', 'text/html');
       return res.end(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${css}</head><body><div id="vocabularyApp"></div><script type="module">
-import { renderVocabularyUnit } from '/src/vocabulary/views.js'; import { mountGames } from '/src/vocabulary/games/games-controller.js'; import unit from '/content/vocabulary/units/unit-07.js';
+import { renderVocabularyUnit } from '/src/vocabulary/views.js'; import { mountGames } from '/src/vocabulary/games/games-controller.js'; import unit from '/content/vocabulary/units/unit-08.js';
 window.__fetches = 0; const f = window.fetch; window.fetch = (...a) => { window.__fetches += 1; return f(...a); };
 window.__exits = 0; window.__t = 0;
-window.__unit = () => renderVocabularyUnit(document.getElementById('vocabularyApp'), { unitNumber: 7, unitTitle: unit.unitTitle, progress: { mastered: 0, total: 50, needsAnotherLook: 0, reviewDue: 0, stages: {} }, pathwayStates: {}, contentReady: true });
-window.__mount = game => { window.__g = mountGames(document.getElementById('vocabularyApp'), { content: unit, unitNumber: 7, game, now: () => window.__t, rng: () => 0.37, onExit: () => { window.__exits += 1; } }); };
+window.__unit = () => renderVocabularyUnit(document.getElementById('vocabularyApp'), { unitNumber: 8, unitTitle: unit.unitTitle, progress: { mastered: 0, total: 50, needsAnotherLook: 0, reviewDue: 0, stages: {} }, pathwayStates: {}, contentReady: true });
+window.__mount = game => { window.__g = mountGames(document.getElementById('vocabularyApp'), { content: unit, unitNumber: 8, game, now: () => window.__t, rng: () => 0.37, onExit: () => { window.__exits += 1; } }); };
 window.__ready = true;</script></body></html>`);
     }
     const file = path.join(repo, url);
@@ -466,7 +466,7 @@ window.__ready = true;</script></body></html>`);
 browserTest('in a browser: both Unit 8 games launch from the overview, play, restart, navigate back, never overflow at 1280/390/320, and make no network or progression calls', async () => {
   const playwright = loadPlaywright(); const browser = await playwright.chromium.launch({ executablePath: await findChromium() }); const { server, url } = await startServer();
   try {
-    const open = async (w, h, reducedMotion = 'no-preference') => { const page = await browser.newPage({ viewport: { width: w, height: h }, reducedMotion }); const requests = []; page.on('request', r => requests.push(r.url())); page.on('pageerror', e => { throw e; }); await page.goto(`${url}/__games7.html`); await page.waitForFunction(() => window.__ready); page.requests = requests; return page; };
+    const open = async (w, h, reducedMotion = 'no-preference') => { const page = await browser.newPage({ viewport: { width: w, height: h }, reducedMotion }); const requests = []; page.on('request', r => requests.push(r.url())); page.on('pageerror', e => { throw e; }); await page.goto(`${url}/__games8.html`); await page.waitForFunction(() => window.__ready); page.requests = requests; return page; };
     const overflow = page => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     for (const [w, h, rm] of [[1280, 720, 'no-preference'], [390, 844, 'no-preference'], [320, 640, 'no-preference'], [390, 844, 'reduce']]) {
       const page = await open(w, h, rm); const where = `${w}/${rm}`;
