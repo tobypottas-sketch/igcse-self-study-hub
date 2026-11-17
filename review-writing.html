@@ -88,10 +88,20 @@ fieldset{min-width:0;border:0;margin:0;padding:0}.label{display:block;font-size:
 #view-write .writing-section .clear-section{color:#5a7480;border-color:#d8e4e5}
 @media(max-width:680px){#view-write .draft-plan-notes{grid-template-columns:1fr}#view-write .writing-section .section-head{align-items:flex-start}#view-write .writing-section .clear-section{flex:0 0 auto}}
 .review-feedback-staff-note{margin:0 0 16px;padding:15px 18px;border:1px solid #bddce1;border-radius:12px;background:#eef7fa;color:#21516a;font-weight:650;line-height:1.5}
+
+/* Review page: AI feedback first; optional legacy checks remain accessible. */
+#view-review .review-extra-checks{margin:4px 0 18px;border:1px solid #d4e5e8;border-radius:14px;background:#fff;overflow:hidden}
+#view-review .review-extra-checks>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;padding:14px 18px;color:#24516b;font-weight:800;list-style:none}
+#view-review .review-extra-checks>summary::-webkit-details-marker{display:none}
+#view-review .review-extra-checks>summary:after{content:"+";font-size:1.3rem;color:#0b7375}
+#view-review .review-extra-checks[open]>summary:after{content:"−"}
+#view-review .review-extra-hint{font-size:.78rem;font-weight:500;color:#57717d;margin-left:auto}
+#view-review .review-extra-checks>.card{margin:0 12px 12px;box-shadow:none}
+@media(max-width:600px){#view-review .review-extra-hint{display:none}}
 </style>
 <style>html:not(.review-auth-ready) body{visibility:hidden}</style>
 <link rel="stylesheet" href="assessment-progress.css">
-<link rel="stylesheet" href="student-feedback.css?v=schoolwide-feedback-v1">
+<link rel="stylesheet" href="student-feedback.css?v=review-concise-v1">
 <script type="module">
 import {getSupabaseClient} from './src/supabase.js';
 import {getCurrentProfile} from './src/auth.js';
@@ -185,9 +195,11 @@ try {
 <div id="reviewReady" class="hidden">
 <div class="task-change-note no-print" data-task-note role="status" hidden></div>
 <div id="studentFeedbackHost"></div>
+<details class="review-extra-checks"><summary>More writing checks <span class="review-extra-hint">Word count · 3 writing targets · self-check</span></summary>
 <div class="card"><div class="card-head"><h2 id="reviewHeading">Writing snapshot</h2></div><div class="card-body"><div class="snapshot"><div class="metric"><span>Words written</span><strong id="snapshotWords">0</strong></div><div class="metric"><span>Sections started</span><strong id="snapshotSections">0 / 4</strong></div><div class="metric"><span>Task relevance</span><strong>Not assessed</strong></div></div><p class="hint">These are observable writing features, not Cambridge marks or automated judgements of quality.</p></div></div>
 <div class="card"><div class="card-head"><h2>Three writing targets</h2></div><div class="card-body"><p class="notice" id="reviewContext">Use these suggestions to revise your work. Any advice about content quality is labelled as a self-check.</p><ol class="targets" id="feedbackTargets"></ol></div></div>
 <div class="card"><div class="card-head"><h2>Review writing self-check</h2></div><div class="card-body"><div class="observations" id="reviewObservations"></div></div></div>
+</details>
 <div class="actions"><button class="btn ghost" data-next="write">← Back to writing</button><button class="btn primary" data-next="preview">Final preview →</button></div>
 </div>
 </section>
@@ -730,6 +742,6 @@ window.reviewWritingFeedbackSource=()=>({task:currentPrompt(),sections:Object.ke
 questionCombo=enhanceQuestionSelect($('questionSelect'));
 load();
 </script>
-<script type="module" src="./src/assessor/review-feedback.js?v=schoolwide-feedback-v1"></script>
+<script type="module" src="./src/assessor/review-feedback.js?v=review-concise-v1"></script>
 </body>
 </html>

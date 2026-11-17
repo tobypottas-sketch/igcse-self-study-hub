@@ -1,7 +1,7 @@
 // Review Writing → shared student feedback. Loaded by review-writing.html after its login gate.
 import { getSupabaseClient } from '../supabase.js';
 import { getCurrentProfile } from '../auth.js';
-import { mountStudentFeedback } from './student-feedback.js';
+import { mountStudentFeedback } from './student-feedback.js?v=review-concise-v1';
 import { STUDENT_FEEDBACK_UI_ENABLED } from './student-feedback-flag.js';
 import { reviewTaskText, reviewResponseText } from './writing-app-adapters.js';
 try {
@@ -11,7 +11,7 @@ try {
   const host = document.getElementById('studentFeedbackHost');
   if (host && profile.role === 'student' && profile.active === true && !profile.must_change_password) {
     const feedback = mountStudentFeedback(host, {
-      app: 'review', getClient: () => client,
+      app: 'review', compact: true, getClient: () => client,
       // Task controls stay locked while a request is running, so it is never cancelled by a task change.
       onBusyChange: busy => window.dispatchEvent(new CustomEvent('review-feedback-busy', { detail: { busy } })),
       getTask: () => { const s = window.reviewWritingFeedbackSource(); return reviewTaskText(s.task); },
