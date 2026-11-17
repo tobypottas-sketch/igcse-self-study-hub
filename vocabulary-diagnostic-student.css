@@ -439,3 +439,14 @@ body:has(#vocabularyApp .diag-player){
  #vocabularyApp .ngsl-welcome .diag-actions{justify-content:stretch}
  #vocabularyApp .ngsl-welcome .diag-primary{width:100%}
 }
+
+/* Welcome facts mirror the three distinct result-card palettes. */
+#vocabularyApp .ngsl-welcome .ngsl-welcome-facts>span:nth-child(1){background:#e4f5f6;border-color:#91ced1}
+#vocabularyApp .ngsl-welcome .ngsl-welcome-facts>span:nth-child(1) strong,
+#vocabularyApp .ngsl-welcome .ngsl-welcome-facts>span:nth-child(1) small{color:#0b6c71}
+#vocabularyApp .ngsl-welcome .ngsl-welcome-facts>span:nth-child(2){background:#e9f2ff;border-color:#a5c7f5}
+#vocabularyApp .ngsl-welcome .ngsl-welcome-facts>span:nth-child(2) strong,
+#vocabularyApp .ngsl-welcome .ngsl-welcome-facts>span:nth-child(2) small{color:#255c9f}
+#vocabularyApp .ngsl-welcome .ngsl-welcome-facts>span:nth-child(3){background:#f0edff;border-color:#c5b5f1}
+#vocabularyApp .ngsl-welcome .ngsl-welcome-facts>span:nth-child(3) strong,
+#vocabularyApp .ngsl-welcome .ngsl-welcome-facts>span:nth-child(3) small{color:#634aa3}
