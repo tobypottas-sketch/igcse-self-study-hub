@@ -28,7 +28,7 @@ function showTeacherLoading(message) {
 function renderClassChooser() {
   const classes = teacherState.data?.classes ?? [];
   const cards = classes.map(row => `<button class="vocab-class-card" data-action="teacher-open-class" data-class-id="${escapeHtml(row.id)}"><span class="vocab-class-card__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.5 5.75A2.25 2.25 0 0 1 6.75 3.5H12v15.75H6.75A2.25 2.25 0 0 0 4.5 21.5V5.75Zm15 0a2.25 2.25 0 0 0-2.25-2.25H12v15.75h5.25a2.25 2.25 0 0 1 2.25 2.25V5.75Z"/></svg></span><span class="vocab-class-card__eyebrow">Class</span><strong class="vocab-class-card__title">${escapeHtml(row.className)}</strong><span class="vocab-class-card__count">${escapeHtml(row.students.length)} students</span><span class="vocab-class-card__cta">Open analytics →</span></button>`).join('') || '<p class="vocab-empty">No classes are currently available to this account.</p>';
-  teacherState.root.innerHTML = `<main class="vocab-shell vocab-class-chooser"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Teacher analytics</span></header><section class="vocab-teacher-hero vocab-class-chooser__hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase</p><h1>Choose a class</h1><p>Open the class that needs your attention.</p><div class="vocab-teacher-actions"><button type="button" class="vocab-button vocab-button--primary" data-action="teacher-open-diagnostic">Diagnostic results</button><button type="button" class="vocab-button" data-action="teacher-open-usage">Usage overview</button><a class="vocab-button" href="./vocabulary.html?preview=1">Preview student activities</a><a class="vocab-button" href="./vocabulary.html?diagnostic-preview=1">Preview NGSL diagnostic · 50 questions</a></div></section><section class="vocab-class-chooser__grid">${cards}</section></main>`;
+  teacherState.root.innerHTML = `<main class="vocab-shell vocab-class-chooser"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Teacher analytics</span></header><section class="vocab-teacher-hero vocab-class-chooser__hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase</p><h1>Choose a class</h1><p>Open the class that needs your attention.</p><div class="vocab-teacher-actions"><button type="button" class="vocab-button vocab-button--primary" data-action="teacher-open-diagnostic" data-initial-class="all">Diagnostic results</button><button type="button" class="vocab-button" data-action="teacher-open-usage">Usage overview</button><a class="vocab-button" href="./vocabulary.html?preview=1">Preview student activities</a><a class="vocab-button" href="./vocabulary.html?diagnostic-preview=1">Preview NGSL diagnostic · 50 questions</a></div></section><section class="vocab-class-chooser__grid">${cards}</section></main>`;
 }
 
 async function openNGSLReport(initialClassId) {
@@ -391,7 +391,7 @@ function handleClick(event) {
   const target = event.target?.closest?.('[data-action]');
   const action = target?.dataset?.action;
   if (!action) return;
-  if (action === 'teacher-open-diagnostic') void openNGSLReport(teacherState.currentClass?.id??'all').catch(showError);
+  if (action === 'teacher-open-diagnostic') void openNGSLReport(target.dataset.initialClass??teacherState.currentClass?.id??'all').catch(showError);
   else if (action === 'ngsl-report-back') backFromNGSLReport();
   else if (action === 'teacher-open-usage') void openStaffUsage().catch(showError);
   else if (action === 'staff-usage-back') returnFromStaffUsage();
