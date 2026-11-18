@@ -55,7 +55,7 @@ test('all 12 rewards and the banner use genuine committed PNGs, not vector place
  assert.match(rewardIllustration('forest'),/forest\\.png/);
  assert.match(rewardIllustration('gold-frame'),/gold-frame\\.png/);
  assert.match(bannerIllustration,/shop-banner\\.png/);
- assert.doesNotMatch(bannerIllustration,/<svg|https?:\\/\\//);
+ assert.doesNotMatch(bannerIllustration,/<svg|https?:/);
 });
 test('untrusted student names and catalogue descriptions are escaped',()=>{
  const root={innerHTML:''};
