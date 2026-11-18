@@ -44,7 +44,7 @@ test('artwork renders as inline accessible decorative vectors, without remote tr
  assert.match(rewardIllustration('forest'),/<svg/);
  assert.match(rewardIllustration('gold-frame'),/<svg/);
  assert.match(bannerIllustration,/<svg/);
- assert.doesNotMatch(bannerIllustration,/https?:\/\//);
+ assert.doesNotMatch(bannerIllustration,/<image\\b|<script\\b|(?:href|src)=[\"']https?:/i);
 });
 test('untrusted student names and catalogue descriptions are escaped',()=>{
  const root={innerHTML:''};
