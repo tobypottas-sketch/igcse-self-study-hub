@@ -67,7 +67,7 @@ export function renderSandboxShop(root,shop,{category='all',busy=false,message='
       <div class="vocab-shop-hero__scene">${banner}</div>
       <div class="vocab-shop-hero__balance"><span aria-hidden="true">⭐</span><strong>${format(available)} XP</strong><small>Sandbox available</small></div>
     </section>
-    <p class="vocab-shop-test-note" role="note">Test mode · 100,000 sample XP allocated to this account. Rewards never affect answers, levels or genuine learning XP.</p>
+    <p class="vocab-shop-test-note" role="note">Test credits only · Sandbox balance is separate from learning XP. Rewards never affect answers, levels or genuine learning XP.</p>
     <p class="vocab-sandbox-feedback" role="status" aria-live="polite">${escapeHtml(message)}</p>
     <div class="vocab-shop-content">
       <aside class="vocab-shop-sidebar" aria-label="Your real learning progress">
