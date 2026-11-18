@@ -14,7 +14,7 @@ test('real and sandbox cards live in separate containers of one homepage section
  assert.match(layout,/data-rewards-dashboard-main/);
  assert.match(layout,/data-rewards-dashboard-side/);
  assert.match(layout,/home\.querySelector\('\.vocab-unit-grid'\)/);
- assert.match(layoutCss,/grid-template-columns:minmax\(0,1fr\) minmax\(235px,275px\)/);
+ assert.match(layoutCss,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 });
 test('primary shop uses real XP and unchanged real action with approved PNG',()=>{
  assert.match(app,/assets\/vocabulary\/rewards\/word-explorer\.png/);
