@@ -42,7 +42,7 @@ async function routeVocabulary() {
     if (staff) {
       const status=root.querySelector('[data-vocab-loading-status]');
       if(status) status.textContent='Opening teacher analytics…';
-      const { initialiseVocabularyTeacher } = await import('./teacher-app.js?v=ngsl-class-results-v1');
+      const { initialiseVocabularyTeacher } = await import('./teacher-app.js?v=ngsl-integrity-v1');
       await initialiseVocabularyTeacher({ root, client, profile });
       return;
     }
@@ -62,7 +62,7 @@ async function routeVocabulary() {
           return;
         }
         if(ngslRequested||!status.completed){
-          const {startNGSLDiagnostic}=await import('./ngsl-student.js?v=ngsl-welcome-v1');
+          const {startNGSLDiagnostic}=await import('./ngsl-student.js?v=ngsl-integrity-v1');
           await startNGSLDiagnostic({root,client,onComplete:()=>window.location.replace('./vocabulary.html')});
           return;
         }
