@@ -3,13 +3,14 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {aggregateCohortAudit,renderCohortAudit} from '../src/vocabulary/cohort-xp-audit-screen.js';
 
-const summary={withMissions:6,zeroXp:2,timeZoneSensitive:1,missingWallets:8,walletDiscrepancies:0,earnedXpSum:1570};
+const component=x=>({missions:x,personalBests:0,weeklyGoals:0,achievements:0,stageClears:0,pathwayMasteries:0,unitMasteries:0});
+const summary={withMissions:6,zeroXp:2,timeZoneSensitive:1,missingWallets:8,walletDiscrepancies:0,earnedXpSum:1570,withoutMissionsWithXp:1,masteryWithoutMissions:2,components:component(1570)};
 const first={ok:true,auditOnly:true,readyForWalletFunding:false,page:0,examined:8,totalStudents:10,more:true,summary};
 const second={ok:true,auditOnly:true,readyForWalletFunding:false,page:1,examined:2,totalStudents:10,more:false,
- summary:{withMissions:1,zeroXp:0,timeZoneSensitive:0,missingWallets:2,walletDiscrepancies:0,earnedXpSum:270}};
+ summary:{withMissions:1,zeroXp:0,timeZoneSensitive:0,missingWallets:2,walletDiscrepancies:0,earnedXpSum:270,withoutMissionsWithXp:1,masteryWithoutMissions:1,components:component(270)}};
 test('read-only scan aggregates complete student cohort',()=>{
  assert.deepEqual(aggregateCohortAudit([first,second]),{
- examined:10,totalStudents:10,withMissions:7,zeroXp:2,timeZoneSensitive:1,missingWallets:10,walletDiscrepancies:0,earnedXpSum:1840,pages:2
+ examined:10,totalStudents:10,withMissions:7,zeroXp:2,timeZoneSensitive:1,missingWallets:10,walletDiscrepancies:0,earnedXpSum:1840,withoutMissionsWithXp:2,masteryWithoutMissions:3,components:component(1840),pages:2
  });
 });
 test('refuses incomplete batches, invalid summary totals or funding-enabled responses',()=>{
@@ -23,6 +24,8 @@ test('admin screen renders a safe read-only audit, not a credit button',()=>{
  assert.match(root.innerHTML,/Student XP reconciliation/);
  assert.match(root.innerHTML,/10 of 10 students checked/);
  assert.match(root.innerHTML,/Wallets not initialised/);
+ assert.match(root.innerHTML,/Where student XP comes from/);
+ assert.match(root.innerHTML,/Earned XP without missions/);
  assert.match(root.innerHTML,/Run audit again/);
  assert.doesNotMatch(root.innerHTML,/data-action="fund-wallets"|data-action="credit-xp"/);
 });
@@ -40,4 +43,9 @@ test('teacher navigation and router restrict admin audit path',()=>{
  assert.match(router,/cohortAuditRequested && profile.role !== 'admin'/);
  assert.match(teacher,/teacherState\.profile\?\.role==='admin'/);
  assert.match(teacher,/xp-cohort-audit=1/);
+});
+
+test('component breakdown fails closed on missing or mismatched XP components',()=>{
+ assert.throws(()=>aggregateCohortAudit([{...first,summary:{...summary,components:component(1560)}},second]),/reconcile/);
+ assert.throws(()=>aggregateCohortAudit([{...first,summary:{...summary,components:null}},second]),/invalid XP component/);
 });
