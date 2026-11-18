@@ -6,7 +6,7 @@ const reply=(data,status=200)=>Response.json(data,{status,headers:{...cors,'Cach
 const valid=(v)=>typeof v==='string'&&v.length>0;
 const configured=(name,fallback)=>{const direct=Deno.env.get(name);if(direct)return direct;const raw=Deno.env.get(fallback);if(!raw)return null;try{const parsed=JSON.parse(raw);return parsed.default||Object.values(parsed).find(v=>typeof v==='string')||null}catch{return null}};
 function shortName(value){const bits=String(value||'Student').trim().replace(/[<>]/g,'').split(/\s+/).filter(Boolean);if(!bits.length)return 'Student';return bits.length===1?bits[0].slice(0,20):bits[0].slice(0,16)+' '+bits.at(-1).slice(0,1).toUpperCase()+'.'}
-function day(date){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(date))}
+function day(date){const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(date));const val=key=>parts.find(x=>x.type===key)?.value||'00';return val('year')+'-'+val('month')+'-'+val('day')}
 function weekStart(){const parts=day(new Date()).split('-').map(Number);const dt=new Date(Date.UTC(parts[0],parts[1]-1,parts[2]));dt.setUTCDate(dt.getUTCDate()-(dt.getUTCDay()+6)%7);return dt.toISOString().slice(0,10)}
 function scores(missions,studentIds){
  const group=new Map(studentIds.map(id=>[id,[]]));for(const row of missions)group.get(row.student_id)?.push(row);
