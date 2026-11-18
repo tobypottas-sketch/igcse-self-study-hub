@@ -90,6 +90,7 @@ export function renderSandboxShop(root,shop,{category='all',busy=false,message='
     <p class="vocab-shop-test-note" role="note">Test credits only · Sandbox balance is separate from learning XP. Rewards never affect answers, levels or genuine learning XP.</p>
     <p class="vocab-sandbox-feedback" role="status" aria-live="polite">${escapeHtml(message)}</p>
     <div class="vocab-shop-content">
+      <div class="vocab-shop-rail">
       <aside class="vocab-shop-sidebar" aria-label="Your real learning progress">
         <h2>Your Progress</h2><div class="vocab-shop-level-mark"><span>Lv.</span><strong>${num(level)}</strong></div>
         <strong class="vocab-shop-student-name">${escapeHtml(studentName)}</strong><small class="vocab-shop-student-title">${escapeHtml(selectedTitle)}</small>
@@ -100,6 +101,7 @@ export function renderSandboxShop(root,shop,{category='all',busy=false,message='
         <div class="vocab-shop-next"><h3>✧ Next unlock</h3>${nextGoal}</div>
       </aside>
       <div class="vocab-shop-leaderboard-slot">${leaderboardPanel(leaderboard,leaderboardView)}</div>
+      </div>
       <section class="vocab-shop-main" aria-label="Shop rewards">
         <div class="vocab-shop-filter-line"><nav class="vocab-rewards-filters" aria-label="Filter rewards">${tabs}</nav>
           <button type="button" class="vocab-shop-popular${category==='popular'?' is-active':''}" data-action="sandbox-filter" data-category="popular" aria-pressed="${category==='popular'}">🔥 Popular picks</button></div>
