@@ -12,9 +12,13 @@ export function renderLogin(root, message = '') {
           <label>Email
             <input name="email" type="email" autocomplete="username" required>
           </label>
-          <label>Password
-            <input name="password" type="password" autocomplete="current-password" required>
-          </label>
+          <div class="auth-password-field">
+            <label for="hub-login-password">Password</label>
+            <div class="auth-password-control">
+              <input id="hub-login-password" name="password" type="password" autocomplete="current-password" required>
+              <button type="button" class="auth-password-toggle" data-action="toggle-login-password" aria-label="Show password" aria-controls="hub-login-password" aria-pressed="false">Show</button>
+            </div>
+          </div>
           <button class="button button--primary" type="submit">Sign in</button>
           <p class="muted">Lost your login details? Ask your teacher.</p>
         </form>
