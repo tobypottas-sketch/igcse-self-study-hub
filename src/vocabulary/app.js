@@ -309,6 +309,21 @@ async function revealSandboxEntry(){
   if(progress)progress.insertAdjacentElement('afterend',entry);
   else home.querySelector('.vocab-hero')?.insertAdjacentElement('afterend',entry);
 }
+// Wallet sync is deliberately separate from the UI's locally displayed XP.
+// Only the authenticated server calculates and writes verified earnings.
+let verifiedWalletSyncBusy=false;
+async function refreshVerifiedRewardWallet(){
+  if(verifiedWalletSyncBusy||state.preview||state.profile?.role!=='student'||!state.client)return;
+  verifiedWalletSyncBusy=true;
+  try{
+    const {data,error}=await state.client.functions.invoke('vocabulary-reward-wallet-sync',{body:{action:'sync'}});
+    if(error||data?.ok!==true||data?.synchronised!==true)
+      throw new Error('Verified rewards wallet unavailable');
+    // Never overwrite the student's academic XP or progress using shop balances.
+  }catch(error){
+    console.warn('Verified rewards XP will be retried on next home load.');
+  }finally{verifiedWalletSyncBusy=false;}
+}
 async function showHome() {
   state.xpAuditReportText=null;
   state.unitRequest += 1; state.loadingUnit = null;
@@ -320,6 +335,7 @@ async function showHome() {
   renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units, engagement:homeEngagement(), soundOn:soundEnabled(), preview:state.preview }); decoratePreview();
   void runRewardsXpParityDiagnostic();
   void revealSandboxEntry();
+  void refreshVerifiedRewardWallet();
 }
 async function openMyProgress() {
   // This view is read-only and is allowed in staff preview (no personal tracking queries).
