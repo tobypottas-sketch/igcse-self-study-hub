@@ -369,3 +369,61 @@
   .vocab-shell--home .vocab-rewards-home-card--sandbox{grid-template-columns:39px minmax(0,1fr)}
   .vocab-shell--home .vocab-rewards-home-card--sandbox button{grid-column:1/-1;justify-self:stretch}
 }
+
+/* Sandbox is an intentionally small testing utility, not a stretched second
+   hero. Let it keep its intrinsic height beside the student profile. */
+#vocabularyApp .vocab-shell--home .vocab-rewards-home-strip{
+ align-items:start;
+ align-self:start;
+ gap:12px;
+}
+#vocabularyApp .vocab-shell--home .vocab-rewards-home-card--sandbox{
+ align-self:start;
+ min-height:0;
+ height:auto;
+ padding:13px;
+ gap:7px 10px;
+ border-radius:17px;
+ grid-template-columns:43px minmax(0,1fr);
+ grid-template-rows:auto auto;
+ background:linear-gradient(145deg,#f9fbff,#f1f5fb);
+ border-color:#cbdce9;
+}
+#vocabularyApp .vocab-shell--home .vocab-rewards-home-card--sandbox .vocab-rewards-home-card__body{
+ align-content:start;gap:3px;
+}
+#vocabularyApp .vocab-shell--home .vocab-rewards-home-card--sandbox .vocab-rewards-home-card__body strong{
+ font-size:.94rem;line-height:1.15;
+}
+#vocabularyApp .vocab-shell--home .vocab-rewards-home-card--sandbox .vocab-rewards-home-card__body small{
+ font-size:.75rem;color:#536d80;line-height:1.2;
+}
+#vocabularyApp .vocab-shell--home .vocab-rewards-home-card--sandbox .vocab-rewards-home-card__body small b{
+ color:#1d486b;font-weight:900;
+}
+#vocabularyApp .vocab-rewards-home-card__test-note{
+ display:inline-flex;align-items:center;gap:4px;
+ width:max-content;max-width:100%;
+ font-size:.64rem;font-weight:750;color:#587185;
+}
+#vocabularyApp .vocab-rewards-home-card__test-note:before{
+ content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#4bb0a7;
+}
+#vocabularyApp .vocab-shell--home .vocab-rewards-home-card--sandbox button{
+ grid-column:1/-1;justify-self:stretch;
+ min-height:34px;margin-top:5px;padding:7px 12px;
+ background:#e8f3f6;color:#236174;
+ border:1px solid #b6d8e0;border-radius:10px;
+ font-size:.75rem;font-weight:850;
+}
+#vocabularyApp .vocab-shell--home .vocab-rewards-home-card--sandbox button:hover{
+ background:#d9eef2;
+}
+@media(max-width:760px){
+ #vocabularyApp .vocab-shell--home .vocab-rewards-home-card--sandbox{
+  grid-template-columns:43px minmax(0,1fr);
+ }
+ #vocabularyApp .vocab-shell--home .vocab-rewards-home-card--sandbox button{
+  grid-column:1/-1;justify-self:stretch;
+ }
+}
