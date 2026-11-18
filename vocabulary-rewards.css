@@ -282,3 +282,13 @@
 .vocab-shop-redesign .vocab-shop-unlock__track{height:7px;width:100%;border-radius:99px;background:#e0ebf0;overflow:hidden}
 .vocab-shop-redesign .vocab-shop-unlock__track>span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#189c93,#70cbbb)}
 @media(max-width:390px){.vocab-shop-redesign .vocab-shop-unlock{min-width:0}.vocab-shop-redesign .vocab-shop-unlock__label{font-size:.69rem}}
+
+/* Disabled reward buttons still block duplicate purchases; do not display the
+   browser's prohibited circle-slash cursor during a server save. Override the
+   global #vocabularyApp disabled-button rule only inside Rewards Shop. */
+#vocabularyApp .vocab-shop-redesign .vocab-reward-card__bottom button:disabled,
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped button:disabled,
+#vocabularyApp .vocab-shop-redesign .vocab-reward-tabs button:disabled,
+#vocabularyApp .vocab-shop-redesign button[aria-disabled="true"] {
+  cursor: default;
+}
