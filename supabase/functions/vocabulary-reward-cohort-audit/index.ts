@@ -21,7 +21,7 @@ const group=(rows:any[],field:string)=>{
  return buckets;
 };
 const selectAll=(makeQuery:()=>any,label:string)=>fetchAllRows(makeQuery,{label});
-const xp=(missions:any[],snapshot:any,timeZone:string)=>computeXp({missions,snapshot,timeZone} as any).total;
+const xp=(missions:any[],snapshot:any,timeZone:string)=>computeXp({missions,snapshot,timeZone} as any);
 
 Deno.serve(async req=>{
  if(req.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
@@ -47,7 +47,7 @@ Deno.serve(async req=>{
   if(profiles.error)return reply({ok:false,error:'Student list unavailable'},503);
   const ids=(profiles.data||[]).map(row=>row.id);
   if(ids.length===0)return reply({ok:true,auditOnly:true,readyForWalletFunding:false,page,pageSize:size,totalStudents:profiles.count??0,
-   examined:0,more:false,summary:{withMissions:0,zeroXp:0,timeZoneSensitive:0,missingWallets:0,walletDiscrepancies:0,earnedXpSum:0}});
+   examined:0,more:false,summary:{withMissions:0,zeroXp:0,timeZoneSensitive:0,missingWallets:0,walletDiscrepancies:0,earnedXpSum:0,withoutMissionsWithXp:0,masteryWithoutMissions:0,components:{missions:0,personalBests:0,weeklyGoals:0,achievements:0,stageClears:0,pathwayMasteries:0,unitMasteries:0}}});
   const [occurrences,members,global,unit,missions,wallets]=await Promise.all([
    selectAll(()=>admin.from('vocabulary_unit_occurrences').select('occurrence_id,vocabulary_id,unit_number,unit_title,set_number,position_in_unit,sense_id,status',{count:'exact'}).eq('status','live').eq('active',true).order('unit_number').order('position_in_unit').order('occurrence_id'),'live occurrences'),
    selectAll(()=>admin.from('vocabulary_set_members').select('unit_number,pathway_id,set_number,position,occurrence_id',{count:'exact'}).order('unit_number').order('pathway_id').order('set_number').order('position'),'set members'),
@@ -59,7 +59,7 @@ Deno.serve(async req=>{
   const byGlobal=group(global,'student_id'),byUnit=group(unit,'student_id'),byMission=group(missions,'student_id');
   const byWallet=index(wallets,'student_id'),units=group(occurrences,'unit_number');
   const memberByUnit=group(members,'unit_number');
-  const summary={withMissions:0,zeroXp:0,timeZoneSensitive:0,missingWallets:0,walletDiscrepancies:0,earnedXpSum:0};
+  const summary={withMissions:0,zeroXp:0,timeZoneSensitive:0,missingWallets:0,walletDiscrepancies:0,earnedXpSum:0,withoutMissionsWithXp:0,masteryWithoutMissions:0,components:{missions:0,personalBests:0,weeklyGoals:0,achievements:0,stageClears:0,pathwayMasteries:0,unitMasteries:0}};
   for(const id of ids){
    // Rebuild canonical coverage independently, with no shared state between students.
    clearPathwayCoverage();
@@ -73,10 +73,14 @@ Deno.serve(async req=>{
    const snapshot=progressSnapshot({occurrences,unitMastery:masterUnit,globalMastery:masterGlobal} as any);
    const studentMissions=byMission.get(id)||[];
    if(studentMissions.length)summary.withMissions++;
-   const china=xp(studentMissions,snapshot,'Asia/Shanghai');
-   const utc=xp(studentMissions,snapshot,'UTC');
-   if(china!==utc)summary.timeZoneSensitive++;
+   else if((byGlobal.get(id)||[]).length||(byUnit.get(id)||[]).length)summary.masteryWithoutMissions++;
+   const chinaResult=xp(studentMissions,snapshot,'Asia/Shanghai');
+   const utcResult=xp(studentMissions,snapshot,'UTC');
+   const china=chinaResult.total;
+   if(china!==utcResult.total || Object.keys(chinaResult.parts).some(key=>chinaResult.parts[key]!==utcResult.parts[key]))summary.timeZoneSensitive++;
    if(china===0)summary.zeroXp++;
+   if(!studentMissions.length && china>0)summary.withoutMissionsWithXp++;
+   for(const key of Object.keys(summary.components) as (keyof typeof summary.components)[])summary.components[key]+=chinaResult.parts[key];
    summary.earnedXpSum+=china;
    const wallet=byWallet[id];
    if(!wallet)summary.missingWallets++;
@@ -84,6 +88,7 @@ Deno.serve(async req=>{
      Number(wallet.spent_xp)>china)summary.walletDiscrepancies++;
   }
   clearPathwayCoverage();
+  if(Object.values(summary.components).reduce((a,b)=>a+b,0)!==summary.earnedXpSum)throw new Error('XP breakdown does not reconcile to lifetime total');
   return reply({ok:true,auditOnly:true,readyForWalletFunding:false,page,pageSize:size,totalStudents:profiles.count??0,
    examined:ids.length,more:(page+1)*size<(profiles.count??0),calendarTimezone:'Asia/Shanghai',summary,
    note:'Aggregated server XP only. Never authorizes or performs wallet crediting.'});
