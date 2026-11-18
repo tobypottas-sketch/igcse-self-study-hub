@@ -2,6 +2,7 @@
 // The backend owns inventory; only equipped items found in its returned catalogue
 // can influence presentation. No learning content, grades, mastery or XP changes.
 import {rewardArtworkPath} from './rewards-art.js';
+import {ensureRewardsDashboard} from './rewards-home-layout.js';
 const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const THEMES=new Set(['midnight','forest','ocean','sakura']);
 const EFFECTS=new Set(['sparkle','pixel-badge']);
@@ -99,9 +100,10 @@ export function renderEquippedCosmetics(root,shop,displayName='Student'){
  const home=root?.querySelector?.('.vocab-shell--home');
  applyRewardTheme(root,shop);
  if(!home)return;
- home.querySelector('[data-real-cosmetics]')?.remove();
- const hero=home.querySelector('.vocab-hero--home');
- if(!hero)return;
- hero.insertAdjacentHTML('afterend',renderIdentityShowcase(shop,displayName));
+ const layout=ensureRewardsDashboard(home);
+ const main=layout?.querySelector('[data-rewards-dashboard-main]');
+ if(!main)return;
+ main.querySelector('[data-real-cosmetics]')?.remove();
+ main.insertAdjacentHTML('afterbegin',renderIdentityShowcase(shop,displayName));
  decorateStudentIdentity(root,shop,displayName);
 }
