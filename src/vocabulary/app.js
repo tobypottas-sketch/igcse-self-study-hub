@@ -263,6 +263,18 @@ async function refreshSandboxLeaderboard(){
  if(requested.scope!==sandboxLeaderboardView.scope||requested.period!==sandboxLeaderboardView.period||requested.expanded!==sandboxLeaderboardView.expanded)return;
  renderCurrentSandboxShop();
 }
+// SPA navigation does not reset the browser's previous scroll position.
+// Only use this when entering a shop, never on filter, leaderboard, purchase
+// or equip rerenders (which should preserve the student's place).
+function scrollToShopTop(){
+ const reset=()=>{
+  window.scrollTo(0,0);
+  if(document.scrollingElement)document.scrollingElement.scrollTop=0;
+  if(root)root.scrollTop=0;
+ };
+ reset();
+ requestAnimationFrame(reset);
+}
 async function renderCurrentSandboxShop(message='',busy=sandboxBusy){
  if(!sandboxShop?.sandboxEnabled)return;
  const {renderSandboxShop}=await import('./rewards-sandbox-view.js');
@@ -280,6 +292,7 @@ async function showSandboxShop(message='') {
   if(!shop)return;
   sandboxShop=shop;
   await renderCurrentSandboxShop(message);
+  scrollToShopTop();
   void refreshSandboxLeaderboard();
 }
 async function applySandboxReward(action,rewardId){
@@ -345,6 +358,7 @@ async function showRealShop(){
   realCategory='all';realLeaderboard=null;
   realLeaderboardView={scope:'class',period:'weekly',expanded:false};
   await renderRealShop();
+  scrollToShopTop();
   void refreshRealLeaderboard();
  }catch(error){
   const entry=root?.querySelector('[data-real-entry] small');
