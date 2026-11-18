@@ -249,6 +249,25 @@ async function runRewardsXpParityDiagnostic() {
 let sandboxShop=null;
 let sandboxCategory='all';
 let sandboxBusy=false;
+let sandboxLeaderboard=null;
+let sandboxLeaderboardView={scope:'class',period:'weekly',expanded:false};
+async function refreshSandboxLeaderboard(){
+ if(!state.client||state.preview||!sandboxShop?.sandboxEnabled)return;
+ const requested={...sandboxLeaderboardView};
+ try{
+  const response=await state.client.functions.invoke('vocabulary-practice-leaderboard',{body:requested});
+  sandboxLeaderboard=response.error||response.data?.ok!==true?null:response.data;
+ }catch{sandboxLeaderboard=null;}
+ // A late network response must not navigate the student back to the shop.
+ if(!root?.querySelector?.('.vocab-shop-redesign')||!sandboxShop?.sandboxEnabled)return;
+ if(requested.scope!==sandboxLeaderboardView.scope||requested.period!==sandboxLeaderboardView.period||requested.expanded!==sandboxLeaderboardView.expanded)return;
+ renderCurrentSandboxShop();
+}
+async function renderCurrentSandboxShop(message='',busy=sandboxBusy){
+ if(!sandboxShop?.sandboxEnabled)return;
+ const {renderSandboxShop}=await import('./rewards-sandbox-view.js');
+ renderSandboxShop(root,sandboxShop,{category:sandboxCategory,busy,message,progress:homeEngagement(),studentName:state.profile?.display_name??'Student',leaderboard:sandboxLeaderboard,leaderboardView:sandboxLeaderboardView});
+}
 async function loadSandboxShop() {
   if(state.preview||!state.client)return null;
   const response=await state.client.functions.invoke('vocabulary-reward-sandbox',{body:{action:'status'}});
@@ -260,23 +279,21 @@ async function showSandboxShop(message='') {
   const shop=await loadSandboxShop();
   if(!shop)return;
   sandboxShop=shop;
-  const {renderSandboxShop}=await import('./rewards-sandbox-view.js');
-  renderSandboxShop(root,shop,{category:sandboxCategory,message,progress:homeEngagement(),studentName:state.profile?.display_name??'Student'});
+  await renderCurrentSandboxShop(message);
+  void refreshSandboxLeaderboard();
 }
 async function applySandboxReward(action,rewardId){
   if(state.preview||sandboxBusy||!sandboxShop?.sandboxEnabled)return;
   if(!['buy','equip'].includes(action)||!sandboxShop.rewards.some(x=>x.reward_id===rewardId))return;
   sandboxBusy=true;
   try {
-    const {renderSandboxShop}=await import('./rewards-sandbox-view.js');
-    renderSandboxShop(root,sandboxShop,{category:sandboxCategory,busy:true,message:'Saving sandbox reward…',progress:homeEngagement(),studentName:state.profile?.display_name??'Student'});
+    await renderCurrentSandboxShop('Saving sandbox reward…',true);
     const response=await state.client.functions.invoke('vocabulary-reward-sandbox',{body:{action,rewardId}});
     if(response.error||response.data?.ok!==true)throw Error(response.data?.error||'Could not save reward.');
     sandboxShop=response.data;
-    renderSandboxShop(root,sandboxShop,{category:sandboxCategory,message:action==='buy'?'Reward purchased using test XP.':'Reward equipped.',progress:homeEngagement(),studentName:state.profile?.display_name??'Student'});
+    await renderCurrentSandboxShop(action==='buy'?'Reward purchased using test XP.':'Reward equipped.',true);
   }catch(error){
-    const {renderSandboxShop}=await import('./rewards-sandbox-view.js');
-    if(sandboxShop?.sandboxEnabled)renderSandboxShop(root,sandboxShop,{category:sandboxCategory,message:error instanceof Error?error.message:'Unable to save reward.',progress:homeEngagement(),studentName:state.profile?.display_name??'Student'});
+    if(sandboxShop?.sandboxEnabled)await renderCurrentSandboxShop(error instanceof Error?error.message:'Unable to save reward.',true);
   }finally{sandboxBusy=false;}
 }
 async function revealSandboxEntry(){
@@ -1105,12 +1122,24 @@ root?.addEventListener('click', event => {
       .then(()=>{if(note?.isConnected)note.textContent='Copied without student identity.';})
       .catch(()=>{if(note?.isConnected)note.textContent='Could not copy. Please capture the results.';});
   }
-  else if (action === 'open-sandbox-shop' && !state.preview) { sandboxCategory='all'; void showSandboxShop(); }
+  else if (action === 'open-sandbox-shop' && !state.preview) { sandboxCategory='all'; sandboxLeaderboard=null; sandboxLeaderboardView={scope:'class',period:'weekly',expanded:false}; void showSandboxShop(); }
   else if (action === 'sandbox-filter' && !state.preview && sandboxShop?.sandboxEnabled) {
     const category=target.dataset.category??'all';
     if(!['all','themes','frames','titles','effects','popular'].includes(category))return;
     sandboxCategory=category;
-    void import('./rewards-sandbox-view.js').then(({renderSandboxShop})=>renderSandboxShop(root,sandboxShop,{category,busy:sandboxBusy,progress:homeEngagement(),studentName:state.profile?.display_name??'Student'}));
+    void renderCurrentSandboxShop();
+  }
+  else if (action === 'sandbox-leaderboard' && !state.preview && sandboxShop?.sandboxEnabled) {
+    if(target.dataset.scope==='class'||target.dataset.scope==='school')sandboxLeaderboardView.scope=target.dataset.scope;
+    if(target.dataset.period==='weekly'||target.dataset.period==='all')sandboxLeaderboardView.period=target.dataset.period;
+    sandboxLeaderboardView.expanded=false;
+    sandboxLeaderboard=null;
+    void renderCurrentSandboxShop().then(refreshSandboxLeaderboard);
+  }
+  else if (action === 'sandbox-leaderboard-expand' && !state.preview && sandboxShop?.sandboxEnabled) {
+    sandboxLeaderboardView.expanded=!sandboxLeaderboardView.expanded;
+    sandboxLeaderboard=null;
+    void renderCurrentSandboxShop().then(refreshSandboxLeaderboard);
   }
   else if (action === 'sandbox-buy' && !state.preview) { void applySandboxReward('buy',target.dataset.rewardId); }
   else if (action === 'sandbox-equip' && !state.preview) { void applySandboxReward('equip',target.dataset.rewardId); }
