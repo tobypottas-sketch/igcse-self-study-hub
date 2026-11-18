@@ -8,7 +8,7 @@ const functionSource=(begin,end)=>app.slice(app.indexOf(begin),app.indexOf(end,a
 function realHarness({category='themes',failBuy=false,failEquip=false}={}){
  const events=[],renders=[],styles=[];
  const reward={reward_id:'sakura',category,name:'Sakura Theme'};
- const prior={shopMode:'production',rewards:[reward],owned:[],wallet:{available:900}};
+ const prior={ok:true,shopMode:'production',rewards:[reward],owned:[],wallet:{available:900}};
  const bought={...prior,owned:[{reward_id:'sakura',category,equipped:false}],wallet:{available:0}};
  const equipped={...bought,owned:[{reward_id:'sakura',category,equipped:true}]};
  const state={preview:false,client:{functions:{invoke:async(_name,{body})=>{
@@ -70,7 +70,7 @@ test('failed real purchase re-enables all controls for retry',async()=>{
  await x.run('buy','sakura');
  assert.equal(x.getBusy(),false);
  assert.equal(x.renders.at(-1).busy,false);
- assert.match(x.renders.at(-1).message,/Failed purchase/);
+ assert.match(x.renders.at(-1).message,/Reward could not be saved/);
 });
 test('real equip and sandbox purchase also clear loading state',async()=>{
  const x=realHarness();await x.run('equip','sakura');
