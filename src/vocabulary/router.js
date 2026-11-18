@@ -35,7 +35,7 @@ async function routeVocabulary() {
     if (staff && previewRequested) {
       const status=root.querySelector('[data-vocab-loading-status]');
       if(status) status.textContent='Opening student preview…';
-      await import('./app.js?v=title-art-profile-v5');
+      await import('./app.js?v=compact-profile-shop-v6');
       await import('./unit-check-controller.js?v=workspace-v5');
       return;
     }
@@ -69,7 +69,7 @@ async function routeVocabulary() {
       }
       const status=root.querySelector('[data-vocab-loading-status]');
       if(status) status.textContent='Opening your vocabulary…';
-      await import('./app.js?v=title-art-profile-v5');
+      await import('./app.js?v=compact-profile-shop-v6');
       await import('./unit-check-controller.js?v=workspace-v5');
       return;
     }
