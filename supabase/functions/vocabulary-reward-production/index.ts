@@ -1,6 +1,5 @@
-// Student Rewards Shop production status API — read-only release gate.
-// No wallet funding, purchases, equipment changes or sandbox credit access.
-// Production can only be opened after canonical earned-XP reconciliation.
+// Authenticated production Rewards Shop. Atomic purchase/equip RPCs enforce
+// balances and ownership; purchases never mutate genuine learning XP.
 import {createClient} from 'npm:@supabase/supabase-js@2.117.3';
 
 const cors={
@@ -42,14 +41,33 @@ Deno.serve(async req=>{
    return reply({ok:false,error:'Active student account required'},403);
   const body=await req.json().catch(()=>({}));
   const action=String(body?.action??'status');
-  if(action!=='status')return reply({ok:false,error:'Real shop purchases are not released'},403);
+  if(!['status','buy','equip'].includes(action))return reply({ok:false,error:'Unsupported action'},400);
+  if(action==='buy'||action==='equip'){
+   const rewardId=typeof body.rewardId==='string'?body.rewardId:'';
+   if(!/^[a-z0-9-]{2,50}$/.test(rewardId))return reply({ok:false,error:'Invalid reward'},400);
+   const serviceKey=configuredKey('SUPABASE_SERVICE_ROLE_KEY','SUPABASE_SECRET_KEYS');
+   if(!serviceKey)return reply({ok:false,error:'Shop unavailable'},503);
+   // The catalogue is the explicit server-side release switch.
+   const {data:listed,error:listedError}=await client.from('vocabulary_reward_catalog')
+     .select('reward_id,enabled').eq('reward_id',rewardId).maybeSingle();
+   if(listedError||!listed||listed.enabled!==true)
+     return reply({ok:false,error:'Reward not available'},403);
+   const service=createClient(url,serviceKey,{auth:{persistSession:false,autoRefreshToken:false}});
+   const method=action==='buy'?'redeem_vocabulary_reward':'equip_vocabulary_reward';
+   const {error:mutationError}=await service.rpc(method,{p_student_id:studentId,p_reward_id:rewardId});
+   if(mutationError){
+    const display=/not enough|insufficient|not owned|not available|already owned|wallet not available/i.test(mutationError.message)
+      ?mutationError.message:'Unable to complete reward action';
+    return reply({ok:false,error:display},400);
+   }
+  }
   const [wallet,owned,catalog]=await Promise.all([
    client.from('vocabulary_reward_wallets').select('verified_earned_xp,spent_xp')
     .eq('student_id',studentId).maybeSingle(),
    client.from('vocabulary_reward_owned').select('reward_id,category,equipped,acquired_at')
     .eq('student_id',studentId),
    client.from('vocabulary_reward_catalog')
-    .select('reward_id,name,category,xp_price,description,icon,enabled').order('xp_price')
+    .select('reward_id,name,category,xp_price,description,icon,enabled').eq('enabled',true).order('xp_price')
   ]);
   if(wallet.error||owned.error||catalog.error)
    return reply({ok:false,error:'Real rewards data unavailable'},503);
@@ -58,12 +76,12 @@ Deno.serve(async req=>{
   if(wallet.data&&(earned===null||spent===null||spent>earned))
    return reply({ok:false,error:'Real wallet requires reconciliation'},503);
   return reply({
-   ok:true,shopMode:'production',readOnly:true,purchasesEnabled:false,
-   walletStatus:wallet.data?'awaiting_reconciliation':'not_initialized',
+   ok:true,shopMode:'production',readOnly:false,purchasesEnabled:true,
+   walletStatus:wallet.data?'ready':'not_initialized',
    wallet:wallet.data?{verifiedEarned:earned,spent,available:earned!-spent!}:null,
-   rewards:(catalog.data??[]).map(({enabled,...row})=>({...row,availableForPurchase:enabled===true})),
+   rewards:(catalog.data??[]).map(({enabled,...row})=>row),
    owned:owned.data??[],
-   note:'Read-only status. Production XP crediting and purchases are not enabled.'
+   note:'Verified XP wallet. Purchases reduce shop balance, not learning XP.'
   });
  }catch(error){
   console.error('Production rewards status:',error instanceof Error?error.message:'unknown');
