@@ -24,7 +24,7 @@ test('profile and real shop share main column; test-only card occupies side colu
  assert.doesNotMatch(profile,/hero\.insertAdjacentHTML\('afterend',renderIdentityShowcase/);
 });
 test('CSS uses nonoverlapping natural-height responsive columns and preserves original assets',()=>{
- assert.match(css,/grid-template-columns:minmax\(0,1fr\) minmax\(235px,275px\)/);
+ assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
  assert.match(css,/align-items:start/);
  assert.match(css,/\.vocab-rewards-home-card--sandbox\{/);
  assert.match(css,/min-height:0;height:auto;align-self:start/);
