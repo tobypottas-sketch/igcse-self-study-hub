@@ -22,3 +22,11 @@
 .vocab-cohort-footnote{margin-top:18px;color:#546c7d;font-size:.85rem;line-height:1.5}
 @media(max-width:640px){.vocab-cohort-header,.vocab-cohort-body{padding:18px}.vocab-cohort-run{align-items:stretch;flex-direction:column}.vocab-cohort-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:420px){.vocab-cohort-tiles{grid-template-columns:1fr}}
+
+/* Admin-only XP funding is a separate, explicitly confirmed operation. */
+.vocab-cohort-funding{margin-top:24px;padding:22px;border:1px solid #8fcbbf;background:#f0fbf7;border-radius:16px}
+.vocab-cohort-funding h2{font-size:1.25rem;color:#15564e;margin:0 0 8px}
+.vocab-cohort-funding p{font-size:.92rem;color:#39685f;line-height:1.5;margin:0 0 14px}
+.vocab-cohort-funding button{border:0;background:#087d73;color:#fff;border-radius:12px;padding:12px 18px;font-weight:850;cursor:pointer}
+.vocab-cohort-funding button:disabled{opacity:.55;cursor:progress}
+.vocab-cohort-funding button:focus-visible{outline:3px solid #4377d3;outline-offset:3px}
