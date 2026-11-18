@@ -64,16 +64,22 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
   const shopCards=visible.map(item=>{
     const purchase=owned.get(item.reward_id),affordable=available>=item.xp_price;
     const action=purchase?(purchase.equipped?'':'sandbox-equip'):'sandbox-buy';
-    const label=purchase?(purchase.equipped?'Equipped':'Equip'):(affordable?'Buy':'Not enough XP');
+    const label=purchase?(purchase.equipped?'Equipped':'Equip'):'Buy';
+    const locked=!purchase&&!affordable;
+    const remaining=locked?Math.max(0,item.xp_price-available):0;
+    const unlockPercent=locked&&item.xp_price>0?Math.min(99,Math.floor(available/item.xp_price*100)):100;
     const tag=categoryLabel[item.category]??item.category;
     return `<article class="vocab-reward-card vocab-shop-card vocab-shop-card--${escapeHtml(item.category)}" data-reward-id="${escapeHtml(item.reward_id)}">
       <span class="vocab-reward-category">${escapeHtml(tag)}</span>
       <div class="vocab-reward-picture">${rewardIllustration(item.reward_id,item.icon)}</div>
       <h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.description)}</p>
       <div class="vocab-reward-card__bottom"><strong class="vocab-shop-price"><span aria-hidden="true">⭐</span> ${format(item.xp_price)} XP</strong>
-      <button type="button" ${action?`data-action="${action}" data-reward-id="${escapeHtml(item.reward_id)}"`:''}
-        ${busy||!action||(!purchase&&!affordable)?'disabled':''}
-        class="${purchase?'is-owned':''}">${escapeHtml(label)}</button></div></article>`;
+      ${locked?`<div class="vocab-shop-unlock" aria-label="${format(remaining)} XP to unlock ${escapeHtml(item.name)}">
+        <strong class="vocab-shop-unlock__label">${format(remaining)} XP to unlock</strong>
+        <div class="vocab-shop-unlock__track" role="progressbar" aria-label="XP saved towards ${escapeHtml(item.name)}" aria-valuemin="0" aria-valuemax="${item.xp_price}" aria-valuenow="${available}"><span style="width:${unlockPercent}%"></span></div>
+      </div>`:`<button type="button" ${action?`data-action="${action}" data-reward-id="${escapeHtml(item.reward_id)}"`:''}
+        ${busy||!action?'disabled':''}
+        class="${purchase?'is-owned':''}">${escapeHtml(label)}</button>`}</div></article>`;
   }).join('');
   const equipment=categories.slice(1).map(([id,label])=>{
     const reward=rewards.find(item=>item.reward_id===active[id]);
