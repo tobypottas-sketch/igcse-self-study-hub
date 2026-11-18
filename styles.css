@@ -176,3 +176,12 @@ input:focus { border-color: var(--hub-teal); box-shadow: 0 0 0 3px rgba(19, 126,
 @media (prefers-reduced-motion: reduce) {
   .button, .app-card, .app-card__arrow { transition: none; }
 }
+
+/* Compact accessible password visibility toggle in the sign-in form. */
+.auth-password-field{display:grid;gap:7px}
+.auth-password-field>label{font-size:var(--fs-sm);font-weight:700}
+.auth-password-control{position:relative;min-width:0}
+.auth-password-control input{padding-right:78px}
+.auth-password-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);min-height:34px;min-width:62px;padding:5px 9px;border:1px solid var(--c-line);border-radius:8px;background:var(--c-surface-soft);color:var(--c-teal-dark);font-size:var(--fs-xs);font-weight:800;cursor:pointer}
+.auth-password-toggle:hover{background:var(--c-teal-soft)}
+.auth-password-toggle:focus-visible{outline:var(--focus-ring);outline-offset:2px}

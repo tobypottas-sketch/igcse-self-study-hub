@@ -252,6 +252,16 @@ export async function bootApp(clientOverride = null) {
   root.addEventListener('click', async (event) => {
     const target = event.target?.closest?.('[data-action]') ?? event.target;
     const action = target?.dataset?.action;
+    if (action === 'toggle-login-password') {
+      const field = root.querySelector('#hub-login-password');
+      if (!field || !root.contains(target)) return;
+      const visible = field.type === 'password';
+      field.type = visible ? 'text' : 'password';
+      target.textContent = visible ? 'Hide' : 'Show';
+      target.setAttribute('aria-label', visible ? 'Hide password' : 'Show password');
+      target.setAttribute('aria-pressed', String(visible));
+      return;
+    }
     if ((action === 'admin' || (action?.startsWith?.('admin-') && action !== 'admin-back' && action !== 'admin-section-activity')) && currentState.profile?.role !== 'admin') return;
     if (action && action !== 'writing-assessor' && assessorController) { assessorController.dispose(); assessorController = null; }
     if (action === 'writing-assessor') {
