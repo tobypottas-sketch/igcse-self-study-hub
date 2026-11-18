@@ -6,6 +6,10 @@ on:
       - 'src/vocabulary/router.js'
       - 'src/vocabulary/diagnostic-teacher-walkthrough.js'
       - 'supabase/diagnostic/ngsl_single_50_engine.sql'
+      - 'supabase/diagnostic/ngsl_integrity_monitor_v1.sql'
+      - 'tests/vocabulary-ngsl-integrity-mode.test.js'
+      - 'src/vocabulary/teacher-app.js'
+      - 'vocabulary-diagnostic-student.css'
       - 'supabase/functions/vocabulary-diagnostic/index.ts'
       - 'tests/vocabulary-ngsl-single-diagnostic.test.js'
       - '.github/workflows/ngsl-single-baseline.yml'
@@ -16,6 +20,10 @@ on:
       - 'src/vocabulary/router.js'
       - 'src/vocabulary/diagnostic-teacher-walkthrough.js'
       - 'supabase/diagnostic/ngsl_single_50_engine.sql'
+      - 'supabase/diagnostic/ngsl_integrity_monitor_v1.sql'
+      - 'tests/vocabulary-ngsl-integrity-mode.test.js'
+      - 'src/vocabulary/teacher-app.js'
+      - 'vocabulary-diagnostic-student.css'
       - 'supabase/functions/vocabulary-diagnostic/index.ts'
       - 'tests/vocabulary-ngsl-single-diagnostic.test.js'
       - '.github/workflows/ngsl-single-baseline.yml'
@@ -31,6 +39,6 @@ jobs:
         with:
           node-version: '22'
       - name: Test single NGSL diagnostic and authenticated teacher preview
-        run: node --test tests/vocabulary-ngsl-single-diagnostic.test.js tests/vocabulary-ngsl-teacher-preview.test.js
+        run: node --test tests/vocabulary-ngsl-single-diagnostic.test.js tests/vocabulary-ngsl-teacher-preview.test.js tests/vocabulary-ngsl-integrity-mode.test.js
       - name: Check browser module syntax
         run: node --check src/vocabulary/ngsl-student.js && node --check src/vocabulary/ngsl-question-format.js && node --check src/vocabulary/diagnostic-teacher-walkthrough.js && node --check src/vocabulary/router.js
