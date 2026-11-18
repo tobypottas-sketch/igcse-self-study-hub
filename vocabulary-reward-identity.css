@@ -1,0 +1,174 @@
+/* Production reward identity and global Vocabulary Builder cosmetic themes.
+   Root-scoped presentation only: grading, question status, success/warning/error
+   feedback and authored unit artwork are NOT recoloured or rewritten. */
+#vocabularyApp .vocab-student-identity{
+ display:grid;grid-template-columns:110px minmax(0,1fr) auto;align-items:center;
+ gap:18px;padding:12px 20px;margin:12px 0 16px;
+ border:1px solid var(--reward-edge,#bfdbe8);border-radius:20px;
+ background:linear-gradient(105deg,var(--reward-soft,#eaf8f7),#fff);
+ box-shadow:0 8px 22px rgba(20,61,89,.07);min-width:0;
+}
+#vocabularyApp .vocab-student-identity__portrait{display:grid;place-items:center}
+#vocabularyApp .vocab-student-identity__avatar{
+ display:grid;place-items:center;position:relative;isolation:isolate;flex:none;
+ width:100px;height:100px;border-radius:50%;
+ background:radial-gradient(circle,#fff 0%,#e2f3ff 78%,#8acbd1 100%);
+ box-shadow:0 4px 14px rgba(25,57,99,.16);
+}
+#vocabularyApp .vocab-student-identity__avatar.has-frame{
+ background:transparent;border-radius:18px;box-shadow:none;
+}
+#vocabularyApp .vocab-student-identity__frame{
+ position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:1;
+ border-radius:18px;pointer-events:none;
+}
+#vocabularyApp .vocab-student-identity__initials{
+ position:relative;z-index:2;display:grid;place-items:center;
+ width:42%;height:42%;border-radius:50%;color:#173e64;
+ background:rgba(255,255,255,.78);font-size:1.55rem;font-weight:950;
+ text-shadow:0 1px 1px #fff;line-height:1;
+}
+#vocabularyApp .vocab-student-identity__badge{
+ position:absolute;z-index:3;width:47%;height:43%;bottom:-2px;right:-12px;
+ object-fit:cover;border:2px solid #fff;border-radius:13px;
+ background:#fff;box-shadow:0 4px 13px rgba(23,46,89,.24);
+}
+#vocabularyApp .vocab-student-identity__eyebrow{
+ font-size:.67rem;letter-spacing:.13em;font-weight:900;color:var(--reward-accent,#137f88);
+}
+#vocabularyApp .vocab-student-identity__text{min-width:0;display:grid;gap:5px}
+#vocabularyApp .vocab-student-identity__text h2{
+ font-size:clamp(1.2rem,2.2vw,1.7rem);margin:0;line-height:1.15;
+ color:var(--reward-ink,#1a3c57);overflow-wrap:anywhere;
+}
+#vocabularyApp .vocab-student-identity__extras{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+#vocabularyApp .vocab-student-identity__title{
+ display:inline-flex;align-items:center;padding:5px 12px;border-radius:99px;
+ background:var(--reward-accent,#137f88);color:#fff;font-size:.82rem;font-weight:850;
+}
+#vocabularyApp .vocab-student-identity__detail{
+ padding:5px 10px;background:#ffffffcb;border:1px solid var(--reward-edge,#b9dae5);
+ border-radius:99px;color:var(--reward-ink,#244c65);font-size:.75rem;font-weight:750;
+}
+#vocabularyApp .vocab-student-identity__stamp{
+ justify-self:end;white-space:nowrap;font-size:.75rem;font-weight:800;
+ color:var(--reward-accent,#197f80);border-radius:99px;padding:7px 10px;
+ background:#fff;border:1px solid var(--reward-edge,#b9dae5);
+}
+/* Compact status beside existing navigation on all app screens. */
+#vocabularyApp .vocab-student-identity-mini{
+ display:flex;gap:7px;align-items:center;margin-left:auto;flex:none;min-width:0;
+ font-size:.72rem;font-weight:850;color:var(--reward-ink,#25415a);
+}
+#vocabularyApp .vocab-student-identity-mini .vocab-student-identity__avatar{
+ width:37px;height:37px;border-radius:11px;
+}
+#vocabularyApp .vocab-student-identity-mini .vocab-student-identity__initials{
+ font-size:.55rem;
+}
+#vocabularyApp .vocab-student-identity-mini .vocab-student-identity__badge{
+ width:19px;height:18px;right:-6px;bottom:-3px;border-width:1px;border-radius:5px;
+}
+#vocabularyApp .vocab-student-identity-mini__name{display:grid;gap:1px;max-width:130px}
+#vocabularyApp .vocab-student-identity-mini__name small{
+ color:var(--reward-accent,#19898b);font-size:.67rem;overflow:hidden;
+ white-space:nowrap;text-overflow:ellipsis;
+}
+#vocabularyApp .vocab-topbar:has(.vocab-student-identity-mini){gap:9px;flex-wrap:wrap}
+#vocabularyApp .vocab-topbar:has(.vocab-student-identity-mini) .vocab-topbar__course{margin-inline:auto}
+#vocabularyApp .vocab-topbar:has(.vocab-student-identity-mini) .vocab-student-identity-mini{
+ order:2;
+}
+/* Active purchased themes follow every Vocabulary screen. Palette variables
+   cascade to existing buttons, cards and progress UI. Neutral, light working
+   surfaces preserve legibility of correct/wrong answer colours and unit art. */
+#vocabularyApp.vocab-real-theme--forest{
+ --reward-bg:#e7f5e8;--reward-soft:#e2f6e6;--reward-edge:#95c9a6;
+ --reward-accent:#167b55;--reward-ink:#1c513b;
+ --c-bg:#f0faf1;--c-teal:#167b55;--teal:#167b55;--c-teal-2:#2e9b70;
+ --c-teal-soft:#e1f5e7;--c-line:#b2d7bc;--c-surface-soft:#f3faf3;
+ --study-accent:#228a5e;
+}
+#vocabularyApp.vocab-real-theme--ocean{
+ --reward-bg:#def3fd;--reward-soft:#def5fa;--reward-edge:#8bcce1;
+ --reward-accent:#147dab;--reward-ink:#154c70;
+ --c-bg:#eefaff;--c-teal:#087da7;--teal:#087da7;--c-teal-2:#26a6c7;
+ --c-teal-soft:#e2f7fb;--c-line:#add5e8;--c-surface-soft:#eefaff;
+ --study-accent:#168eb7;
+}
+#vocabularyApp.vocab-real-theme--sakura{
+ --reward-bg:#fbedf5;--reward-soft:#ffedf5;--reward-edge:#ecc0d7;
+ --reward-accent:#af487f;--reward-ink:#733f61;
+ --c-bg:#fff6fa;--c-teal:#a83d78;--teal:#a83d78;--c-teal-2:#ce70a1;
+ --c-teal-soft:#fde7f1;--c-line:#eac4d9;--c-surface-soft:#fff3f8;
+ --study-accent:#b8578b;
+}
+#vocabularyApp.vocab-real-theme--midnight{
+ --reward-bg:#1c2c58;--reward-soft:#e6eaff;--reward-edge:#8e9bd7;
+ --reward-accent:#485caa;--reward-ink:#1c2b59;
+ --c-bg:#e9ecfb;--c-teal:#465da9;--teal:#465da9;--c-teal-2:#7386c2;
+ --c-teal-soft:#e8ebff;--c-line:#afb9dc;--c-surface-soft:#f2f4ff;
+ --study-accent:#6377b7;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight){
+ background:linear-gradient(165deg,var(--reward-bg),var(--c-bg) 42%,#fff 100%);
+ min-height:100vh;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) .vocab-shell{
+ --primary:var(--reward-accent);
+ --study-line:var(--reward-edge);
+ --line:var(--reward-edge);
+ --c-teal-dark:var(--reward-accent);
+ --c-teal-line:var(--reward-edge);
+ --study-accent-soft:var(--reward-soft);
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) :is(
+ .vocab-topbar,.vocab-hero,.vocab-hero--home,.vocab-unit-card,.vocab-pathway-card,.vocab-question-card,
+ .vocab-progress-entry,.vocab-engage-home,.vocab-unit-hero,.vocab-session-card,.vocab-practice-sheet,
+ .vocab-real-cosmetics,.vocab-student-identity,.vocab-rewards-home-card,.vocab-shop-leaderboard
+ ){
+ border-color:var(--reward-edge);
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) :is(
+ .vocab-topbar,.vocab-hero--home,.vocab-engage-home,.vocab-progress-entry,.vocab-coursebook
+ ){
+ background:linear-gradient(120deg,var(--reward-soft),#fff);
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) :is(.vocab-unit-card,.vocab-pathway-card,.vocab-question-card){
+ border-color:var(--reward-edge);
+ box-shadow:0 8px 26px color-mix(in srgb,var(--reward-accent) 13%,transparent);
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) :is(.vocab-back,.vocab-link,.vocab-unit-card__number){
+ color:var(--reward-accent);
+}
+/* Midnight is visibly different across the app, while workspaces stay light. */
+#vocabularyApp.vocab-real-theme--midnight :is(.vocab-topbar,.vocab-hero--home){
+ background:linear-gradient(110deg,#1d2a56,#354985);
+ border-color:#6679b7;color:#f8f9ff;
+}
+#vocabularyApp.vocab-real-theme--midnight :is(.vocab-topbar__course,.vocab-hero--home h1,.vocab-hero--home p,.vocab-hero--home .vocab-kicker){
+ color:#f8f9ff;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-topbar :is(.vocab-back,.vocab-link){color:#e6efff}
+#vocabularyApp.vocab-real-theme--midnight .vocab-student-identity-mini{color:#fff}
+#vocabularyApp.vocab-real-theme--midnight .vocab-student-identity-mini__name small{color:#c4d4ff}
+#vocabularyApp.vocab-real-effect--sparkle .vocab-student-identity__avatar{
+ box-shadow:0 0 0 3px #c6a5ff,0 0 22px #a577df9c;
+}
+#vocabularyApp.vocab-real-effect--pixel-badge .vocab-student-identity__badge{
+ filter:drop-shadow(0 0 5px #6a6bdf);
+}
+/* Respect focused learning, including students who prefer reduced motion. */
+@media(max-width:740px){
+ #vocabularyApp .vocab-student-identity{grid-template-columns:85px minmax(0,1fr);gap:10px;padding:11px}
+ #vocabularyApp .vocab-student-identity__avatar{width:79px;height:79px}
+ #vocabularyApp .vocab-student-identity__stamp{grid-column:1/-1;justify-self:start}
+ #vocabularyApp .vocab-student-identity-mini__name{max-width:95px}
+}
+@media(max-width:500px){
+ #vocabularyApp .vocab-student-identity-mini__name{display:none}
+ #vocabularyApp .vocab-student-identity-mini .vocab-student-identity__avatar{width:32px;height:32px}
+ #vocabularyApp .vocab-topbar:has(.vocab-student-identity-mini) .vocab-topbar__course{
+  font-size:.66rem;letter-spacing:.02em;
+ }
+}

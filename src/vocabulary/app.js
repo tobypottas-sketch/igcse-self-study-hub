@@ -341,6 +341,29 @@ async function revealSandboxEntry(){
     '<button type="button" data-action="open-sandbox-shop">Open test shop</button>';
   strip.append(entry);
 }
+// Student identity remains visible through home, unit, pathways, practice and
+// the shop. Root-scoped theme classes survive screen rerenders.
+let liveCosmeticShop=null,cosmeticModule=null,identityObserver=null;
+async function updateLiveCosmetics(shop){
+ if(state.preview||state.profile?.role!=='student'||shop?.shopMode!=='production')return;
+ liveCosmeticShop=shop;
+ cosmeticModule??=await import('./rewards-equipped-home.js');
+ cosmeticModule.applyRewardTheme(root,shop);
+ if(root?.querySelector('.vocab-shell--home'))
+   cosmeticModule.renderEquippedCosmetics(root,shop,state.profile?.display_name??'Student');
+ else
+   cosmeticModule.decorateStudentIdentity(root,shop,state.profile?.display_name??'Student');
+}
+function installStudentIdentityObserver(){
+ if(identityObserver||!root||state.preview)return;
+ identityObserver=new MutationObserver(()=>{
+   // Only observe replacement of root's immediate screen. Inserting a chip
+   // inside a topbar cannot cause an observer loop.
+   if(liveCosmeticShop&&cosmeticModule&&root.querySelector('.vocab-topbar'))
+     cosmeticModule.decorateStudentIdentity(root,liveCosmeticShop,state.profile?.display_name??'Student');
+ });
+ identityObserver.observe(root,{childList:true});
+}
 // Production reward controls are deliberately isolated from the test shop.
 let realShop=null,realCategory='all',realBusy=false,realLeaderboard=null;
 let realLeaderboardView={scope:'class',period:'weekly',expanded:false};
@@ -356,6 +379,7 @@ async function renderRealShop(message='',busy=realBusy){
  const {renderProductionShop}=await import('./rewards-sandbox-view.js');
  renderProductionShop(root,realShop,{category:realCategory,busy,message,progress:homeEngagement(),
   studentName:state.profile?.display_name??'Student',leaderboard:realLeaderboard,leaderboardView:realLeaderboardView});
+ await updateLiveCosmetics(realShop);
 }
 async function refreshRealLeaderboard(){
  if(state.preview||!state.client||!realShop)return;
@@ -393,6 +417,7 @@ async function applyRealReward(action,rewardId){
   const {data,error}=await state.client.functions.invoke('vocabulary-reward-production',{body:{action,rewardId}});
   if(error||data?.ok!==true||data.shopMode!=='production')throw Error(data?.error||'Reward could not be saved.');
   realShop=data;
+  await updateLiveCosmetics(data);
   await renderRealShop(action==='buy'?'Reward purchased! Equip it to customise your profile.':'Reward equipped!',true);
  }catch(error){
   await renderRealShop(error instanceof Error?error.message:'Unable to save reward.',true);
@@ -403,8 +428,7 @@ async function revealRealShopEntry(){
  if(!home||state.preview||state.profile?.role!=='student')return;
  const shop=await fetchRealShop().catch(()=>null);
  if(!shop||!home.isConnected)return;
- const {renderEquippedCosmetics}=await import('./rewards-equipped-home.js');
- renderEquippedCosmetics(root,shop);
+ await updateLiveCosmetics(shop);
  const strip=ensureRewardsHomeStrip(home);
  strip.querySelector('[data-real-entry]')?.remove();
  const entry=document.createElement('section');
@@ -1320,7 +1344,7 @@ async function initialise() {
     if (profileError || !profile?.active || (profile.role !== 'student' && !(staff && previewRequested))) { window.location.replace('./'); return; }
     window.addEventListener('beforeunload', event => { if (attempts().pending) { event.preventDefault(); event.returnValue = ''; } });
     showStudentLoading('Loading your vocabulary progress…');
-    state.profile = profile; state.preview = staff && previewRequested; if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'app_open', mode:'practice' }).catch(() => {}); if (!state.preview) startActiveTime(); await showHome();
+    state.profile = profile; state.preview = staff && previewRequested; if (!state.preview) installStudentIdentityObserver(); if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'app_open', mode:'practice' }).catch(() => {}); if (!state.preview) startActiveTime(); await showHome();
   } catch (error) { renderVocabularyError(root, error instanceof Error ? error.message : 'Vocabulary practice is unavailable right now.'); }
 }
 void initialise();
