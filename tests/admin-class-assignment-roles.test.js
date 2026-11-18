@@ -8,8 +8,8 @@ const TARGET = '11111111-1111-4111-8111-111111111111';
 const CLASS = '22222222-2222-4222-8222-222222222222';
 const source = stripTypeScriptTypes(readFileSync(new URL('../supabase/functions/admin-class-action/index.ts', import.meta.url),'utf8')).replace(/^import .*;\n/gm,'');
 
-test('assignment handler accepts active teachers/admins through existing links and rejects inactive accounts/students', async () => {
-  for (const [role, active, expectedStatus] of [['teacher',true,200],['admin',true,200],['teacher',false,400],['admin',false,400],['student',true,400]]) {
+test('assignment handler allows only active administrators and rejects teachers, inactive accounts and students', async () => {
+  for (const [role, active, expectedStatus] of [['teacher',true,403],['admin',true,200],['teacher',false,403],['admin',false,403],['student',true,403]]) {
     const writes = [];
     const account = { id:TARGET, role, active };
     let handler;
