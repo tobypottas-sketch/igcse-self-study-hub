@@ -5,8 +5,8 @@ const EH_SCHOOLS_LOGO = './assets/evidence-hub-schools-logo.webp';
 const CAMBRIDGE_ENGLISH_LOGO = './assets/cambridge-assessment-english.webp';
 
 export function buildHomeModel(profile, apps, activityDashboard = null) {
-  const showAdminControls = ['admin','teacher'].includes(profile.role);
-  const canSeeTeacherActivity = showAdminControls;
+  const showAdminControls = profile.role === 'admin';
+  const canSeeTeacherActivity = ['admin','teacher'].includes(profile.role);
   const meritAlerts = canSeeTeacherActivity
     ? (activityDashboard?.students ?? [])
       .filter(student => Number(student.pendingMerits ?? 0) > 0)
@@ -27,6 +27,7 @@ export function buildHomeModel(profile, apps, activityDashboard = null) {
     apps: (apps ?? []).filter(app => app.enabled),
     showAdminControls,
     showActivityControls: canSeeTeacherActivity,
+    showStaffTools: canSeeTeacherActivity,
     pendingMerits,
     meritAlerts
   };
@@ -110,7 +111,7 @@ export function renderHome(root, profile, apps, activityDashboard = null, { regi
   const accountControls = [
     model.showActivityControls ? `<button class="button button--primary" data-action="activity">${escapeHtml(activityLabel)}</button>` : '',
     model.showAdminControls ? '<button class="button" data-action="admin">Manage accounts</button>' : '',
-    model.showAdminControls && profile.active === true && !profile.must_change_password ? '<button class="button" data-action="writing-assessor">Writing assessor</button>' : '',
+    model.showStaffTools && profile.active === true && !profile.must_change_password ? '<button class="button" data-action="writing-assessor">Writing assessor</button>' : '',
     canChangePassword ? `<button class="button" data-action="change-password"${model.role === 'student' ? ' data-student-password-change' : ''}>Change password</button>` : ''
   ].filter(Boolean).join(' ');
 

@@ -129,7 +129,7 @@ export async function bootApp(clientOverride = null) {
       currentState = { ...currentState, activityDashboard:null };
       cachedHomeState = { ...currentState };
       renderHome(root, currentState.profile, currentState.apps, null);
-      if (['admin','teacher'].includes(currentState.profile?.role) && currentState.profile.active !== false) preloadAdminData().catch(() => {});
+      if (currentState.profile?.role === 'admin' && currentState.profile.active !== false) preloadAdminData().catch(() => {});
       if (['admin','teacher'].includes(currentState.profile?.role) && currentState.profile.active !== false) {
         preloadActivityData()
           .then(activityDashboard => {
@@ -161,7 +161,7 @@ export async function bootApp(clientOverride = null) {
   };
 
   const renderAdminSection = async (section = 'accounts', extras = {}, refresh = false) => {
-    if (!['admin','teacher'].includes(currentState?.profile?.role) || currentState.profile.active === false) return;
+    if (currentState?.profile?.role !== 'admin' || currentState.profile.active === false) return;
     try {
       const { accounts, classes, teachingAdmins } = await preloadAdminData(refresh);
       currentState = { ...currentState, ...extras, view:'admin', section, accounts, classes, teachingAdmins };
@@ -175,7 +175,7 @@ export async function bootApp(clientOverride = null) {
   };
 
   const renderCachedAdminSection = (section = 'accounts', extras = {}) => {
-    if (!['admin','teacher'].includes(currentState?.profile?.role) || currentState.profile.active === false) return;
+    if (currentState?.profile?.role !== 'admin' || currentState.profile.active === false) return;
     currentState = { ...currentState, ...extras, view:'admin', section };
     renderAdmin(root, currentState);
     enhanceClassRenameControls();
@@ -211,6 +211,7 @@ export async function bootApp(clientOverride = null) {
       return;
     }
 
+    if (currentState.profile?.role !== 'admin' || currentState.profile?.active !== true) return;
     setFormBusy(form, true);
     try {
       if (kind === 'admin-create-student' || kind === 'admin-create-teacher') {
@@ -251,6 +252,7 @@ export async function bootApp(clientOverride = null) {
   root.addEventListener('click', async (event) => {
     const target = event.target?.closest?.('[data-action]') ?? event.target;
     const action = target?.dataset?.action;
+    if ((action === 'admin' || (action?.startsWith?.('admin-') && action !== 'admin-back' && action !== 'admin-section-activity')) && currentState.profile?.role !== 'admin') return;
     if (action && action !== 'writing-assessor' && assessorController) { assessorController.dispose(); assessorController = null; }
     if (action === 'writing-assessor') {
       if (!['teacher','admin'].includes(currentState.profile?.role) || currentState.profile.active !== true || currentState.profile.must_change_password) return;

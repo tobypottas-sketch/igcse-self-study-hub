@@ -185,7 +185,7 @@ function renderActivity(model) {
 export function renderAdmin(root, model) {
   const profile = model?.profile ?? {};
   const isStaff = ['admin','teacher'].includes(profile.role);
-  const sections = isStaff ? adminSections : [['activity','Activity']];
+  const sections = profile.role === 'admin' ? adminSections : [['activity','Activity']];
   const section = sections.some(([key]) => key === model?.section) ? model.section : 'activity';
   const tabs = sections.map(([key,label]) => `<button class="admin-tab" data-action="admin-section-${key}"${section === key ? ' aria-current="page"' : ''}>${label}${key === 'activity' && model.activityDashboard?.pendingMerits ? ` <span class="admin-status is-active">${escapeHtml(model.activityDashboard.pendingMerits)}</span>` : ''}</button>`).join('');
   const content = section === 'activity' ? renderActivity(model ?? {}) : section === 'accounts' ? renderAccounts(model ?? {}) : section === 'classes' ? renderClasses(model ?? {}) : renderImport(model ?? {});

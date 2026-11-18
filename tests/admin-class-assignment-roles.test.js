@@ -8,8 +8,8 @@ const TARGET = '11111111-1111-4111-8111-111111111111';
 const CLASS = '22222222-2222-4222-8222-222222222222';
 const source = stripTypeScriptTypes(readFileSync(new URL('../supabase/functions/admin-class-action/index.ts', import.meta.url),'utf8')).replace(/^import .*;\n/gm,'');
 
-test('assignment handler accepts active teachers/admins through existing links and rejects inactive accounts/students', async () => {
-  for (const [role, active, expectedStatus] of [['teacher',true,200],['admin',true,200],['teacher',false,400],['admin',false,400],['student',true,400]]) {
+test('assignment handler allows only active administrators and rejects teachers, inactive accounts and students', async () => {
+  for (const [role, active, expectedStatus] of [['teacher',true,403],['admin',true,200],['teacher',false,403],['admin',false,403],['student',true,403]]) {
     const writes = [];
     const account = { id:TARGET, role, active };
     let handler;
@@ -19,7 +19,7 @@ test('assignment handler accepts active teachers/admins through existing links a
         if (table === 'teacher_classes') return { upsert:async (value, options) => { writes.push({ value, options }); return { error:null }; } };
         assert.ok(['profiles','classes'].includes(table), 'no account or membership mutation');
         let id;
-        return { select() { return this; }, eq(_key,value) { id = value; return this; }, single:async () => ({ data:table === 'classes' ? { id:CLASS, active:true } : id === TARGET ? account : { role:'admin', active:true }, error:null }) };
+        return { select() { return this; }, eq(_key,value) { id = value; return this; }, single:async () => ({ data:table === 'classes' ? { id:CLASS, active:true } : id === TARGET ? account : { role, active }, error:null }) };
       }
     };
     const env = { SUPABASE_URL:'https://example.test', SUPABASE_PUBLISHABLE_KEYS:'{"default":"test-public"}', SUPABASE_SECRET_KEYS:'{"default":"test-secret"}' };
