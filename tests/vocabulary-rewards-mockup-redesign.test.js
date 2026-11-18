@@ -39,12 +39,23 @@ test('shop card actions continue to work after redesign and filters are genuine'
  assert.match(root.innerHTML,/data-action="sandbox-buy"/);
  assert.match(root.innerHTML,/data-action="sandbox-equip"/);
 });
-test('artwork renders as inline accessible decorative vectors, without remote tracking',()=>{
- assert.match(rewardIllustration('midnight'),/<svg/);
- assert.match(rewardIllustration('forest'),/<svg/);
- assert.match(rewardIllustration('gold-frame'),/<svg/);
- assert.match(bannerIllustration,/<svg/);
- assert.doesNotMatch(bannerIllustration,/<image\\b|<script\\b|(?:href|src)=[\"']https?:/i);
+test('all 12 rewards and the banner use genuine committed PNGs, not vector placeholders',async()=>{
+ const {REWARDS}=await import('../src/vocabulary/rewards-catalog.js');
+ const {rewardArtworkPath}=await import('../src/vocabulary/rewards-art.js');
+ const files=[...REWARDS.map(item=>[item.id,rewardArtworkPath(item.id)]),['shop-banner','assets/vocabulary/rewards/shop-banner.png']];
+ assert.equal(files.length,13);
+ for(const [id,path] of files){
+   assert.ok(path,'Artwork path missing for '+id);
+   const png=fs.readFileSync(new URL('../'+path,import.meta.url));
+   assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a','Not PNG: '+id);
+   assert.ok(png.readUInt32BE(16)>=700,'Image too small: '+id);
+   assert.ok(png.readUInt32BE(20)>=400,'Image too short: '+id);
+ }
+ assert.match(rewardIllustration('midnight'),/<img/);
+ assert.match(rewardIllustration('forest'),/forest\\.png/);
+ assert.match(rewardIllustration('gold-frame'),/gold-frame\\.png/);
+ assert.match(bannerIllustration,/shop-banner\\.png/);
+ assert.doesNotMatch(bannerIllustration,/<svg|https?:\\/\\//);
 });
 test('untrusted student names and catalogue descriptions are escaped',()=>{
  const root={innerHTML:''};
