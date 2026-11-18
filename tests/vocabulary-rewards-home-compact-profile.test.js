@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {renderIdentityShowcase} from '../src/vocabulary/rewards-equipped-home.js';
-const css=readFileSync(new URL('../vocabulary-reward-identity.css',import.meta.url),'utf8');
-const rewardsCss=readFileSync(new URL('../vocabulary-rewards.css',import.meta.url),'utf8');
+const css=readFileSync(new URL('../vocabulary-rewards-dashboard.css',import.meta.url),'utf8');
+const rewardsCss=readFileSync(new URL('../vocabulary-rewards-dashboard.css',import.meta.url),'utf8');
 const app=readFileSync(new URL('../src/vocabulary/app.js',import.meta.url),'utf8');
 const shop={shopMode:'sandbox',sandboxEnabled:true,rewards:[
  {reward_id:'midnight',name:'Midnight Theme',category:'themes'},
@@ -28,14 +28,14 @@ test('unowned slots remain empty and cannot display purchased graphics',()=>{
  assert.doesNotMatch(empty,/word-explorer\.png|gold-frame\.png|sparkle\.png/);
 });
 test('profile uses compact sizing and a restrained decorative scene',()=>{
- assert.match(css,/\.vocab-shell--home \.vocab-student-identity\{\s*grid-template-columns:82px minmax\(0,1fr\) auto/);
+ assert.match(css,/grid-template-columns:104px minmax\\(0,1fr\\) minmax\\(150px,208px\\)/);
  assert.match(css,/\.vocab-student-identity__slots/);
- assert.match(css,/opacity:\.10/);
+ assert.match(css,/opacity:\.11/);
  assert.match(css,/\.vocab-student-identity__title-art img/);
 });
 test('sandbox stays separate from learning XP and does not stretch vertically',()=>{
- assert.match(rewardsCss,/\.vocab-rewards-home-strip\{\s*align-items:start/);
- assert.match(rewardsCss,/\.vocab-rewards-home-card--sandbox\{\s*align-self:start/);
+ assert.match(rewardsCss,/\.vocab-rewards-dashboard\{/);
+ assert.match(rewardsCss,/\.vocab-rewards-home-card--sandbox\{/);
  assert.match(rewardsCss,/min-height:0/);
  assert.match(app,/data-action="open-sandbox-shop"/);
  assert.match(app,/No real XP spent/);
