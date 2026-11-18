@@ -216,3 +216,33 @@
 .vocab-shop-redesign .vocab-shop-card .vocab-reward-picture{border-radius:14px;overflow:hidden}
 .vocab-shop-redesign .vocab-shop-hero__scene .vocab-shop-illustration{height:100%;aspect-ratio:auto;border-radius:0}
 .vocab-shop-redesign .vocab-shop-equipped__art .vocab-shop-illustration{aspect-ratio:12/7}
+
+/* Compact authenticated practice leaderboard, below the progress panel. */
+.vocab-shop-redesign .vocab-shop-sidebar{grid-column:1;grid-row:1}
+.vocab-shop-redesign .vocab-shop-leaderboard-slot{grid-column:1;grid-row:2;min-width:0}
+.vocab-shop-redesign .vocab-shop-main{grid-column:2;grid-row:1/span 2}
+.vocab-shop-redesign .vocab-shop-equipped{grid-column:2;grid-row:3}
+.vocab-shop-redesign .vocab-shop-leaderboard{border:1px solid #a9d5e4;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 8px 24px #1b53791a}
+.vocab-shop-redesign .vocab-shop-leaderboard__head{background:linear-gradient(110deg,#174b7d,#407ba9);color:#fff;display:flex;align-items:center;gap:12px;padding:15px}
+.vocab-shop-redesign .vocab-shop-leaderboard__head>span{font-size:1.7rem}
+.vocab-shop-redesign .vocab-shop-leaderboard__head h2{font-size:1.05rem;margin:0;font-weight:900}
+.vocab-shop-redesign .vocab-shop-leaderboard__head small{font-size:.72rem;color:#e4f4ff}
+.vocab-shop-redesign .vocab-shop-leaderboard__tabs{display:flex;gap:4px;margin:10px 12px 0;background:#edf7fa;padding:3px;border-radius:99px}
+.vocab-shop-redesign .vocab-shop-leaderboard__tabs button{flex:1;min-width:0;background:transparent;border:0;border-radius:99px;padding:7px 3px;font-size:.75rem;font-weight:800;color:#176574;cursor:pointer}
+.vocab-shop-redesign .vocab-shop-leaderboard__tabs button.is-active{background:#108985;color:#fff}
+.vocab-shop-redesign .vocab-shop-leaderboard__list{list-style:none;margin:12px 10px;padding:0;display:grid;gap:4px}
+.vocab-shop-redesign .vocab-shop-leaderboard__row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:6px;padding:8px 7px;border-radius:9px;font-size:.75rem}
+.vocab-shop-redesign .vocab-shop-leaderboard__row:nth-child(even){background:#f3f9fc}
+.vocab-shop-redesign .vocab-shop-leaderboard__row.is-you,.vocab-shop-redesign .vocab-shop-leaderboard__mine{background:#c9f5ed;color:#163d57}
+.vocab-shop-redesign .vocab-shop-leaderboard__rank{text-align:center;font-size:.96rem;font-weight:900}
+.vocab-shop-redesign .vocab-shop-leaderboard__name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800}
+.vocab-shop-redesign .vocab-shop-leaderboard__row strong{white-space:nowrap;font-variant-numeric:tabular-nums;font-size:.72rem}
+.vocab-shop-redesign .vocab-shop-leaderboard__mine{margin:8px 10px;padding:10px;display:flex;justify-content:space-between;gap:5px;border-radius:10px;font-size:.8rem;font-weight:850}
+.vocab-shop-redesign .vocab-shop-leaderboard__note,.vocab-shop-redesign .vocab-shop-leaderboard__loading{font-size:.73rem;line-height:1.45;color:#577185;margin:12px}
+.vocab-shop-redesign .vocab-shop-leaderboard__expand{display:block;margin:11px auto 15px;padding:9px 15px;border-radius:99px;border:1px solid #a2d4e1;background:white;color:#087d7d;font-weight:850;font-size:.76rem;cursor:pointer}
+@media(max-width:840px){
+ .vocab-shop-redesign .vocab-shop-sidebar{grid-column:1;grid-row:auto}
+ .vocab-shop-redesign .vocab-shop-leaderboard-slot{grid-column:1;grid-row:auto}
+ .vocab-shop-redesign .vocab-shop-main{grid-column:1;grid-row:auto}
+ .vocab-shop-redesign .vocab-shop-equipped{grid-column:1;grid-row:auto}
+}
