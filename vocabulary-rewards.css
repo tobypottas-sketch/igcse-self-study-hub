@@ -70,3 +70,144 @@
 @media(max-width:1020px){.vocab-shell--sandbox .vocab-rewards-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.vocab-shell--sandbox .vocab-rewards-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:430px){.vocab-shell--sandbox .vocab-rewards-grid{grid-template-columns:1fr}}
+
+/* Approved Rewards Shop mockup: functional sandbox edition.
+   Scoped to this screen so existing Vocabulary Builder views remain untouched. */
+.vocab-shop-redesign{--shop-navy:#17365d;--shop-turquoise:#087d81;--shop-border:#b4dbe9;--shop-paper:#fbfeff;
+  width:min(1460px,calc(100% - 30px));max-width:1460px;padding:0 0 35px;
+  color:var(--shop-navy);background:linear-gradient(135deg,#f9feff 5%,#ecf8fd 70%,#f7fbff);
+  border:1px solid #acd4e2;border-radius:26px;box-shadow:0 14px 44px rgba(36,98,130,.08);overflow:hidden}
+.vocab-shop-redesign .vocab-topbar{padding:17px 26px 0}
+.vocab-shop-redesign .vocab-shop-hero{display:grid;grid-template-columns:minmax(330px,1fr) minmax(300px,1.06fr) auto;
+ align-items:start;gap:18px;padding:19px 26px 22px;position:relative}
+.vocab-shop-redesign .vocab-shop-eyebrow{display:inline-block;border:1px solid #9acbdc;border-radius:99px;
+ padding:6px 14px;font-size:.83rem;font-weight:850;background:#fff}
+.vocab-shop-redesign .vocab-shop-hero__intro h1{font-size:clamp(2rem,3.45vw,3.5rem);letter-spacing:-.055em;line-height:1.08;
+ color:var(--shop-navy);margin:22px 0 8px;font-weight:900}
+.vocab-shop-redesign .vocab-shop-underline{display:block;width:74px;height:5px;border-radius:20px;background:linear-gradient(90deg,#048987,#5cba9d,#ffce4d)}
+.vocab-shop-redesign .vocab-shop-hero__intro p{font-size:1.04rem;line-height:1.45;color:#27446a;margin:12px 0 0}
+.vocab-shop-redesign .vocab-shop-hero__scene{border-radius:24px;overflow:hidden;height:165px;align-self:start;
+ box-shadow:inset 0 0 20px #d1e8ef}
+.vocab-shop-redesign .vocab-shop-hero__scene svg{width:100%;height:100%;object-fit:cover}
+.vocab-shop-redesign .vocab-shop-hero__balance{background:rgba(255,255,255,.96);border:1px solid #9bcfe2;
+ padding:13px 17px;border-radius:99px;white-space:nowrap;display:flex;align-items:center;gap:10px;
+ box-shadow:0 7px 18px rgba(46,96,132,.08)}
+.vocab-shop-redesign .vocab-shop-hero__balance>span{font-size:1.5rem}
+.vocab-shop-redesign .vocab-shop-hero__balance strong{font-size:clamp(1.2rem,2vw,1.8rem);letter-spacing:-.03em}
+.vocab-shop-redesign .vocab-shop-hero__balance small{display:none}
+.vocab-shop-redesign .vocab-shop-test-note{font-size:.76rem;margin:0 27px 12px;padding:9px 13px;background:#e9f6f7;
+ border:1px solid #c5e4e6;border-radius:11px;color:#48687c}
+.vocab-shop-redesign .vocab-sandbox-feedback{padding:0 29px;margin:0;min-height:18px;font-size:.87rem}
+.vocab-shop-redesign .vocab-shop-content{display:grid;grid-template-columns:minmax(235px,288px) minmax(0,1fr);gap:19px;
+ padding:5px 18px 15px;align-items:start}
+.vocab-shop-redesign .vocab-shop-sidebar{grid-row:1 / 3;padding:19px 17px 16px;background:linear-gradient(165deg,#eff8ff,#fff 60%,#f5f9ff);
+ border:1px solid var(--shop-border);border-radius:22px;box-shadow:0 9px 21px rgba(25,76,113,.07)}
+.vocab-shop-redesign .vocab-shop-sidebar h2{font-size:1.38rem;margin:0 0 16px;font-weight:900;letter-spacing:-.03em}
+.vocab-shop-redesign .vocab-shop-level-mark{margin:0 auto 9px;width:96px;height:105px;position:relative;display:flex;
+ flex-direction:column;align-items:center;justify-content:center;color:#244063;
+ clip-path:polygon(50% 0,94% 23%,94% 77%,50% 100%,6% 77%,6% 23%);
+ background:linear-gradient(140deg,#ffde74,#efac38,#ffeaa0);filter:drop-shadow(0 5px 6px #d9a75655)}
+.vocab-shop-redesign .vocab-shop-level-mark::before{content:'';position:absolute;inset:8px;clip-path:inherit;background:#fff8dd}
+.vocab-shop-redesign .vocab-shop-level-mark>*{z-index:1;line-height:1.02}
+.vocab-shop-redesign .vocab-shop-level-mark span{font-size:.83rem;font-weight:850}
+.vocab-shop-redesign .vocab-shop-level-mark strong{font-size:2.4rem;font-weight:950;letter-spacing:-.04em}
+.vocab-shop-redesign .vocab-shop-student-name,.vocab-shop-redesign .vocab-shop-student-title{display:block;text-align:center}
+.vocab-shop-redesign .vocab-shop-student-name{font-weight:900;font-size:1rem;margin-top:5px}
+.vocab-shop-redesign .vocab-shop-student-title{font-size:.83rem;color:#52718e}
+.vocab-shop-redesign .vocab-shop-level-copy{text-align:center;font-size:.93rem;font-weight:850;margin:16px 0 8px}
+.vocab-shop-redesign .vocab-shop-meter{height:12px;background:#deebf2;border-radius:99px;overflow:hidden;margin-bottom:19px}
+.vocab-shop-redesign .vocab-shop-meter>span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#0c908e,#5dc8a8)}
+.vocab-shop-redesign .vocab-shop-stat{display:flex;align-items:center;gap:11px;border:1px solid #d6e7ee;border-radius:14px;
+ padding:12px;margin-top:8px;background:#ffffffc9}
+.vocab-shop-redesign .vocab-shop-stat>span{display:grid;place-items:center;font-size:1.9rem;width:43px;height:43px;border-radius:50%;background:#f5f7f9}
+.vocab-shop-redesign .vocab-shop-stat small{display:block;font-size:.76rem;color:#55718a}
+.vocab-shop-redesign .vocab-shop-stat strong{display:block;font-size:.94rem;line-height:1.28}
+.vocab-shop-redesign .vocab-shop-next{margin-top:15px;padding:12px 10px;background:linear-gradient(135deg,#f6f2ff,#eaf7ff);
+ border:1px solid #d5dbfc;border-radius:17px}
+.vocab-shop-redesign .vocab-shop-next h3{font-size:1rem;margin:0 0 9px}
+.vocab-shop-redesign .vocab-shop-next__detail{display:grid;grid-template-columns:minmax(75px,43%) 1fr;align-items:center;gap:9px}
+.vocab-shop-redesign .vocab-shop-next__art{width:100%;min-width:0}
+.vocab-shop-redesign .vocab-shop-next__art svg{width:100%;height:auto}
+.vocab-shop-redesign .vocab-shop-next__detail strong{font-size:.85rem;line-height:1.2;display:block}
+.vocab-shop-redesign .vocab-shop-next__detail p{font-size:.74rem;line-height:1.35;margin:3px 0 8px;color:#4f6485}
+.vocab-shop-redesign .vocab-shop-next__detail b{font-size:.76rem;color:#0c8581}
+.vocab-shop-redesign .vocab-shop-next__complete{font-size:.84rem;line-height:1.5}
+.vocab-shop-redesign .vocab-shop-main{min-width:0}
+.vocab-shop-redesign .vocab-shop-filter-line{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.vocab-shop-redesign .vocab-rewards-filters{margin:0}
+.vocab-shop-redesign .vocab-reward-tab{min-width:77px;padding:9px 17px}
+.vocab-shop-redesign .vocab-shop-popular{border:1px solid #b4e2da;background:#dff7ec;color:#255a62;border-radius:99px;
+ padding:10px 15px;font-weight:800;cursor:pointer}
+.vocab-shop-redesign .vocab-shop-popular.is-active{background:#c6f0e5;border-color:#7ccbbd}
+.vocab-shop-redesign .vocab-rewards-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.vocab-shop-redesign .vocab-shop-card{padding:13px;gap:7px;border-color:#b8d9e7;border-radius:18px;box-shadow:0 5px 13px #245f7813}
+.vocab-shop-redesign .vocab-shop-card--effects{border-top:3px solid #bd96fb}
+.vocab-shop-redesign .vocab-shop-card .vocab-reward-picture{min-height:0;height:auto;background:transparent;overflow:hidden}
+.vocab-shop-redesign .vocab-shop-illustration{width:100%;display:block;height:auto;aspect-ratio:2/1}
+.vocab-shop-redesign .vocab-shop-card h3{font-size:1.05rem;font-weight:900;letter-spacing:-.02em}
+.vocab-shop-redesign .vocab-shop-card p{font-size:.82rem;color:#44627c}
+.vocab-shop-redesign .vocab-shop-card .vocab-reward-category{padding:4px 10px;font-size:.7rem;font-weight:850}
+.vocab-shop-redesign .vocab-shop-card--frames .vocab-reward-category{background:#fff1d7;color:#9a6015}
+.vocab-shop-redesign .vocab-shop-card--titles .vocab-reward-category{background:#deecff;color:#235f9b}
+.vocab-shop-redesign .vocab-shop-card--effects .vocab-reward-category{background:#eee5ff;color:#65429a}
+.vocab-shop-redesign .vocab-reward-card__bottom{margin-top:8px;gap:5px}
+.vocab-shop-redesign .vocab-shop-price{border:1px solid #afd5e4;border-radius:99px;padding:8px 9px;background:#fff;
+ font-size:.85rem;color:#1f395d}
+.vocab-shop-redesign .vocab-reward-card__bottom button{padding:9px 13px;min-width:74px;white-space:nowrap}
+.vocab-shop-redesign .vocab-reward-card__bottom button.is-owned{background:#d9f5e4;color:#176c53;cursor:pointer}
+.vocab-shop-redesign .vocab-reward-card__bottom button.is-owned:disabled{cursor:default}
+.vocab-shop-redesign .vocab-shop-equipped{grid-column:2;display:grid;grid-template-columns:minmax(140px,190px) 1fr;gap:14px;
+ align-items:stretch;padding:15px 18px;background:#faffff;border:1px solid var(--shop-border);border-radius:20px;
+ box-shadow:0 7px 16px #356c8115}
+.vocab-shop-redesign .vocab-shop-equipped__heading{border-right:1px solid #b4dbe6;padding:8px 12px 8px 0}
+.vocab-shop-redesign .vocab-shop-equipped__heading h2{font-size:1.38rem;margin:0 0 8px;font-weight:900}
+.vocab-shop-redesign .vocab-shop-equipped__heading p{font-size:.85rem;line-height:1.4;margin:0;color:#526e86}
+.vocab-shop-redesign .vocab-shop-equipped__list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.vocab-shop-redesign .vocab-shop-equipped__item{text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;
+ padding:5px 7px;border-right:1px solid #e1edf4}
+.vocab-shop-redesign .vocab-shop-equipped__item:last-child{border-right:0}
+.vocab-shop-redesign .vocab-shop-equipped__item small{font-weight:750;font-size:.72rem;color:#257d88}
+.vocab-shop-redesign .vocab-shop-equipped__art{width:100%;min-height:55px;display:grid;place-items:center}
+.vocab-shop-redesign .vocab-shop-equipped__art svg{width:100%;height:auto}
+.vocab-shop-redesign .vocab-shop-empty-icon{font-size:2.4rem;color:#a1c9d5}
+.vocab-shop-redesign .vocab-shop-equipped__item strong{font-size:.8rem;line-height:1.2;min-height:2em}
+.vocab-shop-redesign .vocab-shop-equipped__item button{font-size:.76rem;border:1px solid #9acddb;border-radius:99px;
+ padding:6px 14px;color:#067a7a;background:#fff;cursor:pointer;font-weight:800}
+.vocab-shop-redesign .vocab-shop-equipped__item button:focus-visible,.vocab-shop-redesign .vocab-shop-popular:focus-visible{outline:3px solid #3977d4;outline-offset:3px}
+.vocab-shop-redesign[data-equipped-theme="midnight"] .vocab-shop-hero{background:linear-gradient(100deg,#e6edff,#c6d9f4)}
+.vocab-shop-redesign[data-equipped-theme="forest"] .vocab-shop-hero{background:linear-gradient(100deg,#effaf2,#cdebc7)}
+.vocab-shop-redesign[data-equipped-theme="sakura"] .vocab-shop-hero{background:linear-gradient(100deg,#fff4f8,#f3d4e5)}
+.vocab-shop-redesign[data-equipped-theme="ocean"] .vocab-shop-hero{background:linear-gradient(100deg,#effaff,#bbebf6)}
+@media(max-width:1170px){.vocab-shop-redesign .vocab-shop-hero{grid-template-columns:1fr 1fr}.vocab-shop-redesign .vocab-shop-hero__balance{position:absolute;right:36px;top:27px}
+.vocab-shop-redesign .vocab-shop-hero__scene{margin-top:50px}.vocab-shop-redesign .vocab-shop-content{grid-template-columns:235px minmax(0,1fr)}
+.vocab-shop-redesign .vocab-rewards-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:840px){.vocab-shop-redesign .vocab-shop-content{grid-template-columns:1fr}
+.vocab-shop-redesign .vocab-shop-sidebar{grid-row:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;gap:8px 16px}
+.vocab-shop-redesign .vocab-shop-sidebar h2,.vocab-shop-redesign .vocab-shop-next{grid-column:1/-1}
+.vocab-shop-redesign .vocab-shop-level-mark{grid-row:2/span 2}
+.vocab-shop-redesign .vocab-shop-student-name,.vocab-shop-redesign .vocab-shop-student-title{text-align:left}
+.vocab-shop-redesign .vocab-shop-level-copy,.vocab-shop-redesign .vocab-shop-meter{grid-column:1/-1;margin:0}
+.vocab-shop-redesign .vocab-shop-equipped{grid-column:1}
+.vocab-shop-redesign .vocab-shop-next__detail{grid-template-columns:130px 1fr}}
+@media(max-width:600px){.vocab-shop-redesign{width:calc(100% - 14px);border-radius:16px}
+.vocab-shop-redesign .vocab-topbar{padding:12px 14px 0}
+.vocab-shop-redesign .vocab-shop-hero{grid-template-columns:1fr;padding:15px 15px 10px}
+.vocab-shop-redesign .vocab-shop-hero__intro h1{font-size:2.2rem;margin-top:12px}
+.vocab-shop-redesign .vocab-shop-hero__scene{margin-top:0;height:145px}
+.vocab-shop-redesign .vocab-shop-hero__balance{position:static;justify-self:start;padding:8px 14px}
+.vocab-shop-redesign .vocab-shop-test-note{margin:0 14px 12px}
+.vocab-shop-redesign .vocab-shop-content{padding:6px 12px;gap:12px}
+.vocab-shop-redesign .vocab-shop-filter-line{align-items:stretch}
+.vocab-shop-redesign .vocab-rewards-filters{flex:1}
+.vocab-shop-redesign .vocab-reward-tab{min-width:0;padding:7px 12px}
+.vocab-shop-redesign .vocab-rewards-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.vocab-shop-redesign .vocab-shop-card{padding:9px}
+.vocab-shop-redesign .vocab-shop-card h3{font-size:.94rem}
+.vocab-shop-redesign .vocab-shop-card p{font-size:.76rem}
+.vocab-shop-redesign .vocab-reward-card__bottom{flex-wrap:wrap}
+.vocab-shop-redesign .vocab-reward-card__bottom button{width:100%}
+.vocab-shop-redesign .vocab-shop-equipped{grid-template-columns:1fr;gap:11px}
+.vocab-shop-redesign .vocab-shop-equipped__heading{border-right:0;border-bottom:1px solid #d1e7ef;padding-bottom:10px}
+.vocab-shop-redesign .vocab-shop-equipped__list{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.vocab-shop-redesign .vocab-shop-equipped__item:nth-child(2){border-right:0}}
+@media(max-width:370px){.vocab-shop-redesign .vocab-rewards-grid{grid-template-columns:1fr}}
