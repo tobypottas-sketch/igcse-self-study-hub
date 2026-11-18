@@ -1,5 +1,14 @@
 # Vocabulary Rewards Shop — implementation handover
 
+## Isolated sandbox test student — 18 November 2026
+- Reuse the existing **TEST STUDENT (Feedback pilot)** in **TEST CLASS**; do not change its authentication credentials, feedback setup or class membership.
+- Sandbox ledger and purchases are isolated in `public.vocabulary_reward_sandbox_wallets` and `public.vocabulary_reward_sandbox_owned`; they DO NOT fund or update `vocabulary_reward_wallets`, `vocabulary_reward_owned`, `vocabulary_reward_purchases`, missions or mastery.
+- **100,000 sandbox XP**, zero spent initially, enabled for that pre-existing account only. These are testing credits, not earned XP and never change Vocabulary Builder levels.
+- `vocabulary-reward-sandbox` is a separate authenticated service; only accounts explicitly enabled in the sandbox table may access it.
+- The live student app shows a test-shop entry only if the server confirms sandbox access. Sandbox purchases and equipping persist for that test account.
+- Production non-sandbox rewards remain disabled. `PURCHASES_RELEASED = false` remains unchanged in the real Rewards Shop.
+- The existing temporary login credential was provided by the user; **do not commit or log it**. Rotate the password when the pilot ends.
+
 ## Production rollout checkpoint — 18 November 2026
 The disabled Rewards Shop foundation was applied to production Supabase project
 `grjshlamooglytsajoun` under migration
