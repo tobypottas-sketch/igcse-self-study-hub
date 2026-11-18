@@ -19,7 +19,7 @@ test('assignment handler allows only active administrators and rejects teachers,
         if (table === 'teacher_classes') return { upsert:async (value, options) => { writes.push({ value, options }); return { error:null }; } };
         assert.ok(['profiles','classes'].includes(table), 'no account or membership mutation');
         let id;
-        return { select() { return this; }, eq(_key,value) { id = value; return this; }, single:async () => ({ data:table === 'classes' ? { id:CLASS, active:true } : id === TARGET ? account : { role:'admin', active:true }, error:null }) };
+        return { select() { return this; }, eq(_key,value) { id = value; return this; }, single:async () => ({ data:table === 'classes' ? { id:CLASS, active:true } : id === TARGET ? account : { role, active }, error:null }) };
       }
     };
     const env = { SUPABASE_URL:'https://example.test', SUPABASE_PUBLISHABLE_KEYS:'{"default":"test-public"}', SUPABASE_SECRET_KEYS:'{"default":"test-secret"}' };
