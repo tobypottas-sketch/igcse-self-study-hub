@@ -1,3 +1,4 @@
+import {ensureRewardsDashboard} from './rewards-home-layout.js';
 import { getSupabaseClient } from '../supabase.js';
 import { loadStudentVocabularyProgress, summariseVocabularyProgress, sampleVocabularyProgress, renderStudentVocabularyProgress } from './student-progress.js?v=my-progress-demo-v1';
 import { loadVocabularyDashboard, loadMeritAwardCount, loadVocabularyMissions, loadVocabularyUnit, loadStudentMastery, loadPathwaySets, loadSetMembers, recordVocabularyMission, startVocabularyMission, submitVocabularyAttempt } from './data.js';
@@ -329,16 +330,8 @@ async function applySandboxReward(action,rewardId){
 // stays compact. Either asynchronous request can finish first without creating
 // duplicate cards or reversing their display order.
 function ensureRewardsHomeStrip(home){
- let strip=home.querySelector('[data-rewards-home-strip]');
- if(strip)return strip;
- strip=document.createElement('section');
- strip.className='vocab-rewards-home-strip';
- strip.dataset.rewardsHomeStrip='true';
- strip.setAttribute('aria-label','Vocabulary rewards');
- const progress=home.querySelector('.vocab-engage-home');
- if(progress)progress.insertAdjacentElement('afterend',strip);
- else home.querySelector('.vocab-hero')?.insertAdjacentElement('afterend',strip);
- return strip;
+ const layout=ensureRewardsDashboard(home);
+ return layout?.querySelector('[data-rewards-dashboard-main]')??null;
 }
 async function revealSandboxEntry(){
   const home=root?.querySelector?.('.vocab-shell--home');
@@ -346,7 +339,9 @@ async function revealSandboxEntry(){
   const result=await loadSandboxShop().catch(()=>null);
   if(!result?.sandboxEnabled||!home.isConnected)return;
   await updateSandboxCosmetics(result);
-  const strip=ensureRewardsHomeStrip(home);
+  const layout=ensureRewardsDashboard(home);
+  const strip=layout?.querySelector('[data-rewards-dashboard-side]');
+  if(!strip)return;
   strip.querySelector('[data-sandbox-entry]')?.remove();
   const entry=document.createElement('section');
   entry.className='vocab-rewards-preview-entry vocab-rewards-home-card vocab-rewards-home-card--sandbox';
@@ -372,7 +367,7 @@ async function refreshStudentCosmetics(){
  const shop=effectiveCosmeticShop();
  if(!shop||state.preview||state.profile?.role!=='student')return;
  liveCosmeticShop=shop;
- cosmeticModule??=await import('./rewards-equipped-home.js');
+ cosmeticModule??=await import('./rewards-equipped-home.js?v=rewards-dashboard-v7');
  cosmeticModule.applyRewardTheme(root,shop);
  if(root?.querySelector('.vocab-shell--home'))
    cosmeticModule.renderEquippedCosmetics(root,shop,state.profile?.display_name??'Student');
@@ -485,6 +480,7 @@ async function revealRealShopEntry(){
  if(!shop||!home.isConnected)return;
  await updateLiveCosmetics(shop);
  const strip=ensureRewardsHomeStrip(home);
+ if(!strip)return;
  strip.querySelector('[data-real-entry]')?.remove();
  const entry=document.createElement('section');
  entry.className='vocab-rewards-preview-entry vocab-rewards-home-card vocab-rewards-home-card--real';
@@ -495,7 +491,7 @@ async function revealRealShopEntry(){
   '<strong>XP Rewards Shop</strong><small><b>'+Number(shop.wallet.available).toLocaleString('en')+
   ' XP</b> ready to spend · Learning XP stays yours</small></div>'+
   '<button type="button" data-action="open-real-shop">Explore shop</button>';
- strip.prepend(entry);
+ strip.append(entry);
 }
 
 // Wallet sync is deliberately separate from the UI's locally displayed XP.
