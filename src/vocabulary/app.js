@@ -299,15 +299,22 @@ async function applySandboxReward(action,rewardId){
   if(state.preview||sandboxBusy||!sandboxShop?.sandboxEnabled)return;
   if(!['buy','equip'].includes(action)||!sandboxShop.rewards.some(x=>x.reward_id===rewardId))return;
   sandboxBusy=true;
+  let feedback='';
   try {
     await renderCurrentSandboxShop('Saving sandbox reward…',true);
     const response=await state.client.functions.invoke('vocabulary-reward-sandbox',{body:{action,rewardId}});
     if(response.error||response.data?.ok!==true)throw Error(response.data?.error||'Could not save reward.');
     sandboxShop=response.data;
-    await renderCurrentSandboxShop(action==='buy'?'Reward purchased using test XP.':'Reward equipped.',true);
+    feedback=action==='buy'?'Reward purchased using test XP.':'Reward equipped.';
   }catch(error){
-    if(sandboxShop?.sandboxEnabled)await renderCurrentSandboxShop(error instanceof Error?error.message:'Unable to save reward.',true);
-  }finally{sandboxBusy=false;}
+    feedback=error instanceof Error?error.message:'Unable to save reward.';
+  }finally{
+    sandboxBusy=false;
+    if(sandboxShop?.sandboxEnabled){
+      try{await renderCurrentSandboxShop(feedback,false);}
+      catch(error){console.error('Unable to refresh the test shop after saving.',error);}
+    }
+  }
 }
 // One responsive strip: the real shop is primary, while the test-only card
 // stays compact. Either asynchronous request can finish first without creating
@@ -412,16 +419,36 @@ async function applyRealReward(action,rewardId){
  if(state.preview||realBusy||!realShop||!['buy','equip'].includes(action)||
     !realShop.rewards.some(r=>r.reward_id===rewardId))return;
  realBusy=true;
+ let feedback='';
  try{
   await renderRealShop('Saving your reward…',true);
   const {data,error}=await state.client.functions.invoke('vocabulary-reward-production',{body:{action,rewardId}});
   if(error||data?.ok!==true||data.shopMode!=='production')throw Error(data?.error||'Reward could not be saved.');
   realShop=data;
-  await updateLiveCosmetics(data);
-  await renderRealShop(action==='buy'?'Reward purchased! Equip it to customise your profile.':'Reward equipped!',true);
+  feedback=action==='buy'?'Reward purchased! Select Equip to use it.':'Reward equipped!';
+  // Themes should immediately transform the workspace after purchase. Buying is
+  // still the only XP deduction; equip is a separate, free server-authorized RPC.
+  const purchasedTheme=action==='buy'&&realShop.rewards.some(r=>r.reward_id===rewardId&&r.category==='themes');
+  if(purchasedTheme){
+    const equipped=await state.client.functions.invoke('vocabulary-reward-production',{body:{action:'equip',rewardId}});
+    if(equipped.error||equipped.data?.ok!==true||equipped.data?.shopMode!=='production'){
+      feedback='Theme purchased, but not equipped. Please select Equip to activate it.';
+    }else{
+      realShop=equipped.data;
+      feedback='Theme purchased and equipped! Your Vocabulary Builder now uses this theme.';
+    }
+  }
+  await updateLiveCosmetics(realShop);
  }catch(error){
-  await renderRealShop(error instanceof Error?error.message:'Unable to save reward.',true);
- }finally{realBusy=false;}
+  feedback=error instanceof Error?error.message:'Unable to save reward.';
+ }finally{
+  // Previously the last render happened with busy=true, permanently leaving
+  // Buy/Equip buttons greyed out even though the request had finished.
+  realBusy=false;
+  try{await renderRealShop(feedback,false);}catch(error){
+    console.error('Unable to refresh the Rewards Shop after saving.',error);
+  }
+ }
 }
 async function revealRealShopEntry(){
  const home=root?.querySelector('.vocab-shell--home');

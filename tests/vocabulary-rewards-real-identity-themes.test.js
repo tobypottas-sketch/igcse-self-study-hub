@@ -65,7 +65,7 @@ test('root theme and identity persist across internal screen rerenders and are r
  assert.match(app,/identityObserver\.observe\(root,\{childList:true\}\)/);
  assert.match(app,/cosmeticModule\.decorateStudentIdentity/);
  assert.match(app,/cosmeticModule\.applyRewardTheme\(root,shop\)/);
- assert.match(app,/await updateLiveCosmetics\(data\)/);
+ assert.match(app,/await updateLiveCosmetics\(realShop\)/);
  assert.match(app,/await updateLiveCosmetics\(shop\)/);
  assert.match(app,/if \(!state\.preview\) installStudentIdentityObserver\(\)/);
 });
