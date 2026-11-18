@@ -244,6 +244,54 @@ async function runRewardsXpParityDiagnostic() {
     state.xpAuditReportText=null;
   }
 }
+// Sandbox shop is enabled only by a server-side allowance for a designated
+// test account. It never modifies student learning XP or real reward ownership.
+let sandboxShop=null;
+let sandboxCategory='all';
+let sandboxBusy=false;
+async function loadSandboxShop() {
+  if(state.preview||!state.client)return null;
+  const response=await state.client.functions.invoke('vocabulary-reward-sandbox',{body:{action:'status'}});
+  if(response.error||response.data?.ok!==true||!response.data?.sandboxEnabled)return null;
+  return response.data;
+}
+async function showSandboxShop(message='') {
+  if(state.preview||sandboxBusy)return;
+  const shop=await loadSandboxShop();
+  if(!shop)return;
+  sandboxShop=shop;
+  const {renderSandboxShop}=await import('./rewards-sandbox-view.js');
+  renderSandboxShop(root,shop,{category:sandboxCategory,message});
+}
+async function applySandboxReward(action,rewardId){
+  if(state.preview||sandboxBusy||!sandboxShop?.sandboxEnabled)return;
+  if(!['buy','equip'].includes(action)||!sandboxShop.rewards.some(x=>x.reward_id===rewardId))return;
+  sandboxBusy=true;
+  try {
+    const {renderSandboxShop}=await import('./rewards-sandbox-view.js');
+    renderSandboxShop(root,sandboxShop,{category:sandboxCategory,busy:true,message:'Saving sandbox reward…'});
+    const response=await state.client.functions.invoke('vocabulary-reward-sandbox',{body:{action,rewardId}});
+    if(response.error||response.data?.ok!==true)throw Error(response.data?.error||'Could not save reward.');
+    sandboxShop=response.data;
+    renderSandboxShop(root,sandboxShop,{category:sandboxCategory,message:action==='buy'?'Reward purchased using test XP.':'Reward equipped.'});
+  }catch(error){
+    const {renderSandboxShop}=await import('./rewards-sandbox-view.js');
+    if(sandboxShop?.sandboxEnabled)renderSandboxShop(root,sandboxShop,{category:sandboxCategory,message:error instanceof Error?error.message:'Unable to save reward.'});
+  }finally{sandboxBusy=false;}
+}
+async function revealSandboxEntry(){
+  const home=root?.querySelector?.('.vocab-shell--home');
+  if(!home||state.preview)return;
+  const result=await loadSandboxShop().catch(()=>null);
+  if(!result?.sandboxEnabled||!home.isConnected)return;
+  const entry=document.createElement('section');
+  entry.className='vocab-rewards-preview-entry';
+  entry.setAttribute('aria-label','Sandbox Rewards Shop');
+  entry.innerHTML='<div><strong>⭐ XP Rewards Shop · Test Mode</strong><small>100,000 sample XP to explore cosmetic rewards. No real XP is spent.</small></div><button type="button" data-action="open-sandbox-shop">Open test shop</button>';
+  const progress=home.querySelector('.vocab-engage-home');
+  if(progress)progress.insertAdjacentElement('afterend',entry);
+  else home.querySelector('.vocab-hero')?.insertAdjacentElement('afterend',entry);
+}
 async function showHome() {
   state.xpAuditReportText=null;
   state.unitRequest += 1; state.loadingUnit = null;
@@ -254,6 +302,7 @@ async function showHome() {
   await evaluateUnitsThatLookMastered(dashboard);
   renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units, engagement:homeEngagement(), soundOn:soundEnabled(), preview:state.preview }); decoratePreview();
   void runRewardsXpParityDiagnostic();
+  void revealSandboxEntry();
 }
 async function openMyProgress() {
   // This view is read-only and is allowed in staff preview (no personal tracking queries).
@@ -1056,6 +1105,16 @@ root?.addEventListener('click', event => {
       .then(()=>{if(note?.isConnected)note.textContent='Copied without student identity.';})
       .catch(()=>{if(note?.isConnected)note.textContent='Could not copy. Please capture the results.';});
   }
+  else if (action === 'open-sandbox-shop' && !state.preview) { sandboxCategory='all'; void showSandboxShop(); }
+  else if (action === 'sandbox-filter' && !state.preview && sandboxShop?.sandboxEnabled) {
+    const category=target.dataset.category??'all';
+    if(!['all','themes','frames','titles','effects'].includes(category))return;
+    sandboxCategory=category;
+    void import('./rewards-sandbox-view.js').then(({renderSandboxShop})=>renderSandboxShop(root,sandboxShop,{category,busy:sandboxBusy}));
+  }
+  else if (action === 'sandbox-buy' && !state.preview) { void applySandboxReward('buy',target.dataset.rewardId); }
+  else if (action === 'sandbox-equip' && !state.preview) { void applySandboxReward('equip',target.dataset.rewardId); }
+  else if (action === 'back-sandbox-home' && !state.preview) { sandboxShop=null; void showHome().catch(error=>renderVocabularyError(root,error.message)); }
   else if (action === 'open-rewards-preview' && state.preview) { void showRewardsPreview().catch(error => renderVocabularyError(root,error.message)); }
   else if (action === 'filter-rewards' && state.preview) { void showRewardsPreview(target.dataset.category ?? 'all').catch(error => renderVocabularyError(root,error.message)); }
   else if (action === 'back-rewards-home' && state.preview) { void showHome().catch(error => renderVocabularyError(root,error.message)); }
