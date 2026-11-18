@@ -62,7 +62,7 @@ export function renderCohortAudit(root,{pages=[],loading=false,error='',complete
  ${tile(summary.components.stageClears,'Passed stages')}
  ${tile(summary.components.pathwayMasteries,'Mastered pathways')}
  ${tile(summary.components.unitMasteries,'Mastered units')}
- </div><p class="vocab-cohort-footnote">These seven components must add up exactly to the lifetime total. No XP has been credited.</p></section>
+ </div><p class="vocab-cohort-footnote">These seven components must add up exactly to the lifetime total. Checking them does not award XP.</p></section>
  <p class="vocab-cohort-footnote">Students with no missions may still have mastery or achievement XP. Wallet credits are cumulative lifetime XP, never extra XP added per scan.</p>
  <section class="vocab-cohort-funding"><h2>Verified XP wallets</h2>
  <p>${funding?'Initializing wallets in authenticated batches…':summary.missingWallets===0?'Every active student has a wallet.':'Initialize missing wallets using this completed audit. Each batch must match the audited XP totals before any credits are written.'}</p>
