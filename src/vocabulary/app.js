@@ -309,6 +309,81 @@ async function revealSandboxEntry(){
   if(progress)progress.insertAdjacentElement('afterend',entry);
   else home.querySelector('.vocab-hero')?.insertAdjacentElement('afterend',entry);
 }
+// Production reward controls are deliberately isolated from the test shop.
+let realShop=null,realCategory='all',realBusy=false,realLeaderboard=null;
+let realLeaderboardView={scope:'class',period:'weekly',expanded:false};
+async function fetchRealShop(){
+ if(state.preview||state.profile?.role!=='student'||!state.client)return null;
+ const {data,error}=await state.client.functions.invoke('vocabulary-reward-production',{body:{action:'status'}});
+ if(error||data?.ok!==true||data.shopMode!=='production'||data.purchasesEnabled!==true||
+    data.walletStatus!=='ready'||!data.wallet)return null;
+ return data;
+}
+async function renderRealShop(message='',busy=realBusy){
+ if(!realShop)return;
+ const {renderProductionShop}=await import('./rewards-sandbox-view.js');
+ renderProductionShop(root,realShop,{category:realCategory,busy,message,progress:homeEngagement(),
+  studentName:state.profile?.display_name??'Student',leaderboard:realLeaderboard,leaderboardView:realLeaderboardView});
+}
+async function refreshRealLeaderboard(){
+ if(state.preview||!state.client||!realShop)return;
+ const requested={...realLeaderboardView};
+ const {data,error}=await state.client.functions.invoke('vocabulary-practice-leaderboard',{body:requested}).catch(()=>({data:null,error:true}));
+ if(!realShop||!root?.querySelector('.vocab-shell--production'))return;
+ if(JSON.stringify(requested)!==JSON.stringify(realLeaderboardView))return;
+ realLeaderboard=error||data?.ok!==true?null:data;
+ void renderRealShop();
+}
+async function showRealShop(){
+ if(state.preview||realBusy)return;
+ try{
+  const {data:sync,error}=await state.client.functions.invoke('vocabulary-reward-wallet-sync',{body:{action:'sync'}});
+  if(error||sync?.ok!==true)throw Error('Could not verify your current earned XP. Please try again.');
+  const shop=await fetchRealShop();
+  if(!shop)throw Error('The Rewards Shop is temporarily unavailable.');
+  realShop=shop;
+  realCategory='all';realLeaderboard=null;
+  realLeaderboardView={scope:'class',period:'weekly',expanded:false};
+  await renderRealShop();
+  void refreshRealLeaderboard();
+ }catch(error){
+  const entry=root?.querySelector('[data-real-entry] small');
+  if(entry)entry.textContent=error instanceof Error?error.message:'Unable to open shop.';
+ }
+}
+async function applyRealReward(action,rewardId){
+ if(state.preview||realBusy||!realShop||!['buy','equip'].includes(action)||
+    !realShop.rewards.some(r=>r.reward_id===rewardId))return;
+ realBusy=true;
+ try{
+  await renderRealShop('Saving your reward…',true);
+  const {data,error}=await state.client.functions.invoke('vocabulary-reward-production',{body:{action,rewardId}});
+  if(error||data?.ok!==true||data.shopMode!=='production')throw Error(data?.error||'Reward could not be saved.');
+  realShop=data;
+  await renderRealShop(action==='buy'?'Reward purchased! Equip it to customise your profile.':'Reward equipped!',true);
+ }catch(error){
+  await renderRealShop(error instanceof Error?error.message:'Unable to save reward.',true);
+ }finally{realBusy=false;}
+}
+async function revealRealShopEntry(){
+ const home=root?.querySelector('.vocab-shell--home');
+ if(!home||state.preview||state.profile?.role!=='student')return;
+ const shop=await fetchRealShop().catch(()=>null);
+ if(!shop||!home.isConnected)return;
+ const {renderEquippedCosmetics}=await import('./rewards-equipped-home.js');
+ renderEquippedCosmetics(root,shop);
+ home.querySelector('[data-real-entry]')?.remove();
+ const entry=document.createElement('section');
+ entry.className='vocab-rewards-preview-entry';
+ entry.dataset.realEntry='true';
+ entry.setAttribute('aria-label','XP Rewards Shop');
+ entry.innerHTML='<div><strong>⭐ XP Rewards Shop</strong><small>'+
+  Number(shop.wallet.available).toLocaleString('en')+
+  ' spendable XP · Buying rewards never reduces learning XP.</small></div>'+
+  '<button type="button" data-action="open-real-shop">Explore rewards</button>';
+ home.querySelector('.vocab-engage-home')?.insertAdjacentElement('afterend',entry);
+}
+
 // Wallet sync is deliberately separate from the UI's locally displayed XP.
 // Only the authenticated server calculates and writes verified earnings.
 let verifiedWalletSyncBusy=false;
@@ -335,7 +410,7 @@ async function showHome() {
   renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units, engagement:homeEngagement(), soundOn:soundEnabled(), preview:state.preview }); decoratePreview();
   void runRewardsXpParityDiagnostic();
   void revealSandboxEntry();
-  void refreshVerifiedRewardWallet();
+  void refreshVerifiedRewardWallet().then(()=>revealRealShopEntry());
 }
 async function openMyProgress() {
   // This view is read-only and is allowed in staff preview (no personal tracking queries).
@@ -1137,6 +1212,28 @@ root?.addEventListener('click', event => {
     void navigator.clipboard.writeText(state.xpAuditReportText)
       .then(()=>{if(note?.isConnected)note.textContent='Copied without student identity.';})
       .catch(()=>{if(note?.isConnected)note.textContent='Could not copy. Please capture the results.';});
+  }
+  else if (action === 'open-real-shop' && !state.preview) { void showRealShop(); }
+  else if (action === 'real-filter' && !state.preview && realShop && !realBusy) {
+    const category=target.dataset.category??'all';
+    if(['all','themes','frames','titles','effects','popular'].includes(category)){
+      realCategory=category;void renderRealShop();
+    }
+  }
+  else if (action === 'real-leaderboard' && !state.preview && realShop && !realBusy){
+    if(['class','school'].includes(target.dataset.scope))realLeaderboardView.scope=target.dataset.scope;
+    if(['weekly','all'].includes(target.dataset.period))realLeaderboardView.period=target.dataset.period;
+    realLeaderboardView.expanded=false;realLeaderboard=null;
+    void renderRealShop().then(refreshRealLeaderboard);
+  }
+  else if (action === 'real-leaderboard-expand' && !state.preview && realShop && !realBusy){
+    realLeaderboardView.expanded=!realLeaderboardView.expanded;realLeaderboard=null;
+    void renderRealShop().then(refreshRealLeaderboard);
+  }
+  else if (action === 'real-buy' && !state.preview){void applyRealReward('buy',target.dataset.rewardId);}
+  else if (action === 'real-equip' && !state.preview){void applyRealReward('equip',target.dataset.rewardId);}
+  else if (action === 'back-real-home' && !state.preview){
+    realShop=null;void showHome().catch(error=>renderVocabularyError(root,error.message));
   }
   else if (action === 'open-sandbox-shop' && !state.preview) { sandboxCategory='all'; sandboxLeaderboard=null; sandboxLeaderboardView={scope:'class',period:'weekly',expanded:false}; void showSandboxShop(); }
   else if (action === 'sandbox-filter' && !state.preview && sandboxShop?.sandboxEnabled) {
