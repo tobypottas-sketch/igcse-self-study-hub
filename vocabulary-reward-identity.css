@@ -172,3 +172,22 @@
   font-size:.66rem;letter-spacing:.02em;
  }
 }
+
+/* The active purchased theme must also be visible while browsing the shop.
+   Keep card backgrounds readable, use theme colour on its surrounding chrome. */
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) .vocab-shop-redesign.vocab-shell--production{
+  --shop-turquoise:var(--reward-accent);
+  --shop-border:var(--reward-edge);
+  background:linear-gradient(140deg,var(--reward-soft) 0%,#fff 48%,var(--reward-soft) 100%);
+  border-color:var(--reward-edge);
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) .vocab-shop-redesign.vocab-shell--production :is(.vocab-shop-card,.vocab-shop-sidebar,.vocab-shop-equipped){
+  border-color:var(--reward-edge);
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) .vocab-shop-redesign.vocab-shell--production :is(.vocab-reward-tab.is-active,.vocab-shop-popular.is-active,.vocab-reward-card__bottom button:not(:disabled):not(.is-owned)){
+  background:var(--reward-accent);
+  color:#fff;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-shop-redesign.vocab-shell--production{
+  background:linear-gradient(145deg,#28365e 0%,#e9edff 21%,#f6f7ff 75%,#dae1f7 100%);
+}
