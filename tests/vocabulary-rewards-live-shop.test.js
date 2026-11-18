@@ -34,7 +34,7 @@ test('live shop renders real wallet and approved PNG art without sandbox labels'
 test('equipped and affordable/locked cards reflect server wallet',()=>{
  const root={innerHTML:''};
  renderProductionShop(root,{...shop,wallet:{verifiedEarned:900,spent:800,available:100}},{progress});
- assert.match(root.innerHTML,/Not enough XP/);
+ assert.match(root.innerHTML,/XP to unlock/);
  assert.match(root.innerHTML,/Equipped/);
  assert.match(root.innerHTML,/Equip/);
  assert.match(root.innerHTML,/disabled/);
