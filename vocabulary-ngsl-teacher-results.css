@@ -48,3 +48,13 @@
  #vocabularyApp .ngsl-report-bands{grid-template-columns:repeat(2,minmax(0,1fr))}
  #vocabularyApp .ngsl-report-band:last-child{grid-column:1/-1}
 }
+
+/* Detail-on-demand: teachers see the summary until they request a timeline. */
+#vocabularyApp .ngsl-integrity-details{min-width:210px;max-width:340px;color:#27475c;font-size:.78rem}
+#vocabularyApp .ngsl-integrity-details summary{cursor:pointer;font-weight:800;color:#126b7e;line-height:1.5}
+#vocabularyApp .ngsl-integrity-details summary:focus-visible{outline:3px solid #2a6fc5;outline-offset:3px}
+#vocabularyApp .ngsl-integrity-details ol{padding:8px 0 0 20px;margin:7px 0;display:grid;gap:8px}
+#vocabularyApp .ngsl-integrity-details li{padding-bottom:6px;border-bottom:1px solid #e4eef3}
+#vocabularyApp .ngsl-integrity-details li span,#vocabularyApp .ngsl-integrity-details li time{display:block}
+#vocabularyApp .ngsl-integrity-details li time{color:#617a89;font-size:.71rem}
+#vocabularyApp .ngsl-integrity-details>small{display:block;color:#60798a;line-height:1.4}
