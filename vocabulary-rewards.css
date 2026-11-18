@@ -60,3 +60,13 @@
 .vocab-xp-audit__footer button:focus-visible{outline:3px solid #3977d4;outline-offset:3px}
 .vocab-xp-audit__footer small{font-size:.8rem;flex-basis:100%}
 @media(max-width:580px){.vocab-xp-audit{padding:15px}.vocab-xp-audit__head{flex-direction:column}.vocab-xp-audit__footer button{width:100%}}
+
+/* Sandbox real-wallet preview, visually separated from the staged staff mockup. */
+.vocab-shell--sandbox .vocab-rewards-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.vocab-shell--sandbox .vocab-reward-card__bottom button:not([disabled]){cursor:pointer;background:#0f827b;color:#fff}
+.vocab-shell--sandbox .vocab-reward-card__bottom button:not([disabled]):hover{background:#0a6865}
+.vocab-shell--sandbox .vocab-reward-card__bottom button:disabled{opacity:.72}
+.vocab-sandbox-feedback{min-height:1.25em;font-size:.9rem;font-weight:750;color:#164b54}
+@media(max-width:1020px){.vocab-shell--sandbox .vocab-rewards-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){.vocab-shell--sandbox .vocab-rewards-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:430px){.vocab-shell--sandbox .vocab-rewards-grid{grid-template-columns:1fr}}
