@@ -1,7 +1,7 @@
 // Student-facing preview of owned and equipped production cosmetics.
 // All artwork uses the approved PNG pack, never SVG/emoji stand-ins.
 import {rewardArtworkPath} from './rewards-art.js';
-const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;':'&quot;',"'":'&#39;'}[c]));
+const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const THEMES=new Set(['midnight','forest','ocean','sakura']);
 const EFFECTS=new Set(['sparkle','pixel-badge']);
 export function equippedCosmetics(shop){
