@@ -49,9 +49,11 @@ export function renderIdentityShowcase(shop,displayName='Student'){
  const active=id.active;
  const labels={themes:'Theme',frames:'Frame',titles:'Title',effects:'Effect'};
  const equippedCount=Object.keys(active).length;
+ const itemNames=new Map((shop?.rewards??[]).map(item=>[item.reward_id,item.name]));
  const status=CATEGORIES.map(category=>{
    const reward=active[category];
-   return `<span class="vocab-student-identity__slot${reward?' is-equipped':''}" aria-label="${labels[category]}: ${reward?'equipped':'not equipped'}">
+   const detail=reward?`${itemNames.get(reward)??labels[category]} ${category==='themes'?'active':'equipped'}`:`${labels[category]} not equipped`;
+   return `<span class="vocab-student-identity__slot${reward?' is-equipped':''}" aria-label="${escapeHtml(detail)}" title="${escapeHtml(detail)}">
      <span class="vocab-student-identity__slot-dot" aria-hidden="true"></span>${labels[category]}
    </span>`;
  }).join('');
