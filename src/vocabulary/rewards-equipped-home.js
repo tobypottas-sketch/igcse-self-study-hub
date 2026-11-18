@@ -68,10 +68,10 @@ export function renderIdentityShowcase(shop,displayName='Student'){
    <div class="vocab-student-identity__text">
      <span class="vocab-student-identity__eyebrow">${id.sandboxPreview?'TEST COSMETICS PREVIEW':'MY STUDENT PROFILE'}</span>
      <h2>${escapeHtml(id.name)}</h2>
-     <div class="vocab-student-identity__extras">${title||'<span class="vocab-student-identity__detail">Choose a title in the shop</span>'}</div>
      <div class="vocab-student-identity__slots" aria-label="Equipped reward categories">${status}</div>
+     <span class="vocab-student-identity__stamp">${equippedCount} / 4 ${id.sandboxPreview?'test equipped':'equipped'}</span>
    </div>
-   <div class="vocab-student-identity__stamp">${equippedCount} / 4 ${id.sandboxPreview?'test equipped':'equipped'}</div>
+   <div class="vocab-student-identity__extras" aria-label="Equipped title artwork">${title||'<span class="vocab-student-identity__detail">Choose a title in the shop</span>'}</div>
  </section>`;
 }
 export function applyRewardTheme(root,shop){
