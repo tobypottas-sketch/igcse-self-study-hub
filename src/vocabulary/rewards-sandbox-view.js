@@ -31,8 +31,13 @@ function leaderboardPanel(board,view={}){
  </section>`;
 }
 function ownedMap(shop){return new Map((shop.owned??[]).map(item=>[item.reward_id,item]));}
-export function renderSandboxShop(root,shop,{category='all',busy=false,message='',progress=null,studentName='Student',leaderboard=null,leaderboardView={}}={}){
-  if(!shop?.sandboxEnabled||shop.shopMode!=='sandbox')throw Error('Sandbox not enabled');
+export function renderSandboxShop(root,shop,options={}){return renderSharedShop(root,shop,options,false);}
+export function renderProductionShop(root,shop,options={}){
+ if(shop?.shopMode!=='production'||!shop?.purchasesEnabled||shop?.walletStatus!=='ready')throw Error('Verified production shop not ready');
+ return renderSharedShop(root,shop,options,true);
+}
+function renderSharedShop(root,shop,{category='all',busy=false,message='',progress=null,studentName='Student',leaderboard=null,leaderboardView={}}={},production=false){
+ if(!production&&(!shop?.sandboxEnabled||shop.shopMode!=='sandbox'))throw Error('Sandbox not enabled');
   const owned=ownedMap(shop);
   const active={};
   for(const item of shop.owned??[])if(item.equipped)active[item.category]=item.reward_id;
@@ -78,7 +83,7 @@ export function renderSandboxShop(root,shop,{category='all',busy=false,message='
       <button type="button" data-action="sandbox-filter" data-category="${id}" ${busy?'disabled':''}>${reward?'Change':'Choose'}</button></div>`;
   }).join('');
   const banner=bannerIllustration;
-  root.innerHTML=`<main class="vocab-shell vocab-shell--rewards vocab-shell--sandbox vocab-shop-redesign" data-equipped-theme="${escapeHtml(theme)}">
+  let html=`<main class="vocab-shell vocab-shell--rewards vocab-shell--sandbox vocab-shop-redesign" data-equipped-theme="${escapeHtml(theme)}">
     <header class="vocab-topbar"><button type="button" class="vocab-back vocab-back--chip" data-action="back-sandbox-home">← All units</button><span class="vocab-topbar__course">Cambridge IGCSE ESL 0511 · Test shop</span></header>
     <section class="vocab-shop-hero" aria-label="XP Rewards Shop">
       <div class="vocab-shop-hero__intro"><span class="vocab-shop-eyebrow">Vocabulary Builder · Student rewards</span>
@@ -113,4 +118,13 @@ export function renderSandboxShop(root,shop,{category='all',busy=false,message='
       </section>
     </div>
   </main>`;
+  if(production){
+   html=html.replace(/data-action="sandbox-/g,'data-action="real-')
+    .replace('data-action="back-sandbox-home"','data-action="back-real-home"')
+    .replace('vocab-shell--sandbox','vocab-shell--production')
+    .replace(' · Test shop',' · Rewards Shop')
+    .replace('Sandbox available','Spendable balance')
+    .replace('Test credits only · Sandbox balance is separate from learning XP. Rewards never affect answers, levels or genuine learning XP.','Real XP rewards · Buying reduces spendable XP, not learning XP, levels or achievements.');
+  }
+  root.innerHTML=html;
 }
