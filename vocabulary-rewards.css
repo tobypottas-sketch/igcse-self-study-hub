@@ -258,3 +258,20 @@
  .vocab-shop-redesign .vocab-shop-rail{grid-column:1;grid-row:auto}
  .vocab-shop-redesign .vocab-shop-main,.vocab-shop-redesign .vocab-shop-equipped{grid-column:1;grid-row:auto}
 }
+
+/* Production cosmetics: small, readable PNG reward thumbnails on the actual dashboard. */
+.vocab-shell--home .vocab-real-cosmetics{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:13px 17px;margin:12px 0;border:1px solid #b5dce7;border-radius:17px;background:#f7fdff;box-shadow:0 5px 18px #123c5820}
+.vocab-real-cosmetics__intro{display:grid;gap:2px}.vocab-real-cosmetics__intro strong{color:#173f57;font-weight:900}.vocab-real-cosmetics__intro small{color:#4d6b7d;font-size:.76rem}
+.vocab-real-cosmetics__items{display:flex;align-items:center;flex-wrap:wrap;gap:7px}.vocab-real-cosmetic-chip{display:inline-flex;align-items:center;gap:6px;max-width:230px;border:1px solid #b4d9e6;border-radius:12px;padding:4px 9px 4px 5px;background:#fff;color:#244963;font-size:.8rem}
+.vocab-real-cosmetic-chip img{width:48px;height:37px;object-fit:cover;object-position:center;border-radius:9px}
+.vocab-real-cosmetic-chip strong{overflow-wrap:anywhere}
+.vocab-shell--home.vocab-real-theme--midnight .vocab-hero--home{background:linear-gradient(120deg,#151f48,#303b84);color:#f6f7ff}
+.vocab-shell--home.vocab-real-theme--midnight .vocab-hero--home h1,.vocab-shell--home.vocab-real-theme--midnight .vocab-hero--home p,.vocab-shell--home.vocab-real-theme--midnight .vocab-hero--home .vocab-kicker{color:#f6f7ff}
+.vocab-shell--home.vocab-real-theme--forest .vocab-hero--home{background:linear-gradient(120deg,#e6f7e7,#b4e6be)}
+.vocab-shell--home.vocab-real-theme--ocean .vocab-hero--home{background:linear-gradient(120deg,#d9f7fa,#a3dff7)}
+.vocab-shell--home.vocab-real-theme--sakura .vocab-hero--home{background:linear-gradient(120deg,#fff0f5,#ffd6e5)}
+.vocab-shell--home.vocab-real-effect--sparkle .vocab-real-cosmetics{box-shadow:0 3px 16px #a675d554,0 0 0 2px #bca6ed70}
+.vocab-shell--home.vocab-real-effect--pixel-badge .vocab-real-cosmetics{outline:3px solid #8a80e9;outline-offset:2px}
+.vocab-shell--home .vocab-rewards-preview-entry[data-real-entry]{background:linear-gradient(115deg,#e5f9f1,#eaf5ff)}
+.vocab-shop-redesign.vocab-shell--production .vocab-shop-hero{border-color:#82bcd6}
+@media(max-width:680px){.vocab-real-cosmetics{align-items:flex-start}.vocab-real-cosmetics__items{width:100%}}
