@@ -7,6 +7,17 @@ const cors={
   'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods':'POST, OPTIONS'
 };
+function configuredKey(primary:string,fallback:string):string|undefined{
+  const direct=Deno.env.get(primary);
+  if(direct)return direct;
+  const raw=Deno.env.get(fallback);
+  if(!raw)return undefined;
+  try{
+    const value=JSON.parse(raw);
+    return typeof value.default==='string'?value.default:
+      Object.values(value).find((entry):entry is string=>typeof entry==='string');
+  }catch{return undefined;}
+}
 const respond=(data:unknown,status=200)=>Response.json(data,{
   status,headers:{...cors,'Cache-Control':'no-store'}
 });
@@ -16,7 +27,7 @@ Deno.serve(async req=>{
   try{
     const token=req.headers.get('Authorization')?.match(/^Bearer (.+)$/i)?.[1];
     const url=Deno.env.get('SUPABASE_URL');
-    const anonKey=Deno.env.get('SUPABASE_ANON_KEY');
+    const anonKey=configuredKey('SUPABASE_ANON_KEY','SUPABASE_PUBLISHABLE_KEYS');
     if(!token||!url||!anonKey)return respond({ok:false,error:'Authentication unavailable'},401);
     const client=createClient(url,anonKey,{global:{headers:{Authorization:`Bearer ${token}`}},
       auth:{persistSession:false,autoRefreshToken:false}});
@@ -40,7 +51,7 @@ Deno.serve(async req=>{
       const rewardId=typeof body?.rewardId==='string'?body.rewardId:'';
       if(!/^[a-z0-9-]{2,50}$/.test(rewardId))
         return respond({ok:false,error:'Invalid reward'},400);
-      const key=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+      const key=configuredKey('SUPABASE_SERVICE_ROLE_KEY','SUPABASE_SECRET_KEYS');
       if(!key)throw new Error('Missing server configuration');
       const admin=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
       const functionName=action==='buy'?'redeem_vocabulary_sandbox_reward':'equip_vocabulary_sandbox_reward';
