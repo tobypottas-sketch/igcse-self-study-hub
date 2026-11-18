@@ -287,7 +287,7 @@ async function revealSandboxEntry(){
   const entry=document.createElement('section');
   entry.className='vocab-rewards-preview-entry';
   entry.setAttribute('aria-label','Sandbox Rewards Shop');
-  entry.innerHTML='<div><strong>⭐ XP Rewards Shop · Test Mode</strong><small>100,000 sample XP to explore cosmetic rewards. No real XP is spent.</small></div><button type="button" data-action="open-sandbox-shop">Open test shop</button>';
+  entry.innerHTML='<div><strong>⭐ XP Rewards Shop · Test Mode</strong><small>'+Number(result.wallet?.available??0).toLocaleString('en')+' sandbox XP available. No real XP is spent.</small></div><button type="button" data-action="open-sandbox-shop">Open test shop</button>';
   const progress=home.querySelector('.vocab-engage-home');
   if(progress)progress.insertAdjacentElement('afterend',entry);
   else home.querySelector('.vocab-hero')?.insertAdjacentElement('afterend',entry);
