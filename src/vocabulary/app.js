@@ -354,7 +354,8 @@ async function revealSandboxEntry(){
   entry.setAttribute('aria-label','Sandbox Rewards Shop — test only');
   entry.innerHTML='<img class="vocab-rewards-home-card__art vocab-rewards-home-card__art--test" src="assets/vocabulary/rewards/pixel-badge.png" alt="" loading="lazy">'+
     '<div class="vocab-rewards-home-card__body"><span class="vocab-rewards-home-card__eyebrow">TEST ACCOUNT ONLY</span>'+
-    '<strong>Sandbox shop</strong><small>'+Number(result.wallet?.available??0).toLocaleString('en')+' test XP · No real XP spent</small></div>'+
+    '<strong>Sandbox shop</strong><small><b>'+Number(result.wallet?.available??0).toLocaleString('en')+'</b> test XP</small>'+
+    '<span class="vocab-rewards-home-card__test-note">No real XP spent</span></div>'+
     '<button type="button" data-action="open-sandbox-shop">Open test shop</button>';
   strip.append(entry);
 }
