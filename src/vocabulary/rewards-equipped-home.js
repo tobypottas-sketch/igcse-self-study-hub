@@ -47,21 +47,28 @@ function avatar(identity,compact=false){
 export function renderIdentityShowcase(shop,displayName='Student'){
  const id=studentIdentityView(shop,displayName);
  const active=id.active;
- const extras=[
-   id.title?(id.titleArt?
-     `<span class="vocab-student-identity__title-art"><img src="${id.titleArt}" alt="${escapeHtml(id.title)} title artwork" decoding="async"><span class="vocab-student-identity__title-label">${escapeHtml(id.title)}</span></span>`:
-     `<span class="vocab-student-identity__title">${escapeHtml(id.title)}</span>`):'',
-   id.effectName?`<span class="vocab-student-identity__detail">${escapeHtml(id.effectName)} equipped</span>`:'',
-   id.themeName?`<span class="vocab-student-identity__detail">${escapeHtml(id.themeName)} active</span>`:''
- ].join('');
+ const labels={themes:'Theme',frames:'Frame',titles:'Title',effects:'Effect'};
+ const equippedCount=Object.keys(active).length;
+ const status=CATEGORIES.map(category=>{
+   const reward=active[category];
+   return `<span class="vocab-student-identity__slot${reward?' is-equipped':''}" aria-label="${labels[category]}: ${reward?'equipped':'not equipped'}">
+     <span class="vocab-student-identity__slot-dot" aria-hidden="true"></span>${labels[category]}
+   </span>`;
+ }).join('');
+ const title=id.title
+   ?(id.titleArt
+     ?`<span class="vocab-student-identity__title-art"><img src="${id.titleArt}" alt="${escapeHtml(id.title)} title artwork" decoding="async"><span class="vocab-student-identity__title-label">${escapeHtml(id.title)}</span></span>`
+     :`<span class="vocab-student-identity__title">${escapeHtml(id.title)}</span>`)
+   :'';
  return `<section class="vocab-real-cosmetics vocab-student-identity" data-real-cosmetics aria-label="Your student profile and equipped rewards">
    <div class="vocab-student-identity__portrait">${avatar(id)}</div>
    <div class="vocab-student-identity__text">
      <span class="vocab-student-identity__eyebrow">${id.sandboxPreview?'TEST COSMETICS PREVIEW':'MY STUDENT PROFILE'}</span>
      <h2>${escapeHtml(id.name)}</h2>
-     <div class="vocab-student-identity__extras">${extras||'<span class="vocab-student-identity__detail">Your reward showcase is ready to customise</span>'}</div>
+     <div class="vocab-student-identity__extras">${title||'<span class="vocab-student-identity__detail">Choose a title in the shop</span>'}</div>
+     <div class="vocab-student-identity__slots" aria-label="Equipped reward categories">${status}</div>
    </div>
-   <div class="vocab-student-identity__stamp">${Object.keys(active).length} / 4 ${id.sandboxPreview?'test equipped':'equipped'}</div>
+   <div class="vocab-student-identity__stamp">${equippedCount} / 4 ${id.sandboxPreview?'test equipped':'equipped'}</div>
  </section>`;
 }
 export function applyRewardTheme(root,shop){
