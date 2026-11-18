@@ -28,7 +28,7 @@ test('unowned slots remain empty and cannot display purchased graphics',()=>{
  assert.doesNotMatch(empty,/word-explorer\.png|gold-frame\.png|sparkle\.png/);
 });
 test('profile uses compact sizing and a restrained decorative scene',()=>{
- assert.match(css,/grid-template-columns:104px minmax\\(0,1fr\\) minmax\\(150px,208px\\)/);
+ assert.match(css,/grid-template-columns:104px minmax\(0,1fr\) minmax\(150px,208px\)/);
  assert.match(css,/\.vocab-student-identity__slots/);
  assert.match(css,/opacity:\.11/);
  assert.match(css,/\.vocab-student-identity__title-art img/);
