@@ -6,13 +6,13 @@ import { reportGraphicFailure } from './graphics-registry.js';
 export function installGraphicsHandlers(root) {
   if (!root?.addEventListener) return;
   watchRebuilds(root);
+  reveal(root);
   // load/error do not bubble, so listen in the capture phase on the stable root.
   root.addEventListener('load', event => {
     const image = event.target;
     if (!image?.matches?.('img[data-art-png]')) return;
     if (!image.naturalWidth) { removeBroken(image); return; }
-    loaded.set(image.getAttribute('src'), image);
-    image.closest('[data-art-slot]')?.classList.add('is-png-ready');
+    markReady(image);
   }, true);
   root.addEventListener('error', event => {
     const image = event.target;
@@ -24,14 +24,27 @@ export function installGraphicsHandlers(root) {
 // in. A PNG that has already loaded is in the browser cache, so a rebuilt slot is revealed in the same task that inserted it, before
 // the next paint, and the already-loaded <img> element is reused (a loaded element is painted immediately; a new one is not).
 const loaded = new Map();   // src -> the <img> that finished loading
+function markReady(image){
+ if(!image?.naturalWidth)return;
+ loaded.set(image.getAttribute('src'),image);
+ image.closest('[data-art-slot]')?.classList.add('is-png-ready');
+}
 function reveal(container) {
-  for (const image of container.querySelectorAll?.('img[data-art-png]') ?? []) {
-    const known = loaded.get(image.getAttribute('src'));
-    if (!known) continue;
-    const slot = image.closest('[data-art-slot]');
-    if (known !== image && !known.isConnected) image.replaceWith(known);
-    slot?.classList.add('is-png-ready');
-  }
+ // A cached or instantly decoded image may be complete before the capture
+ // listener fires. Inspect the DOM's actual state, rather than relying solely
+ // on a previous load event. Reused images remain anchored to their new slot.
+ const images=[
+  ...(container.matches?.('img[data-art-png]')?[container]:[]),
+  ...(container.querySelectorAll?.('img[data-art-png]')??[])
+ ];
+ for(const image of images){
+   if(image.complete && image.naturalWidth>0){markReady(image);continue;}
+   const known=loaded.get(image.getAttribute('src'));
+   if(known?.complete && known.naturalWidth>0){
+     if(known!==image && !known.isConnected){image.replaceWith(known);markReady(known);}
+     else if(image.complete && image.naturalWidth>0)markReady(image);
+   }
+ }
 }
 function watchRebuilds(root) {
   if (typeof MutationObserver !== 'function') return;

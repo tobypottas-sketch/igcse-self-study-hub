@@ -236,21 +236,32 @@ body:has(#vocabularyApp.vocab-real-theme--midnight){
 #vocabularyApp.vocab-real-theme--midnight .vocab-shell--home > .vocab-hero--home{
  background:linear-gradient(110deg,#233560 0%,#3a5091 70%,#5467aa)!important;
 }
-#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) :is(
- .vocab-unit-card,.vocab-pathway-card,.vocab-summary-card,.vocab-progress-entry,.vocab-engage-home,
+/* Paint only the outer card surface; do not use broad background shorthands
+   on artwork-bearing or assessment surfaces. Their PNG/SVG layers are owned
+   by the graphics component, not by the cosmetic theme. */
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)
+ :is(.vocab-unit-card,.vocab-pathway-card,.vocab-summary-card,.vocab-progress-entry,.vocab-engage-home,
  .vocab-coursebook,.vocab-unit-hero,.vocab-route-card,.vocab-session-card,.vocab-practice-sheet,
- .vocab-rewards-home-card--real
- ){
- border-color:var(--reward-edge)!important;
- background:linear-gradient(130deg,var(--reward-card),#fff)!important;
+ .vocab-rewards-home-card--real){
+ border-color:var(--reward-edge);
  box-shadow:0 7px 21px color-mix(in srgb,var(--reward-accent) 13%,transparent);
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)
+ :is(.vocab-progress-entry,.vocab-engage-home,.vocab-rewards-home-card--real){
+ background-color:var(--reward-card);
 }
 #vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) .vocab-unit-card{
  border-left:5px solid var(--reward-accent)!important;
 }
-#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) :is(
- .vocab-unit-card__number,.vocab-kicker,.vocab-student-identity__eyebrow
- ){color:var(--reward-strong)!important}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)
+ :is(.vocab-unit-card__number,.vocab-student-identity__eyebrow){color:var(--reward-strong)}
+/* A kicker lives on dark navy, even in light-coloured themes. */
+#vocabularyApp[class*="vocab-real-theme--"] .vocab-hero--home .vocab-kicker{
+ color:#ffe19a!important;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-hero--home .vocab-kicker{
+ color:#ffe19a!important;
+}
 #vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) :is(
  .vocab-unit-card>small,.vocab-progress-entry button,.vocab-rewards-home-card--real button
  ){
@@ -306,4 +317,43 @@ body:has(#vocabularyApp.vocab-real-theme--midnight){
 @media print,(forced-colors:active){
  body:has(#vocabularyApp[class*="vocab-real-theme--"]){background:#fff!important}
  #vocabularyApp .vocab-shell--home .vocab-student-identity:before{display:none}
+}
+
+/* Readability contract: dark text only on pale workspaces; white text only
+   where the parent is truly dark. These rules come after the theme palette. */
+#vocabularyApp.vocab-real-theme--midnight .vocab-hero--home :is(h1,h2,p,strong){
+ color:#f8faff!important;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-hero--home p strong{
+ color:#fff1bd!important;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-topbar :is(.vocab-back,.vocab-link,.vocab-back--chip),
+#vocabularyApp.vocab-real-theme--midnight .vocab-shop-redesign :is(.vocab-back,.vocab-link){
+ background:#fff!important;color:#203563!important;border-color:#a6b5e5!important;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-topbar :is(.vocab-back,.vocab-link,.vocab-back--chip):is(:hover,:focus-visible){
+ background:#e9efff!important;color:#142a57!important;
+}
+#vocabularyApp.vocab-real-theme--midnight :is(.vocab-unit-card,.vocab-pathway-card,.vocab-question-card,
+ .vocab-coursebook,.vocab-engage-home,.vocab-progress-entry,.vocab-student-identity,.vocab-practice-sheet)
+ :is(h1,h2,h3,strong,p,.vocab-unit-card__progress-copy){
+ color:#183654;
+}
+#vocabularyApp.vocab-real-theme--midnight :is(.vocab-unit-card,.vocab-pathway-card) .vocab-unit-card__number{
+ color:#354a92;
+}
+/* Preserve the student's original illustrated cards: the theme affects the
+   border/accent but never their image layers or PNG loading state. */
+#vocabularyApp[class*="vocab-real-theme--"] .vocab-unit-card__art,
+#vocabularyApp[class*="vocab-real-theme--"] .vocab-unit-card__art .study-art__png,
+#vocabularyApp[class*="vocab-real-theme--"] .vocab-unit-card__art .study-art__svg{
+ filter:none;
+}
+#vocabularyApp[class*="vocab-real-theme--"] .vocab-unit-card__art.is-png-ready .study-art__png{
+ opacity:1;
+}
+@media(forced-colors:active){
+ #vocabularyApp[class*="vocab-real-theme--"] .vocab-hero--home :is(h1,h2,p,strong,.vocab-kicker){
+  color:CanvasText!important;
+ }
 }
