@@ -52,9 +52,9 @@ test('all 12 rewards and the banner use genuine committed PNGs, not vector place
    assert.ok(png.readUInt32BE(20)>=400,'Image too short: '+id);
  }
  assert.match(rewardIllustration('midnight'),/<img/);
- assert.match(rewardIllustration('forest'),/forest\\.png/);
- assert.match(rewardIllustration('gold-frame'),/gold-frame\\.png/);
- assert.match(bannerIllustration,/shop-banner\\.png/);
+ assert.ok(rewardIllustration('forest').includes('forest.png'));
+ assert.ok(rewardIllustration('gold-frame').includes('gold-frame.png'));
+ assert.ok(bannerIllustration.includes('shop-banner.png'));
  assert.doesNotMatch(bannerIllustration,/<svg|https?:/);
 });
 test('untrusted student names and catalogue descriptions are escaped',()=>{
