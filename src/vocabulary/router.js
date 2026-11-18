@@ -20,6 +20,16 @@ async function routeVocabulary() {
       await startDiagnosticTeacherPreview(root,client);
       return;
     }
+    const cohortAuditRequested = new URLSearchParams(window.location.search).get('xp-cohort-audit') === '1';
+    if (cohortAuditRequested && profile.role === 'admin') {
+      const {startVocabularyCohortAudit}=await import('./cohort-xp-audit-screen.js');
+      await startVocabularyCohortAudit({root,client,profile});
+      return;
+    }
+    if (cohortAuditRequested && profile.role !== 'admin') {
+      renderVocabularyError(root,'This XP reconciliation report is only available to administrators.');
+      return;
+    }
     const previewRequested = new URLSearchParams(window.location.search).get('preview') === '1';
     const staff = profile.role === 'teacher' || profile.role === 'admin';
     if (staff && previewRequested) {
