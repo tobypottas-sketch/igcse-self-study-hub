@@ -1,0 +1,24 @@
+/* Admin-only vocabulary XP cohort reconciliation. Read-only controls. */
+.vocab-cohort-audit{max-width:1080px;margin:0 auto;padding-bottom:50px;color:#203f59}
+.vocab-cohort-header{margin:16px 0;padding:26px 30px;border-radius:23px;border:1px solid #bfdce7;background:linear-gradient(130deg,#f7fcff,#e8f6f6)}
+.vocab-cohort-header h1{font-size:clamp(1.8rem,3vw,2.6rem);line-height:1.15;margin:10px 0;color:#183952}
+.vocab-cohort-header p{max-width:760px;line-height:1.55;margin:0 0 15px;color:#4d687c}
+.vocab-cohort-guard{font-size:.84rem;font-weight:800;color:#21726e;background:#e5f7f2;border:1px solid #b6e2d9;border-radius:12px;padding:10px 14px}
+.vocab-cohort-body{padding:25px;border-radius:22px;border:1px solid #bfdce7;background:#fff;box-shadow:0 10px 24px #1e557312}
+.vocab-cohort-run{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.vocab-cohort-run h2{font-size:1.25rem;margin:0 0 6px}
+.vocab-cohort-run p{margin:0;color:#557287;font-size:.92rem}
+.vocab-cohort-run button{background:#0f837d;color:#fff;border:0;border-radius:12px;padding:12px 17px;font-weight:850;cursor:pointer}
+.vocab-cohort-run button:disabled{opacity:.65;cursor:progress}
+.vocab-cohort-run button:focus-visible{outline:3px solid #4377d3;outline-offset:3px}
+.vocab-cohort-track{margin-top:23px;height:11px;border-radius:99px;background:#dfebf1;overflow:hidden}
+.vocab-cohort-track span{display:block;height:100%;background:linear-gradient(90deg,#1b8986,#6cccb7);border-radius:99px}
+.vocab-cohort-count{font-size:.8rem;color:#557287;font-weight:750}
+.vocab-cohort-error{border:1px solid #e8acac;background:#fff1f1;padding:14px;border-radius:12px;color:#903333}
+.vocab-cohort-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:22px}
+.vocab-cohort-tile{padding:19px 14px;border-radius:15px;border:1px solid #c7e3e9;background:#f6fbfd;display:grid;gap:5px}
+.vocab-cohort-tile strong{font-size:clamp(1.5rem,2.4vw,2.1rem);font-weight:900;letter-spacing:-.04em;overflow-wrap:anywhere}
+.vocab-cohort-tile span{font-size:.82rem;color:#526f82;line-height:1.35}
+.vocab-cohort-footnote{margin-top:18px;color:#546c7d;font-size:.85rem;line-height:1.5}
+@media(max-width:640px){.vocab-cohort-header,.vocab-cohort-body{padding:18px}.vocab-cohort-run{align-items:stretch;flex-direction:column}.vocab-cohort-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){.vocab-cohort-tiles{grid-template-columns:1fr}}
