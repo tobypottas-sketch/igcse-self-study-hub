@@ -286,9 +286,6 @@
 /* Disabled reward buttons still block duplicate purchases; do not display the
    browser's prohibited circle-slash cursor during a server save. Override the
    global #vocabularyApp disabled-button rule only inside Rewards Shop. */
-#vocabularyApp .vocab-shop-redesign .vocab-reward-card__bottom button:disabled,
-#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped button:disabled,
-#vocabularyApp .vocab-shop-redesign .vocab-reward-tabs button:disabled,
-#vocabularyApp .vocab-shop-redesign button[aria-disabled="true"] {
+#vocabularyApp .vocab-shop-redesign button:is(:disabled,[aria-disabled="true"]) {
   cursor: default;
 }
