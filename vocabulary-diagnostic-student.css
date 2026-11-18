@@ -458,3 +458,6 @@ body:has(#vocabularyApp .diag-player){
  border-radius:11px;color:#71460a;font-size:.87rem;line-height:1.55;
  margin:15px 0 3px;font-weight:750;
 }
+
+/* Non-punitive telemetry connection status. Never blocks answer submission. */
+#vocabularyApp .ngsl-integrity-connection{font-size:.74rem;color:#52717c;line-height:1.45;margin:14px 0 0}

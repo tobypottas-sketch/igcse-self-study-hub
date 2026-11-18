@@ -2,6 +2,7 @@
 // Questions/answer ordering and results are owned by the server; nothing is scored here.
 import {escapeHtml} from '../views/html.js';
 import {ngslPromptMarkup} from './ngsl-question-format.js';
+import {createIntegrityQueue} from './ngsl-integrity-queue.js';
 const e=x=>escapeHtml(String(x??''));
 const BANDS=[1,2,3,4,5];
 const FOUNDATION_LEVELS=[
@@ -24,6 +25,7 @@ function validQuestion(q){
 }
 export async function startNGSLDiagnostic({root,client,onComplete}){
  if(!root||!client)throw new Error('NGSL diagnostic requires an authenticated session.');
+ let integrityQueue=null,integrityTimer=null;
  const state={question:null,answer:null,busy:false,pending:null,error:'',complete:false,started:false,monitoring:false,fullscreenUsed:false,focusLosses:0,lastFocusAt:0};
  async function api(action,payload={}){
   const {data,error}=await client.functions.invoke('vocabulary-diagnostic',{body:{action:'ngsl-'+action,payload}});
@@ -38,13 +40,35 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
  }
  // Browser monitoring is advisory, not a device lockdown. Events are logged
  // under this authenticated assessment session and never affect the score.
- async function securityEvent(type){
+ function integrityStatus(count,busy){
+  const node=root.querySelector('[data-integrity-connection]');
+  if(node)node.textContent=count?(busy?'Saving focus events…':count+' focus event'+(count===1?'':'s')+' awaiting connection'):'Focus monitoring active · events saved';
+ }
+ function setUpIntegrityQueue(sessionId){
+  if(integrityQueue)return;
+  integrityQueue=createIntegrityQueue({
+   sessionId,
+   storage:window.sessionStorage,
+   online:()=>navigator.onLine!==false,
+   send:async payload=>{
+    const result=await api('integrity-event',payload);
+    return result?.ok===true?result:null;
+   },
+   onStatus:integrityStatus
+  });
+  integrityTimer=window.setInterval(()=>{void integrityQueue?.flush()},12000);
+  void integrityQueue.flush();
+ }
+ function securityEvent(type){
   const q=state.question;
   if(!state.monitoring||!q||state.complete||!root.querySelector('.ngsl-player'))return;
-  try{await api('integrity-event',{
-   sessionId:q.sessionId,eventId:crypto.randomUUID(),type,position:q.position
-  });}catch{ /* An offline/blocked telemetry request must never prevent answers. */ }
+  integrityQueue?.enqueue(type,q.position);
+  void integrityQueue?.flush();
  }
+ function retryIntegrity(){if(state.monitoring||integrityQueue?.pendingCount)void integrityQueue?.flush()}
+ window.addEventListener('online',retryIntegrity);
+ window.addEventListener('focus',retryIntegrity);
+ window.addEventListener('pagehide',()=>{void integrityQueue?.flush()});
  function markFocusLoss(type){
   if(!state.monitoring||state.complete||!root.querySelector('.ngsl-player'))return;
   const now=Date.now();
@@ -57,7 +81,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
    banner.textContent='You left the assessment screen. This event has been noted for teacher review. Return to your questions when ready.';
   }
  }
- function onVisibility(){if(document.hidden)markFocusLoss('tab_hidden');else if(state.monitoring)void securityEvent('focus_return');}
+ function onVisibility(){if(document.hidden)markFocusLoss('tab_hidden');else if(state.monitoring){securityEvent('focus_return');retryIntegrity();}}
  function onBlur(){if(!document.hidden)markFocusLoss('window_blur');}
  function onFullscreen(){
   if(state.monitoring&&state.fullscreenUsed&&!document.fullscreenElement){
@@ -69,7 +93,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
  document.addEventListener('visibilitychange',onVisibility);
  window.addEventListener('blur',onBlur);
  document.addEventListener('fullscreenchange',onFullscreen);
- function stopMonitoring(){state.monitoring=false;}
+ function stopMonitoring(){state.monitoring=false;if(integrityTimer!==null){clearInterval(integrityTimer);integrityTimer=null;}void integrityQueue?.flush();}
  function requestFullscreen(){
   if(!document.fullscreenEnabled||!root.requestFullscreen)return;
   // Must be called inside a direct click, before the first awaited API call.
@@ -111,6 +135,8 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
    +'<span>Choose one meaning</span></div>'+ngslPromptMarkup(q.stem,q.target)
    +'<fieldset class="diag-choices"><legend>Choose the correct meaning.</legend>'+options+'</fieldset>'
    +'<p class="ngsl-integrity-note" data-integrity-notice role="status" hidden></p>'
+   +'<p class="ngsl-integrity-connection" data-integrity-connection role="status">'+
+      (integrityQueue?.pendingCount?integrityQueue.pendingCount+' focus events awaiting connection':'Focus monitoring active · events saved')+'</p>'
    +'<div class="diag-actions"><button type="button" class="diag-secondary" data-ngsl="pause" '
    +(state.busy?'disabled':'')+'>Save & exit</button>'
    +'<button type="button" class="diag-primary" data-ngsl="submit" '
@@ -163,7 +189,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
     const result=await api('start',{});
     state.started=true;
     if(result.state==='completed'){completed(result.result);return;}
-    state.question=validQuestion(result.question);state.monitoring=true;state.answer=null;state.pending=null;state.error='';question();
+    state.question=validQuestion(result.question);setUpIntegrityQueue(state.question.sessionId);state.monitoring=true;state.answer=null;state.pending=null;state.error='';question();
   }catch(err){state.error=err.message;const status=root.querySelector('.diag-message');if(status)status.textContent=state.error;}
   finally{state.busy=false;if(state.question&&!state.complete)question();}
  }
@@ -180,7 +206,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
     state.pending=null;
     let summary=result.result;
     if(!summary){const hist=await api('history',{});summary=hist.result;}
-    completed(summary);return;
+    await integrityQueue?.flush();completed(summary);return;
    }
    state.question=validQuestion(result.question);state.answer=null;state.pending=null;
   }catch(err){state.error=err.message}
@@ -189,7 +215,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
  async function pause(){
   if(state.busy||!state.question)return;
   state.busy=true;
-  try{await api('pause',{sessionId:state.question.sessionId});stopMonitoring();
+  try{await api('pause',{sessionId:state.question.sessionId});await integrityQueue?.flush();stopMonitoring();
    shell('<section class="diag-hero"><h1>Assessment paused</h1>'
     +'<p>Your previous answers are saved. You can return to the same question later.</p>'
     +'<a href="./" class="diag-primary diag-link">Back to Hub</a></section>');
