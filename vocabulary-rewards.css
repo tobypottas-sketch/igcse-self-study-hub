@@ -275,3 +275,10 @@
 .vocab-shell--home .vocab-rewards-preview-entry[data-real-entry]{background:linear-gradient(115deg,#e5f9f1,#eaf5ff)}
 .vocab-shop-redesign.vocab-shell--production .vocab-shop-hero{border-color:#82bcd6}
 @media(max-width:680px){.vocab-real-cosmetics{align-items:flex-start}.vocab-real-cosmetics__items{width:100%}}
+
+/* Progress towards unaffordable cosmetics, instead of repetitive disabled buttons. */
+.vocab-shop-redesign .vocab-shop-unlock{display:grid;gap:5px;width:min(100%,174px);min-width:120px;align-self:center}
+.vocab-shop-redesign .vocab-shop-unlock__label{display:block;color:#347d85;font-size:.78rem;font-weight:850;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.vocab-shop-redesign .vocab-shop-unlock__track{height:7px;width:100%;border-radius:99px;background:#e0ebf0;overflow:hidden}
+.vocab-shop-redesign .vocab-shop-unlock__track>span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#189c93,#70cbbb)}
+@media(max-width:390px){.vocab-shop-redesign .vocab-shop-unlock{min-width:0}.vocab-shop-redesign .vocab-shop-unlock__label{font-size:.69rem}}
