@@ -38,7 +38,7 @@ test('scroll resets only upon entering either shop, never when switching filters
  assert.match(source,/function scrollToShopTop\(\)/);
  assert.match(source,/window\.scrollTo\(0,0\)/);
  assert.match(source,/requestAnimationFrame\(reset\)/);
- assert.match(source,/await renderCurrentSandboxShop\(message\);\s*scrollToShopTop\(\);/);
+ assert.match(source,/await renderCurrentSandboxShop\(message\);\s*await updateSandboxCosmetics\(shop\);\s*scrollToShopTop\(\);/);
  assert.match(source,/await renderRealShop\(\);\s*scrollToShopTop\(\);/);
  const functionBlock=source.slice(source.indexOf('async function renderRealShop('),source.indexOf('async function refreshRealLeaderboard('));
  assert.doesNotMatch(functionBlock,/scrollToShopTop/);
