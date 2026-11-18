@@ -88,7 +88,7 @@
 .vocab-shop-redesign .vocab-shop-hero__intro p{font-size:1.04rem;line-height:1.45;color:#27446a;margin:12px 0 0}
 .vocab-shop-redesign .vocab-shop-hero__scene{border-radius:24px;overflow:hidden;height:165px;align-self:start;
  box-shadow:inset 0 0 20px #d1e8ef}
-.vocab-shop-redesign .vocab-shop-hero__scene svg{width:100%;height:100%;object-fit:cover}
+.vocab-shop-redesign .vocab-shop-hero__scene img{width:100%;height:100%;object-fit:cover;object-position:center}
 .vocab-shop-redesign .vocab-shop-hero__balance{background:rgba(255,255,255,.96);border:1px solid #9bcfe2;
  padding:13px 17px;border-radius:99px;white-space:nowrap;display:flex;align-items:center;gap:10px;
  box-shadow:0 7px 18px rgba(46,96,132,.08)}
@@ -127,7 +127,7 @@
 .vocab-shop-redesign .vocab-shop-next h3{font-size:1rem;margin:0 0 9px}
 .vocab-shop-redesign .vocab-shop-next__detail{display:grid;grid-template-columns:minmax(75px,43%) 1fr;align-items:center;gap:9px}
 .vocab-shop-redesign .vocab-shop-next__art{width:100%;min-width:0}
-.vocab-shop-redesign .vocab-shop-next__art svg{width:100%;height:auto}
+.vocab-shop-redesign .vocab-shop-next__art img{width:100%;height:auto;object-fit:cover;border-radius:10px}
 .vocab-shop-redesign .vocab-shop-next__detail strong{font-size:.85rem;line-height:1.2;display:block}
 .vocab-shop-redesign .vocab-shop-next__detail p{font-size:.74rem;line-height:1.35;margin:3px 0 8px;color:#4f6485}
 .vocab-shop-redesign .vocab-shop-next__detail b{font-size:.76rem;color:#0c8581}
@@ -143,7 +143,7 @@
 .vocab-shop-redesign .vocab-shop-card{padding:13px;gap:7px;border-color:#b8d9e7;border-radius:18px;box-shadow:0 5px 13px #245f7813}
 .vocab-shop-redesign .vocab-shop-card--effects{border-top:3px solid #bd96fb}
 .vocab-shop-redesign .vocab-shop-card .vocab-reward-picture{min-height:0;height:auto;background:transparent;overflow:hidden}
-.vocab-shop-redesign .vocab-shop-illustration{width:100%;display:block;height:auto;aspect-ratio:2/1}
+.vocab-shop-redesign .vocab-shop-illustration{width:100%;display:block;height:auto;aspect-ratio:12/7;object-fit:cover;border-radius:12px}
 .vocab-shop-redesign .vocab-shop-card h3{font-size:1.05rem;font-weight:900;letter-spacing:-.02em}
 .vocab-shop-redesign .vocab-shop-card p{font-size:.82rem;color:#44627c}
 .vocab-shop-redesign .vocab-shop-card .vocab-reward-category{padding:4px 10px;font-size:.7rem;font-weight:850}
@@ -168,7 +168,7 @@
 .vocab-shop-redesign .vocab-shop-equipped__item:last-child{border-right:0}
 .vocab-shop-redesign .vocab-shop-equipped__item small{font-weight:750;font-size:.72rem;color:#257d88}
 .vocab-shop-redesign .vocab-shop-equipped__art{width:100%;min-height:55px;display:grid;place-items:center}
-.vocab-shop-redesign .vocab-shop-equipped__art svg{width:100%;height:auto}
+.vocab-shop-redesign .vocab-shop-equipped__art img{width:100%;height:auto;object-fit:cover;border-radius:10px}
 .vocab-shop-redesign .vocab-shop-empty-icon{font-size:2.4rem;color:#a1c9d5}
 .vocab-shop-redesign .vocab-shop-equipped__item strong{font-size:.8rem;line-height:1.2;min-height:2em}
 .vocab-shop-redesign .vocab-shop-equipped__item button{font-size:.76rem;border:1px solid #9acddb;border-radius:99px;
@@ -211,3 +211,8 @@
 .vocab-shop-redesign .vocab-shop-equipped__list{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
 .vocab-shop-redesign .vocab-shop-equipped__item:nth-child(2){border-right:0}}
 @media(max-width:370px){.vocab-shop-redesign .vocab-rewards-grid{grid-template-columns:1fr}}
+
+/* Premium PNG art uses a consistent 12:7 crop on cards, ownership and previews. */
+.vocab-shop-redesign .vocab-shop-card .vocab-reward-picture{border-radius:14px;overflow:hidden}
+.vocab-shop-redesign .vocab-shop-hero__scene .vocab-shop-illustration{height:100%;aspect-ratio:auto;border-radius:0}
+.vocab-shop-redesign .vocab-shop-equipped__art .vocab-shop-illustration{aspect-ratio:12/7}
