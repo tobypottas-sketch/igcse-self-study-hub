@@ -292,6 +292,7 @@ async function showSandboxShop(message='') {
   if(!shop)return;
   sandboxShop=shop;
   await renderCurrentSandboxShop(message);
+  await updateSandboxCosmetics(shop);
   scrollToShopTop();
   void refreshSandboxLeaderboard();
 }
@@ -306,6 +307,14 @@ async function applySandboxReward(action,rewardId){
     if(response.error||response.data?.ok!==true)throw Error(response.data?.error||'Could not save reward.');
     sandboxShop=response.data;
     feedback=action==='buy'?'Reward purchased using test XP.':'Reward equipped.';
+    // Automatically equip test themes for an instant, honest sandbox preview.
+    const themeBought=action==='buy'&&sandboxShop.rewards.some(x=>x.reward_id===rewardId&&x.category==='themes');
+    if(themeBought){
+      const equipped=await state.client.functions.invoke('vocabulary-reward-sandbox',{body:{action:'equip',rewardId}});
+      if(equipped.error||equipped.data?.ok!==true)feedback='Test theme purchased; select Equip to preview it.';
+      else{sandboxShop=equipped.data;feedback='Test theme purchased and previewed!';}
+    }
+    await updateSandboxCosmetics(sandboxShop);
   }catch(error){
     feedback=error instanceof Error?error.message:'Unable to save reward.';
   }finally{
@@ -336,6 +345,7 @@ async function revealSandboxEntry(){
   if(!home||state.preview)return;
   const result=await loadSandboxShop().catch(()=>null);
   if(!result?.sandboxEnabled||!home.isConnected)return;
+  await updateSandboxCosmetics(result);
   const strip=ensureRewardsHomeStrip(home);
   strip.querySelector('[data-sandbox-entry]')?.remove();
   const entry=document.createElement('section');
@@ -350,9 +360,16 @@ async function revealSandboxEntry(){
 }
 // Student identity remains visible through home, unit, pathways, practice and
 // the shop. Root-scoped theme classes survive screen rerenders.
-let liveCosmeticShop=null,cosmeticModule=null,identityObserver=null;
-async function updateLiveCosmetics(shop){
- if(state.preview||state.profile?.role!=='student'||shop?.shopMode!=='production')return;
+let liveCosmeticShop=null,productionCosmeticShop=null,sandboxCosmeticShop=null,cosmeticModule=null,identityObserver=null;
+function effectiveCosmeticShop(){
+ // On the specially enabled test account, preview sandbox equipment throughout
+ // the app when it has anything equipped. Production rewards and XP remain separate.
+ const sandboxEquipped=sandboxCosmeticShop?.owned?.some(item=>item.equipped===true);
+ return sandboxEquipped?sandboxCosmeticShop:productionCosmeticShop;
+}
+async function refreshStudentCosmetics(){
+ const shop=effectiveCosmeticShop();
+ if(!shop||state.preview||state.profile?.role!=='student')return;
  liveCosmeticShop=shop;
  cosmeticModule??=await import('./rewards-equipped-home.js');
  cosmeticModule.applyRewardTheme(root,shop);
@@ -360,6 +377,16 @@ async function updateLiveCosmetics(shop){
    cosmeticModule.renderEquippedCosmetics(root,shop,state.profile?.display_name??'Student');
  else
    cosmeticModule.decorateStudentIdentity(root,shop,state.profile?.display_name??'Student');
+}
+async function updateLiveCosmetics(shop){
+ if(state.preview||state.profile?.role!=='student'||shop?.shopMode!=='production')return;
+ productionCosmeticShop=shop;
+ await refreshStudentCosmetics();
+}
+async function updateSandboxCosmetics(shop){
+ if(state.preview||state.profile?.role!=='student'||shop?.shopMode!=='sandbox'||shop.sandboxEnabled!==true)return;
+ sandboxCosmeticShop=shop;
+ await refreshStudentCosmetics();
 }
 function installStudentIdentityObserver(){
  if(identityObserver||!root||state.preview)return;
