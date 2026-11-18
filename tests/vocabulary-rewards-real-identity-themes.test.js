@@ -72,7 +72,7 @@ test('root theme and identity persist across internal screen rerenders and are r
 test('asset version bump exposes the new identity CSS and application code to returning students',()=>{
  const html=fs.readFileSync(new URL('../vocabulary.html',import.meta.url),'utf8');
  const router=fs.readFileSync(new URL('../src/vocabulary/router.js',import.meta.url),'utf8');
- assert.match(html,/vocabulary-reward-identity\.css\?v=theme-readability-art-v4/);
- assert.match(html,/src\/vocabulary\/router\.js\?v=theme-readability-art-v4/);
- assert.match(router,/\.\/app\.js\?v=theme-readability-art-v4/);
+ assert.match(html,/vocabulary-reward-identity\.css\?v=title-art-profile-v5/);
+ assert.match(html,/src\/vocabulary\/router\.js\?v=title-art-profile-v5/);
+ assert.match(router,/\.\/app\.js\?v=title-art-profile-v5/);
 });

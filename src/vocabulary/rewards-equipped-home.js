@@ -30,6 +30,7 @@ export function studentIdentityView(shop,displayName='Student'){
  return {
    name,initials,active,sandboxPreview,
    title:active.titles?items.get(active.titles)?.name??'':'',
+   titleArt:active.titles?rewardArtworkPath(active.titles):null,
    frame:active.frames?rewardArtworkPath(active.frames):null,
    badge:active.effects?rewardArtworkPath(active.effects):null,
    effectName:active.effects?items.get(active.effects)?.name??'':'',
@@ -47,7 +48,9 @@ export function renderIdentityShowcase(shop,displayName='Student'){
  const id=studentIdentityView(shop,displayName);
  const active=id.active;
  const extras=[
-   id.title?`<span class="vocab-student-identity__title">${escapeHtml(id.title)}</span>`:'',
+   id.title?(id.titleArt?
+     `<span class="vocab-student-identity__title-art"><img src="${id.titleArt}" alt="${escapeHtml(id.title)} title artwork" decoding="async"><span class="vocab-student-identity__title-label">${escapeHtml(id.title)}</span></span>`:
+     `<span class="vocab-student-identity__title">${escapeHtml(id.title)}</span>`):'',
    id.effectName?`<span class="vocab-student-identity__detail">${escapeHtml(id.effectName)} equipped</span>`:'',
    id.themeName?`<span class="vocab-student-identity__detail">${escapeHtml(id.themeName)} active</span>`:''
  ].join('');
@@ -78,7 +81,7 @@ export function decorateStudentIdentity(root,shop,displayName='Student'){
  chip.dataset.studentIdentityMini='true';
  chip.className='vocab-student-identity-mini';
  chip.setAttribute('aria-label',id.name+(id.title?' · '+id.title:'')+(id.effectName?' · '+id.effectName:'')+(id.sandboxPreview?' · test cosmetics preview':''));
- chip.innerHTML=avatar(id,true)+`<span class="vocab-student-identity-mini__name">${escapeHtml(id.name)}${id.title?`<small>${escapeHtml(id.title)}</small>`:id.sandboxPreview?'<small>Test cosmetics preview</small>':''}</span>`;
+ chip.innerHTML=avatar(id,true)+`<span class="vocab-student-identity-mini__name">${escapeHtml(id.name)}${id.title?(id.titleArt?`<small class="vocab-student-identity-mini__title-art"><img src="${id.titleArt}" alt="${escapeHtml(id.title)} title" decoding="async"></small>`:`<small>${escapeHtml(id.title)}</small>`):id.sandboxPreview?'<small>Test cosmetics preview</small>':''}</span>`;
  // The course code and navigation remain accessible; add a compact identity at
  // the far end without replacing the existing page header controls.
  header.append(chip);
