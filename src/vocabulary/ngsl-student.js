@@ -40,13 +40,13 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
  // under this authenticated assessment session and never affect the score.
  async function securityEvent(type){
   const q=state.question;
-  if(!state.monitoring||!q||state.complete)return;
+  if(!state.monitoring||!q||state.complete||!root.querySelector('.ngsl-player'))return;
   try{await api('integrity-event',{
    sessionId:q.sessionId,eventId:crypto.randomUUID(),type,position:q.position
   });}catch{ /* An offline/blocked telemetry request must never prevent answers. */ }
  }
  function markFocusLoss(type){
-  if(!state.monitoring||state.complete)return;
+  if(!state.monitoring||state.complete||!root.querySelector('.ngsl-player'))return;
   const now=Date.now();
   if(now-state.lastFocusAt<1200)return; // blur + visibilitychange = one departure
   state.lastFocusAt=now;state.focusLosses++;
