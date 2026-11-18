@@ -32,7 +32,7 @@ function renderClassChooser() {
 }
 
 async function openNGSLReport(initialClassId) {
- const {fetchNGSLClassResults,renderNGSLClassReport}=await import('./ngsl-teacher-results.js?v=ngsl-class-results-v1');
+ const {fetchNGSLClassResults,renderNGSLClassReport}=await import('./ngsl-teacher-results.js?v=ngsl-integrity-v1');
  if(!teacherState.ngslReportData){
   showTeacherLoading('Loading diagnostic results…');
   teacherState.ngslReportData=await fetchNGSLClassResults(teacherState.client,teacherState.data.classes);
