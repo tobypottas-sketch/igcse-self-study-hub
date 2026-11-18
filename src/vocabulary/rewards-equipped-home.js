@@ -10,7 +10,7 @@ const ROOT_CLASSES=[...THEMES].map(x=>'vocab-real-theme--'+x);
 const EFFECT_CLASSES=[...EFFECTS].map(x=>'vocab-real-effect--'+x);
 
 export function equippedCosmetics(shop){
- if(shop?.shopMode!=='production'||!Array.isArray(shop.owned)||!Array.isArray(shop.rewards))return {};
+ if(!(shop?.shopMode==='production'||(shop?.shopMode==='sandbox'&&shop?.sandboxEnabled===true))||!Array.isArray(shop.owned)||!Array.isArray(shop.rewards))return {};
  const catalog=new Map(shop.rewards.map(r=>[r.reward_id,r]));
  const active={};
  for(const item of shop.owned){
@@ -23,11 +23,12 @@ export function equippedCosmetics(shop){
 
 export function studentIdentityView(shop,displayName='Student'){
  const active=equippedCosmetics(shop);
+ const sandboxPreview=shop?.shopMode==='sandbox'&&shop.sandboxEnabled===true;
  const items=new Map((shop?.rewards??[]).map(r=>[r.reward_id,r]));
  const name=String(displayName||'Student').trim().slice(0,65)||'Student';
  const initials=name.split(/\s+/).slice(0,2).map(p=>p[0]?.toUpperCase()??'').join('');
  return {
-   name,initials,active,
+   name,initials,active,sandboxPreview,
    title:active.titles?items.get(active.titles)?.name??'':'',
    frame:active.frames?rewardArtworkPath(active.frames):null,
    badge:active.effects?rewardArtworkPath(active.effects):null,
@@ -53,11 +54,11 @@ export function renderIdentityShowcase(shop,displayName='Student'){
  return `<section class="vocab-real-cosmetics vocab-student-identity" data-real-cosmetics aria-label="Your student profile and equipped rewards">
    <div class="vocab-student-identity__portrait">${avatar(id)}</div>
    <div class="vocab-student-identity__text">
-     <span class="vocab-student-identity__eyebrow">MY STUDENT PROFILE</span>
+     <span class="vocab-student-identity__eyebrow">${id.sandboxPreview?'TEST COSMETICS PREVIEW':'MY STUDENT PROFILE'}</span>
      <h2>${escapeHtml(id.name)}</h2>
      <div class="vocab-student-identity__extras">${extras||'<span class="vocab-student-identity__detail">Your reward showcase is ready to customise</span>'}</div>
    </div>
-   <div class="vocab-student-identity__stamp">${Object.keys(active).length} / 4 equipped</div>
+   <div class="vocab-student-identity__stamp">${Object.keys(active).length} / 4 ${id.sandboxPreview?'test equipped':'equipped'}</div>
  </section>`;
 }
 export function applyRewardTheme(root,shop){
@@ -76,8 +77,8 @@ export function decorateStudentIdentity(root,shop,displayName='Student'){
  const chip=document.createElement('div');
  chip.dataset.studentIdentityMini='true';
  chip.className='vocab-student-identity-mini';
- chip.setAttribute('aria-label',id.name+(id.title?' · '+id.title:'')+(id.effectName?' · '+id.effectName:''));
- chip.innerHTML=avatar(id,true)+`<span class="vocab-student-identity-mini__name">${escapeHtml(id.name)}${id.title?`<small>${escapeHtml(id.title)}</small>`:''}</span>`;
+ chip.setAttribute('aria-label',id.name+(id.title?' · '+id.title:'')+(id.effectName?' · '+id.effectName:'')+(id.sandboxPreview?' · test cosmetics preview':''));
+ chip.innerHTML=avatar(id,true)+`<span class="vocab-student-identity-mini__name">${escapeHtml(id.name)}${id.title?`<small>${escapeHtml(id.title)}</small>`:id.sandboxPreview?'<small>Test cosmetics preview</small>':''}</span>`;
  // The course code and navigation remain accessible; add a compact identity at
  // the far end without replacing the existing page header controls.
  header.append(chip);
