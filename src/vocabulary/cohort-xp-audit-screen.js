@@ -4,19 +4,26 @@ const safe=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt
 const count=value=>Number.isSafeInteger(value)&&value>=0?value:0;
 const fmt=value=>count(value).toLocaleString('en');
 export function aggregateCohortAudit(pages){
- const total={examined:0,totalStudents:0,withMissions:0,zeroXp:0,timeZoneSensitive:0,missingWallets:0,walletDiscrepancies:0,earnedXpSum:0,pages:pages.length};
+ const total={examined:0,totalStudents:0,withMissions:0,zeroXp:0,timeZoneSensitive:0,missingWallets:0,walletDiscrepancies:0,earnedXpSum:0,withoutMissionsWithXp:0,masteryWithoutMissions:0,components:{missions:0,personalBests:0,weeklyGoals:0,achievements:0,stageClears:0,pathwayMasteries:0,unitMasteries:0},pages:pages.length};
  for(const page of pages){
   if(!page||page.ok!==true||page.auditOnly!==true||page.readyForWalletFunding!==false||
     !Number.isInteger(page.examined)||page.examined<0||
     !page.summary||!Number.isInteger(page.totalStudents))
     throw new Error('The audit returned incomplete or unsafe results.');
   total.examined+=page.examined;total.totalStudents=page.totalStudents;
-  for(const key of ['withMissions','zeroXp','timeZoneSensitive','missingWallets','walletDiscrepancies','earnedXpSum']){
+  for(const key of ['withMissions','zeroXp','timeZoneSensitive','missingWallets','walletDiscrepancies','earnedXpSum','withoutMissionsWithXp','masteryWithoutMissions']){
    const value=page.summary[key];
    if(!Number.isSafeInteger(value)||value<0)throw new Error('The audit returned an invalid '+key+' count.');
    total[key]+=value;
   }
+  for(const key of Object.keys(total.components)){
+   const value=page.summary.components?.[key];
+   if(!Number.isSafeInteger(value)||value<0)throw new Error('The audit returned an invalid XP component.');
+   total.components[key]+=value;
+  }
+  if(Object.values(page.summary.components).reduce((a,b)=>a+b,0)!==page.summary.earnedXpSum)throw new Error('XP components did not reconcile.');
  }
+ if(Object.values(total.components).reduce((a,b)=>a+b,0)!==total.earnedXpSum)throw new Error('Lifetime XP totals did not reconcile.');
  if(total.examined!==total.totalStudents)throw new Error('The full student cohort was not examined.');
  return total;
 }
@@ -43,7 +50,18 @@ export function renderCohortAudit(root,{pages=[],loading=false,error='',complete
  ${tile(summary.examined,'Students examined')}${tile(summary.withMissions,'With recorded missions')}
  ${tile(summary.zeroXp,'Zero calculated XP')}${tile(summary.timeZoneSensitive,'Timezone differences')}
  ${tile(summary.missingWallets,'Wallets not initialised')}${tile(summary.walletDiscrepancies,'Wallet discrepancies')}
- ${tile(summary.earnedXpSum,'Total lifetime XP (all students)')}</div>
+ ${tile(summary.earnedXpSum,'Total lifetime XP (all students)')}
+ ${tile(summary.masteryWithoutMissions,'Mastery records without missions')}
+ ${tile(summary.withoutMissionsWithXp,'Earned XP without missions')}</div>
+ <section class="vocab-cohort-breakdown"><h2>Where student XP comes from</h2><div class="vocab-cohort-tiles">
+ ${tile(summary.components.missions,'Completed missions')}
+ ${tile(summary.components.personalBests,'Personal bests')}
+ ${tile(summary.components.weeklyGoals,'Weekly goals')}
+ ${tile(summary.components.achievements,'Achievements')}
+ ${tile(summary.components.stageClears,'Passed stages')}
+ ${tile(summary.components.pathwayMasteries,'Mastered pathways')}
+ ${tile(summary.components.unitMasteries,'Mastered units')}
+ </div><p class="vocab-cohort-footnote">These seven components must add up exactly to the lifetime total. No XP has been credited.</p></section>
  <p class="vocab-cohort-footnote">This is a reconciliation report, not authorisation to fund wallets. Students with no missions may still have mastery or achievement XP.</p>`:''}
  </section></main>`;
 }
