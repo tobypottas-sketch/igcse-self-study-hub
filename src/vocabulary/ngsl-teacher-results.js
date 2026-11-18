@@ -13,6 +13,7 @@ const levels=[
 const levelFor=score=>levels.find(level=>score<=level.max)?.label??'—';
 const round=value=>Math.round(value*10)/10;
 const average=values=>values.length?round(values.reduce((sum,n)=>sum+n,0)/values.length):null;
+const TYPES={tab_hidden:'Tab hidden',window_blur:'Browser focus lost',fullscreen_exit:'Fullscreen exited',focus_return:'Returned to assessment'};
 
 function validResult(row){
  const score=Number(row?.correct);
@@ -51,8 +52,13 @@ export async function fetchNGSLClassResults(client,classes){
   for(const entry of report.events){
    if(!permitted.has(entry.studentId))continue;
    const focusLosses=Number(entry.focusLosses),fullscreenExits=Number(entry.fullscreenExits);
-   if(Number.isInteger(focusLosses)&&focusLosses>=0&&Number.isInteger(fullscreenExits)&&fullscreenExits>=0)
-    integrity.set(entry.studentId,{focusLosses,fullscreenExits});
+   if(Number.isInteger(focusLosses)&&focusLosses>=0&&Number.isInteger(fullscreenExits)&&fullscreenExits>=0){
+    const timeline=Array.isArray(entry.timeline)?entry.timeline.filter(item=>
+      Object.hasOwn(TYPES,item?.type)&&Number.isInteger(item.position)&&item.position>=1&&item.position<=50&&
+      typeof item.at==='string'&&!Number.isNaN(Date.parse(item.at))
+    ).slice(0,60):[];
+    integrity.set(entry.studentId,{focusLosses,fullscreenExits,timeline});
+   }
   }
  }catch{integrityAvailable=false;}
  return {classes,names,results,integrity,integrityAvailable};
@@ -93,11 +99,18 @@ export function renderNGSLClassReport(root,dataset,classId='all',isAdmin=false){
   const r=row.result;
   const score=r?r.correct+'/50 · '+(r.correct*2)+'%':'Not started';
   const incident=dataset.integrity?.get(row.id);
-  const note=!r?'—':!dataset.integrityAvailable?'Unavailable':!incident?'No events reported':
+  const label=!r?'—':!dataset.integrityAvailable?'Unavailable':!incident?'No events reported':
     incident.focusLosses+' focus loss'+(incident.focusLosses===1?'':'es')+
       ' · '+incident.fullscreenExits+' fullscreen exit'+(incident.fullscreenExits===1?'':'s');
+  const timeline=incident?.timeline??[];
+  const items=timeline.map(item=>'<li><span>'+e(TYPES[item.type])+
+   ' · Question '+item.position+'</span><time datetime="'+e(item.at)+'">'+
+   e(new Date(item.at).toLocaleString(undefined,{dateStyle:'short',timeStyle:'short'}))+'</time></li>').join('');
+  const note=timeline.length?'<details class="ngsl-integrity-details"><summary>'+e(label)+
+   ' · View timeline</summary><ol>'+items+'</ol>'+
+   '<small>Server-recorded times. Browser events may be incomplete.</small></details>':e(label);
   return '<tr><td>'+e(row.name)+'</td><td><span class="'+(r?'ngsl-report-done':'ngsl-report-wait')+'">'+(r?'Completed':'Not completed')+'</span></td>'
-    +'<td class="ngsl-report-number">'+e(score)+'</td><td>'+e(r?levelFor(r.correct):'—')+'</td><td>'+e(note)+'</td></tr>';
+    +'<td class="ngsl-report-number">'+e(score)+'</td><td>'+e(r?levelFor(r.correct):'—')+'</td><td>'+note+'</td></tr>';
  }).join('');
  root.innerHTML='<main class="vocab-shell ngsl-report"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Vocabulary diagnostic</span></header>'
   +'<section class="ngsl-report-hero"><div><p class="vocab-kicker">NGSL · 50-QUESTION DIAGNOSTIC</p>'
