@@ -309,18 +309,37 @@ async function applySandboxReward(action,rewardId){
     if(sandboxShop?.sandboxEnabled)await renderCurrentSandboxShop(error instanceof Error?error.message:'Unable to save reward.',true);
   }finally{sandboxBusy=false;}
 }
+// One responsive strip: the real shop is primary, while the test-only card
+// stays compact. Either asynchronous request can finish first without creating
+// duplicate cards or reversing their display order.
+function ensureRewardsHomeStrip(home){
+ let strip=home.querySelector('[data-rewards-home-strip]');
+ if(strip)return strip;
+ strip=document.createElement('section');
+ strip.className='vocab-rewards-home-strip';
+ strip.dataset.rewardsHomeStrip='true';
+ strip.setAttribute('aria-label','Vocabulary rewards');
+ const progress=home.querySelector('.vocab-engage-home');
+ if(progress)progress.insertAdjacentElement('afterend',strip);
+ else home.querySelector('.vocab-hero')?.insertAdjacentElement('afterend',strip);
+ return strip;
+}
 async function revealSandboxEntry(){
   const home=root?.querySelector?.('.vocab-shell--home');
   if(!home||state.preview)return;
   const result=await loadSandboxShop().catch(()=>null);
   if(!result?.sandboxEnabled||!home.isConnected)return;
+  const strip=ensureRewardsHomeStrip(home);
+  strip.querySelector('[data-sandbox-entry]')?.remove();
   const entry=document.createElement('section');
-  entry.className='vocab-rewards-preview-entry';
-  entry.setAttribute('aria-label','Sandbox Rewards Shop');
-  entry.innerHTML='<div><strong>⭐ XP Rewards Shop · Test Mode</strong><small>'+Number(result.wallet?.available??0).toLocaleString('en')+' sandbox XP available. No real XP is spent.</small></div><button type="button" data-action="open-sandbox-shop">Open test shop</button>';
-  const progress=home.querySelector('.vocab-engage-home');
-  if(progress)progress.insertAdjacentElement('afterend',entry);
-  else home.querySelector('.vocab-hero')?.insertAdjacentElement('afterend',entry);
+  entry.className='vocab-rewards-preview-entry vocab-rewards-home-card vocab-rewards-home-card--sandbox';
+  entry.dataset.sandboxEntry='true';
+  entry.setAttribute('aria-label','Sandbox Rewards Shop — test only');
+  entry.innerHTML='<img class="vocab-rewards-home-card__art vocab-rewards-home-card__art--test" src="assets/vocabulary/rewards/pixel-badge.png" alt="" loading="lazy">'+
+    '<div class="vocab-rewards-home-card__body"><span class="vocab-rewards-home-card__eyebrow">TEST ACCOUNT ONLY</span>'+
+    '<strong>Sandbox shop</strong><small>'+Number(result.wallet?.available??0).toLocaleString('en')+' test XP · No real XP spent</small></div>'+
+    '<button type="button" data-action="open-sandbox-shop">Open test shop</button>';
+  strip.append(entry);
 }
 // Production reward controls are deliberately isolated from the test shop.
 let realShop=null,realCategory='all',realBusy=false,realLeaderboard=null;
@@ -386,16 +405,18 @@ async function revealRealShopEntry(){
  if(!shop||!home.isConnected)return;
  const {renderEquippedCosmetics}=await import('./rewards-equipped-home.js');
  renderEquippedCosmetics(root,shop);
- home.querySelector('[data-real-entry]')?.remove();
+ const strip=ensureRewardsHomeStrip(home);
+ strip.querySelector('[data-real-entry]')?.remove();
  const entry=document.createElement('section');
- entry.className='vocab-rewards-preview-entry';
+ entry.className='vocab-rewards-preview-entry vocab-rewards-home-card vocab-rewards-home-card--real';
  entry.dataset.realEntry='true';
  entry.setAttribute('aria-label','XP Rewards Shop');
- entry.innerHTML='<div><strong>⭐ XP Rewards Shop</strong><small>'+
-  Number(shop.wallet.available).toLocaleString('en')+
-  ' spendable XP · Buying rewards never reduces learning XP.</small></div>'+
-  '<button type="button" data-action="open-real-shop">Explore rewards</button>';
- home.querySelector('.vocab-engage-home')?.insertAdjacentElement('afterend',entry);
+ entry.innerHTML='<img class="vocab-rewards-home-card__art" src="assets/vocabulary/rewards/word-explorer.png" alt="" loading="lazy">'+
+  '<div class="vocab-rewards-home-card__body"><span class="vocab-rewards-home-card__eyebrow">YOUR REWARDS</span>'+
+  '<strong>XP Rewards Shop</strong><small><b>'+Number(shop.wallet.available).toLocaleString('en')+
+  ' XP</b> ready to spend · Learning XP stays yours</small></div>'+
+  '<button type="button" data-action="open-real-shop">Explore shop</button>';
+ strip.prepend(entry);
 }
 
 // Wallet sync is deliberately separate from the UI's locally displayed XP.
