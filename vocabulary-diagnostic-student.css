@@ -450,3 +450,11 @@ body:has(#vocabularyApp .diag-player){
 #vocabularyApp .ngsl-welcome .ngsl-welcome-facts>span:nth-child(3){background:#f0edff;border-color:#c5b5f1}
 #vocabularyApp .ngsl-welcome .ngsl-welcome-facts>span:nth-child(3) strong,
 #vocabularyApp .ngsl-welcome .ngsl-welcome-facts>span:nth-child(3) small{color:#634aa3}
+
+/* Assessment integrity notices: advisory only; no auto-submission or grading. */
+#vocabularyApp .ngsl-integrity-note[hidden]{display:none}
+#vocabularyApp .ngsl-integrity-note{
+ padding:12px 15px;border:1px solid #e7bc69;background:#fff7e6;
+ border-radius:11px;color:#71460a;font-size:.87rem;line-height:1.55;
+ margin:15px 0 3px;font-weight:750;
+}

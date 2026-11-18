@@ -24,7 +24,7 @@ function validQuestion(q){
 }
 export async function startNGSLDiagnostic({root,client,onComplete}){
  if(!root||!client)throw new Error('NGSL diagnostic requires an authenticated session.');
- const state={question:null,answer:null,busy:false,pending:null,error:'',complete:false,started:false};
+ const state={question:null,answer:null,busy:false,pending:null,error:'',complete:false,started:false,monitoring:false,fullscreenUsed:false,focusLosses:0,lastFocusAt:0};
  async function api(action,payload={}){
   const {data,error}=await client.functions.invoke('vocabulary-diagnostic',{body:{action:'ngsl-'+action,payload}});
   if(error){let detail;try{detail=await error.context?.json?.()}catch{}
@@ -35,6 +35,48 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
     data.error==='FORM_INVALID'?'Your teacher needs to check this assessment.':
     'Could not save your assessment. Please try again.');
   return data;
+ }
+ // Browser monitoring is advisory, not a device lockdown. Events are logged
+ // under this authenticated assessment session and never affect the score.
+ async function securityEvent(type){
+  const q=state.question;
+  if(!state.monitoring||!q||state.complete||!root.querySelector('.ngsl-player'))return;
+  try{await api('integrity-event',{
+   sessionId:q.sessionId,eventId:crypto.randomUUID(),type,position:q.position
+  });}catch{ /* An offline/blocked telemetry request must never prevent answers. */ }
+ }
+ function markFocusLoss(type){
+  if(!state.monitoring||state.complete||!root.querySelector('.ngsl-player'))return;
+  const now=Date.now();
+  if(now-state.lastFocusAt<1200)return; // blur + visibilitychange = one departure
+  state.lastFocusAt=now;state.focusLosses++;
+  void securityEvent(type);
+  const banner=root.querySelector('[data-integrity-notice]');
+  if(banner){
+   banner.hidden=false;
+   banner.textContent='You left the assessment screen. This event has been noted for teacher review. Return to your questions when ready.';
+  }
+ }
+ function onVisibility(){if(document.hidden)markFocusLoss('tab_hidden');else if(state.monitoring)void securityEvent('focus_return');}
+ function onBlur(){if(!document.hidden)markFocusLoss('window_blur');}
+ function onFullscreen(){
+  if(state.monitoring&&state.fullscreenUsed&&!document.fullscreenElement){
+   void securityEvent('fullscreen_exit');
+   const banner=root.querySelector('[data-integrity-notice]');
+   if(banner){banner.hidden=false;banner.textContent='Fullscreen was exited. This has been noted for teacher review.';}
+  }
+ }
+ document.addEventListener('visibilitychange',onVisibility);
+ window.addEventListener('blur',onBlur);
+ document.addEventListener('fullscreenchange',onFullscreen);
+ function stopMonitoring(){state.monitoring=false;}
+ function requestFullscreen(){
+  if(!document.fullscreenEnabled||!root.requestFullscreen)return;
+  // Must be called inside a direct click, before the first awaited API call.
+  try{
+   const result=root.requestFullscreen();
+   Promise.resolve(result).then(()=>{state.fullscreenUsed=Boolean(document.fullscreenElement);}).catch(()=>{});
+  }catch{ /* fullscreen denied; assessment remains accessible */ }
  }
  function shell(html){
   root.innerHTML='<main class="vocab-shell diag-player ngsl-player"><header class="vocab-topbar">'
@@ -53,7 +95,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
    +'<span><strong>4</strong><small>choices each</small></span>'
    +'<span><strong>∞</strong><small>no time limit</small></span>'
    +'</div>'
-   +'<p class="ngsl-welcome-save">Your answers save automatically. Leave and come back anytime.</p>'
+   +'<p class="ngsl-welcome-save">Your answers save automatically. During this assessment, leaving the tab or exiting fullscreen is recorded for teacher review. Fullscreen is requested when supported but cannot lock your device. You can save and exit when needed.</p>'
    +'<div class="diag-actions"><button class="diag-primary" type="button" data-ngsl="start">Start or continue <span aria-hidden="true">→</span></button></div>'
    +'<p role="status" class="diag-message"></p>'
    +'</div>'
@@ -68,6 +110,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
   shell('<section class="diag-assessment"><div class="diag-meta"><span>Question '+q.position+' of 50</span>'
    +'<span>Choose one meaning</span></div>'+ngslPromptMarkup(q.stem,q.target)
    +'<fieldset class="diag-choices"><legend>Choose the correct meaning.</legend>'+options+'</fieldset>'
+   +'<p class="ngsl-integrity-note" data-integrity-notice role="status" hidden></p>'
    +'<div class="diag-actions"><button type="button" class="diag-secondary" data-ngsl="pause" '
    +(state.busy?'disabled':'')+'>Save & exit</button>'
    +'<button type="button" class="diag-primary" data-ngsl="submit" '
@@ -75,7 +118,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
    +'<p class="diag-message" role="status">'+e(state.error)+'</p></section>');
  }
  function completed(result){
-  state.complete=true;
+  state.complete=true;stopMonitoring();
   const total=Number(result?.total),correct=Number(result?.correct);
   if(total!==50||!Number.isInteger(correct)||correct<0||correct>50)throw new Error('The saved score could not be verified.');
   const frequencyLabels=['Most common','Very common','Common','Less common','Less frequent'];
@@ -120,7 +163,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
     const result=await api('start',{});
     state.started=true;
     if(result.state==='completed'){completed(result.result);return;}
-    state.question=validQuestion(result.question);state.answer=null;state.pending=null;state.error='';question();
+    state.question=validQuestion(result.question);state.monitoring=true;state.answer=null;state.pending=null;state.error='';question();
   }catch(err){state.error=err.message;const status=root.querySelector('.diag-message');if(status)status.textContent=state.error;}
   finally{state.busy=false;if(state.question&&!state.complete)question();}
  }
@@ -146,7 +189,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
  async function pause(){
   if(state.busy||!state.question)return;
   state.busy=true;
-  try{await api('pause',{sessionId:state.question.sessionId});
+  try{await api('pause',{sessionId:state.question.sessionId});stopMonitoring();
    shell('<section class="diag-hero"><h1>Assessment paused</h1>'
     +'<p>Your previous answers are saved. You can return to the same question later.</p>'
     +'<a href="./" class="diag-primary diag-link">Back to Hub</a></section>');
@@ -159,7 +202,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
  });
  root.addEventListener('click',event=>{
   const action=event.target?.closest?.('[data-ngsl]')?.dataset.ngsl;
-  if(action==='start')void start();
+  if(action==='start'){requestFullscreen();void start();}
   if(action==='submit')void submit();
   if(action==='pause')void pause();
   if(action==='finish'&&state.complete)onComplete?.();
