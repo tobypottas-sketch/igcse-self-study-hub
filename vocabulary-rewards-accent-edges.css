@@ -49,3 +49,13 @@
     box-shadow:none;
   }
 }
+
+/* Fifth cosmetic slot is only enabled when the database returns badge rewards. */
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__list.has-badges{
+  grid-template-columns:repeat(5,minmax(0,1fr));
+}
+@media(max-width:760px){
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__list.has-badges{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}

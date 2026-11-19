@@ -3,12 +3,13 @@
 // values come from authenticated data, never from illustrative screenshots.
 import { rewardIllustration, bannerIllustration } from './rewards-art.js';
 import {leaderboardModal,installLeaderboardModal} from './rewards-leaderboard-modal.js';
+import {hasBadgeCatalog} from './rewards-premium-registry.js';
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({
   '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
 })[c]);
-const categories=[['all','All'],['themes','Themes'],['frames','Frames'],['titles','Titles'],['effects','Effects']];
+const categories=[['all','All'],['themes','Themes'],['frames','Frames'],['badges','Badges'],['titles','Titles'],['effects','Effects']];
 const popular=['midnight','forest','gold-frame','pixel-badge','word-wizard','aurora-frame'];
-const categoryLabel={themes:'Theme',frames:'Frame',titles:'Title',effects:'Effect'};
+const categoryLabel={themes:'Theme',frames:'Frame',badges:'Badge',titles:'Title',effects:'Effect'};
 const num=value=>Number.isSafeInteger(value)&&value>=0?value:0;
 const format=value=>num(value).toLocaleString('en');
 function leaderboardPanel(board,view={}){
@@ -43,8 +44,9 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
   const active={};
   for(const item of shop.owned??[])if(item.equipped)active[item.category]=item.reward_id;
   const rewards=shop.rewards??[];
+  const visibleCategories=hasBadgeCatalog(shop)?categories:categories.filter(([id])=>id!=='badges');
   const visible=rewards.filter(item=>category==='all'||(category==='popular'?popular.includes(item.reward_id):item.category===category));
-  const tabs=categories.map(([id,label])=>`<button type="button" data-action="sandbox-filter" data-category="${id}" aria-pressed="${category===id}" class="vocab-reward-tab${category===id?' is-active':''}">${label}</button>`).join('');
+  const tabs=visibleCategories.map(([id,label])=>`<button type="button" data-action="sandbox-filter" data-category="${id}" aria-pressed="${category===id}" class="vocab-reward-tab${category===id?' is-active':''}">${label}</button>`).join('');
   const available=num(shop.wallet?.available);
   const level=progress?.level?.level??1;
   const currentXp=num(progress?.level?.xp);
@@ -92,7 +94,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
         ${busy||!action?'disabled':''}
         class="${purchase?'is-owned':''}">${escapeHtml(label)}</button>`}</div></article>`;
   }).join('');
-  const equipment=categories.slice(1).map(([id,label])=>{
+  const equipment=visibleCategories.slice(1).map(([id,label])=>{
     const reward=rewards.find(item=>item.reward_id===active[id]);
     return `<div class="vocab-shop-equipped__item"><small>${escapeHtml(label.slice(0,-1))}</small>
       <div class="vocab-shop-equipped__art">${reward?rewardIllustration(reward.reward_id,reward.icon):'<span class="vocab-shop-empty-icon" aria-hidden="true">＋</span>'}</div>
@@ -137,8 +139,8 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
         <div class="vocab-rewards-grid">${shopCards||'<p class="vocab-shop-empty-list">No rewards in this category.</p>'}</div>
       </section>
       <section class="vocab-shop-equipped" aria-label="Equipped rewards">
-        <div class="vocab-shop-equipped__heading"><span class="vocab-shop-equipped__eyebrow">YOUR COLLECTION</span><h2>Equipped now</h2><p>4 slots · Your current look</p></div>
-        <div class="vocab-shop-equipped__list">${equipment}</div>
+        <div class="vocab-shop-equipped__heading"><span class="vocab-shop-equipped__eyebrow">YOUR COLLECTION</span><h2>Equipped now</h2><p>${visibleCategories.length-1} slots · Your current look</p></div>
+        <div class="vocab-shop-equipped__list${hasBadgeCatalog(shop)?' has-badges':''}">${equipment}</div>
       </section>
       </div>
     </div>

@@ -49,7 +49,7 @@ Deno.serve(async req=>{
     if(!['status','buy','equip','unequip'].includes(action))return respond({ok:false,error:'Unknown action'},400);
     if(action==='unequip'){
       const category=typeof body?.category==='string'?body.category:'';
-      if(!['themes','frames','titles','effects'].includes(category))
+      if(!['themes','frames','badges','titles','effects'].includes(category))
         return respond({ok:false,error:'Invalid category'},400);
       const key=configuredKey('SUPABASE_SERVICE_ROLE_KEY','SUPABASE_SECRET_KEYS');
       if(!key)return respond({ok:false,error:'Sandbox unavailable'},503);

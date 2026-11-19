@@ -44,7 +44,7 @@ Deno.serve(async req=>{
   if(!['status','buy','equip','unequip'].includes(action))return reply({ok:false,error:'Unsupported action'},400);
   if(action==='unequip'){
    const category=typeof body?.category==='string'?body.category:'';
-   if(!['themes','frames','titles','effects'].includes(category))return reply({ok:false,error:'Invalid category'},400);
+   if(!['themes','frames','badges','titles','effects'].includes(category))return reply({ok:false,error:'Invalid category'},400);
    const serviceKey=configuredKey('SUPABASE_SERVICE_ROLE_KEY','SUPABASE_SECRET_KEYS');
    if(!serviceKey)return reply({ok:false,error:'Shop unavailable'},503);
    const service=createClient(url,serviceKey,{auth:{persistSession:false,autoRefreshToken:false}});

@@ -1,6 +1,6 @@
 // The Rewards Shop must confirm that an unequip actually persisted before
 // removing a theme from the student UI. Real and sandbox ownership stay separate.
-export const REWARD_CATEGORIES=Object.freeze(['themes','frames','titles','effects']);
+export const REWARD_CATEGORIES=Object.freeze(['themes','frames','badges','titles','effects']);
 
 export async function persistUnequippedReward({invoke,category,production=false}){
  if(typeof invoke!=='function'||!REWARD_CATEGORIES.includes(category))throw Error('Invalid reward category');
