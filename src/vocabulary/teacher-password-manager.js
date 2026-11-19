@@ -6,8 +6,12 @@ export async function openTeacherPasswordManager(root,client,onBack,assignedClas
  page.querySelector('[data-pw-back]').addEventListener('click',onBack);
  const card=page.querySelector('.teacher-password-card');
  async function api(body){
-  const {data,error}=await client.functions.invoke('teacher-student-password',{body});
-  if(error||data?.error)throw new Error(data?.error||'Password service unavailable.');
+  const {data,error}=await client.functions.invoke('admin-provision-user',{body});
+  if(error||data?.error){
+   let message=data?.error;
+   if(!message&&error?.context?.json){try{message=(await error.context.json())?.error;}catch{}}
+   throw new Error(message||'Password service unavailable.');
+  }
   return data;
  }
  let rows=[],selected=null,busy=false,query='',classId='all';
@@ -36,7 +40,7 @@ export async function openTeacherPasswordManager(root,client,onBack,assignedClas
    if(busy||!selected)return;
    busy=true;const btn=dialog.querySelector('[data-pw-confirm]');btn.disabled=true;btn.textContent='Resetting…';
    try{
-    const result=await api({action:'reset',studentId:selected.id});
+    const result=await api({action:'reset_password',userId:selected.id});
     dialog.innerHTML='<div class="teacher-password-modal"><p class="teacher-password-success">Password reset successfully</p><h2>'+e(result.name)+'</h2><p>One-time temporary password:</p><div class="teacher-password-result"><code data-pw-secret>'+e(result.temporaryPassword)+'</code><button type="button" data-pw-copy>Copy</button></div><p class="teacher-password-small">This password will disappear when you close this window. Keep it private.</p><div class="teacher-password-modal-actions"><button type="button" data-pw-done class="teacher-password-primary">Done</button></div></div>';
     dialog.querySelector('[data-pw-copy]').addEventListener('click',async()=>{
      try{await navigator.clipboard.writeText(result.temporaryPassword);dialog.querySelector('[data-pw-copy]').textContent='Copied';}
@@ -49,7 +53,7 @@ export async function openTeacherPasswordManager(root,client,onBack,assignedClas
  }
  dialog.addEventListener('close',()=>{dialog.innerHTML='';selected=null;});
  try{
-  const data=await api({action:'list'});
+  const data=await api({action:'teacher_list_students'});
   if(!Array.isArray(data.students))throw new Error('Could not load student accounts.');
   rows=data.students.filter(r=>typeof r.id==='string'&&typeof r.name==='string'&&typeof r.email==='string'&&typeof r.classId==='string');
   render();
