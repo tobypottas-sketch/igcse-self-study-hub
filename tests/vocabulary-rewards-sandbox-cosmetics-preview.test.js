@@ -20,8 +20,9 @@ test('test account shows actual sandbox-equipped Sparkle artwork and themed prof
  assert.deepEqual(equippedCosmetics(sandbox),{themes:'sakura',effects:'sparkle',frames:'gold-frame',titles:'word-wizard'});
  assert.equal(studentIdentityView(sandbox,'TEST STUDENT').sandboxPreview,true);
  const html=renderIdentityShowcase(sandbox,'TEST STUDENT');
- assert.match(html,/TEST COSMETICS PREVIEW/);
- assert.match(html,/4 \/ 4 test equipped/);
+ assert.match(html,/>Preview<\/span>/);
+ assert.match(html,/>4 \/ 4 equipped<\/span>/);
+ assert.match(html,/class="vocab-sr-only">4 \/ 4 test equipped:/);
  assert.match(html,/sparkle\.png/);
  assert.match(html,/gold-frame\.png/);
  assert.match(html,/Word Wizard/);
