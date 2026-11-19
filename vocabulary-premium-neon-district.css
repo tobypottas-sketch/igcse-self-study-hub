@@ -196,3 +196,23 @@ body:has(#vocabularyApp.vocab-real-theme--neon-district .vocab-shell[data-unit-t
 #vocabularyApp.vocab-real-theme--neon-district .vocab-startup__track::before{
   background:linear-gradient(90deg,#42e4f3,#e857d9);
 }
+
+/* Electric Pulse is an independent effect slot, even with another theme or badge.
+   Use the original transparent PNG around the portrait, never over initials. */
+#vocabularyApp .vocab-student-identity__effect{
+  position:absolute;
+  width:140%;
+  height:140%;
+  inset:-20%;
+  z-index:0;
+  object-fit:contain;
+  pointer-events:none;
+  filter:drop-shadow(0 0 7px rgba(82,227,255,.4));
+}
+#vocabularyApp .vocab-student-identity-mini .vocab-student-identity__effect{
+  width:140%;height:140%;inset:-20%;
+  filter:drop-shadow(0 0 3px rgba(82,227,255,.4));
+}
+@media(prefers-reduced-motion:reduce){
+  #vocabularyApp .vocab-student-identity__effect{animation:none;transition:none}
+}
