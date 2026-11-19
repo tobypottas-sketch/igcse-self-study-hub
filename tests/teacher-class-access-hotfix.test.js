@@ -36,13 +36,17 @@ test('frontend rejects teacher administration requests even when synthetic contr
  assert.match(app,/currentState\.profile\?\.role !== 'admin'\) return/);
  assert.match(app,/const renderActivitySection = async[\s\S]*?\['admin','teacher'\]/);
 });
-test('privileged Edge services check active admin, not generic staff',()=>{
- for(const name of ['admin-class-action','admin-provision-user']){
-  const server=source('supabase/functions/'+name+'/index.ts');
-  assert.match(server,/callerProfile\.role !== 'admin'/);
-  assert.doesNotMatch(server,/!\['teacher','admin'\]\.includes\(callerProfile\.role\)/);
-  assert.match(server,/!callerProfile\?\.active/);
- }
+test('privileged account administration remains admin-only except owned-student password help',()=>{
+ const classServer=source('supabase/functions/admin-class-action/index.ts');
+ assert.match(classServer,/callerProfile\.role !== 'admin'/);
+ assert.match(classServer,/!callerProfile\?\.active/);
+ const accounts=source('supabase/functions/admin-provision-user/index.ts');
+ assert.match(accounts,/!callerProfile\?\.active/);
+ assert.match(accounts,/!isAdmin && !\['teacher_list_students','reset_password'\]\.includes\(input\.action\)/);
+ assert.match(accounts,/teacher_classes/);
+ assert.match(accounts,/student_class_memberships/);
+ assert.match(accounts,/student\.role!=='student'/);
+ assert.match(accounts,/!assignments\?\.length/);
 });
 test('database policies use assigned class and student helpers, not all-staff SELECT',()=>{
  const sql=source('supabase/sql/hotfix-teacher-class-row-access.sql');
