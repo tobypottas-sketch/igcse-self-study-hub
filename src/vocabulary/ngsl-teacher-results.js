@@ -71,60 +71,170 @@ function groupStats(completed){
   return {band:b,average:average(scores),count:scores.length};
  });
 }
+
+const viewState=new WeakMap();
+const BAND_LABELS=['Most frequent','High frequency','Core vocabulary','Less frequent','Extended frequency'];
+const formatPct=score=>score===null?'—':Math.round(score*2)+'%';
 function classRows(dataset,classId){
  const classes=classId==='all'?dataset.classes:dataset.classes.filter(c=>c.id===classId);
  const ids=[...new Set(classes.flatMap(c=>c.students.map(s=>s.id)))];
- return ids.map(id=>({id,name:dataset.names.get(id)||'Student',result:dataset.results.get(id)||null}))
-  .sort((a,b)=>Number(Boolean(a.result))-Number(Boolean(b.result))||a.name.localeCompare(b.name));
+ return ids.map(id=>({id,name:dataset.names.get(id)||'Student',result:dataset.results.get(id)||null}));
 }
+function statusOf(row){
+ if(row.result)return 'completed';
+ const status=datasetSessionState(row);
+ return status==='in_progress'||status==='interrupted'?'in_progress':'not_started';
+}
+function datasetSessionState(row){return row.session?.state??null;}
 function bandCards(rows){
  const completed=rows.filter(row=>row.result).map(row=>row.result);
- return groupStats(completed).map(({band,average:mean})=>
-  '<div class="ngsl-report-band ngsl-report-band--'+band+'"><span>Group '+band+'</span>'
-  +'<strong>'+(mean===null?'—':Math.round(mean*10)+'%')+'</strong>'
-  +'<small>'+(mean===null?'No results yet':mean+' / 10 average')+'</small></div>'
+ return groupStats(completed).map(({band,average:mean,count})=>
+  '<div class="ngsl-report-band ngsl-report-band--'+band+'"><span>Group '+band+'</span>'+
+  '<small>'+e(BAND_LABELS[band-1])+'</small><strong>'+(mean===null?'—':Math.round(mean*10)+'%')+'</strong>'+
+  '<small>'+(mean===null?'No completed results':mean+' / 10 average · '+count+' students')+'</small></div>'
  ).join('');
+}
+function parseTime(value){const t=Date.parse(value??'');return Number.isFinite(t)?t:0;}
+function compactEvents(timeline){
+ const events=[...timeline].sort((a,b)=>parseTime(a.at)-parseTime(b.at));
+ const groups=[];
+ for(const event of events){
+  const last=groups.at(-1);
+  if(last&&last.type===event.type&&last.position===event.position&&Math.abs(parseTime(event.at)-parseTime(last.at))<=5000){
+   last.count++;last.at=event.at;
+  }else groups.push({...event,count:1});
+ }
+ return groups;
+}
+function distribution(rows){
+ const values=rows.filter(r=>r.result).map(r=>r.result.correct);
+ const bins=[{name:'0–9',min:0,max:9},{name:'10–19',min:10,max:19},
+ {name:'20–29',min:20,max:29},{name:'30–39',min:30,max:39},{name:'40–50',min:40,max:50}];
+ const largest=Math.max(1,...bins.map(b=>values.filter(v=>v>=b.min&&v<=b.max).length));
+ return '<div class="ngsl-report-distribution" role="img" aria-label="Completed students by score range">'+bins.map(bin=>{
+  const count=values.filter(v=>v>=bin.min&&v<=bin.max).length;
+  return '<div><span>'+bin.name+'</span><div class="ngsl-dist-track"><i style="width:'+(100*count/largest)+'%"></i></div><b>'+count+'</b></div>';
+ }).join('')+'</div>';
+}
+function exportRows(rows){
+ const quote=value=>'"'+String(value??'').replaceAll('"','""')+'"';
+ const lines=[['Student','Status','Correct','Total','Percent','Recognition rating','Group 1 / 10','Group 2 / 10','Group 3 / 10','Group 4 / 10','Group 5 / 10','Focus losses','Fullscreen exits','Completed at']];
+ for(const row of rows){
+  const r=row.result,incident=row.integrity;
+  lines.push([row.name,statusOf(row)==='in_progress'?'In progress':r?'Completed':'Not started',
+   r?.correct??'',r?.total??'',r?2*r.correct:'',r?levelFor(r.correct):'',
+   ...[1,2,3,4,5].map(b=>r?.bandScores?.[String(b)]?.correct??''),
+   incident?.focusLosses??'',incident?.fullscreenExits??'',r?.completedAt??'']);
+ }
+ return '\uFEFF'+lines.map(row=>row.map(quote).join(',')).join('\r\n');
+}
+function downloadCSV(rows){
+ const blob=new Blob([exportRows(rows)],{type:'text/csv;charset=utf-8'});
+ const url=URL.createObjectURL(blob),link=document.createElement('a');
+ link.href=url;link.download='ngsl-diagnostic-class-results.csv';document.body.append(link);
+ link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function eventDialog(root,row){
+ const incident=row.integrity;
+ const entries=compactEvents(incident?.timeline??[]);
+ const dialog=document.createElement('dialog');dialog.className='ngsl-event-dialog';
+ dialog.innerHTML='<div class="ngsl-event-dialog-header"><div><small>Assessment focus activity</small><h2>'+e(row.name)+'</h2></div><button type="button" class="ngsl-report-dismiss" aria-label="Close focus activity">×</button></div>'+
+  '<p><strong>'+(incident?.focusLosses??0)+' focus losses · '+(incident?.fullscreenExits??0)+' fullscreen exits</strong></p>'+
+  '<p class="ngsl-report-caution">Browser focus events are context for teacher review, not evidence of cheating. The list may be incomplete.</p>'+
+  (entries.length?'<ol class="ngsl-event-list">'+entries.map(item=>
+   '<li><span>'+e(TYPES[item.type])+' · Question '+item.position+(item.count>1?' · '+item.count+' nearby events':'')+'</span>'+
+   '<time datetime="'+e(item.at)+'">'+e(new Date(item.at).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'}))+'</time></li>'
+  ).join('')+'</ol>':'<p>No detailed timeline was supplied for this student.</p>')+
+  '<p class="ngsl-report-caution">Nearby identical events are grouped here for readability. Original records have not been changed.</p>';
+ root.append(dialog);
+ const close=()=>{dialog.close();dialog.remove();};
+ dialog.querySelector('button').addEventListener('click',close);
+ dialog.addEventListener('close',()=>dialog.remove(),{once:true});
+ if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');
 }
 export function renderNGSLClassReport(root,dataset,classId='all',isAdmin=false){
  const selected=dataset.classes.some(c=>c.id===classId)?classId:'all';
- const rows=classRows(dataset,selected);
+ const old=viewState.get(root);
+ const state=old&&old.classId===selected?old:{classId:selected,search:'',filter:'all',sort:'low'};
+ viewState.set(root,state);
+ const rows=classRows(dataset,selected).map(row=>({...row,
+  session:dataset.sessions?.get(row.id),integrity:dataset.integrity?.get(row.id)}));
  const completed=rows.filter(row=>row.result);
  const mean=average(completed.map(row=>row.result.correct));
  const completedPct=percent(completed.length,rows.length);
+ const incomplete=rows.filter(row=>!row.result);
+ const low=completed.filter(row=>row.result.correct<25);
+ const inProgress=incomplete.filter(row=>statusOf(row)==='in_progress');
+ const notStarted=incomplete.length-inProgress.length;
+ const groupMeans=groupStats(completed);
+ const weakest=[...groupMeans].filter(b=>b.average!==null).sort((a,b)=>a.average-b.average)[0];
  const options=dataset.classes.map(c=>'<option value="'+e(c.id)+'"'+(selected===c.id?' selected':'')+'>'+e(c.className)+'</option>').join('');
- const controls='<label class="ngsl-report-filter">Class <select data-action="ngsl-report-select-class">'
-  +'<option value="all"'+(selected==='all'?' selected':'')+'>'+(isAdmin?'All classes':'All my classes')+'</option>'
-  +options+'</select></label>';
- const table=rows.map(row=>{
-  const r=row.result;
-  const score=r?r.correct+'/50 · '+(r.correct*2)+'%':'Not started';
-  const incident=dataset.integrity?.get(row.id);
-  const label=!r?'—':!dataset.integrityAvailable?'Unavailable':!incident?'No events reported':
-    incident.focusLosses+' focus loss'+(incident.focusLosses===1?'':'es')+
-      ' · '+incident.fullscreenExits+' fullscreen exit'+(incident.fullscreenExits===1?'':'s');
-  const timeline=incident?.timeline??[];
-  const items=timeline.map(item=>'<li><span>'+e(TYPES[item.type])+
-   ' · Question '+item.position+'</span><time datetime="'+e(item.at)+'">'+
-   e(new Date(item.at).toLocaleString(undefined,{dateStyle:'short',timeStyle:'short'}))+'</time></li>').join('');
-  const note=timeline.length?'<details class="ngsl-integrity-details"><summary>'+e(label)+
-   ' · View timeline</summary><ol>'+items+'</ol>'+
-   '<small>Server-recorded times. Browser events may be incomplete.</small></details>':e(label);
-  return '<tr><td>'+e(row.name)+'</td><td><span class="'+(r?'ngsl-report-done':'ngsl-report-wait')+'">'+(r?'Completed':'Not completed')+'</span></td>'
-    +'<td class="ngsl-report-number">'+e(score)+'</td><td>'+e(r?levelFor(r.correct):'—')+'</td><td>'+note+'</td></tr>';
+ const filtered=rows.filter(row=>(state.filter==='all'||state.filter===statusOf(row)||state.filter==='review'&&row.result?.correct<25)&&
+  row.name.toLocaleLowerCase().includes(state.search.toLocaleLowerCase())).sort((a,b)=>{
+   if(state.sort==='name')return a.name.localeCompare(b.name);
+   if(state.sort==='high')return (b.result?.correct??-1)-(a.result?.correct??-1)||a.name.localeCompare(b.name);
+   if(state.sort==='status')return statusOf(a).localeCompare(statusOf(b))||a.name.localeCompare(b.name);
+   return (a.result?.correct??51)-(b.result?.correct??51)||a.name.localeCompare(b.name);
+  });
+ const table=filtered.map(row=>{
+  const r=row.result,status=statusOf(row),incident=row.integrity;
+  const score=r?r.correct+'/50 · '+(r.correct*2)+'%':'—';
+  const incidentLabel=!r?'—':!dataset.integrityAvailable?'Unavailable':
+   !incident?'No events reported':incident.focusLosses+' focus · '+incident.fullscreenExits+' exits';
+  return '<tr><td class="ngsl-report-student">'+e(row.name)+'</td><td><span class="'+(r?'ngsl-report-done':'ngsl-report-wait')+'">'+
+   (status==='completed'?'Completed':status==='in_progress'?'In progress':'Not started')+'</span></td>'+
+   '<td class="ngsl-report-number">'+e(score)+'</td><td>'+e(r?levelFor(r.correct):'—')+'</td>'+
+   '<td><span>'+e(incidentLabel)+'</span>'+
+   (incident&&r?'<button type="button" class="ngsl-review-button" data-review-id="'+e(row.id)+'">Review</button>':'')+
+   '</td></tr>';
  }).join('');
- root.innerHTML='<main class="vocab-shell ngsl-report"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Vocabulary diagnostic</span></header>'
-  +'<section class="ngsl-report-hero"><div><p class="vocab-kicker">NGSL · 50-QUESTION DIAGNOSTIC</p>'
-  +'<h1>Diagnostic results</h1><p>Vocabulary starting points for your classes.</p></div>'
-  +'<button class="vocab-button" type="button" data-action="ngsl-report-back">Back to classes</button></section>'
-  +'<div class="ngsl-report-tools">'+controls+'</div>'
-  +'<section class="ngsl-report-metrics" aria-label="Class diagnostic summary">'
-  +'<div><span>Completed</span><strong>'+completed.length+' <small>/ '+rows.length+'</small></strong><small>'+completedPct+'% of students</small></div>'
-  +'<div><span>Average score</span><strong>'+(mean===null?'—':Math.round(mean*2)+'%')+'</strong><small>'+(mean===null?'No results yet':mean+' / 50 · '+completed.length+' completed')+'</small></div>'
-  +'<div><span>Still to complete</span><strong>'+(rows.length-completed.length)+'</strong><small>Students</small></div></section>'
-  +'<section class="ngsl-report-panel"><h2>Vocabulary word groups</h2><p>Average recognition in each frequency group, based on completed tests only.</p>'
-  +'<div class="ngsl-report-bands">'+bandCards(rows)+'</div></section>'
-  +'<section class="ngsl-report-panel"><div class="ngsl-report-panel-heading"><h2>Student results</h2><span>'+rows.length+' students</span></div>'
-  +'<div class="ngsl-report-table-scroll"><table><thead><tr><th>Student</th><th>Status</th><th>Score</th><th>Foundation rating</th><th>Focus events (review only)</th></tr></thead><tbody>'
-  +(rows.length?table:'<tr><td colspan="5">No students in this selection.</td></tr>')+'</tbody></table></div></section>'
-  +'<p class="ngsl-report-footnote">Focus and fullscreen events are browser-reported, may be incomplete, and do not prove cheating. Review context before taking action. This diagnostic measures selected NGSL word recognition, not an English exam grade.</p></main>';
+ root.innerHTML='<main class="vocab-shell ngsl-report"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Vocabulary diagnostic</span></header>'+
+ '<section class="ngsl-report-hero"><div><p class="vocab-kicker">NGSL · 50-QUESTION DIAGNOSTIC</p>'+
+ '<h1>Diagnostic results</h1><p>Recognition of selected NGSL words · not a CEFR placement test.</p></div>'+
+ '<button class="vocab-button" type="button" data-action="ngsl-report-back">Back to classes</button></section>'+
+ '<div class="ngsl-report-tools"><label class="ngsl-report-filter">Class <select data-action="ngsl-report-select-class">'+
+ '<option value="all"'+(selected==='all'?' selected':'')+'>'+(isAdmin?'All classes':'All my classes')+'</option>'+options+
+ '</select></label></div>'+
+ '<section class="ngsl-report-metrics" aria-label="Class diagnostic summary">'+
+ '<div><span>Completed</span><strong>'+completed.length+' <small>/ '+rows.length+'</small></strong><small>'+completedPct+'% of students</small></div>'+
+ '<div><span>Average recognition</span><strong>'+(mean===null?'—':Math.round(mean*2)+'%')+'</strong><small>'+
+ (mean===null?'No results yet':mean+' / 50 · completed students only')+'</small></div>'+
+ '<div><span>Still to complete</span><strong>'+incomplete.length+'</strong><small>'+inProgress.length+' in progress · '+notStarted+' not started</small></div></section>'+
+ '<section class="ngsl-report-actions" aria-label="Teacher follow-up"><h2>What needs attention?</h2><div>'+
+ '<p><strong>'+incomplete.length+' unfinished:</strong> '+inProgress.length+' started, '+notStarted+' not started.</p>'+
+ '<p><strong>'+low.length+' students below 50%:</strong> review their starting vocabulary practice.</p>'+
+ '<p><strong>Lowest frequency group:</strong> '+(weakest?'Group '+weakest.band+' ('+Math.round(weakest.average*10)+'%)':'Awaiting results')+
+ '. Similar group averages may reflect question selection rather than equal word knowledge.</p></div></section>'+
+ '<section class="ngsl-report-panel"><h2>Vocabulary frequency groups</h2><p>Each group contains 10 selected NGSL items; higher groups contain less frequent vocabulary. These are not CEFR bands.</p>'+
+ '<div class="ngsl-report-bands">'+bandCards(rows)+'</div></section>'+
+ '<section class="ngsl-report-panel"><h2>Score distribution</h2><p>Number of completed students in each raw-score range (out of 50).</p>'+
+ distribution(rows)+'</section>'+
+ '<section class="ngsl-report-panel"><div class="ngsl-report-panel-heading"><h2>Student results</h2><span>'+filtered.length+' of '+rows.length+' students</span></div>'+
+ '<div class="ngsl-report-toolbar"><label>Find student<input type="search" data-ngsl-search placeholder="Search names…" value="'+e(state.search)+'"></label>'+
+ '<label>Status<select data-ngsl-filter><option value="all">All students</option><option value="completed">Completed</option>'+
+ '<option value="in_progress">In progress</option><option value="not_started">Not started</option><option value="review">Below 50%</option></select></label>'+
+ '<label>Sort<select data-ngsl-sort><option value="low">Lowest scores first</option><option value="high">Highest scores first</option>'+
+ '<option value="name">Student name</option><option value="status">Status</option></select></label>'+
+ '<button type="button" class="ngsl-review-button ngsl-export-button" data-ngsl-export>Export CSV</button></div>'+
+ '<div class="ngsl-report-table-scroll"><table><thead><tr><th>Student</th><th>Status</th><th>Score</th><th>Recognition rating</th><th>Focus activity</th></tr></thead><tbody>'+
+ (filtered.length?table:'<tr><td colspan="5">No students match these filters.</td></tr>')+
+ '</tbody></table></div></section>'+
+ '<section class="ngsl-report-explainer"><strong>How to read the ratings</strong><p>Beginning: 0–14 · Developing: 15–24 · Building confidence: 25–34 · Strong: 35–44 · Advanced recognition: 45–50. These labels describe performance on this particular 50-item test only. They are not standardised NGSL or CEFR levels.</p></section>'+
+ '<p class="ngsl-report-footnote">Focus and fullscreen events are browser-reported and may be incomplete. They do not prove cheating. Scores reflect multiple-choice recognition of selected words, not productive vocabulary, reading ability or an English exam grade.</p></main>';
+ root.querySelector('[data-ngsl-filter]').value=state.filter;
+ root.querySelector('[data-ngsl-sort]').value=state.sort;
+ root.querySelector('[data-ngsl-search]').addEventListener('input',event=>{
+  const value=event.target.value,start=event.target.selectionStart;
+  state.search=value;renderNGSLClassReport(root,dataset,selected,isAdmin);
+  const input=root.querySelector('[data-ngsl-search]');input.focus();input.setSelectionRange(start,start);
+ });
+ for(const [attr,key] of [['data-ngsl-filter','filter'],['data-ngsl-sort','sort']]){
+  root.querySelector('['+attr+']').addEventListener('change',event=>{
+   state[key]=event.target.value;renderNGSLClassReport(root,dataset,selected,isAdmin);
+  });
+ }
+ root.querySelector('[data-ngsl-export]').addEventListener('click',()=>downloadCSV(rows));
+ for(const button of root.querySelectorAll('[data-review-id]')){
+  button.addEventListener('click',()=>{const row=rows.find(r=>r.id===button.dataset.reviewId);if(row)eventDialog(root,row);});
+ }
 }
