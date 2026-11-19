@@ -25,7 +25,7 @@ test('approved shop layout contains real progress, sandbox balance and equipped 
  assert.match(root.innerHTML,/Popular picks/);
  assert.match(root.innerHTML,/Next unlock/);
  assert.match(root.innerHTML,/data-equipped-theme="midnight"/);
- assert.match(root.innerHTML,/Test credits only/);
+ assert.match(root.innerHTML,/TEST XP ONLY/);
  assert.doesNotMatch(root.innerHTML,/2,480 XP|Level 12|14 days/);
 });
 test('shop card actions continue to work after redesign and filters are genuine',()=>{

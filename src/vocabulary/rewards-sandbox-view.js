@@ -104,13 +104,18 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
   let html=`<main class="vocab-shell vocab-shell--rewards vocab-shell--sandbox vocab-shop-redesign" data-equipped-theme="${escapeHtml(theme)}">
     <header class="vocab-topbar"><button type="button" class="vocab-back vocab-back--chip" data-action="back-sandbox-home">← All units</button><span class="vocab-topbar__course">Cambridge IGCSE ESL 0511 · Test shop</span></header>
     <section class="vocab-shop-hero" aria-label="XP Rewards Shop">
-      <div class="vocab-shop-hero__intro"><span class="vocab-shop-eyebrow">Vocabulary Builder · Student rewards</span>
-        <h1>XP Rewards Shop</h1><span class="vocab-shop-underline" aria-hidden="true"></span>
-        <p>Spend XP on themes, profile frames, titles and effects.</p></div>
+      <div class="vocab-shop-hero__topline">
+        <span class="vocab-shop-eyebrow">✦ STUDENT REWARDS</span>
+        <div class="vocab-shop-hero__balance" aria-label="Available XP balance"><span aria-hidden="true">⭐</span><strong>${format(available)} XP</strong><small>Sandbox available</small></div>
+      </div>
+      <div class="vocab-shop-hero__intro">
+        <h1>XP REWARDS <span>SHOP</span></h1>
+        <p class="vocab-shop-hero__tagline">Earn it. Spend it. Make it yours.</p>
+        <p class="vocab-shop-hero__categories">Themes <span aria-hidden="true">·</span> Frames <span aria-hidden="true">·</span> Titles <span aria-hidden="true">·</span> Effects</p>
+      </div>
       <div class="vocab-shop-hero__scene">${banner}</div>
-      <div class="vocab-shop-hero__balance"><span aria-hidden="true">⭐</span><strong>${format(available)} XP</strong><small>Sandbox available</small></div>
     </section>
-    <p class="vocab-shop-test-note" role="note">Test credits only · Sandbox balance is separate from learning XP. Rewards never affect answers, levels or genuine learning XP.</p>
+    <p class="vocab-shop-test-note" role="note">TEST XP ONLY · Your learning progress is unaffected</p>
     <p class="vocab-sandbox-feedback" role="status" aria-live="polite">${escapeHtml(message)}</p>
     <div class="vocab-shop-content">
       <div class="vocab-shop-rail">
@@ -143,7 +148,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
     .replace('vocab-shell--sandbox','vocab-shell--production')
     .replace(' · Test shop',' · Rewards Shop')
     .replace('Sandbox available','Spendable balance')
-    .replace('Test credits only · Sandbox balance is separate from learning XP. Rewards never affect answers, levels or genuine learning XP.','Real XP rewards · Buying reduces spendable XP, not learning XP, levels or achievements.');
+    .replace('TEST XP ONLY · Your learning progress is unaffected','REAL XP REWARDS · Purchases do not reduce your earned learning XP');
   }
   root.innerHTML=html;
   if(leaderboardView.expanded===true)installLeaderboardModal(root,leaderboard,leaderboardView);
