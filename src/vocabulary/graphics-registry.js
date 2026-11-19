@@ -3,6 +3,7 @@
 //
 // The inline SVG artwork (study-art-svg.js) is both the placeholder and the fallback: a PNG is layered over it only when
 // it is listed in graphics-manifest.js, and it replaces the SVG only once it has actually loaded (graphics-runtime.js).
+import { GRAPHIC_DELIVERY } from './graphics-delivery.js';
 import { SHIPPED_PNG } from './graphics-manifest.js';
 
 // Paths are relative to vocabulary.html (the site is served from the repository root; it has no public/ folder).
@@ -59,4 +60,20 @@ export function shippedGraphic(group, key) {
 }
 export function allGraphicNames() {
   return [...Object.values(PATHWAY_PNG), ...Array.from({ length:20 }, (_, index) => unitPngName(index + 1))];
+}
+
+// Delivery candidates preserve the full original PNG for high-DPR or large slots.
+// sizes describe the *covered image*, not just the square crop: panoramic unit
+// banners need ~400 CSS pixels of source width to fill a 132px square cleanly.
+export function graphicDelivery(group,key,{hero=false}={}) {
+ const asset=shippedGraphic(group,key);
+ if(!asset)return null;
+ const prepared=GRAPHIC_DELIVERY[name(group,key)];
+ if(!prepared)return {...asset,srcset:null,sizes:null};
+ const candidates=prepared.variants.map(x=>`${x.src} ${x.width}w`);
+ candidates.push(`${asset.src} ${prepared.originalWidth}w`);
+ return {...asset,srcset:candidates.join(', '),sizes:group==='pathway'
+  ?'(max-width:620px) 104px, (max-width:1000px) 150px, 176px'
+  :hero?'(max-width:760px) 340px, (max-width:1000px) 270px, 440px'
+  :'(max-width:760px) 300px, 400px'};
 }

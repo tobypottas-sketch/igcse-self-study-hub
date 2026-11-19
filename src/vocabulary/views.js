@@ -6,7 +6,7 @@ import { deriveLearningStage } from './learning-stage.js';
 import { VOCABULARY_PATHWAYS, PATHWAY_STAGES } from './pathway-model.js';
 import { pathwayIdentity, renderStudyIcon } from './study-ui.js';
 import { renderMatchSet } from './match-set-view.js';
-import { shippedGraphic } from './graphics-registry.js';
+import { shippedGraphic, graphicDelivery } from './graphics-registry.js';
 import { renderSoundToggle } from './sound.js';
 import { renderGamesEntry } from './games/games-view.js';
 import { unitOverviewAttr, unitThemeAttr } from './unit-themes.js';
@@ -179,18 +179,20 @@ export function buildUnitProgress({ occurrences = [], unitMastery = {}, globalMa
 function classroomLightArtwork() {
   return typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('fullart') !== '1';
 }
-function pngLayer(group, key, eager = false) {
-  if (classroomLightArtwork() && !eager) return { has:false, html:'' };
-  const asset = shippedGraphic(group, key);
-  return asset ? { has:true, html:`<img class="study-art__png" data-art-png src="${escapeHtml(asset.src)}" width="${asset.width}" height="${asset.height}" alt="" decoding="async" loading="${eager ? 'eager' : 'lazy'}" draggable="false">` } : { has:false, html:'' };
+function pngLayer(group, key, eager = false, hero = false) {
+  if (classroomLightArtwork() && !hero) return { has:false, html:'' };
+  const asset = graphicDelivery(group, key, {hero});
+  if(!asset)return {has:false,html:''};
+  const image=`<img class="study-art__png" data-art-png src="${escapeHtml(asset.src)}" width="${asset.width}" height="${asset.height}" alt="" decoding="async" loading="${eager ? 'eager' : 'lazy'}" fetchpriority="${eager ? 'high' : 'auto'}" draggable="false">`;
+  return {has:true,html:asset.srcset?`<picture data-art-delivery><source type="image/webp" srcset="${escapeHtml(asset.srcset)}" sizes="${escapeHtml(asset.sizes)}">${image}</picture>`:image};
 }
 function artSlotAttrs(png) { return png.has ? ' data-art-slot' : ''; }
-function unitArtSlot(unitNumber) {
-  const svg = unitArtSvg(unitNumber,'vocab-unit-card__art-image'); const png = pngLayer('unit', unitNumber);
+function unitArtSlot(unitNumber, eager = false) {
+  const svg = unitArtSvg(unitNumber,'vocab-unit-card__art-image'); const png = pngLayer('unit', unitNumber, eager);
   return svg || png.has ? `<span class="vocab-unit-card__art${png.has ? ' has-png' : ''}" data-unit-art="${escapeHtml(unitNumber)}"${artSlotAttrs(png)} aria-hidden="true">${svg}${png.html}</span>` : '';
 }
 function unitHeroArt(unitNumber) {
-  const svg = unitArtSvg(unitNumber,'vocab-unit-hero__art-image'); const png = pngLayer('unit', unitNumber, true);
+  const svg = unitArtSvg(unitNumber,'vocab-unit-hero__art-image'); const png = pngLayer('unit', unitNumber, true, true);
   return svg || png.has ? `<figure class="vocab-unit-hero__art${png.has ? ' has-png' : ''}" data-unit-hero-art="${escapeHtml(unitNumber)}"${artSlotAttrs(png)} aria-hidden="true">${svg}${png.html}</figure>` : '';
 }
 // has-png-art is decided at render time (from the manifest), never from load success, so the banner geometry is fixed from the
@@ -234,7 +236,7 @@ export function renderAchievementsSheet(list = []) {
 }
 
 export function renderVocabularyHome(root, { displayName = '', units = [], engagement = null, soundOn = false, preview = false } = {}) {
-  const cards = units.length ? units.map(unit => {
+  const cards = units.length ? units.map((unit,index) => {
     const mastered = Number(unit.mastered ?? 0);
     const total = Number(unit.total ?? 50);
     return `
@@ -244,7 +246,7 @@ export function renderVocabularyHome(root, { displayName = '', units = [], engag
       <span class="vocab-unit-card__progress-copy">${escapeHtml(mastered)} / ${escapeHtml(total)} mastered</span>
       <span data-study-unit-progress>${renderStudyProgress(mastered,total,`Unit ${unit.unitNumber} mastery`)}</span>
       <small>Open unit ${renderStudyIcon('arrow',{className:'vocab-unit-card__arrow'})}</small>
-      ${unitArtSlot(unit.unitNumber)}
+      ${unitArtSlot(unit.unitNumber,index<2)}
     </button>`;
   }).join('') : `<div class="vocab-empty study-milestone-card" data-study-empty>${renderStudyIcon('spark',{className:'study-icon--xl'})}<strong>Your vocabulary units are being prepared.</strong><p>Check back soon.</p></div>`;
   root.innerHTML = `<main class="vocab-shell vocab-shell--home"><header class="vocab-topbar vocab-topbar--home"><a href="./" class="vocab-back vocab-back--chip"><span class="vocab-back__arrow" aria-hidden="true">←</span> Hub</a><span class="vocab-topbar__course">Cambridge IGCSE ESL 0511</span>${renderSoundToggle(soundOn)}</header><section class="vocab-hero vocab-hero--home"><p class="vocab-kicker">Vocabulary &amp; Paraphrase Builder</p><h1>Choose a unit</h1><p>${displayName ? `<strong>Hi ${escapeHtml(displayName)}.</strong> ` : ''}Choose a unit, then work upwards through each vocabulary pathway.</p></section>${renderEngagementHome(engagement)}${preview ? `<section class="vocab-rewards-preview-entry" aria-label="Rewards Shop preview"><div><strong>⭐ XP Rewards Shop</strong><small>Try the planned shop design. Staff preview only; no XP can be spent.</small></div><button type="button" data-action="open-rewards-preview">Preview shop</button></section>` : ''}<section class="vocab-progress-entry" aria-label="My Vocabulary Progress"><span><strong>${preview ? "My Progress · Preview" : "My Vocabulary Progress"}</strong><small>${preview ? "Explore the student dashboard layout. No student activity is shown in staff preview." : "Your practice, milestones and achievements in one place."}</small><small data-my-progress-error role="status" aria-live="polite"></small></span><button type="button" data-action="open-my-progress">${preview ? "View sample progress →" : "View my progress →"}</button></section><section class="vocab-unit-grid">${cards}</section>${COURSEBOOK_REFERENCE}</main>`;

@@ -71,7 +71,7 @@ test('manifest ⇄ files: every listed PNG exists and is a real PNG, and every P
 test('shipped graphics render as a PNG layer over the existing SVG, keeping the slot, the SVG and the evidence markup', () => {
   withShippedGraphics(allGraphicNames(), () => {
     const home = html(target => renderVocabularyHome(target, { displayName:'A', units:[{ unitNumber:1, unitTitle:'Sports and Free Time', mastered:0, total:50 }] }));
-    assert.match(home, /class="vocab-unit-card__art has-png" data-unit-art="1" data-art-slot aria-hidden="true"><svg [^>]*>.*<\/svg><img class="study-art__png" data-art-png src="assets\/vocabulary\/units\/unit-01\.png" width="1672" height="411" alt="" /s);
+    assert.match(home, /class="vocab-unit-card__art has-png" data-unit-art="1" data-art-slot aria-hidden="true"><svg [^>]*>.*<\/svg><picture data-art-delivery><source [^>]*><img class="study-art__png" data-art-png src="assets\/vocabulary\/units\/unit-01\.png" width="1672" height="411" alt="" /s);
     const hero = unitPage();
     assert.match(hero, /<figure class="vocab-unit-hero__art has-png" data-unit-hero-art="1" data-art-slot aria-hidden="true"><svg /);
     assert.match(hero, /src="assets\/vocabulary\/units\/unit-01\.png" width="1672" height="411" alt="" decoding="async" loading="eager"/);
@@ -85,7 +85,7 @@ test('every pathway card gets its own PNG, the disabled card renders too, and no
   const disabled = withPng.match(/<button[^>]*data-pathway="precision_use"[^>]*>.*?<\/button>/s)?.[0] ?? '';
   assert.ok(disabled.includes('disabled') && disabled.includes('precision-use.png'), 'the withheld pathway still shows its illustration, disabled');
   // removing the PNG layers from the "with" markup gives back exactly the "without" markup: stage ladder, evidence, CTA, badges, chips are untouched
-  const stripped = withPng.replace(/<img class="study-art__png"[^>]*>/g, '').replace(/ has-png-art/g, '').replace(/ has-png(?![-\w])/g, '').replace(/ data-art-slot/g, '');
+  const stripped = withPng.replace(/<picture data-art-delivery>[\s\S]*?<\/picture>/g, '').replace(/<img class="study-art__png"[^>]*>/g, '').replace(/ has-png-art/g, '').replace(/ has-png(?![-\w])/g, '').replace(/ data-art-slot/g, '');
   assert.equal(stripped, without);
 });
 
