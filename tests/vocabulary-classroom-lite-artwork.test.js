@@ -32,9 +32,9 @@ test('normal student view loads optimized PNGs for home cards and all six pathwa
   const h=home(),u=unit();
   assert.match(h,/class="study-art__png" data-art-png/);
   assert.match(h,/data-art-delivery/);
-  assert.match(h,/delivery\\/units\\/unit-01\\./);
+  assert.ok(h.includes('assets/vocabulary/delivery/units/unit-01.'));
   for(const pathway of ['meaning','context','word-families','paraphrasing','precision-use','spelling-recall']){
-   assert.match(u,new RegExp('delivery/pathways/'+pathway+'\\\\.'));
+   assert.ok(u.includes('assets/vocabulary/delivery/pathways/'+pathway+'.'),pathway);
   }
   assert.match(u,/data-action="open-pathway"/);
  }finally{if(old===undefined)delete globalThis.window;else globalThis.window=old}
@@ -44,6 +44,6 @@ test('fullart=1 overrides lightart=1 for support and legacy preview URLs',()=>{
  try{
   globalThis.window={location:{search:'?lightart=1&fullart=1'}};
   assert.match(home(),/data-art-png/);
-  assert.match(unit(),/assets\\/vocabulary\\/pathways\\/meaning\\.png/);
+  assert.ok(unit().includes('assets/vocabulary/pathways/meaning.png'));
  }finally{if(old===undefined)delete globalThis.window;else globalThis.window=old}
 });
