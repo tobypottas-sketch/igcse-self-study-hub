@@ -53,7 +53,9 @@ test('database mutation never touches ownership, balances or XP',()=>{
 test('app handles real and test unequip actions independently',()=>{
  const s=read('src/vocabulary/app.js');
  for(const action of ['real-unequip','sandbox-unequip'])assert.ok(s.includes(action));
- assert.match(s,/action:'unequip',category/);
+ assert.match(s,/persistUnequippedReward/);
+ const flow=read('src/vocabulary/rewards-unequip-flow.js');
+ assert.match(flow,/action:'unequip',category/);
  assert.match(s,/await updateLiveCosmetics\(data\)/);
  assert.match(s,/await updateSandboxCosmetics\(data\)/);
 });
