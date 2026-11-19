@@ -206,7 +206,7 @@ export function renderNGSLClassReport(root,dataset,classId='all',isAdmin=false){
  root.innerHTML='<main class="vocab-shell ngsl-report"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Vocabulary diagnostic</span></header>'+
  '<section class="ngsl-report-hero"><div><p class="vocab-kicker">NGSL · 50-QUESTION DIAGNOSTIC</p>'+
  '<h1>Diagnostic results</h1><p>Recognition of selected NGSL words · not a CEFR placement test.</p></div>'+
- '<button class="vocab-button" type="button" data-action="ngsl-report-back">Back to classes</button></section>'+
+ '<div class="ngsl-report-header-buttons"><button class="vocab-button" type="button" data-action="ngsl-report-refresh">Refresh results</button><button class="vocab-button" type="button" data-action="ngsl-report-back">Back to classes</button></div></section>'+
  '<div class="ngsl-report-tools"><label class="ngsl-report-filter">Class <select data-action="ngsl-report-select-class">'+
  '<option value="all"'+(selected==='all'?' selected':'')+'>'+(isAdmin?'All classes':'All my classes')+'</option>'+options+
  '</select></label></div>'+
