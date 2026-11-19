@@ -216,3 +216,110 @@ body:has(#vocabularyApp.vocab-real-theme--neon-district .vocab-shell[data-unit-t
 @media(prefers-reduced-motion:reduce){
   #vocabularyApp .vocab-student-identity__effect{animation:none;transition:none}
 }
+
+/* Neon District home readability: exact selectors from progress.css and
+   rewards-dashboard.css. Scoped to equipped Neon District only.
+   Deliberately avoids generic span/strong/button overrides, preserving
+   achievement indicators, academic feedback and artwork. */
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home > .vocab-progress-entry{
+  background:linear-gradient(115deg,#f0f8ff 0%,#e6edf9 100%)!important;
+  border:2px solid #8cb9dd;
+  box-shadow:0 8px 25px rgba(4,13,38,.26);
+  color:#183656;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home > .vocab-progress-entry > span > strong{
+  color:#173655!important;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home > .vocab-progress-entry > span > small{
+  color:#47617e!important;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home > .vocab-progress-entry > button{
+  background:#24548b!important;
+  color:#fff!important;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home > .vocab-progress-entry > button:hover{
+  background:#183f6d!important;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home > .vocab-progress-entry [data-my-progress-error]{
+  color:#9d2936!important;
+}
+
+/* Stop the shared dashboard's white-end gradient washing out the preview.
+   Keep the original approved theme artwork a subtle background accent. */
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity{
+  background:linear-gradient(110deg,#142344 0%,#24325a 75%,#202b50 100%)!important;
+  border:2px solid #5dcbe7;
+  border-left:5px solid #42e4f3!important;
+  color:#eef6ff;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity:before{
+  opacity:.13;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__text h2{
+  color:#f5f9ff!important;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__eyebrow,
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__stamp{
+  color:#8cf0ff!important;
+}
+
+/* Distinct equipped and empty states: no white text on translucent white pills. */
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__slot{
+  background:#253656;
+  border:1px solid #91aecb;
+  color:#dbe7f7!important;
+  opacity:1;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__slot.is-equipped{
+  background:#e7fbff;
+  border-color:#76d9e7;
+  color:#143e5a!important;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__slot-dot{
+  background:#afc5d8;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__slot.is-equipped .vocab-student-identity__slot-dot{
+  background:#087b9c;
+}
+
+/* Artwork stays unaltered. Give the caption its own opaque contrast area
+   instead of letting a pale gradient or theme text override obscure it. */
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__title-art{
+  gap:6px;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__title-art img{
+  box-shadow:0 5px 17px rgba(1,9,30,.4);
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__title-label{
+  display:block;
+  width:100%;
+  padding:4px 8px;
+  border-radius:7px;
+  background:#142443;
+  color:#f4f9ff!important;
+  text-shadow:none;
+  text-align:center;
+}
+
+/* Existing real/sandbox shop tiles are deliberately LIGHT. Their
+   headings and helper text must remain dark, regardless of theme ink. */
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-rewards-home-card__body strong{
+  color:#173a57!important;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-rewards-home-card__body small,
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-rewards-home-card__test-note{
+  color:#4b657c!important;
+}
+@media(forced-colors:active){
+  #vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home > .vocab-progress-entry,
+  #vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity{
+    background:Canvas!important;
+    color:CanvasText!important;
+    border-color:CanvasText!important;
+  }
+  #vocabularyApp.vocab-real-theme--neon-district .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity :is(h2,.vocab-student-identity__slot,.vocab-student-identity__title-label){
+    color:CanvasText!important;
+    background:Canvas!important;
+    border-color:CanvasText!important;
+  }
+}
