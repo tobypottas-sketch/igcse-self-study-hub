@@ -148,3 +148,11 @@
  min-width:20px;
  padding:0 5px;
 }
+
+/* Compact interpretation: short, scannable explanations instead of paragraph cards. */
+#vocabularyApp .ngsl-p-explanation{padding:16px 20px}
+#vocabularyApp .ngsl-p-explanation-grid{gap:10px}
+#vocabularyApp .ngsl-p-explanation-grid p{display:flex;flex-direction:column;gap:4px;padding:11px 13px;font-size:.83rem;line-height:1.4}
+#vocabularyApp .ngsl-p-explanation-grid p b{color:#18465d;font-size:.86rem}
+#vocabularyApp .ngsl-p-explanation-grid p span{display:block;color:#4d6878}
+#vocabularyApp .ngsl-p-explanation>.ngsl-p-note{margin-top:10px}
