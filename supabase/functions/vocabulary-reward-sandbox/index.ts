@@ -46,7 +46,17 @@ Deno.serve(async req=>{
 
     const body=await req.json().catch(()=>({}));
     const action=String(body?.action??'status');
-    if(!['status','buy','equip'].includes(action))return respond({ok:false,error:'Unknown action'},400);
+    if(!['status','buy','equip','unequip'].includes(action))return respond({ok:false,error:'Unknown action'},400);
+    if(action==='unequip'){
+      const category=typeof body?.category==='string'?body.category:'';
+      if(!['themes','frames','titles','effects'].includes(category))
+        return respond({ok:false,error:'Invalid category'},400);
+      const key=configuredKey('SUPABASE_SERVICE_ROLE_KEY','SUPABASE_SECRET_KEYS');
+      if(!key)return respond({ok:false,error:'Sandbox unavailable'},503);
+      const admin=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
+      const {error}=await admin.rpc('unequip_vocabulary_sandbox_reward',{p_student_id:studentId,p_category:category});
+      if(error)return respond({ok:false,error:'Unable to remove equipped reward'},400);
+    }
     if(action==='buy'||action==='equip'){
       const rewardId=typeof body?.rewardId==='string'?body.rewardId:'';
       if(!/^[a-z0-9-]{2,50}$/.test(rewardId))
