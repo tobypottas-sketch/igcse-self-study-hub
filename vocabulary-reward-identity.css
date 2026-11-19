@@ -212,18 +212,61 @@
  --reward-hero:#243566;--reward-panel:#e7eafd;--reward-card:#f1f2fd;
  --reward-strong:#344b93;--reward-scene:url("assets/vocabulary/rewards/midnight.png");
 }
-/* The existing fixed default wallpaper was masking the theme change. */
+/* Preserve the original illustration layers under equipped cosmetic themes.
+   The previous full "background" shorthands deleted --unit-wallpaper and
+   --page-art altogether. These variables recolour the backdrop only. */
 body:has(#vocabularyApp.vocab-real-theme--forest){
- background:radial-gradient(circle at 5% 8%,#b9eac4 0%,transparent 42%),linear-gradient(130deg,#e3f7e6,#f5fcf4 58%,#ccebd6)!important;
+ --reward-wallpaper-base:#e3f7e6;
+ --reward-wallpaper-wash:radial-gradient(circle at 5% 8%,#b9eac4 0%,transparent 42%),linear-gradient(130deg,#e3f7e6,#f5fcf4 58%,#ccebd6);
 }
 body:has(#vocabularyApp.vocab-real-theme--ocean){
- background:radial-gradient(circle at 7% 12%,#9fdff6 0%,transparent 44%),linear-gradient(135deg,#d7f3ff,#f2fcff 58%,#b9e8f4)!important;
+ --reward-wallpaper-base:#d7f3ff;
+ --reward-wallpaper-wash:radial-gradient(circle at 7% 12%,#9fdff6 0%,transparent 44%),linear-gradient(135deg,#d7f3ff,#f2fcff 58%,#b9e8f4);
 }
 body:has(#vocabularyApp.vocab-real-theme--sakura){
- background:radial-gradient(circle at 8% 9%,#f7c3df 0%,transparent 44%),linear-gradient(135deg,#ffe3ef,#fff9fb 58%,#f5cde2)!important;
+ --reward-wallpaper-base:#ffe3ef;
+ --reward-wallpaper-wash:radial-gradient(circle at 8% 9%,#f7c3df 0%,transparent 44%),linear-gradient(135deg,#ffe3ef,#fff9fb 58%,#f5cde2);
 }
 body:has(#vocabularyApp.vocab-real-theme--midnight){
- background:radial-gradient(circle at 82% 4%,#445caa 0%,transparent 50%),linear-gradient(135deg,#1e2f59,#384e89 56%,#182948)!important;
+ --reward-wallpaper-base:#1e2f59;
+ --reward-wallpaper-wash:radial-gradient(circle at 82% 4%,#445caa 0%,transparent 50%),linear-gradient(135deg,#1e2f59,#384e89 56%,#182948);
+}
+body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)){
+ background-color:var(--reward-wallpaper-base)!important;
+}
+/* Unit activities: retain the original repeating, illustrated 420px icon
+   wallpaper for each coursebook unit. Theme gradients sit UNDER the icons. */
+body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) .vocab-shell[data-unit-theme]){
+ background-image:var(--unit-wallpaper),var(--reward-wallpaper-wash)!important;
+ background-repeat:repeat,no-repeat,no-repeat;
+ background-size:420px 420px,cover,cover;
+ background-position:0 0,center,center;
+ background-attachment:scroll,fixed,fixed;
+}
+/* Home and unit overviews keep their original composed SVG scene rather
+   than substituting a generic tile or removing the illustration. */
+body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) :is(.vocab-shell--home,.vocab-shell[data-unit-overview])){
+ background-image:var(--page-art),var(--reward-wallpaper-wash)!important;
+ background-repeat:no-repeat,no-repeat,no-repeat;
+ background-size:max(100vw,177.78vh) auto,cover,cover;
+ background-position:50% 50%,center,center;
+ background-attachment:fixed,fixed,fixed;
+}
+/* Existing teal/blue-grey SVG strokes need extra lift on Midnight only. */
+body:has(#vocabularyApp.vocab-real-theme--midnight .vocab-shell[data-unit-theme]){
+ background-blend-mode:screen,normal,normal;
+}
+@media(max-width:600px){
+ body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) .vocab-shell[data-unit-theme]){
+  background-size:340px 340px,cover,cover;
+ }
+}
+/* Respect the application's existing print and forced-colour treatment. */
+@media print,(forced-colors:active){
+ body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)){
+  background-image:none!important;
+  background-blend-mode:normal;
+ }
 }
 #vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight){
  background:transparent;
