@@ -7,7 +7,7 @@ Deno.serve(async req=>{
  if(req.method==='OPTIONS')return new Response(null,{status:204,headers});
  if(req.method!=='POST')return reply({error:'Method not allowed'},405);
  try{
-  const token=/^Bearer\\s+(\\S+)$/i.exec(req.headers.get('authorization')??'')?.[1];
+  const token=/^Bearer\s+(\S+)$/i.exec(req.headers.get('authorization')??'')?.[1];
   if(!token)return reply({error:'Please sign in again.'},401);
   const url=Deno.env.get('SUPABASE_URL')??'';
   const pub=key('SUPABASE_ANON_KEY','SUPABASE_PUBLISHABLE_KEYS');
