@@ -41,7 +41,16 @@ Deno.serve(async req=>{
    return reply({ok:false,error:'Active student account required'},403);
   const body=await req.json().catch(()=>({}));
   const action=String(body?.action??'status');
-  if(!['status','buy','equip'].includes(action))return reply({ok:false,error:'Unsupported action'},400);
+  if(!['status','buy','equip','unequip'].includes(action))return reply({ok:false,error:'Unsupported action'},400);
+  if(action==='unequip'){
+   const category=typeof body?.category==='string'?body.category:'';
+   if(!['themes','frames','titles','effects'].includes(category))return reply({ok:false,error:'Invalid category'},400);
+   const serviceKey=configuredKey('SUPABASE_SERVICE_ROLE_KEY','SUPABASE_SECRET_KEYS');
+   if(!serviceKey)return reply({ok:false,error:'Shop unavailable'},503);
+   const service=createClient(url,serviceKey,{auth:{persistSession:false,autoRefreshToken:false}});
+   const {error:mutationError}=await service.rpc('unequip_vocabulary_reward',{p_student_id:studentId,p_category:category});
+   if(mutationError)return reply({ok:false,error:'Unable to remove equipped reward'},400);
+  }
   if(action==='buy'||action==='equip'){
    const rewardId=typeof body.rewardId==='string'?body.rewardId:'';
    if(!/^[a-z0-9-]{2,50}$/.test(rewardId))return reply({ok:false,error:'Invalid reward'},400);
