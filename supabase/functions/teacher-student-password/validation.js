@@ -7,7 +7,7 @@ export function validateTeacherPasswordAction(body){
 }
 export function canManageStudent({actor,student,membership,assigned}){
  return Boolean(actor?.active===true&&['teacher','admin'].includes(actor.role)&&
-  student?.active===true&&student.role==='student'&&membership?.ended_at==null&&
+  student?.active===true&&student.role==='student'&&Boolean(membership)&&membership.ended_at==null&&
   (actor.role==='admin'||assigned===true));
 }
 export function createReadablePassword(random=crypto.getRandomValues.bind(crypto)){
