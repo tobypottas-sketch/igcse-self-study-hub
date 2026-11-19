@@ -97,3 +97,26 @@
 @media (prefers-reduced-motion:reduce){
  #vocabularyApp .ngsl-p-event-link{transition:none}
 }
+
+/* Result groups and bounded pages: never render a 270-row student wall. */
+#vocabularyApp .ngsl-p-students{scroll-margin-top:20px}
+#vocabularyApp .ngsl-p-tabs{display:flex;flex-wrap:wrap;gap:7px;margin:15px 0 14px;padding-bottom:4px}
+#vocabularyApp .ngsl-p-tabs button{display:inline-flex;align-items:center;gap:9px;min-height:40px;padding:8px 12px;border:1px solid #d7e4e9;border-radius:9px;background:#f7fafb;color:#4a6677;font:inherit;font-size:.84rem;font-weight:750;cursor:pointer}
+#vocabularyApp .ngsl-p-tabs button b{display:inline-flex;min-width:22px;height:22px;align-items:center;justify-content:center;padding:0 6px;border-radius:999px;background:#e7eff3;color:#426276;font-size:.76rem;font-variant-numeric:tabular-nums}
+#vocabularyApp .ngsl-p-tabs button:hover{background:#ebf5f7;border-color:#9dc8d0}
+#vocabularyApp .ngsl-p-tabs button.ngsl-p-tab-active{background:#e6f6f5;border-color:#16858b;color:#09686d;box-shadow:inset 0 -2px #16858b}
+#vocabularyApp .ngsl-p-tabs button.ngsl-p-tab-active b{background:#cceae7;color:#08686d}
+#vocabularyApp .ngsl-p-toolbar{grid-template-columns:minmax(180px,1fr) 195px auto}
+#vocabularyApp .ngsl-p-pages{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:13px;color:#597587;font-size:.82rem}
+#vocabularyApp .ngsl-p-pages>div{display:flex;gap:8px}
+#vocabularyApp .ngsl-p-pages button{border:1px solid #c4dce2;border-radius:9px;background:#f2fafb;color:#136e78;font:inherit;font-weight:800;min-height:38px;padding:7px 16px;cursor:pointer}
+#vocabularyApp .ngsl-p-pages button:disabled{opacity:.4;cursor:default}
+#vocabularyApp .ngsl-p-pages button:not(:disabled):hover{background:#def1f2}
+#vocabularyApp .ngsl-p-table-wrap tbody tr{height:57px}
+#vocabularyApp .ngsl-p-students>.ngsl-p-section-heading p{max-width:620px}
+@media(max-width:650px){
+ #vocabularyApp .ngsl-p-tabs{flex-wrap:nowrap;overflow-x:auto;padding:0 0 10px;scrollbar-width:thin}
+ #vocabularyApp .ngsl-p-tabs button{white-space:nowrap;flex:none}
+ #vocabularyApp .ngsl-p-toolbar{grid-template-columns:1fr}
+ #vocabularyApp .ngsl-p-pages{flex-wrap:wrap}
+}

@@ -18,7 +18,7 @@ test('CSV safeguards spreadsheet formula injection and commas',()=>{
 });
 test('teacher report source includes safe filters, action summary, browser event panel and NGSL/CEFR limitations',()=>{
  const code=read('src/vocabulary/ngsl-teacher-report-polished.js');
- for(const phrase of ['data-ngsl-search','data-ngsl-filter','data-ngsl-sort','data-ngsl-export','data-ngsl-dialog','ngsl-p-weak','In progress','Not a CEFR placement test'])assert.ok(code.includes(phrase),phrase);
+ for(const phrase of ['data-ngsl-search','data-ngsl-tab','data-ngsl-sort','data-ngsl-export','data-ngsl-dialog','ngsl-p-weak','In progress','Not a CEFR placement test'])assert.ok(code.includes(phrase),phrase);
  assert.match(code,/data-ngsl-quick/);
  assert.match(code,/not proof of cheating/);
  assert.match(code,/Object\.hasOwn\(TYPES,item\.type\)/);
@@ -47,4 +47,16 @@ test('student activity modules and NGSL question bank remain untouched by report
  assert.match(src,/renderNGSLPolishedReport/);
  const html=read('vocabulary.html');
  assert.match(html,/vocabulary-ngsl-teacher-polished\.css/);
+});
+
+test('student results are initially grouped, capped at 12 rows, and have navigation',()=>{
+ const src=read('src/vocabulary/ngsl-teacher-report-polished.js');
+ assert.match(src,/let filter='completed',sort='low',query='',page=0/);
+ assert.match(src,/const PAGE_SIZE=12/);
+ assert.match(src,/matches\.slice\(page\*PAGE_SIZE,\(page\+1\)\*PAGE_SIZE\)/);
+ for(const action of ['data-ngsl-tab="completed"','data-ngsl-tab="progress"','data-ngsl-tab="notstarted"',
+ 'data-ngsl-tab="incomplete"','data-ngsl-tab="review"','data-ngsl-tab="all"','data-ngsl-prev','data-ngsl-next'])
+  assert.ok(src.includes(action),action);
+ assert.match(src,/page=0;draw\(\)/);
+ assert.match(src,/const records=displayed\(\)\.map/); // export includes all matches rather than only current page
 });
