@@ -289,3 +289,12 @@
 #vocabularyApp .vocab-shop-redesign button:is(:disabled,[aria-disabled="true"]) {
   cursor: default;
 }
+
+/* Separate free removal from the existing Change button. */
+.vocab-shop-redesign .vocab-shop-equipped__item .vocab-shop-unequip{
+ background:#f3f7fa;border-color:#bacbd8;color:#405c72;
+ font-size:.7rem;padding:6px 10px;margin-top:4px;
+}
+.vocab-shop-redesign .vocab-shop-equipped__item .vocab-shop-unequip:hover{
+ background:#e5edf4;
+}
