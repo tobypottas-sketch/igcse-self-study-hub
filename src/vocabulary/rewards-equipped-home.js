@@ -3,10 +3,11 @@
 // can influence presentation. No learning content, grades, mastery or XP changes.
 import {rewardArtworkPath} from './rewards-art.js';
 import {ensureRewardsDashboard} from './rewards-home-layout.js';
+import {SUPPORTED_THEME_IDS,EQUIPMENT_CATEGORIES,visibleEquipmentCategories} from './rewards-premium-registry.js';
 const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const THEMES=new Set(['midnight','forest','ocean','sakura']);
+const THEMES=new Set(SUPPORTED_THEME_IDS);
 const EFFECTS=new Set(['sparkle','pixel-badge']);
-const CATEGORIES=['themes','frames','titles','effects'];
+const CATEGORIES=EQUIPMENT_CATEGORIES;
 const ROOT_CLASSES=[...THEMES].map(x=>'vocab-real-theme--'+x);
 const EFFECT_CLASSES=[...EFFECTS].map(x=>'vocab-real-effect--'+x);
 
@@ -33,7 +34,7 @@ export function studentIdentityView(shop,displayName='Student'){
    title:active.titles?items.get(active.titles)?.name??'':'',
    titleArt:active.titles?rewardArtworkPath(active.titles):null,
    frame:active.frames?rewardArtworkPath(active.frames):null,
-   badge:active.effects?rewardArtworkPath(active.effects):null,
+   badge:active.badges?rewardArtworkPath(active.badges):active.effects==='pixel-badge'?rewardArtworkPath(active.effects):null,
    effectName:active.effects?items.get(active.effects)?.name??'':'',
    themeName:active.themes?items.get(active.themes)?.name??'':''
  };
@@ -48,10 +49,11 @@ function avatar(identity,compact=false){
 export function renderIdentityShowcase(shop,displayName='Student'){
  const id=studentIdentityView(shop,displayName);
  const active=id.active;
- const labels={themes:'Theme',frames:'Frame',titles:'Title',effects:'Effect'};
+ const labels={themes:'Theme',frames:'Frame',badges:'Badge',titles:'Title',effects:'Effect'};
  const equippedCount=Object.keys(active).length;
  const itemNames=new Map((shop?.rewards??[]).map(item=>[item.reward_id,item.name]));
- const status=CATEGORIES.map(category=>{
+ const categories=visibleEquipmentCategories(shop);
+ const status=categories.map(category=>{
    const reward=active[category];
    const detail=reward?`${itemNames.get(reward)??labels[category]} ${category==='themes'?'active':'equipped'}`:`${labels[category]} not equipped`;
    return `<span class="vocab-student-identity__slot${reward?' is-equipped':''}" aria-label="${escapeHtml(detail)}" title="${escapeHtml(detail)}">
@@ -69,7 +71,7 @@ export function renderIdentityShowcase(shop,displayName='Student'){
      <span class="vocab-student-identity__eyebrow">${id.sandboxPreview?'TEST COSMETICS PREVIEW':'MY STUDENT PROFILE'}</span>
      <h2>${escapeHtml(id.name)}</h2>
      <div class="vocab-student-identity__slots" aria-label="Equipped reward categories">${status}</div>
-     <span class="vocab-student-identity__stamp">${equippedCount} / 4 ${id.sandboxPreview?'test equipped':'equipped'}</span>
+     <span class="vocab-student-identity__stamp">${equippedCount} / ${categories.length} ${id.sandboxPreview?'test equipped':'equipped'}</span>
    </div>
    <div class="vocab-student-identity__extras" aria-label="Equipped title artwork">${title||'<span class="vocab-student-identity__detail">Choose a title in the shop</span>'}</div>
  </section>`;
