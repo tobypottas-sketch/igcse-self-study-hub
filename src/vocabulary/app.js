@@ -473,27 +473,38 @@ async function applyRealReward(action,rewardId){
   }
  }
 }
-async function removeEquippedReward(category,production){
+async function removeEquippedReward(category,production,clickedButton=null){
  if(state.preview||!['themes','frames','titles','effects'].includes(category))return;
  const shop=production?realShop:sandboxShop;
  if(!shop||(production?realBusy:sandboxBusy))return;
  if(!shop.owned?.some(item=>item.category===category&&item.equipped===true))return;
  if(production)realBusy=true;else sandboxBusy=true;
+ // Do not replace the entire shop before sending the removal request: this
+ // used to destroy the clicked control while the request was still pending.
+ if(clickedButton?.isConnected){
+  clickedButton.disabled=true;
+  clickedButton.textContent='Removing…';
+  clickedButton.setAttribute('aria-busy','true');
+ }
  let message='';
  try{
-  if(production)await renderRealShop('Removing equipped reward…',true);
-  else await renderCurrentSandboxShop('Removing equipped reward…',true);
-  const fn=production?'vocabulary-reward-production':'vocabulary-reward-sandbox';
-  const {data,error}=await state.client.functions.invoke(fn,{body:{action:'unequip',category}});
-  if(error||data?.ok!==true)throw Error(data?.error||'Could not remove equipped reward.');
+  const {persistUnequippedReward}=await import('./rewards-unequip-flow.js?v=verified-unequip-v2');
+  const data=await persistUnequippedReward({
+   invoke:(name,args)=>state.client.functions.invoke(name,args),category,production
+  });
   if(production){realShop=data;await updateLiveCosmetics(data);}
-  else {sandboxShop=data;await updateSandboxCosmetics(data);}
+  else{sandboxShop=data;await updateSandboxCosmetics(data);}
   message=category==='themes'?'Default theme restored! You still own the theme.':'Reward unequipped. You still own it.';
  }catch(error){
   message=error instanceof Error?error.message:'Unable to remove equipped reward.';
  }finally{
-  if(production){realBusy=false;await renderRealShop(message,false);}
-  else{sandboxBusy=false;await renderCurrentSandboxShop(message,false);}
+  if(production){
+   realBusy=false;
+   try{await renderRealShop(message,false);}catch(error){console.error('Unable to refresh Rewards Shop after removal.',error);}
+  }else{
+   sandboxBusy=false;
+   try{await renderCurrentSandboxShop(message,false);}catch(error){console.error('Unable to refresh test shop after removal.',error);}
+  }
  }
 }
 async function revealRealShopEntry(){
@@ -1365,7 +1376,7 @@ root?.addEventListener('click', event => {
   }
   else if (action === 'real-buy' && !state.preview){void applyRealReward('buy',target.dataset.rewardId);}
   else if (action === 'real-equip' && !state.preview){void applyRealReward('equip',target.dataset.rewardId);}
-  else if (action === 'real-unequip' && !state.preview){void removeEquippedReward(target.dataset.category,true);}
+  else if (action === 'real-unequip' && !state.preview){void removeEquippedReward(target.dataset.category,true,target);}
   else if (action === 'back-real-home' && !state.preview){
     realShop=null;void showHome().catch(error=>renderVocabularyError(root,error.message));
   }
@@ -1390,7 +1401,7 @@ root?.addEventListener('click', event => {
   }
   else if (action === 'sandbox-buy' && !state.preview) { void applySandboxReward('buy',target.dataset.rewardId); }
   else if (action === 'sandbox-equip' && !state.preview) { void applySandboxReward('equip',target.dataset.rewardId); }
-  else if (action === 'sandbox-unequip' && !state.preview) { void removeEquippedReward(target.dataset.category,false); }
+  else if (action === 'sandbox-unequip' && !state.preview) { void removeEquippedReward(target.dataset.category,false,target); }
   else if (action === 'back-sandbox-home' && !state.preview) { sandboxShop=null; void showHome().catch(error=>renderVocabularyError(root,error.message)); }
   else if (action === 'open-rewards-preview' && state.preview) { void showRewardsPreview().catch(error => renderVocabularyError(root,error.message)); }
   else if (action === 'filter-rewards' && state.preview) { void showRewardsPreview(target.dataset.category ?? 'all').catch(error => renderVocabularyError(root,error.message)); }
