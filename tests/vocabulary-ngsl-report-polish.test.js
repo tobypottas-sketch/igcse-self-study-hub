@@ -88,3 +88,11 @@ test('class dropdown sits immediately after the compact search and uses the exis
  assert.match(src,/const records=displayed\(\)\.map/);
  assert.match(css,/grid-template-columns:minmax\(170px,250px\) minmax\(185px,1fr\)/);
 });
+
+test('results footer remains concise without redundant explanation cards',()=>{
+ const src=read('src/vocabulary/ngsl-teacher-report-polished.js');
+ assert.doesNotMatch(src,/Reading the results|ngsl-p-explanation-grid/);
+ assert.doesNotMatch(src,/Ratings \/50:/);
+ assert.match(src,/Diagnostic scores indicate vocabulary recognition, not an official CEFR level/);
+ assert.match(src,/Browser focus events are not proof of misconduct/);
+});
