@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {rewardArtworkPath} from '../src/vocabulary/rewards-art.js';
+import {studentIdentityView,renderIdentityShowcase,applyRewardTheme} from '../src/vocabulary/rewards-equipped-home.js';
 import {SUPPORTED_THEME_IDS,PREMIUM_COLLECTIONS} from '../src/vocabulary/rewards-premium-registry.js';
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 test('Neon District is a complete planned five-piece collection',()=>{
@@ -40,4 +41,30 @@ test('asset files must exist before Neon District can be merged or sold',()=>{
   assert.ok(bytes.readUInt32BE(16)>=500,'PNG is too small: '+filename);
   assert.ok(bytes.readUInt32BE(20)>=500,'PNG is too short: '+filename);
  }
+});
+
+test('electric pulse remains separate from Badge and survives theme changes',()=>{
+ const rewards=[
+  {reward_id:'neon-hacker-badge',category:'badges',name:'Neon Hacker Badge'},
+  {reward_id:'electric-pulse',category:'effects',name:'Electric Pulse'},
+  {reward_id:'neon-district',category:'themes',name:'Neon District Theme'}
+ ];
+ const owned=rewards.map(r=>({reward_id:r.reward_id,category:r.category,equipped:true}));
+ const shop={shopMode:'production',rewards,owned};
+ const identity=studentIdentityView(shop,'Test Student');
+ assert.match(identity.badge,/neon-hacker-badge\.png$/);
+ assert.match(identity.effectArt,/electric-pulse\.png$/);
+ const html=renderIdentityShowcase(shop,'Test Student');
+ assert.match(html,/class="vocab-student-identity__badge"/);
+ assert.match(html,/class="vocab-student-identity__effect"/);
+ assert.match(html,/3 \/ 5/);
+ const css=read('vocabulary-premium-neon-district.css');
+ assert.match(css,/\.vocab-student-identity__effect/);
+ const classes=new Set();
+ const root={classList:{add:v=>classes.add(v),remove:(...values)=>values.forEach(v=>classes.delete(v))}};
+ applyRewardTheme(root,shop);
+ assert.ok(classes.has('vocab-real-effect--electric-pulse'));
+ applyRewardTheme(root,{...shop,owned:owned.filter(x=>x.category!=='themes')});
+ assert.ok(classes.has('vocab-real-effect--electric-pulse'));
+ assert.ok(!classes.has('vocab-real-theme--neon-district'));
 });
