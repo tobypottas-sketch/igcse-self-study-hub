@@ -151,11 +151,13 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
    if(prior)prior.count++;else grouped.push({...item,key,count:1});
   }
   const body=root.querySelector('[data-ngsl-dialog-body]');
-  body.innerHTML='<h2>'+e(row.name)+'</h2><p>Browser activity recorded during the diagnostic. These signals may reflect normal browser or device behaviour and are <b>not proof of cheating</b>.</p>'+
-   '<p class="ngsl-p-dialog-count">'+(incident?.focusLosses??0)+' focus events · '+(incident?.fullscreenExits??0)+' fullscreen exits</p>'+
-   (grouped.length?'<ol class="ngsl-p-events">'+grouped.map(x=>'<li><b>'+e(TYPES[x.type])+' · Question '+x.position+'</b>'+(x.count>1?' <span class="ngsl-p-repeat">×'+x.count+'</span>':'')+
-    '<small>'+e(fmtTime(x.at))+'</small></li>').join('')+'</ol>':'<p>No timeline details are available.</p>')+
-   '<small>Repeated events within the same minute are grouped for readability; the original server event records are unchanged.</small>';
+  body.innerHTML='<header class="ngsl-p-dialog-header"><span class="ngsl-p-dialog-eyebrow">Assessment activity</span><h2>'+e(row.name)+'</h2>'+
+   '<div class="ngsl-p-dialog-stats"><span><strong>'+(incident?.focusLosses??0)+'</strong> focus events</span><span><strong>'+(incident?.fullscreenExits??0)+'</strong> fullscreen exits</span></div></header>'+
+   '<p class="ngsl-p-dialog-advice">Browser activity is <b>not proof of cheating</b>. Review the context before taking action.</p>'+
+   '<div class="ngsl-p-dialog-history"><h3>Event history <small>'+grouped.length+' entries</small></h3>'+
+   (grouped.length?'<ol class="ngsl-p-events">'+grouped.map((x,index)=>'<li><span class="ngsl-p-event-index" aria-hidden="true">'+(index+1)+'</span><div class="ngsl-p-event-content"><b>'+e(TYPES[x.type])+' <span class="ngsl-p-event-question">· Q'+x.position+'</span></b>'+(x.count>1?' <span class="ngsl-p-repeat">×'+x.count+'</span>':'')+
+    '<time>'+e(fmtTime(x.at))+'</time></div></li>').join('')+'</ol>':'<p class="ngsl-p-event-empty">No timeline details available.</p>')+'</div>'+
+   '<p class="ngsl-p-dialog-footnote">Events within the same minute are grouped. Original records are unchanged.</p>';
   root.querySelector('[data-ngsl-dialog]').hidden=false;
   root.querySelector('[data-ngsl-close]').focus();
  }
