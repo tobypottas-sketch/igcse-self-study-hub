@@ -32,14 +32,14 @@ function renderClassChooser() {
 }
 
 async function openNGSLReport(initialClassId) {
- const {fetchNGSLClassResults,renderNGSLClassReport}=await import('./ngsl-teacher-results.js?v=ngsl-integrity-v2');
+ const {fetchNGSLPolishedResults,renderNGSLPolishedReport}=await import('./ngsl-teacher-report-polished.js?v=ngsl-report-polish-v1');
  if(!teacherState.ngslReportData){
   showTeacherLoading('Loading diagnostic results…');
-  teacherState.ngslReportData=await fetchNGSLClassResults(teacherState.client,teacherState.data.classes);
+  teacherState.ngslReportData=await fetchNGSLPolishedResults(teacherState.client,teacherState.data.classes);
  }
  const chosen=initialClassId??teacherState.ngslClassId;
  teacherState.ngslClassId=teacherState.data.classes.some(c=>c.id===chosen)?chosen:'all';
- renderNGSLClassReport(teacherState.root,teacherState.ngslReportData,teacherState.ngslClassId,teacherState.profile.role==='admin');
+ renderNGSLPolishedReport(teacherState.root,teacherState.ngslReportData,teacherState.ngslClassId,teacherState.profile.role==='admin');
 }
 function backFromNGSLReport(){
  const current=teacherState.currentClass;

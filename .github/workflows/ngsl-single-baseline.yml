@@ -12,6 +12,10 @@ on:
       - 'tests/vocabulary-ngsl-integrity-retry-timeline.test.js'
       - 'tests/vocabulary-ngsl-integrity-mode.test.js'
       - 'src/vocabulary/teacher-app.js'
+      - 'src/vocabulary/ngsl-teacher-report-polished.js'
+      - 'vocabulary-ngsl-teacher-polished.css'
+      - 'supabase/sql/ngsl-teacher-progress-report.sql'
+      - 'tests/vocabulary-ngsl-report-polish.test.js'
       - 'vocabulary-diagnostic-student.css'
       - 'supabase/functions/vocabulary-diagnostic/index.ts'
       - 'tests/vocabulary-ngsl-single-diagnostic.test.js'
@@ -29,6 +33,10 @@ on:
       - 'tests/vocabulary-ngsl-integrity-retry-timeline.test.js'
       - 'tests/vocabulary-ngsl-integrity-mode.test.js'
       - 'src/vocabulary/teacher-app.js'
+      - 'src/vocabulary/ngsl-teacher-report-polished.js'
+      - 'vocabulary-ngsl-teacher-polished.css'
+      - 'supabase/sql/ngsl-teacher-progress-report.sql'
+      - 'tests/vocabulary-ngsl-report-polish.test.js'
       - 'vocabulary-diagnostic-student.css'
       - 'supabase/functions/vocabulary-diagnostic/index.ts'
       - 'tests/vocabulary-ngsl-single-diagnostic.test.js'
@@ -45,6 +53,6 @@ jobs:
         with:
           node-version: '22'
       - name: Test single NGSL diagnostic and authenticated teacher preview
-        run: node --test tests/vocabulary-ngsl-single-diagnostic.test.js tests/vocabulary-ngsl-teacher-preview.test.js tests/vocabulary-ngsl-integrity-mode.test.js tests/vocabulary-ngsl-integrity-retry-timeline.test.js
+        run: node --test tests/vocabulary-ngsl-single-diagnostic.test.js tests/vocabulary-ngsl-teacher-preview.test.js tests/vocabulary-ngsl-integrity-mode.test.js tests/vocabulary-ngsl-integrity-retry-timeline.test.js tests/vocabulary-ngsl-report-polish.test.js
       - name: Check browser module syntax
-        run: node --check src/vocabulary/ngsl-student.js && node --check src/vocabulary/ngsl-question-format.js && node --check src/vocabulary/diagnostic-teacher-walkthrough.js && node --check src/vocabulary/router.js
+        run: node --check src/vocabulary/ngsl-student.js && node --check src/vocabulary/ngsl-question-format.js && node --check src/vocabulary/diagnostic-teacher-walkthrough.js && node --check src/vocabulary/router.js && node --check src/vocabulary/ngsl-teacher-report-polished.js
