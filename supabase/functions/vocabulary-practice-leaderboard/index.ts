@@ -85,7 +85,8 @@ Deno.serve(async req=>{
    .sort((a,b)=>b.xp-a.xp||a.label.localeCompare(b.label)||a.id.localeCompare(b.id))
    .map((p,index)=>({...p,rank:index+1,isYou:p.id===user.id}));
   const me=list.find(p=>p.isYou)||null;
-  const visible=expanded?list.slice(0,100):list.slice(0,7);
+  // Authentication and eligibility are checked above; expanded search covers all supported students (max 1000).
+  const visible=expanded?list.slice(0,1000):list.slice(0,7);
   const publicRow=p=>p?{rank:p.rank,name:p.isYou?'You':p.label,xp:p.xp,isYou:p.isYou}:null;
   return reply({ok:true,scope,period,className:scope==='school'?'All classes':selected.class_name,
    count:list.length,rows:visible.map(publicRow),me:publicRow(me),expanded,
