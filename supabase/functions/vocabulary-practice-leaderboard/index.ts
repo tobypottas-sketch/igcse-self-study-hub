@@ -1,5 +1,5 @@
 // Read-only vocabulary practice leaderboard. Never reads or modifies sandbox wallets.
-// Returns only anonymised display labels, ranks and XP earned from completed missions.
+// Returns only first and last display-name tokens, ranks and XP earned from completed missions to authenticated active students.
 import {createClient} from 'npm:@supabase/supabase-js@2.117.3';
 const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS'};
 const reply=(data,status=200)=>Response.json(data,{status,headers:{...cors,'Cache-Control':'no-store'}});
