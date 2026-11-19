@@ -1,0 +1,177 @@
+/* Authenticated header legibility: a single final override for default and purchased themes.
+   Preserve the full-resolution frame/title artwork; scale presentation only. */
+#vocabularyApp .vocab-topbar:has(.vocab-student-identity-mini){
+ min-height:104px;
+ padding:11px 17px;
+ gap:12px 17px;
+ align-items:center;
+}
+#vocabularyApp .vocab-topbar:has(.vocab-student-identity-mini) .vocab-student-identity-mini{
+ flex:0 1 auto;
+ display:flex;align-items:center;
+ gap:16px;
+ max-width:min(100%,420px);
+ min-width:0;
+ margin-left:auto;
+}
+#vocabularyApp .vocab-student-identity-mini .vocab-student-identity__avatar{
+ width:68px;height:68px;flex:none;
+ border-radius:17px;
+}
+#vocabularyApp .vocab-student-identity-mini .vocab-student-identity__initials{
+ font-size:1rem;
+}
+#vocabularyApp .vocab-student-identity-mini .vocab-student-identity__badge{
+ width:33px;height:32px;right:-10px;bottom:-5px;
+ border:2px solid #fff;border-radius:9px;
+}
+#vocabularyApp .vocab-student-identity-mini__name{
+ display:grid;
+ gap:5px;
+ min-width:0;
+ max-width:none;
+ color:#183b5f;
+ font-size:clamp(.9rem,1.1vw,1rem);
+ font-weight:900;
+ line-height:1.25;
+ overflow-wrap:anywhere;
+ white-space:normal;
+}
+#vocabularyApp .vocab-student-identity-mini__title-art{
+ display:block;
+ width:190px;
+ max-width:100%;
+ height:68px;
+ overflow:visible;
+ border-radius:10px;
+ background:transparent;
+ box-shadow:none;
+}
+#vocabularyApp .vocab-student-identity-mini__title-art img{
+ display:block;
+ width:100%;
+ height:100%;
+ object-fit:contain;
+ object-position:left center;
+ filter:drop-shadow(0 3px 5px rgba(8,35,75,.18));
+}
+#vocabularyApp .vocab-topbar--unit .vocab-unit-id{
+ flex:1 1 150px;
+ justify-content:center;
+ gap:8px;
+ min-width:0;
+}
+#vocabularyApp .vocab-topbar--unit .vocab-unit-id__badge{
+ color:#ffdc66;
+ background:#21335c;
+ border:1px solid #405a87;
+ font-size:.74rem;
+ line-height:1.25;
+}
+#vocabularyApp .vocab-topbar--unit .vocab-unit-id__title{
+ display:block;
+ max-width:100%;
+ padding:7px 10px;
+ border:1px solid rgba(79,113,158,.3);
+ border-radius:9px;
+ background:#f6f9ff;
+ color:#18345b;
+ font-size:clamp(.88rem,1.1vw,1.02rem);
+ font-weight:900;
+ line-height:1.32;
+ text-align:left;
+ white-space:normal;
+ overflow-wrap:anywhere;
+ box-shadow:0 2px 6px rgba(13,44,88,.09);
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura) .vocab-student-identity-mini{
+ color:var(--reward-ink,#173b58);
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura) .vocab-student-identity-mini__name{
+ color:var(--reward-ink,#173b58);
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-student-identity-mini,
+#vocabularyApp.vocab-real-theme--midnight .vocab-student-identity-mini__name{
+ color:#fff;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-topbar--unit .vocab-unit-id__title{
+ background:#f6f9ff;
+ color:#18345b;
+ border-color:#becaf0;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-topbar--unit .vocab-unit-id__badge{
+ color:#ffdb71;
+ background:#14264c;
+ border-color:#899bd4;
+}
+#vocabularyApp.vocab-real-theme--forest .vocab-topbar--unit .vocab-unit-id__title{
+ background:#f2fff5;color:#174d35;border-color:#9bc9ab;
+}
+#vocabularyApp.vocab-real-theme--ocean .vocab-topbar--unit .vocab-unit-id__title{
+ background:#f1fbff;color:#164c6d;border-color:#9bcddd;
+}
+#vocabularyApp.vocab-real-theme--sakura .vocab-topbar--unit .vocab-unit-id__title{
+ background:#fff4fa;color:#663454;border-color:#dfaccc;
+}
+@media(max-width:900px){
+ #vocabularyApp .vocab-topbar:has(.vocab-student-identity-mini){
+  min-height:96px;
+ }
+ #vocabularyApp .vocab-topbar:has(.vocab-student-identity-mini) .vocab-student-identity-mini{
+  max-width:min(100%,360px);
+  gap:11px;
+ }
+ #vocabularyApp .vocab-student-identity-mini .vocab-student-identity__avatar{width:60px;height:60px}
+ #vocabularyApp .vocab-student-identity-mini__title-art{width:166px;height:60px}
+}
+@media(max-width:680px){
+ #vocabularyApp .vocab-topbar:has(.vocab-student-identity-mini){
+  min-height:0;
+  padding:12px;
+  gap:10px;
+ }
+ #vocabularyApp .vocab-topbar:has(.vocab-student-identity-mini) .vocab-student-identity-mini{
+  flex:1 1 100%;
+  width:100%;
+  max-width:100%;
+  justify-content:flex-start;
+  order:3;
+  margin-left:0;
+ }
+ #vocabularyApp .vocab-topbar--unit .vocab-unit-id{
+  flex:1 1 auto;
+  justify-content:flex-end;
+ }
+ #vocabularyApp .vocab-student-identity-mini__name{
+  flex:1 1 auto;
+  max-width:none;
+  font-size:.91rem;
+ }
+ #vocabularyApp .vocab-student-identity-mini__title-art{
+  width:170px;
+  height:62px;
+ }
+}
+@media(max-width:380px){
+ #vocabularyApp .vocab-topbar:has(.vocab-student-identity-mini) .vocab-student-identity-mini{
+  flex-wrap:wrap;
+ }
+ #vocabularyApp .vocab-student-identity-mini__title-art{
+  width:148px;
+  height:55px;
+ }
+ #vocabularyApp .vocab-student-identity-mini .vocab-student-identity__avatar{
+  width:56px;height:56px;
+ }
+ #vocabularyApp .vocab-topbar--unit .vocab-unit-id__title{
+  font-size:.83rem;
+  padding:6px 8px;
+ }
+}
+@media(forced-colors:active){
+ #vocabularyApp .vocab-topbar--unit .vocab-unit-id__title{
+  border:1px solid CanvasText;
+  background:Canvas;
+  color:CanvasText;
+ }
+}
