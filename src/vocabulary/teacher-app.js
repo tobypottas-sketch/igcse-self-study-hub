@@ -32,7 +32,7 @@ function renderClassChooser() {
 }
 
 async function openNGSLReport(initialClassId) {
- const {fetchNGSLClassResults,renderNGSLClassReport}=await import('./ngsl-teacher-results.js?v=ngsl-integrity-v2');
+ const {fetchNGSLClassResults,renderNGSLClassReport}=await import('./ngsl-teacher-results.js?v=ngsl-report-ux-v1');
  if(!teacherState.ngslReportData){
   showTeacherLoading('Loading diagnostic results…');
   teacherState.ngslReportData=await fetchNGSLClassResults(teacherState.client,teacherState.data.classes);
@@ -393,6 +393,7 @@ function handleClick(event) {
   if (!action) return;
   if (action === 'teacher-open-diagnostic') void openNGSLReport(target.dataset.initialClass??teacherState.currentClass?.id??'all').catch(showError);
   else if (action === 'ngsl-report-back') backFromNGSLReport();
+  else if (action === 'ngsl-report-refresh') { teacherState.ngslReportData=null; void openNGSLReport(teacherState.ngslClassId).catch(showError); }
   else if (action === 'teacher-open-usage') void openStaffUsage().catch(showError);
   else if (action === 'staff-usage-back') returnFromStaffUsage();
   else if (action === 'staff-usage-days') {
