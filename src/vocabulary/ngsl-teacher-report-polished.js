@@ -80,6 +80,7 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
  '<div class="ngsl-p-tabs" role="group" aria-label="Student result groups">'+
  '<button type="button" data-ngsl-tab="completed">Completed <b>'+completed.length+'</b></button>'+
  '<button type="button" data-ngsl-tab="progress">In progress <b>'+inProgress.length+'</b></button>'+
+ '<button type="button" data-ngsl-tab="notstarted">Not started <b>'+(pending.length-inProgress.length)+'</b></button>'+
  '<button type="button" data-ngsl-tab="incomplete">Still to finish <b>'+pending.length+'</b></button>'+
  '<button type="button" data-ngsl-tab="review">Below 50% <b>'+below.length+'</b></button>'+
  '<button type="button" data-ngsl-tab="all">All <b>'+all.length+'</b></button></div>'+
@@ -99,7 +100,7 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
   let rows=all.filter(row=>{
    const status=scoreStatus(row);
    return row.name.toLowerCase().includes(query)&&
-    (filter==='all'||filter==='completed'&&status==='completed'||filter==='incomplete'&&status!=='completed'||filter==='progress'&&status==='progress'||filter==='review'&&row.result?.correct<25);
+    (filter==='all'||filter==='completed'&&status==='completed'||filter==='incomplete'&&status!=='completed'||filter==='progress'&&status==='progress'||filter==='notstarted'&&status==='notstarted'||filter==='review'&&row.result?.correct<25);
   });
   rows.sort((a,b)=>sort==='name'?a.name.localeCompare(b.name):
     sort==='high'?(scoreValue(b)-scoreValue(a)||a.name.localeCompare(b.name)):
