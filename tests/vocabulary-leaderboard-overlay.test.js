@@ -61,5 +61,9 @@ test('responsive overlay styles are isolated from gameplay and verified XP logic
  assert.doesNotMatch(css,/vocab-question-card|vocab-tile|gm-option/);
  const app=read('src/vocabulary/app.js');
  assert.match(app,/vocabulary-practice-leaderboard/);
- assert.match(app,/rewards-sandbox-view\.js\?v=full-leaderboard-v1/);
+ assert.match(app,/rewards-sandbox-view\\.js\\?v=full-leaderboard-v1/);
+ const api=read('supabase/functions/vocabulary-practice-leaderboard/index.ts');
+ assert.match(api,/expanded\\?list\\.slice\\(0,1000\\):list\\.slice\\(0,7\\)/);
+ assert.match(api,/ids\\.length>1000/);
 });
+
