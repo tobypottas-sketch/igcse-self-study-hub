@@ -4,10 +4,10 @@ import {renderVocabularyHome,renderVocabularyUnit} from '../src/vocabulary/views
 const render=(fn)=>{const target={innerHTML:''};fn(target);return target.innerHTML};
 const home=()=>render(root=>renderVocabularyHome(root,{displayName:'Student',units:[{unitNumber:1,unitTitle:'Sports and Free Time',mastered:0,total:50},{unitNumber:7,unitTitle:'Interviews',mastered:0,total:50}]}));
 const unit=()=>render(root=>renderVocabularyUnit(root,{unitNumber:1,unitTitle:'Sports and Free Time',progress:{mastered:0,total:50,needsAnotherLook:0,reviewDue:0,stages:{}},pathwayStates:{},contentReady:true}));
-test('default classroom mode makes no large homepage or pathway PNG requests, but retains SVGs and answer controls',()=>{
+test('explicit lightart=1 keeps the old SVG-first classroom fallback available',()=>{
  const old=globalThis.window;
  try{
-  globalThis.window={location:{search:''}};
+  globalThis.window={location:{search:'?lightart=1'}};
   const h=home(),u=unit();
   assert.doesNotMatch(h,/class="study-art__png"/);
   assert.doesNotMatch(u,/assets\/vocabulary\/pathways\/.*?\.png/);
@@ -22,5 +22,28 @@ test('original full-artwork experience remains accessible with explicit fullart=
   globalThis.window={location:{search:'?fullart=1'}};
   assert.match(home(),/unit-01\.png/);
   assert.match(unit(),/assets\/vocabulary\/pathways\/meaning\.png/);
+ }finally{if(old===undefined)delete globalThis.window;else globalThis.window=old}
+});
+
+test('normal student view loads optimized PNGs for home cards and all six pathways',()=>{
+ const old=globalThis.window;
+ try{
+  globalThis.window={location:{search:''}};
+  const h=home(),u=unit();
+  assert.match(h,/class="study-art__png" data-art-png/);
+  assert.match(h,/data-art-delivery/);
+  assert.ok(h.includes('assets/vocabulary/delivery/units/unit-01.'));
+  for(const pathway of ['meaning','context','word-families','paraphrasing','precision-use','spelling-recall']){
+   assert.ok(u.includes('assets/vocabulary/delivery/pathways/'+pathway+'.'),pathway);
+  }
+  assert.match(u,/data-action="open-pathway"/);
+ }finally{if(old===undefined)delete globalThis.window;else globalThis.window=old}
+});
+test('fullart=1 overrides lightart=1 for support and legacy preview URLs',()=>{
+ const old=globalThis.window;
+ try{
+  globalThis.window={location:{search:'?lightart=1&fullart=1'}};
+  assert.match(home(),/data-art-png/);
+  assert.ok(unit().includes('assets/vocabulary/pathways/meaning.png'));
  }finally{if(old===undefined)delete globalThis.window;else globalThis.window=old}
 });
