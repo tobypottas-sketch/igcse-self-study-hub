@@ -130,6 +130,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
       </aside>
       <div class="vocab-shop-leaderboard-slot">${leaderboardPanel(leaderboard,leaderboardView)}</div>
       </div>
+      <div class="vocab-shop-right">
       <section class="vocab-shop-main" aria-label="Shop rewards">
         <div class="vocab-shop-filter-line"><nav class="vocab-rewards-filters" aria-label="Filter rewards">${tabs}</nav>
           <button type="button" class="vocab-shop-popular${category==='popular'?' is-active':''}" data-action="sandbox-filter" data-category="popular" aria-pressed="${category==='popular'}">🔥 Popular picks</button></div>
@@ -139,6 +140,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
         <div class="vocab-shop-equipped__heading"><span class="vocab-shop-equipped__eyebrow">YOUR COLLECTION</span><h2>Equipped now</h2><p>4 slots · Your current look</p></div>
         <div class="vocab-shop-equipped__list">${equipment}</div>
       </section>
+      </div>
     </div>
     ${leaderboardView.expanded===true?leaderboardModal(leaderboard,leaderboardView):''}
   </main>`;
