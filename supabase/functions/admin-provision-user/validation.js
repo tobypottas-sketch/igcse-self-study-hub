@@ -37,6 +37,7 @@ export function validateProvisionInput(value) {
 export function validateAdminProvisionRequest(value) {
   const action = value?.action ?? 'provision';
   if (action === 'provision') return { action, ...validateProvisionInput(value) };
+  if (action === 'teacher_list_students') return { action };
   if (action === 'reset_password') return { action, userId: requireUuid(value?.userId, 'user ID') };
   if (action === 'delete_account') return { action, userId: requireUuid(value?.userId, 'user ID') };
   if (action === 'issue_class_credentials') return { action, classId: requireUuid(value?.classId, 'class ID') };

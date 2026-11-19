@@ -76,9 +76,45 @@ Deno.serve(async (req: Request) => {
 
     const adminClient = createClient(url, secretKey, { auth:{ persistSession:false, autoRefreshToken:false } });
     const { data:callerProfile, error:profileError } = await adminClient.from('profiles').select('role, active').eq('id', callerData.user.id).single();
-    if (profileError || !callerProfile?.active || callerProfile.role !== 'admin') return jsonResponse({ error:'Administrator access required' }, { status:403 });
+    if (profileError || !callerProfile?.active || !['admin','teacher'].includes(callerProfile.role)) return jsonResponse({ error:'Staff access required' }, { status:403 });
 
     const input = validateAdminProvisionRequest(await req.json());
+    const isAdmin = callerProfile.role === 'admin';
+    // Teachers may only list students and reset passwords. Every other existing
+    // provision/account-management action remains administrator-only.
+    if (!isAdmin && !['teacher_list_students','reset_password'].includes(input.action))
+      return jsonResponse({ error:'Administrator access required' }, { status:403 });
+
+    if (input.action === 'teacher_list_students') {
+      let allowedClasses: string[] | null = null;
+      if (!isAdmin) {
+        const {data:assignments,error:assignedError} = await adminClient.from('teacher_classes')
+          .select('class_id').eq('teacher_id',callerData.user.id);
+        if (assignedError) return jsonResponse({error:'Could not load teacher assignments.'},{status:503});
+        allowedClasses = [...new Set((assignments??[]).map(x=>x.class_id))];
+        if (!allowedClasses.length) return jsonResponse({students:[]});
+      }
+      let rosterQuery = adminClient.from('student_class_memberships')
+        .select('student_id,class_id').is('ended_at',null);
+      if (allowedClasses) rosterQuery = rosterQuery.in('class_id',allowedClasses);
+      const {data:memberships,error:membersError} = await rosterQuery.range(0,999);
+      if (membersError) return jsonResponse({error:'Could not load student roster.'},{status:503});
+      const studentIds = [...new Set((memberships??[]).map(x=>x.student_id))];
+      const profiles: {id:string;display_name:string;school_email:string}[] = [];
+      for (let offset=0;offset<studentIds.length;offset+=100) {
+        const {data:students,error:studentsError} = await adminClient.from('profiles')
+          .select('id,display_name,school_email').in('id',studentIds.slice(offset,offset+100))
+          .eq('role','student').eq('active',true);
+        if (studentsError) return jsonResponse({error:'Could not load students.'},{status:503});
+        profiles.push(...(students??[]));
+      }
+      const byId = new Map(profiles.map(x=>[x.id,x]));
+      const students=(memberships??[]).flatMap(x=>{
+        const student=byId.get(x.student_id);
+        return student?[{id:student.id,name:student.display_name,email:student.school_email,classId:x.class_id}]:[];
+      });
+      return jsonResponse({students});
+    }
 
     if (input.action === 'delete_account') {
       if (callerData.user.id === input.userId) return jsonResponse({ error:'You cannot delete your own staff account.' }, { status:400 });
@@ -110,6 +146,45 @@ Deno.serve(async (req: Request) => {
     }
 
     if (input.action === 'reset_password') {
+      if (!isAdmin) {
+        const {data:student,error:studentError} = await adminClient.from('profiles')
+          .select('id,role,active').eq('id',input.userId).maybeSingle();
+        if (studentError || !student || student.role!=='student' || !student.active)
+          return jsonResponse({error:'Student account unavailable.'},{status:403});
+        const {data:memberships,error:memberError} = await adminClient.from('student_class_memberships')
+          .select('class_id').eq('student_id',input.userId).is('ended_at',null);
+        if (memberError || !memberships?.length)
+          return jsonResponse({error:'Student has no active class.'},{status:403});
+        const classIds = [...new Set(memberships.map(x=>x.class_id))];
+        const {data:assignments,error:assignmentError} = await adminClient.from('teacher_classes')
+          .select('class_id').eq('teacher_id',callerData.user.id).in('class_id',classIds);
+        if (assignmentError || !assignments?.length)
+          return jsonResponse({error:'You can reset only your own students.'},{status:403});
+        // Rate-limit each teacher and target student; record attempts before changing credentials.
+        const hour = new Date(Date.now()-3600000).toISOString();
+        const day = new Date(Date.now()-86400000).toISOString();
+        const [{count:actorCount,error:actorLimitError},{count:studentCount,error:studentLimitError}] = await Promise.all([
+          adminClient.from('teacher_student_password_reset_events').select('id',{count:'exact',head:true})
+            .eq('actor_id',callerData.user.id).gte('created_at',hour),
+          adminClient.from('teacher_student_password_reset_events').select('id',{count:'exact',head:true})
+            .eq('student_id',input.userId).gte('created_at',day)
+        ]);
+        if (actorLimitError || studentLimitError)
+          return jsonResponse({error:'Reset auditing is unavailable.'},{status:503});
+        if ((actorCount??0)>=8 || (studentCount??0)>=3)
+          return jsonResponse({error:'Password reset limit reached. Please contact an administrator.'},{status:429});
+        const {data:audit,error:auditError}=await adminClient.from('teacher_student_password_reset_events')
+          .insert({actor_id:callerData.user.id,student_id:input.userId}).select('id').single();
+        if (auditError || !audit)
+          return jsonResponse({error:'Reset auditing is unavailable.'},{status:503});
+        const temporaryPassword = generateStudentPassword();
+        const {error:authError}=await adminClient.auth.admin.updateUserById(input.userId,{password:temporaryPassword});
+        if (authError) return jsonResponse({error:'Could not reset student password.'},{status:500});
+        await adminClient.from('teacher_student_password_reset_events').update({succeeded:true}).eq('id',audit.id);
+        const {error:flagError}=await adminClient.from('profiles').update({must_change_password:false}).eq('id',input.userId);
+        if (flagError) return jsonResponse({error:'Password changed, but student profile could not be updated. Contact an administrator.'},{status:500});
+        return jsonResponse({ok:true,userId:input.userId,temporaryPassword});
+      }
       const temporaryPassword = generateStudentPassword();
       const { error:flagError } = await adminClient.from('profiles').update({ must_change_password:false }).eq('id', input.userId);
       if (flagError) return jsonResponse({ error:flagError.message }, { status:400 });

@@ -42,7 +42,7 @@ async function routeVocabulary() {
     if (staff) {
       const status=root.querySelector('[data-vocab-loading-status]');
       if(status) status.textContent='Opening teacher analytics…';
-      const { initialiseVocabularyTeacher } = await import('./teacher-app.js?v=ngsl-report-polish-v1');
+      const { initialiseVocabularyTeacher } = await import('./teacher-app.js?v=teacher-password-reset-v1');
       await initialiseVocabularyTeacher({ root, client, profile });
       return;
     }
