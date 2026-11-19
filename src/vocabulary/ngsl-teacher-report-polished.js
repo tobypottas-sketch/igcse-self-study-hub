@@ -80,8 +80,9 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
  '<div class="ngsl-p-tabs" role="group" aria-label="Student result groups">'+
  '<button type="button" data-ngsl-tab="completed">Completed <b>'+completed.length+'</b></button>'+
  '<button type="button" data-ngsl-tab="progress">In progress <b>'+inProgress.length+'</b></button>'+
- '<button type="button" data-ngsl-tab="notstarted">Not started <b>'+(pending.length-inProgress.length)+'</b></button>'+
+ '<button type="button" data-ngsl-tab="notstarted">'+(dataset.progressAvailable?'Not started':'No completed result')+' <b>'+all.filter(r=>scoreStatus(r)==='notstarted').length+'</b></button>'+
  '<button type="button" data-ngsl-tab="incomplete">Still to finish <b>'+pending.length+'</b></button>'+
+ '<button type="button" data-ngsl-tab="incomplete">Unfinished <b>'+pending.length+'</b></button>'+
  '<button type="button" data-ngsl-tab="review">Below 50% <b>'+below.length+'</b></button>'+
  '<button type="button" data-ngsl-tab="all">All <b>'+all.length+'</b></button></div>'+
  '<div class="ngsl-p-toolbar"><input data-ngsl-search type="search" placeholder="Search names in selected group…" aria-label="Search students">'+
