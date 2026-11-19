@@ -61,7 +61,20 @@ export async function fetchNGSLClassResults(client,classes){
    }
   }
  }catch{integrityAvailable=false;}
- return {classes,names,results,integrity,integrityAvailable};
+ let sessionsAvailable=true;
+ const sessions=new Map();
+ try{
+  const {data:sessionData,error:sessionError}=await client.functions.invoke('vocabulary-diagnostic',{
+   body:{action:'ngsl-session-report',payload:{}}
+  });
+  if(sessionError||!Array.isArray(sessionData?.sessions))throw new Error('Session report unavailable');
+  for(const item of sessionData.sessions){
+   if(!permitted.has(item?.studentId))continue;
+   if(!['in_progress','interrupted','completed'].includes(item.state))continue;
+   sessions.set(item.studentId,{state:item.state,answered:Number(item.answered)||0});
+  }
+ }catch{sessionsAvailable=false;}
+ return {classes,names,results,integrity,integrityAvailable,sessions,sessionsAvailable};
 }
 const percent=(n,den)=>den?Math.round(n*100/den):0;
 function groupStats(completed){
@@ -83,6 +96,7 @@ function classRows(dataset,classId){
 function statusOf(row){
  if(row.result)return 'completed';
  const status=datasetSessionState(row);
+ if(row.sessionsAvailable===false)return 'unknown';
  return status==='in_progress'||status==='interrupted'?'in_progress':'not_started';
 }
 function datasetSessionState(row){return row.session?.state??null;}
@@ -121,7 +135,7 @@ function exportRows(rows){
  const lines=[['Student','Status','Correct','Total','Percent','Recognition rating','Group 1 / 10','Group 2 / 10','Group 3 / 10','Group 4 / 10','Group 5 / 10','Focus losses','Fullscreen exits','Completed at']];
  for(const row of rows){
   const r=row.result,incident=row.integrity;
-  lines.push([row.name,statusOf(row)==='in_progress'?'In progress':r?'Completed':'Not started',
+  lines.push([row.name,statusOf(row)==='in_progress'?'In progress':statusOf(row)==='unknown'?'Status unavailable':r?'Completed':'Not started',
    r?.correct??'',r?.total??'',r?2*r.correct:'',r?levelFor(r.correct):'',
    ...[1,2,3,4,5].map(b=>r?.bandScores?.[String(b)]?.correct??''),
    incident?.focusLosses??'',incident?.fullscreenExits??'',r?.completedAt??'']);
@@ -158,14 +172,15 @@ export function renderNGSLClassReport(root,dataset,classId='all',isAdmin=false){
  const state=old&&old.classId===selected?old:{classId:selected,search:'',filter:'all',sort:'low'};
  viewState.set(root,state);
  const rows=classRows(dataset,selected).map(row=>({...row,
-  session:dataset.sessions?.get(row.id),integrity:dataset.integrity?.get(row.id)}));
+  session:dataset.sessions?.get(row.id),sessionsAvailable:dataset.sessionsAvailable,integrity:dataset.integrity?.get(row.id)}));
  const completed=rows.filter(row=>row.result);
  const mean=average(completed.map(row=>row.result.correct));
  const completedPct=percent(completed.length,rows.length);
  const incomplete=rows.filter(row=>!row.result);
  const low=completed.filter(row=>row.result.correct<25);
  const inProgress=incomplete.filter(row=>statusOf(row)==='in_progress');
- const notStarted=incomplete.length-inProgress.length;
+ const notStarted=incomplete.filter(row=>statusOf(row)==='not_started').length;
+ const unknown=incomplete.filter(row=>statusOf(row)==='unknown').length;
  const groupMeans=groupStats(completed);
  const weakest=[...groupMeans].filter(b=>b.average!==null).sort((a,b)=>a.average-b.average)[0];
  const options=dataset.classes.map(c=>'<option value="'+e(c.id)+'"'+(selected===c.id?' selected':'')+'>'+e(c.className)+'</option>').join('');
@@ -182,7 +197,7 @@ export function renderNGSLClassReport(root,dataset,classId='all',isAdmin=false){
   const incidentLabel=!r?'—':!dataset.integrityAvailable?'Unavailable':
    !incident?'No events reported':incident.focusLosses+' focus · '+incident.fullscreenExits+' exits';
   return '<tr><td class="ngsl-report-student">'+e(row.name)+'</td><td><span class="'+(r?'ngsl-report-done':'ngsl-report-wait')+'">'+
-   (status==='completed'?'Completed':status==='in_progress'?'In progress':'Not started')+'</span></td>'+
+   (status==='completed'?'Completed':status==='in_progress'?'In progress':status==='unknown'?'Status unavailable':'Not started')+'</span></td>'+
    '<td class="ngsl-report-number">'+e(score)+'</td><td>'+e(r?levelFor(r.correct):'—')+'</td>'+
    '<td><span>'+e(incidentLabel)+'</span>'+
    (incident&&r?'<button type="button" class="ngsl-review-button" data-review-id="'+e(row.id)+'">Review</button>':'')+
@@ -199,9 +214,9 @@ export function renderNGSLClassReport(root,dataset,classId='all',isAdmin=false){
  '<div><span>Completed</span><strong>'+completed.length+' <small>/ '+rows.length+'</small></strong><small>'+completedPct+'% of students</small></div>'+
  '<div><span>Average recognition</span><strong>'+(mean===null?'—':Math.round(mean*2)+'%')+'</strong><small>'+
  (mean===null?'No results yet':mean+' / 50 · completed students only')+'</small></div>'+
- '<div><span>Still to complete</span><strong>'+incomplete.length+'</strong><small>'+inProgress.length+' in progress · '+notStarted+' not started</small></div></section>'+
+ '<div><span>Still to complete</span><strong>'+incomplete.length+'</strong><small>'+inProgress.length+' in progress · '+notStarted+' not started'+(unknown?' · '+unknown+' unverified':'')</small></div></section>'+
  '<section class="ngsl-report-actions" aria-label="Teacher follow-up"><h2>What needs attention?</h2><div>'+
- '<p><strong>'+incomplete.length+' unfinished:</strong> '+inProgress.length+' started, '+notStarted+' not started.</p>'+
+ '<p><strong>'+incomplete.length+' unfinished:</strong> '+inProgress.length+' started, '+notStarted+' not started'+(unknown+', '+unknown+' awaiting status':'')+'.</p>'+
  '<p><strong>'+low.length+' students below 50%:</strong> review their starting vocabulary practice.</p>'+
  '<p><strong>Lowest frequency group:</strong> '+(weakest?'Group '+weakest.band+' ('+Math.round(weakest.average*10)+'%)':'Awaiting results')+
  '. Similar group averages may reflect question selection rather than equal word knowledge.</p></div></section>'+
@@ -212,7 +227,7 @@ export function renderNGSLClassReport(root,dataset,classId='all',isAdmin=false){
  '<section class="ngsl-report-panel"><div class="ngsl-report-panel-heading"><h2>Student results</h2><span>'+filtered.length+' of '+rows.length+' students</span></div>'+
  '<div class="ngsl-report-toolbar"><label>Find student<input type="search" data-ngsl-search placeholder="Search names…" value="'+e(state.search)+'"></label>'+
  '<label>Status<select data-ngsl-filter><option value="all">All students</option><option value="completed">Completed</option>'+
- '<option value="in_progress">In progress</option><option value="not_started">Not started</option><option value="review">Below 50%</option></select></label>'+
+ '<option value="in_progress">In progress</option><option value="not_started">Not started</option><option value="unknown">Status unavailable</option><option value="review">Below 50%</option></select></label>'+
  '<label>Sort<select data-ngsl-sort><option value="low">Lowest scores first</option><option value="high">Highest scores first</option>'+
  '<option value="name">Student name</option><option value="status">Status</option></select></label>'+
  '<button type="button" class="ngsl-review-button ngsl-export-button" data-ngsl-export>Export CSV</button></div>'+
