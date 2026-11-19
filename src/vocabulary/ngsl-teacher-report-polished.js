@@ -13,9 +13,9 @@ const BANDS=[
 const percent=(n,d)=>d?Math.round(n*100/d):0;
 const average=values=>values.length?values.reduce((a,b)=>a+b,0)/values.length:null;
 const fmtTime=value=>value&&!Number.isNaN(Date.parse(value))?new Date(value).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'}):'—';
-const scoreStatus=row=>row.result?'completed':row.progress?.state==='in_progress'||row.progress?.state==='interrupted'?'progress':row.progress?.state==='completed'?'pending':'notstarted';
+export const scoreStatus=row=>row.result?'completed':row.progress?.state==='in_progress'||row.progress?.state==='interrupted'?'progress':row.progress?.state==='completed'?'pending':'notstarted';
 const scoreValue=row=>row.result?.correct??-1;
-const safeCsv=value=>{
+export const safeCsv=value=>{
  const s=String(value??'').replace(/\r?\n/g,' ');
  const safe=/^[\s]*[=+\-@]/.test(s)?"'"+s:s;
  return '"'+safe.replace(/"/g,'""')+'"';
