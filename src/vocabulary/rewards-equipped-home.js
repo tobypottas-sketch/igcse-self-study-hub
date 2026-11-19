@@ -34,7 +34,7 @@ export function studentIdentityView(shop,displayName='Student'){
    title:active.titles?items.get(active.titles)?.name??'':'',
    titleArt:active.titles?rewardArtworkPath(active.titles):null,
    frame:active.frames?rewardArtworkPath(active.frames):null,
-   badge:active.badges?rewardArtworkPath(active.badges):active.effects==='pixel-badge'?rewardArtworkPath(active.effects):null,
+   badge:active.badges?rewardArtworkPath(active.badges):active.effects?rewardArtworkPath(active.effects):null,
    effectName:active.effects?items.get(active.effects)?.name??'':'',
    themeName:active.themes?items.get(active.themes)?.name??'':''
  };
