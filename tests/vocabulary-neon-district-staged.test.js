@@ -68,3 +68,29 @@ test('electric pulse remains separate from Badge and survives theme changes',()=
  assert.ok(classes.has('vocab-real-effect--electric-pulse'));
  assert.ok(!classes.has('vocab-real-theme--neon-district'));
 });
+
+test('Neon home contrast overrides actual dashboard owners without changing cosmetics semantics',()=>{
+ const css=read('vocabulary-premium-neon-district.css');
+ const dashboard=read('vocabulary-rewards-dashboard.css');
+ const progress=read('vocabulary-progress.css');
+ const html=read('vocabulary.html');
+ for(const selector of [
+  '.vocab-progress-entry',
+  '.vocab-student-identity__slot',
+  '.vocab-student-identity__slot.is-equipped',
+  '.vocab-student-identity__title-label',
+  '.vocab-rewards-home-card__body strong',
+  '.vocab-rewards-home-card__test-note'
+ ]){
+   assert.ok(css.includes(selector),'Neon contrast missing: '+selector);
+ }
+ assert.match(progress,/\.vocab-shell--home>\.vocab-progress-entry/);
+ assert.match(dashboard,/\.vocab-student-identity__slot\.is-equipped/);
+ assert.match(css,/\.vocab-progress-entry\s*\{\s*background:[^;]+!important;/);
+ assert.match(css,/\.vocab-student-identity\s*\{\s*background:[^;]+!important;/);
+ assert.match(css,/\.vocab-student-identity__title-label\s*\{[^}]+color:[^;]+!important;/);
+ assert.match(css,/@media\(forced-colors:active\)/);
+ assert.match(html,/vocabulary-premium-neon-district\.css\?v=neon-home-contrast-v2/);
+ assert.ok(html.indexOf('vocabulary-premium-neon-district.css')>html.indexOf('vocabulary-rewards-dashboard.css'));
+ assert.doesNotMatch(css,/\.vocab-student-identity\s+span\s*\{/);
+});
