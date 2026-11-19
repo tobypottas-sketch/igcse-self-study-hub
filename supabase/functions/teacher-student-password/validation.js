@@ -13,6 +13,6 @@ export function canManageStudent({actor,student,membership,assigned}){
 export function createReadablePassword(random=crypto.getRandomValues.bind(crypto)){
  const words=['Apple','Beach','Berry','Breeze','Bridge','Cloud','Coral','Daisy','Eagle','Ember','Falcon','Fern','Forest','Garden','Harbor','Honey','Island','Jade','Lemon','Maple','Mango','Meadow','Ocean','Olive','Panda','Pearl','River','Robin','Rocket','Ruby','Solar','Stone','Tiger','Tulip','Willow','Winter'];
  const bytes=new Uint32Array(4);random(bytes);
- const picked=bytes.slice(0,3).map(n=>words[n%words.length]);
+ const picked=Array.from(bytes.slice(0,3),n=>words[n%words.length]);
  return picked.join('')+String(bytes[3]%10000).padStart(4,'0');
 }
