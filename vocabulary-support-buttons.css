@@ -1,0 +1,81 @@
+/* Scoped premium actions for the Extra Practice & Reference cards.
+   Existing actions, disabled rules, artwork and application logic are untouched. */
+#vocabularyApp .vocab-support__grid .vocab-button{
+  position:relative;isolation:isolate;overflow:hidden;
+  min-height:46px;border-radius:13px;
+  font-size:.9rem;font-weight:850;letter-spacing:.005em;
+  transition:transform 160ms ease,box-shadow 160ms ease,border-color 160ms ease,background 160ms ease,color 160ms ease;
+}
+#vocabularyApp .vocab-support-card--mixed .vocab-button--primary,
+#vocabularyApp .vocab-support-card--bank .vocab-button--bank{
+  min-height:48px;
+  border:1px solid rgba(255,255,255,.18);
+  color:#fff;
+  text-shadow:0 1px 1px rgba(20,28,70,.15);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 8px 17px rgba(47,54,117,.17);
+}
+#vocabularyApp .vocab-support-card--mixed .vocab-button--primary{
+  background:linear-gradient(110deg,#5649bd 0%,#7564e3 53%,#8b78eb 100%);
+  gap:10px;
+}
+#vocabularyApp .vocab-support-card--mixed .vocab-button--primary::before{
+  content:"";flex:none;width:0;height:0;
+  border-top:5px solid transparent;border-bottom:5px solid transparent;
+  border-left:8px solid currentColor;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.15));
+}
+#vocabularyApp .vocab-support-card--bank .vocab-button--bank{
+  background:linear-gradient(110deg,#176b80 0%,#258b9b 55%,#3b93ad 100%);
+}
+#vocabularyApp .vocab-support-card--bank .vocab-button--bank .study-icon{
+  flex:none;transition:transform 160ms ease;
+}
+@media(hover:hover) and (pointer:fine){
+  #vocabularyApp .vocab-support-card--mixed .vocab-button--primary:hover:not(:disabled){
+    background:linear-gradient(110deg,#4c3cad,#6955d5 52%,#806de5 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 12px 23px rgba(86,73,189,.28);
+  }
+  #vocabularyApp .vocab-support-card--bank .vocab-button--bank:hover:not(:disabled){
+    background:linear-gradient(110deg,#135b70,#237d90 55%,#318ca6);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.27),0 12px 23px rgba(23,107,128,.25);
+  }
+  #vocabularyApp .vocab-support-card--bank .vocab-button--bank:hover:not(:disabled) .study-icon{
+    transform:translateX(3px);
+  }
+}
+#vocabularyApp .vocab-support-card--mixed .vocab-time-grid{gap:9px}
+#vocabularyApp .vocab-support-card--mixed .vocab-time-grid .vocab-button{
+  min-height:45px;padding:8px 5px;
+  border:1px solid #c5bdf1;
+  border-bottom:2px solid #b6a9ec;
+  background:linear-gradient(180deg,#fff 0%,#f3f0ff 100%);
+  color:#5443b9;
+  box-shadow:inset 0 1px 0 #fff,0 3px 7px rgba(81,65,160,.08);
+  font-size:.86rem;font-weight:850;
+}
+#vocabularyApp .vocab-support-card--mixed .vocab-time-grid .vocab-button::before{
+  content:"";flex:none;width:7px;height:7px;margin-right:7px;
+  border-radius:50%;background:#8672d9;box-shadow:0 0 0 3px rgba(134,114,217,.14);
+}
+@media(hover:hover) and (pointer:fine){
+  #vocabularyApp .vocab-support-card--mixed .vocab-time-grid .vocab-button:hover:not(:disabled){
+    border-color:#7663d4;border-bottom-color:#5c49b9;
+    background:linear-gradient(180deg,#f3efff,#e9e2ff);
+    color:#4133a2;
+    box-shadow:0 6px 15px rgba(103,82,197,.18),inset 0 1px 0 #fff;
+  }
+}
+#vocabularyApp .vocab-support__grid .vocab-button:focus-visible{
+  outline:3px solid #326fc4;outline-offset:3px;
+}
+#vocabularyApp .vocab-support__grid .vocab-button:disabled{
+  opacity:.52;cursor:not-allowed;box-shadow:none;filter:saturate(.65);
+}
+@media(max-width:420px){
+  #vocabularyApp .vocab-support-card--mixed .vocab-time-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #vocabularyApp .vocab-support-card--mixed .vocab-time-grid .vocab-button{min-height:46px}
+}
+@media(prefers-reduced-motion:reduce){
+  #vocabularyApp .vocab-support__grid .vocab-button,
+  #vocabularyApp .vocab-support-card--bank .vocab-button--bank .study-icon{transition:none}
+}
