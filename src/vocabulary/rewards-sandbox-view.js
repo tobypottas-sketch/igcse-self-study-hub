@@ -57,7 +57,17 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
   const upcoming=rewards.filter(item=>!owned.has(item.reward_id)&&item.xp_price>available).sort((a,b)=>a.xp_price-b.xp_price)[0];
   const feature=upcoming??nextUnowned;
   const featureCaption=upcoming?`${format(upcoming.xp_price-available)} XP to go`:nextUnowned?'Ready to unlock':'All rewards collected';
-  const nextGoal=feature?`<div class="vocab-shop-next__detail"><div class="vocab-shop-next__art">${rewardIllustration(feature.reward_id,feature.icon)}</div><div class="vocab-shop-next__info"><span class="vocab-shop-next__category">${escapeHtml(categoryLabel[feature.category]??'Reward')}</span><strong>${escapeHtml(feature.name)}</strong><p>${escapeHtml(feature.description)}</p><b class="vocab-shop-next__status${upcoming?' is-locked':' is-ready'}">${escapeHtml(featureCaption)}</b></div></div>`:
+  const nextGoal=feature?`<div class="vocab-shop-next__detail">
+    <div class="vocab-shop-next__art">${rewardIllustration(feature.reward_id,feature.icon)}</div>
+    <div class="vocab-shop-next__info">
+      <span class="vocab-shop-next__category">${escapeHtml(categoryLabel[feature.category]??'Reward')}</span>
+      <strong>${escapeHtml(feature.name)}</strong>
+      <p>${escapeHtml(feature.description)}</p>
+      ${upcoming
+        ?`<span class="vocab-shop-next__status is-locked">${escapeHtml(featureCaption)}</span>`
+        :`<button type="button" class="vocab-shop-next__status is-ready" data-action="sandbox-filter" data-category="${escapeHtml(feature.category)}" data-focus-reward="${escapeHtml(feature.reward_id)}">Ready to unlock <span aria-hidden="true">→</span></button>`}
+    </div>
+  </div>`:
     '<p class="vocab-shop-next__complete">You own every available cosmetic. Amazing collecting!</p>';
   const featuredArt=active.frames??'gold-frame';
   const selectedTitle=rewards.find(item=>item.reward_id===active.titles)?.name??'Vocabulary Explorer';
