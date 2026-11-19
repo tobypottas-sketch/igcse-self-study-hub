@@ -5,19 +5,19 @@ const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const css=read('vocabulary-header-theme-legibility.css');
 const html=read('vocabulary.html');
 test('header override is loaded last after theme and reward styles',()=>{
- const newIndex=html.indexOf('vocabulary-header-theme-legibility.css?v=readable-badges-v1');
+ const newIndex=html.indexOf('vocabulary-header-theme-legibility.css?v=centered-30pct-badges-v2');
  assert.ok(newIndex>html.indexOf('vocabulary-reward-identity.css'));
  assert.ok(newIndex>html.indexOf('vocabulary-unit-themes.css'));
  assert.ok(newIndex>html.indexOf('vocabulary-header-identity-space.css'));
  assert.ok(newIndex>html.indexOf('vocabulary-rewards-info-polish.css'));
 });
 test('title artwork and avatar are large enough to recognise on desktop and handheld views',()=>{
- assert.match(css,/width:190px;[\s\S]*?height:68px/);
- assert.match(css,/width:68px;height:68px/);
- assert.match(css,/width:33px;height:32px/);
+ assert.match(css,/width:247px;[\s\S]*?height:88px/);
+ assert.match(css,/width:88px;height:88px/);
+ assert.match(css,/width:43px;height:42px/);
  assert.match(css,/@media\(max-width:680px\)/);
  assert.match(css,/@media\(max-width:380px\)/);
- assert.match(css,/width:170px;[\s\S]*?height:62px/);
+ assert.match(css,/width:min\(100%,221px\);[\s\S]*?height:81px/);
  assert.match(css,/object-fit:contain/);
 });
 test('all four equipped themes receive explicit readable name and unit label treatments',()=>{
@@ -40,4 +40,12 @@ test('header identity artwork still comes from real owned PNG and unit control m
  assert.match(identity,/decorateStudentIdentity/);
  assert.match(unit,/vocab-unit-id__title/);
  assert.doesNotMatch(css,/vocab-choice|gm-option|vocab-tile|\.vocab-student-identity\{/);
+});
+
+test('student name and reward title art are a truly centered vertical pair',()=>{
+ assert.match(css,/\.vocab-student-identity-mini__name\{[\s\S]*?flex-direction:column;[\s\S]*?align-items:center;[\s\S]*?text-align:center;/);
+ assert.match(css,/\.vocab-student-identity-mini__title-art\{[\s\S]*?justify-content:center;[\s\S]*?margin:0 auto;/);
+ assert.match(css,/object-position:center;/);
+ assert.match(css,/@media\(max-width:900px\)/);
+ assert.match(css,/@media\(max-width:680px\)/);
 });
