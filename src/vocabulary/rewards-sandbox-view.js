@@ -140,7 +140,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
       </section>
       <section class="vocab-shop-equipped" aria-label="Equipped rewards">
         <div class="vocab-shop-equipped__heading"><span class="vocab-shop-equipped__eyebrow">YOUR COLLECTION</span><h2>Equipped now</h2><p>${visibleCategories.length-1} slots · Your current look</p></div>
-        <div class="vocab-shop-equipped__list">${equipment}</div>
+        <div class="vocab-shop-equipped__list${hasBadgeCatalog(shop)?' has-badges':''}">${equipment}</div>
       </section>
       </div>
     </div>
