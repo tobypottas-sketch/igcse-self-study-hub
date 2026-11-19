@@ -76,16 +76,23 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
  '<section class="ngsl-p-bands"><div class="ngsl-p-section-heading"><h2>NGSL word-frequency groups</h2><p>10 sampled words per group · Recognition, not CEFR levels</p></div><div class="ngsl-p-band-grid">'+
  BANDS.map((b,i)=>'<article class="ngsl-p-band"><span>Group '+(i+1)+'</span><strong>'+(bandMeans[i]===null?'—':Math.round(bandMeans[i]*10)+'%')+'</strong><b>'+b[0]+'</b><small>'+b[1]+'</small></article>').join('')+
  '</div><p class="ngsl-p-note">Groups indicate word frequency, not linguistic difficulty or CEFR. Scores from ten questions per group are estimates and should be interpreted cautiously.</p></section>'+
- '<section class="ngsl-p-students"><div class="ngsl-p-section-heading"><h2>Student results</h2><span>'+all.length+' students</span></div>'+
- '<div class="ngsl-p-toolbar"><input data-ngsl-search type="search" placeholder="Find student…" aria-label="Search students">'+
- '<select data-ngsl-filter aria-label="Filter student results"><option value="all">All students</option><option value="completed">Completed</option><option value="incomplete">Incomplete</option><option value="progress">In progress</option><option value="review">Below 50%</option></select>'+
+ '<section class="ngsl-p-students"><div class="ngsl-p-section-heading"><div><h2>Student results</h2><p>Choose a group to view its students. Search works across all names within the selected group.</p></div><span>'+all.length+' enrolled</span></div>'+
+ '<div class="ngsl-p-tabs" role="group" aria-label="Student result groups">'+
+ '<button type="button" data-ngsl-tab="completed">Completed <b>'+completed.length+'</b></button>'+
+ '<button type="button" data-ngsl-tab="progress">In progress <b>'+inProgress.length+'</b></button>'+
+ '<button type="button" data-ngsl-tab="incomplete">Still to finish <b>'+pending.length+'</b></button>'+
+ '<button type="button" data-ngsl-tab="review">Below 50% <b>'+below.length+'</b></button>'+
+ '<button type="button" data-ngsl-tab="all">All <b>'+all.length+'</b></button></div>'+
+ '<div class="ngsl-p-toolbar"><input data-ngsl-search type="search" placeholder="Search names in selected group…" aria-label="Search students">'+
  '<select data-ngsl-sort aria-label="Sort student results"><option value="low">Lowest score first</option><option value="high">Highest score first</option><option value="name">Name A–Z</option><option value="status">Completion status</option></select>'+
  '<button type="button" data-ngsl-export>Export CSV</button></div>'+
  '<p class="ngsl-p-table-count" data-ngsl-count aria-live="polite"></p><div class="ngsl-p-table-wrap"><table><thead><tr><th scope="col">Student</th><th scope="col">Status</th><th scope="col">Result</th><th scope="col">Foundation indicator</th><th scope="col">Browser events</th></tr></thead><tbody data-ngsl-rows></tbody></table></div>'+
+ '<nav class="ngsl-p-pages" aria-label="Student result pages"><span data-ngsl-page-info></span><div><button type="button" data-ngsl-prev>Previous</button><button type="button" data-ngsl-next>Next</button></div></nav>'+
  '<p class="ngsl-p-note">Scores reflect only 50 multiple-choice NGSL meaning-recognition items. Foundation indicators are internal teaching bands, not CEFR certification. Browser focus events do not demonstrate misconduct.</p></section>'+
  '<section class="ngsl-p-explanation"><h2>How to interpret these results</h2><div class="ngsl-p-explanation-grid"><p><b>NGSL:</b> Measures recognition of sampled high-frequency word meanings. It cannot establish how many words a learner knows or measure fluent use.</p><p><b>CEFR:</b> A1–C2 describes broader listening, reading, speaking and writing proficiency. No validated NGSL-to-CEFR conversion is available for this 50-item diagnostic.</p><p><b>Next step:</b> Use weaker frequency groups and individual scores to plan reinforcement, then combine with authentic 0511 reading, writing, listening and speaking evidence.</p></div><p class="ngsl-p-note">Internal indicators: Beginning 0–14, Developing 15–24, Building confidence 25–34, Strong 35–44, Advanced recognition 45–50.</p></section>'+
  '<div class="ngsl-p-dialog" data-ngsl-dialog hidden role="dialog" aria-modal="true" aria-label="Browser event timeline"><div class="ngsl-p-dialog-card"><button type="button" data-ngsl-close aria-label="Close event review">×</button><div data-ngsl-dialog-body></div></div></div></main>';
- let filter='all',sort='low',query='';
+ let filter='completed',sort='low',query='',page=0;
+ const PAGE_SIZE=12;
  const tbody=root.querySelector('[data-ngsl-rows]');
  const statuses={completed:'Completed',progress:'In progress',notstarted:dataset.progressAvailable?'Not started':'No completed result',pending:'Awaiting result'};
  const displayed=()=>{
@@ -110,7 +117,10 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
     ' <span aria-hidden="true">›</span></button>';
  };
  const draw=()=>{
-  const rows=displayed();
+  const matches=displayed();
+  const totalPages=Math.max(1,Math.ceil(matches.length/PAGE_SIZE));
+  page=Math.min(page,totalPages-1);
+  const rows=matches.slice(page*PAGE_SIZE,(page+1)*PAGE_SIZE);
   tbody.innerHTML=rows.map(row=>{
    const status=scoreStatus(row);
    const sub=status==='progress'?' · '+row.progress.answered+'/50 answered':'';
@@ -118,7 +128,15 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
    return '<tr><td><b>'+e(row.name)+'</b></td><td><span class="ngsl-p-status ngsl-p-status--'+status+'">'+statuses[status]+e(sub)+'</span></td>'+
     '<td class="ngsl-p-score">'+result+'</td><td>'+e(row.result?rating(row.result.correct):'—')+'</td><td>'+timelineButton(row)+'</td></tr>';
   }).join('')||'<tr><td colspan="5" class="ngsl-p-empty">No students match your filters.</td></tr>';
-  root.querySelector('[data-ngsl-count]').textContent='Showing '+rows.length+' of '+all.length+' students';
+  root.querySelector('[data-ngsl-count]').textContent=matches.length?'Showing '+(page*PAGE_SIZE+1)+'–'+(page*PAGE_SIZE+rows.length)+' of '+matches.length+' matching students':'No students in this group';
+  root.querySelector('[data-ngsl-page-info]').textContent='Page '+(page+1)+' of '+totalPages;
+  root.querySelector('[data-ngsl-prev]').disabled=page===0;
+  root.querySelector('[data-ngsl-next]').disabled=page>=totalPages-1;
+  root.querySelectorAll('[data-ngsl-tab]').forEach(button=>{
+   const selected=button.dataset.ngslTab===filter;
+   button.classList.toggle('ngsl-p-tab-active',selected);
+   button.setAttribute('aria-pressed',String(selected));
+  });
  };
  function openTimeline(id){
   const row=all.find(x=>x.id===id);if(!row)return;
@@ -141,12 +159,15 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
   root.querySelector('[data-ngsl-close]').focus();
  }
  const close=()=>{root.querySelector('[data-ngsl-dialog]').hidden=true;};
- root.querySelector('[data-ngsl-search]').addEventListener('input',event=>{query=event.target.value.trim().toLowerCase();draw();});
- root.querySelector('[data-ngsl-filter]').addEventListener('change',event=>{filter=event.target.value;draw();});
- root.querySelector('[data-ngsl-sort]').addEventListener('change',event=>{sort=event.target.value;draw();});
+ root.querySelector('[data-ngsl-search]').addEventListener('input',event=>{query=event.target.value.trim().toLowerCase();page=0;draw();});
+ root.querySelectorAll('[data-ngsl-tab]').forEach(button=>button.addEventListener('click',()=>{
+  filter=button.dataset.ngslTab;page=0;draw();
+ }));
+ root.querySelector('[data-ngsl-sort]').addEventListener('change',event=>{sort=event.target.value;page=0;draw();});
+ root.querySelector('[data-ngsl-prev]').addEventListener('click',()=>{if(page>0){page--;draw();}});
+ root.querySelector('[data-ngsl-next]').addEventListener('click',()=>{if((page+1)*PAGE_SIZE<displayed().length){page++;draw();}});
  root.querySelectorAll('[data-ngsl-quick]').forEach(button=>button.addEventListener('click',()=>{
-  filter=button.dataset.ngslQuick;root.querySelector('[data-ngsl-filter]').value=filter;
-  draw();root.querySelector('.ngsl-p-students').scrollIntoView({behavior:'smooth',block:'start'});
+  filter=button.dataset.ngslQuick;page=0;draw();root.querySelector('.ngsl-p-students').scrollIntoView({behavior:'smooth',block:'start'});
  }));
  root.querySelector('[data-ngsl-rows]').addEventListener('click',event=>{
   const button=event.target.closest('[data-ngsl-detail]');if(button)openTimeline(button.dataset.ngslDetail);
