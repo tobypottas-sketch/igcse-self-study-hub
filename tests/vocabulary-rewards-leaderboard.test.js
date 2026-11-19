@@ -27,7 +27,8 @@ test('leaderboard toggles are real action targets and displayed values are escap
  assert.match(root.innerHTML,/&lt;script&gt;bad&lt;\/script&gt;/);
  assert.match(root.innerHTML,/data-action="sandbox-leaderboard"/);
  assert.match(root.innerHTML,/data-action="sandbox-leaderboard-expand"/);
- assert.match(root.innerHTML,/View full leaderboard/);\n assert.match(root.innerHTML,/data-leaderboard-dialog/);
+ assert.match(root.innerHTML,/View full leaderboard/);
+ assert.match(root.innerHTML,/data-leaderboard-dialog/);
  assert.match(root.innerHTML,/data-scope="school" aria-pressed="true"/);
  assert.match(root.innerHTML,/data-period="all" aria-pressed="true"/);
 });
