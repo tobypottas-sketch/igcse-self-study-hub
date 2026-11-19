@@ -394,6 +394,15 @@ function installStudentIdentityObserver(){
  });
  identityObserver.observe(root,{childList:true});
 }
+function focusShopReward(rewardId){
+ if(!rewardId)return;
+ const card=[...root.querySelectorAll('.vocab-shop-card[data-reward-id]')]
+  .find(item=>item.dataset.rewardId===rewardId);
+ if(!card)return;
+ card.scrollIntoView?.({behavior:'auto',block:'center'});
+ card.setAttribute('tabindex','-1');
+ card.focus?.({preventScroll:true});
+}
 // Production reward controls are deliberately isolated from the test shop.
 let realShop=null,realCategory='all',realBusy=false,realLeaderboard=null;
 let realLeaderboardView={scope:'class',period:'weekly',expanded:false};
@@ -1361,7 +1370,9 @@ root?.addEventListener('click', event => {
   else if (action === 'real-filter' && !state.preview && realShop && !realBusy) {
     const category=target.dataset.category??'all';
     if(['all','themes','frames','titles','effects','popular'].includes(category)){
-      realCategory=category;void renderRealShop();
+      realCategory=category;
+      const featured=target.dataset.focusReward;
+      void renderRealShop().then(()=>focusShopReward(featured));
     }
   }
   else if (action === 'real-leaderboard' && !state.preview && realShop && !realBusy){
@@ -1386,7 +1397,8 @@ root?.addEventListener('click', event => {
     const category=target.dataset.category??'all';
     if(!['all','themes','frames','titles','effects','popular'].includes(category))return;
     sandboxCategory=category;
-    void renderCurrentSandboxShop();
+    const featured=target.dataset.focusReward;
+    void renderCurrentSandboxShop().then(()=>focusShopReward(featured));
   }
   else if (action === 'sandbox-leaderboard' && !state.preview && sandboxShop?.sandboxEnabled) {
     if(target.dataset.scope==='class'||target.dataset.scope==='school')sandboxLeaderboardView.scope=target.dataset.scope;
