@@ -172,7 +172,15 @@ export function buildUnitProgress({ occurrences = [], unitMastery = {}, globalMa
 // so nothing is injected after paint and the artwork can never change layout.
 // A shipped PNG is layered over the inline SVG (which stays as the placeholder and the fallback). The slot keeps its size,
 // so a PNG can never change layout; graphics-runtime.js reveals it only after it has loaded. Decorative: alt is empty.
+// Emergency classroom performance mode: do not initiate the 12+ MB gallery
+// of unit-card and pathway PNG requests on students' first visits.
+// Selected unit heroes still load one illustration; SVG study art is inline.
+// ?fullart=1 explicitly opts into the original complete PNG gallery.
+function classroomLightArtwork() {
+  return typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('fullart') !== '1';
+}
 function pngLayer(group, key, eager = false) {
+  if (classroomLightArtwork() && !eager) return { has:false, html:'' };
   const asset = shippedGraphic(group, key);
   return asset ? { has:true, html:`<img class="study-art__png" data-art-png src="${escapeHtml(asset.src)}" width="${asset.width}" height="${asset.height}" alt="" decoding="async" loading="${eager ? 'eager' : 'lazy'}" draggable="false">` } : { has:false, html:'' };
 }
