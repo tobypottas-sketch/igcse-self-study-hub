@@ -1,8 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { renderVocabularyUnit } from '../src/vocabulary/views.js';
-import { renderUnitCheckCard } from '../src/vocabulary/unit-check-view.js';
 
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const css=read('vocabulary-action-design-system.css');
