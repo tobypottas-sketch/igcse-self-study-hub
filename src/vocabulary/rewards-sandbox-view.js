@@ -57,7 +57,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
   const upcoming=rewards.filter(item=>!owned.has(item.reward_id)&&item.xp_price>available).sort((a,b)=>a.xp_price-b.xp_price)[0];
   const feature=upcoming??nextUnowned;
   const featureCaption=upcoming?`${format(upcoming.xp_price-available)} XP to go`:nextUnowned?'Ready to unlock':'All rewards collected';
-  const nextGoal=feature?`<div class="vocab-shop-next__detail"><div class="vocab-shop-next__art">${rewardIllustration(feature.reward_id,feature.icon)}</div><div><strong>${escapeHtml(feature.name)}</strong><p>${escapeHtml(feature.description)}</p><b>${escapeHtml(featureCaption)}</b></div></div>`:
+  const nextGoal=feature?`<div class="vocab-shop-next__detail"><div class="vocab-shop-next__art">${rewardIllustration(feature.reward_id,feature.icon)}</div><div class="vocab-shop-next__info"><span class="vocab-shop-next__category">${escapeHtml(categoryLabel[feature.category]??'Reward')}</span><strong>${escapeHtml(feature.name)}</strong><p>${escapeHtml(feature.description)}</p><b class="vocab-shop-next__status${upcoming?' is-locked':' is-ready'}">${escapeHtml(featureCaption)}</b></div></div>`:
     '<p class="vocab-shop-next__complete">You own every available cosmetic. Amazing collecting!</p>';
   const featuredArt=active.frames??'gold-frame';
   const selectedTitle=rewards.find(item=>item.reward_id===active.titles)?.name??'Vocabulary Explorer';
@@ -111,7 +111,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
         <div class="vocab-shop-meter" role="progressbar" aria-label="Progress to next learning level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${levelPercent}"><span style="width:${levelPercent}%"></span></div>
         <div class="vocab-shop-stat"><span aria-hidden="true">🎯</span><div><small>Weekly practice</small><strong>${weekly?escapeHtml(weekly.label):'Keep practising'}</strong></div></div>
         <div class="vocab-shop-stat"><span aria-hidden="true">🏆</span><div><small>Achievements</small><strong>${achievements} / ${totalAchievements}</strong></div></div>
-        <div class="vocab-shop-next"><h3>✧ Next unlock</h3>${nextGoal}</div>
+        <div class="vocab-shop-next"><h3><span aria-hidden="true">✦</span> Next unlock</h3>${nextGoal}</div>
       </aside>
       <div class="vocab-shop-leaderboard-slot">${leaderboardPanel(leaderboard,leaderboardView)}</div>
       </div>
@@ -121,7 +121,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
         <div class="vocab-rewards-grid">${shopCards||'<p class="vocab-shop-empty-list">No rewards in this category.</p>'}</div>
       </section>
       <section class="vocab-shop-equipped" aria-label="Equipped rewards">
-        <div class="vocab-shop-equipped__heading"><h2>Equipped now</h2><p>Your active rewards and customisations.</p></div>
+        <div class="vocab-shop-equipped__heading"><span class="vocab-shop-equipped__eyebrow">YOUR COLLECTION</span><h2>Equipped now</h2><p>4 slots · Your current look</p></div>
         <div class="vocab-shop-equipped__list">${equipment}</div>
       </section>
     </div>
