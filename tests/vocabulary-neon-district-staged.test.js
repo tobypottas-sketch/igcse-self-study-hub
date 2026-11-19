@@ -30,3 +30,14 @@ test('Neon rewards are staged disabled, not unexpectedly sold',()=>{
  assert.equal((sql.match(/false\)/g)||[]).length,5);
  assert.doesNotMatch(sql,/update\s+public\.vocabulary_reward_catalog\s+set\s+enabled\s*=\s*true/i);
 });
+
+test('asset files must exist before Neon District can be merged or sold',()=>{
+ const paths=['neon-district.png','neon-district-preview.png','cyber-pulse-frame.png','neon-hacker-badge.png','cyber-legend.png','electric-pulse.png'];
+ for(const filename of paths){
+  const relative='../assets/vocabulary/rewards/'+filename;
+  const bytes=readFileSync(new URL(relative,import.meta.url));
+  assert.equal(bytes.subarray(0,8).toString('hex'),'89504e470d0a1a0a','Invalid PNG: '+filename);
+  assert.ok(bytes.readUInt32BE(16)>=500,'PNG is too small: '+filename);
+  assert.ok(bytes.readUInt32BE(20)>=500,'PNG is too short: '+filename);
+ }
+});
