@@ -216,3 +216,21 @@
  #vocabularyApp .ngsl-p-dialog-footnote{padding:11px 18px 13px}
  #vocabularyApp .ngsl-p-dialog-card [data-ngsl-close]{top:13px;right:13px}
 }
+
+/* Keep class selection beside a deliberately compact student search. */
+#vocabularyApp .ngsl-p-toolbar{
+ display:grid;
+ grid-template-columns:minmax(170px,250px) minmax(185px,1fr) minmax(165px,210px) auto;
+ gap:10px;
+ align-items:stretch;
+}
+#vocabularyApp .ngsl-p-toolbar [data-ngsl-search]{width:100%;min-width:0}
+#vocabularyApp .ngsl-p-toolbar [data-action="ngsl-report-select-class"]{width:100%;min-width:0}
+@media(max-width:850px){
+ #vocabularyApp .ngsl-p-toolbar{grid-template-columns:minmax(150px,1fr) minmax(175px,1fr)}
+}
+@media(max-width:480px){
+ #vocabularyApp .ngsl-p-toolbar{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+ #vocabularyApp .ngsl-p-toolbar [data-ngsl-sort]{grid-column:1}
+ #vocabularyApp .ngsl-p-toolbar [data-ngsl-export]{grid-column:2}
+}
