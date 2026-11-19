@@ -8,7 +8,7 @@ test('real production shop requires an active authenticated student',()=>{
  assert.match(source,/profile\?\.active!==true/);
 });
 test('real purchase and equip use separate server-only atomic RPCs, never browser XP',()=>{
- assert.match(source,/\['status','buy','equip'\]/);
+ assert.match(source,/\['status','buy','equip','unequip'\]/);
  assert.match(source,/redeem_vocabulary_reward/);
  assert.match(source,/equip_vocabulary_reward/);
  assert.match(source,/service\.rpc\(method,\{p_student_id:studentId,p_reward_id:rewardId\}\)/);
