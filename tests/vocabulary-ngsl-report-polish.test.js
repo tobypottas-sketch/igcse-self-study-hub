@@ -73,3 +73,18 @@ test('focus timeline shows complete explicit row numbers and has a bounded scrol
  assert.match(css,/\.ngsl-p-events\s*\{[^}]*overflow-y:auto/s);
  assert.match(css,/\.ngsl-p-dialog-footnote/);
 });
+
+test('class dropdown sits immediately after the compact search and uses the existing class scoping',()=>{
+ const src=read('src/vocabulary/ngsl-teacher-report-polished.js');
+ const css=read('vocabulary-ngsl-teacher-polished.css');
+ const app=read('src/vocabulary/teacher-app.js');
+ assert.match(src,/const selected=dataset\.classes\.some\(/);
+ assert.match(src,/const all=activeRows\(dataset,selected\)/);
+ assert.match(src,/const classOptions=dataset\.classes\.map/);
+ assert.match(src,/<div class="ngsl-p-toolbar"><input data-ngsl-search[^\n]+\n '<select data-action="ngsl-report-select-class"/);
+ assert.doesNotMatch(src,/ngsl-p-classbar/);
+ assert.match(app,/data-action="ngsl-report-select-class"/);
+ assert.match(app,/void openNGSLReport\(requested\)/);
+ assert.match(src,/const records=displayed\(\)\.map/);
+ assert.match(css,/grid-template-columns:minmax\(170px,250px\) minmax\(185px,1fr\)/);
+});
