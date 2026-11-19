@@ -85,8 +85,9 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
     const reward=rewards.find(item=>item.reward_id===active[id]);
     return `<div class="vocab-shop-equipped__item"><small>${escapeHtml(label.slice(0,-1))}</small>
       <div class="vocab-shop-equipped__art">${reward?rewardIllustration(reward.reward_id,reward.icon):'<span class="vocab-shop-empty-icon" aria-hidden="true">＋</span>'}</div>
-      <strong>${reward?escapeHtml(reward.name):'Not equipped'}</strong>
-      <button type="button" data-action="sandbox-filter" data-category="${id}" ${busy?'disabled':''}>${reward?'Change':'Choose'}</button></div>`;
+      <strong>${reward?escapeHtml(reward.name):id==='themes'?'Default theme':'Not equipped'}</strong>
+      <button type="button" data-action="sandbox-filter" data-category="${id}" ${busy?'disabled':''}>${reward?'Change':'Choose'}</button>
+      ${reward?`<button type="button" class="vocab-shop-unequip" data-action="sandbox-unequip" data-category="${id}" ${busy?'disabled':''}>${id==='themes'?'Use Default Theme':'Unequip'}</button>`:''}</div>`;
   }).join('');
   const banner=bannerIllustration;
   let html=`<main class="vocab-shell vocab-shell--rewards vocab-shell--sandbox vocab-shop-redesign" data-equipped-theme="${escapeHtml(theme)}">
