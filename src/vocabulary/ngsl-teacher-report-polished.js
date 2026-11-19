@@ -90,8 +90,7 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
  '<button type="button" data-ngsl-export>Export CSV</button></div>'+
  '<p class="ngsl-p-table-count" data-ngsl-count aria-live="polite"></p><div class="ngsl-p-table-wrap"><table><thead><tr><th scope="col">Student</th><th scope="col">Status</th><th scope="col">Result</th><th scope="col">Foundation indicator</th><th scope="col">Browser events</th></tr></thead><tbody data-ngsl-rows></tbody></table></div>'+
  '<nav class="ngsl-p-pages" aria-label="Student result pages"><span data-ngsl-page-info></span><div><button type="button" data-ngsl-prev>Previous</button><button type="button" data-ngsl-next>Next</button></div></nav>'+
- '<p class="ngsl-p-note">Browser focus events are not proof of misconduct.</p></section>'+
- '<section class="ngsl-p-explanation"><h2>Reading the results</h2><div class="ngsl-p-explanation-grid"><p><b>NGSL</b><span>50-word meaning check, not overall vocabulary knowledge.</span></p><p><b>CEFR</b><span>These scores cannot determine an A1–C2 level.</span></p><p><b>Teaching</b><span>Review weak groups alongside students’ 0511 work.</span></p></div><p class="ngsl-p-note">Ratings /50: Beginning 0–14 · Developing 15–24 · Building confidence 25–34 · Strong 35–44 · Advanced recognition 45–50.</p></section>'+
+ '<p class="ngsl-p-note">Diagnostic scores indicate vocabulary recognition, not an official CEFR level. Browser focus events are not proof of misconduct.</p></section>'+
  '<div class="ngsl-p-dialog" data-ngsl-dialog hidden role="dialog" aria-modal="true" aria-label="Browser event timeline"><div class="ngsl-p-dialog-card"><button type="button" data-ngsl-close aria-label="Close event review">×</button><div data-ngsl-dialog-body></div></div></div></main>';
  let filter='completed',sort='low',query='',page=0;
  const PAGE_SIZE=12;
