@@ -55,7 +55,7 @@ test('shop displays server balance, owned/equip states, and price',()=>{
   assert.match(root.innerHTML,/data-action="sandbox-equip"/);
   assert.match(root.innerHTML,/data-action="sandbox-buy"/);
   assert.match(root.innerHTML,/1,800 XP/);
-  assert.match(root.innerHTML,/Test credits only/);
+  assert.match(root.innerHTML,/TEST XP ONLY/);
   renderSandboxShop(root,{...sample,owned:[{reward_id:'midnight',equipped:true}],wallet:{granted:100000,spent:600,available:99400}});
   assert.match(root.innerHTML,/>Equipped<\/button>/);
 });
