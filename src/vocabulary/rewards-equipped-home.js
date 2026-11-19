@@ -6,7 +6,7 @@ import {ensureRewardsDashboard} from './rewards-home-layout.js';
 import {SUPPORTED_THEME_IDS,EQUIPMENT_CATEGORIES,visibleEquipmentCategories} from './rewards-premium-registry.js';
 const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const THEMES=new Set(SUPPORTED_THEME_IDS);
-const EFFECTS=new Set(['sparkle','pixel-badge']);
+const EFFECTS=new Set(['sparkle','pixel-badge','electric-pulse']);
 const CATEGORIES=EQUIPMENT_CATEGORIES;
 const ROOT_CLASSES=[...THEMES].map(x=>'vocab-real-theme--'+x);
 const EFFECT_CLASSES=[...EFFECTS].map(x=>'vocab-real-effect--'+x);
@@ -34,7 +34,8 @@ export function studentIdentityView(shop,displayName='Student'){
    title:active.titles?items.get(active.titles)?.name??'':'',
    titleArt:active.titles?rewardArtworkPath(active.titles):null,
    frame:active.frames?rewardArtworkPath(active.frames):null,
-   badge:active.badges?rewardArtworkPath(active.badges):active.effects?rewardArtworkPath(active.effects):null,
+   badge:active.badges?rewardArtworkPath(active.badges):active.effects==='pixel-badge'?rewardArtworkPath(active.effects):null,
+   effectArt:active.effects==='electric-pulse'?rewardArtworkPath(active.effects):null,
    effectName:active.effects?items.get(active.effects)?.name??'':'',
    themeName:active.themes?items.get(active.themes)?.name??'':''
  };
@@ -44,6 +45,7 @@ function avatar(identity,compact=false){
    ${identity.frame?`<img class="vocab-student-identity__frame" src="${identity.frame}" alt="" decoding="async">`:''}
    <span class="vocab-student-identity__initials">${escapeHtml(identity.initials)}</span>
    ${identity.badge?`<img class="vocab-student-identity__badge" src="${identity.badge}" alt="" decoding="async">`:''}
+   ${identity.effectArt?`<img class="vocab-student-identity__effect" src="${identity.effectArt}" alt="" decoding="async">`:''}
  </span>`;
 }
 export function renderIdentityShowcase(shop,displayName='Student'){
