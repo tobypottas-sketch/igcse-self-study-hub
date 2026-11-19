@@ -51,15 +51,16 @@ Deno.serve(async req=>{
   // Never trust client-supplied class, role, email or membership.
   const {data:student,error:studentError}=await db.from('profiles').select('id,role,active,display_name,school_email').eq('id',input.studentId).maybeSingle();
   if(studentError||!student||student.role!=='student'||!student.active)return reply({error:'Student account unavailable.'},403);
-  const {data:membership,error:membershipError}=await db.from('student_class_memberships').select('class_id,ended_at').eq('student_id',input.studentId).is('ended_at',null).limit(1).maybeSingle();
-  if(membershipError||!membership)return reply({error:'Student is not in an active class.'},403);
-  let assigned=actor.role==='admin';
-  if(!assigned){
-   const {data:link,error:linkError}=await db.from('teacher_classes').select('class_id').eq('teacher_id',actorId).eq('class_id',membership.class_id).maybeSingle();
+  const {data:memberships,error:membershipError}=await db.from('student_class_memberships').select('class_id,ended_at').eq('student_id',input.studentId).is('ended_at',null);
+  if(membershipError||!memberships?.length)return reply({error:'Student is not in an active class.'},403);
+  let authorisedMembership=actor.role==='admin'?memberships[0]:null;
+  if(actor.role==='teacher'){
+   const ids=[...new Set(memberships.map(m=>m.class_id))];
+   const {data:links,error:linkError}=await db.from('teacher_classes').select('class_id').eq('teacher_id',actorId).in('class_id',ids);
    if(linkError)throw new Error('Cannot confirm class access.');
-   assigned=Boolean(link);
+   authorisedMembership=memberships.find(m=>(links??[]).some(link=>link.class_id===m.class_id))??null;
   }
-  if(!canManageStudent({actor,student,membership,assigned}))return reply({error:'You can reset passwords only for students in your own classes.'},403);
+  if(!canManageStudent({actor,student,membership:authorisedMembership,assigned:Boolean(authorisedMembership)}))return reply({error:'You can reset passwords only for students in your own classes.'},403);
   const hour=new Date(Date.now()-3600000).toISOString();
   const day=new Date(Date.now()-86400000).toISOString();
   const [{count:actorCount,error:actorLimitError},{count:studentCount,error:studentLimitError}]=await Promise.all([
