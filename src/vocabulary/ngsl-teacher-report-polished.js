@@ -63,7 +63,7 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
  const advisory=(count,message,filter)=>'<button type="button" data-ngsl-quick="'+filter+'" class="ngsl-p-action"><b>'+count+'</b><span>'+message+'</span><span aria-hidden="true">›</span></button>';
  root.innerHTML='<main class="vocab-shell ngsl-p-report"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>NGSL diagnostic · Teacher report</span></header>'+
  '<section class="ngsl-p-hero"><div><p class="vocab-kicker">NGSL · 50-QUESTION DIAGNOSTIC</p><h1>Diagnostic results</h1><p>Vocabulary recognition baseline · Not a CEFR placement test</p></div><button type="button" class="vocab-button" data-action="ngsl-report-back">Back to classes</button></section>'+
- '<div class="ngsl-p-classbar"><label>Class <select data-action="ngsl-report-select-class"><option value="all"'+(selected==='all'?' selected':'')+'>'+(isAdmin?'All classes':'All my classes')+'</option>'+classOptions+'</select></label><span>Updated when this report was opened · '+all.length+' students</span></div>'+
+
  '<section class="ngsl-p-metrics" aria-label="Diagnostic summary">'+
  summary('Completed',completed.length+' / '+all.length,percent(completed.length,all.length)+'% finished','completion')+
  summary('Average recognition',mean===null?'—':Math.round(mean*2)+'%',mean===null?'No completed scores':(Math.round(mean*10)/10)+' / 50 · completed only','average')+
@@ -84,7 +84,8 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
  '<button type="button" data-ngsl-tab="incomplete">Unfinished <b>'+pending.length+'</b></button>'+
  '<button type="button" data-ngsl-tab="review">Below 50% <b>'+below.length+'</b></button>'+
  '<button type="button" data-ngsl-tab="all">All <b>'+all.length+'</b></button></div>'+
- '<div class="ngsl-p-toolbar"><input data-ngsl-search type="search" placeholder="Search names in selected group…" aria-label="Search students">'+
+ '<div class="ngsl-p-toolbar"><input data-ngsl-search type="search" placeholder="Search students…" aria-label="Search students">'+
+ '<select data-action="ngsl-report-select-class" aria-label="Filter diagnostic results by class"><option value="all"'+(selected==='all'?' selected':'')+'>'+(isAdmin?'All classes':'All my classes')+'</option>'+classOptions+'</select>'+
  '<select data-ngsl-sort aria-label="Sort student results"><option value="low">Lowest score first</option><option value="high">Highest score first</option><option value="name">Name A–Z</option><option value="status">Completion status</option></select>'+
  '<button type="button" data-ngsl-export>Export CSV</button></div>'+
  '<p class="ngsl-p-table-count" data-ngsl-count aria-live="polite"></p><div class="ngsl-p-table-wrap"><table><thead><tr><th scope="col">Student</th><th scope="col">Status</th><th scope="col">Result</th><th scope="col">Foundation indicator</th><th scope="col">Browser events</th></tr></thead><tbody data-ngsl-rows></tbody></table></div>'+
