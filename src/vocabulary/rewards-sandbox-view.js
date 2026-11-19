@@ -2,6 +2,7 @@
 // The layout follows the approved mockup; all XP, ownership and equipment
 // values come from authenticated data, never from illustrative screenshots.
 import { rewardIllustration, bannerIllustration } from './rewards-art.js';
+import {leaderboardModal,installLeaderboardModal} from './rewards-leaderboard-modal.js';
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({
   '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
 })[c]);
@@ -14,11 +15,11 @@ function leaderboardPanel(board,view={}){
  const scope=view.scope==='school'?'school':'class',period=view.period==='all'?'all':'weekly',expanded=view.expanded===true;
  const tab=(key,text,value,action)=>`<button type="button" data-action="sandbox-leaderboard" data-${key}="${value}" aria-pressed="${key==='scope'?scope===value:period===value}" class="${(key==='scope'?scope:period)===value?'is-active':''}">${text}</button>`;
  const results=board?.ok&&Array.isArray(board.rows);
- const rows=results?board.rows.map(row=>`<li class="vocab-shop-leaderboard__row${row.isYou?' is-you':''}${row.rank<=3?' is-podium is-podium--'+row.rank:''}"${row.isYou?' aria-label="Your leaderboard position"':''}>
+ const rows=results?board.rows.slice(0,7).map(row=>`<li class="vocab-shop-leaderboard__row${row.isYou?' is-you':''}${row.rank<=3?' is-podium is-podium--'+row.rank:''}"${row.isYou?' aria-label="Your leaderboard position"':''}>
     <span class="vocab-shop-leaderboard__rank" aria-label="Rank ${escapeHtml(row.rank)}">${row.rank<=3?['🥇','🥈','🥉'][row.rank-1]:escapeHtml(row.rank)}</span>
     <span class="vocab-shop-leaderboard__name">${escapeHtml(row.name)}${row.isYou?'<small>Your rank</small>':''}</span>
     <strong class="vocab-shop-leaderboard__xp">${format(row.xp)} <span>XP</span></strong></li>`).join(''):'';
- const shown=results&&board.rows.some(row=>row.isYou);
+ const shown=results&&board.rows.slice(0,7).some(row=>row.isYou);
  const me=results&&board.me&&!shown?`<div class="vocab-shop-leaderboard__mine"><span>#${num(board.me.rank)} · You</span><strong>${format(board.me.xp)} XP</strong></div>`:'';
  const note=results?(board.empty||(!board.rows.length?'No completed practice missions yet.':'Ranked by verified practice XP, not shop balance.')):'Rankings will appear when class data is available.';
  return `<section class="vocab-shop-leaderboard" aria-label="Practice XP leaderboard">
@@ -27,7 +28,7 @@ function leaderboardPanel(board,view={}){
    <div class="vocab-shop-leaderboard__tabs" aria-label="Leaderboard period">${tab('period','This Week','weekly')}${tab('period','All Time','all')}</div>
    ${results?`<ol class="vocab-shop-leaderboard__list">${rows}</ol>${me}`:'<p class="vocab-shop-leaderboard__loading">Leaderboard unavailable right now.</p>'}
    <p class="vocab-shop-leaderboard__note">${escapeHtml(note)}</p>
-   <button type="button" class="vocab-shop-leaderboard__expand" data-action="sandbox-leaderboard-expand" aria-expanded="${expanded}">${expanded?'Show top 7':'View full leaderboard'}</button>
+   <button type="button" class="vocab-shop-leaderboard__expand" data-action="sandbox-leaderboard-expand" aria-expanded="${expanded}">View full leaderboard</button>
  </section>`;
 }
 function ownedMap(shop){return new Map((shop.owned??[]).map(item=>[item.reward_id,item]));}
@@ -124,6 +125,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
         <div class="vocab-shop-equipped__list">${equipment}</div>
       </section>
     </div>
+    ${leaderboardView.expanded===true?leaderboardModal(leaderboard,leaderboardView):''}
   </main>`;
   if(production){
    html=html.replace(/data-action="sandbox-/g,'data-action="real-')
@@ -134,4 +136,5 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
     .replace('Test credits only · Sandbox balance is separate from learning XP. Rewards never affect answers, levels or genuine learning XP.','Real XP rewards · Buying reduces spendable XP, not learning XP, levels or achievements.');
   }
   root.innerHTML=html;
+  if(leaderboardView.expanded===true)installLeaderboardModal(root,leaderboard,leaderboardView);
 }

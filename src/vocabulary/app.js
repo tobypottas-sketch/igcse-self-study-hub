@@ -278,7 +278,7 @@ function scrollToShopTop(){
 }
 async function renderCurrentSandboxShop(message='',busy=sandboxBusy){
  if(!sandboxShop?.sandboxEnabled)return;
- const {renderSandboxShop}=await import('./rewards-sandbox-view.js?v=reward-unequip-v1');
+ const {renderSandboxShop}=await import('./rewards-sandbox-view.js?v=full-leaderboard-v1');
  renderSandboxShop(root,sandboxShop,{category:sandboxCategory,busy,message,progress:homeEngagement(),studentName:state.profile?.display_name??'Student',leaderboard:sandboxLeaderboard,leaderboardView:sandboxLeaderboardView});
 }
 async function loadSandboxShop() {
@@ -406,7 +406,7 @@ async function fetchRealShop(){
 }
 async function renderRealShop(message='',busy=realBusy){
  if(!realShop)return;
- const {renderProductionShop}=await import('./rewards-sandbox-view.js?v=reward-unequip-v1');
+ const {renderProductionShop}=await import('./rewards-sandbox-view.js?v=full-leaderboard-v1');
  renderProductionShop(root,realShop,{category:realCategory,busy,message,progress:homeEngagement(),
   studentName:state.profile?.display_name??'Student',leaderboard:realLeaderboard,leaderboardView:realLeaderboardView});
  await updateLiveCosmetics(realShop);
@@ -1367,12 +1367,13 @@ root?.addEventListener('click', event => {
   else if (action === 'real-leaderboard' && !state.preview && realShop && !realBusy){
     if(['class','school'].includes(target.dataset.scope))realLeaderboardView.scope=target.dataset.scope;
     if(['weekly','all'].includes(target.dataset.period))realLeaderboardView.period=target.dataset.period;
-    realLeaderboardView.expanded=false;realLeaderboard=null;
+    realLeaderboard=null; // Preserve the dialog while changing tabs.
     void renderRealShop().then(refreshRealLeaderboard);
   }
   else if (action === 'real-leaderboard-expand' && !state.preview && realShop && !realBusy){
-    realLeaderboardView.expanded=!realLeaderboardView.expanded;realLeaderboard=null;
-    void renderRealShop().then(refreshRealLeaderboard);
+    realLeaderboardView.expanded=!realLeaderboardView.expanded;
+     if(realLeaderboardView.expanded){realLeaderboard=null;void renderRealShop().then(refreshRealLeaderboard);}
+     else void renderRealShop().then(()=>root.querySelector('[data-action="real-leaderboard-expand"]')?.focus());
   }
   else if (action === 'real-buy' && !state.preview){void applyRealReward('buy',target.dataset.rewardId);}
   else if (action === 'real-equip' && !state.preview){void applyRealReward('equip',target.dataset.rewardId);}
@@ -1390,14 +1391,13 @@ root?.addEventListener('click', event => {
   else if (action === 'sandbox-leaderboard' && !state.preview && sandboxShop?.sandboxEnabled) {
     if(target.dataset.scope==='class'||target.dataset.scope==='school')sandboxLeaderboardView.scope=target.dataset.scope;
     if(target.dataset.period==='weekly'||target.dataset.period==='all')sandboxLeaderboardView.period=target.dataset.period;
-    sandboxLeaderboardView.expanded=false;
-    sandboxLeaderboard=null;
+    sandboxLeaderboard=null; // Preserve the dialog while changing tabs.
     void renderCurrentSandboxShop().then(refreshSandboxLeaderboard);
   }
   else if (action === 'sandbox-leaderboard-expand' && !state.preview && sandboxShop?.sandboxEnabled) {
     sandboxLeaderboardView.expanded=!sandboxLeaderboardView.expanded;
-    sandboxLeaderboard=null;
-    void renderCurrentSandboxShop().then(refreshSandboxLeaderboard);
+     if(sandboxLeaderboardView.expanded){sandboxLeaderboard=null;void renderCurrentSandboxShop().then(refreshSandboxLeaderboard);}
+     else void renderCurrentSandboxShop().then(()=>root.querySelector('[data-action="sandbox-leaderboard-expand"]')?.focus());
   }
   else if (action === 'sandbox-buy' && !state.preview) { void applySandboxReward('buy',target.dataset.rewardId); }
   else if (action === 'sandbox-equip' && !state.preview) { void applySandboxReward('equip',target.dataset.rewardId); }
