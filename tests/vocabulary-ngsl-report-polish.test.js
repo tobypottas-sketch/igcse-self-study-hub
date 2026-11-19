@@ -60,3 +60,16 @@ test('student results are initially grouped, capped at 12 rows, and have navigat
  assert.match(src,/page=0;draw\(\)/);
  assert.match(src,/const records=displayed\(\)\.map/); // export includes all matches rather than only current page
 });
+
+test('focus timeline shows complete explicit row numbers and has a bounded scroll region',()=>{
+ const src=read('src/vocabulary/ngsl-teacher-report-polished.js');
+ const css=read('vocabulary-ngsl-teacher-polished.css');
+ assert.match(src,/ngsl-p-event-index/);
+ assert.match(src,/\(index\+1\)/);
+ assert.match(src,/ngsl-p-dialog-history/);
+ assert.match(src,/not proof of cheating/);
+ assert.match(css,/\.ngsl-p-events\s*\{[^}]*list-style:none/s);
+ assert.match(css,/\.ngsl-p-event-index\s*\{[^}]*min-width:38px/s);
+ assert.match(css,/\.ngsl-p-events\s*\{[^}]*overflow-y:auto/s);
+ assert.match(css,/\.ngsl-p-dialog-footnote/);
+});
