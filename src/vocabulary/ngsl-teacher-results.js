@@ -214,9 +214,9 @@ export function renderNGSLClassReport(root,dataset,classId='all',isAdmin=false){
  '<div><span>Completed</span><strong>'+completed.length+' <small>/ '+rows.length+'</small></strong><small>'+completedPct+'% of students</small></div>'+
  '<div><span>Average recognition</span><strong>'+(mean===null?'—':Math.round(mean*2)+'%')+'</strong><small>'+
  (mean===null?'No results yet':mean+' / 50 · completed students only')+'</small></div>'+
- '<div><span>Still to complete</span><strong>'+incomplete.length+'</strong><small>'+inProgress.length+' in progress · '+notStarted+' not started'+(unknown?' · '+unknown+' unverified':'')</small></div></section>'+
+ '<div><span>Still to complete</span><strong>'+incomplete.length+'</strong><small>'+inProgress.length+' in progress · '+notStarted+' not started'+(unknown?' · '+unknown+' unverified':'')+'</small></div></section>'+
  '<section class="ngsl-report-actions" aria-label="Teacher follow-up"><h2>What needs attention?</h2><div>'+
- '<p><strong>'+incomplete.length+' unfinished:</strong> '+inProgress.length+' started, '+notStarted+' not started'+(unknown+', '+unknown+' awaiting status':'')+'.</p>'+
+ '<p><strong>'+incomplete.length+' unfinished:</strong> '+inProgress.length+' started, '+notStarted+' not started'+(unknown?', '+unknown+' awaiting status':'')+'.</p>'+
  '<p><strong>'+low.length+' students below 50%:</strong> review their starting vocabulary practice.</p>'+
  '<p><strong>Lowest frequency group:</strong> '+(weakest?'Group '+weakest.band+' ('+Math.round(weakest.average*10)+'%)':'Awaiting results')+
  '. Similar group averages may reflect question selection rather than equal word knowledge.</p></div></section>'+
