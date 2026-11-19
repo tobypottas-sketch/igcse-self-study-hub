@@ -16,7 +16,13 @@ export function installGraphicsHandlers(root) {
   }, true);
   root.addEventListener('error', event => {
     const image = event.target;
-    if (image?.matches?.('img[data-art-png]')) removeBroken(image);
+    if (image?.matches?.('img[data-art-png]')) {
+      // One bounded delivery fallback: removing the source selects img.src,
+      // the unchanged original PNG. Only an original failure uses the SVG.
+      const source=image.closest('picture[data-art-delivery]')?.querySelector('source');
+      if(source && image.currentSrc!==image.src){source.remove();image.src=image.getAttribute('src');return;}
+      removeBroken(image);
+    }
   }, true);
 }
 // A screen is rebuilt with innerHTML (Back to All units, the post-navigation refresh, ...), which creates brand-new <img> elements
@@ -41,7 +47,12 @@ function reveal(container) {
    if(image.complete && image.naturalWidth>0){markReady(image);continue;}
    const known=loaded.get(image.getAttribute('src'));
    if(known?.complete && known.naturalWidth>0){
-     if(known!==image && !known.isConnected){image.replaceWith(known);markReady(known);}
+     if(known!==image && !known.isConnected){
+       // The bitmap is reusable, but its scheduling belongs to the new slot.
+       // A formerly lazy home tile can now be a high-priority hero.
+       known.loading=image.loading;known.fetchPriority=image.fetchPriority;
+       image.replaceWith(known);markReady(known);
+     }
      else if(image.complete && image.naturalWidth>0)markReady(image);
    }
  }

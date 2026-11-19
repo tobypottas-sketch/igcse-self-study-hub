@@ -25,7 +25,11 @@ const UNIT_PNG = png(320, 180); const PATHWAY_PNG = png(128, 128);
 const MANIFEST = names => route => route.fulfill({ contentType:'text/javascript', body:`export const SHIPPED_PNG = Object.freeze(${JSON.stringify(names)});` });
 function withAssets({ names = allGraphicNames(), files = 'serve', requests = [] } = {}) {
   return async page => {
+    await page.addInitScript(()=>history.replaceState(null,'',location.pathname+'?fullart=1'));
+    // The production entry point versions its router URL. Keep the test-only bootstrap matched.
+    await page.route('**/src/vocabulary/router.js*', route => route.fulfill({ contentType:'text/javascript', body:"import './app.js';" }));
     await page.route('**/src/vocabulary/graphics-manifest.js', MANIFEST(names));
+    await page.route('**/assets/support/**', route => route.fulfill({contentType:'image/png',body:UNIT_PNG}));
     await page.route('**/assets/vocabulary/**', route => {
       requests.push(new URL(route.request().url()).pathname);
       if (files === 'missing') return route.fulfill({ status:404, body:'not found' });
@@ -67,7 +71,7 @@ const WIDTHS = [[1280, 900], [820, 1000], [390, 800]];
 
 browserTest('nothing is shipped by default: no PNG request is made and the SVG artwork is shown', async () => {
   const requests = [];
-  const api = await open({ width:1280 }, { beforeLoad:async page => { await withAssets({ names:[] })(page); page.on('request', request => { if (/assets\/vocabulary/.test(request.url())) requests.push(request.url()); }); } });
+  const api = await open({ width:1280 }, { beforeLoad:async page => { await withAssets({ names:[] })(page); page.on('request', request => { if (/assets\/vocabulary\/(?:delivery\/)?(?:units|pathways)\//.test(request.url())) requests.push(request.url()); }); } });
   try {
     assert.deepEqual(requests, []);
     assert.equal(await api.page.evaluate(() => document.querySelectorAll('img[data-art-png]').length), 0);
@@ -103,7 +107,7 @@ for (const [width, height] of WIDTHS) {
       assert.ok(after.heroArt[0] + after.heroArt[2] <= after.hero[0] + after.hero[2], 'the banner art stays inside the banner');
       assert.equal(after.hScroll, false);
       // each pathway card requested its own file; nothing else under assets/vocabulary
-      for (const file of ['units/unit-01.png', 'pathways/meaning.png', 'pathways/context.png', 'pathways/word-families.png', 'pathways/paraphrasing.png', 'pathways/precision-use.png', 'pathways/spelling-recall.png']) assert.ok(requests.some(path => path.endsWith(`/assets/vocabulary/${file}`)), file);
+      for (const file of ['units/unit-01.png', 'pathways/meaning.png', 'pathways/context.png', 'pathways/word-families.png', 'pathways/paraphrasing.png', 'pathways/precision-use.png', 'pathways/spelling-recall.png']) assert.ok(requests.some(path => path.endsWith(`/assets/vocabulary/${file}`) || (path.includes(`/assets/vocabulary/delivery/${file.replace('.png','.')}`) && path.endsWith('.webp'))), file);
       assert.deepEqual(api.errors(), []);
     } finally { await api.close(); }
   });
