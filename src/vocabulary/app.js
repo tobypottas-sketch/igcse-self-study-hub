@@ -278,7 +278,7 @@ function scrollToShopTop(){
 }
 async function renderCurrentSandboxShop(message='',busy=sandboxBusy){
  if(!sandboxShop?.sandboxEnabled)return;
- const {renderSandboxShop}=await import('./rewards-sandbox-view.js?v=full-leaderboard-v1');
+ const {renderSandboxShop}=await import('./rewards-sandbox-view.js?v=unlock-jump-v2');
  renderSandboxShop(root,sandboxShop,{category:sandboxCategory,busy,message,progress:homeEngagement(),studentName:state.profile?.display_name??'Student',leaderboard:sandboxLeaderboard,leaderboardView:sandboxLeaderboardView});
 }
 async function loadSandboxShop() {
@@ -399,9 +399,16 @@ function focusShopReward(rewardId){
  const card=[...root.querySelectorAll('.vocab-shop-card[data-reward-id]')]
   .find(item=>item.dataset.rewardId===rewardId);
  if(!card)return;
- card.scrollIntoView?.({behavior:'auto',block:'center'});
- card.setAttribute('tabindex','-1');
- card.focus?.({preventScroll:true});
+ card.classList.add('is-featured-reward');
+ // Scrolling AFTER the shop rerender matters: it prevents the old sidebar
+ // scroll position from hiding the selected product.
+ requestAnimationFrame(()=>{
+  if(!card.isConnected)return;
+  card.scrollIntoView?.({behavior:'smooth',block:'center'});
+  const buy=card.querySelector('[data-action="real-buy"],[data-action="sandbox-buy"],[data-action="real-equip"],[data-action="sandbox-equip"]');
+  if(buy&&!buy.disabled)buy.focus?.({preventScroll:true});
+  else {card.setAttribute('tabindex','-1');card.focus?.({preventScroll:true});}
+ });
 }
 // Production reward controls are deliberately isolated from the test shop.
 let realShop=null,realCategory='all',realBusy=false,realLeaderboard=null;
@@ -415,7 +422,7 @@ async function fetchRealShop(){
 }
 async function renderRealShop(message='',busy=realBusy){
  if(!realShop)return;
- const {renderProductionShop}=await import('./rewards-sandbox-view.js?v=full-leaderboard-v1');
+ const {renderProductionShop}=await import('./rewards-sandbox-view.js?v=unlock-jump-v2');
  renderProductionShop(root,realShop,{category:realCategory,busy,message,progress:homeEngagement(),
   studentName:state.profile?.display_name??'Student',leaderboard:realLeaderboard,leaderboardView:realLeaderboardView});
  await updateLiveCosmetics(realShop);

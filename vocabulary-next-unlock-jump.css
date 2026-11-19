@@ -1,0 +1,35 @@
+/* Strong visible feedback when Next unlock takes students to a reward. */
+#vocabularyApp .vocab-shop-redesign .vocab-shop-card.is-featured-reward{
+  position:relative;
+  border:2px solid #13998e;
+  box-shadow:0 0 0 4px rgba(24,165,157,.2),0 12px 28px rgba(18,109,112,.22);
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-card.is-featured-reward::after{
+  content:"YOUR NEXT UNLOCK";
+  position:absolute;
+  z-index:2;
+  top:10px;
+  right:10px;
+  background:#0e746e;
+  color:#fff;
+  border-radius:8px;
+  padding:5px 8px;
+  font-size:.65rem;
+  font-weight:900;
+  letter-spacing:.04em;
+  pointer-events:none;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-card.is-featured-reward:focus-visible{
+  outline:3px solid #1c91ca;
+  outline-offset:5px;
+}
+@media(max-width:500px){
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-card.is-featured-reward::after{
+    top:6px;right:6px;font-size:.58rem;padding:4px 5px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-card.is-featured-reward{
+    scroll-behavior:auto;
+  }
+}
