@@ -13,7 +13,13 @@ const REWARD_ARTWORK = Object.freeze({
   'word-explorer':'word-explorer.png',
   'language-ace':'language-ace.png',
   'pixel-badge':'pixel-badge.png',
-  sparkle:'sparkle.png'
+  sparkle:'sparkle.png',
+  // Staged Neon District assets. Do not enable the catalogue until PNGs are deployed.
+  'neon-district':'neon-district.png',
+  'cyber-pulse-frame':'cyber-pulse-frame.png',
+  'neon-hacker-badge':'neon-hacker-badge.png',
+  'cyber-legend':'cyber-legend.png',
+  'electric-pulse':'electric-pulse.png'
 });
 export const REWARD_ARTWORK_DIR='assets/vocabulary/rewards/';
 export const rewardArtworkPath=id=>
