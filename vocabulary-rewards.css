@@ -298,3 +298,39 @@
 .vocab-shop-redesign .vocab-shop-equipped__item .vocab-shop-unequip:hover{
  background:#e5edf4;
 }
+
+/* Keep the tall progress/leaderboard rail independent from the shop stack.
+   The old three-row parent grid stretched the catalogue row to rail height,
+   pushing "Equipped now" hundreds of pixels below the reward cards. */
+.vocab-shop-redesign .vocab-shop-rail{
+  grid-column:1;
+  grid-row:1;
+  align-self:start;
+}
+.vocab-shop-redesign .vocab-shop-right{
+  grid-column:2;
+  grid-row:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:20px;
+  align-self:start;
+}
+.vocab-shop-redesign .vocab-shop-right > .vocab-shop-main,
+.vocab-shop-redesign .vocab-shop-right > .vocab-shop-equipped{
+  grid-column:auto;
+  grid-row:auto;
+  align-self:start;
+  width:100%;
+  min-height:0;
+  margin:0;
+}
+@media(max-width:840px){
+  .vocab-shop-redesign .vocab-shop-rail,
+  .vocab-shop-redesign .vocab-shop-right{
+    grid-column:1;
+    grid-row:auto;
+  }
+  .vocab-shop-redesign .vocab-shop-right{gap:16px}
+}
