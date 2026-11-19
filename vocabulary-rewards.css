@@ -334,3 +334,35 @@
   }
   .vocab-shop-redesign .vocab-shop-right{gap:16px}
 }
+
+/* Reward purchase actions: keep the label readable on coloured hover/pressed
+   backgrounds. Applies to sandbox AND production, including all purchased themes.
+   The global button:hover rule must never recolour action text dark-on-teal. */
+#vocabularyApp .vocab-shop-redesign .vocab-shop-card .vocab-reward-card__bottom button:not(:disabled):not([aria-disabled="true"]){
+  background:#0f7879!important;
+  color:#fff!important;
+  border-color:#0d686d!important;
+  cursor:pointer;
+}
+@media(hover:hover) and (pointer:fine){
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-card .vocab-reward-card__bottom button:not(:disabled):not([aria-disabled="true"]):hover{
+    background:#095c63!important;
+    color:#fff!important;
+    border-color:#095c63!important;
+  }
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-card .vocab-reward-card__bottom button:not(:disabled):not([aria-disabled="true"]):is(:active,:focus-visible){
+  color:#fff!important;
+  background:#084b54!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-card .vocab-reward-card__bottom button.is-owned:disabled{
+  background:#d9f5e4!important;
+  color:#176c53!important;
+}
+/* Preserve semantic disabled appearance: only actionable buttons receive the
+   dark-teal treatment; equipped (disabled) remains a pale-green status. */
+@media(forced-colors:active){
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-card .vocab-reward-card__bottom button{
+    forced-color-adjust:auto;
+  }
+}
