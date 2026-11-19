@@ -52,6 +52,7 @@ test('teacher reports are scoped to owned classes or administrator',()=>{
  assert.match(sql,/m\.ended_at is null/);
  assert.match(sql,/p\.role::text='admin'/);
  assert.match(teacher,/permitted\.has\(entry\.studentId\)/);
- assert.match(teacher,/Focus events \(review only\)/);
+ assert.match(teacher,/Focus activity/);
+ assert.match(teacher,/ngsl-event-dialog/);
  assert.match(teacher,/do not prove cheating/);
 });
