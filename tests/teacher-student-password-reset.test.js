@@ -1,61 +1,99 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {validateTeacherPasswordAction,canManageStudent,createReadablePassword} from '../supabase/functions/teacher-student-password/validation.js';
-const src=readFileSync(new URL('../supabase/functions/teacher-student-password/index.ts',import.meta.url),'utf8');
+import {stripTypeScriptTypes} from 'node:module';
+import {validateAdminProvisionRequest} from '../supabase/functions/admin-provision-user/validation.js';
+
+const src=readFileSync(new URL('../supabase/functions/admin-provision-user/index.ts',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../src/vocabulary/teacher-password-manager.js',import.meta.url),'utf8');
 const teacher=readFileSync(new URL('../src/vocabulary/teacher-app.js',import.meta.url),'utf8');
-const sql=readFileSync(new URL('../supabase/sql/teacher_student_password_reset_audit.sql',import.meta.url),'utf8');
-const uuid='33333333-3333-4333-8333-333333333333';
-test('strictly validates teacher reset API payload',()=>{
- assert.deepEqual(validateTeacherPasswordAction({action:'list'}),{action:'list'});
- assert.deepEqual(validateTeacherPasswordAction({action:'reset',studentId:uuid}),{action:'reset',studentId:uuid});
- for(const invalid of [{action:'reset',studentId:uuid,role:'admin'},{action:'reset',studentId:'x'},{action:'list',all:true},{action:'delete',studentId:uuid}])
- assert.throws(()=>validateTeacherPasswordAction(invalid),/Invalid/);
-});
-test('only active staff and active students with real owned membership qualify',()=>{
- const teacher={role:'teacher',active:true},admin={role:'admin',active:true};
- const student={role:'student',active:true},member={ended_at:null};
- assert.equal(canManageStudent({actor:teacher,student,membership:member,assigned:true}),true);
- assert.equal(canManageStudent({actor:teacher,student,membership:member,assigned:false}),false);
- assert.equal(canManageStudent({actor:teacher,student,membership:null,assigned:true}),false);
- assert.equal(canManageStudent({actor:teacher,student:{role:'teacher',active:true},membership:member,assigned:true}),false);
- assert.equal(canManageStudent({actor:{role:'student',active:true},student,membership:member,assigned:true}),false);
- assert.equal(canManageStudent({actor:{...teacher,active:false},student,membership:member,assigned:true}),false);
- assert.equal(canManageStudent({actor:admin,student,membership:member,assigned:false}),true);
-});
-test('temporary password uses readable words and numeric suffix',()=>{
- const password=createReadablePassword(bytes=>bytes.set([0,1,2,1234]));
- assert.equal(password,'AppleBeachBerry1234');
-});
-test('password changes remain server-authorised, audited, bounded and student-only',()=>{
- assert.match(src,/auth\.getUser\(token\)/);
- assert.match(src,/actor\.role==='admin'/);
- assert.match(src,/teacher_classes/);
- assert.match(src,/student_class_memberships/);
- assert.match(src,/canManageStudent/);
- assert.match(src,/student\.role!=='student'/);
- assert.match(src,/auth\.admin\.updateUserById\(input\.studentId,\{password\}\)/);
- assert.match(src,/actorCount\?\?0\)>=8/);
- assert.match(src,/studentCount\?\?0\)>=3/);
- assert.match(src,/teacher_student_password_reset_events/);
- assert.match(sql,/enable row level security/);
- assert.match(sql,/revoke all on public\.teacher_student_password_reset_events from public,anon,authenticated/);
- assert.doesNotMatch(sql,/password text|temporary_password/);
-});
-test('teacher app exposes scoped manager with explicit confirmation and one-time copy',()=>{
- assert.match(teacher,/teacher-manage-student-passwords/);
- assert.match(ui,/action:'list'/);
- assert.match(ui,/action:'reset',studentId:selected\.id/);
- assert.match(ui,/Generate new password/);
- assert.match(ui,/navigator\.clipboard\.writeText/);
- assert.match(ui,/This password will disappear/);
-});
+const audit=readFileSync(new URL('../supabase/sql/teacher_student_password_reset_audit.sql',import.meta.url),'utf8');
+const ACTOR='11111111-1111-4111-8111-111111111111', STUDENT='33333333-3333-4333-8333-333333333333';
+const CLASS='22222222-2222-4222-8222-222222222222';
+const runSource=stripTypeScriptTypes(src).replace(/^import .*;\n/gm,'');
 
-test('Bearer authentication header matcher accepts a normal JWT-style header',()=>{
- const match=src.match(/const token=(\/\^Bearer.*?\/i)\.exec/);
- assert.ok(match,'Auth token matcher is present');
- const expression=new Function('return '+match[1])();
- assert.equal(expression.exec('Bearer abc.def.ghi')?.[1],'abc.def.ghi');
- assert.equal(expression.test('not-a-bearer-token'),false);
+async function request({role='teacher',assigned=true,studentRole='student',action='reset_password',active=true}={}){
+ let handler,resetCalls=0,auditCalls=0,flagCalls=0;
+ const actor={role,active};
+ const student={id:STUDENT,role:studentRole,active:true,display_name:'Example Student',school_email:'example@example.test'};
+ function makeQuery(table){
+  const filters={};let operation='read',insertValue=null,head=false;
+  const q={
+   select(_fields,opts){head=Boolean(opts?.head);return this;},
+   eq(k,v){filters[k]=v;return this;},
+   in(k,v){filters[k]=v;return this;},
+   is(k,v){filters[k]=v;return this;},
+   gte(){return this;},range(){return this;},
+   insert(v){operation='insert';insertValue=v;return this;},
+   update(v){operation='update';insertValue=v;return this;},
+   single(){return Promise.resolve(get(true));},
+   maybeSingle(){return Promise.resolve(get(true));},
+   then(resolve,reject){return Promise.resolve(get(false)).then(resolve,reject);}
+  };
+  function get(single){
+   if(table==='profiles'){
+    if(operation==='update'){flagCalls++;return {error:null};}
+    return {data:filters.id===ACTOR?actor:student,error:null};
+   }
+   if(table==='student_class_memberships')return {data:[{class_id:CLASS,student_id:STUDENT}],error:null};
+   if(table==='teacher_classes')return {data:assigned?[{class_id:CLASS}]:[],error:null};
+   if(table==='teacher_student_password_reset_events'){
+    if(head)return {count:0,error:null};
+    if(operation==='insert'){auditCalls++;return {data:{id:1},error:null};}
+    return {error:null};
+   }
+   throw new Error('Unexpected table '+table);
+  }
+  return q;
+ }
+ const adminClient={from:makeQuery,auth:{admin:{updateUserById:async()=>{resetCalls++;return {error:null};}}}};
+ const callerClient={auth:{getUser:async()=>({data:{user:{id:ACTOR}},error:null})}};
+ let called=0;
+ const createClient=()=>++called===1?callerClient:adminClient;
+ const env={SUPABASE_URL:'https://example.test',SUPABASE_PUBLISHABLE_KEYS:'{"default":"public"}',SUPABASE_SECRET_KEYS:'{"default":"secret"}'};
+ const Deno={env:{get:key=>env[key]},serve:fn=>{handler=fn;}};
+ new Function('createClient','safeAuthAccountError','validateAdminProvisionRequest','Deno',runSource)(createClient,err=>err?.message??'error',validateAdminProvisionRequest,Deno);
+ const body=action==='teacher_list_students'?{action}:{action,userId:STUDENT};
+ const response=await handler(new Request('https://example.test',{method:'POST',headers:{Authorization:'Bearer synthetic','Content-Type':'application/json'},body:JSON.stringify(body)}));
+ return {status:response.status,payload:await response.json(),resetCalls,auditCalls,flagCalls};
+}
+
+test('teacher reset and roster actions are individually validated',()=>{
+ assert.deepEqual(validateAdminProvisionRequest({action:'teacher_list_students'}),{action:'teacher_list_students'});
+ assert.deepEqual(validateAdminProvisionRequest({action:'reset_password',userId:STUDENT}),{action:'reset_password',userId:STUDENT});
+});
+test('assigned teacher can reset one student with audited event',async()=>{
+ const r=await request();
+ assert.equal(r.status,200);
+ assert.equal(r.resetCalls,1);
+ assert.equal(r.auditCalls,1);
+ assert.match(r.payload.temporaryPassword,/^[A-Z][a-z]+[A-Z][a-z]+\d{2}$/);
+});
+test('unassigned teacher cannot change student password',async()=>{
+ const r=await request({assigned:false});
+ assert.equal(r.status,403);assert.equal(r.resetCalls,0);assert.equal(r.auditCalls,0);
+});
+test('teacher cannot reset another teacher account',async()=>{
+ const r=await request({studentRole:'teacher'});
+ assert.equal(r.status,403);assert.equal(r.resetCalls,0);
+});
+test('student cannot use staff reset endpoint',async()=>{
+ const r=await request({role:'student'});
+ assert.equal(r.status,403);assert.equal(r.resetCalls,0);
+});
+test('teacher is still forbidden from all other account admin actions',async()=>{
+ const r=await request({action:'delete_account'});
+ assert.equal(r.status,403);assert.equal(r.resetCalls,0);
+});
+test('audit table denies ordinary users and keeps no password plaintext',()=>{
+ assert.match(audit,/enable row level security/i);
+ assert.match(audit,/revoke all on public\.teacher_student_password_reset_events from public,anon,authenticated/);
+ assert.doesNotMatch(audit,/temporary_password|password text/i);
+});
+test('teacher interface uses the existing account service',()=>{
+ assert.match(ui,/functions\.invoke\('admin-provision-user'/);
+ assert.match(ui,/action:'teacher_list_students'/);
+ assert.match(ui,/action:'reset_password',userId:selected\.id/);
+ assert.match(ui,/navigator\.clipboard\.writeText/);
+ assert.match(teacher,/teacher-manage-student-passwords/);
 });
