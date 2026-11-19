@@ -30,6 +30,10 @@
   border:1.5px solid var(--shop-accent-edge);
   box-shadow:inset 0 1px 0 var(--shop-accent-glint),0 5px 17px var(--shop-accent-soft);
 }
+/* Retain the existing purple category accent for effect rewards. */
+#vocabularyApp .vocab-shop-redesign .vocab-shop-card--effects{
+  border-top:3px solid #bd96fb;
+}
 #vocabularyApp .vocab-shop-redesign .vocab-shop-card:hover{
   border-color:var(--shop-turquoise,#087d81);
 }
