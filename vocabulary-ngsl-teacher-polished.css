@@ -120,3 +120,31 @@
  #vocabularyApp .ngsl-p-toolbar{grid-template-columns:1fr}
  #vocabularyApp .ngsl-p-pages{flex-wrap:wrap}
 }
+
+/* Always keep the result filters on a single line. Overflow scrolls rather than wraps. */
+#vocabularyApp .ngsl-p-tabs{
+ display:flex;
+ flex-wrap:nowrap;
+ align-items:stretch;
+ gap:6px;
+ width:100%;
+ max-width:100%;
+ overflow-x:auto;
+ overflow-y:hidden;
+ overscroll-behavior-x:contain;
+ scrollbar-width:thin;
+ padding:0 0 10px;
+}
+#vocabularyApp .ngsl-p-tabs button{
+ flex:0 0 auto;
+ white-space:nowrap;
+ min-width:0;
+ gap:6px;
+ padding:8px 10px;
+ font-size:.8rem;
+}
+#vocabularyApp .ngsl-p-tabs button b{
+ flex-shrink:0;
+ min-width:20px;
+ padding:0 5px;
+}
