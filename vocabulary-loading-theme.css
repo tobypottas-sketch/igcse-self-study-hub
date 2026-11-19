@@ -1,0 +1,84 @@
+/* Keep the initial and return-to-overview loader readable in every purchased theme.
+   The app keeps theme classes while its current screen is replaced by .vocab-startup. */
+#vocabularyApp .vocab-startup{
+  min-height:60vh;
+  padding:28px 18px;
+  color:#173958;
+}
+#vocabularyApp .vocab-startup__content{
+  box-sizing:border-box;
+  width:min(100%,390px);
+  padding:25px 27px 23px;
+  border:1px solid #c5dce8;
+  border-radius:22px;
+  background:rgba(250,253,255,.97);
+  box-shadow:0 16px 42px rgba(12,39,74,.17);
+  color:#173958;
+}
+#vocabularyApp .vocab-startup__symbol{
+  color:#175a6d;
+  background:#e5f6fb;
+  box-shadow:inset 0 0 0 1px #b8dce8;
+}
+#vocabularyApp .vocab-startup__title{
+  color:#173958;
+  font-size:1.16rem;
+  line-height:1.3;
+  font-weight:900;
+}
+#vocabularyApp .vocab-startup__status{
+  color:#355b76;
+  font-size:.91rem;
+  line-height:1.5;
+  font-weight:650;
+}
+#vocabularyApp .vocab-startup__track{
+  background:#d9e9f2;
+  box-shadow:inset 0 0 0 1px rgba(30,90,127,.1);
+}
+/* Explicitly cover each purchasable palette, including Midnight's dark page. */
+#vocabularyApp.vocab-real-theme--midnight .vocab-startup__content{
+  background:#f5f7ff;
+  border-color:#a1b0e2;
+  color:#1a3059;
+  box-shadow:0 17px 45px rgba(2,11,38,.38);
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-startup__title{color:#172e56}
+#vocabularyApp.vocab-real-theme--midnight .vocab-startup__status{color:#35547c}
+#vocabularyApp.vocab-real-theme--forest .vocab-startup__content{
+  background:#f5fff7;
+  border-color:#9bcfac;
+}
+#vocabularyApp.vocab-real-theme--forest .vocab-startup__title{color:#174d36}
+#vocabularyApp.vocab-real-theme--forest .vocab-startup__status{color:#37654f}
+#vocabularyApp.vocab-real-theme--ocean .vocab-startup__content{
+  background:#f2fbff;
+  border-color:#a0d5e7;
+}
+#vocabularyApp.vocab-real-theme--ocean .vocab-startup__title{color:#164d70}
+#vocabularyApp.vocab-real-theme--ocean .vocab-startup__status{color:#35647e}
+#vocabularyApp.vocab-real-theme--sakura .vocab-startup__content{
+  background:#fff7fb;
+  border-color:#e5bcd1;
+}
+#vocabularyApp.vocab-real-theme--sakura .vocab-startup__title{color:#66344f}
+#vocabularyApp.vocab-real-theme--sakura .vocab-startup__status{color:#754d67}
+@media(max-width:480px){
+  #vocabularyApp .vocab-startup{min-height:65dvh;padding:18px 12px}
+  #vocabularyApp .vocab-startup__content{
+    padding:23px 20px;
+    border-radius:18px;
+  }
+}
+@media(forced-colors:active){
+  #vocabularyApp .vocab-startup__content{
+    background:Canvas;
+    color:CanvasText;
+    border:1px solid CanvasText;
+  }
+  #vocabularyApp .vocab-startup__title,
+  #vocabularyApp .vocab-startup__status{color:CanvasText}
+}
+@media(prefers-reduced-motion:reduce){
+  #vocabularyApp .vocab-startup__track::before{animation:none}
+}
