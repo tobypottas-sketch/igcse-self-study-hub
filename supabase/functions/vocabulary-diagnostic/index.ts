@@ -16,7 +16,7 @@ function firstNamedKey(raw:string|undefined):string {
 }
 const ANON_KEY=Deno.env.get('SUPABASE_ANON_KEY')||firstNamedKey(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS'));
 const SERVICE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||firstNamedKey(Deno.env.get('SUPABASE_SECRET_KEYS'));
-const ALLOWED_ACTIONS=new Set(['ngsl-form-preview','ngsl-status','ngsl-start','ngsl-respond','ngsl-pause','ngsl-history','ngsl-teacher-report','ngsl-integrity-event','ngsl-integrity-report']);
+const ALLOWED_ACTIONS=new Set(['ngsl-form-preview','ngsl-status','ngsl-start','ngsl-respond','ngsl-pause','ngsl-history','ngsl-teacher-report','ngsl-integrity-event','ngsl-integrity-report','ngsl-session-report']);
 const MAX_BODY_BYTES=4000;
 
 function headers(){
@@ -34,7 +34,7 @@ function string(value,max=128){return typeof value==='string'&&value.length<=max
 function validUuid(value){return typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);}
 function validatePayload(action,payload){
   if(!payload||typeof payload!=='object'||Array.isArray(payload))return false;
-  if(['ngsl-status','ngsl-start','ngsl-history','ngsl-teacher-report','ngsl-integrity-report'].includes(action))return Object.keys(payload).length===0;
+  if(['ngsl-status','ngsl-start','ngsl-history','ngsl-teacher-report','ngsl-integrity-report','ngsl-session-report'].includes(action))return Object.keys(payload).length===0;
   if(action==='ngsl-integrity-event')return Object.keys(payload).length===4
     &&validUuid(payload.sessionId)&&validUuid(payload.eventId)
     &&['tab_hidden','window_blur','fullscreen_exit','focus_return'].includes(payload.type)
@@ -97,14 +97,16 @@ Deno.serve(async (req:Request)=>{
     const isPreviewRequest=action==='ngsl-form-preview';
     const isIntegrityEvent=action==='ngsl-integrity-event';
     const isIntegrityReport=action==='ngsl-integrity-report';
+    const isSessionReport=action==='ngsl-session-report';
     const rpc=isPreviewRequest?'vocabulary_ngsl_teacher_form_preview'
       :isIntegrityEvent?'vocabulary_ngsl_integrity_event'
-      :isIntegrityReport?'vocabulary_ngsl_integrity_report':'vocabulary_ngsl_api';
+      :isIntegrityReport?'vocabulary_ngsl_integrity_report'
+      :isSessionReport?'vocabulary_ngsl_session_report':'vocabulary_ngsl_api';
     const event=payload as Record<string,unknown>;
     const args=isPreviewRequest?{p_actor:identity.user.id,p_form:'A'}
       :isIntegrityEvent?{p_actor:identity.user.id,p_session_id:event.sessionId,
         p_event_id:event.eventId,p_event_type:event.type,p_question_position:event.position}
-      :isIntegrityReport?{p_actor:identity.user.id}
+      :isIntegrityReport||isSessionReport?{p_actor:identity.user.id}
       :{p_actor:identity.user.id,p_action:action.slice('ngsl-'.length),p_data:payload};
     const {data:result,error}=await admin.rpc(rpc,args);
     if(error){
