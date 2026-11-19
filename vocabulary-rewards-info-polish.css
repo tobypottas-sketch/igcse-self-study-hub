@@ -1,0 +1,159 @@
+/* Rewards Shop typography & information cards: one compact, premium visual language.
+   Does not change artwork, purchases, equipment, leaderboard or XP. */
+#vocabularyApp .vocab-shop-redesign{
+ --reward-info-ink:#183c64;
+ --reward-info-muted:#516a84;
+ --reward-info-accent:#226c9e;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-next{
+ position:relative;overflow:hidden;
+ display:grid;gap:11px;
+ margin-top:15px;padding:16px;
+ border-radius:17px;border:1px solid #b8bfe9;
+ background:linear-gradient(125deg,#f2efff 0%,#eef4ff 55%,#e8f8fc 100%);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.84),0 7px 19px rgba(82,79,169,.11);
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-next::before{
+ content:"";position:absolute;top:0;left:14px;right:14px;height:3px;
+ border-radius:0 0 5px 5px;background:linear-gradient(90deg,#6b54c9,#4294d7,#48c2c0);
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-next h3{
+ display:flex;align-items:center;gap:8px;
+ margin:0;color:#263c77;
+ font-size:1rem;line-height:1.2;font-weight:900;letter-spacing:-.025em;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-next h3 span{color:#6753c6;font-size:1.25rem}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-next__detail{
+ display:grid;grid-template-columns:minmax(0,42%) minmax(0,1fr);
+ gap:12px;align-items:center;min-width:0;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-next__art{
+ display:grid;place-items:center;min-width:0;
+ padding:3px;background:rgba(255,255,255,.54);
+ border:1px solid rgba(159,167,223,.32);border-radius:13px;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-next__art :is(img,.vocab-shop-illustration){
+ width:100%;height:auto;display:block;object-fit:contain;
+ border-radius:10px;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-next__info{
+ min-width:0;display:grid;justify-items:start;gap:5px;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-next__category{
+ font-size:.66rem;letter-spacing:.12em;line-height:1.25;
+ font-weight:900;text-transform:uppercase;color:#6255a9;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-next__detail strong{
+ display:block;max-width:100%;overflow-wrap:anywhere;
+ font-size:clamp(.92rem,1.3vw,1.07rem);line-height:1.23;
+ font-weight:900;letter-spacing:-.025em;color:var(--reward-info-ink);
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-next__detail p{
+ margin:0;color:var(--reward-info-muted);
+ font-size:.8rem;line-height:1.42;font-weight:550;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-next__status{
+ display:inline-flex;align-items:center;gap:6px;
+ width:max-content;max-width:100%;
+ padding:5px 9px;margin-top:3px;
+ border:1px solid #83bdbc;border-radius:9px;
+ background:#e1f7ee;color:#116859;
+ font-size:.72rem;line-height:1.25;font-weight:900;
+ white-space:normal;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-next__status.is-locked{
+ background:#f0eaff;border-color:#c7b9ec;color:#5746a4;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-next__status.is-ready::before{
+ content:"✓";font-size:.78rem;font-weight:900;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-next__complete{
+ margin:0;color:var(--reward-info-muted);font-size:.83rem;line-height:1.5;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-stat small{
+ color:var(--reward-info-muted);font-size:.74rem;line-height:1.3;
+ font-weight:750;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-stat strong{
+ color:var(--reward-info-ink);font-size:.91rem;line-height:1.32;font-weight:850;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-student-title{
+ color:var(--reward-info-muted);font-size:.8rem;line-height:1.35;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped{
+ display:grid;grid-template-columns:minmax(0,1fr);
+ align-items:start;gap:12px;padding:17px 19px;
+ background:linear-gradient(130deg,#f8fcff,#f4fbff 58%,#f7f5ff);
+ border:1px solid #b9d6e9;border-radius:20px;
+ box-shadow:0 7px 20px rgba(30,77,112,.08);
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__heading{
+ display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;
+ border:0;border-bottom:1px solid #d4e5f0;
+ padding:0 0 10px;margin:0;min-width:0;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__eyebrow{
+ align-self:center;font-size:.64rem;line-height:1.3;
+ font-weight:900;letter-spacing:.12em;color:#467a9a;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__heading h2{
+ flex:0 0 auto;margin:0;color:var(--reward-info-ink);
+ font-size:clamp(1.1rem,1.5vw,1.35rem);font-weight:900;
+ line-height:1.2;letter-spacing:-.025em;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__heading p{
+ flex:1 1 150px;margin:0;text-align:right;
+ font-size:.78rem;line-height:1.4;font-weight:650;color:var(--reward-info-muted);
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__list{
+ width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+ align-items:start;gap:9px;min-width:0;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__item{
+ min-width:0;padding:7px 9px;gap:6px;
+ border-right:1px solid #e0eaf3;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__item small{
+ color:#366f91;font-size:.68rem;font-weight:900;
+ text-transform:uppercase;letter-spacing:.07em;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__item strong{
+ margin:0;color:var(--reward-info-ink);font-size:.79rem;
+ line-height:1.3;font-weight:850;overflow-wrap:anywhere;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__item button{
+ min-height:32px;border-radius:10px;
+ font-size:.74rem;font-weight:850;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-card p{
+ color:var(--reward-info-muted);font-size:.81rem;line-height:1.42;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-card h3{
+ color:var(--reward-info-ink);line-height:1.24;letter-spacing:-.02em;
+}
+@media(max-width:840px){
+ #vocabularyApp .vocab-shop-redesign .vocab-shop-next__detail{
+  grid-template-columns:minmax(95px,35%) minmax(0,1fr);
+ }
+}
+@media(max-width:600px){
+ #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped{gap:11px;padding:14px}
+ #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__heading{gap:5px 10px}
+ #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__heading p{
+  flex:1 1 100%;text-align:left;
+ }
+ #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__list{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 4px;
+ }
+ #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__item:nth-child(2){border-right:0}
+ #vocabularyApp .vocab-shop-redesign .vocab-shop-next{padding:13px}
+ #vocabularyApp .vocab-shop-redesign .vocab-shop-next__detail{
+  grid-template-columns:minmax(75px,38%) minmax(0,1fr);gap:10px;
+ }
+}
+@media(max-width:360px){
+ #vocabularyApp .vocab-shop-redesign .vocab-shop-next__detail{
+  grid-template-columns:1fr;
+ }
+ #vocabularyApp .vocab-shop-redesign .vocab-shop-next__art{max-width:160px}
+}
