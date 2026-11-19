@@ -51,3 +51,11 @@ test('teacher app exposes scoped manager with explicit confirmation and one-time
  assert.match(ui,/navigator\.clipboard\.writeText/);
  assert.match(ui,/This password will disappear/);
 });
+
+test('Bearer authentication header matcher accepts a normal JWT-style header',()=>{
+ const match=src.match(/const token=(\/\^Bearer.*?\/i)\.exec/);
+ assert.ok(match,'Auth token matcher is present');
+ const expression=new Function('return '+match[1])();
+ assert.equal(expression.exec('Bearer abc.def.ghi')?.[1],'abc.def.ghi');
+ assert.equal(expression.test('not-a-bearer-token'),false);
+});
