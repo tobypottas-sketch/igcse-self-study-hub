@@ -58,3 +58,44 @@
 #vocabularyApp .ngsl-integrity-details li span,#vocabularyApp .ngsl-integrity-details li time{display:block}
 #vocabularyApp .ngsl-integrity-details li time{color:#617a89;font-size:.71rem}
 #vocabularyApp .ngsl-integrity-details>small{display:block;color:#60798a;line-height:1.4}
+
+/* Diagnostic report redesign */
+#vocabularyApp .ngsl-report-actions{padding:16px 20px;border:1px solid #cbdfe9;border-radius:14px;background:#f7fafc}
+#vocabularyApp .ngsl-report-actions h2{font-size:1rem;margin:0 0 10px}
+#vocabularyApp .ngsl-report-actions>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+#vocabularyApp .ngsl-report-actions p{font-size:.85rem;line-height:1.5;margin:0}
+#vocabularyApp .ngsl-report-band{min-width:0}
+#vocabularyApp .ngsl-report-band small{line-height:1.35}
+#vocabularyApp .ngsl-report-toolbar{display:flex;align-items:flex-end;flex-wrap:wrap;gap:12px;margin:16px 0}
+#vocabularyApp .ngsl-report-toolbar label{display:flex;flex-direction:column;gap:5px;font-size:.78rem;font-weight:800;color:#3e586a}
+#vocabularyApp .ngsl-report-toolbar input,#vocabularyApp .ngsl-report-toolbar select{min-height:39px;border:1px solid #c5d8e0;border-radius:9px;background:white;color:#243e50;font:inherit;padding:8px 10px}
+#vocabularyApp .ngsl-report-toolbar input{min-width:195px}
+#vocabularyApp .ngsl-review-button{border:1px solid #afcddd;border-radius:8px;padding:6px 10px;margin-left:8px;background:#f0f8fb;color:#155c77;font:inherit;font-size:.78rem;font-weight:800;cursor:pointer;white-space:nowrap}
+#vocabularyApp .ngsl-review-button:hover{background:#dceff6}
+#vocabularyApp .ngsl-export-button{min-height:39px;margin:0 0 0 auto;padding:8px 14px}
+#vocabularyApp .ngsl-report-student{font-weight:750}
+#vocabularyApp .ngsl-report th,#vocabularyApp .ngsl-report td{padding:11px 10px}
+#vocabularyApp .ngsl-report-distribution{max-width:560px;display:grid;gap:9px;margin-top:15px}
+#vocabularyApp .ngsl-report-distribution>div{display:grid;grid-template-columns:52px 1fr 28px;gap:10px;align-items:center;font-size:.82rem;font-variant-numeric:tabular-nums}
+#vocabularyApp .ngsl-dist-track{height:15px;background:#ecf1f5;border-radius:6px;overflow:hidden}
+#vocabularyApp .ngsl-dist-track i{display:block;height:100%;background:#4b91ae;border-radius:6px}
+#vocabularyApp .ngsl-report-explainer{margin-top:18px;padding:16px 20px;border-left:3px solid #639aad;background:#f4f8fa;border-radius:5px;font-size:.85rem;color:#334e5e}
+#vocabularyApp .ngsl-report-explainer p{margin:8px 0 0;line-height:1.6}
+#vocabularyApp .ngsl-review-button:focus-visible,#vocabularyApp .ngsl-report-toolbar :focus-visible{outline:3px solid #3984bb;outline-offset:2px}
+.ngsl-event-dialog{width:min(620px,calc(100vw - 32px));max-height:80vh;border:1px solid #c6dbe6;border-radius:16px;padding:24px;color:#253f4f;box-shadow:0 24px 90px #1236;overflow:auto}
+.ngsl-event-dialog::backdrop{background:#1429399c}
+.ngsl-event-dialog-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.ngsl-event-dialog-header small{color:#647e90}
+.ngsl-event-dialog-header h2{margin:4px 0;font-size:1.25rem}
+.ngsl-report-dismiss{font-size:1.6rem;border:0;background:transparent;color:#456477;cursor:pointer}
+.ngsl-report-caution{font-size:.82rem;color:#536d7b;line-height:1.5}
+.ngsl-event-list{padding-left:22px;max-height:45vh;overflow:auto}
+.ngsl-event-list li{margin-bottom:8px;padding:9px 4px;border-bottom:1px solid #e6eef2}
+.ngsl-event-list span,.ngsl-event-list time{display:block;font-size:.83rem}
+.ngsl-event-list time{color:#637f91;font-size:.74rem;margin-top:4px}
+@media(max-width:760px){
+ #vocabularyApp .ngsl-report-actions>div{grid-template-columns:1fr}
+ #vocabularyApp .ngsl-report-toolbar label{flex:1 1 150px}
+ #vocabularyApp .ngsl-report-toolbar input{min-width:0;width:100%}
+ #vocabularyApp .ngsl-export-button{margin-left:0}
+}
