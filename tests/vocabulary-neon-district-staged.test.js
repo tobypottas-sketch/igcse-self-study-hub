@@ -90,7 +90,22 @@ test('Neon home contrast overrides actual dashboard owners without changing cosm
  assert.match(css,/\.vocab-student-identity\s*\{\s*background:[^;]+!important;/);
  assert.match(css,/\.vocab-student-identity__title-label\s*\{[^}]+color:[^;]+!important;/);
  assert.match(css,/@media\(forced-colors:active\)/);
- assert.match(html,/vocabulary-premium-neon-district\.css\?v=neon-home-contrast-v2/);
+ assert.match(html,/vocabulary-premium-neon-district\.css\?v=neon-leaderboard-contrast-v3/);
  assert.ok(html.indexOf('vocabulary-premium-neon-district.css')>html.indexOf('vocabulary-rewards-dashboard.css'));
  assert.doesNotMatch(css,/\.vocab-student-identity\s+span\s*\{/);
+});
+
+test('Neon leaderboard dark header uses light heading and class text',()=>{
+ const css=read('vocabulary-premium-neon-district.css');
+ const leader=read('vocabulary-leaderboard-polish.css');
+ const html=read('vocabulary.html');
+ const scope='#vocabularyApp.vocab-real-theme--neon-district .vocab-shop-redesign .vocab-shop-leaderboard .vocab-shop-leaderboard__head';
+ assert.match(leader,/\.vocab-shop-leaderboard__head\s*\{[^}]+background:linear-gradient/);
+ assert.ok(css.includes(scope+' h2{'));
+ assert.ok(css.includes(scope+' small{'));
+ assert.match(css,/\.vocab-shop-leaderboard__head h2\s*\{\s*color:#fff!important;/);
+ assert.match(css,/\.vocab-shop-leaderboard__head small\s*\{\s*color:#e3f4ff!important;/);
+ assert.match(css,/\.vocab-shop-leaderboard__tabs button\.is-active\s*\{\s*color:#fff!important;/);
+ assert.match(css,/\.vocab-shop-leaderboard__tabs button:not\(\.is-active\)\s*\{\s*color:#214e70!important;/);
+ assert.match(html,/neon-leaderboard-contrast-v3/);
 });
