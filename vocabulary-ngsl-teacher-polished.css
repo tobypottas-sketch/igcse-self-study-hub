@@ -156,3 +156,63 @@
 #vocabularyApp .ngsl-p-explanation-grid p b{color:#18465d;font-size:.86rem}
 #vocabularyApp .ngsl-p-explanation-grid p span{display:block;color:#4d6878}
 #vocabularyApp .ngsl-p-explanation>.ngsl-p-note{margin-top:10px}
+
+/* Focus-event dialog: compact hierarchy, fixed footer, scrollable activity, safe double-digit indices. */
+#vocabularyApp .ngsl-p-dialog{padding:clamp(12px,3vw,22px);align-items:center;justify-items:center}
+#vocabularyApp .ngsl-p-dialog-card{
+ width:min(610px,100%);
+ max-width:100%;
+ max-height:min(780px,calc(100dvh - 32px));
+ padding:0;
+ display:flex;
+ flex-direction:column;
+ overflow:hidden;
+ border:1px solid #c5dee4;
+ border-radius:18px;
+ box-shadow:0 24px 70px #14334645;
+}
+#vocabularyApp .ngsl-p-dialog-card [data-ngsl-dialog-body]{
+ display:flex;
+ flex-direction:column;
+ min-height:0;
+ overflow:hidden;
+}
+#vocabularyApp .ngsl-p-dialog-header{padding:23px 26px 15px;border-bottom:1px solid #e0ecf0;background:linear-gradient(115deg,#f6fcfc,#f5f9fd)}
+#vocabularyApp .ngsl-p-dialog-eyebrow{font-size:.72rem;font-weight:850;letter-spacing:.06em;text-transform:uppercase;color:#427d88}
+#vocabularyApp .ngsl-p-dialog-header h2{margin:5px 46px 13px 0;font-size:clamp(1.22rem,2.5vw,1.55rem);line-height:1.17;letter-spacing:-.015em;overflow-wrap:anywhere}
+#vocabularyApp .ngsl-p-dialog-stats{display:flex;flex-wrap:wrap;gap:8px}
+#vocabularyApp .ngsl-p-dialog-stats span{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:9px;background:#eaf5f7;color:#256474;font-size:.78rem;font-weight:720}
+#vocabularyApp .ngsl-p-dialog-stats strong{font-size:1.05rem;font-variant-numeric:tabular-nums;color:#087b83}
+#vocabularyApp .ngsl-p-dialog-advice{padding:10px 26px!important;margin:0!important;background:#fafcfd;color:#536b79;font-size:.78rem!important;line-height:1.5!important}
+#vocabularyApp .ngsl-p-dialog-history{padding:0 26px 0;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+#vocabularyApp .ngsl-p-dialog-history h3{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 5px;font-size:.88rem;color:#29495b}
+#vocabularyApp .ngsl-p-dialog-history h3 small{font-weight:650;color:#6b8290;font-size:.73rem}
+#vocabularyApp .ngsl-p-events{
+ margin:0;
+ padding:0 6px 0 0;
+ list-style:none;
+ max-height:none;
+ min-height:0;
+ overflow-y:auto;
+ overflow-x:hidden;
+ overscroll-behavior:contain;
+ scrollbar-gutter:stable;
+}
+#vocabularyApp .ngsl-p-events li{display:grid;grid-template-columns:38px minmax(0,1fr);align-items:center;gap:9px;padding:9px 4px 9px 0;margin:0;border-bottom:1px solid #e8eff2;font-size:.83rem;line-height:1.35}
+#vocabularyApp .ngsl-p-event-index{display:flex;align-items:center;justify-content:flex-end;min-width:38px;padding-right:8px;box-sizing:border-box;text-align:right;color:#78909c;font-weight:750;font-size:.78rem;font-variant-numeric:tabular-nums}
+#vocabularyApp .ngsl-p-event-content{min-width:0;overflow-wrap:anywhere}
+#vocabularyApp .ngsl-p-event-content b{color:#254455;font-size:.83rem}
+#vocabularyApp .ngsl-p-event-question{color:#5c7787;font-weight:650}
+#vocabularyApp .ngsl-p-event-content time{display:block;font-size:.72rem;color:#718796;margin-top:3px}
+#vocabularyApp .ngsl-p-repeat{font-size:.74rem;font-weight:800;margin-left:5px}
+#vocabularyApp .ngsl-p-event-empty{font-size:.83rem;color:#667e8d}
+#vocabularyApp .ngsl-p-dialog-footnote{flex:none;margin:0!important;padding:12px 26px 16px;border-top:1px solid #e2edf1;background:#f8fbfc;color:#657c89;font-size:.72rem!important;line-height:1.45!important}
+#vocabularyApp .ngsl-p-dialog-card [data-ngsl-close]{z-index:2;right:18px;top:18px;width:34px;height:34px;font-size:1.2rem;color:#375b69;background:#e5f0f3}
+@media(max-width:600px){
+ #vocabularyApp .ngsl-p-dialog-card{max-height:calc(100dvh - 24px)}
+ #vocabularyApp .ngsl-p-dialog-header{padding:18px 18px 13px}
+ #vocabularyApp .ngsl-p-dialog-advice{padding:10px 18px!important}
+ #vocabularyApp .ngsl-p-dialog-history{padding:0 18px}
+ #vocabularyApp .ngsl-p-dialog-footnote{padding:11px 18px 13px}
+ #vocabularyApp .ngsl-p-dialog-card [data-ngsl-close]{top:13px;right:13px}
+}
