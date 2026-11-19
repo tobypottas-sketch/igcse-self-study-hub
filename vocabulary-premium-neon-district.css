@@ -323,3 +323,36 @@ body:has(#vocabularyApp.vocab-real-theme--neon-district .vocab-shell[data-unit-t
     border-color:CanvasText!important;
   }
 }
+
+/* Leaderboard has a dark gradient header inside a deliberately pale ranking
+   card. The generic light-card typography above must NOT darken its heading. */
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shop-redesign .vocab-shop-leaderboard .vocab-shop-leaderboard__head{
+  background:linear-gradient(110deg,#17305d 0%,#384c9d 56%,#16778f 100%);
+  color:#f5faff;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shop-redesign .vocab-shop-leaderboard .vocab-shop-leaderboard__head h2{
+  color:#fff!important;
+  text-shadow:0 1px 2px rgba(6,18,45,.24);
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shop-redesign .vocab-shop-leaderboard .vocab-shop-leaderboard__head small{
+  color:#e3f4ff!important;
+}
+/* Class/school filters keep their selected state visually distinct. */
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shop-redesign .vocab-shop-leaderboard__tabs button.is-active{
+  color:#fff!important;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shop-redesign .vocab-shop-leaderboard__tabs button:not(.is-active){
+  color:#214e70!important;
+}
+/* Ranked list is still on a pale panel, not on the gradient header. */
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shop-redesign .vocab-shop-leaderboard__row :is(strong,small){
+  color:#193656;
+}
+@media(forced-colors:active){
+  #vocabularyApp.vocab-real-theme--neon-district .vocab-shop-redesign .vocab-shop-leaderboard .vocab-shop-leaderboard__head{
+    background:Canvas!important;color:CanvasText!important;border:1px solid CanvasText;
+  }
+  #vocabularyApp.vocab-real-theme--neon-district .vocab-shop-redesign .vocab-shop-leaderboard .vocab-shop-leaderboard__head :is(h2,small){
+    color:CanvasText!important;text-shadow:none;
+  }
+}
