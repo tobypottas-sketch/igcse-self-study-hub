@@ -1,7 +1,7 @@
 /* Authenticated header legibility: a single final override for default and purchased themes.
    Preserve the full-resolution frame/title artwork; scale presentation only. */
 #vocabularyApp .vocab-topbar:has(.vocab-student-identity-mini){
- min-height:104px;
+ min-height:132px;
  padding:11px 17px;
  gap:12px 17px;
  align-items:center;
@@ -10,24 +10,28 @@
  flex:0 1 auto;
  display:flex;align-items:center;
  gap:16px;
- max-width:min(100%,420px);
+ max-width:min(100%,510px);
  min-width:0;
  margin-left:auto;
 }
 #vocabularyApp .vocab-student-identity-mini .vocab-student-identity__avatar{
- width:68px;height:68px;flex:none;
+ width:88px;height:88px;flex:none;
  border-radius:17px;
 }
 #vocabularyApp .vocab-student-identity-mini .vocab-student-identity__initials{
- font-size:1rem;
+ font-size:1.18rem;
 }
 #vocabularyApp .vocab-student-identity-mini .vocab-student-identity__badge{
- width:33px;height:32px;right:-10px;bottom:-5px;
+ width:43px;height:42px;right:-12px;bottom:-6px;
  border:2px solid #fff;border-radius:9px;
 }
 #vocabularyApp .vocab-student-identity-mini__name{
- display:grid;
- gap:5px;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ text-align:center;
+ gap:7px;
  min-width:0;
  max-width:none;
  color:#183b5f;
@@ -39,9 +43,13 @@
 }
 #vocabularyApp .vocab-student-identity-mini__title-art{
  display:block;
- width:190px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ width:247px;
  max-width:100%;
- height:68px;
+ height:88px;
+ margin:0 auto;
  overflow:visible;
  border-radius:10px;
  background:transparent;
@@ -52,7 +60,7 @@
  width:100%;
  height:100%;
  object-fit:contain;
- object-position:left center;
+ object-position:center;
  filter:drop-shadow(0 3px 5px rgba(8,35,75,.18));
 }
 #vocabularyApp .vocab-topbar--unit .vocab-unit-id{
@@ -115,14 +123,14 @@
 }
 @media(max-width:900px){
  #vocabularyApp .vocab-topbar:has(.vocab-student-identity-mini){
-  min-height:96px;
+  min-height:122px;
  }
  #vocabularyApp .vocab-topbar:has(.vocab-student-identity-mini) .vocab-student-identity-mini{
-  max-width:min(100%,360px);
+  max-width:min(100%,445px);
   gap:11px;
  }
- #vocabularyApp .vocab-student-identity-mini .vocab-student-identity__avatar{width:60px;height:60px}
- #vocabularyApp .vocab-student-identity-mini__title-art{width:166px;height:60px}
+ #vocabularyApp .vocab-student-identity-mini .vocab-student-identity__avatar{width:78px;height:78px}
+ #vocabularyApp .vocab-student-identity-mini__title-art{width:216px;height:78px}
 }
 @media(max-width:680px){
  #vocabularyApp .vocab-topbar:has(.vocab-student-identity-mini){
@@ -146,10 +154,11 @@
   flex:1 1 auto;
   max-width:none;
   font-size:.91rem;
+  text-align:center;
  }
  #vocabularyApp .vocab-student-identity-mini__title-art{
-  width:170px;
-  height:62px;
+  width:min(100%,221px);
+  height:81px;
  }
 }
 @media(max-width:380px){
@@ -157,11 +166,11 @@
   flex-wrap:wrap;
  }
  #vocabularyApp .vocab-student-identity-mini__title-art{
-  width:148px;
-  height:55px;
+  width:min(100%,185px);
+  height:68px;
  }
  #vocabularyApp .vocab-student-identity-mini .vocab-student-identity__avatar{
-  width:56px;height:56px;
+  width:72px;height:72px;
  }
  #vocabularyApp .vocab-topbar--unit .vocab-unit-id__title{
   font-size:.83rem;
