@@ -12,9 +12,9 @@ test('affordable Next unlock always links to its real reward through category fi
 });
 test('fresh router and app module versions deliver latest click handler',()=>{
  const html=read('vocabulary.html'),router=read('src/vocabulary/router.js'),app=read('src/vocabulary/app.js');
- assert.match(html,/router\.js\?v=unlock-jump-v2/);
- assert.match(router,/app\.js\?v=unlock-jump-v2/);
- assert.match(app,/rewards-sandbox-view\.js\?v=unlock-jump-v2/);
+ assert.match(html,/router\.js\?v=hero-refresh-v1/);
+ assert.match(router,/app\.js\?v=hero-refresh-v1/);
+ assert.match(app,/rewards-sandbox-view\.js\?v=hero-refresh-v1/);
  assert.match(app,/target\.dataset\.focusReward/);
  assert.match(app,/requestAnimationFrame\(\(\)=>\{/);
  assert.match(app,/card\.scrollIntoView\?\.\(\{behavior:'smooth',block:'center'\}\)/);
