@@ -14,10 +14,10 @@ function leaderboardPanel(board,view={}){
  const scope=view.scope==='school'?'school':'class',period=view.period==='all'?'all':'weekly',expanded=view.expanded===true;
  const tab=(key,text,value,action)=>`<button type="button" data-action="sandbox-leaderboard" data-${key}="${value}" aria-pressed="${key==='scope'?scope===value:period===value}" class="${(key==='scope'?scope:period)===value?'is-active':''}">${text}</button>`;
  const results=board?.ok&&Array.isArray(board.rows);
- const rows=results?board.rows.map(row=>`<li class="vocab-shop-leaderboard__row${row.isYou?' is-you':''}">
-    <span class="vocab-shop-leaderboard__rank">${row.rank<=3?['🥇','🥈','🥉'][row.rank-1]:escapeHtml(row.rank)}</span>
-    <span class="vocab-shop-leaderboard__name">${escapeHtml(row.name)}</span>
-    <strong>${format(row.xp)} XP</strong></li>`).join(''):'';
+ const rows=results?board.rows.map(row=>`<li class="vocab-shop-leaderboard__row${row.isYou?' is-you':''}${row.rank<=3?' is-podium is-podium--'+row.rank:''}"${row.isYou?' aria-label="Your leaderboard position"':''}>
+    <span class="vocab-shop-leaderboard__rank" aria-label="Rank ${escapeHtml(row.rank)}">${row.rank<=3?['🥇','🥈','🥉'][row.rank-1]:escapeHtml(row.rank)}</span>
+    <span class="vocab-shop-leaderboard__name">${escapeHtml(row.name)}${row.isYou?'<small>Your rank</small>':''}</span>
+    <strong class="vocab-shop-leaderboard__xp">${format(row.xp)} <span>XP</span></strong></li>`).join(''):'';
  const shown=results&&board.rows.some(row=>row.isYou);
  const me=results&&board.me&&!shown?`<div class="vocab-shop-leaderboard__mine"><span>#${num(board.me.rank)} · You</span><strong>${format(board.me.xp)} XP</strong></div>`:'';
  const note=results?(board.empty||(!board.rows.length?'No completed practice missions yet.':'Ranked by verified practice XP, not shop balance.')):'Rankings will appear when class data is available.';

@@ -1,11 +1,19 @@
 // Read-only vocabulary practice leaderboard. Never reads or modifies sandbox wallets.
-// Returns only anonymised display labels, ranks and XP earned from completed missions.
+// Returns only first and last display-name tokens, ranks and XP earned from completed missions to authenticated active students.
 import {createClient} from 'npm:@supabase/supabase-js@2.117.3';
 const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS'};
 const reply=(data,status=200)=>Response.json(data,{status,headers:{...cors,'Cache-Control':'no-store'}});
 const valid=(v)=>typeof v==='string'&&v.length>0;
 const configured=(name,fallback)=>{const direct=Deno.env.get(name);if(direct)return direct;const raw=Deno.env.get(fallback);if(!raw)return null;try{const parsed=JSON.parse(raw);return parsed.default||Object.values(parsed).find(v=>typeof v==='string')||null}catch{return null}};
-function shortName(value){const bits=String(value||'Student').trim().replace(/[<>]/g,'').split(/\s+/).filter(Boolean);if(!bits.length)return 'Student';return bits.length===1?bits[0].slice(0,20):bits[0].slice(0,16)+' '+bits.at(-1).slice(0,1).toUpperCase()+'.'}
+// Present the recorded given name and surname, omitting English middle names and
+// parenthetical nicknames. Keep the original profile record unmodified.
+function shortName(value){
+ const clean=String(value||'Student').replace(/\([^)]*\)|（[^）]*）/g,' ')
+  .replace(/[<>]/g,'').trim();
+ const parts=clean.split(/\s+/).filter(Boolean);
+ if(!parts.length)return 'Student';
+ return parts.length===1?parts[0]:parts[0]+' '+parts[parts.length-1];
+}
 function day(date){const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(date));const val=key=>parts.find(x=>x.type===key)?.value||'00';return val('year')+'-'+val('month')+'-'+val('day')}
 function weekStart(){const parts=day(new Date()).split('-').map(Number);const dt=new Date(Date.UTC(parts[0],parts[1]-1,parts[2]));dt.setUTCDate(dt.getUTCDate()-(dt.getUTCDay()+6)%7);return dt.toISOString().slice(0,10)}
 function scores(missions,studentIds){
