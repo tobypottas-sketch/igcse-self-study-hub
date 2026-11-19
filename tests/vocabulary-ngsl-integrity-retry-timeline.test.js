@@ -42,7 +42,7 @@ test('retry queue refuses malformed and large event payloads',async()=>{
  assert.equal(saved.length,80);
  assert.ok(saved.every(x=>!('answerId' in x)&&!('stem' in x)&&!('score' in x)));
 });
-test('teacher can expand a valid incident timeline but not render untrusted markup',()=>{
+test('teacher can review a valid timeline in a dialog without rendering unsafe student names',()=>{
  const id='12345678-1234-4234-8234-123456789abc';
  const dataset={classes:[{id:'class-a',className:'A',students:[{id}]}],
   names:new Map([[id,'Student <img>']]),
@@ -50,14 +50,35 @@ test('teacher can expand a valid incident timeline but not render untrusted mark
   integrity:new Map([[id,{focusLosses:2,fullscreenExits:1,timeline:[
    {type:'tab_hidden',position:12,at:'2026-11-18T10:05:00Z'},
    {type:'fullscreen_exit',position:23,at:'2026-11-18T10:08:00Z'}
-  ]}]]),
-  integrityAvailable:true};
- const root={innerHTML:''};renderNGSLClassReport(root,dataset,'class-a',false);
- assert.match(root.innerHTML,/<details class="ngsl-integrity-details">/);
- assert.match(root.innerHTML,/Question 12/);
- assert.match(root.innerHTML,/Fullscreen exited/);
+  ]}]]),integrityAvailable:true,sessionsAvailable:false};
+ let reviewClick;
+ const controls=new Map();
+ const root={innerHTML:'',append(dialog){this.dialog=dialog;},querySelector(selector){
+  if(!controls.has(selector))controls.set(selector,{value:'',addEventListener(){},focus(){},setSelectionRange(){}});
+  return controls.get(selector);
+ },querySelectorAll(selector){
+  if(selector!=='[data-review-id]')return [];
+  return [{dataset:{reviewId:id},addEventListener(type,callback){reviewClick=callback;}}];
+ }};
+ renderNGSLClassReport(root,dataset,'class-a',false);
+ assert.match(root.innerHTML,/data-review-id/);
  assert.doesNotMatch(root.innerHTML,/Student <img>/);
- assert.match(root.innerHTML,/Focus events \(review only\)/);
+ assert.match(root.innerHTML,/Focus activity/);
+ const previousDocument=globalThis.document;
+ globalThis.document={createElement(){
+  return {innerHTML:'',className:'',querySelector(){return {addEventListener(){}};},
+    addEventListener(){},showModal(){this.opened=true;}};
+ }};
+ try{
+  reviewClick();
+  assert.match(root.dialog.innerHTML,/Question 12/);
+  assert.match(root.dialog.innerHTML,/Fullscreen exited/);
+  assert.doesNotMatch(root.dialog.innerHTML,/Student <img>/);
+  assert.equal(root.dialog.opened,true);
+ }finally{
+  if(previousDocument===undefined)delete globalThis.document;
+  else globalThis.document=previousDocument;
+ }
 });
 test('server integrity timeline is teacher-scoped and bounded',()=>{
  const sql=fs.readFileSync(new URL('../supabase/diagnostic/ngsl_integrity_monitor_v2.sql',import.meta.url),'utf8');
