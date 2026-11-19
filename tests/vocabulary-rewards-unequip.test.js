@@ -35,7 +35,7 @@ test('both Edge APIs use verified student IDs and strict category allowlist',()=
  for(const p of ['supabase/functions/vocabulary-reward-production/index.ts','supabase/functions/vocabulary-reward-sandbox/index.ts']){
   const s=read(p);
   assert.match(s,/['"]unequip['"]/);
-  assert.match(s,/\['themes','frames','titles','effects'\]\.includes\(category\)/);
+  assert.match(s,/\['themes','frames','badges','titles','effects'\]\.includes\(category\)/);
   assert.match(s,/p_student_id:studentId,p_category:category/);
   assert.match(s,/auth\.getUser\(token\)/);
  }
