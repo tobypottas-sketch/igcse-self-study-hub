@@ -78,7 +78,7 @@ insert into public.vocabulary_reward_catalog
  ('word-wizard','Word Wizard','titles',1000,'A title for dedicated vocabulary learners.','🧙',false),
  ('word-explorer','Word Explorer','titles',350,'Celebrate your curiosity about words.','🧭',false),
  ('language-ace','Language Ace','titles',1600,'For students reaching new heights.','🏆',false),
- ('pixel-badge','Pixel Badge','effects',400,'Retro-style decoration for your profile.','✨',false),
+ ('pixel-badge','Pixel Badge','badges',400,'A retro pixel-art emblem for your profile.','✨',false),
  ('sparkle','Sparkle Effect','effects',1100,'A gentle sparkle around your avatar.','⭐',false)
 on conflict (reward_id) do nothing;
 
