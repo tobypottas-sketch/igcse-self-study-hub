@@ -209,3 +209,84 @@ body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.v
   .vocab-shop-redesign .vocab-shop-leaderboard__head :is(h2,small){
   color:#f6fbff!important;
 }
+
+/* FOREST legibility — scoped to the equipped Forest class, not the other themes.
+   Legacy light-theme declarations in hero-unified.css had !important dark navy
+   ink, which was unreadable after the hero was upgraded to deep emerald. */
+#vocabularyApp.vocab-real-theme--forest .vocab-topbar .vocab-topbar__course,
+#vocabularyApp.vocab-real-theme--forest .vocab-topbar .vocab-unit-id__course{
+  color:#f1fff6!important;
+}
+#vocabularyApp.vocab-real-theme--forest .vocab-shell--home > .vocab-hero--home h1{
+  color:#f6fff9!important;
+  text-shadow:0 2px 6px rgba(1,18,13,.25);
+}
+#vocabularyApp.vocab-real-theme--forest .vocab-shell--home > .vocab-hero--home h1 span{
+  color:#cbf383!important;
+}
+#vocabularyApp.vocab-real-theme--forest .vocab-shell--home > .vocab-hero--home .vocab-home-hero__tagline,
+#vocabularyApp.vocab-real-theme--forest .vocab-shell--home > .vocab-hero--home .vocab-home-hero__welcome{
+  color:#d7f4e5!important;
+}
+#vocabularyApp.vocab-real-theme--forest .vocab-shell--home > .vocab-hero--home .vocab-home-hero__welcome strong{
+  color:#cbf383!important;
+}
+#vocabularyApp.vocab-real-theme--forest .vocab-shell--home > .vocab-hero--home .vocab-home-hero__welcome{
+  border-top-color:rgba(219,252,231,.35)!important;
+}
+/* Keep normal academic copy bright on the deliberately dark unit/pathway cards.
+   Avoid touching answer choices, learning content and light progress surfaces. */
+#vocabularyApp.vocab-real-theme--forest .vocab-unit-card :is(h2,h3,p,.vocab-unit-card__title),
+#vocabularyApp.vocab-real-theme--forest .vocab-pathway-card :is(h2,h3,p){
+  color:#f5fff8!important;
+}
+#vocabularyApp.vocab-real-theme--forest .vocab-unit-card :is(small,.vocab-unit-card__number),
+#vocabularyApp.vocab-real-theme--forest .vocab-pathway-card small{
+  color:#cbf383!important;
+}
+/* FOREST Rewards Shop: let the actual 1672px landscape show between cards.
+   The solid green background applied to .vocab-shop-redesign previously hid
+   the wallpaper. Panels stay opaque so small text and price labels remain clear. */
+#vocabularyApp.vocab-real-theme--forest .vocab-shop-redesign{
+  background:transparent!important;
+  border-color:rgba(132,226,172,.7)!important;
+  box-shadow:none;
+}
+#vocabularyApp.vocab-real-theme--forest .vocab-shop-redesign .vocab-shop-content,
+#vocabularyApp.vocab-real-theme--forest .vocab-shop-redesign .vocab-shop-main,
+#vocabularyApp.vocab-real-theme--forest .vocab-shop-redesign .vocab-shop-right,
+#vocabularyApp.vocab-real-theme--forest .vocab-shop-redesign .vocab-shop-rail{
+  background:transparent!important;
+}
+#vocabularyApp.vocab-real-theme--forest .vocab-shop-redesign .vocab-shop-filter-line{
+  border-radius:15px;
+  padding:6px 8px;
+  background:rgba(6,40,29,.48);
+  border:1px solid rgba(132,226,172,.25);
+}
+/* Retain white/light cards; support contrast on the DARK forest chrome. */
+#vocabularyApp.vocab-real-theme--forest .vocab-shop-redesign .vocab-topbar .vocab-topbar__course{
+  color:#f1fff6!important;
+}
+#vocabularyApp.vocab-real-theme--forest .vocab-shop-redesign .vocab-shop-card,
+#vocabularyApp.vocab-real-theme--forest .vocab-shop-redesign .vocab-shop-sidebar,
+#vocabularyApp.vocab-real-theme--forest .vocab-shop-redesign .vocab-shop-equipped{
+  background:#f9fdff;
+  color:#193656;
+}
+#vocabularyApp.vocab-real-theme--forest .vocab-shop-redesign .vocab-shop-leaderboard__head :is(h2,small){
+  color:#f5fffa!important;
+}
+#vocabularyApp.vocab-real-theme--forest .vocab-shop-redesign .vocab-reward-card__bottom button:not(:disabled):not([aria-disabled="true"]):is(:hover,:active,:focus-visible){
+  color:#fff!important;
+}
+/* Print and high contrast have a solid canvas and normal system colours. */
+@media print,(forced-colors:active){
+  #vocabularyApp.vocab-real-theme--forest .vocab-shop-redesign{
+    background:Canvas!important;border-color:CanvasText!important;
+  }
+  #vocabularyApp.vocab-real-theme--forest .vocab-topbar .vocab-topbar__course,
+  #vocabularyApp.vocab-real-theme--forest .vocab-shell--home > .vocab-hero--home :is(h1,.vocab-home-hero__tagline,.vocab-home-hero__welcome){
+    color:CanvasText!important;
+  }
+}
