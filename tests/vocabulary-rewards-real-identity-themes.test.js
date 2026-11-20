@@ -73,6 +73,6 @@ test('asset version bump exposes the new identity CSS and application code to re
  const html=fs.readFileSync(new URL('../vocabulary.html',import.meta.url),'utf8');
  const router=fs.readFileSync(new URL('../src/vocabulary/router.js',import.meta.url),'utf8');
  assert.match(html,/vocabulary-reward-identity\.css\?v=reward-wallpaper-v9/);
- assert.match(html,/src\/vocabulary\/router\.js\?v=static-effect-cards-v2/);
- assert.match(router,/\.\/app\.js\?v=static-effect-cards-v2/);
+ assert.match(html,/src\/vocabulary\/router\.js\?v=profile-theme-caption-removed-v1/);
+ assert.match(router,/\.\/app\.js\?v=profile-theme-caption-removed-v1/);
 });
