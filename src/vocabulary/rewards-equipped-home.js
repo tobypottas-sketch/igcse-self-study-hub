@@ -6,7 +6,7 @@ import {ensureRewardsDashboard} from './rewards-home-layout.js';
 import {SUPPORTED_THEME_IDS,EQUIPMENT_CATEGORIES,visibleEquipmentCategories} from './rewards-premium-registry.js';
 const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const THEMES=new Set(SUPPORTED_THEME_IDS);
-const EFFECTS=new Set(['sparkle','pixel-badge','electric-pulse']);
+const EFFECTS=new Set(['sparkle','pixel-badge','electric-pulse','stardust-trail']);
 const CATEGORIES=EQUIPMENT_CATEGORIES;
 const ROOT_CLASSES=[...THEMES].map(x=>'vocab-real-theme--'+x);
 const EFFECT_CLASSES=[...EFFECTS].map(x=>'vocab-real-effect--'+x);
@@ -34,8 +34,8 @@ export function studentIdentityView(shop,displayName='Student'){
    title:active.titles?items.get(active.titles)?.name??'':'',
    titleArt:active.titles?rewardArtworkPath(active.titles):null,
    frame:active.frames?rewardArtworkPath(active.frames):null,
-   badge:active.badges?rewardArtworkPath(active.badges):(active.effects&&active.effects!=='electric-pulse')?rewardArtworkPath(active.effects):null,
-   effectArt:active.effects==='electric-pulse'?rewardArtworkPath(active.effects):null,
+   badge:active.badges?rewardArtworkPath(active.badges):(active.effects&&!['electric-pulse','stardust-trail'].includes(active.effects))?rewardArtworkPath(active.effects):null,
+   effectArt:['electric-pulse','stardust-trail'].includes(active.effects)?rewardArtworkPath(active.effects):null,
    effectName:active.effects?items.get(active.effects)?.name??'':'',
    themeName:active.themes?items.get(active.themes)?.name??'':''
  };

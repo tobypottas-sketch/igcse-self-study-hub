@@ -1,0 +1,162 @@
+/* Celestial Realms premium theme: celestial palace, lavender skies, gold constellations.
+   Scoped ONLY to an equipped server-owned Celestial theme. Nothing here
+   grants inventory, credits XP or changes academic answer feedback. */
+#vocabularyApp.vocab-real-theme--celestial-realms{
+  --reward-bg:#12183f;
+  --reward-soft:#28346b;
+  --reward-edge:#d1abef;
+  --reward-accent:#8053c4;
+  --reward-ink:#f7f3ff;
+  --reward-strong:#ffe0a0;
+  --reward-card:#202759;
+  --reward-panel:#26305f;
+  --reward-hero:#131a49;
+  --reward-scene:url("assets/vocabulary/rewards/celestial-realms.png");
+  --celestial-gold:#ffdf94;
+  --celestial-lavender:#dabdff;
+  --celestial-cyan:#a8f4ff;
+  --celestial-ink:#f8f5ff;
+  --celestial-muted:#e1daff;
+  --celestial-panel:#202858;
+  --celestial-edge:#c4a3ed;
+  color:var(--celestial-ink);
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shell{
+  --primary:#6245a2;
+  --study-line:#bea6e4;
+  --line:#b9a1de;
+  --c-teal-dark:#3c6996;
+  --c-teal-line:#b9a1de;
+  --study-accent-soft:#303b75;
+}
+body:has(#vocabularyApp.vocab-real-theme--celestial-realms){
+  background-color:#11183d!important;
+  background-image:
+    linear-gradient(115deg,rgba(10,17,48,.70),rgba(29,19,76,.36) 56%,rgba(11,14,44,.69)),
+    url("assets/vocabulary/rewards/celestial-realms.png")!important;
+  background-size:cover,cover!important;
+  background-position:center,center!important;
+  background-attachment:fixed,fixed!important;
+}
+@media(max-width:760px){
+  body:has(#vocabularyApp.vocab-real-theme--celestial-realms){background-attachment:scroll,scroll!important}
+}
+/* Unit artwork continues to belong to the unit, not the purchased theme. */
+body:has(#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shell[data-unit-theme]){
+  background-image:var(--unit-wallpaper),linear-gradient(115deg,rgba(16,21,58,.92),rgba(41,29,84,.86))!important;
+  background-size:420px 420px,cover!important;
+  background-position:0 0,center!important;
+  background-attachment:scroll,fixed!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms :is(
+  .vocab-topbar,.vocab-hero--home,.vocab-unit-card,.vocab-pathway-card,
+  .vocab-student-identity,.vocab-rewards-home-card,.vocab-session-card
+){
+  border-color:var(--celestial-edge);
+  box-shadow:0 10px 28px rgba(9,13,47,.29),0 0 0 1px rgba(255,220,154,.12);
+}
+#vocabularyApp.vocab-real-theme--celestial-realms :is(.vocab-topbar,.vocab-hero--home,.vocab-student-identity){
+  background:linear-gradient(113deg,rgba(26,32,76,.96),rgba(48,32,93,.93))!important;
+  color:var(--celestial-ink);
+  border:2px solid #d1b3f4!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-topbar :is(.vocab-topbar__course,.vocab-unit-id__course,.vocab-student-identity-mini__name){
+  color:#fff9ef!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-topbar :is(.vocab-back,.vocab-back--chip,.vocab-link){
+  background:#fff8eb!important;
+  color:#45316b!important;
+  border-color:#e0c18b!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shell--home > .vocab-hero--home :is(h1,.vocab-home-hero__tagline,.vocab-home-hero__welcome){
+  color:#fbf6ff!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shell--home > .vocab-hero--home h1 span{
+  color:var(--celestial-gold)!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shell--home > .vocab-hero--home .vocab-home-hero__welcome strong{
+  color:var(--celestial-gold)!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shell--home > .vocab-hero--home .vocab-home-hero__welcome{
+  border-top-color:#9d86c8!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms :is(.vocab-unit-card,.vocab-pathway-card){
+  background:linear-gradient(125deg,#1e285b,#2a3268)!important;
+  color:#f9f6ff!important;
+  border-left:4px solid #f5d38b!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms :is(.vocab-unit-card,.vocab-pathway-card) :is(h2,h3,strong,p){
+  color:#f9f6ff!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms :is(.vocab-unit-card,.vocab-pathway-card) :is(small,.vocab-unit-card__number){
+  color:#e0d6ff!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity{
+  background:linear-gradient(120deg,#1a2453,#322869)!important;
+  border-left:5px solid #f6d48e!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__text :is(h2,.vocab-student-identity__eyebrow,.vocab-student-identity__stamp,.vocab-student-identity__theme){
+  color:#fbf6ff!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-student-identity__title-label{
+  color:#ffdf94!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shop-redesign{
+  --shop-turquoise:#7651aa;
+  --shop-border:#d4b4ed;
+  --shop-accent-edge:#a68cd9;
+  --shop-accent-soft:#eee5ff;
+  color:#263451;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shop-redesign :is(.vocab-shop-card,.vocab-shop-sidebar,.vocab-shop-equipped,.vocab-shop-leaderboard){
+  background:linear-gradient(135deg,#fffafc,#f1eaff);
+  color:#283657;
+  border-color:#c4a4dd;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shop-redesign .vocab-shop-hero{
+  background:linear-gradient(110deg,#f8f2ff,#e9dcfc);
+  color:#273459;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shop-redesign .vocab-shop-hero__intro :is(h1,p){
+  color:#273459!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shop-redesign .vocab-shop-hero__intro h1 span{
+  color:#6746a9!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shop-redesign .vocab-shop-leaderboard__head :is(h2,small){
+  color:#fff9ef!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shop-redesign .vocab-shop-leaderboard__tabs button.is-active{
+  color:#fff!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shop-redesign .vocab-shop-leaderboard__tabs button:not(.is-active){
+  color:#32476f!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shop-redesign :is(.vocab-reward-tab.is-active,.vocab-shop-popular.is-active){
+  background:#6142a1;
+  border-color:#dac4f5;
+  color:#fff;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-startup__content{
+  background:#232a5e;border:2px solid #d7bcf5;border-radius:20px;
+  padding:24px;color:#fcf9ff;box-shadow:0 12px 35px #090e2f91;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-startup__title{color:#fff!important}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-startup__status{color:#eee7ff!important}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-startup__track{background:#5b5689}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-startup__track::before{
+  background:linear-gradient(90deg,#caa6ff,#ffdd93);
+}
+/* Stardust is its own effect slot. Cosmetic decoration only. */
+#vocabularyApp.vocab-real-effect--stardust-trail .vocab-student-identity__effect{
+  object-fit:contain;pointer-events:none;
+  filter:drop-shadow(0 0 8px rgba(231,195,255,.55));
+}
+@media(prefers-reduced-motion:reduce){
+  #vocabularyApp.vocab-real-effect--stardust-trail .vocab-student-identity__effect{animation:none;transition:none}
+}
+@media(forced-colors:active){
+  #vocabularyApp.vocab-real-theme--celestial-realms :is(.vocab-topbar,.vocab-hero--home,.vocab-unit-card,.vocab-pathway-card,.vocab-student-identity,.vocab-shop-card){
+    background:Canvas!important;color:CanvasText!important;border-color:CanvasText!important;box-shadow:none;
+  }
+}

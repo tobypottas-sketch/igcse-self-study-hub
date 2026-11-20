@@ -22,12 +22,17 @@
   --immersive-shop-art:url("assets/vocabulary/rewards/neon-district.png");
   --immersive-shop-scrim:rgba(9,13,42,.39);
 }
+#vocabularyApp.vocab-real-theme--celestial-realms{
+  --immersive-shop-art:url("assets/vocabulary/rewards/celestial-realms.png");
+  --immersive-shop-scrim:rgba(14,13,50,.42);
+}
 #vocabularyApp:is(
   .vocab-real-theme--forest,
   .vocab-real-theme--ocean,
   .vocab-real-theme--sakura,
   .vocab-real-theme--midnight,
-  .vocab-real-theme--neon-district
+  .vocab-real-theme--neon-district,
+    .vocab-real-theme--celestial-realms
 ) .vocab-shop-redesign{
   background-color:transparent!important;
   background-image:
@@ -45,7 +50,8 @@
     .vocab-real-theme--ocean,
     .vocab-real-theme--sakura,
     .vocab-real-theme--midnight,
-    .vocab-real-theme--neon-district
+    .vocab-real-theme--neon-district,
+    .vocab-real-theme--celestial-realms
   ) .vocab-shop-redesign{
     background-attachment:scroll,scroll!important;
     background-size:auto 100%,auto 100%!important;
@@ -57,7 +63,8 @@
     .vocab-real-theme--ocean,
     .vocab-real-theme--sakura,
     .vocab-real-theme--midnight,
-    .vocab-real-theme--neon-district
+    .vocab-real-theme--neon-district,
+    .vocab-real-theme--celestial-realms
   ) .vocab-shop-redesign{
     background:Canvas!important;
     color:CanvasText!important;

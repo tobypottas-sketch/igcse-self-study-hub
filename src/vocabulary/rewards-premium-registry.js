@@ -10,10 +10,10 @@ export const PREMIUM_COLLECTIONS=Object.freeze([
   ]},
   {id:'celestial-realms',label:'Celestial Realms',themeId:'celestial-realms',rewards:[
     ['celestial-realms','themes','Celestial Realms Theme',2500],
-    ['celestial-crown-frame','frames','Celestial Crown Frame',1200],
-    ['astral-guardian-badge','badges','Astral Guardian Badge',800],
-    ['starborn','titles','Starborn',1000],
-    ['stardust-aura','effects','Stardust Aura',1500]
+    ['astral-halo-frame','frames','Astral Halo Frame',1200],
+    ['starseer-emblem','badges','Starseer Emblem',800],
+    ['sky-wanderer','titles','Sky Wanderer',1000],
+    ['stardust-trail','effects','Stardust Trail',1500]
   ]},
   {id:'blockverse',label:'Blockverse',themeId:'blockverse',rewards:[
     ['blockverse','themes','Blockverse Theme',2000],
