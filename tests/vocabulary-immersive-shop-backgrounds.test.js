@@ -17,7 +17,7 @@ test('all five equipped themes paint their own actual PNG on the shop container'
  assert.match(css,/\.vocab-shop-redesign\s*\{[^}]*background-image:/);
  assert.match(css,/background-position:center,center!important;/);
  assert.match(css,/background-attachment:fixed,fixed!important;/);
- assert.match(html,/vocabulary-immersive-shop-backgrounds\.css\?v=shop-scene-v1/);
+ assert.match(html,/vocabulary-immersive-shop-backgrounds\.css\?v=celestial-scene-v2/);
  assert.ok(html.indexOf('vocabulary-immersive-shop-backgrounds.css')>html.indexOf('vocabulary-legacy-immersive.css'));
  assert.ok(html.indexOf('vocabulary-immersive-shop-backgrounds.css')>html.indexOf('vocabulary-premium-neon-district.css'));
 });
