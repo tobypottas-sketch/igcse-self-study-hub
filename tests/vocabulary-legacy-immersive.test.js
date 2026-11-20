@@ -19,7 +19,7 @@ test('legacy backgrounds are equipped-theme-specific and sourced from the four H
   assert.ok(image.readUInt32BE(20)>=900);
  }
  assert.ok(html.indexOf('vocabulary-legacy-immersive.css')>html.indexOf('vocabulary-premium-neon-district.css'));
- assert.match(html,/vocabulary-legacy-immersive\.css\?v=ocean-sakura-contrast-v4/);
+ assert.match(html,/vocabulary-legacy-immersive\.css\?v=midnight-contrast-v5/);
  assert.match(css,/body:has\(#vocabularyApp:is\(/);
 });
 
@@ -72,7 +72,7 @@ test('Forest immersive home and shop retain high-contrast text and scenic backgr
  assert.ok(css.includes(shop+' .vocab-shop-card'));
  assert.ok(css.includes(shop+' .vocab-shop-sidebar'));
  assert.ok(css.includes(shop+' .vocab-shop-equipped'));
- assert.match(html,/vocabulary-legacy-immersive\.css\?v=ocean-sakura-contrast-v4/);
+ assert.match(html,/vocabulary-legacy-immersive\.css\?v=midnight-contrast-v5/);
  assert.ok(css.includes('@media print,(forced-colors:active)'));
 });
 
@@ -94,5 +94,32 @@ test('Ocean and Sakura use readable light ink on their dark shop headers and hom
  assert.ok(css.includes('background:#eefaff;'));
  assert.ok(css.includes('color:#17425e!important;'));
  assert.ok(css.includes('@media print,(forced-colors:active)'));
- assert.ok(html.includes('vocabulary-legacy-immersive.css?v=ocean-sakura-contrast-v4'));
+ assert.ok(html.includes('vocabulary-legacy-immersive.css?v=midnight-contrast-v5'));
+});
+
+test('Midnight dark panels have high-contrast headings, slot chips and status text',()=>{
+ const css=read('vocabulary-legacy-immersive.css');
+ const html=read('vocabulary.html');
+ const root='#vocabularyApp.vocab-real-theme--midnight';
+ for(const [selector,property] of [
+  [root+' .vocab-shell--home > .vocab-hero--home h1','color:#f7f8ff!important;'],
+  [root+' .vocab-shell--home > .vocab-hero--home h1 span','color:#bacbff!important;'],
+  [root+' .vocab-shell--home > .vocab-hero--home .vocab-home-hero__welcome strong','color:#ffe4a5!important;'],
+  [root+' .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__slot','color:#24436b!important;'],
+  [root+' .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__slot.is-equipped','color:#19375c!important;'],
+  [root+' .vocab-shop-redesign .vocab-sandbox-feedback:not(:empty)','color:#263e68!important;']
+ ]){
+  const at=css.indexOf(selector+'{');
+  assert.ok(at>=0,'Missing exact Midnight selector: '+selector);
+  const declaration=css.slice(at,css.indexOf('}',at));
+  assert.ok(declaration.includes(property),'Missing '+property+' for '+selector);
+ }
+ assert.ok(css.includes(root+' .vocab-topbar .vocab-topbar__course'));
+ assert.ok(css.includes(root+' .vocab-unit-card :is(h2,h3,p,.vocab-unit-card__title)'));
+ assert.ok(css.includes(root+' .vocab-pathway-card :is(h2,h3,p)'));
+ assert.ok(css.includes(root+' .vocab-shop-redesign .vocab-shop-leaderboard__head :is(h2,small)'));
+ assert.ok(css.includes(root+' .vocab-shop-redesign .vocab-shop-leaderboard__tabs button:not(.is-active)'));
+ assert.ok(css.includes('background:#f0f4ff;'));
+ assert.ok(css.includes('@media print,(forced-colors:active)'));
+ assert.ok(html.includes('vocabulary-legacy-immersive.css?v=midnight-contrast-v5'));
 });
