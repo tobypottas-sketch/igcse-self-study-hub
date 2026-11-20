@@ -116,10 +116,10 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
    +'<p class="ngsl-welcome-lead">Choose the meaning of each highlighted word.</p>'
    +'<div class="ngsl-welcome-facts" aria-label="Assessment details">'
    +'<span><strong>50</strong><small>questions</small></span>'
-   +'<span><strong>4</strong><small>choices each</small></span>'
+   +'<span><strong>4 + 1</strong><small>choices + not sure</small></span>'
    +'<span><strong>∞</strong><small>no time limit</small></span>'
    +'</div>'
-   +'<p class="ngsl-welcome-save">Your answers save automatically. During this assessment, leaving the tab or exiting fullscreen is recorded for teacher review. Fullscreen is requested when supported but cannot lock your device. You can save and exit when needed.</p>'
+   +'<p class="ngsl-welcome-save">If you do not know a word, choose “I’m not sure” instead of guessing. It counts as incorrect, but helps your teacher see which words you genuinely do not know. Your answers save automatically. During this assessment, leaving the tab or exiting fullscreen is recorded for teacher review. Fullscreen is requested when supported but cannot lock your device. You can save and exit when needed.</p>'
    +'<div class="diag-actions"><button class="diag-primary" type="button" data-ngsl="start">Start or continue <span aria-hidden="true">→</span></button></div>'
    +'<p role="status" class="diag-message"></p>'
    +'</div>'
@@ -131,9 +131,12 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
   const options=q.options.map(o=>'<label class="diag-option '+(state.answer===o.id?'diag-option--selected':'')+'">'
    +'<input type="radio" name="ngsl-answer" value="'+e(o.id)+'" '+(state.answer===o.id?'checked ':'')
    +(state.busy?'disabled ':'')+'/><span class="diag-option-key">'+e(o.id)+'</span><span>'+e(o.text)+'</span></label>').join('');
+  const unsure='<label class="diag-option ngsl-unsure-option '+(state.answer==='U'?'diag-option--selected':'')+'">'
+   +'<input type="radio" name="ngsl-answer" value="U" '+(state.answer==='U'?'checked ':'')
+   +(state.busy?'disabled ':'')+'/><span class="diag-option-key" aria-hidden="true">?</span><span>I'm not sure</span></label>';
   shell('<section class="diag-assessment"><div class="diag-meta"><span>Question '+q.position+' of 50</span>'
    +'<span>Choose one meaning</span></div>'+ngslPromptMarkup(q.stem,q.target)
-   +'<fieldset class="diag-choices"><legend>Choose the correct meaning.</legend>'+options+'</fieldset>'
+   +'<fieldset class="diag-choices"><legend>Choose the correct meaning, or say when you are not sure.</legend>'+options+unsure+'</fieldset>'
    +'<p class="ngsl-integrity-note" data-integrity-notice role="status" hidden></p>'
    +'<p class="ngsl-integrity-connection" data-integrity-connection role="status">'+
       (integrityQueue?.pendingCount?integrityQueue.pendingCount+' focus events awaiting connection':'Focus monitoring active · events saved')+'</p>'
@@ -159,6 +162,9 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
     +'<small>'+frequencyLabels[b-1]+'</small></div>';
   }).join('');
   const foundation=foundationLevel(correct);
+  const unsure=Number(result?.unsure);
+  const hasUnsure=Number.isInteger(unsure)&&unsure>=0&&unsure<=50-correct;
+  const wrong=hasUnsure?50-correct-unsure:null;
   const missed=Array.isArray(result?.missedTargets)?result.missedTargets:[];
   const words=missed.map(x=>e(x.target)).filter(Boolean);
   const pct=Number(result?.percentage);
@@ -168,6 +174,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
     +'<div class="ngsl-result-top"><div class="ngsl-result-summary">'
       +'<p class="ngsl-result-eyebrow">YOUR RESULT</p>'
       +'<div class="ngsl-score"><strong>'+percentage+'%</strong><span>'+correct+' / 50 correct</span></div>'
+      +(hasUnsure?'<p class="ngsl-response-breakdown"><strong>'+correct+' correct</strong><span>'+wrong+' incorrect</span><span>'+unsure+' not sure</span></p>':'')
       +'<h2>'+e(foundation.label)+' vocabulary foundation</h2>'
       +'</div><img class="ngsl-result-art" src="'+e(foundation.image)+'" alt="Student on a mountain journey" /></div>'
     +'<section class="ngsl-group-section" aria-label="Vocabulary frequency groups">'
@@ -194,7 +201,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
   finally{state.busy=false;if(state.question&&!state.complete)question();}
  }
  async function submit(){
-  if(state.busy||!state.question||!['A','B','C','D'].includes(state.answer))return;
+  if(state.busy||!state.question||!['A','B','C','D','U'].includes(state.answer))return;
   state.busy=true;state.error='';question();
   try{
    if(!state.pending)state.pending={
@@ -223,7 +230,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
  }
  root.addEventListener('change',event=>{
   if(event.target?.name!=='ngsl-answer'||state.busy||state.complete||state.pending)return;
-  if(!'ABCD'.includes(event.target.value))return;
+  if(!['A','B','C','D','U'].includes(event.target.value))return;
   state.answer=event.target.value;question();
  });
  root.addEventListener('click',event=>{
