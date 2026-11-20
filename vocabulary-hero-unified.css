@@ -1,4 +1,6 @@
 /* Hero language shared by Vocabulary home and Rewards Shop.
+   Base ink is DARK because Default and staff preview heroes have LIGHT panels.
+   Immersive themes explicitly override this base with light ink on dark panels.
    Uses local system fonts; no network font requests for classroom networks. */
 #vocabularyApp{
   --vocab-hero-display:"Arial Black","Trebuchet MS",Inter,ui-sans-serif,system-ui,sans-serif;
@@ -32,7 +34,7 @@
 }
 #vocabularyApp .vocab-shell--home > .vocab-hero--home h1{
   margin:0;
-  color:#fff;
+  color:#17395b;
   font-family:var(--vocab-hero-display);
   font-size:clamp(2.05rem,4.65vw,3.65rem);
   font-weight:950;
@@ -42,11 +44,11 @@
   overflow-wrap:normal;
 }
 #vocabularyApp .vocab-shell--home > .vocab-hero--home h1 span{
-  color:#8df1e7;
+  color:#087d81;
 }
 #vocabularyApp .vocab-shell--home > .vocab-hero--home .vocab-home-hero__tagline{
   margin:1px 0 0;
-  color:#f7fbff;
+  color:#244664;
   font-size:clamp(.94rem,1.3vw,1.1rem);
   line-height:1.42;
   font-weight:750;
@@ -55,14 +57,14 @@
   margin:7px 0 0;
   padding-top:12px;
   width:100%;
-  border-top:1px solid rgba(255,255,255,.28);
-  color:#eaf6ff;
+  border-top:1px solid #bad6dc;
+  color:#315674;
   font-size:.87rem;
   font-weight:600;
   line-height:1.5;
 }
 #vocabularyApp .vocab-shell--home > .vocab-hero--home .vocab-home-hero__welcome strong{
-  color:#ffe19b;
+  color:#825007;
   font-weight:900;
 }
 #vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura) .vocab-shell--home > .vocab-hero--home h1{
