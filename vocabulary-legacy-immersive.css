@@ -142,6 +142,9 @@ body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.v
   body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)){
     background-attachment:scroll,scroll!important;
   }
+  body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) :is(.vocab-shell--home,.vocab-shell[data-unit-overview])){
+    background-attachment:scroll,scroll!important;
+  }
   body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) .vocab-shell[data-unit-theme]){
     background-size:340px 340px,cover,cover!important;
     background-attachment:scroll,scroll,scroll!important;
