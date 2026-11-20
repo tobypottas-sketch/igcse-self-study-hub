@@ -26,7 +26,7 @@ test('equipped items render a genuine student identity with visible attached bad
  assert.match(markup,/Word Wizard/);
  assert.match(markup,/Pixel Badge equipped/);
  assert.match(markup,/Ocean Theme active/);
- assert.match(markup,/4 \/ 4 equipped/);
+ assert.match(markup,/4 \/ 5 equipped/);
  assert.match(markup,/vocab-student-identity__badge/);
  assert.match(markup,/vocab-student-identity__frame/);
 });
