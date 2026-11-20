@@ -72,6 +72,6 @@ test('Forest immersive home and shop retain high-contrast text and scenic backgr
  assert.ok(css.includes(shop+' .vocab-shop-card'));
  assert.ok(css.includes(shop+' .vocab-shop-sidebar'));
  assert.ok(css.includes(shop+' .vocab-shop-equipped'));
- assert.match(html,/vocabulary-legacy-immersive\\.css\\?v=forest-shop-contrast-v3/);
+ assert.match(html,/vocabulary-legacy-immersive\.css\?v=forest-shop-contrast-v3/);
  assert.match(css,/@media print,\\(forced-colors:active\\)/);
 });
