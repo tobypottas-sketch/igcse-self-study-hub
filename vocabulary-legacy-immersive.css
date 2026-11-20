@@ -1,6 +1,6 @@
 /* Phase 1 — turn legacy purchased themes into complete, fixed scenic workspaces.
-   Uses all four already-committed original theme PNGs for immediate immersive backgrounds.
-   Higher resolution custom scenic PNGs can replace these without altering purchases.
+   Four full-scene PNGs staged on this branch; keep unmerged until all are uploaded.
+   Only background assets change; no purchases, XP or progress changes.
    Never change activities, answer correctness, scores, purchasing or ownership.
    Styling is conditional on the existing authenticated equipped-theme class. */
 #vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight){
@@ -16,25 +16,25 @@
   min-height:100vh;
 }
 #vocabularyApp.vocab-real-theme--forest{
-  --immersive-scene:url("assets/vocabulary/rewards/forest.png");
+  --immersive-scene:url("assets/vocabulary/rewards/forest-immersive.png");
   --immersive-wash:rgba(5,30,22,.46);
   --immersive-panel:#0b342a;--immersive-panel-2:#124737;
   --immersive-accent:#cbf383;--immersive-edge:#78d09e;
 }
 #vocabularyApp.vocab-real-theme--ocean{
-  --immersive-scene:url("assets/vocabulary/rewards/ocean.png");
+  --immersive-scene:url("assets/vocabulary/rewards/ocean-immersive.png");
   --immersive-wash:rgba(1,25,60,.48);
   --immersive-panel:#092d57;--immersive-panel-2:#104573;
   --immersive-accent:#78f0ff;--immersive-edge:#55cbed;
 }
 #vocabularyApp.vocab-real-theme--sakura{
-  --immersive-scene:url("assets/vocabulary/rewards/sakura.png");
+  --immersive-scene:url("assets/vocabulary/rewards/sakura-immersive.png");
   --immersive-wash:rgba(49,10,43,.43);
   --immersive-panel:#4a214a;--immersive-panel-2:#692e61;
   --immersive-accent:#ffd0ef;--immersive-edge:#f7a4d6;
 }
 #vocabularyApp.vocab-real-theme--midnight{
-  --immersive-scene:url("assets/vocabulary/rewards/midnight.png");
+  --immersive-scene:url("assets/vocabulary/rewards/midnight-immersive.png");
   --immersive-wash:rgba(8,13,44,.46);
   --immersive-panel:#121f4c;--immersive-panel-2:#23346c;
   --immersive-accent:#c1d9ff;--immersive-edge:#93a4f1;
@@ -55,19 +55,19 @@ body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.v
 /* CSS variables on #vocabularyApp are not inherited by its ancestor body.
    Give body the same wallpaper variables using the equipped class itself. */
 body:has(#vocabularyApp.vocab-real-theme--forest){
-  --immersive-scene:url("assets/vocabulary/rewards/forest.png");
+  --immersive-scene:url("assets/vocabulary/rewards/forest-immersive.png");
   --immersive-wash:rgba(5,30,22,.46);
 }
 body:has(#vocabularyApp.vocab-real-theme--ocean){
-  --immersive-scene:url("assets/vocabulary/rewards/ocean.png");
+  --immersive-scene:url("assets/vocabulary/rewards/ocean-immersive.png");
   --immersive-wash:rgba(1,25,60,.48);
 }
 body:has(#vocabularyApp.vocab-real-theme--sakura){
-  --immersive-scene:url("assets/vocabulary/rewards/sakura.png");
+  --immersive-scene:url("assets/vocabulary/rewards/sakura-immersive.png");
   --immersive-wash:rgba(49,10,43,.43);
 }
 body:has(#vocabularyApp.vocab-real-theme--midnight){
-  --immersive-scene:url("assets/vocabulary/rewards/midnight.png");
+  --immersive-scene:url("assets/vocabulary/rewards/midnight-immersive.png");
   --immersive-wash:rgba(8,13,44,.46);
 }
 /* Home and unit-overview screens previously had a MORE specific SVG
