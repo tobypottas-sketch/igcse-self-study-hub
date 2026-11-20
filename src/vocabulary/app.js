@@ -278,7 +278,7 @@ function scrollToShopTop(){
 }
 async function renderCurrentSandboxShop(message='',busy=sandboxBusy){
  if(!sandboxShop?.sandboxEnabled)return;
- const {renderSandboxShop}=await import('./rewards-sandbox-view.js?v=live-effect-previews-v1');
+ const {renderSandboxShop}=await import('./rewards-sandbox-view.js?v=static-effect-cards-v2');
  renderSandboxShop(root,sandboxShop,{category:sandboxCategory,busy,message,progress:homeEngagement(),studentName:state.profile?.display_name??'Student',leaderboard:sandboxLeaderboard,leaderboardView:sandboxLeaderboardView});
 }
 async function loadSandboxShop() {
@@ -439,7 +439,7 @@ async function fetchRealShop(){
 }
 async function renderRealShop(message='',busy=realBusy){
  if(!realShop)return;
- const {renderProductionShop}=await import('./rewards-sandbox-view.js?v=live-effect-previews-v1');
+ const {renderProductionShop}=await import('./rewards-sandbox-view.js?v=static-effect-cards-v2');
  renderProductionShop(root,realShop,{category:realCategory,busy,message,progress:homeEngagement(),
   studentName:state.profile?.display_name??'Student',leaderboard:realLeaderboard,leaderboardView:realLeaderboardView});
  await updateLiveCosmetics(realShop);
@@ -1353,27 +1353,6 @@ root?.addEventListener('keydown', event => {
   if (event.shiftKey && (active === first || !sheet.contains(active))) { event.preventDefault(); last.focus(); }
   else if (!event.shiftKey && (active === last || !sheet.contains(active))) { event.preventDefault(); first.focus(); }
 });
-// Pure visual shop demo: no purchase, equip or wallet calls.
-function toggleLiveEffectCardPreview(button){
- const card=button?.closest?.('.vocab-shop-card--effects');
- if(!card)return;
- const stage=card.querySelector('.vocab-effect-demo-stage');
- if(!stage)return;
- const opening=stage.hidden;
- // Only one effect loops in the shop at a time.
- for(const other of root.querySelectorAll('.vocab-shop-card.is-previewing')){
-  other.classList.remove('is-previewing');
-  const previous=other.querySelector('.vocab-effect-demo-stage');
-  if(previous)previous.hidden=true;
-  const toggle=other.querySelector('[data-action="preview-effect"]');
-  if(toggle){toggle.setAttribute('aria-pressed','false');toggle.innerHTML='<span aria-hidden="true">▶</span> Try live effect';}
- }
- stage.hidden=!opening;
- card.classList.toggle('is-previewing',opening);
- button.setAttribute('aria-pressed',String(opening));
- button.innerHTML=opening?'<span aria-hidden="true">◼</span> Show artwork':'<span aria-hidden="true">▶</span> Try live effect';
-}
-
 root?.addEventListener('click', event => {
   if (event.target?.matches?.('[data-practice-sheet-backdrop]')) { closePracticeSheet(); return; }
   const matchItem = event.target?.closest?.('[data-match-word], [data-match-definition]');
@@ -1412,7 +1391,6 @@ root?.addEventListener('click', event => {
       .then(()=>{if(note?.isConnected)note.textContent='Copied without student identity.';})
       .catch(()=>{if(note?.isConnected)note.textContent='Could not copy. Please capture the results.';});
   }
-  else if (action === 'preview-effect' && !state.preview) { toggleLiveEffectCardPreview(target); }
   else if (action === 'open-real-shop' && !state.preview) { void showRealShop(); }
   else if (action === 'real-filter' && !state.preview && realShop && !realBusy) {
     const category=target.dataset.category??'all';
