@@ -42,8 +42,8 @@ export const STANDARD_THEME_IDS=Object.freeze(['midnight','forest','ocean','saku
 export const PREMIUM_THEME_IDS=Object.freeze(PREMIUM_COLLECTIONS.map(c=>c.themeId));
 export const SUPPORTED_THEME_IDS=Object.freeze([...STANDARD_THEME_IDS,...PREMIUM_THEME_IDS]);
 export const EQUIPMENT_CATEGORIES=Object.freeze(['themes','frames','badges','titles','effects']);
-// Badges is a distinct fifth slot. Legacy pixel-badge continues to be an
-// effect until explicitly migrated; never silently reinterpret owned records.
+// Badges is a distinct fifth slot. Pixel Badge is now a real badge;
+// the database migration preserves all legacy ownership and spent XP.
 export const LEGACY_CATEGORIES=Object.freeze(['themes','frames','titles','effects']);
 export const hasBadgeCatalog=shop=>Array.isArray(shop?.rewards)&&shop.rewards.some(r=>r.category==='badges');
 export const visibleEquipmentCategories=shop=>hasBadgeCatalog(shop)?EQUIPMENT_CATEGORIES:LEGACY_CATEGORIES;

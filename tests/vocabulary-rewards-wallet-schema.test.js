@@ -51,7 +51,7 @@ test('catalogue is disabled until verified XP credits are implemented',()=>{
 
 test('the preview catalogue agrees exactly with database seed IDs, categories and prices',async()=>{
   const {REWARDS}=await import('../src/vocabulary/rewards-catalog.js');
-  const entries=[...sql.matchAll(/\('([a-z0-9-]+)','[^']+','(themes|frames|titles|effects)',([0-9]+),'[^']+','[^']+',false\)/g)]
+  const entries=[...sql.matchAll(/\('([a-z0-9-]+)','[^']+','(themes|frames|badges|titles|effects)',([0-9]+),'[^']+','[^']+',false\)/g)]
     .map(match=>({id:match[1],category:match[2],price:Number(match[3])}));
   assert.equal(entries.length,12);
   assert.deepEqual(entries.map(v=>v.id).sort(),REWARDS.map(v=>v.id).sort());

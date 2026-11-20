@@ -6,7 +6,7 @@ import {equippedCosmetics,studentIdentityView,applyRewardTheme,renderIdentitySho
 import {PREMIUM_COLLECTIONS,visibleEquipmentCategories} from '../src/vocabulary/rewards-premium-registry.js';
 
 const reward=(reward_id,category,name=reward_id)=>({reward_id,category,name,xp_price:800,description:'Cosmetic'});
-const base={shopMode:'sandbox',sandboxEnabled:true,wallet:{available:10000},rewards:[reward('sakura','themes'),reward('pixel-badge','effects')],owned:[{reward_id:'pixel-badge',category:'effects',equipped:true}]};
+const base={shopMode:'sandbox',sandboxEnabled:true,wallet:{available:10000},rewards:[reward('sakura','themes'),reward('pixel-badge','badges')],owned:[{reward_id:'pixel-badge',category:'badges',equipped:true}]};
 test('five premium collections contain unique IDs and all five reward types',()=>{
  assert.equal(PREMIUM_COLLECTIONS.length,5);
  assert.equal(new Set(PREMIUM_COLLECTIONS.flatMap(x=>x.rewards.map(y=>y[0]))).size,25);
@@ -15,18 +15,19 @@ test('five premium collections contain unique IDs and all five reward types',()=
   assert.ok(group.rewards.every(x=>x[3]>0));
  }
 });
-test('existing student has four original slots and original pixel effect',()=>{
- assert.equal(visibleEquipmentCategories(base).length,4);
+test('Pixel Badge is a fifth-slot badge, not an invisible legacy effect',()=>{
+ assert.equal(visibleEquipmentCategories(base).length,5);
  const root={innerHTML:''};
- renderSandboxShop(root,base);
- assert.doesNotMatch(root.innerHTML,/data-category="badges"/);
- assert.match(root.innerHTML,/4 slots · Your current look/);
- assert.match(renderIdentityShowcase(base),/1 \/ 4/);
+ renderSandboxShop(root,base,{category:'badges'});
+ assert.match(root.innerHTML,/data-category="badges"/);
+ assert.match(root.innerHTML,/5 slots · Your current look/);
+ assert.match(renderIdentityShowcase(base),/1 \/ 5/);
  assert.match(studentIdentityView(base).badge,/pixel-badge.png/);
+ assert.equal(equippedCosmetics(base).effects,undefined);
 });
-test('badge catalogue enables fifth slot, dedicated badge artwork and filtered shop',()=>{
+test('multiple badge rewards still occupy only one badge slot',()=>{
  const shop={...base,rewards:[...base.rewards,reward('neon-hacker-badge','badges','Neon Hacker Badge')],owned:[
-  ...base.owned,{reward_id:'neon-hacker-badge',category:'badges',equipped:true}
+  {reward_id:'pixel-badge',category:'badges',equipped:false},{reward_id:'neon-hacker-badge',category:'badges',equipped:true}
  ]};
  assert.equal(visibleEquipmentCategories(shop).length,5);
  assert.equal(equippedCosmetics(shop).badges,'neon-hacker-badge');
@@ -35,8 +36,8 @@ test('badge catalogue enables fifth slot, dedicated badge artwork and filtered s
  assert.match(root.innerHTML,/data-category="badges"/);
  assert.match(root.innerHTML,/5 slots · Your current look/);
  assert.match(root.innerHTML,/vocab-shop-equipped__list has-badges/);
- assert.equal((root.innerHTML.match(/class="vocab-reward-card vocab-shop-card/g)||[]).length,1);
- assert.match(renderIdentityShowcase(shop),/2 \/ 5/);
+ assert.equal((root.innerHTML.match(/class="vocab-reward-card vocab-shop-card/g)||[]).length,2);
+ assert.match(renderIdentityShowcase(shop),/1 \/ 5/);
  const production={...shop,shopMode:'production',purchasesEnabled:true,walletStatus:'ready'};
  renderProductionShop(root,production,{category:'badges'});
  assert.match(root.innerHTML,/data-action="real-filter"/);
@@ -69,8 +70,8 @@ test('live click router accepts Badges on both shop filters and permits Badge un
  assert.ok(app.includes("['themes','frames','badges','titles','effects'].includes(category)"));
  const router=fs('src/vocabulary/router.js');
  const html=fs('vocabulary.html');
- assert.equal((router.match(/app\.js\?v=celestial-foundation-v1/g)||[]).length,2);
- assert.ok(html.includes('router.js?v=celestial-foundation-v1'));
+ assert.equal((router.match(/app\.js\?v=pixel-badge-slot-v2/g)||[]).length,2);
+ assert.ok(html.includes('router.js?v=pixel-badge-slot-v2'));
 });
 function requireRead(){
  return path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');

@@ -3,7 +3,7 @@
 // Prices are proposals until the server-authoritative wallet and redemption RPC ship.
 export const REWARD_CATEGORIES = Object.freeze([
   { id:'all', label:'All' }, { id:'themes', label:'Themes' },
-  { id:'frames', label:'Frames' }, { id:'titles', label:'Titles' },
+  { id:'frames', label:'Frames' }, { id:'badges', label:'Badges' }, { id:'titles', label:'Titles' },
   { id:'effects', label:'Effects' }
 ].map(item => Object.freeze(item)));
 const rewards = [
@@ -17,7 +17,7 @@ const rewards = [
   ['word-wizard','Word Wizard','titles',1000,'A title for dedicated vocabulary learners.','🧙'],
   ['word-explorer','Word Explorer','titles',350,'Celebrate your curiosity about words.','🧭'],
   ['language-ace','Language Ace','titles',1600,'For students reaching new heights.','🏆'],
-  ['pixel-badge','Pixel Badge','effects',400,'Retro-style decoration for your profile.','✨'],
+  ['pixel-badge','Pixel Badge','badges',400,'Retro-style decoration for your profile.','✨'],
   ['sparkle','Sparkle Effect','effects',1100,'A gentle sparkle around your avatar.','⭐']
 ];
 export const REWARDS = Object.freeze(rewards.map(([id,name,category,price,description,icon]) =>
