@@ -17,7 +17,7 @@ test('legacy backgrounds are equipped-theme-specific and sourced from the four e
   assert.equal(image.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
  }
  assert.ok(html.indexOf('vocabulary-legacy-immersive.css')>html.indexOf('vocabulary-premium-neon-district.css'));
- assert.match(html,/vocabulary-legacy-immersive\.css\?v=legacy-immersive-preview-v1/);
+ assert.match(html,/vocabulary-legacy-immersive\.css\?v=legacy-immersive-release-v1/);
  assert.match(css,/body:has\(#vocabularyApp:is\(/);
 });
 
