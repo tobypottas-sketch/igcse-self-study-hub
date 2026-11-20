@@ -37,7 +37,7 @@ test('effects are five independent live avatar treatments, including compact hea
   assert.ok(html.includes('data-cosmetic-effect="'+id+'"'));
   assert.equal((html.match(/class="vocab-cosmetic-particle vocab-cosmetic-particle--/g)||[]).length,6);
   assert.ok(html.includes('vocab-student-identity__effect'));
-  assert.ok(html.includes('Effects')||html.includes('Effect'));
+  assert.ok(html.includes(catalog.find(r=>r.reward_id===id).name+' equipped'));
   const classes=new Set(['vocab-real-theme--forest','learning-progress']);
   const root={classList:{add:(...xs)=>xs.forEach(x=>classes.add(x)),remove:(...xs)=>xs.forEach(x=>classes.delete(x))}};
   applyRewardTheme(root,shop);
