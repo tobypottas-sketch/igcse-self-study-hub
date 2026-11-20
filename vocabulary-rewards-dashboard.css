@@ -194,3 +194,23 @@
     grid-column:1/-1;justify-self:stretch;
   }
 }
+
+/* Compact but visible: equipment count and currently applied theme.
+   Do not bring back the tall five-pill row removed by PR #545. */
+#vocabularyApp .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__theme{
+  display:inline-flex;
+  align-items:baseline;
+  flex-wrap:wrap;
+  gap:5px;
+  min-width:0;
+  max-width:100%;
+  font-size:.77rem;
+  font-weight:750;
+  line-height:1.25;
+  color:var(--reward-ink,#244766);
+  overflow-wrap:anywhere;
+}
+#vocabularyApp .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__theme strong{
+  font-weight:900;
+  color:inherit!important;
+}
