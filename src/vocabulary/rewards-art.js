@@ -19,7 +19,13 @@ const REWARD_ARTWORK = Object.freeze({
   'cyber-pulse-frame':'cyber-pulse-frame.png',
   'neon-hacker-badge':'neon-hacker-badge.png',
   'cyber-legend':'cyber-legend.png',
-  'electric-pulse':'electric-pulse.png'
+  'electric-pulse':'electric-pulse.png',
+  // Celestial Realms: original six-PNG collection, kept out of sale until deployed.
+  'celestial-realms':'celestial-realms-preview.png',
+  'astral-halo-frame':'astral-halo-frame.png',
+  'starseer-emblem':'starseer-emblem.png',
+  'sky-wanderer':'sky-wanderer.png',
+  'stardust-trail':'stardust-trail.png'
 });
 export const REWARD_ARTWORK_DIR='assets/vocabulary/rewards/';
 export const rewardArtworkPath=id=>
