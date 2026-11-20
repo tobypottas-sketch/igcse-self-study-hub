@@ -70,6 +70,17 @@ body:has(#vocabularyApp.vocab-real-theme--midnight){
   --immersive-scene:url("assets/vocabulary/rewards/midnight.png");
   --immersive-wash:rgba(8,13,44,.46);
 }
+/* Home and unit-overview screens previously had a MORE specific SVG
+   wallpaper rule than the generic body background. Match its scope explicitly
+   so switching Forest/Ocean/Sakura/Midnight really changes the entire page,
+   not just the unit practice screen. */
+body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) :is(.vocab-shell--home,.vocab-shell[data-unit-overview])){
+  background-image:linear-gradient(var(--immersive-wash),var(--immersive-wash)),var(--immersive-scene)!important;
+  background-size:cover,cover!important;
+  background-position:center,center!important;
+  background-repeat:no-repeat,no-repeat!important;
+  background-attachment:fixed,fixed!important;
+}
 /* Activities keep the authored illustrated wallpaper tile over the environment,
    which is especially important to preserve unit identity and readability. */
 body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) .vocab-shell[data-unit-theme]){
