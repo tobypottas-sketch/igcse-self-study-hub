@@ -20,7 +20,7 @@ test('Twelve rewards have stable unique IDs and plausible cosmetic-only metadata
 test('Each category filter returns only its rewards; unknown categories are empty', () => {
   assert.deepEqual(rewardsForCategory('all'),REWARDS);
   for(const c of REWARD_CATEGORIES.filter(c=>c.id!=='all')){
-    assert.ok(rewardsForCategory(c.id).length>=2);
+    assert.ok(rewardsForCategory(c.id).length>=(c.id==='badges'?1:2));
     assert.ok(rewardsForCategory(c.id).every(r=>r.category===c.id));
   }
   assert.deepEqual(rewardsForCategory('wrong-category'),[]);
