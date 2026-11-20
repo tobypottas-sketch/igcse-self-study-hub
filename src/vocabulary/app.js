@@ -490,7 +490,7 @@ async function applyRealReward(action,rewardId){
  }
 }
 async function removeEquippedReward(category,production,clickedButton=null){
- if(state.preview||!['themes','frames','titles','effects'].includes(category))return;
+ if(state.preview||!['themes','frames','badges','titles','effects'].includes(category))return;
  const shop=production?realShop:sandboxShop;
  if(!shop||(production?realBusy:sandboxBusy))return;
  if(!shop.owned?.some(item=>item.category===category&&item.equipped===true))return;
@@ -1376,7 +1376,7 @@ root?.addEventListener('click', event => {
   else if (action === 'open-real-shop' && !state.preview) { void showRealShop(); }
   else if (action === 'real-filter' && !state.preview && realShop && !realBusy) {
     const category=target.dataset.category??'all';
-    if(['all','themes','frames','titles','effects','popular'].includes(category)){
+    if(['all','themes','frames','badges','titles','effects','popular'].includes(category)){
       realCategory=category;
       const featured=target.dataset.focusReward;
       void renderRealShop().then(()=>focusShopReward(featured));
@@ -1402,7 +1402,7 @@ root?.addEventListener('click', event => {
   else if (action === 'open-sandbox-shop' && !state.preview) { sandboxCategory='all'; sandboxLeaderboard=null; sandboxLeaderboardView={scope:'class',period:'weekly',expanded:false}; void showSandboxShop(); }
   else if (action === 'sandbox-filter' && !state.preview && sandboxShop?.sandboxEnabled) {
     const category=target.dataset.category??'all';
-    if(!['all','themes','frames','titles','effects','popular'].includes(category))return;
+    if(!['all','themes','frames','badges','titles','effects','popular'].includes(category))return;
     sandboxCategory=category;
     const featured=target.dataset.focusReward;
     void renderCurrentSandboxShop().then(()=>focusShopReward(featured));

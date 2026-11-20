@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {renderSandboxShop,renderProductionShop} from '../src/vocabulary/rewards-sandbox-view.js';
@@ -54,3 +55,23 @@ test('theme switching clears old cosmetic classes, never touches progress',()=>{
  assert.ok(!tokens.has('vocab-real-theme--neon-district'));
  assert.ok(tokens.has('learning-progress'));
 });
+
+test('live click router accepts Badges on both shop filters and permits Badge unequip',()=>{
+ // The shop already renders the Badge tab; these application guards must
+ // include the category too or the click silently does nothing.
+ const fs=requireRead();
+ const app=fs('src/vocabulary/app.js');
+ const list="['all','themes','frames','badges','titles','effects','popular']";
+ assert.match(app,/action === 'real-filter'/);
+ assert.match(app,/action === 'sandbox-filter'/);
+ assert.equal(app.split(list).length-1,2,'Both production and sandbox filters must admit badges');
+ assert.match(app,/function removeEquippedReward\(category,production,clickedButton=null\)/);
+ assert.ok(app.includes("['themes','frames','badges','titles','effects'].includes(category)"));
+ const router=fs('src/vocabulary/router.js');
+ const html=fs('vocabulary.html');
+ assert.equal((router.match(/app\.js\?v=badge-filter-fix-v2/g)||[]).length,2);
+ assert.ok(html.includes('router.js?v=badge-filter-fix-v2'));
+});
+function requireRead(){
+ return path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
+}
