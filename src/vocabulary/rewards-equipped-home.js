@@ -57,11 +57,9 @@ export function renderIdentityShowcase(shop,displayName='Student'){
  const categories=visibleEquipmentCategories(shop);
  const status=categories.map(category=>{
    const reward=active[category];
-   const detail=reward?`${itemNames.get(reward)??labels[category]} ${category==='themes'?'active':'equipped'}`:`${labels[category]} not equipped`;
-   return `<span class="vocab-student-identity__slot${reward?' is-equipped':''}" aria-label="${escapeHtml(detail)}" title="${escapeHtml(detail)}">
-     <span class="vocab-student-identity__slot-dot" aria-hidden="true"></span>${labels[category]}
-   </span>`;
- }).join('');
+   return reward?`${itemNames.get(reward)??labels[category]} ${category==='themes'?'active':'equipped'}`:`${labels[category]} not equipped`;
+ }).join('; ');
+ const summary=`${equippedCount} / ${categories.length} ${id.sandboxPreview?'test equipped':'equipped'}: ${status}`;
  const title=id.title
    ?(id.titleArt
      ?`<span class="vocab-student-identity__title-art"><img src="${id.titleArt}" alt="${escapeHtml(id.title)} title artwork" decoding="async"><span class="vocab-student-identity__title-label">${escapeHtml(id.title)}</span></span>`
@@ -70,10 +68,9 @@ export function renderIdentityShowcase(shop,displayName='Student'){
  return `<section class="vocab-real-cosmetics vocab-student-identity" data-real-cosmetics aria-label="Your student profile and equipped rewards">
    <div class="vocab-student-identity__portrait">${avatar(id)}</div>
    <div class="vocab-student-identity__text">
-     <span class="vocab-student-identity__eyebrow">${id.sandboxPreview?'TEST COSMETICS PREVIEW':'MY STUDENT PROFILE'}</span>
+     <span class="vocab-student-identity__eyebrow">${id.sandboxPreview?'Preview':'MY STUDENT PROFILE'}</span>
      <h2>${escapeHtml(id.name)}</h2>
-     <div class="vocab-student-identity__slots" aria-label="Equipped reward categories">${status}</div>
-     <span class="vocab-student-identity__stamp">${equippedCount} / ${categories.length} ${id.sandboxPreview?'test equipped':'equipped'}</span>
+     <span class="vocab-student-identity__stamp"><span aria-hidden="true">${equippedCount} / ${categories.length} equipped</span><span class="vocab-sr-only">${escapeHtml(summary)}</span></span>
    </div>
    <div class="vocab-student-identity__extras" aria-label="Equipped title artwork">${title||'<span class="vocab-student-identity__detail">Choose a title in the shop</span>'}</div>
  </section>`;

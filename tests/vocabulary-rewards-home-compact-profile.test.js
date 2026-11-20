@@ -13,25 +13,27 @@ const shop={shopMode:'sandbox',sandboxEnabled:true,rewards:[
 ],owned:['midnight','gold-frame','word-explorer','sparkle'].map((reward_id,i)=>({reward_id,category:['themes','frames','titles','effects'][i],equipped:true}))};
 test('student profile keeps all four reward identities and title artwork',()=>{
  const html=renderIdentityShowcase(shop,'TEST STUDENT');
- assert.match(html,/TEST COSMETICS PREVIEW/);
- assert.match(html,/4 \/ 4 test equipped/);
+ assert.match(html,/>Preview<\/span>/);
+ assert.match(html,/>4 \/ 4 equipped<\/span>/);
  assert.match(html,/word-explorer\.png/);
  assert.match(html,/gold-frame\.png/);
  assert.match(html,/sparkle\.png/);
  for(const text of ['Midnight Theme active','Golden Frame equipped','Word Explorer equipped','Sparkle Effect equipped'])
   assert.ok(html.includes(text),text);
- assert.equal((html.match(/class="vocab-student-identity__slot is-equipped"/g)||[]).length,4);
+ assert.doesNotMatch(html,/class="vocab-student-identity__slots?"/);
+ assert.match(html,/class="vocab-sr-only">4 \/ 4 test equipped:/);
 });
 test('unowned slots remain empty and cannot display purchased graphics',()=>{
  const empty=renderIdentityShowcase({...shop,owned:[]},'Student');
- assert.equal((empty.match(/class="vocab-student-identity__slot"/g)||[]).length,4);
+ assert.match(empty,/>0 \/ 4 equipped<\/span>/);
+ for(const category of ['Theme','Frame','Title','Effect'])assert.ok(empty.includes(category+' not equipped'));
  assert.doesNotMatch(empty,/word-explorer\.png|gold-frame\.png|sparkle\.png/);
 });
-test('profile uses compact sizing and a restrained decorative scene',()=>{
- assert.match(css,/grid-template-columns:104px minmax\(0,1fr\) minmax\(150px,208px\)/);
- assert.match(css,/\.vocab-student-identity__slots/);
- assert.match(css,/opacity:\.11/);
- assert.match(css,/\.vocab-student-identity__title-art img/);
+test('production profile uses the same concise count without a preview label',()=>{
+ const html=renderIdentityShowcase({...shop,shopMode:'production'},'Synthetic Student');
+ assert.match(html,/>4 \/ 4 equipped<\/span>/);
+ assert.doesNotMatch(html,/>Preview<\/span>|test equipped/);
+ assert.match(html,/MY STUDENT PROFILE/);
 });
 test('sandbox stays separate from learning XP and does not stretch vertically',()=>{
  assert.match(rewardsCss,/\.vocab-rewards-dashboard\{/);
