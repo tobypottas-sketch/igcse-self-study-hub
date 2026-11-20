@@ -52,14 +52,14 @@ test('profile removes redundant theme name from visible banner for all themes an
    owned:[...shop.owned.filter(r=>r.category!=='themes'),{reward_id:theme,category:'themes',equipped:true}]
   };
   const html=renderIdentityShowcase(themed,'TEST STUDENT');
-  assert.match(html,/>Preview<\\/span>/);
-  assert.match(html,/>4 \\/ 4 equipped<\\/span>/);
+  assert.match(html,/>Preview<\/span>/);
+  assert.match(html,/>4 \/ 4 equipped<\/span>/);
   assert.doesNotMatch(html,/vocab-student-identity__theme|Theme: <strong>/);
   assert.ok(html.includes('Theme active')===false || html.includes(theme+' Theme active'));
  }
  const none=renderIdentityShowcase({...shop,owned:[]},'TEST STUDENT');
  assert.doesNotMatch(none,/vocab-student-identity__theme|Theme: <strong>Default/);
- assert.match(none,/>0 \\/ 4 equipped<\\/span>/);
+ assert.match(none,/>0 \/ 4 equipped<\/span>/);
 });
 test('home always provides shop navigation even when verified wallet or catalogue is temporarily unavailable',()=>{
  const html=readFileSync(new URL('../vocabulary.html',import.meta.url),'utf8');
