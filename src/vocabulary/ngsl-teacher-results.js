@@ -98,6 +98,8 @@ export function renderNGSLClassReport(root,dataset,classId='all',isAdmin=false){
  const table=rows.map(row=>{
   const r=row.result;
   const score=r?r.correct+'/50 · '+(r.correct*2)+'%':'Not started';
+  const unsure=Number(r?.unsure);
+  const unsureText=!r?'—':Number.isInteger(unsure)&&unsure>=0&&unsure<=50-r.correct?String(unsure):'—';
   const incident=dataset.integrity?.get(row.id);
   const label=!r?'—':!dataset.integrityAvailable?'Unavailable':!incident?'No events reported':
     incident.focusLosses+' focus loss'+(incident.focusLosses===1?'':'es')+
@@ -110,7 +112,7 @@ export function renderNGSLClassReport(root,dataset,classId='all',isAdmin=false){
    ' · View timeline</summary><ol>'+items+'</ol>'+
    '<small>Server-recorded times. Browser events may be incomplete.</small></details>':e(label);
   return '<tr><td>'+e(row.name)+'</td><td><span class="'+(r?'ngsl-report-done':'ngsl-report-wait')+'">'+(r?'Completed':'Not completed')+'</span></td>'
-    +'<td class="ngsl-report-number">'+e(score)+'</td><td>'+e(r?levelFor(r.correct):'—')+'</td><td>'+note+'</td></tr>';
+    +'<td class="ngsl-report-number">'+e(score)+'</td><td class="ngsl-report-number">'+e(unsureText)+'</td><td>'+e(r?levelFor(r.correct):'—')+'</td><td>'+note+'</td></tr>';
  }).join('');
  root.innerHTML='<main class="vocab-shell ngsl-report"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Vocabulary diagnostic</span></header>'
   +'<section class="ngsl-report-hero"><div><p class="vocab-kicker">NGSL · 50-QUESTION DIAGNOSTIC</p>'
@@ -124,7 +126,7 @@ export function renderNGSLClassReport(root,dataset,classId='all',isAdmin=false){
   +'<section class="ngsl-report-panel"><h2>Vocabulary word groups</h2><p>Average recognition in each frequency group, based on completed tests only.</p>'
   +'<div class="ngsl-report-bands">'+bandCards(rows)+'</div></section>'
   +'<section class="ngsl-report-panel"><div class="ngsl-report-panel-heading"><h2>Student results</h2><span>'+rows.length+' students</span></div>'
-  +'<div class="ngsl-report-table-scroll"><table><thead><tr><th>Student</th><th>Status</th><th>Score</th><th>Foundation rating</th><th>Focus events (review only)</th></tr></thead><tbody>'
-  +(rows.length?table:'<tr><td colspan="5">No students in this selection.</td></tr>')+'</tbody></table></div></section>'
+  +'<div class="ngsl-report-table-scroll"><table><thead><tr><th>Student</th><th>Status</th><th>Score</th><th>Not sure</th><th>Foundation rating</th><th>Focus events (review only)</th></tr></thead><tbody>'
+  +(rows.length?table:'<tr><td colspan="6">No students in this selection.</td></tr>')+'</tbody></table></div></section>'
   +'<p class="ngsl-report-footnote">Focus and fullscreen events are browser-reported, may be incomplete, and do not prove cheating. Review context before taking action. This diagnostic measures selected NGSL word recognition, not an English exam grade.</p></main>';
 }

@@ -19,6 +19,8 @@ on:
       - 'vocabulary-diagnostic-student.css'
       - 'supabase/functions/vocabulary-diagnostic/index.ts'
       - 'tests/vocabulary-ngsl-single-diagnostic.test.js'
+      - 'tests/vocabulary-ngsl-unsure-option.test.js'
+      - 'supabase/diagnostic/ngsl_unsure_option_20261120.sql'
       - '.github/workflows/ngsl-single-baseline.yml'
   push:
     branches: [main]
@@ -40,6 +42,8 @@ on:
       - 'vocabulary-diagnostic-student.css'
       - 'supabase/functions/vocabulary-diagnostic/index.ts'
       - 'tests/vocabulary-ngsl-single-diagnostic.test.js'
+      - 'tests/vocabulary-ngsl-unsure-option.test.js'
+      - 'supabase/diagnostic/ngsl_unsure_option_20261120.sql'
       - '.github/workflows/ngsl-single-baseline.yml'
 permissions:
   contents: read
@@ -53,6 +57,6 @@ jobs:
         with:
           node-version: '22'
       - name: Test single NGSL diagnostic and authenticated teacher preview
-        run: node --test tests/vocabulary-ngsl-single-diagnostic.test.js tests/vocabulary-ngsl-teacher-preview.test.js tests/vocabulary-ngsl-integrity-mode.test.js tests/vocabulary-ngsl-integrity-retry-timeline.test.js tests/vocabulary-ngsl-report-polish.test.js
+        run: node --test tests/vocabulary-ngsl-single-diagnostic.test.js tests/vocabulary-ngsl-unsure-option.test.js tests/vocabulary-ngsl-teacher-preview.test.js tests/vocabulary-ngsl-integrity-mode.test.js tests/vocabulary-ngsl-integrity-retry-timeline.test.js tests/vocabulary-ngsl-report-polish.test.js
       - name: Check browser module syntax
         run: node --check src/vocabulary/ngsl-student.js && node --check src/vocabulary/ngsl-question-format.js && node --check src/vocabulary/diagnostic-teacher-walkthrough.js && node --check src/vocabulary/router.js && node --check src/vocabulary/ngsl-teacher-report-polished.js

@@ -461,3 +461,51 @@ body:has(#vocabularyApp .diag-player){
 
 /* Non-punitive telemetry connection status. Never blocks answer submission. */
 #vocabularyApp .ngsl-integrity-connection{font-size:.74rem;color:#52717c;line-height:1.45;margin:14px 0 0}
+
+/* NGSL fifth response: a genuine no-guess option, visually separated from the
+   four shuffled meanings. Only the four meanings receive A–D labels. */
+#vocabularyApp .ngsl-player .diag-choices .ngsl-unsure-option{
+  margin-top:12px;
+  border:2px dashed #91b6c2;
+  background:#f3f8fa;
+  color:#28556b;
+}
+#vocabularyApp .ngsl-player .ngsl-unsure-option .diag-option-key{
+  color:#28556b;
+  background:#e0eff3;
+  border-color:#91b6c2;
+}
+#vocabularyApp .ngsl-player .ngsl-unsure-option.diag-option--selected,
+#vocabularyApp .ngsl-player .ngsl-unsure-option.diag-option--selected:hover{
+  border-style:solid;
+  border-color:#087d81;
+  background:#e1f6f4;
+  color:#13474d;
+}
+#vocabularyApp .ngsl-player .ngsl-unsure-option.diag-option--selected .diag-option-key{
+  background:#087d81;
+  border-color:#087d81;
+  color:#fff;
+}
+#vocabularyApp .ngsl-response-breakdown{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:6px 0 12px;
+}
+#vocabularyApp .ngsl-response-breakdown :is(strong,span){
+  display:inline-flex;
+  padding:6px 10px;
+  border-radius:9px;
+  background:#e8f4f6;
+  color:#23506b;
+  font-size:.86rem;
+  font-weight:750;
+}
+#vocabularyApp .ngsl-response-breakdown strong{background:#e3f5e9;color:#1e6741}
+#vocabularyApp .ngsl-response-breakdown span:last-child{background:#f4ebff;color:#624b8e}
+@media(forced-colors:active){
+  #vocabularyApp .ngsl-player .ngsl-unsure-option{
+    background:Canvas!important;color:CanvasText!important;border-color:CanvasText!important;
+  }
+}

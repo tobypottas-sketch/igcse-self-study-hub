@@ -4,7 +4,7 @@ import fs from 'node:fs';
 const read=file=>fs.readFileSync(new URL('../'+file,import.meta.url),'utf8');
 test('Vocabulary entry page invalidates cached router and rewards stylesheet',()=>{
  const html=read('vocabulary.html');
- assert.match(html,/src\/vocabulary\/router\.js\?v=badge-filter-fix-v2/);
+ assert.match(html,/src\/vocabulary\/router\.js\?v=ngsl-unsure-v3/);
  assert.match(html,/vocabulary-rewards\.css\?v=reward-hover-contrast-v2/);
 });
 test('router invalidates cached main Vocabulary module on all student routes',()=>{
