@@ -91,7 +91,6 @@ export function renderIdentityShowcase(shop,displayName='Student',engagement=nul
      <span class="vocab-student-identity__eyebrow">${id.sandboxPreview?'Preview':'MY STUDENT PROFILE'}</span>
      <h2>${escapeHtml(id.name)}</h2>
      <span class="vocab-student-identity__stamp"><span aria-hidden="true">${equippedCount} / ${categories.length} equipped</span><span class="vocab-sr-only">${escapeHtml(summary)}</span></span>
-     <span class="vocab-student-identity__theme" title="${escapeHtml(summary)}">Theme: <strong>${escapeHtml(id.themeName||'Default')}</strong></span>
    </div>
    ${profileProgressSummary(shop,engagement)}
    <div class="vocab-student-identity__extras" aria-label="Equipped title artwork">${title||'<span class="vocab-student-identity__detail">Choose a title in the shop</span>'}</div>

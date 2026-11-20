@@ -43,6 +43,6 @@ test('Existing equipped animations and reduced-motion support remain intact',()=
  assert.match(addOn,/@keyframes vocab-sparkle-glimmer/);
  assert.match(addOn,/@keyframes vocab-stardust-trail-flow/);
  assert.match(html,/vocabulary-effect-shop-previews\.css\?v=live-effect-previews-v1/);
- assert.match(html,/router\.js\?v=static-effect-cards-v2/);
+ assert.match(html,/router\.js\?v=profile-theme-caption-removed-v1/);
  assert.match(app,/rewards-sandbox-view\.js\?v=static-effect-cards-v2/);
 });
