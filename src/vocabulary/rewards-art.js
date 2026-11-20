@@ -14,6 +14,11 @@ const REWARD_ARTWORK = Object.freeze({
   'language-ace':'language-ace.png',
   'pixel-badge':'pixel-badge.png',
   sparkle:'sparkle.png',
+  // Original immersive themes: four collectible badge-slot rewards.
+  'forest-guardian-badge':'forest-guardian-badge.png',
+  'ocean-explorer-badge':'ocean-explorer-badge.png',
+  'sakura-spirit-badge':'sakura-spirit-badge.png',
+  'midnight-scholar-badge':'midnight-scholar-badge.png',
   // Staged Neon District assets. Do not enable the catalogue until PNGs are deployed.
   'neon-district':'neon-district.png',
   'cyber-pulse-frame':'cyber-pulse-frame.png',

@@ -113,7 +113,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
       <div class="vocab-shop-hero__intro">
         <h1>XP REWARDS <span>SHOP</span></h1>
         <p class="vocab-shop-hero__tagline">Earn it. Spend it. Make it yours.</p>
-        <p class="vocab-shop-hero__categories">Themes <span aria-hidden="true">·</span> Frames <span aria-hidden="true">·</span> Titles <span aria-hidden="true">·</span> Effects</p>
+        <p class="vocab-shop-hero__categories">Themes <span aria-hidden="true">·</span> Frames <span aria-hidden="true">·</span> Badges <span aria-hidden="true">·</span> Titles <span aria-hidden="true">·</span> Effects</p>
       </div>
       <div class="vocab-shop-hero__scene">${banner}</div>
     </section>
