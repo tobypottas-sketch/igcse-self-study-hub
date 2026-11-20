@@ -15,6 +15,14 @@ on:
       - 'vocabulary-rewards.css'
       - 'vocabulary-reward-identity.css'
       - 'vocabulary-premium-neon-district.css'
+      - 'vocabulary-premium-celestial-realms.css'
+      - 'supabase/sql/celestial-realms-catalog-staged.sql'
+      - 'tests/vocabulary-celestial-realms.test.js'
+      - 'assets/vocabulary/rewards/celestial-realms*.png'
+      - 'assets/vocabulary/rewards/astral-halo-frame.png'
+      - 'assets/vocabulary/rewards/starseer-emblem.png'
+      - 'assets/vocabulary/rewards/sky-wanderer.png'
+      - 'assets/vocabulary/rewards/stardust-trail.png'
       - 'vocabulary-legacy-immersive.css'
       - 'vocabulary-immersive-shop-backgrounds.css'
       - 'tests/vocabulary-immersive-shop-backgrounds.test.js'
@@ -37,7 +45,7 @@ jobs:
         with:
           node-version: '22'
       - name: Verify reward catalogue, XP parity fixtures and safe API contract
-        run: node --test tests/vocabulary-rewards-*.test.js tests/vocabulary-classroom-lite-artwork.test.js tests/vocabulary-neon-district-staged.test.js tests/vocabulary-premium-collections-foundation.test.js tests/vocabulary-legacy-immersive.test.js tests/vocabulary-immersive-shop-backgrounds.test.js tests/vocabulary-staff-preview-hero-contrast.test.js
+        run: node --test tests/vocabulary-rewards-*.test.js tests/vocabulary-classroom-lite-artwork.test.js tests/vocabulary-neon-district-staged.test.js tests/vocabulary-premium-collections-foundation.test.js tests/vocabulary-legacy-immersive.test.js tests/vocabulary-immersive-shop-backgrounds.test.js tests/vocabulary-staff-preview-hero-contrast.test.js tests/vocabulary-celestial-realms.test.js
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
