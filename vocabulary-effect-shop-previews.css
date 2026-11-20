@@ -1,0 +1,100 @@
+/* Animated Effect previews use exactly the equipped avatar imagery and particle
+   classes. The PNG shop image remains visible until the student chooses Try. */
+#vocabularyApp .vocab-shop-redesign .vocab-effect-demo-toggle{
+ align-self:start;display:inline-flex;align-items:center;gap:7px;
+ justify-content:center;width:auto;min-height:34px;
+ margin:3px 0 4px;padding:7px 12px;
+ border-radius:999px;border:1px solid #9ecddd;
+ background:#e7f7ff;color:#174f73;
+ font-size:.76rem;font-weight:850;line-height:1.2;
+ cursor:pointer;box-shadow:0 2px 7px #153e6814;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-demo-toggle:hover,
+#vocabularyApp .vocab-shop-redesign .vocab-effect-demo-toggle:focus-visible{
+ background:#d3effd;border-color:#2a99c6;color:#123e65;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-demo-toggle:focus-visible{
+ outline:3px solid #4c97dd;outline-offset:2px;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-demo-toggle[aria-pressed="true"]{
+ background:#e1e9ff;color:#244d88;border-color:#91aedf;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-demo-stage[hidden]{display:none!important}
+#vocabularyApp .vocab-shop-redesign .vocab-reward-picture:has(.vocab-effect-demo-stage:not([hidden])) > .vocab-shop-illustration{display:none}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-demo-stage{
+ width:100%;min-height:0;aspect-ratio:12 / 7;display:grid;place-items:center;
+ padding:10px 18px;box-sizing:border-box;overflow:hidden;
+ border-radius:12px;
+ background:radial-gradient(circle at 50% 53%,#ffffff 0%,#e8f4ff 52%,#d9e5fc 100%);
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-preview{
+ position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ width:100%;height:100%;min-width:0;gap:7px;color:#254968;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-preview .vocab-student-identity__avatar{
+ width:118px;height:118px;max-height:70%;flex:none;position:relative;isolation:isolate;
+ display:grid;place-items:center;border-radius:50%;
+ background:radial-gradient(circle,#fff 0%,#e4f4ff 75%,#a4d5e6 100%);
+ box-shadow:0 4px 14px #305c8c3b;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-preview .vocab-student-identity__initials{
+ position:relative;z-index:4;display:grid;place-items:center;
+ width:45%;height:45%;font-size:1.1rem;font-weight:950;line-height:1;
+ color:#21496b;background:#ffffffd9;border-radius:50%;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-preview .vocab-student-identity__effect{
+ position:absolute;width:155%;height:155%;inset:-27.5%;object-fit:contain;
+ z-index:0;pointer-events:none;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-preview__caption{
+ font-size:.68rem;font-weight:850;letter-spacing:.035em;color:#345c7e;
+ text-align:center;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-preview .vocab-cosmetic-particles{pointer-events:none}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-preview[data-preview-effect="sparkle"] .vocab-student-identity__avatar,
+#vocabularyApp.vocab-real-effect--sparkle .vocab-student-identity__avatar{
+ animation:vocab-sparkle-glimmer 4.8s ease-in-out infinite;
+}
+@keyframes vocab-sparkle-glimmer{
+ 0%,100%{box-shadow:0 0 0 3px #c8adff,0 0 15px #bc92ec74}
+ 55%{box-shadow:0 0 0 3px #e7bfff,0 0 29px #bd92f9dd,0 0 47px #d7baff9c}
+}
+/* Stardust Trail: the same softly breathing artwork for equipped and demo avatars. */
+#vocabularyApp .vocab-effect-preview[data-preview-effect="stardust-trail"] .vocab-student-identity__effect,
+#vocabularyApp.vocab-real-effect--stardust-trail .vocab-student-identity__effect{
+ animation:vocab-stardust-trail-flow 6.4s ease-in-out infinite;
+ transform-origin:center;
+}
+@keyframes vocab-stardust-trail-flow{
+ 0%,100%{transform:rotate(-6deg) scale(.96);opacity:.64;filter:drop-shadow(0 0 5px #c9b2ff)}
+ 50%{transform:rotate(5deg) scale(1.06);opacity:1;filter:drop-shadow(0 0 12px #f5d7ff)}
+}
+/* Electric Pulse uses the SAME keyframes as the equipped effect. */
+#vocabularyApp .vocab-effect-preview[data-preview-effect="electric-pulse"] .vocab-student-identity__avatar::before{
+ content:"";position:absolute;z-index:0;inset:-14%;
+ border:2px solid transparent;border-radius:48%;
+ background:linear-gradient(transparent,transparent) padding-box,
+ conic-gradient(from 45deg,#04dcff,#996aff,#ff3ad1,#00eaff,#9768fb,#04dcff) border-box;
+ filter:drop-shadow(0 0 5px #18dfff) drop-shadow(0 0 8px #da48ff);
+ opacity:.56;pointer-events:none;
+ animation:vocab-electric-pulse-ring 3.8s ease-in-out infinite;
+}
+#vocabularyApp .vocab-effect-preview[data-preview-effect="electric-pulse"] .vocab-student-identity__effect{
+ animation:vocab-electric-pulse-art 3.8s ease-in-out infinite;will-change:opacity,filter,transform;
+}
+/* Real purchased Rainbow Aura and all five particle effects inherit exactly
+   the same data-cosmetic-effect selectors in vocabulary-effects-animated.css. */
+@media(prefers-reduced-motion:reduce){
+ #vocabularyApp .vocab-effect-preview .vocab-student-identity__avatar,
+ #vocabularyApp .vocab-effect-preview .vocab-student-identity__effect,
+ #vocabularyApp .vocab-effect-preview .vocab-cosmetic-particle,
+ #vocabularyApp .vocab-effect-preview .vocab-student-identity__avatar::before,
+ #vocabularyApp.vocab-real-effect--sparkle .vocab-student-identity__avatar,
+ #vocabularyApp.vocab-real-effect--stardust-trail .vocab-student-identity__effect{
+  animation:none!important;transition:none!important;will-change:auto!important;
+ }
+}
+@media print,(forced-colors:active){
+ #vocabularyApp .vocab-effect-demo-stage{display:none!important}
+ #vocabularyApp .vocab-effect-demo-toggle{display:none!important}
+}
