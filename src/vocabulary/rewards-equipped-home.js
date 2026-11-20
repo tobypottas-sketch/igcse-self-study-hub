@@ -53,7 +53,22 @@ function avatar(identity,compact=false){
    ${particles}
  </span>`;
 }
-export function renderIdentityShowcase(shop,displayName='Student'){
+function profileProgressSummary(shop,engagement=null){
+ const xp=engagement?.level;
+ const ready=xp&&Number.isFinite(xp.xp)&&Number.isFinite(xp.level);
+ const next=ready&&Number.isFinite(xp.next)?xp.next:null;
+ const pct=ready?Math.max(0,Math.min(100,Number(xp.progressPercent)||0)):null;
+ const spendable=shop?.wallet?.available;
+ const canSpend=Number.isSafeInteger(spendable)&&spendable>=0;
+ const isTest=shop?.shopMode==='sandbox';
+ const balance=canSpend?`<div class="vocab-student-identity__metric vocab-student-identity__metric--wallet"><span class="vocab-student-identity__metric-label">${isTest?'Test XP':'Available XP'}</span><strong>${spendable.toLocaleString('en')}</strong></div>`:'';
+ const learning=ready?`<div class="vocab-student-identity__level">
+   <div class="vocab-student-identity__level-top"><span><strong>Level ${xp.level}</strong> <span>· ${next===null?'Top level':`Level ${xp.level+1} next`}</span></span><b>${xp.xp.toLocaleString('en')}${next===null?' XP':` / ${next.toLocaleString('en')} XP`}</b></div>
+   <div class="vocab-student-identity__level-track" role="progressbar" aria-label="Learning XP towards next level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><span style="width:${pct}%"></span></div>
+  </div>`:'';
+ return learning||balance?`<div class="vocab-student-identity__progress" aria-label="Student learning and rewards progress">${learning}${balance}</div>`:'';
+}
+export function renderIdentityShowcase(shop,displayName='Student',engagement=null){
  const id=studentIdentityView(shop,displayName);
  const active=id.active;
  const labels={themes:'Theme',frames:'Frame',badges:'Badge',titles:'Title',effects:'Effect'};
@@ -67,7 +82,7 @@ export function renderIdentityShowcase(shop,displayName='Student'){
  const summary=`${equippedCount} / ${categories.length} ${id.sandboxPreview?'test equipped':'equipped'}: ${status}`;
  const title=id.title
    ?(id.titleArt
-     ?`<span class="vocab-student-identity__title-art"><img src="${id.titleArt}" alt="${escapeHtml(id.title)} title artwork" decoding="async"><span class="vocab-student-identity__title-label">${escapeHtml(id.title)}</span></span>`
+     ?`<span class="vocab-student-identity__title-art"><img src="${id.titleArt}" alt="${escapeHtml(id.title)} title artwork" decoding="async"></span>`
      :`<span class="vocab-student-identity__title">${escapeHtml(id.title)}</span>`)
    :'';
  return `<section class="vocab-real-cosmetics vocab-student-identity" data-real-cosmetics aria-label="Your student profile and equipped rewards">
@@ -78,6 +93,7 @@ export function renderIdentityShowcase(shop,displayName='Student'){
      <span class="vocab-student-identity__stamp"><span aria-hidden="true">${equippedCount} / ${categories.length} equipped</span><span class="vocab-sr-only">${escapeHtml(summary)}</span></span>
      <span class="vocab-student-identity__theme" title="${escapeHtml(summary)}">Theme: <strong>${escapeHtml(id.themeName||'Default')}</strong></span>
    </div>
+   ${profileProgressSummary(shop,engagement)}
    <div class="vocab-student-identity__extras" aria-label="Equipped title artwork">${title||'<span class="vocab-student-identity__detail">Choose a title in the shop</span>'}</div>
  </section>`;
 }
@@ -103,7 +119,7 @@ export function decorateStudentIdentity(root,shop,displayName='Student'){
  // the far end without replacing the existing page header controls.
  header.append(chip);
 }
-export function renderEquippedCosmetics(root,shop,displayName='Student'){
+export function renderEquippedCosmetics(root,shop,displayName='Student',engagement=null){
  const home=root?.querySelector?.('.vocab-shell--home');
  applyRewardTheme(root,shop);
  if(!home)return;
@@ -111,6 +127,6 @@ export function renderEquippedCosmetics(root,shop,displayName='Student'){
  const main=layout?.querySelector('[data-rewards-dashboard-main]');
  if(!main)return;
  main.querySelector('[data-real-cosmetics]')?.remove();
- main.insertAdjacentHTML('afterbegin',renderIdentityShowcase(shop,displayName));
+ main.insertAdjacentHTML('afterbegin',renderIdentityShowcase(shop,displayName,engagement));
  decorateStudentIdentity(root,shop,displayName);
 }

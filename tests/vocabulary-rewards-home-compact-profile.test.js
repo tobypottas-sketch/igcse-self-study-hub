@@ -67,8 +67,8 @@ test('home always provides shop navigation even when verified wallet or catalogu
  assert.match(fn,/data-action="open-real-shop"/);
  assert.match(fn,/Explore themes, frames, badges, titles and effects/);
  assert.doesNotMatch(fn,/wallet\.available|fetchRealShop|wallet-sync/);
- assert.match(html,/router\.js\?v=animated-effects-v1/);
+ assert.match(html,/router\.js\?v=profile-progression-v1/);
  assert.match(html,/vocabulary-rewards-dashboard\.css\?v=shop-recovery-v9/);
- assert.match(router,/app\.js\?v=animated-effects-v1/);
- assert.match(app,/rewards-equipped-home\.js\?v=animated-effects-v1/);
+ assert.match(router,/app\.js\?v=profile-progression-v1/);
+ assert.match(app,/rewards-equipped-home\.js\?v=profile-progression-v1/);
 });
