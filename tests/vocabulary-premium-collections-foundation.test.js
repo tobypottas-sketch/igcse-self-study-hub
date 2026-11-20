@@ -71,7 +71,7 @@ test('live click router accepts Badges on both shop filters and permits Badge un
  const router=fs('src/vocabulary/router.js');
  const html=fs('vocabulary.html');
  assert.equal((router.match(/app\.js\?v=static-effect-cards-v2/g)||[]).length,2);
- assert.ok(html.includes('router.js?v=static-effect-cards-v2'));
+ assert.ok(html.includes('router.js?v=profile-theme-caption-removed-v1'));
 });
 function requireRead(){
  return path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
