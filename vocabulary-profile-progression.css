@@ -132,3 +132,23 @@
     border:1px solid CanvasText;
   }
 }
+
+/* Immersive profile surfaces are dark; their progress summary needs matching
+   light ink rather than the base light-theme navy. Leave academic cards alone. */
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+ .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__progress{
+ color:#f5faff;
+ border-color:rgba(215,235,255,.35);
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+ .vocab-shell--home .vocab-rewards-dashboard :is(.vocab-student-identity__level-top,.vocab-student-identity__level-top strong,.vocab-student-identity__level-top b,.vocab-student-identity__metric strong){
+ color:#f5faff!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+ .vocab-shell--home .vocab-rewards-dashboard :is(.vocab-student-identity__level-top span span,.vocab-student-identity__metric-label){
+ color:#bceaff!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+ .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__level-track{
+ background:rgba(213,237,255,.2);
+}
