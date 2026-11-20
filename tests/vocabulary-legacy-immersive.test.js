@@ -44,3 +44,32 @@ test('removing an equipped legacy theme leaves no lingering class behind',()=>{
  }
  assert.ok(state.has('other-root-class'));
 });
+
+test('Forest immersive home and shop retain high-contrast text and scenic background',()=>{
+ const css=read('vocabulary-legacy-immersive.css');
+ const html=read('vocabulary.html');
+ const forest='#vocabularyApp.vocab-real-theme--forest';
+ const hero=forest+' .vocab-shell--home > .vocab-hero--home';
+ const shop=forest+' .vocab-shop-redesign';
+ for(const [selector,prop] of [
+  [forest+' .vocab-topbar .vocab-topbar__course','color:#f1fff6!important;'],
+  [hero+' h1','color:#f6fff9!important;'],
+  [hero+' h1 span','color:#cbf383!important;'],
+  [hero+' .vocab-home-hero__tagline','color:#d7f4e5!important;'],
+  [hero+' .vocab-home-hero__welcome','color:#d7f4e5!important;'],
+  [hero+' .vocab-home-hero__welcome strong','color:#cbf383!important;'],
+  [shop,'background:transparent!important;'],
+  [shop+' .vocab-shop-content','background:transparent!important;']
+ ]){
+  const at=css.lastIndexOf(selector+'{');
+  assert.ok(at>=0,'Missing actual Forest page selector: '+selector);
+  const rule=css.slice(at,css.indexOf('}',at));
+  assert.ok(rule.includes(prop),'Missing '+prop+' for '+selector);
+ }
+ assert.ok(css.includes('forest-immersive.png'));
+ assert.ok(css.includes(shop+' .vocab-shop-card'));
+ assert.ok(css.includes(shop+' .vocab-shop-sidebar'));
+ assert.ok(css.includes(shop+' .vocab-shop-equipped'));
+ assert.match(html,/vocabulary-legacy-immersive\.css\?v=forest-shop-contrast-v3/);
+ assert.match(css,/@media print,\(forced-colors:active\)/);
+});
