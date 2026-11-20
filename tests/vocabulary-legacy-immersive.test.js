@@ -57,7 +57,7 @@ test('Forest immersive home and shop retain high-contrast text and scenic backgr
   [hero+' .vocab-home-hero__welcome strong','color:#cbf383!important;'],
   [shop,'background:transparent!important;']
  ]){
-  const at=css.lastIndexOf(selector+'{');
+  const at=css.indexOf(selector+'{');
   assert.ok(at>=0,'Missing actual Forest selector: '+selector);
   const rule=css.slice(at,css.indexOf('}',at));
   assert.ok(rule.includes(prop),'Missing '+prop+' for '+selector);
