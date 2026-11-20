@@ -249,6 +249,28 @@
 ) .vocab-shell[data-unit-overview] .vocab-pathway-card__cta{
   color:#aeeaff!important;
 }
+/* Outrank the older themed contrast guard's nested tile colour rules. */
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-stage :is(small,i){
+  color:inherit!important;
+}
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-stage[data-state="current"] :is(small,i){
+  color:#a9f0f2!important;
+}
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-stage[data-state="complete"] :is(small,i){
+  color:#b5f5d8!important;
+}
 /* Preserve correct disabled semantics: no fake active cues. */
 #vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card:disabled{
   cursor:not-allowed; opacity:1!important;
