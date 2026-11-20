@@ -44,14 +44,22 @@ test('sandbox stays separate from learning XP and does not stretch vertically',(
  assert.match(app,/Number\(result\.wallet\?\.available\?\?0\)\.toLocaleString\('en'\)/);
 });
 
-test('compact profile keeps an explicit equipped theme indicator (not a hidden-only description)',()=>{
- const html=renderIdentityShowcase(shop,'TEST STUDENT');
- assert.match(html,/class="vocab-student-identity__theme"/);
- assert.match(html,/Theme: <strong>Midnight Theme<\/strong>/);
+test('profile removes redundant theme name from visible banner for all themes and Default',()=>{
+ for(const theme of ['midnight','ocean','forest','sakura','neon-district','celestial-realms']){
+  const themed={
+   ...shop,
+   rewards:[...shop.rewards.filter(r=>r.category!=='themes'),{reward_id:theme,name:theme+' Theme',category:'themes'}],
+   owned:[...shop.owned.filter(r=>r.category!=='themes'),{reward_id:theme,category:'themes',equipped:true}]
+  };
+  const html=renderIdentityShowcase(themed,'TEST STUDENT');
+  assert.match(html,/>Preview<\\/span>/);
+  assert.match(html,/>4 \\/ 4 equipped<\\/span>/);
+  assert.doesNotMatch(html,/vocab-student-identity__theme|Theme: <strong>/);
+  assert.ok(html.includes('Theme active')===false || html.includes(theme+' Theme active'));
+ }
  const none=renderIdentityShowcase({...shop,owned:[]},'TEST STUDENT');
- assert.match(none,/Theme: <strong>Default<\/strong>/);
- assert.doesNotMatch(html,/class="vocab-student-identity__slots"/);
- assert.match(css,/\.vocab-student-identity__theme\{/);
+ assert.doesNotMatch(none,/vocab-student-identity__theme|Theme: <strong>Default/);
+ assert.match(none,/>0 \\/ 4 equipped<\\/span>/);
 });
 test('home always provides shop navigation even when verified wallet or catalogue is temporarily unavailable',()=>{
  const html=readFileSync(new URL('../vocabulary.html',import.meta.url),'utf8');
