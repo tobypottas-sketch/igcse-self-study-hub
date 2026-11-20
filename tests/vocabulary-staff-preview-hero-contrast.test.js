@@ -33,5 +33,5 @@ test('the refreshed browser imports reach new preview markup and CSS',()=>{
  assert.match(app,/views\.js\?v=staff-preview-contrast-v2/);
  assert.match(router,/app\.js\?v=celestial-foundation-v1/);
  assert.match(html,/router\.js\?v=celestial-foundation-v1/);
- assert.match(html,/vocabulary-hero-unified\.css\?v=staff-preview-contrast-v2/);
+ assert.match(html,/vocabulary-hero-unified\.css\?v=default-home-contrast-v3/);
 });
