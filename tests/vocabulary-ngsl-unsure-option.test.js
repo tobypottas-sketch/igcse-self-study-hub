@@ -8,7 +8,7 @@ test('the baseline keeps four shuffled meaning choices and a fifth fixed unsure 
  assert.match(source,/q\.options\.length!==4/);
  assert.match(source,/const unsure=/);
  assert.match(source,/value="U"/);
- assert.match(source,/I'm not sure/);
+ assert.match(source,/I.m not sure/);
  assert.match(source,/options\+unsure/);
  assert.match(source,/\['A','B','C','D','U'\]\.includes\(state\.answer\)/);
  assert.match(source,/\['A','B','C','D','U'\]\.includes\(event\.target\.value\)/);
