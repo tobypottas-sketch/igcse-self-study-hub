@@ -125,3 +125,66 @@
  #vocabularyApp .has-animated-effect::before{display:none!important}
  #vocabularyApp .has-animated-effect .vocab-student-identity__effect{animation:none!important}
 }
+
+/* Electric Pulse was previously just a static PNG. Animate the existing
+   server-equipped effect class, independently of the chosen theme.
+   Keep the purchased frame, initials and badge crisp and stationary. */
+#vocabularyApp.vocab-real-effect--electric-pulse .vocab-student-identity__avatar{
+  isolation:isolate;
+  overflow:visible;
+}
+#vocabularyApp.vocab-real-effect--electric-pulse .vocab-student-identity__avatar::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  inset:-14%;
+  border:2px solid transparent;
+  border-radius:48%;
+  background:linear-gradient(transparent,transparent) padding-box,
+    conic-gradient(from 45deg,#04dcff,#996aff,#ff3ad1,#00eaff,#9768fb,#04dcff) border-box;
+  filter:drop-shadow(0 0 5px #18dfff) drop-shadow(0 0 8px #da48ff);
+  opacity:.56;
+  pointer-events:none;
+  animation:vocab-electric-pulse-ring 3.8s ease-in-out infinite;
+}
+#vocabularyApp.vocab-real-effect--electric-pulse .vocab-student-identity__effect{
+  transform-origin:50% 50%;
+  animation:vocab-electric-pulse-art 3.8s ease-in-out infinite;
+  will-change:opacity,filter,transform;
+}
+#vocabularyApp.vocab-real-effect--electric-pulse .vocab-student-identity-mini .vocab-student-identity__effect{
+  animation-duration:4.6s;
+}
+@keyframes vocab-electric-pulse-art{
+  0%,100%{opacity:.85;transform:scale(1);filter:drop-shadow(0 0 4px #19dfff)}
+  22%{opacity:1;transform:scale(1.035);filter:drop-shadow(0 0 12px #e040ff)}
+  29%{opacity:.72;transform:scale(1.007);filter:drop-shadow(0 0 3px #22bdff)}
+  34%{opacity:1;transform:scale(1.04);filter:drop-shadow(0 0 12px #40ebff)}
+  58%{opacity:.82;transform:scale(1.015);filter:drop-shadow(0 0 5px #ae58ff)}
+  66%{opacity:1;transform:scale(1.032);filter:drop-shadow(0 0 11px #fa38d8)}
+}
+@keyframes vocab-electric-pulse-ring{
+  0%,100%{opacity:.32;transform:scale(.965) rotate(-3deg)}
+  26%{opacity:.68;transform:scale(1.04) rotate(3deg)}
+  36%{opacity:.27;transform:scale(.975) rotate(0deg)}
+  49%{opacity:.78;transform:scale(1.06) rotate(-2deg)}
+  75%{opacity:.43;transform:scale(.995) rotate(2deg)}
+}
+/* Some themes render the avatar with a frame; none should animate the
+   frame, personal initials or separate badge, including in the mini header. */
+#vocabularyApp.vocab-real-effect--electric-pulse .vocab-student-identity__avatar > .vocab-student-identity__frame{z-index:1}
+#vocabularyApp.vocab-real-effect--electric-pulse .vocab-student-identity__avatar > .vocab-student-identity__initials{z-index:2}
+#vocabularyApp.vocab-real-effect--electric-pulse .vocab-student-identity__avatar > .vocab-student-identity__badge{z-index:3}
+@media(prefers-reduced-motion:reduce){
+  #vocabularyApp.vocab-real-effect--electric-pulse .vocab-student-identity__avatar::before,
+  #vocabularyApp.vocab-real-effect--electric-pulse .vocab-student-identity__effect{
+    animation:none!important;transition:none!important;will-change:auto!important;
+    transform:none!important;opacity:.65!important;
+  }
+}
+@media print,(forced-colors:active){
+  #vocabularyApp.vocab-real-effect--electric-pulse .vocab-student-identity__avatar::before{display:none!important}
+  #vocabularyApp.vocab-real-effect--electric-pulse .vocab-student-identity__effect{
+    animation:none!important;filter:none!important;
+  }
+}

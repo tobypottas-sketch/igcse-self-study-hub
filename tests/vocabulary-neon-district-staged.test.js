@@ -109,3 +109,22 @@ test('Neon leaderboard dark header uses light heading and class text',()=>{
  assert.match(css,/\.vocab-shop-leaderboard__tabs button:not\(\.is-active\)\s*\{\s*color:#214e70!important;/);
  assert.match(html,/neon-leaderboard-contrast-v3/);
 });
+
+test('Electric Pulse actually animates the avatar aura, including mini profile, with accessible reduced motion',()=>{
+ const css=read('vocabulary-effects-animated.css');
+ const html=read('vocabulary.html');
+ assert.match(css,/#vocabularyApp\.vocab-real-effect--electric-pulse \.vocab-student-identity__effect\{/);
+ assert.match(css,/animation:vocab-electric-pulse-art 3\.8s ease-in-out infinite/);
+ assert.match(css,/#vocabularyApp\.vocab-real-effect--electric-pulse \.vocab-student-identity__avatar::before\{/);
+ assert.match(css,/@keyframes vocab-electric-pulse-ring/);
+ assert.match(css,/@keyframes vocab-electric-pulse-art/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+ const reduced=css.slice(css.lastIndexOf('@media(prefers-reduced-motion:reduce)'));
+ assert.match(reduced,/vocab-real-effect--electric-pulse/);
+ assert.match(reduced,/animation:none!important/);
+ assert.match(css,/\.vocab-student-identity-mini \.vocab-student-identity__effect\{/);
+ assert.match(css,/\.vocab-student-identity__initials\{z-index:2\}/);
+ assert.match(css,/@media print,\(forced-colors:active\)/);
+ assert.doesNotMatch(css,/\.vocab-answer--correct|\.vocab-answer--wrong/);
+ assert.match(html,/vocabulary-effects-animated\.css\?v=electric-pulse-motion-v2/);
+});

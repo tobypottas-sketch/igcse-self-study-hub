@@ -74,7 +74,7 @@ test('CSS creates distinct lightweight motion for each effect and respects reduc
  const css=read('vocabulary-effects-animated.css');
  for(const id of ids){
   assert.ok(css.includes('data-cosmetic-effect="'+id+'"'),id+' must have custom particles');
-  assert.ok(css.includes('vocab-real')===false,'effect particles should not override theme colours');
+  assert.ok(!css.includes('vocab-real-theme--'),'effect particles must not override purchased theme colours');
  }
  for(const animation of ['vocab-firefly-drift','vocab-ocean-rise','vocab-sakura-fall','vocab-midnight-twinkle','vocab-rainbow-shimmer'])
   assert.ok(css.includes('@keyframes '+animation));
@@ -94,7 +94,7 @@ test('catalogue staging is disabled, server-priced and does not mutate XP or own
 });
 test('browser loads animation CSS and refreshed equipped renderer',()=>{
  const html=read('vocabulary.html'),app=read('src/vocabulary/app.js'),router=read('src/vocabulary/router.js');
- assert.match(html,/vocabulary-effects-animated\.css\?v=animated-effects-v1/);
+ assert.match(html,/vocabulary-effects-animated\.css\?v=electric-pulse-motion-v2/);
  assert.match(html,/router\.js\?v=animated-effects-v1/);
  assert.match(app,/rewards-equipped-home\.js\?v=animated-effects-v1/);
  assert.match(router,/app\.js\?v=animated-effects-v1/);
