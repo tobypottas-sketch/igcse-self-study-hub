@@ -59,13 +59,13 @@ test('Forest immersive home and shop retain high-contrast text and scenic backgr
   [hero+' .vocab-home-hero__welcome','color:#d7f4e5!important;'],
   [hero+' .vocab-home-hero__welcome strong','color:#cbf383!important;'],
   [shop,'background:transparent!important;'],
-  [shop+' .vocab-shop-content','background:transparent!important;']
  ]){
   const at=css.lastIndexOf(selector+'{');
   assert.ok(at>=0,'Missing actual Forest page selector: '+selector);
   const rule=css.slice(at,css.indexOf('}',at));
   assert.ok(rule.includes(prop),'Missing '+prop+' for '+selector);
  }
+ assert.match(css,/\.vocab-shop-redesign \.vocab-shop-content,[\\s\\S]*?background:transparent!important;/);
  assert.ok(css.includes('forest-immersive.png'));
  assert.ok(css.includes(shop+' .vocab-shop-card'));
  assert.ok(css.includes(shop+' .vocab-shop-sidebar'));
