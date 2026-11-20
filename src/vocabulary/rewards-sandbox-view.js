@@ -2,7 +2,7 @@
 // The layout follows the approved mockup; all XP, ownership and equipment
 // values come from authenticated data, never from illustrative screenshots.
 import { rewardIllustration, bannerIllustration } from './rewards-art.js';
-import {renderEffectPreviewAvatar,PREVIEWABLE_EFFECTS} from './rewards-equipped-home.js';
+import {renderEffectPreviewAvatar,PREVIEWABLE_EFFECTS} from './rewards-equipped-home.js?v=live-effect-previews-v1';
 import {leaderboardModal,installLeaderboardModal} from './rewards-leaderboard-modal.js';
 import {hasBadgeCatalog} from './rewards-premium-registry.js';
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({
