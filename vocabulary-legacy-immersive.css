@@ -290,3 +290,78 @@ body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.v
     color:CanvasText!important;
   }
 }
+
+/* Ocean / Sakura font contrast after the immersive redesign.
+   Legacy light-theme ink from hero-unified.css is inappropriate for the
+   dark blue and deep-plum chrome; scope overrides to these two themes. */
+#vocabularyApp:is(.vocab-real-theme--ocean,.vocab-real-theme--sakura)
+  .vocab-topbar .vocab-topbar__course{
+  color:#f7fcff!important;
+  text-shadow:0 1px 2px rgba(3,17,35,.28);
+}
+#vocabularyApp.vocab-real-theme--ocean .vocab-shell--home > .vocab-hero--home h1{
+  color:#f4fbff!important;
+}
+#vocabularyApp.vocab-real-theme--ocean .vocab-shell--home > .vocab-hero--home h1 span{
+  color:#78f0ff!important;
+}
+#vocabularyApp.vocab-real-theme--ocean .vocab-shell--home > .vocab-hero--home :is(.vocab-home-hero__tagline,.vocab-home-hero__welcome){
+  color:#deefff!important;
+}
+#vocabularyApp.vocab-real-theme--ocean .vocab-shell--home > .vocab-hero--home .vocab-home-hero__welcome strong{
+  color:#a7f4ff!important;
+}
+#vocabularyApp.vocab-real-theme--sakura .vocab-shell--home > .vocab-hero--home h1{
+  color:#fff5fd!important;
+}
+#vocabularyApp.vocab-real-theme--sakura .vocab-shell--home > .vocab-hero--home h1 span{
+  color:#ffd0ef!important;
+}
+#vocabularyApp.vocab-real-theme--sakura .vocab-shell--home > .vocab-hero--home :is(.vocab-home-hero__tagline,.vocab-home-hero__welcome){
+  color:#ffebf7!important;
+}
+#vocabularyApp.vocab-real-theme--sakura .vocab-shell--home > .vocab-hero--home .vocab-home-hero__welcome strong{
+  color:#ffd0ef!important;
+}
+#vocabularyApp:is(.vocab-real-theme--ocean,.vocab-real-theme--sakura)
+  .vocab-shell--home > .vocab-hero--home .vocab-home-hero__welcome{
+  border-top-color:rgba(255,255,255,.34)!important;
+}
+/* Keep the same treatment while shopping. The label is on the dark navigation
+   panel, not on the pale rewards hero. */
+#vocabularyApp:is(.vocab-real-theme--ocean,.vocab-real-theme--sakura)
+  .vocab-shop-redesign .vocab-topbar .vocab-topbar__course{
+  color:#f7fcff!important;
+}
+/* Status and feedback appear directly against scenic photography. Give them
+   an opaque, readable surface; do not alter purchasing/XP or any controls. */
+#vocabularyApp:is(.vocab-real-theme--ocean,.vocab-real-theme--sakura)
+  .vocab-shop-redesign .vocab-sandbox-feedback:not(:empty){
+  width:fit-content;
+  max-width:calc(100% - 54px);
+  margin:0 27px 10px;
+  padding:7px 12px;
+  border-radius:9px;
+  background:#eefaff;
+  color:#17425e!important;
+  border:1px solid #aad6e6;
+}
+@media(max-width:600px){
+  #vocabularyApp:is(.vocab-real-theme--ocean,.vocab-real-theme--sakura)
+    .vocab-shop-redesign .vocab-sandbox-feedback:not(:empty){
+    margin-inline:14px;
+    max-width:calc(100% - 28px);
+  }
+}
+@media print,(forced-colors:active){
+  #vocabularyApp:is(.vocab-real-theme--ocean,.vocab-real-theme--sakura)
+    .vocab-topbar .vocab-topbar__course,
+  #vocabularyApp:is(.vocab-real-theme--ocean,.vocab-real-theme--sakura)
+    .vocab-shell--home > .vocab-hero--home :is(h1,.vocab-home-hero__tagline,.vocab-home-hero__welcome),
+  #vocabularyApp:is(.vocab-real-theme--ocean,.vocab-real-theme--sakura)
+    .vocab-shop-redesign .vocab-sandbox-feedback:not(:empty){
+    color:CanvasText!important;
+    background:Canvas!important;
+    text-shadow:none!important;
+  }
+}
