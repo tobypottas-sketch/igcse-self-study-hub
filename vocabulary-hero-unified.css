@@ -252,3 +252,28 @@
     background:Canvas;
   }
 }
+
+/* Staff/admin Vocabulary preview is an intentionally LIGHT card. The shared
+   teen-style hero uses white lettering for dark student-themed heroes; never
+   apply that ink to the light preview. Scope strictly to preview-only markup. */
+#vocabularyApp .vocab-shell--home.vocab-shell--staff-preview > .vocab-hero--home h1{
+  color:#17395b!important;
+}
+#vocabularyApp .vocab-shell--home.vocab-shell--staff-preview > .vocab-hero--home h1 span{
+  color:#087d81!important;
+}
+#vocabularyApp .vocab-shell--home.vocab-shell--staff-preview > .vocab-hero--home .vocab-home-hero__tagline{
+  color:#244664!important;
+}
+#vocabularyApp .vocab-shell--home.vocab-shell--staff-preview > .vocab-hero--home .vocab-home-hero__welcome{
+  color:#315674!important;
+  border-top-color:#bad6dc!important;
+}
+#vocabularyApp .vocab-shell--home.vocab-shell--staff-preview > .vocab-hero--home .vocab-home-hero__welcome strong{
+  color:#825007!important;
+}
+@media(forced-colors:active){
+  #vocabularyApp .vocab-shell--home.vocab-shell--staff-preview > .vocab-hero--home :is(h1,h1 span,.vocab-home-hero__tagline,.vocab-home-hero__welcome,.vocab-home-hero__welcome strong){
+    color:CanvasText!important;
+  }
+}
