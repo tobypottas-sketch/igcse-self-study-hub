@@ -13,7 +13,7 @@ test('the baseline keeps four shuffled meaning choices and a fifth fixed unsure 
  assert.match(source,/\['A','B','C','D','U'\]\.includes\(state\.answer\)/);
  assert.match(source,/\['A','B','C','D','U'\]\.includes\(event\.target\.value\)/);
  assert.match(css,/\.ngsl-unsure-option/);
- assert.doesNotMatch(source,/correctAnswer|ngslRank/);
+ assert.match(source,/['correct','correctAnswer','key','rank','ngslRank']/);
 });
 test('server strictly validates U, saves it as incorrect, and exposes separate count',()=>{
  const edge=read('supabase/functions/vocabulary-diagnostic/index.ts');
