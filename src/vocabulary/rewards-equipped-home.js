@@ -68,6 +68,21 @@ function profileProgressSummary(shop,engagement=null){
   </div>`:'';
  return learning||balance?`<div class="vocab-student-identity__progress" aria-label="Student learning and rewards progress">${learning}${balance}</div>`:'';
 }
+// Preview uses the SAME avatar markup and particle classes as a purchased effect.
+// This never claims ownership, makes API calls, or equips anything.
+export const PREVIEWABLE_EFFECTS=Object.freeze(['sparkle','electric-pulse','stardust-trail','forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight','rainbow-aura']);
+export function renderEffectPreviewAvatar(effectId){
+ if(!PREVIEWABLE_EFFECTS.includes(effectId))return '';
+ const identity={
+   initials:'YOU',frame:null,badge:null,
+   effectArt:rewardArtworkPath(effectId),
+   animatedEffect:ANIMATED_EFFECTS.has(effectId)?effectId:null
+ };
+ return `<div class="vocab-effect-preview" data-preview-effect="${effectId}" aria-label="Live ${effectId.replace(/-/g,' ')} effect on sample avatar">
+   ${avatar(identity)}
+   <span class="vocab-effect-preview__caption">Live avatar preview</span>
+ </div>`;
+}
 export function renderIdentityShowcase(shop,displayName='Student',engagement=null){
  const id=studentIdentityView(shop,displayName);
  const active=id.active;
