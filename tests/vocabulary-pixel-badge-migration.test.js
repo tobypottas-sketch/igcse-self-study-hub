@@ -57,7 +57,7 @@ test('migration preserves original purchase ownership, never touches wallets and
 });
 test('returning browsers load the corrected Badge renderer',()=>{
  const app=read('src/vocabulary/app.js'),router=read('src/vocabulary/router.js'),html=read('vocabulary.html');
- assert.match(app,/rewards-equipped-home\.js\?v=pixel-badge-slot-v2/);
- assert.equal((router.match(/app\.js\?v=pixel-badge-slot-v2/g)||[]).length,2);
- assert.match(html,/router\.js\?v=pixel-badge-slot-v2/);
+ assert.match(app,/rewards-equipped-home\.js\?v=animated-effects-v1/);
+ assert.equal((router.match(/app\.js\?v=animated-effects-v1/g)||[]).length,2);
+ assert.match(html,/router\.js\?v=animated-effects-v1/);
 });
