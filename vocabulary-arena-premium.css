@@ -1,0 +1,288 @@
+/* Vocabulary unit overview — premium, compact pathway dashboard.
+   Cosmetic-only: CSS must not alter activity/answer semantics or student XP.
+   This file loads LAST, after immersive themes and contrast safeguards. */
+
+/* Single coherent heading hierarchy; no floating white text pills. */
+#vocabularyApp .vocab-shell[data-unit-overview] :is(.vocab-pathways__head,.vocab-support__head){
+  max-width:100%; margin:26px 0 17px; padding:0 0 0 17px;
+  border-left:3px solid #438eae;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] :is(.vocab-pathways__head,.vocab-support__head)>*{
+  width:auto!important; max-width:100%; background:transparent!important;
+  box-shadow:none!important; border-radius:0!important;
+  padding:0!important; overflow-wrap:break-word;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] :is(.vocab-pathways__head,.vocab-support__head) :is(h2,h3){
+  margin:3px 0 6px; font-weight:900; letter-spacing:-.045em;
+  font-size:clamp(1.65rem,3vw,2.6rem); line-height:1.13; color:#173b58;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] :is(.vocab-pathways__head,.vocab-support__head)>p{
+  margin:0; max-width:80ch; line-height:1.5; color:#355670;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] :is(.vocab-pathways__head,.vocab-support__head)>:first-child:not(h2):not(h3){
+  font-size:.8rem; font-weight:900; letter-spacing:.15em; text-transform:uppercase;
+  color:#287396; line-height:1.4;
+}
+
+/* Geometry, hierarchy and spacing across ALL unit pathway cards. */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-grid{gap:16px;}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card{
+  --arena-accent:#70dce9; --arena-paper:#f4f7fd;
+  position:relative; align-content:start; align-items:start;
+  min-height:0!important; gap:8px 12px!important;
+  padding:19px 20px 15px!important; border-radius:12px!important;
+  box-shadow:0 10px 26px rgba(8,21,45,.12);
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card.has-study-art{
+  padding-right:20px!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__identity{
+  position:relative; z-index:2; min-height:57px; gap:11px!important;
+  padding-right:min(35%,150px);
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__icon{
+  border-radius:8px!important; flex-shrink:0;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__head{
+  gap:3px!important; min-width:0;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__head strong{
+  font-size:clamp(1.03rem,1.35vw,1.35rem); font-weight:900; line-height:1.14;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__head small{
+  display:block; width:auto; padding:0!important; margin-top:4px;
+  border:0!important; border-radius:0!important; background:transparent!important;
+  box-shadow:none!important; font-size:.82rem!important;
+  font-weight:550!important; letter-spacing:0; line-height:1.35;
+}
+/* Status becomes a tiny editorial label, not a rounded badge. */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__status{
+  justify-self:start; width:fit-content; max-width:100%;
+  padding:0 0 0 10px!important; margin:2px 0 0!important;
+  border-left:3px solid var(--study-accent,#5acbdf)!important;
+  border-radius:0!important; background:transparent!important;
+  box-shadow:none!important; line-height:1.4; font-weight:800!important;
+  opacity:1!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__coverage{
+  justify-self:start!important; margin:1px 0 2px!important;
+  padding:0 0 0 10px!important; border:0!important;
+  border-left:2px solid currentColor!important;
+  border-radius:0!important; background:transparent!important;
+  font-weight:700!important; opacity:1!important;
+}
+/* Keep original artwork, but let the surrounding content breathe. */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__art.has-png{
+  width:clamp(105px,13vw,154px); height:120px;
+}
+/* Mission evidence: slim, integrated strip with no oversized white panel. */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__evidence{
+  grid-column:1/-1; width:100%; min-width:0;
+  gap:7px; margin:7px 0 2px; padding:10px 12px!important;
+  border:1px solid rgba(130,179,212,.30)!important; border-radius:6px!important;
+  box-shadow:none!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__evidence-copy{
+  display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 14px;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__evidence-copy strong{
+  letter-spacing:.065em; font-size:.76rem; font-weight:900;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__evidence-copy small{
+  flex:1 1 200px; font-size:.77rem; font-weight:650;
+  text-align:right; white-space:normal!important; line-height:1.35;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__evidence-meter{
+  height:4px; border:0; border-radius:2px; box-shadow:none;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__evidence-fill{
+  border-radius:2px;
+}
+/* A horizontal, compact five-stage progression track, NOT five chunky tiles. */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-ladder{
+  grid-column:1/-1; display:grid; grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:0!important; min-width:0; padding:0!important; margin:5px 0 0;
+  border:0!important; border-radius:0!important;
+  background:transparent!important; box-shadow:none!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-stage{
+  position:relative; min-width:0; min-height:48px!important; padding:8px 2px 7px!important;
+  display:grid; justify-items:center; align-content:center; gap:4px!important;
+  background:transparent!important; border:0!important;
+  border-bottom:2px solid rgba(158,185,208,.34)!important;
+  border-radius:0!important; box-shadow:none!important;
+  opacity:1!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-stage i{
+  display:grid; place-items:center; width:18px!important; height:18px!important;
+  border:1px solid currentColor!important; border-radius:50%!important;
+  background:transparent!important; color:inherit!important;
+  font-size:.68rem; line-height:1; transform:none!important;
+  box-shadow:none!important; opacity:1!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-stage small{
+  max-width:100%; min-width:0; overflow:visible; text-overflow:clip;
+  white-space:normal; font-weight:800!important; font-size:clamp(.62rem,.86vw,.76rem)!important;
+  line-height:1.15; text-align:center; letter-spacing:.005em;
+  color:inherit!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-stage[data-state="current"]{
+  border-bottom:3px solid var(--study-accent,#79dceb)!important;
+  background:transparent!important; box-shadow:none!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-stage[data-state="complete"]{
+  border-bottom:3px solid #71ceb0!important;
+  background:transparent!important;
+}
+/* Action: text link only, no pill or surrounding box. */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__cta{
+  grid-column:1/-1; justify-self:end; display:inline-flex; align-items:center;
+  margin:5px 0 0!important; padding:3px 0!important;
+  border-radius:0!important; background:transparent!important;
+  font-size:.8rem!important; font-weight:900!important;
+  text-decoration:none!important; letter-spacing:.02em; opacity:1!important;
+  border-bottom:1px solid currentColor;
+}
+
+/* Immersive skins inherit distinct artwork/accents but ONE clean layout. */
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] :is(.vocab-pathways__head,.vocab-support__head){
+  border-left-color:#92dff2;
+}
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] :is(.vocab-pathways__head,.vocab-support__head) :is(h2,h3),
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] :is(.vocab-pathways__head,.vocab-support__head)>p{
+  color:#f7fbff!important; text-shadow:0 2px 9px rgba(4,15,33,.85);
+}
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] :is(.vocab-pathways__head,.vocab-support__head)>:first-child:not(h2):not(h3){
+  color:#b2eaff!important; text-shadow:0 2px 9px rgba(4,15,33,.85);
+}
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] .vocab-pathway-card{
+  background:linear-gradient(120deg,var(--immersive-panel,#14224d),var(--immersive-panel-2,#263766))!important;
+  color:#f5faff!important;
+}
+#vocabularyApp.vocab-real-theme--neon-district .vocab-shell[data-unit-overview] .vocab-pathway-card{
+  background:linear-gradient(120deg,#142344,#273463)!important;
+}
+#vocabularyApp.vocab-real-theme--celestial-realms .vocab-shell[data-unit-overview] .vocab-pathway-card{
+  background:linear-gradient(120deg,#1c2859,#31396b)!important;
+}
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] .vocab-pathway-card__head small{
+  color:#c7d9ee!important;
+}
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] .vocab-pathway-card :is(.vocab-pathway-card__status,.vocab-pathway-card__coverage){
+  color:#def2ff!important; background:transparent!important;
+}
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] .vocab-pathway-card__evidence{
+  background:rgba(8,22,49,.36)!important; color:#eaf5ff!important;
+  border-color:rgba(162,197,229,.25)!important;
+}
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] .vocab-pathway-card__evidence-copy :is(strong,small,span){
+  color:#eef7ff!important;
+}
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] .vocab-pathway-card__evidence-meter{
+  background:rgba(206,226,245,.22);
+}
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] .vocab-pathway-stage{
+  color:#bed0e4!important; background:transparent!important;
+}
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] .vocab-pathway-stage[data-state="current"]{
+  color:#a9f0f2!important; border-bottom-color:#8fe4ec!important;
+}
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] .vocab-pathway-stage[data-state="complete"]{
+  color:#b5f5d8!important;
+}
+#vocabularyApp:is(
+ .vocab-real-theme--forest,.vocab-real-theme--ocean,
+ .vocab-real-theme--sakura,.vocab-real-theme--midnight,
+ .vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms
+) .vocab-shell[data-unit-overview] .vocab-pathway-card__cta{
+  color:#aeeaff!important;
+}
+/* Preserve correct disabled semantics: no fake active cues. */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card:disabled{
+  cursor:not-allowed; opacity:1!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card:focus-visible{
+  outline:3px solid #7bcfe5!important; outline-offset:3px;
+}
+@media(max-width:820px){
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-grid{grid-template-columns:1fr;}
+}
+@media(max-width:620px){
+  #vocabularyApp .vocab-shell[data-unit-overview] :is(.vocab-pathways__head,.vocab-support__head){
+    margin-top:20px; padding-left:12px;
+  }
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card{
+    padding:15px 14px 12px!important; gap:7px!important;
+  }
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card.has-study-art{padding-right:14px!important;}
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__identity{padding-right:90px;}
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__art.has-png{
+    width:96px; height:84px;
+  }
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card__evidence-copy small{text-align:left;}
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-stage{min-height:46px!important; padding-inline:0!important;}
+}
+@media(forced-colors:active),print{
+  #vocabularyApp .vocab-shell[data-unit-overview] :is(.vocab-pathways__head,.vocab-support__head)>*{
+    color:CanvasText!important; text-shadow:none!important;
+  }
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card :is(
+    .vocab-pathway-card__evidence,.vocab-pathway-stage,.vocab-pathway-ladder
+  ){background:Canvas!important;color:CanvasText!important;border-color:CanvasText!important;}
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card :is(
+    .vocab-pathway-card__evidence-copy strong,.vocab-pathway-card__evidence-copy small,
+    .vocab-pathway-stage small,.vocab-pathway-stage i
+  ){color:CanvasText!important;}
+}
