@@ -76,7 +76,7 @@
 }
 @media(max-width:1070px){
   #vocabularyApp .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity{
-    grid-template-columns:88px minmax(145px,1fr) minmax(165px,1.1fr) 160px;
+    grid-template-columns:88px minmax(145px,1fr) minmax(165px,1.1fr) 190px;
     gap:12px;padding:16px;
   }
   #vocabularyApp .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__avatar{
@@ -86,12 +86,12 @@
     padding-left:12px;
   }
   #vocabularyApp .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__title-art{
-    max-width:160px;
+    max-width:190px;
   }
 }
 @media(max-width:750px){
   #vocabularyApp .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity{
-    grid-template-columns:88px minmax(0,1fr) 155px;
+    grid-template-columns:88px minmax(0,1fr) 190px;
     gap:12px;min-height:0;
   }
   #vocabularyApp .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__progress{
