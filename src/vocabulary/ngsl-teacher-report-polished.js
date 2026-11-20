@@ -88,7 +88,7 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
  '<select data-action="ngsl-report-select-class" aria-label="Filter diagnostic results by class"><option value="all"'+(selected==='all'?' selected':'')+'>'+(isAdmin?'All classes':'All my classes')+'</option>'+classOptions+'</select>'+
  '<select data-ngsl-sort aria-label="Sort student results"><option value="low">Lowest score first</option><option value="high">Highest score first</option><option value="name">Name A–Z</option><option value="status">Completion status</option></select>'+
  '<button type="button" data-ngsl-export>Export CSV</button></div>'+
- '<p class="ngsl-p-table-count" data-ngsl-count aria-live="polite"></p><div class="ngsl-p-table-wrap"><table><thead><tr><th scope="col">Student</th><th scope="col">Status</th><th scope="col">Result</th><th scope="col">Foundation indicator</th><th scope="col">Browser events</th></tr></thead><tbody data-ngsl-rows></tbody></table></div>'+
+ '<p class="ngsl-p-table-count" data-ngsl-count aria-live="polite"></p><div class="ngsl-p-table-wrap"><table><thead><tr><th scope="col">Student</th><th scope="col">Status</th><th scope="col">Result</th><th scope="col">Not sure</th><th scope="col">Foundation indicator</th><th scope="col">Browser events</th></tr></thead><tbody data-ngsl-rows></tbody></table></div>'+
  '<nav class="ngsl-p-pages" aria-label="Student result pages"><span data-ngsl-page-info></span><div><button type="button" data-ngsl-prev>Previous</button><button type="button" data-ngsl-next>Next</button></div></nav>'+
  '<p class="ngsl-p-note">Diagnostic scores indicate vocabulary recognition, not an official CEFR level. Browser focus events are not proof of misconduct.</p></section>'+
  '<div class="ngsl-p-dialog" data-ngsl-dialog hidden role="dialog" aria-modal="true" aria-label="Browser event timeline"><div class="ngsl-p-dialog-card"><button type="button" data-ngsl-close aria-label="Close event review">×</button><div data-ngsl-dialog-body></div></div></div></main>';
@@ -127,8 +127,8 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
    const sub=status==='progress'?' · '+row.progress.answered+'/50 answered':'';
    const result=row.result?row.result.correct+'/50 <small>· '+(row.result.correct*2)+'%</small>':'—';
    return '<tr><td><b>'+e(row.name)+'</b></td><td><span class="ngsl-p-status ngsl-p-status--'+status+'">'+statuses[status]+e(sub)+'</span></td>'+
-    '<td class="ngsl-p-score">'+result+'</td><td>'+e(row.result?rating(row.result.correct):'—')+'</td><td>'+timelineButton(row)+'</td></tr>';
-  }).join('')||'<tr><td colspan="5" class="ngsl-p-empty">No students match your filters.</td></tr>';
+    '<td class="ngsl-p-score">'+result+'</td><td class="ngsl-p-score">'+e(row.result&&Number.isInteger(Number(row.result.unsure))?row.result.unsure:'—')+'</td><td>'+e(row.result?rating(row.result.correct):'—')+'</td><td>'+timelineButton(row)+'</td></tr>';
+  }).join('')||'<tr><td colspan="6" class="ngsl-p-empty">No students match your filters.</td></tr>';
   root.querySelector('[data-ngsl-count]').textContent=matches.length?'Showing '+(page*PAGE_SIZE+1)+'–'+(page*PAGE_SIZE+rows.length)+' of '+matches.length+' matching students':'No students in this group';
   root.querySelector('[data-ngsl-page-info]').textContent='Page '+(page+1)+' of '+totalPages;
   root.querySelector('[data-ngsl-prev]').disabled=page===0;
@@ -179,8 +179,8 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
  root.querySelector('[data-ngsl-dialog]').addEventListener('click',event=>{if(event.target===event.currentTarget)close();});
  root.querySelector('[data-ngsl-dialog]').addEventListener('keydown',event=>{if(event.key==='Escape')close();});
  root.querySelector('[data-ngsl-export]').addEventListener('click',()=>{
-  const headings=['Student','Status','Score / 50','Percentage','Foundation indicator','Focus events','Fullscreen exits'];
-  const records=displayed().map(r=>[r.name,statuses[scoreStatus(r)],r.result?.correct??'',r.result?.correct!=null?r.result.correct*2+'%':'',r.result?rating(r.result.correct):'',r.incident?.focusLosses??'',r.incident?.fullscreenExits??'']);
+  const headings=['Student','Status','Score / 50','Percentage','Not sure','Foundation indicator','Focus events','Fullscreen exits'];
+  const records=displayed().map(r=>[r.name,statuses[scoreStatus(r)],r.result?.correct??'',r.result?.correct!=null?r.result.correct*2+'%':'',r.result?.unsure??'',r.result?rating(r.result.correct):'',r.incident?.focusLosses??'',r.incident?.fullscreenExits??'']);
   const csv='\uFEFF'+[headings,...records].map(row=>row.map(safeCsv).join(',')).join('\r\n');
   const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
   const a=document.createElement('a');a.href=url;a.download='NGSL-diagnostic-results.csv';a.click();
