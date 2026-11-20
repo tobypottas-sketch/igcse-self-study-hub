@@ -31,7 +31,7 @@ test('light preview heading, accent, supporting sentence and name are high contr
 test('the refreshed browser imports reach new preview markup and CSS',()=>{
  const app=read('src/vocabulary/app.js'),router=read('src/vocabulary/router.js'),html=read('vocabulary.html');
  assert.match(app,/views\.js\?v=staff-preview-contrast-v2/);
- assert.match(router,/app\.js\?v=live-effect-previews-v1/);
- assert.match(html,/router\.js\?v=live-effect-previews-v1/);
+ assert.match(router,/app\.js\?v=static-effect-cards-v2/);
+ assert.match(html,/router\.js\?v=static-effect-cards-v2/);
  assert.match(html,/vocabulary-hero-unified\.css\?v=default-home-contrast-v3/);
 });
