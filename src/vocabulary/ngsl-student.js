@@ -133,7 +133,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
    +(state.busy?'disabled ':'')+'/><span class="diag-option-key">'+e(o.id)+'</span><span>'+e(o.text)+'</span></label>').join('');
   const unsure='<label class="diag-option ngsl-unsure-option '+(state.answer==='U'?'diag-option--selected':'')+'">'
    +'<input type="radio" name="ngsl-answer" value="U" '+(state.answer==='U'?'checked ':'')
-   +(state.busy?'disabled ':'')+'/><span class="diag-option-key" aria-hidden="true">?</span><span>I'm not sure</span></label>';
+   +(state.busy?'disabled ':'')+'/><span class="diag-option-key" aria-hidden="true">?</span><span>I’m not sure</span></label>';
   shell('<section class="diag-assessment"><div class="diag-meta"><span>Question '+q.position+' of 50</span>'
    +'<span>Choose one meaning</span></div>'+ngslPromptMarkup(q.stem,q.target)
    +'<fieldset class="diag-choices"><legend>Choose the correct meaning, or say when you are not sure.</legend>'+options+unsure+'</fieldset>'
