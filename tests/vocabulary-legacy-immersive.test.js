@@ -19,7 +19,7 @@ test('legacy backgrounds are equipped-theme-specific and sourced from the four H
   assert.ok(image.readUInt32BE(20)>=900);
  }
  assert.ok(html.indexOf('vocabulary-legacy-immersive.css')>html.indexOf('vocabulary-premium-neon-district.css'));
- assert.match(html,/vocabulary-legacy-immersive\.css\?v=forest-shop-contrast-v3/);
+ assert.match(html,/vocabulary-legacy-immersive\.css\?v=ocean-sakura-contrast-v4/);
  assert.match(css,/body:has\(#vocabularyApp:is\(/);
 });
 
@@ -72,6 +72,27 @@ test('Forest immersive home and shop retain high-contrast text and scenic backgr
  assert.ok(css.includes(shop+' .vocab-shop-card'));
  assert.ok(css.includes(shop+' .vocab-shop-sidebar'));
  assert.ok(css.includes(shop+' .vocab-shop-equipped'));
- assert.match(html,/vocabulary-legacy-immersive\.css\?v=forest-shop-contrast-v3/);
+ assert.match(html,/vocabulary-legacy-immersive\.css\?v=ocean-sakura-contrast-v4/);
  assert.ok(css.includes('@media print,(forced-colors:active)'));
+});
+
+test('Ocean and Sakura use readable light ink on their dark shop headers and home heroes',()=>{
+ const css=read('vocabulary-legacy-immersive.css');
+ const html=read('vocabulary.html');
+ for(const theme of ['ocean','sakura']){
+  const root='#vocabularyApp.vocab-real-theme--'+theme;
+  assert.ok(css.includes(root+' .vocab-shell--home > .vocab-hero--home h1{'));
+  assert.ok(css.includes(root+' .vocab-shell--home > .vocab-hero--home h1 span{'));
+  assert.ok(css.includes(root+' .vocab-shell--home > .vocab-hero--home .vocab-home-hero__welcome strong{'));
+  assert.ok(css.includes('color:#f7fcff!important;'));
+  const expected=theme==='ocean'?'color:#78f0ff!important;':'color:#ffd0ef!important;';
+  assert.ok(css.includes(expected),'Missing accent for '+theme);
+ }
+ assert.ok(css.includes('.vocab-topbar .vocab-topbar__course{'));
+ assert.ok(css.includes('.vocab-shop-redesign .vocab-topbar .vocab-topbar__course{'));
+ assert.ok(css.includes('.vocab-shop-redesign .vocab-sandbox-feedback:not(:empty){'));
+ assert.ok(css.includes('background:#eefaff;'));
+ assert.ok(css.includes('color:#17425e!important;'));
+ assert.ok(css.includes('@media print,(forced-colors:active)'));
+ assert.ok(html.includes('vocabulary-legacy-immersive.css?v=ocean-sakura-contrast-v4'));
 });
