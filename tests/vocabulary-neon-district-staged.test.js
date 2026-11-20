@@ -85,7 +85,7 @@ test('Neon home contrast overrides actual dashboard owners without changing cosm
    assert.ok(css.includes(selector),'Neon contrast missing: '+selector);
  }
  assert.match(progress,/\.vocab-shell--home>\.vocab-progress-entry/);
- assert.match(dashboard,/\.vocab-student-identity__slot\.is-equipped/);
+ assert.match(dashboard,/\.vocab-student-identity__theme\{/);
  assert.match(css,/\.vocab-progress-entry\s*\{\s*background:[^;]+!important;/);
  assert.match(css,/\.vocab-student-identity\s*\{\s*background:[^;]+!important;/);
  assert.match(css,/\.vocab-student-identity__title-label\s*\{[^}]+color:[^;]+!important;/);

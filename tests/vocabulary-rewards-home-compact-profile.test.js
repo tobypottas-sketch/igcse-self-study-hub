@@ -43,3 +43,32 @@ test('sandbox stays separate from learning XP and does not stretch vertically',(
  assert.match(app,/No real XP spent/);
  assert.match(app,/Number\(result\.wallet\?\.available\?\?0\)\.toLocaleString\('en'\)/);
 });
+
+test('compact profile keeps an explicit equipped theme indicator (not a hidden-only description)',()=>{
+ const html=renderIdentityShowcase(shop,'TEST STUDENT');
+ assert.match(html,/class="vocab-student-identity__theme"/);
+ assert.match(html,/Theme: <strong>Midnight Theme<\/strong>/);
+ const none=renderIdentityShowcase({...shop,owned:[]},'TEST STUDENT');
+ assert.match(none,/Theme: <strong>Default<\/strong>/);
+ assert.doesNotMatch(html,/class="vocab-student-identity__slots"/);
+ assert.match(css,/\.vocab-student-identity__theme\{/);
+});
+test('home always provides shop navigation even when verified wallet or catalogue is temporarily unavailable',()=>{
+ const html=readFileSync(new URL('../vocabulary.html',import.meta.url),'utf8');
+ const router=readFileSync(new URL('../src/vocabulary/router.js',import.meta.url),'utf8');
+ const call=app.indexOf('ensureVisibleRewardsEntry(root.querySelector(\'.vocab-shell--home\'))');
+ const pending=app.indexOf('void refreshVerifiedRewardWallet().then(()=>revealRealShopEntry())');
+ assert.ok(call>0&&pending>call,'Shop entry must precede asynchronous wallet sync');
+ const start=app.indexOf('function ensureVisibleRewardsEntry(home){');
+ const end=app.indexOf('async function revealSandboxEntry()',start);
+ assert.ok(start>0&&end>start);
+ const fn=app.slice(start,end);
+ assert.match(fn,/data-real-entry/);
+ assert.match(fn,/data-action="open-real-shop"/);
+ assert.match(fn,/Explore themes, frames, badges, titles and effects/);
+ assert.doesNotMatch(fn,/wallet\.available|fetchRealShop|wallet-sync/);
+ assert.match(html,/router\.js\?v=shop-recovery-v8/);
+ assert.match(html,/vocabulary-rewards-dashboard\.css\?v=shop-recovery-v9/);
+ assert.match(router,/app\.js\?v=shop-recovery-v8/);
+ assert.match(app,/rewards-equipped-home\.js\?v=shop-recovery-v8/);
+});
