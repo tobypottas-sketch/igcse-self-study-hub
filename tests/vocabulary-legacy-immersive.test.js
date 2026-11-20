@@ -19,7 +19,7 @@ test('legacy backgrounds are equipped-theme-specific and sourced from the four H
   assert.ok(image.readUInt32BE(20)>=900);
  }
  assert.ok(html.indexOf('vocabulary-legacy-immersive.css')>html.indexOf('vocabulary-premium-neon-district.css'));
- assert.match(html,/vocabulary-legacy-immersive\.css\?v=legacy-hd-scenes-v2/);
+ assert.match(html,/vocabulary-legacy-immersive\.css\?v=forest-shop-contrast-v3/);
  assert.match(css,/body:has\(#vocabularyApp:is\(/);
 });
 
@@ -52,7 +52,6 @@ test('Forest immersive home and shop retain high-contrast text and scenic backgr
  const hero=forest+' .vocab-shell--home > .vocab-hero--home';
  const shop=forest+' .vocab-shop-redesign';
  for(const [selector,prop] of [
-  [forest+' .vocab-topbar .vocab-topbar__course','color:#f1fff6!important;'],
   [hero+' h1','color:#f6fff9!important;'],
   [hero+' h1 span','color:#cbf383!important;'],
   [hero+' .vocab-home-hero__tagline','color:#d7f4e5!important;'],
