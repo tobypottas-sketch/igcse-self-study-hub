@@ -1,0 +1,127 @@
+/* Five original animated cosmetics for the independent Effects equipment slot.
+   All markup comes from server-verified owned/equipped rewards.
+   Decorative only: never covers input, content or exercise feedback. */
+#vocabularyApp .vocab-student-identity__avatar.has-animated-effect{isolation:isolate;overflow:visible}
+#vocabularyApp .vocab-student-identity__avatar.has-animated-effect .vocab-student-identity__effect{
+ position:absolute!important;z-index:0!important;
+ inset:-30%!important;width:160%!important;height:160%!important;
+ object-fit:contain!important;pointer-events:none!important;
+ opacity:.35;transform-origin:50% 50%;
+}
+#vocabularyApp .vocab-student-identity__avatar .vocab-cosmetic-particles{
+ position:absolute;inset:-18%;display:block;pointer-events:none;overflow:visible;
+ z-index:2;isolation:isolate;
+}
+#vocabularyApp .vocab-student-identity__avatar .vocab-cosmetic-particle{
+ display:block;position:absolute;width:11%;height:11%;
+ left:var(--px);top:var(--py);pointer-events:none;
+ transform:translate3d(0,0,0);opacity:.85;will-change:transform,opacity;
+ animation-delay:var(--delay,0s)!important;
+}
+#vocabularyApp .vocab-cosmetic-particle--1{--px:8%;--py:18%;--delay:-.8s}
+#vocabularyApp .vocab-cosmetic-particle--2{--px:72%;--py:12%;--delay:-2.1s}
+#vocabularyApp .vocab-cosmetic-particle--3{--px:89%;--py:45%;--delay:-3.2s}
+#vocabularyApp .vocab-cosmetic-particle--4{--px:75%;--py:82%;--delay:-4.6s}
+#vocabularyApp .vocab-cosmetic-particle--5{--px:12%;--py:77%;--delay:-1.6s}
+#vocabularyApp .vocab-cosmetic-particle--6{--px:45%;--py:5%;--delay:-5.1s}
+
+/* Fireflies: individual warm glows drifting gently, not a spinning poster. */
+#vocabularyApp [data-cosmetic-effect="forest-fireflies"] .vocab-cosmetic-particle{
+ width:6%;height:6%;border-radius:50%;
+ background:#e9ff83;box-shadow:0 0 5px 2px #d6ff86aa,0 0 11px 5px #a4f95d66;
+ animation:vocab-firefly-drift 6.5s ease-in-out infinite alternate;
+}
+#vocabularyApp [data-cosmetic-effect="forest-fireflies"] .vocab-student-identity__effect{opacity:.26}
+@keyframes vocab-firefly-drift{
+ 0%{transform:translate3d(-6px,4px,0) scale(.65);opacity:.32}
+ 45%{opacity:.92}
+ 100%{transform:translate3d(11px,-12px,0) scale(1.1);opacity:.58}
+}
+
+/* Bubbles: translucent circles rise around the portrait. */
+#vocabularyApp [data-cosmetic-effect="ocean-bubbles"] .vocab-cosmetic-particle{
+ border-radius:50%;border:1.5px solid #eaffff;
+ background:radial-gradient(circle at 30% 25%,#fffdfbde 0%,#b9eefe66 22%,#73d5f51f 68%,#5dd6ff45 100%);
+ box-shadow:inset -2px -3px 5px #59b4ea55,0 0 4px #a4f5ffb3;
+ animation:vocab-ocean-rise 7.8s linear infinite;
+}
+#vocabularyApp [data-cosmetic-effect="ocean-bubbles"] .vocab-cosmetic-particle:nth-child(2n){width:8%;height:8%;animation-duration:9.4s}
+#vocabularyApp [data-cosmetic-effect="ocean-bubbles"] .vocab-student-identity__effect{opacity:.20}
+@keyframes vocab-ocean-rise{
+ 0%{transform:translate3d(0,14px,0) scale(.65);opacity:0}
+ 20%{opacity:.75}
+ 78%{opacity:.72}
+ 100%{transform:translate3d(6px,-23px,0) scale(1.12);opacity:0}
+}
+
+/* Sakura: individual curved petals fall diagonally with slight rotation. */
+#vocabularyApp [data-cosmetic-effect="sakura-petals"] .vocab-cosmetic-particle{
+ width:10%;height:6%;border-radius:90% 10% 85% 12%;
+ background:linear-gradient(135deg,#fff9ff,#ffa4ce 55%,#dc619e);
+ box-shadow:0 0 3px #fda5d4b3;
+ animation:vocab-sakura-fall 8.4s ease-in-out infinite;
+}
+#vocabularyApp [data-cosmetic-effect="sakura-petals"] .vocab-student-identity__effect{opacity:.22}
+@keyframes vocab-sakura-fall{
+ 0%{transform:translate3d(-8px,-14px,0) rotate(-27deg);opacity:0}
+ 18%{opacity:.92}
+ 83%{opacity:.75}
+ 100%{transform:translate3d(23px,23px,0) rotate(75deg);opacity:0}
+}
+
+/* Midnight: six crisp, softly pulsing four-point stars. */
+#vocabularyApp [data-cosmetic-effect="midnight-starlight"] .vocab-cosmetic-particle{
+ width:11%;height:11%;clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);
+ background:linear-gradient(125deg,#ffffff,#d5bcff 55%,#a2dbff);
+ filter:drop-shadow(0 0 3px #a89bff);
+ animation:vocab-midnight-twinkle 4.7s ease-in-out infinite;
+}
+#vocabularyApp [data-cosmetic-effect="midnight-starlight"] .vocab-student-identity__effect{opacity:.26}
+@keyframes vocab-midnight-twinkle{
+ 0%,100%{transform:scale(.58) rotate(0deg);opacity:.32}
+ 50%{transform:scale(1.12) rotate(20deg);opacity:.98}
+}
+
+/* Premium Rainbow Aura: a gently shifting spectral halo, with rare glints. */
+#vocabularyApp [data-cosmetic-effect="rainbow-aura"]::before{
+ content:"";position:absolute;inset:-8%;border-radius:50%;z-index:0;
+ border:3px solid transparent;
+ background:linear-gradient(#0000,#0000) padding-box,
+ conic-gradient(from 20deg,#ffc9ee,#c4abff,#90eaff,#8ff5cc,#fff1a9,#ffb5d5) border-box;
+ filter:drop-shadow(0 0 5px #c8b2ff);pointer-events:none;
+ animation:vocab-rainbow-shimmer 13s linear infinite;
+}
+#vocabularyApp [data-cosmetic-effect="rainbow-aura"] .vocab-cosmetic-particle{
+ width:7%;height:7%;border-radius:50%;
+ background:#fff5fe;box-shadow:0 0 7px 3px #b6c9ff;
+ animation:vocab-midnight-twinkle 6.5s ease-in-out infinite;
+}
+#vocabularyApp [data-cosmetic-effect="rainbow-aura"] .vocab-student-identity__effect{opacity:.21}
+@keyframes vocab-rainbow-shimmer{
+ from{transform:rotate(0deg);filter:drop-shadow(0 0 4px #c5a4ff)}
+ to{transform:rotate(360deg);filter:drop-shadow(0 0 6px #a3e8f9)}
+}
+/* Keep frame/initials and purchased badges above aura imagery. */
+#vocabularyApp .has-animated-effect > .vocab-student-identity__frame{z-index:3}
+#vocabularyApp .has-animated-effect > .vocab-student-identity__initials{z-index:4}
+#vocabularyApp .has-animated-effect > .vocab-student-identity__badge{z-index:5}
+#vocabularyApp .has-animated-effect > .vocab-cosmetic-particles{z-index:2}
+#vocabularyApp .vocab-student-identity-mini .has-animated-effect .vocab-cosmetic-particles{
+ inset:-10%;opacity:.8;
+}
+#vocabularyApp .vocab-student-identity-mini .has-animated-effect .vocab-cosmetic-particle{
+ width:10%;height:10%;
+}
+@media(prefers-reduced-motion:reduce){
+ #vocabularyApp .has-animated-effect .vocab-cosmetic-particle,
+ #vocabularyApp .has-animated-effect .vocab-student-identity__effect,
+ #vocabularyApp .has-animated-effect::before{
+  animation:none!important;transition:none!important;will-change:auto!important;transform:none!important;
+ }
+ #vocabularyApp .has-animated-effect .vocab-cosmetic-particle{opacity:.65!important}
+}
+@media print,(forced-colors:active){
+ #vocabularyApp .has-animated-effect .vocab-cosmetic-particles,
+ #vocabularyApp .has-animated-effect::before{display:none!important}
+ #vocabularyApp .has-animated-effect .vocab-student-identity__effect{animation:none!important}
+}
