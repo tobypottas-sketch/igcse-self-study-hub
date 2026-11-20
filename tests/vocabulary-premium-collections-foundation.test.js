@@ -70,8 +70,8 @@ test('live click router accepts Badges on both shop filters and permits Badge un
  assert.ok(app.includes("['themes','frames','badges','titles','effects'].includes(category)"));
  const router=fs('src/vocabulary/router.js');
  const html=fs('vocabulary.html');
- assert.equal((router.match(/app\.js\?v=pixel-badge-slot-v2/g)||[]).length,2);
- assert.ok(html.includes('router.js?v=pixel-badge-slot-v2'));
+ assert.equal((router.match(/app\.js\?v=animated-effects-v1/g)||[]).length,2);
+ assert.ok(html.includes('router.js?v=animated-effects-v1'));
 });
 function requireRead(){
  return path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');

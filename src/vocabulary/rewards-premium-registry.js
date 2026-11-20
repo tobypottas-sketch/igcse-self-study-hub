@@ -38,6 +38,16 @@ export const PREMIUM_COLLECTIONS=Object.freeze([
   ]}
 ].map(collection=>Object.freeze({...collection,rewards:Object.freeze(collection.rewards.map(row=>Object.freeze(row)))})));
 
+// Original-theme and universal live-effects collection. Metadata only;
+// product unlocks always require the server catalogue and verified ownership.
+export const ORIGINAL_ANIMATED_EFFECTS=Object.freeze([
+  ['forest-fireflies','Forest Fireflies',900],
+  ['ocean-bubbles','Ocean Bubbles',900],
+  ['sakura-petals','Falling Sakura Petals',1000],
+  ['midnight-starlight','Midnight Starlight',1000],
+  ['rainbow-aura','Rainbow Aura',1600]
+].map(row=>Object.freeze(row)));
+
 export const STANDARD_THEME_IDS=Object.freeze(['midnight','forest','ocean','sakura']);
 export const PREMIUM_THEME_IDS=Object.freeze(PREMIUM_COLLECTIONS.map(c=>c.themeId));
 export const SUPPORTED_THEME_IDS=Object.freeze([...STANDARD_THEME_IDS,...PREMIUM_THEME_IDS]);

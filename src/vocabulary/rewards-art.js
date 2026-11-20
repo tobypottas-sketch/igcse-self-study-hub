@@ -14,6 +14,11 @@ const REWARD_ARTWORK = Object.freeze({
   'language-ace':'language-ace.png',
   'pixel-badge':'pixel-badge.png',
   sparkle:'sparkle.png',
+  'forest-fireflies':'forest-fireflies.png',
+  'ocean-bubbles':'ocean-bubbles.png',
+  'sakura-petals':'sakura-petals.png',
+  'midnight-starlight':'midnight-starlight.png',
+  'rainbow-aura':'rainbow-aura.png',
   // Original immersive themes: four collectible badge-slot rewards.
   'forest-guardian-badge':'forest-guardian-badge.png',
   'ocean-explorer-badge':'ocean-explorer-badge.png',

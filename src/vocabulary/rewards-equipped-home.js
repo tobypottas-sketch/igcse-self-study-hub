@@ -6,7 +6,8 @@ import {ensureRewardsDashboard} from './rewards-home-layout.js';
 import {SUPPORTED_THEME_IDS,EQUIPMENT_CATEGORIES,visibleEquipmentCategories} from './rewards-premium-registry.js';
 const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const THEMES=new Set(SUPPORTED_THEME_IDS);
-const EFFECTS=new Set(['sparkle','electric-pulse','stardust-trail']);
+const EFFECTS=new Set(['sparkle','electric-pulse','stardust-trail','forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight','rainbow-aura']);
+const ANIMATED_EFFECTS=new Set(['forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight','rainbow-aura']);
 const CATEGORIES=EQUIPMENT_CATEGORIES;
 const ROOT_CLASSES=[...THEMES].map(x=>'vocab-real-theme--'+x);
 const EFFECT_CLASSES=[...EFFECTS].map(x=>'vocab-real-effect--'+x);
@@ -35,17 +36,21 @@ export function studentIdentityView(shop,displayName='Student'){
    titleArt:active.titles?rewardArtworkPath(active.titles):null,
    frame:active.frames?rewardArtworkPath(active.frames):null,
    badge:active.badges?rewardArtworkPath(active.badges):active.effects==='sparkle'?rewardArtworkPath('sparkle'):null,
-   effectArt:['electric-pulse','stardust-trail'].includes(active.effects)?rewardArtworkPath(active.effects):null,
+   effectArt:['electric-pulse','stardust-trail'].includes(active.effects)||ANIMATED_EFFECTS.has(active.effects)?rewardArtworkPath(active.effects):null,
+   animatedEffect:ANIMATED_EFFECTS.has(active.effects)?active.effects:null,
    effectName:active.effects?items.get(active.effects)?.name??'':'',
    themeName:active.themes?items.get(active.themes)?.name??'':''
  };
 }
 function avatar(identity,compact=false){
- return `<span class="vocab-student-identity__avatar${identity.frame?' has-frame':''}${identity.badge?' has-badge':''}" aria-hidden="true">
+ const motion=identity.animatedEffect;
+ const particles=motion?`<span class="vocab-cosmetic-particles" aria-hidden="true">${Array.from({length:6},(_,i)=>`<i class="vocab-cosmetic-particle vocab-cosmetic-particle--${i+1}"></i>`).join('')}</span>`:'';
+ return `<span class="vocab-student-identity__avatar${identity.frame?' has-frame':''}${identity.badge?' has-badge':''}${motion?' has-animated-effect':''}" ${motion?`data-cosmetic-effect="${motion}"`:``} aria-hidden="true">
    ${identity.frame?`<img class="vocab-student-identity__frame" src="${identity.frame}" alt="" decoding="async">`:''}
    <span class="vocab-student-identity__initials">${escapeHtml(identity.initials)}</span>
    ${identity.badge?`<img class="vocab-student-identity__badge" src="${identity.badge}" alt="" decoding="async">`:''}
    ${identity.effectArt?`<img class="vocab-student-identity__effect" src="${identity.effectArt}" alt="" decoding="async">`:''}
+   ${particles}
  </span>`;
 }
 export function renderIdentityShowcase(shop,displayName='Student'){
