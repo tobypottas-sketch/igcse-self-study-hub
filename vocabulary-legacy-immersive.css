@@ -1,0 +1,147 @@
+/* Phase 1 — turn legacy purchased themes into complete, fixed scenic workspaces.
+   All four original, already-deployed PNGs are used now; the forest full-resolution
+   illustration and other HD backgrounds can be swapped in independently later.
+   Never change activities, answer correctness, scores, purchasing or ownership.
+   Styling is conditional on the existing authenticated equipped-theme class. */
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight){
+  --immersive-scene:none;
+  --immersive-wash:rgba(11,25,48,.48);
+  --immersive-panel:#112744;
+  --immersive-panel-2:#193554;
+  --immersive-accent:#81e6c0;
+  --immersive-edge:#91dbba;
+  --immersive-text:#f6fbff;
+  --immersive-secondary:#d9e9f2;
+  background:transparent!important;
+  min-height:100vh;
+}
+#vocabularyApp.vocab-real-theme--forest{
+  --immersive-scene:url("assets/vocabulary/rewards/forest.png");
+  --immersive-wash:rgba(5,30,22,.46);
+  --immersive-panel:#0b342a;--immersive-panel-2:#124737;
+  --immersive-accent:#cbf383;--immersive-edge:#78d09e;
+}
+#vocabularyApp.vocab-real-theme--ocean{
+  --immersive-scene:url("assets/vocabulary/rewards/ocean.png");
+  --immersive-wash:rgba(1,25,60,.48);
+  --immersive-panel:#092d57;--immersive-panel-2:#104573;
+  --immersive-accent:#78f0ff;--immersive-edge:#55cbed;
+}
+#vocabularyApp.vocab-real-theme--sakura{
+  --immersive-scene:url("assets/vocabulary/rewards/sakura.png");
+  --immersive-wash:rgba(49,10,43,.43);
+  --immersive-panel:#4a214a;--immersive-panel-2:#692e61;
+  --immersive-accent:#ffd0ef;--immersive-edge:#f7a4d6;
+}
+#vocabularyApp.vocab-real-theme--midnight{
+  --immersive-scene:url("assets/vocabulary/rewards/midnight.png");
+  --immersive-wash:rgba(8,13,44,.46);
+  --immersive-panel:#121f4c;--immersive-panel-2:#23346c;
+  --immersive-accent:#c1d9ff;--immersive-edge:#93a4f1;
+}
+/* Use the established background control on the body, including shop,
+   progress, home, unit overview and loading. Avoid background:url(...) on
+   question cards: their authored PNG/SVG artwork must remain independent. */
+body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)){
+  background-color:#142c42!important;
+  background-image:
+    linear-gradient(var(--immersive-wash,rgba(7,26,47,.45)),var(--immersive-wash,rgba(7,26,47,.45))),
+    var(--immersive-scene,none)!important;
+  background-size:cover,cover!important;
+  background-position:center,center!important;
+  background-repeat:no-repeat,no-repeat!important;
+  background-attachment:fixed,fixed!important;
+}
+/* CSS variables on #vocabularyApp are not inherited by its ancestor body.
+   Give body the same wallpaper variables using the equipped class itself. */
+body:has(#vocabularyApp.vocab-real-theme--forest){
+  --immersive-scene:url("assets/vocabulary/rewards/forest.png");
+  --immersive-wash:rgba(5,30,22,.46);
+}
+body:has(#vocabularyApp.vocab-real-theme--ocean){
+  --immersive-scene:url("assets/vocabulary/rewards/ocean.png");
+  --immersive-wash:rgba(1,25,60,.48);
+}
+body:has(#vocabularyApp.vocab-real-theme--sakura){
+  --immersive-scene:url("assets/vocabulary/rewards/sakura.png");
+  --immersive-wash:rgba(49,10,43,.43);
+}
+body:has(#vocabularyApp.vocab-real-theme--midnight){
+  --immersive-scene:url("assets/vocabulary/rewards/midnight.png");
+  --immersive-wash:rgba(8,13,44,.46);
+}
+/* Activities keep the authored illustrated wallpaper tile over the environment,
+   which is especially important to preserve unit identity and readability. */
+body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) .vocab-shell[data-unit-theme]){
+  background-image:var(--unit-wallpaper),linear-gradient(var(--immersive-wash),var(--immersive-wash)),var(--immersive-scene)!important;
+  background-size:420px 420px,cover,cover!important;
+  background-position:0 0,center,center!important;
+  background-repeat:repeat,no-repeat,no-repeat!important;
+  background-attachment:scroll,fixed,fixed!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)
+  :is(.vocab-topbar,.vocab-hero--home,.vocab-unit-card,.vocab-pathway-card,.vocab-student-identity){
+  background:linear-gradient(120deg,var(--immersive-panel) 0%,var(--immersive-panel-2) 100%)!important;
+  color:var(--immersive-text)!important;
+  border-color:var(--immersive-edge)!important;
+  box-shadow:0 9px 27px rgba(5,14,37,.3);
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)
+  :is(.vocab-hero--home,.vocab-unit-card,.vocab-pathway-card,.vocab-student-identity)
+  :is(h1,h2,h3,strong,p,.vocab-unit-card__progress-copy){
+  color:var(--immersive-text)!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)
+  :is(.vocab-unit-card,.vocab-pathway-card,.vocab-student-identity)
+  :is(small,.vocab-student-identity__eyebrow,.vocab-unit-card__number){
+  color:var(--immersive-accent)!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)
+  .vocab-student-identity__slot{
+  color:#244760!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)
+  .vocab-student-identity__slot.is-equipped{
+  color:#183e51!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)
+  .vocab-student-identity__title-label{
+  color:var(--immersive-text)!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)
+  .vocab-student-identity-mini__name{
+  color:var(--immersive-text)!important;
+}
+/* The shopping cards and progress panels intentionally remain pale; only their
+   surrounding chrome is themed so heading contrast doesn't regress. */
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)
+  .vocab-shop-redesign{
+  background:linear-gradient(135deg,var(--immersive-panel),var(--immersive-panel-2))!important;
+  border-color:var(--immersive-edge)!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)
+  .vocab-shop-redesign .vocab-shop-leaderboard__head :is(h2,small){
+  color:#f6fbff!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)
+  .vocab-hero--home h1 span{
+  color:var(--immersive-accent)!important;
+}
+@media(max-width:760px){
+  body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)){
+    background-attachment:scroll,scroll!important;
+  }
+  body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight) .vocab-shell[data-unit-theme]){
+    background-size:340px 340px,cover,cover!important;
+    background-attachment:scroll,scroll,scroll!important;
+  }
+}
+@media print,(forced-colors:active){
+  body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)){
+    background-image:none!important;background-color:Canvas!important;
+  }
+  #vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight)
+    :is(.vocab-topbar,.vocab-hero--home,.vocab-unit-card,.vocab-pathway-card,.vocab-student-identity){
+    background:Canvas!important;color:CanvasText!important;border-color:CanvasText!important;
+  }
+}
