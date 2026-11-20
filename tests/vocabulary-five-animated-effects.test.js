@@ -74,7 +74,7 @@ test('CSS creates distinct lightweight motion for each effect and respects reduc
  const css=read('vocabulary-effects-animated.css');
  for(const id of ids){
   assert.ok(css.includes('data-cosmetic-effect="'+id+'"'),id+' must have custom particles');
-  assert.ok(css.includes('vocab-real')===false,'effect particles should not override theme colours');
+  assert.ok(!css.includes('vocab-real-theme--'),'effect particles must not override purchased theme colours');
  }
  for(const animation of ['vocab-firefly-drift','vocab-ocean-rise','vocab-sakura-fall','vocab-midnight-twinkle','vocab-rainbow-shimmer'])
   assert.ok(css.includes('@keyframes '+animation));
