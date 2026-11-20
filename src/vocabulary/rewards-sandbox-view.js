@@ -2,6 +2,7 @@
 // The layout follows the approved mockup; all XP, ownership and equipment
 // values come from authenticated data, never from illustrative screenshots.
 import { rewardIllustration, bannerIllustration } from './rewards-art.js';
+import {renderEffectPreviewAvatar,PREVIEWABLE_EFFECTS} from './rewards-equipped-home.js';
 import {leaderboardModal,installLeaderboardModal} from './rewards-leaderboard-modal.js';
 import {hasBadgeCatalog} from './rewards-premium-registry.js';
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({
@@ -84,7 +85,8 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
     const tag=categoryLabel[item.category]??item.category;
     return `<article class="vocab-reward-card vocab-shop-card vocab-shop-card--${escapeHtml(item.category)}" data-reward-id="${escapeHtml(item.reward_id)}">
       <span class="vocab-reward-category">${escapeHtml(tag)}</span>
-      <div class="vocab-reward-picture">${rewardIllustration(item.reward_id,item.icon)}</div>
+      <div class="vocab-reward-picture">${rewardIllustration(item.reward_id,item.icon)}${item.category==='effects'&&PREVIEWABLE_EFFECTS.includes(item.reward_id)?`<div class="vocab-effect-demo-stage" hidden>${renderEffectPreviewAvatar(item.reward_id)}</div>`:''}</div>
+      ${item.category==='effects'&&PREVIEWABLE_EFFECTS.includes(item.reward_id)?`<button type="button" class="vocab-effect-demo-toggle" data-action="preview-effect" data-reward-id="${escapeHtml(item.reward_id)}" aria-pressed="false" aria-label="Watch ${escapeHtml(item.name)} animation on a sample avatar"><span aria-hidden="true">▶</span> Try live effect</button>`:''}
       <h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.description)}</p>
       <div class="vocab-reward-card__bottom"><strong class="vocab-shop-price"><span aria-hidden="true">⭐</span> ${format(item.xp_price)} XP</strong>
       ${locked?`<div class="vocab-shop-unlock" aria-label="${format(remaining)} XP to unlock ${escapeHtml(item.name)}">
