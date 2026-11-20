@@ -37,6 +37,6 @@ test('shop remains accessible: light cards and print/high-contrast fallbacks',()
  const shop=read('vocabulary-rewards.css');
  assert.match(css,/@media print,\(forced-colors:active\)/);
  assert.match(css,/@media\(max-width:760px\)/);
- assert.match(shop,/\.vocab-reward-card\{[^}]*background:#fff/);
+ assert.match(shop,/\.vocab-rewards-profile,\.vocab-reward-card\{[^}]*background:#fff/);
  assert.doesNotMatch(css,/\.vocab-shop-card\s*\{[^}]*background/);
 });
