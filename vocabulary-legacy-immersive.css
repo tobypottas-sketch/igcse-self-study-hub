@@ -365,3 +365,94 @@ body:has(#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.v
     text-shadow:none!important;
   }
 }
+
+/* MIDNIGHT — dark immersive surfaces need luminous ink.
+   Older 4-theme light card rules painted navy ink onto new indigo cards.
+   Scope only to Midnight and the actual dark owners; leave reading/questions,
+   XP cards, shop merchandise and coursebook reference panels untouched. */
+#vocabularyApp.vocab-real-theme--midnight .vocab-topbar .vocab-topbar__course,
+#vocabularyApp.vocab-real-theme--midnight .vocab-topbar .vocab-unit-id__course{
+  color:#f4f7ff!important;
+  text-shadow:0 1px 2px rgba(3,12,39,.32);
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-shell--home > .vocab-hero--home h1{
+  color:#f7f8ff!important;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-shell--home > .vocab-hero--home h1 span{
+  color:#bacbff!important;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-shell--home > .vocab-hero--home :is(.vocab-home-hero__tagline,.vocab-home-hero__welcome){
+  color:#e2eaff!important;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-shell--home > .vocab-hero--home .vocab-home-hero__welcome strong{
+  color:#ffe4a5!important;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-shell--home > .vocab-hero--home .vocab-home-hero__welcome{
+  border-top-color:rgba(236,242,255,.36)!important;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-unit-card :is(h2,h3,p,.vocab-unit-card__title),
+#vocabularyApp.vocab-real-theme--midnight .vocab-pathway-card :is(h2,h3,p){
+  color:#f4f6ff!important;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-unit-card :is(small,.vocab-unit-card__number,.vocab-unit-card__progress-copy),
+#vocabularyApp.vocab-real-theme--midnight .vocab-pathway-card small{
+  color:#c2d0ff!important;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__text h2,
+#vocabularyApp.vocab-real-theme--midnight .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__title-label{
+  color:#f5f8ff!important;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__eyebrow,
+#vocabularyApp.vocab-real-theme--midnight .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__stamp{
+  color:#bcd2ff!important;
+}
+/* The slot chips are light surfaces: dark blue typography, never light-on-light. */
+#vocabularyApp.vocab-real-theme--midnight .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__slot{
+  background:#edf2ff;
+  border-color:#b3c6ef;
+  color:#24436b!important;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__slot.is-equipped{
+  background:#dce8ff;
+  border-color:#89a9e1;
+  color:#19375c!important;
+}
+/* Shop navigation and leaderboard headers remain dark even though the
+   main promo and merchandise are pale. */
+#vocabularyApp.vocab-real-theme--midnight .vocab-shop-redesign .vocab-topbar .vocab-topbar__course,
+#vocabularyApp.vocab-real-theme--midnight .vocab-shop-redesign .vocab-shop-leaderboard__head :is(h2,small){
+  color:#f4f7ff!important;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-shop-redesign .vocab-shop-leaderboard__tabs button.is-active{
+  color:#fff!important;
+}
+#vocabularyApp.vocab-real-theme--midnight .vocab-shop-redesign .vocab-shop-leaderboard__tabs button:not(.is-active){
+  color:#24436b!important;
+}
+/* Purchase/unequip acknowledgement lies directly over scenic art.
+   Make the message legible without obscuring the wallpaper elsewhere. */
+#vocabularyApp.vocab-real-theme--midnight .vocab-shop-redesign .vocab-sandbox-feedback:not(:empty){
+  width:fit-content;
+  max-width:calc(100% - 54px);
+  margin:0 27px 10px;
+  padding:7px 12px;
+  border:1px solid #b3c6ef;
+  border-radius:9px;
+  background:#f0f4ff;
+  color:#263e68!important;
+}
+@media(max-width:600px){
+  #vocabularyApp.vocab-real-theme--midnight .vocab-shop-redesign .vocab-sandbox-feedback:not(:empty){
+    margin-inline:14px;
+    max-width:calc(100% - 28px);
+  }
+}
+@media print,(forced-colors:active){
+  #vocabularyApp.vocab-real-theme--midnight .vocab-topbar .vocab-topbar__course,
+  #vocabularyApp.vocab-real-theme--midnight .vocab-shell--home > .vocab-hero--home :is(h1,.vocab-home-hero__tagline,.vocab-home-hero__welcome),
+  #vocabularyApp.vocab-real-theme--midnight .vocab-shop-redesign .vocab-sandbox-feedback:not(:empty){
+    color:CanvasText!important;
+    background:Canvas!important;
+    text-shadow:none!important;
+  }
+}
