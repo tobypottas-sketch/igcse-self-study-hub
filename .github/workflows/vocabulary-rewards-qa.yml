@@ -14,6 +14,8 @@ on:
       - 'vocabulary-reward-identity.css'
       - 'vocabulary-premium-neon-district.css'
       - 'vocabulary-legacy-immersive.css'
+      - 'vocabulary-immersive-shop-backgrounds.css'
+      - 'tests/vocabulary-immersive-shop-backgrounds.test.js'
       - 'tests/vocabulary-legacy-immersive.test.js'
       - 'tests/vocabulary-neon-district-staged.test.js'
       - 'tests/vocabulary-premium-collections-foundation.test.js'
@@ -33,7 +35,7 @@ jobs:
         with:
           node-version: '22'
       - name: Verify reward catalogue, XP parity fixtures and safe API contract
-        run: node --test tests/vocabulary-rewards-*.test.js tests/vocabulary-classroom-lite-artwork.test.js tests/vocabulary-neon-district-staged.test.js tests/vocabulary-premium-collections-foundation.test.js tests/vocabulary-legacy-immersive.test.js
+        run: node --test tests/vocabulary-rewards-*.test.js tests/vocabulary-classroom-lite-artwork.test.js tests/vocabulary-neon-district-staged.test.js tests/vocabulary-premium-collections-foundation.test.js tests/vocabulary-legacy-immersive.test.js tests/vocabulary-immersive-shop-backgrounds.test.js
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
