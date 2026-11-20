@@ -333,6 +333,23 @@ function ensureRewardsHomeStrip(home){
  const layout=ensureRewardsDashboard(home);
  return layout?.querySelector('[data-rewards-dashboard-main]')??null;
 }
+/* A shop link must never vanish just because wallet-sync/status is delayed or
+   temporarily unavailable. The verified response upgrades this entry with the
+   true XP amount; the fallback never guesses a balance or enables purchases. */
+function ensureVisibleRewardsEntry(home){
+ if(!home?.isConnected||state.preview||state.profile?.role!=='student')return;
+ const strip=ensureRewardsHomeStrip(home);
+ if(!strip||strip.querySelector('[data-real-entry]'))return;
+ const entry=document.createElement('section');
+ entry.className='vocab-rewards-preview-entry vocab-rewards-home-card vocab-rewards-home-card--real';
+ entry.dataset.realEntry='true';
+ entry.setAttribute('aria-label','XP Rewards Shop');
+ entry.innerHTML='<img class="vocab-rewards-home-card__art" src="assets/vocabulary/rewards/word-explorer.png" alt="" loading="lazy">'+
+   '<div class="vocab-rewards-home-card__body"><span class="vocab-rewards-home-card__eyebrow">YOUR REWARDS</span>'+
+   '<strong>XP Rewards Shop</strong><small>Explore themes, frames, badges, titles and effects</small></div>'+
+   '<button type="button" data-action="open-real-shop">Explore shop</button>';
+ strip.append(entry);
+}
 async function revealSandboxEntry(){
   const home=root?.querySelector?.('.vocab-shell--home');
   if(!home||state.preview)return;
@@ -568,6 +585,7 @@ async function showHome() {
   state.dashboard = dashboard; state.missions = missions; state.meritAwarded = meritAwarded; state.units = buildUnits(state.dashboard);
   await evaluateUnitsThatLookMastered(dashboard);
   renderVocabularyHome(root, { displayName:state.profile.display_name, units:state.units, engagement:homeEngagement(), soundOn:soundEnabled(), preview:state.preview }); decoratePreview();
+  ensureVisibleRewardsEntry(root.querySelector('.vocab-shell--home'));
   void runRewardsXpParityDiagnostic();
   void revealSandboxEntry();
   void refreshVerifiedRewardWallet().then(()=>revealRealShopEntry());
