@@ -1,7 +1,7 @@
 // Student-facing equipped identity and app-wide cosmetic theme controller.
 // The backend owns inventory; only equipped items found in its returned catalogue
 // can influence presentation. No learning content, grades, mastery or XP changes.
-import {rewardArtworkPath} from './rewards-art.js?v=afterlight-v1';
+import {rewardArtworkPath} from './rewards-art.js?v=transparent-frames-v1';
 import {ensureRewardsDashboard} from './rewards-home-layout.js';
 import {SUPPORTED_THEME_IDS,EQUIPMENT_CATEGORIES,visibleEquipmentCategories} from './rewards-premium-registry.js';
 const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
