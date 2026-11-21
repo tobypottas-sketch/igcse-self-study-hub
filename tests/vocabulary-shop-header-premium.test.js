@@ -90,7 +90,7 @@ test('approved shop counter is a valid transparent PNG and CSS keeps it theme in
   const css=read('vocabulary-shop-header-premium.css');
   assert.ok(css.includes('.vocab-shop-hero__counter'));
   assert.ok(css.includes('grid-template-areas:"intro display"'));
-  assert.ok(css.includes('grid-template-columns:minmax(0,930px) minmax(290px,465px)'));
+  assert.ok(css.includes('grid-template-columns:minmax(0,700px) minmax(290px,465px)'));
   assert.ok(css.includes('justify-content:center!important'));
   assert.ok(!css.includes('/* A single, balanced hero composition.'));
   assert.ok(css.includes('grid-template-areas:"intro" "display"'));
