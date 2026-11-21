@@ -156,10 +156,10 @@ test('shop counter art and live XP stay separate for both real and sandbox shops
     const data={...shop,shopMode:production?'production':'sandbox',sandboxEnabled:!production,
       wallet:{available:5724},owned};
     (production?renderProductionShop:renderSandboxShop)(root,data,{category:'themes'});
-    assert.match(root.innerHTML,/assets\\/vocabulary\\/rewards\\/shop-counter\\.png/);
-    assert.equal((root.innerHTML.match(/vocab-shop-hero__counter/g)||[]).length,1);
-    assert.match(root.innerHTML,/5,724 XP/);
-    assert.doesNotMatch(root.innerHTML,/STUDENT REWARDS/);
-    assert.match(root.innerHTML,/Earn it\\. Spend it\\. Make it yours\\./);
+    assert.ok(root.innerHTML.includes('assets/vocabulary/rewards/shop-counter.png'));
+    assert.equal(root.innerHTML.split('vocab-shop-hero__counter').length-1,1);
+    assert.ok(root.innerHTML.includes('5,724 XP'));
+    assert.ok(!root.innerHTML.includes('STUDENT REWARDS'));
+    assert.ok(root.innerHTML.includes('Earn it. Spend it. Make it yours.'));
   }
 });
