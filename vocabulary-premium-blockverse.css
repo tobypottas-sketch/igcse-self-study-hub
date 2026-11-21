@@ -19,14 +19,20 @@ body:has(#vocabularyApp.vocab-real-theme--blockverse){
   background:#192925 linear-gradient(120deg,#14231de0,#30251ab8) center / cover no-repeat fixed!important;
   background-image:linear-gradient(120deg,#14231de0,#30251ab8),url("assets/vocabulary/rewards/blockverse.png")!important;
 }
-body:has(#vocabularyApp.vocab-real-theme--blockverse .vocab-shell[data-unit-overview]){
-  background-image:var(--page-art),linear-gradient(120deg,#14231ded,#30251ac9),url("assets/vocabulary/rewards/blockverse.png")!important;
-  background-size:max(100vw,177.78vh) auto,cover,cover!important;
+/* Equipped Blockverse owns its entire backdrop. Never layer the default
+   coursebook page-art SVG or repeating unit-wallpaper SVG on top. */
+body:has(#vocabularyApp.vocab-real-theme--blockverse .vocab-shell:is([data-unit-overview],[data-unit-theme])){
+  background-color:#192925!important;
+  background-image:linear-gradient(120deg,#14231ddc,#30251ab5),url("assets/vocabulary/rewards/blockverse.png")!important;
+  background-size:cover,cover!important;
+  background-position:center,center!important;
+  background-repeat:no-repeat,no-repeat!important;
+  background-attachment:fixed,fixed!important;
 }
-body:has(#vocabularyApp.vocab-real-theme--blockverse .vocab-shell[data-unit-theme]){
-  background-image:var(--unit-wallpaper),linear-gradient(120deg,#14231de0,#30251ac9),url("assets/vocabulary/rewards/blockverse.png")!important;
-  background-size:420px 420px,cover,cover!important;
-  background-repeat:repeat,no-repeat,no-repeat!important;
+@media(max-width:760px){
+  body:has(#vocabularyApp.vocab-real-theme--blockverse){
+    background-attachment:scroll,scroll!important;
+  }
 }
 #vocabularyApp.vocab-real-theme--blockverse :is(.vocab-topbar,.vocab-unit-card,.vocab-hero--home,
   .vocab-progress-entry,.vocab-student-identity,.vocab-startup__content,.vocab-journey-hero){
