@@ -71,6 +71,52 @@
  0%,100%{box-shadow:0 0 0 3px #c8adff,0 0 15px #bc92ec74}
  55%{box-shadow:0 0 0 3px #e7bfff,0 0 29px #bd92f9dd,0 0 47px #d7baff9c}
 }
+/* Sparkle must genuinely MOVE: old version only altered the avatar shadow.
+   Animate a floating star field plus the art's luminance/rotation.
+   Applied to demo and actual equipped avatar wherever particles exist. */
+#vocabularyApp .vocab-effect-preview[data-preview-effect="sparkle"] .vocab-student-identity__effect,
+#vocabularyApp.vocab-real-effect--sparkle .vocab-student-identity__effect{
+  animation:vocab-sparkle-art-motion 4.4s ease-in-out infinite!important;
+  transform-origin:center!important;
+  will-change:transform,filter,opacity;
+}
+#vocabularyApp .vocab-effect-preview[data-preview-effect="sparkle"] .vocab-cosmetic-particle,
+#vocabularyApp.vocab-real-effect--sparkle .vocab-student-identity__avatar .vocab-cosmetic-particle{
+  display:block!important;position:absolute;
+  width:13%!important;height:13%!important;
+  border-radius:0!important;
+  clip-path:polygon(50% 0,60% 38%,100% 50%,60% 62%,50% 100%,40% 62%,0 50%,40% 38%);
+  background:linear-gradient(140deg,#fff,#fae3ff 40%,#bd8cff 100%)!important;
+  filter:drop-shadow(0 0 5px #c68eff) drop-shadow(0 0 8px #ffffff);
+  animation:vocab-sparkle-float 3.2s ease-in-out infinite alternate!important;
+  animation-delay:var(--delay,0s)!important;
+  opacity:0.9;
+}
+#vocabularyApp .vocab-effect-preview[data-preview-effect="sparkle"] .vocab-cosmetic-particle:nth-child(2n),
+#vocabularyApp.vocab-real-effect--sparkle .vocab-cosmetic-particle:nth-child(2n){
+  width:9%!important;height:9%!important;
+  animation-duration:4s!important;
+}
+#vocabularyApp .vocab-effect-preview[data-preview-effect="sparkle"] .vocab-cosmetic-particle:nth-child(3n),
+#vocabularyApp.vocab-real-effect--sparkle .vocab-cosmetic-particle:nth-child(3n){
+  animation-duration:2.6s!important;
+}
+@keyframes vocab-sparkle-art-motion{
+  0%,100%{transform:translateY(3px) rotate(-5deg) scale(.93);opacity:.55;filter:brightness(.96) drop-shadow(0 0 4px #b8a3ff)}
+  50%{transform:translateY(-4px) rotate(5deg) scale(1.08);opacity:.9;filter:brightness(1.22) drop-shadow(0 0 13px #d4aaff)}
+}
+@keyframes vocab-sparkle-float{
+  0%{transform:translate3d(-13px,13px,0) rotate(-25deg) scale(.55);opacity:.23}
+  50%{opacity:1}
+  100%{transform:translate3d(14px,-15px,0) rotate(33deg) scale(1.35);opacity:.98}
+}
+/* Existing students requesting less movement get a static, legible decoration. */
+@media(prefers-reduced-motion:reduce){
+  #vocabularyApp .vocab-effect-preview[data-preview-effect="sparkle"] :is(.vocab-student-identity__effect,.vocab-cosmetic-particle),
+  #vocabularyApp.vocab-real-effect--sparkle :is(.vocab-student-identity__effect,.vocab-cosmetic-particle){
+    animation:none!important;transform:none!important;filter:none!important;will-change:auto!important;
+  }
+}
 /* Stardust Trail: the same softly breathing artwork for equipped and demo avatars. */
 #vocabularyApp .vocab-effect-preview[data-preview-effect="stardust-trail"] .vocab-student-identity__effect,
 #vocabularyApp.vocab-real-effect--stardust-trail .vocab-student-identity__effect{
