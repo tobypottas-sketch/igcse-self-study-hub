@@ -293,10 +293,10 @@ function pathwayToClearCopy(evidence, label, mastered) {
 // The evidence readout is rendered complete in the card's first HTML from the state the caller already holds.
 function setToClearCopy(set, label) {
   if (set.firstPassComplete) return 'Every Set is in Maintain';
-  if (set.phase === 'consolidate') return `Score 8 or more in the follow-up to clear ${label}`;
-  if (set.phase === 'recovery') return `A recovery mission, then one fresh ${label} mission`;
-  if (set.phase === 'fresh') return `One fresh ${label} mission, then you move on`;
-  return `Score 8 or more to clear ${label}`;
+  if (set.phase === 'consolidate') return 'Follow-up · Pass with 8/10 correct';
+  if (set.phase === 'recovery') return 'Recovery mission, then one fresh mission';
+  if (set.phase === 'fresh') return 'Fresh mission · Pass with 8/10 correct';
+  return '10 questions · Pass with 8 correct';
 }
 // Server-held Sets-of-10 progression: the card says which Set the student is on and what clears the stage. No per-word evidence counts.
 function setProgressBlock(state) {
@@ -304,7 +304,7 @@ function setProgressBlock(state) {
   const label = PATHWAY_STAGES.find(stage => stage.id === state.currentStage)?.label ?? 'Recognise';
   const percent = set.firstPassComplete ? 100 : Math.round((state.completedStages.size / PATHWAY_STAGES.length) * 100);
   const headline = set.firstPassComplete ? `${set.count} of ${set.count} Sets in Maintain` : `Set ${set.number} of ${set.count}`;
-  return `<span class="vocab-pathway-card__evidence" data-pathway-evidence="${escapeHtml(state.currentStage)}" data-set-number="${escapeHtml(set.number)}" data-set-count="${escapeHtml(set.count)}" data-set-phase="${escapeHtml(set.phase)}"><span class="vocab-pathway-card__evidence-copy"><strong class="vocab-pathway-card__set">${escapeHtml(headline)}</strong><small data-set-copy>${escapeHtml(set.copy)}</small></span><span class="vocab-pathway-card__to-clear" data-pathway-to-clear>${escapeHtml(setToClearCopy(set,label))}</span><span class="vocab-pathway-card__evidence-meter" role="progressbar" aria-label="${escapeHtml(label)} stage progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}"><span class="vocab-pathway-card__evidence-fill" style="--pathway-evidence:${percent}%"></span></span></span>`;
+  return `<span class="vocab-pathway-card__evidence" data-pathway-evidence="${escapeHtml(state.currentStage)}" data-set-number="${escapeHtml(set.number)}" data-set-count="${escapeHtml(set.count)}" data-set-phase="${escapeHtml(set.phase)}"><span class="vocab-pathway-card__evidence-copy"><strong class="vocab-pathway-card__set">${escapeHtml(headline)}</strong><small data-set-copy>${escapeHtml(label)}</small></span><span class="vocab-pathway-card__to-clear" data-pathway-to-clear>${escapeHtml(setToClearCopy(set,label))}</span><span class="vocab-pathway-card__evidence-meter" role="progressbar" aria-label="${escapeHtml(label)} stage progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}"><span class="vocab-pathway-card__evidence-fill" style="--pathway-evidence:${percent}%"></span></span></span>`;
 }
 function pathwayEvidence(state) {
   if (state.set) return setProgressBlock(state);
@@ -330,21 +330,21 @@ function renderPathwayCard(pathway, pathwayStates, ready) {
   const statusLabel = unavailable ? 'Coming soon'
     : state.set?.firstPassComplete ? 'Maintain'
     : state.mastered ? 'Mastered'
-    : state.set ? `${state.needsPractice ? 'Follow-up' : 'Current'}: ${stageName}`
-    : state.needsPractice ? 'Needs practice' : `Current: ${stageName}`;
+    : state.needsPractice ? `Follow-up · ${stageName}` : stageName;
+  const statusEyebrow = unavailable ? 'PATHWAY STATUS' : state.mastered ? 'PATHWAY COMPLETE' : 'CURRENT STAGE';
   const stages = PATHWAY_STAGES.map(stage => {
     const visualState = unavailable ? 'locked' : stageVisualState(stage.id,state);
     const marker = visualState === 'complete' ? '✓' : visualState === 'current' ? '●' : '○';
     return `<span class="vocab-pathway-stage" data-pathway-stage="${stage.id}" data-state="${visualState}"><i aria-hidden="true">${marker}</i><small>${escapeHtml(stage.label)}</small></span>`;
   }).join('');
   const coverage = !unavailable && state.coverageCount != null && state.totalCount != null && state.coverageCount < state.totalCount
-    ? `<span class="vocab-pathway-card__coverage">${escapeHtml(state.coverageCount)} of ${escapeHtml(state.totalCount)} words available</span>`
+    ? `<span class="vocab-pathway-card__coverage" aria-label="${escapeHtml(state.coverageCount)} of ${escapeHtml(state.totalCount)} words available"><span class="vocab-pathway-card__coverage-label">WORD COVERAGE</span><span class="vocab-pathway-card__coverage-count"><strong>${escapeHtml(state.coverageCount)} / ${escapeHtml(state.totalCount)}</strong><span>words available</span></span><span class="vocab-pathway-card__coverage-track" aria-hidden="true"><span style="width:${Math.max(0,Math.min(100,Math.round(state.coverageCount / Math.max(1,state.totalCount) * 100)))}%"></span></span></span>`
     : '';
   const held = state.set && state.set.heldBack > 0 ? `<span class="vocab-pathway-card__coverage vocab-pathway-card__held" data-held-back="${escapeHtml(state.set.heldBack)}">${escapeHtml(state.set.heldBack)} ${state.set.heldBack === 1 ? 'word waits' : 'words wait'} for a full Set of 10</span>` : '';
   const disabled = ready && !unavailable ? '' : ' disabled aria-disabled="true"';
   const evidenceShell = unavailable ? '' : pathwayEvidence(state);
   const cta = unavailable ? '' : `${state.mastered ? 'Review pathway' : 'Continue pathway'} →`;
-  return `<button type="button" class="vocab-pathway-card has-study-art study-enter" data-action="open-pathway" data-pathway="${pathway.id}" data-pathway-status="${status}" data-study-accent="${escapeHtml(identity.accent)}"${disabled}><span class="vocab-pathway-card__identity"><span class="vocab-pathway-card__icon">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}</span><span class="vocab-pathway-card__head"><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(identity.purpose)}</small></span></span><span class="vocab-pathway-card__status">${escapeHtml(statusLabel)}</span>${coverage || held ? `<span class="vocab-pathway-card__chips">${coverage}${held}</span>` : ''}${evidenceShell}<span class="vocab-pathway-ladder" aria-label="${escapeHtml(pathway.label)} progression">${stages}</span><span class="vocab-pathway-card__cta">${escapeHtml(cta)}</span>${pathwayArtSlot(pathway.id)}</button>`;
+  return `<button type="button" class="vocab-pathway-card has-study-art study-enter" data-action="open-pathway" data-pathway="${pathway.id}" data-pathway-status="${status}" data-study-accent="${escapeHtml(identity.accent)}"${disabled}><span class="vocab-pathway-card__identity"><span class="vocab-pathway-card__icon">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}</span><span class="vocab-pathway-card__head"><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(identity.purpose)}</small></span></span><span class="vocab-pathway-card__status"><small class="vocab-pathway-card__status-label">${escapeHtml(statusEyebrow)}</small><strong class="vocab-pathway-card__status-value">${escapeHtml(statusLabel)}</strong></span>${coverage || held ? `<span class="vocab-pathway-card__chips">${coverage}${held}</span>` : ''}${evidenceShell}<span class="vocab-pathway-ladder" aria-label="${escapeHtml(pathway.label)} progression">${stages}</span><span class="vocab-pathway-card__cta">${escapeHtml(cta)}</span>${pathwayArtSlot(pathway.id)}</button>`;
 }
 
 // "How do you want to practise?" sheet. `options` come from pathwayPracticeOptions(); locked ones stay visible with the reason, never hidden.
