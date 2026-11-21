@@ -366,3 +366,27 @@
     forced-color-adjust:auto;
   }
 }
+
+/* Portrait frames are not landscape banners. Preserve the ENTIRE original
+   artwork in shop cards (including the top and bottom of Survivor Frame). */
+#vocabularyApp .vocab-shop-redesign .vocab-shop-card--frames .vocab-reward-picture{
+  overflow:visible;
+  border-radius:14px;
+  background:transparent;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-card--frames .vocab-reward-picture > .vocab-shop-illustration{
+  display:block;
+  width:100%;
+  height:auto;
+  aspect-ratio:1 / 1;
+  object-fit:contain;
+  object-position:center;
+  border-radius:12px;
+  background:transparent;
+}
+/* The "Equipped now" frame slot is deliberately landscape-sized, but should
+   letterbox its frame rather than taking a crop or distorting it. */
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__item:nth-child(2) .vocab-shop-illustration{
+  object-fit:contain;
+  object-position:center;
+}
