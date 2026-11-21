@@ -35,7 +35,12 @@ const REWARD_ARTWORK = Object.freeze({
   'astral-halo-frame':'astral-halo-frame.png',
   'starseer-emblem':'starseer-emblem.png',
   'sky-wanderer':'sky-wanderer.png',
-  'stardust-trail':'stardust-trail.png'
+  'stardust-trail':'stardust-trail.png',
+  afterlight:'afterlight.png',
+  'survivor-frame':'survivor-frame.png',
+  'last-explorer-badge':'last-explorer-badge.png',
+  'the-pathfinder':'the-pathfinder.png',
+  'golden-sunrays':'golden-sunrays.png'
 });
 export const REWARD_ARTWORK_DIR='assets/vocabulary/rewards/';
 export const rewardArtworkPath=id=>

@@ -1,7 +1,7 @@
 // Functional Rewards Shop for server-enabled sandbox accounts only.
 // The layout follows the approved mockup; all XP, ownership and equipment
 // values come from authenticated data, never from illustrative screenshots.
-import { rewardIllustration, rewardArtworkPath, bannerIllustration } from './rewards-art.js';
+import { rewardIllustration, rewardArtworkPath, bannerIllustration } from './rewards-art.js?v=afterlight-v1';
 import {leaderboardModal,installLeaderboardModal} from './rewards-leaderboard-modal.js';
 import {hasBadgeCatalog} from './rewards-premium-registry.js';
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({
@@ -14,13 +14,16 @@ const categoryLabel={themes:'Theme',frames:'Frame',badges:'Badge',titles:'Title'
 // Other rewards remain static: no misleading preview button.
 const LIVE_EFFECT_IDS=new Set([
   'forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight',
-  'rainbow-aura','sparkle','stardust-trail','electric-pulse'
+  'rainbow-aura','sparkle','stardust-trail','electric-pulse','golden-sunrays'
 ]);
 function liveEffectDemo(item){
   if(item?.category!=='effects'||!LIVE_EFFECT_IDS.has(item.reward_id))return '';
   const image=rewardArtworkPath(item.reward_id);
   if(!image)return '';
   const id=escapeHtml(item.reward_id);
+  const caption=id==='golden-sunrays'
+    ?'<span class="vocab-effect-preview__motion-caption">Live avatar effect</span><span class="vocab-effect-preview__still-caption">Reduced-motion preview</span>'
+    :'Live avatar effect';
   const particles=Array.from({length:6},(_,i)=>`<i class="vocab-cosmetic-particle vocab-cosmetic-particle--${i+1}" aria-hidden="true"></i>`).join('');
   return `<div class="vocab-effect-demo-stage" data-preview-effect="${id}" hidden>
     <div class="vocab-effect-preview" data-preview-effect="${id}" data-cosmetic-effect="${id}">
@@ -29,7 +32,7 @@ function liveEffectDemo(item){
         <span class="vocab-cosmetic-particles" aria-hidden="true">${particles}</span>
         <span class="vocab-student-identity__initials" aria-hidden="true">YOU</span>
       </div>
-      <span class="vocab-effect-preview__caption">Live avatar effect</span>
+      <span class="vocab-effect-preview__caption">${caption}</span>
     </div>
   </div>
   <button type="button" class="vocab-effect-demo-toggle" data-action="sandbox-preview-effect" data-reward-id="${id}" aria-pressed="false" aria-label="Preview animation for ${escapeHtml(item.name)}">▶ Preview animation</button>`;
@@ -126,7 +129,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
       <button type="button" data-action="sandbox-filter" data-category="${id}" ${busy?'disabled':''}>${reward?'Change':'Choose'}</button>
       ${reward?`<button type="button" class="vocab-shop-unequip" data-action="sandbox-unequip" data-category="${id}" ${busy?'disabled':''}>${id==='themes'?'Use Default Theme':'Unequip'}</button>`:''}</div>`;
   }).join('');
-  const banner=bannerIllustration;
+  const banner=theme==='afterlight'?rewardIllustration(theme):bannerIllustration;
   let html=`<main class="vocab-shell vocab-shell--rewards vocab-shell--sandbox vocab-shop-redesign" data-equipped-theme="${escapeHtml(theme)}">
     <header class="vocab-topbar"><button type="button" class="vocab-back vocab-back--chip" data-action="back-sandbox-home">← All units</button><span class="vocab-topbar__course">Cambridge IGCSE ESL 0511 · Test shop</span></header>
     <section class="vocab-shop-hero" aria-label="XP Rewards Shop">

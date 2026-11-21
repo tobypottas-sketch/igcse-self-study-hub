@@ -1,13 +1,13 @@
 // Student-facing equipped identity and app-wide cosmetic theme controller.
 // The backend owns inventory; only equipped items found in its returned catalogue
 // can influence presentation. No learning content, grades, mastery or XP changes.
-import {rewardArtworkPath} from './rewards-art.js';
+import {rewardArtworkPath} from './rewards-art.js?v=afterlight-v1';
 import {ensureRewardsDashboard} from './rewards-home-layout.js';
 import {SUPPORTED_THEME_IDS,EQUIPMENT_CATEGORIES,visibleEquipmentCategories} from './rewards-premium-registry.js';
 const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const THEMES=new Set(SUPPORTED_THEME_IDS);
-const EFFECTS=new Set(['sparkle','electric-pulse','stardust-trail','forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight','rainbow-aura']);
-const ANIMATED_EFFECTS=new Set(['forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight','rainbow-aura']);
+const EFFECTS=new Set(['sparkle','electric-pulse','stardust-trail','forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight','rainbow-aura','golden-sunrays']);
+const ANIMATED_EFFECTS=new Set(['forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight','rainbow-aura','golden-sunrays']);
 const CATEGORIES=EQUIPMENT_CATEGORIES;
 const ROOT_CLASSES=[...THEMES].map(x=>'vocab-real-theme--'+x);
 const EFFECT_CLASSES=[...EFFECTS].map(x=>'vocab-real-effect--'+x);

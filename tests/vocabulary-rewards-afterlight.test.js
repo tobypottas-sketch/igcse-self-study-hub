@@ -1,0 +1,71 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {readFileSync} from 'node:fs';
+import {PREMIUM_COLLECTIONS} from '../src/vocabulary/rewards-premium-registry.js';
+import {rewardArtworkPath} from '../src/vocabulary/rewards-art.js';
+import {applyRewardTheme,renderIdentityShowcase,studentIdentityView} from '../src/vocabulary/rewards-equipped-home.js';
+import {renderProductionShop} from '../src/vocabulary/rewards-sandbox-view.js';
+
+const collection=PREMIUM_COLLECTIONS.find(item=>item.id==='afterlight');
+const approved=[
+  ['afterlight','themes',2200,1448,1086,2,'b97bbf47c4030e827f95ee67bce65d209f7a2edbeab9ed18b8ba9cc25aeeec9a'],
+  ['survivor-frame','frames',800,1254,1254,6,'970f853b316453e7330573f9e97e46f2b48c232e04ebf172166b9b77e2e9f967'],
+  ['last-explorer-badge','badges',600,1254,1254,6,'6ab53a51b82455be164cb29dbe4f20bd7469f9ca39add9518da3fbafc1e884da'],
+  ['the-pathfinder','titles',1200,2172,724,6,'83973b48aa2f4ddd6ae701d68234a4a181f324e88c88b29a4a3c83d449d647c7'],
+  ['golden-sunrays','effects',1400,1254,1254,6,'807559c2cbf4f5d7cc00854e4e9d06862c041b4bc06e7fae1c4792ae90ec6d2b']
+];
+const rewards=collection.rewards.map(([reward_id,category,name,xp_price])=>({reward_id,category,name,xp_price}));
+const shop={shopMode:'production',purchasesEnabled:true,walletStatus:'ready',wallet:{available:6200},rewards,owned:[]};
+const read=path=>readFileSync(new URL('../'+path,import.meta.url));
+
+test('Afterlight artwork matches the supplied PNGs, catalogue slots and prices',()=>{
+  assert.deepEqual(rewards.map(row=>[row.reward_id,row.category,row.xp_price]),approved.map(row=>row.slice(0,3)));
+  const migration=read('supabase/migrations/20261121090000_vocabulary_afterlight_catalog.sql').toString();
+  for(const [id,category,price,width,height,colorType,digest] of approved){
+    const name=rewards.find(row=>row.reward_id===id).name;
+    assert.ok(migration.includes(`('${id}','${name}','${category}',${price},`));
+    const path=rewardArtworkPath(id);
+    assert.equal(path,`assets/vocabulary/rewards/${id}.png`);
+    const png=read(path);
+    assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+    assert.deepEqual([png.readUInt32BE(16),png.readUInt32BE(20),png[25]],[width,height,colorType]);
+    assert.equal(createHash('sha256').update(png).digest('hex'),digest);
+  }
+  assert.equal(rewards.reduce((total,row)=>total+row.xp_price,0),6200);
+});
+
+test('each category renders its original art and below-price wallets show unlock progress',()=>{
+  for(const reward of rewards){
+    const root={innerHTML:'',querySelector:()=>null};
+    renderProductionShop(root,{...shop,wallet:{available:reward.xp_price-1}},{category:reward.category});
+    const cards=[...root.innerHTML.matchAll(/<article class="vocab-reward-card[^>]*data-reward-id="([^"]+)"/g)];
+    assert.deepEqual(cards.map(card=>card[1]),[reward.reward_id]);
+    assert.ok(root.innerHTML.includes(rewardArtworkPath(reward.reward_id)));
+    assert.match(root.innerHTML,/1 XP to unlock/);
+    assert.doesNotMatch(root.innerHTML,/data-action="real-buy"/);
+    if(reward.category==='effects') assert.match(root.innerHTML,/data-preview-effect="golden-sunrays"/);
+  }
+});
+
+test('Afterlight portrait layers and theme require server-returned equipped ownership',()=>{
+  const owned=rewards.map(({reward_id,category})=>({reward_id,category,equipped:true}));
+  const equipped={...shop,owned};
+  const root={classList:new Set()};
+  root.classList.remove=(...classes)=>classes.forEach(name=>root.classList.delete(name));
+  applyRewardTheme(root,equipped);
+  assert.deepEqual([...root.classList],['vocab-real-theme--afterlight','vocab-real-effect--golden-sunrays']);
+  const html=renderIdentityShowcase(equipped,'Test Student');
+  assert.match(html,/data-cosmetic-effect="golden-sunrays"/);
+  assert.equal((html.match(/vocab-cosmetic-particle--/g)||[]).length,6);
+  assert.match(html,/survivor-frame\.png/);
+  assert.match(html,/last-explorer-badge\.png/);
+  assert.match(html,/the-pathfinder\.png/);
+  assert.doesNotMatch(html,/>The Pathfinder</);
+  const effectOnly={...equipped,owned:owned.filter(item=>item.category==='effects')};
+  applyRewardTheme(root,effectOnly);
+  assert.deepEqual([...root.classList],['vocab-real-effect--golden-sunrays']);
+  applyRewardTheme(root,{...shop,owned,rewards:[]});
+  assert.deepEqual([...root.classList],[]);
+  assert.equal(studentIdentityView(shop).effectArt,null);
+});

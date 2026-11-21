@@ -188,3 +188,33 @@
     animation:none!important;filter:none!important;
   }
 }
+
+/* Golden Sunrays is shared by the equipped avatar and the shop demo.
+   The approved PNG supplies the shafts. Dust sits outside the avatar centre. */
+#vocabularyApp [data-cosmetic-effect="golden-sunrays"] .vocab-student-identity__effect{
+  opacity:.82;
+  filter:drop-shadow(0 0 .4rem #ffc35b85);
+  animation:vocab-sunrays-sweep 8s ease-in-out infinite alternate;
+}
+#vocabularyApp [data-cosmetic-effect="golden-sunrays"] .vocab-cosmetic-particles > .vocab-cosmetic-particle{
+  width:clamp(2px,3%,4px);
+  height:auto;
+  aspect-ratio:1;
+  border-radius:50%;
+  background:#f8d58c;
+  box-shadow:0 0 4px #f6b6608c;
+  animation:vocab-sunrays-dust 7s ease-in-out infinite alternate;
+}
+#vocabularyApp [data-cosmetic-effect="golden-sunrays"] .vocab-cosmetic-particle:nth-child(even){
+  animation-duration:10s;
+  animation-direction:alternate-reverse;
+}
+@keyframes vocab-sunrays-sweep{
+  from{transform:translate3d(-4%,3%,0) rotate(-9deg);opacity:.62}
+  to{transform:translate3d(5%,-2%,0) rotate(8deg);opacity:1}
+}
+@keyframes vocab-sunrays-dust{
+  0%{transform:translate3d(-4px,5px,0);opacity:.32}
+  45%{opacity:.88}
+  100%{transform:translate3d(9px,-9px,0);opacity:.54}
+}
