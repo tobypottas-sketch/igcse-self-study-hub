@@ -21,7 +21,7 @@ test('equipped items render a genuine student identity with visible attached bad
  assert.match(markup,/MY STUDENT PROFILE/);
  assert.match(markup,/Test Student/);
  assert.match(markup,/TS/);
- assert.match(markup,/gold-frame\.png/);
+ assert.match(markup,/gold-frame-overlay\.png/);
  assert.match(markup,/pixel-badge\.png/);
  assert.match(markup,/Word Wizard/);
  assert.match(markup,/Pixel Badge equipped/);
