@@ -128,15 +128,14 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
   let html=`<main class="vocab-shell vocab-shell--rewards vocab-shell--sandbox vocab-shop-redesign" data-equipped-theme="${escapeHtml(theme)}">
     <header class="vocab-topbar"><button type="button" class="vocab-back vocab-back--chip" data-action="back-sandbox-home">← All units</button><span class="vocab-topbar__course">Cambridge IGCSE ESL 0511 · Test shop</span></header>
     <section class="vocab-shop-hero" aria-label="XP Rewards Shop">
-      <div class="vocab-shop-hero__topline">
-        <span class="vocab-shop-eyebrow">✦ STUDENT REWARDS</span>
-      </div>
+
       <div class="vocab-shop-hero__intro">
         <h1>XP REWARDS <span>SHOP</span></h1>
-        <p class="vocab-shop-hero__tagline">Earn XP. Unlock rewards. Make your learning space yours.</p>
+        <p class="vocab-shop-hero__tagline">Earn it. Spend it. Make it yours.</p>
         <p class="vocab-shop-hero__categories">Themes <span aria-hidden="true">·</span> Frames <span aria-hidden="true">·</span> Badges <span aria-hidden="true">·</span> Titles <span aria-hidden="true">·</span> Effects</p>
       </div>
       <div class="vocab-shop-hero__balance" aria-label="Available XP balance"><span aria-hidden="true">⭐</span><strong>${format(available)} XP</strong><small>Sandbox available</small></div>
+      <div class="vocab-shop-hero__counter" aria-hidden="true"><img src="assets/vocabulary/rewards/shop-counter.png" alt="" decoding="async"></div>
     </section>
     <p class="vocab-shop-test-note" role="note">TEST XP ONLY · Your learning progress is unaffected</p>
     <p class="vocab-sandbox-feedback" role="status" aria-live="polite">${escapeHtml(message)}</p>
