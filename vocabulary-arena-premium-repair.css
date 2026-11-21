@@ -214,3 +214,116 @@
     .vocab-learning-progress__stage strong,.vocab-learning-progress__stage small
   ){color:CanvasText!important;}
 }
+
+
+/* Final pathway-card typography and geometry polish.
+   Keep these rules in the existing repair owner, not another stylesheet.
+   The coverage bar denotes words AVAILABLE, not words mastered. */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card{
+  grid-template-rows:auto auto auto 80px auto auto;
+  row-gap:8px!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__status{
+  display:grid!important;
+  justify-items:start;
+  gap:3px;
+  padding-left:12px!important;
+  border-top:0!important; border-right:0!important; border-bottom:0!important;
+  background:none!important; border-radius:0!important;
+  white-space:normal!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__status-label{
+  font-size:.66rem!important; line-height:1.25; font-weight:800!important;
+  letter-spacing:.12em; color:inherit!important; opacity:.78!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__status-value{
+  font-size:1rem!important; line-height:1.3; letter-spacing:-.01em;
+  color:inherit!important; font-weight:850!important;
+}
+/* Completely remove old chip background and border including ancestor wrapper. */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__chips{
+  display:flex; flex-direction:column; align-items:flex-start;
+  gap:6px; width:min(100%,310px); max-width:100%; min-width:0;
+  margin:0; padding:0!important; background:none!important;
+  border:0!important; border-radius:0!important; box-shadow:none!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__coverage:not(.vocab-pathway-card__held){
+  display:grid!important; gap:4px; width:100%!important; max-width:100%!important;
+  margin:0!important; padding:0!important; background:none!important;
+  border:0!important; border-radius:0!important; box-shadow:none!important;
+  color:inherit!important; text-align:left; line-height:1.2;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__coverage-label{
+  display:block; background:none!important; padding:0!important;
+  color:inherit!important; opacity:.73!important; font-weight:850!important;
+  font-size:.65rem!important; letter-spacing:.12em; line-height:1.25;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__coverage-count{
+  display:flex; align-items:baseline; flex-wrap:wrap; gap:5px 9px;
+  background:none!important; padding:0!important; color:inherit!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__coverage-count strong{
+  color:inherit!important; font-size:1.15rem!important; font-weight:900!important;
+  letter-spacing:-.035em; line-height:1.15;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__coverage-count span{
+  color:inherit!important; font-size:.77rem!important; font-weight:650;
+  opacity:.85;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__coverage-track{
+  display:block; height:3px; width:min(100%,250px);
+  background:rgba(145,174,205,.36)!important; border:0!important;
+  border-radius:2px; overflow:hidden;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__coverage-track > span{
+  display:block; height:100%; background:var(--study-accent,#79dfe4)!important;
+  border-radius:2px;
+}
+/* No accidental white box behind waiting-word availability either. */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__held{
+  color:inherit!important; opacity:.83; background:none!important;
+  border:0!important; border-left:2px solid var(--study-accent,#79dfe4)!important;
+  border-radius:0!important; padding:0 0 0 8px!important;
+  font-size:.72rem!important; font-weight:650!important;
+}
+/* Readable concise mission block (evidence height is reserved for async hydration). */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__evidence{
+  display:grid; align-content:center; gap:5px;
+  padding:9px 12px!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__evidence-copy strong{
+  font-size:.78rem!important; letter-spacing:.055em!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__evidence-copy small{
+  font-size:.76rem!important; text-align:right;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__to-clear{
+  font-size:.77rem!important; font-weight:700!important; line-height:1.3;
+  color:inherit!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-stage[data-state="locked"]{
+  opacity:.67!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-stage[data-state="current"]{
+  opacity:1!important;
+}
+/* Action remains inside the parent button: a styled span, not a nested button. */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__cta{
+  display:inline-flex; justify-content:center; align-items:center;
+  justify-self:end; min-height:35px; padding:7px 12px!important;
+  border:1px solid currentColor!important; border-radius:5px!important;
+  background:rgba(116,204,225,.10)!important;
+  font-size:.8rem!important; font-weight:850!important;
+  text-decoration:none!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card:focus-visible .vocab-pathway-card__cta{
+  outline:2px solid currentColor; outline-offset:2px;
+}
+@media(max-width:620px){
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__chips{
+    width:min(100%,230px);
+  }
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__evidence-copy small{
+    text-align:left;
+  }
+}
