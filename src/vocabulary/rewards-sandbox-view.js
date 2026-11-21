@@ -1,10 +1,10 @@
 // Functional Rewards Shop for server-enabled sandbox accounts only.
 // The layout follows the approved mockup; all XP, ownership and equipment
 // values come from authenticated data, never from illustrative screenshots.
-import { rewardIllustration, rewardArtworkPath } from './rewards-art.js?v=afterlight-v1';
+import { rewardIllustration, rewardArtworkPath } from './rewards-art.js?v=transparent-frames-v1';
 import {leaderboardModal,installLeaderboardModal} from './rewards-leaderboard-modal.js';
 import {hasBadgeCatalog} from './rewards-premium-registry.js';
-import {applyRewardTheme} from './rewards-equipped-home.js?v=profile-theme-caption-removed-v1-afterlight';
+import {applyRewardTheme} from './rewards-equipped-home.js?v=transparent-frames-v1';
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({
   '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
 })[c]);
