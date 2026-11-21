@@ -38,7 +38,7 @@ test('header identity artwork still comes from real owned PNG and unit control m
  assert.match(identity,/vocab-student-identity-mini__title-art/);
  assert.match(identity,/id\.titleArt/);
  assert.match(identity,/decorateStudentIdentity/);
- assert.match(unit,/vocab-unit-id__title/);
+ assert.match(unit,/vocab-study-nav__brand/);\n assert.doesNotMatch(unit,/<div class=\"vocab-unit-id\">/);
  assert.doesNotMatch(css,/vocab-choice|gm-option|vocab-tile|\.vocab-student-identity\{/);
 });
 
