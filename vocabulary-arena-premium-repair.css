@@ -160,3 +160,57 @@
     .vocab-pathway-stage small,.vocab-pathway-stage i
   ){color:CanvasText!important;}
 }
+
+
+/* Shared unit hero, including the light Interviews card in Neon District.
+   Progress cells and pills are LIGHT surfaces in every equipped theme, so
+   their text must ALWAYS use dark ink, unlike dark pathway cards. */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero .vocab-progress-row > :is(strong,span){
+  background:#f5f8fd!important;
+  color:#193955!important;
+  border:1px solid #9bb4d2!important;
+  border-radius:6px!important;
+  text-shadow:none!important;
+  opacity:1!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero .vocab-learning-progress{
+  background:rgba(245,248,253,.92)!important;
+  color:#193955!important;
+  border-color:#c2d2e1!important;
+  opacity:1!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero .vocab-learning-progress__stage{
+  background:#ffffff!important;
+  color:#193955!important;
+  opacity:1!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero .vocab-learning-progress__stage :is(strong,small){
+  color:#193955!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero .vocab-learning-progress__stage small{
+  color:#42617a!important;
+}
+/* Hero title/metadata are also on a light surface; do not allow theme-wide
+   light-on-dark colour rules to bleed onto the light hero. */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero :is(h1,.vocab-unit-hero__theme){
+  color:#173954!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero .vocab-unit-hero__course{
+  color:#193955!important;
+  background:#f5f8fd!important;
+  border-color:#9bb4d2!important;
+  text-shadow:none!important;
+}
+/* Print and high contrast bypass the decorative palette. */
+@media print,(forced-colors:active){
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero :is(
+    .vocab-progress-row > strong,.vocab-progress-row > span,
+    .vocab-learning-progress,.vocab-learning-progress__stage
+  ){background:Canvas!important;border-color:CanvasText!important;color:CanvasText!important;}
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero :is(
+    h1,.vocab-unit-hero__theme,.vocab-unit-hero__course,
+    .vocab-learning-progress__stage strong,.vocab-learning-progress__stage small
+  ){color:CanvasText!important;}
+}
