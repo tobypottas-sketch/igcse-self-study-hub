@@ -34,7 +34,13 @@ export function studentIdentityView(shop,displayName='Student'){
    name,initials,active,sandboxPreview,
    title:active.titles?items.get(active.titles)?.name??'':'',
    titleArt:active.titles?rewardArtworkPath(active.titles):null,
-   frame:active.frames?rewardArtworkPath(active.frames):null,
+   // Only the equipped identity uses the clean transparent PNG. Shop cards
+   // continue displaying the full illustrated reward artwork.
+   frame:active.frames?rewardArtworkPath({
+     'gold-frame':'gold-frame-overlay',
+     'scholar-frame':'scholar-frame-overlay',
+     'aurora-frame':'aurora-frame-overlay'
+   }[active.frames]||active.frames):null,
    badge:active.badges?rewardArtworkPath(active.badges):active.effects==='sparkle'?rewardArtworkPath('sparkle'):null,
    effectArt:['electric-pulse','stardust-trail'].includes(active.effects)||ANIMATED_EFFECTS.has(active.effects)?rewardArtworkPath(active.effects):null,
    animatedEffect:ANIMATED_EFFECTS.has(active.effects)?active.effects:null,
