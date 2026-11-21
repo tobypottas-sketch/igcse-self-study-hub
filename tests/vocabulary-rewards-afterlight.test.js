@@ -91,3 +91,15 @@ test('Afterlight shop styling uses its backdrop and hides duplicate banner',()=>
   assert.match(css,/url\\("assets\\/vocabulary\\/rewards\\/afterlight\\.png"\\)/);
   assert.match(css,/\\.vocab-shop-hero__scene\\{\\s*display:none!important/);
 });
+
+
+test('Golden Sunrays demo has bounded label and visible moving layers with reduced-motion fallback',()=>{
+  const preview=read('vocabulary-effect-shop-previews.css').toString();
+  const effects=read('vocabulary-effects-animated.css').toString();
+  assert.match(preview,/\\.vocab-effect-preview__caption > span\\{/);
+  assert.match(preview,/font-size:\\.72rem!important/);
+  assert.match(effects,/vocab-sunrays-visible-beams/);
+  assert.match(effects,/vocab-sunrays-visible-art/);
+  assert.match(effects,/vocab-sunrays-visible-dust/);
+  assert.match(effects,/@media\\(prefers-reduced-motion:reduce\\)/);
+});
