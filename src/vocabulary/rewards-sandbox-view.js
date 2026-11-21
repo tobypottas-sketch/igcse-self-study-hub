@@ -1,7 +1,7 @@
 // Functional Rewards Shop for server-enabled sandbox accounts only.
 // The layout follows the approved mockup; all XP, ownership and equipment
 // values come from authenticated data, never from illustrative screenshots.
-import { rewardIllustration, rewardArtworkPath, bannerIllustration } from './rewards-art.js?v=afterlight-v1';
+import { rewardIllustration, rewardArtworkPath } from './rewards-art.js?v=afterlight-v1';
 import {leaderboardModal,installLeaderboardModal} from './rewards-leaderboard-modal.js';
 import {hasBadgeCatalog} from './rewards-premium-registry.js';
 import {applyRewardTheme} from './rewards-equipped-home.js?v=profile-theme-caption-removed-v1-afterlight';
@@ -126,20 +126,18 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
       <button type="button" data-action="sandbox-filter" data-category="${id}" ${busy?'disabled':''}>${reward?'Change':'Choose'}</button>
       ${reward?`<button type="button" class="vocab-shop-unequip" data-action="sandbox-unequip" data-category="${id}" ${busy?'disabled':''}>${id==='themes'?'Use Default Theme':'Unequip'}</button>`:''}</div>`;
   }).join('');
-  const banner=theme==='afterlight'?rewardIllustration(theme):bannerIllustration;
   let html=`<main class="vocab-shell vocab-shell--rewards vocab-shell--sandbox vocab-shop-redesign" data-equipped-theme="${escapeHtml(theme)}">
     <header class="vocab-topbar"><button type="button" class="vocab-back vocab-back--chip" data-action="back-sandbox-home">← All units</button><span class="vocab-topbar__course">Cambridge IGCSE ESL 0511 · Test shop</span></header>
     <section class="vocab-shop-hero" aria-label="XP Rewards Shop">
       <div class="vocab-shop-hero__topline">
         <span class="vocab-shop-eyebrow">✦ STUDENT REWARDS</span>
-        <div class="vocab-shop-hero__balance" aria-label="Available XP balance"><span aria-hidden="true">⭐</span><strong>${format(available)} XP</strong><small>Sandbox available</small></div>
       </div>
       <div class="vocab-shop-hero__intro">
         <h1>XP REWARDS <span>SHOP</span></h1>
-        <p class="vocab-shop-hero__tagline">Earn it. Spend it. Make it yours.</p>
+        <p class="vocab-shop-hero__tagline">Earn XP. Unlock rewards. Make your learning space yours.</p>
         <p class="vocab-shop-hero__categories">Themes <span aria-hidden="true">·</span> Frames <span aria-hidden="true">·</span> Badges <span aria-hidden="true">·</span> Titles <span aria-hidden="true">·</span> Effects</p>
       </div>
-      <div class="vocab-shop-hero__scene">${banner}</div>
+      <div class="vocab-shop-hero__balance" aria-label="Available XP balance"><span aria-hidden="true">⭐</span><strong>${format(available)} XP</strong><small>Sandbox available</small></div>
     </section>
     <p class="vocab-shop-test-note" role="note">TEST XP ONLY · Your learning progress is unaffected</p>
     <p class="vocab-sandbox-feedback" role="status" aria-live="polite">${escapeHtml(message)}</p>
