@@ -32,16 +32,15 @@ body:has(#vocabularyApp.vocab-real-theme--afterlight){
   background-repeat:no-repeat!important;
   background-attachment:fixed!important;
 }
-body:has(#vocabularyApp.vocab-real-theme--afterlight .vocab-shell[data-unit-overview]){
-  background-image:var(--page-art),linear-gradient(110deg,#161d1de8,#252c22bb),url("assets/vocabulary/rewards/afterlight.png")!important;
-  background-size:max(100vw,177.78vh) auto,cover,cover!important;
-}
-body:has(#vocabularyApp.vocab-real-theme--afterlight .vocab-shell[data-unit-theme]){
-  background-image:var(--unit-wallpaper),linear-gradient(110deg,#161d1de8,#252c22dc),url("assets/vocabulary/rewards/afterlight.png")!important;
-  background-size:420px 420px,cover,cover!important;
-  background-position:0 0,center,center!important;
-  background-repeat:repeat,no-repeat,no-repeat!important;
-  background-attachment:scroll,fixed,fixed!important;
+/* Equipped Afterlight owns its backdrop: no default overview SVG and no
+   repeating unit wallpaper/WhatsApp-style icons over its wasteland scene. */
+body:has(#vocabularyApp.vocab-real-theme--afterlight .vocab-shell:is([data-unit-overview],[data-unit-theme])){
+  background-color:#181e1e!important;
+  background-image:linear-gradient(110deg,#161d1dd3,#252c22bb),url("assets/vocabulary/rewards/afterlight.png")!important;
+  background-size:cover,cover!important;
+  background-position:center,center!important;
+  background-repeat:no-repeat,no-repeat!important;
+  background-attachment:fixed,fixed!important;
 }
 @media(max-width:760px){
   body:has(#vocabularyApp.vocab-real-theme--afterlight),
