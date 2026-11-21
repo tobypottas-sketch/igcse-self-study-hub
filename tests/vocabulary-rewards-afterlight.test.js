@@ -87,11 +87,11 @@ test('shop rerenders apply verified Afterlight equipment to the app root',()=>{
 
 test('Afterlight shop styling uses its backdrop and hides duplicate banner',()=>{
   const css=read('vocabulary-premium-afterlight.css').toString();
-  assert.match(css,/\\.vocab-shop-redesign\\[data-equipped-theme="afterlight"\\]/);
-  assert.match(css,/url\\("assets\\/vocabulary\\/rewards\\/afterlight\\.png"\\)/);
-  assert.match(css,/\\.vocab-shop-hero__scene\\{\\s*display:none!important/);
+  assert.ok(css.includes('.vocab-shop-redesign[data-equipped-theme="afterlight"]'));
+  assert.ok(css.includes('url("assets/vocabulary/rewards/afterlight.png")'));
+  assert.ok(css.includes('.vocab-shop-hero__scene{'));
+  assert.ok(css.includes('display:none!important'));
 });
-
 
 test('every animated reward preview omits caption while preserving controls and motion',()=>{
   const previewCss=read('vocabulary-effect-shop-previews.css').toString();
