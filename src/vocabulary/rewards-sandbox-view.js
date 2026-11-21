@@ -28,7 +28,6 @@ function liveEffectDemo(item){
       <div class="vocab-student-identity__avatar has-animated-effect">
         <img class="vocab-student-identity__effect" src="${escapeHtml(image)}" alt="" loading="lazy" decoding="async">
         <span class="vocab-cosmetic-particles" aria-hidden="true">${particles}</span>
-        <span class="vocab-student-identity__initials" aria-hidden="true">YOU</span>
       </div>
     </div>
   </div>

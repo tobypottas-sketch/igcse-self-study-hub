@@ -110,3 +110,37 @@ test('every animated reward preview omits caption while preserving controls and 
     assert.doesNotMatch(root.innerHTML,/Live avatar effect|Reduced-motion preview|vocab-effect-preview__caption/);
   }
 });
+
+
+test('all nine previews show original effect art without a YOU placeholder or faded overlay',()=>{
+  const effects=['forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight',
+    'rainbow-aura','sparkle','stardust-trail','electric-pulse','golden-sunrays'];
+  for(const reward_id of effects){
+    const root={innerHTML:'',classList:new Set(),querySelector:()=>null};
+    root.classList.remove=(...names)=>names.forEach(name=>root.classList.delete(name));
+    renderProductionShop(root,{...shop,rewards:[{reward_id,category:'effects',xp_price:1000,name:reward_id,description:'Effect'}]},{category:'effects'});
+    const previewStart=root.innerHTML.indexOf('<div class="vocab-effect-demo-stage"');
+    const previewEnd=root.innerHTML.indexOf('<button type="button" class="vocab-effect-demo-toggle"',previewStart);
+    assert.ok(previewStart>=0&&previewEnd>previewStart,'Missing preview for '+reward_id);
+    const preview=root.innerHTML.slice(previewStart,previewEnd);
+    assert.doesNotMatch(preview,/>YOU<|vocab-student-identity__initials/);
+    assert.ok(preview.includes('src="assets/vocabulary/rewards/'+reward_id+'.png"'));
+
+  }
+  const css=read('vocabulary-effect-shop-previews.css').toString();
+  assert.ok(css.includes('opacity:1!important'));
+  assert.ok(css.includes('background:#17202c!important'));
+  assert.ok(css.includes('background:transparent!important'));
+});
+
+test('Rainbow Aura has genuine artwork/ring animation in preview and equipped mini identity',()=>{
+  const css=read('vocabulary-effect-shop-previews.css').toString();
+  const equipped=read('vocabulary-effects-animated.css').toString();
+  for(const name of ['vocab-rainbow-preview-art','vocab-rainbow-preview-ring'])
+    assert.ok(css.includes('@keyframes '+name));
+  for(const name of ['vocab-rainbow-equipped-art','vocab-rainbow-equipped-ring'])
+    assert.ok(equipped.includes('@keyframes '+name));
+  assert.ok(equipped.includes('.vocab-student-identity__avatar[data-cosmetic-effect="rainbow-aura"] > .vocab-student-identity__effect'));
+  assert.ok(css.includes('prefers-reduced-motion:reduce'));
+  assert.ok(equipped.includes('prefers-reduced-motion:reduce'));
+});

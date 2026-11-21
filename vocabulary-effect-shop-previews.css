@@ -185,3 +185,91 @@
     height:clamp(105px,36vw,140px);
   }
 }
+
+/* Effect previews showcase the actual approved transparent PNGs, never a
+   pale 'avatar simulation'. No fake initials or white overlaid disc.
+   This applies to ALL effect cards via their shared stage, without changing
+   the equipped student's actual avatar/initials. */
+#vocabularyApp .vocab-shop-redesign .vocab-reward-picture .vocab-effect-demo-stage{
+  background:#17202c!important;
+  padding:12px 18px;
+  overflow:hidden;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-reward-picture .vocab-effect-preview{
+  display:grid;
+  place-items:center;
+  height:100%;
+  gap:0;
+  overflow:visible;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-reward-picture .vocab-effect-preview .vocab-student-identity__avatar{
+  display:block;
+  width:min(64%,220px)!important;
+  height:85%!important;
+  max-height:none!important;
+  min-height:0;
+  flex:none;
+  aspect-ratio:1;
+  border:0;
+  border-radius:0;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible;
+  isolation:isolate;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-reward-picture .vocab-effect-preview .vocab-student-identity__initials{
+  display:none!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-reward-picture .vocab-effect-preview .vocab-student-identity__effect{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  opacity:1!important;
+  filter:none;
+  max-width:none!important;
+  pointer-events:none;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-demo-stage[data-preview-effect="golden-sunrays"]{
+  background:#17202c!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-reward-picture .vocab-effect-preview[data-preview-effect="rainbow-aura"] .vocab-student-identity__effect{
+  animation:vocab-rainbow-preview-art 3.8s ease-in-out infinite alternate!important;
+  transform-origin:center center;
+  will-change:transform;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-reward-picture .vocab-effect-preview[data-preview-effect="rainbow-aura"] .vocab-student-identity__avatar::after{
+  content:"";
+  position:absolute;
+  inset:9%;
+  border-radius:50%;
+  border:3px solid transparent;
+  background:linear-gradient(#0000,#0000) padding-box,
+    conic-gradient(#fb8ecb,#ffdf9a,#8bffcd,#8deaff,#bc9dff,#fb8ecb) border-box;
+  filter:drop-shadow(0 0 8px #7dcfff);
+  pointer-events:none;
+  opacity:.86;
+  animation:vocab-rainbow-preview-ring 3.1s linear infinite!important;
+}
+@keyframes vocab-rainbow-preview-art{
+  0%{transform:rotate(-11deg) scale(.94)}
+  100%{transform:rotate(11deg) scale(1.07)}
+}
+@keyframes vocab-rainbow-preview-ring{
+  to{transform:rotate(360deg)}
+}
+@media(prefers-reduced-motion:reduce){
+  #vocabularyApp .vocab-shop-redesign .vocab-reward-picture .vocab-effect-preview[data-preview-effect="rainbow-aura"] .vocab-student-identity__effect,
+  #vocabularyApp .vocab-shop-redesign .vocab-reward-picture .vocab-effect-preview[data-preview-effect="rainbow-aura"] .vocab-student-identity__avatar::after{
+    animation:none!important;
+    transform:none!important;
+    will-change:auto!important;
+  }
+}
+@media print,(forced-colors:active){
+  #vocabularyApp .vocab-shop-redesign .vocab-reward-picture .vocab-effect-preview[data-preview-effect="rainbow-aura"] .vocab-student-identity__avatar::after{
+    display:none!important;
+  }
+}
