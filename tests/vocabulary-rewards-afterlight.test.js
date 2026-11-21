@@ -119,10 +119,13 @@ test('all nine previews show original effect art without a YOU placeholder or fa
     const root={innerHTML:'',classList:new Set(),querySelector:()=>null};
     root.classList.remove=(...names)=>names.forEach(name=>root.classList.delete(name));
     renderProductionShop(root,{...shop,rewards:[{reward_id,category:'effects',xp_price:1000,name:reward_id,description:'Effect'}]},{category:'effects'});
-    const preview=root.innerHTML.match(/<div class="vocab-effect-demo-stage"[\\s\\S]*?<button type="button" class="vocab-effect-demo-toggle"/);
-    assert.ok(preview,'Missing preview for '+reward_id);
-    assert.doesNotMatch(preview[0],/>YOU<|vocab-student-identity__initials/);
-    assert.match(preview[0],new RegExp('src="assets/vocabulary/rewards/'+reward_id+'\\\\.png"'));
+    const previewStart=root.innerHTML.indexOf('<div class="vocab-effect-demo-stage"');
+    const previewEnd=root.innerHTML.indexOf('<button type="button" class="vocab-effect-demo-toggle"',previewStart);
+    assert.ok(previewStart>=0&&previewEnd>previewStart,'Missing preview for '+reward_id);
+    const preview=root.innerHTML.slice(previewStart,previewEnd);
+    assert.doesNotMatch(preview,/>YOU<|vocab-student-identity__initials/);
+    assert.ok(preview.includes('src="assets/vocabulary/rewards/'+reward_id+'.png"'));
+
   }
   const css=read('vocabulary-effect-shop-previews.css').toString();
   assert.ok(css.includes('opacity:1!important'));
