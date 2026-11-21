@@ -60,6 +60,14 @@ def build(name):
     # any colour-model false positives. Keep central book/cross details.
     alpha[(radius<.66)&~book&~cross]=0
     alpha[radius>1.32]=0
+    # GrabCut occasionally mistakes low-saturation sky/cream inside the top
+    # ring for ornamentation. Remove these background wisps explicitly.
+    if name=="scholar-frame":
+        alpha[(radius<.90)&(yy<h*.40)&(sat<.46)]=0
+    if name=="aurora-frame":
+        # The original backdrop has a blue triangular glow behind the
+        # upper-right arc. Preserve vivid iridescent rim, not the flat sky.
+        alpha[(xx>w*.55)&(yy<h*.30)&(sat<.62)&(radius<1.26)]=0
     # Remove isolated backdrop flecks; keep all connected main-frame details.
     n,labels,stats,_=cv2.connectedComponentsWithStats(alpha,8)
     keep=np.zeros_like(alpha)
