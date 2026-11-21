@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 import {PREMIUM_COLLECTIONS} from '../src/vocabulary/rewards-premium-registry.js';
 import {rewardArtworkPath} from '../src/vocabulary/rewards-art.js';
 import {applyRewardTheme,renderIdentityShowcase,studentIdentityView} from '../src/vocabulary/rewards-equipped-home.js';
-import {renderProductionShop} from '../src/vocabulary/rewards-sandbox-view.js';
+import {renderProductionShop,renderSandboxShop} from '../src/vocabulary/rewards-sandbox-view.js';
 
 const collection=PREMIUM_COLLECTIONS.find(item=>item.id==='afterlight');
 const approved=[
@@ -68,4 +68,26 @@ test('Afterlight portrait layers and theme require server-returned equipped owne
   applyRewardTheme(root,{...shop,owned,rewards:[]});
   assert.deepEqual([...root.classList],[]);
   assert.equal(studentIdentityView(shop).effectArt,null);
+});
+
+
+test('shop rerenders apply verified Afterlight equipment to the app root',()=>{
+  const owned=[{reward_id:'afterlight',category:'themes',equipped:true}];
+  const root={innerHTML:'',classList:new Set(),querySelector:()=>null};
+  root.classList.remove=(...classes)=>classes.forEach(name=>root.classList.delete(name));
+  renderProductionShop(root,{...shop,owned},{category:'themes'});
+  assert.ok(root.classList.has('vocab-real-theme--afterlight'));
+  assert.match(root.innerHTML,/data-equipped-theme="afterlight"/);
+  renderProductionShop(root,{...shop,owned:[]},{category:'themes'});
+  assert.ok(!root.classList.has('vocab-real-theme--afterlight'));
+  const sandbox={...shop,shopMode:'sandbox',sandboxEnabled:true,owned};
+  renderSandboxShop(root,sandbox,{category:'themes'});
+  assert.ok(root.classList.has('vocab-real-theme--afterlight'));
+});
+
+test('Afterlight shop styling uses its backdrop and hides duplicate banner',()=>{
+  const css=read('vocabulary-premium-afterlight.css').toString();
+  assert.match(css,/\\.vocab-shop-redesign\\[data-equipped-theme="afterlight"\\]/);
+  assert.match(css,/url\\("assets\\/vocabulary\\/rewards\\/afterlight\\.png"\\)/);
+  assert.match(css,/\\.vocab-shop-hero__scene\\{\\s*display:none!important/);
 });

@@ -4,6 +4,7 @@
 import { rewardIllustration, rewardArtworkPath, bannerIllustration } from './rewards-art.js?v=afterlight-v1';
 import {leaderboardModal,installLeaderboardModal} from './rewards-leaderboard-modal.js';
 import {hasBadgeCatalog} from './rewards-premium-registry.js';
+import {applyRewardTheme} from './rewards-equipped-home.js?v=profile-theme-caption-removed-v1-afterlight';
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({
   '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
 })[c]);
@@ -182,5 +183,9 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
     .replace('TEST XP ONLY · Your learning progress is unaffected','REAL XP REWARDS · Purchases do not reduce your earned learning XP');
   }
   root.innerHTML=html;
+  // Apply the verified equipped theme on every shop render, including sandbox
+  // filters and post-purchase rerenders. The hero's data attribute alone does
+  // not style the root or page background.
+  applyRewardTheme(root,shop);
   if(leaderboardView.expanded===true)installLeaderboardModal(root,leaderboard,leaderboardView);
 }
