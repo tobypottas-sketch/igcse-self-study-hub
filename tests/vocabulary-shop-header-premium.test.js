@@ -24,6 +24,9 @@ test('production and sandbox shops expose one accessible heading and one verifie
     assert.equal((html.match(/class="vocab-shop-hero__balance"/g)||[]).length,1);
     assert.equal((html.match(/class="vocab-shop-hero__scene"/g)||[]).length,0);
     assert.equal((html.match(/class="vocab-shop-hero__counter"/g)||[]).length,1);
+    assert.equal((html.match(/class="vocab-shop-hero__display"/g)||[]).length,1);
+    const display=html.slice(html.indexOf('class="vocab-shop-hero__display"'));
+    assert.ok(display.indexOf('class="vocab-shop-hero__balance"') < display.indexOf('class="vocab-shop-hero__counter"'));
     assert.match(html,/assets\/vocabulary\/rewards\/shop-counter\.png/);
     assert.doesNotMatch(html,/STUDENT REWARDS/);
     assert.match(html,/<h1>XP REWARDS <span>SHOP<\/span><\/h1>/);
@@ -86,7 +89,10 @@ test('approved shop counter is a valid transparent PNG and CSS keeps it theme in
   assert.equal(blobHash,'096218380b2ef6129b88e0ce59b6a963bf43f26d');
   const css=read('vocabulary-shop-header-premium.css');
   assert.ok(css.includes('.vocab-shop-hero__counter'));
-  assert.ok(css.includes('grid-template-areas:"intro balance" "intro counter"'));
+  assert.ok(css.includes('grid-template-areas:"intro display"'));
+  assert.ok(css.includes('grid-template-areas:"intro" "display"'));
+  assert.ok(css.includes('min-height:265px!important'));
+  assert.ok(css.includes('.vocab-shop-hero__display .vocab-shop-hero__balance'));
   assert.ok(css.includes('[data-equipped-theme="afterlight"] > .vocab-shop-hero'));
-  assert.ok(css.includes('max-width:600px'));
+  assert.ok(css.includes('max-width:640px'));
 });
