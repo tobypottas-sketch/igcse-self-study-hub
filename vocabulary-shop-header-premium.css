@@ -337,3 +337,90 @@
     align-items:flex-start;
   }
 }
+
+/* Illustrated cosmetics counter: one shared transparent asset across every
+   equipped shop theme. The verified wallet remains live text, never artwork.
+   Maintain the existing headline size but vertically centre it with the kiosk. */
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero{
+  grid-template-columns:minmax(0,1fr) minmax(250px,35%)!important;
+  grid-template-rows:auto minmax(210px,auto)!important;
+  grid-template-areas:"intro balance" "intro counter"!important;
+  align-items:center!important;
+  column-gap:clamp(16px,3.5vw,55px);
+  row-gap:0;
+  min-height:310px;
+  overflow:visible;
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__intro{
+  align-self:center;
+  padding-bottom:0;
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__balance{
+  grid-area:balance;
+  justify-self:end;
+  align-self:start;
+  position:relative;
+  z-index:2;
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter{
+  grid-area:counter;
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:end;
+  justify-self:stretch;
+  width:100%;
+  max-width:430px;
+  min-width:0;
+  align-self:end;
+  margin:0 auto -5px;
+  pointer-events:none;
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter img{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:258px;
+  object-fit:contain;
+  object-position:center bottom;
+  /* The supplied PNG has its own dark outline and warm highlights. */
+  filter:drop-shadow(0 9px 12px rgba(0,0,0,.32));
+}
+@media(max-width:850px){
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero{
+    grid-template-columns:minmax(0,1fr) minmax(150px,35%)!important;
+    grid-template-rows:auto auto!important;
+    grid-template-areas:"intro balance" "intro counter"!important;
+    min-height:225px;
+    gap:0 15px;
+  }
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter img{
+    max-height:200px;
+  }
+}
+@media(max-width:600px){
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero{
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:auto auto auto!important;
+    grid-template-areas:"intro" "balance" "counter"!important;
+    justify-items:start;
+    min-height:0;
+    gap:15px;
+  }
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__balance{
+    justify-self:start;
+  }
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter{
+    max-width:330px;
+    justify-self:center;
+    margin-top:-12px;
+  }
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter img{
+    max-height:210px;
+  }
+}
+@media print,(forced-colors:active){
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter{
+    display:none!important;
+  }
+}
