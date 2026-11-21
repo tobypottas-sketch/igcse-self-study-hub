@@ -36,3 +36,5 @@ jobs:
           git add assets/vocabulary/rewards/*-frame-overlay.png
           git commit -m "Add three transparent equipped-frame PNG overlays"
           git push
+
+# Regenerate refined transparent masks.
