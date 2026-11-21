@@ -103,5 +103,46 @@ export function installLeaderboardModal(root,board,view={}){
  // Prevent screen readers and keyboard users from reaching the Rewards Shop behind the dialog.
  root.querySelectorAll('.vocab-shop-redesign > :not(.vocab-leaderboard-overlay)').forEach(element=>{element.inert=true});
  update();
- dialog.focus();
+ dialog.focus({preventScroll:true});
+}
+
+/** Refresh only the fixed overlay, never the underlying Rewards Shop.
+ * Changing scope/period previously replaced root.innerHTML and moved the
+ * document underneath an open dialog. Preserve focus without scrolling. */
+export function updateLeaderboardModal(root,board,view={}){
+ const previous=root?.querySelector?.('[data-leaderboard-overlay]');
+ if(!previous)return false;
+ const focused=previous.contains(document.activeElement)?document.activeElement:null;
+ const focusAction=focused?.dataset.action;
+ const focusScope=focused?.dataset.scope;
+ const focusPeriod=focused?.dataset.period;
+ const production=Boolean(root.querySelector('.vocab-shell--production'));
+ let html=leaderboardModal(board,view);
+ if(production)html=html.replace(/data-action="sandbox-/g,'data-action="real-');
+ const template=document.createElement('template');
+ template.innerHTML=html.trim();
+ const next=template.content.firstElementChild;
+ if(!next)return false;
+ previous.replaceWith(next);
+ installLeaderboardModal(root,board,view);
+ const controls=[...next.querySelectorAll('button')];
+ const restore=controls.find(button=>button.dataset.action===focusAction &&
+   (focusScope?button.dataset.scope===focusScope:true) &&
+   (focusPeriod?button.dataset.period===focusPeriod:true));
+ restore?.focus({preventScroll:true});
+ return true;
+}
+/** Show selected tabs immediately while the verified XP request is pending.
+ * Never destroy the dialog, its scroll position, or the shop behind it. */
+export function markLeaderboardTabPending(root,view={}){
+ const overlay=root?.querySelector?.('[data-leaderboard-overlay]');
+ if(!overlay)return false;
+ for(const button of overlay.querySelectorAll('[data-scope],[data-period]')){
+  const selected=button.dataset.scope!==undefined?
+    button.dataset.scope===view.scope:button.dataset.period===view.period;
+  button.classList.toggle('is-active',selected);
+  button.setAttribute('aria-pressed',String(selected));
+ }
+ overlay.querySelector('[data-leaderboard-results]')?.setAttribute('aria-busy','true');
+ return true;
 }
