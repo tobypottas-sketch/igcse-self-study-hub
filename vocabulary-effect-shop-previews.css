@@ -58,10 +58,6 @@
  position:absolute;width:155%;height:155%;inset:-27.5%;object-fit:contain;
  z-index:0;pointer-events:none;
 }
-#vocabularyApp .vocab-shop-redesign .vocab-effect-preview__caption{
- font-size:.68rem;font-weight:850;letter-spacing:.035em;color:#345c7e;
- text-align:center;
-}
 #vocabularyApp .vocab-shop-redesign .vocab-effect-preview .vocab-cosmetic-particles{pointer-events:none}
 #vocabularyApp .vocab-shop-redesign .vocab-effect-preview[data-preview-effect="sparkle"] .vocab-student-identity__avatar,
 #vocabularyApp.vocab-real-effect--sparkle .vocab-student-identity__avatar{
@@ -160,33 +156,11 @@
 #vocabularyApp .vocab-shop-redesign .vocab-effect-demo-stage[data-preview-effect="golden-sunrays"]{
   background:radial-gradient(ellipse at 55% 34%,#63513a,#282d29 64%,#161c1c);
 }
-#vocabularyApp .vocab-effect-preview[data-preview-effect="golden-sunrays"] .vocab-effect-preview__caption{
-  position:relative;
-  color:#fff0cf;
-}
 #vocabularyApp .vocab-shop-redesign .vocab-effect-preview[data-preview-effect="golden-sunrays"] .vocab-student-identity__avatar{
   background:radial-gradient(circle,#565549,#30372e 77%,#242b27);
   box-shadow:0 0 1.2rem #e6a95463;
 }
-#vocabularyApp .vocab-effect-preview__still-caption{display:none}
-@media(prefers-reduced-motion:reduce){
-  #vocabularyApp .vocab-effect-preview__motion-caption{display:none}
-  #vocabularyApp .vocab-effect-preview__still-caption{display:inline}
-}
 
-/* A generic .vocab-reward-picture span { font-size:4rem } leaked into the
-   nested Live avatar effect label. Size the actual descendant, not just its
-   wrapper, so the preview remains legible at every breakpoint. */
-#vocabularyApp .vocab-shop-redesign .vocab-reward-picture .vocab-effect-preview__caption,
-#vocabularyApp .vocab-shop-redesign .vocab-reward-picture .vocab-effect-preview__caption > span{
-  display:inline;
-  font-family:inherit;
-  font-size:.72rem!important;
-  font-weight:800;
-  letter-spacing:.015em;
-  line-height:1.4;
-  white-space:normal;
-}
 #vocabularyApp .vocab-shop-redesign .vocab-effect-preview[data-preview-effect="golden-sunrays"]{
   gap:10px;
   overflow:visible;
@@ -204,9 +178,6 @@
 }
 #vocabularyApp .vocab-shop-redesign .vocab-effect-preview[data-preview-effect="golden-sunrays"] .vocab-student-identity__initials{
   font-size:1.1rem!important;
-}
-#vocabularyApp .vocab-shop-redesign .vocab-effect-preview[data-preview-effect="golden-sunrays"] .vocab-effect-preview__caption > span{
-  color:#fff1cc;
 }
 @media(max-width:600px){
   #vocabularyApp .vocab-shop-redesign .vocab-effect-preview[data-preview-effect="golden-sunrays"] .vocab-student-identity__avatar{
