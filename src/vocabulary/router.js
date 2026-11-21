@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '../supabase.js';
-import { renderVocabularyError } from './views.js?v=hero-refresh-v1';
+import { renderVocabularyError } from './views.js?v=study-hud-v1';
 import './foundational-interactions.js';
 import { redirectToHubSignIn, getSessionStorage } from '../return-target.js';
 import {NGSL_BASELINE_GATE_ENABLED} from './ngsl-entry-policy.js?v=compulsory-ngsl-v1';
@@ -35,7 +35,7 @@ async function routeVocabulary() {
     if (staff && previewRequested) {
       const status=root.querySelector('[data-vocab-loading-status]');
       if(status) status.textContent='Opening student preview…';
-      await import('./app.js?v=blockverse-v1');
+      await import('./app.js?v=study-hud-v1');
       await import('./unit-check-controller.js?v=workspace-v5');
       return;
     }
@@ -69,7 +69,7 @@ async function routeVocabulary() {
       }
       const status=root.querySelector('[data-vocab-loading-status]');
       if(status) status.textContent='Opening your vocabulary…';
-      await import('./app.js?v=blockverse-v1');
+      await import('./app.js?v=study-hud-v1');
       await import('./unit-check-controller.js?v=workspace-v5');
       return;
     }
