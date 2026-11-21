@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
 import {renderProductionShop,renderSandboxShop} from '../src/vocabulary/rewards-sandbox-view.js';
 
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
@@ -22,8 +23,11 @@ test('production and sandbox shops expose one accessible heading and one verifie
     assert.equal((html.match(/<h1>/g)||[]).length,1);
     assert.equal((html.match(/class="vocab-shop-hero__balance"/g)||[]).length,1);
     assert.equal((html.match(/class="vocab-shop-hero__scene"/g)||[]).length,0);
+    assert.equal((html.match(/class="vocab-shop-hero__counter"/g)||[]).length,1);
+    assert.match(html,/assets\/vocabulary\/rewards\/shop-counter\.png/);
+    assert.doesNotMatch(html,/STUDENT REWARDS/);
     assert.match(html,/<h1>XP REWARDS <span>SHOP<\/span><\/h1>/);
-    assert.match(html,/Earn XP\. Unlock rewards\. Make your learning space yours\./);
+    assert.match(html,/Earn it\. Spend it\. Make it yours\./);
     assert.match(html,/1,076,450 XP/);
     assert.match(html,/data-action="back-(real|sandbox)-home"/);
     assert.match(html,/data-equipped-theme="afterlight"/);
@@ -36,7 +40,7 @@ test('production and sandbox shops expose one accessible heading and one verifie
 test('shop header has paired, accessible theme palettes and responsive breakpoints',()=>{
   const css=read('vocabulary-shop-header-premium.css');
   const html=read('vocabulary.html');
-  assert.match(html,/vocabulary-shop-header-premium\.css\?v=theme-shop-header-v1/);
+  assert.match(html,/vocabulary-shop-header-premium\.css\?v=shop-kiosk-v1/);
   const palettes={
     default:['#142e43','#f5fbff','#76e8dc'],
     forest:['#102e27','#f5ffe9','#d0f49a'],
@@ -68,4 +72,21 @@ test('shop header has paired, accessible theme palettes and responsive breakpoin
   assert.match(css,/@media\(max-width:850px\)/);
   assert.match(css,/@media\(max-width:520px\)/);
   assert.match(css,/@media print,\(forced-colors:active\)/);
+});
+
+
+test('approved shop counter is a valid transparent PNG and CSS keeps it theme independent',()=>{
+  const png=readFileSync(new URL('../assets/vocabulary/rewards/shop-counter.png',import.meta.url));
+  assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+  assert.equal(png.readUInt32BE(16),320);
+  assert.equal(png.readUInt32BE(20),240);
+  assert.equal(png[25],3); // indexed-colour, transparent tRNS chunk
+  assert.ok(png.includes(Buffer.from('tRNS')));
+  const blobHash=createHash('sha1').update('blob '+png.length+'\\0').update(png).digest('hex');
+  assert.equal(blobHash,'096218380b2ef6129b88e0ce59b6a963bf43f26d');
+  const css=read('vocabulary-shop-header-premium.css');
+  assert.ok(css.includes('.vocab-shop-hero__counter'));
+  assert.ok(css.includes('grid-template-areas:"intro balance" "intro counter"'));
+  assert.ok(css.includes('[data-equipped-theme="afterlight"] > .vocab-shop-hero'));
+  assert.ok(css.includes('max-width:600px'));
 });
