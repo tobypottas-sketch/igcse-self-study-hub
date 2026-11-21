@@ -220,3 +220,94 @@ body:has(#vocabularyApp.vocab-real-theme--blockverse .vocab-shell[data-unit-them
 @media(prefers-reduced-motion:reduce){
   #vocabularyApp [data-cosmetic-effect="pixel-burst"] .vocab-cosmetic-particle{animation:none;display:none}
 }
+
+
+/* Blockverse contrast correction: distinguish stone-dark surfaces from pale pills.
+   Scoped to this theme so other collections retain their own colour systems. */
+#vocabularyApp.vocab-real-theme--blockverse .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity{
+  background:linear-gradient(110deg,#203b30,#28382e 62%,#3a3027)!important;
+  border-color:#7aa56b!important;
+  border-left:5px solid #8ed06a!important;
+  color:#f5fff3!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity :is(
+  .vocab-student-identity__eyebrow,.vocab-student-identity__text h2,
+  .vocab-student-identity__theme,.vocab-student-identity__theme strong,
+  .vocab-student-identity__level-top,.vocab-student-identity__level-top *,
+  .vocab-student-identity__detail,.vocab-student-identity__title-label
+){
+  color:#f5fff3!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity :is(
+  .vocab-student-identity__eyebrow,.vocab-student-identity__level-top strong
+){
+  color:#a1f5de!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__progress{
+  color:#f5fff3!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__level-track{
+  background:#526859!important;
+}
+
+/* A unit is an interactive card. Its pale Open unit pill needs dark lettering,
+   not the inherited near-white used for secondary labels. */
+#vocabularyApp.vocab-real-theme--blockverse .vocab-unit-card > small{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-height:37px;
+  padding:8px 13px;
+  border:1px solid #9cdf79!important;
+  border-radius:5px!important;
+  background:#bff29c!important;
+  color:#173523!important;
+  font-size:.83rem;
+  font-weight:900;
+  line-height:1.2;
+  box-shadow:inset 0 -3px #80b966,0 2px 0 #16291e;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-unit-card > small :is(svg,path){
+  color:inherit!important;
+  stroke:currentColor;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-unit-card:hover > small,
+#vocabularyApp.vocab-real-theme--blockverse .vocab-unit-card:focus-visible > small{
+  background:#d8ffc0!important;
+  border-color:#c1ff9c!important;
+  color:#10291b!important;
+}
+
+/* The unit-title chip has a cream face: provide strong dark ink rather than
+   the general rule that paints all topbar labels white. */
+#vocabularyApp.vocab-real-theme--blockverse .vocab-topbar--unit .vocab-unit-id__title{
+  background:#eef8e4!important;
+  color:#193c2c!important;
+  border:1px solid #a6c493!important;
+  border-radius:6px;
+  box-shadow:inset 0 -2px #c8dfb8,0 2px 5px #0e211b55;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-topbar--unit .vocab-unit-id__badge{
+  color:#ffe482!important;
+  background:#233b32!important;
+  border-color:#789b74!important;
+}
+
+/* Give secondary light panels a stable ink colour; retain a subtle block feel. */
+#vocabularyApp.vocab-real-theme--blockverse :is(.vocab-unit-hero,.vocab-question-card,.vocab-summary-card,.vocab-practice-picker){
+  color:#193b31;
+}
+#vocabularyApp.vocab-real-theme--blockverse :is(.vocab-unit-hero,.vocab-question-card,.vocab-summary-card,.vocab-practice-picker) :is(
+  .vocab-progress-row > *, .vocab-target-pill
+){
+  color:#193b31;
+}
+#vocabularyApp.vocab-real-theme--blockverse :is(.vocab-unit-hero,.vocab-question-card,.vocab-summary-card,.vocab-practice-picker) .vocab-button:not(.vocab-button--primary){
+  color:#193b31;
+}
+@media(max-width:540px){
+  #vocabularyApp.vocab-real-theme--blockverse .vocab-unit-card > small{
+    min-height:40px;
+  }
+}
