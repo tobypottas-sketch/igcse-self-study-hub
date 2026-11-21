@@ -278,7 +278,7 @@ function scrollToShopTop(){
 }
 async function renderCurrentSandboxShop(message='',busy=sandboxBusy){
  if(!sandboxShop?.sandboxEnabled)return;
- const {renderSandboxShop}=await import('./rewards-sandbox-view.js?v=live-effect-preview-v3');
+ const {renderSandboxShop}=await import('./rewards-sandbox-view.js?v=live-effect-preview-v3-afterlight');
  renderSandboxShop(root,sandboxShop,{category:sandboxCategory,busy,message,progress:homeEngagement(),studentName:state.profile?.display_name??'Student',leaderboard:sandboxLeaderboard,leaderboardView:sandboxLeaderboardView});
 }
 async function loadSandboxShop() {
@@ -384,7 +384,7 @@ async function refreshStudentCosmetics(){
  const shop=effectiveCosmeticShop();
  if(!shop||state.preview||state.profile?.role!=='student')return;
  liveCosmeticShop=shop;
- cosmeticModule??=await import('./rewards-equipped-home.js?v=profile-theme-caption-removed-v1');
+ cosmeticModule??=await import('./rewards-equipped-home.js?v=profile-theme-caption-removed-v1-afterlight');
  cosmeticModule.applyRewardTheme(root,shop);
  if(root?.querySelector('.vocab-shell--home'))
    cosmeticModule.renderEquippedCosmetics(root,shop,state.profile?.display_name??'Student',homeEngagement());
@@ -439,7 +439,7 @@ async function fetchRealShop(){
 }
 async function renderRealShop(message='',busy=realBusy){
  if(!realShop)return;
- const {renderProductionShop}=await import('./rewards-sandbox-view.js?v=live-effect-preview-v3');
+ const {renderProductionShop}=await import('./rewards-sandbox-view.js?v=live-effect-preview-v3-afterlight');
  renderProductionShop(root,realShop,{category:realCategory,busy,message,progress:homeEngagement(),
   studentName:state.profile?.display_name??'Student',leaderboard:realLeaderboard,leaderboardView:realLeaderboardView});
  await updateLiveCosmetics(realShop);
@@ -1418,7 +1418,7 @@ root?.addEventListener('click', event => {
     realShop=null;void showHome().catch(error=>renderVocabularyError(root,error.message));
   }
   else if (action === 'open-sandbox-shop' && !state.preview) { sandboxCategory='all'; sandboxLeaderboard=null; sandboxLeaderboardView={scope:'class',period:'weekly',expanded:false}; void showSandboxShop(); }
-  else if (action === 'sandbox-preview-effect' && !state.preview) {
+  else if ((action === 'sandbox-preview-effect' || action === 'real-preview-effect') && !state.preview) {
     const card=target.closest('.vocab-reward-card');
     const stage=card?.querySelector('.vocab-effect-demo-stage');
     const art=card?.querySelector('.vocab-reward-picture > .vocab-shop-illustration');

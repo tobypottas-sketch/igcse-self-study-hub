@@ -156,3 +156,20 @@
  #vocabularyApp .vocab-effect-demo-stage{display:none!important}
  #vocabularyApp .vocab-effect-demo-toggle{display:none!important}
 }
+
+#vocabularyApp .vocab-shop-redesign .vocab-effect-demo-stage[data-preview-effect="golden-sunrays"]{
+  background:radial-gradient(ellipse at 55% 34%,#63513a,#282d29 64%,#161c1c);
+}
+#vocabularyApp .vocab-effect-preview[data-preview-effect="golden-sunrays"] .vocab-effect-preview__caption{
+  position:relative;
+  color:#fff0cf;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-preview[data-preview-effect="golden-sunrays"] .vocab-student-identity__avatar{
+  background:radial-gradient(circle,#565549,#30372e 77%,#242b27);
+  box-shadow:0 0 1.2rem #e6a95463;
+}
+#vocabularyApp .vocab-effect-preview__still-caption{display:none}
+@media(prefers-reduced-motion:reduce){
+  #vocabularyApp .vocab-effect-preview__motion-caption{display:none}
+  #vocabularyApp .vocab-effect-preview__still-caption{display:inline}
+}
