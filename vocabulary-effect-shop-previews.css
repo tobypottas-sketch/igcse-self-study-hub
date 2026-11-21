@@ -173,3 +173,44 @@
   #vocabularyApp .vocab-effect-preview__motion-caption{display:none}
   #vocabularyApp .vocab-effect-preview__still-caption{display:inline}
 }
+
+/* A generic .vocab-reward-picture span { font-size:4rem } leaked into the
+   nested Live avatar effect label. Size the actual descendant, not just its
+   wrapper, so the preview remains legible at every breakpoint. */
+#vocabularyApp .vocab-shop-redesign .vocab-reward-picture .vocab-effect-preview__caption,
+#vocabularyApp .vocab-shop-redesign .vocab-reward-picture .vocab-effect-preview__caption > span{
+  display:inline;
+  font-family:inherit;
+  font-size:.72rem!important;
+  font-weight:800;
+  letter-spacing:.015em;
+  line-height:1.4;
+  white-space:normal;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-preview[data-preview-effect="golden-sunrays"]{
+  gap:10px;
+  overflow:visible;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-demo-stage[data-preview-effect="golden-sunrays"]{
+  padding:12px;
+  background:radial-gradient(ellipse at 50% 35%,#5a5039,#292f2b 66%,#17201d);
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-preview[data-preview-effect="golden-sunrays"] .vocab-student-identity__avatar{
+  width:clamp(115px,14vw,166px);
+  height:clamp(115px,14vw,166px);
+  max-height:75%;
+  flex-shrink:1;
+  background:radial-gradient(circle,#4c4c3c,#292f25 78%,#1d231e);
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-preview[data-preview-effect="golden-sunrays"] .vocab-student-identity__initials{
+  font-size:1.1rem!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-preview[data-preview-effect="golden-sunrays"] .vocab-effect-preview__caption > span{
+  color:#fff1cc;
+}
+@media(max-width:600px){
+  #vocabularyApp .vocab-shop-redesign .vocab-effect-preview[data-preview-effect="golden-sunrays"] .vocab-student-identity__avatar{
+    width:clamp(105px,36vw,140px);
+    height:clamp(105px,36vw,140px);
+  }
+}
