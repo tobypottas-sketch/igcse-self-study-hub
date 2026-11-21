@@ -1,7 +1,7 @@
 // Functional Rewards Shop for server-enabled sandbox accounts only.
 // The layout follows the approved mockup; all XP, ownership and equipment
 // values come from authenticated data, never from illustrative screenshots.
-import { rewardIllustration, bannerIllustration } from './rewards-art.js';
+import { rewardIllustration, rewardArtworkPath, bannerIllustration } from './rewards-art.js';
 import {leaderboardModal,installLeaderboardModal} from './rewards-leaderboard-modal.js';
 import {hasBadgeCatalog} from './rewards-premium-registry.js';
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({
@@ -10,6 +10,30 @@ const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({
 const categories=[['all','All'],['themes','Themes'],['frames','Frames'],['badges','Badges'],['titles','Titles'],['effects','Effects']];
 const popular=['midnight','forest','gold-frame','pixel-badge','word-wizard','aurora-frame'];
 const categoryLabel={themes:'Theme',frames:'Frame',badges:'Badge',titles:'Title',effects:'Effect'};
+// Only render a live demo for effects with shipped, user-visible CSS motion.
+// Other rewards remain static: no misleading preview button.
+const LIVE_EFFECT_IDS=new Set([
+  'forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight',
+  'rainbow-aura','sparkle','stardust-trail','electric-pulse'
+]);
+function liveEffectDemo(item){
+  if(item?.category!=='effects'||!LIVE_EFFECT_IDS.has(item.reward_id))return '';
+  const image=rewardArtworkPath(item.reward_id);
+  if(!image)return '';
+  const id=escapeHtml(item.reward_id);
+  const particles=Array.from({length:6},(_,i)=>`<i class="vocab-cosmetic-particle vocab-cosmetic-particle--${i+1}" aria-hidden="true"></i>`).join('');
+  return `<div class="vocab-effect-demo-stage" data-preview-effect="${id}" hidden>
+    <div class="vocab-effect-preview" data-preview-effect="${id}" data-cosmetic-effect="${id}">
+      <div class="vocab-student-identity__avatar has-animated-effect">
+        <img class="vocab-student-identity__effect" src="${escapeHtml(image)}" alt="" loading="lazy" decoding="async">
+        <span class="vocab-cosmetic-particles" aria-hidden="true">${particles}</span>
+        <span class="vocab-student-identity__initials" aria-hidden="true">YOU</span>
+      </div>
+      <span class="vocab-effect-preview__caption">Live avatar effect</span>
+    </div>
+  </div>
+  <button type="button" class="vocab-effect-demo-toggle" data-action="sandbox-preview-effect" data-reward-id="${id}" aria-pressed="false" aria-label="Preview animation for ${escapeHtml(item.name)}">▶ Preview animation</button>`;
+}
 const num=value=>Number.isSafeInteger(value)&&value>=0?value:0;
 const format=value=>num(value).toLocaleString('en');
 function leaderboardPanel(board,view={}){
@@ -84,7 +108,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
     const tag=categoryLabel[item.category]??item.category;
     return `<article class="vocab-reward-card vocab-shop-card vocab-shop-card--${escapeHtml(item.category)}" data-reward-id="${escapeHtml(item.reward_id)}">
       <span class="vocab-reward-category">${escapeHtml(tag)}</span>
-      <div class="vocab-reward-picture">${rewardIllustration(item.reward_id,item.icon)}</div>
+      <div class="vocab-reward-picture">${rewardIllustration(item.reward_id,item.icon)}${liveEffectDemo(item)}</div>
       <h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.description)}</p>
       <div class="vocab-reward-card__bottom"><strong class="vocab-shop-price"><span aria-hidden="true">⭐</span> ${format(item.xp_price)} XP</strong>
       ${locked?`<div class="vocab-shop-unlock" aria-label="${format(remaining)} XP to unlock ${escapeHtml(item.name)}">
