@@ -121,7 +121,12 @@ export function decorateStudentIdentity(root,shop,displayName='Student'){
  chip.dataset.studentIdentityMini='true';
  chip.className='vocab-student-identity-mini';
  chip.setAttribute('aria-label',id.name+(id.title?' · '+id.title:'')+(id.effectName?' · '+id.effectName:'')+(id.sandboxPreview?' · test cosmetics preview':''));
- chip.innerHTML=avatar(id,true)+`<span class="vocab-student-identity-mini__name">${escapeHtml(id.name)}${id.title?(id.titleArt?`<small class="vocab-student-identity-mini__title-art"><img src="${id.titleArt}" alt="${escapeHtml(id.title)} title" decoding="async"></small>`:`<small>${escapeHtml(id.title)}</small>`):id.sandboxPreview?'<small>Test cosmetics preview</small>':''}</span>`;
+ // Inside a unit, the second tier already displays the unit identity and
+ // progress. Keep the top navigation avatar small; title PNGs remain on
+ // the home/profile showcase rather than consuming the study navigation.
+ const compactStudy=header.classList.contains('vocab-topbar--unit');
+ chip.classList.toggle('vocab-student-identity-mini--study',compactStudy);
+ chip.innerHTML=avatar(id,true)+`<span class="vocab-student-identity-mini__name">${escapeHtml(id.name)}${compactStudy?'<small class="vocab-student-identity-mini__subtitle">Student profile</small>':id.title?(id.titleArt?`<small class="vocab-student-identity-mini__title-art"><img src="${id.titleArt}" alt="${escapeHtml(id.title)} title" decoding="async"></small>`:`<small>${escapeHtml(id.title)}</small>`):id.sandboxPreview?'<small>Test cosmetics preview</small>':''}</span>`;
  // The course code and navigation remain accessible; add a compact identity at
  // the far end without replacing the existing page header controls.
  header.append(chip);
