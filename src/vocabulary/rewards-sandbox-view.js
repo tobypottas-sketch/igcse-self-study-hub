@@ -1,7 +1,7 @@
 // Functional Rewards Shop for server-enabled sandbox accounts only.
 // The layout follows the approved mockup; all XP, ownership and equipment
 // values come from authenticated data, never from illustrative screenshots.
-import { rewardIllustration, rewardArtworkPath } from './rewards-art.js?v=transparent-frames-v1';
+import { rewardIllustration, rewardArtworkPath } from './rewards-art.js?v=blockverse-v1';
 // Shop cards, next-unlock and equipped collection must present the same
 // transparent ornament as the student's actual avatar. Keep original reward
 // IDs/prices/equip semantics; only the image source changes.
@@ -16,8 +16,8 @@ const shopRewardIllustration=(rewardId,category)=>
     : rewardId);
 
 import {leaderboardModal,installLeaderboardModal} from './rewards-leaderboard-modal.js';
-import {hasBadgeCatalog} from './rewards-premium-registry.js';
-import {applyRewardTheme} from './rewards-equipped-home.js?v=transparent-frames-v1';
+import {hasBadgeCatalog,PREMIUM_COLLECTIONS} from './rewards-premium-registry.js';
+import {applyRewardTheme} from './rewards-equipped-home.js?v=blockverse-v1';
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({
   '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
 })[c]);
@@ -28,8 +28,11 @@ const categoryLabel={themes:'Theme',frames:'Frame',badges:'Badge',titles:'Title'
 // Other rewards remain static: no misleading preview button.
 const LIVE_EFFECT_IDS=new Set([
   'forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight',
-  'rainbow-aura','sparkle','stardust-trail','electric-pulse','golden-sunrays'
+  'rainbow-aura','sparkle','stardust-trail','electric-pulse','golden-sunrays','pixel-burst'
 ]);
+const blockverse=PREMIUM_COLLECTIONS.find(collection=>collection.id==='blockverse');
+const blockverseIds=new Set(blockverse.rewards.map(([id])=>id));
+
 function liveEffectDemo(item){
   if(item?.category!=='effects'||!LIVE_EFFECT_IDS.has(item.reward_id))return '';
   const image=rewardArtworkPath(item.reward_id);
@@ -110,7 +113,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
   const featuredArt=active.frames??'gold-frame';
   const selectedTitle=rewards.find(item=>item.reward_id===active.titles)?.name??'Vocabulary Explorer';
   const theme=active.themes??'';
-  const shopCards=visible.map(item=>{
+  const renderCard=item=>{
     const purchase=owned.get(item.reward_id),affordable=available>=item.xp_price;
     const action=purchase?(purchase.equipped?'':'sandbox-equip'):'sandbox-buy';
     const label=purchase?(purchase.equipped?'Equipped':'Equip'):'Buy';
@@ -129,7 +132,9 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
       </div>`:`<button type="button" ${action?`data-action="${action}" data-reward-id="${escapeHtml(item.reward_id)}"`:''}
         ${busy||!action?'disabled':''}
         class="${purchase?'is-owned':''}">${escapeHtml(label)}</button>`}</div></article>`;
-  }).join('');
+  };
+  const collection=category==='all'?visible.filter(item=>blockverseIds.has(item.reward_id)):[];
+  const shopCards=(collection.length?visible.filter(item=>!blockverseIds.has(item.reward_id)):visible).map(renderCard).join('');
   const equipment=visibleCategories.slice(1).map(([id,label])=>{
     const reward=rewards.find(item=>item.reward_id===active[id]);
     return `<div class="vocab-shop-equipped__item"><small>${escapeHtml(label.slice(0,-1))}</small>
@@ -172,7 +177,11 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
       <section class="vocab-shop-main" aria-label="Shop rewards">
         <div class="vocab-shop-filter-line"><nav class="vocab-rewards-filters" aria-label="Filter rewards">${tabs}</nav>
           <button type="button" class="vocab-shop-popular${category==='popular'?' is-active':''}" data-action="sandbox-filter" data-category="popular" aria-pressed="${category==='popular'}">🔥 Popular picks</button></div>
-        <div class="vocab-rewards-grid">${shopCards||'<p class="vocab-shop-empty-list">No rewards in this category.</p>'}</div>
+        ${collection.length?`<section class="vocab-shop-blockverse" aria-labelledby="vocab-shop-blockverse-title">
+          <h2 id="vocab-shop-blockverse-title">${escapeHtml(blockverse.label)}</h2>
+          <div class="vocab-rewards-grid">${collection.map(renderCard).join('')}</div>
+        </section>`:''}
+        ${shopCards||!collection.length?`<div class="vocab-rewards-grid">${shopCards||'<p class="vocab-shop-empty-list">No rewards in this category.</p>'}</div>`:''}
       </section>
       <section class="vocab-shop-equipped" aria-label="Equipped rewards">
         <div class="vocab-shop-equipped__heading"><span class="vocab-shop-equipped__eyebrow">YOUR COLLECTION</span><h2>Equipped now</h2><p>${visibleCategories.length-1} slots · Your current look</p></div>
