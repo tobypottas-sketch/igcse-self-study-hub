@@ -22,9 +22,6 @@ function liveEffectDemo(item){
   const image=rewardArtworkPath(item.reward_id);
   if(!image)return '';
   const id=escapeHtml(item.reward_id);
-  const caption=id==='golden-sunrays'
-    ?'<span class="vocab-effect-preview__motion-caption">Live avatar effect</span><span class="vocab-effect-preview__still-caption">Reduced-motion preview</span>'
-    :'Live avatar effect';
   const particles=Array.from({length:6},(_,i)=>`<i class="vocab-cosmetic-particle vocab-cosmetic-particle--${i+1}" aria-hidden="true"></i>`).join('');
   return `<div class="vocab-effect-demo-stage" data-preview-effect="${id}" hidden>
     <div class="vocab-effect-preview" data-preview-effect="${id}" data-cosmetic-effect="${id}">
@@ -33,7 +30,6 @@ function liveEffectDemo(item){
         <span class="vocab-cosmetic-particles" aria-hidden="true">${particles}</span>
         <span class="vocab-student-identity__initials" aria-hidden="true">YOU</span>
       </div>
-      <span class="vocab-effect-preview__caption">${caption}</span>
     </div>
   </div>
   <button type="button" class="vocab-effect-demo-toggle" data-action="sandbox-preview-effect" data-reward-id="${id}" aria-pressed="false" aria-label="Preview animation for ${escapeHtml(item.name)}">▶ Preview animation</button>`;
