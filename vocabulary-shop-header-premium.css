@@ -262,3 +262,16 @@
     color:CanvasText!important;
   }
 }
+
+/* The earlier Afterlight fix forced a one-column shop hero. Replace only that
+   layout rule here; preserve its immersive background and palette. */
+#vocabularyApp .vocab-shop-redesign[data-equipped-theme="afterlight"] > .vocab-shop-hero{
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-areas:"top balance" "intro balance"!important;
+}
+@media(max-width:850px){
+  #vocabularyApp .vocab-shop-redesign[data-equipped-theme="afterlight"] > .vocab-shop-hero{
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-areas:"top" "intro" "balance"!important;
+  }
+}
