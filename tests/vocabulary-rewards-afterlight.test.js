@@ -93,13 +93,20 @@ test('Afterlight shop styling uses its backdrop and hides duplicate banner',()=>
 });
 
 
-test('Golden Sunrays demo has bounded label and visible moving layers with reduced-motion fallback',()=>{
-  const preview=read('vocabulary-effect-shop-previews.css').toString();
-  const effects=read('vocabulary-effects-animated.css').toString();
-  assert.match(preview,/\\.vocab-effect-preview__caption > span\\{/);
-  assert.match(preview,/font-size:\\.72rem!important/);
-  assert.match(effects,/vocab-sunrays-visible-beams/);
-  assert.match(effects,/vocab-sunrays-visible-art/);
-  assert.match(effects,/vocab-sunrays-visible-dust/);
-  assert.match(effects,/@media\\(prefers-reduced-motion:reduce\\)/);
+test('every animated reward preview omits caption while preserving controls and motion',()=>{
+  const previewCss=read('vocabulary-effect-shop-previews.css').toString();
+  const effectsCss=read('vocabulary-effects-animated.css').toString();
+  assert.doesNotMatch(previewCss,/vocab-effect-preview__caption/);
+  assert.match(effectsCss,/vocab-sunrays-visible-beams/);
+  assert.match(effectsCss,/@media\\(prefers-reduced-motion:reduce\\)/);
+  const effects=['forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight',
+    'rainbow-aura','sparkle','stardust-trail','electric-pulse','golden-sunrays'];
+  for(const reward_id of effects){
+    const root={innerHTML:'',classList:new Set(),querySelector:()=>null};
+    root.classList.remove=(...names)=>names.forEach(name=>root.classList.delete(name));
+    renderProductionShop(root,{...shop,rewards:[{reward_id,category:'effects',xp_price:1000,name:reward_id,description:'Effect'}]},{category:'effects'});
+    assert.match(root.innerHTML,/data-action="real-preview-effect"/);
+    assert.match(root.innerHTML,/vocab-effect-demo-stage/);
+    assert.doesNotMatch(root.innerHTML,/Live avatar effect|Reduced-motion preview|vocab-effect-preview__caption/);
+  }
 });
