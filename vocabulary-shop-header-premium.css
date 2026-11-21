@@ -338,111 +338,145 @@
   }
 }
 
-/* Illustrated cosmetics counter: one shared transparent asset across every
-   equipped shop theme. The verified wallet remains live text, never artwork.
-   Maintain the existing headline size but vertically centre it with the kiosk. */
-#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero{
-  grid-template-columns:minmax(0,1fr) minmax(250px,35%)!important;
-  grid-template-rows:auto minmax(210px,auto)!important;
-  grid-template-areas:"intro balance" "intro counter"!important;
+/* A single, balanced hero composition. Left = the shop's message.
+   Right = one merchandising vignette containing live wallet and the
+   transparent counter PNG. Neither area manufactures a second heading. */
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero,
+#vocabularyApp .vocab-shop-redesign[data-equipped-theme="afterlight"] > .vocab-shop-hero{
+  display:grid!important;
+  grid-template-columns:minmax(0,1.35fr) minmax(280px,.85fr)!important;
+  grid-template-rows:auto!important;
+  grid-template-areas:"intro display"!important;
   align-items:center!important;
-  column-gap:clamp(16px,3.5vw,55px);
-  row-gap:0;
-  min-height:310px;
-  overflow:visible;
+  column-gap:clamp(22px,4vw,70px)!important;
+  min-height:265px!important;
+  padding-block:22px!important;
+  overflow:hidden;
 }
 #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__intro{
+  grid-area:intro;
+  min-width:0;
   align-self:center;
-  padding-bottom:0;
+  justify-self:stretch;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:0;
 }
-#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__balance{
-  grid-area:balance;
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__intro h1{
+  margin:0 0 12px!important;
+  max-width:100%;
+  text-wrap:balance;
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__tagline{
+  margin:0 0 12px!important;
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__categories{
+  margin:0!important;
+  font-weight:650;
+  opacity:.91;
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__display{
+  grid-area:display;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  align-self:stretch;
   justify-self:end;
-  align-self:start;
+  width:100%;
+  max-width:390px;
+  min-width:0;
+  isolation:isolate;
+  position:relative;
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__display .vocab-shop-hero__balance{
+  /* The live balance is integrated directly above the merchandise display.
+     It remains a DOM text node (never baked into the illustration). */
+  grid-area:auto;
+  align-self:flex-end;
+  justify-self:auto;
+  margin:0 0 -15px 0;
+  min-width:0;
+  width:max-content;
+  max-width:100%;
+  padding:10px 16px;
   position:relative;
   z-index:2;
+  box-shadow:0 5px 17px #050d1626;
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__display .vocab-shop-hero__balance strong{
+  font-size:clamp(1.1rem,1.8vw,1.55rem)!important;
+  white-space:nowrap;
 }
 #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter{
-  grid-area:counter;
   position:relative;
   display:flex;
-  justify-content:center;
-  align-items:end;
-  justify-self:stretch;
   width:100%;
-  max-width:360px;
+  max-width:350px;
+  align-items:center;
+  justify-content:center;
   min-width:0;
-  align-self:end;
-  margin:0 auto -5px;
+  margin:0;
+  padding:0;
   pointer-events:none;
 }
 #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter img{
-  display:block;
   width:100%;
+  max-width:350px;
   height:auto;
-  max-height:240px;
+  max-height:238px;
+  display:block;
   object-fit:contain;
-  object-position:center bottom;
-  /* The supplied PNG has its own dark outline and warm highlights. */
-  filter:drop-shadow(0 9px 12px rgba(0,0,0,.32));
+  object-position:center;
+  filter:drop-shadow(0 6px 9px #0005);
 }
-@media(max-width:850px){
-  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero{
-    grid-template-columns:minmax(0,1fr) minmax(150px,35%)!important;
-    grid-template-rows:auto auto!important;
-    grid-template-areas:"intro balance" "intro counter"!important;
-    min-height:225px;
-    gap:0 15px;
+/* Compact tablets still show a side-by-side shop with predictable proportions. */
+@media(max-width:1020px){
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero,
+  #vocabularyApp .vocab-shop-redesign[data-equipped-theme="afterlight"] > .vocab-shop-hero{
+    grid-template-columns:minmax(0,1.15fr) minmax(205px,.85fr)!important;
+    grid-template-areas:"intro display"!important;
+    column-gap:18px!important;
+    min-height:220px!important;
   }
   #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter img{
-    max-height:200px;
+    max-height:198px;
+  }
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__display .vocab-shop-hero__balance{
+    padding:8px 12px;
   }
 }
-@media(max-width:600px){
-  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero{
+/* Only narrow screens stack. Wallet then illustration form a single group,
+   avoiding the old three-row arrangement with huge empty vertical space. */
+@media(max-width:640px){
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero,
+  #vocabularyApp .vocab-shop-redesign[data-equipped-theme="afterlight"] > .vocab-shop-hero{
     grid-template-columns:minmax(0,1fr)!important;
-    grid-template-rows:auto auto auto!important;
-    grid-template-areas:"intro" "balance" "counter"!important;
-    justify-items:start;
-    min-height:0;
-    gap:15px;
+    grid-template-areas:"intro" "display"!important;
+    gap:12px!important;
+    min-height:0!important;
+    padding-block:18px!important;
   }
-  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__balance{
-    justify-self:start;
-  }
-  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter{
-    max-width:330px;
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__display{
+    width:100%;
+    max-width:345px;
     justify-self:center;
-    margin-top:-12px;
+  }
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__display .vocab-shop-hero__balance{
+    margin-bottom:-12px;
   }
   #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter img{
-    max-height:210px;
+    max-height:206px;
   }
 }
 @media print,(forced-colors:active){
   #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter{
     display:none!important;
   }
-}
-
-/* Afterlight's older theme-specific !important grid has greater specificity.
-   Explicitly align the same kiosk layout without hiding the approved city art. */
-#vocabularyApp .vocab-shop-redesign[data-equipped-theme="afterlight"] > .vocab-shop-hero{
-  grid-template-columns:minmax(0,1fr) minmax(250px,35%)!important;
-  grid-template-rows:auto minmax(210px,auto)!important;
-  grid-template-areas:"intro balance" "intro counter"!important;
-}
-@media(max-width:850px){
-  #vocabularyApp .vocab-shop-redesign[data-equipped-theme="afterlight"] > .vocab-shop-hero{
-    grid-template-columns:minmax(0,1fr) minmax(150px,35%)!important;
-    grid-template-rows:auto auto!important;
-    grid-template-areas:"intro balance" "intro counter"!important;
-  }
-}
-@media(max-width:600px){
-  #vocabularyApp .vocab-shop-redesign[data-equipped-theme="afterlight"] > .vocab-shop-hero{
-    grid-template-columns:minmax(0,1fr)!important;
-    grid-template-rows:auto auto auto!important;
-    grid-template-areas:"intro" "balance" "counter"!important;
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__display .vocab-shop-hero__balance{
+    border-color:CanvasText!important;
+    background:Canvas!important;
+    color:CanvasText!important;
   }
 }
