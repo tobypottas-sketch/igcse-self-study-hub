@@ -26,8 +26,9 @@ test('production and sandbox shops expose one accessible heading and one verifie
     assert.equal((html.match(/class="vocab-shop-hero__counter"/g)||[]).length,1);
     assert.equal((html.match(/class="vocab-shop-hero__display"/g)||[]).length,1);
     const display=html.slice(html.indexOf('class="vocab-shop-hero__display"'));
-    assert.ok(display.indexOf('class="vocab-shop-hero__balance"') < display.indexOf('class="vocab-shop-hero__counter"'));
-    assert.match(html,/assets\/vocabulary\/rewards\/shop-counter\.png/);
+    assert.ok(display.indexOf('class="vocab-shop-hero__counter"') < display.indexOf('class="vocab-shop-hero__balance"'));
+    assert.match(display,/vocab-shop-hero__backdrop/);
+    assert.match(html,/assets\/vocabulary\/rewards\/shop-stall-scene\.png/);
     assert.doesNotMatch(html,/STUDENT REWARDS/);
     assert.match(html,/<h1>XP REWARDS <span>SHOP<\/span><\/h1>/);
     assert.match(html,/Earn it\. Spend it\. Make it yours\./);
@@ -43,7 +44,7 @@ test('production and sandbox shops expose one accessible heading and one verifie
 test('shop header has paired, accessible theme palettes and responsive breakpoints',()=>{
   const css=read('vocabulary-shop-header-premium.css');
   const html=read('vocabulary.html');
-  assert.match(html,/vocabulary-shop-header-premium\.css\?v=shop-center-composition-v3/);
+  assert.match(html,/vocabulary-shop-header-premium\.css\?v=stall-scene-v1/);
   const palettes={
     default:['#142e43','#f5fbff','#76e8dc'],
     forest:['#102e27','#f5ffe9','#d0f49a'],
@@ -90,12 +91,26 @@ test('approved shop counter is a valid transparent PNG and CSS keeps it theme in
   const css=read('vocabulary-shop-header-premium.css');
   assert.ok(css.includes('.vocab-shop-hero__counter'));
   assert.ok(css.includes('grid-template-areas:"intro display"'));
-  assert.ok(css.includes('grid-template-columns:minmax(0,700px) minmax(290px,465px)'));
+  assert.ok(css.includes('grid-template-columns:minmax(0,660px) minmax(350px,520px)'));
   assert.ok(css.includes('justify-content:center!important'));
   assert.ok(!css.includes('/* A single, balanced hero composition.'));
   assert.ok(css.includes('grid-template-areas:"intro" "display"'));
   assert.ok(css.includes('min-height:0!important'));
   assert.ok(css.includes('.vocab-shop-hero__display .vocab-shop-hero__balance'));
+  assert.ok(css.includes('.vocab-shop-hero__backdrop'));
+  assert.ok(css.includes('position:absolute!important'));
+  assert.ok(css.includes('aspect-ratio:1.45'));
   assert.ok(css.includes('[data-equipped-theme="afterlight"] > .vocab-shop-hero'));
   assert.ok(css.includes('max-width:640px'));
+});
+
+
+test('the new stall scene is a valid transparent PNG independent of the previous kiosk',()=>{
+  const png=readFileSync(new URL('../assets/vocabulary/rewards/shop-stall-scene.png',import.meta.url));
+  assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+  assert.equal(png.readUInt32BE(16),200);
+  assert.equal(png.readUInt32BE(20),150);
+  assert.equal(png[25],6); // PNG RGBA: includes transparency
+  const hash=createHash('sha1').update('blob '+png.length).update(Buffer.from([0])).update(png).digest('hex');
+  assert.equal(hash,'2f7104fa4481b995ec5bc7bb5f0eb643f2ce97ef');
 });
