@@ -134,9 +134,10 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
         <p class="vocab-shop-hero__tagline">Earn it. Spend it. Make it yours.</p>
         <p class="vocab-shop-hero__categories">Themes <span aria-hidden="true">·</span> Frames <span aria-hidden="true">·</span> Badges <span aria-hidden="true">·</span> Titles <span aria-hidden="true">·</span> Effects</p>
       </div>
-      <div class="vocab-shop-hero__display">
+      <div class="vocab-shop-hero__display" aria-label="Cosmetics marketplace scene">
+        <div class="vocab-shop-hero__backdrop" aria-hidden="true"></div>
+        <div class="vocab-shop-hero__counter" aria-hidden="true"><img src="assets/vocabulary/rewards/shop-stall-scene.png" alt="" decoding="async"></div>
         <div class="vocab-shop-hero__balance" aria-label="Available XP balance"><span aria-hidden="true">⭐</span><strong>${format(available)} XP</strong><small>Sandbox available</small></div>
-        <div class="vocab-shop-hero__counter" aria-hidden="true"><img src="assets/vocabulary/rewards/shop-counter.png" alt="" decoding="async"></div>
       </div>
     </section>
     <p class="vocab-shop-test-note" role="note">TEST XP ONLY · Your learning progress is unaffected</p>
