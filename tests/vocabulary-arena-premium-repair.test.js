@@ -29,3 +29,14 @@ test('light default view and forced-colors remain protected',()=>{
   assert.match(css,/forced-colors:active/);
   assert.doesNotMatch(css,/vocab-shell--session|vocab-answer-form/);
 });
+
+test('light unit hero retains dark progress numbers in all themes',()=>{
+  for(const selector of ['.vocab-progress-row > :is(strong,span)',
+    '.vocab-learning-progress__stage :is(strong,small)',
+    '.vocab-unit-hero__course']){
+    assert.ok(css.includes(selector),selector);
+  }
+  assert.match(css,/color:#193955!important/);
+  assert.match(css,/color:#42617a!important/);
+  assert.match(css,/\.vocab-unit-hero :is\(h1,\.vocab-unit-hero__theme\)/);
+});
