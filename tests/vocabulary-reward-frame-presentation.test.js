@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {renderProductionShop} from '../src/vocabulary/rewards-sandbox-view.js';
-import {renderIdentityShowcase,renderIdentityMini} from '../src/vocabulary/rewards-equipped-home.js';
+import {renderIdentityShowcase} from '../src/vocabulary/rewards-equipped-home.js';
 
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const ids=['gold-frame','scholar-frame','survivor-frame'];
