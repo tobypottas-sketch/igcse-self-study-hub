@@ -9,6 +9,10 @@ const REWARD_ARTWORK = Object.freeze({
   'gold-frame':'gold-frame.png',
   'aurora-frame':'aurora-frame.png',
   'scholar-frame':'scholar-frame.png',
+  // Equipped avatar overlays are transparent; shop-card artwork stays original.
+  'gold-frame-overlay':'gold-frame-overlay.png',
+  'scholar-frame-overlay':'scholar-frame-overlay.png',
+  'aurora-frame-overlay':'aurora-frame-overlay.png',
   'word-wizard':'word-wizard.png',
   'word-explorer':'word-explorer.png',
   'language-ace':'language-ace.png',

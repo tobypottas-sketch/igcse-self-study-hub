@@ -62,7 +62,7 @@ test('effect can coexist with a different theme, frame, badge and title',()=>{
  const id=studentIdentityView(shop,'Test Student');
  assert.equal(Object.keys(equippedCosmetics(shop)).length,5);
  assert.match(id.badge,/pixel-badge\.png$/);
- assert.match(id.frame,/gold-frame\.png$/);
+ assert.match(id.frame,/gold-frame-overlay\.png$/);
  assert.equal(id.active.themes,'forest');
  assert.equal(id.active.effects,'ocean-bubbles');
  const markup=renderIdentityShowcase(shop,'Test Student');

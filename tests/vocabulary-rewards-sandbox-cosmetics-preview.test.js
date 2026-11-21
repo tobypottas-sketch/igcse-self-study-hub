@@ -24,7 +24,7 @@ test('test account shows actual sandbox-equipped Sparkle artwork and themed prof
  assert.match(html,/>4 \/ 4 equipped<\/span>/);
  assert.match(html,/class="vocab-sr-only">4 \/ 4 test equipped:/);
  assert.match(html,/sparkle\.png/);
- assert.match(html,/gold-frame\.png/);
+ assert.match(html,/gold-frame-overlay\.png/);
  assert.match(html,/Word Wizard/);
  assert.match(html,/Sakura Theme active/);
  assert.doesNotMatch(html,/0 \/ 4 equipped/);

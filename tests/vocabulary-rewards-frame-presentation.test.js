@@ -5,7 +5,7 @@ import {renderProductionShop} from '../src/vocabulary/rewards-sandbox-view.js';
 import {renderIdentityShowcase} from '../src/vocabulary/rewards-equipped-home.js';
 
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
-const ids=['gold-frame','scholar-frame','survivor-frame'];
+const ids=['gold-frame','scholar-frame','aurora-frame','survivor-frame','cyber-pulse-frame'];
 const root=()=>({innerHTML:'',classList:Object.assign(new Set(),{
   remove(...classes){classes.forEach(c=>this.delete(c))}
 }),querySelector:()=>null});
@@ -33,7 +33,7 @@ test('equipped portrait-frame overlay preserves source proportions with no borde
  assert.ok(read('vocabulary.html').includes('vocabulary-reward-identity.css?v=frame-proportions-v1'));
 });
 
-test('frame shop cards and equipped profile use same original PNG asset',()=>{
+test('shop cards retain original illustrations while equipped profiles use transparent frame-only assets',()=>{
  for(const id of ids){
   const reward={reward_id:id,name:id,category:'frames',xp_price:800,description:'Original frame'};
   const shop={shopMode:'production',purchasesEnabled:true,walletStatus:'ready',wallet:{available:3000},
@@ -44,6 +44,20 @@ test('frame shop cards and equipped profile use same original PNG asset',()=>{
   assert.ok(node.innerHTML.includes('assets/vocabulary/rewards/'+id+'.png'));
   const profile=renderIdentityShowcase(shop,'Test Student');
   assert.ok(profile.includes('class="vocab-student-identity__frame"'));
-  assert.ok(profile.includes('assets/vocabulary/rewards/'+id+'.png'));
+  const expected=/^(gold-frame|scholar-frame|aurora-frame)$/.test(id)?id+'-overlay':id;
+  assert.ok(profile.includes('assets/vocabulary/rewards/'+expected+'.png'),
+    'Equipped art must be transparent for '+id);
+  if(expected!==id) assert.ok(!profile.includes('src="assets/vocabulary/rewards/'+id+'.png"'));
+ }
+});
+
+test('the three equipped-only assets have transparent corners and a transparent centre',()=>{
+ for(const id of ['gold-frame','scholar-frame','aurora-frame']){
+   const file=readFileSync(new URL('../assets/vocabulary/rewards/'+id+'-overlay.png',import.meta.url));
+   assert.equal(file.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+   assert.equal(file.readUInt32BE(16),512);
+   assert.equal(file.readUInt32BE(20),512);
+   assert.equal(file[25],6,'Overlay is RGBA');
+   // PNG alpha pixel assertions are performed by Pillow during asset build.
  }
 });

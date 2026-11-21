@@ -1,7 +1,7 @@
 // Student-facing equipped identity and app-wide cosmetic theme controller.
 // The backend owns inventory; only equipped items found in its returned catalogue
 // can influence presentation. No learning content, grades, mastery or XP changes.
-import {rewardArtworkPath} from './rewards-art.js?v=afterlight-v1';
+import {rewardArtworkPath} from './rewards-art.js?v=transparent-frames-v1';
 import {ensureRewardsDashboard} from './rewards-home-layout.js';
 import {SUPPORTED_THEME_IDS,EQUIPMENT_CATEGORIES,visibleEquipmentCategories} from './rewards-premium-registry.js';
 const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -34,7 +34,13 @@ export function studentIdentityView(shop,displayName='Student'){
    name,initials,active,sandboxPreview,
    title:active.titles?items.get(active.titles)?.name??'':'',
    titleArt:active.titles?rewardArtworkPath(active.titles):null,
-   frame:active.frames?rewardArtworkPath(active.frames):null,
+   // Only the equipped identity uses the clean transparent PNG. Shop cards
+   // continue displaying the full illustrated reward artwork.
+   frame:active.frames?rewardArtworkPath({
+     'gold-frame':'gold-frame-overlay',
+     'scholar-frame':'scholar-frame-overlay',
+     'aurora-frame':'aurora-frame-overlay'
+   }[active.frames]||active.frames):null,
    badge:active.badges?rewardArtworkPath(active.badges):active.effects==='sparkle'?rewardArtworkPath('sparkle'):null,
    effectArt:['electric-pulse','stardust-trail'].includes(active.effects)||ANIMATED_EFFECTS.has(active.effects)?rewardArtworkPath(active.effects):null,
    animatedEffect:ANIMATED_EFFECTS.has(active.effects)?active.effects:null,
