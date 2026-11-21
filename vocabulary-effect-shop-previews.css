@@ -20,6 +20,18 @@
  background:#e1e9ff;color:#244d88;border-color:#91aedf;
 }
 #vocabularyApp .vocab-shop-redesign .vocab-effect-demo-stage[hidden]{display:none!important}
+/* The reward artwork has display:block in shop CSS: explicitly honour
+   the hidden attribute so the live demo NEVER overlaps the PNG. */
+#vocabularyApp .vocab-shop-redesign .vocab-reward-picture > .vocab-shop-illustration[hidden]{display:none!important}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-card--effects .vocab-reward-picture{gap:6px;align-content:start}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-card--effects .vocab-effect-demo-toggle{
+  margin:4px 0 0;justify-self:start;border-radius:6px;
+  font-size:.78rem;min-height:35px;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-reward-picture .vocab-effect-demo-stage{
+  grid-column:1;min-width:0;
+}
+
 #vocabularyApp .vocab-shop-redesign .vocab-reward-picture:has(.vocab-effect-demo-stage:not([hidden])) > .vocab-shop-illustration{display:none}
 #vocabularyApp .vocab-shop-redesign .vocab-effect-demo-stage{
  width:100%;min-height:0;aspect-ratio:12 / 7;display:grid;place-items:center;

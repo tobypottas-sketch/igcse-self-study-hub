@@ -278,7 +278,7 @@ function scrollToShopTop(){
 }
 async function renderCurrentSandboxShop(message='',busy=sandboxBusy){
  if(!sandboxShop?.sandboxEnabled)return;
- const {renderSandboxShop}=await import('./rewards-sandbox-view.js?v=static-effect-cards-v2');
+ const {renderSandboxShop}=await import('./rewards-sandbox-view.js?v=live-effect-preview-v3');
  renderSandboxShop(root,sandboxShop,{category:sandboxCategory,busy,message,progress:homeEngagement(),studentName:state.profile?.display_name??'Student',leaderboard:sandboxLeaderboard,leaderboardView:sandboxLeaderboardView});
 }
 async function loadSandboxShop() {
@@ -439,7 +439,7 @@ async function fetchRealShop(){
 }
 async function renderRealShop(message='',busy=realBusy){
  if(!realShop)return;
- const {renderProductionShop}=await import('./rewards-sandbox-view.js?v=static-effect-cards-v2');
+ const {renderProductionShop}=await import('./rewards-sandbox-view.js?v=live-effect-preview-v3');
  renderProductionShop(root,realShop,{category:realCategory,busy,message,progress:homeEngagement(),
   studentName:state.profile?.display_name??'Student',leaderboard:realLeaderboard,leaderboardView:realLeaderboardView});
  await updateLiveCosmetics(realShop);
@@ -1418,6 +1418,19 @@ root?.addEventListener('click', event => {
     realShop=null;void showHome().catch(error=>renderVocabularyError(root,error.message));
   }
   else if (action === 'open-sandbox-shop' && !state.preview) { sandboxCategory='all'; sandboxLeaderboard=null; sandboxLeaderboardView={scope:'class',period:'weekly',expanded:false}; void showSandboxShop(); }
+  else if (action === 'sandbox-preview-effect' && !state.preview) {
+    const card=target.closest('.vocab-reward-card');
+    const stage=card?.querySelector('.vocab-effect-demo-stage');
+    const art=card?.querySelector('.vocab-reward-picture > .vocab-shop-illustration');
+    if(!stage||!art||card?.dataset.rewardId!==target.dataset.rewardId)return;
+    const opening=stage.hidden;
+    // Pause all particles when closed by taking the stage out of layout.
+    stage.hidden=!opening;
+    art.hidden=opening;
+    target.setAttribute('aria-pressed',String(opening));
+    target.textContent=opening?'✕ Close preview':'▶ Preview animation';
+    target.setAttribute('aria-label',(opening?'Close animation preview for ':'Preview animation for ')+(card.querySelector('h3')?.textContent||'effect'));
+  }
   else if (action === 'sandbox-filter' && !state.preview && sandboxShop?.sandboxEnabled) {
     const category=target.dataset.category??'all';
     if(!['all','themes','frames','badges','titles','effects','popular'].includes(category))return;
