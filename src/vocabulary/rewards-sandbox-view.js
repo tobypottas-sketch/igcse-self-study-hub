@@ -2,6 +2,19 @@
 // The layout follows the approved mockup; all XP, ownership and equipment
 // values come from authenticated data, never from illustrative screenshots.
 import { rewardIllustration, rewardArtworkPath } from './rewards-art.js?v=transparent-frames-v1';
+// Shop cards, next-unlock and equipped collection must present the same
+// transparent ornament as the student's actual avatar. Keep original reward
+// IDs/prices/equip semantics; only the image source changes.
+const TRANSPARENT_SHOP_FRAMES=Object.freeze({
+  'gold-frame':'gold-frame-overlay',
+  'scholar-frame':'scholar-frame-overlay',
+  'aurora-frame':'aurora-frame-overlay'
+});
+const shopRewardIllustration=(rewardId,category)=>
+  rewardIllustration(category==='frames'
+    ? (TRANSPARENT_SHOP_FRAMES[rewardId]??rewardId)
+    : rewardId);
+
 import {leaderboardModal,installLeaderboardModal} from './rewards-leaderboard-modal.js';
 import {hasBadgeCatalog} from './rewards-premium-registry.js';
 import {applyRewardTheme} from './rewards-equipped-home.js?v=transparent-frames-v1';
@@ -83,7 +96,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
   const feature=upcoming??nextUnowned;
   const featureCaption=upcoming?`${format(upcoming.xp_price-available)} XP to go`:nextUnowned?'Ready to unlock':'All rewards collected';
   const nextGoal=feature?`<div class="vocab-shop-next__detail">
-    <div class="vocab-shop-next__art">${rewardIllustration(feature.reward_id,feature.icon)}</div>
+    <div class="vocab-shop-next__art">${shopRewardIllustration(feature.reward_id,feature.category)}</div>
     <div class="vocab-shop-next__info">
       <span class="vocab-shop-next__category">${escapeHtml(categoryLabel[feature.category]??'Reward')}</span>
       <strong>${escapeHtml(feature.name)}</strong>
@@ -107,7 +120,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
     const tag=categoryLabel[item.category]??item.category;
     return `<article class="vocab-reward-card vocab-shop-card vocab-shop-card--${escapeHtml(item.category)}" data-reward-id="${escapeHtml(item.reward_id)}">
       <span class="vocab-reward-category">${escapeHtml(tag)}</span>
-      <div class="vocab-reward-picture">${rewardIllustration(item.reward_id,item.icon)}${liveEffectDemo(item)}</div>
+      <div class="vocab-reward-picture">${shopRewardIllustration(item.reward_id,item.category)}${liveEffectDemo(item)}</div>
       <h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.description)}</p>
       <div class="vocab-reward-card__bottom"><strong class="vocab-shop-price"><span aria-hidden="true">⭐</span> ${format(item.xp_price)} XP</strong>
       ${locked?`<div class="vocab-shop-unlock" aria-label="${format(remaining)} XP to unlock ${escapeHtml(item.name)}">
@@ -120,7 +133,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
   const equipment=visibleCategories.slice(1).map(([id,label])=>{
     const reward=rewards.find(item=>item.reward_id===active[id]);
     return `<div class="vocab-shop-equipped__item"><small>${escapeHtml(label.slice(0,-1))}</small>
-      <div class="vocab-shop-equipped__art">${reward?rewardIllustration(reward.reward_id,reward.icon):'<span class="vocab-shop-empty-icon" aria-hidden="true">＋</span>'}</div>
+      <div class="vocab-shop-equipped__art">${reward?shopRewardIllustration(reward.reward_id,reward.category):'<span class="vocab-shop-empty-icon" aria-hidden="true">＋</span>'}</div>
       <strong>${reward?escapeHtml(reward.name):id==='themes'?'Default theme':'Not equipped'}</strong>
       <button type="button" data-action="sandbox-filter" data-category="${id}" ${busy?'disabled':''}>${reward?'Change':'Choose'}</button>
       ${reward?`<button type="button" class="vocab-shop-unequip" data-action="sandbox-unequip" data-category="${id}" ${busy?'disabled':''}>${id==='themes'?'Use Default Theme':'Unequip'}</button>`:''}</div>`;

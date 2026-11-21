@@ -14,11 +14,13 @@ test('full portrait-frame assets display without forced 12:7 cropping',()=>{
  const shopCss=read('vocabulary-rewards.css');
  assert.ok(shopCss.includes('.vocab-shop-card--frames .vocab-reward-picture > .vocab-shop-illustration'));
  assert.ok(shopCss.includes('aspect-ratio:1 / 1'));
+ assert.ok(shopCss.includes('background:radial-gradient'));
+ assert.ok(shopCss.includes('border-radius:0'));
  assert.ok(shopCss.includes('object-fit:contain'));
  assert.ok(shopCss.includes('object-position:center'));
  assert.ok(shopCss.includes('.vocab-shop-equipped__item:nth-child(2) .vocab-shop-illustration'));
  const html=read('vocabulary.html');
- assert.ok(html.includes('vocabulary-rewards.css?v=frame-art-contain-v1'));
+ assert.ok(html.includes('vocabulary-rewards.css?v=shop-frame-clean-v1'));
 });
 
 test('equipped portrait-frame overlay preserves source proportions with no border clipping',()=>{
@@ -33,7 +35,7 @@ test('equipped portrait-frame overlay preserves source proportions with no borde
  assert.ok(read('vocabulary.html').includes('vocabulary-reward-identity.css?v=frame-proportions-v1'));
 });
 
-test('shop cards retain original illustrations while equipped profiles use transparent frame-only assets',()=>{
+test('frame cards, equipped collection and actual profile consistently use transparent ornaments',()=>{
  for(const id of ids){
   const reward={reward_id:id,name:id,category:'frames',xp_price:800,description:'Original frame'};
   const shop={shopMode:'production',purchasesEnabled:true,walletStatus:'ready',wallet:{available:3000},
@@ -41,10 +43,15 @@ test('shop cards retain original illustrations while equipped profiles use trans
   const node=root();
   renderProductionShop(node,shop,{category:'frames'});
   assert.ok(node.innerHTML.includes('vocab-shop-card--frames'));
-  assert.ok(node.innerHTML.includes('assets/vocabulary/rewards/'+id+'.png'));
+  const expected=/^(gold-frame|scholar-frame|aurora-frame)$/.test(id)?id+'-overlay':id;
+  assert.ok(node.innerHTML.includes('assets/vocabulary/rewards/'+expected+'.png'),
+    'Shop must show clean transparent frame for '+id);
+  if(expected!==id) assert.ok(!node.innerHTML.includes('src="assets/vocabulary/rewards/'+id+'.png"'),
+    'Shop must not show rectangular preview for '+id);
+  assert.ok((node.innerHTML.match(new RegExp('src="assets/vocabulary/rewards/'+expected+'\\.png"','g'))||[]).length>=2,
+    'Both shop card and equipped collection show the same transparent ornament');
   const profile=renderIdentityShowcase(shop,'Test Student');
   assert.ok(profile.includes('class="vocab-student-identity__frame"'));
-  const expected=/^(gold-frame|scholar-frame|aurora-frame)$/.test(id)?id+'-overlay':id;
   assert.ok(profile.includes('assets/vocabulary/rewards/'+expected+'.png'),
     'Equipped art must be transparent for '+id);
   if(expected!==id) assert.ok(!profile.includes('src="assets/vocabulary/rewards/'+id+'.png"'));
