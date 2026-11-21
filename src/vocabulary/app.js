@@ -1,3 +1,4 @@
+import {updateLeaderboardModal,markLeaderboardTabPending} from './rewards-leaderboard-modal.js?v=overlay-scroll-stability-v1';
 import {ensureRewardsDashboard} from './rewards-home-layout.js';
 import { getSupabaseClient } from '../supabase.js';
 import { loadStudentVocabularyProgress, summariseVocabularyProgress, sampleVocabularyProgress, renderStudentVocabularyProgress } from './student-progress.js?v=journey-dashboard-v2';
@@ -262,7 +263,9 @@ async function refreshSandboxLeaderboard(){
  // A late network response must not navigate the student back to the shop.
  if(!root?.querySelector?.('.vocab-shop-redesign')||!sandboxShop?.sandboxEnabled)return;
  if(requested.scope!==sandboxLeaderboardView.scope||requested.period!==sandboxLeaderboardView.period||requested.expanded!==sandboxLeaderboardView.expanded)return;
- renderCurrentSandboxShop();
+ if(sandboxLeaderboardView.expanded && root?.querySelector('[data-leaderboard-overlay]')){
+  updateLeaderboardModal(root,sandboxLeaderboard,sandboxLeaderboardView);
+ }else void renderCurrentSandboxShop();
 }
 // SPA navigation does not reset the browser's previous scroll position.
 // Only use this when entering a shop, never on filter, leaderboard, purchase
@@ -451,7 +454,9 @@ async function refreshRealLeaderboard(){
  if(!realShop||!root?.querySelector('.vocab-shell--production'))return;
  if(JSON.stringify(requested)!==JSON.stringify(realLeaderboardView))return;
  realLeaderboard=error||data?.ok!==true?null:data;
- void renderRealShop();
+ if(realLeaderboardView.expanded && root?.querySelector('[data-leaderboard-overlay]')){
+  updateLeaderboardModal(root,realLeaderboard,realLeaderboardView);
+ }else void renderRealShop();
 }
 async function showRealShop(){
  if(state.preview||realBusy)return;
@@ -1404,12 +1409,13 @@ root?.addEventListener('click', event => {
     if(['class','school'].includes(target.dataset.scope))realLeaderboardView.scope=target.dataset.scope;
     if(['weekly','all'].includes(target.dataset.period))realLeaderboardView.period=target.dataset.period;
     realLeaderboard=null; // Preserve the dialog while changing tabs.
-    void renderRealShop().then(refreshRealLeaderboard);
+    if(realLeaderboardView.expanded && markLeaderboardTabPending(root,realLeaderboardView)) void refreshRealLeaderboard();
+    else void renderRealShop().then(refreshRealLeaderboard);
   }
   else if (action === 'real-leaderboard-expand' && !state.preview && realShop && !realBusy){
     realLeaderboardView.expanded=!realLeaderboardView.expanded;
      if(realLeaderboardView.expanded){realLeaderboard=null;void renderRealShop().then(refreshRealLeaderboard);}
-     else void renderRealShop().then(()=>root.querySelector('[data-action="real-leaderboard-expand"]')?.focus());
+     else void renderRealShop().then(()=>root.querySelector('[data-action="real-leaderboard-expand"]')?.focus({preventScroll:true}));
   }
   else if (action === 'real-buy' && !state.preview){void applyRealReward('buy',target.dataset.rewardId);}
   else if (action === 'real-equip' && !state.preview){void applyRealReward('equip',target.dataset.rewardId);}
@@ -1442,12 +1448,13 @@ root?.addEventListener('click', event => {
     if(target.dataset.scope==='class'||target.dataset.scope==='school')sandboxLeaderboardView.scope=target.dataset.scope;
     if(target.dataset.period==='weekly'||target.dataset.period==='all')sandboxLeaderboardView.period=target.dataset.period;
     sandboxLeaderboard=null; // Preserve the dialog while changing tabs.
-    void renderCurrentSandboxShop().then(refreshSandboxLeaderboard);
+    if(sandboxLeaderboardView.expanded && markLeaderboardTabPending(root,sandboxLeaderboardView)) void refreshSandboxLeaderboard();
+    else void renderCurrentSandboxShop().then(refreshSandboxLeaderboard);
   }
   else if (action === 'sandbox-leaderboard-expand' && !state.preview && sandboxShop?.sandboxEnabled) {
     sandboxLeaderboardView.expanded=!sandboxLeaderboardView.expanded;
      if(sandboxLeaderboardView.expanded){sandboxLeaderboard=null;void renderCurrentSandboxShop().then(refreshSandboxLeaderboard);}
-     else void renderCurrentSandboxShop().then(()=>root.querySelector('[data-action="sandbox-leaderboard-expand"]')?.focus());
+     else void renderCurrentSandboxShop().then(()=>root.querySelector('[data-action="sandbox-leaderboard-expand"]')?.focus({preventScroll:true}));
   }
   else if (action === 'sandbox-buy' && !state.preview) { void applySandboxReward('buy',target.dataset.rewardId); }
   else if (action === 'sandbox-equip' && !state.preview) { void applySandboxReward('equip',target.dataset.rewardId); }
