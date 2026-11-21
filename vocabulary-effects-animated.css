@@ -288,3 +288,47 @@
     display:none!important;
   }
 }
+
+/* Rainbow Aura must visibly animate on an equipped identity including the
+   mini/header portrait. The original artwork had only .21 opacity; that made
+   it effectively invisible against darker purchased themes. Keep PNG colours
+   unchanged and move the ART itself, not just a faint pseudo-element. */
+#vocabularyApp .vocab-student-identity__avatar[data-cosmetic-effect="rainbow-aura"] > .vocab-student-identity__effect{
+  opacity:1!important;
+  animation:vocab-rainbow-equipped-art 4s ease-in-out infinite alternate!important;
+  transform-origin:center;
+  will-change:transform;
+}
+#vocabularyApp .vocab-student-identity__avatar[data-cosmetic-effect="rainbow-aura"]::after{
+  content:"";
+  position:absolute;
+  inset:-10%;
+  border:3px solid transparent;
+  border-radius:50%;
+  background:linear-gradient(#0000,#0000) padding-box,
+    conic-gradient(#ff8ace,#ffdf9f,#91ffbf,#9cddff,#bb9cfa,#ff8ace) border-box;
+  pointer-events:none;
+  filter:drop-shadow(0 0 5px #acbafa);
+  z-index:1;
+  animation:vocab-rainbow-equipped-ring 3.3s linear infinite!important;
+}
+@keyframes vocab-rainbow-equipped-art{
+  0%{transform:rotate(-10deg) scale(.95)}
+  100%{transform:rotate(10deg) scale(1.1)}
+}
+@keyframes vocab-rainbow-equipped-ring{
+  to{transform:rotate(360deg)}
+}
+@media(prefers-reduced-motion:reduce){
+  #vocabularyApp .vocab-student-identity__avatar[data-cosmetic-effect="rainbow-aura"] > .vocab-student-identity__effect,
+  #vocabularyApp .vocab-student-identity__avatar[data-cosmetic-effect="rainbow-aura"]::after{
+    animation:none!important;
+    transform:none!important;
+    will-change:auto!important;
+  }
+}
+@media print,(forced-colors:active){
+  #vocabularyApp .vocab-student-identity__avatar[data-cosmetic-effect="rainbow-aura"]::after{
+    display:none!important;
+  }
+}
