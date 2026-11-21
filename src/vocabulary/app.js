@@ -278,7 +278,7 @@ function scrollToShopTop(){
 }
 async function renderCurrentSandboxShop(message='',busy=sandboxBusy){
  if(!sandboxShop?.sandboxEnabled)return;
- const {renderSandboxShop}=await import('./rewards-sandbox-view.js?v=shop-frame-clean-v1');
+ const {renderSandboxShop}=await import('./rewards-sandbox-view.js?v=blockverse-v1');
  renderSandboxShop(root,sandboxShop,{category:sandboxCategory,busy,message,progress:homeEngagement(),studentName:state.profile?.display_name??'Student',leaderboard:sandboxLeaderboard,leaderboardView:sandboxLeaderboardView});
 }
 async function loadSandboxShop() {
@@ -384,7 +384,7 @@ async function refreshStudentCosmetics(){
  const shop=effectiveCosmeticShop();
  if(!shop||state.preview||state.profile?.role!=='student')return;
  liveCosmeticShop=shop;
- cosmeticModule??=await import('./rewards-equipped-home.js?v=transparent-frames-v1');
+ cosmeticModule??=await import('./rewards-equipped-home.js?v=blockverse-v1');
  cosmeticModule.applyRewardTheme(root,shop);
  if(root?.querySelector('.vocab-shell--home'))
    cosmeticModule.renderEquippedCosmetics(root,shop,state.profile?.display_name??'Student',homeEngagement());
@@ -439,7 +439,7 @@ async function fetchRealShop(){
 }
 async function renderRealShop(message='',busy=realBusy){
  if(!realShop)return;
- const {renderProductionShop}=await import('./rewards-sandbox-view.js?v=shop-frame-clean-v1');
+ const {renderProductionShop}=await import('./rewards-sandbox-view.js?v=blockverse-v1');
  renderProductionShop(root,realShop,{category:realCategory,busy,message,progress:homeEngagement(),
   studentName:state.profile?.display_name??'Student',leaderboard:realLeaderboard,leaderboardView:realLeaderboardView});
  await updateLiveCosmetics(realShop);

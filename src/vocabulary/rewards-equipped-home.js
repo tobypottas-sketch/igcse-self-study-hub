@@ -1,13 +1,13 @@
 // Student-facing equipped identity and app-wide cosmetic theme controller.
 // The backend owns inventory; only equipped items found in its returned catalogue
 // can influence presentation. No learning content, grades, mastery or XP changes.
-import {rewardArtworkPath} from './rewards-art.js?v=transparent-frames-v1';
+import {rewardArtworkPath} from './rewards-art.js?v=blockverse-v1';
 import {ensureRewardsDashboard} from './rewards-home-layout.js';
 import {SUPPORTED_THEME_IDS,EQUIPMENT_CATEGORIES,visibleEquipmentCategories} from './rewards-premium-registry.js';
 const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const THEMES=new Set(SUPPORTED_THEME_IDS);
-const EFFECTS=new Set(['sparkle','electric-pulse','stardust-trail','forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight','rainbow-aura','golden-sunrays']);
-const ANIMATED_EFFECTS=new Set(['forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight','rainbow-aura','golden-sunrays']);
+const EFFECTS=new Set(['sparkle','electric-pulse','stardust-trail','forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight','rainbow-aura','golden-sunrays','pixel-burst']);
+const ANIMATED_EFFECTS=new Set(['forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight','rainbow-aura','golden-sunrays','pixel-burst']);
 const CATEGORIES=EQUIPMENT_CATEGORIES;
 const ROOT_CLASSES=[...THEMES].map(x=>'vocab-real-theme--'+x);
 const EFFECT_CLASSES=[...EFFECTS].map(x=>'vocab-real-effect--'+x);
@@ -86,20 +86,22 @@ export function renderIdentityShowcase(shop,displayName='Student',engagement=nul
    return reward?`${itemNames.get(reward)??labels[category]} ${category==='themes'?'active':'equipped'}`:`${labels[category]} not equipped`;
  }).join('; ');
  const summary=`${equippedCount} / ${categories.length} ${id.sandboxPreview?'test equipped':'equipped'}: ${status}`;
+ const titleUnderName=active.titles==='master-builder';
  const title=id.title
    ?(id.titleArt
      ?`<span class="vocab-student-identity__title-art"><img src="${id.titleArt}" alt="${escapeHtml(id.title)} title artwork" decoding="async"></span>`
      :`<span class="vocab-student-identity__title">${escapeHtml(id.title)}</span>`)
    :'';
- return `<section class="vocab-real-cosmetics vocab-student-identity" data-real-cosmetics aria-label="Your student profile and equipped rewards">
+ return `<section class="vocab-real-cosmetics vocab-student-identity${titleUnderName?' vocab-student-identity--master-builder':''}" data-real-cosmetics aria-label="Your student profile and equipped rewards">
    <div class="vocab-student-identity__portrait">${avatar(id)}</div>
    <div class="vocab-student-identity__text">
      <span class="vocab-student-identity__eyebrow">${id.sandboxPreview?'Preview':'MY STUDENT PROFILE'}</span>
      <h2>${escapeHtml(id.name)}</h2>
+     ${titleUnderName?title:''}
      <span class="vocab-student-identity__stamp"><span aria-hidden="true">${equippedCount} / ${categories.length} equipped</span><span class="vocab-sr-only">${escapeHtml(summary)}</span></span>
    </div>
    ${profileProgressSummary(shop,engagement)}
-   <div class="vocab-student-identity__extras" aria-label="Equipped title artwork">${title||'<span class="vocab-student-identity__detail">Choose a title in the shop</span>'}</div>
+   ${titleUnderName?'':`<div class="vocab-student-identity__extras" aria-label="Equipped title artwork">${title||'<span class="vocab-student-identity__detail">Choose a title in the shop</span>'}</div>`}
  </section>`;
 }
 export function applyRewardTheme(root,shop){

@@ -1,0 +1,222 @@
+/* Blockverse uses stone panels, grass edges and diamond accents. */
+#vocabularyApp.vocab-real-theme--blockverse{
+  --blockverse-stone:#253733;
+  --blockverse-earth:#382d23;
+  --blockverse-grass:#a4e471;
+  --blockverse-diamond:#8af1eb;
+  --blockverse-scene:url("assets/vocabulary/rewards/blockverse.png");
+  --reward-ink:#f7fcf5;
+  --reward-edge:#728d77;
+  --reward-strong:var(--blockverse-diamond);
+  --immersive-panel:var(--blockverse-stone);
+  --immersive-panel-2:var(--blockverse-earth);
+  --immersive-edge:var(--reward-edge);
+  --immersive-pathway:var(--immersive-panel);
+  --immersive-pathway-2:var(--immersive-panel-2);
+  --immersive-pathway-edge:var(--immersive-edge);
+}
+body:has(#vocabularyApp.vocab-real-theme--blockverse){
+  background:#192925 linear-gradient(120deg,#14231de0,#30251ab8) center / cover no-repeat fixed!important;
+  background-image:linear-gradient(120deg,#14231de0,#30251ab8),url("assets/vocabulary/rewards/blockverse.png")!important;
+}
+body:has(#vocabularyApp.vocab-real-theme--blockverse .vocab-shell[data-unit-overview]){
+  background-image:var(--page-art),linear-gradient(120deg,#14231ded,#30251ac9),url("assets/vocabulary/rewards/blockverse.png")!important;
+  background-size:max(100vw,177.78vh) auto,cover,cover!important;
+}
+body:has(#vocabularyApp.vocab-real-theme--blockverse .vocab-shell[data-unit-theme]){
+  background-image:var(--unit-wallpaper),linear-gradient(120deg,#14231de0,#30251ac9),url("assets/vocabulary/rewards/blockverse.png")!important;
+  background-size:420px 420px,cover,cover!important;
+  background-repeat:repeat,no-repeat,no-repeat!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse :is(.vocab-topbar,.vocab-unit-card,.vocab-hero--home,
+  .vocab-progress-entry,.vocab-student-identity,.vocab-startup__content,.vocab-journey-hero){
+  background:linear-gradient(125deg,var(--blockverse-stone),var(--blockverse-earth))!important;
+  border:1px solid var(--reward-edge)!important;
+  border-top:3px solid #75a957!important;
+  border-radius:8px;
+  color:var(--reward-ink)!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse :is(.vocab-hero--home,.vocab-journey-hero){
+  background:linear-gradient(90deg,#182a21fa 12%,#182a21dc 53%,#182a2160),var(--blockverse-scene) right center / auto 100% no-repeat,#192923!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse :is(.vocab-hero--home,.vocab-journey-hero,.vocab-shop-hero) :is(h1,p),
+#vocabularyApp.vocab-real-theme--blockverse :is(.vocab-topbar__course,.vocab-student-identity-mini__name,
+  .vocab-unit-id__title,.vocab-session-unit,.vocab-unit-card strong,.vocab-progress-entry > span > strong,
+  .vocab-student-identity__text h2,.vocab-startup__title){
+  color:var(--reward-ink)!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse :is(.vocab-unit-card small,.vocab-unit-card span:not(.vocab-unit-card__number),
+  .vocab-progress-entry > span > small,.vocab-student-identity__detail,.vocab-startup__status){
+  color:#dae8d7!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse :is(.vocab-unit-card__number,.vocab-student-identity__eyebrow,
+  .vocab-hero--home h1 span,.vocab-hero--home .vocab-kicker,.vocab-home-hero__welcome strong,
+  .vocab-shop-hero__intro h1 span,.vocab-journey-hero em,.vocab-journey-eyebrow){
+  color:var(--blockverse-diamond)!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-hero--home .vocab-kicker{
+  background:#1c3629!important;
+  border-color:var(--reward-edge);
+}
+#vocabularyApp.vocab-real-theme--blockverse :is(.vocab-back--chip,.vocab-sound-toggle,.vocab-button--primary,
+  .vocab-progress-entry > button){
+  background:#335d3b!important;
+  border-color:#79a36a!important;
+  border-radius:5px!important;
+  box-shadow:inset 0 -3px #223f2b;
+  color:#fff!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse :is(.vocab-back--chip,.vocab-sound-toggle,.vocab-button--primary,
+  .vocab-progress-entry > button):hover:not(:disabled){
+  background:#416d46!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse :focus-visible{
+  outline:2px solid #20988f;
+  outline-offset:3px;
+}
+#vocabularyApp.vocab-real-theme--blockverse :is(.vocab-unit-hero,.vocab-question-card,.vocab-summary-card,.vocab-practice-picker){
+  background:#f5f8ef;
+  border:1px solid #869783;
+  border-top:4px solid #638957;
+  border-radius:8px;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-shell[data-unit-overview] :is(.vocab-pathways__head,.vocab-support__head){
+  border-left-color:#7aaa66!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-shell--journey{
+  --journey-ink:var(--reward-ink);
+  --journey-muted:#dae8d7;
+  --journey-surface:var(--blockverse-stone);
+  --journey-border:var(--reward-edge);
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-student-identity__stamp{
+  background:#172b23;
+  color:var(--reward-ink);
+}
+#vocabularyApp.vocab-real-theme--blockverse :is(.vocab-student-identity__level-track,.vocab-shop-meter){
+  background:#506356;
+  border-radius:2px;
+}
+#vocabularyApp.vocab-real-theme--blockverse :is(.vocab-student-identity__level-track,.vocab-shop-meter,.vocab-shop-unlock__track) > span,
+#vocabularyApp.vocab-real-theme--blockverse :is(.vocab-startup__track,.vocab-pending-track)::before{
+  background:linear-gradient(90deg,var(--blockverse-grass),var(--blockverse-diamond));
+  border-radius:2px;
+}
+
+/* The existing marketplace header keeps its wallet and counter layout. */
+#vocabularyApp .vocab-shop-redesign[data-equipped-theme="blockverse"]{
+  --shop-turquoise:#2b5d3d;
+  --shop-border:#8b9b80;
+  --shop-accent-edge:#77936d;
+  --shop-accent-soft:#edf4e6;
+  background:#25332b linear-gradient(125deg,#18291fe8,#36291ed2) center / cover!important;
+  background-image:linear-gradient(125deg,#18291fe8,#36291ed2),var(--blockverse-scene)!important;
+  border-color:var(--shop-border)!important;
+}
+#vocabularyApp .vocab-shop-redesign[data-equipped-theme="blockverse"] > .vocab-shop-hero{
+  background:linear-gradient(90deg,#192a22 30%,#192a22d9 58%,#192a223d),var(--blockverse-scene) center / cover!important;
+  border-color:#75a957!important;
+}
+#vocabularyApp .vocab-shop-redesign[data-equipped-theme="blockverse"] :is(.vocab-shop-card,.vocab-shop-sidebar,.vocab-shop-equipped){
+  background:#f5f8ef;
+  border-color:var(--shop-border);
+}
+#vocabularyApp .vocab-shop-redesign[data-equipped-theme="blockverse"] :is(.vocab-reward-tab,.vocab-shop-popular,.vocab-shop-card,.vocab-reward-card__bottom button){
+  border-radius:6px;
+}
+#vocabularyApp .vocab-shop-redesign[data-equipped-theme="blockverse"] :is(.vocab-reward-tab,.vocab-shop-popular).is-active{
+  background:#335d3b;
+  color:#fff;
+}
+#vocabularyApp .vocab-shop-blockverse{
+  background:linear-gradient(150deg,#253933,#3b2e24);
+  border:1px solid #77936d;
+  border-top:4px solid #81bc59;
+  border-radius:8px;
+  padding:clamp(8px,2vw,16px);
+  margin-bottom:16px;
+}
+#vocabularyApp .vocab-shop-blockverse h2{
+  margin:0 0 12px;
+  color:#eaf8eb;
+  font-size:1.25rem;
+  letter-spacing:.04em;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-illustration:is(
+  [src$="/blockverse.png"],[src$="/master-builder.png"],[src$="/diamond-block-badge.png"],
+  [src$="/voxel-master-frame.png"],[src$="/pixel-burst.png"]
+){
+  object-fit:contain;
+  border-radius:0;
+}
+#vocabularyApp .vocab-student-identity__frame[src$="/voxel-master-frame.png"]{
+  inset:-9%;
+  width:118%;
+  height:118%;
+  object-fit:contain;
+  border-radius:0;
+}
+#vocabularyApp .vocab-student-identity__avatar .vocab-student-identity__badge[src$="/diamond-block-badge.png"]{
+  width:52%;
+  height:52%;
+  object-fit:contain;
+  background:none;
+  border:0;
+  box-shadow:none;
+  filter:drop-shadow(0 2px 2px #142a2180);
+}
+#vocabularyApp .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity--master-builder{
+  grid-template-columns:100px minmax(0,1fr) minmax(0,1fr);
+}
+#vocabularyApp .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity--master-builder .vocab-student-identity__title-art{
+  width:min(100%,205px);
+  max-width:none;
+}
+#vocabularyApp .vocab-student-identity--master-builder .vocab-student-identity__title-art img{
+  border-radius:0;
+}
+@media(max-width:750px){
+  body:has(#vocabularyApp.vocab-real-theme--blockverse){background-attachment:scroll!important}
+  #vocabularyApp .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity--master-builder{
+    grid-template-columns:clamp(68px,16vw,88px) minmax(0,1fr);
+  }
+  #vocabularyApp .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity--master-builder .vocab-student-identity__progress{
+    grid-column:1 / -1;
+  }
+}
+
+#vocabularyApp .vocab-shop-redesign .vocab-effect-demo-stage[data-preview-effect="pixel-burst"]{
+  background:radial-gradient(ellipse at center,#28473f,#162823 68%);
+}
+#vocabularyApp .vocab-shop-redesign .vocab-effect-preview[data-preview-effect="pixel-burst"] .vocab-student-identity__avatar{
+  width:min(104px,44%);
+  height:auto;
+  aspect-ratio:1;
+  background:none!important;
+  box-shadow:none!important;
+}
+#vocabularyApp [data-cosmetic-effect="pixel-burst"] .vocab-student-identity__effect{opacity:.4}
+#vocabularyApp .vocab-effect-preview[data-preview-effect="pixel-burst"] .vocab-student-identity__effect{opacity:1!important}
+#vocabularyApp [data-cosmetic-effect="pixel-burst"] .vocab-cosmetic-particle{
+  left:calc(50% - 3%);
+  top:calc(50% - 3%);
+  width:6%;
+  height:6%;
+  background:var(--pixel-color);
+  box-shadow:inset -2px -2px #152f5270,0 0 7px var(--pixel-color);
+  animation:vocab-pixel-burst 2.4s cubic-bezier(.13,.62,.37,1) infinite;
+}
+#vocabularyApp [data-cosmetic-effect="pixel-burst"] .vocab-cosmetic-particle--1{--x:-560%;--y:-490%;--pixel-color:#81f5d9;--delay:0s}
+#vocabularyApp [data-cosmetic-effect="pixel-burst"] .vocab-cosmetic-particle--2{--x:440%;--y:-620%;--pixel-color:#f8d45f;--delay:-.10s}
+#vocabularyApp [data-cosmetic-effect="pixel-burst"] .vocab-cosmetic-particle--3{--x:720%;--y:-75%;--pixel-color:#70dcff;--delay:-.18s}
+#vocabularyApp [data-cosmetic-effect="pixel-burst"] .vocab-cosmetic-particle--4{--x:450%;--y:530%;--pixel-color:#dc98ff;--delay:-.07s}
+#vocabularyApp [data-cosmetic-effect="pixel-burst"] .vocab-cosmetic-particle--5{--x:-690%;--y:360%;--pixel-color:#a4ef67;--delay:-.13s}
+#vocabularyApp [data-cosmetic-effect="pixel-burst"] .vocab-cosmetic-particle--6{--x:-115%;--y:-740%;--pixel-color:#ff976e;--delay:-.22s}
+@keyframes vocab-pixel-burst{
+  0%{transform:translate(0,0) scale(.3);opacity:0}
+  12%{opacity:1}
+  55%,100%{transform:translate(var(--x),var(--y)) rotate(180deg) scale(.55);opacity:0}
+}
+@media(prefers-reduced-motion:reduce){
+  #vocabularyApp [data-cosmetic-effect="pixel-burst"] .vocab-cosmetic-particle{animation:none;display:none}
+}
