@@ -119,12 +119,12 @@
 #vocabularyApp .vocab-shop-redesign[data-equipped-theme="afterlight"] > .vocab-shop-hero{
   position:relative;
   display:grid!important;
-  grid-template-columns:minmax(0,930px) minmax(290px,465px)!important;
+  grid-template-columns:minmax(0,700px) minmax(290px,465px)!important;
   grid-template-rows:auto!important;
   grid-template-areas:"intro display"!important;
   justify-content:center!important;
   align-items:center!important;
-  gap:clamp(20px,3vw,48px)!important;
+  gap:clamp(20px,2.5vw,36px)!important;
   box-sizing:border-box;
   min-height:0!important;
   padding:16px clamp(22px,3vw,44px) 18px!important;
