@@ -144,3 +144,22 @@ test('Rainbow Aura has genuine artwork/ring animation in preview and equipped mi
   assert.ok(css.includes('prefers-reduced-motion:reduce'));
   assert.ok(equipped.includes('prefers-reduced-motion:reduce'));
 });
+
+
+test('shop counter art and live XP stay separate for both real and sandbox shops',()=>{
+  const png=read('assets/vocabulary/rewards/shop-counter.png');
+  assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+  const owned=[{reward_id:'afterlight',category:'themes',equipped:true}];
+  for(const production of [true,false]){
+    const root={innerHTML:'',classList:new Set(),querySelector:()=>null};
+    root.classList.remove=(...classes)=>classes.forEach(name=>root.classList.delete(name));
+    const data={...shop,shopMode:production?'production':'sandbox',sandboxEnabled:!production,
+      wallet:{available:5724},owned};
+    (production?renderProductionShop:renderSandboxShop)(root,data,{category:'themes'});
+    assert.match(root.innerHTML,/assets\\/vocabulary\\/rewards\\/shop-counter\\.png/);
+    assert.equal((root.innerHTML.match(/vocab-shop-hero__counter/g)||[]).length,1);
+    assert.match(root.innerHTML,/5,724 XP/);
+    assert.doesNotMatch(root.innerHTML,/STUDENT REWARDS/);
+    assert.match(root.innerHTML,/Earn it\\. Spend it\\. Make it yours\\./);
+  }
+});
