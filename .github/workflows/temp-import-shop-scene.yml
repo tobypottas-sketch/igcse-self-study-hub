@@ -1,0 +1,40 @@
+name: Import approved rewards shop scene (temporary)
+on:
+  push:
+    branches: [feature/immersive-shop-stall-scene-20261121]
+    paths: ['.github/workflows/temp-import-shop-scene.yml']
+permissions:
+  contents: write
+jobs:
+  scene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/immersive-shop-stall-scene-20261121
+          persist-credentials: true
+      - name: Download approved generated PNG
+        env:
+          FULL_URL: 'https://media.canva.com/v2/image-resize/format:PNG/height:1086/quality:100/uri:ifs%3A%2F%2FM%2Ff292ebeb-d80a-4e06-8a82-5320c85de817/watermark:F/width:1448?csig=AAAAAAAAAAAAAAAAAAAAAOjDtZ-F5SpRR8flmODt8cmCpCPmwWAwGhsHyxMM4GDR&exp=1795270217&osig=AAAAAAAAAAAAAAAAAAAAAN35aTH8WXxkmIyZP0x5-QEUbTtG6Vc_IesUV_Kal7xR&signer=media-rpc&token=AAIAAU0AJGYyOTJlYmViLWQ4MGEtNGUwNi04YTgyLTUzMjBjODVkZTgxNwAAAAABof5xjSi-0GQ-Ke7bM--hnhpirdE5295gbobXVm1_bXbOG-Y1Sw'
+          THUMB_URL: 'https://media.canva.com/v2/image-resize/format:PNG/height:150/quality:100/uri:ifs%3A%2F%2FM%2Ff292ebeb-d80a-4e06-8a82-5320c85de817/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAOjDtZ-F5SpRR8flmODt8cmCpCPmwWAwGhsHyxMM4GDR&exp=1795270217&osig=AAAAAAAAAAAAAAAAAAAAAN35aTH8WXxkmIyZP0x5-QEUbTtG6Vc_IesUV_Kal7xR&signer=media-rpc&token=AAIAAU0AJGYyOTJlYmViLWQ4MGEtNGUwNi04YTgyLTUzMjBjODVkZTgxNwAAAAABof5xjSi-0GQ-Ke7bM--hnhpirdE5295gbobXVm1_bXbOG-Y1Sw&x-canva-quality=thumbnail'
+        run: |
+          mkdir -p assets/vocabulary/rewards
+          if ! curl -fsSL --retry 2 "$FULL_URL" -o /tmp/shop-scene.png; then
+            echo "Full-resolution transform not authorized. Trying signed version."
+            curl -fsSL --retry 2 "$THUMB_URL" -o /tmp/shop-scene.png
+          fi
+          file /tmp/shop-scene.png
+          python3 - <<'PY'
+          import struct
+          p=open('/tmp/shop-scene.png','rb').read()
+          assert p[:8]==b'\x89PNG\r\n\x1a\n','Not a PNG'
+          print('Scene size:',*struct.unpack('>II',p[16:24]),'bytes',len(p))
+          PY
+          cp /tmp/shop-scene.png assets/vocabulary/rewards/shop-stall-scene.png
+      - name: Commit image to feature branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/vocabulary/rewards/shop-stall-scene.png
+          git commit -m "Add approved transparent cosmetics stall scene artwork"
+          git push
