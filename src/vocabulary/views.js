@@ -292,7 +292,7 @@ function pathwayToClearCopy(evidence, label, mastered) {
 }
 // The evidence readout is rendered complete in the card's first HTML from the state the caller already holds.
 function setToClearCopy(set, label) {
-  if (set.firstPassComplete) return 'Every Set is in Maintain';
+  if (set.firstPassComplete) return 'All sets completed · Maintain mode';
   if (set.phase === 'consolidate') return 'Follow-up · Pass with 8/10 correct';
   if (set.phase === 'recovery') return 'Recovery mission, then one fresh mission';
   if (set.phase === 'fresh') return 'Fresh mission · Pass with 8/10 correct';
@@ -344,7 +344,7 @@ function renderPathwayCard(pathway, pathwayStates, ready) {
   const disabled = ready && !unavailable ? '' : ' disabled aria-disabled="true"';
   const evidenceShell = unavailable ? '' : pathwayEvidence(state);
   const cta = unavailable ? '' : `${state.mastered ? 'Review pathway' : 'Continue pathway'} →`;
-  return `<button type="button" class="vocab-pathway-card has-study-art study-enter" data-action="open-pathway" data-pathway="${pathway.id}" data-pathway-status="${status}" data-study-accent="${escapeHtml(identity.accent)}"${disabled}><span class="vocab-pathway-card__identity"><span class="vocab-pathway-card__icon">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}</span><span class="vocab-pathway-card__head"><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(identity.purpose)}</small></span></span><span class="vocab-pathway-card__status"><small class="vocab-pathway-card__status-label">${escapeHtml(statusEyebrow)}</small><strong class="vocab-pathway-card__status-value">${escapeHtml(statusLabel)}</strong></span>${coverage || held ? `<span class="vocab-pathway-card__chips">${coverage}${held}</span>` : ''}${evidenceShell}<span class="vocab-pathway-ladder" aria-label="${escapeHtml(pathway.label)} progression">${stages}</span><span class="vocab-pathway-card__cta">${escapeHtml(cta)}</span>${pathwayArtSlot(pathway.id)}</button>`;
+  return `<button type="button" class="vocab-pathway-card has-study-art study-enter" data-action="open-pathway" data-pathway="${pathway.id}" data-pathway-status="${status}" data-study-accent="${escapeHtml(identity.accent)}"${disabled}><span class="vocab-pathway-card__identity"><span class="vocab-pathway-card__icon">${renderStudyIcon(identity.icon,{className:'study-icon--lg'})}</span><span class="vocab-pathway-card__head"><strong>${escapeHtml(identity.label)}</strong><small>${escapeHtml(pathway.id === 'paraphrasing' ? 'Express ideas in different ways' : pathway.id === 'spelling_recall' ? 'Build and recall vocabulary' : identity.purpose)}</small></span></span><span class="vocab-pathway-card__status"><small class="vocab-pathway-card__status-label">${escapeHtml(statusEyebrow)}</small><strong class="vocab-pathway-card__status-value">${escapeHtml(statusLabel)}</strong></span>${coverage || held ? `<span class="vocab-pathway-card__chips">${coverage}${held}</span>` : ''}${evidenceShell}<span class="vocab-pathway-ladder" aria-label="${escapeHtml(pathway.label)} progression">${stages}</span><span class="vocab-pathway-card__cta">${escapeHtml(cta)}</span>${pathwayArtSlot(pathway.id)}</button>`;
 }
 
 // "How do you want to practise?" sheet. `options` come from pathwayPracticeOptions(); locked ones stay visible with the reason, never hidden.
