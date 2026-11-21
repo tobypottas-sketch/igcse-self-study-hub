@@ -163,3 +163,18 @@ test('shop counter art and live XP stay separate for both real and sandbox shops
     assert.ok(root.innerHTML.includes('Earn it. Spend it. Make it yours.'));
   }
 });
+
+
+test('shop banner uses one narrow centered content group rather than edge-separated hero cells',()=>{
+  const css=read('vocabulary-shop-header-premium.css').toString();
+  const html=read('vocabulary.html').toString();
+  assert.ok(html.includes('vocabulary-shop-header-premium.css?v=shop-center-composition-v3'));
+  assert.ok(css.includes('grid-template-columns:minmax(0,700px) minmax(290px,465px)'));
+  assert.ok(css.includes('justify-content:center!important'));
+  assert.ok(css.includes('grid-template-areas:"intro display"'));
+  assert.ok(css.includes('grid-template-areas:"intro" "display"'));
+  assert.ok(css.includes('max-width:950px'));
+  assert.ok(css.includes('max-width:640px'));
+  assert.ok(!css.includes('grid-template-areas:"top balance" "intro balance"'));
+  assert.ok(!css.includes('grid-template-areas:"intro balance" "intro counter"'));
+});
