@@ -43,7 +43,7 @@ test('production and sandbox shops expose one accessible heading and one verifie
 test('shop header has paired, accessible theme palettes and responsive breakpoints',()=>{
   const css=read('vocabulary-shop-header-premium.css');
   const html=read('vocabulary.html');
-  assert.match(html,/vocabulary-shop-header-premium\.css\?v=shop-kiosk-v1/);
+  assert.match(html,/vocabulary-shop-header-premium\.css\?v=shop-center-composition-v3/);
   const palettes={
     default:['#142e43','#f5fbff','#76e8dc'],
     forest:['#102e27','#f5ffe9','#d0f49a'],
