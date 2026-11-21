@@ -1,0 +1,87 @@
+/* Blockverse legibility contract v3.
+ * Loaded after all existing theme styles. Dark text on light surfaces;
+ * light text on stone surfaces. Scope everything to equipped Blockverse. */
+#vocabularyApp.vocab-real-theme--blockverse .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity {
+  background:#20352b!important;
+  background-image:linear-gradient(115deg,#1d372c 0%,#263b30 57%,#3e3226 100%)!important;
+  color:#f7fff1!important;
+  border:2px solid #91b778!important;
+  border-left:7px solid #a6db70!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity :is(
+ .vocab-student-identity__text,.vocab-student-identity__text h2,
+ .vocab-student-identity__eyebrow,.vocab-student-identity__stamp,
+ .vocab-student-identity__theme,.vocab-student-identity__theme strong,
+ .vocab-student-identity__progress,.vocab-student-identity__progress *,
+ .vocab-student-identity__level,.vocab-student-identity__level-top,
+ .vocab-student-identity__level-top span,.vocab-student-identity__level-top strong,
+ .vocab-student-identity__level-top b,.vocab-student-identity__metric,
+ .vocab-student-identity__metric strong,.vocab-student-identity__metric-label,
+ .vocab-student-identity__title-label
+) {
+  color:#f7fff1!important;
+  text-shadow:0 1px 2px #10251e80;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity :is(
+ .vocab-student-identity__eyebrow,.vocab-student-identity__stamp,
+ .vocab-student-identity__metric-label
+) { color:#9ff5dc!important; }
+#vocabularyApp.vocab-real-theme--blockverse .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__level-track {
+ background:#536b5e!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-unit-card > small {
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:8px!important;
+ padding:9px 15px!important;
+ min-height:40px!important;
+ background:#b9ec85!important;
+ background-image:none!important;
+ border:2px solid #75ac55!important;
+ border-bottom:4px solid #5f8c40!important;
+ border-radius:6px!important;
+ color:#173521!important;
+ -webkit-text-fill-color:#173521!important;
+ opacity:1!important;
+ filter:none!important;
+ text-shadow:none!important;
+ font-weight:900!important;
+ line-height:1.2!important;
+ box-shadow:0 2px 0 #0b291a66!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-unit-card > small :is(span,svg,path) {
+ color:#173521!important;
+ stroke:currentColor;
+ opacity:1!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-unit-card:is(:hover,:focus-visible) > small {
+ background:#daffb4!important;
+ color:#102c1b!important;
+ -webkit-text-fill-color:#102c1b!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-topbar--unit .vocab-unit-id__title {
+ background:#eaf8dd!important;
+ background-image:none!important;
+ color:#173823!important;
+ -webkit-text-fill-color:#173823!important;
+ text-shadow:none!important;
+ border:2px solid #9ec38a!important;
+ border-radius:6px!important;
+ opacity:1!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-topbar--unit .vocab-unit-id__badge {
+ background:#203b31!important;
+ color:#ffe589!important;
+ -webkit-text-fill-color:#ffe589!important;
+}
+#vocabularyApp.vocab-real-theme--blockverse .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__title-art img {
+ opacity:1!important;
+}
+@media(forced-colors:active){
+ #vocabularyApp.vocab-real-theme--blockverse .vocab-unit-card > small,
+ #vocabularyApp.vocab-real-theme--blockverse .vocab-topbar--unit .vocab-unit-id__title {
+  background:Canvas!important;color:CanvasText!important;-webkit-text-fill-color:CanvasText!important;
+  border:2px solid CanvasText!important;
+ }
+}
