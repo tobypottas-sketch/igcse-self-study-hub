@@ -303,3 +303,48 @@ body:has(#vocabularyApp.vocab-real-theme--afterlight .vocab-shell[data-unit-them
     color:CanvasText!important;
   }
 }
+
+/* Afterlight unit-card CTA contrast: the prior generic `.vocab-unit-card small`
+ * rule coloured this pale pill beige. Give it an opaque dark surface with
+ * white text and icon, including hover and keyboard focus states. */
+#vocabularyApp.vocab-real-theme--afterlight .vocab-unit-card > small{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-height:40px;
+  padding:9px 15px;
+  border:2px solid #b9a477!important;
+  border-bottom:4px solid #1c2821!important;
+  border-radius:7px;
+  background:#294536!important;
+  background-image:none!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  opacity:1!important;
+  text-shadow:none!important;
+  filter:none!important;
+  font-weight:900;
+  line-height:1.2;
+  box-shadow:0 2px 0 #0b1510aa;
+}
+#vocabularyApp.vocab-real-theme--afterlight .vocab-unit-card > small :is(span,svg,path){
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  stroke:#fff!important;
+  opacity:1!important;
+}
+#vocabularyApp.vocab-real-theme--afterlight .vocab-unit-card:is(:hover,:focus-visible) > small{
+  background:#365e46!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  border-color:#e0c38b!important;
+}
+@media(forced-colors:active){
+  #vocabularyApp.vocab-real-theme--afterlight .vocab-unit-card > small{
+    background:Canvas!important;
+    color:CanvasText!important;
+    -webkit-text-fill-color:CanvasText!important;
+    border:2px solid CanvasText!important;
+  }
+}
