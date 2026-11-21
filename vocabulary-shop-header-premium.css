@@ -370,7 +370,7 @@
   align-items:end;
   justify-self:stretch;
   width:100%;
-  max-width:430px;
+  max-width:360px;
   min-width:0;
   align-self:end;
   margin:0 auto -5px;
@@ -380,7 +380,7 @@
   display:block;
   width:100%;
   height:auto;
-  max-height:258px;
+  max-height:240px;
   object-fit:contain;
   object-position:center bottom;
   /* The supplied PNG has its own dark outline and warm highlights. */
@@ -422,5 +422,27 @@
 @media print,(forced-colors:active){
   #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter{
     display:none!important;
+  }
+}
+
+/* Afterlight's older theme-specific !important grid has greater specificity.
+   Explicitly align the same kiosk layout without hiding the approved city art. */
+#vocabularyApp .vocab-shop-redesign[data-equipped-theme="afterlight"] > .vocab-shop-hero{
+  grid-template-columns:minmax(0,1fr) minmax(250px,35%)!important;
+  grid-template-rows:auto minmax(210px,auto)!important;
+  grid-template-areas:"intro balance" "intro counter"!important;
+}
+@media(max-width:850px){
+  #vocabularyApp .vocab-shop-redesign[data-equipped-theme="afterlight"] > .vocab-shop-hero{
+    grid-template-columns:minmax(0,1fr) minmax(150px,35%)!important;
+    grid-template-rows:auto auto!important;
+    grid-template-areas:"intro balance" "intro counter"!important;
+  }
+}
+@media(max-width:600px){
+  #vocabularyApp .vocab-shop-redesign[data-equipped-theme="afterlight"] > .vocab-shop-hero{
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:auto auto auto!important;
+    grid-template-areas:"intro" "balance" "counter"!important;
   }
 }
