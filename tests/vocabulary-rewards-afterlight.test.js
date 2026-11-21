@@ -98,7 +98,7 @@ test('every animated reward preview omits caption while preserving controls and 
   const effectsCss=read('vocabulary-effects-animated.css').toString();
   assert.doesNotMatch(previewCss,/vocab-effect-preview__caption/);
   assert.match(effectsCss,/vocab-sunrays-visible-beams/);
-  assert.match(effectsCss,/@media\\(prefers-reduced-motion:reduce\\)/);
+  assert.ok(effectsCss.includes('@media(prefers-reduced-motion:reduce)'));
   const effects=['forest-fireflies','ocean-bubbles','sakura-petals','midnight-starlight',
     'rainbow-aura','sparkle','stardust-trail','electric-pulse','golden-sunrays'];
   for(const reward_id of effects){
