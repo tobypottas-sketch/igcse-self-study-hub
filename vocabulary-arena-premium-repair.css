@@ -327,3 +327,19 @@
     text-align:left;
   }
 }
+
+
+/* Explicitly outrank the previous six-theme inline-block status override. */
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__status{
+  display:grid!important; justify-items:start!important; gap:3px;
+}
+/* Strong light-on-dark typography for themed status, coverage and mission. */
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card :is(.vocab-pathway-card__status-value,.vocab-pathway-card__coverage-count strong){
+  color:#f5f9ff!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card :is(.vocab-pathway-card__status-label,.vocab-pathway-card__coverage-label,.vocab-pathway-card__coverage-count span){
+  color:#cbdced!important; opacity:1!important;
+}
