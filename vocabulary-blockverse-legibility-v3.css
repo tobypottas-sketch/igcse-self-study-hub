@@ -29,20 +29,21 @@
 #vocabularyApp.vocab-real-theme--blockverse .vocab-shell--home .vocab-rewards-dashboard .vocab-student-identity__level-track {
  background:#536b5e!important;
 }
+/* Dark grass-block button: pure white text on forest green, never white on lime. */
 #vocabularyApp.vocab-real-theme--blockverse .vocab-unit-card > small {
  display:inline-flex!important;
  align-items:center!important;
  justify-content:center!important;
  gap:8px!important;
- padding:9px 15px!important;
  min-height:40px!important;
- background:#b9ec85!important;
+ padding:9px 15px!important;
+ background:#185438!important;
  background-image:none!important;
- border:2px solid #75ac55!important;
- border-bottom:4px solid #5f8c40!important;
+ border:2px solid #7fbc73!important;
+ border-bottom:4px solid #0b321e!important;
  border-radius:6px!important;
- color:#173521!important;
- -webkit-text-fill-color:#173521!important;
+ color:#fff!important;
+ -webkit-text-fill-color:#fff!important;
  opacity:1!important;
  filter:none!important;
  text-shadow:none!important;
@@ -50,15 +51,16 @@
  line-height:1.2!important;
  box-shadow:0 2px 0 #0b291a66!important;
 }
-#vocabularyApp.vocab-real-theme--blockverse .vocab-unit-card > small :is(span,svg,path) {
- color:#173521!important;
- stroke:currentColor;
+#vocabularyApp.vocab-real-theme--blockverse .vocab-unit-card > small :is(span,svg,path){
+ color:#fff!important;
+ -webkit-text-fill-color:#fff!important;
+ stroke:#fff!important;
  opacity:1!important;
 }
 #vocabularyApp.vocab-real-theme--blockverse .vocab-unit-card:is(:hover,:focus-visible) > small {
- background:#daffb4!important;
- color:#102c1b!important;
- -webkit-text-fill-color:#102c1b!important;
+ background:#236d48!important;
+ color:#fff!important;
+ -webkit-text-fill-color:#fff!important;
 }
 #vocabularyApp.vocab-real-theme--blockverse .vocab-topbar--unit .vocab-unit-id__title {
  background:#eaf8dd!important;
