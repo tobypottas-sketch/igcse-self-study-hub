@@ -88,7 +88,7 @@ for(const width of [1280,390]) test(`Afterlight shop and equipped profile at ${w
   await demo.waitFor();
   const rays=demo.locator('.vocab-student-identity__effect');
   const dust=demo.locator('.vocab-cosmetic-particle').first();
-  for(const [element,name] of [[rays,'vocab-sunrays-sweep'],[dust,'vocab-sunrays-dust']]){
+  for(const [element,name] of [[rays,'vocab-sunrays-visible-art'],[dust,'vocab-sunrays-visible-dust']]){
     const sample=()=>element.evaluate(el=>[getComputedStyle(el).animationName,getComputedStyle(el).transform]);
     const before=await sample();
     assert.equal(before[0],name);
@@ -98,7 +98,7 @@ for(const width of [1280,390]) test(`Afterlight shop and equipped profile at ${w
   await page.emulateMedia({reducedMotion:'reduce'});
   assert.equal(await rays.evaluate(el=>getComputedStyle(el).animationName),'none');
   assert.equal(await dust.evaluate(el=>getComputedStyle(el).animationName),'none');
-  assert.equal(await demo.locator('.vocab-effect-preview__caption').innerText(),'Reduced-motion preview');
+  assert.equal(await demo.locator('.vocab-effect-preview__caption').count(),0);
   await shop.getByRole('button',{name:/Close animation preview for Golden Sunrays/}).click();
   await demo.waitFor({state:'hidden'});
   assert.ok(await shop.locator('[data-reward-id="golden-sunrays"] .vocab-reward-picture > img').isVisible());
@@ -112,7 +112,7 @@ for(const width of [1280,390]) test(`Afterlight shop and equipped profile at ${w
     const img=identity.locator(`img[src$="/${file}.png"]`);
     assert.ok(await img.evaluate(async el=>{await el.decode();return el.naturalWidth>0;}));
   }
-  assert.equal(await identity.locator('.vocab-student-identity__effect').evaluate(el=>getComputedStyle(el).animationName),'vocab-sunrays-sweep');
+  assert.equal(await identity.locator('.vocab-student-identity__effect').evaluate(el=>getComputedStyle(el).animationName),'vocab-sunrays-visible-art');
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.getByRole('button',{name:'View my progress →'}).waitFor();
   await page.locator('[data-action="open-my-progress"]').click();
