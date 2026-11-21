@@ -19,7 +19,7 @@ test('equipped Word Explorer renders actual PNG artwork beneath student name',()
  assert.match(html,/class="vocab-student-identity__title-art"/);
  assert.match(html,/src="assets\/vocabulary\/rewards\/word-explorer\.png"/);
  assert.match(html,/alt="Word Explorer title artwork"/);
- assert.match(html,/gold-frame\.png/);
+ assert.match(html,/gold-frame-overlay\.png/);
  assert.match(html,/sparkle\.png/);
 });
 test('no title PNG is shown for unequipped titles, sandbox remains isolated',()=>{
