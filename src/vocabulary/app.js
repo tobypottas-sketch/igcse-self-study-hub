@@ -19,7 +19,7 @@ import { VOCABULARY_PATHWAYS } from './pathway-model.js';
 import { registeredPathwayCoverage, servedByAnyLivePathway } from './pathway-coverage-store.js';
 import { buildSessionFinishModel } from './session-finish-model.js';
 import { mountGames } from './games/games-controller.js';
-import { buildUnitProgress, renderAchievementsSheet, renderEngagementStrip, renderSessionSummary, renderVocabularyError, renderPracticeSheet, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js?v=staff-preview-contrast-v2';
+import { buildUnitProgress, renderAchievementsSheet, renderEngagementStrip, renderSessionSummary, renderVocabularyError, renderPracticeSheet, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js?v=study-hud-v1';
 import { deriveLearningStage } from './learning-stage.js';
 import { createAttemptPersistence } from './attempt-persistence.js';
 import { buildMatchSet, checkMatchSet, finishedMatchState, newMatchState, revealMatchSet, tapMatchItem, pairMatchItems } from './match-set.js';
@@ -384,7 +384,7 @@ async function refreshStudentCosmetics(){
  const shop=effectiveCosmeticShop();
  if(!shop||state.preview||state.profile?.role!=='student')return;
  liveCosmeticShop=shop;
- cosmeticModule??=await import('./rewards-equipped-home.js?v=blockverse-v1');
+ cosmeticModule??=await import('./rewards-equipped-home.js?v=study-hud-v1');
  cosmeticModule.applyRewardTheme(root,shop);
  if(root?.querySelector('.vocab-shell--home'))
    cosmeticModule.renderEquippedCosmetics(root,shop,state.profile?.display_name??'Student',homeEngagement());
