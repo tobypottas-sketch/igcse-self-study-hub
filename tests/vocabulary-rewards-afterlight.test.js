@@ -147,7 +147,7 @@ test('Rainbow Aura has genuine artwork/ring animation in preview and equipped mi
 
 
 test('shop counter art and live XP stay separate for both real and sandbox shops',()=>{
-  const png=read('assets/vocabulary/rewards/shop-counter.png');
+  const png=read('assets/vocabulary/rewards/shop-stall-scene.png');
   assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
   const owned=[{reward_id:'afterlight',category:'themes',equipped:true}];
   for(const production of [true,false]){
@@ -156,9 +156,12 @@ test('shop counter art and live XP stay separate for both real and sandbox shops
     const data={...shop,shopMode:production?'production':'sandbox',sandboxEnabled:!production,
       wallet:{available:5724},owned};
     (production?renderProductionShop:renderSandboxShop)(root,data,{category:'themes'});
-    assert.ok(root.innerHTML.includes('assets/vocabulary/rewards/shop-counter.png'));
+    assert.ok(root.innerHTML.includes('assets/vocabulary/rewards/shop-stall-scene.png'));
     assert.equal(root.innerHTML.split('vocab-shop-hero__counter').length-1,1);
     assert.ok(root.innerHTML.includes('5,724 XP'));
+    assert.ok(root.innerHTML.includes('vocab-shop-hero__backdrop'));
+    const x=root.innerHTML.indexOf('class="vocab-shop-hero__display"');
+    assert.ok(root.innerHTML.indexOf('class="vocab-shop-hero__counter"',x) < root.innerHTML.indexOf('class="vocab-shop-hero__balance"',x));
     assert.ok(!root.innerHTML.includes('STUDENT REWARDS'));
     assert.ok(root.innerHTML.includes('Earn it. Spend it. Make it yours.'));
   }
@@ -168,12 +171,12 @@ test('shop counter art and live XP stay separate for both real and sandbox shops
 test('shop banner uses one narrow centered content group rather than edge-separated hero cells',()=>{
   const css=read('vocabulary-shop-header-premium.css').toString();
   const html=read('vocabulary.html').toString();
-  assert.ok(html.includes('vocabulary-shop-header-premium.css?v=shop-center-composition-v3'));
-  assert.ok(css.includes('grid-template-columns:minmax(0,700px) minmax(290px,465px)'));
+  assert.ok(html.includes('vocabulary-shop-header-premium.css?v=stall-scene-v1'));
+  assert.ok(css.includes('grid-template-columns:minmax(0,660px) minmax(350px,520px)'));
   assert.ok(css.includes('justify-content:center!important'));
   assert.ok(css.includes('grid-template-areas:"intro display"'));
   assert.ok(css.includes('grid-template-areas:"intro" "display"'));
-  assert.ok(css.includes('max-width:950px'));
+  assert.ok(css.includes('max-width:1040px'));
   assert.ok(css.includes('max-width:640px'));
   assert.ok(!css.includes('grid-template-areas:"top balance" "intro balance"'));
   assert.ok(!css.includes('grid-template-areas:"intro balance" "intro counter"'));
