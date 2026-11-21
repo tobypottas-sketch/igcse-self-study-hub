@@ -1,0 +1,38 @@
+name: Build transparent frame overlays (temporary)
+on:
+  push:
+    branches: [fix/transparent-equipped-frame-overlays-20261121]
+    paths: ['.github/workflows/temp-build-frame-overlays.yml']
+permissions:
+  contents: write
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/transparent-equipped-frame-overlays-20261121
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build frame overlays
+        run: |
+          python -m pip install --quiet pillow numpy opencv-python-headless
+          python scripts/build-frame-overlay-assets.py
+      - name: Check outputs and commit assets
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          for x in ['gold-frame','scholar-frame','aurora-frame']:
+              im=Image.open(Path('assets/vocabulary/rewards')/(x+'-overlay.png'))
+              assert im.mode=='RGBA' and im.size==(512,512)
+              assert im.getpixel((0,0))[3]==0
+              assert im.getpixel((256,256))[3]==0
+              print(x,'validated',im.size)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/vocabulary/rewards/*-frame-overlay.png
+          git commit -m "Add three transparent equipped-frame PNG overlays"
+          git push
