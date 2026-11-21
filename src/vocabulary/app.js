@@ -1,6 +1,6 @@
 import {ensureRewardsDashboard} from './rewards-home-layout.js';
 import { getSupabaseClient } from '../supabase.js';
-import { loadStudentVocabularyProgress, summariseVocabularyProgress, sampleVocabularyProgress, renderStudentVocabularyProgress } from './student-progress.js?v=my-progress-demo-v1';
+import { loadStudentVocabularyProgress, summariseVocabularyProgress, sampleVocabularyProgress, renderStudentVocabularyProgress } from './student-progress.js?v=journey-dashboard-v2';
 import { loadVocabularyDashboard, loadMeritAwardCount, loadVocabularyMissions, loadVocabularyUnit, loadStudentMastery, loadPathwaySets, loadSetMembers, recordVocabularyMission, startVocabularyMission, submitVocabularyAttempt } from './data.js';
 import { achievements as buildAchievements, bestAndAim, computeXp, describeEngagement, evaluateMission, levelFor, meritProgress, nextChallenge, progressSnapshot, weeklyGoal } from './engagement-model.js';
 import { markAchievementsSeen, newAchievements } from './achievements-seen.js';
