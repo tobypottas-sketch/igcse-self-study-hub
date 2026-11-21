@@ -4,6 +4,7 @@
  padding:clamp(8px,3vw,30px);
  background:rgba(12,29,57,.76);
  backdrop-filter:blur(6px);
+ overscroll-behavior:contain;
 }
 #vocabularyApp .vocab-leaderboard-dialog{
  --leader-blue:#203f7c;
