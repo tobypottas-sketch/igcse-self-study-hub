@@ -1,0 +1,216 @@
+/* Immediate repair for PR #584 visual regressions.
+   Scope: unit-overview pathway cards only. Original artwork and functionality retained.
+   Deliberately outranks the prior theme contrast guard's !important declarations. */
+
+/* Six immersive rewards themes — keep the whole arena on one dark palette. */
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card{
+  --arena-ink:#f5f9ff;
+  --arena-secondary:#d0e1f0;
+  --arena-border:rgba(165,197,230,.32);
+  --arena-track:rgba(143,179,209,.36);
+}
+
+/* Kill the accidental white rectangles behind the two-line card description.
+   Legacy styling sets a background and text colour directly on the small element. */
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__head small{
+  display:block!important;
+  width:auto!important;
+  max-width:100%!important;
+  padding:0!important;
+  border:0!important;
+  background:none!important;
+  color:var(--arena-secondary)!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  border-radius:0!important;
+  overflow-wrap:break-word;
+}
+
+/* Replace status/coverage white labels with plain, readable on-dark typography.
+   No outline box; the tiny accent stripe retains each pathway's identity. */
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card :is(.vocab-pathway-card__status,.vocab-pathway-card__coverage){
+  display:inline-block!important;
+  width:fit-content!important;
+  max-width:100%!important;
+  background:none!important;
+  color:var(--arena-ink)!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  border-top:0!important;
+  border-right:0!important;
+  border-bottom:0!important;
+  padding:0 0 0 12px!important;
+  opacity:1!important;
+  line-height:1.35!important;
+  white-space:normal!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__status{
+  border-left:3px solid var(--study-accent,#78ddeb)!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__coverage{
+  border-left:2px solid var(--arena-border)!important;
+  color:var(--arena-secondary)!important;
+}
+
+/* The old legibility guard forced navy ink into the formerly pale evidence panel.
+   PR #584 made the panel dark without overriding that higher-specificity navy ink. */
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__evidence{
+  background:rgba(7,19,43,.55)!important;
+  border:1px solid var(--arena-border)!important;
+  color:var(--arena-ink)!important;
+  box-shadow:none!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__evidence .vocab-pathway-card__evidence-copy :is(strong,small,span),
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__evidence > :is(strong,small,span,p){
+  background:transparent!important;
+  color:var(--arena-ink)!important;
+  opacity:1!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__evidence .vocab-pathway-card__evidence-copy small{
+  color:var(--arena-secondary)!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__evidence-meter{
+  background:var(--arena-track)!important;
+}
+
+/* The legacy theme guard also gave the ladder an opaque grey bar.
+   Make it a transparent line-track, including the five individual stage cells. */
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-ladder{
+  background:none!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-ladder .vocab-pathway-stage{
+  background:none!important;
+  border-top:0!important;
+  border-left:0!important;
+  border-right:0!important;
+  border-bottom:2px solid var(--arena-track)!important;
+  color:var(--arena-secondary)!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+  opacity:1!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-ladder .vocab-pathway-stage :is(small,i){
+  color:inherit!important;
+  background:none!important;
+  opacity:1!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-ladder .vocab-pathway-stage[data-state="current"]{
+  color:#a7f3f0!important;
+  border-bottom:3px solid #7fe5e8!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-ladder .vocab-pathway-stage[data-state="complete"]{
+  color:#c0f8dd!important;
+  border-bottom:3px solid #70ccad!important;
+}
+/* Explicit descendant override: old status styles use !important on i / small. */
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-ladder .vocab-pathway-stage[data-state="current"] :is(small,i){
+  color:#a7f3f0!important;
+}
+#vocabularyApp:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms)
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-ladder .vocab-pathway-stage[data-state="complete"] :is(small,i){
+  color:#c0f8dd!important;
+}
+
+/* The default / staff preview needs dark ink on the original light cards;
+   never apply the immersive dark palette to these surfaces. */
+#vocabularyApp:not(:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms))
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__evidence{
+  background:#edf3fa!important;
+  color:#193650!important;
+}
+#vocabularyApp:not(:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms))
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-card__evidence-copy :is(strong,small){
+  color:#193650!important;
+}
+#vocabularyApp:not(:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms))
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-ladder .vocab-pathway-stage{
+  color:#294c69!important;
+}
+#vocabularyApp:not(:is(.vocab-real-theme--forest,.vocab-real-theme--ocean,.vocab-real-theme--sakura,.vocab-real-theme--midnight,.vocab-real-theme--neon-district,.vocab-real-theme--celestial-realms))
+.vocab-shell[data-unit-overview] .vocab-pathway-card .vocab-pathway-ladder .vocab-pathway-stage :is(small,i){
+  color:inherit!important;
+}
+
+/* Accessibility/system modes must not inherit decorative colours. */
+@media print,(forced-colors:active){
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card :is(
+    .vocab-pathway-card__evidence,.vocab-pathway-ladder,.vocab-pathway-stage
+  ){background:Canvas!important;color:CanvasText!important;border-color:CanvasText!important;}
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-pathway-card :is(
+    .vocab-pathway-card__evidence-copy strong,.vocab-pathway-card__evidence-copy small,
+    .vocab-pathway-stage small,.vocab-pathway-stage i
+  ){color:CanvasText!important;}
+}
+
+
+/* Shared unit hero, including the light Interviews card in Neon District.
+   Progress cells and pills are LIGHT surfaces in every equipped theme, so
+   their text must ALWAYS use dark ink, unlike dark pathway cards. */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero .vocab-progress-row > :is(strong,span){
+  background:#f5f8fd!important;
+  color:#193955!important;
+  border:1px solid #9bb4d2!important;
+  border-radius:6px!important;
+  text-shadow:none!important;
+  opacity:1!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero .vocab-learning-progress{
+  background:rgba(245,248,253,.92)!important;
+  color:#193955!important;
+  border-color:#c2d2e1!important;
+  opacity:1!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero .vocab-learning-progress__stage{
+  background:#ffffff!important;
+  color:#193955!important;
+  opacity:1!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero .vocab-learning-progress__stage :is(strong,small){
+  color:#193955!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero .vocab-learning-progress__stage small{
+  color:#42617a!important;
+}
+/* Hero title/metadata are also on a light surface; do not allow theme-wide
+   light-on-dark colour rules to bleed onto the light hero. */
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero :is(h1,.vocab-unit-hero__theme){
+  color:#173954!important;
+}
+#vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero .vocab-unit-hero__course{
+  color:#193955!important;
+  background:#f5f8fd!important;
+  border-color:#9bb4d2!important;
+  text-shadow:none!important;
+}
+/* Print and high contrast bypass the decorative palette. */
+@media print,(forced-colors:active){
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero :is(
+    .vocab-progress-row > strong,.vocab-progress-row > span,
+    .vocab-learning-progress,.vocab-learning-progress__stage
+  ){background:Canvas!important;border-color:CanvasText!important;color:CanvasText!important;}
+  #vocabularyApp .vocab-shell[data-unit-overview] .vocab-unit-hero :is(
+    h1,.vocab-unit-hero__theme,.vocab-unit-hero__course,
+    .vocab-learning-progress__stage strong,.vocab-learning-progress__stage small
+  ){color:CanvasText!important;}
+}
