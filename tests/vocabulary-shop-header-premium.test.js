@@ -82,7 +82,7 @@ test('approved shop counter is a valid transparent PNG and CSS keeps it theme in
   assert.equal(png.readUInt32BE(20),240);
   assert.equal(png[25],3); // indexed-colour, transparent tRNS chunk
   assert.ok(png.includes(Buffer.from('tRNS')));
-  const blobHash=createHash('sha1').update('blob '+png.length+'\\0').update(png).digest('hex');
+  const blobHash=createHash('sha1').update('blob '+png.length).update(Buffer.from([0])).update(png).digest('hex');
   assert.equal(blobHash,'096218380b2ef6129b88e0ce59b6a963bf43f26d');
   const css=read('vocabulary-shop-header-premium.css');
   assert.ok(css.includes('.vocab-shop-hero__counter'));
