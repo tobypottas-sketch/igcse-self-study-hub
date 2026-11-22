@@ -147,7 +147,7 @@ test('the lock matches the release, release discovery and tooling know Units 1â€
   assert.equal(lock.words, 50);
   assert.equal(lock.memberRows, 280);
   assert.deepEqual(releaseFingerprint(unit8), { version: lock.version, contentChecksum: lock.contentChecksum, membershipChecksum: lock.membershipChecksum, words: lock.words, memberRows: lock.memberRows });
-  assert.deepEqual(releaseNumbers(), [1, 2, 3, 4, 5, 6, 7, 8]);
+  assert.deepEqual(releaseNumbers(), [1, 2, 3, 4, 5, 6, 7, 8, 9]);
   const first = generatedChunks(8);
   const second = generatedChunks(8);
   assert.equal(first.length, 5);

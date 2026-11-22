@@ -12,6 +12,13 @@ let unitSnapshot = null;
 let active = null;
 
 function visibleUnitNumber() {
+  // The live unit overview owns an explicit number; do not infer it from a badge
+  // that the current overview renderer does not create.
+  const shell = root?.querySelector?.('[data-unit-number]');
+  const declared = Number(shell?.getAttribute?.('data-unit-number') ?? shell?.dataset?.unitNumber);
+  if (Number.isInteger(declared) && declared > 0) return declared;
+
+  // Retain compatibility with older screens that rendered the legacy badge.
   const badge = root?.querySelector?.('.vocab-unit-id__badge');
   const match = badge?.textContent?.match(/Unit\s+(\d+)/i);
   return match ? Number(match[1]) : null;
