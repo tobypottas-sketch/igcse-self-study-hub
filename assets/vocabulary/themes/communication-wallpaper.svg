@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" width="420" height="420" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.38">
+<defs>
+<g id="cm-bubble"><path d="M-16-12H16V6H-2L-10 14V6H-16Z"/><path d="M-9-5H9M-9 0H4"/></g>
+<g id="cm-envelope"><rect x="-16" y="-11" width="32" height="22" rx="2"/><path d="M-16-9 0 3 16-9"/></g>
+<g id="cm-phone"><rect x="-9" y="-16" width="18" height="32" rx="3"/><path d="M-3 11H3M-4-12H4"/></g>
+<g id="cm-megaphone"><path d="M-14-5H-6L12-14V14L-6 5H-14Z"/><path d="M-9 5-6 14H-1L-3 5M16-4V4"/></g>
+<g id="cm-wifi"><path d="M-16-4C-7-12 7-12 16-4M-10 3C-4-2 4-2 10 3M-4 9C-2 7 2 7 4 9"/><circle cy="14" r="1.5"/></g>
+<g id="cm-antenna"><path d="M0-4V16M-8 16H8M-5 6 0-4 5 6"/><path d="M-9-11C-12-7-12-1-9 3M9-11C12-7 12-1 9 3M-14-15C-19-8-19 2-14 8M14-15C19-8 19 2 14 8"/></g>
+<g id="cm-camera"><rect x="-16" y="-9" width="22" height="18" rx="2"/><path d="M6-3 16-9V9L6 3"/></g>
+<g id="cm-headset"><path d="M-13 4V-2A13 13 0 0 1 13-2V4"/><rect x="-16" y="2" width="6" height="11" rx="2"/><rect x="10" y="2" width="6" height="11" rx="2"/><path d="M13 13C13 16 8 17 3 17"/></g>
+<g id="cm-pen"><path d="M-12 14-14 16 -11 11 9-9 14-4-6 16Z"/><path d="M5-13 9-9M-11 11-6 16"/></g>
+<g id="cm-globe"><circle r="15"/><path d="M-15 0H15M0-15C-8-8-8 8 0 15M0-15C8-8 8 8 0 15"/></g>
+<g id="cm-flag"><path d="M-12 16V-16"/><path d="M-12-15H12L6-8 12-1H-12"/></g>
+<g id="cm-hand"><path d="M-6 16C-12 12-13 4-12-2V-8M-6 2V-14M0 0V-16M6 0V-14M10 4C12-2 14-6 15-8"/><path d="M-6 16H6C10 12 12 8 10 4"/></g>
+<g id="cm-quote"><path d="M-14 6C-14-4-10-10-4-12M-4 6H-14V-2H-4ZM4 6C4-4 8-10 14-12M14 6H4V-2H14Z"/></g>
+<g id="cm-chat2"><path d="M-16-14H6V0H-6L-12 6V0H-16Z"/><path d="M10-6H16V10H12V15L7 10H-4V5"/></g>
+</defs>
+<use href="#cm-bubble" transform="translate(42 42) rotate(0)" stroke="#2f9a9c"/>
+<use href="#cm-envelope" transform="translate(126 42) rotate(-24)" stroke="#6f8fa8"/>
+<use href="#cm-phone" transform="translate(210 42) rotate(16)" stroke="#2f9a9c"/>
+<use href="#cm-megaphone" transform="translate(294 42) rotate(0)" stroke="#6f8fa8"/>
+<use href="#cm-wifi" transform="translate(378 42) rotate(8)" stroke="#2f9a9c"/>
+<use href="#cm-megaphone" transform="translate(42 126) rotate(8)" stroke="#6f8fa8"/>
+<use href="#cm-antenna" transform="translate(126 126) rotate(16)" stroke="#2f9a9c"/>
+<use href="#cm-camera" transform="translate(210 126) rotate(-14)" stroke="#6f8fa8"/>
+<use href="#cm-headset" transform="translate(294 126) rotate(0)" stroke="#2f9a9c"/>
+<use href="#cm-pen" transform="translate(378 126) rotate(0)" stroke="#6f8fa8"/>
+<use href="#cm-camera" transform="translate(42 210) rotate(-24)" stroke="#2f9a9c"/>
+<use href="#cm-globe" transform="translate(126 210) rotate(0)" stroke="#6f8fa8"/>
+<use href="#cm-flag" transform="translate(210 210) rotate(16)" stroke="#2f9a9c"/>
+<use href="#cm-hand" transform="translate(294 210) rotate(0)" stroke="#6f8fa8"/>
+<use href="#cm-phone" transform="translate(378 210) rotate(16)" stroke="#2f9a9c"/>
+<use href="#cm-headset" transform="translate(42 294) rotate(16)" stroke="#6f8fa8"/>
+<use href="#cm-quote" transform="translate(126 294) rotate(-24)" stroke="#2f9a9c"/>
+<use href="#cm-bubble" transform="translate(210 294) rotate(26)" stroke="#6f8fa8"/>
+<use href="#cm-chat2" transform="translate(294 294) rotate(-14)" stroke="#2f9a9c"/>
+<use href="#cm-wifi" transform="translate(378 294) rotate(26)" stroke="#6f8fa8"/>
+<use href="#cm-envelope" transform="translate(42 378) rotate(-24)" stroke="#2f9a9c"/>
+<use href="#cm-chat2" transform="translate(126 378) rotate(-14)" stroke="#6f8fa8"/>
+<use href="#cm-flag" transform="translate(210 378) rotate(0)" stroke="#2f9a9c"/>
+<use href="#cm-antenna" transform="translate(294 378) rotate(-12)" stroke="#6f8fa8"/>
+<use href="#cm-hand" transform="translate(378 378) rotate(-6)" stroke="#2f9a9c"/>
+<path d="M84 80L85 83L88 84L85 85L84 88L83 85L80 84L83 83Z" stroke="#2f9a9c"/>
+<path d="M165 84H171M168 81V87" stroke="#6f8fa8"/>
+<circle cx="252" cy="84" r="2" stroke="#2f9a9c"/>
+<path d="M336 80L337 83L340 84L337 85L336 88L335 85L332 84L335 83Z" stroke="#6f8fa8"/>
+<path d="M81 168H87M84 165V171" stroke="#6f8fa8"/>
+<circle cx="168" cy="168" r="2" stroke="#2f9a9c"/>
+<path d="M252 164L253 167L256 168L253 169L252 172L251 169L248 168L251 167Z" stroke="#6f8fa8"/>
+<path d="M333 168H339M336 165V171" stroke="#2f9a9c"/>
+<circle cx="84" cy="252" r="2" stroke="#2f9a9c"/>
+<path d="M168 248L169 251L172 252L169 253L168 256L167 253L164 252L167 251Z" stroke="#6f8fa8"/>
+<path d="M249 252H255M252 249V255" stroke="#2f9a9c"/>
+<circle cx="336" cy="252" r="2" stroke="#6f8fa8"/>
+<path d="M84 332L85 335L88 336L85 337L84 340L83 337L80 336L83 335Z" stroke="#6f8fa8"/>
+<path d="M165 336H171M168 333V339" stroke="#2f9a9c"/>
+<circle cx="252" cy="336" r="2" stroke="#6f8fa8"/>
+<path d="M336 332L337 335L340 336L337 337L336 340L335 337L332 336L335 335Z" stroke="#2f9a9c"/>
+</svg>

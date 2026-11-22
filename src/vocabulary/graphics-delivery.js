@@ -112,6 +112,20 @@ export const GRAPHIC_DELIVERY = Object.freeze({
     "originalWidth": 1000,
     "sourceHash": "c3798848bd32e0b55f2cb5f92a1cfe39ff43ef8b9c7b1eafa6d695e8721761a3"
   },
+  "units/unit-09.png": {
+    "variants": [
+      {
+        "src": "assets/vocabulary/delivery/units/unit-09.46c4f695ef13.webp",
+        "width": 640
+      },
+      {
+        "src": "assets/vocabulary/delivery/units/unit-09.4cde0692ba85.webp",
+        "width": 960
+      }
+    ],
+    "originalWidth": 1000,
+    "sourceHash": "22b1106b51b113a1857b385ef2ccf90c8742a401e33304e7360fde8dcd2bff02"
+  },
   "pathways/meaning.png": {
     "variants": [
       {

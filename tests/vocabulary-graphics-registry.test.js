@@ -25,6 +25,7 @@ test('one canonical asset root and one naming rule: no scattered paths', () => {
   assert.equal(graphicPath('unit', 0), null); assert.equal(graphicPath('unit', 'x'), null); assert.equal(graphicPath('banner', 1), null);
   assert.equal(unitPngName(7), 'units/unit-07.png');
   assert.equal(unitPngName(8), 'units/unit-08.png');
+  assert.equal(unitPngName(9), 'units/unit-09.png');
   assert.equal(new Set(allGraphicNames()).size, allGraphicNames().length);
 });
 
