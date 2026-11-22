@@ -81,3 +81,18 @@
   }
   .vocab-unit-card>[data-study-unit-progress]{width:min(112px,100%)}
 }
+
+/* Keep the long Unit 9 title on one line without reducing the normal card typography. */
+.vocab-unit-card__title--compact{
+  max-width:none!important;
+  width:max-content;
+  max-width:100%!important;
+  white-space:nowrap;
+  font-size:clamp(1.2rem,1.8vw,1.5rem)!important;
+  letter-spacing:-.035em;
+}
+@media(max-width:620px){
+  .vocab-unit-card__title--compact{
+    font-size:clamp(1.15rem,4.2vw,1.4rem)!important;
+  }
+}
