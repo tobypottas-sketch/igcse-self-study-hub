@@ -243,7 +243,7 @@ export function renderVocabularyHome(root, { displayName = '', units = [], engag
     return `
     <button class="vocab-unit-card study-enter" data-action="open-unit" data-unit="${escapeHtml(unit.unitNumber)}">
       <span class="vocab-unit-card__number">Unit ${escapeHtml(unit.unitNumber)}</span>
-      <strong>${escapeHtml(unit.unitTitle)}</strong>
+      <strong class="vocab-unit-card__title${Number(unit.unitNumber) === 9 ? ' vocab-unit-card__title--compact' : ''}">${escapeHtml(unit.unitTitle)}</strong>
       <span class="vocab-unit-card__progress-copy">${escapeHtml(mastered)} / ${escapeHtml(total)} mastered</span>
       <span data-study-unit-progress>${renderStudyProgress(mastered,total,`Unit ${unit.unitNumber} mastery`)}</span>
       <small>Open unit ${renderStudyIcon('arrow',{className:'vocab-unit-card__arrow'})}</small>
