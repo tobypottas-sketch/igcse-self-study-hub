@@ -131,28 +131,3 @@
 .study-art__svg .sa-txt{font:800 30px/1 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;fill:var(--sa-ink)}
 .study-art__svg .sa-txt--on{fill:var(--c-surface)}
 
-/* Unit 9 Communication hero artwork: give the wide illustration a deliberate inset
-   from the panel edge and centre it vertically in the open right-hand column. */
-.vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art{
-  right:34px;
-  width:min(30vw,290px);
-  top:50%;
-  bottom:auto;
-  height:190px;
-  transform:translateY(-50%);
-}
-.vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art-image{
-  max-height:190px;
-  object-fit:contain;
-}
-@media(max-width:760px){
-  .vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art{
-    top:auto;
-    right:50%;
-    bottom:8px;
-    width:210px;
-    height:132px;
-    transform:translateX(50%);
-  }
-  .vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art-image{max-height:132px}
-}
