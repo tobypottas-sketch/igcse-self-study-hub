@@ -46,7 +46,7 @@ export default [
     ['b', 'inactive', 'Doctors warn that too much inactive screen time is bad for young children.', ['constructive', 'interactive', 'relevant']]
   ]),
   ...x('interactive', 'vocab_interactive_9', [
-    ['a', 'hands-on', 'The museum has a hands-on display where children can answer questions on a screen.', ['passive', 'optional', 'casual']],
+    ['a', 'hands-on', 'The museum’s new displays are hands-on, so children can answer questions on a screen.', ['passive', 'optional', 'casual']],
     ['b', 'responsive', 'Students learn more from responsive online exercises than from printed worksheets.', ['passive', 'informal', 'banned']]
   ]),
   ...x('tech-savvy', 'vocab_tech_savvy', [
@@ -90,7 +90,7 @@ export default [
     ['b', 'bad feelings', 'Not being understood in a new language can cause a lot of bad feelings.', ['accuracy', 'research', 'perception']]
   ]),
   ...x('informal', 'vocab_informal', [
-    ['a', 'relaxed', 'Text messages are usually written in a relaxed style.', ['portable', 'interactive', 'physical']],
+    ['a', 'relaxed', 'The style of most text messages is relaxed and chatty.', ['portable', 'interactive', 'physical']],
     ['b', 'unofficial', 'The teachers had an unofficial meeting in the staff room.', ['physical', 'portable', 'interactive']]
   ]),
   ...x('casual', 'vocab_casual', [
@@ -130,11 +130,11 @@ export default [
     ['b', 'system', 'Teachers upload homework to an online system that students can check at home.', ['conference', 'clause', 'workforce']]
   ]),
   ...x('virtual', 'vocab_virtual', [
-    ['a', 'online', 'The museum offers an online tour of all its rooms.', ['physical', 'casual', 'banned']],
+    ['a', 'online', 'Visitors can take online tours of all the museum’s rooms.', ['physical', 'casual', 'banned']],
     ['b', 'computer-made', 'Players explore a computer-made world full of strange animals.', ['physical', 'banned', 'casual']]
   ]),
   ...x('face-to-face', 'vocab_face_to_face', [
-    ['a', 'in-person', 'Nothing can replace an in-person conversation with a good friend.', ['virtual', 'passive', 'optional']],
+    ['a', 'in-person', 'Nothing can replace in-person conversations with good friends.', ['virtual', 'passive', 'optional']],
     ['b', 'in person', 'After months online, the two pen friends finally met in person.', ['virtually', 'passively', 'optionally']]
   ]),
   ...x('conference', 'vocab_conference', [
@@ -211,6 +211,6 @@ export default [
   ]),
   ...x('research', 'vocab_research', [
     ['a', 'scientific study', 'New scientific study shows that exercise improves concentration.', ['frustration', 'perception', 'conference']],
-    ['b', 'investigation', 'Scientists are doing an investigation into the effects of screens on sleep.', ['frustration', 'conference', 'perception']]
+    ['b', 'investigations', 'Scientists are doing investigations into the effects of screens on sleep.', ['frustration', 'conference', 'perception']]
   ])
 ];
