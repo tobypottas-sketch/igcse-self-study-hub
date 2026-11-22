@@ -104,14 +104,15 @@ test('4. completing and retrying Unit 8 persists unit_number 8 through forms A, 
   assert.match(controller, /unitNumber:active\.unitNumber/);
 });
 
-test('5. existing Unit 1 and Unit 4 checks stay registered; Units 1 to 8 are the only checks and Unit 9 has none', () => {
+test('5. existing Unit 1 and Unit 4 checks stay registered; Units 1 to 9 are the only checks and Unit 10 has none', () => {
   assert.equal(unitCheckFor(1), unit1Check);
   assert.equal(unitCheckFor(4), unit4Check);
   assert.ok(unitCheckFor(2), 'Unit 2 now has its authored check');
   assert.ok(unitCheckFor(3), 'Unit 3 now has its authored check');
   assert.ok(unitCheckFor(5));
-  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1','2','3','4','5','6','7','8']);
-  assert.equal(unitCheckFor(9), null);
+  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1','2','3','4','5','6','7','8','9']);
+  assert.ok(unitCheckFor(9), 'Unit 9 has its authored check');
+  assert.equal(unitCheckFor(10), null);
   assert.ok(unitCheckFor(6), 'Unit 6 keeps its check');
 });
 
