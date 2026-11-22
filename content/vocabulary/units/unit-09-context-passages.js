@@ -154,7 +154,7 @@ export default Object.freeze({
   ],
   'direct object': [
     p('Look at the sentence: Amir sent a message. The subject is Amir, and the ____ is a message.', 'direct object', 'The noun receiving the action of "sent".'),
-    p('The verb tell usually needs a person after it. In She told me the news, the word me is the ____ of the verb.', 'direct object', 'The person receiving the action of "tell".')
+    p('Look at the sentence: I gave my sister a book. My sister is the person who receives it, and a book is the ____ of the verb gave.', 'direct object', 'The thing that is given.')
   ],
   clause: [
     p('Look at this sentence: I stayed at home because it was raining. The words because it was raining form a ____ with its own subject and verb.', 'clause', 'A group of words with a subject and verb.'),
