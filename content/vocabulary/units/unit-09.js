@@ -63,7 +63,7 @@ const entries = [
     'giving a sign', 'The cyclist was giving a sign with her left arm before she turned into the side street.',
     'showing with a gesture', 'The referee was showing with a gesture that the goal did not count.',
     {
-      teacherNote:'Verb (-ing form, British spelling with double l): giving a message or warning with a movement, sound or light (signalling to someone, signalling that ..., signalling for help). American English spells it signaling. The noun signal and the past form signalled are taught in the Word Family pathway.',
+      teacherNote:'Verb (-ing form, British spelling with double l): giving a message or warning with a movement, sound or light (signalling to someone, signalling that ..., signalling for help). American English uses a single l. The noun signal and the past form signalled are taught in the Word Family pathway.',
       masteryContexts:[
         { text:'The lifeguard was signalling to the swimmers to come back towards the beach.', meaning:'making a movement to give a message' },
         { text:'A flashing red light on the dashboard was signalling that the car needed petrol.', meaning:'showing a warning with a light' }
@@ -192,13 +192,13 @@ const entries = [
         'A student asked the teacher to repeat the homework question.'
       ],
       retrievalContexts:[
-        { id:'1', text:'Before the exam, the teacher demonstrated how to plan an essay in five minutes.', target:'demonstrated', grammarPattern:'' },
-        { id:'2', text:'The video clearly demonstrates how sign language can be used in everyday situations.', target:'demonstrates', grammarPattern:'' },
+        { id:'1', text:'Before the exam, the teacher will demonstrate how to plan an essay in five minutes.', target:'demonstrate', grammarPattern:'' },
+        { id:'2', text:'This short video helps to demonstrate how sign language can be used in everyday situations.', target:'demonstrate', grammarPattern:'' },
         { id:'3', text:'Each candidate was asked to demonstrate one skill in front of the panel.', target:'demonstrate', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'demonstrated', wrong:['banned', 'survived', 'launched'] },
-        { id:'2', answer:'demonstrates', wrong:['survives', 'bans', 'differentiates'] },
+        { id:'1', answer:'demonstrate', wrong:['ban', 'survive', 'launch'] },
+        { id:'2', answer:'demonstrate', wrong:['survive', 'ban', 'differentiate'] },
         { id:'3', answer:'demonstrate', wrong:['survive', 'ban', 'differentiate'] }
       ]
     }),
@@ -341,13 +341,13 @@ const entries = [
       ],
       retrievalContexts:[
         { id:'1', text:'Being a digital native does not automatically make you good at judging online information.', target:'digital native', grammarPattern:'' },
-        { id:'2', text:'Most of my students are digital natives who have had a phone since primary school.', target:'digital natives', grammarPattern:'' },
-        { id:'3', text:'The game was designed for digital natives, so it has no written instructions at all.', target:'digital natives', grammarPattern:'' }
+        { id:'2', text:'My little brother is a digital native who has had a phone since primary school.', target:'digital native', grammarPattern:'' },
+        { id:'3', text:'The game assumes that every player is a digital native, so it has no written instructions at all.', target:'digital native', grammarPattern:'' }
       ],
       gapDistractors:[
         { id:'1', answer:'digital native', wrong:['conclusion', 'reporting verb', 'clause'] },
-        { id:'2', answer:'digital natives', wrong:['conferences', 'clauses', 'conclusions'] },
-        { id:'3', answer:'digital natives', wrong:['conclusions', 'clauses', 'direct objects'] }
+        { id:'2', answer:'digital native', wrong:['conference', 'clause', 'conclusion'] },
+        { id:'3', answer:'digital native', wrong:['conclusion', 'clause', 'direct object'] }
       ]
     }),
   e('accuracy', 'noun',
@@ -514,12 +514,12 @@ const entries = [
         'A student copied a photo from a website without asking permission.'
       ],
       retrievalContexts:[
-        { id:'1', text:'Handwritten letters have survived as a way to show that you really care about someone.', target:'survived', grammarPattern:'' },
+        { id:'1', text:'Handwritten letters may survive as a way to show that you really care about someone.', target:'survive', grammarPattern:'' },
         { id:'2', text:'Small shops are finding it hard to survive since online shopping became popular.', target:'survive', grammarPattern:'' },
         { id:'3', text:'Only three copies of the original recording are known to survive.', target:'survive', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'survived', wrong:['banned', 'recommended', 'evaluated'] },
+        { id:'1', answer:'survive', wrong:['ban', 'recommend', 'evaluate'] },
         { id:'2', answer:'survive', wrong:['ban', 'evaluate', 'recommend'] },
         { id:'3', answer:'survive', wrong:['ban', 'recommend', 'evaluate'] }
       ]
@@ -690,12 +690,12 @@ const entries = [
       ],
       retrievalContexts:[
         { id:'1', text:'The younger generation is more comfortable with video calls than with phone calls.', target:'generation', grammarPattern:'' },
-        { id:'2', text:'Three generations of the family live together: grandparents, parents and children.', target:'generations', grammarPattern:'' },
+        { id:'2', text:'My grandparents belong to a generation that wrote letters instead of sending emails.', target:'generation', grammarPattern:'' },
         { id:'3', text:'Each generation faces different challenges when it enters the workforce.', target:'generation', grammarPattern:'' }
       ],
       gapDistractors:[
         { id:'1', answer:'generation', wrong:['accuracy', 'frustration', 'purpose'] },
-        { id:'2', answer:'generations', wrong:['accuracies', 'frustrations', 'purposes'] },
+        { id:'2', answer:'generation', wrong:['accuracy', 'frustration', 'purpose'] },
         { id:'3', answer:'generation', wrong:['accuracy', 'frustration', 'perception'] }
       ]
     }),
@@ -863,14 +863,14 @@ const entries = [
         'A boy chose a strong password for his email account.'
       ],
       retrievalContexts:[
-        { id:'1', text:'The video was shared on several platforms and was soon watched by millions.', target:'platforms', grammarPattern:'' },
+        { id:'1', text:'The video was shared on a popular platform and was soon watched by millions.', target:'platform', grammarPattern:'' },
         { id:'2', text:'The online platform allows students to ask their teachers questions at any time.', target:'platform', grammarPattern:'' },
-        { id:'3', text:'Musicians now release songs directly on streaming platforms.', target:'platforms', grammarPattern:'' }
+        { id:'3', text:'Many musicians now release songs directly on a streaming platform.', target:'platform', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'platforms', wrong:['frustrations', 'accuracies', 'perceptions'] },
+        { id:'1', answer:'platform', wrong:['frustration', 'accuracy', 'perception'] },
         { id:'2', answer:'platform', wrong:['frustration', 'accuracy', 'perception'] },
-        { id:'3', answer:'platforms', wrong:['frustrations', 'perceptions', 'clauses'] }
+        { id:'3', answer:'platform', wrong:['frustration', 'perception', 'clause'] }
       ]
     }),
   e('virtual', 'adjective',
@@ -1154,13 +1154,13 @@ const entries = [
       ],
       retrievalContexts:[
         { id:'1', text:'A relative clause, such as "who lives next door", gives extra information about a noun.', target:'clause', grammarPattern:'' },
-        { id:'2', text:'The sentence has two clauses joined by "but".', target:'clauses', grammarPattern:'' },
-        { id:'3', text:'"Recommend" can be followed by a that-clause: "I recommend that you read the instructions".', target:'that-clause', grammarPattern:'' }
+        { id:'2', text:'In "I was tired, but I finished my homework", each clause has its own subject and verb.', target:'clause', grammarPattern:'' },
+        { id:'3', text:'The second clause of the sentence explains why the match was cancelled.', target:'clause', grammarPattern:'' }
       ],
       gapDistractors:[
         { id:'1', answer:'clause', wrong:['platform', 'conference', 'audience'] },
-        { id:'2', answer:'clauses', wrong:['platforms', 'conferences', 'audiences'] },
-        { id:'3', answer:'that-clause', wrong:['that-platform', 'that-conference', 'that-audience'] }
+        { id:'2', answer:'clause', wrong:['platform', 'conference', 'audience'] },
+        { id:'3', answer:'clause', wrong:['platform', 'conference', 'audience'] }
       ]
     }),
   e('suggest', 'verb',
@@ -1182,12 +1182,12 @@ const entries = [
         'A girl agreed with every point her friend made.'
       ],
       retrievalContexts:[
-        { id:'1', text:'My friend suggested using a mind map to plan the essay.', target:'suggested', grammarPattern:'' },
+        { id:'1', text:'Can I suggest using a mind map to plan the essay?', target:'suggest', grammarPattern:'' },
         { id:'2', text:'Can you suggest a good app for learning vocabulary?', target:'suggest', grammarPattern:'' },
         { id:'3', text:'I suggest that we ask the teacher before we change the topic.', target:'suggest', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'suggested', wrong:['survived', 'banned', 'launched'] },
+        { id:'1', answer:'suggest', wrong:['survive', 'ban', 'launch'] },
         { id:'2', answer:'suggest', wrong:['survive', 'ban', 'differentiate'] },
         { id:'3', answer:'suggest', wrong:['survive', 'ban', 'launch'] }
       ]
@@ -1212,12 +1212,12 @@ const entries = [
         'A boy kept the name of the restaurant secret from his friends.'
       ],
       retrievalContexts:[
-        { id:'1', text:'The teacher recommended reading the instructions twice before starting.', target:'recommended', grammarPattern:'' },
+        { id:'1', text:'Most teachers would recommend reading the instructions twice before starting.', target:'recommend', grammarPattern:'' },
         { id:'2', text:'I would recommend this website to anyone who wants to improve their writing.', target:'recommend', grammarPattern:'' },
         { id:'3', text:'Experts recommend that children have no screens in their bedrooms at night.', target:'recommend', grammarPattern:'' }
       ],
       gapDistractors:[
-        { id:'1', answer:'recommended', wrong:['survived', 'banned', 'launched'] },
+        { id:'1', answer:'recommend', wrong:['survive', 'ban', 'launch'] },
         { id:'2', answer:'recommend', wrong:['survive', 'ban', 'differentiate'] },
         { id:'3', answer:'recommend', wrong:['survive', 'launch', 'differentiate'] }
       ]
@@ -1243,12 +1243,12 @@ const entries = [
       ],
       retrievalContexts:[
         { id:'1', text:'There is no simple solution to the problem of fake news.', target:'solution', grammarPattern:'' },
-        { id:'2', text:'The class discussed possible solutions and voted for the best one.', target:'solutions', grammarPattern:'' },
+        { id:'2', text:'After a long discussion, the class agreed on a solution that everyone liked.', target:'solution', grammarPattern:'' },
         { id:'3', text:'Working from home has been a good solution for parents with young children.', target:'solution', grammarPattern:'' }
       ],
       gapDistractors:[
         { id:'1', answer:'solution', wrong:['frustration', 'perception', 'workforce'] },
-        { id:'2', answer:'solutions', wrong:['frustrations', 'perceptions', 'workforces'] },
+        { id:'2', answer:'solution', wrong:['frustration', 'perception', 'workforce'] },
         { id:'3', answer:'solution', wrong:['frustration', 'workforce', 'perception'] }
       ]
     }),
@@ -1389,12 +1389,12 @@ const entries = [
       ],
       retrievalContexts:[
         { id:'1', text:'It is important to evaluate whether a website is reliable before you share its information.', target:'evaluate', grammarPattern:'' },
-        { id:'2', text:'The panel evaluated each project and chose three winners.', target:'evaluated', grammarPattern:'' },
+        { id:'2', text:'The panel will evaluate each project and choose three winners.', target:'evaluate', grammarPattern:'' },
         { id:'3', text:'Teachers regularly evaluate how effective their lessons are.', target:'evaluate', grammarPattern:'' }
       ],
       gapDistractors:[
         { id:'1', answer:'evaluate', wrong:['survive', 'ban', 'launch'] },
-        { id:'2', answer:'evaluated', wrong:['survived', 'signalled', 'differentiated'] },
+        { id:'2', answer:'evaluate', wrong:['survive', 'ban', 'differentiate'] },
         { id:'3', answer:'evaluate', wrong:['survive', 'ban', 'launch'] }
       ]
     }),
