@@ -97,3 +97,17 @@ test('teacher interface uses the existing account service',()=>{
  assert.match(ui,/navigator\.clipboard\.writeText/);
  assert.match(teacher,/teacher-manage-student-passwords/);
 });
+
+test('teacher sees the same one-time name, email and password details as an admin',()=>{
+ assert.match(ui,/data-pw-credential/);
+ assert.match(ui,/credential=\{name:selected\.name,email:selected\.email,password:result\.temporaryPassword\}/);
+ assert.match(ui,/data-pw-hide/);
+ assert.match(ui,/data-pw-copy/);
+ assert.match(ui,/card\.querySelector\('\[data-pw-credential\]'\)\?\.focus\(\)/);
+ assert.doesNotMatch(ui,/e\(result\.name\)/);
+});
+test('teacher hourly allowance supports classroom resets, with per-student protection',()=>{
+ assert.match(src,/\(actorCount\?\?0\)>=30/);
+ assert.match(src,/\(studentCount\?\?0\)>=3/);
+ assert.match(src,/Teacher reset limit reached \(30 in a rolling hour\)/);
+});
