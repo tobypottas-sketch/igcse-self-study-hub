@@ -69,6 +69,7 @@ Deno.serve(async req=>{
   const allowed=new Map((classes??[]).map(c=>[c.id,c.class_name]));
   const input=await req.json().catch(()=>({}));
   const action=String(input?.action??'lobby');
+  if(action==='classes')return respond({ok:true,classes:[...allowed].map(([id,name])=>({id,name}))});
   const classId=safeId(input?.classId);
   if(['lobby','challenge','leaderboard'].includes(action)&&!classId)return respond({error:'Select your class.'},400);
   if(classId&&!allowed.has(classId))return respond({error:'Not a member of this class.'},403);
