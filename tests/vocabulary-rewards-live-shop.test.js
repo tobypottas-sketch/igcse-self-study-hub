@@ -24,7 +24,7 @@ test('live shop renders real wallet and approved PNG art without sandbox labels'
  assert.match(root.innerHTML,/2,300 XP/);
  assert.match(root.innerHTML,/gold-frame-overlay\.png/);
  assert.match(root.innerHTML,/forest\.png/);
- assert.match(root.innerHTML,/shop-banner\.png/);
+ assert.match(root.innerHTML,/shop-stall-scene\.png/);
  assert.match(root.innerHTML,/data-action="real-buy"/);
  assert.match(root.innerHTML,/data-action="real-equip"/);
  assert.match(root.innerHTML,/data-action="real-filter"/);
