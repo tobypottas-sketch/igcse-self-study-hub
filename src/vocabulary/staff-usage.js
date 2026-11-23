@@ -150,12 +150,12 @@ export function renderVocabularyStaffUsage(root,model,{days=30,classId='all',stu
     return '<button type="button" class="vocab-usage-class" data-action="staff-usage-class" data-value="'+escapeHtml(row.id)+'"><strong>'+escapeHtml(row.class_name)+'</strong><span>'+number(inClass.length)+' students</span><small aria-hidden="true">→</small></button>';
   }):[];
   const classGrid=classCards.map((html,index)=>index<8?html:html.replace('class="vocab-usage-class"','class="vocab-usage-class" data-class-extra hidden')).join('');
-  const tableRow=s=>'<tr data-vocab-usage-student-row data-activity="'+(s.lastActive===null?'inactive':'active')+'" data-name="'+escapeHtml(s.name.toLowerCase())+'" hidden><td><button class="vocab-usage-student-link" data-action="staff-usage-student" data-value="'+escapeHtml(s.id)+'">'+escapeHtml(s.name)+'</button></td>'+
+  const tableRow=(s,index)=>'<tr data-vocab-usage-student-row data-activity="'+(s.lastActive===null?'inactive':'active')+'" data-name="'+escapeHtml(s.name.toLowerCase())+'" hidden><td class="vocab-student-number" data-student-number>'+(index+1)+'</td><td><button class="vocab-usage-student-link" data-action="staff-usage-student" data-value="'+escapeHtml(s.id)+'">'+escapeHtml(s.name)+'</button></td>'+
     '<td>'+number(s.attempts)+'</td><td>'+formatDuration(s.seconds)+'</td><td>'+number(s.wordsLearning)+'</td><td>'+number(s.wordsSecure)+'</td><td>'+
     escapeHtml(s.lastActive?new Date(s.lastActive).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'No recorded practice')+'</td></tr>';
   const activeRows=usage.students.filter(s=>s.lastActive!==null);
   const inactiveRows=usage.students.filter(s=>s.lastActive===null);
-  const tableHead='<thead><tr><th>Student</th><th>Attempts</th><th>Active time</th><th>Words in progress</th><th>Words secure</th><th>Last active</th></tr></thead>';
+  const tableHead='<thead><tr><th class="vocab-student-number">#</th><th>Student</th><th>Attempts</th><th>Active time</th><th>Words in progress</th><th>Words secure</th><th>Last active</th></tr></thead>';
   const studentTable='<div class="vocab-usage-tablewrap"><table>'+tableHead+'<tbody>'+
     usage.students.map(tableRow).join('')+'</tbody></table></div>';
   const studentTabs='<div class="vocab-usage-student-tabs" role="group" aria-label="Student activity filter">'+
@@ -213,7 +213,14 @@ export function updateVocabularyUsageStudentRows(root,{view=null,query=null,more
     const matchesName=String(row.dataset.name??'').includes(q);
     const matches=matchesView&&matchesName;
     row.hidden=!matches||shown>=activeLimit;
-    if(matches){matched++;if(!row.hidden)shown++;}
+    if(matches){
+      matched++;
+      if(!row.hidden){
+        shown++;
+        const numberCell=row.querySelector?.('[data-student-number]');
+        if(numberCell)numberCell.textContent=String(shown);
+      }
+    }
   }
   for(const tab of panel.querySelectorAll('[data-action="staff-usage-view"]')){
     const selected=tab.dataset.value===state.studentView;
