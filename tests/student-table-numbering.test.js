@@ -47,7 +47,7 @@ test('NGSL diagnostic renders a correctly numbered six-column student report',()
  assert.match(node.innerHTML, /<th class="vocab-student-number">#<\/th><th>Student<\/th>/);
  assert.match(node.innerHTML, /<td class="vocab-student-number">1<\/td><td>Alpha<\/td>/);
  assert.match(node.innerHTML, /<td class="vocab-student-number">2<\/td><td>Bravo<\/td>/);
- assert.match(node.innerHTML, /colspan="7"/);
+ assert.match(source('src/vocabulary/ngsl-teacher-results.js'), /colspan="7"/);
 });
 
 test('polished diagnostic page and staff usage number the currently displayed rows',()=>{
