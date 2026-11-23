@@ -5,6 +5,8 @@ on:
       - "src/app.js"
       - "src/views/home.js"
       - "src/views/admin.js"
+      - "src/admin/credential-print.js"
+      - "tests/admin-class-roster-ux.test.mjs"
       - "src/admin/import.js"
       - "tests/admin-import.test.js"
       - "tests/admin-import-view.test.js"
@@ -22,6 +24,8 @@ on:
       - "src/app.js"
       - "src/views/home.js"
       - "src/views/admin.js"
+      - "src/admin/credential-print.js"
+      - "tests/admin-class-roster-ux.test.mjs"
       - "src/admin/import.js"
       - "tests/admin-import.test.js"
       - "tests/admin-import-view.test.js"
@@ -43,4 +47,4 @@ jobs:
         with:
           node-version: "22"
       - name: Run class/admin authorization regressions
-        run: node --test tests/teacher-class-access-hotfix.test.js tests/admin-class-assignment-roles.test.js tests/admin-class-rename-backend.test.js tests/admin-view.test.js tests/teacher-student-password-reset.test.js tests/admin-import.test.js tests/admin-import-view.test.js
+        run: node --test tests/teacher-class-access-hotfix.test.js tests/admin-class-assignment-roles.test.js tests/admin-class-rename-backend.test.js tests/admin-view.test.js tests/teacher-student-password-reset.test.js tests/admin-import.test.js tests/admin-import-view.test.js tests/admin-class-roster-ux.test.mjs
