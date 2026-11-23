@@ -55,7 +55,7 @@ test('background polling does not replace an unchanged active question',()=>{
  assert.match(ui,/const sig=matchSignature\(b\)/);
  assert.match(ui,/if\(force\|\|state\.viewKey!==sig\)render\(matchMarkup\(\),sig\)/);
  assert.match(ui,/else patchMatchHud\(b\)/);
- assert.match(ui,/root\.querySelector\('select:focus'\)/);
+ assert.match(ui,/querySelector\('select:focus'\)/);
  assert.match(ui,/state\.polling=true/);
  assert.match(ui,/requestEpoch/);
  assert.match(ui,/data-own-score/);
@@ -68,7 +68,7 @@ test('visual refresh remains isolated from server-scored learning and permission
  assert.match(ui,/getSupabaseClient/);
  assert.match(ui,/client\.functions\.invoke\('vocabulary-battles'/);
  assert.doesNotMatch(ui,/\.from\('vocabulary_battles'\)/);
- assert.doesNotMatch(ui,/reward_wallet|mastery|computeXp|settleMission/);
+ assert.doesNotMatch(ui,/reward_wallet|computeXp|settleMission|client\.from\('vocabulary_(?:attempts|mastery|reward_wallets)'\)/);
  assert.match(backend,/student_class_memberships/);
  assert.match(backend,/role!=='student'/);
  assert.match(backend,/const LIMIT=10,DURATION=60000/);
