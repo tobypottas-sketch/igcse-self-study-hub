@@ -19,7 +19,7 @@ test('CSV parser rejects missing required headers', () => {
   assert.throws(() => parseStudentCsv('Name,Email\nA,a@school.edu'), /Student name.*School email/i);
 });
 
-test('import validation reports missing malformed duplicate and existing emails without silent skips', () => {
+test('import validation separates existing emails from genuinely invalid rows', () => {
   const rows = [
     { displayName:'', email:'missing@school.edu', sourceRow:2 },
     { displayName:'Bad', email:'bad', sourceRow:3 },
@@ -30,8 +30,10 @@ test('import validation reports missing malformed duplicate and existing emails 
   ];
   const result = validateStudentImport(rows, new Set(['exists@school.edu']));
   assert.deepEqual(result.validRows, [{ displayName:'Good', email:'good@school.edu', sourceRow:7 }]);
-  assert.equal(result.errors.length, 5);
-  assert.match(result.errors.map(e => e.reason).join(' | '), /name|required|email|duplicate|already exists/i);
+  assert.equal(result.errors.length, 4);
+  assert.deepEqual(result.skippedRows, [{ displayName:'Exists', email:'exists@school.edu', sourceRow:6, reason:'Account already exists — left unchanged.' }]);
+  assert.match(result.errors.map(e => e.reason).join(' | '), /name|required|email|duplicate/i);
+  assert.doesNotMatch(result.errors.map(e => e.reason).join(' | '), /already exists/i);
 });
 
 test('bulkProvisionStudents sends selected class once with validated rows', async () => {
@@ -40,4 +42,20 @@ test('bulkProvisionStudents sends selected class once with validated rows', asyn
   const rows = [{ displayName:'A', email:'a@school.edu', sourceRow:2 }];
   await bulkProvisionStudents(client, 'class-1', rows);
   assert.deepEqual(calls[0], ['admin-provision-user', { body:{ action:'bulk_provision_students', classId:'class-1', rows:[{ displayName:'A', email:'a@school.edu' }] } }]);
+});
+
+test('bulk import safely skips existing school emails despite whitespace or case', () => {
+  const rows = parseStudentCsv('Student name,School email\nExisting,  004470@NKCSWX.CN  \nNew,000487@nkcswx.cn\n');
+  const result = validateStudentImport(rows, new Set(['004470@nkcswx.cn']));
+  assert.equal(result.errors.length, 0);
+  assert.deepEqual(result.validRows, [{ displayName:'New', email:'000487@nkcswx.cn', sourceRow:3 }]);
+  assert.equal(result.skippedRows.length, 1);
+  assert.equal(result.skippedRows[0].email, '004470@nkcswx.cn');
+});
+
+test('all-existing bulk CSV has zero importable students and zero errors', () => {
+  const result = validateStudentImport([{ displayName:'Existing', email:'already@school.edu', sourceRow:2 }], new Set(['already@school.edu']));
+  assert.equal(result.validRows.length, 0);
+  assert.equal(result.errors.length, 0);
+  assert.equal(result.skippedRows.length, 1);
 });

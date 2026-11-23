@@ -78,9 +78,12 @@ function renderImportPreview(preview) {
   if (!preview) return '';
   const errors = preview.errors ?? [];
   const valid = preview.validRows ?? [];
+  const skipped = preview.skippedRows ?? [];
   const errorRows = errors.length ? `<div class="admin-import-errors"><h3>Fix these rows before importing</h3><ul>${errors.map(e => `<li><strong>Row ${escapeHtml(e.sourceRow)}</strong> — ${escapeHtml(e.displayName || e.email || 'Incomplete row')}: ${escapeHtml(e.reason)}</li>`).join('')}</ul></div>` : '';
-  const run = !errors.length && valid.length ? `<button class="button button--primary" data-action="admin-run-import" data-class-id="${escapeHtml(preview.classId)}">Create ${valid.length} student account${valid.length === 1 ? '' : 's'}</button>` : '';
-  return `<section class="admin-card admin-import-preview"><p class="eyebrow">Validated preview</p><h2>${escapeHtml(preview.fileName || 'CSV')}</h2><p>${valid.length} valid row${valid.length === 1 ? '' : 's'} · ${errors.length} error${errors.length === 1 ? '' : 's'}</p>${errorRows}${run}</section>`;
+  const skippedRows = skipped.length ? `<details class="admin-import-skipped"><summary><strong>${skipped.length} existing account${skipped.length === 1 ? '' : 's'} skipped</strong> — no passwords, progress, XP or class memberships changed</summary><ul>${skipped.map(row => `<li>${escapeHtml(row.displayName)} — ${escapeHtml(row.email)}</li>`).join('')}</ul></details>` : '';
+  const run = !errors.length && valid.length ? `<button class="button button--primary" data-action="admin-run-import" data-class-id="${escapeHtml(preview.classId)}">Create ${valid.length} new student account${valid.length === 1 ? '' : 's'}</button>` : '';
+  const allExisting = !errors.length && !valid.length && skipped.length ? '<p role="status">All students in this file already have accounts. Nothing needs importing.</p>' : '';
+  return `<section class="admin-card admin-import-preview"><p class="eyebrow">Validated preview</p><h2>${escapeHtml(preview.fileName || 'CSV')}</h2><p><strong>${valid.length} new</strong> · <strong>${skipped.length} skipped (already exist)</strong> · ${errors.length} error${errors.length === 1 ? '' : 's'}</p>${skippedRows}${errorRows}${allExisting}${run}</section>`;
 }
 
 function renderBulkResult(result, lastImportClassId) {

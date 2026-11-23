@@ -240,7 +240,7 @@ export async function bootApp(clientOverride = null) {
         const rows = parseStudentCsv(await file.text());
         const existingEmails = new Set((currentState.accounts ?? []).map(item => String(item.email ?? '').toLowerCase()));
         const validation = validateStudentImport(rows, existingEmails);
-        renderCachedAdminSection('import', { importPreview:{ classId, fileName:String(file.name ?? 'students.csv'), ...validation }, bulkResult:null, lastImportClassId:null, notice:validation.errors.length ? 'Fix the validation errors before creating accounts.' : 'CSV validated. Review the students, then create the accounts.' });
+        renderCachedAdminSection('import', { importPreview:{ classId, fileName:String(file.name ?? 'students.csv'), ...validation }, bulkResult:null, lastImportClassId:null, notice:validation.errors.length ? 'Fix the validation errors before creating accounts.' : validation.validRows.length ? `CSV validated: ${validation.validRows.length} new student${validation.validRows.length === 1 ? '' : 's'} ready; ${validation.skippedRows.length} existing account${validation.skippedRows.length === 1 ? '' : 's'} will be skipped.` : 'All listed students already have accounts. No new accounts to create.' });
       }
     } catch (error) {
       const section = kind === 'admin-preview-import' ? 'import' : (kind.includes('class') || kind.includes('assign') || kind.includes('transfer')) ? 'classes' : 'accounts';

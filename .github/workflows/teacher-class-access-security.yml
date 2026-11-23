@@ -5,6 +5,9 @@ on:
       - "src/app.js"
       - "src/views/home.js"
       - "src/views/admin.js"
+      - "src/admin/import.js"
+      - "tests/admin-import.test.js"
+      - "tests/admin-import-view.test.js"
       - "supabase/functions/admin-class-action/**"
       - "supabase/functions/admin-provision-user/**"
       - "supabase/sql/hotfix-**"
@@ -19,6 +22,9 @@ on:
       - "src/app.js"
       - "src/views/home.js"
       - "src/views/admin.js"
+      - "src/admin/import.js"
+      - "tests/admin-import.test.js"
+      - "tests/admin-import-view.test.js"
       - "supabase/functions/admin-class-action/**"
       - "supabase/functions/admin-provision-user/**"
       - "supabase/sql/hotfix-**"
@@ -37,4 +43,4 @@ jobs:
         with:
           node-version: "22"
       - name: Run class/admin authorization regressions
-        run: node --test tests/teacher-class-access-hotfix.test.js tests/admin-class-assignment-roles.test.js tests/admin-class-rename-backend.test.js tests/admin-view.test.js tests/teacher-student-password-reset.test.js
+        run: node --test tests/teacher-class-access-hotfix.test.js tests/admin-class-assignment-roles.test.js tests/admin-class-rename-backend.test.js tests/admin-view.test.js tests/teacher-student-password-reset.test.js tests/admin-import.test.js tests/admin-import-view.test.js
