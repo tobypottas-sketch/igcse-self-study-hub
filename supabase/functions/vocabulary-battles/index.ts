@@ -159,7 +159,7 @@ Deno.serve(async req=>{
     const i=Number(input?.index),choice=Number(input?.choice);
     if(i!==own.length||!Number.isInteger(choice)||choice<0||choice>3)return respond({error:'Answer is out of order. Refresh your battle.'},409);
     const {data:updated,error:uError}=await db.from('vocabulary_battles')
-      .update({[field]:[...own,{i,choice}]}).eq('id',battleId).eq('status','accepted').eq(field,JSON.stringify(own))
+      .update({[field]:[...own,{i,choice}]}).eq('id',battleId).eq('status','accepted').gt('ends_at',new Date().toISOString()).eq(field,JSON.stringify(own))
       .select('id').maybeSingle();
     if(uError||!updated)return respond({error:'Another answer was received. Refresh.'},409);
     return respond({ok:true,correct:map.get(ids[i])?.correct===choice,points:map.get(ids[i])?.correct===choice?100:0});
