@@ -149,3 +149,6 @@ input:focus{box-shadow:none;border-color:var(--c-blue)}
 .admin-student-filter-empty{padding:18px;text-align:center;color:var(--hub-slate);border:1px dashed var(--hub-line);border-radius:var(--r-md)}
 @media(max-width:620px){.admin-student-group__summary{padding:12px;min-height:62px}.admin-student-group__heading{gap:7px}.admin-student-group__heading strong{font-size:.94rem}.admin-student-group__count{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.admin-student-group__chevron{transition:none}}
+
+/* Student numbering is presentation only; kept narrow ahead of each name. */
+.admin-table .student-row-number{width:48px;min-width:44px;max-width:54px;padding-left:9px;padding-right:9px;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--hub-slate)}

@@ -12,6 +12,7 @@ export function applyActivityListFilters(root, filters = newActivityListState())
   const limit=Math.max(ACTIVITY_PAGE_SIZE,Math.floor(Number(filters.limit)||ACTIVITY_PAGE_SIZE));
   let matching=0,showing=0;
   const visibleClasses=new Set();
+  const visibleNumbers=new Map();
   for(const row of table.querySelectorAll('[data-activity-row]')) {
     const classOk=classId==='all'||row.dataset.classId===classId;
     const stateOk=state==='all'
@@ -24,7 +25,15 @@ export function applyActivityListFilters(root, filters = newActivityListState())
     if(matches) matching++;
     const show=matches&&showing<limit;
     row.hidden=!show;
-    if(show){showing++;visibleClasses.add(row.dataset.classId??'');}
+    if(show){
+      showing++;
+      const classKey=row.dataset.classId??'';
+      visibleClasses.add(classKey);
+      const next=(visibleNumbers.get(classKey)??0)+1;
+      visibleNumbers.set(classKey,next);
+      const numberCell=row.querySelector?.('[data-student-number]');
+      if(numberCell)numberCell.textContent=String(next);
+    }
   }
   table.dataset.singleClass=visibleClasses.size<=1?'true':'false';
   const count=root.querySelector('[data-activity-list-count]');

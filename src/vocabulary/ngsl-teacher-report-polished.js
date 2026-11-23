@@ -88,7 +88,7 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
  '<select data-action="ngsl-report-select-class" aria-label="Filter diagnostic results by class"><option value="all"'+(selected==='all'?' selected':'')+'>'+(isAdmin?'All classes':'All my classes')+'</option>'+classOptions+'</select>'+
  '<select data-ngsl-sort aria-label="Sort student results"><option value="low">Lowest score first</option><option value="high">Highest score first</option><option value="name">Name A–Z</option><option value="status">Completion status</option></select>'+
  '<button type="button" data-ngsl-export>Export CSV</button></div>'+
- '<p class="ngsl-p-table-count" data-ngsl-count aria-live="polite"></p><div class="ngsl-p-table-wrap"><table><thead><tr><th scope="col">Student</th><th scope="col">Status</th><th scope="col">Result</th><th scope="col">Not sure</th><th scope="col">Foundation indicator</th><th scope="col">Browser events</th></tr></thead><tbody data-ngsl-rows></tbody></table></div>'+
+ '<p class="ngsl-p-table-count" data-ngsl-count aria-live="polite"></p><div class="ngsl-p-table-wrap"><table><thead><tr><th scope="col" class="vocab-student-number">#</th><th scope="col">Student</th><th scope="col">Status</th><th scope="col">Result</th><th scope="col">Not sure</th><th scope="col">Foundation indicator</th><th scope="col">Browser events</th></tr></thead><tbody data-ngsl-rows></tbody></table></div>'+
  '<nav class="ngsl-p-pages" aria-label="Student result pages"><span data-ngsl-page-info></span><div><button type="button" data-ngsl-prev>Previous</button><button type="button" data-ngsl-next>Next</button></div></nav>'+
  '<p class="ngsl-p-note">Diagnostic scores indicate vocabulary recognition, not an official CEFR level. Browser focus events are not proof of misconduct.</p></section>'+
  '<div class="ngsl-p-dialog" data-ngsl-dialog hidden role="dialog" aria-modal="true" aria-label="Browser event timeline"><div class="ngsl-p-dialog-card"><button type="button" data-ngsl-close aria-label="Close event review">×</button><div data-ngsl-dialog-body></div></div></div></main>';
@@ -122,13 +122,13 @@ export function renderNGSLPolishedReport(root,dataset,classId='all',isAdmin=fals
   const totalPages=Math.max(1,Math.ceil(matches.length/PAGE_SIZE));
   page=Math.min(page,totalPages-1);
   const rows=matches.slice(page*PAGE_SIZE,(page+1)*PAGE_SIZE);
-  tbody.innerHTML=rows.map(row=>{
+  tbody.innerHTML=rows.map((row,index)=>{
    const status=scoreStatus(row);
    const sub=status==='progress'?' · '+row.progress.answered+'/50 answered':'';
    const result=row.result?row.result.correct+'/50 <small>· '+(row.result.correct*2)+'%</small>':'—';
-   return '<tr><td><b>'+e(row.name)+'</b></td><td><span class="ngsl-p-status ngsl-p-status--'+status+'">'+statuses[status]+e(sub)+'</span></td>'+
+   return '<tr><td class="vocab-student-number">'+(page*PAGE_SIZE+index+1)+'</td><td><b>'+e(row.name)+'</b></td><td><span class="ngsl-p-status ngsl-p-status--'+status+'">'+statuses[status]+e(sub)+'</span></td>'+
     '<td class="ngsl-p-score">'+result+'</td><td class="ngsl-p-score">'+e(row.result&&Number.isInteger(Number(row.result.unsure))?row.result.unsure:'—')+'</td><td>'+e(row.result?rating(row.result.correct):'—')+'</td><td>'+timelineButton(row)+'</td></tr>';
-  }).join('')||'<tr><td colspan="6" class="ngsl-p-empty">No students match your filters.</td></tr>';
+  }).join('')||'<tr><td colspan="7" class="ngsl-p-empty">No students match your filters.</td></tr>';
   root.querySelector('[data-ngsl-count]').textContent=matches.length?'Showing '+(page*PAGE_SIZE+1)+'–'+(page*PAGE_SIZE+rows.length)+' of '+matches.length+' matching students':'No students in this group';
   root.querySelector('[data-ngsl-page-info]').textContent='Page '+(page+1)+' of '+totalPages;
   root.querySelector('[data-ngsl-prev]').disabled=page===0;

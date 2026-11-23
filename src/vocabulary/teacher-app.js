@@ -7,12 +7,12 @@ import { buildFollowUpPlan, teamsFollowUpMessage } from './follow-up-plan.js';
 import { generateVocabularyActivity, renderVocabularyActivityStudio } from './teacher-activity-studio.js';
 import { buildMeritStatus, SKILLS_PER_MERIT } from './merits.js';
 import { loadVocabularyTeacherData, loadVocabularyTeacherClassList, loadUnitReadinessContent } from './teacher-data.js?v=fast-start-v1';
-import { loadVocabularyStaffUsage, renderVocabularyStaffUsage, updateVocabularyUsageStudentRows } from './staff-usage.js?v=student-pages-v1';
+import { loadVocabularyStaffUsage, renderVocabularyStaffUsage, updateVocabularyUsageStudentRows } from './staff-usage.js?v=student-rows-v1';
 import { evaluateUnitReadiness } from './pathway-readiness.js';
 import { coverageFromReadiness } from './pathway-coverage.js';
 import { registerPathwayCoverage } from './pathway-coverage-store.js';
 import { selectedUnit, unitOccurrences } from './teacher-units.js';
-import { renderTeacherOverview, weeklyUsagePanel, renderProblemArea, renderStudentVocabularyProfile, renderFollowUpPlan } from './teacher-views.js?v=staff-usage-v1';
+import { renderTeacherOverview, weeklyUsagePanel, renderProblemArea, renderStudentVocabularyProfile, renderFollowUpPlan } from './teacher-views.js?v=student-rows-v1';
 import { renderVocabularyError } from './views.js';
 
 const teacherState = { readiness:new Map(), root:null, client:null, profile:null, data:null, fullDataLoaded:false, fullDataPromise:null, currentClass:null, currentDrilldown:null, currentStudent:null, currentInsights:null, weeklyWeeksAgo:0, followUpPlan:null, usageData:null, ngslReportData:null, ngslClassId:"all", usageDays:30, usageClassId:"all", usageStudentId:null, usageReturnClass:null, activityConfig:{type:"forms",minutes:10,level:"standard",variant:0} };
@@ -32,7 +32,7 @@ function renderClassChooser() {
 }
 
 async function openNGSLReport(initialClassId) {
- const {fetchNGSLPolishedResults,renderNGSLPolishedReport}=await import('./ngsl-teacher-report-polished.js?v=ngsl-unsure-v3');
+ const {fetchNGSLPolishedResults,renderNGSLPolishedReport}=await import('./ngsl-teacher-report-polished.js?v=student-rows-v1');
  if(!teacherState.ngslReportData){
   showTeacherLoading('Loading diagnostic results…');
   teacherState.ngslReportData=await fetchNGSLPolishedResults(teacherState.client,teacherState.data.classes);

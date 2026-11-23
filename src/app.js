@@ -486,7 +486,11 @@ export async function bootApp(clientOverride = null) {
         const roleOk = role === 'all' || row.dataset.accountRole === role;
         const statusOk = status === 'all' || (status === 'active') === (row.dataset.accountActive === 'true');
         row.hidden = !(roleOk && statusOk && (!search || text.includes(search)));
-        if (!row.hidden) visible++;
+        if (!row.hidden) {
+          visible++;
+          const numberCell=row.querySelector('[data-student-number]');
+          if(numberCell)numberCell.textContent=String(visible);
+        }
       }
       group.hidden = filtered && visible === 0;
       if (filtered && visible) group.open = true;

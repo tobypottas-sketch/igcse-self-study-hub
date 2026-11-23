@@ -25,13 +25,13 @@ function renderCredential(credential) {
   return `<aside class="admin-credential" role="status"><p class="eyebrow">One-time credential</p><h3>${escapeHtml(credential.displayName ?? 'Account created')}</h3><p><strong>Email:</strong> ${escapeHtml(credential.email ?? '')}</p><p><strong>Temporary password:</strong> <code>${escapeHtml(credential.temporaryPassword)}</code></p><p class="muted">Save or copy this now. The temporary password is not stored in plaintext and cannot be retrieved later.</p></aside>`;
 }
 
-function renderAccountRows(accounts = [], emptyLabel = 'No accounts found yet.') {
+function renderAccountRows(accounts = [], emptyLabel = 'No accounts found yet.', numberStudents = false) {
   if (!accounts.length) return `<p class="admin-empty">${escapeHtml(emptyLabel)}</p>`;
-  return `<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Class / classes</th><th>Status</th><th>Actions</th></tr></thead><tbody>${accounts.map(account => {
+  return `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>${numberStudents ? '<th scope="col" class="student-row-number">#</th>' : ''}<th>Name</th><th>Email</th><th>Role</th><th>Class / classes</th><th>Status</th><th>Actions</th></tr></thead><tbody>${accounts.map((account, index) => {
     const classes = account.role === 'student' ? (account.currentClass || 'Unassigned') : ((account.assignedClasses ?? []).map(item => item.className).filter(Boolean).join(', ') || 'Unassigned');
     const canDelete = account.role !== 'admin';
     const deleteLabel = account.role === 'teacher' ? 'Delete teacher' : 'Delete student';
-    return `<tr data-account-role="${escapeHtml(account.role)}" data-account-active="${account.active ? 'true' : 'false'}"><td>${escapeHtml(account.displayName)}</td><td>${escapeHtml(account.email)}</td><td>${escapeHtml(accountRoleLabel(account.role))}</td><td>${escapeHtml(classes)}</td><td><span class="admin-status ${account.active ? 'is-active' : 'is-inactive'}">${account.active ? 'Active' : 'Inactive'}</span></td><td class="admin-actions"><button class="button admin-button" data-action="admin-reset-password" data-user-id="${escapeHtml(account.id)}" data-user-name="${escapeHtml(account.displayName)}" data-user-email="${escapeHtml(account.email)}">Reset password</button><button class="button admin-button" data-action="admin-set-active" data-user-id="${escapeHtml(account.id)}" data-next-active="${account.active ? 'false' : 'true'}">${account.active ? 'Deactivate' : 'Reactivate'}</button>${canDelete ? `<button class="button admin-button" data-action="admin-delete-account" data-user-id="${escapeHtml(account.id)}" data-user-name="${escapeHtml(account.displayName)}" data-user-role="${escapeHtml(account.role)}">${deleteLabel}</button>` : ''}</td></tr>`;
+    return `<tr data-account-role="${escapeHtml(account.role)}" data-account-active="${account.active ? 'true' : 'false'}">${numberStudents ? `<td class="student-row-number" data-student-number>${index+1}</td>` : ''}<td>${escapeHtml(account.displayName)}</td><td>${escapeHtml(account.email)}</td><td>${escapeHtml(accountRoleLabel(account.role))}</td><td>${escapeHtml(classes)}</td><td><span class="admin-status ${account.active ? 'is-active' : 'is-inactive'}">${account.active ? 'Active' : 'Inactive'}</span></td><td class="admin-actions"><button class="button admin-button" data-action="admin-reset-password" data-user-id="${escapeHtml(account.id)}" data-user-name="${escapeHtml(account.displayName)}" data-user-email="${escapeHtml(account.email)}">Reset password</button><button class="button admin-button" data-action="admin-set-active" data-user-id="${escapeHtml(account.id)}" data-next-active="${account.active ? 'false' : 'true'}">${account.active ? 'Deactivate' : 'Reactivate'}</button>${canDelete ? `<button class="button admin-button" data-action="admin-delete-account" data-user-id="${escapeHtml(account.id)}" data-user-name="${escapeHtml(account.displayName)}" data-user-role="${escapeHtml(account.role)}">${deleteLabel}</button>` : ''}</td></tr>`;
   }).join('')}</tbody></table></div>`;
 }
 
@@ -51,7 +51,7 @@ function renderStudentDirectory(students = []) {
         <span class="admin-student-group__heading"><span class="admin-student-group__icon" aria-hidden="true">▤</span><strong>${escapeHtml(className)}</strong><span class="admin-student-group__count">${members.length} student${members.length === 1 ? '' : 's'}</span></span>
         <span class="admin-student-group__chevron" aria-hidden="true"></span>
       </summary>
-      <div class="admin-student-group__content">${renderAccountRows(members)}</div>
+      <div class="admin-student-group__content">${renderAccountRows(members, undefined, true)}</div>
     </details>`).join('')}</div><p class="admin-student-filter-empty" data-admin-student-no-matches hidden>No students match your search or status filter.</p>`;
 }
 
@@ -148,13 +148,17 @@ function renderActivityRows(students = []) {
   const sortedStudents = students.slice().sort((a, b) => studentCollator.compare(String(a.className ?? '').trim(), String(b.className ?? '').trim()) || compareStudentNames(a, b));
   const singleClass = new Set(sortedStudents.map(row => row.classId ?? row.className)).size <= 1;
   let initialVisible=0;
-  return `<div class="admin-table-wrap"><table class="admin-table activity-table" data-single-class="${singleClass ? 'true' : 'false'}"><thead><tr><th>Student</th><th data-col="class">Class</th><th>Last active</th><th>This week</th><th>${pathwayHeader()}<span class="vocab-sr">Vocabulary progression</span></th><th>Unit Check</th><th>Alerts</th></tr></thead><tbody>${sortedStudents.map(row => {
+  const classNumbers = new Map();
+  return `<div class="admin-table-wrap"><table class="admin-table activity-table" data-single-class="${singleClass ? 'true' : 'false'}"><thead><tr><th scope="col" class="student-row-number">#</th><th>Student</th><th data-col="class">Class</th><th>Last active</th><th>This week</th><th>${pathwayHeader()}<span class="vocab-sr">Vocabulary progression</span></th><th>Unit Check</th><th>Alerts</th></tr></thead><tbody>${sortedStudents.map(row => {
+    const classKey=String(row.classId ?? row.className ?? '');
+    classNumbers.set(classKey,(classNumbers.get(classKey)??0)+1);
+    const classNumber=classNumbers.get(classKey);
     const lastActive = row.hasStarted ? relativeDay(row.lastActive) : 'Not started';
     const exact = row.hasStarted ? formatDate(row.lastActive) : '';
     const progression = row.hasStarted ? pathwayStrip(row.pathways) : 'Not started';
     const initiallyShown=Boolean(row.needsAttention)&&initialVisible<10;
     if(initiallyShown)initialVisible++;
-    return `<tr data-activity-row data-class-id="${escapeHtml(row.classId ?? '')}" data-student-name="${escapeHtml(String(row.displayName??'').toLowerCase())}" data-started="${row.hasStarted ? 'true' : 'false'}" data-needs-attention="${row.needsAttention ? 'true' : 'false'}" data-new-merits="${row.pendingMerits ? 'true' : 'false'}"${initiallyShown?'':' hidden'}><td data-label="Student"><button class="admin-link-button activity-student-link" data-action="activity-student" data-student-id="${escapeHtml(row.studentId)}">${escapeHtml(row.displayName)}</button></td><td data-col="class" data-label="Class">${escapeHtml(row.className)}</td><td data-label="Last active" data-started="${row.hasStarted ? 'true' : 'false'}"${exact ? ` title="${escapeHtml(exact)}"` : ''}>${escapeHtml(lastActive)}</td><td data-label="This week">${escapeHtml(String(row.activityThisWeek))}</td><td class="activity-progression" data-label="Progress" data-default="${row.hasStarted ? 'false' : 'true'}">${progression}</td><td data-label="Unit Check">${unitCheckCell(row.unitCheck)}</td><td data-label="Alerts">${alertsCell(row)}</td></tr>`;
+    return `<tr data-activity-row data-class-id="${escapeHtml(row.classId ?? '')}" data-student-name="${escapeHtml(String(row.displayName??'').toLowerCase())}" data-started="${row.hasStarted ? 'true' : 'false'}" data-needs-attention="${row.needsAttention ? 'true' : 'false'}" data-new-merits="${row.pendingMerits ? 'true' : 'false'}"${initiallyShown?'':' hidden'}><td class="student-row-number" data-label="#" data-student-number>${classNumber}</td><td data-label="Student"><button class="admin-link-button activity-student-link" data-action="activity-student" data-student-id="${escapeHtml(row.studentId)}">${escapeHtml(row.displayName)}</button></td><td data-col="class" data-label="Class">${escapeHtml(row.className)}</td><td data-label="Last active" data-started="${row.hasStarted ? 'true' : 'false'}"${exact ? ` title="${escapeHtml(exact)}"` : ''}>${escapeHtml(lastActive)}</td><td data-label="This week">${escapeHtml(String(row.activityThisWeek))}</td><td class="activity-progression" data-label="Progress" data-default="${row.hasStarted ? 'false' : 'true'}">${progression}</td><td data-label="Unit Check">${unitCheckCell(row.unitCheck)}</td><td data-label="Alerts">${alertsCell(row)}</td></tr>`;
   }).join('')}</tbody></table></div>`;
 }
 
