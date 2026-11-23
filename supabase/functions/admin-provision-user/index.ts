@@ -82,7 +82,7 @@ Deno.serve(async (req: Request) => {
     const isAdmin = callerProfile.role === 'admin';
     // Teachers may only list students and reset passwords. Every other existing
     // provision/account-management action remains administrator-only.
-    if (!isAdmin && !['teacher_list_students','reset_password'].includes(input.action))
+    if (!isAdmin && !['teacher_list_students','reset_password','issue_class_credentials'].includes(input.action))
       return jsonResponse({ error:'Administrator access required' }, { status:403 });
 
     if (input.action === 'teacher_list_students') {
@@ -196,6 +196,12 @@ Deno.serve(async (req: Request) => {
     }
 
     if (input.action === 'issue_class_credentials') {
+      if(!isAdmin){
+        const {data:assignment,error:assignmentError}=await adminClient.from('teacher_classes')
+          .select('class_id').eq('teacher_id',callerData.user.id).eq('class_id',input.classId).maybeSingle();
+        if(assignmentError) return jsonResponse({error:'Could not verify teacher class assignment.'},{status:503});
+        if(!assignment) return jsonResponse({error:'You can issue login cards only for your assigned classes.'},{status:403});
+      }
       const { data:targetClass, error:classError } = await adminClient.from('classes').select('id, active').eq('id', input.classId).single();
       if (classError || !targetClass?.active) return jsonResponse({ error:'Class is not active' }, { status:400 });
 
@@ -206,7 +212,11 @@ Deno.serve(async (req: Request) => {
         .is('ended_at', null);
       if (membershipError) return jsonResponse({ error:membershipError.message }, { status:400 });
 
-      const studentIds = (memberships ?? []).map(item => item.student_id);
+      const classStudentIds=[...new Set((memberships??[]).map(item=>item.student_id))];
+      const studentIds=input.studentIds??classStudentIds;
+      if(studentIds.length>100) return jsonResponse({error:'Maximum 100 students per login-card batch.'},{status:400});
+      if(studentIds.some(id=>!classStudentIds.includes(id)))
+        return jsonResponse({error:'Selected students must belong to this active class.'},{status:403});
       if (!studentIds.length) return jsonResponse({ ok:true, created:[], failed:[] });
 
       const { data:students, error:studentsError } = await adminClient
@@ -215,9 +225,11 @@ Deno.serve(async (req: Request) => {
         .in('id', studentIds);
       if (studentsError) return jsonResponse({ error:studentsError.message }, { status:400 });
 
+      const activeById=new Map((students??[]).filter(student=>student.role==='student'&&student.active).map(student=>[student.id,student]));
+      if(input.studentIds && studentIds.some(id=>!activeById.has(id)))
+        return jsonResponse({error:'Selected students must be active accounts in this class.'},{status:409});
       const issuedPasswords = new Set<string>();
-      const credentialPlans = (students ?? [])
-        .filter(student => student.role === 'student' && student.active)
+      const credentialPlans = studentIds.map(id=>activeById.get(id)).filter(Boolean)
         .map(student => {
           let password = generateStudentPassword();
           while (issuedPasswords.has(password)) password = generateStudentPassword();

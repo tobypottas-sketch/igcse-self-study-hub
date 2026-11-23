@@ -41,6 +41,12 @@ async function openNGSLReport(initialClassId) {
  teacherState.ngslClassId=teacherState.data.classes.some(c=>c.id===chosen)?chosen:'all';
  renderNGSLPolishedReport(teacherState.root,teacherState.ngslReportData,teacherState.ngslClassId,teacherState.profile.role==='admin');
 }
+async function openCurrentClassLoginCards(){
+ const current=teacherState.currentClass;
+ if(!current||!teacherState.data?.classes.some(row=>row.id===current.id))return;
+ const {openTeacherClassLoginCards}=await import('./teacher-login-cards.js?v=teacher-class-cards-v1');
+ await openTeacherClassLoginCards(teacherState.client,{id:current.id,className:current.className});
+}
 async function openStaffStudentPasswords(){
  const {openTeacherPasswordManager}=await import('./teacher-password-manager.js?v=teacher-password-reset-v2');
  await openTeacherPasswordManager(teacherState.root,teacherState.client,renderClassChooser,teacherState.data.classes);
@@ -399,6 +405,7 @@ function handleClick(event) {
   else if (action === 'ngsl-report-back') backFromNGSLReport();
   else if (action === 'teacher-open-usage') void openStaffUsage().catch(showError);
   else if (action === 'teacher-manage-student-passwords') void openStaffStudentPasswords().catch(showError);
+  else if (action === 'teacher-create-login-cards') void openCurrentClassLoginCards().catch(showError);
   else if (action === 'staff-usage-back') returnFromStaffUsage();
   else if (action === 'staff-usage-days') {
     teacherState.usageDays=Number(target.dataset.value);
