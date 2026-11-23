@@ -73,6 +73,6 @@ test('asset version bump exposes the new identity CSS and application code to re
  const html=fs.readFileSync(new URL('../vocabulary.html',import.meta.url),'utf8');
  const router=fs.readFileSync(new URL('../src/vocabulary/router.js',import.meta.url),'utf8');
  assert.match(html,/vocabulary-reward-identity\.css\?v=frame-proportions-v1/);
- assert.match(html,/src\/vocabulary\/router\.js\?v=battles-mvp-v1/);
- assert.match(router,/\.\/app\.js\?v=battles-mvp-v1/);
+ assert.match(html,/src\/vocabulary\/router\.js\?v=battles-banner-v2/);
+ assert.match(router,/\.\/app\.js\?v=battles-banner-v2/);
 });
