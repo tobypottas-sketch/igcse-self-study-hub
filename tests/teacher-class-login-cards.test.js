@@ -94,5 +94,27 @@ test('teacher interface scopes selection and requires explicit acknowledgement',
  assert.match(ui,/action:'issue_class_credentials'/);
  assert.match(ui,/renderLoginCards\(result\.created/);
  assert.match(app,/teacher-create-login-cards/);
- assert.match(view,/Create student login cards/);
+ assert.match(app,/Create student login cards/);
+ assert.doesNotMatch(view,/data-action="teacher-create-login-cards"/);
+});
+
+test('teacher login cards are a shared dashboard action and use a deliberate class dropdown',()=>{
+ const chooser=readFileSync(new URL('../src/vocabulary/teacher-app.js',import.meta.url),'utf8');
+ const cards=readFileSync(new URL('../src/vocabulary/teacher-login-cards.js',import.meta.url),'utf8');
+ const overview=readFileSync(new URL('../src/vocabulary/teacher-views.js',import.meta.url),'utf8');
+ assert.match(chooser,/vocab-dashboard-panels/);
+ assert.match(chooser,/vocab-dashboard-panel--insights/);
+ assert.match(chooser,/vocab-dashboard-panel--accounts/);
+ assert.match(chooser,/vocab-dashboard-utilities/);
+ assert.match(chooser,/data-action="teacher-create-login-cards"/);
+ assert.match(chooser,/openTeacherClassLoginCards\(teacherState\.client,classes\)/);
+ assert.doesNotMatch(overview,/data-action="teacher-create-login-cards"/);
+ assert.match(cards,/data-card-class/);
+ assert.match(cards,/Choose a class…/);
+ assert.match(cards,/classId=''/);
+ assert.match(cards,/className=chosen\?\.className/);
+ assert.match(cards,/selected\.clear\(\);paint\(\)/);
+ assert.match(cards,/row\.classId===classId/);
+ assert.match(cards,/studentIds\}/);
+ assert.match(cards,/data-card-consent/);
 });

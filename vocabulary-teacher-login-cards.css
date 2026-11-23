@@ -25,3 +25,10 @@
 .teacher-login-cards-actions .vocab-button--primary{background:#147f7e;color:white;border-color:#147f7e}
 .teacher-login-cards-panel [data-card-error]{color:#aa3330;font-weight:750}
 @media(max-width:580px){.teacher-login-cards-panel{padding:16px}.teacher-login-cards-toolbar{align-items:flex-start;flex-direction:column}.teacher-login-cards-list{max-height:38dvh}}
+
+
+/* Teacher dropdown is deliberate: do not preselect a class when changing passwords. */
+.teacher-login-cards-panel .teacher-login-cards-class-label{display:block;margin:18px 0 7px;font-size:.8rem;font-weight:900;letter-spacing:.025em;color:#1a5066}
+.teacher-login-cards-panel [data-card-class]{width:100%;min-height:46px;border:1.5px solid #8fc4c7;border-radius:11px;background:#f4fbfb;color:#173952;padding:9px 13px;font:inherit;font-weight:800;cursor:pointer}
+.teacher-login-cards-panel [data-card-class]:focus-visible{outline:3px solid #198e8d;outline-offset:2px}
+.teacher-login-cards-placeholder{margin:8px 0;padding:20px 12px;color:#526e7f;background:#f1f7f8;border:1px dashed #b7d2d9;border-radius:10px;text-align:center}

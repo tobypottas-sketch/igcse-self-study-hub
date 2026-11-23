@@ -32,6 +32,6 @@ test('the refreshed browser imports reach new preview markup and CSS',()=>{
  const app=read('src/vocabulary/app.js'),router=read('src/vocabulary/router.js'),html=read('vocabulary.html');
  assert.match(app,/views\.js\?v=study-hud-v1/);
  assert.match(router,/app\.js\?v=leaderboard-stable-v1/);
- assert.match(html,/router\.js\?v=student-rows-v1/);
+ assert.match(html,/router\.js\?v=teacher-dashboard-v2/);
  assert.match(html,/vocabulary-hero-unified\.css\?v=default-home-contrast-v3/);
 });

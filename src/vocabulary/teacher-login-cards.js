@@ -14,7 +14,9 @@ async function invoke(client,body){
 }
 
 /** One class at a time. Credentials are never written to application state or storage. */
-export async function openTeacherClassLoginCards(client,{id:classId,className}){
+export async function openTeacherClassLoginCards(client,assignedClasses=[]){
+ const classes=assignedClasses.filter(row=>row?.id&&row?.className);
+ let classId='',className='',allStudents=[];
  const panel=document.createElement('dialog');
  panel.className='teacher-login-cards-dialog';
  panel.setAttribute('aria-label','Create student login cards');
@@ -24,13 +26,23 @@ export async function openTeacherClassLoginCards(client,{id:classId,className}){
  panel.addEventListener('cancel',event=>{if(busy)event.preventDefault();else panel.remove();});
  const paint=()=>{
   const count=selected.size;
-  panel.innerHTML='<div class="teacher-login-cards-panel"><header><div><p class="vocab-kicker">CLASS ACCOUNT TOOLS</p><h2>Create student login cards</h2><p>'+e(className)+'</p></div><button type="button" data-card-close aria-label="Close">×</button></header>'+
+  panel.innerHTML='<div class="teacher-login-cards-panel"><header><div><p class="vocab-kicker">CLASS ACCOUNT TOOLS</p><h2>Create student login cards</h2><p>Choose an assigned class, then select students to print.</p></div><button type="button" data-card-close aria-label="Close">×</button></header>'+
+   '<label class="teacher-login-cards-class-label" for="teacher-login-cards-class">Class to print</label><select id="teacher-login-cards-class" data-card-class><option value="">Choose a class…</option>'+classes.map(c=>'<option value="'+e(c.id)+'"'+(classId===c.id?' selected':'')+'>'+e(c.className)+'</option>').join('')+'</select>'+
    '<p class="teacher-login-cards-warning"><strong>Important:</strong> Creating a login card replaces the selected student’s current password. Their old password will immediately stop working. Student progress, XP and rewards stay unchanged.</p>'+
    '<div class="teacher-login-cards-toolbar"><strong>'+count+' of '+roster.length+' selected</strong><div><button type="button" data-card-all>Select all</button><button type="button" data-card-none>Clear selection</button></div></div>'+
-   '<div class="teacher-login-cards-list" role="group" aria-label="Select students">'+roster.map(row=>'<label><input type="checkbox" data-card-student="'+e(row.id)+'"'+(selected.has(row.id)?' checked':'')+'><span><strong>'+e(row.name)+'</strong><small>'+e(row.email)+'</small></span></label>').join('')+'</div>'+
+   '<div class="teacher-login-cards-list" role="group" aria-label="Select students">'+(!classId?'<p class="teacher-login-cards-placeholder">Choose a class above to display its students.</p>':!roster.length?'<p class="teacher-login-cards-placeholder">No active students found in this class.</p>':'')+roster.map(row=>'<label><input type="checkbox" data-card-student="'+e(row.id)+'"'+(selected.has(row.id)?' checked':'')+'><span><strong>'+e(row.name)+'</strong><small>'+e(row.email)+'</small></span></label>').join('')+'</div>'+
    '<label class="teacher-login-cards-consent"><input type="checkbox" data-card-consent> I understand that the selected students’ existing passwords will stop working.</label>'+
    '<div class="teacher-login-cards-actions"><button type="button" data-card-cancel>Cancel</button><button type="button" class="vocab-button vocab-button--primary" data-card-generate disabled>Generate '+count+' login card'+(count===1?'':'s')+'</button></div><p data-card-error role="alert"></p></div>';
   panel.querySelector('[data-card-close]').addEventListener('click',close);
+  panel.querySelector('[data-card-class]').addEventListener('change',event=>{
+   classId=event.target.value;
+   const chosen=classes.find(c=>c.id===classId);
+   className=chosen?.className??'';
+   const byId=new Map();
+   if(chosen)for(const row of allStudents)if(row.classId===classId&&row.id&&row.name&&row.email)byId.set(row.id,row);
+   roster=[...byId.values()].sort((a,b)=>a.name.localeCompare(b.name));
+   selected.clear();paint();
+  });
   panel.querySelector('[data-card-cancel]').addEventListener('click',close);
   panel.querySelector('[data-card-all]').addEventListener('click',()=>{selected=new Set(roster.map(row=>row.id));paint();});
   panel.querySelector('[data-card-none]').addEventListener('click',()=>{selected.clear();paint();});
@@ -42,12 +54,12 @@ export async function openTeacherClassLoginCards(client,{id:classId,className}){
    paint();
   }));
   button.addEventListener('click',async()=>{
-   if(busy||!selected.size||!consent.checked)return;
+   if(busy||!classId||!classes.some(c=>c.id===classId)||!selected.size||!consent.checked)return;
    const studentIds=roster.filter(row=>selected.has(row.id)).map(row=>row.id);
    // A second explicit confirmation prevents accidental whole-class resets.
    if(!globalThis.confirm?.('Generate '+studentIds.length+' new login password'+(studentIds.length===1?'':'s')+' for '+className+'? Existing passwords for these students will stop working.'))return;
    busy=true;
-   panel.querySelectorAll('button,input').forEach(input=>{input.disabled=true;});
+   panel.querySelectorAll('button,input,select').forEach(input=>{input.disabled=true;});
    button.textContent='Generating secure passwords…';
    try{
     const result=await invoke(client,{action:'issue_class_credentials',classId,studentIds});
@@ -67,7 +79,7 @@ export async function openTeacherClassLoginCards(client,{id:classId,className}){
     modal.querySelector('[data-action="admin-close-login-cards"]')?.focus();
    }catch(error){
     panel.querySelector('[data-card-error]').textContent=error instanceof Error?error.message:'Unable to generate login cards.';
-    panel.querySelectorAll('button,input').forEach(input=>{input.disabled=false;});
+    panel.querySelectorAll('button,input,select').forEach(input=>{input.disabled=false;});
     const consentAgain=panel.querySelector('[data-card-consent]');
     const generateAgain=panel.querySelector('[data-card-generate]');
     generateAgain.disabled=!consentAgain.checked||!selected.size;
@@ -79,10 +91,9 @@ export async function openTeacherClassLoginCards(client,{id:classId,className}){
  panel.showModal();
  try{
   const result=await invoke(client,{action:'teacher_list_students'});
-  const unique=new Map();
-  for(const row of result.students??[])if(row.classId===classId && row.id&&row.name&&row.email)unique.set(row.id,row);
-  roster=[...unique.values()].sort((a,b)=>a.name.localeCompare(b.name));
-  if(!roster.length)throw Error('No active students found for this class.');
+  if(!Array.isArray(result.students))throw Error('Student roster unavailable.');
+  allStudents=result.students.filter(row=>classes.some(c=>c.id===row.classId));
+  if(!classes.length)throw Error('No assigned classes available.');
   paint();
  }catch(error){
   panel.innerHTML='<div class="teacher-login-cards-panel"><h2>Login cards unavailable</h2><p role="alert">'+e(error.message)+'</p><button type="button" data-card-close>Close</button></div>';

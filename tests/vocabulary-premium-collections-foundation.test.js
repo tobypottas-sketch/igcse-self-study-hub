@@ -71,7 +71,7 @@ test('live click router accepts Badges on both shop filters and permits Badge un
  const router=fs('src/vocabulary/router.js');
  const html=fs('vocabulary.html');
  assert.equal((router.match(/app\.js\?v=leaderboard-stable-v1/g)||[]).length,2);
- assert.ok(html.includes('router.js?v=student-rows-v1'));
+ assert.ok(html.includes('router.js?v=teacher-dashboard-v2'));
 });
 function requireRead(){
  return path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
