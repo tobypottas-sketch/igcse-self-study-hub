@@ -28,7 +28,27 @@ function showTeacherLoading(message) {
 function renderClassChooser() {
   const classes = teacherState.data?.classes ?? [];
   const cards = classes.map(row => `<button class="vocab-class-card" data-action="teacher-open-class" data-class-id="${escapeHtml(row.id)}"><span class="vocab-class-card__icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.5 5.75A2.25 2.25 0 0 1 6.75 3.5H12v15.75H6.75A2.25 2.25 0 0 0 4.5 21.5V5.75Zm15 0a2.25 2.25 0 0 0-2.25-2.25H12v15.75h5.25a2.25 2.25 0 0 1 2.25 2.25V5.75Z"/></svg></span><span class="vocab-class-card__eyebrow">Class</span><strong class="vocab-class-card__title">${escapeHtml(row.className)}</strong><span class="vocab-class-card__count">${escapeHtml(row.students.length)} students</span><span class="vocab-class-card__cta">Open analytics →</span></button>`).join('') || '<p class="vocab-empty">No classes are currently available to this account.</p>';
-  teacherState.root.innerHTML = `<main class="vocab-shell vocab-class-chooser"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Teacher analytics</span></header><section class="vocab-teacher-hero vocab-class-chooser__hero"><p class="vocab-kicker">Vocabulary &amp; Paraphrase</p><h1>Choose a class</h1><p>Open the class that needs your attention.</p><div class="vocab-teacher-actions"><button type="button" class="vocab-button vocab-button--primary" data-action="teacher-open-diagnostic" data-initial-class="all">Diagnostic results</button><button type="button" class="vocab-button" data-action="teacher-open-usage">Usage overview</button><button type="button" class="vocab-button" data-action="teacher-manage-student-passwords">Student passwords</button>${teacherState.profile?.role==='admin'?'<a class="vocab-button" href="./vocabulary.html?xp-cohort-audit=1">XP wallet readiness audit</a>':''}<a class="vocab-button" href="./vocabulary.html?preview=1">Preview student activities</a><a class="vocab-button" href="./vocabulary.html?diagnostic-preview=1">Preview NGSL diagnostic · 50 questions</a></div></section><section class="vocab-class-chooser__grid">${cards}</section></main>`;
+  const classCount=classes.length;
+  const studentCount=new Set(classes.flatMap(row=>row.students.map(student=>student.id))).size;
+  const previewLinks='<a class="vocab-dashboard-link" href="./vocabulary.html?preview=1">Student activities <span aria-hidden="true">↗</span></a><a class="vocab-dashboard-link" href="./vocabulary.html?diagnostic-preview=1">NGSL diagnostic preview <span aria-hidden="true">↗</span></a>';
+  teacherState.root.innerHTML = `<main class="vocab-shell vocab-class-chooser"><header class="vocab-topbar"><a href="./" class="vocab-back">← Hub</a><span>Teacher analytics</span></header>
+  <section class="vocab-teacher-hero vocab-class-chooser__hero" aria-labelledby="class-chooser-title">
+    <div class="vocab-dashboard-heading">
+      <div class="vocab-dashboard-heading-copy"><p class="vocab-kicker">TEACHER WORKSPACE · VOCABULARY &amp; PARAPHRASE</p><h1 id="class-chooser-title">Your teaching dashboard</h1><p>Choose a class to explore learning, or use your classroom tools below.</p></div>
+      <div class="vocab-dashboard-snapshot" aria-label="Your classes and students"><span><strong>${classCount}</strong><small>Classes</small></span><span><strong>${studentCount}</strong><small>Students</small></span></div>
+    </div>
+    <div class="vocab-dashboard-panels">
+      <div class="vocab-dashboard-panel vocab-dashboard-panel--insights"><p class="vocab-dashboard-panel-label"><span aria-hidden="true">◈</span> LEARNING INSIGHTS</p><h2>Understand their progress</h2><div class="vocab-dashboard-tools">
+        <button type="button" class="vocab-dashboard-tool vocab-dashboard-tool--strong" data-action="teacher-open-diagnostic" data-initial-class="all"><span class="vocab-dashboard-tool-symbol" aria-hidden="true">◎</span><span><strong>Diagnostic results</strong><small>Vocabulary baseline and next steps</small></span><span aria-hidden="true">↗</span></button>
+        <button type="button" class="vocab-dashboard-tool" data-action="teacher-open-usage"><span class="vocab-dashboard-tool-symbol" aria-hidden="true">▥</span><span><strong>Usage overview</strong><small>Participation, activity and progress</small></span><span aria-hidden="true">↗</span></button>
+      </div></div>
+      <div class="vocab-dashboard-panel vocab-dashboard-panel--accounts"><p class="vocab-dashboard-panel-label"><span aria-hidden="true">▣</span> CLASSROOM ADMIN</p><h2>Get students signed in</h2><div class="vocab-dashboard-tools">
+        <button type="button" class="vocab-dashboard-tool vocab-dashboard-tool--login" data-action="teacher-create-login-cards"><span class="vocab-dashboard-tool-symbol" aria-hidden="true">▤</span><span><strong>Create student login cards</strong><small>Choose a class · select students · print</small></span><span aria-hidden="true">↗</span></button>
+        <button type="button" class="vocab-dashboard-tool" data-action="teacher-manage-student-passwords"><span class="vocab-dashboard-tool-symbol" aria-hidden="true">⌘</span><span><strong>Student passwords</strong><small>Reset an individual student login</small></span><span aria-hidden="true">↗</span></button>
+      </div></div>
+    </div>
+    <div class="vocab-dashboard-utilities"><span class="vocab-dashboard-utilities-label">PREVIEW &amp; UTILITIES</span>${previewLinks}${teacherState.profile?.role==='admin'?'<a class="vocab-dashboard-link" href="./vocabulary.html?xp-cohort-audit=1">XP wallet readiness audit <span aria-hidden="true">↗</span></a>':''}</div>
+  </section><div class="vocab-dashboard-list-title"><div><p class="vocab-kicker">YOUR CLASSES</p><h2>Choose a class</h2></div><span>${classCount} class${classCount===1?'':'es'}</span></div><section class="vocab-class-chooser__grid">${cards}</section></main>`;
 }
 
 async function openNGSLReport(initialClassId) {
@@ -41,11 +61,11 @@ async function openNGSLReport(initialClassId) {
  teacherState.ngslClassId=teacherState.data.classes.some(c=>c.id===chosen)?chosen:'all';
  renderNGSLPolishedReport(teacherState.root,teacherState.ngslReportData,teacherState.ngslClassId,teacherState.profile.role==='admin');
 }
-async function openCurrentClassLoginCards(){
- const current=teacherState.currentClass;
- if(!current||!teacherState.data?.classes.some(row=>row.id===current.id))return;
- const {openTeacherClassLoginCards}=await import('./teacher-login-cards.js?v=teacher-class-cards-v1');
- await openTeacherClassLoginCards(teacherState.client,{id:current.id,className:current.className});
+async function openTeacherLoginCards(){
+ const classes=teacherState.data?.classes??[];
+ if(!classes.length)return;
+ const {openTeacherClassLoginCards}=await import('./teacher-login-cards.js?v=teacher-class-dropdown-v2');
+ await openTeacherClassLoginCards(teacherState.client,classes);
 }
 async function openStaffStudentPasswords(){
  const {openTeacherPasswordManager}=await import('./teacher-password-manager.js?v=teacher-password-reset-v2');
@@ -405,7 +425,7 @@ function handleClick(event) {
   else if (action === 'ngsl-report-back') backFromNGSLReport();
   else if (action === 'teacher-open-usage') void openStaffUsage().catch(showError);
   else if (action === 'teacher-manage-student-passwords') void openStaffStudentPasswords().catch(showError);
-  else if (action === 'teacher-create-login-cards') void openCurrentClassLoginCards().catch(showError);
+  else if (action === 'teacher-create-login-cards') void openTeacherLoginCards().catch(showError);
   else if (action === 'staff-usage-back') returnFromStaffUsage();
   else if (action === 'staff-usage-days') {
     teacherState.usageDays=Number(target.dataset.value);
