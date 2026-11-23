@@ -9,7 +9,7 @@ test('class roster is generated from student records, never splitting student na
   const view = fs.readFileSync(new URL('../src/views/admin.js', import.meta.url), 'utf8');
   assert.match(view, /class="admin-class-roster"/);
   assert.match(view, /data-student-id=/);
-  assert.match(view, /c\\.students\\.length/);
+  assert.ok(view.includes('c.students.length'));
   assert.ok(!credentialPrint.includes("split(/,\\\\s*/)"), 'Do not split class rosters using commas');
   assert.ok(!credentialPrint.includes('enhanceClassRoster'), 'Legacy comma splitter must be removed');
 });
