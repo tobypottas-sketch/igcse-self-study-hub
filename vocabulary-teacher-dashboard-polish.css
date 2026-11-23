@@ -1,0 +1,61 @@
+/* Teacher dashboard / class chooser: hierarchy rather than a wall of uniform buttons. */
+.vocab-class-chooser .vocab-class-chooser__hero{
+  position:relative;isolation:isolate;overflow:hidden;
+  padding:clamp(24px,3.3vw,44px)!important;
+  background:linear-gradient(123deg,#f6fcfd 0%,#eef8f6 50%,#f2f6fc 100%)!important;
+  border:1px solid #b6d9db!important;border-radius:28px;
+  box-shadow:0 16px 45px rgba(26,62,86,.09)!important;
+}
+.vocab-class-chooser .vocab-class-chooser__hero::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  width:400px;height:400px;top:-255px;right:-85px;border-radius:50%;
+  background:radial-gradient(circle,#92d3cd55 0%,#92d3cd08 66%,transparent 70%)
+}
+.vocab-class-chooser .vocab-class-chooser__hero::after{
+  content:"";position:absolute;pointer-events:none;right:20%;top:-45px;
+  width:200px;height:3px;transform:rotate(-35deg);background:#c4e9e58c
+}
+.vocab-class-chooser .vocab-dashboard-heading{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:24px}
+.vocab-class-chooser .vocab-dashboard-heading-copy{max-width:730px}
+.vocab-class-chooser .vocab-dashboard-heading-copy .vocab-kicker{font-size:.79rem;letter-spacing:.12em;color:#168381;font-weight:900;margin:0 0 12px}
+.vocab-class-chooser .vocab-dashboard-heading-copy h1{font-size:clamp(2rem,4vw,3.1rem);letter-spacing:-.052em;line-height:1.12;margin:0 0 10px;color:#183a54}
+.vocab-class-chooser .vocab-dashboard-heading-copy>p:last-child{margin:0;color:#557083;font-size:1rem;line-height:1.55}
+.vocab-class-chooser .vocab-dashboard-snapshot{display:flex;align-items:stretch;flex:none;border:1px solid #cbe4e5;background:#ffffffba;border-radius:16px;padding:11px 7px;box-shadow:0 6px 22px #1c4e6210}
+.vocab-class-chooser .vocab-dashboard-snapshot>span{display:grid;min-width:84px;gap:1px;text-align:center;padding:4px 13px}
+.vocab-class-chooser .vocab-dashboard-snapshot>span+span{border-left:1px solid #d7e7ea}
+.vocab-class-chooser .vocab-dashboard-snapshot strong{color:#166e79;font-size:1.7rem;line-height:1.1;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.vocab-class-chooser .vocab-dashboard-snapshot small{color:#597588;font-size:.76rem;font-weight:800}
+.vocab-class-chooser .vocab-dashboard-panels{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.vocab-class-chooser .vocab-dashboard-panel{background:#ffffffdb;border:1px solid #d5e7e9;border-radius:19px;padding:19px;box-shadow:0 7px 20px #22465a0a;min-width:0}
+.vocab-class-chooser .vocab-dashboard-panel--accounts{background:#f8fbffdf;border-color:#d8e0ee}
+.vocab-class-chooser .vocab-dashboard-panel-label{display:flex;align-items:center;gap:8px;margin:0 0 6px;color:#137b7b;font-size:.72rem;font-weight:900;letter-spacing:.13em}
+.vocab-class-chooser .vocab-dashboard-panel--accounts .vocab-dashboard-panel-label{color:#4f6eaa}
+.vocab-class-chooser .vocab-dashboard-panel-label span{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:#e6f7f4;font-size:1rem}
+.vocab-class-chooser .vocab-dashboard-panel--accounts .vocab-dashboard-panel-label span{background:#e9f0fe}
+.vocab-class-chooser .vocab-dashboard-panel h2{font-size:1.08rem;font-weight:850;color:#193d57;margin:0 0 14px;letter-spacing:-.02em}
+.vocab-class-chooser .vocab-dashboard-tools{display:grid;gap:9px}
+.vocab-class-chooser .vocab-dashboard-tool{display:flex;align-items:center;gap:12px;min-width:0;text-align:left;width:100%;min-height:69px;padding:11px 13px;border:1px solid #d3e3e8;border-radius:12px;background:#fff;color:#183b54;font:inherit;cursor:pointer;transition:transform .16s,border-color .16s,box-shadow .16s}
+.vocab-class-chooser .vocab-dashboard-tool:hover{transform:translateY(-2px);border-color:#80c1c2;box-shadow:0 8px 19px #163c5b19}
+.vocab-class-chooser .vocab-dashboard-tool:focus-visible{outline:3px solid #1a9995;outline-offset:2px}
+.vocab-class-chooser .vocab-dashboard-tool>span:nth-child(2){display:grid;gap:3px;flex:1;min-width:0}
+.vocab-class-chooser .vocab-dashboard-tool strong{font-size:.94rem;color:inherit;font-weight:850;line-height:1.25}
+.vocab-class-chooser .vocab-dashboard-tool small{font-size:.75rem;color:#557083;line-height:1.3}
+.vocab-class-chooser .vocab-dashboard-tool>span:last-child{color:#718c9b;font-size:1.14rem}
+.vocab-class-chooser .vocab-dashboard-tool-symbol{width:39px;height:39px;display:grid;place-items:center;flex:none;font-size:1.26rem;background:#eaf5f7;border-radius:10px;color:#1b7f89}
+.vocab-class-chooser .vocab-dashboard-tool--strong{background:linear-gradient(115deg,#176e81,#277eaa);color:white;border-color:#2b8296}
+.vocab-class-chooser .vocab-dashboard-tool--strong strong,.vocab-class-chooser .vocab-dashboard-tool--strong small,.vocab-class-chooser .vocab-dashboard-tool--strong>span:last-child{color:white}
+.vocab-class-chooser .vocab-dashboard-tool--strong small{opacity:.85}
+.vocab-class-chooser .vocab-dashboard-tool--strong .vocab-dashboard-tool-symbol{background:#ffffff28;color:white}
+.vocab-class-chooser .vocab-dashboard-tool--login{background:#e9f5f2;border-color:#add7d0}
+.vocab-class-chooser .vocab-dashboard-tool--login .vocab-dashboard-tool-symbol{background:#cceae3;color:#166a67}
+.vocab-class-chooser .vocab-dashboard-utilities{display:flex;align-items:center;flex-wrap:wrap;gap:9px 15px;margin-top:18px;padding-top:17px;border-top:1px solid #d2e6e5}
+.vocab-class-chooser .vocab-dashboard-utilities-label{font-size:.72rem;font-weight:900;color:#5c7d8b;letter-spacing:.1em;margin-right:5px}
+.vocab-class-chooser .vocab-dashboard-link{display:inline-flex;gap:7px;align-items:center;border-radius:8px;padding:7px 9px;color:#345b74;text-decoration:none;font-weight:750;font-size:.83rem}
+.vocab-class-chooser .vocab-dashboard-link:hover{background:#e2f0ef;color:#146e7b}
+.vocab-class-chooser .vocab-dashboard-list-title{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-top:26px}
+.vocab-class-chooser .vocab-dashboard-list-title .vocab-kicker{margin:0 0 5px;font-size:.73rem;letter-spacing:.11em;color:#147d82}
+.vocab-class-chooser .vocab-dashboard-list-title h2{font-size:1.55rem;color:#193b53;letter-spacing:-.035em;margin:0}
+.vocab-class-chooser .vocab-dashboard-list-title>span{font-size:.85rem;color:#627b89;font-weight:800}
+@media(max-width:860px){.vocab-class-chooser .vocab-dashboard-panels{grid-template-columns:1fr}.vocab-class-chooser .vocab-dashboard-heading{align-items:flex-start}}
+@media(max-width:600px){.vocab-class-chooser .vocab-class-chooser__hero{padding:22px 18px!important;border-radius:19px}.vocab-class-chooser .vocab-dashboard-heading{flex-direction:column;gap:17px}.vocab-class-chooser .vocab-dashboard-snapshot{width:100%;justify-content:space-around}.vocab-class-chooser .vocab-dashboard-snapshot>span{flex:1}.vocab-class-chooser .vocab-dashboard-panel{padding:15px}.vocab-class-chooser .vocab-dashboard-utilities{align-items:flex-start;flex-direction:column;gap:4px}}
+@media(prefers-reduced-motion:reduce){.vocab-class-chooser .vocab-dashboard-tool{transition:none}}
