@@ -1,0 +1,43 @@
+/* Theme-revealing Rewards Shop glass
+   The shop shell already owns the equipped-theme wallpaper. Keep that artwork
+   behind both header surfaces instead of painting an opaque replacement.
+   Reuse each theme's semantic dark colours for reliable white text contrast. */
+#vocabularyApp .vocab-shop-redesign > .vocab-topbar{
+  background:linear-gradient(
+    105deg,
+    color-mix(in srgb,var(--shop-header-surface) 90%,transparent),
+    color-mix(in srgb,var(--shop-header-surface-2) 83%,transparent)
+  )!important;
+  -webkit-backdrop-filter:blur(3px);
+  backdrop-filter:blur(3px);
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero,
+#vocabularyApp .vocab-shop-redesign[data-equipped-theme="afterlight"] > .vocab-shop-hero,
+#vocabularyApp .vocab-shop-redesign[data-equipped-theme="blockverse"] > .vocab-shop-hero{
+  background:linear-gradient(
+    112deg,
+    color-mix(in srgb,var(--shop-header-surface) 87%,transparent) 0%,
+    color-mix(in srgb,var(--shop-header-surface) 82%,transparent) 45%,
+    color-mix(in srgb,var(--shop-header-surface-2) 74%,transparent) 100%
+  )!important;
+  -webkit-backdrop-filter:blur(3px);
+  backdrop-filter:blur(3px);
+}
+/* The artwork, wallet and text retain their existing opaque/contrasting styles.
+   Only the two shell surfaces gain translucency. */
+@supports not (color:color-mix(in srgb,#000 80%,transparent)){
+  #vocabularyApp .vocab-shop-redesign > .vocab-topbar{
+    background:linear-gradient(105deg,rgba(10,35,58,.90),rgba(19,54,76,.83))!important;
+  }
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero{
+    background:linear-gradient(112deg,rgba(10,35,58,.87),rgba(19,54,76,.74))!important;
+  }
+}
+@media print,(forced-colors:active){
+  #vocabularyApp .vocab-shop-redesign > :is(.vocab-topbar,.vocab-shop-hero){
+    background:Canvas!important;
+    color:CanvasText!important;
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+  }
+}
