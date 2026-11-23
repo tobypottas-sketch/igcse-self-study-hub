@@ -63,6 +63,7 @@ export function validateStudentImport(rows, existingEmails = new Set()) {
   }
 
   const validRows = [];
+  const skippedRows = [];
   const errors = [];
   for (const row of rows) {
     const displayName = String(row.displayName ?? '').trim();
@@ -71,12 +72,12 @@ export function validateStudentImport(rows, existingEmails = new Set()) {
     if (!displayName) reason = 'Student name is required.';
     else if (!email || !validEmail(email)) reason = 'A valid school email is required.';
     else if ((frequencies.get(email) ?? 0) > 1) reason = 'Duplicate email in import file.';
-    else if (normalizedExisting.has(email)) reason = 'Email already exists.';
 
     if (reason) errors.push({ ...row, email, reason });
+    else if (normalizedExisting.has(email)) skippedRows.push({ displayName, email, sourceRow: row.sourceRow, reason:'Account already exists — left unchanged.' });
     else validRows.push({ displayName, email, sourceRow: row.sourceRow });
   }
-  return { validRows, errors };
+  return { validRows, skippedRows, errors };
 }
 
 export function bulkProvisionStudents(client, classId, rows) {
