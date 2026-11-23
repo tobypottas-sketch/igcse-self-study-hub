@@ -39,8 +39,8 @@ test('Battle server alone owns answers and validates every active class membersh
  assert.match(src,/\.eq\('class_id',classId\)\.is\('ended_at',null\)/);
  assert.match(src,/\.eq\('role','student'\)\.eq\('active',true\)/);
  assert.match(src,/\[b\.challenger_id,b\.opponent_id\]\.includes\(uid\)/);
- assert.match(src,/const DURATION=60000/);
- assert.match(src,/const LIMIT=10/);
+ assert.match(src,/DURATION=60000/);
+ assert.match(src,/LIMIT=10/);
  assert.match(src,/status:'accepted'/);
  assert.match(src,/action==='answer'/);
  assert.match(src,/ends_at/);
