@@ -18,7 +18,7 @@ test('Only effects with shipped animated artwork offer genuine avatar animation 
   for(const item of effects)assert.ok(root.innerHTML.includes('data-reward-id="'+item.reward_id+'"'));
   for(const id of animatedIds){
    assert.match(root.innerHTML,new RegExp('data-preview-effect="'+id+'"'));
-   assert.match(root.innerHTML,new RegExp('data-action="sandbox-preview-effect" data-reward-id="'+id+'"'));
+   assert.match(root.innerHTML,new RegExp('data-action="'+(shop.shopMode==='production'?'real':'sandbox')+'-preview-effect" data-reward-id="'+id+'"'));
   }
   assert.doesNotMatch(root.innerHTML,/data-preview-effect="unanimated-test-effect"|data-action="sandbox-preview-effect" data-reward-id="unanimated-test-effect"/);
   assert.doesNotMatch(root.innerHTML,/Try live effect|Show artwork|Live avatar preview/);
