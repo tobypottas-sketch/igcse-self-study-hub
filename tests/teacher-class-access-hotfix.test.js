@@ -42,7 +42,9 @@ test('privileged account administration remains admin-only except owned-student 
  assert.match(classServer,/!callerProfile\?\.active/);
  const accounts=source('supabase/functions/admin-provision-user/index.ts');
  assert.match(accounts,/!callerProfile\?\.active/);
- assert.match(accounts,/!isAdmin && !\['teacher_list_students','reset_password'\]\.includes\(input\.action\)/);
+ assert.match(accounts,/!isAdmin && !\['teacher_list_students','reset_password','issue_class_credentials'\]\.includes\(input\.action\)/);
+ assert.match(accounts,/You can issue login cards only for your assigned classes/);
+ assert.match(accounts,/Selected students must belong to this active class/);
  assert.match(accounts,/teacher_classes/);
  assert.match(accounts,/student_class_memberships/);
  assert.match(accounts,/student\.role!=='student'/);
