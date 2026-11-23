@@ -7,6 +7,8 @@ on:
       - 'src/vocabulary/battles-app.js'
       - 'src/vocabulary/views.js'
       - 'vocabulary-battles.*'
+      - 'vocabulary-battles-v2.css'
+      - 'tests/vocabulary-battles-v2-ui.test.js'
       - 'tests/vocabulary-battles.test.js'
       - 'tests/vocabulary-battles-api.test.js'
       - 'tests/vocabulary-battles-banner-animation.test.js'
@@ -20,6 +22,8 @@ on:
       - 'supabase/migrations/*vocabulary_class_battles.sql'
       - 'src/vocabulary/battles-app.js'
       - 'vocabulary-battles.*'
+      - 'vocabulary-battles-v2.css'
+      - 'tests/vocabulary-battles-v2-ui.test.js'
       - 'tests/vocabulary-battles.test.js'
       - 'tests/vocabulary-battles-api.test.js'
       - 'tests/vocabulary-battles-banner-animation.test.js'
@@ -37,7 +41,7 @@ jobs:
       - name: Check standalone arena JavaScript
         run: node --check src/vocabulary/battles-app.js
       - name: Verify battle safety and content
-        run: node --test tests/vocabulary-battles.test.js tests/vocabulary-battles-api.test.js tests/vocabulary-battles-banner-animation.test.js
+        run: node --test tests/vocabulary-battles.test.js tests/vocabulary-battles-api.test.js tests/vocabulary-battles-banner-animation.test.js tests/vocabulary-battles-v2-ui.test.js
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
