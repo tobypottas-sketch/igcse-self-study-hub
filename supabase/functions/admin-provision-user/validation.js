@@ -40,7 +40,14 @@ export function validateAdminProvisionRequest(value) {
   if (action === 'teacher_list_students') return { action };
   if (action === 'reset_password') return { action, userId: requireUuid(value?.userId, 'user ID') };
   if (action === 'delete_account') return { action, userId: requireUuid(value?.userId, 'user ID') };
-  if (action === 'issue_class_credentials') return { action, classId: requireUuid(value?.classId, 'class ID') };
+  if (action === 'issue_class_credentials') {
+    const classId=requireUuid(value?.classId,'class ID');
+    if(value?.studentIds===undefined) return {action,classId,studentIds:null};
+    if(!Array.isArray(value.studentIds)||!value.studentIds.length||value.studentIds.length>100) throw new Error('Select 1–100 students for login cards.');
+    const studentIds=value.studentIds.map(id=>requireUuid(id,'student ID'));
+    if(new Set(studentIds).size!==studentIds.length) throw new Error('Duplicate student selection.');
+    return {action,classId,studentIds};
+  }
   if (action === 'set_active') {
     const userId = requireUuid(value?.userId, 'user ID');
     if (typeof value?.active !== 'boolean') throw new Error('Active state must be a boolean.');
