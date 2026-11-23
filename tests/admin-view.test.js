@@ -127,3 +127,17 @@ test('activity renders never-started students without fake progression or inacti
   assert.doesNotMatch(target.innerHTML, /Inactive 7\+ days/);
   assert.doesNotMatch(target.innerHTML, /Meaning: recognise/);
 });
+
+test('class roster displays comma-containing imported names as single entries with correct count', () => {
+  const target = root();
+  const names = ['PAN, Chenghao (Gabriel)', 'WANG, Dao (Eric)', 'ZHANG, Muzhi (Vito)', 'ZHANG, Zeen (Zeen)'];
+  const students = names.map((displayName,i) => ({id:'s'+i,displayName,email:'student'+i+'@example.test'}));
+  renderAdmin(target, {
+    profile:{display_name:'Admin',role:'admin'},section:'classes',accounts:[],
+    classes:[{id:'c1',className:'G9 ESL 4',active:true,students,teachers:[]}]
+  });
+  assert.match(target.innerHTML, /View 4 students/);
+  assert.equal((target.innerHTML.match(/data-student-id="s\d"/g)||[]).length,4);
+  for(const name of names) assert.ok(target.innerHTML.includes('<li data-student-id="s'+names.indexOf(name)+'">'+name+'</li>'), name+' should be one entry');
+  assert.doesNotMatch(target.innerHTML, /<p class="muted">PAN, Chenghao/);
+});

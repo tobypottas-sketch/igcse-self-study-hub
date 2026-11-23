@@ -73,36 +73,8 @@ function enhanceExistingCredentialSheet(sheet) {
   if (printButton) printButton.textContent = 'Open login cards';
 }
 
-function enhanceClassRoster(card) {
-  if (!card || card.dataset.rosterEnhanced === 'true') return;
-  card.dataset.rosterEnhanced = 'true';
-  const sections = [...(card.children ?? [])];
-  const studentSection = sections.find(section => section.querySelector?.('strong')?.textContent?.trim() === 'Students');
-  const paragraph = studentSection?.querySelector?.('p.muted');
-  if (!studentSection || !paragraph || /No students yet/i.test(paragraph.textContent ?? '')) return;
-
-  const names = String(paragraph.textContent ?? '').split(/,\s*/).map(name => name.trim()).filter(Boolean);
-  if (!names.length) return;
-
-  const details = card.ownerDocument.createElement('details');
-  details.className = 'admin-class-roster';
-  const summary = card.ownerDocument.createElement('summary');
-  summary.textContent = `View ${names.length} student${names.length === 1 ? '' : 's'}`;
-  const list = card.ownerDocument.createElement('ul');
-  list.className = 'admin-class-roster__list';
-  for (const name of names) {
-    const item = card.ownerDocument.createElement('li');
-    item.textContent = name;
-    list.append(item);
-  }
-  details.append(summary, list);
-  studentSection.innerHTML = '<strong>Students</strong>';
-  studentSection.append(details);
-}
-
 function enhanceClassCards(root) {
   for (const card of root.querySelectorAll?.('.admin-class-card') ?? []) {
-    enhanceClassRoster(card);
     if (card.querySelector?.('[data-action="admin-issue-class-credentials"]')) continue;
     const deleteButton = card.querySelector?.('[data-action="admin-delete-class"]');
     if (!deleteButton) continue;

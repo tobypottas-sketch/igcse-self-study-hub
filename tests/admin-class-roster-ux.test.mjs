@@ -5,11 +5,13 @@ import fs from 'node:fs';
 const credentialPrint = fs.readFileSync(new URL('../src/admin/credential-print.js', import.meta.url), 'utf8');
 const credentialCss = fs.readFileSync(new URL('../credential-print.css', import.meta.url), 'utf8');
 
-test('class cards replace the long names paragraph with a collapsible roster', () => {
-  assert.match(credentialPrint, /function enhanceClassRoster/);
-  assert.match(credentialPrint, /createElement\('details'\)/);
-  assert.match(credentialPrint, /admin-class-roster/);
-  assert.match(credentialPrint, /View \$\{names\.length\} student/);
+test('class roster is generated from student records, never splitting student names at commas', () => {
+  const view = fs.readFileSync(new URL('../src/views/admin.js', import.meta.url), 'utf8');
+  assert.match(view, /class="admin-class-roster"/);
+  assert.match(view, /data-student-id=/);
+  assert.ok(view.includes('c.students.length'));
+  assert.ok(!credentialPrint.includes("split(/,\\\\s*/)"), 'Do not split class rosters using commas');
+  assert.ok(!credentialPrint.includes('enhanceClassRoster'), 'Legacy comma splitter must be removed');
 });
 
 test('generated login cards use a modal with an explicit close action', () => {
