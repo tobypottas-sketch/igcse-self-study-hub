@@ -160,3 +160,31 @@
     filter:none;
   }
 }
+
+/* Unit 4: match the full-height, edge-to-edge hero artwork treatment used by Unit 9.
+   Keep this scoped to Unit 4 so the remaining units can be migrated deliberately. */
+@media (min-width:761px){
+  .vocab-shell[data-unit-number="4"] .vocab-unit-hero.has-study-art{
+    min-height:0;
+    padding-right:42%!important;
+  }
+  .vocab-shell[data-unit-number="4"] .vocab-unit-hero__art{
+    top:0;
+    right:0;
+    bottom:0;
+    width:40%;
+    height:100%;
+    display:block;
+  }
+  .vocab-shell[data-unit-number="4"] .vocab-unit-hero__art-image,
+  .vocab-shell[data-unit-number="4"] .vocab-unit-hero__art picture,
+  .vocab-shell[data-unit-number="4"] .vocab-unit-hero__art [data-art-delivery],
+  .vocab-shell[data-unit-number="4"] .vocab-unit-hero__art .study-art__png{
+    display:block;
+    width:100%;
+    height:100%;
+    max-height:none;
+    object-fit:cover;
+    filter:none;
+  }
+}
