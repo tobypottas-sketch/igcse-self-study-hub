@@ -35,5 +35,5 @@ test('shop button hover and keyboard focus have high-contrast foreground on colo
   assert.match(rule,/background:#[0-9a-f]{6}!important;/);
  }
  assert.match(css,/button\.is-owned:disabled\s*\{[^}]*color:#176c53!important;/);
- assert.match(html,/vocabulary-rewards\.css\?v=reward-hover-contrast-v2/);
+ assert.match(html,/vocabulary-rewards\.css\?v=shop-frame-clean-v1/);
 });
