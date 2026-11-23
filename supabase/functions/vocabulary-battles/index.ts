@@ -79,11 +79,11 @@ Deno.serve(async req=>{
     const ids=[...new Set((classMembers??[]).map(m=>m.student_id))];
     const {data:students,error:sError}=await db.from('profiles').select('id,display_name').in('id',ids).eq('role','student').eq('active',true);
     if(sError)return respond({error:'Students unavailable.'},503);
-    const {data:matches,error:bError}=await db.from('vocabulary_battles').select('id,class_id,challenger_id,opponent_id,unit_number,status,created_at,expires_at,starts_at,ends_at')
+    const {data:matches,error:bError}=await db.from('vocabulary_battles').select('id,class_id,challenger_id,opponent_id,unit_number,status,created_at,expires_at,challenger_ready_at,opponent_ready_at,starts_at,ends_at')
       .eq('class_id',classId).or(`challenger_id.eq.${uid},opponent_id.eq.${uid}`).order('created_at',{ascending:false}).limit(20);
     if(bError)return respond({error:'Challenges unavailable.'},503);
     const pending=(matches??[]).filter(b=>b.status==='pending'&&date(b.expires_at)>now());
-    const active=(matches??[]).filter(b=>b.status==='accepted'&&date(b.ends_at)>now());
+    const active=(matches??[]).filter(b=>b.status==='accepted'&&(!b.ends_at?date(b.expires_at)>now():date(b.ends_at)>now()));
     return respond({ok:true,me:uid,className:allowed.get(classId),classes:[...allowed].map(([id,name])=>({id,name})),
       students:(students??[]).filter(s=>s.id!==uid).sort((a,b)=>a.display_name.localeCompare(b.display_name)),
       pending,active});
@@ -100,7 +100,7 @@ Deno.serve(async req=>{
       .or(`challenger_id.eq.${uid},opponent_id.eq.${uid}`).order('created_at',{ascending:false}).limit(20);
     if((previous??[]).filter(b=>b.status==='pending'&&date(b.expires_at)>now()).length>=3)
       return respond({error:'You already have three open challenges. Wait for a response.'},429);
-    if((previous??[]).some(b=>b.status==='accepted'&&date(b.ends_at)>now()))
+    if((previous??[]).some(b=>b.status==='accepted'&&(!b.ends_at?date(b.expires_at)>now():date(b.ends_at)>now())))
       return respond({error:'Finish your current battle first.'},409);
     const questions=shuffle(BANK.filter(q=>q.unit===unit)).slice(0,LIMIT).map(q=>q.id);
     const {data:created,error:newError}=await db.from('vocabulary_battles').insert({class_id:classId,challenger_id:uid,opponent_id:opponent,unit_number:unit,question_ids:questions}).select('id').single();
@@ -140,22 +140,46 @@ Deno.serve(async req=>{
     if(b.status!=='pending'||date(b.expires_at)<=now())return respond({error:'This invitation is no longer available.'},409);
     if(action==='cancel'&&uid!==b.challenger_id)return respond({error:'Only the challenger can cancel.'},403);
     if(action!=='cancel'&&uid!==b.opponent_id)return respond({error:'Only the invited student can reply.'},403);
-    const start=new Date(now()+7000),end=new Date(start.getTime()+DURATION);
-    const changes=action==='accept'?{status:'accepted',starts_at:start.toISOString(),ends_at:end.toISOString()}:{status:action==='decline'?'declined':'cancelled'};
+    const changes=action==='accept'?{status:'accepted',expires_at:new Date(now()+600000).toISOString()}:{status:action==='decline'?'declined':'cancelled'};
     const {data:updated,error:uError}=await db.from('vocabulary_battles').update(changes).eq('id',battleId).eq('status','pending').select('id').maybeSingle();
     if(uError||!updated)return respond({error:'Invitation already handled.'},409);
     return respond({ok:true,status:changes.status});
+  }
+  if(b.status==='accepted'&&!b.starts_at&&date(b.expires_at)<=now()){
+    await db.from('vocabulary_battles').update({status:'cancelled'}).eq('id',battleId).eq('status','accepted').is('starts_at',null);
+    return respond({error:'Battle expired while waiting for both players to get ready.'},409);
+  }
+  if(action==='ready'){
+    if(b.status!=='accepted'||b.starts_at)return respond({error:'The countdown has already started, or the invitation is closed.'},409);
+    const key=opponentSide?'opponent_ready_at':'challenger_ready_at';
+    if(b[key])return respond({ok:true,ready:true});
+    const {data:updated,error:readyError}=await db.from('vocabulary_battles')
+     .update({[key]:new Date().toISOString()}).eq('id',battleId).eq('status','accepted').is('starts_at',null).is(key,null)
+     .select('id').maybeSingle();
+    if(readyError||!updated)return respond({error:'Could not confirm readiness. Refresh the battle.'},409);
+    return respond({ok:true,ready:true});
+  }
+  if(action==='status'&&b.status==='accepted'&&!b.starts_at&&b.challenger_ready_at&&b.opponent_ready_at){
+    const start=new Date(now()+5000),end=new Date(start.getTime()+DURATION);
+    const {data:started}=await db.from('vocabulary_battles').update({starts_at:start.toISOString(),ends_at:end.toISOString()})
+      .eq('id',battleId).eq('status','accepted').is('starts_at',null).select('starts_at,ends_at').maybeSingle();
+    if(started){b.starts_at=started.starts_at;b.ends_at=started.ends_at;}
+    else {
+      const {data:fresh}=await db.from('vocabulary_battles').select('starts_at,ends_at').eq('id',battleId).single();
+      if(fresh){b.starts_at=fresh.starts_at;b.ends_at=fresh.ends_at;}
+    }
   }
   const ids=b.question_ids as string[];
   const field=opponentSide?'opponent_answers':'challenger_answers';
   const own=(b[field]??[]) as {i:number;choice:number}[];
   const otherAnswers=(b[opponentSide?'challenger_answers':'opponent_answers']??[]) as {i:number;choice:number}[];
-  const timedOut=b.status==='accepted'&&date(b.ends_at)<=now();
+  const started=Boolean(b.starts_at&&b.ends_at);
+  const timedOut=b.status==='accepted'&&started&&date(b.ends_at)<=now();
   const completed=own.length>=ids.length;
   const opponentsDone=otherAnswers.length>=ids.length;
   const settled=b.status==='accepted'&&(timedOut||(completed&&opponentsDone));
   if(action==='answer'){
-    if(b.status!=='accepted'||now()<date(b.starts_at)||timedOut||completed)return respond({error:'The battle is not accepting answers.'},409);
+    if(b.status!=='accepted'||!started||now()<date(b.starts_at)||timedOut||completed)return respond({error:'The battle is not accepting answers.'},409);
     const i=Number(input?.index),choice=Number(input?.choice);
     if(i!==own.length||!Number.isInteger(choice)||choice<0||choice>3)return respond({error:'Answer is out of order. Refresh your battle.'},409);
     const {data:updated,error:uError}=await db.from('vocabulary_battles')
@@ -172,9 +196,11 @@ Deno.serve(async req=>{
    classId:b.class_id,className:allowed.get(b.class_id),challengerId:b.challenger_id,
    challengerName:nameMap.get(b.challenger_id),opponentName:nameMap.get(b.opponent_id),
    startsAt:b.starts_at,endsAt:b.ends_at,expiresAt:b.expires_at,
+   ready:Boolean(b[opponentSide?'opponent_ready_at':'challenger_ready_at']),
+   opponentReady:Boolean(b[opponentSide?'challenger_ready_at':'opponent_ready_at']),
    answered:own.length,opponentAnswered:otherAnswers.length,total:ids.length,
    score:result(own,ids),opponentScore:settled?result(otherAnswers,ids):null,
-   question:b.status==='accepted'&&!timedOut&&now()>=date(b.starts_at)&&!completed&&current?noAnswer(current):null,
+   question:b.status==='accepted'&&started&&!timedOut&&now()>=date(b.starts_at)&&!completed&&current?noAnswer(current):null,
    finished:settled,
    outcome:settled?(result(own,ids)>result(otherAnswers,ids)?'won':result(own,ids)<result(otherAnswers,ids)?'lost':'draw'):null});
  }catch(error){console.error('Vocabulary Battles request error',error);return respond({error:'Battle request could not be completed.'},503);}
