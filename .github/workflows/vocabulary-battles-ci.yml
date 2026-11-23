@@ -9,6 +9,9 @@ on:
       - 'vocabulary-battles.*'
       - 'tests/vocabulary-battles.test.js'
       - 'tests/vocabulary-battles-api.test.js'
+      - 'tests/vocabulary-battles-banner-animation.test.js'
+      - 'vocabulary-home-polish.css'
+      - 'vocabulary.html'
       - '.github/workflows/vocabulary-battles-ci.yml'
   push:
     branches: [main]
@@ -19,6 +22,9 @@ on:
       - 'vocabulary-battles.*'
       - 'tests/vocabulary-battles.test.js'
       - 'tests/vocabulary-battles-api.test.js'
+      - 'tests/vocabulary-battles-banner-animation.test.js'
+      - 'vocabulary-home-polish.css'
+      - 'vocabulary.html'
 jobs:
   safety-and-types:
     runs-on: ubuntu-latest
@@ -31,7 +37,7 @@ jobs:
       - name: Check standalone arena JavaScript
         run: node --check src/vocabulary/battles-app.js
       - name: Verify battle safety and content
-        run: node --test tests/vocabulary-battles.test.js tests/vocabulary-battles-api.test.js
+        run: node --test tests/vocabulary-battles.test.js tests/vocabulary-battles-api.test.js tests/vocabulary-battles-banner-animation.test.js
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
