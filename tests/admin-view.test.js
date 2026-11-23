@@ -137,7 +137,7 @@ test('class roster displays comma-containing imported names as single entries wi
     classes:[{id:'c1',className:'G9 ESL 4',active:true,students,teachers:[]}]
   });
   assert.match(target.innerHTML, /View 4 students/);
-  assert.equal((target.innerHTML.match(/data-student-id="s\\d"/g)||[]).length,4);
+  assert.equal((target.innerHTML.match(/data-student-id="s\d"/g)||[]).length,4);
   for(const name of names) assert.ok(target.innerHTML.includes('<li data-student-id="s'+names.indexOf(name)+'">'+name+'</li>'), name+' should be one entry');
   assert.doesNotMatch(target.innerHTML, /<p class="muted">PAN, Chenghao/);
 });
