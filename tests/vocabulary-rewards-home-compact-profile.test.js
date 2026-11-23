@@ -78,5 +78,5 @@ test('home always provides shop navigation even when verified wallet or catalogu
  assert.match(html,/router\.js\?v=battles-mvp-v1/);
  assert.match(html,/vocabulary-rewards-dashboard\.css\?v=shop-recovery-v9/);
  assert.match(router,/app\.js\?v=battles-mvp-v1/);
- assert.match(app,/rewards-equipped-home\.js\?v=battles-mvp-v1/);
+ assert.match(app,/rewards-equipped-home\.js\?v=study-hud-v1/);
 });
