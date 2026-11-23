@@ -35,7 +35,7 @@ function renderLobby(){
   const received=b.opponent_id===lobby.me,who=names.get(received?b.challenger_id:b.opponent_id)??'Classmate';
   return '<article class="battle-request"><div><strong>'+e(who)+'</strong><small>Unit '+e(b.unit_number)+' · '+(received?'Challenged you':'Invitation sent')+'</small></div><div class="battle-request-actions">'+(received?button('Accept ⚔️','accept','data-id="'+e(b.id)+'"')+button('Decline','decline','data-id="'+e(b.id)+'"'):button('Cancel','cancel','data-id="'+e(b.id)+'"'))+'</div></article>';
  }).join('')||'<p class="battle-empty">No open challenges. Invite someone to start!</p>';
- const active=(lobby.active??[]).map(b=>'<article class="battle-request"><div><strong>Unit '+e(b.unit_number)+' battle</strong><small>Challenge accepted · battle timer is running</small></div>'+button('Enter arena →','enter','data-id="'+e(b.id)+'"')+'</article>').join('');
+ const active=(lobby.active??[]).map(b=>'<article class="battle-request"><div><strong>Unit '+e(b.unit_number)+' battle</strong><small>Challenge accepted · enter the ready room</small></div>'+button('Enter arena →','enter','data-id="'+e(b.id)+'"')+'</article>').join('');
  const rows=state.board.map((row,i)=>'<tr><td>'+(i+1)+'</td><th scope="row">'+e(row.name)+(row.id===lobby.me?' <span class="battle-you">YOU</span>':'')+'</th><td>'+row.wins+'</td><td>'+row.played+'</td><td>'+row.score+'</td></tr>').join('')||'<tr><td colspan="5">Finish the first battle to start the rankings.</td></tr>';
  return title('WELCOME TO THE ARENA','Vocabulary Battles','Challenge a classmate. Ten shared questions. Sixty seconds. One winner.')
  +'<div class="battle-class-controls">'+classMenu+'<span>⚡ No XP at stake · progress stays untouched</span></div>'
@@ -56,7 +56,8 @@ function renderMatch(){
  else if(b.finished){
   const desc=b.outcome==='won'?'You won the battle! 🏆':b.outcome==='lost'?'Your classmate takes this round.':'It’s a draw!';
   body='<div class="battle-finish"><p class="battle-kicker">FINAL RESULT</p><h2>'+desc+'</h2><p>Your score: <strong>'+b.score+'</strong> · Classmate: <strong>'+b.opponentScore+'</strong></p><p>Ready for a rematch? Head back to the lobby.</p></div>';
- } else if(starts>0)body='<div class="battle-countdown" role="status"><span>Get ready!</span><strong>'+starts+'</strong><p>Both players receive the same ten questions.</p></div>';
+ } else if(!b.startsAt)body='<div class="battle-ready"><p class="battle-kicker">READY ROOM</p><h2>Both players must be ready</h2><p>Your classmate: '+(b.opponentReady?'✅ Ready':'⏳ Not ready yet')+'</p><p>You: '+(b.ready?'✅ Ready':'⏳ Waiting for you')+'</p>'+(b.ready?'<p>Waiting for your classmate to get ready. The clock has not started.</p>':button('I’m ready ⚔️','ready','data-primary'))+'</div>';
+ else if(starts>0)body='<div class="battle-countdown" role="status"><span>Get ready!</span><strong>'+starts+'</strong><p>Both players receive the same ten questions.</p></div>';
  else if(!remaining)body='<h2>Time is up!</h2><p>Collecting the final scores…</p>';
  else if(b.question)body='<div class="battle-question"><div class="battle-question-meta"><span>Question '+(b.answered+1)+' / '+b.total+'</span><strong data-time-left>'+remaining+'s left</strong></div><h2>'+e(b.question.prompt)+'</h2><div class="battle-options">'+b.question.options.map((option,i)=>button('<span class="battle-option-letter">'+String.fromCharCode(65+i)+'</span>'+e(option),'answer','data-choice="'+i+'"')).join('')+'</div><p>Choose the best answer. +100 points per correct response.</p></div>';
  else body='<h2>All ten answered!</h2><p>Waiting for your classmate or the countdown to finish…</p>';
@@ -83,7 +84,11 @@ async function act(action,target){
  if(action==='enter'){state.battleId=target.dataset.id;state.battle=null;await refresh();return;}
  state.busy=true;state.error='';state.flash='';
  try{
-  if(action==='challenge'){
+  if(action==='ready'){
+   if(!state.battleId)return;
+   await api({action:'ready',battleId:state.battleId});
+   state.flash='Ready! The battle countdown starts when both students are ready.';
+  }else if(action==='challenge'){
    if(!state.opponent)throw new Error('Choose a classmate.');
    await api({action:'challenge',classId:state.classId,opponentId:state.opponent,unitNumber:state.unit});
    state.flash='Challenge sent! Your classmate can accept it from this screen.';
