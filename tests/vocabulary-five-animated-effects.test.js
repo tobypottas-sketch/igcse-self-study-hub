@@ -96,6 +96,6 @@ test('browser loads animation CSS and refreshed equipped renderer',()=>{
  const html=read('vocabulary.html'),app=read('src/vocabulary/app.js'),router=read('src/vocabulary/router.js');
  assert.match(html,/vocabulary-effects-animated\.css\?v=rainbow-full-colour-motion-v1/);
  assert.match(html,/router\.js\?v=battles-mvp-v1/);
- assert.match(app,/rewards-equipped-home\.js\?v=battles-mvp-v1/);
+ assert.match(app,/rewards-equipped-home\.js\?v=study-hud-v1/);
  assert.match(router,/app\.js\?v=battles-mvp-v1/);
 });
