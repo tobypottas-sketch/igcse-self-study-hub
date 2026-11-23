@@ -68,7 +68,7 @@ function createHarness(){
     function run(single){
      if(op==='insert'){
       const row={id:MATCH,status:'pending',created_at:new Date().toISOString(),expires_at:new Date(Date.now()+600000).toISOString(),
-        starts_at:null,ends_at:null,challenger_answers:[],opponent_answers:[],...payload};
+        starts_at:null,ends_at:null,challenger_ready_at:null,opponent_ready_at:null,challenger_answers:[],opponent_answers:[],...payload};
       matches.push(row);return {data:single?row:[row],error:null};
      }
      let rows=sources[table].filter(matchesFilters);
