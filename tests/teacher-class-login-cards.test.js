@@ -94,7 +94,8 @@ test('teacher interface scopes selection and requires explicit acknowledgement',
  assert.match(ui,/action:'issue_class_credentials'/);
  assert.match(ui,/renderLoginCards\(result\.created/);
  assert.match(app,/teacher-create-login-cards/);
- assert.match(view,/Create student login cards/);
+ assert.match(app,/Create student login cards/);
+ assert.doesNotMatch(view,/data-action="teacher-create-login-cards"/);
 });
 
 test('teacher login cards are a shared dashboard action and use a deliberate class dropdown',()=>{
