@@ -212,7 +212,11 @@ Deno.serve(async (req: Request) => {
         .is('ended_at', null);
       if (membershipError) return jsonResponse({ error:membershipError.message }, { status:400 });
 
-      const studentIds = (memberships ?? []).map(item => item.student_id);
+      const classStudentIds=[...new Set((memberships??[]).map(item=>item.student_id))];
+      const studentIds=input.studentIds??classStudentIds;
+      if(studentIds.length>100) return jsonResponse({error:'Maximum 100 students per login-card batch.'},{status:400});
+      if(studentIds.some(id=>!classStudentIds.includes(id)))
+        return jsonResponse({error:'Selected students must belong to this active class.'},{status:403});
       if (!studentIds.length) return jsonResponse({ ok:true, created:[], failed:[] });
 
       const { data:students, error:studentsError } = await adminClient
@@ -221,9 +225,11 @@ Deno.serve(async (req: Request) => {
         .in('id', studentIds);
       if (studentsError) return jsonResponse({ error:studentsError.message }, { status:400 });
 
+      const activeById=new Map((students??[]).filter(student=>student.role==='student'&&student.active).map(student=>[student.id,student]));
+      if(input.studentIds && studentIds.some(id=>!activeById.has(id)))
+        return jsonResponse({error:'Selected students must be active accounts in this class.'},{status:409});
       const issuedPasswords = new Set<string>();
-      const credentialPlans = (students ?? [])
-        .filter(student => student.role === 'student' && student.active)
+      const credentialPlans = studentIds.map(id=>activeById.get(id)).filter(Boolean)
         .map(student => {
           let password = generateStudentPassword();
           while (issuedPasswords.has(password)) password = generateStudentPassword();
