@@ -42,7 +42,7 @@ async function openNGSLReport(initialClassId) {
  renderNGSLPolishedReport(teacherState.root,teacherState.ngslReportData,teacherState.ngslClassId,teacherState.profile.role==='admin');
 }
 async function openStaffStudentPasswords(){
- const {openTeacherPasswordManager}=await import('./teacher-password-manager.js?v=teacher-password-reset-v1');
+ const {openTeacherPasswordManager}=await import('./teacher-password-manager.js?v=teacher-password-reset-v2');
  await openTeacherPasswordManager(teacherState.root,teacherState.client,renderClassChooser,teacherState.data.classes);
 }
 function backFromNGSLReport(){

@@ -171,8 +171,10 @@ Deno.serve(async (req: Request) => {
         ]);
         if (actorLimitError || studentLimitError)
           return jsonResponse({error:'Reset auditing is unavailable.'},{status:503});
-        if ((actorCount??0)>=8 || (studentCount??0)>=3)
-          return jsonResponse({error:'Password reset limit reached. Please contact an administrator.'},{status:429});
+        if ((actorCount??0)>=30)
+          return jsonResponse({error:'Teacher reset limit reached (30 in a rolling hour). Please try again after earlier resets expire, or contact an administrator.'},{status:429});
+        if ((studentCount??0)>=3)
+          return jsonResponse({error:'This student has reached the limit of 3 password resets in 24 hours. Please contact an administrator.'},{status:429});
         const {data:audit,error:auditError}=await adminClient.from('teacher_student_password_reset_events')
           .insert({actor_id:callerData.user.id,student_id:input.userId}).select('id').single();
         if (auditError || !audit)

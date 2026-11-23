@@ -14,15 +14,22 @@ export async function openTeacherPasswordManager(root,client,onBack,assignedClas
   }
   return data;
  }
- let rows=[],selected=null,busy=false,query='',classId='all';
+ let rows=[],selected=null,busy=false,query='',classId='all',credential=null;
  const render=()=>{
   const classes=[...new Set(rows.map(x=>x.classId))];
   const classNames=new Map(assignedClasses.map(c=>[c.id,c.className]));
   const matches=rows.filter(x=>(classId==='all'||x.classId===classId)&&[x.name,x.email].join(' ').toLowerCase().includes(query.toLowerCase())).sort((a,b)=>a.name.localeCompare(b.name));
-  card.innerHTML='<div class="teacher-password-top"><div><h2>Students</h2><p>'+rows.length+' eligible accounts · select a student to reset</p></div><div class="teacher-password-controls"><input type="search" data-pw-search aria-label="Search student name or email" placeholder="Find student…" value="'+e(query)+'"><select data-pw-class aria-label="Filter by class"><option value="all">All my classes</option>'+classes.map(id=>'<option value="'+e(id)+'"'+(classId===id?' selected':'')+'>'+e(classNames.get(id)||'Class')+'</option>').join('')+'</select></div></div>'+
+  card.innerHTML=(credential?'<aside class="teacher-password-credential" data-pw-credential tabindex="-1" role="status"><p class="teacher-password-success">Password reset successfully</p><h2>'+e(credential.name)+'</h2><p><strong>Email:</strong> '+e(credential.email)+'</p><p class="teacher-password-credential-label">New temporary password</p><div class="teacher-password-result"><code data-pw-secret>'+e(credential.password)+'</code><button type="button" data-pw-copy>Copy</button></div><p class="teacher-password-small">Show this password to the student now. It cannot be retrieved after you hide it or leave this page.</p><button type="button" data-pw-hide>Hide password</button></aside>':'')+'<div class="teacher-password-top"><div><h2>Students</h2><p>'+rows.length+' eligible accounts · select a student to reset</p></div><div class="teacher-password-controls"><input type="search" data-pw-search aria-label="Search student name or email" placeholder="Find student…" value="'+e(query)+'"><select data-pw-class aria-label="Filter by class"><option value="all">All my classes</option>'+classes.map(id=>'<option value="'+e(id)+'"'+(classId===id?' selected':'')+'>'+e(classNames.get(id)||'Class')+'</option>').join('')+'</select></div></div>'+
    '<div class="teacher-password-list" role="list">'+(matches.length?matches.slice(0,100).map(r=>'<div role="listitem" class="teacher-password-row"><div><strong>'+e(r.name)+'</strong><small>'+e(r.email)+'</small></div><button type="button" data-pw-student="'+e(r.id)+'" '+(busy?'disabled':'')+'>Reset password</button></div>').join(''):'<p class="teacher-password-empty">No students match your search.</p>')+'</div>'+
    (matches.length>100?'<p class="teacher-password-small">Showing the first 100 matches. Search for another student to narrow the list.</p>':'')+
    '<p class="teacher-password-small">For security, a new temporary password is generated automatically. Share it privately with the student.</p>';
+  if(credential){
+   card.querySelector('[data-pw-copy]').addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(credential.password);card.querySelector('[data-pw-copy]').textContent='Copied';}
+    catch{card.querySelector('[data-pw-secret]')?.focus();card.querySelector('[data-pw-copy]').textContent='Select password to copy';}
+   });
+   card.querySelector('[data-pw-hide]').addEventListener('click',()=>{credential=null;render();});
+  }
   const input=card.querySelector('[data-pw-search]');
   input.addEventListener('input',ev=>{query=ev.target.value;const position=ev.target.selectionStart;render();const next=card.querySelector('[data-pw-search]');next.focus();next.setSelectionRange(position,position);});
   card.querySelector('[data-pw-class]').addEventListener('change',ev=>{classId=ev.target.value;render();});
@@ -41,12 +48,15 @@ export async function openTeacherPasswordManager(root,client,onBack,assignedClas
    busy=true;const btn=dialog.querySelector('[data-pw-confirm]');btn.disabled=true;btn.textContent='Resetting…';
    try{
     const result=await api({action:'reset_password',userId:selected.id});
-    dialog.innerHTML='<div class="teacher-password-modal"><p class="teacher-password-success">Password reset successfully</p><h2>'+e(result.name)+'</h2><p>One-time temporary password:</p><div class="teacher-password-result"><code data-pw-secret>'+e(result.temporaryPassword)+'</code><button type="button" data-pw-copy>Copy</button></div><p class="teacher-password-small">This password will disappear when you close this window. Keep it private.</p><div class="teacher-password-modal-actions"><button type="button" data-pw-done class="teacher-password-primary">Done</button></div></div>';
-    dialog.querySelector('[data-pw-copy]').addEventListener('click',async()=>{
-     try{await navigator.clipboard.writeText(result.temporaryPassword);dialog.querySelector('[data-pw-copy]').textContent='Copied';}
-     catch{dialog.querySelector('[data-pw-copy]').textContent='Select password to copy';}
-    });
-    dialog.querySelector('[data-pw-done]').addEventListener('click',close);
+    if(typeof result?.temporaryPassword!=='string'||!result.temporaryPassword){
+     dialog.innerHTML='<div class="teacher-password-modal"><h2>Password changed, but not displayed</h2><p role="alert">The password service did not return the new password. Contact an administrator; do not try the old password.</p><button type="button" data-pw-done>Close</button></div>';
+     dialog.querySelector('[data-pw-done]').addEventListener('click',close);
+     return;
+    }
+    credential={name:selected.name,email:selected.email,password:result.temporaryPassword};
+    close();
+    render();
+    card.querySelector('[data-pw-credential]')?.focus();
    }catch(err){dialog.innerHTML='<div class="teacher-password-modal"><h2>Reset not completed</h2><p role="alert">'+e(err.message)+'</p><button type="button" data-pw-done>Close</button></div>';dialog.querySelector('[data-pw-done]').addEventListener('click',close);}
    finally{busy=false;}
   });
