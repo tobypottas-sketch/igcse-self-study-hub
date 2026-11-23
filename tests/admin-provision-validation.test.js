@@ -35,7 +35,7 @@ test('reset password validates target id and client action', async () => {
 
 test('class credential issuance validates class id and uses one explicit admin action', async () => {
   assert.throws(() => validateAdminProvisionRequest({ action:'issue_class_credentials', classId:'bad' }), /class/i);
-  assert.deepEqual(validateAdminProvisionRequest({ action:'issue_class_credentials', classId }), { action:'issue_class_credentials', classId });
+  assert.deepEqual(validateAdminProvisionRequest({ action:'issue_class_credentials', classId }), { action:'issue_class_credentials', classId, studentIds:null });
   assert.equal(typeof accounts.issueClassCredentials, 'function');
   const client = fakeClient({ data:{ ok:true, created:[], failed:[] }, error:null });
   await accounts.issueClassCredentials(client, classId);
