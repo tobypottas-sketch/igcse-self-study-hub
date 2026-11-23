@@ -82,7 +82,7 @@ function phaseFor(b){
 }
 function matchSignature(b){
  const phase=phaseFor(b);
- return 'match:'+state.battleId+':'+phase+':'+(b?.answered??0)+':'+(b?.question?.id??'')+':'+(b?.ready??false)+':'+(b?.opponentReady??false)+':'+(b?.opponentAnswered??0)+':'+(b?.score??0)+':'+(b?.outcome??'');
+ // Opponent progress and scores are HUD data, not screen identity: updating them\n // must NEVER replace the active answer buttons or keyboard focus.\n return 'match:'+state.battleId+':'+phase+':'+(b?.answered??0)+':'+(b?.question?.id??'')+':'+(b?.ready??false)+':'+(b?.opponentReady??false)+':'+(b?.outcome??'');
 }
 function matchup(b){
  const rival=b.challengerId===state.profile.id?b.opponentName:b.challengerName;
