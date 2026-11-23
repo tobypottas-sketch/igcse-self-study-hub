@@ -52,6 +52,6 @@ test('Existing equipped animations, real CSS motion and reduced-motion support r
  assert.match(previewCss,/@keyframes vocab-sparkle-glimmer/);
  assert.match(previewCss,/@keyframes vocab-stardust-trail-flow/);
  assert.match(html,/vocabulary-effect-shop-previews\.css\?v=effects-full-colour-v1/);
- assert.match(html,/router\.js\?v=leaderboard-stable-v1/);
+ assert.match(html,/router\.js\?v=student-rows-v1/);
  assert.match(app,/rewards-sandbox-view\.js\?v=blockverse-v1/);
 });
