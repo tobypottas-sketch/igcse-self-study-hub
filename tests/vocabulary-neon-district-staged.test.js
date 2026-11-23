@@ -119,12 +119,12 @@ test('Electric Pulse actually animates the avatar aura, including mini profile, 
  assert.match(css,/@keyframes vocab-electric-pulse-ring/);
  assert.match(css,/@keyframes vocab-electric-pulse-art/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
- const reduced=css.slice(css.lastIndexOf('@media(prefers-reduced-motion:reduce)'));
+ const reduced=css.slice(css.indexOf('@media(prefers-reduced-motion:reduce)',css.indexOf('@keyframes vocab-electric-pulse-art')));
  assert.match(reduced,/vocab-real-effect--electric-pulse/);
  assert.match(reduced,/animation:none!important/);
  assert.match(css,/\.vocab-student-identity-mini \.vocab-student-identity__effect\{/);
  assert.match(css,/\.vocab-student-identity__initials\{z-index:2\}/);
  assert.match(css,/@media print,\(forced-colors:active\)/);
  assert.doesNotMatch(css,/\.vocab-answer--correct|\.vocab-answer--wrong/);
- assert.match(html,/vocabulary-effects-animated\.css\?v=electric-pulse-motion-v2/);
+ assert.match(html,/vocabulary-effects-animated\.css\?v=rainbow-full-colour-motion-v1/);
 });

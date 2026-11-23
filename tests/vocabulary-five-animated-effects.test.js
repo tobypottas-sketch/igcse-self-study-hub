@@ -94,8 +94,8 @@ test('catalogue staging is disabled, server-priced and does not mutate XP or own
 });
 test('browser loads animation CSS and refreshed equipped renderer',()=>{
  const html=read('vocabulary.html'),app=read('src/vocabulary/app.js'),router=read('src/vocabulary/router.js');
- assert.match(html,/vocabulary-effects-animated\.css\?v=electric-pulse-motion-v2/);
- assert.match(html,/router\.js\?v=profile-theme-caption-removed-v1/);
- assert.match(app,/rewards-equipped-home\.js\?v=profile-theme-caption-removed-v1/);
- assert.match(router,/app\.js\?v=profile-theme-caption-removed-v1/);
+ assert.match(html,/vocabulary-effects-animated\.css\?v=rainbow-full-colour-motion-v1/);
+ assert.match(html,/router\.js\?v=leaderboard-stable-v1/);
+ assert.match(app,/rewards-equipped-home\.js\?v=study-hud-v1/);
+ assert.match(router,/app\.js\?v=leaderboard-stable-v1/);
 });
