@@ -99,3 +99,15 @@
     font-size:clamp(.91rem,3.15vw,1.04rem)!important;
   }
 }
+
+/* Student-only Battle Arena launch card: bonus practice, separate from XP/mastery. */
+.vocab-battles-entry{display:flex;align-items:center;gap:18px;margin:16px 0 20px;padding:18px 22px;border-radius:20px;border:1.5px solid #4eb5b1;background:linear-gradient(110deg,#102b4b,#174b61 70%,#116359);box-shadow:0 12px 28px #08263c30;color:#f4fdff}
+.vocab-battles-entry__icon{width:62px;height:62px;flex:none;display:grid;place-items:center;border-radius:15px;background:#ffffff20;font-size:2.2rem}
+.vocab-battles-entry>div:nth-child(2){display:grid;gap:4px;flex:1;min-width:0}
+.vocab-battles-entry span{font-size:.68rem;letter-spacing:.13em;font-weight:900;color:#7aebd4}
+.vocab-battles-entry strong{font-size:1.3rem;letter-spacing:-.02em}
+.vocab-battles-entry small{font-size:.81rem;line-height:1.4;color:#d3e8eb}
+.vocab-battles-entry>a{flex:none;background:#94f4d5;color:#103d46;border-radius:11px;padding:12px 17px;font-size:.86rem;font-weight:900;text-decoration:none}
+.vocab-battles-entry>a:hover{background:#d6fff0}
+.vocab-battles-entry>a:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@media(max-width:620px){.vocab-battles-entry{flex-wrap:wrap;padding:16px}.vocab-battles-entry__icon{width:50px;height:50px;font-size:1.7rem}.vocab-battles-entry>a{width:100%;text-align:center}}
