@@ -13,6 +13,8 @@ create table if not exists public.vocabulary_battles (
  opponent_answers jsonb not null default '[]'::jsonb,
  created_at timestamptz not null default now(),
  expires_at timestamptz not null default (now()+interval '10 minutes'),
+ challenger_ready_at timestamptz,
+ opponent_ready_at timestamptz,
  starts_at timestamptz,
  ends_at timestamptz,
  constraint battle_different_students check(challenger_id<>opponent_id),
