@@ -56,8 +56,8 @@ function unitSelector(units) {
 function classPathwayPanel(analytics = {}, units = null) {
   const students = analytics?.studentRows ?? [];
   const scope = units?.selected === 'all' ? 'all units together' : units?.selectedTitle ? `Unit ${units.selected}: ${units.selectedTitle}` : '';
-  const head = `<tr><th scope="col">Student</th>${VOCABULARY_PATHWAYS.map(pathway => `<th scope="col">${escapeHtml(pathway.label)}</th>`).join('')}</tr>`;
-  const rows = students.map(student => `<tr><th scope="row">${escapeHtml(student.displayName)}</th>${VOCABULARY_PATHWAYS.map(pathway => matrixCell(pathway, student.pathways?.[pathway.id])).join('')}</tr>`).join('');
+  const head = `<tr><th scope="col" class="vocab-student-number">#</th><th scope="col">Student</th>${VOCABULARY_PATHWAYS.map(pathway => `<th scope="col">${escapeHtml(pathway.label)}</th>`).join('')}</tr>`;
+  const rows = students.map((student, index) => `<tr><td class="vocab-student-number">${index+1}</td><th scope="row">${escapeHtml(student.displayName)}</th>${VOCABULARY_PATHWAYS.map(pathway => matrixCell(pathway, student.pathways?.[pathway.id])).join('')}</tr>`).join('');
   const body = students.length
     ? `<div class="vocab-matrix-wrap" role="region" aria-label="Pathway progress by student" tabindex="0"><table class="vocab-matrix"><thead>${head}</thead><tbody>${rows}</tbody></table></div>`
     : '<p class="vocab-muted-line">No pathway evidence yet.</p>';
