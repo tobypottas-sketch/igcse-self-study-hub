@@ -7,6 +7,8 @@ on:
       - 'src/vocabulary/app.js'
       - 'src/vocabulary/views.js'
       - 'vocabulary-hero-unified.css'
+      - 'vocabulary-shop-theme-glass.css'
+      - 'tests/vocabulary-shop-theme-glass.test.js'
       - 'tests/vocabulary-staff-preview-hero-contrast.test.js'
       - 'tests/vocabulary-default-home-hero-contrast.test.js'
       - 'tests/vocabulary-classroom-lite-artwork.test.js'
@@ -65,7 +67,7 @@ jobs:
         with:
           node-version: '22'
       - name: Verify reward catalogue, XP parity fixtures and safe API contract
-        run: node --test tests/vocabulary-rewards-*.test.js tests/vocabulary-classroom-lite-artwork.test.js tests/vocabulary-neon-district-staged.test.js tests/vocabulary-premium-collections-foundation.test.js tests/vocabulary-legacy-immersive.test.js tests/vocabulary-immersive-shop-backgrounds.test.js tests/vocabulary-staff-preview-hero-contrast.test.js tests/vocabulary-celestial-realms.test.js tests/vocabulary-default-home-hero-contrast.test.js tests/vocabulary-original-theme-badges.test.js tests/vocabulary-five-animated-effects.test.js tests/vocabulary-profile-progression.test.js tests/vocabulary-effect-shop-live-preview.test.js
+        run: node --test tests/vocabulary-rewards-*.test.js tests/vocabulary-classroom-lite-artwork.test.js tests/vocabulary-neon-district-staged.test.js tests/vocabulary-premium-collections-foundation.test.js tests/vocabulary-legacy-immersive.test.js tests/vocabulary-immersive-shop-backgrounds.test.js tests/vocabulary-staff-preview-hero-contrast.test.js tests/vocabulary-celestial-realms.test.js tests/vocabulary-default-home-hero-contrast.test.js tests/vocabulary-original-theme-badges.test.js tests/vocabulary-five-animated-effects.test.js tests/vocabulary-profile-progression.test.js tests/vocabulary-effect-shop-live-preview.test.js tests/vocabulary-shop-theme-glass.test.js
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
