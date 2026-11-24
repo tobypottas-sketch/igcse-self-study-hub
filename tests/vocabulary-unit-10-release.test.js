@@ -18,6 +18,7 @@ import { releaseFingerprint, readLock } from '../scripts/vocabulary-content-chec
 import { generatedChunks, outFile } from '../scripts/generate-unit1-sync-sql.mjs';
 import { releaseNumbers, contentVersionFor } from '../scripts/vocabulary-releases.mjs';
 import { releasePlannerContent } from '../content/vocabulary/readiness-report.js';
+import { renderVocabularyUnit } from '../src/vocabulary/views.js';
 import { evaluateUnitReadiness } from '../src/vocabulary/pathway-readiness.js';
 
 const read = name => fs.readFileSync(new URL(`../docs/vocabulary-content-updates/${name}`, import.meta.url), 'utf8');
@@ -189,4 +190,13 @@ test('the Unit 10 sync SQL only upserts Unit 10 rows: no earlier-unit id, no del
 test('this packaging adds no Supabase migration for Unit 10', () => {
   const migrations = fs.existsSync(new URL('../supabase/migrations/', import.meta.url)) ? fs.readdirSync(new URL('../supabase/migrations/', import.meta.url)) : [];
   assert.ok(!migrations.some(name => /unit[-_]?10/i.test(name)), 'no Unit 10 migration');
+});
+
+test('Vocabulary Bank summary uses each unit actual word count, not a hard-coded 50',()=>{
+  const root={innerHTML:''};
+  renderVocabularyUnit(root,{unitNumber:10,unitTitle:'Education',progress:{mastered:0,total:48,needsAnotherLook:0,reviewDue:0,stages:{}},pathwayStates:{},contentReady:true});
+  assert.match(root.innerHTML,/Browse all 48 Unit 10 words in one place/);
+  assert.doesNotMatch(root.innerHTML,/Browse all 50 Unit 10 words/);
+  renderVocabularyUnit(root,{unitNumber:9,unitTitle:'Communication',progress:{mastered:0,total:50,needsAnotherLook:0,reviewDue:0,stages:{}},pathwayStates:{},contentReady:true});
+  assert.match(root.innerHTML,/Browse all 50 Unit 9 words in one place/);
 });
