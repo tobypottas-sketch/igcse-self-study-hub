@@ -235,3 +235,163 @@
     transition:none!important;
   }
 }
+
+/* V3: consistent product gallery. Every tile now has the same footprint,
+   irrespective of its description length or frame/title/effect artwork. */
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-rewards-grid,
+#vocabularyApp .vocab-shop-redesign .vocab-shop-blockverse .vocab-rewards-grid{
+  align-items:stretch!important;
+  grid-auto-rows:492px!important;
+  gap:18px!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card,
+#vocabularyApp .vocab-shop-redesign .vocab-shop-blockverse .vocab-shop-card{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:30px 224px 49px 58px minmax(52px,1fr);
+  gap:8px!important;
+  align-self:stretch!important;
+  width:100%;
+  height:492px!important;
+  min-height:492px!important;
+  max-height:492px!important;
+  overflow:hidden;
+  box-sizing:border-box;
+  padding:16px!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-category{
+  justify-self:start;
+  align-self:center;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-picture{
+  height:224px!important;
+  max-height:224px!important;
+  min-height:0!important;
+  width:100%;
+  overflow:hidden!important;
+  gap:4px!important;
+  justify-content:center!important;
+  align-items:center!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-picture > img.vocab-shop-illustration,
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--frames .vocab-reward-picture > img.vocab-shop-illustration,
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--titles .vocab-reward-picture > img.vocab-shop-illustration,
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--themes .vocab-reward-picture > img.vocab-shop-illustration{
+  width:100%!important;
+  height:208px!important;
+  max-height:208px!important;
+  min-height:0!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  aspect-ratio:auto!important;
+  flex:0 1 auto!important;
+  border-radius:8px;
+}
+/* Effect preview button has its own reserved strip inside the SAME art box. */
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--effects .vocab-reward-picture{
+  justify-content:space-between!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--effects .vocab-reward-picture > img.vocab-shop-illustration{
+  height:166px!important;
+  max-height:166px!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-effect-demo-toggle{
+  min-height:39px;
+  max-height:42px;
+  margin:0;
+  align-self:flex-start;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-effect-demo-stage:not([hidden]){
+  height:166px;
+  max-height:166px;
+  overflow:hidden;
+}
+/* Two-line title and two-line description, with their full content preserved
+   in the DOM. Grid rows no longer change according to copy length. */
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card > h3{
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  line-clamp:2;
+  overflow:hidden;
+  align-self:start;
+  max-height:49px;
+  margin:0!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card > p{
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  line-clamp:2;
+  overflow:hidden;
+  align-self:start;
+  max-height:58px;
+  margin:0!important;
+  flex:none!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-card__bottom{
+  align-self:end!important;
+  margin:0!important;
+  min-height:50px;
+  max-width:100%;
+}
+/* Prevent button/price wrapping from causing unequal footer heights. */
+#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-card__bottom button{
+  white-space:nowrap;
+}
+@media(max-width:740px){
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-rewards-grid{
+    grid-auto-rows:450px!important;
+  }
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card{
+    height:450px!important;
+    min-height:450px!important;
+    max-height:450px!important;
+    grid-template-rows:27px 186px 46px 65px minmax(48px,1fr);
+    gap:7px!important;
+    padding:13px!important;
+  }
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-picture{
+    height:186px!important;
+    max-height:186px!important;
+  }
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-picture > img.vocab-shop-illustration,
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--frames .vocab-reward-picture > img.vocab-shop-illustration,
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--titles .vocab-reward-picture > img.vocab-shop-illustration,
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--themes .vocab-reward-picture > img.vocab-shop-illustration{
+    height:175px!important;
+    max-height:175px!important;
+  }
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--effects .vocab-reward-picture > img.vocab-shop-illustration{
+    height:135px!important;
+    max-height:135px!important;
+  }
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card > h3{
+    max-height:46px;
+  }
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card > p{
+    max-height:65px;
+  }
+}
+@media(max-width:440px){
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-rewards-grid{
+    grid-auto-rows:460px!important;
+  }
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card{
+    height:460px!important;
+    min-height:460px!important;
+    max-height:460px!important;
+    grid-template-rows:27px 196px 46px 65px minmax(48px,1fr);
+  }
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-picture{
+    height:196px!important;
+    max-height:196px!important;
+  }
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-picture > img.vocab-shop-illustration,
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--frames .vocab-reward-picture > img.vocab-shop-illustration,
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--titles .vocab-reward-picture > img.vocab-shop-illustration,
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--themes .vocab-reward-picture > img.vocab-shop-illustration{
+    height:184px!important;
+    max-height:184px!important;
+  }
+}
