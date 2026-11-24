@@ -2,9 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { UNIT_CHECKS } from '../content/vocabulary/checks/index.js';
 
-// Correct answers must not sit in a guessable position. Units 1, 4 and 6 predate this rule and are
-// listed so the gap stays visible; remove a unit from this set once its forms are rebalanced.
-const PENDING_REVIEW = new Set(['1', '4', '6']);
+// Correct answers must not sit in a guessable position, in any unit.
 const LETTERS = ['A', 'B', 'C', 'D'];
 
 function answerPositions(form) {
@@ -12,7 +10,6 @@ function answerPositions(form) {
 }
 
 for (const [unit, check] of Object.entries(UNIT_CHECKS)) {
-  if (PENDING_REVIEW.has(unit)) continue;
   for (const [formId, form] of Object.entries(check.forms)) {
     test(`Unit ${unit} Form ${formId}: correct answers are spread irregularly across A-D`, () => {
       const positions = answerPositions(form);
@@ -35,6 +32,6 @@ for (const [unit, check] of Object.entries(UNIT_CHECKS)) {
   }
 }
 
-test('pending-review units are real registered checks, so the exemption cannot hide a missing unit', () => {
-  for (const unit of PENDING_REVIEW) assert.ok(UNIT_CHECKS[unit], `unit ${unit}`);
+test('the answer-position rule covers every existing Unit Check, Units 1-9, with no exclusions', () => {
+  for (let unit = 1; unit <= 9; unit++) assert.ok(UNIT_CHECKS[String(unit)]?.forms, `unit ${unit}`);
 });
