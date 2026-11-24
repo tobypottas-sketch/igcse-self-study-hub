@@ -29,11 +29,13 @@ test('teacher preview never gets Battles CTA',()=>{
   assert.doesNotMatch(root.innerHTML,/vocab-battles-entry/);
 });
 
-test('banner breaks out of narrow home column with much larger typography',()=>{
+test('banner stays entirely inside its home container with larger typography',()=>{
   assert.match(css,/\.vocab-shell--home > \.vocab-battles-entry\s*\{/);
-  assert.match(css,/width:calc\(100vw - 76px\)/);
-  assert.match(css,/left:50%/);
-  assert.match(css,/translateX\(-50%\)/);
+  assert.match(css,/width:100%/);
+  assert.match(css,/left:auto/);
+  assert.match(css,/transform:none/);
+  assert.doesNotMatch(css,/translateX\(-50%\)/);
+  assert.doesNotMatch(css,/width:calc\(100vw - (?:76|36|20)px\)/);
   assert.match(css,/min-height:218px/);
   assert.match(css,/font-size:clamp\(2rem,2\.8vw,3\.15rem\)/);
   assert.match(css,/font-size:clamp\(1\.1rem,1\.5vw,1\.55rem\)/);
