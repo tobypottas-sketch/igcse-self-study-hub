@@ -71,8 +71,9 @@ const bounds=page=>page.evaluate(()=>{
 for(const width of [1440,390]){
  test(`Unit 10 overview and home at ${width}px: real artwork, title and six pathways remain visible`,async()=>{
    const {server,origin}=await serve();
-   const browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{})});
+   let browser;
    try{
+     browser=await chromium.launch({headless:true,timeout:15000,...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{})});
      const page=await browser.newPage({viewport:{width,height:width===390?844:900},deviceScaleFactor:1});
      const errors=[];page.on('pageerror',e=>errors.push(e.message));
      await page.goto(origin+'/fixture',{waitUntil:'domcontentloaded'});
@@ -110,6 +111,6 @@ for(const width of [1440,390]){
      assert.ok(home.scrollWidth<=width+2,'Home must not scroll horizontally');
      assert.deepEqual(errors,[],'No browser JS errors');
      await page.screenshot({path:path.join(screenshots,`unit10-home-${width}.png`),fullPage:true});
-   }finally{await browser.close();server.close();}
+   }finally{if(browser)await browser.close();server.close();}
  });
 }
