@@ -100,17 +100,20 @@
   }
 }
 
-/* Full-bleed Battles CTA: centre against the viewport, not the narrower
-   home content column. Keep a 38px inset matching the wide dashboard cards. */
+/* Battles CTA must stay inside its actual home layout container.
+   Viewport-relative centering previously pushed its left edge and sword
+   artwork under the theme's clipping boundary on wide student screens. */
 #vocabularyApp .vocab-shell--home > .vocab-battles-entry{
   display:flex;
   align-items:center;
   gap:clamp(20px,2.4vw,38px);
   position:relative;
-  left:50%;
-  transform:translateX(-50%);
-  width:calc(100vw - 76px);
-  max-width:none;
+  left:auto;
+  transform:none;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  box-sizing:border-box;
   min-height:218px;
   margin:22px 0 26px;
   padding:28px clamp(24px,3.6vw,64px);
@@ -223,7 +226,7 @@
 }
 @media(max-width:900px){
   #vocabularyApp .vocab-shell--home > .vocab-battles-entry{
-    width:calc(100vw - 36px);
+    width:100%;
     padding:22px 24px;
     min-height:186px;
     gap:19px;
@@ -237,7 +240,7 @@
 }
 @media(max-width:620px){
   #vocabularyApp .vocab-shell--home > .vocab-battles-entry{
-    width:calc(100vw - 20px);
+    width:100%;
     min-height:0;
     flex-wrap:wrap;
     padding:20px;
