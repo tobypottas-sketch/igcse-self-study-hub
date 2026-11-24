@@ -413,7 +413,7 @@ export const LEXICAL_SPELLING_ERRORS = Object.freeze({
   "vocab_recreation":["recreasion", "recration", "reccreation", "recreaton", "recriation", "recreatoin"], // recreation (Unit 10)
   "vocab_literacy":["literasy", "litteracy", "literacey", "literecy", "litracy", "litaracy"], // literacy (Unit 10)
   "vocab_assessment":["assesment", "asessment", "assessmant", "asesment", "assesmant", "assessmet"], // assessment (Unit 10)
-  "vocab_international_crisis":["international crises", "internashional crisis", "international crysis", "internatonal crisis", "international crisiss", "interntional crisis"], // international crisis (Unit 10)
+  "vocab_international_crisis":["internatinal crisis", "internashional crisis", "international crysis", "internatonal crisis", "international crisiss", "interntional crisis"], // international crisis (Unit 10)
   "vocab_digital_device":["digital devise", "digitel device", "digital devic", "dijital device", "digital deivce", "diggital device"], // digital device (Unit 10)
   "vocab_progress":["progres", "proggress", "progess", "prograss", "progrese", "porgress"], // progress (Unit 10)
   "vocab_encourage":["encorage", "incourage", "encurage", "encourrage", "encouradge", "encourag"], // encourage (Unit 10)
