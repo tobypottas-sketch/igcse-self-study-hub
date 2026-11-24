@@ -122,6 +122,11 @@ try{
   await checkArtwork(page,'studio-hero','studio-neon-focus',1);
   await checkArtwork(page,'studio-context','studio-creative-flow',1);
   if(width<700) await companion.locator(':scope > summary').click();
+  if(width<=520){
+   const tabs=await page.locator('.wa-workspace-tabs').boundingBox();
+   const toolbar=await page.locator('.wa-workspace-toolbar').boundingBox();
+   assert.equal(tabs.width,toolbar.width);
+  }
   await capture(page,'studio-plan',width,height);
   await page.getByRole('button',{name:'Continue to Write →'}).press('Enter');
   assert.ok(await page.locator('.wa-workspace-heading').evaluate(node=>node===document.activeElement));

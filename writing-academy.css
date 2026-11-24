@@ -291,7 +291,7 @@
   #writingAcademy .wa-studio-hero .wa-kicker {font-size:.65rem}
   #writingAcademy .wa-art--studio-hero {width:min(132px,34vw)}
   #writingAcademy .wa-art--studio-context {width:68px}
-  #writingAcademy .wa-workspace-toolbar {display:grid;gap:6px}
+  #writingAcademy .wa-workspace-toolbar {display:grid;justify-content:stretch;gap:6px}
   #writingAcademy .wa-plan-board {grid-template-columns:1fr}
   #writingAcademy .wa-workspace .wa-editor {min-height:260px}
 }
