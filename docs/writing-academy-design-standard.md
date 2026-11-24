@@ -19,3 +19,6 @@ The six original RGB PNGs in `assets/writing/` are 1536 × 1024. Their checkerbo
 | Active stage | 256, 512 px | 246 px beside the activity on desktop, 180 px on tablet portrait and 120 px beside the stage heading on phones. |
 
 The browser uses `srcset` to pick a size. The hero is prioritised, the card illustration is lazy-loaded, and the shell mounts only the current stage’s illustration. Use intrinsic dimensions and contain the full image. Keep stage art beside the learning content, with the activity spanning the full card below the heading on narrow screens.
+
+## Studio workspace
+Use a compact editorial header, three-stage toolbar, contextual task/support sidebar and dedicated main editor. On narrow screens stack naturally; focus mode hides context only on request. Planning fields, task wording, genre and assessment checklist come from content configuration. Preserve continuous prose, answer-only word counts, local account/task draft isolation and revision snapshot. Existing draft schema remains review-specific until other genres are implemented. No automatic marks or submission until separately integrated and tested.
