@@ -236,212 +236,59 @@
   }
 }
 
-/* V3: consistent product gallery. Every tile now has the same footprint,
-   irrespective of its description length or frame/title/effect artwork. */
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-rewards-grid,
-#vocabularyApp .vocab-shop-redesign .vocab-shop-blockverse .vocab-rewards-grid{
-  align-items:stretch!important;
-  grid-auto-rows:492px!important;
-  gap:18px!important;
-}
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card,
-#vocabularyApp .vocab-shop-redesign .vocab-shop-blockverse .vocab-shop-card{
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr);
-  grid-template-rows:30px 224px 49px 58px minmax(52px,1fr);
-  gap:8px!important;
-  align-self:stretch!important;
-  width:100%;
-  height:492px!important;
-  min-height:492px!important;
-  max-height:492px!important;
-  overflow:hidden;
-  box-sizing:border-box;
-  padding:16px!important;
-}
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-category{
-  justify-self:start;
-  align-self:center;
-}
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-picture{
-  height:224px!important;
-  max-height:224px!important;
-  min-height:0!important;
-  width:100%;
-  overflow:hidden!important;
-  gap:4px!important;
-  justify-content:center!important;
-  align-items:center!important;
-}
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-picture > img.vocab-shop-illustration,
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--frames .vocab-reward-picture > img.vocab-shop-illustration,
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--titles .vocab-reward-picture > img.vocab-shop-illustration,
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--themes .vocab-reward-picture > img.vocab-shop-illustration{
-  width:100%!important;
-  height:208px!important;
-  max-height:208px!important;
-  min-height:0!important;
-  object-fit:contain!important;
-  object-position:center!important;
-  aspect-ratio:auto!important;
-  flex:0 1 auto!important;
-  border-radius:8px;
-}
-/* Effect preview button has its own reserved strip inside the SAME art box. */
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--effects .vocab-reward-picture{
-  justify-content:space-between!important;
-}
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--effects .vocab-reward-picture > img.vocab-shop-illustration{
-  height:166px!important;
-  max-height:166px!important;
-}
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-effect-demo-toggle{
-  min-height:39px;
-  max-height:42px;
-  margin:0;
-  align-self:flex-start;
-}
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-effect-demo-stage:not([hidden]){
-  height:166px;
-  max-height:166px;
-  overflow:hidden;
-}
-/* Two-line title and two-line description, with their full content preserved
-   in the DOM. Grid rows no longer change according to copy length. */
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card > h3{
-  display:-webkit-box!important;
-  -webkit-box-orient:vertical;
-  -webkit-line-clamp:2;
-  line-clamp:2;
-  overflow:hidden;
-  align-self:start;
-  max-height:49px;
-  margin:0!important;
-}
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card > p{
-  display:-webkit-box!important;
-  -webkit-box-orient:vertical;
-  -webkit-line-clamp:2;
-  line-clamp:2;
-  overflow:hidden;
-  align-self:start;
-  max-height:58px;
-  margin:0!important;
-  flex:none!important;
-}
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-card__bottom{
-  align-self:end!important;
-  margin:0!important;
-  min-height:50px;
-  max-width:100%;
-}
-/* Prevent button/price wrapping from causing unequal footer heights. */
-#vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-card__bottom button{
-  white-space:nowrap;
-}
-@media(max-width:740px){
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-rewards-grid{
-    grid-auto-rows:450px!important;
-  }
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card{
-    height:450px!important;
-    min-height:450px!important;
-    max-height:450px!important;
-    grid-template-rows:27px 186px 46px 65px minmax(48px,1fr);
-    gap:7px!important;
-    padding:13px!important;
-  }
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-picture{
-    height:186px!important;
-    max-height:186px!important;
-  }
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-picture > img.vocab-shop-illustration,
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--frames .vocab-reward-picture > img.vocab-shop-illustration,
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--titles .vocab-reward-picture > img.vocab-shop-illustration,
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--themes .vocab-reward-picture > img.vocab-shop-illustration{
-    height:175px!important;
-    max-height:175px!important;
-  }
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--effects .vocab-reward-picture > img.vocab-shop-illustration{
-    height:135px!important;
-    max-height:135px!important;
-  }
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card > h3{
-    max-height:46px;
-  }
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card > p{
-    max-height:65px;
-  }
-}
-@media(max-width:440px){
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-rewards-grid{
-    grid-auto-rows:460px!important;
-  }
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card{
-    height:460px!important;
-    min-height:460px!important;
-    max-height:460px!important;
-    grid-template-rows:27px 196px 46px 65px minmax(48px,1fr);
-  }
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-picture{
-    height:196px!important;
-    max-height:196px!important;
-  }
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card .vocab-reward-picture > img.vocab-shop-illustration,
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--frames .vocab-reward-picture > img.vocab-shop-illustration,
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--titles .vocab-reward-picture > img.vocab-shop-illustration,
-  #vocabularyApp .vocab-shop-redesign .vocab-shop-main .vocab-shop-card--themes .vocab-reward-picture > img.vocab-shop-illustration{
-    height:184px!important;
-    max-height:184px!important;
-  }
-}
 
-/* V4: Effects have a compact footprint; the other reward types retain V3.
-   Use content-sized rows in an effects-only catalogue, not the 492px gallery
-   track. The live preview replaces the artwork without changing tile height. */
-#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid:has(.vocab-shop-card--effects):not(:has(.vocab-shop-card:not(.vocab-shop-card--effects))){
+/* V5: Pixel Burst compact proportions for ALL reward cards.
+   Rows stretch only to their tallest content; never force a 492px tile. */
+#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid{
   grid-auto-rows:auto!important;
   align-items:stretch!important;
+  gap:18px!important;
 }
-#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-shop-card.vocab-shop-card--effects{
-  --effect-art-height:138px;
+#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card{
+  --shop-art-height:177px;
   display:grid!important;
-  grid-template-rows:24px calc(var(--effect-art-height) + 39px) auto minmax(40px,1fr) auto!important;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:24px var(--shop-art-height) auto minmax(40px,1fr) auto!important;
   height:auto!important;
   min-height:0!important;
   max-height:none!important;
   padding:12px!important;
   gap:6px!important;
-  align-self:start!important;
-  overflow:visible;
-}
-#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid:has(.vocab-shop-card--effects):not(:has(.vocab-shop-card:not(.vocab-shop-card--effects))) .vocab-shop-card--effects{
   align-self:stretch!important;
+  overflow:visible;
+  width:100%;
 }
-#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-shop-card--effects .vocab-reward-picture{
-  height:calc(var(--effect-art-height) + 39px)!important;
+#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card .vocab-reward-picture{
+  height:var(--shop-art-height)!important;
   max-height:none!important;
-  display:flex;
+  min-height:0!important;
+  display:flex!important;
   gap:4px!important;
-  justify-content:flex-start!important;
-  overflow:visible!important;
-}
-#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-shop-card--effects .vocab-reward-picture:not(:has(.vocab-effect-demo-toggle)){
   justify-content:center!important;
+  align-items:center!important;
+  overflow:visible!important;
+  width:100%;
 }
-#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-shop-card--effects .vocab-reward-picture > img.vocab-shop-illustration{
-  height:var(--effect-art-height)!important;
-  max-height:var(--effect-art-height)!important;
+#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card .vocab-reward-picture > img.vocab-shop-illustration{
+  height:var(--shop-art-height)!important;
+  max-height:var(--shop-art-height)!important;
   width:100%!important;
   object-fit:contain!important;
+  object-position:center!important;
+  flex:0 0 auto!important;
+  aspect-ratio:auto!important;
+}
+#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card .vocab-reward-picture > img.vocab-shop-illustration[hidden]{display:none!important}
+#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card--effects .vocab-reward-picture:has(.vocab-effect-demo-toggle){
+  justify-content:flex-start!important;
+}
+#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card--effects .vocab-reward-picture:has(.vocab-effect-demo-toggle) > img.vocab-shop-illustration,
+#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card--effects .vocab-effect-demo-stage:not([hidden]){
+  height:calc(var(--shop-art-height) - 39px)!important;
+  max-height:calc(var(--shop-art-height) - 39px)!important;
   flex:0 0 auto!important;
 }
-#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-shop-card--effects .vocab-effect-demo-stage:not([hidden]){
-  height:var(--effect-art-height)!important;
-  max-height:var(--effect-art-height)!important;
-  flex:0 0 auto;
-}
-#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-shop-card--effects .vocab-effect-demo-toggle{
+#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card .vocab-effect-demo-toggle{
   align-self:center!important;
   min-height:35px;
   max-height:none;
@@ -449,36 +296,42 @@
   margin:0!important;
   font-size:.82rem;
 }
-#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-shop-card--effects > h3{
+#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card > h3{
   display:block!important;
   max-height:none;
   font-size:clamp(1.03rem,1.2vw,1.22rem)!important;
   line-height:1.22!important;
   margin:0!important;
 }
-#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-shop-card--effects > p{
+#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card > p{
   display:block!important;
   max-height:none;
   font-size:.92rem!important;
   line-height:1.38!important;
   margin:0!important;
 }
-#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-shop-card--effects .vocab-reward-card__bottom{
+#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card .vocab-reward-card__bottom{
   min-height:44px;
   margin:0!important;
   gap:6px;
+  align-self:end;
 }
-#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-shop-card--effects .vocab-shop-price{
-  padding:7px 10px;
-}
-#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-shop-card--effects .vocab-reward-card__bottom button:not(:disabled):not([aria-disabled="true"]),
-#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-shop-card--effects .vocab-reward-card__bottom button.is-owned:disabled{
+#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card .vocab-shop-price{padding:7px 10px}
+#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card .vocab-reward-card__bottom button:not(:disabled):not([aria-disabled="true"]),
+#vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card .vocab-reward-card__bottom button.is-owned:disabled{
   min-height:42px;
   padding:8px 14px!important;
 }
 @media(max-width:740px){
-  #vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-shop-card.vocab-shop-card--effects{--effect-art-height:125px;padding:12px!important}
+  #vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card{--shop-art-height:164px;padding:12px!important}
 }
 @media(max-width:440px){
-  #vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-shop-card.vocab-shop-card--effects{--effect-art-height:145px}
+  #vocabularyApp .vocab-shop-redesign :is(.vocab-shop-main,.vocab-shop-blockverse) .vocab-rewards-grid .vocab-shop-card{--shop-art-height:184px}
+}
+/* Source badge has a stray adjacent-image strip in its final 6% of pixels.
+   Contained images are centred, so clip to the actual contained square, not
+   the outer rectangular element. This preserves the original badge artwork. */
+#vocabularyApp .vocab-shop-redesign .vocab-rewards-grid .vocab-shop-card[data-reward-id="neon-hacker-badge"] .vocab-reward-picture > img.vocab-shop-illustration{
+  width:min(100%,var(--shop-art-height))!important;
+  clip-path:inset(0 0 6.5% 0);
 }
