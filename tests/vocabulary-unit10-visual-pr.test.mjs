@@ -71,7 +71,7 @@ const bounds=page=>page.evaluate(()=>{
 for(const width of [1440,390]){
  test(`Unit 10 overview and home at ${width}px: real artwork, title and six pathways remain visible`,async()=>{
    const {server,origin}=await serve();
-   const browser=await chromium.launch({headless:true});
+   const browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{})});
    try{
      const page=await browser.newPage({viewport:{width,height:width===390?844:900},deviceScaleFactor:1});
      const errors=[];page.on('pageerror',e=>errors.push(e.message));
