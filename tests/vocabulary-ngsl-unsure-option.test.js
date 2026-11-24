@@ -37,6 +37,6 @@ test('students and teachers see correct / wrong / unsure with no effect on exist
  assert.match(report,/Not sure<\/th>/);
  assert.match(report,/r\.result\?\.unsure\?\?''/);
  assert.match(html,/diagnostic-student\.css\?v=ngsl-unsure-v3/);
- assert.match(html,/router\.js\?v=equipment-category-scroll-v2/);
+ assert.match(html,/router\.js\?v=equipment-smooth-scroll-v3/);
  assert.match(router,/ngsl-student\.js\?v=ngsl-unsure-v3/);
 });
