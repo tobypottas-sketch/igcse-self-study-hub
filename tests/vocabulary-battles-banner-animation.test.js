@@ -31,6 +31,11 @@ test('teacher preview never gets Battles CTA',()=>{
 
 test('banner stays entirely inside its home container with larger typography',()=>{
   assert.match(css,/\.vocab-shell--home > \.vocab-battles-entry\s*\{/);
+  const bannerRule=css.match(/#vocabularyApp \.vocab-shell--home > \.vocab-battles-entry\s*\{([^}]+)\}/)?.[1];
+  assert.ok(bannerRule,'full-width banner style exists');
+  assert.match(bannerRule,/grid-column:1 \/ -1/);
+  assert.match(bannerRule,/justify-self:stretch/);
+  assert.match(bannerRule,/grid-row:auto/);
   assert.match(css,/width:100%/);
   assert.match(css,/left:auto/);
   assert.match(css,/transform:none/);
@@ -53,7 +58,7 @@ test('swords clash separately and spark, but respect reduced motion',()=>{
 });
 
 test('all browser links use the refreshed banner CSS and JS',()=>{
-  assert.match(html,/vocabulary-home-polish\.css\?v=battles-clipping-fix-v3/);
+  assert.match(html,/vocabulary-home-polish\.css\?v=battles-full-row-v4/);
   assert.match(html,/router\.js\?v=battles-banner-v2/);
   assert.match(router,/app\.js\?v=battles-banner-v2/);
   assert.match(app,/views\.js\?v=battles-banner-v2/);
