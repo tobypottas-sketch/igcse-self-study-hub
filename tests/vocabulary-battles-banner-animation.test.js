@@ -59,7 +59,7 @@ test('swords clash separately and spark, but respect reduced motion',()=>{
 
 test('all browser links use the refreshed banner CSS and JS',()=>{
   assert.match(html,/vocabulary-home-polish\.css\?v=battles-full-row-v4/);
-  assert.match(html,/router\.js\?v=equipment-category-scroll-v2/);
-  assert.match(router,/app\.js\?v=equipment-category-scroll-v2/);
+  assert.match(html,/router\.js\?v=equipment-smooth-scroll-v3/);
+  assert.match(router,/app\.js\?v=equipment-smooth-scroll-v3/);
   assert.match(app,/views\.js\?v=unit10-bank-count-v1/);
 });
