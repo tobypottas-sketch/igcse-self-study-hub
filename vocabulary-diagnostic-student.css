@@ -509,3 +509,50 @@ body:has(#vocabularyApp .diag-player){
     background:Canvas!important;color:CanvasText!important;border-color:CanvasText!important;
   }
 }
+
+/* Fullscreen is a viewport-sized top-layer element, not the document's
+   scrolling surface. Let touch users scroll the actual fullscreen root. */
+#vocabularyApp:fullscreen{
+  width:100%;
+  height:100%;
+  max-height:100%;
+  overflow-x:hidden;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-y pinch-zoom;
+  overscroll-behavior-y:contain;
+}
+#vocabularyApp:-webkit-full-screen{
+  width:100%;
+  height:100%;
+  max-height:100%;
+  overflow-x:hidden;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-y pinch-zoom;
+}
+#vocabularyApp .ngsl-player{
+  height:auto;
+  max-height:none;
+  overflow:visible;
+}
+#vocabularyApp .ngsl-player .diag-assessment{
+  height:auto;
+  max-height:none;
+  overflow:visible;
+}
+#vocabularyApp .ngsl-player .diag-choices{min-width:0}
+#vocabularyApp .ngsl-player .diag-option{touch-action:pan-y pinch-zoom}
+@media(max-height:850px),(max-width:1024px){
+  #vocabularyApp .ngsl-player{padding-top:12px;padding-bottom:max(24px,env(safe-area-inset-bottom))}
+  #vocabularyApp .ngsl-player .vocab-topbar{margin-bottom:8px;padding-bottom:8px}
+  #vocabularyApp .ngsl-player .diag-assessment{margin-top:10px;padding:clamp(14px,2.5vw,24px)}
+  #vocabularyApp .ngsl-player .diag-meta{padding-bottom:10px}
+  #vocabularyApp .ngsl-player .ngsl-question-title{margin:12px 0 8px}
+  #vocabularyApp .ngsl-player .ngsl-example{margin-bottom:12px;padding:10px 12px}
+  #vocabularyApp .ngsl-player .diag-choices{gap:7px}
+  #vocabularyApp .ngsl-player .diag-option{min-height:48px;padding:8px 12px}
+  #vocabularyApp .ngsl-player .diag-choices .ngsl-unsure-option{margin-top:5px}
+  #vocabularyApp .ngsl-player .diag-actions{margin-top:12px;padding-top:12px}
+  #vocabularyApp .ngsl-player .diag-message:empty{display:none}
+}
