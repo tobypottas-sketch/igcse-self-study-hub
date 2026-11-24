@@ -76,9 +76,9 @@ for(const width of [1440,390]){
      browser=await chromium.launch({headless:true,timeout:15000,...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{})});
      const page=await browser.newPage({viewport:{width,height:width===390?844:900},deviceScaleFactor:1});
      const errors=[];page.on('pageerror',e=>errors.push(e.message));
-     await page.goto(origin+'/fixture',{waitUntil:'domcontentloaded'});
-     await page.waitForFunction(()=>window.fixtureReady);
-     await page.waitForFunction(()=>document.querySelector('[data-unit-hero-art]')?.classList.contains('is-png-ready'),{timeout:30000});
+     console.log('Opening browser fixture',width);await page.goto(origin+'/fixture',{waitUntil:'domcontentloaded',timeout:12000});
+     await page.waitForFunction(()=>window.fixtureReady,null,{timeout:12000});console.log('Fixture ready',width);
+     await page.waitForFunction(()=>document.querySelector('[data-unit-hero-art]')?.classList.contains('is-png-ready'),null,{timeout:12000});console.log('Hero art ready',width);
      await page.evaluate(()=>Promise.all([...document.images].map(img=>img.decode().catch(()=>{}))));
      await page.waitForTimeout(350);
      const overview=await bounds(page);
@@ -91,9 +91,9 @@ for(const width of [1440,390]){
      assert.ok(overview.heroArt.left>=-2&&overview.heroArt.right<=width+2,'Artwork stays within viewport');
      assert.ok(overview.heading.left>=-2&&overview.heading.right<=width+2,'Education title within viewport');
      assert.ok(overview.heroImage.width>=80&&overview.heroImage.height>=80,'Artwork actually has visible size');
-     await page.screenshot({path:path.join(screenshots,`unit10-overview-${width}.png`),fullPage:true});
+     await page.screenshot({path:path.join(screenshots,`unit10-overview-${width}.png`),fullPage:true,timeout:15000});
      await page.evaluate(()=>window.renderUnit10('home'));
-     await page.waitForFunction(()=>document.querySelector('[data-unit-art="10"]')?.classList.contains('is-png-ready'),{timeout:30000});
+     await page.waitForFunction(()=>document.querySelector('[data-unit-art="10"]')?.classList.contains('is-png-ready'),null,{timeout:12000});console.log('Home art ready',width);
      await page.waitForTimeout(250);
      const home=await page.evaluate(()=>{
        const el=document.querySelector('.vocab-unit-card[data-unit="10"]');
@@ -110,7 +110,7 @@ for(const width of [1440,390]){
      assert.equal(home.overflow,false,'Unit 10 title must not clip or overflow');
      assert.ok(home.scrollWidth<=width+2,'Home must not scroll horizontally');
      assert.deepEqual(errors,[],'No browser JS errors');
-     await page.screenshot({path:path.join(screenshots,`unit10-home-${width}.png`),fullPage:true});
+     await page.screenshot({path:path.join(screenshots,`unit10-home-${width}.png`),fullPage:true,timeout:15000});
    }finally{if(browser)await browser.close();server.close();}
  });
 }
