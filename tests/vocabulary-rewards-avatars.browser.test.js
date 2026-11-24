@@ -15,7 +15,7 @@ const avatars=[...migration.matchAll(/\('(avatar-[a-z-]+)','([^']+)','avatars',(
   .map(([,reward_id,name,price,description])=>({reward_id,name,category:'avatars',xp_price:Number(price),description}));
 const premiumReward=avatars.find(row=>row.reward_id==='avatar-voxel-architect');
 const rewards=[...cosmetics,...avatars];
-const profile={id:'avatar-browser-test',role:'student',active:true,display_name:'Blockverse Test Student'};
+const profile={id:'avatar-browser-test',role:'student',active:true,display_name:'Avatar Test Student'};
 
 for(const width of [1440,768,390]) test(`Player avatar shop and persistence at ${width}px`,{skip:!playwright},async t=>{
   const {server,origin}=await serve(root);
@@ -83,7 +83,7 @@ for(const width of [1440,768,390]) test(`Player avatar shop and persistence at $
         {id:'match',unit_number:1,challenger_id:profile.id,opponent_id:peer.id}
       ]};
       if(action==='leaderboard')data={ok:true,ranking:[{...peer,name:peer.display_name,wins:1,played:1,score:800}]};
-      if(action==='status')data={ok:true,id:'match',status:'accepted',unitNumber:1,challengerId:profile.id,
+      if(action==='status')data={ok:true,id:'match',status:'accepted',unitNumber:1,className:'Test Class',challengerId:profile.id,
         avatarId:'avatar-pixel-bot',opponentAvatarId:peer.avatarId,opponentName:peer.display_name,
         score:900,opponentScore:800,finished:true,outcome:'won'};
     }
@@ -136,6 +136,9 @@ for(const width of [1440,768,390]) test(`Player avatar shop and persistence at $
   }
   assert.equal(available,3200);
   assert.equal(await shop.locator('[data-action="real-unequip"]').count(),6);
+  const slots=shop.locator('.vocab-shop-equipped__list');
+  const columns=await slots.evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
+  assert.equal(columns,width===390?2:3);
   assert.match(await mini.getAttribute('src'),/avatar-voxel-architect.webp$/);
   assert.ok(await mini.evaluate(async img=>{await img.decode();return img.naturalWidth>0;}));
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
@@ -143,9 +146,10 @@ for(const width of [1440,768,390]) test(`Player avatar shop and persistence at $
   const evidence=process.env.AVATAR_SCREENSHOTS_DIR;
   if (evidence) {
     mkdirSync(evidence,{recursive:true});
-    await page.evaluate(()=>window.scrollTo(0,0));
+    await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
     await page.screenshot({path:`${evidence}/avatar-shop-${width}.png`});
     await premium.screenshot({path:`${evidence}/avatar-card-${width}.png`});
+    await shop.locator('.vocab-shop-equipped').screenshot({path:`${evidence}/avatar-equipped-${width}.png`});
   }
 
   await page.reload();

@@ -523,7 +523,9 @@ body{
 }
 
 #battlesApp .battle-avatar{position:relative}
-#battlesApp .battle-avatar:has(> img.vocab-avatar-character){background:transparent}
+#battlesApp .battle-avatar:has(> img.vocab-avatar-character){
+ background:transparent;border:0;box-shadow:none;
+}
 #battlesApp .battle-avatar > img.vocab-avatar-character{
  position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
 }

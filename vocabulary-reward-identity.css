@@ -466,8 +466,11 @@ body:has(#vocabularyApp.vocab-real-theme--midnight .vocab-shell[data-unit-theme]
 #vocabularyApp .vocab-shop-redesign .vocab-shop-card--avatars .vocab-reward-picture > .vocab-shop-illustration{
  background:transparent;border:0;box-shadow:none;object-fit:contain;
 }
-@media(min-width:800px){
- #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__list.has-avatars{
-  grid-template-columns:repeat(3,minmax(0,1fr));
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__list.has-avatars{
+ grid-template-columns:repeat(3,minmax(0,1fr));
+}
+@media (max-width:600px){
+ #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__list.has-avatars{
+  grid-template-columns:repeat(2,minmax(0,1fr));
  }
 }
