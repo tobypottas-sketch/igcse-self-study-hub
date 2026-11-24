@@ -4,12 +4,12 @@ import fs from 'node:fs';
 const read=file=>fs.readFileSync(new URL('../'+file,import.meta.url),'utf8');
 test('Vocabulary entry page invalidates cached router and rewards stylesheet',()=>{
  const html=read('vocabulary.html');
- assert.match(html,/src\/vocabulary\/router\.js\?v=battles-banner-v2/);
+ assert.match(html,/src\/vocabulary\/router\.js\?v=unit10-bank-count-v1/);
  assert.match(html,/vocabulary-rewards\.css\?v=shop-frame-clean-v1/);
 });
 test('router invalidates cached main Vocabulary module on all student routes',()=>{
  const router=read('src/vocabulary/router.js');
- const matches=router.match(/import\('\.\/app\.js\?v=battles-banner-v2'\)/g)||[];
+ const matches=router.match(/import\('\.\/app\.js\?v=unit10-bank-count-v1'\)/g)||[];
  assert.equal(matches.length,2);
  assert.doesNotMatch(router,/app\.js\?v=meaning-recognise-v1/);
 });
