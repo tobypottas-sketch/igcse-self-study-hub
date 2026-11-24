@@ -1,6 +1,6 @@
 import {guidedTask,independentTask,selfCheck,toolkit} from '../content/review-guided-v1.js';
 import {createDraftStore,wordStatus} from '../engine/drafts.js';
-import {renderExamReference} from './structure.js?v=3';
+import {renderExamReference} from './structure.js?v=5';
 function add(p,t,c,v){const n=p.ownerDocument.createElement(t);n.className=c||'';if(v)n.textContent=v;p.append(n);return n;}
 function btn(p,t,fn){const b=add(p,'button','wa-action',t);b.type='button';b.onclick=fn;return b;}
 export function renderStudio(root,{accountId,onBack,initialTask='review-willow-kitchen',initialMode}){

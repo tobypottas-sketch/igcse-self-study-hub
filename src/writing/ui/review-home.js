@@ -1,5 +1,5 @@
-import {renderStudio} from './studio.js?v=4';
-import {renderExamReference,renderStructure} from './structure.js?v=3';
+import {renderStudio} from './studio.js?v=5';
+import {renderExamReference,renderStructure} from './structure.js?v=5';
 // Preview has no student writes, XP transactions or invented progress.
 const pathwayDetails={
  structure:['01','Arrange ideas into a review that flows.','structure'],
@@ -30,7 +30,7 @@ export function renderReviewHome(root,catalogue,accountId){
  const editorial=add(hero,'div','wa-editorial');editorial.setAttribute('aria-hidden','true');add(editorial,'span','wa-editorial-small','THE ART OF');add(editorial,'span','wa-editorial-big','REVIEW');add(editorial,'span','wa-editorial-small','DESCRIBE / EVALUATE / RECOMMEND');motif(editorial,'editing');
  const stats=add(shell,'div','wa-facts');for(const [n,l] of [[String(config.pathways.length),'skill pathways'],[String(catalogue.listTasks().length),'writing prompts'],[config.wordRange.min+'–'+config.wordRange.max,'target words']]){const stat=add(stats,'div','wa-fact');add(stat,'strong','',n);add(stat,'span','',l);}
  renderExamReference(shell);
- const section=add(shell,'section','wa-section');add(section,'p','wa-kicker','YOUR LEARNING JOURNEY');add(section,'h2','','Build your writing skills');add(section,'p','wa-muted','Six focused pathways. Activities are being developed; explore the existing Studio in the meantime.');
+ const section=add(shell,'section','wa-section');add(section,'p','wa-kicker','YOUR LEARNING JOURNEY');add(section,'h2','','Build your writing skills');add(section,'p','wa-muted','Start with Structure & Organisation, then put your skills into practice in the Writing Studio.');
  const grid=add(section,'div','wa-pathways');
  for(const path of config.pathways){const [number,description,key]=pathwayDetails[path.id];const card=add(grid,'article','wa-path wa-'+key);const top=add(card,'div','wa-card-top');add(top,'span','wa-index',number);motif(top,key);add(card,'h3','',path.title);add(card,'p','',description);if(path.id==='structure'){const b=add(card,'button','wa-action','Start pathway →');b.type='button';b.onclick=()=>{renderStructure(root,back,studio);root.ownerDocument.defaultView.scrollTo(0,0);};}else add(card,'span','wa-status','In development');}
  const tools=add(shell,'section','wa-section');add(tools,'h2','','Your writing workspace');const toolGrid=add(tools,'div','wa-tools');
