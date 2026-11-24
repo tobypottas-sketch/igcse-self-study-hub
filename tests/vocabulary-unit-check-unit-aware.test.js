@@ -10,11 +10,11 @@ import { openEntryPage } from './helpers/activity-entry-harness.mjs';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const browserTest = loadPlaywright() && await findChromium() ? test : test.skip;
 
-test('registry: Units 1 to 9 have their checks; units without an authored check have none', () => {
+test('registry: Units 1 to 10 have their checks; units without an authored check have none', () => {
   assert.equal(unitCheckFor(1), unit1Check);
   assert.deepEqual(Object.keys(unit1Check.forms), ['A', 'B', 'C']);
-  for (const unit of [10, 20, 0, 21, NaN, null, undefined, '10']) assert.equal(unitCheckFor(unit), null, `unit ${unit}`);
-  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '2', '3', '4', '5', '6', '7', '8', '9']);
+  for (const unit of [11, 20, 0, 21, NaN, null, undefined, '11']) assert.equal(unitCheckFor(unit), null, `unit ${unit}`);
+  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']);
 });
 
 test('registry: a registered check with no forms is treated as no check', () => {

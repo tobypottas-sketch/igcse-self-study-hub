@@ -43,12 +43,12 @@ function enumerate(content, data, runs = 60) {
 const rows9 = enumerate(unit9, data9.blitz);
 const rows9All = enumerate(unit9, { ...data9.blitz, excluded: [] });
 
-test('registration: Units 1-9 have both games, Unit 10 and beyond stay unavailable', () => {
-  assert.deepEqual(Object.keys(GAMES_BY_UNIT).map(Number), [1, 2, 3, 4, 5, 6, 7, 8, 9]);
+test('registration: Units 1-9 have both games, Unit 11 and beyond stay unavailable', () => {
+  assert.deepEqual(Object.keys(GAMES_BY_UNIT).map(Number), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   assert.deepEqual(availableGames(9), ['blitz', 'connections']);
   assert.equal(data9.blitz.confusable, BLITZ_CONFUSABLE_U9); assert.equal(data9.blitz.excluded, BLITZ_EXCLUDED_U9); assert.equal(data9.connections.puzzles, CONNECTIONS_PUZZLES_U9);
   assert.match(renderGamesEntry(9), /Unit 9/); assert.match(renderLobby(9), /data-game="blitz"/); assert.match(renderLobby(9), /data-game="connections"/);
-  for (const u of [10, 12, 0, NaN, null, '10']) { assert.equal(gamesFor(u), null); assert.deepEqual(availableGames(u), []); assert.equal(renderGamesEntry(u), ''); }
+  for (const u of [11, 12, 0, NaN, null, '11']) { assert.equal(gamesFor(u), null); assert.deepEqual(availableGames(u), []); assert.equal(renderGamesEntry(u), ''); }
 });
 
 test('Blitz: the audited Unit 9 pool has the pinned size and counts, with no id served twice', () => {
