@@ -152,3 +152,24 @@ input:focus{box-shadow:none;border-color:var(--c-blue)}
 
 /* Student numbering is presentation only; kept narrow ahead of each name. */
 .admin-table .student-row-number{width:48px;min-width:44px;max-width:54px;padding-left:9px;padding-right:9px;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--hub-slate)}
+
+/* Shared staff directory refinement: compact rows and aligned management controls. */
+.admin-student-group__summary{min-height:54px;padding:10px 14px;gap:10px}
+.admin-student-group__icon{width:28px;height:28px;border-radius:6px;font-size:17px}
+.admin-student-group__heading{gap:8px}
+.admin-student-group__content .admin-table th,
+.admin-student-group__content .admin-table td{padding:9px 10px;line-height:1.4}
+.admin-student-group__content .admin-table td:nth-child(2){font-weight:700;color:var(--hub-navy);min-width:120px}
+.admin-student-group__content .admin-table tbody tr:nth-child(even){background:var(--c-bg)}
+.admin-student-group__content .admin-table tbody tr:hover{background:var(--c-teal-soft)}
+.admin-student-group__content .admin-table .student-row-number{width:36px;min-width:36px;max-width:36px;padding-inline:6px;text-align:right;font-weight:550}
+.admin-student-group__content .admin-actions{gap:5px}
+.admin-student-group__content .admin-actions .admin-button{padding:5px 8px;min-height:30px;box-shadow:none;white-space:nowrap}
+.admin-directory-section .admin-filters{grid-template-columns:minmax(160px,1.6fr) minmax(110px,1fr);min-width:min(100%,320px)}
+.admin-class-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.admin-class-card__head>div:first-child{flex:1 1 100%}
+@media(max-width:620px){
+ .admin-class-grid{grid-template-columns:minmax(0,1fr)}
+ .admin-directory-section .admin-filters{grid-template-columns:minmax(0,1fr)}
+ .admin-student-group__summary{min-height:50px;padding:10px 12px}
+}
