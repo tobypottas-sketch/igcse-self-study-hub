@@ -482,3 +482,26 @@
   #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button{grid-column:1/-1}
   #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button.vocab-shop-unequip{grid-row:5;grid-column:1/-1}
 }
+
+/* Wide panels: the theme's long reset label needs a full-width action,
+   not a narrow half-column that wraps to three lines. */
+@container (min-width:850px){
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item{
+    grid-template-rows:16px var(--equipment-art-height) minmax(28px,auto) 36px!important;
+    padding:2px 3px!important;
+    gap:3px!important;
+  }
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button{
+    font-size:.65rem!important;
+    padding:3px 2px!important;
+    min-height:36px!important;
+    overflow-wrap:anywhere;
+  }
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__heading{
+    padding-bottom:5px!important;
+  }
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped{
+  padding:9px!important;
+  gap:6px!important;
+}
