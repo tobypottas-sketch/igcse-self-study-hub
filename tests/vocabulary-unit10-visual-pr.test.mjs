@@ -79,7 +79,7 @@ for(const width of [1440,390]){
      console.log('Opening browser fixture',width);await page.goto(origin+'/fixture',{waitUntil:'domcontentloaded',timeout:12000});
      await page.waitForFunction(()=>window.fixtureReady,null,{timeout:12000});console.log('Fixture ready',width);
      await page.waitForFunction(()=>document.querySelector('[data-unit-hero-art]')?.classList.contains('is-png-ready'),null,{timeout:12000});console.log('Hero art ready',width);
-     await page.evaluate(()=>Promise.all([...document.images].map(img=>img.decode().catch(()=>{}))));
+     await page.locator('[data-unit-hero-art] img[data-art-png]').evaluate(img=>img.decode());
      await page.waitForTimeout(350);
      const overview=await bounds(page);
      console.log('Unit 10 overview '+width+'px:',JSON.stringify(overview));
@@ -93,6 +93,7 @@ for(const width of [1440,390]){
      assert.ok(overview.heroImage.width>=80&&overview.heroImage.height>=80,'Artwork actually has visible size');
      await page.screenshot({path:path.join(screenshots,`unit10-overview-${width}.png`),fullPage:true,timeout:15000});
      await page.evaluate(()=>window.renderUnit10('home'));
+     await page.locator('.vocab-unit-card[data-unit="10"]').scrollIntoViewIfNeeded();
      await page.waitForFunction(()=>document.querySelector('[data-unit-art="10"]')?.classList.contains('is-png-ready'),null,{timeout:12000});console.log('Home art ready',width);
      await page.waitForTimeout(250);
      const home=await page.evaluate(()=>{
