@@ -26,36 +26,37 @@ const render=production=>{
 };
 
 test('new card density sheet is loaded after the entire theme stack',()=>{
- const pos=html.indexOf('vocabulary-shop-card-polish-v2.css?v=shop-uniform-height-v3');
+ const pos=html.indexOf('vocabulary-shop-card-polish-v2.css?v=compact-all-v5');
  assert.ok(pos>0);
  for(const file of ['vocabulary-rewards.css','vocabulary-premium-blockverse.css','vocabulary-blockverse-legibility-v3.css','vocabulary-shop-theme-glass.css','vocabulary-study-two-tier-header.css']){
   assert.ok(html.indexOf(file)>=0&&html.indexOf(file)<pos,file+' loaded before card polish');
  }
 });
 
-test('all reward cards share an identical compact height, including Blockverse',()=>{
- const finalRules=css.slice(css.indexOf('/* V3: consistent product gallery'));
+test('all reward cards use compact content-sized rows, including Blockverse',()=>{
+ const finalRules=css.slice(css.indexOf('/* V5: Pixel Burst'));
  assert.ok(finalRules.length>2000);
  assert.match(finalRules,/align-items:stretch!important/);
- assert.match(finalRules,/grid-auto-rows:492px!important/);
- assert.match(finalRules,/height:492px!important/);
- assert.match(finalRules,/min-height:492px!important/);
- assert.match(finalRules,/max-height:492px!important/);
- assert.match(finalRules,/grid-template-rows:30px 224px 49px 58px minmax\(52px,1fr\)/);
- assert.match(finalRules,/\.vocab-shop-blockverse \.vocab-shop-card/);
- assert.match(finalRules,/align-self:end!important/);
- assert.match(finalRules,/grid-auto-rows:450px!important/);
- assert.match(finalRules,/grid-auto-rows:460px!important/);
+ assert.match(finalRules,/grid-auto-rows:auto!important/);
+ assert.match(finalRules,/height:auto!important/);
+ assert.match(finalRules,/min-height:0!important/);
+ assert.match(finalRules,/max-height:none!important/);
+ assert.match(finalRules,/grid-template-rows:24px var\(--shop-art-height\) auto minmax\(40px,1fr\) auto!important/);
+ assert.match(finalRules,/\.vocab-shop-blockverse/);
+ assert.match(finalRules,/align-self:stretch!important/);
+ assert.match(finalRules,/align-self:end/);
+ assert.match(finalRules,/--shop-art-height:177px/);
+ assert.doesNotMatch(css,/grid-auto-rows:\s*(492|450|460)px/);
 });
 
-test('titles and descriptions have two-line caps rather than varying card height',()=>{
- const finalRules=css.slice(css.indexOf('/* V3: consistent product gallery'));
- assert.match(finalRules,/-webkit-line-clamp:2/);
- assert.match(finalRules,/\.vocab-shop-card > h3/);
- assert.match(finalRules,/\.vocab-shop-card > p/);
- assert.match(finalRules,/overflow:hidden/);
+test('titles and descriptions remain readable without fixed reserved whitespace',()=>{
+ const finalRules=css.slice(css.indexOf('/* V5: Pixel Burst'));
+ assert.match(finalRules,/\.vocab-shop-card > h3\{[^}]*display:block!important[^}]*max-height:none/);
+ assert.match(finalRules,/\.vocab-shop-card > p\{[^}]*display:block!important[^}]*max-height:none/);
  assert.match(finalRules,/object-fit:contain!important/);
  assert.match(finalRules,/\.vocab-shop-card--effects/);
+ assert.match(finalRules,/\.vocab-shop-illustration\[hidden\]\{display:none!important\}/);
+ assert.match(finalRules,/data-reward-id="neon-hacker-badge"[^}]*clip-path:inset\(0 0 6\.5% 0\)/);
 });
 
 test('artwork never crops title plates, frames, badges, effects or theme thumbnails',()=>{
