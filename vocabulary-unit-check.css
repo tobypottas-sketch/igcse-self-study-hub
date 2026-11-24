@@ -11,3 +11,16 @@
 @media(max-width:620px){.vocab-unit-check-journey{grid-template-columns:1fr}.vocab-unit-check-result-shell{max-width:calc(100vw - 18px);padding-top:12px}.vocab-unit-check-result{padding:24px 18px;border-radius:22px}.vocab-unit-check-result__hero{gap:22px}.vocab-unit-check-score-medallion{width:145px}}
 @media(max-width:560px){.vocab-unit-check-card{padding:20px 16px;border-radius:20px}.vocab-unit-check-card__icon{width:50px;height:50px;border-radius:15px}.vocab-unit-check-card__stat{min-height:96px;padding:12px 4px}.vocab-unit-check-card__stat em{font-size:.7rem}.vocab-unit-check-question{padding:18px 14px;min-height:0}.vocab-unit-check-progress{font-size:.86rem}.vocab-unit-check-nav{flex-wrap:wrap}.vocab-unit-check-nav .vocab-button{min-height:42px}.vocab-unit-check-passage__body{font-size:1.02rem}.vocab-unit-check-question-nav__item{width:34px;height:34px}.vocab-unit-check-topbar__meta{gap:6px;flex-wrap:wrap}.vocab-unit-check-topbar__meta span{font-size:.8rem}.vocab-unit-check-mode-badge{display:none}}
 @media (prefers-reduced-motion: reduce){.vocab-unit-check-choice span,.vocab-unit-check-question-nav__item,.vocab-unit-check-celebration i{transition:none;animation:none!important}.vocab-unit-check-choice span:hover,.vocab-unit-check-question-nav__item:hover{transform:none}}
+
+/* Mobile Unit Checks: keep the reading passage in the document flow.
+   A tall sticky reading pane obscured the question as students scrolled on
+   390px phones. Both remain accessible and the Passage toggle still works. */
+@media(max-width:900px){
+  .vocab-shell--unit-check .vocab-unit-check-passage{
+    position:relative;
+    top:auto;
+    z-index:auto;
+    max-height:none;
+    overflow:visible;
+  }
+}
