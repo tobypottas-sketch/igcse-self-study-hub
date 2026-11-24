@@ -1,3 +1,5 @@
+import {renderStudio} from './studio.js?v=4';
+import {renderExamReference,renderStructure} from './structure.js?v=3';
 // Preview has no student writes, XP transactions or invented progress.
 const pathwayDetails={
  structure:['01','Arrange ideas into a review that flows.','structure'],
@@ -19,17 +21,19 @@ function node(doc,tag,cls,text){const n=doc.createElement(tag);if(cls)n.classNam
 function add(parent,tag,cls,text){const n=node(parent.ownerDocument,tag,cls,text);parent.append(n);return n;}
 function link(parent,cls,text,href){const a=add(parent,'a',cls,text);a.href=href;return a;}
 function motif(parent,key){const svg=parent.ownerDocument.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 96 96');svg.setAttribute('aria-hidden','true');svg.classList.add('wa-motif');svg.innerHTML=motifs[key];parent.append(svg);}
-export function renderReviewHome(root,catalogue){
+export function renderReviewHome(root,catalogue,accountId){
  root.replaceChildren();const doc=root.ownerDocument;const config=catalogue.config;
+ const back=()=>renderReviewHome(root,catalogue,accountId);const studio=(options={})=>{renderStudio(root,{accountId,onBack:back,...options});root.ownerDocument.defaultView.scrollTo(0,0);};
  const shell=add(root,'div','wa-shell');
  const nav=add(shell,'nav','wa-nav');nav.setAttribute('aria-label','Academy navigation');link(nav,'wa-back','← Self-Study Hub','./');add(nav,'span','wa-brand','WRITING / ACADEMY');add(nav,'span','wa-preview','Staff preview');
- const hero=add(shell,'header','wa-hero');const intro=add(hero,'div','wa-intro');add(intro,'p','wa-kicker','CAMBRIDGE IGCSE ESL 0511 · EXERCISE 6');add(intro,'h1','','Write with confidence.');add(intro,'p','wa-lead','Review Writing — explore ideas, develop your voice and learn to make every word count.');link(intro,'wa-primary','Open Writing Studio →','./review-writing.html');
+ const hero=add(shell,'header','wa-hero');const intro=add(hero,'div','wa-intro');add(intro,'p','wa-kicker','CAMBRIDGE IGCSE ESL 0511 · EXERCISE 6');add(intro,'h1','','Write with confidence.');add(intro,'p','wa-lead','Review Writing — explore ideas, develop your voice and learn to make every word count.');const launch=add(intro,'button','wa-primary wa-action','Open Writing Studio →');launch.onclick=()=>studio();link(intro,'wa-legacy-link','Original Studio','./review-writing.html');
  const editorial=add(hero,'div','wa-editorial');editorial.setAttribute('aria-hidden','true');add(editorial,'span','wa-editorial-small','THE ART OF');add(editorial,'span','wa-editorial-big','REVIEW');add(editorial,'span','wa-editorial-small','DESCRIBE / EVALUATE / RECOMMEND');motif(editorial,'editing');
  const stats=add(shell,'div','wa-facts');for(const [n,l] of [[String(config.pathways.length),'skill pathways'],[String(catalogue.listTasks().length),'writing prompts'],[config.wordRange.min+'–'+config.wordRange.max,'target words']]){const stat=add(stats,'div','wa-fact');add(stat,'strong','',n);add(stat,'span','',l);}
+ renderExamReference(shell);
  const section=add(shell,'section','wa-section');add(section,'p','wa-kicker','YOUR LEARNING JOURNEY');add(section,'h2','','Build your writing skills');add(section,'p','wa-muted','Six focused pathways. Activities are being developed; explore the existing Studio in the meantime.');
  const grid=add(section,'div','wa-pathways');
- for(const path of config.pathways){const [number,description,key]=pathwayDetails[path.id];const card=add(grid,'article','wa-path wa-'+key);const top=add(card,'div','wa-card-top');add(top,'span','wa-index',number);motif(top,key);add(card,'h3','',path.title);add(card,'p','',description);add(card,'span','wa-status','In development');}
+ for(const path of config.pathways){const [number,description,key]=pathwayDetails[path.id];const card=add(grid,'article','wa-path wa-'+key);const top=add(card,'div','wa-card-top');add(top,'span','wa-index',number);motif(top,key);add(card,'h3','',path.title);add(card,'p','',description);if(path.id==='structure'){const b=add(card,'button','wa-action','Start pathway →');b.type='button';b.onclick=()=>{renderStructure(root,back,studio);root.ownerDocument.defaultView.scrollTo(0,0);};}else add(card,'span','wa-status','In development');}
  const tools=add(shell,'section','wa-section');add(tools,'h2','','Your writing workspace');const toolGrid=add(tools,'div','wa-tools');
- for(const [title,description,href] of [['Writing Studio','Plan, draft, revise and export a complete review.','./review-writing.html'],['Model Answer Library','Explore annotated examples of effective writing.',null],['My Portfolio','Keep drafts and track personal improvement.',null],['Exam Practice','Work independently on exam-style tasks.',null]]){const card=add(toolGrid,'article','wa-tool');add(card,'h3','',title);add(card,'p','',description);if(href)link(card,'wa-tool-link','Open Studio →',href);else add(card,'span','wa-status','In development');}
+ for(const [title,description,href] of [['Writing Studio','Plan, draft, revise and export a complete review.','./review-writing.html'],['Model Answer Library','Explore annotated examples of effective writing.',null],['My Portfolio','Keep drafts and track personal improvement.',null],['Exam Practice','Work independently on exam-style tasks.',null]]){const card=add(toolGrid,'article','wa-tool');add(card,'h3','',title);add(card,'p','',description);if(title==='Writing Studio'||title==='Exam Practice'){const b=add(card,'button','wa-action','Open →');b.onclick=()=>studio(title==='Exam Practice'?{initialTask:'review-community-sports',initialMode:'Gold'}:{});}else add(card,'span','wa-status','In development');}
  const footer=add(shell,'footer','wa-footer');add(footer,'p','','Design preview · No student progress or XP is recorded here.');
 }

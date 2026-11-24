@@ -1,0 +1,35 @@
+// Original teaching material. Four paragraphs are a recommended scaffold, not a mandatory Cambridge format.
+export const reviewExam={syllabus:'Cambridge IGCSE ESL 0511',exercise:6,min:120,max:160,contentMarks:6,languageMarks:9,format:'Continuous prose; clear paragraphs; appropriate register.'};
+export const blueprint=[
+ {title:'Introduction',guidance:'Identify what you are reviewing, when and where relevant, why you visited, watched, read or tried it, and your initial impression.'},
+ {title:'Description',guidance:'Describe relevant features with specific details and precise language.'},
+ {title:'Opinion & Evaluation',guidance:'Explain strengths or weaknesses with reasons and examples.'},
+ {title:'Recommendation',guidance:'Give a final judgement, a suitable audience and a reason, where appropriate.'}
+];
+export const model={title:'Riverside Café',prompt:'Your school magazine wants reviews of local cafés. Describe the café and its food, explain what impressed or disappointed you, and say whether you would recommend it to other students.',paragraphs:[
+ 'Last Saturday, I visited Riverside Café to celebrate my friend’s birthday. The cheerful atmosphere and friendly welcome made an excellent first impression.',
+ 'Located near the school, the café has comfortable seating and a varied menu. We ordered freshly made sandwiches and a generous slice of chocolate cake. Both were reasonably priced, which was particularly appealing to us.',
+ 'Although the café was crowded, the staff remained polite and helpful. Our drinks took twenty minutes to arrive, but the delicious food made up for the delay. I especially appreciated the quiet corner where we could chat without having to raise our voices.',
+ 'Overall, I would recommend Riverside Café to students looking for an affordable place to meet friends. However, visiting outside peak hours would make the experience even better.'
+],notes:['Identifies the place, time, reason for visiting and first impression.','Selects relevant details rather than listing everything.','Balances criticism with praise and supports judgements with specific examples.','Identifies the audience, gives a reason and offers practical advice.']};
+export const structureActivities=[
+ {id:'structure-purpose',level:'Bronze',title:'Match purpose to paragraph',type:'choice',items:[
+ {prompt:'Which paragraph normally explains why you visited?',options:['Description','Introduction','Recommendation'],answer:1,rationale:'The reason for visiting establishes context in the introduction.'},
+ {prompt:'Which paragraph should develop a judgement with a specific example?',options:['Opinion & Evaluation','Introduction','Recommendation'],answer:0,rationale:'Evaluation explains why something was successful or disappointing.'},
+ {prompt:'Where should you identify who would enjoy the café?',options:['Description','Opinion & Evaluation','Recommendation'],answer:2,rationale:'A useful recommendation identifies a suitable audience.'}]},
+ {id:'structure-order',level:'Bronze',title:'Sequence a review',type:'order',items:[{prompt:'Arrange these paragraph purposes into a logical review.',options:['Give a final judgement','Describe the experience','Introduce the subject and reason for visiting','Evaluate strengths and weaknesses'],answer:[2,1,3,0],rationale:'Introduce, describe, evaluate, recommend is a reliable review scaffold.'}]},
+ {id:'structure-opening',level:'Silver',title:'Choose a strong opening',type:'choice',items:[
+ {prompt:'Which opening best establishes context for a film review?',options:['The film was good and I liked it.','Last Friday, I watched the new science-fiction film Orion because a friend recommended it. Its striking opening immediately caught my attention.','There are many films in cinemas nowadays.'],answer:1,rationale:'It names the film, explains why it was watched and gives an initial impression.'},
+ {prompt:'Which opening best suits a review of a book for the school magazine?',options:['I chose The Secret Garden for our reading challenge and quickly became fascinated by its mysterious setting.','Dear teacher, I am writing this email about a book.','Books are things people read.'],answer:0,rationale:'It identifies the book, the reason for reading and an initial reaction in an appropriate register.'}]},
+ {id:'structure-plan',level:'Silver',title:'Organise your notes',type:'choice',items:[
+ {prompt:'Where does “visited the museum for a school history project” belong?',options:['Recommendation','Description','Introduction'],answer:2,rationale:'This explains the reason for visiting.'},
+ {prompt:'Where does “interactive displays made difficult ideas easier to understand” fit best?',options:['Opinion & Evaluation','Introduction','Recommendation'],answer:0,rationale:'This is an evaluative judgement with a reason.'},
+ {prompt:'Where does “three exhibition rooms and a rooftop garden” fit best?',options:['Introduction','Description','Recommendation'],answer:1,rationale:'These are descriptive details.'}]},
+ {id:'structure-edit',level:'Gold',title:'Improve a weak review',type:'choice',items:[
+ {prompt:'A review starts with “Everyone should go there.” What is the best structural improvement?',options:['Repeat the sentence in every paragraph.','Introduce the place and reason for visiting first, then support the judgement before recommending it.','Remove every opinion.'],answer:1,rationale:'A clear introduction and evidence make the final recommendation meaningful.'},
+ {prompt:'The description includes five unrelated details and the opinion has no explanation. What should you do?',options:['Add more unrelated details.','Remove the opinion.','Keep relevant details and use one specific example to support the opinion.'],answer:2,rationale:'Relevant detail and developed evaluation improve content and organisation.'}]},
+ {id:'structure-check',level:'Mastery check',title:'Check your understanding',type:'choice',items:[
+ {prompt:'Which is the most useful introduction for a concert review?',options:['I attended the school concert to support my classmates and was immediately impressed by the lively atmosphere.','The concert was a concert.','I recommend the concert.'],answer:0,rationale:'It establishes the event, reason for attending and first impression.'},
+ {prompt:'A review describes the food and explains its quality but ends abruptly. What is missing?',options:['A greeting','A recommendation or final judgement','A list of ingredients'],answer:1,rationale:'The reader needs a useful final judgement.'},
+ {prompt:'What is the best approach to the task requirements?',options:['Always use exactly four paragraphs regardless of the task.','Focus only on the word count.','Cover all task requirements, using clear paragraphs and an appropriate register.'],answer:2,rationale:'Task fulfilment matters more than mechanically following a fixed paragraph count.'}]}
+];
