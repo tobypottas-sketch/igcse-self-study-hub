@@ -445,3 +445,40 @@
     grid-column:1/-1;
   }
 }
+
+/* Explicit row placement prevents the inherited button/grid rules from
+   creating implicit rows. Keep the strip content-sized even in tall shops. */
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped{
+  height:auto!important;
+  min-height:0!important;
+  grid-template-rows:max-content max-content!important;
+  align-content:start!important;
+  align-self:start!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__list{
+  height:auto!important;
+  min-height:0!important;
+  grid-auto-rows:max-content!important;
+  align-content:start!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item{
+  height:auto!important;
+  min-height:0!important;
+  grid-template-rows:18px var(--equipment-art-height) minmax(32px,auto) minmax(36px,auto)!important;
+  grid-auto-rows:max-content!important;
+  padding:4px 3px!important;
+  gap:4px!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > small{grid-row:1;line-height:1.15;margin:0!important}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > .vocab-shop-equipped__art{grid-row:2;margin:0!important}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > strong{grid-row:3;margin:0!important}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button{
+  grid-row:4;grid-column:1;align-self:stretch!important;
+  height:auto!important;max-width:100%!important;box-sizing:border-box;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button.vocab-shop-unequip{grid-column:2}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button:only-of-type{grid-column:1/-1}
+@container (max-width:320px){
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button{grid-column:1/-1}
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button.vocab-shop-unequip{grid-row:5;grid-column:1/-1}
+}
