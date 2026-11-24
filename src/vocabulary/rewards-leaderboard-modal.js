@@ -1,3 +1,4 @@
+import {renderLeaderboardAvatar} from './rewards-avatars.js';
 // Full leaderboard lives in a dedicated, accessible overlay; the Rewards Shop
 // always keeps its seven-row preview. No ranking or XP calculations here.
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -45,7 +46,7 @@ function resultRow(row){
  const podium=rank>=1&&rank<=3?' is-podium is-podium--'+rank:'';
  return `<div class="vocab-shop-leaderboard__row${row.isYou?' is-you':''}${podium}">
   <span class="vocab-shop-leaderboard__rank" aria-label="Rank ${rank}">${rank<=3?['🥇','🥈','🥉'][rank-1]:rank}</span>
-  <span class="vocab-shop-leaderboard__name">${escapeHtml(row.name)}${row.isYou?'<small>Your rank</small>':''}</span>
+  <span class="vocab-shop-leaderboard__name">${renderLeaderboardAvatar(row)}${escapeHtml(row.name)}${row.isYou?'<small>Your rank</small>':''}</span>
   <strong class="vocab-shop-leaderboard__xp">${xp(row.xp)} <span>XP</span></strong>
  </div>`;
 }
@@ -63,7 +64,7 @@ export function installLeaderboardModal(root,board,view={}){
  const state={page:0,term:'',activeOnly:true};
  const all=board?.ok&&Array.isArray(board.rows)?board.rows:[];
  const top=all.filter(row=>row.rank<=3&&Number(row.xp)>0).slice(0,3);
- podium.innerHTML=top.length?`<div class="vocab-leaderboard-podium__title">⭐ TOP LEARNERS</div><div class="vocab-leaderboard-podium__places">${top.map(row=>`<div class="vocab-leaderboard-podium__place is-rank-${row.rank}"><span>${['🥇','🥈','🥉'][row.rank-1]}</span><strong>${escapeHtml(row.name)}</strong><small>${xp(row.xp)} XP</small></div>`).join('')}</div>`:'';
+ podium.innerHTML=top.length?`<div class="vocab-leaderboard-podium__title">⭐ TOP LEARNERS</div><div class="vocab-leaderboard-podium__places">${top.map(row=>`<div class="vocab-leaderboard-podium__place is-rank-${row.rank}"><span>${['🥇','🥈','🥉'][row.rank-1]}</span><strong>${renderLeaderboardAvatar(row)}${escapeHtml(row.name)}</strong><small>${xp(row.xp)} XP</small></div>`).join('')}</div>`:'';
  const me=board?.me;
  myRank.innerHTML=me?`<span>YOUR POSITION</span><strong>#${Number(me.rank)||0} · ${xp(me.xp)} XP</strong>`:'';
  function update(){

@@ -431,3 +431,43 @@ body:has(#vocabularyApp.vocab-real-theme--midnight .vocab-shell[data-unit-theme]
  #vocabularyApp .vocab-student-identity__title-art{width:min(100%,185px)}
  #vocabularyApp .vocab-student-identity-mini__title-art{width:74px;height:23px}
 }
+
+#vocabularyApp .vocab-student-identity__avatar:has(> .vocab-avatar-character){
+ background:transparent;box-shadow:none;
+}
+#vocabularyApp .vocab-student-identity__avatar > .vocab-avatar-character{
+ position:absolute;inset:3%;width:94%;height:94%;object-fit:contain;z-index:1;
+}
+#vocabularyApp .vocab-student-identity__avatar.has-frame > .vocab-avatar-character{
+ inset:14%;width:72%;height:72%;
+}
+#vocabularyApp .vocab-student-identity__avatar:has(> .vocab-avatar-character) > .vocab-student-identity__initials{
+ visibility:hidden;
+}
+#vocabularyApp .vocab-student-identity__avatar:has(> .vocab-avatar-character) > .vocab-student-identity__frame{
+ z-index:2;
+}
+#vocabularyApp .vocab-student-identity__avatar:has(> .vocab-avatar-character) > .vocab-student-identity__effect{
+ z-index:0;
+}
+#vocabularyApp .vocab-student-identity__avatar:has(> .vocab-avatar-character) > .vocab-student-identity__badge{
+ inset:auto -13% -8% auto;object-fit:contain;
+}
+#vocabularyApp .vocab-leaderboard-portrait{
+ position:relative;display:inline-grid;place-items:center;vertical-align:middle;
+ width:34px;height:34px;margin-inline-end:6px;isolation:isolate;
+}
+#vocabularyApp .vocab-leaderboard-portrait > img{
+ width:100%;height:100%;object-fit:contain;position:absolute;inset:0;
+}
+#vocabularyApp .vocab-leaderboard-portrait:has(> img) > span{visibility:hidden}
+#vocabularyApp .vocab-shop-equipped__art > .vocab-student-identity__avatar{width:48px;height:48px}
+#vocabularyApp .vocab-shop-equipped__art .vocab-student-identity__initials{font-size:.9rem}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-card--avatars .vocab-reward-picture > .vocab-shop-illustration{
+ background:transparent;border:0;box-shadow:none;object-fit:contain;
+}
+@media(min-width:800px){
+ #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped__list.has-avatars{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+ }
+}

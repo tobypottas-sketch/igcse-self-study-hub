@@ -51,9 +51,10 @@ export const ORIGINAL_ANIMATED_EFFECTS=Object.freeze([
 export const STANDARD_THEME_IDS=Object.freeze(['midnight','forest','ocean','sakura']);
 export const PREMIUM_THEME_IDS=Object.freeze(PREMIUM_COLLECTIONS.map(c=>c.themeId));
 export const SUPPORTED_THEME_IDS=Object.freeze([...STANDARD_THEME_IDS,...PREMIUM_THEME_IDS]);
-export const EQUIPMENT_CATEGORIES=Object.freeze(['themes','frames','badges','titles','effects']);
+export const EQUIPMENT_CATEGORIES=Object.freeze(['themes','frames','badges','titles','effects','avatars']);
 // Badges is a distinct fifth slot. Pixel Badge is now a real badge;
 // the database migration preserves all legacy ownership and spent XP.
 export const LEGACY_CATEGORIES=Object.freeze(['themes','frames','titles','effects']);
 export const hasBadgeCatalog=shop=>Array.isArray(shop?.rewards)&&shop.rewards.some(r=>r.category==='badges');
-export const visibleEquipmentCategories=shop=>hasBadgeCatalog(shop)?EQUIPMENT_CATEGORIES:LEGACY_CATEGORIES;
+export const visibleEquipmentCategories=shop=>EQUIPMENT_CATEGORIES.filter(category=>
+  category==='badges'?hasBadgeCatalog(shop):category!=='avatars'||shop?.rewards?.some(row=>row.category==='avatars'));

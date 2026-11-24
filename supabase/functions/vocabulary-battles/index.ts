@@ -1,3 +1,4 @@
+import {equippedAvatars} from '../_shared/vocabulary-avatar.ts';
 import {createClient} from 'npm:@supabase/supabase-js@2.117.3';
 
 /* Class-only, server-scored Vocabulary Battles. No XP or mastery mutations.
@@ -84,8 +85,9 @@ Deno.serve(async req=>{
     if(bError)return respond({error:'Challenges unavailable.'},503);
     const pending=(matches??[]).filter(b=>b.status==='pending'&&date(b.expires_at)>now());
     const active=(matches??[]).filter(b=>b.status==='accepted'&&(!b.ends_at?date(b.expires_at)>now():date(b.ends_at)>now()));
-    return respond({ok:true,me:uid,className:allowed.get(classId),classes:[...allowed].map(([id,name])=>({id,name})),
-      students:(students??[]).filter(s=>s.id!==uid).sort((a,b)=>a.display_name.localeCompare(b.display_name)),
+    const avatars=await equippedAvatars(db,(students??[]).map(s=>s.id));
+    return respond({ok:true,me:uid,avatarId:avatars.get(uid)??null,className:allowed.get(classId),classes:[...allowed].map(([id,name])=>({id,name})),
+      students:(students??[]).filter(s=>s.id!==uid).map(({id,display_name})=>({id,display_name,avatarId:avatars.get(id)??null})).sort((a,b)=>a.display_name.localeCompare(b.display_name)),
       pending,active});
   }
   if(action==='challenge'){
@@ -122,9 +124,13 @@ Deno.serve(async req=>{
       }
     }
     const students=[...totals.keys()];
-    const {data:names}=students.length?await db.from('profiles').select('id,display_name').in('id',students):{data:[]};
+    const {data:names}=students.length?await db.from('profiles').select('id,display_name').in('id',students).eq('role','student').eq('active',true):{data:[]};
     const nameMap=new Map((names??[]).map(p=>[p.id,p.display_name]));
-    return respond({ok:true,ranking:[...totals].map(([id,t])=>({id,name:nameMap.get(id)??'Classmate',...t}))
+    const {data:members}=students.length?await db.from('student_class_memberships')
+      .select('student_id').eq('class_id',classId).in('student_id',students).is('ended_at',null):{data:[]};
+    const currentMembers=new Set((members??[]).map(m=>m.student_id));
+    const avatars=await equippedAvatars(db,students.filter(id=>currentMembers.has(id)&&nameMap.has(id)));
+    return respond({ok:true,ranking:[...totals].map(([id,t])=>({id,name:nameMap.get(id)??'Classmate',avatarId:avatars.get(id)??null,...t}))
       .sort((a,b)=>b.wins-a.wins||b.score-a.score||a.name.localeCompare(b.name)).slice(0,30)});
   }
   const battleId=safeId(input?.battleId);
@@ -189,11 +195,15 @@ Deno.serve(async req=>{
     return respond({ok:true,correct:map.get(ids[i])?.correct===choice,points:map.get(ids[i])?.correct===choice?100:0});
   }
   if(action!=='status')return respond({error:'Unknown action.'},400);
-  const names=await db.from('profiles').select('id,display_name').in('id',[b.challenger_id,b.opponent_id]);
+  const names=await db.from('profiles').select('id,display_name').in('id',[b.challenger_id,b.opponent_id])
+   .eq('active',true).eq('role','student');
+  if (names.error || names.data?.length!==2) return respond({error:'Battle players unavailable.'},409);
+  const avatars=await equippedAvatars(db,[uid,other]);
   const nameMap=new Map((names.data??[]).map(p=>[p.id,p.display_name]));
   const current=ids[own.length]?map.get(ids[own.length]):null;
   return respond({ok:true,id:b.id,status:b.status,unitNumber:b.unit_number,
    classId:b.class_id,className:allowed.get(b.class_id),challengerId:b.challenger_id,
+   avatarId:avatars.get(uid)??null,opponentAvatarId:avatars.get(other)??null,
    challengerName:nameMap.get(b.challenger_id),opponentName:nameMap.get(b.opponent_id),
    startsAt:b.starts_at,endsAt:b.ends_at,expiresAt:b.expires_at,
    ready:Boolean(b[opponentSide?'opponent_ready_at':'challenger_ready_at']),

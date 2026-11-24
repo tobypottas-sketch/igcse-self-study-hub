@@ -1,7 +1,8 @@
 // Student-facing equipped identity and app-wide cosmetic theme controller.
 // The backend owns inventory; only equipped items found in its returned catalogue
 // can influence presentation. No learning content, grades, mastery or XP changes.
-import {rewardArtworkPath} from './rewards-art.js?v=blockverse-v1';
+import {rewardArtworkPath} from './rewards-art.js?v=player-avatars-v1';
+import {renderAvatarArtwork} from './rewards-avatars.js';
 import {ensureRewardsDashboard} from './rewards-home-layout.js';
 import {SUPPORTED_THEME_IDS,EQUIPMENT_CATEGORIES,visibleEquipmentCategories} from './rewards-premium-registry.js';
 const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -48,12 +49,13 @@ export function studentIdentityView(shop,displayName='Student'){
    themeName:active.themes?items.get(active.themes)?.name??'':''
  };
 }
-function avatar(identity,compact=false){
+export function renderIdentityAvatar(identity){
  const motion=identity.animatedEffect;
  const particles=motion?`<span class="vocab-cosmetic-particles" aria-hidden="true">${Array.from({length:6},(_,i)=>`<i class="vocab-cosmetic-particle vocab-cosmetic-particle--${i+1}"></i>`).join('')}</span>`:'';
  return `<span class="vocab-student-identity__avatar${identity.frame?' has-frame':''}${identity.badge?' has-badge':''}${motion?' has-animated-effect':''}" ${motion?`data-cosmetic-effect="${motion}"`:``} aria-hidden="true">
    ${identity.frame?`<img class="vocab-student-identity__frame" src="${identity.frame}" alt="" decoding="async">`:''}
    <span class="vocab-student-identity__initials">${escapeHtml(identity.initials)}</span>
+   ${renderAvatarArtwork(identity.active?.avatars)}
    ${identity.badge?`<img class="vocab-student-identity__badge" src="${identity.badge}" alt="" decoding="async">`:''}
    ${identity.effectArt?`<img class="vocab-student-identity__effect" src="${identity.effectArt}" alt="" decoding="async">`:''}
    ${particles}
@@ -77,7 +79,7 @@ function profileProgressSummary(shop,engagement=null){
 export function renderIdentityShowcase(shop,displayName='Student',engagement=null){
  const id=studentIdentityView(shop,displayName);
  const active=id.active;
- const labels={themes:'Theme',frames:'Frame',badges:'Badge',titles:'Title',effects:'Effect'};
+ const labels={themes:'Theme',frames:'Frame',badges:'Badge',titles:'Title',effects:'Effect',avatars:'Avatar'};
  const equippedCount=Object.keys(active).length;
  const itemNames=new Map((shop?.rewards??[]).map(item=>[item.reward_id,item.name]));
  const categories=visibleEquipmentCategories(shop);
@@ -93,7 +95,7 @@ export function renderIdentityShowcase(shop,displayName='Student',engagement=nul
      :`<span class="vocab-student-identity__title">${escapeHtml(id.title)}</span>`)
    :'';
  return `<section class="vocab-real-cosmetics vocab-student-identity${titleUnderName?' vocab-student-identity--master-builder':''}" data-real-cosmetics aria-label="Your student profile and equipped rewards">
-   <div class="vocab-student-identity__portrait">${avatar(id)}</div>
+   <div class="vocab-student-identity__portrait">${renderIdentityAvatar(id)}</div>
    <div class="vocab-student-identity__text">
      <span class="vocab-student-identity__eyebrow">${id.sandboxPreview?'Preview':'MY STUDENT PROFILE'}</span>
      <h2>${escapeHtml(id.name)}</h2>
@@ -126,7 +128,7 @@ export function decorateStudentIdentity(root,shop,displayName='Student'){
  // the home/profile showcase rather than consuming the study navigation.
  const compactStudy=header.classList.contains('vocab-topbar--unit');
  chip.classList.toggle('vocab-student-identity-mini--study',compactStudy);
- chip.innerHTML=avatar(id,true)+`<span class="vocab-student-identity-mini__name">${escapeHtml(id.name)}${compactStudy?'<small class="vocab-student-identity-mini__subtitle">Student profile</small>':id.title?(id.titleArt?`<small class="vocab-student-identity-mini__title-art"><img src="${id.titleArt}" alt="${escapeHtml(id.title)} title" decoding="async"></small>`:`<small>${escapeHtml(id.title)}</small>`):id.sandboxPreview?'<small>Test cosmetics preview</small>':''}</span>`;
+ chip.innerHTML=renderIdentityAvatar(id)+`<span class="vocab-student-identity-mini__name">${escapeHtml(id.name)}${compactStudy?'<small class="vocab-student-identity-mini__subtitle">Student profile</small>':id.title?(id.titleArt?`<small class="vocab-student-identity-mini__title-art"><img src="${id.titleArt}" alt="${escapeHtml(id.title)} title" decoding="async"></small>`:`<small>${escapeHtml(id.title)}</small>`):id.sandboxPreview?'<small>Test cosmetics preview</small>':''}</span>`;
  // The course code and navigation remain accessible; add a compact identity at
  // the far end without replacing the existing page header controls.
  header.append(chip);

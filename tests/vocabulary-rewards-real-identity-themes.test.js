@@ -72,7 +72,7 @@ test('root theme and identity persist across internal screen rerenders and are r
 test('asset version bump exposes the new identity CSS and application code to returning students',()=>{
  const html=fs.readFileSync(new URL('../vocabulary.html',import.meta.url),'utf8');
  const router=fs.readFileSync(new URL('../src/vocabulary/router.js',import.meta.url),'utf8');
- assert.match(html,/vocabulary-reward-identity\.css\?v=frame-proportions-v1/);
- assert.match(html,/src\/vocabulary\/router\.js\?v=equipment-smooth-scroll-v3/);
- assert.match(router,/\.\/app\.js\?v=equipment-smooth-scroll-v3/);
+ assert.match(html,/vocabulary-reward-identity\.css\?v=player-avatars-v1/);
+ assert.match(html,/src\/vocabulary\/router\.js\?v=player-avatars-v1/);
+ assert.match(router,/\.\/app\.js\?v=player-avatars-v1/);
 });

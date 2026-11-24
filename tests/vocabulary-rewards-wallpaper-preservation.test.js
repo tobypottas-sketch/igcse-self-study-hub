@@ -35,6 +35,6 @@ test('midnight icons remain legible and print/high-contrast users do not see wal
  assert.match(css,/background-image:none!important/);
 });
 test('browser cache loads refreshed CSS without changing routed learning app',()=>{
- assert.match(html,/vocabulary-reward-identity\.css\?v=frame-proportions-v1/);
+ assert.match(html,/vocabulary-reward-identity\.css\?v=player-avatars-v1/);
  assert.match(html,/vocabulary-unit-themes\.css/);
 });

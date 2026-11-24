@@ -1,4 +1,4 @@
-import {updateLeaderboardModal,markLeaderboardTabPending} from './rewards-leaderboard-modal.js?v=overlay-scroll-stability-v1';
+import {updateLeaderboardModal,markLeaderboardTabPending} from './rewards-leaderboard-modal.js?v=player-avatars-v1';
 import {ensureRewardsDashboard} from './rewards-home-layout.js';
 import { getSupabaseClient } from '../supabase.js';
 import { loadStudentVocabularyProgress, summariseVocabularyProgress, sampleVocabularyProgress, renderStudentVocabularyProgress } from './student-progress.js?v=journey-dashboard-v2';
@@ -292,7 +292,7 @@ function scrollToShopCategory(){
 }
 async function renderCurrentSandboxShop(message='',busy=sandboxBusy){
  if(!sandboxShop?.sandboxEnabled)return;
- const {renderSandboxShop}=await import('./rewards-sandbox-view.js?v=blockverse-v1');
+ const {renderSandboxShop}=await import('./rewards-sandbox-view.js?v=player-avatars-v1');
  renderSandboxShop(root,sandboxShop,{category:sandboxCategory,busy,message,progress:homeEngagement(),studentName:state.profile?.display_name??'Student',leaderboard:sandboxLeaderboard,leaderboardView:sandboxLeaderboardView});
 }
 async function loadSandboxShop() {
@@ -321,7 +321,8 @@ async function applySandboxReward(action,rewardId){
     const response=await state.client.functions.invoke('vocabulary-reward-sandbox',{body:{action,rewardId}});
     if(response.error||response.data?.ok!==true)throw Error(response.data?.error||'Could not save reward.');
     sandboxShop=response.data;
-    feedback=action==='buy'?'Reward purchased using test XP.':'Reward equipped.';
+    const free=sandboxShop.rewards.some(r=>r.reward_id===rewardId&&r.xp_price===0);
+    feedback=action==='buy'?(free?'Avatar claimed! Select Equip to use it.':'Reward purchased using test XP.'):'Reward equipped.';
     // Automatically equip test themes for an instant, honest sandbox preview.
     const themeBought=action==='buy'&&sandboxShop.rewards.some(x=>x.reward_id===rewardId&&x.category==='themes');
     if(themeBought){
@@ -398,7 +399,7 @@ async function refreshStudentCosmetics(){
  const shop=effectiveCosmeticShop();
  if(!shop||state.preview||state.profile?.role!=='student')return;
  liveCosmeticShop=shop;
- cosmeticModule??=await import('./rewards-equipped-home.js?v=study-hud-v1');
+ cosmeticModule??=await import('./rewards-equipped-home.js?v=player-avatars-v1');
  cosmeticModule.applyRewardTheme(root,shop);
  if(root?.querySelector('.vocab-shell--home'))
    cosmeticModule.renderEquippedCosmetics(root,shop,state.profile?.display_name??'Student',homeEngagement());
@@ -453,7 +454,7 @@ async function fetchRealShop(){
 }
 async function renderRealShop(message='',busy=realBusy){
  if(!realShop)return;
- const {renderProductionShop}=await import('./rewards-sandbox-view.js?v=blockverse-v1');
+ const {renderProductionShop}=await import('./rewards-sandbox-view.js?v=player-avatars-v1');
  renderProductionShop(root,realShop,{category:realCategory,busy,message,progress:homeEngagement(),
   studentName:state.profile?.display_name??'Student',leaderboard:realLeaderboard,leaderboardView:realLeaderboardView});
  await updateLiveCosmetics(realShop);
@@ -497,7 +498,8 @@ async function applyRealReward(action,rewardId){
   const {data,error}=await state.client.functions.invoke('vocabulary-reward-production',{body:{action,rewardId}});
   if(error||data?.ok!==true||data.shopMode!=='production')throw Error(data?.error||'Reward could not be saved.');
   realShop=data;
-  feedback=action==='buy'?'Reward purchased! Select Equip to use it.':'Reward equipped!';
+  const free=realShop.rewards.some(r=>r.reward_id===rewardId&&r.xp_price===0);
+  feedback=action==='buy'?(free?'Avatar claimed! Select Equip to use it.':'Reward purchased! Select Equip to use it.'):'Reward equipped!';
   // Themes should immediately transform the workspace after purchase. Buying is
   // still the only XP deduction; equip is a separate, free server-authorized RPC.
   const purchasedTheme=action==='buy'&&realShop.rewards.some(r=>r.reward_id===rewardId&&r.category==='themes');
@@ -523,7 +525,7 @@ async function applyRealReward(action,rewardId){
  }
 }
 async function removeEquippedReward(category,production,clickedButton=null){
- if(state.preview||!['themes','frames','badges','titles','effects'].includes(category))return;
+ if(state.preview||!['themes','frames','badges','titles','effects','avatars'].includes(category))return;
  const shop=production?realShop:sandboxShop;
  if(!shop||(production?realBusy:sandboxBusy))return;
  if(!shop.owned?.some(item=>item.category===category&&item.equipped===true))return;
@@ -537,7 +539,7 @@ async function removeEquippedReward(category,production,clickedButton=null){
  }
  let message='';
  try{
-  const {persistUnequippedReward}=await import('./rewards-unequip-flow.js?v=verified-unequip-v2');
+  const {persistUnequippedReward}=await import('./rewards-unequip-flow.js?v=player-avatars-v1');
   const data=await persistUnequippedReward({
    invoke:(name,args)=>state.client.functions.invoke(name,args),category,production
   });
@@ -1410,7 +1412,7 @@ root?.addEventListener('click', event => {
   else if (action === 'open-real-shop' && !state.preview) { void showRealShop(); }
   else if (action === 'real-filter' && !state.preview && realShop && !realBusy) {
     const category=target.dataset.category??'all';
-    if(['all','themes','frames','badges','titles','effects','popular'].includes(category)){
+    if(['all','themes','frames','badges','titles','effects','avatars','popular'].includes(category)){
       realCategory=category;
       const featured=target.dataset.focusReward;
       const fromEquipment=Boolean(target.closest('.vocab-shop-equipped'));
@@ -1451,7 +1453,7 @@ root?.addEventListener('click', event => {
   }
   else if (action === 'sandbox-filter' && !state.preview && sandboxShop?.sandboxEnabled) {
     const category=target.dataset.category??'all';
-    if(!['all','themes','frames','badges','titles','effects','popular'].includes(category))return;
+    if(!['all','themes','frames','badges','titles','effects','avatars','popular'].includes(category))return;
     sandboxCategory=category;
     const featured=target.dataset.focusReward;
     const fromEquipment=Boolean(target.closest('.vocab-shop-equipped'));

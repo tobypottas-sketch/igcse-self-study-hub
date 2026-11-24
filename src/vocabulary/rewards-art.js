@@ -1,6 +1,8 @@
 // PNG-only artwork for the Vocabulary Builder Rewards Shop.
 // Source images live in assets/vocabulary/rewards/ and are included in this repo.
 // Do not substitute crude inline SVG illustrations or remote URLs.
+import {avatarArtworkPath} from './rewards-avatars.js';
+
 const REWARD_ARTWORK = Object.freeze({
   midnight:'midnight.png',
   forest:'forest.png',
@@ -55,7 +57,7 @@ export const REWARD_ARTWORK_DIR='assets/vocabulary/rewards/';
 export const rewardArtworkPath=id=>
   Object.prototype.hasOwnProperty.call(REWARD_ARTWORK,id)
     ? REWARD_ARTWORK_DIR+REWARD_ARTWORK[id]
-    : null;
+    : avatarArtworkPath(id);
 
 export function rewardIllustration(id) {
   const path=rewardArtworkPath(id);

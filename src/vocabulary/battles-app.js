@@ -1,3 +1,4 @@
+import {avatarInitials,renderAvatarArtwork} from './rewards-avatars.js';
 // Vocabulary Battles V2 — polished student UI over the existing server-authoritative
 // challenge/ready/answer API. No client-side XP, mastery or result settlement.
 import {getSupabaseClient} from '../supabase.js';
@@ -12,8 +13,7 @@ const state={
  viewKey:'',requestEpoch:0
 };
 const seconds=date=>date?Math.max(0,Math.ceil((new Date(date).getTime()-Date.now())/1000)):0;
-const initials=name=>String(name??'').trim().split(/\s+/).slice(0,2).map(word=>word[0]??'').join('').toUpperCase()||'?';
-const avatar=(name,side='a',size='')=>'<span class="battle-avatar battle-avatar--'+side+(size?' battle-avatar--'+size:'')+'" aria-hidden="true">'+e(initials(name))+'</span>';
+const avatar=(name,side='a',size='',id=null)=>'<span class="battle-avatar battle-avatar--'+side+(size?' battle-avatar--'+size:'')+'" aria-hidden="true">'+'<span>'+e(avatarInitials(name))+'</span>'+renderAvatarArtwork(id)+'</span>';
 const btn=(label,action,extra='',disabled=false)=>'<button type="button" class="battle-btn" data-battle-act="'+action+'" '+extra+(disabled?' disabled':'')+'>'+label+'</button>';
 const panel=(body,kind='')=>'<section class="battle-panel '+kind+'">'+body+'</section>';
 const heading=(eyebrow,title,subtitle)=>'<header class="battle-heading"><p class="battle-kicker">'+e(eyebrow)+'</p><h1>'+e(title)+'</h1><p class="battle-heading__subtitle">'+e(subtitle)+'</p></header>';
@@ -51,20 +51,20 @@ function lobbyMarkup(){
  const opponentSelect='<label class="battle-select-label">CHOOSE A CLASSMATE<select data-battle-opponent><option value="">Select your opponent…</option>'+others.map(row=>'<option value="'+e(row.id)+'"'+(row.id===state.opponent?' selected':'')+'>'+e(row.display_name)+'</option>').join('')+'</select></label>';
  const unitSelect='<label class="battle-select-label">VOCABULARY UNIT<select data-battle-unit><option value="1"'+(state.unit===1?' selected':'')+'>Unit 1 · Sports & Free Time</option><option value="9"'+(state.unit===9?' selected':'')+'>Unit 9 · Communication</option></select></label>';
  const choice='<div class="battle-choice-grid">'+unitSelect+opponentSelect+'</div>';
- const versus='<div class="battle-challenge-versus"><div class="battle-challenge-player">'+avatar(state.profile?.display_name,'a')+'<span><small>YOU</small><strong>'+e(state.profile?.display_name)+'</strong></span></div><span class="battle-vs" aria-label="versus">VS</span><div class="battle-challenge-player">'+avatar(selected?.display_name??'?','b')+'<span><small>OPPONENT</small><strong data-selected-opponent>'+e(selected?.display_name??'Choose a classmate')+'</strong></span></div></div>';
+ const versus='<div class="battle-challenge-versus"><div class="battle-challenge-player">'+avatar(state.profile?.display_name,'a','',lobby.avatarId)+'<span><small>YOU</small><strong>'+e(state.profile?.display_name)+'</strong></span></div><span class="battle-vs" aria-label="versus">VS</span><div class="battle-challenge-player">'+avatar(selected?.display_name??'?','b','',selected?.avatarId)+'<span><small>OPPONENT</small><strong data-selected-opponent>'+e(selected?.display_name??'Choose a classmate')+'</strong></span></div></div>';
  const pending=(lobby.pending??[]).map(b=>{
   const received=b.opponent_id===lobby.me;
   const opponent=names.get(received?b.challenger_id:b.opponent_id)??'Classmate';
   const actions=received?btn('Accept challenge','accept','data-id="'+e(b.id)+'" data-primary')+btn('Decline','decline','data-id="'+e(b.id)+'"'):btn('Cancel invite','cancel','data-id="'+e(b.id)+'"');
-  return '<article class="battle-request">'+avatar(opponent,received?'b':'a','sm')+'<div class="battle-request__info"><strong>'+e(opponent)+'</strong><small>Unit '+e(b.unit_number)+' · '+(received?'Invited you to battle':'Waiting for a reply')+'</small></div><div class="battle-request-actions">'+actions+'</div></article>';
+  return '<article class="battle-request">'+avatar(opponent,received?'b':'a','sm',others.find(row=>row.id===(received?b.challenger_id:b.opponent_id))?.avatarId)+'<div class="battle-request__info"><strong>'+e(opponent)+'</strong><small>Unit '+e(b.unit_number)+' · '+(received?'Invited you to battle':'Waiting for a reply')+'</small></div><div class="battle-request-actions">'+actions+'</div></article>';
  }).join('');
  const active=(lobby.active??[]).map(b=>{
   const rival=names.get(b.challenger_id===lobby.me?b.opponent_id:b.challenger_id)??'Classmate';
-  return '<article class="battle-request battle-request--active">'+avatar(rival,'b','sm')+'<div class="battle-request__info"><strong>'+e(rival)+'</strong><small>Unit '+e(b.unit_number)+' · '+(b.starts_at?'Battle in progress':'Enter the ready room')+'</small></div>'+btn('Enter duel →','enter','data-id="'+e(b.id)+'" data-primary')+'</article>';
+  return '<article class="battle-request battle-request--active">'+avatar(rival,'b','sm',others.find(row=>row.id===(b.challenger_id===lobby.me?b.opponent_id:b.challenger_id))?.avatarId)+'<div class="battle-request__info"><strong>'+e(rival)+'</strong><small>Unit '+e(b.unit_number)+' · '+(b.starts_at?'Battle in progress':'Enter the ready room')+'</small></div>'+btn('Enter duel →','enter','data-id="'+e(b.id)+'" data-primary')+'</article>';
  }).join('');
  const invitations=active+pending||'<div class="battle-empty-state"><span aria-hidden="true">📨</span><strong>No challenges yet</strong><p>Invite a classmate to start a battle!</p></div>';
- const podium=state.board.slice(0,3).map((row,index)=>'<div class="battle-podium__entry battle-podium__entry--'+(index+1)+'"><span class="battle-podium__medal">'+['🥇','🥈','🥉'][index]+'</span>'+avatar(row.name,index===0?'gold':'b','sm')+'<span><strong>'+e(row.name)+'</strong><small>'+row.wins+' win'+(row.wins===1?'':'s')+'</small></span></div>').join('');
- const rows=state.board.map((row,index)=>'<tr'+(row.id===lobby.me?' class="is-you"':'')+'><td><span class="battle-rank">'+(index<3?['🥇','🥈','🥉'][index]:index+1)+'</span></td><th scope="row">'+e(row.name)+(row.id===lobby.me?' <span class="battle-you">YOU</span>':'')+'</th><td>'+row.wins+'</td><td>'+row.played+'</td><td>'+row.score.toLocaleString('en')+'</td></tr>').join('')||'<tr><td colspan="5" class="battle-no-ranks">Complete the first duel to claim the top spot!</td></tr>';
+ const podium=state.board.slice(0,3).map((row,index)=>'<div class="battle-podium__entry battle-podium__entry--'+(index+1)+'"><span class="battle-podium__medal">'+['🥇','🥈','🥉'][index]+'</span>'+avatar(row.name,index===0?'gold':'b','sm',row.avatarId)+'<span><strong>'+e(row.name)+'</strong><small>'+row.wins+' win'+(row.wins===1?'':'s')+'</small></span></div>').join('');
+ const rows=state.board.map((row,index)=>'<tr'+(row.id===lobby.me?' class="is-you"':'')+'><td><span class="battle-rank">'+(index<3?['🥇','🥈','🥉'][index]:index+1)+'</span></td><th scope="row">'+(row.avatarId?avatar(row.name,'b','sm',row.avatarId):'')+e(row.name)+(row.id===lobby.me?' <span class="battle-you">YOU</span>':'')+'</th><td>'+row.wins+'</td><td>'+row.played+'</td><td>'+row.score.toLocaleString('en')+'</td></tr>').join('')||'<tr><td colspan="5" class="battle-no-ranks">Complete the first duel to claim the top spot!</td></tr>';
  return '<section class="battle-lobby-hero">'+heading('⚔️ CLASS CHALLENGES','Vocabulary Battles','Pick your rival. Ten shared questions. Sixty seconds. One winner.')+'<div class="battle-lobby-hero__info"><span>🎯 10 questions</span><span>⏱ 60 seconds</span><span>🔒 Classmates only</span></div></section>'
  +'<div class="battle-class-controls">'+classSelect+pill('No XP at stake','battle-pill--safe')+'</div>'
  +panel('<div class="battle-panel__head"><span class="battle-kicker">01 · NEW CHALLENGE</span><h2>Choose your opponent</h2><p>Invite someone from your own class to a vocabulary showdown.</p></div>'+versus+choice+'<div class="battle-challenge__footer"><p>Both players press Ready before the clock starts. The question set is identical.</p>'+btn('Send Challenge ⚔️','challenge','data-primary',!state.opponent||state.busy)+'</div>','battle-panel--challenge')
@@ -88,10 +88,10 @@ function matchSignature(b){
 }
 function matchup(b){
  const rival=b.challengerId===state.profile.id?b.opponentName:b.challengerName;
- return '<section class="battle-matchup" aria-label="Players and scores"><div class="battle-fighter battle-fighter--self">'+avatar(state.profile.display_name,'a')+'<div><small>YOU · PLAYER 1</small><strong>'+e(state.profile.display_name)+'</strong><b data-own-score>'+b.score+' <span>PTS</span></b></div></div><div class="battle-matchup__vs"><span>VS</span><small>UNIT '+e(b.unitNumber)+'</small></div><div class="battle-fighter battle-fighter--rival">'+avatar(rival,'b')+'<div><small>CLASSMATE · PLAYER 2</small><strong>'+e(rival)+'</strong><b data-rival-progress>'+(b.finished?b.opponentScore+' <span>PTS</span>':b.opponentAnswered+' / '+b.total+' <span>DONE</span>')+'</b></div></div></section>';
+ return '<section class="battle-matchup" aria-label="Players and scores"><div class="battle-fighter battle-fighter--self">'+avatar(state.profile.display_name,'a','',b.avatarId)+'<div><small>YOU · PLAYER 1</small><strong>'+e(state.profile.display_name)+'</strong><b data-own-score>'+b.score+' <span>PTS</span></b></div></div><div class="battle-matchup__vs"><span>VS</span><small>UNIT '+e(b.unitNumber)+'</small></div><div class="battle-fighter battle-fighter--rival">'+avatar(rival,'b','',b.opponentAvatarId)+'<div><small>CLASSMATE · PLAYER 2</small><strong>'+e(rival)+'</strong><b data-rival-progress>'+(b.finished?b.opponentScore+' <span>PTS</span>':b.opponentAnswered+' / '+b.total+' <span>DONE</span>')+'</b></div></div></section>';
 }
-function readyCard(name,ready,side){
- return '<div class="battle-ready-card battle-ready-card--'+side+'">'+avatar(name,side)+'<strong>'+e(name)+'</strong><span class="battle-ready-status '+(ready?'is-ready':'')+'">'+(ready?'✓ READY':'◌ WAITING')+'</span></div>';
+function readyCard(name,ready,side,avatarId){
+ return '<div class="battle-ready-card battle-ready-card--'+side+'">'+avatar(name,side,'',avatarId)+'<strong>'+e(name)+'</strong><span class="battle-ready-status '+(ready?'is-ready':'')+'">'+(ready?'✓ READY':'◌ WAITING')+'</span></div>';
 }
 function battleContent(b,phase){
  const rival=b.challengerId===state.profile.id?b.opponentName:b.challengerName;
@@ -99,9 +99,9 @@ function battleContent(b,phase){
  if(phase==='closed')return '<div class="battle-wait"><div class="battle-scene-icon" aria-hidden="true">🛡️</div><h2>Invitation '+e(b.status)+'</h2><p>Head back to the Arena to start another challenge.</p></div>';
  if(phase==='finished'){
   const result=b.outcome==='won'?{icon:'🏆',label:'VICTORY!',message:'You won the duel!',theme:'win'}:b.outcome==='lost'?{icon:'🛡️',label:'GOOD BATTLE',message:'Your classmate takes this round.',theme:'loss'}:{icon:'🤝',label:'A DRAW!',message:'An evenly matched duel!',theme:'draw'};
-  return '<div class="battle-finish battle-finish--'+result.theme+'"><div class="battle-finish__trophy" aria-hidden="true">'+result.icon+'</div><p class="battle-kicker">BATTLE RESULTS</p><h2>'+result.label+'</h2><p>'+result.message+'</p><div class="battle-final-scores"><div><span>YOUR SCORE</span><strong>'+b.score+'</strong></div><span>VS</span><div><span>OPPONENT</span><strong>'+b.opponentScore+'</strong></div></div>'+btn('Return to Arena →','back','data-primary')+'<p class="battle-finish__note">Every battle is practice. Keep improving and challenge again!</p></div>';
+  return '<div class="battle-finish battle-finish--'+result.theme+'"><div class="battle-finish__trophy" aria-hidden="true">'+result.icon+'</div><p class="battle-kicker">BATTLE RESULTS</p><h2>'+result.label+'</h2><p>'+result.message+'</p><div class="battle-final-scores"><div>'+avatar(state.profile.display_name,'a','',b.avatarId)+'<span>YOUR SCORE</span><strong>'+b.score+'</strong></div><span>VS</span><div>'+avatar(rival,'b','',b.opponentAvatarId)+'<span>OPPONENT</span><strong>'+b.opponentScore+'</strong></div></div>'+btn('Return to Arena →','back','data-primary')+'<p class="battle-finish__note">Every battle is practice. Keep improving and challenge again!</p></div>';
  }
- if(phase==='ready')return '<div class="battle-ready"><p class="battle-kicker">READY ROOM</p><h2>Ready for the showdown?</h2><p>The 60-second clock will only start when <strong>both players</strong> are ready.</p><div class="battle-ready-grid">'+readyCard(state.profile.display_name,b.ready,'a')+'<span class="battle-vs battle-vs--large">VS</span>'+readyCard(rival,b.opponentReady,'b')+'</div>'+(b.ready?'<p class="battle-ready__waiting" role="status">✓ You’re ready! Waiting for your classmate…</p>':btn('I’M READY ⚔️','ready','data-primary'))+'</div>';
+ if(phase==='ready')return '<div class="battle-ready"><p class="battle-kicker">READY ROOM</p><h2>Ready for the showdown?</h2><p>The 60-second clock will only start when <strong>both players</strong> are ready.</p><div class="battle-ready-grid">'+readyCard(state.profile.display_name,b.ready,'a',b.avatarId)+'<span class="battle-vs battle-vs--large">VS</span>'+readyCard(rival,b.opponentReady,'b',b.opponentAvatarId)+'</div>'+(b.ready?'<p class="battle-ready__waiting" role="status">✓ You’re ready! Waiting for your classmate…</p>':btn('I’M READY ⚔️','ready','data-primary'))+'</div>';
  if(phase==='countdown')return '<div class="battle-countdown"><span class="battle-kicker">BATTLE STARTING</span><strong data-countdown>'+seconds(b.startsAt)+'</strong><h2>Get ready!</h2><p>Same questions. Same timer. Give it your best shot!</p></div>';
  if(phase==='timeout')return '<div class="battle-wait"><div class="battle-scene-icon" aria-hidden="true">⏳</div><h2>Time’s up!</h2><p>Checking the final scores…</p></div>';
  if(phase==='answered')return '<div class="battle-wait"><div class="battle-scene-icon" aria-hidden="true">✅</div><h2>All questions answered!</h2><p>Your score is in. Waiting for your opponent or the timer.</p></div>';
@@ -141,7 +141,7 @@ function patchMatchHud(b){
 }
 function lobbySignature(lobby,board){
  return JSON.stringify({classId:state.classId,
-  students:(lobby?.students??[]).map(s=>[s.id,s.display_name]),
+  avatarId:lobby?.avatarId,students:(lobby?.students??[]).map(s=>[s.id,s.display_name,s.avatarId]),
   pending:(lobby?.pending??[]).map(b=>[b.id,b.status,b.opponent_id]),
   active:(lobby?.active??[]).map(b=>[b.id,b.starts_at]),
   board});
@@ -238,7 +238,7 @@ root?.addEventListener('change',event=>{
   const label=root.querySelector('[data-selected-opponent]');
   if(label)label.textContent=peer?.display_name??'Choose a classmate';
   const avatarLabel=root.querySelector('.battle-challenge-player:last-child .battle-avatar');
-  if(avatarLabel)avatarLabel.textContent=initials(peer?.display_name);
+  if(avatarLabel)avatarLabel.outerHTML=avatar(peer?.display_name,'b','',peer?.avatarId);
   const send=root.querySelector('[data-battle-act="challenge"]');
   if(send)send.disabled=!state.opponent;
  }

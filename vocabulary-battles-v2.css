@@ -521,3 +521,12 @@ body{
 @media(prefers-reduced-motion:reduce){
   .battle-shell .battle-class-select-wrap > select[data-battle-class]{transition:none}
 }
+
+#battlesApp .battle-avatar{position:relative}
+#battlesApp .battle-avatar:has(> img.vocab-avatar-character){background:transparent}
+#battlesApp .battle-avatar > img.vocab-avatar-character{
+ position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+}
+#battlesApp .battle-avatar:has(> img.vocab-avatar-character) > span{visibility:hidden}
+#battlesApp .battle-final-scores .battle-avatar{margin-inline:auto}
+#battlesApp .battle-table-wrap th .battle-avatar{display:inline-grid;margin-inline-end:8px;vertical-align:middle}
