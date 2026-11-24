@@ -15,7 +15,7 @@ export function renderExamReference(p){
  const k=add(d,'details','');add(k,'summary','','Language toolkit');const kl=add(k,'ul','');for(const x of toolkit)add(kl,'li','',x);
  return s;
 }
-export function renderStructure(root,onBack){
+export function renderStructure(root,onBack,onStudio){
  root.replaceChildren();const shell=add(root,'div','wa-shell wa-learning');
  const nav=add(shell,'nav','wa-nav');button(nav,'← All pathways',onBack);add(nav,'span','wa-preview','Staff preview');
  add(shell,'h1','','Structure & Organisation');renderExamReference(shell);
@@ -39,5 +39,5 @@ export function renderStructure(root,onBack){
  if(a.type==='order')button(host,'Reset order',()=>{if(!checked)draw();});
  }draw();}
  for(const a of activities)button(choices,a.level+' · '+a.title,()=>open(a));
- const end=add(shell,'section','wa-lesson');add(end,'h2','','Apply it in your own review');add(end,'h3','','Independent task · Community sports event');add(end,'p','',independentTask.prompt);add(end,'p','wa-muted','Integrated planning and draft recovery are still in development. To practise now, copy this task into the existing Studio’s custom question field.');const a=add(end,'a','wa-primary','Open Writing Studio →');a.href='./review-writing.html';
+ const end=add(shell,'section','wa-lesson');add(end,'h2','','Apply it in your own review');add(end,'h3','','Independent task · Community sports event');add(end,'p','',independentTask.prompt);button(end,'Open Writing Studio →',()=>onStudio({initialTask:independentTask.id,initialMode:'Gold'}));
 }
