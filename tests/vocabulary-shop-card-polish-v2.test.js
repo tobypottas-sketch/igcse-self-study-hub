@@ -105,7 +105,8 @@ test('equipment Change lands at category tabs in both shops, not page top',()=>{
  const app=readFileSync(new URL('../src/vocabulary/app.js',import.meta.url),'utf8');
  assert.match(app,/function scrollToShopCategory\(\)/);
  assert.match(app,/querySelector\('\.vocab-shop-main \.vocab-shop-filter-line'\)/);
- assert.match(app,/tabs\.scrollIntoView\(\{block:'start',inline:'nearest',behavior:'instant'\}\)/);
+ assert.match(app,/window\.matchMedia\('\(prefers-reduced-motion: reduce\)'\)\.matches\?'instant':'smooth'/);
+ assert.match(app,/tabs\.scrollIntoView\(\{block:'start',inline:'nearest',behavior\}\)/);
  assert.equal((app.match(/fromEquipment&&root\.querySelector\([^\n]+scrollToShopCategory\(\)/g)||[]).length,2);
  assert.match(css,/\.vocab-shop-filter-line\{scroll-margin-top:16px;\}/);
 });

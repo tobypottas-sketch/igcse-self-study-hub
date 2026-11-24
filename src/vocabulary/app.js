@@ -283,12 +283,12 @@ function scrollToShopTop(){
 function scrollToShopCategory(){
  const tabs=root?.querySelector('.vocab-shop-main .vocab-shop-filter-line');
  if(!tabs)return;
- const reset=()=>{
+ // Wait for the new category layout, then initiate one uninterrupted scroll.
+ requestAnimationFrame(()=>{
   if(!tabs.isConnected)return;
-  tabs.scrollIntoView({block:'start',inline:'nearest',behavior:'instant'});
- };
- reset();
- requestAnimationFrame(reset);
+  const behavior=window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth';
+  tabs.scrollIntoView({block:'start',inline:'nearest',behavior});
+ });
 }
 async function renderCurrentSandboxShop(message='',busy=sandboxBusy){
  if(!sandboxShop?.sandboxEnabled)return;
