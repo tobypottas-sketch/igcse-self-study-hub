@@ -268,8 +268,8 @@ async function refreshSandboxLeaderboard(){
  }else void renderCurrentSandboxShop();
 }
 // SPA navigation does not reset the browser's previous scroll position.
-// Only use this when entering a shop, never on filter, leaderboard, purchase
-// or equip rerenders (which should preserve the student's place).
+// Reset on shop entry or explicit Change/Choose navigation from equipment.
+// Ordinary tabs, leaderboard, purchase and equip rerenders retain their place.
 function scrollToShopTop(){
  const reset=()=>{
   window.scrollTo(0,0);
@@ -1402,7 +1402,8 @@ root?.addEventListener('click', event => {
     if(['all','themes','frames','badges','titles','effects','popular'].includes(category)){
       realCategory=category;
       const featured=target.dataset.focusReward;
-      void renderRealShop().then(()=>focusShopReward(featured));
+      const fromEquipment=Boolean(target.closest('.vocab-shop-equipped'));
+      void renderRealShop().then(()=>{if(featured)focusShopReward(featured);else if(fromEquipment&&root.querySelector('.vocab-shell--production'))scrollToShopTop();});
     }
   }
   else if (action === 'real-leaderboard' && !state.preview && realShop && !realBusy){
@@ -1442,7 +1443,8 @@ root?.addEventListener('click', event => {
     if(!['all','themes','frames','badges','titles','effects','popular'].includes(category))return;
     sandboxCategory=category;
     const featured=target.dataset.focusReward;
-    void renderCurrentSandboxShop().then(()=>focusShopReward(featured));
+    const fromEquipment=Boolean(target.closest('.vocab-shop-equipped'));
+    void renderCurrentSandboxShop().then(()=>{if(featured)focusShopReward(featured);else if(fromEquipment&&root.querySelector('.vocab-shell--sandbox'))scrollToShopTop();});
   }
   else if (action === 'sandbox-leaderboard' && !state.preview && sandboxShop?.sandboxEnabled) {
     if(target.dataset.scope==='class'||target.dataset.scope==='school')sandboxLeaderboardView.scope=target.dataset.scope;
