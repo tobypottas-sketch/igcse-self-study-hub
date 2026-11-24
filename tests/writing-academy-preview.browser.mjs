@@ -29,11 +29,11 @@ try{
   await page.getByRole('button',{name:'Bronze · Match purpose to paragraph'}).click();
   await page.locator('.wa-options').getByRole('button',{name:'Introduction',exact:true}).click();
   await page.getByRole('button',{name:'Check answer'}).click();
-  assert.match(await page.locator('.wa-answer').innerText(),/^Correct/);
+  assert.match(await page.locator('.wa-question .wa-answer').innerText(),/^Correct/);
   await page.getByRole('button',{name:'Bronze · Sequence a review'}).click();
   for(const n of [2,1,3,0])await page.locator('.wa-options button').nth(n).click();
   await page.getByRole('button',{name:'Check answer'}).click();
-  assert.match(await page.locator('.wa-answer').innerText(),/^Correct/);
+  assert.match(await page.locator('.wa-question .wa-answer').innerText(),/^Correct/);
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   await page.screenshot({path:'writing-preview-structure-'+width+'x'+height+'.png',fullPage:true});
   assert.deepEqual(errors,[]);
