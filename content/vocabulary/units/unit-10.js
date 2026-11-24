@@ -1210,7 +1210,12 @@ function familyFields(entry) {
   };
 }
 
-const enrichedEntries = entries.map(entry => {
+// With 48 words, the whole-set-of-10 rule holds the final 8 positions back from pathway Sets. Eight targets that students already met in
+// earlier units therefore come last (in coursebook order), so every word that is new in Unit 10 is served in every pathway it is eligible for.
+const REVIEW_LAST = ['confidence', 'challenge', 'research', 'evaluate', 'communicate', 'preference', 'achievement', 'qualification'];
+const ordered = [...entries.filter(entry => !REVIEW_LAST.includes(entry.term)), ...REVIEW_LAST.map(term => entries.find(entry => entry.term === term))];
+
+const enrichedEntries = ordered.map(entry => {
   const authoredMastery = unit10MeaningMastery[entry.term];
   const masteryContexts = authoredMastery
     ? (entry.masteryContexts ?? []).map((record, index) => {
