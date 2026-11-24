@@ -1,4 +1,4 @@
-import { openWritingActivity } from './writing/teacher-report.js';
+import { openWritingActivity } from './writing/teacher-report.js?v=2';
 import { openWritingAssessor } from './assessor/controller.js';
 import { takeReturnPath, clearReturnTarget, getSessionStorage } from './return-target.js';
 import { signIn, changePassword, getCurrentProfile } from './auth.js';
