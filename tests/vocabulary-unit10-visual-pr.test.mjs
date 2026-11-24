@@ -42,8 +42,10 @@ function serve(){
    if(pathname==='/fixture'){res.writeHead(200,{'Content-Type':'text/html'}).end(fixture);return;}
    const target=path.resolve(root,'.'+decodeURI(pathname));
    if(!target.startsWith(path.resolve(root)+path.sep)){res.writeHead(403).end();return;}
-   try{res.writeHead(200,{'Content-Type':types[path.extname(target)]??'application/octet-stream'}).end(fs.readFileSync(target));}
-   catch{res.writeHead(404).end();}
+   try{
+     const file=fs.readFileSync(target);
+     res.writeHead(200,{'Content-Type':types[path.extname(target)]??'application/octet-stream'}).end(file);
+   }catch{if(!res.headersSent)res.writeHead(404).end();else res.end();}
  });
  return new Promise(resolve=>server.listen(0,'127.0.0.1',()=>resolve({server,origin:`http://127.0.0.1:${server.address().port}`})));
 }
@@ -89,6 +91,7 @@ for(const width of [1440,390]){
      assert.equal(overview.pathways.length,6);
      assert.ok(overview.scrollWidth<=width+2,`Horizontal overflow ${overview.scrollWidth} on ${width}px viewport`);
      assert.ok(overview.heroArt.left>=-2&&overview.heroArt.right<=width+2,'Artwork stays within viewport');
+     assert.ok(overview.heroArt.top>=overview.hero.top-2&&overview.heroArt.bottom<=overview.hero.bottom+2,'Entire Education artwork must stay inside the rounded hero, without top/bottom clipping');
      assert.ok(overview.heading.left>=-2&&overview.heading.right<=width+2,'Education title within viewport');
      assert.ok(overview.heroImage.width>=80&&overview.heroImage.height>=80,'Artwork actually has visible size');
      await page.screenshot({path:path.join(screenshots,`unit10-overview-${width}.png`),fullPage:true,timeout:15000});
