@@ -83,7 +83,7 @@
 #writingAcademy .wa-lesson-banner{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px;background:var(--wa-ink);color:white;padding:10px 24px;border-radius:16px;border-bottom:3px solid var(--wa-teal)}
 #writingAcademy .wa-lesson-banner h1{margin:0;line-height:1.08}
 #writingAcademy .wa-lesson-banner .wa-kicker{color:#a5ede0}
-#writingAcademy .wa-lesson-reference{padding:12px 16px;margin:12px 0;font-size:.9rem;position:sticky;top:0;z-index:3;box-shadow:0 3px 12px #142d4810}
+#writingAcademy .wa-lesson-reference{padding:12px 16px;margin:12px 0;font-size:.9rem;position:static;box-shadow:0 3px 12px #142d4810}
 #writingAcademy .wa-lesson-reference:has(details[open]){position:relative}
 #writingAcademy .wa-stage-progress{font-size:.85rem;font-weight:700;color:#526477;margin:12px 0 6px}
 #writingAcademy .wa-stage-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-bottom:14px}
@@ -295,3 +295,30 @@
   #writingAcademy .wa-plan-board {grid-template-columns:1fr}
   #writingAcademy .wa-workspace .wa-editor {min-height:260px}
 }
+
+/* Active learning V2 — only pathway workspace */
+#writingAcademy .wa-editorial-lesson .wa-nav{padding-block:10px}
+#writingAcademy .wa-editorial-lesson .wa-lesson-banner{padding:8px 20px}
+#writingAcademy .wa-editorial-lesson .wa-lesson-banner h1{font-size:clamp(1.45rem,3vw,2.3rem)}
+#writingAcademy .wa-editorial-lesson .wa-art--banner{width:112px}
+#writingAcademy .wa-editorial-lesson .wa-lesson-reference{position:static;padding:8px 14px;margin:8px 0;box-shadow:none}
+#writingAcademy .wa-editorial-lesson .wa-lesson-reference>p{display:inline;margin-inline:10px}
+#writingAcademy .wa-editorial-lesson .wa-lesson-reference>details{margin-top:4px}
+#writingAcademy .wa-journey-meter{height:5px;background:#dce5eb;border-radius:10px;overflow:hidden;margin:4px 0 8px}
+#writingAcademy .wa-journey-meter>div{height:100%;background:#08766e}
+#writingAcademy .wa-stage-tab{border-bottom:3px solid var(--step,#08766e);background:#edf2f4}
+#writingAcademy .wa-stage-tab[data-stage=explore]{--step:#7953c7}#writingAcademy .wa-stage-tab[data-stage=practise]{--step:#b17b16}#writingAcademy .wa-stage-tab[data-stage=apply]{--step:#c9553a}#writingAcademy .wa-stage-tab[data-stage=master]{--step:#142d48}
+#writingAcademy .wa-stage-tab[aria-current=step]{background:var(--step);color:white}#writingAcademy .wa-stage-tab[data-stage=practise][aria-current=step]{background:#f5b335;color:#142d48}
+#writingAcademy .wa-stage-tab[data-complete=true]:not([aria-current=step]){background:#d9eee5}
+#writingAcademy .wa-editorial-lesson .wa-stage-body{grid-template-columns:minmax(0,1fr) minmax(180px,246px);grid-template-areas:"title art" "task art";padding:clamp(14px,2vw,24px)}
+#writingAcademy .wa-learning-companion{grid-area:art;min-width:0;align-self:start;display:grid;gap:10px}
+#writingAcademy .wa-learning-companion .wa-art--stage{width:100%}
+#writingAcademy .wa-companion-guide{padding:12px;background:#f2f6f7;border-radius:10px;font-size:.85rem;line-height:1.5}
+#writingAcademy .wa-companion-guide h3{font-size:1rem}#writingAcademy .wa-companion-guide p{margin:6px 0}
+#writingAcademy .wa-editorial-lesson .wa-stage-title{font-size:clamp(1.5rem,3vw,2rem)}
+#writingAcademy .wa-editorial-lesson .wa-stage-activity h3{font-size:clamp(1.15rem,2vw,1.5rem)}
+#writingAcademy .wa-editorial-lesson .wa-option{padding:10px 14px}
+#writingAcademy .wa-phrase{display:inline;font:inherit;text-align:left;border:0;border-bottom:2px dashed #527398;background:transparent;color:inherit;padding:0;cursor:pointer;border-radius:3px}
+#writingAcademy .wa-phrase[aria-pressed=true]{background:#f5d98c;border-bottom-color:#885818}
+#writingAcademy .wa-phrase:focus-visible{outline:3px solid #3978da;outline-offset:2px}
+@media(max-width:680px){#writingAcademy .wa-editorial-lesson .wa-stage-body{grid-template-columns:minmax(0,1fr);grid-template-areas:"title" "task" "art"}#writingAcademy .wa-learning-companion{grid-template-columns:120px minmax(0,1fr);align-items:start}#writingAcademy .wa-editorial-lesson .wa-lesson-reference>p{display:block;margin:3px 0}}
