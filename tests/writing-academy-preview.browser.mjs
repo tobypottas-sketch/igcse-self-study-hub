@@ -37,6 +37,10 @@ async function captureStage(page, stage, artwork, width, height) {
  assert.equal(await page.locator('.wa-lesson-reference strong').innerText(),exam);
  assert.match(await page.locator('.wa-lesson-reference').innerText(),/Introduce → Describe → Evaluate → Recommend/);
  await checkArtwork(page,'stage',artwork);
+ const companion=await page.locator('.wa-learning-companion').evaluate(n=>{
+ const image=n.querySelector('.wa-art--stage').getBoundingClientRect(),guide=n.querySelector('.wa-companion-guide').getBoundingClientRect(),side=n.getBoundingClientRect();
+ return {stacked:guide.top>=image.bottom,centered:Math.abs((image.left+image.right)/2-(guide.left+guide.right)/2)<2,width:image.width,sideWidth:side.width,contained:image.left>=side.left-1&&image.right<=side.right+1};
+ });assert.ok(companion.stacked&&companion.centered&&companion.contained&&companion.width>=Math.min(240,companion.sideWidth)-2,JSON.stringify(companion));
  await capture(page,stage.toLowerCase(),width,height);
 }
 try{
