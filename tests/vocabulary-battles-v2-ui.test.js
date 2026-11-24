@@ -10,9 +10,9 @@ const backend=read('supabase/functions/vocabulary-battles/index.ts');
 
 test('Battle Arena V2 stylesheet and student script are fresh and ordered',()=>{
  assert.match(html,/vocabulary-battles\.css\?v=battles-mvp-v1/);
- assert.match(html,/vocabulary-battles-v2\.css\?v=arena-polish-v2/);
+ assert.match(html,/vocabulary-battles-v2\.css\?v=class-selector-v3/);
  assert.ok(html.indexOf('vocabulary-battles-v2.css')>html.indexOf('vocabulary-battles.css'));
- assert.match(html,/battles-app\.js\?v=arena-polish-v2/);
+ assert.match(html,/battles-app\.js\?v=class-selector-v3/);
  assert.doesNotMatch(html,/id="battlesApp" aria-live="polite"/);
 });
 
@@ -72,4 +72,19 @@ test('visual refresh remains isolated from server-scored learning and permission
  assert.match(backend,/student_class_memberships/);
  assert.match(backend,/role!=='student'/);
  assert.match(backend,/const LIMIT=10,DURATION=60000/);
+});
+
+test('single-class students see a class identity chip without unnecessary native dropdown',()=>{
+ assert.match(ui,/state\.classes\.length===1/);
+ assert.match(ui,/battle-class-static__value/);
+ assert.match(ui,/battle-class-static__dot/);
+ assert.match(ui,/state\.classes\[0\]\.name/);
+ assert.match(ui,/battle-class-select-wrap/);
+ assert.match(ui,/data-battle-class/);
+ assert.match(css,/\.battle-class-static__value/);
+ assert.match(css,/select\[data-battle-class\]/);
+ assert.match(css,/appearance:none/);
+ assert.match(css,/focus-visible/);
+ assert.match(css,/\.battle-class-select-chevron/);
+ assert.match(css,/@media\(max-width:720px\)/);
 });
