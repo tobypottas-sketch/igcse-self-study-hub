@@ -119,7 +119,7 @@ for(const width of [1440,390]){
      assert.ok(home.scrollWidth<=width+2,'Home must not scroll horizontally');
      assert.deepEqual(errors,[],'No browser JS errors');
      await page.screenshot({path:path.join(screenshots,`unit10-home-${width}.png`),fullPage:true,timeout:15000});
-     await page.evaluate(()=>window.renderUnit10('check'));
+     await page.evaluate(()=>{window.renderUnit10('check');window.scrollTo(0,0);});
      await page.locator('.vocab-unit-check-question').waitFor({timeout:10000});
      const check=await page.evaluate(()=>{
        const root=document.querySelector('.vocab-shell--unit-check'),heading=root?.querySelector('.vocab-unit-check-question h1');
@@ -130,6 +130,18 @@ for(const width of [1440,390]){
      });
      console.log('Unit 10 check '+width+'px:',JSON.stringify(check));
      assert.ok(check.rootWidth>0&&check.questionWidth>0,'The Unit 10 question and check layout render');
+     if(width===390){
+       const passagePosition=await page.locator('.vocab-unit-check-passage').evaluate(el=>getComputedStyle(el).position);
+       assert.notEqual(passagePosition,'sticky','Mobile passage must not obscure question as student scrolls');
+       await page.locator('.vocab-unit-check-question').scrollIntoViewIfNeeded();
+       const overlap=await page.evaluate(()=>{
+         const passage=document.querySelector('.vocab-unit-check-passage').getBoundingClientRect();
+         const question=document.querySelector('.vocab-unit-check-question').getBoundingClientRect();
+         return passage.bottom>question.top+2&&passage.top>=0;
+       });
+       assert.equal(overlap,false,'Mobile question must not be covered by reading pane');
+       await page.evaluate(()=>window.scrollTo(0,0));
+     }
      assert.ok(check.scrollWidth<=width+2,'Unit Check must not overflow horizontally');
      assert.match(check.bodyText,/Unit 10/);
      assert.deepEqual(errors,[],'No JS error while opening the Unit Check');
