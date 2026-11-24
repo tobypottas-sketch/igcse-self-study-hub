@@ -193,3 +193,45 @@ for(const width of [1440,768,390]) test(`Player avatar shop and persistence at $
   if(evidence) await page.screenshot({path:`${evidence}/avatar-battle-${width}.png`});
   assert.deepEqual(errors,[]);
 });
+
+test('Avatar artwork composes with the default and eight theme states', {skip:!playwright}, async t=>{
+  const {server,origin}=await serve(root);
+  t.after(()=>server.close());
+  const browser=await playwright.chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH});
+  t.after(()=>browser.close());
+  const page=await browser.newPage({viewport:{width:1440,height:900},reducedMotion:'reduce'});
+  await page.route('**/src/vocabulary/router.js*',route=>route.fulfill({contentType:'text/javascript',body:''}));
+  await page.goto(origin+'/vocabulary.html');
+  const themes=['','forest','ocean','sakura','midnight','neon-district','celestial-realms','afterlight','blockverse'];
+  const portraits=['avatar-classic-explorer','avatar-woodland-guardian','avatar-aqua-shark',
+    'avatar-sakura-kitsune','avatar-phantom-cat','avatar-cyber-mech','avatar-astral-sorceress',
+    'avatar-zombie-survivor','avatar-voxel-adventurer'];
+  const frames=['gold-frame','scholar-frame','aurora-frame','cyber-pulse-frame','astral-halo-frame',
+    'survivor-frame','voxel-master-frame'];
+  for (const [index,theme] of themes.entries()){
+    const avatarId=portraits[index],frameId=frames[index%frames.length];
+    await page.evaluate(async ({theme,avatarId,frameId})=>{
+      const {renderProductionShop}=await import('/src/vocabulary/rewards-sandbox-view.js');
+      const {decorateStudentIdentity}=await import('/src/vocabulary/rewards-equipped-home.js');
+      const app=document.querySelector('#vocabularyApp');
+      const items=[[avatarId,'avatars'],[frameId,'frames'],['pixel-badge','badges'],
+        ['word-wizard','titles'],['sakura-petals','effects'],...(theme?[[theme,'themes']]:[])];
+      const rewards=items.map(([reward_id,category])=>({reward_id,category,name:reward_id,description:'',xp_price:1200}));
+      const shop={shopMode:'production',purchasesEnabled:true,walletStatus:'ready',wallet:{available:0},
+        rewards,owned:rewards.map(row=>({...row,equipped:true}))};
+      renderProductionShop(app,shop,{category:'avatars',studentName:'Avatar Test Student'});
+      decorateStudentIdentity(app,shop,'Avatar Test Student');
+      await Promise.all(Array.from(app.querySelectorAll('.vocab-topbar img')).map(image=>image.decode()));
+    },{theme,avatarId,frameId});
+    const header=page.locator('.vocab-shop-redesign .vocab-topbar');
+    assert.match(await header.locator('img.vocab-avatar-character').getAttribute('src'),new RegExp('/'+avatarId+'\\.webp$'));
+    assert.equal(await header.locator('.vocab-student-identity__frame').evaluate(el=>getComputedStyle(el).objectFit),'contain');
+    assert.equal(await header.locator('.vocab-student-identity__avatar').evaluate(el=>el.offsetWidth),108);
+    assert.equal(await page.locator('.vocab-shop-redesign').getAttribute('data-equipped-theme'),theme);
+    const evidence=process.env.AVATAR_SCREENSHOTS_DIR;
+    if(evidence){
+      mkdirSync(evidence,{recursive:true});
+      await header.screenshot({path:`${evidence}/avatar-theme-${theme||'default'}.png`});
+    }
+  }
+});

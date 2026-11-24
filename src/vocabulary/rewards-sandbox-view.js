@@ -16,7 +16,7 @@ const shopRewardIllustration=(rewardId,category)=>
     : rewardId);
 
 import {leaderboardModal,installLeaderboardModal} from './rewards-leaderboard-modal.js';
-import {hasBadgeCatalog,PREMIUM_COLLECTIONS,visibleEquipmentCategories} from './rewards-premium-registry.js';
+import {hasBadgeCatalog,PREMIUM_COLLECTIONS,visibleEquipmentCategories} from './rewards-premium-registry.js?v=player-avatars-v1';
 import {AVATAR_COLLECTIONS,renderLeaderboardAvatar} from './rewards-avatars.js';
 import {applyRewardTheme,studentIdentityView,renderIdentityAvatar} from './rewards-equipped-home.js?v=player-avatars-v1';
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({

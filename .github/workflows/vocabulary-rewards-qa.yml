@@ -77,7 +77,7 @@ jobs:
       - name: Install browser for avatar journey
         run: |
           npm install --prefix /tmp/avatar-qa --no-package-lock playwright@1.56.1 @electric-sql/pglite@0.3.14
-          /tmp/avatar-qa/node_modules/.bin/playwright install --with-deps chromium --only-shell
+          /tmp/avatar-qa/node_modules/.bin/playwright install chromium --only-shell
       - name: Verify avatar journey at 1440, 768 and 390 pixels
         env:
           NODE_PATH: /tmp/avatar-qa/node_modules

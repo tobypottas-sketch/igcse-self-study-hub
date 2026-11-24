@@ -73,7 +73,7 @@ test('home always provides shop navigation even when verified wallet or catalogu
  const fn=app.slice(start,end);
  assert.match(fn,/data-real-entry/);
  assert.match(fn,/data-action="open-real-shop"/);
- assert.match(fn,/Explore themes, frames, badges, titles and effects/);
+ assert.match(fn,/Explore themes, frames, badges, titles, effects and avatars/);
  assert.doesNotMatch(fn,/wallet\.available|fetchRealShop|wallet-sync/);
  assert.match(html,/router\.js\?v=player-avatars-v1/);
  assert.match(html,/vocabulary-rewards-dashboard\.css\?v=shop-recovery-v9/);
