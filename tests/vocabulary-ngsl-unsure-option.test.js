@@ -36,7 +36,19 @@ test('students and teachers see correct / wrong / unsure with no effect on exist
  assert.match(student,/ngsl-response-breakdown/);
  assert.match(report,/Not sure<\/th>/);
  assert.match(report,/r\.result\?\.unsure\?\?''/);
- assert.match(html,/diagnostic-student\.css\?v=ngsl-unsure-v3/);
+ assert.match(html,/diagnostic-student\.css\?v=ngsl-tablet-scroll-v1/);
  assert.match(html,/router\.js\?v=player-avatars-v1/);
  assert.match(router,/ngsl-student\.js\?v=ngsl-unsure-v3/);
+});
+
+test('NGSL fullscreen root permits vertical touch scrolling and tablet controls remain in flow',()=>{
+ const css=read('vocabulary-diagnostic-student.css');
+ for(const selector of ['#vocabularyApp:fullscreen','#vocabularyApp:-webkit-full-screen']){
+  const rule=css.slice(css.indexOf(selector+'{')).split('}')[0];
+  assert.match(rule,/overflow-y:auto/);
+  assert.match(rule,/touch-action:pan-y pinch-zoom/);
+ }
+ assert.match(css,/#vocabularyApp \.ngsl-player \.diag-assessment\{\s*height:auto;\s*max-height:none;\s*overflow:visible/);
+ assert.match(css,/@media\(max-height:850px\),\(max-width:1024px\)/);
+ assert.match(css,/\.ngsl-player \.diag-option\{min-height:48px/);
 });
