@@ -99,10 +99,18 @@ try{
   await page.getByText('Apply it in your own review',{exact:true}).click();
   await page.getByRole('button',{name:'Open Writing Studio →'}).click();
   await page.getByRole('button',{name:'Bronze',exact:true}).click();
+  assert.equal(await page.locator('.wa-plan-card').count(),5);
   await page.locator('#wa-note-reason').fill('To celebrate with friends');
+  await capture(page,'studio-plan',width,height);
   await page.getByRole('button',{name:'Continue to Write →'}).click();
   const original=Array(120).fill('word').join(' ');await page.locator('#wa-answer-editor').fill(original);
   assert.match(await page.locator('.wa-count').innerText(),/120 words.*Within target/);
+  assert.ok(await page.locator('.wa-brief').isVisible());
+  assert.equal(await page.locator('.wa-word-meter').getAttribute('data-status'),'within');
+  await page.getByRole('button',{name:'Focus mode',exact:true}).click();
+  assert.equal(await page.locator('.wa-workspace-sidebar').isVisible(),false);
+  await page.getByRole('button',{name:'Exit focus mode',exact:true}).click();
+  await capture(page,'studio-write',width,height);
   await page.getByRole('button',{name:'Review my writing →'}).click();
   await page.getByRole('button',{name:'Revise my writing →'}).click();
   await page.locator('#wa-answer-editor').fill(original+' revised');
