@@ -335,3 +335,6 @@
   width:min(100%,var(--shop-art-height))!important;
   clip-path:inset(0 0 6.5% 0);
 }
+
+/* Equipment Change navigation: keep category tabs clear of the viewport edge. */
+#vocabularyApp .vocab-shop-redesign .vocab-shop-filter-line{scroll-margin-top:16px;}

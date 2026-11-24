@@ -268,13 +268,24 @@ async function refreshSandboxLeaderboard(){
  }else void renderCurrentSandboxShop();
 }
 // SPA navigation does not reset the browser's previous scroll position.
-// Reset on shop entry or explicit Change/Choose navigation from equipment.
+// Reset to the page top on initial shop entry only.
 // Ordinary tabs, leaderboard, purchase and equip rerenders retain their place.
 function scrollToShopTop(){
  const reset=()=>{
   window.scrollTo(0,0);
   if(document.scrollingElement)document.scrollingElement.scrollTop=0;
   if(root)root.scrollTop=0;
+ };
+ reset();
+ requestAnimationFrame(reset);
+}
+// Change/Choose opens the catalogue at its tabs, not the shop hero.
+function scrollToShopCategory(){
+ const tabs=root?.querySelector('.vocab-shop-main .vocab-shop-filter-line');
+ if(!tabs)return;
+ const reset=()=>{
+  if(!tabs.isConnected)return;
+  tabs.scrollIntoView({block:'start',inline:'nearest',behavior:'instant'});
  };
  reset();
  requestAnimationFrame(reset);
@@ -1403,7 +1414,7 @@ root?.addEventListener('click', event => {
       realCategory=category;
       const featured=target.dataset.focusReward;
       const fromEquipment=Boolean(target.closest('.vocab-shop-equipped'));
-      void renderRealShop().then(()=>{if(featured)focusShopReward(featured);else if(fromEquipment&&root.querySelector('.vocab-shell--production'))scrollToShopTop();});
+      void renderRealShop().then(()=>{if(featured)focusShopReward(featured);else if(fromEquipment&&root.querySelector('.vocab-shell--production'))scrollToShopCategory();});
     }
   }
   else if (action === 'real-leaderboard' && !state.preview && realShop && !realBusy){
@@ -1444,7 +1455,7 @@ root?.addEventListener('click', event => {
     sandboxCategory=category;
     const featured=target.dataset.focusReward;
     const fromEquipment=Boolean(target.closest('.vocab-shop-equipped'));
-    void renderCurrentSandboxShop().then(()=>{if(featured)focusShopReward(featured);else if(fromEquipment&&root.querySelector('.vocab-shell--sandbox'))scrollToShopTop();});
+    void renderCurrentSandboxShop().then(()=>{if(featured)focusShopReward(featured);else if(fromEquipment&&root.querySelector('.vocab-shell--sandbox'))scrollToShopCategory();});
   }
   else if (action === 'sandbox-leaderboard' && !state.preview && sandboxShop?.sandboxEnabled) {
     if(target.dataset.scope==='class'||target.dataset.scope==='school')sandboxLeaderboardView.scope=target.dataset.scope;
