@@ -21,4 +21,16 @@ The six original RGB PNGs in `assets/writing/` are 1536 × 1024. Their checkerbo
 The browser uses `srcset` to pick a size. The hero is prioritised, the card illustration is lazy-loaded, and the shell mounts only the current stage’s illustration. Use intrinsic dimensions and contain the full image. Keep stage art beside the learning content, with the activity spanning the full card below the heading on narrow screens.
 
 ## Studio workspace
-Use a compact editorial header, three-stage toolbar, contextual task/support sidebar and dedicated main editor. On narrow screens stack naturally; focus mode hides context only on request. Planning fields, task wording, genre and assessment checklist come from content configuration. Preserve continuous prose, answer-only word counts, local account/task draft isolation and revision snapshot. Existing draft schema remains review-specific until other genres are implemented. No automatic marks or submission until separately integrated and tested.
+
+Use `renderWorkspace` in `src/writing/ui/studio.js` for the Plan, Write and Review sequence. The Review entry point supplies tasks, stable planning field keys, level-specific language support, the checklist, word range and reference content. The draft engine scopes local storage to the account, task and task version. Plan and answer are separate fields. Review captures the first non-empty answer once and retains that snapshot through subsequent edits. Future genres can supply their own content and will need their own planning keys and draft compatibility checks.
+
+| Placement | WebP widths | Layout |
+| --- | --- | --- |
+| Studio banner | 160, 320, 640 px | Neon Focus at 220 px beside the headline, up to 132 px on phones. |
+| Studio context | 96, 192, 384 px | Creative Flow beside the Plan and Review headings at 88 px, or 68 px on phones. |
+
+The Studio originals are square 1254 × 1254 RGB PNGs. Keep their coloured backgrounds in every derivative. The registry declares intrinsic dimensions and responsive candidates for each placement. Studio colour tokens extend the Academy palette on the banner and stage controls. Use a light surface for the editor and reserve colour for hierarchy and status.
+
+From 700 px wide, the companion takes the narrower column. It stays within reach during page scrolling on taller screens. Below 700 px, the companion starts collapsed above the workspace, with the task name visible. Focus mode expands the editor and keeps the full exam task available on demand. Planning cards switch to one column on phones. Revision drafts share a row where space allows.
+
+The editor counts the answer box only. A title is optional and counts if entered in the answer. The meter shows where the answer lands relative to 120–160 words. Staff preview uses self-assessment and local revision comparison.
