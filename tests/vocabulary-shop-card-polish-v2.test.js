@@ -26,7 +26,7 @@ const render=production=>{
 };
 
 test('new card density sheet is loaded after the entire theme stack',()=>{
- const pos=html.indexOf('vocabulary-shop-card-polish-v2.css?v=compact-all-v5');
+ const pos=html.indexOf('vocabulary-shop-card-polish-v2.css?v=compact-all-v6');
  assert.ok(pos>0);
  for(const file of ['vocabulary-rewards.css','vocabulary-premium-blockverse.css','vocabulary-blockverse-legibility-v3.css','vocabulary-shop-theme-glass.css','vocabulary-study-two-tier-header.css']){
   assert.ok(html.indexOf(file)>=0&&html.indexOf(file)<pos,file+' loaded before card polish');
@@ -99,4 +99,13 @@ test('description hierarchy is larger, readable and cannot grow into dead space'
  assert.match(css,/\.vocab-reward-category/);
  assert.match(css,/@media\(max-width:740px\)/);
  assert.match(css,/@media\(max-width:440px\)/);
+});
+
+test('equipment Change lands at category tabs in both shops, not page top',()=>{
+ const app=readFileSync(new URL('../src/vocabulary/app.js',import.meta.url),'utf8');
+ assert.match(app,/function scrollToShopCategory\(\)/);
+ assert.match(app,/querySelector\('\.vocab-shop-main \.vocab-shop-filter-line'\)/);
+ assert.match(app,/tabs\.scrollIntoView\(\{block:'start',inline:'nearest',behavior:'instant'\}\)/);
+ assert.equal((app.match(/fromEquipment&&root\.querySelector\([^\n]+scrollToShopCategory\(\)/g)||[]).length,2);
+ assert.match(css,/\.vocab-shop-filter-line\{scroll-margin-top:16px;\}/);
 });
