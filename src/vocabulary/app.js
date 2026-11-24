@@ -361,7 +361,7 @@ function ensureVisibleRewardsEntry(home){
  entry.setAttribute('aria-label','XP Rewards Shop');
  entry.innerHTML='<img class="vocab-rewards-home-card__art" src="assets/vocabulary/rewards/word-explorer.png" alt="" loading="lazy">'+
    '<div class="vocab-rewards-home-card__body"><span class="vocab-rewards-home-card__eyebrow">YOUR REWARDS</span>'+
-   '<strong>XP Rewards Shop</strong><small>Explore themes, frames, badges, titles and effects</small></div>'+
+   '<strong>XP Rewards Shop</strong><small>Explore themes, frames, badges, titles, effects and avatars</small></div>'+
    '<button type="button" data-action="open-real-shop">Explore shop</button>';
  strip.append(entry);
 }
@@ -390,6 +390,8 @@ async function revealSandboxEntry(){
 // the shop. Root-scoped theme classes survive screen rerenders.
 let liveCosmeticShop=null,productionCosmeticShop=null,sandboxCosmeticShop=null,cosmeticModule=null,identityObserver=null;
 function effectiveCosmeticShop(){
+ if(root?.querySelector('.vocab-shell--production'))return productionCosmeticShop;
+ if(root?.querySelector('.vocab-shell--sandbox'))return sandboxCosmeticShop;
  // On the specially enabled test account, preview sandbox equipment throughout
  // the app when it has anything equipped. Production rewards and XP remain separate.
  const sandboxEquipped=sandboxCosmeticShop?.owned?.some(item=>item.equipped===true);

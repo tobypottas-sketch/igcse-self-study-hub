@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdirSync} from 'node:fs';
+import {mkdirSync,readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {loadPlaywright,serve} from './helpers/pathway-geometry-harness.mjs';
 import {PREMIUM_COLLECTIONS} from '../src/vocabulary/rewards-premium-registry.js';
@@ -10,11 +10,12 @@ const root=fileURLToPath(new URL('..',import.meta.url));
 const cosmetics=PREMIUM_COLLECTIONS.find(item=>item.id==='blockverse').rewards.map(
   ([reward_id,category,name,xp_price])=>({reward_id,category,name,xp_price,description:name})
 );
-const rewards=[...cosmetics,
-  {reward_id:'avatar-pixel-bot',category:'avatars',name:'Pixel Bot',xp_price:0,description:'Starter'},
-  {reward_id:'avatar-voxel-architect',category:'avatars',name:'Voxel Architect',xp_price:1200,description:'Blockverse'}
-];
-const profile={id:'blockverse-browser-test',role:'student',active:true,display_name:'Blockverse Test Student'};
+const migration=readFileSync(new URL('../supabase/migrations/20261124120000_vocabulary_player_avatars.sql',import.meta.url),'utf8');
+const avatars=[...migration.matchAll(/\('(avatar-[a-z-]+)','([^']+)','avatars',(\d+),'([^']+)'/g)]
+  .map(([,reward_id,name,price,description])=>({reward_id,name,category:'avatars',xp_price:Number(price),description}));
+const premiumReward=avatars.find(row=>row.reward_id==='avatar-voxel-architect');
+const rewards=[...cosmetics,...avatars];
+const profile={id:'avatar-browser-test',role:'student',active:true,display_name:'Blockverse Test Student'};
 
 for(const width of [1440,768,390]) test(`Player avatar shop and persistence at ${width}px`,{skip:!playwright},async t=>{
   const {server,origin}=await serve(root);
@@ -23,7 +24,8 @@ for(const width of [1440,768,390]) test(`Player avatar shop and persistence at $
   t.after(()=>browser.close());
   const page=await browser.newPage({viewport:{width,height:880}});
   page.setDefaultTimeout(10000);
-  const owned=[];
+  const owned=[],sandboxOwned=[];
+  let sandboxAvailable=1200;
   const errors=[];
   page.on('pageerror',error=>errors.push(error.message));
   page.on('response',response=>{
@@ -58,6 +60,33 @@ for(const width of [1440,768,390]) test(`Player avatar shop and persistence at $
     if(name==='vocabulary-diagnostic')data={completed:true};
     if(name==='vocabulary-practice-leaderboard')data={ok:true,rows:[{rank:1,name:'Test Classmate',xp:100,avatarId:'avatar-shadow-fox'}]};
     if(name==='vocabulary-reward-wallet-sync')data={ok:true,synchronised:true};
+    if(name==='vocabulary-reward-sandbox'){
+      const item=rewards.find(row=>row.reward_id===rewardId);
+      if(action==='buy' && !sandboxOwned.some(row=>row.reward_id===rewardId)){
+        assert.ok(item&&sandboxAvailable>=item.xp_price);
+        sandboxOwned.push({...item,equipped:false});
+        sandboxAvailable-=item.xp_price;
+      }
+      if(action==='equip'){
+        const selected=sandboxOwned.find(row=>row.reward_id===rewardId);
+        assert.ok(selected);
+        for(const row of sandboxOwned) if(row.category===selected.category)row.equipped=row===selected;
+      }
+      if(action==='unequip')for(const row of sandboxOwned)if(row.category===category)row.equipped=false;
+      data={ok:true,shopMode:'sandbox',sandboxEnabled:true,wallet:{available:sandboxAvailable},rewards,owned:sandboxOwned};
+    }
+    if(name==='vocabulary-battles'){
+      const peer={id:'peer',display_name:'Test Classmate',avatarId:'avatar-shadow-fox'};
+      const classes=[{id:'class',name:'Test Class'}];
+      if(action==='classes')data={ok:true,classes};
+      if(action==='lobby')data={ok:true,me:profile.id,avatarId:'avatar-pixel-bot',students:[peer],pending:[],active:[
+        {id:'match',unit_number:1,challenger_id:profile.id,opponent_id:peer.id}
+      ]};
+      if(action==='leaderboard')data={ok:true,ranking:[{...peer,name:peer.display_name,wins:1,played:1,score:800}]};
+      if(action==='status')data={ok:true,id:'match',status:'accepted',unitNumber:1,challengerId:profile.id,
+        avatarId:'avatar-pixel-bot',opponentAvatarId:peer.avatarId,opponentName:peer.display_name,
+        score:900,opponentScore:800,finished:true,outcome:'won'};
+    }
     if(name==='vocabulary-reward-production'){
       const item=rewards.find(row=>row.reward_id===rewardId);
       if(action==='buy'){
@@ -84,6 +113,7 @@ for(const width of [1440,768,390]) test(`Player avatar shop and persistence at $
   await tab.click();
   const starter=shop.locator('[data-reward-id="avatar-pixel-bot"].vocab-shop-card');
   const premium=shop.locator('[data-reward-id="avatar-voxel-architect"].vocab-shop-card');
+  assert.equal(await shop.locator('.vocab-shop-card--avatars').count(),28);
   assert.match(await starter.innerText(),/Free/);
   assert.match(await premium.innerText(),/1,200 XP to unlock/);
   await starter.getByRole('button',{name:'Claim',exact:true}).click();
@@ -97,7 +127,7 @@ for(const width of [1440,768,390]) test(`Player avatar shop and persistence at $
   await page.reload();
   await page.locator('[data-action="open-real-shop"]').click();
 
-  for (const item of [...cosmetics,rewards.at(-1)]) {
+  for (const item of [...cosmetics,premiumReward]) {
     await shop.locator(`.vocab-reward-tab[data-category="${item.category}"]`).click();
     const card=shop.locator(`[data-reward-id="${item.reward_id}"].vocab-shop-card`);
     await card.getByRole('button',{name:'Buy',exact:true}).click();
@@ -115,6 +145,7 @@ for(const width of [1440,768,390]) test(`Player avatar shop and persistence at $
     mkdirSync(evidence,{recursive:true});
     await page.evaluate(()=>window.scrollTo(0,0));
     await page.screenshot({path:`${evidence}/avatar-shop-${width}.png`});
+    await premium.screenshot({path:`${evidence}/avatar-card-${width}.png`});
   }
 
   await page.reload();
@@ -135,5 +166,30 @@ for(const width of [1440,768,390]) test(`Player avatar shop and persistence at $
   await page.reload();
   await page.locator('.vocab-student-identity .vocab-student-identity__initials').waitFor();
   assert.equal(await page.locator('.vocab-student-identity img.vocab-avatar-character').count(),0);
+  await page.locator('[data-action="open-sandbox-shop"]').click();
+  const sandbox=page.locator('.vocab-shell--sandbox');
+  await sandbox.locator('.vocab-reward-tab[data-category="avatars"]').click();
+  const sandboxStarter=sandbox.locator('.vocab-shop-card[data-reward-id="avatar-pixel-bot"]');
+  await sandboxStarter.getByRole('button',{name:'Claim',exact:true}).click();
+  await sandboxStarter.getByRole('button',{name:'Equip',exact:true}).click();
+  await sandboxStarter.getByRole('button',{name:'Equipped',exact:true}).waitFor();
+  assert.equal(sandboxAvailable,1200);
+  const sandboxPremium=sandbox.locator('.vocab-shop-card[data-reward-id="avatar-voxel-architect"]');
+  await sandboxPremium.getByRole('button',{name:'Buy',exact:true}).click();
+  await sandboxPremium.getByRole('button',{name:'Equip',exact:true}).click();
+  await sandboxPremium.getByRole('button',{name:'Equipped',exact:true}).waitFor();
+  assert.equal(sandboxAvailable,0);
+  await sandbox.locator('[data-action="sandbox-unequip"][data-category="avatars"]').click();
+  await sandbox.locator('[data-action="sandbox-unequip"][data-category="avatars"]').waitFor({state:'detached'});
+  assert.equal(available,3200);
+  assert.equal(owned.filter(row=>row.category==='avatars'&&row.equipped).length,0);
+
+  await page.goto(origin+'/vocabulary-battles.html');
+  await page.locator('[data-battle-opponent]').selectOption('peer');
+  await page.locator('.battle-challenge-player img[src$="avatar-shadow-fox.webp"]').waitFor();
+  await page.locator('[data-battle-act="enter"]').click();
+  await page.locator('.battle-final-scores img[src$="avatar-shadow-fox.webp"]').waitFor();
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  if(evidence) await page.screenshot({path:`${evidence}/avatar-battle-${width}.png`});
   assert.deepEqual(errors,[]);
 });
