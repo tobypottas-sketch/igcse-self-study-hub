@@ -34,3 +34,6 @@ The Studio originals are square 1254 × 1254 RGB PNGs. Keep their coloured backg
 From 700 px wide, the companion takes the narrower column. It stays within reach during page scrolling. Below 700 px, the companion starts collapsed above the workspace, with the task name visible as students scroll. Focus mode expands the editor and keeps the full exam task available on demand. Planning cards switch to one column on phones. Revision drafts share a row where space allows.
 
 The editor counts the answer box only. A title is optional and counts if entered in the answer. The meter shows where the answer lands relative to 120–160 words. Staff preview uses self-assessment and local revision comparison.
+
+## Active learning V2
+Avoid sticky panels that obscure activities. Use compact exam reference, truthful completion meter and stage-coloured navigation. Provide optional contextual hints beside artwork; keep master assessment separate from independent writing. Discovery requires all five correct choices; Apply requires three written responses, example comparison and self-check; objective mastery requires all items correct (not a Cambridge grade). Preserve session responses across stages. Use plausible distractors and clickable model sentences, with paragraph-level explanations where sentence-specific annotations are not yet authored.

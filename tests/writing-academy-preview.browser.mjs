@@ -61,7 +61,10 @@ try{
   await checkArtwork(page,'banner','structure-organisation');
   await captureStage(page,'Discover','stage-discover',width,height);
   await page.getByRole('button',{name:/B · Last Friday/}).click();
+  assert.match(await page.locator('.wa-stage-progress').innerText(),/0 of 5/);
+  for(const n of [0,2,0,1]){await page.getByRole('button',{name:'Next challenge →'}).click();await page.locator('.wa-discovery .wa-options button').nth(n).click();}
   assert.match(await page.locator('.wa-stage-progress').innerText(),/1 of 5/);
+  assert.equal(await page.locator('.wa-lesson-reference').evaluate(n=>getComputedStyle(n).position),'static');
   await page.getByText('Review blueprint & exam checklist',{exact:true}).click();
   assert.match(await page.locator('.wa-exam-reference').innerText(),/why you visited/);
   await page.getByText('Review blueprint & exam checklist',{exact:true}).click();
@@ -70,6 +73,8 @@ try{
   await captureStage(page,'Explore','stage-explore',width,height);
   await page.locator('#wa-model-select').selectOption('1');
   assert.equal(await page.locator('.wa-model-text').count(),1);
+  await page.locator('.wa-phrase').first().click();
+  assert.equal(await page.locator('.wa-phrase').first().getAttribute('aria-pressed'),'true');
   await page.locator('.wa-move-options').getByRole('button',{name:'Introduction',exact:true}).click();
   assert.match(await page.locator('.wa-answer').innerText(),/^Correct/);
   await page.getByRole('button',{name:'Next paragraph →'}).click();
