@@ -338,3 +338,170 @@
 
 /* Equipment Change navigation: keep category tabs clear of the viewport edge. */
 #vocabularyApp .vocab-shop-redesign .vocab-shop-filter-line{scroll-margin-top:16px;}
+
+/* Six-slot equipment management strip: independent of catalogue and profile art.
+   Container queries use actual available panel width, not the screen width,
+   because the leaderboard can occupy part of the desktop shop. */
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped{
+  container-type:inline-size;
+  padding:14px!important;
+  gap:10px!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__list,
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__list.has-avatars{
+  --equipment-art-height:110px;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+  align-items:stretch!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-rows:auto var(--equipment-art-height) minmax(2.6em,1fr) auto;
+  align-items:center!important;
+  justify-items:center;
+  align-content:start;
+  min-width:0;
+  padding:8px 5px!important;
+  gap:5px!important;
+  border:0!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > :is(small,strong,.vocab-shop-equipped__art){
+  grid-column:1/-1;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__art{
+  display:grid!important;
+  place-items:center!important;
+  width:100%!important;
+  height:var(--equipment-art-height)!important;
+  max-height:var(--equipment-art-height)!important;
+  min-height:0!important;
+  overflow:visible!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__art > img{
+  display:block;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:var(--equipment-art-height)!important;
+  min-height:0!important;
+  aspect-ratio:auto!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  border-radius:0;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__art > .vocab-student-identity__avatar{
+  width:min(100%,var(--equipment-art-height))!important;
+  height:var(--equipment-art-height)!important;
+  max-height:var(--equipment-art-height)!important;
+  aspect-ratio:1;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__art > .vocab-student-identity__avatar:not(:has(> .vocab-avatar-character)){
+  width:54px!important;
+  height:54px!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > strong{
+  font-size:.78rem!important;
+  line-height:1.3!important;
+  min-height:0!important;
+  overflow-wrap:anywhere;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button{
+  width:100%!important;
+  min-width:0!important;
+  min-height:36px!important;
+  padding:5px 4px!important;
+  margin:0!important;
+  font-size:.7rem!important;
+  line-height:1.2!important;
+  border-radius:8px!important;
+  white-space:normal!important;
+  overflow-wrap:normal;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button:only-of-type{
+  grid-column:1/-1;
+  width:auto!important;
+  min-width:70px!important;
+}
+@container (min-width:480px){
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__list.has-avatars{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__list:not(.has-avatars){
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  }
+}
+@container (min-width:850px){
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__list.has-avatars{
+    grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  }
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__list:not(.has-avatars).has-badges{
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  }
+}
+@container (max-width:320px){
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button{
+    grid-column:1/-1;
+  }
+}
+
+/* Explicit row placement prevents the inherited button/grid rules from
+   creating implicit rows. Keep the strip content-sized even in tall shops. */
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped{
+  height:auto!important;
+  min-height:0!important;
+  grid-template-rows:max-content max-content!important;
+  align-content:start!important;
+  align-self:start!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__list{
+  height:auto!important;
+  min-height:0!important;
+  grid-auto-rows:max-content!important;
+  align-content:start!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item{
+  height:auto!important;
+  min-height:0!important;
+  grid-template-rows:18px var(--equipment-art-height) minmax(32px,auto) minmax(36px,auto)!important;
+  grid-auto-rows:max-content!important;
+  padding:4px 3px!important;
+  gap:4px!important;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > small{grid-row:1;line-height:1.15;margin:0!important}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > .vocab-shop-equipped__art{grid-row:2;margin:0!important}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > strong{grid-row:3;margin:0!important}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button{
+  grid-row:4;grid-column:1;align-self:stretch!important;
+  height:auto!important;max-width:100%!important;box-sizing:border-box;
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button.vocab-shop-unequip{grid-column:2}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button:only-of-type{grid-column:1/-1}
+@container (max-width:320px){
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button{grid-column:1/-1}
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button.vocab-shop-unequip{grid-row:5;grid-column:1/-1}
+}
+
+/* Wide panels: the theme's long reset label needs a full-width action,
+   not a narrow half-column that wraps to three lines. */
+@container (min-width:850px){
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item{
+    grid-template-rows:16px var(--equipment-art-height) minmax(28px,auto) 36px!important;
+    padding:2px 3px!important;
+    gap:3px!important;
+  }
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__item > button{
+    font-size:.65rem!important;
+    padding:3px 2px!important;
+    min-height:36px!important;
+    overflow-wrap:anywhere;
+  }
+  #vocabularyApp .vocab-shop-redesign .vocab-shop-equipped .vocab-shop-equipped__heading{
+    padding-bottom:5px!important;
+  }
+}
+#vocabularyApp .vocab-shop-redesign .vocab-shop-equipped{
+  padding:9px!important;
+  gap:6px!important;
+}

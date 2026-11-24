@@ -26,7 +26,7 @@ const render=production=>{
 };
 
 test('new card density sheet is loaded after the entire theme stack',()=>{
- const pos=html.indexOf('vocabulary-shop-card-polish-v2.css?v=compact-all-v6');
+ const pos=html.indexOf('vocabulary-shop-card-polish-v2.css?v=compact-equipment-v7');
  assert.ok(pos>0);
  for(const file of ['vocabulary-rewards.css','vocabulary-premium-blockverse.css','vocabulary-blockverse-legibility-v3.css','vocabulary-shop-theme-glass.css','vocabulary-study-two-tier-header.css']){
   assert.ok(html.indexOf(file)>=0&&html.indexOf(file)<pos,file+' loaded before card polish');
@@ -109,4 +109,18 @@ test('equipment Change lands at category tabs in both shops, not page top',()=>{
  assert.match(app,/tabs\.scrollIntoView\(\{block:'start',inline:'nearest',behavior\}\)/);
  assert.equal((app.match(/fromEquipment&&root\.querySelector\([^\n]+scrollToShopCategory\(\)/g)||[]).length,2);
  assert.match(css,/\.vocab-shop-filter-line\{scroll-margin-top:16px;\}/);
+});
+
+test('equipment strip uses six equal desktop slots and bounded noncropping art',()=>{
+ const rules=css.slice(css.indexOf('/* Six-slot equipment management strip'));
+ assert.match(rules,/container-type:inline-size/);
+ assert.match(rules,/--equipment-art-height:110px/);
+ assert.match(rules,/grid-template-columns:repeat\(6,minmax\(0,1fr\)\)!important/);
+ assert.match(rules,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)!important/);
+ assert.match(rules,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important/);
+ assert.match(rules,/max-height:var\(--equipment-art-height\)!important/);
+ assert.match(rules,/object-fit:contain!important/);
+ assert.match(rules,/\.vocab-shop-equipped__item > button:only-of-type/);
+ assert.match(rules,/\.vocab-avatar-character/);
+ assert.match(rules,/@container \(min-width:850px\)/);
 });
