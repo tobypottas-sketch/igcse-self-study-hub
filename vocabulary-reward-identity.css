@@ -433,7 +433,7 @@ body:has(#vocabularyApp.vocab-real-theme--midnight .vocab-shell[data-unit-theme]
 }
 
 #vocabularyApp .vocab-student-identity__avatar:has(> .vocab-avatar-character){
- background:transparent;box-shadow:none;
+ background:transparent;border:0;box-shadow:none;
 }
 #vocabularyApp .vocab-student-identity__avatar > .vocab-avatar-character{
  position:absolute;inset:3%;width:94%;height:94%;object-fit:contain;z-index:1;
@@ -463,6 +463,12 @@ body:has(#vocabularyApp.vocab-real-theme--midnight .vocab-shell[data-unit-theme]
 #vocabularyApp .vocab-leaderboard-portrait:has(> img) > span{visibility:hidden}
 #vocabularyApp .vocab-shop-equipped__art > .vocab-student-identity__avatar{width:48px;height:48px}
 #vocabularyApp .vocab-shop-equipped__art .vocab-student-identity__initials{font-size:.9rem}
+#vocabularyApp .vocab-shop-equipped__art > .vocab-student-identity__avatar:has(> .vocab-avatar-character){
+ width:min(100%,112px);height:auto;aspect-ratio:1;
+}
+#vocabularyApp .vocab-shop-equipped__art .vocab-student-identity__avatar > .vocab-avatar-character{
+ border-radius:0;object-fit:contain;
+}
 #vocabularyApp .vocab-shop-redesign .vocab-shop-card--avatars .vocab-reward-picture > .vocab-shop-illustration{
  background:transparent;border:0;box-shadow:none;object-fit:contain;
 }

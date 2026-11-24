@@ -139,6 +139,8 @@ for(const width of [1440,768,390]) test(`Player avatar shop and persistence at $
   const slots=shop.locator('.vocab-shop-equipped__list');
   const columns=await slots.evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
   assert.equal(columns,width===390?2:3);
+  const equippedArtwork=slots.locator('img.vocab-avatar-character');
+  assert.equal(await equippedArtwork.evaluate(el=>getComputedStyle(el).objectFit),'contain');
   assert.match(await mini.getAttribute('src'),/avatar-voxel-architect.webp$/);
   assert.ok(await mini.evaluate(async img=>{await img.decode();return img.naturalWidth>0;}));
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
