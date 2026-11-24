@@ -1,4 +1,4 @@
-// Unit 10 (Communication) formal check, through the existing Unit Check machinery. Fixtures only; no real student data.
+// Unit 10 (Education) formal check, through the existing Unit Check machinery. Fixtures only; no real student data.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -35,7 +35,7 @@ function fakeClient() {
 test('1. Unit 10 is registered with the established three-form Unit Check contract', () => {
   const check = unitCheckFor(10);
   assert.ok(check, 'Unit 10 must have an authored check');
-  assert.equal(check.unitNumber, 9);
+  assert.equal(check.unitNumber, 10);
   assert.equal(check.maxAttempts, 3);
   assert.deepEqual(Object.keys(check.forms), ['A','B','C']);
   assert.equal(new Set(Object.values(check.forms).map(form => form.passage)).size, 3);
@@ -65,11 +65,11 @@ test('2. Unit 10 uses thirty distinct real Unit 10 targets, including the isolat
   for (const question of questions) {
     const occurrence = occurrences.get(question.target);
     assert.ok(occurrence, `${question.target} is a Unit 10 occurrence`);
-    assert.equal(occurrence.unitNumber, 9);
+    assert.equal(occurrence.unitNumber, 10);
     assert.match(question.target, /^u10_\d\d_/);
     assert.ok(question.explanation.toLowerCase().includes(termOf(question.target).toLowerCase()), `${question.id} explanation names ${termOf(question.target)}`);
   }
-  for (const occurrenceId of ['u10_09_interactive_9','u10_41_recommend_9','u10_06_demonstrate_9','u10_48_relevant_9']) {
+  for (const occurrenceId of ['u10_48_qualification_10','u10_18_employment_10','u10_41_confidence_10','u10_44_evaluate_10','u10_47_achievement_10']) {
     assert.ok(questions.some(question => question.target === occurrenceId), `${occurrenceId} is explicitly tested`);
   }
 });
@@ -79,7 +79,7 @@ test('3. Unit 10 check content uses British spelling and no American forms', () 
   assert.doesNotMatch(text, /organize|summarize|prioritize|recognize|analyze/i);
 });
 
-test('4. completing and retrying Unit 10 persists unit_number 8 through forms A, B and C', async () => {
+test('4. completing and retrying Unit 10 persists unit_number 10 through forms A, B and C', async () => {
   const check = unitCheckFor(10);
   assert.ok(check);
   const client = fakeClient();
@@ -95,32 +95,32 @@ test('4. completing and retrying Unit 10 persists unit_number 8 through forms A,
     assert.match(review, /Back to Unit 10/);
     assert.match(renderUnitCheckScreen({ unitNumber:10, form, attemptNumber, questionIndex:0, answers:{} }), /<\/span> Unit 10<\/button>/);
   }
-  assert.deepEqual(client.store.map(row => [row.unit_number, row.form_id, row.attempt_number]), [[9,'A',1],[9,'B',2],[9,'C',3]]);
+  assert.deepEqual(client.store.map(row => [row.unit_number, row.form_id, row.attempt_number]), [[10,'A',1],[10,'B',2],[10,'C',3]]);
   assert.deepEqual(scoreSummary(attempts).best, { score:10, maxScore:10 });
   assert.equal(nextCheckState(attempts).locked, true);
-  assert.deepEqual(attemptPayload({ unitNumber:10, formId:'A', attemptNumber:1, score:10, maxScore:10 }), { unit_number:9, form_id:'A', attempt_number:1, score:10, max_score:10 });
-  const rows = await loadVocabularyUnitCheckAttempts(client, 9);
+  assert.deepEqual(attemptPayload({ unitNumber:10, formId:'A', attemptNumber:1, score:10, maxScore:10 }), { unit_number:10, form_id:'A', attempt_number:1, score:10, max_score:10 });
+  const rows = await loadVocabularyUnitCheckAttempts(client, 10);
   assert.equal(rows.length, 3);
   assert.match(controller, /unitNumber:active\.unitNumber/);
 });
 
-test('5. existing checks stay registered; Units 1 to 9 are the only checks and Unit 10 has none', () => {
+test('5. existing checks stay registered; Units 1 to 10 are the only checks and Unit 11 has none', () => {
   assert.equal(unitCheckFor(1), unit1Check);
   assert.equal(unitCheckFor(4), unit4Check);
-  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1','2','3','4','5','6','7','8','9']);
-  assert.equal(unitCheckFor(10), null);
+  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1','2','3','4','5','6','7','8','9','10']);
+  assert.equal(unitCheckFor(11), null);
 });
 
 const BLUEPRINT = {
-  A:['u10_01_communication','u10_14_banned','u10_13_appropriate','u10_31_face_to_face','u10_25_non_verbal','u10_19_frustration','u10_10_tech_savvy','u10_16_optional','u10_12_accuracy','u10_49_constructive'],
-  B:['u10_22_workforce','u10_29_platform','u10_30_virtual','u10_32_conference','u10_21_casual','u10_15_community','u10_17_survive','u10_05_portable','u10_09_interactive_9','u10_41_recommend_9'],
-  C:['u10_46_purpose','u10_45_audience','u10_43_introduction','u10_50_research','u10_48_relevant_9','u10_44_conclusion','u10_27_differentiate','u10_06_demonstrate_9','u10_33_suitable','u10_40_suggest']
+  A:['u10_02_higher_education','u10_03_university','u10_48_qualification_10','u10_19_career','u10_18_employment_10','u10_24_overseas','u10_25_reluctant','u10_29_opportunity','u10_41_confidence_10','u10_40_succeed'],
+  B:['u10_30_examination','u10_17_preparation','u10_31_presentation','u10_32_pronunciation','u10_33_intonation','u10_34_vocabulary','u10_35_accurately','u10_11_encourage','u10_07_assessment','u10_39_discussion'],
+  C:['u10_01_education','u10_06_literacy','u10_08_international_crisis','u10_09_digital_device','u10_10_progress','u10_22_industry','u10_26_cosmopolitan','u10_44_evaluate_10','u10_47_achievement_10','u10_38_opinion']
 };
 
 test('6. the approved blueprint: ten fixed targets per form, in order, and no look-alike partners together in one form', () => {
   const check = unitCheckFor(10);
   for (const [formId, targets] of Object.entries(BLUEPRINT)) assert.deepEqual(check.forms[formId].questions.map(question => question.target), targets, `Form ${formId}`);
-  const pairs = [['informal','casual'],['informal','informal language'],['underlying','underlying meaning'],['suggest','recommend']];
+  const pairs = [['condition','conditional'],['opinion','preference'],['accurately','effectively'],['achievement','qualification'],['overseas','cosmopolitan']];
   for (const form of Object.values(check.forms)) {
     const terms = form.questions.map(question => termOf(question.target));
     for (const [a, b] of pairs.slice(0, 5)) assert.ok(!(terms.includes(a) && terms.includes(b)), `${form.id}: ${a} and ${b} must not share a form`);
@@ -143,11 +143,11 @@ test('7. every wrong choice fails and exactly one choice is right: no answer app
 test('8. scoring, case and spacing for typed answers, and feedback by attempt, use the unchanged engine', () => {
   const check = unitCheckFor(10);
   const typedQuestion = check.forms.A.questions[8];
-  assert.equal(typedQuestion.answer, 'accurate');
-  for (const ok of ['accurate', ' Accurate ', 'ACCURATE']) assert.equal(scoreCheck(check.forms.A, { A9:ok }).results[8].correct, true, ok);
-  for (const bad of ['accuracy', 'accurately', 'inaccurate', '']) assert.equal(scoreCheck(check.forms.A, { A9:bad }).results[8].correct, false, bad);
-  assert.equal(check.forms.C.questions[8].answer, 'unsuitable');
-  assert.equal(check.forms.B.questions[8].answer, 'interact');
+  assert.equal(typedQuestion.answer, 'confident');
+  for (const ok of ['confident', ' Confident ', 'CONFIDENT']) assert.equal(scoreCheck(check.forms.A, { A9:ok }).results[8].correct, true, ok);
+  for (const bad of ['confidence', 'confidently', 'unconfident', '']) assert.equal(scoreCheck(check.forms.A, { A9:bad }).results[8].correct, false, bad);
+  assert.equal(check.forms.C.questions[8].answer, 'achieve');
+  assert.equal(check.forms.B.questions[8].answer, 'assess');
   const none = scoreCheck(check.forms.B, {});
   assert.equal(none.score, 0); assert.equal(none.maxScore, 10);
   const onlyFirst = scoreCheck(check.forms.B, { B1:check.forms.B.questions[0].answer });
@@ -177,5 +177,5 @@ test('10. the three forms are comparable: same shape, similar passage and prompt
   const terms = new Set(unit10Content.items.map(item => item.term));
   for (const form of Object.values(check.forms)) for (const question of form.questions) assert.ok(terms.has(termOf(question.target)), question.id);
   const unassessed = unit10Content.items.map(item => item.term).filter(term => !Object.values(check.forms).some(form => form.questions.some(question => termOf(question.target) === term)));
-  assert.equal(unassessed.length, 20);
+  assert.equal(unassessed.length, 18);
 });

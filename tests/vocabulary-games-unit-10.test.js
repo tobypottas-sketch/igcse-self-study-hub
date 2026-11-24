@@ -13,6 +13,7 @@ import unit5 from '../content/vocabulary/units/unit-05.js';
 import unit6 from '../content/vocabulary/units/unit-06.js';
 import unit7 from '../content/vocabulary/units/unit-07.js';
 import unit8 from '../content/vocabulary/units/unit-08.js';
+import unit9 from '../content/vocabulary/units/unit-09.js';
 import unit10 from '../content/vocabulary/units/unit-10.js';
 import { GAMES_BY_UNIT, gamesFor, availableGames } from '../src/vocabulary/games/games-data.js';
 import { BLITZ_CONFUSABLE_U10, BLITZ_MEANING_OPTIONS_U10, BLITZ_EXCLUDED_U10, CONNECTIONS_PUZZLES_U10 } from '../src/vocabulary/games/games-data-unit-10.js';
@@ -43,37 +44,37 @@ function enumerate(content, data, runs = 60) {
 const rows10 = enumerate(unit10, data10.blitz);
 const rows10All = enumerate(unit10, { ...data10.blitz, excluded: [] });
 
-test('registration: Units 1-9 have both games, Unit 10 and beyond stay unavailable', () => {
-  assert.deepEqual(Object.keys(GAMES_BY_UNIT).map(Number), [1, 2, 3, 4, 5, 6, 7, 8, 9]);
-  assert.deepEqual(availableGames(9), ['blitz', 'connections']);
+test('registration: Units 1-10 have both games, Unit 11 and beyond stay unavailable', () => {
+  assert.deepEqual(Object.keys(GAMES_BY_UNIT).map(Number), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  assert.deepEqual(availableGames(10), ['blitz', 'connections']);
   assert.equal(data10.blitz.confusable, BLITZ_CONFUSABLE_U10); assert.equal(data10.blitz.excluded, BLITZ_EXCLUDED_U10); assert.equal(data10.connections.puzzles, CONNECTIONS_PUZZLES_U10);
-  assert.match(renderGamesEntry(9), /Unit 10/); assert.match(renderLobby(9), /data-game="blitz"/); assert.match(renderLobby(9), /data-game="connections"/);
-  for (const u of [10, 12, 0, NaN, null, '10']) { assert.equal(gamesFor(u), null); assert.deepEqual(availableGames(u), []); assert.equal(renderGamesEntry(u), ''); }
+  assert.match(renderGamesEntry(10), /Unit 10/); assert.match(renderLobby(10), /data-game="blitz"/); assert.match(renderLobby(10), /data-game="connections"/);
+  for (const u of [11, 12, 0, NaN, null, '11']) { assert.equal(gamesFor(u), null); assert.deepEqual(availableGames(u), []); assert.equal(renderGamesEntry(u), ''); }
 });
 
 test('Blitz: the audited Unit 10 pool has the pinned size and counts, with no id served twice', () => {
   const pool = buildBlitzPool(unit10, seeded(3), data10.blitz);
-  assert.equal(pool.length, 324); assert.deepEqual(count(pool), { def: 49, para: 87, gap: 88, mic: 100 });
-  assert.equal(rows10.size, 324, 'every stable id is reachable across runs');
-  assert.equal(new Set(pool.map(q => q.term)).size, 50, 'all 50 Unit 10 words are represented');
+  assert.equal(pool.length, 299); assert.deepEqual(count(pool), { def: 43, para: 69, gap: 92, mic: 95 });
+  assert.equal(rows10.size, 299, 'every stable id is reachable across runs');
+  assert.equal(new Set(pool.map(q => q.term)).size, 48, 'all 48 Unit 10 words are represented');
   assert.equal(new Set(pool.map(q => q.id)).size, pool.length);
   for (const q of pool) assert.ok(terms10.has(q.term), q.id);
 });
 
-test('Blitz: every word has a meaning-in-context question and at least three questions; every word except unlike has a definition question', () => {
+test('Blitz: every word has a meaning-in-context question and at least three questions; every word outside the small adverb/adjective classes has a definition question', () => {
   const per = new Map();
   for (const { q } of rows10.values()) { if (!per.has(q.term)) per.set(q.term, { def: 0, para: 0, gap: 0, mic: 0 }); per.get(q.term)[q.type] += 1; }
-  assert.equal(per.size, 50);
+  assert.equal(per.size, 48);
   for (const [term, c] of per) {
-    // unlike is the only preposition, so the engine has no same-class distractors for a definition question
-    assert.equal(c.def, term === 'unlike' ? 0 : 1, `${term}: definition`);
+    // the two adverbs and three of the four adjectives have too few same-class distractors for a definition question
+    assert.equal(c.def, ['accurately', 'effectively', 'academic', 'overseas', 'cosmopolitan'].includes(term) ? 0 : 1, `${term}: definition`);
     assert.ok(c.mic >= 1, `${term}: meaning in context`); assert.ok(c.def + c.para + c.gap + c.mic >= 3, `${term}: at least three questions`);
     assert.ok(c.gap <= 2 && c.para <= 2 && c.mic <= 2, `${term}: no word dominates`);
   }
 });
 
 test('Blitz: every excluded id is absent, and removing the list restores the original pool', () => {
-  assert.equal(BLITZ_EXCLUDED_U10.length, 12);
+  assert.equal(BLITZ_EXCLUDED_U10.length, 18);
   for (const id of BLITZ_EXCLUDED_U10) { assert.ok(!rows10.has(id), `${id} is withheld`); assert.ok(rows10All.has(id), `${id} exists without the list`); }
   assert.equal(rows10All.size, rows10.size + BLITZ_EXCLUDED_U10.length);
 });
@@ -87,7 +88,7 @@ test('Blitz: every option set has 4 unique options and the key appears exactly o
 
 test('Blitz: members of one confusable group never share a def/para question, and def/para options keep one word class', () => {
   for (const group of BLITZ_CONFUSABLE_U10) for (const w of group) assert.ok(terms10.has(w), `${w} is a Unit 10 word`);
-  for (const [a, b] of [['suggest', 'recommend'], ['informal', 'casual'], ['appropriate', 'suitable'], ['introduction', 'conclusion'], ['underlying', 'underlying meaning'], ['digital native', 'tech-savvy']]) assert.ok(BLITZ_CONFUSABLE_U10.some(g => g.includes(a) && g.includes(b)), `${a} / ${b}`);
+  for (const [a, b] of [['pronunciation', 'intonation'], ['opinion', 'preference'], ['assessment', 'examination'], ['condition', 'conditional'], ['accurately', 'effectively'], ['higher education', 'university']]) assert.ok(BLITZ_CONFUSABLE_U10.some(g => g.includes(a) && g.includes(b)), `${a} / ${b}`);
   for (const { q, sets } of rows10.values()) {
     if (q.type !== 'def' && q.type !== 'para') continue;
     for (const { options } of sets) {
@@ -105,8 +106,8 @@ test('Blitz: no retained gap is given away by a/an directly before the blank', (
   }
 });
 
-test('Blitz: meaning-in-context rows use the authored options, except the two shortened reporting-verb rows', () => {
-  assert.deepEqual(Object.keys(BLITZ_MEANING_OPTIONS_U10).sort(), ['u10_37_reporting_verb_meaning', 'u10_37_reporting_verb_paraphrase']);
+test('Blitz: meaning-in-context rows use the authored options unchanged', () => {
+  assert.deepEqual(Object.keys(BLITZ_MEANING_OPTIONS_U10), []);
   for (const opts of Object.values(BLITZ_MEANING_OPTIONS_U10)) { assert.equal(opts.length, 4); assert.ok(opts.every(o => o.length <= 60)); }
   const authored = new Map(unit10.items.flatMap(i => i.senses.flatMap(s => (s.masteryContexts ?? []).map(c => [c.contextId, c]))));
   let checked = 0;
@@ -114,7 +115,7 @@ test('Blitz: meaning-in-context rows use the authored options, except the two sh
     checked += 1; const expected = BLITZ_MEANING_OPTIONS_U10[id] ?? [row.meaning, ...row.wrongMeanings.slice(0, 3)];
     for (const { options, answer } of rows10.get(`mic:${id}`).sets) { assert.deepEqual([...options].sort(), [...expected].sort(), id); assert.equal(answer, expected[0], id); }
   }
-  assert.equal(checked, 100);
+  assert.equal(checked, 95);
 });
 
 test('Blitz: engine rules are unchanged (60 seconds, 100 points, multiplier tiers), a round uses only Unit 10 content and never repeats a word back to back', () => {
@@ -127,21 +128,21 @@ test('Blitz: engine rules are unchanged (60 seconds, 100 points, multiplier tier
   t = 61000; assert.equal(game.tick(), 'over');
 });
 
-test('Blitz: a 300-question sample of one long session never repeats a question id, and Play Again prefers new prompts', () => {
+test('Blitz: a 250-question sample of one long session never repeats a question id, and Play Again prefers new prompts', () => {
   let t = 0; const history = createGameHistory(); const game = createBlitz({ content: unit10, data: data10.blitz, rng: seeded(9), now: () => t, history });
   game.start(); const ids = [];
-  for (let i = 0; i < 300; i += 1) { ids.push(game.state.question.id); game.answer(game.state.question.answerIndex); game.next(); }
-  assert.equal(new Set(ids).size, 300, 'no question repeats within 300 rounds');
+  for (let i = 0; i < 250; i += 1) { ids.push(game.state.question.id); game.answer(game.state.question.answerIndex); game.next(); }
+  assert.equal(new Set(ids).size, 250, 'no question repeats within 250 rounds');
   const first = new Set(ids.slice(0, 20)); game.start(); const again = [];
   for (let i = 0; i < 20; i += 1) { again.push(game.state.question.id); game.answer(game.state.question.answerIndex); game.next(); }
   assert.ok(again.filter(id => first.has(id)).length < 5);
 });
 
-test('Connections: 49 unique puzzles cover every Unit 10 word except unlike', () => {
-  assert.equal(CONNECTIONS_PUZZLES_U10.length, 49);
+test('Connections: 46 unique puzzles cover every Unit 10 word except the two adverbs', () => {
+  assert.equal(CONNECTIONS_PUZZLES_U10.length, 46);
   const targets = CONNECTIONS_PUZZLES_U10.map(p => p.target);
-  assert.equal(new Set(targets).size, 49); for (const t of targets) assert.ok(terms10.has(t), t);
-  assert.deepEqual([...terms10].filter(t => !targets.includes(t)), ['unlike']);
+  assert.equal(new Set(targets).size, 46); for (const t of targets) assert.ok(terms10.has(t), t);
+  assert.deepEqual([...terms10].filter(t => !targets.includes(t)), ['accurately', 'effectively']);
 });
 
 test('Connections: four text clues on a staircase from situation to near-definition, with a short explanation', () => {
@@ -154,12 +155,12 @@ test('Connections: four text clues on a staircase from situation to near-definit
   }
 });
 
-const STEMS = { communication: ['communica'], accuracy: ['accura'], community: ['communit'], frustration: ['frustrat'], workforce: ['workforce'], generation: ['generation'], perception: ['percept', 'perceiv'],
-  platform: ['platform'], conference: ['conferenc'], 'underlying meaning': ['underlying'], 'informal language': ['informal'], 'formal style': ['formal'], 'reporting verb': ['reporting'], 'direct object': ['direct'],
-  clause: ['clause'], solution: ['solution', 'solve'], introduction: ['introduc'], conclusion: ['conclu'], audience: ['audience'], purpose: ['purpose'], research: ['research'], 'digital native': ['digital'],
-  signalling: ['signal'], represent: ['represent'], demonstrate: ['demonstrat'], launched: ['launch'], survive: ['surviv'], differentiate: ['differen'], suggest: ['suggest'], recommend: ['recommend'], evaluate: ['evaluat'],
-  effective: ['effective', 'effectiv'], portable: ['portab'], passive: ['passiv'], interactive: ['interact'], 'tech-savvy': ['tech', 'savvy'], appropriate: ['appropriat'], banned: ['ban'], optional: ['option'],
-  informal: ['informal'], casual: ['casual'], 'non-verbal': ['verbal'], underlying: ['underlying'], physical: ['physical'], virtual: ['virtual'], 'face-to-face': ['face'], suitable: ['suitab'], relevant: ['relevan'], constructive: ['constructiv'] };
+const STEMS = { education: ['educat'], 'higher education': ['higher', 'educat'], university: ['universit'], academic: ['academ'], recreation: ['recreat'], literacy: ['litera'], assessment: ['assess'],
+  'international crisis': ['international', 'crisis', 'crises'], 'digital device': ['digital', 'device'], progress: ['progress'], encourage: ['encourag'], reflect: ['reflect'], performance: ['perform'],
+  contribute: ['contribut'], condition: ['condition'], conditional: ['condition'], preparation: ['prepar'], employment: ['employ'], career: ['career'], subject: ['subject'], aspect: ['aspect'], industry: ['industr'],
+  interview: ['interview'], overseas: ['overseas'], reluctant: ['reluctan'], cosmopolitan: ['cosmopolit'], assignment: ['assign'], loneliness: ['lonel'], opportunity: ['opportun'], examination: ['examin'],
+  presentation: ['presentat'], pronunciation: ['pronunc', 'pronoun'], intonation: ['inton'], vocabulary: ['vocab'], develop: ['develop'], opinion: ['opinion'], discussion: ['discuss'], succeed: ['succe'],
+  confidence: ['confiden'], challenge: ['challeng'], research: ['research'], evaluate: ['evaluat'], communicate: ['communica'], preference: ['prefer'], achievement: ['achiev'], qualification: ['qualif'] };
 test('Connections: no clue contains the target, one of its word-family forms, or a recognisable stem of it', () => {
   const forms = item => [item.term, ...(item.wordFamily ?? []), ...(item.senses?.[0]?.wordFamilyForms ?? []).map(f => f?.form ?? '')].map(norm).filter(x => x.length > 3);
   for (const p of CONNECTIONS_PUZZLES_U10) {
@@ -167,7 +168,7 @@ test('Connections: no clue contains the target, one of its word-family forms, or
     for (const c of p.clues) {
       for (const f of forms(meta.get(p.target))) assert.doesNotMatch(norm(c.text), new RegExp('\\b' + esc(f) + '\\b'), `${p.target} leaks "${f}"`);
       const words = norm(c.text).match(/[a-z]+/g) ?? [];
-      assert.ok(!words.some(w => STEMS[p.target].some(s => (s === 'ban' ? w === 'ban' || w.startsWith('bann') : w.startsWith(s)))), `${p.target} clue shows a stem: ${c.text}`);
+      assert.ok(!words.some(w => STEMS[p.target].some(s => w.startsWith(s))), `${p.target} clue shows a stem: ${c.text}`);
     }
   }
 });
@@ -197,19 +198,19 @@ test('Connections: accepted forms are conservative inflections or spacing varian
       const g = normaliseGuess(a);
       assert.notEqual(g, target, p.target); assert.ok(!terms10.has(a), `${p.target}: "${a}" is another Unit 10 word`);
       assert.ok(g.replace(/[- ]/g, '').startsWith(target.replace(/[- ]/g, '').slice(0, 3)), `${p.target}: "${a}" is not a form of it`);
-      assert.doesNotMatch(g, /signaling/, `${p.target}: American spelling`);
+      assert.doesNotMatch(g, /\b(?:color|favor|center|organiz|practicing)/, `${p.target}: American spelling`);
     }
     for (const word of [p.target, ...p.accept]) for (const typed of [word, word.toUpperCase(), `  ${word}  `]) assert.equal(createConnections({ puzzles: [p] }).guess(typed)?.correct, true, `${p.target}: "${typed}"`);
   }
   const only = t => createConnections({ puzzles: [CONNECTIONS_PUZZLES_U10.find(p => p.target === t)] });
-  assert.equal(only('suggest').guess('recommend').correct, false); assert.equal(only('informal').guess('casual').correct, false); assert.equal(only('signalling').guess('signaling').correct, false);
+  assert.equal(only('opinion').guess('preference').correct, false); assert.equal(only('assessment').guess('examination').correct, false); assert.equal(only('pronunciation').guess('pronounciation').correct, false);
 });
 
 test('Connections: pickPuzzles rotates through the bank, word classes resolve, Help offers three choices and a first-clue answer scores 500', () => {
   const history = createGameHistory(); const seen = new Set();
   for (let i = 0; i < 14; i++) for (const p of pickPuzzles(CONNECTIONS_PUZZLES_U10, seeded(i + 2), 5, history)) seen.add(p.target);
-  assert.equal(seen.size, 49, 'history rotates through the whole bank');
-  const classed = withWordClasses(CONNECTIONS_PUZZLES_U10, unit10.items); assert.equal(classed.length, 49);
+  assert.equal(seen.size, 46, 'history rotates through the whole bank');
+  const classed = withWordClasses(CONNECTIONS_PUZZLES_U10, unit10.items); assert.equal(classed.length, 46);
   for (const p of classed) { const shape = wordShape(p, 4); assert.ok(shape.wordClass, p.target); assert.ok(!shape.pattern || shape.pattern.includes('_'), `${p.target}: final scaffold is incomplete`); }
   const g = createConnections({ puzzles: [CONNECTIONS_PUZZLES_U10[0]] }); for (let i = 0; i < 3; i++) g.reveal();
   assert.ok(g.help()); assert.deepEqual([...g.state.choices].sort(), [CONNECTIONS_PUZZLES_U10[0].target, ...CONNECTIONS_PUZZLES_U10[0].help].sort());
@@ -217,14 +218,15 @@ test('Connections: pickPuzzles rotates through the bank, word classes resolve, H
 });
 
 test('Unit 10 ids: repeated earlier-unit words use the Unit 10 vocabulary ids in every Blitz row', () => {
-  const earlierUnits = [unit1, unit2, unit3, unit4, unit5, unit6, unit7, unit8];
+  const earlierUnits = [unit1, unit2, unit3, unit4, unit5, unit6, unit7, unit8, unit9];
   const earlier = new Set(earlierUnits.flatMap(u => u.items.map(i => i.vocabularyId)));
   const ids10 = new Set(unit10.items.map(i => i.vocabularyId));
   for (const id of ids10) assert.ok(!earlier.has(id), `${id} is not an earlier-unit id`);
-  for (const t of ['effective', 'demonstrate', 'launched', 'passive', 'interactive', 'generation', 'recommend', 'solution', 'evaluate', 'relevant']) {
-    assert.equal(meta.get(t).vocabularyId, `vocab_${t}_9`, t);
+  for (const t of ['academic', 'reflect', 'contribute', 'employment', 'assignment', 'confidence', 'challenge', 'research', 'evaluate', 'communicate', 'preference', 'achievement', 'qualification']) {
+    assert.equal(meta.get(t).vocabularyId, `vocab_${t}_10`, t);
     assert.ok(earlierUnits.some(u => u.items.some(i => i.term === t)), `${t} really is a repeated word`);
-    assert.ok(rows10.has(`def:vocab_${t}_9`), `${t}: def uses the Unit 10 id`);
+    // academic's definition row is withheld (too few same-class distractors); its gap and meaning rows still use u10_ ids
+    if (t !== 'academic') assert.ok(rows10.has(`def:vocab_${t}_10`), `${t}: def uses the Unit 10 id`);
   }
   for (const id of rows10.keys()) { const m = /^(?:def|para):(vocab_[a-z_0-9]+?)(?::|$)/.exec(id); if (m) assert.ok(ids10.has(m[1]), `${id} is a Unit 10 id`); }
   for (const { q } of rows10.values()) if (q.type === 'gap' || q.type === 'mic') assert.match(q.id, /^(gap|mic):u10_/, q.id);
