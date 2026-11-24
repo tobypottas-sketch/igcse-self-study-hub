@@ -485,3 +485,57 @@
     gap:16px!important;
   }
 }
+
+/* Compact shop banner: wallet occupies the previously unused space below
+   the intro; the stall spans both rows. Keep the verified wallet markup. */
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero,
+#vocabularyApp .vocab-shop-redesign[data-equipped-theme="afterlight"] > .vocab-shop-hero,
+#vocabularyApp .vocab-shop-redesign[data-equipped-theme="blockverse"] > .vocab-shop-hero{
+  grid-template-areas:"intro stall" "wallet stall"!important;
+  grid-template-rows:auto auto!important;
+  row-gap:12px!important;
+  align-content:center!important;
+  padding-block:14px!important;
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__intro{
+  align-self:end!important;
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__display{
+  display:contents!important;
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__backdrop{
+  inset:10% 4% 5% 54%;
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter{
+  grid-area:stall;
+  align-self:center!important;
+  justify-self:center!important;
+  max-width:520px;
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter img{
+  max-height:250px!important;
+}
+#vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__display .vocab-shop-hero__balance{
+  grid-area:wallet;
+  justify-self:start!important;
+  align-self:start!important;
+  max-width:100%!important;
+  padding:8px 14px!important;
+  z-index:2;
+}
+@media(max-width:640px){
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero,
+  #vocabularyApp .vocab-shop-redesign[data-equipped-theme="afterlight"] > .vocab-shop-hero,
+  #vocabularyApp .vocab-shop-redesign[data-equipped-theme="blockverse"] > .vocab-shop-hero{
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-areas:"intro" "wallet" "stall"!important;
+    grid-template-rows:auto auto auto!important;
+    row-gap:10px!important;
+  }
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__counter img{
+    max-height:175px!important;
+  }
+  #vocabularyApp .vocab-shop-redesign > .vocab-shop-hero .vocab-shop-hero__backdrop{
+    inset:48% 4% 3%;
+  }
+}
