@@ -131,7 +131,7 @@
 #writingAcademy .wa-stage-body[data-stage="practise"]{--wa-stage-accent:var(--wa-amber)}
 #writingAcademy .wa-stage-body[data-stage="apply"]{--wa-stage-accent:var(--wa-coral)}
 #writingAcademy .wa-stage-body[data-stage="master"]{--wa-stage-accent:var(--wa-ink)}
-#writingAcademy .wa-art--stage{grid-area:art;width:246px;align-self:start;background:var(--wa-cream);border-radius:13px;padding:8px}
+#writingAcademy .wa-art--stage{width:246px;align-self:start;background:var(--wa-cream);border-radius:13px;padding:8px}
 #writingAcademy .wa-stage-activity{grid-area:task;min-width:0}
 #writingAcademy .wa-stage-activity>p:first-child{margin-top:0}
 #writingAcademy .wa-stage-activity>p{max-width:72ch}
@@ -311,8 +311,8 @@
 #writingAcademy .wa-stage-tab[aria-current=step]{background:var(--step,#08766e);color:white}#writingAcademy .wa-stage-tab[data-stage=practise][aria-current=step]{background:#f5b335;color:#142d48}
 #writingAcademy .wa-stage-tab[data-complete=true]:not([aria-current=step]){background:#d9eee5}
 #writingAcademy .wa-editorial-lesson .wa-stage-body{grid-template-columns:minmax(0,1fr) minmax(180px,246px);grid-template-areas:"title art" "task art";padding:clamp(14px,2vw,24px)}
-#writingAcademy .wa-learning-companion{grid-area:art;min-width:0;align-self:start;display:grid;gap:10px}
-#writingAcademy .wa-learning-companion .wa-art--stage{width:100%}
+#writingAcademy .wa-learning-companion{grid-area:art;min-width:0;align-self:start;display:flex;flex-direction:column;align-items:stretch;gap:10px}
+#writingAcademy .wa-learning-companion .wa-art--stage{grid-area:auto;width:100%;max-width:100%;height:auto;flex:none;align-self:center}
 #writingAcademy .wa-companion-guide{padding:12px;background:#f2f6f7;border-radius:10px;font-size:.85rem;line-height:1.5}
 #writingAcademy .wa-companion-guide h3{font-size:1rem}#writingAcademy .wa-companion-guide p{margin:6px 0}
 #writingAcademy .wa-editorial-lesson .wa-stage-title{font-size:clamp(1.5rem,3vw,2rem)}
@@ -321,4 +321,4 @@
 #writingAcademy .wa-phrase{display:inline;font:inherit;text-align:left;border:0;border-bottom:2px dashed #527398;background:transparent;color:inherit;padding:0;cursor:pointer;border-radius:3px}
 #writingAcademy .wa-phrase[aria-pressed=true]{background:#f5d98c;border-bottom-color:#885818}
 #writingAcademy .wa-phrase:focus-visible{outline:3px solid #3978da;outline-offset:2px}
-@media(max-width:680px){#writingAcademy .wa-editorial-lesson .wa-stage-body{grid-template-columns:minmax(0,1fr);grid-template-areas:"title" "task" "art"}#writingAcademy .wa-learning-companion{grid-template-columns:120px minmax(0,1fr);align-items:start}#writingAcademy .wa-editorial-lesson .wa-lesson-reference>p{display:block;margin:3px 0}}
+@media(max-width:680px){#writingAcademy .wa-editorial-lesson .wa-stage-body{grid-template-columns:minmax(0,1fr);grid-template-areas:"title" "task" "art"}#writingAcademy .wa-learning-companion{display:flex;flex-direction:column;align-items:stretch}.wa-learning-companion .wa-art--stage{width:min(100%,240px)}#writingAcademy .wa-editorial-lesson .wa-lesson-reference>p{display:block;margin:3px 0}}
