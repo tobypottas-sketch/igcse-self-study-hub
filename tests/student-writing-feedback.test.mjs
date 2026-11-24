@@ -28,14 +28,14 @@ test('bad input never reaches the network; signed-out students are told to sign 
 test('only the three estimated scores and known fields survive; raw marks, reasons and other fields are dropped', () => {
   const dirty = { feedback: { ...good.feedback, scores: { content: 5, language: 7, total: 12, reason: 'SECRET' }, contentMark: 5, languageMark: 7, totalMark: 12, contentReason: 'SECRET', quotedErrorCandidatesRequireTeacherReview: [{ quote: 'x' }], strengths: [{ quote: 'a', advice: 'b', mark: 9 }], improvements: [] }, marks: { total: 12 } };
   const clean = parseFeedback(dirty); const text = JSON.stringify(clean);
-  assert.ok(!/Mark|SECRET|quotedError|"mark"|reason/i.test(text)); assert.deepEqual(Object.keys(clean).sort(), ['improvements', 'lengthNotice', 'nextStep', 'partial', 'scores', 'strengths']);
-  assert.deepEqual(clean.scores, { content: 5, language: 7, total: 12 }); assert.deepEqual(Object.keys(clean.scores), ['content', 'language', 'total']);
+  assert.ok(!/Mark|SECRET|quotedError|"mark"/i.test(text)); assert.deepEqual(Object.keys(clean).sort(), ['improvements', 'lengthNotice', 'nextStep', 'partial', 'scoreReasons', 'scores', 'strengths']);
+  assert.equal(clean.scoreReasons, null); assert.deepEqual(clean.scores, { content: 5, language: 7, total: 12 }); assert.deepEqual(Object.keys(clean.scores), ['content', 'language', 'total']);
   for (const bad of [{ content: 7, language: 5, total: 12 }, { content: 5, language: 7, total: 13 }, { content: 5.5, language: 7, total: 12.5 }, { content: '5', language: 7, total: 12 }, 'nine', null])
     assert.equal(parseFeedback({ feedback: { ...good.feedback, scores: bad } }).scores, null, JSON.stringify(bad));
   assert.equal(parseFeedback({ feedback: { ...good.feedback, partial: true, scores: { content: 5, language: 7, total: 12 } } }).scores, null);
 });
 test('a partial or empty result is shown as partial and carries no feedback', () => {
-  assert.deepEqual(parseFeedback({ feedback: { partial: true, strengths: [{ quote: 'a', advice: 'b' }], improvements: [], nextStep: 'x' } }), { partial: true, strengths: [], improvements: [], nextStep: '', lengthNotice: null, scores: null });
+  assert.deepEqual(parseFeedback({ feedback: { partial: true, strengths: [{ quote: 'a', advice: 'b' }], improvements: [], nextStep: 'x' } }), { partial: true, strengths: [], improvements: [], nextStep: '', lengthNotice: null, scores: null, scoreReasons: null });
   assert.equal(parseFeedback({ feedback: { partial: false, strengths: [], improvements: [], nextStep: 'x' } }).partial, true);
   assert.equal(parseFeedback({ nothing: true }), null); assert.equal(parseFeedback({ feedback: { partial: 'no' } }), null);
 });
@@ -104,10 +104,10 @@ test('sign-off keeps only a known closing phrase and never a name', async () => 
   assert.equal(safeSignoff(''), '');
 });
 
-test('the student panel switch is checked before anything else in both writing pages', () => {
+test('the AI panel switch is checked before mounting feedback, independently of writing submissions', () => {
   assert.match(read('src/assessor/student-feedback-flag.js'), /STUDENT_FEEDBACK_UI_ENABLED = (true|false);/);
   for (const file of ['src/assessor/email-feedback.js', 'src/assessor/review-feedback.js', 'src/assessor/essay-feedback.js']) {
-    const source = read(file); assert.match(source, /STUDENT_FEEDBACK_UI_ENABLED/); assert.ok(source.indexOf('STUDENT_FEEDBACK_UI_ENABLED)') < source.indexOf('getSupabaseClient()'), file + ' must check the switch before doing anything');
+    const source = read(file); assert.match(source, /STUDENT_FEEDBACK_UI_ENABLED/); assert.ok(source.indexOf('if (!STUDENT_FEEDBACK_UI_ENABLED)') >= 0 && source.indexOf('if (!STUDENT_FEEDBACK_UI_ENABLED)') < source.indexOf('const feedback = mountStudentFeedback('), file + ' must gate AI feedback'); assert.ok(source.indexOf('const submission = mountWritingSubmission(') < source.indexOf('if (!STUDENT_FEEDBACK_UI_ENABLED)'), file + ' must allow homework without AI');
   }
 });
 

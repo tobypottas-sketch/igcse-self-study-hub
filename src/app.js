@@ -1,3 +1,4 @@
+import { openWritingActivity } from './writing/teacher-report.js';
 import { openWritingAssessor } from './assessor/controller.js';
 import { takeReturnPath, clearReturnTarget, getSessionStorage } from './return-target.js';
 import { signIn, changePassword, getCurrentProfile } from './auth.js';
@@ -264,7 +265,12 @@ export async function bootApp(clientOverride = null) {
     }
     if ((action === 'admin' || (action?.startsWith?.('admin-') && action !== 'admin-back' && action !== 'admin-section-activity')) && currentState.profile?.role !== 'admin') return;
     if (action && action !== 'writing-assessor' && assessorController) { assessorController.dispose(); assessorController = null; }
-    if (action === 'writing-assessor') {
+    if (action === 'writing-activity') {
+      if (!['teacher','admin'].includes(currentState.profile?.role) || currentState.profile.active !== true || currentState.profile.must_change_password) return;
+      currentState = { ...currentState, view:'writing-activity' };
+      await openWritingActivity(root, client, {onBack:()=>renderCurrentState()});
+    }
+    else if (action === 'writing-assessor') {
       if (!['teacher','admin'].includes(currentState.profile?.role) || currentState.profile.active !== true || currentState.profile.must_change_password) return;
       assessorController?.dispose();
       currentState = { ...currentState, view:'assessor' };
