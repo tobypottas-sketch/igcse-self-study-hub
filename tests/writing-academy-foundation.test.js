@@ -61,3 +61,7 @@ test('structure lessons retain exam scaffold and valid original model',()=>{
 
 import {guidedTask,independentTask,toolkit,improvement} from '../src/writing/content/review-guided-v1.js';
 test('brief seed tasks are distinct and model is within exam range',()=>{const count=guidedTask.paragraphs.join(' ').trim().split(/\s+/).length;assert.ok(count>=120&&count<=160);assert.notEqual(guidedTask.id,independentTask.id);assert.match(guidedTask.paragraphs[0],/because/);assert.equal(toolkit.length,6);assert.equal(improvement.checks.length,3);});
+
+import {wordCount,wordStatus,createDraftStore,newDraft} from '../src/writing/engine/drafts.js';
+test('word counts handle whitespace and exam boundaries',()=>{assert.equal(wordCount('  \n \t'),0);for(const [n,status] of [[119,'below'],[120,'within'],[160,'within'],[161,'above']])assert.deepEqual(wordStatus(Array(n).fill('word').join(' \n ')),{count:n,status});});
+test('local preview drafts are isolated by account and task and recover revisions',()=>{const m=new Map();const storage={getItem:k=>m.get(k),setItem:(k,v)=>m.set(k,v),removeItem:k=>m.delete(k)};const a=createDraftStore(storage,'staff-a',guidedTask),d=newDraft();d.answer='Revised';d.original='Original';d.notes.reason='Lunch';assert.ok(a.save(d));assert.deepEqual(a.load(),d);assert.equal(createDraftStore(storage,'staff-b',guidedTask).load().answer,'');assert.equal(createDraftStore(storage,'staff-a',independentTask).load().answer,'');assert.ok(a.clear());assert.equal(a.load().answer,'');assert.equal(createDraftStore(null,'staff-a',guidedTask).save(d),false);});
