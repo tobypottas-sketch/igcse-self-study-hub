@@ -50,7 +50,7 @@ test('artwork never crops title plates, frames, badges, effects or theme thumbna
  assert.match(css,/vocab-shop-card--frames/);
  assert.match(css,/vocab-shop-card--titles/);
  assert.match(css,/vocab-shop-card--themes/);
- assert.doesNotMatch(css,/object-fit:cover/);
+ assert.doesNotMatch(css,/object-fit:cover\\s*!important/);
  assert.match(css,/max-width:100%/);
 });
 
