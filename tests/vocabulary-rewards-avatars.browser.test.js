@@ -138,7 +138,15 @@ for(const width of [1440,768,390]) test(`Player avatar shop and persistence at $
   assert.equal(await shop.locator('[data-action="real-unequip"]').count(),6);
   const slots=shop.locator('.vocab-shop-equipped__list');
   const columns=await slots.evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
-  assert.equal(columns,width===390?2:3);
+  assert.equal(columns,width===390?2:width===768?3:6);
+  const panel=shop.locator('.vocab-shop-equipped');
+  if(width===1440)assert.ok((await panel.boundingBox()).height<=290,'desktop equipment panel is compact');
+  for(const art of await slots.locator('.vocab-shop-equipped__art').all()){
+    assert.ok((await art.boundingBox()).height<=111,'equipment artwork height is bounded');
+  }
+  for(const image of await slots.locator('.vocab-shop-equipped__art > img').all()){
+    assert.equal(await image.evaluate(el=>getComputedStyle(el).objectFit),'contain');
+  }
   const equippedArtwork=slots.locator('img.vocab-avatar-character');
   assert.equal(await equippedArtwork.evaluate(el=>getComputedStyle(el).objectFit),'contain');
   assert.match(await mini.getAttribute('src'),/avatar-voxel-architect.webp$/);
