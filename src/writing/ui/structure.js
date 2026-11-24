@@ -1,5 +1,6 @@
-import {mountLesson,el,action} from './lesson-shell.js?v=6';
+import {mountLesson,el,action} from './lesson-shell.js?v=9';
 import {reviewArtwork} from './editorial-art.js?v=6';
+import {discovery,companions,applicationTasks} from '../content/review-active-v2.js';
 import {guidedTask,independentTask,toolkit,improvement,selfCheck} from '../content/review-guided-v1.js';
 import {reviewExam,blueprint,model,structureActivities} from '../content/review-structure-v1.js';
 import {scoreItem,validateActivities} from '../engine/activities.js';
@@ -18,7 +19,7 @@ export function renderExamReference(p,{includeToolkit=true}={}){
  return s;
 }
 export function renderStructure(root,onBack,onStudio){
- const state={model:0,paragraph:0,identified:new Set(),discovered:false,attempts:new Map(),active:null,written:'',revealed:false,checks:new Set()};
+ const state={model:0,paragraph:0,identified:new Set(),discovered:new Set(),discoveryIndex:0,annotations:new Map(),applyIndex:0,applications:applicationTasks.map(()=>({written:'',revealed:false,checks:new Set()})),attempts:new Map(),active:null,written:'',revealed:false,checks:new Set()};
  const models=[{...model,labels:blueprint.map(x=>x.title)},{...guidedTask,title:'Willow Kitchen',labels:['Introduction','Description & evaluation','Evaluation','Recommendation']}];
  const practice=activities.filter(a=>a.level!=='Mastery check'),master=activities.find(a=>a.level==='Mastery check');
  function quiz(host,a,ctx){
@@ -31,18 +32,30 @@ export function renderStructure(root,onBack,onStudio){
   else{const check=action(host,'Check answer',()=>{run.checked=true;if(scoreItem(item,a.type==='order'?run.order:run.selected))run.correct++;draw();});check.disabled=a.type==='order'?run.order.length!==item.options.length:run.selected===null;if(a.type==='order')action(host,'Reset order',()=>{run.order=[];draw();});}
   }draw();
  }
- mountLesson(root,{title:'Structure & Organisation',artwork:reviewArtwork.pathways.structure,onBack,reference:renderExamReference,renderStage(body,i,ctx){
- if(i===0){el(body,'p','wa-kicker','THE FIRST IMPRESSION');el(body,'h3','','Which opening works best?');el(body,'p','','You are reviewing a new cinema for your school magazine. Choose the opening that helps readers understand your visit.');
- const list=el(body,'div','wa-options');const f=el(body,'p','wa-answer');f.setAttribute('role','status');
- const options=['The cinema was very good and I liked it.','Last Friday, my friends and I visited Star Cinema to celebrate the end of our exams. Its impressive facilities immediately caught my attention.','Nowadays, many people enjoy watching films.'];
- options.forEach((t,n)=>action(list,String.fromCharCode(65+n)+' · '+t,()=>{f.textContent=n===1?'Exactly. It names the cinema, explains why you visited and gives an initial impression.':'Look for the specific place, reason for visiting and initial impression.';f.dataset.result=n===1?'correct':'retry';if(n===1){state.discovered=true;ctx.complete();}},'wa-action wa-option'));if(state.discovered)f.textContent='Discovery completed. Try the next stage.';
- const tip=el(body,'div','wa-tip');el(tip,'strong','','Exam move: Introduce');el(tip,'p','','Name the subject and establish relevant context. Explain why you visited when useful.');
+ mountLesson(root,{title:'Structure & Organisation',artwork:reviewArtwork.pathways.structure,onBack,reference:renderExamReference,companions,renderStage(body,i,ctx){
+ if(i===0){
+ const host=el(body,'div','wa-discovery');
+ function draw(){host.replaceChildren();const n=state.discoveryIndex,item=discovery[n];el(host,'p','wa-kicker','CHALLENGE '+(n+1)+' / '+discovery.length);el(host,'h3','',item.prompt);el(host,'p','',item.context);
+ const list=el(host,'div','wa-options');const f=el(host,'p','wa-answer');f.setAttribute('role','status');
+ item.options.forEach((t,j)=>{const b=action(list,String.fromCharCode(65+j)+' · '+t,()=>{const ok=j===item.answer;f.textContent=ok?'Correct. '+item.rationale:'Not quite. Compare the purpose of each option and try again.';f.dataset.result=ok?'correct':'retry';if(ok){state.discovered.add(n);if(state.discovered.size===discovery.length)ctx.complete();}for(const other of list.querySelectorAll('button'))other.setAttribute('aria-pressed',String(other===b));},'wa-action wa-option');b.setAttribute('aria-pressed','false');});
+ if(state.discovered.has(n)){f.textContent='Completed. '+item.rationale;f.dataset.result='correct';}
+ const controls=el(host,'div','wa-stage-foot');const prev=action(controls,'← Previous challenge',()=>{state.discoveryIndex--;draw();});prev.disabled=n===0;const next=action(controls,'Next challenge →',()=>{state.discoveryIndex++;draw();});next.disabled=n===discovery.length-1;
+ }draw();
  }else if(i===1){el(body,'p','','Explore one paragraph at a time. Identify its main purpose before revealing the annotation.');const label=el(body,'label','','Choose a model');label.htmlFor='wa-model-select';const select=el(body,'select','wa-writing-input');select.id=label.htmlFor;models.forEach((m,n)=>{const o=el(select,'option','',m.title);o.value=n;});select.value=state.model;const host=el(body,'div','wa-model-explorer');
  function draw(){host.replaceChildren();const m=models[state.model],n=state.paragraph;const key=state.model+':'+n;el(host,'p','wa-muted',m.prompt);const part=el(host,'article','wa-model-part wa-move-'+n);el(part,'p','wa-kicker','PARAGRAPH '+(n+1)+' / 4');el(part,'p','wa-model-text',m.paragraphs[n]);const choices=el(host,'div','wa-move-options');const f=el(host,'p','wa-answer');f.setAttribute('role','status');m.labels.forEach((t,j)=>action(choices,t,()=>{if(j===n){state.identified.add(key);f.textContent='Correct. '+m.notes[n];f.dataset.result='correct';if(models.some((_,k)=>[0,1,2,3].every(x=>state.identified.has(k+':'+x))))ctx.complete();}else{f.textContent='Not quite. Think about the main purpose of this paragraph.';f.dataset.result='retry';}}));if(state.identified.has(key))f.textContent=m.notes[n];const controls=el(host,'div','wa-stage-foot');const prev=action(controls,'← Previous paragraph',()=>{state.paragraph--;draw();});prev.disabled=n===0;const next=action(controls,'Next paragraph →',()=>{state.paragraph++;draw();});next.disabled=n===3;
  const full=el(host,'details','');el(full,'summary','','Read complete model');for(const p of m.paragraphs)el(full,'p','',p);el(full,'p','wa-muted','Original teaching model, not examiner-marked. '+m.paragraphs.join(' ').trim().split(/\s+/).length+' words.');}
  select.onchange=()=>{state.model=Number(select.value);state.paragraph=0;draw();};draw();
  }else if(i===2){el(body,'p','','Choose a short challenge. Complete all five to finish this stage.');const cards=el(body,'div','wa-activity-list');const host=el(body,'div','wa-question');practice.forEach(a=>action(cards,a.level+' · '+a.title,()=>{state.active=a.id;quiz(host,a,ctx);},'wa-action wa-challenge'));if(state.active)quiz(host,practice.find(a=>a.id===state.active),ctx);
- }else if(i===3){el(body,'p','wa-kicker','YOUR TURN');el(body,'h3','','Improve · Develop your opinion');el(body,'p','wa-weak-opinion',improvement.prompt);el(body,'h3','',improvement.question);const l=el(body,'label','','Rewrite the opinion using a concrete detail.');l.htmlFor='wa-improvement';const input=el(body,'textarea','wa-writing-input');input.id=l.htmlFor;input.rows=4;input.value=state.written;input.oninput=()=>{state.written=input.value;};const status=el(body,'p','wa-answer');status.setAttribute('role','status');const comparison=el(body,'div','wa-model-part wa-move-0');comparison.hidden=!state.revealed;el(comparison,'p','',improvement.example);el(comparison,'p','','Specific food details and reader relevance replace a vague judgement. Different well-supported answers are welcome.');improvement.checks.forEach((t,k)=>{const l=el(comparison,'label','wa-check');const c=el(l,'input','');c.type='checkbox';c.checked=state.checks.has(k);c.onchange=()=>{if(c.checked)state.checks.add(k);else state.checks.delete(k);if(state.checks.size===improvement.checks.length&&state.written.trim())ctx.complete();};l.append(' '+t);});action(body,'Compare with an example',()=>{if(!input.value.trim()){status.textContent='Write your own improvement first.';return;}state.revealed=true;comparison.hidden=false;status.textContent='Compare your writing with the example. Different well-supported answers are welcome.';});
+ }else if(i===3){
+ const host=el(body,'div','wa-apply-work');
+ function draw(){host.replaceChildren();const n=state.applyIndex,item=applicationTasks[n],run=state.applications[n];el(host,'p','wa-kicker','WRITING TASK '+(n+1)+' / '+applicationTasks.length);el(host,'h3','',item.title);el(host,'p','wa-weak-opinion',item.prompt);const l=el(host,'label','',item.question);l.htmlFor='wa-improvement';const input=el(host,'textarea','wa-writing-input');input.id=l.htmlFor;input.rows=4;input.value=run.written;input.placeholder='Write your own response…';const status=el(host,'p','wa-answer');status.setAttribute('role','status');
+ const reveal=action(host,'Compare with an example',()=>{if(!run.written.trim()){status.textContent='Write your own response first.';return;}run.revealed=true;comparison.hidden=false;status.textContent='Compare your writing with the example. Different well-supported answers are welcome.';});
+ const comparison=el(host,'div','wa-model-part wa-move-0');comparison.hidden=!run.revealed;el(comparison,'h3','','One possible response');el(comparison,'p','',item.example);
+ function progress(){if(state.applications.every((x,j)=>x.written.trim()&&x.revealed&&x.checks.size===applicationTasks[j].checks.length))ctx.complete();else ctx.incomplete();}
+ item.checks.forEach((t,k)=>{const l=el(comparison,'label','wa-check');const cb=el(l,'input','');cb.type='checkbox';cb.checked=run.checks.has(k);cb.onchange=()=>{if(cb.checked)run.checks.add(k);else run.checks.delete(k);progress();};l.append(' '+t);});
+ input.oninput=()=>{run.written=input.value;run.checks.clear();for(const cb of comparison.querySelectorAll('input'))cb.checked=false;progress();};
+ const controls=el(host,'div','wa-stage-foot');const prev=action(controls,'← Previous writing task',()=>{state.applyIndex--;draw();});prev.disabled=n===0;const next=action(controls,'Next writing task →',()=>{state.applyIndex++;draw();});next.disabled=n===applicationTasks.length-1;
+ }draw();
  }else{const host=el(body,'div','wa-question');quiz(host,master,ctx);const end=el(body,'details','wa-tip');el(end,'summary','','Apply it in your own review');el(end,'h3','','Independent task · Community sports event');el(end,'p','',independentTask.prompt);action(end,'Open Writing Studio →',()=>onStudio({initialTask:independentTask.id,initialMode:'Gold'}));}
  }});
 }
