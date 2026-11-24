@@ -30,6 +30,8 @@ async function capture(page, name, width, height) {
 
 async function captureStage(page, stage, artwork, width, height) {
  assert.equal(await page.locator('.wa-stage-title').innerText(),stage);
+ const colours=await page.locator('.wa-stage-tab').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).backgroundColor));
+ assert.deepEqual(colours,['rgb(8, 118, 110)','rgb(121, 83, 199)','rgb(245, 179, 53)','rgb(168, 63, 41)','rgb(20, 45, 72)']);
  const contrast=await page.locator('.wa-stage-tab[aria-current=step]').evaluate(n=>{
   const s=getComputedStyle(n);const rgb=v=>v.match(/[\d.]+/g).map(Number);const lum=a=>a.slice(0,3).map(x=>{x/=255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4;}).reduce((v,x,i)=>v+x*[.2126,.7152,.0722][i],0);
   const bg=rgb(s.backgroundColor),fg=rgb(s.color);if(bg.length===4&&bg[3]!==1)return 0;const l=[lum(bg),lum(fg)].sort((a,b)=>b-a);return (l[0]+.05)/(l[1]+.05);
