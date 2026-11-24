@@ -136,3 +136,13 @@ test('shop identity showcases larger artwork with responsive contained dimension
  assert.match(rules,/--shop-avatar-size:82px/);
  assert.match(rules,/--shop-title-width:190px/);
 });
+
+test('compact hero places the wallet beneath the intro and stall alongside both',()=>{
+ const css=read('vocabulary-shop-header-premium.css');
+ const rules=css.slice(css.indexOf('/* Compact shop banner:'));
+ assert.match(rules,/grid-template-areas:"intro stall" "wallet stall"!important/);
+ assert.match(rules,/\.vocab-shop-hero__display\{\s*display:contents!important/);
+ assert.match(rules,/\.vocab-shop-hero__balance\{[^}]*grid-area:wallet;[^}]*justify-self:start!important/);
+ assert.match(rules,/max-height:250px!important/);
+ assert.match(rules,/grid-template-areas:"intro" "wallet" "stall"!important/);
+});
