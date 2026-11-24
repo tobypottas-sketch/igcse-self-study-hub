@@ -171,7 +171,7 @@ test('shop counter art and live XP stay separate for both real and sandbox shops
 test('shop banner uses one narrow centered content group rather than edge-separated hero cells',()=>{
   const css=read('vocabulary-shop-header-premium.css').toString();
   const html=read('vocabulary.html').toString();
-  assert.ok(html.includes('vocabulary-shop-header-premium.css?v=hires-stall-wallet-v2'));
+  assert.ok(html.includes('vocabulary-shop-header-premium.css?v=large-cosmetics-v3'));
   assert.ok(css.includes('grid-template-columns:minmax(0,660px) minmax(350px,520px)'));
   assert.ok(css.includes('justify-content:center!important'));
   assert.ok(css.includes('grid-template-areas:"intro display"'));
