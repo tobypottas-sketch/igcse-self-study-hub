@@ -94,14 +94,6 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
  window.addEventListener('blur',onBlur);
  document.addEventListener('fullscreenchange',onFullscreen);
  function stopMonitoring(){state.monitoring=false;if(integrityTimer!==null){clearInterval(integrityTimer);integrityTimer=null;}void integrityQueue?.flush();}
- function requestFullscreen(){
-  if(!document.fullscreenEnabled||!root.requestFullscreen)return;
-  // Must be called inside a direct click, before the first awaited API call.
-  try{
-   const result=root.requestFullscreen();
-   Promise.resolve(result).then(()=>{state.fullscreenUsed=Boolean(document.fullscreenElement);}).catch(()=>{});
-  }catch{ /* fullscreen denied; assessment remains accessible */ }
- }
  function shell(html){
   root.innerHTML='<main class="vocab-shell diag-player ngsl-player"><header class="vocab-topbar">'
    +'<a class="vocab-back" href="./">← Hub</a><span>NGSL vocabulary diagnostic</span></header>'
@@ -119,7 +111,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
    +'<span><strong>4 + 1</strong><small>choices + not sure</small></span>'
    +'<span><strong>∞</strong><small>no time limit</small></span>'
    +'</div>'
-   +'<p class="ngsl-welcome-save">If you do not know a word, choose “I’m not sure” instead of guessing. It counts as incorrect, but helps your teacher see which words you genuinely do not know. Your answers save automatically. During this assessment, leaving the tab or exiting fullscreen is recorded for teacher review. Fullscreen is requested when supported but cannot lock your device. You can save and exit when needed.</p>'
+   +'<p class="ngsl-welcome-save">If you do not know a word, choose “I’m not sure” instead of guessing. It counts as incorrect, but helps your teacher see which words you genuinely do not know. Your answers save automatically. During this assessment, leaving the tab is recorded for teacher review. You can scroll normally in your browser. You can save and exit when needed.</p>'
    +'<div class="diag-actions"><button class="diag-primary" type="button" data-ngsl="start">Start or continue <span aria-hidden="true">→</span></button></div>'
    +'<p role="status" class="diag-message"></p>'
    +'</div>'
@@ -235,7 +227,7 @@ export async function startNGSLDiagnostic({root,client,onComplete}){
  });
  root.addEventListener('click',event=>{
   const action=event.target?.closest?.('[data-ngsl]')?.dataset.ngsl;
-  if(action==='start'){requestFullscreen();void start();}
+  if(action==='start'){void start();}
   if(action==='submit')void submit();
   if(action==='pause')void pause();
   if(action==='finish'&&state.complete)onComplete?.();
