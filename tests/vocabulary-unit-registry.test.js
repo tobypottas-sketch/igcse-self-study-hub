@@ -8,11 +8,11 @@ import { validateUnit } from '../content/vocabulary/schema.js';
 import unit1 from '../content/vocabulary/units/unit-01.js';
 import { VOCABULARY_PATHWAYS } from '../src/vocabulary/pathway-model.js';
 
-test('the registry lists exactly units 1 to 20 with a title and the standard word count', () => {
+test('the registry lists exactly units 1 to 20 with a title and the standard word count (Unit 10 is the approved 48-word list)', () => {
   assert.deepEqual(Object.keys(UNIT_REGISTRY).map(Number), Array.from({ length:20 }, (_, index) => index + 1));
-  for (const unit of Object.values(UNIT_REGISTRY)) {
+  for (const [number, unit] of Object.entries(UNIT_REGISTRY)) {
     assert.ok(unit.title.length > 0);
-    assert.equal(unit.expectedWords, EXPECTED_WORDS_PER_UNIT);
+    assert.equal(unit.expectedWords, Number(number) === 10 ? 48 : EXPECTED_WORDS_PER_UNIT, `unit ${number}`);
   }
   assert.equal(unitConfig(21), null);
   assert.equal(unitConfig('x'), null);

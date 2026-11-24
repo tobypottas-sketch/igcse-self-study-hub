@@ -12,6 +12,7 @@ body:has(.vocab-shell[data-unit-theme="learning-study-skills"]){--unit-wallpaper
 body:has(.vocab-shell[data-unit-theme="interviews"]){--unit-wallpaper:url("assets/vocabulary/themes/interviews-wallpaper.svg")}
 body:has(.vocab-shell[data-unit-theme="work"]){--unit-wallpaper:url("assets/vocabulary/themes/work-wallpaper.svg")}
 body:has(.vocab-shell[data-unit-theme="communication"]){--unit-wallpaper:url("assets/vocabulary/themes/communication-wallpaper.svg")}
+body:has(.vocab-shell[data-unit-theme="education"]){--unit-wallpaper:url("assets/vocabulary/themes/education-wallpaper.svg")}
 body:has(.vocab-shell[data-unit-theme]){
   background-color:var(--c-bg);
   background-image:
@@ -46,6 +47,7 @@ body:has(.vocab-shell[data-unit-overview="learning-study-skills"]){--page-art:ur
 body:has(.vocab-shell[data-unit-overview="interviews"]){--page-art:url("assets/vocabulary/themes/interviews-overview.svg")}
 body:has(.vocab-shell[data-unit-overview="work"]){--page-art:url("assets/vocabulary/themes/work-overview.svg")}
 body:has(.vocab-shell[data-unit-overview="communication"]){--page-art:url("assets/vocabulary/themes/communication-overview.svg")}
+body:has(.vocab-shell[data-unit-overview="education"]){--page-art:url("assets/vocabulary/themes/education-overview.svg")}
 body:has(.vocab-shell--home),body:has(.vocab-shell[data-unit-overview]){
   background-color:var(--c-bg);
   background-image:
@@ -68,6 +70,7 @@ body:has(.vocab-shell--home),body:has(.vocab-shell[data-unit-overview]){
   body:has(.vocab-shell[data-unit-overview="interviews"]){--page-art:url("assets/vocabulary/themes/interviews-overview-compact.svg")}
   body:has(.vocab-shell[data-unit-overview="work"]){--page-art:url("assets/vocabulary/themes/work-overview-compact.svg")}
   body:has(.vocab-shell[data-unit-overview="communication"]){--page-art:url("assets/vocabulary/themes/communication-overview-compact.svg")}
+  body:has(.vocab-shell[data-unit-overview="education"]){--page-art:url("assets/vocabulary/themes/education-overview-compact.svg")}
 }
 /* Loose text on the overview (the section headings sit directly on the page) gets the same solid plate as on the activity pages, so the artwork never runs through letters. */
 @media (min-width:901px){

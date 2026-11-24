@@ -104,11 +104,11 @@ test('4. completing and retrying Unit 9 persists unit_number 8 through forms A, 
   assert.match(controller, /unitNumber:active\.unitNumber/);
 });
 
-test('5. existing checks stay registered; Units 1 to 9 are the only checks and Unit 10 has none', () => {
+test('5. existing checks stay registered; Units 1 to 10 are the only checks and Unit 11 has none', () => {
   assert.equal(unitCheckFor(1), unit1Check);
   assert.equal(unitCheckFor(4), unit4Check);
-  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1','2','3','4','5','6','7','8','9']);
-  assert.equal(unitCheckFor(10), null);
+  assert.deepEqual(Object.keys(UNIT_CHECKS), ['1','2','3','4','5','6','7','8','9','10']);
+  assert.equal(unitCheckFor(11), null);
 });
 
 const BLUEPRINT = {

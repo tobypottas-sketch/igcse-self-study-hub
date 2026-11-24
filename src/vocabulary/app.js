@@ -20,7 +20,7 @@ import { VOCABULARY_PATHWAYS } from './pathway-model.js';
 import { registeredPathwayCoverage, servedByAnyLivePathway } from './pathway-coverage-store.js';
 import { buildSessionFinishModel } from './session-finish-model.js';
 import { mountGames } from './games/games-controller.js';
-import { buildUnitProgress, renderAchievementsSheet, renderEngagementStrip, renderSessionSummary, renderVocabularyError, renderPracticeSheet, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js?v=battles-banner-v2';
+import { buildUnitProgress, renderAchievementsSheet, renderEngagementStrip, renderSessionSummary, renderVocabularyError, renderPracticeSheet, renderVocabularyHome, renderVocabularyQuestion, renderVocabularyUnit, renderVocabularyWords, supportiveFeedback } from './views.js?v=unit10-bank-count-v1';
 import { deriveLearningStage } from './learning-stage.js';
 import { createAttemptPersistence } from './attempt-persistence.js';
 import { buildMatchSet, checkMatchSet, finishedMatchState, newMatchState, revealMatchSet, tapMatchItem, pairMatchItems } from './match-set.js';

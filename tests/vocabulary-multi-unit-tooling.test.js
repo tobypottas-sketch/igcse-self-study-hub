@@ -23,10 +23,10 @@ function tempReleases(extra = {}) {
 }
 const synthetic = n => `export default ${relabel(JSON.stringify(unit1), n)};\n`;
 
-test('the real repo discovers Units 1, 2, 3, 4, 5, 6, 7, 8 and 9, and each unit’s generated output equals its committed lock and chunk files', async () => {
-  assert.deepEqual(releaseNumbers(REAL), [1, 2, 3, 4, 5, 6, 7, 8, 9]);
+test('the real repo discovers Units 1, 2, 3, 4, 5, 6, 7, 8, 9 and 10, and each unit’s generated output equals its committed lock and chunk files', async () => {
+  assert.deepEqual(releaseNumbers(REAL), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   const releases = await loadReleases(REAL);
-  assert.equal(releases.length, 9);
+  assert.equal(releases.length, 10);
   assert.equal(releases[0].release, unit1);
   const lock = readLock(1);
   assert.deepEqual(releaseFingerprint(unit1), { version: lock.version, contentChecksum: lock.contentChecksum, membershipChecksum: lock.membershipChecksum, words: lock.words, memberRows: lock.memberRows });

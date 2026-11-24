@@ -1,0 +1,30 @@
+// Unit 10 · Word Families — a SECOND authored example sentence for the two non-headword forms of each three-form family, WORDS 1–48 (complete).
+// Same contract as unit-09-word-family-alternates.js: each sentence contains its form exactly once and never starts with it.
+export const unit10WordFamilyAlternates = Object.freeze({
+  education: { educate: 'Schools should educate children about online safety.', educational: 'My little brother loves educational games about animals.' },
+  academic: { academy: 'She studies dance at a performing arts academy.', academically: 'He is academically gifted but finds sport difficult.' },
+  literacy: { literate: 'Almost every adult in the country is now literate.', illiterate: 'Her great-grandmother was illiterate and signed her name with a cross.' },
+  assessment: { assess: 'The nurse will assess how serious the injury is.', assessor: 'The assessor watched each candidate give a short speech.' },
+  progress: { progressive: 'The new head teacher has very progressive ideas about homework.', progression: 'There is a natural progression from the first conditional to the second.' },
+  encourage: { encouragement: 'The crowd shouted words of encouragement to the runners.', encouraging: 'It is encouraging that more girls are studying science.' },
+  reflect: { reflection: 'After some reflection, he decided to change his course.', reflective: 'The writer’s reflective tone makes the article feel honest.' },
+  performance: { perform: 'Students who perform well in the mock exam can join the advanced class.', performer: 'Every performer in the show was under eighteen.' },
+  confidence: { confident: 'I am confident that our team will win.', confidently: 'The new student walked confidently into the classroom.' },
+  contribute: { contribution: 'Parents made a generous contribution to the library fund.', contributor: 'The biggest contributor to the charity was a local business.' },
+  preparation: { prepare: 'It takes an hour to prepare the room for the exam.', prepared: 'Always come prepared with a pen and a calculator.' },
+  employment: { employ: 'Local shops employ many students at weekends.', employer: 'Every employer wants staff who can communicate well.' },
+  industry: { industrial: 'The river was polluted by industrial waste.', industrialise: 'Some countries tried to industrialise too quickly.' },
+  challenge: { challenging: 'Moving to a new school can be challenging at first.', challenger: 'The champion easily defeated every challenger.' },
+  reluctant: { reluctance: 'Despite his reluctance, he agreed to give the speech.', reluctantly: 'She reluctantly turned off her phone and opened her book.' },
+  examination: { examine: 'Scientists will examine the rocks brought back from Mars.', examiner: 'Speak clearly so that the examiner can hear you.' },
+  presentation: { present: 'Our group will present its project on Monday.', presenter: 'The presenter of the podcast interviews a scientist every week.' },
+  pronunciation: { pronounce: 'Many learners find it hard to pronounce the sound “th”.', mispronounce: 'It is easy to mispronounce long scientific words.' },
+  accurately: { accurate: 'Make sure your notes are accurate before the test.', accuracy: 'The machine checks the accuracy of every measurement.' },
+  effectively: { effective: 'Regular practice is the most effective way to learn vocabulary.', effectiveness: 'Teachers discussed the effectiveness of online lessons.' },
+  develop: { development: 'Reading helps the development of a child’s imagination.', developed: 'Her writing style is now more developed and mature.' },
+  communicate: { communication: 'The storm cut off all communication with the island.', communicative: 'The test measures how communicative you are in English.' },
+  preference: { prefer: 'I prefer studying in the library to studying at home.', preferable: 'For most students, a quiet room is preferable to a busy café.' },
+  achievement: { achieve: 'You can achieve a lot in ten minutes a day.', achievable: 'The coach set an achievable goal for the season.' },
+  qualification: { qualify: 'Students who pass the course qualify for a certificate.', qualified: 'The school is looking for a qualified music teacher.' },
+  succeed: { success: 'Her success in the competition made the newspapers.', successful: 'The fundraising event was very successful.' }
+});

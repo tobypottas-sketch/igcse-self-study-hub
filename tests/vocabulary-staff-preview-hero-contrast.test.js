@@ -30,8 +30,8 @@ test('light preview heading, accent, supporting sentence and name are high contr
 });
 test('the refreshed browser imports reach new preview markup and CSS',()=>{
  const app=read('src/vocabulary/app.js'),router=read('src/vocabulary/router.js'),html=read('vocabulary.html');
- assert.match(app,/views\.js\?v=battles-banner-v2/);
- assert.match(router,/app\.js\?v=battles-banner-v2/);
- assert.match(html,/router\.js\?v=battles-banner-v2/);
+ assert.match(app,/views\.js\?v=unit10-bank-count-v1/);
+ assert.match(router,/app\.js\?v=unit10-bank-count-v1/);
+ assert.match(html,/router\.js\?v=unit10-bank-count-v1/);
  assert.match(html,/vocabulary-hero-unified\.css\?v=default-home-contrast-v3/);
 });

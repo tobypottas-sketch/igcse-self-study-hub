@@ -194,20 +194,23 @@ export function validateUnit(unit = {}) {
   const contextsById = new Map(contexts.map(context => [context.contextId, context]));
 
   errorIf(errors, !Number.isInteger(unit.unitNumber) || unit.unitNumber < 1 || unit.unitNumber > 20, 'Unit number must be 1–20.');
+  // Planned word count from the unit registry (50 unless a unit's key-word list is shorter).
+  const expectedWords = unitConfig(unit.unitNumber)?.expectedWords ?? EXPECTED_WORDS_PER_UNIT;
   errorIf(errors, !text(unit.unitTitle), 'Unit title is required.');
   errorIf(errors, unit.status != null && !STATUSES.has(unit.status), 'Unit status is invalid.');
 
   if (strict) {
-    errorIf(errors, occurrences.length !== EXPECTED_WORDS_PER_UNIT, `An approved/live unit must contain exactly ${EXPECTED_WORDS_PER_UNIT} occurrences.`);
     const registered = unitConfig(unit.unitNumber);
+    errorIf(errors, occurrences.length !== expectedWords, `An approved/live unit must contain exactly ${expectedWords} occurrences.`);
     errorIf(errors, registered != null && text(unit.unitTitle) !== registered.title, `Unit ${unit.unitNumber} title must match the unit registry ("${registered?.title}").`);
     const occurrenceIds = new Set(occurrences.map(item => item.occurrenceId));
     errorIf(errors, occurrenceIds.size !== occurrences.length, 'An approved/live unit must have distinct occurrence IDs.');
     const vocabularyIds = occurrences.map(item => item.vocabularyId);
-    errorIf(errors, new Set(vocabularyIds).size !== vocabularyIds.length, `An approved/live unit must contain ${EXPECTED_WORDS_PER_UNIT} distinct vocabulary targets.`);
+    errorIf(errors, new Set(vocabularyIds).size !== vocabularyIds.length, `An approved/live unit must contain ${expectedWords} distinct vocabulary targets.`);
     for (let setNumber = 1; setNumber <= 5; setNumber += 1) {
       const expected = occurrences.filter(occurrence => occurrence.setNumber === setNumber);
-      errorIf(errors, expected.length !== 10, `Set ${setNumber} must contain exactly ten targets.`);
+      const setSize = Math.min(10, Math.max(0, expectedWords - (setNumber - 1) * 10));
+      errorIf(errors, expected.length !== setSize, setSize === 10 ? `Set ${setNumber} must contain exactly ten targets.` : `Set ${setNumber} must contain exactly ${setSize} targets.`);
     }
     for (const item of items) {
       errorIf(errors, !['approved','live'].includes(item.status), `${text(item.term) || text(item.vocabularyId) || 'Item'} must be approved before the unit can be approved/live.`);
@@ -227,7 +230,7 @@ export function validateUnit(unit = {}) {
     errorIf(errors, occurrence.unitNumber !== unit.unitNumber, `${label} has the wrong unit number.`);
     errorIf(errors, occurrence.unitTitle !== unit.unitTitle, `${label} has the wrong unit title.`);
     errorIf(errors, !Number.isInteger(occurrence.setNumber) || occurrence.setNumber < 1 || occurrence.setNumber > 5, `${label} has an invalid set number.`);
-    errorIf(errors, !Number.isInteger(occurrence.positionInUnit) || occurrence.positionInUnit < 1 || occurrence.positionInUnit > EXPECTED_WORDS_PER_UNIT, `${label} has an invalid position.`);
+    errorIf(errors, !Number.isInteger(occurrence.positionInUnit) || occurrence.positionInUnit < 1 || occurrence.positionInUnit > expectedWords, `${label} has an invalid position.`);
     errorIf(errors, !text(occurrence.senseId), `${label} needs a sense ID.`);
 
     const contextIds = array(occurrence.contextIds);

@@ -62,21 +62,21 @@ const DANGEROUS = [
 ];
 const dangerous = (a, b) => DANGEROUS.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
 
-test('registration: Units 1-8 all have both games, 10 and beyond stay unavailable, nothing falls back', () => {
+test('registration: Units 1-8 all have both games, 11 and beyond stay unavailable, nothing falls back', () => {
   assert.deepEqual(availableGames(8), ['blitz', 'connections']);
   assert.equal(gamesFor(8).connections.puzzles, CONNECTIONS_PUZZLES_U8);
   assert.equal(gamesFor(8).blitz.confusable, BLITZ_CONFUSABLE_U8);
   assert.equal(gamesFor(8).blitz.meaningOptions, BLITZ_MEANING_OPTIONS_U8);
   assert.equal(gamesFor(8).blitz.excluded, BLITZ_EXCLUDED_U8);
   for (const u of [1, 2, 3, 4, 5, 6, 7]) { assert.deepEqual(availableGames(u), ['blitz', 'connections']); assert.notEqual(gamesFor(u).connections.puzzles, gamesFor(8).connections.puzzles); assert.notEqual(gamesFor(u).blitz.confusable, gamesFor(8).blitz.confusable); }
-  for (const u of [10, 11, 20, 0, -1, NaN, null, undefined, '10', 'nine']) { assert.equal(gamesFor(u), null, `unit ${String(u)}`); assert.deepEqual(availableGames(u), []); }
+  for (const u of [11, 12, 20, 0, -1, NaN, null, undefined, '11', 'nine']) { assert.equal(gamesFor(u), null, `unit ${String(u)}`); assert.deepEqual(availableGames(u), []); }
   assert.equal(gamesFor('8'), data8, 'a numeric string reaches the same registry entry the route would use');
-  assert.deepEqual(Object.keys(GAMES_BY_UNIT), ['1', '2', '3', '4', '5', '6', '7', '8', '9']);
+  assert.deepEqual(Object.keys(GAMES_BY_UNIT), ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']);
   assert.match(renderGamesEntry(8), /Unit 8/); assert.match(renderLobby(8), /data-game="blitz"/); assert.match(renderLobby(8), /data-game="connections"/);
-  assert.equal(renderGamesEntry(10), '');
+  assert.equal(renderGamesEntry(11), '');
 });
 
-test('the Unit 8 overview shows the Bonus Games section with both games, and the Unit 10 overview does not', () => {
+test('the Unit 8 overview shows the Bonus Games section with both games, and the Unit 11 overview does not', () => {
   const html = unitHtml(8);
   assert.match(html, /data-games-entry/); assert.match(html, /<h2 id="gmEntryTitle">Bonus Games<\/h2>/); assert.match(html, /Practise your Unit 8 vocabulary in a different way\./);
   assert.match(html, /data-game="blitz"/); assert.match(html, /data-game="connections"/);
@@ -84,7 +84,7 @@ test('the Unit 8 overview shows the Bonus Games section with both games, and the
   assert.doesNotMatch(html, /Unit 1 vocabulary|Unit 6 vocabulary/, 'the copy follows the unit');
   assert.ok(html.indexOf('data-games-entry') > html.indexOf('vocab-pathway-grid'), 'the section follows the pathways, as in Units 1-7');
   assert.match(html, /data-unit-overview="work"/, 'the Unit 8 overview background hook is present');
-  assert.doesNotMatch(unitHtml(10), /data-games-entry|gm-entry|data-game=/);
+  assert.doesNotMatch(unitHtml(11), /data-games-entry|gm-entry|data-game=/);
   // the Games entry is identical in structure to Unit 7's (only the unit number differs)
   const entry = unitNo => renderGamesEntry(unitNo).replace(new RegExp(`Unit ${unitNo}`, 'g'), 'Unit N'); assert.equal(entry(8), entry(7));
 });
@@ -407,9 +407,9 @@ test('regression: Units 1-7 data and pools are unchanged', () => {
   const p7 = buildBlitzPool(unit7, seeded(3), gamesFor(7).blitz); assert.equal(p7.length, 311); assert.deepEqual(count(p7), { def: 50, para: 77, gap: 84, mic: 100 }); assert.equal(CONNECTIONS_PUZZLES_U7.length, 49);
 });
 
-test('final rollout: Units 1-8 all expose both Games, each from its own content, and Unit 10 falls back to nothing', () => {
+test('final rollout: Units 1-8 all expose both Games, each from its own content, and Unit 11 falls back to nothing', () => {
   const contents = { 1: unit1, 2: unit2, 3: unit3, 4: unit4, 5: unit5, 6: unit6, 7: unit7, 8: unit8 };
-  assert.deepEqual(Object.keys(GAMES_BY_UNIT).map(Number), [1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  assert.deepEqual(Object.keys(GAMES_BY_UNIT).map(Number), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   const seenPuzzles = new Set(); const seenBlitz = new Set();
   for (const u of [1, 2, 3, 4, 5, 6, 7, 8]) {
     assert.deepEqual(availableGames(u), ['blitz', 'connections'], `Unit ${u}`);
@@ -422,11 +422,11 @@ test('final rollout: Units 1-8 all expose both Games, each from its own content,
     for (const p of games.connections.puzzles) assert.ok(terms.has(p.target), `Unit ${u}: ${p.target} is a Unit ${u} word`);
     assert.match(renderGamesEntry(u), new RegExp(`Unit ${u}`)); assert.match(renderLobby(u), /data-game="blitz"/); assert.match(renderLobby(u), /data-game="connections"/);
   }
-  for (const u of [10, 11, 12, 0, -1, NaN, null, undefined, '10', 'nine']) {
+  for (const u of [11, 12, 12, 0, -1, NaN, null, undefined, '11', 'nine']) {
     assert.equal(gamesFor(u), null); assert.deepEqual(availableGames(u), []);
     if (u !== undefined) { assert.equal(renderGamesEntry(u), '', `unit ${String(u)} shows no Games entry`); const lobby = renderLobby(u); assert.match(lobby, /data-games-unavailable/); assert.doesNotMatch(lobby, /data-game-card|data-game="(blitz|connections)"/); assert.doesNotMatch(lobby, /Unit [1-8]\b/); }
   }
-  assert.deepEqual(buildBlitzPool(unit8, seeded(3), gamesFor(10)?.blitz), [], 'without unit data there is no Blitz pool');
+  assert.deepEqual(buildBlitzPool(unit8, seeded(3), gamesFor(11)?.blitz), [], 'without unit data there is no Blitz pool');
   // the pool for another unit never leaks into Unit 8 either
   assert.deepEqual(buildBlitzPool(unit6, seeded(3), data8.blitz).filter(q => !terms8.has(q.term)).length, buildBlitzPool(unit6, seeded(3), data8.blitz).length - buildBlitzPool(unit6, seeded(3), data8.blitz).filter(q => terms8.has(q.term)).length);
 });
