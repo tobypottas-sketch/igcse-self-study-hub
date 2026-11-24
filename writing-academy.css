@@ -306,10 +306,15 @@
 #writingAcademy .wa-editorial-lesson .wa-lesson-reference>details{margin-top:4px}
 #writingAcademy .wa-journey-meter{height:5px;background:#dce5eb;border-radius:10px;overflow:hidden;margin:4px 0 8px}
 #writingAcademy .wa-journey-meter>div{height:100%;background:#08766e}
-#writingAcademy .wa-stage-tab{border-bottom:3px solid var(--step,#08766e);background:#edf2f4}
-#writingAcademy .wa-stage-tab[data-stage=explore]{--step:#7953c7}#writingAcademy .wa-stage-tab[data-stage=practise]{--step:#b17b16}#writingAcademy .wa-stage-tab[data-stage=apply]{--step:#a83f29}#writingAcademy .wa-stage-tab[data-stage=master]{--step:#142d48}
-#writingAcademy .wa-stage-tab[aria-current=step]{background:var(--step,#08766e);color:white}#writingAcademy .wa-stage-tab[data-stage=practise][aria-current=step]{background:#f5b335;color:#142d48}
-#writingAcademy .wa-stage-tab[data-complete=true]:not([aria-current=step]){background:#d9eee5}
+#writingAcademy .wa-stage-tab{--step:#08766e;--step-ink:#fff;background:var(--step);color:var(--step-ink);border:2px solid transparent;border-bottom:4px solid #0002;box-shadow:none}
+#writingAcademy .wa-stage-tab[data-stage=explore]{--step:#7953c7}
+#writingAcademy .wa-stage-tab[data-stage=practise]{--step:#f5b335;--step-ink:#142d48}
+#writingAcademy .wa-stage-tab[data-stage=apply]{--step:#a83f29}
+#writingAcademy .wa-stage-tab[data-stage=master]{--step:#142d48}
+#writingAcademy .wa-stage-tab[aria-current=step]{background:var(--step);color:var(--step-ink);border:2px solid var(--step-ink);border-bottom-width:4px;box-shadow:0 0 0 2px var(--step)}
+#writingAcademy .wa-stage-tab[data-complete=true]:not([aria-current=step]){background:var(--step);color:var(--step-ink)}
+#writingAcademy .wa-stage-tab:hover{filter:brightness(.93)}
+#writingAcademy .wa-stage-tab:focus-visible{outline:3px solid #3978da;outline-offset:4px}
 #writingAcademy .wa-editorial-lesson .wa-stage-body{grid-template-columns:minmax(0,1fr) minmax(180px,246px);grid-template-areas:"title art" "task art";padding:clamp(14px,2vw,24px)}
 #writingAcademy .wa-learning-companion{grid-area:art;min-width:0;align-self:start;display:flex;flex-direction:column;align-items:stretch;gap:10px}
 #writingAcademy .wa-learning-companion .wa-art--stage{grid-area:auto;width:100%;max-width:100%;height:auto;flex:none;align-self:center}
