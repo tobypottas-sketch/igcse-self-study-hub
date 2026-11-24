@@ -22,7 +22,7 @@ try {
     host.after(submissionHost);
     const submission = mountWritingSubmission(submissionHost,{client,appKey:'essay_writing',getTask:()=>essayTaskText(practiceContext()?.task),getResponse:()=>essayResponseText(practiceContext()?.sections),allowed:()=>Boolean(practiceContext())});
     client.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){submission.dispose();submissionHost.remove();}});
-    const syncSubmission = () => { submissionHost.hidden = !practiceContext(); }; syncSubmission(); window.addEventListener('essay-feedback-reset',syncSubmission);
+    const syncSubmission = () => { submissionHost.hidden = !practiceContext(); }; syncSubmission(); window.addEventListener('essay-feedback-reset',()=>queueMicrotask(syncSubmission));
     if (!STUDENT_FEEDBACK_UI_ENABLED) { host.hidden=true; } else {
     const feedback = mountStudentFeedback(host, {
       app: 'essay', getClient: () => client,
