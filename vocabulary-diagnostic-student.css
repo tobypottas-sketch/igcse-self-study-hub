@@ -556,3 +556,18 @@ body:has(#vocabularyApp .diag-player){
   #vocabularyApp .ngsl-player .diag-actions{margin-top:12px;padding-top:12px}
   #vocabularyApp .ngsl-player .diag-message:empty{display:none}
 }
+
+/* Diagnostic must remain in normal document flow on every browser. */
+html:has(#vocabularyApp .ngsl-player),
+body:has(#vocabularyApp .ngsl-player){
+ height:auto!important;max-height:none!important;overflow-y:auto!important;
+ position:static!important;touch-action:pan-y pinch-zoom!important;
+}
+#vocabularyApp:has(.ngsl-player):not(:fullscreen){
+ height:auto!important;max-height:none!important;overflow:visible!important;
+ position:relative!important;touch-action:pan-y pinch-zoom!important;
+}
+#vocabularyApp .ngsl-player .diag-assessment .diag-actions{
+ position:sticky;bottom:0;z-index:5;background:var(--c-surface);
+ padding-bottom:max(10px,env(safe-area-inset-bottom));
+}
