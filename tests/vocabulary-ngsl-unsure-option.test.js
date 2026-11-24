@@ -36,9 +36,9 @@ test('students and teachers see correct / wrong / unsure with no effect on exist
  assert.match(student,/ngsl-response-breakdown/);
  assert.match(report,/Not sure<\/th>/);
  assert.match(report,/r\.result\?\.unsure\?\?''/);
- assert.match(html,/diagnostic-student\.css\?v=ngsl-tablet-scroll-v1/);
- assert.match(html,/router\.js\?v=player-avatars-v1/);
- assert.match(router,/ngsl-student\.js\?v=ngsl-unsure-v3/);
+ assert.match(html,/diagnostic-student\.css\?v=ngsl-normal-scroll-v4/);
+ assert.match(html,/router\.js\?v=ngsl-normal-scroll-v4/);
+ assert.match(router,/ngsl-student\.js\?v=ngsl-normal-scroll-v4/);
 });
 
 test('NGSL fullscreen root permits vertical touch scrolling and tablet controls remain in flow',()=>{
@@ -51,4 +51,13 @@ test('NGSL fullscreen root permits vertical touch scrolling and tablet controls 
  assert.match(css,/#vocabularyApp \.ngsl-player \.diag-assessment\{\s*height:auto;\s*max-height:none;\s*overflow:visible/);
  assert.match(css,/@media\(max-height:850px\),\(max-width:1024px\)/);
  assert.match(css,/\.ngsl-player \.diag-option\{min-height:48px/);
+});
+
+test('student start never requests fullscreen and normal browser scrolling is restored',()=>{
+ const source=read('src/vocabulary/ngsl-student.js'),css=read('vocabulary-diagnostic-student.css');
+ assert.doesNotMatch(source,/\.requestFullscreen\(/);
+ assert.match(source,/if\(action==='start'\)\{void start\(\);\}/);
+ assert.match(css,/html:has\(#vocabularyApp \.ngsl-player\)/);
+ assert.match(css,/overflow-y:auto!important/);
+ assert.match(css,/\.diag-assessment \.diag-actions\{\s*position:sticky;bottom:0/);
 });

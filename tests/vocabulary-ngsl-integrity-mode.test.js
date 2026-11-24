@@ -6,12 +6,11 @@ const student=read('src/vocabulary/ngsl-student.js');
 const teacher=read('src/vocabulary/ngsl-teacher-results.js');
 const edge=read('supabase/functions/vocabulary-diagnostic/index.ts');
 const sql=read('supabase/diagnostic/ngsl_integrity_monitor_v1.sql');
-test('the student is informed of monitoring before starting and fullscreen is optional',()=>{
- assert.match(student,/During this assessment, leaving the tab or exiting fullscreen is recorded/);
- assert.match(student,/cannot lock your device/);
- assert.match(student,/document\.fullscreenEnabled/);
- assert.match(student,/root\.requestFullscreen\(\)/);
- assert.match(student,/if\(action==='start'\)\{requestFullscreen\(\);void start\(\);\}/);
+test('the student is informed of monitoring before starting without forced fullscreen',()=>{
+ assert.match(student,/During this assessment, leaving the tab is recorded/);
+ assert.match(student,/You can scroll normally in your browser/);
+ assert.doesNotMatch(student,/root\.requestFullscreen\(/);
+ assert.match(student,/if\(action==='start'\)\{void start\(\);\}/);
 });
 test('focus, visibility and fullscreen exits are logged as advisory signals',()=>{
  for(const term of ['visibilitychange','fullscreenchange',"'blur'","'tab_hidden'","'window_blur'","'fullscreen_exit'","'focus_return'"])
