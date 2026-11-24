@@ -26,21 +26,36 @@ const render=production=>{
 };
 
 test('new card density sheet is loaded after the entire theme stack',()=>{
- const pos=html.indexOf('vocabulary-shop-card-polish-v2.css?v=shop-density-contain-actions-v2');
+ const pos=html.indexOf('vocabulary-shop-card-polish-v2.css?v=shop-uniform-height-v3');
  assert.ok(pos>0);
  for(const file of ['vocabulary-rewards.css','vocabulary-premium-blockverse.css','vocabulary-blockverse-legibility-v3.css','vocabulary-shop-theme-glass.css','vocabulary-study-two-tier-header.css']){
   assert.ok(html.indexOf(file)>=0&&html.indexOf(file)<pos,file+' loaded before card polish');
  }
 });
 
-test('grid cards are content-height rather than height-stretched or flex-expanded',()=>{
- assert.match(css,/align-items:start!important/);
- assert.match(css,/grid-auto-rows:max-content/);
- assert.match(css,/align-self:start!important/);
- assert.match(css,/height:auto!important/);
- assert.match(css,/min-height:0!important/);
- assert.match(css,/flex:0 0 auto!important/);
- assert.match(css,/margin-top:8px!important/);
+test('all reward cards share an identical compact height, including Blockverse',()=>{
+ const finalRules=css.slice(css.indexOf('/* V3: consistent product gallery'));
+ assert.ok(finalRules.length>2000);
+ assert.match(finalRules,/align-items:stretch!important/);
+ assert.match(finalRules,/grid-auto-rows:492px!important/);
+ assert.match(finalRules,/height:492px!important/);
+ assert.match(finalRules,/min-height:492px!important/);
+ assert.match(finalRules,/max-height:492px!important/);
+ assert.match(finalRules,/grid-template-rows:30px 224px 49px 58px minmax\(52px,1fr\)/);
+ assert.match(finalRules,/\.vocab-shop-blockverse \.vocab-shop-card/);
+ assert.match(finalRules,/align-self:end!important/);
+ assert.match(finalRules,/grid-auto-rows:450px!important/);
+ assert.match(finalRules,/grid-auto-rows:460px!important/);
+});
+
+test('titles and descriptions have two-line caps rather than varying card height',()=>{
+ const finalRules=css.slice(css.indexOf('/* V3: consistent product gallery'));
+ assert.match(finalRules,/-webkit-line-clamp:2/);
+ assert.match(finalRules,/\.vocab-shop-card > h3/);
+ assert.match(finalRules,/\.vocab-shop-card > p/);
+ assert.match(finalRules,/overflow:hidden/);
+ assert.match(finalRules,/object-fit:contain!important/);
+ assert.match(finalRules,/\.vocab-shop-card--effects/);
 });
 
 test('artwork never crops title plates, frames, badges, effects or theme thumbnails',()=>{
