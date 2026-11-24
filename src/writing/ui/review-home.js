@@ -1,4 +1,4 @@
-import {renderExamReference,renderStructure} from './structure.js';
+import {renderExamReference,renderStructure} from './structure.js?v=3';
 // Preview has no student writes, XP transactions or invented progress.
 const pathwayDetails={
  structure:['01','Arrange ideas into a review that flows.','structure'],
