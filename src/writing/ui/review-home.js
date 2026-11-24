@@ -1,5 +1,5 @@
 import {renderArtwork, reviewArtwork} from './editorial-art.js?v=6';
-import {renderStudio} from './studio.js?v=6';
+import {renderStudio} from './studio.js?v=8';
 import {renderExamReference,renderStructure} from './structure.js?v=6';
 // Preview has no student writes, XP transactions or invented progress.
 const pathwayDetails={
@@ -33,6 +33,6 @@ export function renderReviewHome(root,catalogue,accountId){
  const grid=add(section,'div','wa-pathways');
  for(const path of config.pathways){const [number,description,key]=pathwayDetails[path.id];const card=add(grid,'article','wa-path wa-'+key);const top=add(card,'div','wa-card-top');add(top,'span','wa-index',number);const artwork=reviewArtwork.pathways[key];if(artwork)renderArtwork(top,artwork.banner,'card');else motif(top,key);add(card,'h3','',path.title);add(card,'p','',description);if(path.id==='structure'){const b=add(card,'button','wa-action','Start pathway →');b.type='button';b.onclick=()=>{renderStructure(root,back,studio);root.ownerDocument.defaultView.scrollTo(0,0);};}else add(card,'span','wa-status','In development');}
  const tools=add(shell,'section','wa-section');add(tools,'h2','','Your writing workspace');const toolGrid=add(tools,'div','wa-tools');
- for(const [title,description,href] of [['Writing Studio','Plan, draft, revise and export a complete review.','./review-writing.html'],['Model Answer Library','Explore annotated examples of effective writing.',null],['My Portfolio','Keep drafts and track personal improvement.',null],['Exam Practice','Work independently on exam-style tasks.',null]]){const card=add(toolGrid,'article','wa-tool');add(card,'h3','',title);add(card,'p','',description);if(title==='Writing Studio'||title==='Exam Practice'){const b=add(card,'button','wa-action','Open →');b.onclick=()=>studio(title==='Exam Practice'?{initialTask:'review-community-sports',initialMode:'Gold'}:{});}else add(card,'span','wa-status','In development');}
+ for(const [title,description,href] of [['Writing Studio','Plan, draft and revise a complete review.','./review-writing.html'],['Model Answer Library','Explore annotated examples of effective writing.',null],['My Portfolio','Keep drafts and track personal improvement.',null],['Exam Practice','Work independently on exam-style tasks.',null]]){const card=add(toolGrid,'article','wa-tool');add(card,'h3','',title);add(card,'p','',description);if(title==='Writing Studio'||title==='Exam Practice'){const b=add(card,'button','wa-action','Open →');b.onclick=()=>studio(title==='Exam Practice'?{initialTask:'review-community-sports',initialMode:'Gold'}:{});}else add(card,'span','wa-status','In development');}
  const footer=add(shell,'footer','wa-footer');add(footer,'p','','Design preview · No student progress or XP is recorded here.');
 }

@@ -7,7 +7,7 @@ await mkdir(screenshotDir, {recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE});
 const exam = '0511 · Paper 1 Exercise 6 · 120–160 words · Content /6 · Language /9';
 
-async function checkArtwork(page, placement, name) {
+async function checkArtwork(page, placement, name, ratio = 1.5) {
  const art = page.locator('.wa-art--'+placement);
  await art.scrollIntoViewIfNeeded();
  const info = await art.evaluate(async img => {
@@ -18,7 +18,7 @@ async function checkArtwork(page, placement, name) {
  });
  assert.match(info.source,new RegExp('^'+name+'-\\d+\\.webp$'));
  assert.ok(info.intrinsicWidth > 0);
- assert.ok(Math.abs(info.width/info.height - 1.5) < .03,JSON.stringify(info));
+ assert.ok(Math.abs(info.width/info.height - ratio) < .03,JSON.stringify(info));
  assert.equal(info.fit,'contain');
 }
 
@@ -98,24 +98,90 @@ try{
   await captureStage(page,'Master','stage-master',width,height);
   await page.getByText('Apply it in your own review',{exact:true}).click();
   await page.getByRole('button',{name:'Open Writing Studio →'}).click();
-  await page.getByRole('button',{name:'Bronze',exact:true}).click();
-  await page.locator('#wa-note-reason').fill('To celebrate with friends');
-  await page.getByRole('button',{name:'Continue to Write →'}).click();
-  const original=Array(120).fill('word').join(' ');await page.locator('#wa-answer-editor').fill(original);
-  assert.match(await page.locator('.wa-count').innerText(),/120 words.*Within target/);
+  const companion = page.locator('.wa-companion');
+  if (await companion.getAttribute('open') === null) await companion.locator(':scope > summary').press('Enter');
+  await page.locator('#wa-task').selectOption({index:0});
+  await page.getByRole('button',{name:'Silver',exact:true}).press('Enter');
+  assert.equal(await page.locator('#wa-note-reason').getAttribute('placeholder'),'');
+  assert.equal(await page.locator('.wa-plan-card p').count(),5);
+  await page.getByRole('button',{name:'Gold',exact:true}).press('Enter');
+  assert.equal(await page.locator('.wa-plan-card p').count(),0);
+  await page.getByRole('button',{name:'Bronze',exact:true}).press('Enter');
+  assert.equal(await page.locator('.wa-plan-card').count(),5);
+  assert.match(await page.locator('#wa-note-reason').getAttribute('placeholder'),/I went because/);
+  for(const [field,note] of Object.entries({
+   audience:'Students looking for a place to eat near school',
+   reason:'To celebrate with friends',
+   feature1:'Juicy grilled chicken and a generous portion of chips',
+   feature2:'Noisy dining room made it hard to talk',
+   recommendation:'Good for groups. Book a courtyard table for a quieter meal.'
+  })) await page.locator('#wa-note-'+field).fill(note);
+  await page.locator('.wa-brief summary').filter({hasText:'Full exam task'}).press('Enter');
+  assert.ok(await page.locator('.wa-brief details[open] p').isVisible());
+  await page.locator('.wa-brief summary').filter({hasText:'Full exam task'}).press('Enter');
+  await checkArtwork(page,'studio-hero','studio-neon-focus',1);
+  await checkArtwork(page,'studio-context','studio-creative-flow',1);
+  if(width<700) await companion.locator(':scope > summary').click();
+  if(width<=520){
+   const tabs=await page.locator('.wa-workspace-tabs').boundingBox();
+   const toolbar=await page.locator('.wa-workspace-toolbar').boundingBox();
+   assert.equal(tabs.width,toolbar.width);
+  }
+  await capture(page,'studio-plan',width,height);
+  await page.getByRole('button',{name:'Continue to Write →'}).press('Enter');
+  assert.ok(await page.locator('.wa-workspace-heading').evaluate(node=>node===document.activeElement));
+  const editor=page.locator('#wa-answer-editor');
+  assert.equal(await editor.inputValue(),'');
+  for(const [count,status] of [[119,'below'],[120,'within'],[160,'within'],[161,'above']]){
+   await editor.fill('word '.repeat(count));
+   assert.match(await page.locator('.wa-count').innerText(),new RegExp('^'+count+' words'));
+   assert.equal(await page.locator('.wa-word-meter').getAttribute('data-status'),status);
+  }
+  const original=`I visited Willow Kitchen last Saturday to celebrate my friend’s birthday. We wanted somewhere relaxed where we could share a meal and talk.
+
+The grilled chicken was juicy and came with a generous portion of chips. Our server brought everything at the same time, which made it easy to share. The dining room was noisy, though, and we sometimes had to repeat ourselves.
+
+I would recommend Willow Kitchen to groups of friends who want a lively meal at a reasonable price. If you prefer a quieter setting, ask for a table in the courtyard. The food was worth a second visit, and next time I would try to book an outdoor table before going. It is only a five-minute walk from the school gate.`;
+  await editor.fill(original);
+  await page.getByRole('button',{name:'Focus mode',exact:true}).press('Enter');
+  assert.equal(await companion.isVisible(),false);
+  await page.locator('.wa-focus-brief summary').press('Enter');
+  assert.ok(await page.locator('.wa-focus-brief p').isVisible());
+  await page.getByRole('button',{name:'Exit focus mode',exact:true}).press('Enter');
+  await editor.evaluate(node=>{node.scrollTop=0;});
+  await capture(page,'studio-write',width,height);
   await page.getByRole('button',{name:'Review my writing →'}).click();
   await page.getByRole('button',{name:'Revise my writing →'}).click();
-  await page.locator('#wa-answer-editor').fill(original+' revised');
-  await page.getByRole('button',{name:'Gold',exact:true}).click();
-  assert.equal(await page.locator('#wa-answer-editor').inputValue(),original+' revised');
-  await page.reload();await page.getByRole('button',{name:'Open Writing Studio →'}).click();
+  const revised=original.replace('was noisy, though','echoed whenever a large group arrived');
+  await editor.fill(revised);
+  if(width<700) await companion.locator(':scope > summary').click();
   await page.locator('#wa-task').selectOption('review-community-sports');
+  assert.equal(await page.locator('#wa-note-reason').inputValue(),'');
+  await page.locator('#wa-task').selectOption({index:0});
+  assert.equal(await editor.inputValue(),revised);
+  await page.reload();
+  await page.getByRole('button',{name:'Open Writing Studio →'}).click();
+  if(width<700) await companion.locator(':scope > summary').click();
   await page.getByRole('button',{name:'Write',exact:true}).click();
-  assert.equal(await page.locator('#wa-answer-editor').inputValue(),original+' revised');
+  assert.equal(await editor.inputValue(),revised);
+  await page.getByText('My planning notes',{exact:true}).click();
+  assert.match(await companion.innerText(),/To celebrate with friends/);
   await page.getByRole('button',{name:'Review my writing →'}).click();
-  assert.match(await page.locator('.wa-compare').innerText(),/Original draft/);
-  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
-  await capture(page,'studio',width,height);
+  assert.deepEqual(await page.locator('.wa-revision-card p').allTextContents(),[original,revised]);
+  assert.equal(await page.locator('.wa-check input').count(),4);
+  await checkArtwork(page,'studio-context','studio-creative-flow',1);
+  if(width<700) await companion.locator(':scope > summary').click();
+  await capture(page,'studio-review',width,height);
+  await page.getByText('Manage draft',{exact:true}).click();
+  const clear=page.getByRole('button',{name:/Clear this task/});
+  page.once('dialog',dialog=>dialog.dismiss());
+  await clear.click();
+  assert.deepEqual(await page.locator('.wa-revision-card p').allTextContents(),[original,revised]);
+  page.once('dialog',dialog=>dialog.accept());
+  await clear.click();
+  assert.equal(await page.locator('#wa-note-reason').inputValue(),'');
+  await page.getByRole('button',{name:'Write',exact:true}).click();
+  assert.equal(await editor.inputValue(),'');
   assert.deepEqual(errors,[]);
   console.log(width,height,layout);
   await page.close();
