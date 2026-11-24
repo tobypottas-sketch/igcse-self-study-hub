@@ -17,7 +17,7 @@ const UNITS = {
   7:{ title:'Interviews' },
   8:{ title:'Work' },
   9:{ title:'Communication' },
-  10:{ title:'Education' },
+  10:{ title:'Education', expectedWords:48 }, // the 0511 Unit 10 key-word list has 48 words
   11:{ title:'Human Achievements' },
   12:{ title:'Organisations and Volunteers' },
   13:{ title:'Success and Fame' },
