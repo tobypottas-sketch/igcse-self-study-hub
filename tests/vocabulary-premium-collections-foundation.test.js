@@ -62,16 +62,16 @@ test('live click router accepts Badges on both shop filters and permits Badge un
  // include the category too or the click silently does nothing.
  const fs=requireRead();
  const app=fs('src/vocabulary/app.js');
- const list="['all','themes','frames','badges','titles','effects','popular']";
+ const list="['all','themes','frames','badges','titles','effects','avatars','popular']";
  assert.match(app,/action === 'real-filter'/);
  assert.match(app,/action === 'sandbox-filter'/);
  assert.equal(app.split(list).length-1,2,'Both production and sandbox filters must admit badges');
  assert.match(app,/function removeEquippedReward\(category,production,clickedButton=null\)/);
- assert.ok(app.includes("['themes','frames','badges','titles','effects'].includes(category)"));
+ assert.ok(app.includes("['themes','frames','badges','titles','effects','avatars'].includes(category)"));
  const router=fs('src/vocabulary/router.js');
  const html=fs('vocabulary.html');
- assert.equal((router.match(/app\.js\?v=equipment-smooth-scroll-v3/g)||[]).length,2);
- assert.ok(html.includes('router.js?v=equipment-smooth-scroll-v3'));
+ assert.equal((router.match(/app\.js\?v=player-avatars-v1/g)||[]).length,2);
+ assert.ok(html.includes('router.js?v=player-avatars-v1'));
 });
 function requireRead(){
  return path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');

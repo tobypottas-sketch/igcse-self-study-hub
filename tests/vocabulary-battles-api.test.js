@@ -1,3 +1,4 @@
+import {equippedAvatars} from '../supabase/functions/_shared/vocabulary-avatar.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -14,6 +15,10 @@ const code=stripTypeScriptTypes(readFileSync(new URL('../supabase/functions/voca
 function createHarness(){
  let actor=USER,handler;
  const matches=[];
+ const vocabulary_reward_owned=[USER,OPP,OUT].map((student_id,index)=>({
+  student_id,reward_id:['avatar-pixel-bot','avatar-shadow-fox','avatar-aqua-shark'][index],
+  category:'avatars',equipped:true,'vocabulary_reward_catalog.enabled':true
+ }));
  const memberships=[
    {student_id:USER,class_id:CLASS,ended_at:null},
    {student_id:OPP,class_id:CLASS,ended_at:null},
@@ -49,7 +54,7 @@ function createHarness(){
      single:async()=>run(true),
      then(resolve,reject){return Promise.resolve(run(false)).then(resolve,reject);}
     };
-    const sources={profiles,classes,student_class_memberships:memberships,vocabulary_battles:matches};
+    const sources={profiles,classes,student_class_memberships:memberships,vocabulary_battles:matches,vocabulary_reward_owned};
     if(!sources[table])throw Error('Unexpected table '+table);
     function matchesFilters(item){
       if(orText){
@@ -83,7 +88,7 @@ function createHarness(){
  }
  const env={SUPABASE_URL:'https://example.test',SUPABASE_PUBLISHABLE_KEYS:'{"default":"public"}',SUPABASE_SECRET_KEYS:'{"default":"secret"}'};
  const Deno={env:{get:k=>env[k]},serve:fn=>{handler=fn;}};
- new Function('createClient','Deno',code)(client,Deno);
+ new Function('createClient','Deno','equippedAvatars',code)(client,Deno,equippedAvatars);
  async function call(user,body){
   actor=user;
   const response=await handler(new Request('https://example.test',{method:'POST',
@@ -125,6 +130,8 @@ test('two classmates share one server-owned set and cannot double-answer a quest
  const waiting=await h.call(USER,{action:'status',battleId:MATCH});
  assert.equal(waiting.payload.question,null,'players cannot begin until both are ready');
  assert.equal(waiting.payload.startsAt,null);
+ assert.equal(waiting.payload.avatarId,'avatar-pixel-bot');
+ assert.equal(waiting.payload.opponentAvatarId,'avatar-shadow-fox');
  const early=await h.call(USER,{action:'answer',battleId:MATCH,index:0,choice:0});
  assert.equal(early.status,409,'no answer allowed before both students are ready');
  const readyOne=await h.call(USER,{action:'ready',battleId:MATCH});
@@ -164,4 +171,11 @@ test('expired battle blocks score changes even on a previously opened question',
  const late=await h.call(USER,{action:'answer',battleId:MATCH,index:0,choice:0});
  assert.equal(late.status,409);
  assert.equal(h.matches[0].challenger_answers.length,0);
+});
+
+test('Battle lobby returns only equipped avatars of authorised classmates',async()=>{
+ const h=createHarness();
+ const {payload}=await h.call(USER,{action:'lobby',classId:CLASS});
+ assert.equal(payload.avatarId,'avatar-pixel-bot');
+ assert.deepEqual(payload.students,[{id:OPP,display_name:'Bravo',avatarId:'avatar-shadow-fox'}]);
 });

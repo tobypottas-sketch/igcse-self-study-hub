@@ -1,7 +1,7 @@
 // Functional Rewards Shop for server-enabled sandbox accounts only.
 // The layout follows the approved mockup; all XP, ownership and equipment
 // values come from authenticated data, never from illustrative screenshots.
-import { rewardIllustration, rewardArtworkPath } from './rewards-art.js?v=blockverse-v1';
+import { rewardIllustration, rewardArtworkPath } from './rewards-art.js?v=player-avatars-v1';
 // Shop cards, next-unlock and equipped collection must present the same
 // transparent ornament as the student's actual avatar. Keep original reward
 // IDs/prices/equip semantics; only the image source changes.
@@ -16,14 +16,15 @@ const shopRewardIllustration=(rewardId,category)=>
     : rewardId);
 
 import {leaderboardModal,installLeaderboardModal} from './rewards-leaderboard-modal.js';
-import {hasBadgeCatalog,PREMIUM_COLLECTIONS} from './rewards-premium-registry.js';
-import {applyRewardTheme} from './rewards-equipped-home.js?v=blockverse-v1';
+import {hasBadgeCatalog,PREMIUM_COLLECTIONS,visibleEquipmentCategories} from './rewards-premium-registry.js?v=player-avatars-v1';
+import {AVATAR_COLLECTIONS,renderLeaderboardAvatar} from './rewards-avatars.js';
+import {applyRewardTheme,studentIdentityView,renderIdentityAvatar} from './rewards-equipped-home.js?v=player-avatars-v1';
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({
   '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
 })[c]);
-const categories=[['all','All'],['themes','Themes'],['frames','Frames'],['badges','Badges'],['titles','Titles'],['effects','Effects']];
+const categories=[['all','All'],['themes','Themes'],['frames','Frames'],['badges','Badges'],['titles','Titles'],['effects','Effects'],['avatars','Avatars']];
 const popular=['midnight','forest','gold-frame','pixel-badge','word-wizard','aurora-frame'];
-const categoryLabel={themes:'Theme',frames:'Frame',badges:'Badge',titles:'Title',effects:'Effect'};
+const categoryLabel={themes:'Theme',frames:'Frame',badges:'Badge',titles:'Title',effects:'Effect',avatars:'Avatar'};
 // Only render a live demo for effects with shipped, user-visible CSS motion.
 // Other rewards remain static: no misleading preview button.
 const LIVE_EFFECT_IDS=new Set([
@@ -57,7 +58,7 @@ function leaderboardPanel(board,view={}){
  const results=board?.ok&&Array.isArray(board.rows);
  const rows=results?board.rows.slice(0,7).map(row=>`<li class="vocab-shop-leaderboard__row${row.isYou?' is-you':''}${row.rank<=3?' is-podium is-podium--'+row.rank:''}"${row.isYou?' aria-label="Your leaderboard position"':''}>
     <span class="vocab-shop-leaderboard__rank" aria-label="Rank ${escapeHtml(row.rank)}">${row.rank<=3?['🥇','🥈','🥉'][row.rank-1]:escapeHtml(row.rank)}</span>
-    <span class="vocab-shop-leaderboard__name">${escapeHtml(row.name)}${row.isYou?'<small>Your rank</small>':''}</span>
+    <span class="vocab-shop-leaderboard__name">${renderLeaderboardAvatar(row)}${escapeHtml(row.name)}${row.isYou?'<small>Your rank</small>':''}</span>
     <strong class="vocab-shop-leaderboard__xp">${format(row.xp)} <span>XP</span></strong></li>`).join(''):'';
  const shown=results&&board.rows.slice(0,7).some(row=>row.isYou);
  const me=results&&board.me&&!shown?`<div class="vocab-shop-leaderboard__mine"><span>#${num(board.me.rank)} · You</span><strong>${format(board.me.xp)} XP</strong></div>`:'';
@@ -83,9 +84,10 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
   const active={};
   for(const item of shop.owned??[])if(item.equipped)active[item.category]=item.reward_id;
   const rewards=shop.rewards??[];
-  const visibleCategories=hasBadgeCatalog(shop)?categories:categories.filter(([id])=>id!=='badges');
+  const visibleCategories=categories.filter(([id])=>id==='all'||visibleEquipmentCategories(shop).includes(id));
+  const hasAvatars=visibleCategories.some(([id])=>id==='avatars');
   const visible=rewards.filter(item=>category==='all'||(category==='popular'?popular.includes(item.reward_id):item.category===category));
-  const tabs=visibleCategories.map(([id,label])=>`<button type="button" data-action="sandbox-filter" data-category="${id}" aria-pressed="${category===id}" class="vocab-reward-tab${category===id?' is-active':''}">${label}</button>`).join('');
+  const tabs=visibleCategories.map(([id,label])=>`<button type="button" data-action="sandbox-filter" data-category="${id}" aria-pressed="${category===id}" class="vocab-reward-tab${category===id?' is-active':''}">${label}${id==='avatars'?' ('+rewards.filter(item=>item.category===id).length+')':''}</button>`).join('');
   const available=num(shop.wallet?.available);
   const level=progress?.level?.level??1;
   const currentXp=num(progress?.level?.xp);
@@ -116,16 +118,16 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
   const renderCard=item=>{
     const purchase=owned.get(item.reward_id),affordable=available>=item.xp_price;
     const action=purchase?(purchase.equipped?'':'sandbox-equip'):'sandbox-buy';
-    const label=purchase?(purchase.equipped?'Equipped':'Equip'):'Buy';
+    const label=purchase?(purchase.equipped?'Equipped':'Equip'):item.xp_price===0?'Claim':'Buy';
     const locked=!purchase&&!affordable;
     const remaining=locked?Math.max(0,item.xp_price-available):0;
     const unlockPercent=locked&&item.xp_price>0?Math.min(99,Math.floor(available/item.xp_price*100)):100;
-    const tag=categoryLabel[item.category]??item.category;
+    const tag=AVATAR_COLLECTIONS[item.reward_id]??categoryLabel[item.category]??item.category;
     return `<article class="vocab-reward-card vocab-shop-card vocab-shop-card--${escapeHtml(item.category)}" data-reward-id="${escapeHtml(item.reward_id)}">
       <span class="vocab-reward-category">${escapeHtml(tag)}</span>
       <div class="vocab-reward-picture">${shopRewardIllustration(item.reward_id,item.category)}${liveEffectDemo(item)}</div>
       <h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.description)}</p>
-      <div class="vocab-reward-card__bottom"><strong class="vocab-shop-price"><span aria-hidden="true">⭐</span> ${format(item.xp_price)} XP</strong>
+      <div class="vocab-reward-card__bottom"><strong class="vocab-shop-price">${item.xp_price===0?'Free':format(item.xp_price)+' XP'}</strong>
       ${locked?`<div class="vocab-shop-unlock" aria-label="${format(remaining)} XP to unlock ${escapeHtml(item.name)}">
         <strong class="vocab-shop-unlock__label">${format(remaining)} XP to unlock</strong>
         <div class="vocab-shop-unlock__track" role="progressbar" aria-label="XP saved towards ${escapeHtml(item.name)}" aria-valuemin="0" aria-valuemax="${item.xp_price}" aria-valuenow="${available}"><span style="width:${unlockPercent}%"></span></div>
@@ -138,8 +140,8 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
   const equipment=visibleCategories.slice(1).map(([id,label])=>{
     const reward=rewards.find(item=>item.reward_id===active[id]);
     return `<div class="vocab-shop-equipped__item"><small>${escapeHtml(label.slice(0,-1))}</small>
-      <div class="vocab-shop-equipped__art">${reward?shopRewardIllustration(reward.reward_id,reward.category):'<span class="vocab-shop-empty-icon" aria-hidden="true">＋</span>'}</div>
-      <strong>${reward?escapeHtml(reward.name):id==='themes'?'Default theme':'Not equipped'}</strong>
+      <div class="vocab-shop-equipped__art">${id==='avatars'?renderIdentityAvatar({initials:studentIdentityView(shop,studentName).initials,active:{avatars:reward?.reward_id}}):reward?shopRewardIllustration(reward.reward_id,reward.category):'<span class="vocab-shop-empty-icon" aria-hidden="true">＋</span>'}</div>
+      <strong>${reward?escapeHtml(reward.name):id==='themes'?'Default theme':id==='avatars'?'Choose an avatar':'Not equipped'}</strong>
       <button type="button" data-action="sandbox-filter" data-category="${id}" ${busy?'disabled':''}>${reward?'Change':'Choose'}</button>
       ${reward?`<button type="button" class="vocab-shop-unequip" data-action="sandbox-unequip" data-category="${id}" ${busy?'disabled':''}>${id==='themes'?'Use Default Theme':'Unequip'}</button>`:''}</div>`;
   }).join('');
@@ -150,7 +152,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
       <div class="vocab-shop-hero__intro">
         <h1>XP REWARDS <span>SHOP</span></h1>
         <p class="vocab-shop-hero__tagline">Earn it. Spend it. Make it yours.</p>
-        <p class="vocab-shop-hero__categories">Themes <span aria-hidden="true">·</span> Frames <span aria-hidden="true">·</span> Badges <span aria-hidden="true">·</span> Titles <span aria-hidden="true">·</span> Effects</p>
+        <p class="vocab-shop-hero__categories">Themes <span aria-hidden="true">·</span> Frames <span aria-hidden="true">·</span> Badges <span aria-hidden="true">·</span> Titles <span aria-hidden="true">·</span> Effects${hasAvatars?' <span aria-hidden="true">·</span> Avatars':''}</p>
       </div>
       <div class="vocab-shop-hero__display" aria-label="Cosmetics marketplace scene">
         <div class="vocab-shop-hero__backdrop" aria-hidden="true"></div>
@@ -185,7 +187,7 @@ function renderSharedShop(root,shop,{category='all',busy=false,message='',progre
       </section>
       <section class="vocab-shop-equipped" aria-label="Equipped rewards">
         <div class="vocab-shop-equipped__heading"><span class="vocab-shop-equipped__eyebrow">YOUR COLLECTION</span><h2>Equipped now</h2><p>${visibleCategories.length-1} slots · Your current look</p></div>
-        <div class="vocab-shop-equipped__list${hasBadgeCatalog(shop)?' has-badges':''}">${equipment}</div>
+        <div class="vocab-shop-equipped__list${hasBadgeCatalog(shop)?' has-badges':''}${hasAvatars?' has-avatars':''}">${equipment}</div>
       </section>
       </div>
     </div>

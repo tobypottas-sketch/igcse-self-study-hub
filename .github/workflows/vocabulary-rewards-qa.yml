@@ -3,6 +3,10 @@ on:
   pull_request:
     paths:
       - 'src/vocabulary/rewards-*.js'
+      - 'supabase/migrations/*_vocabulary_player_avatars.sql'
+      - 'supabase/functions/_shared/vocabulary-avatar.ts'
+      - 'supabase/functions/vocabulary-practice-leaderboard/**'
+      - 'assets/vocabulary/rewards/avatar-*'
       - 'src/vocabulary/engagement-model.js'
       - 'src/vocabulary/app.js'
       - 'src/vocabulary/views.js'
@@ -61,7 +65,7 @@ permissions:
   contents: read
 jobs:
   reward-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -70,11 +74,25 @@ jobs:
           node-version: '22'
       - name: Verify reward catalogue, XP parity fixtures and safe API contract
         run: node --test tests/vocabulary-rewards-*.test.js tests/vocabulary-classroom-lite-artwork.test.js tests/vocabulary-neon-district-staged.test.js tests/vocabulary-premium-collections-foundation.test.js tests/vocabulary-legacy-immersive.test.js tests/vocabulary-immersive-shop-backgrounds.test.js tests/vocabulary-staff-preview-hero-contrast.test.js tests/vocabulary-celestial-realms.test.js tests/vocabulary-default-home-hero-contrast.test.js tests/vocabulary-original-theme-badges.test.js tests/vocabulary-five-animated-effects.test.js tests/vocabulary-profile-progression.test.js tests/vocabulary-effect-shop-live-preview.test.js tests/vocabulary-shop-theme-glass.test.js tests/vocabulary-shop-card-polish-v2.test.js
+      - name: Install browser for avatar journey
+        run: |
+          npm install --prefix /tmp/avatar-qa --no-package-lock playwright@1.56.1 @electric-sql/pglite@0.3.14
+          /tmp/avatar-qa/node_modules/.bin/playwright install chromium --only-shell
+      - name: Verify avatar journey at 1440, 768 and 390 pixels
+        env:
+          NODE_PATH: /tmp/avatar-qa/node_modules
+          AVATAR_SCREENSHOTS_DIR: /tmp/avatar-screenshots
+        run: node --test tests/vocabulary-rewards-avatars.browser.test.js tests/vocabulary-rewards-avatars.database.test.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: avatar-browser-screenshots
+          path: /tmp/avatar-screenshots
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
       - name: Type-check Rewards Shop Edge Functions
-        run: deno check --node-modules-dir=auto supabase/functions/vocabulary-reward-xp-audit/index.ts supabase/functions/vocabulary-reward-shop/index.ts supabase/functions/vocabulary-reward-sandbox/index.ts
+        run: deno check --node-modules-dir=auto supabase/functions/vocabulary-reward-xp-audit/index.ts supabase/functions/vocabulary-reward-shop/index.ts supabase/functions/vocabulary-reward-sandbox/index.ts supabase/functions/vocabulary-reward-production/index.ts
       - name: Bundle authenticated XP audit with all shared modules
         run: |
           npx --yes esbuild@0.25.12 supabase/functions/vocabulary-reward-xp-audit/index.ts --bundle --platform=neutral --format=esm --target=es2022 --external:npm:* --outfile=/tmp/vocabulary-reward-xp-audit.bundle.mjs

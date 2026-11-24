@@ -10,9 +10,9 @@ const backend=read('supabase/functions/vocabulary-battles/index.ts');
 
 test('Battle Arena V2 stylesheet and student script are fresh and ordered',()=>{
  assert.match(html,/vocabulary-battles\.css\?v=battles-mvp-v1/);
- assert.match(html,/vocabulary-battles-v2\.css\?v=class-selector-v3/);
+ assert.match(html,/vocabulary-battles-v2\.css\?v=player-avatars-v1/);
  assert.ok(html.indexOf('vocabulary-battles-v2.css')>html.indexOf('vocabulary-battles.css'));
- assert.match(html,/battles-app\.js\?v=class-selector-v3/);
+ assert.match(html,/battles-app\.js\?v=player-avatars-v1/);
  assert.doesNotMatch(html,/id="battlesApp" aria-live="polite"/);
 });
 

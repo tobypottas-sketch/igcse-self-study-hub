@@ -32,7 +32,7 @@ test('equipped portrait-frame overlay preserves source proportions with no borde
  assert.ok(rule.includes('object-position:center'));
  assert.ok(rule.includes('border-radius:0'));
  assert.ok(!rule.includes('object-fit:fill'));
- assert.ok(read('vocabulary.html').includes('vocabulary-reward-identity.css?v=frame-proportions-v1'));
+ assert.ok(read('vocabulary.html').includes('vocabulary-reward-identity.css?v=player-avatars-v1'));
 });
 
 test('frame cards, equipped collection and actual profile consistently use transparent ornaments',()=>{

@@ -1,3 +1,4 @@
+import {equippedAvatars} from '../_shared/vocabulary-avatar.ts';
 // Read-only vocabulary practice leaderboard. Never reads or modifies sandbox wallets.
 // Returns only first and last display-name tokens, ranks and XP earned from completed missions to authenticated active students.
 import {createClient} from 'npm:@supabase/supabase-js@2.117.3';
@@ -87,7 +88,10 @@ Deno.serve(async req=>{
   const me=list.find(p=>p.isYou)||null;
   // Authentication and eligibility are checked above; expanded search covers all supported students (max 1000).
   const visible=expanded?list.slice(0,1000):list.slice(0,7);
-  const publicRow=p=>p?{rank:p.rank,name:p.isYou?'You':p.label,xp:p.xp,isYou:p.isYou}:null;
+  // Share portraits with current classmates only, including in All Classes.
+  const classmates=new Set(relevant.filter(m=>activeIds.has(m.class_id)).map(m=>m.student_id));
+  const avatars=await equippedAvatars(admin,[...new Set([...visible,...(me?[me]:[])].map(p=>p.id))].filter(id=>classmates.has(id)));
+  const publicRow=p=>p?{rank:p.rank,name:p.isYou?'You':p.label,xp:p.xp,isYou:p.isYou,avatarId:avatars.get(p.id)??null}:null;
   return reply({ok:true,scope,period,className:scope==='school'?'All classes':selected.class_name,
    count:list.length,rows:visible.map(publicRow),me:publicRow(me),expanded,
    metric:'Completed-mission Practice XP; excludes mastery bonuses, shop credits and purchases'});
