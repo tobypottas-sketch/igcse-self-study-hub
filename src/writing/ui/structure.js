@@ -6,7 +6,7 @@ import {scoreItem,validateActivities} from '../engine/activities.js';
 const activities=validateActivities(structureActivities);
 function add(p,tag,cls,t){const n=p.ownerDocument.createElement(tag);n.className=cls||'';if(t)n.textContent=t;p.append(n);return n;}
 function button(p,t,fn){const n=add(p,'button','wa-action',t);n.type='button';n.addEventListener('click',fn);return n;}
-export function renderExamReference(p){
+export function renderExamReference(p,{includeToolkit=true}={}){
  const s=add(p,'aside','wa-exam-reference');add(s,'strong','','0511 · Paper 1 Exercise 6 · 120–160 words · Content /6 · Language /9');
  add(s,'p','','Introduce → Describe → Evaluate → Recommend');
  const d=add(s,'details','');add(d,'summary','','Review blueprint & exam checklist');
@@ -14,7 +14,7 @@ export function renderExamReference(p){
  add(d,'p','','Recommended scaffold, not a compulsory four-paragraph format. Cover all task requirements; develop ideas; use appropriate register, accurate and varied language, and clear organisation.');
  add(d,'p','','Description and evaluation may share a paragraph. Use formal or semi-formal language suited to the audience. Title, paragraph count and balance of praise and criticism are flexible.');
  const ul=add(d,'ul','');for(const x of selfCheck)add(ul,'li','',x);
- const k=add(d,'details','');add(k,'summary','','Language toolkit');const kl=add(k,'ul','');for(const x of toolkit)add(kl,'li','',x);
+ if(includeToolkit){const k=add(d,'details','');add(k,'summary','','Language toolkit');const kl=add(k,'ul','');for(const x of toolkit)add(kl,'li','',x);}
  return s;
 }
 export function renderStructure(root,onBack,onStudio){

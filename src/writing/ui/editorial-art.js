@@ -24,8 +24,8 @@ export const reviewArtwork = {
 
 const sizes = {
   hero: '(max-width: 560px) calc(100vw - 76px), (max-width: 840px) 40vw, (max-width: 1240px) 44vw, 545px',
-  'studio-hero': '(max-width: 520px) 132px, 220px',
-  'studio-context': '88px',
+  'studio-hero': '(max-width: 520px) 132px, (max-height: 650px) 166px, 220px',
+  'studio-context': '(max-width: 520px) 68px, 88px',
   card: '144px',
   banner: '(max-width: 560px) 96px, 136px',
   stage: '(max-width: 560px) 120px, (max-width: 800px) 180px, 246px'

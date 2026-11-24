@@ -109,7 +109,13 @@ try{
   await page.getByRole('button',{name:'Bronze',exact:true}).press('Enter');
   assert.equal(await page.locator('.wa-plan-card').count(),5);
   assert.match(await page.locator('#wa-note-reason').getAttribute('placeholder'),/I went because/);
-  await page.locator('#wa-note-reason').fill('To celebrate with friends');
+  for(const [field,note] of Object.entries({
+   audience:'Students looking for a place to eat near school',
+   reason:'To celebrate with friends',
+   feature1:'Juicy grilled chicken and a generous portion of chips',
+   feature2:'Noisy dining room made it hard to talk',
+   recommendation:'Good for groups. Book a courtyard table for a quieter meal.'
+  })) await page.locator('#wa-note-'+field).fill(note);
   await page.locator('.wa-brief summary').filter({hasText:'Full exam task'}).press('Enter');
   assert.ok(await page.locator('.wa-brief details[open] p').isVisible());
   await page.locator('.wa-brief summary').filter({hasText:'Full exam task'}).press('Enter');
@@ -130,13 +136,14 @@ try{
 
 The grilled chicken was juicy and came with a generous portion of chips. Our server brought everything at the same time, which made it easy to share. The dining room was noisy, though, and we sometimes had to repeat ourselves.
 
-I would recommend Willow Kitchen to groups of friends who want a lively meal at a reasonable price. If you prefer a quieter setting, ask for a table in the courtyard. The food was worth a second visit, and next time I would try to book an outdoor table before going.`;
+I would recommend Willow Kitchen to groups of friends who want a lively meal at a reasonable price. If you prefer a quieter setting, ask for a table in the courtyard. The food was worth a second visit, and next time I would try to book an outdoor table before going. It is only a five-minute walk from the school gate.`;
   await editor.fill(original);
   await page.getByRole('button',{name:'Focus mode',exact:true}).press('Enter');
   assert.equal(await companion.isVisible(),false);
   await page.locator('.wa-focus-brief summary').press('Enter');
   assert.ok(await page.locator('.wa-focus-brief p').isVisible());
   await page.getByRole('button',{name:'Exit focus mode',exact:true}).press('Enter');
+  await editor.evaluate(node=>{node.scrollTop=0;});
   await capture(page,'studio-write',width,height);
   await page.getByRole('button',{name:'Review my writing →'}).click();
   await page.getByRole('button',{name:'Revise my writing →'}).click();

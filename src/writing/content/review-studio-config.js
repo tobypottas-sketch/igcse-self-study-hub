@@ -1,5 +1,7 @@
 import {guidedTask,independentTask,selfCheck,toolkit} from './review-guided-v1.js';
 export const reviewStudioConfig={genre:'Review Writing',tasks:[{...guidedTask,title:'Restaurant · Willow Kitchen'},{...independentTask,title:'Community sports event'}],min:120,max:160,selfCheck,
+ answerLabel:'Write your review in continuous prose',
+ answerPlaceholder:'Start writing your review here…',
  languageSupport:{Bronze:toolkit,Silver:['Use a specific detail to explain each opinion.','Use contrast where it helps the reader weigh up the experience.','Explain who would benefit from your recommendation.'],Gold:['Check that your language suits the reader and publication.']},
  fields:[
  {key:'audience',title:'Your reader',question:'Who will read your review?',starter:'My readers are …',tone:'reader'},

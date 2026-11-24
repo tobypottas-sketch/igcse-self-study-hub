@@ -26,11 +26,11 @@ Use `renderWorkspace` in `src/writing/ui/studio.js` for the Plan, Write and Revi
 
 | Placement | WebP widths | Layout |
 | --- | --- | --- |
-| Studio banner | 160, 320, 640 px | Neon Focus at 220 px beside the headline, up to 132 px on phones. |
+| Studio banner | 160, 320, 640 px | Neon Focus at 220 px beside the headline, 166 px on short landscape screens and up to 132 px on phones. |
 | Studio context | 96, 192, 384 px | Creative Flow beside the Plan and Review headings at 88 px, or 68 px on phones. |
 
 The Studio originals are square 1254 × 1254 RGB PNGs. Keep their coloured backgrounds in every derivative. The registry declares intrinsic dimensions and responsive candidates for each placement. Studio colour tokens extend the Academy palette on the banner and stage controls. Use a light surface for the editor and reserve colour for hierarchy and status.
 
-From 700 px wide, the companion takes the narrower column. It stays within reach during page scrolling on taller screens. Below 700 px, the companion starts collapsed above the workspace, with the task name visible. Focus mode expands the editor and keeps the full exam task available on demand. Planning cards switch to one column on phones. Revision drafts share a row where space allows.
+From 700 px wide, the companion takes the narrower column. It stays within reach during page scrolling. Below 700 px, the companion starts collapsed above the workspace, with the task name visible as students scroll. Focus mode expands the editor and keeps the full exam task available on demand. Planning cards switch to one column on phones. Revision drafts share a row where space allows.
 
 The editor counts the answer box only. A title is optional and counts if entered in the answer. The meter shows where the answer lands relative to 120–160 words. Staff preview uses self-assessment and local revision comparison.
