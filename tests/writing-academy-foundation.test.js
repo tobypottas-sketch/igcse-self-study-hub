@@ -58,3 +58,6 @@ test('structure lessons retain exam scaffold and valid original model',()=>{
  for(const a of structureActivities)for(const i of a.items){assert.equal(scoreItem(i,i.answer),true);assert.equal(scoreItem(i,null),false);}
  assert.equal(scoreItem({answer:[2,1,3,0]},[0,1,2,3]),false);
 });
+
+import {guidedTask,independentTask,toolkit,improvement} from '../src/writing/content/review-guided-v1.js';
+test('brief seed tasks are distinct and model is within exam range',()=>{const count=guidedTask.paragraphs.join(' ').trim().split(/\s+/).length;assert.ok(count>=120&&count<=160);assert.notEqual(guidedTask.id,independentTask.id);assert.match(guidedTask.paragraphs[0],/because/);assert.equal(toolkit.length,6);assert.equal(improvement.checks.length,3);});
