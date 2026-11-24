@@ -42,7 +42,9 @@ function render(content,viewKey){
 function pill(label,variant='') {return '<span class="battle-pill '+variant+'">'+e(label)+'</span>';}
 function lobbyMarkup(){
  const lobby=state.lobby;
- const classSelect='<label class="battle-select-label">MY CLASS <select data-battle-class>'+state.classes.map(c=>'<option value="'+e(c.id)+'"'+(c.id===state.classId?' selected':'')+'>'+e(c.name)+'</option>').join('')+'</select></label>';
+ const classSelect=state.classes.length===1
+  ? '<div class="battle-class-static"><span class="battle-class-static__label">MY CLASS</span><span class="battle-class-static__value"><span class="battle-class-static__dot" aria-hidden="true"></span>'+e(state.classes[0].name)+'</span></div>'
+  : '<label class="battle-select-label battle-class-select-label">MY CLASS <span class="battle-class-select-wrap"><select data-battle-class aria-label="Choose your class">'+state.classes.map(c=>'<option value="'+e(c.id)+'"'+(c.id===state.classId?' selected':'')+'>'+e(c.name)+'</option>').join('')+'</select><span class="battle-class-select-chevron" aria-hidden="true"></span></span></label>';
  if(!lobby)return heading('CLASS BATTLES','The Battle Arena','Finding your classmates…')+panel(classSelect+'<p class="battle-empty">Loading the Arena…</p>');
  const others=lobby.students??[];
  const selected=others.find(row=>row.id===state.opponent);
