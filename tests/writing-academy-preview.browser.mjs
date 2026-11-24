@@ -20,7 +20,10 @@ try{
   assert.deepEqual(errors,[]);
   await page.screenshot({path:'writing-preview-'+width+'x'+height+'.png',fullPage:true});
   await page.getByRole('button',{name:'Start pathway →'}).click();
-  assert.equal(await page.locator('.wa-model-part').count(),4);
+  assert.equal(await page.locator('.wa-guided-part').count(),4);
+  await page.locator('#wa-improvement').fill('The noodles were freshly cooked and the portion was generous.');
+  await page.getByRole('button',{name:'Compare with an example'}).click();
+  assert.match(await page.locator('.wa-lesson').filter({hasText:'Improve · Develop your opinion'}).innerText(),/Different well-supported answers/);
   await page.locator('.wa-exam-reference summary').click();
   assert.match(await page.locator('.wa-exam-reference').innerText(),/why you visited/);
   await page.getByRole('button',{name:'Bronze · Match purpose to paragraph'}).click();
