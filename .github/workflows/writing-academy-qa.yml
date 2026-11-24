@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'src/writing/**'
+      - 'assets/writing/**'
       - 'review-academy-preview.html'
       - 'review-writing.html'
       - 'writing-academy.css'

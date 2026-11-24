@@ -5,3 +5,17 @@ Audience: secondary students aged 14–17. A contemporary magazine-inspired lear
 Discover → Explore → Practise → Apply → Master. One active stage, one task at a time, explicit navigation, previous/next, immediate meaningful explanations. Keep a compact Cambridge 0511 reminder accessible on each stage, expandable blueprint/checklist. Model selector and one paragraph at a time, reveal annotations through active identification. Allow full model reading separately. Preserve session work when navigating stages; report actual completed stages, not visits or clicks. Practice completion is not Cambridge mastery or a grade. No invented data, rewards, or competition. Open responses receive self-check and comparison, not fake automatic assessment.
 ## Reuse and quality
 Shared stage shell, activity runner, model explorer, response comparison and scoped CSS tokens; content data separate. Keyboard-accessible controls, focus on stage heading, normal document scroll, no horizontal overflow, reduced-motion support. Check desktop 1440, tablet 768, phone 390, landscape 1024×600. Test actual interactions and preserve staff gate. Do not discard educational requirements or original models. Persistent student progress, AI integration and account-synced drafts require separate release gates. Artwork assets should be original, optimised and replaceable. Staff preview is not student rollout.
+
+## Editorial artwork
+
+Use the registry in `src/writing/ui/editorial-art.js` for hero, pathway and stage art. The lesson shell takes a pathway artwork configuration and uses the stage position to select its illustration. Apply shares Practise artwork in the reference pathway. All art is decorative, with an empty alternative text. Keep useful text and controls in HTML.
+
+The six original RGB PNGs in `assets/writing/` are 1536 × 1024. Their checkerboard is baked into the pixels. Keep these originals for editing and use the alpha WebPs for layout. The derivatives use a 3:2 aspect ratio, preserve the original composition, and remove the neutral checkerboard with a softened edge mask.
+
+| Placement | WebP widths | Layout |
+| --- | --- | --- |
+| Academy hero | 384, 768, 1152 px | Side by side with the headline on larger screens, below the primary action on phones. Maximum 545 px display width. |
+| Pathway card and banner | 256, 512 px | 144 px in the card and 96–136 px beside the lesson title. |
+| Active stage | 256, 512 px | 246 px beside the activity on desktop, 180 px on tablet portrait and 120 px beside the stage heading on phones. |
+
+The browser uses `srcset` to pick a size. The hero is prioritised, the card illustration is lazy-loaded, and the shell mounts only the current stage’s illustration. Use intrinsic dimensions and contain the full image. Keep stage art beside the learning content, with the activity spanning the full card below the heading on narrow screens.

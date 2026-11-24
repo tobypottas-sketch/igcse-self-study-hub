@@ -1,4 +1,5 @@
-import {mountLesson,el,action} from './lesson-shell.js';
+import {mountLesson,el,action} from './lesson-shell.js?v=6';
+import {reviewArtwork} from './editorial-art.js?v=6';
 import {guidedTask,independentTask,toolkit,improvement,selfCheck} from '../content/review-guided-v1.js';
 import {reviewExam,blueprint,model,structureActivities} from '../content/review-structure-v1.js';
 import {scoreItem,validateActivities} from '../engine/activities.js';
@@ -30,7 +31,7 @@ export function renderStructure(root,onBack,onStudio){
   else{const check=action(host,'Check answer',()=>{run.checked=true;if(scoreItem(item,a.type==='order'?run.order:run.selected))run.correct++;draw();});check.disabled=a.type==='order'?run.order.length!==item.options.length:run.selected===null;if(a.type==='order')action(host,'Reset order',()=>{run.order=[];draw();});}
   }draw();
  }
- mountLesson(root,{title:'Structure & Organisation',onBack,reference:renderExamReference,renderStage(body,i,ctx){
+ mountLesson(root,{title:'Structure & Organisation',artwork:reviewArtwork.pathways.structure,onBack,reference:renderExamReference,renderStage(body,i,ctx){
  if(i===0){el(body,'p','wa-kicker','THE FIRST IMPRESSION');el(body,'h3','','Which opening works best?');el(body,'p','','You are reviewing a new cinema for your school magazine. Choose the opening that helps readers understand your visit.');
  const list=el(body,'div','wa-options');const f=el(body,'p','wa-answer');f.setAttribute('role','status');
  const options=['The cinema was very good and I liked it.','Last Friday, my friends and I visited Star Cinema to celebrate the end of our exams. Its impressive facilities immediately caught my attention.','Nowadays, many people enjoy watching films.'];
