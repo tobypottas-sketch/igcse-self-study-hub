@@ -50,14 +50,16 @@
 @media (max-width:760px){.vocab-unit-card__art.has-png{height:98px;margin-top:-49px}}
 
 
-/* Unit 9 Communication artwork: show the full source composition.
+/* Unit 9 Communication and Unit 10 Education artwork: show the full source composition.
    The shared hero rule is a panoramic crop (2.9:1 cover), which cuts off
    the top of this unit's taller illustration and hides its communication
-   context. Unit 9 instead uses the complete image at its natural ratio. */
-.vocab-shell[data-unit-overview="communication"] .vocab-unit-hero.has-png-art{
+   context. Units 9 and 10 instead use the complete image at its natural ratio. */
+.vocab-shell[data-unit-overview="communication"] .vocab-unit-hero.has-png-art,
+.vocab-shell[data-unit-overview="education"] .vocab-unit-hero.has-png-art{
   padding-right:min(43vw,470px)!important;
 }
-.vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art{
+.vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art,
+.vocab-shell[data-unit-overview="education"] .vocab-unit-hero__art{
   position:absolute;
   top:50%;
   right:28px;
@@ -66,7 +68,8 @@
   height:auto;
   transform:translateY(-50%);
 }
-.vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art .study-art__png{
+.vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art .study-art__png,
+.vocab-shell[data-unit-overview="education"] .vocab-unit-hero__art .study-art__png{
   position:relative!important;
   inset:auto!important;
   top:auto!important;
@@ -80,15 +83,19 @@
   border-radius:var(--r-lg);
 }
 @media(max-width:1000px) and (min-width:761px){
-  .vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art{width:min(34vw,340px);right:22px}
-  .vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art .study-art__png{max-height:270px!important}
+  .vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art,
+  .vocab-shell[data-unit-overview="education"] .vocab-unit-hero__art{width:min(34vw,340px);right:22px}
+  .vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art .study-art__png,
+  .vocab-shell[data-unit-overview="education"] .vocab-unit-hero__art .study-art__png{max-height:270px!important}
 }
 @media(max-width:760px){
-  .vocab-shell[data-unit-overview="communication"] .vocab-unit-hero.has-png-art{
+  .vocab-shell[data-unit-overview="communication"] .vocab-unit-hero.has-png-art,
+  .vocab-shell[data-unit-overview="education"] .vocab-unit-hero.has-png-art{
     padding-right:18px!important;
     padding-bottom:150px!important;
   }
-  .vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art{
+  .vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art,
+  .vocab-shell[data-unit-overview="education"] .vocab-unit-hero__art{
     top:auto;
     right:50%;
     bottom:8px;
@@ -96,7 +103,8 @@
     height:auto;
     transform:translateX(50%);
   }
-  .vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art .study-art__png{
+  .vocab-shell[data-unit-overview="communication"] .vocab-unit-hero__art .study-art__png,
+  .vocab-shell[data-unit-overview="education"] .vocab-unit-hero__art .study-art__png{
     max-height:190px!important;
   }
 }

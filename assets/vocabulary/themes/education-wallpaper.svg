@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" width="420" height="420" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.38">
+<defs>
+<g id="ed-cap"><path d="M-17-4 0-12 17-4 0 4Z"/><path d="M-10 0V8C-6 12 6 12 10 8V0M14-3V8"/></g>
+<g id="ed-book"><path d="M0-10C-5-14-11-14-16-12V12C-11 10-5 10 0 14 5 10 11 10 16 12V-12C11-14 5-14 0-10Z"/><path d="M0-10V14"/></g>
+<g id="ed-pencil"><path d="M-13 13-15 15-12 9 8-11 13-6-7 14Z"/><path d="M4-15 13-6M-12 9-7 14"/></g>
+<g id="ed-scroll"><rect x="-14" y="-10" width="28" height="18" rx="2"/><path d="M-8-4H8M-8 1H4"/><circle cx="9" cy="10" r="4"/><path d="M7 13 6 17M11 13 12 17"/></g>
+<g id="ed-laptop"><rect x="-12" y="-11" width="24" height="16" rx="2"/><path d="M-16 9H16L13 13H-13Z"/></g>
+<g id="ed-mic"><rect x="-5" y="-15" width="10" height="17" rx="5"/><path d="M-10-2C-10 6 10 6 10-2M0 6V14M-6 14H6"/></g>
+<g id="ed-flask"><path d="M-5-15H5M-3-15V-4L-13 12C-14 14-13 15-11 15H11C13 15 14 14 13 12L3-4V-15"/><path d="M-8 6H8"/></g>
+<g id="ed-calc"><rect x="-11" y="-15" width="22" height="30" rx="3"/><rect x="-7" y="-11" width="14" height="6" rx="1"/><path d="M-6 1H-4M-1 1H1M4 1H6M-6 6H-4M-1 6H1M4 6H6M-6 11H-4M-1 11H1M4 11H6"/></g>
+<g id="ed-bag"><path d="M-11-6C-11-12 11-12 11-6V14H-11Z"/><path d="M-5-10V-14H5V-10M-11 2H11M-3 2V6H3V2"/></g>
+<g id="ed-bulb"><path d="M-7 6C-14-1-11-14 0-14S14-1 7 6V10H-7Z"/><path d="M-5 14H5M-3-4 0 0 3-4"/></g>
+<g id="ed-ruler"><rect x="-16" y="-5" width="32" height="10" rx="1" transform="rotate(-30)"/><path d="M-9-1-7 3M-3-4-1 0M3-7 5-3M9-10 11-6"/></g>
+<g id="ed-medal"><circle cy="5" r="9"/><path d="M-7-15-3-4M7-15 3-4M-3 5 0 2 3 5 0 8Z"/></g>
+<g id="ed-globe"><circle cy="-2" r="12"/><path d="M-12-2H12M0-14C-6-8-6 4 0 10M0-14C6-8 6 4 0 10M-8 16H8M0 10V16"/></g>
+<g id="ed-chart"><path d="M-15 15V-15M-15 15H15"/><path d="M-9 9-2 1 4 6 13-8"/><path d="M8-8H13V-3"/></g>
+</defs>
+<use href="#ed-cap" transform="translate(42 42) rotate(0)" stroke="#2f9a9c"/>
+<use href="#ed-book" transform="translate(126 42) rotate(-24)" stroke="#6f8fa8"/>
+<use href="#ed-pencil" transform="translate(210 42) rotate(16)" stroke="#2f9a9c"/>
+<use href="#ed-scroll" transform="translate(294 42) rotate(0)" stroke="#6f8fa8"/>
+<use href="#ed-laptop" transform="translate(378 42) rotate(8)" stroke="#2f9a9c"/>
+<use href="#ed-scroll" transform="translate(42 126) rotate(8)" stroke="#6f8fa8"/>
+<use href="#ed-mic" transform="translate(126 126) rotate(16)" stroke="#2f9a9c"/>
+<use href="#ed-flask" transform="translate(210 126) rotate(-14)" stroke="#6f8fa8"/>
+<use href="#ed-calc" transform="translate(294 126) rotate(0)" stroke="#2f9a9c"/>
+<use href="#ed-bag" transform="translate(378 126) rotate(0)" stroke="#6f8fa8"/>
+<use href="#ed-flask" transform="translate(42 210) rotate(-24)" stroke="#2f9a9c"/>
+<use href="#ed-bulb" transform="translate(126 210) rotate(0)" stroke="#6f8fa8"/>
+<use href="#ed-ruler" transform="translate(210 210) rotate(16)" stroke="#2f9a9c"/>
+<use href="#ed-medal" transform="translate(294 210) rotate(0)" stroke="#6f8fa8"/>
+<use href="#ed-pencil" transform="translate(378 210) rotate(16)" stroke="#2f9a9c"/>
+<use href="#ed-calc" transform="translate(42 294) rotate(16)" stroke="#6f8fa8"/>
+<use href="#ed-globe" transform="translate(126 294) rotate(-24)" stroke="#2f9a9c"/>
+<use href="#ed-cap" transform="translate(210 294) rotate(26)" stroke="#6f8fa8"/>
+<use href="#ed-chart" transform="translate(294 294) rotate(-14)" stroke="#2f9a9c"/>
+<use href="#ed-laptop" transform="translate(378 294) rotate(26)" stroke="#6f8fa8"/>
+<use href="#ed-book" transform="translate(42 378) rotate(-24)" stroke="#2f9a9c"/>
+<use href="#ed-chart" transform="translate(126 378) rotate(-14)" stroke="#6f8fa8"/>
+<use href="#ed-ruler" transform="translate(210 378) rotate(0)" stroke="#2f9a9c"/>
+<use href="#ed-mic" transform="translate(294 378) rotate(-12)" stroke="#6f8fa8"/>
+<use href="#ed-medal" transform="translate(378 378) rotate(-6)" stroke="#2f9a9c"/>
+<path d="M84 80L85 83L88 84L85 85L84 88L83 85L80 84L83 83Z" stroke="#2f9a9c"/>
+<path d="M165 84H171M168 81V87" stroke="#6f8fa8"/>
+<circle cx="252" cy="84" r="2" stroke="#2f9a9c"/>
+<path d="M336 80L337 83L340 84L337 85L336 88L335 85L332 84L335 83Z" stroke="#6f8fa8"/>
+<path d="M81 168H87M84 165V171" stroke="#6f8fa8"/>
+<circle cx="168" cy="168" r="2" stroke="#2f9a9c"/>
+<path d="M252 164L253 167L256 168L253 169L252 172L251 169L248 168L251 167Z" stroke="#6f8fa8"/>
+<path d="M333 168H339M336 165V171" stroke="#2f9a9c"/>
+<circle cx="84" cy="252" r="2" stroke="#2f9a9c"/>
+<path d="M168 248L169 251L172 252L169 253L168 256L167 253L164 252L167 251Z" stroke="#6f8fa8"/>
+<path d="M249 252H255M252 249V255" stroke="#2f9a9c"/>
+<circle cx="336" cy="252" r="2" stroke="#6f8fa8"/>
+<path d="M84 332L85 335L88 336L85 337L84 340L83 337L80 336L83 335Z" stroke="#6f8fa8"/>
+<path d="M165 336H171M168 333V339" stroke="#2f9a9c"/>
+<circle cx="252" cy="336" r="2" stroke="#6f8fa8"/>
+<path d="M336 332L337 335L340 336L337 337L336 340L335 337L332 336L335 335Z" stroke="#2f9a9c"/>
+</svg>
