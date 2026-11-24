@@ -129,16 +129,16 @@ export const GRAPHIC_DELIVERY = Object.freeze({
   "units/unit-10.png": {
     "variants": [
       {
-        "src": "assets/vocabulary/delivery/units/unit-10.1ce4b6fc2c09.webp",
+        "src": "assets/vocabulary/delivery/units/unit-10.2204a33e1286.webp",
         "width": 640
       },
       {
-        "src": "assets/vocabulary/delivery/units/unit-10.6a99cdfe681c.webp",
+        "src": "assets/vocabulary/delivery/units/unit-10.de9dbdd0cf49.webp",
         "width": 960
       }
     ],
     "originalWidth": 1000,
-    "sourceHash": "14c67a1558352fc3315f8001549ccee1a5ac6f2fec53eaa256675631411d61a3"
+    "sourceHash": "71724f03c2d9252f116eddb0fe3466ca6d86305e0fdb262924eaa2c7b2fdd225"
   },
   "pathways/meaning.png": {
     "variants": [
