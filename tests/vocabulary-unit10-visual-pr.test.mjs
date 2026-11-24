@@ -16,11 +16,15 @@ const types={'.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.
 const fixture=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${css}</head>
 <body><div id="vocabularyApp"></div><script type="module">
 import {renderVocabularyHome,renderVocabularyUnit} from '/src/vocabulary/views.js';
+import {renderUnitCheckScreen} from '/src/vocabulary/unit-check-view.js';
+import {unitCheckFor} from '/content/vocabulary/checks/index.js';
 import {installGraphicsHandlers} from '/src/vocabulary/graphics-runtime.js';
 const root=document.getElementById('vocabularyApp');
 installGraphicsHandlers(root);
 window.renderUnit10=(scene)=>{
-  if(scene==='home'){
+  if(scene==='check'){
+    root.innerHTML=renderUnitCheckScreen({unitNumber:10,form:unitCheckFor(10).forms.A,attemptNumber:1,questionIndex:0,answers:{}});
+  } else if(scene==='home'){
     renderVocabularyHome(root,{displayName:'Test Student',units:[
       {unitNumber:8,unitTitle:'Work',total:50,mastered:0},
       {unitNumber:9,unitTitle:'Communication',total:50,mastered:0},
@@ -115,6 +119,21 @@ for(const width of [1440,390]){
      assert.ok(home.scrollWidth<=width+2,'Home must not scroll horizontally');
      assert.deepEqual(errors,[],'No browser JS errors');
      await page.screenshot({path:path.join(screenshots,`unit10-home-${width}.png`),fullPage:true,timeout:15000});
+     await page.evaluate(()=>window.renderUnit10('check'));
+     await page.locator('.vocab-unit-check-question').waitFor({timeout:10000});
+     const check=await page.evaluate(()=>{
+       const root=document.querySelector('.vocab-shell--unit-check'),heading=root?.querySelector('.vocab-unit-check-question h1');
+       const r=root?.getBoundingClientRect(),h=heading?.getBoundingClientRect();
+       return {scrollWidth:document.documentElement.scrollWidth,rootWidth:r?.width,
+        questionWidth:h?.width,heading:h?.textContent?.trim(),options:root?.querySelectorAll('input[type="radio"],button[data-unit-check-answer],.vocab-unit-check-option').length,
+        bodyText:root?.textContent?.slice(0,240)};
+     });
+     console.log('Unit 10 check '+width+'px:',JSON.stringify(check));
+     assert.ok(check.rootWidth>0&&check.questionWidth>0,'The Unit 10 question and check layout render');
+     assert.ok(check.scrollWidth<=width+2,'Unit Check must not overflow horizontally');
+     assert.match(check.bodyText,/Unit 10/);
+     assert.deepEqual(errors,[],'No JS error while opening the Unit Check');
+     await page.screenshot({path:path.join(screenshots,`unit10-check-${width}.png`),fullPage:true,timeout:15000});
    }finally{if(browser)await browser.close();server.close();}
  });
 }
