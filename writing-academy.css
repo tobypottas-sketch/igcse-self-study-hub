@@ -307,8 +307,8 @@
 #writingAcademy .wa-journey-meter{height:5px;background:#dce5eb;border-radius:10px;overflow:hidden;margin:4px 0 8px}
 #writingAcademy .wa-journey-meter>div{height:100%;background:#08766e}
 #writingAcademy .wa-stage-tab{border-bottom:3px solid var(--step,#08766e);background:#edf2f4}
-#writingAcademy .wa-stage-tab[data-stage=explore]{--step:#7953c7}#writingAcademy .wa-stage-tab[data-stage=practise]{--step:#b17b16}#writingAcademy .wa-stage-tab[data-stage=apply]{--step:#c9553a}#writingAcademy .wa-stage-tab[data-stage=master]{--step:#142d48}
-#writingAcademy .wa-stage-tab[aria-current=step]{background:var(--step);color:white}#writingAcademy .wa-stage-tab[data-stage=practise][aria-current=step]{background:#f5b335;color:#142d48}
+#writingAcademy .wa-stage-tab[data-stage=explore]{--step:#7953c7}#writingAcademy .wa-stage-tab[data-stage=practise]{--step:#b17b16}#writingAcademy .wa-stage-tab[data-stage=apply]{--step:#a83f29}#writingAcademy .wa-stage-tab[data-stage=master]{--step:#142d48}
+#writingAcademy .wa-stage-tab[aria-current=step]{background:var(--step,#08766e);color:white}#writingAcademy .wa-stage-tab[data-stage=practise][aria-current=step]{background:#f5b335;color:#142d48}
 #writingAcademy .wa-stage-tab[data-complete=true]:not([aria-current=step]){background:#d9eee5}
 #writingAcademy .wa-editorial-lesson .wa-stage-body{grid-template-columns:minmax(0,1fr) minmax(180px,246px);grid-template-areas:"title art" "task art";padding:clamp(14px,2vw,24px)}
 #writingAcademy .wa-learning-companion{grid-area:art;min-width:0;align-self:start;display:grid;gap:10px}
