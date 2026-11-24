@@ -47,3 +47,14 @@ test('a different writing type can use the same pure engine',()=>{
  const c=createCatalogue({id:'email',version:1,wordRange:{min:120,max:160},sections:['greeting','body','signoff'],categories:[{id:'friend',title:'Friends'}],tasks:[{id:'example',category:'friend',title:'Example',prompt:'Write to a friend.',version:1}],pathways:[{id:'register',title:'Register'}]});
  assert.equal(c.getTask('example').prompt,'Write to a friend.');
 });
+
+import {reviewExam,blueprint,model,structureActivities} from '../src/writing/content/review-structure-v1.js';
+import {scoreItem,validateActivities} from '../src/writing/engine/activities.js';
+test('structure lessons retain exam scaffold and valid original model',()=>{
+ assert.equal(reviewExam.contentMarks+reviewExam.languageMarks,15);
+ assert.equal(blueprint.length,4);assert.match(blueprint[0].guidance,/why you visited/);
+ const count=model.paragraphs.join(' ').split(/\s+/).length;assert.ok(count>=120&&count<=160);
+ assert.equal(validateActivities(structureActivities).length,6);
+ for(const a of structureActivities)for(const i of a.items){assert.equal(scoreItem(i,i.answer),true);assert.equal(scoreItem(i,null),false);}
+ assert.equal(scoreItem({answer:[2,1,3,0]},[0,1,2,3]),false);
+});
