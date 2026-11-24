@@ -19,6 +19,21 @@ try{
   assert.ok(await page.locator('.wa-footer').isVisible());
   assert.deepEqual(errors,[]);
   await page.screenshot({path:'writing-preview-'+width+'x'+height+'.png',fullPage:true});
+  await page.getByRole('button',{name:'Start pathway →'}).click();
+  assert.equal(await page.locator('.wa-model-part').count(),4);
+  await page.locator('.wa-exam-reference summary').click();
+  assert.match(await page.locator('.wa-exam-reference').innerText(),/why you visited/);
+  await page.getByRole('button',{name:'Bronze · Match purpose to paragraph'}).click();
+  await page.locator('.wa-options').getByRole('button',{name:'Introduction',exact:true}).click();
+  await page.getByRole('button',{name:'Check answer'}).click();
+  assert.match(await page.locator('.wa-answer').innerText(),/^Correct/);
+  await page.getByRole('button',{name:'Bronze · Sequence a review'}).click();
+  for(const n of [2,1,3,0])await page.locator('.wa-options button').nth(n).click();
+  await page.getByRole('button',{name:'Check answer'}).click();
+  assert.match(await page.locator('.wa-answer').innerText(),/^Correct/);
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  await page.screenshot({path:'writing-preview-structure-'+width+'x'+height+'.png',fullPage:true});
+  assert.deepEqual(errors,[]);
   console.log(width,height,layout);
   await page.close();
  }
