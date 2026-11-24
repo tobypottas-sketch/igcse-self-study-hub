@@ -111,6 +111,7 @@ export function renderHome(root, profile, apps, activityDashboard = null, { regi
   const accountControls = [
     model.showActivityControls ? `<button class="button button--primary" data-action="activity">${escapeHtml(activityLabel)}</button>` : '',
     model.showAdminControls ? '<button class="button" data-action="admin">Manage accounts</button>' : '',
+    model.showStaffTools && profile.active === true && !profile.must_change_password ? '<button class="button" data-action="writing-activity">Writing Activity</button>' : '',
     model.showStaffTools && profile.active === true && !profile.must_change_password ? '<button class="button" data-action="writing-assessor">Writing assessor</button>' : '',
     canChangePassword ? `<button class="button" data-action="change-password"${model.role === 'student' ? ' data-student-password-change' : ''}>Change password</button>` : ''
   ].filter(Boolean).join(' ');
