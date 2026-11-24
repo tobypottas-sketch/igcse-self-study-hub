@@ -44,7 +44,7 @@ test('production and sandbox shops expose one accessible heading and one verifie
 test('shop header has paired, accessible theme palettes and responsive breakpoints',()=>{
   const css=read('vocabulary-shop-header-premium.css');
   const html=read('vocabulary.html');
-  assert.match(html,/vocabulary-shop-header-premium\.css\?v=hires-stall-wallet-v2/);
+  assert.match(html,/vocabulary-shop-header-premium\.css\?v=large-cosmetics-v3/);
   const palettes={
     default:['#142e43','#f5fbff','#76e8dc'],
     forest:['#102e27','#f5ffe9','#d0f49a'],
@@ -119,4 +119,30 @@ test('the new stall scene is a valid transparent PNG independent of the previous
   const hash=createHash('sha1').update('blob '+png.length).update(Buffer.from([0])).update(png).digest('hex');
   assert.equal(hash,'12255592e18a2161190ec43f626d45ae0ab4f8c4');
   assert.equal(createHash('sha256').update(png).digest('hex'),'ecf285eb2a116b5fad1cb3dd97eae7eb5c10c70d44391fbeebc611828e353609');
+});
+
+test('shop identity showcases larger artwork with responsive contained dimensions',()=>{
+ const css=read('vocabulary-shop-header-premium.css');
+ const rules=css.slice(css.indexOf('/* Large shop-only cosmetic showcase.'));
+ assert.match(rules,/--shop-avatar-size:108px/);
+ assert.match(rules,/--shop-badge-size:66px/);
+ assert.match(rules,/--shop-title-width:285px/);
+ assert.match(rules,/--shop-title-height:108px/);
+ assert.match(rules,/width:var\(--shop-avatar-size\)!important/);
+ assert.match(rules,/width:var\(--shop-badge-size\)!important/);
+ assert.match(rules,/width:var\(--shop-title-width\)!important/);
+ assert.match(rules,/object-fit:contain!important/);
+ assert.match(rules,/@media\(max-width:520px\)/);
+ assert.match(rules,/--shop-avatar-size:82px/);
+ assert.match(rules,/--shop-title-width:190px/);
+});
+
+test('compact hero places the wallet beneath the intro and stall alongside both',()=>{
+ const css=read('vocabulary-shop-header-premium.css');
+ const rules=css.slice(css.indexOf('/* Compact shop banner:'));
+ assert.match(rules,/grid-template-areas:"intro stall" "wallet stall"!important/);
+ assert.match(rules,/\.vocab-shop-hero__display\{\s*display:contents!important/);
+ assert.match(rules,/\.vocab-shop-hero__balance\{[^}]*grid-area:wallet;[^}]*justify-self:start!important/);
+ assert.match(rules,/max-height:250px!important/);
+ assert.match(rules,/grid-template-areas:"intro" "wallet" "stall"!important/);
 });
