@@ -108,3 +108,11 @@
     max-height:190px!important;
   }
 }
+
+/* Unit 10 desktop: the 4:3 hero artwork otherwise renders 320px tall
+   inside a 308px banner and the rounded hero clips ~6px at both ends. */
+@media(min-width:1001px){
+  .vocab-shell[data-unit-overview="education"] .vocab-unit-hero__art .study-art__png{
+    max-height:292px!important;
+  }
+}
