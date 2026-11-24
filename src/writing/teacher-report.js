@@ -11,7 +11,7 @@ export async function openWritingActivity(root,client,{onBack}) {
     const [classes,members,profiles]=await Promise.all([
       allPages(()=>client.from('classes').select('id,class_name').eq('active',true).order('id')),
       allPages(()=>client.from('student_class_memberships').select('student_id,class_id').is('ended_at',null).order('student_id').order('class_id')),
-      allPages(()=>client.from('profiles').select('id,display_name').eq('role','student').eq('active',true).order('id'))
+      allPages(()=>client.from('profiles').select('id,display_name').eq('role','student').order('id'))
     ]);
     if(!page.isConnected)return;
     const names=new Map(profiles.map(p=>[p.id,p.display_name]));
@@ -27,7 +27,7 @@ export async function openWritingActivity(root,client,{onBack}) {
       const f=filters(),rows=buildWritingRows(roster,entries,f);
       const completed=rows.filter(row=>row.submissions.length).length;
       results.innerHTML='<div class="admin-card"><h2>'+completed+' / '+rows.length+' submitted · '+(rows.length?Math.round(100*completed/rows.length):0)+'%</h2><p>'+ (rows.length-completed)+' missing'+(f.task?'':' · All questions selected; other practice may count.')+'</p><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Student</th><th>Status</th><th>Words</th><th>Submitted (China)</th><th>Writing</th></tr></thead><tbody>'+rows.map(row=>{
-        const latest=row.submissions[0];return '<tr><td>'+e(row.displayName)+'</td><td><strong class="admin-status '+(latest?'is-active':'is-inactive')+'">'+(latest?'Submitted':'Missing')+'</strong></td><td>'+(latest?e(latest.response.trim().split(/\\s+/).length):'—')+'</td><td>'+(latest?e(new Date(latest.submitted_at).toLocaleString('en-GB',{timeZone:'Asia/Shanghai'})):'—')+'</td><td>'+(latest?row.submissions.map((s,i)=>'<details><summary>View writing '+(i+1)+'</summary><p><strong>'+e(s.task)+'</strong></p><p style="white-space:pre-wrap;overflow-wrap:anywhere">'+e(s.response)+'</p></details>').join(''):'—')+'</td></tr>';
+        const latest=row.submissions[0];return '<tr><td>'+e(row.displayName)+'</td><td><strong class="admin-status '+(latest?'is-active':'is-inactive')+'">'+(latest?'Submitted':'Missing')+'</strong></td><td>'+(latest?e(latest.response.trim().split(/\s+/).length):'—')+'</td><td>'+(latest?e(new Date(latest.submitted_at).toLocaleString('en-GB',{timeZone:'Asia/Shanghai'})):'—')+'</td><td>'+(latest?row.submissions.map((s,i)=>'<details><summary>View writing '+(i+1)+'</summary><p><strong>'+e(s.task)+'</strong></p><p style="white-space:pre-wrap;overflow-wrap:anywhere">'+e(s.response)+'</p></details>').join(''):'—')+'</td></tr>';
       }).join('')+'</tbody></table></div></div>';
     }
     async function refresh(){
@@ -51,5 +51,5 @@ export async function openWritingActivity(root,client,{onBack}) {
     for(const key of ['class','app','from','to'])$(''+key).addEventListener('change',refresh);
     $('task').addEventListener('change',()=>{if(entries.length)render();});
     $('refresh').onclick=refresh;await refresh();
-  }catch{if(page.isConnected)page.querySelector('p[role=status]').textContent='Could not load classes. Return to the Hub and try again.';}
+  }catch{if(page.isConnected){const status=page.querySelector('p[role=status]')??page.querySelector('[data-w-results]');if(status)status.textContent='Could not load classes. Return to the Hub and try again.';}}
 }
