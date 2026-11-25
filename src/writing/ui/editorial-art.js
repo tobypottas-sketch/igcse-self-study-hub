@@ -24,12 +24,12 @@ export const reviewArtwork = {
       ]
     },
     development: {
-      card: {name:'development-card',format:'svg',dimensions:[240,160]},
+      card: art('development-card',[192],[192,128]),
       banner: structure,
       stages: [art('stage-discover',[256,512]),art('stage-explore',[256,512]),practise,practise,art('stage-master',[256,512])]
     },
     expression: {
-      card: {name:'expression-card',format:'svg',dimensions:[240,160]},
+      card: art('expression-card',[192],[192,128]),
       banner: art('vocabulary-expression', [256, 512], [1672, 941]),
       stages: [
         expressionStage('expression-discover'),
