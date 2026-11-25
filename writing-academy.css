@@ -362,8 +362,8 @@
 #writingAcademy .wa-explore-progress span[data-done=true]{background:#08766e}
 #writingAcademy .wa-explore-paper .wa-explore-prose,#writingAcademy .wa-explore-full-prose{font-family:"Source Serif 4",Georgia,"Times New Roman",serif;font-size:clamp(1.125rem,1.8vw,1.3rem);line-height:1.8;color:#26354a;max-width:65ch;margin:0 0 18px;overflow-wrap:anywhere}
 #writingAcademy .wa-explore-prose .wa-explore-sentence{display:inline;font:inherit;border:0;border-radius:3px;padding:0;background:none;color:inherit;cursor:pointer;text-align:left;white-space:normal;box-decoration-break:clone;-webkit-box-decoration-break:clone}
-#writingAcademy .wa-explore-prose .wa-explore-sentence:disabled{opacity:1;cursor:default}
-#writingAcademy .wa-explore-prose .wa-explore-sentence:not(:disabled):hover{background:#f2e5c4}
+#writingAcademy .wa-explore-prose .wa-explore-sentence[aria-disabled=true]{opacity:1;cursor:default}
+#writingAcademy .wa-explore-prose .wa-explore-sentence[aria-disabled=false]:hover{background:#f2e5c4}
 #writingAcademy .wa-explore-prose .wa-explore-sentence[aria-pressed=true]{background:#f5d98c}
 #writingAcademy .wa-explore-note{border-top:1px solid #e4dac8;padding-top:12px;color:#5c5347}
 #writingAcademy .wa-explore-note p{font-size:.85rem;line-height:1.5;margin:4px 0 0}
