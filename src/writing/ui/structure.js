@@ -1,11 +1,12 @@
+import * as expression from '../content/review-expression-v1.js';
 import {extraReviewModels} from '../content/review-explore-models.js?v=1';
-import {mountLesson,el,action} from './lesson-shell.js?v=9';
+import {mountLesson,el,action} from './lesson-shell.js?v=10';
 import {reviewArtwork} from './editorial-art.js?v=6';
 import {discovery,companions,applicationTasks} from '../content/review-active-v2.js';
 import {guidedTask,independentTask,toolkit,improvement,selfCheck} from '../content/review-guided-v1.js';
 import {reviewExam,blueprint,model,structureActivities} from '../content/review-structure-v1.js';
 import {scoreItem,validateActivities} from '../engine/activities.js';
-const activities=validateActivities(structureActivities);
+
 function add(p,tag,cls,t){const n=p.ownerDocument.createElement(tag);n.className=cls||'';if(t)n.textContent=t;p.append(n);return n;}
 function button(p,t,fn){const n=add(p,'button','wa-action',t);n.type='button';n.addEventListener('click',fn);return n;}
 export function renderExamReference(p,{includeToolkit=true}={}){
@@ -19,9 +20,15 @@ export function renderExamReference(p,{includeToolkit=true}={}){
  if(includeToolkit){const k=add(d,'details','');add(k,'summary','','Language toolkit');const kl=add(k,'ul','');for(const x of toolkit)add(kl,'li','',x);}
  return s;
 }
-export function renderStructure(root,onBack,onStudio){
- const state={model:0,paragraph:0,identified:new Set(),discovered:new Set(),discoveryIndex:0,annotations:new Map(),applyIndex:0,applications:applicationTasks.map(()=>({written:'',revealed:false,checks:new Set()})),attempts:new Map(),active:null,written:'',revealed:false,checks:new Set()};
- const models=[{...model,category:'Café',sentenceTips:[['Names the café, establishes the time and explains the reason for visiting.','Introduces an initial evaluation through the atmosphere and welcome.'],['Describes location, seating and menu.','Provides specific examples of food.','Evaluates affordability for students.'],['Balances crowding with praise for staff.','Balances a specific delay against food quality.','Explains the practical benefit of a quiet corner.'],['Identifies a suitable audience and reason.','Offers advice about timing.']],purposes:['Introduction','Description','Evaluation','Recommendation']},{...guidedTask,title:'Willow Kitchen',category:'Restaurant',purposes:['Introduction','Evaluation','Evaluation','Recommendation'],sentenceTips:[['Establishes the reason for visiting.','Adds useful location and price information.'],['States a clear preference.','Supports the judgement with sensory detail.','Explains why the portion was suitable.','Adds a specific example of flexibility.'],['Signals a shift to criticism.','Explains the wait and the effect of noise.'],['Identifies an audience and a reason.','Offers practical advice addressing the drawback.']]},...extraReviewModels];
+export function renderStructure(root,onBack,onStudio){return renderPathway(root,onBack,onStudio);}
+export function renderExpression(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,expression);}
+function renderPathway(root,onBack,onStudio,config=null){
+ const isExpression=!!config;
+ const {discovery:discoverItems,companions:stageCompanions,applicationTasks:applyItems,activities:rawActivities}=config||{discovery,companions,applicationTasks,activities:structureActivities};
+ const activities=validateActivities(rawActivities);
+ const state={model:0,paragraph:0,identified:new Set(),discovered:new Set(),discoveryIndex:0,annotations:new Map(),applyIndex:0,applications:applyItems.map(()=>({written:'',revealed:false,checks:new Set()})),attempts:new Map(),active:null,written:'',revealed:false,checks:new Set()};
+ const baseModels=[{...model,category:'Café',sentenceTips:[['Names the café, establishes the time and explains the reason for visiting.','Introduces an initial evaluation through the atmosphere and welcome.'],['Describes location, seating and menu.','Provides specific examples of food.','Evaluates affordability for students.'],['Balances crowding with praise for staff.','Balances a specific delay against food quality.','Explains the practical benefit of a quiet corner.'],['Identifies a suitable audience and reason.','Offers advice about timing.']],purposes:['Introduction','Description','Evaluation','Recommendation']},{...guidedTask,title:'Willow Kitchen',category:'Restaurant',purposes:['Introduction','Evaluation','Evaluation','Recommendation'],sentenceTips:[['Establishes the reason for visiting.','Adds useful location and price information.'],['States a clear preference.','Supports the judgement with sensory detail.','Explains why the portion was suitable.','Adds a specific example of flexibility.'],['Signals a shift to criticism.','Explains the wait and the effect of noise.'],['Identifies an audience and a reason.','Offers practical advice addressing the drawback.']]},...extraReviewModels];
+ const models=isExpression?config.expressionModels(baseModels):baseModels;
  const practice=activities.filter(a=>a.level!=='Mastery check'),master=activities.find(a=>a.level==='Mastery check');
  function quiz(host,a,ctx){
   host.replaceChildren();let run=state.attempts.get(a.id);if(!run){run={index:0,correct:0,selected:null,order:[],checked:false,done:false};state.attempts.set(a.id,run);}
@@ -33,18 +40,18 @@ export function renderStructure(root,onBack,onStudio){
   else{const check=action(host,'Check answer',()=>{run.checked=true;if(scoreItem(item,a.type==='order'?run.order:run.selected))run.correct++;draw();});check.disabled=a.type==='order'?run.order.length!==item.options.length:run.selected===null;if(a.type==='order')action(host,'Reset order',()=>{run.order=[];draw();});}
   }draw();
  }
- mountLesson(root,{title:'Structure & Organisation',artwork:reviewArtwork.pathways.structure,onBack,reference:renderExamReference,companions,renderStage(body,i,ctx){
+ mountLesson(root,{title:isExpression?'Vocabulary & Expression':'Structure & Organisation',pathwayNumber:isExpression?'02':'01',artwork:reviewArtwork.pathways.structure,onBack,reference:renderExamReference,companions:stageCompanions,renderStage(body,i,ctx){
  if(i===0){
  const host=el(body,'div','wa-discovery');
- function draw(){host.replaceChildren();const n=state.discoveryIndex,item=discovery[n];el(host,'p','wa-kicker','CHALLENGE '+(n+1)+' / '+discovery.length);el(host,'h3','',item.prompt);el(host,'p','',item.context);
+ function draw(){host.replaceChildren();const n=state.discoveryIndex,item=discoverItems[n];el(host,'p','wa-kicker','CHALLENGE '+(n+1)+' / '+discoverItems.length);el(host,'h3','',item.prompt);el(host,'p','',item.context);
  const list=el(host,'div','wa-options');const f=el(host,'p','wa-answer');f.setAttribute('role','status');
- item.options.forEach((t,j)=>{const b=action(list,String.fromCharCode(65+j)+' · '+t,()=>{const ok=j===item.answer;f.textContent=ok?'Correct. '+item.rationale:'Not quite. Compare the purpose of each option and try again.';f.dataset.result=ok?'correct':'retry';if(ok){state.discovered.add(n);if(state.discovered.size===discovery.length)ctx.complete();}for(const other of list.querySelectorAll('button'))other.setAttribute('aria-pressed',String(other===b));},'wa-action wa-option');b.setAttribute('aria-pressed','false');});
+ item.options.forEach((t,j)=>{const b=action(list,String.fromCharCode(65+j)+' · '+t,()=>{const ok=j===item.answer;f.textContent=ok?'Correct. '+item.rationale:isExpression?'Not quite. Think about meaning and natural expression.':'Not quite. Compare the purpose of each option and try again.';f.dataset.result=ok?'correct':'retry';if(ok){state.discovered.add(n);if(state.discovered.size===discoverItems.length)ctx.complete();}for(const other of list.querySelectorAll('button'))other.setAttribute('aria-pressed',String(other===b));},'wa-action wa-option');b.setAttribute('aria-pressed','false');});
  if(state.discovered.has(n)){f.textContent='Completed. '+item.rationale;f.dataset.result='correct';}
- const controls=el(host,'div','wa-stage-foot');const prev=action(controls,'← Previous challenge',()=>{state.discoveryIndex--;draw();});prev.disabled=n===0;const next=action(controls,'Next challenge →',()=>{state.discoveryIndex++;draw();});next.disabled=n===discovery.length-1;
+ const controls=el(host,'div','wa-stage-foot');const prev=action(controls,'← Previous challenge',()=>{state.discoveryIndex--;draw();});prev.disabled=n===0;const next=action(controls,'Next challenge →',()=>{state.discoveryIndex++;draw();});next.disabled=n===discoverItems.length-1;
  }draw();
  }else if(i===1){
  const desk=el(body,'div','wa-explore-desk');
- el(desk,'p','wa-explore-intro','Read like an editor. Identify the paragraph’s purpose, then investigate how each sentence contributes.');
+ el(desk,'p','wa-explore-intro',isExpression?'Read like an editor. Identify effective phrases, then explore their meaning.':'Read like an editor. Identify the paragraph’s purpose, then investigate how each sentence contributes.');
  const toolbar=el(desk,'div','wa-explore-toolbar');
  const picker=el(toolbar,'details','wa-explore-picker');
  const trigger=el(picker,'summary','wa-explore-picker-trigger');
@@ -70,13 +77,13 @@ export function renderStructure(root,onBack,onStudio){
   const prose=el(paper,'p','wa-model-text wa-explore-prose');
   const pieces=m.paragraphs[n].match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g)||[m.paragraphs[n]];
   const selected=state.annotations.get(key)||new Set();state.annotations.set(key,selected);
-  const note=el(paper,'div','wa-explore-note');el(note,'span','wa-explore-eyebrow','EDITOR’S NOTE');const detail=el(note,'p','','Identify the paragraph’s purpose to unlock sentence annotations.');detail.setAttribute('role','status');
-  const sentenceTips=m.sentenceTips?.[n];let unlocked=state.identified.has(key);const sentenceButtons=[];
+  const note=el(paper,'div','wa-explore-note');el(note,'span','wa-explore-eyebrow','EDITOR’S NOTE');const detail=el(note,'p','',isExpression?'Choose the most effective phrase to unlock its explanation.':'Identify the paragraph’s purpose to unlock sentence annotations.');detail.setAttribute('role','status');
+  const lens=m.expression?.[n];const sentenceTips=isExpression?pieces.map(sentence=>sentence.includes(lens.phrase)?lens.rationale:'Read this sentence in context. Look for precise, natural word combinations.'):m.sentenceTips?.[n];let unlocked=state.identified.has(key);const sentenceButtons=[];
   pieces.forEach((sentence,j)=>{const b=el(prose,'span','wa-phrase wa-explore-sentence',sentence.trim());b.setAttribute('role','button');b.tabIndex=unlocked?0:-1;b.setAttribute('aria-disabled',String(!unlocked));const activate=()=>{if(!unlocked)return;selected.clear();selected.add(j);sentenceButtons.forEach((item,k)=>item.setAttribute('aria-pressed',String(k===j)));detail.textContent=sentenceTips?.[j]||m.notes[n];};b.onclick=activate;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};b.setAttribute('aria-pressed',String(selected.has(j)));sentenceButtons.push(b);prose.append(' ');});
-  if(unlocked)detail.textContent=selected.size?(sentenceTips?.[[...selected][0]]||m.notes[n]):'Select any sentence to investigate its contribution.';
-  const question=el(host,'section','wa-explore-question');el(question,'p','wa-explore-eyebrow','IDENTIFY THE PURPOSE');el(question,'h3','','What is this paragraph mainly trying to achieve?');const choices=el(question,'div','wa-move-options');const f=el(question,'p','wa-answer');f.setAttribute('role','status');const answerButtons=[];
-  ['Introduction','Description','Evaluation','Recommendation'].forEach((t,j)=>{const b=action(choices,'',()=>{answerButtons.forEach(item=>item.setAttribute('aria-pressed',String(item===b)));if(t===m.purposes[n]){state.identified.add(key);unlocked=true;sentenceButtons.forEach(item=>{item.tabIndex=0;item.setAttribute('aria-disabled','false');});progress.children[n].dataset.done='true';detail.textContent='Select any sentence to investigate its contribution.';f.textContent='Correct. '+m.notes[n];f.dataset.result='correct';if(models.some((entry,k)=>entry.paragraphs.every((_,x)=>state.identified.has(k+':'+x))))ctx.complete();}else{f.textContent='Not quite. Think about the main purpose of this paragraph.';f.dataset.result='retry';}},'wa-action wa-explore-choice');el(b,'span','wa-explore-choice-letter',String.fromCharCode(65+j));el(b,'span','',t==='Evaluation'?'Opinion & Evaluation':t);b.setAttribute('aria-pressed',String(unlocked&&t===m.purposes[n]));answerButtons.push(b);});
-  if(unlocked){f.textContent='Correct. '+m.notes[n];f.dataset.result='correct';}
+  if(unlocked)detail.textContent=selected.size?(sentenceTips?.[[...selected][0]]||m.notes[n]):isExpression?'Select a sentence to explore its language.':(isExpression?'Select a sentence to explore its language.':'Select any sentence to investigate its contribution.');
+  const question=el(host,'section','wa-explore-question');el(question,'p','wa-explore-eyebrow',isExpression?'EXPLORE THE EXPRESSION':'IDENTIFY THE PURPOSE');el(question,'h3','',isExpression?lens.prompt:'What is this paragraph mainly trying to achieve?');const choices=el(question,'div','wa-move-options');const f=el(question,'p','wa-answer');f.setAttribute('role','status');const answerButtons=[];
+  (isExpression?lens.options:['Introduction','Description','Evaluation','Recommendation']).forEach((t,j)=>{const b=action(choices,'',()=>{answerButtons.forEach(item=>item.setAttribute('aria-pressed',String(item===b)));if(isExpression?j===lens.answer:t===m.purposes[n]){state.identified.add(key);unlocked=true;sentenceButtons.forEach(item=>{item.tabIndex=0;item.setAttribute('aria-disabled','false');});progress.children[n].dataset.done='true';detail.textContent=(isExpression?'Select a sentence to explore its language.':'Select any sentence to investigate its contribution.');f.textContent='Correct. '+(isExpression?lens.rationale:m.notes[n]);f.dataset.result='correct';if(models.some((entry,k)=>entry.paragraphs.every((_,x)=>state.identified.has(k+':'+x))))ctx.complete();}else{f.textContent=isExpression?'Not quite. Look at the meaning of each phrase in context.':'Not quite. Think about the main purpose of this paragraph.';f.dataset.result='retry';}},'wa-action wa-explore-choice');el(b,'span','wa-explore-choice-letter',String.fromCharCode(65+j));el(b,'span','',t==='Evaluation'?'Opinion & Evaluation':t);b.setAttribute('aria-pressed',String(unlocked&&(isExpression?j===lens.answer:t===m.purposes[n])));answerButtons.push(b);});
+  if(unlocked){f.textContent='Correct. '+(isExpression?lens.rationale:m.notes[n]);f.dataset.result='correct';}
   const controls=el(host,'div','wa-stage-foot wa-explore-controls');const prev=action(controls,'← Previous paragraph',()=>{state.paragraph--;draw();host.querySelector('.wa-explore-headline').focus();});prev.disabled=n===0;const next=action(controls,'Next paragraph →',()=>{state.paragraph++;draw();host.querySelector('.wa-explore-headline').focus();});next.disabled=n===m.paragraphs.length-1;paper.querySelector('h3').tabIndex=-1;
   const full=el(host,'details','wa-explore-full');el(full,'summary','','Read complete model');for(const p of m.paragraphs)el(full,'p','wa-explore-full-prose',p);el(full,'p','wa-muted','Original teaching model, not examiner-marked. '+m.paragraphs.join(' ').trim().split(/\s+/).length+' words.');
  }
@@ -95,10 +102,10 @@ export function renderStructure(root,onBack,onStudio){
  }else if(i===3){
  const host=el(body,'div','wa-apply-work wa-apply-desk');
  function draw(){
- host.replaceChildren();const n=state.applyIndex,item=applicationTasks[n],run=state.applications[n];
- const isComplete=(x,j)=>!!x.written.trim()&&x.revealed&&x.checks.size===applicationTasks[j].checks.length;
- const header=el(host,'div','wa-apply-header');el(header,'span','wa-apply-eyebrow','WRITING WORKSHOP');el(header,'span','wa-apply-position','Task '+(n+1)+' of '+applicationTasks.length);
- const meter=el(host,'div','wa-apply-progress');meter.setAttribute('aria-hidden','true');applicationTasks.forEach((_,j)=>{const segment=el(meter,'span','');segment.dataset.current=String(j===n);segment.dataset.done=String(isComplete(state.applications[j],j));});
+ host.replaceChildren();const n=state.applyIndex,item=applyItems[n],run=state.applications[n];
+ const isComplete=(x,j)=>!!x.written.trim()&&x.revealed&&x.checks.size===applyItems[j].checks.length;
+ const header=el(host,'div','wa-apply-header');el(header,'span','wa-apply-eyebrow','WRITING WORKSHOP');el(header,'span','wa-apply-position','Task '+(n+1)+' of '+applyItems.length);
+ const meter=el(host,'div','wa-apply-progress');meter.setAttribute('aria-hidden','true');applyItems.forEach((_,j)=>{const segment=el(meter,'span','');segment.dataset.current=String(j===n);segment.dataset.done=String(isComplete(state.applications[j],j));});
  const title=el(host,'h3','wa-apply-title',item.title);title.tabIndex=-1;
  const source=el(host,'article','wa-apply-source');el(source,'p','wa-apply-eyebrow','ORIGINAL WRITING');el(source,'p','wa-apply-original',item.prompt);
  const editor=el(host,'section','wa-apply-editor');el(editor,'p','wa-apply-eyebrow','YOUR REVISION');const l=el(editor,'label','wa-apply-instruction',item.question);l.htmlFor='wa-improvement';const input=el(editor,'textarea','wa-writing-input wa-apply-input');input.id=l.htmlFor;input.rows=4;input.value=run.written;input.placeholder='Write your own response…';
@@ -109,12 +116,12 @@ export function renderStructure(root,onBack,onStudio){
  const comparison=el(host,'section','wa-apply-comparison');comparison.id='wa-apply-comparison';comparison.hidden=!run.revealed;
  const model=el(comparison,'article','wa-apply-model');el(model,'p','wa-apply-eyebrow','ONE POSSIBLE RESPONSE');el(model,'p','wa-apply-model-text',item.example);
  const checklist=el(comparison,'div','wa-apply-checklist');el(checklist,'h3','','Review your revision');const checkCount=el(checklist,'p','wa-apply-check-count');
- function progress(){checkCount.textContent=run.checks.size+' of '+item.checks.length+' checks completed';applicationTasks.forEach((_,j)=>meter.children[j].dataset.done=String(isComplete(state.applications[j],j)));if(state.applications.every(isComplete))ctx.complete();else ctx.incomplete();}
+ function progress(){checkCount.textContent=run.checks.size+' of '+item.checks.length+' checks completed';applyItems.forEach((_,j)=>meter.children[j].dataset.done=String(isComplete(state.applications[j],j)));if(state.applications.every(isComplete))ctx.complete();else ctx.incomplete();}
  item.checks.forEach((t,k)=>{const l=el(checklist,'label','wa-check wa-apply-check');const cb=el(l,'input','');cb.type='checkbox';cb.checked=run.checks.has(k);cb.onchange=()=>{if(cb.checked)run.checks.add(k);else run.checks.delete(k);progress();};el(l,'span','',t);});
  checkCount.textContent=run.checks.size+' of '+item.checks.length+' checks completed';
  input.oninput=()=>{run.written=input.value;run.checks.clear();for(const cb of comparison.querySelectorAll('input'))cb.checked=false;updateCount();progress();};
- const controls=el(host,'div','wa-stage-foot wa-apply-controls');const prev=action(controls,'← Previous task',()=>{state.applyIndex--;draw();host.querySelector('.wa-apply-title').focus();});prev.disabled=n===0;const next=action(controls,'Next task →',()=>{state.applyIndex++;draw();host.querySelector('.wa-apply-title').focus();});next.disabled=n===applicationTasks.length-1;
+ const controls=el(host,'div','wa-stage-foot wa-apply-controls');const prev=action(controls,'← Previous task',()=>{state.applyIndex--;draw();host.querySelector('.wa-apply-title').focus();});prev.disabled=n===0;const next=action(controls,'Next task →',()=>{state.applyIndex++;draw();host.querySelector('.wa-apply-title').focus();});next.disabled=n===applyItems.length-1;
  }draw();
- }else{const desk=el(body,'div','wa-master-desk');el(desk,'p','wa-master-intro','Put your understanding of review structure to the test. Answer all three questions correctly to complete this stage.');const host=el(desk,'div','wa-question wa-master-question');quiz(host,master,ctx);const end=el(desk,'details','wa-master-studio');const summary=el(end,'summary','');const copy=el(summary,'span','');el(copy,'span','wa-master-eyebrow','NEXT STEP');el(copy,'strong','','Apply it in your own review');el(summary,'span','wa-master-chevron','⌄').setAttribute('aria-hidden','true');const content=el(end,'div','wa-master-studio-content');el(content,'h3','','Independent task · Community sports event');el(content,'p','',independentTask.prompt);action(content,'Open Writing Studio →',()=>onStudio({initialTask:independentTask.id,initialMode:'Gold'}),'wa-action wa-master-launch');}
+ }else{const desk=el(body,'div','wa-master-desk');el(desk,'p','wa-master-intro',isExpression?'Choose precise, natural language. Answer all three questions correctly to complete this stage.':'Put your understanding of review structure to the test. Answer all three questions correctly to complete this stage.');const host=el(desk,'div','wa-question wa-master-question');quiz(host,master,ctx);const end=el(desk,'details','wa-master-studio');const summary=el(end,'summary','');const copy=el(summary,'span','');el(copy,'span','wa-master-eyebrow','NEXT STEP');el(copy,'strong','','Apply it in your own review');el(summary,'span','wa-master-chevron','⌄').setAttribute('aria-hidden','true');const content=el(end,'div','wa-master-studio-content');el(content,'h3','','Independent task · Community sports event');el(content,'p','',independentTask.prompt);action(content,'Open Writing Studio →',()=>onStudio({initialTask:independentTask.id,initialMode:'Gold'}),'wa-action wa-master-launch');}
  }});
 }
