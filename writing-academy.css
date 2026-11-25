@@ -124,7 +124,8 @@
 
 #writingAcademy .wa-art{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:contain}
 #writingAcademy :is(.wa-path.wa-expression,.wa-editorial-lesson[data-pathway="02"]) .wa-art{aspect-ratio:auto}
-#writingAcademy .wa-editorial-lesson[data-pathway="03"] .wa-art{aspect-ratio:auto}
+#writingAcademy .wa-editorial-lesson[data-pathway="03"] .wa-art--banner{aspect-ratio:3/1}
+#writingAcademy .wa-editorial-lesson[data-pathway="03"] .wa-art--stage{aspect-ratio:4/3}
 #writingAcademy .wa-art--hero{max-width:545px;justify-self:center}
 #writingAcademy .wa-art--card{width:144px}
 #writingAcademy .wa-path.wa-structure{background:var(--wa-cream);border-top:3px solid var(--wa-amber)}

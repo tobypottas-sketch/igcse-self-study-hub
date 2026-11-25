@@ -25,7 +25,7 @@ async function checkArtwork(host, placement, name, ratio = 1.5) {
  });
  assert.match(info.source,new RegExp('^'+name+'-\\d+\\.webp$'));
  assert.ok(info.intrinsicWidth > 0);
- assert.ok(Math.abs((ratio === 1.5 ? info.width/info.height : info.ratio) - ratio) < .03,JSON.stringify(info));
+ assert.ok(Math.abs((ratio === expressionRatio ? info.ratio : info.width/info.height) - ratio) < .03,JSON.stringify(info));
  assert.equal(info.fit,'contain');
 }
 
