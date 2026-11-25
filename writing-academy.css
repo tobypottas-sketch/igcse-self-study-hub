@@ -720,3 +720,46 @@
 #writingAcademy .wa-review-empty p{font-size:.85rem;color:#526477}
 @media(min-width:1120px){#writingAcademy .wa-review-work{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 @media(max-width:520px){#writingAcademy .wa-review-metric{padding:8px}#writingAcademy .wa-review-metric .wa-studio-eyebrow{font-size:.57rem}}
+
+
+/* Studio final refinement: manuscript, review metrics and coach */
+#writingAcademy .wa-studio-icon{display:inline-block;width:17px;height:17px;flex:none;vertical-align:middle}
+#writingAcademy .wa-workspace .wa-write-tool{display:inline-flex;align-items:center;justify-content:center;gap:5px}
+#writingAcademy .wa-write-paper{padding:clamp(10px,1.4vw,17px)}
+#writingAcademy .wa-workspace .wa-write-paper .wa-editor{padding:clamp(12px,1.6vw,20px)}
+#writingAcademy .wa-workspace .wa-write-paper .wa-editor:focus-visible{outline:2px solid #9d8abf;outline-offset:2px}
+#writingAcademy .wa-write-paper:focus-within{box-shadow:inset 3px 0 #9d8abf}
+#writingAcademy .wa-write-meter-top .wa-count{font-size:1.35rem;line-height:1.2}
+#writingAcademy .wa-write-meter .wa-word-track{height:9px}
+#writingAcademy .wa-write-scale{position:relative;height:15px;margin-top:4px;font-size:.65rem;color:#526477;font-variant-numeric:tabular-nums}
+#writingAcademy .wa-write-scale span{position:absolute;transform:translateX(-50%)}
+#writingAcademy .wa-write-scale span:first-child{transform:none}
+#writingAcademy .wa-write-scale span:last-child{transform:translateX(-100%)}
+#writingAcademy .wa-review-metric{--metric-ink:#08766e;--metric-bg:#f3f8f6;background:var(--metric-bg);border-top:2px solid var(--metric-ink);text-align:left;position:relative}
+#writingAcademy .wa-review-metric[data-kind=checks]{--metric-ink:#68519a;--metric-bg:#f7f4fb}
+#writingAcademy .wa-review-metric[data-kind=draft]{--metric-ink:#906521;--metric-bg:#fcf8ee}
+#writingAcademy .wa-review-metric-top{display:flex;align-items:center;justify-content:space-between;gap:5px;color:var(--metric-ink)}
+#writingAcademy .wa-review-metric-top .wa-studio-eyebrow{color:inherit}
+#writingAcademy button.wa-review-metric{font:inherit;cursor:pointer;width:100%}
+#writingAcademy button.wa-review-metric:hover{border-color:var(--metric-ink)}
+#writingAcademy .wa-review-mini-track{height:4px;border-radius:4px;background:#e6dff0;overflow:hidden;margin-top:3px}
+#writingAcademy .wa-review-mini-track>span{display:block;height:100%;background:#68519a;border-radius:4px}
+#writingAcademy .wa-review-flow{gap:8px}
+#writingAcademy .wa-review-flow-button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid transparent;background:transparent;border-radius:8px;padding:7px 5px;color:#526477;font-size:.78rem;font-weight:650;cursor:pointer}
+#writingAcademy .wa-review-flow-button[data-state=current]{background:#eee9f7;color:#55436e;border-color:#ded5ed}
+#writingAcademy .wa-review-flow-button[data-state=current] .wa-review-step{background:#68519a;color:#fff}
+#writingAcademy .wa-review-flow-button[data-state=done] .wa-review-step{background:#08766e;color:#fff}
+#writingAcademy .wa-review-flow-button[data-state=next] .wa-review-step{background:#e9edf1;color:#526477}
+#writingAcademy .wa-review-flow-button:hover:not(:disabled){border-color:#9d8abf}
+#writingAcademy .wa-manuscript-header{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+#writingAcademy .wa-manuscript-header>p{margin:0}
+#writingAcademy .wa-manuscript-versions{display:flex;gap:3px;background:#eee7da;padding:3px;border-radius:8px}
+#writingAcademy .wa-manuscript-versions[hidden]{display:none}
+#writingAcademy .wa-workspace .wa-manuscript-version{font-size:.73rem;padding:5px 8px;min-height:34px;background:transparent;border:1px solid transparent;border-radius:6px}
+#writingAcademy .wa-workspace .wa-manuscript-version[aria-pressed=true]{background:#fff;border-color:#d9cebd;color:#55436e}
+#writingAcademy .wa-review-coach-head{background:linear-gradient(120deg,#211a42,#44305e);color:white;border-radius:9px;padding:13px;margin:0 0 14px}
+#writingAcademy .wa-review-coach-head .wa-muted{color:#e0d6ef;margin:3px 0 0}
+#writingAcademy .wa-review-coach-head .wa-review-coach-icon{background:#584475;color:#e0caff}
+#writingAcademy .wa-review-coach-icon .wa-studio-icon{width:25px;height:25px}
+#writingAcademy .wa-review-coach-host .sf-button,#writingAcademy .wa-review-coach-host .wa-review-sample-button{background:#68519a;color:#fff;border-color:#68519a;border-radius:8px}
+@media(max-width:520px){#writingAcademy .wa-review-flow-button{font-size:.68rem;gap:4px}#writingAcademy .wa-review-metric-top .wa-studio-icon{width:13px;height:13px}#writingAcademy .wa-review-metric-top{flex-wrap:wrap}#writingAcademy .wa-write-tool .wa-studio-icon{width:14px;height:14px}}
