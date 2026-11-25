@@ -111,3 +111,47 @@ test('Cohesion workshops allow punctuation edits or a reasoned decision to keep 
  assert.ok(!writingComplete({...run,keepReason:'It is fine'},task));
  assert.ok(writingComplete({...run,keepReason:'The final relative clause explains the consequence of our delay.'},task));
 });
+
+import {editing,editingModels} from '../src/writing/content/review-editing.js';
+
+test('Editing investigations are grounded in every paragraph of all eight models',()=>{
+ const models=[model,{...guidedTask,title:'Willow Kitchen'},...extraReviewModels];
+ assert.equal(Object.keys(editingModels).length,8);
+ assert.equal(Object.values(editingModels).flat().length,30);
+ for(const entry of models){
+  const notes=editingModels[entry.title];
+  assert.equal(notes.length,entry.paragraphs.length);
+  notes.forEach((note,index)=>{
+   assert.ok(entry.paragraphs[index].includes(note.phrase),entry.title+': '+note.phrase);
+   assert.ok(note.prompt && note.rationale && note.min<=8);
+  });
+ }
+});
+
+test('Editing practice validates answer mappings and all model writing lengths',()=>{
+ assert.equal(editing.discover.length,5);
+ assert.equal(editing.passes.length,4);
+ assert.deepEqual(editing.practice.map(a=>[a.level,a.items.length]),[['Bronze',4],['Bronze',4],['Silver',4],['Silver',4]]);
+ const activities=validateActivities([...editing.practice,{id:'editing-transfer',type:'choice',items:[editing.analysis]}]);
+ const items=activities.flatMap(a=>a.items);
+ assert.equal(new Set(items.map(item=>item.prompt)).size,items.length);
+ for(const item of items){
+  assert.equal(item.explanations.length,item.options.length);
+  assert.equal(item.rationale,item.explanations[item.answer]);
+  for(const index of shuffledIndexes(item.options.length,()=>0.2)){
+   assert.equal(scoreItem(item,index),index===item.answer);
+  }
+ }
+ assert.equal(editing.gold.length,2);
+ assert.equal(editing.apply.length,3);
+ for(const task of [...editing.gold,...editing.apply,editing.master]){
+  validateWritingTask(task);
+  const review=task.example.replace(/^(?:Priorities:|I kept).*?\n\n/,'');
+  const count=review.trim().split(/\s+/).length;
+  assert.ok(count>=task.range[0]&&count<=task.range[1],task.title+': '+count);
+  assert.equal(task.allowKeep,true);
+ }
+ const draft=editing.master.prompt.split('Student draft\n')[1].trim().split(/\s+/).length;
+ assert.ok(draft>=120&&draft<=160);
+ assert.equal(editing.master.checks.length,4);
+});

@@ -1,3 +1,4 @@
+import {editing,editingModels} from '../src/writing/content/review-editing.js';
 import {cohesion} from '../src/writing/content/review-cohesion.js';
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
@@ -352,6 +353,82 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await workshop(page,cohesion.master);
   assert.equal(await page.locator('.wa-stage-tab[data-stage=master]').getAttribute('data-complete'),'true');
   await capture(page,'cohesion-master-transfer',width,height);
+  await page.getByText('Write a full review in Writing Studio',{exact:true}).click();
+  await page.getByRole('button',{name:'Open Writing Studio →'}).click();
+  await page.locator('.wa-workspace').waitFor();
+  assert.deepEqual(errors,[]);
+  await page.getByRole('button',{name:'← Academy'}).click();
+  const editingCard=page.locator('.wa-path.wa-editing');
+  await editingCard.getByRole('button',{name:'Start pathway →'}).press('Enter');
+  assert.equal(await page.locator('.wa-lesson-banner h1').innerText(),'Editing & Improvement');
+  await checkArtwork(page,'banner','structure-organisation');
+  await page.getByText('Four-pass editing strategy',{exact:true}).click();
+  assert.equal(await page.locator('.wa-editing-passes li').count(),4);
+  await page.getByRole('button',{name:'Check what changed'}).press('Enter');
+  assert.match(await page.locator('.wa-discovery .wa-answer').innerText(),/three words/);
+  for(let index=0;index<editing.discover.length;index++){
+   await page.locator('.wa-discovery textarea').fill('The change gives the reader a more specific judgement.');
+   await page.getByRole('button',{name:'Check what changed'}).press('Enter');
+   assert.equal(await page.locator('.wa-discovery textarea').getAttribute('readonly'),'');
+   if(index<editing.discover.length-1) await page.getByRole('button',{name:'Next contrast →'}).press('Enter');
+  }
+  assert.equal(await page.locator('.wa-stage-tab[data-stage=discover]').getAttribute('data-complete'),'true');
+  await capture(page,'editing-discover',width,height);
+  await go('explore');
+  for(const title of Object.keys(editingModels)){
+   await page.locator('.wa-explore-picker-trigger').press('Enter');
+   await page.locator('.wa-explore-model-choice').filter({hasText:title}).click();
+   assert.equal(await page.locator('.wa-explore-headline').innerText(),title);
+   const item=editingModels[title][0];
+   const sentence=page.locator('.wa-explore-sentence').filter({hasText:item.phrase});
+   assert.equal(await sentence.getAttribute('aria-disabled'),'true');
+   await page.locator('.wa-explore-question textarea').fill('I would keep the specific detail because it helps the review audience.');
+   await page.getByRole('button',{name:'Compare with the editor’s note'}).press('Enter');
+   await sentence.press('Enter');
+   assert.ok((await page.locator('.wa-explore-note').innerText()).includes(item.rationale));
+  }
+  await capture(page,'editing-explore',width,height);
+  await go('practise');
+  for(const challenge of editing.practice){
+   await page.getByRole('button',{name:new RegExp(challenge.title)}).press('Enter');
+   const item=challenge.items[0];
+   const options=page.locator('.wa-option');
+   const order=await options.evaluateAll(nodes=>nodes.map(node=>node.dataset.option));
+   await options.filter({hasText:item.options[(item.answer+1)%item.options.length]}).press('Enter');
+   assert.deepEqual(await options.evaluateAll(nodes=>nodes.map(node=>node.dataset.option)),order);
+   await page.getByRole('button',{name:'Check answer'}).press('Enter');
+   for(const explanation of item.explanations)assert.ok(await page.locator('.wa-practise-question .wa-answer li').filter({hasText:explanation}).isVisible());
+  }
+  await capture(page,'editing-silver',width,height);
+  await page.getByRole('button',{name:/Work as an editor/}).press('Enter');
+  const editingGoldRevision=await workshop(page,editing.gold[0]);
+  await page.getByRole('button',{name:'Next Gold task →'}).press('Enter');
+  await page.locator('.wa-apply-editor textarea').fill(editing.gold[1].example);
+  await go('apply');
+  for(const [i,task] of editing.apply.entries()){
+   await workshop(page,task);
+   if(i<editing.apply.length-1)await page.getByRole('button',{name:'Next task →'}).press('Enter');
+  }
+  assert.equal(await page.locator('.wa-stage-tab[data-stage=apply]').getAttribute('data-complete'),'true');
+  await capture(page,'editing-apply',width,height);
+  await go('practise');
+  assert.equal(await page.locator('.wa-apply-editor textarea').inputValue(),editing.gold[1].example);
+  await page.getByRole('button',{name:/Compare with an example/}).press('Enter');
+  await page.locator('.wa-apply-comparison textarea').nth(1).fill('The recommendation connects the clear strengths and the later difficulty.');
+  for(const check of await page.locator('.wa-apply-check input').all())await check.check();
+  assert.match(await page.locator('.wa-practise-card[data-level=gold]').innerText(),/Complete/);
+  await page.getByRole('button',{name:'← Previous Gold task'}).press('Enter');
+  assert.equal(await page.getByRole('textbox',{name:'Revise your response'}).inputValue(),editingGoldRevision);
+  await capture(page,'editing-gold',width,height);
+  await go('master');
+  await finishAnalysis(page,editing.analysis);
+  assert.match(await page.locator('.wa-master-question').innerText(),/1 \/ 1 objective decisions correct/);
+  const masterRevision=await workshop(page,editing.master);
+  assert.equal(await page.locator('.wa-stage-tab[data-stage=master]').getAttribute('data-complete'),'true');
+  await go('discover');
+  await go('master');
+  assert.equal(await page.getByRole('textbox',{name:'Revise your response'}).inputValue(),masterRevision);
+  await capture(page,'editing-master',width,height);
   await page.getByText('Write a full review in Writing Studio',{exact:true}).click();
   await page.getByRole('button',{name:'Open Writing Studio →'}).click();
   await page.locator('.wa-workspace').waitFor();
