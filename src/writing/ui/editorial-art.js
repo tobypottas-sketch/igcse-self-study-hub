@@ -23,7 +23,13 @@ export const reviewArtwork = {
         art('stage-master', [256, 512])
       ]
     },
+    development: {
+      card: {name:'development-card',format:'svg',dimensions:[240,160]},
+      banner: structure,
+      stages: [art('stage-discover',[256,512]),art('stage-explore',[256,512]),practise,practise,art('stage-master',[256,512])]
+    },
     expression: {
+      card: {name:'expression-card',format:'svg',dimensions:[240,160]},
       banner: art('vocabulary-expression', [256, 512], [1672, 941]),
       stages: [
         expressionStage('expression-discover'),
@@ -56,8 +62,12 @@ export function renderArtwork(parent, artwork, placement) {
   img.loading = placement === 'card' ? 'lazy' : 'eager';
   if (['hero', 'studio-hero'].includes(placement)) img.fetchPriority = 'high';
   img.sizes = artwork.sizes ?? sizes[placement];
-  img.srcset = widths.map(width => `${url(width)} ${width}w`).join(', ');
-  img.src = url(widths[0]);
+  if (artwork.format === 'svg') {
+    img.src = new URL(`../../../assets/writing/${name}.svg`, import.meta.url).href;
+  } else {
+    img.srcset = widths.map(width => `${url(width)} ${width}w`).join(', ');
+    img.src = url(widths[0]);
+  }
   parent.append(img);
   return img;
 }
