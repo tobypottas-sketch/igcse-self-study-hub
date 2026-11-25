@@ -6,7 +6,7 @@ const choice = (prompt, answer, ...alternatives) => ({
 });
 const lesson = (prompt, before, after, principle) => ({prompt, before, after, principle});
 const activity = (id, level, title, items, type = 'choice') => ({id, level, title, items, type});
-const writing = (title, prompt, question, example, checks, min = 18) => ({title, prompt, question, example, checks, min});
+const writing = (title, prompt, question, example, checks, min = 18) => ({title, prompt, question, example, checks, min, allowKeep:true});
 
 export const pathways = {
  structure: {

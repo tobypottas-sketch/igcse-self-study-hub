@@ -151,8 +151,9 @@ try{
   await checkArtwork(page,'banner','structure-organisation');
   await captureStage(page,'Discover','stage-discover',width,height);
   for(let index=0;index<3;index++){
-   await page.locator('.wa-discovery summary').click();
-   await page.locator('.wa-discovery details[open]').waitFor();
+   await page.locator('.wa-discovery textarea').fill('The revised version groups the related details more clearly.');
+   await page.getByRole('button',{name:'Check what changed'}).click();
+   assert.equal(await page.locator('.wa-discovery textarea').getAttribute('readonly'),'');
    if(index<2)await page.getByRole('button',{name:'Next contrast →'}).click();
   }
   await page.locator('.wa-stage-tab[data-stage=discover][data-complete=true]').waitFor();
@@ -190,7 +191,7 @@ try{
   const applied=await workshop(page,pathways.structure.apply[0]);
   await go('master');
   await go('apply');
-  assert.equal(await page.locator('.wa-apply-comparison textarea').inputValue(),applied);
+  assert.equal(await page.getByRole('textbox',{name:'Revise your response'}).inputValue(),applied);
   await captureStage(page,'Apply','stage-practise',width,height);
   await go('master');
   await captureStage(page,'Master','stage-master',width,height);
@@ -513,7 +514,9 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await go('master');
   assert.equal(await page.getByRole('textbox',{name:'Your review'}).inputValue(),mockText);
   assert.equal(await page.getByRole('textbox',{name:'Your review'}).getAttribute('readonly'),'');
+  assert.equal(await page.getByRole('textbox',{name:'Planning notes (optional)'}).getAttribute('readonly'),'');
   await page.getByRole('button',{name:'Continue in overtime'}).press('Enter');
+  assert.equal(await page.getByRole('textbox',{name:'Planning notes (optional)'}).getAttribute('readonly'),null);
   assert.equal(await page.getByRole('textbox',{name:'Your review'}).getAttribute('readonly'),null);
   await page.getByRole('button',{name:'Submit response'}).press('Enter');
   assert.equal(await page.locator('.wa-apply-model').count(),0);

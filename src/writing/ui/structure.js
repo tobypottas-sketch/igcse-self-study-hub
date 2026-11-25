@@ -1,15 +1,15 @@
-import {exam,examModels,examMocks,modelContext} from '../content/review-exam.js';
+import {exam,examModels,examMocks,modelContext} from '../content/review-exam.js?v=2';
 import {newExamAttempt} from '../engine/exam-attempt.js';
-import {renderExamWorkshop} from './exam-workshop.js';
-import {editing,editingModels} from '../content/review-editing.js';
-import {cohesion,cohesionModels} from '../content/review-cohesion.js';
+import {renderExamWorkshop} from './exam-workshop.js?v=2';
+import {editing,editingModels} from '../content/review-editing.js?v=2';
+import {cohesion,cohesionModels} from '../content/review-cohesion.js?v=2';
 import * as development from '../content/review-development-v1.js';
 import * as expression from '../content/review-expression-v1.js';
 import {extraReviewModels} from '../content/review-explore-models.js?v=1';
 import {mountLesson,el,action} from './lesson-shell.js?v=13';
 import {reviewArtwork} from './editorial-art.js?v=9';
 import {companions} from '../content/review-active-v2.js';
-import {pathways} from '../content/review-pedagogy.js';
+import {pathways} from '../content/review-pedagogy.js?v=2';
 import {newWritingRun,renderResponseWorkshop} from './response-workshop.js?v=3';
 import {guidedTask,independentTask,toolkit} from '../content/review-guided-v1.js';
 import {blueprint,model} from '../content/review-structure-v1.js';
@@ -174,7 +174,7 @@ function renderPathway(root,onBack,onStudio,config=null){
    state.discovered.add(n);
    if(state.discovered.size===course.discover.length)ctx.complete();
   }
-  if(editorialModels){
+  {
    const label=el(host,'label','wa-apply-instruction','Write a short observation.');
    const response=el(label,'textarea','wa-writing-input wa-apply-input');
    response.rows=2;
@@ -197,15 +197,6 @@ function renderPathway(root,onBack,onStudio,config=null){
    });
    reveal.hidden=response.readOnly;
    if(response.readOnly)feedback.textContent=item.principle;
-  }else{
-  const explanation=el(host,'details','wa-explore-brief');
-  const summary=el(explanation,'summary','','Check what changed');
-  el(explanation,'p','',item.principle);
-  explanation.open=state.discovered.has(n);
-  summary.onclick=()=>{
-   if(explanation.open)return;
-   recordReflection();
-  };
   }
   const controls=el(host,'div','wa-stage-foot');
   const prev=action(controls,'← Previous contrast',()=>{state.discoveryIndex--;draw().focus();});

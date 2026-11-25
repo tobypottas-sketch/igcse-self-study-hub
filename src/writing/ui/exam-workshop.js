@@ -84,7 +84,7 @@ export function renderExamWorkshop(host,task,attempt,{passes,onProgress,onStudio
    const list=el(details,'ul','');
    for(const item of ['Identify the reader and purpose.','Select evidence for each required judgement.','Link your recommendation to your evaluation.'])el(list,'li','',item);
   }
-  field(host,'Planning notes (optional)',3,attempt.notes,value=>{attempt.notes=value;});
+  const notes=field(host,'Planning notes (optional)',3,attempt.notes,value=>{attempt.notes=value;});
   const response=field(host,'Your review',9,attempt.draft,value=>{attempt.draft=value;updateCount();});
   if(master||task.timer)response.spellcheck=false;
   const stats=el(host,'div','wa-exam-stats');
@@ -121,6 +121,7 @@ export function renderExamWorkshop(host,task,attempt,{passes,onProgress,onStudio
    if(expiry.textContent!==notice)expiry.textContent=notice;
    overtime.hidden=!expired||attempt.overtime;
    response.readOnly=expired&&!attempt.overtime;
+   notes.readOnly=response.readOnly;
   }
   updateCount();
   updateClock();
