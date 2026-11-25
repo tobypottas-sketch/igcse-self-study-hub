@@ -601,3 +601,33 @@
 #writingAcademy .wa-workspace .wa-plan-card-header{flex-wrap:nowrap}
 #writingAcademy .wa-workspace .wa-plan-card-copy{min-width:0}
 #writingAcademy .wa-workspace .wa-plan-card[data-filled=true]{border-color:var(--note-accent)}
+
+
+/* Studio interactive support tools */
+#writingAcademy .wa-phrase-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin:4px 0 10px}
+#writingAcademy .wa-workspace .wa-phrase-tab{font-size:.75rem;font-weight:650;padding:6px;text-align:center;min-height:36px;border:1px solid #ded8e8;border-radius:7px;color:#55436e;background:#fff}
+#writingAcademy .wa-workspace .wa-phrase-tab[aria-pressed=true]{background:#68519a;color:#fff;border-color:#68519a}
+#writingAcademy .wa-phrase-list{display:grid;gap:6px}
+#writingAcademy .wa-phrase-row{display:flex;align-items:center;justify-content:space-between;gap:7px;background:#f6f3fa;border-radius:8px;padding:8px;font-size:.8rem;line-height:1.4}
+#writingAcademy .wa-phrase-row>span{flex:1;min-width:0;user-select:text}
+#writingAcademy .wa-workspace .wa-phrase-use{flex:none;min-height:32px;padding:5px 7px;font-size:.69rem;border-color:#d8cfe7;border-radius:6px;color:#55436e}
+#writingAcademy .wa-phrase-status{font-size:.72rem;color:#17635f;margin:6px 0}
+#writingAcademy .wa-phrase-status:empty{display:none}
+#writingAcademy .wa-check-marks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:4px 0 12px}
+#writingAcademy .wa-check-marks:empty{display:none}
+#writingAcademy .wa-check-marks>div{display:grid;justify-items:center;background:#f5f2f8;border-radius:8px;padding:8px}
+#writingAcademy .wa-check-marks strong{font-size:1.45rem;color:#68519a;line-height:1.2}
+#writingAcademy .wa-check-marks span{font-size:.7rem;color:#526477}
+#writingAcademy .wa-check-header{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:.78rem}
+#writingAcademy .wa-check-header>span{color:#526477;font-variant-numeric:tabular-nums}
+#writingAcademy .wa-check-track{height:5px;background:#e3e8e8;border-radius:4px;overflow:hidden;margin:7px 0 10px}
+#writingAcademy .wa-check-track>span{display:block;height:100%;background:#08766e;border-radius:4px}
+#writingAcademy .wa-quick-checklist{display:grid;gap:4px;margin:0 0 10px}
+#writingAcademy .wa-quick-check{display:flex;align-items:flex-start;gap:8px;padding:7px 6px;border-radius:6px;font-size:.78rem;line-height:1.45;cursor:pointer}
+#writingAcademy .wa-quick-check input{accent-color:#08766e;width:16px;height:16px;flex:none;margin:1px 0 0}
+#writingAcademy .wa-quick-check:has(input:checked),#writingAcademy .wa-auto-check[data-done=true]{background:#e5f1ed;color:#17635f}
+#writingAcademy .wa-auto-check{cursor:default;color:#526477}
+#writingAcademy .wa-auto-icon{width:16px;flex:none;text-align:center;font-weight:700}
+#writingAcademy .wa-workspace .wa-studio-reference-detail{border-top:1px solid #e7e4ec}
+#writingAcademy .wa-workspace .wa-studio-reference-detail>summary{font-size:.75rem;color:#526477}
+#writingAcademy .wa-review-checklist .wa-action{font-size:.8rem;min-height:38px}
