@@ -14,11 +14,14 @@ async function checkArtwork(host, placement, name, ratio = 1.5) {
   await img.decode();
   const {width,height} = img.getBoundingClientRect();
   const source = new URL(img.currentSrc).pathname.split('/').pop();
-  return {source,width,height,fit:getComputedStyle(img).objectFit,intrinsicWidth:img.naturalWidth};
+  const style = getComputedStyle(img);
+  const paddingX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+  const paddingY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+  return {source,width,height,ratio:(width-paddingX)/(height-paddingY),fit:style.objectFit,intrinsicWidth:img.naturalWidth};
  });
  assert.match(info.source,new RegExp('^'+name+'-\\d+\\.webp$'));
  assert.ok(info.intrinsicWidth > 0);
- assert.ok(Math.abs(info.width/info.height - ratio) < .03,JSON.stringify(info));
+ assert.ok(Math.abs((ratio === expressionRatio ? info.ratio : info.width/info.height) - ratio) < .03,JSON.stringify(info));
  assert.equal(info.fit,'contain');
 }
 
@@ -107,21 +110,22 @@ try{
   await page.getByRole('button',{name:/02 · Explore/}).press('Enter');
   assert.ok(await page.locator('.wa-stage-title').evaluate(node=>node===document.activeElement));
   await captureStage(page,'Explore','stage-explore',width,height);
-  await page.locator('#wa-model-select').selectOption('1');
+  await page.locator('.wa-explore-picker-trigger').click();
+  await page.getByRole('button',{name:/Willow Kitchen/}).click();
   assert.equal(await page.locator('.wa-model-text').count(),1);
+  await page.locator('.wa-move-options').getByRole('button',{name:/Introduction/}).click();
+  assert.match(await page.locator('.wa-answer').innerText(),/^Correct/);
   await page.locator('.wa-phrase').first().click();
   assert.equal(await page.locator('.wa-phrase').first().getAttribute('aria-pressed'),'true');
-  await page.locator('.wa-move-options').getByRole('button',{name:'Introduction',exact:true}).click();
-  assert.match(await page.locator('.wa-answer').innerText(),/^Correct/);
   await page.getByRole('button',{name:'Next paragraph →'}).click();
   assert.match(await page.locator('.wa-model-text').innerText(),/grilled chicken/);
   await page.getByRole('button',{name:/03 · Practise/}).click();
-  await page.getByRole('button',{name:'Bronze · Match purpose to paragraph'}).click();
+  await page.getByRole('button',{name:/Match purpose to paragraph/}).click();
   await captureStage(page,'Practise','stage-practise',width,height);
   await page.locator('.wa-options').getByRole('button',{name:'Introduction',exact:true}).click();
   await page.getByRole('button',{name:'Check answer'}).click();
   assert.match(await page.locator('.wa-question .wa-answer').innerText(),/^Correct/);
-  await page.getByRole('button',{name:'Bronze · Sequence a review'}).click();
+  await page.getByRole('button',{name:/Sequence a review/}).click();
   for(const n of [2,1,3,0])await page.locator('.wa-options button').nth(n).click();
   await page.getByRole('button',{name:'Check answer'}).click();
   assert.match(await page.locator('.wa-question .wa-answer').innerText(),/^Correct/);
@@ -146,7 +150,7 @@ try{
   assert.equal(await page.locator('#wa-note-reason').getAttribute('placeholder'),'');
   assert.equal(await page.locator('.wa-plan-card p').count(),5);
   await page.getByRole('button',{name:'Gold',exact:true}).press('Enter');
-  assert.equal(await page.locator('.wa-plan-card p').count(),0);
+  assert.equal(await page.locator('.wa-plan-guidance[aria-hidden=true]').count(),5);
   await page.getByRole('button',{name:'Bronze',exact:true}).press('Enter');
   assert.equal(await page.locator('.wa-plan-card').count(),5);
   assert.match(await page.locator('#wa-note-reason').getAttribute('placeholder'),/I went because/);
@@ -157,9 +161,9 @@ try{
    feature2:'Noisy dining room made it hard to talk',
    recommendation:'Good for groups. Book a courtyard table for a quieter meal.'
   })) await page.locator('#wa-note-'+field).fill(note);
-  await page.locator('.wa-brief summary').filter({hasText:'Full exam task'}).press('Enter');
-  assert.ok(await page.locator('.wa-brief details[open] p').isVisible());
-  await page.locator('.wa-brief summary').filter({hasText:'Full exam task'}).press('Enter');
+  await page.locator('.wa-studio-resource > summary').filter({hasText:'Full exam task'}).press('Enter');
+  assert.ok(await page.locator('.wa-studio-resource[open]').filter({hasText:'Full exam task'}).locator('p').isVisible());
+  await page.locator('.wa-studio-resource > summary').filter({hasText:'Full exam task'}).press('Enter');
   await checkArtwork(page,'studio-hero','studio-neon-focus',1);
   await checkArtwork(page,'studio-context','studio-creative-flow',1);
   if(width<700) await companion.locator(':scope > summary').click();
@@ -184,11 +188,11 @@ The grilled chicken was juicy and came with a generous portion of chips. Our ser
 
 I would recommend Willow Kitchen to groups of friends who want a lively meal at a reasonable price. If you prefer a quieter setting, ask for a table in the courtyard. The food was worth a second visit, and next time I would try to book an outdoor table before going. It is only a five-minute walk from the school gate.`;
   await editor.fill(original);
-  await page.getByRole('button',{name:'Focus mode',exact:true}).press('Enter');
+  await page.getByRole('button',{name:'Focus',exact:true}).press('Enter');
   assert.equal(await companion.isVisible(),false);
-  await page.locator('.wa-focus-brief summary').press('Enter');
-  assert.ok(await page.locator('.wa-focus-brief p').isVisible());
-  await page.getByRole('button',{name:'Exit focus mode',exact:true}).press('Enter');
+  await page.getByRole('button',{name:'Exam task',exact:true}).press('Enter');
+  assert.ok(await page.locator('.wa-write-quick-reference section:not([hidden])').isVisible());
+  await page.getByRole('button',{name:'Exit focus',exact:true}).press('Enter');
   await editor.evaluate(node=>{node.scrollTop=0;});
   await capture(page,'studio-write',width,height);
   await page.getByRole('button',{name:'Review my writing →'}).click();
@@ -203,13 +207,16 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await page.reload();
   await page.getByRole('button',{name:'Open Writing Studio →'}).click();
   if(width<700) await companion.locator(':scope > summary').click();
-  await page.getByRole('button',{name:'Write',exact:true}).click();
+  await page.getByRole('button',{name:/02\s*Write/}).click();
   assert.equal(await editor.inputValue(),revised);
   await page.getByText('My planning notes',{exact:true}).click();
   assert.match(await companion.innerText(),/To celebrate with friends/);
   await page.getByRole('button',{name:'Review my writing →'}).click();
-  assert.deepEqual(await page.locator('.wa-revision-card p').allTextContents(),[original,revised]);
-  assert.equal(await page.locator('.wa-check input').count(),4);
+  assert.equal(await page.locator('.wa-review-prose').textContent(),revised);
+  await page.getByRole('button',{name:'Original',exact:true}).click();
+  assert.equal(await page.locator('.wa-review-prose').textContent(),original);
+  await page.getByRole('button',{name:'Revised',exact:true}).click();
+  assert.equal(await page.locator('.wa-quick-check input').count(),6);
   await checkArtwork(page,'studio-context','studio-creative-flow',1);
   if(width<700) await companion.locator(':scope > summary').click();
   await capture(page,'studio-review',width,height);
@@ -217,11 +224,11 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   const clear=page.getByRole('button',{name:/Clear this task/});
   page.once('dialog',dialog=>dialog.dismiss());
   await clear.click();
-  assert.deepEqual(await page.locator('.wa-revision-card p').allTextContents(),[original,revised]);
+  assert.equal(await page.locator('.wa-review-prose').textContent(),revised);
   page.once('dialog',dialog=>dialog.accept());
   await clear.click();
   assert.equal(await page.locator('#wa-note-reason').inputValue(),'');
-  await page.getByRole('button',{name:'Write',exact:true}).click();
+  await page.getByRole('button',{name:/02\s*Write/}).click();
   assert.equal(await editor.inputValue(),'');
   assert.deepEqual(errors,[]);
   console.log(width,height,layout);
