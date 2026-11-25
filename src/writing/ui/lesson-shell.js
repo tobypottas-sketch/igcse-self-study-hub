@@ -34,7 +34,7 @@ export function mountLesson(root,{title,pathwayNumber='01',artwork,onBack,refere
   if (illustration) renderArtwork(side, illustration, 'stage');
   if(companions[i]){const [title,tip,think]=companions[i];const guide=el(side,'div','wa-companion-guide');el(guide,'p','wa-kicker','WRITING TOOLKIT');el(guide,'h3','',title);const hints=el(guide,'details','');el(hints,'summary','','Show a hint');el(hints,'p','',tip);el(guide,'p','wa-muted',think);}
   const activity = el(body, 'div', 'wa-stage-activity');
-  renderStage(activity, i, {complete: () => { complete.add(i); sync(); }, go: show, incomplete:()=>{complete.delete(i);sync();}});
+  renderStage(activity, i, {complete: () => { complete.add(i); sync(); }, go: show, allComplete:()=>complete.size===stages.length, incomplete:()=>{complete.delete(i);sync();}});
 
   if (i > 0) action(foot, '← Previous stage', () => show(i - 1));
   if (i < stages.length - 1) action(foot, 'Next stage →', () => show(i + 1), 'wa-action wa-next');

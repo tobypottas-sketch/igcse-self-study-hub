@@ -155,3 +155,50 @@ test('Editing practice validates answer mappings and all model writing lengths',
  assert.ok(draft>=120&&draft<=160);
  assert.equal(editing.master.checks.length,4);
 });
+
+import {exam,examMocks,examModels,modelContext} from '../src/writing/content/review-exam.js';
+import {deadlineFor,newExamAttempt,remainingSeconds,submitExamAttempt} from '../src/writing/engine/exam-attempt.js';
+
+test('Exam Mastery content covers eight models and all independent task types',()=>{
+ const models=[model,{...guidedTask,title:'Willow Kitchen'},...extraReviewModels];
+ assert.equal(Object.values(examModels).flat().length,30);
+ for(const entry of models){
+  assert.equal(modelContext[entry.title].length,2);
+  assert.equal(examModels[entry.title].length,entry.paragraphs.length);
+  examModels[entry.title].forEach((note,i)=>assert.ok(entry.paragraphs[i].includes(note.phrase)));
+ }
+ assert.equal(exam.discover.length,5);
+ assert.equal(exam.passes.length,4);
+ assert.equal(exam.analysis.length,3);
+ assert.deepEqual(exam.practice.map(card=>card.items.length),[4,4,4,4]);
+ validateActivities([...exam.practice,{id:'exam-checkpoint',type:'choice',items:exam.analysis}]);
+ assert.equal(exam.gold.length,2);
+ for(const task of exam.gold)validateWritingTask(task);
+ const tasks=[...exam.apply,...examMocks];
+ assert.equal(exam.apply.length,3);
+ assert.equal(examMocks.length,4);
+ assert.equal(new Set(tasks.map(task=>task.id)).size,tasks.length);
+ for(const task of tasks){
+  const count=task.example.trim().split(/\s+/).length;
+  assert.ok(count>=120&&count<=160,task.title+': '+count);
+ }
+});
+
+test('Exam deadline survives elapsed time and short submissions preserve an immutable original',()=>{
+ const start=1000;
+ const deadline=deadlineFor(start);
+ assert.equal(remainingSeconds(deadline,start),1200);
+ assert.equal(remainingSeconds(deadline,start+73000),1127);
+ assert.equal(remainingSeconds(deadline,deadline+10000),0);
+ const attempt=newExamAttempt();
+ attempt.started=true;
+ attempt.deadline=deadline;
+ assert.equal(submitExamAttempt(attempt,start),false);
+ attempt.draft='A short original response.';
+ assert.equal(submitExamAttempt(attempt,deadline),true);
+ assert.equal(attempt.submitted.expired,true);
+ attempt.revision='A new version.';
+ assert.equal(submitExamAttempt(attempt,deadline+2000),false);
+ assert.equal(attempt.submitted.text,'A short original response.');
+ assert.equal(attempt.revision,'A new version.');
+});

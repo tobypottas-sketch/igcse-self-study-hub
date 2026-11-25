@@ -1,3 +1,4 @@
+import {exam,examModels} from '../src/writing/content/review-exam.js';
 import {editing,editingModels} from '../src/writing/content/review-editing.js';
 import {cohesion} from '../src/writing/content/review-cohesion.js';
 import assert from 'node:assert/strict';
@@ -431,6 +432,106 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await capture(page,'editing-master',width,height);
   await page.getByText('Write a full review in Writing Studio',{exact:true}).click();
   await page.getByRole('button',{name:'Open Writing Studio →'}).click();
+  await page.locator('.wa-workspace').waitFor();
+  assert.deepEqual(errors,[]);
+  await page.getByRole('button',{name:'← Academy'}).click();
+  await page.locator('.wa-path.wa-exam').getByRole('button',{name:'Start pathway →'}).press('Enter');
+  assert.equal(await page.locator('.wa-lesson-banner h1').innerText(),'Exam Mastery');
+  await checkArtwork(page,'banner','structure-organisation');
+  for(let index=0;index<exam.discover.length;index++){
+   await page.locator('.wa-discovery textarea').fill('The second version relates its evidence to the audience.');
+   await page.getByRole('button',{name:'Check what changed'}).press('Enter');
+   if(index<exam.discover.length-1)await page.getByRole('button',{name:'Next contrast →'}).press('Enter');
+  }
+  await go('explore');
+  for(const title of Object.keys(examModels)){
+   await page.locator('.wa-explore-picker-trigger').press('Enter');
+   await page.locator('.wa-explore-model-choice').filter({hasText:title}).click();
+   assert.equal(await page.locator('.wa-explore-headline').innerText(),title);
+   assert.match(await page.locator('.wa-explore-brief').innerText(),/Audience:/);
+   await page.locator('.wa-explore-question textarea').fill('The opening establishes a specific subject relevant to school readers.');
+   await page.getByRole('button',{name:'Compare with the editor’s note'}).press('Enter');
+  }
+  assert.equal(await page.locator('.wa-stage-tab[data-stage=explore]').getAttribute('data-complete'),'true');
+  await capture(page,'exam-explore',width,height);
+  await go('practise');
+  for(const card of exam.practice){
+   await page.getByRole('button',{name:new RegExp(card.title)}).press('Enter');
+   for(const [index,item] of card.items.entries()){
+    await page.locator('.wa-practise-question [data-option="'+item.answer+'"]').press('Enter');
+    await page.getByRole('button',{name:'Check answer'}).press('Enter');
+    assert.ok(await page.locator('.wa-practise-question .wa-answer li').filter({hasText:item.rationale}).isVisible());
+    await page.getByRole('button',{name:index===card.items.length-1?'Finish analysis':'Next question'}).press('Enter');
+   }
+  }
+  await page.getByRole('button',{name:/Plan independently/}).press('Enter');
+  for(const [index,task] of exam.gold.entries()){
+   await page.locator('.wa-apply-editor textarea').fill(task.example);
+   await page.getByRole('button',{name:/Compare with an example/}).press('Enter');
+   assert.ok(await page.getByRole('heading',{name:'One possible plan'}).isVisible());
+   await page.getByRole('textbox',{name:'Revise your response'}).fill(task.example+'\nCheck recommendation against evidence');
+   for(const check of await page.locator('.wa-apply-check input').all())await check.check();
+   if(index===0)await page.getByRole('button',{name:'Next Gold task →'}).press('Enter');
+  }
+  assert.equal(await page.locator('.wa-stage-tab[data-stage=practise]').getAttribute('data-complete'),'true');
+  await capture(page,'exam-planning',width,height);
+  await go('apply');
+  const reflection=['One strength in your content','One improvement to your language or organisation','One specific target for your next review'];
+  async function reflect(){
+   for(const label of reflection)await page.getByRole('textbox',{name:label}).fill('Use specific details');
+   for(const check of await page.locator('.wa-exam-review input[type=checkbox]').all())await check.check();
+  }
+  for(const [index,task] of exam.apply.entries()){
+   assert.equal(await page.getByText('Planning checklist',{exact:true}).count(),index===0?1:0);
+   if(task.timer)await page.getByRole('button',{name:'Start untimed practice'}).press('Enter');
+   await page.getByRole('textbox',{name:'Planning notes (optional)'}).fill('price and evidence');
+   await page.getByRole('textbox',{name:'Your review'}).fill(task.example);
+   await page.getByRole('button',{name:'Submit response'}).press('Enter');
+   assert.ok(await page.getByRole('heading',{name:'Submitted response'}).isVisible());
+   await reflect();
+   if(index<exam.apply.length-1)await page.getByRole('button',{name:'Next task →',exact:true}).press('Enter');
+  }
+  assert.equal(await page.locator('.wa-stage-tab[data-stage=apply]').getAttribute('data-complete'),'true');
+  await capture(page,'exam-apply',width,height);
+  await go('master');
+  for(const [index,item] of exam.analysis.entries()){
+   await page.locator('.wa-master-question [data-option="'+item.answer+'"]').press('Enter');
+   await page.getByRole('button',{name:'Check answer'}).press('Enter');
+   await page.getByRole('button',{name:index===exam.analysis.length-1?'Finish analysis':'Next question'}).press('Enter');
+  }
+  assert.match(await page.locator('.wa-master-question').innerText(),/3 \/ 3 objective decisions correct/);
+  await page.clock.install();
+  await page.getByRole('button',{name:'Start 20-minute practice'}).press('Enter');
+  const mockText='I visited a market with my friends.';
+  await page.getByRole('textbox',{name:'Your review'}).fill(mockText);
+  assert.equal(await page.locator('.wa-apply-model').count(),0);
+  assert.equal(await page.locator('.wa-reference-disclosure').isVisible(),false);
+  assert.equal(await page.locator('.wa-companion-guide').isVisible(),false);
+  await capture(page,'exam-mock-writing',width,height);
+  await go('discover');
+  await page.clock.fastForward(1200000);
+  await go('master');
+  assert.equal(await page.getByRole('textbox',{name:'Your review'}).inputValue(),mockText);
+  assert.equal(await page.getByRole('textbox',{name:'Your review'}).getAttribute('readonly'),'');
+  await page.getByRole('button',{name:'Continue in overtime'}).press('Enter');
+  assert.equal(await page.getByRole('textbox',{name:'Your review'}).getAttribute('readonly'),null);
+  await page.getByRole('button',{name:'Submit response'}).press('Enter');
+  assert.equal(await page.locator('.wa-apply-model').count(),0);
+  await page.getByRole('button',{name:'Submit anyway'}).press('Enter');
+  assert.ok(await page.getByText('Submitted after practice time elapsed',{exact:false}).isVisible());
+  await reflect();
+  assert.match(await page.locator('.wa-exam-review').innerText(),/Academy learning programme complete/);
+  assert.equal(await page.locator('.wa-stage-tab[data-stage=master]').getAttribute('data-complete'),'true');
+  await page.getByText('Revise your response (optional)',{exact:true}).press('Enter');
+  await page.getByRole('textbox',{name:'Revised response'}).fill('My revised draft.');
+  assert.ok(await page.getByText(mockText,{exact:true}).isVisible());
+  await capture(page,'exam-mock-reflection',width,height);
+  await page.getByRole('combobox',{name:'Mock review task'}).selectOption('1');
+  await page.getByRole('button',{name:'Start untimed practice'}).press('Enter');
+  assert.equal(await page.getByRole('textbox',{name:'Your review'}).inputValue(),'');
+  await page.getByRole('combobox',{name:'Mock review task'}).selectOption('0');
+  assert.ok(await page.getByText(mockText,{exact:true}).isVisible());
+  await page.getByRole('button',{name:'Open Writing Studio →'}).press('Enter');
   await page.locator('.wa-workspace').waitFor();
   assert.deepEqual(errors,[]);
   console.log(width,height,layout);
