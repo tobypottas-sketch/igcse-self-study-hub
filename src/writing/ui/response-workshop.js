@@ -1,8 +1,8 @@
-import {hasWritingAttempt, validateWritingTask, writingComplete} from '../engine/activities.js?v=2';
+import {hasWritingAttempt, validateWritingTask, writingComplete} from '../engine/activities.js?v=3';
 import {el, action} from './lesson-shell.js?v=12';
 
 export function newWritingRun() {
- return {draft:'', original:'', revision:'', checks:new Set()};
+ return {draft:'', original:'', revision:'', keepReason:'', checks:new Set()};
 }
 
 export function renderResponseWorkshop(host, task, run, onProgress) {
@@ -36,6 +36,14 @@ export function renderResponseWorkshop(host, task, run, onProgress) {
   const revision = el(revisionLabel,'textarea','wa-writing-input wa-apply-input');
   revision.rows = 4;
   revision.value = run.revision;
+  let reason;
+  if(task.allowKeep){
+   const label=el(panel,'label','wa-apply-instruction','Keeping your draft? Explain how one specific choice meets a checklist criterion (at least 8 words).');
+   reason=el(label,'textarea','wa-writing-input wa-apply-input');
+   reason.rows=2;
+   reason.value=run.keepReason;
+   reason.oninput=()=>{run.keepReason=reason.value;sync();};
+  }
   const checklist = el(panel,'div','wa-apply-checklist');
   const inputs = task.checks.map((criterion,index) => {
    const row = el(checklist,'label','wa-check wa-apply-check');
@@ -54,11 +62,12 @@ export function renderResponseWorkshop(host, task, run, onProgress) {
   result.setAttribute('role','status');
   function sync() {
    const complete = writingComplete(run,task);
-   result.textContent = complete ? 'Writing and reflection complete.' : 'Make a change to your draft and review each criterion.';
+   result.textContent = complete ? 'Writing and reflection complete.' : (task.allowKeep?'Revise or justify keeping your draft, then review each criterion.':'Make a change to your draft and review each criterion.');
    onProgress(complete);
   }
   revision.oninput = () => {
    run.revision = revision.value;
+   if(reason){run.keepReason='';reason.value='';}
    run.checks.clear();
    inputs.forEach(input => { input.checked = false; });
    sync();

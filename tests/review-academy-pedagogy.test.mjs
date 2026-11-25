@@ -64,3 +64,50 @@ test('repeated filler, an unchanged revision and unchecked criteria cannot compl
  assert.ok(!writingComplete({original,revision,checks:new Set()},task));
  assert.ok(writingComplete({original,revision,checks},task));
 });
+
+import {cohesion, cohesionModels} from '../src/writing/content/review-cohesion.js';
+
+test('Grammar & Cohesion covers all model paragraphs with grounded investigation prompts',()=>{
+ const models=[model,{...guidedTask,title:'Willow Kitchen'},...extraReviewModels];
+ assert.equal(cohesion.discover.length,5);
+ assert.equal(Object.keys(cohesionModels).length,models.length);
+ for(const entry of models){
+  const investigations=cohesionModels[entry.title];
+  assert.equal(investigations.length,entry.paragraphs.length);
+  investigations.forEach((investigation,index)=>{
+   assert.ok(entry.paragraphs[index].includes(investigation.phrase),entry.title+': '+investigation.phrase);
+   assert.ok(investigation.prompt && investigation.rationale);
+   assert.ok(investigation.min<10);
+  });
+ }
+});
+
+test('Grammar & Cohesion has balanced practice, feedback and valid writing tasks',()=>{
+ const activities=[...cohesion.practice,{id:'cohesion-analysis',type:'choice',items:[cohesion.analysis]}];
+ validateActivities(activities);
+ assert.deepEqual(cohesion.practice.map(a=>[a.level,a.items.length]),[['Bronze',4],['Bronze',4],['Silver',4],['Silver',4]]);
+ assert.equal(cohesion.gold.length,2);
+ assert.equal(cohesion.apply.length,3);
+ for(const task of [...cohesion.gold,...cohesion.apply,cohesion.master])validateWritingTask(task);
+ const items=activities.flatMap(a=>a.items);
+ assert.equal(new Set(items.map(item=>item.prompt)).size,items.length);
+ for(const item of items){
+  assert.equal(item.explanations.length,item.options.length);
+  assert.equal(item.rationale,item.explanations[item.answer]);
+  for(const index of shuffledIndexes(item.options.length,()=>0.1)){
+   assert.equal(scoreItem(item,index),index===item.answer);
+  }
+ }
+});
+
+test('Cohesion workshops allow punctuation edits or a reasoned decision to keep the draft',()=>{
+ const task=cohesion.gold[0];
+ const original=task.example;
+ const checks=new Set(task.checks.map((_,index)=>index));
+ const run={original,revision:original,checks};
+ assert.ok(!writingComplete(run,task));
+ assert.ok(!writingComplete({...run,revision:original.replace('Friday, we','Friday,  we')},task));
+ assert.ok(writingComplete({...run,revision:original.replace('friendly. However,','friendly; however,')},task));
+ assert.ok(!writingComplete({...run,keepReason:'It is fine'},task));
+ assert.ok(writingComplete({...run,keepReason:'The final relative clause explains the consequence of our delay.'},task));
+});
