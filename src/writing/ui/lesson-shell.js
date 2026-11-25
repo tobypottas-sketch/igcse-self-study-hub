@@ -18,6 +18,9 @@ export function mountLesson(root,{title,pathwayNumber='01',artwork,onBack,refere
  let current=0;const complete=new Set();const tabs=[];
  function sync(){fill.style.width=(complete.size/stages.length*100)+'%';progress.textContent=complete.size+' of '+stages.length+' stages completed · this visit';tabs.forEach((b,i)=>{b.setAttribute('aria-current',i===current?'step':'false');b.dataset.complete=String(complete.has(i));b.dataset.stage=stages[i].toLowerCase();b.textContent=(complete.has(i)?'✓ ':String(i+1).padStart(2,'0')+' · ')+stages[i];});}
  function show(i, focus = true) {
+  const win=root.ownerDocument.defaultView;
+  const anchor=strip.getBoundingClientRect().top;
+  const wasVisible=anchor>=0&&anchor<win.innerHeight;
   current = i;
   body.replaceChildren();
   foot.replaceChildren();
@@ -37,7 +40,7 @@ export function mountLesson(root,{title,pathwayNumber='01',artwork,onBack,refere
   if (i < stages.length - 1) action(foot, 'Next stage →', () => show(i + 1), 'wa-action wa-next');
   if (focus) {
    heading.focus({preventScroll:true});
-   root.ownerDocument.defaultView.scrollTo(0, 0);
+   if(wasVisible){win.scrollBy({top:strip.getBoundingClientRect().top-anchor,behavior:'instant'});}else{strip.scrollIntoView({block:'start',behavior:'instant'});}
   }
  }
  stages.forEach((s,i)=>tabs.push(action(strip,s,()=>show(i),'wa-stage-tab')));show(0,false);
