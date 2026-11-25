@@ -25,7 +25,7 @@ export function renderStructure(root,onBack,onStudio){
  const practice=activities.filter(a=>a.level!=='Mastery check'),master=activities.find(a=>a.level==='Mastery check');
  function quiz(host,a,ctx){
   host.replaceChildren();let run=state.attempts.get(a.id);if(!run){run={index:0,correct:0,selected:null,order:[],checked:false,done:false};state.attempts.set(a.id,run);}
-  function draw(){host.replaceChildren();el(host,'p','wa-kicker',a.level+' / '+a.title);if(run.done){el(host,'h3','','Activity complete');el(host,'p','wa-score',run.correct+' / '+a.items.length+' correct');el(host,'p','wa-muted','Practice result, not a Cambridge grade.');action(host,'Try again',()=>{state.attempts.delete(a.id);ctx.incomplete();quiz(host,a,ctx);});return;}
+  function draw(){ctx.refresh?.();host.replaceChildren();el(host,'p','wa-kicker',a.level+' / '+a.title);if(run.done){el(host,'h3','','Activity complete');el(host,'p','wa-score',run.correct+' / '+a.items.length+' correct');el(host,'p','wa-muted','Practice result, not a Cambridge grade.');action(host,'Try again',()=>{state.attempts.delete(a.id);ctx.incomplete();quiz(host,a,ctx);});return;}
   const item=a.items[run.index];el(host,'p','wa-muted','Question '+(run.index+1)+' of '+a.items.length);el(host,'h3','wa-question-prompt',item.prompt);
   const options=el(host,'div','wa-options');const feedback=el(host,'p','wa-answer');feedback.setAttribute('role','status');
   item.options.forEach((text,i)=>{const position=run.order.indexOf(i);const b=action(options,(a.type==='order'&&position>=0?(position+1)+'. ':'')+text,()=>{if(a.type==='order')run.order.push(i);else run.selected=i;draw();const buttons=host.querySelectorAll('.wa-options button');if(!buttons[i].disabled)buttons[i].focus();else host.querySelector('.wa-options button:not(:disabled)')?.focus();},'wa-action wa-option');b.disabled=run.checked||(a.type==='order'&&position>=0);if(a.type==='choice')b.setAttribute('aria-pressed',String(run.selected===i));});
@@ -81,7 +81,17 @@ export function renderStructure(root,onBack,onStudio){
   const full=el(host,'details','wa-explore-full');el(full,'summary','','Read complete model');for(const p of m.paragraphs)el(full,'p','wa-explore-full-prose',p);el(full,'p','wa-muted','Original teaching model, not examiner-marked. '+m.paragraphs.join(' ').trim().split(/\s+/).length+' words.');
  }
  updatePicker();draw();
- }else if(i===2){el(body,'p','','Choose a short challenge. Complete all five to finish this stage.');const cards=el(body,'div','wa-activity-list');const host=el(body,'div','wa-question');practice.forEach(a=>action(cards,a.level+' · '+a.title,()=>{state.active=a.id;quiz(host,a,ctx);},'wa-action wa-challenge'));if(state.active)quiz(host,practice.find(a=>a.id===state.active),ctx);
+ }else if(i===2){
+ const desk=el(body,'div','wa-practise-desk');
+ el(desk,'p','wa-practise-intro','Choose a short challenge. Complete all five to finish this stage.');
+ const header=el(desk,'div','wa-practise-library-header');el(header,'span','wa-practise-eyebrow','CHALLENGE LIBRARY');const count=el(header,'span','wa-practise-count');
+ const cards=el(desk,'div','wa-practise-library');const host=el(desk,'div','wa-question wa-practise-question');
+ const icons=['◎','↕','✎','▤','✦'];const buttons=[];
+ function syncCards(){count.textContent=practice.filter(a=>state.attempts.get(a.id)?.done).length+' / '+practice.length+' complete';buttons.forEach((b,j)=>{const a=practice[j];b.setAttribute('aria-pressed',String(state.active===a.id));b.dataset.done=String(!!state.attempts.get(a.id)?.done);b.querySelector('.wa-practise-card-status').textContent=state.attempts.get(a.id)?.done?'✓ Complete':a.items.length+' question'+(a.items.length===1?'':'s');});}
+ const presentationCtx={...ctx,complete:()=>{ctx.complete();syncCards();},incomplete:()=>{ctx.incomplete();syncCards();},refresh:syncCards};
+ practice.forEach((a,j)=>{const b=action(cards,'',()=>{state.active=a.id;syncCards();quiz(host,a,presentationCtx);},'wa-action wa-practise-card');b.dataset.level=a.level.toLowerCase();const top=el(b,'span','wa-practise-card-top');el(top,'span','wa-practise-icon',icons[j]).setAttribute('aria-hidden','true');el(top,'span','wa-practise-level',a.level);el(b,'strong','wa-practise-card-title',a.title);el(b,'span','wa-practise-card-status');buttons.push(b);});
+ syncCards();if(state.active)quiz(host,practice.find(a=>a.id===state.active),presentationCtx);else{el(host,'p','wa-practise-empty','Select a challenge above to begin.');}
+ 
  }else if(i===3){
  const host=el(body,'div','wa-apply-work');
  function draw(){host.replaceChildren();const n=state.applyIndex,item=applicationTasks[n],run=state.applications[n];el(host,'p','wa-kicker','WRITING TASK '+(n+1)+' / '+applicationTasks.length);el(host,'h3','',item.title);el(host,'p','wa-weak-opinion',item.prompt);const l=el(host,'label','',item.question);l.htmlFor='wa-improvement';const input=el(host,'textarea','wa-writing-input');input.id=l.htmlFor;input.rows=4;input.value=run.written;input.placeholder='Write your own response…';const status=el(host,'p','wa-answer');status.setAttribute('role','status');
