@@ -1,3 +1,6 @@
+import {mountStudentFeedback,renderStudentFeedback} from '../../assessor/student-feedback.js?v=review-score-notes-v1';
+import {STUDENT_FEEDBACK_UI_ENABLED} from '../../assessor/student-feedback-flag.js';
+import {reviewTaskText} from '../../assessor/writing-app-adapters.js';
 import {reviewStudioConfig} from '../content/review-studio-config.js?v=3';
 import {createDraftStore,wordStatus} from '../engine/drafts.js';
 import {renderExamReference} from './structure.js?v=8';
@@ -5,8 +8,8 @@ import {renderArtwork,reviewArtwork} from './editorial-art.js?v=8';
 import {el as add,action as btn} from './lesson-shell.js?v=6';
 const support={Bronze:'Fully guided',Silver:'Some guidance',Gold:'Independent'};
 export function renderStudio(root,options){return renderWorkspace(root,{...options,config:reviewStudioConfig,reference:parent=>renderExamReference(parent,{includeToolkit:false}),artwork:reviewArtwork.studio});}
-export function renderWorkspace(root,{accountId,onBack,initialTask,initialMode,config,reference,artwork}){
- const {tasks,fields,min,max,answerLabel,answerPlaceholder}=config;let task=tasks.find(t=>t.id===initialTask)||tasks[0];let store,draft,status,saved=null,focusMode=false;const checkedByTask=new Map();let phraseCategory=0;
+export function renderWorkspace(root,{accountId,onBack,initialTask,initialMode,config,reference,artwork,feedbackClient,feedbackRole}){
+ const {tasks,fields,min,max,answerLabel,answerPlaceholder}=config;let task=tasks.find(t=>t.id===initialTask)||tasks[0];let store,draft,status,saved=null,focusMode=false;const checkedByTask=new Map();let phraseCategory=0;let coach=null;let coachObserver=null;
  const view=root.ownerDocument.defaultView;
  let storage;try{storage=root.ownerDocument.defaultView.localStorage;}catch{storage=null;}
  function load(){store=createDraftStore(storage,accountId,task);draft=store.load();saved=null;}
@@ -19,9 +22,10 @@ export function renderWorkspace(root,{accountId,onBack,initialTask,initialMode,c
  function save(){saved=store.save(draft);showSaveStatus();}
  function go(stage){draft.stage=stage;if(stage==='Review'&&draft.answer.trim()&&draft.original===null)draft.original=draft.answer;save();draw(true);}
  function draw(focus=false){
+ coachObserver?.disconnect();coachObserver=null;coach?.dispose();coach=null;
  const companionOpen=root.querySelector('.wa-companion')?.open??view.matchMedia('(min-width: 700px)').matches;
  root.replaceChildren();const shell=add(root,'div','wa-shell wa-studio wa-workspace');shell.dataset.focus=String(focusMode&&draft.stage==='Write');shell.dataset.stage=draft.stage.toLowerCase();
- const nav=add(shell,'nav','wa-nav');btn(nav,'← Academy',()=>{save();onBack();});add(nav,'span','wa-preview','Staff preview');
+ const nav=add(shell,'nav','wa-nav');btn(nav,'← Academy',()=>{coachObserver?.disconnect();coach?.dispose();save();onBack();});add(nav,'span','wa-preview','Staff preview');
  const hero=add(shell,'header','wa-studio-hero');const copy=add(hero,'div','');add(copy,'p','wa-kicker',config.genre.toUpperCase());add(copy,'h1','','The Writing Studio');add(copy,'p','wa-studio-tagline','Find your voice. Make every word count.');if(artwork?.hero)renderArtwork(hero,artwork.hero,'studio-hero');
  const top=add(shell,'div','wa-workspace-toolbar');const tabs=add(top,'nav','wa-workspace-tabs');tabs.setAttribute('aria-label','Writing stages');
  for(const [i,stage] of ['Plan','Write','Review'].entries()){const b=btn(tabs,'',()=>go(stage),'wa-workspace-tab');add(b,'span','wa-studio-step',String(i+1).padStart(2,'0'));add(b,'span','',stage);b.setAttribute('aria-pressed',String(draft.stage===stage));}
@@ -32,7 +36,7 @@ export function renderWorkspace(root,{accountId,onBack,initialTask,initialMode,c
  const label=add(brief,'label','','Writing task');label.htmlFor='wa-task';const sel=add(brief,'select','wa-writing-input');sel.id='wa-task';for(const t of tasks){const o=add(sel,'option','',t.title);o.value=t.id;}sel.value=task.id;sel.onchange=()=>{save();task=tasks.find(t=>t.id===sel.value);load();draw();root.querySelector('#wa-task').focus();};
  const mission=add(brief,'div','wa-studio-mission');add(mission,'p','wa-studio-eyebrow','YOUR MISSION');add(mission,'p','wa-studio-scenario',task.shortMission||task.scenario||task.prompt);const meta=add(mission,'div','wa-studio-brief-meta');add(meta,'span','',min+'–'+max+' words');add(meta,'span','',task.publication);
  const modes=add(companion,'section','wa-support-panel');add(modes,'h3','','Support level');const modebar=add(modes,'div','wa-studio-tabs');const modeButtons=[];
- const guidanceUpdates=[];const draftUpdates=[];let insertPhrase=null;
+ const guidanceUpdates=[];const draftUpdates=[];const checkUpdates=[];let insertPhrase=null;
  for(const m of Object.keys(support)){const b=btn(modebar,m,()=>{if(draft.mode===m)return;const sx=view.scrollX,sy=view.scrollY,sideY=sidebar.scrollTop;draft.mode=m;refreshSupport();save();view.scrollTo(sx,sy);sidebar.scrollTop=sideY;});b.dataset.mode=m;modeButtons.push(b);}
  const supportText=add(modes,'p','wa-muted');
  const help=add(companion,'section','wa-studio-help');add(help,'p','wa-studio-eyebrow','NEED A HAND?');
@@ -47,7 +51,7 @@ export function renderWorkspace(root,{accountId,onBack,initialTask,initialMode,c
  const checkHeader=add(exam,'div','wa-check-header');add(checkHeader,'strong','','Ready to finish?');const checkCount=add(checkHeader,'span','');
  const track=add(exam,'div','wa-check-track');track.setAttribute('role','progressbar');track.setAttribute('aria-label','Self-check progress');track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax',String(checks.length+1));const checkFill=add(track,'span','');
  const checklist=add(exam,'div','wa-quick-checklist');const checkInputs=[];
- function refreshChecks(){const within=wordStatus(draft.answer,min,max).status==='within';const total=checked.size+Number(within);checkCount.textContent=total+'/'+(checks.length+1);track.setAttribute('aria-valuenow',String(total));checkFill.style.width=(total/(checks.length+1)*100)+'%';for(const [i,input] of checkInputs.entries())input.checked=checked.has(i);wordCheck.dataset.done=String(within);wordIcon.textContent=within?'✓':'○';}
+ function refreshChecks(){const within=wordStatus(draft.answer,min,max).status==='within';const total=checked.size+Number(within);checkCount.textContent=total+'/'+(checks.length+1);track.setAttribute('aria-valuenow',String(total));checkFill.style.width=(total/(checks.length+1)*100)+'%';for(const [i,input] of checkInputs.entries())input.checked=checked.has(i);wordCheck.dataset.done=String(within);wordIcon.textContent=within?'✓':'○';checkUpdates.forEach(fn=>fn(total));}
  checks.forEach((q,i)=>{const l=add(checklist,'label','wa-quick-check');const c=add(l,'input','');c.type='checkbox';checkInputs.push(c);add(l,'span','',q);c.onchange=()=>{if(c.checked)checked.add(i);else checked.delete(i);refreshChecks();};});
  const wordCheck=add(checklist,'div','wa-quick-check wa-auto-check');const wordIcon=add(wordCheck,'span','wa-auto-icon');add(wordCheck,'span','',min+'–'+max+' words (automatic)');
  if(config.blueprint){const blueprint=resource(config.blueprint.title,'▤');const board=add(blueprint,'div','wa-studio-blueprint');add(board,'p','wa-blueprint-exam',config.blueprint.exam);for(const move of config.blueprint.moves){const row=add(board,'div','wa-blueprint-move');row.dataset.tone=move.tone;const icon=add(row,'span','wa-blueprint-icon',move.icon);icon.setAttribute('aria-hidden','true');const copy=add(row,'div','wa-blueprint-copy');add(copy,'strong','',move.label);add(copy,'span','',move.hint);}add(board,'p','wa-blueprint-reminder',config.blueprint.reminder);}else if(reference){const detail=add(exam,'details','wa-studio-reference-detail');add(detail,'summary','','More exam guidance');const referenceBox=reference(detail);referenceBox.classList.add('wa-workspace-reference');}
@@ -98,11 +102,36 @@ export function renderWorkspace(root,{accountId,onBack,initialTask,initialMode,c
  update();x.oninput=()=>{draft.answer=x.value;update();draftUpdates.forEach(fn=>fn());save();};insertPhrase=phrase=>{const start=x.selectionStart,end=x.selectionEnd;const before=x.value.slice(0,start),after=x.value.slice(end);const leading=before&&!/\s$/.test(before)?' ':'';const trailing=after&&/^\s/.test(after)?'':' ';x.setRangeText(leading+phrase+trailing,start,end,'end');x.oninput();x.focus({preventScroll:true});};
 
  }else{
- const w=wordStatus(draft.answer,min,max);add(intro,'p','wa-count',w.count+' words · '+w.status[0].toUpperCase()+w.status.slice(1)+' target ('+min+'–'+max+')');
- const check=add(panel,'section','wa-review-checklist');add(check,'h3','','Before you finish');add(check,'p','wa-muted','Use the exam checklist to review your draft.');btn(check,'Open exam checklist',()=>{companion.open=true;exam.open=true;exam.querySelector('summary').focus({preventScroll:true});exam.scrollIntoView({block:'nearest'});});
- const compare=add(panel,'div','wa-compare');for(const [title,text] of [['Original draft',draft.original??'No revision snapshot yet.'],['Current revised draft',draft.answer]]){const box=add(compare,'article','wa-revision-card');add(box,'h3','',title);add(box,'p','wa-prose',text||'No writing yet.');}
- btn(panel,'Revise my writing →',()=>go('Write'),'wa-action wa-next');
+ const w=wordStatus(draft.answer,min,max);const hasDraft=!!draft.answer.trim();const revised=hasDraft&&draft.original!==null&&draft.original!==draft.answer;
+ add(intro,'p','wa-muted','Check. Improve. Revise.');
+ if(!hasDraft){
+  const empty=add(panel,'section','wa-review-empty');add(empty,'span','wa-review-empty-icon','✎').setAttribute('aria-hidden','true');add(empty,'h3','','Your first draft comes next');add(empty,'p','','Write a review to unlock your feedback workspace.');btn(empty,'Go to Write →',()=>go('Write'),'wa-action wa-next');
+ }else{
+  const overview=add(panel,'div','wa-review-overview');
+  function metric(label,value,note){const tile=add(overview,'div','wa-review-metric');add(tile,'span','wa-studio-eyebrow',label);const number=add(tile,'strong','',value);const caption=add(tile,'span','wa-review-metric-note',note);return {tile,number,caption};}
+  const words=metric('WORD COUNT',String(w.count),w.status==='within'?'Within target':w.status==='below'?(min-w.count)+' more needed':(w.count-max)+' over target');words.tile.dataset.status=w.status;
+  const checksMetric=metric('SELF-CHECK','0/'+(checks.length+1),'Check your draft');
+  function updateCheckMetric(total){checksMetric.number.textContent=total+'/'+(checks.length+1);checksMetric.caption.textContent=total===checks.length+1?'All checked':(checks.length+1-total)+' remaining';}checkUpdates.push(updateCheckMetric);refreshChecks();
+  metric('DRAFT',revised?'Revised':'First',''+(revised?'Compare changes':'Ready to improve'));
+  const flow=add(panel,'div','wa-review-flow');for(const [i,label] of ['Self-check','Get feedback','Revise'].entries()){const step=add(flow,'div','');add(step,'span','wa-review-step',String(i+1));add(step,'span','',label);}
+  const work=add(panel,'div','wa-review-work');
+  const manuscript=add(work,'article','wa-review-manuscript');add(manuscript,'p','wa-studio-eyebrow',revised?'CURRENT DRAFT':'YOUR FIRST DRAFT');add(manuscript,'h3','',task.title);add(manuscript,'p','wa-review-prose',draft.answer);
+  if(revised){const previous=add(manuscript,'details','wa-review-previous');add(previous,'summary','','Compare with original');add(previous,'p','wa-review-prose',draft.original);}
+  const feedback=add(work,'section','wa-review-coach');const head=add(feedback,'div','wa-review-coach-head');add(head,'span','wa-review-coach-icon','✦').setAttribute('aria-hidden','true');const copy=add(head,'div','');add(copy,'h3','','AI Writing Coach');add(copy,'p','wa-muted','Find your next improvement.');
+  const coachHost=add(feedback,'div','wa-review-coach-host');
+  if(config.genre==='Review Writing'&&feedbackRole==='student'&&feedbackClient&&STUDENT_FEEDBACK_UI_ENABLED){
+   coach=mountStudentFeedback(coachHost,{app:'review',compact:true,label:'Analyse my writing',getClient:()=>feedbackClient,getTask:()=>reviewTaskText(task.prompt,{min,max}),getResponse:()=>draft.answer,onRevise:()=>go('Write'),onBusyChange:busy=>{sel.disabled=busy;for(const b of tabs.querySelectorAll('button'))b.disabled=busy;for(const b of nav.querySelectorAll('button'))b.disabled=busy;for(const b of modeButtons)b.disabled=busy;for(const b of panel.querySelectorAll('.wa-review-action'))b.disabled=busy;for(const b of shell.querySelectorAll('.wa-workspace-footer button'))b.disabled=busy;}});
+   const mounted=coach;coachObserver=new view.MutationObserver(()=>{if(!coachHost.isConnected){mounted.dispose();coachObserver?.disconnect();coachObserver=null;if(coach===mounted)coach=null;}});coachObserver.observe(root.ownerDocument.documentElement,{childList:true,subtree:true});
+  }else if(feedbackRole==='teacher'||feedbackRole==='admin'){
+   add(coachHost,'p','wa-review-coach-note','Live AI feedback is student-only. Preview the feedback layout below.');
+   const sample=add(coachHost,'div','wa-review-sample');sample.hidden=true;const sampleButton=btn(coachHost,'Show sample feedback',()=>{sample.hidden=!sample.hidden;sampleButton.textContent=sample.hidden?'Show sample feedback':'Hide sample feedback';sampleButton.setAttribute('aria-expanded',String(!sample.hidden));},'wa-action wa-review-sample-button');sampleButton.setAttribute('aria-expanded','false');coachHost.append(sample);
+   add(sample,'p','wa-studio-eyebrow','DEMONSTRATION · NOT YOUR DRAFT');
+   sample.append(renderStudentFeedback(root.ownerDocument,{partial:false,scores:{content:5,language:6,total:11},strengths:[{quote:'The staff were friendly and helpful.',advice:'A clear opinion relevant to the reader.'}],improvements:[{quote:'The food was really good.',type:'style',advice:'Add a specific detail about taste or texture.'}],nextStep:'Develop one opinion with a concrete example.'},{compact:true}));
+  }else add(coachHost,'p','wa-review-coach-note','AI feedback is not available for this account.');
+  const actions=add(panel,'div','wa-review-actions');btn(actions,'Open exam checklist',()=>{companion.open=true;exam.open=true;exam.querySelector('summary').focus({preventScroll:true});exam.scrollIntoView({block:'nearest'});},'wa-action wa-review-action');btn(actions,'Revise my writing →',()=>go('Write'),'wa-action wa-next wa-review-action');
  }
+ }
+
  const footer=add(shell,'footer','wa-workspace-footer');add(footer,'span','wa-muted','Local preview · drafts are saved on this browser for this account.');const manage=add(footer,'details','');add(manage,'summary','','Manage draft');btn(manage,'Clear this task’s preview draft',()=>{if(root.ownerDocument.defaultView.confirm('Delete your local preview draft and notes for this task?')){if(store.clear()){checkedByTask.delete(task.id);load();draw(true);}else status.textContent='Could not clear browser storage.';}});
  if(focus){heading.focus({preventScroll:true});heading.scrollIntoView({block:'nearest'});}
  }
