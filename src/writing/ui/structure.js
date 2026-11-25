@@ -1,13 +1,16 @@
+import {exam,examModels,examMocks,modelContext} from '../content/review-exam.js';
+import {newExamAttempt} from '../engine/exam-attempt.js';
+import {renderExamWorkshop} from './exam-workshop.js';
 import {editing,editingModels} from '../content/review-editing.js';
 import {cohesion,cohesionModels} from '../content/review-cohesion.js';
 import * as development from '../content/review-development-v1.js';
 import * as expression from '../content/review-expression-v1.js';
 import {extraReviewModels} from '../content/review-explore-models.js?v=1';
-import {mountLesson,el,action} from './lesson-shell.js?v=12';
+import {mountLesson,el,action} from './lesson-shell.js?v=13';
 import {reviewArtwork} from './editorial-art.js?v=9';
 import {companions} from '../content/review-active-v2.js';
 import {pathways} from '../content/review-pedagogy.js';
-import {newWritingRun,renderResponseWorkshop} from './response-workshop.js?v=2';
+import {newWritingRun,renderResponseWorkshop} from './response-workshop.js?v=3';
 import {guidedTask,independentTask,toolkit} from '../content/review-guided-v1.js';
 import {blueprint,model} from '../content/review-structure-v1.js';
 import {scoreItem,validateActivities,shuffledIndexes,hasWritingAttempt,writingComplete} from '../engine/activities.js?v=3';
@@ -34,20 +37,22 @@ export function renderExpression(root,onBack,onStudio){return renderPathway(root
 export function renderDevelopment(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,development);}
 export function renderCohesion(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,cohesion);}
 export function renderEditing(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,editing);}
+export function renderExam(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,exam);}
 function renderPathway(root,onBack,onStudio,config=null){
+ const isExam=config===exam;
  const isExpression=config===expression, isDevelopment=config===development, hasLens=!!config;
- const editorialModels=config===editing?editingModels:config===cohesion?cohesionModels:null;
- const pathwayKey=config===editing?'editing':config===cohesion?'cohesion':isDevelopment?'development':isExpression?'expression':'structure';
+ const editorialModels=isExam?examModels:config===editing?editingModels:config===cohesion?cohesionModels:null;
+ const pathwayKey=isExam?'exam':config===editing?'editing':config===cohesion?'cohesion':isDevelopment?'development':isExpression?'expression':'structure';
  const course=editorialModels?config:pathways[pathwayKey];
  const goldTasks=[course.gold].flat();
  const practice=validateActivities(course.practice);
- const checkpoint=validateActivities([{id:pathwayKey+'-transfer',type:'choice',items:[course.analysis]}])[0];
+ const checkpoint=validateActivities([{id:pathwayKey+'-transfer',type:'choice',items:[course.analysis].flat()}])[0];
  const stageCompanions=editorialModels?course.companions:(config?.companions??companions).map((tip,index)=>index===4
   ? ['Work independently','Read the new situation carefully and apply what you learnt.','Use the criteria to reflect on your own writing.']
   : tip);
  const state={model:0,paragraph:0,identified:new Set(),discovered:new Set(),discoveryIndex:0,
-  annotations:new Map(),exploreDrafts:new Map(),applyIndex:0,applications:course.apply.map(newWritingRun),
-  attempts:new Map(),active:null,discoverNotes:new Map(),goldIndex:0,gold:goldTasks.map(newWritingRun),transfer:newWritingRun()};
+  annotations:new Map(),exploreDrafts:new Map(),applyIndex:0,applications:course.apply.map(isExam?newExamAttempt:newWritingRun),
+  attempts:new Map(),active:null,discoverNotes:new Map(),goldIndex:0,gold:goldTasks.map(newWritingRun),transfer:newWritingRun(),mockIndex:0,mocks:examMocks.map(newExamAttempt)};
  const gold={id:pathwayKey+'-writing',title:course.goldTitle??goldTasks[0].title,level:'Gold'};
  const challenges=[...practice,gold];
  const baseModels=[{...model,category:'Café',sentenceTips:[['Names the café, establishes the time and explains the reason for visiting.','Introduces an initial evaluation through the atmosphere and welcome.'],['Describes location, seating and menu.','Provides specific examples of food.','Evaluates affordability for students.'],['Balances crowding with praise for staff.','Balances a specific delay against food quality.','Explains the practical benefit of a quiet corner.'],['Identifies a suitable audience and reason.','Offers advice about timing.']],purposes:['Introduction','Description','Evaluation','Recommendation']},{...guidedTask,title:'Willow Kitchen',category:'Restaurant',purposes:['Introduction','Evaluation','Evaluation','Recommendation'],sentenceTips:[['Establishes the reason for visiting.','Adds useful location and price information.'],['States a clear preference.','Supports the judgement with sensory detail.','Explains why the portion was suitable.','Adds a specific example of flexibility.'],['Signals a shift to criticism.','Explains the wait and the effect of noise.'],['Identifies an audience and a reason.','Offers practical advice addressing the drawback.']]},...extraReviewModels];
@@ -140,7 +145,10 @@ function renderPathway(root,onBack,onStudio,config=null){
   draw();
  }
  mountLesson(root,{title:course.title??(isDevelopment?'Idea Development':isExpression?'Vocabulary & Expression':'Structure & Organisation'),pathwayNumber:course.number??(isDevelopment?'03':isExpression?'02':'01'),artwork:reviewArtwork.pathways[pathwayKey]??reviewArtwork.pathways.structure,onBack,reference:renderExamReference,companions:stageCompanions,renderStage(body,i,ctx){
- if(course.passes && [0,3,4].includes(i)){
+ const shell=body.closest('.wa-shell');
+ shell.classList.toggle('wa-independent-stage',isExam&&i===4);
+
+ if(course.passes && (isExam?i===0:[0,3,4].includes(i))){
   const guide=el(body,'details','wa-explore-brief wa-editing-passes');
   el(guide,'summary','','Four-pass editing strategy');
   const steps=el(guide,'ol','');
@@ -209,6 +217,7 @@ function renderPathway(root,onBack,onStudio,config=null){
  }else if(i===1){
  const desk=el(body,'div','wa-explore-desk');
  el(desk,'p','wa-explore-intro','Read a paragraph and explain one editorial decision. Then compare your reasoning and inspect the sentences.');
+ if(isExam)el(desk,'p','wa-muted','Complete three paragraph investigations of your choice. Read the complete review alongside its task.');
  const toolbar=el(desk,'div','wa-explore-toolbar');
  const picker=el(toolbar,'details','wa-explore-picker');
  const trigger=el(picker,'summary','wa-explore-picker-trigger');
@@ -227,7 +236,13 @@ function renderPathway(root,onBack,onStudio,config=null){
  picker.addEventListener('keydown',e=>{if(e.key==='Escape'&&picker.open){picker.open=false;trigger.focus();}});
  function draw(){
   host.replaceChildren();const m=models[state.model],n=state.paragraph,key=state.model+':'+n;
-  const brief=el(host,'details','wa-explore-brief');brief.open=briefOpen;el(brief,'summary','','Exam brief');el(brief,'p','',m.prompt);brief.addEventListener('toggle',()=>{briefOpen=brief.open;});
+  const brief=el(host,'details','wa-explore-brief');brief.open=briefOpen;el(brief,'summary','','Exam brief');el(brief,'p','',m.prompt);
+  if(isExam){
+   const [audience,publication]=modelContext[m.title];
+   el(brief,'p','wa-muted','Audience: '+audience+' · Publication: '+publication);
+   el(brief,'p','wa-muted','Content: relevance, task fulfilment, development, audience and purpose. Language: vocabulary, grammar, organisation, cohesion and register.');
+  }
+  brief.addEventListener('toggle',()=>{briefOpen=brief.open;});
   const paper=el(host,'article','wa-explore-paper');const meta=el(paper,'div','wa-explore-paper-meta');el(meta,'span','wa-explore-eyebrow','MODEL '+String(state.model+1).padStart(2,'0')+' / '+m.category.toUpperCase());el(meta,'span','wa-explore-position','Paragraph '+(n+1)+' of '+m.paragraphs.length);
   el(paper,'h3','wa-explore-headline',m.title);
   const progress=el(paper,'div','wa-explore-progress');progress.setAttribute('aria-hidden','true');m.paragraphs.forEach((_,j)=>{const segment=el(progress,'span','');segment.dataset.current=String(j===n);segment.dataset.done=String(state.identified.has(state.model+':'+j));});
@@ -270,7 +285,7 @@ function renderPathway(root,onBack,onStudio,config=null){
    progress.children[n].dataset.done='true';
    detail.textContent='Select a sentence to examine its contribution.';
    feedback.textContent=lens?.rationale??m.notes[n];
-   if(m.paragraphs.every((_,j)=>state.identified.has(state.model+':'+j)))ctx.complete();
+   if(isExam?state.identified.size>=3:m.paragraphs.every((_,j)=>state.identified.has(state.model+':'+j)))ctx.complete();
   });
   reveal.hidden=unlocked;
   if(unlocked)feedback.textContent=lens?.rationale??m.notes[n];
@@ -342,12 +357,15 @@ function renderPathway(root,onBack,onStudio,config=null){
   course.apply.forEach((_,j)=>{el(meter,'span','').dataset.current=String(j===n);});
   const workshop=el(host,'div','');
   function progress(){
-   const done=course.apply.map((task,j)=>writingComplete(state.applications[j],task));
+   const done=course.apply.map((task,j)=>isExam?state.applications[j].complete:writingComplete(state.applications[j],task));
    done.forEach((value,j)=>{meter.children[j].dataset.done=String(value);});
    if(done.every(Boolean))ctx.complete();
    else ctx.incomplete();
   }
-  const title=renderResponseWorkshop(workshop,course.apply[n],state.applications[n],progress);
+  const attempt=state.applications[n];
+  const title=isExam?renderExamWorkshop(workshop,course.apply[n],attempt,{
+   passes:course.passes,onProgress:complete=>{attempt.complete=complete;progress();}
+  }):renderResponseWorkshop(workshop,course.apply[n],attempt,progress);
   progress();
   const controls=el(host,'div','wa-stage-foot wa-apply-controls');
   const prev=action(controls,'← Previous task',()=>{state.applyIndex--;draw().focus();});
@@ -356,6 +374,36 @@ function renderPathway(root,onBack,onStudio,config=null){
   next.disabled=n===course.apply.length-1;
   return title;
  }draw();
+ }else if(isExam){
+ const desk=el(body,'div','wa-master-desk');
+ const decision=el(desk,'div','wa-question wa-master-question');
+ const writing=el(desk,'div','wa-apply-work wa-exam-workshop');
+ function showMock(){
+  if(!hasFinished(checkpoint))return;
+  writing.replaceChildren();
+  const label=el(writing,'label','wa-apply-instruction','Mock review task');
+  const picker=el(label,'select','wa-writing-input');
+  examMocks.forEach((task,index)=>{
+   const option=el(picker,'option','',task.title);
+   option.value=String(index);
+  });
+  picker.value=String(state.mockIndex);
+  picker.onchange=()=>{state.mockIndex=Number(picker.value);showMock();writing.querySelector('select').focus();};
+  const mock=examMocks[state.mockIndex];
+  const attempt=state.mocks[state.mockIndex];
+  renderExamWorkshop(el(writing,'div',''),{...mock,timer:true},attempt,{
+   master:true,passes:course.passes,
+   onProgress:complete=>{
+    attempt.complete=complete;
+    if(state.mocks.some(item=>item.complete))ctx.complete();
+    else ctx.incomplete();
+    return ctx.allComplete();
+   },
+   onStudio:()=>onStudio({initialTask:independentTask.id,initialMode:'Gold'})
+  });
+ }
+ quiz(decision,checkpoint,showMock);
+ showMock();
  }else{
  const desk=el(body,'div','wa-master-desk');
  el(desk,'p','wa-master-intro','Make an editorial decision, then apply the skill in a fresh review situation.');

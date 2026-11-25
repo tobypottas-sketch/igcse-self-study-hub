@@ -14,7 +14,7 @@ export function renderResponseWorkshop(host, task, run, onProgress) {
  el(source,'p','wa-apply-original',task.prompt);
  const editor = el(host,'section','wa-apply-editor');
  const label = el(editor,'label','wa-apply-instruction',task.question);
- el(label,'span','wa-muted',' Write at least ' + task.min + ' words before comparing.');
+ el(label,'span','wa-muted',task.plan?' Short notes or bullets are welcome.':' Write at least ' + task.min + ' words before comparing.');
  const draft = el(label,'textarea','wa-writing-input wa-apply-input');
  draft.rows = 4;
  draft.value = run.original || run.draft;
@@ -28,7 +28,7 @@ export function renderResponseWorkshop(host, task, run, onProgress) {
   reveal.hidden = true;
   const panel = el(host,'section','wa-apply-comparison');
   const model = el(panel,'article','wa-apply-model');
-  const heading = el(model,'h4','wa-apply-eyebrow','One possible response');
+  const heading = el(model,'h4','wa-apply-eyebrow',task.plan?'One possible plan':'One possible response');
   heading.tabIndex = -1;
   el(model,'p','wa-apply-model-text',task.example);
   el(panel,'p','wa-muted','Compare the approaches. Use the checklist to review your revision. This is self-assessment.');
@@ -77,7 +77,7 @@ export function renderResponseWorkshop(host, task, run, onProgress) {
  }
  const reveal = action(tools,'Compare with an example →',() => {
   if(!hasWritingAttempt(run.draft,task.min)) {
-   status.textContent = 'Write at least ' + task.min + ' words using the information above.';
+   status.textContent = task.plan?'Add a few notes that show what you intend to cover.':'Write at least ' + task.min + ' words using the information above.';
    return;
   }
   run.original = run.draft;
