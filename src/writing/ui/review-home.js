@@ -1,6 +1,6 @@
 import {renderArtwork, reviewArtwork} from './editorial-art.js?v=6';
-import {renderStudio} from './studio.js?v=15';
-import {renderExamReference,renderStructure,renderExpression} from './structure.js?v=16';
+import {renderStudio} from './studio.js?v=16';
+import {renderExamReference,renderStructure,renderExpression} from './structure.js?v=17';
 // Preview has no student writes, XP transactions or invented progress.
 const pathwayDetails={
  structure:['01','Arrange ideas into a review that flows.','structure'],
