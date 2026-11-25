@@ -1,0 +1,81 @@
+import {hasWritingAttempt, validateWritingTask, writingComplete} from '../engine/activities.js?v=2';
+import {el, action} from './lesson-shell.js?v=12';
+
+export function newWritingRun() {
+ return {draft:'', original:'', revision:'', checks:new Set()};
+}
+
+export function renderResponseWorkshop(host, task, run, onProgress) {
+ validateWritingTask(task);
+ host.replaceChildren();
+ const source = el(host,'article','wa-apply-source');
+ const title = el(source,'h3','wa-apply-title',task.title);
+ title.tabIndex = -1;
+ el(source,'p','wa-apply-original',task.prompt);
+ const editor = el(host,'section','wa-apply-editor');
+ const label = el(editor,'label','wa-apply-instruction',task.question);
+ el(label,'span','wa-muted',' Write at least ' + task.min + ' words before comparing.');
+ const draft = el(label,'textarea','wa-writing-input wa-apply-input');
+ draft.rows = 4;
+ draft.value = run.original || run.draft;
+ draft.readOnly = !!run.original;
+ draft.oninput = () => { run.draft = draft.value; };
+ const tools = el(editor,'div','wa-apply-tools');
+ const status = el(editor,'p','wa-answer wa-apply-status');
+ status.setAttribute('role','status');
+ function compare() {
+  draft.readOnly = true;
+  reveal.hidden = true;
+  const panel = el(host,'section','wa-apply-comparison');
+  const model = el(panel,'article','wa-apply-model');
+  const heading = el(model,'h4','wa-apply-eyebrow','One possible response');
+  heading.tabIndex = -1;
+  el(model,'p','wa-apply-model-text',task.example);
+  el(panel,'p','wa-muted','Compare the approaches. Use the checklist to review your revision. This is self-assessment.');
+  const revisionLabel = el(panel,'label','wa-apply-instruction','Revise your response');
+  const revision = el(revisionLabel,'textarea','wa-writing-input wa-apply-input');
+  revision.rows = 4;
+  revision.value = run.revision;
+  const checklist = el(panel,'div','wa-apply-checklist');
+  const inputs = task.checks.map((criterion,index) => {
+   const row = el(checklist,'label','wa-check wa-apply-check');
+   const input = el(row,'input','');
+   input.type = 'checkbox';
+   input.checked = run.checks.has(index);
+   input.onchange = () => {
+    if(input.checked) run.checks.add(index);
+    else run.checks.delete(index);
+    sync();
+   };
+   el(row,'span','',criterion);
+   return input;
+  });
+  const result = el(panel,'p','wa-answer');
+  result.setAttribute('role','status');
+  function sync() {
+   const complete = writingComplete(run,task);
+   result.textContent = complete ? 'Writing and reflection complete.' : 'Make a change to your draft and review each criterion.';
+   onProgress(complete);
+  }
+  revision.oninput = () => {
+   run.revision = revision.value;
+   run.checks.clear();
+   inputs.forEach(input => { input.checked = false; });
+   sync();
+  };
+  sync();
+  return heading;
+ }
+ const reveal = action(tools,'Compare with an example →',() => {
+  if(!hasWritingAttempt(run.draft,task.min)) {
+   status.textContent = 'Write at least ' + task.min + ' words using the information above.';
+   return;
+  }
+  run.original = run.draft;
+  run.revision = run.original;
+  status.textContent = 'Your first draft is saved above.';
+  compare().focus();
+ },'wa-action wa-apply-reveal');
+ if(run.original) compare();
+ return title;
+}
