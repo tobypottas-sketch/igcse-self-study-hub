@@ -1,4 +1,4 @@
-import {reviewStudioConfig} from '../content/review-studio-config.js';
+import {reviewStudioConfig} from '../content/review-studio-config.js?v=2';
 import {createDraftStore,wordStatus} from '../engine/drafts.js';
 import {renderExamReference} from './structure.js?v=8';
 import {renderArtwork,reviewArtwork} from './editorial-art.js?v=8';
@@ -6,7 +6,7 @@ import {el as add,action as btn} from './lesson-shell.js?v=6';
 const support={Bronze:'Fully guided',Silver:'Some guidance',Gold:'Independent'};
 export function renderStudio(root,options){return renderWorkspace(root,{...options,config:reviewStudioConfig,reference:parent=>renderExamReference(parent,{includeToolkit:false}),artwork:reviewArtwork.studio});}
 export function renderWorkspace(root,{accountId,onBack,initialTask,initialMode,config,reference,artwork}){
- const {tasks,fields,min,max,answerLabel,answerPlaceholder}=config;let task=tasks.find(t=>t.id===initialTask)||tasks[0];let store,draft,status,saved=null,focusMode=false;
+ const {tasks,fields,min,max,answerLabel,answerPlaceholder}=config;let task=tasks.find(t=>t.id===initialTask)||tasks[0];let store,draft,status,saved=null,focusMode=false;const checkedByTask=new Map();let phraseCategory=0;
  const view=root.ownerDocument.defaultView;
  let storage;try{storage=root.ownerDocument.defaultView.localStorage;}catch{storage=null;}
  function load(){store=createDraftStore(storage,accountId,task);draft=store.load();saved=null;}
@@ -32,7 +32,7 @@ export function renderWorkspace(root,{accountId,onBack,initialTask,initialMode,c
  const label=add(brief,'label','','Writing task');label.htmlFor='wa-task';const sel=add(brief,'select','wa-writing-input');sel.id='wa-task';for(const t of tasks){const o=add(sel,'option','',t.title);o.value=t.id;}sel.value=task.id;sel.onchange=()=>{save();task=tasks.find(t=>t.id===sel.value);load();draw();root.querySelector('#wa-task').focus();};
  const mission=add(brief,'div','wa-studio-mission');add(mission,'p','wa-studio-eyebrow','YOUR MISSION');add(mission,'p','wa-studio-scenario',task.shortMission||task.scenario||task.prompt);const meta=add(mission,'div','wa-studio-brief-meta');add(meta,'span','',min+'–'+max+' words');add(meta,'span','',task.publication);
  const modes=add(companion,'section','wa-support-panel');add(modes,'h3','','Support level');const modebar=add(modes,'div','wa-studio-tabs');const modeButtons=[];
- const guidanceUpdates=[];
+ const guidanceUpdates=[];const draftUpdates=[];let insertPhrase=null;
  for(const m of Object.keys(support)){const b=btn(modebar,m,()=>{if(draft.mode===m)return;const sx=view.scrollX,sy=view.scrollY,sideY=sidebar.scrollTop;draft.mode=m;refreshSupport();save();view.scrollTo(sx,sy);sidebar.scrollTop=sideY;});b.dataset.mode=m;modeButtons.push(b);}
  const supportText=add(modes,'p','wa-muted');
  const help=add(companion,'section','wa-studio-help');add(help,'p','wa-studio-eyebrow','NEED A HAND?');
@@ -41,9 +41,29 @@ export function renderWorkspace(root,{accountId,onBack,initialTask,initialMode,c
  if(task.ideas?.length){const options=resource('Idea bank','✦');const ideas=add(options,'div','wa-idea-chips');for(const idea of task.ideas)add(ideas,'span','',idea);}
  if(draft.stage!=='Plan'){const notes=resource('My planning notes','✎');for(const f of fields){if(draft.notes[f.key]?.trim()){add(notes,'strong','',f.title);add(notes,'p','wa-prose',draft.notes[f.key]);}}if(!Object.values(draft.notes).some(v=>v.trim()))add(notes,'p','wa-muted','No notes yet.');btn(notes,'Edit plan',()=>go('Plan'));}
  const tips=resource('Useful language','Aa');const tipContent=add(tips,'div','wa-studio-tip-content');
- const exam=resource('Exam checklist','✓');const referenceBox=reference(exam);referenceBox.classList.add('wa-workspace-reference');for(const detail of referenceBox.querySelectorAll('details'))detail.open=true;
- function refreshSupport(){modeButtons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===draft.mode)));supportText.textContent=support[draft.mode];tipContent.replaceChildren();for(const tip of config.languageSupport[draft.mode])add(tipContent,'p','',tip);guidanceUpdates.forEach(update=>update());}
+ const exam=resource('Exam checklist','✓');
+ const checks=config.quickChecks||config.selfCheck;const checked=checkedByTask.get(task.id)||new Set();checkedByTask.set(task.id,checked);
+ const marks=add(exam,'div','wa-check-marks');for(const mark of config.markBreakdown||[]){const tile=add(marks,'div','');add(tile,'strong','',String(mark.marks));add(tile,'span','',mark.label);}
+ const checkHeader=add(exam,'div','wa-check-header');add(checkHeader,'strong','','Ready to finish?');const checkCount=add(checkHeader,'span','');
+ const track=add(exam,'div','wa-check-track');track.setAttribute('role','progressbar');track.setAttribute('aria-label','Self-check progress');track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax',String(checks.length+1));const checkFill=add(track,'span','');
+ const checklist=add(exam,'div','wa-quick-checklist');const checkInputs=[];
+ function refreshChecks(){const within=wordStatus(draft.answer,min,max).status==='within';const total=checked.size+Number(within);checkCount.textContent=total+'/'+(checks.length+1);track.setAttribute('aria-valuenow',String(total));checkFill.style.width=(total/(checks.length+1)*100)+'%';for(const [i,input] of checkInputs.entries())input.checked=checked.has(i);wordCheck.dataset.done=String(within);wordIcon.textContent=within?'✓':'○';}
+ checks.forEach((q,i)=>{const l=add(checklist,'label','wa-quick-check');const c=add(l,'input','');c.type='checkbox';checkInputs.push(c);add(l,'span','',q);c.onchange=()=>{if(c.checked)checked.add(i);else checked.delete(i);refreshChecks();};});
+ const wordCheck=add(checklist,'div','wa-quick-check wa-auto-check');const wordIcon=add(wordCheck,'span','wa-auto-icon');add(wordCheck,'span','',min+'–'+max+' words (automatic)');
+ const detail=add(exam,'details','wa-studio-reference-detail');add(detail,'summary','','More exam guidance');const referenceBox=reference(detail);referenceBox.classList.add('wa-workspace-reference');
+ refreshChecks();draftUpdates.push(()=>{checked.clear();refreshChecks();});
+ function renderPhrases(){
+  tipContent.replaceChildren();const categories=config.phraseBank;
+  if(!categories?.length){for(const tip of config.languageSupport[draft.mode])add(tipContent,'p','',tip);return;}
+  phraseCategory=Math.min(phraseCategory,categories.length-1);
+  const tabs=add(tipContent,'div','wa-phrase-tabs');for(const [i,cat] of categories.entries()){const b=btn(tabs,cat.label,()=>{phraseCategory=i;renderPhrases();tipContent.querySelectorAll('.wa-phrase-tab')[i]?.focus({preventScroll:true});},'wa-action wa-phrase-tab');b.setAttribute('aria-pressed',String(i===phraseCategory));}
+  const list=add(tipContent,'div','wa-phrase-list');const message=add(tipContent,'p','wa-phrase-status');message.setAttribute('role','status');
+  for(const phrase of categories[phraseCategory].phrases[draft.mode]||[]){const row=add(list,'div','wa-phrase-row');add(row,'span','',phrase+' …');const button=btn(row,draft.stage==='Write'?'Insert':'Copy',async()=>{if(draft.stage==='Write'&&insertPhrase){insertPhrase(phrase);message.textContent='Phrase inserted.';return;}try{await view.navigator.clipboard.writeText(phrase);message.textContent='Copied.';}catch{message.textContent='Copy unavailable. Select the phrase manually.';}},'wa-action wa-phrase-use');button.setAttribute('aria-label',(draft.stage==='Write'?'Insert ':'Copy ')+phrase);}
+ }
+ function refreshSupport(){modeButtons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===draft.mode)));supportText.textContent=support[draft.mode];renderPhrases();guidanceUpdates.forEach(update=>update());}
  refreshSupport();
+ const resources=[...help.querySelectorAll(':scope > details')];
+ if(draft.stage==='Plan'){const ideas=resources.find(d=>d.querySelector('summary')?.textContent.includes('Idea bank'));if(ideas)ideas.open=true;}else if(draft.stage==='Write')tips.open=true;else exam.open=true;
  const panel=add(grid,'section','wa-workspace-main');const stageIntro=add(panel,'div','wa-workspace-intro');const intro=add(stageIntro,'div','');const heading=add(intro,'h2','wa-workspace-heading',draft.stage==='Plan'?(config.genre==='Review Writing'?'Plan your review':'Plan your writing'):draft.stage==='Write'?'Write your draft':'Refine your writing');heading.tabIndex=-1;
  if(draft.stage!=='Write'&&artwork?.context)renderArtwork(stageIntro,artwork.context,'studio-context');
  if(draft.stage==='Plan'){
@@ -57,15 +77,15 @@ export function renderWorkspace(root,{accountId,onBack,initialTask,initialMode,c
  const tools=add(panel,'div','wa-editor-tools');add(tools,'p','wa-muted','Continuous prose · title optional');const focusBtn=btn(tools,focusMode?'Exit focus mode':'Focus mode',()=>{focusMode=!focusMode;shell.dataset.focus=String(focusMode);focusBtn.textContent=focusMode?'Exit focus mode':'Focus mode';focusBtn.setAttribute('aria-pressed',String(focusMode));});focusBtn.setAttribute('aria-pressed',String(focusMode));
  const focusBrief=add(panel,'details','wa-focus-brief');add(focusBrief,'summary','','Full exam task');add(focusBrief,'p','',task.prompt);
  const l=add(panel,'label','wa-visually-hidden',answerLabel);l.htmlFor='wa-answer-editor';const x=add(panel,'textarea','wa-writing-input wa-editor');x.id=l.htmlFor;x.rows=9;x.value=draft.answer;x.placeholder=answerPlaceholder;
- const meter=add(panel,'div','wa-word-meter');const count=add(meter,'p','wa-count');count.setAttribute('aria-live','polite');const track=add(meter,'div','wa-word-track');track.setAttribute('aria-hidden','true');const target=add(track,'div','wa-word-target');const scale=Math.ceil(max*1.25);target.style.left=(min/scale*100)+'%';target.style.width=((max-min)/scale*100)+'%';const fill=add(track,'div','wa-word-fill');function update(){const w=wordStatus(draft.answer,min,max);count.textContent=w.count+' words · '+(w.status==='within'?'Within target':w.status==='below'?'Below target':'Above target')+' ('+min+'–'+max+')';meter.dataset.status=w.status;fill.style.width=Math.min(100,w.count/scale*100)+'%';}update();x.oninput=()=>{draft.answer=x.value;update();save();};
+ const meter=add(panel,'div','wa-word-meter');const count=add(meter,'p','wa-count');count.setAttribute('aria-live','polite');const track=add(meter,'div','wa-word-track');track.setAttribute('aria-hidden','true');const target=add(track,'div','wa-word-target');const scale=Math.ceil(max*1.25);target.style.left=(min/scale*100)+'%';target.style.width=((max-min)/scale*100)+'%';const fill=add(track,'div','wa-word-fill');function update(){const w=wordStatus(draft.answer,min,max);count.textContent=w.count+' words · '+(w.status==='within'?'Within target':w.status==='below'?'Below target':'Above target')+' ('+min+'–'+max+')';meter.dataset.status=w.status;fill.style.width=Math.min(100,w.count/scale*100)+'%';}update();x.oninput=()=>{draft.answer=x.value;update();draftUpdates.forEach(fn=>fn());save();};insertPhrase=phrase=>{const start=x.selectionStart,end=x.selectionEnd;const before=x.value.slice(0,start),after=x.value.slice(end);const leading=before&&!/\\s$/.test(before)?' ':'';const trailing=after&&/^\\s/.test(after)?'':' ';x.setRangeText(leading+phrase+trailing,start,end,'end');x.oninput();x.focus({preventScroll:true});};
  btn(panel,'Review my writing →',()=>{if(!draft.answer.trim()){x.focus();return;}go('Review');},'wa-action wa-next');
  }else{
  const w=wordStatus(draft.answer,min,max);add(intro,'p','wa-count',w.count+' words · '+w.status[0].toUpperCase()+w.status.slice(1)+' target ('+min+'–'+max+')');
- const check=add(panel,'section','wa-review-checklist');add(check,'h3','','Before you finish');for(const q of config.selfCheck){const l=add(check,'label','wa-check');const c=add(l,'input','');c.type='checkbox';l.append(' '+q);}
+ const check=add(panel,'section','wa-review-checklist');add(check,'h3','','Before you finish');add(check,'p','wa-muted','Use the exam checklist to review your draft.');btn(check,'Open exam checklist',()=>{companion.open=true;exam.open=true;exam.querySelector('summary').focus({preventScroll:true});exam.scrollIntoView({block:'nearest'});});
  const compare=add(panel,'div','wa-compare');for(const [title,text] of [['Original draft',draft.original??'No revision snapshot yet.'],['Current revised draft',draft.answer]]){const box=add(compare,'article','wa-revision-card');add(box,'h3','',title);add(box,'p','wa-prose',text||'No writing yet.');}
  btn(panel,'Revise my writing →',()=>go('Write'),'wa-action wa-next');
  }
- const footer=add(shell,'footer','wa-workspace-footer');add(footer,'span','wa-muted','Local preview · drafts are saved on this browser for this account.');const manage=add(footer,'details','');add(manage,'summary','','Manage draft');btn(manage,'Clear this task’s preview draft',()=>{if(root.ownerDocument.defaultView.confirm('Delete your local preview draft and notes for this task?')){if(store.clear()){load();draw(true);}else status.textContent='Could not clear browser storage.';}});
+ const footer=add(shell,'footer','wa-workspace-footer');add(footer,'span','wa-muted','Local preview · drafts are saved on this browser for this account.');const manage=add(footer,'details','');add(manage,'summary','','Manage draft');btn(manage,'Clear this task’s preview draft',()=>{if(root.ownerDocument.defaultView.confirm('Delete your local preview draft and notes for this task?')){if(store.clear()){checkedByTask.delete(task.id);load();draw(true);}else status.textContent='Could not clear browser storage.';}});
  if(focus){heading.focus({preventScroll:true});heading.scrollIntoView({block:'nearest'});}
  }
  draw();
