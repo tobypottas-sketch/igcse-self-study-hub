@@ -1,7 +1,7 @@
 import * as expression from '../content/review-expression-v1.js';
 import {extraReviewModels} from '../content/review-explore-models.js?v=1';
-import {mountLesson,el,action} from './lesson-shell.js?v=11';
-import {reviewArtwork} from './editorial-art.js?v=6';
+import {mountLesson,el,action} from './lesson-shell.js?v=12';
+import {reviewArtwork} from './editorial-art.js?v=9';
 import {discovery,companions,applicationTasks} from '../content/review-active-v2.js';
 import {guidedTask,independentTask,toolkit,improvement,selfCheck} from '../content/review-guided-v1.js';
 import {reviewExam,blueprint,model,structureActivities} from '../content/review-structure-v1.js';
@@ -44,7 +44,7 @@ function renderPathway(root,onBack,onStudio,config=null){
   else{const check=action(host,'Check answer',()=>{run.checked=true;if(scoreItem(item,a.type==='order'?run.order:run.selected))run.correct++;draw();});check.disabled=a.type==='order'?run.order.length!==item.options.length:run.selected===null;if(a.type==='order')action(host,'Reset order',()=>{run.order=[];draw();});}
   }draw();
  }
- mountLesson(root,{title:isExpression?'Vocabulary & Expression':'Structure & Organisation',pathwayNumber:isExpression?'02':'01',artwork:reviewArtwork.pathways.structure,onBack,reference:renderExamReference,companions:stageCompanions,renderStage(body,i,ctx){
+ mountLesson(root,{title:isExpression?'Vocabulary & Expression':'Structure & Organisation',pathwayNumber:isExpression?'02':'01',artwork:reviewArtwork.pathways[isExpression?'expression':'structure'],onBack,reference:renderExamReference,companions:stageCompanions,renderStage(body,i,ctx){
  if(i===0){
  const host=el(body,'div','wa-discovery');
  function draw(){host.replaceChildren();const n=state.discoveryIndex,item=discoverItems[n];el(host,'p','wa-kicker','CHALLENGE '+(n+1)+' / '+discoverItems.length);el(host,'h3','',item.prompt);el(host,'p','',item.context);

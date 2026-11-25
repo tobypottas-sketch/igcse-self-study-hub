@@ -123,6 +123,7 @@
 @media(max-height:650px){#writingAcademy .wa-lesson-reference{position:relative}}
 
 #writingAcademy .wa-art{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:contain}
+#writingAcademy :is(.wa-path.wa-expression,.wa-editorial-lesson[data-pathway="02"]) .wa-art{aspect-ratio:auto}
 #writingAcademy .wa-art--hero{max-width:545px;justify-self:center}
 #writingAcademy .wa-art--card{width:144px}
 #writingAcademy .wa-path.wa-structure{background:var(--wa-cream);border-top:3px solid var(--wa-amber)}

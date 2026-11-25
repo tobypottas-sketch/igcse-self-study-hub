@@ -1,5 +1,9 @@
 const art = (name, widths, dimensions = [1536, 1024]) => ({name, widths, dimensions});
 const structure = art('structure-organisation', [256, 512]);
+const expressionStage = name => ({
+  ...art(name, [256, 512, 768], [1672, 941]),
+  sizes: '(max-width: 680px) calc(100vw - 60px), 246px'
+});
 const practise = art('stage-practise', [256, 512]);
 
 export const reviewArtwork = {
@@ -17,6 +21,16 @@ export const reviewArtwork = {
         practise,
         practise,
         art('stage-master', [256, 512])
+      ]
+    },
+    expression: {
+      banner: art('vocabulary-expression', [256, 512], [1672, 941]),
+      stages: [
+        expressionStage('expression-discover'),
+        expressionStage('expression-explore'),
+        expressionStage('expression-practise'),
+        expressionStage('expression-apply'),
+        expressionStage('expression-master')
       ]
     }
   }
@@ -41,7 +55,7 @@ export function renderArtwork(parent, artwork, placement) {
   img.decoding = 'async';
   img.loading = placement === 'card' ? 'lazy' : 'eager';
   if (['hero', 'studio-hero'].includes(placement)) img.fetchPriority = 'high';
-  img.sizes = sizes[placement];
+  img.sizes = artwork.sizes ?? sizes[placement];
   img.srcset = widths.map(width => `${url(width)} ${width}w`).join(', ');
   img.src = url(widths[0]);
   parent.append(img);
