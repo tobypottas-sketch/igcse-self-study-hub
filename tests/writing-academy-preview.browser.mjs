@@ -128,7 +128,11 @@ try{
   const go = stage => page.locator('.wa-stage-tab[data-stage="'+stage+'"]').press('Enter');
   await go('practise');
   await page.getByRole('button',{name:/Rewrite the cinema review/}).click();
-  await workshop(page,pathways.expression.gold);
+  const expressionFirst=await workshop(page,pathways.expression.gold[0]);
+  await page.getByRole('button',{name:'Next Gold task →'}).press('Enter');
+  await workshop(page,pathways.expression.gold[1]);
+  await page.getByRole('button',{name:'← Previous Gold task'}).press('Enter');
+  assert.equal(await page.getByRole('textbox',{name:'Revise your response'}).inputValue(),expressionFirst);
   await capture(page,'expression-gold-revision',width,height);
 
   await page.getByRole('button',{name:'← All pathways'}).click();
@@ -139,6 +143,11 @@ try{
   await page.locator('.wa-phrase').first().press('Enter');
   assert.equal(await page.locator('.wa-phrase').first().getAttribute('aria-pressed'),'true');
   await capture(page,'development-editorial-note',width,height);
+  await go('practise');
+  await page.getByRole('button',{name:/Develop and justify a verdict/}).click();
+  await workshop(page,pathways.development.gold[0]);
+  await page.getByRole('button',{name:'Next Gold task →'}).press('Enter');
+  await workshop(page,pathways.development.gold[1]);
   await go('master');
   await finishAnalysis(page,pathways.development.analysis);
   await workshop(page,pathways.development.master);
@@ -187,6 +196,10 @@ try{
   await page.getByRole('button',{name:'Check answer'}).press('Enter');
   assert.equal(await page.locator('.wa-question .wa-answer').getAttribute('data-result'),'correct');
   await capture(page,'structure-order-feedback',width,height);
+  await page.getByRole('button',{name:/Edit a weak review/}).click();
+  await workshop(page,pathways.structure.gold[0]);
+  await page.getByRole('button',{name:'Next Gold task →'}).press('Enter');
+  await workshop(page,pathways.structure.gold[1]);
   await go('apply');
   const applied=await workshop(page,pathways.structure.apply[0]);
   await go('master');

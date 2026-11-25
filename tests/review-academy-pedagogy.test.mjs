@@ -14,8 +14,10 @@ test('each pathway teaches contrasts, offers differentiated practice and require
  for (const [key, course] of Object.entries(pathways)) {
   assert.equal(course.discover.length,3);
   assert.deepEqual(course.practice.map(activity=>activity.level),['Bronze','Bronze','Silver','Silver']);
+  assert.deepEqual(course.practice.map(activity=>activity.items.length),[4,4,4,4]);
   assert.equal(course.apply.length,3);
-  for(const task of [course.gold,...course.apply,course.master])validateWritingTask(task);
+  assert.equal(course.gold.length,2);
+  for(const task of [...course.gold,...course.apply,course.master])validateWritingTask(task);
   all.push(...course.practice,{id:key+'-transfer',type:'choice',items:[course.analysis]});
   const choices=[...course.practice.filter(activity=>activity.type==='choice').flatMap(activity=>activity.items),course.analysis];
   const longest=choices.filter(item=>item.options[item.answer].length===Math.max(...item.options.map(option=>option.length)));
@@ -55,7 +57,7 @@ test('both model lenses point to the relevant paragraph in every model',()=>{
 });
 
 test('repeated filler and unchecked criteria cannot complete a workshop; justified retention and punctuation edits can',()=>{
- const task=pathways.structure.gold;
+ const task=pathways.structure.gold[0];
  assert.ok(!hasWritingAttempt('test '.repeat(45),task.min));
  const original=task.example;
  const checks=new Set(task.checks.map((_,index)=>index));
