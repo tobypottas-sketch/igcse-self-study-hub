@@ -27,15 +27,16 @@ function pageMarkup(credentials = []) {
 
 export function renderLoginCards(credentials = [], className = '', _url = '', failed = []) {
   const failures = failed.length ? `<aside class="student-login-modal__warning" data-credential-failures><strong>${failed.length} student${failed.length === 1 ? '' : 's'} could not be updated.</strong><span>Check those accounts before treating this pack as complete.</span></aside>` : '';
-  return `<div class="student-login-modal" data-generated-login-modal role="dialog" aria-modal="true" aria-labelledby="student-login-modal-title">
+  return `<div class="student-login-modal" data-card-count="${credentials.length === 1 ? 'single' : 'multiple'}" data-generated-login-modal role="dialog" aria-modal="true" aria-labelledby="student-login-modal-title">
     <div class="student-login-modal__panel">
       <header class="student-login-modal__header">
         <div>
-          <p class="eyebrow">Class login cards</p>
+          <p class="eyebrow">${credentials.length === 1 ? 'Student login card' : 'Class login cards'}</p>
           <h2 id="student-login-modal-title">${escapeHtml(className || 'Student logins')}</h2>
+          <p class="student-login-modal__count">${credentials.length} login card${credentials.length === 1 ? '' : 's'} ready to print</p>
         </div>
         <div class="student-login-modal__actions">
-          <button class="button admin-button" data-action="admin-print-credentials">Print / Save PDF</button>
+          <button type="button" class="button admin-button student-login-modal__print" data-action="admin-print-credentials"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6zM18 12h.01"/></svg>Print / Save PDF</button>
           <button class="student-login-modal__close" type="button" data-action="admin-close-login-cards" aria-label="Close login cards">×</button>
         </div>
       </header>

@@ -82,3 +82,12 @@ test('class credentials run twelve at a time and retain per-student failures', a
     await response;
   }
 });
+
+ test('credential preview distinguishes single and multiple cards without changing print pagination',()=>{
+ const row={displayName:'Synthetic Student',email:'student@example.test',temporaryPassword:'ExamplePass42'};
+ assert.match(renderLoginCards([row],'Class'),/data-card-count="single"/);
+ assert.match(renderLoginCards([row],'Class'),/Student login card/);
+ assert.match(renderLoginCards([row,row],'Class'),/data-card-count="multiple"/);
+ assert.match(renderLoginCards([row,row],'Class'),/2 login cards ready to print/);
+ assert.match(credentialCss,/@media screen\s*\{[\s\S]*?align-items:center/);
+ });
