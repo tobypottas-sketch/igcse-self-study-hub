@@ -26,13 +26,16 @@ export async function openTeacherClassLoginCards(client,assignedClasses=[]){
  panel.addEventListener('cancel',event=>{if(busy)event.preventDefault();else panel.remove();});
  const paint=()=>{
   const count=selected.size;
-  panel.innerHTML='<div class="teacher-login-cards-panel"><header><div><p class="vocab-kicker">CLASS ACCOUNT TOOLS</p><h2>Create student login cards</h2><p>Choose an assigned class, then select students to print.</p></div><button type="button" data-card-close aria-label="Close">×</button></header>'+
+  const previousScroll=panel.querySelector('.teacher-login-cards-list')?.scrollTop||0;
+  panel.dataset.hasClass=String(Boolean(classId));
+  panel.innerHTML='<div class="teacher-login-cards-panel"><header><div><p class="vocab-kicker">CLASS ACCOUNT TOOLS</p><h2>Create student login cards</h2><p>Choose a class and select the students who need new login cards.</p></div><button type="button" data-card-close aria-label="Close">×</button></header>'+
    '<label class="teacher-login-cards-class-label" for="teacher-login-cards-class">Class to print</label><select id="teacher-login-cards-class" data-card-class><option value="">Choose a class…</option>'+classes.map(c=>'<option value="'+e(c.id)+'"'+(classId===c.id?' selected':'')+'>'+e(c.className)+'</option>').join('')+'</select>'+
    '<p class="teacher-login-cards-warning"><strong>Important:</strong> Creating a login card replaces the selected student’s current password. Their old password will immediately stop working. Student progress, XP and rewards stay unchanged.</p>'+
-   '<div class="teacher-login-cards-toolbar"><strong>'+count+' of '+roster.length+' selected</strong><div><button type="button" data-card-all>Select all</button><button type="button" data-card-none>Clear selection</button></div></div>'+
+   '<div class="teacher-login-cards-toolbar"'+(!classId?' hidden':'')+'><strong aria-live="polite">'+count+' of '+roster.length+' selected</strong><div><button type="button" data-card-all>Select all</button><button type="button" data-card-none>Clear selection</button></div></div>'+
    '<div class="teacher-login-cards-list" role="group" aria-label="Select students">'+(!classId?'<p class="teacher-login-cards-placeholder">Choose a class above to display its students.</p>':!roster.length?'<p class="teacher-login-cards-placeholder">No active students found in this class.</p>':'')+roster.map(row=>'<label><input type="checkbox" data-card-student="'+e(row.id)+'"'+(selected.has(row.id)?' checked':'')+'><span><strong>'+e(row.name)+'</strong><small>'+e(row.email)+'</small></span></label>').join('')+'</div>'+
-   '<label class="teacher-login-cards-consent"><input type="checkbox" data-card-consent> I understand that the selected students’ existing passwords will stop working.</label>'+
-   '<div class="teacher-login-cards-actions"><button type="button" data-card-cancel>Cancel</button><button type="button" class="vocab-button vocab-button--primary" data-card-generate disabled>Generate '+count+' login card'+(count===1?'':'s')+'</button></div><p data-card-error role="alert"></p></div>';
+   '<label class="teacher-login-cards-consent"'+(!count?' hidden':'')+'><input type="checkbox" data-card-consent> I understand that the selected students’ existing passwords will stop working.</label>'+
+   '<div class="teacher-login-cards-actions"><button type="button" data-card-cancel>Cancel</button><button type="button" class="vocab-button vocab-button--primary" data-card-generate disabled>'+(count?'Generate '+count+' login card'+(count===1?'':'s'):'Select students')+'</button></div><p data-card-error role="alert"></p></div>';
+  panel.querySelector('.teacher-login-cards-list').scrollTop=previousScroll;
   panel.querySelector('[data-card-close]').addEventListener('click',close);
   panel.querySelector('[data-card-class]').addEventListener('change',event=>{
    classId=event.target.value;
@@ -51,7 +54,9 @@ export async function openTeacherClassLoginCards(client,assignedClasses=[]){
   consent.addEventListener('change',()=>{button.disabled=!consent.checked||!selected.size;});
   panel.querySelectorAll('[data-card-student]').forEach(input=>input.addEventListener('change',()=>{
    if(input.checked)selected.add(input.dataset.cardStudent);else selected.delete(input.dataset.cardStudent);
+   const id=input.dataset.cardStudent;
    paint();
+   [...panel.querySelectorAll('[data-card-student]')].find(el=>el.dataset.cardStudent===id)?.focus({preventScroll:true});
   }));
   button.addEventListener('click',async()=>{
    if(busy||!classId||!classes.some(c=>c.id===classId)||!selected.size||!consent.checked)return;
