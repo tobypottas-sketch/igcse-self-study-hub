@@ -3,7 +3,7 @@ import {STUDENT_FEEDBACK_UI_ENABLED} from '../../assessor/student-feedback-flag.
 import {reviewTaskText} from '../../assessor/writing-app-adapters.js';
 import {reviewStudioConfig} from '../content/review-studio-config.js?v=3';
 import {createDraftStore,wordStatus} from '../engine/drafts.js';
-import {renderExamReference} from './structure.js?v=17';
+import {renderExamReference} from './structure.js?v=29';
 import {renderArtwork,reviewArtwork} from './editorial-art.js?v=8';
 import {el as add,action as btn} from './lesson-shell.js?v=6';
 // Small inline icons use the same stroke and scale throughout the Studio.
