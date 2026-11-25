@@ -1,4 +1,4 @@
-import {renderArtwork} from './editorial-art.js?v=6';
+import {renderArtwork} from './editorial-art.js?v=9';
 
 // Reusable lesson navigation, with honest session-only completion.
 export const stages=['Discover','Explore','Practise','Apply','Master'];

@@ -5,10 +5,10 @@ import {chromium} from 'playwright';
 const screenshotDir = process.env.WRITING_SCREENSHOT_DIR || '.';
 await mkdir(screenshotDir, {recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE});
-const exam = '0511 · Paper 1 Exercise 6 · 120–160 words · Content /6 · Language /9';
+const expressionRatio = 1672 / 941;
 
-async function checkArtwork(page, placement, name, ratio = 1.5) {
- const art = page.locator('.wa-art--'+placement);
+async function checkArtwork(host, placement, name, ratio = 1.5) {
+ const art = host.locator('.wa-art--'+placement);
  await art.scrollIntoViewIfNeeded();
  const info = await art.evaluate(async img => {
   await img.decode();
@@ -28,7 +28,7 @@ async function capture(page, name, width, height) {
  await page.screenshot({path:join(screenshotDir,`writing-preview-${name}-${width}x${height}.png`),fullPage:true});
 }
 
-async function captureStage(page, stage, artwork, width, height) {
+async function captureStage(page, stage, artwork, width, height, expression = false) {
  assert.equal(await page.locator('.wa-stage-title').innerText(),stage);
  const colours=await page.locator('.wa-stage-tab').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).backgroundColor));
  assert.deepEqual(colours,['rgb(8, 118, 110)','rgb(121, 83, 199)','rgb(245, 179, 53)','rgb(168, 63, 41)','rgb(20, 45, 72)']);
@@ -36,14 +36,23 @@ async function captureStage(page, stage, artwork, width, height) {
   const s=getComputedStyle(n);const rgb=v=>v.match(/[\d.]+/g).map(Number);const lum=a=>a.slice(0,3).map(x=>{x/=255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4;}).reduce((v,x,i)=>v+x*[.2126,.7152,.0722][i],0);
   const bg=rgb(s.backgroundColor),fg=rgb(s.color);if(bg.length===4&&bg[3]!==1)return 0;const l=[lum(bg),lum(fg)].sort((a,b)=>b-a);return (l[0]+.05)/(l[1]+.05);
  });assert.ok(contrast>=4.5,stage+' active tab contrast '+contrast);
- assert.equal(await page.locator('.wa-lesson-reference strong').innerText(),exam);
- assert.match(await page.locator('.wa-lesson-reference').innerText(),/Introduce → Describe → Evaluate → Recommend/);
- await checkArtwork(page,'stage',artwork);
+ assert.equal(await page.locator('.wa-lesson-reference strong').innerText(),'Paper 1 · Exercise 6');
+ assert.deepEqual(await page.locator('.wa-reference-fact b').allTextContents(),['120–160','6','9']);
+ await checkArtwork(page,'stage',artwork,expression ? expressionRatio : 1.5);
  const companion=await page.locator('.wa-learning-companion').evaluate(n=>{
  const image=n.querySelector('.wa-art--stage').getBoundingClientRect(),guide=n.querySelector('.wa-companion-guide').getBoundingClientRect(),side=n.getBoundingClientRect();
  return {stacked:guide.top>=image.bottom,centered:Math.abs((image.left+image.right)/2-(guide.left+guide.right)/2)<2,width:image.width,sideWidth:side.width,contained:image.left>=side.left-1&&image.right<=side.right+1};
  });assert.ok(companion.stacked&&companion.centered&&companion.contained&&companion.width>=Math.min(240,companion.sideWidth)-2,JSON.stringify(companion));
- await capture(page,stage.toLowerCase(),width,height);
+ await capture(page,expression ? artwork : stage.toLowerCase(),width,height);
+}
+async function checkBlueprint(page) {
+ const summary=page.locator('.wa-lesson-reference .wa-reference-disclosure > summary');
+ await summary.click();
+ assert.deepEqual(await page.locator('.wa-lesson-reference .wa-reference-move h4').allTextContents(),
+  ['Introduce','Describe','Evaluate','Recommend']);
+ assert.ok(await page.getByText('Before you finish',{exact:true}).isVisible());
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+ await summary.click();
 }
 try{
  for(const [width,height,columns] of [[1440,900,3],[768,1024,2],[390,844,1],[1024,600,3]]){
@@ -64,9 +73,28 @@ try{
   assert.ok(await page.locator('.wa-footer').isVisible());
   assert.deepEqual(errors,[]);
   await checkArtwork(page,'hero','academy-hero');
-  await checkArtwork(page,'card','structure-organisation');
+  const structureCard=page.locator('.wa-path.wa-structure');
+  const expressionCard=page.locator('.wa-path.wa-expression');
+  await checkArtwork(structureCard,'card','structure-organisation');
+  await checkArtwork(expressionCard,'card','vocabulary-expression',expressionRatio);
   await capture(page,'home',width,height);
-  await page.getByRole('button',{name:'Start pathway →'}).click();
+  await expressionCard.getByRole('button',{name:'Start pathway →'}).click();
+  await checkArtwork(page,'banner','vocabulary-expression',expressionRatio);
+  await checkBlueprint(page);
+  const tabs=page.locator('.wa-stage-tab');
+  const navigation=page.locator('.wa-stage-nav');
+  for (const [index,stage] of ['Discover','Explore','Practise','Apply','Master'].entries()) {
+   if(index>0){
+    await navigation.scrollIntoViewIfNeeded();
+    const top=await navigation.evaluate(n=>n.getBoundingClientRect().top);
+    await tabs.nth(index).click();
+    const nextTop=await navigation.evaluate(n=>n.getBoundingClientRect().top);
+    assert.ok(Math.abs(top-nextTop)<=1,stage+' moved the stage navigation');
+   }
+   await captureStage(page,stage,'expression-'+stage.toLowerCase(),width,height,true);
+  }
+  await page.getByRole('button',{name:'← All pathways'}).click();
+  await structureCard.getByRole('button',{name:'Start pathway →'}).click();
   assert.equal(await page.locator('.wa-stage-body').count(),1);
   await checkArtwork(page,'banner','structure-organisation');
   await captureStage(page,'Discover','stage-discover',width,height);
@@ -75,9 +103,7 @@ try{
   for(const n of [0,2,0,1]){await page.getByRole('button',{name:'Next challenge →'}).click();await page.locator('.wa-discovery .wa-options button').nth(n).click();}
   assert.match(await page.locator('.wa-stage-progress').innerText(),/1 of 5/);
   assert.equal(await page.locator('.wa-lesson-reference').evaluate(n=>getComputedStyle(n).position),'static');
-  await page.getByText('Review blueprint & exam checklist',{exact:true}).click();
-  assert.match(await page.locator('.wa-exam-reference').innerText(),/why you visited/);
-  await page.getByText('Review blueprint & exam checklist',{exact:true}).click();
+  await checkBlueprint(page);
   await page.getByRole('button',{name:/02 · Explore/}).press('Enter');
   assert.ok(await page.locator('.wa-stage-title').evaluate(node=>node===document.activeElement));
   await captureStage(page,'Explore','stage-explore',width,height);
