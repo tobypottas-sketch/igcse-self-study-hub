@@ -1,5 +1,5 @@
 import {renderArtwork, reviewArtwork} from './editorial-art.js?v=6';
-import {renderStudio} from './studio.js?v=11';
+import {renderStudio} from './studio.js?v=12';
 import {renderExamReference,renderStructure} from './structure.js?v=15';
 // Preview has no student writes, XP transactions or invented progress.
 const pathwayDetails={
