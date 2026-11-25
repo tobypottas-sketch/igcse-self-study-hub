@@ -1,6 +1,6 @@
 import * as expression from '../content/review-expression-v1.js';
 import {extraReviewModels} from '../content/review-explore-models.js?v=1';
-import {mountLesson,el,action} from './lesson-shell.js?v=10';
+import {mountLesson,el,action} from './lesson-shell.js?v=11';
 import {reviewArtwork} from './editorial-art.js?v=6';
 import {discovery,companions,applicationTasks} from '../content/review-active-v2.js';
 import {guidedTask,independentTask,toolkit,improvement,selfCheck} from '../content/review-guided-v1.js';
@@ -10,14 +10,18 @@ import {scoreItem,validateActivities} from '../engine/activities.js';
 function add(p,tag,cls,t){const n=p.ownerDocument.createElement(tag);n.className=cls||'';if(t)n.textContent=t;p.append(n);return n;}
 function button(p,t,fn){const n=add(p,'button','wa-action',t);n.type='button';n.addEventListener('click',fn);return n;}
 export function renderExamReference(p,{includeToolkit=true}={}){
- const s=add(p,'aside','wa-exam-reference');add(s,'strong','','0511 · Paper 1 Exercise 6 · 120–160 words · Content /6 · Language /9');
- add(s,'p','','Introduce → Describe → Evaluate → Recommend');
- const d=add(s,'details','');add(d,'summary','','Review blueprint & exam checklist');
- const ol=add(d,'ol','');for(const x of blueprint)add(ol,'li','',x.title+': '+x.guidance);
- add(d,'p','','Recommended scaffold, not a compulsory four-paragraph format. Cover all task requirements; develop ideas; use appropriate register, accurate and varied language, and clear organisation.');
- add(d,'p','','Description and evaluation may share a paragraph. Use formal or semi-formal language suited to the audience. Title, paragraph count and balance of praise and criticism are flexible.');
- const ul=add(d,'ul','');for(const x of selfCheck)add(ul,'li','',x);
- if(includeToolkit){const k=add(d,'details','');add(k,'summary','','Language toolkit');const kl=add(k,'ul','');for(const x of toolkit)add(kl,'li','',x);}
+ const s=add(p,'aside','wa-exam-reference wa-exam-reference-v2');
+ const bar=add(s,'div','wa-reference-bar');const identity=add(bar,'div','wa-reference-identity');add(identity,'span','wa-reference-label','CAMBRIDGE IGCSE ESL 0511');add(identity,'strong','','Paper 1 · Exercise 6');
+ const facts=add(bar,'div','wa-reference-facts');for(const [value,label] of [['120–160','words'],['6','content marks'],['9','language marks']]){const fact=add(facts,'div','wa-reference-fact');add(fact,'b','',value);add(fact,'span','',label);}
+ const d=add(s,'details','wa-reference-disclosure');const summary=add(d,'summary','');add(summary,'span','wa-reference-summary-icon','▤').setAttribute('aria-hidden','true');add(summary,'span','','Review blueprint & exam checklist');
+ const layout=add(d,'div','wa-reference-layout');const moves=add(layout,'section','');add(moves,'h3','','Four writing moves');const grid=add(moves,'div','wa-reference-moves');
+ const short=[['Introduce','Set the scene and give a first impression.'],['Describe','Select relevant, specific details.'],['Evaluate','Explain strengths and weaknesses.'],['Recommend','Say who would enjoy it, and why.']];
+ short.forEach(([title,hint],i)=>{const card=add(grid,'div','wa-reference-move');card.dataset.move=String(i);add(card,'span','wa-reference-number',String(i+1).padStart(2,'0'));const copy=add(card,'div','');add(copy,'h4','',title);add(copy,'p','',hint);});
+ add(moves,'p','wa-reference-reminder','Four writing moves, not four compulsory paragraphs. A title is optional.');
+ const check=add(layout,'section','wa-reference-check');add(check,'h3','','Before you finish');const checks=['Cover all task requirements.','Write for the intended audience.','Support opinions with specific details.','Use clear paragraphs and natural, accurate language.','Give a useful recommendation.','Stay within 120–160 words.'];for(const item of checks){const row=add(check,'div','wa-reference-check-row');add(row,'span','','✓').setAttribute('aria-hidden','true');add(row,'span','',item);}
+ if(includeToolkit){const k=add(d,'details','wa-reference-toolkit');add(k,'summary','','Useful language');const list=add(k,'div','wa-reference-phrases');for(const x of toolkit)add(list,'span','',x);}
+ const more=add(d,'details','wa-reference-detail');add(more,'summary','','Detailed guidance');const ol=add(more,'ol','');for(const x of blueprint)add(ol,'li','',x.title+': '+x.guidance);add(more,'p','','Description and evaluation may share a paragraph. Choose a register that suits the audience. Paragraph count and balance of praise and criticism are flexible.');
+
  return s;
 }
 export function renderStructure(root,onBack,onStudio){return renderPathway(root,onBack,onStudio);}
