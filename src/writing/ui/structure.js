@@ -1,3 +1,4 @@
+import {cohesion,cohesionModels} from '../content/review-cohesion.js';
 import * as development from '../content/review-development-v1.js';
 import * as expression from '../content/review-expression-v1.js';
 import {extraReviewModels} from '../content/review-explore-models.js?v=1';
@@ -5,10 +6,10 @@ import {mountLesson,el,action} from './lesson-shell.js?v=12';
 import {reviewArtwork} from './editorial-art.js?v=9';
 import {companions} from '../content/review-active-v2.js';
 import {pathways} from '../content/review-pedagogy.js';
-import {newWritingRun,renderResponseWorkshop} from './response-workshop.js';
+import {newWritingRun,renderResponseWorkshop} from './response-workshop.js?v=2';
 import {guidedTask,independentTask,toolkit} from '../content/review-guided-v1.js';
 import {blueprint,model} from '../content/review-structure-v1.js';
-import {scoreItem,validateActivities,shuffledIndexes,hasWritingAttempt,writingComplete} from '../engine/activities.js?v=2';
+import {scoreItem,validateActivities,shuffledIndexes,hasWritingAttempt,writingComplete} from '../engine/activities.js?v=3';
 
 function add(p,tag,cls,t){const n=p.ownerDocument.createElement(tag);n.className=cls||'';if(t)n.textContent=t;p.append(n);return n;}
 function button(p,t,fn){const n=add(p,'button','wa-action',t);n.type='button';n.addEventListener('click',fn);return n;}
@@ -30,19 +31,22 @@ export function renderExamReference(p,{includeToolkit=true}={}){
 export function renderStructure(root,onBack,onStudio){return renderPathway(root,onBack,onStudio);}
 export function renderExpression(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,expression);}
 export function renderDevelopment(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,development);}
+export function renderCohesion(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,cohesion);}
 function renderPathway(root,onBack,onStudio,config=null){
  const isExpression=config===expression, isDevelopment=config===development, hasLens=!!config;
- const pathwayKey=isDevelopment?'development':isExpression?'expression':'structure';
- const course=pathways[pathwayKey];
+ const isCohesion=config===cohesion;
+ const pathwayKey=isCohesion?'cohesion':isDevelopment?'development':isExpression?'expression':'structure';
+ const course=isCohesion?cohesion:pathways[pathwayKey];
+ const goldTasks=[course.gold].flat();
  const practice=validateActivities(course.practice);
  const checkpoint=validateActivities([{id:pathwayKey+'-transfer',type:'choice',items:[course.analysis]}])[0];
- const stageCompanions=(config?.companions??companions).map((tip,index)=>index===4
+ const stageCompanions=isCohesion?course.companions:(config?.companions??companions).map((tip,index)=>index===4
   ? ['Work independently','Read the new situation carefully and apply what you learnt.','Use the criteria to reflect on your own writing.']
   : tip);
  const state={model:0,paragraph:0,identified:new Set(),discovered:new Set(),discoveryIndex:0,
   annotations:new Map(),exploreDrafts:new Map(),applyIndex:0,applications:course.apply.map(newWritingRun),
-  attempts:new Map(),active:null,gold:newWritingRun(),transfer:newWritingRun()};
- const gold={id:pathwayKey+'-writing',title:course.gold.title,level:'Gold'};
+  attempts:new Map(),active:null,discoverNotes:new Map(),goldIndex:0,gold:goldTasks.map(newWritingRun),transfer:newWritingRun()};
+ const gold={id:pathwayKey+'-writing',title:course.goldTitle??goldTasks[0].title,level:'Gold'};
  const challenges=[...practice,gold];
  const baseModels=[{...model,category:'Café',sentenceTips:[['Names the café, establishes the time and explains the reason for visiting.','Introduces an initial evaluation through the atmosphere and welcome.'],['Describes location, seating and menu.','Provides specific examples of food.','Evaluates affordability for students.'],['Balances crowding with praise for staff.','Balances a specific delay against food quality.','Explains the practical benefit of a quiet corner.'],['Identifies a suitable audience and reason.','Offers advice about timing.']],purposes:['Introduction','Description','Evaluation','Recommendation']},{...guidedTask,title:'Willow Kitchen',category:'Restaurant',purposes:['Introduction','Evaluation','Evaluation','Recommendation'],sentenceTips:[['Establishes the reason for visiting.','Adds useful location and price information.'],['States a clear preference.','Supports the judgement with sensory detail.','Explains why the portion was suitable.','Adds a specific example of flexibility.'],['Signals a shift to criticism.','Explains the wait and the effect of noise.'],['Identifies an audience and a reason.','Offers practical advice addressing the drawback.']]},...extraReviewModels];
  const models=isDevelopment?config.developmentModels(baseModels):isExpression?config.expressionModels(baseModels):baseModels;
@@ -133,7 +137,7 @@ function renderPathway(root,onBack,onStudio,config=null){
   }
   draw();
  }
- mountLesson(root,{title:isDevelopment?'Idea Development':isExpression?'Vocabulary & Expression':'Structure & Organisation',pathwayNumber:isDevelopment?'03':isExpression?'02':'01',artwork:reviewArtwork.pathways[pathwayKey]??reviewArtwork.pathways.structure,onBack,reference:renderExamReference,companions:stageCompanions,renderStage(body,i,ctx){
+ mountLesson(root,{title:course.title??(isDevelopment?'Idea Development':isExpression?'Vocabulary & Expression':'Structure & Organisation'),pathwayNumber:course.number??(isDevelopment?'03':isExpression?'02':'01'),artwork:reviewArtwork.pathways[pathwayKey]??reviewArtwork.pathways.structure,onBack,reference:renderExamReference,companions:stageCompanions,renderStage(body,i,ctx){
  if(i===0){
  const host=el(body,'div','wa-discovery');
  function draw(){
@@ -145,15 +149,43 @@ function renderPathway(root,onBack,onStudio,config=null){
   const contrast=el(host,'div','wa-options');
   el(contrast,'p','wa-apply-source',item.before);
   el(contrast,'p','wa-apply-source',item.after);
+  function recordReflection(){
+   state.discovered.add(n);
+   if(state.discovered.size===course.discover.length)ctx.complete();
+  }
+  if(isCohesion){
+   const label=el(host,'label','wa-apply-instruction','Write a short observation.');
+   const response=el(label,'textarea','wa-writing-input wa-apply-input');
+   response.rows=2;
+   response.value=state.discoverNotes.get(n)??'';
+   response.readOnly=state.discovered.has(n);
+   response.oninput=()=>state.discoverNotes.set(n,response.value);
+   const feedback=el(host,'p','wa-answer');
+   feedback.setAttribute('role','status');
+   const reveal=action(host,'Check what changed',()=>{
+    if(!hasWritingAttempt(response.value,3)){
+     feedback.textContent='Write at least three words about what changed.';
+     return;
+    }
+    recordReflection();
+    response.readOnly=true;
+    reveal.hidden=true;
+    feedback.textContent=item.principle;
+    feedback.tabIndex=-1;
+    feedback.focus();
+   });
+   reveal.hidden=response.readOnly;
+   if(response.readOnly)feedback.textContent=item.principle;
+  }else{
   const explanation=el(host,'details','wa-explore-brief');
   const summary=el(explanation,'summary','','Check what changed');
   el(explanation,'p','',item.principle);
   explanation.open=state.discovered.has(n);
   summary.onclick=()=>{
    if(explanation.open)return;
-   state.discovered.add(n);
-   if(state.discovered.size===course.discover.length)ctx.complete();
+   recordReflection();
   };
+  }
   const controls=el(host,'div','wa-stage-foot');
   const prev=action(controls,'← Previous contrast',()=>{state.discoveryIndex--;draw().focus();});
   prev.disabled=n===0;
@@ -190,11 +222,11 @@ function renderPathway(root,onBack,onStudio,config=null){
   const pieces=m.paragraphs[n].match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g)||[m.paragraphs[n]];
   const selected=state.annotations.get(key)||new Set();state.annotations.set(key,selected);
   const note=el(paper,'div','wa-explore-note');el(note,'span','wa-explore-eyebrow','EDITOR’S NOTE');const detail=el(note,'p','','Write your editorial note to open the sentence annotations.');detail.setAttribute('role','status');
-  const lens=m.expression?.[n];const sentenceTips=hasLens?pieces.map((sentence,j)=>sentence.toLowerCase().includes(lens.phrase.toLowerCase())?lens.rationale:isDevelopment?m.sentenceTips?.[n]?.[j]||'Consider what this detail adds to the judgement.':'Read this sentence in context. Look for precise, natural word combinations.'):m.sentenceTips?.[n];let unlocked=state.identified.has(key);const sentenceButtons=[];
+  const lens=isCohesion?cohesionModels[m.title][n]:m.expression?.[n];const sentenceTips=hasLens?pieces.map((sentence,j)=>sentence.toLowerCase().includes(lens.phrase.toLowerCase())?lens.rationale:(isDevelopment||isCohesion)?m.sentenceTips?.[n]?.[j]||'Consider what this detail adds to the judgement.':'Read this sentence in context. Look for precise, natural word combinations.'):m.sentenceTips?.[n];let unlocked=state.identified.has(key);const sentenceButtons=[];
   pieces.forEach((sentence,j)=>{const b=el(prose,'span','wa-phrase wa-explore-sentence',sentence.trim());b.setAttribute('role','button');b.tabIndex=unlocked?0:-1;b.setAttribute('aria-disabled',String(!unlocked));const activate=()=>{if(!unlocked)return;selected.clear();selected.add(j);sentenceButtons.forEach((item,k)=>item.setAttribute('aria-pressed',String(k===j)));detail.textContent=sentenceTips?.[j]||m.notes[n];};b.onclick=activate;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};b.setAttribute('aria-pressed',String(selected.has(j)));sentenceButtons.push(b);prose.append(' ');});
   if(unlocked)detail.textContent=selected.size?(sentenceTips?.[[...selected][0]]||m.notes[n]):'Select a sentence to examine its contribution.';
   const question=el(host,'section','wa-explore-question');
-  const editorialPrompt=isExpression
+  const editorialPrompt=isCohesion?lens.prompt:isExpression
    ? 'Find “'+lens.phrase+'” in context. Suggest an alternative, then explain what would change in meaning, emphasis or tone.'
    : isDevelopment
     ? 'Find “'+lens.phrase+'” in context. Explain which judgement it supports or what it helps the reader decide.'
@@ -212,8 +244,9 @@ function renderPathway(root,onBack,onStudio,config=null){
   const feedback=el(question,'p','wa-answer');
   feedback.setAttribute('role','status');
   const reveal=action(question,'Compare with the editor’s note',()=>{
-   if(!hasWritingAttempt(response.value,10)){
-    feedback.textContent='Write at least ten words explaining your decision.';
+   const minimum=lens?.min??10;
+   if(!hasWritingAttempt(response.value,minimum)){
+    feedback.textContent=isCohesion?'Write at least '+minimum+' words in response to the prompt.':'Write at least ten words explaining your decision.';
     return;
    }
    state.identified.add(key);
@@ -238,24 +271,38 @@ function renderPathway(root,onBack,onStudio,config=null){
  const header=el(desk,'div','wa-practise-library-header');el(header,'span','wa-practise-eyebrow','CHALLENGE LIBRARY');const count=el(header,'span','wa-practise-count');
  const cards=el(desk,'div','wa-practise-library');const host=el(desk,'div','wa-question wa-practise-question');
  const icons=['◎','↕','✎','▤','✦'];const buttons=[];
- const complete=a=>a===gold ? writingComplete(state.gold,course.gold) : hasFinished(a);
+ const complete=a=>a===gold ? goldTasks.every((task,j)=>writingComplete(state.gold[j],task)) : hasFinished(a);
  function syncCards(){
   count.textContent=challenges.filter(complete).length+' / '+challenges.length+' complete';
   buttons.forEach((button,j)=>{
    const a=challenges[j];
    button.setAttribute('aria-pressed',String(state.active===a.id));
    button.dataset.done=String(complete(a));
-   button.querySelector('.wa-practise-card-status').textContent=complete(a)?'✓ Complete':a===gold?'Writing task':a.items.length+' decision'+(a.items.length===1?'':'s');
+   button.querySelector('.wa-practise-card-status').textContent=complete(a)?'✓ Complete':a===gold?(goldTasks.length>1?goldTasks.length+' writing tasks':'Writing task'):a.items.length+' decision'+(a.items.length===1?'':'s');
   });
   if(challenges.every(complete))ctx.complete();
   else ctx.incomplete();
  }
  function open(a,focus=false){
   state.active=a.id;
-  if(a===gold)renderResponseWorkshop(host,course.gold,state.gold,syncCards);
+  if(a===gold){
+   if(goldTasks.length===1)renderResponseWorkshop(host,goldTasks[0],state.gold[0],syncCards);
+   else renderGold();
+  }
   else quiz(host,a,syncCards);
   syncCards();
   if(focus){const heading=host.querySelector('h3');heading.focus({preventScroll:true});}
+ }
+ function renderGold(focus=false){
+  host.replaceChildren();
+  const index=state.goldIndex;
+  el(host,'p','wa-kicker','Gold · Task '+(index+1)+' of '+goldTasks.length);
+  const workshop=el(host,'div','wa-apply-work');
+  const title=renderResponseWorkshop(workshop,goldTasks[index],state.gold[index],syncCards);
+  const controls=el(host,'div','wa-stage-foot');
+  action(controls,'← Previous Gold task',()=>{state.goldIndex--;renderGold(true);}).disabled=index===0;
+  action(controls,'Next Gold task →',()=>{state.goldIndex++;renderGold(true);}).disabled=index===goldTasks.length-1;
+  if(focus)title.focus({preventScroll:true});
  }
  challenges.forEach((a,j)=>{
   const button=action(cards,'',()=>open(a,true),'wa-action wa-practise-card');
