@@ -4,10 +4,11 @@ import {renderArtwork} from './editorial-art.js?v=6';
 export const stages=['Discover','Explore','Practise','Apply','Master'];
 export function el(p,t,c,v){const n=p.ownerDocument.createElement(t);n.className=c||'';if(v)n.textContent=v;p.append(n);return n;}
 export function action(p,t,fn,cls='wa-action'){const b=el(p,'button',cls,t);b.type='button';b.onclick=fn;return b;}
-export function mountLesson(root,{title,artwork,onBack,reference,companions=[],renderStage}){
+export function mountLesson(root,{title,pathwayNumber='01',artwork,onBack,reference,companions=[],renderStage}){
  root.replaceChildren();const shell=el(root,'div','wa-shell wa-learning wa-editorial-lesson');
+ shell.dataset.pathway=pathwayNumber;
  const nav=el(shell,'nav','wa-nav');action(nav,'← All pathways',onBack);el(nav,'span','wa-preview','Staff preview');
- const header=el(shell,'header','wa-lesson-banner');const copy=el(header,'div','');el(copy,'p','wa-kicker','PATHWAY 01 / WRITING ACADEMY');el(copy,'h1','',title);
+ const header=el(shell,'header','wa-lesson-banner');const copy=el(header,'div','');el(copy,'p','wa-kicker','PATHWAY '+pathwayNumber+' / WRITING ACADEMY');el(copy,'h1','',title);
  if(artwork?.banner)renderArtwork(header,artwork.banner,'banner');
  const ref=reference(shell);ref.classList.add('wa-lesson-reference');
  const progress=el(shell,'p','wa-stage-progress');progress.setAttribute('aria-live','polite');
@@ -22,8 +23,8 @@ export function mountLesson(root,{title,artwork,onBack,reference,companions=[],r
   foot.replaceChildren();
   sync();
 
-  const illustration = artwork?.stages[i];
-  if (illustration) body.dataset.stage = stages[i].toLowerCase();
+  const illustration = artwork?.stages?.[i];
+  body.dataset.stage = stages[i].toLowerCase();
   const heading = el(body, 'h2', 'wa-stage-title', stages[i]);
   heading.tabIndex = -1;
   const side=el(body,'aside','wa-learning-companion');

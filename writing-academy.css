@@ -763,3 +763,8 @@
 #writingAcademy .wa-review-coach-icon .wa-studio-icon{width:25px;height:25px}
 #writingAcademy .wa-review-coach-host .sf-button,#writingAcademy .wa-review-coach-host .wa-review-sample-button{background:#68519a;color:#fff;border-color:#68519a;border-radius:8px}
 @media(max-width:520px){#writingAcademy .wa-review-flow-button{font-size:.68rem;gap:4px}#writingAcademy .wa-review-metric-top .wa-studio-icon{width:13px;height:13px}#writingAcademy .wa-review-metric-top{flex-wrap:wrap}#writingAcademy .wa-write-tool .wa-studio-icon{width:14px;height:14px}}
+
+/* Expression pathway uses the established editorial layout with its own blue identity. */
+#writingAcademy .wa-editorial-lesson[data-pathway="02"] .wa-lesson-banner{border-top-color:#28579e;background:#e4ecf9}
+#writingAcademy .wa-path.wa-expression .wa-action{border-color:#9eb5d6}
+#writingAcademy .wa-path.wa-expression .wa-action:hover{background:#edf3fc}
