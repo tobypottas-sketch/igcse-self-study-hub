@@ -157,3 +157,510 @@ export const pathways = {
   master: writing('Evaluate a night market for first-time visitors', 'Stall numbers match a map by the entrance. Menus list common allergens. A live band plays by the gate. At 7 p.m. we waited twenty minutes at the busiest food stall. A second line sold the same snacks with a five-minute wait.', 'Write 40–65 words for students planning a short visit after school. Select useful evidence, explain its effect on their visit and make a justified recommendation.', 'The market is worth a short visit if you use the map by the entrance to find the stalls you want. At seven, we waited twenty minutes at the busiest food stall, but a second line served the same snacks in five minutes. Check both lines before joining a queue.', ['I chose evidence that matters on a short visit.', 'I explained a consequence readers can use.', 'My recommendation follows the observations.'], 32)
  }
 };
+
+// Additional original practice: preserve existing challenge IDs and answer identities.
+const extraPractice = {
+  "structure-focus": [
+    {
+      "prompt": "The paragraph evaluates how easily visitors can find their way around a library. Which detail belongs with that focus?",
+      "answer": 1,
+      "options": [
+        "The library lends laptops for two hours.",
+        "Colour-coded signs lead to each floor.",
+        "The reading desks have adjustable lamps."
+      ],
+      "explanations": [
+        "Laptop loans support a point about resources.",
+        "The signs directly help readers navigate.",
+        "Lighting supports a point about study conditions."
+      ],
+      "rationale": "The signs directly help readers navigate."
+    },
+    {
+      "prompt": "A review paragraph explains how the sports club helps nervous beginners. Which topic sentence covers a demonstration, a short practice and individual advice?",
+      "answer": 0,
+      "options": [
+        "The coaching helps newcomers build confidence.",
+        "The club provides a range of equipment for newcomers.",
+        "The sessions suit people who prefer individual sports."
+      ],
+      "explanations": [
+        "It covers all three coaching methods and their shared purpose.",
+        "Equipment is not the focus of these details.",
+        "Individual advice does not establish that the sport is individual."
+      ],
+      "rationale": "It covers all three coaching methods and their shared purpose."
+    }
+  ],
+  "structure-order": [
+    {
+      "prompt": "Arrange these observations so the reference and consequence are clear.",
+      "options": [
+        "This meant we could compare our answers immediately.",
+        "The guide gave each pair a worksheet.",
+        "After completing it, we discussed our results with another pair."
+      ],
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "rationale": "Introduce the worksheet before referring to it, then explain the result of the discussion."
+    },
+    {
+      "prompt": "Order the sentences so the contrast and recommendation follow the evidence.",
+      "options": [
+        "For that reason, I would choose an earlier session.",
+        "The climbing course was easy to book online.",
+        "However, the afternoon session was so crowded that we had little practice time."
+      ],
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "rationale": "Start with booking, introduce the crowding as a contrast, then use that drawback to justify the advice."
+    }
+  ],
+  "structure-plan": [
+    {
+      "prompt": "A student review must evaluate a theatre's ticket value and suitability for viewers with hearing difficulties. Notes: discounted tickets, captions at evening shows, free programme, clear speakers. Which organisation best answers both requirements?",
+      "answer": 0,
+      "options": [
+        "Discount and free programme; captions and speakers.",
+        "Discount and captions; free programme and speakers.",
+        "Discount and speakers; free programme and captions."
+      ],
+      "explanations": [
+        "One group evaluates what the ticket buys; the other evaluates access to dialogue.",
+        "Both groups mix cost and hearing information.",
+        "Both groups again split the evidence for each requirement."
+      ],
+      "rationale": "One group evaluates what the ticket buys; the other evaluates access to dialogue."
+    },
+    {
+      "prompt": "Your review describes a photography course and evaluates its teaching. Which plan gives the evaluation a clear purpose?",
+      "answer": 1,
+      "options": [
+        "Describe each room, then list the course times and prices.",
+        "Briefly describe the sessions, then connect the demonstration and feedback to what you learned.",
+        "Describe the tutor's feedback first, then repeat it after describing each session."
+      ],
+      "explanations": [
+        "Rooms and times can help planning but do not address teaching.",
+        "The description establishes context and the learning details support the evaluation.",
+        "Repeating the same detail takes space without developing the judgement."
+      ],
+      "rationale": "The description establishes context and the learning details support the evaluation."
+    },
+    {
+      "prompt": "A paragraph evaluates a café's suitability for revision: quiet seating, sockets and dim lighting. The next paragraph evaluates food prices. Where should the observation that lamps can be borrowed go?",
+      "answer": 0,
+      "options": [
+        "With the seating, sockets and lighting.",
+        "With the price of sandwiches and drinks.",
+        "In the opening, before naming the café."
+      ],
+      "explanations": [
+        "It qualifies the lighting drawback and supports the study-space evaluation.",
+        "Borrowing a lamp does not establish food value.",
+        "The opening would introduce a detail before its purpose is clear."
+      ],
+      "rationale": "It qualifies the lighting drawback and supports the study-space evaluation."
+    }
+  ],
+  "structure-diagnose": [
+    {
+      "prompt": "“The tutor explained the controls clearly. The entrance costs ¥30. We then managed to operate the camera independently.” Which edit best restores the teaching paragraph's flow?",
+      "answer": 2,
+      "options": [
+        "Move the price before the tutor's explanation.",
+        "Repeat the price after the final sentence.",
+        "Move the price to the value paragraph."
+      ],
+      "explanations": [
+        "The teaching sequence is intact, but the price remains outside its focus.",
+        "Repeating the price introduces a second distraction.",
+        "The explanation and independent practice stay connected as evidence of teaching."
+      ],
+      "rationale": "The explanation and independent practice stay connected as evidence of teaching."
+    },
+    {
+      "prompt": "“I recommend the café to students in a hurry. Our takeaway order arrived in five minutes. The seats beside the window were comfortable.” Which ending best follows the stated reason?",
+      "answer": 1,
+      "options": [
+        "Keep all three sentences because each is positive.",
+        "Keep the recommendation and quick order together; move the seating detail to the atmosphere paragraph.",
+        "Move the quick order to the introduction and end with the seating."
+      ],
+      "explanations": [
+        "The seating detail does not support the recommendation about speed.",
+        "The evidence directly supports the verdict and seating has a different focus.",
+        "Moving the evidence makes the recommendation harder to justify."
+      ],
+      "rationale": "The evidence directly supports the verdict and seating has a different focus."
+    },
+    {
+      "prompt": "A paragraph explains that the museum's labels are clear but its map is confusing. The next paragraph starts “This makes it ideal for first-time visitors.” What should the editor do?",
+      "answer": 0,
+      "options": [
+        "Name the clear labels as the strength and qualify the judgement about the map.",
+        "Move the sentence to the beginning without changing it.",
+        "Add “Overall” before the sentence."
+      ],
+      "explanations": [
+        "The edit resolves the unclear reference and acknowledges the drawback.",
+        "Moving the sentence leaves its basis unclear.",
+        "A connector alone does not establish what supports the recommendation."
+      ],
+      "rationale": "The edit resolves the unclear reference and acknowledges the drawback."
+    }
+  ],
+  "expression-precision": [
+    {
+      "prompt": "The coach noticed my mistake and suggested a small change that immediately helped. Which adjective best describes that feedback?",
+      "answer": 0,
+      "options": [
+        "Constructive",
+        "Encouraging",
+        "Detailed"
+      ],
+      "explanations": [
+        "Constructive feedback helps someone improve.",
+        "Encouraging describes emotional support, not necessarily an actionable correction.",
+        "Detailed describes amount of information; the suggestion here was small."
+      ],
+      "rationale": "Constructive feedback helps someone improve."
+    },
+    {
+      "prompt": "The bread broke with a light crunch but was not hard to bite. Which description is most precise?",
+      "answer": 1,
+      "options": [
+        "Firm",
+        "Crisp",
+        "Tough"
+      ],
+      "explanations": [
+        "Firm describes resistance to pressure, not the light crunch.",
+        "Crisp captures the light crunchy texture.",
+        "Tough suggests difficulty biting or chewing."
+      ],
+      "rationale": "Crisp captures the light crunchy texture."
+    }
+  ],
+  "expression-collocation": [
+    {
+      "prompt": "Which expression naturally describes a film whose pace remains interesting throughout?",
+      "answer": 2,
+      "options": [
+        "Keeps the attention tightly",
+        "Holds the concentration strongly",
+        "Holds your attention"
+      ],
+      "explanations": [
+        "The wording is unnatural for sustaining interest.",
+        "Concentration is usually something a person maintains.",
+        "Hold someone's attention is a natural expression for maintaining interest."
+      ],
+      "rationale": "Hold someone's attention is a natural expression for maintaining interest."
+    },
+    {
+      "prompt": "Which phrase naturally describes a course that costs little compared with what participants receive?",
+      "answer": 1,
+      "options": [
+        "Offers a valuable price",
+        "Offers good value",
+        "Offers a worthy cost"
+      ],
+      "explanations": [
+        "A price can be reasonable, but valuable price is not the usual combination.",
+        "Good value links cost to benefits.",
+        "Worthy cost is not a natural evaluation of price."
+      ],
+      "rationale": "Good value links cost to benefits."
+    }
+  ],
+  "expression-meaning": [
+    {
+      "prompt": "“Two exhibits were out of order during my visit.” Which edit preserves the scope and time?",
+      "answer": 1,
+      "options": [
+        "Several exhibits are unreliable.",
+        "Two exhibits were not working when I visited.",
+        "Some exhibits have never worked properly."
+      ],
+      "explanations": [
+        "This generalises beyond the visit and changes the number.",
+        "This preserves both the number and the time.",
+        "This invents a history of problems."
+      ],
+      "rationale": "This preserves both the number and the time."
+    },
+    {
+      "prompt": "“The guide occasionally spoke too quickly for me.” Which revision keeps the criticism measured?",
+      "answer": 0,
+      "options": [
+        "At times, I struggled to keep up with the guide.",
+        "The guide rushed through every explanation.",
+        "Most visitors found the guide impossible to follow."
+      ],
+      "explanations": [
+        "It retains occasional difficulty from the writer's perspective.",
+        "Every explanation broadens the scope.",
+        "This speaks for other visitors and intensifies the problem."
+      ],
+      "rationale": "It retains occasional difficulty from the writer's perspective."
+    },
+    {
+      "prompt": "“Students can borrow a tablet for up to an hour.” Which rewrite retains the limit?",
+      "answer": 2,
+      "options": [
+        "Students can borrow tablets for an hour or more.",
+        "Students must return tablets after exactly an hour.",
+        "Students can borrow tablets for as long as an hour."
+      ],
+      "explanations": [
+        "This extends the maximum.",
+        "This changes a maximum into a fixed duration.",
+        "The maximum remains one hour."
+      ],
+      "rationale": "The maximum remains one hour."
+    }
+  ],
+  "expression-register": [
+    {
+      "prompt": "A school magazine wants friendly but fair advice. Which sentence criticises crowded seating without attacking staff?",
+      "answer": 1,
+      "options": [
+        "The staff clearly have no idea how to organise a room.",
+        "Allow extra time to find a seat during the lunch rush.",
+        "Prospective patrons should anticipate congestion in the dining premises."
+      ],
+      "explanations": [
+        "It blames staff without evidence.",
+        "It gives readers direct, measured advice.",
+        "It communicates the issue but sounds unnecessarily formal for this audience."
+      ],
+      "rationale": "It gives readers direct, measured advice."
+    },
+    {
+      "prompt": "Which recommendation sounds natural in a school newsletter while acknowledging that the course is demanding?",
+      "answer": 2,
+      "options": [
+        "This challenging course is compulsory viewing for all ambitious pupils.",
+        "Participation may be considered by individuals possessing the requisite aptitude.",
+        "Give it a try if you enjoy a challenge and have time to practise."
+      ],
+      "explanations": [
+        "It overstates the recommendation and uses viewing for a course.",
+        "It is unnecessarily impersonal and formal.",
+        "It targets the right audience and keeps the condition clear."
+      ],
+      "rationale": "It targets the right audience and keeps the condition clear."
+    },
+    {
+      "prompt": "Which sentence fits a friendly review without exaggerating the observation that drinks took fifteen minutes?",
+      "answer": 0,
+      "options": [
+        "Our drinks took fifteen minutes, so allow a little extra time.",
+        "The service was an absolute disaster from start to finish.",
+        "The establishment demonstrated unacceptable operational inefficiency."
+      ],
+      "explanations": [
+        "It makes the criticism specific and useful.",
+        "It exaggerates a limited delay.",
+        "It makes a broad judgement in an unnecessarily formal register."
+      ],
+      "rationale": "It makes the criticism specific and useful."
+    }
+  ],
+  "development-support": [
+    {
+      "prompt": "You argue that a film makes its friendship believable. Which observation best supports that judgement?",
+      "answer": 1,
+      "options": [
+        "The characters wear different school uniforms.",
+        "The friends disagree and later apologise to each other.",
+        "The film has several scenes set in a school."
+      ],
+      "explanations": [
+        "Costumes may establish setting, not the friendship.",
+        "Their disagreement and response show a believable relationship.",
+        "The setting alone does not establish how the friendship works."
+      ],
+      "rationale": "Their disagreement and response show a believable relationship."
+    },
+    {
+      "prompt": "You think a café offers good value for students. Which detail best supports that judgement?",
+      "answer": 2,
+      "options": [
+        "The lunch menu changes every week.",
+        "The café is a short walk from school.",
+        "A ¥25 lunch includes a main dish and a drink."
+      ],
+      "explanations": [
+        "Variety may matter, but price and benefits are not established.",
+        "Convenience is distinct from value for money.",
+        "The price and what is included support the value judgement."
+      ],
+      "rationale": "The price and what is included support the value judgement."
+    },
+    {
+      "prompt": "You argue that a game is accessible to beginners. Which observation best supports the claim?",
+      "answer": 0,
+      "options": [
+        "The first level introduces one control at a time.",
+        "Later levels have attractive backgrounds.",
+        "Players can compare scores with friends."
+      ],
+      "explanations": [
+        "The staged introduction helps newcomers learn.",
+        "Visual design does not directly support accessibility.",
+        "Competition does not establish ease of learning."
+      ],
+      "rationale": "The staged introduction helps newcomers learn."
+    }
+  ],
+  "development-specific": [
+    {
+      "prompt": "You describe a concert's sound as clear. Which observation gives the most specific evidence?",
+      "answer": 1,
+      "options": [
+        "The speakers stood beside the stage.",
+        "From the back row, I could distinguish every lyric.",
+        "The audience applauded after each song."
+      ],
+      "explanations": [
+        "Speaker location does not establish clarity.",
+        "The writer's location and what they could hear substantiate the judgement.",
+        "Applause may show enjoyment but not sound clarity."
+      ],
+      "rationale": "The writer's location and what they could hear substantiate the judgement."
+    },
+    {
+      "prompt": "You claim that a workshop gives individual support. Which observation makes this claim concrete?",
+      "answer": 0,
+      "options": [
+        "The tutor checked my sketch and showed me how to correct its proportions.",
+        "The tutor greeted everyone when they arrived.",
+        "The tutor introduced the day's activities to the group."
+      ],
+      "explanations": [
+        "The tutor's specific response to one learner shows individual support.",
+        "A greeting is welcoming but not teaching support.",
+        "A group introduction is not individual feedback."
+      ],
+      "rationale": "The tutor's specific response to one learner shows individual support."
+    },
+    {
+      "prompt": "You claim that an exhibition is interactive. Which detail most clearly demonstrates that?",
+      "answer": 2,
+      "options": [
+        "The displays use large colour photographs.",
+        "The guide describes how a bridge is built.",
+        "Visitors adjust a model bridge and test how much weight it holds."
+      ],
+      "explanations": [
+        "Photos are visual evidence, not interaction.",
+        "Listening to a guide is not necessarily hands-on.",
+        "Visitors actively change and test the model."
+      ],
+      "rationale": "Visitors actively change and test the model."
+    }
+  ],
+  "development-impact": [
+    {
+      "prompt": "A café serves takeaway meals in five minutes. Your readers have a twenty-minute lunch break. Which explanation develops the most relevant impact?",
+      "answer": 0,
+      "options": [
+        "Students still have time to eat and return to class.",
+        "Students can compare the packaging with other cafés.",
+        "Students can choose a café with fewer tables."
+      ],
+      "explanations": [
+        "The quick service directly helps students manage the short break.",
+        "Packaging may matter but the waiting time does not establish its quality.",
+        "Takeaway speed does not establish table availability."
+      ],
+      "rationale": "The quick service directly helps students manage the short break."
+    },
+    {
+      "prompt": "A museum includes written instructions beside each experiment. Which explanation best develops the benefit for visitors exploring without a guide?",
+      "answer": 2,
+      "options": [
+        "The labels make the displays look more organised.",
+        "The museum can include more experiments in each room.",
+        "Visitors can try the experiments without waiting for someone to explain them."
+      ],
+      "explanations": [
+        "Appearance is not the main benefit for independent visitors.",
+        "Instructions do not establish how many exhibits fit.",
+        "The instructions support independent participation."
+      ],
+      "rationale": "The instructions support independent participation."
+    },
+    {
+      "prompt": "A game saves progress after every short level. Your readers often play while travelling. Which development is most useful?",
+      "answer": 1,
+      "options": [
+        "The game may have more attractive menus than other games.",
+        "Players can stop when they reach their destination without losing a completed level.",
+        "Players can compare their progress with friends more often."
+      ],
+      "explanations": [
+        "Saving progress does not establish menu quality.",
+        "This explains the practical effect for people with limited playing time.",
+        "Saving progress does not necessarily support score sharing."
+      ],
+      "rationale": "This explains the practical effect for people with limited playing time."
+    }
+  ],
+  "development-balance": [
+    {
+      "prompt": "A £12 workshop includes tools, but participants share benches. Which evaluation weighs both facts for beginners?",
+      "answer": 2,
+      "options": [
+        "The tools are included, so the workshop is excellent value for everyone.",
+        "Sharing a bench makes the workshop less useful, even though tools are included.",
+        "Beginners avoid buying tools, although sharing a bench may reduce their practice time."
+      ],
+      "explanations": [
+        "The verdict ignores the limitation and broadens the audience.",
+        "The drawback is stated, but the benefit of included tools is not developed.",
+        "It explains both the financial advantage and the practical limitation."
+      ],
+      "rationale": "It explains both the financial advantage and the practical limitation."
+    },
+    {
+      "prompt": "A film has believable characters but a slow middle section. Which recommendation develops the balance for student readers?",
+      "answer": 0,
+      "options": [
+        "Try it if you enjoy character-driven stories and do not mind a slower middle.",
+        "It is suitable for everyone because the characters are believable.",
+        "Avoid it if you dislike slow films, despite its excellent characters."
+      ],
+      "explanations": [
+        "It connects both observations to a suitable audience.",
+        "It ignores the pacing limitation.",
+        "It recognises a drawback but offers no positive target audience."
+      ],
+      "rationale": "It connects both observations to a suitable audience."
+    },
+    {
+      "prompt": "A free festival offers beginner sessions that fill within fifteen minutes. Which recommendation uses both observations?",
+      "answer": 1,
+      "options": [
+        "The festival is free, so everyone should attend whenever they like.",
+        "Beginners can try a sport without paying, but should arrive early to secure a place.",
+        "Arrive early because the sessions are likely to be expensive later."
+      ],
+      "explanations": [
+        "It ignores the limited places.",
+        "It links the free access and limited availability to practical advice.",
+        "The observations do not establish a later charge."
+      ],
+      "rationale": "It links the free access and limited availability to practical advice."
+    }
+  ]
+};
+for (const course of Object.values(pathways)) for (const activity of course.practice) activity.items.push(...(extraPractice[activity.id] ?? []));

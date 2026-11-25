@@ -14,6 +14,7 @@ test('each pathway teaches contrasts, offers differentiated practice and require
  for (const [key, course] of Object.entries(pathways)) {
   assert.equal(course.discover.length,3);
   assert.deepEqual(course.practice.map(activity=>activity.level),['Bronze','Bronze','Silver','Silver']);
+  assert.deepEqual(course.practice.map(activity=>activity.items.length),[4,4,4,4]);
   assert.equal(course.apply.length,3);
   for(const task of [course.gold,...course.apply,course.master])validateWritingTask(task);
   all.push(...course.practice,{id:key+'-transfer',type:'choice',items:[course.analysis]});
