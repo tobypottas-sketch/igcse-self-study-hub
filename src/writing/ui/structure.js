@@ -146,11 +146,11 @@ function renderPathway(root,onBack,onStudio,config=null){
   el(contrast,'p','wa-apply-source',item.before);
   el(contrast,'p','wa-apply-source',item.after);
   const explanation=el(host,'details','wa-explore-brief');
-  el(explanation,'summary','','Check what changed');
+  const summary=el(explanation,'summary','','Check what changed');
   el(explanation,'p','',item.principle);
   explanation.open=state.discovered.has(n);
-  explanation.ontoggle=()=>{
-   if(!explanation.open)return;
+  summary.onclick=()=>{
+   if(explanation.open)return;
    state.discovered.add(n);
    if(state.discovered.size===course.discover.length)ctx.complete();
   };
