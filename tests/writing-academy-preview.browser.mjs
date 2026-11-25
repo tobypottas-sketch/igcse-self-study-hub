@@ -67,7 +67,7 @@ async function workshop(page, task) {
  await draft.fill(task.example);
  await reveal.click();
  assert.equal(await draft.getAttribute('readonly'),'');
- const revision=page.locator('.wa-apply-comparison textarea');
+ const revision=page.getByRole('textbox',{name:'Revise your response'});
  assert.equal(await revision.inputValue(),task.example);
  const revised=task.example+' I would share this advice with other students.';
  await revision.fill(revised);
@@ -344,7 +344,7 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   for(const check of await page.locator('.wa-apply-check input').all())await check.check();
   assert.match(await page.locator('.wa-practise-card[data-level=gold]').innerText(),/Complete/);
   await page.getByRole('button',{name:'← Previous Gold task'}).press('Enter');
-  assert.equal(await page.locator('.wa-apply-comparison textarea').inputValue(),goldRevision);
+  assert.equal(await page.getByRole('textbox',{name:'Revise your response'}).inputValue(),goldRevision);
   await capture(page,'cohesion-gold-revision',width,height);
   await go('master');
   await finishAnalysis(page,cohesion.analysis);
