@@ -827,3 +827,11 @@
 #writingAcademy .wa-editorial-lesson[data-pathway="04"] .wa-lesson-banner .wa-kicker{color:#e5d9fb}
 #writingAcademy .wa-path.wa-cohesion .wa-action{border-color:#b7a3d5}
 #writingAcademy .wa-path.wa-cohesion .wa-action:hover{background:#f4edff}
+
+#writingAcademy .wa-editorial-lesson[data-pathway="05"] .wa-lesson-banner{background:linear-gradient(115deg,#622f29,#853f30);color:#fff;border-bottom:3px solid #e6a58e}
+#writingAcademy .wa-editorial-lesson[data-pathway="05"] .wa-lesson-banner .wa-kicker{color:#ffe2d6}
+#writingAcademy .wa-path.wa-editing .wa-action{border-color:#d3a08f}
+#writingAcademy .wa-path.wa-editing .wa-action:hover{background:#fff2ec}
+#writingAcademy .wa-editing-passes{margin-bottom:12px}
+#writingAcademy .wa-editing-passes ol{padding-inline-start:32px;padding-inline-end:14px}
+#writingAcademy .wa-editing-passes li+li{margin-top:8px}

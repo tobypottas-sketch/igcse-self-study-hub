@@ -1,3 +1,4 @@
+import {editing,editingModels} from '../content/review-editing.js';
 import {cohesion,cohesionModels} from '../content/review-cohesion.js';
 import * as development from '../content/review-development-v1.js';
 import * as expression from '../content/review-expression-v1.js';
@@ -32,15 +33,16 @@ export function renderStructure(root,onBack,onStudio){return renderPathway(root,
 export function renderExpression(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,expression);}
 export function renderDevelopment(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,development);}
 export function renderCohesion(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,cohesion);}
+export function renderEditing(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,editing);}
 function renderPathway(root,onBack,onStudio,config=null){
  const isExpression=config===expression, isDevelopment=config===development, hasLens=!!config;
- const isCohesion=config===cohesion;
- const pathwayKey=isCohesion?'cohesion':isDevelopment?'development':isExpression?'expression':'structure';
- const course=isCohesion?cohesion:pathways[pathwayKey];
+ const editorialModels=config===editing?editingModels:config===cohesion?cohesionModels:null;
+ const pathwayKey=config===editing?'editing':config===cohesion?'cohesion':isDevelopment?'development':isExpression?'expression':'structure';
+ const course=editorialModels?config:pathways[pathwayKey];
  const goldTasks=[course.gold].flat();
  const practice=validateActivities(course.practice);
  const checkpoint=validateActivities([{id:pathwayKey+'-transfer',type:'choice',items:[course.analysis]}])[0];
- const stageCompanions=isCohesion?course.companions:(config?.companions??companions).map((tip,index)=>index===4
+ const stageCompanions=editorialModels?course.companions:(config?.companions??companions).map((tip,index)=>index===4
   ? ['Work independently','Read the new situation carefully and apply what you learnt.','Use the criteria to reflect on your own writing.']
   : tip);
  const state={model:0,paragraph:0,identified:new Set(),discovered:new Set(),discoveryIndex:0,
@@ -138,6 +140,17 @@ function renderPathway(root,onBack,onStudio,config=null){
   draw();
  }
  mountLesson(root,{title:course.title??(isDevelopment?'Idea Development':isExpression?'Vocabulary & Expression':'Structure & Organisation'),pathwayNumber:course.number??(isDevelopment?'03':isExpression?'02':'01'),artwork:reviewArtwork.pathways[pathwayKey]??reviewArtwork.pathways.structure,onBack,reference:renderExamReference,companions:stageCompanions,renderStage(body,i,ctx){
+ if(course.passes && [0,3,4].includes(i)){
+  const guide=el(body,'details','wa-explore-brief wa-editing-passes');
+  el(guide,'summary','','Four-pass editing strategy');
+  const steps=el(guide,'ol','');
+  for(const [name,description] of course.passes){
+   const step=el(steps,'li','');
+   el(step,'strong','',name+'. ');
+   step.append(description);
+  }
+  el(guide,'p','wa-muted','Use these passes to check your draft. Give the most time to the weakness that most affects the reader.');
+ }
  if(i===0){
  const host=el(body,'div','wa-discovery');
  function draw(){
@@ -153,7 +166,7 @@ function renderPathway(root,onBack,onStudio,config=null){
    state.discovered.add(n);
    if(state.discovered.size===course.discover.length)ctx.complete();
   }
-  if(isCohesion){
+  if(editorialModels){
    const label=el(host,'label','wa-apply-instruction','Write a short observation.');
    const response=el(label,'textarea','wa-writing-input wa-apply-input');
    response.rows=2;
@@ -222,11 +235,11 @@ function renderPathway(root,onBack,onStudio,config=null){
   const pieces=m.paragraphs[n].match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g)||[m.paragraphs[n]];
   const selected=state.annotations.get(key)||new Set();state.annotations.set(key,selected);
   const note=el(paper,'div','wa-explore-note');el(note,'span','wa-explore-eyebrow','EDITOR’S NOTE');const detail=el(note,'p','','Write your editorial note to open the sentence annotations.');detail.setAttribute('role','status');
-  const lens=isCohesion?cohesionModels[m.title][n]:m.expression?.[n];const sentenceTips=hasLens?pieces.map((sentence,j)=>sentence.toLowerCase().includes(lens.phrase.toLowerCase())?lens.rationale:(isDevelopment||isCohesion)?m.sentenceTips?.[n]?.[j]||'Consider what this detail adds to the judgement.':'Read this sentence in context. Look for precise, natural word combinations.'):m.sentenceTips?.[n];let unlocked=state.identified.has(key);const sentenceButtons=[];
+  const lens=editorialModels?.[m.title][n]??m.expression?.[n];const sentenceTips=hasLens?pieces.map((sentence,j)=>sentence.toLowerCase().includes(lens.phrase.toLowerCase())?lens.rationale:(isDevelopment||editorialModels)?m.sentenceTips?.[n]?.[j]||'Consider what this detail adds to the judgement.':'Read this sentence in context. Look for precise, natural word combinations.'):m.sentenceTips?.[n];let unlocked=state.identified.has(key);const sentenceButtons=[];
   pieces.forEach((sentence,j)=>{const b=el(prose,'span','wa-phrase wa-explore-sentence',sentence.trim());b.setAttribute('role','button');b.tabIndex=unlocked?0:-1;b.setAttribute('aria-disabled',String(!unlocked));const activate=()=>{if(!unlocked)return;selected.clear();selected.add(j);sentenceButtons.forEach((item,k)=>item.setAttribute('aria-pressed',String(k===j)));detail.textContent=sentenceTips?.[j]||m.notes[n];};b.onclick=activate;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};b.setAttribute('aria-pressed',String(selected.has(j)));sentenceButtons.push(b);prose.append(' ');});
   if(unlocked)detail.textContent=selected.size?(sentenceTips?.[[...selected][0]]||m.notes[n]):'Select a sentence to examine its contribution.';
   const question=el(host,'section','wa-explore-question');
-  const editorialPrompt=isCohesion?lens.prompt:isExpression
+  const editorialPrompt=editorialModels?lens.prompt:isExpression
    ? 'Find “'+lens.phrase+'” in context. Suggest an alternative, then explain what would change in meaning, emphasis or tone.'
    : isDevelopment
     ? 'Find “'+lens.phrase+'” in context. Explain which judgement it supports or what it helps the reader decide.'
@@ -246,7 +259,7 @@ function renderPathway(root,onBack,onStudio,config=null){
   const reveal=action(question,'Compare with the editor’s note',()=>{
    const minimum=lens?.min??10;
    if(!hasWritingAttempt(response.value,minimum)){
-    feedback.textContent=isCohesion?'Write at least '+minimum+' words in response to the prompt.':'Write at least ten words explaining your decision.';
+    feedback.textContent=editorialModels?'Write at least '+minimum+' words in response to the prompt.':'Write at least ten words explaining your decision.';
     return;
    }
    state.identified.add(key);
