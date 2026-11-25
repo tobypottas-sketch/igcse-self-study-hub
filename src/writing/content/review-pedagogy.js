@@ -479,9 +479,9 @@ const extraPractice = {
       "prompt": "You argue that a film makes its friendship believable. Which observation best supports that judgement?",
       "answer": 1,
       "options": [
-        "The characters wear different school uniforms.",
-        "The friends disagree and later apologise to each other.",
-        "The film has several scenes set in a school."
+        "The characters attend different schools and wear distinctive uniforms.",
+        "The friends argue, then apologise.",
+        "The film includes several classroom scenes showing everyday school life."
       ],
       "explanations": [
         "Costumes may establish setting, not the friendship.",
@@ -494,9 +494,9 @@ const extraPractice = {
       "prompt": "You think a café offers good value for students. Which detail best supports that judgement?",
       "answer": 2,
       "options": [
-        "The lunch menu changes every week.",
-        "The café is a short walk from school.",
-        "A ¥25 lunch includes a main dish and a drink."
+        "The lunch menu changes weekly to offer students more variety.",
+        "The café is a short walk from school and opens throughout the day.",
+        "A ¥25 lunch includes food and a drink."
       ],
       "explanations": [
         "Variety may matter, but price and benefits are not established.",
@@ -509,9 +509,9 @@ const extraPractice = {
       "prompt": "You argue that a game is accessible to beginners. Which observation best supports the claim?",
       "answer": 0,
       "options": [
-        "The first level introduces one control at a time.",
-        "Later levels have attractive backgrounds.",
-        "Players can compare scores with friends."
+        "The first level teaches one control at a time.",
+        "Later levels have colourful backgrounds that become increasingly detailed.",
+        "Players can compare their scores with friends after completing each level."
       ],
       "explanations": [
         "The staged introduction helps newcomers learn.",
@@ -526,9 +526,9 @@ const extraPractice = {
       "prompt": "You describe a concert's sound as clear. Which observation gives the most specific evidence?",
       "answer": 1,
       "options": [
-        "The speakers stood beside the stage.",
-        "From the back row, I could distinguish every lyric.",
-        "The audience applauded after each song."
+        "The speakers were positioned on stands at either side of the stage.",
+        "I heard every lyric from the back row.",
+        "The audience applauded enthusiastically after each of the opening songs."
       ],
       "explanations": [
         "Speaker location does not establish clarity.",
@@ -541,12 +541,12 @@ const extraPractice = {
       "prompt": "You claim that a workshop gives individual support. Which observation makes this claim concrete?",
       "answer": 0,
       "options": [
-        "The tutor checked my sketch and showed me how to correct its proportions.",
-        "The tutor greeted everyone when they arrived.",
-        "The tutor introduced the day's activities to the group."
+        "The tutor corrected the proportions of my sketch.",
+        "The tutor greeted each participant individually as they arrived at the studio.",
+        "The tutor introduced the day's activities and demonstrated the materials to everyone."
       ],
       "explanations": [
-        "The tutor's specific response to one learner shows individual support.",
+        "The tutor's correction of one learner's work shows individual support.",
         "A greeting is welcoming but not teaching support.",
         "A group introduction is not individual feedback."
       ],
@@ -556,9 +556,9 @@ const extraPractice = {
       "prompt": "You claim that an exhibition is interactive. Which detail most clearly demonstrates that?",
       "answer": 2,
       "options": [
-        "The displays use large colour photographs.",
-        "The guide describes how a bridge is built.",
-        "Visitors adjust a model bridge and test how much weight it holds."
+        "The displays include large photographs showing bridges from several angles.",
+        "The guide describes how different bridge designs spread the weight of vehicles.",
+        "Visitors test the strength of a model bridge."
       ],
       "explanations": [
         "Photos are visual evidence, not interaction.",
@@ -573,9 +573,9 @@ const extraPractice = {
       "prompt": "A café serves takeaway meals in five minutes. Your readers have a twenty-minute lunch break. Which explanation develops the most relevant impact?",
       "answer": 0,
       "options": [
-        "Students still have time to eat and return to class.",
-        "Students can compare the packaging with other cafés.",
-        "Students can choose a café with fewer tables."
+        "Students have time to eat and get back to class.",
+        "Students have more opportunity to compare the takeaway packaging with other cafés.",
+        "Students can choose which café has the most comfortable indoor seating."
       ],
       "explanations": [
         "The quick service directly helps students manage the short break.",
@@ -588,12 +588,12 @@ const extraPractice = {
       "prompt": "A museum includes written instructions beside each experiment. Which explanation best develops the benefit for visitors exploring without a guide?",
       "answer": 2,
       "options": [
-        "The labels make the displays look more organised.",
-        "The museum can include more experiments in each room.",
-        "Visitors can try the experiments without waiting for someone to explain them."
+        "The instructions make the displays look more organised and help the rooms feel less cluttered.",
+        "The museum can include a wider variety of experiments in the available display space.",
+        "Visitors can try experiments without a guide."
       ],
       "explanations": [
-        "Appearance is not the main benefit for independent visitors.",
+        "Visual organisation is not the main benefit for independent visitors.",
         "Instructions do not establish how many exhibits fit.",
         "The instructions support independent participation."
       ],
@@ -603,9 +603,9 @@ const extraPractice = {
       "prompt": "A game saves progress after every short level. Your readers often play while travelling. Which development is most useful?",
       "answer": 1,
       "options": [
-        "The game may have more attractive menus than other games.",
-        "Players can stop when they reach their destination without losing a completed level.",
-        "Players can compare their progress with friends more often."
+        "Players can compare how attractive the menus are with those of other games.",
+        "Players can stop at their destination without losing a completed level.",
+        "Players can compare their scores with friends more often during their journeys."
       ],
       "explanations": [
         "Saving progress does not establish menu quality.",
@@ -620,9 +620,9 @@ const extraPractice = {
       "prompt": "A £12 workshop includes tools, but participants share benches. Which evaluation weighs both facts for beginners?",
       "answer": 2,
       "options": [
-        "The tools are included, so the workshop is excellent value for everyone.",
-        "Sharing a bench makes the workshop less useful, even though tools are included.",
-        "Beginners avoid buying tools, although sharing a bench may reduce their practice time."
+        "Including tools in the price makes the workshop excellent value for everyone who attends.",
+        "Sharing a bench makes the experience less useful for beginners, even though tools are included.",
+        "Beginners needn't buy tools, but sharing may cut practice time."
       ],
       "explanations": [
         "The verdict ignores the limitation and broadens the audience.",
@@ -635,9 +635,9 @@ const extraPractice = {
       "prompt": "A film has believable characters but a slow middle section. Which recommendation develops the balance for student readers?",
       "answer": 0,
       "options": [
-        "Try it if you enjoy character-driven stories and do not mind a slower middle.",
-        "It is suitable for everyone because the characters are believable.",
-        "Avoid it if you dislike slow films, despite its excellent characters."
+        "Try it for the characters if you don't mind a slower middle.",
+        "It is suitable for all students because the believable characters make the film worth seeing.",
+        "Avoid it if you prefer fast-paced films, despite the quality of the character development."
       ],
       "explanations": [
         "It connects both observations to a suitable audience.",
@@ -650,9 +650,9 @@ const extraPractice = {
       "prompt": "A free festival offers beginner sessions that fill within fifteen minutes. Which recommendation uses both observations?",
       "answer": 1,
       "options": [
-        "The festival is free, so everyone should attend whenever they like.",
-        "Beginners can try a sport without paying, but should arrive early to secure a place.",
-        "Arrive early because the sessions are likely to be expensive later."
+        "The festival is free, so students should be able to join their preferred activity whenever they arrive.",
+        "Beginners can try a sport for free, but should arrive early.",
+        "Arriving early is important because the sessions are likely to become more expensive as the day goes on."
       ],
       "explanations": [
         "It ignores the limited places.",
@@ -664,3 +664,14 @@ const extraPractice = {
   ]
 };
 for (const course of Object.values(pathways)) for (const activity of course.practice) activity.items.push(...(extraPractice[activity.id] ?? []));
+
+// Two independent Gold workshops per pathway, using the existing shared renderer.
+const additionalGold = {
+ structure: writing('Organise a school trip review', 'Notes from a planetarium visit: the show began at 10:30; collecting tickets took fifteen minutes; the hall opens at ten; the presenter answered questions about planets; the seats at the back offered a clear view of the dome. Your audience is next year’s science club.', 'Write two focused paragraphs, one explaining how to arrive on time and one evaluating the show. Keep all five observations and connect your advice to the evidence.', 'The hall opens at ten and collecting tickets took fifteen minutes. I would arrive when it opens so there is enough time before the show starts at 10:30.\\n\\nThe show suited our science club because the presenter answered questions about planets. Even from the back, we had a clear view of the dome.', ['I grouped arrival details logically.','I connected the advice to the timing.','I developed the show evaluation without losing facts.'], 32),
+ expression: writing('Refine an exhibition evaluation', 'Draft: The exhibition was really cool. The explanations were very good. The whole exhibition was impossible to see. Notes: visitors could turn a handle to move a model crane; labels used short steps; only the two displays near the entrance were crowded during the afternoon. Audience: school newsletter.', 'Rewrite in 45–65 words. Replace vague praise with precise observations and keep the criticism limited to the place and time described.', 'Moving a model crane by turning a handle made the exhibition engaging. The labels broke the instructions into short steps, making the displays easy to use. However, the two displays near the entrance were crowded during the afternoon. Students who want to explore independently might prefer a quieter time.', ['I used concrete, natural vocabulary.','I preserved the scope and timing of the criticism.','I gave useful advice without exaggerating.'], 30),
+ development: writing('Develop a book recommendation', 'Notes: a mystery novel has chapters lasting about ten pages; each chapter ends with a new clue; three minor characters have similar names; the reader sometimes had to check who was speaking. Audience: classmates who want to read more English fiction.', 'Write 45–65 words. Develop a judgement about accessibility and explain the effect of the drawback before giving a targeted recommendation.', 'The short chapters make this mystery manageable for students beginning to read more English fiction. Each ends with a new clue, giving readers a reason to continue. However, three minor characters have similar names, so I sometimes had to check who was speaking. I would recommend it to readers who enjoy puzzles and can tolerate occasional confusion.', ['I explained why the chapters help the intended reader.','I developed the effect of the character names.','My recommendation weighs both strengths and limitations.'], 32)
+};
+for (const [key, task] of Object.entries(additionalGold)) {
+ const course=pathways[key];
+ course.gold=[course.gold,task];
+}

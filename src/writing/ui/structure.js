@@ -9,7 +9,7 @@ import {extraReviewModels} from '../content/review-explore-models.js?v=1';
 import {mountLesson,el,action} from './lesson-shell.js?v=13';
 import {reviewArtwork} from './editorial-art.js?v=9';
 import {companions} from '../content/review-active-v2.js';
-import {pathways} from '../content/review-pedagogy.js?v=3';
+import {pathways} from '../content/review-pedagogy.js?v=4';
 import {newWritingRun,renderResponseWorkshop} from './response-workshop.js?v=3';
 import {guidedTask,independentTask,toolkit} from '../content/review-guided-v1.js';
 import {blueprint,model} from '../content/review-structure-v1.js';
