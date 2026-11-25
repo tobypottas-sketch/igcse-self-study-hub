@@ -1,4 +1,4 @@
-import {reviewStudioConfig} from '../content/review-studio-config.js?v=2';
+import {reviewStudioConfig} from '../content/review-studio-config.js?v=3';
 import {createDraftStore,wordStatus} from '../engine/drafts.js';
 import {renderExamReference} from './structure.js?v=8';
 import {renderArtwork,reviewArtwork} from './editorial-art.js?v=8';
@@ -50,7 +50,7 @@ export function renderWorkspace(root,{accountId,onBack,initialTask,initialMode,c
  function refreshChecks(){const within=wordStatus(draft.answer,min,max).status==='within';const total=checked.size+Number(within);checkCount.textContent=total+'/'+(checks.length+1);track.setAttribute('aria-valuenow',String(total));checkFill.style.width=(total/(checks.length+1)*100)+'%';for(const [i,input] of checkInputs.entries())input.checked=checked.has(i);wordCheck.dataset.done=String(within);wordIcon.textContent=within?'✓':'○';}
  checks.forEach((q,i)=>{const l=add(checklist,'label','wa-quick-check');const c=add(l,'input','');c.type='checkbox';checkInputs.push(c);add(l,'span','',q);c.onchange=()=>{if(c.checked)checked.add(i);else checked.delete(i);refreshChecks();};});
  const wordCheck=add(checklist,'div','wa-quick-check wa-auto-check');const wordIcon=add(wordCheck,'span','wa-auto-icon');add(wordCheck,'span','',min+'–'+max+' words (automatic)');
- const detail=add(exam,'details','wa-studio-reference-detail');add(detail,'summary','','More exam guidance');const referenceBox=reference(detail);referenceBox.classList.add('wa-workspace-reference');
+ if(config.blueprint){const blueprint=resource(config.blueprint.title,'▤');const board=add(blueprint,'div','wa-studio-blueprint');add(board,'p','wa-blueprint-exam',config.blueprint.exam);for(const move of config.blueprint.moves){const row=add(board,'div','wa-blueprint-move');row.dataset.tone=move.tone;const icon=add(row,'span','wa-blueprint-icon',move.icon);icon.setAttribute('aria-hidden','true');const copy=add(row,'div','wa-blueprint-copy');add(copy,'strong','',move.label);add(copy,'span','',move.hint);}add(board,'p','wa-blueprint-reminder',config.blueprint.reminder);}else if(reference){const detail=add(exam,'details','wa-studio-reference-detail');add(detail,'summary','','More exam guidance');const referenceBox=reference(detail);referenceBox.classList.add('wa-workspace-reference');}
  refreshChecks();draftUpdates.push(()=>{checked.clear();refreshChecks();});
  function renderPhrases(){
   tipContent.replaceChildren();const categories=config.phraseBank;
