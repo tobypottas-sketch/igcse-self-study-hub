@@ -29,6 +29,23 @@ async function checkArtwork(host, placement, name, ratio = 1.5) {
  assert.equal(info.fit,'contain');
 }
 
+const homeCardArtwork = {
+ structure:'structure-organisation',
+ expression:'expression-card',
+ development:'development-card',
+ cohesion:'grammar-cohesion-card',
+ editing:'editing-improvement-card',
+ exam:'exam-mastery-card'
+};
+
+async function checkHomeCardArtwork(page) {
+ for (const [pathway, name] of Object.entries(homeCardArtwork)) {
+  await checkArtwork(page.locator('.wa-path.wa-'+pathway),'card',name);
+ }
+ assert.equal(await page.locator('.wa-card-top .wa-motif').count(),0);
+ assert.equal(await page.locator('#writingAcademy').getAttribute('aria-busy'),'false');
+}
+
 async function capture(page, name, width, height) {
  await page.evaluate(() => scrollTo(0,0));
  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth+1),name+' overflow');
@@ -107,8 +124,7 @@ try{
   await checkArtwork(page,'hero','academy-hero');
   const structureCard=page.locator('.wa-path.wa-structure');
   const expressionCard=page.locator('.wa-path.wa-expression');
-  await checkArtwork(structureCard,'card','structure-organisation');
-  await checkArtwork(expressionCard,'card','expression-card');
+  await checkHomeCardArtwork(page);
   await capture(page,'home',width,height);
   await expressionCard.getByRole('button',{name:'Start pathway →'}).click();
   await checkArtwork(page,'banner','vocabulary-expression',expressionRatio);
@@ -551,14 +567,21 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await page.locator('.wa-workspace').waitFor();
   assert.deepEqual(errors,[]);
   console.log(width,height,layout);
+  await page.goto('http://127.0.0.1:8765/review-academy-recovery.html');
+  await page.locator('.wa-path').last().waitFor();
+  await checkHomeCardArtwork(page);
+  await page.getByRole('button',{name:'Open Writing Studio →'}).click();
+  await page.locator('.wa-workspace').waitFor();
+  assert.deepEqual(errors,[]);
   await page.close();
  }
+ for (const entry of ['review-academy-preview.html','review-academy-recovery.html'])
  for (const profile of [null,{active:true,role:'student'},{active:false,role:'teacher'},{active:true,role:'admin',must_change_password:true}]) {
   const denied=await browser.newPage();
   await denied.route('**/src/supabase.js',route=>route.fulfill({contentType:'application/javascript',body:'export async function getSupabaseClient(){return {auth:{onAuthStateChange(){}}}}'}));
   await denied.route('**/src/auth.js',route=>route.fulfill({contentType:'application/javascript',body:`export async function getCurrentProfile(){return ${JSON.stringify(profile)}}`}));
   await denied.route('http://127.0.0.1:8765/',route=>route.fulfill({body:'Hub'}));
-  await denied.goto('http://127.0.0.1:8765/review-academy-preview.html');
+  await denied.goto('http://127.0.0.1:8765/'+entry);
   await denied.waitForURL('http://127.0.0.1:8765/');
   assert.equal(await denied.locator('.wa-path').count(),0);
   await denied.close();

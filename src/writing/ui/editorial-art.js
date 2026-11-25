@@ -38,6 +38,15 @@ export const reviewArtwork = {
         expressionStage('expression-apply'),
         expressionStage('expression-master')
       ]
+    },
+    cohesion: {
+      card: art('grammar-cohesion-card', [192], [192, 128])
+    },
+    editing: {
+      card: art('editing-improvement-card', [192], [192, 128])
+    },
+    exam: {
+      card: art('exam-mastery-card', [192], [192, 128])
     }
   }
 };
