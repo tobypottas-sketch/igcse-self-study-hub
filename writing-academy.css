@@ -124,6 +124,7 @@
 
 #writingAcademy .wa-art{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:contain}
 #writingAcademy :is(.wa-path.wa-expression,.wa-editorial-lesson[data-pathway="02"]) .wa-art{aspect-ratio:auto}
+#writingAcademy .wa-editorial-lesson[data-pathway="03"] .wa-art{aspect-ratio:auto}
 #writingAcademy .wa-art--hero{max-width:545px;justify-self:center}
 #writingAcademy .wa-art--card{width:144px}
 #writingAcademy .wa-path.wa-structure{background:var(--wa-cream);border-top:3px solid var(--wa-amber)}
@@ -302,6 +303,7 @@
 #writingAcademy .wa-editorial-lesson .wa-lesson-banner{padding:8px 20px}
 #writingAcademy .wa-editorial-lesson .wa-lesson-banner h1{font-size:clamp(1.45rem,3vw,2.3rem)}
 #writingAcademy .wa-editorial-lesson .wa-art--banner{width:112px}
+#writingAcademy .wa-editorial-lesson[data-pathway="03"] .wa-art--banner{width:min(25vw,240px)}
 #writingAcademy .wa-editorial-lesson .wa-lesson-reference{position:static;padding:8px 14px;margin:8px 0;box-shadow:none}
 #writingAcademy .wa-editorial-lesson .wa-lesson-reference>p{display:inline;margin-inline:10px}
 #writingAcademy .wa-editorial-lesson .wa-lesson-reference>details{margin-top:4px}
