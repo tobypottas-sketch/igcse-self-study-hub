@@ -54,6 +54,12 @@ export function renderStructure(root,onBack,onStudio){
  let briefOpen=true;
  function updatePicker(){const m=models[state.model];trigger.replaceChildren();const icon=el(trigger,'span','wa-explore-category-icon',icons[m.category]||'▤');icon.setAttribute('aria-hidden','true');const copy=el(trigger,'span','wa-explore-picker-copy');el(copy,'span','wa-explore-eyebrow',m.category+' review');el(copy,'strong','',m.title);el(trigger,'span','wa-explore-chevron','⌄').setAttribute('aria-hidden','true');menu.querySelectorAll('button').forEach((b,j)=>b.setAttribute('aria-pressed',String(j===state.model)));}
  models.forEach((m,j)=>{const b=action(menu,'',()=>{state.model=j;state.paragraph=0;picker.open=false;briefOpen=true;updatePicker();draw();trigger.focus();},'wa-action wa-explore-model-choice');el(b,'span','wa-explore-category-icon',icons[m.category]||'▤').setAttribute('aria-hidden','true');const copy=el(b,'span','');el(copy,'strong','',m.title);el(copy,'small','',m.category+' review');});
+ // Dismiss on outside pointer interaction; detach when the stage is removed.
+ const doc=picker.ownerDocument;
+ const dismiss=e=>{if(picker.open&&!picker.contains(e.target))picker.open=false;};
+ const observer=new doc.defaultView.MutationObserver(()=>{if(!picker.isConnected){doc.removeEventListener('pointerdown',dismiss,true);observer.disconnect();}});
+ doc.addEventListener('pointerdown',dismiss,true);
+ observer.observe(doc.documentElement,{childList:true,subtree:true});
  picker.addEventListener('keydown',e=>{if(e.key==='Escape'&&picker.open){picker.open=false;trigger.focus();}});
  function draw(){
   host.replaceChildren();const m=models[state.model],n=state.paragraph,key=state.model+':'+n;
