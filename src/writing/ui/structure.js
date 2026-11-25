@@ -1,4 +1,4 @@
-import {exam,examModels,examMocks,modelContext} from '../content/review-exam.js?v=3';
+import {exam,examModels,examMocks,modelContext} from '../content/review-exam.js?v=4';
 import {newExamAttempt} from '../engine/exam-attempt.js';
 import {renderExamWorkshop} from './exam-workshop.js?v=2';
 import {editing,editingModels} from '../content/review-editing.js?v=2';
