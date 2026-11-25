@@ -683,3 +683,40 @@
 #writingAcademy .wa-blueprint-copy strong{font-size:.82rem;line-height:1.3}
 #writingAcademy .wa-blueprint-copy span{font-size:.75rem;line-height:1.4;color:#526477}
 #writingAcademy .wa-blueprint-reminder{font-size:.74rem;line-height:1.5;color:#65511f;background:#faf5e8;border-radius:7px;padding:8px;margin:3px 0 0}
+
+/* Studio Review: concise revision dashboard and shared AI coach */
+#writingAcademy .wa-workspace[data-stage=review] .wa-workspace-main{border:1px solid var(--studio-line);border-top:3px solid #68519a;padding:clamp(16px,2.5vw,28px)}
+#writingAcademy .wa-workspace[data-stage=review] .wa-workspace-heading{font-family:"Source Serif 4",Georgia,serif;font-size:clamp(1.7rem,3vw,2.35rem);font-weight:600;letter-spacing:-.035em}
+#writingAcademy .wa-workspace[data-stage=review] .wa-workspace-intro .wa-muted{font-size:.88rem}
+#writingAcademy .wa-workspace[data-stage=review] .wa-art--studio-context{width:66px}
+#writingAcademy .wa-review-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:18px 0 12px}
+#writingAcademy .wa-review-metric{display:grid;gap:4px;padding:12px;border:1px solid #e0dce8;border-radius:10px;min-width:0;background:#faf9fc}
+#writingAcademy .wa-review-metric>strong{font-size:clamp(1.25rem,2.3vw,1.8rem);line-height:1.2;color:#26354a}
+#writingAcademy .wa-review-metric[data-status=within]>strong{color:#08766e}
+#writingAcademy .wa-review-metric-note{font-size:.72rem;color:#526477;line-height:1.4}
+#writingAcademy .wa-review-flow{display:flex;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--studio-line);padding:6px 0 12px;margin-bottom:14px}
+#writingAcademy .wa-review-flow>div{display:flex;align-items:center;gap:6px;font-size:.77rem;font-weight:650;color:#526477}
+#writingAcademy .wa-review-step{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#eee9f7;color:#68519a}
+#writingAcademy .wa-review-work{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+#writingAcademy .wa-review-manuscript{background:#fbf7ee;border:1px solid #e4dac8;border-radius:12px;padding:clamp(14px,2vw,22px)}
+#writingAcademy .wa-review-manuscript h3{font-family:Georgia,serif;font-size:1.3rem;margin:7px 0 12px}
+#writingAcademy .wa-review-prose{font-family:"Source Serif 4",Georgia,serif;font-size:1.08rem;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;margin:0;color:#26354a}
+#writingAcademy .wa-review-previous{margin-top:16px;border-top:1px solid #e4dac8;padding-top:6px}
+#writingAcademy .wa-review-previous summary{font-size:.8rem;color:#68519a}
+#writingAcademy .wa-review-coach{border:1px solid #ded7eb;background:#faf8fd;border-radius:12px;padding:clamp(12px,2vw,18px);min-width:0}
+#writingAcademy .wa-review-coach-head{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+#writingAcademy .wa-review-coach-icon,#writingAcademy .wa-review-empty-icon{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:10px;background:#eee9f7;color:#68519a;font-size:1.5rem}
+#writingAcademy .wa-review-coach-head h3{font-size:1.05rem;margin:0}
+#writingAcademy .wa-review-coach-head p,#writingAcademy .wa-review-coach-note{font-size:.8rem;margin:3px 0 10px;color:#526477}
+#writingAcademy .wa-review-coach-host .student-feedback{margin:0}
+#writingAcademy .wa-review-coach-host .sf-title{display:none}
+#writingAcademy .wa-review-coach-host .sf-lead{font-size:.82rem}
+#writingAcademy .wa-review-sample-button{font-size:.8rem}
+#writingAcademy .wa-review-sample{margin-top:12px}
+#writingAcademy .wa-review-actions{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:16px}
+#writingAcademy .wa-review-actions .wa-action,#writingAcademy .wa-review-empty .wa-action{font-size:.85rem;border-radius:8px;padding:9px 13px}
+#writingAcademy .wa-review-empty{display:grid;justify-items:center;text-align:center;gap:10px;background:#fbf8f2;border:1px solid #e4dac8;border-radius:12px;padding:32px 16px;margin-top:18px}
+#writingAcademy .wa-review-empty h3,#writingAcademy .wa-review-empty p{margin:0}
+#writingAcademy .wa-review-empty p{font-size:.85rem;color:#526477}
+@media(min-width:1120px){#writingAcademy .wa-review-work{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+@media(max-width:520px){#writingAcademy .wa-review-metric{padding:8px}#writingAcademy .wa-review-metric .wa-studio-eyebrow{font-size:.57rem}}
