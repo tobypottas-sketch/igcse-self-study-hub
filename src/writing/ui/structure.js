@@ -93,14 +93,27 @@ export function renderStructure(root,onBack,onStudio){
  syncCards();if(state.active)quiz(host,practice.find(a=>a.id===state.active),presentationCtx);else{el(host,'p','wa-practise-empty','Select a challenge above to begin.');}
  
  }else if(i===3){
- const host=el(body,'div','wa-apply-work');
- function draw(){host.replaceChildren();const n=state.applyIndex,item=applicationTasks[n],run=state.applications[n];el(host,'p','wa-kicker','WRITING TASK '+(n+1)+' / '+applicationTasks.length);el(host,'h3','',item.title);el(host,'p','wa-weak-opinion',item.prompt);const l=el(host,'label','',item.question);l.htmlFor='wa-improvement';const input=el(host,'textarea','wa-writing-input');input.id=l.htmlFor;input.rows=4;input.value=run.written;input.placeholder='Write your own response…';const status=el(host,'p','wa-answer');status.setAttribute('role','status');
- const reveal=action(host,'Compare with an example',()=>{if(!run.written.trim()){status.textContent='Write your own response first.';return;}run.revealed=true;comparison.hidden=false;status.textContent='Compare your writing with the example. Different well-supported answers are welcome.';});
- const comparison=el(host,'div','wa-model-part wa-move-0');comparison.hidden=!run.revealed;el(comparison,'h3','','One possible response');el(comparison,'p','',item.example);
- function progress(){if(state.applications.every((x,j)=>x.written.trim()&&x.revealed&&x.checks.size===applicationTasks[j].checks.length))ctx.complete();else ctx.incomplete();}
- item.checks.forEach((t,k)=>{const l=el(comparison,'label','wa-check');const cb=el(l,'input','');cb.type='checkbox';cb.checked=run.checks.has(k);cb.onchange=()=>{if(cb.checked)run.checks.add(k);else run.checks.delete(k);progress();};l.append(' '+t);});
- input.oninput=()=>{run.written=input.value;run.checks.clear();for(const cb of comparison.querySelectorAll('input'))cb.checked=false;progress();};
- const controls=el(host,'div','wa-stage-foot');const prev=action(controls,'← Previous writing task',()=>{state.applyIndex--;draw();});prev.disabled=n===0;const next=action(controls,'Next writing task →',()=>{state.applyIndex++;draw();});next.disabled=n===applicationTasks.length-1;
+ const host=el(body,'div','wa-apply-work wa-apply-desk');
+ function draw(){
+ host.replaceChildren();const n=state.applyIndex,item=applicationTasks[n],run=state.applications[n];
+ const isComplete=(x,j)=>!!x.written.trim()&&x.revealed&&x.checks.size===applicationTasks[j].checks.length;
+ const header=el(host,'div','wa-apply-header');el(header,'span','wa-apply-eyebrow','WRITING WORKSHOP');el(header,'span','wa-apply-position','Task '+(n+1)+' of '+applicationTasks.length);
+ const meter=el(host,'div','wa-apply-progress');meter.setAttribute('aria-hidden','true');applicationTasks.forEach((_,j)=>{const segment=el(meter,'span','');segment.dataset.current=String(j===n);segment.dataset.done=String(isComplete(state.applications[j],j));});
+ const title=el(host,'h3','wa-apply-title',item.title);title.tabIndex=-1;
+ const source=el(host,'article','wa-apply-source');el(source,'p','wa-apply-eyebrow','ORIGINAL WRITING');el(source,'p','wa-apply-original',item.prompt);
+ const editor=el(host,'section','wa-apply-editor');el(editor,'p','wa-apply-eyebrow','YOUR REVISION');const l=el(editor,'label','wa-apply-instruction',item.question);l.htmlFor='wa-improvement';const input=el(editor,'textarea','wa-writing-input wa-apply-input');input.id=l.htmlFor;input.rows=4;input.value=run.written;input.placeholder='Write your own response…';
+ const tools=el(editor,'div','wa-apply-tools');const reveal=action(tools,'Compare with an example →',()=>{if(!run.written.trim()){status.textContent='Write your own response first.';return;}run.revealed=true;comparison.hidden=false;reveal.setAttribute('aria-expanded','true');status.textContent='Compare your writing with the example. Different well-supported answers are welcome.';progress();},'wa-action wa-apply-reveal');
+ reveal.setAttribute('aria-expanded',String(run.revealed));reveal.setAttribute('aria-controls','wa-apply-comparison');
+ const wordCount=el(tools,'span','wa-apply-word-count');function updateCount(){const words=run.written.trim()?run.written.trim().split(/\s+/).length:0;wordCount.textContent=words+' word'+(words===1?'':'s');}updateCount();
+ const status=el(host,'p','wa-answer wa-apply-status');status.setAttribute('role','status');
+ const comparison=el(host,'section','wa-apply-comparison');comparison.id='wa-apply-comparison';comparison.hidden=!run.revealed;
+ const model=el(comparison,'article','wa-apply-model');el(model,'p','wa-apply-eyebrow','ONE POSSIBLE RESPONSE');el(model,'p','wa-apply-model-text',item.example);
+ const checklist=el(comparison,'div','wa-apply-checklist');el(checklist,'h3','','Review your revision');const checkCount=el(checklist,'p','wa-apply-check-count');
+ function progress(){checkCount.textContent=run.checks.size+' of '+item.checks.length+' checks completed';applicationTasks.forEach((_,j)=>meter.children[j].dataset.done=String(isComplete(state.applications[j],j)));if(state.applications.every(isComplete))ctx.complete();else ctx.incomplete();}
+ item.checks.forEach((t,k)=>{const l=el(checklist,'label','wa-check wa-apply-check');const cb=el(l,'input','');cb.type='checkbox';cb.checked=run.checks.has(k);cb.onchange=()=>{if(cb.checked)run.checks.add(k);else run.checks.delete(k);progress();};el(l,'span','',t);});
+ checkCount.textContent=run.checks.size+' of '+item.checks.length+' checks completed';
+ input.oninput=()=>{run.written=input.value;run.checks.clear();for(const cb of comparison.querySelectorAll('input'))cb.checked=false;updateCount();progress();};
+ const controls=el(host,'div','wa-stage-foot wa-apply-controls');const prev=action(controls,'← Previous task',()=>{state.applyIndex--;draw();host.querySelector('.wa-apply-title').focus();});prev.disabled=n===0;const next=action(controls,'Next task →',()=>{state.applyIndex++;draw();host.querySelector('.wa-apply-title').focus();});next.disabled=n===applicationTasks.length-1;
  }draw();
  }else{const host=el(body,'div','wa-question');quiz(host,master,ctx);const end=el(body,'details','wa-tip');el(end,'summary','','Apply it in your own review');el(end,'h3','','Independent task · Community sports event');el(end,'p','',independentTask.prompt);action(end,'Open Writing Studio →',()=>onStudio({initialTask:independentTask.id,initialMode:'Gold'}));}
  }});
