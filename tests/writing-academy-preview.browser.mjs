@@ -455,20 +455,44 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   assert.equal(await page.locator('.wa-stage-tab[data-stage=explore]').getAttribute('data-complete'),'true');
   await capture(page,'exam-explore',width,height);
   await go('practise');
+  for(const card of exam.practice){
+   await page.getByRole('button',{name:new RegExp(card.title)}).press('Enter');
+   for(const [index,item] of card.items.entries()){
+    await page.locator('.wa-practise-question [data-option="'+item.answer+'"]').press('Enter');
+    await page.getByRole('button',{name:'Check answer'}).press('Enter');
+    assert.ok(await page.locator('.wa-practise-question .wa-answer li').filter({hasText:item.rationale}).isVisible());
+    await page.getByRole('button',{name:index===card.items.length-1?'Finish analysis':'Next question'}).press('Enter');
+   }
+  }
   await page.getByRole('button',{name:/Plan independently/}).press('Enter');
-  await page.locator('.wa-apply-editor textarea').fill(exam.gold[0].example);
-  await page.getByRole('button',{name:/Compare with an example/}).press('Enter');
-  assert.ok(await page.getByRole('heading',{name:'One possible plan'}).isVisible());
+  for(const [index,task] of exam.gold.entries()){
+   await page.locator('.wa-apply-editor textarea').fill(task.example);
+   await page.getByRole('button',{name:/Compare with an example/}).press('Enter');
+   assert.ok(await page.getByRole('heading',{name:'One possible plan'}).isVisible());
+   await page.getByRole('textbox',{name:'Revise your response'}).fill(task.example+'\nCheck recommendation against evidence');
+   for(const check of await page.locator('.wa-apply-check input').all())await check.check();
+   if(index===0)await page.getByRole('button',{name:'Next Gold task →'}).press('Enter');
+  }
+  assert.equal(await page.locator('.wa-stage-tab[data-stage=practise]').getAttribute('data-complete'),'true');
+  await capture(page,'exam-planning',width,height);
   await go('apply');
-  assert.ok(await page.getByText('Planning checklist',{exact:true}).isVisible());
-  await page.getByRole('textbox',{name:'Planning notes (optional)'}).fill('price and portion');
-  await page.getByRole('textbox',{name:'Your review'}).fill(exam.apply[0].example);
-  await page.getByRole('button',{name:'Submit response'}).press('Enter');
-  assert.ok(await page.getByRole('heading',{name:'Submitted response'}).isVisible());
-  await page.getByRole('button',{name:'Next task →',exact:true}).press('Enter');
-  assert.equal(await page.getByText('Planning checklist',{exact:true}).count(),0);
-  await page.getByRole('button',{name:'Next task →',exact:true}).press('Enter');
-  assert.ok(await page.getByRole('button',{name:'Start 20-minute practice'}).isVisible());
+  const reflection=['One strength in your content','One improvement to your language or organisation','One specific target for your next review'];
+  async function reflect(){
+   for(const label of reflection)await page.getByRole('textbox',{name:label}).fill('Use specific details');
+   for(const check of await page.locator('.wa-exam-review input[type=checkbox]').all())await check.check();
+  }
+  for(const [index,task] of exam.apply.entries()){
+   assert.equal(await page.getByText('Planning checklist',{exact:true}).count(),index===0?1:0);
+   if(task.timer)await page.getByRole('button',{name:'Start untimed practice'}).press('Enter');
+   await page.getByRole('textbox',{name:'Planning notes (optional)'}).fill('price and evidence');
+   await page.getByRole('textbox',{name:'Your review'}).fill(task.example);
+   await page.getByRole('button',{name:'Submit response'}).press('Enter');
+   assert.ok(await page.getByRole('heading',{name:'Submitted response'}).isVisible());
+   await reflect();
+   if(index<exam.apply.length-1)await page.getByRole('button',{name:'Next task →',exact:true}).press('Enter');
+  }
+  assert.equal(await page.locator('.wa-stage-tab[data-stage=apply]').getAttribute('data-complete'),'true');
+  await capture(page,'exam-apply',width,height);
   await go('master');
   for(const [index,item] of exam.analysis.entries()){
    await page.locator('.wa-master-question [data-option="'+item.answer+'"]').press('Enter');
@@ -495,9 +519,8 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   assert.equal(await page.locator('.wa-apply-model').count(),0);
   await page.getByRole('button',{name:'Submit anyway'}).press('Enter');
   assert.ok(await page.getByText('Submitted after practice time elapsed',{exact:false}).isVisible());
-  const reflection=['One strength in your content','One improvement to your language or organisation','One specific target for your next review'];
-  for(const label of reflection)await page.getByRole('textbox',{name:label}).fill('Use specific details');
-  for(const check of await page.locator('.wa-exam-review input[type=checkbox]').all())await check.check();
+  await reflect();
+  assert.match(await page.locator('.wa-exam-review').innerText(),/Academy learning programme complete/);
   assert.equal(await page.locator('.wa-stage-tab[data-stage=master]').getAttribute('data-complete'),'true');
   await page.getByText('Revise your response (optional)',{exact:true}).press('Enter');
   await page.getByRole('textbox',{name:'Revised response'}).fill('My revised draft.');
