@@ -106,7 +106,7 @@ try{
   const structureCard=page.locator('.wa-path.wa-structure');
   const expressionCard=page.locator('.wa-path.wa-expression');
   await checkArtwork(structureCard,'card','structure-organisation');
-  await checkArtwork(expressionCard,'card','vocabulary-expression',expressionRatio);
+  await checkArtwork(expressionCard,'card','expression-card');
   await capture(page,'home',width,height);
   await expressionCard.getByRole('button',{name:'Start pathway →'}).click();
   await checkArtwork(page,'banner','vocabulary-expression',expressionRatio);
