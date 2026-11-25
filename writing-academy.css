@@ -461,3 +461,50 @@
 #writingAcademy .wa-apply-controls .wa-action{font-size:.8rem;padding:8px 11px;min-height:40px}
 @media(max-width:800px){#writingAcademy .wa-stage-body[data-stage=apply]{grid-template-columns:minmax(0,1fr) 150px;column-gap:16px}}
 @media(max-width:560px){#writingAcademy .wa-stage-body[data-stage=apply]{grid-template-columns:minmax(0,1fr) 100px;column-gap:8px}#writingAcademy .wa-apply-controls .wa-action{flex:1;text-align:center}}
+
+
+/* Master — final editorial checkpoint */
+#writingAcademy .wa-stage-body[data-stage=master]{grid-template-columns:minmax(0,1fr) minmax(150px,210px);column-gap:24px}
+#writingAcademy .wa-stage-body[data-stage=master] .wa-stage-title{font-size:clamp(1.75rem,3vw,2rem);margin-bottom:5px}
+#writingAcademy .wa-stage-body[data-stage=master] .wa-art--stage{width:100%}
+#writingAcademy .wa-master-desk{font-size:.9rem;line-height:1.55;min-width:0}
+#writingAcademy .wa-master-intro{font-size:.9rem;color:#526477;margin:0 0 16px}
+#writingAcademy .wa-stage-body .wa-master-question{background:#fbf7ee;border:1px solid #e4dac8;border-radius:12px;padding:clamp(14px,2.4vw,24px);margin:0;min-width:0}
+#writingAcademy .wa-master-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+#writingAcademy .wa-master-eyebrow{font-size:.68rem;font-weight:750;letter-spacing:.11em;color:#735b83}
+#writingAcademy .wa-master-position{font-size:.78rem;color:#526477}
+#writingAcademy .wa-master-progress{display:flex;gap:5px;margin:8px 0 18px}
+#writingAcademy .wa-master-progress span{width:32px;height:4px;border-radius:4px;background:#ddd5c8}
+#writingAcademy .wa-master-progress span[data-current=true]{background:#142d48}
+#writingAcademy .wa-master-progress span[data-done=true]{background:#08766e}
+#writingAcademy .wa-master-question .wa-question-prompt{font-family:"Source Serif 4",Georgia,"Times New Roman",serif;font-size:clamp(1.1rem,2vw,1.35rem);font-weight:600;line-height:1.45;letter-spacing:-.015em;margin:0 0 14px}
+#writingAcademy .wa-master-question .wa-options{gap:8px;margin:0 0 14px}
+#writingAcademy .wa-master-question .wa-option{display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid #d7dce3;border-radius:9px;font-size:.9rem;font-weight:450;line-height:1.55;padding:12px;margin:0;overflow-wrap:anywhere}
+#writingAcademy .wa-master-letter{display:grid;place-items:center;width:24px;height:24px;flex:none;border:1px solid #d7dce3;border-radius:6px;font-size:.72rem;font-weight:700;color:#526477}
+#writingAcademy .wa-master-option-text{flex:1;min-width:0}
+#writingAcademy .wa-master-question .wa-option:hover:not(:disabled){border-color:#7953c7;background:#f7f4fc}
+#writingAcademy .wa-master-question .wa-option[aria-pressed=true]{border-color:#08766e;background:#e0f1ed;box-shadow:inset 3px 0 #08766e}
+#writingAcademy .wa-master-question>.wa-action{font-size:.85rem;padding:9px 15px;border-radius:8px}
+#writingAcademy .wa-master-question>.wa-action:not(:disabled){background:#142d48;color:white;border-color:#142d48}
+#writingAcademy .wa-master-question>.wa-action:disabled{background:#f2efe9;color:#655d52;border-color:#d9d3c8;opacity:1}
+#writingAcademy .wa-master-question .wa-answer{font-size:.85rem;font-weight:500;margin:0 0 12px}
+#writingAcademy .wa-master-question .wa-answer:empty{display:none}
+#writingAcademy .wa-master-result{border:1px solid #e4dac8;border-radius:12px;background:#fff;padding:20px;margin:0 0 12px}
+#writingAcademy .wa-master-result[data-passed=true]{border-color:#cce1d8;background:#f0f7f4}
+#writingAcademy .wa-master-result h3{font-size:1.25rem;margin:6px 0}
+#writingAcademy .wa-master-result .wa-score{font-size:2rem;margin:8px 0;color:#142d48}
+#writingAcademy .wa-master-result .wa-muted{font-size:.85rem;margin:0}
+#writingAcademy .wa-master-question>.wa-muted{font-size:.78rem;margin:8px 0}
+#writingAcademy .wa-master-studio{margin:16px 0 0;border:1px solid #dbe2e9;border-radius:12px;background:#fff;overflow:hidden}
+#writingAcademy .wa-master-studio summary{display:flex;justify-content:space-between;align-items:center;gap:12px;list-style:none;padding:14px 16px;background:#f2f5f9;cursor:pointer}
+#writingAcademy .wa-master-studio summary::-webkit-details-marker{display:none}
+#writingAcademy .wa-master-studio summary span:first-child{display:grid;gap:3px}
+#writingAcademy .wa-master-studio summary strong{font-size:.95rem}
+#writingAcademy .wa-master-chevron{font-size:1.25rem;color:#526477}
+#writingAcademy .wa-master-studio[open] .wa-master-chevron{transform:rotate(180deg)}
+#writingAcademy .wa-master-studio-content{padding:16px}
+#writingAcademy .wa-master-studio-content h3{font-size:1rem}
+#writingAcademy .wa-master-studio-content p{font-size:.85rem;color:#526477}
+#writingAcademy .wa-master-studio-content .wa-master-launch{background:#08766e;color:white;border-color:#08766e;font-size:.85rem;border-radius:8px}
+@media(max-width:800px){#writingAcademy .wa-stage-body[data-stage=master]{grid-template-columns:minmax(0,1fr) 150px;column-gap:16px}}
+@media(max-width:560px){#writingAcademy .wa-stage-body[data-stage=master]{grid-template-columns:minmax(0,1fr) 100px;column-gap:8px}}
