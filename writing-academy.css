@@ -812,3 +812,9 @@
 #writingAcademy .wa-reference-detail li{margin:4px 0}
 @media(max-width:680px){#writingAcademy .wa-reference-layout{grid-template-columns:1fr;gap:12px}#writingAcademy .wa-reference-check{border-left:0;border-top:1px solid #e4e8ec;padding:12px 0 0}}
 @media(max-width:380px){#writingAcademy .wa-reference-moves{grid-template-columns:1fr}}
+
+/* Pathway 03 — warm amber editorial identity, accessible light text. */
+#writingAcademy .wa-editorial-lesson[data-pathway="03"] .wa-lesson-banner{background:linear-gradient(115deg,#51350f,#855514);color:#fff;border-bottom:3px solid #e7b65c}
+#writingAcademy .wa-editorial-lesson[data-pathway="03"] .wa-lesson-banner .wa-kicker{color:#ffe1a4}
+#writingAcademy .wa-path.wa-development .wa-action{border-color:#d3b477}
+#writingAcademy .wa-path.wa-development .wa-action:hover{background:#fff4db}
