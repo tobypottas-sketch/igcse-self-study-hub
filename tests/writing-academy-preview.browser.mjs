@@ -25,14 +25,14 @@ async function checkArtwork(host, placement, name, ratio = 1.5) {
  });
  assert.match(info.source,new RegExp('^'+name+'-\\d+\\.webp$'));
  assert.ok(info.intrinsicWidth > 0);
- assert.ok(Math.abs((ratio === expressionRatio ? info.ratio : info.width/info.height) - ratio) < .03,JSON.stringify(info));
+ assert.ok(Math.abs((ratio === 1.5 ? info.width/info.height : info.ratio) - ratio) < .03,JSON.stringify(info));
  assert.equal(info.fit,'contain');
 }
 
 const homeCardArtwork = {
  structure:'structure-organisation',
  expression:'expression-card',
- development:'development-card',
+ development:'idea-development-banner',
  cohesion:'grammar-cohesion-card',
  editing:'editing-improvement-card',
  exam:'exam-mastery-card'
@@ -153,6 +153,15 @@ try{
 
   await page.getByRole('button',{name:'← All pathways'}).click();
   await page.locator('.wa-path.wa-development').getByRole('button',{name:'Start pathway →'}).click();
+  await checkArtwork(page,'banner','idea-development-banner',3);
+  await checkBlueprint(page);
+  const developmentStages = ['discover','explore','practise','apply','master'];
+  for (const stage of developmentStages) {
+   if (stage !== 'discover') await go(stage);
+   assert.equal(await page.locator('.wa-stage-tab[aria-current=step]').getAttribute('data-stage'),stage);
+   await checkArtwork(page,'stage','idea-development-'+stage,4/3);
+   await capture(page,'development-'+stage,width,height);
+  }
   await go('explore');
   await page.locator('.wa-explore-question textarea').fill('The writer gives readers a detail to explain what happened during the visit.');
   await page.getByRole('button',{name:'Compare with the editor’s note'}).click();

@@ -4,6 +4,10 @@ const expressionStage = name => ({
   ...art(name, [256, 512, 768], [1672, 941]),
   sizes: '(max-width: 680px) calc(100vw - 60px), 246px'
 });
+const developmentStage = stage => ({
+  ...art(`idea-development-${stage}`, [256, 512, 768], [1448, 1086]),
+  sizes: '(max-width: 680px) calc(100vw - 60px), 246px'
+});
 const practise = art('stage-practise', [256, 512]);
 
 export const reviewArtwork = {
@@ -24,9 +28,12 @@ export const reviewArtwork = {
       ]
     },
     development: {
-      card: art('development-card',[192],[192,128]),
-      banner: structure,
-      stages: [art('stage-discover',[256,512]),art('stage-explore',[256,512]),practise,practise,art('stage-master',[256,512])]
+      card: art('idea-development-banner', [192], [2172, 724]),
+      banner: {
+        ...art('idea-development-banner', [256, 512], [2172, 724]),
+        sizes: '(max-width: 960px) 25vw, 240px'
+      },
+      stages: ['discover', 'explore', 'practise', 'apply', 'master'].map(developmentStage)
     },
     expression: {
       card: art('expression-card',[192],[192,128]),
