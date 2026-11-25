@@ -818,3 +818,7 @@
 #writingAcademy .wa-editorial-lesson[data-pathway="03"] .wa-lesson-banner .wa-kicker{color:#ffe1a4}
 #writingAcademy .wa-path.wa-development .wa-action{border-color:#d3b477}
 #writingAcademy .wa-path.wa-development .wa-action:hover{background:#fff4db}
+
+/* Match the original integrated 3:2 card illustration slot. */
+#writingAcademy .wa-card-top{min-height:96px}
+#writingAcademy .wa-path .wa-card-top .wa-art--card{width:144px;height:96px;object-fit:contain;aspect-ratio:3/2;background:transparent;border:0;box-shadow:none}
