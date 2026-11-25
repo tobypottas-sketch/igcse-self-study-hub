@@ -1,4 +1,4 @@
-import {renderArtwork, reviewArtwork} from './editorial-art.js?v=10';
+import {renderArtwork, reviewArtwork} from './editorial-art.js?v=11';
 import {renderStudio} from './studio.js?v=16';
 import {renderExamReference,renderStructure,renderExpression,renderDevelopment} from './structure.js?v=20';
 // Preview has no student writes, XP transactions or invented progress.
