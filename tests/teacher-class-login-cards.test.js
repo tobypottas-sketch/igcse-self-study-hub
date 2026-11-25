@@ -118,3 +118,14 @@ test('teacher login cards are a shared dashboard action and use a deliberate cla
  assert.match(cards,/studentIds\}/);
  assert.match(cards,/data-card-consent/);
 });
+
+ test('credential chooser progressively reveals controls and keeps password acknowledgement mandatory',()=>{
+ const ui=readFileSync(new URL('../src/vocabulary/teacher-login-cards.js',import.meta.url),'utf8');
+ const css=readFileSync(new URL('../vocabulary-teacher-login-cards.css',import.meta.url),'utf8');
+ assert.ok(ui.includes("(!classId?' hidden':'')"));
+ assert.ok(ui.includes("(!count?' hidden':'')"));
+ assert.ok(ui.includes("!consent.checked"));
+ assert.ok(ui.includes("globalThis.confirm"));
+ assert.match(css,/\[hidden\]\{display:none!important\}/);
+ assert.match(css,/data-has-class=false/);
+ });
