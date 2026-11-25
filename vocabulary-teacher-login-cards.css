@@ -1,34 +1,42 @@
-
-/* Teacher-only class login-card selection; print layout reuses the admin credential-card renderer. */
+/* Teacher credential chooser — shared navy/teal identity with the generated-card preview. */
 .vocab-teacher-hero .teacher-create-login-cards{margin-top:10px}
 .vocab-teacher-credential-hint{font-size:.85rem;color:var(--muted);margin:8px 0 0!important}
-.teacher-login-cards-dialog{border:0;border-radius:18px;padding:0;width:min(680px,calc(100% - 24px));max-height:calc(100dvh - 32px);background:#fff;color:#173952;box-shadow:0 24px 75px rgba(10,33,50,.3)}
-.teacher-login-cards-dialog::backdrop{background:rgba(11,34,49,.62)}
-.teacher-login-cards-panel{padding:22px 24px}
-.teacher-login-cards-panel>header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
-.teacher-login-cards-panel header h2{margin:2px 0 4px;font-size:1.45rem}
-.teacher-login-cards-panel header p{margin:3px 0}
-.teacher-login-cards-panel button{min-height:36px;border-radius:9px;padding:7px 12px;border:1px solid #cadbe4;background:#fff;color:#173952;font:inherit;font-weight:750;cursor:pointer}
-.teacher-login-cards-panel button:disabled{opacity:.5;cursor:not-allowed}
-.teacher-login-cards-panel [data-card-close]{font-size:1.6rem;line-height:1;padding:4px 10px}
-.teacher-login-cards-warning{margin:16px 0;border:1px solid #e9bf92;border-radius:10px;padding:12px 14px;background:#fff7e9;color:#704620;line-height:1.45}
-.teacher-login-cards-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 0 12px}
-.teacher-login-cards-toolbar>div{display:flex;gap:8px}
-.teacher-login-cards-list{display:grid;gap:7px;max-height:min(41dvh,390px);overflow:auto;padding:4px}
-.teacher-login-cards-list label{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid #d8e6ed;border-radius:10px;cursor:pointer}
-.teacher-login-cards-list label:has(input:checked){background:#edf8f5;border-color:#56aaa1}
-.teacher-login-cards-list input,.teacher-login-cards-consent input{width:18px;height:18px;flex:none;accent-color:#168783}
-.teacher-login-cards-list span{display:grid;gap:2px}
-.teacher-login-cards-list small{color:#546c7e}
-.teacher-login-cards-consent{display:flex;align-items:flex-start;gap:10px;margin:17px 0;font-weight:700;line-height:1.4}
-.teacher-login-cards-actions{display:flex;justify-content:flex-end;gap:10px}
-.teacher-login-cards-actions .vocab-button--primary{background:#147f7e;color:white;border-color:#147f7e}
-.teacher-login-cards-panel [data-card-error]{color:#aa3330;font-weight:750}
-@media(max-width:580px){.teacher-login-cards-panel{padding:16px}.teacher-login-cards-toolbar{align-items:flex-start;flex-direction:column}.teacher-login-cards-list{max-height:38dvh}}
-
-
-/* Teacher dropdown is deliberate: do not preselect a class when changing passwords. */
-.teacher-login-cards-panel .teacher-login-cards-class-label{display:block;margin:18px 0 7px;font-size:.8rem;font-weight:900;letter-spacing:.025em;color:#1a5066}
-.teacher-login-cards-panel [data-card-class]{width:100%;min-height:46px;border:1.5px solid #8fc4c7;border-radius:11px;background:#f4fbfb;color:#173952;padding:9px 13px;font:inherit;font-weight:800;cursor:pointer}
-.teacher-login-cards-panel [data-card-class]:focus-visible{outline:3px solid #198e8d;outline-offset:2px}
-.teacher-login-cards-placeholder{margin:8px 0;padding:20px 12px;color:#526e7f;background:#f1f7f8;border:1px dashed #b7d2d9;border-radius:10px;text-align:center}
+.teacher-login-cards-dialog{box-sizing:border-box;border:1px solid #d4e2e9;border-radius:20px;padding:0;width:min(640px,calc(100% - 24px));max-height:calc(100dvh - 32px);height:auto;overflow:auto;background:#fff;color:#173952;box-shadow:0 24px 75px rgba(10,33,50,.3)}
+.teacher-login-cards-dialog[data-has-class=false]{width:min(570px,calc(100% - 24px))}
+.teacher-login-cards-dialog::backdrop{background:rgba(11,34,49,.58);backdrop-filter:blur(4px)}
+.teacher-login-cards-panel{padding:0 22px 18px;font-size:.9rem;line-height:1.45}
+.teacher-login-cards-panel>header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin:0 -22px 18px;padding:18px 22px;background:#173952;color:white;border-bottom:3px solid #15978e}
+.teacher-login-cards-panel header h2{margin:3px 0 6px;font-size:1.4rem;color:white;line-height:1.2}
+.teacher-login-cards-panel header p{margin:3px 0;color:#d7e7ef;font-size:.85rem}
+.teacher-login-cards-panel header .vocab-kicker{color:#a9dedb;font-size:.72rem;letter-spacing:.09em;font-weight:800}
+.teacher-login-cards-panel button{min-height:38px;border-radius:9px;padding:8px 13px;border:1px solid #cadbe4;background:#fff;color:#173952;font:inherit;font-weight:750;cursor:pointer}
+.teacher-login-cards-panel button:hover:not(:disabled){background:#eaf4f4;border-color:#77b5b3}
+.teacher-login-cards-panel button:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+.teacher-login-cards-panel button:focus-visible,.teacher-login-cards-panel input:focus-visible{outline:2px solid #08766e;outline-offset:3px}
+.teacher-login-cards-panel [data-card-close]{flex:none;width:40px;height:40px;font-size:1.6rem;line-height:1;padding:0;border-radius:50%;background:#ffffff16;border-color:#ffffff55;color:white}
+.teacher-login-cards-panel [data-card-close]:hover{background:#ffffff30}
+.teacher-login-cards-panel [data-card-close]:focus-visible{outline-color:#e7ac35}
+.teacher-login-cards-panel .teacher-login-cards-class-label{display:block;margin:0 0 6px;font-size:.8rem;font-weight:800;color:#1a5066}
+.teacher-login-cards-panel [data-card-class]{box-sizing:border-box;width:100%;min-height:44px;border:1px solid #9ebdc8;border-radius:10px;background:#f4f9fa;color:#173952;padding:9px 12px;font:inherit;font-weight:750;cursor:pointer}
+.teacher-login-cards-panel [data-card-class]:focus-visible{outline:2px solid #198e8d;outline-offset:2px}
+.teacher-login-cards-warning{margin:14px 0;border:1px solid #e9bf92;border-left:4px solid #cc8a34;border-radius:9px;padding:10px 12px;background:#fff7e9;color:#704620;line-height:1.45;font-size:.82rem}
+.teacher-login-cards-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 8px}
+.teacher-login-cards-toolbar>div{display:flex;gap:6px;flex-wrap:wrap}
+.teacher-login-cards-toolbar strong{color:#08665f;font-size:.85rem}
+.teacher-login-cards-toolbar button{font-size:.8rem;min-height:34px;background:#f1f6f7}
+.teacher-login-cards-list{display:grid;gap:5px;max-height:min(35dvh,340px);overflow:auto;padding:3px;scrollbar-gutter:stable}
+.teacher-login-cards-list label{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid #d8e6ed;border-radius:9px;cursor:pointer;background:#fff}
+.teacher-login-cards-list label:hover{background:#f3f8f9}
+.teacher-login-cards-list label:has(input:checked){background:#e9f5f2;border-color:#13877e}
+.teacher-login-cards-list input,.teacher-login-cards-consent input{width:18px;height:18px;flex:none;accent-color:#08766e}
+.teacher-login-cards-list span{display:grid;gap:2px;min-width:0;overflow-wrap:anywhere}
+.teacher-login-cards-list small{color:#546c7e;font-size:.78rem}
+.teacher-login-cards-placeholder{margin:0;padding:13px 10px;color:#526e7f;background:#f1f7f8;border:1px dashed #b7d2d9;border-radius:9px;text-align:center;font-size:.85rem}
+.teacher-login-cards-consent{display:flex;align-items:flex-start;gap:10px;margin:12px 0;padding:10px 12px;background:#f3f7f8;border-radius:9px;font-weight:650;font-size:.82rem;line-height:1.4}
+.teacher-login-cards-panel [hidden]{display:none!important}
+.teacher-login-cards-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #dce6eb}
+.teacher-login-cards-actions .vocab-button--primary{background:#08766e;color:white;border-color:#08766e}
+.teacher-login-cards-actions .vocab-button--primary:hover:not(:disabled){background:#065e58;color:white}
+.teacher-login-cards-panel [data-card-error]{color:#aa3330;font-weight:750;margin:8px 0 0}
+.teacher-login-cards-panel [data-card-error]:empty{display:none}
+@media(max-width:580px){.teacher-login-cards-panel{padding:0 14px 14px}.teacher-login-cards-panel>header{margin:0 -14px 14px;padding:14px}.teacher-login-cards-toolbar{flex-wrap:wrap}.teacher-login-cards-list{max-height:32dvh}.teacher-login-cards-actions{flex-wrap:wrap}}
