@@ -1,5 +1,5 @@
 import {renderArtwork, reviewArtwork} from './editorial-art.js?v=6';
-import {renderStudio} from './studio.js?v=13';
+import {renderStudio} from './studio.js?v=14';
 import {renderExamReference,renderStructure} from './structure.js?v=15';
 // Preview has no student writes, XP transactions or invented progress.
 const pathwayDetails={
@@ -21,9 +21,9 @@ function node(doc,tag,cls,text){const n=doc.createElement(tag);if(cls)n.classNam
 function add(parent,tag,cls,text){const n=node(parent.ownerDocument,tag,cls,text);parent.append(n);return n;}
 function link(parent,cls,text,href){const a=add(parent,'a',cls,text);a.href=href;return a;}
 function motif(parent,key){const svg=parent.ownerDocument.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 96 96');svg.setAttribute('aria-hidden','true');svg.classList.add('wa-motif');svg.innerHTML=motifs[key];parent.append(svg);}
-export function renderReviewHome(root,catalogue,accountId){
+export function renderReviewHome(root,catalogue,accountId,feedbackContext={}){
  root.replaceChildren();const doc=root.ownerDocument;const config=catalogue.config;
- const back=()=>renderReviewHome(root,catalogue,accountId);const studio=(options={})=>{renderStudio(root,{accountId,onBack:back,...options});root.ownerDocument.defaultView.scrollTo(0,0);};
+ const back=()=>renderReviewHome(root,catalogue,accountId,feedbackContext);const studio=(options={})=>{renderStudio(root,{accountId,onBack:back,...feedbackContext,...options});root.ownerDocument.defaultView.scrollTo(0,0);};
  const shell=add(root,'div','wa-shell');
  const nav=add(shell,'nav','wa-nav');nav.setAttribute('aria-label','Academy navigation');link(nav,'wa-back','← Self-Study Hub','./');add(nav,'span','wa-brand','WRITING / ACADEMY');add(nav,'span','wa-preview','Staff preview');
  const hero=add(shell,'header','wa-hero');const intro=add(hero,'div','wa-intro');add(intro,'p','wa-kicker','CAMBRIDGE IGCSE ESL 0511 · EXERCISE 6');add(intro,'h1','','Write with confidence.');add(intro,'p','wa-lead','Review Writing — explore ideas, develop your voice and learn to make every word count.');const launch=add(intro,'button','wa-primary wa-action','Open Writing Studio →');launch.onclick=()=>studio();link(intro,'wa-legacy-link','Original Studio','./review-writing.html');
