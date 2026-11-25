@@ -87,13 +87,13 @@ const examInvestigations={
       "The twenty-minute queue and difficulty talking establish limitations for students with limited time or wanting conversation."
     ],
     [
-      "How does the ending use the writer's earlier evaluation to help different readers?",
+      "How does the ending use the writer’s earlier evaluation to help different readers?",
       "The affordable filling lunch suits hungry students; visiting before the rush addresses the desire for quiet conversation."
     ]
   ],
   "Beyond the Stars": [
     [
-      "How much of the film's story does the opening tell, and why is that enough for the task?",
+      "How much of the film’s story does the opening tell, and why is that enough for the task?",
       "It identifies two explorers separated from their crew and gives an initial judgement without retelling the plot."
     ],
     [
@@ -169,7 +169,7 @@ const examInvestigations={
       "The example illustrates how combining previously learned skills makes solving puzzles rewarding."
     ],
     [
-      "How does this criticism help students judge the game's suitability?",
+      "How does this criticism help students judge the game’s suitability?",
       "Unclear advanced instructions may cause inexperienced players to repeat unsuccessful actions, a specific rather than general weakness."
     ],
     [
@@ -225,8 +225,8 @@ export const exam={
  practice:[
   card('decode','Bronze','Decode the question',[
    q('School website: Review a holiday sports workshop. Describe the activities, evaluate coaching and explain who would benefit. Which plan covers the task?',1,['List the activities, describe the venue and recommend it to everyone.','Describe the activities, evaluate the coaching and identify suitable participants.','Explain whether the sport is popular, evaluate facilities and suggest another workshop.'],['The venue can be relevant, but coaching and a suitable audience are missing.','This covers all three requirements without dictating a paragraph structure.','This shifts attention away from the workshop and its coaching.']),
-   q('School magazine: Review a film and explain whether it suits younger viewers. Which reader need should drive the judgement?',2,['How the film's story compares with other films in the same genre.','How popular the film is with audiences of different ages.','How easily younger viewers can follow and enjoy it.'],['A genre comparison could be useful, but without considering younger readers it does not establish suitability.','Popularity alone does not establish whether younger viewers can understand or enjoy the film.','The judgement should address the specified audience.']),
-   q('School blog: Review a café for students meeting after lessons. Identify the purpose most closely.',0,['Help students decide whether it suits a meetup.','Evaluate the café primarily to suggest improvements to its owners.','Introduce students to the different dishes on the café's menu.'],['The review helps its readers decide whether to visit.','Suggestions might appear in a review, but the main audience is students, not the owner.','Descriptions of dishes help, but the purpose is to evaluate the café as a meeting place.']),
+   q('School magazine: Review a film and explain whether it suits younger viewers. Which reader need should drive the judgement?',2,['How the film’s story compares with other films in the same genre.','How popular the film is with audiences of different ages.','How easily younger viewers can follow and enjoy it.'],['A genre comparison could be useful, but without considering younger readers it does not establish suitability.','Popularity alone does not establish whether younger viewers can understand or enjoy the film.','The judgement should address the specified audience.']),
+   q('School blog: Review a café for students meeting after lessons. Identify the purpose most closely.',0,['Help students decide whether it suits a meetup.','Evaluate the café primarily to suggest improvements to its owners.','Introduce students to the different dishes on the café’s menu.'],['The review helps its readers decide whether to visit.','Suggestions might appear in a review, but the main audience is students, not the owner.','Descriptions of dishes help, but the purpose is to evaluate the café as a meeting place.']),
    q('Review an adventure game. Describe its gameplay and evaluate how suitable it is for beginners. What must the response include?',2,['An explanation of what makes the final levels entertaining.','A comparison of the game’s graphics with similar releases.','A judgement about how new players get started.'],['Later levels may be relevant, but the plan must evaluate the experience of beginners.','Graphics may contribute to enjoyment, but a comparison alone does not evaluate beginner suitability.','The learning curve directly addresses the suitability criterion.'])
   ]),
   card('evidence','Bronze','Select relevant evidence',[
@@ -244,8 +244,8 @@ export const exam={
   card('decisions','Silver','Make examination decisions',[
    q('Your 135-word review covers activities and facilities, but the task also asks who would benefit. What should you do with little time left?',2,['Clarify a vague adjective in the description of the facilities.','Add another example to support the evaluation of the facilities.','Add a concise recommendation tied to your evidence.'],['A precise adjective could improve the description, but would leave the requested audience unaddressed.','More evidence may help, but the existing evaluation is already covered and the recommendation is missing.','This fills the most important gap using evidence already developed.']),
    q('You are at 174 words. Your review repeats a description of the café and includes one unique detail that supports its value. What is the best cut?',0,['Trim the repeated description and retain the value detail.','Remove the value detail and keep both descriptions.','Shorten the recommendation and keep both descriptions.'],['This reduces length while protecting evidence needed by the task.','It sacrifices a useful reason while leaving duplication.','Shortening may save words, but leaves avoidable repetition and risks weakening the verdict.']),
-   q('Your ending says the film suits teenagers, but you have time to make one edit. The review explains the short running time and simple mystery. Which edit is most useful?',1,['Clarify why the film's opening scene was enjoyable.','Identify viewers who want a short, easy-to-follow mystery.','Add the precise running time to the description.'],['A more developed opening may help, but the broad recommendation remains unchanged.','It supports a specific verdict with evidence already in the review.','The precise time may help readers, but the existing evidence can already support a more targeted recommendation.']),
-   q('You have a complete draft, but two long sentences make its main evaluation difficult to follow. What should you prioritise?',2,['Add another example before revising the evaluation.','Shorten the introduction to make room for another judgement.','Clarify the sentence boundaries in the evaluation.'],['More content may make the passage harder to follow.','That might make room for detail, but it does not repair the main evaluation's readability.','The reader can follow your judgement once its sentence boundaries are clear.'])
+   q('Your ending says the film suits teenagers, but you have time to make one edit. The review explains the short running time and simple mystery. Which edit is most useful?',1,['Clarify why the film’s opening scene was enjoyable.','Identify viewers who want a short, easy-to-follow mystery.','Add the precise running time to the description.'],['A more developed opening may help, but the broad recommendation remains unchanged.','It supports a specific verdict with evidence already in the review.','The precise time may help readers, but the existing evidence can already support a more targeted recommendation.']),
+   q('You have a complete draft, but two long sentences make its main evaluation difficult to follow. What should you prioritise?',2,['Add another example before revising the evaluation.','Shorten the introduction to make room for another judgement.','Clarify the sentence boundaries in the evaluation.'],['More content may make the passage harder to follow.','That might make room for detail, but it does not repair the main evaluation’s readability.','The reader can follow your judgement once its sentence boundaries are clear.'])
   ])
  ],
  goldTitle:'Plan independently',
