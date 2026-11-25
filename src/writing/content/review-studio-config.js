@@ -9,6 +9,12 @@ export const reviewStudioConfig={genre:'Review Writing',tasks:[{...guidedTask,ti
  {label:'Evaluate',phrases:{Bronze:['The main drawback was','This meant that','Although'],Silver:['Despite this drawback,','This was particularly effective because'],Gold:['What ultimately made the experience worthwhile was']}},
  {label:'Recommend',phrases:{Bronze:['I would recommend it to','It is ideal for','If you enjoy'],Silver:['It would particularly appeal to','To make the most of the experience,'],Gold:['For those seeking']}}
  ],
+ blueprint:{title:'Review blueprint',moves:[
+ {label:'Introduce',hint:'Set the scene.',tone:'intro',icon:'◎'},
+ {label:'Describe',hint:'Give specific details.',tone:'describe',icon:'◇'},
+ {label:'Evaluate',hint:'Give opinions and reasons.',tone:'evaluate',icon:'±'},
+ {label:'Recommend',hint:'Say who, and why.',tone:'recommend',icon:'✓'}
+ ],reminder:'Four writing moves, not four compulsory paragraphs.',exam:'Cambridge 0511 · Exercise 6'},
  quickChecks:['Answered the task','Used clear paragraphs','Developed my opinions','Included specific details','Gave a useful recommendation','Checked my language'],
  markBreakdown:[{label:'Content',marks:6},{label:'Language',marks:9}],
  fields:[
