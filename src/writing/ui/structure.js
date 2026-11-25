@@ -3,10 +3,12 @@ import * as expression from '../content/review-expression-v1.js';
 import {extraReviewModels} from '../content/review-explore-models.js?v=1';
 import {mountLesson,el,action} from './lesson-shell.js?v=12';
 import {reviewArtwork} from './editorial-art.js?v=9';
-import {discovery,companions,applicationTasks} from '../content/review-active-v2.js';
-import {guidedTask,independentTask,toolkit,improvement,selfCheck} from '../content/review-guided-v1.js';
-import {reviewExam,blueprint,model,structureActivities} from '../content/review-structure-v1.js';
-import {scoreItem,validateActivities} from '../engine/activities.js';
+import {companions} from '../content/review-active-v2.js';
+import {pathways} from '../content/review-pedagogy.js';
+import {newWritingRun,renderResponseWorkshop} from './response-workshop.js';
+import {guidedTask,independentTask,toolkit} from '../content/review-guided-v1.js';
+import {blueprint,model} from '../content/review-structure-v1.js';
+import {scoreItem,validateActivities,shuffledIndexes,hasWritingAttempt,writingComplete} from '../engine/activities.js?v=2';
 
 function add(p,tag,cls,t){const n=p.ownerDocument.createElement(tag);n.className=cls||'';if(t)n.textContent=t;p.append(n);return n;}
 function button(p,t,fn){const n=add(p,'button','wa-action',t);n.type='button';n.addEventListener('click',fn);return n;}
@@ -31,38 +33,137 @@ export function renderDevelopment(root,onBack,onStudio){return renderPathway(roo
 function renderPathway(root,onBack,onStudio,config=null){
  const isExpression=config===expression, isDevelopment=config===development, hasLens=!!config;
  const pathwayKey=isDevelopment?'development':isExpression?'expression':'structure';
- const lensIntro=isDevelopment?'Read like an editor. Find evidence and investigate how it supports a judgement.':'Read like an editor. Identify effective phrases, then explore their meaning.';
- const lensUnlock=isDevelopment?'Choose how the idea is developed to unlock its explanation.':'Choose the most effective phrase to unlock its explanation.';
- const lensSelect=isDevelopment?'Select a sentence to explore its evidence and impact.':'Select a sentence to explore its language.';
- const lensRetry=isDevelopment?'Not quite. Connect the detail to the writer’s judgement.':'Not quite. Look at the meaning of each phrase in context.';
- const {discovery:discoverItems,companions:stageCompanions,applicationTasks:applyItems,activities:rawActivities}=config||{discovery,companions,applicationTasks,activities:structureActivities};
- const activities=validateActivities(rawActivities);
- const state={model:0,paragraph:0,identified:new Set(),discovered:new Set(),discoveryIndex:0,annotations:new Map(),applyIndex:0,applications:applyItems.map(()=>({written:'',revealed:false,checks:new Set()})),attempts:new Map(),active:null,written:'',revealed:false,checks:new Set()};
+ const course=pathways[pathwayKey];
+ const practice=validateActivities(course.practice);
+ const checkpoint=validateActivities([{id:pathwayKey+'-transfer',type:'choice',items:[course.analysis]}])[0];
+ const stageCompanions=(config?.companions??companions).map((tip,index)=>index===4
+  ? ['Work independently','Read the new situation carefully and apply what you learnt.','Use the criteria to reflect on your own writing.']
+  : tip);
+ const state={model:0,paragraph:0,identified:new Set(),discovered:new Set(),discoveryIndex:0,
+  annotations:new Map(),exploreDrafts:new Map(),applyIndex:0,applications:course.apply.map(newWritingRun),
+  attempts:new Map(),active:null,gold:newWritingRun(),transfer:newWritingRun()};
+ const gold={id:pathwayKey+'-writing',title:course.gold.title,level:'Gold'};
+ const challenges=[...practice,gold];
  const baseModels=[{...model,category:'Café',sentenceTips:[['Names the café, establishes the time and explains the reason for visiting.','Introduces an initial evaluation through the atmosphere and welcome.'],['Describes location, seating and menu.','Provides specific examples of food.','Evaluates affordability for students.'],['Balances crowding with praise for staff.','Balances a specific delay against food quality.','Explains the practical benefit of a quiet corner.'],['Identifies a suitable audience and reason.','Offers advice about timing.']],purposes:['Introduction','Description','Evaluation','Recommendation']},{...guidedTask,title:'Willow Kitchen',category:'Restaurant',purposes:['Introduction','Evaluation','Evaluation','Recommendation'],sentenceTips:[['Establishes the reason for visiting.','Adds useful location and price information.'],['States a clear preference.','Supports the judgement with sensory detail.','Explains why the portion was suitable.','Adds a specific example of flexibility.'],['Signals a shift to criticism.','Explains the wait and the effect of noise.'],['Identifies an audience and a reason.','Offers practical advice addressing the drawback.']]},...extraReviewModels];
  const models=isDevelopment?config.developmentModels(baseModels):isExpression?config.expressionModels(baseModels):baseModels;
- const practice=activities.filter(a=>a.level!=='Mastery check'),master=activities.find(a=>a.level==='Mastery check');
- function quiz(host,a,ctx){
-  host.replaceChildren();let run=state.attempts.get(a.id);if(!run){run={index:0,correct:0,selected:null,order:[],checked:false,done:false};state.attempts.set(a.id,run);}
-  function draw(){ctx.refresh?.();host.replaceChildren();if(a===master){const header=el(host,'div','wa-master-meta');el(header,'span','wa-master-eyebrow','FINAL CHECKPOINT');el(header,'span','wa-master-position',run.done?'Assessment complete':'Question '+(run.index+1)+' of '+a.items.length);const meter=el(host,'div','wa-master-progress');meter.setAttribute('aria-hidden','true');a.items.forEach((_,j)=>{const segment=el(meter,'span','');segment.dataset.current=String(!run.done&&j===run.index);segment.dataset.done=String(run.done||j<run.index||(j===run.index&&run.checked));});}else el(host,'p','wa-kicker',a.level+' / '+a.title);if(run.done){if(a===master){const result=el(host,'div','wa-master-result');result.dataset.passed=String(run.correct===a.items.length);el(result,'span','wa-master-eyebrow',run.correct===a.items.length?'MASTERY ACHIEVED':'KEEP DEVELOPING');el(result,'h3','',run.correct===a.items.length?'Checkpoint passed':'Checkpoint complete');el(result,'p','wa-score',run.correct+' / '+a.items.length+' correct');el(result,'p','wa-muted',run.correct===a.items.length?'You answered every question correctly.':'Answer all questions correctly to complete Master.');}else{el(host,'h3','','Activity complete');el(host,'p','wa-score',run.correct+' / '+a.items.length+' correct');}el(host,'p','wa-muted','Practice result, not a Cambridge grade.');action(host,'Try again',()=>{state.attempts.delete(a.id);ctx.incomplete();quiz(host,a,ctx);});return;}
-  const item=a.items[run.index];if(a!==master)el(host,'p','wa-muted','Question '+(run.index+1)+' of '+a.items.length);el(host,'h3','wa-question-prompt',item.prompt);
-  const options=el(host,'div','wa-options');const feedback=el(host,'p','wa-answer');feedback.setAttribute('role','status');
-  item.options.forEach((text,i)=>{const position=run.order.indexOf(i);const b=action(options,(a.type==='order'&&position>=0?(position+1)+'. ':'')+text,()=>{if(a.type==='order')run.order.push(i);else run.selected=i;draw();const buttons=host.querySelectorAll('.wa-options button');if(!buttons[i].disabled)buttons[i].focus();else host.querySelector('.wa-options button:not(:disabled)')?.focus();},'wa-action wa-option');if(a===master){b.replaceChildren();el(b,'span','wa-master-letter',String.fromCharCode(65+i)).setAttribute('aria-hidden','true');el(b,'span','wa-master-option-text',text);}b.disabled=run.checked||(a.type==='order'&&position>=0);if(a.type==='choice')b.setAttribute('aria-pressed',String(run.selected===i));});
-  if(run.checked){const ok=scoreItem(item,a.type==='order'?run.order:run.selected);feedback.textContent=(ok?'Correct. ':'Not quite. ')+item.rationale;feedback.dataset.result=ok?'correct':'retry';action(host,run.index+1===a.items.length?'Finish activity':'Next question',()=>{run.index++;run.checked=false;run.selected=null;run.order=[];if(run.index===a.items.length){run.done=true;if(a===master?run.correct===a.items.length:practice.every(x=>state.attempts.get(x.id)?.done))ctx.complete();}draw();},'wa-action wa-next');}
-  else{const check=action(host,'Check answer',()=>{run.checked=true;if(scoreItem(item,a.type==='order'?run.order:run.selected))run.correct++;draw();});check.disabled=a.type==='order'?run.order.length!==item.options.length:run.selected===null;if(a.type==='order')action(host,'Reset order',()=>{run.order=[];draw();});}
-  }draw();
+ const hasFinished = a => !!state.attempts.get(a.id)?.done;
+ function quiz(host,a,onFinish){
+  let run=state.attempts.get(a.id);
+  if(!run){
+   run={index:0,correct:0,selected:null,order:[],checked:false,done:false,
+    displays:a.items.map(item=>shuffledIndexes(item.options.length))};
+   state.attempts.set(a.id,run);
+  }
+  function draw(moveFocus=false){
+   host.replaceChildren();
+   el(host,'p','wa-kicker',a.level ? a.level+' / '+a.title : 'Analysis');
+   if(run.done){
+    const done=el(host,'h3','','Analysis complete');
+    done.tabIndex=-1;
+    el(host,'p','wa-score',run.correct+' / '+a.items.length+' objective decisions correct');
+    if(a!==checkpoint)action(host,'Try again',()=>{
+     state.attempts.delete(a.id);
+     onFinish();
+     quiz(host,a,onFinish);
+     host.querySelector('h3').focus();
+    });
+    if(moveFocus)done.focus();
+    return;
+   }
+   const item=a.items[run.index];
+   const ordered=a.type==='order';
+   const display=run.displays[run.index];
+   el(host,'p','wa-muted','Question '+(run.index+1)+' of '+a.items.length);
+   const prompt=el(host,'h3','wa-question-prompt',item.prompt);
+   prompt.tabIndex=-1;
+   const options=el(host,'div','wa-options');
+   const feedback=el(host,'div','wa-answer');
+   feedback.setAttribute('role','status');
+   display.forEach(i=>{
+    const position=run.order.indexOf(i);
+    const button=action(options,(ordered&&position>=0?(position+1)+'. ':'')+item.options[i],()=>{
+     if(ordered)run.order.push(i);
+     else run.selected=i;
+     draw();
+     const selected=optionButtonsAfterDraw(i);
+     selected?.focus();
+    },'wa-action wa-option');
+    button.dataset.option=String(i);
+    button.disabled=ordered&&position>=0;
+    if(!ordered)button.setAttribute('aria-pressed',String(run.selected===i));
+    button.disabled=button.disabled||run.checked;
+   });
+   function optionButtonsAfterDraw(index){
+    return host.querySelector('[data-option="'+index+'"]:not(:disabled)')
+     || host.querySelector('.wa-option:not(:disabled)') || host.querySelector('.wa-next:not(:disabled)');
+   }
+   const response=ordered?run.order:run.selected;
+   if(run.checked){
+    const ok=scoreItem(item,response);
+    feedback.dataset.result=ok?'correct':'retry';
+    el(feedback,'p','',ok?'That fits the criterion.':'Review the reasoning below.');
+    if(item.explanations){
+     const reasons=el(feedback,'ul','');
+     display.forEach(index=>{
+      const reason=el(reasons,'li','');
+      el(reason,'strong','',item.options[index]+' ');
+      reason.append(item.explanations[index]);
+     });
+    }else el(feedback,'p','',item.rationale);
+    action(host,run.index+1===a.items.length?'Finish analysis':'Next question',()=>{
+     run.index++;
+     run.checked=false;
+     run.selected=null;
+     run.order=[];
+     if(run.index===a.items.length)run.done=true;
+     draw(true);
+     if(run.done)onFinish();
+    },'wa-action wa-next');
+    if(moveFocus){feedback.tabIndex=-1;feedback.focus();}
+   }else{
+    const check=action(host,'Check answer',()=>{
+     run.checked=true;
+     if(scoreItem(item,response))run.correct++;
+     draw(true);
+    },'wa-action wa-next');
+    check.disabled=ordered?run.order.length!==item.options.length:run.selected===null;
+    if(ordered)action(host,'Undo last selection',()=>{run.order.pop();draw();host.querySelector('.wa-option:not(:disabled)')?.focus();}).disabled=!run.order.length;
+    if(moveFocus)prompt.focus();
+   }
+  }
+  draw();
  }
  mountLesson(root,{title:isDevelopment?'Idea Development':isExpression?'Vocabulary & Expression':'Structure & Organisation',pathwayNumber:isDevelopment?'03':isExpression?'02':'01',artwork:reviewArtwork.pathways[pathwayKey]??reviewArtwork.pathways.structure,onBack,reference:renderExamReference,companions:stageCompanions,renderStage(body,i,ctx){
  if(i===0){
  const host=el(body,'div','wa-discovery');
- function draw(){host.replaceChildren();const n=state.discoveryIndex,item=discoverItems[n];el(host,'p','wa-kicker','CHALLENGE '+(n+1)+' / '+discoverItems.length);el(host,'h3','',item.prompt);el(host,'p','',item.context);
- const list=el(host,'div','wa-options');const f=el(host,'p','wa-answer');f.setAttribute('role','status');
- item.options.forEach((t,j)=>{const b=action(list,String.fromCharCode(65+j)+' · '+t,()=>{const ok=j===item.answer;f.textContent=ok?'Correct. '+item.rationale:isDevelopment?'Not quite. Think about relevant evidence and impact.':isExpression?'Not quite. Think about meaning and natural expression.':'Not quite. Compare the purpose of each option and try again.';f.dataset.result=ok?'correct':'retry';if(ok){state.discovered.add(n);if(state.discovered.size===discoverItems.length)ctx.complete();}for(const other of list.querySelectorAll('button'))other.setAttribute('aria-pressed',String(other===b));},'wa-action wa-option');b.setAttribute('aria-pressed','false');});
- if(state.discovered.has(n)){f.textContent='Completed. '+item.rationale;f.dataset.result='correct';}
- const controls=el(host,'div','wa-stage-foot');const prev=action(controls,'← Previous challenge',()=>{state.discoveryIndex--;draw();});prev.disabled=n===0;const next=action(controls,'Next challenge →',()=>{state.discoveryIndex++;draw();});next.disabled=n===discoverItems.length-1;
+ function draw(){
+  host.replaceChildren();
+  const n=state.discoveryIndex,item=course.discover[n];
+  el(host,'p','wa-kicker','Contrast '+(n+1)+' / '+course.discover.length);
+  const prompt=el(host,'h3','',item.prompt);
+  prompt.tabIndex=-1;
+  const contrast=el(host,'div','wa-options');
+  el(contrast,'p','wa-apply-source',item.before);
+  el(contrast,'p','wa-apply-source',item.after);
+  const explanation=el(host,'details','wa-explore-brief');
+  const summary=el(explanation,'summary','','Check what changed');
+  el(explanation,'p','',item.principle);
+  explanation.open=state.discovered.has(n);
+  summary.onclick=()=>{
+   if(explanation.open)return;
+   state.discovered.add(n);
+   if(state.discovered.size===course.discover.length)ctx.complete();
+  };
+  const controls=el(host,'div','wa-stage-foot');
+  const prev=action(controls,'← Previous contrast',()=>{state.discoveryIndex--;draw().focus();});
+  prev.disabled=n===0;
+  const next=action(controls,'Next contrast →',()=>{state.discoveryIndex++;draw().focus();});
+  next.disabled=n===course.discover.length-1;
+  return prompt;
  }draw();
  }else if(i===1){
  const desk=el(body,'div','wa-explore-desk');
- el(desk,'p','wa-explore-intro',hasLens?lensIntro:'Read like an editor. Identify the paragraph’s purpose, then investigate how each sentence contributes.');
+ el(desk,'p','wa-explore-intro','Read a paragraph and explain one editorial decision. Then compare your reasoning and inspect the sentences.');
  const toolbar=el(desk,'div','wa-explore-toolbar');
  const picker=el(toolbar,'details','wa-explore-picker');
  const trigger=el(picker,'summary','wa-explore-picker-trigger');
@@ -88,13 +189,45 @@ function renderPathway(root,onBack,onStudio,config=null){
   const prose=el(paper,'p','wa-model-text wa-explore-prose');
   const pieces=m.paragraphs[n].match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g)||[m.paragraphs[n]];
   const selected=state.annotations.get(key)||new Set();state.annotations.set(key,selected);
-  const note=el(paper,'div','wa-explore-note');el(note,'span','wa-explore-eyebrow','EDITOR’S NOTE');const detail=el(note,'p','',hasLens?lensUnlock:'Identify the paragraph’s purpose to unlock sentence annotations.');detail.setAttribute('role','status');
-  const lens=m.expression?.[n];const sentenceTips=hasLens?pieces.map((sentence,j)=>sentence.includes(lens.phrase)?lens.rationale:isDevelopment?m.sentenceTips?.[n]?.[j]||'Consider what this detail adds to the judgement.':'Read this sentence in context. Look for precise, natural word combinations.'):m.sentenceTips?.[n];let unlocked=state.identified.has(key);const sentenceButtons=[];
+  const note=el(paper,'div','wa-explore-note');el(note,'span','wa-explore-eyebrow','EDITOR’S NOTE');const detail=el(note,'p','','Write your editorial note to open the sentence annotations.');detail.setAttribute('role','status');
+  const lens=m.expression?.[n];const sentenceTips=hasLens?pieces.map((sentence,j)=>sentence.toLowerCase().includes(lens.phrase.toLowerCase())?lens.rationale:isDevelopment?m.sentenceTips?.[n]?.[j]||'Consider what this detail adds to the judgement.':'Read this sentence in context. Look for precise, natural word combinations.'):m.sentenceTips?.[n];let unlocked=state.identified.has(key);const sentenceButtons=[];
   pieces.forEach((sentence,j)=>{const b=el(prose,'span','wa-phrase wa-explore-sentence',sentence.trim());b.setAttribute('role','button');b.tabIndex=unlocked?0:-1;b.setAttribute('aria-disabled',String(!unlocked));const activate=()=>{if(!unlocked)return;selected.clear();selected.add(j);sentenceButtons.forEach((item,k)=>item.setAttribute('aria-pressed',String(k===j)));detail.textContent=sentenceTips?.[j]||m.notes[n];};b.onclick=activate;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};b.setAttribute('aria-pressed',String(selected.has(j)));sentenceButtons.push(b);prose.append(' ');});
-  if(unlocked)detail.textContent=selected.size?(sentenceTips?.[[...selected][0]]||m.notes[n]):hasLens?lensSelect:'Select any sentence to investigate its contribution.';
-  const question=el(host,'section','wa-explore-question');el(question,'p','wa-explore-eyebrow',isDevelopment?'DEVELOP THE IDEA':isExpression?'EXPLORE THE EXPRESSION':'IDENTIFY THE PURPOSE');el(question,'h3','',hasLens?lens.prompt:'What is this paragraph mainly trying to achieve?');const choices=el(question,'div','wa-move-options');const f=el(question,'p','wa-answer');f.setAttribute('role','status');const answerButtons=[];
-  (hasLens?lens.options:['Introduction','Description','Evaluation','Recommendation']).forEach((t,j)=>{const b=action(choices,'',()=>{answerButtons.forEach(item=>item.setAttribute('aria-pressed',String(item===b)));if(hasLens?j===lens.answer:t===m.purposes[n]){state.identified.add(key);unlocked=true;sentenceButtons.forEach(item=>{item.tabIndex=0;item.setAttribute('aria-disabled','false');});progress.children[n].dataset.done='true';detail.textContent=(hasLens?lensSelect:'Select any sentence to investigate its contribution.');f.textContent='Correct. '+(hasLens?lens.rationale:m.notes[n]);f.dataset.result='correct';if(models.some((entry,k)=>entry.paragraphs.every((_,x)=>state.identified.has(k+':'+x))))ctx.complete();}else{f.textContent=hasLens?lensRetry:'Not quite. Think about the main purpose of this paragraph.';f.dataset.result='retry';}},'wa-action wa-explore-choice');el(b,'span','wa-explore-choice-letter',String.fromCharCode(65+j));el(b,'span','',t==='Evaluation'?'Opinion & Evaluation':t);b.setAttribute('aria-pressed',String(unlocked&&(hasLens?j===lens.answer:t===m.purposes[n])));answerButtons.push(b);});
-  if(unlocked){f.textContent='Correct. '+(hasLens?lens.rationale:m.notes[n]);f.dataset.result='correct';}
+  if(unlocked)detail.textContent=selected.size?(sentenceTips?.[[...selected][0]]||m.notes[n]):'Select a sentence to examine its contribution.';
+  const question=el(host,'section','wa-explore-question');
+  const editorialPrompt=isExpression
+   ? 'Find “'+lens.phrase+'” in context. Suggest an alternative, then explain what would change in meaning, emphasis or tone.'
+   : isDevelopment
+    ? 'Find “'+lens.phrase+'” in context. Explain which judgement it supports or what it helps the reader decide.'
+    : [
+     'Imagine swapping the first and last sentences. Explain what the reader would learn first and how that would change the flow.',
+     'Choose two details to keep together. Explain what their connection helps the reader understand.',
+     'Pick a sentence to move into a paragraph on its own. Explain which link or contrast the reader would lose.'
+    ][(n+state.model)%3];
+  const label=el(question,'label','wa-question-prompt',editorialPrompt);
+  const response=el(label,'textarea','wa-writing-input wa-apply-input');
+  response.rows=3;
+  response.value=state.exploreDrafts.get(key)??'';
+  response.readOnly=unlocked;
+  response.oninput=()=>state.exploreDrafts.set(key,response.value);
+  const feedback=el(question,'p','wa-answer');
+  feedback.setAttribute('role','status');
+  const reveal=action(question,'Compare with the editor’s note',()=>{
+   if(!hasWritingAttempt(response.value,10)){
+    feedback.textContent='Write at least ten words explaining your decision.';
+    return;
+   }
+   state.identified.add(key);
+   unlocked=true;
+   response.readOnly=true;
+   reveal.hidden=true;
+   sentenceButtons.forEach(button=>{button.tabIndex=0;button.setAttribute('aria-disabled','false');});
+   progress.children[n].dataset.done='true';
+   detail.textContent='Select a sentence to examine its contribution.';
+   feedback.textContent=lens?.rationale??m.notes[n];
+   if(m.paragraphs.every((_,j)=>state.identified.has(state.model+':'+j)))ctx.complete();
+  });
+  reveal.hidden=unlocked;
+  if(unlocked)feedback.textContent=lens?.rationale??m.notes[n];
   const controls=el(host,'div','wa-stage-foot wa-explore-controls');const prev=action(controls,'← Previous paragraph',()=>{state.paragraph--;draw();host.querySelector('.wa-explore-headline').focus();});prev.disabled=n===0;const next=action(controls,'Next paragraph →',()=>{state.paragraph++;draw();host.querySelector('.wa-explore-headline').focus();});next.disabled=n===m.paragraphs.length-1;paper.querySelector('h3').tabIndex=-1;
   const full=el(host,'details','wa-explore-full');el(full,'summary','','Read complete model');for(const p of m.paragraphs)el(full,'p','wa-explore-full-prose',p);el(full,'p','wa-muted','Original teaching model, not examiner-marked. '+m.paragraphs.join(' ').trim().split(/\s+/).length+' words.');
  }
@@ -105,34 +238,86 @@ function renderPathway(root,onBack,onStudio,config=null){
  const header=el(desk,'div','wa-practise-library-header');el(header,'span','wa-practise-eyebrow','CHALLENGE LIBRARY');const count=el(header,'span','wa-practise-count');
  const cards=el(desk,'div','wa-practise-library');const host=el(desk,'div','wa-question wa-practise-question');
  const icons=['◎','↕','✎','▤','✦'];const buttons=[];
- function syncCards(){count.textContent=practice.filter(a=>state.attempts.get(a.id)?.done).length+' / '+practice.length+' complete';buttons.forEach((b,j)=>{const a=practice[j];b.setAttribute('aria-pressed',String(state.active===a.id));b.dataset.done=String(!!state.attempts.get(a.id)?.done);b.querySelector('.wa-practise-card-status').textContent=state.attempts.get(a.id)?.done?'✓ Complete':a.items.length+' question'+(a.items.length===1?'':'s');});}
- const presentationCtx={...ctx,complete:()=>{ctx.complete();syncCards();},incomplete:()=>{ctx.incomplete();syncCards();},refresh:syncCards};
- practice.forEach((a,j)=>{const b=action(cards,'',()=>{state.active=a.id;syncCards();quiz(host,a,presentationCtx);},'wa-action wa-practise-card');b.dataset.level=a.level.toLowerCase();const top=el(b,'span','wa-practise-card-top');el(top,'span','wa-practise-icon',icons[j]).setAttribute('aria-hidden','true');el(top,'span','wa-practise-level',a.level);el(b,'strong','wa-practise-card-title',a.title);el(b,'span','wa-practise-card-status');buttons.push(b);});
- syncCards();if(state.active)quiz(host,practice.find(a=>a.id===state.active),presentationCtx);else{el(host,'p','wa-practise-empty','Select a challenge above to begin.');}
- 
+ const complete=a=>a===gold ? writingComplete(state.gold,course.gold) : hasFinished(a);
+ function syncCards(){
+  count.textContent=challenges.filter(complete).length+' / '+challenges.length+' complete';
+  buttons.forEach((button,j)=>{
+   const a=challenges[j];
+   button.setAttribute('aria-pressed',String(state.active===a.id));
+   button.dataset.done=String(complete(a));
+   button.querySelector('.wa-practise-card-status').textContent=complete(a)?'✓ Complete':a===gold?'Writing task':a.items.length+' decision'+(a.items.length===1?'':'s');
+  });
+  if(challenges.every(complete))ctx.complete();
+  else ctx.incomplete();
+ }
+ function open(a,focus=false){
+  state.active=a.id;
+  if(a===gold)renderResponseWorkshop(host,course.gold,state.gold,syncCards);
+  else quiz(host,a,syncCards);
+  syncCards();
+  if(focus){const heading=host.querySelector('h3');heading.focus({preventScroll:true});}
+ }
+ challenges.forEach((a,j)=>{
+  const button=action(cards,'',()=>open(a,true),'wa-action wa-practise-card');
+  button.dataset.level=a.level.toLowerCase();
+  const top=el(button,'span','wa-practise-card-top');
+  el(top,'span','wa-practise-icon',icons[j]).setAttribute('aria-hidden','true');
+  el(top,'span','wa-practise-level',a.level);
+  el(button,'strong','wa-practise-card-title',a.title);
+  el(button,'span','wa-practise-card-status');
+  buttons.push(button);
+ });
+ if(state.active)open(challenges.find(a=>a.id===state.active));
+ else{syncCards();el(host,'p','wa-practise-empty','Select a challenge above to begin.');}
  }else if(i===3){
  const host=el(body,'div','wa-apply-work wa-apply-desk');
  function draw(){
- host.replaceChildren();const n=state.applyIndex,item=applyItems[n],run=state.applications[n];
- const isComplete=(x,j)=>!!x.written.trim()&&x.revealed&&x.checks.size===applyItems[j].checks.length;
- const header=el(host,'div','wa-apply-header');el(header,'span','wa-apply-eyebrow','WRITING WORKSHOP');el(header,'span','wa-apply-position','Task '+(n+1)+' of '+applyItems.length);
- const meter=el(host,'div','wa-apply-progress');meter.setAttribute('aria-hidden','true');applyItems.forEach((_,j)=>{const segment=el(meter,'span','');segment.dataset.current=String(j===n);segment.dataset.done=String(isComplete(state.applications[j],j));});
- const title=el(host,'h3','wa-apply-title',item.title);title.tabIndex=-1;
- const source=el(host,'article','wa-apply-source');el(source,'p','wa-apply-eyebrow','ORIGINAL WRITING');el(source,'p','wa-apply-original',item.prompt);
- const editor=el(host,'section','wa-apply-editor');el(editor,'p','wa-apply-eyebrow','YOUR REVISION');const l=el(editor,'label','wa-apply-instruction',item.question);l.htmlFor='wa-improvement';const input=el(editor,'textarea','wa-writing-input wa-apply-input');input.id=l.htmlFor;input.rows=4;input.value=run.written;input.placeholder='Write your own response…';
- const tools=el(editor,'div','wa-apply-tools');const reveal=action(tools,'Compare with an example →',()=>{if(!run.written.trim()){status.textContent='Write your own response first.';return;}run.revealed=true;comparison.hidden=false;reveal.setAttribute('aria-expanded','true');status.textContent='Compare your writing with the example. Different well-supported answers are welcome.';progress();},'wa-action wa-apply-reveal');
- reveal.setAttribute('aria-expanded',String(run.revealed));reveal.setAttribute('aria-controls','wa-apply-comparison');
- const wordCount=el(tools,'span','wa-apply-word-count');function updateCount(){const words=run.written.trim()?run.written.trim().split(/\s+/).length:0;wordCount.textContent=words+' word'+(words===1?'':'s');}updateCount();
- const status=el(host,'p','wa-answer wa-apply-status');status.setAttribute('role','status');
- const comparison=el(host,'section','wa-apply-comparison');comparison.id='wa-apply-comparison';comparison.hidden=!run.revealed;
- const model=el(comparison,'article','wa-apply-model');el(model,'p','wa-apply-eyebrow','ONE POSSIBLE RESPONSE');el(model,'p','wa-apply-model-text',item.example);
- const checklist=el(comparison,'div','wa-apply-checklist');el(checklist,'h3','','Review your revision');const checkCount=el(checklist,'p','wa-apply-check-count');
- function progress(){checkCount.textContent=run.checks.size+' of '+item.checks.length+' checks completed';applyItems.forEach((_,j)=>meter.children[j].dataset.done=String(isComplete(state.applications[j],j)));if(state.applications.every(isComplete))ctx.complete();else ctx.incomplete();}
- item.checks.forEach((t,k)=>{const l=el(checklist,'label','wa-check wa-apply-check');const cb=el(l,'input','');cb.type='checkbox';cb.checked=run.checks.has(k);cb.onchange=()=>{if(cb.checked)run.checks.add(k);else run.checks.delete(k);progress();};el(l,'span','',t);});
- checkCount.textContent=run.checks.size+' of '+item.checks.length+' checks completed';
- input.oninput=()=>{run.written=input.value;run.checks.clear();for(const cb of comparison.querySelectorAll('input'))cb.checked=false;updateCount();progress();};
- const controls=el(host,'div','wa-stage-foot wa-apply-controls');const prev=action(controls,'← Previous task',()=>{state.applyIndex--;draw();host.querySelector('.wa-apply-title').focus();});prev.disabled=n===0;const next=action(controls,'Next task →',()=>{state.applyIndex++;draw();host.querySelector('.wa-apply-title').focus();});next.disabled=n===applyItems.length-1;
+  host.replaceChildren();
+  const n=state.applyIndex;
+  const header=el(host,'div','wa-apply-header');
+  el(header,'span','wa-apply-eyebrow','Writing workshop');
+  el(header,'span','wa-apply-position','Task '+(n+1)+' of '+course.apply.length);
+  const meter=el(host,'div','wa-apply-progress');
+  meter.setAttribute('aria-hidden','true');
+  course.apply.forEach((_,j)=>{el(meter,'span','').dataset.current=String(j===n);});
+  const workshop=el(host,'div','');
+  function progress(){
+   const done=course.apply.map((task,j)=>writingComplete(state.applications[j],task));
+   done.forEach((value,j)=>{meter.children[j].dataset.done=String(value);});
+   if(done.every(Boolean))ctx.complete();
+   else ctx.incomplete();
+  }
+  const title=renderResponseWorkshop(workshop,course.apply[n],state.applications[n],progress);
+  progress();
+  const controls=el(host,'div','wa-stage-foot wa-apply-controls');
+  const prev=action(controls,'← Previous task',()=>{state.applyIndex--;draw().focus();});
+  prev.disabled=n===0;
+  const next=action(controls,'Next task →',()=>{state.applyIndex++;draw().focus();});
+  next.disabled=n===course.apply.length-1;
+  return title;
  }draw();
- }else{const desk=el(body,'div','wa-master-desk');el(desk,'p','wa-master-intro',isDevelopment?'Choose the best supported judgement. Answer all three questions correctly to complete this stage.':isExpression?'Choose precise, natural language. Answer all three questions correctly to complete this stage.':'Put your understanding of review structure to the test. Answer all three questions correctly to complete this stage.');const host=el(desk,'div','wa-question wa-master-question');quiz(host,master,ctx);const end=el(desk,'details','wa-master-studio');const summary=el(end,'summary','');const copy=el(summary,'span','');el(copy,'span','wa-master-eyebrow','NEXT STEP');el(copy,'strong','','Apply it in your own review');el(summary,'span','wa-master-chevron','⌄').setAttribute('aria-hidden','true');const content=el(end,'div','wa-master-studio-content');el(content,'h3','','Independent task · Community sports event');el(content,'p','',independentTask.prompt);action(content,'Open Writing Studio →',()=>onStudio({initialTask:independentTask.id,initialMode:'Gold'}),'wa-action wa-master-launch');}
+ }else{
+ const desk=el(body,'div','wa-master-desk');
+ el(desk,'p','wa-master-intro','Make an editorial decision, then apply the skill in a fresh review situation.');
+ const decision=el(desk,'div','wa-question wa-master-question');
+ const writing=el(desk,'div','wa-apply-work');
+ function showWriting(){
+  if(!hasFinished(checkpoint))return;
+  renderResponseWorkshop(writing,course.master,state.transfer,complete=>{
+   if(complete)ctx.complete();
+   else ctx.incomplete();
+  });
+ }
+ quiz(decision,checkpoint,()=>{
+  showWriting();
+ });
+ showWriting();
+ const end=el(desk,'details','wa-master-studio');
+ const summary=el(end,'summary','');
+ el(summary,'strong','','Write a full review in Writing Studio');
+ const content=el(end,'div','wa-master-studio-content');
+ el(content,'p','',independentTask.prompt);
+ action(content,'Open Writing Studio →',()=>onStudio({initialTask:independentTask.id,initialMode:'Gold'}),'wa-action wa-master-launch');
+ }
  }});
 }
