@@ -54,11 +54,145 @@ The workshop was useful because the instructor demonstrated each step before ask
 I would recommend the workshop to teenagers who cycle regularly and want to fix simple problems without going to a shop. You can use the workshop bikes, so beginners do not need to bring their own.`)
 ];
 
-export const examModels=Object.fromEntries(Object.entries(editingModels).map(([title,notes])=>[title,notes.map((note,index)=>({
- ...note,
- prompt:(index===0||index===notes.length-1?'Content · ':'Language and content · ')+note.prompt+' Relate your answer to the exam brief or its intended reader.',
- rationale:note.rationale
-}))]));
+const examInvestigations={
+  "Riverside Café": [
+    [
+      "How does the opening establish a reason for visiting that matters to student readers?",
+      "The birthday context establishes a social visit, so atmosphere and welcome matter alongside food."
+    ],
+    [
+      "Which part of the brief does the menu and price information address? Explain how it serves students.",
+      "The food description and reasonable prices address the café and its food, with affordability relevant to students."
+    ],
+    [
+      "How does the writer answer what impressed or disappointed them without making the evaluation one-sided?",
+      "The crowded room and drinks delay are qualified by polite service, enjoyable food and a quiet corner."
+    ],
+    [
+      "How does the recommendation answer the brief more precisely than simply saying yes?",
+      "It identifies students seeking an affordable meeting place and gives timing advice linked to crowding."
+    ]
+  ],
+  "Willow Kitchen": [
+    [
+      "How does this opening establish the situation in the brief and the relevance of price?",
+      "The visit after badminton with friends fits the scenario; distance and meals under forty yuan help student readers."
+    ],
+    [
+      "Which two food details develop the evaluation rather than merely naming a dish?",
+      "Juicy chicken, crunchy cucumber and a filling portion explain the experience; the separate sauce adds another relevant observation."
+    ],
+    [
+      "How do the waiting time and music help readers decide whether to visit?",
+      "The twenty-minute queue and difficulty talking establish limitations for students with limited time or wanting conversation."
+    ],
+    [
+      "How does the ending use the writer's earlier evaluation to help different readers?",
+      "The affordable filling lunch suits hungry students; visiting before the rush addresses the desire for quiet conversation."
+    ]
+  ],
+  "Beyond the Stars": [
+    [
+      "How much of the film's story does the opening tell, and why is that enough for the task?",
+      "It identifies two explorers separated from their crew and gives an initial judgement without retelling the plot."
+    ],
+    [
+      "How does this paragraph meet the requirement to evaluate a strength?",
+      "Realistic arguments and quiet conversations show how believable characters are developed."
+    ],
+    [
+      "Which evidence supports the criticism, and which detail prevents it from becoming a blanket judgement?",
+      "The abandoned-station sequence supports the pacing criticism; the soundtrack creates tension later."
+    ],
+    [
+      "How does the ending address both suitable and less suitable viewers?",
+      "It recommends believable character stories to students and qualifies the verdict for action fans."
+    ]
+  ],
+  "The Lost City": [
+    [
+      "How does the opening describe the story without spending too many words on plot?",
+      "The photographer, hidden map and summer investigation establish the premise while leaving room for evaluation."
+    ],
+    [
+      "How does the writer address likes and dislikes with specific evidence?",
+      "The vivid markets and villages support praise of setting, while similar minor characters explain the difficulty following conversations."
+    ],
+    [
+      "How does the last paragraph answer who would enjoy the book while taking account of its weakness?",
+      "Short chapters and discoveries support the recommendation to students interested in accessible adventure fiction."
+    ]
+  ],
+  "Summer Sound": [
+    [
+      "How does the opening establish the event and its relevance to the school magazine?",
+      "It identifies a local festival featuring young musicians and a visit with classmates."
+    ],
+    [
+      "Which details answer the requirement to describe the festival without becoming a long list?",
+      "The three stages, range of music and between-concert activities establish what visitors can do."
+    ],
+    [
+      "How does the writer evaluate the experience rather than simply report events?",
+      "Audience dancing supports praise, while the water queues explain discomfort in the heat."
+    ],
+    [
+      "Is the value judgement fully supported by the review? What would strengthen it?",
+      "The music and activities support enjoyment, but a price or included-cost detail would better support excellent value. The practical advice addresses crowding and water."
+    ]
+  ],
+  "Skyline Adventure Park": [
+    [
+      "How does the opening establish both the subject and the needs of a youth-website reader?",
+      "The question addresses young readers seeking an outing, and the range of challenges establishes the attraction."
+    ],
+    [
+      "How does the paragraph combine description of facilities with evaluation?",
+      "The low course and zip line describe facilities; careful demonstrations explain why nervous visitors could participate."
+    ],
+    [
+      "How do the cost and café details help fulfil the evaluation requirement?",
+      "Included equipment and attempts qualify the expensive entry, while limited affordable food matters to young visitors."
+    ],
+    [
+      "How does the recommendation respond to the visit rather than give generic advice?",
+      "It targets adventurous friends and suggests a packed lunch in response to café prices; morning booking is extra practical advice."
+    ]
+  ],
+  "Pixel Quest": [
+    [
+      "How does the opening address the gameplay requirement without overexplaining rules?",
+      "The robot, laboratories, tools and puzzles give enough premise to understand the later evaluation."
+    ],
+    [
+      "How does the example of magnets and platforms support the judgement about design?",
+      "The example illustrates how combining previously learned skills makes solving puzzles rewarding."
+    ],
+    [
+      "How does this criticism help students judge the game's suitability?",
+      "Unclear advanced instructions may cause inexperienced players to repeat unsuccessful actions, a specific rather than general weakness."
+    ],
+    [
+      "How does the ending answer the recommendation requirement for distinct student interests?",
+      "It targets problem-solvers rather than high-score competitors and mentions short levels for occasional play."
+    ]
+  ],
+  "The Science Discovery Centre": [
+    [
+      "How does the opening establish a judgement about learning, as required by the task?",
+      "The comparison between experiments and textbook reading provides an evaluative focus for the visit."
+    ],
+    [
+      "Which examples explain what students can learn, and how does the writer qualify the evaluation?",
+      "Bridge building, light experiments and programming illustrate hands-on learning; clear explanations aid beginners but crowding limits access."
+    ],
+    [
+      "How does the final advice follow from the learning evaluation?",
+      "It recommends the centre to students who find science difficult and suggests a weekday to gain more independent experiment time."
+    ]
+  ]
+};
+export const examModels=Object.fromEntries(Object.entries(editingModels).map(([title,notes])=>[title,notes.map((note,index)=>({phrase:note.phrase,min:6,prompt:examInvestigations[title][index][0],rationale:examInvestigations[title][index][1]}))]));
 
 export const modelContext={
  'Riverside Café':['Students looking for somewhere to meet','School magazine'],

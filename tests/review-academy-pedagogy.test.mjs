@@ -54,12 +54,14 @@ test('both model lenses point to the relevant paragraph in every model',()=>{
  }
 });
 
-test('repeated filler, an unchanged revision and unchecked criteria cannot complete a workshop',()=>{
+test('repeated filler and unchecked criteria cannot complete a workshop; justified retention and punctuation edits can',()=>{
  const task=pathways.structure.gold;
  assert.ok(!hasWritingAttempt('test '.repeat(45),task.min));
  const original=task.example;
  const checks=new Set(task.checks.map((_,index)=>index));
- assert.ok(!writingComplete({original,revision:original+'!',checks},task));
+ assert.ok(!writingComplete({original,revision:original,checks},task));
+ assert.ok(writingComplete({original,revision:original+'!',checks},task));
+ assert.ok(writingComplete({original,revision:original,checks,keepReason:'The existing advice is clearly linked to the booking delay.'},task));
  const revision=original.replace('collecting our booking','checking in');
  assert.ok(!writingComplete({original,revision,checks:new Set()},task));
  assert.ok(writingComplete({original,revision,checks},task));

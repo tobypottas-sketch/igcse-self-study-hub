@@ -89,7 +89,7 @@ export const cohesion = {
    choice('You visited the sports centre last Saturday. Beginner classes are still available. Which version makes both facts clear?',1,
     ['I visited the sports centre last Saturday, and it offered beginner classes.','I visited the sports centre last Saturday, and it offers beginner classes.','I visit the sports centre on Saturdays, and it offers beginner classes.'],
     ['The past tense establishes what was available then. Current availability is left open.','“Visited” describes the finished trip. “Offers” describes the current programme.','“Visit ... on Saturdays” changes the single visit into a regular habit.']),
-   choice('The queue was long. It moved steadily. Which revision makes these two complete statements into separate, correctly punctuated sentences?',0,
+   choice('A queue took a while to get through, but it kept moving. Which option expresses these observations in two correctly punctuated sentences?',0,
     ['The queue was long. It moved steadily.','The queue was long, it moved steadily.','The queue was long. Moving steadily.'],
     ['Each sentence has a subject and a finite verb. The full stop marks the boundary.','Both parts could stand alone, so the comma creates a comma splice.','“Moving steadily” lacks a finite verb and a subject in this fragment.']),
    choice('The guide described two displays. Only the space display lets visitors touch replicas. Which line makes that detail clear?',2,
@@ -134,7 +134,7 @@ export const cohesion = {
    'Last Friday, we visited a new café near school. Although the meals were affordable, the portions were small. The staff were friendly. However, the service was slow. We waited twenty minutes for our drinks, which meant that we arrived late for our very next lesson.',
    ['I put the completed visit in the past.','I expressed and punctuated both contrasts accurately.','I linked the drinks delay to being late for class.','I retained the original facts.']),
   task('Improve a game review','The game has short levels. The levels introduce new rules. The rules make the levels challenging. I completed the first five levels yesterday. The first five levels were enjoyable. Some instructions were unclear.','Rewrite in about 40–60 words for a student game-review site. Reduce repetition, combine ideas naturally, and keep the game’s continuing features separate from yesterday’s experience.',28,
-   'The game has short levels, but each introduces new rules that make it challenging. I completed the first five levels yesterday and enjoyed them, although I found some of the instructions unclear. Completing those five levels gave me a chance to see how the new rules change the puzzles.',
+   'The game has short levels, each with new rules that make the experience challenging. Yesterday, I completed the first five and enjoyed working through them. Although some instructions were unclear, I found the levels enjoyable overall.',
    ['I reduced repetition while keeping references clear.','I used past and present tense according to meaning.','I retained the challenge, enjoyment and criticism.'])
  ],
  apply:[
