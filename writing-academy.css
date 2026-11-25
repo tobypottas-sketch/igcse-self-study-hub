@@ -670,3 +670,16 @@
 #writingAcademy .wa-workspace[data-focus=true][data-stage=write] .wa-studio-hero{display:none}
 #writingAcademy .wa-workspace[data-focus=true][data-stage=write] .wa-write-paper .wa-editor{min-height:clamp(330px,48dvh,620px)}
 @media(max-width:520px){#writingAcademy .wa-write-toolbar{padding:8px}#writingAcademy .wa-write-tool-group{gap:4px}#writingAcademy .wa-workspace .wa-write-tool{font-size:.72rem;padding:5px 7px}#writingAcademy .wa-write-paper{padding:8px}#writingAcademy .wa-workspace .wa-write-paper .wa-editor{min-height:280px;padding:8px;font-size:1.08rem}#writingAcademy .wa-write-quick-reference{padding:12px 65px 12px 12px}}
+
+/* Glanceable Studio review blueprint */
+#writingAcademy .wa-studio-blueprint{display:grid;gap:8px;padding:4px 0 10px}
+#writingAcademy .wa-blueprint-exam{font-size:.7rem;color:#526477;margin:0 0 3px}
+#writingAcademy .wa-blueprint-move{display:flex;align-items:center;gap:10px;min-width:0;--move-ink:#08766e;--move-tint:#e0f1ed}
+#writingAcademy .wa-blueprint-move[data-tone=describe]{--move-ink:#885818;--move-tint:#faf0d9}
+#writingAcademy .wa-blueprint-move[data-tone=evaluate]{--move-ink:#984c39;--move-tint:#f9e9e2}
+#writingAcademy .wa-blueprint-move[data-tone=recommend]{--move-ink:#65458f;--move-tint:#eee7f8}
+#writingAcademy .wa-blueprint-icon{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:9px;background:var(--move-tint);color:var(--move-ink);font-size:1rem;font-weight:750}
+#writingAcademy .wa-blueprint-copy{display:grid;gap:2px;min-width:0}
+#writingAcademy .wa-blueprint-copy strong{font-size:.82rem;line-height:1.3}
+#writingAcademy .wa-blueprint-copy span{font-size:.75rem;line-height:1.4;color:#526477}
+#writingAcademy .wa-blueprint-reminder{font-size:.74rem;line-height:1.5;color:#65511f;background:#faf5e8;border-radius:7px;padding:8px;margin:3px 0 0}
