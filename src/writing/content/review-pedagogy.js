@@ -550,7 +550,7 @@ const extraPractice = {
         "A greeting is welcoming but not teaching support.",
         "A group introduction is not individual feedback."
       ],
-      "rationale": "The tutor's specific response to one learner shows individual support."
+      "rationale": "The tutor's correction of one learner's work shows individual support."
     },
     {
       "prompt": "You claim that an exhibition is interactive. Which detail most clearly demonstrates that?",
