@@ -18,11 +18,11 @@ export const pathways = {
   practice: [
    activity('structure-focus', 'Bronze', 'Find the paragraph focus', [
     choice('Seats can be booked together online. At the venue, row letters are visible from the entrance, and an usher directs groups to their seats. Which heading fits all three details?', 1,
-     option('Making a booking online', 'Booking explains the first detail only. The signs and usher matter after arrival.'),
+     option('Choosing and reserving seats in advance', 'Booking explains the first detail only. The signs and usher matter after arrival.'),
      option('Getting a group seated', 'This covers the reader’s experience from booking together to finding the right row.'),
-     option('Help from venue staff', 'This fits the usher, but the booking and signs work independently of staff.')),
+     option('Getting practical help from venue staff', 'This fits the usher, but the booking and signs work independently of staff.')),
     choice('A paragraph argues that beginners can start kayaking without buying equipment. Which detail belongs with that argument?', 0,
-     option('The entry fee includes a paddle and life jacket.', 'This connects the cost of entry to what a first-time visitor needs.'),
+     option('Paddle and life jacket hire are included.', 'This connects the cost of entry to what a first-time visitor needs.'),
      option('The coach checks everyone’s paddling technique.', 'This helps explain the quality of coaching, a separate point from equipment cost.'),
      option('The pool has a shallow practice area.', 'This supports a point about confidence or safety when learning.'))
    ]),
@@ -44,7 +44,7 @@ export const pathways = {
    activity('structure-diagnose', 'Silver', 'Diagnose the break in flow', [
     choice('“You can borrow a racket at reception. The court lights are bright enough for evening practice. A deposit is returned when you bring the racket back.” Where should the middle sentence go if this paragraph explains how to borrow equipment?', 1,
      option('First, before the reception detail.', 'This separates the borrowing details less, but it still opens the paragraph on a different subject.'),
-     option('Into the paragraph about playing conditions.', 'This keeps collection and return together and puts lighting beside other details about playing.'),
+     option('Into a paragraph about the courts.', 'This keeps collection and return together and puts lighting beside other details about playing.'),
      option('Last, immediately after the deposit detail.', 'It keeps the process together but leaves the paragraph ending on an unrelated point.'))
    ])
   ],
@@ -54,10 +54,10 @@ export const pathways = {
    writing('Reconnect a paragraph', 'The last bus leaves at seven. The VR centre offers short beginner sessions. During each session you can ask the instructor to pause the game. The centre is beside the bus stop.', 'Write a coherent paragraph evaluating the centre for a nervous first-time player. Keep the two facts that develop this focus.', 'The VR centre makes it easy for beginners to try a short session. You can ask the instructor to pause the game at any point, which gives nervous players time to get used to the controls.', ['Each fact supports the paragraph focus.', 'The two sentences develop one idea.', 'I explained why a feature matters.']),
    writing('Write the final judgement', 'A sports centre offers affordable coaching. Beginners share equipment and may wait for a turn. Your readers are students looking for a low-cost introduction to the sport.', 'Write the final paragraph. Connect your recommendation to the strengths and limitations already discussed.', 'I’d recommend the centre to students who want to try the sport without spending much. The coaching is affordable, though beginners should be prepared to wait for a turn with the equipment.', ['My recommendation follows the supplied evidence.', 'I named the readers who would benefit.', 'I included the relevant limitation.'])
   ],
-  analysis: choice('A review of a library recording booth puts the booking reference, microphone quality, key collection and background noise in one paragraph. Which split would most help someone plan a first recording?', 1,
-   option('Booking reference and background noise; key collection and microphone quality.', 'This separates the two steps for getting in and splits the recording conditions.'),
-   option('Booking reference and key collection; microphone quality and background noise.', 'The first group explains access. The second evaluates the conditions for recording.'),
-   option('Booking reference and microphone quality; key collection and background noise.', 'Both paragraphs would have to switch from access to sound quality.')),
+  analysis: choice('A review of a school theatre includes reserving seats, sightlines, collecting tickets and hearing dialogue. Which split helps readers plan a group visit and judge the experience?', 1,
+   option('Reserving seats with hearing dialogue; collecting tickets with sightlines.', 'This separates the two practical steps and splits the details about watching.'),
+   option('Reserving seats with collecting tickets; sightlines with hearing dialogue.', 'The first group explains what to do before the show. The second evaluates what students can see and hear.'),
+   option('Reserving seats with sightlines; collecting tickets with hearing dialogue.', 'Both paragraphs would switch between organising a visit and watching the show.')),
   master: writing('Reorganise a recording-booth review', 'The microphone picked up my voice clearly. Take your booking email to the main desk for the key. People talking in the corridor could sometimes be heard in the booth. I recommend it for a short practice recording. Book it online the day before.', 'Identify the main organisation problem briefly, then rewrite the review for students preparing a podcast. Use two focused paragraphs and keep every fact.', 'Access instructions and recording conditions are mixed.\n\nBook the booth online the day before and take your booking email to the main desk to collect the key.\n\nThe microphone picked up my voice clearly, although corridor conversations sometimes carried into the booth. I’d recommend it for a short practice recording.', ['I explained the organisational problem.', 'I kept related details together.', 'The final recommendation follows the evidence.'], 35)
  },
  expression: {
@@ -110,7 +110,7 @@ export const pathways = {
    option('Near the entrance, it was hard to make out the commentary at busy times.', 'The degree remains similar: “hard to make out” keeps the difficulty without implying silence.'),
    option('Near the entrance, the commentary was hard to hear throughout the day.', 'This widens the time period. The original only mentions peak times.'),
    option('Near the entrance, the commentary was almost inaudible at peak times.', '“Almost inaudible” makes the problem more serious while retaining the location and time.')),
-  master: writing('Edit an exhibition review', '“The exhibition was amazing and the signs were honestly useless. You guys should definitely go.” The display let visitors compare early cameras with modern ones. Two signs near the exit were difficult to read in low light. The school website is publishing the review.', 'Name one misleading expression. Rewrite the review extract in 35–55 words, giving accurate praise, measured criticism and a recommendation for a suitable reader.', '“Useless” overstates the problem. The display lets you compare early cameras with modern ones, so I’d recommend it to students interested in photography. Two signs near the exit were difficult to read in low light, although the displays themselves were easy to compare.', ['I identified wording that overstated or obscured a fact.', 'I used precise and natural language.', 'My criticism and recommendation match the evidence.'], 30)
+  master: writing('Edit an exhibition review', '“The exhibition was amazing and the signs were honestly useless. You guys should definitely go.” The display let visitors compare early cameras with modern ones. Two signs near the exit were difficult to read in low light. The school website is publishing the review.', 'Name one misleading expression. Rewrite the review extract in 35–55 words, giving accurate praise, measured criticism and a recommendation for a suitable reader.', '“Useless” overstates the problem. The display lets you compare early cameras with modern ones, so I’d recommend it to students interested in photography. Two signs near the exit were difficult to read in the low light.', ['I identified wording that overstated or obscured a fact.', 'I used precise and natural language.', 'My criticism and recommendation match the evidence.'], 30)
  },
  development: {
   discover: [
@@ -121,27 +121,27 @@ export const pathways = {
   practice: [
    activity('development-support', 'Bronze', 'Support a judgement', [
     choice('You argue that the climbing session made beginners feel safe. Which observation best supports that judgement?', 0,
-     option('The instructor checked each beginner’s harness before they climbed.', 'A personal equipment check directly supports your judgement about safety.'),
+     option('The instructor checked each beginner’s harness.', 'A personal equipment check directly supports your judgement about safety.'),
      option('The instructor offered two routes with different difficulty levels.', 'This supports choice and progression, but does not show how beginners were kept safe.'),
      option('The instructor explained where to queue for each route.', 'This shows the session was organised. The connection to safety is less direct.'))
    ]),
    activity('development-specific', 'Bronze', 'Find specific evidence', [
     choice('You call the museum layout easy to follow. Which observation best lets the reader check your claim about finding the next room?', 2,
      option('Large labels introduce the main displays in every room.', 'This helps readers imagine the displays but explains what to read inside a room.'),
-     option('A map beside reception shows all four floors.', 'This is specific, but it describes planning the visit from one spot.'),
-     option('Arrows at each doorway point to the next numbered room.', 'This shows exactly how visitors know where to go as they move through the museum.'))
+     option('A large map beside reception shows the layout of all four floors.', 'This is specific, but it describes planning the visit from one spot.'),
+     option('Doorway arrows point to the next numbered room.', 'This shows exactly how visitors know where to go as they move through the museum.'))
    ]),
    activity('development-impact', 'Silver', 'Explain the impact', [
     choice('A film club posts the running time and finishing time of each screening. Your readers catch the last bus at different times. Which explanation develops the most relevant impact?', 1,
-     option('The running time helps viewers decide whether they can concentrate for the whole film.', 'This is plausible, but it addresses attention rather than arrangements for getting home.'),
-     option('Students can compare the finishing time with their bus schedule before booking a ticket.', 'This explains how the advertised time helps the intended readers make a practical decision.'),
+     option('The running time helps viewers decide if they can concentrate from the opening to the final scene.', 'This is plausible, but it addresses attention rather than arrangements for getting home.'),
+     option('Students can compare the finishing time with their own bus schedule and leave time to walk to the stop.', 'This explains how the advertised time helps the intended readers make a practical decision.'),
      option('The timings help students decide how many films they can see in one evening.', 'This follows from the information, but it does not address the stated constraint.'))
    ]),
    activity('development-balance', 'Silver', 'Weigh a strength and drawback', [
     choice('At a festival, the bands kept the crowd dancing, but visitors queued half an hour for water in the midday heat. Which sentence explains a specific impact of both observations?', 2,
-     option('The bands kept the crowd dancing, although the queues for water were disappointing at midday.', 'This illustrates the bands’ impact, but it gives a general reaction to the queues.'),
+     option('The bands kept the crowd dancing through the afternoon, although the half-hour queues for drinking water were disappointing at midday.', 'This illustrates the bands’ impact, but it gives a general reaction to the queues.'),
      option('Despite the half-hour queues for water in the heat, the excellent bands made the festival worthwhile.', 'This gives an overall verdict, but it does not develop the separate impacts.'),
-     option('The bands drew even hesitant visitors onto the dance floor, but the half-hour wait for water made it harder to cool down.', 'This explains how the music affected the crowd and why the wait mattered in the heat.'))
+     option('The bands kept us dancing, but we struggled to cool down while queuing for water.', 'This explains how the music affected the crowd and why the wait mattered in the heat.'))
    ])
   ],
   gold: writing('Develop and justify a verdict', 'A repair workshop lends tools and demonstrates each repair before students try it. There are eight workbenches for sixteen visitors, so partners take turns. Your readers are students who want to learn to fix a bike.', 'Write 40–65 words for the school website. Develop an opinion about the workshop, explain the effect of one limitation and recommend it to suitable readers.', 'The workshop is a good introduction to basic repairs because the leader demonstrates each step and lends you the necessary tools. Sharing a bench means you spend some of the session watching your partner. I would still recommend it to beginners who want to try simple repairs before buying tools.', ['I gave a judgement and a relevant observation.', 'I explained a specific effect on a visitor.', 'My recommendation weighs the limitation.'], 32),
@@ -150,10 +150,10 @@ export const pathways = {
    writing('Explain a drawback', 'The tutorial explains basic controls. In advanced challenges, it gives no clue that two switches must be pressed together. Players often retry each switch separately.', 'Write two or three sentences explaining why the advanced instructions could frustrate new players.', 'The tutorial is less helpful once the advanced challenges begin. It never explains that the switches work together, so new players can waste time pressing them separately and thinking they have missed a step.', ['I named the specific drawback.', 'I used the example about the switches.', 'I explained the effect on new players.']),
    writing('Build a balanced verdict', 'A free community sports event offers helpful coaching and equipment to borrow. Popular sessions fill up in the first fifteen minutes.', 'Write a short recommendation for beginners. Explain what makes the event accessible and give advice that addresses the drawback.', 'I’d recommend the event to beginners because you can get advice and try a sport without buying equipment. For the popular sessions, arrive as the event opens: places can go within the first fifteen minutes.', ['My recommendation identifies who benefits.', 'I explained how coaching or equipment helps.', 'My advice follows from the booking evidence.'])
   ],
-  analysis: choice('A night market has numbered stalls, a stage at the entrance and menus showing common allergens. Which detail most directly supports a recommendation for a student who must check ingredients before ordering?', 2,
-   option('The numbered stalls make it easier to find a vendor again.', 'This helps navigation but gives no information about the ingredients.'),
-   option('The stage provides a clear place for groups to meet.', 'This may help groups stay together, but it does not help them decide what to order.'),
-   option('The menus show common allergens before visitors reach the counter.', 'This helps the reader check relevant information before committing to an order.')),
+  analysis: choice('A free robotics showcase lends kits. The demonstration starts at 4:30 and the practical session starts at 5:15. Your readers can leave school at four but need to catch a 5:30 bus. Which recommendation weighs the limits of their visit most accurately?', 2,
+   option('Go for the practical session because borrowing a kit means you can start without bringing anything.', 'Borrowing a kit is useful, but the late start leaves little time for the session.'),
+   option('Go to both parts because the demonstration and practical session each start before your bus leaves.', 'Both start before the bus, but fifteen minutes may not be enough to take part and reach the bus.'),
+   option('Go for the demonstration and save the hands-on session for a day when you can stay longer.', 'This gives students a reason to visit while taking account of the time needed for practical work.')),
   master: writing('Evaluate a night market for first-time visitors', 'Stall numbers match a map by the entrance. Menus list common allergens. A live band plays by the gate. At 7 p.m. we waited twenty minutes at the busiest food stall. A second line sold the same snacks with a five-minute wait.', 'Write 40–65 words for students planning a short visit after school. Select useful evidence, explain its effect on their visit and make a justified recommendation.', 'The market is worth a short visit if you use the map by the entrance to find the stalls you want. At seven, we waited twenty minutes at the busiest food stall, but a second line served the same snacks in five minutes. Check both lines before joining a queue.', ['I chose evidence that matters on a short visit.', 'I explained a consequence readers can use.', 'My recommendation follows the observations.'], 32)
  }
 };

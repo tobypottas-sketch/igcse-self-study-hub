@@ -17,6 +17,9 @@ test('each pathway teaches contrasts, offers differentiated practice and require
   assert.equal(course.apply.length,3);
   for(const task of [course.gold,...course.apply,course.master])validateWritingTask(task);
   all.push(...course.practice,{id:key+'-transfer',type:'choice',items:[course.analysis]});
+  const choices=[...course.practice.filter(activity=>activity.type==='choice').flatMap(activity=>activity.items),course.analysis];
+  const longest=choices.filter(item=>item.options[item.answer].length===Math.max(...item.options.map(option=>option.length)));
+  assert.ok(longest.length<=Math.ceil(choices.length/2),key+' routinely gives the longest option as the answer');
  }
  validateActivities(all);
  for(const activity of all)for(const item of activity.items){

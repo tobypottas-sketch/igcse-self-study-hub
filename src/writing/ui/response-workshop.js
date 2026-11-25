@@ -73,7 +73,7 @@ export function renderResponseWorkshop(host, task, run, onProgress) {
   }
   run.original = run.draft;
   run.revision = run.original;
-  status.textContent = 'Your first draft is saved above.';
+  status.textContent = 'Your first draft remains above during this visit.';
   compare().focus();
  },'wa-action wa-apply-reveal');
  if(run.original) compare();
