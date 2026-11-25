@@ -508,3 +508,68 @@
 #writingAcademy .wa-master-studio-content .wa-master-launch{background:#08766e;color:white;border-color:#08766e;font-size:.85rem;border-radius:8px}
 @media(max-width:800px){#writingAcademy .wa-stage-body[data-stage=master]{grid-template-columns:minmax(0,1fr) 150px;column-gap:16px}}
 @media(max-width:560px){#writingAcademy .wa-stage-body[data-stage=master]{grid-template-columns:minmax(0,1fr) 100px;column-gap:8px}}
+
+
+/* Studio shell and Plan: editorial workspace */
+#writingAcademy .wa-workspace{--studio-line:#e0dce8;--studio-purple:#68519a;--studio-paper:#fbf8f2}
+#writingAcademy .wa-workspace .wa-nav{padding:10px 0}
+#writingAcademy .wa-workspace .wa-nav .wa-action{font-size:.85rem;min-height:38px;padding:7px 12px}
+#writingAcademy .wa-workspace .wa-studio-hero{position:relative;overflow:hidden;min-height:132px;padding:0 clamp(18px,3vw,42px);border-radius:16px;background:radial-gradient(ellipse at 82% 80%,#472765,transparent 66%),linear-gradient(115deg,#111731 35%,#211a42)}
+#writingAcademy .wa-workspace .wa-studio-hero h1{font-size:clamp(1.9rem,3.6vw,3.1rem);letter-spacing:-.045em;line-height:1.06}
+#writingAcademy .wa-workspace .wa-studio-hero .wa-kicker{font-size:.68rem;margin:0 0 7px}
+#writingAcademy .wa-workspace .wa-studio-tagline{font-size:.92rem;margin:8px 0 0}
+#writingAcademy .wa-workspace .wa-art--studio-hero{width:clamp(112px,17vw,158px);mask-image:linear-gradient(90deg,transparent,#000 16%,#000 86%,transparent)}
+#writingAcademy .wa-workspace .wa-workspace-toolbar{margin:12px 0 16px;gap:14px;border-bottom:1px solid var(--studio-line);padding-bottom:10px}
+#writingAcademy .wa-workspace .wa-workspace-tabs{background:#ece9f2;padding:3px;flex:1;max-width:560px;border-radius:10px}
+#writingAcademy .wa-workspace .wa-workspace-tab{display:flex;align-items:center;justify-content:center;gap:8px;font-size:.87rem;min-height:40px;padding:6px 12px;font-weight:650}
+#writingAcademy .wa-studio-step{font-size:.68rem;font-weight:650;color:#68519a}
+#writingAcademy .wa-workspace-tab[aria-pressed=true] .wa-studio-step{color:#c5a9ff}
+#writingAcademy .wa-workspace .wa-save-status{font-size:.75rem;margin:0 0 0 auto}
+#writingAcademy .wa-workspace .wa-workspace-grid{grid-template-columns:minmax(244px,285px) minmax(0,1fr);gap:18px}
+#writingAcademy .wa-workspace[data-focus=true] .wa-workspace-grid{grid-template-columns:1fr}
+#writingAcademy .wa-workspace .wa-companion{padding:16px;border-radius:13px;border-color:var(--studio-line);font-size:.85rem}
+#writingAcademy .wa-workspace .wa-studio-companion-title{font-size:.82rem;text-transform:uppercase;letter-spacing:.075em;color:#68519a;padding:0 0 10px}
+#writingAcademy .wa-workspace .wa-brief,#writingAcademy .wa-workspace .wa-support-panel,#writingAcademy .wa-workspace .wa-notes-panel{background:none;border:0;border-top:1px solid #e7e4ec;border-radius:0;padding:12px 0;margin:0}
+#writingAcademy .wa-workspace .wa-brief label{font-size:.74rem;color:#526477;font-weight:650}
+#writingAcademy .wa-workspace .wa-brief select{font-size:.86rem;border-color:#d5cfdf;border-radius:9px;font-weight:600;margin:5px 0 14px;padding:9px 10px;min-height:42px}
+#writingAcademy .wa-studio-eyebrow{font-size:.68rem;letter-spacing:.105em;font-weight:750;color:#68519a}
+#writingAcademy .wa-workspace .wa-brief .wa-studio-eyebrow{margin:0 0 5px}
+#writingAcademy .wa-workspace .wa-studio-scenario{font-size:.85rem;line-height:1.6;margin:0 0 10px}
+#writingAcademy .wa-studio-brief-meta{display:flex;gap:5px;flex-wrap:wrap}
+#writingAcademy .wa-studio-brief-meta span{font-size:.69rem;color:#554867;background:#f0edf6;border-radius:5px;padding:4px 6px}
+#writingAcademy .wa-workspace .wa-studio-audience{font-size:.75rem;color:#526477;margin:7px 0}
+#writingAcademy .wa-workspace .wa-companion details summary{font-size:.82rem;font-weight:650;padding:7px 0}
+#writingAcademy .wa-workspace .wa-support-panel h3{font-size:.83rem}
+#writingAcademy .wa-workspace .wa-support-panel .wa-studio-tabs{display:flex;background:#f2f0f6;padding:3px;border-radius:8px;gap:3px}
+#writingAcademy .wa-workspace .wa-support-panel .wa-action{flex:1;text-align:center;font-size:.73rem;min-height:36px;padding:6px 3px;border:1px solid transparent;background:transparent;border-radius:6px}
+#writingAcademy .wa-workspace .wa-support-panel .wa-muted{font-size:.75rem;line-height:1.5}
+#writingAcademy .wa-workspace .wa-workspace-reference{border:0;border-top:1px solid #e7e4ec;border-radius:0;padding:12px 0 0;margin:0;font-size:.76rem}
+#writingAcademy .wa-workspace .wa-workspace-reference strong{font-size:.74rem}
+#writingAcademy .wa-workspace[data-stage=plan] .wa-workspace-main{border:1px solid var(--studio-line);border-top:3px solid #7953c7;border-radius:14px;padding:clamp(16px,2.5vw,28px)}
+#writingAcademy .wa-workspace[data-stage=plan] .wa-workspace-heading{font-family:"Source Serif 4",Georgia,"Times New Roman",serif;font-size:clamp(1.7rem,3vw,2.35rem);letter-spacing:-.035em;font-weight:600}
+#writingAcademy .wa-workspace[data-stage=plan] .wa-workspace-intro .wa-muted{font-size:.88rem;margin:5px 0}
+#writingAcademy .wa-workspace[data-stage=plan] .wa-art--studio-context{width:66px;border-radius:10px}
+#writingAcademy .wa-plan-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--studio-line);padding-bottom:8px;margin-top:16px}
+#writingAcademy .wa-plan-progress{font-size:.75rem;color:#526477}
+#writingAcademy .wa-workspace .wa-plan-board{gap:10px;margin:12px 0 16px}
+#writingAcademy .wa-workspace .wa-plan-card{--note-accent:#08766e;--note-tint:#e5f1ed;border:1px solid #e4e1e9;border-radius:11px;background:#fff;padding:13px;min-width:0;box-shadow:0 2px 6px #142d4805}
+#writingAcademy .wa-workspace .wa-plan-card[data-tone=reader]{--note-accent:#526477;--note-tint:#eaf0f5;background:#f8fafc;grid-column:1/-1}
+#writingAcademy .wa-workspace .wa-plan-card[data-tone=describe]{--note-accent:#8b641a;--note-tint:#faf0d9}
+#writingAcademy .wa-workspace .wa-plan-card[data-tone=evaluate]{--note-accent:#a74d37;--note-tint:#fae9e3}
+#writingAcademy .wa-workspace .wa-plan-card[data-tone=recommend]{--note-accent:#68519a;--note-tint:#f0eaf8}
+#writingAcademy .wa-plan-card-header{display:flex;align-items:flex-start;gap:9px;margin-bottom:9px}
+#writingAcademy .wa-plan-number{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:8px;background:var(--note-tint);color:var(--note-accent);font-size:.85rem;font-weight:750}
+#writingAcademy .wa-plan-card-copy{flex:1;min-width:0}
+#writingAcademy .wa-workspace .wa-plan-card label{font-size:.95rem;line-height:1.35;font-weight:700;display:block}
+#writingAcademy .wa-workspace .wa-plan-card p{font-size:.78rem;color:#526477;margin:2px 0 0;line-height:1.45}
+#writingAcademy .wa-plan-note-state{font-size:.65rem;color:#526477;white-space:nowrap;margin-top:3px}
+#writingAcademy .wa-plan-card[data-filled=true] .wa-plan-note-state{color:#17635f}
+#writingAcademy .wa-workspace .wa-plan-card textarea{border:1px solid #e1dfe5;background:var(--studio-paper);border-radius:8px;margin:0;min-height:78px;padding:10px 11px;font-size:.92rem;line-height:1.65}
+#writingAcademy .wa-workspace .wa-plan-card textarea::placeholder{color:#6d7581;font-size:.85rem}
+#writingAcademy .wa-workspace .wa-plan-card textarea:focus{border-color:var(--note-accent)}
+#writingAcademy .wa-plan-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--studio-line);padding-top:12px}
+#writingAcademy .wa-plan-footer .wa-muted{font-size:.77rem;margin:0}
+#writingAcademy .wa-plan-footer .wa-next{font-size:.86rem;border-radius:8px;padding:10px 15px;margin-left:auto}
+@media(max-width:950px){#writingAcademy .wa-workspace .wa-workspace-grid{grid-template-columns:minmax(220px,250px) minmax(0,1fr)}#writingAcademy .wa-workspace[data-focus=true] .wa-workspace-grid{grid-template-columns:1fr}#writingAcademy .wa-plan-card-header{flex-wrap:wrap}#writingAcademy .wa-plan-note-state{margin-left:43px}}
+@media(max-width:699px){#writingAcademy .wa-workspace .wa-workspace-grid{grid-template-columns:1fr;gap:12px}#writingAcademy .wa-workspace .wa-workspace-sidebar{position:static;max-height:none;overflow:visible}#writingAcademy .wa-workspace .wa-studio-hero{min-height:110px}#writingAcademy .wa-workspace .wa-workspace-toolbar{gap:8px}#writingAcademy .wa-workspace .wa-workspace-tabs{max-width:none}#writingAcademy .wa-plan-note-state{margin-left:0}}
+@media(max-width:520px){#writingAcademy .wa-workspace .wa-studio-hero{padding:10px 10px 10px 16px;gap:5px}#writingAcademy .wa-workspace .wa-studio-hero h1{font-size:1.75rem}#writingAcademy .wa-workspace .wa-studio-tagline{font-size:.75rem}#writingAcademy .wa-workspace .wa-art--studio-hero{width:100px}#writingAcademy .wa-workspace .wa-plan-board{grid-template-columns:1fr}#writingAcademy .wa-workspace .wa-workspace-tab{padding:6px 8px}}
