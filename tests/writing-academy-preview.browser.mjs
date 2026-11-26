@@ -214,6 +214,14 @@ try{
   await checkBlueprint(page);
   await go('explore');
   assert.ok(await page.locator('.wa-stage-title').evaluate(node=>node===document.activeElement));
+  if(width===390){
+   const fillsColumn=await page.locator('.wa-stage-body').evaluate(body=>{
+    const style=getComputedStyle(body);
+    const contentWidth=body.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight);
+    return body.querySelector('.wa-stage-activity').clientWidth>=contentWidth-2;
+   });
+   assert.ok(fillsColumn,'Explore should use the full activity column on a phone');
+  }
   await captureStage(page,'Explore','stage-explore',width,height);
   await page.locator('.wa-explore-picker-trigger').click();
   await page.getByRole('button',{name:/Willow Kitchen/}).click();

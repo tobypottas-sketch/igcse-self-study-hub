@@ -187,6 +187,7 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
  }
  mountLesson(root,{...navigation,title:course.title??(isDevelopment?'Idea Development':isExpression?'Vocabulary & Expression':'Structure & Organisation'),pathwayNumber:course.number??(isDevelopment?'03':isExpression?'02':'01'),artwork:reviewArtwork.pathways[pathwayKey]??reviewArtwork.pathways.structure,onBack,reference:renderExamReference,companions:stageCompanions,checkpoint:saved,onCheckpoint:progress?save:null,renderStage(body,i,ctx){
  const shell=body.closest('.wa-shell');
+ shell.toggleAttribute('data-structure-r1',isStructure);
  shell.classList.toggle('wa-independent-stage',isExam&&i===4);
  if(progress && isExam && i>=3)el(body,'p','wa-muted','Exam workshop responses and timers last for this visit.');
 
