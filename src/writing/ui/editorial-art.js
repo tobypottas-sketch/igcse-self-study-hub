@@ -35,6 +35,13 @@ export const reviewArtwork = {
       },
       stages: ['discover', 'explore', 'practise', 'apply', 'master'].map(developmentStage)
     },
+    cohesion: {
+      banner: art('grammar-cohesion-banner', [256, 512]),
+      stages: ['discover', 'explore', 'practise', 'apply', 'master'].map(stage => ({
+        ...art(`grammar-cohesion-${stage}`, [256, 512, 768]),
+        sizes: '(max-width: 680px) calc(100vw - 60px), 246px'
+      }))
+    },
     expression: {
       card: art('expression-card',[192],[192,128]),
       banner: art('vocabulary-expression', [256, 512], [1672, 941]),
