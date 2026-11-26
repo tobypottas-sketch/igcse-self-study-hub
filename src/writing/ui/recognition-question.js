@@ -2,9 +2,9 @@ import {el, action} from './lesson-shell.js';
 import {checkRecognition, recognitionResult} from '../engine/recognition.js';
 
 export function renderRecognition(host, item, run, onCheck) {
- const prompt = el(host,'h3','wa-question-prompt',item.prompt);
+ if (item.context) el(host,'p','wa-question-source',item.context);
+ const prompt = el(host,'h3','wa-question-prompt wa-question-clear',item.prompt);
  prompt.tabIndex = -1;
- if (item.context) el(host,'p','wa-apply-source',item.context);
  const options = el(host,'div','wa-options');
  options.setAttribute('role','group');
  options.setAttribute('aria-label',item.prompt);
