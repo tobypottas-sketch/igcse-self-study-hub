@@ -1,4 +1,4 @@
-# R2.0 individual review checkpoint
+# R2.0 individual review records
 
 Main and PR #712 were fetched. Main was at `b61eea18` and the active baseline still generated 347 activities. Microsoft SSO stayed on draft PR #709. The existing findings remain in place as preliminary observations. The individual records here supply a second pass for the items they cover.
 
@@ -24,9 +24,9 @@ The first answer weighs both observations against the expressed preference. The 
 
 For both items preserve the learning objective. A materially changed answer or scenario needs a new assessment version when implemented. Keep IDs for unchanged meaning and keep existing writing drafts separate from checked attempts.
 
-## Continuation
+## Reconciliation
 
-The generated baseline is the source of exact activity IDs. The generator joins the reviews by question/task ID and emits all unresolved IDs, grouped by pathway and stage. Structure and Idea Development are covered. Begin with Vocabulary Discover and Explore, then its writing workshops. Its objective Practise and transfer questions are covered. Grammar, Editing and Exam follow. Review dispositions are provisional until the browser check and pathway-level progression pass. R2.0 remains in progress and the PR remains draft.
+The generator joins the activity review records by question/task ID. Model paragraph IDs shared across pathways are qualified with the pathway. The inventory reconciles to 347 and the unresolved ID list is empty. The [final audit report](final-report.md) has the progression analysis, critical findings and prioritised implementation backlog.
 
 ## Browser evidence
 
@@ -37,15 +37,5 @@ The existing preview browser suite passed with the unchanged staff profile gate 
 - Grammar Explore displays only the prompt and a later editor’s note for the punctuation transformation. Put the original and revision side by side on wide screens and in reading order on smaller screens. Keep the word count separate from whether the punctuation works.
 - Vocabulary Apply distinctly separates the brief and observations. Editing Gold distinguishes the example and revision field. At mobile width, the complete editing sequence takes several screens to read. Keep related evidence within reach when students move between drafting and the checklist.
 - Exam mock reflection records checks and short reflections. Label this as self-review and keep its internal timing separate from official assessment requirements.
-
-## Provisional implementation priorities
-
-1. Repair the four critical Idea Development validity findings before interaction polish. Version material changes and preserve unaffected writing drafts.
-2. Rewrite Structure’s Master grouping checkpoint to test evidence organisation for real readers, then supply the missing destination paragraphs for the two Silver items.
-3. Specify when Discover and Explore are checked or self-reviewed, and show first-try, retry and supported outcomes separately. Use the Structure retry pattern where applicable.
-4. Prototype structured plans and a visible sentence sequence. Keep keyboard selection and undo. Continue testing source/option wrapping at 390 px.
-5. Adjust directions and models to make required facts, intended audiences, target lengths and self-review checks align. Finish the pending pathway audit before setting scope for R2.1 or R2.2.
-
-Teacher judgement is needed about how many Explore models should be compulsory at each proficiency level, and whether optional investigations are suitable as homework. Representative learner trials should inform that decision. Defensible texts, complete scenarios and accurate feedback are editorial decisions.
 
 [Download the 28 representative browser captures](https://chatgpt.com/library?file_id=libfile_7ce3dd2090948191a5fda9d2d931b62b&account_id=personal).
