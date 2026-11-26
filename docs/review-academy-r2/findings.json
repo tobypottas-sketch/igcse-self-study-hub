@@ -1,8 +1,17 @@
 {
   "shared": [
     {
-      "pathways": ["expression", "development", "cohesion", "editing", "exam"],
-      "stages": ["Discover", "Explore"],
+      "pathways": [
+        "expression",
+        "development",
+        "cohesion",
+        "editing",
+        "exam"
+      ],
+      "stages": [
+        "Discover",
+        "Explore"
+      ],
       "severity": "high",
       "kind": "confirmed assessment contract",
       "problem": "The active renderer accepts sufficiently long unrelated text and unlocks feedback and stage credit. Explore also hides sentence notes until this gate is passed.",
@@ -12,8 +21,19 @@
       "savedProgressAffected": "Preserve notes and drafts. Do not count a legacy length-gate completion as a new checked answer."
     },
     {
-      "pathways": ["structure", "expression", "development", "cohesion", "editing", "exam"],
-      "stages": ["Bronze", "Silver", "Master checkpoint"],
+      "pathways": [
+        "structure",
+        "expression",
+        "development",
+        "cohesion",
+        "editing",
+        "exam"
+      ],
+      "stages": [
+        "Bronze",
+        "Silver",
+        "Master checkpoint"
+      ],
       "severity": "medium",
       "kind": "confirmed assessment contract",
       "problem": "The score distinguishes correct decisions, but a finished run counts towards stage completion at any score and unlocks Master writing. A checked wrong answer receives an explanation with no item-level retry.",
@@ -77,6 +97,36 @@
       "kind": "confirmed brief/model mismatch",
       "problem": "The model has 36 whitespace-delimited words against the stated target of about 40–60.",
       "correction": "Align the model and target without adding unsupplied details. Make the change from game features to yesterday’s experience visible."
+    },
+    "pedagogy-extra-q-31": {
+      "severity": "critical",
+      "kind": "confirmed validity defect",
+      "problem": "Both the keyed advice to try it if you enjoy realistic characters and the advice to avoid it if you prefer fast-paced films balance the same evidence. The stem gives student readers no preference that would distinguish the two.",
+      "correction": "Name a reader priority or accept both justified recommendations using an interaction built for multiple valid decisions."
+    },
+    "pedagogy-extra-q-27": {
+      "severity": "high",
+      "kind": "confirmed context gap",
+      "problem": "Five-minute service during a twenty-minute break does not establish whether students can reach the café, eat and return to class. The key asserts that they can.",
+      "correction": "Include walking time and an explicit reader decision, or say that the quick service leaves fifteen minutes for travel and eating."
+    },
+    "pedagogy-extra-q-30": {
+      "severity": "high",
+      "kind": "confirmed context gap",
+      "problem": "The preferred answer implies sharing may cut practice time, but sharing a bench does not establish that beginners take turns to use tools or have less time. The other balanced option also addresses both facts.",
+      "correction": "Specify that only one person can use the bench at a time, then name a beginner priority and distinguish the options by their use of that evidence."
+    },
+    "pedagogy-extra-q-13": {
+      "severity": "medium",
+      "kind": "pedagogical judgement",
+      "problem": "Both distractors are implausible word combinations that would rarely occur in an actual learner review.",
+      "correction": "Use natural phrases that describe different effects of a film and ask which one matches the stated effect on the viewer."
+    },
+    "pedagogy-extra-q-18": {
+      "severity": "medium",
+      "kind": "pedagogical judgement",
+      "problem": "The third option also avoids attacking staff. Its formality is the only signal that it falls short, and the register language makes the comparison very easy.",
+      "correction": "Give a brief excerpt with useful evidence and compare natural alternatives that differ in whether they turn it into fair, useful advice."
     }
   }
 }
