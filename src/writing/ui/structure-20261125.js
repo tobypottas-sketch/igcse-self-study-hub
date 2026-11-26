@@ -7,7 +7,7 @@ import * as development from '../content/review-development-v1.js';
 import * as expression from '../content/review-expression-v1.js';
 import {extraReviewModels} from '../content/review-explore-models.js?v=1';
 import {mountLesson,el,action} from './lesson-shell.js?v=13';
-import {reviewArtwork} from './editorial-art.js?v=14';
+import {reviewArtwork} from './editorial-art.js?v=15';
 import {companions} from '../content/review-active-v2.js';
 import {pathways} from '../content/review-pedagogy.js?v=5';
 import {newWritingRun,renderResponseWorkshop} from './response-workshop.js?v=3';

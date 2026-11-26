@@ -42,6 +42,13 @@ export const reviewArtwork = {
         sizes: '(max-width: 680px) calc(100vw - 60px), 246px'
       }))
     },
+    editing: {
+      banner: art('editing-improvement-banner', [256, 512]),
+      stages: ['discover', 'explore', 'practise', 'apply', 'master'].map(stage => ({
+        ...art(`editing-improvement-${stage}`, [256, 512, 768]),
+        sizes: '(max-width: 680px) calc(100vw - 60px), 246px'
+      }))
+    },
     expression: {
       card: art('expression-card',[192],[192,128]),
       banner: art('vocabulary-expression', [256, 512], [1672, 941]),
