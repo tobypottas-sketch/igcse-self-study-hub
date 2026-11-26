@@ -26,7 +26,7 @@ Staff preview uses account-specific browser progress via `preview-progress.js`. 
 
 ### Findings and next review
 
-The register has eight individually documented findings plus two recurring assessment-contract findings. No item is marked fully reviewed. The critical robotics checkpoint requires an end time for each activity and a walking time to the bus stop before its expected advice can be justified. The Structure Master theatre question signals the groups in its own wording and needs a more demanding decision. Item-specific findings and candidate corrections are in `findings.json`.
+The register has thirteen individually documented findings plus two recurring assessment-contract findings. No item is marked fully reviewed. The critical robotics checkpoint requires an end time for each activity and a walking time to the bus stop before its expected advice can be justified. The Structure Master theatre question signals the groups in its own wording and needs a more demanding decision. Item-specific findings and candidate corrections are in `findings.json`.
 
 Complete the separate clarity and answer-validity passes. Work through each choice without reading its key, then compare every distractor and explanation against the facts. Check model responses, word guidance and checklist criteria against every writing brief. Record a decision for retained items too. Finish capturing rendered prompt splits, live sentence annotations, stage rules, and shared exam review instructions in the register. Then complete browser verification of the baseline and finish R2.0 before changing curriculum.
 
