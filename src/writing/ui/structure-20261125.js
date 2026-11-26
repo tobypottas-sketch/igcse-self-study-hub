@@ -1,16 +1,16 @@
 import {capturePreview,restorePreview} from '../engine/preview-progress.js';
-import {exam,examModels,examMocks,modelContext} from '../content/review-exam-20261125.js';
+import {exam,examModels,examMocks,modelContext} from '../content/review-exam-20261125.js?v=2';
 import {newExamAttempt} from '../engine/exam-attempt.js';
-import {renderExamWorkshop} from './exam-workshop.js?v=2';
-import {editing,editingModels} from '../content/review-editing.js?v=2';
-import {cohesion,cohesionModels} from '../content/review-cohesion.js?v=2';
+import {renderExamWorkshop} from './exam-workshop.js?v=3';
+import {editing,editingModels} from '../content/review-editing.js?v=3';
+import {cohesion,cohesionModels} from '../content/review-cohesion.js?v=3';
 import * as development from '../content/review-development-v1.js';
 import * as expression from '../content/review-expression-v1.js';
 import {extraReviewModels} from '../content/review-explore-models.js?v=1';
 import {mountLesson,el,action} from './lesson-shell.js?v=15';
 import {reviewArtwork} from './editorial-art.js?v=16';
 import {companions} from '../content/review-active-v2.js';
-import {pathways} from '../content/review-pedagogy.js?v=5';
+import {pathways} from '../content/review-pedagogy.js?v=6';
 import {newWritingRun,renderResponseWorkshop} from './response-workshop.js?v=3';
 import {guidedTask,independentTask,toolkit} from '../content/review-guided-v1.js';
 import {blueprint,model} from '../content/review-structure-v1.js';
@@ -188,7 +188,7 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
    if(state.discovered.size===course.discover.length)ctx.complete();
   }
   {
-   const label=el(host,'label','wa-apply-instruction','Write a short observation.');
+   const label=el(host,'label','wa-apply-instruction','Answer the question above in a short phrase or sentence (at least three words).');
    const response=el(label,'textarea','wa-writing-input wa-apply-input');
    response.rows=2;
    response.value=state.discoverNotes.get(n)??'';
@@ -198,7 +198,7 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
    feedback.setAttribute('role','status');
    const reveal=action(host,'Check what changed',()=>{
     if(!hasWritingAttempt(response.value,3)){
-     feedback.textContent='Write at least three words about what changed.';
+     feedback.textContent='Use at least three words to answer the question above.';
      return;
     }
     recordReflection();
@@ -220,8 +220,8 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
  }draw();
  }else if(i===1){
  const desk=el(body,'div','wa-explore-desk');
- el(desk,'p','wa-explore-intro','Read a paragraph and explain one editorial decision. Then compare your reasoning and inspect the sentences.');
- if(isExam)el(desk,'p','wa-muted','Complete three paragraph investigations of your choice. Read the complete review alongside its task.');
+ el(desk,'p','wa-explore-intro','Read the paragraph and answer the question below it. Then compare your answer with the editor’s note and select a sentence to see how it works.');
+ if(isExam)el(desk,'p','wa-muted','Answer the questions for any three paragraphs. Read the full review alongside the writing task.');
  const toolbar=el(desk,'div','wa-explore-toolbar');
  const picker=el(toolbar,'details','wa-explore-picker');
  const trigger=el(picker,'summary','wa-explore-picker-trigger');
@@ -256,18 +256,20 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
   const note=el(paper,'div','wa-explore-note');el(note,'span','wa-explore-eyebrow','EDITOR’S NOTE');const detail=el(note,'p','','Write your editorial note to open the sentence annotations.');detail.setAttribute('role','status');
   const lens=editorialModels?.[m.title][n]??m.expression?.[n];const sentenceTips=hasLens?pieces.map((sentence,j)=>sentence.toLowerCase().includes(lens.phrase.toLowerCase())?lens.rationale:(isDevelopment||editorialModels)?m.sentenceTips?.[n]?.[j]||'Consider what this detail adds to the judgement.':'Read this sentence in context. Look for precise, natural word combinations.'):m.sentenceTips?.[n];let unlocked=state.identified.has(key);const sentenceButtons=[];
   pieces.forEach((sentence,j)=>{const b=el(prose,'span','wa-phrase wa-explore-sentence',sentence.trim());b.setAttribute('role','button');b.tabIndex=unlocked?0:-1;b.setAttribute('aria-disabled',String(!unlocked));const activate=()=>{if(!unlocked)return;selected.clear();selected.add(j);sentenceButtons.forEach((item,k)=>item.setAttribute('aria-pressed',String(k===j)));detail.textContent=sentenceTips?.[j]||m.notes[n];};b.onclick=activate;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};b.setAttribute('aria-pressed',String(selected.has(j)));sentenceButtons.push(b);prose.append(' ');});
-  if(unlocked)detail.textContent=selected.size?(sentenceTips?.[[...selected][0]]||m.notes[n]):'Select a sentence to examine its contribution.';
+  if(unlocked)detail.textContent=selected.size?(sentenceTips?.[[...selected][0]]||m.notes[n]):'Select a sentence to see what it adds to the paragraph.';
   const question=el(host,'section','wa-explore-question');
   const editorialPrompt=editorialModels?lens.prompt:isExpression
-   ? 'Find “'+lens.phrase+'” in context. Suggest an alternative, then explain what would change in meaning, emphasis or tone.'
+   ? 'Find “'+lens.phrase+'” in context. Write a replacement phrase. Explain one difference in meaning, how strongly it expresses the opinion, or how formal it sounds.'
    : isDevelopment
-    ? 'Find “'+lens.phrase+'” in context. Explain which judgement it supports or what it helps the reader decide.'
+    ? 'Find “'+lens.phrase+'” in context. Name an opinion in the paragraph that this detail helps explain, or say what decision it helps readers make.'
     : [
-     'Imagine swapping the first and last sentences. Explain what the reader would learn first and how that would change the flow.',
-     'Choose two details to keep together. Explain what their connection helps the reader understand.',
-     'Pick a sentence to move into a paragraph on its own. Explain which link or contrast the reader would lose.'
+     'Imagine swapping the first and last sentences. Say what the reader would learn first and how that would change the way they understand the rest of the paragraph.',
+     'Name two details that belong together. Explain what the reader can understand by reading them side by side.',
+     'Choose one sentence and imagine putting it in a paragraph on its own. Name another sentence it connects to and explain what would be harder to understand if you separated them.'
     ][(n+state.model)%3];
   const label=el(question,'label','wa-question-prompt',editorialPrompt);
+  const minimum=lens?.min??10;
+  el(label,'span','wa-muted',' Use at least '+minimum+' words.');
   const response=el(label,'textarea','wa-writing-input wa-apply-input');
   response.rows=3;
   response.value=state.exploreDrafts.get(key)??'';
@@ -276,9 +278,8 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
   const feedback=el(question,'p','wa-answer');
   feedback.setAttribute('role','status');
   const reveal=action(question,'Compare with the editor’s note',()=>{
-   const minimum=lens?.min??10;
    if(!hasWritingAttempt(response.value,minimum)){
-    feedback.textContent=editorialModels?'Write at least '+minimum+' words in response to the prompt.':'Write at least ten words explaining your decision.';
+    feedback.textContent='Use at least '+minimum+' words to answer the question above.';
     return;
    }
    state.identified.add(key);
@@ -287,7 +288,7 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
    reveal.hidden=true;
    sentenceButtons.forEach(button=>{button.tabIndex=0;button.setAttribute('aria-disabled','false');});
    progress.children[n].dataset.done='true';
-   detail.textContent='Select a sentence to examine its contribution.';
+   detail.textContent='Select a sentence to see what it adds to the paragraph.';
    feedback.textContent=lens?.rationale??m.notes[n];
    if(isExam?state.identified.size>=3:m.paragraphs.every((_,j)=>state.identified.has(state.model+':'+j)))ctx.complete();
   });
@@ -299,7 +300,7 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
  updatePicker();draw();
  }else if(i===2){
  const desk=el(body,'div','wa-practise-desk');
- el(desk,'p','wa-practise-intro','Choose a short challenge. Complete all five to finish this stage.');
+ el(desk,'p','wa-practise-intro','Choose a challenge. Finish all five to complete this stage.');
  const header=el(desk,'div','wa-practise-library-header');el(header,'span','wa-practise-eyebrow','CHALLENGE LIBRARY');const count=el(header,'span','wa-practise-count');
  const cards=el(desk,'div','wa-practise-library');const host=el(desk,'div','wa-question wa-practise-question');
  const icons=['◎','↕','✎','▤','✦'];const buttons=[];
@@ -410,7 +411,7 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
  showMock();
  }else{
  const desk=el(body,'div','wa-master-desk');
- el(desk,'p','wa-master-intro','Make an editorial decision, then apply the skill in a fresh review situation.');
+ el(desk,'p','wa-master-intro','Answer the question first. Then use the same writing skill in a new review task.');
  const decision=el(desk,'div','wa-question wa-master-question');
  const writing=el(desk,'div','wa-apply-work');
  function showWriting(){
