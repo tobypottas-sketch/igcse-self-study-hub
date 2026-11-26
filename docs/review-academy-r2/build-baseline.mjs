@@ -1,7 +1,7 @@
 // Run at the R2 baseline revision (or with its curriculum files unchanged).
 // Mirrors the staff-preview selection in structure-20261125.js.
 // This inventory captures the live inputs, not a pedagogical verdict.
-import {readFileSync, writeFileSync} from 'node:fs';
+import {readFileSync, readdirSync, writeFileSync} from 'node:fs';
 import {structureR1} from '../../src/writing/content/review-structure-r1.js';
 import {structureDiscover, structureExplore} from '../../src/writing/content/review-structure-recognition.js';
 import {pathways} from '../../src/writing/content/review-pedagogy.js';
@@ -102,6 +102,39 @@ for (const [key, course] of Object.entries(courses)) {
     for (const item of examMocks) workshop(key, 'Mock examination', item, true);
   } else workshop(key, 'Master writing', course.master);
 }
+const reviewDir = new URL('reviews/', import.meta.url);
+const reviews = new Map();
+for (const file of readdirSync(reviewDir).sort().filter(name => name.endsWith('.tsv'))) {
+  const lines = readFileSync(new URL(file, reviewDir), 'utf8').trimEnd().split('\n');
+  for (const line of lines.slice(1)) {
+    const [id, blindAnswer, disposition, severity, note] = line.split('\t');
+    if (reviews.has(id) || !note) throw new Error('Invalid review: ' + id);
+    reviews.set(id, {blindAnswer: blindAnswer || null, disposition, severity: severity || null, note});
+  }
+}
+const pending = {};
+const dispositionCounts = {};
+for (const row of rows) {
+  const review = reviews.get(row.questionId);
+  const stage = (dispositionCounts[row.pathway] ??= {})[row.stage] ??= {};
+  const status = review?.disposition ?? 'inventoried';
+  stage[status] = (stage[status] ?? 0) + 1;
+  if (review) {
+    const optionIds = row.currentAnswerChoices?.map(option => option.id);
+    const keyedLetters = row.currentCorrectAnswer?.map(id => String.fromCharCode(65 + optionIds.indexOf(id))).join('') ?? null;
+    row.pedagogicalReview = {
+      ...review,
+      keyedLetters,
+      blindAgreement: keyedLetters === null ? null : review.blindAnswer === keyedLetters,
+    };
+    row.verificationStatus = 'individually reviewed';
+    reviews.delete(row.questionId);
+  } else {
+    const pathway = pending[row.pathway] ??= {};
+    (pathway[row.stage] ??= []).push(row.questionId);
+  }
+}
+if (reviews.size) throw new Error('Reviews with no active activity: ' + [...reviews.keys()]);
 const counts = {};
 const keys = new Set();
 for (const row of rows) {
@@ -111,5 +144,5 @@ for (const row of rows) {
   const stages = counts[row.pathway] ??= {};
   stages[row.stage] = (stages[row.stage] ?? 0) + 1;
 }
-writeFileSync(new URL('baseline.json', import.meta.url), JSON.stringify({counts, models: modelRegister, rows}) + '\n');
+writeFileSync(new URL('baseline.json', import.meta.url), JSON.stringify({counts, dispositionCounts, pending, models: modelRegister, rows}) + '\n');
 console.log(counts, rows.length);
