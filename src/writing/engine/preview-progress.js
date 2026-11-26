@@ -1,4 +1,5 @@
 import {restoreWritingState,serializeWritingState} from './persistence-state.js';
+import {recognitionRun} from './recognition.js';
 import {scoreItem} from './activities.js';
 
 export const previewStages = ['discover','explore','practise','apply','master'];
@@ -81,8 +82,10 @@ export function capturePreview(state, content, {stage,completed}) {
     objective[activity.id] = {questions};
     if (!run.done) objective[activity.id].currentQuestion = activity.items[run.index].id;
   }
+  // Staff-only checked answers fit the existing workspace envelope without changing its schema.
   const snapshot = serializeWritingState({
     observations,annotations,objective,planning,
+    ...(state.recognition ? {reflections:Object.fromEntries([...state.recognition].map(([id,run])=>[id,JSON.stringify(run)]))} : {}),
     gold:Object.fromEntries(gold.map((task,n)=>[task.id,runContent(state.gold[n],task)])),
     apply:Object.fromEntries(apply.map((task,n)=>[task.id,runContent(state.applications[n],task)])),
     master:master?{[master.id]:runContent(state.transfer,master)}:{}
@@ -95,7 +98,7 @@ export function restorePreview(state, content, checkpoint) {
   const restored = restoreWritingState(checkpoint.workspace);
   if (!restored.ok) return;
   const {discover,models,activities,gold,apply,master,challenges} = content;
-  const {observations={},annotations={},objective={},planning={},...runs} = restored.data;
+  const {observations={},annotations={},objective={},planning={},reflections={},...runs} = restored.data;
   state.discoveryIndex = indexOrZero(discover,planning.discover);
   state.model = indexOrZero(models,planning.model);
   state.paragraph = Math.max(0,models[state.model].paragraphIds.indexOf(planning.paragraph));
@@ -111,6 +114,11 @@ export function restorePreview(state, content, checkpoint) {
     if (Object.hasOwn(observations,key)) state.exploreDrafts.set(runtimeKey,observations[key]);
     if (annotations[key]?.includes('reviewed')) state.identified.add(runtimeKey);
   }));
+  for (const item of content.recognition??[]) {
+    if (!Object.hasOwn(reflections,item.id)) continue;
+    try { state.recognition.set(item.id,recognitionRun(item,JSON.parse(reflections[item.id]))); }
+    catch { /* A malformed attempt does not affect other saved work. */ }
+  }
   for (const activity of activities) {
     const saved = objective[activity.id];
     if (!saved || Object.keys(saved.questions??{}).length!==activity.items.length) continue;
