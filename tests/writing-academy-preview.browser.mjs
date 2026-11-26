@@ -487,13 +487,18 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await page.getByRole('button',{name:'← Academy'}).click();
   await page.locator('.wa-path.wa-exam').getByRole('button',{name:'Start pathway →'}).press('Enter');
   assert.equal(await page.locator('.wa-lesson-banner h1').innerText(),'Exam Mastery');
-  await checkArtwork(page,'banner','structure-organisation');
+  await checkArtwork(page,'banner','exam-mastery-banner');
+  await checkBlueprint(page);
+  await checkArtwork(page,'stage','exam-mastery-discover');
+  await capture(page,'exam-discover',width,height);
   for(let index=0;index<exam.discover.length;index++){
    await page.locator('.wa-discovery textarea').fill('The second version relates its evidence to the audience.');
    await page.getByRole('button',{name:'Check what changed'}).press('Enter');
    if(index<exam.discover.length-1)await page.getByRole('button',{name:'Next contrast →'}).press('Enter');
   }
   await go('explore');
+  await checkArtwork(page,'stage','exam-mastery-explore');
+  await capture(page,'exam-explore',width,height);
   for(const title of Object.keys(examModels)){
    await page.locator('.wa-explore-picker-trigger').press('Enter');
    await page.locator('.wa-explore-model-choice').filter({hasText:title}).click();
@@ -503,8 +508,9 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
    await page.getByRole('button',{name:'Compare with the editor’s note'}).press('Enter');
   }
   assert.equal(await page.locator('.wa-stage-tab[data-stage=explore]').getAttribute('data-complete'),'true');
-  await capture(page,'exam-explore',width,height);
   await go('practise');
+  await checkArtwork(page,'stage','exam-mastery-practise');
+  await capture(page,'exam-practise',width,height);
   for(const card of exam.practice){
    await page.getByRole('button',{name:new RegExp(card.title)}).press('Enter');
    for(const [index,item] of card.items.entries()){
@@ -526,6 +532,8 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   assert.equal(await page.locator('.wa-stage-tab[data-stage=practise]').getAttribute('data-complete'),'true');
   await capture(page,'exam-planning',width,height);
   await go('apply');
+  await checkArtwork(page,'stage','exam-mastery-apply');
+  await capture(page,'exam-apply',width,height);
   const reflection=['One strength in your content','One improvement to your language or organisation','One specific target for your next review'];
   async function reflect(){
    for(const label of reflection)await page.getByRole('textbox',{name:label}).fill('Use specific details');
@@ -542,8 +550,9 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
    if(index<exam.apply.length-1)await page.getByRole('button',{name:'Next task →',exact:true}).press('Enter');
   }
   assert.equal(await page.locator('.wa-stage-tab[data-stage=apply]').getAttribute('data-complete'),'true');
-  await capture(page,'exam-apply',width,height);
   await go('master');
+  await checkArtwork(page,'stage','exam-mastery-master');
+  await capture(page,'exam-master',width,height);
   for(const [index,item] of exam.analysis.entries()){
    await page.locator('.wa-master-question [data-option="'+item.answer+'"]').press('Enter');
    await page.getByRole('button',{name:'Check answer'}).press('Enter');
