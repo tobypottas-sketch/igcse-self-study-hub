@@ -345,8 +345,8 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await cohesionNav.scrollIntoViewIfNeeded();
   const navTop=await cohesionNav.evaluate(node=>node.getBoundingClientRect().top);
   await go('explore');
-  await checkArtwork(page,'stage','grammar-cohesion-explore');
   assert.ok(Math.abs(navTop-await cohesionNav.evaluate(node=>node.getBoundingClientRect().top))<=1);
+  await checkArtwork(page,'stage','grammar-cohesion-explore');
   await page.locator('.wa-explore-picker-trigger').press('Enter');
   assert.equal(await page.locator('.wa-explore-model-choice').count(),8);
   await page.getByRole('button',{name:/Beyond the Stars/}).click();
