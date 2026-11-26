@@ -406,7 +406,9 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   const editingCard=page.locator('.wa-path.wa-editing');
   await editingCard.getByRole('button',{name:'Start pathway →'}).press('Enter');
   assert.equal(await page.locator('.wa-lesson-banner h1').innerText(),'Editing & Improvement');
-  await checkArtwork(page,'banner','structure-organisation');
+  await checkArtwork(page,'banner','editing-improvement-banner');
+  await checkBlueprint(page);
+  await checkArtwork(page,'stage','editing-improvement-discover');
   await page.getByText('Four-pass editing strategy',{exact:true}).click();
   assert.equal(await page.locator('.wa-editing-passes li').count(),4);
   await page.getByRole('button',{name:'Check what changed'}).press('Enter');
@@ -420,6 +422,7 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   assert.equal(await page.locator('.wa-stage-tab[data-stage=discover]').getAttribute('data-complete'),'true');
   await capture(page,'editing-discover',width,height);
   await go('explore');
+  await checkArtwork(page,'stage','editing-improvement-explore');
   for(const title of Object.keys(editingModels)){
    await page.locator('.wa-explore-picker-trigger').press('Enter');
    await page.locator('.wa-explore-model-choice').filter({hasText:title}).click();
@@ -434,6 +437,7 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   }
   await capture(page,'editing-explore',width,height);
   await go('practise');
+  await checkArtwork(page,'stage','editing-improvement-practise');
   for(const challenge of editing.practice){
    await page.getByRole('button',{name:new RegExp(challenge.title)}).press('Enter');
    const item=challenge.items[0];
@@ -450,6 +454,7 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await page.getByRole('button',{name:'Next Gold task →'}).press('Enter');
   await page.locator('.wa-apply-editor textarea').fill(editing.gold[1].example);
   await go('apply');
+  await checkArtwork(page,'stage','editing-improvement-apply');
   for(const [i,task] of editing.apply.entries()){
    await workshop(page,task);
    if(i<editing.apply.length-1)await page.getByRole('button',{name:'Next task →'}).press('Enter');
@@ -466,6 +471,7 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   assert.equal(await page.getByRole('textbox',{name:'Revise your response'}).inputValue(),editingGoldRevision);
   await capture(page,'editing-gold',width,height);
   await go('master');
+  await checkArtwork(page,'stage','editing-improvement-master');
   await finishAnalysis(page,editing.analysis);
   assert.match(await page.locator('.wa-master-question').innerText(),/1 \/ 1 objective decisions correct/);
   const masterRevision=await workshop(page,editing.master);
