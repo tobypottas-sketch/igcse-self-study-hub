@@ -328,7 +328,8 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await page.reload();
   const cohesionCard=page.locator('.wa-path.wa-cohesion');
   await cohesionCard.getByRole('button',{name:'Start pathway →'}).press('Enter');
-  await checkArtwork(page,'banner','structure-organisation');
+  await checkArtwork(page,'banner','grammar-cohesion-banner');
+  await checkBlueprint(page);
   await page.getByRole('button',{name:'Check what changed'}).click();
   assert.match(await page.locator('.wa-discovery .wa-answer').innerText(),/three words/);
   for(let index=0;index<5;index++){
@@ -338,12 +339,13 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
    if(index<4)await page.getByRole('button',{name:'Next contrast →'}).press('Enter');
   }
   assert.equal(await page.locator('.wa-stage-tab[data-stage=discover]').getAttribute('data-complete'),'true');
-  await checkArtwork(page,'stage','stage-discover');
+  await checkArtwork(page,'stage','grammar-cohesion-discover');
   await capture(page,'cohesion-discover',width,height);
   const cohesionNav=page.locator('.wa-stage-nav');
   await cohesionNav.scrollIntoViewIfNeeded();
   const navTop=await cohesionNav.evaluate(node=>node.getBoundingClientRect().top);
   await go('explore');
+  await checkArtwork(page,'stage','grammar-cohesion-explore');
   assert.ok(Math.abs(navTop-await cohesionNav.evaluate(node=>node.getBoundingClientRect().top))<=1);
   await page.locator('.wa-explore-picker-trigger').press('Enter');
   assert.equal(await page.locator('.wa-explore-model-choice').count(),8);
@@ -359,6 +361,7 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   assert.match(await page.locator('.wa-explore-note').innerText(),/a comma follows/);
   await capture(page,'cohesion-explore-annotation',width,height);
   await go('practise');
+  await checkArtwork(page,'stage','grammar-cohesion-practise');
   for(const challenge of [cohesion.practice[0],cohesion.practice[2]]){
    await page.getByRole('button',{name:new RegExp(challenge.title)}).click();
    const item=challenge.items[0];
@@ -376,6 +379,7 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await page.getByRole('button',{name:'Next Gold task →'}).press('Enter');
   await page.locator('.wa-apply-editor textarea').fill(cohesion.gold[1].example);
   await go('apply');
+  await checkArtwork(page,'stage','grammar-cohesion-apply');
   await workshop(page,cohesion.apply[0]);
   await capture(page,'cohesion-apply-workshop',width,height);
   await go('practise');
@@ -388,6 +392,7 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   assert.equal(await page.getByRole('textbox',{name:'Revise your response'}).inputValue(),goldRevision);
   await capture(page,'cohesion-gold-revision',width,height);
   await go('master');
+  await checkArtwork(page,'stage','grammar-cohesion-master');
   await finishAnalysis(page,cohesion.analysis);
   assert.match(await page.locator('.wa-master-question').innerText(),/1 \/ 1 objective decisions correct/);
   await workshop(page,cohesion.master);
