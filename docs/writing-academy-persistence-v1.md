@@ -1,0 +1,49 @@
+# Writing Academy persistence foundation V1
+
+Review Writing, Essay Writing and Informal Email share a dormant persistence layer. The Hub profile UUID owns each record. The existing registry keys `review_writing`, `essay_writing` and `email_writing` identify its genre. The staff previews continue to use their existing session and local draft behaviour.
+
+## Records and relationships
+
+| Relation | Identity and fields | Integrity |
+| --- | --- | --- |
+| `writing_pathway_progress` | UUID, student, genre, curriculum ID/version, pathway, current stage, completed stages, status, start/update/completion times, revision | Unique per student, genre, curriculum version and pathway. Completed stages use canonical order with no duplicates. No row represents an unstarted pathway. |
+| `writing_activity_attempts` | UUID, student, genre, curriculum ID/version, pathway/stage, activity ID/content version, request UUID, difficulty, attempt type, validation status, nullable score and maximum, start/completion times | Per-student and per-genre request uniqueness. Completion time is also the boundary for staff visibility. A stored numerical score requires a completed objective attempt, an explicit validated status and a valid positive maximum. |
+| `writing_drafts` | Client-generated UUID, student, genre, task ID/version, optional activity or exam link, context, versioned workspace state, original/current response, revision, last request UUID, creation/update times | Composite links enforce ownership and genre. Exam links additionally require a matching task version. Text fields are limited to 30,000 characters each. JSON is limited to 256 KiB in PostgreSQL. |
+| `writing_exam_attempts` | UUID, student, genre, task ID/version, curriculum ID/version, mode, start/deadline/submission times, derived overtime flag | Timed records have a deadline after start. Untimed records have no deadline. A submission timestamp cannot precede start. A submitted response is stored in the existing submission archive. |
+| `student_writing_submissions` | Existing fields plus nullable task ID/version, activity attempt, exam attempt, submission type and parent submission | Same student, genre and task version for exam and revision links. One archived submission per exam attempt. The original legacy insert shape and constraints remain available. |
+
+The usual student, genre and pathway lookups use the progress uniqueness index. Additional indexes cover activity/date, exam task/start date, draft task/update date and submission relationships. Teacher scoping uses the existing class assignment and active membership indexes.
+
+## Content identity and state
+
+An activity identity is the tuple `(appKey, curriculumId, curriculumVersion, pathwayId, stageId, activityId, contentVersion)`. Attempt UUIDs identify individual runs. A task identity is `(appKey, taskId, taskVersion)`. A question ID is scoped to its activity. Option IDs are scoped to their question. Keep each literal ID with its content when moving questions or options, including updating the positional answer mapping if an option moves. Maintain historical task and content revisions when changing meaning or marking rules. Artwork and layout changes require no identity revision. Current Review curriculum uses `review` version 1.
+
+The stage keys are `discover`, `explore`, `practise`, `apply` and `master`. The pathway keys are `structure`, `expression`, `development`, `cohesion`, `editing` and `exam`. The active objective questions, Discover examples and pathway writing tasks carry explicit IDs. Existing Studio and mock task IDs are preserved. The P2 UI integration must establish stable identifiers for remaining model-specific Explore targets and checklists before wiring their persistence.
+
+Version 1 workspace snapshots support stable-keyed observations, annotations, objective answers, Gold/Apply/Master writing runs, planning, reflections and checklist entries. Objective answers carry a current question ID, option selection and display permutation. They carry no verified score. The JavaScript validator checks the typed nested shape and bounds. The database enforces supported root sections, root value types, payload version and byte limits. A renderer maps the validated snapshot to its own Maps, Sets and positional UI state. Snapshots with an unsupported version or invalid shape return an error. Versioned curriculum availability and references to a particular published question set must be checked when P2 connects hydration.
+
+## Access and writes
+
+Authenticated clients have SELECT on the new tables. Active, set-up students see their own rows. Teachers see progress and completed activity or examination metadata only for students with current class access. Administrators see progress and completed metadata. Drafts are visible only to their student owner. The existing legacy submission reports retain their role-scoped policies. Draft deletion is limited to an owner's unlinked working records.
+
+`createWritingPersistence(client)` takes the Hub's Supabase client. It exposes `listProgress`, `getActivityAttempt`, `getExamAttempt`, `getSubmission`, `listDrafts`, `getDraft`, `saveDraft` and `deleteDraft`. Each returns an asynchronous structured success or failure. RLS-hidden rows use the same missing result as absent rows. The public save RPC is an invoker wrapper for a private definer with an empty search path and explicit execution grants. The private operation derives the student from `auth.uid()`, requires an active set-up student account and accepts only unlinked Studio, workshop and Gold drafts.
+
+Revision zero requests creation. Updates must supply the last observed revision, a draft UUID and a fresh request UUID. An exact retry of the latest successful request returns the same revision. After a later save, a retry of an older request returns a conflict. Updating an already established original response also returns a conflict. Each update locks the current row and rechecks the revision inside the same transaction. Callers must recover the latest draft before resolving a conflict. Client and staff roles have no grants for score, timestamp, exam or progress writes.
+
+The exam row represents a running or submitted attempt via its submission timestamp. Future P4 operations must calculate the deadline server-side when starting a timed attempt, allow writing after the deadline and atomically archive the immutable response and close the attempt. P1 exposes no exam mutation or submission-finalisation API. Activity creation, response capture, verified marking, progress derivation and transactional completion are also deferred. The request key and bounded score constraints are storage prerequisites for these operations.
+
+## Retention and privacy
+
+Drafts contain recoverable working material. Reports use progress and completed attempt metadata and read submitted writing from the existing archive. The design avoids storing the same final exam answer in two archives. Foreign keys to profiles cascade on deletion. Authorised deletion of an unlinked draft cannot erase a completed attempt or submission. No automated retention jobs are introduced.
+
+Future validated completion operations can emit one idempotent engagement event per authoritative completion. Existing activity events do not establish writing attainment. P1 introduces no event writes, XP or merit changes.
+
+## Migration validation and recovery
+
+The production inventory had 31 public tables with RLS, and all three writing registry keys already existed. The live submission columns, bounds and relevant teacher scoping helpers match the repository definitions inspected for this migration. Production migration history has 77 entries against 43 historical migration files in Git, with nine exact version/name matches. Some definitions are recorded under different migration versions. Other migrations, including reward catalogue dependencies, are missing from the repository history. Full replay with synthetic Auth reached `20261121090000_vocabulary_afterlight_catalog.sql` and stopped because `public.vocabulary_reward_catalog` was absent. Resolve the history discrepancy and replay the reconciled schema in isolation before deploying this migration. Do not run an unrestricted push of all pending local migrations or change production's migration history to force a match.
+
+Run the focused synthetic upgrade suite with `npm install --no-save --package-lock=false @electric-sql/pglite@0.6.0` and `node scripts/test-writing-persistence-db.mjs`. For genuine two-session locking verification, install `pg`, run a disposable local PostgreSQL cluster and set `WRITING_TEST_DATABASE_URL` to an empty `writing_persistence_test` database on `127.0.0.1`. Tests switch to the real database roles `anon` and `authenticated` with synthetic JWT-sub claims. This exercises PostgreSQL grants, RLS, constraints and transactions. Hosted Supabase login and PostgREST authorisation are separate verification steps.
+
+After review and merge, verify the pending migration against a full staging clone with synthetic accounts and then apply only the reviewed migration through the repository's reconciled migration workflow. Capture the baseline ACLs, policy definitions and advisory results beforehand, and compare them afterwards. Verify legacy submissions, teacher class scope, schema shape and the absence of migration-created student rows.
+
+If a migration statement fails, verify that the transaction rolled back before retrying. If an issue appears after a successful migration, revoke execution of the exposed draft RPC in a reviewed forward migration and keep the new storage intact while investigating. Restore restrictive policies or grants with another forward migration. An eventual rollback that removes schema must export any accumulated records first and requires a separate data-retention decision.
