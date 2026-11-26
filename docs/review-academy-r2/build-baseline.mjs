@@ -24,6 +24,10 @@ const completion = {
   exam: 'A non-empty submission can be outside the target range after confirmation. All review checks and three minimum-length reflections complete self-review.',
 };
 const findings = JSON.parse(readFileSync(new URL('findings.json', import.meta.url)));
+const renderer = readFileSync(new URL('../../src/writing/ui/structure-20261125.js', import.meta.url), 'utf8');
+const presentationBlock = renderer.match(/const questionPresentation = new Map\((\[[\s\S]*?\])\);/);
+if (!presentationBlock) throw new Error('Staff preview question presentation map not found');
+const presentation = new Map(JSON.parse(presentationBlock[1]));
 const rows = [];
 const modelRegister = Object.fromEntries(models.map(({id, title, prompt, paragraphs, notes, sentenceTips}) =>
   [id, {title, prompt, paragraphs, notes, sentenceTips, exam: modelContext[title]}]));
@@ -35,11 +39,17 @@ function add(pathway, stage, activityId, item, details) {
     ...findings.shared.filter(entry => entry.pathways.includes(pathway) && entry.stages.includes(stage)),
   ];
   const primary = findingsForRow[0];
+  const currentQuestion = details.question ?? item.question ?? item.prompt;
+  const split = presentation.get(currentQuestion);
+  const interaction = Array.isArray(item.answer) ? 'sentence ordering'
+    : item.options ? (details.rule.startsWith(completion.recognition) ? 'checked recognition' : 'single choice')
+    : item.example ? 'independent response and self-review' : 'length-gated response and feedback';
   rows.push({
     pathway, stage, activityId, questionId, contentVersion: item.version ?? null,
     difficulty: details.difficulty ?? stage,
     intendedLearningObjective: details.objective ?? null,
-    currentQuestion: details.question ?? item.question ?? item.prompt,
+    currentQuestion, interaction,
+    renderedQuestion: split?.[1] ?? currentQuestion, renderedSource: split?.[0] ?? details.source ?? null,
     currentAnswerChoices: item.options?.map((text, i) => ({id: item.optionIds?.[i] ?? i, text})) ?? null,
     currentCorrectAnswer: answerIndexes?.map(i => item.optionIds?.[i] ?? i) ?? null,
     currentFeedback: item.explanations ?? item.rationale ?? item.principle ?? null,
@@ -86,6 +96,7 @@ for (const [key, course] of Object.entries(courses)) {
       const item = key === 'structure' ? structureExplore[m.id][index] : {prompt, rationale: lens.rationale};
       add(key, 'Explore', m.id, item, {
         questionId: m.id + ':paragraph-' + (index + 1), source: {modelId: m.id, paragraph: index + 1},
+        objective: item.rationale,
         wordGuidance: key === 'structure' ? null : {minimum: lens.min ?? 10},
         rule: key === 'structure' ? completion.recognition + ' Finish every paragraph in one model.'
           : 'A minimum-length response reveals feedback. ' + (key === 'exam' ? 'Finish any three paragraphs.' : 'Finish every paragraph in one model.'),
