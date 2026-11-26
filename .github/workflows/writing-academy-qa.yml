@@ -6,11 +6,13 @@ on:
       - 'assets/writing/**'
       - 'review-academy-preview.html'
       - 'review-academy-recovery.html'
+      - 'review-structure-pilot.html'
       - 'review-writing.html'
       - 'writing-academy.css'
       - 'tests/writing-academy*'
       - 'scripts/test-writing-persistence-db.mjs'
       - 'supabase/migrations/*writing_academy_persistence.sql'
+      - 'supabase/migrations/*writing_structure_progress_pilot.sql'
       - 'supabase/tests/writing_persistence_baseline.sql'
       - 'tests/review-academy-pedagogy.test.mjs'
       - '.github/workflows/writing-academy-qa.yml'
@@ -36,3 +38,37 @@ jobs:
         with:
           name: writing-preview-screenshots
           path: writing-preview-*.png
+
+  writing-structure-pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: writing_structure_pilot_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - '5432:5432'
+        options: >-
+          --health-cmd "pg_isready -U postgres -d writing_structure_pilot_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-save --package-lock=false playwright@1.56.1 pg@8.23.1 esbuild@0.28.2 @supabase/supabase-js@2.117.3
+      - run: npx playwright install --with-deps chromium
+      - name: Install pinned PostgREST binary
+        run: |
+          curl --fail --silent --show-error --location --retry 2 https://github.com/PostgREST/postgrest/releases/download/v14.1/postgrest-v14.1-linux-static-x86-64.tar.xz -o /tmp/postgrest.tar.xz
+          echo 'bdab6ab3389ca0d6c1f3b8363491674dbca71875c3f30261d92d8fecdde35277  /tmp/postgrest.tar.xz' | sha256sum --check
+          tar -xJf /tmp/postgrest.tar.xz -C /tmp
+      - name: Verify cross-browser resume and account isolation
+        env:
+          WRITING_PILOT_TEST_DATABASE_URL: postgres://postgres@127.0.0.1:5432/writing_structure_pilot_test
+          WRITING_PILOT_POSTGREST_BIN: /tmp/postgrest
+        run: node tests/writing-academy-structure-pilot.browser.mjs

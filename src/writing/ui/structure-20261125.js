@@ -7,7 +7,7 @@ import {cohesion,cohesionModels} from '../content/review-cohesion.js?v=2';
 import * as development from '../content/review-development-v1.js';
 import * as expression from '../content/review-expression-v1.js';
 import {extraReviewModels} from '../content/review-explore-models.js?v=1';
-import {mountLesson,el,action} from './lesson-shell.js?v=14';
+import {mountLesson,el,action} from './lesson-shell.js?v=15';
 import {reviewArtwork} from './editorial-art.js?v=16';
 import {companions} from '../content/review-active-v2.js';
 import {pathways} from '../content/review-pedagogy.js?v=5';
@@ -33,13 +33,13 @@ export function renderExamReference(p,{includeToolkit=true}={}){
 
  return s;
 }
-export function renderStructure(root,onBack,onStudio,progress){return renderPathway(root,onBack,onStudio,null,progress);}
+export function renderStructure(root,onBack,onStudio,progress,navigation){return renderPathway(root,onBack,onStudio,null,progress,navigation);}
 export function renderExpression(root,onBack,onStudio,progress){return renderPathway(root,onBack,onStudio,expression,progress);}
 export function renderDevelopment(root,onBack,onStudio,progress){return renderPathway(root,onBack,onStudio,development,progress);}
 export function renderCohesion(root,onBack,onStudio,progress){return renderPathway(root,onBack,onStudio,cohesion,progress);}
 export function renderEditing(root,onBack,onStudio,progress){return renderPathway(root,onBack,onStudio,editing,progress);}
 export function renderExam(root,onBack,onStudio,progress){return renderPathway(root,onBack,onStudio,exam,progress);}
-function renderPathway(root,onBack,onStudio,config,progress){
+function renderPathway(root,onBack,onStudio,config,progress,navigation){
  const isExam=config===exam;
  const isExpression=config===expression, isDevelopment=config===development, hasLens=!!config;
  const editorialModels=isExam?examModels:config===editing?editingModels:config===cohesion?cohesionModels:null;
@@ -156,7 +156,7 @@ function renderPathway(root,onBack,onStudio,config,progress){
   }
   draw();
  }
- mountLesson(root,{title:course.title??(isDevelopment?'Idea Development':isExpression?'Vocabulary & Expression':'Structure & Organisation'),pathwayNumber:course.number??(isDevelopment?'03':isExpression?'02':'01'),artwork:reviewArtwork.pathways[pathwayKey]??reviewArtwork.pathways.structure,onBack,reference:renderExamReference,companions:stageCompanions,checkpoint:saved,onCheckpoint:progress?save:null,renderStage(body,i,ctx){
+ mountLesson(root,{...navigation,title:course.title??(isDevelopment?'Idea Development':isExpression?'Vocabulary & Expression':'Structure & Organisation'),pathwayNumber:course.number??(isDevelopment?'03':isExpression?'02':'01'),artwork:reviewArtwork.pathways[pathwayKey]??reviewArtwork.pathways.structure,onBack,reference:renderExamReference,companions:stageCompanions,checkpoint:saved,onCheckpoint:progress?save:null,renderStage(body,i,ctx){
  const shell=body.closest('.wa-shell');
  shell.classList.toggle('wa-independent-stage',isExam&&i===4);
  if(progress && isExam && i>=3)el(body,'p','wa-muted','Exam workshop responses and timers last for this visit.');

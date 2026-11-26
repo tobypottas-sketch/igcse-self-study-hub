@@ -5,10 +5,10 @@ import {previewStages} from '../engine/preview-progress.js';
 export const stages=['Discover','Explore','Practise','Apply','Master'];
 export function el(p,t,c,v){const n=p.ownerDocument.createElement(t);n.className=c||'';if(v)n.textContent=v;p.append(n);return n;}
 export function action(p,t,fn,cls='wa-action'){const b=el(p,'button',cls,t);b.type='button';b.onclick=fn;return b;}
-export function mountLesson(root,{title,pathwayNumber='01',artwork,onBack,reference,companions=[],renderStage,checkpoint,onCheckpoint}){
+export function mountLesson(root,{title,pathwayNumber='01',artwork,onBack,reference,companions=[],renderStage,checkpoint,onCheckpoint,initialStage,onStageChange,backLabel='← All pathways',previewLabel='Staff preview'}){
  root.replaceChildren();const shell=el(root,'div','wa-shell wa-learning wa-editorial-lesson');
  shell.dataset.pathway=pathwayNumber;
- const nav=el(shell,'nav','wa-nav');action(nav,'← All pathways',onBack);el(nav,'span','wa-preview','Staff preview');
+ const nav=el(shell,'nav','wa-nav');action(nav,backLabel,onBack);el(nav,'span','wa-preview',previewLabel);
  const header=el(shell,'header','wa-lesson-banner');const copy=el(header,'div','');el(copy,'p','wa-kicker','PATHWAY '+pathwayNumber+' / WRITING ACADEMY');el(copy,'h1','',title);
  if(artwork?.banner)renderArtwork(header,artwork.banner,'banner');
  const ref=reference(shell);ref.classList.add('wa-lesson-reference');
@@ -16,7 +16,7 @@ export function mountLesson(root,{title,pathwayNumber='01',artwork,onBack,refere
  const meter=el(shell,'div','wa-journey-meter');const fill=el(meter,'div','');meter.setAttribute('aria-hidden','true');
  const strip=el(shell,'nav','wa-stage-nav');strip.setAttribute('aria-label','Learning stages');
  const body=el(shell,'section','wa-stage-body');const foot=el(shell,'div','wa-stage-foot');
- let current=Math.max(0,previewStages.indexOf(checkpoint?.stage));
+ let current=Math.max(0,previewStages.indexOf(initialStage??checkpoint?.stage));
  const complete=new Set((checkpoint?.completed??[]).map(stage=>previewStages.indexOf(stage)));
  let saved=checkpoint!=null;
  const tabs=[];
@@ -33,6 +33,7 @@ export function mountLesson(root,{title,pathwayNumber='01',artwork,onBack,refere
   const win=root.ownerDocument.defaultView;
   const anchor=strip.getBoundingClientRect().top;
   const wasVisible=anchor>=0&&anchor<win.innerHeight;
+  const changed=current!==i;
   current = i;
   body.replaceChildren();
   foot.replaceChildren();
@@ -50,6 +51,7 @@ export function mountLesson(root,{title,pathwayNumber='01',artwork,onBack,refere
 
   if (i > 0) action(foot, '← Previous stage', () => show(i - 1));
   if (i < stages.length - 1) action(foot, 'Next stage →', () => show(i + 1), 'wa-action wa-next');
+  if (changed) onStageChange?.(previewStages[i]);
   if (focus) {
    heading.focus({preventScroll:true});
    if(wasVisible){win.scrollBy({top:strip.getBoundingClientRect().top-anchor,behavior:'instant'});}else{strip.scrollIntoView({block:'start',behavior:'instant'});}
