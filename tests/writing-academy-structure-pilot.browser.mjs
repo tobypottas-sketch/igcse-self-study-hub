@@ -128,6 +128,8 @@ try {
     return {context,page};
   }
   const first=await device(student);
+  assert.equal(await first.page.locator('.wa-discovery textarea').count(),1);
+  assert.equal(await first.page.locator('.wa-recognition-feedback').count(),0);
   await first.page.locator('.wa-stage-tab[data-stage=apply]').click();
   await first.page.getByText('Your place is saved.',{exact:true}).waitFor();
   const second=await device(student);

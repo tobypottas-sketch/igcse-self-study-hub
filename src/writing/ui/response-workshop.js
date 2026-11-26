@@ -5,7 +5,7 @@ export function newWritingRun() {
  return {draft:'', original:'', revision:'', keepReason:'', checks:new Set()};
 }
 
-export function renderResponseWorkshop(host, task, run, onProgress) {
+export function renderResponseWorkshop(host, task, run, onProgress, {plainLanguage=false}={}) {
  validateWritingTask(task);
  host.replaceChildren();
  const source = el(host,'article','wa-apply-source');
@@ -13,7 +13,13 @@ export function renderResponseWorkshop(host, task, run, onProgress) {
  title.tabIndex = -1;
  el(source,'p','wa-apply-original',task.prompt);
  const editor = el(host,'section','wa-apply-editor');
- const label = el(editor,'label','wa-apply-instruction',task.question);
+ const steps = task.question.split('\n');
+ if (steps.length>1) {
+  el(editor,'p','wa-apply-instruction',steps[0]);
+  const list = el(editor,'ol','wa-writing-steps');
+  steps.slice(1).forEach(step=>el(list,'li','',step.replace(/^\d+\. /,'')));
+ }
+ const label = el(editor,'label','wa-apply-instruction',steps.length>1?'Your draft':task.question);
  el(label,'span','wa-muted',task.plan?' Short notes or bullets are welcome.':' Write at least ' + task.min + ' words before comparing.');
  const draft = el(label,'textarea','wa-writing-input wa-apply-input');
  draft.rows = 4;
@@ -38,7 +44,7 @@ export function renderResponseWorkshop(host, task, run, onProgress) {
   revision.value = run.revision;
   let reason;
   if(task.allowKeep){
-   const label=el(panel,'label','wa-apply-instruction','Keeping your draft? Explain how one specific choice meets a checklist criterion (at least 8 words).');
+   const label=el(panel,'label','wa-apply-instruction',plainLanguage?'Happy with your first answer? Explain one thing you did well. Use at least 8 words.':'Keeping your draft? Explain how one specific choice meets a checklist criterion (at least 8 words).');
    reason=el(label,'textarea','wa-writing-input wa-apply-input');
    reason.rows=2;
    reason.value=run.keepReason;
@@ -62,7 +68,10 @@ export function renderResponseWorkshop(host, task, run, onProgress) {
   result.setAttribute('role','status');
   function sync() {
    const complete = writingComplete(run,task);
-   result.textContent = complete ? 'Writing and reflection complete.' : (task.allowKeep?'Revise or justify keeping your draft, then review each criterion.':'Make a change to your draft and review each criterion.');
+   const next = plainLanguage
+    ? (task.allowKeep?'Make a change or explain what you did well. Then check your work below.':'Make a change to your draft, then check your work below.')
+    : (task.allowKeep?'Revise or justify keeping your draft, then review each criterion.':'Make a change to your draft and review each criterion.');
+   result.textContent = complete ? 'Writing and reflection complete.' : next;
    onProgress(complete);
   }
   revision.oninput = () => {

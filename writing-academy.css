@@ -848,3 +848,22 @@
 #writingAcademy .wa-exam-review{display:grid;gap:12px;margin-top:16px}
 #writingAcademy .wa-exam-review fieldset{min-inline-size:0}
 #writingAcademy .wa-exam-review h4{margin:0 0 8px}
+
+.wa-recognition-feedback {
+  min-block-size: 4.5rem;
+}
+.wa-recognition-feedback:empty {
+  visibility: hidden;
+}
+.wa-recognition-feedback p {
+  margin-block: .35rem 0;
+}
+
+@media (max-width: 680px) {
+  #writingAcademy .wa-editorial-lesson[data-structure-r1] .wa-stage-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #writingAcademy .wa-editorial-lesson[data-structure-r1] .wa-learning-companion .wa-art--stage {
+    max-width: 240px;
+  }
+}
