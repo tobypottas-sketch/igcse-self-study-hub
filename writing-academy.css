@@ -872,3 +872,51 @@
 #writingAcademy .wa-question-source{font-family:system-ui,sans-serif;font-size:1rem;font-weight:400;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;background:#fff;border:1px solid #e0d8cb;border-inline-start:3px solid #a69a86;border-radius:8px;padding:12px 16px;margin:0 0 16px;color:#23384b}
 #writingAcademy .wa-question-prompt.wa-question-clear{font-family:system-ui,sans-serif;font-size:clamp(1.3rem,2.1vw,1.56rem);font-weight:700;line-height:1.35;letter-spacing:-.01em;margin:4px 0 18px;overflow-wrap:anywhere;color:#142d48}
 #writingAcademy .wa-question .wa-question-prompt.wa-question-clear,#writingAcademy .wa-explore-question .wa-question-prompt.wa-question-clear{font-size:clamp(1.3rem,2.1vw,1.56rem);font-weight:700;line-height:1.35;margin:4px 0 18px;letter-spacing:-.01em}
+
+/* Editorial task cards — staff previews only; preserve pilot appearance. */
+#writingAcademy.wa-staff-preview :is(.wa-practise-question,.wa-master-question){
+ background:#fff;border:1px solid #dce3e8;border-radius:16px;padding:clamp(16px,3vw,32px);
+ box-shadow:0 5px 18px rgba(20,45,72,.055);
+}
+#writingAcademy.wa-staff-preview :is(.wa-practise-question,.wa-master-question)>.wa-kicker{
+ color:#69537e;font-size:.78rem;font-weight:750;letter-spacing:.045em;margin:0 0 8px;
+}
+#writingAcademy.wa-staff-preview :is(.wa-practise-question,.wa-master-question)>.wa-muted{
+ color:#526579;font-size:.85rem;margin:0 0 18px;
+}
+#writingAcademy.wa-staff-preview .wa-question-source{
+ background:#f3f6f8;border:0;border-inline-start:4px solid #91a7b6;border-radius:8px;
+ padding:clamp(12px,2vw,20px);margin:0 0 22px;line-height:1.65;font-size:1rem;
+}
+#writingAcademy.wa-staff-preview :is(h3,label).wa-question-prompt{
+ font-family:system-ui,sans-serif;font-size:clamp(1.3rem,2.1vw,1.56rem);
+ font-weight:700;line-height:1.35;letter-spacing:-.018em;color:#142d48;margin:0 0 20px;
+ overflow-wrap:anywhere;
+}
+#writingAcademy.wa-staff-preview :is(.wa-practise-question,.wa-master-question,.wa-discovery,.wa-explore-question) .wa-options{gap:10px;margin:0 0 20px}
+#writingAcademy.wa-staff-preview :is(.wa-practise-question,.wa-master-question,.wa-discovery,.wa-explore-question) .wa-option{
+ display:flex;align-items:center;gap:12px;text-align:start;width:100%;min-height:48px;
+ background:#fff;border:1px solid #ccd8e2;border-radius:10px;padding:12px 15px;
+ font-size:1rem;font-weight:500;line-height:1.5;color:#203b55;
+}
+#writingAcademy.wa-staff-preview :is(.wa-practise-question,.wa-master-question,.wa-discovery,.wa-explore-question) .wa-option:not(:disabled):hover{background:#f0f7f6;border-color:#408b84}
+#writingAcademy.wa-staff-preview :is(.wa-practise-question,.wa-master-question,.wa-discovery,.wa-explore-question) .wa-option[aria-pressed=true]{background:#e6f4f0;border-color:#08766e;box-shadow:inset 3px 0 #08766e}
+#writingAcademy.wa-staff-preview :is(.wa-practise-question,.wa-master-question,.wa-discovery,.wa-explore-question) .wa-next:not(:disabled),
+#writingAcademy.wa-staff-preview .wa-apply-reveal:not(:disabled){background:#08766e;border:1px solid #08766e;color:#fff;border-radius:9px;min-height:44px;font-size:.95rem;font-weight:650;padding:10px 18px}
+#writingAcademy.wa-staff-preview :is(.wa-practise-question,.wa-master-question,.wa-discovery,.wa-explore-question) .wa-next:disabled{background:#edf1f4;border-color:#dce3e8;color:#526579;min-height:44px}
+#writingAcademy.wa-staff-preview .wa-apply-source{background:#f3f6f8;border:0;border-inline-start:4px solid #91a7b6;border-radius:10px;padding:clamp(14px,2.4vw,24px);margin-bottom:20px}
+#writingAcademy.wa-staff-preview .wa-apply-title{font-family:system-ui,sans-serif;font-size:clamp(1.15rem,1.8vw,1.4rem);font-weight:700;line-height:1.35;color:#142d48;margin:0 0 12px}
+#writingAcademy.wa-staff-preview .wa-apply-original{font-family:system-ui,sans-serif;font-size:1rem;line-height:1.7;font-weight:400}
+#writingAcademy.wa-staff-preview .wa-apply-editor{border:1px solid #dce3e8;border-radius:12px;background:#fff;padding:clamp(14px,2.4vw,24px)}
+#writingAcademy.wa-staff-preview .wa-apply-editor>.wa-apply-instruction{font-size:clamp(1.05rem,1.7vw,1.25rem);font-weight:700;line-height:1.45;color:#142d48;margin:0 0 12px}
+#writingAcademy.wa-staff-preview .wa-apply-instruction>.wa-muted{display:block;font-size:.85rem;font-weight:450;margin:4px 0 10px;color:#526579}
+#writingAcademy.wa-staff-preview .wa-writing-steps{font-size:1rem;line-height:1.65;padding-inline-start:1.4em;margin:0 0 20px}
+#writingAcademy.wa-staff-preview .wa-writing-steps li+li{margin-top:8px}
+#writingAcademy.wa-staff-preview .wa-apply-input{background:#fff;border:1px solid #a9bac9;border-radius:9px;line-height:1.65;font-size:1rem;margin-top:8px}
+#writingAcademy.wa-staff-preview :is(button,textarea,input):focus-visible{outline:3px solid #176caa;outline-offset:3px}
+#writingAcademy.wa-staff-preview h3.wa-question-prompt:focus{outline:2px solid #176caa;outline-offset:5px;border-radius:3px}
+@media(max-width:560px){
+ #writingAcademy.wa-staff-preview :is(.wa-practise-question,.wa-master-question){padding:14px}
+ #writingAcademy.wa-staff-preview :is(.wa-practise-question,.wa-master-question,.wa-discovery,.wa-explore-question) .wa-option{padding:11px 12px}
+ #writingAcademy.wa-staff-preview .wa-apply-editor{padding:14px}
+}
