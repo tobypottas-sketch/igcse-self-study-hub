@@ -604,6 +604,34 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   assert.deepEqual(errors,[]);
   await page.close();
  }
+ const resumePage=await browser.newPage();
+ await resumePage.route('**/src/supabase.js',route=>route.fulfill({contentType:'application/javascript',body:'export async function getSupabaseClient(){return {auth:{onAuthStateChange(){}}}}'}));
+ let account='checkpoint-staff';
+ await resumePage.route('**/src/auth.js',route=>route.fulfill({contentType:'application/javascript',body:`export async function getCurrentProfile(){return {id:${JSON.stringify(account)},active:true,role:"teacher",must_change_password:false}}`}));
+ const preview='http://127.0.0.1:8765/review-academy-preview.html';
+ const recovery='http://127.0.0.1:8765/review-academy-recovery.html';
+ const card=resumePage.locator('.wa-path.wa-structure');
+ await resumePage.goto(preview);
+ await card.getByRole('button',{name:'Start pathway →'}).click();
+ await resumePage.locator('.wa-discovery textarea').fill('The opening gives useful details.');
+ await resumePage.getByRole('button',{name:'Check what changed'}).click();
+ await resumePage.locator('.wa-stage-tab[data-stage="apply"]').click();
+ await resumePage.locator('.wa-apply-desk textarea').fill('My workshop draft survives a reload.');
+ await resumePage.getByRole('button',{name:'All pathways'}).click();
+ await card.getByRole('button',{name:'Resume pathway →'}).click();
+ assert.equal(await resumePage.locator('.wa-apply-desk textarea').inputValue(),'My workshop draft survives a reload.');
+ await resumePage.goto(recovery);
+ await card.getByRole('button',{name:'Resume pathway →'}).click();
+ assert.equal(await resumePage.locator('.wa-stage-tab[aria-current="step"]').getAttribute('data-stage'),'apply');
+ assert.equal(await resumePage.locator('.wa-apply-desk textarea').inputValue(),'My workshop draft survives a reload.');
+ await resumePage.locator('.wa-stage-tab[data-stage="discover"]').click();
+ assert.equal(await resumePage.locator('.wa-discovery textarea').inputValue(),'The opening gives useful details.');
+ assert.equal(await resumePage.locator('.wa-discovery textarea').getAttribute('readonly'),'');
+ account='other-staff';
+ await resumePage.goto(preview);
+ await card.getByRole('button',{name:'Start pathway →'}).click();
+ assert.equal(await resumePage.locator('.wa-discovery textarea').inputValue(),'');
+ await resumePage.close();
  for (const entry of ['review-academy-preview.html','review-academy-recovery.html'])
  for (const profile of [null,{active:true,role:'student'},{active:false,role:'teacher'},{active:true,role:'admin',must_change_password:true}]) {
   const denied=await browser.newPage();

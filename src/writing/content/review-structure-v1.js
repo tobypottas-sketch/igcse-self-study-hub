@@ -6,7 +6,7 @@ export const blueprint=[
  {title:'Opinion & Evaluation',guidance:'Explain strengths or weaknesses with reasons and examples.'},
  {title:'Recommendation',guidance:'Give a final judgement, a suitable audience and a reason, where appropriate.'}
 ];
-export const model={title:'Riverside Café',prompt:'Your school magazine wants reviews of local cafés. Describe the café and its food, explain what impressed or disappointed you, and say whether you would recommend it to other students.',paragraphs:[
+export const model={id:'riverside-cafe',paragraphIds:['paragraph-a','paragraph-b','paragraph-c','paragraph-d'],title:'Riverside Café',prompt:'Your school magazine wants reviews of local cafés. Describe the café and its food, explain what impressed or disappointed you, and say whether you would recommend it to other students.',paragraphs:[
  'Last Saturday, I visited Riverside Café to celebrate my friend’s birthday. The cheerful atmosphere and friendly welcome made an excellent first impression.',
  'Located near the school, the café has comfortable seating and a varied menu. We ordered freshly made sandwiches and a generous slice of chocolate cake. Both were reasonably priced, which was particularly appealing to us.',
  'Although the café was crowded, the staff remained polite and helpful. Our drinks took twenty minutes to arrive, but the delicious food made up for the delay. I especially appreciated the quiet corner where we could chat without having to raise our voices.',

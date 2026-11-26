@@ -1,10 +1,11 @@
 import {renderArtwork} from './editorial-art.js?v=9';
+import {previewStages} from '../engine/preview-progress.js';
 
-// Reusable lesson navigation, with honest session-only completion.
+// Optional browser checkpoints for staff preview navigation.
 export const stages=['Discover','Explore','Practise','Apply','Master'];
 export function el(p,t,c,v){const n=p.ownerDocument.createElement(t);n.className=c||'';if(v)n.textContent=v;p.append(n);return n;}
 export function action(p,t,fn,cls='wa-action'){const b=el(p,'button',cls,t);b.type='button';b.onclick=fn;return b;}
-export function mountLesson(root,{title,pathwayNumber='01',artwork,onBack,reference,companions=[],renderStage}){
+export function mountLesson(root,{title,pathwayNumber='01',artwork,onBack,reference,companions=[],renderStage,checkpoint,onCheckpoint}){
  root.replaceChildren();const shell=el(root,'div','wa-shell wa-learning wa-editorial-lesson');
  shell.dataset.pathway=pathwayNumber;
  const nav=el(shell,'nav','wa-nav');action(nav,'← All pathways',onBack);el(nav,'span','wa-preview','Staff preview');
@@ -15,8 +16,19 @@ export function mountLesson(root,{title,pathwayNumber='01',artwork,onBack,refere
  const meter=el(shell,'div','wa-journey-meter');const fill=el(meter,'div','');meter.setAttribute('aria-hidden','true');
  const strip=el(shell,'nav','wa-stage-nav');strip.setAttribute('aria-label','Learning stages');
  const body=el(shell,'section','wa-stage-body');const foot=el(shell,'div','wa-stage-foot');
- let current=0;const complete=new Set();const tabs=[];
- function sync(){fill.style.width=(complete.size/stages.length*100)+'%';progress.textContent=complete.size+' of '+stages.length+' stages completed · this visit';tabs.forEach((b,i)=>{b.setAttribute('aria-current',i===current?'step':'false');b.dataset.complete=String(complete.has(i));b.dataset.stage=stages[i].toLowerCase();b.textContent=(complete.has(i)?'✓ ':String(i+1).padStart(2,'0')+' · ')+stages[i];});}
+ let current=Math.max(0,previewStages.indexOf(checkpoint?.stage));
+ const complete=new Set((checkpoint?.completed??[]).map(stage=>previewStages.indexOf(stage)));
+ let saved=checkpoint!=null;
+ const tabs=[];
+ function save(){
+  if (!onCheckpoint) return;
+  saved=onCheckpoint({stage:previewStages[current],completed:[...complete].map(index=>previewStages[index])});
+  sync();
+ }
+ for (const event of ['click','input','change']) {
+  shell.addEventListener(event,save);
+ }
+ function sync(){fill.style.width=(complete.size/stages.length*100)+'%';progress.textContent=complete.size+' of '+stages.length+' stages completed · '+(saved?'saved on this device':'this visit');tabs.forEach((b,i)=>{b.setAttribute('aria-current',i===current?'step':'false');b.dataset.complete=String(complete.has(i));b.dataset.stage=stages[i].toLowerCase();b.textContent=(complete.has(i)?'✓ ':String(i+1).padStart(2,'0')+' · ')+stages[i];});}
  function show(i, focus = true) {
   const win=root.ownerDocument.defaultView;
   const anchor=strip.getBoundingClientRect().top;
@@ -43,5 +55,5 @@ export function mountLesson(root,{title,pathwayNumber='01',artwork,onBack,refere
    if(wasVisible){win.scrollBy({top:strip.getBoundingClientRect().top-anchor,behavior:'instant'});}else{strip.scrollIntoView({block:'start',behavior:'instant'});}
   }
  }
- stages.forEach((s,i)=>tabs.push(action(strip,s,()=>show(i),'wa-stage-tab')));show(0,false);
+ stages.forEach((s,i)=>tabs.push(action(strip,s,()=>show(i),'wa-stage-tab')));show(current,false);
 }
