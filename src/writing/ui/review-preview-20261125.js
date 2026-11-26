@@ -2,7 +2,7 @@ import {getSupabaseClient} from '../../supabase.js';
 import {getCurrentProfile} from '../../auth.js';
 import {createCatalogue} from '../engine/catalogue.js';
 import {reviewConfig} from '../content/review-v1.js';
-import {renderReviewHome} from './review-home-20261125.js?v=8';
+import {renderReviewHome} from './review-home-20261125.js?v=9';
 
 const root=document.getElementById('writingAcademy');
 async function boot(){

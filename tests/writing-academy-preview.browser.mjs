@@ -1,3 +1,5 @@
+import {structureR1} from '../src/writing/content/review-structure-r1.js';
+import {structureDiscover,structureExplore} from '../src/writing/content/review-structure-recognition.js';
 import {exam,examModels} from '../src/writing/content/review-exam.js';
 import {editing,editingModels} from '../src/writing/content/review-editing.js';
 import {cohesion} from '../src/writing/content/review-cohesion.js';
@@ -181,14 +183,30 @@ try{
 
   await page.getByRole('button',{name:'← All pathways'}).click();
   await structureCard.getByRole('button',{name:'Start pathway →'}).click();
-  assert.match(await page.locator('.wa-discovery label').innerText(),/short phrase or sentence.*at least three words/);
+  assert.equal(await page.locator('.wa-discovery textarea').count(),0);
   assert.equal(await page.locator('.wa-stage-body').count(),1);
   await checkArtwork(page,'banner','structure-organisation');
   await captureStage(page,'Discover','stage-discover',width,height);
-  for(let index=0;index<3;index++){
-   await page.locator('.wa-discovery textarea').fill('The revised version groups the related details more clearly.');
-   await page.getByRole('button',{name:'Check what changed'}).click();
-   assert.equal(await page.locator('.wa-discovery textarea').getAttribute('readonly'),'');
+  for(const [index,item] of structureDiscover.entries()){
+   const check=page.getByRole('button',{name:'Check answer',exact:true});
+   assert.ok(await check.isDisabled());
+   if(index===0){
+    await page.locator('[data-option-id="first"]').press('Enter');
+    await check.press('Enter');
+    const feedback=page.locator('.wa-recognition-feedback');
+    assert.match(await feedback.innerText(),/Try another answer/);
+    assert.match(await feedback.innerText(),/opinions about queues/);
+    assert.doesNotMatch(await feedback.innerText(),/Best answer/);
+    assert.equal(await page.locator('.wa-stage-tab[data-stage=discover]').getAttribute('data-complete'),'false');
+    await capture(page,'structure-discover-retry',width,height);
+   }
+   const choices=index===2?item.optionIds.filter((_,n)=>n!==item.answer):[item.optionIds[item.answer]];
+   for(const key of choices){
+    await page.locator('[data-option-id="'+key+'"]').click();
+    await check.click();
+   }
+   assert.match(await page.locator('.wa-recognition-feedback').innerText(),
+    [/Correct after a retry/,/Correct on your first try/,/Completed with an explanation/][index]);
    if(index<2)await page.getByRole('button',{name:'Next contrast →'}).click();
   }
   await page.locator('.wa-stage-tab[data-stage=discover][data-complete=true]').waitFor();
@@ -196,46 +214,91 @@ try{
   await checkBlueprint(page);
   await go('explore');
   assert.ok(await page.locator('.wa-stage-title').evaluate(node=>node===document.activeElement));
+  if(width===390){
+   const fillsColumn=await page.locator('.wa-stage-body').evaluate(body=>{
+    const style=getComputedStyle(body);
+    const contentWidth=body.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight);
+    return body.querySelector('.wa-stage-activity').clientWidth>=contentWidth-2;
+   });
+   assert.ok(fillsColumn,'Explore should use the full activity column on a phone');
+  }
   await captureStage(page,'Explore','stage-explore',width,height);
   await page.locator('.wa-explore-picker-trigger').click();
   await page.getByRole('button',{name:/Willow Kitchen/}).click();
   assert.equal(await page.locator('.wa-model-text').count(),1);
-  await page.locator('.wa-explore-question textarea').fill('The first sentence explains the visit and connects the review to the writer’s experience.');
-  await page.getByRole('button',{name:'Compare with the editor’s note'}).click();
+  assert.equal(await page.locator('.wa-explore-question textarea').count(),0);
   await page.locator('.wa-phrase').first().press('Enter');
   assert.equal(await page.locator('.wa-phrase').first().getAttribute('aria-pressed'),'true');
-  await page.getByRole('button',{name:'Next paragraph →'}).click();
-  assert.match(await page.locator('.wa-model-text').innerText(),/grilled chicken/);
+  for(const [modelIndex,items] of Object.values(structureExplore).entries()){
+   await page.locator('.wa-explore-picker-trigger').click();
+   await page.locator('.wa-explore-model-choice').nth(modelIndex).click();
+   for(const [index,item] of items.entries()){
+    assert.equal(await page.locator('.wa-explore-question h3').innerText(),item.prompt);
+    await page.locator('[data-option-id="'+item.optionIds[item.answer]+'"]').click();
+    await page.getByRole('button',{name:'Check answer',exact:true}).click();
+    assert.match(await page.locator('.wa-recognition-feedback').innerText(),/Correct on your first try/);
+    if(index<items.length-1)await page.getByRole('button',{name:'Next paragraph →'}).click();
+   }
+   await page.getByRole('button',{name:'Previous paragraph'}).click();
+   assert.match(await page.locator('.wa-recognition-feedback').innerText(),/Correct on your first try/);
+   await page.getByText('Read complete model',{exact:true}).click();
+   assert.equal(await page.locator('.wa-explore-full-prose:visible').count(),items.length);
+  }
+  await page.locator('.wa-stage-tab[data-stage=explore][data-complete=true]').waitFor();
+  await capture(page,'structure-explore-feedback',width,height);
   await go('practise');
-  await page.getByRole('button',{name:/Find the paragraph focus/}).click();
+  await page.getByRole('button',{name:/Match details to the main idea/}).click();
   await captureStage(page,'Practise','stage-practise',width,height);
   const orderBefore=await page.locator('.wa-option').evaluateAll(nodes=>nodes.map(node=>node.dataset.option));
   await page.locator('.wa-option[data-option="0"]').click();
   assert.deepEqual(await page.locator('.wa-option').evaluateAll(nodes=>nodes.map(node=>node.dataset.option)),orderBefore);
   await page.getByRole('button',{name:'Check answer'}).click();
   assert.equal(await page.locator('.wa-question .wa-answer').getAttribute('data-result'),'retry');
-  await page.getByRole('button',{name:/Rebuild a paragraph/}).click();
-  const first=pathways.structure.practice[1].items[0];
+  await page.getByRole('button',{name:/Put the sentences in order/}).click();
+  const first=structureR1.practice[1].items[0];
   await page.locator('.wa-option[data-option="'+first.answer[0]+'"]').press('Enter');
   await page.getByRole('button',{name:'Undo last selection'}).press('Enter');
   for(const index of first.answer)await page.locator('.wa-option[data-option="'+index+'"]').press('Enter');
   await page.getByRole('button',{name:'Check answer'}).press('Enter');
   assert.equal(await page.locator('.wa-question .wa-answer').getAttribute('data-result'),'correct');
   await capture(page,'structure-order-feedback',width,height);
-  await page.getByRole('button',{name:/Edit a weak review/}).click();
-  await workshop(page,pathways.structure.gold[0]);
+  await page.getByRole('button',{name:/Group details in a hall review/}).click();
+  await workshop(page,structureR1.gold[0]);
   await page.getByRole('button',{name:'Next Gold task →'}).press('Enter');
-  await workshop(page,pathways.structure.gold[1]);
+  await workshop(page,structureR1.gold[1]);
+  if(width===1440){
+   for(const challenge of structureR1.practice){
+    await page.locator('.wa-practise-card').filter({hasText:challenge.title}).click();
+    for(const item of challenge.items){
+     const check=page.getByRole('button',{name:'Check answer',exact:true});
+     if(await check.isVisible()){
+      for(const option of [item.answer].flat())await page.locator('[data-option="'+option+'"]').click();
+      await check.click();
+      assert.equal(await page.locator('.wa-practise-question .wa-answer').getAttribute('data-result'),'correct');
+     }
+     await page.getByRole('button',{name:/^(Next question|Finish analysis)$/}).click();
+    }
+   }
+   await page.locator('.wa-stage-tab[data-stage=practise][data-complete=true]').waitFor();
+  }
   await go('apply');
-  const applied=await workshop(page,pathways.structure.apply[0]);
+  const applied=await workshop(page,structureR1.apply[0]);
   await go('master');
   await go('apply');
   assert.equal(await page.getByRole('textbox',{name:'Revise your response'}).inputValue(),applied);
   await captureStage(page,'Apply','stage-practise',width,height);
+  if(width===1440){
+   for(const task of structureR1.apply.slice(1)){
+    await page.getByRole('button',{name:'Next task →'}).click();
+    await workshop(page,task);
+   }
+   await page.locator('.wa-stage-tab[data-stage=apply][data-complete=true]').waitFor();
+  }
   await go('master');
   await captureStage(page,'Master','stage-master',width,height);
-  await finishAnalysis(page,pathways.structure.analysis);
-  await workshop(page,pathways.structure.master);
+  await finishAnalysis(page,structureR1.analysis);
+  await workshop(page,structureR1.master);
+  if(width===1440)assert.match(await page.locator('.wa-stage-progress').innerText(),/^5 of 5 stages completed/);
   await page.getByText('Write a full review in Writing Studio',{exact:true}).click();
   await page.getByRole('button',{name:'Open Writing Studio →'}).click();
   const companion = page.locator('.wa-companion');
@@ -600,6 +663,13 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await page.goto('http://127.0.0.1:8765/review-academy-recovery.html');
   await page.locator('.wa-path').last().waitFor();
   await checkHomeCardArtwork(page);
+  await page.locator('.wa-path.wa-structure button').click();
+  await go('discover');
+  assert.match(await page.locator('.wa-recognition-feedback').innerText(),/Completed with an explanation/);
+  await go('explore');
+  assert.match(await page.locator('.wa-recognition-feedback').innerText(),/Correct on your first try/);
+  await capture(page,'recovery-structure-explore',width,height);
+  await page.getByRole('button',{name:'All pathways'}).click();
   await page.getByRole('button',{name:'Open Writing Studio →'}).click();
   await page.locator('.wa-workspace').waitFor();
   assert.deepEqual(errors,[]);
@@ -614,8 +684,8 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
  const card=resumePage.locator('.wa-path.wa-structure');
  await resumePage.goto(preview);
  await card.getByRole('button',{name:'Start pathway →'}).click();
- await resumePage.locator('.wa-discovery textarea').fill('The opening gives useful details.');
- await resumePage.getByRole('button',{name:'Check what changed'}).click();
+ await resumePage.locator('[data-option-id=second]').click();
+ await resumePage.getByRole('button',{name:'Check answer',exact:true}).click();
  await resumePage.locator('.wa-stage-tab[data-stage="apply"]').click();
  await resumePage.locator('.wa-apply-desk textarea').fill('My workshop draft survives a reload.');
  await resumePage.getByRole('button',{name:'All pathways'}).click();
@@ -626,12 +696,11 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
  assert.equal(await resumePage.locator('.wa-stage-tab[aria-current="step"]').getAttribute('data-stage'),'apply');
  assert.equal(await resumePage.locator('.wa-apply-desk textarea').inputValue(),'My workshop draft survives a reload.');
  await resumePage.locator('.wa-stage-tab[data-stage="discover"]').click();
- assert.equal(await resumePage.locator('.wa-discovery textarea').inputValue(),'The opening gives useful details.');
- assert.equal(await resumePage.locator('.wa-discovery textarea').getAttribute('readonly'),'');
+ assert.match(await resumePage.locator('.wa-recognition-feedback').innerText(),/Correct on your first try/);
  account='other-staff';
  await resumePage.goto(preview);
  await card.getByRole('button',{name:'Start pathway →'}).click();
- assert.equal(await resumePage.locator('.wa-discovery textarea').inputValue(),'');
+ assert.equal(await resumePage.locator('.wa-recognition-feedback').innerText(),'');
  await resumePage.close();
  for (const entry of ['review-academy-preview.html','review-academy-recovery.html'])
  for (const profile of [null,{active:true,role:'student'},{active:false,role:'teacher'},{active:true,role:'admin',must_change_password:true}]) {
