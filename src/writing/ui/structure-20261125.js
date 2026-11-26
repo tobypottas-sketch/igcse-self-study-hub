@@ -1,7 +1,7 @@
 import {structureR1} from '../content/review-structure-r1.js';
 import {structureDiscover,structureExplore} from '../content/review-structure-recognition.js';
 import {recognitionRun,recognitionResult} from '../engine/recognition.js';
-import {renderRecognition} from './recognition-question.js';
+import {renderRecognition} from './recognition-question.js?v=2';
 import {capturePreview,restorePreview} from '../engine/preview-progress.js?v=2';
 import {exam,examModels,examMocks,modelContext} from '../content/review-exam-20261125.js?v=2';
 import {newExamAttempt} from '../engine/exam-attempt.js';
@@ -19,6 +19,731 @@ import {newWritingRun,renderResponseWorkshop} from './response-workshop.js?v=4';
 import {guidedTask,independentTask,toolkit} from '../content/review-guided-v1.js';
 import {blueprint,model} from '../content/review-structure-v1.js';
 import {scoreItem,validateActivities,shuffledIndexes,hasWritingAttempt,writingComplete} from '../engine/activities.js?v=3';
+
+// Explicit presentation-only splits of reviewed curriculum prompts; original text and IDs remain intact.
+const questionPresentation = new Map([
+ [
+  "Groups can book seats together online. They can see the row letters from the entrance, and a member of staff helps them find their seats. Which heading fits all three details?",
+  [
+   "Groups can book seats together online. They can see the row letters from the entrance, and a member of staff helps them find their seats.",
+   "Which heading fits all three details?"
+  ]
+ ],
+ [
+  "Beginners can try kayaking without buying equipment. Which detail supports this point?",
+  [
+   "Beginners can try kayaking without buying equipment.",
+   "Which detail supports this point?"
+  ]
+ ],
+ [
+  "The coach shows beginners what to do, lets them practise and gives each person advice. Which first sentence fits all three details?",
+  [
+   "The coach shows beginners what to do, lets them practise and gives each person advice.",
+   "Which first sentence fits all three details?"
+  ]
+ ],
+ [
+  "Can students visit after school? What will they learn? The gallery is near a bus stop, closes at five, has student guides and lets visitors handle copies of old tools. Which plan groups the details best?",
+  [
+   "Can students visit after school? What will they learn? The gallery is near a bus stop, closes at five, has student guides and lets visitors handle copies of old tools.",
+   "Which plan groups the details best?"
+  ]
+ ],
+ [
+  "A theatre offers discounted tickets, captions at evening shows, a free programme and clear sound from the speakers. Which plan separates value for money from following the dialogue?",
+  [
+   "A theatre offers discounted tickets, captions at evening shows, a free programme and clear sound from the speakers.",
+   "Which plan separates value for money from following the dialogue?"
+  ]
+ ],
+ [
+  "One paragraph covers studying at a café: quiet seats, sockets and dim lighting. The next covers food prices. Where should you mention that visitors can borrow lamps?",
+  [
+   "One paragraph covers studying at a café: quiet seats, sockets and dim lighting. The next covers food prices.",
+   "Where should you mention that visitors can borrow lamps?"
+  ]
+ ],
+ [
+  "“You can borrow a racket at reception. The court lights are bright enough for evening practice. A deposit is returned when you bring the racket back.” Where should the sentence about the lights go?",
+  [
+   "“You can borrow a racket at reception. The court lights are bright enough for evening practice. A deposit is returned when you bring the racket back.”",
+   "Where should the sentence about the lights go?"
+  ]
+ ],
+ [
+  "“The tutor explained the controls clearly. The entrance costs ¥30. We then managed to operate the camera independently.” Where should the price go?",
+  [
+   "“The tutor explained the controls clearly. The entrance costs ¥30. We then managed to operate the camera independently.”",
+   "Where should the price go?"
+  ]
+ ],
+ [
+  "“I recommend the café to students in a hurry. Our takeaway order arrived in five minutes. The seats beside the window were comfortable.” Which edit makes the advice more useful for students in a hurry?",
+  [
+   "“I recommend the café to students in a hurry. Our takeaway order arrived in five minutes. The seats beside the window were comfortable.”",
+   "Which edit makes the advice more useful for students in a hurry?"
+  ]
+ ],
+ [
+  "A paragraph explains that the museum's labels are clear but its map is confusing. The next paragraph starts “This makes it ideal for first-time visitors.” Which change gives first-time visitors the clearest advice?",
+  [
+   "A paragraph explains that the museum's labels are clear but its map is confusing. The next paragraph starts “This makes it ideal for first-time visitors.”",
+   "Which change gives first-time visitors the clearest advice?"
+  ]
+ ],
+ [
+  "The notes cover booking seats, seeing the stage, collecting tickets and hearing the actors. Which plan separates booking from watching the show?",
+  [
+   "The notes cover booking seats, seeing the stage, collecting tickets and hearing the actors.",
+   "Which plan separates booking from watching the show?"
+  ]
+ ],
+ [
+  "Seats can be booked together online. At the venue, row letters are visible from the entrance, and an usher directs groups to their seats. Which heading fits all three details?",
+  [
+   "Seats can be booked together online. At the venue, row letters are visible from the entrance, and an usher directs groups to their seats.",
+   "Which heading fits all three details?"
+  ]
+ ],
+ [
+  "A paragraph argues that beginners can start kayaking without buying equipment. Which detail belongs with that argument?",
+  [
+   "A paragraph argues that beginners can start kayaking without buying equipment.",
+   "Which detail belongs with that argument?"
+  ]
+ ],
+ [
+  "Your school review answers two questions: Can we get there after lessons? What will we learn? A gallery is near the bus stop, closes at five, uses student guides and has replica tools you can handle. What grouping answers both questions?",
+  [
+   "Your school review answers two questions: Can we get there after lessons? What will we learn? A gallery is near the bus stop, closes at five, uses student guides and has replica tools you can handle.",
+   "What grouping answers both questions?"
+  ]
+ ],
+ [
+  "“You can borrow a racket at reception. The court lights are bright enough for evening practice. A deposit is returned when you bring the racket back.” Where should the middle sentence go if this paragraph explains how to borrow equipment?",
+  [
+   "“You can borrow a racket at reception. The court lights are bright enough for evening practice. A deposit is returned when you bring the racket back.”",
+   "Where should the middle sentence go if this paragraph explains how to borrow equipment?"
+  ]
+ ],
+ [
+  "A review of a school theatre includes reserving seats, sightlines, collecting tickets and hearing dialogue. Which split helps readers plan a group visit and judge the experience?",
+  [
+   "A review of a school theatre includes reserving seats, sightlines, collecting tickets and hearing dialogue.",
+   "Which split helps readers plan a group visit and judge the experience?"
+  ]
+ ],
+ [
+  "The seat was firm and kept my back upright. Which word most specifically describes that effect?",
+  [
+   "The seat was firm and kept my back upright.",
+   "Which word most specifically describes that effect?"
+  ]
+ ],
+ [
+  "The lights dim slowly from bright white to almost nothing. Which word describes the change itself?",
+  [
+   "The lights dim slowly from bright white to almost nothing.",
+   "Which word describes the change itself?"
+  ]
+ ],
+ [
+  "Complete the review sentence with the usual phrase for a performance that affected you emotionally. “It was a ___ moving performance.”",
+  [
+   "“It was a ___ moving performance.”",
+   "Complete the review sentence with the usual phrase for a performance that affected you emotionally."
+  ]
+ ],
+ [
+  "The room became busier over twenty minutes. Which verb is the natural choice for the process? “The room gradually ___.”",
+  [
+   "The room became busier over twenty minutes. “The room gradually ___.”",
+   "Which verb is the natural choice for the process?"
+  ]
+ ],
+ [
+  "“We could hear some dialogue from the back, but quieter lines were hard to catch.” Which edit keeps the extent of the problem?",
+  [
+   "“We could hear some dialogue from the back, but quieter lines were hard to catch.”",
+   "Which edit keeps the extent of the problem?"
+  ]
+ ],
+ [
+  "Your school magazine addresses students directly in a friendly, measured voice. Which ending best fits that voice while keeping the advice conditional?",
+  [
+   "Your school magazine addresses students directly in a friendly, measured voice.",
+   "Which ending best fits that voice while keeping the advice conditional?"
+  ]
+ ],
+ [
+  "“At peak times, the tour commentary was difficult to hear near the entrance.” Which edit changes how strongly the writer criticises the sound while keeping the same time and place?",
+  [
+   "“At peak times, the tour commentary was difficult to hear near the entrance.”",
+   "Which edit changes how strongly the writer criticises the sound while keeping the same time and place?"
+  ]
+ ],
+ [
+  "You argue that the climbing session made beginners feel safe. Which observation best supports that judgement?",
+  [
+   "You argue that the climbing session made beginners feel safe.",
+   "Which observation best supports that judgement?"
+  ]
+ ],
+ [
+  "You call the museum layout easy to follow. Which observation best lets the reader check your claim about finding the next room?",
+  [
+   "You call the museum layout easy to follow.",
+   "Which observation best lets the reader check your claim about finding the next room?"
+  ]
+ ],
+ [
+  "A film club posts the running time and finishing time of each screening. Your readers catch the last bus at different times. Which explanation develops the most relevant impact?",
+  [
+   "A film club posts the running time and finishing time of each screening. Your readers catch the last bus at different times.",
+   "Which explanation develops the most relevant impact?"
+  ]
+ ],
+ [
+  "At a festival, the bands kept the crowd dancing, but visitors queued half an hour for water in the midday heat. Which sentence explains a specific impact of both observations?",
+  [
+   "At a festival, the bands kept the crowd dancing, but visitors queued half an hour for water in the midday heat.",
+   "Which sentence explains a specific impact of both observations?"
+  ]
+ ],
+ [
+  "A free robotics showcase lends kits. The demonstration starts at 4:30 and the practical session starts at 5:15. Your readers can leave school at four but need to catch a 5:30 bus. Which recommendation best fits the activities these students have time to do before their bus?",
+  [
+   "A free robotics showcase lends kits. The demonstration starts at 4:30 and the practical session starts at 5:15. Your readers can leave school at four but need to catch a 5:30 bus.",
+   "Which recommendation best fits the activities these students have time to do before their bus?"
+  ]
+ ],
+ [
+  "The paragraph evaluates how easily visitors can find their way around a library. Which detail belongs with that focus?",
+  [
+   "The paragraph evaluates how easily visitors can find their way around a library.",
+   "Which detail belongs with that focus?"
+  ]
+ ],
+ [
+  "A review paragraph explains how the sports club helps nervous beginners. Which topic sentence covers a demonstration, a short practice and individual advice?",
+  [
+   "A review paragraph explains how the sports club helps nervous beginners.",
+   "Which topic sentence covers a demonstration, a short practice and individual advice?"
+  ]
+ ],
+ [
+  "A student review must evaluate a theatre's ticket value and suitability for viewers with hearing difficulties. Notes: discounted tickets, captions at evening shows, free programme, clear speakers. Which organisation best answers both requirements?",
+  [
+   "A student review must evaluate a theatre's ticket value and suitability for viewers with hearing difficulties. Notes: discounted tickets, captions at evening shows, free programme, clear speakers.",
+   "Which organisation best answers both requirements?"
+  ]
+ ],
+ [
+  "Your review describes a photography course and evaluates its teaching. Which plan gives the evaluation a clear purpose?",
+  [
+   "Your review describes a photography course and evaluates its teaching.",
+   "Which plan gives the evaluation a clear purpose?"
+  ]
+ ],
+ [
+  "A paragraph evaluates a café's suitability for revision: quiet seating, sockets and dim lighting. The next paragraph evaluates food prices. Where should the observation that lamps can be borrowed go?",
+  [
+   "A paragraph evaluates a café's suitability for revision: quiet seating, sockets and dim lighting. The next paragraph evaluates food prices.",
+   "Where should the observation that lamps can be borrowed go?"
+  ]
+ ],
+ [
+  "“The tutor explained the controls clearly. The entrance costs ¥30. We then managed to operate the camera independently.” Which edit best restores the teaching paragraph's flow?",
+  [
+   "“The tutor explained the controls clearly. The entrance costs ¥30. We then managed to operate the camera independently.”",
+   "Which edit best restores the teaching paragraph's flow?"
+  ]
+ ],
+ [
+  "“I recommend the café to students in a hurry. Our takeaway order arrived in five minutes. The seats beside the window were comfortable.” Which ending best follows the stated reason?",
+  [
+   "“I recommend the café to students in a hurry. Our takeaway order arrived in five minutes. The seats beside the window were comfortable.”",
+   "Which ending best follows the stated reason?"
+  ]
+ ],
+ [
+  "A paragraph explains that the museum's labels are clear but its map is confusing. The next paragraph starts “This makes it ideal for first-time visitors.” What should the editor do?",
+  [
+   "A paragraph explains that the museum's labels are clear but its map is confusing. The next paragraph starts “This makes it ideal for first-time visitors.”",
+   "What should the editor do?"
+  ]
+ ],
+ [
+  "The coach noticed my mistake and suggested a small change that immediately helped. Which adjective best describes that feedback?",
+  [
+   "The coach noticed my mistake and suggested a small change that immediately helped.",
+   "Which adjective best describes that feedback?"
+  ]
+ ],
+ [
+  "The bread broke with a light crunch but was not hard to bite. Which description is most precise?",
+  [
+   "The bread broke with a light crunch but was not hard to bite.",
+   "Which description is most precise?"
+  ]
+ ],
+ [
+  "“Two exhibits were out of order during my visit.” Which edit preserves the scope and time?",
+  [
+   "“Two exhibits were out of order during my visit.”",
+   "Which edit preserves the scope and time?"
+  ]
+ ],
+ [
+  "“The guide occasionally spoke too quickly for me.” Which revision keeps the criticism measured?",
+  [
+   "“The guide occasionally spoke too quickly for me.”",
+   "Which revision keeps the criticism measured?"
+  ]
+ ],
+ [
+  "“Students can borrow a tablet for up to an hour.” Which rewrite retains the limit?",
+  [
+   "“Students can borrow a tablet for up to an hour.”",
+   "Which rewrite retains the limit?"
+  ]
+ ],
+ [
+  "A school magazine wants friendly but fair advice. Which sentence criticises crowded seating without attacking staff?",
+  [
+   "A school magazine wants friendly but fair advice.",
+   "Which sentence criticises crowded seating without attacking staff?"
+  ]
+ ],
+ [
+  "You argue that a film makes its friendship believable. Which observation best supports that judgement?",
+  [
+   "You argue that a film makes its friendship believable.",
+   "Which observation best supports that judgement?"
+  ]
+ ],
+ [
+  "You think a café offers good value for students. Which detail best supports that judgement?",
+  [
+   "You think a café offers good value for students.",
+   "Which detail best supports that judgement?"
+  ]
+ ],
+ [
+  "You argue that a game is accessible to beginners. Which observation best supports the claim?",
+  [
+   "You argue that a game is accessible to beginners.",
+   "Which observation best supports the claim?"
+  ]
+ ],
+ [
+  "You describe a concert's sound as clear. Which observation gives the most specific evidence?",
+  [
+   "You describe a concert's sound as clear.",
+   "Which observation gives the most specific evidence?"
+  ]
+ ],
+ [
+  "You claim that a workshop gives individual support. Which observation makes this claim concrete?",
+  [
+   "You claim that a workshop gives individual support.",
+   "Which observation makes this claim concrete?"
+  ]
+ ],
+ [
+  "You claim that an exhibition is interactive. Which detail most clearly demonstrates that?",
+  [
+   "You claim that an exhibition is interactive.",
+   "Which detail most clearly demonstrates that?"
+  ]
+ ],
+ [
+  "A café serves takeaway meals in five minutes. Your readers have a twenty-minute lunch break. Which explanation develops the most relevant impact?",
+  [
+   "A café serves takeaway meals in five minutes. Your readers have a twenty-minute lunch break.",
+   "Which explanation develops the most relevant impact?"
+  ]
+ ],
+ [
+  "A museum includes written instructions beside each experiment. Which explanation best develops the benefit for visitors exploring without a guide?",
+  [
+   "A museum includes written instructions beside each experiment.",
+   "Which explanation best develops the benefit for visitors exploring without a guide?"
+  ]
+ ],
+ [
+  "A game saves progress after every short level. Your readers often play while travelling. Which development is most useful?",
+  [
+   "A game saves progress after every short level. Your readers often play while travelling.",
+   "Which development is most useful?"
+  ]
+ ],
+ [
+  "A £12 workshop includes tools, but participants share benches. Which evaluation weighs both facts for beginners?",
+  [
+   "A £12 workshop includes tools, but participants share benches.",
+   "Which evaluation weighs both facts for beginners?"
+  ]
+ ],
+ [
+  "A film has believable characters but a slow middle section. Which recommendation develops the balance for student readers?",
+  [
+   "A film has believable characters but a slow middle section.",
+   "Which recommendation develops the balance for student readers?"
+  ]
+ ],
+ [
+  "A free festival offers beginner sessions that fill within fifteen minutes. Which recommendation uses both observations?",
+  [
+   "A free festival offers beginner sessions that fill within fifteen minutes.",
+   "Which recommendation uses both observations?"
+  ]
+ ],
+ [
+  "The exhibition was informative, but some explanations were difficult. Which rewrite keeps that relationship?",
+  [
+   "The exhibition was informative, but some explanations were difficult.",
+   "Which rewrite keeps that relationship?"
+  ]
+ ],
+ [
+  "The cinema seats were comfortable. You are adding a second strength. Which ending expresses that?",
+  [
+   "The cinema seats were comfortable. You are adding a second strength.",
+   "Which ending expresses that?"
+  ]
+ ],
+ [
+  "The instructions included diagrams. Beginners used them to finish on their own. Which version gives the reason first and punctuates it accurately?",
+  [
+   "The instructions included diagrams. Beginners used them to finish on their own.",
+   "Which version gives the reason first and punctuates it accurately?"
+  ]
+ ],
+ [
+  "You want to start the second sentence with “However”. Which version uses clear sentence boundaries?",
+  [
+   "You want to start the second sentence with “However”.",
+   "Which version uses clear sentence boundaries?"
+  ]
+ ],
+ [
+  "You visited the sports centre last Saturday. Beginner classes are still available. Which version makes both facts clear?",
+  [
+   "You visited the sports centre last Saturday. Beginner classes are still available.",
+   "Which version makes both facts clear?"
+  ]
+ ],
+ [
+  "A queue took a while to get through, but it kept moving. Which option expresses these observations in two correctly punctuated sentences?",
+  [
+   "A queue took a while to get through, but it kept moving.",
+   "Which option expresses these observations in two correctly punctuated sentences?"
+  ]
+ ],
+ [
+  "The guide described two displays. Only the space display lets visitors touch replicas. Which line makes that detail clear?",
+  [
+   "The guide described two displays. Only the space display lets visitors touch replicas.",
+   "Which line makes that detail clear?"
+  ]
+ ],
+ [
+  "In your review of the festival programme, you are describing what its range of activities does now. Which sentence agrees with its subject?",
+  [
+   "In your review of the festival programme, you are describing what its range of activities does now.",
+   "Which sentence agrees with its subject?"
+  ]
+ ],
+ [
+  "The cinema offers discounted tickets before midday. Students with morning lessons usually cannot use them. Which rewrite preserves all three details?",
+  [
+   "The cinema offers discounted tickets before midday. Students with morning lessons usually cannot use them.",
+   "Which rewrite preserves all three details?"
+  ]
+ ],
+ [
+  "Only the courses that include coaching cost extra. The other courses are included. Which sentence keeps the restriction?",
+  [
+   "Only the courses that include coaching cost extra. The other courses are included.",
+   "Which sentence keeps the restriction?"
+  ]
+ ],
+ [
+  "The bus stopped outside the venue. This saved us a walk. We arrived before doors opened. Which combined version preserves the cause given in the notes?",
+  [
+   "The bus stopped outside the venue. This saved us a walk. We arrived before doors opened.",
+   "Which combined version preserves the cause given in the notes?"
+  ]
+ ],
+ [
+  "The reviewer liked the clear sound even though the stage was hard to see. Which rewrite retains that evaluation and uses “despite” accurately?",
+  [
+   "The reviewer liked the clear sound even though the stage was hard to see.",
+   "Which rewrite retains that evaluation and uses “despite” accurately?"
+  ]
+ ],
+ [
+  "The café has a lunch deal and a takeaway service. This is useful for students who eat on the way back to school. Which edit makes clear that only takeaway helps them eat on the move?",
+  [
+   "The café has a lunch deal and a takeaway service. This is useful for students who eat on the way back to school.",
+   "Which edit makes clear that only takeaway helps them eat on the move?"
+  ]
+ ],
+ [
+  "The instructor showed us the controls. Moreover, we could try the first level independently. You want to say the demonstration enabled this. Which edit does that?",
+  [
+   "The instructor showed us the controls. Moreover, we could try the first level independently. You want to say the demonstration enabled this.",
+   "Which edit does that?"
+  ]
+ ],
+ [
+  "On yesterday’s tour, the guide showed us the old engine, it was still warm. Which revision repairs the boundary while preserving what happened?",
+  [
+   "On yesterday’s tour, the guide showed us the old engine, it was still warm.",
+   "Which revision repairs the boundary while preserving what happened?"
+  ]
+ ],
+ [
+  "The lift was slow. The lift stopped at every floor. The display upstairs was easy to follow. Which revision links the observations about the lift and clearly signals the move to the display?",
+  [
+   "The lift was slow. The lift stopped at every floor. The display upstairs was easy to follow.",
+   "Which revision links the observations about the lift and clearly signals the move to the display?"
+  ]
+ ],
+ [
+  "An outdoor film screening includes blankets in the ticket price. They helped you stay comfortable in the cold, but the screen was difficult to see from some seats. Which edit preserves those relationships and the scope of the criticism?",
+  [
+   "An outdoor film screening includes blankets in the ticket price. They helped you stay comfortable in the cold, but the screen was difficult to see from some seats.",
+   "Which edit preserves those relationships and the scope of the criticism?"
+  ]
+ ],
+ [
+  "“I enjoyed the sports centre. It was excellent.” What is the main weakness for readers deciding whether to go?",
+  [
+   "“I enjoyed the sports centre. It was excellent.”",
+   "What is the main weakness for readers deciding whether to go?"
+  ]
+ ],
+ [
+  "“The café sells a lunch set and offers takeaway. It fits easily into a short break.” What should the writer clarify?",
+  [
+   "“The café sells a lunch set and offers takeaway. It fits easily into a short break.”",
+   "What should the writer clarify?"
+  ]
+ ],
+ [
+  "“We waited ten minutes for a table. The wait for a table took ten minutes.” What is the most useful diagnosis?",
+  [
+   "“We waited ten minutes for a table. The wait for a table took ten minutes.”",
+   "What is the most useful diagnosis?"
+  ]
+ ],
+ [
+  "A school newsletter uses a friendly, neutral voice. Which weakness is clearest in “Only a complete fool would skip this exhibition”?",
+  [
+   "A school newsletter uses a friendly, neutral voice.",
+   "Which weakness is clearest in “Only a complete fool would skip this exhibition”?"
+  ]
+ ],
+ [
+  "“The exhibition was interesting.” You controlled a model spacecraft. Which edit supports the judgement using the supplied observation?",
+  [
+   "“The exhibition was interesting.” You controlled a model spacecraft.",
+   "Which edit supports the judgement using the supplied observation?"
+  ]
+ ],
+ [
+  "Only the guide, rather than the driver, answered visitors’ questions. Which edit makes the reference in “They answered our questions clearly” precise?",
+  [
+   "Only the guide, rather than the driver, answered visitors’ questions.",
+   "Which edit makes the reference in “They answered our questions clearly” precise?"
+  ]
+ ],
+ [
+  "The café was noisy only when the lunch queue was long. Which edit gives students useful advice without overstating the drawback?",
+  [
+   "The café was noisy only when the lunch queue was long.",
+   "Which edit gives students useful advice without overstating the drawback?"
+  ]
+ ],
+ [
+  "“The guide was really nice.” The guide demonstrated each step twice for beginners. Which edit makes the praise more precise?",
+  [
+   "“The guide was really nice.” The guide demonstrated each step twice for beginners.",
+   "Which edit makes the praise more precise?"
+  ]
+ ],
+ [
+  "The task asks about food, value and a recommendation. The draft covers food and recommends the café but omits value. Which action should come first?",
+  [
+   "The task asks about food, value and a recommendation. The draft covers food and recommends the café but omits value.",
+   "Which action should come first?"
+  ]
+ ],
+ [
+  "Your school website asks who would enjoy a book. The review explains why the short chapters are easy to follow, but ends “Everyone should read it.” Which change should come first?",
+  [
+   "Your school website asks who would enjoy a book. The review explains why the short chapters are easy to follow, but ends “Everyone should read it.”",
+   "Which change should come first?"
+  ]
+ ],
+ [
+  "A strong review covers the brief, uses evidence and offers a supported recommendation. Twice, the writer uses only a comma to join two complete sentences. This makes the main opinion hard to follow. What should the writer fix first?",
+  [
+   "A strong review covers the brief, uses evidence and offers a supported recommendation. Twice, the writer uses only a comma to join two complete sentences. This makes the main opinion hard to follow.",
+   "What should the writer fix first?"
+  ]
+ ],
+ [
+  "The review has useful evidence, but one paragraph groups wheelchair access with ticket value and another splits the access details. Readers primarily need to decide whether the venue suits them. What should you do first?",
+  [
+   "The review has useful evidence, but one paragraph groups wheelchair access with ticket value and another splits the access details. Readers primarily need to decide whether the venue suits them.",
+   "What should you do first?"
+  ]
+ ],
+ [
+  "Drinks took twenty minutes, but food arrived quickly. The café may not suit students on very short lunch breaks. Which edit keeps both timing facts and still gives practical advice to students with short breaks?",
+  [
+   "Drinks took twenty minutes, but food arrived quickly. The café may not suit students on very short lunch breaks.",
+   "Which edit keeps both timing facts and still gives practical advice to students with short breaks?"
+  ]
+ ],
+ [
+  "At an outdoor play, the actors were audible from your seat, but the last scene was hard to see. Which revision keeps the criticism to what you could actually see from your seat in the last scene?",
+  [
+   "At an outdoor play, the actors were audible from your seat, but the last scene was hard to see.",
+   "Which revision keeps the criticism to what you could actually see from your seat in the last scene?"
+  ]
+ ],
+ [
+  "The guide demonstrated a repair. You then repeated it using borrowed tools. Which edit develops the evaluation without changing the sequence or the cause?",
+  [
+   "The guide demonstrated a repair. You then repeated it using borrowed tools.",
+   "Which edit develops the evaluation without changing the sequence or the cause?"
+  ]
+ ],
+ [
+  "Tickets are £12 and a second visit is free during the same week. One visit is enough for casual visitors, but enthusiasts may want to return. Which school-magazine edit makes the most accurate recommendation about value?",
+  [
+   "Tickets are £12 and a second visit is free during the same week. One visit is enough for casual visitors, but enthusiasts may want to return.",
+   "Which school-magazine edit makes the most accurate recommendation about value?"
+  ]
+ ],
+ [
+  "Your school website asks you to review a bicycle repair workshop, evaluate what beginners learned and recommend it to a suitable student. The draft says: “The tutor showed us how to patch a tube. Then we worked in pairs. It was great. The room was quite bright; the tables were big. I would recommend it to most people.” Notes: students practised finding a leak before applying a patch. Which first edit best addresses the main gap?",
+  [
+   "Your school website asks you to review a bicycle repair workshop, evaluate what beginners learned and recommend it to a suitable student. The draft says: “The tutor showed us how to patch a tube. Then we worked in pairs. It was great. The room was quite bright; the tables were big. I would recommend it to most people.” Notes: students practised finding a leak before applying a patch.",
+   "Which first edit best addresses the main gap?"
+  ]
+ ],
+ [
+  "School website: Review a holiday sports workshop. Describe the activities, evaluate coaching and explain who would benefit. Which plan covers the task?",
+  [
+   "School website: Review a holiday sports workshop. Describe the activities, evaluate coaching and explain who would benefit.",
+   "Which plan covers the task?"
+  ]
+ ],
+ [
+  "School magazine: Review a film and explain whether it suits younger viewers. Which reader need should drive the judgement?",
+  [
+   "School magazine: Review a film and explain whether it suits younger viewers.",
+   "Which reader need should drive the judgement?"
+  ]
+ ],
+ [
+  "School blog: Review a café for students meeting after lessons. Identify the purpose most closely.",
+  [
+   "School blog: Review a café for students meeting after lessons.",
+   "Identify the purpose most closely."
+  ]
+ ],
+ [
+  "Review an adventure game. Describe its gameplay and evaluate how suitable it is for beginners. What must the response include?",
+  [
+   "Review an adventure game. Describe its gameplay and evaluate how suitable it is for beginners.",
+   "What must the response include?"
+  ]
+ ],
+ [
+  "Review a film for the school website. Outline the premise, evaluate acting and pace, and identify suitable viewers. Which plan is most manageable?",
+  [
+   "Review a film for the school website. Outline the premise, evaluate acting and pace, and identify suitable viewers.",
+   "Which plan is most manageable?"
+  ]
+ ],
+ [
+  "Review a market. Describe available food, evaluate cost and recommend it to suitable visitors. Which plan supports the verdict?",
+  [
+   "Review a market. Describe available food, evaluate cost and recommend it to suitable visitors.",
+   "Which plan supports the verdict?"
+  ]
+ ],
+ [
+  "Review an outdoor event. Explain what you did, evaluate organisation and recommend it. Which plan gives an opinion about how the event was organised and uses that opinion to give practical advice?",
+  [
+   "Review an outdoor event. Explain what you did, evaluate organisation and recommend it.",
+   "Which plan gives an opinion about how the event was organised and uses that opinion to give practical advice?"
+  ]
+ ],
+ [
+  "Review a book for classmates. Describe its subject, evaluate its accessibility and say who might enjoy it. Which plan uses the word range wisely?",
+  [
+   "Review a book for classmates. Describe its subject, evaluate its accessibility and say who might enjoy it.",
+   "Which plan uses the word range wisely?"
+  ]
+ ],
+ [
+  "Your 135-word review covers activities and facilities, but the task also asks who would benefit. What should you do with little time left?",
+  [
+   "Your 135-word review covers activities and facilities, but the task also asks who would benefit.",
+   "What should you do with little time left?"
+  ]
+ ],
+ [
+  "You are at 174 words. Your review repeats a description of the café and includes one unique detail that supports its value. What is the best cut?",
+  [
+   "You are at 174 words. Your review repeats a description of the café and includes one unique detail that supports its value.",
+   "What is the best cut?"
+  ]
+ ],
+ [
+  "Your ending says the film suits teenagers, but you have time to make one edit. The review explains the short running time and simple mystery. Which edit is most useful?",
+  [
+   "Your ending says the film suits teenagers, but you have time to make one edit. The review explains the short running time and simple mystery.",
+   "Which edit is most useful?"
+  ]
+ ],
+ [
+  "You have a complete draft, but two long sentences make its main evaluation difficult to follow. What should you prioritise?",
+  [
+   "You have a complete draft, but two long sentences make its main evaluation difficult to follow.",
+   "What should you prioritise?"
+  ]
+ ],
+ [
+  "A student website asks you to review a holiday art course, evaluate teaching and recommend it. Which content must your plan include?",
+  [
+   "A student website asks you to review a holiday art course, evaluate teaching and recommend it.",
+   "Which content must your plan include?"
+  ]
+ ],
+ [
+  "The draft already describes the art course, but ends “Everyone should try it.” What should the writer change first to answer what the task asks about the readers?",
+  [
+   "The draft already describes the art course, but ends “Everyone should try it.”",
+   "What should the writer change first to answer what the task asks about the readers?"
+  ]
+ ]
+]);
+function renderQuestionPrompt(host,item,preview){
+ const parts=preview?questionPresentation.get(item.prompt):null;
+ if(parts) el(host,'p','wa-question-source',parts[0]);
+ const heading=el(host,'h3','wa-question-prompt',parts?parts[1]:item.prompt);
+ if(preview) heading.classList.add('wa-question-clear');
+ return heading;
+}
 
 function add(p,tag,cls,t){const n=p.ownerDocument.createElement(tag);n.className=cls||'';if(t)n.textContent=t;p.append(n);return n;}
 function button(p,t,fn){const n=add(p,'button','wa-action',t);n.type='button';n.addEventListener('click',fn);return n;}
@@ -124,7 +849,7 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
    const ordered=a.type==='order';
    const display=run.displays[run.index];
    el(host,'p','wa-muted','Question '+(run.index+1)+' of '+a.items.length);
-   const prompt=el(host,'h3','wa-question-prompt',item.prompt);
+   const prompt=renderQuestionPrompt(host,item,!!progress);
    prompt.tabIndex=-1;
    const options=el(host,'div','wa-options');
    const feedback=el(host,'div','wa-answer');
