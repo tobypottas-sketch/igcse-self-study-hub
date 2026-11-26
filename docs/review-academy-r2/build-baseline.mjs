@@ -115,7 +115,9 @@ for (const file of readdirSync(reviewDir).sort().filter(name => name.endsWith('.
 const pending = {};
 const dispositionCounts = {};
 for (const row of rows) {
-  const review = reviews.get(row.questionId);
+  const qualifiedId = row.pathway + '/' + row.questionId;
+  const reviewId = reviews.has(qualifiedId) ? qualifiedId : row.questionId;
+  const review = reviews.get(reviewId);
   const stage = (dispositionCounts[row.pathway] ??= {})[row.stage] ??= {};
   const status = review?.disposition ?? 'inventoried';
   stage[status] = (stage[status] ?? 0) + 1;
@@ -128,7 +130,7 @@ for (const row of rows) {
       blindAgreement: keyedLetters === null ? null : review.blindAnswer === keyedLetters,
     };
     row.verificationStatus = 'individually reviewed';
-    reviews.delete(row.questionId);
+    reviews.delete(reviewId);
   } else {
     const pathway = pending[row.pathway] ??= {};
     (pathway[row.stage] ??= []).push(row.questionId);
