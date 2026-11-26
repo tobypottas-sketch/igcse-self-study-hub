@@ -6,7 +6,7 @@ const card=(id,level,title,items)=>({id:'exam-'+id,level,title,type:'choice',ite
 const prompt=(context,requirements)=>context+' '+requirements+' Write 120–160 words.';
 const review=(id,title,context,requirements,example)=>({version:1, id,title,prompt:prompt(context,requirements),example});
 const planChecks=['I identified the audience and purpose.','My notes cover the required content with relevant ideas.','I planned two judgements with evidence and a supported recommendation.','The sequence is manageable in 120–160 words.'];
-const plan=(id, title,context,requirements,example)=>({id, version:1, title,prompt:prompt(context,requirements),question:'Use short notes or bullets. Identify the audience and purpose, plan two judgements with evidence, then outline your recommendation and the order of ideas.',example,min:8,plan:true,allowKeep:true,checks:planChecks});
+const plan=(id, title,context,requirements,example)=>({id, version:1, title,prompt:prompt(context,requirements),question:'Use short notes or bullets. Identify the audience and purpose, plan two judgements with evidence, then outline your recommendation and the order of ideas.',example,min:8,plan:true,allowKeep:true,checkIds:["audience-purpose","content-coverage","judgement-evidence","manageable-order"],checks:planChecks});
 
 const cafe=review('cafe','A café near school','Your school magazine wants reviews of places to eat after lessons. You visited a café near school.','Describe the food and seating, evaluate value, and recommend it to suitable readers.',
 `I tried Cedar Café after lessons on Friday with two friends. It is close to the school gate, so we reached it easily without taking a bus. There are shared tables inside and a few seats by the window for smaller groups.

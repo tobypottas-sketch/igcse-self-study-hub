@@ -1,6 +1,7 @@
 // Original teaching models, not examiner-marked responses.
 export const extraReviewModels = [
   {
+    "id": "beyond-the-stars",
     "title": "Beyond the Stars",
     "category": "Film",
     "prompt": "Your school magazine is looking for film reviews. Describe a film you watched, evaluate its strengths and weaknesses, and recommend it to an audience. Write 120–160 words.",
@@ -10,6 +11,7 @@ export const extraReviewModels = [
       "Unfortunately, the middle section moves rather slowly, particularly when the characters search an abandoned station. Nevertheless, the remarkable soundtrack creates enough tension to make the final scenes genuinely exciting.",
       "I would recommend this film to students who enjoy imaginative stories with believable characters. Anyone expecting constant action, however, might prefer something faster."
     ],
+    "paragraphIds": ["paragraph-a","paragraph-b","paragraph-c","paragraph-d"],
     "purposes": [
       "Introduction",
       "Evaluation",
@@ -42,6 +44,7 @@ export const extraReviewModels = [
     ]
   },
   {
+    "id": "lost-city",
     "title": "The Lost City",
     "category": "Book",
     "prompt": "Write a review of a book for your school website. Describe its story, explain what you liked or disliked, and say who would enjoy it. Write 120–160 words.",
@@ -50,6 +53,7 @@ export const extraReviewModels = [
       "What makes the story memorable is its unusual setting. The author describes crowded markets and deserted mountain villages so vividly that I could almost imagine walking beside the main character. However, several minor characters seem rather similar, which occasionally makes the conversations difficult to follow.",
       "Despite this weakness, the short chapters and unexpected discoveries make the book difficult to put down. I would particularly recommend it to students looking for an exciting introduction to adventure fiction, rather than readers who prefer complicated historical novels."
     ],
+    "paragraphIds": ["paragraph-a","paragraph-b","paragraph-c"],
     "purposes": [
       "Introduction",
       "Evaluation",
@@ -77,6 +81,7 @@ export const extraReviewModels = [
     ]
   },
   {
+    "id": "summer-sound",
     "title": "Summer Sound",
     "category": "Music festival",
     "prompt": "Your school magazine wants reviews of local events. Describe a music festival, evaluate the experience and say whether students should attend. Write 120–160 words.",
@@ -86,6 +91,7 @@ export const extraReviewModels = [
       "The highlight was an outstanding performance by a student band whose original songs got the entire audience dancing. Sadly, the queues for drinking water were extremely long, making the afternoon heat rather uncomfortable.",
       "Overall, Summer Sound offers excellent value for young music fans, especially those keen to support local talent. Bring a refillable water bottle and arrive early to find a comfortable spot."
     ],
+    "paragraphIds": ["paragraph-a","paragraph-b","paragraph-c","paragraph-d"],
     "purposes": [
       "Introduction",
       "Description",
@@ -118,6 +124,7 @@ export const extraReviewModels = [
     ]
   },
   {
+    "id": "skyline-adventure-park",
     "title": "Skyline Adventure Park",
     "category": "Attraction",
     "prompt": "Write a review of a local attraction for a youth website. Describe the facilities, evaluate your visit and recommend whether others should go. Write 120–160 words.",
@@ -127,6 +134,7 @@ export const extraReviewModels = [
       "Although admission is quite expensive, the ticket includes all equipment and unlimited attempts at most courses. My only disappointment was the café, where the limited menu offered few affordable options for students.",
       "I would recommend Skyline to adventurous friends who enjoy physical challenges. To make the most of your visit, book a morning session and bring a packed lunch rather than relying on the café."
     ],
+    "paragraphIds": ["paragraph-a","paragraph-b","paragraph-c","paragraph-d"],
     "purposes": [
       "Introduction",
       "Description",
@@ -159,6 +167,7 @@ export const extraReviewModels = [
     ]
   },
   {
+    "id": "pixel-quest",
     "title": "Pixel Quest",
     "category": "Video game",
     "prompt": "Write a review of a video game for your school website. Describe how it works, evaluate its features and recommend it to other students. Write 120–160 words.",
@@ -168,6 +177,7 @@ export const extraReviewModels = [
       "However, the instructions for some advanced challenges are unnecessarily confusing. A clearer tutorial would help inexperienced players avoid spending ages repeating the same unsuccessful actions.",
       "Despite that frustration, I would recommend Pixel Quest to anyone who enjoys solving problems rather than simply competing for high scores. Its short levels also make it ideal for occasional play."
     ],
+    "paragraphIds": ["paragraph-a","paragraph-b","paragraph-c","paragraph-d"],
     "purposes": [
       "Introduction",
       "Evaluation",
@@ -200,6 +210,7 @@ export const extraReviewModels = [
     ]
   },
   {
+    "id": "science-discovery-centre",
     "title": "The Science Discovery Centre",
     "category": "Museum",
     "prompt": "Your school magazine wants reviews of educational attractions. Describe a museum visit, evaluate what you learned and recommend whether other students should visit. Write 120–160 words.",
@@ -208,6 +219,7 @@ export const extraReviewModels = [
       "Rather than simply displaying information, the centre encourages visitors to test their own ideas. We built miniature bridges, experimented with light and even programmed a small robot. The explanations beside each activity were clear enough for beginners without being childish, although some popular exhibits were too crowded to use comfortably.",
       "For students who usually find science difficult, this centre is an excellent choice because it makes abstract ideas easier to understand. I would suggest visiting on a weekday when there are fewer visitors and more opportunities to experiment independently."
     ],
+    "paragraphIds": ["paragraph-a","paragraph-b","paragraph-c"],
     "purposes": [
       "Introduction",
       "Evaluation",

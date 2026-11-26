@@ -1,3 +1,4 @@
+import {capturePreview,restorePreview} from '../engine/preview-progress.js';
 import {exam,examModels,examMocks,modelContext} from '../content/review-exam-20261125.js';
 import {newExamAttempt} from '../engine/exam-attempt.js';
 import {renderExamWorkshop} from './exam-workshop.js?v=2';
@@ -6,7 +7,7 @@ import {cohesion,cohesionModels} from '../content/review-cohesion.js?v=2';
 import * as development from '../content/review-development-v1.js';
 import * as expression from '../content/review-expression-v1.js';
 import {extraReviewModels} from '../content/review-explore-models.js?v=1';
-import {mountLesson,el,action} from './lesson-shell.js?v=13';
+import {mountLesson,el,action} from './lesson-shell.js?v=14';
 import {reviewArtwork} from './editorial-art.js?v=16';
 import {companions} from '../content/review-active-v2.js';
 import {pathways} from '../content/review-pedagogy.js?v=5';
@@ -32,13 +33,13 @@ export function renderExamReference(p,{includeToolkit=true}={}){
 
  return s;
 }
-export function renderStructure(root,onBack,onStudio){return renderPathway(root,onBack,onStudio);}
-export function renderExpression(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,expression);}
-export function renderDevelopment(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,development);}
-export function renderCohesion(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,cohesion);}
-export function renderEditing(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,editing);}
-export function renderExam(root,onBack,onStudio){return renderPathway(root,onBack,onStudio,exam);}
-function renderPathway(root,onBack,onStudio,config=null){
+export function renderStructure(root,onBack,onStudio,progress){return renderPathway(root,onBack,onStudio,null,progress);}
+export function renderExpression(root,onBack,onStudio,progress){return renderPathway(root,onBack,onStudio,expression,progress);}
+export function renderDevelopment(root,onBack,onStudio,progress){return renderPathway(root,onBack,onStudio,development,progress);}
+export function renderCohesion(root,onBack,onStudio,progress){return renderPathway(root,onBack,onStudio,cohesion,progress);}
+export function renderEditing(root,onBack,onStudio,progress){return renderPathway(root,onBack,onStudio,editing,progress);}
+export function renderExam(root,onBack,onStudio,progress){return renderPathway(root,onBack,onStudio,exam,progress);}
+function renderPathway(root,onBack,onStudio,config,progress){
  const isExam=config===exam;
  const isExpression=config===expression, isDevelopment=config===development, hasLens=!!config;
  const editorialModels=isExam?examModels:config===editing?editingModels:config===cohesion?cohesionModels:null;
@@ -57,11 +58,20 @@ function renderPathway(root,onBack,onStudio,config=null){
  const challenges=[...practice,gold];
  const baseModels=[{...model,category:'Café',sentenceTips:[['Names the café, establishes the time and explains the reason for visiting.','Introduces an initial evaluation through the atmosphere and welcome.'],['Describes location, seating and menu.','Provides specific examples of food.','Evaluates affordability for students.'],['Balances crowding with praise for staff.','Balances a specific delay against food quality.','Explains the practical benefit of a quiet corner.'],['Identifies a suitable audience and reason.','Offers advice about timing.']],purposes:['Introduction','Description','Evaluation','Recommendation']},{...guidedTask,title:'Willow Kitchen',category:'Restaurant',purposes:['Introduction','Evaluation','Evaluation','Recommendation'],sentenceTips:[['Establishes the reason for visiting.','Adds useful location and price information.'],['States a clear preference.','Supports the judgement with sensory detail.','Explains why the portion was suitable.','Adds a specific example of flexibility.'],['Signals a shift to criticism.','Explains the wait and the effect of noise.'],['Identifies an audience and a reason.','Offers practical advice addressing the drawback.']]},...extraReviewModels];
  const models=isDevelopment?config.developmentModels(baseModels):isExpression?config.expressionModels(baseModels):baseModels;
+ const content={discover:course.discover,models,activities:[...practice,checkpoint],
+  gold:goldTasks,apply:isExam?[]:course.apply,master:isExam?null:course.master,challenges:challenges.map(a=>a.id)};
+ const saved=progress?.load(pathwayKey)??null;
+ restorePreview(state,content,saved);
+ const save=position=>{
+  if(isExam)position.completed=position.completed.filter(stage=>stage!=='apply'&&stage!=='master');
+  const snapshot=capturePreview(state,content,position);
+  return !!snapshot && progress.save(pathwayKey,snapshot);
+ };
  const hasFinished = a => !!state.attempts.get(a.id)?.done;
  function quiz(host,a,onFinish){
   let run=state.attempts.get(a.id);
   if(!run){
-   run={index:0,correct:0,selected:null,order:[],checked:false,done:false,
+   run={index:0,correct:0,selected:null,order:[],checked:false,done:false,answered:new Map(),
     displays:a.items.map(item=>shuffledIndexes(item.options.length))};
    state.attempts.set(a.id,run);
   }
@@ -121,8 +131,10 @@ function renderPathway(root,onBack,onStudio,config=null){
       reason.append(item.explanations[index]);
      });
     }else el(feedback,'p','',item.rationale);
-    action(host,run.index+1===a.items.length?'Finish analysis':'Next question',()=>{
-     run.index++;
+    action(host,run.answered.size+1===a.items.length?'Finish analysis':'Next question',()=>{
+     run.answered.set(item.id,response);
+     const next=a.items.findIndex(question=>!run.answered.has(question.id));
+     run.index=next<0?a.items.length:next;
      run.checked=false;
      run.selected=null;
      run.order=[];
@@ -144,9 +156,10 @@ function renderPathway(root,onBack,onStudio,config=null){
   }
   draw();
  }
- mountLesson(root,{title:course.title??(isDevelopment?'Idea Development':isExpression?'Vocabulary & Expression':'Structure & Organisation'),pathwayNumber:course.number??(isDevelopment?'03':isExpression?'02':'01'),artwork:reviewArtwork.pathways[pathwayKey]??reviewArtwork.pathways.structure,onBack,reference:renderExamReference,companions:stageCompanions,renderStage(body,i,ctx){
+ mountLesson(root,{title:course.title??(isDevelopment?'Idea Development':isExpression?'Vocabulary & Expression':'Structure & Organisation'),pathwayNumber:course.number??(isDevelopment?'03':isExpression?'02':'01'),artwork:reviewArtwork.pathways[pathwayKey]??reviewArtwork.pathways.structure,onBack,reference:renderExamReference,companions:stageCompanions,checkpoint:saved,onCheckpoint:progress?save:null,renderStage(body,i,ctx){
  const shell=body.closest('.wa-shell');
  shell.classList.toggle('wa-independent-stage',isExam&&i===4);
+ if(progress && isExam && i>=3)el(body,'p','wa-muted','Exam workshop responses and timers last for this visit.');
 
  if(course.passes && (isExam?i===0:[0,3,4].includes(i))){
   const guide=el(body,'details','wa-explore-brief wa-editing-passes');
