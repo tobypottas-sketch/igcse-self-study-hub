@@ -270,8 +270,6 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
   const label=el(question,'label','wa-question-prompt',editorialPrompt);
   const minimum=lens?.min??10;
   el(label,'span','wa-muted',' Use at least '+minimum+' words.');
-  const minimum=lens?.min??10;
-  el(label,'span','wa-muted',' Use at least '+minimum+' words.');
   const response=el(label,'textarea','wa-writing-input wa-apply-input');
   response.rows=3;
   response.value=state.exploreDrafts.get(key)??'';

@@ -181,6 +181,7 @@ try{
 
   await page.getByRole('button',{name:'← All pathways'}).click();
   await structureCard.getByRole('button',{name:'Start pathway →'}).click();
+  assert.match(await page.locator('.wa-discovery label').innerText(),/short phrase or sentence.*at least three words/);
   assert.equal(await page.locator('.wa-stage-body').count(),1);
   await checkArtwork(page,'banner','structure-organisation');
   await captureStage(page,'Discover','stage-discover',width,height);
