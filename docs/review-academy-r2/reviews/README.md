@@ -26,7 +26,7 @@ For both items preserve the learning objective. A materially changed answer or s
 
 ## Continuation
 
-The generated baseline is the source of exact activity IDs. The generator joins the reviews by question/task ID and emits all unresolved IDs, grouped by pathway and stage. Structure and Idea Development are covered. Begin with Vocabulary Discover, Explore and Practise, then the workshops and transfer checkpoint. Grammar, Editing and Exam follow. Review dispositions are provisional until the browser check and pathway-level progression pass. R2.0 remains in progress and the PR remains draft.
+The generated baseline is the source of exact activity IDs. The generator joins the reviews by question/task ID and emits all unresolved IDs, grouped by pathway and stage. Structure and Idea Development are covered. Begin with Vocabulary Discover and Explore, then its writing workshops. Its objective Practise and transfer questions are covered. Grammar, Editing and Exam follow. Review dispositions are provisional until the browser check and pathway-level progression pass. R2.0 remains in progress and the PR remains draft.
 
 ## Browser evidence
 
@@ -47,3 +47,5 @@ The existing preview browser suite passed with the unchanged staff profile gate 
 5. Adjust directions and models to make required facts, intended audiences, target lengths and self-review checks align. Finish the pending pathway audit before setting scope for R2.1 or R2.2.
 
 Teacher judgement is needed about how many Explore models should be compulsory at each proficiency level, and whether optional investigations are suitable as homework. Representative learner trials should inform that decision. Defensible texts, complete scenarios and accurate feedback are editorial decisions.
+
+[Download the 28 representative browser captures](https://chatgpt.com/library?file_id=libfile_7ce3dd2090948191a5fda9d2d931b62b&account_id=personal).
