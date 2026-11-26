@@ -36,7 +36,7 @@ Cambridge 0511 Exercise 6 includes a formal or semi-formal review as a possible 
 
 | Phase | Status | Evidence |
 | --- | --- | --- |
-| R2.0 Baseline audit | In progress | `docs/review-academy-r2-baseline`. 347 inventoried. 73 individually reviewed, 274 awaiting individual review. Of the 73, 26 approved without changes, 46 need revision and one needs replacement. Zero curriculum activities modified, retained by final decision, or replaced. 61 Academy tests passed on baseline. HTTP entry-page check completed. Browser, deployment equivalence and complete pedagogical verification pending. |
+| R2.0 Baseline audit | In progress | `docs/review-academy-r2-baseline`. 347 inventoried. 112 individually reviewed, 235 awaiting individual review. Of the 112, 28 approved without changes, 83 need revision and one needs replacement. Zero curriculum activities modified, retained by final decision, or replaced. 61 Academy tests passed on baseline. HTTP entry-page check completed. Simulated staff browser suite passed at four widths. Live school-account verification and complete pedagogical verification pending. |
 | R2.1 Standards | Pending | Complete R2.0 first. |
 | R2.2 Shared interactions | Pending | Review scoring and progress compatibility before implementation. |
 | R2.3 Structure & Organisation | Pending | Prioritise Master grouping and missing destinations. |
