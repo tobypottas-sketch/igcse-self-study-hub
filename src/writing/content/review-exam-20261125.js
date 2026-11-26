@@ -6,7 +6,7 @@ const card=(id,level,title,items)=>({id:'exam-'+id,level,title,type:'choice',ite
 const prompt=(context,requirements)=>context+' '+requirements+' Write 120–160 words.';
 const review=(id,title,context,requirements,example)=>({version:1, id,title,prompt:prompt(context,requirements),example});
 const planChecks=['I identified the audience and purpose.','My notes cover the required content with relevant ideas.','I planned two judgements with evidence and a supported recommendation.','The sequence is manageable in 120–160 words.'];
-const plan=(id, title,context,requirements,example)=>({id, version:1, title,prompt:prompt(context,requirements),question:'Use short notes or bullets. Identify the audience and purpose, plan two judgements with evidence, then outline your recommendation and the order of ideas.',example,min:8,plan:true,allowKeep:true,checkIds:["audience-purpose","content-coverage","judgement-evidence","manageable-order"],checks:planChecks});
+const plan=(id, title,context,requirements,example)=>({id, version:1, title,prompt:prompt(context,requirements),question:'Write a plan in short notes or bullets. Name your readers and what the review should help them decide. Note two opinions, each with a fact that supports it. Finish by noting your recommendation and the order of your ideas.',example,min:8,plan:true,allowKeep:true,checkIds:["audience-purpose","content-coverage","judgement-evidence","manageable-order"],checks:planChecks});
 
 const cafe=review('cafe','A café near school','Your school magazine wants reviews of places to eat after lessons. You visited a café near school.','Describe the food and seating, evaluate value, and recommend it to suitable readers.',
 `I tried Cedar Café after lessons on Friday with two friends. It is close to the school gate, so we reached it easily without taking a bus. There are shared tables inside and a few seats by the window for smaller groups.
@@ -69,17 +69,17 @@ const examInvestigations={
       "The crowded room and drinks delay are qualified by polite service, enjoyable food and a quiet corner."
     ],
     [
-      "How does the recommendation answer the brief more precisely than simply saying yes?",
+      "Who does the writer recommend the café to, and what extra advice do they give?",
       "It identifies students seeking an affordable meeting place and gives timing advice linked to crowding."
     ]
   ],
   "Willow Kitchen": [
     [
-      "How does this opening establish the situation in the brief and the relevance of price?",
+      "Why did the writer visit? Which detail about price would help students decide whether they can afford lunch here?",
       "The visit after badminton with friends fits the scenario; distance and meals under forty yuan help student readers."
     ],
     [
-      "Which two food details develop the evaluation rather than merely naming a dish?",
+      "Pick two details about the food. Explain what they tell readers about what it was like to eat there.",
       "Juicy chicken, crunchy cucumber and a filling portion explain the experience; the separate sauce adds another relevant observation."
     ],
     [
@@ -87,7 +87,7 @@ const examInvestigations={
       "The twenty-minute queue and difficulty talking establish limitations for students with limited time or wanting conversation."
     ],
     [
-      "How does the ending use the writer’s earlier evaluation to help different readers?",
+      "Who would enjoy this lunch? Who would benefit from the advice about when to visit? Use the earlier details to explain.",
       "The affordable filling lunch suits hungry students; visiting before the rush addresses the desire for quiet conversation."
     ]
   ],
@@ -137,7 +137,7 @@ const examInvestigations={
       "Audience dancing supports praise, while the water queues explain discomfort in the heat."
     ],
     [
-      "Is the value judgement fully supported by the review? What would strengthen it?",
+      "What fact helps you decide whether the visit is worth the price? What extra detail would make that opinion more convincing?",
       "The music and activities support enjoyment, but a price or included-cost detail would better support excellent value. The practical advice addresses crowding and water."
     ]
   ],
@@ -238,7 +238,7 @@ export const exam={
   card('plans','Silver','Evaluate competing plans',[
    q("exam-q-009", ["option-a","option-b","option-c"], 'Review a film for the school website. Outline the premise, evaluate acting and pace, and identify suitable viewers. Which plan is most manageable?',0,['Brief premise; an acting detail and one slow scene; recommend to character-focused viewers.','Describe the plot in order; mention acting; recommend to everyone who likes films.','Explain the opening in detail; assess pace; rank the film against two other releases.'],['It covers both evaluations with room for evidence and ties the verdict to the audience.','Retelling takes space and leaves pace and audience underdeveloped.','It omits acting and spends space on rankings outside the brief.']),
    q("exam-q-010", ["option-a","option-b","option-c"], 'Review a market. Describe available food, evaluate cost and recommend it to suitable visitors. Which plan supports the verdict?',2,['Describe the busiest stall and list prices; say the market is worth visiting.','Describe two affordable stalls; mention the largest portions; recommend visiting at lunchtime.','Compare two meal prices and portions; explain which option suits students on a budget.'],['Prices need a comparison or consequence before they support the verdict.','The plan includes useful observations, but does not relate the prices to portions or explain why lunchtime is suitable.','Price and portion support a value judgement and a recommendation for a defined reader.']),
-   q("exam-q-011", ["option-a","option-b","option-c"], 'Review an outdoor event. Explain what you did, evaluate organisation and recommend it. Which plan best connects evaluation to advice?',1,['Describe all activities; mention the signs; recommend it to all visitors.','Describe one activity; explain how signs affected queues; advise when to arrive.','Describe the activities; praise the short queues; recommend the event to sports fans.'],['The signs need a clear effect and the verdict needs a reason.','The advice follows from what the writer observed about organisation.','This covers relevant content, but does not explain how organisation affected the queues or connect that judgement to the advice.']),
+   q("exam-q-011", ["option-a","option-b","option-c"], 'Review an outdoor event. Explain what you did, evaluate organisation and recommend it. Which plan gives an opinion about how the event was organised and uses that opinion to give practical advice?',1,['Describe all activities; mention the signs; recommend it to all visitors.','Describe one activity; explain how signs affected queues; advise when to arrive.','Describe the activities; praise the short queues; recommend the event to sports fans.'],['The signs need a clear effect and the verdict needs a reason.','The advice follows from what the writer observed about organisation.','This covers relevant content, but does not explain how organisation affected the queues or connect that judgement to the advice.']),
    q("exam-q-012", ["option-a","option-b","option-c"], 'Review a book for classmates. Describe its subject, evaluate its accessibility and say who might enjoy it. Which plan uses the word range wisely?',0,['Brief subject; show how short chapters helped reading; name readers who would benefit.','Outline several chapters; praise the simple language; recommend it to classmates.','Outline the plot; explain why the cover is attractive; recommend it to mystery fans.'],['Each point serves a task requirement and leaves room to develop a judgement.','The plan has relevant content, but spends too much space on summary and gives a general recommendation.','The plot and audience are relevant, but the cover does not establish how accessible the writing is.'])
   ]),
   card('decisions','Silver','Make examination decisions',[
@@ -257,6 +257,6 @@ export const exam={
  analysis:[
   q("exam-q-017", ["option-a","option-b","option-c"], 'A student website asks you to review a holiday art course, evaluate teaching and recommend it. Which content must your plan include?',1,['A description of the materials and the activities participants tried.','A judgement on the teaching and who should attend.','A judgement about value and a description of the finished artwork.'],['These details are relevant, but do not establish the quality of teaching or suitability.','Both requested decisions are covered.','Value and artwork may be relevant, but do not fulfil the teaching and recommendation requirements.']),
   q("exam-q-018", ["option-a","option-b","option-c"], 'Which observation best supports saying the art course suits beginners?',2,['The course included a range of art materials for participants.','The tutor displayed examples of completed artwork.','The tutor showed each step before students tried it.'],['Materials may improve access, but do not show how beginners were supported.','Examples can help, but step-by-step demonstrations provide more direct support.','A clear demonstration supports a judgement about learning.']),
-  q("exam-q-019", ["option-a","option-b","option-c"], 'The draft already describes the art course, but ends “Everyone should try it.” What first edit best fulfils the task?',0,['Name a suitable group and connect that advice to the teaching.','Explain another strength of the course before the ending.','Make the ending more enthusiastic about the experience.'],['A specific reader and reason make the recommendation useful.','Another strength may improve development, but does not identify the intended audience.','More enthusiasm does not make the recommendation specific or justified.'])
+  q("exam-q-019", ["option-a","option-b","option-c"], 'The draft already describes the art course, but ends “Everyone should try it.” What should the writer change first to answer what the task asks about the readers?',0,['Name a suitable group and connect that advice to the teaching.','Explain another strength of the course before the ending.','Make the ending more enthusiastic about the experience.'],['A specific reader and reason make the recommendation useful.','Another strength may improve development, but does not identify the intended audience.','More enthusiasm does not make the recommendation specific or justified.'])
  ]
 };

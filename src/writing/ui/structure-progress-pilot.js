@@ -1,7 +1,7 @@
 import {getSupabaseClient} from '../../supabase.js';
 import {getCurrentProfile} from '../../auth.js';
 import {createStructureProgressPilot} from '../engine/structure-progress-pilot.js';
-import {renderStructure} from './structure-20261125.js?v=7';
+import {renderStructure} from './structure-20261125.js?v=8';
 import {el} from './lesson-shell.js?v=15';
 
 const root = document.getElementById('writingAcademy');

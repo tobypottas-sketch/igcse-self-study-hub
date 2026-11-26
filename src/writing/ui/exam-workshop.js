@@ -30,7 +30,7 @@ export function renderExamWorkshop(host,task,attempt,{passes,onProgress,onStudio
    const comparison=el(review,'article','wa-apply-model');
    el(comparison,'h4','','One possible response');
    el(comparison,'p','wa-apply-model-text',task.example);
-   el(review,'p','wa-muted','Compare what each review achieves. Use the four passes to reflect on your choices.');
+   el(review,'p','wa-muted','Read both reviews and work through the four checks below. Then answer each of the three reflection prompts in at least three words.');
    const checklist=el(review,'fieldset','wa-apply-checklist');
    el(checklist,'legend','','Four-pass review');
    passes.forEach(([label,description],index)=>{
@@ -46,7 +46,7 @@ export function renderExamWorkshop(host,task,attempt,{passes,onProgress,onStudio
     };
    });
    const reflection=el(review,'div','');
-   ['One strength in your content','One improvement to your language or organisation','One specific target for your next review'].forEach((label,index)=>{
+   ['One strength in your content. Name a detail that answers the task well.','One improvement to your language or organisation. Name a sentence or paragraph you would change.','One specific target for your next review. Say what you will do differently.'].forEach((label,index)=>{
     field(reflection,label,2,attempt.reflection[index],value=>{attempt.reflection[index]=value;sync();});
    });
    const revision=el(review,'details','wa-explore-brief');
@@ -60,7 +60,7 @@ export function renderExamWorkshop(host,task,attempt,{passes,onProgress,onStudio
     const academyComplete=onProgress(complete);
     const message=complete
      ? (master&&academyComplete?'Academy learning programme complete. You planned, wrote and reviewed independently. ':'Writing and self-reflection complete. ')+'Your next target: '+attempt.reflection[2]
-     : 'Review each pass and give at least three words for each reflection.';
+     : 'Tick each check after reviewing it. Write at least three words in each reflection box.';
     if(status.textContent!==message)status.textContent=message;
    }
    sync();
