@@ -112,19 +112,20 @@ test('Assign teacher includes active teachers and labelled admins, excluding ina
   assert.doesNotMatch(options, /inactive-teacher|inactive-admin|active-student/);
 });
 
-test('activity renders never-started students without fake progression or inactivity', () => {
+test('activity describes an empty observation without inferring that a student never started', () => {
   const target = root();
   renderAdmin(target, {
     profile:{ display_name:'Admin', role:'admin' }, section:'activity',
-    activityDashboard:{ pendingMerits:0, needsAttention:0, students:[{
+    activityDashboard:{ pendingMerits:0, students:[{
       studentId:'fresh', displayName:'Fresh Student', classId:'c1', className:'9 ESL 2',
-      hasStarted:false, lastActive:null, activityThisWeek:0, pathways:{},
-      unitCheck:{ attemptsUsed:0 }, pendingMerits:0, attention:[], needsAttention:false
+      practiceState:'no-records', lastPractice:null, activeDays:0, unitPathways:[],
+      unitChecks:[], pendingMerits:0
     }] }
   });
-  assert.match(target.innerHTML, />Not started<\/td>/);
-  assert.match(target.innerHTML, /class="activity-progression"[^>]*>Not started<\/td>/);
-  assert.doesNotMatch(target.innerHTML, /Inactive 7\+ days/);
+  assert.match(target.innerHTML, /data-label="Last recorded practice">—<\/td>/);
+  assert.match(target.innerHTML, /data-label="Active days this week">0<\/td>/);
+  assert.match(target.innerHTML, /class="activity-progression"[^>]*>—<\/td>/);
+  assert.doesNotMatch(target.innerHTML, /Not started|Needs attention|Inactive 7\+ days/);
   assert.doesNotMatch(target.innerHTML, /Meaning: recognise/);
 });
 

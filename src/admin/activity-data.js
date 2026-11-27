@@ -1,6 +1,12 @@
 import { buildActivityDashboard } from './activity-model.js';
 import { buildMeritStatus } from '../vocabulary/merits.js';
 
+import { loadClassEvidence, loadReportingCatalogue } from '../reporting/activity-queries.js';
+import { reportingPeriod } from '../reporting/periods.js';
+import { loadReportingCoverage } from '../reporting/pathway-coverage.js';
+import { fetchAllRows } from '../vocabulary/teacher-paging.js';
+import { saveVocabularyMerits } from '../vocabulary/merit-awards.js';
+
 const previewAwarded = new Set();
 
 function payloads(rows, type) {
@@ -18,63 +24,30 @@ function previewPending(studentId, meritNumber) {
   return previewAwarded.has(`${studentId}:${meritNumber}`) ? [] : [meritNumber];
 }
 
-function previewDashboard(now = new Date()) {
-  const day = 24 * 60 * 60 * 1000;
-  const iso = offset => new Date(new Date(now).getTime() - offset * day).toISOString();
-  const pathwaysA = {
-    meaning:{ currentStage:'apply' }, context:{ currentStage:'match' }, word_families:{ currentStage:'recognise' },
-    paraphrasing:{ currentStage:'recall' }, precision_use:{ currentStage:'match' }, spelling_recall:{ currentStage:'apply' }
-  };
-  const pathwaysB = {
-    meaning:{ currentStage:'match' }, context:{ currentStage:'recognise' }, word_families:{ currentStage:'recognise' },
-    paraphrasing:{ currentStage:'apply' }, precision_use:{ currentStage:'recognise' }, spelling_recall:{ currentStage:'match' }
-  };
-  const aminaMerits = previewPending('preview-amina',1);
-  const soraMerits = previewPending('preview-sora',2);
-  return {
-    pendingMerits:aminaMerits.length + soraMerits.length,
-    needsAttention:1,
-    students:[
-      {
-        studentId:'preview-amina', displayName:'Amina K.', classId:'preview-g9', className:'Grade 9 ESL',
-        lastActive:iso(0), activityThisWeek:8, recentApp:'vocabulary_paraphrase', recentPathway:'paraphrasing', pathways:pathwaysA,
-        unitCheck:{ latestScore:8, bestScore:8, attemptsUsed:1, attemptsRemaining:2, rows:[{ attemptNumber:1, score:8, maxScore:10, completedAt:iso(0) }] },
-        pendingMerits:aminaMerits.length, pendingMeritNumbers:aminaMerits, needsAttention:false, attention:[],
-        recentActivity:[
-          { occurredAt:iso(0), appKey:'vocabulary_paraphrase', label:'paraphrasing · recall' },
-          { occurredAt:iso(1), appKey:'vocabulary_paraphrase', label:'Unit 1 Vocabulary Check · 8/10' }
-        ]
-      },
-      {
-        studentId:'preview-leo', displayName:'Leo M.', classId:'preview-g9', className:'Grade 9 ESL',
-        lastActive:iso(9), activityThisWeek:0, recentApp:'vocabulary_paraphrase', recentPathway:'meaning', pathways:pathwaysB,
-        unitCheck:{ latestScore:4, bestScore:5, attemptsUsed:2, attemptsRemaining:1, rows:[{ attemptNumber:2, score:4, maxScore:10, completedAt:iso(9) },{ attemptNumber:1, score:5, maxScore:10, completedAt:iso(12) }] },
-        pendingMerits:0, pendingMeritNumbers:[], needsAttention:true, attention:[{ code:'inactive', label:'Inactive 7+ days' }],
-        recentActivity:[{ occurredAt:iso(9), appKey:'vocabulary_paraphrase', label:'meaning · match' }]
-      },
-      {
-        studentId:'preview-sora', displayName:'Sora T.', classId:'preview-g10', className:'Grade 10 ESL',
-        lastActive:iso(1), activityThisWeek:5, recentApp:'vocabulary_paraphrase', recentPathway:'context', pathways:pathwaysA,
-        unitCheck:{ latestScore:9, bestScore:9, attemptsUsed:1, attemptsRemaining:2, rows:[{ attemptNumber:1, score:9, maxScore:10, completedAt:iso(1) }] },
-        pendingMerits:soraMerits.length, pendingMeritNumbers:soraMerits, needsAttention:false, attention:[],
-        recentActivity:[{ occurredAt:iso(1), appKey:'vocabulary_paraphrase', label:'context · match' }]
-      }
-    ]
-  };
+function previewDashboard(now, meritOnly) {
+  const students = [{
+    studentId:'preview-student', displayName:'Preview student', classId:'preview-class',
+    className:'Preview class', pendingMeritNumbers:previewPending('preview-student',1),
+    lastPractice:now.toISOString(), lastInteraction:now.toISOString(), activeDays:1,
+    practiceState:'recorded', unitChecks:[], unitPathways:[], awardedMerits:0, eligibleMerits:1
+  }].map(student => ({ ...student, pendingMerits:student.pendingMeritNumbers.length }));
+  return { students:meritOnly ? students.filter(student => student.pendingMerits) : students,
+    pendingMerits:students[0].pendingMerits, preview:true };
 }
 
-async function loadActivityRows(client, meritOnly = false) {
-  const rows = [];
-  const pageSize = 1000;
-  for (let offset = 0; ; offset += pageSize) {
-    let query = client.rpc('teacher_activity_rows');
-    if (meritOnly) query = query.in('record_type', ['student','vocabulary_global_mastery','vocabulary_unit_mastery','merit_award']);
-    const { data, error } = await query.range(offset, offset + pageSize - 1);
-    if (error) throw error;
-    const page = data ?? [];
-    rows.push(...page);
-    if (page.length < pageSize) return rows;
-  }
+function loadActivityRows(client, meritOnly) {
+  const types = ['student','vocabulary_global_mastery','vocabulary_unit_mastery','merit_award'];
+  if (!meritOnly) types.push('unit_check');
+  return fetchAllRows(() => ({
+    async range(from, to) {
+      const result = await client.rpc('teacher_activity_rows',{}, { count:'exact' })
+        .in('record_type',types).order('record_type').order('payload').range(from,to);
+      if (result.error) throw Object.assign(new Error('Unable to load staff activity records.'), {
+        code:result.error.code, status:result.status
+      });
+      return result;
+    }
+  }), { label:'staff activity records' });
 }
 
 // Only numeric school-email usernames are valid identifiers. Preserve internal zeros.
@@ -102,19 +75,12 @@ async function loadScopedStudentNumbers(client, students) {
 }
 
 export async function loadTeacherActivityData(client, { now = new Date(), meritOnly = false } = {}) {
-  if (shouldUsePreviewFixture()) return previewDashboard(now);
+  if (shouldUsePreviewFixture()) return previewDashboard(now,meritOnly);
 
-  const [records, occurrenceResult, classResult] = await Promise.all([
-    loadActivityRows(client, meritOnly),
-    client.from('vocabulary_unit_occurrences')
-      .select('occurrence_id, vocabulary_id, unit_number, unit_title, position_in_unit')
-      .eq('status','live').eq('active',true).order('unit_number').order('position_in_unit'),
-    client.from('classes').select('id, merit_pathways_required')
+  const [records, [occurrences, classes]] = await Promise.all([
+    loadActivityRows(client, meritOnly), loadReportingCatalogue(client)
   ]);
-  if (occurrenceResult.error) throw occurrenceResult.error;
-  if (classResult.error) throw classResult.error;
-
-  const thresholdByClass = new Map((classResult.data ?? []).map(row => [row.id, Number(row.merit_pathways_required) || 2]));
+  const thresholdByClass = new Map(classes.map(row => [row.id, Number(row.merit_pathways_required) || 2]));
   const rows = records ?? [];
   const students = payloads(rows,'student').map(row => ({
     id:row.student_id,
@@ -143,13 +109,6 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
     recentErrorPattern:row.recent_error_pattern ?? null,
     updatedAt:row.updated_at ?? null
   }));
-  const activity = payloads(rows,'activity').map(row => ({
-    studentId:row.student_id,
-    appKey:row.app_key,
-    eventType:row.event_type,
-    occurredAt:row.occurred_at,
-    metadata:row.metadata ?? {}
-  }));
   const unitChecks = payloads(rows,'unit_check').map(row => ({
     studentId:row.student_id,
     unitNumber:Number(row.unit_number),
@@ -164,15 +123,16 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
     meritNumber:Number(row.merit_number),
     awardedAt:row.awarded_at
   }));
-  const normalizedOccurrences = (occurrenceResult.data ?? []).map(row => ({
+  const normalizedOccurrences = occurrences.map(row => ({
     occurrenceId:row.occurrence_id,
     vocabularyId:row.vocabulary_id,
     unitNumber:Number(row.unit_number),
     unitTitle:row.unit_title
   }));
 
+  const coverageByUnit = await loadReportingCoverage(client, normalizedOccurrences);
   if (meritOnly) {
-    const status = buildMeritStatus({ students, occurrences:normalizedOccurrences, globalMastery, unitMastery, awards });
+    const status = buildMeritStatus({ students, occurrences:normalizedOccurrences, globalMastery, unitMastery, awards, coverageByUnit });
     const byId = new Map(status.map(row => [row.studentId,row.pendingNumbers]));
     const alerts = students.map(s => {
       const pendingMeritNumbers = byId.get(s.id) ?? [];
@@ -180,7 +140,23 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
     }).filter(s => s.pendingMerits);
     return {students:alerts,pendingMerits:alerts.reduce((sum,s)=>sum+s.pendingMerits,0)};
   }
-  return buildActivityDashboard({ students, occurrences:normalizedOccurrences, globalMastery, unitMastery, activity, unitChecks, awards, now });
+  let activity = [];
+  let engagementAvailable = true;
+  try {
+    const { memberships, evidence } = await loadClassEvidence(client, students, reportingPeriod('last30',{now}));
+    const current = new Map(memberships.map(row => [row.student_id, row]));
+    for (const student of students) {
+      const membership = current.get(student.id);
+      if (membership?.class_id === student.classId) student.startedAt = membership.started_at;
+    }
+    activity = evidence;
+  } catch {
+    engagementAvailable = false;
+  }
+  return buildActivityDashboard({
+    students, occurrences:normalizedOccurrences, globalMastery, unitMastery, activity,
+    unitChecks, awards, coverageByUnit, now, engagementAvailable
+  });
 }
 
 export async function markMeritAwarded(client, studentId, meritNumber) {
@@ -190,10 +166,5 @@ export async function markMeritAwarded(client, studentId, meritNumber) {
   }
   const { data:userData, error:userError } = await client.auth.getUser();
   if (userError || !userData?.user?.id) throw userError ?? new Error('Authentication required.');
-  const { error } = await client.from('vocabulary_merit_awards').insert({
-    student_id:studentId,
-    merit_number:Number(meritNumber),
-    awarded_by:userData.user.id
-  });
-  if (error) throw error;
+  await saveVocabularyMerits(client, userData.user.id, studentId, [Number(meritNumber)]);
 }

@@ -8,14 +8,12 @@ function student(index) {
     displayName:`Synthetic Student ${index}`,
     classId:'class-1',
     className:'Synthetic Class',
-    hasStarted:false,
-    activityThisWeek:0,
-    pathways:{},
-    unitCheck:{ attemptsUsed:0, rows:[] },
+    practiceState:'no-records',
+    activeDays:0,
+    unitPathways:[],
+    unitChecks:[],
     pendingMerits:0,
     pendingMeritNumbers:[],
-    needsAttention:false,
-    attention:[],
     recentActivity:[]
   };
 }
@@ -25,7 +23,7 @@ function model(students, selectedStudentId = null) {
     profile:{ role:'teacher', display_name:'Synthetic Teacher' },
     section:'activity',
     selectedStudentId,
-    activityDashboard:{ students, pendingMerits:0, needsAttention:0 }
+    activityDashboard:{ students, pendingMerits:0 }
   };
 }
 
@@ -68,4 +66,11 @@ test('opening a student Activity profile resets the page to the top', () => {
   const students = [student(1)];
   renderAdmin(root, model(students, students[0].studentId));
   assert.deepEqual(scrollCalls, [[0,0]]);
+});
+
+test('unavailable results are surfaced without presenting an empty roster or zero metrics', () => {
+  const root = {innerHTML:''};
+  renderAdmin(root,{...model([]),activityDashboard:null});
+  assert.match(root.innerHTML,/could not be loaded/i);
+  assert.doesNotMatch(root.innerHTML,/0 new merits|No students are available/);
 });

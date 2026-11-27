@@ -51,6 +51,7 @@ export async function bootApp(clientOverride = null) {
   let cachedHomeState = null;
   let adminLoadPromise = null;
   let activityLoadPromise = null;
+  let activityGeneration = 0;
   let adminRefreshGeneration = 0;
   let activityListState = newActivityListState();
   const restoreActivityList = () => {
@@ -138,7 +139,13 @@ export async function bootApp(clientOverride = null) {
         // A revoked session or permission error must not leave old student names visible.
         if (['42501','PGRST301','PGRST303'].includes(error?.code) || [401,403].includes(error?.status)) {
           meritSnapshot = null;
+          activityLoadPromise = null;
+          activityGeneration++;
           if (currentState.view === 'home') updateHomeMerits(root,currentState.profile,null);
+          if (currentState.view === 'admin' && currentState.section === 'activity') {
+            currentState = { ...currentState, activityDashboard:null, notice:'Activity access is unavailable.' };
+            renderAdmin(root,currentState);
+          }
           syncMeritMount();
         }
       })
@@ -160,9 +167,16 @@ export async function bootApp(clientOverride = null) {
   document.addEventListener?.('visibilitychange',() => { if (!document.hidden) void refreshMerits({immediate:true}); });
   globalThis.addEventListener?.('focus',() => { if (!document.hidden) void refreshMerits({immediate:true}); });
   client.auth.onAuthStateChange?.((event, session) => {
-    if (event === 'SIGNED_OUT' || (session?.user?.id && meritAccount && session.user.id !== meritAccount)) {
+    if (event === 'SIGNED_OUT' || (session?.user?.id && currentState.profile?.id && session.user.id !== currentState.profile.id)) {
+      activityGeneration++;
+      activityLoadPromise = null;
       stopMerits();
       if (currentState.view === 'home') updateHomeMerits(root,currentState.profile,null);
+      if (currentState.view === 'admin' && currentState.section === 'activity') {
+        currentState = { view:'login' };
+        root.replaceChildren();
+        setTimeout(() => { void renderCurrentState(); },0);
+      }
     }
   });
   meritMount?.addEventListener('click',async event => {
@@ -232,14 +246,19 @@ export async function bootApp(clientOverride = null) {
 
   const renderActivitySection = async (extras = {}, refresh = false) => {
     if (!['admin','teacher'].includes(currentState?.profile?.role) || currentState.profile.active === false) return;
+    const generation = ++activityGeneration;
+    const actor = currentState.profile.id;
+    const isCurrent = () => generation === activityGeneration && currentState.profile?.id === actor;
     try {
       const activityDashboard = await preloadActivityData(refresh);
+      if (!isCurrent()) return;
       if (cachedHomeState) cachedHomeState = { ...cachedHomeState, activityDashboard };
       currentState = { ...currentState, ...extras, view:'admin', section:'activity', activityDashboard };
       renderAdmin(root, currentState);
       restoreActivityList();
-    } catch (error) {
-      currentState = { ...currentState, ...extras, view:'admin', section:'activity', activityDashboard:currentState.activityDashboard ?? { students:[], pendingMerits:0, needsAttention:0 }, notice:error instanceof Error ? error.message : 'Unable to load student activity.' };
+    } catch {
+      if (!isCurrent()) return;
+      currentState = { ...currentState, ...extras, view:'admin', section:'activity', activityDashboard:null, notice:'Unable to load student activity.' };
       renderAdmin(root, currentState);
       restoreActivityList();
     }

@@ -40,7 +40,7 @@ export function normalizeTeacherVocabularyData(raw = {}) {
   const awards = (raw.awards ?? []).map(row => ({ studentId:row.student_id, meritNumber:Number(row.merit_number) }));
   const missionsAvailable = Array.isArray(raw.missions);
   const missions = (raw.missions ?? []).map(row => ({ studentId:row.student_id, completedAt:row.completed_at, kind:row.mission_kind, unitNumber:Number(row.unit_number) || null }));
-  const profileById = new Map(profiles.filter(row => row.role === 'student').map(row => [row.id, { id:row.id, displayName:row.display_name }]));
+  const profileById = new Map(profiles.filter(row => row.role === 'student' && row.active !== false).map(row => [row.id, { id:row.id, displayName:row.display_name }]));
 
   const classes = classesRaw.map(classRow => {
     const studentIds = memberships.filter(row => row.class_id === classRow.id).map(row => row.student_id).filter(id => profileById.has(id));
@@ -48,7 +48,7 @@ export function normalizeTeacherVocabularyData(raw = {}) {
     return {
       id:classRow.id,
       className:classRow.class_name,
-      students:studentIds.map(id => profileById.get(id)),
+      students:studentIds.map(id => ({ ...profileById.get(id), meritPathwaysRequired:classRow.merit_pathways_required })),
       mastery:mastery.filter(row => allowed.has(row.studentId)),
       unitMastery:unitMastery.filter(row => allowed.has(row.studentId)),
       activity:activity.filter(row => allowed.has(row.studentId)),
@@ -91,7 +91,7 @@ async function optional(work) {
 export async function loadVocabularyTeacherData(client, { now = new Date(), profile = null } = {}) {
   const [memberships, classes, items, occurrences] = await Promise.all([
     fetchAllRows(() => client.from('student_class_memberships').select('student_id, class_id, ended_at', { count:'exact' }).order('student_id').order('class_id'), { label:'class memberships' }),
-    fetchAllRows(() => client.from('classes').select('id, class_name, active', { count:'exact' }).eq('active',true).order('id'), { label:'classes' }),
+    fetchAllRows(() => client.from('classes').select('id, class_name, active, merit_pathways_required', { count:'exact' }).eq('active',true).order('id'), { label:'classes' }),
     fetchAllRows(() => client.from('vocabulary_items').select('vocabulary_id, term', { count:'exact' }).eq('status','live').order('vocabulary_id'), { label:'vocabulary items' }),
     fetchAllRows(() => client.from('vocabulary_unit_occurrences').select('occurrence_id, vocabulary_id, unit_number, unit_title', { count:'exact' }).eq('status','live').eq('active',true).order('occurrence_id'), { label:'vocabulary occurrences' })
   ]);
@@ -109,8 +109,8 @@ export async function loadVocabularyTeacherData(client, { now = new Date(), prof
   const studentIds = [...new Set(scopedMemberships.filter(row => row.ended_at == null).map(row => row.student_id))];
   // Request names only for students in the staff member's authorised classes.
   const profiles=await fetchAllRowsForIds(studentIds, ids=>client.from('profiles')
-    .select('id, display_name, role', { count:'exact' }).in('id',ids)
-    .eq('role','student').order('id'), {label:'authorised students'});
+    .select('id, display_name, role, active', { count:'exact' }).in('id',ids)
+    .eq('role','student').eq('active',true).order('id'), {label:'authorised students'});
   const since = new Date(new Date(now).getTime() - ACTIVITY_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
 
   const [mastery, unitMastery, activity, awards, missions] = await Promise.all([

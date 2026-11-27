@@ -7,7 +7,13 @@ function occurrenceQuery() {
   const query = {
     select() { return query; },
     eq() { return query; },
+    in() { return query; },
+    is() { return query; },
+    gte() { return query; },
+    lte() { return query; },
+    lt() { return query; },
     order() { return query; },
+    range() { return Promise.resolve(result); },
     then(resolve, reject) { return Promise.resolve(result).then(resolve, reject); }
   };
   return query;
@@ -27,6 +33,8 @@ test('teacher Activity rows are loaded across Supabase RPC pages', async () => {
     rpc(name) {
       assert.equal(name, 'teacher_activity_rows');
       return {
+        in() { return this; },
+        order() { return this; },
         async range(start, end) {
           ranges.push([start, end]);
           return { data:start === 0 ? firstPage : secondPage, error:null };
@@ -34,7 +42,7 @@ test('teacher Activity rows are loaded across Supabase RPC pages', async () => {
       };
     },
     from(name) {
-      if (name === 'classes') return { select:async () => ({data:[],error:null}) };
+      if (name === 'classes') return occurrenceQuery();
       if (name === 'profiles') return { select(columns) {
         assert.equal(columns,'id, school_email');
         return { async in(column, ids) {
@@ -43,7 +51,6 @@ test('teacher Activity rows are loaded across Supabase RPC pages', async () => {
           return {data:ids.includes('student-1000') ? [{id:'student-1000',school_email:'0001205@example.com'},{id:'outside-roster',school_email:'9999@example.com'}] : [],error:null};
         }};
       }};
-      assert.equal(name, 'vocabulary_unit_occurrences');
       return occurrenceQuery();
     }
   };
@@ -72,15 +79,24 @@ test('merit-only refresh uses scoped RPC with no activity logs, unit checks or e
       assert.equal(name,'teacher_activity_rows');
       return { in(column, values) {
         filters.push([column,values]);
-        return { async range() { return {data:[{record_type:'student',payload:{student_id:'s1',display_name:'Student',class_id:'c1',class_name:'Class 1'}}],error:null}; } };
+        return { order() { return this; }, async range() { return {data:[{record_type:'student',payload:{student_id:'s1',display_name:'Student',class_id:'c1',class_name:'Class 1'}}],error:null}; } };
       }};
     },
     from(name) {
-      if (name === 'classes') return {select:async()=>({data:[],error:null})};
+      if (name === 'classes') return occurrenceQuery();
       assert.equal(name,'vocabulary_unit_occurrences');
       return occurrenceQuery();
     }
   };
   assert.deepEqual(await loadTeacherActivityData(client,{meritOnly:true}),{students:[],pendingMerits:0});
   assert.deepEqual(filters,[['record_type',['student','vocabulary_global_mastery','vocabulary_unit_mastery','merit_award']]]);
+});
+
+test('merit refresh preserves an access denial for the session-revocation handler', async () => {
+  const query = occurrenceQuery();
+  const denied = {in(){return this;},order(){return this;},async range(){
+    return {error:{code:'42501',message:'not authorised'},status:403};
+  }};
+  await assert.rejects(loadTeacherActivityData({rpc:()=>denied,from:()=>query},{meritOnly:true}),
+    {code:'42501',status:403});
 });
