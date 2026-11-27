@@ -35,7 +35,7 @@ export function buildActivityDashboard({
       });
     }
     const engagement = engagementAvailable
-      ? summarizeEngagement(evidence, period, { classId:student.classId, startedAt:student.startedAt })
+      ? summarizeEngagement(selectedPeriod ? evidence.filter(row => { const t=timestampOf(row.occurredAt); return t>=period.start && t<period.end; }) : evidence, period, { classId:student.classId, startedAt:student.startedAt })
       : null;
     const merit = merits.get(student.id);
     return {
