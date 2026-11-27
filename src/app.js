@@ -62,10 +62,10 @@ export async function bootApp(clientOverride = null) {
   const loadProgress = async () => {
     if (!staffProgress() || !progressState) return;
     let period;
-    try { period = reportingPeriod(progressState.kind,{from:progressState.from,to:progressState.to}); if (period.end-period.start > 32*86400000) throw new RangeError('Choose at most 31 calendar days.'); }
-    catch(error) { progressState={...progressState,error:error.message}; drawProgress(); return; }
+    try { period = reportingPeriod(progressState.kind,{from:progressState.from,to:progressState.to}); if (progressState.kind==='custom' && period.end-period.start > 31*86400000) throw new RangeError('Choose at most 31 calendar days.'); }
+    catch(error) { progressGeneration++; progressState={...progressState,error:error.message,snapshot:null,loading:false,period:null,awaitingDates:true}; drawProgress(); return; }
     const generation=++progressGeneration, actor=currentState.profile.id;
-    progressState={...progressState,period,snapshot:null,loading:true,error:null}; drawProgress();
+    progressState={...progressState,period,snapshot:null,loading:true,error:null,awaitingDates:false}; drawProgress();
     try {
       const snapshot=await loadTeacherActivityData(client,{now:new Date(period.asOf),selectedPeriod:period});
       if(generation!==progressGeneration || currentState.view!=='student-progress' || currentState.profile?.id!==actor || !staffProgress()) return;
@@ -704,7 +704,7 @@ export async function bootApp(clientOverride = null) {
     if (event.target?.dataset?.activityFilter) applyActivityFilters(event.target);
   });
   root.addEventListener('change', async event => {
-    if(currentState.view==='student-progress' && staffProgress() && progressState){const t=event.target;if(t?.matches?.('[data-sp-period]')){progressState={...progressState,kind:t.value,error:null};if(t.value==='custom')drawProgress();else await loadProgress();return;}if(t?.matches?.('[data-sp-from]'))progressState.from=t.value;if(t?.matches?.('[data-sp-to]'))progressState.to=t.value;if(t?.matches?.('[data-sp-sort]')){progressState.sort=t.value;drawProgress();}if(t?.matches?.('[data-sp-search]')){progressState.search=t.value;drawProgress();}}
+    if(currentState.view==='student-progress' && staffProgress() && progressState){const t=event.target;if(t?.matches?.('[data-sp-period]')){progressState={...progressState,kind:t.value,error:null};if(t.value==='custom'){progressGeneration++;progressState={...progressState,snapshot:null,loading:false,period:null,awaitingDates:true};drawProgress();}else await loadProgress();return;}if(t?.matches?.('[data-sp-from], [data-sp-to]')){progressGeneration++;progressState={...progressState,[t.matches('[data-sp-from]')?'from':'to']:t.value,snapshot:null,loading:false,period:null,awaitingDates:true};drawProgress();return;}if(t?.matches?.('[data-sp-sort]')){progressState.sort=t.value;drawProgress();}if(t?.matches?.('[data-sp-search]')){progressState.search=t.value;drawProgress();}}
     if (event.target?.dataset?.adminFilter) applyAccountFilters();
     if (event.target?.dataset?.activityFilter) applyActivityFilters(event.target);
   });
