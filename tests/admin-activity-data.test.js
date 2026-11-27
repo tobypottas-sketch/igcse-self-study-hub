@@ -64,3 +64,23 @@ test('teacher Activity rows are loaded across Supabase RPC pages', async () => {
   assert.equal(studentNumberFromEmail('teacher12@example.com'),null);
   assert.equal(studentNumberFromEmail(null),null);
 });
+
+test('merit-only refresh uses scoped RPC with no activity logs, unit checks or email lookups', async () => {
+  const filters = [];
+  const client = {
+    rpc(name) {
+      assert.equal(name,'teacher_activity_rows');
+      return { in(column, values) {
+        filters.push([column,values]);
+        return { async range() { return {data:[{record_type:'student',payload:{student_id:'s1',display_name:'Student',class_id:'c1',class_name:'Class 1'}}],error:null}; } };
+      }};
+    },
+    from(name) {
+      if (name === 'classes') return {select:async()=>({data:[],error:null})};
+      assert.equal(name,'vocabulary_unit_occurrences');
+      return occurrenceQuery();
+    }
+  };
+  assert.deepEqual(await loadTeacherActivityData(client,{meritOnly:true}),{students:[],pendingMerits:0});
+  assert.deepEqual(filters,[['record_type',['student','vocabulary_global_mastery','vocabulary_unit_mastery','merit_award']]]);
+});
