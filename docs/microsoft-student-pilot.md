@@ -1,0 +1,18 @@
+# Microsoft student sign-in pilot
+
+## Scope
+Extend the existing administrator OAuth pilot to a maximum of three individually approved existing students. No new Hub accounts, role changes, class transfers, password changes or progress migrations. No broad Entra group assignment. The existing password flow remains available.
+
+## Deployment gates
+1. Review and pass local Auth and focused regression CI. The test uses synthetic Azure identities on the real local Auth schema; it does not simulate a real Entra-issued token.
+2. Deploy the frontend and verify the existing administrator can still use Microsoft and password login. Apply the separate student migration only after tests pass. The migration changes the private approval schema and identity guard; it grants no student access by itself. Existing approval rows default to the original administrator role. The existing Azure signup hook remains unchanged.
+3. In Entra, keep Assignment required = Yes and assign only the named participants directly. Independently confirm each school account's email matches its confirmed existing Auth and profile email and that the school tenant and verified email claims are unchanged.
+4. Privately record each selected student's existing UUID, role, active status, confirmed email, current class membership, password identity, all existing Azure identity counts, and learning baselines (activity, vocabulary missions and mastery, pathway sets, XP and rewards, writing progress/submissions/attempts). Do not place student names, addresses or UUIDs in repository files.
+5. Insert only the explicitly selected eligible UUIDs into microsoft_pilot_private.allowed_accounts with approved_role='student'. Require exact school email agreement, active student role, completed password setup, existing email identity, no existing Azure identity, and one active class membership. Verify exactly the intended count. Keep the administrator approval intact.
+6. Test one supervised student at a time from a fully logged-out browser using the main Microsoft button, selecting their own school account. Confirm the same UUID, one verified matching Azure identity, existing email identity, unchanged role/class/progress, student-only UI, own learning data and no access to staff pages or other students' private records. Check teacher reporting and password fallback. Compare baselines before doing any new learning activities, allowing for normal concurrent activity.
+7. Under school supervision, test an unassigned school user and an assigned but database-unapproved user if permitted. Both must fail, with no new account or identity. Test cancellation and incorrect account selection. Stop on any unexpected identity, role, duplicate or data change. No wider rollout until these live checks pass.
+
+## Rollback
+Remove student Entra assignments and their private approvals; do not delete their Hub users, profiles or progress. The guard rejects new Azure identity writes for unapproved users. Existing issued sessions may remain valid until expiry or revocation; revoke affected sessions with approved admin tooling if immediate revocation is needed. Password login remains available. Do not delete linked identities without separate review. If necessary disable Azure globally (also affects administrator) and revert the frontend. To restore the old database role boundary, use a reviewed migration replacing the guard with its previous admin-only body; do not drop the approval column while student approvals exist.
+
+The client validates the returned session and profile as defense in depth, not as the authorization boundary. The server-side role-bound approval and signup hook are mandatory. This pilot does not grant teachers or inactive/unapproved students Microsoft access.
