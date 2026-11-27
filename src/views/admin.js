@@ -1,3 +1,4 @@
+import { SCHOOL_TIME_ZONE } from '../reporting/periods.js';
 import { escapeHtml } from './html.js';
 
 const adminSections = [['activity','Activity'],['accounts','Accounts'],['classes','Classes'],['import','Bulk Import']];
@@ -17,7 +18,7 @@ function compareStudentsByClass(a, b) {
 function formatDate(value) {
   if (!value) return 'No activity yet';
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('en-GB',{ day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('en-GB',{ timeZone:SCHOOL_TIME_ZONE, day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
 }
 
 function renderCredential(credential) {
@@ -102,45 +103,13 @@ function renderImport(model) {
 }
 
 // Status pills share the teacher-admin vocabulary (vocab-pill + data-tone); default/boring states render quiet, genuine issues render warn.
-const pathwayAbbr = { meaning:'Mean', context:'Cont', word_families:'Fam', paraphrasing:'Para', precision_use:'Prec', spelling_recall:'Spell' };
-const pathwayShort = { meaning:'Meaning', context:'Context', word_families:'Families', paraphrasing:'Paraphrase', precision_use:'Precision', spelling_recall:'Spelling' };
 const stageLabels = { recognise:'Recognise', match:'Match', apply:'Apply', recall:'Recall', mastery:'Mastery' };
 const stageTones = { match:'start', apply:'mid', recall:'mid', mastery:'done' };
 function pill(text, tone = 'quiet', title = '') { return `<span class="vocab-pill" data-tone="${tone}"${title ? ` title="${escapeHtml(title)}"` : ''}>${escapeHtml(text)}</span>`; }
-// Compact human-readable "last active"; the exact date stays in the tooltip.
-function relativeDay(value, now = new Date()) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '—';
-  const startOf = d => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  const days = Math.round((startOf(now) - startOf(date)) / 86400000);
-  const time = date.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
-  if (days <= 0) return `Today ${time}`;
-  if (days === 1) return 'Yesterday';
-  if (days < 14) return `${days} days ago`;
-  return date.toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
-}
-// Six aligned cells. The default stage (recognise) disappears into a faint dot; the full meaning stays in the title and screen-reader text.
-function pathwayStrip(pathways = {}) {
-  return `<span class="activity-strip">${Object.entries(pathwayLabels).map(([id,label]) => {
-    const state = pathways?.[id] ?? {};
-    const stage = state.currentStage ?? 'recognise';
-    const needs = state.needsPractice === true;
-    const title = `${label}: ${stageLabels[stage] ?? stage}${needs ? ' (needs practice)' : ''}`;
-    const body = stage === 'recognise' ? `<span class="activity-dot" aria-hidden="true">·</span>` : pill(stageLabels[stage] ?? stage, stageTones[stage] ?? 'quiet');
-    return `<span class="activity-strip__cell" data-pathway="${escapeHtml(id)}" data-stage="${escapeHtml(stage)}" title="${escapeHtml(title)}">${body}${needs ? '<i class="activity-flag" aria-hidden="true"></i>' : ''}<span class="vocab-sr">${escapeHtml(title)}</span></span>`;
-  }).join('')}</span>`;
-}
-function pathwayHeader() { return `<span class="activity-strip activity-strip--head">${Object.entries(pathwayLabels).map(([id,label]) => `<span title="${escapeHtml(label)}" data-short="${escapeHtml(pathwayAbbr[id] ?? label)}">${escapeHtml(pathwayShort[id] ?? label)}</span>`).join('')}</span>`; }
-function unitCheckCell(unitCheck) {
-  if (!unitCheck?.attemptsUsed) return '';
-  const detail = `Latest ${unitCheck.latestScore}/10 · best ${unitCheck.bestScore}/10 · ${unitCheck.attemptsUsed}/3 attempts`;
-  return `<strong title="${escapeHtml(detail)}">${escapeHtml(unitCheck.latestScore)}/10</strong>`;
-}
-function alertsCell(row) {
-  const parts = [];
-  if (row.pendingMerits) parts.push(pill(`${row.pendingMerits} merit${row.pendingMerits === 1 ? '' : 's'}`, 'done'));
-  if (row.attention?.length) parts.push(pill('Needs attention', 'warn', row.attention.map(item => item.label).join('; ')));
-  return parts.join(' ');
+function unitCheckCell(checks = []) {
+  if (!checks.length) return '—';
+  const title = checks.map(unit => `Unit ${unit.unitNumber}: latest ${unit.latestScore}/10, ${unit.attemptsUsed}/3 attempts`).join(' · ');
+  return `<span title="${escapeHtml(title)}">${checks.length} unit${checks.length === 1 ? '' : 's'}</span>`;
 }
 
 function renderActivityRows(students = []) {
@@ -149,16 +118,14 @@ function renderActivityRows(students = []) {
   const singleClass = new Set(sortedStudents.map(row => row.classId ?? row.className)).size <= 1;
   let initialVisible=0;
   const classNumbers = new Map();
-  return `<div class="admin-table-wrap"><table class="admin-table activity-table" data-single-class="${singleClass ? 'true' : 'false'}"><thead><tr><th scope="col" class="student-row-number">#</th><th>Student</th><th data-col="class">Class</th><th>Last active</th><th>This week</th><th>${pathwayHeader()}<span class="vocab-sr">Vocabulary progression</span></th><th>Unit Check</th><th>Alerts</th></tr></thead><tbody>${sortedStudents.map(row => {
+  return `<div class="admin-table-wrap"><table class="admin-table activity-table" data-single-class="${singleClass ? 'true' : 'false'}"><thead><tr><th scope="col" class="student-row-number">#</th><th>Student</th><th data-col="class">Class</th><th>Last recorded practice</th><th>Active days this week</th><th>Vocabulary units</th><th>Unit Checks</th><th>Merits</th></tr></thead><tbody>${sortedStudents.map(row => {
     const classKey=String(row.classId ?? row.className ?? '');
     classNumbers.set(classKey,(classNumbers.get(classKey)??0)+1);
     const classNumber=classNumbers.get(classKey);
-    const lastActive = row.hasStarted ? relativeDay(row.lastActive) : 'Not started';
-    const exact = row.hasStarted ? formatDate(row.lastActive) : '';
-    const progression = row.hasStarted ? pathwayStrip(row.pathways) : 'Not started';
-    const initiallyShown=Boolean(row.needsAttention)&&initialVisible<10;
-    if(initiallyShown)initialVisible++;
-    return `<tr data-activity-row data-class-id="${escapeHtml(row.classId ?? '')}" data-student-name="${escapeHtml(String(row.displayName??'').toLowerCase())}" data-started="${row.hasStarted ? 'true' : 'false'}" data-needs-attention="${row.needsAttention ? 'true' : 'false'}" data-new-merits="${row.pendingMerits ? 'true' : 'false'}"${initiallyShown?'':' hidden'}><td class="student-row-number" data-label="#" data-student-number>${classNumber}</td><td data-label="Student"><button class="admin-link-button activity-student-link" data-action="activity-student" data-student-id="${escapeHtml(row.studentId)}">${escapeHtml(row.displayName)}</button></td><td data-col="class" data-label="Class">${escapeHtml(row.className)}</td><td data-label="Last active" data-started="${row.hasStarted ? 'true' : 'false'}"${exact ? ` title="${escapeHtml(exact)}"` : ''}>${escapeHtml(lastActive)}</td><td data-label="This week">${escapeHtml(String(row.activityThisWeek))}</td><td class="activity-progression" data-label="Progress" data-default="${row.hasStarted ? 'false' : 'true'}">${progression}</td><td data-label="Unit Check">${unitCheckCell(row.unitCheck)}</td><td data-label="Alerts">${alertsCell(row)}</td></tr>`;
+    const lastActive = row.lastPractice ? formatDate(row.lastPractice) : '—';
+    const progression = row.unitPathways?.length || '—';
+    const initiallyShown = initialVisible++ < 10;
+    return `<tr data-activity-row data-class-id="${escapeHtml(row.classId ?? '')}" data-student-name="${escapeHtml(String(row.displayName??'').toLowerCase())}" data-started="${row.practiceState === 'recorded' ? 'true' : 'false'}" data-practice-state="${escapeHtml(row.practiceState ?? '')}" data-new-merits="${row.pendingMerits ? 'true' : 'false'}"${initiallyShown?'':' hidden'}><td class="student-row-number" data-label="#" data-student-number>${classNumber}</td><td data-label="Student"><button class="admin-link-button activity-student-link" data-action="activity-student" data-student-id="${escapeHtml(row.studentId)}">${escapeHtml(row.displayName)}</button></td><td data-col="class" data-label="Class">${escapeHtml(row.className)}</td><td data-label="Last recorded practice">${escapeHtml(lastActive)}</td><td data-label="Active days this week">${escapeHtml(String(row.activeDays ?? 'Unavailable'))}</td><td class="activity-progression" data-label="Progress" data-default="${row.unitPathways?.length ? 'false' : 'true'}">${progression}</td><td data-label="Unit Check">${unitCheckCell(row.unitChecks)}</td><td data-label="Merits">${row.pendingMerits ? pill(`${row.pendingMerits} pending`, 'done') : '—'}</td></tr>`;
   }).join('')}</tbody></table></div>`;
 }
 
@@ -166,27 +133,32 @@ function detailPathways(pathways = {}) {
   return `<ul class="activity-rows">${Object.entries(pathwayLabels).map(([id,label]) => {
     const state = pathways?.[id] ?? {};
     const stage = state.currentStage ?? 'recognise';
-    return `<li data-pathway="${escapeHtml(id)}" data-stage="${escapeHtml(stage)}"><span>${escapeHtml(label)}</span><span>${pill(stageLabels[stage] ?? stage, stageTones[stage] ?? 'quiet')}${state.needsPractice === true ? ` ${pill('Needs practice', 'warn')}` : ''}</span></li>`;
+    if (state.available === false) return `<li><span>${escapeHtml(label)}</span><span>Unavailable</span></li>`;
+    return `<li data-pathway="${escapeHtml(id)}" data-stage="${escapeHtml(stage)}"><span>${escapeHtml(label)}</span><span>${pill(stageLabels[stage] ?? stage, stageTones[stage] ?? 'quiet')}</span></li>`;
   }).join('')}</ul>`;
 }
 
 function renderStudentDetail(student) {
-  const lastActive = student.hasStarted ? formatDate(student.lastActive) : 'Not started';
-  const pathways = student.hasStarted ? detailPathways(student.pathways) : '<p class="activity-quiet">Not started</p>';
-  const checkRows = student.unitCheck?.rows?.length ? student.unitCheck.rows.map(row => `<li><span>Attempt ${escapeHtml(row.attemptNumber ?? row.attempt_number)}</span><span><strong>${escapeHtml(row.score)}/${escapeHtml(row.maxScore ?? row.max_score)}</strong> <span class="activity-quiet">${escapeHtml(formatDate(row.completedAt ?? row.completed_at))}</span></span></li>`).join('') : '<li class="activity-quiet">No Unit Check attempts yet.</li>';
+  const lastActive = student.lastPractice ? formatDate(student.lastPractice) : '—';
+  const pathways = student.unitPathways?.length
+    ? student.unitPathways.map(unit => `<h4>Unit ${unit.unitNumber}</h4>${unit.pathways ? detailPathways(unit.pathways) : 'Coverage unavailable'}`).join('')
+    : '<p class="activity-quiet">No contextual pathway evidence.</p>';
+  const checkRows = student.unitChecks?.length ? student.unitChecks.map(unit =>
+    `<li><div><strong>Unit ${unit.unitNumber}</strong> · Latest ${unit.latestScore}/10 · Best ${unit.bestScore}/10<br>${unit.attemptsUsed}/3 attempts used · ${unit.attemptsRemaining} remaining
+    <ul>${unit.rows.map(row => `<li>Attempt ${row.attemptNumber}${row.formId ? ` · Form ${escapeHtml(row.formId)}` : ''} · ${row.score}/${row.maxScore} · ${escapeHtml(formatDate(row.completedAt))}</li>`).join('')}</ul></div></li>`).join('')
+    : '<li class="activity-quiet">No recorded Unit Check attempts.</li>';
   const meritRows = student.pendingMeritNumbers?.length ? student.pendingMeritNumbers.map(number => `<li><span>Merit ${escapeHtml(number)} ${pill('Waiting', 'warn')}</span><button class="button admin-button button--primary" data-action="activity-award-merit" data-student-id="${escapeHtml(student.studentId)}" data-merit-number="${escapeHtml(number)}">Mark awarded</button></li>`).join('') : '<li class="activity-quiet">No new merits waiting.</li>';
-  const attention = student.attention?.length ? `<p class="activity-pills">${student.attention.map(item => pill(item.label, 'warn')).join(' ')}</p>` : '<p class="activity-quiet">No current flags.</p>';
   const activity = student.recentActivity?.length ? `<ol class="activity-feed">${student.recentActivity.map(item => `<li><span class="activity-quiet">${escapeHtml(formatDate(item.occurredAt))}</span> ${escapeHtml(item.label)}${item.appKey ? ` <span class="activity-quiet">(${escapeHtml(item.appKey)})</span>` : ''}</li>`).join('')}</ol>` : '<p class="activity-quiet">No recent activity.</p>';
-  const flagged = student.attention?.length ? pill('Needs attention', 'warn') : '';
-  return `${notice({ notice:'' })}<button class="button admin-button admin-button--quiet" data-action="activity-back">← Back to Activity</button><div class="activity-detail-head"><p class="eyebrow">Student activity</p><h2>${escapeHtml(student.displayName)} ${flagged}</h2><p>${escapeHtml(student.className)}${student.studentNumber ? ` <span aria-hidden="true">·</span> Student ID: ${escapeHtml(student.studentNumber)}` : ''}</p></div><div class="activity-detail-grid"><section class="admin-card activity-card"><h3>Usage</h3><ul class="activity-rows"><li><span>Last active</span><strong>${escapeHtml(lastActive)}</strong></li><li><span>Activity this week</span><strong>${escapeHtml(student.activityThisWeek)}</strong></li><li><span>Recent app</span><strong>${escapeHtml(student.recentApp ?? '—')}</strong></li><li><span>Recent pathway</span><strong>${escapeHtml(student.recentPathway ?? '—')}</strong></li></ul></section><section class="admin-card activity-card"><h3>Vocabulary progression</h3>${pathways}</section><section class="admin-card activity-card"><h3>Needs attention</h3>${attention}</section><section class="admin-card activity-card"><h3>Merits</h3><ul class="activity-rows">${meritRows}</ul></section><section class="admin-card activity-card"><h3>Unit Checks</h3><ul class="activity-rows">${checkRows}</ul></section><section class="admin-card activity-card"><h3>Recent activity</h3>${activity}</section></div>`;
+  return `${notice({ notice:'' })}<button class="button admin-button admin-button--quiet" data-action="activity-back">← Back to Activity</button><div class="activity-detail-head"><p class="eyebrow">Student activity</p><h2>${escapeHtml(student.displayName)}</h2><p>${escapeHtml(student.className)}${student.studentNumber ? ` <span aria-hidden="true">·</span> Student ID: ${escapeHtml(student.studentNumber)}` : ''}</p></div><div class="activity-detail-grid"><section class="admin-card activity-card"><h3>Recorded engagement</h3><p class="activity-quiet">Current enrolment · 30-day lookback for activity logs · China time</p><ul class="activity-rows"><li><span>Last recorded practice</span><strong>${escapeHtml(lastActive)}</strong></li><li><span>Active days this week</span><strong>${escapeHtml(student.activeDays ?? 'Unavailable')}</strong></li><li><span>Last recorded interaction</span><strong>${escapeHtml(student.lastInteraction ? formatDate(student.lastInteraction) : '—')}</strong></li></ul></section><section class="admin-card activity-card"><h3>Vocabulary progression</h3>${pathways}</section><section class="admin-card activity-card"><h3>Vocabulary merits</h3><p>${student.eligibleMerits ?? '—'} eligible at current threshold · ${student.pendingMerits ?? '—'} pending · ${student.awardedMerits ?? '—'} awarded</p><ul class="activity-rows">${meritRows}</ul></section><section class="admin-card activity-card"><h3>Unit Checks</h3><ul class="activity-rows">${checkRows}</ul></section><section class="admin-card activity-card"><h3>Recent activity</h3>${student.practiceState === 'retrieval-failure' ? '<p>Activity records could not be loaded.</p>' : activity}</section></div>`;
 }
 
 function renderActivity(model) {
-  const dashboard = model.activityDashboard ?? { students:[], pendingMerits:0, needsAttention:0 };
+  if (!model.activityDashboard) return notice({ notice:'Student Activity could not be loaded. Reopen Activity to retry.' });
+  const dashboard = model.activityDashboard;
   const selected = model.selectedStudentId ? dashboard.students.find(row => row.studentId === model.selectedStudentId) : null;
   if (selected) return `${notice(model)}${renderStudentDetail(selected)}`;
   const classes = [...new Map(dashboard.students.map(row => [row.classId,row.className])).entries()].filter(([id]) => id);
-  return `${notice(model)}<div class="admin-list-header"><div><p class="eyebrow">Student activity</p><h2>What students are doing</h2><p class="muted">${dashboard.pendingMerits} new merit${dashboard.pendingMerits === 1 ? '' : 's'} · ${dashboard.needsAttention} student${dashboard.needsAttention === 1 ? '' : 's'} need attention</p></div><div class="admin-filters"><input type="search" placeholder="Search students" data-activity-filter="search" aria-label="Search students"><select data-activity-filter="class" aria-label="Filter by class"><option value="all">All classes</option>${classes.map(([id,name]) => option(id,name)).join('')}</select><select data-activity-filter="state" aria-label="Filter by activity"><option value="attention" selected>Needs attention</option><option value="started">Started practice</option><option value="notstarted">Not started</option><option value="merits">New merits</option><option value="all">All students</option></select></div></div><div class="activity-list-status"><span data-activity-list-count role="status" aria-live="polite"></span><span>Use the filters to find a class or student</span></div>${renderActivityRows(dashboard.students)}<p class="admin-empty activity-list-empty" data-activity-list-empty hidden>No students currently need attention in this selection.</p><div class="activity-list-footer"><button type="button" class="button admin-button activity-list-more" data-action="activity-show-more" hidden>Show next 10 students</button></div>`;
+  return `${notice(model)}<div class="admin-list-header"><div><p class="eyebrow">Student activity</p><h2>What students are doing</h2><p class="muted">${dashboard.pendingMerits} new merit${dashboard.pendingMerits === 1 ? '' : 's'}</p></div><div class="admin-filters"><input type="search" placeholder="Search students" data-activity-filter="search" aria-label="Search students"><select data-activity-filter="class" aria-label="Filter by class"><option value="all">All classes</option>${classes.map(([id,name]) => option(id,name)).join('')}</select><select data-activity-filter="state" aria-label="Filter by activity"><option value="all" selected>All students</option><option value="started">Recorded practice this week</option><option value="notstarted">No recorded practice this week</option><option value="merits">New merits</option></select></div></div><div class="activity-list-status"><span data-activity-list-count role="status" aria-live="polite"></span><span>Use the filters to find a class or student</span></div>${renderActivityRows(dashboard.students)}<p class="admin-empty activity-list-empty" data-activity-list-empty hidden>No students match these filters.</p><div class="activity-list-footer"><button type="button" class="button admin-button activity-list-more" data-action="activity-show-more" hidden>Show next 10 students</button></div>`;
 }
 
 export function renderAdmin(root, model) {

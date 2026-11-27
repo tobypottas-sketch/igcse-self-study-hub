@@ -15,7 +15,7 @@ export function normalisePathwaysPerMerit(value) {
   return parsed;
 }
 
-export function countMasteredPathways({ occurrences = [], unitMastery = {}, globalMastery = {} } = {}) {
+export function countMasteredPathways({ occurrences = [], unitMastery = {}, globalMastery = {}, coverageByUnit } = {}) {
   const byUnit = new Map();
   for (const occurrence of occurrences) {
     const unit = unitNumberOf(occurrence);
@@ -24,8 +24,8 @@ export function countMasteredPathways({ occurrences = [], unitMastery = {}, glob
     byUnit.get(unit).push(occurrence);
   }
   let completed = 0;
-  for (const unitOccurrences of byUnit.values()) {
-    const states = buildUnitPathwayStates({ occurrences:unitOccurrences, unitMastery, globalMastery });
+  for (const [unitNumber, unitOccurrences] of byUnit) {
+    const states = buildUnitPathwayStates({ occurrences:unitOccurrences, unitMastery, globalMastery, coverageByPathway:coverageByUnit?.[unitNumber] });
     for (const state of Object.values(states)) if (state?.available !== false && state?.mastered === true) completed += 1;
   }
   return completed;
@@ -47,7 +47,7 @@ export function meritProgress(completedPathways, pathwaysPerMerit = DEFAULT_PATH
   };
 }
 
-export function buildMeritStatus({ students = [], occurrences = [], unitMastery = [], globalMastery = [], awards = [] } = {}) {
+export function buildMeritStatus({ students = [], occurrences = [], unitMastery = [], globalMastery = [], awards = [], coverageByUnit } = {}) {
   const awardedByStudent = new Map();
   for (const award of awards) {
     const id = award.studentId ?? award.student_id;
@@ -58,7 +58,7 @@ export function buildMeritStatus({ students = [], occurrences = [], unitMastery 
   return students.map(student => {
     const unit = Object.fromEntries(unitMastery.filter(row => row.studentId === student.id).map(row => [row.occurrenceId, row]));
     const global = Object.fromEntries(globalMastery.filter(row => row.studentId === student.id).map(row => [row.vocabularyId, row]));
-    const completedPathways = countMasteredPathways({ occurrences, unitMastery:unit, globalMastery:global });
+    const completedPathways = countMasteredPathways({ occurrences, unitMastery:unit, globalMastery:global, coverageByUnit });
     const pathwaysPerMerit = normalisePathwaysPerMerit(student.meritPathwaysRequired ?? student.merit_pathways_required);
     const eligibleByProgress = Math.floor(completedPathways / pathwaysPerMerit);
     const done = awardedByStudent.get(student.id) ?? new Set();
@@ -73,6 +73,7 @@ export function buildMeritStatus({ students = [], occurrences = [], unitMastery 
       completedPathways,
       pathwaysPerMerit,
       earned,
+      eligibleByProgress,
       awarded:done.size,
       pendingNumbers,
       nextMeritNumber,

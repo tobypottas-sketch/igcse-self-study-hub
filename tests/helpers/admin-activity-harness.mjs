@@ -9,15 +9,14 @@ const IDS = ${JSON.stringify(IDS)}, STAGES = ${JSON.stringify(STAGES)};
 const now = Date.now();
 const students = Array.from({ length: 14 }, (_, i) => ({
   studentId: 's' + i, displayName: 'Synthetic Student ' + String.fromCharCode(65 + i), classId: 'c1', className: '9 ESL 1',
-  hasStarted: i !== 13, lastActive: new Date(now - i * 86400000).toISOString(), activityThisWeek: i % 6,
-  pathways: Object.fromEntries(IDS.map((id, j) => [id, { currentStage: STAGES[(i + j) % 5 === 4 && i % 3 ? 0 : (i * j) % 5] }])),
-  unitCheck: i % 3 === 0 ? { attemptsUsed: 2, latestScore: 8, bestScore: 9, rows: [{ attemptNumber: 1, score: 7, maxScore: 10, completedAt: new Date(now - 5 * 86400000).toISOString() }, { attemptNumber: 2, score: 8, maxScore: 10, completedAt: new Date(now - 2 * 86400000).toISOString() }] } : { attemptsUsed: 0, rows: [] },
+  practiceState:i === 13 ? 'no-records' : 'recorded', lastPractice:new Date(now - i * 86400000).toISOString(), activeDays:i % 6,
+  unitPathways:i === 13 ? [] : [{ unitNumber:1, pathways:Object.fromEntries(IDS.map((id, j) => [id, { currentStage: STAGES[(i + j) % 5 === 4 && i % 3 ? 0 : (i * j) % 5] }])) }],
+  unitChecks: i % 3 === 0 ? [{ unitNumber:1, attemptsRemaining:1, attemptsUsed:2, latestScore: 8, bestScore: 9, rows: [{ attemptNumber: 1, score: 7, maxScore: 10, completedAt: new Date(now - 5 * 86400000).toISOString() }, { attemptNumber: 2, score: 8, maxScore: 10, completedAt: new Date(now - 2 * 86400000).toISOString() }] }] : [],
   pendingMerits: i % 4 === 1 ? 1 : 0, pendingMeritNumbers: i % 4 === 1 ? [1] : [],
-  needsAttention: i % 5 === 2, attention: i % 5 === 2 ? [{ label: 'Active but no recent progression' }] : [],
   recentApp: 'Vocabulary', recentPathway: 'Context',
   recentActivity: [{ occurredAt: new Date(now - 86400000).toISOString(), label: 'Completed a mission', appKey: 'vocabulary' }, { occurredAt: new Date(now - 3 * 86400000).toISOString(), label: 'Started Unit Check', appKey: 'vocabulary' }]
 }));
-const base = { profile: { role: 'teacher', display_name: 'Synthetic Teacher' }, section: 'activity', classes: [{ id: 'c1', className: '9 ESL 1' }], activityDashboard: { students, pendingMerits: 3, needsAttention: 3 } };
+const base = { profile: { role: 'teacher', display_name: 'Synthetic Teacher' }, section: 'activity', classes: [{ id: 'c1', className: '9 ESL 1' }], activityDashboard: { students, pendingMerits: 3 } };
 window.__show = name => renderAdmin(document.querySelector('#app'), name === 'detail' ? { ...base, selectedStudentId: 's2' } : base);
 `;
 

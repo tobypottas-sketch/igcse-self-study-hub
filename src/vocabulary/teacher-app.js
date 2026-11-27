@@ -1,3 +1,5 @@
+import { loadReportingCoverage } from '../reporting/pathway-coverage.js';
+import { saveVocabularyMerits } from './merit-awards.js';
 import { escapeHtml } from '../views/html.js';
 import { buildClassInsights, buildPathwayAnalytics, buildProblemDrilldown, buildStudentProfile } from './analytics.js';
 import { buildVocabularyInterventionDraft, createLearningIntervention } from './interventions.js';
@@ -142,7 +144,7 @@ function classHabits(classData) {
 
 function classMerits(classData) {
   if (classData.meritsAvailable === false) return { available:false, skillsPerMerit:SKILLS_PER_MERIT, rows:[] };
-  const rows = buildMeritStatus({ students:classData.students, occurrences:classData.occurrences, unitMastery:classData.unitMastery ?? [], globalMastery:classData.mastery, awards:classData.awards ?? [] });
+  const rows = buildMeritStatus({ students:classData.students, occurrences:classData.occurrences, unitMastery:classData.unitMastery ?? [], globalMastery:classData.mastery, awards:classData.awards ?? [], coverageByUnit:classData.meritCoverage });
   return { available:true, skillsPerMerit:SKILLS_PER_MERIT, rows };
 }
 
@@ -154,10 +156,8 @@ async function awardMerit(target) {
   target.disabled = true;
   const original = target.textContent;
   target.textContent = 'Saving…';
-  const records = row.pendingNumbers.map(meritNumber => ({ student_id:studentId, merit_number:meritNumber, awarded_by:teacherState.profile?.id }));
   try {
-    const { error } = await teacherState.client.from('vocabulary_merit_awards').upsert(records, { onConflict:'student_id,merit_number', ignoreDuplicates:true });
-    if (error) throw new Error('Unable to save this merit. Please try again.');
+    await saveVocabularyMerits(teacherState.client, teacherState.profile.id, studentId, row.pendingNumbers);
     classData.awards = [...(classData.awards ?? []), ...row.pendingNumbers.map(meritNumber => ({ studentId, meritNumber }))];
     void openClass(classData.id).catch(showError);
   } catch (error) {
@@ -207,6 +207,7 @@ async function openClass(classId) {
   }
   const classData = teacherState.data.classes.find(row => row.id === classId);
   if (!classData) return;
+  classData.meritCoverage = await loadReportingCoverage(teacherState.client, classData.occurrences);
   const { options, selected } = selectedUnit(classData);
   for (const unit of selected === 'all' ? options : options.filter(option => option.unitNumber === selected)) await ensureReadiness(unit.unitNumber);
   if (teacherState.currentClass?.id !== classId) teacherState.weeklyWeeksAgo = 0;
