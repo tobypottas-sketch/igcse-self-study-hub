@@ -10,6 +10,7 @@ const attr = h;
 const button = (action,label,extra='') => '<button type="button" class="sp-button" data-action="'+action+'" '+extra+'>'+h(label)+'</button>';
 const stat = (label,value,detail='') => '<div class="sp-stat"><span>'+h(label)+'</span><strong>'+val(value)+'</strong><small>'+h(detail)+'</small></div>';
 function daily(group,period) {
+  if (!group.enrolled) return '<p class="sp-muted">No enrolled students.</p>';
   if (!period || group.unknown) return '<p class="sp-muted">Daily engagement unavailable.</p>';
   const start=Date.parse(schoolDay(period.start)+'T00:00:00+08:00');
   const end=Math.min(period.end-1,period.asOf);
@@ -47,6 +48,6 @@ export function renderStudentProgress(root,state) {
  else if(state.loading) body='<p role="status">Loading student progress…</p>';
  else if(!model.available) body='<p role="alert">Student progress is unavailable.</p>'+button('sp-refresh','Try again');
  else if(group) body='<div class="sp-tabs">'+tabs.map(t=>button('sp-tab',({overview:'Overview',students:'Students',learning:'Learning areas'})[t],'data-tab="'+t+'" aria-pressed="'+(state.tab===t)+'"')).join('')+'</div>'+(state.tab==='students'?table(group,state):state.tab==='learning'?modules(group):card(group,state.period));
- else body='<div class="sp-stats">'+stat('Classes',totals.classes,'With enrolled students')+stat('Students',totals.enrolled,'Current roster')+stat('Active learners',totals.activeLearners,'Selected period')+stat('Pending merits',totals.pendingMerits,'All time · Vocabulary')+'</div><div class="sp-grid">'+model.classes.map(c=>card(c,state.period)).join('')+'</div>'+(!model.classes.length?'<p>No authorised classes with enrolled students.</p>':'');
+ else body='<div class="sp-stats">'+stat('Classes',totals.classes,'Authorised active classes')+stat('Students',totals.enrolled,'Current roster')+stat('Active learners',totals.activeLearners,'Selected period')+stat('Pending merits',totals.pendingMerits,'All time · Vocabulary')+'</div><div class="sp-grid">'+model.classes.map(c=>card(c,state.period)).join('')+'</div>'+(!model.classes.length?'<p>No authorised active classes.</p>':'');
  root.innerHTML='<section class="sp-shell"><div class="sp-top">'+button('sp-back',state.classId?'‹ All classes':'‹ Back to Hub')+button('sp-refresh','Refresh')+'</div><header><p class="sp-kicker">Teacher workspace</p><h1>Student Progress</h1><h2>'+h(group?.className??'My classes at a glance')+'</h2></header><div class="sp-tools"><label>Reporting period <select data-sp-period>'+periods.map(([k,l])=>'<option value="'+k+'" '+(state.kind===k?'selected':'')+'>'+l+'</option>').join('')+'</select></label>'+(state.kind==='custom'?'<label>From <input type="date" data-sp-from value="'+attr(state.from??'')+'"></label><label>To <input type="date" data-sp-to value="'+attr(state.to??'')+'"></label>'+button('sp-apply','Apply dates'):'')+'</div>'+(state.error?'<p role="alert">'+h(state.error)+'</p>':'')+(model.preview?'<p>Illustrative preview data</p>':'')+body+'<footer>Recorded practice only. Missing records do not indicate poor performance. Module coverage varies. School time: Asia/Shanghai.</footer></section>';
 }
