@@ -16,7 +16,8 @@ export function createActiveLearningClock({
         Math.abs(nextWall - wall - elapsed) <= 2000) {
       const end = playing ? next : Math.min(next, lastInteraction + idleMs);
       const ms = Math.max(0, end - last);
-      if (ms > 0) pending.push({ context, startMs: wall, endMs: wall + ms });
+      const startMs = Math.ceil(wall), endMs = Math.floor(wall + ms);
+      if (endMs > startMs) pending.push({ context, startMs, endMs });
     }
     last = next; wall = nextWall;
   }
