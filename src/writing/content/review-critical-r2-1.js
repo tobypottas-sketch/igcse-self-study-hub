@@ -16,7 +16,7 @@ const revisions = [
    ['pace-v2', 'Try it for the believable characters, but only if you are happy to watch a film with slow pacing throughout.', 'This recognises the club’s interest in the characters, but the review only says the middle is slow. It does not say the whole film is slow.']
   ]],
  ['pedagogy-extra-q-27',
-  'Students have a twenty-minute lunch break. The café is a four-minute walk each way. Today a takeaway meal took five minutes from ordering to collection.',
+  'Students have a twenty-minute lunch break. The café is a four-minute walk each way. Today it took five minutes in total to order and collect a takeaway meal.',
   'Which advice uses today’s service time to help students decide whether to go?', 'seven-v2', [
    ['seven-v2', 'Go if seven minutes is enough for you to eat and service is as quick as it was today.', 'The two walks take eight minutes and collection takes five. That leaves seven minutes.'],
    ['eleven-v2', 'Go if eleven minutes is enough for you to eat and service is as quick as it was today.', 'Eleven minutes remain before the walk back. Allow another four minutes for that walk.'],
