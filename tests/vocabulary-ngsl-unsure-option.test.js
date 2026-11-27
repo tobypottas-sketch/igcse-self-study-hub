@@ -36,7 +36,7 @@ test('students and teachers see correct / wrong / unsure with no effect on exist
  assert.match(student,/ngsl-response-breakdown/);
  assert.match(report,/Not sure<\/th>/);
  assert.match(report,/r\.result\?\.unsure\?\?''/);
- assert.match(html,/diagnostic-student\.css\?v=ngsl-normal-scroll-v4/);
+ assert.match(html,/diagnostic-student\.css\?v=ngsl-legend-width-v5/);
  assert.match(html,/router\.js\?v=ngsl-normal-scroll-v4/);
  assert.match(router,/ngsl-student\.js\?v=ngsl-normal-scroll-v4/);
 });
@@ -61,3 +61,12 @@ test('student start never requests fullscreen and normal browser scrolling is re
  assert.match(css,/overflow-y:auto!important/);
  assert.match(css,/\.diag-assessment \.diag-actions\{\s*position:sticky;bottom:0/);
 });
+
+ test('NGSL instruction legend is full width independently of fieldset grid sizing',()=>{
+  const css=read('vocabulary-diagnostic-student.css');
+  const source=read('src/vocabulary/ngsl-student.js');
+  const rule=selector=>css.slice(css.indexOf(selector+'{')).split('}')[0];
+  assert.match(rule('#vocabularyApp .ngsl-player fieldset.diag-choices'),/display:block;[\s\S]*width:100%;[\s\S]*min-inline-size:0/);
+  assert.match(rule('#vocabularyApp .ngsl-player fieldset.diag-choices>legend'),/width:100%;[\s\S]*white-space:normal/);
+  assert.match(source,/<fieldset class="diag-choices"><legend>/);
+ });
