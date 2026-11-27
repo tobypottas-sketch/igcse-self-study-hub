@@ -55,3 +55,28 @@
   .app-results__count { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .skill-card, .app-card[data-skill]::before { transition: none; } .skill-card:hover { transform: none; } }
+
+
+/* Staff merit notifications: scoped to the Hub home header and dialog. */
+.home-account-controls { display:flex; align-items:center; justify-content:flex-end; gap:12px; flex:0 0 auto; }
+.home-merit-bell { position:relative; display:grid; place-items:center; width:44px; height:44px; padding:0; border:0; border-radius:12px; background:transparent; color:#426075; cursor:pointer; }
+.home-merit-bell:hover { background:rgba(30,75,105,.08); color:#163c56; }
+.home-merit-bell:focus-visible { outline:2px solid #187e9b; outline-offset:3px; }
+.home-merit-bell__count { position:absolute; top:0; right:0; min-width:18px; height:18px; padding:0 4px; display:grid; place-items:center; border:2px solid #f0f7fb; border-radius:999px; background:#b93643; color:#fff; font:700 10px/1 system-ui,sans-serif; box-sizing:border-box; }
+.merit-dialog { width:min(480px,calc(100vw - 32px)); max-height:calc(100dvh - 32px); box-sizing:border-box; padding:24px; overflow:auto; border:1px solid #d9e5eb; border-radius:20px; background:#fff; color:#18354b; box-shadow:0 24px 80px rgba(13,41,62,.22); }
+.merit-dialog::backdrop { background:rgba(17,40,57,.40); }
+.merit-dialog__header { display:flex; align-items:center; gap:14px; }
+.merit-dialog__icon { display:grid; place-items:center; flex:0 0 48px; height:48px; border-radius:14px; background:#eaf5f7; color:#176b83; }
+.merit-dialog__eyebrow { margin:0 0 4px; font-size:11px; font-weight:750; letter-spacing:.08em; text-transform:uppercase; color:#526b7c; }
+.merit-dialog h2 { margin:0; font-size:22px; line-height:1.25; }
+.merit-dialog__intro { margin:18px 0; color:#526b7c; line-height:1.55; }
+.merit-dialog__list { list-style:none; padding:0; margin:0; max-height:35vh; overflow:auto; border:1px solid #e0e9ee; border-radius:12px; }
+.merit-dialog__list li { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; }
+.merit-dialog__list li+li { border-top:1px solid #e0e9ee; }
+.merit-dialog__list li div { min-width:0; overflow-wrap:anywhere; }
+.merit-dialog__list li strong,.merit-dialog__list li div span { display:block; }
+.merit-dialog__list li div span { color:#526b7c; font-size:13px; margin-top:3px; }
+.merit-dialog__count { flex:none; color:#176b83; font-size:13px; font-weight:700; }
+.merit-dialog__note { margin:14px 0 0; font-size:13px; color:#526b7c; }
+.merit-dialog__actions { display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; margin-top:22px; }
+@media (max-width:560px) { .home-account-controls { gap:4px; } .home-account-controls .home-logout { padding-inline:10px; } .home-account-controls .home-merit-bell { width:44px; } .merit-dialog { padding:18px; } }
