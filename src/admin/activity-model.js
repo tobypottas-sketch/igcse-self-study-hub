@@ -14,9 +14,9 @@ function indexByStudent(rows) {
 
 export function buildActivityDashboard({
   students = [], occurrences = [], globalMastery = [], unitMastery = [], activity = [],
-  unitChecks = [], awards = [], now = new Date(), coverageByUnit, engagementAvailable = true
+  unitChecks = [], awards = [], now = new Date(), coverageByUnit, engagementAvailable = true, selectedPeriod = null
 } = {}) {
-  const period = reportingPeriod('thisWeek', { now });
+  const period = selectedPeriod ?? reportingPeriod('thisWeek', { now });
   const merits = new Map(buildMeritStatus({
     students, occurrences, globalMastery, unitMastery, awards, coverageByUnit
   }).map(merit => [merit.studentId, merit]));
@@ -47,6 +47,8 @@ export function buildActivityDashboard({
       practiceState:!engagement ? 'retrieval-failure' : !engagement.sufficient ? 'insufficient-evidence'
         : engagement.activeDays ? 'recorded' : 'no-records',
       learningAreas:engagement?.learningAreas ?? [],
+      activeDateKeys:engagement ? [...new Set([...engagement.modules.values()].flatMap(m => [...m.activeDays]))].sort() : [],
+      recentModule:engagement?.lastPractice?.appKey ?? null,
       unitPathways:reportUnitPathways(occurrences, contextual.get(student.id) ?? [], global.get(student.id) ?? [], coverageByUnit),
       unitChecks:history, awardedMerits:merit.awarded, eligibleMerits:merit.eligibleByProgress,
       pendingMerits:merit.pendingNumbers.length, pendingMeritNumbers:merit.pendingNumbers,
