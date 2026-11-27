@@ -51,3 +51,12 @@ export function writingComplete(run, task) {
    || (task.allowKeep && (run.original.trim().replace(/\s+/g,' ') !== run.revision.trim().replace(/\s+/g,' ') || hasWritingAttempt(run.keepReason??'',8))))
   && run.checks.size === task.checks.length;
 }
+
+// These are evidence states for an independent writing workflow.
+export function writingEvidence(run,task) {
+ if(writingComplete(run,task))return 'self-reviewed';
+ if(!run.original)return run.draft.trim()?'draft':'not-attempted';
+ const changed=run.original.trim().replace(/\s+/g,' ')!==run.revision.trim().replace(/\s+/g,' ');
+ return (changed && hasWritingAttempt(run.revision,task.min)) || (task.allowKeep && hasWritingAttempt(run.keepReason??'',8))
+  ? 'revised-or-retained':'compared';
+}

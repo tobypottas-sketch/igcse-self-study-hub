@@ -11,3 +11,18 @@ test('report counts missing students and excludes unrelated tasks and dates', ()
   const rows=buildWritingRows(roster,submissions,{classId:'x',appKey:'review_writing',from:'2026-11-24',to:'2026-11-24',task:'Restaurant'});
   assert.deepEqual(rows.map(r=>[r.studentId,r.submissions.length]),[['a',1],['b',0]]);
 });
+
+test('independent writing evidence separates a draft, comparison, revision and self-review',async()=>{
+ const {writingEvidence}=await import('../src/writing/engine/activities.js');
+ const task={min:3,checks:['Evidence'],allowKeep:true};
+ const run={draft:'',original:'',revision:'',checks:new Set()};
+ assert.equal(writingEvidence(run,task),'not-attempted');
+ run.draft='An unfinished review.';
+ assert.equal(writingEvidence(run,task),'draft');
+ run.original=run.revision=run.draft;
+ assert.equal(writingEvidence(run,task),'compared');
+ run.revision='An unfinished review!';
+ assert.equal(writingEvidence(run,task),'revised-or-retained');
+ run.checks.add(0);
+ assert.equal(writingEvidence(run,task),'self-reviewed');
+});

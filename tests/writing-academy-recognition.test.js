@@ -124,3 +124,22 @@ test('all Structure practice, checkpoint and writing workflows retain their asse
   assert.equal(writingComplete(run,task),true);
  }
 });
+
+test('objective evidence distinguishes attempts, independent answers, retries and support',async()=>{
+ const {recognitionQuestion,recognitionRun,checkRecognition,objectiveEvidence}=await import('../src/writing/engine/recognition.js');
+ const question=recognitionQuestion('contract',1,'Choose the best answer.','a',[
+  ['a','A','This is supported by the extract.'],['b','B','This gives a different reason.'],['c','C','This changes the audience.']
+ ]);
+ const independent=recognitionRun(question);
+ assert.equal(objectiveEvidence(question,independent),'not-attempted');
+ checkRecognition(question,independent,'a');
+ assert.equal(objectiveEvidence(question,independent),'correct-independently');
+ for(const [choice,result] of [['a','correct-after-feedback'],['c','completed-with-support']]){
+  const run=recognitionRun(question);
+  checkRecognition(question,run,'b');
+  assert.equal(objectiveEvidence(question,run),'incorrect-first-attempt');
+  checkRecognition(question,run,choice);
+  assert.equal(objectiveEvidence(question,run),result);
+  assert.equal(checkRecognition(question,run,'a'),false);
+ }
+});

@@ -36,7 +36,7 @@ Cambridge 0511 Exercise 6 includes a formal or semi-formal review as a possible 
 | --- | --- | --- |
 | R2.0 Baseline audit | Complete | 347 individually reviewed. 73 approved, 271 need revision, three need replacement. 74 relevant automated checks passed, including private diagnostic exposure checks. Simulated staff browser suite passed at four widths. |
 | R2.1 Standards and critical fixes | Implemented for staff preview | [Question standards](question-standards.md) and [five resolution records](reviews/r2-1-resolutions.md). Verify on the R2.1 PR and keep learner trials pending. |
-| R2.2 Shared interactions | Pending | Review scoring and progress compatibility before implementation. |
+| R2.2 Shared assessment and interactions | Implemented for staff preview | [Component contracts, examples and R2.3–R2.8 mapping](shared-assessment.md). See the R2.2 PR for verification. |
 | R2.3 Structure & Organisation | Pending | Prioritise Master grouping and missing destinations. |
 | R2.4 Vocabulary & Expression | Pending | Review precision, natural word combinations, tone and meaning. |
 | R2.5 Idea Development | Pending | Prioritise the robotics checkpoint. |

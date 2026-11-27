@@ -20,7 +20,10 @@ export function recognitionRun(item, saved, random) {
   && saved.attempts.every(key=>keys.includes(key)) && new Set(saved.attempts).size===saved.attempts.length
   && (saved.attempts.length<2 || !scoreItem(item,keys.indexOf(saved.attempts[0])));
  if (saved?.version===item.version && validOrder && validAttempts) {
-  return {version:item.version,order:[...saved.order],attempts:[...saved.attempts]};
+  const run = {version:item.version,order:[...saved.order],attempts:[...saved.attempts]};
+  if (keys.includes(saved.selection) && !run.attempts.includes(saved.selection)
+    && recognitionResult(item,run)==='pending') run.selection=saved.selection;
+  return run;
  }
  return {version:item.version,order:shuffledIndexes(keys.length,random).map(index=>keys[index]),attempts:[]};
 }
@@ -36,4 +39,10 @@ export function checkRecognition(item, run, optionId) {
  if (recognitionResult(item,run)!=='pending' || !item.optionIds.includes(optionId) || run.attempts.includes(optionId)) return false;
  run.attempts.push(optionId);
  return true;
+}
+
+export function objectiveEvidence(item,run) {
+ const outcome=recognitionResult(item,run);
+ if(outcome==='pending')return run?.attempts.length?'incorrect-first-attempt':'not-attempted';
+ return {first:'correct-independently',retry:'correct-after-feedback',supported:'completed-with-support'}[outcome];
 }

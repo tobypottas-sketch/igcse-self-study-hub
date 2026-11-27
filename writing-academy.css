@@ -920,3 +920,52 @@
  #writingAcademy.wa-staff-preview :is(.wa-practise-question,.wa-master-question,.wa-discovery,.wa-explore-question) .wa-option{padding:11px 12px}
  #writingAcademy.wa-staff-preview .wa-apply-editor{padding:14px}
 }
+
+/* Shared staff assessment presentations */
+.wa-plan-options, .wa-revision-options {
+ display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ align-items:stretch;
+}
+#writingAcademy.wa-staff-preview .wa-practise-question :is(.wa-plan-options,.wa-revision-options) .wa-option {
+ min-width:0;
+ overflow-wrap:anywhere;
+ align-content:start;
+ align-items:start;
+ flex-direction:column;
+ gap:.25rem;
+}
+.wa-plan-title, .wa-plan-group, .wa-plan-group span {
+ display:block;
+}
+.wa-plan-title, .wa-plan-group strong { font-weight:700; }
+.wa-plan-group { margin-block-start:.65rem; }
+.wa-plan-group span { padding-inline-start:.75rem; }
+.wa-plan-group span::before { content:'• '; }
+.wa-revision-source p { margin-block:.4rem 0; }
+.wa-sentence-extract {
+ display:block;
+ background:#f5f8fa;
+ border:1px solid #cfd9e2;
+ border-radius:.75rem;
+ padding:.75rem;
+}
+#writingAcademy.wa-staff-preview .wa-practise-question .wa-sentence-extract .wa-option {
+ display:inline;
+ width:auto;
+ margin:0 .25rem .35rem 0;
+ min-height:44px;
+ vertical-align:baseline;
+}
+.wa-vocabulary-gap { border-block-end:2px solid currentColor; font-weight:700; }
+.wa-sequence-bank, .wa-sequence-response, .wa-interaction-followup:not(:empty) {
+ margin-block:.8rem;
+}
+.wa-sequence-list { padding-inline-start:1.6rem; }
+.wa-sequence-row { padding:.55rem .7rem; margin-block:.5rem; background:#f4f7fa; border-radius:.55rem; }
+.wa-sequence-row p { margin-block:0 .4rem; overflow-wrap:anywhere; }
+.wa-sequence-controls { display:flex; flex-wrap:wrap; gap:.35rem; }
+.wa-sequence-controls button { min-height:44px; }
+@media (max-width:650px) {
+ .wa-plan-options, .wa-revision-options { grid-template-columns:minmax(0,1fr); }
+}

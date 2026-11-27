@@ -82,3 +82,30 @@ test('a revised staff question reopens only that item and keeps other decisions 
   assert.equal(resumed.gold[0].draft,'Gold draft');
   assert.equal(resumed.transfer.draft,'Master draft');
 });
+
+test('preview resumes a shuffled choice retry, developing sequence and separate editor note together',()=>{
+  const state=runtime();
+  const item={id:'order-question',optionIds:['first','second','third'],answer:[0,1,2]};
+  const ordering={id:'order-activity',type:'order',items:[item]};
+  const checked={id:'checked-item',version:2,optionIds:['a','b','c'],answer:0};
+  const preview={...content,activities:[ordering],recognition:[checked]};
+  state.recognition=new Map([[checked.id,{version:2,order:['c','b','a'],attempts:['b'],selection:'a'}]]);
+  state.attempts.set(ordering.id,{index:0,done:false,correct:0,selected:null,order:[2,0],checked:false,
+    answered:new Map(),displays:[[1,2,0]]});
+  state.gold[0].editorNote='The second sentence repeats the first.';
+  state.gold[0].draft='This is the review draft.';
+  const snapshot=capturePreview(state,preview,{stage:'practise',completed:[]});
+  const resumed=runtime();
+  resumed.recognition=new Map();
+  restorePreview(resumed,preview,snapshot);
+  assert.deepEqual(resumed.recognition.get(checked.id),state.recognition.get(checked.id));
+  assert.deepEqual(resumed.attempts.get(ordering.id).order,[2,0]);
+  assert.equal(resumed.gold[0].editorNote,state.gold[0].editorNote);
+  assert.equal(resumed.gold[0].draft,state.gold[0].draft);
+  const newVersion=runtime();
+  newVersion.recognition=new Map();
+  restorePreview(newVersion,{...preview,recognition:[{...checked,version:3}]},snapshot);
+  assert.deepEqual(newVersion.recognition.get(checked.id).attempts,[]);
+  assert.equal(newVersion.recognition.get(checked.id).selection,undefined);
+  assert.equal(newVersion.gold[0].draft,state.gold[0].draft);
+});
