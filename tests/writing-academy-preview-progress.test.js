@@ -109,3 +109,18 @@ test('preview resumes a shuffled choice retry, developing sequence and separate 
   assert.equal(newVersion.recognition.get(checked.id).selection,undefined);
   assert.equal(newVersion.gold[0].draft,state.gold[0].draft);
 });
+
+test('legacy quiz credit cannot stand in for new recognition evidence with stable option IDs',()=>{
+  const state=runtime();
+  state.attempts.set('choice',{index:2,done:true,correct:0,selected:null,order:[],checked:false,
+    answered:new Map([['first',0],['second',1]]),displays:[[1,0],[0,1]]});
+  const old=capturePreview(state,content,{stage:'practise',completed:['practise']});
+  const revised={...activity.items[0],answer:0,version:2,checkedPractice:true};
+  const next={...content,recognition:[revised],activities:[{...activity,items:[revised,activity.items[1]]}]};
+  const resumed=runtime();
+  resumed.recognition=new Map();
+  restorePreview(resumed,next,old);
+  assert.equal(resumed.attempts.get('choice').done,false);
+  assert.deepEqual(resumed.attempts.get('choice').answered,new Map([['second',1]]));
+  assert.equal(resumed.recognition.size,0);
+});

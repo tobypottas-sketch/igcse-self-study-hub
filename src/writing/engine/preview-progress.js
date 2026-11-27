@@ -1,5 +1,5 @@
 import {restoreWritingState,serializeWritingState} from './persistence-state.js';
-import {recognitionRun} from './recognition.js?v=2';
+import {recognitionResult,recognitionRun} from './recognition.js?v=2';
 import {scoreItem,shuffledIndexes} from './activities.js';
 
 export const previewStages = ['discover','explore','practise','apply','master'];
@@ -129,10 +129,17 @@ export function restorePreview(state, content, checkpoint) {
   for (const activity of activities) {
     let saved = objective[activity.id];
     if (!saved || Object.keys(saved.questions??{}).length!==activity.items.length) continue;
-    // Changed option identities invalidate only the revised item. Keep the
-    // display order and responses for other questions in the same activity.
-    const stale = activity.items.filter(item=>item.version>1
-      && saved.questions[item.id]?.displayOrder.some(id=>!item.optionIds.includes(id)));
+    // Reopen revised items only. Some changed contracts retain the same
+    // option meanings, so a legacy quiz result still needs versioned evidence.
+    const stale = activity.items.filter(item=>{
+      if(!(item.version>1))return false;
+      const answer=saved.questions[item.id];
+      if(!answer)return false;
+      if(answer.displayOrder.some(id=>!item.optionIds.includes(id)))return true;
+      if(!item.checkedPractice || (!answer.checked && answer.selection==null))return false;
+      return recognitionResult(item,state.recognition?.get(item.id))==='pending'
+        || (item.correction && recognitionResult(item.correction,state.recognition?.get(item.correction.id))==='pending');
+    });
     if (stale.length) {
       const questions = {...saved.questions};
       for (const item of stale) questions[item.id] = {

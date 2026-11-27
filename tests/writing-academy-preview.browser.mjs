@@ -142,7 +142,7 @@ async function checkR21Development(page){
  assert.equal(expected.size,0);
 }
 
-async function advanceToChoice(page, option){
+async function advanceToChoice(page, id){
  const quiz=page.locator('.wa-practise-question');
  for(let count=0;count<5;count++){
   if(await quiz.locator('[data-option-id="'+option+'"]').count())return quiz;
@@ -153,7 +153,7 @@ async function advanceToChoice(page, option){
   }
   await quiz.getByRole('button',{name:'Next question'}).click();
  }
- throw Error('Missing shared interaction '+option);
+ throw Error('Missing shared interaction '+id);
 }
 
 async function checkedChoice(quiz,key){
@@ -165,17 +165,17 @@ async function checkedChoice(quiz,key){
 async function sharedInteractionChecks(page,go,width,height){
  await page.getByRole('button',{name:'← All pathways'}).click();
  for(const sample of [
-  {path:'expression',challenge:/Find a natural combination/,key:'deeply-v2',type:'gap',wrong:'highly-v2'},
-  {path:'expression',challenge:/Preserve the original meaning/,key:'same-v2',type:'revision',wrong:'general-v2',secondWrong:'history-v2'},
-  {path:'cohesion',challenge:/Connect ideas/,key:'full-stop-v2',type:'punctuation'},
-  {path:'development',challenge:/Support a judgement/,key:'harness-v2',type:'evidence'},
-  {path:'editing',challenge:/Spot the weakness/,key:'repeats-v2',type:'editing'}
+  {path:'expression',challenge:/Find a natural combination/,id:'pedagogy-q-010',key:'option-b',type:'gap',wrong:'option-a'},
+  {path:'expression',challenge:/Preserve the original meaning/,id:'pedagogy-extra-q-15',key:'option-b',type:'revision',wrong:'option-a',secondWrong:'option-c'},
+  {path:'cohesion',challenge:/Connect ideas/,id:'cohesion-q-004',key:'option-c',type:'punctuation'},
+  {path:'development',challenge:/Support a judgement/,id:'pedagogy-q-015',key:'option-a',type:'evidence'},
+  {path:'editing',challenge:/Spot the weakness/,id:'editing-q-003',key:'repeats-v2',type:'editing'}
  ]){
   const path=page.locator('.wa-path.wa-'+sample.path);
   await path.getByRole('button',{name:/Start pathway|Resume pathway/}).click();
   await go('practise');
   await page.getByRole('button',{name:sample.challenge}).click();
-  const quiz=await advanceToChoice(page,sample.key);
+  const quiz=await advanceToChoice(page,sample.id);
   if(sample.type==='gap')assert.equal(await quiz.locator('.wa-vocabulary-gap').innerText(),'____');
   if(sample.type==='revision')assert.match(await quiz.locator('.wa-revision-source').innerText(),/Two exhibits/);
   if(sample.wrong){

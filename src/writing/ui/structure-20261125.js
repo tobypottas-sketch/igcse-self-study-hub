@@ -897,6 +897,7 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
    const nextLabel=run.answered.size+1===a.items.length?'Finish analysis':'Next question';
    if(practiceRecognition.includes(item)){
     const question=el(host,'div','wa-interaction-question');
+    question.dataset.questionId=item.id;
     const prompt=recognise(question,item,sync);
     const follow=el(host,'div','wa-interaction-followup');
     function sync(){

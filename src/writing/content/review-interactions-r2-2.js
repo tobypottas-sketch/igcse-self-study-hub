@@ -22,25 +22,25 @@ const examples=[
   ['lights','The court lights are bright enough for evening practice.','This describes playing conditions. It belongs with the other information about the courts.'],
   ['deposit','You get your deposit back when you return the racket.','This explains the cost and return conditions of borrowing a racket.']
  ],{context:'This paragraph explains how to borrow a racket.',sentenceSelection:true}),
- question('pedagogy-q-010','Which word makes the most natural phrase for a performance that affected you emotionally?','deeply-v2',[
-  ['highly-v2','highly','“Highly” often goes with words such as “effective”. Here the reviewer is expressing the depth of an emotional effect.'],
-  ['deeply-v2','deeply','“Deeply moving” is a natural way to describe a strong emotional effect.'],
-  ['strongly-v2','strongly','“Strongly” often goes with a verb, as in “strongly recommend”. This sentence needs a natural partner for “moving”.']
+ question('pedagogy-q-010','Which word makes the most natural phrase for a performance that affected you emotionally?','option-b',[
+  ['option-a','highly','“Highly” often goes with words such as “effective”. Here the reviewer is expressing the depth of an emotional effect.'],
+  ['option-b','deeply','“Deeply moving” is a natural way to describe a strong emotional effect.'],
+  ['option-c','strongly','“Strongly” often goes with a verb, as in “strongly recommend”. This sentence needs a natural partner for “moving”.']
  ],{gap:['It was a ',' moving performance.']}),
- question('pedagogy-extra-q-15','Which version still says how many exhibits had a problem and when?','same-v2',[
-  ['general-v2','Several exhibits are unreliable.','“Several” changes the number and “are unreliable” goes beyond this visit.'],
-  ['same-v2','Two exhibits were not working when I visited.','The revision still gives the exact number and limits the observation to this visit.'],
-  ['history-v2','Some exhibits have never worked properly.','This drops the number and adds a claim about earlier visits.']
+ question('pedagogy-extra-q-15','Which version still says how many exhibits had a problem and when?','option-b',[
+  ['option-a','Several exhibits are unreliable.','“Several” changes the number and “are unreliable” goes beyond this visit.'],
+  ['option-b','Two exhibits were not working when I visited.','The revision still gives the exact number and limits the observation to this visit.'],
+  ['option-c','Some exhibits have never worked properly.','This drops the number and adds a claim about earlier visits.']
  ],{original:'Two exhibits were out of order during my visit.'}),
- question('cohesion-q-004','Which version uses a full stop and comma correctly to introduce the contrast?','full-stop-v2',[
-  ['splice-v2','The centre is popular, however, it is easy to book.','A comma before “however” does not separate the two complete statements.'],
-  ['no-comma-v2','The centre is popular. However it is easy to book.','The full stop separates the statements. In this position, a comma also separates “However” from the statement it introduces.'],
-  ['full-stop-v2','The centre is popular. However, it is easy to book.','The full stop separates the statements. The comma sets off “However” at the start of the second sentence.']
+ question('cohesion-q-004','Which version uses a full stop and comma correctly to introduce the contrast?','option-c',[
+  ['option-a','The centre is popular, however, it is easy to book.','A comma before “however” does not separate the two complete statements.'],
+  ['option-b','The centre is popular. However it is easy to book.','The full stop separates the statements. In this position, a comma also separates “However” from the statement it introduces.'],
+  ['option-c','The centre is popular. However, it is easy to book.','The full stop separates the statements. The comma sets off “However” at the start of the second sentence.']
  ],{original:'The centre is popular, but it is easy to book.'}),
- question('pedagogy-q-015','Which observation most directly supports the claim about safety?','harness-v2',[
-  ['harness-v2','The instructor checked each beginner’s harness.','Checking each harness shows what the instructor did to help keep beginners safe.'],
-  ['routes-v2','The instructor offered two routes with different difficulty levels.','This shows beginners had a choice of routes. It gives less direct evidence about safety checks.'],
-  ['queue-v2','The instructor explained where to queue for each route.','This shows how the session was organised. It does not tell readers what safety checks were made.']
+ question('pedagogy-q-015','Which observation most directly supports the claim about safety?','option-a',[
+  ['option-a','The instructor checked each beginner’s harness.','Checking each harness shows what the instructor did to help keep beginners safe.'],
+  ['option-b','The instructor offered two routes with different difficulty levels.','This shows beginners had a choice of routes. It gives less direct evidence about safety checks.'],
+  ['option-c','The instructor explained where to queue for each route.','This shows how the session was organised. It does not tell readers what safety checks were made.']
  ],{context:'Your climbing review says the session helped beginners feel safe.'}),
  question('editing-q-003','What should the writer fix first?','repeats-v2',[
   ['tense-v2','Change the tense to present.','The past tense is appropriate because the writer describes a finished visit.'],
