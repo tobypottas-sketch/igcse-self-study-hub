@@ -74,7 +74,7 @@ async function loadScopedStudentNumbers(client, students) {
   return numbers;
 }
 
-export async function loadTeacherActivityData(client, { now = new Date(), meritOnly = false } = {}) {
+export async function loadTeacherActivityData(client, { now = new Date(), meritOnly = false, selectedPeriod = null } = {}) {
   if (shouldUsePreviewFixture()) return previewDashboard(now,meritOnly);
 
   const [records, [occurrences, classes]] = await Promise.all([
@@ -143,7 +143,7 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
   let activity = [];
   let engagementAvailable = true;
   try {
-    const { memberships, evidence } = await loadClassEvidence(client, students, reportingPeriod('last30',{now}));
+    const { memberships, evidence } = await loadClassEvidence(client, students, selectedPeriod ?? reportingPeriod('last30',{now}));
     const current = new Map(memberships.map(row => [row.student_id, row]));
     for (const student of students) {
       const membership = current.get(student.id);
@@ -155,7 +155,7 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
   }
   return buildActivityDashboard({
     students, occurrences:normalizedOccurrences, globalMastery, unitMastery, activity,
-    unitChecks, awards, coverageByUnit, now, engagementAvailable
+    unitChecks, awards, coverageByUnit, now, engagementAvailable, selectedPeriod
   });
 }
 
