@@ -55,7 +55,7 @@ function lobbyMarkup(){
  const others=lobby.students??[];
  const selected=others.find(row=>row.id===state.opponent);
  const opponentSelect='<label class="battle-select-label">CHOOSE A CLASSMATE<select data-battle-opponent><option value="">Select your opponent…</option>'+others.map(row=>'<option value="'+e(row.id)+'"'+(row.id===state.opponent?' selected':'')+'>'+e(row.display_name)+'</option>').join('')+'</select></label>';
- const unitSelect='<label class="battle-select-label">VOCABULARY UNIT<select data-battle-unit><option value="1"'+(state.unit===1?' selected':'')+'>Unit 1 · Sports & Free Time</option><option value="9"'+(state.unit===9?' selected':'')+'>Unit 9 · Communication</option></select></label>';
+ const unitSelect='<label class="battle-select-label">VOCABULARY UNIT<select data-battle-unit>'+["Sports and Free Time","Digital Life","Food","Transport","Holidays","Learning and Study Skills","Interviews","Work","Communication","Education"].map((title,i)=>'<option value="'+(i+1)+'"'+(state.unit===i+1?' selected':'')+'>Unit '+(i+1)+' · '+e(title)+'</option>').join('')+'</select></label>';
  const choice='<div class="battle-choice-grid">'+unitSelect+opponentSelect+'</div>';
  const versus='<div class="battle-challenge-versus"><div class="battle-challenge-player">'+avatar(state.profile?.display_name,'a','',lobby.avatarId)+'<span><small>YOU</small><strong>'+e(state.profile?.display_name)+'</strong></span></div><span class="battle-vs" aria-label="versus">VS</span><div class="battle-challenge-player">'+avatar(selected?.display_name??'?','b','',selected?.avatarId)+'<span><small>OPPONENT</small><strong data-selected-opponent>'+e(selected?.display_name??'Choose a classmate')+'</strong></span></div></div>';
  const pending=(lobby.pending??[]).map(b=>{
@@ -180,7 +180,7 @@ async function refresh({force=false}={}){
    if(epoch!==state.requestEpoch||classId!==state.classId||state.battleId)return;
    if(state.error){state.error='';force=true;}
    state.lobby=lobby;state.board=board.ranking??[];
-   const accepted=(lobby.active??[]).find(b=>!b.starts_at);
+   const accepted=(lobby.active??[]).find(b=>!b.starts_at&&b.id!==state.dismissedBattle);
    if(accepted){state.requestEpoch++;state.battleId=accepted.id;state.battle=null;render(matchMarkup(),'match-loading');state.pollAgain=true;return;}
    if(Date.now()-state.boardAt>20000){state.boardAt=Date.now();void api({action:'leaderboard',classId}).then(result=>{if(state.classId===classId&&!state.battleId){state.board=result.ranking??[];void refresh();}}).catch(()=>{});}
    for(const p of lobby.students??[])names.set(p.id,p.display_name);
@@ -199,7 +199,7 @@ async function refresh({force=false}={}){
 async function act(action,target){
  if(state.busy)return;
  if(action==='retry'){void refresh({force:true});return;}
- if(action==='back'){state.requestEpoch++;state.battleId=null;state.battle=null;state.viewKey='';state.boardAt=0;render(lobbyMarkup(),'lobby-loading');void refresh({force:true});return;}
+ if(action==='back'){state.dismissedBattle=state.battleId;state.requestEpoch++;state.battleId=null;state.battle=null;state.viewKey='';state.boardAt=0;render(lobbyMarkup(),'lobby-loading');void refresh({force:true});return;}
  if(action==='enter'){state.requestEpoch++;state.battleId=target.dataset.id;state.battle=null;render(matchMarkup(),'match-loading');void refresh({force:true});return;}
  state.busy=true;state.requestEpoch++;state.error='';state.flash='';target.disabled=true;
  try{
@@ -249,7 +249,7 @@ async function start(){
 root?.addEventListener('change',event=>{
  const target=event.target;
  if(target.matches?.('[data-battle-class]')){
-  state.requestEpoch++;state.classId=target.value;state.opponent='';state.lobby=null;state.board=[];
+  state.requestEpoch++;state.classId=target.value;state.boardAt=0;state.dismissedBattle=null;state.opponent='';state.lobby=null;state.board=[];
   render(lobbyMarkup(),'lobby-loading');void refresh({force:true});
  }else if(target.matches?.('[data-battle-unit]'))state.unit=Number(target.value);
  else if(target.matches?.('[data-battle-opponent]')){
