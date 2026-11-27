@@ -113,7 +113,7 @@ function renderMeritAlert(model) {
     </aside>`;
 }
 
-export function renderHome(root, profile, apps, activityDashboard = null, { registry = DEFAULT_REGISTRY } = {}) {
+export function renderHome(root, profile, apps, activityDashboard = null, { registry = DEFAULT_REGISTRY, autoOpenMerits = true } = {}) {
   const model = buildHomeModel(profile, apps, activityDashboard);
   const skills = skillSummaries(model.apps, registry);
   // A remembered skill that no longer has visible apps (or never existed) falls back to All apps rather than an empty page.
@@ -215,7 +215,7 @@ export function renderHome(root, profile, apps, activityDashboard = null, { regi
     </section>`;
 
   wireSkillPicker(root, skills, model.apps.length);
-  renderMeritPopup(root, model, profile);
+  renderMeritPopup(root, model, profile, autoOpenMerits);
 }
 
 // Filters the cards already on the page. No re-render, no navigation, no focus or scroll changes: the button the student
@@ -258,7 +258,9 @@ function wireSkillPicker(root, skills, totalApps) {
 // A resize can change how many cards fit per row, so drop any reserved height and let it be measured afresh. Registered once.
 if (typeof window !== 'undefined') window.addEventListener('resize', () => { const results = document.querySelector('[data-app-results]'); if (results) results.style.minHeight = ''; });
 
- // Update only notification elements. Preserve the active page, scroll and input state.
+const deferredMeritUpdates = new WeakMap();
+
+// Update only notification elements. Preserve the active page, scroll and input state.
 export function updateHomeMerits(root, profile, dashboard, { autoOpen = false } = {}) {
   const model = buildHomeModel(profile, [], dashboard);
   const bell = root.querySelector?.('[data-merit-bell]');
@@ -266,7 +268,12 @@ export function updateHomeMerits(root, profile, dashboard, { autoOpen = false } 
   if (!bell || !dialog) return;
   // Never destroy a dialog while the teacher is reading it; refresh on close.
   if (dialog.open) {
-    dialog.addEventListener('close', () => updateHomeMerits(root,profile,dashboard), {once:true});
+    if (!deferredMeritUpdates.has(dialog)) dialog.addEventListener('close', () => {
+      const latest = deferredMeritUpdates.get(dialog);
+      deferredMeritUpdates.delete(dialog);
+      if (latest && root.contains(dialog)) updateHomeMerits(root,latest.profile,latest.dashboard);
+    }, {once:true});
+    deferredMeritUpdates.set(dialog,{profile,dashboard});
     return;
   }
   const focused = bell === root.ownerDocument?.activeElement;
@@ -284,7 +291,16 @@ export function renderExternalMerits(mount, profile, dashboard) {
   if (!profile || !dashboard || !['teacher','admin'].includes(profile.role) || profile.active === false || profile.must_change_password) {
     mount.replaceChildren(); return;
   }
-  if (mount.querySelector('[data-merit-dialog]')?.open) return;
+  const dialog = mount.querySelector('[data-merit-dialog]');
+  if (dialog?.open) {
+    if (!deferredMeritUpdates.has(dialog)) dialog.addEventListener('close', () => {
+      const latest = deferredMeritUpdates.get(dialog);
+      deferredMeritUpdates.delete(dialog);
+      if (latest && mount.contains(dialog)) renderExternalMerits(mount,latest.profile,latest.dashboard);
+    }, {once:true});
+    deferredMeritUpdates.set(dialog,{profile,dashboard});
+    return;
+  }
   const model = buildHomeModel(profile,[],dashboard);
   mount.innerHTML = meritBellMarkup(model,profile) + meritPopupMarkup(model,profile,true);
   renderMeritPopup(mount,model,profile,false);
