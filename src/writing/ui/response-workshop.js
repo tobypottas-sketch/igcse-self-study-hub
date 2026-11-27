@@ -1,11 +1,11 @@
-import {hasWritingAttempt, validateWritingTask, writingComplete} from '../engine/activities.js?v=3';
+import {hasWritingAttempt, validateWritingTask, writingComplete, writingEvidence} from '../engine/activities.js?v=4';
 import {el, action} from './lesson-shell.js?v=12';
 
 export function newWritingRun() {
  return {draft:'', original:'', revision:'', keepReason:'', checks:new Set()};
 }
 
-export function renderResponseWorkshop(host, task, run, onProgress, {plainLanguage=false}={}) {
+export function renderResponseWorkshop(host, task, run, onProgress, {plainLanguage=false,staffAssessment=false}={}) {
  validateWritingTask(task);
  host.replaceChildren();
  const source = el(host,'article','wa-apply-source');
@@ -13,6 +13,30 @@ export function renderResponseWorkshop(host, task, run, onProgress, {plainLangua
  title.tabIndex = -1;
  el(source,'p','wa-apply-original',task.prompt);
  const editor = el(host,'section','wa-apply-editor');
+ const noteExample=staffAssessment?task.modelNote:null;
+ if(staffAssessment)el(source,'p','wa-muted','Source or draft supplied for this task');
+ if(noteExample){
+  const noteLabel=el(editor,'label','wa-apply-instruction','Editor’s note · separate from the review word target');
+  const note=el(noteLabel,'textarea','wa-writing-input wa-apply-input');
+  note.rows=2;
+  note.value=run.editorNote??'';
+  note.oninput=()=>{run.editorNote=note.value;};
+ }
+ const evidence=staffAssessment?el(editor,'p','wa-muted wa-writing-evidence'):null;
+ if(evidence)evidence.setAttribute('role','status');
+ function updateEvidence(){
+  if(!evidence)return;
+  const state=writingEvidence(run,task);
+  evidence.textContent={
+   'not-attempted':'Not attempted',
+   draft:'Draft attempted',
+   compared:'Compared with an example',
+   'revised-or-retained':'Revised or kept with a reason',
+   'self-reviewed':'Self-reviewed'
+  }[state];
+  evidence.dataset.evidence=state;
+ }
+ updateEvidence();
  const steps = task.question.split('\n');
  if (steps.length>1) {
   el(editor,'p','wa-apply-instruction',steps[0]);
@@ -22,10 +46,11 @@ export function renderResponseWorkshop(host, task, run, onProgress, {plainLangua
  const label = el(editor,'label','wa-apply-instruction',steps.length>1?'Your draft':task.question);
  el(label,'span','wa-muted',task.plan?' Short notes or bullets are welcome.':' Write at least ' + task.min + ' words before comparing.');
  const draft = el(label,'textarea','wa-writing-input wa-apply-input');
+ draft.dataset.reviewDraft='';
  draft.rows = 4;
  draft.value = run.original || run.draft;
  draft.readOnly = !!run.original;
- draft.oninput = () => { run.draft = draft.value; };
+ draft.oninput = () => { run.draft = draft.value; updateEvidence(); };
  const tools = el(editor,'div','wa-apply-tools');
  const status = el(editor,'p','wa-answer wa-apply-status');
  status.setAttribute('role','status');
@@ -36,6 +61,7 @@ export function renderResponseWorkshop(host, task, run, onProgress, {plainLangua
   const model = el(panel,'article','wa-apply-model');
   const heading = el(model,'h4','wa-apply-eyebrow',task.plan?'One possible plan':'One possible response');
   heading.tabIndex = -1;
+  if(noteExample)el(model,'p','wa-muted',noteExample);
   el(model,'p','wa-apply-model-text',task.example);
   el(panel,'p','wa-muted','Compare the approaches. Use the checklist to review your revision. This is self-assessment.');
   const revisionLabel = el(panel,'label','wa-apply-instruction','Revise your response');
@@ -72,6 +98,7 @@ export function renderResponseWorkshop(host, task, run, onProgress, {plainLangua
     ? (task.allowKeep?'Make a change or explain what you did well. Then check your work below.':'Make a change to your draft, then check your work below.')
     : (task.allowKeep?'Revise or justify keeping your draft, then review each criterion.':'Make a change to your draft and review each criterion.');
    result.textContent = complete ? 'Writing and reflection complete.' : next;
+   updateEvidence();
    onProgress(complete);
   }
   revision.oninput = () => {

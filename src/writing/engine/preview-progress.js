@@ -1,5 +1,5 @@
 import {restoreWritingState,serializeWritingState} from './persistence-state.js';
-import {recognitionRun} from './recognition.js';
+import {recognitionResult,recognitionRun} from './recognition.js?v=2';
 import {scoreItem,shuffledIndexes} from './activities.js';
 
 export const previewStages = ['discover','explore','practise','apply','master'];
@@ -82,10 +82,17 @@ export function capturePreview(state, content, {stage,completed}) {
     objective[activity.id] = {questions};
     if (!run.done) objective[activity.id].currentQuestion = activity.items[run.index].id;
   }
+  const reflections=Object.fromEntries([...(state.recognition??[])].map(([id,run])=>[id,JSON.stringify(run)]));
+  function keepNote(task,run){
+    if(run.editorNote)reflections['editor-note-'+task.id]=boundedText(run.editorNote);
+  }
+  gold.forEach((task,n)=>keepNote(task,state.gold[n]));
+  apply.forEach((task,n)=>keepNote(task,state.applications[n]));
+  if(master)keepNote(master,state.transfer);
   // Staff-only checked answers fit the existing workspace envelope without changing its schema.
   const snapshot = serializeWritingState({
     observations,annotations,objective,planning,
-    ...(state.recognition ? {reflections:Object.fromEntries([...state.recognition].map(([id,run])=>[id,JSON.stringify(run)]))} : {}),
+    ...(Object.keys(reflections).length ? {reflections} : {}),
     gold:Object.fromEntries(gold.map((task,n)=>[task.id,runContent(state.gold[n],task)])),
     apply:Object.fromEntries(apply.map((task,n)=>[task.id,runContent(state.applications[n],task)])),
     master:master?{[master.id]:runContent(state.transfer,master)}:{}
@@ -122,10 +129,17 @@ export function restorePreview(state, content, checkpoint) {
   for (const activity of activities) {
     let saved = objective[activity.id];
     if (!saved || Object.keys(saved.questions??{}).length!==activity.items.length) continue;
-    // Changed option identities invalidate only the revised item. Keep the
-    // display order and responses for other questions in the same activity.
-    const stale = activity.items.filter(item=>item.version>1
-      && saved.questions[item.id]?.displayOrder.some(id=>!item.optionIds.includes(id)));
+    // Reopen revised items only. Some changed contracts retain the same
+    // option meanings, so a legacy quiz result still needs versioned evidence.
+    const stale = activity.items.filter(item=>{
+      if(!(item.version>1))return false;
+      const answer=saved.questions[item.id];
+      if(!answer)return false;
+      if(answer.displayOrder.some(id=>!item.optionIds.includes(id)))return true;
+      if(!item.checkedPractice || (!answer.checked && answer.selection==null))return false;
+      return recognitionResult(item,state.recognition?.get(item.id))==='pending'
+        || (item.correction && recognitionResult(item.correction,state.recognition?.get(item.correction.id))==='pending');
+    });
     if (stale.length) {
       const questions = {...saved.questions};
       for (const item of stale) questions[item.id] = {
@@ -167,7 +181,12 @@ export function restorePreview(state, content, checkpoint) {
     const order = Array.isArray(answer?.selection) ? responses[index] : [];
     state.attempts.set(activity.id,{index,done,displays,correct,selected,order,checked:!!answer?.checked,answered});
   }
-  gold.forEach((task,n)=>restoreRun(state.gold[n],task,runs.gold?.[task.id]));
-  apply.forEach((task,n)=>restoreRun(state.applications[n],task,runs.apply?.[task.id]));
-  if (master) restoreRun(state.transfer,master,runs.master?.[master.id]);
+  function restoreWorkshop(run,task,saved){
+    restoreRun(run,task,saved);
+    const note=reflections['editor-note-'+task.id];
+    if(typeof note==='string')run.editorNote=note;
+  }
+  gold.forEach((task,n)=>restoreWorkshop(state.gold[n],task,runs.gold?.[task.id]));
+  apply.forEach((task,n)=>restoreWorkshop(state.applications[n],task,runs.apply?.[task.id]));
+  if (master) restoreWorkshop(state.transfer,master,runs.master?.[master.id]);
 }

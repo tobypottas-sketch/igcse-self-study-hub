@@ -1,9 +1,11 @@
+import {withStaffInteractions} from '../content/review-interactions-r2-2.js';
+import {renderSentenceSequence} from './sentence-sequence.js';
 import {reviseDevelopmentForStaff,vocabularyDiscoverR21} from '../content/review-critical-r2-1.js';
 import {structureR1} from '../content/review-structure-r1.js';
 import {structureDiscover,structureExplore} from '../content/review-structure-recognition.js';
-import {recognitionRun,recognitionResult} from '../engine/recognition.js';
-import {renderRecognition} from './recognition-question.js?v=2';
-import {capturePreview,restorePreview} from '../engine/preview-progress.js?v=3';
+import {recognitionRun,recognitionResult} from '../engine/recognition.js?v=2';
+import {renderRecognition} from './recognition-question.js?v=3';
+import {capturePreview,restorePreview} from '../engine/preview-progress.js?v=4';
 import {exam,examModels,examMocks,modelContext} from '../content/review-exam-20261125.js?v=2';
 import {newExamAttempt} from '../engine/exam-attempt.js';
 import {renderExamWorkshop} from './exam-workshop.js?v=3';
@@ -16,7 +18,7 @@ import {mountLesson,el,action} from './lesson-shell.js?v=15';
 import {reviewArtwork} from './editorial-art.js?v=16';
 import {companions} from '../content/review-active-v2.js';
 import {pathways} from '../content/review-pedagogy.js?v=6';
-import {newWritingRun,renderResponseWorkshop} from './response-workshop.js?v=4';
+import {newWritingRun,renderResponseWorkshop} from './response-workshop.js?v=5';
 import {guidedTask,independentTask,toolkit} from '../content/review-guided-v1.js';
 import {blueprint,model} from '../content/review-structure-v1.js';
 import {scoreItem,validateActivities,shuffledIndexes,hasWritingAttempt,writingComplete} from '../engine/activities.js?v=3';
@@ -779,7 +781,8 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
  // enrolled student pilot retains its existing curriculum and stage contract.
  const isStructure=pathwayKey==='structure' && !!progress;
  const baseCourse=isStructure?structureR1:editorialModels?config:pathways[pathwayKey];
- const course=progress && isDevelopment?reviseDevelopmentForStaff(baseCourse):baseCourse;
+ const staffCourse=progress && isDevelopment?reviseDevelopmentForStaff(baseCourse):baseCourse;
+ const course=progress?withStaffInteractions(staffCourse):staffCourse;
  const vocabularyCheck=progress && isExpression?vocabularyDiscoverR21:null;
  const goldTasks=[course.gold].flat();
  const practice=validateActivities(course.practice);
@@ -801,8 +804,14 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
  const challenges=[...practice,gold];
  const baseModels=[{...model,category:'Café',sentenceTips:[['Names the café, establishes the time and explains the reason for visiting.','Introduces an initial evaluation through the atmosphere and welcome.'],['Describes location, seating and menu.','Provides specific examples of food.','Evaluates affordability for students.'],['Balances crowding with praise for staff.','Balances a specific delay against food quality.','Explains the practical benefit of a quiet corner.'],['Identifies a suitable audience and reason.','Offers advice about timing.']],purposes:['Introduction','Description','Evaluation','Recommendation']},{...guidedTask,title:'Willow Kitchen',category:'Restaurant',purposes:['Introduction','Evaluation','Evaluation','Recommendation'],sentenceTips:[['Establishes the reason for visiting.','Adds useful location and price information.'],['States a clear preference.','Supports the judgement with sensory detail.','Explains why the portion was suitable.','Adds a specific example of flexibility.'],['Signals a shift to criticism.','Explains the wait and the effect of noise.'],['Identifies an audience and a reason.','Offers practical advice addressing the drawback.']]},...extraReviewModels];
  const models=isDevelopment?config.developmentModels(baseModels):isExpression?config.expressionModels(baseModels):baseModels;
- const workshopOptions={plainLanguage:isStructure};
- const recognition=isStructure?[...structureDiscover,...Object.values(structureExplore).flat()]:vocabularyCheck?[vocabularyCheck]:[];
+ const workshopOptions={plainLanguage:isStructure,staffAssessment:!!progress};
+ const practiceRecognition=progress?practice.flatMap(activity=>activity.items)
+  .filter(item=>item.checkedPractice):[];
+ const recognition=[
+  ...(isStructure?[...structureDiscover,...Object.values(structureExplore).flat()]:[]),
+  ...(vocabularyCheck?[vocabularyCheck]:[]),
+  ...practiceRecognition.flatMap(item=>item.correction?[item,item.correction]:[item])
+ ];
  if(recognition.length)state.recognition=new Map();
  const content={recognition,discover:course.discover,models,activities:[...practice,checkpoint],
   gold:goldTasks,apply:isExam?[]:course.apply,master:isExam?null:course.master,challenges:challenges.map(a=>a.id)};
@@ -820,10 +829,10 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
   state.discovered.delete(course.discover.findIndex(item=>item.id===vocabularyCheck.id));
   saved={...saved,completed:saved.completed.filter(stage=>stage!=='discover')};
  }
- if(saved && progress && isDevelopment){
+ if(saved && progress){
   saved={...saved,completed:saved.completed.filter(stage=>{
    if(stage==='practise')return practice.filter(a=>a.items.some(item=>item.version===2)).every(a=>state.attempts.get(a.id)?.done);
-   if(stage==='master')return !!state.attempts.get(checkpoint.id)?.done;
+   if(stage==='master' && isDevelopment)return !!state.attempts.get(checkpoint.id)?.done;
    return true;
   })};
  }
@@ -851,8 +860,18 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
     const done=el(host,'h3','','Analysis complete');
     done.tabIndex=-1;
     el(host,'p','wa-score',run.correct+' / '+a.items.length+' objective decisions correct');
+    const checked=a.items.filter(item=>item.checkedPractice).flatMap(item=>item.correction?[item,item.correction]:[item]);
+    if(checked.length){
+     const results=checked.map(item=>recognitionResult(item,state.recognition.get(item.id)));
+     const counts=['first','retry','supported'].map(value=>results.filter(result=>result===value).length);
+     el(host,'p','wa-muted','Checked steps: '+counts[0]+' correct independently, '+counts[1]+' correct after feedback, '+counts[2]+' completed with support.');
+    }
     if(a!==checkpoint)action(host,'Try again',()=>{
      state.attempts.delete(a.id);
+     for(const item of a.items){
+      state.recognition?.delete(item.id);
+      if(item.correction)state.recognition?.delete(item.correction.id);
+     }
      onFinish();
      quiz(host,a,onFinish);
      host.querySelector('h3').focus();
@@ -864,12 +883,50 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
    const ordered=a.type==='order';
    const display=run.displays[run.index];
    el(host,'p','wa-muted','Question '+(run.index+1)+' of '+a.items.length);
+   function advance(response){
+    run.answered.set(item.id,response);
+    const next=a.items.findIndex(question=>!run.answered.has(question.id));
+    run.index=next<0?a.items.length:next;
+    run.checked=false;
+    run.selected=null;
+    run.order=[];
+    if(run.index===a.items.length)run.done=true;
+    draw(true);
+    if(run.done)onFinish();
+   }
+   const nextLabel=run.answered.size+1===a.items.length?'Finish analysis':'Next question';
+   if(practiceRecognition.includes(item)){
+    const question=el(host,'div','wa-interaction-question');
+    question.dataset.questionId=item.id;
+    const prompt=recognise(question,item,sync);
+    const follow=el(host,'div','wa-interaction-followup');
+    function sync(){
+     if(!recognitionDone(item))return;
+     if(item.correction && !follow.childElementCount){
+      el(follow,'h4','','Choose a correction');
+      recognise(follow,item.correction,sync);
+     }
+     if(item.correction && !recognitionDone(item.correction))return;
+     if(host.querySelector('[data-recognition-next]'))return;
+     const next=action(host,nextLabel,()=>{
+      const response=item.optionIds.indexOf(state.recognition.get(item.id).attempts.at(-1));
+      if(scoreItem(item,response))run.correct++;
+      advance(response);
+     },'wa-action wa-next');
+     next.dataset.recognitionNext='';
+    }
+    sync();
+    if(moveFocus)prompt.focus();
+    return;
+   }
    const prompt=renderQuestionPrompt(host,item,!!progress);
    prompt.tabIndex=-1;
-   const options=el(host,'div','wa-options');
+   const hasSequence=ordered && !!progress;
+   if(hasSequence)renderSentenceSequence(host,item,display,run,draw);
+   const options=hasSequence?null:el(host,'div','wa-options');
    const feedback=el(host,'div','wa-answer');
    feedback.setAttribute('role','status');
-   display.forEach(i=>{
+   if(options)display.forEach(i=>{
     const position=run.order.indexOf(i);
     const button=action(options,(ordered&&position>=0?(position+1)+'. ':'')+item.options[i],()=>{
      if(ordered)run.order.push(i);
@@ -891,7 +948,12 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
    if(run.checked){
     const ok=scoreItem(item,response);
     feedback.dataset.result=ok?'correct':'retry';
-    el(feedback,'p','',ok?'That fits the criterion.':'Review the reasoning below.');
+    if(hasSequence)feedback.dataset.evidence=ok?'correct-independently':'completed-with-support';
+    el(feedback,'p','',ok?'That fits the criterion.':hasSequence?'Compare with the example order below.':'Review the reasoning below.');
+    if(hasSequence && !ok){
+     const solution=el(feedback,'ol','wa-sequence-list');
+     for(const index of item.answer)el(solution,'li','',item.options[index]);
+    }
     if(item.explanations){
      const reasons=el(feedback,'ul','');
      display.forEach(index=>{
@@ -900,17 +962,7 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
       reason.append(item.explanations[index]);
      });
     }else el(feedback,'p','',item.rationale);
-    action(host,run.answered.size+1===a.items.length?'Finish analysis':'Next question',()=>{
-     run.answered.set(item.id,response);
-     const next=a.items.findIndex(question=>!run.answered.has(question.id));
-     run.index=next<0?a.items.length:next;
-     run.checked=false;
-     run.selected=null;
-     run.order=[];
-     if(run.index===a.items.length)run.done=true;
-     draw(true);
-     if(run.done)onFinish();
-    },'wa-action wa-next');
+    action(host,nextLabel,()=>advance(response),'wa-action wa-next');
     if(moveFocus){feedback.tabIndex=-1;feedback.focus();}
    }else{
     const check=action(host,'Check answer',()=>{
@@ -919,7 +971,11 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
      draw(true);
     },'wa-action wa-next');
     check.disabled=ordered?run.order.length!==item.options.length:run.selected===null;
-    if(ordered)action(host,'Undo last selection',()=>{run.order.pop();draw();host.querySelector('.wa-option:not(:disabled)')?.focus();}).disabled=!run.order.length;
+    if(ordered)action(host,'Undo last selection',()=>{
+    const removed=run.order.pop();
+    draw();
+    (host.querySelector('[data-option="'+removed+'"]:not(:disabled)')??host.querySelector('.wa-option:not(:disabled)'))?.focus();
+   }).disabled=!run.order.length;
     if(moveFocus)prompt.focus();
    }
   }
@@ -982,12 +1038,12 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
     recordReflection();
     response.readOnly=true;
     reveal.hidden=true;
-    feedback.textContent=item.principle;
+    feedback.textContent=(progress?'Compared with an example · self-review. ':'')+item.principle;
     feedback.tabIndex=-1;
     feedback.focus();
    });
    reveal.hidden=response.readOnly;
-   if(response.readOnly)feedback.textContent=item.principle;
+   if(response.readOnly)feedback.textContent=(progress?'Compared with an example · self-review. ':'')+item.principle;
   }
   const controls=el(host,'div','wa-stage-foot');
   const prev=action(controls,'← Previous contrast',()=>{state.discoveryIndex--;draw().focus();});
@@ -1074,11 +1130,11 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
    sentenceButtons.forEach(button=>{button.tabIndex=0;button.setAttribute('aria-disabled','false');});
    progress.children[n].dataset.done='true';
    detail.textContent='Select a sentence to see what it adds to the paragraph.';
-   feedback.textContent=lens?.rationale??m.notes[n];
+   feedback.textContent=(progress?'Compared with an example · self-review. ':'')+(lens?.rationale??m.notes[n]);
    if(isExam?state.identified.size>=3:m.paragraphs.every((_,j)=>state.identified.has(state.model+':'+j)))ctx.complete();
   });
   reveal.hidden=unlocked;
-  if(unlocked)feedback.textContent=lens?.rationale??m.notes[n];
+  if(unlocked)feedback.textContent=(progress?'Compared with an example · self-review. ':'')+(lens?.rationale??m.notes[n]);
   }
   const controls=el(host,'div','wa-stage-foot wa-explore-controls');const prev=action(controls,'← Previous paragraph',()=>{state.paragraph--;draw();host.querySelector('.wa-explore-headline').focus();});prev.disabled=n===0;const next=action(controls,'Next paragraph →',()=>{state.paragraph++;draw();host.querySelector('.wa-explore-headline').focus();});next.disabled=n===m.paragraphs.length-1;paper.querySelector('h3').tabIndex=-1;
   const full=el(host,'details','wa-explore-full');el(full,'summary','','Read complete model');for(const p of m.paragraphs)el(full,'p','wa-explore-full-prose',p);el(full,'p','wa-muted','Original teaching model, not examiner-marked. '+m.paragraphs.join(' ').trim().split(/\s+/).length+' words.');
