@@ -1,3 +1,4 @@
+import { installVocabularyTiming, VOCABULARY_ACTIVE_TIME_V2_ENABLED } from './active-learning-browser.js';
 import {updateLeaderboardModal,markLeaderboardTabPending} from './rewards-leaderboard-modal.js?v=player-avatars-v1';
 import {ensureRewardsDashboard} from './rewards-home-layout.js';
 import { getSupabaseClient } from '../supabase.js';
@@ -208,6 +209,7 @@ async function evaluateUnitsThatLookMastered(dashboard) {
   }
 }
 function showStudentLoading(message) {
+  state.activeLearningV2?.stop();
   const current=root?.querySelector?.('[data-vocab-loading-status]');
   if(current){current.textContent=message;return;}
   if(!root)return;
@@ -652,6 +654,7 @@ async function openMyProgress() {
   }
 }
 function renderCurrentUnit() {
+  state.activeLearningV2?.stop();
   if (!state.currentUnitNumber) return;
   const cachedOccurrences = (state.dashboard?.occurrences ?? []).filter(row => Number(row.unit_number) === Number(state.currentUnitNumber));
   const occurrences = state.content?.occurrences ?? cachedOccurrences;
@@ -1065,7 +1068,7 @@ function nextQuestion() {
   if (!current) { if (state.session.mode === 'timed') { void finishSessionWhenSaved(); return; } if (Number(state.session.summary?.practised) > 0 || state.session.completedTargetIds?.length) { void finishSessionWhenSaved(); return; } throw new Error('No suitable curated activity is available for this practice mode yet.'); }
   state.current = current; renderCurrentQuestion();
 }
-function renderCurrentQuestion(feedback = null) { if (!state.current) return; const currentMastery = state.globalMastery[state.current.target.vocabularyId] ?? freshMastery(); renderVocabularyQuestion(root, { unitNumber:state.currentUnitNumber, unitTitle:state.current.target.unitTitle, question:state.current.question, term:state.current.item.term, sessionLabel:remainingLabel(), learningStage:deriveLearningStage(currentMastery), feedback, retry:state.current.retry, support:state.current.support, matchSet:state.current.matchSet ?? null, matchState:state.current.matchState ?? null, streak:state.streak ?? 0, sessionScore:state.session?.summary?.strengthened ?? 0, missionSize:state.session?.mode === 'adaptive' ? missionProgress(state.session).total : null }); decoratePreview(); if (state.attempts?.blocked) renderSyncWarning(); }
+function renderCurrentQuestion(feedback = null) { if (!state.current) return; const currentMastery = state.globalMastery[state.current.target.vocabularyId] ?? freshMastery(); renderVocabularyQuestion(root, { unitNumber:state.currentUnitNumber, unitTitle:state.current.target.unitTitle, question:state.current.question, term:state.current.item.term, sessionLabel:remainingLabel(), learningStage:deriveLearningStage(currentMastery), feedback, retry:state.current.retry, support:state.current.support, matchSet:state.current.matchSet ?? null, matchState:state.current.matchState ?? null, streak:state.streak ?? 0, sessionScore:state.session?.summary?.strengthened ?? 0, missionSize:state.session?.mode === 'adaptive' ? missionProgress(state.session).total : null }); decoratePreview(); if (state.attempts?.blocked) renderSyncWarning(); state.activeLearningV2?.sync(); }
 function markVocabularyAttemptLocally(current, rawAnswer) {
   const sense = Array.isArray(current.item?.senses) ? current.item.senses.find(candidate => candidate?.senseId === current.target.senseId) : null; if (!sense) throw new Error('This vocabulary question is missing its marking data.');
   const reference = current.question.markingReference ?? {}; const markingContext = { contextId:current.context?.contextId ?? current.question.contentId, activityContentId:current.activityRecord?.activityContentId ?? null, acceptedAnswers:reference.acceptedAnswers ?? [], distractors:reference.distractors ?? [], ...(Array.isArray(reference.slotAnswers) ? { slotAnswers:reference.slotAnswers } : {}) };
@@ -1092,6 +1095,7 @@ function persistVocabularyAttempt(current, rawAnswer, flags, localResult) {
   return attempts().enqueue({ payload, localCorrect:localResult.correct, context:{ occurrenceId:current.target.occurrenceId, vocabularyId:current.target.vocabularyId } });
 }
 async function returnToCurrentUnit() {
+  state.activeLearningV2?.stop();
   // Leaving is independent of saving; keep the queued attempt and its sync guard intact.
   clearClock();
   state.current = null;
@@ -1247,6 +1251,7 @@ function finishModelForSet(context, finished, projection = context.projection) {
     setInfo:{ setNumber:step.setNumber, setCount:step.setCount, score, completedStages:step.completedStages, next:describeNext({ step, projection }) } });
 }
 function finishSession() {
+  state.activeLearningV2?.stop();
   if (!state.session) return;
   state.setRowsFresh = null;
   if (state.session.mode === 'timed') state.session = expireSession(state.session, new Date());
@@ -1338,6 +1343,7 @@ function showFinishSaving(saving) {
 async function finishSessionWhenSaved() {
   if (!state.session || state.finishPending) return;
   state.finishPending = true;
+  state.activeLearningV2?.stop();
   const session = state.session;
   const current = state.current;
   clearClock();
@@ -1505,7 +1511,10 @@ async function initialise() {
     if (profileError || !profile?.active || (profile.role !== 'student' && !(staff && previewRequested))) { window.location.replace('./'); return; }
     window.addEventListener('beforeunload', event => { if (attempts().pending) { event.preventDefault(); event.returnValue = ''; } });
     showStudentLoading('Loading your vocabulary progress…');
-    state.profile = profile; state.preview = staff && previewRequested; if (!state.preview) installStudentIdentityObserver(); if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'app_open', mode:'practice' }).catch(() => {}); if (!state.preview) startActiveTime(); await showHome();
+    state.profile = profile; state.preview = staff && previewRequested; if (!state.preview) installStudentIdentityObserver(); if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'app_open', mode:'practice' }).catch(() => {}); if (!state.preview) startActiveTime();
+    // Deliberately disabled: no real outbox or transport until server verification.
+    if (VOCABULARY_ACTIVE_TIME_V2_ENABLED && !state.preview) state.activeLearningV2=installVocabularyTiming({enabled:true,root,state,doc:document,win:window,outbox:null});
+    await showHome();
   } catch (error) { renderVocabularyError(root, error instanceof Error ? error.message : 'Vocabulary practice is unavailable right now.'); }
 }
 void initialise();

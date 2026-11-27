@@ -1,6 +1,6 @@
-// Isolated Vocabulary pathway adapter. No production entrypoint imports this yet.
+// Vocabulary pathway adapter; production activation is separately gated.
 import {createActiveLearningClock} from '../tracking/active-learning-clock.js';
-const pathways=new Set(['meaning','context','word-families','paraphrasing','precision-use','spelling-recall']);
+const pathways=new Set(['meaning','context','word_families','paraphrasing','precision_use','spelling_recall']);
 export function vocabularyTimingContext(state,screen) {
   if(screen!=='question'||state.preview||state.finishPending||state.handoffPending||!state.session||!state.current)return null;
   const pathway=state.pathwayId ?? (state.mixedReview?state.current.pathwayPlan?.pathwayId:null);
