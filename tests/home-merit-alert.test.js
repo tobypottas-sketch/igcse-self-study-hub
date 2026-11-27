@@ -89,3 +89,15 @@ test('staff bell reopens dismissed dialog and shows empty state without a zero b
   dismiss();renderHome(root,{...profile,role:'student'},apps,dashboard);
   assert.doesNotMatch(root.innerHTML,/data-merit-bell|data-merit-dialog/);
 });
+
+test('returning to home with newly pending merits does not interrupt the teacher', () => {
+  resetMeritPopup();
+  let opens=0;
+  const dialog={showModal(){opens++;},close(){},querySelector(){return {addEventListener(){}};}};
+  const root={innerHTML:'',querySelector(selector){return selector==='[data-merit-dialog]'?dialog:null;},querySelectorAll(){return [];}};
+  const profile={id:'staff',display_name:'Teacher',role:'teacher',active:true};
+  const dashboard={pendingMerits:1,students:[{studentId:'s1',displayName:'Synthetic Student',className:'Class 1',pendingMerits:1,pendingMeritNumbers:[1]}]};
+  renderHome(root,profile,apps,dashboard,{autoOpenMerits:false});
+  assert.equal(opens,0);
+  assert.match(root.innerHTML,/home-merit-bell__count/);
+});

@@ -80,3 +80,10 @@
 .merit-dialog__note { margin:14px 0 0; font-size:13px; color:#526b7c; }
 .merit-dialog__actions { display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; margin-top:22px; }
 @media (max-width:560px) { .home-account-controls { gap:4px; } .home-account-controls .home-logout { padding-inline:10px; } .home-account-controls .home-merit-bell { width:44px; } .merit-dialog { padding:18px; } }
+
+/* Staff-only notification on other Hub routes; does not occupy page layout. */
+.live-merit-mount { position:fixed; right:max(16px,env(safe-area-inset-right)); bottom:max(16px,env(safe-area-inset-bottom)); z-index:40; }
+.live-merit-mount[hidden] { display:none; }
+.live-merit-mount > .home-merit-bell { background:#fff; border:1px solid #d9e5eb; box-shadow:0 3px 14px #17394c25; border-radius:50%; }
+.live-merit-mount > .home-merit-bell:hover { background:#edf5f8; }
+@media print { .live-merit-mount { display:none !important; } }
