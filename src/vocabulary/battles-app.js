@@ -84,7 +84,9 @@ function phaseFor(b){
 }
 function matchSignature(b){
  const phase=phaseFor(b);
- // Opponent progress and scores are HUD data, not screen identity: updating them\n // must NEVER replace the active answer buttons or keyboard focus.\n return 'match:'+state.battleId+':'+phase+':'+(b?.answered??0)+':'+(b?.question?.id??'')+':'+(b?.ready??false)+':'+(b?.opponentReady??false)+':'+(b?.outcome??'');
+ // Opponent progress and scores are HUD data, not screen identity: updating them
+ // must NEVER replace the active answer buttons or keyboard focus.
+ return 'match:'+state.battleId+':'+phase+':'+(b?.answered??0)+':'+(b?.question?.id??'')+':'+(b?.ready??false)+':'+(b?.opponentReady??false)+':'+(b?.outcome??'');
 }
 function matchup(b){
  const rival=b.challengerId===state.profile.id?b.opponentName:b.challengerName;
@@ -156,6 +158,9 @@ async function refresh({force=false}={}){
    const b=await api({action:'status',battleId:id});
    if(epoch!==state.requestEpoch||id!==state.battleId)return;
    state.battle=b;
+   if(b.startsAt || b.finished || b.status!=='accepted') {
+    if(state.flash==='You’re ready! Waiting for the other player.')state.flash='';
+   }
    const sig=matchSignature(b);
    if(force||state.viewKey!==sig)render(matchMarkup(),sig);
    else patchMatchHud(b);
