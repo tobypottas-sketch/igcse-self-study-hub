@@ -1,4 +1,4 @@
-import {hasWritingAttempt, validateWritingTask, writingComplete, writingEvidence} from '../engine/activities.js?v=4';
+import {hasWritingAttempt, validateWritingTask, writingComplete, writingEvidence} from '../engine/activities.js?v=5';
 import {el, action} from './lesson-shell.js?v=12';
 
 export function newWritingRun() {
@@ -15,12 +15,13 @@ export function renderResponseWorkshop(host, task, run, onProgress, {plainLangua
  const editor = el(host,'section','wa-apply-editor');
  const noteExample=staffAssessment?task.modelNote:null;
  if(staffAssessment)el(source,'p','wa-muted','Source or draft supplied for this task');
+ let refreshComparison=()=>{};
  if(noteExample){
   const noteLabel=el(editor,'label','wa-apply-instruction','Editor’s note · separate from the review word target');
   const note=el(noteLabel,'textarea','wa-writing-input wa-apply-input');
   note.rows=2;
   note.value=run.editorNote??'';
-  note.oninput=()=>{run.editorNote=note.value;};
+  note.oninput=()=>{run.editorNote=note.value;refreshComparison();};
  }
  const evidence=staffAssessment?el(editor,'p','wa-muted wa-writing-evidence'):null;
  if(evidence)evidence.setAttribute('role','status');
@@ -97,7 +98,8 @@ export function renderResponseWorkshop(host, task, run, onProgress, {plainLangua
    const next = plainLanguage
     ? (task.allowKeep?'Make a change or explain what you did well. Then check your work below.':'Make a change to your draft, then check your work below.')
     : (task.allowKeep?'Revise or justify keeping your draft, then review each criterion.':'Make a change to your draft and review each criterion.');
-   result.textContent = complete ? 'Writing and reflection complete.' : next;
+   result.textContent = complete ? 'Writing and reflection complete.'
+    : task.requiredEditorNote && !run.editorNote?.trim() ? 'Add your editor’s note to finish.' : next;
    updateEvidence();
    onProgress(complete);
   }
@@ -108,10 +110,15 @@ export function renderResponseWorkshop(host, task, run, onProgress, {plainLangua
    inputs.forEach(input => { input.checked = false; });
    sync();
   };
+  refreshComparison=sync;
   sync();
   return heading;
  }
  const reveal = action(tools,'Compare with an example →',() => {
+  if(task.requiredEditorNote && !run.editorNote?.trim()){
+   status.textContent='Add your editor’s note before comparing.';
+   return;
+  }
   if(!hasWritingAttempt(run.draft,task.min)) {
    status.textContent = task.plan?'Add a few notes that show what you intend to cover.':'Write at least ' + task.min + ' words using the information above.';
    return;

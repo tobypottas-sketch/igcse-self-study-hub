@@ -1,3 +1,4 @@
+import {expressionExplore,optionalExpressionExplore,refineExpressionForStaff} from '../src/writing/content/review-expression-r2-4.js';
 import {withStaffInteractions} from '../src/writing/content/review-interactions-r2-2.js';
 import {structureR1} from '../src/writing/content/review-structure-r1.js';
 import {structureDiscover} from '../src/writing/content/review-structure-recognition.js';
@@ -10,6 +11,7 @@ import {mkdir} from 'node:fs/promises';
 import {join} from 'node:path';
 import {chromium} from 'playwright';
 import {pathways} from '../src/writing/content/review-pedagogy.js';
+const expressionR24=refineExpressionForStaff(withStaffInteractions(pathways.expression));
 const structureR23=refineStructureForStaff(withStaffInteractions(structureR1));
 const screenshotDir = process.env.WRITING_SCREENSHOT_DIR || '.';
 await mkdir(screenshotDir, {recursive:true});
@@ -149,7 +151,7 @@ async function advanceToChoice(page, id){
  for(let count=0;count<5;count++){
   if(await quiz.locator('[data-question-id="'+id+'"]').count())return quiz;
   const check=quiz.getByRole('button',{name:'Check answer'});
-  if(await check.isVisible()){
+  for(let attempt=0;attempt<2 && await check.isVisible();attempt++){
    await quiz.locator('.wa-option:not(:disabled)').first().click();
    await check.click();
   }
@@ -196,6 +198,73 @@ async function sharedInteractionChecks(page,go,width,height){
   await capture(page,'r22-'+sample.type,width,height);
   await page.getByRole('button',{name:'← All pathways'}).click();
  }
+}
+
+async function checkR24Expression(page,width,height,route,{touch=false}={}){
+ const card=page.locator('.wa-path.wa-expression');
+ await card.getByRole('button',{name:/pathway →/}).click();
+ const go=stage=>page.locator('.wa-stage-tab[data-stage="'+stage+'"]').press('Enter');
+ const explore=page.locator('.wa-explore-desk');
+ const question=explore.locator('.wa-explore-question');
+ const pick=async title=>{
+  await explore.locator('.wa-explore-picker-trigger').press('Enter');
+  await explore.locator('.wa-explore-picker-menu').getByRole('button',{name:title,exact:false}).click();
+ };
+ await go('explore');
+ if(!touch && route==='preview'){
+  for(const [title,items] of [['Riverside Café',expressionExplore['riverside-cafe']],
+   ['Willow Kitchen',expressionExplore['review-willow-kitchen']],['Beyond the Stars',expressionExplore['beyond-the-stars']]]){
+   await pick(title);
+   for(const [index,item] of items.entries()){
+    if(!optionalExpressionExplore.has(item.id))await checkedChoice(question,item.optionIds[item.answer]);
+    if(index<items.length-1)await explore.getByRole('button',{name:/Next paragraph/}).press('Enter');
+   }
+  }
+  assert.match(await explore.getByRole('status').first().innerText(),/3 \/ 3 needed/);
+  assert.equal(await page.locator('.wa-stage-tab[data-stage=explore]').getAttribute('data-complete'),'true');
+ }
+ for(const [title,slug] of [['Beyond the Stars','beyond-the-stars'],['Summer Sound','summer-sound']]){
+  await pick(title);
+  const item=expressionExplore[slug][0];
+  assert.equal(await question.locator('.wa-question-prompt').innerText(),item.prompt);
+  assert.equal(await explore.locator('.wa-explore-prose').count(),1);
+  const wrong=item.optionIds.find(key=>key!==item.optionIds[item.answer]);
+  if(touch){
+   await question.locator('[data-option-id="'+wrong+'"]').tap();
+   await question.getByRole('button',{name:'Check answer'}).tap();
+   assert.match(await question.locator('.wa-answer').innerText(),/Try another answer/);
+   assert.doesNotMatch(await question.locator('.wa-answer').innerText(),/Best answer/);
+  }
+  await question.scrollIntoViewIfNeeded();
+  await capture(page,'r24-'+route+'-'+slug,width,height);
+ }
+ await go('master');
+ const checkpoint=page.locator('.wa-master-question');
+ const item=expressionR24.analysis;
+ assert.match(await checkpoint.locator('.wa-question-source').innerText(),/captions/);
+ assert.equal(await page.locator('[data-review-draft]').count(),0);
+ for(const key of ['all-rooms','broad-praise']){
+  const answer=checkpoint.locator('[data-option-id="'+key+'"]');
+  if(touch)await answer.tap();else await answer.press('Enter');
+  await checkpoint.getByRole('button',{name:'Check answer'}).press('Enter');
+ }
+ assert.match(await checkpoint.locator('.wa-answer').innerText(),/Completed with an explanation/);
+ assert.equal(await checkpoint.locator('.wa-question-prompt').innerText(),item.prompt);
+ await checkpoint.scrollIntoViewIfNeeded();
+ await capture(page,'r24-'+route+'-master',width,height);
+ await checkpoint.getByRole('button',{name:'Finish analysis'}).click();
+ assert.equal(await page.getByRole('textbox',{name:/Editor’s note/}).count(),1);
+ if(!touch){
+  const draft=await workshop(page,expressionR24.master);
+  await page.getByRole('button',{name:'← All pathways'}).click();
+  await card.getByRole('button',{name:'Resume pathway →'}).click();
+  assert.equal(await page.getByRole('textbox',{name:'Revise your response'}).inputValue(),draft);
+  assert.equal(await page.getByRole('textbox',{name:/Editor’s note/}).inputValue(),expressionR24.master.modelNote);
+ }
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+ await page.getByRole('textbox',{name:/Editor’s note/}).scrollIntoViewIfNeeded();
+ await capture(page,'r24-'+route+'-master-note',width,height);
+ await page.getByRole('button',{name:'← All pathways'}).click();
 }
 
 try{
@@ -250,14 +319,14 @@ try{
   const go = stage => page.locator('.wa-stage-tab[data-stage="'+stage+'"]').press('Enter');
   await go('practise');
   await page.getByRole('button',{name:/Rewrite the cinema review/}).click();
-  const expressionFirst=await workshop(page,pathways.expression.gold[0]);
+  const expressionFirst=await workshop(page,expressionR24.gold[0]);
   await page.getByRole('button',{name:'Next Gold task →'}).press('Enter');
-  await workshop(page,pathways.expression.gold[1]);
+  await workshop(page,expressionR24.gold[1]);
   await page.getByRole('button',{name:'← Previous Gold task'}).press('Enter');
   assert.equal(await page.getByRole('textbox',{name:'Revise your response'}).inputValue(),expressionFirst);
   await capture(page,'expression-gold-revision',width,height);
-
   await page.getByRole('button',{name:'← All pathways'}).click();
+  await checkR24Expression(page,width,height,'preview');
   await page.locator('.wa-path.wa-development').getByRole('button',{name:'Start pathway →'}).click();
   await checkArtwork(page,'banner','idea-development-banner',3);
   await checkBlueprint(page);
@@ -808,6 +877,13 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await page.goto('http://127.0.0.1:8765/review-academy-recovery.html');
   await page.locator('.wa-path').last().waitFor();
   await checkHomeCardArtwork(page);
+  await page.evaluate(()=>{
+   for(const key of Object.keys(localStorage)){
+    if(key.startsWith('writing-academy-preview:')&&key.endsWith(':expression'))localStorage.removeItem(key);
+   }
+  });
+  await page.reload();
+  await checkR24Expression(page,width,height,'recovery');
   await page.locator('.wa-path.wa-structure button').click();
   await go('discover');
   assert.match(await page.locator('.wa-recognition-feedback').innerText(),/Completed with an explanation/);
@@ -819,6 +895,14 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await page.locator('.wa-workspace').waitFor();
   assert.deepEqual(errors,[]);
   await page.close();
+ }
+ for(const [route,filename] of [['preview','review-academy-preview.html'],['recovery','review-academy-recovery.html']]){
+  const touchPage=await browser.newPage({viewport:{width:320,height:740},hasTouch:true,isMobile:true});
+  await touchPage.route('**/src/supabase.js',r=>r.fulfill({contentType:'application/javascript',body:'export async function getSupabaseClient(){return {auth:{onAuthStateChange(){}}}}'}));
+  await touchPage.route('**/src/auth.js',r=>r.fulfill({contentType:'application/javascript',body:'export async function getCurrentProfile(){return {id:"qa-touch",active:true,role:"teacher",must_change_password:false}}'}));
+  await touchPage.goto('http://127.0.0.1:8765/'+filename);
+  await checkR24Expression(touchPage,320,740,route,{touch:true});
+  await touchPage.close();
  }
  const resumePage=await browser.newPage();
  await resumePage.route('**/src/supabase.js',route=>route.fulfill({contentType:'application/javascript',body:'export async function getSupabaseClient(){return {auth:{onAuthStateChange(){}}}}'}));

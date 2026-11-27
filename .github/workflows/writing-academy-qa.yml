@@ -25,7 +25,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test tests/writing-academy-foundation.test.js tests/writing-activity.test.js tests/review-academy-pedagogy.test.mjs tests/writing-academy-persistence.test.js tests/writing-academy-preview-progress.test.js tests/writing-academy-recognition.test.js
+      - run: node --test tests/writing-academy-foundation.test.js tests/writing-activity.test.js tests/review-academy-pedagogy.test.mjs tests/writing-academy-persistence.test.js tests/writing-academy-preview-progress.test.js tests/writing-academy-recognition.test.js tests/writing-academy-expression-r2-4.test.js
       - run: npm install --no-save --package-lock=false playwright@1.56.1 @electric-sql/pglite@0.6.0
       - run: node scripts/test-writing-persistence-db.mjs
       - run: npx playwright install --with-deps chromium

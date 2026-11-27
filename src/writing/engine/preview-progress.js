@@ -60,6 +60,8 @@ export function capturePreview(state, content, {stage,completed}) {
   for (const [modelIndex, model] of models.entries()) {
     keys(model).forEach((key,n)=>{
       const runtimeKey = modelIndex+':'+n;
+      const writingKey = 'expression-writing:'+runtimeKey;
+      if (state.exploreDrafts.has(writingKey)) observations['expression-writing-'+key] = boundedText(state.exploreDrafts.get(writingKey));
       if (state.exploreDrafts.has(runtimeKey)) observations[key] = boundedText(state.exploreDrafts.get(runtimeKey));
       if (state.identified.has(runtimeKey)) annotations[key] = ['reviewed'];
     });
@@ -118,6 +120,8 @@ export function restorePreview(state, content, checkpoint) {
   });
   models.forEach((model,j)=>keys(model).forEach((key,n)=>{
     const runtimeKey = j+':'+n;
+    const writingKey = 'expression-writing-'+key;
+    if (Object.hasOwn(observations,writingKey)) state.exploreDrafts.set('expression-writing:'+runtimeKey,observations[writingKey]);
     if (Object.hasOwn(observations,key)) state.exploreDrafts.set(runtimeKey,observations[key]);
     if (annotations[key]?.includes('reviewed')) state.identified.add(runtimeKey);
   }));
