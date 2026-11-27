@@ -267,7 +267,7 @@ export function updateHomeMerits(root, profile, dashboard, { autoOpen = false } 
   const dialog = root.querySelector?.('[data-merit-dialog]');
   if (!bell || !dialog) return;
   // Never destroy a dialog while the teacher is reading it; refresh on close.
-  if (dialog.open) {
+  if (dialog.open && dashboard !== null) {
     if (!deferredMeritUpdates.has(dialog)) dialog.addEventListener('close', () => {
       const latest = deferredMeritUpdates.get(dialog);
       deferredMeritUpdates.delete(dialog);
@@ -276,9 +276,10 @@ export function updateHomeMerits(root, profile, dashboard, { autoOpen = false } 
     deferredMeritUpdates.set(dialog,{profile,dashboard});
     return;
   }
+  if (dialog.open) dialog.close();
   const focused = bell === root.ownerDocument?.activeElement;
   bell.outerHTML = meritBellMarkup(model,profile);
-  dialog.outerHTML = meritPopupMarkup(model,profile,true);
+  dialog.outerHTML = meritPopupMarkup(model,profile,dashboard !== null);
   const banner = root.querySelector('[data-merit-banner]');
   if (banner) banner.innerHTML = renderMeritAlert(model);
   const label = root.querySelector('[data-home-activity-label]');
