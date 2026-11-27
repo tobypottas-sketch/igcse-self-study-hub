@@ -14,7 +14,7 @@ export function createVocabularyTiming({clock=createActiveLearningClock(),outbox
   function save(){
     retained.push(...clock.drain());
     if(!retained.length)return;
-    try{outbox.enqueue(retained);retained=[];}catch(e){onError(e);}
+    try{while(retained.length){const chunk=retained.slice(0,120);outbox.enqueue(chunk);retained=retained.slice(chunk.length);}}catch(e){onError(e);}
   }
   function sync(state,screen){
     const context=vocabularyTimingContext(state,screen),next=context?JSON.stringify(context):null;

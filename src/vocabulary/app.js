@@ -1,4 +1,4 @@
-import { installVocabularyTiming, VOCABULARY_ACTIVE_TIME_V2_ENABLED } from './active-learning-browser.js';
+import { startGatedVocabularyTiming, VOCABULARY_ACTIVE_TIME_V2_ENABLED } from './active-learning-browser.js';
 import {updateLeaderboardModal,markLeaderboardTabPending} from './rewards-leaderboard-modal.js?v=player-avatars-v1';
 import {ensureRewardsDashboard} from './rewards-home-layout.js';
 import { getSupabaseClient } from '../supabase.js';
@@ -1512,8 +1512,11 @@ async function initialise() {
     window.addEventListener('beforeunload', event => { if (attempts().pending) { event.preventDefault(); event.returnValue = ''; } });
     showStudentLoading('Loading your vocabulary progress…');
     state.profile = profile; state.preview = staff && previewRequested; if (!state.preview) installStudentIdentityObserver(); if (!state.preview) void trackVocabularyEvent(state.client, { event_type:'app_open', mode:'practice' }).catch(() => {}); if (!state.preview) startActiveTime();
-    // Deliberately disabled: no real outbox or transport until server verification.
-    if (VOCABULARY_ACTIVE_TIME_V2_ENABLED && !state.preview) state.activeLearningV2=installVocabularyTiming({enabled:true,root,state,doc:document,win:window,outbox:null});
+    // Disabled until isolated database and browser verification plus release approval.
+    if (VOCABULARY_ACTIVE_TIME_V2_ENABLED && !state.preview) {
+      try { state.activeLearningV2=startGatedVocabularyTiming({enabled:true,root,state,doc:document,win:window}); }
+      catch { console.warn('Active learning timing unavailable.'); }
+    }
     await showHome();
   } catch (error) { renderVocabularyError(root, error instanceof Error ? error.message : 'Vocabulary practice is unavailable right now.'); }
 }

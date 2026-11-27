@@ -4,6 +4,9 @@ const itemTypes=new Set(['definition_to_word','word_definition_match','type_word
 export async function resolveVocabularyTimingContext(c,lookup){
  if(c.module!=='vocabulary_paraphrase'||c.mode!=='practice'||!Number.isInteger(c.unit)||c.unit<1||!c.occurrence||!c.questionType)return null;
  if(!Object.values(PATHWAY_ACTIVITY_MAP[c.pathway]??{}).some(types=>types.includes(c.questionType)))return null;
+ // Published Set membership is the runtime release authority. Initially only
+ // published members are accepted; remainder/free practice needs full eligibility.
+ if(!await lookup.publishedMember(c.unit,c.pathway,c.occurrence))return null;
  const target=await lookup.occurrence(c.occurrence);
  if(!target||target.unit_number!==c.unit||target.status!=='live'||target.active!==true)return null;
  const item=await lookup.item(target.vocabulary_id);

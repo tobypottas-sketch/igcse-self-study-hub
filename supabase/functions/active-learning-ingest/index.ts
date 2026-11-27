@@ -25,6 +25,11 @@ Deno.serve(async(req:Request)=>{
    const {data,error}=await admin.from(table).select(fields).eq(column,id).maybeSingle();if(error)throw Error('Catalogue unavailable');cache.set(k,data);return data;
   }
   const lookup={
+   publishedMember:async(unit:number,pathway:string,occurrence:string)=>{
+    const k='set:'+unit+':'+pathway+':'+occurrence;if(cache.has(k))return cache.get(k);
+    const {data,error}=await admin.from('vocabulary_set_members').select('occurrence_id').eq('unit_number',unit).eq('pathway_id',pathway).eq('occurrence_id',occurrence).limit(1);
+    if(error)throw Error('Catalogue unavailable');const ok=Boolean(data?.length);cache.set(k,ok);return ok;
+   },
    occurrence:(id:string)=>one('vocabulary_unit_occurrences','occurrence_id',id,'unit_number,vocabulary_id,sense_id,status,active'),
    item:(id:string)=>one('vocabulary_items','vocabulary_id',id,'status,senses'),
    context:(id:string)=>one('vocabulary_contexts','context_id',id,'status,occurrence_id,sense_id,context_type'),

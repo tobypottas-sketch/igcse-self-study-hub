@@ -1,0 +1,5 @@
+# Integration checkpoint — published sets and gated transport
+The browser entrypoint now constructs the actual durable queue and authenticated client transport, but remains compile-time disabled. The server also remains disabled by default.
+Queue writes are limited to 120 intervals. The adapter removes each chunk from retained memory only after that chunk is durably stored. A partial local storage failure does not recreate previously saved chunks.
+Server publication eligibility uses the existing published Set membership authority. This is deliberately conservative: eligible remainder words outside published Sets are not accepted until the complete per-target readiness resolver is integrated. Before activation, browser eligibility must match this restriction or invalid batches will block the queue. No production data or configuration changed.
+Remaining gates: actual PostgreSQL migration/role/concurrency tests, Deno typecheck, native Chromium tests, auth-switch and storage verification, expiry/rejected-batch recovery, and full published/eligible remainder parity.

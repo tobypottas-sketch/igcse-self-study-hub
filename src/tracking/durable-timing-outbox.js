@@ -14,6 +14,7 @@ export function createDurableTimingOutbox({storage, userId, currentUserId, send,
     enqueue(intervals) {
       guard();
       if(!intervals.length)return;
+      if(intervals.length>120)throw Error('Batch exceeds maximum size');
       const batch={id:id(),createdAt:now(),intervals:intervals.map(x=>({startMs:x.startMs,endMs:x.endMs,context:{module:x.context.module,unit:x.context.unit??null,pathway:x.context.pathway??null,activity:x.context.activity,mode:x.context.mode??null,occurrence:x.context.occurrence??null,questionType:x.context.questionType??null,source:x.context.source??null}}))};
       storage.setItem(prefix+batch.id,JSON.stringify(batch));
       return batch.id;

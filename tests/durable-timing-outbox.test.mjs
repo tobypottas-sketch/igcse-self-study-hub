@@ -12,3 +12,5 @@ test('persists across reconstruction, strips private content and retries same ID
 test('account switch cannot flush or enqueue prior account data',async()=>{const f=fixture(),a=f.make();a.enqueue([f.interval]);f.who('b');await assert.rejects(a.flush());assert.throws(()=>a.enqueue([f.interval]));await f.make('b').flush();assert.equal(f.sent.length,0);assert.equal(f.m.size,1);});
 test('separate tabs append distinct batches',async()=>{const f=fixture();f.make().enqueue([f.interval]);f.make().enqueue([f.interval]);await f.make().flush();assert.equal(f.sent.length,2);});
 test('expired offline data is discarded rather than backdated',async()=>{const f=fixture();f.make().enqueue([f.interval]);f.time(86402000);await f.make().flush();assert.equal(f.sent.length,0);assert.equal(f.m.size,0);});
+
+test('oversized batch cannot be persisted',()=>{const f=fixture();assert.throws(()=>f.make().enqueue(Array(121).fill(f.interval)));assert.equal(f.m.size,0);});

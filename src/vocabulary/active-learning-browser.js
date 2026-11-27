@@ -1,5 +1,7 @@
 // Browser lifecycle bridge. No network transport is supplied by default.
 import {createVocabularyTiming} from './active-learning-adapter.js';
+import {createDurableTimingOutbox} from '../tracking/durable-timing-outbox.js';
+import {createActiveLearningTransport} from '../tracking/active-learning-transport.js';
 export const VOCABULARY_ACTIVE_TIME_V2_ENABLED=false;
 export function installVocabularyTiming({enabled=false,root,state,doc,win,outbox,clock,onError=()=>{}}) {
   if(!enabled||state.preview||!root||!outbox)return null;
@@ -28,4 +30,19 @@ export function installVocabularyTiming({enabled=false,root,state,doc,win,outbox
   const save=win.setInterval(flush,30000);
   visibility();focus();sync();
   return {sync,stop,dispose(){if(disposed)return;disposed=true;stop();observer.disconnect();win.clearInterval(tick);win.clearInterval(save);listeners.forEach(fn=>fn());}};
+}
+
+// Entry point stays inert unless the compile-time gate and explicit enable are true.
+export function startGatedVocabularyTiming({enabled=false,root,state,doc,win}) {
+  if(!VOCABULARY_ACTIVE_TIME_V2_ENABLED||!enabled||state.preview||!state.userKey)return null;
+  const userId=state.userKey;let current=userId;
+  const outbox=createDurableTimingOutbox({storage:win.localStorage,userId,currentUserId:()=>current,send:createActiveLearningTransport({client:state.client}),id:()=>win.crypto.randomUUID()});
+  const bridge=installVocabularyTiming({enabled:true,root,state,doc,win,outbox,onError:()=>console.warn('Active learning timing save deferred.')});
+  const {data}=state.client.auth.onAuthStateChange((_event,session)=>{
+    if(session?.user?.id===userId)return;
+    current=null;
+    // Do not invoke Supabase auth methods synchronously in the auth callback.
+    win.setTimeout(()=>{bridge?.dispose();data?.subscription?.unsubscribe();},0);
+  });
+  return bridge;
 }
