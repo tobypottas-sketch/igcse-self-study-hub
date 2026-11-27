@@ -10,6 +10,7 @@ export function buildClassOverview(snapshot) {
   if (!snapshot || !Array.isArray(snapshot.students)) return { available:false, classes:[], totals:null };
   const groups = new Map();
   const seen = new Set();
+  for (const c of snapshot.classes ?? []) if(c.classId) groups.set(c.classId,{classId:c.classId,className:c.className,students:[]});
   for (const row of snapshot.students) {
     if (!row.studentId || !row.classId || seen.has(row.studentId)) continue;
     seen.add(row.studentId);
