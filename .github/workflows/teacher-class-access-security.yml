@@ -55,7 +55,7 @@ jobs:
       - name: Run class/admin authorization regressions
         run: node --test tests/teacher-class-access-hotfix.test.js tests/admin-class-assignment-roles.test.js tests/admin-class-rename-backend.test.js tests/admin-view.test.js tests/teacher-student-password-reset.test.js tests/admin-import.test.js tests/admin-import-view.test.js tests/admin-class-roster-ux.test.mjs tests/teacher-class-login-cards.test.js tests/admin-provision-validation.test.js tests/app-state.test.js tests/admin-activity-data.test.js tests/home-merit-alert.test.js tests/teacher-activity-security.test.mjs tests/merit-pathways-per-class.test.js tests/student-progress-reporting.test.js tests/admin-activity-model.test.js tests/admin-activity-list-navigation.test.mjs tests/vocabulary-teacher-data.test.js
   activity-browser:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 7
     steps:
       - uses: actions/checkout@v4
