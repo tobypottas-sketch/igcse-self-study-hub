@@ -1,7 +1,7 @@
 import {createPreviewProgress} from '../engine/preview-progress.js';
 import {renderArtwork, reviewArtwork} from './editorial-art.js?v=16';
 import {renderStudio} from './studio-20261125.js';
-import {renderExamReference,renderStructure,renderExpression,renderDevelopment,renderCohesion,renderEditing,renderExam} from './structure-20261125.js?v=9';
+import {renderExamReference,renderStructure,renderExpression,renderDevelopment,renderCohesion,renderEditing,renderExam} from './structure-20261125.js?v=13';
 // Preview has no student writes, XP transactions or invented progress.
 const pathwayDetails={
  structure:['01','Arrange ideas into a review that flows.','structure'],

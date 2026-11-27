@@ -1,5 +1,7 @@
+import {withStaffInteractions} from '../src/writing/content/review-interactions-r2-2.js';
 import {structureR1} from '../src/writing/content/review-structure-r1.js';
-import {structureDiscover,structureExplore} from '../src/writing/content/review-structure-recognition.js';
+import {structureDiscover} from '../src/writing/content/review-structure-recognition.js';
+import {refineStructureForStaff,structureExploreR23 as structureExplore,optionalStructureExplore} from '../src/writing/content/review-structure-r2-3.js';
 import {exam,examModels} from '../src/writing/content/review-exam.js';
 import {editing,editingModels} from '../src/writing/content/review-editing.js';
 import {cohesion} from '../src/writing/content/review-cohesion.js';
@@ -8,6 +10,7 @@ import {mkdir} from 'node:fs/promises';
 import {join} from 'node:path';
 import {chromium} from 'playwright';
 import {pathways} from '../src/writing/content/review-pedagogy.js';
+const structureR23=refineStructureForStaff(withStaffInteractions(structureR1));
 const screenshotDir = process.env.WRITING_SCREENSHOT_DIR || '.';
 await mkdir(screenshotDir, {recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE});
@@ -84,8 +87,14 @@ async function workshop(page, task) {
  const reveal=page.getByRole('button',{name:/Compare with an example/});
  await reveal.click();
  assert.equal(await page.locator('.wa-apply-model').count(),0);
- const draft=page.locator('.wa-apply-editor textarea');
+ const draft=page.locator('[data-review-draft]');
+ if(task.modelNote) {
+  await page.getByRole('textbox',{name:/Editor’s note/}).fill(task.modelNote);
+  await reveal.click();
+  assert.equal(await page.locator('.wa-apply-model').count(),0);
+ }
  await draft.fill(task.example);
+ assert.equal(await page.locator('.wa-writing-evidence').getAttribute('data-evidence'),'draft');
  await reveal.click();
  assert.equal(await draft.getAttribute('readonly'),'');
  const revision=page.getByRole('textbox',{name:'Revise your response'});
@@ -94,6 +103,7 @@ async function workshop(page, task) {
  await revision.fill(revised);
  for(const check of await page.locator('.wa-apply-check input').all())await check.check();
  assert.match(await page.locator('.wa-apply-comparison .wa-answer').innerText(),/Writing and reflection complete/);
+ assert.equal(await page.locator('.wa-writing-evidence').getAttribute('data-evidence'),'self-reviewed');
  return revised;
 }
 
@@ -103,6 +113,89 @@ async function finishAnalysis(page, item) {
  assert.equal(await page.locator('.wa-master-question .wa-answer').getAttribute('data-result'),'correct');
  await page.getByRole('button',{name:'Finish analysis'}).click();
  assert.equal(await page.locator('.wa-stage-tab[data-stage=master]').getAttribute('data-complete'),'false');
+}
+
+async function checkR21Development(page){
+ const quiz=page.locator('.wa-practise-question');
+ const expected=new Map([
+  ['Which advice uses today’s service time to help students decide whether to go?', [/seven minutes is enough/, /leaves seven minutes/]],
+  ['Which evaluation explains what these beginners gain and what they give up?', [/only ten minutes to practise/, /ten minutes at the bench/]],
+  ['Which recommendation weighs both points for this club?', [/Give it a try/, /club’s main priority/]]
+ ]);
+ await page.locator('.wa-stage-tab[data-stage=practise]').click();
+ for(const name of [/Explain the impact/,/Weigh a strength and drawback/]){
+  await page.getByRole('button',{name}).click();
+  for(let i=0;i<4;i++){
+   const question=await quiz.locator('.wa-question-prompt').innerText();
+   const match=expected.get(question);
+   if(match){
+    assert.ok(await quiz.locator('.wa-question-source').isVisible());
+    await quiz.getByRole('button',{name:match[0]}).click();
+   }else await quiz.locator('.wa-option').first().click();
+   await quiz.getByRole('button',{name:'Check answer'}).click();
+   if(match){
+    assert.equal(await quiz.locator('.wa-answer').getAttribute('data-result'),'correct');
+    assert.match(await quiz.locator('.wa-answer').innerText(),match[1]);
+    expected.delete(question);
+   }
+   await quiz.getByRole('button',{name:/Next question|Finish analysis/}).click();
+  }
+ }
+ assert.equal(expected.size,0);
+}
+
+async function advanceToChoice(page, id){
+ const quiz=page.locator('.wa-practise-question');
+ for(let count=0;count<5;count++){
+  if(await quiz.locator('[data-question-id="'+id+'"]').count())return quiz;
+  const check=quiz.getByRole('button',{name:'Check answer'});
+  if(await check.isVisible()){
+   await quiz.locator('.wa-option:not(:disabled)').first().click();
+   await check.click();
+  }
+  await quiz.getByRole('button',{name:'Next question'}).click();
+ }
+ throw Error('Missing shared interaction '+id);
+}
+
+async function checkedChoice(quiz,key){
+ await quiz.locator('[data-option-id="'+key+'"]').press('Enter');
+ assert.equal(await quiz.locator('[data-option-id="'+key+'"]').getAttribute('aria-pressed'),'true');
+ await quiz.getByRole('button',{name:'Check answer'}).press('Enter');
+}
+
+async function sharedInteractionChecks(page,go,width,height){
+ await page.getByRole('button',{name:'← All pathways'}).click();
+ for(const sample of [
+  {path:'expression',challenge:/Find a natural combination/,id:'pedagogy-q-010',key:'option-b',type:'gap',wrong:'option-a'},
+  {path:'expression',challenge:/Preserve the original meaning/,id:'pedagogy-extra-q-15',key:'option-b',type:'revision',wrong:'option-a',secondWrong:'option-c'},
+  {path:'cohesion',challenge:/Connect ideas/,id:'cohesion-q-004',key:'option-c',type:'punctuation'},
+  {path:'development',challenge:/Support a judgement/,id:'pedagogy-q-015',key:'option-a',type:'evidence'},
+  {path:'editing',challenge:/Spot the weakness/,id:'editing-q-003',key:'repeats-v2',type:'editing'}
+ ]){
+  const path=page.locator('.wa-path.wa-'+sample.path);
+  await path.getByRole('button',{name:/Start pathway|Resume pathway/}).click();
+  await go('practise');
+  await page.getByRole('button',{name:sample.challenge}).click();
+  const quiz=await advanceToChoice(page,sample.id);
+  if(sample.type==='gap')assert.equal(await quiz.locator('.wa-vocabulary-gap').innerText(),'____');
+  if(sample.type==='revision')assert.match(await quiz.locator('.wa-revision-source').innerText(),/Two exhibits/);
+  if(sample.wrong){
+   await checkedChoice(quiz,sample.wrong);
+   assert.equal(await quiz.locator('.wa-recognition-feedback').getAttribute('data-evidence'),'incorrect-first-attempt');
+   assert.doesNotMatch(await quiz.locator('.wa-recognition-feedback').innerText(),/Best answer/);
+  }
+  await checkedChoice(quiz,sample.secondWrong??sample.key);
+  const outcome=sample.secondWrong?'completed-with-support':sample.wrong?'correct-after-feedback':'correct-independently';
+  assert.equal(await quiz.locator('.wa-recognition-feedback').first().getAttribute('data-evidence'),outcome);
+  if(sample.type==='editing'){
+   assert.equal(await quiz.locator('[data-recognition-next]').count(),0);
+   await checkedChoice(quiz.locator('.wa-interaction-followup'),'retain');
+   assert.equal(await quiz.locator('[data-recognition-next]').count(),1);
+  }
+  await capture(page,'r22-'+sample.type,width,height);
+  await page.getByRole('button',{name:'← All pathways'}).click();
+ }
 }
 
 try{
@@ -131,6 +224,17 @@ try{
   await expressionCard.getByRole('button',{name:'Start pathway →'}).click();
   await checkArtwork(page,'banner','vocabulary-expression',expressionRatio);
   await checkBlueprint(page);
+  const vocabulary=page.locator('.wa-discovery');
+  await vocabulary.getByRole('button',{name:'Next contrast',exact:false}).click();
+  await vocabulary.getByRole('button',{name:'Next contrast',exact:false}).click();
+  assert.match(await vocabulary.locator('.wa-question-prompt').innerText(),/Which detail do both versions give/);
+  await vocabulary.locator('[data-option-id="frequency-v2"]').click();
+  await vocabulary.getByRole('button',{name:'Check answer'}).click();
+  assert.match(await vocabulary.locator('.wa-answer').innerText(),/Try another answer/);
+  await vocabulary.locator('[data-option-id="time-v2"]').click();
+  await vocabulary.getByRole('button',{name:'Check answer'}).click();
+  assert.match(await vocabulary.locator('.wa-answer').innerText(),/Correct after a retry/);
+  await capture(page,'r21-vocabulary-discover',width,height);
   const tabs=page.locator('.wa-stage-tab');
   const navigation=page.locator('.wa-stage-nav');
   for (const [index,stage] of ['Discover','Explore','Practise','Apply','Master'].entries()) {
@@ -176,7 +280,11 @@ try{
   await page.getByRole('button',{name:'Next Gold task →'}).press('Enter');
   await workshop(page,pathways.development.gold[1]);
   await go('master');
+  await checkR21Development(page);
+  await go('master');
+  assert.match(await page.locator('.wa-master-question .wa-question-source').innerText(),/5:15 to 5:40/);
   await finishAnalysis(page,pathways.development.analysis);
+  assert.match(await page.locator('.wa-master-question .wa-score').innerText(),/^1 \/ 1/);
   await workshop(page,pathways.development.master);
   assert.equal(await page.locator('.wa-stage-tab[data-stage=master]').getAttribute('data-complete'),'true');
   await capture(page,'development-master-revision',width,height);
@@ -234,13 +342,20 @@ try{
    await page.locator('.wa-explore-model-choice').nth(modelIndex).click();
    for(const [index,item] of items.entries()){
     assert.equal(await page.locator('.wa-explore-question h3').innerText(),item.prompt);
+    if(optionalStructureExplore.has(item.id)){
+     assert.ok(await page.getByText('Optional practice',{exact:true}).isVisible());
+     if(index<items.length-1)await page.getByRole('button',{name:'Next paragraph →'}).click();
+     continue;
+    }
     await page.locator('[data-option-id="'+item.optionIds[item.answer]+'"]').click();
     await page.getByRole('button',{name:'Check answer',exact:true}).click();
     assert.match(await page.locator('.wa-recognition-feedback').innerText(),/Correct on your first try/);
     if(index<items.length-1)await page.getByRole('button',{name:'Next paragraph →'}).click();
    }
-   await page.getByRole('button',{name:'Previous paragraph'}).click();
-   assert.match(await page.locator('.wa-recognition-feedback').innerText(),/Correct on your first try/);
+   if(!optionalStructureExplore.has(items.at(-1).id)){
+    assert.match(await page.locator('.wa-recognition-feedback').innerText(),/Correct on your first try/);
+   }
+   if(modelIndex<3)assert.equal(await page.locator('.wa-stage-tab[data-stage=explore]').getAttribute('data-complete'),String(modelIndex===2));
    await page.getByText('Read complete model',{exact:true}).click();
    assert.equal(await page.locator('.wa-explore-full-prose:visible').count(),items.length);
   }
@@ -258,16 +373,35 @@ try{
   const first=structureR1.practice[1].items[0];
   await page.locator('.wa-option[data-option="'+first.answer[0]+'"]').press('Enter');
   await page.getByRole('button',{name:'Undo last selection'}).press('Enter');
+  await page.locator('.wa-option[data-option="'+first.answer[1]+'"]').press('Enter');
+  await page.locator('.wa-option[data-option="'+first.answer[0]+'"]').press('Enter');
+  await page.getByRole('button',{name:'Move sentence 2 up'}).press('Enter');
+  assert.deepEqual(await page.locator('.wa-sequence-row p').allTextContents(),first.answer.slice(0,2).map(i=>first.options[i]));
+  await page.getByRole('button',{name:'Remove sentence 2'}).press('Enter');
+  await page.getByRole('button',{name:'Remove sentence 1'}).press('Enter');
   for(const index of first.answer)await page.locator('.wa-option[data-option="'+index+'"]').press('Enter');
   await page.getByRole('button',{name:'Check answer'}).press('Enter');
   assert.equal(await page.locator('.wa-question .wa-answer').getAttribute('data-result'),'correct');
+  assert.deepEqual(await page.locator('.wa-sequence-row p').allTextContents(),first.answer.map(i=>first.options[i]));
   await capture(page,'structure-order-feedback',width,height);
+  await page.getByRole('button',{name:/Group related ideas/}).click();
+  const plan=page.locator('.wa-practise-question');
+  assert.equal(await plan.locator('.wa-plan-group').count(),6);
+  await checkedChoice(plan,'visit-learn');
+  assert.match(await plan.locator('.wa-answer').innerText(),/Correct on your first try/);
+  await capture(page,'r22-paragraph-plan',width,height);
+  await page.getByRole('button',{name:/Find the sentence that doesn’t fit/}).click();
+  assert.deepEqual(await plan.locator('.wa-sentence-extract .wa-option').allTextContents(),[
+   'You can borrow a racket at reception.','The court lights are bright enough for evening practice.','You get your deposit back when you return the racket.'
+  ]);
+  await checkedChoice(plan,'lights');
+  await capture(page,'r22-sentence-selection',width,height);
   await page.getByRole('button',{name:/Group details in a hall review/}).click();
   await workshop(page,structureR1.gold[0]);
   await page.getByRole('button',{name:'Next Gold task →'}).press('Enter');
   await workshop(page,structureR1.gold[1]);
   if(width===1440){
-   for(const challenge of structureR1.practice){
+   for(const challenge of structureR23.practice){
     await page.locator('.wa-practise-card').filter({hasText:challenge.title}).click();
     for(const item of challenge.items){
      const check=page.getByRole('button',{name:'Check answer',exact:true});
@@ -282,13 +416,13 @@ try{
    await page.locator('.wa-stage-tab[data-stage=practise][data-complete=true]').waitFor();
   }
   await go('apply');
-  const applied=await workshop(page,structureR1.apply[0]);
+  const applied=await workshop(page,structureR23.apply[0]);
   await go('master');
   await go('apply');
   assert.equal(await page.getByRole('textbox',{name:'Revise your response'}).inputValue(),applied);
   await captureStage(page,'Apply','stage-practise',width,height);
   if(width===1440){
-   for(const task of structureR1.apply.slice(1)){
+   for(const task of structureR23.apply.slice(1)){
     await page.getByRole('button',{name:'Next task →'}).click();
     await workshop(page,task);
    }
@@ -296,8 +430,19 @@ try{
   }
   await go('master');
   await captureStage(page,'Master','stage-master',width,height);
-  await finishAnalysis(page,structureR1.analysis);
-  await workshop(page,structureR1.master);
+  const master=page.locator('.wa-master-question');
+  assert.match(await master.locator('.wa-question-source').innerText(),/printmaking workshop/);
+  assert.equal(await master.locator('.wa-plan-group').count(),6);
+  assert.equal(await page.locator('[data-review-draft]').count(),0);
+  await checkedChoice(master,'price-first');
+  assert.match(await master.locator('.wa-recognition-feedback').innerText(),/Try another answer/);
+  await capture(page,'r23-master-first-miss',width,height);
+  await checkedChoice(master,'evidence-advice');
+  assert.match(await master.locator('.wa-recognition-feedback').innerText(),/Correct after a retry/);
+  await capture(page,'r23-master-plan',width,height);
+  await master.getByRole('button',{name:'Finish analysis'}).click();
+  await workshop(page,structureR23.master);
+  await capture(page,'r23-master-writing',width,height);
   if(width===1440)assert.match(await page.locator('.wa-stage-progress').innerText(),/^5 of 5 stages completed/);
   await page.getByText('Write a full review in Writing Studio',{exact:true}).click();
   await page.getByRole('button',{name:'Open Writing Studio →'}).click();
@@ -441,13 +586,13 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await page.getByRole('button',{name:/Rewrite for accuracy and fluency/}).press('Enter');
   const goldRevision=await workshop(page,cohesion.gold[0]);
   await page.getByRole('button',{name:'Next Gold task →'}).press('Enter');
-  await page.locator('.wa-apply-editor textarea').fill(cohesion.gold[1].example);
+  await page.locator('[data-review-draft]').fill(cohesion.gold[1].example);
   await go('apply');
   await checkArtwork(page,'stage','grammar-cohesion-apply');
   await workshop(page,cohesion.apply[0]);
   await capture(page,'cohesion-apply-workshop',width,height);
   await go('practise');
-  assert.equal(await page.locator('.wa-apply-editor textarea').inputValue(),cohesion.gold[1].example);
+  assert.equal(await page.locator('[data-review-draft]').inputValue(),cohesion.gold[1].example);
   await page.getByRole('button',{name:/Compare with an example/}).press('Enter');
   await page.locator('.wa-apply-comparison textarea').nth(1).fill('The relative clause clearly links the new rules to the challenge.');
   for(const check of await page.locator('.wa-apply-check input').all())await check.check();
@@ -459,7 +604,7 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await checkArtwork(page,'stage','grammar-cohesion-master');
   await finishAnalysis(page,cohesion.analysis);
   assert.match(await page.locator('.wa-master-question').innerText(),/1 \/ 1 objective decisions correct/);
-  await workshop(page,cohesion.master);
+  await workshop(page,withStaffInteractions(cohesion).master);
   assert.equal(await page.locator('.wa-stage-tab[data-stage=master]').getAttribute('data-complete'),'true');
   await capture(page,'cohesion-master-transfer',width,height);
   await page.getByText('Write a full review in Writing Studio',{exact:true}).click();
@@ -516,17 +661,17 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await page.getByRole('button',{name:/Work as an editor/}).press('Enter');
   const editingGoldRevision=await workshop(page,editing.gold[0]);
   await page.getByRole('button',{name:'Next Gold task →'}).press('Enter');
-  await page.locator('.wa-apply-editor textarea').fill(editing.gold[1].example);
+  await page.locator('[data-review-draft]').fill(withStaffInteractions(editing).gold[1].example);
   await go('apply');
   await checkArtwork(page,'stage','editing-improvement-apply');
-  for(const [i,task] of editing.apply.entries()){
+  for(const [i,task] of withStaffInteractions(editing).apply.entries()){
    await workshop(page,task);
    if(i<editing.apply.length-1)await page.getByRole('button',{name:'Next task →'}).press('Enter');
   }
   assert.equal(await page.locator('.wa-stage-tab[data-stage=apply]').getAttribute('data-complete'),'true');
   await capture(page,'editing-apply',width,height);
   await go('practise');
-  assert.equal(await page.locator('.wa-apply-editor textarea').inputValue(),editing.gold[1].example);
+  assert.equal(await page.locator('[data-review-draft]').inputValue(),withStaffInteractions(editing).gold[1].example);
   await page.getByRole('button',{name:/Compare with an example/}).press('Enter');
   await page.locator('.wa-apply-comparison textarea').nth(1).fill('The recommendation connects the clear strengths and the later difficulty.');
   for(const check of await page.locator('.wa-apply-check input').all())await check.check();
@@ -538,7 +683,7 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await checkArtwork(page,'stage','editing-improvement-master');
   await finishAnalysis(page,editing.analysis);
   assert.match(await page.locator('.wa-master-question').innerText(),/1 \/ 1 objective decisions correct/);
-  const masterRevision=await workshop(page,editing.master);
+  const masterRevision=await workshop(page,withStaffInteractions(editing).master);
   assert.equal(await page.locator('.wa-stage-tab[data-stage=master]').getAttribute('data-complete'),'true');
   await go('discover');
   await go('master');
@@ -586,7 +731,7 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   }
   await page.getByRole('button',{name:/Plan independently/}).press('Enter');
   for(const [index,task] of exam.gold.entries()){
-   await page.locator('.wa-apply-editor textarea').fill(task.example);
+   await page.locator('[data-review-draft]').fill(task.example);
    await page.getByRole('button',{name:/Compare with an example/}).press('Enter');
    assert.ok(await page.getByRole('heading',{name:'One possible plan'}).isVisible());
    await page.getByRole('textbox',{name:'Revise your response'}).fill(task.example+'\nCheck recommendation against evidence');
@@ -669,7 +814,7 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   await go('explore');
   assert.match(await page.locator('.wa-recognition-feedback').innerText(),/Correct on your first try/);
   await capture(page,'recovery-structure-explore',width,height);
-  await page.getByRole('button',{name:'All pathways'}).click();
+  await sharedInteractionChecks(page,go,width,height);
   await page.getByRole('button',{name:'Open Writing Studio →'}).click();
   await page.locator('.wa-workspace').waitFor();
   assert.deepEqual(errors,[]);
@@ -697,6 +842,31 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
  assert.equal(await resumePage.locator('.wa-apply-desk textarea').inputValue(),'My workshop draft survives a reload.');
  await resumePage.locator('.wa-stage-tab[data-stage="discover"]').click();
  assert.match(await resumePage.locator('.wa-recognition-feedback').innerText(),/Correct on your first try/);
+ // Seed a completed R2.2 checkpoint without changing the saved Discover and Apply evidence.
+ await resumePage.evaluate(oldItem=>{
+  const key=Object.keys(localStorage).find(key=>key.startsWith('writing-academy-preview:')&&key.endsWith(':structure'));
+  const saved=JSON.parse(localStorage.getItem(key));
+  saved.stage='master';
+  saved.completed.push('master');
+  saved.workspace.objective['structure-transfer']={questions:{[oldItem.id]:{
+   displayOrder:oldItem.optionIds,selection:oldItem.optionIds[oldItem.answer],checked:true
+  }}};
+  saved.workspace.master['pedagogy-task-005']={draft:'The recording review draft survived the checkpoint replacement.'};
+  localStorage.setItem(key,JSON.stringify(saved));
+ },structureR1.analysis);
+ await resumePage.goto(recovery);
+ await card.getByRole('button',{name:'Resume pathway →'}).click();
+ assert.equal(await resumePage.locator('.wa-stage-tab[data-stage=master]').getAttribute('data-complete'),'false');
+ const revisedMaster=resumePage.locator('.wa-master-question');
+ assert.equal(await resumePage.locator('[data-review-draft]').count(),0);
+ await checkedChoice(revisedMaster,'evidence-advice');
+ await revisedMaster.getByRole('button',{name:'Finish analysis'}).click();
+ assert.equal(await resumePage.locator('[data-review-draft]').inputValue(),'The recording review draft survived the checkpoint replacement.');
+ await resumePage.getByRole('textbox',{name:/Editor’s note/}).fill('Booking steps and recording conditions were mixed.');
+ await resumePage.goto(preview);
+ await card.getByRole('button',{name:'Resume pathway →'}).click();
+ assert.equal(await resumePage.getByRole('textbox',{name:/Editor’s note/}).inputValue(),'Booking steps and recording conditions were mixed.');
+ assert.equal(await resumePage.locator('[data-review-draft]').inputValue(),'The recording review draft survived the checkpoint replacement.');
  account='other-staff';
  await resumePage.goto(preview);
  await card.getByRole('button',{name:'Start pathway →'}).click();

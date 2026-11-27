@@ -61,3 +61,91 @@ test('checkpoints are separated by staff account, pathway, genre and curriculum 
   assert.equal(unavailable.load('structure'),null);
   assert.equal(unavailable.save('structure',snapshot),false);
 });
+
+test('a revised staff question reopens only that item and keeps other decisions and drafts',()=>{
+  const state=runtime();
+  state.gold[0].draft='Gold draft';
+  state.transfer.draft='Master draft';
+  state.attempts.set('choice',{index:2,done:true,correct:2,selected:null,order:[],checked:false,
+    answered:new Map([['first',0],['second',0]]),displays:[[1,0],[0,1]]});
+  const snapshot=capturePreview(state,content,{stage:'practise',completed:['practise','master']});
+  const revised={...activity,items:[{...activity.items[0],version:2,optionIds:['a-v2','b-v2']},activity.items[1]]};
+  const resumed=runtime();
+  restorePreview(resumed,{...content,activities:[revised]},snapshot);
+  const run=resumed.attempts.get('choice');
+  assert.equal(run.index,0);
+  assert.equal(run.done,false);
+  assert.equal(run.checked,false);
+  assert.equal(run.selected,null);
+  assert.deepEqual(run.answered,new Map([['second',0]]));
+  assert.deepEqual(run.displays[1],[0,1]);
+  assert.equal(resumed.gold[0].draft,'Gold draft');
+  assert.equal(resumed.transfer.draft,'Master draft');
+});
+
+test('preview resumes a shuffled choice retry, developing sequence and separate editor note together',()=>{
+  const state=runtime();
+  const item={id:'order-question',optionIds:['first','second','third'],answer:[0,1,2]};
+  const ordering={id:'order-activity',type:'order',items:[item]};
+  const checked={id:'checked-item',version:2,optionIds:['a','b','c'],answer:0};
+  const preview={...content,activities:[ordering],recognition:[checked]};
+  state.recognition=new Map([[checked.id,{version:2,order:['c','b','a'],attempts:['b'],selection:'a'}]]);
+  state.attempts.set(ordering.id,{index:0,done:false,correct:0,selected:null,order:[2,0],checked:false,
+    answered:new Map(),displays:[[1,2,0]]});
+  state.gold[0].editorNote='The second sentence repeats the first.';
+  state.gold[0].draft='This is the review draft.';
+  const snapshot=capturePreview(state,preview,{stage:'practise',completed:[]});
+  const resumed=runtime();
+  resumed.recognition=new Map();
+  restorePreview(resumed,preview,snapshot);
+  assert.deepEqual(resumed.recognition.get(checked.id),state.recognition.get(checked.id));
+  assert.deepEqual(resumed.attempts.get(ordering.id).order,[2,0]);
+  assert.equal(resumed.gold[0].editorNote,state.gold[0].editorNote);
+  assert.equal(resumed.gold[0].draft,state.gold[0].draft);
+  const newVersion=runtime();
+  newVersion.recognition=new Map();
+  restorePreview(newVersion,{...preview,recognition:[{...checked,version:3}]},snapshot);
+  assert.deepEqual(newVersion.recognition.get(checked.id).attempts,[]);
+  assert.equal(newVersion.recognition.get(checked.id).selection,undefined);
+  assert.equal(newVersion.gold[0].draft,state.gold[0].draft);
+});
+
+test('legacy quiz credit cannot stand in for new recognition evidence with stable option IDs',()=>{
+  const state=runtime();
+  state.attempts.set('choice',{index:2,done:true,correct:0,selected:null,order:[],checked:false,
+    answered:new Map([['first',0],['second',1]]),displays:[[1,0],[0,1]]});
+  const old=capturePreview(state,content,{stage:'practise',completed:['practise']});
+  const revised={...activity.items[0],answer:0,version:2,checkedPractice:true};
+  const next={...content,recognition:[revised],activities:[{...activity,items:[revised,activity.items[1]]}]};
+  const resumed=runtime();
+  resumed.recognition=new Map();
+  restorePreview(resumed,next,old);
+  assert.equal(resumed.attempts.get('choice').done,false);
+  assert.deepEqual(resumed.attempts.get('choice').answered,new Map([['second',1]]));
+  assert.equal(resumed.recognition.size,0);
+});
+
+test('R2.3 replaces legacy Master credit while preserving written work and compatible checks',async()=>{
+  const {structureR1}=await import('../src/writing/content/review-structure-r1.js');
+  const {refineStructureForStaff}=await import('../src/writing/content/review-structure-r2-3.js');
+  const oldCheckpoint={id:'structure-transfer',type:'choice',items:[structureR1.analysis]};
+  const state=runtime();
+  const oldTask=structureR1.master;
+  state.transfer={...writing(),draft:'An existing review about the recording booth.',
+    original:'The first draft remains available.',revision:'The revised recording review remains available.',checks:new Set([0,1,2])};
+  state.attempts.set(oldCheckpoint.id,{index:1,done:true,correct:1,selected:null,order:[],checked:false,
+    answered:new Map([[structureR1.analysis.id,structureR1.analysis.answer]]),displays:[[1,0,2]]});
+  const oldContent={...content,activities:[oldCheckpoint],master:oldTask};
+  const snapshot=capturePreview(state,oldContent,{stage:'master',completed:['master']});
+  const revised=refineStructureForStaff(structureR1);
+  const resumed=runtime();
+  resumed.recognition=new Map();
+  restorePreview(resumed,{...oldContent,activities:[{...oldCheckpoint,items:[revised.analysis]}],
+   master:revised.master,recognition:[revised.analysis]},snapshot);
+  assert.equal(resumed.attempts.get(oldCheckpoint.id).done,false);
+  assert.equal(resumed.attempts.get(oldCheckpoint.id).selected,null);
+  assert.deepEqual([...resumed.transfer.checks],[0,2]);
+  assert.equal(resumed.transfer.draft,state.transfer.draft);
+  assert.equal(resumed.transfer.original,state.transfer.original);
+  assert.equal(resumed.transfer.revision,state.transfer.revision);
+});
