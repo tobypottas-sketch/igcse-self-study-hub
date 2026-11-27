@@ -8,6 +8,14 @@ export function renderLogin(root, message = '') {
         <h1>Sign in</h1>
         <p class="muted">Use the account your teacher gave you.</p>
         ${message ? `<div class="notice" role="alert">${escapeHtml(message)}</div>` : ''}
+        <div class="form-stack" style="margin-bottom:1rem">
+          <a class="button button--ghost" href="./microsoft-sign-in.html?mode=standalone" style="display:flex;align-items:center;justify-content:center;gap:.65rem;border:1px solid #8b9da6;text-decoration:none;background:#fff;color:#17354b;min-height:44px">
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22"><path fill="#f25022" d="M0 0h10v10H0z"/><path fill="#7fba00" d="M12 0h10v10H12z"/><path fill="#00a4ef" d="M0 12h10v10H0z"/><path fill="#ffb900" d="M12 12h10v10H12z"/></svg>
+            Sign in with Microsoft
+          </a>
+          <p class="muted" style="text-align:center;margin:0;font-size:.85rem">Approved administrator pilot only</p>
+          <p class="muted" style="text-align:center;margin:0">or use your Hub account</p>
+        </div>
         <form data-form="login" class="form-stack">
           <label>Email
             <input name="email" type="email" autocomplete="username" required>

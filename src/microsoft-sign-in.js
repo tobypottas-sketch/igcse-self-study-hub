@@ -3,6 +3,7 @@ import { getMicrosoftPilotSupabaseClient } from './supabase.js';
 
 // Enable only after the Entra assignment and Supabase signup safeguards are verified.
 export const MICROSOFT_STAFF_PILOT_ENABLED = true;
+export const MICROSOFT_STANDALONE_ADMIN_ENABLED = true;
 export const MICROSOFT_PILOT_CALLBACK = 'https://tobypottas-sketch.github.io/igcse-self-study-hub/microsoft-sign-in.html';
 const pendingKey = 'hub-microsoft-pilot-attempt';
 const attemptLifetime = 10 * 60 * 1000;
@@ -39,8 +40,21 @@ export async function finishMicrosoftStaffSignIn(client, expected) {
   }
 }
 
+// The production signup hook and UUID allowlist enforce the administrator-only
+// boundary before OAuth completes. These checks additionally validate the session.
+export async function finishStandaloneMicrosoftSignIn(client) {
+  try {
+    const account = await getPilotAccount(client);
+    return await finishMicrosoftStaffSignIn(client, account);
+  } catch {
+    await client.auth.signOut({ scope: 'local' });
+    return false;
+  }
+}
+
 export async function bootMicrosoftPilot(root, {
   enabled = MICROSOFT_STAFF_PILOT_ENABLED,
+  standaloneEnabled = MICROSOFT_STANDALONE_ADMIN_ENABLED,
   getClient = getMicrosoftPilotSupabaseClient,
   browser = root.ownerDocument.defaultView
 } = {}) {
@@ -70,10 +84,16 @@ export async function bootMicrosoftPilot(root, {
         status.textContent = 'Checking your existing Hub administrator account…';
         const client = await getClient();
         const { data, error } = await client.auth.exchangeCodeForSession(code);
-        if (!error && data?.session && await finishMicrosoftStaffSignIn(client, expected)) {
+        const standalone = expected.mode === 'standalone';
+        const verified = !error && data?.session && (standalone
+          ? standaloneEnabled && await finishStandaloneMicrosoftSignIn(client)
+          : await finishMicrosoftStaffSignIn(client, expected));
+        if (verified) {
           status.textContent = 'Microsoft sign-in verified against your existing Hub administrator account.';
+          if (standalone) browser.location.replace(new URL('./', MICROSOFT_PILOT_CALLBACK).href);
           return;
         }
+        if (standalone && data?.session) await client.auth.signOut({ scope: 'local' });
       }
       status.textContent = failed
         ? 'Microsoft sign-in was cancelled or unavailable. Open the pilot again to retry.'
@@ -91,7 +111,12 @@ export async function bootMicrosoftPilot(root, {
 
   try {
     const client = await getClient();
-    await getPilotAccount(client);
+    const standalone = standaloneEnabled && url.searchParams.get('mode') === 'standalone';
+    if (standalone) {
+      const { data, error } = await client.auth.getSession();
+      if (error) throw error;
+      if (data?.session) { await getPilotAccount(client); }
+    } else await getPilotAccount(client);
     status.textContent = 'Use your existing school Microsoft 365 account.';
     button.hidden = false;
     button.addEventListener('click', async () => {
@@ -99,7 +124,13 @@ export async function bootMicrosoftPilot(root, {
       button.disabled = true;
       status.textContent = 'Opening Microsoft sign-in…';
       try {
-        const account = await getPilotAccount(client);
+        let account;
+        if (standalone) {
+          const { data, error } = await client.auth.getSession();
+          if (error) throw error;
+          // Preserve the original UUID check if a session already exists.
+          account = data?.session ? await getPilotAccount(client) : { mode: 'standalone' };
+        } else account = await getPilotAccount(client);
         browser.sessionStorage.setItem(pendingKey, JSON.stringify({ ...account, startedAt: Date.now() }));
         await startMicrosoftSignIn(client, MICROSOFT_PILOT_CALLBACK);
       } catch {
@@ -109,7 +140,7 @@ export async function bootMicrosoftPilot(root, {
       }
     });
   } catch {
-    status.textContent = 'Sign in with your existing Hub administrator password, then open this page again.';
+    status.textContent = 'Microsoft sign-in is available only to approved pilot administrators. Return to Hub sign-in to use your password.';
   }
 }
 

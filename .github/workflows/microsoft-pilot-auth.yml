@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - '.github/workflows/microsoft-pilot-auth.yml'
+      - 'src/microsoft-sign-in.js'
+      - 'src/views/login.js'
+      - 'tests/microsoft-staff-sign-in.test.js'
       - 'supabase/migrations/20261126160000_microsoft_pilot_signup_hook.sql'
 permissions:
   contents: read
