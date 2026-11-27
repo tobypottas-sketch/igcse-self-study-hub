@@ -1,4 +1,5 @@
 import { buildActivityDashboard } from './activity-model.js';
+import { buildMeritStatus } from '../vocabulary/merits.js';
 
 const previewAwarded = new Set();
 
@@ -62,11 +63,13 @@ function previewDashboard(now = new Date()) {
   };
 }
 
-async function loadActivityRows(client) {
+async function loadActivityRows(client, meritOnly = false) {
   const rows = [];
   const pageSize = 1000;
   for (let offset = 0; ; offset += pageSize) {
-    const { data, error } = await client.rpc('teacher_activity_rows').range(offset, offset + pageSize - 1);
+    let query = client.rpc('teacher_activity_rows');
+    if (meritOnly) query = query.in('record_type', ['student','vocabulary_global_mastery','vocabulary_unit_mastery','merit_award']);
+    const { data, error } = await query.range(offset, offset + pageSize - 1);
     if (error) throw error;
     const page = data ?? [];
     rows.push(...page);
@@ -98,11 +101,11 @@ async function loadScopedStudentNumbers(client, students) {
   return numbers;
 }
 
-export async function loadTeacherActivityData(client, { now = new Date() } = {}) {
+export async function loadTeacherActivityData(client, { now = new Date(), meritOnly = false } = {}) {
   if (shouldUsePreviewFixture()) return previewDashboard(now);
 
   const [records, occurrenceResult, classResult] = await Promise.all([
-    loadActivityRows(client),
+    loadActivityRows(client, meritOnly),
     client.from('vocabulary_unit_occurrences')
       .select('occurrence_id, vocabulary_id, unit_number, unit_title, position_in_unit')
       .eq('status','live').eq('active',true).order('unit_number').order('position_in_unit'),
@@ -120,8 +123,10 @@ export async function loadTeacherActivityData(client, { now = new Date() } = {})
     className:row.class_name,
     meritPathwaysRequired:thresholdByClass.get(row.class_id) ?? 2
   }));
-  const numbers = await loadScopedStudentNumbers(client, students);
-  for (const student of students) student.studentNumber = numbers.get(student.id) ?? null;
+  if (!meritOnly) {
+    const numbers = await loadScopedStudentNumbers(client, students);
+    for (const student of students) student.studentNumber = numbers.get(student.id) ?? null;
+  }
   const globalMastery = payloads(rows,'vocabulary_global_mastery').map(row => ({
     studentId:row.student_id,
     vocabularyId:row.vocabulary_id,
@@ -166,6 +171,15 @@ export async function loadTeacherActivityData(client, { now = new Date() } = {})
     unitTitle:row.unit_title
   }));
 
+  if (meritOnly) {
+    const status = buildMeritStatus({ students, occurrences:normalizedOccurrences, globalMastery, unitMastery, awards });
+    const byId = new Map(status.map(row => [row.studentId,row.pendingNumbers]));
+    const alerts = students.map(s => {
+      const pendingMeritNumbers = byId.get(s.id) ?? [];
+      return {studentId:s.id,displayName:s.displayName,className:s.className,pendingMerits:pendingMeritNumbers.length,pendingMeritNumbers};
+    }).filter(s => s.pendingMerits);
+    return {students:alerts,pendingMerits:alerts.reduce((sum,s)=>sum+s.pendingMerits,0)};
+  }
   return buildActivityDashboard({ students, occurrences:normalizedOccurrences, globalMastery, unitMastery, activity, unitChecks, awards, now });
 }
 
