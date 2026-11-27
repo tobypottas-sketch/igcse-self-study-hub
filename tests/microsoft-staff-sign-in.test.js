@@ -137,11 +137,72 @@ test('standalone callback validates the existing administrator and returns direc
   assert.deepEqual(view.replaced, [MICROSOFT_PILOT_CALLBACK, new URL('./', MICROSOFT_PILOT_CALLBACK).href]);
 });
 
-test('standalone callback denies students and never redirects to Hub', async () => {
+test('standalone callback denies students without matching school domain and never redirects to Hub', async () => {
   const view = page(MICROSOFT_PILOT_CALLBACK + '?code=mock', JSON.stringify({ mode: 'standalone', startedAt: Date.now() }));
   const { client, signOuts } = fixture({ profileOverrides: { role: 'student' } });
   await bootMicrosoftPilot(view.root, { browser: view.browser, enabled: true, standaloneEnabled: true, getClient: () => client });
   assert.deepEqual(view.replaced, [MICROSOFT_PILOT_CALLBACK]);
   assert.ok(signOuts.length);
   assert.match(view.status.textContent, /could not be verified/);
+});
+
+
+const studentExpected = { id: 'existing-student', email: 'student-pilot-local@nkcswx.cn' };
+function studentFixture(overrides = {}) {
+  return fixture({
+    userOverrides: { ...studentExpected, identities: [{ provider: 'azure', identity_data: { email: studentExpected.email, email_verified: true } }], ...overrides.userOverrides },
+    profileOverrides: { id: studentExpected.id, role: 'student', school_email: studentExpected.email, ...overrides.profileOverrides },
+    missingProfile: overrides.missingProfile
+  });
+}
+const pendingStandalone = extra => JSON.stringify({ mode: 'standalone', startedAt: Date.now(), ...extra });
+
+test('standalone student callback checks confirmed matching identity and enters Hub', async () => {
+  const view = page(MICROSOFT_PILOT_CALLBACK + '?code=mock', pendingStandalone());
+  const { client, signOuts } = studentFixture();
+  await bootMicrosoftPilot(view.root, { browser: view.browser, enabled: true, standaloneEnabled: true, getClient: () => client });
+  assert.deepEqual(view.replaced, [MICROSOFT_PILOT_CALLBACK, new URL('./', MICROSOFT_PILOT_CALLBACK).href]);
+  assert.deepEqual(signOuts, []);
+});
+test('standalone student rejects inactive, incomplete, staff, unconfirmed, mismatched and duplicate identity callbacks', async () => {
+  for (const overrides of [
+    { profileOverrides: { active: false } },
+    { profileOverrides: { must_change_password: true } },
+    { profileOverrides: { role: 'teacher' } },
+    { profileOverrides: { school_email: 'other@nkcswx.cn' } },
+    { userOverrides: { email_confirmed_at: null } },
+    { userOverrides: { identities: [{ provider: 'azure', identity_data: { email: studentExpected.email, email_verified: false } }] } },
+    { userOverrides: { identities: [{ provider: 'azure', identity_data: { email: 'other@nkcswx.cn', email_verified: true } }] } },
+    { userOverrides: { identities: [] } },
+    { userOverrides: { identities: Array(2).fill({ provider: 'azure', identity_data: { email: studentExpected.email, email_verified: true } }) } },
+    { missingProfile: true }
+  ]) {
+    const view = page(MICROSOFT_PILOT_CALLBACK + '?code=mock', pendingStandalone());
+    const { client, signOuts } = studentFixture(overrides);
+    await bootMicrosoftPilot(view.root, { browser: view.browser, enabled: true, standaloneEnabled: true, getClient: () => client });
+    assert.deepEqual(view.replaced, [MICROSOFT_PILOT_CALLBACK]);
+    assert.ok(signOuts.length);
+  }
+});
+test('standalone preserves expected UUID if a password session exists', async () => {
+  const view = page(MICROSOFT_PILOT_CALLBACK + '?mode=standalone');
+  const { client } = studentFixture();
+  client.auth.getSession = async () => ({ data: { session: {} } });
+  client.auth.signInWithOAuth = async () => ({});
+  await bootMicrosoftPilot(view.root, { browser: view.browser, enabled: true, standaloneEnabled: true, getClient: () => client });
+  await view.button.click();
+  const pending = JSON.parse(view.pending());
+  assert.equal(pending.mode, 'standalone');
+  assert.equal(pending.id, studentExpected.id);
+  assert.equal(pending.email, studentExpected.email);
+  const callback = page(MICROSOFT_PILOT_CALLBACK + '?code=mock', JSON.stringify(pending));
+  const admin = fixture();
+  await bootMicrosoftPilot(callback.root, { browser: callback.browser, enabled: true, standaloneEnabled: true, getClient: () => admin.client });
+  assert.deepEqual(callback.replaced, [MICROSOFT_PILOT_CALLBACK]);
+  assert.ok(admin.signOuts.length);
+});
+test('legacy staff linking page remains administrator-only for school students', async () => {
+  const view = page();
+  await bootMicrosoftPilot(view.root, { browser: view.browser, enabled: true, getClient: () => studentFixture().client });
+  assert.equal(view.button.hidden, true);
 });
