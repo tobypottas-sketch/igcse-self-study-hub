@@ -13,7 +13,7 @@ export function renderLogin(root, message = '') {
             <svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22"><path fill="#f25022" d="M0 0h10v10H0z"/><path fill="#7fba00" d="M12 0h10v10H12z"/><path fill="#00a4ef" d="M0 12h10v10H0z"/><path fill="#ffb900" d="M12 12h10v10H12z"/></svg>
             Sign in with Microsoft
           </a>
-          <p class="muted" style="text-align:center;margin:0;font-size:.85rem">Approved administrator pilot only</p>
+          <p class="muted" style="text-align:center;margin:0;font-size:.85rem">Approved pilot accounts only</p>
           <p class="muted" style="text-align:center;margin:0">or use your Hub account</p>
         </div>
         <form data-form="login" class="form-stack">

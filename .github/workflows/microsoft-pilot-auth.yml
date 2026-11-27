@@ -7,6 +7,7 @@ on:
       - 'src/views/login.js'
       - 'tests/microsoft-staff-sign-in.test.js'
       - 'supabase/migrations/20261126160000_microsoft_pilot_signup_hook.sql'
+      - 'supabase/migrations/20261127025357_microsoft_student_pilot.sql'
 permissions:
   contents: read
 jobs:
@@ -39,6 +40,7 @@ jobs:
           mkdir -p supabase/migrations
           printf '%s\n' 'create table public.profiles (id uuid primary key references auth.users(id), school_email text, role text, active boolean, must_change_password boolean);' > supabase/migrations/20261126000000_fixture.sql
           cp "$GITHUB_WORKSPACE/supabase/migrations/20261126160000_microsoft_pilot_signup_hook.sql" supabase/migrations/
+          cp "$GITHUB_WORKSPACE/supabase/migrations/20261127025357_microsoft_student_pilot.sql" supabase/migrations/
           supabase start
           supabase status -o json > "$RUNNER_TEMP/pilot-auth-status.json"
       - name: Exercise real Auth password API and identity guards
@@ -80,8 +82,8 @@ jobs:
           uuid.UUID(uid)
           assert sql("select count(*) from auth.users where id='"+uid+"'")=="1"
           sql("insert into public.profiles values ('"+uid+"','pilot@example.test','admin',true,false); insert into microsoft_pilot_private.allowed_accounts values ('"+uid+"','pilot@example.test')")
-          request("/signup",{"email":"student@example.test","password":password})
-          other=request("/token?grant_type=password",{"email":"student@example.test","password":password})["user"]["id"]
+          request("/signup",{"email":"student-pilot-local@nkcswx.cn","password":password})
+          other=request("/token?grant_type=password",{"email":"student-pilot-local@nkcswx.cn","password":password})["user"]["id"]
           uuid.UUID(other)
           assert subprocess.check_output(auth_sql("select public.microsoft_pilot_before_user_created('{\"user\":{\"app_metadata\":{\"provider\":\"azure\"}}}'::jsonb)->'error'->>'http_code'"),text=True).strip().splitlines()[-1]=="403"
           def identity(target, verified, address, allowed):
@@ -89,15 +91,15 @@ jobs:
               p=subprocess.run(auth_sql(q),capture_output=True,text=True)
               assert (p.returncode==0)==allowed, p.stderr
               if not allowed:
-                  assert "42501: Microsoft identity is outside the Hub administrator pilot" in p.stderr, p.stderr
+                  assert "42501: Microsoft identity is outside the Hub approved account pilot" in p.stderr, p.stderr
               print(f"Synthetic identity write passed assertion: allowed={allowed}, verified={verified}", flush=True)
-          sql("insert into public.profiles values ('"+other+"','student@example.test','student',true,false)")
-          identity(other,True,"student@example.test",False)
+          sql("insert into public.profiles values ('"+other+"','student-pilot-local@nkcswx.cn','student',true,false)")
+          identity(other,True,"student-pilot-local@nkcswx.cn",False)
           sql("update public.profiles set role='admin' where id='"+other+"'")
-          identity(other,True,"student@example.test",False)
+          identity(other,True,"student-pilot-local@nkcswx.cn",False)
           sql("update public.profiles set role='student' where id='"+other+"'")
-          sql("insert into microsoft_pilot_private.allowed_accounts values ('"+other+"','student@example.test')")
-          identity(other,True,"student@example.test",False)
+          sql("insert into microsoft_pilot_private.allowed_accounts values ('"+other+"','student-pilot-local@nkcswx.cn')")
+          identity(other,True,"student-pilot-local@nkcswx.cn",False)
           sql("delete from microsoft_pilot_private.allowed_accounts where user_id='"+other+"'")
           identity(uid,False,email,False)
           identity(uid,True,"wrong@example.test",False)
@@ -110,7 +112,7 @@ jobs:
           assert sql("select created_at is not null and updated_at is not null from auth.identities where provider='azure'") == "t"
           def reject_azure_update(query):
               result = subprocess.run(auth_sql(query), capture_output=True, text=True)
-              assert result.returncode != 0 and "42501: Microsoft identity is outside the Hub administrator pilot" in result.stderr, result.stderr
+              assert result.returncode != 0 and "42501: Microsoft identity is outside the Hub approved account pilot" in result.stderr, result.stderr
           reject_azure_update("update auth.identities set user_id='" + other + "' where provider='azure'")
           for field in ("active", "must_change_password"):
               original = field == "active"
@@ -120,11 +122,36 @@ jobs:
           subprocess.check_call(auth_sql("update auth.identities set last_sign_in_at=now() where provider='azure'"))
           for role in ("anon", "authenticated"):
               assert sql(f"select has_schema_privilege('{role}', 'microsoft_pilot_private', 'USAGE')") == "f"
-          assert request("/token?grant_type=password", {"email": "student@example.test", "password": password})["user"]["id"] == other
+          assert request("/token?grant_type=password", {"email": "student-pilot-local@nkcswx.cn", "password": password})["user"]["id"] == other
           assert sql("select count(*) from public.profiles where role='admin' and active and not must_change_password") == "1"
           assert sql("select count(*) from auth.users")=="2"
           assert sql("select count(*) from auth.identities where provider='azure' and user_id='"+uid+"'")=="1"
-          print("PASS: real password Auth API, production migration on real Auth schema, SQL identity guards and UUID preservation after synthetic identity insertion. Microsoft OAuth callback NOT tested.")
+          # An explicit student approval permits the existing matching UUID only.
+          student_email="student-pilot-local@nkcswx.cn"
+          sql("insert into microsoft_pilot_private.allowed_accounts (user_id,school_email,approved_role) values ('"+other+"','"+student_email+"','student')")
+          identity(other,False,student_email,False)
+          identity(other,True,"wrong@nkcswx.cn",False)
+          sql("update public.profiles set role='teacher' where id='"+other+"'")
+          identity(other,True,student_email,False)
+          sql("update public.profiles set role='admin' where id='"+other+"'")
+          identity(other,True,student_email,False)
+          sql("update public.profiles set role='student',active=false where id='"+other+"'")
+          identity(other,True,student_email,False)
+          sql("update public.profiles set active=true,must_change_password=true where id='"+other+"'")
+          identity(other,True,student_email,False)
+          sql("update public.profiles set must_change_password=false where id='"+other+"'")
+          identity(other,True,student_email,True)
+          linked=request("/token?grant_type=password",{"email":student_email,"password":password})["user"]
+          assert linked["id"]==other
+          assert len([i for i in linked["identities"] if i["provider"]=="azure" and i["user_id"]==other])==1
+          assert sql("select count(*) from auth.users")=="2"
+          assert sql("select count(*) from public.profiles")=="2"
+          assert sql("select count(*) from auth.identities where provider='azure'")=="2"
+          assert sql("select approved_role from microsoft_pilot_private.allowed_accounts where user_id='"+uid+"'")=="admin"
+          sql("delete from microsoft_pilot_private.allowed_accounts where user_id='"+other+"'")
+          reject_azure_update("update auth.identities set last_sign_in_at=now() where provider='azure' and user_id='"+other+"'")
+          assert request("/token?grant_type=password",{"email":student_email,"password":password})["user"]["id"]==other
+          print("PASS: administrator and explicitly approved student identity guards, UUID continuity, role changes and password fallback on real local Auth. Microsoft OAuth callback NOT tested.")
           PY
       - name: Record Auth database failure before teardown
         if: failure()
@@ -147,7 +174,7 @@ jobs:
                   "null_conversion": ("null" in error.lower() or "<nil>" in error.lower()),
                   "column": column,
                   "sqlstate": sqlstate.group(1) if sqlstate else None,
-                  "pilot_guard": "outside the Hub administrator pilot" in error,
+                  "pilot_guard": "outside the Hub approved account pilot" in error,
               }))
           '
       - name: Stop local stack

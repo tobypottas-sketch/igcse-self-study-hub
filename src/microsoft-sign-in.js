@@ -10,15 +10,18 @@ const attemptLifetime = 10 * 60 * 1000;
 
 const normalizedEmail = value => typeof value === 'string' ? value.trim().toLowerCase() : '';
 
-export async function getPilotAccount(client) {
+export async function getPilotAccount(client, { allowStudents = false } = {}) {
   const profile = await getCurrentProfile(client);
-  if (profile.role !== 'admin' || profile.must_change_password !== false || !normalizedEmail(profile.school_email)) {
-    throw new Error('An active Hub administrator with completed password setup is required.');
+  const email = normalizedEmail(profile.school_email);
+  const permittedRole = profile.role === 'admin' ||
+    (allowStudents && profile.role === 'student' && /^[^@\s]+@nkcswx[.]cn$/.test(email));
+  if (!permittedRole || profile.must_change_password !== false || !email) {
+    throw new Error('An active approved Hub account with completed password setup is required.');
   }
   return { id: profile.id, email: normalizedEmail(profile.school_email) };
 }
 
-export async function finishMicrosoftStaffSignIn(client, expected) {
+export async function finishMicrosoftStaffSignIn(client, expected, { allowStudents = false } = {}) {
   try {
     const { data, error } = await client.auth.getUser();
     const user = data?.user;
@@ -31,7 +34,7 @@ export async function finishMicrosoftStaffSignIn(client, expected) {
         identities[0].identity_data?.email_verified !== true) {
       throw new Error('Matching verified Microsoft identity required');
     }
-    const profile = await getPilotAccount(client);
+    const profile = await getPilotAccount(client, { allowStudents });
     if (profile.id !== expected.id || profile.email !== expected.email) throw new Error('Unexpected Hub profile');
     return true;
   } catch {
@@ -40,12 +43,13 @@ export async function finishMicrosoftStaffSignIn(client, expected) {
   }
 }
 
-// The production signup hook and UUID allowlist enforce the administrator-only
+// The production signup hook and UUID allowlist enforce the approved-account
 // boundary before OAuth completes. These checks additionally validate the session.
-export async function finishStandaloneMicrosoftSignIn(client) {
+export async function finishStandaloneMicrosoftSignIn(client, expected = null) {
   try {
-    const account = await getPilotAccount(client);
-    return await finishMicrosoftStaffSignIn(client, account);
+    const account = await getPilotAccount(client, { allowStudents: true });
+    if (expected?.id && (account.id !== expected.id || account.email !== expected.email)) throw new Error('Unexpected Hub account');
+    return await finishMicrosoftStaffSignIn(client, account, { allowStudents: true });
   } catch {
     await client.auth.signOut({ scope: 'local' });
     return false;
@@ -81,15 +85,15 @@ export async function bootMicrosoftPilot(root, {
 
     try {
       if (enabled && code && !failed && expected) {
-        status.textContent = 'Checking your existing Hub administrator account…';
+        status.textContent = 'Checking your existing Hub account…';
         const client = await getClient();
         const { data, error } = await client.auth.exchangeCodeForSession(code);
         const standalone = expected.mode === 'standalone';
         const verified = !error && data?.session && (standalone
-          ? standaloneEnabled && await finishStandaloneMicrosoftSignIn(client)
+          ? standaloneEnabled && await finishStandaloneMicrosoftSignIn(client, expected)
           : await finishMicrosoftStaffSignIn(client, expected));
         if (verified) {
-          status.textContent = 'Microsoft sign-in verified against your existing Hub administrator account.';
+          status.textContent = 'Microsoft sign-in verified against your existing Hub account.';
           if (standalone) browser.location.replace(new URL('./', MICROSOFT_PILOT_CALLBACK).href);
           return;
         }
@@ -115,7 +119,7 @@ export async function bootMicrosoftPilot(root, {
     if (standalone) {
       const { data, error } = await client.auth.getSession();
       if (error) throw error;
-      if (data?.session) { await getPilotAccount(client); }
+      if (data?.session) { await getPilotAccount(client, { allowStudents: true }); }
     } else await getPilotAccount(client);
     status.textContent = 'Use your existing school Microsoft 365 account.';
     button.hidden = false;
@@ -129,7 +133,7 @@ export async function bootMicrosoftPilot(root, {
           const { data, error } = await client.auth.getSession();
           if (error) throw error;
           // Preserve the original UUID check if a session already exists.
-          account = data?.session ? await getPilotAccount(client) : { mode: 'standalone' };
+          account = { ...(data?.session ? await getPilotAccount(client, { allowStudents: true }) : {}), mode: 'standalone' };
         } else account = await getPilotAccount(client);
         browser.sessionStorage.setItem(pendingKey, JSON.stringify({ ...account, startedAt: Date.now() }));
         await startMicrosoftSignIn(client, MICROSOFT_PILOT_CALLBACK);
@@ -140,7 +144,7 @@ export async function bootMicrosoftPilot(root, {
       }
     });
   } catch {
-    status.textContent = 'Microsoft sign-in is available only to approved pilot administrators. Return to Hub sign-in to use your password.';
+    status.textContent = 'Microsoft sign-in is available only to approved pilot accounts. Return to Hub sign-in to use your password.';
   }
 }
 
