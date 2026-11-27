@@ -1,84 +1,119 @@
-import {getCurrentProfile} from './auth.js';
-import {getSupabaseClient} from './supabase.js';
+import { getCurrentProfile, startMicrosoftSignIn } from './auth.js';
+import { getMicrosoftPilotSupabaseClient } from './supabase.js';
 
-// Enable only after Entra staff assignment and the Supabase provider have been checked.
+// Enable only after the Entra assignment and Supabase signup safeguards are verified.
 export const MICROSOFT_STAFF_PILOT_ENABLED = false;
-const callbackMarker = 'microsoft-return';
+export const MICROSOFT_PILOT_CALLBACK = 'https://tobypottas-sketch.github.io/igcse-self-study-hub/microsoft-sign-in.html';
+const pendingKey = 'hub-microsoft-pilot-attempt';
+const attemptLifetime = 10 * 60 * 1000;
 
-export function microsoftCallbackUrl(pageUrl) {
-  const url = new URL('./microsoft-sign-in.html',pageUrl);
-  url.searchParams.set(callbackMarker,'1');
-  return url.href;
+const normalizedEmail = value => typeof value === 'string' ? value.trim().toLowerCase() : '';
+
+export async function getPilotAccount(client) {
+  const profile = await getCurrentProfile(client);
+  if (profile.role !== 'admin' || profile.must_change_password !== false || !normalizedEmail(profile.school_email)) {
+    throw new Error('An active Hub administrator with completed password setup is required.');
+  }
+  return { id: profile.id, email: normalizedEmail(profile.school_email) };
 }
 
-export async function startMicrosoftSignIn(client,pageUrl) {
-  const {error} = await client.auth.signInWithOAuth({
-    provider:'azure',
-    options:{scopes:'email',redirectTo:microsoftCallbackUrl(pageUrl)}
-  });
-  if (error) throw error;
-}
-
-export async function finishMicrosoftStaffSignIn(client) {
+export async function finishMicrosoftStaffSignIn(client, expected) {
   try {
-    const {data,error} = await client.auth.getUser();
-    if (error || !data?.user?.identities?.some(identity=>identity.provider==='azure')) {
-      throw new Error('Microsoft identity unavailable');
+    const { data, error } = await client.auth.getUser();
+    const user = data?.user;
+    if (error || !expected?.id || !expected.email || user?.id !== expected.id ||
+        !user.email_confirmed_at || normalizedEmail(user.email) !== expected.email) {
+      throw new Error('Unexpected Hub account');
     }
-    const profile = await getCurrentProfile(client);
-    if (profile.id!==data.user.id || !['teacher','admin'].includes(profile.role) || profile.must_change_password) {
-      throw new Error('Staff pilot access required');
+    const identities = user.identities?.filter(identity => identity.provider === 'azure') ?? [];
+    if (identities.length !== 1 || normalizedEmail(identities[0].identity_data?.email) !== expected.email ||
+        identities[0].identity_data?.email_verified !== true) {
+      throw new Error('Matching verified Microsoft identity required');
     }
+    const profile = await getPilotAccount(client);
+    if (profile.id !== expected.id || profile.email !== expected.email) throw new Error('Unexpected Hub profile');
     return true;
   } catch {
-    await client.auth.signOut({scope:'local'});
+    await client.auth.signOut({ scope: 'local' });
     return false;
   }
 }
 
-export async function bootMicrosoftPilot(root,{
-  enabled=MICROSOFT_STAFF_PILOT_ENABLED, getClient=getSupabaseClient, location=root.ownerDocument.defaultView.location
-}={}) {
+export async function bootMicrosoftPilot(root, {
+  enabled = MICROSOFT_STAFF_PILOT_ENABLED,
+  getClient = getMicrosoftPilotSupabaseClient,
+  browser = root.ownerDocument.defaultView
+} = {}) {
   const button = root.querySelector('[data-microsoft-sign-in]');
   const status = root.querySelector('[data-pilot-status]');
+  const url = new URL(browser.location.href);
+  const fragment = new URLSearchParams(url.hash.slice(1));
+  const failed = url.searchParams.has('error') || fragment.has('error');
+  const code = url.searchParams.get('code');
+
+  if (failed || url.searchParams.has('code') || fragment.has('access_token')) {
+    const cleanUrl = new URL(url.pathname, url.origin).href;
+    browser.history.replaceState(null, '', cleanUrl);
+    let expected;
+    try {
+      const pending = browser.sessionStorage.getItem(pendingKey);
+      browser.sessionStorage.removeItem(pendingKey);
+      expected = JSON.parse(pending);
+      if (!Number.isFinite(expected?.startedAt) || Date.now() - expected.startedAt > attemptLifetime ||
+          expected.startedAt > Date.now()) expected = null;
+    } catch {
+      expected = null;
+    }
+
+    try {
+      if (enabled && code && !failed && expected) {
+        status.textContent = 'Checking your existing Hub administrator account…';
+        const client = await getClient();
+        const { data, error } = await client.auth.exchangeCodeForSession(code);
+        if (!error && data?.session && await finishMicrosoftStaffSignIn(client, expected)) {
+          status.textContent = 'Microsoft sign-in verified against your existing Hub administrator account.';
+          return;
+        }
+      }
+      status.textContent = failed
+        ? 'Microsoft sign-in was cancelled or unavailable. Open the pilot again to retry.'
+        : 'The Microsoft sign-in could not be verified. Return to Hub sign-in.';
+    } catch {
+      status.textContent = 'The Microsoft sign-in could not be verified. Return to Hub sign-in.';
+    }
+    return;
+  }
+
   if (!enabled) {
     status.textContent = 'The staff pilot is not open yet. Use your existing Hub sign-in.';
     return;
   }
 
-  const url = new URL(location.href);
-  if (url.searchParams.get(callbackMarker)==='1') {
-    status.textContent = 'Checking your Hub staff account…';
-    try {
-      const providerHash=new URLSearchParams(url.hash.slice(1));
-      if (url.searchParams.has('error') || providerHash.has('error')) {
-        status.textContent = 'Microsoft sign-in was cancelled or unavailable. Return to Hub sign-in to continue.';
-        return;
+  try {
+    const client = await getClient();
+    await getPilotAccount(client);
+    status.textContent = 'Use your existing school Microsoft 365 account.';
+    button.hidden = false;
+    button.addEventListener('click', async () => {
+      if (button.disabled) return;
+      button.disabled = true;
+      status.textContent = 'Opening Microsoft sign-in…';
+      try {
+        const account = await getPilotAccount(client);
+        browser.sessionStorage.setItem(pendingKey, JSON.stringify({ ...account, startedAt: Date.now() }));
+        await startMicrosoftSignIn(client, MICROSOFT_PILOT_CALLBACK);
+      } catch {
+        browser.sessionStorage.removeItem(pendingKey);
+        status.textContent = 'Microsoft sign-in could not start. Try again or use your existing Hub sign-in.';
+        button.disabled = false;
       }
-      if (await finishMicrosoftStaffSignIn(await getClient())) {
-        location.replace(new URL('./',url).href);
-        return;
-      }
-    } catch { /* Keep the password sign-in link available. */ }
-    status.textContent = 'Microsoft sign-in could not open a Hub staff profile. Use your existing Hub sign-in.';
-    return;
+    });
+  } catch {
+    status.textContent = 'Sign in with your existing Hub administrator password, then open this page again.';
   }
-
-  status.textContent = 'Use your school Microsoft account to join the staff sign-in pilot.';
-  button.hidden = false;
-  button.addEventListener('click',async ()=>{
-    button.disabled = true;
-    status.textContent = 'Opening Microsoft sign-in…';
-    try {
-      await startMicrosoftSignIn(await getClient(),url.href);
-    } catch {
-      status.textContent = 'Microsoft sign-in is unavailable. Try again or use your existing Hub sign-in.';
-      button.disabled = false;
-    }
-  });
 }
 
-if (typeof document!=='undefined') {
+if (typeof document !== 'undefined') {
   const root = document.getElementById('microsoft-sign-in');
   if (root) void bootMicrosoftPilot(root);
 }

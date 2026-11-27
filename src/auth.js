@@ -42,3 +42,11 @@ export async function changePassword(client, newPassword) {
 export async function updateRecoveredPassword(client, newPassword) {
   return changePassword(client, newPassword);
 }
+
+export async function startMicrosoftSignIn(client, redirectTo) {
+  const { error } = await client.auth.signInWithOAuth({
+    provider: 'azure',
+    options: { scopes: 'email', redirectTo, queryParams: { prompt: 'select_account' } }
+  });
+  if (error) throw error;
+}
