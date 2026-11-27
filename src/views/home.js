@@ -88,7 +88,7 @@ function meritPopupMarkup(model, profile, loaded) {
     <p class="merit-dialog__intro">${!loaded ? 'Merit information is not available yet. Open Student Activity to check.' : pending ? 'Your students have earned recognition through independent practice.' : 'No outstanding merits for your students.'}</p>
     ${pending && model.meritAlerts.length ? `<ul class="merit-dialog__list">${model.meritAlerts.map(s => `<li><div><strong>${escapeHtml(s.displayName)}</strong><span>${escapeHtml(s.className)}</span></div><span class="merit-dialog__count">${escapeHtml(plural(s.meritNumbers.length, 'merit'))}</span></li>`).join('')}</ul>` : ''}
     ${pending ? '<p class="merit-dialog__note">Outstanding merits remain visible until awarded.</p>' : ''}
-    <div class="merit-dialog__actions"><button type="button" class="button" data-merit-dismiss autofocus>${pending ? 'Later' : 'Close'}</button>${pending || !loaded ? '<button type="button" class="button button--primary" data-action="activity">Review merits</button>' : ''}</div>
+    <div class="merit-dialog__actions"><button type="button" class="button" data-merit-dismiss autofocus>${pending ? 'Later' : 'Close'}</button><button type="button" class="button button--primary" data-action="activity">${pending ? 'Review merits' : 'View student progress'}</button></div>
   </dialog>`;
 }
 

@@ -49,6 +49,7 @@ test('pending merits open a staff dialog once per session, without awarding them
   renderHome(root, profile, apps, dashboard);
   assert.equal(opens,1);
   assert.match(root.innerHTML,/ready to award/);
+  assert.match(root.innerHTML,/data-action="activity">Review merits<\/button>/);
   dismiss();
   assert.equal(closes,1);
   renderHome(root, profile, apps, dashboard);
@@ -62,6 +63,7 @@ test('pending merits open a staff dialog once per session, without awarding them
   renderHome(root, profile, apps, { pendingMerits:0, students:[] });
   assert.equal(opens,2);
   assert.match(root.innerHTML,/All caught up/);
+  assert.match(root.innerHTML,/data-action="activity">View student progress<\/button>/);
   assert.doesNotMatch(root.innerHTML,/home-merit-bell__count/);
 });
 
@@ -83,6 +85,7 @@ test('staff bell reopens dismissed dialog and shows empty state without a zero b
   assert.doesNotMatch(root.innerHTML,/home-merit-bell__count/);
   click();assert.equal(opens,3);
   assert.match(root.innerHTML,/All caught up/);
+  assert.match(root.innerHTML,/data-action="activity">View student progress<\/button>/);
   dismiss();renderHome(root,{...profile,role:'student'},apps,dashboard);
   assert.doesNotMatch(root.innerHTML,/data-merit-bell|data-merit-dialog/);
 });
