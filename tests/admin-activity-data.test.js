@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { loadTeacherActivityData } from '../src/admin/activity-data.js';
+import { loadTeacherActivityData, studentNumberFromEmail } from '../src/admin/activity-data.js';
 
 function occurrenceQuery() {
   const result = { data:[], error:null };
@@ -34,6 +34,15 @@ test('teacher Activity rows are loaded across Supabase RPC pages', async () => {
       };
     },
     from(name) {
+      if (name === 'classes') return { select:async () => ({data:[],error:null}) };
+      if (name === 'profiles') return { select(columns) {
+        assert.equal(columns,'id, school_email');
+        return { async in(column, ids) {
+          assert.equal(column,'id');
+          assert.ok(ids.length <= 100);
+          return {data:ids.includes('student-1000') ? [{id:'student-1000',school_email:'0001205@example.com'},{id:'outside-roster',school_email:'9999@example.com'}] : [],error:null};
+        }};
+      }};
       assert.equal(name, 'vocabulary_unit_occurrences');
       return occurrenceQuery();
     }
@@ -42,5 +51,16 @@ test('teacher Activity rows are loaded across Supabase RPC pages', async () => {
   const dashboard = await loadTeacherActivityData(client, { now:new Date('2026-10-27T12:00:00Z') });
 
   assert.equal(dashboard.students.length, 1001);
+  assert.equal(dashboard.students.find(s=>s.studentId==='student-1000').studentNumber,'1205');
+  assert.equal(dashboard.students[0].studentNumber,null);
+  assert.equal(dashboard.students.some(s=>Object.hasOwn(s,'school_email')),false);
   assert.deepEqual(ranges, [[0,999],[1000,1999]]);
+});
+
+ test('school student number strips leading zeros only and rejects nonnumeric usernames', () => {
+  assert.equal(studentNumberFromEmail('0001205@example.com'),'1205');
+  assert.equal(studentNumberFromEmail('0009080@example.com'),'9080');
+  assert.equal(studentNumberFromEmail('123@example.com'),'123');
+  assert.equal(studentNumberFromEmail('teacher12@example.com'),null);
+  assert.equal(studentNumberFromEmail(null),null);
 });
