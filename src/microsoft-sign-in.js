@@ -121,7 +121,7 @@ export async function bootMicrosoftPilot(root, {
       if (error) throw error;
       if (data?.session) { await getPilotAccount(client, { allowStudents: true }); }
     } else await getPilotAccount(client);
-    status.textContent = 'Use your existing school Microsoft 365 account.';
+    status.textContent = 'Click the button below to sign in with your school Microsoft 365 account.';
     button.hidden = false;
     button.addEventListener('click', async () => {
       if (button.disabled) return;
