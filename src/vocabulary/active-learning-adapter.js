@@ -7,7 +7,7 @@ export function vocabularyTimingContext(state,screen) {
   const unit=state.currentUnitNumber;
   const activity=state.current.question?.contentId;
   if(!pathways.has(pathway)||!Number.isInteger(unit)||unit<1||typeof activity!=='string'||!activity)return null;
-  return {module:'vocabulary_paraphrase',unit,pathway,activity,mode:'practice'};
+  return {module:'vocabulary_paraphrase',unit,pathway,activity,mode:'practice',occurrence:state.current.target?.occurrenceId??null,questionType:state.current.question?.type??null,source:state.current.activityRecord?'unit_activity':state.current.context?'context':'item'};
 }
 export function createVocabularyTiming({clock=createActiveLearningClock(),outbox,onError=()=>{}}) {
   let key=null, retained=[];

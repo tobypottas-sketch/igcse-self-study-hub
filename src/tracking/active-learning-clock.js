@@ -24,7 +24,7 @@ export function createActiveLearningClock({
   return {
     enter(value) {
       if (!value || typeof value.module !== 'string' || !value.module || typeof value.activity !== 'string' || !value.activity) throw new Error('Learning context required');
-      const next = Object.freeze({ module:value.module, unit:value.unit ?? null, pathway:value.pathway ?? null, activity:value.activity, mode:value.mode ?? null });
+      const next = Object.freeze({ module:value.module, unit:value.unit ?? null, pathway:value.pathway ?? null, activity:value.activity, mode:value.mode ?? null, occurrence:value.occurrence ?? null, questionType:value.questionType ?? null, source:value.source ?? null });
       advance(); context = next; playing = false; lastInteraction = -Infinity;
     },
     leave() { advance(); context = null; playing = false; lastInteraction = -Infinity; },
