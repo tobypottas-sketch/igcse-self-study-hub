@@ -48,6 +48,6 @@ export function loadReportingCatalogue(client) {
       .select('occurrence_id, vocabulary_id, unit_number, unit_title', { count:'exact' })
       .eq('status','live').eq('active',true).order('occurrence_id'), { label:'published vocabulary occurrences' }),
     fetchAllRows(() => client.from('classes')
-      .select('id, merit_pathways_required', { count:'exact' }).eq('active',true).order('id'), { label:'class merit thresholds' })
+      .select('id, class_name, merit_pathways_required', { count:'exact' }).eq('active',true).order('id'), { label:'class merit thresholds' })
   ]);
 }
