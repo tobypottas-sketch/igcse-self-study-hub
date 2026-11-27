@@ -83,9 +83,12 @@ export async function bootApp(clientOverride = null) {
   };
 
   // Notifications are independent of the full Activity dashboard and of the current route.
-  const meritMount = document.createElement('div');
-  meritMount.className = 'live-merit-mount';
-  root.after(meritMount);
+  const meritMount = document.createElement?.('div');
+  if (meritMount) {
+    meritMount.className = 'live-merit-mount';
+    meritMount.hidden = true;
+    root.after(meritMount);
+  }
   let meritSnapshot = null;
   let meritAccount = null;
   let meritGeneration = 0;
@@ -96,6 +99,7 @@ export async function bootApp(clientOverride = null) {
     && currentState.profile.active === true && !currentState.profile.must_change_password
     && !['login','error','change-password'].includes(currentState.view);
   const syncMeritMount = () => {
+    if (!meritMount) return;
     const external = eligibleForMerits() && currentState.view !== 'home' && meritSnapshot;
     if (!external) { meritMount.replaceChildren(); meritMount.hidden = true; return; }
     meritMount.hidden = false;
@@ -109,11 +113,10 @@ export async function bootApp(clientOverride = null) {
     meritSnapshot = null;
     meritAccount = null;
     meritFirstLoad = true;
-    meritMount.replaceChildren();
-    meritMount.hidden = true;
+    if (meritMount) { meritMount.replaceChildren(); meritMount.hidden = true; }
   };
   const refreshMerits = async ({ immediate = false } = {}) => {
-    if (!eligibleForMerits() || (!immediate && document.hidden)) return;
+    if (!eligibleForMerits() || meritTimer === null || meritAccount !== currentState.profile.id || (!immediate && document.hidden)) return;
     if (meritRequest) return meritRequest;
     const generation = meritGeneration;
     const account = currentState.profile.id;
@@ -122,13 +125,23 @@ export async function bootApp(clientOverride = null) {
         if (generation !== meritGeneration || account !== currentState.profile?.id || !eligibleForMerits()) return;
         const previous = meritSnapshot;
         meritSnapshot = snapshot;
-        if (JSON.stringify(previous) !== JSON.stringify(snapshot)) activityLoadPromise = null;
+        const changed = JSON.stringify(previous) !== JSON.stringify(snapshot);
+        if (changed) activityLoadPromise = null;
         if (cachedHomeState) cachedHomeState = {...cachedHomeState,meritSnapshot:snapshot};
-        if (currentState.view === 'home') updateHomeMerits(root,currentState.profile,snapshot,{autoOpen:meritFirstLoad});
-        else syncMeritMount();
+        if (currentState.view === 'home') {
+          if (changed || meritFirstLoad) updateHomeMerits(root,currentState.profile,snapshot,{autoOpen:meritFirstLoad});
+        } else if (changed || meritFirstLoad) syncMeritMount();
         meritFirstLoad = false;
       })
-      .catch(() => { /* Keep last successful count during a transient network error. */ })
+      .catch(error => {
+        if (generation !== meritGeneration) return;
+        // A revoked session or permission error must not leave old student names visible.
+        if (['42501','PGRST301','PGRST303'].includes(error?.code) || [401,403].includes(error?.status)) {
+          meritSnapshot = null;
+          if (currentState.view === 'home') updateHomeMerits(root,currentState.profile,null);
+          syncMeritMount();
+        }
+      })
       .finally(() => { if (meritRequest === request) meritRequest = null; });
     meritRequest = request;
     return request;
@@ -143,11 +156,11 @@ export async function bootApp(clientOverride = null) {
     void refreshMerits({immediate:true});
   };
   // Root renders replace their shell. This observer never watches the notification mount.
-  if (typeof MutationObserver !== 'undefined') new MutationObserver(syncMeritMount).observe(root,{childList:true});
-  document.addEventListener('visibilitychange',() => { if (!document.hidden) void refreshMerits({immediate:true}); });
+  if (meritMount && typeof MutationObserver !== 'undefined') new MutationObserver(syncMeritMount).observe(root,{childList:true});
+  document.addEventListener?.('visibilitychange',() => { if (!document.hidden) void refreshMerits({immediate:true}); });
   globalThis.addEventListener?.('focus',() => { if (!document.hidden) void refreshMerits({immediate:true}); });
   client.auth.onAuthStateChange?.((event) => { if (event === 'SIGNED_OUT') stopMerits(); });
-  meritMount.addEventListener('click',async event => {
+  meritMount?.addEventListener('click',async event => {
     if (!event.target?.closest?.('[data-action="activity"]') || !eligibleForMerits()) return;
     meritMount.querySelector('[data-merit-dialog]')?.close();
     assessorController?.dispose(); assessorController = null;
