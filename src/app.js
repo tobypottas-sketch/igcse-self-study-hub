@@ -12,7 +12,7 @@ import { applyActivityListFilters, newActivityListState } from './admin/activity
 import { parseStudentCsv, validateStudentImport, bulkProvisionStudents } from './admin/import.js';
 import { renderLogin } from './views/login.js';
 import { renderChangePassword } from './views/change-password.js';
-import { renderHome, resetMeritPopup } from './views/home.js';
+import { renderHome, resetMeritPopup, updateHomeMerits, renderExternalMerits } from './views/home.js';
 import { renderAdmin } from './views/admin.js';
 import { escapeHtml } from './views/html.js';
 
@@ -82,6 +82,79 @@ export async function bootApp(clientOverride = null) {
     return activityLoadPromise;
   };
 
+  // Notifications are independent of the full Activity dashboard and of the current route.
+  const meritMount = document.createElement('div');
+  meritMount.className = 'live-merit-mount';
+  root.after(meritMount);
+  let meritSnapshot = null;
+  let meritAccount = null;
+  let meritGeneration = 0;
+  let meritRequest = null;
+  let meritTimer = null;
+  let meritFirstLoad = true;
+  const eligibleForMerits = () => ['teacher','admin'].includes(currentState.profile?.role)
+    && currentState.profile.active === true && !currentState.profile.must_change_password
+    && !['login','error','change-password'].includes(currentState.view);
+  const syncMeritMount = () => {
+    const external = eligibleForMerits() && currentState.view !== 'home' && meritSnapshot;
+    if (!external) { meritMount.replaceChildren(); meritMount.hidden = true; return; }
+    meritMount.hidden = false;
+    renderExternalMerits(meritMount,currentState.profile,meritSnapshot);
+  };
+  const stopMerits = () => {
+    meritGeneration++;
+    meritRequest = null;
+    if (meritTimer !== null) clearInterval(meritTimer);
+    meritTimer = null;
+    meritSnapshot = null;
+    meritAccount = null;
+    meritFirstLoad = true;
+    meritMount.replaceChildren();
+    meritMount.hidden = true;
+  };
+  const refreshMerits = async ({ immediate = false } = {}) => {
+    if (!eligibleForMerits() || (!immediate && document.hidden)) return;
+    if (meritRequest) return meritRequest;
+    const generation = meritGeneration;
+    const account = currentState.profile.id;
+    const request = loadTeacherActivityData(client,{meritOnly:true})
+      .then(snapshot => {
+        if (generation !== meritGeneration || account !== currentState.profile?.id || !eligibleForMerits()) return;
+        const previous = meritSnapshot;
+        meritSnapshot = snapshot;
+        if (JSON.stringify(previous) !== JSON.stringify(snapshot)) activityLoadPromise = null;
+        if (cachedHomeState) cachedHomeState = {...cachedHomeState,meritSnapshot:snapshot};
+        if (currentState.view === 'home') updateHomeMerits(root,currentState.profile,snapshot,{autoOpen:meritFirstLoad});
+        else syncMeritMount();
+        meritFirstLoad = false;
+      })
+      .catch(() => { /* Keep last successful count during a transient network error. */ })
+      .finally(() => { if (meritRequest === request) meritRequest = null; });
+    meritRequest = request;
+    return request;
+  };
+  const startMerits = () => {
+    if (!eligibleForMerits()) { stopMerits(); return; }
+    if (meritAccount !== currentState.profile.id || meritTimer === null) {
+      stopMerits();
+      meritAccount = currentState.profile.id;
+      meritTimer = setInterval(() => { void refreshMerits(); },30000);
+    }
+    void refreshMerits({immediate:true});
+  };
+  // Root renders replace their shell. This observer never watches the notification mount.
+  if (typeof MutationObserver !== 'undefined') new MutationObserver(syncMeritMount).observe(root,{childList:true});
+  document.addEventListener('visibilitychange',() => { if (!document.hidden) void refreshMerits({immediate:true}); });
+  globalThis.addEventListener?.('focus',() => { if (!document.hidden) void refreshMerits({immediate:true}); });
+  client.auth.onAuthStateChange?.((event) => { if (event === 'SIGNED_OUT') stopMerits(); });
+  meritMount.addEventListener('click',async event => {
+    if (!event.target?.closest?.('[data-action="activity"]') || !eligibleForMerits()) return;
+    meritMount.querySelector('[data-merit-dialog]')?.close();
+    assessorController?.dispose(); assessorController = null;
+    activityListState = newActivityListState();
+    await renderActivitySection({selectedStudentId:null,notice:''},true);
+  });
+
   const invalidateAdminBackgroundRefreshes = () => { adminRefreshGeneration += 1; };
 
   const refreshAdminCacheInBackground = () => {
@@ -124,25 +197,18 @@ export async function bootApp(clientOverride = null) {
   const renderCurrentState = async () => {
     assessorController?.dispose(); assessorController = null;
     currentState = await loadAppState(client);
-    if (currentState.view === 'login') { cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; renderLogin(root); return; }
-    if (currentState.view === 'change-password') { renderChangePassword(root, currentState.profile); return; }
+    if (currentState.view === 'login') { stopMerits(); cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; renderLogin(root); return; }
+    if (currentState.view === 'change-password') { stopMerits(); renderChangePassword(root, currentState.profile); return; }
     if (currentState.view === 'home') {
       currentState = { ...currentState, activityDashboard:null };
       cachedHomeState = { ...currentState };
-      renderHome(root, currentState.profile, currentState.apps, null);
+      const retained = meritAccount === currentState.profile.id ? meritSnapshot : null;
+      renderHome(root,currentState.profile,currentState.apps,retained,{autoOpenMerits:false});
       if (currentState.profile?.role === 'admin' && currentState.profile.active !== false) preloadAdminData().catch(() => {});
-      if (['admin','teacher'].includes(currentState.profile?.role) && currentState.profile.active !== false) {
-        preloadActivityData()
-          .then(activityDashboard => {
-            if (cachedHomeState) cachedHomeState = { ...cachedHomeState, activityDashboard };
-            if (currentState.view !== 'home') return;
-            currentState = { ...currentState, activityDashboard };
-            renderHome(root, currentState.profile, currentState.apps, activityDashboard);
-          })
-          .catch(() => {});
-      }
+      startMerits();
       return;
     }
+    stopMerits();
     renderError(root, currentState.error instanceof Error ? currentState.error.message : 'Unable to load your account.');
   };
 
@@ -277,10 +343,11 @@ export async function bootApp(clientOverride = null) {
       currentState = { ...currentState, view:'assessor' };
       assessorController = openWritingAssessor(root, client, currentState.profile, { onBack:() => renderCurrentState() });
     }
-    else if (action === 'logout') { resetMeritPopup(); await client.auth.signOut(); clearReturnTarget(getSessionStorage()); cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; await renderCurrentState(); }
+    else if (action === 'logout') { stopMerits(); resetMeritPopup(); await client.auth.signOut(); clearReturnTarget(getSessionStorage()); cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; await renderCurrentState(); }
     else if (action === 'retry') await renderCurrentState();
     else if (action === 'change-password') {
       if (['teacher','admin'].includes(currentState.profile?.role) && currentState.profile.active !== false) {
+        stopMerits();
         currentState = { ...currentState, view:'change-password' };
         renderChangePassword(root, currentState.profile);
       }
@@ -288,17 +355,18 @@ export async function bootApp(clientOverride = null) {
     else if (action === 'cancel-change-password') {
       if (['teacher','admin'].includes(currentState.profile?.role) && !currentState.profile.must_change_password) await renderCurrentState();
     }
-    else if (action === 'activity') { activityListState=newActivityListState(); await renderActivitySection({ selectedStudentId:null, notice:'' }); }
+    else if (action === 'activity') { activityListState=newActivityListState(); await renderActivitySection({ selectedStudentId:null, notice:'' },true); }
     else if (action === 'admin') await renderAdminSection('accounts', { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     else if (action === 'admin-back') {
       if (cachedHomeState) {
         currentState = { ...cachedHomeState };
-        renderHome(root, currentState.profile, currentState.apps, currentState.activityDashboard);
+        renderHome(root,currentState.profile,currentState.apps,meritSnapshot,{autoOpenMerits:false});
+        void refreshMerits({immediate:true});
       } else await renderCurrentState();
     }
     else if (action?.startsWith?.('admin-section-')) {
       const section = action.slice('admin-section-'.length);
-      if (section === 'activity') { activityListState=newActivityListState(); await renderActivitySection({ selectedStudentId:null, notice:'' }); }
+      if (section === 'activity') { activityListState=newActivityListState(); await renderActivitySection({ selectedStudentId:null, notice:'' },true); }
       else if (['accounts','classes','import'].includes(section)) await renderAdminSection(section, { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     } else if (action === 'activity-student') {
       const studentId = target?.dataset?.studentId;
@@ -319,6 +387,18 @@ export async function bootApp(clientOverride = null) {
       await runButtonAction(target, async () => {
         try {
           await markMeritAwarded(client,studentId,meritNumber);
+          // Invalidate any response started before the successful award.
+          meritGeneration++; meritRequest = null;
+          if (meritSnapshot) {
+            const students = meritSnapshot.students.map(s => {
+              if (s.studentId !== studentId) return s;
+              const pendingMeritNumbers = (s.pendingMeritNumbers ?? []).filter(n => n !== meritNumber);
+              return {...s,pendingMeritNumbers,pendingMerits:pendingMeritNumbers.length};
+            }).filter(s=>s.pendingMerits);
+            meritSnapshot = {students,pendingMerits:students.reduce((sum,s)=>sum+s.pendingMerits,0)};
+            syncMeritMount();
+          }
+          void refreshMerits({immediate:true});
           await renderActivitySection({ selectedStudentId:studentId, notice:`Merit ${meritNumber} marked awarded.` },true);
         } catch (error) {
           currentState = { ...currentState, notice:error instanceof Error ? error.message : 'Unable to mark merit awarded.' };
