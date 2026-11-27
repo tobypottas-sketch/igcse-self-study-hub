@@ -153,10 +153,11 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
   } catch {
     engagementAvailable = false;
   }
-  return buildActivityDashboard({
+  const dashboard = buildActivityDashboard({
     students, occurrences:normalizedOccurrences, globalMastery, unitMastery, activity,
     unitChecks, awards, coverageByUnit, now, engagementAvailable, selectedPeriod
   });
+  return selectedPeriod ? {...dashboard, classes:classes.map(c=>({classId:c.id,className:c.class_name}))} : dashboard;
 }
 
 export async function markMeritAwarded(client, studentId, meritNumber) {
