@@ -795,7 +795,6 @@ I would recommend Willow Kitchen to groups of friends who want a lively meal at 
   assert.match(await page.locator('.wa-recognition-feedback').innerText(),/Correct on your first try/);
   await capture(page,'recovery-structure-explore',width,height);
   await sharedInteractionChecks(page,go,width,height);
-  await page.getByRole('button',{name:'All pathways'}).click();
   await page.getByRole('button',{name:'Open Writing Studio →'}).click();
   await page.locator('.wa-workspace').waitFor();
   assert.deepEqual(errors,[]);
