@@ -74,6 +74,30 @@ async function loadActivityRows(client) {
   }
 }
 
+// Only numeric school-email usernames are valid identifiers. Preserve internal zeros.
+export function studentNumberFromEmail(email) {
+  const match = /^(\d+)@[^@\s]+$/.exec(String(email ?? '').trim());
+  return match ? match[1].replace(/^0+(?=\d)/, '') : null;
+}
+
+async function loadScopedStudentNumbers(client, students) {
+  const ids = [...new Set(students.map(s => s.id).filter(Boolean))];
+  const numbers = new Map();
+  // The activity RPC supplies the authorised roster; profile RLS remains in force.
+  for (let offset = 0; offset < ids.length; offset += 100) {
+    const batch = ids.slice(offset, offset + 100);
+    const allowed = new Set(batch);
+    try {
+      const { data, error } = await client.from('profiles').select('id, school_email').in('id', batch);
+      if (error) continue;
+      for (const row of data ?? []) {
+        if (allowed.has(row.id)) numbers.set(row.id, studentNumberFromEmail(row.school_email));
+      }
+    } catch { /* Missing identifiers must never prevent progress or merit access. */ }
+  }
+  return numbers;
+}
+
 export async function loadTeacherActivityData(client, { now = new Date() } = {}) {
   if (shouldUsePreviewFixture()) return previewDashboard(now);
 
@@ -96,6 +120,8 @@ export async function loadTeacherActivityData(client, { now = new Date() } = {})
     className:row.class_name,
     meritPathwaysRequired:thresholdByClass.get(row.class_id) ?? 2
   }));
+  const numbers = await loadScopedStudentNumbers(client, students);
+  for (const student of students) student.studentNumber = numbers.get(student.id) ?? null;
   const globalMastery = payloads(rows,'vocabulary_global_mastery').map(row => ({
     studentId:row.student_id,
     vocabularyId:row.vocabulary_id,
