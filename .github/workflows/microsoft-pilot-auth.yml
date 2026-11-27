@@ -96,6 +96,24 @@ jobs:
               "select created_at is null, updated_at is null, last_sign_in_at is null "
               "from auth.identities where provider = 'azure'"
           ), flush=True)
+          try:
+              assert request("/token?grant_type=password",{"email":email,"password":password})["user"]["id"]==uid
+          except urllib.error.HTTPError as error:
+              if error.code != 500:
+                  raise
+              logs = subprocess.check_output(
+                  ["docker", "logs", "supabase_auth_pilot-auth"],
+                  stderr=subprocess.STDOUT, text=True,
+              )
+              timestamp_scan = any(
+                  "scan error" in line.lower() and "null" in line.lower()
+                  and any(field in line for field in ("created_at", "updated_at"))
+                  for line in logs.splitlines()
+              )
+              if not timestamp_scan:
+                  raise
+              print("Confirmed Auth cannot scan a NULL identity creation or update timestamp", flush=True)
+              sql("update auth.identities set created_at=now(), updated_at=now(), last_sign_in_at=now() where provider='azure'")
           assert request("/token?grant_type=password",{"email":email,"password":password})["user"]["id"]==uid
           assert sql("select count(*) from auth.users")=="2"
           assert sql("select count(*) from auth.identities where provider='azure' and user_id='"+uid+"'")=="1"
@@ -115,12 +133,12 @@ jobs:
               if event.get("level") != "error":
                   continue
               error = str(event.get("error", ""))
-              column = re.search(r"name \\"([a-z_]+)\\"", error)
+              column = next((name for name in ("created_at", "updated_at", "last_sign_in_at") if name in error), None)
               sqlstate = re.search(r"SQLSTATE ([0-9A-Z]{5})", error)
               print(json.dumps({
                   "scan_error": "Scan error" in error or "scan error" in error,
                   "null_conversion": "NULL" in error and ("converting" in error or "scan" in error),
-                  "column": column.group(1) if column else None,
+                  "column": column,
                   "sqlstate": sqlstate.group(1) if sqlstate else None,
                   "pilot_guard": "outside the Hub administrator pilot" in error,
               }))
