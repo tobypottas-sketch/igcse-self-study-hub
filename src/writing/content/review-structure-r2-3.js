@@ -97,8 +97,8 @@ export const optionalStructureExplore = new Set([
 ]);
 
 export const structureExploreModelTarget=3;
-export function finishedStructureModels(questions,done){
- return Object.values(questions).filter(items=>items.filter(item=>!optionalStructureExplore.has(item.id)).every(done)).length;
+export function finishedStructureModels(questions,done,optional=optionalStructureExplore){
+ return Object.values(questions).filter(items=>items.filter(item=>!optional.has(item.id)).every(done)).length;
 }
 
 const exploreChanges=[

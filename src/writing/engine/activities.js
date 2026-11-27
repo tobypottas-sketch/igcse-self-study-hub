@@ -47,6 +47,7 @@ export function validateWritingTask(task) {
 const normaliseWriting = text => text.trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 export function writingComplete(run, task) {
  return !!run.original && hasWritingAttempt(run.revision, task.min)
+  && (!task.requiredEditorNote || !!run.editorNote?.trim())
   && (normaliseWriting(run.original) !== normaliseWriting(run.revision)
    || (task.allowKeep && (run.original.trim().replace(/\s+/g,' ') !== run.revision.trim().replace(/\s+/g,' ') || hasWritingAttempt(run.keepReason??'',8))))
   && run.checks.size === task.checks.length;

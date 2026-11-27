@@ -969,3 +969,12 @@
 @media (max-width:650px) {
  .wa-plan-options, .wa-revision-options { grid-template-columns:minmax(0,1fr); }
 }
+
+@media (max-width: 680px) {
+ #writingAcademy.wa-staff-preview .wa-editorial-lesson[data-pathway="02"] .wa-stage-body {
+  grid-template-columns: minmax(0, 1fr);
+ }
+ #writingAcademy.wa-staff-preview .wa-editorial-lesson[data-pathway="02"] .wa-learning-companion .wa-art--stage {
+  max-width: 240px;
+ }
+}
