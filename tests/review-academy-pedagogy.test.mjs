@@ -216,7 +216,7 @@ test('R2.1 staff fixes have independent scenario answers and distinct option ide
  const previous=[pathways.development.analysis,...pathways.development.practice.flatMap(activity=>activity.items)];
  for (const [id,answer,detail] of [
   ['pedagogy-q-019','demo-v2',/5:05/],
-  ['pedagogy-extra-q-31','try-v2',/club can accept/],
+  ['pedagogy-extra-q-31','try-v2',/club’s main priority/],
   ['pedagogy-extra-q-27','seven-v2',/leaves seven minutes/],
   ['pedagogy-extra-q-30','balance-v2',/ten minutes at the bench/],
   ['pedagogy-observation-006','time-v2',/at lunchtime.*around midday/i]

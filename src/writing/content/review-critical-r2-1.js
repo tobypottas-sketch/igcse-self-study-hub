@@ -9,10 +9,10 @@ const revisions = [
    ['demo-v2', 'Choose the demonstration. It ends at 5:00, leaving time to walk to the stop.', 'The demonstration ends at 5:00. A five-minute walk gets you to the stop at 5:05, before the 5:30 bus.']
   ]],
  ['pedagogy-extra-q-31',
-  'Your school film club wants believable characters to discuss. Members are happy with a slower story if the characters are interesting. The film has believable characters but a slow middle.',
+  'Your school film club needs to choose a film for this week. Its main priority is believable characters to discuss. This film has believable characters but a slow middle. The other available film is faster, but its characters are less believable.',
   'Which recommendation weighs both points for this club?', 'try-v2', [
-   ['try-v2', 'Give it a try. The middle is slow, but the believable characters give your club something to discuss.', 'The slow middle is a drawback this club can accept. The characters give members what they want to discuss.'],
-   ['wait-v2', 'Wait for a faster film with believable characters. That way the club can talk about the characters without sitting through a slow middle.', 'This values speed more than the club does. Members are willing to watch a slower film if the characters interest them.'],
+   ['try-v2', 'Give it a try. The middle is slow, but the believable characters give your club something to discuss.', 'The slow middle is a drawback, but believable characters are the club’s main priority. This film gives members what they want to discuss.'],
+   ['wait-v2', 'Choose the faster film instead. Its characters are less believable, but the story moves more quickly.', 'The faster film avoids the slow middle, but it gives up the club’s main priority: believable characters to discuss.'],
    ['pace-v2', 'Try it for the believable characters, but only if you are happy to watch a film with slow pacing throughout.', 'This recognises the club’s interest in the characters, but the review only says the middle is slow. It does not say the whole film is slow.']
   ]],
  ['pedagogy-extra-q-27',

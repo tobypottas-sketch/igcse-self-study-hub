@@ -110,7 +110,7 @@ async function checkR21Development(page){
  const expected=new Map([
   ['Which advice uses today’s service time to help students decide whether to go?', [/seven minutes is enough/, /leaves seven minutes/]],
   ['Which evaluation explains what these beginners gain and what they give up?', [/only ten minutes to practise/, /ten minutes at the bench/]],
-  ['Which recommendation weighs both points for this club?', [/Give it a try/, /club can accept/]]
+  ['Which recommendation weighs both points for this club?', [/Give it a try/, /club’s main priority/]]
  ]);
  await page.locator('.wa-stage-tab[data-stage=practise]').click();
  for(const name of [/Explain the impact/,/Weigh a strength and drawback/]){
