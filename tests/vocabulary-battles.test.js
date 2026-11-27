@@ -53,9 +53,10 @@ test('Battle UI supports invite accept/decline, private answer submission and we
  assert.match(ui,/getSupabaseClient/);
  assert.doesNotMatch(ui,/\.from\('vocabulary_battles'\)/);
 });
-test('Bank holds ten different questions for both launch units and options are unambiguous',()=>{
- const ids=[...src.matchAll(/id:'(u[19]-[^']+)',unit:(1|9),prompt:'([^']*)',options:\['([^']*)','([^']*)','([^']*)','([^']*)'\],correct:(\d)/g)];
- assert.ok(ids.filter(m=>m[2]==='1').length>=10);
- assert.ok(ids.filter(m=>m[2]==='9').length>=10);
- for(const m of ids){assert.equal(new Set(m.slice(4,8).map(x=>x.toLowerCase())).size,4,m[1]);assert.ok(+m[8]>=0&&+m[8]<=3);}
+test('All ten published units have approved unique four-option questions',()=>{
+ const bank=JSON.parse('['+src.split('const BANK:Question[]=[')[1].split('];')[0].trim()+']');
+ assert.equal(bank.length,498);
+ assert.equal(new Set(bank.map(q=>q.id)).size,498);
+ for(let unit=1;unit<=10;unit++)assert.equal(bank.filter(q=>q.unit===unit).length,unit===10?48:50);
+ for(const q of bank){assert.equal(new Set(q.options.map(x=>x.toLowerCase().trim())).size,4);assert.ok(q.correct>=0&&q.correct<4);}
 });

@@ -10,16 +10,22 @@ const names=new Map();
 const state={
  client:null,profile:null,classes:[],classId:'',unit:1,opponent:'',lobby:null,board:[],
  battleId:null,battle:null,busy:false,polling:false,error:'',flash:'',timer:null,clock:null,
- viewKey:'',requestEpoch:0
+ viewKey:'',requestEpoch:0,pollAgain:false,serverOffset:0,boardAt:0
 };
-const seconds=date=>date?Math.max(0,Math.ceil((new Date(date).getTime()-Date.now())/1000)):0;
+const seconds=date=>date?Math.max(0,Math.ceil((new Date(date).getTime()-(Date.now()+state.serverOffset))/1000)):0;
 const avatar=(name,side='a',size='',id=null)=>'<span class="battle-avatar battle-avatar--'+side+(size?' battle-avatar--'+size:'')+'" aria-hidden="true">'+'<span>'+e(avatarInitials(name))+'</span>'+renderAvatarArtwork(id)+'</span>';
 const btn=(label,action,extra='',disabled=false)=>'<button type="button" class="battle-btn" data-battle-act="'+action+'" '+extra+(disabled?' disabled':'')+'>'+label+'</button>';
 const panel=(body,kind='')=>'<section class="battle-panel '+kind+'">'+body+'</section>';
 const heading=(eyebrow,title,subtitle)=>'<header class="battle-heading"><p class="battle-kicker">'+e(eyebrow)+'</p><h1>'+e(title)+'</h1><p class="battle-heading__subtitle">'+e(subtitle)+'</p></header>';
 
 async function api(payload){
- const {data,error}=await state.client.functions.invoke('vocabulary-battles',{body:payload});
+ const controller=new AbortController();
+ let timer;
+ const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(new Error('Connection slow. Reconnecting…'));},10000);});
+ let response;
+ try{response=await Promise.race([state.client.functions.invoke('vocabulary-battles',{body:payload,signal:controller.signal}),deadline]);}finally{clearTimeout(timer);}
+ const {data,error}=response;
+ if(Number.isFinite(data?.serverNow))state.serverOffset=data.serverNow-Date.now();
  if(error||data?.error){
   let reason=data?.error;
   if(!reason&&error?.context?.json)try{reason=(await error.context.json())?.error;}catch{}
@@ -49,7 +55,7 @@ function lobbyMarkup(){
  const others=lobby.students??[];
  const selected=others.find(row=>row.id===state.opponent);
  const opponentSelect='<label class="battle-select-label">CHOOSE A CLASSMATE<select data-battle-opponent><option value="">Select your opponent…</option>'+others.map(row=>'<option value="'+e(row.id)+'"'+(row.id===state.opponent?' selected':'')+'>'+e(row.display_name)+'</option>').join('')+'</select></label>';
- const unitSelect='<label class="battle-select-label">VOCABULARY UNIT<select data-battle-unit><option value="1"'+(state.unit===1?' selected':'')+'>Unit 1 · Sports & Free Time</option><option value="9"'+(state.unit===9?' selected':'')+'>Unit 9 · Communication</option></select></label>';
+ const unitSelect='<label class="battle-select-label">VOCABULARY UNIT<select data-battle-unit>'+["Sports and Free Time","Digital Life","Food","Transport","Holidays","Learning and Study Skills","Interviews","Work","Communication","Education"].map((title,i)=>'<option value="'+(i+1)+'"'+(state.unit===i+1?' selected':'')+'>Unit '+(i+1)+' · '+e(title)+'</option>').join('')+'</select></label>';
  const choice='<div class="battle-choice-grid">'+unitSelect+opponentSelect+'</div>';
  const versus='<div class="battle-challenge-versus"><div class="battle-challenge-player">'+avatar(state.profile?.display_name,'a','',lobby.avatarId)+'<span><small>YOU</small><strong>'+e(state.profile?.display_name)+'</strong></span></div><span class="battle-vs" aria-label="versus">VS</span><div class="battle-challenge-player">'+avatar(selected?.display_name??'?','b','',selected?.avatarId)+'<span><small>OPPONENT</small><strong data-selected-opponent>'+e(selected?.display_name??'Choose a classmate')+'</strong></span></div></div>';
  const pending=(lobby.pending??[]).map(b=>{
@@ -77,14 +83,17 @@ function phaseFor(b){
  if(b.status==='declined'||b.status==='cancelled')return 'closed';
  if(b.finished)return 'finished';
  if(!b.startsAt)return 'ready';
+ if(b.question)return 'question';
  if(seconds(b.startsAt)>0)return 'countdown';
  if(seconds(b.endsAt)===0)return 'timeout';
- if(b.question)return 'question';
- return 'answered';
+ if(b.answered>=b.total)return 'answered';
+ return 'countdown';
 }
 function matchSignature(b){
  const phase=phaseFor(b);
- // Opponent progress and scores are HUD data, not screen identity: updating them\n // must NEVER replace the active answer buttons or keyboard focus.\n return 'match:'+state.battleId+':'+phase+':'+(b?.answered??0)+':'+(b?.question?.id??'')+':'+(b?.ready??false)+':'+(b?.opponentReady??false)+':'+(b?.outcome??'');
+ // Opponent progress and scores are HUD data, not screen identity: updating them
+ // must NEVER replace the active answer buttons or keyboard focus.
+ return 'match:'+state.battleId+':'+phase+':'+(b?.answered??0)+':'+(b?.question?.id??'')+':'+(b?.ready??false)+':'+(b?.opponentReady??false)+':'+(b?.outcome??'');
 }
 function matchup(b){
  const rival=b.challengerId===state.profile.id?b.opponentName:b.challengerName;
@@ -95,7 +104,7 @@ function readyCard(name,ready,side,avatarId){
 }
 function battleContent(b,phase){
  const rival=b.challengerId===state.profile.id?b.opponentName:b.challengerName;
- if(phase==='pending')return '<div class="battle-wait"><div class="battle-scene-icon" aria-hidden="true">📨</div><p class="battle-kicker">INVITATION SENT</p><h2>Waiting for a response</h2><p>Your opponent can accept the invitation from the Arena lobby.</p></div>';
+ if(phase==='pending')return '<div class="battle-wait"><div class="battle-scene-icon" aria-hidden="true">📨</div><p class="battle-kicker">INVITATION SENT</p><h2>Waiting for a response</h2><p>Your opponent can accept the invitation from the Arena lobby.</p>'+btn('Cancel invite','cancel','data-id="'+e(b.id)+'"')+'</div>';
  if(phase==='closed')return '<div class="battle-wait"><div class="battle-scene-icon" aria-hidden="true">🛡️</div><h2>Invitation '+e(b.status)+'</h2><p>Head back to the Arena to start another challenge.</p></div>';
  if(phase==='finished'){
   const result=b.outcome==='won'?{icon:'🏆',label:'VICTORY!',message:'You won the duel!',theme:'win'}:b.outcome==='lost'?{icon:'🛡️',label:'GOOD BATTLE',message:'Your classmate takes this round.',theme:'loss'}:{icon:'🤝',label:'A DRAW!',message:'An evenly matched duel!',theme:'draw'};
@@ -110,7 +119,7 @@ function battleContent(b,phase){
 }
 function matchMarkup(){
  const b=state.battle;
- if(!b)return heading('BATTLE IN PROGRESS','Preparing your duel','Loading match information…');
+ if(!b)return heading('BATTLE IN PROGRESS','Preparing your duel','Loading match information…')+btn('Retry connection','retry')+btn('← Back to challenges','back');
  const phase=phaseFor(b);
  return '<div class="battle-match-title">'+heading('⚡ LIVE VOCABULARY DUEL','Word Blitz Battle','Unit '+b.unitNumber+' · '+b.className)+pill(phase==='finished'?'FINISHED':phase==='ready'?'READY ROOM':phase==='question'?'LIVE MATCH':'MATCH SETUP','battle-pill--phase')+'</div>'
   +matchup(b)+panel(battleContent(b,phase),'battle-panel--play battle-panel--'+phase)
@@ -147,7 +156,8 @@ function lobbySignature(lobby,board){
   board});
 }
 async function refresh({force=false}={}){
- if(state.busy||state.polling||!state.client)return;
+ if(!state.client)return;
+ if(state.busy||state.polling){if(force)state.pollAgain=true;return;}
  const epoch=state.requestEpoch;
  state.polling=true;
  try{
@@ -156,14 +166,23 @@ async function refresh({force=false}={}){
    const b=await api({action:'status',battleId:id});
    if(epoch!==state.requestEpoch||id!==state.battleId)return;
    state.battle=b;
+   if(state.error){state.error='';force=true;}
+   if(b.startsAt || b.finished || b.status!=='accepted') {
+    if(state.flash==='You’re ready! Waiting for the other player.')state.flash='';
+   }
    const sig=matchSignature(b);
    if(force||state.viewKey!==sig)render(matchMarkup(),sig);
    else patchMatchHud(b);
   }else if(state.classId){
    const classId=state.classId;
-   const [lobby,board]=await Promise.all([api({action:'lobby',classId}),api({action:'leaderboard',classId})]);
+   const lobby=await api({action:'lobby',classId});
+   const board={ranking:state.board};
    if(epoch!==state.requestEpoch||classId!==state.classId||state.battleId)return;
+   if(state.error){state.error='';force=true;}
    state.lobby=lobby;state.board=board.ranking??[];
+   const accepted=(lobby.active??[]).find(b=>!b.starts_at&&b.id!==state.dismissedBattle);
+   if(accepted){state.requestEpoch++;state.battleId=accepted.id;state.battle=null;render(matchMarkup(),'match-loading');state.pollAgain=true;return;}
+   if(Date.now()-state.boardAt>20000){state.boardAt=Date.now();void api({action:'leaderboard',classId}).then(result=>{if(state.classId===classId&&!state.battleId){state.board=result.ranking??[];void refresh();}}).catch(()=>{});}
    for(const p of lobby.students??[])names.set(p.id,p.display_name);
    const sig=lobbySignature(lobby,state.board);
    // A teacher may have a student selecting a long name from the dropdown.
@@ -175,13 +194,14 @@ async function refresh({force=false}={}){
   if(epoch===state.requestEpoch){state.error=err.message;
    if(!root.querySelector('.battle-alert'))root.querySelector('.battle-notices')?.insertAdjacentHTML('beforeend','<p class="battle-alert" role="alert">'+e(err.message)+'</p>');
   }
- }finally{state.polling=false;}
+ }finally{state.polling=false;if(state.pollAgain&&!state.busy){state.pollAgain=false;void refresh({force:true});}}
 }
 async function act(action,target){
  if(state.busy)return;
- if(action==='back'){state.requestEpoch++;state.battleId=null;state.battle=null;state.viewKey='';render(lobbyMarkup(),'lobby-loading');void refresh({force:true});return;}
+ if(action==='retry'){void refresh({force:true});return;}
+ if(action==='back'){state.dismissedBattle=state.battleId;state.requestEpoch++;state.battleId=null;state.battle=null;state.viewKey='';state.boardAt=0;render(lobbyMarkup(),'lobby-loading');void refresh({force:true});return;}
  if(action==='enter'){state.requestEpoch++;state.battleId=target.dataset.id;state.battle=null;render(matchMarkup(),'match-loading');void refresh({force:true});return;}
- state.busy=true;state.error='';state.flash='';
+ state.busy=true;state.requestEpoch++;state.error='';state.flash='';target.disabled=true;
  try{
   if(action==='ready'){
    if(!state.battleId)return;
@@ -189,7 +209,8 @@ async function act(action,target){
    state.flash='You’re ready! Waiting for the other player.';
   }else if(action==='challenge'){
    if(!state.opponent)throw new Error('Choose a classmate to challenge.');
-   await api({action:'challenge',classId:state.classId,opponentId:state.opponent,unitNumber:state.unit});
+   const created=await api({action:'challenge',classId:state.classId,opponentId:state.opponent,unitNumber:state.unit});
+   state.battleId=created.id;state.battle=null;render(matchMarkup(),'match-loading');
    state.flash='Challenge sent! Your classmate can accept it from the Arena.';
   }else if(['accept','decline','cancel'].includes(action)){
    await api({action,battleId:target.dataset.id});
@@ -201,7 +222,7 @@ async function act(action,target){
    state.flash=result.correct?'Correct! +100 points':'Keep going — next question!';
   }
  }catch(err){state.error=err.message;}
- finally{state.busy=false;}
+ finally{state.busy=false;target.disabled=false;}
  state.viewKey='';
  await refresh({force:true});
 }
@@ -219,8 +240,7 @@ async function start(){
   state.classId=state.classes[0].id;
   render(lobbyMarkup(),'lobby-loading');
   await refresh({force:true});
-  state.timer=setInterval(()=>void refresh(),3000);
-  state.clock=setInterval(updateClock,250);
+  startTimers();
  }catch(err){
   state.error=err.message;
   render(heading('BATTLE ARENA','Unable to start',err.message),'error');
@@ -229,7 +249,7 @@ async function start(){
 root?.addEventListener('change',event=>{
  const target=event.target;
  if(target.matches?.('[data-battle-class]')){
-  state.requestEpoch++;state.classId=target.value;state.opponent='';state.lobby=null;state.board=[];
+  state.requestEpoch++;state.classId=target.value;state.boardAt=0;state.dismissedBattle=null;state.opponent='';state.lobby=null;state.board=[];
   render(lobbyMarkup(),'lobby-loading');void refresh({force:true});
  }else if(target.matches?.('[data-battle-unit]'))state.unit=Number(target.value);
  else if(target.matches?.('[data-battle-opponent]')){
@@ -247,8 +267,13 @@ root?.addEventListener('click',event=>{
  const target=event.target.closest?.('[data-battle-act]');
  if(target)void act(target.dataset.battleAct,target);
 });
+function startTimers(){if(!state.timer)state.timer=setInterval(()=>void refresh(),2000);if(!state.clock)state.clock=setInterval(updateClock,250);}
+window.addEventListener('pageshow',()=>{if(state.client){startTimers();void refresh({force:true});}});
+window.addEventListener('online',()=>void refresh({force:true}));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)void refresh({force:true});});
 window.addEventListener('pagehide',()=>{
  if(state.timer)clearInterval(state.timer);
  if(state.clock)clearInterval(state.clock);
+ state.timer=null;state.clock=null;
 });
 void start();

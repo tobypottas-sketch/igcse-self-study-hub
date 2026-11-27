@@ -146,3 +146,38 @@ test('work done outside the Hub yields no recorded submission and no completion 
   assert.deepEqual(learner.submissions,[]);
   assert.equal(Object.hasOwn(learner,'missingHomework'),false);
 });
+
+test('class evidence queries respect the custom range end and pass preview markers to the classifier', async () => {
+  const { loadClassEvidence } = await import('../src/reporting/activity-queries.js');
+  const filters = [];
+  const range = reportingPeriod('custom',{now,from:'2026-11-20',to:'2026-11-21'});
+  const studentId = 'synthetic-student';
+  const client = {from(table) {
+    const builder = {
+      select(projection) {
+        if (table === 'activity_events') assert.match(projection,/preview:metadata->>preview, synthetic:metadata->>synthetic/);
+        return this;
+      },
+      in(){return this;},is(){return this;},order(){return this;},gte(){return this;},
+      lt(column,value){filters.push([table,column,value]);return this;},
+      lte(column,value){assert.equal(value,now.toISOString());return this;},
+      async range(){
+        const data = table === 'activity_events' ? [{
+          id:'preview-event', user_id:studentId, app_key:'reading', event_type:'question_attempt',
+          occurred_at:'2026-11-20T10:00:00Z', preview:'true', synthetic:'false'
+        }] : [];
+        return { data, count:data.length };
+      }
+    };
+    return builder;
+  }};
+  const { evidence } = await loadClassEvidence(client,[{id:studentId}],range);
+  const end = new Date(range.end).toISOString();
+  assert.deepEqual(filters,[
+    ['activity_events','occurred_at',end],['vocabulary_missions','completed_at',end],
+    ['student_writing_submissions','submitted_at',end]
+  ]);
+  assert.equal(evidence[0].preview,true);
+  assert.equal(evidence[0].synthetic,false);
+  assert.equal(summarizeEngagement(evidence,range).activeDays,0);
+});

@@ -11,6 +11,7 @@ function occurrenceQuery() {
     is() { return query; },
     gte() { return query; },
     lte() { return query; },
+    lt() { return query; },
     order() { return query; },
     range() { return Promise.resolve(result); },
     then(resolve, reject) { return Promise.resolve(result).then(resolve, reject); }

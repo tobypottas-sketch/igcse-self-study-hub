@@ -10,9 +10,9 @@ const backend=read('supabase/functions/vocabulary-battles/index.ts');
 
 test('Battle Arena V2 stylesheet and student script are fresh and ordered',()=>{
  assert.match(html,/vocabulary-battles\.css\?v=battles-mvp-v1/);
- assert.match(html,/vocabulary-battles-v2\.css\?v=player-avatars-v1/);
+ assert.match(html,/vocabulary-battles-v2\.css\?v=champions-responsive-v1/);
  assert.ok(html.indexOf('vocabulary-battles-v2.css')>html.indexOf('vocabulary-battles.css'));
- assert.match(html,/battles-app\.js\?v=player-avatars-v1/);
+ assert.match(html,/battles-app\.js\?v=arena-recovery-v2/);
  assert.doesNotMatch(html,/id="battlesApp" aria-live="polite"/);
 });
 
@@ -87,4 +87,38 @@ test('single-class students see a class identity chip without unnecessary native
  assert.match(css,/focus-visible/);
  assert.match(css,/\.battle-class-select-chevron/);
  assert.match(css,/@media\(max-width:720px\)/);
+});
+
+test('actual match signature changes when both peers become ready and when questions advance',()=>{
+ const phaseFor=()=>phase;
+ let phase='ready';
+ const state={battleId:'synthetic'};
+ const source=ui.slice(ui.indexOf('function matchSignature('),ui.indexOf('function matchup('));
+ const signature=new Function('phaseFor','state',source+'; return matchSignature;')(phaseFor,state);
+ const waiting={ready:true,opponentReady:false,answered:0};
+ const ready={...waiting,opponentReady:true};
+ assert.equal(typeof signature(waiting),'string');
+ assert.notEqual(signature(waiting),signature(ready));
+ phase='countdown';
+ const countdown=signature(ready);
+ phase='question';
+ const first=signature({...ready,question:{id:'q1'}});
+ assert.notEqual(countdown,first);
+ assert.equal(first,signature({...ready,question:{id:'q1'},opponentAnswered:2}));
+ assert.notEqual(first,signature({...ready,answered:1,question:{id:'q2'}}));
+ phase='finished';
+ assert.notEqual(first,signature({...ready,outcome:'won'}));
+});
+
+test('recovery has bounded requests, restores polling on pageshow and supports all ten units',()=>{
+ assert.match(ui,/AbortController/);assert.match(ui,/Promise\.race/);assert.match(ui,/pageshow/);assert.match(ui,/pollAgain/);assert.match(ui,/serverOffset/);assert.match(ui,/Education/);assert.match(css,/select option\{font-family:/);assert.match(css,/repeat\(3,minmax\(0,1fr\)\)/);
+});
+
+test('champion cards respond to the leaderboard panel rather than only the viewport',()=>{
+ assert.match(css,/#battlesApp \.battle-panel--leaderboard\{container-type:inline-size;min-width:0\}/);
+ assert.match(css,/@container \(max-width: 470px\)\{#battlesApp \.battle-podium\{grid-template-columns:minmax\(0,1fr\)\}\}/);
+ assert.match(css,/grid-template-rows:auto auto 1fr/);
+ assert.match(css,/grid-template-rows:1fr auto;align-self:stretch/);
+ assert.match(css,/word-break:normal;hyphens:none;white-space:normal/);
+ assert.match(css,/overflow-wrap:break-word;text-wrap:balance/);
 });

@@ -571,3 +571,29 @@ body:has(#vocabularyApp .ngsl-player){
  position:sticky;bottom:0;z-index:5;background:var(--c-surface);
  padding-bottom:max(10px,env(safe-area-inset-bottom));
 }
+
+/* Avoid browser-dependent intrinsic sizing of a legend inside a grid fieldset.
+   Retain the native accessible radio-group label and full-width choices. */
+#vocabularyApp .ngsl-player fieldset.diag-choices{
+  display:block;
+  box-sizing:border-box;
+  width:100%;
+  min-inline-size:0;
+  max-inline-size:100%;
+}
+#vocabularyApp .ngsl-player fieldset.diag-choices>legend{
+  display:block;
+  float:none;
+  box-sizing:border-box;
+  width:100%;
+  max-width:100%;
+  white-space:normal;
+  overflow-wrap:break-word;
+  word-break:normal;
+  padding:0;
+}
+#vocabularyApp .ngsl-player fieldset.diag-choices>.diag-option{width:100%;box-sizing:border-box}
+#vocabularyApp .ngsl-player fieldset.diag-choices>.diag-option+.diag-option{margin-top:10px}
+@media(max-height:850px),(max-width:1024px){
+  #vocabularyApp .ngsl-player fieldset.diag-choices>.diag-option+.diag-option{margin-top:7px}
+}
