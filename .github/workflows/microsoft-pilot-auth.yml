@@ -53,6 +53,8 @@ jobs:
               req=urllib.request.Request(api+path, data=json.dumps(data).encode(), headers={"apikey":key,"Content-Type":"application/json"})
               with urllib.request.urlopen(req, timeout=15) as res:
                   return json.load(res)
+          def auth_sql(query):
+              return ["docker","exec","-i","supabase_db_pilot-auth","psql","-U","supabase_auth_admin","-d","postgres","-X","-v","ON_ERROR_STOP=1","-At","-c",query]
           def sql(query):
               return subprocess.check_output(["psql",status["DB_URL"],"-X","-v","ON_ERROR_STOP=1","-At","-c",query],text=True).strip()
           password="Local-test-only-Password-837!"
@@ -67,10 +69,10 @@ jobs:
           request("/signup",{"email":"student@example.test","password":password})
           other=request("/token?grant_type=password",{"email":"student@example.test","password":password})["user"]["id"]
           uuid.UUID(other)
-          assert sql("set role supabase_auth_admin; select public.microsoft_pilot_before_user_created('{\"user\":{\"app_metadata\":{\"provider\":\"azure\"}}}'::jsonb)->'error'->>'http_code'") .endswith("403")
+          assert subprocess.check_output(auth_sql("select public.microsoft_pilot_before_user_created('{\"user\":{\"app_metadata\":{\"provider\":\"azure\"}}}'::jsonb)->'error'->>'http_code'"),text=True).strip()=="403"
           def identity(target, verified, address, allowed):
               q="insert into auth.identities (provider_id,user_id,identity_data,provider) values ('test-"+target+"','"+target+"',jsonb_build_object('email','"+address+"','email_verified',"+str(verified).lower()+",'sub','test-"+target+"'),'azure')"
-              p=subprocess.run(["psql",status["DB_URL"],"-X","-v","ON_ERROR_STOP=1","-c","set role supabase_auth_admin; "+q],capture_output=True,text=True)
+              p=subprocess.run(auth_sql(q),capture_output=True,text=True)
               assert (p.returncode==0)==allowed, p.stderr
               if not allowed: assert "outside the Hub administrator pilot" in p.stderr, p.stderr
           identity(other,True,"student@example.test",False)
