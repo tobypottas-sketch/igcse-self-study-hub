@@ -51,10 +51,21 @@ jobs:
           key=status.get("ANON_KEY") or status["PUBLISHABLE_KEY"]
           def request(path, data):
               req=urllib.request.Request(api+path, data=json.dumps(data).encode(), headers={"apikey":key,"Content-Type":"application/json"})
-              with urllib.request.urlopen(req, timeout=15) as res:
-                  return json.load(res)
+              try:
+                  with urllib.request.urlopen(req, timeout=15) as res:
+                      print(f"Auth {path}: HTTP {res.status}", flush=True)
+                      return json.load(res)
+              except urllib.error.HTTPError as error:
+                  try:
+                      body = json.load(error)
+                  except ValueError:
+                      body = {}
+                  print(f"Auth {path}: HTTP {error.code}; error fields: " + json.dumps(
+                      {key: body[key] for key in ("code", "error_code", "error_id") if key in body}
+                  ), flush=True)
+                  raise
           def auth_sql(query):
-              return ["docker","exec","-i","-u","postgres","supabase_db_pilot-auth","psql","-U","supabase_admin","-d","postgres","-X","-v","ON_ERROR_STOP=1","-At","-c","SET ROLE supabase_auth_admin; "+query]
+              return ["docker","exec","-i","-u","postgres","supabase_db_pilot-auth","psql","-U","supabase_admin","-d","postgres","-X","-v","ON_ERROR_STOP=1","-v","VERBOSITY=verbose","-At","-c","SET ROLE supabase_auth_admin; "+query]
           def sql(query):
               return subprocess.check_output(["psql",status["DB_URL"],"-X","-v","ON_ERROR_STOP=1","-At","-c",query],text=True).strip()
           password="Local-test-only-Password-837!"
@@ -74,16 +85,46 @@ jobs:
               q="insert into auth.identities (provider_id,user_id,identity_data,provider) values ('test-"+target+"','"+target+"',jsonb_build_object('email','"+address+"','email_verified',"+str(verified).lower()+",'sub','test-"+target+"'),'azure')"
               p=subprocess.run(auth_sql(q),capture_output=True,text=True)
               assert (p.returncode==0)==allowed, p.stderr
-              if not allowed: assert "outside the Hub administrator pilot" in p.stderr, p.stderr
+              if not allowed:
+                  assert "42501: Microsoft identity is outside the Hub administrator pilot" in p.stderr, p.stderr
+              print(f"Synthetic identity write passed assertion: allowed={allowed}, verified={verified}", flush=True)
           identity(other,True,"student@example.test",False)
           identity(uid,False,email,False)
           identity(uid,True,"wrong@example.test",False)
           identity(uid,True,email,True)
+          print("Synthetic Azure row nulls (created_at, updated_at, last_sign_in_at): " + sql(
+              "select created_at is null, updated_at is null, last_sign_in_at is null "
+              "from auth.identities where provider = 'azure'"
+          ), flush=True)
           assert request("/token?grant_type=password",{"email":email,"password":password})["user"]["id"]==uid
           assert sql("select count(*) from auth.users")=="2"
           assert sql("select count(*) from auth.identities where provider='azure' and user_id='"+uid+"'")=="1"
           print("PASS: real password Auth API, production migration on real Auth schema, SQL identity guards and UUID preservation after synthetic identity insertion. Microsoft OAuth callback NOT tested.")
           PY
+      - name: Record Auth database failure before teardown
+        if: failure()
+        shell: bash
+        run: |
+          docker logs supabase_auth_pilot-auth 2>&1 | python3 -c '
+          import json, re, sys
+          for line in sys.stdin:
+              try:
+                  event = json.loads(line)
+              except ValueError:
+                  continue
+              if event.get("level") != "error":
+                  continue
+              error = str(event.get("error", ""))
+              column = re.search(r"name \\"([a-z_]+)\\"", error)
+              sqlstate = re.search(r"SQLSTATE ([0-9A-Z]{5})", error)
+              print(json.dumps({
+                  "scan_error": "Scan error" in error or "scan error" in error,
+                  "null_conversion": "NULL" in error and ("converting" in error or "scan" in error),
+                  "column": column.group(1) if column else None,
+                  "sqlstate": sqlstate.group(1) if sqlstate else None,
+                  "pilot_guard": "outside the Hub administrator pilot" in error,
+              }))
+          '
       - name: Stop local stack
         if: always()
         run: |
