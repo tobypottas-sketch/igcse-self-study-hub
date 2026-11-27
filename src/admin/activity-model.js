@@ -81,6 +81,7 @@ export function buildActivityDashboard({
       displayName:student.displayName ?? student.display_name ?? student.id,
       classId:student.classId ?? student.class_id ?? null,
       className:student.className ?? student.class_name ?? '',
+      studentNumber:student.studentNumber ?? null,
       hasStarted,
       lastActive,
       activityThisWeek,
