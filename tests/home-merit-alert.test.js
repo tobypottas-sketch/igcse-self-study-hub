@@ -61,5 +61,28 @@ test('pending merits open a staff dialog once per session, without awarding them
   assert.doesNotMatch(root.innerHTML,/data-merit-dialog/);
   renderHome(root, profile, apps, { pendingMerits:0, students:[] });
   assert.equal(opens,2);
-  assert.doesNotMatch(root.innerHTML,/data-merit-dialog/);
+  assert.match(root.innerHTML,/All caught up/);
+  assert.doesNotMatch(root.innerHTML,/home-merit-bell__count/);
+});
+
+test('staff bell reopens dismissed dialog and shows empty state without a zero badge', () => {
+  resetMeritPopup();
+  let opens=0, click, dismiss;
+  const dialog={open:false,showModal(){this.open=true;opens++;},close(){this.open=false;},querySelector(){return {addEventListener(_,fn){dismiss=fn;}};}};
+  const bell={addEventListener(_,fn){click=fn;}};
+  const root={innerHTML:'',querySelector(selector){return selector==='[data-merit-dialog]'?dialog:selector==='[data-merit-bell]'?bell:null;},querySelectorAll(){return [];}};
+  const profile={id:'staff',display_name:'Teacher',role:'teacher',active:true};
+  const dashboard={pendingMerits:1,students:[{studentId:'s1',displayName:'Amina K.',className:'Grade 9 ESL',pendingMerits:1,pendingMeritNumbers:[1]}]};
+  renderHome(root,profile,apps,dashboard);
+  assert.equal(opens,1);
+  assert.match(root.innerHTML,/home-account-controls[\s\S]*data-merit-bell[\s\S]*home-logout/);
+  assert.match(root.innerHTML,/home-merit-bell__count/);
+  dismiss();click();assert.equal(opens,2);
+  dismiss();renderHome(root,profile,apps,{pendingMerits:0,students:[]});
+  assert.equal(opens,2);
+  assert.doesNotMatch(root.innerHTML,/home-merit-bell__count/);
+  click();assert.equal(opens,3);
+  assert.match(root.innerHTML,/All caught up/);
+  dismiss();renderHome(root,{...profile,role:'student'},apps,dashboard);
+  assert.doesNotMatch(root.innerHTML,/data-merit-bell|data-merit-dialog/);
 });
