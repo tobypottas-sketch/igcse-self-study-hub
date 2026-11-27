@@ -36,7 +36,7 @@ function page(href = MICROSOFT_PILOT_CALLBACK, pending = null) {
   const button = { hidden: true, addEventListener(type, action) { this.click = action; } };
   const replaced = [];
   const browser = {
-    location: { href },
+    location: { href, replace: url => replaced.push(url) },
     sessionStorage: {
       getItem: () => pending,
       removeItem: () => { pending = null; },
@@ -59,7 +59,7 @@ test('requests Azure with the email scope, fixed callback and account picker', a
 
 test('disabled pilot and arbitrary query markers do not initialize auth', async () => {
   const view = page(MICROSOFT_PILOT_CALLBACK + '?microsoft-return=1');
-  await bootMicrosoftPilot(view.root, { browser: view.browser, getClient: () => assert.fail() });
+  await bootMicrosoftPilot(view.root, { browser: view.browser, enabled: false, getClient: () => assert.fail() });
   assert.equal(view.button.hidden, true);
   assert.match(view.status.textContent, /not open/);
 });
@@ -117,4 +117,31 @@ test('denied callbacks sign out locally without changing the existing profile', 
     assert.equal(await finishMicrosoftStaffSignIn(client, expected), false);
     assert.deepEqual(signOuts, [{ scope: 'local' }]);
   }
+});
+
+
+test('standalone administrator can start Microsoft OAuth without a password session', async () => {
+  const view = page(MICROSOFT_PILOT_CALLBACK + '?mode=standalone');
+  const { client } = fixture();
+  client.auth.getSession = async () => ({ data: { session: null } });
+  client.auth.signInWithOAuth = async () => ({});
+  await bootMicrosoftPilot(view.root, { browser: view.browser, enabled: true, standaloneEnabled: true, getClient: () => client });
+  assert.equal(view.button.hidden, false);
+  await view.button.click();
+  assert.equal(JSON.parse(view.pending()).mode, 'standalone');
+});
+
+test('standalone callback validates the existing administrator and returns directly to Hub', async () => {
+  const view = page(MICROSOFT_PILOT_CALLBACK + '?code=mock', JSON.stringify({ mode: 'standalone', startedAt: Date.now() }));
+  await bootMicrosoftPilot(view.root, { browser: view.browser, enabled: true, standaloneEnabled: true, getClient: () => fixture().client });
+  assert.deepEqual(view.replaced, [MICROSOFT_PILOT_CALLBACK, new URL('./', MICROSOFT_PILOT_CALLBACK).href]);
+});
+
+test('standalone callback denies students and never redirects to Hub', async () => {
+  const view = page(MICROSOFT_PILOT_CALLBACK + '?code=mock', JSON.stringify({ mode: 'standalone', startedAt: Date.now() }));
+  const { client, signOuts } = fixture({ profileOverrides: { role: 'student' } });
+  await bootMicrosoftPilot(view.root, { browser: view.browser, enabled: true, standaloneEnabled: true, getClient: () => client });
+  assert.deepEqual(view.replaced, [MICROSOFT_PILOT_CALLBACK]);
+  assert.ok(signOuts.length);
+  assert.match(view.status.textContent, /could not be verified/);
 });
