@@ -7,6 +7,37 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Microsoft sign-in · iGCSE Self-Study</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    #microsoft-sign-in button[data-microsoft-sign-in]:not([hidden]) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      box-sizing: border-box;
+      min-height: 56px;
+      padding: 16px 20px;
+      border: 2px solid #163a5f;
+      border-radius: 12px;
+      background: #fff;
+      color: #163a5f;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(22,58,95,.12);
+    }
+    #microsoft-sign-in button[data-microsoft-sign-in][hidden] { display: none; }
+    #microsoft-sign-in button[data-microsoft-sign-in]:not(:disabled):hover { background: #edf5fc; }
+    #microsoft-sign-in button[data-microsoft-sign-in]:focus-visible {
+      outline: 3px solid #1879c9;
+      outline-offset: 3px;
+    }
+    #microsoft-sign-in button[data-microsoft-sign-in]:disabled {
+      opacity: .65;
+      cursor: wait;
+    }
+    #microsoft-sign-in button[data-microsoft-sign-in] svg { flex: 0 0 22px; width: 22px; height: 22px; }
+  </style>
   <script type="module" src="./src/microsoft-sign-in.js"></script>
 </head>
 <body>
@@ -17,7 +48,7 @@
       <p class="muted" data-pilot-status role="status">Checking pilot availability…</p>
       <div class="form-stack">
         <button type="button" class="button button--primary" data-microsoft-sign-in hidden>
-          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 22 22" style="vertical-align:middle;margin-right:0.4em">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 22 22" >
             <path fill="#f25022" d="M0 0h10v10H0z"/><path fill="#7fba00" d="M12 0h10v10H12z"/>
             <path fill="#00a4ef" d="M0 12h10v10H0z"/><path fill="#ffb900" d="M12 12h10v10H12z"/>
           </svg>
