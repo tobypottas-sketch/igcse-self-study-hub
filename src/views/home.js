@@ -149,9 +149,9 @@ export function renderHome(root, profile, apps, activityDashboard = null, { regi
   const heading = selectedSkill === 'all' ? 'All apps' : (skills.find(skill => skill.id === selectedSkill)?.name ?? '');
   const shownCount = selectedSkill === 'all' ? model.apps.length : (skills.find(skill => skill.id === selectedSkill)?.count ?? 0);
 
-  const activityLabel = model.pendingMerits ? `Student activity · ${model.pendingMerits} new` : 'Student activity';
+  const activityLabel = model.pendingMerits ? `Student Progress · ${model.pendingMerits} new` : 'Student Progress';
   const accountControls = [
-    model.showActivityControls ? `<button class="button button--primary" data-action="activity" data-home-activity-label>${escapeHtml(activityLabel)}</button>` : '',
+    model.showActivityControls ? `<button class="button button--primary" data-action="student-progress" data-home-activity-label>${escapeHtml(activityLabel)}</button>` : '',
     model.showAdminControls ? '<button class="button" data-action="admin">Manage accounts</button>' : '',
     model.showStaffTools && profile.active === true && !profile.must_change_password ? '<button class="button" data-action="writing-activity">Writing Activity</button>' : '',
     model.showStaffTools && profile.active === true && !profile.must_change_password ? '<button class="button" data-action="writing-assessor">Writing assessor</button>' : '',
@@ -283,7 +283,7 @@ export function updateHomeMerits(root, profile, dashboard, { autoOpen = false } 
   const banner = root.querySelector('[data-merit-banner]');
   if (banner) banner.innerHTML = renderMeritAlert(model);
   const label = root.querySelector('[data-home-activity-label]');
-  if (label) label.textContent = model.pendingMerits ? `Student activity · ${model.pendingMerits} new` : 'Student activity';
+  if (label) label.textContent = model.pendingMerits ? `Student Progress · ${model.pendingMerits} new` : 'Student Progress';
   renderMeritPopup(root,model,profile,autoOpen);
   if (focused) root.querySelector('[data-merit-bell]')?.focus({preventScroll:true});
 }

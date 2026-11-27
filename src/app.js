@@ -14,6 +14,8 @@ import { renderLogin } from './views/login.js';
 import { renderChangePassword } from './views/change-password.js';
 import { renderHome, resetMeritPopup, updateHomeMerits, renderExternalMerits } from './views/home.js';
 import { renderAdmin } from './views/admin.js';
+import { renderStudentProgress, updateProgressStudentRows } from './views/student-progress.js';
+import { reportingPeriod, schoolDay } from './reporting/periods.js';
 import { escapeHtml } from './views/html.js';
 
 export function routeForProfile(profile) {
@@ -52,6 +54,35 @@ export async function bootApp(clientOverride = null) {
   let adminLoadPromise = null;
   let activityLoadPromise = null;
   let activityGeneration = 0;
+  let progressGeneration = 0;
+  let progressState = null;
+  let progressReturn = false;
+  const staffProgress = () => ['admin','teacher'].includes(currentState.profile?.role) && currentState.profile.active === true && !currentState.profile.must_change_password;
+  const drawProgress = options => { if (currentState.view === 'student-progress' && staffProgress() && progressState) renderStudentProgress(root,progressState,options); };
+  const loadProgress = async () => {
+    if (!staffProgress() || !progressState) return;
+    activityGeneration++;
+    progressReturn=false;
+    let period;
+    try { period = reportingPeriod(progressState.kind,{from:progressState.from,to:progressState.to}); if (progressState.kind==='custom' && period.end-period.start > 31*86400000) throw new RangeError('Choose at most 31 calendar days.'); }
+    catch(error) { progressGeneration++; progressState={...progressState,error:error.message,snapshot:null,loading:false,period:null,awaitingDates:true}; drawProgress(); return; }
+    const generation=++progressGeneration, actor=currentState.profile.id;
+    progressState={...progressState,period,snapshot:null,loading:true,error:null,awaitingDates:false}; drawProgress();
+    try {
+      const snapshot=await loadTeacherActivityData(client,{now:new Date(period.asOf),selectedPeriod:period});
+      if(generation!==progressGeneration || currentState.view!=='student-progress' || currentState.profile?.id!==actor || !staffProgress()) return;
+      progressState={...progressState,snapshot,loading:false}; drawProgress();
+    } catch { if(generation===progressGeneration && currentState.view==='student-progress' && staffProgress()){ progressState={...progressState,snapshot:null,loading:false}; drawProgress(); } }
+  };
+  const openProgress = async () => {
+    if(!staffProgress()) return;
+    activityGeneration++;
+    progressReturn=false;
+    const today=schoolDay(Date.now());
+    progressState={kind:'thisWeek',from:today,to:today,classId:null,tab:'overview',search:'',sort:'name',meritsOnly:false};
+    currentState={...currentState,view:'student-progress'};
+    await loadProgress();
+  };
   let adminRefreshGeneration = 0;
   let activityListState = newActivityListState();
   const restoreActivityList = () => {
@@ -127,7 +158,13 @@ export async function bootApp(clientOverride = null) {
         const previous = meritSnapshot;
         meritSnapshot = snapshot;
         const changed = JSON.stringify(previous) !== JSON.stringify(snapshot);
-        if (changed) activityLoadPromise = null;
+        if (changed) {
+          activityLoadPromise = null;
+          if (currentState.view === 'student-progress' && !progressReturn && progressState?.snapshot && !progressState.loading && !progressState.awaitingDates) {
+            // Reload the authorised roster as well as merits; never merge an alert-only roster into reporting data.
+            void loadProgress();
+          }
+        }
         if (cachedHomeState) cachedHomeState = {...cachedHomeState,meritSnapshot:snapshot};
         if (currentState.view === 'home') {
           if (changed || meritFirstLoad) updateHomeMerits(root,currentState.profile,snapshot,{autoOpen:meritFirstLoad});
@@ -142,6 +179,7 @@ export async function bootApp(clientOverride = null) {
           activityLoadPromise = null;
           activityGeneration++;
           if (currentState.view === 'home') updateHomeMerits(root,currentState.profile,null);
+          if (currentState.view === 'student-progress') { progressGeneration++; if(progressState){progressState={...progressState,snapshot:null,loading:false};drawProgress();} }
           if (currentState.view === 'admin' && currentState.section === 'activity') {
             currentState = { ...currentState, activityDashboard:null, notice:'Activity access is unavailable.' };
             renderAdmin(root,currentState);
@@ -169,10 +207,11 @@ export async function bootApp(clientOverride = null) {
   client.auth.onAuthStateChange?.((event, session) => {
     if (event === 'SIGNED_OUT' || (session?.user?.id && currentState.profile?.id && session.user.id !== currentState.profile.id)) {
       activityGeneration++;
+      progressGeneration++; progressState=null; progressReturn=false;
       activityLoadPromise = null;
       stopMerits();
       if (currentState.view === 'home') updateHomeMerits(root,currentState.profile,null);
-      if (currentState.view === 'admin' && currentState.section === 'activity') {
+      if (currentState.view === 'student-progress' || (currentState.view === 'admin' && currentState.section === 'activity')) {
         currentState = { view:'login' };
         root.replaceChildren();
         setTimeout(() => { void renderCurrentState(); },0);
@@ -227,6 +266,8 @@ export async function bootApp(clientOverride = null) {
   };
 
   const renderCurrentState = async () => {
+    activityGeneration++;
+    progressGeneration++; progressState=null; progressReturn=false;
     assessorController?.dispose(); assessorController = null;
     currentState = await loadAppState(client);
     if (currentState.view === 'login') { stopMerits(); cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; renderLogin(root); return; }
@@ -369,8 +410,21 @@ export async function bootApp(clientOverride = null) {
     }
     if ((action === 'admin' || (action?.startsWith?.('admin-') && action !== 'admin-back' && action !== 'admin-section-activity')) && currentState.profile?.role !== 'admin') return;
     if (action && action !== 'writing-assessor' && assessorController) { assessorController.dispose(); assessorController = null; }
+    if (action === 'student-progress') { await openProgress(); return; }
+    if (action?.startsWith('sp-')) {
+      if (!staffProgress() || currentState.view!=='student-progress' || !progressState) return;
+      if (action==='sp-back') { activityGeneration++; if(progressState.classId){progressState={...progressState,classId:null,tab:'overview',search:'',meritsOnly:false};drawProgress();}else await renderCurrentState(); return; }
+      if (action==='sp-refresh' || action==='sp-apply') { await loadProgress(); return; }
+      if (action==='sp-class' || action==='sp-merits') { const id=target.dataset.classId; if(!progressState.snapshot?.classes?.some(c=>c.classId===id) && !progressState.snapshot?.students?.some(s=>s.classId===id))return; progressState={...progressState,classId:id,tab:action==='sp-merits'?'students':'overview',search:'',meritsOnly:action==='sp-merits'};drawProgress();return; }
+      if (action==='sp-tab' && ['overview','students','learning'].includes(target.dataset.tab)) {progressState={...progressState,tab:target.dataset.tab};drawProgress();return;}
+      if (action==='sp-toggle-merits') {progressState={...progressState,meritsOnly:!progressState.meritsOnly};drawProgress();return;}
+      if (action==='sp-student') {progressGeneration++; const id=target.dataset.studentId;if(!progressState.snapshot?.students?.some(s=>s.studentId===id && s.classId===progressState.classId))return;progressReturn=true;await renderActivitySection({selectedStudentId:id,notice:''},true);return;}
+      return;
+    }
     if (action === 'writing-activity') {
       if (!['teacher','admin'].includes(currentState.profile?.role) || currentState.profile.active !== true || currentState.profile.must_change_password) return;
+      activityGeneration++;
+      progressGeneration++; progressState=null; progressReturn=false;
       currentState = { ...currentState, view:'writing-activity' };
       await openWritingActivity(root, client, {onBack:()=>renderCurrentState()});
     }
@@ -395,6 +449,7 @@ export async function bootApp(clientOverride = null) {
     else if (action === 'activity') { activityListState=newActivityListState(); await renderActivitySection({ selectedStudentId:null, notice:'' },true); }
     else if (action === 'admin') await renderAdminSection('accounts', { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     else if (action === 'admin-back') {
+      activityGeneration++; progressGeneration++; progressState=null; progressReturn=false;
       if (cachedHomeState) {
         currentState = { ...cachedHomeState };
         renderHome(root,currentState.profile,currentState.apps,meritSnapshot,{autoOpenMerits:false});
@@ -411,6 +466,7 @@ export async function bootApp(clientOverride = null) {
       currentState = { ...currentState, selectedStudentId:studentId, notice:'' };
       renderAdmin(root,currentState);
     } else if (action === 'activity-back') {
+      if(progressReturn && progressState && staffProgress()){progressReturn=false;currentState={...currentState,view:'student-progress'};await loadProgress();return;}
       currentState = { ...currentState, selectedStudentId:null, notice:'' };
       renderAdmin(root,currentState);
       restoreActivityList();
@@ -657,10 +713,37 @@ export async function bootApp(clientOverride = null) {
   });
 
   root.addEventListener('input', event => {
+    if (event.target?.matches?.('[data-sp-search]') && currentState.view==='student-progress' && staffProgress() && progressState) {
+      progressState.search=event.target.value;
+      updateProgressStudentRows(root,progressState);
+    }
     if (event.target?.dataset?.adminFilter) applyAccountFilters();
     if (event.target?.dataset?.activityFilter) applyActivityFilters(event.target);
   });
-  root.addEventListener('change', event => {
+  root.addEventListener('change', async event => {
+    if (currentState.view==='student-progress' && staffProgress() && progressState) {
+      const target=event.target;
+      if (target?.matches?.('[data-sp-period]')) {
+        progressState={...progressState,kind:target.value,error:null};
+        if (target.value==='custom') {
+          progressGeneration++; activityGeneration++;
+          progressState={...progressState,snapshot:null,loading:false,period:null,awaitingDates:true};
+          drawProgress();
+        } else await loadProgress();
+        return;
+      }
+      if (target?.matches?.('[data-sp-from], [data-sp-to]')) {
+        progressGeneration++; activityGeneration++;
+        progressState={...progressState,[target.matches('[data-sp-from]')?'from':'to']:target.value,
+          snapshot:null,loading:false,error:null,period:null,awaitingDates:true};
+        drawProgress({resultsOnly:true});
+        return;
+      }
+      if (target?.matches?.('[data-sp-sort]')) {
+        progressState.sort=target.value;
+        updateProgressStudentRows(root,progressState);
+      }
+    }
     if (event.target?.dataset?.adminFilter) applyAccountFilters();
     if (event.target?.dataset?.activityFilter) applyActivityFilters(event.target);
   });
