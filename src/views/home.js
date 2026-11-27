@@ -53,8 +53,34 @@ const icon = name => `<svg class="skill-card__svg" viewBox="0 0 24 24" width="24
 
 // Which skill is showing survives re-renders (the dashboard re-renders when activity data arrives). 'all' is the default.
 let selectedSkill = 'all';
+// Keep dismissal local to this page lifetime and account; pending awards remain authoritative.
+const seenMeritAlerts = new Set();
+export function resetMeritPopup() { seenMeritAlerts.clear(); }
 
 const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
+
+function renderMeritPopup(root, model, profile) {
+  if (!model.pendingMerits) return;
+  if (profile.active === false || profile.must_change_password || !model.meritAlerts.length) return;
+  const key = JSON.stringify([profile.id ?? profile.display_name, model.meritAlerts.map(s => [s.studentId, [...s.meritNumbers].sort()]).sort()]);
+  if (seenMeritAlerts.has(key)) return;
+  const dialog = root.querySelector?.('[data-merit-dialog]');
+  if (!dialog || typeof dialog.showModal !== 'function') return;
+  dialog.showModal();
+  seenMeritAlerts.add(key);
+  dialog.querySelector('[data-merit-dismiss]')?.addEventListener('click', () => dialog.close());
+}
+
+function meritPopupMarkup(model) {
+  if (!model.pendingMerits || !model.meritAlerts.length) return '';
+  return `<dialog data-merit-dialog aria-labelledby="merit-dialog-title" style="width:min(92vw,480px);max-height:85vh;overflow:auto;border:1px solid #cbd5e1;border-radius:18px;padding:24px;color:#172b36;background:white;box-shadow:0 18px 65px #0004">
+    <h2 id="merit-dialog-title">🏅 ${escapeHtml(plural(model.pendingMerits, 'merit'))} ready to award</h2>
+    <p>Your students have earned recognition through their independent practice.</p>
+    <ul style="max-height:35vh;overflow:auto;padding-left:1.4em">${model.meritAlerts.map(s => `<li style="margin-bottom:10px"><strong>${escapeHtml(s.displayName)}</strong> · ${escapeHtml(s.className)} — ${escapeHtml(plural(s.meritNumbers.length, 'merit'))}</li>`).join('')}</ul>
+    <p>Outstanding merits remain visible until awarded.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="button button--primary" data-action="activity">Review merits</button><button class="button" data-merit-dismiss autofocus>Later</button></div>
+  </dialog>`;
+}
 
 function renderMeritAlert(model) {
   if (!model.pendingMerits) return '';
@@ -123,6 +149,7 @@ export function renderHome(root, profile, apps, activityDashboard = null, { regi
           <div class="home-brand">
             <img class="home-brand__logo" src="${EH_SCHOOLS_LOGO}" alt="Evidence Hub Schools" width="230" style="display:block;max-width:min(52vw,230px);height:auto;">
           </div>
+          ${model.showActivityControls ? `<button class="button" data-action="activity" aria-label="Review pending merits">🔔 ${escapeHtml(model.pendingMerits)}</button>` : ''}
           <button class="button button--ghost home-logout" data-action="logout">Log out</button>
         </div>
         <div class="home-hero__content">
@@ -145,6 +172,7 @@ export function renderHome(root, profile, apps, activityDashboard = null, { regi
       </header>
 
       ${renderMeritAlert(model)}
+      ${meritPopupMarkup(model)}
 
       <section class="study-tools" aria-labelledby="study-tools-title">
         <div class="section-heading section-heading--home">
@@ -169,6 +197,7 @@ export function renderHome(root, profile, apps, activityDashboard = null, { regi
     </section>`;
 
   wireSkillPicker(root, skills, model.apps.length);
+  renderMeritPopup(root, model, profile);
 }
 
 // Filters the cards already on the page. No re-render, no navigation, no focus or scroll changes: the button the student

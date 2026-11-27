@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildHomeModel } from '../src/views/home.js';
+import { buildHomeModel, renderHome, resetMeritPopup } from '../src/views/home.js';
 
 const apps = [
   { app_key:'vocabulary', display_name:'Vocabulary Builder', launch_url:'https://example.com/vocabulary', enabled:true }
@@ -37,4 +37,29 @@ test('student home model does not expose teacher merit alerts', () => {
 
   assert.equal(model.pendingMerits, 0);
   assert.deepEqual(model.meritAlerts, []);
+});
+
+test('pending merits open a staff dialog once per session, without awarding them', () => {
+  resetMeritPopup();
+  let opens = 0, closes = 0, dismiss;
+  const dialog = { showModal(){ opens++; }, close(){ closes++; }, querySelector(){ return { addEventListener(type, handler){ dismiss=handler; } }; } };
+  const root = { innerHTML:'', querySelector(selector){ return selector === '[data-merit-dialog]' ? dialog : null; }, querySelectorAll(){ return []; } };
+  const profile = { id:'staff', display_name:'Teacher', role:'teacher', active:true };
+  const dashboard = { pendingMerits:1, students:[{ studentId:'s1', displayName:'Amina K.', className:'Grade 9 ESL', pendingMerits:1, pendingMeritNumbers:[1] }] };
+  renderHome(root, profile, apps, dashboard);
+  assert.equal(opens,1);
+  assert.match(root.innerHTML,/ready to award/);
+  dismiss();
+  assert.equal(closes,1);
+  renderHome(root, profile, apps, dashboard);
+  assert.equal(opens,1);
+  resetMeritPopup();
+  renderHome(root, profile, apps, dashboard);
+  assert.equal(opens,2);
+  renderHome(root, { ...profile, role:'student' }, apps, dashboard);
+  assert.equal(opens,2);
+  assert.doesNotMatch(root.innerHTML,/data-merit-dialog/);
+  renderHome(root, profile, apps, { pendingMerits:0, students:[] });
+  assert.equal(opens,2);
+  assert.doesNotMatch(root.innerHTML,/data-merit-dialog/);
 });
