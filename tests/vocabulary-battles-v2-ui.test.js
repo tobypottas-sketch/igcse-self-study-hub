@@ -12,7 +12,7 @@ test('Battle Arena V2 stylesheet and student script are fresh and ordered',()=>{
  assert.match(html,/vocabulary-battles\.css\?v=battles-mvp-v1/);
  assert.match(html,/vocabulary-battles-v2\.css\?v=player-avatars-v1/);
  assert.ok(html.indexOf('vocabulary-battles-v2.css')>html.indexOf('vocabulary-battles.css'));
- assert.match(html,/battles-app\.js\?v=player-avatars-v1/);
+ assert.match(html,/battles-app\.js\?v=live-sync-v1/);
  assert.doesNotMatch(html,/id="battlesApp" aria-live="polite"/);
 });
 
@@ -87,4 +87,25 @@ test('single-class students see a class identity chip without unnecessary native
  assert.match(css,/focus-visible/);
  assert.match(css,/\.battle-class-select-chevron/);
  assert.match(css,/@media\(max-width:720px\)/);
+});
+
+test('actual match signature changes when both peers become ready and when questions advance',()=>{
+ const phaseFor=()=>phase;
+ let phase='ready';
+ const state={battleId:'synthetic'};
+ const source=ui.slice(ui.indexOf('function matchSignature('),ui.indexOf('function matchup('));
+ const signature=new Function('phaseFor','state',source+'; return matchSignature;')(phaseFor,state);
+ const waiting={ready:true,opponentReady:false,answered:0};
+ const ready={...waiting,opponentReady:true};
+ assert.equal(typeof signature(waiting),'string');
+ assert.notEqual(signature(waiting),signature(ready));
+ phase='countdown';
+ const countdown=signature(ready);
+ phase='question';
+ const first=signature({...ready,question:{id:'q1'}});
+ assert.notEqual(countdown,first);
+ assert.equal(first,signature({...ready,question:{id:'q1'},opponentAnswered:2}));
+ assert.notEqual(first,signature({...ready,answered:1,question:{id:'q2'}}));
+ phase='finished';
+ assert.notEqual(first,signature({...ready,outcome:'won'}));
 });
