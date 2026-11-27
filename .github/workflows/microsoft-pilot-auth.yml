@@ -151,3 +151,30 @@ jobs:
         if: always()
         run: |
           cd "$RUNNER_TEMP/pilot-auth" && supabase stop --no-backup
+  focused-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify Hub authentication and password recovery
+        run: >-
+          node --test
+          tests/auth-flow.test.js
+          tests/login-password-visibility.test.js
+          tests/password-recovery.test.mjs
+          tests/return-target.test.js
+          tests/microsoft-staff-sign-in.test.js
+      - name: Verify Writing Academy regressions
+        run: >-
+          node --test
+          tests/writing-academy-foundation.test.js
+          tests/writing-activity.test.js
+          tests/review-academy-pedagogy.test.mjs
+          tests/writing-academy-persistence.test.js
+          tests/writing-academy-preview-progress.test.js
+          tests/writing-academy-recognition.test.js
