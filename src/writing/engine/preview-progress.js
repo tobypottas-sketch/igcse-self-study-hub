@@ -1,6 +1,6 @@
 import {restoreWritingState,serializeWritingState} from './persistence-state.js';
 import {recognitionRun} from './recognition.js';
-import {scoreItem} from './activities.js';
+import {scoreItem,shuffledIndexes} from './activities.js';
 
 export const previewStages = ['discover','explore','practise','apply','master'];
 const version = 1;
@@ -120,8 +120,21 @@ export function restorePreview(state, content, checkpoint) {
     catch { /* A malformed attempt does not affect other saved work. */ }
   }
   for (const activity of activities) {
-    const saved = objective[activity.id];
+    let saved = objective[activity.id];
     if (!saved || Object.keys(saved.questions??{}).length!==activity.items.length) continue;
+    // Changed option identities invalidate only the revised item. Keep the
+    // display order and responses for other questions in the same activity.
+    const stale = activity.items.filter(item=>item.version>1
+      && saved.questions[item.id]?.displayOrder.some(id=>!item.optionIds.includes(id)));
+    if (stale.length) {
+      const questions = {...saved.questions};
+      for (const item of stale) questions[item.id] = {
+        displayOrder:shuffledIndexes(item.optionIds.length).map(index=>item.optionIds[index]),
+        selection:null,checked:false
+      };
+      const currentQuestion = saved.currentQuestion ?? stale[0].id;
+      saved = {currentQuestion,questions};
+    }
     const displays = activity.items.map(item=>saved.questions[item.id]?.displayOrder.map(id=>item.optionIds.indexOf(id)));
     if (displays.some((display,n)=>!display || display.includes(-1) || display.length!==activity.items[n].optionIds.length)) continue;
     const done = saved.currentQuestion===undefined;

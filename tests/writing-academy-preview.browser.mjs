@@ -105,6 +105,35 @@ async function finishAnalysis(page, item) {
  assert.equal(await page.locator('.wa-stage-tab[data-stage=master]').getAttribute('data-complete'),'false');
 }
 
+async function checkR21Development(page){
+ const quiz=page.locator('.wa-practise-question');
+ const expected=new Map([
+  ['Which advice uses today’s service time to help students decide whether to go?', [/seven minutes is enough/, /leaves seven minutes/]],
+  ['Which evaluation explains what these beginners gain and what they give up?', [/only ten minutes to practise/, /ten minutes at the bench/]],
+  ['Which recommendation weighs both points for this club?', [/Give it a try/, /club’s main priority/]]
+ ]);
+ await page.locator('.wa-stage-tab[data-stage=practise]').click();
+ for(const name of [/Explain the impact/,/Weigh a strength and drawback/]){
+  await page.getByRole('button',{name}).click();
+  for(let i=0;i<4;i++){
+   const question=await quiz.locator('.wa-question-prompt').innerText();
+   const match=expected.get(question);
+   if(match){
+    assert.ok(await quiz.locator('.wa-question-source').isVisible());
+    await quiz.getByRole('button',{name:match[0]}).click();
+   }else await quiz.locator('.wa-option').first().click();
+   await quiz.getByRole('button',{name:'Check answer'}).click();
+   if(match){
+    assert.equal(await quiz.locator('.wa-answer').getAttribute('data-result'),'correct');
+    assert.match(await quiz.locator('.wa-answer').innerText(),match[1]);
+    expected.delete(question);
+   }
+   await quiz.getByRole('button',{name:/Next question|Finish analysis/}).click();
+  }
+ }
+ assert.equal(expected.size,0);
+}
+
 try{
  for(const [width,height,columns] of [[1440,900,3],[768,1024,2],[390,844,1],[1024,600,3]]){
   const page=await browser.newPage({viewport:{width,height}});
@@ -131,6 +160,17 @@ try{
   await expressionCard.getByRole('button',{name:'Start pathway →'}).click();
   await checkArtwork(page,'banner','vocabulary-expression',expressionRatio);
   await checkBlueprint(page);
+  const vocabulary=page.locator('.wa-discovery');
+  await vocabulary.getByRole('button',{name:'Next contrast',exact:false}).click();
+  await vocabulary.getByRole('button',{name:'Next contrast',exact:false}).click();
+  assert.match(await vocabulary.locator('.wa-question-prompt').innerText(),/Which detail do both versions give/);
+  await vocabulary.locator('[data-option-id="frequency-v2"]').click();
+  await vocabulary.getByRole('button',{name:'Check answer'}).click();
+  assert.match(await vocabulary.locator('.wa-answer').innerText(),/Try another answer/);
+  await vocabulary.locator('[data-option-id="time-v2"]').click();
+  await vocabulary.getByRole('button',{name:'Check answer'}).click();
+  assert.match(await vocabulary.locator('.wa-answer').innerText(),/Correct after a retry/);
+  await capture(page,'r21-vocabulary-discover',width,height);
   const tabs=page.locator('.wa-stage-tab');
   const navigation=page.locator('.wa-stage-nav');
   for (const [index,stage] of ['Discover','Explore','Practise','Apply','Master'].entries()) {
@@ -176,7 +216,11 @@ try{
   await page.getByRole('button',{name:'Next Gold task →'}).press('Enter');
   await workshop(page,pathways.development.gold[1]);
   await go('master');
+  await checkR21Development(page);
+  await go('master');
+  assert.match(await page.locator('.wa-master-question .wa-question-source').innerText(),/5:15 to 5:40/);
   await finishAnalysis(page,pathways.development.analysis);
+  assert.match(await page.locator('.wa-master-question .wa-score').innerText(),/^1 \/ 1/);
   await workshop(page,pathways.development.master);
   assert.equal(await page.locator('.wa-stage-tab[data-stage=master]').getAttribute('data-complete'),'true');
   await capture(page,'development-master-revision',width,height);

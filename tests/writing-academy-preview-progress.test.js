@@ -61,3 +61,24 @@ test('checkpoints are separated by staff account, pathway, genre and curriculum 
   assert.equal(unavailable.load('structure'),null);
   assert.equal(unavailable.save('structure',snapshot),false);
 });
+
+test('a revised staff question reopens only that item and keeps other decisions and drafts',()=>{
+  const state=runtime();
+  state.gold[0].draft='Gold draft';
+  state.transfer.draft='Master draft';
+  state.attempts.set('choice',{index:2,done:true,correct:2,selected:null,order:[],checked:false,
+    answered:new Map([['first',0],['second',0]]),displays:[[1,0],[0,1]]});
+  const snapshot=capturePreview(state,content,{stage:'practise',completed:['practise','master']});
+  const revised={...activity,items:[{...activity.items[0],version:2,optionIds:['a-v2','b-v2']},activity.items[1]]};
+  const resumed=runtime();
+  restorePreview(resumed,{...content,activities:[revised]},snapshot);
+  const run=resumed.attempts.get('choice');
+  assert.equal(run.index,0);
+  assert.equal(run.done,false);
+  assert.equal(run.checked,false);
+  assert.equal(run.selected,null);
+  assert.deepEqual(run.answered,new Map([['second',0]]));
+  assert.deepEqual(run.displays[1],[0,1]);
+  assert.equal(resumed.gold[0].draft,'Gold draft');
+  assert.equal(resumed.transfer.draft,'Master draft');
+});

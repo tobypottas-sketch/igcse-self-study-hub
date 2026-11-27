@@ -206,3 +206,29 @@ test('Exam deadline survives elapsed time and short submissions preserve an immu
  assert.equal(attempt.submitted.text,'A short original response.');
  assert.equal(attempt.revision,'A new version.');
 });
+
+test('R2.1 staff fixes have independent scenario answers and distinct option identities',async()=>{
+ const {reviseDevelopmentForStaff,vocabularyDiscoverR21}=await import('../src/writing/content/review-critical-r2-1.js');
+ const {pathways}=await import('../src/writing/content/review-pedagogy.js');
+ const {scoreItem}=await import('../src/writing/engine/activities.js');
+ const staff=reviseDevelopmentForStaff(pathways.development);
+ const staffItems=[staff.analysis,...staff.practice.flatMap(activity=>activity.items),vocabularyDiscoverR21];
+ const previous=[pathways.development.analysis,...pathways.development.practice.flatMap(activity=>activity.items)];
+ for (const [id,answer,detail] of [
+  ['pedagogy-q-019','demo-v2',/5:05/],
+  ['pedagogy-extra-q-31','try-v2',/club’s main priority/],
+  ['pedagogy-extra-q-27','seven-v2',/leaves seven minutes/],
+  ['pedagogy-extra-q-30','balance-v2',/ten minutes at the bench/],
+  ['pedagogy-observation-006','time-v2',/at lunchtime.*around midday/i]
+ ]){
+  const item=staffItems.find(question=>question.id===id);
+  assert.equal(item.version,2,id);
+  assert.equal(item.optionIds[item.answer],answer,id);
+  assert.match(item.rationale,detail,id);
+  item.options.forEach((_,index)=>assert.equal(scoreItem(item,index),item.optionIds[index]===answer,id));
+  const old=previous.find(question=>question.id===id);
+  if(old)assert.ok(old.optionIds.every(key=>!item.optionIds.includes(key)),id);
+ }
+ assert.ok(previous.every(question=>question.version!==2));
+ assert.match(pathways.expression.discover.find(item=>item.id===vocabularyDiscoverR21.id).prompt,/when or where/);
+});

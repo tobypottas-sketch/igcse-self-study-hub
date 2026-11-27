@@ -1,8 +1,9 @@
+import {reviseDevelopmentForStaff,vocabularyDiscoverR21} from '../content/review-critical-r2-1.js';
 import {structureR1} from '../content/review-structure-r1.js';
 import {structureDiscover,structureExplore} from '../content/review-structure-recognition.js';
 import {recognitionRun,recognitionResult} from '../engine/recognition.js';
 import {renderRecognition} from './recognition-question.js?v=2';
-import {capturePreview,restorePreview} from '../engine/preview-progress.js?v=2';
+import {capturePreview,restorePreview} from '../engine/preview-progress.js?v=3';
 import {exam,examModels,examMocks,modelContext} from '../content/review-exam-20261125.js?v=2';
 import {newExamAttempt} from '../engine/exam-attempt.js';
 import {renderExamWorkshop} from './exam-workshop.js?v=3';
@@ -739,7 +740,8 @@ const questionPresentation = new Map([
 ]);
 function renderQuestionPrompt(host,item,preview){
  const parts=preview?questionPresentation.get(item.prompt):null;
- if(parts) el(host,'p','wa-question-source',parts[0]);
+ if(preview && item.source) el(host,'p','wa-question-source',item.source);
+ else if(parts) el(host,'p','wa-question-source',parts[0]);
  const heading=el(host,'h3','wa-question-prompt',parts?parts[1]:item.prompt);
  if(preview) heading.classList.add('wa-question-clear');
  return heading;
@@ -776,7 +778,9 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
  // Only the staff preview supplies local preview progress. The separate
  // enrolled student pilot retains its existing curriculum and stage contract.
  const isStructure=pathwayKey==='structure' && !!progress;
- const course=isStructure?structureR1:editorialModels?config:pathways[pathwayKey];
+ const baseCourse=isStructure?structureR1:editorialModels?config:pathways[pathwayKey];
+ const course=progress && isDevelopment?reviseDevelopmentForStaff(baseCourse):baseCourse;
+ const vocabularyCheck=progress && isExpression?vocabularyDiscoverR21:null;
  const goldTasks=[course.gold].flat();
  const practice=validateActivities(course.practice);
  const checkpoint=validateActivities([{id:pathwayKey+'-transfer',type:'choice',items:[course.analysis].flat()}])[0];
@@ -798,8 +802,8 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
  const baseModels=[{...model,category:'Café',sentenceTips:[['Names the café, establishes the time and explains the reason for visiting.','Introduces an initial evaluation through the atmosphere and welcome.'],['Describes location, seating and menu.','Provides specific examples of food.','Evaluates affordability for students.'],['Balances crowding with praise for staff.','Balances a specific delay against food quality.','Explains the practical benefit of a quiet corner.'],['Identifies a suitable audience and reason.','Offers advice about timing.']],purposes:['Introduction','Description','Evaluation','Recommendation']},{...guidedTask,title:'Willow Kitchen',category:'Restaurant',purposes:['Introduction','Evaluation','Evaluation','Recommendation'],sentenceTips:[['Establishes the reason for visiting.','Adds useful location and price information.'],['States a clear preference.','Supports the judgement with sensory detail.','Explains why the portion was suitable.','Adds a specific example of flexibility.'],['Signals a shift to criticism.','Explains the wait and the effect of noise.'],['Identifies an audience and a reason.','Offers practical advice addressing the drawback.']]},...extraReviewModels];
  const models=isDevelopment?config.developmentModels(baseModels):isExpression?config.expressionModels(baseModels):baseModels;
  const workshopOptions={plainLanguage:isStructure};
- const recognition=isStructure?[...structureDiscover,...Object.values(structureExplore).flat()]:[];
- if(isStructure)state.recognition=new Map();
+ const recognition=isStructure?[...structureDiscover,...Object.values(structureExplore).flat()]:vocabularyCheck?[vocabularyCheck]:[];
+ if(recognition.length)state.recognition=new Map();
  const content={recognition,discover:course.discover,models,activities:[...practice,checkpoint],
   gold:goldTasks,apply:isExam?[]:course.apply,master:isExam?null:course.master,challenges:challenges.map(a=>a.id)};
  let saved=progress?.load(pathwayKey)??null;
@@ -811,6 +815,17 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
   saved={...saved,completed:saved.completed.filter(stage=>stage!=='discover'&&stage!=='explore')};
   if(discoverComplete())saved.completed.push('discover');
   if(exploreComplete())saved.completed.push('explore');
+ }
+ if(saved && vocabularyCheck && !recognitionDone(vocabularyCheck)){
+  state.discovered.delete(course.discover.findIndex(item=>item.id===vocabularyCheck.id));
+  saved={...saved,completed:saved.completed.filter(stage=>stage!=='discover')};
+ }
+ if(saved && progress && isDevelopment){
+  saved={...saved,completed:saved.completed.filter(stage=>{
+   if(stage==='practise')return practice.filter(a=>a.items.some(item=>item.version===2)).every(a=>state.attempts.get(a.id)?.done);
+   if(stage==='master')return !!state.attempts.get(checkpoint.id)?.done;
+   return true;
+  })};
  }
  function recognise(host,item,onCheck){
   if(!state.recognition.has(item.id))state.recognition.set(item.id,recognitionRun(item));
@@ -934,7 +949,8 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
   const n=state.discoveryIndex,item=course.discover[n];
   el(host,'p','wa-kicker',(isStructure?'Example ':'Contrast ')+(n+1)+' / '+course.discover.length);
   let prompt;
-  if(!isStructure){
+  const checkedVocabulary=item.id===vocabularyCheck?.id;
+  if(!isStructure && !checkedVocabulary){
    prompt=el(host,'h3','',item.prompt);
    prompt.tabIndex=-1;
   }
@@ -947,6 +963,8 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
   }
   if(isStructure){
    prompt=recognise(host,structureDiscover[n],()=>{if(discoverComplete())ctx.complete();});
+  }else if(checkedVocabulary){
+   prompt=recognise(host,vocabularyCheck,()=>{if(recognitionDone(vocabularyCheck))recordReflection();});
   }else{
    const label=el(host,'label','wa-apply-instruction','Answer the question above in a short phrase or sentence (at least three words).');
    const response=el(label,'textarea','wa-writing-input wa-apply-input');
