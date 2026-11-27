@@ -5,7 +5,7 @@ import {buildHomeModel,renderHome} from '../src/views/home.js';
 import {renderAdmin} from '../src/views/admin.js';
 
 const source=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
-test('teacher home has only activity, no schoolwide account administration',()=>{
+test('teacher home has Student Progress and no schoolwide account administration',()=>{
  const teacher={role:'teacher',display_name:'Colleague',active:true};
  const model=buildHomeModel(teacher,[]);
  assert.equal(model.showAdminControls,false);
@@ -13,7 +13,7 @@ test('teacher home has only activity, no schoolwide account administration',()=>
  assert.equal(model.showStaffTools,true);
  const root={innerHTML:''};renderHome(root,teacher,[]);
  assert.doesNotMatch(root.innerHTML,/Manage accounts/);
- assert.match(root.innerHTML,/Student activity/);
+ assert.match(root.innerHTML,/data-action="student-progress"/);
  assert.match(root.innerHTML,/Writing assessor/);
 });
 test('admin retains account management',()=>{

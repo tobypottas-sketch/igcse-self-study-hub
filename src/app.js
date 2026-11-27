@@ -14,7 +14,7 @@ import { renderLogin } from './views/login.js';
 import { renderChangePassword } from './views/change-password.js';
 import { renderHome, resetMeritPopup, updateHomeMerits, renderExternalMerits } from './views/home.js';
 import { renderAdmin } from './views/admin.js';
-import { renderStudentProgress } from './views/student-progress.js';
+import { renderStudentProgress, updateProgressStudentRows } from './views/student-progress.js';
 import { reportingPeriod, schoolDay } from './reporting/periods.js';
 import { escapeHtml } from './views/html.js';
 
@@ -58,9 +58,11 @@ export async function bootApp(clientOverride = null) {
   let progressState = null;
   let progressReturn = false;
   const staffProgress = () => ['admin','teacher'].includes(currentState.profile?.role) && currentState.profile.active === true && !currentState.profile.must_change_password;
-  const drawProgress = () => { if (currentState.view === 'student-progress' && staffProgress() && progressState) renderStudentProgress(root,progressState); };
+  const drawProgress = options => { if (currentState.view === 'student-progress' && staffProgress() && progressState) renderStudentProgress(root,progressState,options); };
   const loadProgress = async () => {
     if (!staffProgress() || !progressState) return;
+    activityGeneration++;
+    progressReturn=false;
     let period;
     try { period = reportingPeriod(progressState.kind,{from:progressState.from,to:progressState.to}); if (progressState.kind==='custom' && period.end-period.start > 31*86400000) throw new RangeError('Choose at most 31 calendar days.'); }
     catch(error) { progressGeneration++; progressState={...progressState,error:error.message,snapshot:null,loading:false,period:null,awaitingDates:true}; drawProgress(); return; }
@@ -158,7 +160,7 @@ export async function bootApp(clientOverride = null) {
         const changed = JSON.stringify(previous) !== JSON.stringify(snapshot);
         if (changed) {
           activityLoadPromise = null;
-          if (currentState.view === 'student-progress' && progressState?.snapshot && !progressState.loading && !progressState.awaitingDates) {
+          if (currentState.view === 'student-progress' && !progressReturn && progressState?.snapshot && !progressState.loading && !progressState.awaitingDates) {
             // Reload the authorised roster as well as merits; never merge an alert-only roster into reporting data.
             void loadProgress();
           }
@@ -421,6 +423,8 @@ export async function bootApp(clientOverride = null) {
     }
     if (action === 'writing-activity') {
       if (!['teacher','admin'].includes(currentState.profile?.role) || currentState.profile.active !== true || currentState.profile.must_change_password) return;
+      activityGeneration++;
+      progressGeneration++; progressState=null; progressReturn=false;
       currentState = { ...currentState, view:'writing-activity' };
       await openWritingActivity(root, client, {onBack:()=>renderCurrentState()});
     }
@@ -709,11 +713,37 @@ export async function bootApp(clientOverride = null) {
   });
 
   root.addEventListener('input', event => {
+    if (event.target?.matches?.('[data-sp-search]') && currentState.view==='student-progress' && staffProgress() && progressState) {
+      progressState.search=event.target.value;
+      updateProgressStudentRows(root,progressState);
+    }
     if (event.target?.dataset?.adminFilter) applyAccountFilters();
     if (event.target?.dataset?.activityFilter) applyActivityFilters(event.target);
   });
   root.addEventListener('change', async event => {
-    if(currentState.view==='student-progress' && staffProgress() && progressState){const t=event.target;if(t?.matches?.('[data-sp-period]')){progressState={...progressState,kind:t.value,error:null};if(t.value==='custom'){progressGeneration++;progressState={...progressState,snapshot:null,loading:false,period:null,awaitingDates:true};drawProgress();}else await loadProgress();return;}if(t?.matches?.('[data-sp-from], [data-sp-to]')){progressGeneration++;progressState={...progressState,[t.matches('[data-sp-from]')?'from':'to']:t.value,snapshot:null,loading:false,period:null,awaitingDates:true};drawProgress();return;}if(t?.matches?.('[data-sp-sort]')){progressState.sort=t.value;drawProgress();}if(t?.matches?.('[data-sp-search]')){progressState.search=t.value;drawProgress();}}
+    if (currentState.view==='student-progress' && staffProgress() && progressState) {
+      const target=event.target;
+      if (target?.matches?.('[data-sp-period]')) {
+        progressState={...progressState,kind:target.value,error:null};
+        if (target.value==='custom') {
+          progressGeneration++; activityGeneration++;
+          progressState={...progressState,snapshot:null,loading:false,period:null,awaitingDates:true};
+          drawProgress();
+        } else await loadProgress();
+        return;
+      }
+      if (target?.matches?.('[data-sp-from], [data-sp-to]')) {
+        progressGeneration++; activityGeneration++;
+        progressState={...progressState,[target.matches('[data-sp-from]')?'from':'to']:target.value,
+          snapshot:null,loading:false,error:null,period:null,awaitingDates:true};
+        drawProgress({resultsOnly:true});
+        return;
+      }
+      if (target?.matches?.('[data-sp-sort]')) {
+        progressState.sort=target.value;
+        updateProgressStudentRows(root,progressState);
+      }
+    }
     if (event.target?.dataset?.adminFilter) applyAccountFilters();
     if (event.target?.dataset?.activityFilter) applyActivityFilters(event.target);
   });

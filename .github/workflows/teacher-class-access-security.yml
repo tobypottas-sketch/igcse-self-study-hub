@@ -7,6 +7,9 @@ on:
       - "tests/student-progress-reporting.test.js"
       - "src/app.js"
       - "src/views/home.js"
+      - "src/views/student-progress.js"
+      - "student-progress.css"
+      - "tests/student-progress-*.test.mjs"
       - "src/views/admin.js"
       - "tests/student-table-numbering.test.js"
       - "src/admin/credential-print.js"
@@ -29,6 +32,9 @@ on:
     paths:
       - "src/app.js"
       - "src/views/home.js"
+      - "src/views/student-progress.js"
+      - "student-progress.css"
+      - "tests/student-progress-*.test.mjs"
       - "src/views/admin.js"
       - "tests/student-table-numbering.test.js"
       - "src/admin/credential-print.js"
@@ -54,7 +60,7 @@ jobs:
         with:
           node-version: "22"
       - name: Run class/admin authorization regressions
-        run: node --test tests/teacher-class-access-hotfix.test.js tests/admin-class-assignment-roles.test.js tests/admin-class-rename-backend.test.js tests/admin-view.test.js tests/teacher-student-password-reset.test.js tests/admin-import.test.js tests/admin-import-view.test.js tests/admin-class-roster-ux.test.mjs tests/teacher-class-login-cards.test.js tests/admin-provision-validation.test.js tests/app-state.test.js tests/admin-activity-data.test.js tests/home-merit-alert.test.js tests/teacher-activity-security.test.mjs tests/merit-pathways-per-class.test.js tests/student-progress-reporting.test.js tests/admin-activity-model.test.js tests/admin-activity-list-navigation.test.mjs tests/vocabulary-teacher-data.test.js
+        run: node --test tests/teacher-class-access-hotfix.test.js tests/admin-class-assignment-roles.test.js tests/admin-class-rename-backend.test.js tests/admin-view.test.js tests/teacher-student-password-reset.test.js tests/admin-import.test.js tests/admin-import-view.test.js tests/admin-class-roster-ux.test.mjs tests/teacher-class-login-cards.test.js tests/admin-provision-validation.test.js tests/app-state.test.js tests/admin-activity-data.test.js tests/home-merit-alert.test.js tests/teacher-activity-security.test.mjs tests/merit-pathways-per-class.test.js tests/student-progress-reporting.test.js tests/admin-activity-model.test.js tests/admin-activity-list-navigation.test.mjs tests/vocabulary-teacher-data.test.js tests/student-progress-overview.test.mjs
   activity-browser:
     runs-on: ubuntu-24.04
     timeout-minutes: 7
@@ -68,7 +74,7 @@ jobs:
       - name: Run synthetic Activity browser regressions
         run: |
           export CHROMIUM_PATH="$(node -p "require('playwright').chromium.executablePath()")"
-          node --test tests/admin-activity-ui-consolidation.test.js
+          node --test tests/admin-activity-ui-consolidation.test.js tests/student-progress-browser.test.mjs
 
   reporting-database:
     runs-on: ubuntu-24.04
