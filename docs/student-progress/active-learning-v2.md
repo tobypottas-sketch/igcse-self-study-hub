@@ -1,0 +1,6 @@
+# Active learning time V2 — Phase 3.1 foundation
+The shared clock is deliberately not wired into production yet. Existing activity_events remain untouched.
+The browser adapter must call enter only on eligible activity screens, leave on navigation/loading/finish, visibility/focus on transitions, interaction only for trusted task input, playback only for verified progressing audio, and tick regularly (recommended 5s). The clock uses a monotonic timer, excludes long gaps and wall-clock jumps, and clips the idle boundary at 120s. Foreground playback requires focus; this conservative choice may undercount some legitimate listening.
+The in-memory outbox retries stable batch IDs; it is not durable across reloads. Before integration, implement a user-scoped durable outbox and authenticated server ingestion with validated context, bounded timestamps, idempotency and cross-device interval overlap deduplication. Client telemetry is an estimate, not proof of attention. Do not use timing as a merit entitlement mechanism. Never store input content.
+Historical legacy time is not V2 time. No historical pathway allocation or fabricated zeros.
+Release gates: deterministic unit tests, browser lifecycle tests, server authorization/overlap tests, and real teacher/student smoke tests. No migrations or production tracking changes in this PR.
