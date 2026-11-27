@@ -74,6 +74,7 @@ export async function bootApp(clientOverride = null) {
   };
   const openProgress = async () => {
     if(!staffProgress()) return;
+    activityGeneration++;
     progressReturn=false;
     const today=schoolDay(Date.now());
     progressState={kind:'thisWeek',from:today,to:today,classId:null,tab:'overview',search:'',sort:'name',meritsOnly:false};
@@ -155,7 +156,13 @@ export async function bootApp(clientOverride = null) {
         const previous = meritSnapshot;
         meritSnapshot = snapshot;
         const changed = JSON.stringify(previous) !== JSON.stringify(snapshot);
-        if (changed) activityLoadPromise = null;
+        if (changed) {
+          activityLoadPromise = null;
+          if (currentState.view === 'student-progress' && progressState?.snapshot && !progressState.loading && !progressState.awaitingDates) {
+            // Reload the authorised roster as well as merits; never merge an alert-only roster into reporting data.
+            void loadProgress();
+          }
+        }
         if (cachedHomeState) cachedHomeState = {...cachedHomeState,meritSnapshot:snapshot};
         if (currentState.view === 'home') {
           if (changed || meritFirstLoad) updateHomeMerits(root,currentState.profile,snapshot,{autoOpen:meritFirstLoad});
@@ -257,6 +264,7 @@ export async function bootApp(clientOverride = null) {
   };
 
   const renderCurrentState = async () => {
+    activityGeneration++;
     progressGeneration++; progressState=null; progressReturn=false;
     assessorController?.dispose(); assessorController = null;
     currentState = await loadAppState(client);
@@ -403,12 +411,12 @@ export async function bootApp(clientOverride = null) {
     if (action === 'student-progress') { await openProgress(); return; }
     if (action?.startsWith('sp-')) {
       if (!staffProgress() || currentState.view!=='student-progress' || !progressState) return;
-      if (action==='sp-back') { if(progressState.classId){progressState={...progressState,classId:null,tab:'overview',search:'',meritsOnly:false};drawProgress();}else await renderCurrentState(); return; }
+      if (action==='sp-back') { activityGeneration++; if(progressState.classId){progressState={...progressState,classId:null,tab:'overview',search:'',meritsOnly:false};drawProgress();}else await renderCurrentState(); return; }
       if (action==='sp-refresh' || action==='sp-apply') { await loadProgress(); return; }
       if (action==='sp-class' || action==='sp-merits') { const id=target.dataset.classId; if(!progressState.snapshot?.students?.some(s=>s.classId===id))return; progressState={...progressState,classId:id,tab:action==='sp-merits'?'students':'overview',search:'',meritsOnly:action==='sp-merits'};drawProgress();return; }
       if (action==='sp-tab' && ['overview','students','learning'].includes(target.dataset.tab)) {progressState={...progressState,tab:target.dataset.tab};drawProgress();return;}
       if (action==='sp-toggle-merits') {progressState={...progressState,meritsOnly:!progressState.meritsOnly};drawProgress();return;}
-      if (action==='sp-student') {const id=target.dataset.studentId;if(!progressState.snapshot?.students?.some(s=>s.studentId===id && s.classId===progressState.classId))return;progressReturn=true;await renderActivitySection({selectedStudentId:id,notice:''},true);return;}
+      if (action==='sp-student') {progressGeneration++; const id=target.dataset.studentId;if(!progressState.snapshot?.students?.some(s=>s.studentId===id && s.classId===progressState.classId))return;progressReturn=true;await renderActivitySection({selectedStudentId:id,notice:''},true);return;}
       return;
     }
     if (action === 'writing-activity') {
@@ -437,6 +445,7 @@ export async function bootApp(clientOverride = null) {
     else if (action === 'activity') { activityListState=newActivityListState(); await renderActivitySection({ selectedStudentId:null, notice:'' },true); }
     else if (action === 'admin') await renderAdminSection('accounts', { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     else if (action === 'admin-back') {
+      activityGeneration++; progressGeneration++; progressState=null; progressReturn=false;
       if (cachedHomeState) {
         currentState = { ...cachedHomeState };
         renderHome(root,currentState.profile,currentState.apps,meritSnapshot,{autoOpenMerits:false});
