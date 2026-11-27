@@ -159,7 +159,12 @@ export async function bootApp(clientOverride = null) {
   if (meritMount && typeof MutationObserver !== 'undefined') new MutationObserver(syncMeritMount).observe(root,{childList:true});
   document.addEventListener?.('visibilitychange',() => { if (!document.hidden) void refreshMerits({immediate:true}); });
   globalThis.addEventListener?.('focus',() => { if (!document.hidden) void refreshMerits({immediate:true}); });
-  client.auth.onAuthStateChange?.((event) => { if (event === 'SIGNED_OUT') stopMerits(); });
+  client.auth.onAuthStateChange?.((event, session) => {
+    if (event === 'SIGNED_OUT' || (session?.user?.id && meritAccount && session.user.id !== meritAccount)) {
+      stopMerits();
+      if (currentState.view === 'home') updateHomeMerits(root,currentState.profile,null);
+    }
+  });
   meritMount?.addEventListener('click',async event => {
     if (!event.target?.closest?.('[data-action="activity"]') || !eligibleForMerits()) return;
     meritMount.querySelector('[data-merit-dialog]')?.close();
