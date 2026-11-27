@@ -210,7 +210,19 @@ async function checkR24Expression(page,width,height,route,{touch=false}={}){
   await explore.locator('.wa-explore-picker-trigger').press('Enter');
   await explore.locator('.wa-explore-picker-menu').getByRole('button',{name:title,exact:false}).click();
  };
+ async function assertStageWidth(){
+  if(width>680)return;
+  const stage=page.locator('.wa-stage-body');
+  const fit=await stage.evaluate(node=>{
+   const style=getComputedStyle(node);
+   const available=node.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight);
+   const actual=node.querySelector('.wa-stage-activity').getBoundingClientRect().width;
+   return Math.abs(available-actual)<2;
+  });
+  assert.ok(fit,'The activity should span the available stage width on mobile');
+ }
  await go('explore');
+ await assertStageWidth();
  if(!touch && route==='preview'){
   for(const [title,items] of [['Riverside Café',expressionExplore['riverside-cafe']],
    ['Willow Kitchen',expressionExplore['review-willow-kitchen']],['Beyond the Stars',expressionExplore['beyond-the-stars']]]){
@@ -239,6 +251,7 @@ async function checkR24Expression(page,width,height,route,{touch=false}={}){
   await capture(page,'r24-'+route+'-'+slug,width,height);
  }
  await go('master');
+ await assertStageWidth();
  const checkpoint=page.locator('.wa-master-question');
  const item=expressionR24.analysis;
  assert.match(await checkpoint.locator('.wa-question-source').innerText(),/captions/);
