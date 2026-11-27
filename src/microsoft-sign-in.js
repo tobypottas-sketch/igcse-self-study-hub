@@ -2,7 +2,7 @@ import { getCurrentProfile, startMicrosoftSignIn } from './auth.js';
 import { getMicrosoftPilotSupabaseClient } from './supabase.js';
 
 // Enable only after the Entra assignment and Supabase signup safeguards are verified.
-export const MICROSOFT_STAFF_PILOT_ENABLED = false;
+export const MICROSOFT_STAFF_PILOT_ENABLED = true;
 export const MICROSOFT_PILOT_CALLBACK = 'https://tobypottas-sketch.github.io/igcse-self-study-hub/microsoft-sign-in.html';
 const pendingKey = 'hub-microsoft-pilot-attempt';
 const attemptLifetime = 10 * 60 * 1000;
