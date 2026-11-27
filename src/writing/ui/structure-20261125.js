@@ -2,7 +2,8 @@ import {withStaffInteractions} from '../content/review-interactions-r2-2.js';
 import {renderSentenceSequence} from './sentence-sequence.js';
 import {reviseDevelopmentForStaff,vocabularyDiscoverR21} from '../content/review-critical-r2-1.js';
 import {structureR1} from '../content/review-structure-r1.js';
-import {structureDiscover,structureExplore} from '../content/review-structure-recognition.js';
+import {structureDiscover} from '../content/review-structure-recognition.js';
+import {refineStructureForStaff,structureExploreR23 as structureExplore,optionalStructureExplore,finishedStructureModels,structureExploreModelTarget} from '../content/review-structure-r2-3.js';
 import {recognitionRun,recognitionResult} from '../engine/recognition.js?v=2';
 import {renderRecognition} from './recognition-question.js?v=3';
 import {capturePreview,restorePreview} from '../engine/preview-progress.js?v=4';
@@ -782,7 +783,8 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
  const isStructure=pathwayKey==='structure' && !!progress;
  const baseCourse=isStructure?structureR1:editorialModels?config:pathways[pathwayKey];
  const staffCourse=progress && isDevelopment?reviseDevelopmentForStaff(baseCourse):baseCourse;
- const course=progress?withStaffInteractions(staffCourse):staffCourse;
+ const interactionCourse=progress?withStaffInteractions(staffCourse):staffCourse;
+ const course=isStructure?refineStructureForStaff(interactionCourse):interactionCourse;
  const vocabularyCheck=progress && isExpression?vocabularyDiscoverR21:null;
  const goldTasks=[course.gold].flat();
  const practice=validateActivities(course.practice);
@@ -805,7 +807,7 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
  const baseModels=[{...model,category:'Café',sentenceTips:[['Names the café, establishes the time and explains the reason for visiting.','Introduces an initial evaluation through the atmosphere and welcome.'],['Describes location, seating and menu.','Provides specific examples of food.','Evaluates affordability for students.'],['Balances crowding with praise for staff.','Balances a specific delay against food quality.','Explains the practical benefit of a quiet corner.'],['Identifies a suitable audience and reason.','Offers advice about timing.']],purposes:['Introduction','Description','Evaluation','Recommendation']},{...guidedTask,title:'Willow Kitchen',category:'Restaurant',purposes:['Introduction','Evaluation','Evaluation','Recommendation'],sentenceTips:[['Establishes the reason for visiting.','Adds useful location and price information.'],['States a clear preference.','Supports the judgement with sensory detail.','Explains why the portion was suitable.','Adds a specific example of flexibility.'],['Signals a shift to criticism.','Explains the wait and the effect of noise.'],['Identifies an audience and a reason.','Offers practical advice addressing the drawback.']]},...extraReviewModels];
  const models=isDevelopment?config.developmentModels(baseModels):isExpression?config.expressionModels(baseModels):baseModels;
  const workshopOptions={plainLanguage:isStructure,staffAssessment:!!progress};
- const practiceRecognition=progress?practice.flatMap(activity=>activity.items)
+ const practiceRecognition=progress?[...practice,checkpoint].flatMap(activity=>activity.items)
   .filter(item=>item.checkedPractice):[];
  const recognition=[
   ...(isStructure?[...structureDiscover,...Object.values(structureExplore).flat()]:[]),
@@ -819,7 +821,8 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
  restorePreview(state,content,saved);
  const recognitionDone=item=>recognitionResult(item,state.recognition.get(item.id))!=='pending';
  const discoverComplete=()=>structureDiscover.every(recognitionDone);
- const exploreComplete=()=>Object.values(structureExplore).some(items=>items.every(recognitionDone));
+ const completedModels=()=>finishedStructureModels(structureExplore,recognitionDone);
+ const exploreComplete=()=>completedModels()>=structureExploreModelTarget;
  if(isStructure && saved){
   saved={...saved,completed:saved.completed.filter(stage=>stage!=='discover'&&stage!=='explore')};
   if(discoverComplete())saved.completed.push('discover');
@@ -832,7 +835,7 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
  if(saved && progress){
   saved={...saved,completed:saved.completed.filter(stage=>{
    if(stage==='practise')return practice.filter(a=>a.items.some(item=>item.version===2)).every(a=>state.attempts.get(a.id)?.done);
-   if(stage==='master' && isDevelopment)return !!state.attempts.get(checkpoint.id)?.done;
+   if(stage==='master' && (isDevelopment||isStructure))return !!state.attempts.get(checkpoint.id)?.done;
    return true;
   })};
  }
@@ -1054,8 +1057,14 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
  }draw();
  }else if(i===1){
  const desk=el(body,'div','wa-explore-desk');
- el(desk,'p','wa-explore-intro',isStructure?'Read the paragraph and choose an answer. You can select any sentence for a note. Finish all questions in one review to complete Explore.':'Read the paragraph and answer the question below it. Then compare your answer with the editor’s note and select a sentence to see how it works.');
+ el(desk,'p','wa-explore-intro',isStructure?'Choose any three reviews. Finish the required questions in each one. You can select a sentence for a note or try an optional question for extra practice.':'Read the paragraph and answer the question below it. Then compare your answer with the editor’s note and select a sentence to see how it works.');
  if(isExam)el(desk,'p','wa-muted','Answer the questions for any three paragraphs. Read the full review alongside the writing task.');
+ const workload=isStructure?el(desk,'p','wa-muted'):null;
+ if(workload)workload.setAttribute('role','status');
+ function showWorkload(){
+  if(workload)workload.textContent='Reviews finished: '+completedModels()+' / '+structureExploreModelTarget+' needed';
+ }
+ showWorkload();
  const toolbar=el(desk,'div','wa-explore-toolbar');
  const picker=el(toolbar,'details','wa-explore-picker');
  const trigger=el(picker,'summary','wa-explore-picker-trigger');
@@ -1094,7 +1103,9 @@ function renderPathway(root,onBack,onStudio,config,progress,navigation){
   const question=el(host,'section','wa-explore-question');
   if(isStructure){
    const item=structureExplore[m.id][n];
+   if(optionalStructureExplore.has(item.id))el(question,'p','wa-muted','Optional practice');
    recognise(question,item,()=>{
+    showWorkload();
     if(recognitionDone(item))progress.children[n].dataset.done='true';
     if(exploreComplete())ctx.complete();
    });

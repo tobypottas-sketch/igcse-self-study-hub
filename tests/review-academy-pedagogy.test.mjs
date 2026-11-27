@@ -232,3 +232,57 @@ test('R2.1 staff fixes have independent scenario answers and distinct option ide
  assert.ok(previous.every(question=>question.version!==2));
  assert.match(pathways.expression.discover.find(item=>item.id===vocabularyDiscoverR21.id).prompt,/when or where/);
 });
+
+test('R2.3 retains the Structure inventory and uses three distinct reviewed models',async()=>{
+ const {structureR1}=await import('../src/writing/content/review-structure-r1.js');
+ const {structureDiscover,structureExplore}=await import('../src/writing/content/review-structure-recognition.js');
+ const {withStaffInteractions}=await import('../src/writing/content/review-interactions-r2-2.js');
+ const {refineStructureForStaff,structureExploreR23,optionalStructureExplore,finishedStructureModels,structureExploreModelTarget}=await import('../src/writing/content/review-structure-r2-3.js');
+ const course=refineStructureForStaff(withStaffInteractions(structureR1));
+ const practice=course.practice.flatMap(a=>a.items);
+ assert.equal(structureDiscover.length+Object.values(structureExploreR23).flat().length+practice.length+course.gold.length+course.apply.length+2,56);
+ const models=Object.values(structureExploreR23);
+ const attempted=new Set(models.slice(0,2).flat().map(i=>i.id));
+ assert.equal(finishedStructureModels(structureExploreR23,i=>attempted.has(i.id)),2);
+ for(const item of models[2])if(!optionalStructureExplore.has(item.id))attempted.add(item.id);
+ assert.equal(finishedStructureModels(structureExploreR23,i=>attempted.has(i.id)),structureExploreModelTarget);
+ assert.equal(attempted.has('beyond-the-stars--paragraph-d'),false);
+ assert.equal(structureExplore['beyond-the-stars'][1].version,2);
+ assert.equal(structureExploreR23['beyond-the-stars'][1].version,3);
+ const master=course.analysis;
+ assert.equal(master.id,structureR1.analysis.id);
+ assert.equal(master.version,2);
+ assert.equal(master.optionIds[master.answer],'evidence-advice');
+ assert.ok(master.optionIds.every(id=>!structureR1.analysis.optionIds.includes(id)));
+ assert.match(master.context,/twenty minutes.*morning/);
+ assert.match(master.plans[master.answer].flat().join(' '),/demonstration.*cards.*morning/);
+ assert.match(pathways.structure.analysis.prompt,/theatre|show/);
+ assert.equal(course.master.id,structureR1.master.id);
+ assert.equal(course.master.version,2);
+ assert.match(course.master.modelNote,/booking instructions/);
+ assert.doesNotMatch(course.master.example,/The draft mixes/);
+ for(const task of [...course.gold,...course.apply,course.master])validateWritingTask(task);
+});
+
+test('R2.3 checked decisions match the independent review and preserve the valid sequence keys',async()=>{
+ const {structureR1}=await import('../src/writing/content/review-structure-r1.js');
+ const {refineStructureForStaff,structureExploreR23}=await import('../src/writing/content/review-structure-r2-3.js');
+ const revised=refineStructureForStaff(structureR1);
+ const changed=[...Object.values(structureExploreR23).flat().filter(item=>item.version===3),
+  ...revised.practice.flatMap(activity=>activity.items).filter(item=>item.checkedPractice),revised.analysis];
+ const selected=[
+  'value','budget-and-time','amount-after-sport','visit-problems','reason','setting-evidence',
+  'balance','bottle','demo','packed','effect','access',
+  'floors','value-show','learning','study','price','balanced','evidence-advice'
+ ];
+ assert.deepEqual(changed.map(item=>item.optionIds[item.answer]),selected);
+ for(const item of changed){
+  assert.ok(item.explanations.every(explanation=>explanation.trim()));
+  assert.equal(item.plans?.length??item.options.length,item.options.length);
+ }
+ const ordering=revised.practice.find(a=>a.type==='order');
+ for(const [index,item] of ordering.items.entries()){
+  assert.deepEqual(item.optionIds,structureR1.practice[1].items[index].optionIds);
+  assert.deepEqual(item.answer,[1,2,0]);
+ }
+});

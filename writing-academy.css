@@ -927,7 +927,7 @@
  grid-template-columns:repeat(3,minmax(0,1fr));
  align-items:stretch;
 }
-#writingAcademy.wa-staff-preview .wa-practise-question :is(.wa-plan-options,.wa-revision-options) .wa-option {
+#writingAcademy.wa-staff-preview :is(.wa-practise-question,.wa-master-question) :is(.wa-plan-options,.wa-revision-options) .wa-option {
  min-width:0;
  overflow-wrap:anywhere;
  align-content:start;
@@ -950,7 +950,7 @@
  border-radius:.75rem;
  padding:.75rem;
 }
-#writingAcademy.wa-staff-preview .wa-practise-question .wa-sentence-extract .wa-option {
+#writingAcademy.wa-staff-preview :is(.wa-practise-question,.wa-explore-question) .wa-sentence-extract .wa-option {
  display:inline;
  width:auto;
  margin:0 .25rem .35rem 0;

@@ -124,3 +124,28 @@ test('legacy quiz credit cannot stand in for new recognition evidence with stabl
   assert.deepEqual(resumed.attempts.get('choice').answered,new Map([['second',1]]));
   assert.equal(resumed.recognition.size,0);
 });
+
+test('R2.3 replaces legacy Master credit while preserving written work and compatible checks',async()=>{
+  const {structureR1}=await import('../src/writing/content/review-structure-r1.js');
+  const {refineStructureForStaff}=await import('../src/writing/content/review-structure-r2-3.js');
+  const oldCheckpoint={id:'structure-transfer',type:'choice',items:[structureR1.analysis]};
+  const state=runtime();
+  const oldTask=structureR1.master;
+  state.transfer={...writing(),draft:'An existing review about the recording booth.',
+    original:'The first draft remains available.',revision:'The revised recording review remains available.',checks:new Set([0,1,2])};
+  state.attempts.set(oldCheckpoint.id,{index:1,done:true,correct:1,selected:null,order:[],checked:false,
+    answered:new Map([[structureR1.analysis.id,structureR1.analysis.answer]]),displays:[[1,0,2]]});
+  const oldContent={...content,activities:[oldCheckpoint],master:oldTask};
+  const snapshot=capturePreview(state,oldContent,{stage:'master',completed:['master']});
+  const revised=refineStructureForStaff(structureR1);
+  const resumed=runtime();
+  resumed.recognition=new Map();
+  restorePreview(resumed,{...oldContent,activities:[{...oldCheckpoint,items:[revised.analysis]}],
+   master:revised.master,recognition:[revised.analysis]},snapshot);
+  assert.equal(resumed.attempts.get(oldCheckpoint.id).done,false);
+  assert.equal(resumed.attempts.get(oldCheckpoint.id).selected,null);
+  assert.deepEqual([...resumed.transfer.checks],[0,2]);
+  assert.equal(resumed.transfer.draft,state.transfer.draft);
+  assert.equal(resumed.transfer.original,state.transfer.original);
+  assert.equal(resumed.transfer.revision,state.transfer.revision);
+});
