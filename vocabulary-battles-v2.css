@@ -532,3 +532,17 @@ body{
 #battlesApp .battle-avatar:has(> img.vocab-avatar-character) > span{visibility:hidden}
 #battlesApp .battle-final-scores .battle-avatar{margin-inline:auto}
 #battlesApp .battle-table-wrap th .battle-avatar{display:inline-grid;margin-inline-end:8px;vertical-align:middle}
+
+/* Arena typography and compact, equal-width ranking cards. */
+#battlesApp select,#battlesApp select option{font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;letter-spacing:normal}
+#battlesApp .battle-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#battlesApp .battle-podium__entry{display:grid;grid-template-columns:1fr;justify-items:center;align-content:start;gap:7px;min-width:0;width:100%;padding:12px 8px;text-align:center;font-family:Inter,system-ui,Arial,sans-serif}
+#battlesApp .battle-podium__entry>span:last-child{width:100%;min-width:0}
+#battlesApp .battle-podium__entry strong{font-size:.95rem;line-height:1.3;letter-spacing:normal;overflow-wrap:anywhere}
+#battlesApp .battle-podium__entry small{font-size:.82rem;letter-spacing:normal}
+#battlesApp .battle-podium__entry--2{background:#344763;border-color:#aebfd5}
+#battlesApp .battle-podium__entry--3{background:#533c36;border-color:#cb986c}
+#battlesApp .battle-final-scores>div{min-width:0;justify-items:center}
+#battlesApp .battle-final-scores>div>span:not(.battle-avatar){font-size:.85rem;letter-spacing:.035em;text-align:center}
+#battlesApp .battle-final-scores .battle-avatar>span{font-size:inherit;letter-spacing:normal}
+@media(max-width:400px){#battlesApp .battle-podium{grid-template-columns:1fr}#battlesApp .battle-podium__entry{grid-template-columns:auto auto minmax(0,1fr);align-items:center;text-align:left}}

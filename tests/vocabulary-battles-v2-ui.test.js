@@ -10,9 +10,9 @@ const backend=read('supabase/functions/vocabulary-battles/index.ts');
 
 test('Battle Arena V2 stylesheet and student script are fresh and ordered',()=>{
  assert.match(html,/vocabulary-battles\.css\?v=battles-mvp-v1/);
- assert.match(html,/vocabulary-battles-v2\.css\?v=player-avatars-v1/);
+ assert.match(html,/vocabulary-battles-v2\.css\?v=arena-recovery-v2/);
  assert.ok(html.indexOf('vocabulary-battles-v2.css')>html.indexOf('vocabulary-battles.css'));
- assert.match(html,/battles-app\.js\?v=live-sync-v1/);
+ assert.match(html,/battles-app\.js\?v=arena-recovery-v2/);
  assert.doesNotMatch(html,/id="battlesApp" aria-live="polite"/);
 });
 
@@ -108,4 +108,8 @@ test('actual match signature changes when both peers become ready and when quest
  assert.notEqual(first,signature({...ready,answered:1,question:{id:'q2'}}));
  phase='finished';
  assert.notEqual(first,signature({...ready,outcome:'won'}));
+});
+
+test('recovery has bounded requests, restores polling on pageshow and supports all ten units',()=>{
+ assert.match(ui,/AbortController/);assert.match(ui,/Promise\.race/);assert.match(ui,/pageshow/);assert.match(ui,/pollAgain/);assert.match(ui,/serverOffset/);assert.match(ui,/Education/);assert.match(css,/select option\{font-family:/);assert.match(css,/repeat\(3,minmax\(0,1fr\)\)/);
 });
