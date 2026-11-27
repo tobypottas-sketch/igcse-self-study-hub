@@ -139,12 +139,13 @@ export async function bootApp(clientOverride = null) {
         // A revoked session or permission error must not leave old student names visible.
         if (['42501','PGRST301','PGRST303'].includes(error?.code) || [401,403].includes(error?.status)) {
           meritSnapshot = null;
+          activityLoadPromise = null;
+          activityGeneration++;
           if (currentState.view === 'home') updateHomeMerits(root,currentState.profile,null);
-      if (currentState.view === 'admin' && currentState.section === 'activity') {
-        currentState = { view:'login' };
-        root.replaceChildren();
-        setTimeout(() => { void renderCurrentState(); },0);
-      }
+          if (currentState.view === 'admin' && currentState.section === 'activity') {
+            currentState = { ...currentState, activityDashboard:null, notice:'Activity access is unavailable.' };
+            renderAdmin(root,currentState);
+          }
           syncMeritMount();
         }
       })
@@ -171,6 +172,11 @@ export async function bootApp(clientOverride = null) {
       activityLoadPromise = null;
       stopMerits();
       if (currentState.view === 'home') updateHomeMerits(root,currentState.profile,null);
+      if (currentState.view === 'admin' && currentState.section === 'activity') {
+        currentState = { view:'login' };
+        root.replaceChildren();
+        setTimeout(() => { void renderCurrentState(); },0);
+      }
     }
   });
   meritMount?.addEventListener('click',async event => {

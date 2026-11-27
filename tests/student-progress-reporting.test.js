@@ -4,6 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { reportingPeriod, schoolDay, timestampOf } from '../src/reporting/periods.js';
 import { summarizeEngagement } from '../src/reporting/engagement.js';
 import { evidenceState, REPORTING_CAPABILITIES } from '../src/reporting/capabilities.js';
+import { buildWritingRows } from '../src/writing/submissions.js';
 import { saveVocabularyMerits } from '../src/vocabulary/merit-awards.js';
 
 const now = new Date('2026-11-23T16:30:00Z');
@@ -136,4 +137,12 @@ test('assessed notes results preserve engagement without inflating whole-assessm
   assert.equal(reading.assessmentResults,1);
   assert.equal(reading.assessmentCompletions,0);
   assert.equal(reading.activityCompletions,1);
+});
+
+test('work done outside the Hub yields no recorded submission and no completion judgement', () => {
+  const [learner] = buildWritingRows([{studentId:'uuid',classId:'class',displayName:'Synthetic'}],[],{
+    classId:'class',appKey:'email_writing',from:'2026-11-23',to:'2026-11-24'
+  });
+  assert.deepEqual(learner.submissions,[]);
+  assert.equal(Object.hasOwn(learner,'missingHomework'),false);
 });

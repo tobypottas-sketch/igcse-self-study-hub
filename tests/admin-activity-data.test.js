@@ -90,3 +90,12 @@ test('merit-only refresh uses scoped RPC with no activity logs, unit checks or e
   assert.deepEqual(await loadTeacherActivityData(client,{meritOnly:true}),{students:[],pendingMerits:0});
   assert.deepEqual(filters,[['record_type',['student','vocabulary_global_mastery','vocabulary_unit_mastery','merit_award']]]);
 });
+
+test('merit refresh preserves an access denial for the session-revocation handler', async () => {
+  const query = occurrenceQuery();
+  const denied = {in(){return this;},order(){return this;},async range(){
+    return {error:{code:'42501',message:'not authorised'},status:403};
+  }};
+  await assert.rejects(loadTeacherActivityData({rpc:()=>denied,from:()=>query},{meritOnly:true}),
+    {code:'42501',status:403});
+});

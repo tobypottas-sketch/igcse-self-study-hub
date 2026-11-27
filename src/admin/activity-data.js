@@ -38,8 +38,16 @@ function previewDashboard(now, meritOnly) {
 function loadActivityRows(client, meritOnly) {
   const types = ['student','vocabulary_global_mastery','vocabulary_unit_mastery','merit_award'];
   if (!meritOnly) types.push('unit_check');
-  return fetchAllRows(() => client.rpc('teacher_activity_rows',{}, { count:'exact' })
-    .in('record_type',types).order('record_type').order('payload'), { label:'staff activity records' });
+  return fetchAllRows(() => ({
+    async range(from, to) {
+      const result = await client.rpc('teacher_activity_rows',{}, { count:'exact' })
+        .in('record_type',types).order('record_type').order('payload').range(from,to);
+      if (result.error) throw Object.assign(new Error('Unable to load staff activity records.'), {
+        code:result.error.code, status:result.status
+      });
+      return result;
+    }
+  }), { label:'staff activity records' });
 }
 
 // Only numeric school-email usernames are valid identifiers. Preserve internal zeros.
