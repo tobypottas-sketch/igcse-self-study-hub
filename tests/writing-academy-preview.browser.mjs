@@ -145,7 +145,7 @@ async function checkR21Development(page){
 async function advanceToChoice(page, id){
  const quiz=page.locator('.wa-practise-question');
  for(let count=0;count<5;count++){
-  if(await quiz.locator('[data-option-id="'+option+'"]').count())return quiz;
+  if(await quiz.locator('[data-question-id="'+id+'"]').count())return quiz;
   const check=quiz.getByRole('button',{name:'Check answer'});
   if(await check.isVisible()){
    await quiz.locator('.wa-option:not(:disabled)').first().click();
