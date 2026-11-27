@@ -12,7 +12,7 @@ import { applyActivityListFilters, newActivityListState } from './admin/activity
 import { parseStudentCsv, validateStudentImport, bulkProvisionStudents } from './admin/import.js';
 import { renderLogin } from './views/login.js';
 import { renderChangePassword } from './views/change-password.js';
-import { renderHome } from './views/home.js';
+import { renderHome, resetMeritPopup } from './views/home.js';
 import { renderAdmin } from './views/admin.js';
 import { escapeHtml } from './views/html.js';
 
@@ -199,6 +199,7 @@ export async function bootApp(clientOverride = null) {
     const data = new FormData(form);
 
     if (kind === 'login') {
+      resetMeritPopup();
       try { await signIn(client, String(data.get('email') ?? '').trim(), String(data.get('password') ?? '')); await renderCurrentState(); resumeReturnTarget(); }
       catch (error) { renderLogin(root, error instanceof Error ? error.message : 'Unable to sign in.'); }
       return;
@@ -276,7 +277,7 @@ export async function bootApp(clientOverride = null) {
       currentState = { ...currentState, view:'assessor' };
       assessorController = openWritingAssessor(root, client, currentState.profile, { onBack:() => renderCurrentState() });
     }
-    else if (action === 'logout') { await client.auth.signOut(); clearReturnTarget(getSessionStorage()); cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; await renderCurrentState(); }
+    else if (action === 'logout') { resetMeritPopup(); await client.auth.signOut(); clearReturnTarget(getSessionStorage()); cachedHomeState = null; adminLoadPromise = null; activityLoadPromise = null; await renderCurrentState(); }
     else if (action === 'retry') await renderCurrentState();
     else if (action === 'change-password') {
       if (['teacher','admin'].includes(currentState.profile?.role) && currentState.profile.active !== false) {
