@@ -1,0 +1,88 @@
+name: Microsoft pilot local Auth
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/microsoft-pilot-auth.yml'
+      - 'supabase/migrations/20261126160000_microsoft_pilot_signup_hook.sql'
+permissions:
+  contents: read
+jobs:
+  local-auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: supabase/setup-cli@v3
+        with:
+          version: '2.118.0'
+      - name: Start isolated Auth and database
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pilot-auth"
+          cd "$RUNNER_TEMP/pilot-auth"
+          supabase init
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p = Path("supabase/config.toml")
+          s = p.read_text()
+          s = re.sub(r'(?m)^\[auth\.hook\.before_user_created\][^\n]*\n(?:[^\[]|\[(?![a-z]))*', '', s)
+          s += '\n[auth.hook.before_user_created]\nenabled = true\nuri = "pg-functions://postgres/public/microsoft_pilot_before_user_created"\n'
+          p.write_text(s)
+          PY
+          mkdir -p supabase/migrations
+          printf '%s\n' 'create table public.profiles (id uuid primary key references auth.users(id), school_email text, role text, active boolean, must_change_password boolean);' > supabase/migrations/20261126000000_fixture.sql
+          cp "$GITHUB_WORKSPACE/supabase/migrations/20261126160000_microsoft_pilot_signup_hook.sql" supabase/migrations/
+          supabase start
+          supabase status -o json > "$RUNNER_TEMP/pilot-auth-status.json"
+      - name: Exercise real Auth password API and identity guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/pilot-auth"
+          export PGPASSWORD=postgres
+          python3 - <<'PY'
+          import json, os, urllib.request, urllib.error, subprocess
+          status=json.load(open(os.environ["RUNNER_TEMP"]+"/pilot-auth-status.json"))
+          api=status["API_URL"]+"/auth/v1"
+          key=status.get("ANON_KEY") or status["PUBLISHABLE_KEY"]
+          def request(path, data):
+              req=urllib.request.Request(api+path, data=json.dumps(data).encode(), headers={"apikey":key,"Content-Type":"application/json"})
+              with urllib.request.urlopen(req, timeout=15) as res:
+                  return json.load(res)
+          def sql(query):
+              return subprocess.check_output(["psql",status["DB_URL"],"-X","-v","ON_ERROR_STOP=1","-At","-c",query],text=True).strip()
+          password="Local-test-only-Password-837!"
+          email="pilot@example.test"
+          request("/signup",{"email":email,"password":password})
+          user=request("/token?grant_type=password",{"email":email,"password":password})["user"]
+          uid=user["id"]
+          import uuid
+          uuid.UUID(uid)
+          assert sql("select count(*) from auth.users where id='"+uid+"'")=="1"
+          sql("insert into public.profiles values ('"+uid+"','pilot@example.test','admin',true,false); insert into microsoft_pilot_private.allowed_accounts values ('"+uid+"','pilot@example.test')")
+          request("/signup",{"email":"student@example.test","password":password})
+          other=request("/token?grant_type=password",{"email":"student@example.test","password":password})["user"]["id"]
+          uuid.UUID(other)
+          assert sql("set role supabase_auth_admin; select public.microsoft_pilot_before_user_created('{\"user\":{\"app_metadata\":{\"provider\":\"azure\"}}}'::jsonb)->'error'->>'http_code'") .endswith("403")
+          def identity(target, verified, address, allowed):
+              q="insert into auth.identities (provider_id,user_id,identity_data,provider) values ('test-"+target+"','"+target+"',jsonb_build_object('email','"+address+"','email_verified',"+str(verified).lower()+",'sub','test-"+target+"'),'azure')"
+              p=subprocess.run(["psql",status["DB_URL"],"-X","-v","ON_ERROR_STOP=1","-c","set role supabase_auth_admin; "+q],capture_output=True,text=True)
+              assert (p.returncode==0)==allowed, p.stderr
+              if not allowed: assert "outside the Hub administrator pilot" in p.stderr, p.stderr
+          identity(other,True,"student@example.test",False)
+          identity(uid,False,email,False)
+          identity(uid,True,"wrong@example.test",False)
+          identity(uid,True,email,True)
+          assert request("/token?grant_type=password",{"email":email,"password":password})["user"]["id"]==uid
+          assert sql("select count(*) from auth.users")=="2"
+          assert sql("select count(*) from auth.identities where provider='azure' and user_id='"+uid+"'")=="1"
+          print("PASS: real password Auth API, production migration on real Auth schema, SQL identity guards and UUID preservation after synthetic identity insertion. Microsoft OAuth callback NOT tested.")
+          PY
+      - name: Stop local stack
+        if: always()
+        run: |
+          cd "$RUNNER_TEMP/pilot-auth" && supabase stop --no-backup
