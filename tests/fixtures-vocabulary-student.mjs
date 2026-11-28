@@ -27,6 +27,7 @@ export async function mockVocabularyStudent(page, saveMode = 'success') {
         return query;
       },
       functions:{ async invoke(name, { body }) {
+        if (name === 'vocabulary-diagnostic' && body?.action === 'ngsl-status') return { data:{ completed:true } };
         if (name !== 'vocabulary-attempt-action') return { data:{ ok:true } };
         window.vocabularyAttempts.push(body);
         try { validateVocabularyAttempt(body); } catch (error) { return { error:{ message:error.message } }; }
@@ -43,7 +44,7 @@ export async function mockVocabularyStudent(page, saveMode = 'success') {
           pathwayHistory[key] = progress;
           return { data:{ ok:true, correct:true, pathwayId:body.pathwayId, pathwayProgress:progress } };
         }
-        return { data:{ ok:true, correct:body.rawAnswer === 'leisure' } };
+        return { data:{ ok:true, correct:body.rawAnswer === 'leisure time' } };
       } }
     };
     export async function getSupabaseClient() { return client; }

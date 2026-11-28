@@ -76,7 +76,7 @@
   position:relative;
   z-index:1;
   color:var(--c-muted);
-  font-size:var(--fs-xs);
+  font-size:.6rem;
   font-weight:650;
 }
 
@@ -84,7 +84,7 @@
   position:relative;
   z-index:1;
   color:var(--c-ink);
-  font-size:var(--fs-lg);
+  font-size:max(var(--fs-lg), calc(var(--fs-md) * 1.16));
   font-weight:700;
   line-height:1.5;
   overflow-wrap:break-word;
