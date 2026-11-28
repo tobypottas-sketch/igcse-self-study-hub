@@ -143,6 +143,7 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
     }).filter(s => s.pendingMerits);
     return {students:alerts,pendingMerits:alerts.reduce((sum,s)=>sum+s.pendingMerits,0)};
   }
+  const vocabUnits=[...new Map(normalizedOccurrences.map(o=>[o.unitNumber,{unitNumber:o.unitNumber,unitTitle:o.unitTitle}])).values()];
   const classList=classes.map(c=>({classId:c.id,className:c.class_name}));
   // Non-progressive callers overlap coverage computation with the evidence and number requests.
   const coverageRequest=progressive?null:loadReportingCoverage(client, normalizedOccurrences).then(value=>({value}),error=>({error}));
@@ -166,7 +167,7 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
   if(progressive){
     const usage=buildActivityDashboard({...common,detailsPending:true});
     // A false return means the requesting view/account is no longer current.
-    if(onUsageReady({...usage,classes:classList,detailsPending:true})===false)return null;
+    if(onUsageReady({...usage,classes:classList,vocabUnits,detailsPending:true})===false)return null;
     // Yield so the browser can paint usage before the heavier detail calculations.
     await new Promise(resolve=>setTimeout(resolve,0));
     const [detailRows,coverageByUnit]=await Promise.all([
@@ -174,7 +175,7 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
       loadReportingCoverage(client,normalizedOccurrences)
     ]);
     const dashboard=buildActivityDashboard({...common,globalMastery:normalizeGlobal(detailRows),unitMastery:normalizeUnit(detailRows),coverageByUnit});
-    return {...dashboard,classes:classList};
+    return {...dashboard,classes:classList,vocabUnits};
   }
   const coverageResult=await coverageRequest;
   if(coverageResult.error)throw coverageResult.error;

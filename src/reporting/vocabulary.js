@@ -53,11 +53,16 @@ export function reportUnitPathways(occurrences, unitMastery, globalMastery, cove
           const q=evidence.pathwayProgress?.[key]??evidence.pathway_progress?.[key];
           const raw=q?.completedStages??q?.completed_stages;
           const done=new Set(Array.isArray(raw)?raw:stageIds.filter(id=>q?.stages?.[id]?.completed===true));
-          let count=0;for(const id of stageIds){if(!done.has(id))break;count++}return count;
+          let count=0;for(const id of stageIds){if(!done.has(id))break;count++}
+          const next=stageIds[count],s=q?.stages?.[next]??{},clean=Number(s.cleanSuccesses??s.clean_successes??0),unassisted=Number(s.cleanUnassistedSuccesses??s.clean_unassisted_successes??0),success=Number(s.successes??0);
+          const content=new Set(s.contentIds??s.content_ids??[]).size,prompts=new Set(s.promptKeys??s.prompt_keys??[]).size;
+          const partial=next==='recognise'?Math.min(clean/2,content/2):next==='match'||next==='apply'?clean/2:next==='recall'?unassisted/2:next==='mastery'?Math.min(success/3,unassisted/2,prompts/2):0;
+          return {count,partial:Math.max(0,Math.min(.99,partial||0))};
         });
-        p.completedWordStages=recorded.reduce((n,x)=>n+x,0);
+        p.completedWordStages=recorded.reduce((n,x)=>n+x.count,0);
         p.totalWordStages=eligible.length*5;
-        p.masteredWords=recorded.filter(x=>x===5).length;
+        p.learningWordStages=recorded.reduce((n,x)=>n+x.count+x.partial,0);
+        p.masteredWords=recorded.filter(x=>x.count===5).length;
         p.serviceableWords=eligible.length;
       }
     }
