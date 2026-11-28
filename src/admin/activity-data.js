@@ -184,7 +184,7 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
   if(coverageResult.error)throw coverageResult.error;
   const mr=await missionsRequest;if(mr.error)throw mr.error;
     const dashboard=buildActivityDashboard({...common,missions:mr.value,globalMastery:normalizeGlobal(rows),unitMastery:normalizeUnit(rows),coverageByUnit:coverageResult.value});
-  return selectedPeriod ? {...dashboard,classes:classList} : dashboard;
+  return selectedPeriod ? {...dashboard,classes:classList,vocabUnits} : dashboard;
 }
 
 export async function markMeritAwarded(client, studentId, meritNumber) {

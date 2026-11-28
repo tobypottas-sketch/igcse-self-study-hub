@@ -434,7 +434,7 @@ export async function bootApp(clientOverride = null) {
       if (action==='sp-toggle-merits') {progressState={...progressState,inactiveOnly:false,meritsOnly:!progressState.meritsOnly};drawProgress();return;}
       if (action==='sp-student-back') {progressState={...progressState,studentId:null,fullVocabulary:false};drawProgress();return;}
       if (action==='sp-student' || action==='sp-full-student') {const id=target.dataset.studentId;if(!progressState.snapshot?.students?.some(s=>s.studentId===id && s.classId===progressState.classId))return;
-        if(action==='sp-student'){progressState={...progressState,studentId:id,fullVocabulary:false,vocabUnit:'all'};drawProgress();root.querySelector('.sp-shell')?.scrollIntoView({block:'start'});return;}
+        if(action==='sp-student'){progressState={...progressState,studentId:id,fullVocabulary:false,vocabUnit:null};drawProgress();root.querySelector('.sp-shell')?.scrollIntoView({block:'start'});return;}
         progressState={...progressState,studentId:id,fullVocabulary:!progressState.fullVocabulary};drawProgress();if(progressState.fullVocabulary){const record=root.querySelector('#sp-full-record');record?.focus?.({preventScroll:true});record?.scrollIntoView({block:'start'});}return;}
       return;
     }

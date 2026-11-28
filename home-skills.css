@@ -138,3 +138,38 @@
  .merit-dialog__actions { margin-top:22px; }
  .merit-dialog__actions .button { font-size:14px; padding:10px 14px; }
 }
+
+/* Staff home: a dedicated, responsive workspace. Student home retains its existing layout. */
+.shell--staff-home { max-width:1260px; }
+.shell--staff-home .home-hero { min-height:0; padding:24px 32px 28px; border-radius:24px; background:linear-gradient(115deg,#fff 8%,#f0f9fa 61%,#dcebf9); }
+.shell--staff-home .home-hero__content { max-width:none; padding:22px 0 0; }
+.shell--staff-home .home-hero h1 { font-size:clamp(2rem,4vw,3rem); line-height:1.06; overflow-wrap:anywhere; }
+.shell--staff-home .home-hero__lead { max-width:720px; font-weight:550; }
+.shell--staff-home .home-hero__note { font-size:12px; margin-top:12px; }
+.shell--staff-home .home-password { white-space:nowrap; }
+.shell--staff-home [data-merit-banner]:empty { display:none; }
+.shell--staff-home .home-merit-alert { width:100%; max-width:none; box-sizing:border-box; margin:20px 0 0; padding:18px 22px; border-radius:16px; border:1px solid #b8e1df; background:linear-gradient(115deg,#f0fdf9,#e8f4fc); color:#103e55; box-shadow:0 5px 20px #163d5110; }
+.shell--staff-home .home-merit-alert strong { color:#075b63; font-size:17px; font-weight:800; }
+.shell--staff-home .home-merit-alert p { color:#466676; font-size:13px; }
+.shell--staff-home .home-merit-alert .button { min-height:44px; padding-inline:20px; }
+.home-workspace { margin-top:30px; }
+.home-workspace__heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
+.home-workspace__heading h2 { margin:4px 0 0; color:#12364b; font-size:clamp(1.45rem,3vw,2rem); letter-spacing:-.04em; }
+.home-workspace__label { color:#5a7484; font-size:12px; font-weight:700; letter-spacing:.05em; }
+.home-workspace__grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+.home-workspace-tile { display:flex; align-items:center; gap:12px; min-width:0; min-height:110px; padding:17px 15px; border:1px solid #d6e4eb; border-radius:16px; background:#fff; color:#13384f; text-align:left; font:inherit; cursor:pointer; box-shadow:0 4px 15px #153c4f08; }
+.home-workspace-tile:hover { border-color:#70babc; background:#f8fdfd; box-shadow:0 8px 20px #153c4f14; }
+.home-workspace-tile:focus-visible { outline:3px solid #168b9f; outline-offset:3px; }
+.home-workspace-tile__icon { flex:0 0 40px; height:40px; display:grid; place-items:center; color:#087c87; border-radius:12px; background:#e4f4f4; }
+.home-workspace-tile__icon svg { width:23px; height:23px; stroke:currentColor; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.home-workspace-tile__copy { display:grid; gap:6px; flex:1; min-width:0; overflow-wrap:anywhere; }
+.home-workspace-tile__copy strong { font-size:15px; line-height:1.25; }
+.home-workspace-tile__copy small { font-size:12px; line-height:1.4; color:#526e80; }
+.home-workspace-tile__arrow { align-self:flex-start; color:#668493; font-size:18px; }
+.home-workspace-tile[data-action="student-progress"] { border-color:#9bcfd0; background:linear-gradient(125deg,#f0fcfa,#fff); }
+.shell--staff-home .study-tools { margin-top:32px; padding-top:26px; border-top:1px solid #d8e5ea; }
+.shell--staff-home .section-heading--home { margin-bottom:18px; }
+.shell--staff-home .section-heading--home h2 { font-size:clamp(1.45rem,3vw,2rem); }
+.shell--staff-home .section-heading--home p:last-child { margin-top:6px; max-width:none; }
+@media(max-width:1050px){.home-workspace__grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:560px){.shell--staff-home .home-hero{padding:18px 16px 22px;}.shell--staff-home .home-hero__topbar{flex-wrap:wrap;gap:10px}.shell--staff-home .home-account-controls{margin-left:auto;flex-wrap:wrap}.shell--staff-home .home-password{font-size:12px}.home-workspace__grid{grid-template-columns:1fr;gap:9px}.home-workspace-tile{min-height:76px;padding:12px}.shell--staff-home .home-merit-alert{padding:15px}.shell--staff-home .home-merit-alert .button{width:100%;}.home-workspace{margin-top:22px;}}
