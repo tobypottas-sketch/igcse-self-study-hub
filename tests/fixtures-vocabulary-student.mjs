@@ -44,7 +44,7 @@ export async function mockVocabularyStudent(page, saveMode = 'success') {
           pathwayHistory[key] = progress;
           return { data:{ ok:true, correct:true, pathwayId:body.pathwayId, pathwayProgress:progress } };
         }
-        return { data:{ ok:true, correct:body.rawAnswer === 'leisure' } };
+        return { data:{ ok:true, correct:body.rawAnswer === 'leisure time' } };
       } }
     };
     export async function getSupabaseClient() { return client; }
