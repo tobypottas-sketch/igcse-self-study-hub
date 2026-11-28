@@ -29,6 +29,10 @@ export function buildClassOverview(snapshot) {
     const meritKnown = rows.every(row => Number.isInteger(row.pendingMerits) && row.pendingMerits >= 0);
     return {
       enrolled:rows.length, observed:observed.length, unknown:rows.length-observed.length,
+      estimatedSeconds:rows.some(r=>Number.isFinite(r.estimatedSeconds)) ? rows.reduce((n,r)=>n+(Number.isFinite(r.estimatedSeconds)?r.estimatedSeconds:0),0) : null,
+      timeRecords:rows.filter(r=>Number.isFinite(r.estimatedSeconds)).length,
+      completedActivities:complete && rows.every(r=>Number.isInteger(r.completedActivities)) ? rows.reduce((n,r)=>n+r.completedActivities,0) : null,
+      awardedMerits:rows.every(r=>Number.isInteger(r.awardedMerits)) ? rows.reduce((n,r)=>n+r.awardedMerits,0) : null,
       activeLearners:complete ? active.length : null,
       recordedActiveLearners:active.length,
       participation:complete && rows.length ? active.length / rows.length : null,
