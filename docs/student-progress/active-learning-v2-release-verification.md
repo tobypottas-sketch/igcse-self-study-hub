@@ -40,6 +40,8 @@ The harness verifies real password authentication, a signed expired token, pilot
 
 Classroom batches of 20, 50 and 100 distinct synthetic authenticated students succeeded on the loopback stack. Each submitted one interval. This exercises end-to-end burst concurrency and account overhead. It leaves large batches, prolonged classroom traffic and managed capacity unmeasured. Monitor counts by response class, ingest p95, accepted intervals, request volume per pilot, and repeated catalogue/persistence failures. Exclude bearer headers, payloads, responses, raw student IDs and identity data from monitoring. A managed JWT configuration check and tested request-rate limits remain prerequisites. The endpoint's 128 KiB and 120-interval bounds limit individual requests. They do not establish a safe request rate.
 
+For an empty staging project, use the [isolated staging workflow](isolated-staging.md), including its fresh-database prerequisite and separate frontend build.
+
 ## Release and rollback checklist
 
 Execute these stages only after explicit production approval.
