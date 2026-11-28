@@ -28,7 +28,10 @@ test('bootApp delegates form submission at the persistent app root', async () =>
     querySelector() { return null; }
   };
   const previousDocument = global.document;
-  global.document = { getElementById(id) { return id === 'app' ? root : null; } };
+  global.document = {
+    getElementById(id) { return id === 'app' ? root : null; },
+    addEventListener() {}
+  };
 
   const profile = { id: 'user-1', role: 'student', display_name: 'Student', school_email: 's@example.com', active: true, must_change_password: true };
   const client = {
