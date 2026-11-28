@@ -777,7 +777,13 @@ function resetSessionState(continueHistory = false) {
 function setMembersFor(unitNumber) {
   state.setMemberCache ??= new Map();
   if (!state.setMemberCache.has(unitNumber)) state.setMemberCache.set(unitNumber, loadSetMembers(state.client, unitNumber));
-  return state.setMemberCache.get(unitNumber);
+  const members = state.setMemberCache.get(unitNumber);
+  if (state.activeLearningV2) members.then(rows => {
+    if (state.currentUnitNumber !== unitNumber || state.setMemberCache.get(unitNumber) !== members) return;
+    state.timingSetMembers = rows ? { unit:unitNumber, rows } : null;
+    if (!rows) state.setMemberCache.delete(unitNumber);
+  });
+  return members;
 }
 async function startPathwaySession(pathwayId, continueHistory = false, choice = null, forceNew = false) {
   if (!state.content) throw new Error('Vocabulary activities are still loading. Please try again.');
@@ -819,6 +825,7 @@ async function startPathwaySession(pathwayId, continueHistory = false, choice = 
     const drift = compareSetMembership({ pathwayId, setNumber:step.setNumber, clientMembers:step.members, serverRows:await membersPromise });
     if (drift.status === MEMBERSHIP.MISMATCH) {
       state.setMemberCache.delete(state.currentUnitNumber);
+      if (state.activeLearningV2) state.timingSetMembers = null;
       throw new Error('This Set is being updated and cannot be started right now. Your progress is safe. Please tell your teacher.');
     }
   }
@@ -860,6 +867,7 @@ function missionSlotFor(request) {
 // seeding and sends no mission fields. A mission-eligible session whose RPC fails does NOT start and never makes a second mission:
 // the learner sees a plain "try again" message, or resumes the cached open mission with the same id.
 function beginSession(request) {
+  if (state.activeLearningV2) void setMembersFor(state.currentUnitNumber);
   state.setRowsFresh = null;
   const { kind, familyId = null, selected, forceNew = false, mode } = request;
   // A normal Set-based pathway mission must carry Set identity. Only a student-chosen activity (familyId) is free practice without a Set; a

@@ -10,7 +10,7 @@ export function vocabularyTimingContext(state,screen) {
   return {module:'vocabulary_paraphrase',unit,pathway,activity,mode:'practice',occurrence:state.current.target?.occurrenceId??null,questionType:state.current.question?.type??null,source:state.current.activityRecord?'unit_activity':state.current.context?'context':'item'};
 }
 export function createVocabularyTiming({clock=createActiveLearningClock(),outbox,onError=()=>{}}) {
-  let key=null, retained=[];
+  let key=null, current=null, retained=[];
   function save(){
     retained.push(...clock.drain());
     if(!retained.length)return;
@@ -18,8 +18,8 @@ export function createVocabularyTiming({clock=createActiveLearningClock(),outbox
   }
   function sync(state,screen){
     const context=vocabularyTimingContext(state,screen),next=context?JSON.stringify(context):null;
-    if(next===key)return;
-    clock.leave();save();key=next;
+    if(next===key&&(!context||current===state.current))return;
+    clock.leave();save();key=next;current=context?state.current:null;
     if(context){clock.enter(context);clock.interaction();}
   }
   return {
@@ -29,6 +29,6 @@ export function createVocabularyTiming({clock=createActiveLearningClock(),outbox
     focus(value){clock.focus(value);if(!value)save();},
     tick(){clock.tick();},
     flush(){save();return Promise.resolve().then(()=>outbox.flush()).catch(onError);},
-    stop(){clock.leave();key=null;save();}
+    stop(){clock.leave();key=null;current=null;save();}
   };
 }

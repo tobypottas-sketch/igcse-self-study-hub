@@ -30,6 +30,7 @@ const ITEM_QUESTION_TYPES = new Set([
   'type_word_from_definition','spelling_choice','spelling_cue_match','spelling_rebuild',
   'word_family_identify','family_multi_form','spot_the_error'
 ]);
+export const isItemQuestionType = questionType => ITEM_QUESTION_TYPES.has(questionType);
 const LANGUAGE_BANK_CONTEXT_QUESTION_TYPES = [
   'gap_fill_bank','drag_word_sentence','type_missing_word','choose_word_sentence','context_sentence_match'
 ];
@@ -101,7 +102,7 @@ export function validateVocabularyAttempt(value={}){
   if(!CONTENT_SOURCES.has(inferredSource))throw new Error('Content source is invalid.');
   if(inferredSource==='context'&&!contextId)throw new Error('Context ID is required for context content.');
   if(inferredSource==='unit_activity'&&!activityContentId)throw new Error('Activity content ID is required for unit activity content.');
-  if(inferredSource==='item'){if(!ITEM_QUESTION_TYPES.has(value.questionType))throw new Error('Question type is invalid for item content.');if(contextId||activityContentId)throw new Error('Item content cannot include context or activity content IDs.');}
+  if(inferredSource==='item'){if(!isItemQuestionType(value.questionType))throw new Error('Question type is invalid for item content.');if(contextId||activityContentId)throw new Error('Item content cannot include context or activity content IDs.');}
   if(activityVariantId&&inferredSource!=='unit_activity'&&!(inferredSource==='item'&&value.questionType==='family_multi_form'))throw new Error('Activity variant ID requires unit activity content.');
   if(value.evidenceStrength!=null&&!EVIDENCE_STRENGTHS.has(value.evidenceStrength))throw new Error('Evidence strength is invalid.');
   if(value.supportLevel!=null&&!SUPPORT_LEVELS.has(value.supportLevel))throw new Error('Support level is invalid.');

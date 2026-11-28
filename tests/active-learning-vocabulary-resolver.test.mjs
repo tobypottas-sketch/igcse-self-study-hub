@@ -9,3 +9,9 @@ test('inactive occurrence rejected',async()=>assert.equal(await resolve(c,{...lo
 test('context must match occurrence and sense',async()=>{const x={...c,pathway:'context',questionType:'choose_word_sentence',source:'context',activity:'ctx'};assert.equal(await resolve(x,{...lookup,context:async()=>({status:'live',occurrence_id:'other',sense_id:'s',context_type:'sentence'})}),null);});
 
 test('unpublished set membership fails closed',async()=>assert.equal(await resolve(c,{...lookup,publishedMember:async()=>false}),null));
+
+test('a released word-family variant maps to the canonical item identity', async () => {
+  const variant = {...c,pathway:'word_families',questionType:'family_multi_form',activity:'item:v:s:family:13'};
+  assert.equal((await resolve(variant,lookup)).activity,'item:v:s');
+  assert.equal(await resolve({...variant,activity:'item:v:other:family:13'},lookup),null);
+});

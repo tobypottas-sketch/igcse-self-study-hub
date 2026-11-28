@@ -27,12 +27,22 @@ export function createDurableTimingOutbox({storage, userId, currentUserId, send,
           guard();
           const raw=storage.getItem(key);
           if(raw===null)continue;
-          const batch=JSON.parse(raw);
-          if(batch.id!==key.slice(prefix.length))throw Error('Invalid batch identity');
-          if(now()-batch.createdAt>maxAgeMs){storage.removeItem(key);continue;}
-          // Transport must bind the request to this authenticated student, and reject
-          // any mismatch. Server must acknowledge duplicate IDs as success.
-          await send(batch,userId);
+          let batch;
+          try { batch=JSON.parse(raw); } catch { storage.removeItem(key); continue; }
+          const cutoff=now()-maxAgeMs;
+          if(batch?.id!==key.slice(prefix.length)||!Number.isSafeInteger(batch.createdAt)||
+             !Array.isArray(batch.intervals)||batch.intervals.length<1||batch.intervals.length>120||
+             batch.intervals.some(interval=>!Number.isSafeInteger(interval?.startMs)||interval.startMs<cutoff||
+               !Number.isSafeInteger(interval.endMs)||interval.endMs<=interval.startMs||!interval.context)){
+            storage.removeItem(key);
+            continue;
+          }
+          try {
+            await send(batch,userId);
+          } catch (error) {
+            // Only a definitive rejection of this exact batch permits deletion.
+            if(error?.rejectedBatchId!==batch.id)throw error;
+          }
           guard();
           storage.removeItem(key);
         }

@@ -9,6 +9,6 @@ export async function ingestActiveLearning({request, authenticate, resolveContex
   // The database uses its own clock and membership history; browser class IDs
   // are never passed through. Persistence must be atomic, including the manifest.
   const inserted=await persist({studentId:principal.id,batchId:body.batch.id,rows});
-  if(!Number.isInteger(inserted)||inserted<0||inserted>rows.length)throw Error('Invalid persistence acknowledgement');
+  if(!Number.isInteger(inserted)||(inserted!==0&&inserted!==rows.length))throw Error('Invalid persistence acknowledgement');
   return {batchId:body.batch.id,accepted:rows.length,inserted};
 }
