@@ -155,6 +155,7 @@ function renderStudentDetail(student) {
 function renderActivity(model) {
   const scope=model.activityScope==='all'&&model.profile?.role==='admin'?'all':'mine';
   const scopeControls=model.profile?.role==='admin'? `<div class="admin-actions" role="group" aria-label="Merit review scope"><button type="button" class="button admin-button" data-action="activity-scope-mine" aria-pressed="${scope==='mine'}">My classes</button><button type="button" class="button admin-button" data-action="activity-scope-all" aria-pressed="${scope==='all'}">All classes</button></div>`:'';
+  if (model.activityLoading) return '<div class="notice" role="status" aria-live="polite">Loading student activity and merits…</div>';
   if (!model.activityDashboard) return scopeControls+notice({ notice:'Student Activity could not be loaded. Reopen Activity to retry.' });
   const dashboard = model.activityDashboard;
   const selected = model.selectedStudentId ? dashboard.students.find(row => row.studentId === model.selectedStudentId) : null;
