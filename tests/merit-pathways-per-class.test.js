@@ -17,26 +17,26 @@ function fixture(masteredCount = 0) {
   };
 }
 
-test('default merit threshold is two fully mastered pathways', () => {
+test('each mastered pathway earns a bonus merit', () => {
   assert.equal(DEFAULT_PATHWAYS_PER_MERIT, 2);
   const data = fixture(4);
   const unit = Object.fromEntries(data.unitMastery.map(row => [row.occurrenceId,row]));
   assert.equal(countMasteredPathways({ occurrences:data.occurrences, unitMastery:unit }), 4);
   const [status] = buildMeritStatus({ students:[{ id:'s1' }], ...data });
   assert.equal(status.completedPathways, 4);
-  assert.equal(status.earned, 2);
-  assert.deepEqual(status.pendingNumbers, [1,2]);
+  assert.equal(status.earned, 4);
+  assert.deepEqual(status.pendingNumbers, [1,2,3,4]);
 });
 
-test('each student uses the threshold of their class', () => {
+test('historical class threshold does not change the uniform policy', () => {
   const data = fixture(4);
   const [status] = buildMeritStatus({ students:[{ id:'s1', meritPathwaysRequired:4 }], ...data });
   assert.equal(status.pathwaysPerMerit, 4);
-  assert.equal(status.earned, 1);
-  assert.deepEqual(status.pendingNumbers, [1]);
+  assert.equal(status.earned, 4);
+  assert.deepEqual(status.pendingNumbers, [1,2,3,4]);
 });
 
-test('raising a threshold never resurrects or revokes an awarded merit number', () => {
+test('existing awards are preserved and only new bonus merits are pending', () => {
   const data = fixture(4);
   const [status] = buildMeritStatus({
     students:[{ id:'s1', meritPathwaysRequired:4 }],
@@ -44,9 +44,9 @@ test('raising a threshold never resurrects or revokes an awarded merit number', 
     awards:[{ studentId:'s1', meritNumber:1 },{ studentId:'s1', meritNumber:2 }]
   });
   assert.equal(status.awarded, 2);
-  assert.deepEqual(status.pendingNumbers, []);
-  assert.equal(status.nextMeritNumber, 3);
-  assert.equal(status.pathwaysToNext, 8);
+  assert.deepEqual(status.pendingNumbers, [3,4]);
+  assert.equal(status.nextMeritNumber, 5);
+  assert.equal(status.pathwaysToNext, 3);
 });
 
 test('student progress copy uses completed pathways and the supplied class threshold', () => {

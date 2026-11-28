@@ -1,3 +1,4 @@
+import { missionMeritProgress } from './merits.js';
 import {updateLeaderboardModal,markLeaderboardTabPending} from './rewards-leaderboard-modal.js?v=player-avatars-v1';
 import {ensureRewardsDashboard} from './rewards-home-layout.js';
 import { getSupabaseClient } from '../supabase.js';
@@ -172,7 +173,7 @@ function engagementData(missions = state.missions ?? []) {
 function homeEngagement() {
   if (state.preview || !state.dashboard) return null;
   const { snapshot, xp, list } = engagementData();
-  return { level:xp, weekly:weeklyGoal(state.missions ?? []), merit:meritProgress(snapshot?.passedStages ?? 0, state.meritAwarded), achievementsUnlocked:list.filter(item => item.unlocked).length, achievementsTotal:list.length, newCount:newAchievements(list, state.userKey).length };
+  return { level:xp, weekly:weeklyGoal(state.missions ?? []), merit:missionMeritProgress(state.missions ?? [],snapshot?.masteredPathwayCount ?? 0,state.meritAwarded), achievementsUnlocked:list.filter(item => item.unlocked).length, achievementsTotal:list.length, newCount:newAchievements(list, state.userKey).length };
 }
 function openAchievements() {
   if (root?.querySelector?.('[data-achievements-backdrop]')) return;

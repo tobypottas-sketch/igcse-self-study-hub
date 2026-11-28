@@ -14,11 +14,11 @@ function indexByStudent(rows) {
 
 export function buildActivityDashboard({
   students = [], occurrences = [], globalMastery = [], unitMastery = [], activity = [],
-  unitChecks = [], awards = [], now = new Date(), coverageByUnit, engagementAvailable = true, selectedPeriod = null, detailsPending = false
+  unitChecks = [], awards = [], missions = [], now = new Date(), coverageByUnit, engagementAvailable = true, selectedPeriod = null, detailsPending = false
 } = {}) {
   const period = selectedPeriod ?? reportingPeriod('thisWeek', { now });
   const merits = detailsPending ? new Map() : new Map(buildMeritStatus({
-    students, occurrences, globalMastery, unitMastery, awards, coverageByUnit
+    students, occurrences, globalMastery, unitMastery, awards, coverageByUnit, missions
   }).map(merit => [merit.studentId, merit]));
   const awardedByStudent = indexByStudent(awards);
   const events = indexByStudent(activity);
@@ -53,7 +53,7 @@ export function buildActivityDashboard({
       activeDateKeys:engagement ? [...new Set([...engagement.modules.values()].flatMap(m => [...m.activeDays]))].sort() : [],
       recentModule:engagement?.lastPractice?.appKey ?? null,
       unitPathways:detailsPending?null:reportUnitPathways(occurrences, contextual.get(student.id) ?? [], global.get(student.id) ?? [], coverageByUnit),
-      unitChecks:history, awardedMerits:detailsPending?new Set((awardedByStudent.get(student.id)??[]).map(a=>Number(a.meritNumber??a.merit_number))).size:merit.awarded, eligibleMerits:detailsPending?null:merit.eligibleByProgress,
+      unitChecks:history, passedMissions:detailsPending?null:merit.passedMissions, missionHistory:detailsPending?null:missions.filter(m=>(m.student_id??m.studentId)===student.id).map(m=>({unitNumber:Number(m.unit_number??m.unitNumber),pathwayId:m.pathway_id??m.pathwayId,outcome:m.outcome})), awardedMerits:detailsPending?new Set((awardedByStudent.get(student.id)??[]).map(a=>Number(a.meritNumber??a.merit_number))).size:merit.awarded, eligibleMerits:detailsPending?null:merit.eligibleByProgress,
       pendingMerits:detailsPending?null:merit.pendingNumbers.length, pendingMeritNumbers:detailsPending?null:merit.pendingNumbers,
       recentActivity:engagement?.visible.sort((a,b) => timestampOf(b.occurredAt) - timestampOf(a.occurredAt)).slice(0,12)
         .map(row => ({ occurredAt:row.occurredAt, appKey:row.appKey, label:(row.eventType ?? row.source).replaceAll('_',' ') })) ?? []

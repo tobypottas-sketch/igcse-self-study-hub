@@ -186,7 +186,7 @@ export async function loadVocabularyMissions(client, options = {}) {
   if (options.preview === true || typeof client?.from !== 'function') return [];
   try {
     return await fetchAllRows(
-      () => client.from('vocabulary_missions').select('mission_id, unit_number, mission_kind, pathway_id, pathway_stage, practice_family, mission_size, score, stars, best_streak, completed_at', { count:'exact' }).order('completed_at', { ascending:true }).order('mission_id', { ascending:true }),
+      () => client.from('vocabulary_missions').select('mission_id, unit_number, mission_kind, pathway_id, pathway_stage, practice_family, mission_size, score, stars, best_streak, completed_at, outcome, set_number', { count:'exact' }).order('completed_at', { ascending:true }).order('mission_id', { ascending:true }),
       { label:'missions' }
     );
   } catch { return []; }
