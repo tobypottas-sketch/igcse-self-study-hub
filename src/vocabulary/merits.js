@@ -66,7 +66,7 @@ export function buildMeritStatus({ students = [], occurrences = [], unitMastery 
     const highestAwarded = done.size ? Math.max(...done) : 0;
     const earned = Math.max(eligibleByProgress, highestAwarded);
     const pendingNumbers = [];
-    for (let n = highestAwarded + 1; n <= eligibleByProgress; n += 1) pendingNumbers.push(n);
+    for (let n = 1; n <= Math.min(1000,eligibleByProgress); n += 1) if(!done.has(n)) pendingNumbers.push(n);
     const nextMeritNumber = earned + 1;
     return {
       studentId:student.id,

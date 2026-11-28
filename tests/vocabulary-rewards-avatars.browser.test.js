@@ -80,7 +80,8 @@ for(const width of [1440,768,390]) test(`Player avatar shop and persistence at $
       const classes=[{id:'class',name:'Test Class'}];
       if(action==='classes')data={ok:true,classes};
       if(action==='lobby')data={ok:true,me:profile.id,avatarId:'avatar-pixel-bot',students:[peer],pending:[],active:[
-        {id:'match',unit_number:1,challenger_id:profile.id,opponent_id:peer.id}
+        // A started match stays in the lobby until entered; an accepted unstarted match auto-enters V2.
+        {id:'match',unit_number:1,challenger_id:profile.id,opponent_id:peer.id,starts_at:'2026-11-27T12:00:00Z'}
       ]};
       if(action==='leaderboard')data={ok:true,ranking:[{...peer,name:peer.display_name,wins:1,played:1,score:800}]};
       if(action==='status')data={ok:true,id:'match',status:'accepted',unitNumber:1,className:'Test Class',challengerId:profile.id,
