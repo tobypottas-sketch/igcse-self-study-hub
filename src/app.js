@@ -416,6 +416,11 @@ export async function bootApp(clientOverride = null) {
     } finally { setFormBusy(form, false); }
   });
 
+  document.addEventListener('pointerdown', event => {
+    const menu = root.querySelector('.home-account-menu[open]');
+    if (menu && !menu.contains(event.target)) menu.open = false;
+  }, { capture: true });
+
   root.addEventListener('click', async (event) => {
     const target = event.target?.closest?.('[data-action]') ?? event.target;
     const action = target?.dataset?.action;
