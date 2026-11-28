@@ -27,6 +27,7 @@ export async function mockVocabularyStudent(page, saveMode = 'success') {
         return query;
       },
       functions:{ async invoke(name, { body }) {
+        if (name === 'vocabulary-diagnostic' && body?.action === 'ngsl-status') return { data:{ completed:true } };
         if (name !== 'vocabulary-attempt-action') return { data:{ ok:true } };
         window.vocabularyAttempts.push(body);
         try { validateVocabularyAttempt(body); } catch (error) { return { error:{ message:error.message } }; }
