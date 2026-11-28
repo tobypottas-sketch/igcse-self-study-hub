@@ -7,13 +7,14 @@ import { getSupabaseClient } from './supabase.js';
 import { createStudentAccount, createTeacherAccount, resetAccountPassword, setAccountActive, deleteAccount } from './admin/accounts.js';
 import { createClass, renameClass, assignTeacherToClass, unassignTeacherFromClass, transferStudent, retireClass } from './admin/classes.js';
 import { loadAdminData } from './admin/data.js';
-import { loadTeacherActivityData, markMeritAwarded } from './admin/activity-data.js';
+import { loadTeacherActivityData, markMeritAwarded, shouldUsePreviewFixture } from './admin/activity-data.js';
+import { awardReviewedMerit, loadMeritReview, reconcileMeritSnapshot } from './admin/merit-review.js';
 import { applyActivityListFilters, newActivityListState } from './admin/activity-list-ui.js?v=focused-v1';
 import { parseStudentCsv, validateStudentImport, bulkProvisionStudents } from './admin/import.js';
 import { renderLogin } from './views/login.js';
 import { renderChangePassword } from './views/change-password.js';
-import { renderHome, resetMeritPopup, updateHomeMerits, renderExternalMerits } from './views/home.js?v=home-merits-20261128-r2';
-import { renderAdmin } from './views/admin.js';
+import { renderHome, resetMeritPopup, updateHomeMerits, renderExternalMerits } from './views/home.js?v=scoped-merit-review-v1';
+import { renderAdmin } from './views/admin.js?v=scoped-merit-review-v1';
 import { renderStudentProgress, updateProgressStudentRows } from './views/student-progress.js';
 import { reportingPeriod, schoolDay } from './reporting/periods.js';
 import { escapeHtml } from './views/html.js';
@@ -162,12 +163,18 @@ export async function bootApp(clientOverride = null) {
     meritFirstLoad = true;
     if (meritMount) { meritMount.replaceChildren(); meritMount.hidden = true; }
   };
+  const readMeritReview = (scope = 'mine') => shouldUsePreviewFixture()
+    ? loadTeacherActivityData(client, {meritOnly:true})
+    : loadMeritReview(client, scope);
+  const meritAccessError = error => [401,403].includes(error?.status);
+  const isReview = scope => currentState.view==='admin' && currentState.section==='activity'
+    && currentState.meritReview && currentState.activityScope===scope;
   const refreshMerits = async ({ immediate = false } = {}) => {
     if (!eligibleForMerits() || meritTimer === null || meritAccount !== currentState.profile.id || (!immediate && document.hidden)) return;
     if (meritRequest) return meritRequest;
     const generation = meritGeneration;
     const account = currentState.profile.id;
-    const request = loadTeacherActivityData(client,{meritOnly:true,assignedActorId:account})
+    const request = readMeritReview()
       .then(snapshot => {
         if (generation !== meritGeneration || account !== currentState.profile?.id || !eligibleForMerits()) return;
         const previous = meritSnapshot;
@@ -180,6 +187,11 @@ export async function bootApp(clientOverride = null) {
             void loadProgress();
           }
         }
+        if (isReview('mine')) {
+          const needsRender = !currentState.reviewSnapshot || changed;
+          currentState={...currentState,reviewSnapshot:snapshot,reviewLoading:false};
+          if (needsRender) renderAdmin(root,currentState);
+        }
         if (cachedHomeState) cachedHomeState = {...cachedHomeState,meritSnapshot:snapshot};
         if (currentState.view === 'home') {
           if (changed || meritFirstLoad) updateHomeMerits(root,currentState.profile,snapshot,{autoOpen:meritFirstLoad});
@@ -189,14 +201,18 @@ export async function bootApp(clientOverride = null) {
       .catch(error => {
         if (generation !== meritGeneration) return;
         // A revoked session or permission error must not leave old student names visible.
-        if (['42501','PGRST301','PGRST303'].includes(error?.code) || [401,403].includes(error?.status) || error?.message==='Unable to verify assigned classes.') {
+        if(isReview('mine') && !meritAccessError(error)) {
+          currentState={...currentState,reviewLoading:false,notice:'Could not refresh merits. Try opening Review merits again.'};
+          renderAdmin(root,currentState);
+        }
+        if (meritAccessError(error)) {
           meritSnapshot = null;
           activityLoadPromise = null;
           activityGeneration++;
           if (currentState.view === 'home') updateHomeMerits(root,currentState.profile,null);
           if (currentState.view === 'student-progress') { progressGeneration++; if(progressState){progressState={...progressState,snapshot:null,loading:false};drawProgress();} }
           if (currentState.view === 'admin' && currentState.section === 'activity') {
-            currentState = { ...currentState, activityDashboard:null, notice:'Activity access is unavailable.' };
+            currentState = { ...currentState, activityDashboard:null, reviewSnapshot:null, reviewLoading:false, notice:'Activity access is unavailable.' };
             renderAdmin(root,currentState);
           }
           syncMeritMount();
@@ -233,13 +249,35 @@ export async function bootApp(clientOverride = null) {
       }
     }
   });
+  const openMeritReview = async (scope = 'mine') => {
+    if (!eligibleForMerits() || (scope==='all' && currentState.profile.role!=='admin')) return;
+    const generation = ++activityGeneration;
+    const account = currentState.profile.id;
+    progressGeneration++;
+    root.querySelector('[data-merit-dialog]')?.close();
+    currentState={...currentState,view:'admin',section:'activity',activityScope:scope,
+      meritReview:true,reviewAwardPending:false,reviewSnapshot:scope==='mine'&&meritAccount===account?meritSnapshot:null,
+      reviewLoading:true,selectedStudentId:null,activityDashboard:null,notice:''};
+    renderAdmin(root,currentState);
+    if(scope==='mine') { await refreshMerits({immediate:true}); return; }
+    const current = () => generation===activityGeneration && currentState.profile?.id===account && isReview(scope);
+    try {
+      const snapshot = await readMeritReview(scope);
+      if(current()) currentState={...currentState,reviewSnapshot:snapshot,reviewLoading:false};
+    } catch (error) {
+      if(current()) currentState={...currentState,reviewSnapshot:null,reviewLoading:false,notice:error.message};
+    }
+    if(current()) renderAdmin(root,currentState);
+  };
   meritMount?.addEventListener('click',async event => {
-    if (!event.target?.closest?.('[data-action="activity"]') || !eligibleForMerits()) return;
+    const target=event.target?.closest?.('[data-action="activity"]');
+    if (!target || !eligibleForMerits()) return;
     meritMount.querySelector('[data-merit-dialog]')?.close();
     assessorController?.dispose(); assessorController = null;
-    activityListState = newActivityListState();
-    activityListState.state='merits';
-    await renderActivitySection({selectedStudentId:null,notice:'',activityScope:'mine'},true);
+    if(target.dataset.reviewMode==='classes') {
+      activityListState=newActivityListState();
+      await renderActivitySection({selectedStudentId:null,notice:'',activityScope:'mine'},true);
+    } else await openMeritReview();
   });
 
   const invalidateAdminBackgroundRefreshes = () => { adminRefreshGeneration += 1; };
@@ -309,7 +347,7 @@ export async function bootApp(clientOverride = null) {
     const isCurrent = () => generation === activityGeneration && currentState.profile?.id === actor && currentState.view==='admin' && currentState.section==='activity';
     root.querySelector('[data-merit-dialog]')?.close();
     progressGeneration++;
-    currentState={...currentState,...extras,view:'admin',section:'activity',activityScope:scope,activityDashboard:null,activityLoading:true};
+    currentState={...currentState,...extras,view:'admin',section:'activity',activityScope:scope,meritReview:false,reviewAwardPending:false,activityDashboard:null,activityLoading:true};
     renderAdmin(root,currentState);
     try {
       const activityDashboard = await preloadActivityData(refresh,scope);
@@ -473,8 +511,18 @@ export async function bootApp(clientOverride = null) {
     else if (action === 'cancel-change-password') {
       if (['teacher','admin'].includes(currentState.profile?.role) && !currentState.profile.must_change_password) await renderCurrentState();
     }
-    else if (action === 'activity') { activityListState=newActivityListState(); activityListState.state=target.dataset.reviewMode==='classes'?'all':'merits'; await renderActivitySection({ selectedStudentId:null, notice:'', activityScope:'mine' },true); }
-    else if (action === 'activity-scope-mine' || action === 'activity-scope-all') { if(currentState.profile?.role!=='admin'||currentState.view!=='admin'||currentState.section!=='activity')return; activityListState=newActivityListState(); activityListState.state='merits'; await renderActivitySection({selectedStudentId:null,notice:'',activityScope:action==='activity-scope-all'?'all':'mine'},true); }
+    else if (action === 'activity') {
+      if(target.dataset.reviewMode!=='classes') await openMeritReview();
+      else { activityListState=newActivityListState(); await renderActivitySection({selectedStudentId:null,notice:'',activityScope:'mine'},true); }
+    }
+    else if (action === 'activity-full-report' && currentState.meritReview) {
+      activityListState=newActivityListState();
+      await renderActivitySection({selectedStudentId:null,notice:''},true);
+    }
+    else if (action === 'activity-scope-mine' || action === 'activity-scope-all') {
+      if(currentState.profile?.role!=='admin'||currentState.view!=='admin'||currentState.section!=='activity')return;
+      await openMeritReview(action==='activity-scope-all'?'all':'mine');
+    }
     else if (action === 'admin') await renderAdminSection('accounts', { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     else if (action === 'admin-back') {
       activityGeneration++; progressGeneration++; progressState=null; progressReturn=false;
@@ -502,30 +550,64 @@ export async function bootApp(clientOverride = null) {
       activityListState.limit+=10;
       applyActivityListFilters(root,activityListState);
     } else if (action === 'activity-award-merit') {
-      const studentId = target?.dataset?.studentId;
-      const meritNumber = Number(target?.dataset?.meritNumber);
-      if (!studentId || !Number.isInteger(meritNumber) || target.disabled) return;
-      await runButtonAction(target, async () => {
-        try {
-          await markMeritAwarded(client,studentId,meritNumber);
-          // Invalidate any response started before the successful award.
-          meritGeneration++; meritRequest = null;
-          if (meritSnapshot) {
-            const students = meritSnapshot.students.map(s => {
-              if (s.studentId !== studentId) return s;
-              const pendingMeritNumbers = (s.pendingMeritNumbers ?? []).filter(n => n !== meritNumber);
-              return {...s,pendingMeritNumbers,pendingMerits:pendingMeritNumbers.length};
-            }).filter(s=>s.pendingMerits);
-            meritSnapshot = {...meritSnapshot,students,pendingMerits:students.reduce((sum,s)=>sum+s.pendingMerits,0)};
-            syncMeritMount();
-          }
-          void refreshMerits({immediate:true});
-          await renderActivitySection({ selectedStudentId:studentId, notice:`Merit ${meritNumber} marked awarded.` },true);
-        } catch (error) {
-          currentState = { ...currentState, notice:error instanceof Error ? error.message : 'Unable to mark merit awarded.' };
-          renderAdmin(root,currentState);
+      const studentId = target.dataset.studentId;
+      const number = Number(target.dataset.meritNumber);
+      const actor = currentState.profile?.id;
+      const scope = currentState.activityScope==='all'?'all':'mine';
+      if (!eligibleForMerits() || currentState.section!=='activity' || !studentId ||
+          !Number.isInteger(number) || target.disabled || currentState.reviewAwardPending) return;
+      const generation = activityGeneration;
+      const isCurrent = () => generation===activityGeneration && currentState.profile?.id===actor
+        && currentState.view==='admin' && currentState.section==='activity';
+      currentState={...currentState,reviewAwardPending:true};
+      target.disabled=true;
+      try {
+        const {highestAwarded,recorded,awardedCount} = shouldUsePreviewFixture()
+          ? await markMeritAwarded(client,studentId,number).then(()=>({highestAwarded:number,recorded:true,awardedCount:1}))
+          : await awardReviewedMerit(client,{scope,studentId,number});
+        if (currentState.profile?.id!==actor || meritAccount!==actor) return;
+        // Ignore list responses begun before the confirmed write.
+        meritGeneration++;
+        meritRequest=null;
+        activityLoadPromise=null;
+        meritSnapshot = reconcileMeritSnapshot(meritSnapshot,studentId,highestAwarded);
+        if(cachedHomeState) cachedHomeState={...cachedHomeState,meritSnapshot};
+        if(currentState.view==='home') updateHomeMerits(root,currentState.profile,meritSnapshot);
+        else syncMeritMount();
+        if(!isCurrent()) {
+          // A scope change may have superseded the original action; refresh that
+          // review so any response acquired before the write cannot restore it.
+          if(isReview('mine')||isReview('all')) await openMeritReview(currentState.activityScope);
+          return;
         }
-      });
+        const previous = currentState.activityDashboard;
+        const reviewSnapshot = reconcileMeritSnapshot(currentState.reviewSnapshot,studentId,highestAwarded);
+        const activityDashboard = previous ? {
+          ...previous, ...reconcileMeritSnapshot(previous,studentId,highestAwarded),
+          students:previous.students.map(student=>{
+            if(student.studentId!==studentId)return student;
+            const pendingMeritNumbers=(student.pendingMeritNumbers ?? []).filter(n=>n>highestAwarded);
+            return {...student,pendingMeritNumbers,pendingMerits:pendingMeritNumbers.length,awardedMerits:awardedCount};
+          })
+        } : null;
+        currentState={...currentState,reviewSnapshot,activityDashboard,reviewLoading:false,reviewAwardPending:false,
+          notice:recorded?`Merit ${number} marked awarded.`:'A later award has already been recorded.'};
+        renderAdmin(root,currentState);
+        if(!currentState.meritReview)restoreActivityList();
+      } catch (error) {
+        if (!isCurrent()) return;
+        if(meritAccessError(error)) {
+          meritGeneration++; meritRequest=null; meritSnapshot=null; activityLoadPromise=null;
+          currentState={...currentState,activityDashboard:null,reviewSnapshot:null,reviewLoading:false};
+          syncMeritMount();
+        }
+        currentState={...currentState,reviewAwardPending:false,notice:error.message};
+        renderAdmin(root,currentState);
+        if(error.status===409 && currentState.meritReview) {
+          // The displayed row is stale. A fresh personal list remains scoped.
+          await openMeritReview(scope);
+        }
+      }
     } else if (action === 'admin-reset-password') {
       const userId = target?.dataset?.userId;
       if (!userId || target.disabled) return;

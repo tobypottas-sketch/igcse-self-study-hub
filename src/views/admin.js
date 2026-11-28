@@ -155,6 +155,13 @@ function renderStudentDetail(student) {
 function renderActivity(model) {
   const scope=model.activityScope==='all'&&model.profile?.role==='admin'?'all':'mine';
   const scopeControls=model.profile?.role==='admin'? `<div class="admin-actions" role="group" aria-label="Merit review scope"><button type="button" class="button admin-button" data-action="activity-scope-mine" aria-pressed="${scope==='mine'}">My classes</button><button type="button" class="button admin-button" data-action="activity-scope-all" aria-pressed="${scope==='all'}">All classes</button></div>`:'';
+  if (model.meritReview) {
+    const snapshot = model.reviewSnapshot;
+    const heading = `<div class="admin-list-header"><div><p class="eyebrow">Student activity · ${scope==='all'?'All classes':'My classes'}</p><h2>Review merits</h2></div><button type="button" class="button admin-button" data-action="activity-full-report">Student activity</button></div>`;
+    const list = snapshot?.students.map(student=>`<section class="admin-card activity-card"><h3>${escapeHtml(student.displayName)}</h3><p class="activity-quiet">${escapeHtml(student.className)}</p><ul class="activity-rows">${student.pendingMeritNumbers.map(number=>`<li><span>Merit ${escapeHtml(number)} ${pill('Waiting','warn')}</span><button type="button" class="button admin-button button--primary" data-action="activity-award-merit" data-student-id="${escapeHtml(student.studentId)}" data-merit-number="${escapeHtml(number)}"${model.reviewAwardPending?' disabled':''}>Mark awarded</button></li>`).join('')}</ul></section>`).join('');
+    const empty = snapshot ? 'No new merits waiting.' : model.reviewLoading ? 'Checking pending merits…' : 'Pending merits are unavailable.';
+    return `${notice(model)}${scopeControls}${heading}${list || `<p class="activity-quiet" role="status">${empty}</p>`}`;
+  }
   if (model.activityLoading) return '<div class="notice" role="status" aria-live="polite">Loading student activity and merits…</div>';
   if (!model.activityDashboard) return scopeControls+notice({ notice:'Student Activity could not be loaded. Reopen Activity to retry.' });
   const dashboard = model.activityDashboard;

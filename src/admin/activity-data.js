@@ -13,7 +13,7 @@ function payloads(rows, type) {
   return (rows ?? []).filter(row => row.record_type === type).map(row => row.payload ?? {});
 }
 
-function shouldUsePreviewFixture() {
+export function shouldUsePreviewFixture() {
   if (typeof globalThis.location === 'undefined') return false;
   const host = String(globalThis.location.hostname ?? '');
   const params = new URLSearchParams(String(globalThis.location.search ?? ''));
