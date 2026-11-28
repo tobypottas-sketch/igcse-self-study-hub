@@ -85,7 +85,9 @@ export function buildMeritStatus({ students = [], occurrences = [], unitMastery 
   });
 }
 
-export const MISSIONS_PER_MERIT=3;
+export const FIRST_MERIT_MISSIONS=3;
+export const MISSIONS_PER_MERIT=5;
+export const missionMeritsForPasses=passed=>passed<FIRST_MERIT_MISSIONS?0:1+Math.floor((passed-FIRST_MERIT_MISSIONS)/MISSIONS_PER_MERIT);
 export function qualifyingMissions(rows=[]){
  const unique=new Map();
  for(const r of rows){
@@ -96,7 +98,8 @@ export function qualifyingMissions(rows=[]){
  return [...unique.values()];
 }
 export function missionMeritProgress(missions=[],mastered=0,awarded=0){
- const passed=qualifyingMissions(missions).length,eligible=Math.floor(passed/3)+Math.max(0,Math.floor(mastered||0)),already=Math.max(0,Math.floor(awarded||0)),earned=Math.max(eligible,already);
- const toNext=Math.max(1,(earned+1-Math.max(0,Math.floor(mastered||0)))*3-passed);
+ const passed=qualifyingMissions(missions).length,bonus=Math.max(0,Math.floor(mastered||0)),eligible=missionMeritsForPasses(passed)+bonus,already=Math.max(0,Math.floor(awarded||0)),earned=Math.max(eligible,already);
+ const nextMissionMerit=Math.max(1,earned+1-bonus);
+ const toNext=Math.max(1,FIRST_MERIT_MISSIONS+(nextMissionMerit-1)*MISSIONS_PER_MERIT-passed);
  return {passedMissions:passed,completedPathways:mastered,eligibleByProgress:eligible,earned,awarded:already,toNext,copy:toNext+' more qualifying passed '+(toNext===1?'mission':'missions')+' toward your next merit'};
 }
