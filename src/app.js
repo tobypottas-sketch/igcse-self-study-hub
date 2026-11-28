@@ -425,17 +425,17 @@ export async function bootApp(clientOverride = null) {
     if (action?.startsWith('sp-')) {
       if (!staffProgress() || currentState.view!=='student-progress' || !progressState) return;
       if (action==='sp-home') {await renderCurrentState();return;}
-      if (action==='sp-all') {progressState={...progressState,classId:null,studentId:null,tab:'overview',search:'',inactiveOnly:false,meritsOnly:false};drawProgress();return;}
-      if (action==='sp-back') { activityGeneration++; if(progressState.studentId){progressState={...progressState,studentId:null};drawProgress();}else if(progressState.classId){progressState={...progressState,classId:null,tab:'overview',search:'',inactiveOnly:false,meritsOnly:false};drawProgress();}else await renderCurrentState(); return; }
+      if (action==='sp-all') {progressState={...progressState,classId:null,studentId:null,fullVocabulary:false,tab:'overview',search:'',inactiveOnly:false,meritsOnly:false};drawProgress();return;}
+      if (action==='sp-back') { activityGeneration++; if(progressState.studentId){progressState={...progressState,studentId:null,fullVocabulary:false};drawProgress();}else if(progressState.classId){progressState={...progressState,classId:null,tab:'overview',search:'',inactiveOnly:false,meritsOnly:false};drawProgress();}else await renderCurrentState(); return; }
       if (action==='sp-refresh' || action==='sp-apply') { await loadProgress(); return; }
-      if (action==='sp-class' || action==='sp-merits') { const id=target.dataset.classId; if(!progressState.snapshot?.classes?.some(c=>c.classId===id) && !progressState.snapshot?.students?.some(s=>s.classId===id))return; progressState={...progressState,classId:id,studentId:null,tab:action==='sp-merits'?'students':'overview',search:'',inactiveOnly:false,meritsOnly:action==='sp-merits'};drawProgress();return; }
-      if (action==='sp-tab' && ['overview','students','learning'].includes(target.dataset.tab)) {progressState={...progressState,tab:target.dataset.tab,studentId:null,inactiveOnly:false};drawProgress();return;}
+      if (action==='sp-class' || action==='sp-merits') { const id=target.dataset.classId; if(!progressState.snapshot?.classes?.some(c=>c.classId===id) && !progressState.snapshot?.students?.some(s=>s.classId===id))return; progressState={...progressState,classId:id,studentId:null,fullVocabulary:false,tab:action==='sp-merits'?'students':'overview',search:'',inactiveOnly:false,meritsOnly:action==='sp-merits'};drawProgress();return; }
+      if (action==='sp-tab' && ['overview','students','learning'].includes(target.dataset.tab)) {progressState={...progressState,tab:target.dataset.tab,studentId:null,fullVocabulary:false,inactiveOnly:false};drawProgress();return;}
       if (['sp-insight-time','sp-insight-inactive','sp-clear-inactive'].includes(action)) {progressState={...progressState,tab:'students',search:'',meritsOnly:false,inactiveOnly:action==='sp-insight-inactive',sort:action==='sp-insight-time'?'time':'name'};drawProgress();return;}
       if (action==='sp-toggle-merits') {progressState={...progressState,inactiveOnly:false,meritsOnly:!progressState.meritsOnly};drawProgress();return;}
-      if (action==='sp-student-back') {progressState={...progressState,studentId:null};drawProgress();return;}
+      if (action==='sp-student-back') {progressState={...progressState,studentId:null,fullVocabulary:false};drawProgress();return;}
       if (action==='sp-student' || action==='sp-full-student') {const id=target.dataset.studentId;if(!progressState.snapshot?.students?.some(s=>s.studentId===id && s.classId===progressState.classId))return;
-        if(action==='sp-student'){progressState={...progressState,studentId:id};drawProgress();root.querySelector('.sp-shell')?.scrollIntoView({block:'start'});return;}
-        progressGeneration++;progressReturn=true;await renderActivitySection({selectedStudentId:id,notice:''},true);return;}
+        if(action==='sp-student'){progressState={...progressState,studentId:id,fullVocabulary:false};drawProgress();root.querySelector('.sp-shell')?.scrollIntoView({block:'start'});return;}
+        progressState={...progressState,studentId:id,fullVocabulary:!progressState.fullVocabulary};drawProgress();if(progressState.fullVocabulary){const record=root.querySelector('#sp-full-record');record?.focus?.({preventScroll:true});record?.scrollIntoView({block:'start'});}return;}
       return;
     }
     if (action === 'writing-activity') {
