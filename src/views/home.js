@@ -151,7 +151,10 @@ export function renderHome(root, profile, apps, activityDashboard = null, { regi
   const heading = selectedSkill === 'all' ? 'All apps' : (skills.find(skill => skill.id === selectedSkill)?.name ?? '');
   const shownCount = selectedSkill === 'all' ? model.apps.length : (skills.find(skill => skill.id === selectedSkill)?.count ?? 0);
 
+  const staffWorkspace = model.showStaffTools && profile.active === true && !profile.must_change_password;
   const activityLabel = model.pendingMerits ? `Student Progress · ${model.pendingMerits} new` : 'Student Progress';
+  const staffTile = (action, title, desc, glyph, extra = '') => `<button type="button" class="home-workspace-tile" data-action="${action}"><span class="home-workspace-tile__icon" aria-hidden="true">${glyph}</span><span class="home-workspace-tile__copy"><strong ${extra}>${escapeHtml(title)}</strong><small>${escapeHtml(desc)}</small></span><span class="home-workspace-tile__arrow" aria-hidden="true">↗</span></button>`;
+  const staffTools = staffWorkspace ? `<section class="home-workspace" aria-labelledby="staff-workspace-title"><div class="home-workspace__heading"><div><p class="eyebrow">TEACHER WORKSPACE</p><h2 id="staff-workspace-title">Your classroom</h2></div><span class="home-workspace__label">Staff access</span></div><div class="home-workspace__grid">${staffTile('student-progress',activityLabel,'Track learning and achievements', '<svg viewBox="0 0 24 24"><path d="M4 20V10m6 10V4m6 16v-7m4 7H2"/></svg>','data-home-activity-label')}${staffTile('writing-activity','Writing Activity','Review student submissions',icon('pen'))}${staffTile('writing-assessor','Writing assessor','Assess and give feedback', '<svg viewBox="0 0 24 24"><path d="M5 3h14v18H5zM8 8h8M8 12h8m-8 4h4"/></svg>')}${model.showAdminControls?staffTile('admin','Manage accounts','Classes and user access','<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20v-3a6 6 0 0 1 12 0v3M16 6a3 3 0 0 1 0 6m2 3a5 5 0 0 1 3 5"/></svg>'):''}</div></section>` : '';
   const accountControls = [
     model.showActivityControls ? `<button class="button button--primary" data-action="student-progress" data-home-activity-label>${escapeHtml(activityLabel)}</button>` : '',
     model.showAdminControls ? '<button class="button" data-action="admin">Manage accounts</button>' : '',
@@ -161,7 +164,7 @@ export function renderHome(root, profile, apps, activityDashboard = null, { regi
   ].filter(Boolean).join(' ');
 
   root.innerHTML = `
-    <section class="shell shell--home">
+    <section class="shell shell--home${staffWorkspace?' shell--staff-home':''}">
       <header class="home-hero">
         <div class="home-hero__topbar">
           <div class="home-brand">
@@ -169,6 +172,7 @@ export function renderHome(root, profile, apps, activityDashboard = null, { regi
           </div>
           <div class="home-account-controls">
             ${meritBellMarkup(model, profile)}
+            ${staffWorkspace?'<button class="button button--ghost home-password" data-action="change-password">Change password</button>':''}
             <button class="button button--ghost home-logout" data-action="logout">Log out</button>
           </div>
         </div>
@@ -183,7 +187,7 @@ export function renderHome(root, profile, apps, activityDashboard = null, { regi
             </div>
           </div>
           <h1>Welcome, ${escapeHtml(model.displayName)}</h1>
-          <p class="home-hero__lead">Choose a skill and continue your independent practice.</p>
+          <p class="home-hero__lead">${staffWorkspace?'Your teaching workspace for independent learning, progress and student recognition.':'Choose a skill and continue your independent practice.'}</p>
           <div class="home-hero__note">
             <span class="home-hero__status" aria-hidden="true"></span>
             Your activity is linked securely to your account.
@@ -192,16 +196,17 @@ export function renderHome(root, profile, apps, activityDashboard = null, { regi
       </header>
 
       <div data-merit-banner>${renderMeritAlert(model)}</div>
+      ${staffTools}
       ${meritPopupMarkup(model, profile, activityDashboard !== null)}
 
       <section class="study-tools" aria-labelledby="study-tools-title">
         <div class="section-heading section-heading--home">
           <div>
-            <p class="eyebrow">Your study tools</p>
-            <h2 id="study-tools-title">Choose a skill</h2>
-            <p>Pick a skill, then open an app. Focused practice for Cambridge IGCSE English as a Second Language (0511).</p>
+            <p class="eyebrow">${staffWorkspace?'LEARNING LIBRARY':'Your study tools'}</p>
+            <h2 id="study-tools-title">${staffWorkspace?'Explore learning apps':'Choose a skill'}</h2>
+            <p>${staffWorkspace?'Open a subject skill to explore the student practice tools.':'Pick a skill, then open an app. Focused practice for Cambridge IGCSE English as a Second Language (0511).'}</p>
           </div>
-          ${accountControls ? `<div class="admin-actions">${accountControls}</div>` : ''}
+          ${!staffWorkspace && accountControls ? `<div class="admin-actions">${accountControls}</div>` : ''}
         </div>
         ${skills.length ? `<div class="skill-picker" role="group" aria-label="Skills">${skillCards}</div>` : ''}
         <div class="app-results" data-app-results>
