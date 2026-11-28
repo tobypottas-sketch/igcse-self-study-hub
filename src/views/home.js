@@ -29,6 +29,8 @@ export function buildHomeModel(profile, apps, activityDashboard = null) {
     showActivityControls: canSeeTeacherActivity,
     showStaffTools: canSeeTeacherActivity,
     pendingMerits,
+    classroomLoaded:activityDashboard !== null && activityDashboard !== undefined,
+    assignedClassCount:canSeeTeacherActivity && Number.isInteger(activityDashboard?.assignedClassCount) ? activityDashboard.assignedClassCount : null,
     meritAlerts
   };
 }
@@ -115,6 +117,11 @@ function renderMeritAlert(model) {
     </aside>`;
 }
 
+function classroomSummary(model) {
+  const loaded=model.classroomLoaded;
+  const count=model.pendingMerits;
+  return `<div class="home-classroom-summary"><p class="home-classroom-summary__eyebrow">MY CLASSROOM</p><div class="home-classroom-summary__metrics"><div class="home-classroom-summary__metric"><span class="home-classroom-summary__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20v-3a6 6 0 0 1 12 0v3M16 6a3 3 0 0 1 0 6m2 3a5 5 0 0 1 3 5"/></svg></span><div><strong>${model.assignedClassCount??'—'}</strong><small>My classes</small></div></div><div class="home-classroom-summary__metric"><span class="home-classroom-summary__icon home-classroom-summary__icon--merit" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 2 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg></span><div><strong>${loaded?escapeHtml(count):'—'}</strong><small>Pending merits</small></div></div></div><button type="button" class="button button--primary home-classroom-summary__action" data-action="activity">${loaded&&count===0?'View my classes':'Review merits'} <span aria-hidden="true">→</span></button></div>`;
+}
 export function renderHome(root, profile, apps, activityDashboard = null, { registry = DEFAULT_REGISTRY, autoOpenMerits = true } = {}) {
   const model = buildHomeModel(profile, apps, activityDashboard);
   const skills = skillSummaries(model.apps, registry);
@@ -172,11 +179,11 @@ export function renderHome(root, profile, apps, activityDashboard = null, { regi
           </div>
           <div class="home-account-controls">
             ${meritBellMarkup(model, profile)}
-            ${staffWorkspace?'<button class="button button--ghost home-password" data-action="change-password">Change password</button>':''}
-            <button class="button button--ghost home-logout" data-action="logout">Log out</button>
+            ${staffWorkspace?'<details class="home-account-menu"><summary><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg>My account <span aria-hidden="true">⌄</span></summary><div class="home-account-menu__panel"><button type="button" class="button button--ghost home-password" data-action="change-password">Change password</button><button type="button" class="button button--ghost home-logout" data-action="logout">Log out</button></div></details>':'<button class="button button--ghost home-logout" data-action="logout">Log out</button>'}
           </div>
         </div>
         <div class="home-hero__content">
+          <div class="home-hero__welcome">
           <div class="home-hero__kicker">
             <p class="eyebrow eyebrow--hero">iGCSE Self-Study Hub</p>
             <div class="course-identity" aria-label="Cambridge IGCSE English as a Second Language course 0511" style="margin-left:16px;min-height:38px;">
@@ -187,15 +194,14 @@ export function renderHome(root, profile, apps, activityDashboard = null, { regi
             </div>
           </div>
           <h1>Welcome, ${escapeHtml(model.displayName)}</h1>
-          <p class="home-hero__lead">${staffWorkspace?'Your teaching workspace for independent learning, progress and student recognition.':'Choose a skill and continue your independent practice.'}</p>
-          <div class="home-hero__note">
-            <span class="home-hero__status" aria-hidden="true"></span>
-            Your activity is linked securely to your account.
+          <p class="home-hero__lead">${staffWorkspace?'Monitor progress. Recognise achievement.':'Choose a skill and continue your independent practice.'}</p>
+          ${!staffWorkspace?'<div class="home-hero__note"><span class="home-hero__status" aria-hidden="true"></span>Your activity is linked securely to your account.</div>':''}
           </div>
+          ${staffWorkspace?`<div data-home-classroom>${classroomSummary(model)}</div>`:''}
         </div>
       </header>
 
-      <div data-merit-banner>${renderMeritAlert(model)}</div>
+      ${!staffWorkspace?`<div data-merit-banner>${renderMeritAlert(model)}</div>`:''}
       ${staffTools}
       ${meritPopupMarkup(model, profile, activityDashboard !== null)}
 
@@ -289,6 +295,8 @@ export function updateHomeMerits(root, profile, dashboard, { autoOpen = false } 
   dialog.outerHTML = meritPopupMarkup(model,profile,dashboard !== null);
   const banner = root.querySelector('[data-merit-banner]');
   if (banner) banner.innerHTML = renderMeritAlert(model);
+  const classroom=root.querySelector('[data-home-classroom]');
+  if(classroom) classroom.innerHTML=classroomSummary(model);
   const label = root.querySelector('[data-home-activity-label]');
   if (label) label.textContent = model.pendingMerits ? `Student Progress · ${model.pendingMerits} new` : 'Student Progress';
   renderMeritPopup(root,model,profile,autoOpen);
