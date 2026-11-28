@@ -116,10 +116,14 @@ export async function bootApp(clientOverride = null) {
     return adminLoadPromise;
   };
 
-  const preloadActivityData = (force = false) => {
-    if (force) activityLoadPromise = null;
+  let activityCacheScope = null;
+  const preloadActivityData = (force = false, scope = 'mine') => {
+    const actor=currentState.profile;
+    const key=actor.id+':'+scope;
+    if (force || activityCacheScope !== key) activityLoadPromise = null;
+    activityCacheScope=key;
     if (!activityLoadPromise) {
-      activityLoadPromise = loadTeacherActivityData(client)
+      activityLoadPromise = loadTeacherActivityData(client,{assignedActorId:scope==='mine'?actor.id:null})
         .catch(error => { activityLoadPromise = null; throw error; });
     }
     return activityLoadPromise;
@@ -163,7 +167,7 @@ export async function bootApp(clientOverride = null) {
     if (meritRequest) return meritRequest;
     const generation = meritGeneration;
     const account = currentState.profile.id;
-    const request = loadTeacherActivityData(client,{meritOnly:true})
+    const request = loadTeacherActivityData(client,{meritOnly:true,assignedActorId:account})
       .then(snapshot => {
         if (generation !== meritGeneration || account !== currentState.profile?.id || !eligibleForMerits()) return;
         const previous = meritSnapshot;
@@ -185,7 +189,7 @@ export async function bootApp(clientOverride = null) {
       .catch(error => {
         if (generation !== meritGeneration) return;
         // A revoked session or permission error must not leave old student names visible.
-        if (['42501','PGRST301','PGRST303'].includes(error?.code) || [401,403].includes(error?.status)) {
+        if (['42501','PGRST301','PGRST303'].includes(error?.code) || [401,403].includes(error?.status) || error?.message==='Unable to verify assigned classes.') {
           meritSnapshot = null;
           activityLoadPromise = null;
           activityGeneration++;
@@ -234,7 +238,8 @@ export async function bootApp(clientOverride = null) {
     meritMount.querySelector('[data-merit-dialog]')?.close();
     assessorController?.dispose(); assessorController = null;
     activityListState = newActivityListState();
-    await renderActivitySection({selectedStudentId:null,notice:''},true);
+    activityListState.state='merits';
+    await renderActivitySection({selectedStudentId:null,notice:'',activityScope:'mine'},true);
   });
 
   const invalidateAdminBackgroundRefreshes = () => { adminRefreshGeneration += 1; };
@@ -300,17 +305,18 @@ export async function bootApp(clientOverride = null) {
     if (!['admin','teacher'].includes(currentState?.profile?.role) || currentState.profile.active === false) return;
     const generation = ++activityGeneration;
     const actor = currentState.profile.id;
+    const scope=currentState.profile.role==='admin'&&(extras.activityScope??currentState.activityScope)==='all'?'all':'mine';
     const isCurrent = () => generation === activityGeneration && currentState.profile?.id === actor;
     try {
-      const activityDashboard = await preloadActivityData(refresh);
+      const activityDashboard = await preloadActivityData(refresh,scope);
       if (!isCurrent()) return;
       if (cachedHomeState) cachedHomeState = { ...cachedHomeState, activityDashboard };
-      currentState = { ...currentState, ...extras, view:'admin', section:'activity', activityDashboard };
+      currentState = { ...currentState, ...extras, view:'admin', section:'activity', activityScope:scope, activityDashboard };
       renderAdmin(root, currentState);
       restoreActivityList();
     } catch {
       if (!isCurrent()) return;
-      currentState = { ...currentState, ...extras, view:'admin', section:'activity', activityDashboard:null, notice:'Unable to load student activity.' };
+      currentState = { ...currentState, ...extras, view:'admin', section:'activity', activityScope:scope, activityDashboard:null, notice:'Unable to load student activity.' };
       renderAdmin(root, currentState);
       restoreActivityList();
     }
@@ -463,7 +469,8 @@ export async function bootApp(clientOverride = null) {
     else if (action === 'cancel-change-password') {
       if (['teacher','admin'].includes(currentState.profile?.role) && !currentState.profile.must_change_password) await renderCurrentState();
     }
-    else if (action === 'activity') { activityListState=newActivityListState(); await renderActivitySection({ selectedStudentId:null, notice:'' },true); }
+    else if (action === 'activity') { activityListState=newActivityListState(); activityListState.state='merits'; await renderActivitySection({ selectedStudentId:null, notice:'', activityScope:'mine' },true); }
+    else if (action === 'activity-scope-mine' || action === 'activity-scope-all') { if(currentState.profile?.role!=='admin'||currentState.view!=='admin'||currentState.section!=='activity')return; activityListState=newActivityListState(); activityListState.state='merits'; await renderActivitySection({selectedStudentId:null,notice:'',activityScope:action==='activity-scope-all'?'all':'mine'},true); }
     else if (action === 'admin') await renderAdminSection('accounts', { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     else if (action === 'admin-back') {
       activityGeneration++; progressGeneration++; progressState=null; progressReturn=false;
@@ -475,7 +482,7 @@ export async function bootApp(clientOverride = null) {
     }
     else if (action?.startsWith?.('admin-section-')) {
       const section = action.slice('admin-section-'.length);
-      if (section === 'activity') { activityListState=newActivityListState(); await renderActivitySection({ selectedStudentId:null, notice:'' },true); }
+      if (section === 'activity') { activityListState=newActivityListState(); await renderActivitySection({ selectedStudentId:null, notice:'',activityScope:'mine' },true); }
       else if (['accounts','classes','import'].includes(section)) await renderAdminSection(section, { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     } else if (action === 'activity-student') {
       const studentId = target?.dataset?.studentId;

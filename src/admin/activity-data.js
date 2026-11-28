@@ -75,7 +75,20 @@ async function loadScopedStudentNumbers(client, students) {
   return numbers;
 }
 
-export async function loadTeacherActivityData(client, { now = new Date(), meritOnly = false, selectedPeriod = null, onUsageReady = null } = {}) {
+// Personal notifications are narrower than administrator reporting permissions.
+export async function loadAssignedClassIds(client, actorId) {
+  if (!actorId) throw Object.assign(new Error('Staff identity is required.'),{code:'42501'});
+  const rows = await fetchAllRows(() => ({
+    async range(from,to) {
+      const result=await client.from('teacher_classes').select('class_id',{count:'exact'}).eq('teacher_id',actorId).order('class_id').range(from,to);
+      if(result.error) throw Object.assign(new Error('Unable to verify assigned classes.'),{code:result.error.code,status:result.status});
+      return result;
+    }
+  }),{label:'assigned classes'});
+  return new Set(rows.map(row=>row.class_id).filter(Boolean));
+}
+
+export async function loadTeacherActivityData(client, { now = new Date(), meritOnly = false, selectedPeriod = null, onUsageReady = null, assignedActorId = null } = {}) {
   if (shouldUsePreviewFixture()) return previewDashboard(now,meritOnly);
 
   // Student Progress only: fetch the small authorised roster, check and award payload first.
@@ -86,7 +99,8 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
   ]);
   const thresholdByClass = new Map(classes.map(row => [row.id, Number(row.merit_pathways_required) || 2]));
   const rows = records ?? [];
-  const students = payloads(rows,'student').map(row => ({
+  const assigned = assignedActorId === null ? null : await loadAssignedClassIds(client,assignedActorId);
+  const students = payloads(rows,'student').filter(row => assigned === null || assigned.has(row.class_id)).map(row => ({
     id:row.student_id,
     displayName:row.display_name,
     classId:row.class_id,
@@ -96,7 +110,8 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
   const missionsRequest=fetchAllRowsForIds(students.map(s=>s.id),ids=>client.from('vocabulary_missions').select('mission_id,student_id,unit_number,mission_kind,pathway_id,pathway_stage,set_number,outcome,completed_at',{count:'exact'}).in('student_id',ids).order('mission_id'),{label:'merit missions'}).then(value=>({value}),error=>({error}));
   const numbersRequest = meritOnly ? Promise.resolve(new Map()) : loadScopedStudentNumbers(client, students);
   const evidenceRequest = meritOnly ? Promise.resolve(null) : loadClassEvidence(client, students, selectedPeriod ?? reportingPeriod('last30',{now})).then(value=>({value}),error=>({error}));
-  const normalizeGlobal = source => payloads(source,'vocabulary_global_mastery').map(row => ({
+  const scopedIds=new Set(students.map(s=>s.id));
+  const normalizeGlobal = source => payloads(source,'vocabulary_global_mastery').filter(row=>scopedIds.has(row.student_id)).map(row => ({
     studentId:row.student_id,
     vocabularyId:row.vocabulary_id,
     status:row.status,
@@ -104,7 +119,7 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
     recentErrorPattern:row.recent_error_pattern ?? null,
     updatedAt:row.updated_at ?? null
   }));
-  const normalizeUnit = source => payloads(source,'vocabulary_unit_mastery').map(row => ({
+  const normalizeUnit = source => payloads(source,'vocabulary_unit_mastery').filter(row=>scopedIds.has(row.student_id)).map(row => ({
     studentId:row.student_id,
     occurrenceId:row.occurrence_id,
     status:row.status,
@@ -112,7 +127,7 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
     recentErrorPattern:row.recent_error_pattern ?? null,
     updatedAt:row.updated_at ?? null
   }));
-  const unitChecks = payloads(rows,'unit_check').map(row => ({
+  const unitChecks = payloads(rows,'unit_check').filter(row=>scopedIds.has(row.student_id)).map(row => ({
     studentId:row.student_id,
     unitNumber:Number(row.unit_number),
     formId:row.form_id,
@@ -121,7 +136,7 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
     maxScore:Number(row.max_score),
     completedAt:row.completed_at
   }));
-  const awards = payloads(rows,'merit_award').map(row => ({
+  const awards = payloads(rows,'merit_award').filter(row=>scopedIds.has(row.student_id)).map(row => ({
     studentId:row.student_id,
     meritNumber:Number(row.merit_number),
     awardedAt:row.awarded_at
@@ -139,7 +154,9 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
     const mr=await missionsRequest;if(mr.error)throw mr.error;
     const status = buildMeritStatus({ missions:mr.value,students, occurrences:normalizedOccurrences, globalMastery, unitMastery, awards, coverageByUnit });
     const byId = new Map(status.map(row => [row.studentId,row.pendingNumbers]));
-    const alerts = students.map(s => {
+    // A student enrolled in more than one of my classes still earns each merit only once.
+    const uniqueStudents=[...new Map(students.map(s=>[s.id,s])).values()];
+    const alerts = uniqueStudents.map(s => {
       const pendingMeritNumbers = byId.get(s.id) ?? [];
       return {studentId:s.id,displayName:s.displayName,className:s.className,pendingMerits:pendingMeritNumbers.length,pendingMeritNumbers};
     }).filter(s => s.pendingMerits);
