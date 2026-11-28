@@ -67,12 +67,23 @@ export async function bootApp(clientOverride = null) {
     try { period = reportingPeriod(progressState.kind,{from:progressState.from,to:progressState.to}); if (progressState.kind==='custom' && period.end-period.start > 31*86400000) throw new RangeError('Choose at most 31 calendar days.'); }
     catch(error) { progressGeneration++; progressState={...progressState,error:error.message,snapshot:null,loading:false,period:null,awaitingDates:true}; drawProgress(); return; }
     const generation=++progressGeneration, actor=currentState.profile.id;
-    progressState={...progressState,period,snapshot:null,loading:true,error:null,awaitingDates:false}; drawProgress();
+    const periodKey=JSON.stringify([progressState.kind,progressState.kind==='custom'?progressState.from:null,progressState.kind==='custom'?progressState.to:null,schoolDay(period.asOf)]);
+    const retained=progressState.snapshotKey===periodKey?progressState.snapshot:null;
+    const isCurrent=()=>generation===progressGeneration && currentState.view==='student-progress' && currentState.profile?.id===actor && staffProgress();
+    progressState={...progressState,period:retained?progressState.period:period,snapshot:retained,loading:true,refreshing:Boolean(retained),error:null,awaitingDates:false}; drawProgress();
     try {
-      const snapshot=await loadTeacherActivityData(client,{now:new Date(period.asOf),selectedPeriod:period});
-      if(generation!==progressGeneration || currentState.view!=='student-progress' || currentState.profile?.id!==actor || !staffProgress()) return;
-      progressState={...progressState,snapshot,loading:false}; drawProgress();
-    } catch { if(generation===progressGeneration && currentState.view==='student-progress' && staffProgress()){ progressState={...progressState,snapshot:null,loading:false}; drawProgress(); } }
+      const snapshot=await loadTeacherActivityData(client,{now:new Date(period.asOf),selectedPeriod:period,onUsageReady:usage=>{
+        if(!isCurrent())return false;
+        progressState={...progressState,period,snapshot:usage,snapshotKey:periodKey,refreshing:false,loading:true}; drawProgress();
+        return true;
+      }});
+      if(!isCurrent()||!snapshot)return;
+      progressState={...progressState,period,snapshot,snapshotKey:periodKey,refreshing:false,loading:false}; drawProgress();
+    } catch(error) {
+      if(!isCurrent())return;
+      // Fail closed on any access error, and never present stale data as refreshed.
+      progressState={...progressState,snapshot:null,snapshotKey:null,refreshing:false,loading:false}; drawProgress();
+    }
   };
   const openProgress = async () => {
     if(!staffProgress()) return;

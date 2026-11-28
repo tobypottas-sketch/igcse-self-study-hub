@@ -106,7 +106,7 @@ browserTest('staff flows preserve controls, dates, sorting and navigation at des
           await page.getByText('Unavailable / 2',{exact:true}).first().waitFor();
           await page.evaluate(()=>{window.progressFixture.failures(false);window.progressFixture.hold();});
           await page.getByRole('button',{name:'Refresh'}).click();
-          await page.getByText('Loading student progress…').waitFor();
+          await page.getByText('Refreshing… showing the previous snapshot.').waitFor();
           await page.getByRole('button',{name:'‹ All classes'}).click();
           await page.getByRole('button',{name:'‹ Back to Hub'}).click();
           await page.evaluate(()=>window.progressFixture.release());
