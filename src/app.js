@@ -512,7 +512,7 @@ export async function bootApp(clientOverride = null) {
               const pendingMeritNumbers = (s.pendingMeritNumbers ?? []).filter(n => n !== meritNumber);
               return {...s,pendingMeritNumbers,pendingMerits:pendingMeritNumbers.length};
             }).filter(s=>s.pendingMerits);
-            meritSnapshot = {students,pendingMerits:students.reduce((sum,s)=>sum+s.pendingMerits,0)};
+            meritSnapshot = {...meritSnapshot,students,pendingMerits:students.reduce((sum,s)=>sum+s.pendingMerits,0)};
             syncMeritMount();
           }
           void refreshMerits({immediate:true});

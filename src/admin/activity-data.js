@@ -160,7 +160,7 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
       const pendingMeritNumbers = byId.get(s.id) ?? [];
       return {studentId:s.id,displayName:s.displayName,className:s.className,pendingMerits:pendingMeritNumbers.length,pendingMeritNumbers};
     }).filter(s => s.pendingMerits);
-    return {students:alerts,pendingMerits:alerts.reduce((sum,s)=>sum+s.pendingMerits,0)};
+    return {students:alerts,pendingMerits:alerts.reduce((sum,s)=>sum+s.pendingMerits,0),...(assigned===null?{}:{assignedClassCount:classes.filter(c=>assigned.has(c.id)).length})};
   }
   const vocabUnits=[...new Map(normalizedOccurrences.map(o=>[o.unitNumber,{unitNumber:o.unitNumber,unitTitle:o.unitTitle}])).values()];
   const classList=classes.map(c=>({classId:c.id,className:c.class_name}));

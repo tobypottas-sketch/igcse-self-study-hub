@@ -173,3 +173,35 @@
 .shell--staff-home .section-heading--home p:last-child { margin-top:6px; max-width:none; }
 @media(max-width:1050px){.home-workspace__grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media(max-width:560px){.shell--staff-home .home-hero{padding:18px 16px 22px;}.shell--staff-home .home-hero__topbar{flex-wrap:wrap;gap:10px}.shell--staff-home .home-account-controls{margin-left:auto;flex-wrap:wrap}.shell--staff-home .home-password{font-size:12px}.home-workspace__grid{grid-template-columns:1fr;gap:9px}.home-workspace-tile{min-height:76px;padding:12px}.shell--staff-home .home-merit-alert{padding:15px}.shell--staff-home .home-merit-alert .button{width:100%;}.home-workspace{margin-top:22px;}}
+
+/* Compact staff dashboard: live personal classroom summary, no redundant banner. */
+.shell--staff-home .home-hero { overflow:visible; padding:18px 26px 24px; background:linear-gradient(112deg,#fff 0%,#f0fafb 55%,#dcebf9 100%); }
+.shell--staff-home .home-hero::before,.shell--staff-home .home-hero::after { display:none; }
+.shell--staff-home .home-hero__topbar { padding-bottom:13px; border-bottom:1px solid #d8e6ed; z-index:3; }
+.shell--staff-home .home-brand__logo { width:190px; }
+.shell--staff-home .home-hero__content { display:grid; grid-template-columns:minmax(0,1.35fr) minmax(270px,1fr); align-items:center; gap:24px; padding:18px 0 0; }
+.shell--staff-home .home-hero__welcome { min-width:0; }
+.shell--staff-home .home-hero__kicker { gap:7px; margin-bottom:10px; }
+.shell--staff-home .home-hero__kicker .course-identity { margin-left:0!important; min-height:30px!important; max-width:100%; flex-wrap:wrap; }
+.shell--staff-home .home-hero__kicker .course-identity img { width:100px!important; }
+.shell--staff-home .home-hero h1 { font-size:clamp(1.7rem,3.1vw,2.65rem); line-height:1.12; }
+.shell--staff-home .home-hero__lead { margin:8px 0 0; font-size:15px; line-height:1.45; }
+.home-account-menu { position:relative; }
+.home-account-menu summary { display:flex; align-items:center; gap:8px; list-style:none; cursor:pointer; border:1px solid #ccdde7; border-radius:11px; background:#fff; color:#16394e; padding:9px 12px; font-size:13px; font-weight:750; }
+.home-account-menu summary::-webkit-details-marker { display:none; }
+.home-account-menu summary svg,.home-classroom-summary__icon svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.home-account-menu__panel { position:absolute; right:0; top:calc(100% + 7px); z-index:5; min-width:174px; display:grid; gap:4px; padding:6px; background:#fff; border:1px solid #d5e4eb; border-radius:12px; box-shadow:0 12px 30px #16384c20; }
+.home-account-menu__panel .button { text-align:left; justify-content:flex-start; width:100%; white-space:nowrap; }
+.home-account-menu summary:focus-visible { outline:3px solid #168b9f; outline-offset:3px; }
+.home-classroom-summary { box-sizing:border-box; border:1px solid #d4e4ed; border-radius:16px; padding:15px 17px; background:#ffffffdf; box-shadow:0 8px 24px #17405c0a; }
+.home-classroom-summary__eyebrow { margin:0 0 12px; color:#527185; font-size:11px; font-weight:800; letter-spacing:.12em; }
+.home-classroom-summary__metrics { display:grid; grid-template-columns:1fr 1fr; gap:13px; margin:0 0 13px; }
+.home-classroom-summary__metric { display:flex; align-items:center; gap:9px; min-width:0; }
+.home-classroom-summary__metric+ .home-classroom-summary__metric { border-left:1px solid #deeaef; padding-left:13px; }
+.home-classroom-summary__metric strong { display:block; font-size:28px; color:#12354f; line-height:1.05; font-weight:850; font-variant-numeric:tabular-nums; }
+.home-classroom-summary__metric small { display:block; margin-top:3px; font-size:12px; color:#567083; line-height:1.25; }
+.home-classroom-summary__icon { flex:0 0 34px; height:34px; display:grid; place-items:center; border-radius:10px; background:#e3f4f3; color:#087f83; }
+.home-classroom-summary__icon--merit { background:#fff5df; color:#ad791b; }
+.home-classroom-summary__action.button { display:flex; justify-content:space-between; align-items:center; width:100%; min-height:40px; font-weight:800; border:0; background:linear-gradient(110deg,#087f83,#1599b1,#2869c8); color:#fff; border-radius:10px; }
+@media(max-width:760px){.shell--staff-home .home-hero__content{grid-template-columns:1fr;gap:16px}.shell--staff-home .home-hero{padding:16px}.shell--staff-home .home-hero__topbar{gap:8px}.shell--staff-home .home-brand__logo{width:155px}.shell--staff-home .home-hero h1{font-size:clamp(1.7rem,6vw,2.4rem)}}
+@media(max-width:380px){.home-classroom-summary{padding:12px}.home-classroom-summary__metrics{gap:8px}.home-classroom-summary__metric{gap:6px}.home-classroom-summary__metric+.home-classroom-summary__metric{padding-left:8px}.home-classroom-summary__icon{flex-basis:28px;height:28px}.home-account-menu summary{padding:8px}.home-account-menu summary svg{display:none}}
