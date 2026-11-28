@@ -3,6 +3,9 @@ import {createActiveLearningClock} from '../tracking/active-learning-clock.js';
 const pathways=new Set(['meaning','context','word_families','paraphrasing','precision_use','spelling_recall']);
 export function vocabularyTimingContext(state,screen) {
   if(screen!=='question'||state.preview||state.finishPending||state.handoffPending||!state.session||!state.current)return null;
+  // Some curated fallbacks carry a browser-only language-bank ID. Only
+  // count them when the app also resolves the persisted unit activity.
+  if(state.current.question?.contentSource==='language_bank'&&!state.current.activityRecord)return null;
   const pathway=state.pathwayId ?? (state.mixedReview?state.current.pathwayPlan?.pathwayId:null);
   const unit=state.currentUnitNumber;
   const activity=state.current.question?.contentId;

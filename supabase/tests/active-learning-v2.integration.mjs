@@ -232,19 +232,29 @@ try {
     await page.evaluate(()=>qa.advance(2000)); // Feedback.
     const saved=page.waitForResponse(r=>r.url()===endpoint&&r.status()===200&&r.request().postDataJSON()?.batch?.intervals?.at(-1)?.endMs!=null);
     saved.catch(()=>{});
+    const offlineFailure=width===390?page.waitForEvent('requestfailed',{
+      predicate:request=>request.url().includes('/auth/v1/user')
+    }):null;
+    offlineFailure?.catch(()=>{});
     if(width===390)await context.setOffline(true);
     await page.click('#finish');
     if(width===390){
+      await offlineFailure;
       await page.waitForFunction(()=>Object.keys(localStorage).some(key=>key.startsWith('hub-active-v2:')));
       await context.setOffline(false);
-      await page.evaluate(()=>qa.flush());
+      await page.evaluate(async()=>{
+        try { await qa.flush(); } catch { await qa.flush(); }
+      });
     }
     const acknowledgement = await (await saved).json();
     assert.equal(acknowledgement.inserted,acknowledgement.accepted);
     await page.evaluate(()=>qa.flush());
-    const totals=(await q(`select sum(extract(epoch from ended_at-started_at))::integer as seconds
-      from active_learning_intervals_v2 where batch_id=$1`,[acknowledgement.batchId])).rows;
-    assert.equal(totals[0].seconds,5);
+    const bounds=(await q(`select min(started_at) as start, max(ended_at) as finish
+      from active_learning_intervals_v2 where batch_id=$1`,[acknowledgement.batchId])).rows[0];
+    assert.equal(bounds.finish - bounds.start,5000);
+    const credited=await as('authenticated',student,`select sum(extract(epoch from ended_at-started_at))::integer as seconds
+      from active_learning_v2_segments($1,$2,$3)`,[bounds.start,bounds.finish,student]);
+    assert.equal(credited.rows[0].seconds,5);
     await page.evaluate(()=>qa.advance(4000)); // Stale feedback DOM after stop.
     await page.evaluate(()=>qa.flush());
     await context.close();

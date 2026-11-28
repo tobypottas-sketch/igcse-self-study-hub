@@ -17,3 +17,9 @@ test('new question saves previous activity before switching',()=>{const f=fixtur
 test('storage failure retains unsaved intervals for retry',async()=>{const f=fixture();f.adapter.sync(f.state,'question');f.step(3000);f.fail(true);f.adapter.stop();assert.equal(f.saved.length,0);f.fail(false);await f.adapter.flush();assert.equal(f.saved.reduce((n,r)=>n+r.endMs-r.startMs,0),3000);});
 
 test('large retained queue is split without resending saved chunks',async()=>{let t=0,fail=true;const batches=[];const clock=createActiveLearningClock({now:()=>t,wallNow:()=>100000+t});const a=createVocabularyTiming({clock,outbox:{enqueue:r=>{if(fail)throw Error('offline');batches.push(r.length);},flush:async()=>{}}});const s={currentUnitNumber:3,pathwayId:'meaning',session:{},current:{question:{contentId:'a'}}};a.visibility(true);a.focus(true);a.sync(s,'question');for(let i=0;i<241;i++){t+=1000;a.interaction(true);a.tick();}a.stop();fail=false;await a.flush();assert.deepEqual(batches,[120,120,1]);});
+
+test('browser-only language bank fallback cannot poison a timing batch', () => {
+  const f=fixture();
+  f.state.current.question.contentSource='language_bank';
+  assert.equal(vocabularyTimingContext(f.state,'question'),null);
+});
