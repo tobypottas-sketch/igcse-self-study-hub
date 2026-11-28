@@ -46,6 +46,8 @@ export function buildActivityDashboard({
       activeDays:engagement?.sufficient ? engagement.activeDays : null,
       practiceState:!engagement ? 'retrieval-failure' : !engagement.sufficient ? 'insufficient-evidence'
         : engagement.activeDays ? 'recorded' : 'no-records',
+      estimatedSeconds:engagement?.sufficient && [...engagement.modules.values()].some(m=>m.estimatedSeconds>0) ? [...engagement.modules.values()].reduce((n,m)=>n+m.estimatedSeconds,0) : null,
+      completedActivities:engagement?.sufficient ? [...engagement.modules.values()].reduce((n,m)=>n+m.activityCompletions+m.assessmentCompletions+m.writingSubmissions,0) : null,
       learningAreas:engagement?.learningAreas ?? [],
       activeDateKeys:engagement ? [...new Set([...engagement.modules.values()].flatMap(m => [...m.activeDays]))].sort() : [],
       recentModule:engagement?.lastPractice?.appKey ?? null,
