@@ -306,17 +306,21 @@ export async function bootApp(clientOverride = null) {
     const generation = ++activityGeneration;
     const actor = currentState.profile.id;
     const scope=currentState.profile.role==='admin'&&(extras.activityScope??currentState.activityScope)==='all'?'all':'mine';
-    const isCurrent = () => generation === activityGeneration && currentState.profile?.id === actor;
+    const isCurrent = () => generation === activityGeneration && currentState.profile?.id === actor && currentState.view==='admin' && currentState.section==='activity';
+    root.querySelector('[data-merit-dialog]')?.close();
+    progressGeneration++;
+    currentState={...currentState,...extras,view:'admin',section:'activity',activityScope:scope,activityDashboard:null,activityLoading:true};
+    renderAdmin(root,currentState);
     try {
       const activityDashboard = await preloadActivityData(refresh,scope);
       if (!isCurrent()) return;
       if (cachedHomeState) cachedHomeState = { ...cachedHomeState, activityDashboard };
-      currentState = { ...currentState, ...extras, view:'admin', section:'activity', activityScope:scope, activityDashboard };
+      currentState = { ...currentState, ...extras, view:'admin', section:'activity', activityScope:scope, activityLoading:false, activityDashboard };
       renderAdmin(root, currentState);
       restoreActivityList();
     } catch {
       if (!isCurrent()) return;
-      currentState = { ...currentState, ...extras, view:'admin', section:'activity', activityScope:scope, activityDashboard:null, notice:'Unable to load student activity.' };
+      currentState = { ...currentState, ...extras, view:'admin', section:'activity', activityScope:scope, activityLoading:false, activityDashboard:null, notice:'Unable to load student activity.' };
       renderAdmin(root, currentState);
       restoreActivityList();
     }
@@ -469,7 +473,7 @@ export async function bootApp(clientOverride = null) {
     else if (action === 'cancel-change-password') {
       if (['teacher','admin'].includes(currentState.profile?.role) && !currentState.profile.must_change_password) await renderCurrentState();
     }
-    else if (action === 'activity') { activityListState=newActivityListState(); activityListState.state='merits'; await renderActivitySection({ selectedStudentId:null, notice:'', activityScope:'mine' },true); }
+    else if (action === 'activity') { activityListState=newActivityListState(); activityListState.state=target.dataset.reviewMode==='classes'?'all':'merits'; await renderActivitySection({ selectedStudentId:null, notice:'', activityScope:'mine' },true); }
     else if (action === 'activity-scope-mine' || action === 'activity-scope-all') { if(currentState.profile?.role!=='admin'||currentState.view!=='admin'||currentState.section!=='activity')return; activityListState=newActivityListState(); activityListState.state='merits'; await renderActivitySection({selectedStudentId:null,notice:'',activityScope:action==='activity-scope-all'?'all':'mine'},true); }
     else if (action === 'admin') await renderAdminSection('accounts', { credential:null, notice:'', importPreview:null, bulkResult:null, lastImportClassId:null });
     else if (action === 'admin-back') {
