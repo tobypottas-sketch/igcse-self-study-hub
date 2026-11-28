@@ -413,12 +413,16 @@ export async function bootApp(clientOverride = null) {
     if (action === 'student-progress') { await openProgress(); return; }
     if (action?.startsWith('sp-')) {
       if (!staffProgress() || currentState.view!=='student-progress' || !progressState) return;
-      if (action==='sp-back') { activityGeneration++; if(progressState.classId){progressState={...progressState,classId:null,tab:'overview',search:'',meritsOnly:false};drawProgress();}else await renderCurrentState(); return; }
+      if (action==='sp-back') { activityGeneration++; if(progressState.studentId){progressState={...progressState,studentId:null};drawProgress();}else if(progressState.classId){progressState={...progressState,classId:null,tab:'overview',search:'',inactiveOnly:false,meritsOnly:false};drawProgress();}else await renderCurrentState(); return; }
       if (action==='sp-refresh' || action==='sp-apply') { await loadProgress(); return; }
-      if (action==='sp-class' || action==='sp-merits') { const id=target.dataset.classId; if(!progressState.snapshot?.classes?.some(c=>c.classId===id) && !progressState.snapshot?.students?.some(s=>s.classId===id))return; progressState={...progressState,classId:id,tab:action==='sp-merits'?'students':'overview',search:'',meritsOnly:action==='sp-merits'};drawProgress();return; }
-      if (action==='sp-tab' && ['overview','students','learning'].includes(target.dataset.tab)) {progressState={...progressState,tab:target.dataset.tab};drawProgress();return;}
-      if (action==='sp-toggle-merits') {progressState={...progressState,meritsOnly:!progressState.meritsOnly};drawProgress();return;}
-      if (action==='sp-student') {progressGeneration++; const id=target.dataset.studentId;if(!progressState.snapshot?.students?.some(s=>s.studentId===id && s.classId===progressState.classId))return;progressReturn=true;await renderActivitySection({selectedStudentId:id,notice:''},true);return;}
+      if (action==='sp-class' || action==='sp-merits') { const id=target.dataset.classId; if(!progressState.snapshot?.classes?.some(c=>c.classId===id) && !progressState.snapshot?.students?.some(s=>s.classId===id))return; progressState={...progressState,classId:id,studentId:null,tab:action==='sp-merits'?'students':'overview',search:'',inactiveOnly:false,meritsOnly:action==='sp-merits'};drawProgress();return; }
+      if (action==='sp-tab' && ['overview','students','learning'].includes(target.dataset.tab)) {progressState={...progressState,tab:target.dataset.tab,inactiveOnly:false};drawProgress();return;}
+      if (['sp-insight-time','sp-insight-inactive','sp-clear-inactive'].includes(action)) {progressState={...progressState,tab:'students',search:'',meritsOnly:false,inactiveOnly:action==='sp-insight-inactive',sort:action==='sp-insight-time'?'time':'name'};drawProgress();return;}
+      if (action==='sp-toggle-merits') {progressState={...progressState,inactiveOnly:false,meritsOnly:!progressState.meritsOnly};drawProgress();return;}
+      if (action==='sp-student-back') {progressState={...progressState,studentId:null};drawProgress();return;}
+      if (action==='sp-student' || action==='sp-full-student') {const id=target.dataset.studentId;if(!progressState.snapshot?.students?.some(s=>s.studentId===id && s.classId===progressState.classId))return;
+        if(action==='sp-student'){progressState={...progressState,studentId:id};drawProgress();root.querySelector('.sp-shell')?.scrollIntoView({block:'start'});return;}
+        progressGeneration++;progressReturn=true;await renderActivitySection({selectedStudentId:id,notice:''},true);return;}
       return;
     }
     if (action === 'writing-activity') {
