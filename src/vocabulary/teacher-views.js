@@ -153,7 +153,7 @@ function meritPanel(merits) {
   const pending = (merits.rows ?? []).filter(row => row.pendingNumbers.length);
   if (!pending.length) return `<aside class="vocab-merit-panel vocab-merit-panel--quiet" data-merit-panel><strong>Merits</strong> <span>None waiting.</span></aside>`;
   const list = pending.map(row => `<li class="vocab-merit-row" data-merit-student="${escapeHtml(row.studentId)}"><span><strong>${escapeHtml(row.displayName)}</strong><small>${escapeHtml(row.passedMissions ?? 0)} qualifying missions passed · ${escapeHtml(row.pendingNumbers.length)} merit${row.pendingNumbers.length === 1 ? '' : 's'} to award</small></span><button class="vocab-button vocab-button--secondary" data-action="teacher-award-merit" data-student-id="${escapeHtml(row.studentId)}">Mark awarded</button></li>`).join('');
-  return `<article class="vocab-teacher-panel vocab-merit-panel" data-merit-panel><h2 title="One merit per three qualifying passed missions, plus one per mastered pathway. Tap Mark awarded after you have given it.">Merits to award (${pending.length})</h2><ul class="vocab-merit-list">${list}</ul></article>`;
+  return `<article class="vocab-teacher-panel vocab-merit-panel" data-merit-panel><h2 title="First merit after three qualifying passed missions, then one per five additional qualifying missions, plus one per mastered pathway. Tap Mark awarded after you have given it.">Merits to award (${pending.length})</h2><ul class="vocab-merit-list">${list}</ul></article>`;
 }
 function stat(labelText, value, detail, extra = '') { return `<article class="vocab-insight-card"><p>${escapeHtml(labelText)}</p><strong>${escapeHtml(value)}</strong>${detail ? `<span>${escapeHtml(detail)}</span>` : ''}${extra}</article>`; }
 
