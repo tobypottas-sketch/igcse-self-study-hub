@@ -46,7 +46,13 @@ export async function bootApp(clientOverride = null) {
   root.innerHTML = '<div class="loading">Loading Self-Study Hub…</div>';
   let client;
   try { client = clientOverride ?? await getSupabaseClient(); }
-  catch { renderError(root, 'The Self-Study service is unavailable right now.'); return; }
+  catch {
+    renderError(root, 'The Self-Study service could not start. Check your connection and try again. (HUB-START-01)');
+    // Startup failed before the normal delegated click handler was registered.
+    // A full reload also clears a rejected module import/client promise.
+    root.querySelector('[data-action="retry"]')?.addEventListener('click', () => window.location.reload(), { once: true });
+    return;
+  }
 
   let currentState = { view:'login' };
   let assessorController = null;
