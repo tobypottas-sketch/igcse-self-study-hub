@@ -39,21 +39,30 @@ export function installVocabularyTiming({enabled=false,root,state,doc,win,outbox
 }
 
 // Entry point stays inert unless the compile-time gate and explicit enable are true.
-export function startGatedVocabularyTiming({enabled=false,root,state,doc,win}) {
+export async function startGatedVocabularyTiming({enabled=false,root,state,doc,win}) {
   if(!VOCABULARY_ACTIVE_TIME_V2_ENABLED||!enabled||state.preview||!state.userKey)return null;
-  const userId=state.userKey;let current=userId;
-  const outbox=createDurableTimingOutbox({storage:win.localStorage,userId,currentUserId:()=>current,send:createActiveLearningTransport({client:state.client}),id:()=>win.crypto.randomUUID()});
+  const userId=state.userKey;
+  const {data:eligible,error}=await state.client.rpc('active_learning_v2_pilot_enabled',{p_student:userId});
+  if(error||eligible!==true||state.userKey!==userId)return null;
+  const {data:identity,error:identityError}=await state.client.auth.getUser();
+  if(identityError||identity?.user?.id!==userId||state.userKey!==userId)return null;
+  let current=userId;
+  const send=createActiveLearningTransport({client:state.client,onTrackingDisabled:()=>deactivate()});
+  const outbox=createDurableTimingOutbox({storage:win.localStorage,userId,currentUserId:()=>current,send,id:()=>win.crypto.randomUUID()});
   const bridge=installVocabularyTiming({enabled:true,root,state,doc,win,outbox,
     eligible:state=>state.timingSetMembers?.unit===state.currentUnitNumber&&
       state.timingSetMembers.rows.some(row=>row.occurrence_id===state.current?.target?.occurrenceId&&
         row.pathway_id===(state.pathwayId??(state.mixedReview?state.current?.pathwayPlan?.pathwayId:null))),
     onError:()=>console.warn('Active learning timing save deferred.')});
-  const {data}=state.client.auth.onAuthStateChange((_event,session)=>{
-    if(session?.user?.id===userId)return;
+  function deactivate(){
+    if(current===null)return;
     bridge?.stop();
     current=null;
     // Do not invoke Supabase auth methods synchronously in the auth callback.
     win.setTimeout(()=>{bridge?.dispose();data?.subscription?.unsubscribe();},0);
+  }
+  const {data}=state.client.auth.onAuthStateChange((_event,session)=>{
+    if(session?.user?.id!==userId)deactivate();
   });
   return bridge;
 }

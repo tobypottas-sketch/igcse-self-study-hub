@@ -19,3 +19,17 @@ test('only a permanent rejection naming the same batch can be discarded', async 
       (error.rejectedBatchId==='b')===permanent);
   }
 });
+
+test('an explicit pilot stop is distinct from a temporary endpoint outage', async () => {
+  const id = 'pilot-student';
+  for (const [code,status,expected] of [['pilot_access_required',403,1],['tracking_disabled',503,1],['temporary',503,0]]) {
+    let disabled=0;
+    const client={
+      auth:{getUser:async()=>({data:{user:{id}}})},
+      functions:{invoke:async()=>({error:{context:new Response(JSON.stringify({code}),{status})}})}
+    };
+    const send=createActiveLearningTransport({client,onTrackingDisabled:()=>disabled++});
+    await assert.rejects(send({id:'batch',intervals:[]},id));
+    assert.equal(disabled,expected);
+  }
+});

@@ -4,6 +4,7 @@ import {ingestActiveLearning} from '../_shared/active-learning-ingestion.js';
 import {resolveVocabularyTimingContext} from '../_shared/active-learning-vocabulary-resolver.js';
 const CORS={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS'};
 const json=(body:unknown,status=200)=>Response.json(body,{status,headers:CORS});
+class PilotAccessDenied extends Error {}
 function key(name:string,fallback:string){
  const raw=Deno.env.get(name);
  const value=raw ? JSON.parse(raw).default : Deno.env.get(fallback);
@@ -30,7 +31,7 @@ Deno.serve(async(req:Request)=>{
  if(req.method!=='POST')return json({error:'Method not allowed'},405);
  const auth=req.headers.get('Authorization');if(!auth?.startsWith('Bearer '))return json({error:'Authentication required'},401);
  // Separate server gate. Never activate before database and browser verification.
- if(Deno.env.get('ACTIVE_LEARNING_V2_ENABLED')!=='true')return json({error:'Tracking unavailable'},503);
+ if(Deno.env.get('ACTIVE_LEARNING_V2_ENABLED')!=='true')return json({code:'tracking_disabled',error:'Tracking unavailable'},503);
  let batchId:unknown;
  try{
   const url=Deno.env.get('SUPABASE_URL');if(!url)throw Error('Configuration unavailable');
@@ -48,6 +49,9 @@ Deno.serve(async(req:Request)=>{
   let body;try{body=JSON.parse(raw);}catch{return json({error:'Invalid JSON'},400);}
   batchId=body?.batch?.id;
   if(body?.expectedUserId!==profile.id)return json({error:'Timing identity mismatch'},403);
+  const {data:eligible,error:pilotError}=await admin.rpc('active_learning_v2_pilot_enabled',{p_student:profile.id});
+  if(pilotError)return json({error:'Pilot configuration unavailable'},503);
+  if(eligible!==true)return json({code:'pilot_access_required',error:'Pilot access required'},403);
   const cache=new Map<string,unknown>();
   async function one(table:string,column:string,id:string,fields:string){
    const k=table+':'+id;if(cache.has(k))return cache.get(k);
@@ -66,10 +70,12 @@ Deno.serve(async(req:Request)=>{
   };
   const result=await ingestActiveLearning({request:{json:async()=>body},authenticate:async()=>({id:profile.id,role:profile.role,active:profile.active,mustChangePassword:profile.must_change_password}),resolveContext:(c:any)=>resolveVocabularyTimingContext(c,lookup),persist:async({studentId,batchId,rows}:any)=>{
     const {data,error}=await admin.rpc('persist_active_learning_v2',{p_student:studentId,p_batch:batchId,p_rows:rows});if(error?.code==='22023')throw new InvalidTimingBatch('Batch rejected');
+    if(error?.code==='42501')throw new PilotAccessDenied();
     if(error)throw Error('Persistence unavailable');return data;
   }});
   return json(result);
  }catch(error){
+  if(error instanceof PilotAccessDenied)return json({code:'pilot_access_required',error:'Pilot access required'},403);
   if(error instanceof InvalidTimingBatch)return json({code:'invalid_batch',batchId},422);
   return json({error:'Learning time temporarily unavailable'},503);
  }

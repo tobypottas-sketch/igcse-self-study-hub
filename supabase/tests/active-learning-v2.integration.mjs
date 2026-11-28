@@ -29,6 +29,7 @@ for(const [key,role] of [['student','student'],['other','student'],['oldTeacher'
 }
 await q("insert into classes (id,class_name) values ($1,'Former'),($2,'Current')",[oldClass,newClass]);
 await q('insert into teacher_classes(teacher_id,class_id) values ($1,$3),($2,$4)',[oldTeacher,newTeacher,oldClass,newClass]);
+await q("insert into active_learning_v2_pilot_windows(student_id,starts_at) values ($1,now()-interval '1 hour'),($2,now()-interval '1 hour')",[student,other]);
 const boundary = Date.now()-120000;
 const iso = t => new Date(t).toISOString();
 await q("insert into student_class_memberships(student_id,class_id,started_at,ended_at) values ($1,$2,$4::timestamptz-interval '1 day',$4),($1,$3,$4,null)",[student,oldClass,newClass,iso(boundary)]);
@@ -45,6 +46,17 @@ async function asCommitted(student,batch,rows){
  try{await c.query('set role service_role');return (await c.query(rpc,[student,batch,JSON.stringify(rows)])).rows[0].n;}
  finally{await c.query('reset role');c.release();}
 }
+const pilotStatus='select active_learning_v2_pilot_enabled($1) as enabled';
+for (const [subject, expected] of [[student,true],[oldTeacher,false],[newTeacher,true],[admin,true]]) {
+ assert.equal((await as('authenticated',subject,pilotStatus,[student])).rows[0].enabled,expected);
+}
+await assert.rejects(as('authenticated',student,'update active_learning_v2_pilot_windows set ends_at=now()'),{code:'42501'});
+await q('update active_learning_v2_pilot_windows set ends_at=now() where student_id=$1',[other]);
+assert.equal((await as('authenticated',other,pilotStatus,[other])).rows[0].enabled,false);
+await assert.rejects(put(other,randomUUID(),[row(0,1000)]),{code:'42501'});
+await q("insert into active_learning_v2_pilot_windows(student_id) values ($1)",[other]);
+await assert.rejects(put(other,randomUUID(),[row(0,1000)]),{code:'22023'});
+await q("update active_learning_v2_pilot_windows set starts_at=now()-interval '2 minutes 10 seconds' where student_id=$1 and ends_at is null",[other]);
 const batch=randomUUID(), primary=[row(0,20000)];
 assert.deepEqual((await Promise.all([put(student,batch,primary),put(student,batch,primary)])).sort(),[0,1]);
 await assert.rejects(put(student,batch,[row(0,21000)]),{code:'22023'});
@@ -127,6 +139,9 @@ const gateway = createServer(async (req, res) => {
     const chunks=[];
     for await (const chunk of req) chunks.push(chunk);
     const body = Buffer.concat(chunks);
+    if (url.pathname === '/rest/v1/rpc/active_learning_v2_pilot_enabled') {
+      respond(200,(await q(pilotStatus,[JSON.parse(body).p_student])).rows[0].enabled); return;
+    }
     if (url.pathname === '/rest/v1/rpc/persist_active_learning_v2') {
       if(unavailable) { respond(503,{message:'Synthetic persistence outage'}); return; }
       try {
