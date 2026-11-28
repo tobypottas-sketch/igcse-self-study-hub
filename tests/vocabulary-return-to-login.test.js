@@ -47,7 +47,7 @@ async function harness({ role = 'teacher', must = false, active = true, signedIn
   const storage = memoryStorage();
   const replaced = [];
   const saved = { document: global.document, sessionStorage: global.sessionStorage, location: global.location, FormData: global.FormData };
-  global.document = { getElementById: id => (id === 'app' ? root : null), querySelector: () => null, querySelectorAll: () => [] };
+  global.document = { addEventListener() {}, getElementById: id => (id === 'app' ? root : null), querySelector: () => null, querySelectorAll: () => [] };
   global.sessionStorage = storage;
   global.location = { replace: target => replaced.push(target) };
   global.FormData = class { constructor(form) { this.fields = form.fields; } get(key) { return this.fields[key]; } };
