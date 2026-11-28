@@ -1,0 +1,201 @@
+.adventure-login {
+  --login-navy: #062448;
+  --login-teal: #006e73;
+  --login-paper: #fcfdfd;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-items: stretch;
+  justify-items: end;
+  min-height: 100svh;
+  overflow: hidden;
+  color: var(--login-navy);
+  background: linear-gradient(135deg, #093c66 45%, #4ed1db);
+}
+#app:has(.adventure-login) ~ footer[aria-label="Hub release"] { display: none; }
+
+.adventure-login__art {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  height: 100%;
+}
+.adventure-login__art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+.adventure-login__panel {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  align-items: start;
+  justify-items: center;
+  gap: clamp(24px, 10.6vh, 92px);
+  width: 38.2%;
+  margin: clamp(18px, 4.5vh, 42px) 1.4% 0 0;
+  padding: clamp(24px, 8vh, 76px) 2.1vw clamp(75px, 18vh, 156px);
+}
+.adventure-login__panel::before {
+  position: absolute;
+  z-index: -2;
+  inset: 0 0 0 -2.4%;
+  border-radius: 48px 48px 0 0;
+  background: var(--login-paper);
+  transform: skewX(-6deg);
+  transform-origin: top right;
+  content: "";
+}
+.adventure-login__panel::after {
+  position: absolute;
+  z-index: -2;
+  inset: 0 0 0 55%;
+  border-radius: 0 48px 0 0;
+  background: var(--login-paper);
+  content: "";
+}
+.adventure-login__brand {
+  margin: 0;
+  text-align: center;
+  font-family: system-ui, sans-serif;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -.045em;
+}
+.adventure-login__wordmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .11em;
+  font-size: clamp(48px, 7.1vw, 132px);
+}
+.adventure-login__wordmark svg {
+  width: 1.42em;
+  height: 1.04em;
+  color: var(--login-teal);
+}
+.adventure-login__subtitle {
+  display: block;
+  color: var(--login-teal);
+  font-size: clamp(27px, 4vw, 74px);
+}
+.adventure-login__controls {
+  width: min(100%, 36rem);
+  margin-inline: auto;
+}
+.adventure-login__microsoft {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .65em;
+  min-height: clamp(52px, 9.5vh, 86px);
+  padding: 10px 12px;
+  border-radius: clamp(12px, 1.6vw, 24px);
+  background: var(--login-navy);
+  color: white;
+  font-size: clamp(16px, 1.95vw, 32px);
+  font-weight: 700;
+  text-decoration: none;
+  text-align: center;
+}
+.adventure-login__microsoft:hover { background: #123d67; }
+.adventure-login__microsoft:focus-visible,
+.adventure-login__password summary:focus-visible {
+  outline: 3px solid var(--login-teal);
+  outline-offset: 4px;
+}
+.adventure-login__microsoft svg {
+  flex: none;
+  width: 1.4em;
+  height: 1.4em;
+}
+#adventure-login-pilot {
+  margin: 8px 0 0;
+  color: #52677a;
+  font-size: .8125rem;
+  text-align: center;
+}
+.adventure-login__password summary {
+  width: fit-content;
+  margin: 0 auto;
+  padding: 10px 5px;
+  color: var(--login-teal);
+  font-size: .875rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+.adventure-login__password form { margin: 8px 0 0; }
+.adventure-login__password form p { margin: 0; }
+.adventure-login__features {
+  align-self: end;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-size: clamp(12px, 1.27vw, 21px);
+  font-weight: 650;
+  line-height: 1.18;
+  text-align: center;
+}
+.adventure-login__features li { padding: 0 3px; }
+.adventure-login__features li + li { border-left: 1px solid #cedee3; }
+.adventure-login__features svg {
+  display: block;
+  width: clamp(24px, 3.6vw, 56px);
+  margin: 0 auto .55rem;
+  color: var(--login-teal);
+}
+.adventure-login__waves {
+  position: absolute;
+  z-index: -1;
+  inset: auto -3.7% 0 -17.1%;
+  width: 120.8%;
+  height: clamp(55px, 15vh, 145px);
+  pointer-events: none;
+  clip-path: polygon(2% 0, 100% 0, 100% 100%, 0 100%);
+}
+@media (max-width: 800px) {
+  .adventure-login {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto 1fr;
+    justify-items: stretch;
+  }
+  .adventure-login__art {
+    position: static;
+    width: 100%;
+    height: clamp(190px, 70vw, 360px);
+  }
+  .adventure-login__art img {
+    object-fit: cover;
+    object-position: center top;
+  }
+  .adventure-login__panel {
+    width: 100%;
+    margin: -18px 0 0;
+    padding: 24px clamp(16px, 5vw, 48px) 58px;
+    gap: 20px;
+    border-radius: 28px 28px 0 0;
+    overflow: hidden;
+    background: var(--login-paper);
+  }
+  .adventure-login__panel::before,
+  .adventure-login__panel::after { display: none; }
+  .adventure-login__wordmark { font-size: clamp(42px, 12vw, 78px); }
+  .adventure-login__subtitle { font-size: clamp(25px, 7.5vw, 48px); }
+  .adventure-login__microsoft { min-height: 52px; }
+  .adventure-login__features {
+    align-self: center;
+    max-width: 36rem;
+  }
+  .adventure-login__waves {
+    inset: auto 0 0;
+    width: 100%;
+    height: clamp(48px, 9svh, 84px);
+    clip-path: none;
+  }
+}
