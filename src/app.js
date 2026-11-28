@@ -12,7 +12,7 @@ import { applyActivityListFilters, newActivityListState } from './admin/activity
 import { parseStudentCsv, validateStudentImport, bulkProvisionStudents } from './admin/import.js';
 import { renderLogin } from './views/login.js';
 import { renderChangePassword } from './views/change-password.js';
-import { renderHome, resetMeritPopup, updateHomeMerits, renderExternalMerits } from './views/home.js?v=home-merits-20261128-r1';
+import { renderHome, resetMeritPopup, updateHomeMerits, renderExternalMerits } from './views/home.js?v=home-merits-20261128-r2';
 import { renderAdmin } from './views/admin.js';
 import { renderStudentProgress, updateProgressStudentRows } from './views/student-progress.js';
 import { reportingPeriod, schoolDay } from './reporting/periods.js';
