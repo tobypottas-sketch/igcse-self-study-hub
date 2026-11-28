@@ -143,8 +143,8 @@ function classHabits(classData) {
 }
 
 function classMerits(classData) {
-  if (classData.meritsAvailable === false) return { available:false, skillsPerMerit:SKILLS_PER_MERIT, rows:[] };
-  const rows = buildMeritStatus({ students:classData.students, occurrences:classData.occurrences, unitMastery:classData.unitMastery ?? [], globalMastery:classData.mastery, awards:classData.awards ?? [], coverageByUnit:classData.meritCoverage });
+  if (classData.meritsAvailable === false || classData.missionsAvailable === false) return { available:false, skillsPerMerit:SKILLS_PER_MERIT, rows:[] };
+  const rows = buildMeritStatus({ students:classData.students, occurrences:classData.occurrences, unitMastery:classData.unitMastery ?? [], globalMastery:classData.mastery, awards:classData.awards ?? [], missions:classData.missions ?? [], coverageByUnit:classData.meritCoverage });
   return { available:true, skillsPerMerit:SKILLS_PER_MERIT, rows };
 }
 

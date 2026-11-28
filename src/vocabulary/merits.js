@@ -47,7 +47,7 @@ export function meritProgress(completedPathways, pathwaysPerMerit = DEFAULT_PATH
   };
 }
 
-export function buildMeritStatus({ students = [], occurrences = [], unitMastery = [], globalMastery = [], awards = [], coverageByUnit } = {}) {
+export function buildMeritStatus({ students = [], occurrences = [], unitMastery = [], globalMastery = [], awards = [], coverageByUnit, missions = [] } = {}) {
   const awardedByStudent = new Map();
   for (const award of awards) {
     const id = award.studentId ?? award.student_id;
@@ -60,7 +60,8 @@ export function buildMeritStatus({ students = [], occurrences = [], unitMastery 
     const global = Object.fromEntries(globalMastery.filter(row => row.studentId === student.id).map(row => [row.vocabularyId, row]));
     const completedPathways = countMasteredPathways({ occurrences, unitMastery:unit, globalMastery:global, coverageByUnit });
     const pathwaysPerMerit = normalisePathwaysPerMerit(student.meritPathwaysRequired ?? student.merit_pathways_required);
-    const eligibleByProgress = Math.floor(completedPathways / pathwaysPerMerit);
+    const missionStatus=missionMeritProgress(missions.filter(r=>(r.studentId??r.student_id)===student.id),completedPathways);
+    const eligibleByProgress = missionStatus.eligibleByProgress;
     const done = awardedByStudent.get(student.id) ?? new Set();
     const highestAwarded = done.size ? Math.max(...done) : 0;
     const earned = Math.max(eligibleByProgress, highestAwarded);
@@ -71,13 +72,30 @@ export function buildMeritStatus({ students = [], occurrences = [], unitMastery 
       studentId:student.id,
       displayName:student.displayName ?? student.display_name ?? student.id,
       completedPathways,
+      passedMissions:missionStatus.passedMissions,
       pathwaysPerMerit,
       earned,
       eligibleByProgress,
       awarded:done.size,
       pendingNumbers,
       nextMeritNumber,
-      pathwaysToNext:Math.max(0, nextMeritNumber * pathwaysPerMerit - completedPathways)
+      pathwaysToNext:missionMeritProgress(missions.filter(r=>(r.studentId??r.student_id)===student.id),completedPathways,highestAwarded).toNext
     };
   });
+}
+
+export const MISSIONS_PER_MERIT=3;
+export function qualifyingMissions(rows=[]){
+ const unique=new Map();
+ for(const r of rows){
+  const unit=Number(r.unit_number??r.unitNumber),path=r.pathway_id??r.pathwayId,stage=r.pathway_stage??r.stage,kind=r.mission_kind??r.kind,date=r.completed_at??r.completedAt,set=Number(r.set_number??r.setNumber??0);
+  if(r.outcome!=='pass'||kind!=='pathway'||!Number.isInteger(unit)||unit<1||!['meaning','context','word_families','paraphrasing','precision_use','spelling_recall'].includes(path)||!['recognise','match','apply','recall','mastery'].includes(stage)||!Number.isFinite(Date.parse(date))||!Number.isInteger(set)||set<0)continue;
+  const key=[unit,path,stage,set].join('|');if(!unique.has(key))unique.set(key,{unit,path,stage,set});
+ }
+ return [...unique.values()];
+}
+export function missionMeritProgress(missions=[],mastered=0,awarded=0){
+ const passed=qualifyingMissions(missions).length,eligible=Math.floor(passed/3)+Math.max(0,Math.floor(mastered||0)),already=Math.max(0,Math.floor(awarded||0)),earned=Math.max(eligible,already);
+ const toNext=Math.max(1,(earned+1-Math.max(0,Math.floor(mastered||0)))*3-passed);
+ return {passedMissions:passed,completedPathways:mastered,eligibleByProgress:eligible,earned,awarded:already,toNext,copy:toNext+' more qualifying passed '+(toNext===1?'mission':'missions')+' toward your next merit'};
 }

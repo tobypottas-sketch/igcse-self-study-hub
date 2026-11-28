@@ -4,7 +4,7 @@ import { buildMeritStatus } from '../vocabulary/merits.js';
 import { loadClassEvidence, loadReportingCatalogue } from '../reporting/activity-queries.js';
 import { reportingPeriod } from '../reporting/periods.js';
 import { loadReportingCoverage } from '../reporting/pathway-coverage.js';
-import { fetchAllRows } from '../vocabulary/teacher-paging.js';
+import { fetchAllRows, fetchAllRowsForIds } from '../vocabulary/teacher-paging.js';
 import { saveVocabularyMerits } from '../vocabulary/merit-awards.js';
 
 const previewAwarded = new Set();
@@ -93,6 +93,7 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
     className:row.class_name,
     meritPathwaysRequired:thresholdByClass.get(row.class_id) ?? 2
   }));
+  const missionsRequest=fetchAllRowsForIds(students.map(s=>s.id),ids=>client.from('vocabulary_missions').select('mission_id,student_id,unit_number,mission_kind,pathway_id,pathway_stage,set_number,outcome,completed_at',{count:'exact'}).in('student_id',ids).order('mission_id'),{label:'merit missions'}).then(value=>({value}),error=>({error}));
   const numbersRequest = meritOnly ? Promise.resolve(new Map()) : loadScopedStudentNumbers(client, students);
   const evidenceRequest = meritOnly ? Promise.resolve(null) : loadClassEvidence(client, students, selectedPeriod ?? reportingPeriod('last30',{now})).then(value=>({value}),error=>({error}));
   const normalizeGlobal = source => payloads(source,'vocabulary_global_mastery').map(row => ({
@@ -135,7 +136,8 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
   if (meritOnly) {
     const coverageByUnit = await loadReportingCoverage(client, normalizedOccurrences);
     const globalMastery=normalizeGlobal(rows),unitMastery=normalizeUnit(rows);
-    const status = buildMeritStatus({ students, occurrences:normalizedOccurrences, globalMastery, unitMastery, awards, coverageByUnit });
+    const mr=await missionsRequest;if(mr.error)throw mr.error;
+    const status = buildMeritStatus({ missions:mr.value,students, occurrences:normalizedOccurrences, globalMastery, unitMastery, awards, coverageByUnit });
     const byId = new Map(status.map(row => [row.studentId,row.pendingNumbers]));
     const alerts = students.map(s => {
       const pendingMeritNumbers = byId.get(s.id) ?? [];
@@ -174,12 +176,14 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
       loadActivityRows(client,false,['vocabulary_global_mastery','vocabulary_unit_mastery']),
       loadReportingCoverage(client,normalizedOccurrences)
     ]);
-    const dashboard=buildActivityDashboard({...common,globalMastery:normalizeGlobal(detailRows),unitMastery:normalizeUnit(detailRows),coverageByUnit});
+    const mr=await missionsRequest;if(mr.error)throw mr.error;
+    const dashboard=buildActivityDashboard({...common,missions:mr.value,globalMastery:normalizeGlobal(detailRows),unitMastery:normalizeUnit(detailRows),coverageByUnit});
     return {...dashboard,classes:classList,vocabUnits};
   }
   const coverageResult=await coverageRequest;
   if(coverageResult.error)throw coverageResult.error;
-  const dashboard=buildActivityDashboard({...common,globalMastery:normalizeGlobal(rows),unitMastery:normalizeUnit(rows),coverageByUnit:coverageResult.value});
+  const mr=await missionsRequest;if(mr.error)throw mr.error;
+    const dashboard=buildActivityDashboard({...common,missions:mr.value,globalMastery:normalizeGlobal(rows),unitMastery:normalizeUnit(rows),coverageByUnit:coverageResult.value});
   return selectedPeriod ? {...dashboard,classes:classList} : dashboard;
 }
 

@@ -39,7 +39,7 @@ export function normalizeTeacherVocabularyData(raw = {}) {
   const meritsAvailable = Array.isArray(raw.awards);
   const awards = (raw.awards ?? []).map(row => ({ studentId:row.student_id, meritNumber:Number(row.merit_number) }));
   const missionsAvailable = Array.isArray(raw.missions);
-  const missions = (raw.missions ?? []).map(row => ({ studentId:row.student_id, completedAt:row.completed_at, kind:row.mission_kind, unitNumber:Number(row.unit_number) || null }));
+  const missions = (raw.missions ?? []).map(row => ({ ...row, studentId:row.student_id, completedAt:row.completed_at, kind:row.mission_kind, unitNumber:Number(row.unit_number) || null }));
   const profileById = new Map(profiles.filter(row => row.role === 'student' && row.active !== false).map(row => [row.id, { id:row.id, displayName:row.display_name }]));
 
   const classes = classesRaw.map(classRow => {
@@ -118,7 +118,7 @@ export async function loadVocabularyTeacherData(client, { now = new Date(), prof
     fetchAllRowsForIds(studentIds, ids => client.from('vocabulary_unit_mastery').select('student_id, occurrence_id, status, recent_error_pattern, contextual_evidence', { count:'exact' }).in('student_id', ids).order('student_id').order('occurrence_id'), { label:'vocabulary pathway progress' }),
     fetchAllRowsForIds(studentIds, ids => client.from('activity_events').select('id, user_id, occurred_at, event_type, metadata', { count:'exact' }).eq('app_key','vocabulary_paraphrase').in('user_id', ids).gte('occurred_at', since).order('occurred_at',{ ascending:false }).order('id'), { label:'vocabulary activity' }),
     optional(() => fetchAllRowsForIds(studentIds, ids => client.from('vocabulary_merit_awards').select('student_id, merit_number', { count:'exact' }).in('student_id', ids).order('student_id').order('merit_number'), { label:'merit awards' })),
-    optional(() => fetchAllRowsForIds(studentIds, ids => client.from('vocabulary_missions').select('mission_id, student_id, completed_at, mission_kind, unit_number', { count:'exact' }).in('student_id', ids).order('completed_at',{ ascending:false }).order('mission_id'), { label:'vocabulary missions' }))
+    optional(() => fetchAllRowsForIds(studentIds, ids => client.from('vocabulary_missions').select('mission_id, student_id, completed_at, mission_kind, unit_number, pathway_id, pathway_stage, set_number, outcome', { count:'exact' }).in('student_id', ids).order('completed_at',{ ascending:false }).order('mission_id'), { label:'vocabulary missions' }))
   ]);
   return normalizeTeacherVocabularyData({ profiles, memberships:scopedMemberships, classes:scopedClasses, items, occurrences, mastery, unitMastery, activity, awards, missions });
 }
