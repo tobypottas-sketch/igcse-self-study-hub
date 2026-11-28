@@ -36,10 +36,31 @@ export function reportUnitPathways(occurrences, unitMastery, globalMastery, cove
     // Global evidence may carry across the curriculum. A contextual row establishes unit participation.
     if (!words.some(row => Object.hasOwn(context, row.occurrenceId))) return [];
     const coverageByPathway = coverageByUnit?.[unitNumber];
-    return [{
-      unitNumber, pathways:coverageByPathway
-        ? buildUnitPathwayStates({ occurrences:words, unitMastery:context, globalMastery:global, coverageByPathway })
-        : null
-    }];
+    const pathways=coverageByPathway?buildUnitPathwayStates({occurrences:words,unitMastery:context,globalMastery:global,coverageByPathway}):null;
+    // Unit currentStage is the highest stage reached by an actionable word, not whole-unit completion.
+    // Count completed word-stages across all serviceable words, including unstarted words.
+    if(pathways){
+      const wordStates=words.map(word=>({word}));
+      for(const [key,p] of Object.entries(pathways)){
+        if(!p.available)continue;
+        const ids=coverageByPathway[key]?.occurrenceIds;
+        const allowed=Array.isArray(ids)?new Set(ids.map(String)):null;
+        const eligible=wordStates.filter(({word})=>!allowed||allowed.has(String(word.occurrenceId)));
+        // Count contiguous recorded stage completions, not legacy placement estimates.
+        const stageIds=['recognise','match','apply','recall','mastery'];
+        const recorded=eligible.map(({word})=>{
+          const evidence=context[word.occurrenceId]?.contextualEvidence??context[word.occurrenceId]?.contextual_evidence??{};
+          const q=evidence.pathwayProgress?.[key]??evidence.pathway_progress?.[key];
+          const raw=q?.completedStages??q?.completed_stages;
+          const done=new Set(Array.isArray(raw)?raw:stageIds.filter(id=>q?.stages?.[id]?.completed===true));
+          let count=0;for(const id of stageIds){if(!done.has(id))break;count++}return count;
+        });
+        p.completedWordStages=recorded.reduce((n,x)=>n+x,0);
+        p.totalWordStages=eligible.length*5;
+        p.masteredWords=recorded.filter(x=>x===5).length;
+        p.serviceableWords=eligible.length;
+      }
+    }
+    return [{unitNumber,unitTitle:words[0]?.unitTitle??null,pathways}];
   });
 }
