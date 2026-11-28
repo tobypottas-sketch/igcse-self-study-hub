@@ -1,0 +1,1 @@
+{"name":"hub-supabase-browser-bundle","version":"1.0.0","private":true,"dependencies":{"@supabase/supabase-js":"2.117.3"},"devDependencies":{"esbuild":"0.28.1"}}
