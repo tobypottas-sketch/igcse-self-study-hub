@@ -3,7 +3,7 @@ async function invokeMeritReview(client, body) {
   if (!error) return data;
   const response = error.context;
   const detail = await response?.json?.().catch(()=>null);
-  throw Object.assign(new Error(detail?.error ?? 'Merits could not be updated. Try again.'),{status:response?.status ?? error.status});
+  throw Object.assign(new Error(detail?.error ?? 'Merits could not be updated. Try again.'),{status:response?.status ?? error.status,snapshot:detail?.snapshot,personalSnapshot:detail?.personalSnapshot});
 }
 
 export function loadMeritReview(client, scope = 'mine') {

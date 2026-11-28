@@ -13,8 +13,8 @@ import { applyActivityListFilters, newActivityListState } from './admin/activity
 import { parseStudentCsv, validateStudentImport, bulkProvisionStudents } from './admin/import.js';
 import { renderLogin } from './views/login.js';
 import { renderChangePassword } from './views/change-password.js';
-import { renderHome, resetMeritPopup, updateHomeMerits, renderExternalMerits } from './views/home.js?v=scoped-merit-review-v1';
-import { renderAdmin } from './views/admin.js?v=scoped-merit-review-v1';
+import { renderHome, resetMeritPopup, updateHomeMerits, renderExternalMerits } from './views/home.js?v=scoped-merit-review-v2';
+import { renderAdmin } from './views/admin.js?v=scoped-merit-review-v2';
 import { renderStudentProgress, updateProgressStudentRows } from './views/student-progress.js';
 import { reportingPeriod, schoolDay } from './reporting/periods.js';
 import { escapeHtml } from './views/html.js';
@@ -595,6 +595,27 @@ export async function bootApp(clientOverride = null) {
         renderAdmin(root,currentState);
         if(!currentState.meritReview)restoreActivityList();
       } catch (error) {
+        if (error.status===409 && error.snapshot && error.personalSnapshot && currentState.profile?.id===actor && meritAccount===actor) {
+          meritGeneration++; meritRequest=null; activityLoadPromise=null;
+          meritSnapshot=error.personalSnapshot;
+          if(cachedHomeState) cachedHomeState={...cachedHomeState,meritSnapshot};
+          if(currentState.view==='home') updateHomeMerits(root,currentState.profile,meritSnapshot);
+          else syncMeritMount();
+          if(isCurrent()) {
+            const previous=currentState.activityDashboard;
+            const pending=new Map(error.snapshot.students.map(student=>[student.studentId,student.pendingMeritNumbers]));
+            const activityDashboard=previous?{...previous,pendingMerits:error.snapshot.pendingMerits,
+              students:previous.students.map(student=>{
+                const pendingMeritNumbers=pending.get(student.studentId)??[];
+                return {...student,pendingMeritNumbers,pendingMerits:pendingMeritNumbers.length};
+              })}:null;
+            currentState={...currentState,reviewSnapshot:error.snapshot,activityDashboard,
+              reviewLoading:false,reviewAwardPending:false,notice:error.message};
+            renderAdmin(root,currentState);
+            if(!currentState.meritReview)restoreActivityList();
+          } else if(isReview('mine')||isReview('all')) await openMeritReview(currentState.activityScope);
+          return;
+        }
         if (!isCurrent()) return;
         if(meritAccessError(error)) {
           meritGeneration++; meritRequest=null; meritSnapshot=null; activityLoadPromise=null;
@@ -603,10 +624,6 @@ export async function bootApp(clientOverride = null) {
         }
         currentState={...currentState,reviewAwardPending:false,notice:error.message};
         renderAdmin(root,currentState);
-        if(error.status===409 && currentState.meritReview) {
-          // The displayed row is stale. A fresh personal list remains scoped.
-          await openMeritReview(scope);
-        }
       }
     } else if (action === 'admin-reset-password') {
       const userId = target?.dataset?.userId;

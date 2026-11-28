@@ -22,12 +22,12 @@ function prepareCatalogue(catalogue) {
 
 export function createMeritReview({now=Date.now,prepare=prepareCatalogue}={}) {
   let cached;
-  return async ({inputs}) => {
+  return async ({inputs,fresh=false}) => {
     const warm = cached?.until > now() ? cached.value : null;
-    const data = await inputs(!warm);
+    const data = await inputs(fresh || !warm);
     // Only the public live catalogue is reused across accounts. Student inputs
     // and authorization are read afresh for every request, including awards.
-    const catalogue = data.catalogue ? prepare(data.catalogue) : warm;
+    const catalogue = data.catalogue ? prepare(data.catalogue) : fresh ? null : warm;
     if (!catalogue) throw new Error('Merit catalogue unavailable');
     if (data.catalogue) cached = {value:catalogue,until:now()+120000};
     const status = buildMeritStatus({...catalogue,students:data.students,unitMastery:data.mastery,
@@ -42,7 +42,7 @@ export function createMeritReview({now=Date.now,prepare=prepareCatalogue}={}) {
       if (numbers.length) pending.push({studentId:row.id,displayName:row.display_name,className:row.class_name,
         pendingMerits:numbers.length,pendingMeritNumbers:numbers});
     }
-    return {students,snapshot:{students:pending,assignedClassCount:data.assignedClassCount,
+    return {proof:data.proof,students,snapshot:{students:pending,assignedClassCount:data.assignedClassCount,
       pendingMerits:pending.reduce((sum,s)=>sum+s.pendingMerits,0)}};
   };
 }

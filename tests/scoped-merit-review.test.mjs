@@ -58,3 +58,45 @@ test('the review uses revised thresholds, persisted mastery bonuses and historic
   assert.equal(revoked.snapshot.pendingMerits,0);
   assert.equal(coldCalls,1);
 });
+
+test('award revalidation bypasses a warm list catalogue when coverage is removed or added',async()=>{
+  const occurrence={occurrenceId:'o',unitNumber:1,vocabularyId:'v'};
+  let available=true;
+  const service=createMeritReview({now:()=>0,prepare:catalogue=>catalogue});
+  const requests=[];
+  const inputs=async include=>{
+    requests.push(include);
+    return {
+      catalogue:include?{occurrences:[occurrence],coverageByUnit:{1:{meaning:{available,occurrenceIds:['o']}}}}:null,
+      proof:include?'database-proof':undefined,students:[{id:'s'}],assignedClassCount:1,
+      awards:[{student_id:'s',merit_number:2}],
+      missions:Array.from({length:8},(_,i)=>({student_id:'s',unit_number:1,pathway_id:'meaning',
+        pathway_stage:'recognise',set_number:i+1,mission_kind:'pathway',outcome:'pass',
+        completed_at:'2026-11-28T00:00:00Z'})),
+      mastery:[{studentId:'s',occurrenceId:'o',contextualEvidence:{
+        pathway_progress:{meaning:{completed_stages:['recognise','match','apply','recall','mastery']}}
+      }}]
+    };
+  };
+  assert.equal((await service({inputs})).snapshot.pendingMerits,1);
+  available=false;
+  assert.equal((await service({inputs})).snapshot.pendingMerits,1);
+  const removed=await service({fresh:true,inputs});
+  assert.equal(removed.snapshot.pendingMerits,0);
+  assert.equal(removed.proof,'database-proof');
+  available=true;
+  assert.equal((await service({inputs})).snapshot.pendingMerits,0);
+  assert.equal((await service({fresh:true,inputs})).snapshot.pendingMerits,1);
+  assert.deepEqual(requests,[true,false,true,false,true]);
+});
+
+test('eligibility rejection carries separate oversight and personal snapshots',async()=>{
+  const snapshot={pendingMerits:2,students:[]};
+  const personalSnapshot={pendingMerits:0,students:[]};
+  const client={functions:{invoke:async()=>({error:{context:Response.json({
+    error:'Eligibility changed',snapshot,personalSnapshot
+  },{status:409})}})}};
+  await assert.rejects(awardReviewedMerit(client,{scope:'all',studentId:'s',number:1}),{
+    status:409,message:'Eligibility changed',snapshot,personalSnapshot
+  });
+});

@@ -34,28 +34,45 @@ Deno.serve(async request => {
     if (award && (!uuid.test(body.studentId) || !Number.isInteger(body.number) || body.number < 1 || body.number > 1000)) {
       return json({error:'Invalid merit number or student.'},400);
     }
-    const result = await review({
+    const load = (all: boolean, student: string | null, fresh = false) => review({
+      fresh,
       inputs: async (includeCatalogue: boolean) => {
         const {data,error} = await caller.rpc('merit_review_inputs',{
-          p_all:body.scope==='all', p_student:award?body.studentId:null,p_catalogue:includeCatalogue
+          p_all:all, p_student:student, p_catalogue:includeCatalogue
         });
         if (error) throw error;
         return data;
       }
     });
-    if (!award) return json(result.snapshot);
-    const state = result.students.get(body.studentId);
-    if (!state) return json({error:'Student is outside the current merit scope.'},403);
-    if (body.number > state.highestAwarded && !state.pending.includes(body.number)) {
-      return json({error:'This merit is no longer eligible.'},409);
-    }
+    const all = body.scope === 'all';
+    if (!award) return json((await load(all,null)).snapshot);
+
+    const changed = async () => {
+      const {snapshot} = await load(all,null,true);
+      const personalSnapshot = all ? (await load(false,null,true)).snapshot : snapshot;
+      return json({error:'Merit eligibility changed. The pending list has been refreshed.',
+        snapshot,personalSnapshot},409);
+    };
     const server = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       {auth:{persistSession:false,autoRefreshToken:false}});
-    const {data:confirmation,error} = await server.rpc('confirm_reviewed_merit',{
-      p_actor:user.id,p_student:body.studentId,p_number:body.number,p_all:body.scope==='all'
-    });
-    if (error) throw error;
-    return json(confirmation);
+    for (let attempt=0;attempt<2;attempt++) {
+      const result = await load(all,body.studentId,true);
+      const state = result.students.get(body.studentId);
+      if (!state) return json({error:'Student is outside the current merit scope.'},403);
+      if (body.number > state.highestAwarded && !state.pending.includes(body.number)) {
+        return await changed();
+      }
+      if (!result.proof) throw new Error('Current eligibility proof unavailable');
+      const {data:confirmation,error} = await server.rpc('confirm_reviewed_merit',{
+        p_actor:user.id,p_student:body.studentId,p_number:body.number,p_all:all,p_proof:result.proof
+      });
+      if (error) {
+        if (error.code==='55P03' && attempt===0) continue;
+        throw error;
+      }
+      if (!confirmation?.changed) return json(confirmation);
+    }
+    return await changed();
   } catch (error) {
     if ((error as {code?:string})?.code==='42501') return json({error:'Merit access is no longer available.'},403);
     return json({error:'Merits could not be updated. Try again.'},503);
