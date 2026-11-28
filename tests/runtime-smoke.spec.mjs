@@ -196,8 +196,8 @@ for (const saveMode of ['success', 'failed', 'pending']) {
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await mockVocabularyStudent(page, saveMode);
-    await page.locator('[data-choice-answer="leisure"]').click();
-    await expect(page.locator('.vocab-feedback')).toContainText('Correct');
+    await page.locator('[data-choice-answer="leisure time"]').click();
+    await expect(page.locator('.vocab-feedback')).toHaveAttribute('data-study-feedback', 'correct');
     await expect(page.locator('[data-action="next-question"]')).toBeVisible();
     if (saveMode === 'failed') await expect(page.locator('[data-vocab-sync-warning]')).toBeVisible();
     const back = page.locator('[data-action="leave-session"]');
@@ -226,10 +226,10 @@ for (const saveMode of ['success', 'failed', 'pending']) {
 test('student Next advances normally and supported retry still works', async ({ page }) => {
   const { mockVocabularyStudent } = await import('./fixtures-vocabulary-student.mjs');
   await mockVocabularyStudent(page);
-  await page.locator('[data-choice-answer]').filter({ hasNotText:'leisure' }).first().click();
+  await page.locator('[data-choice-answer]').filter({ hasNotText:'leisure time' }).first().click();
   await expect(page.locator('.is-retry')).toBeVisible();
-  await page.locator('[data-choice-answer="leisure"]').click();
-  await expect(page.locator('.vocab-feedback')).toContainText('Correct');
+  await page.locator('[data-choice-answer="leisure time"]').click();
+  await expect(page.locator('.vocab-feedback')).toHaveAttribute('data-study-feedback', 'correct');
   await page.locator('[data-action="next-question"]').click();
   await expect(page.locator('[data-choice-answer]')).not.toHaveCount(0);
   const attempts = await page.evaluate(() => window.vocabularyAttempts);
@@ -246,8 +246,8 @@ test('student Next advances normally and supported retry still works', async ({ 
 test('student can submit and advance when language-bank activities have not been published', async ({ page }) => {
   const { mockVocabularyStudent } = await import('./fixtures-vocabulary-student.mjs');
   await mockVocabularyStudent(page, 'unpublished');
-  await page.locator('[data-choice-answer="leisure"]').click();
-  await expect(page.locator('.vocab-feedback')).toContainText('Correct');
+  await page.locator('[data-choice-answer="leisure time"]').click();
+  await expect(page.locator('.vocab-feedback')).toHaveAttribute('data-study-feedback', 'correct');
   await page.locator('[data-action="next-question"]').click();
   await expect(page.locator('[data-choice-answer]')).not.toHaveCount(0);
   expect(await page.evaluate(() => window.vocabularyAttempts[0].contentSource)).toBe('context');
@@ -271,6 +271,9 @@ test('new Vocabulary sessions vary answer order while preserving the same questi
     orders.add(JSON.stringify(choices));
     if (session < 5) {
       await page.locator('[data-action="leave-session"]').click();
+      // Isolate presentation randomness from the independent seen-content preference.
+      // The Continue test below retains history and checks that material changes.
+      await page.evaluate(() => localStorage.removeItem('vocab.seenContent.v1.navigation-student'));
       await page.locator('[data-action="open-pathway"][data-pathway="context"]').click();
       await page.locator('[data-action="start-recommended"][data-pathway="context"]').click();
     }
@@ -293,7 +296,7 @@ test('Context Continue avoids repeating the preceding ten-question set', async (
     firstSources.push(await page.locator('.vocab-question-context').textContent());
     const answer = question.markingReference.acceptedAnswers[0];
     await page.locator(`[data-choice-answer=${JSON.stringify(answer)}]`).click();
-    await expect(page.locator('.vocab-feedback')).toContainText('Correct');
+    await expect(page.locator('.vocab-feedback')).toHaveAttribute('data-study-feedback', 'correct');
     await page.locator('[data-action="next-question"]').click();
   }
   await expect(page.locator('[data-action="continue-practice"]')).toBeVisible();
