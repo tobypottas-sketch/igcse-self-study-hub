@@ -67,12 +67,23 @@ export async function bootApp(clientOverride = null) {
     try { period = reportingPeriod(progressState.kind,{from:progressState.from,to:progressState.to}); if (progressState.kind==='custom' && period.end-period.start > 31*86400000) throw new RangeError('Choose at most 31 calendar days.'); }
     catch(error) { progressGeneration++; progressState={...progressState,error:error.message,snapshot:null,loading:false,period:null,awaitingDates:true}; drawProgress(); return; }
     const generation=++progressGeneration, actor=currentState.profile.id;
-    progressState={...progressState,period,snapshot:null,loading:true,error:null,awaitingDates:false}; drawProgress();
+    const periodKey=JSON.stringify([progressState.kind,progressState.kind==='custom'?progressState.from:null,progressState.kind==='custom'?progressState.to:null,schoolDay(period.asOf)]);
+    const retained=progressState.snapshotKey===periodKey?progressState.snapshot:null;
+    const isCurrent=()=>generation===progressGeneration && currentState.view==='student-progress' && currentState.profile?.id===actor && staffProgress();
+    progressState={...progressState,period:retained?progressState.period:period,snapshot:retained,loading:true,refreshing:Boolean(retained),error:null,awaitingDates:false}; drawProgress();
     try {
-      const snapshot=await loadTeacherActivityData(client,{now:new Date(period.asOf),selectedPeriod:period});
-      if(generation!==progressGeneration || currentState.view!=='student-progress' || currentState.profile?.id!==actor || !staffProgress()) return;
-      progressState={...progressState,snapshot,loading:false}; drawProgress();
-    } catch { if(generation===progressGeneration && currentState.view==='student-progress' && staffProgress()){ progressState={...progressState,snapshot:null,loading:false}; drawProgress(); } }
+      const snapshot=await loadTeacherActivityData(client,{now:new Date(period.asOf),selectedPeriod:period,onUsageReady:usage=>{
+        if(!isCurrent())return false;
+        progressState={...progressState,period,snapshot:usage,snapshotKey:periodKey,refreshing:false,loading:true}; drawProgress();
+        return true;
+      }});
+      if(!isCurrent()||!snapshot)return;
+      progressState={...progressState,period,snapshot,snapshotKey:periodKey,refreshing:false,loading:false}; drawProgress();
+    } catch(error) {
+      if(!isCurrent())return;
+      // Fail closed on any access error, and never present stale data as refreshed.
+      progressState={...progressState,snapshot:null,snapshotKey:null,refreshing:false,loading:false}; drawProgress();
+    }
   };
   const openProgress = async () => {
     if(!staffProgress()) return;
@@ -414,17 +425,17 @@ export async function bootApp(clientOverride = null) {
     if (action?.startsWith('sp-')) {
       if (!staffProgress() || currentState.view!=='student-progress' || !progressState) return;
       if (action==='sp-home') {await renderCurrentState();return;}
-      if (action==='sp-all') {progressState={...progressState,classId:null,studentId:null,tab:'overview',search:'',inactiveOnly:false,meritsOnly:false};drawProgress();return;}
-      if (action==='sp-back') { activityGeneration++; if(progressState.studentId){progressState={...progressState,studentId:null};drawProgress();}else if(progressState.classId){progressState={...progressState,classId:null,tab:'overview',search:'',inactiveOnly:false,meritsOnly:false};drawProgress();}else await renderCurrentState(); return; }
+      if (action==='sp-all') {progressState={...progressState,classId:null,studentId:null,fullVocabulary:false,tab:'overview',search:'',inactiveOnly:false,meritsOnly:false};drawProgress();return;}
+      if (action==='sp-back') { activityGeneration++; if(progressState.studentId){progressState={...progressState,studentId:null,fullVocabulary:false};drawProgress();}else if(progressState.classId){progressState={...progressState,classId:null,tab:'overview',search:'',inactiveOnly:false,meritsOnly:false};drawProgress();}else await renderCurrentState(); return; }
       if (action==='sp-refresh' || action==='sp-apply') { await loadProgress(); return; }
-      if (action==='sp-class' || action==='sp-merits') { const id=target.dataset.classId; if(!progressState.snapshot?.classes?.some(c=>c.classId===id) && !progressState.snapshot?.students?.some(s=>s.classId===id))return; progressState={...progressState,classId:id,studentId:null,tab:action==='sp-merits'?'students':'overview',search:'',inactiveOnly:false,meritsOnly:action==='sp-merits'};drawProgress();return; }
-      if (action==='sp-tab' && ['overview','students','learning'].includes(target.dataset.tab)) {progressState={...progressState,tab:target.dataset.tab,studentId:null,inactiveOnly:false};drawProgress();return;}
+      if (action==='sp-class' || action==='sp-merits') { const id=target.dataset.classId; if(!progressState.snapshot?.classes?.some(c=>c.classId===id) && !progressState.snapshot?.students?.some(s=>s.classId===id))return; progressState={...progressState,classId:id,studentId:null,fullVocabulary:false,tab:action==='sp-merits'?'students':'overview',search:'',inactiveOnly:false,meritsOnly:action==='sp-merits'};drawProgress();return; }
+      if (action==='sp-tab' && ['overview','students','learning'].includes(target.dataset.tab)) {progressState={...progressState,tab:target.dataset.tab,studentId:null,fullVocabulary:false,inactiveOnly:false};drawProgress();return;}
       if (['sp-insight-time','sp-insight-inactive','sp-clear-inactive'].includes(action)) {progressState={...progressState,tab:'students',search:'',meritsOnly:false,inactiveOnly:action==='sp-insight-inactive',sort:action==='sp-insight-time'?'time':'name'};drawProgress();return;}
       if (action==='sp-toggle-merits') {progressState={...progressState,inactiveOnly:false,meritsOnly:!progressState.meritsOnly};drawProgress();return;}
-      if (action==='sp-student-back') {progressState={...progressState,studentId:null};drawProgress();return;}
+      if (action==='sp-student-back') {progressState={...progressState,studentId:null,fullVocabulary:false};drawProgress();return;}
       if (action==='sp-student' || action==='sp-full-student') {const id=target.dataset.studentId;if(!progressState.snapshot?.students?.some(s=>s.studentId===id && s.classId===progressState.classId))return;
-        if(action==='sp-student'){progressState={...progressState,studentId:id};drawProgress();root.querySelector('.sp-shell')?.scrollIntoView({block:'start'});return;}
-        progressGeneration++;progressReturn=true;await renderActivitySection({selectedStudentId:id,notice:''},true);return;}
+        if(action==='sp-student'){progressState={...progressState,studentId:id,fullVocabulary:false};drawProgress();root.querySelector('.sp-shell')?.scrollIntoView({block:'start'});return;}
+        progressState={...progressState,studentId:id,fullVocabulary:!progressState.fullVocabulary};drawProgress();if(progressState.fullVocabulary){const record=root.querySelector('#sp-full-record');record?.focus?.({preventScroll:true});record?.scrollIntoView({block:'start'});}return;}
       return;
     }
     if (action === 'writing-activity') {

@@ -69,3 +69,5 @@ test('native mastery stays unit-specific and preserves existing awards after a t
   assert.equal(limited.eligibleMerits,0);
   assert.equal(limited.awardedMerits,1);
 });
+
+test('progressive usage computes real awards and engagement but never invents pending merits or mastery',()=>{const row=build({detailsPending:true,awards:[{studentId:student.id,meritNumber:1},{studentId:student.id,meritNumber:1}],activity:[{studentId:student.id,classId:'new',appKey:'reading',eventType:'question_attempt',occurredAt:'2026-11-26T08:00:00Z'}]});assert.equal(row.awardedMerits,1);assert.equal(row.pendingMerits,null);assert.equal(row.unitPathways,null);assert.equal(row.activeDays,1)});

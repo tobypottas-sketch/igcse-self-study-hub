@@ -35,9 +35,9 @@ function previewDashboard(now, meritOnly) {
     pendingMerits:students[0].pendingMerits, preview:true };
 }
 
-function loadActivityRows(client, meritOnly) {
-  const types = ['student','vocabulary_global_mastery','vocabulary_unit_mastery','merit_award'];
-  if (!meritOnly) types.push('unit_check');
+function loadActivityRows(client, meritOnly, requestedTypes = null) {
+  const types = requestedTypes ?? ['student','vocabulary_global_mastery','vocabulary_unit_mastery','merit_award'];
+  if (!requestedTypes && !meritOnly) types.push('unit_check');
   return fetchAllRows(() => ({
     async range(from, to) {
       const result = await client.rpc('teacher_activity_rows',{}, { count:'exact' })
@@ -60,25 +60,29 @@ async function loadScopedStudentNumbers(client, students) {
   const ids = [...new Set(students.map(s => s.id).filter(Boolean))];
   const numbers = new Map();
   // The activity RPC supplies the authorised roster; profile RLS remains in force.
-  for (let offset = 0; offset < ids.length; offset += 100) {
-    const batch = ids.slice(offset, offset + 100);
+  const batches = Array.from({length:Math.ceil(ids.length/100)},(_,i)=>ids.slice(i*100,i*100+100));
+  // Bounded parallelism avoids a round trip per chunk without an unbounded burst.
+  for (let offset=0;offset<batches.length;offset+=3) await Promise.all(batches.slice(offset,offset+3).map(async batch=>{
     const allowed = new Set(batch);
     try {
       const { data, error } = await client.from('profiles').select('id, school_email').in('id', batch);
-      if (error) continue;
+      if (error) return;
       for (const row of data ?? []) {
         if (allowed.has(row.id)) numbers.set(row.id, studentNumberFromEmail(row.school_email));
       }
     } catch { /* Missing identifiers must never prevent progress or merit access. */ }
-  }
+  }));
   return numbers;
 }
 
-export async function loadTeacherActivityData(client, { now = new Date(), meritOnly = false, selectedPeriod = null } = {}) {
+export async function loadTeacherActivityData(client, { now = new Date(), meritOnly = false, selectedPeriod = null, onUsageReady = null } = {}) {
   if (shouldUsePreviewFixture()) return previewDashboard(now,meritOnly);
 
+  // Student Progress only: fetch the small authorised roster, check and award payload first.
+  // Keep the original full-data path for Staff Administration and the merit notifier.
+  const progressive = !meritOnly && selectedPeriod && typeof onUsageReady === 'function';
   const [records, [occurrences, classes]] = await Promise.all([
-    loadActivityRows(client, meritOnly), loadReportingCatalogue(client)
+    loadActivityRows(client, meritOnly, progressive?['student','unit_check','merit_award']:null), loadReportingCatalogue(client)
   ]);
   const thresholdByClass = new Map(classes.map(row => [row.id, Number(row.merit_pathways_required) || 2]));
   const rows = records ?? [];
@@ -89,11 +93,9 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
     className:row.class_name,
     meritPathwaysRequired:thresholdByClass.get(row.class_id) ?? 2
   }));
-  if (!meritOnly) {
-    const numbers = await loadScopedStudentNumbers(client, students);
-    for (const student of students) student.studentNumber = numbers.get(student.id) ?? null;
-  }
-  const globalMastery = payloads(rows,'vocabulary_global_mastery').map(row => ({
+  const numbersRequest = meritOnly ? Promise.resolve(new Map()) : loadScopedStudentNumbers(client, students);
+  const evidenceRequest = meritOnly ? Promise.resolve(null) : loadClassEvidence(client, students, selectedPeriod ?? reportingPeriod('last30',{now})).then(value=>({value}),error=>({error}));
+  const normalizeGlobal = source => payloads(source,'vocabulary_global_mastery').map(row => ({
     studentId:row.student_id,
     vocabularyId:row.vocabulary_id,
     status:row.status,
@@ -101,7 +103,7 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
     recentErrorPattern:row.recent_error_pattern ?? null,
     updatedAt:row.updated_at ?? null
   }));
-  const unitMastery = payloads(rows,'vocabulary_unit_mastery').map(row => ({
+  const normalizeUnit = source => payloads(source,'vocabulary_unit_mastery').map(row => ({
     studentId:row.student_id,
     occurrenceId:row.occurrence_id,
     status:row.status,
@@ -130,8 +132,9 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
     unitTitle:row.unit_title
   }));
 
-  const coverageByUnit = await loadReportingCoverage(client, normalizedOccurrences);
   if (meritOnly) {
+    const coverageByUnit = await loadReportingCoverage(client, normalizedOccurrences);
+    const globalMastery=normalizeGlobal(rows),unitMastery=normalizeUnit(rows);
     const status = buildMeritStatus({ students, occurrences:normalizedOccurrences, globalMastery, unitMastery, awards, coverageByUnit });
     const byId = new Map(status.map(row => [row.studentId,row.pendingNumbers]));
     const alerts = students.map(s => {
@@ -140,10 +143,16 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
     }).filter(s => s.pendingMerits);
     return {students:alerts,pendingMerits:alerts.reduce((sum,s)=>sum+s.pendingMerits,0)};
   }
+  const classList=classes.map(c=>({classId:c.id,className:c.class_name}));
+  // Non-progressive callers overlap coverage computation with the evidence and number requests.
+  const coverageRequest=progressive?null:loadReportingCoverage(client, normalizedOccurrences).then(value=>({value}),error=>({error}));
+  const [numbers,evidenceResult]=await Promise.all([numbersRequest,evidenceRequest]);
+  for (const student of students) student.studentNumber = numbers.get(student.id) ?? null;
   let activity = [];
   let engagementAvailable = true;
   try {
-    const { memberships, evidence } = await loadClassEvidence(client, students, selectedPeriod ?? reportingPeriod('last30',{now}));
+    if(evidenceResult.error)throw evidenceResult.error;
+    const { memberships, evidence } = evidenceResult.value;
     const current = new Map(memberships.map(row => [row.student_id, row]));
     for (const student of students) {
       const membership = current.get(student.id);
@@ -153,11 +162,24 @@ export async function loadTeacherActivityData(client, { now = new Date(), meritO
   } catch {
     engagementAvailable = false;
   }
-  const dashboard = buildActivityDashboard({
-    students, occurrences:normalizedOccurrences, globalMastery, unitMastery, activity,
-    unitChecks, awards, coverageByUnit, now, engagementAvailable, selectedPeriod
-  });
-  return selectedPeriod ? {...dashboard, classes:classes.map(c=>({classId:c.id,className:c.class_name}))} : dashboard;
+  const common={students,occurrences:normalizedOccurrences,activity,unitChecks,awards,now,engagementAvailable,selectedPeriod};
+  if(progressive){
+    const usage=buildActivityDashboard({...common,detailsPending:true});
+    // A false return means the requesting view/account is no longer current.
+    if(onUsageReady({...usage,classes:classList,detailsPending:true})===false)return null;
+    // Yield so the browser can paint usage before the heavier detail calculations.
+    await new Promise(resolve=>setTimeout(resolve,0));
+    const [detailRows,coverageByUnit]=await Promise.all([
+      loadActivityRows(client,false,['vocabulary_global_mastery','vocabulary_unit_mastery']),
+      loadReportingCoverage(client,normalizedOccurrences)
+    ]);
+    const dashboard=buildActivityDashboard({...common,globalMastery:normalizeGlobal(detailRows),unitMastery:normalizeUnit(detailRows),coverageByUnit});
+    return {...dashboard,classes:classList};
+  }
+  const coverageResult=await coverageRequest;
+  if(coverageResult.error)throw coverageResult.error;
+  const dashboard=buildActivityDashboard({...common,globalMastery:normalizeGlobal(rows),unitMastery:normalizeUnit(rows),coverageByUnit:coverageResult.value});
+  return selectedPeriod ? {...dashboard,classes:classList} : dashboard;
 }
 
 export async function markMeritAwarded(client, studentId, meritNumber) {

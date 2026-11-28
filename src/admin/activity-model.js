@@ -14,12 +14,13 @@ function indexByStudent(rows) {
 
 export function buildActivityDashboard({
   students = [], occurrences = [], globalMastery = [], unitMastery = [], activity = [],
-  unitChecks = [], awards = [], now = new Date(), coverageByUnit, engagementAvailable = true, selectedPeriod = null
+  unitChecks = [], awards = [], now = new Date(), coverageByUnit, engagementAvailable = true, selectedPeriod = null, detailsPending = false
 } = {}) {
   const period = selectedPeriod ?? reportingPeriod('thisWeek', { now });
-  const merits = new Map(buildMeritStatus({
+  const merits = detailsPending ? new Map() : new Map(buildMeritStatus({
     students, occurrences, globalMastery, unitMastery, awards, coverageByUnit
   }).map(merit => [merit.studentId, merit]));
+  const awardedByStudent = indexByStudent(awards);
   const events = indexByStudent(activity);
   const checks = indexByStudent(unitChecks);
   const contextual = indexByStudent(unitMastery);
@@ -51,12 +52,12 @@ export function buildActivityDashboard({
       learningAreas:engagement?.learningAreas ?? [],
       activeDateKeys:engagement ? [...new Set([...engagement.modules.values()].flatMap(m => [...m.activeDays]))].sort() : [],
       recentModule:engagement?.lastPractice?.appKey ?? null,
-      unitPathways:reportUnitPathways(occurrences, contextual.get(student.id) ?? [], global.get(student.id) ?? [], coverageByUnit),
-      unitChecks:history, awardedMerits:merit.awarded, eligibleMerits:merit.eligibleByProgress,
-      pendingMerits:merit.pendingNumbers.length, pendingMeritNumbers:merit.pendingNumbers,
+      unitPathways:detailsPending?null:reportUnitPathways(occurrences, contextual.get(student.id) ?? [], global.get(student.id) ?? [], coverageByUnit),
+      unitChecks:history, awardedMerits:detailsPending?new Set((awardedByStudent.get(student.id)??[]).map(a=>Number(a.meritNumber??a.merit_number))).size:merit.awarded, eligibleMerits:detailsPending?null:merit.eligibleByProgress,
+      pendingMerits:detailsPending?null:merit.pendingNumbers.length, pendingMeritNumbers:detailsPending?null:merit.pendingNumbers,
       recentActivity:engagement?.visible.sort((a,b) => timestampOf(b.occurredAt) - timestampOf(a.occurredAt)).slice(0,12)
         .map(row => ({ occurredAt:row.occurredAt, appKey:row.appKey, label:(row.eventType ?? row.source).replaceAll('_',' ') })) ?? []
     };
   });
-  return { students:rows, pendingMerits:rows.reduce((sum,row) => sum + row.pendingMerits,0) };
+  return { students:rows, pendingMerits:detailsPending?null:rows.reduce((sum,row) => sum + row.pendingMerits,0) };
 }
