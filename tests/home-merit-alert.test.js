@@ -101,3 +101,5 @@ test('returning to home with newly pending merits does not interrupt the teacher
   assert.equal(opens,0);
   assert.match(root.innerHTML,/home-merit-bell__count/);
 });
+
+test('celebratory recognition markup retains live counts and accessible actions',()=>{const root={innerHTML:'',querySelector(){return null;},querySelectorAll(){return [];}};const profile={id:'staff',display_name:'Teacher',role:'teacher',active:true};renderHome(root,profile,apps,{pendingMerits:34,students:[{studentId:'s1',displayName:'Fixture',className:'Class 1',pendingMerits:34,pendingMeritNumbers:Array.from({length:34},(_,i)=>i+1)}]});assert.match(root.innerHTML,/merit-dialog--celebration/);assert.match(root.innerHTML,/merit-rosette-gradient/);assert.match(root.innerHTML,/34 merits ready to award/);assert.match(root.innerHTML,/data-merit-dismiss/);assert.match(root.innerHTML,/data-action="activity">Review merits/);renderHome(root,profile,apps,{pendingMerits:0,students:[]});assert.doesNotMatch(root.innerHTML,/merit-dialog--celebration/);});

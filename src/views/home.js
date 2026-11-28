@@ -61,6 +61,8 @@ const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
 
 const meritBell = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>';
 
+const meritRosette = '<svg viewBox="0 0 112 128" width="96" height="110" aria-hidden="true" focusable="false"><defs><linearGradient id="merit-rosette-gradient" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#45d4a1"/><stop offset=".46" stop-color="#00acac"/><stop offset="1" stop-color="#0963ca"/></linearGradient></defs><path d="M34 91 21 119l15-4 9 12 13-30M75 90l14 29-15-4-9 12-13-30" fill="#00a9a2" stroke="#fff" stroke-width="2"/><path d="M56 10C65 10 67 20 75 20S91 17 94 27 92 39 99 45 106 58 101 66 103 82 93 86 81 86 76 95 64 104 56 99 40 104 35 95 19 91 16 83 17 72 10 65 8 51 15 44 16 28 26 24 39 25 45 16 50 10 56 10Z" fill="url(#merit-rosette-gradient)" stroke="#fff" stroke-width="2.5"/><g fill="none" stroke="#fff" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"><path d="M74 48c0-12-7-19-18-19s-18 7-18 19c0 12-7 14-7 21h50c0-7-7-9-7-21Z"/><path d="M51 78h10M56 25v4"/></g></svg>';
+
 function renderMeritPopup(root, model, profile, autoOpen = true) {
   if (!model.showActivityControls || profile.active === false || profile.must_change_password) return;
   const dialog = root.querySelector?.('[data-merit-dialog]');
@@ -80,9 +82,9 @@ function meritPopupMarkup(model, profile, loaded) {
   if (!model.showActivityControls || profile.active === false || profile.must_change_password) return '';
   const pending = model.pendingMerits > 0;
   const heading = !loaded ? 'Merit notifications' : pending ? plural(model.pendingMerits, 'merit') + ' ready to award' : 'All caught up';
-  return `<dialog id="merit-notifications" class="merit-dialog" data-merit-dialog aria-labelledby="merit-dialog-title">
+  return `<dialog id="merit-notifications" class="merit-dialog${pending && loaded ? ' merit-dialog--celebration' : ''}" data-merit-dialog aria-labelledby="merit-dialog-title">
     <div class="merit-dialog__header">
-      <span class="merit-dialog__icon">${meritBell}</span>
+      <span class="merit-dialog__icon">${pending && loaded ? meritRosette : meritBell}</span>
       <div><p class="merit-dialog__eyebrow">Student recognition</p><h2 id="merit-dialog-title">${escapeHtml(heading)}</h2></div>
     </div>
     <p class="merit-dialog__intro">${!loaded ? 'Merit information is not available yet. Open Student Activity to check.' : pending ? 'Your students have earned recognition through independent practice.' : 'No outstanding merits for your students.'}</p>
