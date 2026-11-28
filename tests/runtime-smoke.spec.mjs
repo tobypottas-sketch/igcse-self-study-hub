@@ -12,8 +12,15 @@ test('Hub boots to the sign-in screen without browser errors', async ({ page }) 
   page.on('pageerror', error => pageErrors.push(error.message));
 
   await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
-  await expect(page.locator('h1')).toHaveText('Sign in');
+  await expect(page.locator('h1')).toContainText('iGCSE');
+  await expect(page.locator('h1')).toContainText('Self-Study Hub');
+  await expect(page.getByRole('link', { name:'Sign in with Microsoft' })).toBeVisible();
+  await expect(page.locator('form[data-form="login"]')).toBeHidden();
+  await page.getByText('Use your Hub password', { exact:true }).click();
   await expect(page.locator('form[data-form="login"]')).toBeVisible();
+  await expect(page.locator('input[name="email"]')).toBeVisible();
+  await expect(page.locator('input[name="password"]')).toBeVisible();
+  await expect(page.getByRole('button', { name:'Sign in', exact:true })).toBeVisible();
   expect(pageErrors).toEqual([]);
 });
 
@@ -22,6 +29,8 @@ test('sign-in tells students to ask their teacher for replacement login details'
   page.on('pageerror', error => pageErrors.push(error.message));
 
   await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
+  await page.getByText('Use your Hub password', { exact:true }).click();
+  await expect(page.locator('form[data-form="login"]')).toBeVisible();
   await expect(page.locator('form[data-form="login"]')).toContainText('Lost your login details? Ask your teacher.');
   await expect(page.locator('[data-action="forgot-password"]')).toHaveCount(0);
   expect(pageErrors).toEqual([]);
@@ -32,7 +41,7 @@ test('sign-in tells students to ask their teacher for replacement login details'
 for (const width of [1280, 1024, 768, 641, 390, 320]) {
   test(`dictionary context remains prominent and contained at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height:900 });
-    await page.route('**/src/vocabulary/router.js', route => route.fulfill({ body:'', contentType:'text/javascript' }));
+    await page.route(url => url.pathname.endsWith('/src/vocabulary/router.js'), route => route.fulfill({ body:'', contentType:'text/javascript' }));
     await page.goto('http://127.0.0.1:4173/vocabulary.html');
     await page.evaluate(async () => {
       const { renderVocabularyWords } = await import('/src/vocabulary/views.js');
